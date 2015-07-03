@@ -67,9 +67,9 @@ void buildMessage(std::ostream& oss, T t, Args... args)
 }
 
 template<typename... Args>
-void PRINT_INFO(std::string funcName, Args... args)
+void PRINT_INFO(std::string className, std::string funcName, Args... args)
 {
-  std::string className = "PCLTrackerAlProducer";
+  //std::string className = "PCLTrackerAlProducer";
 
   std::ostringstream oss;
   buildMessage(oss, args...);
@@ -81,6 +81,9 @@ void PRINT_INFO(std::string funcName, Args... args)
                          funcName.c_str(),
                          oss.str().c_str());
 }
+
+//TODO: void PRINT_WARNING()
+//TODO: void PRINT_ERROR()
 
 
 
@@ -116,7 +119,7 @@ PCLTrackerAlProducer
   tkLasBeamTag_            (config.getParameter<edm::InputTag>("tkLasBeamTag")),
   clusterValueMapTag_      (config.getParameter<edm::InputTag>("hitPrescaleMapTag"))
 {
-  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
 
   createAlignmentAlgorithm(config);
   createCalibrations      (config);
@@ -127,7 +130,7 @@ PCLTrackerAlProducer
 PCLTrackerAlProducer
 ::~PCLTrackerAlProducer()
 {
-  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
 
   delete theAlignmentAlgo;
 
@@ -155,7 +158,7 @@ PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::beginJob()
 {
-  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
 
   nevent_ = 0;
 
@@ -180,8 +183,7 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::endJob()
 {
-  PRINT_INFO(FUNC_NAME, "called");
-  PRINT_INFO(FUNC_NAME, "Events processed: ", nevent_);
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called, events processed: ", nevent_);
 
   finish();
 
@@ -202,7 +204,7 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::beginRun(const edm::Run& run, const edm::EventSetup& setup)
 {
-  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
   // Do not forward edm::Run
   theAlignmentAlgo->beginRun(setup);
 }
@@ -211,7 +213,7 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::endRun(const edm::Run& run, const edm::EventSetup& setup)
 {
-  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
 
   // TODO: Either MP nor HIP is implementing the endRun() method... so this
   //       seems to be useless?
@@ -236,7 +238,7 @@ void PCLTrackerAlProducer
 ::beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
                        const edm::EventSetup&      setup)
 {
-  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
   // Do not forward edm::LuminosityBlock
   theAlignmentAlgo->beginLuminosityBlock(setup);
 }
@@ -246,7 +248,7 @@ void PCLTrackerAlProducer
 ::endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
                      const edm::EventSetup&      setup)
 {
-  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
   // Do not forward edm::LuminosityBlock
   theAlignmentAlgo->endLuminosityBlock(setup);
 }
@@ -255,33 +257,12 @@ void PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
-  PRINT_INFO(FUNC_NAME, "called");
   ++nevent_;
-  PRINT_INFO(FUNC_NAME, "event number: ", nevent_);
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called, event number: ", nevent_);
 
   if (setupChanged(setup)) {
     initAlignmentAlgorithm(setup);
     initBeamSpot(event);
-
-
-    const auto& rcd = setup.get<TrackerAlignmentRcd>();
-    edm::ESHandle<Alignments> handle;
-    rcd.get(handle);
-
-
-
-    const edm::ValidityInterval& validity = rcd.validityInterval();
-    const edm::IOVSyncValue      first    = validity.first();
-    const edm::IOVSyncValue      last     = validity.last();
-
-    auto eID1 = first.eventID();
-    printf("(TProdPCL) first runnumber: %u\n", eID1.run());
-    printf("(TProdPCL) first event:     %llu\n", eID1.event());
-
-    auto eID2 = last.eventID();
-    printf("(TProdPCL) last runnumber: %u\n", eID2.run());
-    printf("(TProdPCL) last event:     %llu\n", eID2.event());
-
   }
 
   if (!theAlignmentAlgo->processesEvents()) {
@@ -429,39 +410,39 @@ bool PCLTrackerAlProducer
 
   if (doTracker_) {
     if (watchTrackerAlRcd.check(setup)) {
-        PRINT_INFO(FUNC_NAME, "TrackerAlignmentRcd has changed");
+        PRINT_INFO(CLASS_NAME, FUNC_NAME, "TrackerAlignmentRcd has changed");
         changed = true;
       }
 
       if (watchTrackerAlErrorExtRcd.check(setup)) {
-        PRINT_INFO(FUNC_NAME, "TrackerAlignmentErrorExtendedRcd has changed");
+        PRINT_INFO(CLASS_NAME, FUNC_NAME, "TrackerAlignmentErrorExtendedRcd has changed");
         changed = true;
       }
 
       if (watchTrackerSurDeRcd.check(setup)) {
-        PRINT_INFO(FUNC_NAME, "TrackerSurfaceDeformationRcd has changed");
+        PRINT_INFO(CLASS_NAME, FUNC_NAME, "TrackerSurfaceDeformationRcd has changed");
         changed = true;
       }
   }
 
   if (doMuon_) {
     if (watchDTAlRcd.check(setup)) {
-      PRINT_INFO(FUNC_NAME, "DTAlignmentRcd has changed");
+      PRINT_INFO(CLASS_NAME, FUNC_NAME, "DTAlignmentRcd has changed");
       changed = true;
     }
 
     if (watchDTAlErrExtRcd.check(setup)) {
-      PRINT_INFO(FUNC_NAME, "DTAlignmentErrorExtendedRcd has changed");
+      PRINT_INFO(CLASS_NAME, FUNC_NAME, "DTAlignmentErrorExtendedRcd has changed");
       changed = true;
     }
 
     if (watchCSCAlRcd.check(setup)) {
-      PRINT_INFO(FUNC_NAME, "CSCAlignmentRcd has changed");
+      PRINT_INFO(CLASS_NAME, FUNC_NAME, "CSCAlignmentRcd has changed");
       changed = true;
     }
 
     if (watchCSCAlErrExtRcd.check(setup)) {
-      PRINT_INFO(FUNC_NAME, "CSCAlignmentErrorExtendedRcd has changed");
+      PRINT_INFO(CLASS_NAME, FUNC_NAME, "CSCAlignmentErrorExtendedRcd has changed");
       changed = true;
     }
   }
@@ -478,7 +459,7 @@ bool PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::initAlignmentAlgorithm(const edm::EventSetup& setup)
 {
-  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
 
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -1012,32 +993,30 @@ void PCLTrackerAlProducer::applyAlignmentsToGeometry2(Geometry* geometry,
 void PCLTrackerAlProducer
 ::finish()
 {
-  PRINT_INFO(FUNC_NAME, "called");
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
 
   /* 1) Former: Status AlignmentProducer::endOfLoop(const edm::EventSetup& iSetup, unsigned int iLoop) */
-  if (theAlignmentAlgo->processesEvents()) {
-    if (nevent_ == 0) {
-        // beginOfJob is usually called by the framework in the first event of the first loop
-        // (a hack: beginOfJob needs the EventSetup that is not well defined without an event)
-        // and the algorithms rely on the initialisations done in beginOfJob. We cannot call
-        // this->beginOfJob(iSetup); here either since that will access the EventSetup to get
-        // some geometry information that is not defined either without having seen an event.
-        edm::LogError("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
-                                   << "Did not process any events, stop "
-                                   << "without terminating algorithm.";
-        return;
-      }
-
-      PRINT_INFO(FUNC_NAME, "terminating algorithm");
-      edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
-                                << "Terminating algorithm.";
-      theAlignmentAlgo->terminate();
+  if (theAlignmentAlgo->processesEvents() && nevent_ == 0) {
+    // beginOfJob is usually called by the framework in the first event of the first loop
+    // (a hack: beginOfJob needs the EventSetup that is not well defined without an event)
+    // and the algorithms rely on the initialisations done in beginOfJob. We cannot call
+    // this->beginOfJob(iSetup); here either since that will access the EventSetup to get
+    // some geometry information that is not defined either without having seen an event.
+    edm::LogError("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
+                             << "Did not process any events, stop "
+                             << "without terminating algorithm.";
+    return;
   }
 
   /* !!! TODO: HACK for MillePede !!!
      Because the pede-part of MillePede needs at least 1 Event for initializing
      the geometry */
   if (nevent_ == 0) return;
+
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "terminating algorithm");
+  edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
+                            << "Terminating algorithm.";
+  theAlignmentAlgo->terminate();
 
   /* 2) Former: void AlignmentProducer::endOfJob() */
   storeAlignmentsToDB();
@@ -1048,11 +1027,11 @@ void PCLTrackerAlProducer
 ::storeAlignmentsToDB()
 {
   if (theAlignmentAlgo->processesEvents() && nevent_ == 0) {
+    // TODO: If this is the case, it would be already caught in finish()
     edm::LogError("Alignment") << "@SUB=PCLTrackerAlProducer::endOfJob"
                                << "Did not process any events in last loop, "
                                << "do not dare to store to DB.";
   } else {
-
     // Expand run ranges and make them unique
     edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
     RunRanges uniqueRunRanges(makeNonOverlappingRunRanges(runRangeSelectionVPSet));
@@ -1074,6 +1053,7 @@ void PCLTrackerAlProducer
 
       // Save alignments to database
       if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
+        PRINT_INFO(CLASS_NAME, FUNC_NAME, "Write alignments to db-file");
         writeForRunRange((*iRunRange).first);
       }
 
@@ -1178,6 +1158,8 @@ RunRanges PCLTrackerAlProducer
 void PCLTrackerAlProducer
 ::writeForRunRange(cond::Time_t time)
 {
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
+
   // first tracker
   if (doTracker_) {
     const AlignTransform* trackerGlobal = 0; // will be 'removed' from constants
@@ -1237,6 +1219,8 @@ void PCLTrackerAlProducer
           const AlignTransform *globalCoordinates,
           cond::Time_t time) const
 {
+  PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
+
   Alignments*              tempAlignments      = alignments;
   AlignmentErrorsExtended* tempAlignmentErrExt = alignmentErrExt;
 
