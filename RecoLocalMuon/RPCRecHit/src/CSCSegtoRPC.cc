@@ -159,8 +159,7 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 	  float dy=segmentDirection.y();
 	  float dz=segmentDirection.z();
 
-	  LogDebug("RPCPointProducer") << "Calling to Object Map class"<<std::endl;
-	  //ObjectMapCSC* TheObjectCSC = new ObjectMapCSC(iSetup);
+
 	  LogDebug("RPCPointProducer") << "Creating the CSCIndex"<<std::endl;
       CSCStationIndex theindex(rpcRegion,rpcStation,rpcRing,rpcSegment);
 	  LogDebug("RPCPointProducer") <<"Getting the Rolls for the given index"<<std::endl;
