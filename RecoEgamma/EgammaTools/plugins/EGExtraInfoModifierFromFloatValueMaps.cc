@@ -68,7 +68,7 @@ EGExtraInfoModifierFromFloatValueMaps(const edm::ParameterSet& conf) :
     const std::vector<std::string> parameters = electrons.getParameterNames();
     for( const std::string& name : parameters ) {
       if( std::string(electronSrc) == name ) continue;
-      if( conf.existsAs<edm::InputTag>(name) ) {
+      if( electrons.existsAs<edm::InputTag>(name) ) {
         e_conf.valuemaps[name] = electrons.getParameter<edm::InputTag>(name);
       }
     }    
@@ -79,7 +79,7 @@ EGExtraInfoModifierFromFloatValueMaps(const edm::ParameterSet& conf) :
     const std::vector<std::string> parameters = photons.getParameterNames();
     for( const std::string& name : parameters ) {
       if( std::string(photonSrc) == name ) continue;
-      if( conf.existsAs<edm::InputTag>(name) ) {
+      if( photons.existsAs<edm::InputTag>(name) ) {
         ph_conf.valuemaps[name] = photons.getParameter<edm::InputTag>(name);
       }
     } 

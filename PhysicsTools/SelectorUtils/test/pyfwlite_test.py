@@ -32,6 +32,12 @@ testExprEval = VIDElectronSelector(trivialCutFlow)
 print 'test expression evaluator'
 print testExprEval
 
+#photon MVA (only works on reMiniAOD)
+print 'Initialized VID Photon MVA Selector'
+from RecoEgamma.PhotonIdentification.VIDPhotonSelector import VIDPhotonSelector
+from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V0_cff import mvaPhoID_Spring15_50ns_nonTrig_V0_wp90
+selectPhoton = VIDPhotonSelector(mvaPhoID_Spring15_50ns_nonTrig_V0_wp90)
+print selectPhoton
 
 # try muons!
 from RecoMuon.MuonIdentification.VIDMuonSelector import VIDMuonSelector
@@ -51,19 +57,21 @@ for selectMuon in [cutBasedMuonId_MuonPOG_V0_loose, cutBasedMuonId_MuonPOG_V0_me
 events = Events("file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_5_0_pre6/src/matrix_tests/135.4_ZEE_13+ZEEFS_13+HARVESTUP15FS+MINIAODMCUP15FS/step4.root")
 #events = Events("root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9_ROOT6/DoubleMu/MINIAOD/GR_R_74_V8A_RelVal_zMu2011A-v1/00000/06961B48-CFD1-E411-8B87-002618943971.root")
 
-muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons"
-electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons"
+muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons::".split(":")
+electrons, electronLabel = Handle("std::vector<pat::Electron>"), "slimmedElectrons::".split(":")
+photons, photonLabel = Handle("std::vector<pat::Photon>"), "slimmedPhotons::".split(":")
 
 for iev,event in enumerate(events):
     
     if iev > 10: break
-    event.getByLabel(muonLabel, muons)
-    event.getByLabel(electronLabel, electrons)
+    event.getByLabel(muonLabel[0],muonLabel[1],muonLabel[2], muons)
+    event.getByLabel(electronLabel[0],electronLabel[1],electronLabel[2], electrons)
+    event.getByLabel(photonLabel[0],photonLabel[1],photonLabel[2],photons)
     
     print "\nEvent %d: run %6d, lumi %4d, event %12d" % (iev,event.eventAuxiliary().run(), 
                                                          event.eventAuxiliary().luminosityBlock(),
                                                          event.eventAuxiliary().event())
-    
+
     # Muons
     for i,mu in enumerate(muons.product()): 
         if mu.pt() < 5 or not mu.isLooseMuon(): continue
@@ -95,6 +103,17 @@ for iev,event in enumerate(events):
                                                             'GsfEleFull5x5SigmaIEtaIEtaCut_0',
                                                             'GsfEleDeltaBetaIsoCutStandalone_0'])
         print masked_cf_ints.cutFlowPassed(), masked_cf_strs.cutFlowPassed()
+
+    for i,ph in enumerate(photons.product()):
+        print "pho %2d: pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes)" % (
+            i, ph.pt(), ph.superCluster().eta(), ph.sigmaIetaIeta(), ph.full5x5_sigmaIetaIeta())
+        passfail_byvalue = selectPhoton(ph,event)
+        for uf in ph.userFloatNames():
+            print uf
+        for ui in ph.userIntNames():
+            print ui
+        print passfail_byvalue
+        print selectPhoton
 
 #test the validator framework
 
