@@ -1,4 +1,4 @@
-from CMGTools.TTHAnalysis.samples.getFiles import getFiles
+from CMGTools.RootTools.samples.getFiles import getFiles
 import PhysicsTools.HeppyCore.framework.config as cfg
 
 import os
@@ -115,7 +115,7 @@ triggers_RA1_Muon      = ["HLT_IsoMu24_eta2p1_v%d"%i for i in range(1,20)]
 
 #####COMPONENT CREATOR
 
-from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
 
 #-----------MC---------------
@@ -282,7 +282,7 @@ susySamples = T1tttt_2J + T5VV_2J + T2DegenerateStop_2J
 ####################################################################################################################
 #-----------PRIVATE FAST SIM---------------
 
-lowmllFiles = [ f.strip() for f in open("%s/src/CMGTools/TTHAnalysis/python/samples/fastSim-lowmll.txt" % os.environ['CMSSW_BASE'], "r") if "cmgTuple_518" in f ]
+lowmllFiles = [ f.strip() for f in open("%s/src/CMGTools/RootTools/python/samples/fastSim-lowmll.txt" % os.environ['CMSSW_BASE'], "r") if "cmgTuple_518" in f ]
 def _grep(x,l): return [ i for i in l if x in i ]
 FastSim_TTGStarMM = kreator.makePrivateMCComponent('FastSim_TTGStarMM',  '/store/caf/user/gpetrucc/ttH/gen/2013-05-23/ttgstar_lowmll_mumu_v2', _grep('ttgstar_lowmll_mumu_v2', lowmllFiles) )
 FastSim_TTGStarEE = kreator.makePrivateMCComponent('FastSim_TTGStarEE',  '/store/caf/user/gpetrucc/ttH/gen/2013-05-23/ttgstar_lowmll_ee_v2', _grep('ttgstar_lowmll_ee_v2', lowmllFiles) )

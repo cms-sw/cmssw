@@ -137,7 +137,7 @@ sequence = cfg.Sequence(susyCoreSequence + [
 
 
 #-------- SAMPLES AND TRIGGERS -----------
-from CMGTools.TTHAnalysis.samples.samples_13TeV_CSA14 import *
+from CMGTools.RootTools.samples.samples_13TeV_CSA14 import *
 
 
 # Selected samples as defined on the AlphaT twiki

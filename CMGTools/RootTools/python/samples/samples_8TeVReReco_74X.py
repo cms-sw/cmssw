@@ -3,7 +3,7 @@ import os
 
 #####COMPONENT CREATOR
 
-from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
 
 #-----------DATA---------------
@@ -130,5 +130,5 @@ for comp in dataSamples740p9  :
 if __name__ == "__main__":
    import sys
    if "test" in sys.argv:
-       from CMGTools.TTHAnalysis.samples.ComponentCreator import testSamples
+       from CMGTools.RootTools.samples.ComponentCreator import testSamples
        testSamples(mcSamples)

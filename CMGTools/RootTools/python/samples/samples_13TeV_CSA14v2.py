@@ -43,7 +43,7 @@ triggersFR_MC = triggersFR_1mu + triggersFR_mumu + triggersFR_1e + triggersFR_mu
 
 #####COMPONENT CREATOR
 
-from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
 
 ## CENTRALLY PRODUCED MINIAODs V2 (from global DBS, in T2_CH_CAF)
@@ -251,5 +251,5 @@ for comp in dataSamplesAll:
 if __name__ == "__main__":
    import sys
    if "test" in sys.argv:
-       from CMGTools.TTHAnalysis.samples.ComponentCreator import testSamples
+       from CMGTools.RootTools.samples.ComponentCreator import testSamples
        testSamples(mcSamples)

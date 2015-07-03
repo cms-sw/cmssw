@@ -7,7 +7,7 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 
 #-------- LOAD ALL ANALYZERS -----------
 
-from CMGTools.TTHAnalysis.analyzers.susyCore_modules_cff import * 
+from CMGTools.TTHAnalysis.analyzers.susyCore_modules_cff import *
 
 
 #-------- REDEFINE WHAT I NEED -----------
@@ -130,8 +130,8 @@ susyCoreSequence.insert(susyCoreSequence.index(skimAnalyzer),
 #-------- SAMPLES AND TRIGGERS -----------
 
 
-from CMGTools.TTHAnalysis.samples.triggers_13TeV_Spring15 import *
-from CMGTools.TTHAnalysis.samples.triggers_8TeV import triggers_1mu_8TeV, triggers_mumu_8TeV, triggers_mue_8TeV, triggers_ee_8TeV;
+from CMGTools.RootTools.samples.triggers_13TeV_Spring15 import *
+from CMGTools.RootTools.samples.triggers_8TeV import triggers_1mu_8TeV, triggers_mumu_8TeV, triggers_mue_8TeV, triggers_ee_8TeV;
 triggerFlagsAna.triggerBits = {
     'DoubleMu' : triggers_mumu_iso,
     'DoubleMuSS' : triggers_mumu_ss,
@@ -156,9 +156,9 @@ triggerFlagsAna.triggerBits = {
     'DoubleEl_8TeV' : triggers_ee_8TeV + triggers_ee_run1,
 }
 
-from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
-from CMGTools.TTHAnalysis.samples.samples_13TeV_74X_susySignalsPriv import *
-from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import *
+from CMGTools.RootTools.samples.samples_13TeV_74X import *
+from CMGTools.RootTools.samples.samples_13TeV_74X_susySignalsPriv import *
+from CMGTools.RootTools.samples.samples_8TeVReReco_74X import *
 
 selectedComponents = [ SingleMu_742, MuEG_742, DoubleMu_742 ] 
 selectedComponents = [ TTJets, TTJets_LO, WJetsToLNu, DYJetsToLL_M10to50,  DYJetsToLL_M50,  ] + SingleTop + DiBosons
@@ -259,8 +259,8 @@ elif test == '74X-MC':
             comp.splitFactor = 1
             comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
 elif test == '74X-Data':
-    from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
-    from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import *
+    from CMGTools.RootTools.samples.samples_13TeV_74X import *
+    from CMGTools.RootTools.samples.samples_8TeVReReco_74X import *
     what = getHeppyOption("sample")
     if what == "SingleMu":
         selectedComponents = [ SingleMu_740p9 ]

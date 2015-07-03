@@ -3,13 +3,13 @@ import os
 
 
 ################## Triggers
-from CMGTools.TTHAnalysis.samples.triggers_13TeV_PHYS14 import *
+from CMGTools.RootTools.samples.triggers_13TeV_PHYS14 import *
 
 
 
 #####COMPONENT CREATOR
 
-from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
 
 
@@ -415,5 +415,5 @@ for comp in dataSamplesAll:
 if __name__ == "__main__":
    import sys
    if "test" in sys.argv:
-       from CMGTools.TTHAnalysis.samples.ComponentCreator import testSamples
+       from CMGTools.RootTools.samples.ComponentCreator import testSamples
        testSamples(mcSamples)

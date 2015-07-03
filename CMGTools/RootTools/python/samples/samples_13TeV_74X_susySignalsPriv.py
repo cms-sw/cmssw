@@ -1,5 +1,5 @@
 #####COMPONENT CREATOR
-from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
 
 T5ttttDeg_mGo1000_mStop300_mCh285_mChi280 = kreator.makeMCComponentFromEOS('T5ttttDeg_mGo1000_mStop300_mCh285_mChi280', '/T5ttttDeg_mGo1000_mStop300_mCh285_mChi280_23bodydec_v2/', '/store/cmst3/group/susy/gpetrucc/13TeV/RunIISpring15DR74/%s',".*root", 0.325388)
@@ -114,5 +114,5 @@ for comp in mcSamplesPriv:
 if __name__ == "__main__":
    import sys
    if "test" in sys.argv:
-       from CMGTools.TTHAnalysis.samples.ComponentCreator import testSamples
+       from CMGTools.RootTools.samples.ComponentCreator import testSamples
        testSamples(mcSamplesPriv)
