@@ -566,6 +566,7 @@ PhysicsEGammaCommissioningOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
 DQMOutput							# online DQMFileSaver
+DQMOfflineOutput                                                # JIRA: CMSHLT-462
 DQMEventDisplayOutput
 DQMCalibrationOutput
 CalibrationOutput
