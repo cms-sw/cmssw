@@ -198,12 +198,15 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   e.getByToken(stereoRecHitsToken_, rechitsstereo);
 
   //Variables in order to count total num of rechitrphi,rechitstereo, rechitmatched in subdetectors
-  std::map<std::string, std::vector<int> > totnumrechitrphi;
-  std::map<std::string, std::vector<int> > totnumrechitstereo;
-  std::map<std::string, std::vector<int> > totnumrechitmatched;
-  totnumrechitrphi.clear();
-  totnumrechitstereo.clear();
-  totnumrechitmatched.clear();
+  //std::map<std::string, std::vector<int> > totnumrechitrphi;
+  //std::map<std::string, std::vector<int> > totnumrechitstereo;
+  //std::map<std::string, std::vector<int> > totnumrechitmatched;
+  std::map<std::string, int > totnumrechitrphi;
+  std::map<std::string, int > totnumrechitstereo;
+  std::map<std::string, int > totnumrechitmatched;
+  //totnumrechitrphi.clear();
+  //totnumrechitstereo.clear();
+  //totnumrechitmatched.clear();
   int totrechitrphi =0;
   int totrechitstereo =0;
   int totrechitmatched =0;
@@ -213,57 +216,65 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry &tracker(*pDD);
+  
+  SiStripHistoId hidmanager;
+  SiStripFolderOrganizer fold_organ;
+
   // start loops over DetIds
   for (auto it = rechitsrphi->begin(), itEnd = rechitsrphi->end(); it != itEnd; ++it) {
     DetId detid = (*it).detId();
     uint32_t myid = detid.rawId();       
     auto detsetIter = rechitsrphi->find(detid);
     totrechitrphi += detsetIter->size();
-    //loop over rechits-rphi in the same subdetector
-    // SiStripRecHit2DCollection::DetSet::const_iterator iterrphi
-    rechitrphi.clear();
-    for(auto iterrphi= detsetIter->begin(), iterEnd = detsetIter->end(); iterrphi != iterEnd; ++iterrphi){	
-      const GeomDetUnit *  det = tracker.idToDetUnit(detid);
-      const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-      const StripTopology &topol=(StripTopology&)stripdet->topology();
-      SiStripRecHit2D const rechit=*iterrphi;
-      //analyze RecHits 
-      rechitanalysis(rechit,topol,associate);
-      rechitrphi.push_back(rechitpro);
-    }
-
-    SiStripHistoId hidmanager;
+  
     std::string label = hidmanager.getSubdetid(myid,tTopo,true);
     std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
-    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
-    //std::cout << "label " << label << endl;
-    SiStripFolderOrganizer fold_organ;
     std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
-  
-    totnumrechitrphi[det_lay_pair.first].push_back(detsetIter->size());
-    totnumrechitstereo[det_lay_pair.first].push_back(0);
-    totnumrechitmatched[det_lay_pair.first].push_back(0);
 
-    for (std::vector<RecHitProperties>::iterator irh=rechitrphi.begin(); irh!=rechitrphi.end(); ++irh) {
-      if(iLayerME != LayerMEsMap.end()){
-        fillME(iLayerME->second.meWclusrphi,(*irh).clusiz);
-        fillME(iLayerME->second.meAdcrphi,(*irh).cluchg);
-        fillME(iLayerME->second.mePosxrphi,(*irh).x);
-        fillME(iLayerME->second.meResolxrphi,(*irh).resolxx);
-        fillME(iLayerME->second.meNsimHitrphi,(*irh).NsimHit);
-        if ((*irh).NsimHit > 0) {
+    totnumrechitrphi[det_lay_pair.first] = totnumrechitrphi[det_lay_pair.first] + detsetIter->size();
+
+  //  totnumrechitrphi[det_lay_pair.first].push_back(detsetIter->size());
+  //  totnumrechitstereo[det_lay_pair.first].push_back(0);
+  //  totnumrechitmatched[det_lay_pair.first].push_back(0);
+
+    //loop over rechits-rphi in the same subdetector
+    // SiStripRecHit2DCollection::DetSet::const_iterator iterrphi
+    if(iLayerME != LayerMEsMap.end()){
+      for(auto iterrphi= detsetIter->begin(), iterEnd = detsetIter->end(); iterrphi != iterEnd; ++iterrphi){	
+        const GeomDetUnit *  det = tracker.idToDetUnit(detid);
+        const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+        const StripTopology &topol=(StripTopology&)stripdet->topology();
+        SiStripRecHit2D const rechit=*iterrphi;
+        //analyze RecHits 
+        rechitanalysis(rechit,topol,associate);
+
+        fillME(iLayerME->second.meWclusrphi,rechitpro.clusiz);
+        fillME(iLayerME->second.meAdcrphi,rechitpro.cluchg);
+        fillME(iLayerME->second.mePosxrphi,rechitpro.x);
+        fillME(iLayerME->second.meResolxrphi,rechitpro.resolxx);
+        fillME(iLayerME->second.meNsimHitrphi,rechitpro.NsimHit);
+        if (rechitpro.NsimHit > 0) {
           std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
-          fillME(iSubDetME->second.meBunchrphi, (*irh).bunch);
-          if ((*irh).bunch == 0) fillME(iSubDetME->second.meEventrphi, (*irh).event);
+          fillME(iSubDetME->second.meBunchrphi, rechitpro.bunch);
+          if (rechitpro.bunch == 0) fillME(iSubDetME->second.meEventrphi, rechitpro.event);
         }
-        if ( (*irh).resx != -999999. || (*irh).pullMF != -999999. || (*irh).chi2 != -999999. ){
-          fillME(iLayerME->second.meResrphi,(*irh).resx);
-          fillME(iLayerME->second.mePullLFrphi,(*irh).resx/sqrt((*irh).resolxx));
-          fillME(iLayerME->second.mePullMFrphi,(*irh).pullMF);
-          fillME(iLayerME->second.meChi2rphi,(*irh).chi2);
+        if ( rechitpro.resx != -999999. || rechitpro.pullMF != -999999. || rechitpro.chi2 != -999999. ){
+          fillME(iLayerME->second.meResrphi,rechitpro.resx);
+          fillME(iLayerME->second.mePullLFrphi,rechitpro.resx/sqrt(rechitpro.resolxx));
+          fillME(iLayerME->second.mePullMFrphi,rechitpro.pullMF);
+          fillME(iLayerME->second.meChi2rphi,rechitpro.chi2);
         }
       }
-    } 
+    }/*else{//ngrenz: probably not needed
+      for(auto iterrphi= deetIter->begin(), iterEnd = detsetIter->end(); iterrphi != iterEnd; ++iterrphi){	
+        const GeomDetUnit *  det = tracker.idToDetUnit(detid);
+        const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+        const StripTopology &topol=(StripTopology&)stripdet->topology();
+        SiStripRecHit2D const rechit=*iterrphi;
+        //analyze RecHits 
+        rechitanalysis(rechit,topol,associate);
+      }
+    }*/
   }
 
   for (auto it = rechitsstereo->begin(), itEnd = rechitsstereo->end(); it != itEnd; ++it) {
@@ -271,8 +282,45 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     uint32_t myid= detid.rawId();       
     auto detsetIter = rechitsstereo->find(detid);
     totrechitstereo += detsetIter->size();
+ 
+    std::string label = hidmanager.getSubdetid(myid,tTopo,true);
+    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
+    std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
+   
+    totnumrechitstereo[det_lay_pair.first] = totnumrechitstereo[det_lay_pair.first] + detsetIter->size();
+
+   // totnumrechitrphi[det_lay_pair.first].push_back(0);
+   // totnumrechitstereo[det_lay_pair.first].push_back(detsetIter->size());
+   // totnumrechitmatched[det_lay_pair.first].push_back(0);
+
     //loop over rechits-stereo in the same subdetector
-    rechitstereo.clear();
+    if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
+      for(auto iterstereo=detsetIter->begin(), iterEnd = detsetIter->end(); iterstereo!=iterEnd; ++iterstereo){
+        const GeomDetUnit *  det = tracker.idToDetUnit(detid);
+        const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+        const StripTopology &topol=(StripTopology&)stripdet->topology();
+        SiStripRecHit2D const rechit=*iterstereo;
+        //analyze RecHits
+        rechitanalysis(rechit,topol,associate);
+
+        fillME(iStereoAndMatchedME->second.meWclusStereo,rechitpro.clusiz);
+        fillME(iStereoAndMatchedME->second.meAdcStereo,rechitpro.cluchg);
+        fillME(iStereoAndMatchedME->second.mePosxStereo,rechitpro.x);
+        fillME(iStereoAndMatchedME->second.meResolxStereo,sqrt(rechitpro.resolxx));
+        fillME(iStereoAndMatchedME->second.meNsimHitStereo,rechitpro.NsimHit);
+        if (rechitpro.NsimHit > 0) {
+          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          fillME(iSubDetME->second.meBunchStereo, rechitpro.bunch);
+          if (rechitpro.bunch == 0) fillME(iSubDetME->second.meEventStereo, rechitpro.event);
+        }
+        if ( rechitpro.resx != -999999. || rechitpro.pullMF != -999999. || rechitpro.chi2 != -999999. ){
+          fillME(iStereoAndMatchedME->second.meResStereo,rechitpro.resx);
+          fillME(iStereoAndMatchedME->second.mePullLFStereo,rechitpro.resx/sqrt(rechitpro.resolxx));
+          fillME(iStereoAndMatchedME->second.mePullMFStereo,rechitpro.pullMF);
+          fillME(iStereoAndMatchedME->second.meChi2Stereo,rechitpro.chi2);
+        }
+      }
+    }/* else {
     for(auto iterstereo=detsetIter->begin(), iterEnd = detsetIter->end(); iterstereo!=iterEnd; ++iterstereo){
       const GeomDetUnit *  det = tracker.idToDetUnit(detid);
       const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
@@ -280,41 +328,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
       SiStripRecHit2D const rechit=*iterstereo;
       //analyze RecHits
       rechitanalysis(rechit,topol,associate);
-      rechitstereo.push_back(rechitpro);
-    }
-
-    SiStripHistoId hidmanager;
-    std::string label = hidmanager.getSubdetid(myid,tTopo,true);
-    std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
-    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
-    //std::cout << "label " << label << endl;
-    SiStripFolderOrganizer fold_organ;
-    std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
-  
-    totnumrechitrphi[det_lay_pair.first].push_back(0);
-    totnumrechitstereo[det_lay_pair.first].push_back(detsetIter->size());
-    totnumrechitmatched[det_lay_pair.first].push_back(0);
-
-    for (std::vector<RecHitProperties>::iterator irh=rechitstereo.begin(); irh!=rechitstereo.end(); ++irh) {
-      if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-        fillME(iStereoAndMatchedME->second.meWclusStereo,(*irh).clusiz);
-        fillME(iStereoAndMatchedME->second.meAdcStereo,(*irh).cluchg);
-        fillME(iStereoAndMatchedME->second.mePosxStereo,(*irh).x);
-        fillME(iStereoAndMatchedME->second.meResolxStereo,sqrt((*irh).resolxx));
-        fillME(iStereoAndMatchedME->second.meNsimHitStereo,(*irh).NsimHit);
-        if ((*irh).NsimHit > 0) {
-          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
-          fillME(iSubDetME->second.meBunchStereo, (*irh).bunch);
-          if ((*irh).bunch == 0) fillME(iSubDetME->second.meEventStereo, (*irh).event);
-        }
-        if ( (*irh).resx != -999999. || (*irh).pullMF != -999999. || (*irh).chi2 != -999999. ){
-          fillME(iStereoAndMatchedME->second.meResStereo,(*irh).resx);
-          fillME(iStereoAndMatchedME->second.mePullLFStereo,(*irh).resx/sqrt((*irh).resolxx));
-          fillME(iStereoAndMatchedME->second.mePullMFStereo,(*irh).pullMF);
-          fillME(iStereoAndMatchedME->second.meChi2Stereo,(*irh).chi2);
-        }
-      }
-    }
+    }*/
   }
 
   for (auto it = rechitsmatched->begin(), itEnd = rechitsmatched->end(); it != itEnd; ++it) {
@@ -322,55 +336,61 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     uint32_t myid = detid.rawId();       
     auto detsetIter = rechitsmatched->find(detid);
     totrechitmatched += detsetIter->size();
-    //loop over rechits-matched in the same subdetector
-    rechitmatched.clear();
-    for(auto itermatched=detsetIter->begin(), iterEnd = detsetIter->end(); itermatched!=iterEnd; ++itermatched){
-      SiStripMatchedRecHit2D const rechit=*itermatched;
-      const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
-      //analyze RecHits 
-      rechitanalysis_matched(rechit, gluedDet, associate);
-      rechitmatched.push_back(rechitpro);
-    }
-
-    SiStripHistoId hidmanager;
+ 
     std::string label = hidmanager.getSubdetid(myid,tTopo,true);
-    std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
     std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
-    //std::cout << "label " << label << endl;
-    SiStripFolderOrganizer fold_organ;
     std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
-  
-    totnumrechitrphi[det_lay_pair.first].push_back(0);
-    totnumrechitstereo[det_lay_pair.first].push_back(0);
-    totnumrechitmatched[det_lay_pair.first].push_back(detsetIter->size());
+   
+    totnumrechitmatched[det_lay_pair.first] = totnumrechitmatched[det_lay_pair.first] + detsetIter->size();
 
-    for (std::vector<RecHitProperties>::iterator irh=rechitmatched.begin(); irh!=rechitmatched.end(); ++irh) {
-      if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-        fillME(iStereoAndMatchedME->second.mePosxMatched,(*irh).x);
-        fillME(iStereoAndMatchedME->second.mePosyMatched,(*irh).y);
-        fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt((*irh).resolxx));
-        fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt((*irh).resolyy));
-        fillME(iStereoAndMatchedME->second.meNsimHitMatched,(*irh).NsimHit);
-        if ((*irh).NsimHit > 0) {
+   // totnumrechitrphi[det_lay_pair.first].push_back(0);
+   // totnumrechitstereo[det_lay_pair.first].push_back(0);
+   // totnumrechitmatched[det_lay_pair.first].push_back(detsetIter->size());
+
+    //loop over rechits-matched in the same subdetector
+    if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
+      for(auto itermatched=detsetIter->begin(), iterEnd = detsetIter->end(); itermatched!=iterEnd; ++itermatched){
+        SiStripMatchedRecHit2D const rechit=*itermatched;
+        const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
+        //analyze RecHits 
+        rechitanalysis_matched(rechit, gluedDet, associate);
+
+        fillME(iStereoAndMatchedME->second.mePosxMatched,rechitpro.x);
+        fillME(iStereoAndMatchedME->second.mePosyMatched,rechitpro.y);
+        fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt(rechitpro.resolxx));
+        fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt(rechitpro.resolyy));
+        fillME(iStereoAndMatchedME->second.meNsimHitMatched,rechitpro.NsimHit);
+        if (rechitpro.NsimHit > 0) {
           std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
-          fillME(iSubDetME->second.meBunchMatched, (*irh).bunch);
-          if ((*irh).bunch == 0) fillME(iSubDetME->second.meEventMatched, (*irh).event);
+          fillME(iSubDetME->second.meBunchMatched, rechitpro.bunch);
+          if (rechitpro.bunch == 0) fillME(iSubDetME->second.meEventMatched, rechitpro.event);
         }
-        if ( (*irh).resx != -999999. || (*irh).resy != -999999. || (*irh).chi2 != -999999. ){
-          fillME(iStereoAndMatchedME->second.meResxMatched,(*irh).resx);
-          fillME(iStereoAndMatchedME->second.meResyMatched,(*irh).resy);
-          fillME(iStereoAndMatchedME->second.meChi2Matched,(*irh).chi2);
+        if ( rechitpro.resx != -999999. || rechitpro.resy != -999999. || rechitpro.chi2 != -999999. ){
+          fillME(iStereoAndMatchedME->second.meResxMatched,rechitpro.resx);
+          fillME(iStereoAndMatchedME->second.meResyMatched,rechitpro.resy);
+          fillME(iStereoAndMatchedME->second.meChi2Matched,rechitpro.chi2);
         }
       }
-    }
+    }/* else {
+      for(auto itermatched=detsetIter->begin(), iterEnd = detsetIter->end(); itermatched!=iterEnd; ++itermatched){
+        SiStripMatchedRecHit2D const rechit=*itermatched;
+        const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
+        //analyze RecHits 
+        rechitanalysis_matched(rechit, gluedDet, associate);
+        rechitmatched.push_back(rechitpro);
+      }
+    }*/
   }//End of loops over detectors
   
   //now fill the cumulative histograms of the hits
-  for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); iSubdet++){
+  for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); ++iSubdet){
     std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find((*iSubdet));
-    fillME(iSubDetME->second.meNumrphi,std::accumulate(totnumrechitrphi[(*iSubdet)].rbegin(), totnumrechitrphi[(*iSubdet)].rend(), 0));
-    fillME(iSubDetME->second.meNumStereo,std::accumulate(totnumrechitstereo[(*iSubdet)].rbegin(), totnumrechitstereo[(*iSubdet)].rend(), 0));
-    fillME(iSubDetME->second.meNumMatched,std::accumulate(totnumrechitmatched[(*iSubdet)].rbegin(), totnumrechitmatched[(*iSubdet)].rend(), 0));
+ //   fillME(iSubDetME->second.meNumrphi,std::accumulate(totnumrechitrphi[(*iSubdet)].rbegin(), totnumrechitrphi[(*iSubdet)].rend(), 0));
+ //   fillME(iSubDetME->second.meNumStereo,std::accumulate(totnumrechitstereo[(*iSubdet)].rbegin(), totnumrechitstereo[(*iSubdet)].rend(), 0));
+ //   fillME(iSubDetME->second.meNumMatched,std::accumulate(totnumrechitmatched[(*iSubdet)].rbegin(), totnumrechitmatched[(*iSubdet)].rend(), 0));
+    fillME(iSubDetME->second.meNumrphi,totnumrechitrphi[(*iSubdet)]);
+    fillME(iSubDetME->second.meNumStereo,totnumrechitstereo[(*iSubdet)]);
+    fillME(iSubDetME->second.meNumMatched,totnumrechitmatched[(*iSubdet)]);
   }
 
   fillME(totalMEs.meNumTotrphi,totrechitrphi);
