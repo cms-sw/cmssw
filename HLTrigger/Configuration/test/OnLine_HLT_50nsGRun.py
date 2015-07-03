@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V141 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/50nsGRun/V142 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT50nsGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V141')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V142')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -477,6 +477,7 @@ process.streams = cms.PSet(
   DQM = cms.vstring( 'OnlineMonitor' ),
   DQMCalibration = cms.vstring( 'TestEnablesEcalHcalDQM' ),
   DQMEventDisplay = cms.vstring( 'EventDisplay' ),
+  DQMOffline = cms.vstring( 'DQMOfflinePD' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ElectronStream = cms.vstring( 'ElectronStream' ),
   Express = cms.vstring( 'ExpressPhysics' ),
@@ -560,6 +561,9 @@ process.datasets = cms.PSet(
     'HLT_IsoTrackHE_v1',
     'HLT_L1SingleMuOpen_DT_v1',
     'HLT_L1Tech_DT_GlobalOR_v1' ),
+  DQMOfflinePD = cms.vstring( 'HLT_DiPFJetAve40_v1',
+    'HLT_PFHT350_v2',
+    'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v2' ),
   DisplacedJet = cms.vstring( 'HLT_HT350_DisplacedDijet40_DisplacedTrack_v2',
     'HLT_HT350_DisplacedDijet80_DisplacedTrack_v2',
     'HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v2',
@@ -56441,6 +56445,22 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
+process.hltOutputDQMOffline = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputDQMOffline.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DiPFJetAve40_v1',
+  'HLT_PFHT350_v2',
+  'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v2' ) ),
+    outputCommands = cms.untracked.vstring( 'keep *_hltIter2Merged_*_*',
+      'keep *_hltPixelTracks_*_*',
+      'keep *_hltSiPixelClusters_*_*',
+      'keep *_hltSiStripRawToClustersFacility_*_*',
+      'keep *_hltVerticesPFSelector_*_*' )
+)
 process.hltOutputDQMCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQMCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
@@ -57891,7 +57911,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
     fileName = cms.untracked.string("DQMIO.root")
 )
 process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart + process.hltOutputDQM )
-process.DQMOfflineOutput = cms.EndPath( process.hltGtDigis + process.hltPreDQMOfflineOutput + process.hltPreDQMOfflineOutputSmart )
+process.DQMOfflineOutput = cms.EndPath( process.hltGtDigis + process.hltPreDQMOfflineOutput + process.hltPreDQMOfflineOutputSmart + process.hltOutputDQMOffline )
 process.DQMCalibrationOutput = cms.EndPath( process.hltGtDigis + process.hltPreDQMCalibrationOutput + process.hltOutputDQMCalibration )
 process.DQMEventDisplayOutput = cms.EndPath( process.hltGtDigis + process.hltPreDQMEventDisplayOutput + process.hltPreDQMEventDisplayOutputSmart + process.hltOutputDQMEventDisplay )
 process.RPCMONOutput = cms.EndPath( process.hltGtDigis + process.hltPreRPCMONOutput + process.hltOutputRPCMON )

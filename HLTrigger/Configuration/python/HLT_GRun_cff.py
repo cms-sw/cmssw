@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V96 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/GRun/V97 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V96')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V97')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -499,6 +499,7 @@ fragment.streams = cms.PSet(
   DQM = cms.vstring( 'OnlineMonitor' ),
   DQMCalibration = cms.vstring( 'TestEnablesEcalHcalDQM' ),
   DQMEventDisplay = cms.vstring( 'EventDisplay' ),
+  DQMOffline = cms.vstring( 'DQMOfflinePD' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ElectronStream = cms.vstring( 'ElectronStream' ),
   Express = cms.vstring( 'ExpressPhysics' ),
@@ -546,6 +547,8 @@ fragment.datasets = cms.PSet(
     'HLT_IsoTrackHE_v1',
     'HLT_L1SingleMuOpen_DT_v2',
     'HLT_L1Tech_DT_GlobalOR_v2' ),
+  DQMOfflinePD = cms.vstring( 'HLT_PFHT350_v2',
+    'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v2' ),
   DisplacedJet = cms.vstring( 'HLT_HT350_DisplacedDijet40_DisplacedTrack_v2',
     'HLT_HT350_DisplacedDijet80_DisplacedTrack_v2',
     'HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v2',
