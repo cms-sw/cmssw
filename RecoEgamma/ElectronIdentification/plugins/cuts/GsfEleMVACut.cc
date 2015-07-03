@@ -66,18 +66,19 @@ GsfEleMVACut::
 operator()(const reco::GsfElectronPtr& cand) const{  
 
   // in case we are by-value
-  const std::string& inst_name = contentTags_.find("mvaVal")->second.instance();
+  const std::string& val_name = contentTags_.find("mvaVal")->second.instance();
+  const std::string& cat_name = contentTags_.find("mvaVal")->second.instance();
   edm::Ptr<pat::Electron> pat(cand);
 
   // Find the cut value
-  const int iCategory = _mvaCategoriesMap.isValid() ? (*_mvaCategoriesMap)[cand] : pat->userInt( inst_name + std::string("Category") );
+  const int iCategory = _mvaCategoriesMap.isValid() ? (*_mvaCategoriesMap)[cand] : pat->userInt( cat_name );
   if( iCategory >= (int)(_mvaCutValues.size()) )
     throw cms::Exception(" Error in MVA categories: ")
       << " found a particle with a category larger than max configured " << std::endl;
   const float cutValue = _mvaCutValues[iCategory];
 
   // Look up the MVA value for this particle
-  const float mvaValue = _mvaValueMap.isValid() ? (*_mvaValueMap)[cand] : pat->userFloat( inst_name + std::string("Value") );
+  const float mvaValue = _mvaValueMap.isValid() ? (*_mvaValueMap)[cand] : pat->userFloat( val_name );
 
   // Apply the cut and return the result
   return mvaValue > cutValue;
@@ -86,9 +87,9 @@ operator()(const reco::GsfElectronPtr& cand) const{
 double GsfEleMVACut::value(const reco::CandidatePtr& cand) const {
 
   // in case we are by-value
-  const std::string& inst_name =contentTags_.find("mvaVal")->second.instance();
+  const std::string& val_name =contentTags_.find("mvaVal")->second.instance();
   edm::Ptr<pat::Electron> pat(cand);
 
-  const float mvaValue = _mvaValueMap.isValid() ? (*_mvaValueMap)[cand] : pat->userFloat( inst_name + std::string("Value") );
+  const float mvaValue = _mvaValueMap.isValid() ? (*_mvaValueMap)[cand] : pat->userFloat( val_name );
   return mvaValue;
 }

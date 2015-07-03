@@ -50,8 +50,6 @@ class VIDSelectorBase:
     def __call__(self,*args):
         if( len(args) == 1 ):
             return self.__instance(*args)
-        if( len(args) == 2 ):
-            print args, type(args[0]), type(args[1])
         if( len(args) == 2 and isinstance(args[1],DataFormats.FWLite.Events) ):
             return self.__instance(args[0],args[1].object().event())
         elif( len(args) == 2 and type(args[1]) is int ):

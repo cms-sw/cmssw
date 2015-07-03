@@ -11,8 +11,10 @@ from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import *
 from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import *
 from RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi import *
 
-modifyPrimaryPhysicsObjects = cms.Sequence( electronMVAValueMapProducer * slimmedElectrons *
-                                            photonIDValueMapProducer * photonMVAValueMapProducer * slimmedPhotons *
+modifyPrimaryPhysicsObjects = cms.Sequence( electronMVAValueMapProducer *
+                                            photonIDValueMapProducer * photonMVAValueMapProducer * 
+                                            slimmedElectrons *
+                                            slimmedPhotons *
                                             slimmedMuons     *
                                             slimmedTaus      *
                                             slimmedJets      *

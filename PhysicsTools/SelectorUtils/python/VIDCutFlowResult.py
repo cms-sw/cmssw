@@ -28,6 +28,9 @@ class VIDCutFlowResult:
 
     def getCutResultByName(self,name):
         return self.__instance.getCutResultByName(name)
+
+    def getValueCutUpon(self,idx_or_name):
+        return self.__instance.getValueCutUpon(idx_or_name)
     
     def getCutFlowResultMasking(self,things_to_mask):       
         if type(things_to_mask) == str or type(things_to_mask) == int:

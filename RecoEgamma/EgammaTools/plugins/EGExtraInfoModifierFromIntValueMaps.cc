@@ -68,7 +68,7 @@ EGExtraInfoModifierFromIntValueMaps(const edm::ParameterSet& conf) :
     const std::vector<std::string> parameters = electrons.getParameterNames();
     for( const std::string& name : parameters ) {
       if( std::string(electronSrc) == name ) continue;
-      if( conf.existsAs<edm::InputTag>(name) ) {
+      if( electrons.existsAs<edm::InputTag>(name) ) {
         e_conf.valuemaps[name] = electrons.getParameter<edm::InputTag>(name);
       }
     }    
@@ -79,7 +79,7 @@ EGExtraInfoModifierFromIntValueMaps(const edm::ParameterSet& conf) :
     const std::vector<std::string> parameters = photons.getParameterNames();
     for( const std::string& name : parameters ) {
       if( std::string(photonSrc) == name ) continue;
-      if( conf.existsAs<edm::InputTag>(name) ) {
+      if( photons.existsAs<edm::InputTag>(name) ) {
         ph_conf.valuemaps[name] = photons.getParameter<edm::InputTag>(name);
       }
     } 
@@ -154,7 +154,7 @@ setConsumes(edm::ConsumesCollector& sumes) {
 }
 
 template<typename T, typename U, typename V>
-inline void assignValue(const T& ptr, const U& tok, const V& map, float& value) {
+inline void assignValue(const T& ptr, const U& tok, const V& map, int& value) {
   if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
 }
 
@@ -176,10 +176,10 @@ modifyObject(pat::Electron& ele) const {
   }
   //now we go through and modify the objects using the valuemaps we read in
   for( auto itr = e_conf.tok_valuemaps.begin(); itr != e_conf.tok_valuemaps.end(); ++itr ) {
-    float value(0.0);
+    int value(0);
     assignValue(ptr,itr->second,ele_vmaps,value);
-    if( !ele.hasUserFloat(itr->first) ) {
-      ele.addUserFloat(itr->first,value);
+    if( !ele.hasUserInt(itr->first) ) {
+      ele.addUserInt(itr->first,value);
     } else {
       throw cms::Exception("ValueNameAlreadyExists")
         << "Trying to add new UserFloat = " << itr->first
@@ -205,10 +205,10 @@ modifyObject(pat::Photon& pho) const {
   }
   //now we go through and modify the objects using the valuemaps we read in
   for( auto itr = ph_conf.tok_valuemaps.begin(); itr != ph_conf.tok_valuemaps.end(); ++itr ) {
-    float value(0.0);
+    int value(0);
     assignValue(ptr,itr->second,pho_vmaps,value);
-    if( !pho.hasUserFloat(itr->first) ) {
-      pho.addUserFloat(itr->first,value);
+    if( !pho.hasUserInt(itr->first) ) {
+      pho.addUserInt(itr->first,value);
     } else {
       throw cms::Exception("ValueNameAlreadyExists")
         << "Trying to add new UserFloat = " << itr->first
