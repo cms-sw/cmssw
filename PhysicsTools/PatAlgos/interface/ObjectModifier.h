@@ -29,7 +29,7 @@ namespace pat {
     }
 
     void modify(T& obj) const {
-      for( unsigned i = 0; i < modifiers_.size(); ++i ) 
+      for( unsigned i = 0; i < modifiers_.size(); ++i )
         modifiers_[i]->modifyObject(obj);
     }
 
