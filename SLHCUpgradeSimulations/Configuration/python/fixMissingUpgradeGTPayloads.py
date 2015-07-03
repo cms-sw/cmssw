@@ -7,11 +7,11 @@ def fixRPCConditions(process):
     process.GlobalTag.toGet.extend( cms.VPSet(
         cms.PSet(record = cms.string("RPCStripNoisesRcd"),
                  tag = cms.string("RPC_testCondition_192Strips_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_RPC")
+                 connect = cms.string("frontier://FrontierProd/CMS_COND_31X_RPC")
                  ),
         cms.PSet(record = cms.string("RPCClusterSizeRcd"),
                  tag = cms.string("RPCClusterSize_PhaseII_mc"),
-                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_36X_RPC")
+                 connect = cms.string("frontier://FrontierProd/CMS_COND_36X_RPC")
                  )
         )
     )
