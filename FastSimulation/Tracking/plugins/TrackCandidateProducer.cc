@@ -198,5 +198,6 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   }
   
   // Save the track candidates
+  std::cout << "# track cand " << output->size() << std::endl;
   e.put(output);
 }

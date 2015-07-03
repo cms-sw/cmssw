@@ -1,15 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
-import RecoTracker.IterativeTracking.DetachedTripletStep_cff
+import RecoTracker.IterativeTracking.DetachedTripletStep_cff as _detachedTripletStep
 
-# fast tracking mask producer                                                                                                                                                                                                                                       
-from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer
-detachedTripletStepFastTrackingMasks = _fastTrackingMaskProducer.clone(
-    trackCollection = cms.InputTag("initialStepTracks"),
-    TrackQuality = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.TrackQuality,
-    overrideTrkQuals =  cms.InputTag('initialStep')
-
+# fast tracking mask producer
+import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
+detachedTripletStepMasks = FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
+    trackCollection = _detachedTripletStep.detachedTripletStepClusters.trajectories,
+    TrackQuality = _detachedTripletStep.detachedTripletStepClusters.TrackQuality,
+    overrideTrkQuals =  _detachedTripletStep.detachedTripletStepClusters.overrideTrkQuals
 )
 
 # trajectory seeds
@@ -21,12 +20,12 @@ detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.tr
         maxZ0 = 50
         ),
     minLayersCrossed = 3,
-    hitMasks = cms.InputTag("detachedTripletStepFastTrackingMasks","hitMasks"),
-    hitCombinationMasks = cms.InputTag("detachedTripletStepFastTrackingMasks","hitCombinationMasks"),
-    ptMin = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
-    originHalfLength = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
-    originRadius = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
-    layerList = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.layerList.value()
+    hitMasks = cms.InputTag("detachedTripletStepMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("detachedTripletStepMasks","hitCombinationMasks"),
+    ptMin = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
+    originHalfLength = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
+    originRadius = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = _detachedTripletStep.detachedTripletStepSeedLayers.layerList.value()
     )
 
 # track candidates
@@ -37,7 +36,7 @@ detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProdu
     )
 
 # tracks 
-detachedTripletStepTracks = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTracks.clone(
+detachedTripletStepTracks = _detachedTripletStep.detachedTripletStepTracks.clone(
     Fitter = 'KFFittingSmootherSecond',
     TTRHBuilder = 'WithoutRefit',
     Propagator = 'PropagatorWithMaterial'
@@ -45,12 +44,12 @@ detachedTripletStepTracks = RecoTracker.IterativeTracking.DetachedTripletStep_cf
 )
 
 #final selection
-detachedTripletStepSelector = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSelector.clone()
+detachedTripletStepSelector = _detachedTripletStep.detachedTripletStepSelector.clone()
 detachedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
-detachedTripletStep = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStep.clone() 
+detachedTripletStep = _detachedTripletStep.detachedTripletStep.clone() 
 
 # Final sequence 
-DetachedTripletStep = cms.Sequence(detachedTripletStepFastTrackingMasks
+DetachedTripletStep = cms.Sequence(detachedTripletStepMasks
                                    +detachedTripletStepSeeds
                                    +detachedTripletStepTrackCandidates
                                    +detachedTripletStepTracks

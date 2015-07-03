@@ -32,14 +32,15 @@ class FastTrackingMaskProducer : public edm::stream::EDProducer <>
 
 
   // consumes                                                                                                                 
-  edm::EDGetTokenT<reco::TrackCollection>  trackToken;
-  edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
-  edm::EDGetTokenT<std::vector<bool> > hitCombinationMasksToken;  
-  std::vector< edm::EDGetTokenT<edm::ValueMap<int> > > overrideTrkQuals_;
+  edm::EDGetTokenT<reco::TrackCollection>  trackToken_;
+  edm::EDGetTokenT<std::vector<bool> > hitMasksToken_;
+  edm::EDGetTokenT<std::vector<bool> > hitCombinationMasksToken_;
+  edm::EDGetTokenT<edm::ValueMap<int> > trkQualsToken_;
   // set value in constructor
-  bool filterTracks_ = false;
-  bool oldHitMasks_exist = false;
-  bool oldHitCombinationMasks_exist = false;
+  bool oldHitMasks_exists_;
+  bool oldHitCombinationMasks_exists_;
+  bool overRideTrkQuals_;
+  bool filterTracks_;
   reco::TrackBase::TrackQuality trackQuality_;
 
 };

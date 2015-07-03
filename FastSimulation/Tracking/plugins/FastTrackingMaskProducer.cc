@@ -31,76 +31,87 @@
 #include <vector>
 #include <stdio.h>
 
-FastTrackingMaskProducer::FastTrackingMaskProducer(const edm::ParameterSet& conf)
+FastTrackingMaskProducer::FastTrackingMaskProducer(const edm::ParameterSet& conf) 
+  : oldHitMasks_exists_(false)
+  , oldHitCombinationMasks_exists_(false)
+  , overRideTrkQuals_(false)
+  , filterTracks_(false)
 {
-  //Main products                                                                                                                 
+  // Main products                                                                                                                 
   produces<std::vector<bool> >("hitMasks");
   produces<std::vector<bool> >("hitCombinationMasks");
 
-  // Input Tag                                                                                                                   
+  // Track collection                                                                                                                   
   edm::InputTag trackCollectionTag = conf.getParameter<edm::InputTag>("trackCollection");
+  trackToken_ = consumes<reco::TrackCollection>(trackCollectionTag);
 
-  oldHitMasks_exist = conf.exists("oldHitMasks");
-  oldHitCombinationMasks_exist = conf.exists("oldHitCombinationMasks");
-
-  if (oldHitMasks_exist){
+  // old hit masks
+  oldHitMasks_exists_ = conf.exists("oldHitMasks");
+  if (oldHitMasks_exists_){
     edm::InputTag hitMasksTag = conf.getParameter<edm::InputTag>("oldHitMasks");
-    hitMasksToken = consumes<std::vector<bool> >(hitMasksTag);
+    hitMasksToken_ = consumes<std::vector<bool> >(hitMasksTag);
   }
 
-  if (  oldHitCombinationMasks_exist){
+  // old hit combination masks
+  oldHitCombinationMasks_exists_ = conf.exists("oldHitCombinationMasks");
+  if (  oldHitCombinationMasks_exists_){
     edm::InputTag hitCombinationMasksTag = conf.getParameter<edm::InputTag>("oldHitCombinationMasks");
-    hitCombinationMasksToken = consumes<std::vector<bool> >(hitCombinationMasksTag);
+    hitCombinationMasksToken_ = consumes<std::vector<bool> >(hitCombinationMasksTag);
   }
   
-  if (conf.exists("overrideTrkQuals")) {
-    edm::InputTag overrideTrkQuals = conf.getParameter<edm::InputTag>("overrideTrkQuals");
-    if ( !(overrideTrkQuals==edm::InputTag("")) )
-      overrideTrkQuals_.push_back( consumes<edm::ValueMap<int> >(overrideTrkQuals) );
-  }
-  trackQuality_=reco::TrackBase::undefQuality;
-  filterTracks_=false;
-  if (conf.exists("TrackQuality")){
-    filterTracks_=true;
-    std::string trackQuality = conf.getParameter<std::string>("TrackQuality");
-    if ( !trackQuality.empty() ) {
-      trackQuality_=reco::TrackBase::qualityByName(trackQuality);
-    }
+  // read track quality from value map rather than from track itself
+  overRideTrkQuals_ = conf.exists("overrideTrkQuals");
+  if(  overRideTrkQuals_ ){
+    edm::InputTag trkQualsTag = conf.getParameter<edm::InputTag>("overrideTrkQuals");
+    if(trkQualsTag == edm::InputTag(""))
+      overRideTrkQuals_ = false;
+    else
+      trkQualsToken_ = consumes<edm::ValueMap<int> >(trkQualsTag);
   }
 
-  // consumes                                                                                                                    
-  trackToken = consumes<reco::TrackCollection>(trackCollectionTag);
+  // required track quality
+  trackQuality_=reco::TrackBase::undefQuality;
+  if (conf.exists("TrackQuality")){
+    filterTracks_=true;
+    std::string trackQualityStr = conf.getParameter<std::string>("TrackQuality");
+    if ( !trackQualityStr.empty() ) {
+      trackQuality_=reco::TrackBase::qualityByName(trackQualityStr);
+    }
+  }
 }
 
 void
 FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
 {
-  // The input track collection handle                                                                                           
-  edm::Handle<reco::TrackCollection> trackCollection;
-  e.getByToken(trackToken,trackCollection);
-
-  std::vector<edm::Handle<edm::ValueMap<int> > > quals;
-  if ( overrideTrkQuals_.size() > 0) {
-    quals.resize(1);
-    e.getByToken(overrideTrkQuals_[0],quals[0]);
-  }
-
+  // the products
   std::auto_ptr<std::vector<bool> > hitMasks(new std::vector<bool>());
   std::auto_ptr<std::vector<bool> > hitCombinationMasks(new std::vector<bool>());
 
+  // The input track collection handle                                                                                           
+  edm::Handle<reco::TrackCollection> trackCollection;
+  e.getByToken(trackToken_,trackCollection);
+
+  // the track quality collection
+  edm::Handle<edm::ValueMap<int> > quals;
+  if ( overRideTrkQuals_ ) {
+    e.getByToken(trkQualsToken_,quals);
+  }
+
   // The input hitMasks handle
-  if (oldHitMasks_exist == true){
+  if (oldHitMasks_exists_ == true){
     edm::Handle<std::vector<bool> > oldHitMasks;
-    e.getByToken(hitMasksToken,oldHitMasks);
+    e.getByToken(hitMasksToken_,oldHitMasks);
     hitMasks->insert(hitMasks->begin(),oldHitMasks->begin(),oldHitMasks->end());
   }
 
   // The input hitCombinationMasks handle
-  if (oldHitCombinationMasks_exist == true){
+  if (oldHitCombinationMasks_exists_ == true){
     edm::Handle<std::vector<bool> > oldHitCombinationMasks;
-    e.getByToken(hitCombinationMasksToken,oldHitCombinationMasks);   // NOTE: in the 2nd iteration there is no 'oldhitmasks'
+    e.getByToken(hitCombinationMasksToken_,oldHitCombinationMasks);
     hitCombinationMasks->insert(hitCombinationMasks->begin(),oldHitCombinationMasks->begin(),oldHitCombinationMasks->end());
  }
+
+  std::cout << "# tracks: " << trackCollection->size() << std::endl;
 
   for (size_t i = 0 ; i!=trackCollection->size();++i)
     {
@@ -110,11 +121,10 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
       if (filterTracks_) {
 	bool goodTk = true;
 
-	if ( quals.size()!=0) {
-	  int qual=(*(quals[0]))[trackRef];
-	  //std::cout << qual << std::endl;                                                                                         
-	  if ( qual < 0 ) {goodTk=false;}
-	  //note that this does not work for some trackquals (goodIterative or undefQuality)                                        
+	if ( overRideTrkQuals_ ) {
+	  int qual= (*quals)[trackRef];
+	  if ( qual < 0 ) 
+	    goodTk=false;
 	  else
 	    goodTk = ( qual & (1<<trackQuality_))>>trackQuality_;
 	}
@@ -124,57 +134,43 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
       }
     
        
-      // Loop over the recHits                                                                     
+      // Loop over the recHits
+      // todo: implement the minimum number of measurements criterium
+      // see http://cmslxr.fnal.gov/lxr/source/RecoLocalTracker/SubCollectionProducers/src/TrackClusterRemover.cc#0166
       for (auto hitIt = track.recHitsBegin() ;  hitIt != track.recHitsEnd(); ++hitIt) {
 
-	unsigned int hit_id;
-	unsigned int hitCombination_id;
-	
-	const SiTrackerGSMatchedRecHit2D* hit = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(*hitIt);
+
+	if((*hitIt)->isValid())
+	  continue;
+
+	const GSSiTrackerRecHit2DLocalPos * hit = dynamic_cast<const GSSiTrackerRecHit2DLocalPos*>(*hitIt);
+	std::cout << "########### INITIALLY: T-1  ##########" << std::endl;
+	std::cout << "hit:  " << hit << std::endl;
 	if(hit){
-	  hit_id = hit->id();	
-	  hitCombination_id = hit->hitCombinationId();
-	  
-	  std::cout << "########### INITIALLY: T-1  ##########" << std::endl;
-	  std::cout << "hit:  " << hit << std::endl;
-	  std::cout << "hit_id:  " << hit_id<< std::endl;
-	  std::cout << "hitCombination_id:  " << hitCombination_id<< std::endl;
+
+	  std::cout << "hit_id:  " << hit->id()<< std::endl;
+	  std::cout << "hitCombination_id:  " << hit->hitCombinationId() << std::endl;
 	  std::cout << "hitMasks size:  " << hitMasks->size() << std::endl;
 	  
+	  uint32_t hitCombination_id = hit->hitCombinationId();
 	  if (hitCombination_id >= hitCombinationMasks->size()) { 
 	    hitCombinationMasks->resize(hitCombination_id+1,false);
 	  }
+	  hitCombinationMasks->at(hitCombination_id) = true;
 	  
+	  uint32_t hit_id = hit->id();	
 	  if (hit_id >= hitMasks->size()) { 
 	    hitMasks->resize(hit_id+1,false);   
 	  }
-	  
-	  hitCombinationMasks->at(hitCombination_id) = true;
 	  hitMasks->at(hit_id) = true;
 	}
-	else
-	  continue;
+
+	else{
+	  std::cout << "WTF" << std::endl;
+	}
       }
     }
-  //std::cout << "put hitMasks:  " << hitMasks << std::endl;
-  //std::cout << "put hitCombinationMasks:  " << hitCombinationMasks << std::endl;
-  
   e.put(hitMasks,"hitMasks");
   e.put(hitCombinationMasks,"hitCombinationMasks");
 }
 
-/*
-	  else{
-	    const SiTrackerGSRecHit2D* hit = dynamic_cast<const SiTrackerGSRecHit2D*>(*hitIt);
-	    if(hit){
-	      hit_id = hit->id();	
-	      //hitCombination_id = hit->hitCombinationId();	
-	      std::cout << "########### CHECK COUTS: T-2  ##########" << std::endl;
-	      std::cout << "hit:  " << hit << std::endl;
-	      std::cout << "hit_id:  " << hit_id<< std::endl;
-	      std::cout << "hitMasks size:  " << hitMasks->size() << std::endl;
-	   }
-	    else
-	    continue;
-	  
-*/
