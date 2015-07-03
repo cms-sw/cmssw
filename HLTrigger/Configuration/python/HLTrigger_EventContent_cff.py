@@ -11,7 +11,12 @@ import FWCore.ParameterSet.Config as cms
 HLTriggerRAW  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *_hltIter2Merged_*_*',
         'keep *_hltL1GtObjectMap_*_*',
+        'keep *_hltPixelTracks_*_*',
+        'keep *_hltSiPixelClusters_*_*',
+        'keep *_hltSiStripRawToClustersFacility_*_*',
+        'keep *_hltVerticesPFSelector_*_*',
         'keep FEDRawDataCollection_rawDataCollector_*_*',
         'keep FEDRawDataCollection_source_*_*',
         'keep edmTriggerResults_*_*_*',
@@ -22,7 +27,12 @@ HLTriggerRAW  = cms.PSet(
 HLTriggerRECO = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *_hltIter2Merged_*_*',
         'keep *_hltL1GtObjectMap_*_*',
+        'keep *_hltPixelTracks_*_*',
+        'keep *_hltSiPixelClusters_*_*',
+        'keep *_hltSiStripRawToClustersFacility_*_*',
+        'keep *_hltVerticesPFSelector_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
@@ -31,8 +41,13 @@ HLTriggerRECO = cms.PSet(
 HLTriggerAOD  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
+        'keep *_hltIter2Merged_*_*',
         'keep *_hltL1GtObjectMap_*_*',
         'drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap_*_*',
+        'keep *_hltPixelTracks_*_*',
+        'keep *_hltSiPixelClusters_*_*',
+        'keep *_hltSiStripRawToClustersFacility_*_*',
+        'keep *_hltVerticesPFSelector_*_*',
         'keep edmTriggerResults_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
@@ -235,6 +250,7 @@ HLTDebugRAW   = cms.PSet(
         'keep *_hltTowerMakerForMuons_*_*',
         'keep *_hltTrimmedPixelVertices_*_*',
         'keep *_hltVerticesL3_*_*',
+        'keep *_hltVerticesPFSelector_*_*',
         'keep FEDRawDataCollection_rawDataCollector_*_*',
         'keep FEDRawDataCollection_source_*_*',
         'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
@@ -472,6 +488,7 @@ HLTDebugFEVT  = cms.PSet(
         'keep *_hltTowerMakerForMuons_*_*',
         'keep *_hltTrimmedPixelVertices_*_*',
         'keep *_hltVerticesL3_*_*',
+        'keep *_hltVerticesPFSelector_*_*',
         'keep FEDRawDataCollection_rawDataCollector_*_*',
         'keep FEDRawDataCollection_source_*_*',
         'keep FEDRawDataCollection_virginRawDataRepacker_*_*',
