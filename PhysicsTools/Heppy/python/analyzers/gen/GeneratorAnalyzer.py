@@ -247,6 +247,7 @@ class GeneratorAnalyzer( Analyzer ):
 
         #Add LHE weight info
 	event.LHE_weights = []
+        event.LHE_originalWeight=1.0
 	if self.makeLHEweights:
 	    if self.mchandles['LHEweights'].isValid():
 	    	event.LHE_originalWeight=self.mchandles['LHEweights'].product().originalXWGTUP()
