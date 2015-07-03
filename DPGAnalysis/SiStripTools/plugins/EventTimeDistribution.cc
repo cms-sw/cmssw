@@ -187,9 +187,9 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
      (*(*dbxhist))->Fill(he->deltaBX(indices->first,indices->second));
    }
 
-   (*_bx)->Fill(iEvent.bunchCrossing());
+   (*_bx)->Fill(iEvent.bunchCrossing()%3564);
    (*_orbit)->Fill(iEvent.orbitNumber());
-   if(_dbxvsbx && *_dbxvsbx) (*_dbxvsbx)->Fill(iEvent.bunchCrossing(),he->deltaBX());
+   if(_dbxvsbx && *_dbxvsbx) (*_dbxvsbx)->Fill(iEvent.bunchCrossing()%3564,he->deltaBX());
    if(m_ewhdepth && *m_ewhdepth) (*m_ewhdepth)->Fill(he->depth());
 
    edm::Handle<APVCyclePhaseCollection> apvphase;
@@ -205,7 +205,7 @@ EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSetup& 
        tbx -= thephase;
        (*_bxincycle)->Fill(tbx%70);
        if(_dbxvsbxincycle && *_dbxvsbxincycle) (*_dbxvsbxincycle)->Fill(tbx%70,he->deltaBX());
-       if(_bxincyclevsbx && *_bxincyclevsbx) (*_bxincyclevsbx)->Fill(iEvent.bunchCrossing(),tbx%70);
+       if(_bxincyclevsbx && *_bxincyclevsbx) (*_bxincyclevsbx)->Fill(iEvent.bunchCrossing()%3564,tbx%70);
        if(_orbitvsbxincycle && *_orbitvsbxincycle) (*_orbitvsbxincycle)->Fill(tbx%70,iEvent.orbitNumber());
 
      }

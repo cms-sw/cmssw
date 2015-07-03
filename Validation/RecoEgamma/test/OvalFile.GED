@@ -1,12 +1,12 @@
 <var name="TEST_COMMENT" value="">
-<var name="TEST_NEW" value="7_5_0_pre2_std">
-<var name="TEST_REF" value="7_5_0_pre1_std">
+<var name="TEST_NEW" value="7_5_0_pre5_std">
+<var name="TEST_REF" value="7_5_0_pre4_std">
 
-<var name="TAG_STARTUP" value="MCRUN2_74_V7">
+<var name="TAG_STARTUP" value="MCRUN2_75_V5">
 <var name="DATA_VERSION" value="v1">
 
 TAG for the REFERENCE DATA, USED ONLY FOR INFORMATION ON WEB PAGE
-<var name="DD_COND_REF" value="MCRUN2_74_V7-v1">
+<var name="DD_COND_REF" value="MCRUN2_75_V1-v1">
 
 <var name="DD_RELEASE" value="${CMSSW_VERSION}">
 
