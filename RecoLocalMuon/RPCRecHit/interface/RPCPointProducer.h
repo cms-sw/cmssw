@@ -31,6 +31,7 @@ class RPCPointProducer : public edm::stream::EDProducer<> {
       const edm::InputTag tracks_;
    private:
       void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
       void produce(edm::Event&, const edm::EventSetup&) override;
       const bool debug;
       const bool incldt;

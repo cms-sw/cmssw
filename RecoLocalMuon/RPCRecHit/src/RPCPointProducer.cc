@@ -124,5 +124,13 @@ void  RPCPointProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iS
 }
 
 
+void  RPCPointProducer::endRun(edm::Run const& iRun, edm::EventSetup const& iSetup){
 
+    delete TheDTObjectsMap_;
+    delete TheCSCObjectsMap_;
+    delete TheDTtrackObjectsMap_;
+    delete TheCSCtrackObjectsMap_;
+    
+    
+}
 
