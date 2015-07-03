@@ -69,16 +69,34 @@ operator()(const reco::GsfElectronPtr& cand) const{
   const std::string& val_name = contentTags_.find("mvaVal")->second.instance();
   const std::string& cat_name = contentTags_.find("mvaVal")->second.instance();
   edm::Ptr<pat::Electron> pat(cand);
+  float val = -1.0;
+  int   cat = -1;
+  if( _mvaCategoriesMap.isValid() && _mvaCategoriesMap->contains( cand.id() ) &&
+      _mvaValueMap.isValid() && _mvaValueMap->contains( cand.id() ) ) {
+    cat = (*_mvaCategoriesMap)[cand];
+    val = (*_mvaValueMap)[cand];
+  } else if ( _mvaCategoriesMap.isValid() && _mvaValueMap.isValid() &&
+              _mvaCategoriesMap->idSize() == 1 && _mvaValueMap->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    cat = _mvaCategoriesMap->begin()[cand.key()];
+    val = _mvaValueMap->begin()[cand.key()];
+  } else if ( _mvaCategoriesMap.isValid() && _mvaValueMap.isValid() ){ // throw an exception
+    cat = (*_mvaCategoriesMap)[cand];
+    val = (*_mvaValueMap)[cand];
+  }
+
 
   // Find the cut value
-  const int iCategory = _mvaCategoriesMap.isValid() ? (*_mvaCategoriesMap)[cand] : pat->userInt( cat_name );
+  const int iCategory = _mvaCategoriesMap.isValid() ? cat : pat->userInt( cat_name );
   if( iCategory >= (int)(_mvaCutValues.size()) )
     throw cms::Exception(" Error in MVA categories: ")
       << " found a particle with a category larger than max configured " << std::endl;
   const float cutValue = _mvaCutValues[iCategory];
 
   // Look up the MVA value for this particle
-  const float mvaValue = _mvaValueMap.isValid() ? (*_mvaValueMap)[cand] : pat->userFloat( val_name );
+  const float mvaValue = _mvaValueMap.isValid() ? val : pat->userFloat( val_name );
 
   // Apply the cut and return the result
   return mvaValue > cutValue;
@@ -89,7 +107,20 @@ double GsfEleMVACut::value(const reco::CandidatePtr& cand) const {
   // in case we are by-value
   const std::string& val_name =contentTags_.find("mvaVal")->second.instance();
   edm::Ptr<pat::Electron> pat(cand);
+  float val = 0.0;
+  if( _mvaCategoriesMap.isValid() && _mvaCategoriesMap->contains( cand.id() ) &&
+      _mvaValueMap.isValid() && _mvaValueMap->contains( cand.id() ) ) {
+    val = (*_mvaValueMap)[cand];
+  } else if ( _mvaCategoriesMap.isValid() && _mvaValueMap.isValid() &&
+              _mvaCategoriesMap->idSize() == 1 && _mvaValueMap->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    val = _mvaValueMap->begin()[cand.key()];
+  } else if ( _mvaCategoriesMap.isValid() && _mvaValueMap.isValid() ){ // throw an exception
+    val = (*_mvaValueMap)[cand];
+  }
 
-  const float mvaValue = _mvaValueMap.isValid() ? (*_mvaValueMap)[cand] : pat->userFloat( val_name );
+  const float mvaValue = _mvaValueMap.isValid() ? val : pat->userFloat( val_name );
   return mvaValue;
 }
