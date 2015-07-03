@@ -445,6 +445,7 @@ HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 HLT_Activity_Ecal_SC7_v*					# JIRA: CMSHLT-252
 HLT_EcalCalibration_v*						# JIRA: CMSHLT-281
 AlCa_EcalPhiSym_v*						# JIRA: CMSHLT-276
+AlCa_Ele27_WPVeryLoose_Gsf_v*					# JIRA: CMSHLT-366
 
 HLT_HcalCalibration_v*						# JIRA: CMSHLT-306
 HLT_GlobalRunHPDNoise_v*					# JIRA: CMSHLT-306
@@ -509,7 +510,7 @@ RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
 ALCALUMIPIXELSOutput
-#ElectronStreamOutput						# JIRA: CMSHLT-366
+ElectronStreamOutput						# JIRA: CMSHLT-366
 #ExpressForCosmicsOutput					# only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
 LookAreaOutput

@@ -24,7 +24,7 @@ def extractBlock(config, blocks, target):
 def extractBlocks(config):
   outputA    = ( 'hltOutputA', )
   outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCALUMIPIXELS' , 'hltOutputRPCMON' )
-  outputMON  = ( 'hltOutputA', 'hltOutputDQM', 'hltOutputLookArea', 'hltOutputReleaseValidation' )
+  outputMON  = ( 'hltOutputA', 'hltOutputDQM', 'hltOutputDQMOffline', 'hltOutputLookArea', 'hltOutputReleaseValidation' )
   extractBlock(config, outputA,    'hltOutputA_cff.py')
   extractBlock(config, outputALCA, 'hltOutputALCA_cff.py')
   extractBlock(config, outputMON,  'hltOutputMON_cff.py')
@@ -77,6 +77,7 @@ hltDebugOutputBlocks = (
   # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputA.outputCommands,
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+  hltOutputMON_cff.block_hltOutputDQMOffline.outputCommands,
   hltOutputMON_cff.block_hltOutputLookArea.outputCommands,
   hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
 )
@@ -88,6 +89,7 @@ hltDebugWithAlCaOutputBlocks = (
   # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputA.outputCommands,
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
+  hltOutputMON_cff.block_hltOutputDQMOffline.outputCommands,
   hltOutputMON_cff.block_hltOutputLookArea.outputCommands,
   hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
   # the ALCA streams have the AlCa outputs
