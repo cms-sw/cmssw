@@ -486,7 +486,7 @@ class PlotMaker:
                 #
                 # blinding policy
                 blind = pspec.getOption('Blinded','None') if 'data' in pmap else 'None'
-                if options.unblind == True: blind = 'None'
+                if self._options.unblind == True: blind = 'None'
                 xblind = [9e99,-9e99]
                 if re.match(r'(bin|x)\s*([<>]?)\s*(\+|-)?\d+(\.\d+)?|(\+|-)?\d+(\.\d+)?\s*<\s*(bin|x)\s*<\s*(\+|-)?\d+(\.\d+)?', blind):
                     xfunc = (lambda h,b: b)             if 'bin' in blind else (lambda h,b : h.GetXaxis().GetBinCenter(b));
@@ -502,6 +502,31 @@ class PlotMaker:
                     #print "final blinded range x = [%s, %s]" % (xblind[0],xblind[1])
                 elif blind != "None":
                     raise RuntimeError, "Unrecongnized value for 'Blinded' option, stopping here"
+                #
+                # Pseudo-data?
+                if self._options.pseudoData:
+                    if "data" in pmap: raise RuntimeError, "Can't use --pseudoData if there's also real data (maybe you want --xp data?)"
+                    if self._options.pseudoData == "background":
+                        pdata = pmap["background"]
+                        pdata = pdata.Clone(str(pdata.GetName()).replace("_background","_data"))
+                    elif self._options.pseudoData == "all":
+                        pdata = pmap["background"]
+                        pdata = pdata.Clone(str(pdata.GetName()).replace("_background","_data"))
+                        if "signal" in pmap: pdata.Add(pmap["signal"])
+                    else:
+                        raise RuntimeError, "Pseudo-data option %s not supported" % self._options.pseudoData
+                    if "TH1" in pdata.ClassName():
+                        for i in xrange(1,pdata.GetNbinsX()+1):
+                            pdata.SetBinContent(i, ROOT.gRandom.Poisson(pdata.GetBinContent(i)))
+                            pdata.SetBinError(i, sqrt(pdata.GetBinContent(i)))
+                    elif "TH2" in pdata.ClassName():
+                        for ix in xrange(1,pdata.GetNbinsX()+1):
+                          for iy in xrange(1,pdata.GetNbinsY()+1):
+                            pdata.SetBinContent(ix, iy, ROOT.gRandom.Poisson(pdata.GetBinContent(ix, iy)))
+                            pdata.SetBinError(ix, iy, sqrt(pdata.GetBinContent(ix, iy)))
+                    else:
+                        raise RuntimeError, "Can't make pseudo-data for %s" % pdata.ClassName()
+                    pmap["data"] = pdata
                 #
                 if not makeStack: 
                     for k,v in pmap.iteritems():
@@ -730,6 +755,7 @@ def addPlotMakerOptions(parser):
     parser.add_option("--exclude-plot", "--xP", dest="plotexclude", action="append", default=[], help="Exclude these plots from the full file")
     parser.add_option("--legendWidth", dest="legendWidth", type="float", default=0.25, help="Width of the legend")
     parser.add_option("--flagDifferences", dest="flagDifferences", action="store_true", default=False, help="Flag plots that are different (when using only two processes, and plotmode nostack")
+    parser.add_option("--pseudoData", dest="pseudoData", type="string", default=None, help="If set to 'background' or 'all', it will plot also a pseudo-dataset made from background (or signal+background) with Poisson fluctuations in each bin.")
 
 if __name__ == "__main__":
     from optparse import OptionParser

@@ -696,11 +696,18 @@ float multiIso_multiWP(int LepGood_pdgId, float LepGood_pt, float LepGood_eta, f
            return abs(LepGood_pdgId)==13 ? 
                     multiIso_singleWP(LepGood_miniRelIso,LepGood_jetPtRatio,LepGood_jetPtRel, WP::T) :
                     multiIso_singleWP(LepGood_miniRelIso,LepGood_jetPtRatio,LepGood_jetPtRel, WP::VT) ;
+        case WP::M:
+           return abs(LepGood_pdgId)==13 ? 
+                    multiIso_singleWP(LepGood_miniRelIso,LepGood_jetPtRatio,LepGood_jetPtRel, WP::M) :
+                    multiIso_singleWP(LepGood_miniRelIso,LepGood_jetPtRatio,LepGood_jetPtRel, WP::T) ;
         case WP::VVL: return LepGood_miniRelIso < 0.4;
         default:
             std::cerr << "Working point " << wp << " not implemented for multiIso_multiWP" << std::endl;
             abort();
     }
+}
+float multiIso_multiWP(int LepGood_pdgId, float LepGood_pt, float LepGood_eta, float LepGood_miniRelIso, float LepGood_jetPtRatio, float LepGood_jetPtRel, int wp) {
+    return multiIso_multiWP(LepGood_pdgId,LepGood_pt,LepGood_eta,LepGood_miniRelIso,LepGood_jetPtRatio,LepGood_jetPtRel,WP::WPId(wp));
 }
 
 
