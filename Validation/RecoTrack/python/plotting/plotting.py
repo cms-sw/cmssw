@@ -161,20 +161,31 @@ class AggregateBins:
 
         result = ROOT.TH1F(self._name, self._name, len(self._mapping), 0, len(self._mapping))
 
+        # TH1 can't really be used as a map/dict, so convert it here:
+        values = {}
+        for i in xrange(1, th1.GetNbinsX()+1):
+            values[th1.GetXaxis().GetBinLabel(i)] = (th1.GetBinContent(i), th1.GetBinError(i))
+
         if isinstance(self._mapping, list):
             for i, label in enumerate(self._mapping):
-                bin = th1.GetXaxis().FindBin(label)
-                if bin > 0:
-                    result.SetBinContent(i+1, th1.GetBinContent(bin))
+                try:
+                    result.SetBinContent(i+1, values[label][0])
+                    result.SetBinError(i+1, values[label][1])
+                except KeyError:
+                    pass
                 result.GetXaxis().SetBinLabel(i+1, label)
         else:
             for i, (key, labels) in enumerate(self._mapping.iteritems()):
                 sumTime = 0
+                sumErrorSq = 0
                 for l in labels:
-                    bin = th1.GetXaxis().FindBin(l)
-                    if bin > 0:
-                        sumTime += th1.GetBinContent(bin)
+                    try:
+                        sumTime += values[l][0]
+                        sumErrorSq += values[l][1]**2
+                    except KeyError:
+                        pass
                 result.SetBinContent(i+1, sumTime)
+                result.SetBinError(i+1, math.sqrt(sumErrorSq))
                 result.GetXaxis().SetBinLabel(i+1, key)
 
         if self._normalizeTo is not None:
@@ -703,9 +714,9 @@ class Plot:
         # Create frame
         if ratio:
             ratioBounds = (bounds[0], self._ratioYmin, bounds[2], self._ratioYmax)
-            frame = FrameRatio(pad, bounds, ratioBounds, ratioFactor, nrows, self._xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
+            frame = FrameRatio(pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
         else:
-            frame = Frame(pad, bounds, nrows, self._xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
+            frame = Frame(pad, bounds, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
 
         # Set log and grid
         frame.setLogx(self._xlog)

@@ -87,6 +87,17 @@ val.doPlots(algos=Algos, qualities=Qualities, refRelease=RefRelease,
             plotterDrawArgs={"ratio": True}
 )
 
+# Summary plots
+vals = validation.Validation(
+    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
+    fastsimSamples = fastsimstartupsamples + pileupfastsimstartupsamples,
+    newRelease=NewRelease, selectionName="_summary"
+)
+vals.doPlots(refRelease=RefRelease,
+             refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.summaryPlotter,
+             algos=None, qualities=None, plotterDrawArgs={"ratio": True}
+)
+
 # Timing plots
 #val2 = validation.Validation(
 #    fullsimSamples = startupsamples, fastsimSamples=[],

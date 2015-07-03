@@ -1,8 +1,8 @@
 from plotting import FakeDuplicate, AggregateBins, Plot, PlotGroup, Plotter, AlgoOpt
 import validation
 
-_maxEff = [0.2, 0.5, 0.8, 1.025]
-_maxFake = [0.2, 0.5, 0.8, 1.025]
+_maxEff = [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
+_maxFake = [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True),
@@ -332,6 +332,63 @@ _tracks_map = {
         'muonSeededStepOutIn' : 'cutsRecoMuonSeededStepOutInHp_trackingParticleRecoAsssociation'
     }
 }
+
+_collLabelMap = collections.OrderedDict([
+    ('generalTracks'       , ['generalTracks']),
+    ('initialStep'         , ['cutsRecoTracksInitialStep']),
+    ('lowPtTripletStep'    , ['cutsRecoTracksLowPtTripletStep']),
+    ('pixelPairStep'       , ['cutsRecoTracksPixelPairStep']),
+    ('detachedTripletStep' , ['cutsRecoTracksDetachedTripletStep']),
+    ('mixedTripletStep'    , ['cutsRecoTracksMixedTripletStep']),
+    ('pixelLessStep'       , ['cutsRecoTracksPixelLessStep']),
+    ('tobTecStep'          , ['cutsRecoTracksTobTecStep']),
+    ('jetCoreRegionalStep' , ['cutsRecoTracksJetCoreRegionalStep']),
+    ('muonSeededStepInOut' , ['cutsRecoTracksMuonSeededStepInOut']),
+    ('muonSeededStepOutIn' , ['cutsRecoTracksMuonSeededStepOutIn']),
+    ('ak4PFJets'           , ['cutsRecoTracksAK4PFJets']),
+    ('btvLike'             , ['cutsRecoTracksBtvLike']),
+])
+_collLabelMapHp = collections.OrderedDict([
+    ('generalTracks'       , ['cutsRecoTracksHp']),
+    ('initialStep'         , ['cutsRecoTracksInitialStepHp']),
+    ('lowPtTripletStep'    , ['cutsRecoTracksLowPtTripletStepHp']),
+    ('pixelPairStep'       , ['cutsRecoTracksPixelPairStepHp']),
+    ('detachedTripletStep' , ['cutsRecoTracksDetachedTripletStepHp']),
+    ('mixedTripletStep'    , ['cutsRecoTracksMixedTripletStepHp']),
+    ('pixelLessStep'       , ['cutsRecoTracksPixelLessStepHp']),
+    ('tobTecStep'          , ['cutsRecoTracksTobTecStepHp']),
+    ('jetCoreRegionalStep' , ['cutsRecoTracksJetCoreRegionalStepHp']),
+    ('muonSeededStepInOut' , ['cutsRecoTracksMuonSeededStepInOutHp']),
+    ('muonSeededStepOutIn' , ['cutsRecoTracksMuonSeededStepOutInHp']),
+])
+_common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
+_summary = PlotGroup("summary", [
+    Plot(AggregateBins("efficiency", "effic_vs_coll", _collLabelMap),
+         title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+    Plot(AggregateBins("efficiencyAllPt", "effic_vs_coll_allPt", _collLabelMap),
+         title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+
+    Plot(AggregateBins("fakerate", "fakerate_vs_coll", _collLabelMap), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
+    Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", _collLabelMap), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
+    Plot(AggregateBins("pileuprate", "pileuprate_coll", _collLabelMap), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
+])
+_summaryHp = PlotGroup("summaryHp", [
+    Plot(AggregateBins("efficiency", "effic_vs_coll", _collLabelMapHp),
+         title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+    Plot(AggregateBins("efficiencyefficiencyAllPt", "effic_vs_coll", _collLabelMapHp),
+         title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+    Plot(AggregateBins("fakerate", "fakerate_vs_coll", _collLabelMapHp), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
+    Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", _collLabelMapHp), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
+    Plot(AggregateBins("pileuprate", "pileuprate_coll", _collLabelMapHp), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
+])
+
+summaryPlotter = Plotter(
+    plotter.getPossibleDirectoryNames(),
+[
+    _summary,
+    _summaryHp
+])
+
 
 
 class TrackingValidation(validation.Validation):
