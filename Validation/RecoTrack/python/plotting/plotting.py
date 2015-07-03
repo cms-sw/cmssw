@@ -326,7 +326,7 @@ class FrameRatio:
             xoffsetFactor *= 1.5
         elif nrows == 3:
             yoffsetFactor *= 4
-            xoffsetFactor *= 2
+            xoffsetFactor *= 2.3
 
         self._frame.GetYaxis().SetTitleOffset(self._frameRatio.GetYaxis().GetTitleOffset()*yoffsetFactor)
         self._frameRatio.GetYaxis().SetLabelSize(int(self._frameRatio.GetYaxis().GetLabelSize()*0.8))
@@ -922,6 +922,7 @@ class PlotGroup:
         plots -- List of Plot objects
 
         Keyword arguments:
+        ncols    -- Number of columns (default 2)
         legendDx -- Float for moving TLegend in x direction (default None)
         legendDy -- Float for moving TLegend in y direction (default None)
         legendDw -- Float for changing TLegend width (default None)
@@ -933,6 +934,8 @@ class PlotGroup:
 
         def _set(attr, default):
             setattr(self, "_"+attr, kwargs.get(attr, default))
+
+        _set("ncols", 2)
 
         _set("legendDx", None)
         _set("legendDy", None)
@@ -966,8 +969,8 @@ class PlotGroup:
         if separate:
             return self._drawSeparate(algo, legendLabels, prefix, saveFormat, ratio)
 
-        cwidth = 1000
-        nrows = int((len(self._plots)+1)/2) # this should work also for odd n
+        cwidth = 500*self._ncols
+        nrows = int((len(self._plots)+1)/self._ncols) # this should work also for odd n
         cheight = 500 * nrows
 
         if ratio:
@@ -975,7 +978,7 @@ class PlotGroup:
 
         canvas = ROOT.TCanvas(self._name, self._name, cwidth, cheight)
 
-        canvas.Divide(2, nrows)
+        canvas.Divide(self._ncols, nrows)
         if ratio:
             for i in xrange(0, len(self._plots)):
                 pad = canvas.cd(i+1)
@@ -997,7 +1000,7 @@ class PlotGroup:
             lx1 = 0.1
             lx2 = 0.9
             ly1 = 0.64
-            ly2 = 0.69
+            ly2 = 0.67
         if self._legendDx is not None:
             lx1 += self._legendDx
             lx2 += self._legendDx
