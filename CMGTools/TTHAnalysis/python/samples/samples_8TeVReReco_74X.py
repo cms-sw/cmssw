@@ -66,7 +66,7 @@ dataSamples740p9 = dataSamplesMu_740p9+dataSamplesE_740p9+dataSamplesMuE_740p9+d
 
 SingleMu_742 = cfg.DataComponent(
     name = 'SingleMu_742',
-    files = kreator.getFiles('/SingleMu/CMSSW_7_4_2-GR_R_74_V12_19May_RelVal_sm2012D-v10/MINIAOD', 'CMS', '.*root'),
+    files = kreator.getFiles('/SingleMu/CMSSW_7_4_2-GR_R_74_V12_19May_RelVal_sm2012D-v1/MINIAOD', 'CMS', '.*root'),
     intLumi = 1, triggers = [], json = json
     )
 SingleMuZ_742 = cfg.DataComponent(
@@ -86,7 +86,7 @@ DoubleElectronZ_742 = cfg.DataComponent(
     )
 MuEG_742 = cfg.DataComponent(
     name = 'MuEG_742',
-    files = kreator.getFiles('/MuEG/CMSSW_7_4_2-GR_R_74_V12_19May_RelVal_meg2012D-v5/MINIAOD', 'CMS', '.*root'),
+    files = kreator.getFiles('/MuEG/CMSSW_7_4_2-GR_R_74_V12_19May_RelVal_meg2012D-v1/MINIAOD', 'CMS', '.*root'),
     intLumi = 1, triggers = [], json = json
     )
 JetHT_742 = cfg.DataComponent(

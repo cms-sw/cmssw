@@ -7,7 +7,11 @@ def dasql(x):
     return json.loads(txtjson)
 
 def go(dataset):
-    dsets = dasql("dataset dataset=%s" % dataset)['data']
+    try:
+        dsets = dasql("dataset dataset=%s" % dataset)['data']
+    except:
+        print "Failed DAS query for %s" % dataset
+        return
     if "*" in dataset:
         for d in dsets:
             go(d['dataset'][0]['name'])
