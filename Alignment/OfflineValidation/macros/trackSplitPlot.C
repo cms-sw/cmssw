@@ -19,7 +19,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                         Bool_t relative,Bool_t resolution,Bool_t pull,
                         TString saveas)
 {
-    if (TkAlStyle::status() == UNSET)
+    if (TkAlStyle::status() == NO_STATUS)
         TkAlStyle::set(INTERNAL);
     gStyle->SetMarkerSize(1.5);
     setupcolors();

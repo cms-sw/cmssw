@@ -221,7 +221,7 @@ extendedValidationTemplate="""
 #include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
 void TkAlExtendedOfflineValidation()
 {
-  TkAlStyle::set(.oO[publicationstatus]Oo.);
+  TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.");
   gStyle->SetTitleH        ( 0.07 );
   gStyle->SetTitleW        ( 1.00 );
   gStyle->SetTitleFont     (  132 );

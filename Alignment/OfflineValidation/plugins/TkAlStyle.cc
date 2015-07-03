@@ -27,42 +27,29 @@
 
 
 // Publication status: determines what is plotted in title
-enum PublicationStatus { UNSET, INTERNAL, INTERNAL_SIMULATION, PRELIMINARY, PUBLIC, SIMULATION, UNPUBLISHED };
+enum PublicationStatus { NO_STATUS, INTERNAL, INTERNAL_SIMULATION, PRELIMINARY, PUBLIC, SIMULATION, UNPUBLISHED, CUSTOM };
 TString toTString(const PublicationStatus status) {
   TString str = "";
-  if(      status == UNSET )               str = "Status not set yet!";
+  if(      status == NO_STATUS )           str = "Status not set yet!";
   else if( status == INTERNAL )            str = "internal";
   else if( status == INTERNAL_SIMULATION ) str = "simulation (internal)";
   else if( status == PRELIMINARY )         str = "preliminary";
   else if( status == PUBLIC      )         str = "public";
   else if( status == SIMULATION  )         str = "simulation (public)";
   else if( status == UNPUBLISHED )         str = "unpublished";
+  else if( status == CUSTOM      )         str = "custom title set";
 
   return str;
 }
 
 
 // Data era: determines labels of data-taking periods, e.g. CRUZET
-enum Era { NONE, CRUZET15, CRAFT15, Coll0T15 };
+enum Era { NONE, CRUZET15, CRAFT15, COLL0T15 };
 static TString toTString(const Era era) {
     TString str = "";
     if(      era == CRUZET15 ) str = "0 T cosmic-ray data";
     else if( era == CRAFT15  ) str = "3.8 T cosmic-ray data";
-    else if( era == Coll0T15 ) str = "0 T collision data";
-
-    return str;
-}
-
-
-// Alignment object
-enum AlignObj { IDEALAlign, RUN1Align, CRUZETAlign, CRAFTAlign, Coll0TAlign };
-static TString toTString(const AlignObj obj) {
-    TString str = "";
-    if(      obj == IDEALAlign  ) str = "MC (no mis-alignment)";
-    else if( obj == RUN1Align   ) str = "No Run-2 alignment (Run-1 geometry)";
-    else if( obj == CRUZETAlign ) str = "Aligned (0T cosmic rays)";
-    else if( obj == CRAFTAlign  ) str = "Aligned (cosmic rays)";
-    else if( obj == Coll0TAlign ) str = "Aligned (0T collisions + cosmic rays)";
+    else if( era == COLL0T15 ) str = "0 T collision data";
 
     return str;
 }
@@ -71,7 +58,8 @@ static TString toTString(const AlignObj obj) {
 class TkAlStyle {
 public:
   // Adjusts the gStyle settings and store the PublicationStatus
-  static void set(const PublicationStatus status);
+  static void set(const PublicationStatus status, const Era era = NONE, const TString customTitle = "");
+  static void set(const TString customTitle);
   static PublicationStatus status() { return publicationStatus_; }
 
   // Draws a title "<CMS label> 2015" on the current pad
@@ -93,7 +81,7 @@ public:
   // The idea of this method is that one has control over the
   // TPaveText object and can do proper memory handling.
   static TPaveText* standardTitle() {
-    return standardTitle(publicationStatus_,NONE);
+    return standardTitle(publicationStatus_,era_);
   }
   static TPaveText* standardTitle(const Era era) {
     return standardTitle(publicationStatus_,era);
@@ -197,24 +185,10 @@ public:
   static double lineHeight() { return lineHeight_; }
 
 
-  // Line and fill styles depending on alignment object
-  static int color(const AlignObj obj) {
-    int col = 1;
-    if(      obj == IDEALAlign  ) col = kGray+1;
-    else if( obj == RUN1Align   ) col = kBlack;
-    else if( obj == CRUZETAlign ) col = kGreen+2;
-    else if( obj == CRAFTAlign  ) col = kBlue;
-    else if( obj == Coll0TAlign ) col = kRed;
-
-    return col;
-  }
-  static int style(const AlignObj obj) {
-    return obj==RUN1Align ? kDashed : kSolid;
-  }
-
-
 private:
   static PublicationStatus publicationStatus_;
+  static Era era_;
+  static TString customTitle_;
   static double lineHeight_;
   static double margin_;
   static double textSize_;
@@ -236,7 +210,9 @@ private:
   static TPaveText* label(const int nEntries, const double relWidth, const bool leftt, const bool top);
 };
 
-PublicationStatus TkAlStyle::publicationStatus_ = UNSET;
+PublicationStatus TkAlStyle::publicationStatus_ = NO_STATUS;
+Era TkAlStyle::era_ = NONE;
+TString TkAlStyle::customTitle_ = "";
 double TkAlStyle::lineHeight_ = 0.042;
 double TkAlStyle::margin_ = 0.04;
 double TkAlStyle::textSize_ = 0.035;
@@ -339,7 +315,7 @@ TPaveText* TkAlStyle::title(const TString& txt) {
 // --------------------------------------------------------------
 TString TkAlStyle::header(const PublicationStatus status, const Era era) {
   TString txt;
-  if( status == UNSET ) {
+  if( status == NO_STATUS ) {
     std::cout << "Status not set yet!  Can't draw the title!" << std::endl;
   } else if( status == INTERNAL_SIMULATION ) {
     txt = "Simulation";
@@ -351,8 +327,11 @@ TString TkAlStyle::header(const PublicationStatus status, const Era era) {
     txt = "CMS Simulation";
   } else if( status == UNPUBLISHED ) {
     txt = "CMS (unpublished)";
+  } else if( status == CUSTOM ) {
+    txt = customTitle_;
   }
-  txt += " 2015";
+  if( status != CUSTOM )
+    txt += " 2015";
   if( era != NONE ) txt += ",  "+toTString(era);
 
   return txt;
@@ -360,9 +339,15 @@ TString TkAlStyle::header(const PublicationStatus status, const Era era) {
 
 
 // --------------------------------------------------------------
-void TkAlStyle::set(const PublicationStatus status) {
+void TkAlStyle::set(const PublicationStatus status, const Era era, const TString customTitle) {
   // Store the PublicationStatus for later usage, e.g. in the title
   publicationStatus_ = status;
+  customTitle_ = customTitle;
+  era_ = era;
+  if (publicationStatus_ == CUSTOM && customTitle_ == "")
+    std::cout << "Error: you are trying to use a custom title, but you don't provide it" << std::endl;
+  if (publicationStatus_ != CUSTOM && customTitle_ != "")
+    std::cout << "Error: you provide a custom title, but you don't indicate CUSTOM status.  Your title will not be used." << std::endl;
 
   // Suppress message when canvas has been saved
   gErrorIgnoreLevel = 1001;
@@ -435,6 +420,11 @@ void TkAlStyle::set(const PublicationStatus status) {
 
   //  For the legend
   gStyle->SetLegendBorderSize(0);
+}
+
+void TkAlStyle::set(const TString customTitle)
+{
+  set(CUSTOM, NONE, customTitle);
 }
 
 #endif

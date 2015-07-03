@@ -47,7 +47,6 @@
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="rootgraphics"/>
-<use   name="root"/>
 <use   name="rootmath"/>
 <use   name="rootinteractive"/>
 <use   name="rootrflx"/>
