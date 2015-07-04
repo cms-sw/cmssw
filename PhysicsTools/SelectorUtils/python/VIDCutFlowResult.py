@@ -29,6 +29,9 @@ class VIDCutFlowResult:
     def getCutResultByName(self,name):
         return self.__instance.getCutResultByName(name)
 
+    def isCutMasked(self,idx_or_name):
+        return self.__instance.isCutMasked(idx_or_name)
+
     def getValueCutUpon(self,idx_or_name):
         return self.__instance.getValueCutUpon(idx_or_name)
     
