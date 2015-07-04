@@ -61,6 +61,14 @@ WJetsToLNu_HT400to600,
 WJetsToLNu_HT600toInf,
 ]
 
+### GJets
+GJets_HT400to600 = kreator.makeMCComponent("GJets_HT400to600", "/GJets_HT-400To600_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root",62.05)
+GJets_HT600toInf = kreator.makeMCComponent("GJets_HT600toInf", "/GJets_HT-600ToInf_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root",20.87)
+GJetsHT = [
+GJets_HT400to600,
+GJets_HT600toInf,
+]
+
 ### QCD
 QCD_Pt80to120 = kreator.makeMCComponent("QCD_Pt80to120","/QCD_Pt_80to120_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 2762530)
 QCD_Pt120to170 = kreator.makeMCComponent("QCD_Pt120to170","/QCD_Pt_120to170_TuneCUETP8M1_13TeV_pythia8/RunIISpring15DR74-Asympt25ns_MCRUN2_74_V9-v1/MINIAODSIM", "CMS", ".*root", 471100)
@@ -166,7 +174,7 @@ jetHT_0T = cfg.DataComponent(
 
 ### ----------------------------- summary ----------------------------------------
 
-mcSamples_Asymptotic25ns = TTs + SingleTop + VJets + WJetsToLNuHT + QCDPt + DiBosons + Higgs
+mcSamples_Asymptotic25ns = TTs + SingleTop + VJets + WJetsToLNuHT + GJetsHT + QCDPt + DiBosons + Higgs
 
 mcSamples_Asymptotic50ns = [ TTJets_50ns, TTJets_LO_50ns, WJetsToLNu_50ns, DYJetsToLL_M50_50ns ] + QCDPt_50ns
 
