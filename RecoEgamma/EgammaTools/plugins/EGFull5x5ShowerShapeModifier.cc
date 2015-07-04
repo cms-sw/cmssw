@@ -1,4 +1,4 @@
-#include "PhysicsTools/PatAlgos/interface/ModifyObjectValueBase.h"
+#include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"

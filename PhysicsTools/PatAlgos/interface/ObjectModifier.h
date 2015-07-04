@@ -1,7 +1,7 @@
 #ifndef __PhysicsTools_PatAlgos_ObjectModifier_h__
 #define __PhysicsTools_PatAlgos_ObjectModifier_h__
 
-#include "PhysicsTools/PatAlgos/interface/ModifyObjectValueBase.h"
+#include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
 #include <memory>
 
 namespace pat {
