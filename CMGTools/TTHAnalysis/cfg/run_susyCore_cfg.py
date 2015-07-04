@@ -12,7 +12,7 @@ from CMGTools.RootTools.RootTools import *
 #Load all common analyzers
 from CMGTools.TTHAnalysis.analyzers.susyCore_modules_cff import * 
 
-from CMGTools.TTHAnalysis.samples.samples_8TeV_v517 import triggers_mumu, triggers_ee, triggers_mue, triggers_1mu
+from CMGTools.RootTools.samples.samples_8TeV_v517 import triggers_mumu, triggers_ee, triggers_mue, triggers_1mu
 # Tree Producer
 treeProducer = cfg.Analyzer(
     'treeProducerSusyCore',
@@ -30,7 +30,7 @@ treeProducer = cfg.Analyzer(
 
 
 #-------- SAMPLES AND TRIGGERS -----------
-from CMGTools.TTHAnalysis.samples.samples_13TeV_CSA14 import * 
+from CMGTools.RootTools.samples.samples_13TeV_CSA14 import * 
 
 selectedComponents = [ SingleMu, DoubleElectron, TTHToWW_PUS14, DYJetsToLL_M50_PU20bx25, TTJets_PUS14 ]
 

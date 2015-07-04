@@ -179,7 +179,7 @@ susyCoreSequence.insert(susyCoreSequence.index(skimAnalyzer),
 ##     'SingleEl' : triggers_1e,
 ## }
 
-from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
+from CMGTools.RootTools.samples.samples_13TeV_PHYS14 import *
 
 selectedComponents = [
   ] + WJetsToLNuHT + DYJetsM50HT + [ #DYJetsToLL_M50,

@@ -150,7 +150,7 @@ ttHZskim = cfg.Analyzer(
 ##  PRODUCER
 ##------------------------------------------
 
-from CMGTools.TTHAnalysis.samples.triggers_13TeV_PHYS14 import triggers_HT900, triggers_MET170, triggers_HTMET, triggers_MT2_mumu, triggers_MT2_ee, triggers_MT2_mue, triggers_1mu, triggers_photon155,triggers_1mu_isolow
+from CMGTools.RootTools.samples.triggers_13TeV_PHYS14 import triggers_HT900, triggers_MET170, triggers_HTMET, triggers_MT2_mumu, triggers_MT2_ee, triggers_MT2_mue, triggers_1mu, triggers_photon155,triggers_1mu_isolow
 
 
 triggerFlagsAna.triggerBits = {
@@ -216,9 +216,9 @@ isData = False
 doSpecialSettingsForMECCA = 1
 if test==0:
     # ------------------------------------------------------------------------------------------- #
-    # --- all this lines taken from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 
+    # --- all this lines taken from CMGTools.RootTools.samples.samples_13TeV_PHYS14
     # --- They may not be in synch anymore 
-    from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
+    from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
     kreator = ComponentCreator()
     testComponent = kreator.makeMCComponent("testComponent", "/GJets_HT-200to400_Tune4C_13TeV-madgraph-tauola/Phys14DR-PU20bx25_PHYS14_25_V1-v1/MINIAODSIM", "CMS", ".*root",489.9)
     mcSamples=[testComponent]
@@ -253,8 +253,8 @@ elif test==1:
     #eventSelector.toSelect = [ 84142401 ]
     #sequence = cfg.Sequence([eventSelector] + sequence)
     #from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
-    from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
-    from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import *
+    from CMGTools.RootTools.samples.samples_13TeV_74X import *
+    from CMGTools.RootTools.samples.samples_8TeVReReco_74X import *
 
 #    comp=GJets_HT200to400
 #    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/gjets_ht200to400_miniaodsim_fix.root']
@@ -286,7 +286,7 @@ elif test==2:
 #DYJetsToLL_M50_HT100to200, DYJetsToLL_M50_HT200to400, DYJetsToLL_M50_HT400to600, DYJetsToLL_M50_HT600toInf # DYJetsToLL_M50_HT
 #]
 
-    from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
+    from CMGTools.RootTools.samples.samples_13TeV_74X import *
     selectedComponents = [ 
 TTJets, TTJets_LO, # TTJets
 QCD_Pt80to120, QCD_Pt120to170, QCD_Pt300to470, QCD_Pt470to600, QCD_Pt1000to1400, QCD_Pt1400to1800, QCD_Pt1800to2400, QCD_Pt2400to3200, QCD_Pt3200toInf, # QCD_Pt

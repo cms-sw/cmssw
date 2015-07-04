@@ -21,7 +21,7 @@ ttHGenLevel = cfg.Analyzer(
 )
 
 
-from CMGTools.TTHAnalysis.samples.samples_8TeV_v517 import triggers_mumu, triggers_ee, triggers_mue, triggers_1mu
+from CMGTools.RootTools.samples.samples_8TeV_v517 import triggers_mumu, triggers_ee, triggers_mue, triggers_1mu
 # Tree Producer
 treeProducer = cfg.Analyzer(
     'treeProducerSusyGenLevelOnly',
@@ -33,7 +33,7 @@ treeProducer = cfg.Analyzer(
 
 
 #-------- SAMPLES AND TRIGGERS -----------
-from CMGTools.TTHAnalysis.samples.samples_8TeV_v517 import * 
+from CMGTools.RootTools.samples.samples_8TeV_v517 import * 
 Test  = kreator.makePrivateMCComponent('Test', '/store/cmst3/user/gpetrucc/maiani', ['m100_g050_3mu.GEN.root'] )
 WZ3l_ascms = kreator.makePrivateMCComponent('WZ3l_ascms', '/store/cmst3/user/gpetrucc/maiani/tests', ['xs_wz_3l_ascms.GEN.root'])
 WZ3mu_ascms = kreator.makePrivateMCComponent('WZ3mu_ascms', '/store/cmst3/user/gpetrucc/maiani/tests', ['xs_wz_3mu_ascms.GEN.root'])
@@ -88,7 +88,7 @@ GEN_T1tttt_mGo800_mStop300_mCh285_mChi280_mg5 = kreator.makePrivateMCComponent('
 #GEN_T1tttt_mGo1300_mStop300_mCh285_mChi280_mg5 = kreator.makePrivateMCComponent('GEN_T1tttt_mGo1300_mStop300_mCh285_mChi280_mg5', '/store/cmst3/user/gpetrucc/SUSY/Prod/T1tttt_mGo1300_mStop300_mCh285_mChi280_mg5dec_pythia8/', [ "T1tttt_mGo1300_mStop300_mCh285_mChi280_mg5dec_pythia8.run_%02d_chunk_%02d.root" % (i,j) for i in (1,2) for j in xrange(10) ])
 
 ### ====== SUSY: PRIVATE DECAY+HADRONIZATION OF CENTRALLY PRODUCED LHE FILES ==========
-eosGenFiles = [ x.strip() for x in open(os.environ["CMSSW_BASE"]+"/src/CMGTools/TTHAnalysis/python/samples/genLevel-susySMS-13TeV", "r") ]
+eosGenFiles = [ x.strip() for x in open(os.environ["CMSSW_BASE"]+"/src/CMGTools/RootTools/python/samples/genLevel-susySMS-13TeV", "r") ]
 print eosGenFiles
 def mkGen(name,what):
     return kreator.makePrivateMCComponent(name, '/'+what, [ f for f in eosGenFiles if ("/%s/"%what) in f ] )
