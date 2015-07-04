@@ -67,7 +67,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
 
   // in case we are by-value
   const std::string& val_name = contentTags_.find("mvaVal")->second.instance();
-  const std::string& cat_name = contentTags_.find("mvaVal")->second.instance();
+  const std::string& cat_name = contentTags_.find("mvaCat")->second.instance();
   edm::Ptr<pat::Electron> pat(cand);
   float val = -1.0;
   int   cat = -1;
