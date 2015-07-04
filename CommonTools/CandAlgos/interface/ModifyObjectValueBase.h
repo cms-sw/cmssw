@@ -1,5 +1,5 @@
-#ifndef __PhysicsTools_PatAlgos_ModifyObjectValueBase_h__
-#define __PhysicsTools_PatAlgos_ModifyObjectValueBase_h__
+#ifndef __CommonTools_CandAlgos_ModifyObjectValueBase_h__
+#define __CommonTools_CandAlgos_ModifyObjectValueBase_h__
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"

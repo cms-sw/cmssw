@@ -1,4 +1,4 @@
-#include "PhysicsTools/PatAlgos/interface/ModifyObjectValueBase.h"
+#include "CommonTools/CandAlgos/interface/ModifyObjectValueBase.h"
 
 EDM_REGISTER_PLUGINFACTORY(ModifyObjectValueFactory,"ModifyObjectValueFactory");
 
