@@ -102,16 +102,16 @@ void PhotonMVAEstimatorRun2Spring15NonTrig::getEventContent(const edm::Event& iE
 
   // Make sure everything is retrieved successfully
   if(! (_full5x5SigmaIEtaIEtaMap.isValid()
-	|| _full5x5SigmaIEtaIPhiMap.isValid()
-	|| _full5x5E1x3Map.isValid()
-	|| _full5x5E2x2Map.isValid()
-	|| _full5x5E2x5MaxMap.isValid()
-	|| _full5x5E5x5Map.isValid()
-	|| _esEffSigmaRRMap.isValid()
-	|| _phoChargedIsolationMap.isValid()
-	|| _phoPhotonIsolationMap.isValid()
-	|| _phoWorstChargedIsolationMap.isValid()
-	|| _rho.isValid() ) )
+	&& _full5x5SigmaIEtaIPhiMap.isValid()
+	&& _full5x5E1x3Map.isValid()
+	&& _full5x5E2x2Map.isValid()
+	&& _full5x5E2x5MaxMap.isValid()
+	&& _full5x5E5x5Map.isValid()
+	&& _esEffSigmaRRMap.isValid()
+	&& _phoChargedIsolationMap.isValid()
+	&& _phoPhotonIsolationMap.isValid()
+	&& _phoWorstChargedIsolationMap.isValid()
+	&& _rho.isValid() ) )
     throw cms::Exception("MVA failure: ")
       << "Failed to retrieve event content needed for this MVA" 
       << std::endl
