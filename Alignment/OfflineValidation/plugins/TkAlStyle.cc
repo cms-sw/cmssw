@@ -40,6 +40,32 @@ TString toTString(const PublicationStatus status) {
 }
 
 
+// Data era: determines labels of data-taking periods, e.g. CRUZET
+enum Era { NONE, CRUZET15, CRAFT15, Coll0T15 };
+static TString toTString(const Era era) {
+    TString str = "";
+    if(      era == CRUZET15 ) str = "0 T cosmic-ray data";
+    else if( era == CRAFT15  ) str = "3.8 T cosmic-ray data";
+    else if( era == Coll0T15 ) str = "0 T collision data";
+
+    return str;
+}
+
+
+// Alignment object
+enum AlignObj { IDEALAlign, RUN1Align, CRUZETAlign, CRAFTAlign, Coll0TAlign };
+static TString toTString(const AlignObj obj) {
+    TString str = "";
+    if(      obj == IDEALAlign  ) str = "MC (no mis-alignment)";
+    else if( obj == RUN1Align   ) str = "No Run-2 alignment (Run-1 geometry)";
+    else if( obj == CRUZETAlign ) str = "Aligned (0T cosmic rays)";
+    else if( obj == CRAFTAlign  ) str = "Aligned (cosmic rays)";
+    else if( obj == Coll0TAlign ) str = "Aligned (0T collisions + cosmic rays)";
+
+    return str;
+}
+
+
 class TkAlStyle {
 public:
   // Adjusts the gStyle settings and store the PublicationStatus
@@ -57,17 +83,21 @@ public:
   // Note that this method does not allow for easy memory
   // handling. For that, use standardTitle().
   static void drawStandardTitle() { standardTitle()->Draw("same"); }
+  static void drawStandardTitle(const Era era) { standardTitle(era)->Draw("same"); }
 
   // Returns a TPaveText object that fits as a histogram title
   // with the current pad dimensions.
   // It has the same text as described in drawStandardTitle().
   // The idea of this method is that one has control over the
   // TPaveText object and can do proper memory handling.
-  static TPaveText* standardTitle(const PublicationStatus status) {
-    return title(header(status));
-  }
   static TPaveText* standardTitle() {
-    return standardTitle(publicationStatus_);
+    return standardTitle(publicationStatus_,NONE);
+  }
+  static TPaveText* standardTitle(const Era era) {
+    return standardTitle(publicationStatus_,era);
+  }
+  static TPaveText* standardTitle(const PublicationStatus status, const Era era) {
+    return title(header(status,era));
   }
 
   // Returns a TPaveText object that fits as a histogram title
@@ -165,6 +195,22 @@ public:
   static double lineHeight() { return lineHeight_; }
 
 
+  // Line and fill styles depending on alignment object
+  static int color(const AlignObj obj) {
+    int col = 1;
+    if(      obj == IDEALAlign  ) col = kGray+1;
+    else if( obj == RUN1Align   ) col = kBlack;
+    else if( obj == CRUZETAlign ) col = kGreen+2;
+    else if( obj == CRAFTAlign  ) col = kBlue;
+    else if( obj == Coll0TAlign ) col = kRed;
+
+    return col;
+  }
+  static int style(const AlignObj obj) {
+    return obj==RUN1Align ? kDashed : kSolid;
+  }
+
+
 private:
   static PublicationStatus publicationStatus_;
   static double lineHeight_;
@@ -176,7 +222,7 @@ private:
 
   // returns the standard-title (CMS label 2015) depending
   // on the PublicationStatus 
-  static TString header(const PublicationStatus status);
+  static TString header(const PublicationStatus status, const Era era);
 
   // NDC coordinates for TPave, TLegend,...
   static void setXCoordinatesL(const double relWidth, double& x0, double& x1);
@@ -289,7 +335,7 @@ TPaveText* TkAlStyle::title(const TString& txt) {
 
 
 // --------------------------------------------------------------
-TString TkAlStyle::header(const PublicationStatus status) {
+TString TkAlStyle::header(const PublicationStatus status, const Era era) {
   TString txt;
   if( status == INTERNAL_SIMULATION ) {
     txt = "Simulation";
@@ -303,6 +349,7 @@ TString TkAlStyle::header(const PublicationStatus status) {
     txt = "CMS (unpublished)";
   }
   txt += " 2015";
+  if( era != NONE ) txt += ",  "+toTString(era);
 
   return txt;
 }
