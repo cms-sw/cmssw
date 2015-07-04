@@ -168,24 +168,30 @@ def miniAOD_customizeCommon(process):
 
     #VID Electron IDs
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff']
+                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff']
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronMVAValueMapProducer.src = \
+        cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
 
     #VID Photon IDs
-    photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff']
+    photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff',
+                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_PHYS14_PU20bx25_nonTrig_V1_cff',
+                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V0_cff']
     switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) 
     process.egmPhotonIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.photonIDValueMapProducer.src = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")
-    process.photonIDValueMapProducer.srcMiniAOD = \
-        cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.photonIDValueMapProducer.particleBasedIsolation = \
-        cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")    
+        cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")
+    process.photonMVAValueMapProducer.src = \
+        cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
 
