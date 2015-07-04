@@ -388,7 +388,7 @@ void DynamicTruncation::preliminaryFit(map<int, vector<DetId> > compatibleIds, m
     }
   }
   if (!prelFitMeas.empty()) prelFitMeas.pop_back();
-  for (ConstRecHitContainer::const_iterator imrh = prelFitMeas.end(); imrh != prelFitMeas.begin(); imrh-- ) {
+  for (auto imrh = prelFitMeas.rbegin(); imrh != prelFitMeas.rend(); ++imrh) {
     DetId id = (*imrh)->geographicalId(); 
     TrajectoryStateOnSurface tmp = propagatorPF->propagate(prelFitState, theG->idToDet(id)->surface());
     if (tmp.isValid()) prelFitState = tmp; 
