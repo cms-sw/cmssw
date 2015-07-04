@@ -7,6 +7,8 @@
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
 
+#include "DataFormats/PatCandidates/interface/PATObject.h"
+
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
@@ -57,6 +59,7 @@ namespace DataFormats_PatCandidates {
   edm::ValueMap<vid::CutFlowResult> vm_vcfr;
   edm::Wrapper<vid::CutFlowResult> w_vcfr;
   edm::Wrapper<edm::ValueMap<vid::CutFlowResult> > w_vm_vcfr;
+  pat::UserHolder<vid::CutFlowResult> uh_vcfr;
 
   };
 
