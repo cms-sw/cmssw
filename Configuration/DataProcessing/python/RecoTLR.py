@@ -79,6 +79,8 @@ def customiseExpress(process):
 def customiseExpressRun2(process):
     process = customiseExpress(process)
     process = customiseDataRun2Common(process)
+    process.SiStripClusterChargeCutTight.value = -1.
+    process.SiStripClusterChargeCutLoose.value = -1.
     return process
 
 def customiseExpressRun2B0T(process):
@@ -103,6 +105,8 @@ def customisePrompt(process):
 def customisePromptRun2(process):
     process = customisePrompt(process)
     process = customiseDataRun2Common(process)
+    process.SiStripClusterChargeCutTight.value = -1.
+    process.SiStripClusterChargeCutLoose.value = -1.
     return process
 
 def customisePromptRun2B0T(process):
