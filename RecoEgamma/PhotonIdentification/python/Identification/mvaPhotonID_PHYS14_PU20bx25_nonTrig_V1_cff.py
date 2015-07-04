@@ -90,3 +90,5 @@ mvaPhoID_PHYS14_PU20bx25_nonTrig_V1_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
 
 central_id_registry.register( mvaPhoID_PHYS14_PU20bx25_nonTrig_V1_wp90.idName,
                               '6919edf9f82a78f675d9dec796fd5fab')
+
+mvaPhoID_PHYS14_PU20bx25_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
