@@ -12,6 +12,12 @@ public:
     return std::abs(scref->eta()) < _maxEta;
   }
   
+  double value(const reco::CandidatePtr& cand) const override final {
+    reco::GsfElectronPtr ele(cand);
+    const reco::SuperClusterRef& scref = ele->superCluster();
+    return std::abs(scref->eta());
+  }
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
