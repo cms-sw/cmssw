@@ -69,6 +69,7 @@
   <class name="edm::ValueMap<vid::CutFlowResult>"/>
   <class name="edm::Wrapper<vid::CutFlowResult>"/>
   <class name="edm::Wrapper<edm::ValueMap<vid::CutFlowResult> >"/>
+  <class name="pat::UserHolder<vid::CutFlowResult>"/>
 
   </selection>
  <exclusion>
