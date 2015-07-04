@@ -8,6 +8,7 @@
   <use   name="DataFormats/SiStripCluster"/>
   <use   name="CommonTools/Utils"/>
   <use   name="cppunit"/>
+  <flags NO_TESTRUN="1"/>
 </bin>
 
 <bin name="testCommonToolsUtilThreaded" file="testCutParserThreaded.cc">
