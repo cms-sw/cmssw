@@ -90,3 +90,5 @@ mvaPhoID_Spring15_50ns_nonTrig_V0_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
 
 central_id_registry.register( mvaPhoID_Spring15_50ns_nonTrig_V0_wp90.idName,
                               '70d691efd445926bdccda729bb3f8542')
+
+mvaPhoID_Spring15_50ns_nonTrig_V0_wp90.isPOGApproved = cms.untracked.bool(True)
