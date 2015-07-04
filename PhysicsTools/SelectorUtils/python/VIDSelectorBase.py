@@ -84,6 +84,9 @@ class VIDSelectorBase:
     def name(self):
         return self.__instance.name()
 
+    def bitMap(self):
+        return self.__instance.bitMap()
+
     def md5String(self):
         return self.__instance.md5String()
 

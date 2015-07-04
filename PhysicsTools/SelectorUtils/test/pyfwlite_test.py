@@ -83,6 +83,7 @@ for iev,event in enumerate(events):
             print '%d : %s : %d'%(i,cf_result.getNameAtIndex(i),cf_result.getCutResultByName(cf_result.getNameAtIndex(i)))
         print passfail, passfail_byvalue
         print cf_result.cutFlowPassed()
+        print "{0:b}".format(selectElectron.bitMap())
         masked_cf_ints = cf_result.getCutFlowResultMasking([2,3,4,9])
         masked_cf_strs = cf_result.getCutFlowResultMasking(['GsfEleDEtaInCut_0',
                                                             'GsfEleDPhiInCut_0',

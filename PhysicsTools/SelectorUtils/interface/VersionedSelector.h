@@ -246,7 +246,7 @@ vid::CutFlowResult VersionedSelector<T>::cutFlowResult() const {
     names_to_index.emplace(realname.str(),idx);
     cut_counter[name]++;
   }
-  return vid::CutFlowResult(name_,names_to_index,bitmap_,values_);
+  return vid::CutFlowResult(name_,md5_string_,names_to_index,values_,bitmap_);
 }
 
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
