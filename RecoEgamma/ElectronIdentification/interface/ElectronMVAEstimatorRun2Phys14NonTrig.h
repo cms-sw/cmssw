@@ -31,34 +31,34 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
 
   // Define the struct that contains all necessary for MVA variables
   struct AllVariables {
-    Float_t kfhits;
+    float kfhits;
     // Pure ECAL -> shower shapes
-    Float_t see;
-    Float_t spp;
-    Float_t OneMinusE1x5E5x5;
-    Float_t R9;
-    Float_t etawidth;
-    Float_t phiwidth;
-    Float_t HoE;
+    float see;
+    float spp;
+    float OneMinusE1x5E5x5;
+    float R9;
+    float etawidth;
+    float phiwidth;
+    float HoE;
     // Endcap only variables
-    Float_t PreShowerOverRaw;
+    float PreShowerOverRaw;
     //Pure tracking variables
-    Float_t kfchi2;
-    Float_t gsfchi2;
+    float kfchi2;
+    float gsfchi2;
     // Energy matching
-    Float_t fbrem;
-    Float_t EoP;
-    Float_t eleEoPout;
-    Float_t IoEmIoP;
+    float fbrem;
+    float EoP;
+    float eleEoPout;
+    float IoEmIoP;
     // Geometrical matchings
-    Float_t deta;
-    Float_t dphi;
-    Float_t detacalo;
+    float deta;
+    float dphi;
+    float detacalo;
     // Spectator variables  
-    Float_t pt;
-    Float_t isBarrel;
-    Float_t isEndcap;
-    Float_t SCeta;
+    float pt;
+    float isBarrel;
+    float isEndcap;
+    float SCeta;
   };
   
   // Constructor and destructor
