@@ -1,7 +1,9 @@
 import ROOT
 import string
 import random
+import sys
 
+from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from PhysicsTools.SelectorUtils.VIDCutFlowResult import VIDCutFlowResult
 import DataFormats.FWLite
 
@@ -41,8 +43,24 @@ class VIDSelectorBase:
         self.__instance = None
         if pythonpset is not None:
             if hasattr(pythonpset,'isPOGApproved'):
-                 del pythonpset.isPOGApproved
+                approved = pythonpset.isPOGApproved.value()
+                if not approved:
+                    sys.stderr.write('This ID is not POG approved and likely under development!!!!\n')
+                    sys.stderr.write('Please make sure to report your progress with this ID'\
+                                         ' at the next relevant POG meeting.\n')
+                del pythonpset.isPOGApproved
+            else:
+                sys.stderr.write('This ID is not POG approved and likely under development!!!!\n')
+                sys.stderr.write('Please make sure to report your progress with this ID'\
+                                     ' at the next relevant POG meeting.\n')
             self.__instance = process_pset( self.__selectorBuilder, pythonpset ) 
+            expectedmd5 = central_id_registry.getMD5FromName(pythonpset.idName)
+            if expectedmd5 != self.md5String():
+                sys.stderr.write("ID: %s\n"%self.name())
+                sys.stderr.write("The expected md5: %s does not match the md5\n"%expectedmd5)
+                sys.stderr.write("calculated by the ID: %s please\n"%self.md5String())
+                sys.stderr.write("update your python configuration or determine the source\n")
+                sys.stderr.write("of transcription error!\n")
             self.__initialized = True
         else:
             self.__instance = self.__selectorBuilder()
@@ -68,8 +86,24 @@ class VIDSelectorBase:
             return
         del process.__instance
         if hasattr(pythonpset,'isPOGApproved'):
+            approved = pythonpset.isPOGApproved.value()
+            if not approved:
+                sys.stderr.write('This ID is not POG approved and likely under development!!!!\n')
+                sys.stderr.write('Please make sure to report your progress with this ID'\
+                                     ' at the next relevant POG meeting.\n')
             del pythonpset.isPOGApproved
+        else:
+            sys.stderr.write('This ID is not POG approved and likely under development!!!!\n')
+            sys.stderr.write('Please make sure to report your progress with this ID'\
+                                 ' at the next relevant POG meeting.\n')
         self.__instance = process_pset( self.__selectorBuilder, pythonpset )         
+        expectedmd5 = central_id_registry.getMD5FromName(pythonpset.idName)
+        if expectedmd5 != self.md5String():
+            sys.stderr.write("ID: %s\n"%self.name())
+            sys.stderr.write("The expected md5: %s does not match the md5\n"%expectedmd5)
+            sys.stderr.write("calculated by the ID: %s please\n"%self.md5String())
+            sys.stderr.write("update your python configuration or determine the source\n")
+            sys.stderr.write("of transcription error!\n")
         self.__initialized = True
 
     def cutFlowSize(self):

@@ -21,9 +21,9 @@ from DataFormats.FWLite import Handle, Events
 from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSelector
 
 
-from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V1_cff import cutBasedElectronID_PHYS14_PU20bx25_V1_standalone_tight
+from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff import cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight
 
-selectElectron = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V1_standalone_tight)
+selectElectron = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight)
 print 'Initialized VID Selector for Electrons'
 print selectElectron
 
@@ -102,7 +102,7 @@ for iev,event in enumerate(events):
         masked_cf_strs = cf_result.getCutFlowResultMasking(['GsfEleDEtaInCut_0',
                                                             'GsfEleDPhiInCut_0',
                                                             'GsfEleFull5x5SigmaIEtaIEtaCut_0',
-                                                            'GsfEleDeltaBetaIsoCutStandalone_0'])
+                                                            'GsfEleEffAreaPFIsoCut_0'])
         print masked_cf_ints.cutFlowPassed(), masked_cf_strs.cutFlowPassed()
 
     for i,ph in enumerate(photons.product()):
@@ -120,7 +120,7 @@ for iev,event in enumerate(events):
 
 print 'test validation framework' 
 
-selectElectronValid = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V1_standalone_tight)
+selectElectronValid = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight)
 selectMuonValid = VIDMuonSelector(globalMuonPromptTight_V0)
 
 from  PhysicsTools.SelectorUtils.VIDSelectorValidator import VIDSelectorValidator
