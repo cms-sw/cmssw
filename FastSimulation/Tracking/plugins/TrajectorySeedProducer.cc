@@ -30,7 +30,6 @@
 
 //Propagator withMaterial
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "FastSimulation/Tracking/plugins/FastTrackingMaskProducer.h"
 
 
 #include <unordered_set>
@@ -58,13 +57,14 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     simTrack_maxD0 = simTrackSelectionConfig.getParameter<double>("maxD0");
     simTrack_maxZ0 = simTrackSelectionConfig.getParameter<double>("maxZ0");
 
-    hitMasks_exists = conf.exists("hitMasks");
-    hitCombinationMasks_exists = conf.exists("hitCombinationMasks");
 
+    hitMasks_exists = conf.exists("hitMasks");
     if (hitMasks_exists){
-    edm::InputTag hitMasksTag = conf.getParameter<edm::InputTag>("hitMasks");   
-    hitMasksToken = consumes<std::vector<bool> >(hitMasksTag);
+      edm::InputTag hitMasksTag = conf.getParameter<edm::InputTag>("hitMasks");   
+      hitMasksToken = consumes<std::vector<bool> >(hitMasksTag);
     }
+    
+    hitCombinationMasks_exists = conf.exists("hitCombinationMasks");
     if (hitCombinationMasks_exists){
       edm::InputTag hitCombinationMasksTag = conf.getParameter<edm::InputTag> ("hitCombinationMasks");   
       hitCombinationMasksToken = consumes<std::vector<bool> >(hitCombinationMasksTag);
@@ -95,7 +95,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     // The name of the hit producer
     edm::InputTag recHitTag = conf.getParameter<edm::InputTag>("recHits");
     recHitTokens = consumes<FastTMRecHitCombinations>(recHitTag);
-    //recHitToken = consumes<FastTMRecHitCombination>(recHitTag);
 
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
@@ -408,7 +407,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	}
 	
 	FastTMRecHitCombination recHitCombination = recHitCombinations->at(icomb);
-	const SimTrack& theSimTrack = (*theSimTracks)[icomb];
+
+	uint32_t simTrackId = recHitCombination.back().simTrackId(0);
+	const SimTrack& theSimTrack = (*theSimTracks)[simTrackId];
 	int vertexIndex = theSimTrack.vertIndex();
 	if (vertexIndex<0)
 	  {

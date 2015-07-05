@@ -111,11 +111,11 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
     hitCombinationMasks->insert(hitCombinationMasks->begin(),oldHitCombinationMasks->begin(),oldHitCombinationMasks->end());
  }
 
-  std::cout << "# tracks: " << trackCollection->size() << std::endl;
-
+  int ngood = 0;
   for (size_t i = 0 ; i!=trackCollection->size();++i)
     {
       
+
       const reco::Track & track = trackCollection->at(i);
       reco::TrackRef trackRef(trackCollection,i);
       if (filterTracks_) {
@@ -123,35 +123,30 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
 	if ( overRideTrkQuals_ ) {
 	  int qual= (*quals)[trackRef];
-	  if ( qual < 0 ) 
+	  if ( qual < 0 ){
 	    goodTk=false;
+	  }
 	  else
 	    goodTk = ( qual & (1<<trackQuality_))>>trackQuality_;
 	}
-	else
+	else {
 	  goodTk=(track.quality(trackQuality_));
+	}
 	if ( !goodTk) continue;
       }
-    
+      ngood++;
        
       // Loop over the recHits
       // todo: implement the minimum number of measurements criterium
       // see http://cmslxr.fnal.gov/lxr/source/RecoLocalTracker/SubCollectionProducers/src/TrackClusterRemover.cc#0166
       for (auto hitIt = track.recHitsBegin() ;  hitIt != track.recHitsEnd(); ++hitIt) {
 
-
 	if((*hitIt)->isValid())
 	  continue;
 
 	const GSSiTrackerRecHit2DLocalPos * hit = dynamic_cast<const GSSiTrackerRecHit2DLocalPos*>(*hitIt);
-	std::cout << "########### INITIALLY: T-1  ##########" << std::endl;
-	std::cout << "hit:  " << hit << std::endl;
 	if(hit){
 
-	  std::cout << "hit_id:  " << hit->id()<< std::endl;
-	  std::cout << "hitCombination_id:  " << hit->hitCombinationId() << std::endl;
-	  std::cout << "hitMasks size:  " << hitMasks->size() << std::endl;
-	  
 	  uint32_t hitCombination_id = hit->hitCombinationId();
 	  if (hitCombination_id >= hitCombinationMasks->size()) { 
 	    hitCombinationMasks->resize(hitCombination_id+1,false);
@@ -164,12 +159,14 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	  }
 	  hitMasks->at(hit_id) = true;
 	}
-
+	
 	else{
-	  std::cout << "WTF" << std::endl;
+	  continue;
+	  // TODO: find out why the cast doesn't work every so many hits
 	}
       }
     }
+
   e.put(hitMasks,"hitMasks");
   e.put(hitCombinationMasks,"hitCombinationMasks");
 }
