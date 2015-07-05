@@ -148,6 +148,10 @@ TrackFromSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    edm::ESHandle<MagneticField> theMF;
    iSetup.get<IdealMagneticFieldRecord>().get(theMF);
 
+   edm::ESHandle<TrackerTopology> httopo;
+   iSetup.get<IdealGeometryRecord>().get(httopo);
+   const TrackerTopology& ttopo = *httopo;
+
    // create tracks from seeds
    int nfailed  = 0;
    for (auto const & seed : *seeds.product()){
@@ -171,7 +175,7 @@ TrackFromSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
      PerigeeTrajectoryError seedPerigeeErrors = PerigeeConversions::ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
      tracks->push_back(Track(0.,0., vSeed1, pSeed, 1, seedPerigeeErrors.covarianceMatrix()));
      seedToTrack->push_back(tracks->size()-1);
-     tracks->back().appendHits(seed.recHits().first,seed.recHits().second);
+     tracks->back().appendHits(seed.recHits().first,seed.recHits().second,ttopo);
      // store the hits
      size_t firsthitindex = rechits->size();
      for(auto hitit = seed.recHits().first;hitit != seed.recHits().second;++hitit){
