@@ -58,14 +58,14 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     simTrack_maxD0 = simTrackSelectionConfig.getParameter<double>("maxD0");
     simTrack_maxZ0 = simTrackSelectionConfig.getParameter<double>("maxZ0");
 
-    hitMasks_exist = conf.exists("hitMasks");
-    hitCombinationMasks_exist = conf.exists("hitCombinationMasks");
+    hitMasks_exists = conf.exists("hitMasks");
+    hitCombinationMasks_exists = conf.exists("hitCombinationMasks");
 
-    if (hitMasks_exist){
+    if (hitMasks_exists){
     edm::InputTag hitMasksTag = conf.getParameter<edm::InputTag>("hitMasks");   
     hitMasksToken = consumes<std::vector<bool> >(hitMasksTag);
     }
-    if (hitCombinationMasks_exist){
+    if (hitCombinationMasks_exists){
       edm::InputTag hitCombinationMasksTag = conf.getParameter<edm::InputTag> ("hitCombinationMasks");   
       hitCombinationMasksToken = consumes<std::vector<bool> >(hitCombinationMasksTag);
     }
@@ -362,12 +362,12 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
   // the tracks to be skipped
   edm::Handle<std::vector<bool> > hitMasks;
-  if (hitMasks_exist){  
+  if (hitMasks_exists){  
     e.getByToken(hitMasksToken,hitMasks);
   }
 
   edm::Handle<std::vector<bool> > hitCombinationMasks;
-  if (hitCombinationMasks_exist){ 
+  if (hitCombinationMasks_exists){ 
     e.getByToken(hitCombinationMasksToken,hitCombinationMasks);	
   }
 
@@ -397,39 +397,36 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     edm::Handle<FastTMRecHitCombinations> recHitCombinations;
     e.getByToken(recHitTokens, recHitCombinations);
 
-    std::cout << "# comb " << recHitCombinations->size() << std::endl;
-    
     std::auto_ptr<TrajectorySeedCollection> output{new TrajectorySeedCollection()};
     
     for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
       {
-	if(hitCombinationMasks_exist
+	if(hitCombinationMasks_exists
 	   && icomb < hitCombinationMasks->size() 
 	   && hitCombinationMasks->at(icomb))	    {
-	  std::cout << "WTF1" << std::endl;
-	  
 	  continue;
 	}
+	
+	FastTMRecHitCombination recHitCombination = recHitCombinations->at(icomb);
+	const SimTrack& theSimTrack = (*theSimTracks)[icomb];
+	int vertexIndex = theSimTrack.vertIndex();
+	if (vertexIndex<0)
+	  {
+	    //tracks are required to be associated to a vertex
+	    continue;
+	  }
+	const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex];
+	
+	if (!this->passSimTrackQualityCuts(theSimTrack,theSimVertex))
+	  {
+	    continue;
+	  }
+	
+	TrajectorySeedHitCandidate previousTrackerHit;
+	TrajectorySeedHitCandidate currentTrackerHit;
+	unsigned int layersCrossed=0;
+	
 
-      FastTMRecHitCombination recHitCombination = recHitCombinations->at(icomb);
-      const SimTrack& theSimTrack = (*theSimTracks)[icomb];
-      int vertexIndex = theSimTrack.vertIndex();
-      if (vertexIndex<0)
-        {
-	  //tracks are required to be associated to a vertex
-	  continue;
-        }
-      const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex];
-      
-      if (!this->passSimTrackQualityCuts(theSimTrack,theSimVertex))
-        {
-	  continue;
-        }
-      
-      TrajectorySeedHitCandidate previousTrackerHit;
-      TrajectorySeedHitCandidate currentTrackerHit;
-      unsigned int layersCrossed=0;
-      
       std::vector<TrajectorySeedHitCandidate> trackerRecHits;
       for (const auto & _hit : recHitCombination )
 	{
@@ -437,9 +434,9 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	     && size_t(_hit.id()) < hitMasks->size() 
 	     && hitMasks->at(_hit.id()))
 	    {
-	      std::cout << "WTF" << std::endl;
 	      continue;
 	    }
+	  
 	  previousTrackerHit=currentTrackerHit;
 	  
 	  currentTrackerHit = TrajectorySeedHitCandidate(&_hit,trackerGeometry,trackerTopology);
@@ -514,20 +511,18 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	  float localErrors[15];
 	  int k = 0;
 	  for (int i=0; i<dim; ++i)
-            {
+	    {
 	      for (int j=0; j<=i; ++j)
-                {
+		{
 		  localErrors[k++] = m(i,j);
-                }
-            }
-	  int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
-	  PTrajectoryStateOnDet initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),initialTSOS.globalMomentum().perp(),localErrors, recHits.back().geographicalId().rawId(), surfaceSide);
-	  output->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
-	  
-        }
-    } //end loop over recHitCombinations
-    
-    std::cout << "# seeds " << output->size() << std::endl;
+		}
+	    }
+	    int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
+	    PTrajectoryStateOnDet initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),initialTSOS.globalMomentum().perp(),localErrors, recHits.back().geographicalId().rawId(), surfaceSide);
+	    output->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
+	    
+	  }
+      } //end loop over recHitCombinations
     e.put(output);
 }
 
