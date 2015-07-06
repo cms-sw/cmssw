@@ -44,13 +44,8 @@
 
 // Constructors and destructor.
 PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet& iConfig):
-  fVtxLabel(iConfig.getUntrackedParameter<edm::InputTag>("vertexLabel",
-                       edm::InputTag("offlinePrimaryVertices"))),
-  fPixelClusterLabel(iConfig.getUntrackedParameter<edm::InputTag>("pixelClusterLabel",
-                       edm::InputTag("siPixelClusters"))),
-  fGtEvmLabel(iConfig.getUntrackedParameter<edm::InputTag>("gtEvmLabel",
-                       edm::InputTag("gtEvmDigis"))),
-  fIncludeVertexInfo(iConfig.getUntrackedParameter<bool>("includeVertexInfo", false)),
+  fPixelClusterLabel(consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getUntrackedParameter<edm::InputTag>("pixelClusterLabel",
+                       edm::InputTag("siPixelClusters")))),
   fIncludePixelClusterInfo(iConfig.getUntrackedParameter<bool>("includePixelClusterInfo", true)),
   fIncludePixelQualCheckHistos(iConfig.getUntrackedParameter<bool>("includePixelQualCheckHistos", true)),
   fResetIntervalInLumiSections(iConfig.getUntrackedParameter<int>("resetEveryNLumiSections", 1)),
@@ -60,15 +55,12 @@ PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet& iConfig):
   bunchTriggerMask(lastBunchCrossing+1,false),
   filledAndUnmaskedBunches(0),
   useInnerBarrelLayer(iConfig.getUntrackedParameter<bool>("useInnerBarrelLayer", false)),
-  fFillNumber(0),
   fLogFileName_(iConfig.getUntrackedParameter<std::string>("logFileName","/tmp/pixel_lumi.txt"))
 {
   edm::LogInfo("Configuration")
     << "PixelLumiDQM looking for pixel clusters in '"
-    << fPixelClusterLabel << "'";
-  edm::LogInfo("Configuration")
-    << "PixelLumiDQM storing vertex info? "
-    << fIncludeVertexInfo;
+    << iConfig.getUntrackedParameter<edm::InputTag>("pixelClusterLabel",
+                       edm::InputTag("siPixelClusters")) << "'";
   edm::LogInfo("Configuration")
     << "PixelLumiDQM storing pixel cluster info? "
     << fIncludePixelClusterInfo;
@@ -133,7 +125,7 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
     
     // Find pixel clusters.
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
-    iEvent.getByLabel(fPixelClusterLabel, pixelClusters);
+    iEvent.getByToken(fPixelClusterLabel, pixelClusters);
     
     // Loop over entire tracker geometry.
     for (TrackerGeometry::DetContainer::const_iterator
@@ -208,7 +200,7 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
     
     // Find pixel clusters.
     edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
-    iEvent.getByLabel(fPixelClusterLabel, pixelClusters);
+    iEvent.getByToken(fPixelClusterLabel, pixelClusters);
     
     bool filterDeadModules = (fDeadModules.size() > 0);
     std::vector<uint32_t>::const_iterator deadModulesBegin = fDeadModules.begin();
@@ -674,7 +666,6 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   strftime(datestring, sizeof(datestring),"%Y.%m.%d %T GMT %s",ts);
   logFile_ << "RunNumber "<< fRunNo << std::endl;
   logFile_ << "EndTimeOfFit " << datestring << std::endl;
-  logFile_ << "Fill "<< fFillNumber << std::endl;
   logFile_.close();
 }
 

@@ -1,19 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 pixel_lumi_dqm  = cms.EDAnalyzer('PixelLumiDQM',
-                                 vertexLabel = cms.untracked.InputTag("offlinePrimaryVertices"),
-                                 trackLabel = cms.untracked.InputTag("generalTracks"),
-                                 stripClusterLabel = cms.untracked.InputTag("siStripClusters"),
                                  pixelClusterLabel = cms.untracked.InputTag("siPixelClusters"),
-                                 includeVertexInfo = cms.untracked.bool(False),
-                                 includeTrackInfo = cms.untracked.bool(False),
-                                 includeStripClusterInfo = cms.untracked.bool(False),
                                  includePixelClusterInfo = cms.untracked.bool(True),
                                  includePixelQualCheckHistos = cms.untracked.bool(True),
-                                 #parameters to connect to db (from L1TMonitor)
-                                 oracleDB   = cms.string("oracle://cms_orcon_prod/cms_runtime_logger"),
-                                 pathCondDB = cms.string(""),
-#                                 pathCondDB = cms.string("/nfshome0/popcondev/conddb"),        
                                  # This is the correct list of modules to be ignored for 2012.
                                  deadModules = cms.untracked.vuint32(302059800,
                                                                      302121992,

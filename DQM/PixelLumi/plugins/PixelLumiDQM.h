@@ -31,6 +31,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 class ConfigurationDescriptions;
 
@@ -111,9 +112,7 @@ private:
   private:
   };
 
-  edm::InputTag fVtxLabel;
-  edm::InputTag fPixelClusterLabel;
-  edm::InputTag fGtEvmLabel;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > fPixelClusterLabel;
 
   UInt_t fRunNo;
   UInt_t fEvtNo;
