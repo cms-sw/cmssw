@@ -37,17 +37,17 @@ egamma_modifications = cms.VPSet(
 )
 
 #setup the mva value maps to embed
-setup_mva(egamma_modifications[1].electron_config,
-          egamma_modifications[2].electron_config,
+setup_mva(egamma_modifications[0].electron_config,
+          egamma_modifications[1].electron_config,
           ele_mva_prod_name,
           ele_phys14_nt.mvaPhys14NonTrigClassName)
 
-setup_mva(egamma_modifications[1].photon_config,
-          egamma_modifications[2].photon_config,
+setup_mva(egamma_modifications[0].photon_config,
+          egamma_modifications[1].photon_config,
           pho_mva_prod_name,
           pho_phys14_nt.mvaPhys14NonTrigClassName)
 
-setup_mva(egamma_modifications[1].photon_config,
-          egamma_modifications[2].photon_config,
+setup_mva(egamma_modifications[0].photon_config,
+          egamma_modifications[1].photon_config,
           pho_mva_prod_name,
           pho_spring15_nt.mvaSpring15NonTrigClassName)
