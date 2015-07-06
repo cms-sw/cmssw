@@ -64,17 +64,35 @@ private: // methods
   /// check block headers for consistency
   void checkHeaders();
 
-  /// Prints out a list of blocks and the various numbers of trigger objects that have been unpacked from them.
-  void doVerboseOutput(const RctUnpackCollections * const colls) const;
-
   /// method called at job end - use to print summary report
   virtual void endJob();
 
 
 private: // members
 
+  // SLink Header Size: 64bits
+  static const unsigned sLinkHeaderSize_ = 8;
+
+  // SLink Trailer Size: 64bits
+  static const unsigned sLinkTrailerSize_ = 8;
+
+  // SLink Header Size: two 64bit words
+  static const unsigned amc13HeaderSize_ = 16;
+
+  // SLink Trailer Size: 64bits
+  static const unsigned amc13TrailerSize_ = 8;
+
+  // CTP7 Header Size: 64bits
+  static const unsigned ctp7HeaderSize_ = 8;
+
+  // CTP7 Trailer Size: 64bits
+  static const unsigned ctp7TrailerSize_ = 8;
+
   /// The maximum number of blocks we will try to unpack before thinking something is wrong
-  static const unsigned MAX_BLOCKS = 256;
+  static const unsigned MAX_DATA = 4680;
+
+  /// The minimum number of blocks we will try to unpack before thinking something is wrong (really this should be 920, to be tested)
+  static const unsigned MIN_DATA = 900;
 
   // unpacking options
   edm::InputTag inputLabel_;  ///< FED collection label.
