@@ -76,6 +76,7 @@ def batchScriptCERN( jobDir, remoteDir=''):
    '''prepare the LSF version of the batch script, to run on LSF'''
    
    dirCopy = """echo 'sending the logs back'  # will send also root files if copy failed
+rm Loop/cmsswPreProcessing.root
 cp -r Loop/* $LS_SUBCWD
 if [ $? -ne 0 ]; then
    echo 'ERROR: problem copying job directory back'
