@@ -307,7 +307,18 @@ hltHiggsPostX4b = hltHiggsPostProcessor.clone()
 hltHiggsPostX4b.subDirs = ['HLT/Higgs/X4b']
 hltHiggsPostX4b.efficiencyProfile = efficiency_strings
 
+#Specific plots for WH -> ev + bb
+efficiency_strings_WHToENuBB = list(efficiency_strings_TTHbbej)
+#add the summary plots
+for an in _config.analysis:
+    for trig in triggers:
+        efficiency_strings_WHToENuBB.append("Eff_HtDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs sum pT of jets ; sum pT of jets ' HtDist_"+an+"_gen_"+trig+" HtDist_"+an+"_gen")
 
+efficiency_strings_WHToENuBB.extend(get_reco_strings(efficiency_strings_WHToENuBB))
+
+hltHiggsPostWHToENuBB = hltHiggsPostProcessor.clone()
+hltHiggsPostWHToENuBB.subDirs = ['HLT/Higgs/WHToENuBB']
+hltHiggsPostWHToENuBB.efficiencyProfile = efficiency_strings_WHToENuBB
 
 hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHWW+
@@ -324,8 +335,8 @@ hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostZnnHbb+
         hltHiggsPostDoubleHinTaus+
         hltHiggsPostHiggsDalitz+
-        hltHiggsPostX4b
-
+        hltHiggsPostX4b+
+        hltHiggsPostWHToENuBB 
 )
 
 
