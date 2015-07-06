@@ -36,7 +36,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
     int region_num = region->region();
     TString title_suffix = TString::Format(" at Region%d",region_num);
     TString histname_suffix = TString::Format("_r%d",region_num);
-    TString simpleZR_title    = TString::Format("ZR Occupancy%s; |Z|(cm) ; R(cm)",title_suffix.Data());
+    TString simpleZR_title    = TString::Format("Copad ZR Occupancy%s; |Z|(cm) ; R(cm)",title_suffix.Data());
     TString simpleZR_histname = TString::Format("copad_simple_zr%s",histname_suffix.Data());
     TH2F* simpleZR = getSimpleZR();
     simpleZR->SetName( simpleZR_histname);
@@ -48,7 +48,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
       TString title_suffix2 = title_suffix + TString::Format("  Station%d", station_num);
       TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
 
-      TString dcEta_title    = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
+      TString dcEta_title    = TString::Format("Copad's occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
       TString dcEta_histname = TString::Format("copad_dcEta%s",histname_suffix2.Data());
       int nXbins = station->rings()[0]->nSuperChambers()*2 ;
 
@@ -128,41 +128,51 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     Short_t station = (Short_t) id.station();
     Short_t layer = (Short_t) id.layer();
     Short_t chamber = (Short_t) id.chamber();
-    if ( station ==2 ) station = 3; // due to gap GEMGeometry and Copad's keep information.
-
     GEMCoPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
     for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
     {
-      GEMDetId roId = GEMDetId(region, id.ring(), station, layer, chamber, digiItr->roll());
+      int n_station = 0;
+      if ( station ==2 ) n_station = 3; // due to gap GEMGeometry and Copad's keep information.
+      else n_station = station;
+
+      GEMDetId roId = GEMDetId(region, id.ring(), n_station, layer, chamber, digiItr->roll());
       Short_t nroll = roId.roll();  
       LogDebug("GEMCoPadDigiValidation")<<"roId : "<<roId;
       const GeomDet* gdet = GEMGeometry_->idToDet(roId);
-      if ( gdet == nullptr) { 
+      if ( gdet == nullptr) {
+        edm::LogError("GEMCoPadDigiValidation")<<roId<<" : This part can not load from GEMGeometry // Original"<<id<<" station : "<<n_station;
         edm::LogError("GEMCoPadDigiValidation")<<"Getting DetId failed. Discard this gem copad hit.Maybe it comes from unmatched geometry between GEN and DIGI.";
         continue; 
       }
       const BoundPlane & surface = gdet->surface();
-      LogDebug("GEMCoPadDigiValidation")<<" ID : "<<roId;
       const GEMEtaPartition * roll = GEMGeometry_->etaPartition(roId);
       LogDebug("GEMCoPadDigiValidation")<<" roll's n pad : "<<roll->npads();
 
-      Short_t pad = (Short_t) digiItr->pad(1);
-      Short_t bx  = (Short_t) digiItr->bx(1);
-      LogDebug("GEMCoPadDigiValidation")<<" copad #1 pad : "<<pad<<"  bx : "<<bx;
-      LogDebug("GEMCoPadDigiValidation")<<" copad #2 pad : "<<digiItr->pad(2)<<"  bx : "<<digiItr->bx(2);
+      Short_t pad1 = (Short_t) digiItr->pad(1);
+      Short_t pad2 = (Short_t) digiItr->pad(2);
+      Short_t bx1  = (Short_t) digiItr->bx(1);
+      Short_t bx2  = (Short_t) digiItr->bx(2);
+      LogDebug("GEMCoPadDigiValidation")<<" copad #1 pad : "<<pad1<<"  bx : "<<bx1;
+      LogDebug("GEMCoPadDigiValidation")<<" copad #2 pad : "<<pad2<<"  bx : "<<bx2;
 
       // Filtered using BX
-      if ( bx < (Short_t)minBXGEM_ || bx > (Short_t)maxBXGEM_) continue;
+      if ( bx1 < (Short_t)minBXGEM_ || bx1 > (Short_t)maxBXGEM_) continue;
+      if ( bx2 < (Short_t)minBXGEM_ || bx2 > (Short_t)maxBXGEM_) continue;
 
-      LocalPoint lp = roll->centreOfPad(pad);
+      LocalPoint lp1 = roll->centreOfPad(pad1);
+      LocalPoint lp2 = roll->centreOfPad(pad2);
 
-      GlobalPoint gp = surface.toGlobal(lp);
-      Float_t g_r = (Float_t) gp.perp();
-      Float_t g_phi = (Float_t) gp.phi();
-      Float_t g_x = (Float_t) gp.x();
-      Float_t g_y = (Float_t) gp.y();
-      Float_t g_z = (Float_t) gp.z();
+      GlobalPoint gp1 = surface.toGlobal(lp1);
+      GlobalPoint gp2 = surface.toGlobal(lp2);
+      Float_t g_r1 = (Float_t) gp1.perp();
+      Float_t g_r2 = (Float_t) gp2.perp();
+      Float_t g_z1 = (Float_t) gp1.z();
+      Float_t g_z2 = (Float_t) gp2.z();
+
+      Float_t g_phi = (Float_t) gp1.phi();
+      Float_t g_x = (Float_t) gp1.x();
+      Float_t g_y = (Float_t) gp1.y();
 
       int region_num=0;
       if ( region == -1 ) region_num = 0 ; 
@@ -172,13 +182,14 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       }
       int binX = (chamber-1)*2+(layer-1);
       int binY = nroll;
-      if ( station== 3 ) station=2;
+      //if ( station== 3 ) station=2;  // Copad digi only have 1, 2 station.
       int station_num = station-1;
 
       // Fill normal plots.
       TString histname_suffix = TString::Format("_r%d",region);
       TString simple_zr_histname = TString::Format("copad_simple_zr%s",histname_suffix.Data());
-      theCoPad_simple_zr[simple_zr_histname.Hash()]->Fill( fabs(g_z), g_r);
+      theCoPad_simple_zr[simple_zr_histname.Hash()]->Fill( fabs(g_z1), g_r1);
+      theCoPad_simple_zr[simple_zr_histname.Hash()]->Fill( fabs(g_z2), g_r2);
 
       histname_suffix = TString::Format("_r%d_st%d",region, station);
       TString dcEta_histname = TString::Format("copad_dcEta%s",histname_suffix.Data());
@@ -188,10 +199,12 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       // Fill detail plots.
       if ( detailPlot_) {
         theCSCCoPad_xy[region_num][station_num]->Fill(g_x,g_y);     
-        theCSCCoPad_phipad[region_num][station_num]->Fill(g_phi,pad);
-        theCSCCoPad[region_num][station_num]->Fill(pad);
-        theCSCCoPad_bx[region_num][station_num]->Fill(bx);
-        theCSCCoPad_zr[region_num][station_num]->Fill(g_z,g_r);
+        theCSCCoPad_phipad[region_num][station_num]->Fill(g_phi,pad1);
+        theCSCCoPad[region_num][station_num]->Fill(pad1);
+        theCSCCoPad_bx[region_num][station_num]->Fill(bx1);
+        theCSCCoPad_bx[region_num][station_num]->Fill(bx2);
+        theCSCCoPad_zr[region_num][station_num]->Fill(g_z1,g_r1);
+        theCSCCoPad_zr[region_num][station_num]->Fill(g_z2,g_r2);
         std::string name_prefix = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num];
         TString hname;
         if ( chamber %2 == 0 ) { hname = TString::Format("copad_dg_xy%s_even",name_prefix.c_str()); }
