@@ -1,3 +1,5 @@
+
+
 #include "TROOT.h"
 #include "TFile.h"
 #include "TDirectory.h"
@@ -15,38 +17,37 @@
 #include "TPaveText.h"
 #include "PlotFunction.h"
 
+
 #include<vector>
-#include "tdrstyle.C"
+#include<tdrstyle.C>
 
-#if !defined(__CINT__) && !defined(__MAKECINT__)
-#include "DataFormats/FWLite/interface/Handle.h"
-#include "DataFormats/FWLite/interface/Event.h"
-#include "DataFormats/FWLite/interface/ChainEvent.h"
-
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
-
-using namespace fwlite;
-using namespace std;
-using namespace edm;
-#endif
-
-
-
-
-void PlotMacro_Core(string input, string moduleName, string output, string TextToPrint);
+void PlotMacro_Core(string input, string moduleName, string output);
 TF1*  getLandau(TH1* InputHisto, double* FitResults, double LowRange=50, double HighRange=5400);
 TH1D* ChargeToMPV(TH2* InputHisto, string Name, bool DivideByX);
 
+int DataType = 2;
 
+void PlotMacro(){
+   gROOT->Reset();
+   setTDRStyle();
+   gStyle->SetPadTopMargin   (0.05);
+   gStyle->SetPadBottomMargin(0.10);
+   gStyle->SetPadRightMargin (0.18);
+   gStyle->SetPadLeftMargin  (0.13);
+   gStyle->SetTitleSize(0.04, "XYZ");
+   gStyle->SetTitleXOffset(1.1);
+   gStyle->SetTitleYOffset(1.35);
+   gStyle->SetPalette(1);
+   gStyle->SetCanvasColor(0);
+   gStyle->SetBarOffset(0);
 
-void PlotMacro(string TextToPrint_="CMS Preliminary 2015"){
+   
    system("mkdir Pictures");
-   PlotMacro_Core("file:Gains_Tree.root"     , "SiStripCalib/"          , "Pictures/Gains"     , TextToPrint_ + "  -  Particle Gain");
-   PlotMacro_Core("file:Validation_Tree.root", "SiStripCalibValidation/", "Pictures/Validation", TextToPrint_ + "  -  Gain Validation");
+   PlotMacro_Core("file:Gains_Tree.root",      , "SiStripCalib/"          , "Pictures/Gains");
 }
 
 
-void PlotMacro_Core(string input, string moduleName, string output, string TextToPrint)
+void PlotMacro_Core(string input, string moduleName, string output)
 {
    FILE* pFile;
    TCanvas* c1;
@@ -69,10 +70,8 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    float         tree_FitWidth;
    float         tree_FitWidthErr;
    float         tree_FitChi2NDF;
-   float         tree_FitNorm;
    double        tree_Gain;
    double        tree_PrevGain;
-   double        tree_PrevGainTick;
    double        tree_NEntries;
    bool          tree_isMasked;
 
@@ -95,10 +94,8 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    t1->SetBranchAddress("FitWidth"          ,&tree_FitWidth   );
    t1->SetBranchAddress("FitWidthErr"       ,&tree_FitWidthErr);
    t1->SetBranchAddress("FitChi2NDF"        ,&tree_FitChi2NDF );
-   t1->SetBranchAddress("FitNorm"           ,&tree_FitNorm    );
    t1->SetBranchAddress("Gain"              ,&tree_Gain       );
    t1->SetBranchAddress("PrevGain"          ,&tree_PrevGain   );
-   t1->SetBranchAddress("PrevGainTick"      ,&tree_PrevGainTick);
    t1->SetBranchAddress("NEntries"          ,&tree_NEntries   );
    t1->SetBranchAddress("isMasked"          ,&tree_isMasked   );
 
@@ -203,53 +200,47 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
 
 
 
-   TH1D* ChargePIB      = new TH1D("ChargePIB"     ,"ChargePIB"     ,               2000, 0,4000);
-   TH1D* ChargePIE      = new TH1D("ChargePIE"     ,"ChargePIE"     ,               2000, 0,4000);
-   TH1D* ChargeTIB      = new TH1D("ChargeTIB"     ,"ChargeTIB"     ,               2000, 0,4000);
-   TH1D* ChargeTID      = new TH1D("ChargeTID"     ,"ChargeTID"     ,               2000, 0,4000);
-   TH1D* ChargeTIDP     = new TH1D("ChargeTIDP"    ,"ChargeTIDP"    ,               2000, 0,4000);
-   TH1D* ChargeTIDM     = new TH1D("ChargeTIDM"    ,"ChargeTIDM"    ,               2000, 0,4000);
-   TH1D* ChargeTOB      = new TH1D("ChargeTOB"     ,"ChargeTOB"     ,               2000, 0,4000);
-   TH1D* ChargeTEC      = new TH1D("ChargeTEC"     ,"ChargeTEC"     ,               2000, 0,4000);
-   TH1D* ChargeTECP     = new TH1D("ChargeTECP"    ,"ChargeTECP"    ,               2000, 0,4000);
-   TH1D* ChargeTECM     = new TH1D("ChargeTECM"    ,"ChargeTECM"    ,               2000, 0,4000);
-   TH1D* ChargeTEC1     = new TH1D("ChargeTEC1"    ,"ChargeTEC1"    ,               2000, 0,4000);
-   TH1D* ChargeTEC2     = new TH1D("ChargeTEC2"    ,"ChargeTEC2"    ,               2000, 0,4000);
-   TH1D* ChargeTECP1    = new TH1D("ChargeTECP1"   ,"ChargeTECP1"   ,               2000, 0,4000);
-   TH1D* ChargeTECP2    = new TH1D("ChargeTECP2"   ,"ChargeTECP2"   ,               2000, 0,4000);
-   TH1D* ChargeTECM1    = new TH1D("ChargeTECM1"   ,"ChargeTECM1"   ,               2000, 0,4000);
-   TH1D* ChargeTECM2    = new TH1D("ChargeTECM2"   ,"ChargeTECM2"   ,               2000, 0,4000);
 
-   TH1D* ChargeAbsPIB   = new TH1D("ChargeAbsPIB"  ,"ChargeAbsPIB"  ,               1000, 0,4000);
-   TH1D* ChargeAbsPIE   = new TH1D("ChargeAbsPIE"  ,"ChargeAbsPIE"  ,               1000, 0,4000);
-   TH1D* ChargeAbsTIB   = new TH1D("ChargeAbsTIB"  ,"ChargeAbsTIB"  ,               1000, 0,4000);
-   TH1D* ChargeAbsTID   = new TH1D("ChargeAbsTID"  ,"ChargeAbsTID"  ,               1000, 0,4000);
-   TH1D* ChargeAbsTIDP  = new TH1D("ChargeAbsTIDP" ,"ChargeAbsTIDP" ,               1000, 0,4000);
-   TH1D* ChargeAbsTIDM  = new TH1D("ChargeAbsTIDM" ,"ChargeAbsTIDM" ,               1000, 0,4000);
-   TH1D* ChargeAbsTOB   = new TH1D("ChargeAbsTOB"  ,"ChargeAbsTOB"  ,               1000, 0,4000);
-   TH1D* ChargeAbsTEC   = new TH1D("ChargeAbsTEC"  ,"ChargeAbsTEC"  ,               1000, 0,4000);
-   TH1D* ChargeAbsTECP  = new TH1D("ChargeAbsTECP" ,"ChargeAbsTECP" ,               1000, 0,4000);
-   TH1D* ChargeAbsTECM  = new TH1D("ChargeAbsTECM" ,"ChargeAbsTECM" ,               1000, 0,4000);
-   TH1D* ChargeAbsTEC1  = new TH1D("ChargeAbsTEC1" ,"ChargeAbsTEC1" ,               1000, 0,4000);
-   TH1D* ChargeAbsTEC2  = new TH1D("ChargeAbsTEC2" ,"ChargeAbsTEC2" ,               1000, 0,4000);
-   TH1D* ChargeAbsTECP1 = new TH1D("ChargeAbsTECP1","ChargeAbsTECP1",               1000, 0,4000);
-   TH1D* ChargeAbsTECP2 = new TH1D("ChargeAbsTECP2","ChargeAbsTECP2",               1000, 0,4000);
-   TH1D* ChargeAbsTECM1 = new TH1D("ChargeAbsTECM1","ChargeAbsTECM1",               1000, 0,4000);
-   TH1D* ChargeAbsTECM2 = new TH1D("ChargeAbsTECM2","ChargeAbsTECM2",               1000, 0,4000);
+   TH1D* ChargeTIB      = new TH1D("ChargeTIB"     ,"ChargeTIB"     ,               1000, 0,2000);
+   TH1D* ChargeTID      = new TH1D("ChargeTID"     ,"ChargeTID"     ,               1000, 0,2000);
+   TH1D* ChargeTIDP     = new TH1D("ChargeTIDP"    ,"ChargeTIDP"    ,               1000, 0,2000);
+   TH1D* ChargeTIDM     = new TH1D("ChargeTIDM"    ,"ChargeTIDM"    ,               1000, 0,2000);
+   TH1D* ChargeTOB      = new TH1D("ChargeTOB"     ,"ChargeTOB"     ,               1000, 0,2000);
+   TH1D* ChargeTEC      = new TH1D("ChargeTEC"     ,"ChargeTEC"     ,               1000, 0,2000);
+   TH1D* ChargeTECP     = new TH1D("ChargeTECP"    ,"ChargeTECP"    ,               1000, 0,2000);
+   TH1D* ChargeTECM     = new TH1D("ChargeTECM"    ,"ChargeTECM"    ,               1000, 0,2000);
+   TH1D* ChargeTEC1     = new TH1D("ChargeTEC1"    ,"ChargeTEC1"    ,               1000, 0,2000);
+   TH1D* ChargeTEC2     = new TH1D("ChargeTEC2"    ,"ChargeTEC2"    ,               1000, 0,2000);
+   TH1D* ChargeTECP1    = new TH1D("ChargeTECP1"   ,"ChargeTECP1"   ,               1000, 0,2000);
+   TH1D* ChargeTECP2    = new TH1D("ChargeTECP2"   ,"ChargeTECP2"   ,               1000, 0,2000);
+   TH1D* ChargeTECM1    = new TH1D("ChargeTECM1"   ,"ChargeTECM1"   ,               1000, 0,2000);
+   TH1D* ChargeTECM2    = new TH1D("ChargeTECM2"   ,"ChargeTECM2"   ,               1000, 0,2000);
 
-   TH1D* DiffWRTPrevGainPIB      = new TH1D("DiffWRTPrevGainPIB"     ,"DiffWRTPrevGainPIB"     ,               250, 0,2);
-   TH1D* DiffWRTPrevGainPIE      = new TH1D("DiffWRTPrevGainPIE"     ,"DiffWRTPrevGainPIE"     ,               250, 0,2);
+   TH1D* ChargeAbsTIB   = new TH1D("ChargeAbsTIB"  ,"ChargeAbsTIB"  ,                500, 0,2000);
+   TH1D* ChargeAbsTID   = new TH1D("ChargeAbsTID"  ,"ChargeAbsTID"  ,                500, 0,2000);
+   TH1D* ChargeAbsTIDP  = new TH1D("ChargeAbsTIDP" ,"ChargeAbsTIDP" ,                500, 0,2000);
+   TH1D* ChargeAbsTIDM  = new TH1D("ChargeAbsTIDM" ,"ChargeAbsTIDM" ,                500, 0,2000);
+   TH1D* ChargeAbsTOB   = new TH1D("ChargeAbsTOB"  ,"ChargeAbsTOB"  ,                500, 0,2000);
+   TH1D* ChargeAbsTEC   = new TH1D("ChargeAbsTEC"  ,"ChargeAbsTEC"  ,                500, 0,2000);
+   TH1D* ChargeAbsTECP  = new TH1D("ChargeAbsTECP" ,"ChargeAbsTECP" ,                500, 0,2000);
+   TH1D* ChargeAbsTECM  = new TH1D("ChargeAbsTECM" ,"ChargeAbsTECM" ,                500, 0,2000);
+   TH1D* ChargeAbsTEC1  = new TH1D("ChargeAbsTEC1" ,"ChargeAbsTEC1" ,                500, 0,2000);
+   TH1D* ChargeAbsTEC2  = new TH1D("ChargeAbsTEC2" ,"ChargeAbsTEC2" ,                500, 0,2000);
+   TH1D* ChargeAbsTECP1 = new TH1D("ChargeAbsTECP1","ChargeAbsTECP1",                500, 0,2000);
+   TH1D* ChargeAbsTECP2 = new TH1D("ChargeAbsTECP2","ChargeAbsTECP2",                500, 0,2000);
+   TH1D* ChargeAbsTECM1 = new TH1D("ChargeAbsTECM1","ChargeAbsTECM1",                500, 0,2000);
+   TH1D* ChargeAbsTECM2 = new TH1D("ChargeAbsTECM2","ChargeAbsTECM2",                500, 0,2000);
+
    TH1D* DiffWRTPrevGainTIB      = new TH1D("DiffWRTPrevGainTIB"     ,"DiffWRTPrevGainTIB"     ,               250, 0,2);
    TH1D* DiffWRTPrevGainTID      = new TH1D("DiffWRTPrevGainTID"     ,"DiffWRTPrevGainTID"     ,               250, 0,2);
    TH1D* DiffWRTPrevGainTOB      = new TH1D("DiffWRTPrevGainTOB"     ,"DiffWRTPrevGainTOB"     ,               250, 0,2);
    TH1D* DiffWRTPrevGainTEC      = new TH1D("DiffWRTPrevGainTEC"     ,"DiffWRTPrevGainTEC"     ,               250, 0,2);
 
-   TH2D* GainVsPrevGainPIB      = new TH2D("GainVsPrevGainPIB"     ,"GainVsPrevGainPIB"     ,               100, 0,2, 100, 0,2);
-   TH2D* GainVsPrevGainPIE      = new TH2D("GainVsPrevGainPIE"     ,"GainVsPrevGainPIE"     ,               100, 0,2, 100, 0,2);
    TH2D* GainVsPrevGainTIB      = new TH2D("GainVsPrevGainTIB"     ,"GainVsPrevGainTIB"     ,               100, 0,2, 100, 0,2);
    TH2D* GainVsPrevGainTID      = new TH2D("GainVsPrevGainTID"     ,"GainVsPrevGainTID"     ,               100, 0,2, 100, 0,2);
    TH2D* GainVsPrevGainTOB      = new TH2D("GainVsPrevGainTOB"     ,"GainVsPrevGainTOB"     ,               100, 0,2, 100, 0,2);
    TH2D* GainVsPrevGainTEC      = new TH2D("GainVsPrevGainTEC"     ,"GainVsPrevGainTEC"     ,               100, 0,2, 100, 0,2);
+
 
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
    printf("Looping on the Tree          :");
@@ -257,13 +248,12 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
       t1->GetEntry(ientry);
-
       int bin = ChargeDistrib->GetXaxis()->FindBin(tree_Index);
       TH1D* Proj         = ChargeDistrib ->ProjectionY("proj" ,bin, bin);
       TH1D* ProjAbsolute = ChargeDistribA->ProjectionY("projA",bin, bin);
 
-      if(tree_SubDet>=3 && tree_FitMPV<0      ) NoMPV         ->Fill(tree_z ,tree_R);
-      if(tree_SubDet>=3 && tree_FitMPV>=0){
+      if(tree_FitMPV<0                        ) NoMPV         ->Fill(tree_z ,tree_R);
+      if(tree_FitMPV>=0){
 
       if(tree_SubDet==3                       ) MPV_Vs_EtaTIB ->Fill(tree_Eta,tree_FitMPV);
       if(tree_SubDet==4                       ) MPV_Vs_EtaTID ->Fill(tree_Eta,tree_FitMPV);
@@ -305,8 +295,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
                                                 MPVErrorVsN   ->Fill(tree_NEntries,tree_FitMPVErr);
       }
 
-      if(tree_SubDet==1                       ) ChargePIB  ->Add(Proj,1);
-      if(tree_SubDet==2                       ) ChargePIE  ->Add(Proj,1);
+
       if(tree_SubDet==3                       ) ChargeTIB  ->Add(Proj,1);
       if(tree_SubDet==4                       ) ChargeTID  ->Add(Proj,1);
       if(tree_SubDet==4 && tree_Eta<0         ) ChargeTIDM ->Add(Proj,1);
@@ -322,8 +311,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness<0.04) ChargeTECP1 ->Add(Proj,1);
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness>0.04) ChargeTECP2 ->Add(Proj,1);
 
-      if(tree_SubDet==1                       ) ChargeAbsPIB  ->Add(ProjAbsolute,1);
-      if(tree_SubDet==2                       ) ChargeAbsPIE  ->Add(ProjAbsolute,1);
+
       if(tree_SubDet==3                       ) ChargeAbsTIB  ->Add(ProjAbsolute,1);
       if(tree_SubDet==4                       ) ChargeAbsTID  ->Add(ProjAbsolute,1);
       if(tree_SubDet==4 && tree_Eta<0         ) ChargeAbsTIDM ->Add(ProjAbsolute,1);
@@ -339,22 +327,15 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness<0.04) ChargeAbsTECP1 ->Add(ProjAbsolute,1);
       if(tree_SubDet==6 && tree_Eta>0 && tree_Thickness>0.04) ChargeAbsTECP2 ->Add(ProjAbsolute,1);
 
-      if(tree_SubDet==1                       ) DiffWRTPrevGainPIB  ->Fill(tree_Gain/tree_PrevGain);
-      if(tree_SubDet==2                       ) DiffWRTPrevGainPIE  ->Fill(tree_Gain/tree_PrevGain);
       if(tree_SubDet==3                       ) DiffWRTPrevGainTIB  ->Fill(tree_Gain/tree_PrevGain);
       if(tree_SubDet==4                       ) DiffWRTPrevGainTID  ->Fill(tree_Gain/tree_PrevGain);
       if(tree_SubDet==5                       ) DiffWRTPrevGainTOB  ->Fill(tree_Gain/tree_PrevGain);
       if(tree_SubDet==6                       ) DiffWRTPrevGainTEC  ->Fill(tree_Gain/tree_PrevGain);
 
-      if(tree_SubDet==1                       ) GainVsPrevGainPIB  ->Fill(tree_PrevGain,tree_Gain);
-      if(tree_SubDet==2                       ) GainVsPrevGainPIE  ->Fill(tree_PrevGain,tree_Gain);
       if(tree_SubDet==3                       ) GainVsPrevGainTIB  ->Fill(tree_PrevGain,tree_Gain);
       if(tree_SubDet==4                       ) GainVsPrevGainTID  ->Fill(tree_PrevGain,tree_Gain);
       if(tree_SubDet==5                       ) GainVsPrevGainTOB  ->Fill(tree_PrevGain,tree_Gain);
       if(tree_SubDet==6                       ) GainVsPrevGainTEC  ->Fill(tree_PrevGain,tree_Gain);
-
-
-
 
       delete Proj;
       delete ProjAbsolute;
@@ -371,60 +352,31 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    unsigned int CountAPV_LowGain  = 0;
    unsigned int CountAPV_DiffGain = 0;
 
-   TrackerMap* tkmap = new TrackerMap("  ParticleGain  ");
-
-   pFile = fopen((output + "_MAP.txt").c_str(),"w");
-   fprintf(pFile,"#maxValue = 1.5\n");
-   fprintf(pFile,"#minValue = 0.5\n");
-   fprintf(pFile,"#defaultColor = 1.0,1.0,1.0,0.1\n");
-   printf("Looping on the Tree          :");
-   double MaxGain=0;  unsigned int previousMod=0;
-   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
-      if(ientry%TreeStep==0){printf(".");fflush(stdout);}     
-      t1->GetEntry(ientry);
-      if(previousMod>0&&tree_APVId==0){fprintf(pFile,"%i %f\n",previousMod,MaxGain); tkmap->fill(previousMod, MaxGain);  MaxGain=1;  } 
-      previousMod = tree_DetId;
-      if(fabs(tree_Gain-1.0)>fabs(MaxGain-1))MaxGain=tree_Gain;
-   }printf("\n");
-   if(previousMod>0){fprintf(pFile,"%i %f\n",previousMod,MaxGain); tkmap->fill(previousMod, MaxGain); }
-   fclose(pFile);
-
-   tkmap->setTitle(TextToPrint + " : Module Gain");
-   tkmap->save                 (true, 0.3, 1.7, output + "_TKMap_Gain_MECH.png");
-   tkmap->reset();    
-
-
    pFile = fopen((output + "_LowResponseModule.txt").c_str(),"w");
    fprintf(pFile,"\n\nALL APVs WITH NO ENTRIES (NO RECO CLUSTER ON IT)\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {      
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
-      t1->GetEntry(ientry);  if(tree_SubDet<3)continue;
+      t1->GetEntry(ientry);
       CountAPV_Total++;
-      if(tree_NEntries==0){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId);  CountAPV_NoEntry++;}
+      if(tree_NEntries==0){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_NoEntry++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_NoEntry,CountAPV_Total,(100.0*CountAPV_NoEntry)/CountAPV_Total);
-
 
    fprintf(pFile,"\n\nUNMASKED APVs WITH NO ENTRIES (NO RECO CLUSTER ON IT)\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
-      t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
-      if(tree_NEntries==0 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); tkmap->fill(tree_DetId, 1); CountAPV_NoEntryU++;}
+      t1->GetEntry(ientry);
+      if(tree_NEntries==0 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_NoEntryU++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_NoEntryU,CountAPV_Total,(100.0*CountAPV_NoEntryU)/CountAPV_Total);
-
-   tkmap->setTitle(TextToPrint + " : #Unmasked APV without any cluster");
-   tkmap->save                 (true, 1.0, 6.0, output + "_TKMap_NoCluster_MECH.png");
-   tkmap->reset();    
-
 
    fprintf(pFile,"\n\nALL APVs WITH NO GAIN COMPUTED\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
-      t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
+      t1->GetEntry(ientry);
       if(tree_FitMPV<0){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_NoGain++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_NoGain,CountAPV_Total,(100.0*CountAPV_NoGain)/CountAPV_Total);
@@ -433,122 +385,41 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
-      t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
-      if(tree_FitMPV<0 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId);  tkmap->fill(tree_DetId, 1); CountAPV_NoGainU++;}
+      t1->GetEntry(ientry);
+      if(tree_FitMPV<0 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_NoGainU++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_NoGainU,CountAPV_Total,(100.0*CountAPV_NoGainU)/CountAPV_Total);
-
-   tkmap->setTitle(TextToPrint + " : #Unmasked APV for which no gain was computed");
-   tkmap->save                 (true, 1.0, 6.0, output + "_TKMap_NoGain_MECH.png");
-   tkmap->reset();
-
 
    fprintf(pFile,"\n\nUNMASKED APVs WITH LOW RESPONSE\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
-      t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
-      if(tree_FitMPV>0 && tree_FitMPV<220 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); tkmap->fill(tree_DetId, 1); CountAPV_LowGain++;}
+      t1->GetEntry(ientry);
+      if(tree_FitMPV>0 && tree_FitMPV<220 && !tree_isMasked){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_LowGain++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_LowGain,CountAPV_Total,(100.0*CountAPV_LowGain)/CountAPV_Total);
-
-
-   tkmap->setTitle(TextToPrint + " : #Unmasked APV with a gain<0.75");
-   tkmap->save                 (true, 1.0, 6.0, output + "_TKMap_LowGain_MECH.png");
-   tkmap->reset();
-
 
    fprintf(pFile,"\n\nUNMASKED APVs WITH SIGNIFICANT CHANGE OF GAIN VALUE\n--------------------------------------------\n");
    printf("Looping on the Tree          :");
    for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
       if(ientry%TreeStep==0){printf(".");fflush(stdout);}
-      t1->GetEntry(ientry);   if(tree_SubDet<3)continue;
-      if(tree_FitMPV>0 && !tree_isMasked && (tree_Gain/tree_PrevGain<0.7 || tree_Gain/tree_PrevGain>1.3)){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); tkmap->fill(tree_DetId, 1); CountAPV_DiffGain++;}
+      t1->GetEntry(ientry);
+      if(tree_FitMPV>0 && !tree_isMasked && (tree_Gain/tree_PrevGain<0.7 || tree_Gain/tree_PrevGain>1.3)){fprintf(pFile,"%i-%i, ",tree_DetId,tree_APVId); CountAPV_DiffGain++;}
    }printf("\n");
    fprintf(pFile,"\n--> %i / %i = %f%% APV Concerned\n",CountAPV_DiffGain,CountAPV_Total,(100.0*CountAPV_DiffGain)/CountAPV_Total);
    fclose(pFile);
 
-   tkmap->setTitle(TextToPrint + " : #Unmasked APV with a gain variation > 30\% w.r.t GT");
-   tkmap->save                 (true, 1.0, 6.0, output + "_TKMap_GainChange_MECH.png");
-   tkmap->reset();
-
-
-   // ######################################################### TrackerMAP  ONLY          #################################
-
-   printf("Looping on the Tree          :");
-   double MaxError=-1;  previousMod=0;
-   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
-      if(ientry%TreeStep==0){printf(".");fflush(stdout);}     
-      t1->GetEntry(ientry);
-      if(previousMod>0&&tree_APVId==0&&MaxError>=0){tkmap->fill(previousMod, 100.0*MaxError);  MaxError=-1;  } 
-      previousMod = tree_DetId;
-      if(tree_FitMPV>0 && tree_FitMPVErr/300.0>MaxError)MaxError=tree_FitMPVErr/300.0;
-   }printf("\n");
-   if(previousMod>0){tkmap->fill(previousMod, 100.0*MaxError); }
-   tkmap->setTitle(TextToPrint + " : Error on Module Gain (%)");
-   tkmap->save                 (true, 0, 15, output + "_TKMap_GainError_MECH.png");
-   tkmap->reset();    
-
-
-
-   printf("Looping on the Tree          :");
-   double MaxRatio=-1;  previousMod=0;
-   for (unsigned int ientry = 0; ientry < t1->GetEntries(); ientry++) {
-      if(ientry%TreeStep==0){printf(".");fflush(stdout);}
-      t1->GetEntry(ientry);
-      if(previousMod>0&&tree_APVId==0&&MaxRatio>=0){tkmap->fill(previousMod, MaxRatio);  MaxRatio=-1;  }
-      previousMod = tree_DetId;
-      if(tree_FitMPV>0 && fabs((tree_Gain/tree_PrevGain)-1)>MaxRatio)MaxRatio=fabs((tree_Gain/tree_PrevGain)-1);
-   }printf("\n");
-   if(previousMod>0){tkmap->fill(previousMod, MaxRatio); }
-   tkmap->setTitle(TextToPrint + " : | (G2new / G2gt) - 1 | per module");
-   tkmap->save                 (true, 0.0, 0.5, output + "_TKMap_GainRatio_MECH.png");
-   tkmap->reset();
 
 
    // ######################################################### PRINT DISTRIBUTION INFO #################################
-    gROOT->Reset();
-   setTDRStyle();
-   gStyle->SetPadTopMargin   (0.05);
-   gStyle->SetPadBottomMargin(0.10);
-   gStyle->SetPadRightMargin (0.18);
-   gStyle->SetPadLeftMargin  (0.13);
-   gStyle->SetTitleSize(0.04, "XYZ");
-   gStyle->SetTitleXOffset(1.1);
-   gStyle->SetTitleYOffset(1.35);
-   gStyle->SetPalette(1);
-   gStyle->SetCanvasColor(0);
-   gStyle->SetBarOffset(0);
-  
    pFile = fopen((output + "_SubDetector_MPV.txt").c_str(),"w");
 
    double Results[5]; TF1* landau;
-
-   landau = getLandau(ChargePIB, Results, 0, 5400);
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   ChargePIB->Draw();
-   landau->SetLineWidth(3);
-   landau->Draw("same");
-   DrawPreliminary(TextToPrint);
-   SaveCanvas(c1,output,"SubDetChargePIB");
-   fprintf(pFile,"PIB   MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
-
-   landau = getLandau(ChargePIE, Results, 0, 5400);
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   ChargePIE->Draw();
-   landau->SetLineWidth(3);
-   landau->Draw("same");
-   DrawPreliminary(TextToPrint);
-   SaveCanvas(c1,output,"SubDetChargePIE");
-   fprintf(pFile,"PIE   MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
-
-
    landau = getLandau(ChargeTIB, Results, 0, 5400);
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    ChargeTIB->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"SubDetChargeTIB");
    fprintf(pFile,"TIB   MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
@@ -557,7 +428,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    ChargeTIDM->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"SubDetChargeTIDM");
    fprintf(pFile, "TIDM  MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
@@ -566,7 +436,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    ChargeTIDP->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"SubDetChargeTIDP");
    fprintf(pFile, "TIDP  MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
@@ -575,7 +444,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    ChargeTOB->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"SubDetChargeTOB");
    fprintf(pFile, "TOB   MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
@@ -584,7 +452,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    ChargeTECP1->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"SubDetChargeTECP1");
    fprintf(pFile, "TECP1 MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
@@ -593,7 +460,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    ChargeTECP2->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"SubDetChargeTECP2");
    fprintf(pFile, "TECP2 MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
@@ -602,7 +468,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    ChargeTECM1->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"SubDetChargeTECM1");
    fprintf(pFile, "TECM1 MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
@@ -611,7 +476,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    ChargeTECM2->Draw();
    landau->SetLineWidth(3);
    landau->Draw("same");
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"SubDetChargeTECM2");
    fprintf(pFile, "TECM2 MPV=%7.2f +- %7.2f  Chi2=%7.2f\n",Results[0],Results[1],Results[4]);
 
@@ -627,7 +491,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    DrawTH2D((TH2D**)Histos,legend, "", "module #eta", "MPV [ADC/mm]", -3.0,3.0, 0,600);
    DrawLegend (Histos,legend,"","P");
    DrawStatBox(Histos,legend,false);
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"MPV_Vs_EtaSubDet");
    delete c1;
 
@@ -639,14 +502,12 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawTH2D((TH2D**)Histos,legend, "", "module #phi", "MPV [ADC/mm]", -3.4,3.4, 0,600);
     DrawLegend(Histos,legend,"","P");
     DrawStatBox(Histos,legend,false);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"MPV_Vs_PhiSubDet");
     delete c1;
 
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = NoMPV;                             legend.push_back("NoMPV");
     DrawTH2D((TH2D**)Histos,legend, "", "z (cm)", "R (cms)", 0,0, 0,0);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"NoMPV", true);
     delete c1;
 
@@ -655,7 +516,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[0] = ChargeDistrib;                     legend.push_back("Charge Vs Index");
     DrawTH2D((TH2D**)Histos,legend, "COLZ", "APV Index", "Charge [ADC/mm]", 0,0, 0,0);
     c1->SetLogz(true);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Charge2D", true);
     delete c1;
 
@@ -672,7 +532,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[2] = MPVs;                              legend.push_back("320 + 500 #mum");
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "MPV [ADC/mm]", "Number of APVs", 100,550, 0,0);
     DrawLegend(Histos,legend,"","L");
-    DrawPreliminary(TextToPrint);
+    DrawPreliminary(DataType);
     SaveCanvas(c1,output,"MPVs");
     c1->SetLogy(true);
     SaveCanvas(c1,output,"MPVsLog");
@@ -694,7 +554,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
 //    Histos[5] = MPVs;                              legend.push_back("All");
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "MPV [ADC/mm]", "Number of APVs", 100,550, 0,0);
     DrawLegend(Histos,legend,"","L");
-    DrawPreliminary(TextToPrint);
+    DrawPreliminary(DataType);
     SaveCanvas(c1,output,"MPVsSubDet");
     c1->SetLogy(true);
     SaveCanvas(c1,output,"MPVsSubDetLog");
@@ -713,9 +573,8 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[2] = MPVsTECM1;                          legend.push_back("TEC- (320 #mum)");
     Histos[3] = MPVsTECM2;                          legend.push_back("TEC- (500 #mum)");
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "MPV [ADC/mm]", "Number of APVs", 100,550, 0,0);
-    DrawLegend(Histos,legend,"","L");
+    DrawLegend(Histos,legend,"#sqrt{s}=7TeV","L");
     DrawStatBox(Histos,legend,true);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"MPVsTEC");
     c1->SetLogy(true);
     SaveCanvas(c1,output,"MPVsTECLog");
@@ -727,7 +586,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Error on MPV [ADC/mm]", "Number of APVs", 0,500, 0,0);
     DrawStatBox(Histos,legend,true);
     c1->SetLogy(true);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error");
     delete c1;
 
@@ -735,7 +593,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[0] = MPVErrorVsMPV;                     legend.push_back("Error Vs MPV");
     DrawTH2D((TH2D**)Histos,legend, "COLZ", "MPV [ADC/mm]", "Error on MPV [ADC/mm]", 0,0, 0,0);
     c1->SetLogz(true);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error_Vs_MPV", true);
     delete c1;
 
@@ -743,7 +600,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[0] = MPVErrorVsEta;                     legend.push_back("Error Vs Eta");
     DrawTH2D((TH2D**)Histos,legend, "COLZ", "module #eta", "Error on MPV [ADC/mm]", 0,0, 0,0);
     c1->SetLogz(true);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error_Vs_Eta", true);
     delete c1;
 
@@ -751,7 +607,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[0] = MPVErrorVsPhi;                     legend.push_back("Error Vs Phi");
     DrawTH2D((TH2D**)Histos,legend, "COLZ", "module #phi", "Error on MPV [ADC/mm]", 0,0, 0,0);
     c1->SetLogz(true);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error_Vs_Phi", true);
     delete c1;
 
@@ -759,23 +614,8 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[0] = MPVErrorVsN;                       legend.push_back("Error Vs Entries");
     DrawTH2D((TH2D**)Histos,legend, "COLZ", "Number of Entries", "Error on MPV [ADC/mm]", 0,0, 0,0);
     c1->SetLogz(true);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"Error_Vs_N", true);
     delete c1;
-
-
-    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-    Histos[0] = ChargePIB;                         legend.push_back("PIB");
-    Histos[1] = ChargePIE;                         legend.push_back("PIE");
-    DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC/mm]", "Number of Clusters", 0,800 , 0,0);
-    DrawLegend(Histos,legend,"","L");
-    DrawPreliminary(TextToPrint);
-    TLine* l0p = new TLine(300, 0,300,((TH1*)Histos[0])->GetMaximum()); l0p->SetLineWidth(3); l0p->SetLineStyle(2); l0p->Draw("same");
-    SaveCanvas(c1,output,"Charge");
-    DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    SaveCanvas(c1,output,"PixelChargeAndStat");
-    delete c1;
-
 
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
     Histos[0] = ChargeTEC;                         legend.push_back("TEC");
@@ -784,7 +624,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[3] = ChargeTOB;                         legend.push_back("TOB");
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC/mm]", "Number of Clusters", 0,800 , 0,0);
     DrawLegend(Histos,legend,"","L");
-    DrawPreliminary(TextToPrint);
+    DrawPreliminary(DataType);
     TLine* l0 = new TLine(300, 0,300,((TH1*)Histos[0])->GetMaximum()); l0->SetLineWidth(3); l0->SetLineStyle(2); l0->Draw("same");
     SaveCanvas(c1,output,"Charge");
     DrawStatBox(Histos,legend,true, 0.6, 0.7);
@@ -797,7 +637,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC/mm]", "Number of Clusters", 0,800 , 0,0);
     DrawLegend(Histos,legend,"","L");
     DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"ChargeTECSide");
     delete c1;
 
@@ -807,7 +646,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC/mm]", "Number of Clusters", 0,800 , 0,0);
     DrawLegend(Histos,legend,"","L");
     DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"ChargeTECThickness");
     delete c1;
 
@@ -817,18 +655,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC/mm]", "Number of Clusters", 0,800 , 0,0);
     DrawLegend(Histos,legend,"","L");
     DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"ChargeTIDSide");
-    delete c1;
-
-    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-    Histos[0] = ChargeAbsPIB;                      legend.push_back("PIB");
-    Histos[1] = ChargeAbsPIE;                      legend.push_back("PIE");
-    DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC]", "Number of Clusters", 0,800 , 0,0);
-    DrawLegend(Histos,legend,"","L");
-    DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
-    SaveCanvas(c1,output,"PixelChargeAbs");
     delete c1;
 
     c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -839,7 +666,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC]", "Number of Clusters", 0,800 , 0,0);
     DrawLegend(Histos,legend,"","L");
     DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"ChargeAbs");
     delete c1;
 
@@ -849,7 +675,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC]", "Number of Clusters", 0,800 , 0,0);
     DrawLegend(Histos,legend,"","L");
     DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"ChargeAbsTECSide");
     delete c1;
 
@@ -859,7 +684,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC]", "Number of Clusters", 0,800 , 0,0);
     DrawLegend(Histos,legend,"","L");
     DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"ChargeAbsTECThickness");
     delete c1;
 
@@ -869,7 +693,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawSuperposedHistos((TH1**)Histos, legend, "",  "Charge [ADC]", "Number of Clusters", 0,800 , 0,0);
     DrawLegend(Histos,legend,"","L");
     DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"ChargeAbsTIDSide");
     delete c1;
 
@@ -879,7 +702,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[1] = MPV_Vs_PathlengthThick;            legend.push_back("500 #mum");
     DrawSuperposedHistos((TH1**)Histos, legend, "HIST",  "pathlength [mm]", "MPV [ADC/mm]", 0,0 , 230,380);
     DrawLegend(Histos,legend,"","L");
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"MPV_Vs_Path");
     delete c1;
 
@@ -892,20 +714,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     Histos[4] = MPV_Vs_PathlengthTEC2;             legend.push_back("TEC (500 #mum)");
     DrawSuperposedHistos((TH1**)Histos, legend, "HIST",  "pathlength [mm]", "MPV [ADC/mm]", 0,0 , 230,380);
     DrawLegend(Histos,legend,"","L");
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"MPV_Vs_PathSubDet");
-    delete c1;
-
-
-    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-    Histos[0] = DiffWRTPrevGainPIB;                legend.push_back("PIB");
-    Histos[1] = DiffWRTPrevGainPIE;                legend.push_back("PIE");
-    DrawSuperposedHistos((TH1**)Histos, legend, "HIST",  "New Gain / Previous Gain", "Number of APV", 0.0,2.0 ,0,0);
-    DrawLegend(Histos,legend,"","L");
-    c1->SetLogy(true);
-    DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
-    SaveCanvas(c1,output,"PixelGainDividedPrevGain");
     delete c1;
 
 
@@ -918,24 +727,8 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
     DrawLegend(Histos,legend,"","L");
     c1->SetLogy(true);
     DrawStatBox(Histos,legend,true, 0.6, 0.7);
-    DrawPreliminary(TextToPrint);
     SaveCanvas(c1,output,"GainDividedPrevGain");
     delete c1;
-
-
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   Histos[0] = GainVsPrevGainPIB;                 legend.push_back("PIB");
-   Histos[1] = GainVsPrevGainPIE;                 legend.push_back("PIE");
-   DrawTH2D((TH2D**)Histos,legend, "", "Previous Gain", "New Gain", 0.5,1.8, 0.5,1.8);
-   TLine diagonalP(0.5,0.5,1.8,1.8);
-   diagonalP.SetLineWidth(3);
-   diagonalP.SetLineStyle(2);
-   diagonalP.Draw("same");
-   DrawLegend (Histos,legend,"","P");
-   DrawStatBox(Histos,legend,false);
-   DrawPreliminary(TextToPrint);
-   SaveCanvas(c1,output,"PixelGainVsPrevGain");
-   delete c1;
 
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -950,7 +743,6 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    diagonal.Draw("same");
    DrawLegend (Histos,legend,"","P");
    DrawStatBox(Histos,legend,false);
-   DrawPreliminary(TextToPrint);
    SaveCanvas(c1,output,"GainVsPrevGain");
    delete c1;
 

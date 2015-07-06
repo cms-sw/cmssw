@@ -16,27 +16,42 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout')
 )
 
-process.source = cms.Source("EmptyIOVSource",
-    timetype   = cms.string('runnumber'),
-    interval   = cms.uint64(1),
-    firstValue = cms.uint64(XXX_FIRSTRUN_XXX),
-    lastValue  = cms.uint64(XXX_LASTRUN_XXX)
+process.options = cms.untracked.PSet(
+    Rethrow = cms.untracked.vstring('ProductNotFound'),
+    fileMode = cms.untracked.string('FULLMERGE')
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.GlobalTag.globaltag = 'XXX_GT_XXX'
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'XXX_GT_XXX', '')
 
-calibTreeList = cms.vstring()
-XXX_CALIBTREE_XXX
+from FileList_cfg import calibTreeList
 
 process.load("CalibTracker.SiStripChannelGain.computeGain_cff")
-process.SiStripCalib.InputFiles          = calibTreeList
 process.SiStripCalib.FirstSetOfConstants = cms.untracked.bool(False)
 process.SiStripCalib.CalibrationLevel    = cms.untracked.int32(0) # 0==APV, 1==Laser, 2==module
+process.SiStripCalib.saveSummary         = cms.untracked.bool(True)
 
+
+if(XXX_PCL_XXX):
+   process.SiStripCalib.AlgoMode = cms.untracked.string('PCL')
+   process.SiStripCalib.harvestingMode = cms.untracked.bool(True)
+   process.source = cms.Source("PoolSource",
+       secondaryFileNames = cms.untracked.vstring(),
+       fileNames = calibTreeList,
+       processingMode = cms.untracked.string('RunsAndLumis')
+   )
+else:
+   process.SiStripCalib.InputFiles          = calibTreeList
+   process.source = cms.Source("EmptyIOVSource",
+       timetype   = cms.string('runnumber'),
+       interval   = cms.uint64(1),
+       firstValue = cms.uint64(XXX_FIRSTRUN_XXX),
+       lastValue  = cms.uint64(XXX_LASTRUN_XXX)
+   )
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -48,7 +63,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     connect = cms.string('sqlite_file:Gains_Sqlite.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripApvGainRcd'),
-        tag = cms.string('IdealGainTag')
+        tag = cms.string('SiStripGainFromParticles')
     ))
 )
 
@@ -61,4 +76,14 @@ process.load("DQMServices.Components.DQMFileSaver_cfi")
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = '/Express/PCLTest/ALCAPROMPT'
 
-process.p = cms.Path(process.SiStripCalib * process.dqmSaver) 
+process.EDMtoMEConvert = cms.EDAnalyzer("EDMtoMEConverter",
+    Frequency = cms.untracked.int32(50),
+    Name = cms.untracked.string('EDMtoMEConverter'),
+    Verbosity = cms.untracked.int32(0),
+    convertOnEndLumi = cms.untracked.bool(True),
+    convertOnEndRun = cms.untracked.bool(True),
+    lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterLumi"),
+    runInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterRun")
+)
+
+process.p = cms.Path(process.EDMtoMEConvert * process.SiStripCalib * process.dqmSaver) 
