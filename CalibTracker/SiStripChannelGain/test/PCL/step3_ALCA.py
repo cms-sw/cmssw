@@ -13,11 +13,20 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.AlCaRecoStreams_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+#process.load('Configuration.StandardSequences.Reconstruction_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+
+#process.ALCARECOCalibrationTracks.src = cms.InputTag("ALCARECOSiStripCalMinBias")
+process.ALCARECOCalibrationTracks.src = cms.InputTag("generalTracks")
+
+#process.ALCARECOCalMinBiasFilterForSiStripGains.HLTPaths = cms.vstring('pathALCARECOSiStripCalMinBias')
+process.ALCARECOCalMinBiasFilterForSiStripGains.HLTPaths = cms.vstring('*')
+
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
@@ -26,16 +35,8 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/00A42AC9-4ADF-E111-8749-5404A6388697.root', 
-        '/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/0CC85F9E-88DF-E111-904F-001D09F29321.root', 
-        '/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/14F9B88E-56DF-E111-B79B-001D09F24303.root', 
-        '/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/16E003CB-4ADF-E111-8883-BCAEC518FF41.root', 
-        '/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/1800C6E5-55DF-E111-AC90-003048F1C58C.root', 
-        '/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/2462FB44-4EDF-E111-8D3D-BCAEC518FF8A.root', 
-        '/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/268097BA-58DF-E111-93A0-0025901D6288.root', 
-        '/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/26F372C9-5FDF-E111-9418-001D09F242EF.root', 
-        '/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/287CFC74-59DF-E111-9175-5404A63886D4.root', 
-        '/store/data/Run2012C/MinimumBias/ALCARECO/SiStripCalMinBias-v2/000/200/190/3866F4D2-4ADF-E111-8749-5404A63886A0.root')
+    fileNames = cms.untracked.vstring(
+         '/store/relval/CMSSW_7_5_0_pre4/RelValMinBias_13/GEN-SIM-RECO/MCRUN2_75_V1-v1/00000/0ECACE0E-EBF5-E411-9B86-0025905A6136.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -70,7 +71,7 @@ process.ALCARECOStreamPromptCalibProdSiStripGains = cms.OutputModule("PoolOutput
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:com10', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'MCRUN2_75_V1', '')
 
 # Path and EndPath definitions
 process.endjob_step = cms.EndPath(process.endOfProcess)

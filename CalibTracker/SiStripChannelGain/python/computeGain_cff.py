@@ -17,22 +17,12 @@ SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
 
     CalibrationLevel    = cms.untracked.int32(0), # 0==APV, 1==Laser, 2==module
 
-    InputFiles          = cms.vstring(
-#	"rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_20_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_20_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_21_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_22_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_23_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_24_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_25_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_26_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_27_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_28_134721_1.root",
-        "rfio:/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/calibTree_29_134721_1.root",
-    ),
+    InputFiles          = cms.untracked.vstring(),
 
     UseCalibration     = cms.untracked.bool(False),
     calibrationPath    = cms.untracked.string(""),
+
+    saveSummary         = cms.untracked.bool(False),
 
     GoodFracForTagProd  = cms.untracked.double(0.95),
     NClustersForTagProd = cms.untracked.double(2E8),
