@@ -47,9 +47,9 @@ TString toTString(const PublicationStatus status) {
 enum Era { NONE, CRUZET15, CRAFT15, COLL0T15 };
 static TString toTString(const Era era) {
     TString str = "";
-    if(      era == CRUZET15 ) str = "0 T cosmic-ray data";
-    else if( era == CRAFT15  ) str = "3.8 T cosmic-ray data";
-    else if( era == COLL0T15 ) str = "0 T collision data";
+    if(      era == CRUZET15 ) str = "0T cosmic ray data 2015";
+    else if( era == CRAFT15  ) str = "3.8T cosmic ray data 2015";
+    else if( era == COLL0T15 ) str = "0T collision data 2015";
 
     return str;
 }
@@ -72,27 +72,32 @@ public:
   //  UNPUBLISHED : show "CMS (unpublished)" label (intended for additional material on TWiki)
   // Note that this method does not allow for easy memory
   // handling. For that, use standardTitle().
-  static void drawStandardTitle() { standardTitle()->Draw("same"); }
-  static void drawStandardTitle(const Era era) { standardTitle(era)->Draw("same"); }
+  static void drawStandardTitle() { standardTitle()->Draw("same"); standardRightTitle()->Draw("same"); }
+  static void drawStandardTitle(const Era era) { standardTitle()->Draw("same"); standardRightTitle(era)->Draw("same"); }
 
   // Returns a TPaveText object that fits as a histogram title
   // with the current pad dimensions.
   // It has the same text as described in drawStandardTitle().
   // The idea of this method is that one has control over the
   // TPaveText object and can do proper memory handling.
+  static TPaveText* standardTitle(PublicationStatus status) {
+    return title(header(status));
+  }
   static TPaveText* standardTitle() {
-    return standardTitle(publicationStatus_,era_);
+    return standardTitle(publicationStatus_);
   }
-  static TPaveText* standardTitle(const Era era) {
-    return standardTitle(publicationStatus_,era);
+
+  static TPaveText* standardRightTitle(const Era era) {
+    return righttitle(rightheader(era));
   }
-  static TPaveText* standardTitle(const PublicationStatus status, const Era era) {
-    return title(header(status,era));
+  static TPaveText* standardRightTitle() {
+    return standardRightTitle(era_);
   }
 
   // Returns a TPaveText object that fits as a histogram title
   // with the current pad dimensions and displays the specified text txt.
   static TPaveText* customTitle(const TString& txt) { return title(txt); }
+  static TPaveText* customRightTitle(const TString& txt) { return righttitle(txt); }
 
   static TString legendheader;
   // Returns a TLegend object that fits into the top-right corner
@@ -195,11 +200,14 @@ private:
   static double textSize_;
 
   // creates a title
+  static TString applyCMS(const TString& txt);
   static TPaveText* title(const TString& txt);
+  static TPaveText* righttitle(const TString& txt);
 
   // returns the standard-title (CMS label 2015) depending
   // on the PublicationStatus 
-  static TString header(const PublicationStatus status, const Era era);
+  static TString header(const PublicationStatus status);
+  static TString rightheader(const Era era);
 
   // NDC coordinates for TPave, TLegend,...
   static void setXCoordinatesL(const double relWidth, double& x0, double& x1);
@@ -295,49 +303,88 @@ TPaveText* TkAlStyle::label(const int nEntries, const double relWidth, const boo
   return label;
 }
 
+// --------------------------------------------------------------
+//unfortunately no #definecommand in TLatex...
+//#CMS{text} gives CMS in big bold, text in italics
+//#CMS with no "argument" just gives CMS in big bold
+//#noCMS{text} gives text in italics
+TString TkAlStyle::applyCMS(const TString& txt) {
+  TString newtxt = txt;
+  newtxt.ReplaceAll("#CMS{","#scale[1.4]{#font[61]{CMS}} #font[52]{");
+  newtxt.ReplaceAll("#noCMS{","#font[52]{");
+  newtxt.ReplaceAll("#CMS","#scale[1.4]{#font[61]{CMS}}");
+  return newtxt;
+}
+
 
 // --------------------------------------------------------------
 TPaveText* TkAlStyle::title(const TString& txt) {
   double x0 = gStyle->GetPadLeftMargin();
   double x1 = 1.-gStyle->GetPadRightMargin();
-  double y0 = 1.-gStyle->GetPadTopMargin()+0.01;
+  double y0 = 1.-gStyle->GetPadTopMargin();
+  double y1 = 1.;
+  if (txt.Contains("#CMS")) y0 += .02;
+  TPaveText* theTitle = new TPaveText(x0,y0,x1,y1,"NDC");
+  theTitle->SetBorderSize(0);
+  theTitle->SetFillColor(10);
+  theTitle->SetFillStyle(0);
+  theTitle->SetTextFont(42);
+  theTitle->SetTextAlign(13);	// left bottom adjusted
+  theTitle->SetTextSize(0.038);
+  theTitle->SetMargin(0.);
+  theTitle->AddText(applyCMS(txt));
+
+  return theTitle;
+}
+
+
+// --------------------------------------------------------------
+TPaveText* TkAlStyle::righttitle(const TString& txt) {
+  TString newtxt = applyCMS(txt);
+  double x0 = gStyle->GetPadLeftMargin();
+  double x1 = 1.-gStyle->GetPadRightMargin();
+  double y0 = 1.-gStyle->GetPadTopMargin();
   double y1 = 1.;
   TPaveText* theTitle = new TPaveText(x0,y0,x1,y1,"NDC");
   theTitle->SetBorderSize(0);
   theTitle->SetFillColor(10);
-  theTitle->SetFillStyle(1001);
+  theTitle->SetFillStyle(0);
   theTitle->SetTextFont(42);
-  theTitle->SetTextAlign(12);	// left adjusted and vertically centered
+  theTitle->SetTextAlign(33);	// right bottom adjusted
   theTitle->SetTextSize(0.038);
   theTitle->SetMargin(0.);
-  theTitle->AddText(txt);
+  theTitle->AddText(newtxt);
   
   return theTitle;
 }
 
 
 // --------------------------------------------------------------
-TString TkAlStyle::header(const PublicationStatus status, const Era era) {
+TString TkAlStyle::header(const PublicationStatus status) {
   TString txt;
   if( status == NO_STATUS ) {
     std::cout << "Status not set yet!  Can't draw the title!" << std::endl;
   } else if( status == INTERNAL_SIMULATION ) {
-    txt = "Simulation";
+    txt = "#noCMS{Simulation}";
   } else if( status == PRELIMINARY ) {
-    txt = "CMS Preliminary";
+    txt = "#CMS{Preliminary}";
   } else if( status == PUBLIC ) {
-    txt = "CMS";
+    txt = "#CMS";
   } else if( status == SIMULATION ) {
-    txt = "CMS Simulation";
+    txt = "#CMS{Simulation}";
   } else if( status == UNPUBLISHED ) {
-    txt = "CMS (unpublished)";
+    txt = "#CMS{(unpublished)}";
   } else if( status == CUSTOM ) {
     txt = customTitle_;
   }
-  if( status != CUSTOM )
-    txt += " 2015";
-  if( era != NONE ) txt += ",  "+toTString(era);
 
+  return txt;
+}
+
+TString TkAlStyle::rightheader(const Era era)
+{
+  TString txt = "";
+  if( era != NONE ) txt += toTString(era);
   return txt;
 }
 
