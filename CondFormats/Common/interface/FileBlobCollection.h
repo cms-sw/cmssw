@@ -16,9 +16,9 @@
 
 class FileBlobCollection {
  public:
-  FileBlobCollection();
-  // TODO: BVB probably nicer to have a more "direct" constructor here
+  FileBlobCollection() {};
   ~FileBlobCollection() {};
+  void addFileBlob(FileBlob &fileBlob);
   bool mergeProduct(FileBlobCollection const &other);
 
  private:
