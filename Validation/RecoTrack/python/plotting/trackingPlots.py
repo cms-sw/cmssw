@@ -76,7 +76,7 @@ _chargemisid = PlotGroup("chargemisid", [
 _hitsAndPt = PlotGroup("hitsAndPt", [
     Plot("missing_inner_layers", stat=True, normalizeToUnitArea=True, drawStyle="hist"),
     Plot("missing_outer_layers", stat=True, normalizeToUnitArea=True, drawStyle="hist"),
-    Plot("nhits_vs_eta", stat=True, statx=0.38, profileX=True, xtitle="#eta", ytitle="<hits> vs #eta", ymin=8, ymax=24, statyadjust=[0,0,-0.15]),
+    Plot("hits_eta", stat=True, statx=0.38, xtitle="#eta", ytitle="<hits> vs #eta", ymin=8, ymax=24, statyadjust=[0,0,-0.15]),
     Plot("hits", stat=True, xtitle="hits", xmin=0, xmax=40, drawStyle="hist"),
     Plot("num_simul_pT", stat=True, normalizeToUnitArea=True, xtitle="p_{t}", xmin=0, xmax=10, drawStyle="hist"),
     Plot("num_reco_pT", stat=True, normalizeToUnitArea=True, xtitle="p_{t}", xmin=0, xmax=10, drawStyle="hist")
@@ -98,7 +98,7 @@ _ntracks = PlotGroup("ntracks", [
 _tuning = PlotGroup("tuning", [
     Plot("chi2", stat=True, normalizeToUnitArea=True, ylog=True, ymin=1e-6, ymax=[0.1, 0.2, 0.5, 1.0001], drawStyle="hist", xtitle="#chi^{2}", ratioUncertainty=False),
     Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})", ratioUncertainty=False),
-    Plot("chi2_vs_eta", stat=True, profileX=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5),
+    Plot("chi2mean", stat=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5),
     Plot("ptres_vs_eta_Mean", stat=True, scale=100, title="", xtitle="#eta", ytitle="< #delta p_{t} / p_{t} > [%]", ymin=-1.5, ymax=1.5)
 ])
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025], "ratioUncertainty": False}

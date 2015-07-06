@@ -7,7 +7,6 @@
     provided Layers
  */
 
-#include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/MultiHitGenerator.h"
 #include "CombinedMultiHitGenerator.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,27 +22,23 @@
 #include <utility>
 #include <vector>
 
+class HitPairGeneratorFromLayerPair;
 
 class dso_hidden MultiHitGeneratorFromChi2 final : public MultiHitGeneratorFromPairAndLayers {
 
 typedef CombinedMultiHitGenerator::LayerCacheType       LayerCacheType;
 
 public:
-  MultiHitGeneratorFromChi2( const edm::ParameterSet& cfg);
+  MultiHitGeneratorFromChi2(const edm::ParameterSet& cfg);
 
-  virtual ~MultiHitGeneratorFromChi2() { delete thePairGenerator; }
-
-  void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) override;
+  virtual ~MultiHitGeneratorFromChi2();
 
   void initES(const edm::EventSetup& es) override; 
 
-  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
-                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
-
   virtual void hitSets( const TrackingRegion& region, OrderedMultiHits & trs, 
-			const edm::Event & ev, const edm::EventSetup& es);
-
-  const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
+                        const edm::Event & ev, const edm::EventSetup& es,
+                        SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers);
 
 private:
   using HitOwnPtr = mayown_ptr<BaseTrackerRecHit>;
@@ -67,9 +62,6 @@ private:
 		  float nomField, bool isDebug);
   */
 private:
-  HitPairGenerator * thePairGenerator;
-  std::vector<SeedingLayerSetsHits::SeedingLayer> theLayers;
-  LayerCacheType * theLayerCache;
   const ClusterShapeHitFilter* filter;
   TkTransientTrackingRecHitBuilder const * builder;
   TkClonerImpl cloner;

@@ -33,14 +33,12 @@ HitPairGeneratorFromLayerPair::HitPairGeneratorFromLayerPair(
 							     unsigned int inner,
 							     unsigned int outer,
 							     LayerCacheType* layerCache,
-							     unsigned int nSize,
 							     unsigned int max)
-  : HitPairGenerator(nSize),
-    theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner)
+  : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner), theMaxElement(max)
 {
-  theMaxElement=max;
 }
 
+HitPairGeneratorFromLayerPair::~HitPairGeneratorFromLayerPair() {}
 
 // devirtualizer
 #include<tuple>
@@ -76,9 +74,9 @@ namespace {
 
 void HitPairGeneratorFromLayerPair::hitPairs(
 					     const TrackingRegion & region, OrderedHitPairs & result,
-					     const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+					     const edm::Event& iEvent, const edm::EventSetup& iSetup, Layers layers) {
 
-  auto const & ds = doublets(region, iEvent, iSetup);
+  auto const & ds = doublets(region, iEvent, iSetup, layers);
   for (std::size_t i=0; i!=ds.size(); ++i) {
     result.push_back( OrderedHitPair( ds.hit(i,HitDoublets::inner),ds.hit(i,HitDoublets::outer) ));
   }
@@ -90,14 +88,14 @@ void HitPairGeneratorFromLayerPair::hitPairs(
 
 
 HitDoublets HitPairGeneratorFromLayerPair::doublets( const TrackingRegion& region,
-						    const edm::Event & iEvent, const edm::EventSetup& iSetup) {
+						    const edm::Event & iEvent, const edm::EventSetup& iSetup, Layers layers) {
 
   typedef OrderedHitPair::InnerRecHit InnerHit;
   typedef OrderedHitPair::OuterRecHit OuterHit;
   typedef RecHitsSortedInPhi::Hit Hit;
 
-  Layer innerLayerObj = innerLayer();
-  Layer outerLayerObj = outerLayer();
+  Layer innerLayerObj = innerLayer(layers);
+  Layer outerLayerObj = outerLayer(layers);
 
   const RecHitsSortedInPhi & innerHitsMap = theLayerCache(innerLayerObj, region, iEvent, iSetup);
   if (innerHitsMap.empty()) return HitDoublets(innerHitsMap,innerHitsMap);
