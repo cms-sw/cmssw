@@ -97,6 +97,10 @@ HcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<FEDRawDataCollection> rawdata;  
   iEvent.getByToken(tok_data_,rawdata);
   
+  if(!rawdata.isValid()){
+     return false;
+  }
+
   // checking FEDs for calibration information
   int calibType = -1 ; int numEmptyFEDs = 0 ; 
   std::vector<int> calibTypeCounter(8,0) ; 
