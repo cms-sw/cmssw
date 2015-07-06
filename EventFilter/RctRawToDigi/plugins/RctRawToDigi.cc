@@ -33,12 +33,6 @@ using edm::LogWarning;
 using edm::LogError;
 
 
-#define slinkHeaderSize_ 8
-#define slinkTrailerSize_ 8
-#define amc13HeaderSize_ 8
-#define amc13TrailerSize_ 8
-
-
 RctRawToDigi::RctRawToDigi(const edm::ParameterSet& iConfig) :
   inputLabel_(iConfig.getParameter<edm::InputTag>("inputLabel")),
   fedId_(iConfig.getUntrackedParameter<int>("rctFedId", FEDNumbering::MINTriggerUpgradeFEDID)),
@@ -85,8 +79,8 @@ void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     //Check FED size
     LogDebug("RCT") << "Upacking FEDRawData of size " << std::dec << rctRcd.size();
 
-    //try to check slink header size
-    if ((int) rctRcd.size() < slinkHeaderSize_ + slinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ ) {
+    //check header size
+    if ( rctRcd.size() < sLinkHeaderSize_ + sLinkTrailerSize_ + amc13HeaderSize_ + amc13TrailerSize_ + MIN_DATA) {
       LogError("L1T") << "Cannot unpack: empty/invalid L1T raw data (size = "
 		      << rctRcd.size() << ") for ID " << fedId_ << ". Returning empty collections!";
       //continue;
@@ -96,9 +90,6 @@ void RctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // do the unpacking
     unpack(rctRcd, iEvent, colls.get()); 
 
-    // dump summary in verbose mode
-    if(verbose_) { doVerboseOutput(colls.get()); }
-    
   }
   else{
 
@@ -131,7 +122,7 @@ void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollectio
     LogWarning("L1T") << "Did not find a valid SLink header!";
   }
   
-  FEDTrailer trailer(data + (d.size() - slinkTrailerSize_));
+  FEDTrailer trailer(data + (d.size() - sLinkTrailerSize_));
   
   if (trailer.check()) {
     LogDebug("L1T") << "Found SLink trailer:"
@@ -143,32 +134,19 @@ void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollectio
     LogWarning("L1T") << "Did not find a SLink trailer!";
   }
   
-  //amc13::Packet packet;
-  //if (!packet.parse((const uint64_t*) d.data(),d.size())) {
-  //LogError("L1T") << "Could not extract AMC13 Packet.";
-  //return;
-  //}
-    
   size_t theSize = d.size();
-  uint32_t ch[(theSize+sizeof(uint32_t)-1)/sizeof(uint32_t)];
-  memcpy(ch,data,theSize);
-  unpackCTP7(ch, 0, sizeof(data), colls);
+  //int32_t ch[(theSize+sizeof(uint32_t)-1)/sizeof(uint32_t)];
+  //memcpy(ch,data,theSize);
+  unpackCTP7((uint32_t*)data, 0, sizeof(data), colls);
+  //unpackCTP7(ch, 0, sizeof(data), colls);
 
 }
-
-
-
-
-void RctRawToDigi::doVerboseOutput(const RctUnpackCollections * const colls) const
-{
-
-}
-
 
 
 void
 RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const unsigned size, RctUnpackCollections * const colls)
 {
+  //offset from 6 link header words
   uint32_t of = 6;
   LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
 
@@ -226,6 +204,7 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
     //getDecodedLink ID
     rctDataDecoder.decodeLinkID(linkID, crateID, even);
 
+    //Perform a check to see if the link ID is as expected, if not then report an error but continue unpacking
     if(expectedCrateID!=crateID || even!=expectedEven ){
       LogError("L1T") <<"Expected Crate ID "<< expectedCrateID <<" expectedEven "<< expectedEven 
 		      <<"does not match actual Crate ID "<<crateID<<" even "<<even;
