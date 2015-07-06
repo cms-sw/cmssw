@@ -149,7 +149,7 @@ TrackFromSeedProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iSetup.get<IdealMagneticFieldRecord>().get(theMF);
 
    edm::ESHandle<TrackerTopology> httopo;
-   iSetup.get<IdealGeometryRecord>().get(httopo);
+   iSetup.get<TrackerTopologyRcd>().get(httopo);
    const TrackerTopology& ttopo = *httopo;
 
    // create tracks from seeds
