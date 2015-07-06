@@ -26,23 +26,9 @@ public:
 
 //  virtual ~HitPairGeneratorFromLayerPairForPhotonConversion() { }
 
-  void setSeedingLayers(Layers layers)  { theSeedingLayers = layers; }
-
   void hitPairs( const ConversionRegion& convRegion, const TrackingRegion& reg, OrderedHitPairs & prs, 
+                 const Layers& layers,
 			 const edm::Event & ev,  const edm::EventSetup& es);
-
-/*
-  virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
-			 const edm::Event & ev,  const edm::EventSetup& es){};
-
-
-  virtual HitPairGeneratorFromLayerPairForPhotonConversion* clone() const {
-    return new HitPairGeneratorFromLayerPairForPhotonConversion(*this);
-  }
-*/
-
-  Layer innerLayer() const { return theSeedingLayers[theInnerLayer]; }
-  Layer outerLayer() const { return theSeedingLayers[theOuterLayer]; }
 
   float getLayerRadius(const DetLayer& layer);
   float getLayerZ(const DetLayer& layer);
@@ -58,7 +44,6 @@ private:
   double getCot(double dz, double dr);
   
   LayerCacheType & theLayerCache;
-  Layers theSeedingLayers;
   const unsigned int theOuterLayer;
   const unsigned int theInnerLayer;
   const unsigned int theMaxElement;

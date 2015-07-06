@@ -22,8 +22,7 @@ template<class T> T sqr(T t) { return t * t;}
 using namespace std;
 
 PixelTripletNoTipGenerator:: PixelTripletNoTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
-    : thePairGenerator(0),
-      theLayerCache(0),
+    : HitTripletGeneratorFromPairAndLayers(cfg),
       extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
       extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
       extraHitPhiToleranceForPreFiltering(cfg.getParameter<double>("extraHitPhiToleranceForPreFiltering")), 
@@ -31,24 +30,15 @@ PixelTripletNoTipGenerator:: PixelTripletNoTipGenerator(const edm::ParameterSet&
       theChi2Cut(cfg.getParameter<double>("chi2Cut"))
 { }
 
-void PixelTripletNoTipGenerator::init( const HitPairGenerator & pairs,
-      LayerCacheType* layerCache)
-{
-  thePairGenerator = pairs.clone();
-  theLayerCache = layerCache;
-}
-
-void PixelTripletNoTipGenerator::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
-                                                  std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) {
-  thePairGenerator->setSeedingLayers(pairLayers);
-  theLayers = thirdLayers;
-}
+PixelTripletNoTipGenerator::~PixelTripletNoTipGenerator() {}
 
 void PixelTripletNoTipGenerator::hitTriplets(
     const TrackingRegion& region,
     OrderedHitTriplets & result,
     const edm::Event & ev,
-    const edm::EventSetup& es)
+    const edm::EventSetup& es,
+    SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+    const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers)
 {
 
 //
@@ -65,20 +55,19 @@ void PixelTripletNoTipGenerator::hitTriplets(
 
   OrderedHitPairs pairs; pairs.reserve(30000);
   OrderedHitPairs::const_iterator ip;
-  thePairGenerator->hitPairs(region,pairs,ev,es);
+  thePairGenerator->hitPairs(region,pairs,ev,es, pairLayers);
 
   if (pairs.size() ==0) return;
 
-  int size = theLayers.size();
+  int size = thirdLayers.size();
 
   const RecHitsSortedInPhi **thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il=0; il <=size-1; il++) {
-     thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, ev, es);
+     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
   }
 
-  const HitPairGeneratorFromLayerPair * pairGen = dynamic_cast<const HitPairGeneratorFromLayerPair *>(thePairGenerator);
-  const DetLayer * firstLayer = pairGen->innerLayer().detLayer();
-  const DetLayer * secondLayer = pairGen->outerLayer().detLayer();
+  const DetLayer * firstLayer = thePairGenerator->innerLayer(pairLayers).detLayer();
+  const DetLayer * secondLayer = thePairGenerator->outerLayer(pairLayers).detLayer();
   if (!firstLayer || !secondLayer) return;
 
   MultipleScatteringParametrisation sigma1RPhi( firstLayer, es);
@@ -109,7 +98,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
 
     for (int il=0; il <=size-1; il++) {
 
-      const DetLayer * layer = theLayers[il].detLayer();
+      const DetLayer * layer = thirdLayers[il].detLayer();
       bool barrelLayer = (layer->location() == GeomDetEnumerators::barrel);
       MultipleScatteringParametrisation sigma3RPhi( layer, es);
       double msRPhi3 = sigma3RPhi(pt_p1p2, line.cotLine(),point2);

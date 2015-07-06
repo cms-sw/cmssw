@@ -42,9 +42,6 @@ private:
   OrderedMultiHits theHitSets;
 
 protected:
-  using cacheHitPointer = std::unique_ptr<BaseTrackerRecHit>;
-  using cacheHits=std::vector<cacheHitPointer>;
-  cacheHits cache; // ownes what is by reference above...
   edm::RunningAverage localRA;
 };
 

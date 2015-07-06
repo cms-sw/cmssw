@@ -7,8 +7,6 @@
     provided Layers
  */
 
-#include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGenerator.h"
 #include "CombinedHitTripletGenerator.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,15 +26,10 @@ public:
 
   virtual ~PixelTripletHLTGenerator();
 
-  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
-                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
-
-  void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) override;
-
-  virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs, 
-      const edm::Event & ev, const edm::EventSetup& es);
-
-  const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
+  virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
+                            const edm::Event & ev, const edm::EventSetup& es,
+                            SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                            const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;
 
 private:
   bool checkPhiInRange(float phi, float phi1, float phi2) const;
@@ -44,10 +37,6 @@ private:
       const std::pair<float,float> &r1, const std::pair<float,float> &r2) const; 
 
 private:
-  HitPairGenerator * thePairGenerator;
-  std::vector<SeedingLayerSetsHits::SeedingLayer> theLayers;
-  LayerCacheType * theLayerCache;
-
   bool useFixedPreFiltering;
   float extraHitRZtolerance;
   float extraHitRPhitolerance;
