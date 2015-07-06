@@ -2,12 +2,12 @@
 //         Created:  Mon, 23 Mar 2015 14:56:15 GMT
 
 #include <memory>
-#include <vector>
 
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileExtractor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
+#include "CondFormats/Common/interface/FileBlobCollection.h"
 
 MillePedeFileExtractor::MillePedeFileExtractor(const edm::ParameterSet& iConfig)
     : theOutputDir(iConfig.getParameter<std::string>("fileDir")),
@@ -22,23 +22,23 @@ MillePedeFileExtractor::~MillePedeFileExtractor() {}
 void MillePedeFileExtractor::beginRun(const edm::Run& iRun,
                                       edm::EventSetup const&) {
   // Getting our hands on the vector of FileBlobs
-  edm::Handle<std::vector<FileBlob>> theVectorOfFileBlobs;
-  iRun.getByLabel(theFileBlobModule, theFileBlobLabel, theVectorOfFileBlobs);
-  if (theVectorOfFileBlobs.isValid()) {
+  edm::Handle<FileBlobCollection> theFileBlobCollection;
+  iRun.getByLabel(theFileBlobModule, theFileBlobLabel, theFileBlobCollection);
+  if (theFileBlobCollection.isValid()) {
     // Logging the amount of FileBlobs in the vector
-    int theVectorSize = theVectorOfFileBlobs->size();
+    int theVectorSize = theFileBlobCollection->size();
     edm::LogInfo("MillePedeFileActions") << "Root file contains "
                                          << theVectorSize << " FileBlob(s).";
     // Loop over the FileBlobs in the vector, and write them to files:
     for (std::vector<FileBlob>::const_iterator it =
-             theVectorOfFileBlobs->begin();
-         it != theVectorOfFileBlobs->end(); ++it) {
+             theFileBlobCollection->begin();
+         it != theFileBlobCollection->end(); ++it) {
       // We format the filename with a number, starting from 0 to the size of
       // our vector.
       // For this to work, the outputBinaryFile config parameter must contain a
       // formatting directive for a number, like %04d.
       char theNumberedOutputFileName[200];
-      int theNumber = it - theVectorOfFileBlobs->begin();
+      int theNumber = it - theFileBlobCollection->begin();
       sprintf(theNumberedOutputFileName, theOutputFileName.c_str(), theNumber);
       // Log the filename to which we will write...
       edm::LogInfo("MillePedeFileActions")
@@ -46,7 +46,7 @@ void MillePedeFileExtractor::beginRun(const edm::Run& iRun,
           << theOutputDir + theNumberedOutputFileName << ".";
       // ...and perform the writing operation.
       it->write(theOutputDir + theNumberedOutputFileName);
-      // Carefull, it seems that when writing to an impossible file, this is 
+      // Carefull, it seems that when writing to an impossible file, this is
       // swallowed by the FileBlob->write operation and no error is thrown.
     }
   } else {
