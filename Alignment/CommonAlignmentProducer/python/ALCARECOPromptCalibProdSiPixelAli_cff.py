@@ -181,6 +181,7 @@ SiPixelAliMillePedeFileConverter = cms.EDProducer("MillePedeFileConverter",
                                                   #FIXME: convert to untracked?
                                                   fileDir = cms.string(SiPixelAliMilleAlignmentProducer.algoConfig.fileDir.value()),
                                                   inputBinaryFile = cms.string(SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile.value()),
+                                                  #FIXME: why was the label removed? Don't we want a label?
                                                   fileBlobLabel = cms.string(''))
 
 
