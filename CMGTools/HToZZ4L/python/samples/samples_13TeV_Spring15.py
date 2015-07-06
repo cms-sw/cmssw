@@ -30,8 +30,7 @@ triggers_1mu_iso = [ 'HLT_IsoMu24_eta2p1_v*', 'HLT_IsoTkMu24_eta2p1_v*'  ]
 # note: here the WP75 is th name in MC, WPLoose and WPTight should be in data
 triggers_1e      = [ "HLT_Ele32_eta2p1_WP75_Gsf_v*", "HLT_Ele32_eta2p1_WPLoose_Gsf_v*", "HLT_Ele32_eta2p1_WPTight_Gsf_v*" ]
 
-#####COMPONENT CREATOR
-from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
 
 # GGH cross section from LHC Higgs XS WG: https://twiki.cern.ch/twiki/bin/view/LHCPhysics/CERNYellowReportPageAt1314TeV?rev=15
