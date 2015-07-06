@@ -46,6 +46,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   MultiTrackValidatorBase(pset,consumesCollector()),
   parametersDefinerIsCosmic_(parametersDefiner == "CosmicParametersDefinerForTP"),
   doPlotsOnlyForTruePV_(pset.getUntrackedParameter<bool>("doPlotsOnlyForTruePV")),
+  doSummaryPlots_(pset.getUntrackedParameter<bool>("doSummaryPlots")),
   doSimPlots_(pset.getUntrackedParameter<bool>("doSimPlots")),
   doSimTrackPlots_(pset.getUntrackedParameter<bool>("doSimTrackPlots")),
   doRecoTrackPlots_(pset.getUntrackedParameter<bool>("doRecoTrackPlots")),
@@ -171,19 +172,21 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     // FIXME: these need to be moved to a subdirectory whose name depends on the associator
     ibook.setCurrentFolder(dirName_);
 
-    if(doSimTrackPlots_) {
-      h_assoc_coll.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
-      h_simul_coll.push_back(binLabels( ibook.book1D("num_simul_coll", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
+    if(doSummaryPlots_) {
+      if(doSimTrackPlots_) {
+        h_assoc_coll.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
+        h_simul_coll.push_back(binLabels( ibook.book1D("num_simul_coll", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
 
-      h_assoc_coll_allPt.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll_allPt", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
-      h_simul_coll_allPt.push_back(binLabels( ibook.book1D("num_simul_coll_allPt", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
+        h_assoc_coll_allPt.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll_allPt", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
+        h_simul_coll_allPt.push_back(binLabels( ibook.book1D("num_simul_coll_allPt", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
 
-    }
-    if(doRecoTrackPlots_) {
-      h_reco_coll.push_back(binLabels( ibook.book1D("num_reco_coll", "N of reco track vs track collection", nintColl, minColl, maxColl) ));
-      h_assoc2_coll.push_back(binLabels( ibook.book1D("num_assoc(recoToSim)_coll", "N of associated (recoToSim) tracks vs track collection", nintColl, minColl, maxColl) ));
-      h_looper_coll.push_back(binLabels( ibook.book1D("num_duplicate_coll", "N of associated (recoToSim) looper tracks vs track collection", nintColl, minColl, maxColl) ));
-      h_pileup_coll.push_back(binLabels( ibook.book1D("num_pileup_coll", "N of associated (recoToSim) pileup tracks vs track collection", nintColl, minColl, maxColl) ));
+      }
+      if(doRecoTrackPlots_) {
+        h_reco_coll.push_back(binLabels( ibook.book1D("num_reco_coll", "N of reco track vs track collection", nintColl, minColl, maxColl) ));
+        h_assoc2_coll.push_back(binLabels( ibook.book1D("num_assoc(recoToSim)_coll", "N of associated (recoToSim) tracks vs track collection", nintColl, minColl, maxColl) ));
+        h_looper_coll.push_back(binLabels( ibook.book1D("num_duplicate_coll", "N of associated (recoToSim) looper tracks vs track collection", nintColl, minColl, maxColl) ));
+        h_pileup_coll.push_back(binLabels( ibook.book1D("num_pileup_coll", "N of associated (recoToSim) pileup tracks vs track collection", nintColl, minColl, maxColl) ));
+      }
     }
 
     for (unsigned int www=0;www<label.size();www++){
@@ -605,16 +608,18 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
           sts++;
           if(matchedTrackPointer)
             asts++;
-          if(dRtpSelectorNoPtCut(tp)) {
-            h_simul_coll_allPt[ww]->Fill(www);
-            if (matchedTrackPointer) {
-              h_assoc_coll_allPt[ww]->Fill(www);
-            }
-
-            if(dRtpSelector(tp)) {
-              h_simul_coll[ww]->Fill(www);
+          if(doSummaryPlots_) {
+            if(dRtpSelectorNoPtCut(tp)) {
+              h_simul_coll_allPt[ww]->Fill(www);
               if (matchedTrackPointer) {
-                h_assoc_coll[ww]->Fill(www);
+                h_assoc_coll_allPt[ww]->Fill(www);
+              }
+
+              if(dRtpSelector(tp)) {
+                h_simul_coll[ww]->Fill(www);
+                if (matchedTrackPointer) {
+                  h_assoc_coll[ww]->Fill(www);
+                }
               }
             }
           }
@@ -701,14 +706,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	double dR=dR_trk[i];
 	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(), thePVposition, isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR);
-        h_reco_coll[ww]->Fill(www);
-        if(isSimMatched) {
-          h_assoc2_coll[ww]->Fill(www);
-          if(numAssocRecoTracks>1) {
-            h_looper_coll[ww]->Fill(www);
-          }
-          else if(!isSigSimMatched) {
-            h_pileup_coll[ww]->Fill(www);
+        if(doSummaryPlots_) {
+          h_reco_coll[ww]->Fill(www);
+          if(isSimMatched) {
+            h_assoc2_coll[ww]->Fill(www);
+            if(numAssocRecoTracks>1) {
+              h_looper_coll[ww]->Fill(www);
+            }
+            else if(!isSigSimMatched) {
+              h_pileup_coll[ww]->Fill(www);
+            }
           }
         }
 
