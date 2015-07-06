@@ -706,6 +706,13 @@ class SimpleValidation:
         self._newdirFunc = newdirFunc
         self._plotterDrawArgs = plotterDrawArgs
 
+        self._openFiles = []
+        for f in self._files:
+            if not os.path.exists(f):
+                print "File %s not found" % f
+                sys.exit(1)
+            self._openFiles.append(ROOT.TFile.Open(f))
+
         if qualities is None:
             qualities = [None]
         if algos is None:
@@ -713,45 +720,54 @@ class SimpleValidation:
 
         for q in qualities:
             for a in algos:
-                self._doPlots(a, q)
+                subdir = None
+                if self._algoDirMap is not None:
+                    if hasattr(self._algoDirMap, "__call__"):
+                        subdir = self._algoDirMap(a, q)
+                    else:
+                        subdir = self._algoDirMap[q][a]
+                self._doPlots(a, q, subdir)
 
-    def _doPlots(self, algo, quality):
-        openFiles = []
+        for tf in self._openFiles:
+            tf.Close()
+        self._openFiles = []
+
+    def doPlotsAuto(self, plotter, subdirToAlgoQuality, newdirFunc=None, plotterDrawArgs={}):
+        self._plotter = plotter
+        self._newdirFunc = newdirFunc
+        self._plotterDrawArgs = plotterDrawArgs
+
+        self._openFiles = []
         for f in self._files:
             if not os.path.exists(f):
                 print "File %s not found" % f
                 sys.exit(1)
-            openFiles.append(ROOT.TFile.Open(f))
+            self._openFiles.append(ROOT.TFile.Open(f))
 
-        # dirs = []
-        # for tf in openFiles:
-        #     theDir = None
-        #     for pd in self._plotter.getPossibleDirectoryNames():
-        #         theDir = tf.GetDirectory(pd)
-        #         if theDir:
-        #             break
-        #     if not theDir:
-        #         print "Did not find any of %s directories from file %s" % (",".join(self._plotter.getPossibleDirectoryNames()), tf.GetName())
-        #         sys.exit(1)
-        #     if self._algoDirMap is not None:
-        #         d = theDir.Get(self._algoDirMap[quality][algo])
-        #         if not theDir:
-        #             print "Did not find dir %s from %s" % (self._algoDirMap[quality][algo], theDir.GetPath())
-        #             sys.exit(1)
-        #         theDir = d
-        #     dirs.append(theDir)
+        theDir = None
+        for pd in self._plotter.getPossibleDirectoryNames():
+            theDir = self._openFiles[0].GetDirectory(pd)
+            if theDir:
+                break
+        if not theDir:
+            print "Did not find any of %s directories from file %s" % (",".join(self._plotter.getPossibleDirectoryNames()), tf.GetName())
+            sys.exit(1)
 
-        subdir = None
-        if self._algoDirMap is not None:
-            if hasattr(self._algoDirMap, "__call__"):
-                subdir = self._algoDirMap(algo, quality)
-            else:
-                subdir = self._algoDirMap[quality][algo]
-        self._plotter.create(openFiles, self._labels, subdir=subdir)
-        fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
+        subdirs = []
+        for key in theDir.GetListOfKeys():
+            if isinstance(key.ReadObj(), ROOT.TDirectory):
+                subdirs.append(key.GetName())
 
-        for tf in openFiles:
+        for s in subdirs:
+            self._doPlots(*subdirToAlgoQuality(s), subdir=s)
+
+        for tf in self._openFiles:
             tf.Close()
+        self._openFiles = []
+
+    def _doPlots(self, algo, quality, subdir):
+        self._plotter.create(self._openFiles, self._labels, subdir=subdir)
+        fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
 
         newdir = self._newdir
         if self._newdirFunc is not None:
