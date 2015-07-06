@@ -19,6 +19,9 @@ class FileBlobCollection {
   FileBlobCollection() {};
   ~FileBlobCollection() {};
   void addFileBlob(FileBlob &fileBlob);
+  int size() const;
+  std::vector<FileBlob>::const_iterator begin() const;
+  std::vector<FileBlob>::const_iterator end() const;
   bool mergeProduct(FileBlobCollection const &other);
 
  private:
