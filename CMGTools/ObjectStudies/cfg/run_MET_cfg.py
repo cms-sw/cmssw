@@ -3,6 +3,7 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 #Load all analyzers
 from CMGTools.ObjectStudies.analyzers.metCoreModules_cff import *
 
+cfg.Analyzer.nosubdir = True
 
 ##------------------------------------------
 ##  PRODUCER
@@ -14,15 +15,12 @@ triggers_8TeV_mumu = ["HLT_Mu17_Mu8_v*","HLT_Mu17_TkMu8_v*"]
 triggers_8TeV_1mu = [ 'HLT_IsoMu24_eta2p1_v*' ]
 
 triggerFlagsAna.triggerBits = {
-#            'SingleMu' : triggers_1mu_isolow,
-#            'DoubleMu' : triggers_mumu_iso,
             'SingleMu' : triggers_8TeV_1mu,
             'DoubleMu' : triggers_8TeV_mumu,
 }
 
 #-------- SEQUENCE
 
-##from CMGTools.TTHAnalysis.analyzers.treeProducerMET import *
 from CMGTools.ObjectStudies.analyzers.treeProducerMET import *
 
 treeProducer = cfg.Analyzer(
@@ -41,11 +39,13 @@ treeProducer.treename = 'Events'
 
 #-------- SEQUENCE
 
-metAna.doTkMet = False
+metAna.doTkMet = True
+metAna.doSpecialMet = False
 
 metSequence = cfg.Sequence(
     metCoreSequence +[treeProducer]
     )
+
 # -------------------- lepton modules below needed for the DoubleMuon
 
 ttHLepSkim.minLeptons = 2
@@ -55,17 +55,24 @@ metSequence.insert(metSequence.index(lepAna)+1,
 metSequence.insert(metSequence.index(lepAna)+2,
                    ttHZskim)
 
+# -------------------- lepton modules below needed for the WJets
+
+#ttHLepSkim.minLeptons = 1
+
+#metSequence.insert(metSequence.index(lepAna)+1,
+#                   ttHLepSkim)
+
 ###---- to switch off the comptrssion
 #treeProducer.isCompressed = 0
 
 #-------- SAMPLES AND TRIGGERS -----------
-from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
-from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import * # <-- this one for the official sample 
+from CMGTools.RootTools.samples.samples_13TeV_74X import *
+from CMGTools.RootTools.samples.samples_8TeVReReco_74X import * # <-- this one for the official sample
 from CMGTools.ObjectStudies.samples.samples_METPOG_private import * #<-- this one for the private re-reco
 
 #-------- HOW TO RUN
 
-test = 0
+test = 3
 
 if test==0:
     selectedComponents = [DoubleMu_742, DoubleMu_740p9]
@@ -85,7 +92,7 @@ elif test==1:
         comp.files = comp.files[:]
 
 
-   # -----------------------PHYS14 options -------------------------------------------------------------------- #
+   # ----------------------- Summer15 options -------------------------------------------------------------------- #
 
 elif test==2:
     # test a single component, using a single thread.
@@ -102,11 +109,24 @@ elif test==2:
 
 elif test==3:
     # test all components (1 thread per component).
-    selectedComponents = [ DYJetsToLL_M50_PU4bx50,DYJetsToLL_M50]
+    selectedComponents = [ DYJetsToLL_M50_50ns ]
     for comp in selectedComponents:
-        comp.splitFactor = 251
+#        comp.splitFactor = 1
+#        comp.files = comp.files[:1]
+        comp.splitFactor = 1000
         comp.files = comp.files[:]
-        #comp.files = comp.files[:1]
+
+
+
+elif test==4:
+    # test all components (1 thread per component).
+    # ---> this is for the sample that do not need the Zskim
+    selectedComponents = [ WJetsToLNu_50ns ]
+    for comp in selectedComponents:
+        comp.splitFactor = 1000
+        comp.files = comp.files[:]
+#        comp.splitFactor = 1
+#        comp.files = comp.files[:1]
 
     # ------------------------------------------------------------------------------------------- #
 
@@ -136,10 +156,7 @@ if getHeppyOption("nofetch"):
 # -------------------- Running pre-processor
 
 #from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
-#from PhysicsTools.Heppy.utils.cmsswPreprocessor import CmsswPreprocessor
-#preprocessor = CmsswPreprocessor("/afs/cern.ch/work/d/dalfonso/CMSSW_7_2_3_type1/src/PhysicsTools/PatAlgos/test/Type1Central.py")
-
-
+#preprocessor = CmsswPreprocessor("$CMSSW_BASE/src/CMGTools/ObjectStudies/cfg/MetType1_dump.py")
 
 config = cfg.Config( components = selectedComponents,
                      sequence = metSequence,
