@@ -54,7 +54,7 @@ for selectMuon in [cutBasedMuonId_MuonPOG_V0_loose, cutBasedMuonId_MuonPOG_V0_me
     print selectMuon
 
 # open file (you can use 'edmFileUtil -d /store/whatever.root' to get the physical file name)
-events = Events("file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_5_0_pre6/src/matrix_tests/135.4_ZEE_13+ZEEFS_13+HARVESTUP15FS+MINIAODMCUP15FS/step4.root")
+events = Events("file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_5_X_2015-07-05-1100/src/matrix_tests/135.4_ZEE_13+ZEEFS_13+HARVESTUP15FS+MINIAODMCUP15FS/step3.root")
 #events = Events("root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9_ROOT6/DoubleMu/MINIAOD/GR_R_74_V8A_RelVal_zMu2011A-v1/00000/06961B48-CFD1-E411-8B87-002618943971.root")
 
 muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons::".split(":")
