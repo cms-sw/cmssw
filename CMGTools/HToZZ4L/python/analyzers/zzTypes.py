@@ -56,3 +56,14 @@ ZZType = NTupleObjectType("ZZType", baseObjectTypes=[fourVectorType], variables 
 ])
 
 
+ZType = NTupleObjectType("ZType", baseObjectTypes=[fourVectorType], variables = [
+    NTupleVariable("hasFSR",   lambda x : x.hasFSR(), int),
+    NTupleSubObject("l1",  lambda x : x.leg1,leptonTypeHZZ),
+    NTupleSubObject("l2",  lambda x : x.leg2,leptonTypeHZZ),
+    # -------
+    NTupleVariable("pho_pt",  lambda x : (x.fsrPhoton.pt()  if x.hasFSR() else -99.0) ),
+    NTupleVariable("pho_eta", lambda x : (x.fsrPhoton.eta() if x.hasFSR() else -99.0) ),
+    NTupleVariable("pho_phi", lambda x : (x.fsrPhoton.phi() if x.hasFSR() else -99.0) ),
+])
+
+
