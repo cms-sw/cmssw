@@ -2,13 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('CALIB')
 process.load('CalibTracker.Configuration.setupCalibrationTree_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+
 #process.GlobalTag.globaltag = 'GR_P_V27::All' #2011
 #process.GlobalTag.globaltag = 'GR_P_V32::All'  #2012AB #first run in 2012 is 190450
 #process.GlobalTag.globaltag = 'GR_P_V40::All' #2012  
-process.GlobalTag.globaltag = 'GLOBALTAG::All'
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'GLOBALTAG', '')
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.StandardSequences.Services_cff')
@@ -30,11 +32,11 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 #process.CalibrationTracks.src = 'generalTracks'
 #process.shallowTracks.Tracks  = 'generalTracks'
 # To use the SiStripCalMinBias AlCaReco dataset uncomment the following two lines
-#process.CalibrationTracks.src = 'ALCARECOSiStripCalMinBias'
-#process.shallowTracks.Tracks  = 'ALCARECOSiStripCalMinBias'
+process.CalibrationTracks.src = 'ALCARECOSiStripCalMinBias'
+process.shallowTracks.Tracks  = 'ALCARECOSiStripCalMinBias'
 # To use the cosmic reco dataset uncomment the following two lines
-process.CalibrationTracks.src = 'ctfWithMaterialTracksP5'
-process.shallowTracks.Tracks  = 'ctfWithMaterialTracksP5'
+#process.CalibrationTracks.src = 'ctfWithMaterialTracksP5'
+#process.shallowTracks.Tracks  = 'ctfWithMaterialTracksP5'
 
 # BSCNoBeamHalo selection (Not to use for Cosmic Runs) --- OUTDATED!!!
 ## process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMaskTechTrigConfig_cff')
