@@ -98,33 +98,33 @@ EGFull5x5ShowerShapeModifierFromValueMaps(const edm::ParameterSet& conf) :
   ModifyObjectValueBase(conf) {
   if( conf.exists("electron_config") ) {
     const edm::ParameterSet& electrons = conf.getParameter<edm::ParameterSet>("electron_config");
-    e_conf.electron_src = electrons.getParameter<edm::InputTag>("electronSrc");
-    if( conf.exists("sigmaEtaEta") ) e_conf.sigmaEtaEta = electrons.getParameter<edm::InputTag>("sigmaEtaEta");
-    if( conf.exists("sigmaIetaIeta") ) e_conf.sigmaIetaIeta = electrons.getParameter<edm::InputTag>("sigmaIetaIeta");
-    if( conf.exists("sigmaIphiIphi") ) e_conf.sigmaIphiIphi = electrons.getParameter<edm::InputTag>("sigmaIphiIphi");
-    if( conf.exists("e1x5") ) e_conf.e1x5 = electrons.getParameter<edm::InputTag>("e1x5");
-    if( conf.exists("e2x5Max") ) e_conf.e2x5Max = electrons.getParameter<edm::InputTag>("e2x5Max");
-    if( conf.exists("e5x5") ) e_conf.e5x5 = electrons.getParameter<edm::InputTag>("e5x5");
-    if( conf.exists("r9") ) e_conf.r9 = electrons.getParameter<edm::InputTag>("r9");
-    if( conf.exists("hcalDepth1OverEcal") ) e_conf.hcalDepth1OverEcal = electrons.getParameter<edm::InputTag>("hcalDepth1OverEcal");
-    if( conf.exists("hcalDepth2OverEcal") ) e_conf.hcalDepth2OverEcal = electrons.getParameter<edm::InputTag>("hcalDepth2OverEcal");
-    if( conf.exists("hcalDepth1OverEcalBc") ) e_conf.hcalDepth1OverEcalBc = electrons.getParameter<edm::InputTag>("hcalDepth1OverEcalBc");
-    if( conf.exists("hcalDepth2OverEcalBc") ) e_conf.hcalDepth2OverEcalBc = electrons.getParameter<edm::InputTag>("hcalDepth2OverEcalBc");
+    if( electrons.exists("electronSrc") ) e_conf.electron_src = electrons.getParameter<edm::InputTag>("electronSrc");
+    if( electrons.exists("sigmaEtaEta") ) e_conf.sigmaEtaEta = electrons.getParameter<edm::InputTag>("sigmaEtaEta");
+    if( electrons.exists("sigmaIetaIeta") ) e_conf.sigmaIetaIeta = electrons.getParameter<edm::InputTag>("sigmaIetaIeta");
+    if( electrons.exists("sigmaIphiIphi") ) e_conf.sigmaIphiIphi = electrons.getParameter<edm::InputTag>("sigmaIphiIphi");
+    if( electrons.exists("e1x5") ) e_conf.e1x5 = electrons.getParameter<edm::InputTag>("e1x5");
+    if( electrons.exists("e2x5Max") ) e_conf.e2x5Max = electrons.getParameter<edm::InputTag>("e2x5Max");
+    if( electrons.exists("e5x5") ) e_conf.e5x5 = electrons.getParameter<edm::InputTag>("e5x5");
+    if( electrons.exists("r9") ) e_conf.r9 = electrons.getParameter<edm::InputTag>("r9");
+    if( electrons.exists("hcalDepth1OverEcal") ) e_conf.hcalDepth1OverEcal = electrons.getParameter<edm::InputTag>("hcalDepth1OverEcal");
+    if( electrons.exists("hcalDepth2OverEcal") ) e_conf.hcalDepth2OverEcal = electrons.getParameter<edm::InputTag>("hcalDepth2OverEcal");
+    if( electrons.exists("hcalDepth1OverEcalBc") ) e_conf.hcalDepth1OverEcalBc = electrons.getParameter<edm::InputTag>("hcalDepth1OverEcalBc");
+    if( electrons.exists("hcalDepth2OverEcalBc") ) e_conf.hcalDepth2OverEcalBc = electrons.getParameter<edm::InputTag>("hcalDepth2OverEcalBc");
   }
   if( conf.exists("photon_config") ) {
     const edm::ParameterSet& photons = conf.getParameter<edm::ParameterSet>("photon_config");
-    ph_conf.photon_src = photons.getParameter<edm::InputTag>("photonSrc");
-    if( conf.exists("sigmaEtaEta") ) ph_conf.sigmaEtaEta = photons.getParameter<edm::InputTag>("sigmaEtaEta");
-    if( conf.exists("sigmaIetaIeta") ) ph_conf.sigmaIetaIeta = photons.getParameter<edm::InputTag>("sigmaIetaIeta");
-    if( conf.exists("e1x5") ) ph_conf.e1x5 = photons.getParameter<edm::InputTag>("e1x5");
-    if( conf.exists("e2x5") ) ph_conf.e2x5 = photons.getParameter<edm::InputTag>("e2x5");
-    if( conf.exists("e3x3") ) ph_conf.e3x3 = photons.getParameter<edm::InputTag>("e3x3");
-    if( conf.exists("e5x5") ) ph_conf.e5x5 = photons.getParameter<edm::InputTag>("e5x5");
-    if( conf.exists("maxEnergyXtal") ) ph_conf.maxEnergyXtal = photons.getParameter<edm::InputTag>("maxEnergyXtal");
-    if( conf.exists("hcalDepth1OverEcal") ) ph_conf.hcalDepth1OverEcal = photons.getParameter<edm::InputTag>("hcalDepth1OverEcal");
-    if( conf.exists("hcalDepth2OverEcal") ) ph_conf.hcalDepth2OverEcal = photons.getParameter<edm::InputTag>("hcalDepth2OverEcal");
-    if( conf.exists("hcalDepth1OverEcalBc") ) ph_conf.hcalDepth1OverEcalBc = photons.getParameter<edm::InputTag>("hcalDepth1OverEcalBc");
-    if( conf.exists("hcalDepth2OverEcalBc") ) ph_conf.hcalDepth2OverEcalBc = photons.getParameter<edm::InputTag>("hcalDepth2OverEcalBc");
+    if( photons.exists("photonSrc") ) ph_conf.photon_src = photons.getParameter<edm::InputTag>("photonSrc");
+    if( photons.exists("sigmaEtaEta") ) ph_conf.sigmaEtaEta = photons.getParameter<edm::InputTag>("sigmaEtaEta");
+    if( photons.exists("sigmaIetaIeta") ) ph_conf.sigmaIetaIeta = photons.getParameter<edm::InputTag>("sigmaIetaIeta");
+    if( photons.exists("e1x5") ) ph_conf.e1x5 = photons.getParameter<edm::InputTag>("e1x5");
+    if( photons.exists("e2x5") ) ph_conf.e2x5 = photons.getParameter<edm::InputTag>("e2x5");
+    if( photons.exists("e3x3") ) ph_conf.e3x3 = photons.getParameter<edm::InputTag>("e3x3");
+    if( photons.exists("e5x5") ) ph_conf.e5x5 = photons.getParameter<edm::InputTag>("e5x5");
+    if( photons.exists("maxEnergyXtal") ) ph_conf.maxEnergyXtal = photons.getParameter<edm::InputTag>("maxEnergyXtal");
+    if( photons.exists("hcalDepth1OverEcal") ) ph_conf.hcalDepth1OverEcal = photons.getParameter<edm::InputTag>("hcalDepth1OverEcal");
+    if( photons.exists("hcalDepth2OverEcal") ) ph_conf.hcalDepth2OverEcal = photons.getParameter<edm::InputTag>("hcalDepth2OverEcal");
+    if( photons.exists("hcalDepth1OverEcalBc") ) ph_conf.hcalDepth1OverEcalBc = photons.getParameter<edm::InputTag>("hcalDepth1OverEcalBc");
+    if( photons.exists("hcalDepth2OverEcalBc") ) ph_conf.hcalDepth2OverEcalBc = photons.getParameter<edm::InputTag>("hcalDepth2OverEcalBc");
   }
   
 }
