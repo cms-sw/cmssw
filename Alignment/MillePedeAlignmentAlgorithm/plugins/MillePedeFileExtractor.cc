@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "Alignment/MillePedeFileExtractor/plugins/MillePedeFileExtractor.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileExtractor.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"

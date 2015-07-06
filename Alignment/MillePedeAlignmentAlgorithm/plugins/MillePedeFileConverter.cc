@@ -1,7 +1,7 @@
 // Original Author:  Broen van Besien
 //         Created:  Thu, 19 Mar 2015 18:12:35 GMT
 
-#include "Alignment/MillePedeFileConverter/plugins/MillePedeFileConverter.h"
+#include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileConverter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
