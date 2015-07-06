@@ -165,26 +165,6 @@ trackValidatorFromPV = trackValidator.clone(
     label = [
         "generalTracksFromPV",
         "cutsRecoTracksFromPVHp",
-        "cutsRecoTracksFromPVInitialStep",
-        "cutsRecoTracksFromPVInitialStepHp",
-        "cutsRecoTracksFromPVLowPtTripletStep",
-        "cutsRecoTracksFromPVLowPtTripletStepHp",
-        "cutsRecoTracksFromPVPixelPairStep",
-        "cutsRecoTracksFromPVPixelPairStepHp",
-        "cutsRecoTracksFromPVDetachedTripletStep",
-        "cutsRecoTracksFromPVDetachedTripletStepHp",
-        "cutsRecoTracksFromPVMixedTripletStep",
-        "cutsRecoTracksFromPVMixedTripletStepHp",
-        "cutsRecoTracksFromPVPixelLessStep",
-        "cutsRecoTracksFromPVPixelLessStepHp",
-        "cutsRecoTracksFromPVTobTecStep",
-        "cutsRecoTracksFromPVTobTecStepHp",
-        "cutsRecoTracksFromPVJetCoreRegionalStep",
-        "cutsRecoTracksFromPVJetCoreRegionalStepHp",
-        "cutsRecoTracksFromPVMuonSeededStepInOut",
-        "cutsRecoTracksFromPVMuonSeededStepInOutHp",
-        "cutsRecoTracksFromPVMuonSeededStepOutIn",
-        "cutsRecoTracksFromPVMuonSeededStepOutInHp",
     ],
     label_tp_effic = "trackingParticlesSignal",
     label_tp_fake = "trackingParticlesSignal",
@@ -192,6 +172,29 @@ trackValidatorFromPV = trackValidator.clone(
     trackCollectionForDrCalculation = "generalTracksFromPV",
     doPlotsOnlyForTruePV = True
 )
+trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
+trackValidatorFromPVStandalone.label.extend([
+    "cutsRecoTracksFromPVInitialStep",
+    "cutsRecoTracksFromPVInitialStepHp",
+    "cutsRecoTracksFromPVLowPtTripletStep",
+    "cutsRecoTracksFromPVLowPtTripletStepHp",
+    "cutsRecoTracksFromPVPixelPairStep",
+    "cutsRecoTracksFromPVPixelPairStepHp",
+    "cutsRecoTracksFromPVDetachedTripletStep",
+    "cutsRecoTracksFromPVDetachedTripletStepHp",
+    "cutsRecoTracksFromPVMixedTripletStep",
+    "cutsRecoTracksFromPVMixedTripletStepHp",
+    "cutsRecoTracksFromPVPixelLessStep",
+    "cutsRecoTracksFromPVPixelLessStepHp",
+    "cutsRecoTracksFromPVTobTecStep",
+    "cutsRecoTracksFromPVTobTecStepHp",
+    "cutsRecoTracksFromPVJetCoreRegionalStep",
+    "cutsRecoTracksFromPVJetCoreRegionalStepHp",
+    "cutsRecoTracksFromPVMuonSeededStepInOut",
+    "cutsRecoTracksFromPVMuonSeededStepInOutHp",
+    "cutsRecoTracksFromPVMuonSeededStepOutIn",
+    "cutsRecoTracksFromPVMuonSeededStepOutInHp",
+])
 
 # For fake rate of signal tracks vs. all TPs, and pileup rate of
 # signal tracks vs. non-signal TPs
@@ -203,10 +206,17 @@ trackValidatorFromPVAllTP = trackValidatorFromPV.clone(
     doSimPlots = False,
     doSimTrackPlots = False,
 )
+trackValidatorFromPVAllTPStandalone = trackValidatorFromPVAllTP.clone(
+    label = trackValidatorFromPVStandalone.label.value()
+)
 
 # For efficiency of all TPs vs. all tracks
 trackValidatorAllTPEffic = trackValidator.clone(
     dirName = "Tracking/TrackAllTPEffic/",
+    label = [
+        "generalTracks",
+        "cutsRecoTracksHp",
+    ],
     doSimPlots = False,
     doRecoTrackPlots = False, # Fake rate of all tracks vs. all TPs is already included in trackValidator
 )
@@ -216,6 +226,9 @@ trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPhi.sig
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsPt.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXR.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ.signalOnly = False
+trackValidatorAllTPEfficStandalone = trackValidatorAllTPEffic.clone(
+    label = trackValidator.label.value()
+)
 
 
 # the track selectors
@@ -249,7 +262,9 @@ tracksValidationSelectorsFromPV = cms.Sequence(
     trackRefsForValidation*
     trackRefsFromPV*
     generalTracksFromPV*
-    cutsRecoTracksFromPVHp*
+    cutsRecoTracksFromPVHp
+)
+tracksValidationSelectorsFromPVStandalone = cms.Sequence(
     cutsRecoTracksFromPVInitialStep*
     cutsRecoTracksFromPVInitialStepHp*
     cutsRecoTracksFromPVLowPtTripletStep*
@@ -294,6 +309,10 @@ tracksPreValidation = cms.Sequence(
     tracksValidationTruth +
     tracksValidationTruthSignal
 )
+tracksPreValidationStandalone = cms.Sequence(
+    tracksPreValidation +
+    tracksValidationSelectorsFromPVStandalone
+)
 tracksPreValidationFS = cms.Sequence(
     tracksValidationSelectors +
     tracksValidationTruthFS
@@ -310,6 +329,9 @@ tracksValidationFS = cms.Sequence( trackValidator )
 
 tracksValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain+
-    tracksPreValidation+
-    tracksValidation
+    tracksPreValidationStandalone+
+    trackValidator +
+    trackValidatorFromPVStandalone +
+    trackValidatorFromPVAllTPStandalone +
+    trackValidatorAllTPEfficStandalone
 )
