@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -9,6 +9,7 @@
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 #include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h"
@@ -19,31 +20,36 @@
 // class decleration
 //
 
-class RPCPointProducer : public edm::EDProducer {
+class RPCPointProducer : public edm::stream::EDProducer<> {
    public:
       explicit RPCPointProducer(const edm::ParameterSet&);
       ~RPCPointProducer();
-      //      edm::InputTag cscSegments;
-      edm::EDGetTokenT<CSCSegmentCollection> cscSegments;
-      edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegments;
-      //      edm::InputTag dt4DSegments;
-      edm::EDGetTokenT<reco::TrackCollection> tracks;
-      edm::InputTag tracks_;
+
+      const edm::EDGetTokenT<CSCSegmentCollection> cscSegments;
+      const edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegments;
+      const edm::EDGetTokenT<reco::TrackCollection> tracks;
+      const edm::InputTag tracks_;
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      bool incldt;
-      bool inclcsc;
-      bool incltrack; 
-      bool debug;
-      double MinCosAng;
-      double MaxD;
-      double MaxDrb4;
-      double MaxDistanceBetweenSegments;
-      double ExtrapolatedRegion;
-      edm::ParameterSet trackTransformerParam;
-      edm::ParameterSet serviceParameters;
+      void beginRun(edm::Run const&, edm::EventSetup const&) override;
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
+      void produce(edm::Event&, const edm::EventSetup&) override;
+      const bool debug;
+      const bool incldt;
+      const bool inclcsc;
+      const bool incltrack;
+      const double MinCosAng;
+      const double MaxD;
+      const double MaxDrb4;
+      const double ExtrapolatedRegion;
+      const edm::ParameterSet serviceParameters;
+      const edm::ParameterSet trackTransformerParam;
+
       // ----------member data ---------------------------
+    
+    ObjectMapCSC* TheCSCObjectsMap_;
+    ObjectMap*    TheDTObjectsMap_;
+    ObjectMap2*       TheDTtrackObjectsMap_;
+    ObjectMap2CSC*    TheCSCtrackObjectsMap_;
+    edm::ESWatcher<MuonGeometryRecord> MuonGeometryWatcher;
 };
 
