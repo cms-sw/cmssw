@@ -36,3 +36,12 @@ workflows[500207]=['',['NuGun_UP15','DIGIPRMXUP15_PU50','RECOPRMXUP15_PU50','HAR
 # develop pile up overlay using premix prod-like!
 workflows[250200.1]=['ProdZEE_13_pmx25ns',['ProdZEE_13','DIGIPRMXUP15_PROD_PU25','RECOPRMXUP15PROD_PU25']]
 workflows[500200.1]=['ProdZEE_13_pmx50ns',['ProdZEE_13','DIGIPRMXUP15_PROD_PU50','RECOPRMXUP15PROD_PU50']]
+
+# fastsim premix at 13 TeV and POSTLS1
+workflows[250399]=['',['FS_PREMIXUP15_PU25']]
+
+
+# fastsim 25ns pile up overlay using premix
+# TO BE UNCOMMENTED IN NEXT RELEASE
+#workflows[250402]=['',['FS_TTbar_13_PRMXUP15_PU25','HARVESTUP15FS','MINIAODMCUP15FS']]
+#workflows[250407]=['',['FS_NuGun_UP15_PRMXUP15_PU25','HARVESTUP15FS','MINIAODMCUP15FS']]
