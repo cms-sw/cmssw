@@ -4,18 +4,17 @@
 #include "Alignment/MillePedeAlignmentAlgorithm/plugins/MillePedeFileConverter.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "CondFormats/Common/interface/FileBlob.h"
+#include "CondFormats/Common/interface/FileBlobCollection.h"
 
 #include <memory>
 #include <fstream>
-#include <vector>
 
 MillePedeFileConverter::MillePedeFileConverter(const edm::ParameterSet& iConfig)
     : theInputDir(iConfig.getParameter<std::string>("fileDir")),
       theInputFileName(iConfig.getParameter<std::string>("inputBinaryFile")),
       theFileBlobLabel(iConfig.getParameter<std::string>("fileBlobLabel")) {
-  // We define what this producer produces: A vector of FileBlobs
-  produces<std::vector<FileBlob>, edm::InRun>(theFileBlobLabel);
+  // We define what this producer produces: A FileBlobCollection
+  produces<FileBlobCollection, edm::InRun>(theFileBlobLabel);
 }
 
 MillePedeFileConverter::~MillePedeFileConverter() {}
@@ -26,9 +25,9 @@ void MillePedeFileConverter::endRunProduce(edm::Run& iRun,
       << "Inserting all data from file " << theInputDir + theInputFileName
       << " as a FileBlob to the run, using label \"" << theFileBlobLabel
       << "\".";
-  // Preparing the vector of FileBlobs:
-  std::unique_ptr<std::vector<FileBlob>> theVectorOfFileBlobs(
-      new std::vector<FileBlob>());
+  // Preparing the FileBlobCollection:
+  std::unique_ptr<FileBlobCollection> theFileBlobCollection(
+      new FileBlobCollection());
   FileBlob theFileBlob;
   try {
     // Creating the FileBlob:
@@ -44,8 +43,8 @@ void MillePedeFileConverter::endRunProduce(edm::Run& iRun,
   }
   if (theFileBlob.size() > 0) {
     // Adding the FileBlob to the run:
-    theVectorOfFileBlobs->push_back(theFileBlob);
-    iRun.put(std::move(theVectorOfFileBlobs), theFileBlobLabel);
+    theFileBlobCollection->addFileBlob(theFileBlob);
+    iRun.put(std::move(theFileBlobCollection), theFileBlobLabel);
   }
 }
 
