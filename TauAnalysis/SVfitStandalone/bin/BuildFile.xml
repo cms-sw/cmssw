@@ -1,0 +1,5 @@
+<bin   file="testSVfitStandalone.cc" name="testSVfitStandalone">
+  <use name="FWCore/ParameterSet"/>
+  <use name="TauAnalysis/SVfitStandalone"/>
+  <use name="root"/>
+</bin>

@@ -143,7 +143,7 @@ treeProducer = cfg.Analyzer(
 
 
 #-------- SAMPLES
-from CMGTools.TTHAnalysis.samples.samples_13TeV_CSA14 import * 
+from CMGTools.RootTools.samples.samples_13TeV_CSA14 import * 
 
 selectedComponents = [ TTJets_PU20bx25 ]
 

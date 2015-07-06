@@ -81,7 +81,7 @@ ttHReclusterJets = cfg.Analyzer(
     etaSubJet = 5.0,
             )
 
-from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14  import *
+from CMGTools.RootTools.samples.samples_13TeV_PHYS14  import *
 
 triggerFlagsAna.triggerBits = {
 #put trigger here for data
@@ -105,7 +105,7 @@ treeProducer = cfg.Analyzer(
 
 #-------- SAMPLES AND TRIGGERS -----------
 
-from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
+from CMGTools.RootTools.samples.samples_13TeV_PHYS14 import *
 #selectedComponents = [QCD_HT_100To250, QCD_HT_250To500, QCD_HT_500To1000, QCD_HT_1000ToInf,TTJets, TTWJets, TTZJets, TTH, SMS_T1tttt_2J_mGl1500_mLSP100, SMS_T1tttt_2J_mGl1200_mLSP800] + SingleTop + WJetsToLNuHT + DYJetsM50HT + T5ttttDeg + T1ttbbWW + T5qqqqWW
 
 

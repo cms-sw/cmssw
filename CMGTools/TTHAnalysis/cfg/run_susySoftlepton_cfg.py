@@ -43,7 +43,7 @@ ttHEventAna = cfg.Analyzer(
     )
 
 
-from CMGTools.TTHAnalysis.samples.samples_8TeV_v517 import triggers_1mu, triggers_mumu, triggers_ee, triggers_mue, triggers_MET150, triggers_HT650, triggers_HTMET 
+from CMGTools.RootTools.samples.samples_8TeV_v517 import triggers_1mu, triggers_mumu, triggers_ee, triggers_mue, triggers_MET150, triggers_HT650, triggers_HTMET 
 # Tree Producer
 treeProducer = cfg.Analyzer(
     'treeProducerSusySoftlepton',
@@ -63,7 +63,7 @@ treeProducer = cfg.Analyzer(
 
 
 #-------- SAMPLES AND TRIGGERS -----------
-from CMGTools.TTHAnalysis.samples.samples_13TeV_CSA14 import * 
+from CMGTools.RootTools.samples.samples_13TeV_CSA14 import * 
 
 selectedComponents = [ TTJets_MSDecaysCKM_central_PU_S14_POSTLS170, SingleMu, DoubleElectron, TTHToWW_PUS14, DYJetsToLL_M50_PU20bx25, TTJets_PUS14 ]
 

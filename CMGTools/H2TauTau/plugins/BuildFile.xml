@@ -1,0 +1,7 @@
+<use name="CMGTools/RootTools"/>
+<use name="rootmath"/>
+<export></export>
+<library name="CMGToolsH2TauTauPlugins" file="*.cc">
+  <use name="CMGTools/H2TauTau"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
