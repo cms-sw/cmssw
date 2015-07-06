@@ -151,7 +151,9 @@ void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore:
 		eff->SetBinContent(binX,miseff);
 		eff->SetBinError(binX,miseffErr);
 	}
-	ibooker.book1D(effName.c_str(),eff);
+	MonitorElement *me;
+	me = ibooker.book1D(effName.c_str(),eff);
+	me->setEfficiencyFlag();
 
 	delete eff;
 	return;
