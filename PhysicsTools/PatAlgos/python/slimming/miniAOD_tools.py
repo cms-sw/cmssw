@@ -142,6 +142,11 @@ def miniAOD_customizeCommon(process):
 	 lazyParser = cms.bool(True) )
     process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
 
+    #EGM object modifications
+    from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma_modifications
+    process.slimmedElectrons.modifierConfig.modifications = egamma_modifications
+    process.slimmedPhotons.modifierConfig.modifications   = egamma_modifications
+
     #VID Electron IDs
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
