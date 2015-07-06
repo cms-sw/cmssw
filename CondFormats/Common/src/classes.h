@@ -13,9 +13,7 @@ namespace CondFormats_Common {
       std::map<std::string, DropBoxMetadata::Parameters> amap1;
       std::map<const std::basic_string<char>, DropBoxMetadata::Parameters> amap2;
 
-      std::vector<FileBlob> dummyVectorFileBlob;
-      // The space between the two > > is actually obligatory:
-      edm::Wrapper<std::vector<FileBlob> > dummyWrapperVectorFileBlob;
+      FileBlobCollection dummyFileBlobCollection;
+      edm::Wrapper<FileBlobCollection> dummyWrapperFileBlobCollection;
     };
 }
-
