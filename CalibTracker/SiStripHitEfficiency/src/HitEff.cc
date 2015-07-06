@@ -25,6 +25,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -495,6 +496,22 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		  if (DEBUG) cout << "found  (ClusterId == iidd) with ClusterId = " << ClusterId << " and iidd = " << iidd << endl;
 		  DetId ClusterDetId(ClusterId);
 		  const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
+
+                  float hbedge   = 0.0;
+                  float htedge   = 0.0;
+                  float hapoth   = 0.0;
+                  float uylfac   = 0.0;
+                  float uxlden   = 0.0;
+                  if(TKlayers>=11) {
+                     const BoundPlane plane = stripdet->surface();
+                     const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+		     std::array<const float, 4> const & parameterTrap = (*trapezoidalBounds).parameters(); // el bueno aqui
+                     hbedge         = parameterTrap[0];
+                     htedge         = parameterTrap[1];
+                     hapoth         = parameterTrap[3];
+                     uylfac   = (htedge-hbedge)/(htedge+hbedge)/hapoth;
+                     uxlden   = 1 + yloc*uylfac;
+                  }
 		  
 		  for(edmNew::DetSet<SiStripCluster>::const_iterator iter=DSViter->begin();iter!=DSViter->end();++iter) {
 		    //iter is a single SiStripCluster
@@ -506,6 +523,11 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		    //theEstimator=       new Chi2MeasurementEstimator(30);
 		    //const Chi2MeasurementEstimator *theEstimator(100);
 		    //theEstimator->estimate(TM->tsos(), TransientTrackingRecHit);
+
+                    if(TKlayers>=11) {
+                       res = parameters.first.x() - xloc/uxlden ; // radialy extrapolated x loc position at middle           
+                       sigma = abs(res) / sqrt(parameters.second.xx() + xErr*xErr/uxlden/uxlden + yErr*yErr*xloc*xloc*uylfac*uylfac/uxlden/uxlden/uxlden/uxlden);
+                    }
 		    
 		    SiStripClusterInfo clusterInfo = SiStripClusterInfo(*iter, es, ClusterId);  
 		    // signal to noise from SiStripClusterInfo not working in 225. I'll fix this after the interface
