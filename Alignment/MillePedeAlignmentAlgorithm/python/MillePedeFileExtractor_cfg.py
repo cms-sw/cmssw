@@ -20,7 +20,7 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-from Alignment.MillePedeFileExtractor.millePedeFileExtractor_cfi import millePedeFileExtractor
+from Alignment.MillePedeAlignmentAlgorithm.millePedeFileExtractor_cfi import millePedeFileExtractor
 process.testMillePedeFileExtractor = millePedeFileExtractor.clone(
     #FIXME: handle with an InputLabel instead of 
     fileBlobModule = cms.string("SiPixelAliMillePedeFileConverter"),
