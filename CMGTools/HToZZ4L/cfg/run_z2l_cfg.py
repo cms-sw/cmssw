@@ -33,12 +33,8 @@ twoLeptonTreeProducer = cfg.Analyzer(
      defaultFloatType = 'F',
 )
 
-#-------- SAMPLES AND TRIGGERS -----------
 
 #-------- SEQUENCE
-from CMGTools.HToZZ4L.samples.samples_13TeV_Spring15 import *
-
-selectedComponents = mcSamples + dataSamples
 sequence = cfg.Sequence([
     skimAnalyzer,
     genAna,
@@ -57,8 +53,12 @@ sequence = cfg.Sequence([
     twoLeptonTreeProducer 
 ])
 
+#-------- SAMPLES AND TRIGGERS -----------
+from CMGTools.HToZZ4L.samples.samples_13TeV_Spring15 import *
+selectedComponents = mcSamples + dataSamples
+selectedComponents = [ DYJetsToLL_M50, SingleMu_742 ]
 for comp in mcSamples:
-    comp.triggers = []
+    comp.triggers = triggers_1mu_iso
     comp.vetoTriggers = []
 
 from PhysicsTools.HeppyCore.framework.heppy import getHeppyOption
@@ -78,6 +78,12 @@ elif test == '2':
         comp.files = comp.files[:1]
         comp.splitFactor = 1
         comp.fineSplitFactor = 1
+elif test == '3':
+    for comp in selectedComponents:
+        comp.files = comp.files[:1]
+        comp.splitFactor = 1
+        comp.fineSplitFactor = 3
+
 
 # the following is declared in case this cfg is used in input to the heppy.py script
 from PhysicsTools.HeppyCore.framework.eventsfwlite import Events

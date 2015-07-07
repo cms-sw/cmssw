@@ -100,7 +100,7 @@ dataDir = os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/data"
 json=dataDir+'/json/Cert_Run2012ABCD_22Jan2013ReReco.json'
 from CMGTools.TTHAnalysis.setup.Efficiencies import eff2012
 
-from CMGTools.TTHAnalysis.samples.samples_8TeVReReco_74X import DoubleMu_742, MuEG_742, SingleMu_742, DoubleElectronZ_742
+from CMGTools.RootTools.samples.samples_8TeVReReco_74X import DoubleMu_742, MuEG_742, SingleMu_742, DoubleElectronZ_742
 dataSamples = [ DoubleMu_742, MuEG_742, SingleMu_742, DoubleElectronZ_742 ]
 
 #Define splitting

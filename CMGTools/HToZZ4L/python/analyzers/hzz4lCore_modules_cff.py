@@ -13,7 +13,7 @@ from CMGTools.HToZZ4L.analyzers.FSRPhotonMaker import *
 from CMGTools.HToZZ4L.analyzers.GenFSRAnalyzer import *
 from CMGTools.HToZZ4L.analyzers.fourLeptonTree import *
 from CMGTools.HToZZ4L.samples.samples_13TeV_Spring15 import triggers_mumu, triggers_ee, triggers_mue, triggers_3e, triggers_3mu, triggers_2mu1e, triggers_2e1mu, triggers_mumu_run1, triggers_ee_run1, triggers_mue_run1, triggers_1mu_iso
-from CMGTools.TTHAnalysis.samples.triggers_8TeV import triggers_1mu_8TeV, triggers_mumu_8TeV, triggers_mue_8TeV, triggers_ee_8TeV
+from CMGTools.RootTools.samples.triggers_8TeV import triggers_1mu_8TeV, triggers_mumu_8TeV, triggers_mue_8TeV, triggers_ee_8TeV
 
 import os
 
