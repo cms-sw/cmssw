@@ -134,11 +134,7 @@ void RctRawToDigi::unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollectio
     LogWarning("L1T") << "Did not find a SLink trailer!";
   }
   
-  size_t theSize = d.size();
-  //int32_t ch[(theSize+sizeof(uint32_t)-1)/sizeof(uint32_t)];
-  //memcpy(ch,data,theSize);
   unpackCTP7((uint32_t*)data, 0, sizeof(data), colls);
-  //unpackCTP7(ch, 0, sizeof(data), colls);
 
 }
 
@@ -316,10 +312,12 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
 	}
       }
       
-      for(int j = 0; j < 2; j++) {
-	for(int k = 0; k < 4; k++) {
-	  bool fg=(((rctInfo.hfQBits>> (j * 4 + k)) & 0x1)  == 0x1); 
-	  L1CaloRegion rgn = L1CaloRegion(rctInfo.hfEt[j][k], fg,  rctInfo.crateID , (j * 4 +  k));
+      for(int k = 0; k < 4; k++) {
+	for(int j = 0; j < 2; j++) {
+	  // 0 1 4 5 2 3 6 7
+	  uint32_t offset = j*2 + k%2 + (k/2)*4;
+	  bool fg=(((rctInfo.hfQBits >> offset) & 0x1)  == 0x1); 
+	  L1CaloRegion rgn = L1CaloRegion(rctInfo.hfEt[j][k], fg,  rctInfo.crateID , (j * 4 + k));
 	  rgn.setBx(startBX);
 	  colls->rctCalo()->push_back(rgn);
 	}
