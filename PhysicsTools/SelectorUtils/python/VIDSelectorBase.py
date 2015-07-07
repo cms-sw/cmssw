@@ -10,7 +10,7 @@ import DataFormats.FWLite
 # load FWLite C++ libraries
 ROOT.gSystem.Load("libFWCoreFWLite.so");
 ROOT.gSystem.Load("libDataFormatsFWLite.so");
-ROOT.FWLiteEnabler.enable()
+ROOT.AutoLibraryLoader.enable()
 
 config_template = """
 import FWCore.ParameterSet.Config as cms

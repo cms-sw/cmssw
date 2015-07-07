@@ -11,7 +11,7 @@ sys.argv = oldargv
 # load FWLite C++ libraries
 ROOT.gSystem.Load("libFWCoreFWLite.so");
 ROOT.gSystem.Load("libDataFormatsFWLite.so");
-ROOT.FWLiteEnabler.enable()
+ROOT.AutoLibraryLoader.enable()
 
 #cms python data types
 import FWCore.ParameterSet.Config as cms
@@ -23,9 +23,15 @@ from RecoEgamma.ElectronIdentification.VIDElectronSelector import VIDElectronSel
 
 from RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff import cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight
 
+from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff import mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80
+
 selectElectron = VIDElectronSelector(cutBasedElectronID_PHYS14_PU20bx25_V2_standalone_tight)
 print 'Initialized VID Selector for Electrons'
 print selectElectron
+
+selectElectronMVA = VIDElectronSelector(mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80)
+print 'Initialized VID Selector for Electron MVA'
+print selectElectronMVA
 
 #photon MVA (only works on reMiniAOD)
 print 'Initialized VID Photon MVA Selector'
@@ -43,7 +49,7 @@ print 'Initialized VID Selector for Muons'
 print selectMuon
 
 # open file (you can use 'edmFileUtil -d /store/whatever.root' to get the physical file name)
-events = Events("file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_5_0_pre6/src/matrix_tests/135.4_ZEE_13+ZEEFS_13+HARVESTUP15FS+MINIAODMCUP15FS/step4.root")
+events = Events("file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_7_4_X_2015-07-05-1100/src/matrix_tests/135.4_ZEE_13+ZEEFS_13+HARVESTUP15FS+MINIAODMCUP15FS/step3.root")
 #events = Events("root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9_ROOT6/DoubleMu/MINIAOD/GR_R_74_V8A_RelVal_zMu2011A-v1/00000/06961B48-CFD1-E411-8B87-002618943971.root")
 
 muons, muonLabel = Handle("std::vector<pat::Muon>"), "slimmedMuons::".split(":")

@@ -5,7 +5,7 @@ import random
 # load FWLite C++ libraries
 ROOT.gSystem.Load("libFWCoreFWLite.so");
 ROOT.gSystem.Load("libDataFormatsFWLite.so");
-ROOT.FWLiteEnabler.enable()
+ROOT.AutoLibraryLoader.enable()
 
 class VIDCutFlowResult:
     def __init__(self, instance):
