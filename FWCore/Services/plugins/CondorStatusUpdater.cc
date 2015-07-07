@@ -180,7 +180,7 @@ CondorStatusService::beginPost()
 
     std::vector<std::string> fileNames = pset.getUntrackedParameter<std::vector<std::string>>("fileNames", std::vector<std::string>());
     std::stringstream ss_max_files; ss_max_files << fileNames.size();
-    updateChirp("ChripCMSSWMaxFiles", ss_max_files.str());
+    updateChirp("ChirpCMSSWMaxFiles", ss_max_files.str());
 
     if (lumiCount > 0)
     {
