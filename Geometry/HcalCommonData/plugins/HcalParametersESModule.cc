@@ -4,59 +4,48 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "CondFormats/GeometryObjects/interface/PHcalParameters.h"
+#include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/Records/interface/PHcalParametersRcd.h"
+#include "Geometry/Records/interface/HcalParametersRcd.h"
 #include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 
 #include <boost/shared_ptr.hpp>
  
-namespace edm {
-  class ConfigurationDescriptions;
-}
-class PHcalParameters;
-class PHcalParametersRcd;
 
-class  HcalParametersESModule : public edm::ESProducer
-{
- public:
+class  HcalParametersESModule : public edm::ESProducer {
+public:
   HcalParametersESModule( const edm::ParameterSet & );
   ~HcalParametersESModule( void );
   
-  typedef boost::shared_ptr<PHcalParameters> ReturnType;
+  typedef boost::shared_ptr<HcalParameters> ReturnType;
 
   static void fillDescriptions( edm::ConfigurationDescriptions & );
   
-  ReturnType produce( const PHcalParametersRcd & );
+  ReturnType produce( const HcalParametersRcd & );
 };
 
-HcalParametersESModule::HcalParametersESModule( const edm::ParameterSet& )
-{
+HcalParametersESModule::HcalParametersESModule( const edm::ParameterSet& ) {
   edm::LogInfo("HCAL") << "HcalParametersESModule::HcalParametersESModule";
 
   setWhatProduced(this);
 }
 
-HcalParametersESModule::~HcalParametersESModule()
-{}
+HcalParametersESModule::~HcalParametersESModule() {}
 
-void
-HcalParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) 
-{
+void HcalParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions ) {
   edm::ParameterSetDescription desc;
   descriptions.add( "hcalParameters", desc );
 }
 
 HcalParametersESModule::ReturnType
-HcalParametersESModule::produce( const PHcalParametersRcd& iRecord )
-{
+HcalParametersESModule::produce( const HcalParametersRcd& iRecord ) {
   //edm::LogInfo("HcalParametersESModule")
-  std::cout <<  "HcalParametersESModule::produce(const PHcalParametersRcd& iRecord)" << std::endl;
+  std::cout <<  "HcalParametersESModule::produce(const HcalParametersRcd& iRecord)" << std::endl;
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
   
-  PHcalParameters* ptp = new PHcalParameters();
+  HcalParameters* ptp = new HcalParameters();
   HcalParametersFromDD builder;
   builder.build( &(*cpv), *ptp );
   
