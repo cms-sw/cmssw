@@ -56,7 +56,12 @@ namespace edm {
         EDProductGetter const* getter =ref.key.productGetter();
         if(getter == nullptr) {
           Exception::throwThis(errors::LogicError,
-	    "can't insert into AssociationMap unless it was initialized with a getter or RefProd(s) or RefToBaseProd(s)");
+            "Can't insert into AssociationMap unless it was properly initialized.\n"
+            "The most common fix for this is to add arguments to the call to the\n"
+            "AssociationMap constructor that are valid Handle's to the containers.\n"
+            "If you don't have valid handles or either template parameter to the\n"
+            "AssociationMap is a View, then see the comments in AssociationMap.h.\n"
+            "(note this was a new requirement added in the 7_5_X release series)\n");
         }
         ref.key = KeyRefProd(k.id(), getter);
         ref.val = ValRefProd(v.id(), ref.val.productGetter());
