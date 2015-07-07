@@ -1,10 +1,12 @@
 
 #include "CondorStatusUpdater.h"
 
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -24,7 +26,8 @@ CondorStatusService::CondorStatusService(ParameterSet const& pset, edm::Activity
     m_lumis(0),
     m_runs(0),
     m_files(0),
-    m_lastUpdate(0)
+    m_lastUpdate(0),
+    m_psetId(nullptr)
 {
     m_shouldUpdate.clear();
     if (pset.exists("debug"))
@@ -86,6 +89,48 @@ CondorStatusService::filePost(std::string const & /*lfn*/, bool /*usedFallback*/
 void
 CondorStatusService::beginPost()
 {
+    ParameterSet const& processParameterSet = edm::getProcessParameterSet();
+    const edm::ParameterSet &pset = processParameterSet.getParameterSet("@main_input");
+    // PSet info from edm::ScheduleItems
+    int maxEvents = processParameterSet.getUntrackedParameterSet("maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1);
+    int maxLumis = processParameterSet.getUntrackedParameterSet("maxLuminosityBlocks", ParameterSet()).getUntrackedParameter<int>("input", -1);
+
+    // lumisToProcess from EventSkipperByID (PoolSource and similar)
+    std::vector<edm::LuminosityBlockRange> toProcess = pset.getUntrackedParameter<std::vector<LuminosityBlockRange> >("lumisToProcess", std::vector<LuminosityBlockRange>());
+    edm::sortAndRemoveOverlaps(toProcess);
+    uint64_t lumiCount = 0;
+    for (auto const &range : toProcess)
+    {
+        if (range.startRun() != range.endRun()) {break;}
+        if (range.endLumi() >= edm::LuminosityBlockID::maxLuminosityBlockNumber()) {break;}
+        lumiCount += (range.endLumi()-range.startLumi());
+    }
+    // Handle sources deriving from ProducerSourceBase
+    unsigned int eventsPerLumi = pset.getUntrackedParameter<unsigned int>("numberEventsInLuminosityBlock", 0);
+    if ((lumiCount == 0) && (maxEvents > 0) && (eventsPerLumi > 0))
+    {
+        lumiCount = static_cast<unsigned int>(std::ceil(static_cast<float>(maxEvents) / static_cast<float>(eventsPerLumi)));
+    }
+
+    if (lumiCount > 0)
+    {
+        if (maxLumis < 0) {maxLumis = lumiCount;}
+        if (maxLumis > static_cast<int>(lumiCount))
+        {
+            maxLumis = lumiCount;
+        }
+    }
+    if (maxEvents > 0)
+    {
+        std::stringstream ss_max_events; ss_max_events << maxEvents;
+        updateChirp("ChirpCMSSWMaxEvents", ss_max_events.str());
+    }
+    if (maxLumis > 0)
+    {
+        std::stringstream ss_max_lumis; ss_max_lumis << maxLumis;
+        updateChirp("ChirpCMSSWMaxLumis", ss_max_lumis.str());
+    }
+
     m_beginJob = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     update();
 }
@@ -94,7 +139,7 @@ CondorStatusService::beginPost()
 void
 CondorStatusService::endPost()
 {
-    forceUpdate();
+    lastUpdate();
 }
 
 
@@ -108,10 +153,12 @@ CondorStatusService::isChirpSupported()
 
 
 void
-CondorStatusService::forceUpdate()
+CondorStatusService::lastUpdate()
 {
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     updateImpl(now - m_lastUpdate);
+    std::stringstream ss_now; ss_now << now;
+    updateChirp("ChirpCMSSWFinished", ss_now.str());
 }
 
 
@@ -145,6 +192,10 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
 {
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     time_t jobTime = now-m_beginJob;
+
+    std::stringstream ss_now; ss_now << now;
+    updateChirp("ChirpCMSSWLastUpdate", ss_now.str());
+
     std::stringstream ss_elapsed; ss_elapsed << jobTime;
     updateChirp("ChirpCMSSWElapsed", ss_elapsed.str());
 
@@ -161,10 +212,13 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     updateChirp("ChirpCMSSWFiles", ss_files.str());
 
     float ema_coeff = 1 - std::exp(-static_cast<float>(sinceLastUpdate)/m_emaInterval);
-    m_rate = ema_coeff*static_cast<float>(m_events-m_lastEventCount)/static_cast<float>(sinceLastUpdate) + (1.0-ema_coeff)*m_rate;
-    m_lastEventCount = m_events;
-    std::stringstream ss_rate; ss_rate << m_rate;
-    updateChirp("ChirpCMSSWEventRate", ss_rate.str());
+    if (sinceLastUpdate > 0)
+    {
+        m_rate = ema_coeff*static_cast<float>(m_events-m_lastEventCount)/static_cast<float>(sinceLastUpdate) + (1.0-ema_coeff)*m_rate;
+        m_lastEventCount = m_events;
+        std::stringstream ss_rate; ss_rate << m_rate;
+        updateChirp("ChirpCMSSWEventRate", ss_rate.str());
+    }
 }
 
 

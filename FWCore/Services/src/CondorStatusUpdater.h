@@ -2,6 +2,8 @@
 #ifndef FWCore_Services_CondorStatusService_H_
 #define FWCore_Services_CondorStatusService_H_
 
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
+
 #include <atomic>
 #include <string>
 
@@ -12,6 +14,7 @@ namespace edm {
     class StreamContext;
     class ConfigurationDescriptions;
     class GlobalContext;
+    class ModuleDescription;
 
     namespace service {
 
@@ -33,9 +36,10 @@ namespace edm {
             bool isChirpSupported();
             bool updateChirp(std::string const &key, std::string const &value);
             inline void update();
-            void forceUpdate();
+            void lastUpdate();
             void updateImpl(time_t secsSinceLastUpdate);
 
+            void preSourceConstruction(ModuleDescription const &md, int maxEvents, int maxLumis, int maxSecondsUntilRampdown);
             void eventPost(StreamContext const& iContext);
             void lumiPost(GlobalContext const&);
             void runPost(GlobalContext const&);
@@ -51,6 +55,7 @@ namespace edm {
             std::atomic<std::uint_least64_t> m_runs;
             std::atomic<std::uint_least64_t> m_files;
             std::atomic<time_t> m_lastUpdate;
+            std::atomic<ParameterSetID *> m_psetId;
             time_t m_beginJob = 0;
             std::atomic_flag m_shouldUpdate;
             time_t m_updateInterval = m_defaultUpdateInterval;
