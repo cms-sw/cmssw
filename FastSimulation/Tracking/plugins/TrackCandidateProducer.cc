@@ -139,8 +139,16 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     edm::OwnVector<TrackingRecHit> trackRecHits;
     for ( unsigned index = 0; index<recHitCandidates.size(); ++index ) {
       if(splitHits && recHitCandidates[index].matchedHit()->isMatched()){
-	trackRecHits.push_back(recHitCandidates[index].matchedHit()->monoHit()->clone());
-	trackRecHits.push_back(recHitCandidates[index].matchedHit()->stereoHit()->clone());
+	if( recHitCandidates[index].matchedHit()->monoHit()->simhitId() < recHitCandidates[index].matchedHit()->stereoHit()->simhitId() )
+	  {
+	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->monoHit()->clone());
+	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->stereoHit()->clone());
+	  }
+	else
+	  {
+	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->stereoHit()->clone());
+	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->monoHit()->clone());
+	  }
       }
       else {
 	trackRecHits.push_back(recHitCandidates[index].hit()->clone());
