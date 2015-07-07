@@ -59,10 +59,10 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     JetIDVersion               = cms.string("PURE09"),
     #
     #actually done only for PFJets at the moment
-    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdProducer","fullDiscriminant"),
-    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdProducer","cutbasedDiscriminant"),
-    InputMVAPUIDValue = cms.InputTag("pileupJetIdProducer","fullId"),
-    InputCutPUIDValue = cms.InputTag("pileupJetIdProducer","cutbasedId"),
+    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","full53xDiscriminant"),
+    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedDiscriminant"),
+    InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","full53xId"),
+    InputCutPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedId"),
 
     InputQGMultiplicity = cms.InputTag("QGTagger", "mult"),
     InputQGLikelihood = cms.InputTag("QGTagger", "qgLikelihood"),
@@ -111,8 +111,6 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJets"),
     METCollectionLabel     = cms.InputTag("pfMet"),
-    #JetCorrections = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
-    #jetsrc = cms.InputTag("ak4PFJetsCHS"),
     filljetHighLevel  = cms.bool(False),
     DCSFilterForJetMonitoring = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
@@ -137,12 +135,12 @@ jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     filljetHighLevel =cms.bool(True),
     JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJetsCHS"),
-    METCollectionLabel     = cms.InputTag("pfMetT1"),
+    METCollectionLabel     = cms.InputTag("pfMETT1"),
     #actually done only for PFJets at the moment
-    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdProducerChs","fullDiscriminant"),
-    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdProducerChs","cutbasedDiscriminant"),
-    InputMVAPUIDValue = cms.InputTag("pileupJetIdProducerChs","fullId"),
-    InputCutPUIDValue = cms.InputTag("pileupJetIdProducerChs","cutbasedId"),
+    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","fullDiscriminant"),
+    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","cutbasedDiscriminant"),
+    InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorCHSDQM","fullId"),
+    InputCutPUIDValue = cms.InputTag("pileupJetIdEvaluatorCHSDQM","cutbasedId"),
     fillCHShistos =cms.bool(True),
 )
 
