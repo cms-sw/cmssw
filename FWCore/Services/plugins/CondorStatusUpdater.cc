@@ -2,6 +2,7 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -20,13 +21,6 @@
 #include <string>
 
 namespace edm {
-
-    class ParameterSet;
-    class ActivityRegistry;
-    class StreamContext;
-    class ConfigurationDescriptions;
-    class GlobalContext;
-    class ModuleDescription;
 
     namespace service {
 
@@ -55,6 +49,7 @@ namespace edm {
             void eventPost(StreamContext const& iContext);
             void lumiPost(GlobalContext const&);
             void runPost(GlobalContext const&);
+            void beginPre(PathsAndConsumesOfModulesBase const&, ProcessContext const& processContext);
             void beginPost();
             void endPost();
             void filePost(std::string const &, bool);
@@ -72,7 +67,7 @@ namespace edm {
             std::atomic<std::uint_least64_t> m_lumis;
             std::atomic<std::uint_least64_t> m_runs;
             std::atomic<std::uint_least64_t> m_files;
-            std::atomic<ParameterSetID *> m_psetId;
+            edm::ParameterSetID m_processParameterSetID;
 
             std::uint_least64_t m_lastEventCount = 0;
         };
@@ -90,8 +85,7 @@ CondorStatusService::CondorStatusService(ParameterSet const& pset, edm::Activity
     m_events(0),
     m_lumis(0),
     m_runs(0),
-    m_files(0),
-    m_psetId(nullptr)
+    m_files(0)
 {
     m_shouldUpdate.clear();
     if (pset.exists("debug"))
@@ -106,6 +100,7 @@ CondorStatusService::CondorStatusService(ParameterSet const& pset, edm::Activity
     ar.watchPostEvent(this, &CondorStatusService::eventPost);
     ar.watchPostGlobalEndLumi(this, &CondorStatusService::lumiPost);
     ar.watchPostGlobalEndRun(this, &CondorStatusService::runPost);
+    ar.watchPreBeginJob(this, &CondorStatusService::beginPre);
     ar.watchPostBeginJob(this, &CondorStatusService::beginPost);
     ar.watchPostEndJob(this, &CondorStatusService::endPost);
 
@@ -153,9 +148,19 @@ CondorStatusService::filePost(std::string const & /*lfn*/, bool /*usedFallback*/
 
 
 void
+CondorStatusService::beginPre(PathsAndConsumesOfModulesBase const&, ProcessContext const& processContext)
+{
+    if (!m_processParameterSetID.isValid())
+    {
+        m_processParameterSetID = processContext.parameterSetID();
+    }
+}
+
+
+void
 CondorStatusService::beginPost()
 {
-    ParameterSet const& processParameterSet = edm::getProcessParameterSet();
+    ParameterSet const& processParameterSet = edm::getParameterSet(m_processParameterSetID);
     const edm::ParameterSet &pset = processParameterSet.getParameterSet("@main_input");
     // PSet info from edm::ScheduleItems
     int maxEvents = processParameterSet.getUntrackedParameterSet("maxEvents", ParameterSet()).getUntrackedParameter<int>("input", -1);
