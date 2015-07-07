@@ -70,6 +70,7 @@ supportedBtagDiscr = {
   , 'positiveCombinedInclusiveSecondaryVertexV2BJetTags'    : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos']
   , 'negativeCombinedInclusiveSecondaryVertexV2BJetTags'    : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderNegativeTagInfos']
   , 'combinedMVABJetTags'                                   : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
+  , 'combinedMVAV2BJetTags'                                   : ['impactParameterTagInfos', 'secondaryVertexTagInfos', 'inclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'positiveCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'negativeCombinedMVABJetTags'                           : ['impactParameterTagInfos', 'inclusiveSecondaryVertexFinderNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
     # new candidate-based framework (supported with RECO/AOD/MiniAOD)
@@ -124,6 +125,7 @@ supportedBtagDiscr = {
   , 'negativeSoftPFElectronByIP3dBJetTags'                  : ['softPFElectronsTagInfos']
   , 'negativeSoftPFElectronByIP2dBJetTags'                  : ['softPFElectronsTagInfos']
   , 'pfCombinedMVABJetTags'                                 : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
+  , 'pfCombinedMVAV2BJetTags'                                 : ['pfImpactParameterTagInfos', 'pfSecondaryVertexTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'pfPositiveCombinedMVABJetTags'                         : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'pfNegativeCombinedMVABJetTags'                         : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'pfCombinedSecondaryVertexSoftLeptonBJetTags'           : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
