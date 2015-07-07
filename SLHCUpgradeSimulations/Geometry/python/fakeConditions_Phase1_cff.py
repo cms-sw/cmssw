@@ -15,7 +15,7 @@ mergedtruth.volumeZ = cms.double(900.0)
 mergedtruth.discardOutVolume = cms.bool(True)
 
 #from Geometry.TrackerNumberingBuilder.pixelSLHCGeometryConstants_cfi import *
-from Geometry.TrackerGeometryBuilder.idealForDigiTrackerSLHCGeometry_cff import *
+from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometry_cff import *
 
 # this assumes that the beamspot is gaussian
 # remove this when the right global tag is used!
