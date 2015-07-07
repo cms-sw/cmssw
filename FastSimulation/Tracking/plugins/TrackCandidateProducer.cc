@@ -139,15 +139,15 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     edm::OwnVector<TrackingRecHit> trackRecHits;
     for ( unsigned index = 0; index<recHitCandidates.size(); ++index ) {
       if(splitHits && recHitCandidates[index].matchedHit()->isMatched()){
-	if( recHitCandidates[index].matchedHit()->monoHit()->simhitId() < recHitCandidates[index].matchedHit()->stereoHit()->simhitId() )
+	if( recHitCandidates[index].matchedHit()->firstHit()->simhitId() < recHitCandidates[index].matchedHit()->secondHit()->simhitId() )
 	  {
-	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->monoHit()->clone());
-	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->stereoHit()->clone());
+	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->firstHit()->clone());
+	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->secondHit()->clone());
 	  }
 	else
 	  {
-	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->stereoHit()->clone());
-	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->monoHit()->clone());
+	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->secondHit()->clone());
+	    trackRecHits.push_back(recHitCandidates[index].matchedHit()->firstHit()->clone());
 	  }
       }
       else {
