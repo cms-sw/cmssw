@@ -58,9 +58,10 @@ def L1THLT(process):
 
     if not ('HLTAnalyzerEndpath' in process.__dict__) :
         from HLTrigger.Configuration.HLT_FULL_cff import fragment
+        process.hltGtDigis = fragment.hltGtDigis
         process.hltL1GtTrigReport = fragment.hltL1GtTrigReport
         process.hltTrigReport = fragment.hltTrigReport
-        process.HLTAnalyzerEndpath = cms.EndPath(process.hltL1GtTrigReport + process.hltTrigReport)
+        process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport)
         process.schedule.append(process.HLTAnalyzerEndpath)
 
     process=Base(process)
