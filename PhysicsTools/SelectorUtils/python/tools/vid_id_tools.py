@@ -27,12 +27,23 @@ def setupVIDSelection(vidproducer,cutflow):
 
 def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
     patProducerIDs = None
+    userDatas = None
     for key in patProducer.__dict__.keys():
         if 'IDSources' in key:
             patProducerIDs = getattr(patProducer,key)
+        if 'userData' in key:
+            userDatas = getattr(patProducer,key)
     if patProducerIDs is None:
         raise Exception('StrangePatModule','%s does not have ID sources!'%patProducer.label())
-    setattr(patProducerIDs,idName,cms.InputTag('%s:%s'%(idProducer,idName)))
+    if userDatas is None:
+        raise Exception('StrangePatModule','%s does not have UserData sources!'%patProducer.label())
+    setattr(patProducerIDs,idName,cms.InputTag('%s:%s'%(idProducer,idName)))    
+    if( len(userDatas.userClasses.src) == 1 and 
+        type(userDatas.userClasses.src[0]) is str and 
+        userDatas.userClasses.src[0] == ''            ):
+        userDatas.userClasses.src = cms.VInputTag(cms.InputTag('%s:%s'%(idProducer,idName)))        
+    else:
+        userDatas.userClasses.src.append(cms.InputTag('%s:%s'%(idProducer,idName)))
     sys.stderr.write('\t--- %s:%s added to %s\n'%(idProducer,idName,patProducer.label()))
 
 def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None):
