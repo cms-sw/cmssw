@@ -6,11 +6,13 @@ import RecoTracker.IterativeTracking.LowPtTripletStep_cff
 
 # fast tracking mask producer
 from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer 
-lowPtTripletStepFastTrackingMasks = _fastTrackingMaskProducer.clone(
+lowPtTripletStepMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("detachedTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('detachedTripletStep')
-)
+    overrideTrkQuals = cms.InputTag('detachedTripletStep'),
+    oldHitCombinationMasks = cms.InputTag("detachedTripletStepMasks","hitCombinationMasks"),
+    oldHitMasks = cms.InputTag("detachedTripletStepMasks","hitMasks")
+    )
 
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
@@ -21,8 +23,8 @@ lowPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traje
         maxZ0 = 50
     ),
     minLayersCrossed = 3,
-    hitMasks = cms.InputTag("lowPtTripletStepFastTrackingMasks","hitMasks"),
-    hitCombinationMasks = cms.InputTag("lowPtTripletStepFastTrackingMasks","hitCombinationMasks"),
+    hitMasks = cms.InputTag("lowPtTripletStepMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("lowPtTripletStepMasks","hitCombinationMasks"),
     nSigmaZ = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
     ptMin = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
@@ -48,7 +50,7 @@ lowPtTripletStepSelector = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lo
 lowPtTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final swquence 
-LowPtTripletStep = cms.Sequence(lowPtTripletStepFastTrackingMasks
+LowPtTripletStep = cms.Sequence(lowPtTripletStepMasks
                                 +lowPtTripletStepSeeds
                                 +lowPtTripletStepTrackCandidates
                                 +lowPtTripletStepTracks  

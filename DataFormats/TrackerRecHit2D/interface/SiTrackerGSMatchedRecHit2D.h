@@ -54,6 +54,12 @@ class SiTrackerGSMatchedRecHit2D : public GSSiTrackerRecHit2DLocalPos{
   const SiTrackerGSRecHit2D &   secondHit()              const { return stereoHitFirst_ ? componentMono_ : componentStereo_;}
   void setStereoLayerFirst(bool stereoHitFirst = true){stereoHitFirst_ = stereoHitFirst;}
 
+  void setHitCombinationId(int32_t hitCombinationId){
+    GSSiTrackerRecHit2DLocalPos::setHitCombinationId(hitCombinationId);
+    componentMono_.setHitCombinationId(hitCombinationId);
+    componentStereo_.setHitCombinationId(hitCombinationId);
+  }
+  
  private:
   
   bool isMatched_;

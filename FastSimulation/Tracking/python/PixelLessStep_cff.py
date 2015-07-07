@@ -5,10 +5,12 @@ import RecoTracker.IterativeTracking.PixelLessStep_cff
 
 # fast tracking mask producer                                                                                                                                                                                                                                        
 from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer
-pixelLessStepFastTrackingMasks = _fastTrackingMaskProducer.clone(
+pixelLessStepMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("mixedTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('mixedTripletStep')
+    overrideTrkQuals = cms.InputTag('mixedTripletStep'),
+    oldHitCombinationMasks = cms.InputTag("mixedTripletStepMasks","hitCombinationMasks"),
+    oldHitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks")
 )
 
 # trajectory seeds 
@@ -20,8 +22,8 @@ pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
         maxZ0 = -1
         ),
     minLayersCrossed = 3,
-    hitMasks = cms.InputTag("pixelLessStepFastTrackingMasks","hitMasks"),
-    hitCombinationMasks = cms.InputTag("pixelLessStepFastTrackingMasks","hitCombinationMasks"),
+    hitMasks = cms.InputTag("pixelLessStepMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("pixelLessStepMasks","hitCombinationMasks"),
     ptMin = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
     originHalfLength = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
     originRadius = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
@@ -47,7 +49,7 @@ pixelLessStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 pixelLessStep = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStep.clone()
 
 # Final sequence 
-PixelLessStep = cms.Sequence(pixelLessStepFastTrackingMasks
+PixelLessStep = cms.Sequence(pixelLessStepMasks
                              +pixelLessStepSeeds
                              +pixelLessStepTrackCandidates
                              +pixelLessStepTracks

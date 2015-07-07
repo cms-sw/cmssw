@@ -370,6 +370,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     e.getByToken(hitCombinationMasksToken,hitCombinationMasks);	
   }
 
+
     // Beam spot
     if (testBeamspotCompatibility)
       {
@@ -395,6 +396,15 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     
     edm::Handle<FastTMRecHitCombinations> recHitCombinations;
     e.getByToken(recHitTokens, recHitCombinations);
+
+    std::cout << "# combinations " << recHitCombinations->size() << std::endl;
+    int nmask = 0;
+    if(hitCombinationMasks_exists){
+      std::cout << " # def " << hitCombinationMasks->size() << std::endl;
+    for(unsigned int n =0;n<hitCombinationMasks->size();n++)
+      if(hitCombinationMasks->at(n)) nmask++;
+  }
+  std::cout << " # masked " << nmask << std::endl;
 
     std::auto_ptr<TrajectorySeedCollection> output{new TrajectorySeedCollection()};
     
@@ -504,7 +514,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	  
 	  if (!initialTSOS.isValid())
             {
-	      continue;
+	      break;
             }
 	  
 	  const AlgebraicSymMatrix55& m = initialTSOS.localError().matrix();
@@ -524,6 +534,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    
 	  }
       } //end loop over recHitCombinations
+    std::cout << " # seeds: " << output->size() << std::endl;
     e.put(output);
 }
 

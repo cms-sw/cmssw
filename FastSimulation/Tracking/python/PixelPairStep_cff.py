@@ -5,10 +5,12 @@ import RecoTracker.IterativeTracking.PixelPairStep_cff
 
 # fast tracking mask producer                                                                                                                                                                                                                                        
 from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer
-pixelPairStepFastTrackingMasks = _fastTrackingMaskProducer.clone(
+pixelPairStepMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("lowPtTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep')
+    overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
+    oldHitCombinationMasks = cms.InputTag("lowPtTripletStepMasks","hitCombinationMasks"),
+    oldHitMasks = cms.InputTag("lowPtTripletStepMasks","hitMasks")
 )
   
 # trajectory seeds
@@ -21,8 +23,8 @@ pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
         ),
     minLayersCrossed = 2,
     nSigmaZ = 3,
-    hitMasks = cms.InputTag("pixelPairStepFastTrackingMasks","hitMasks"),
-    hitCombinationMasks = cms.InputTag("pixelPairStepFastTrackingMasks","hitCombinationMasks"), 
+    hitMasks = cms.InputTag("pixelPairStepMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("pixelPairStepMasks","hitCombinationMasks"), 
     ptMin = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
     layerList = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeedLayers.layerList.value()
@@ -46,9 +48,9 @@ pixelPairStepSelector = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPai
 pixelPairStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final sequence 
-PixelPairStep = cms.Sequence(pixelPairStepFastTrackingMasks
+PixelPairStep = cms.Sequence(pixelPairStepMasks
                              +pixelPairStepSeeds
                              +pixelPairStepTrackCandidates
                              +pixelPairStepTracks
                              +pixelPairStepSelector                                                        
-                         )
+                             )

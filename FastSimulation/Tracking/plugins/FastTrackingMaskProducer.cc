@@ -112,6 +112,7 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
  }
 
   int ngood = 0;
+  //std::cout << "FTMP 1 " << trackCollection->size()<< std::endl;
   for (size_t i = 0 ; i!=trackCollection->size();++i)
     {
       
@@ -135,29 +136,35 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	if ( !goodTk) continue;
       }
       ngood++;
-       
+      //std::cout << "FTMP 2 " << ngood << std::endl;
+      
+      
       // Loop over the recHits
       // todo: implement the minimum number of measurements criterium
       // see http://cmslxr.fnal.gov/lxr/source/RecoLocalTracker/SubCollectionProducers/src/TrackClusterRemover.cc#0166
       for (auto hitIt = track.recHitsBegin() ;  hitIt != track.recHitsEnd(); ++hitIt) {
 
-	if((*hitIt)->isValid())
+	if(!(*hitIt)->isValid())
 	  continue;
 
 	const GSSiTrackerRecHit2DLocalPos * hit = dynamic_cast<const GSSiTrackerRecHit2DLocalPos*>(*hitIt);
 	if(hit){
-
+	  //std::cout << "FTMP: I'm here" << " " << hit->hitCombinationId() << std::endl;
 	  uint32_t hitCombination_id = hit->hitCombinationId();
 	  if (hitCombination_id >= hitCombinationMasks->size()) { 
 	    hitCombinationMasks->resize(hitCombination_id+1,false);
 	  }
+	  //std::cout << "hc " << hit->hitCombinationId() <<  " " << hitCombination_id << " " <<  hitCombinationMasks->size() << std::endl;
 	  hitCombinationMasks->at(hitCombination_id) = true;
 	  
+	  /* hit id not yet properly implemented
 	  uint32_t hit_id = hit->id();	
 	  if (hit_id >= hitMasks->size()) { 
 	    hitMasks->resize(hit_id+1,false);   
 	  }
+	  std::cout <<  "h " << hit->id() << " " << hit_id << " " <<  hitMasks->size() << std::endl;
 	  hitMasks->at(hit_id) = true;
+	  */
 	}
 	
 	else{
@@ -167,6 +174,7 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
       }
     }
 
+  //std::cout << "FTMP: 3 " <<  hitCombinationMasks->size() << std::endl;
   e.put(hitMasks,"hitMasks");
   e.put(hitCombinationMasks,"hitCombinationMasks");
 }
