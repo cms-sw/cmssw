@@ -31,6 +31,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   //these are used by MTVGenPs
   bool UseAssociators;
   const bool parametersDefinerIsCosmic_;
+  const bool calculateDrSingleCollection_;
   const bool doPlotsOnlyForTruePV_;
   const bool doSummaryPlots_;
   const bool doSimPlots_;

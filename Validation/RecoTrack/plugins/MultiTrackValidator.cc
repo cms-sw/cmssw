@@ -45,6 +45,7 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   MultiTrackValidatorBase(pset,consumesCollector()),
   parametersDefinerIsCosmic_(parametersDefiner == "CosmicParametersDefinerForTP"),
+  calculateDrSingleCollection_(pset.getUntrackedParameter<bool>("calculateDrSingleCollection")),
   doPlotsOnlyForTruePV_(pset.getUntrackedParameter<bool>("doPlotsOnlyForTruePV")),
   doSummaryPlots_(pset.getUntrackedParameter<bool>("doSummaryPlots")),
   doSimPlots_(pset.getUntrackedParameter<bool>("doSimPlots")),
@@ -124,7 +125,9 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 
   _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(pset.getParameter<edm::InputTag>("simHitTpMapTag"));
 
-  labelTokenForDrCalculation = consumes<edm::View<reco::Track> >(pset.getParameter<edm::InputTag>("trackCollectionForDrCalculation"));
+  if(calculateDrSingleCollection_) {
+    labelTokenForDrCalculation = consumes<edm::View<reco::Track> >(pset.getParameter<edm::InputTag>("trackCollectionForDrCalculation"));
+  }
 
   if(UseAssociators) {
     for (auto const& src: associators) {
@@ -422,7 +425,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   }
 
   edm::Handle<View<Track> >  trackCollectionForDrCalculation;
-  event.getByToken(labelTokenForDrCalculation, trackCollectionForDrCalculation);
+  if(calculateDrSingleCollection_) {
+    event.getByToken(labelTokenForDrCalculation, trackCollectionForDrCalculation);
+  }
 
   // dE/dx
   // at some point this could be generalized, with a vector of tags and a corresponding vector of Handles
@@ -645,11 +650,15 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int rT(0); //This counter counts the number of recoTracks in general
 
       //calculate dR for tracks
+      const edm::View<Track> *trackCollectionDr = trackCollection.product();
+      if(calculateDrSingleCollection_) {
+        trackCollectionDr = trackCollectionForDrCalculation.product();
+      }
       float dR_trk[trackCollection->size()];
       int i=0;
-      float etaL[trackCollectionForDrCalculation->size()];
-      float phiL[trackCollectionForDrCalculation->size()];
-      for (auto const & track2 : *trackCollectionForDrCalculation) {
+      float etaL[trackCollectionDr->size()];
+      float phiL[trackCollectionDr->size()];
+      for (auto const & track2 : *trackCollectionDr) {
          auto  && p = track2.momentum();
          etaL[i] = etaFromXYZ(p.x(),p.y(),p.z());
          phiL[i] = atan2f(p.y(),p.x());
@@ -661,7 +670,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         auto  && p = track.momentum();
         float eta = etaFromXYZ(p.x(),p.y(),p.z());
         float phi = atan2f(p.y(),p.x());
-	for(View<Track>::size_type j=0; j<trackCollectionForDrCalculation->size(); ++j){
+	for(View<Track>::size_type j=0; j<trackCollectionDr->size(); ++j){
 	  auto dR_tmp = reco::deltaR2(eta, phi, etaL[j], phiL[j]);
 	  if ( (dR_tmp<dR) & (dR_tmp>std::numeric_limits<float>::min())) dR=dR_tmp;
 	}
