@@ -24,6 +24,10 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoBTag/SecondaryVertex/interface/SecondaryVertex.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalTrajectoryExtrapolatorToLine.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h"
 
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
@@ -50,7 +54,7 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-class PFTauTransverseImpactParameters : public EDProducer {
+class PFTauTransverseImpactParameters : public edm::stream::EDProducer<> {
  public:
   enum Alg{useInputPV=0, useFont};
   enum CMSSWPerigee{aCurv=0,aTheta,aPhi,aTip,aLip};
@@ -106,19 +110,31 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
       const std::vector<reco::VertexRef> SV=PFTauSVA->value(RefPFTau.key());
       double dxy(-999), dxy_err(-999);
       reco::Vertex::Point poca(0,0,0);
+      double ip3d(-999), ip3d_err(-999);
+      reco::Vertex::Point ip3d_poca(0,0,0);
       if(RefPFTau->leadPFChargedHadrCand().isNonnull()){
 	if(RefPFTau->leadPFChargedHadrCand()->trackRef().isNonnull()){
 	  if(useFullCalculation_){
 	    reco::TransientTrack transTrk=transTrackBuilder->build(RefPFTau->leadPFChargedHadrCand()->trackRef());
-	    GlobalPoint pv(PV->position().x(),PV->position().y(),PV->position().z());
-	    dxy=-transTrk.trajectoryStateClosestToPoint(pv).perigeeParameters().vector()(aTip);
-	    dxy_err=transTrk.trajectoryStateClosestToPoint(pv).perigeeError().covarianceMatrix()(aTip,aTip);
-	    GlobalPoint pos=transTrk.trajectoryStateClosestToPoint(pv).position();
+	    GlobalVector direction(RefPFTau->p4().px(), RefPFTau->p4().py(), RefPFTau->p4().pz()); //To compute sign of IP
+	    std::pair<bool,Measurement1D> signed_IP2D = IPTools::signedTransverseImpactParameter(transTrk, direction, (*PV));
+	    dxy=signed_IP2D.second.value();
+	    dxy_err=signed_IP2D.second.error();
+	    std::pair<bool,Measurement1D> signed_IP3D = IPTools::signedImpactParameter3D(transTrk, direction, (*PV));
+	    ip3d=signed_IP3D.second.value();
+	    ip3d_err=signed_IP3D.second.error();
+	    TransverseImpactPointExtrapolator extrapolator(transTrk.field());
+	    GlobalPoint pos  = extrapolator.extrapolate(transTrk.impactPointState(), RecoVertex::convertPos(PV->position())).globalPosition();
 	    poca=reco::Vertex::Point(pos.x(),pos.y(),pos.z());
+	    AnalyticalImpactPointExtrapolator extrapolator3D(transTrk.field());
+	    GlobalPoint pos3d = extrapolator3D.extrapolate(transTrk.impactPointState(),RecoVertex::convertPos(PV->position())).globalPosition();
+	    ip3d_poca=reco::Vertex::Point(pos3d.x(),pos3d.y(),pos3d.z());
 	  }
 	  else{
 	    dxy_err=RefPFTau->leadPFChargedHadrCand()->trackRef()->d0Error();
 	    dxy=RefPFTau->leadPFChargedHadrCand()->trackRef()->dxy(PV->position());
+	    ip3d_err=RefPFTau->leadPFChargedHadrCand()->trackRef()->dzError(); //store dz, ip3d not available
+	    ip3d=RefPFTau->leadPFChargedHadrCand()->trackRef()->dz(PV->position()); //store dz, ip3d not available 
 	  }
 	}
       }
@@ -132,13 +148,13 @@ void PFTauTransverseImpactParameters::produce(edm::Event& iEvent,const edm::Even
 	}
 	GlobalVector direction(RefPFTau->px(),RefPFTau->py(),RefPFTau->pz());
 	double vSig = SecondaryVertex::computeDist3d(*PV,*SV.at(0),direction,true).significance();
-	reco::PFTauTransverseImpactParameter TIPV(poca,dxy,dxy_err,PV,v,vSig,SV.at(0));
+	reco::PFTauTransverseImpactParameter TIPV(poca,dxy,dxy_err,ip3d_poca,ip3d,ip3d_err,PV,v,vSig,SV.at(0));
 	reco::PFTauTransverseImpactParameterRef TIPVRef=reco::PFTauTransverseImpactParameterRef(TIPRefProd_out,TIPCollection_out->size());
         TIPCollection_out->push_back(TIPV);
         AVPFTauTIP->setValue(iPFTau,TIPVRef);
       }
       else{ 
-	reco::PFTauTransverseImpactParameter TIPV(poca,dxy,dxy_err,PV);
+	reco::PFTauTransverseImpactParameter TIPV(poca,dxy,dxy_err,ip3d_poca,ip3d,ip3d_err,PV);
 	reco::PFTauTransverseImpactParameterRef TIPVRef=reco::PFTauTransverseImpactParameterRef(TIPRefProd_out,TIPCollection_out->size());
 	TIPCollection_out->push_back(TIPV);
 	AVPFTauTIP->setValue(iPFTau,TIPVRef);
