@@ -1,7 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.RecoTrack.PostProcessorTracker_cfi import postProcessorTrack as _postProcessorTrack
+import Validation.RecoTrack.PostProcessorTracker_cfi as _PostProcessorTracker_cfi
 
-postProcessorHLTtracking = _postProcessorTrack.clone(
+postProcessorHLTtracking = _PostProcessorTracker_cfi.postProcessorTrack.clone(
     subDirs = ["HLT/Tracking/ValidationWRTtp/*"]
+)
+
+postProcessorHLTtrackingSummary = _PostProcessorTracker_cfi.postProcessorTrackSummary.clone(
+    subDirs = ["HLT/Tracking/ValidationWRTtp"]
+)
+
+postProcessorHLTtrackingSequence = (
+    postProcessorHLTtracking +
+    postProcessorHLTtrackingSummary
 )
