@@ -10,6 +10,9 @@ public:
   HcalParameters( void ) { }
   ~HcalParameters( void ) { }
 
+  double               getEtaHF(const unsigned int i) const;
+  std::vector<double>  getEtaTableHF() const;
+
   struct LayerItem {
     unsigned int layer;
     std::vector<int> layerGroup;
