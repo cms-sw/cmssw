@@ -1329,7 +1329,7 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
       	    }
 
 	    if(partnersFound == 1) {
-	      SiTrackerGSMatchedRecHit2D * theMatchedHit = GSRecHitMatcher().match( &(*partner),  &(*rit),  gluedDet  , gluedsimtrackdir );
+	      SiTrackerGSMatchedRecHit2D * theMatchedHit =GSRecHitMatcher().match( &(*partner),  &(*rit),  gluedDet  , gluedsimtrackdir );
 	      if(partner == partnerNext)
 		theMatchedHit->setStereoLayerFirst();
 
