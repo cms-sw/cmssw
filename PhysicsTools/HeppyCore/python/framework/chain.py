@@ -93,13 +93,3 @@ class Chain( object ):
         return self.chain
 
 
-if __name__ == '__main__':
-
-    import sys
-
-    if len(sys.argv)!=3:
-        print 'usage: Chain.py <tree_name> <pattern>'
-        sys.exit(1)
-    tree_name = sys.argv[1]
-    pattern = sys.argv[2]
-    chain = Chain( tree_name, pattern )

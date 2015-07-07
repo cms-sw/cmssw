@@ -381,8 +381,17 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
 
       //don't take any action if the ME is an INT || FLOAT || STRING
       if(me->kind() >= MonitorElement::DQM_KIND_TH1F)
-        me->getTH1()->Add(i->getTH1());
-
+	{
+	  if(me->getTH1()->CanExtendAllAxes() && i->getTH1()->CanExtendAllAxes()) {
+	    TList list;
+	    list.Add(i->getTH1());
+	    if( -1 == me->getTH1()->Merge(&list)) {
+	      std::cout << "mergeAndResetMEsRunSummaryCache: Failed to merge DQM element "<<me->getFullname();
+	    }
+	  }
+	  else
+	    me->getTH1()->Add(i->getTH1());
+	}
     } else {
       if (verbose_ > 1)
         std::cout << "No global Object found. " << std::endl;
@@ -433,8 +442,18 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
 	      std::cout << "Found global Object, using it --> " << me->getFullname() << std::endl;
 
       //don't take any action if the ME is an INT || FLOAT || STRING
-      if (me->kind() >= MonitorElement::DQM_KIND_TH1F)
-        me->getTH1()->Add(i->getTH1());
+      if(me->kind() >= MonitorElement::DQM_KIND_TH1F)
+	{
+	  if(me->getTH1()->CanExtendAllAxes() && i->getTH1()->CanExtendAllAxes()) {
+	    TList list;
+	    list.Add(i->getTH1());
+	    if( -1 == me->getTH1()->Merge(&list)) {
+	      std::cout << "mergeAndResetMEsLuminositySummaryCache: Failed to merge DQM element "<<me->getFullname();
+	    }
+	  }
+	  else
+	    me->getTH1()->Add(i->getTH1());
+	}
     } else {
       if (verbose_ > 1)
         std::cout << "No global Object found. " << std::endl;

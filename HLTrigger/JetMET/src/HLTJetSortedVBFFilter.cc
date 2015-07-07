@@ -175,6 +175,11 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 		if(q2_idx<jets->size()) q2 = jets->at(q2_idx).p4(); else edm::LogWarning("Something wrong with q2");
 		if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
 		if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
+		
+		jetRefs[0]= TRef(jets,b1_idx);
+		jetRefs[1]= TRef(jets,b2_idx);
+		jetRefs[2]= TRef(jets,q1_idx);
+		jetRefs[3]= TRef(jets,q2_idx);
 
 		//   	cout<<"\tPathB: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
 	} else if(value_=="2BTagAndPt"){
@@ -211,6 +216,11 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 		if(q2_idx<jets->size()) q2 = jets->at(q2_idx).p4(); else edm::LogWarning("Something wrong with q2");
 		if(b1_idx<jets->size()) b1 = jets->at(b1_idx).p4(); else edm::LogWarning("Something wrong with b1");
 		if(b2_idx<jets->size()) b2 = jets->at(b2_idx).p4(); else edm::LogWarning("Something wrong with b2");
+
+		jetRefs[0]= TRef(jets,b1_idx);
+		jetRefs[1]= TRef(jets,b2_idx);
+		jetRefs[2]= TRef(jets,q1_idx);
+		jetRefs[3]= TRef(jets,q2_idx);
 
 		//   	cout<<"\tPathA: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl; 
 	}

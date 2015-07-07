@@ -205,7 +205,7 @@ preprocessor = None
 
 #-------- HOW TO RUN -----------
 
-from PhysicsTools.HeppyCore.framework.heppy import getHeppyOption
+from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 test = getHeppyOption('test')
 if test == '1':
     comp = TTJets

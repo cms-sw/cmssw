@@ -72,7 +72,6 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
 
   jetType_ = pSet.getParameter<std::string>("JetType");
   m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
-  m_bitAlgTechTrig_=-1;
 
   fill_jet_high_level_histo=pSet.getParameter<bool>("filljetHighLevel"),
   
@@ -1432,7 +1431,7 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBx0 = gtReadoutRecord->technicalTriggerWord();
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxG = gtReadoutRecord->technicalTriggerWord(1);
     //const TechnicalTriggerWord&  technicalTriggerWordBeforeMaskBxH = gtReadoutRecord->technicalTriggerWord(2);
-    if (m_bitAlgTechTrig_ > -1) {
+    if (m_bitAlgTechTrig_ > -1 && technicalTriggerWordBeforeMaskBx0.size() > 0) {
       techTriggerResultBx0 = technicalTriggerWordBeforeMaskBx0.at(m_bitAlgTechTrig_);
       if(techTriggerResultBx0!=0){
 	techTriggerResultBxE = technicalTriggerWordBeforeMaskBxE.at(m_bitAlgTechTrig_);

@@ -90,7 +90,6 @@
 - FWHFView
 - FWHLTTriggerTableView
 - FWHLTValidator
-- FWHandle
 - FWISpyView
 - FWIntValueListener
 - FWIntValueListenerBase
