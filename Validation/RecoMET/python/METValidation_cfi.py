@@ -129,13 +129,13 @@ pfType0CorrectedMetAnalyzer = cms.EDAnalyzer(
    )
 pfType1CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
-   InputMETLabel = cms.InputTag("pfMetT1"),
+   InputMETLabel = cms.InputTag("PfMetT1"),
    METType = cms.untracked.string("pf"),
    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
    )
 pfType01CorrectedMetAnalyzer = cms.EDAnalyzer(
    "METTester",
-   InputMETLabel = cms.InputTag("pfMetT0pcT1"),
+   InputMETLabel = cms.InputTag("PfMetT0pcT1"),
    METType = cms.untracked.string("pf"),
    PrimaryVertices = cms.InputTag("offlinePrimaryVertices")
    )

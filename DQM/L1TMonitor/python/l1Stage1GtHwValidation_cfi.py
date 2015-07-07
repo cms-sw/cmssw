@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 #     
 # V.M. Ghete 2009-10-09
 
-l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
+l1Stage1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
 
     # input tag for the L1 GT hardware DAQ record
     L1GtDataDaqInputTag = cms.InputTag("gtDigis"),
@@ -13,10 +13,10 @@ l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
     L1GtDataEvmInputTag = cms.InputTag("gtEvmDigis"),
     
     # input tag for the L1 GT emulator DAQ record
-    L1GtEmulDaqInputTag = cms.InputTag("valGtDigis"),
+    L1GtEmulDaqInputTag = cms.InputTag("valStage1GtDigis"),
     
     # input tag for the L1 GT emulator EVM record
-    L1GtEmulEvmInputTag = cms.InputTag("valGtDigis"),
+    L1GtEmulEvmInputTag = cms.InputTag("valStage1GtDigis"),
     
     # input tag for the L1 GCT hardware record 
     L1GctDataInputTag = cms.InputTag("gctDigis"),   
@@ -55,8 +55,5 @@ l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
     
     # exclude algorithm triggers from comparison data - emulator by algorithm bit number
     ExcludeAlgoTrigByBit = cms.vint32()
-    #
-    
+    #    
 )
-
-

@@ -23,7 +23,7 @@ struct DEutils {
   public:
   
   DEutils() {
-    if(de_type()>38)
+    if(de_type()>51)
       edm::LogError("L1ComparatorDeutilsCollType") //throw cms::Exception("ERROR") 
 	<< "DEutils::DEutils() :: "
 	<< "specialization is still missing for collection of type:" 
@@ -139,7 +139,6 @@ DEutils<L1CaloEmCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   digi.setRank((float)de,(float)ee);
   return digi;
 }
-
 template<> inline L1DataEmulDigi 
 DEutils<L1CaloRegionCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
@@ -169,7 +168,6 @@ DEutils<L1CaloRegionCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   digi.setRank((float)de,(float)ee);
   return digi;
 }
-
 template<> inline L1DataEmulDigi 
 DEutils<L1GctEmCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
@@ -188,7 +186,6 @@ DEutils<L1GctEmCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   digi.setRank((float)de,(float)ee);
   return digi;
 }
-
 template<> inline L1DataEmulDigi 
 DEutils<L1GctJetCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
@@ -202,7 +199,7 @@ DEutils<L1GctJetCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   if (!itm->isForward()) eeta=(itm->etaSign()==1?10-(itm->etaIndex()&0x7):(itm->etaIndex()&0x7)+11);
   else                   eeta=(itm->etaSign()==1? 3-(itm->etaIndex()&0x7):(itm->etaIndex()&0x7)+18 );
   double x2 = (aflag!=4) ? deta : eeta;
-  L1DataEmulDigi digi(dedefs::GCT,cid, x1,x2,0., errt);
+  L1DataEmulDigi digi(dedefs::GCT, cid, x1,x2,0., errt);
   unsigned int dw = (aflag==4)?0:itd->raw();
   unsigned int ew = (aflag==3)?0:itm->raw();
   dw &= 0x7fff; ew &= 0x7fff; //15-bit
@@ -212,7 +209,6 @@ DEutils<L1GctJetCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   digi.setRank((float)de,(float)ee);
   return digi;
 }
-
 template<> inline L1DataEmulDigi 
 DEutils<L1GctEtHadCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int cid = de_type();
@@ -316,7 +312,6 @@ DEutils<L1GctJetCountsCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) 
   digi.setRank((float)de,(float)ee);
   return digi;
 }
-
 template<> inline L1DataEmulDigi 
 DEutils<L1MuRegionalCandCollection>::DEDigi(col_cit itd,  col_cit itm, int aflag) {
   int sid;
@@ -682,16 +677,15 @@ DEutils<L1CaloRegionCollection>::de_equal(const cand_type& lhs, const cand_type&
 template <> inline bool 
 DEutils<L1GctEmCandCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
 
-template <> inline bool  DEutils<L1GctJetCandCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+template <> inline bool DEutils<L1GctJetCandCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
 
-template <> inline bool  DEutils<L1GctEtHadCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
+template <> inline bool DEutils<L1GctEtHadCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
 template <> inline bool DEutils<L1GctEtMissCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
 template <> inline bool DEutils<L1GctEtTotalCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
 template <> inline bool DEutils<L1GctHtMissCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
 template <> inline bool DEutils<L1GctHFRingEtSumsCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
 template <> inline bool DEutils<L1GctHFBitCountsCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
 template <> inline bool DEutils<L1GctJetCountsCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {return lhs==rhs;}
-
 
 template <> inline bool 
 DEutils<L1MuDTChambPhDigiCollection>::de_equal(const cand_type& lhs, const cand_type& rhs) {
@@ -757,7 +751,7 @@ DEutils<L1MuGMTCandCollection>::de_equal(const cand_type& lhs, const cand_type& 
   dw &= mask; ew &= mask;
   val &= (dw==ew);
   return val;
-  }
+}
 
 template <> inline bool 
 DEutils<CSCCorrelatedLCTDigiCollection_>::de_equal(const cand_type& lhs, const cand_type& rhs) {
@@ -864,7 +858,6 @@ DEutils<L1GctJetCandCollection>::de_equal_loc(const cand_type& lhs, const cand_t
   val &= (lhs.phiIndex() == rhs.phiIndex());
   return val;
 }
-
 template <> inline bool 
 DEutils<L1GctEtHadCollection>::de_equal_loc(const cand_type& lhs, const cand_type& rhs) {
   return true; // no associated location defined
@@ -1027,7 +1020,6 @@ template <> inline bool DEutils<L1GctHtMissCollection>::is_empty(col_cit it) con
 template <> inline bool DEutils<L1GctHFRingEtSumsCollection>::is_empty(col_cit it) const {return(it->empty());}
 template <> inline bool DEutils<L1GctHFBitCountsCollection>::is_empty(col_cit it) const {return(it->empty());}
 template <> inline bool DEutils<L1GctJetCountsCollection>::is_empty(col_cit it) const {return(it->empty());}
-
 
 template<>
 inline bool DEutils<L1MuDTChambPhDigiCollection>::is_empty(col_cit it) const { 
@@ -1367,7 +1359,7 @@ inline std::string DEutils<L1CSCSPStatusDigiCollection_>::print(col_cit it) cons
 template <typename T> 
 std::string DEutils<T>::GetName(int i) const {
 
-  const int nlabel = 16;
+  const int nlabel = 17;
   if(!(i<nlabel)) 
     return                  "un-defined" ;
   std::string str[nlabel]= {"un-registered"};
@@ -1377,17 +1369,17 @@ std::string DEutils<T>::GetName(int i) const {
     str[0] = "ECAL tp";
     str[1] = "EcalTrigPrimDigiCollection";
     str[2] = "EcalTriggerPrimitiveDigi";
-  break;
+    break;
   case dedefs::HCALtp:
     str[0] = "HCAL tp";
     str[1] = "HcalTrigPrimDigiCollection";
     str[2] = "HcalTriggerPrimitiveDigi";
-  break;
+    break;
   case dedefs::RCTem:
     str[0] = "RCT em";
     str[1] = "L1CaloEmCollection";
     str[2] = "L1CaloEmCand";
-  break;
+    break;
   case dedefs::RCTrgn:
     str[0] = "RCT region";
     str[1] = "L1CaloRegionCollection";
@@ -1397,93 +1389,97 @@ std::string DEutils<T>::GetName(int i) const {
     str[0] = "GCT em isolated";
     str[1] = "L1GctEmCandCollection";
     str[2] = "L1GctEmCand";
-   break;
+    break;
   case dedefs::GCTnoisoem:
     str[0] = "GCT em non-isolated";
     str[1] = "L1GctEmCandCollection";
     str[2] = "L1GctEmCand";
-   break;
+    break;
   case dedefs::GCTcenjets:
     str[0] = "GCT central jet";
     str[1] = "L1GctJetCandCollection";
     str[2] = "L1GctJetCand";
-   break;
+    break;
   case dedefs::GCTforjets:
     str[0] = "GCT forward jet";
     str[1] = "L1GctJetCandCollection";
     str[2] = "L1GctJetCand";
-   break;
+    break;
   case dedefs::GCTtaujets:
     str[0] = "GCT tau jet";
     str[1] = "L1GctJetCandCollection";
     str[2] = "L1GctJetCand";
-   break;
+    break;
+  case dedefs::GCTisotaujets:
+    str[0] = "Stage1Layer2 iso-tau jet";
+    str[1] = "L1GctJetCandCollection";
+    str[2] = "L1GctJetCand";
+    break;
   case dedefs::GCTethad:
     str[0] = "GCT ht";
     str[1] = "L1GctEtHadCollection";
     str[2] = "L1GctEtHad";
-   break;
+    break;
   case dedefs::GCTetmiss:
     str[0] = "GCT et miss";
     str[1] = "L1GctEtMissCollection";
     str[2] = "L1GctEtMiss";
-   break;
+    break;
   case dedefs::GCTettot:
     str[0] = "GCT et total";
     str[1] = "L1GctEtTotalCollection";
     str[2] = "L1GctEtTotal";
-   break;
+    break;
   case dedefs::GCThtmiss:
     str[0] = "GCT ht miss";
     str[1] = "L1GctHtMissCollection";
     str[2] = "L1GctHtMiss";
-   break;
+    break;
   case dedefs::GCThfring:
     str[0] = "GCT hf ring";
     str[1] = "L1GctHFRingEtSumsCollection";
     str[2] = "L1GctHFRingEtSums";
-   break;
+    break;
   case dedefs::GCThfbit:
     str[0] = "GCT hf bit counts";
     str[1] = "L1GctHFBitCountsCollection";
     str[2] = "L1GctHFBitCounts";
-   break;
-
+    break;   
   case dedefs::DTtpPh:
     str[0] = "DT tp phi";
     str[1] = "L1MuDTChambPhDigiCollection";
     str[2] = "L1MuDTChambPhDigi";
-   break;
+    break;
   case dedefs::DTtpTh:
     str[0] = "DT tp theta";
     str[1] = "L1MuDTChambThDigiCollection";
     str[2] = "L1MuDTChambThDigi";
-   break;
+    break;
   case dedefs::CSCtpa:
     str[0] = "CSC tpa";
     str[1] = "CSCALCTDigiCollection";
     str[2] = "CSCALCTDigi";
-   break;
+    break;
   case dedefs::CSCtpc:
     str[0] = "CSC tpc";
     str[1] = "CSCCLCTDigiCollection";
     str[2] = "CSCCLCTDigi";
-   break;
+    break;
   case dedefs::CSCtpl:
     str[0] = "CSC tp";
     str[1] = "CSCCorrelatedLCTDigiCollection";
     str[2] = "CSCCorrelatedLCTDigi";
-   break;
+    break;
   case dedefs::CSCsta:
     str[0] = "CSC tf status";
     str[1] = "L1CSCSPStatusDigiCollection_";
     str[2] = "L1CSCSPStatusDigi";
-   break;
+    break;
   case dedefs::MUrtf:
     str[0] = "Mu reg tf";
     str[1] = "L1MuRegionalCandCollection";
     str[2] = "L1MuRegionalCand";
-   break;
+    break;
   case dedefs::LTCi:
     str[0] = "LTC";
     str[1] = "LTCDigiCollection";
