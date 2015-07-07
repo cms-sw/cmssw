@@ -100,7 +100,6 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEvent, 
   Handle<JetCollection> theJetCollectionHandle;
   iEvent.getByToken(m_theJetToken, theJetCollectionHandle);
   
-  const JetCollection & theJetCollection = *theJetCollectionHandle;
   typename JetCollection::const_iterator jet;
   
   auto_ptr<JetCollection> allSelections(new JetCollection);
