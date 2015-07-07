@@ -5,6 +5,7 @@ import types
 import re
 
 from ROOT import TLorentzVector
+from ROOT import heppy 
 
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.HeppyCore.framework.event import Event
@@ -23,6 +24,11 @@ class PhotonAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(PhotonAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         self.etaCentral = self.cfg_ana.etaCentral  if hasattr(self.cfg_ana, 'etaCentral') else 9999
+        # footprint removed isolation
+        self.doFootprintRemovedIsolation = getattr(cfg_ana, 'doFootprintRemovedIsolation', False)
+        if self.doFootprintRemovedIsolation:
+            self.footprintRemovedIsolationPUCorr =  self.cfg_ana.footprintRemovedIsolationPUCorr
+            self.IsolationComputer = heppy.IsolationComputer()
 
     def declareHandles(self):
         super(PhotonAnalyzer, self).declareHandles()
@@ -54,6 +60,10 @@ class PhotonAnalyzer( Analyzer ):
 
         event.selectedPhotons = []
         event.selectedPhotonsCentral = []
+
+        if self.doFootprintRemovedIsolation:
+            # values are taken from EGamma implementation: https://github.com/cms-sw/cmssw/blob/CMSSW_7_6_X/RecoEgamma/PhotonIdentification/plugins/PhotonIDValueMapProducer.cc#L198-L199
+            self.IsolationComputer.setPackedCandidates(self.handles['packedCandidates'].product(), -1, 0.1, 0.2)
 
         foundPhoton = False
         for gamma in event.allphotons:
@@ -270,7 +280,16 @@ class PhotonAnalyzer( Analyzer ):
           if gamma.chHadIsoRC04<0. : gamma.chHadIsoRC04 = self.computeRandomCone( event, etaPhot, phiRC, 0.4, charged, jets20, photons10 )
 
 
-
+    def attachFootprintRemovedIsolation(self, mu):
+        gamma.ftprAbsIsoCharged03 = self.IsolationComputer.chargedAbsIso(gamma.physObj, 0.3, 0, 0.0);
+        gamma.ftprAbsIsoPho03     = self.IsolationComputer.photonAbsIso( gamma.physObj, 0.3, 0, 0.0);
+        gamma.ftprAbsIsoNHad03    = self.IsolationComputer.neutralHadAbsIso( gamma.physObj, 0.3, 0, 0.0);
+        gamma.ftprAbsIsoNeutral03 =  gamma.ftprAbsIsoPho03 + gamma.ftprAbsIsoNHad03
+        if self.gamma_isoCorr == "rhoArea":
+            gamma.ftprAbsIso = (max(gamma.ftprAbsIsoCharged03-gamma.rho*gamma.EffectiveArea03[0],0) + max(gamma.ftprAbsIsoPho03-gamma.rho*gamma.EffectiveArea03[1],0) + max(gamma.ftprAbsIsoNHad03 - gamma.rho*gamma.EffectiveArea03[2],0))
+        elif self.gamma_isoCorr != 'raw':
+            raise RuntimeError, "Unsupported gamma_isoCorr name '" + str(self.cfg_ana.miniIsolationCorr) +  "'! For now only 'rhoArea', 'raw' are supported."
+        gamma.ftprRelIso = gamma.ftprAbsIso/gamma.pt()
 
     def printInfo(self, event):
         print '----------------'
@@ -315,6 +334,10 @@ setattr(PhotonAnalyzer,"defaultConfig",cfg.Analyzer(
     gammaID = "PhotonCutBasedIDLoose_CSA14",
     rhoPhoton = 'fixedGridRhoFastjetAll',
     gamma_isoCorr = 'rhoArea',
+    # Footprint-removed isolation, removing all the footprint of the photon
+    doFootprintRemovedIsolation = False, # off by default since it requires access to all PFCandidates
+    packedCandidates = 'packedPFCandidates',
+    footprintRemovedIsolationPUCorr = 'rhoArea', # Allowed options: 'rhoArea', 'raw' (uncorrected)
     do_mc_match = True,
     do_randomCone = False,
   )

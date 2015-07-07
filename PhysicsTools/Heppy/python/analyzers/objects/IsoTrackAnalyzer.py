@@ -80,7 +80,7 @@ class IsoTrackAnalyzer( Analyzer ):
 
         charged = [ p for p in patcands if ( p.charge() != 0 and abs(p.dz())<=self.cfg_ana.dzMax ) ]
 
-        self.IsoTrackIsolationComputer.setPackedCandidates(patcands, -1, 0.1, True)
+        self.IsoTrackIsolationComputer.setPackedCandidates(patcands, -1, 0.1, 9999., True)
 
         alltrack = map( IsoTrack, charged )
 
