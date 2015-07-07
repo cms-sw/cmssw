@@ -27,6 +27,7 @@
 #include <iostream>
 
 // ROOT includes
+#include "TDirectory.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
@@ -314,8 +315,11 @@ template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TProfile>(cons
   if(dqmMode){
     theDbe->setCurrentFolder(directoryString);
     //DQM profile requires y-bins for construction... using TProfile creator by hand...
-    TProfile *tmpProfile=new TProfile(name,title,nBinX,xBins);
-    tmpProfile->SetDirectory(0);
+    TProfile *tmpProfile;
+    {
+      TDirectory::TContext context(nullptr);
+      tmpProfile=new TProfile(name,title,nBinX,xBins);
+    }
     return theDbe->bookProfile(name,tmpProfile)->getTH1();
   }
   else{return tfd->make<TProfile>(name,title,nBinX,xBins);}
@@ -325,8 +329,11 @@ template <> TH1* TrackerOfflineValidation::DirectoryWrapper::make<TProfile>(cons
   if(dqmMode){
     theDbe->setCurrentFolder(directoryString);
     //DQM profile requires y-bins for construction... using TProfile creator by hand...
-    TProfile *tmpProfile=new TProfile(name,title,nBinX,minBinX,maxBinX);
-    tmpProfile->SetDirectory(0);
+    TProfile *tmpProfile;
+    {
+      TDirectory::TContext context(nullptr);
+      tmpProfile = new TProfile(name,title,nBinX,minBinX,maxBinX);
+    }
     return theDbe->bookProfile(name,tmpProfile)->getTH1();
   }
   else{return tfd->make<TProfile>(name,title,nBinX,minBinX,maxBinX);}

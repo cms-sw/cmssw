@@ -647,20 +647,20 @@ class DQMStore
   template <class HISTO, class COLLATE>
   MonitorElement *              book(const std::string &dir, const std::string &name,
                                      const char *context, int kind,
-                                     HISTO *h, COLLATE collate);
+                                     HISTO *h, COLLATE collate, bool setDirNull);
 
   MonitorElement *              bookInt(const std::string &dir, const std::string &name);
   MonitorElement *              bookFloat(const std::string &dir, const std::string &name);
   MonitorElement *              bookString(const std::string &dir, const std::string &name, const std::string &value);
-  MonitorElement *              book1D(const std::string &dir, const std::string &name, TH1F *h);
-  MonitorElement *              book1S(const std::string &dir, const std::string &name, TH1S *h);
-  MonitorElement *              book1DD(const std::string &dir, const std::string &name, TH1D *h);
-  MonitorElement *              book2D(const std::string &dir, const std::string &name, TH2F *h);
-  MonitorElement *              book2S(const std::string &dir, const std::string &name, TH2S *h);
-  MonitorElement *              book2DD(const std::string &dir, const std::string &name, TH2D *h);
-  MonitorElement *              book3D(const std::string &dir, const std::string &name, TH3F *h);
-  MonitorElement *              bookProfile(const std::string &dir, const std::string &name, TProfile *h);
-  MonitorElement *              bookProfile2D(const std::string &folder, const std::string &name, TProfile2D *h);
+  MonitorElement *              book1D(const std::string &dir, const std::string &name, TH1F *h, bool setDirNull);
+  MonitorElement *              book1S(const std::string &dir, const std::string &name, TH1S *h, bool setDirNull);
+  MonitorElement *              book1DD(const std::string &dir, const std::string &name, TH1D *h, bool setDirNull);
+  MonitorElement *              book2D(const std::string &dir, const std::string &name, TH2F *h, bool setDirNull);
+  MonitorElement *              book2S(const std::string &dir, const std::string &name, TH2S *h, bool setDirNull);
+  MonitorElement *              book2DD(const std::string &dir, const std::string &name, TH2D *h, bool setDirNull);
+  MonitorElement *              book3D(const std::string &dir, const std::string &name, TH3F *h, bool setDirNull);
+  MonitorElement *              bookProfile(const std::string &dir, const std::string &name, TProfile *h, bool setDirNull);
+  MonitorElement *              bookProfile2D(const std::string &folder, const std::string &name, TProfile2D *h, bool setDirNull);
 
   static bool                   checkBinningMatches(MonitorElement *me, TH1 *h, unsigned verbose);
 
