@@ -1,5 +1,4 @@
 #include "FWCore/Services/src/SiteLocalConfigService.h"
-#include "FWCore/Services/src/CondorStatusUpdater.h"
 #include "FWCore/Services/src/Tracer.h"
 #include "FWCore/Services/src/InitRootHandlers.h"
 #include "FWCore/Services/src/UnixSignalService.h"
@@ -27,8 +26,6 @@ using edm::service::UnixSignalService;
 DEFINE_FWK_SERVICE(Tracer);
 DEFINE_FWK_SERVICE(CPU);
 
-typedef edm::serviceregistry::AllArgsMaker<edm::service::CondorStatusService> CondorStatusServiceMaker;
-DEFINE_FWK_SERVICE_MAKER(CondorStatusService,CondorStatusServiceMaker);
 typedef edm::serviceregistry::NoArgsMaker<PrintLoadingPlugins> PrintLoadingPluginsMaker;
 DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);
 typedef edm::serviceregistry::ParameterSetMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
