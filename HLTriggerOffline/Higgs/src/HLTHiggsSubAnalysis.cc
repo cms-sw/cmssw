@@ -341,7 +341,7 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
         double minHt   = paramsHt[1];
         double maxHt   = paramsHt[2];
 
-        _elements[nameVtxPlot] = ibooker.book1D(nameVtxPlot.c_str(), titlePu.c_str(), nBinsPu, minPu, maxPu);
+        if( (! _useNminOneCuts) || sources[i] == "rec" ) _elements[nameVtxPlot] = ibooker.book1D(nameVtxPlot.c_str(), titlePu.c_str(), nBinsPu, minPu, maxPu);
         if( _bookHtPlots ) _elements[nameHtPlot] = ibooker.book1D(nameHtPlot.c_str(), titleHt.c_str(), nBinsHt, minHt, maxHt);
         for (size_t j = 0 ; j < _hltPathsToCheck.size() ; j++){
                 //declare the efficiency vs interaction plots
@@ -352,7 +352,7 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
                         shortpath = path.substr(0, path.rfind("_v"));
                 }
             std::string titlePassingPu = "nb of interations in the event passing path " + shortpath;
-            _elements[nameVtxPlot+"_"+shortpath] = ibooker.book1D(nameVtxPlot+"_"+shortpath, titlePassingPu.c_str(), nBinsPu, minPu, maxPu);
+            if( (! _useNminOneCuts) || sources[i] == "rec" ) _elements[nameVtxPlot+"_"+shortpath] = ibooker.book1D(nameVtxPlot+"_"+shortpath, titlePassingPu.c_str(), nBinsPu, minPu, maxPu);
 
             std::string titlePassingHt = "sum of jet pT in the event passing path " + shortpath;
             if( _bookHtPlots ) _elements[nameHtPlot+"_"+shortpath] = ibooker.book1D(nameHtPlot+"_"+shortpath, titlePassingHt.c_str(), nBinsHt, minHt, maxHt);
@@ -678,7 +678,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
 
         //fill the efficiency vs nb of interactions
         std::string nameVtxPlot = "trueVtxDist_"+_analysisname+"_"+u2str[it->first];
-        _elements[nameVtxPlot]->Fill(nbMCvtx);
+        if( (! _useNminOneCuts) || it->first == RECO ) _elements[nameVtxPlot]->Fill(nbMCvtx);
 
         //fill the efficiency vs sum pT of jets
         std::string nameHtPlot = "HtDist_"+_analysisname+"_"+u2str[it->first];
@@ -710,7 +710,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
             _elements[SummaryName]->Fill(refOfThePath);
             if (ispassTrigger) {
                 _elements[SummaryName+"_passingHLT"]->Fill(refOfThePath,1);
-                _elements[nameVtxPlot+"_"+fillShortPath.c_str()]->Fill(nbMCvtx);
+                if( (! _useNminOneCuts) || it->first == RECO ) _elements[nameVtxPlot+"_"+fillShortPath.c_str()]->Fill(nbMCvtx);
                 if( _bookHtPlots ) _elements[nameHtPlot+"_"+fillShortPath.c_str()]->Fill(Htmap[it->first]);
             }
             else {

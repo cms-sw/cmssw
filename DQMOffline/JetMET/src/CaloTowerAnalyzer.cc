@@ -54,7 +54,6 @@
 #include <cmath>
 #include <memory>
 #include <TLorentzVector.h>
-#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 
 using namespace reco;
 using namespace edm;

@@ -36,7 +36,10 @@ process = scenario.visualizationProcessing(globalTag='DUMMY', writeTiers=['FEVT'
 
 process.source = source
 process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
-process.source.skipFirstLumis = cms.untracked.bool(True)
+process.source.skipFirstLumis                = cms.untracked.bool(True)
+process.source.minEventsPerLumi              = cms.untracked.int32(0)
+process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
+process.source.streamLabel                   = cms.untracked.string('streamDQM')
 
 m = re.search(r"\((\w+)\)", str(source.runNumber))
 runno = str(m.group(1))

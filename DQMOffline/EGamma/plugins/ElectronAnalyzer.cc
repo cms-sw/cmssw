@@ -310,6 +310,20 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     // select electrons
     if (!selected(gsfIter,vertexTIP)) continue ;
 
+    // invariant mass of 2 selected electrons
+    reco::GsfElectronCollection::const_iterator gsfIter2 ;
+    for
+      ( gsfIter2=gsfIter+1;
+	gsfIter2!=gsfElectrons->end() ;
+	gsfIter2++ )
+      {
+        if (!selected(gsfIter2,vertexTIP)) continue ;
+	float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
+        h1_mee->Fill(invMass) ;
+        if ( ( (gsfIter->charge())*(gsfIter2->charge()) )<0. )
+	  { h1_mee_os->Fill(invMass) ; }
+      }
+    
     // basic quantities
     if (gsfIter->isEB()) h1_vertexPt_barrel->Fill( gsfIter->pt() );
     if (gsfIter->isEE()) h1_vertexPt_endcaps->Fill( gsfIter->pt() );
@@ -438,17 +452,6 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
        gsfIter!=gsfElectrons->end() ;
        gsfIter++ )
      {
-      reco::GsfElectronCollection::const_iterator gsfIter2 ;
-      for
-       ( gsfIter2=gsfIter+1;
-         gsfIter2!=gsfElectrons->end() ;
-         gsfIter2++ )
-       {
-        float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
-        if(matchingObjectNum == 1){h1_mee->Fill(invMass) ;}
-        if ((matchingObjectNum == 1) && (((gsfIter->charge())*(gsfIter2->charge()))<0.))
-         { h1_mee_os->Fill(invMass) ; }
-       }
 
       double vertexTIP =
        (gsfIter->vertex().x()-bs.position().x()) * (gsfIter->vertex().x()-bs.position().x()) +
@@ -498,7 +501,7 @@ float ElectronAnalyzer::computeInvMass
  {
   math::XYZTLorentzVector p12 = e1.p4()+e2.p4() ;
   float mee2 = p12.Dot(p12) ;
-  float invMass = sqrt(mee2) ;
+  float invMass = mee2 > 0. ? sqrt(mee2) : 0;
   return invMass ;
  }
 

@@ -232,6 +232,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
           PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id),pTT,isUpgrade).halfCylinder();
           int disk   = PixelEndcapName(DetId(id),pTT,isUpgrade).diskName();
+	  if (disk>noOfDisks) noOfDisks=disk;
           int blade  = PixelEndcapName(DetId(id),pTT,isUpgrade).bladeName();
           int panel  = PixelEndcapName(DetId(id),pTT,isUpgrade).pannelName();
           int module = PixelEndcapName(DetId(id),pTT,isUpgrade).plaquetteName();
