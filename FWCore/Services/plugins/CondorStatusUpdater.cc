@@ -178,6 +178,10 @@ CondorStatusService::beginPost()
         lumiCount = static_cast<unsigned int>(std::ceil(static_cast<float>(maxEvents) / static_cast<float>(eventsPerLumi)));
     }
 
+    std::vector<std::string> fileNames = pset.getUntrackedParameter<std::vector<std::string>>("fileNames", std::vector<std::string>());
+    std::stringstream ss_max_files; ss_max_files << fileNames.size();
+    updateChirp("ChripCMSSWMaxFiles", ss_max_files.str());
+
     if (lumiCount > 0)
     {
         if (maxLumis < 0) {maxLumis = lumiCount;}
@@ -225,6 +229,7 @@ CondorStatusService::firstUpdate()
     // This allows us to overwrite the activities of a previous cmsRun process
     // within this HTCondor job.
     updateImpl(0);
+    updateChirp("ChirpCMSSWMaxFiles", "-1");
     updateChirp("ChirpCMSSWMaxEvents", "-1");
     updateChirp("ChirpCMSSWMaxLumis", "-1");
     updateChirp("ChirpCMSSWDone", "false");
