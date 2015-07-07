@@ -6,6 +6,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
+#include "TDirectory.h"
+
 namespace edm {
   class ParameterSet;
 }
@@ -50,8 +52,10 @@ ESClient::getHisto(MonitorElement* _me, bool _clone/* = false*/, T* _current/* =
 
   if(_clone){
     delete _current;
-    _current = dynamic_cast<T*>(obj->Clone(("ME " + _me->getName()).c_str()));
-    if(_current) _current->SetDirectory(0);
+    {
+      TDirectory::TContext(nullptr);
+      _current = dynamic_cast<T*>(obj->Clone(("ME " + _me->getName()).c_str()));
+    }
     return _current;
   }
   else

@@ -5,6 +5,8 @@
 #include "TH1.h"
 #include "TH2F.h"
 #include "TCanvas.h"
+#include "TDirectory.h"
+
 #include <string>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -41,9 +43,9 @@ class HcalUtilsClient
             delete ret;
           }
           std::string s = "ME " + me->getName();
-          ret = dynamic_cast<T>(ob->Clone(s.c_str())); 
-          if( ret ) {
-            ret->SetDirectory(0);
+          {
+            TDirectory::TContext(nullptr);
+            ret = dynamic_cast<T>(ob->Clone(s.c_str()));
           }
         } else {
           ret = dynamic_cast<T>(ob); 

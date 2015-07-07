@@ -26,6 +26,7 @@
 #include <TString.h>
 #include <TKey.h>
 #include <TClass.h>
+#include "TDirectory.h"
 
 // RooFit includes
 #include <RooFitResult.h>
@@ -85,10 +86,18 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
       cerr << "ERROR: Data or SeparationVariable is NULL returning now!\n";
       return -1;
     }
-  TH1F* SideBandHist = (TH1F*)BaseHistos[index]->Clone();
+  TH1F* SideBandHist;
+  {
+    // TDirectory::TContext(nullptr);
+    SideBandHist = (TH1F*)BaseHistos[index]->Clone();
+  }
   setHistOptions(SideBandHist,(string)variable->GetName()+"Sideband",(string)SideBandHist->GetTitle() + " Sideband",(string)variable->getUnit());
 
-  TH1F* SignalHist = (TH1F*)BaseHistos[index]->Clone();
+  TH1F* SignalHist;
+  {
+    // TDirectory::TContext(nullptr);
+    SignalHist = (TH1F*)BaseHistos[index]->Clone();
+  }
   setHistOptions(SignalHist,(string)variable->GetName()+"SignalHist",(string)SignalHist->GetTitle() + " Raw Signal",(string)variable->getUnit());
 
   //Begin a loop over the data to fill our histograms. I should figure
@@ -125,7 +134,6 @@ int SideBandSubtract::doSubtraction(RooRealVar* variable, Double_t stsratio,Int_
     }
   //Save pre-subtracted histo
   SignalHist->Sumw2(); SideBandHist->Sumw2(); 
-  //SignalHist->SetDirectory(0); SideBandHist->SetDirectory(0);
   RawHistos.push_back(*SignalHist);
 
   SignalHist->Add(SideBandHist, -stsratio);
@@ -388,9 +396,11 @@ SideBandSubtract::SideBandSubtract(RooAbsPdf *model_shape,
       //we own the data this points to so we need to delete it at the end...
       assert(variable!=NULL);
       string title = "base_"+(string)variable->GetName();
-      base_histo = (TH1F*)Data->createHistogram(title.c_str(), *variable, Binning(variable->getBinning("default",verb,kTRUE)) );
+      {
+        // TDirectory::TContext(nullptr);
+        base_histo = (TH1F*)Data->createHistogram(title.c_str(), *variable, Binning(variable->getBinning("default",verb,kTRUE)) );
+      }
       //cout <<"Made histo with name: "<<base_histo->GetName()<<endl;
-      //base_histo->SetDirectory(0);
       BaseHistos.push_back(*base_histo);
       cout <<"Added histo to BaseHistos!\n Deleting local copy...";
       if(base_histo) delete base_histo;

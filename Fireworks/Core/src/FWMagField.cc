@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "TDirectory.h"
 #include "TH1F.h"
 #include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -24,9 +25,11 @@ FWMagField::FWMagField() :
    m_updateFieldEstimate(true),
    m_guessedField(0)
 {
-   m_guessValHist = new TH1F("FieldEstimations", "Field estimations from tracks and muons",
-                             200, -4.5, 4.5);
-   m_guessValHist->SetDirectory(0);
+   {
+      TDirectory::TContext(nullptr);
+      m_guessValHist = new TH1F("FieldEstimations", "Field estimations from tracks and muons",
+                                200, -4.5, 4.5);
+   }
 }
 
 FWMagField::~FWMagField()

@@ -18,6 +18,8 @@
 
 #include "CaloOnlineTools/EcalTools/plugins/EcalURecHitHists.h"
 
+#include "TDirectory.h"
+
 using namespace cms;
 using namespace edm;
 using namespace std;
@@ -200,17 +202,18 @@ void EcalURecHitHists::initHists(int FED)
   string name1 = "URecHitsFED";
   name1.append(intToString(FED));
   int numBins = (int)round(histRangeMax_-histRangeMin_)+1;
-  TH1F* hist = new TH1F(name1.c_str(),title1.c_str(), numBins, histRangeMin_, histRangeMax_);
-  FEDsAndHists_[FED] = hist;
-  FEDsAndHists_[FED]->SetDirectory(0);
+
+  {
+    TDirectory::TContext(nullptr);
+
+    FEDsAndHists_[FED] = new TH1F(name1.c_str(),title1.c_str(), numBins, histRangeMin_, histRangeMax_);
   
-  title1 = "Jitter for ";
-  title1.append(fedMap_->getSliceFromFed(FED));
-  name1 = "JitterFED";
-  name1.append(intToString(FED));
-  TH1F* timingHist = new TH1F(name1.c_str(),title1.c_str(),14,-7,7);
-  FEDsAndTimingHists_[FED] = timingHist;
-  FEDsAndTimingHists_[FED]->SetDirectory(0);
+    title1 = "Jitter for ";
+    title1.append(fedMap_->getSliceFromFed(FED));
+    name1 = "JitterFED";
+    name1.append(intToString(FED));
+    FEDsAndTimingHists_[FED]  = new TH1F(name1.c_str(),title1.c_str(),14,-7,7);
+  }
 }
 
 // ------------ method called once each job just before starting event loop  ------------
