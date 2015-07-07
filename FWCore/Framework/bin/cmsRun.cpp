@@ -322,7 +322,7 @@ int main(int argc, char* argv[]) {
 
       context = "Initializing default service configurations";
       std::vector<std::string> defaultServices;
-      defaultServices.reserve(7);
+      defaultServices.reserve(8);
       defaultServices.push_back("MessageLogger");
       defaultServices.push_back("InitRootHandlers");
 #ifdef linux
