@@ -265,15 +265,16 @@ RctRawToDigi::unpackCTP7(const uint32_t *data, const unsigned block_id, const un
     LogError("L1T") << "Warning -- only found "<< nCratesFound << " valid crates";
 
   //start assuming 1 BX readout
- uint32_t startBX = 2;
+ int32_t startBX = 0;
   if(nBX == 1)
-    startBX = 2;
+    startBX = 0;
   else if(nBX == 3)
-    startBX = 1;
+    startBX = -1;
   else if(nBX == 5)
-    startBX = 0;  
+    startBX = -2;  
   
   //Step 3: Create Collections from RCTInfo Objects  
+  //Notice, iBX used for grabbing data from array, startBX used for storing in Collection
   for (uint32_t iBX=0; iBX<nBX; iBX++, startBX++){
 
     for(unsigned int iCrate = 0; iCrate < nCratesFound; iCrate++ ){
