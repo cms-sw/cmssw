@@ -1265,7 +1265,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       tkmes.NumberOfValidRecHitsPerTrackVsPhi->Fill(phi,    nValidRecHits);
       tkmes.NumberOfValidRecHitsPerTrackVsEta->Fill(eta,    nValidRecHits);
 
-      int nLayers = track.hitPattern().stripLayersWithMeasurement();
+      int nLayers = track.hitPattern().trackerLayersWithMeasurement();
       // rec layers 
       tkmes.NumberOfLayersPerTrackVsPhi->Fill(phi,     nLayers);
       if (doThetaPlots_) {
