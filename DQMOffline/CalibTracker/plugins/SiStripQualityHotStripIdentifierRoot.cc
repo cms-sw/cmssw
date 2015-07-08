@@ -243,7 +243,8 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
 						      << " number of " << parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0)
 						      << " occup " << parameters.getUntrackedParameter<double>("OccupancyThreshold",0)
 						      << " OccupancyHisto" << parameters.getUntrackedParameter<std::string>("OccupancyHisto") << std::endl;
-  
+
+  // Check Number of Events
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
     
@@ -255,10 +256,16 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
 
       gotNentries=true;
       edm::LogInfo("SiStripQualityHotStripIdentifierRoot")<< "[SiStripQualityHotStripIdentifierRoot::bookHistos]  gotNentries flag " << gotNentries << std::endl;
-    } else {
-      edm::LogWarning("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of evemnts missing" <<std::endl;
+      break;
     }
-
+  }
+  if (!gotNentries) {
+    edm::LogWarning("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of evemnts missing" <<std::endl;
+  }
+  
+  for (; iter!=iterEnd;++iter) {
+    std::string me_name = (*iter)->getName();
+    
     if (strstr(me_name.c_str(),(parameters.getUntrackedParameter<std::string>("OccupancyHisto")).c_str())==NULL)
       continue;
 
@@ -280,7 +287,6 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
     ClusterPositionHistoMap[detid]=boost::shared_ptr<TH1F>(new TH1F(*(*iter)->getTH1F()));
     
   }
-  if(!gotNentries) edm::LogWarning("MissingNumberOfEvents") <<"Missing histogram to get the number of events";
   
 }
 
