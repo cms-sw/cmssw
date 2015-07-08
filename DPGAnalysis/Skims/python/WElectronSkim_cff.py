@@ -162,7 +162,7 @@ kt6PFJetsForRhoCorrectionWElectronSkim = RecoJets.Configuration.RecoPFJets_cff.k
 elecMetSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter * kt6PFJetsForRhoCorrectionWElectronSkim)
 
 
-from Configuration.EventContent.EventContent_cff import OutALCARECOEcalCalElectron
+from Configuration.EventContent.AlCaRecoOutput_cff import OutALCARECOEcalCalElectron
 WElectronSkimContent = OutALCARECOEcalCalElectron.clone()
 WElectronSkimContent.outputCommands.extend( [ 
   "keep *_pfMet_*_*", 
