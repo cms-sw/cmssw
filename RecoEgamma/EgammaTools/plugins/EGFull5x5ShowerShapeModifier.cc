@@ -86,7 +86,7 @@ private:
   std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > > ele_vmaps;
   std::unordered_map<unsigned,edm::Ptr<reco::Photon> > phos_by_oop;
   std::unordered_map<unsigned,edm::Handle<edm::ValueMap<float> > > pho_vmaps;
-  
+  mutable unsigned ele_idx,pho_idx; // hack here until we figure out why some slimmedPhotons don't have original object ptrs
 };
 
 DEFINE_EDM_PLUGIN(ModifyObjectValueFactory,
@@ -127,6 +127,7 @@ EGFull5x5ShowerShapeModifierFromValueMaps(const edm::ParameterSet& conf) :
     if( photons.exists("hcalDepth2OverEcalBc") ) ph_conf.hcalDepth2OverEcalBc = photons.getParameter<edm::InputTag>("hcalDepth2OverEcalBc");
   }
   
+  ele_idx = pho_idx = 0;
 }
 
 inline void get_product(const edm::Event& evt,
@@ -142,13 +143,15 @@ setEvent(const edm::Event& evt) {
   ele_vmaps.clear();
   pho_vmaps.clear();
 
+  ele_idx = pho_idx = 0;
+
   if( !e_conf.tok_electron_src.isUninitialized() ) {
     edm::Handle<edm::View<pat::Electron> > eles;
     evt.getByToken(e_conf.tok_electron_src,eles);
     
     for( unsigned i = 0; i < eles->size(); ++i ) {
       edm::Ptr<pat::Electron> ptr = eles->ptrAt(i);
-      eles_by_oop[ptr->originalObjectRef().key()] = ptr;
+      eles_by_oop[i] = ptr;
     }
   }
 
@@ -170,7 +173,7 @@ setEvent(const edm::Event& evt) {
 
     for( unsigned i = 0; i < phos->size(); ++i ) {
       edm::Ptr<pat::Photon> ptr = phos->ptrAt(i);
-      phos_by_oop[ptr->originalObjectRef().key()] = ptr;
+      phos_by_oop[i] = ptr;
     }
   }
 
@@ -238,7 +241,7 @@ modifyObject(pat::Electron& ele) const {
   // or we are running MINIAOD->MINIAOD and we need to fetch the pat objects to reference    
   edm::Ptr<reco::Candidate> ptr(ele.originalObjectRef());
   if( !e_conf.tok_electron_src.isUninitialized() ) {
-    auto key = eles_by_oop.find(ele.originalObjectRef().key());
+    auto key = eles_by_oop.find(ele_idx);
     if( key != eles_by_oop.end() ) {
       ptr = key->second;
     } else {
@@ -261,6 +264,7 @@ modifyObject(pat::Electron& ele) const {
   assignValue(ptr,e_conf.tok_hcalDepth2OverEcalBc,ele_vmaps,full5x5.hcalDepth2OverEcalBc);
 
   ele.full5x5_setShowerShape(full5x5);
+  ++ele_idx;
 }
 
 
@@ -271,7 +275,7 @@ modifyObject(pat::Photon& pho) const {
   // or we are running MINIAOD->MINIAOD and we need to fetch the pat objects to reference
   edm::Ptr<reco::Candidate> ptr(pho.originalObjectRef());
   if( !ph_conf.tok_photon_src.isUninitialized() ) {
-    auto key = phos_by_oop.find(pho.originalObjectRef().key());
+    auto key = phos_by_oop.find(pho_idx);
     if( key != phos_by_oop.end() ) {
       ptr = key->second;
     } else {
@@ -294,4 +298,5 @@ modifyObject(pat::Photon& pho) const {
   assignValue(ptr,ph_conf.tok_hcalDepth2OverEcalBc,pho_vmaps,full5x5.hcalDepth2OverEcalBc);
 
   pho.full5x5_setShowerShapeVariables(full5x5);
+  ++pho_idx;
 }
