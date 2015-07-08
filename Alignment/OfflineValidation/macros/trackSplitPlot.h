@@ -39,19 +39,13 @@ vector<Style_t> styles;
 bool colorsset = false;
 Int_t minrun = -1;
 Int_t maxrun = -1;
-const Int_t xsize = 10;
+const Int_t xsize = 8;
 const Int_t ysize = 9;
 Int_t legendGrid = 100;
 Double_t margin = .1;
 Double_t increaseby = .1;
-Int_t binsScatterPlotx = 1000;
-Int_t binsScatterPloty = 1000;
-Int_t binsHistogram = 100;
-Int_t runNumberBins = 30;
-Int_t binsProfileResolution = 30;    //for everything but runNumber and nHits
-                                     //(nHits gets a bin for each integer between the minimum and the maximum)
 
-TString xvariables[xsize]      = {"",   "pt",  "eta", "phi", "dz",  "dxy", "theta", "qoverpt", "runNumber", "nHits"};
+TString xvariables[xsize]      = {"",   "pt",  "eta", "phi", "dz",  "dxy", "theta", "qoverpt"};
 TString yvariables[ysize]      = {"pt", "pt",  "eta", "phi", "dz",  "dxy", "theta", "qoverpt", ""};
 Bool_t relativearray[ysize]    = {true, false, false, false, false, false, false,   false,     false};
 
@@ -189,7 +183,7 @@ Double_t findAverage(TString file,TString var,Char_t axis,Bool_t relative = fals
 Double_t findMin(TString file,TString var,Char_t axis,Bool_t relative = false,Bool_t pull = false);
 Double_t findMax(TString file,TString var,Char_t axis,Bool_t relative = false,Bool_t pull = false);
 Double_t findRMS(TString file,TString var,Char_t axis,Bool_t relative = false,Bool_t pull = false);
-void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relative,Bool_t pull,Double_t &min,Double_t &max);
+void axislimits(Int_t nFiles,TString *files,TString var,Char_t axis,Bool_t relative,Bool_t pull,Double_t &min,Double_t &max,Double_t &bins);
 
 //===============
 //5. Place Legend
