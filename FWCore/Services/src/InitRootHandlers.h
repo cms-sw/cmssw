@@ -30,9 +30,9 @@ namespace edm {
       void cachePidInfoHandler(unsigned int, unsigned int) {cachePidInfo();}
       void cachePidInfo();
 
-      static const int pidStringLength_ = 50;
+      static const int pidStringLength_ = 200;
       static char pidString_[pidStringLength_];
-      static char * const pstackArgv_[3];
+      static char * const pstackArgv_[];
       bool unloadSigHandler_;
       bool resetErrHandler_;
       bool loadAllDictionaries_;
