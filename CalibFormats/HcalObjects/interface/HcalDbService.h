@@ -11,8 +11,6 @@
 #include <atomic>
 
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
-#include "CalibFormats/HcalObjects/interface/HcalChannelCoder.h"
-#include "CalibFormats/HcalObjects/interface/QieShape.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationsSet.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidthsSet.h"
