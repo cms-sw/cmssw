@@ -565,7 +565,7 @@ void PFSimParticleProducer::getSimIDs( const TrackHandle& trackh,
 // 	       << rechit->simtrackId() 
 // 	       << endl;
 
-	  recTrackSimID.push_back( rechit->simtrackId() );
+	  recTrackSimID.insert(recTrackSimID.begin(),rechit->simTrackIds().begin(),rechit->simTrackIds().end() );
 	  break;
 	}
       }//loop track rechit

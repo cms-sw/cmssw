@@ -14,8 +14,6 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FastSimulation/Tracking/interface/SeedingTree.h"
@@ -67,7 +65,7 @@ class TrajectorySeedProducer:
         edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
         edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
         edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
-        edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
+        edm::EDGetTokenT<FastTMRecHitCombinations> recHitToken;
         edm::EDGetTokenT<reco::VertexCollection> recoVertexToken;
         std::vector<edm::EDGetTokenT<std::vector<unsigned int> > > skipSimTrackIdTokens;
 
