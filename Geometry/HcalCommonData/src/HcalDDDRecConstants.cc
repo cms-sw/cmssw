@@ -86,8 +86,8 @@ HcalDDDRecConstants::getEtaBins(const int itype) const {
   return bins;
 }
 
-std::pair<double,double> HcalDDDRecConstants::getEtaPhi(int subdet, int ieta,
-							int iphi) const {
+std::pair<double,double> 
+HcalDDDRecConstants::getEtaPhi(int subdet, int ieta, int iphi) const {
   int ietaAbs = (ieta > 0) ? ieta : -ieta;
   const double fiveDegInRad = 2*M_PI/72;
   double eta(0), phi(0);
@@ -117,7 +117,7 @@ std::pair<double,double> HcalDDDRecConstants::getEtaPhi(int subdet, int ieta,
 }
 
 HcalDDDRecConstants::HcalID 
-HcalDDDRecConstants::getHCID(int subdet,int ieta, int iphi, int lay,
+HcalDDDRecConstants::getHCID(int subdet, int ieta, int iphi, int lay,
 			     int idepth) const {
 
   int    eta(ieta), phi(iphi), depth(idepth);

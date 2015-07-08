@@ -52,13 +52,13 @@ public:
     else if (type == 1) return gconsHE;
     else {std::vector<std::pair<double,double> > gcons; return gcons;}
   }
-  std::vector<int>          getDepth(const int i) const {return layerGroup[i];}
+  const std::vector<int> &  getDepth(const int i) const {return layerGroup[i];}
   std::vector<HcalEtaBin>   getEtaBins(const int itype) const;
   std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
   std::pair<int,int>        getEtaRange(const int i) const
     {return std::pair<int,int>(iEtaMin[i],iEtaMax[i]);}
-  std::vector<double>       getEtaTable()   const {return etaTable;}
-  std::vector<double>       getEtaTableHF() const {return etaTableHF;}
+  const std::vector<double> &      getEtaTable()   const {return etaTable;}
+  const std::vector<double> &      getEtaTableHF() const {return etaTableHF;}
   std::pair<double,double>  getEtaLimit(const int i) const 
     {return std::pair<double,double>(etaTable[i],etaTable[i+1]);}
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
@@ -67,11 +67,11 @@ public:
   int                       getNEta() const {return nEta;}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return hpar->phioff[i];}
-  std::vector<double>       getPhiOffs()    const {return hpar->phioff;}
-  std::vector<double>       getPhiTable()   const {return phibin;}
-  std::vector<double>       getPhiTableHF() const {return phibinHF;}
+  const std::vector<double> &      getPhiOffs()    const {return hpar->phioff;}
+  const std::vector<double> &      getPhiTable()   const {return phibin;}
+  const std::vector<double> &      getPhiTableHF() const {return phibinHF;}
   double                    getRZ(int subdet, int ieta, int depth) const;
-  std::vector<HcalActiveLength> getThickActive(const int type) const;
+  std::vector<HcalActiveLength>    getThickActive(const int type) const;
   int                       getTopoMode() const {return modeTopo_;}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
   unsigned int              numberOfCells(HcalSubdetector) const;
