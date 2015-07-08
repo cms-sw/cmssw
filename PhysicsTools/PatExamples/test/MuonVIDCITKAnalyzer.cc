@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -64,8 +64,8 @@ private:
 
 MuonVIDCITKAnalyzer::MuonVIDCITKAnalyzer(const edm::ParameterSet& iConfig)
 {
-  muonToken_ = consumes<edm::View<reco::Candidate> >(edm::InputTag("muons"));
-  vertexToken_ = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  muonToken_ = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("muon"));
+  vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertex"));
 
   string vidPrefix = "muoMuonIDs:cutBasedMuonId-MuonPOG-V0-";
   muonLooseVIDToken_  = consumes<VIDMap>(edm::InputTag(vidPrefix+"loose" ));
@@ -75,9 +75,9 @@ MuonVIDCITKAnalyzer::MuonVIDCITKAnalyzer(const edm::ParameterSet& iConfig)
   muonHighPtVIDToken_ = consumes<VIDMap>(edm::InputTag(vidPrefix+"highpt"));
 
   muonChIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFNoPileUpIsolation:h+-DR040-ThresholdVeto000-ConeVeto000"));
-  muonNhIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFNoPileUpIsolation:h0-DR040-ThresholdVeto050-ConeVeto000"));
-  muonPhIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFNoPileUpIsolation:gamma-DR040-ThresholdVeto050-ConeVeto000"));
-  muonPuIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFPileUpIsolation:h+-DR040-ThresholdVeto050-ConeVeto000"));
+  muonNhIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFNoPileUpIsolation:h0-DR040-ThresholdVeto050-ConeVeto001"));
+  muonPhIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFNoPileUpIsolation:gamma-DR040-ThresholdVeto050-ConeVeto001"));
+  muonPuIsoCITKToken_ = consumes<CITKMap>(edm::InputTag("muonPFPileUpIsolation:h+-DR040-ThresholdVeto050-ConeVeto001"));
 
   muonChIsoIsoDepToken_ = consumes<IsoMap>(edm::InputTag("muPFIsoValueCharged04PAT"));
   muonNhIsoIsoDepToken_ = consumes<IsoMap>(edm::InputTag("muPFIsoValueNeutral04PAT"));
@@ -100,7 +100,7 @@ MuonVIDCITKAnalyzer::MuonVIDCITKAnalyzer(const edm::ParameterSet& iConfig)
 
 void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& eSetup)
 {
-  edm::Handle<View<reco::Candidate> > muonHandle;
+  edm::Handle<edm::View<reco::Candidate> > muonHandle;
   event.getByToken(muonToken_, muonHandle);
 
   edm::Handle<reco::VertexCollection> vertexHandle;
@@ -141,8 +141,8 @@ void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
 
   for ( size_t i=0, n=muonHandle->size(); i<n; ++i )
   {
-    reco::CandidateBaseRef muRef(muonHandle, i);
-    const auto& mu = dynamic_cast<const reco::Muon&>(*muRef);
+    const auto& mu = dynamic_cast<const pat::Muon&>(muonHandle->at(i));
+    const auto& muRef = mu.originalObjectRef();
 
     stringstream sout;
 
@@ -165,8 +165,6 @@ void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
     if ( vidSoft   != isSoft   ) { sout << " isSoft  " << vidSoft   << ' ' << isSoft   << endl; }
     if ( vidHighPt != isHighPt ) { sout << " isHighPt" << vidHighPt << ' ' << isHighPt << endl; }
 
-    if ( !mu.isPFMuon() || !isTight ) continue;
-
     // Check standard IsoDeposit vs CITK
     const double citkChIso = (*muonChIsoCITKHandle)[muRef];
     const double citkNhIso = (*muonNhIsoCITKHandle)[muRef];
@@ -178,6 +176,11 @@ void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
     const double isoDepPhIso = (*muonPhIsoIsoDepHandle)[muRef];
     const double isoDepPuIso = (*muonPuIsoIsoDepHandle)[muRef];
 
+    const double patChIso = mu.chargedHadronIso();
+    const double patNhIso = mu.neutralHadronIso();
+    const double patPhIso = mu.photonIso();
+    const double patPuIso = mu.puChargedHadronIso();
+
     h2Ch_->Fill(isoDepChIso, citkChIso);
     h2Nh_->Fill(isoDepNhIso, citkNhIso);
     h2Ph_->Fill(isoDepPhIso, citkPhIso);
@@ -188,10 +191,15 @@ void MuonVIDCITKAnalyzer::analyze(const edm::Event& event, const edm::EventSetup
     hIsoDiffPh_->Fill(citkPhIso-isoDepPhIso);
     hIsoDiffPu_->Fill(citkPuIso-isoDepPuIso);
 
-    if ( std::abs(citkChIso-isoDepChIso) >= 1e-4 ) { sout << " ChIso " << citkChIso << ' ' << isoDepChIso << endl; }
-    if ( std::abs(citkNhIso-isoDepNhIso) >= 1e-4 ) { sout << " NhIso " << citkNhIso << ' ' << isoDepNhIso << endl; }
-    if ( std::abs(citkPhIso-isoDepPhIso) >= 1e-4 ) { sout << " PhIso " << citkPhIso << ' ' << isoDepPhIso << endl; }
-    if ( std::abs(citkPuIso-isoDepPuIso) >= 1e-4 ) { sout << " PuIso " << citkPuIso << ' ' << isoDepPuIso << endl; }
+    if ( std::abs(citkChIso-isoDepChIso) >= 1e-4 ) { sout << " ChIso citk=" << citkChIso << " isodep=" << isoDepChIso << endl; }
+    if ( std::abs(citkNhIso-isoDepNhIso) >= 1e-4 ) { sout << " NhIso citk=" << citkNhIso << " isodep=" << isoDepNhIso << endl; }
+    if ( std::abs(citkPhIso-isoDepPhIso) >= 1e-4 ) { sout << " PhIso citk=" << citkPhIso << " isodep=" << isoDepPhIso << endl; }
+    if ( std::abs(citkPuIso-isoDepPuIso) >= 1e-4 ) { sout << " PuIso citk=" << citkPuIso << " isodep=" << isoDepPuIso << endl; }
+
+    if ( std::abs(patChIso-isoDepChIso) >= 1e-4 ) { sout << " ChIso pat=" << patChIso << " isodep=" << isoDepChIso << endl; }
+    if ( std::abs(patNhIso-isoDepNhIso) >= 1e-4 ) { sout << " NhIso pat=" << patNhIso << " isodep=" << isoDepNhIso << endl; }
+    if ( std::abs(patPhIso-isoDepPhIso) >= 1e-4 ) { sout << " PhIso pat=" << patPhIso << " isodep=" << isoDepPhIso << endl; }
+    if ( std::abs(patPuIso-isoDepPuIso) >= 1e-4 ) { sout << " PuIso pat=" << patPuIso << " isodep=" << isoDepPuIso << endl; }
 
     if ( !sout.str().empty() )
     {
