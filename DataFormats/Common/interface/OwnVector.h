@@ -414,7 +414,6 @@ namespace edm {
                                  std::vector<void const*>& pointers,
                                  FillViewHelperVector& helpers) const {
     typedef Ref<OwnVector>      ref_type ;
-    typedef reftobase::RefHolder<ref_type> holder_type;
 
     size_type numElements = this->size();
     pointers.reserve(numElements);
