@@ -46,7 +46,7 @@
 #include "EventFilter/L1TRawToDigi/interface/MP7FileReader.h"
 #include "EventFilter/L1TRawToDigi/interface/MP7PacketReader.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
-#include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
+#include "EventFilter/L1TRawToDigi/interface/AMC13Spec.h"
 //#include "EventFilter/L1TRawToDigi/interface/PackingSetup.h"
 //
 // class declaration
@@ -135,7 +135,7 @@ private:
     rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
     txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
     rxPacketReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt"), 1, 0),
-    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt"), 1, 0),
+    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt"), iConfig.getUntrackedParameter<int>("nHeaderFrames", 0), 0),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
     nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
     iBoard_(iConfig.getUntrackedParameter<int>("boardOffset", 0)),
@@ -424,7 +424,7 @@ MP7BufferDumpToRaw::formatAMC(amc13::Packet& amc13, const std::vector<Block>& bl
   LogDebug("L1T") << "Creating AMC packet " << iBoard;
   //  LogDebug("L1T") << iBoard << ", " << boardId_.at(iBoard) << ", " << load64.size();
   
-  amc13.add(iBoard, boardId_.at(iBoard), load64);
+  amc13.add(iBoard, boardId_.at(iBoard), 0, 0, 0, load64);
 
 }
 
@@ -447,10 +447,9 @@ MP7BufferDumpToRaw::formatRaw(edm::Event& iEvent, amc13::Packet& amc13, FEDRawDa
   FEDHeader header(payload);
   header.set(payload, evType_, evtId, bxId, fedId_);
 
+  amc13.write(iEvent, payload, slinkHeaderSize_, size - slinkHeaderSize_ - slinkTrailerSize_);
+
   payload += slinkHeaderSize_;
-
-  amc13.write(iEvent, payload, size - slinkHeaderSize_ - slinkTrailerSize_);
-
   payload += amc13.size() * 8;
 
   FEDTrailer trailer(payload);
