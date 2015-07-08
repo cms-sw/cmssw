@@ -59,7 +59,7 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   seedToken = consumes<edm::View<TrajectorySeed> >(seedLabel);
 
   edm::InputTag recHitLabel = conf.getParameter<edm::InputTag>("recHits");
-  recHitToken = consumes<SiTrackerGSMatchedRecHit2DCollection>(recHitLabel);
+  recHitToken = consumes<FastTMRecHitCombinations>(recHitLabel);
   
   propagatorLabel = conf.getParameter<std::string>("propagator");
 }
@@ -84,8 +84,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<edm::View<TrajectorySeed> > seeds;
   e.getByToken(seedToken,seeds);
 
-  edm::Handle<SiTrackerGSMatchedRecHit2DCollection> recHits;
-  e.getByToken(recHitToken, recHits);
+  edm::Handle<FastTMRecHitCombinations> recHitCombinations;
+  e.getByToken(recHitToken, recHitCombinations);
 
   edm::Handle<edm::SimVertexContainer> simVertices;
   e.getByToken(simVertexToken,simVertices);
@@ -105,18 +105,16 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       return;
     }
 
-    // Get all the rechits associated to this track
-    int simTrackId =  ((const SiTrackerGSMatchedRecHit2D*) (&*(seed.recHits().first)))->simtrackId();
-    SiTrackerGSMatchedRecHit2DCollection::range recHitRange = recHits->get(simTrackId);
-    SiTrackerGSMatchedRecHit2DCollection::const_iterator recHitIter = recHitRange.first;
-    SiTrackerGSMatchedRecHit2DCollection::const_iterator recHitEnd  = recHitRange.second;
+    // Get the combination of hits that produced the seed
+    int32_t hitCombinationId =  ((const SiTrackerGSMatchedRecHit2D*) (&*(seed.recHits().first)))->hitCombinationId();
+    const FastTMRecHitCombination & recHitCombination = recHitCombinations->at(hitCombinationId);
 
     // Count number of crossed layers, apply overlap rejection
     std::vector<TrajectorySeedHitCandidate> recHitCandidates;
     TrajectorySeedHitCandidate recHitCandidate;
     unsigned numberOfCrossedLayers = 0;      
-    for ( ; recHitIter != recHitEnd; ++recHitIter) {
-      recHitCandidate = TrajectorySeedHitCandidate(&(*recHitIter),trackerGeometry.product(),trackerTopology.product());
+    for (const auto & _hit : recHitCombination) {
+      recHitCandidate = TrajectorySeedHitCandidate(&_hit,trackerGeometry.product(),trackerTopology.product());
       if ( recHitCandidates.size() == 0 || !recHitCandidate.isOnTheSameLayer(recHitCandidates.back()) ) {
 	++numberOfCrossedLayers;
       }
@@ -139,8 +137,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     edm::OwnVector<TrackingRecHit> trackRecHits;
     for ( unsigned index = 0; index<recHitCandidates.size(); ++index ) {
       if(splitHits && recHitCandidates[index].matchedHit()->isMatched()){
-	trackRecHits.push_back(recHitCandidates[index].matchedHit()->monoHit()->clone());
-	trackRecHits.push_back(recHitCandidates[index].matchedHit()->stereoHit()->clone());
+	trackRecHits.push_back(recHitCandidates[index].matchedHit()->monoHit().clone());
+	trackRecHits.push_back(recHitCandidates[index].matchedHit()->stereoHit().clone());
       }
       else {
 	trackRecHits.push_back(recHitCandidates[index].hit()->clone());
@@ -154,6 +152,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
     
     // initial track candidate parameters parameters
+    int32_t simTrackId = recHitCombination.back().simTrackId(0);
     int vertexIndex = simTracks->at(simTrackId).vertIndex();
     GlobalPoint  position(simVertices->at(vertexIndex).position().x(),
 			  simVertices->at(vertexIndex).position().y(),

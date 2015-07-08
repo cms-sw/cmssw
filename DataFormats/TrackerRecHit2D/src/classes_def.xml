@@ -1,19 +1,22 @@
 <lcgdict>
-  <class name="GSSiTrackerRecHit2DLocalPos" ClassVersion="13">
+  <class name="GSSiTrackerRecHit2DLocalPos" ClassVersion="14">
+   <version ClassVersion="14" checksum="641505164"/>
    <version ClassVersion="13" checksum="2851199532"/>
    <version ClassVersion="12" checksum="1712216203"/>
    <version ClassVersion="11" checksum="834943006"/>
    <version ClassVersion="10" checksum="2474445311"/>
   </class>
-  <class name="SiTrackerGSRecHit2D" ClassVersion="11">
+  <class name="SiTrackerGSRecHit2D" ClassVersion="12">
+   <version ClassVersion="12" checksum="1304080531"/>
    <version ClassVersion="11" checksum="1613493049"/>
    <version ClassVersion="10" checksum="877294307"/>
   </class>
-  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="13">
-   <version ClassVersion="13" checksum="1553184391"/>
-   <version ClassVersion="12" checksum="2874379530"/>
-   <version ClassVersion="11" checksum="1553184391"/>
-   <version ClassVersion="10" checksum="3741285161"/>
+  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="14">
+    <version ClassVersion="14" checksum="3882739671"/>
+    <version ClassVersion="13" checksum="1553184391"/>
+    <version ClassVersion="12" checksum="2874379530"/>
+    <version ClassVersion="11" checksum="1553184391"/>
+    <version ClassVersion="10" checksum="3741285161"/>
   </class>
 
 
@@ -112,6 +115,9 @@
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit2D, edm::ClonePolicy<SiStripRecHit2D> >, edm::ClonePolicy<SiStripRecHit2D> > >"/>
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiStripRecHit1D, edm::ClonePolicy<SiStripRecHit1D> >, edm::ClonePolicy<SiStripRecHit1D> > >"/>
 
+  <class name="FastTMRecHitCombinations"/>
+  <class name="edm::Wrapper<FastTMRecHitCombinations>"/>
+  
   <class name="edm::Wrapper<edm::RangeMap<unsigned int, edm::OwnVector<SiTrackerGSRecHit2D, edm::ClonePolicy<SiTrackerGSRecHit2D> >, edm::ClonePolicy<SiTrackerGSRecHit2D> > >"/>
   <class name="edm::Wrapper<edm::RangeMap<unsigned int, edm::OwnVector<SiTrackerGSMatchedRecHit2D, edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> >, edm::ClonePolicy<SiTrackerGSMatchedRecHit2D> > >"/>
   <class name="edm::Wrapper<edm::RangeMap<DetId, edm::OwnVector<SiTrackerGSRecHit2D, edm::ClonePolicy<SiTrackerGSRecHit2D> >, edm::ClonePolicy<SiTrackerGSRecHit2D> > >"/>

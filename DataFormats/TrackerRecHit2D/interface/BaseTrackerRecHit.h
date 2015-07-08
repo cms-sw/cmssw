@@ -15,7 +15,7 @@ class OmniClusterRef;
 
 namespace trackerHitRTTI {
   // tracking hit can be : single (si1D, si2D, pix), projected, matched or multi
-  enum RTTI { undef=0, single=1, projStereo=2, projMono=3, match=4, multi=5, gs=6};
+  enum RTTI { undef=0, single=1, projStereo=2, projMono=3, match=4, multi=5, gs=6, gsMatch=7};
   inline RTTI rtti(TrackingRecHit const & hit)  { return RTTI(hit.getRTTI());}
   inline bool isUndef(TrackingRecHit const & hit) { return rtti(hit)==undef;}
   inline bool isSingle(TrackingRecHit const & hit)  { return rtti(hit)==single;}
@@ -40,11 +40,11 @@ public:
   virtual ~BaseTrackerRecHit() {}
 
   // no position (as in persistent)
-  BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)) {}
+ BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)),qualWord_(0) {}
 
-  BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-		     GeomDet const & idet, trackerHitRTTI::RTTI rt) :  
-    TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e){
+ BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
+		    GeomDet const & idet, trackerHitRTTI::RTTI rt) :  
+  TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e), qualWord_(0){
     LocalError lape = static_cast<TrackerGeomDet const *>(det())->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx()+lape.xx(),
