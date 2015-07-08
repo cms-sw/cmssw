@@ -46,9 +46,12 @@ class CmsswPreprocessor :
 		#fixme: implement skipEvent / firstevent
 
 		outfilename=wd+"/cmsswPreProcessing.root"
-		for outName in cmsswConfig.process.endpath.moduleNames() :
-			out = getattr(cmsswConfig.process,outName)
-			out.fileName = outfilename
+		# for outName in cmsswConfig.process.endpath.moduleNames():
+		for module in cmsswConfig.process.endpaths:
+			for outName in module.moduleNames():
+				out = getattr(cmsswConfig.process,outName)
+    			out.fileName = outfilename
+
 		if not hasattr(component,"options"):
 			component.options = CFG(name="postCmsrunOptions")
                 #use original as primary and new as secondary 
