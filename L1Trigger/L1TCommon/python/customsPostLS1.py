@@ -119,7 +119,7 @@ def customiseSimL1EmulatorForPostLS1_HI(process):
     if hasattr(process,'caloConfig'):
         process.caloConfig.fwVersionLayer2 = cms.uint32(1)
     # move to the heavy ions draft L1 menu once the HLT has been updated accordingly
-    process = L1Menu_CollisionsHeavyIons2015_v1(process)
+    process = L1Menu_CollisionsHeavyIons2015_v0(process)
     return process
 
 # This (UNTESTED/UNUSED) should allow for unpacking RAW data created with legacy 74X MC.
