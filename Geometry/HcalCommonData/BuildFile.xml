@@ -1,6 +1,5 @@
 <use   name="DetectorDescription/Base"/>
 <use   name="DetectorDescription/Core"/>
-<use   name="Geometry/CaloTopology"/>
 <export>
   <lib   name="1"/>
 </export>
