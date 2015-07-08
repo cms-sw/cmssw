@@ -23,7 +23,7 @@ process.out.fileName = 'patTuple_isoval.root'
 process.options.wantSummary = False
 
 process.muonVIDCITKAnalyzer = cms.EDAnalyzer("MuonVIDCITKAnalyzer",
-    muon = cms.InputTag("muons"),
+    muon = cms.InputTag("patMuons"),
     vertex = cms.InputTag("offlinePrimaryVertices"),
 )
 
