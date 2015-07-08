@@ -11,8 +11,8 @@
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <TString.h>
 
-#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
-#include "CondTools/Ecal/interface/EcalPulseCovariancesXMLTranslator.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseSymmCovariances.h"
+#include "CondTools/Ecal/interface/EcalPulseSymmCovariancesXMLTranslator.h"
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"
 #include "CondTools/Ecal/interface/XMLTags.h"
 
@@ -21,9 +21,9 @@ using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
 using namespace std;
 
-int  EcalPulseCovariancesXMLTranslator::readXML(const std::string& filename, 
+int  EcalPulseSymmCovariancesXMLTranslator::readXML(const std::string& filename, 
 					  EcalCondHeader& header,
-					  EcalPulseCovariances& record){
+					  EcalPulseSymmCovariances& record){
 
   cms::concurrency::xercesInitialize();
 
@@ -36,7 +36,7 @@ int  EcalPulseCovariancesXMLTranslator::readXML(const std::string& filename,
 
   DOMDocument* xmlDoc = parser->getDocument();
   if (!xmlDoc) {
-    std::cout << "EcalPulseCovariancesXMLTranslator::Error parsing document" << std::endl;
+    std::cout << "EcalPulseSymmCovariancesXMLTranslator::Error parsing document" << std::endl;
     return -1;
   }
 
@@ -80,16 +80,16 @@ int  EcalPulseCovariancesXMLTranslator::readXML(const std::string& filename,
   return 0;
  }
 
-int EcalPulseCovariancesXMLTranslator::writeXML(const std::string& filename, 
+int EcalPulseSymmCovariancesXMLTranslator::writeXML(const std::string& filename, 
 					  const EcalCondHeader& header,
-					  const EcalPulseCovariances& record){
+					  const EcalPulseSymmCovariances& record){
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
   return 0;  
 }
 
 
-std::string EcalPulseCovariancesXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalPulseCovariances& record){
+std::string EcalPulseSymmCovariancesXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalPulseSymmCovariances& record){
 
   cms::concurrency::xercesInitialize();
   DOMImplementation*  impl =
@@ -100,7 +100,7 @@ std::string EcalPulseCovariancesXMLTranslator::dumpXML(const EcalCondHeader& hea
 
   DOMDocumentType* doctype = impl->createDocumentType(fromNative("XML").c_str(), 0, 0 );
   DOMDocument *    doc = 
-    impl->createDocument( 0, fromNative(PulseCovariances_tag).c_str(), doctype );
+    impl->createDocument( 0, fromNative(PulseSymmCovariances_tag).c_str(), doctype );
 
   doc->setEncoding(fromNative("UTF-8").c_str() );
   doc->setStandalone(true);

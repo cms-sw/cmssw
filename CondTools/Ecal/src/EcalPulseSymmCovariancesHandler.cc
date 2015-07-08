@@ -1,49 +1,51 @@
-#include "CondTools/Ecal/interface/EcalPulseCovariancesHandler.h"
+#include "CondTools/Ecal/interface/EcalPulseSymmCovariancesHandler.h"
 
 #include<iostream>
 #include<fstream>
 
-popcon::EcalPulseCovariancesHandler::EcalPulseCovariancesHandler(const edm::ParameterSet & ps)
-  :    m_name(ps.getUntrackedParameter<std::string>("name","EcalPulseCovariancesHandler")) {
+popcon::EcalPulseSymmCovariancesHandler::EcalPulseSymmCovariancesHandler(const edm::ParameterSet & ps)
+  :    m_name(ps.getUntrackedParameter<std::string>("name","EcalPulseSymmCovariancesHandler")) {
 
-	std::cout << "EcalPulseCovariance Source handler constructor\n" << std::endl;
+	std::cout << "EcalPulseSymmCovariance Source handler constructor\n" << std::endl;
         m_firstRun=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("firstRun").c_str()));
         m_filename=ps.getParameter<std::string>("inputFileName");
         m_EBPulseShapeCovariance = ps.getParameter<std::vector<double> >("EBPulseShapeCovariance");
         m_EEPulseShapeCovariance = ps.getParameter<std::vector<double> >("EEPulseShapeCovariance");
 }
 
-popcon::EcalPulseCovariancesHandler::~EcalPulseCovariancesHandler()
+popcon::EcalPulseSymmCovariancesHandler::~EcalPulseSymmCovariancesHandler()
 {
 }
 
 
-bool popcon::EcalPulseCovariancesHandler::checkPulseCovariance( EcalPulseCovariances::Item* item ){
+bool popcon::EcalPulseSymmCovariancesHandler::checkPulseSymmCovariance( EcalPulseSymmCovariances::Item* item ){
   // true means all is standard and OK
   bool result=true;
-  for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) {
-    int i = k/EcalPulseShape::TEMPLATESAMPLES;
-    int j = k%EcalPulseShape::TEMPLATESAMPLES;
-    if(fabs(item->covval[i][j]) > 1) result=false;
+  int N = EcalPulseShape::TEMPLATESAMPLES*(EcalPulseShape::TEMPLATESAMPLES+1)/2;
+  for(int k=0; k<N; ++k) {
+    if(fabs(item->covval[k]) > 1) result=false;
   }
   return result; 
 }
 
-void popcon::EcalPulseCovariancesHandler::fillSimPulseCovariance( EcalPulseCovariances::Item* item, bool isbarrel ){ 
+void popcon::EcalPulseSymmCovariancesHandler::fillSimPulseSymmCovariance( EcalPulseSymmCovariances::Item* item, bool isbarrel ){ 
   for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) {
     int i = k/EcalPulseShape::TEMPLATESAMPLES;
     int j = k%EcalPulseShape::TEMPLATESAMPLES;
-    item->covval[i][j] = isbarrel ? m_EBPulseShapeCovariance[k] : m_EEPulseShapeCovariance[k];
+    if(j>=i) {
+      int linK = j + (EcalPulseShape::TEMPLATESAMPLES-1)*i;
+      item->covval[linK] = isbarrel ? m_EBPulseShapeCovariance[k] : m_EEPulseShapeCovariance[k];
+    }
   }
 }
 
-void popcon::EcalPulseCovariancesHandler::getNewObjects()
+void popcon::EcalPulseSymmCovariancesHandler::getNewObjects()
 {
 
   std::cout << "------- Ecal - > getNewObjects\n";
 
   // create the object pukse shapes
-  EcalPulseCovariances* pulsecovs = new EcalPulseCovariances();
+  EcalPulseSymmCovariances* pulsecovs = new EcalPulseSymmCovariances();
 
   // read the templates from a text file
   std::ifstream inputfile;
@@ -75,12 +77,17 @@ void popcon::EcalPulseCovariancesHandler::getNewObjects()
         std::cout << "Wrong format of the text file. Exit." << std::endl;
         return;
       }
-      EcalPulseCovariances::Item item;
-      for(int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i) for(int j=0; j<EcalPulseShape::TEMPLATESAMPLES; ++j) item.covval[i][j] = covvals[i][j];
+      EcalPulseSymmCovariances::Item item;
+      for(int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i) for(int j=0; j<EcalPulseShape::TEMPLATESAMPLES; ++j) {
+          int k=-1;
+          if(j >= i) k = j + (EcalPulseShape::TEMPLATESAMPLES-1)*i;
+          else k = i + (EcalPulseShape::TEMPLATESAMPLES-1)*j;
+          item.covval[k] = covvals[i][j];
+        }
     
       if(isbarrel) {
         EBDetId ebdetid(rawId);
-        if(!checkPulseCovariance(&item) ) nEBbad++;
+        if(!checkPulseSymmCovariance(&item) ) nEBbad++;
         else {
           nEBgood++;
           ebgood.push_back(ebdetid);
@@ -88,7 +95,7 @@ void popcon::EcalPulseCovariancesHandler::getNewObjects()
         }
       } else {
         EEDetId eedetid(rawId);
-        if(!checkPulseCovariance(&item) ) nEEbad++;
+        if(!checkPulseSymmCovariance(&item) ) nEEbad++;
         else {
           nEEgood++;
           eegood.push_back(eedetid);
@@ -108,8 +115,8 @@ void popcon::EcalPulseCovariancesHandler::getNewObjects()
 
         std::vector<EBDetId>::iterator it = find(ebgood.begin(),ebgood.end(),ebdetid);
         if(it == ebgood.end()) {
-          EcalPulseCovariances::Item item;
-          fillSimPulseCovariance(&item,true);
+          EcalPulseSymmCovariances::Item item;
+          fillSimPulseSymmCovariance(&item,true);
           pulsecovs->insert(std::make_pair(ebdetid.rawId(),item));        
         }
       }
@@ -124,8 +131,8 @@ void popcon::EcalPulseCovariancesHandler::getNewObjects()
           
           std::vector<EEDetId>::iterator it = find(eegood.begin(),eegood.end(),eedetid);
           if(it == eegood.end()) {
-            EcalPulseCovariances::Item item;
-            fillSimPulseCovariance(&item,false);
+            EcalPulseSymmCovariances::Item item;
+            fillSimPulseSymmCovariance(&item,false);
             pulsecovs->insert(std::make_pair(eedetid.rawId(),item));
           }
         }
@@ -138,7 +145,7 @@ void popcon::EcalPulseCovariancesHandler::getNewObjects()
   unsigned int irun=m_firstRun;
   Time_t snc= (Time_t) irun ;
   
-  m_to_transfer.push_back(std::make_pair((EcalPulseCovariances*)pulsecovs,snc));
+  m_to_transfer.push_back(std::make_pair((EcalPulseSymmCovariances*)pulsecovs,snc));
   
   std::cout << "Ecal - > end of getNewObjects -----------" << std::endl;
   std::cout << "N. bad shapes for EB = " << nEBbad << std::endl;
