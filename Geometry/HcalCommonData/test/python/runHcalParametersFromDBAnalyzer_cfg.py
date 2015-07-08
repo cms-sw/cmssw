@@ -5,9 +5,10 @@ process.load("Configuration.Geometry.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run1_mc']
-process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string('PHcalParametersRcd'),
-                                             tag = cms.string('HCALParameters_Geometry_Run1_75YV2'),
-                                             connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
+process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
+process.GlobalTag.toGet = cms.VPSet(cms.PSet(record = cms.string('HcalParametersRcd'),
+                                             tag = cms.string('HCALParameters_Geometry_Test01'),
+                                             connect = cms.string("sqlite_file:myfile.db")
                                              )
                                     )
 
