@@ -23,11 +23,8 @@ PythiaParameters = cms.PSet(
 pythia8CommonSettingsBlock,
 pythia8CUEP8M1SettingsBlock,
 processParameters = cms.vstring(
-# 'HardQCD:all = on'
-'HardQCD:gg2bbbar = on ',
-'HardQCD:qqbar2bbbar = on ',
-'HardQCD:hardbbbar = on',
-'PhaseSpace:pTHatMin = 5',
+'HardQCD:all = on',
+'PhaseSpace:pTHatMin = 8',
 ),
 parameterSets = cms.vstring('pythia8CommonSettings',
 'pythia8CUEP8M1Settings',
@@ -41,9 +38,23 @@ version = cms.untracked.string('$Revision: 1.1 $'),
 name = cms.untracked.string('$Source: Configuration/Generator/python/BuToKstarMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi.py $'),
 annotation = cms.untracked.string('Summer14: Pythia8+EvtGen130 generation of Bu --> K* Mu+Mu-, 13TeV, Tune CUETP8M1')
 )
+
+mumugenfilter = cms.EDFilter("MCParticlePairFilter",
+    Status = cms.untracked.vint32(1, 1),
+    MinPt = cms.untracked.vdouble(0.5, 0.5),
+    MinP = cms.untracked.vdouble(0., 0.),
+    MaxEta = cms.untracked.vdouble(2.5, 2.5),
+    MinEta = cms.untracked.vdouble(-2.5, -2.5),
+    MinInvMass = cms.untracked.double(2.0),
+    MaxInvMass = cms.untracked.double(4.0),
+    ParticleCharge = cms.untracked.int32(-1),
+    ParticleID1 = cms.untracked.vint32(13),
+    ParticleID2 = cms.untracked.vint32(13)
+)
+
 ###########
 # Filters #
 ###########
 # Filter only pp events which produce a B+:
 bufilter = cms.EDFilter("PythiaFilter", ParticleID = cms.untracked.int32(521))
-ProductionFilterSequence = cms.Sequence(generator*bufilter)
+ProductionFilterSequence = cms.Sequence(generator*bufilter*mumugenfilter)
