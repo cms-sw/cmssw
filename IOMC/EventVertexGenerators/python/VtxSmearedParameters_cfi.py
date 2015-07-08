@@ -417,7 +417,7 @@ ZeroTeslaRun247324CollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.1657),
     Z0 = cms.double(-1.688)
 )
-RealisticCentroidNominalEmittance13TeVCollisionVtxSmearingParameters = cms.PSet(
+Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(65.0),
     Emittance = cms.double(5.411e-08),
