@@ -110,10 +110,12 @@ L3Muons = cms.EDProducer("L3MuonProducer",
             CSCRecSegmentLabel = cms.InputTag("hltCscSegments"),
             Chi2CutCSC = cms.double(150.0),
             Chi2CutDT = cms.double(10.0),
+            Chi2CutGEM = cms.double(1.0),
             RefitRPCHits = cms.bool(True),
             SkipStation = cms.int32(-1),
             Propagator = cms.string('SmartPropagatorAny'),
             DTRecSegmentLabel = cms.InputTag("hltDt4DSegments"),
+            GEMRecHitLabel = cms.InputTag("gemRecHits"),
             TrackerSkipSystem = cms.int32(-1)
         )
     )
