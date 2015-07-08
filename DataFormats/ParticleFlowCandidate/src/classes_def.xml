@@ -16,6 +16,9 @@
   <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="" target="getter_">
     <![CDATA[edm::EDProductGetter::assignEDProductGetter(getter_); ]]>
   </ioread>
+  <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="" target="elementsInBlocks_">
+    <![CDATA[elementsInBlocks_ = nullptr; ]]>
+  </ioread>
   <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="std::vector<unsigned long long> refsInfo_" target="refsCollectionCache_">
     <![CDATA[refsCollectionCache_.clear();refsCollectionCache_.resize(onfile.refsInfo_.size(),0); ]]>
   </ioread>
