@@ -252,7 +252,7 @@ namespace {
     auto isel=0U;
     for (auto i=0U; i<collsSize; ++i) {
       std::vector<unsigned int> selId;
-     std::vector<unsigned int>  tid;
+      std::vector<unsigned int>  tid;
       auto iStart1=iStart2;
       iStart2=iStart1+nGoods[i];
       assert(producer.selTracks_->size()==isel);

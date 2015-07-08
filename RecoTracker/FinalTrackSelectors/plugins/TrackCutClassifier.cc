@@ -71,9 +71,9 @@ namespace {
       ret = std::min(ret,cut(nLayers,minLayers,std::greater_equal<int>()));
       if (ret==-1.f) return ret;
 
-      ret = cut(chi2(trk)/float(nLayers),maxChi2n,std::less_equal<float>());
+      ret = std::min(ret,cut(chi2(trk)/float(nLayers),maxChi2n,std::less_equal<float>()));
       if (ret==-1.f) return ret;
-      ret = cut(chi2(trk),maxChi2,std::less_equal<float>());
+      ret = std::min(ret,cut(chi2(trk),maxChi2,std::less_equal<float>()));
       if (ret==-1.f) return ret;
      
       ret = std::min(ret,cut(n3DLayers(trk),min3DLayers,std::greater_equal<int>()));
