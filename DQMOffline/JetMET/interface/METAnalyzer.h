@@ -73,7 +73,6 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
-#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"

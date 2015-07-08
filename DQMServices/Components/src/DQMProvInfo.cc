@@ -81,7 +81,7 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummaryMap_->setBinLabel(24,"CASTOR",2);
   reportSummaryMap_->setBinLabel(25,"ZDC",2);
   reportSummaryMap_->setBinLabel(26,"PhysDecl",2);
-  reportSummaryMap_->setBinLabel(27,"8 TeV",2);
+  reportSummaryMap_->setBinLabel(27,"13 TeV",2);
   reportSummaryMap_->setBinLabel(28,"Stable B",2);
   reportSummaryMap_->setBinLabel(29,"Valid",2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");

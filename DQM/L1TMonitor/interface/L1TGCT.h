@@ -142,6 +142,8 @@ protected:
 private:
   // ----------member data ---------------------------
 
+  std::string monitorDir_;
+
   // trigger type information
   MonitorElement *triggerType_;
 

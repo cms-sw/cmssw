@@ -18,7 +18,7 @@ hltanalysis.EndcapPhoton      = cms.InputTag("hltCorrectedIslandEndcapSuperClust
 
 hltanalysis.Centrality    = cms.InputTag("hiCentrality")
 hltanalysis.CentralityBin    = cms.InputTag("centralityBin")
-hltanalysis.EvtPlane      = cms.InputTag("hiEvtPlane","recoLevel")
+hltanalysis.EvtPlane      = cms.InputTag("hiEvtPlane")
 hltanalysis.mctruth       = cms.InputTag("hiGenParticles")
 hltanalysis.HiMC          = cms.InputTag("heavyIon")    
 

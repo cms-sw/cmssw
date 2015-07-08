@@ -346,21 +346,21 @@ void PrimaryVertexPlots(const char* fullname,const char* module, const char* pos
   // Summary histograms
   /*
   TH1D* vtxxsum = new TH1D("vtxxsum","(BS-PV) Fitted X position vs run",10,0.,10.);
-  vtxxsum->SetBit(TH1::kCanRebin);
+  vtxxsum->SetCanExtend(TH1::kAllAxes);
   TH1D* vtxysum = new TH1D("vtxysum","(BS-PV) Fitted Y position vs run",10,0.,10.);
-  vtxysum->SetBit(TH1::kCanRebin);
+  vtxysum->SetCanExtend(TH1::kAllAxes);
   TH1D* vtxzsum = new TH1D("vtxzsum","(BS-PV) Fitted Y position vs run",10,0.,10.);
-  vtxzsum->SetBit(TH1::kCanRebin);
+  vtxzsum->SetCanExtend(TH1::kAllAxes);
   */
 
   TH1D* vtxxmeansum = new TH1D("vtxxmeansum","PV mean X position vs run",10,0.,10.);
-  vtxxmeansum->SetBit(TH1::kCanRebin);
+  vtxxmeansum->SetCanExtend(TH1::kAllAxes);
   TH1D* vtxymeansum = new TH1D("vtxymeansum","PV mean Y position vs run",10,0.,10.);
-  vtxymeansum->SetBit(TH1::kCanRebin);
+  vtxymeansum->SetCanExtend(TH1::kAllAxes);
   TH1D* vtxzmeansum = new TH1D("vtxzmeansum","PV mean Z position vs run",10,0.,10.);
-  vtxzmeansum->SetBit(TH1::kCanRebin);
+  vtxzmeansum->SetCanExtend(TH1::kAllAxes);
   TH1D* vtxzsigmasum = new TH1D("vtxzsigmasum","PV sigma Z position vs run",10,0.,10.);
-  vtxzsigmasum->SetBit(TH1::kCanRebin);
+  vtxzsigmasum->SetCanExtend(TH1::kAllAxes);
 
   std::vector<unsigned int> runs = castat.getRunList();
   std::sort(runs.begin(),runs.end());

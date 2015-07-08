@@ -20,7 +20,7 @@ def customizeHLTforAll(process, _customInfo = None):
         cmsRunOptions.parseArguments()
 
 # report in log file
-        print cmsRunOptions
+#       print cmsRunOptions
 
         _maxEvents = cmsRunOptions.maxEvents
         _globalTag = cmsRunOptions.globalTag
