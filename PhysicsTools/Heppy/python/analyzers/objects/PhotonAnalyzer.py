@@ -81,10 +81,10 @@ class PhotonAnalyzer( Analyzer ):
             elif abs(gamma.eta()) < 2.4:   gamma.EffectiveArea03 = [ 0.0074, 0.0232, 0.0924 ]
             else:                          gamma.EffectiveArea03 = [ 0.0035, 0.1709, 0.1484 ]
 
-            gamma.relIso = (max(gamma.chargedHadronIso()-gamma.rho*gamma.EffectiveArea03[0],0) + max(gamma.neutralHadronIso()-gamma.rho*gamma.EffectiveArea03[1],0) + max(gamma.photonIso() - gamma.rho*gamma.EffectiveArea03[2],0))/gamma.pt()
-
             if self.doFootprintRemovedIsolation:
                 self.attachFootprintRemovedIsolation(gamma)
+
+            gamma.relIso = (max(gamma.chargedHadronIso()-gamma.rho*gamma.EffectiveArea03[0],0) + max(gamma.neutralHadronIso()-gamma.rho*gamma.EffectiveArea03[1],0) + max(gamma.photonIso() - gamma.rho*gamma.EffectiveArea03[2],0))/gamma.pt()
 
             def idWP(gamma,X):
                 """Create an integer equal to 1-2-3 for (loose,medium,tight)"""
