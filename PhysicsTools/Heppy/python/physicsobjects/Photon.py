@@ -31,18 +31,21 @@ class Photon(PhysicsObject ):
         return self.physObj.full5x5_sigmaIetaIeta()
 
     def chargedHadronIso(self, corr=None):
-        if corr is None or corr == "": return self.physObj.chargedHadronIso()
-        elif corr == "rhoArea": return max(self.physObj.chargedHadronIso()-self.rho*self.EffectiveArea03[0],0)
+        isoCharged = self.ftprAbsIsoCharged03 if hasattr(self,'ftprAbsIsoCharged03') else self.physObj.chargedHadronIso()
+        if corr is None or corr == "": return isoCharged
+        elif corr == "rhoArea": return max(isoCharged-self.rho*self.EffectiveArea03[0],0)
         else: raise RuntimeError, "Photon isolation correction '%s' not yet implemented in Photon.py" % corr
 
     def neutralHadronIso(self, corr=None):
-        if corr is None or corr == "": return self.physObj.neutralHadronIso()
-        elif corr == "rhoArea": return max(self.physObj.neutralHadronIso()-self.rho*self.EffectiveArea03[1],0)
+        isoNHad = self.ftprAbsIsoNHad03 if hasattr(self,'ftprAbsIsoNHad03') else self.physObj.neutralHadronIso()
+        if corr is None or corr == "": return isoNHad
+        elif corr == "rhoArea": return max(isoNHad-self.rho*self.EffectiveArea03[1],0)
         else: raise RuntimeError, "Photon isolation correction '%s' not yet implemented in Photon.py" % corr
 
     def photonIso(self, corr=None):
-        if corr is None or corr == "": return self.physObj.photonIso()
-        elif corr == "rhoArea": return max(self.physObj.photonIso()-self.rho*self.EffectiveArea03[2],0)
+        isoPho = self.ftprAbsIsoPho03 if hasattr(self,'ftprAbsIsoPho03') else self.physObj.photonIso()
+        if corr is None or corr == "": return isoPho
+        elif corr == "rhoArea": return max(isoPho-self.rho*self.EffectiveArea03[2],0)
         else: raise RuntimeError, "Photon isolation correction '%s' not yet implemented in Photon.py" % corr
 
     def photonIDCSA14(self, name, sidebands=False):
