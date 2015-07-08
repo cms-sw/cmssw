@@ -83,6 +83,9 @@ class PhotonAnalyzer( Analyzer ):
 
             gamma.relIso = (max(gamma.chargedHadronIso()-gamma.rho*gamma.EffectiveArea03[0],0) + max(gamma.neutralHadronIso()-gamma.rho*gamma.EffectiveArea03[1],0) + max(gamma.photonIso() - gamma.rho*gamma.EffectiveArea03[2],0))/gamma.pt()
 
+            if self.doFootprintRemovedIsolation:
+                self.attachFootprintRemovedIsolation(gamma)
+
             def idWP(gamma,X):
                 """Create an integer equal to 1-2-3 for (loose,medium,tight)"""
 
@@ -280,16 +283,16 @@ class PhotonAnalyzer( Analyzer ):
           if gamma.chHadIsoRC04<0. : gamma.chHadIsoRC04 = self.computeRandomCone( event, etaPhot, phiRC, 0.4, charged, jets20, photons10 )
 
 
-    def attachFootprintRemovedIsolation(self, mu):
+    def attachFootprintRemovedIsolation(self, gamma):
+        # cone deltar=0.3
         gamma.ftprAbsIsoCharged03 = self.IsolationComputer.chargedAbsIso(gamma.physObj, 0.3, 0, 0.0);
-        gamma.ftprAbsIsoPho03     = self.IsolationComputer.photonAbsIso( gamma.physObj, 0.3, 0, 0.0);
-        gamma.ftprAbsIsoNHad03    = self.IsolationComputer.neutralHadAbsIso( gamma.physObj, 0.3, 0, 0.0);
-        gamma.ftprAbsIsoNeutral03 =  gamma.ftprAbsIsoPho03 + gamma.ftprAbsIsoNHad03
-        if self.gamma_isoCorr == "rhoArea":
-            gamma.ftprAbsIso = (max(gamma.ftprAbsIsoCharged03-gamma.rho*gamma.EffectiveArea03[0],0) + max(gamma.ftprAbsIsoPho03-gamma.rho*gamma.EffectiveArea03[1],0) + max(gamma.ftprAbsIsoNHad03 - gamma.rho*gamma.EffectiveArea03[2],0))
-        elif self.gamma_isoCorr != 'raw':
+        gamma.ftprAbsIsoPho03     = self.IsolationComputer.photonAbsIsoRaw( gamma.physObj, 0.3, 0, 0.0);
+        gamma.ftprAbsIsoNHad03    = self.IsolationComputer.neutralHadAbsIsoRaw( gamma.physObj, 0.3, 0, 0.0);
+        if self.cfg_ana.gamma_isoCorr == "rhoArea":
+            gamma.ftprAbsIso03 = (max(gamma.ftprAbsIsoCharged03-gamma.rho*gamma.EffectiveArea03[0],0) + max(gamma.ftprAbsIsoPho03-gamma.rho*gamma.EffectiveArea03[1],0) + max(gamma.ftprAbsIsoNHad03 - gamma.rho*gamma.EffectiveArea03[2],0))
+        elif self.cfg_ana.gamma_isoCorr != 'raw':
             raise RuntimeError, "Unsupported gamma_isoCorr name '" + str(self.cfg_ana.miniIsolationCorr) +  "'! For now only 'rhoArea', 'raw' are supported."
-        gamma.ftprRelIso = gamma.ftprAbsIso/gamma.pt()
+        gamma.ftprRelIso03 = gamma.ftprAbsIso03/gamma.pt()
 
     def printInfo(self, event):
         print '----------------'
