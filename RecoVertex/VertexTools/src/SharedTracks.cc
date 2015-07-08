@@ -25,7 +25,7 @@ namespace vertexTools {
 					iter != svTracks.end(); iter++)
 			{
 				if( std::abs((*iter)->bestTrack()->dz()-pv.z())/(*iter)->bestTrack()->dzError() < maxsigma &&
-						std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError() < maxsigma )
+						std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError()) < maxsigma 
 				  )
 					count++;
 			}
