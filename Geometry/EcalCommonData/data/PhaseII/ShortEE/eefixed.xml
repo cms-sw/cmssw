@@ -1,9 +1,13 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
+<ConstantsSection label="eefixed.xml" eval="true">
+  <Constant name="EEBackPlateOR" value="[eecon:EEBackPlateOR] - 2.*cm"/>
+</ConstantsSection>
+
 <SolidSection label="eefixed.xml">
-  <Tubs name="EEBackPlate" rMin="[eecon:EEBackPlateIR]" rMax="[eecon:EEBackPlateOR]" dz="[eecon:EEBackPlateThick]/2." startPhi="0*deg" deltaPhi="90*deg"/>
-  <Tubs name="EEBPPV" rMin="[eecon:EEBackPlateIR]" rMax="[eecon:EEBackPlateOR]" dz="[eecon:EEBPPOR]" startPhi="0*deg" deltaPhi="90*deg"/>
+  <Tubs name="EEBackPlate" rMin="[eecon:EEBackPlateIR]" rMax="[eefixed:EEBackPlateOR]-2.7*cm" dz="[eecon:EEBackPlateThick]/6." startPhi="0*deg" deltaPhi="90*deg"/>
+  <Tubs name="EEBPPV" rMin="[eecon:EEBackPlateIR]+1.4*cm" rMax="[eefixed:EEBackPlateOR]-1.*cm" dz="[eecon:EEBPPOR]" startPhi="0*deg" deltaPhi="90*deg"/>
   <Tubs name="EEBPPAW" rMin="0*mm" rMax="[eecon:EEBPPIR]" dz="0.5*[eecon:EEBPPLA]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="EEBPPAP" rMin="0*mm" rMax="[eecon:EEBPPOR]" dz="0.5*[eecon:EEBPPLA]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="EEBPPBW" rMin="0*mm" rMax="[eecon:EEBPPIR]" dz="0.5*[eecon:EEBPPLB]" startPhi="0*deg" deltaPhi="360*deg"/>
@@ -90,10 +94,6 @@
   <Polycone name="ESCone" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="[eecon:ESConeZ1]" rMin="[eecon:ESConeI1]" rMax="[eecon:ESConeO1]"/>
     <ZSection z="[eecon:ESConeZ2]" rMin="[eecon:ESConeI2]" rMax="[eecon:ESConeO2]"/>
-    <ZSection z="[eecon:ESConeZ3]" rMin="[eecon:ESConeI3]" rMax="[eecon:ESConeO3]"/>
-    <ZSection z="[eecon:ESConeZ4]" rMin="[eecon:ESConeI4]" rMax="[eecon:ESConeO4]"/>
-    <ZSection z="[eecon:ESConeZ5]" rMin="[eecon:ESConeI5]" rMax="[eecon:ESConeO5]"/>
-    <ZSection z="[eecon:ESConeZ6]" rMin="[eecon:ESConeI6]" rMax="[eecon:ESConeO6]"/>
   </Polycone>
   <Tubs name="ESRing" rMin="[eecon:ESRingIR]" rMax="[eecon:ESRingOR]" dz="[eecon:ESRingZThick]/2" startPhi="0*deg" deltaPhi="360*deg"/>
   <!-- Cooling bar-related volumes -->
@@ -125,7 +125,7 @@
 <LogicalPartSection label="eefixed.xml">
   <LogicalPart name="EEBackPlate" category="unspecified">
     <rSolid name="EEBackPlate"/>
-    <rMaterial name="materials:Aluminium"/>
+    <rMaterial name="materials:TD_Aluminium"/>
   </LogicalPart>
   <LogicalPart name="EEBPPV" category="unspecified">
     <rSolid name="EEBPPV"/>
@@ -382,16 +382,21 @@
     <rChild name="eefixed:ESCone"/>
     <Translation x="0*mm" y="0*mm" z="[eecon:ESRingZFront] + [eecon:ESRingZThick] - [eecon:ESConeZ1]"/>
   </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="eregalgo:EREG"/>
+    <rChild name="eregalgo:EEBackMaterial"/>
+    <Translation x="0*mm" y="0*mm" z="0*mm"/>
+  </PosPart>
   <!-- Backplate and its cooling pipes -->
   <PosPart copyNumber="1">
-    <rParent name="eehier:EEBackQuad"/>
+    <rParent name="eehier:EEFrontQuad"/>
     <rChild name="eefixed:EEBackPlate"/>
-    <Translation x="0*mm" y="0*mm" z="[eecon:EEzBack] + [eecon:EEBackPlateThick]/2"/>
+    <Translation x="0*mm" y="0*mm" z="[eecon:EEiEnvScrZ5]-[eecon:EEBackPlateThick]/6.-2*[eecon:EEBPPOR]"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="eehier:EEBackQuad"/>
+    <rParent name="eehier:EEFrontQuad"/>
     <rChild name="eefixed:EEBPPV"/>
-    <Translation x="0*mm" y="0*mm" z="[eecon:EEzBackBack] + [eecon:EEBPPOR]"/>
+    <Translation x="0*mm" y="0*mm" z="[eecon:EEiEnvScrZ5]-[eecon:EEBPPOR]"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="eefixed:EEBPPAP"/>
@@ -444,37 +449,37 @@
   <PosPart copyNumber="3">
     <rParent name="eefixed:EEBPPV"/>
     <rChild name="eefixed:EEBPPBP"/>
-    <Translation x="[eecon:EEBPPLC] - 2*[eecon:EEBPPOR]" y="[eecon:EEBackPlateOR] -   [eecon:EEBPPLB]/2 - 5*[eecon:EEBPPOR]" z="0*mm"/>
+    <Translation x="[eecon:EEBPPLC] - 2*[eecon:EEBPPOR]" y="[eefixed:EEBackPlateOR] -   [eecon:EEBPPLB]/2 - 5*[eecon:EEBPPOR]" z="0*mm"/>
     <rRotation name="eecon:EEfCRotX"/>
   </PosPart>
   <PosPart copyNumber="4">
     <rParent name="eefixed:EEBPPV"/>
     <rChild name="eefixed:EEBPPBP"/>
-    <Translation x="[eecon:EEBPPLC] - 2*[eecon:EEBPPOR]" y="[eecon:EEBackPlateOR] - 3*[eecon:EEBPPLB]/2 - 5*[eecon:EEBPPOR]" z="0*mm"/>
+    <Translation x="[eecon:EEBPPLC] - 2*[eecon:EEBPPOR]" y="[eefixed:EEBackPlateOR] - 3*[eecon:EEBPPLB]/2 - 5*[eecon:EEBPPOR]" z="0*mm"/>
     <rRotation name="eecon:EEfCRotX"/>
   </PosPart>
   <PosPart copyNumber="5">
     <rParent name="eefixed:EEBPPV"/>
     <rChild name="eefixed:EEBPPBP"/>
-    <Translation x="2*[eecon:EEBPPLC]" y="[eecon:EEBackPlateOR] - [eecon:EEBPPLB]/2 - 3*[eecon:EEBPPLC]/2" z="0*mm"/>
+    <Translation x="2*[eecon:EEBPPLC]" y="[eefixed:EEBackPlateOR] - [eecon:EEBPPLB]/2 - 3*[eecon:EEBPPLC]/2" z="0*mm"/>
     <rRotation name="eecon:EEfCRotX"/>
   </PosPart>
   <PosPart copyNumber="6">
     <rParent name="eefixed:EEBPPV"/>
     <rChild name="eefixed:EEBPPBP"/>
-    <Translation x="3*[eecon:EEBPPLC]" y="[eecon:EEBackPlateOR] - [eecon:EEBPPLB]/2 - 3*[eecon:EEBPPLC]/2" z="0*mm"/>
+    <Translation x="3*[eecon:EEBPPLC]" y="[eefixed:EEBackPlateOR] - [eecon:EEBPPLB]/2 - 3*[eecon:EEBPPLC]/2" z="0*mm"/>
     <rRotation name="eecon:EEfCRotX"/>
   </PosPart>
   <PosPart copyNumber="7">
     <rParent name="eefixed:EEBPPV"/>
     <rChild name="eefixed:EEBPPBP"/>
-    <Translation x="4*[eecon:EEBPPLC]" y="[eecon:EEBackPlateOR] - [eecon:EEBPPLB]/2 - 3*[eecon:EEBPPLC]/2" z="0*mm"/>
+    <Translation x="4*[eecon:EEBPPLC]" y="[eefixed:EEBackPlateOR] - [eecon:EEBPPLB]/2 - 3*[eecon:EEBPPLC]/2" z="0*mm"/>
     <rRotation name="eecon:EEfCRotX"/>
   </PosPart>
   <PosPart copyNumber="8">
     <rParent name="eefixed:EEBPPV"/>
     <rChild name="eefixed:EEBPPBP"/>
-    <Translation x="5*[eecon:EEBPPLC]" y="[eecon:EEBackPlateOR] - [eecon:EEBPPLB]/2 - 3*[eecon:EEBPPLC]/2" z="0*mm"/>
+    <Translation x="5*[eecon:EEBPPLC]" y="[eefixed:EEBackPlateOR] - [eecon:EEBPPLB]/2 - 3*[eecon:EEBPPLC]/2" z="0*mm"/>
     <rRotation name="eecon:EEfCRotX"/>
   </PosPart>
   <PosPart copyNumber="1">
