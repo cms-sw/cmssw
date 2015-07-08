@@ -269,14 +269,15 @@ namespace edm {
     int cmssw_stacktrace(void * /*arg*/)
     {
       char *const *argv = edm::service::InitRootHandlers::getPstackArgv();
-      execv("/usr/bin/pstack", argv);
+      execv("/bin/sh", argv);
       ::abort();
       return 1;
     }
 
-    static char pstackName[] = "pstack";
+    static char pstackName[] = "(CMSSW stack trace helper)";
+    static char dashC[] = "-c";
     char InitRootHandlers::pidString_[InitRootHandlers::pidStringLength_] = {};
-    char * const InitRootHandlers::pstackArgv_[3] = {pstackName, InitRootHandlers::pidString_, nullptr};
+    char * const InitRootHandlers::pstackArgv_[] = {pstackName, dashC, InitRootHandlers::pidString_, nullptr};
 
     InitRootHandlers::InitRootHandlers (ParameterSet const& pset, ActivityRegistry& iReg)
       : RootHandlers(),
@@ -416,7 +417,13 @@ namespace edm {
     void
     InitRootHandlers::cachePidInfo()
     {
-      assert(snprintf(pidString_, pidStringLength_-1, "%d", getpid()) < pidStringLength_);
+      assert(snprintf(pidString_, pidStringLength_-1, "gdb -quiet -p %d 2>&1 <<EOF |\n"
+        "set width 0\n"
+        "set height 0\n"
+        "set pagination no\n"
+        "thread apply all bt\n"
+        "EOF\n"
+        "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'", getpid()) < pidStringLength_);
     }
 
   }  // end of namespace service
