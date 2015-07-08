@@ -18,7 +18,7 @@
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="EcalPulseCovariancesPyWrapper.cc" name="EcalPulseCovariancesPyInterface">
+<library   file="EcalPulseSymmCovariancesPyWrapper.cc" name="EcalPulseSymmCovariancesPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/EcalObjects"/>
   <use   name="CondTools/Ecal"/>
