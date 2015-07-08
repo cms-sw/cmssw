@@ -32,6 +32,7 @@ process.dqmEnv.subSystemFolder    = "PixelLumi"
 # for local running
 process.dqmSaver.dirName = '.'
 
+process.source.SelectEvents = cms.untracked.vstring("AlCa_LumiPixels_ZeroBias*")
 #process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
 #if (process.runType.getRunType() == process.runType.hi_run):
 #    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
@@ -108,14 +109,12 @@ process.AdaptorConfig = cms.Service("AdaptorConfig")
 #--------------------------
 # Filters
 #--------------------------
-process.load("DQM.PixelLumi.ZeroBiasSelector_cfi")
 
 #--------------------------
 # Scheduling
 #--------------------------
 process.Reco = cms.Sequence(process.siPixelDigis*process.siPixelClusters)
 process.DQMmodules = cms.Sequence(process.dqmEnv*
-  process.zerobias_selector*
   process.pixel_lumi_dqm*
   process.dqmSaver)
 
