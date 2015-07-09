@@ -309,6 +309,12 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
   l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
   setPtEtaPhi(l1forjetobjref,ptL1,etaL1,phiL1);
 
+  std::auto_ptr<reco::HcalIsolatedTrackCandidateCollection> outputHcalIsoTrackColl(new reco::HcalIsolatedTrackCandidateCollection);
+  std::auto_ptr<reco::VertexCollection> outputVColl(new reco::VertexCollection);
+  std::auto_ptr<EBRecHitCollection>     outputEBColl(new EBRecHitCollection);
+  std::auto_ptr<EERecHitCollection>     outputEEColl(new EERecHitCollection);
+  std::auto_ptr<HBHERecHitCollection>   outputHBHEColl(new HBHERecHitCollection);
+
   //For valid HLT record
   if (!triggerEventHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product "
@@ -318,18 +324,16 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
     if (triggerResults.isValid()) {
       const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
       const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
-      reco::HcalIsolatedTrackCandidateCollection* isotk = select(triggerResults,triggerNames_,trkCollection,leadPV, barrelRecHitsHandle, endcapRecHitsHandle, hbhe, ptL1, etaL1, phiL1);
+      reco::HcalIsolatedTrackCandidateCollection* isotk = select(triggerResults, triggerNames_, trkCollection, leadPV, barrelRecHitsHandle, endcapRecHitsHandle, hbhe, ptL1, etaL1, phiL1);
 #ifdef DebugLog
       edm::LogInfo("HcalIsoTrack") << "AlCaIsoTracksProducer::select returns "
 				   << isotk->size() << " isolated tracks";
 #endif
-      std::auto_ptr<reco::HcalIsolatedTrackCandidateCollection> outputHcalIsoTrackColl(isotk);
-      std::auto_ptr<reco::VertexCollection> outputVColl(new reco::VertexCollection);
-      std::auto_ptr<EBRecHitCollection>     outputEBColl(new EBRecHitCollection);
-      std::auto_ptr<EERecHitCollection>     outputEEColl(new EERecHitCollection);
-      std::auto_ptr<HBHERecHitCollection>   outputHBHEColl(new HBHERecHitCollection);
     
       if (isotk->size() > 0) {
+	for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr=isotk->begin(); itr!=isotk->end(); ++itr)
+	  outputHcalIsoTrackColl->push_back(*itr);
+	
 	for (reco::VertexCollection::const_iterator vtx=recVtxs->begin(); vtx!=recVtxs->end(); ++vtx)
 	  outputVColl->push_back(*vtx);
       
@@ -343,14 +347,13 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
 	  outputHBHEColl->push_back(*hhit);
 	++nGood_;
       }
-
-      iEvent.put(outputHcalIsoTrackColl, labelIsoTk_);
-      iEvent.put(outputVColl,            labelRecVtx_.label());
-      iEvent.put(outputEBColl,           labelEB_.instance());
-      iEvent.put(outputEEColl,           labelEE_.instance());
-      iEvent.put(outputHBHEColl,         labelHBHE_.label());
     }
   }
+  iEvent.put(outputHcalIsoTrackColl, labelIsoTk_);
+  iEvent.put(outputVColl,            labelRecVtx_.label());
+  iEvent.put(outputEBColl,           labelEB_.instance());
+  iEvent.put(outputEEColl,           labelEE_.instance());
+  iEvent.put(outputHBHEColl,         labelHBHE_.label());
 }
 
 void AlCaIsoTracksProducer::endStream() {
