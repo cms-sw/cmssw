@@ -58,7 +58,24 @@ using reco::MuonCollection;
 using reco::TrackCollection;
 typedef std::vector<Trajectory> Trajectories;
 
+class TracktoRPC {
+public:
 
+
+  explicit TracktoRPC(edm::Handle<reco::TrackCollection> alltracks,const edm::EventSetup& iSetup, const edm::Event& iEvent,bool debug, const edm::ParameterSet& iConfig,edm::InputTag& tracklabel);
+
+  ~TracktoRPC();
+  RPCRecHitCollection* thePoints(){return _ThePoints;}
+  bool ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::EventSetup& iSetup);
+
+private:
+  RPCRecHitCollection* _ThePoints;
+  edm::OwnVector<RPCRecHit> RPCPointVector;
+  double MaxD;
+
+ TrackTransformerBase *theTrackTransformer;
+ edm::ESHandle<Propagator> thePropagator;
+};
 
 class DTStationIndex2{
 public: 
@@ -94,14 +111,14 @@ private:
 
 class ObjectMap2{
 public:
-  ObjectMap2* getInstance(const edm::EventSetup& iSetup);
-  const std::set<RPCDetId> getRolls(DTStationIndex2 dtstationindex) const {return rollstoreDT.find(dtstationindex)->second;}
+  static ObjectMap2* GetInstance(const edm::EventSetup& iSetup);
+  std::set<RPCDetId> GetRolls(DTStationIndex2 dtstationindex){return mapInstance->rollstoreDT[dtstationindex];}
 //protected:
   std::map<DTStationIndex2,std::set<RPCDetId> > rollstoreDT;
   ObjectMap2(const edm::EventSetup& iSetup);
-  ObjectMap2();
-  void fillObjectMapDT(const edm::EventSetup&);
-};
+private:
+  static ObjectMap2* mapInstance;
+}; 
 class CSCStationIndex2{
 public:
   CSCStationIndex2():_region(0),_station(0),_ring(0),_chamber(0){}
@@ -136,32 +153,13 @@ private:
 
 class ObjectMap2CSC{
 public:
-  ObjectMap2CSC* getInstance(const edm::EventSetup& iSetup);
-  const std::set<RPCDetId> getRolls(CSCStationIndex2 cscstationindex) const {return rollstoreCSC.find(cscstationindex)->second;}
+  static ObjectMap2CSC* GetInstance(const edm::EventSetup& iSetup);
+  std::set<RPCDetId> GetRolls(CSCStationIndex2 cscstationindex){return mapInstance->rollstoreCSC[cscstationindex];}
 //protected:
   std::map<CSCStationIndex2,std::set<RPCDetId> > rollstoreCSC;
-    ObjectMap2CSC(const edm::EventSetup& iSetup);
-    ObjectMap2CSC();
-    void fillObjectMapCSC(const edm::EventSetup&);
-};
-
-class TracktoRPC {
-public:
-    
-    
-    explicit TracktoRPC(edm::Handle<reco::TrackCollection> alltracks,const edm::EventSetup& iSetup, const edm::Event& iEvent, const edm::ParameterSet& iConfig, const edm::InputTag& tracklabel,const ObjectMap2* , const ObjectMap2CSC*);
-    
-    ~TracktoRPC();
-    RPCRecHitCollection* thePoints(){return _ThePoints;}
-    bool ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::EventSetup& iSetup);
-    
+  ObjectMap2CSC(const edm::EventSetup& iSetup);
 private:
-    RPCRecHitCollection* _ThePoints;
-    edm::OwnVector<RPCRecHit> RPCPointVector;
-    double MaxD;
-    
-    TrackTransformerBase *theTrackTransformer;
-    edm::ESHandle<Propagator> thePropagator;
-};
+  static ObjectMap2CSC* mapInstance;
+}; 
 
 #endif
