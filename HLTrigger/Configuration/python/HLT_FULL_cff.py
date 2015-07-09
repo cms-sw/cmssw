@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V259 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/HLT/V261 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V259')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V261')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1312,8 +1312,7 @@ fragment.datasets = cms.PSet(
     'HLT_L2Mu10_NoVertex_NoBPTX_v2',
     'HLT_L2Mu35_NoVertex_3Sta_NoBPTX3BX_NoHalo_v2',
     'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_NoHalo_v2' ),
-  OnlineMonitor = ( cms.vstring( 'AlCa_Ele27_WPVeryLoose_Gsf_v1',
-    'HLT_AK4CaloJet100_v2',
+  OnlineMonitor = ( cms.vstring( 'HLT_AK4CaloJet100_v2',
     'HLT_AK4CaloJet30_v2',
     'HLT_AK4CaloJet40_v2',
     'HLT_AK4CaloJet50_v2',
@@ -1566,8 +1565,8 @@ fragment.datasets = cms.PSet(
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v2',
     'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v2',
-    'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v2')+cms.vstring( 'HLT_Mu17_TrkIsoVVL_v2',
-    'HLT_Mu17_v2',
+    'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v2',
+    'HLT_Mu17_TrkIsoVVL_v2')+cms.vstring( 'HLT_Mu17_v2',
     'HLT_Mu20_Mu10_DZ_v1',
     'HLT_Mu20_Mu10_SameSign_DZ_v1',
     'HLT_Mu20_Mu10_v1',

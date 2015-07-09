@@ -162,8 +162,8 @@ HLT_DoubleMu28NoFiltersNoVtxDisplaced_v*			# JIRA: CMSHLT-140
 HLT_Mu28NoFiltersNoVtxDisplaced_Photon28_CaloIdL_v*		# JIRA: CMSHLT-140
 HLT_Mu33NoFiltersNoVtxDisplaced_Photon33_CaloIdL_v*		# JIRA: CMSHLT-140
 
-#HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v*		# JIRA: CMSHLT-98, removed because of edm bug in module
-#HLT_Mu40_eta2p1_PFJet200_PFJet50_v*				# JIRA: CMSHLT-98, removed because of edm bug in module
+HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v*		# JIRA: CMSHLT-98
+HLT_Mu40_eta2p1_PFJet200_PFJet50_v*				# JIRA: CMSHLT-98
 
 HLT_AK8PFJet360_TrimMass30_v*					# JIRA: CMSHLT-101, mod. CMSHLT-204, CMSHLT-274
 

@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V259 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/HLT/V261 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V259')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V261')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1312,8 +1312,7 @@ process.datasets = cms.PSet(
     'HLT_L2Mu10_NoVertex_NoBPTX_v2',
     'HLT_L2Mu35_NoVertex_3Sta_NoBPTX3BX_NoHalo_v2',
     'HLT_L2Mu40_NoVertex_3Sta_NoBPTX3BX_NoHalo_v2' ),
-  OnlineMonitor = ( cms.vstring( 'AlCa_Ele27_WPVeryLoose_Gsf_v1',
-    'HLT_AK4CaloJet100_v2',
+  OnlineMonitor = ( cms.vstring( 'HLT_AK4CaloJet100_v2',
     'HLT_AK4CaloJet30_v2',
     'HLT_AK4CaloJet40_v2',
     'HLT_AK4CaloJet50_v2',
@@ -1566,8 +1565,8 @@ process.datasets = cms.PSet(
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
     'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v2',
     'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v2',
-    'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v2')+cms.vstring( 'HLT_Mu17_TrkIsoVVL_v2',
-    'HLT_Mu17_v2',
+    'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v2',
+    'HLT_Mu17_TrkIsoVVL_v2')+cms.vstring( 'HLT_Mu17_v2',
     'HLT_Mu20_Mu10_DZ_v1',
     'HLT_Mu20_Mu10_SameSign_DZ_v1',
     'HLT_Mu20_Mu10_v1',
@@ -58123,12 +58122,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'MC_PFMHT_v1',
   'MC_ReducedIterativeTracking_v1') ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltIter2Merged_*_*',
       'keep *_hltL1GtObjectMap_*_*',
-      'keep *_hltPixelTracks_*_*',
-      'keep *_hltSiPixelClusters_*_*',
-      'keep *_hltSiStripRawToClustersFacility_*_*',
-      'keep *_hltVerticesPFSelector_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
@@ -58141,8 +58135,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = ( cms.vstring( 'AlCa_Ele27_WPVeryLoose_Gsf_v1',
-  'HLT_AK4CaloJet100_v2',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = ( cms.vstring( 'HLT_AK4CaloJet100_v2',
   'HLT_AK4CaloJet30_v2',
   'HLT_AK4CaloJet40_v2',
   'HLT_AK4CaloJet50_v2',
@@ -58395,8 +58388,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
   'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v2',
   'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v2',
-  'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v2')+cms.vstring( 'HLT_Mu17_TrkIsoVVL_v2',
-  'HLT_Mu17_v2',
+  'HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v2',
+  'HLT_Mu17_TrkIsoVVL_v2')+cms.vstring( 'HLT_Mu17_v2',
   'HLT_Mu20_Mu10_DZ_v1',
   'HLT_Mu20_Mu10_SameSign_DZ_v1',
   'HLT_Mu20_Mu10_v1',
@@ -58563,7 +58556,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_TkMu20_v2',
   'HLT_TkMu24_eta2p1_v2',
   'HLT_TkMu27_v2',
-  'HLT_TrackerCalibration_v1',
   'HLT_TripleMu_12_10_5_v2',
   'HLT_TrkMu15_DoubleTrkMu5NoFiltersNoVtx_v2',
   'HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v2',
@@ -58602,10 +58594,15 @@ process.hltOutputDQMOffline = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PFHT350_v2',
   'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v2' ) ),
     outputCommands = cms.untracked.vstring( 'keep *_hltIter2Merged_*_*',
+      'keep *_hltL1GtObjectMap_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltSiPixelClusters_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
-      'keep *_hltVerticesPFSelector_*_*' )
+      'keep *_hltVerticesPFSelector_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
 )
 process.hltOutputDQMCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQMCalibration.root" ),
