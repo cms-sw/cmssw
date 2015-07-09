@@ -22,6 +22,7 @@ hiRegitMuPixelLessStepClusters = RecoTracker.IterativeTracking.PixelLessStep_cff
     oldClusterRemovalInfo = cms.InputTag("hiRegitMuMixedTripletStepClusters"),
     trajectories     = cms.InputTag("hiRegitMuMixedTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('hiRegitMuMixedTripletStepSelector','hiRegitMuMixedTripletStep'),
+    trackClassifier       = cms.InputTag(''),
     TrackQuality          = cms.string('tight')
 )
 
@@ -75,7 +76,7 @@ hiRegitMuPixelLessStepTracks                 = RecoTracker.IterativeTracking.Pix
 )
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-hiRegitMuPixelLessStepSelector               = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSelector.clone( 
+hiRegitMuPixelLessStepSelector               = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone( 
     src                 ='hiRegitMuPixelLessStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
     trackSelectors = cms.VPSet(  
