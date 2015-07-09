@@ -9,7 +9,7 @@ detachedTripletStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.
     trackCollection = cms.InputTag("initialStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.maxChi2,
-    overrideTrkQuals =  cms.InputTag('initialStep')
+    trackClassifier                          = cms.InputTag('initialStep',"QualityMasks")
     )
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
@@ -43,8 +43,10 @@ detachedTripletStepTracks = RecoTracker.IterativeTracking.DetachedTripletStep_cf
 )
 
 #final selection
-detachedTripletStepSelector = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSelector.clone()
-detachedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+detachedTripletStepClassifier1 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClassifier1.clone()
+detachedTripletStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+detachedTripletStepClassifier2 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClassifier2.clone()
+detachedTripletStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
 detachedTripletStep = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStep.clone() 
 
 # Final sequence 
@@ -52,6 +54,6 @@ DetachedTripletStep = cms.Sequence(detachedTripletStepSimTrackIds
                                    +detachedTripletStepSeeds
                                    +detachedTripletStepTrackCandidates
                                    +detachedTripletStepTracks
-                                   +detachedTripletStepSelector
+                                   +detachedTripletStepClassifier1*detachedTripletStepClassifier2
                                    +detachedTripletStep
                                    )
