@@ -417,13 +417,19 @@ namespace edm {
     void
     InitRootHandlers::cachePidInfo()
     {
-      assert(snprintf(pidString_, pidStringLength_-1, "gdb -quiet -p %d 2>&1 <<EOF |\n"
+      if (snprintf(pidString_, pidStringLength_-1, "gdb -quiet -p %d 2>&1 <<EOF |\n"
         "set width 0\n"
         "set height 0\n"
         "set pagination no\n"
         "thread apply all bt\n"
         "EOF\n"
-        "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'", getpid()) < pidStringLength_);
+        "/bin/sed -n -e 's/^\\((gdb) \\)*//' -e '/^#/p' -e '/^Thread/p'", getpid()) >= pidStringLength_)
+      {
+        std::ostringstream sstr;
+        sstr << "Unable to pre-allocate stacktrace handler information";
+        edm::Exception except(edm::errors::OtherCMS, sstr.str());
+        throw except;
+      }
     }
 
   }  // end of namespace service
