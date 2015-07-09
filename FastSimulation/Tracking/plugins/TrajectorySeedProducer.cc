@@ -493,7 +493,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
             if (!initialTSOS.isValid())
             {
-                break; //continues with the next seeding algorithm
+	      continue; //continues with the next seeding algorithm
             }
 
             const AlgebraicSymMatrix55& m = initialTSOS.localError().matrix();
