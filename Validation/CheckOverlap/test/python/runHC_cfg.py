@@ -3,10 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
+process.load("Geometry.HcalCommonData.testPhase2GeometryXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsAllGeometryXML_cfi")
 
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
+process.load("Geometry.HcalCommonData.hcalNumberingInitialization_cfi")
+process.load("Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi")
+process.load("Geometry.HGCalCommonData.shashlikNumberingInitialization_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -32,14 +35,10 @@ process.MessageLogger = cms.Service("MessageLogger",
     ),
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(12345)
-    ),
-    sourceSeed = cms.untracked.uint32(98765)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.source = cms.Source("EmptySource")
 
