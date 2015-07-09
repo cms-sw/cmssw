@@ -483,9 +483,7 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
 void SiPixelDigitizerAlgorithm::init_DynIneffDB(const edm::EventSetup& es, const unsigned int& bunchspace){
   if (AddPixelInefficiency&&!pixelEfficiencies_.FromConfig) {
     if (bunchspace == 50) es.get<SiPixelDynamicInefficiencyRcd>().get("50ns",SiPixelDynamicInefficiency_);
-    else if (bunchspace == 25 || bunchspace == 450) es.get<SiPixelDynamicInefficiencyRcd>().get(SiPixelDynamicInefficiency_);
-    //bunchspace == 450 is the default value for mixNoPU case
-    else throw cms::Exception("Database")<<"SiPixelDigitizerAlgorithm encountered unknown bunchspacing configuration: bunchspace = "<<bunchspace;
+    else es.get<SiPixelDynamicInefficiencyRcd>().get(SiPixelDynamicInefficiency_);
     pixelEfficiencies_.init_from_db(geom_, SiPixelDynamicInefficiency_);
   }
 }
