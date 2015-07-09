@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V99 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/HIon/V100 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V99')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V100')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3790,12 +3790,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_HIL3Mu3_v2',
   'HLT_Physics_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
-      'keep *_hltIter2Merged_*_*',
       'keep *_hltL1GtObjectMap_*_*',
-      'keep *_hltPixelTracks_*_*',
-      'keep *_hltSiPixelClusters_*_*',
-      'keep *_hltSiStripRawToClustersFacility_*_*',
-      'keep *_hltVerticesPFSelector_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
       'keep edmTriggerResults_*_*_*',
