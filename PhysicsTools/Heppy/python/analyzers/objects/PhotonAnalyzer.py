@@ -291,7 +291,7 @@ class PhotonAnalyzer( Analyzer ):
         if self.cfg_ana.gamma_isoCorr == "rhoArea":
             gamma.ftprAbsIso03 = (max(gamma.ftprAbsIsoCharged03-gamma.rho*gamma.EffectiveArea03[0],0) + max(gamma.ftprAbsIsoPho03-gamma.rho*gamma.EffectiveArea03[1],0) + max(gamma.ftprAbsIsoNHad03 - gamma.rho*gamma.EffectiveArea03[2],0))
         elif self.cfg_ana.gamma_isoCorr != 'raw':
-            raise RuntimeError, "Unsupported gamma_isoCorr name '" + str(self.cfg_ana.miniIsolationCorr) +  "'! For now only 'rhoArea', 'raw' are supported."
+            raise RuntimeError, "Unsupported gamma_isoCorr name '" + str(self.cfg_ana.gamma_isoCorr) +  "'! For now only 'rhoArea', 'raw' are supported."
         gamma.ftprRelIso03 = gamma.ftprAbsIso03/gamma.pt()
 
     def printInfo(self, event):
