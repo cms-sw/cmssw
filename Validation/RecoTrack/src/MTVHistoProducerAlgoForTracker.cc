@@ -13,7 +13,10 @@
 
 using namespace std;
 
-MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector & iC): MTVHistoProducerAlgo(pset, iC){
+MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector & iC):
+  MTVHistoProducerAlgo(pset, iC),
+  h_ptSIM(nullptr), h_etaSIM(nullptr), h_tracksSIM(nullptr), h_vertposSIM(nullptr), h_bunchxSIM(nullptr)
+{
   //parameters for _vs_eta plots
   minEta  = pset.getParameter<double>("minEta");
   maxEta  = pset.getParameter<double>("maxEta");
@@ -179,14 +182,17 @@ MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
 }
 
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
-  h_ptSIM.push_back( ibook.book1D("ptSIM", "generated p_{t}", nintPt, minPt, maxPt) );
-  h_etaSIM.push_back( ibook.book1D("etaSIM", "generated pseudorapidity", nintEta, minEta, maxEta) );
-  h_tracksSIM.push_back( ibook.book1D("tracksSIM","number of simulated tracks", nintTracks, minTracks, maxTracks) );
-  h_vertposSIM.push_back( ibook.book1D("vertposSIM","Transverse position of sim vertices", nintVertpos, minVertpos, maxVertpos) );
-  h_bunchxSIM.push_back( ibook.book1D("bunchxSIM", "bunch crossing", 21, -15.5, 5.5 ) );
+  if(h_ptSIM != nullptr)
+    throw cms::Exception("LogicError") << "bookSimHistos() has already been called";
+
+  h_ptSIM = ibook.book1D("ptSIM", "generated p_{t}", nintPt, minPt, maxPt);
+  h_etaSIM = ibook.book1D("etaSIM", "generated pseudorapidity", nintEta, minEta, maxEta);
+  h_tracksSIM = ibook.book1D("tracksSIM","number of simulated tracks", nintTracks, minTracks, maxTracks*10);
+  h_vertposSIM = ibook.book1D("vertposSIM","Transverse position of sim vertices", nintVertpos, minVertpos, maxVertpos);
+  h_bunchxSIM = ibook.book1D("bunchxSIM", "bunch crossing", 21, -15.5, 5.5 );
 
   if(useLogPt) {
-    BinLogX(h_ptSIM.back()->getTH1F());
+    BinLogX(h_ptSIM->getTH1F());
   }
 }
 
@@ -322,7 +328,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   h_assoc2dz.push_back( ibook.book1D("num_assoc(recoToSim)_dz","N of associated (recoToSim) tracks vs dz",nintDz,minDz,maxDz) );
   h_looperdz.push_back( ibook.book1D("num_duplicate_dz","N of associated (recoToSim) looper tracks vs dz",nintDz,minDz,maxDz) );
   h_misiddz.push_back( ibook.book1D("num_chargemisid_versus_dz","N of associated (recoToSim) charge misIDed tracks vs dz",nintDz,minDz,maxDz) );
-  h_pileupdz.push_back( ibook.book1D("num_pileup_versus_dz","N of associated (recoToSim) pileup tracks vs dz",nintDz,minDz,maxDz) );
+  h_pileupdz.push_back( ibook.book1D("num_pileup_dz","N of associated (recoToSim) pileup tracks vs dz",nintDz,minDz,maxDz) );
 
   h_recodr.push_back( ibook.book1D("num_reco_dr","N of reconstructed tracks vs dR",nintdr,log10(mindr),log10(maxdr)) );
   h_assoc2dr.push_back( ibook.book1D("num_assoc(recoToSim)_dr","N of associated tracks (recoToSim) vs dR",nintdr,log10(mindr),log10(maxdr)) );
@@ -488,14 +494,15 @@ void MTVHistoProducerAlgoForTracker::bookRecodEdxHistos(DQMStore::IBooker& ibook
       });
 }
 
-void MTVHistoProducerAlgoForTracker::fill_generic_simTrack_histos(int count,
-								  const TrackingParticle::Vector& momentumTP,
+void MTVHistoProducerAlgoForTracker::fill_generic_simTrack_histos(const TrackingParticle::Vector& momentumTP,
 								  const TrackingParticle::Point& vertexTP,
-                                  int bx){
-  h_ptSIM[count]->Fill(sqrt(momentumTP.perp2()));
-  h_etaSIM[count]->Fill(momentumTP.eta());
-  h_vertposSIM[count]->Fill(sqrt(vertexTP.perp2()));
-  h_bunchxSIM[count]->Fill(bx);
+                                                                  int bx){
+  if(bx == 0) {
+    h_ptSIM->Fill(sqrt(momentumTP.perp2()));
+    h_etaSIM->Fill(momentumTP.eta());
+    h_vertposSIM->Fill(sqrt(vertexTP.perp2()));
+  }
+  h_bunchxSIM->Fill(bx);
 }
 
 
@@ -565,8 +572,8 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 
 }
 
-void MTVHistoProducerAlgoForTracker::fill_simTrackBased_histos(int count, int numSimTracks){
-  h_tracksSIM[count]->Fill(numSimTracks);
+void MTVHistoProducerAlgoForTracker::fill_simTrackBased_histos(int numSimTracks){
+  h_tracksSIM->Fill(numSimTracks);
 }
 
 // dE/dx

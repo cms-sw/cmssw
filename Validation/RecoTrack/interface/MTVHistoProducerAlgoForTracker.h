@@ -35,7 +35,8 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   void bookRecodEdxHistos(DQMStore::IBooker& ibook) override;
 
 
-  void fill_generic_simTrack_histos(int counter,const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx);
+  void fill_generic_simTrack_histos(const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx);
+  void fill_simTrackBased_histos(int numSimTracks);
 
 
   void fill_recoAssociated_simTrack_histos(int count,
@@ -53,8 +54,6 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 					   double dxy, double dz, int nSimHits,
 					   const reco::Track* track,
 					   int numVertices);
-
-  void fill_simTrackBased_histos(int count, int numSimTracks);
 
 
   void fill_generic_recoTrack_histos(int count,
@@ -143,7 +142,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
 
   //sim
-  std::vector<MonitorElement*> h_ptSIM, h_etaSIM, h_tracksSIM, h_vertposSIM, h_bunchxSIM;
+  MonitorElement *h_ptSIM, *h_etaSIM, *h_tracksSIM, *h_vertposSIM, *h_bunchxSIM;
 
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge, h_algo;;

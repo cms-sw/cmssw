@@ -63,6 +63,7 @@ TPNtuplizer::TPNtuplizer(edm::ParameterSet const& conf) :
                                          conf_.getParameter<double>("lipTP"),
                                          conf_.getParameter<int>("minHitTP"),
                                          conf_.getParameter<bool>("signalOnlyTP"),
+                                         conf_.getParameter<bool>("intimeOnlyTP"),
                                          conf_.getParameter<bool>("chargedOnlyTP"),
                                          conf_.getParameter<bool>("stableOnlyTP"),
                                          conf_.getParameter<std::vector<int> >("pdgIdTP"));
