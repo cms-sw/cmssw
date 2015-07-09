@@ -47,7 +47,7 @@ class CmsswPreprocessor :
 
 		outfilename=wd+"/cmsswPreProcessing.root"
 		# for outName in cmsswConfig.process.endpath.moduleNames():
-		for module in cmsswConfig.process.endpaths:
+		for module in cmsswConfig.process.endpaths.viewvalues():
 			for outName in module.moduleNames():
 				out = getattr(cmsswConfig.process,outName)
     			out.fileName = outfilename
