@@ -8,7 +8,7 @@ mixData.TrackerMergeType = "tracks"
 import FastSimulation.Tracking.recoTrackAccumulator_cfi
 mixData.tracker = FastSimulation.Tracking.recoTrackAccumulator_cfi.recoTrackAccumulator.clone()
 mixData.tracker.pileUpTracks = cms.InputTag("mix","generalTracks")
-mixData.tracker.pileUpMVAValues = cms.InputTag("mix","generalTracksMVAVals")
+mixData.tracker.pileUpMVAValues = cms.InputTag("mix","generalTracksMVAValues")
 mixData.hitsProducer = "famosSimHits"
 
 # give digi collections the names expected by RECO and HLT

@@ -9,7 +9,7 @@ pixelPairStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrack
     trackCollection = cms.InputTag("lowPtTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.maxChi2,
-    overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep')
+    trackClassifier                          = cms.InputTag('lowPtTripletStep',"QualityMasks")
 )
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
@@ -44,13 +44,13 @@ pixelPairStepTracks = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairS
     Propagator = 'PropagatorWithMaterial'
 )
 # final Selection
-pixelPairStepSelector = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSelector.clone()
-pixelPairStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+pixelPairStep = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStep.clone()
+pixelPairStep.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final sequence 
 PixelPairStep = cms.Sequence(pixelPairStepSimTrackIds
                              +pixelPairStepSeeds
                              +pixelPairStepTrackCandidates
                              +pixelPairStepTracks
-                             +pixelPairStepSelector                                                        
+                             +pixelPairStep 
                          )

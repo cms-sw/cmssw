@@ -12,28 +12,31 @@ duplicateDisplacedTrackCandidates = RecoTracker.FinalTrackSelectors.DuplicateTra
 mergedDuplicateDisplacedTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = cms.InputTag("duplicateDisplacedTrackCandidates","candidates"),
     )
+
+
 #for displaced global muons
-duplicateDisplacedTrackSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='mergedDuplicateDisplacedTracks',
-    trackSelectors= cms.VPSet(
-    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-    name = 'duplicateDisplacedTrackSelectorLoose',
-    minHitsToBypassChecks = cms.uint32(0),
-            ),
-        )
-    )
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
+duplicateDisplacedTrackClassifier = TrackCutClassifier.clone()
+duplicateDisplacedTrackClassifier.src='mergedDuplicateDisplacedTracks'
+duplicateDisplacedTrackClassifier.mva.minPixelHits = [0,0,0]
+duplicateDisplacedTrackClassifier.mva.maxChi2 = [9999.,9999.,9999.]
+duplicateDisplacedTrackClassifier.mva.maxChi2n = [9999.,9999.,9999.]
+duplicateDisplacedTrackClassifier.mva.minLayers = [0,0,0]
+duplicateDisplacedTrackClassifier.mva.min3DLayers = [0,0,0]
+duplicateDisplacedTrackClassifier.mva.maxLostLayers = [99,99,99]
+
 
 #for displaced global muons
 displacedTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateListMerger.clone(
     originalSource = cms.InputTag("preDuplicateMergingDisplacedTracks"),
     mergedSource = cms.InputTag("mergedDuplicateDisplacedTracks"),
-    mergedMVAVals = cms.InputTag("duplicateDisplacedTrackSelector","MVAVals"),
+    mergedMVAVals = cms.InputTag("duplicateDisplacedTrackClassifier","MVAValues"),
     candidateSource = cms.InputTag("duplicateDisplacedTrackCandidates","candidateMap")
     )
 #for displaced global muons
 displacedTracksSequence = cms.Sequence(
     duplicateDisplacedTrackCandidates*
     mergedDuplicateDisplacedTracks*
-    duplicateDisplacedTrackSelector*
+    duplicateDisplacedTrackClassifier*
     displacedTracks
     )
