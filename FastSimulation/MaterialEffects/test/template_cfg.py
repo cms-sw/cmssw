@@ -75,8 +75,7 @@ process.source = cms.Source("EmptySource")
 
 # Flat energy gun
 """
-process.source = cms.Source(
-    "FlatRandomEGunSource",
+process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.untracked.PSet(
         PartID = cms.untracked.vint32(==PID==),
         MinEta = cms.untracked.double(-5.10000),

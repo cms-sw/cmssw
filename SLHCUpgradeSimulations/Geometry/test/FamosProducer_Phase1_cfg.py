@@ -19,7 +19,6 @@ process.RandomNumberGeneratorService.simSiPixelDigis = cms.PSet(
 process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
 process.generator.PGunParameters.PartID[0] = 13
 ## for 4 muons to test with vertex
-#process.FlatRandomPtGunSource.PGunParameters.PartID = cms.untracked.vint32(13,-13,13,-13)
 ## for opposite sign back-to-back dimuon pairs
 process.generator.PGunParameters.MinPt = 0.9
 process.generator.PGunParameters.MaxPt = 50.0

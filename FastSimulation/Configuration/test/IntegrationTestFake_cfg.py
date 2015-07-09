@@ -24,7 +24,7 @@ process.load("Configuration.Generator.H200ZZ4L_cfi")
 #  process.load("FastSimulation/Configuration/MinBiasEvents_cfi")
 # Generate muons with a flat pT particle gun, and with pT=10.
 # process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
-# replace FlatRandomPtGunSource.PGunParameters.PartID={130}
+# replace FlatRandomPtGunProducer.PGunParameters.PartID={130}
 # Generate di-electrons with pT=35 GeV
 # process.load("FastSimulation/Configuration/DiElectrons_cfi")
 
