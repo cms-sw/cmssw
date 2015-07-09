@@ -164,8 +164,8 @@ def miniAOD_customizeCommon(process):
     process.electronIDValueMapProducer.esReducedRecHitCollection = \
         cms.InputTag("reducedEgamma","reducedESRecHits")
     for idmod in electron_ids:
-        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False)
+    
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')

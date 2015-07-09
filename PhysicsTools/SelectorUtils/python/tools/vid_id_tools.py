@@ -25,7 +25,7 @@ def setupVIDSelection(vidproducer,cutflow):
     )    
     sys.stderr.write('Added ID \'%s\' to %s\n'%(cutflow.idName.value(),vidproducer.label()))
 
-def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
+def addVIDSelectionToPATProducer(patProducer,idProducer,idName,addUserData=True):
     patProducerIDs = None
     userDatas = None
     for key in patProducer.__dict__.keys():
@@ -38,21 +38,22 @@ def addVIDSelectionToPATProducer(patProducer,idProducer,idName):
     if userDatas is None:
         raise Exception('StrangePatModule','%s does not have UserData sources!'%patProducer.label())
     setattr(patProducerIDs,idName,cms.InputTag('%s:%s'%(idProducer,idName)))    
-    if( len(userDatas.userClasses.src) == 1 and 
-        type(userDatas.userClasses.src[0]) is str and 
-        userDatas.userClasses.src[0] == ''            ):
-        userDatas.userClasses.src = cms.VInputTag(cms.InputTag('%s:%s'%(idProducer,idName)))        
-    else:
-        userDatas.userClasses.src.append(cms.InputTag('%s:%s'%(idProducer,idName)))
+    if( addUserData ) :
+        if( len(userDatas.userClasses.src) == 1 and 
+            type(userDatas.userClasses.src[0]) is str and 
+            userDatas.userClasses.src[0] == ''            ):
+            userDatas.userClasses.src = cms.VInputTag(cms.InputTag('%s:%s'%(idProducer,idName)))        
+        else:
+            userDatas.userClasses.src.append(cms.InputTag('%s:%s'%(idProducer,idName)))
     sys.stderr.write('\t--- %s:%s added to %s\n'%(idProducer,idName,patProducer.label()))
 
-def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None):
+def setupAllVIDIdsInModule(process,id_module_name,setupFunction,patProducer=None,addUserData=True):
 #    idmod = importlib.import_module(id_module_name)
     idmod= __import__(id_module_name, globals(), locals(), ['idName','cutFlow'])
     for name in dir(idmod):
         item = getattr(idmod,name)
         if hasattr(item,'idName') and hasattr(item,'cutFlow'):
-            setupFunction(process,item,patProducer)
+            setupFunction(process,item,patProducer,addUserData)
 
 # Supported data formats defined via "enum"
 class DataFormat:
@@ -81,7 +82,7 @@ def switchOnVIDElectronIdProducer(process, dataFormat):
     #    
     sys.stderr.write('Added \'egmGsfElectronIDs\' to process definition (%s format)!\n' % dataFormatString)
 
-def setupVIDElectronSelection(process,cutflow,patProducer=None):
+def setupVIDElectronSelection(process,cutflow,patProducer=None,addUserData=True):
     if not hasattr(process,'egmGsfElectronIDs'):
         raise Exception('VIDProducerNotAvailable','egmGsfElectronIDs producer not available in process!')
     setupVIDSelection(process.egmGsfElectronIDs,cutflow)
@@ -90,7 +91,7 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None):
         if patProducer is None:
             patProducer = process.patElectrons
         idName = cutflow.idName.value()
-        addVIDSelectionToPATProducer(patProducer,'egmGsfElectronIDs',idName)
+        addVIDSelectionToPATProducer(patProducer,'egmGsfElectronIDs',idName,addUserData)
 
 ####
 # Muons
@@ -102,7 +103,7 @@ def switchOnVIDMuonIdProducer(process):
     process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
     sys.stderr.write('Added \'muoMuonIDs\' to process definition!\n')
 
-def setupVIDMuonSelection(process,cutflow,patProducer=None):
+def setupVIDMuonSelection(process,cutflow,patProducer=None,addUserData=True):
     if not hasattr(process,'muoMuonIDs'):
         raise Exception('VIDProducerNotAvailable','muoMuonIDs producer not available in process!')
     setupVIDSelection(process.muoMuonIDs,cutflow)
@@ -111,8 +112,8 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
         if patProducer is None:
             patProducer = process.patMuons
         idName = cutflow.idName.value()
-        addVIDSelectionToPATProducer(patProducer,'muoMuonIDs',idName)
-        
+        addVIDSelectionToPATProducer(patProducer,'muoMuonIDs',idName,addUserData)
+
 ####
 # Photons
 ####
@@ -135,7 +136,7 @@ def switchOnVIDPhotonIdProducer(process, dataFormat):
     #    
     sys.stderr.write('Added \'egmPhotonIDs\' to process definition (%s format)!\n' % dataFormatString)
 
-def setupVIDPhotonSelection(process,cutflow,patProducer=None):
+def setupVIDPhotonSelection(process,cutflow,patProducer=None,addUserData=True):
     if not hasattr(process,'egmPhotonIDs'):
         raise Exception('VIDProducerNotAvailable','egmPhotonIDs producer not available in process!\n')
     setupVIDSelection(process.egmPhotonIDs,cutflow)
@@ -144,5 +145,5 @@ def setupVIDPhotonSelection(process,cutflow,patProducer=None):
         if patProducer is None:
             patProducer = process.patPhotons
         idName = cutflow.idName.value()
-        addVIDSelectionToPATProducer(patProducer,'egmPhotonIDs',idName)
+        addVIDSelectionToPATProducer(patProducer,'egmPhotonIDs',idName,addUserData)
         
