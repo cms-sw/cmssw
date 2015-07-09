@@ -23,7 +23,7 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 #  include "FastSimulation/Configuration/data/MinBiasEvents.cfi"
 # Generate muons with a flat pT particle gun, and with pT=10.
 # include "FastSimulation/Configuration/data/FlatPtMuonGun.cfi"
-# replace FlatRandomPtGunSource.PGunParameters.PartID={130}
+# replace FlatRandomPtGunProducer.PGunParameters.PartID={130}
 # Generate di-electrons with pT=35 GeV
 process.load("FastSimulation.Configuration.DiElectrons_cfi")
 
