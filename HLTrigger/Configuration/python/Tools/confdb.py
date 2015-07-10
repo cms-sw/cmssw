@@ -241,7 +241,19 @@ process = customizeHLTforAll(process,_customInfo)
 
     if self.config.type not in ('Fake','FULL') :
       procfrag = self.labels['process'].split('.')[0]
-      if '50ns' in self.config.type :
+      if '50ns_5e33_v1' in self.config.type :
+        self.data += """
+# load 2015 Run-2 L1 Menu for 50ns
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
+%s = loadL1Menu(%s)
+""" %(procfrag,procfrag)
+      elif '25ns14e33_v1' in self.config.type :
+        self.data += """
+# load 2015 Run-2 L1 Menu for 25ns
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
+%s = loadL1menu(%s)
+""" %(procfrag,procfrag)
+      elif '50ns' in self.config.type :
         self.data += """
 # load 2015 Run-2 L1 Menu for 50ns
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v4 as loadL1Menu
