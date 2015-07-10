@@ -50,12 +50,31 @@ class TrajectorySmoother;
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 
+namespace goodseedhelpers {
+  class HeavyObjectCache {
+  public:
+    HeavyObjectCache(const edm::ParameterSet& conf);
+    std::array<std::unique_ptr<GBRForest>,9> gbr;    
+  private:
+    // for temporary variable binding while reading
+    float eP,eta,pt,nhit,dpt,chired,chiRatio;
+    float chikfred,trk_ecalDeta,trk_ecalDphi;    
+  };
+}
 
-class GoodSeedProducer final : public edm::stream::EDProducer<> {
+class GoodSeedProducer final : public edm::stream::EDProducer<edm::GlobalCache<goodseedhelpers::HeavyObjectCache> > {
   typedef TrajectoryStateOnSurface TSOS;
-   public:
-      explicit GoodSeedProducer(const edm::ParameterSet&);
+ public:
+  explicit GoodSeedProducer(const edm::ParameterSet&, const goodseedhelpers::HeavyObjectCache*);
   
+  static std::unique_ptr<goodseedhelpers::HeavyObjectCache> 
+    initializeGlobalCache( const edm::ParameterSet& conf ) {
+       return std::unique_ptr<goodseedhelpers::HeavyObjectCache>(new goodseedhelpers::HeavyObjectCache(conf));
+   }
+  
+  static void globalEndJob(goodseedhelpers::HeavyObjectCache const* ) {
+  }
+
    private:
       virtual void beginRun(const edm::Run & run,const edm::EventSetup&) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
