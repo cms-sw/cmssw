@@ -58,7 +58,7 @@ public:
   std::pair<int,int>        getEtaRange(const int i) const
     {return std::pair<int,int>(iEtaMin[i],iEtaMax[i]);}
   const std::vector<double> &      getEtaTable()   const {return etaTable;}
-  const std::vector<double> &      getEtaTableHF() const {return etaTableHF;}
+  const std::vector<double> &      getEtaTableHF() const {return hpar->etaTableHF;}
   std::pair<double,double>  getEtaLimit(const int i) const 
     {return std::pair<double,double>(etaTable[i],etaTable[i+1]);}
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
@@ -89,7 +89,6 @@ private:
   std::vector<int>    etaGroup;   // Eta Grouping
   std::vector<std::pair<int,int> > etaSimValu; // eta ranges at Sim stage
   std::vector<double> etaTable;   // Eta table (HB+HE)
-  std::vector<double> etaTableHF; // Eta table (HF)
   std::vector<int>    ietaMap;    // Map Sim level ieta to Rec level ieta
   std::vector<int>    iEtaMin, iEtaMax; // Minimum and maximum eta
   std::vector<int>    maxDepth;   // Maximum depth in HB/HE/HF/HO           

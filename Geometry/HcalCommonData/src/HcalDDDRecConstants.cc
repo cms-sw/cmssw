@@ -104,7 +104,7 @@ HcalDDDRecConstants::getEtaPhi(int subdet, int ieta, int iphi) const {
     int unit    = (int)(phibinHF[ietaAbs-1]/fiveDegInRad+0.5);
     int kphi    = (unit == 4) ? ((iphi-3)/4 + 1) : ((iphi-1)/2 + 1);
     double foff = (unit > 2) ? hpar->phioff[4] : hpar->phioff[2];
-    eta         = 0.5*(etaTableHF[ietaAbs-1]+etaTableHF[ietaAbs]);
+    eta         = 0.5*(hpar->etaTableHF[ietaAbs-1]+hpar->etaTableHF[ietaAbs]);
     phi         = foff + (kphi-0.5)*phibinHF[ietaAbs-1];
   }
   if (ieta < 0)   eta  = -eta;
@@ -395,7 +395,6 @@ void HcalDDDRecConstants::initialize(void) {
   }
   iEtaMin[1] = ietaHE;
   iEtaMax[0] = ietaHB;
-  etaTableHF = hpar->getEtaTableHF();
 
   // Then Phi bins
   ieta = 0;
@@ -421,8 +420,8 @@ void HcalDDDRecConstants::initialize(void) {
     std::cout << " [" << i << "] = " << phiUnitS[i];
   std::cout << std::endl;
   std::cout << "EtaTableHF";
-  for (unsigned int i=0; i<etaTableHF.size(); ++i)
-    std::cout << " [" << i << "] = " << etaTableHF[i];
+  for (unsigned int i=0; i<hpar->etaTableHF.size(); ++i)
+    std::cout << " [" << i << "] = " << hpar->etaTableHF[i];
   std::cout << std::endl;
   std::cout << "PhiBinHF";
   for (unsigned int i=0; i<phibinHF.size(); ++i)

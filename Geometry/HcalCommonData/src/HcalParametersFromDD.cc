@@ -94,7 +94,10 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   } else {
     throw cms::Exception("HcalParametersFromDD") << "Not found "<< attribute.c_str() << " but needed.";
   }
-
+  for( unsigned int i = 0; i < php.rTable.size(); ++i ) {
+    unsigned int k = php.rTable.size() - i - 1;
+    php.etaTableHF.push_back( -log( tan( 0.5 * atan( php.rTable[k] / php.gparHF[4] ))));
+  }
   //Special parameters at reconstruction level
   attribute = "OnlyForHcalRecNumbering"; 
   DDValue val2( attribute, value, 0.0 );
