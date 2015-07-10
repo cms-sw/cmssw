@@ -269,7 +269,8 @@ def miniAOD_customizeCommon(process):
     del process.slimmedMETsPuppi.tXYUncForT01Smear
     del process.slimmedMETsPuppi.caloMET
 
-
+    from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import miniAOD_insertMETFiltersInSchedule
+    miniAOD_insertMETFiltersInSchedule(process)
 
 def miniAOD_customizeMC(process):
     process.muonMatch.matched = "prunedGenParticles"

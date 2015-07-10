@@ -11,12 +11,13 @@
    <version ClassVersion="11" checksum="1613493049"/>
    <version ClassVersion="10" checksum="877294307"/>
   </class>
-  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="14">
-    <version ClassVersion="14" checksum="3882739671"/>
-    <version ClassVersion="13" checksum="1553184391"/>
-    <version ClassVersion="12" checksum="2874379530"/>
-    <version ClassVersion="11" checksum="1553184391"/>
-    <version ClassVersion="10" checksum="3741285161"/>
+  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="15">
+   <version ClassVersion="15" checksum="3518158739"/>
+   <version ClassVersion="14" checksum="1823455267"/>
+   <version ClassVersion="13" checksum="1553184391"/>
+   <version ClassVersion="12" checksum="2874379530"/>
+   <version ClassVersion="11" checksum="1553184391"/>
+   <version ClassVersion="10" checksum="3741285161"/>
   </class>
 
 

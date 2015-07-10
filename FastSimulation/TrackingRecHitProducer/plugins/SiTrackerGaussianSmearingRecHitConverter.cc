@@ -1216,7 +1216,8 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 
 	    if(partnersFound == 1) {
 	      SiTrackerGSMatchedRecHit2D theMatchedHit = GSRecHitMatcher().match( &(*partner),  &(*rit),  gluedDet  , gluedsimtrackdir );
-
+	      if(partner == partnerNext)
+		theMatchedHit.setStereoLayerFirst();
 
 	      //	      std::cout << "Matched  hit: isMatched =\t" << theMatchedHit->isMatched() << ", "
 	      //	<<  theMatchedHit->monoHit() << ", " <<  theMatchedHit->stereoHit() << std::endl;
