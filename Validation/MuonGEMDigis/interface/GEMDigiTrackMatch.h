@@ -38,6 +38,9 @@ public:
   edm::EDGetToken gem_padToken_;
   edm::EDGetToken gem_copadToken_;
 
+  std::map< UInt_t , MonitorElement* > theStrip_dcEta;
+  std::map< UInt_t , MonitorElement* > thePad_dcEta;
+  std::map< UInt_t , MonitorElement* > theCoPad_dcEta; 
 };
 
 #endif
