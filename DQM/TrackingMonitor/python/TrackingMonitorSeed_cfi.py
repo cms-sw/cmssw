@@ -1,4 +1,4 @@
-import FWCore.ParameterSet.Config as cms
+0;95;cimport FWCore.ParameterSet.Config as cms
 
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 
@@ -32,4 +32,3 @@ TrackMonSeed.doSeedPTHisto        = cms.bool(True)
 TrackMonSeed.doSeedETAHisto       = cms.bool(True)
 TrackMonSeed.doSeedPHIHisto       = cms.bool(True)
 TrackMonSeed.doSeedPHIVsETAHisto  = cms.bool(True)
-
