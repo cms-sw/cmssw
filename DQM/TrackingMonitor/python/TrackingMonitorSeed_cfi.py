@@ -1,4 +1,4 @@
-0;95;cimport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 import DQM.TrackingMonitor.TrackingMonitor_cfi
 
