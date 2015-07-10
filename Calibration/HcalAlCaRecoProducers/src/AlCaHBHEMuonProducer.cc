@@ -118,6 +118,7 @@ AlCaHBHEMuonProducer::~AlCaHBHEMuonProducer() { }
 void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iSetup) {
 
   ++nAll_;
+  bool valid(true);
 #ifdef DebugLog
   edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonProducer::Run " 
 			       << iEvent.id().run() << " Event " 
@@ -131,81 +132,87 @@ void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
   iEvent.getByToken(tok_BS_, bmspot);
   if (!bmspot.isValid()){
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelBS_;
-    return;
+    valid = false;
   }
-  const reco::BeamSpot beam = *(bmspot.product());
 
   edm::Handle<reco::VertexCollection> vt;
   iEvent.getByToken(tok_Vtx_, vt);  
   if (!vt.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelVtx_;
-    return ;
+    valid = false;
   }
-  const reco::VertexCollection vtx = *(vt.product());
 
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelEB_;
-    return ;
+    valid = false;
   }
-  const EcalRecHitCollection ebcoll = *(barrelRecHitsHandle.product());
 
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelEE_;
-    return ;
+    valid = false;
   }
-  const EcalRecHitCollection eecoll = *(endcapRecHitsHandle.product());
 
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_HBHE_, hbhe);
   if (!hbhe.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelHBHE_;
-    return ;
+    valid = false;
   }
-  const HBHERecHitCollection hbhecoll = *(hbhe.product());
 
   edm::Handle<reco::MuonCollection> muonhandle;
   iEvent.getByToken(tok_Muon_, muonhandle);
   if (!muonhandle.isValid()) {
     edm::LogWarning("HcalHBHEMuon") << "AlCaHBHEMuonProducer: Error! can't get product " << labelMuon_;
-    return ;
+    valid = false;
   }
-  const reco::MuonCollection muons = *(muonhandle.product());
 
 #ifdef DebugLog
-  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonProducer::Has obtained all the collections";
+  edm::LogInfo("HcalHBHEMuon") << "AlCaHBHEMuonProducer::obtained the collections with validity flag " << valid;
 #endif
 
   //For accepted events
-  bool accept = select(muons);
-  std::auto_ptr<reco::BeamSpot>         outputBeamSpot(new reco::BeamSpot(beam.position(),beam.sigmaZ(),
-									  beam.dxdz(),beam.dydz(),beam.BeamWidthX(),
-									  beam.covariance(),beam.type()));
+  std::auto_ptr<reco::BeamSpot>         outputBeamSpot(new reco::BeamSpot());
   std::auto_ptr<reco::VertexCollection> outputVColl(new reco::VertexCollection);
   std::auto_ptr<EBRecHitCollection>     outputEBColl(new EBRecHitCollection);
   std::auto_ptr<EERecHitCollection>     outputEEColl(new EERecHitCollection);
   std::auto_ptr<HBHERecHitCollection>   outputHBHEColl(new HBHERecHitCollection);
   std::auto_ptr<reco::MuonCollection>   outputMColl(new reco::MuonCollection);
-  if (accept) {
-    ++nGood_;
+
+  if (valid) {
+    const reco::BeamSpot beam = *(bmspot.product());
+    outputBeamSpot = std::auto_ptr<reco::BeamSpot>(new reco::BeamSpot(beam.position(),beam.sigmaZ(),
+					beam.dxdz(),beam.dydz(),beam.BeamWidthX(),
+								      beam.covariance(),beam.type()));
+    const reco::VertexCollection vtx = *(vt.product());
+    const EcalRecHitCollection ebcoll = *(barrelRecHitsHandle.product());
+    const EcalRecHitCollection eecoll = *(endcapRecHitsHandle.product());
+    const HBHERecHitCollection hbhecoll = *(hbhe.product());
+    const reco::MuonCollection muons = *(muonhandle.product());
+
+    bool accept = select(muons);
+
+    if (accept) {
+      ++nGood_;
  
-    for (reco::VertexCollection::const_iterator vtr=vtx.begin(); vtr!=vtx.end(); ++vtr)
-      outputVColl->push_back(*vtr);
+      for (reco::VertexCollection::const_iterator vtr=vtx.begin(); vtr!=vtx.end(); ++vtr)
+	outputVColl->push_back(*vtr);
 
-    for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=ebcoll.begin(); ehit!=ebcoll.end(); ++ehit)
-      outputEBColl->push_back(*ehit);
+      for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=ebcoll.begin(); ehit!=ebcoll.end(); ++ehit)
+	outputEBColl->push_back(*ehit);
 
-    for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=eecoll.begin(); ehit!=eecoll.end(); ++ehit)
-      outputEEColl->push_back(*ehit);
+      for (edm::SortedCollection<EcalRecHit>::const_iterator ehit=eecoll.begin(); ehit!=eecoll.end(); ++ehit)
+	outputEEColl->push_back(*ehit);
 
-    for (std::vector<HBHERecHit>::const_iterator hhit=hbhecoll.begin(); hhit!=hbhecoll.end(); ++hhit)
-      outputHBHEColl->push_back(*hhit);
+      for (std::vector<HBHERecHit>::const_iterator hhit=hbhecoll.begin(); hhit!=hbhecoll.end(); ++hhit)
+	outputHBHEColl->push_back(*hhit);
 
-    for (reco::MuonCollection::const_iterator muon=muons.begin(); muon!=muons.end(); ++muon)
-      outputMColl->push_back(*muon);
+      for (reco::MuonCollection::const_iterator muon=muons.begin(); muon!=muons.end(); ++muon)
+	outputMColl->push_back(*muon);
+    }
   }
 
   iEvent.put(outputBeamSpot,       labelBS_.label());

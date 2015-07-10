@@ -231,43 +231,47 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
 			       << iEvent.luminosityBlock() << " Bunch " 
 			       << iEvent.bunchCrossing();
 #endif
+  bool valid(true);
   //Step1: Get all the relevant containers
   trigger::TriggerEvent triggerEvent;
   edm::Handle<trigger::TriggerEvent> triggerEventHandle;
   iEvent.getByToken(tok_trigEvt_, triggerEventHandle);
   if (!triggerEventHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelTriggerEvent_;
-    return;
+    valid = false;
   }
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByToken(tok_trigRes_, triggerResults);
   if (!triggerResults.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelTriggerResults_;
-    return;
+    valid = false;
   }
 
   edm::Handle<reco::TrackCollection> trkCollection;
   iEvent.getByToken(tok_genTrack_, trkCollection);
   if (!trkCollection.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
-    return;
+    valid = false;
   }
   reco::TrackCollection::const_iterator trkItr;
+
   edm::Handle<reco::VertexCollection> recVtxs;
   iEvent.getByToken(tok_recVtx_, recVtxs);  
-  if (!trkCollection.isValid()) {
+  if (!recVtxs.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelGenTrack_;
-    return;
+    valid = false;
   }
 
   edm::Handle<reco::BeamSpot> beamSpotH;
   iEvent.getByToken(tok_bs_, beamSpotH);
   math::XYZPoint leadPV(0,0,0);
-  if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
-    leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
-			    (*recVtxs)[0].z());
-  } else if (beamSpotH.isValid()) {
-    leadPV = beamSpotH->position();
+  if (valid) {
+    if (recVtxs->size()>0 && !((*recVtxs)[0].isFake())) {
+      leadPV = math::XYZPoint((*recVtxs)[0].x(),(*recVtxs)[0].y(),
+			      (*recVtxs)[0].z());
+    } else if (beamSpotH.isValid()) {
+      leadPV = beamSpotH->position();
+    }
   }
 #ifdef DebugLog
   edm::LogInfo("HcalIsoTrack") << "Primary Vertex " << leadPV;
@@ -277,19 +281,19 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
   iEvent.getByToken(tok_EB_, barrelRecHitsHandle);
   if (!barrelRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEB_;
-    return;
+    valid = false;
   }
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByToken(tok_EE_, endcapRecHitsHandle);
   if (!endcapRecHitsHandle.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelEE_;
-    return;
+    valid = false;
   }
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_hbhe_, hbhe);
   if (!hbhe.isValid()) {
     edm::LogWarning("HcalIsoTrack") << "Cannot access the collection " << labelHBHE_;
-    return;
+    valid = false;
   }
 
   //Get L1 trigger object
@@ -297,17 +301,21 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
   edm::Handle<trigger::TriggerFilterObjectWithRefs> l1trigobj;
   iEvent.getByToken(tok_hltGT_, l1trigobj);
 
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
-  l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
-  setPtEtaPhi(l1tauobjref,ptL1,etaL1,phiL1);
+  if (l1trigobj.isValid()) {
+    std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1tauobjref;
+    l1trigobj->getObjects(trigger::TriggerL1TauJet, l1tauobjref);
+    setPtEtaPhi(l1tauobjref,ptL1,etaL1,phiL1);
 
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
-  l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
-  setPtEtaPhi(l1jetobjref,ptL1,etaL1,phiL1);
+    std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1jetobjref;
+    l1trigobj->getObjects(trigger::TriggerL1CenJet, l1jetobjref);
+    setPtEtaPhi(l1jetobjref,ptL1,etaL1,phiL1);
 
-  std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1forjetobjref;
-  l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
-  setPtEtaPhi(l1forjetobjref,ptL1,etaL1,phiL1);
+    std::vector< edm::Ref<l1extra::L1JetParticleCollection> > l1forjetobjref;
+    l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
+    setPtEtaPhi(l1forjetobjref,ptL1,etaL1,phiL1);
+  } else {
+    valid = false;
+  }
 
   std::auto_ptr<reco::HcalIsolatedTrackCandidateCollection> outputHcalIsoTrackColl(new reco::HcalIsolatedTrackCandidateCollection);
   std::auto_ptr<reco::VertexCollection> outputVColl(new reco::VertexCollection);
@@ -316,9 +324,8 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
   std::auto_ptr<HBHERecHitCollection>   outputHBHEColl(new HBHERecHitCollection);
 
   //For valid HLT record
-  if (!triggerEventHandle.isValid()) {
-    edm::LogWarning("HcalIsoTrack") << "Error! Can't get the product "
-				    << labelTriggerEvent_.label() ;
+  if (!valid) {
+    edm::LogWarning("HcalIsoTrack") << "Error! Can't get some of the products";
   } else {
     trigger::TriggerEvent triggerEvent = *(triggerEventHandle.product());
     if (triggerResults.isValid()) {
