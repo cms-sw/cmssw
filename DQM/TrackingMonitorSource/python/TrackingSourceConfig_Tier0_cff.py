@@ -55,7 +55,9 @@ import DQM.TrackingMonitor.TrackingMonitorSeed_cfi
 from DQM.TrackingMonitorSource.IterTrackingModules4seedMonitoring_cfi import *
 for step in selectedIterTrackingStep :
     label = 'TrackSeedMon'+str(step)
-    locals()[label] = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone()
+    locals()[label] = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone(
+        doTrackCandHistos = cms.bool(True)
+    )
     locals()[label].TrackProducer = cms.InputTag("generalTracks")
     locals()[label].FolderName    = cms.string("Tracking/TrackParameters/generalTracks")
     locals()[label].SeedProducer  = seedInputTag[step]
@@ -136,6 +138,7 @@ for tracks in selectedTracks :
     TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
 # seeding monitoring
 for step in selectedIterTrackingStep :
+    TrackingDQMSourceTier0 += seedSequenceName[step]
     label = 'TrackSeedMon'+str(step)
     TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
 # MessageLog
