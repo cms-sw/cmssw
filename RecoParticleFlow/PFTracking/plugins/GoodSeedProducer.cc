@@ -33,6 +33,7 @@
 #include <string>
 #include "TMath.h"
 #include "Math/VectorUtil.h"
+#include "TMVA/MethodBDT.h"
 
 using namespace edm;
 using namespace std;
@@ -400,8 +401,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      eta=tketa;
 	      pt=tkpt;
 	      eP=EP;
-	  
-	      float Ytmva=reader[ipteta]->EvaluateMVA( method_ );
+              float vars[10] = { nhit, chikfred, dpt, eP, chiRatio, chired, trk_ecalDeta, trk_ecalDphi, pt, eta};
+              
+	      float Ytmva=gbr[ipteta]->GetClassifier( vars );
 	      
 	      float BDTcut=thr[ibin+5]; 
 	      if ( Ytmva>BDTcut) GoodTkId=true;
@@ -505,6 +507,7 @@ GoodSeedProducer::beginRun(const edm::Run & run,
 
     for(UInt_t j = 0; j < 9; ++j){
       reader[j].reset( new TMVA::Reader("!Color:Silent"));
+
       
       reader[j]->AddVariable("NHits", &nhit);
       reader[j]->AddVariable("NormChi", &chikfred);
@@ -526,6 +529,9 @@ GoodSeedProducer::beginRun(const edm::Run & run,
       if(j==6) reader[j]->BookMVA(method_, Weigths7.fullPath().c_str());
       if(j==7) reader[j]->BookMVA(method_, Weigths8.fullPath().c_str());
       if(j==8) reader[j]->BookMVA(method_, Weigths9.fullPath().c_str());
+
+      gbr[j].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader[j]->FindMVA(method_) ) ) );
+      reader[j].reset();
     }    
   }
   //read threshold

@@ -23,6 +23,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
 
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
 /// \brief Abstract
@@ -147,6 +149,7 @@ class GoodSeedProducer final : public edm::stream::EDProducer<> {
 	
       ///READER FOR TMVA
       std::array<std::unique_ptr<TMVA::Reader>,9> reader{};
+      std::array<std::unique_ptr<GBRForest>,9> gbr;
 
       ///VARIABLES NEEDED FOR TMVA
       float eP,eta,pt,nhit,dpt,chired,chiRatio;

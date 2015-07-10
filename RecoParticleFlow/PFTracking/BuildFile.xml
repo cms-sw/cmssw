@@ -30,6 +30,7 @@
 <use   name="RecoVertex/AdaptiveVertexFit"/>
 <use   name="TrackingTools/IPTools"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="CondFormats/EgammaObjects"/>
 <use   name="rootcore"/>
 <use   name="roottmva"/>
 <export>
