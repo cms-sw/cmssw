@@ -138,7 +138,6 @@ for tracks in selectedTracks :
     TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
 # seeding monitoring
 for step in selectedIterTrackingStep :
-    TrackingDQMSourceTier0 += seedSequenceName[step]
     label = 'TrackSeedMon'+str(step)
     TrackingDQMSourceTier0 += cms.Sequence(locals()[label])
 # MessageLog
