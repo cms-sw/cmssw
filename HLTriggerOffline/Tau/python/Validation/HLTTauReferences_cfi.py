@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 TauMCProducer  = cms.EDProducer("HLTTauMCProducer",
                               GenParticles  = cms.untracked.InputTag("genParticles"),
+			      GenMET        = cms.untracked.InputTag("genMetTrue"),
                               ptMinTau      = cms.untracked.double(15),
                               ptMinMuon     = cms.untracked.double(15),
                               ptMinElectron = cms.untracked.double(15),
@@ -48,19 +49,22 @@ TauRelvalRefProducer = cms.EDProducer("HLTTauRefProducer",
                                         doTowers = cms.untracked.bool(True),
                                         towerIsolation = cms.untracked.double(5.0)
                                 ),
-                                
                                 Muons = cms.untracked.PSet(
                                        doMuons = cms.untracked.bool(True),
                                        MuonCollection = cms.untracked.InputTag("muons"),
                                        ptMin = cms.untracked.double(15.0)
                                 ),
-                                
                                 Photons = cms.untracked.PSet(
                                           doPhotons = cms.untracked.bool(True),
                                           PhotonCollection = cms.untracked.InputTag("photons"),
                                           etMin = cms.untracked.double(10.0),
                                           ECALIso = cms.untracked.double(3.0)
                                           ),
+                                MET = cms.untracked.PSet(
+                                          doMET = cms.untracked.bool(True),
+                                          METCollection = cms.untracked.InputTag("caloMet"),
+                                          ptMin = cms.untracked.double(15.0)
+                                ),
                                 EtaMax = cms.untracked.double(2.5)
 )
 

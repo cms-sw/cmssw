@@ -1,6 +1,7 @@
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/PatCandidates"/>
 <export>
   <lib   name="1"/>
 </export>

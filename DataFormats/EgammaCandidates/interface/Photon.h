@@ -164,6 +164,9 @@ namespace reco {
 	   
       {}
     } ;
+    const ShowerShape& showerShapeVariables() const { return showerShapeBlock_; }
+    const ShowerShape& full5x5_showerShapeVariables() const { return full5x5_showerShapeBlock_; }
+
     void setShowerShapeVariables ( const ShowerShape& a )     { showerShapeBlock_ = a ;}
     void full5x5_setShowerShapeVariables ( const ShowerShape& a )     { full5x5_showerShapeBlock_ = a ;}
     
