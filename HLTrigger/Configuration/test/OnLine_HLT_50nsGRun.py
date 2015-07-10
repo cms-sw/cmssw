@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V148 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/50nsGRun/V149 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT50nsGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V148')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V149')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -20710,7 +20710,7 @@ process.hltEle45CaloIdVTGsfTrkIdTCleanAK4PFJet = cms.EDProducer( "HLTPFJetCollec
 )
 process.hltEle45CaloIdVTGsfTrkIdTDiCentralPFJet50EleCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter",
     saveTags = cms.bool( True ),
-    originalTag = cms.InputTag( "hltPFJetsCorrectedMatchedToL1" ),
+    originalTag = cms.InputTag( "hltEle45CaloIdVTGsfTrkIdTCleanAK4PFJet" ),
     inputTag = cms.InputTag( "hltEle45CaloIdVTGsfTrkIdTCleanAK4PFJet" ),
     MinJetPt = cms.double( 50.0 ),
     triggerType = cms.int32( 0 ),
@@ -27895,7 +27895,7 @@ process.hltMu40eta2p1CleanAK4PFJet = cms.EDProducer( "HLTPFJetCollectionsForBoos
 )
 process.hltMu40eta2p1DiCentralPFJet50MuCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter",
     saveTags = cms.bool( True ),
-    originalTag = cms.InputTag( "hltPFJetsCorrectedMatchedToL1" ),
+    originalTag = cms.InputTag( "hltMu40eta2p1CleanAK4PFJet" ),
     inputTag = cms.InputTag( "hltMu40eta2p1CleanAK4PFJet" ),
     MinJetPt = cms.double( 50.0 ),
     triggerType = cms.int32( 0 ),
@@ -27904,7 +27904,7 @@ process.hltMu40eta2p1DiCentralPFJet50MuCleaned = cms.EDFilter( "HLTPFJetCollecti
 )
 process.hltMu40eta2p1CentralPFJet200MuCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter",
     saveTags = cms.bool( True ),
-    originalTag = cms.InputTag( "hltPFJetsCorrectedMatchedToL1" ),
+    originalTag = cms.InputTag( "hltMu40eta2p1CleanAK4PFJet" ),
     inputTag = cms.InputTag( "hltMu40eta2p1CleanAK4PFJet" ),
     MinJetPt = cms.double( 200.0 ),
     triggerType = cms.int32( 0 ),
