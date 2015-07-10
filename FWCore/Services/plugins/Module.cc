@@ -30,7 +30,7 @@ typedef edm::serviceregistry::NoArgsMaker<PrintLoadingPlugins> PrintLoadingPlugi
 DEFINE_FWK_SERVICE_MAKER(PrintLoadingPlugins, PrintLoadingPluginsMaker);
 typedef edm::serviceregistry::ParameterSetMaker<edm::SiteLocalConfig,SiteLocalConfigService> SiteLocalConfigMaker;
 DEFINE_FWK_SERVICE_MAKER(SiteLocalConfigService,SiteLocalConfigMaker);
-typedef edm::serviceregistry::ParameterSetMaker<edm::RootHandlers,InitRootHandlers> RootHandlersMaker;
+typedef edm::serviceregistry::AllArgsMaker<edm::RootHandlers,InitRootHandlers> RootHandlersMaker;
 DEFINE_FWK_SERVICE_MAKER(InitRootHandlers, RootHandlersMaker);
 typedef edm::serviceregistry::ParameterSetMaker<UnixSignalService> UnixSignalMaker;
 DEFINE_FWK_SERVICE_MAKER(UnixSignalService, UnixSignalMaker);
