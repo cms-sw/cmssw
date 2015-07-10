@@ -223,6 +223,8 @@ def miniAOD_customizeCommon(process):
     process.slimmedMETsPuppi.type1Uncertainties = cms.InputTag("patPFMetT1")    # only central value for now
     del process.slimmedMETsPuppi.type1p2Uncertainties # not available
 
+    from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import miniAOD_insertMETFiltersInSchedule
+    miniAOD_insertMETFiltersInSchedule(process)
 
 def miniAOD_customizeMC(process):
     process.muonMatch.matched = "prunedGenParticles"
