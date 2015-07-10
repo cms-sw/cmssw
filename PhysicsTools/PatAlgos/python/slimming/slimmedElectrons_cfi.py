@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
-   src = cms.InputTag("selectedPatElectrons"),
+   src = cms.InputTag("selectedPatElectrons"),                                  
    dropSuperCluster = cms.string("0"), # you can put a cut to slim selectively, e.g. pt < 10
    dropBasicClusters = cms.string("0"), # you can put a cut to slim selectively, e.g. pt < 10
    dropPFlowClusters = cms.string("0"), # you can put a cut to slim selectively, e.g. pt < 10
@@ -19,5 +19,7 @@ slimmedElectrons = cms.EDProducer("PATElectronSlimmer",
    saveNonZSClusterShapes = cms.string("pt > 5"), # save additional user floats: (sigmaIetaIeta,sigmaIphiIphi,sigmaIetaIphi,r9,e1x5_over_e5x5)_NoZS 
    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+   modifyElectrons = cms.bool(True),
+   modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )
 

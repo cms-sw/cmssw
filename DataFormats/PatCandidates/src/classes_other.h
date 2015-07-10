@@ -7,6 +7,8 @@
 #include "DataFormats/PatCandidates/interface/JetCorrFactors.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
 
+#include "DataFormats/PatCandidates/interface/PATObject.h"
+
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesis.h"
 #include "DataFormats/PatCandidates/interface/EventHypothesisLooper.h"
@@ -16,6 +18,8 @@
 #include "DataFormats/PatCandidates/interface/LookupTableRecord.h"
 
 #include "DataFormats/PatCandidates/interface/CandKinResolution.h"
+
+#include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 
 namespace DataFormats_PatCandidates {
   struct dictionaryother {
@@ -50,6 +54,12 @@ namespace DataFormats_PatCandidates {
   std::vector<pat::CandKinResolution>  v_ckr;
   pat::CandKinResolutionValueMap vm_ckr;
   edm::Wrapper<pat::CandKinResolutionValueMap> w_vm_ckr;
+
+  vid::CutFlowResult vcfr;
+  edm::ValueMap<vid::CutFlowResult> vm_vcfr;
+  edm::Wrapper<vid::CutFlowResult> w_vcfr;
+  edm::Wrapper<edm::ValueMap<vid::CutFlowResult> > w_vm_vcfr;
+  pat::UserHolder<vid::CutFlowResult> uh_vcfr;
 
   };
 

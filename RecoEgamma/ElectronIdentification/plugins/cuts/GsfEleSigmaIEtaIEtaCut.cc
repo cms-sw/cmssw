@@ -12,6 +12,8 @@ public:
   
   result_type operator()(const reco::GsfElectronPtr&) const override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -31,4 +33,10 @@ operator()(const reco::GsfElectronPtr& cand) const{
     ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ? 
       _sigmaIEtaIEtaCutValueEB : _sigmaIEtaIEtaCutValueEE );
   return cand->sigmaIetaIeta() < sigmaIEtaIEtaCutValue;
+}
+
+double GsfEleSigmaIEtaIEtaCut::
+value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);  
+  return ele->sigmaIetaIeta();
 }

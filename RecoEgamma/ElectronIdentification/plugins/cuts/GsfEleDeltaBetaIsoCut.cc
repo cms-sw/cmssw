@@ -14,6 +14,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -80,11 +82,91 @@ operator()(const reco::GsfElectronPtr& cand) const{
 	_isoCutEBLowPt : _isoCutEELowPt ) :
       ( std::abs(cand->superCluster()->position().eta()) < _barrelCutOff ?
 	_isoCutEBHighPt : _isoCutEEHighPt ) );
-  const float chad = (*_chad_iso)[cand];
-  const float nhad = (*_nhad_iso)[cand];
-  const float pho = (*_ph_iso)[cand];
-  const float puchad = (*_PUchad_iso)[cand];
+  const reco::GsfElectron::PflowIsolationVariables& pfIso =
+    cand->pfIsolationVariables();
+
+  float chad_val   = 0.0;
+  float nhad_val   = 0.0;
+  float pho_val    = 0.0;
+  float puchad_val = 0.0;
+
+  if( _chad_iso.isValid()   && _chad_iso->contains( cand.id() )   &&
+      _nhad_iso.isValid()   && _nhad_iso->contains( cand.id() )   && 
+      _ph_iso.isValid()     && _ph_iso->contains( cand.id() )     && 
+      _PUchad_iso.isValid() && _PUchad_iso->contains( cand.id() )    ) {
+    chad_val   = (*_chad_iso)[cand];
+    nhad_val   = (*_nhad_iso)[cand];
+    pho_val    = (*_ph_iso)[cand];
+    puchad_val = (*_PUchad_iso)[cand];
+  } else if ( _chad_iso.isValid()   && _chad_iso->idSize()   == 1 &&
+              _nhad_iso.isValid()   && _nhad_iso->idSize()   == 1 &&
+              _ph_iso.isValid()     && _ph_iso->idSize()     == 1 &&
+              _PUchad_iso.isValid() && _PUchad_iso->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    chad_val   = _chad_iso->begin()[cand.key()];
+    nhad_val   = _nhad_iso->begin()[cand.key()];
+    pho_val    = _ph_iso->begin()[cand.key()];
+    puchad_val = _PUchad_iso->begin()[cand.key()];
+  } else if ( _chad_iso.isValid()   && _nhad_iso.isValid()   && 
+              _ph_iso.isValid()     && _PUchad_iso.isValid()    ){ // throw an exception
+    chad_val   = (*_chad_iso)[cand];
+    nhad_val   = (*_nhad_iso)[cand];
+    pho_val    = (*_ph_iso)[cand];
+    puchad_val = (*_PUchad_iso)[cand];
+  }
+  
+  const float chad   = _chad_iso.isValid()   ? chad_val   : pfIso.sumChargedHadronPt;
+  const float nhad   = _nhad_iso.isValid()   ? nhad_val   : pfIso.sumNeutralHadronEt;
+  const float pho    = _ph_iso.isValid()     ? pho_val    : pfIso.sumPhotonEt;
+  const float puchad = _PUchad_iso.isValid() ? puchad_val : pfIso.sumPUPt;
   float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
   if( _relativeIso ) iso /= cand->p4().pt();
   return iso < isoCut;
+}
+
+double GsfEleDeltaBetaIsoCut::value(const reco::CandidatePtr& cand) const {
+  edm::Ptr<reco::GsfElectron> ele(cand);
+  const reco::GsfElectron::PflowIsolationVariables& pfIso =
+    ele->pfIsolationVariables();
+  float chad_val   = 0.0;
+  float nhad_val   = 0.0;
+  float pho_val    = 0.0;
+  float puchad_val = 0.0;
+
+  if( _chad_iso.isValid()   && _chad_iso->contains( cand.id() )   &&
+      _nhad_iso.isValid()   && _nhad_iso->contains( cand.id() )   &&
+      _ph_iso.isValid()     && _ph_iso->contains( cand.id() )     &&
+      _PUchad_iso.isValid() && _PUchad_iso->contains( cand.id() )    ) {
+    chad_val   = (*_chad_iso)[cand];
+    nhad_val   = (*_nhad_iso)[cand];
+    pho_val    = (*_ph_iso)[cand];
+    puchad_val = (*_PUchad_iso)[cand];
+  } else if ( _chad_iso.isValid()   && _chad_iso->idSize()   == 1 &&
+              _nhad_iso.isValid()   && _nhad_iso->idSize()   == 1 &&
+              _ph_iso.isValid()     && _ph_iso->idSize()     == 1 &&
+              _PUchad_iso.isValid() && _PUchad_iso->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    chad_val   = _chad_iso->begin()[cand.key()];
+    nhad_val   = _nhad_iso->begin()[cand.key()];
+    pho_val    = _ph_iso->begin()[cand.key()];
+    puchad_val = _PUchad_iso->begin()[cand.key()];
+  } else if ( _chad_iso.isValid()   && _nhad_iso.isValid()   &&
+              _ph_iso.isValid()     && _PUchad_iso.isValid()    ){ // throw an exception
+    chad_val   = (*_chad_iso)[cand];
+    nhad_val   = (*_nhad_iso)[cand];
+    pho_val    = (*_ph_iso)[cand];
+    puchad_val = (*_PUchad_iso)[cand];
+  }
+  
+  const float chad   = _chad_iso.isValid()   ? chad_val    : pfIso.sumChargedHadronPt;
+  const float nhad   = _nhad_iso.isValid()   ? nhad_val    : pfIso.sumNeutralHadronEt;
+  const float pho    = _ph_iso.isValid()     ? pho_val     : pfIso.sumPhotonEt;
+  const float puchad = _PUchad_iso.isValid() ? puchad_val : pfIso.sumPUPt;
+  float iso = chad + std::max(0.0f, nhad + pho - _deltaBetaConstant*puchad);
+  if( _relativeIso ) iso /= cand->p4().pt();
+  return iso;
 }

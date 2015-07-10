@@ -10,7 +10,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
+#include "DataFormats/PatCandidates/interface/UserData.h"
+
 #include "DataFormats/Common/interface/View.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 #include "PhysicsTools/SelectorUtils/interface/VersionedSelector.h"
 
@@ -116,6 +120,9 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
     produces<edm::ValueMap<float> >(idname); // for PAT
     produces<edm::ValueMap<unsigned> >(idname);  
     produces<edm::ValueMap<unsigned> >(idname+std::string(bitmap_label));
+    produces<edm::ValueMap<vid::CutFlowResult> >(idname);
+    produces<pat::UserDataCollection>(idname);
+    produces<edm::ValueMap<edm::Ptr<pat::UserData> > >(idname);
   }
 }
 
@@ -134,16 +141,23 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::auto_ptr<edm::ValueMap<float> > outPassf(new edm::ValueMap<float>() );
     std::auto_ptr<edm::ValueMap<unsigned> > outHowFar(new edm::ValueMap<unsigned>() );
     std::auto_ptr<edm::ValueMap<unsigned> > outBitmap(new edm::ValueMap<unsigned>() );
+    std::auto_ptr<edm::ValueMap<vid::CutFlowResult> > out_cfrs(new edm::ValueMap<vid::CutFlowResult>() );
+    std::auto_ptr<pat::UserDataCollection> out_usrd(new pat::UserDataCollection);
+        
     std::vector<bool> passfail;
     std::vector<float> passfailf;
     std::vector<unsigned> howfar;
     std::vector<unsigned> bitmap;
+    std::vector<vid::CutFlowResult> cfrs;
+    
     for(size_t i = 0; i < physicsobjects.size(); ++i) {
       auto po = physicsobjects.ptrAt(i);
       passfail.push_back((*id)(po,iEvent));
       passfailf.push_back(passfail.back());
       howfar.push_back(id->howFarInCutFlow());
       bitmap.push_back(id->bitMap());
+      cfrs.push_back(id->cutFlowResult());
+      out_usrd->push_back(pat::UserData::make(cfrs.back(),false));
     }
     
     edm::ValueMap<bool>::Filler fillerpassfail(*outPass);
@@ -162,13 +176,30 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     fillerbitmap.insert(physicsObjectsHandle, bitmap.begin(), bitmap.end() );
     fillerbitmap.fill(); 
 
+    edm::ValueMap<vid::CutFlowResult>::Filler fillercfr(*out_cfrs);
+    fillercfr.insert(physicsObjectsHandle, cfrs.begin(), cfrs.end() );
+    fillercfr.fill(); 
+
     iEvent.put(outPass,id->name());
     iEvent.put(outPassf,id->name());
     iEvent.put(outHowFar,id->name());
     iEvent.put(outBitmap,id->name()+std::string(bitmap_label));
+    iEvent.put(out_cfrs,id->name());
     iEvent.put(std::auto_ptr<std::string>(new std::string(id->md5String())),
 	       id->name());
-    
+    auto usrd_handle = iEvent.put(out_usrd,id->name());
+    //now add the value map of ptrs to user datas
+    std::auto_ptr<edm::ValueMap<edm::Ptr<pat::UserData> > > out_usrdptrs(new edm::ValueMap<edm::Ptr<pat::UserData> >);
+    std::vector<edm::Ptr<pat::UserData> > usrdptrs;
+    for( unsigned i = 0; i < usrd_handle->size(); ++i ){
+      usrdptrs.push_back(edm::Ptr<pat::UserData>(usrd_handle,i));
+    }
+
+    edm::ValueMap<edm::Ptr<pat::UserData> >::Filler fillerusrdptrs(*out_usrdptrs);
+    fillerusrdptrs.insert(physicsObjectsHandle, usrdptrs.begin(), usrdptrs.end());
+    fillerusrdptrs.fill();
+
+    iEvent.put(out_usrdptrs,id->name());        
   }   
 }
 
