@@ -12,6 +12,11 @@ template<muon::SelectionType selectionType,reco::Muon::ArbitrationType arbitrati
  MuonSelectorVIDWrapper(const edm::ParameterSet& c) :
  CutApplicatorBase(c) { }
 
+ double value(const reco::CandidatePtr& cand) const override final {
+   edm::Ptr<reco::Muon> mu(cand);
+   return muon::isGoodMuon(*mu,selectionType,arbitrationType);
+ }
+
  result_type operator()(const edm::Ptr<reco::Muon> & muon) const override final {
    return muon::isGoodMuon(*muon,selectionType,arbitrationType);
  }

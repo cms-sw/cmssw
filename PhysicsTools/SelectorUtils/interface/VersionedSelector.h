@@ -38,6 +38,10 @@
 
 namespace candf = candidate_functions;
 
+namespace vid {
+  class CutFlowResult;
+}
+
 template<class T>
 class VersionedSelector : public Selector<T> {
  public:
@@ -70,6 +74,7 @@ class VersionedSelector : public Selector<T> {
   virtual bool operator()( const T& ref, pat::strbitset& ret ) CINT_GUARD(override final) {
     howfar_ = 0;
     bitmap_ = 0;
+    values_.clear();
     bool failed = false;
     if( !initialized_ ) {
       throw cms::Exception("CutNotInitialized")
@@ -78,6 +83,7 @@ class VersionedSelector : public Selector<T> {
     for( unsigned i = 0; i < cuts_.size(); ++i ) {
       reco::CandidatePtr temp(ref);
       const bool result = (*cuts_[i])(temp);
+      values_.push_back(cuts_[i]->value(temp));
       if( result || this->ignoreCut(cut_indices_[i]) ) {
 	this->passCut(ret,cut_indices_[i]);
         bitmap_ |= 1<<i;
@@ -104,6 +110,17 @@ class VersionedSelector : public Selector<T> {
   
   //repeat the other operator() we left out here
   //in the base class here so they are exposed to ROOT
+
+  /* VID BY VALUE */
+  bool operator()( typename T::value_type const & t ) {
+    const T temp(&t,0); // assuming T is edm::Ptr
+    return this->operator()(temp);
+  }
+
+  bool operator()( typename T::value_type const & t, edm::EventBase const & e) {
+    const T temp(&t,0);
+    return this->operator()(temp,e);
+  }
   
   virtual bool operator()( T const & t ) CINT_GUARD(override final) {
     this->retInternal_.set(false);
@@ -134,6 +151,8 @@ class VersionedSelector : public Selector<T> {
 
   const size_t cutFlowSize() const { return cuts_.size(); } 
 
+  vid::CutFlowResult cutFlowResult() const;
+
   void initialize(const edm::ParameterSet&);
 
   CINT_GUARD(void setConsumes(edm::ConsumesCollector));
@@ -144,6 +163,7 @@ class VersionedSelector : public Selector<T> {
   std::vector<bool> needs_event_content_;
   std::vector<typename Selector<T>::index_type> cut_indices_;
   unsigned howfar_, bitmap_;
+  std::vector<double> values_;
 
  private:  
   unsigned char id_md5_[MD5_DIGEST_LENGTH];
@@ -210,7 +230,25 @@ initialize( const edm::ParameterSet& conf ) {
   initialized_ = true;
 }
 
+
+
 #ifdef REGULAR_CPLUSPLUS
+#include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
+template<class T> 
+vid::CutFlowResult VersionedSelector<T>::cutFlowResult() const {
+  std::map<std::string,unsigned> names_to_index;
+  std::map<std::string,unsigned> cut_counter;
+  for( unsigned idx = 0; idx < cuts_.size(); ++idx ) {
+    const std::string& name = cuts_[idx]->name();
+    if( !cut_counter.count(name) ) cut_counter[name] = 0;  
+    std::stringstream realname;
+    realname << name << "_" << cut_counter[name];
+    names_to_index.emplace(realname.str(),idx);
+    cut_counter[name]++;
+  }
+  return vid::CutFlowResult(name_,md5_string_,names_to_index,values_,bitmap_);
+}
+
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 template<class T>
 void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {

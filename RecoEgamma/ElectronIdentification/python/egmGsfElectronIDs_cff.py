@@ -6,4 +6,7 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 # else is needed for IDs
 from RecoEgamma.ElectronIdentification.ElectronIDValueMapProducer_cfi import *
 
-egmGsfElectronIDSequence = cms.Sequence(electronIDValueMapProducer * egmGsfElectronIDs)
+# Load the producer for MVA IDs. Make sure it is also added to the sequence!
+from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import *
+
+egmGsfElectronIDSequence = cms.Sequence( electronMVAValueMapProducer * egmGsfElectronIDs)
