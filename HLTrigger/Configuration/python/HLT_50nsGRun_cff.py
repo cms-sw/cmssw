@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/50nsGRun/V147 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/50nsGRun/V148 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V147')
+  tableName = cms.string('/dev/CMSSW_7_4_0/50nsGRun/V148')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -32125,8 +32125,8 @@ fragment.hltDoubleCSV0p67 = cms.EDFilter( "HLTCaloJetTag",
     MinTag = cms.double( 0.67 ),
     MaxTag = cms.double( 999999.0 )
 )
-fragment.hltL1sL1TripleJet927664ORL1DoubleJetC100 = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64 OR L1_DoubleJetC100" ),
+fragment.hltL1sL1TripleJet927664ORL1TripleJet927664NoFFFORL1DoubleJetC100 = cms.EDFilter( "HLTLevel1GTSeed",
+    L1SeedsLogicalExpression = cms.string( "L1_TripleJet_92_76_64 OR L1_TripleJet_92_76_64_NoFFF OR L1_DoubleJetC100" ),
     saveTags = cms.bool( True ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -54999,8 +54999,8 @@ fragment.HLT_QuadPFJet_VBF_v2 = cms.Path( fragment.HLTBeginSequence + fragment.h
 fragment.HLT_L1_TripleJet_VBF_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1TripleJet927664ORL1TripleJet927664NoFFF + fragment.hltPreL1TripleJetVBF + fragment.HLTEndSequence )
 fragment.HLT_QuadJet45_TripleBTagCSV0p67_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1Quad60ORHTT175 + fragment.hltPreQuadJet45TripleBTagCSV0p67 + fragment.HLTAK4CaloJetsSequence + fragment.hltQuadCentralJet45 + fragment.HLTFastPrimaryVertexSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltTripleCSV0p67 + fragment.HLTAK4PFJetsSequence + fragment.hltAK4PFJetsCorrectedLooseID + fragment.hltQuadPFCentralJetLooseID45 + fragment.HLTEndSequence )
 fragment.HLT_QuadJet45_DoubleBTagCSV0p67_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1Quad60ORHTT175 + fragment.hltPreQuadJet45DoubleBTagCSV0p67 + fragment.HLTAK4CaloJetsSequence + fragment.hltQuadCentralJet45 + fragment.HLTFastPrimaryVertexSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltDoubleCSV0p67 + fragment.HLTAK4PFJetsSequence + fragment.hltAK4PFJetsCorrectedLooseID + fragment.hltQuadPFCentralJetLooseID45 + fragment.HLTEndSequence )
-fragment.HLT_DoubleJet90_Double30_TripleBTagCSV0p67_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1TripleJet927664ORL1DoubleJetC100 + fragment.hltPreDoubleJet90Double30TripleBTagCSV0p67 + fragment.HLTAK4CaloJetsSequence + fragment.hltQuadCentralJet30 + fragment.hltDoubleCentralJet90 + fragment.HLTFastPrimaryVertexSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltTripleCSV0p67 + fragment.HLTAK4PFJetsSequence + fragment.hltAK4PFJetsCorrectedLooseID + fragment.hltQuadPFCentralJetLooseID30 + fragment.hltDoublePFCentralJetLooseID90 + fragment.HLTEndSequence )
-fragment.HLT_DoubleJet90_Double30_DoubleBTagCSV0p67_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1TripleJet927664ORL1DoubleJetC100 + fragment.hltPreDoubleJet90Double30DoubleBTagCSV0p67 + fragment.HLTAK4CaloJetsSequence + fragment.hltQuadCentralJet30 + fragment.hltDoubleCentralJet90 + fragment.HLTFastPrimaryVertexSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltDoubleCSV0p67 + fragment.HLTAK4PFJetsSequence + fragment.hltAK4PFJetsCorrectedLooseID + fragment.hltQuadPFCentralJetLooseID30 + fragment.hltDoublePFCentralJetLooseID90 + fragment.HLTEndSequence )
+fragment.HLT_DoubleJet90_Double30_TripleBTagCSV0p67_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1TripleJet927664ORL1TripleJet927664NoFFFORL1DoubleJetC100 + fragment.hltPreDoubleJet90Double30TripleBTagCSV0p67 + fragment.HLTAK4CaloJetsSequence + fragment.hltQuadCentralJet30 + fragment.hltDoubleCentralJet90 + fragment.HLTFastPrimaryVertexSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltTripleCSV0p67 + fragment.HLTAK4PFJetsSequence + fragment.hltAK4PFJetsCorrectedLooseID + fragment.hltQuadPFCentralJetLooseID30 + fragment.hltDoublePFCentralJetLooseID90 + fragment.HLTEndSequence )
+fragment.HLT_DoubleJet90_Double30_DoubleBTagCSV0p67_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1TripleJet927664ORL1TripleJet927664NoFFFORL1DoubleJetC100 + fragment.hltPreDoubleJet90Double30DoubleBTagCSV0p67 + fragment.HLTAK4CaloJetsSequence + fragment.hltQuadCentralJet30 + fragment.hltDoubleCentralJet90 + fragment.HLTFastPrimaryVertexSequence + fragment.HLTBtagCSVSequenceL3 + fragment.hltDoubleCSV0p67 + fragment.HLTAK4PFJetsSequence + fragment.hltAK4PFJetsCorrectedLooseID + fragment.hltQuadPFCentralJetLooseID30 + fragment.hltDoublePFCentralJetLooseID90 + fragment.HLTEndSequence )
 fragment.HLT_Photon135_PFMET100_NoiseCleaned_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleEG25ORL1SingleEG40ORL1SingleJet200 + fragment.hltPrePhoton135PFMET100NoiseCleaned + fragment.HLTSinglePhoton135Sequence + fragment.HLTRecoMETSequence + fragment.hltMET50 + fragment.HLTHBHENoiseCleanerSequence + fragment.hltMetClean + fragment.hltMETClean40 + fragment.HLTAK4CaloJetsSequence + fragment.hltMetCleanUsingJetID + fragment.hltMETCleanUsingJetID40 + fragment.HLTAK4PFJetsSequence + fragment.hltPFMETProducer + fragment.hltPFMET100Filter + fragment.HLTEndSequence )
 fragment.HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_PFMET40_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleEG20 + fragment.hltPrePhoton22R9Id90HE10Iso40EBOnlyPFMET40 + fragment.HLTPhoton22R9Id90HE10Iso40EBOnlySequence + fragment.HLTAK4PFJetsSequence + fragment.hltPFMETProducer + fragment.hltPFMET40Filter + fragment.HLTEndSequence )
 fragment.HLT_Photon22_R9Id90_HE10_Iso40_EBOnly_VBF_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleEG20 + fragment.hltPrePhoton22R9Id90HE10Iso40EBOnlyVBF + fragment.HLTPhoton22R9Id90HE10Iso40EBOnlySequence + fragment.HLTAK4CaloJetsSequence + fragment.hltDiCaloJet20MJJ400AllJetsDEta3Filter + fragment.HLTEndSequence )
