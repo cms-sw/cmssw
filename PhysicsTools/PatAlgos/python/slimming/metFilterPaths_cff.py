@@ -25,6 +25,21 @@ Flag_trkPOG_logErrorTooManyClusters = cms.Path(~logErrorTooManyClusters)
 # and the summary
 Flag_METFilters = cms.Path(metFilters)
 
+def miniAOD_insertMETFiltersInSchedule(process):
+    All_METFilters = [ 'Flag_HBHENoiseFilter', 'Flag_CSCTightHaloFilter', 'Flag_hcalLaserEventFilter', 'Flag_EcalDeadCellTriggerPrimitiveFilter', 'Flag_goodVertices', 'Flag_trackingFailureFilter', 'Flag_eeBadScFilter', 'Flag_ecalLaserCorrFilter', 'Flag_trkPOGFilters', 'Flag_trkPOG_manystripclus53X', 'Flag_trkPOG_toomanystripclus53X', 'Flag_trkPOG_logErrorTooManyClusters', 'Flag_METFilters'] 
+    if hasattr(process,'schedule'):
+        found = -1
+        for i,p in enumerate(process.schedule):
+            if isinstance(p, cms.EndPath):
+                found = i
+                break
+        for pname in All_METFilters:
+            path = getattr(process,pname)
+            if not isinstance(path, cms.Path): raise RuntimeError, "Path %s is not a cms.Path?" % pathname
+            if found == -1: process.schedule.append(path)
+            else:           process.schedule.insert(found, path)
+
+
 def miniAOD_customizeMETFiltersFastSim(process):
     """Replace some MET filters that don't work in FastSim with trivial bools"""
     for X in 'CSCTightHaloFilter', 'HBHENoiseFilter', 'HBHENoiseFilterResultProducer':
