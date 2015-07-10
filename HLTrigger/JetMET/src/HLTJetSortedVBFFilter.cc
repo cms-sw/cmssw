@@ -118,7 +118,7 @@ HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event, const edm::EventSetup& se
 	const unsigned int nMax(njets_<jets->size()?njets_:jets->size());
 	vector<Jpair> sorted(nMax);
 	vector<TRef> jetRefs(nMax);
-	unsigned int nJetRes=0;
+	unsigned int nJetRefs=0;
 
 	unsigned int nJet=0;
 	double value(0.0);
