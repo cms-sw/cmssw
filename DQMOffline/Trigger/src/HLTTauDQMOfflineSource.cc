@@ -148,6 +148,9 @@ void HLTTauDQMOfflineSource::analyze(const Event& iEvent, const EventSetup& iSet
             else if(refObj.objID == 15) {
               refC.taus.insert(refC.taus.end(), collHandle->begin(), collHandle->end());
             }
+            else if(refObj.objID == 0) {
+              refC.met.insert(refC.met.end(), collHandle->begin(), collHandle->end());
+            }
           }
         }
         
