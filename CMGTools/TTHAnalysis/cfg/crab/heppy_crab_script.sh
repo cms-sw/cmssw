@@ -4,7 +4,6 @@ tar xzf python.tar.gz --directory $CMSSW_BASE
 tar xzf cafpython.tar.gz --directory $CMSSW_BASE
 
 # uncomment for debuging purposes
-
 #ls -lR .
 #echo "ARGS:"
 #echo $@
@@ -17,9 +16,12 @@ tar xzf cafpython.tar.gz --directory $CMSSW_BASE
 #echo $PYTHONPATH
 #echo $PWD
 #echo $HOME
+#echo $ROOTSYS
 
 # copy auxiliarity data to the right place (json, pu, lep eff, jet corr, ...)
-cp lib/slc*/* $CMSSW_BASE/lib/slc*
+cp -r lib/* $CMSSW_BASE/lib/
+mkdir $CMSSW_BASE/src/CMGTools/
+cp -r src/CMGTools/* $CMSSW_BASE/src/CMGTools/
 for i in `find src/ -name data -type d`
 do
     echo $i

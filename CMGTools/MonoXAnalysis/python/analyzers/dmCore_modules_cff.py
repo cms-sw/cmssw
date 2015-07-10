@@ -90,11 +90,11 @@ pileUpAna = cfg.Analyzer(
 genAna = cfg.Analyzer(
     GeneratorAnalyzer, name="GeneratorAnalyzer",
     # BSM particles that can appear with status <= 2 and should be kept
-    stableBSMParticleIds = { 1000022 },
+    stableBSMParticleIds = [ 1000022 ],
     # Particles of which we want to save the pre-FSR momentum (a la status 3).
     # Note that for quarks and gluons the post-FSR doesn't make sense,
     # so those should always be in the list
-    savePreFSRParticleIds = { 1,2,3,4,5, 11,12,13,14,15,16, 21 },
+    savePreFSRParticleIds = [ 1,2,3,4,5, 11,12,13,14,15,16, 21 ],
     # Make also the list of all genParticles, for other analyzers to handle
     makeAllGenParticles = True,
     # Make also the splitted lists
@@ -220,26 +220,26 @@ photonAna = cfg.Analyzer(
 tauAna = cfg.Analyzer(
     TauAnalyzer, name="tauAnalyzer",
     # inclusive very loose hadronic tau selection
-    inclusive_ptMin = 15,
+    inclusive_ptMin = 18,
     inclusive_etaMax = 9999,
     inclusive_dxyMax = 1000.,
     inclusive_dzMax = 1000,
     inclusive_vetoLeptons = False,
     inclusive_leptonVetoDR = 0.4,
-    inclusive_decayModeID = "decayModeFinding", # ignored if not set or ""
+    inclusive_decayModeID = "", # ignored if not set or ""
     inclusive_tauID = "decayModeFinding",
     inclusive_vetoLeptonsPOG = False, # If True, the following two IDs are required
     inclusive_tauAntiMuonID = "",
     inclusive_tauAntiElectronID = "",
     # loose hadronic tau selection
-    loose_ptMin = 15,
+    loose_ptMin = 18,
     loose_etaMax = 9999,
     loose_dxyMax = 1000.,
     loose_dzMax = 1000,
     loose_vetoLeptons = False,
     loose_leptonVetoDR = 0.4,
     loose_decayModeID = "decayModeFinding", # ignored if not set or ""
-    loose_tauID = "byLooseCombinedIsolationDeltaBetaCorr3Hits",
+    loose_tauID = "decayModeFinding",
     loose_vetoLeptonsPOG = False, # If True, the following two IDs are required
     loose_tauAntiMuonID = "",
     loose_tauAntiElectronID = "",
@@ -288,7 +288,7 @@ jetAna = cfg.Analyzer(
     cleanSelectedLeptons = False, #Whether to clean 'selectedLeptons' after disambiguation. Treat with care (= 'False') if running Jetanalyzer more than once
     minLepPt = 10,
     relaxJetId = False,  
-    doPuId = False, # Not commissioned in 7.0.X
+    doPuId = True, # Not commissioned in 7.0.X, use the Run1 training for the time being
     recalibrateJets = "MC", # True, False, 'MC', 'Data'
     recalibrationType = "AK4PFchs",
     mcGT     = "MCRUN2_74_V9",

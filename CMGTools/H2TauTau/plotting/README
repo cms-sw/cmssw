@@ -1,0 +1,2 @@
+This folder contains plotting scripts including scripts to write out datacards that are used as input for the statistical evaluation.
+There are subfolders for different analysis channels and for specific or generic tasks.

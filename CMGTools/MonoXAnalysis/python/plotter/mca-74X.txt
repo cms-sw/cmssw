@@ -1,4 +1,7 @@
 # relvals for sync
 ADD+:     ADD_MJ           : 1.0; FillColor=ROOT.kRed-9, Label="ADD RelVal"
 TTLep:    TTLep            : 1.0; FillColor=ROOT.kGreen-7, Label="tt lep RelVal"
-
+TTbar:    TTbar            : 1.0; FillColor=ROOT.kBlue-7, Label="tt RelVal"
+DYLL:     DYJetsToLL_M50_50ns : 1.0; FillColor=ROOT.kCyan+1, Label="DYLL"
+WJets:    WJetsToLNu_HT400to600 : 1.0; FillColor=ROOT.kGreen+1, Label="WJets"
+RSGravGaGa: RSGravGaGa          : 1.0; FillColor=ROOT.kGreen+2, Label="RS Graviton -> gam gam"

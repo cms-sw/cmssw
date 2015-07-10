@@ -1,0 +1,7 @@
+jet110: nJetClean30 >= 1 && JetClean1_pt > 110 && abs(JetClean1_eta) < 2.5 && jetclean1 > 0.5
+dphijj: nJetClean30 == 1 || (nJetClean30>=2 && abs(dphijj)<2.5 && jetclean2 > 0.5)
+MET>200: met_pt > 200
+njets<=2: nJetClean30 <= 2 
+lepveto: nMu10V==0 && nEle10V==0
+tauveto: nTauClean18V==0
+photonveto: nGamma15V==0
