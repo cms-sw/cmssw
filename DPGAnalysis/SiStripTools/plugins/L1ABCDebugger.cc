@@ -155,11 +155,11 @@ L1ABCDebugger::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   }
   if(m_horboffvsorb && *m_horboffvsorb) {
     (*m_horboffvsorb)->GetXaxis()->SetTitle("Orbit");    (*m_horboffvsorb)->GetYaxis()->SetTitle("#Delta orbit (SCAL-Event)");
-    (*m_horboffvsorb)->SetCanExtend(TH1::kXaxis);
+    (*m_horboffvsorb)->SetBit(TH1::kCanRebin);
   }
   if(m_hbxoffvsorb && *m_hbxoffvsorb) {
     (*m_hbxoffvsorb)->GetXaxis()->SetTitle("Orbit");    (*m_hbxoffvsorb)->GetYaxis()->SetTitle("#Delta BX (SCAL-Event)");
-    (*m_hbxoffvsorb)->SetCanExtend(TH1::kXaxis);
+    (*m_hbxoffvsorb)->SetBit(TH1::kCanRebin);
   }
 
 
