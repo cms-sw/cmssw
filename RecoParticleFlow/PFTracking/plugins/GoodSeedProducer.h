@@ -50,11 +50,14 @@ class TrajectorySmoother;
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 
+
+
 namespace goodseedhelpers {
   class HeavyObjectCache {
+    constexpr static unsigned int kMaxWeights = 9;
   public:
     HeavyObjectCache(const edm::ParameterSet& conf);
-    std::array<std::unique_ptr<GBRForest>,9> gbr;    
+    std::array<std::unique_ptr<const GBRForest>,kMaxWeights> gbr;    
   private:
     // for temporary variable binding while reading
     float eP,eta,pt,nhit,dpt,chired,chiRatio;
