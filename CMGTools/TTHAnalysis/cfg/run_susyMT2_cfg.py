@@ -309,6 +309,8 @@ elif test==3:
 #    from CMGTools.TTHAnalysis.samples.samples_13TeV_DATA2015 import *
 #    selectedComponents = [ jetHT_0T ]
     selectedComponents = [ Jet_Run2015B ]
+#    for comp in selectedComponents:
+#        comp.files = comp.files[:]
     #, JetHT_Run2015B, HTMHT_Run2015B, MET_Run2015B, SingleElectron_Run2015B, SingleMu_Run2015B, SingleMuon_Run2015B, SinglePhoton_Run2015B, EGamma_Run2015B, DoubleEG_Run2015B, MuonEG_Run2015B, DoubleMuon_Run2015B, minBias_Run2015B, zeroBias_Run2015B]
 
 
