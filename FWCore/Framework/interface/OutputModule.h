@@ -104,7 +104,7 @@ namespace edm {
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
 
-    void doPreallocate(PreallocationConfiguration const&) {}
+    void doPreallocate(PreallocationConfiguration const&);
 
     void doBeginJob();
     void doEndJob();
@@ -158,9 +158,10 @@ namespace edm {
     ModuleDescription moduleDescription_;
 
     bool wantAllEvents_;
-    mutable detail::TriggerResultsBasedEventSelector selectors_;
+    std::vector<detail::TriggerResultsBasedEventSelector> selectors_;
     // ID of the ParameterSet that configured the event selector
     // subsystem.
+    ParameterSet selectEvents_;
     ParameterSetID selector_config_id_;
 
     // needed because of possible EDAliases.

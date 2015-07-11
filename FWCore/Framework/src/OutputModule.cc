@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -55,16 +56,20 @@ namespace edm {
     Service<service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
-    ParameterSet selectevents =
+    selectEvents_ =
       pset.getUntrackedParameterSet("SelectEvents", ParameterSet());
 
-    selectevents.registerIt(); // Just in case this PSet is not registered
+    selectEvents_.registerIt(); // Just in case this PSet is not registered
 
-    selector_config_id_ = selectevents.id();
-    wantAllEvents_ = detail::configureEventSelector(selectevents,
-                                                    process_name_,
-                                                    getAllTriggerNames(),
-                                                    selectors_);
+    selector_config_id_ = selectEvents_.id();
+    selectors_.resize(1);
+    //need to set wantAllEvents_ in constructor
+    // we will make the remaining selectors once we know how many streams
+    wantAllEvents_ = detail::configureEventSelector(selectEvents_,
+                                                          process_name_,
+                                                          getAllTriggerNames(),
+                                                          selectors_[0]);
+
     SharedResourcesRegistry::instance()->registerSharedResource(
                                                                 SharedResourcesRegistry::kLegacyModuleResourceName);
 
@@ -171,6 +176,23 @@ namespace edm {
 
   OutputModule::~OutputModule() { }
 
+  void OutputModule::doPreallocate(PreallocationConfiguration const& iPC) {
+    auto nstreams = iPC.numberOfStreams();
+    selectors_.resize(nstreams);
+
+    bool seenFirst = false;
+    for(auto& s : selectors_) {
+      if(seenFirst) {
+        detail::configureEventSelector(selectEvents_,
+                                       process_name_,
+                                       getAllTriggerNames(),
+                                       s);
+      }
+      seenFirst = true;
+    }
+  }
+
+  
   void OutputModule::doBeginJob() {
     std::vector<std::string> res = {SharedResourcesRegistry::kLegacyModuleResourceName};
     resourceAcquirer_ = SharedResourcesRegistry::instance()->createAcquirer(res);
@@ -202,13 +224,14 @@ namespace edm {
     FDEBUG(2) << "writeEvent called\n";
 
     {
-      std::lock_guard<std::mutex> guard(mutex_);
-      detail::TRBESSentry products_sentry(selectors_);
+      auto& s = selectors_[ep.streamID().value()];
+      detail::TRBESSentry products_sentry(s);
       if(!wantAllEvents_) {
-        if(!selectors_.wantEvent(ep, mcc)) {
+        if(!s.wantEvent(ep, mcc)) {
           return true;
         }
       }
+      std::lock_guard<std::mutex> guard(mutex_);
       
       {
         std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
