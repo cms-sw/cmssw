@@ -58,10 +58,10 @@ void MillePedeFileConverter::fillDescriptions(
       "Keep the fileDir empty if you want to write to the current "
       "directory. If you use it, it should end with a slash.");
 
-  desc.add<std::string>("inputBinaryFile", "milleBinaryISN.dat")->setComment(
+  desc.add<std::string>("inputBinaryFile", "milleBinary.dat")->setComment(
       "Filename of the file created by Mille in the AlignmentProducer");
 
-  desc.add<std::string>("fileBlobLabel", "milleBinaryISN.dat")->setComment(
+  desc.add<std::string>("fileBlobLabel", "milleBinary.dat")->setComment(
       "It's probably a good idea to keep the label the same as the "
       "original filename(s). See configuration of "
       "MillePedeFileExtractor, it should be the same there.");
