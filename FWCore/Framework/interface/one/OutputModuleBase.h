@@ -61,8 +61,6 @@ namespace edm {
 
   namespace one {
     
-    typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
-    
     class OutputModuleBase : public EDConsumerBase {
     public:
       template <typename U> friend class edm::maker::ModuleHolderT;
@@ -108,8 +106,6 @@ namespace edm {
         return moduleDescription_;
       }
     protected:
-      
-      Trig getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const*) const;
       
       ModuleDescription const& description() const;
       

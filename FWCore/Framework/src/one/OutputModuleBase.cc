@@ -189,11 +189,6 @@ namespace edm {
       endJob();
     }
     
-    
-    Trig OutputModuleBase::getTriggerResults(EventPrincipal const& ep,
-                                             ModuleCallingContext const* mcc) const {
-      return selectors_.getOneTriggerResults(ep, mcc);  }
-    
     bool
     OutputModuleBase::doEvent(EventPrincipal const& ep,
                               EventSetup const&,
