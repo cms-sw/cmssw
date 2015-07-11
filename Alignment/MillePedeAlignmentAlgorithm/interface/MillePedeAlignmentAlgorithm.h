@@ -193,6 +193,10 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   /// add MillePedeVariables for each AlignmentParameters (exception if no parameters...)
   void buildUserVariables(const std::vector<Alignable*> &alignables) const;
 
+  /// Generates list of files to read, given the list and dir from the configuration.
+  /// This will automatically expand formatting directives, if they appear.
+  std::vector<std::string> getExistingFormattedFiles(const std::vector<std::string> plainFiles, std::string theDir);
+
   void addLaserData(const EventInfo &eventInfo, 
 		    const TkFittedLasBeamCollection &tkLasBeams,
 		    const TsosVectorCollection &tkLasBeamTsoses);
