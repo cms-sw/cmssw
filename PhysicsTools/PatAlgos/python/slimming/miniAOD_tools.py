@@ -270,7 +270,6 @@ def miniAOD_customizeCommon(process):
     del process.slimmedMETsPuppi.caloMET
 
 
-
 def miniAOD_customizeMC(process):
     process.muonMatch.matched = "prunedGenParticles"
     process.electronMatch.matched = "prunedGenParticles"
