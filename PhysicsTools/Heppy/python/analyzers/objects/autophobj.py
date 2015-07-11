@@ -29,7 +29,7 @@ particleType = NTupleObjectType("particle", baseObjectTypes = [ fourVectorType ]
     NTupleVariable("pdgId",   lambda x : x.pdgId(), int),
 ])
 
-weightsInfoType = NTupleObjectType("WeightsInfo", variables = [
+weightsInfoType = NTupleObjectType("WeightsInfo", mcOnly=True, variables = [
     NTupleVariable("id",   lambda x : x.id, int),
     NTupleVariable("wgt",   lambda x : x.wgt),
 ])
