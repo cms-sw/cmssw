@@ -69,6 +69,7 @@ namespace edm {
     hltbits_(0),
     origSize_(0),
     host_name_(),
+    trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
     hltTriggerSelections_(),
     outputModuleId_(0) {
     // no compression as default value - we need this!
@@ -198,7 +199,7 @@ namespace edm {
 
     hltbits_.clear();  // If there was something left over from last event
 
-    Handle<TriggerResults> const& prod = getTriggerResults(e, mcc);
+    Handle<TriggerResults> const& prod = getTriggerResults(trToken_,e, mcc);
     //Trig const& prod = getTrigMask(e);
     std::vector<unsigned char> vHltState;
 

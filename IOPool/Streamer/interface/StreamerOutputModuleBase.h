@@ -2,6 +2,7 @@
 #define IOPool_Streamer_StreamerOutputModuleBase_h
 
 #include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include <memory>
@@ -61,6 +62,7 @@ namespace edm {
     uint32 origSize_;
     char host_name_[255];
 
+    edm::EDGetTokenT<edm::TriggerResults> trToken_;
     Strings hltTriggerSelections_;
     uint32 outputModuleId_;
   }; //end-of-class-def
