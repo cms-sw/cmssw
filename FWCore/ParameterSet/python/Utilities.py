@@ -101,6 +101,11 @@ def convertToUnscheduled(proc):
     proc.options = cms.untracked.PSet()
   proc.options.allowUnscheduled = cms.untracked.bool(True)
 
+  proc=cleanUnscheduled(proc)
+  return proc
+
+def cleanUnscheduled(proc):
+  import FWCore.ParameterSet.Config as cms
   l = proc.paths
   droppedPaths =[]
   #have to get them now since switching them after the
@@ -218,7 +223,7 @@ def convertToUnscheduled(proc):
   # If there is a schedule then it needs to point at
   # the new Path objects
   if proc.schedule:
-    proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
+      proc._Process__schedule = None
   return proc
 
 if __name__ == "__main__":
@@ -355,6 +360,7 @@ if __name__ == "__main__":
             self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
             self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+process.f1)\n')
-            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3])
+# there is no longer a schedule. 
+#            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3])
 
     unittest.main()
