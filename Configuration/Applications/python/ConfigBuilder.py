@@ -2189,6 +2189,14 @@ class ConfigBuilder(object):
 			self.process.load(module)
 			self.pythonCfgCode += ("process.load('"+module+"')\n")
 
+		#and clean the unscheduled stuff	
+		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import cleanUnscheduled\n"
+		self.pythonCfgCode+="process=cleanUnscheduled(process)\n"
+
+		from FWCore.ParameterSet.Utilities import cleanUnscheduled
+		self.process=cleanUnscheduled(self.process)
+
+
 	self.pythonCfgCode += self.addCustomise(1)
 
 
