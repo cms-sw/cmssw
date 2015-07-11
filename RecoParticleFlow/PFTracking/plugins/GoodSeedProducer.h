@@ -168,11 +168,7 @@ class GoodSeedProducer final : public edm::stream::EDProducer<edm::GlobalCache<g
       ///TRACK QUALITY
       bool useQuality_;
       reco::TrackBase::TrackQuality trackQuality_;
-	
-      ///READER FOR TMVA
-      std::array<std::unique_ptr<TMVA::Reader>,9> reader{};
-      std::array<std::unique_ptr<GBRForest>,9> gbr;
-
+      
       ///VARIABLES NEEDED FOR TMVA
       float eP,eta,pt,nhit,dpt,chired,chiRatio;
       float chikfred,trk_ecalDeta,trk_ecalDphi;                      
