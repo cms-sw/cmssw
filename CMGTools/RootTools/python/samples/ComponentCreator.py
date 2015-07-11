@@ -153,22 +153,34 @@ class ComponentCreator(object):
         )
         return component
 
-    def makeDataComponent(self,name,datasets,user,pattern,json=None):
-         files=[]
+#    def makeDataComponent(self,name,datasets,user,pattern,json=None):
+#         files=[]
+#
+#         for dataset in datasets:
+#             files=files+self.getFiles(dataset,user,pattern)
+#        
+#         component = cfg.DataComponent(
+#             dataset=dataset,
+#             name = name,
+#             files = files,
+#             intLumi=1,
+#             triggers = [],
+#             json=json
+#         )
+#
+#         return component
 
-         for dataset in datasets:
-             files=files+self.getFiles(dataset,user,pattern)
+    def makeDataComponent(self,name,dataset,user,pattern,json=None):
+        component = cfg.DataComponent(
+            #dataset = dataset,
+            name = name,
+            files = self.getFiles(dataset,user,pattern),
+            intLumi = 1,
+            triggers = [],
+            json = json
+            )
         
-         component = cfg.DataComponent(
-             dataset=dataset,
-             name = name,
-             files = files,
-             intLumi=1,
-             triggers = [],
-             json=json
-         )
-
-         return component
+        return component
 
     def getFiles(self, dataset, user, pattern, useAAA=False):
         # print 'getting files for', dataset,user,pattern

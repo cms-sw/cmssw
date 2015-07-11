@@ -211,7 +211,7 @@ from PhysicsTools.HeppyCore.framework.heppy import getHeppyOption
 
 #-------- HOW TO RUN
 # choose 2 for full production
-test = 0
+test = 3
 isData = False
 doSpecialSettingsForMECCA = 1
 if test==0:
@@ -305,10 +305,11 @@ QCD_Pt80to120, QCD_Pt120to170, QCD_Pt300to470, QCD_Pt470to600, QCD_Pt1000to1400,
 elif test==3:
     # run on data
     isData = True
-    from CMGTools.TTHAnalysis.samples.samples_13TeV_74X import *
-    selectedComponents = [ jetHT_0T ]
-  
-
+    from CMGTools.RootTools.samples.samples_13TeV_DATA2015 import *
+#    from CMGTools.TTHAnalysis.samples.samples_13TeV_DATA2015 import *
+#    selectedComponents = [ jetHT_0T ]
+    selectedComponents = [ Jet_Run2015B ]
+    #, JetHT_Run2015B, HTMHT_Run2015B, MET_Run2015B, SingleElectron_Run2015B, SingleMu_Run2015B, SingleMuon_Run2015B, SinglePhoton_Run2015B, EGamma_Run2015B, DoubleEG_Run2015B, MuonEG_Run2015B, DoubleMuon_Run2015B, minBias_Run2015B, zeroBias_Run2015B]
 
 
 # ------------------------------------------------------------------------------------------- #
@@ -321,9 +322,10 @@ if doSpecialSettingsForMECCA:
 
 
 if isData:
+    eventFlagsAna.processName = 'HLT'
     jetAna.recalibrateJets = False
     photonAna.do_mc_match = False
-    for comp in mcSamples:
+    for comp in dataSamples:
         comp.isMC = False
         comp.isData = True
         #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
