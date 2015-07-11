@@ -132,7 +132,7 @@ SiPixelAliMilleAlignmentProducer.tjTkAssociationMapTag = 'SiPixelAliTrackFitter'
 SiPixelAliMilleAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliMilleAlignmentProducer.algoConfig.mode = 'mille'
 SiPixelAliMilleAlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
-SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile = 'milleBinary0.dat'
+SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile = 'milleBinary.dat'
 SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory = BrokenLinesTrajectoryFactory
 #SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory.MomentumEstimate = 10
 SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = 'BrokenLinesCoarse' #Coarse' #Fine' #'BreakPoints'
@@ -182,7 +182,8 @@ SiPixelAliMillePedeFileConverter = cms.EDProducer("MillePedeFileConverter",
                                                   fileDir = cms.string(SiPixelAliMilleAlignmentProducer.algoConfig.fileDir.value()),
                                                   inputBinaryFile = cms.string(SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile.value()),
                                                   #FIXME: why was the label removed? Don't we want a label?
-                                                  fileBlobLabel = cms.string(''))
+                                                  fileBlobLabel = cms.string(''),
+                                                 )
 
 
 
