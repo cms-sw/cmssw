@@ -37,15 +37,15 @@ namespace convbremhelpers {
     }
   }
 
-  std::unique_ptr<GBRForest> HeavyObjectCache::setupMVA(const std::string& weights) {
-    std::unique_ptr<TMVA::Reader> reader( new TMVA::Reader("!Color:Silent") );
-    reader->AddVariable("kftrack_secR",&secR);
-    reader->AddVariable("kftrack_sTIP",&sTIP);
-    reader->AddVariable("kftrack_nHITS1",&nHITS1);
-    reader->AddVariable("kftrack_Epout",&Epout);
-    reader->AddVariable("kftrack_detaBremKF",&detaBremKF);
-    reader->AddVariable("kftrack_ptRatioGsfKF",&ptRatioGsfKF);
-    reader->BookMVA("BDT", weights.c_str());
-    return std::unique_ptr<GBRForest>( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader->FindMVA("BDT") ) ) );
+  std::unique_ptr<const GBRForest> HeavyObjectCache::setupMVA(const std::string& weights) {
+    TMVA::Reader reader("!Color:Silent");
+    reader.AddVariable("kftrack_secR",&secR);
+    reader.AddVariable("kftrack_sTIP",&sTIP);
+    reader.AddVariable("kftrack_nHITS1",&nHITS1);
+    reader.AddVariable("kftrack_Epout",&Epout);
+    reader.AddVariable("kftrack_detaBremKF",&detaBremKF);
+    reader.AddVariable("kftrack_ptRatioGsfKF",&ptRatioGsfKF);
+    reader.BookMVA("BDT", weights.c_str());
+    return std::unique_ptr<const GBRForest>( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader.FindMVA("BDT") ) ) );
   }  
 }

@@ -483,33 +483,33 @@ namespace goodseedhelpers {
     
     if( useTmva ) {
       const std::string method_ = conf.getParameter<string>("TMVAMethod");
-      std::array<edm::FileInPath,9> weights = {{ edm::FileInPath(conf.getParameter<string>("Weights1")),
-                                                 edm::FileInPath(conf.getParameter<string>("Weights2")),
-                                                 edm::FileInPath(conf.getParameter<string>("Weights3")),
-                                                 edm::FileInPath(conf.getParameter<string>("Weights4")),
-                                                 edm::FileInPath(conf.getParameter<string>("Weights5")),
-                                                 edm::FileInPath(conf.getParameter<string>("Weights6")),
-                                                 edm::FileInPath(conf.getParameter<string>("Weights7")),
-                                                 edm::FileInPath(conf.getParameter<string>("Weights8")),
-                                                 edm::FileInPath(conf.getParameter<string>("Weights9")) }};
+      std::array<edm::FileInPath,kMaxWeights> weights = {{ edm::FileInPath(conf.getParameter<string>("Weights1")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights2")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights3")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights4")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights5")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights6")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights7")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights8")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights9")) }};
             
-      for(UInt_t j = 0; j < 9; ++j){
-        std::unique_ptr<TMVA::Reader> reader( new TMVA::Reader("!Color:Silent"));
+      for(UInt_t j = 0; j < gbr.size(); ++j){
+        TMVA::Reader reader("!Color:Silent");
                 
-        reader->AddVariable("NHits", &nhit);
-        reader->AddVariable("NormChi", &chikfred);
-        reader->AddVariable("dPtGSF", &dpt);
-        reader->AddVariable("EoP", &eP);
-        reader->AddVariable("ChiRatio", &chiRatio);
-        reader->AddVariable("RedChi", &chired);
-        reader->AddVariable("EcalDEta", &trk_ecalDeta);
-        reader->AddVariable("EcalDPhi", &trk_ecalDphi);
-        reader->AddVariable("pt", &pt);
-        reader->AddVariable("eta", &eta);
+        reader.AddVariable("NHits", &nhit);
+        reader.AddVariable("NormChi", &chikfred);
+        reader.AddVariable("dPtGSF", &dpt);
+        reader.AddVariable("EoP", &eP);
+        reader.AddVariable("ChiRatio", &chiRatio);
+        reader.AddVariable("RedChi", &chired);
+        reader.AddVariable("EcalDEta", &trk_ecalDeta);
+        reader.AddVariable("EcalDPhi", &trk_ecalDphi);
+        reader.AddVariable("pt", &pt);
+        reader.AddVariable("eta", &eta);
         
-        reader->BookMVA(method_, weights[j].fullPath().c_str());
+        reader.BookMVA(method_, weights[j].fullPath().c_str());
         
-        gbr[j].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader->FindMVA(method_) ) ) );
+        gbr[j].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader.FindMVA(method_) ) ) );
       }    
     }
   }
