@@ -93,6 +93,23 @@ PileupJetIdAlgo::PileupJetIdAlgo(int version,
 void PileupJetIdAlgo::setup()
 {
 	initVariables();
+	
+	tmvaNames_["DRweighted"] = "dR2Mean";
+	tmvaNames_["rho"] = "nvtx";
+	tmvaNames_["nTot"] = "nParticles";
+	tmvaNames_["nCh"] = "nCharged";
+	tmvaNames_["p4.fCoordinates.fPt"] ="jetPt";
+	tmvaNames_["p4.fCoordinates.fEta"] ="jetEta";
+	tmvaNames_["axisMajor"] = "majW";
+	tmvaNames_["axisMinor"] = "minW";
+	tmvaNames_["fRing0"] = "frac01";
+	tmvaNames_["fRing1"] = "frac02";
+	tmvaNames_["fRing2"] = "frac03";
+	tmvaNames_["fRing3"] = "frac04";
+	tmvaNames_["min(pull,0.1)"] = "dRMean";
+	tmvaNames_["nTrueInt"] = "chFrac01";
+	tmvaNames_["dRMatch"] = "chFrac02";
+	
 
 	if( version_ == PHILv0 ) {
 		tmvaVariables_.clear();
@@ -197,12 +214,14 @@ void PileupJetIdAlgo::bookReader()
 		if(  tmvaNames_[*it].empty() ) { 
 			tmvaNames_[*it] = *it;
 		}
+		std::cout << *it << " " << variables_[ tmvaNames_[*it] ].first << std::endl;
 		reader_->AddVariable( *it, variables_[ tmvaNames_[*it] ].first );
 	}
 	for(std::vector<std::string>::iterator it=tmvaSpectators_.begin(); it!=tmvaSpectators_.end(); ++it) {
 		if(  tmvaNames_[*it].empty() ) { 
 			tmvaNames_[*it] = *it;
 		}
+		std::cout << *it << " "<< variables_[ tmvaNames_[*it] ].first << std::endl;
 		reader_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
 	}
 	reco::details::loadTMVAWeights(reader_,  tmvaMethod_.c_str(), tmvaWeights_.c_str() ); 
@@ -326,6 +345,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	setPtEtaPhi(*jet,internalId_.jetPt_,internalId_.jetEta_,internalId_.jetPhi_); // use corrected pt for jet kinematics
 	internalId_.jetM_ = jet->mass(); 
 	internalId_.nvtx_ = allvtx.size();
+
+	float dRmin(1000);
 	
 	for ( unsigned i = 0; i < jet->numberOfSourceCandidatePtrs(); ++i ) {
 	  reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
@@ -345,6 +366,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	    float candDphi = reco::deltaPhi(*icand,*jet);
 	    float candPtDr = candPt * candDr;
 	    size_t icone = std::lower_bound(&cones[0],&cones[ncones],candDr) - &cones[0];
+
+	    if(candDr < dRmin) dRmin = candDr;
 
 		// // all particles
 		if( lLead == nullptr || candPt > lLead->pt() ) {
@@ -560,6 +583,10 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.sumChPt_ = sumPtCh;
 	internalId_.sumNePt_ = sumPtNe;
 
+	internalId_.jetR_    = lLead->pt()/sumPt;
+	internalId_.jetRchg_ = lLeadEm->pt()/sumPt;
+	internalId_.dRMatch_ = dRmin;
+
 	if( sumTkPt != 0. ) {
 		internalId_.beta_     /= sumTkPt;
 		internalId_.betaStar_ /= sumTkPt;
@@ -611,12 +638,15 @@ void PileupJetIdAlgo::initVariables()
 {
 	internalId_.idFlag_    = 0;
   	INIT_VARIABLE(mva        , "", -100.);
-	INIT_VARIABLE(jetPt      , "jspt_1", 0.);
-	INIT_VARIABLE(jetEta     , "jseta_1", large_val);
+	//INIT_VARIABLE(jetPt      , "jspt_1", 0.);
+	//INIT_VARIABLE(jetEta     , "jseta_1", large_val);
+	INIT_VARIABLE(jetPt      , "p4.fCoordinates.fPt", 0.);
+	INIT_VARIABLE(jetEta     , "p4.fCoordinates.fEta", large_val);
 	INIT_VARIABLE(jetPhi     , "jsphi_1", large_val);
 	INIT_VARIABLE(jetM       , "jm_1", 0.);
 
-	INIT_VARIABLE(nCharged   , "", 0.);
+	//INIT_VARIABLE(nCharged   , "", 0.);
+	INIT_VARIABLE(nCharged , "nCh"  , 0.);  
 	INIT_VARIABLE(nNeutrals  , "", 0.);
 	
 	INIT_VARIABLE(chgEMfrac  , "", 0.);
@@ -626,7 +656,8 @@ void PileupJetIdAlgo::initVariables()
 	
 	INIT_VARIABLE(d0         , "jd0_1"    , -1000.);   
 	INIT_VARIABLE(dZ         , "jdZ_1"    , -1000.);  
-	INIT_VARIABLE(nParticles , "npart_1"  , 0.);  
+	//INIT_VARIABLE(nParticles , "npart_1"  , 0.);  
+	INIT_VARIABLE(nParticles , "nTot"  , 0.);  
 	
 	INIT_VARIABLE(leadPt     , "lpt_1"    , 0.);  
 	INIT_VARIABLE(leadEta    , "leta_1"   , large_val);  
@@ -647,11 +678,13 @@ void PileupJetIdAlgo::initVariables()
 	
 	INIT_VARIABLE(dRLeadCent , "drlc_1"   , 0.);  
 	INIT_VARIABLE(dRLead2nd  , "drls_1"   , 0.);  
-	INIT_VARIABLE(dRMean     , "drm_1"    , 0.);  
+	//INIT_VARIABLE(dRMean     , "drm_1"    , 0.);  
+	INIT_VARIABLE(dRMean     , "min(pull,0.1)"    , 0.);  
 	INIT_VARIABLE(dRMeanNeut , "drmne_1"  , 0.);  
 	INIT_VARIABLE(dRMeanEm   , "drem_1"   , 0.);  
 	INIT_VARIABLE(dRMeanCh   , "drch_1"   , 0.);  
-	INIT_VARIABLE(dR2Mean    , ""         , 0.);  
+	//INIT_VARIABLE(dR2Mean    , ""         , 0.);  
+	INIT_VARIABLE(dR2Mean     , "DRweighted"    , 0.);  
 	
 	INIT_VARIABLE(ptD        , "", 0.);
 	INIT_VARIABLE(ptMean     , "", 0.);
@@ -686,19 +719,26 @@ void PileupJetIdAlgo::initVariables()
 	INIT_VARIABLE(etaW  ,"" ,1.);  
 	INIT_VARIABLE(phiW  ,"" ,1.);  
 
-	INIT_VARIABLE(majW  ,"" ,1.);  
-	INIT_VARIABLE(minW  ,"" ,1.);  
+	//INIT_VARIABLE(majW  ,"" ,1.);  
+	//INIT_VARIABLE(minW  ,"" ,1.);  
+	INIT_VARIABLE(majW  ,"axisMajor" ,1.);  
+	INIT_VARIABLE(minW  ,"axisMinor" ,1.);  
 
-	INIT_VARIABLE(frac01    ,"" ,0.);  
-	INIT_VARIABLE(frac02    ,"" ,0.);  
-	INIT_VARIABLE(frac03    ,"" ,0.);  
-	INIT_VARIABLE(frac04    ,"" ,0.);  
+	//INIT_VARIABLE(frac01    ,"" ,0.);  
+	//INIT_VARIABLE(frac02    ,"" ,0.);  
+	//INIT_VARIABLE(frac03    ,"" ,0.);  
+	//INIT_VARIABLE(frac04    ,"" ,0.);
 	INIT_VARIABLE(frac05   ,"" ,0.);  
 	INIT_VARIABLE(frac06   ,"" ,0.);  
-	INIT_VARIABLE(frac07   ,"" ,0.);  
-	
-	INIT_VARIABLE(chFrac01    ,"" ,0.);  
-	INIT_VARIABLE(chFrac02    ,"" ,0.);  
+	INIT_VARIABLE(frac07   ,"" ,0.);
+	INIT_VARIABLE(frac01    ,"fRing0" ,0.);  
+	INIT_VARIABLE(frac02    ,"fRing1" ,0.);
+	INIT_VARIABLE(frac03    ,"fRing2" ,0.);  
+	INIT_VARIABLE(frac04    ,"fRing3" ,0.); 
+		
+	//INIT_VARIABLE(chFrac01    ,"" ,0.);  
+	INIT_VARIABLE(chFrac02    ,"" ,0.);
+	INIT_VARIABLE(chFrac01    ,"nTrueInt" ,0.);  
 	INIT_VARIABLE(chFrac03    ,"" ,0.);  
 	INIT_VARIABLE(chFrac04    ,"" ,0.);  
 	INIT_VARIABLE(chFrac05   ,"" ,0.);  
@@ -726,7 +766,12 @@ void PileupJetIdAlgo::initVariables()
 	INIT_VARIABLE(betaClassic   ,"" ,0.);  
 	INIT_VARIABLE(betaStarClassic   ,"" ,0.);  
 
-	INIT_VARIABLE(nvtx   ,"" ,0.);  
+	//INIT_VARIABLE(nvtx   ,"" ,0.);  
+	INIT_VARIABLE(nvtx   ,"rho" ,0.);  
+	
+	INIT_VARIABLE(jetR       , "", 0.);
+	INIT_VARIABLE(jetRchg    , "", 0.);
+	INIT_VARIABLE(dRMatch    , "", 0.);
 	
 }
 

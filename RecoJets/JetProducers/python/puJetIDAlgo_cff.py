@@ -31,7 +31,40 @@ full_53x = cms.PSet(
  JetIdParams = full_53x_wp,
  label = cms.string("full53x")
  )
-
+####################################################################################################################
+full_53x_new = cms.PSet(
+ impactParTkThreshold = cms.double(1.) ,
+ cutBased = cms.bool(False),
+ tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights.xml"),
+ tmvaMethod  = cms.string("JetIDMVAHighPt"),
+ version = cms.int32(-1),
+ tmvaVariables = cms.vstring(
+    "DRweighted"     ,
+    "rho"       ,
+    "nTot"     ,
+    "nCh" ,
+    "axisMajor" ,
+    "axisMinor",
+    "fRing0"  ,
+    "fRing1"      ,
+    "fRing2"   ,
+    "fRing3"   ,
+    "ptD"   ,
+    "beta"   ,
+    "betaStar"   ,
+    "min(pull,0.1)"   ,
+    "jetR"   ,
+    "jetRchg"   ,
+    ),
+ tmvaSpectators = cms.vstring(
+    "p4.fCoordinates.fPt"   ,
+    "p4.fCoordinates.fEta"   ,
+    "nTrueInt"   ,
+    "dRMatch"   ,
+    ),
+ JetIdParams = full_53x_chs_wp,
+ label = cms.string("full")
+ )
 ####################################################################################################################  
 full_53x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,

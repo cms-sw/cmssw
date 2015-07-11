@@ -22,7 +22,7 @@ pileupJetIdEvaluator = cms.EDProducer('PileupJetIdProducer',
                                       runMvas = cms.bool(True),
                                       jets = cms.InputTag("ak4PFJetsCHS"),
                                       vertexes = cms.InputTag("offlinePrimaryVertices"),
-                                      algos = cms.VPSet(cms.VPSet(cutbased,full_53x_chs)),
+                                      algos = cms.VPSet(cms.VPSet(cutbased,full_53x_new)),
                                       
                                       rho     = cms.InputTag("fixedGridRhoFastjetAll"),
                                       jec     = cms.string("AK4PFchs"),
