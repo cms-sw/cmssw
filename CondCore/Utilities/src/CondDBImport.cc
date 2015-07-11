@@ -146,6 +146,8 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( EcalPulseShape )
       IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalPulseCovariance> )
       IMPORT_PAYLOAD_CASE( EcalPulseCovariance )
+      IMPORT_PAYLOAD_CASE( EcalCondObjectContainer<EcalPulseSymmCovariance> )
+      IMPORT_PAYLOAD_CASE( EcalPulseSymmCovariance )
       IMPORT_PAYLOAD_CASE( FileBlob )
       IMPORT_PAYLOAD_CASE( GBRForest )
       IMPORT_PAYLOAD_CASE( GBRForestD )
