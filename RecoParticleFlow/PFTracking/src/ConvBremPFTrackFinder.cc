@@ -24,72 +24,13 @@ ConvBremPFTrackFinder::ConvBremPFTrackFinder(const TransientTrackBuilder& builde
 					     double mvaBremConvCutBarrelLowPt,
 					     double mvaBremConvCutBarrelHighPt,
 					     double mvaBremConvCutEndcapsLowPt,	     
-					     double mvaBremConvCutEndcapsHighPt,
-					     string mvaWeightFileConvBremBarrelLowPt,
-					     string mvaWeightFileConvBremBarrelHighPt,
-					     string mvaWeightFileConvBremEndcapsLowPt,
-					     string mvaWeightFileConvBremEndcapsHighPt
-					     ):
+					     double mvaBremConvCutEndcapsHighPt):
   builder_(builder),
   mvaBremConvCutBarrelLowPt_(mvaBremConvCutBarrelLowPt), 
   mvaBremConvCutBarrelHighPt_(mvaBremConvCutBarrelHighPt), 
   mvaBremConvCutEndcapsLowPt_(mvaBremConvCutEndcapsLowPt), 
-  mvaBremConvCutEndcapsHighPt_(mvaBremConvCutEndcapsHighPt), 
-  mvaWeightFileConvBremBarrelLowPt_(mvaWeightFileConvBremBarrelLowPt),
-  mvaWeightFileConvBremBarrelHighPt_(mvaWeightFileConvBremBarrelHighPt),
-  mvaWeightFileConvBremEndcapsLowPt_(mvaWeightFileConvBremEndcapsLowPt),
-  mvaWeightFileConvBremEndcapsHighPt_(mvaWeightFileConvBremEndcapsHighPt)
- 
-{
- 
-  tmvaReaderBarrelLowPt_.reset( new TMVA::Reader("!Color:Silent") );
-  tmvaReaderBarrelLowPt_->AddVariable("kftrack_secR",&secR);
-  tmvaReaderBarrelLowPt_->AddVariable("kftrack_sTIP",&sTIP);
-  tmvaReaderBarrelLowPt_->AddVariable("kftrack_nHITS1",&nHITS1);
-  tmvaReaderBarrelLowPt_->AddVariable("kftrack_Epout",&Epout);
-  tmvaReaderBarrelLowPt_->AddVariable("kftrack_detaBremKF",&detaBremKF);
-  tmvaReaderBarrelLowPt_->AddVariable("kftrack_ptRatioGsfKF",&ptRatioGsfKF);
-  tmvaReaderBarrelLowPt_->BookMVA("BDT", mvaWeightFileConvBremBarrelLowPt.c_str());
-  gbrBarrelLowPt_.reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReaderBarrelLowPt_->FindMVA("BDT") ) ) );
-  tmvaReaderBarrelLowPt_.reset();
-
-  tmvaReaderBarrelHighPt_.reset( new TMVA::Reader("!Color:Silent") );
-  tmvaReaderBarrelHighPt_->AddVariable("kftrack_secR",&secR);
-  tmvaReaderBarrelHighPt_->AddVariable("kftrack_sTIP",&sTIP);
-  tmvaReaderBarrelHighPt_->AddVariable("kftrack_nHITS1",&nHITS1);
-  tmvaReaderBarrelHighPt_->AddVariable("kftrack_Epout",&Epout);
-  tmvaReaderBarrelHighPt_->AddVariable("kftrack_detaBremKF",&detaBremKF);
-  tmvaReaderBarrelHighPt_->AddVariable("kftrack_ptRatioGsfKF",&ptRatioGsfKF);
-  tmvaReaderBarrelHighPt_->BookMVA("BDT", mvaWeightFileConvBremBarrelHighPt.c_str());
-  gbrBarrelHighPt_.reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReaderBarrelHighPt_->FindMVA("BDT") ) ) );
-  tmvaReaderBarrelHighPt_.reset();
-
-  tmvaReaderEndcapsLowPt_.reset( new TMVA::Reader("!Color:Silent") );
-  tmvaReaderEndcapsLowPt_->AddVariable("kftrack_secR",&secR);
-  tmvaReaderEndcapsLowPt_->AddVariable("kftrack_sTIP",&sTIP);
-  tmvaReaderEndcapsLowPt_->AddVariable("kftrack_nHITS1",&nHITS1);
-  tmvaReaderEndcapsLowPt_->AddVariable("kftrack_Epout",&Epout);
-  tmvaReaderEndcapsLowPt_->AddVariable("kftrack_detaBremKF",&detaBremKF);
-  tmvaReaderEndcapsLowPt_->AddVariable("kftrack_ptRatioGsfKF",&ptRatioGsfKF);
-  tmvaReaderEndcapsLowPt_->BookMVA("BDT", mvaWeightFileConvBremEndcapsLowPt.c_str());
-  gbrEndcapsLowPt_.reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReaderEndcapsLowPt_->FindMVA("BDT") ) ) );
-  tmvaReaderEndcapsLowPt_.reset();
-
-  tmvaReaderEndcapsHighPt_.reset( new TMVA::Reader("!Color:Silent") );
-  tmvaReaderEndcapsHighPt_->AddVariable("kftrack_secR",&secR);
-  tmvaReaderEndcapsHighPt_->AddVariable("kftrack_sTIP",&sTIP);
-  tmvaReaderEndcapsHighPt_->AddVariable("kftrack_nHITS1",&nHITS1);
-  tmvaReaderEndcapsHighPt_->AddVariable("kftrack_Epout",&Epout);
-  tmvaReaderEndcapsHighPt_->AddVariable("kftrack_detaBremKF",&detaBremKF);
-  tmvaReaderEndcapsHighPt_->AddVariable("kftrack_ptRatioGsfKF",&ptRatioGsfKF);
-  tmvaReaderEndcapsHighPt_->BookMVA("BDT", mvaWeightFileConvBremEndcapsHighPt.c_str());
-  gbrEndcapsHighPt_.reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReaderEndcapsHighPt_->FindMVA("BDT") ) ) );
-  tmvaReaderEndcapsHighPt_.reset();
-
-
-  pfcalib_.reset( new PFEnergyCalibration() );
-
-}
+  mvaBremConvCutEndcapsHighPt_(mvaBremConvCutEndcapsHighPt) 
+{ }
 ConvBremPFTrackFinder::~ConvBremPFTrackFinder(){ }
 
 void
@@ -98,6 +39,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 					 const edm::Handle<reco::PFDisplacedTrackerVertexCollection>& pfNuclears,
 					 const edm::Handle<reco::PFConversionCollection >& pfConversions,
 					 const edm::Handle<reco::PFV0Collection >& pfV0,
+                                         const convbremhelpers::HeavyObjectCache* cache,
 					 bool useNuclear,
 					 bool useConversions,
 					 bool useV0,
@@ -359,7 +301,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	  ps1=ps2=0.;
 	  if(dist < MinDist) {
 	    MinDist = dist;
-	    EE_calib = pfcalib_->energyEm(*clus,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections);
+	    EE_calib = cache->pfcalib_->energyEm(*clus,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections);
 	  }
 	}
       }
@@ -437,9 +379,6 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	}
 	  
 	nHITS1 = tmp_sh;
-	
-
-
 
 	TString weightfilepath ="";
 	double mvaValue =  -10; 
@@ -447,20 +386,20 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 
         float vars[6] = {secR, sTIP, nHITS1, Epout, detaBremKF, ptRatioGsfKF};
 	if(refGsf->pt()<20 && fabs(refGsf->eta())<1.479 ){
-	  mvaValue = gbrBarrelLowPt_->GetClassifier(vars); 
-	  cutvalue =  mvaBremConvCutBarrelLowPt_; 
+	  mvaValue = cache->gbrBarrelLowPt_->GetClassifier(vars); 
+	  cutvalue = mvaBremConvCutBarrelLowPt_; 
 	}
 	if(refGsf->pt()>20 && fabs(refGsf->eta())<1.479 ){
-	  mvaValue = gbrBarrelHighPt_->GetClassifier(vars); 
-	  cutvalue =  mvaBremConvCutBarrelHighPt_;
+	  mvaValue = cache->gbrBarrelHighPt_->GetClassifier(vars); 
+	  cutvalue = mvaBremConvCutBarrelHighPt_;
 	}
 	if(refGsf->pt()<20 && fabs(refGsf->eta())>1.479 ){
-	  mvaValue = gbrEndcapsLowPt_->GetClassifier(vars);
-	  cutvalue =  mvaBremConvCutEndcapsLowPt_;
+	  mvaValue = cache->gbrEndcapsLowPt_->GetClassifier(vars);
+	  cutvalue = mvaBremConvCutEndcapsLowPt_;
 	}
 	if(refGsf->pt()>20 && fabs(refGsf->eta())>1.479 ){
-	  mvaValue = gbrEndcapsHighPt_->GetClassifier(vars);
-	  cutvalue =  mvaBremConvCutEndcapsHighPt_;
+	  mvaValue = cache->gbrEndcapsHighPt_->GetClassifier(vars);
+	  cutvalue = mvaBremConvCutEndcapsHighPt_;
 	}
 
 
