@@ -332,22 +332,22 @@ def cust_2023HGCalPandoraMuonScopeDoc_ee18_fh9(process):
     
     return process
 
-#def cust_2023HGCalNoExtPix_ee18_fh9(process):
-#    layer_mask = {}
-#    layer_mask['EE']  = [1 for x in range(30)]
-#    layer_mask['HEF'] = [1 for x in range(12)]
-#    layer_mask['HEB'] = [1 for x in range(12)] 
-#    
-#    masked_layers = {}
-#    masked_layers['EE']  = [2, 4, 6, 8, 11, 13, 16, 19, 21, 24, 26, 28]
-#    masked_layers['HEF'] = [7, 9, 11]
-#    masked_layers['HEB'] = []
-#    
-#    mask_layers(layer_mask,masked_layers)
-#    
-#    process = cust_2023HGCalPandoraNoExtPix_common(process)
-#    process = customise_me0(process)
-#    if hasattr(process,'reconstruction_step'):
-#        process = propagate_layerdropping(process,layer_mask)
-#    
-#    return process
+def cust_2023HGCalNoExtPix_ee18_fh9(process):
+    layer_mask = {}
+    layer_mask['EE']  = [1 for x in range(30)]
+    layer_mask['HEF'] = [1 for x in range(12)]
+    layer_mask['HEB'] = [1 for x in range(12)] 
+    
+    masked_layers = {}
+    masked_layers['EE']  = [2, 4, 6, 8, 11, 13, 16, 19, 21, 24, 26, 28]
+    masked_layers['HEF'] = [7, 9, 11]
+    masked_layers['HEB'] = []
+    
+    mask_layers(layer_mask,masked_layers)
+    
+    process = cust_2023HGCalPandoraNoExtPix_common(process)
+    process = customise_me0(process)
+    if hasattr(process,'reconstruction_step'):
+        process = propagate_layerdropping(process,layer_mask)
+    
+    return process
