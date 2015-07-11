@@ -25,6 +25,8 @@ output stream.
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 #include <array>
 #include <memory>
 #include <string>
@@ -94,7 +96,7 @@ namespace edm {
     // need to clean up the use of Event and EventPrincipal, to avoid
     // creation of multiple Event objects when handling a single
     // event.
-    Trig getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const*) const;
+    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const*) const;
 
     ModuleDescription const& description() const;
     ModuleDescription const& moduleDescription() const { return moduleDescription_;

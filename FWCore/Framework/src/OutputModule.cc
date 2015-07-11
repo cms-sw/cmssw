@@ -16,6 +16,7 @@
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -182,10 +183,14 @@ namespace edm {
   }
 
 
-  Trig OutputModule::getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
-    return selectors_.getOneTriggerResults(ep, mcc);  }
-
-  namespace {
+  Trig OutputModule::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
+    //This cast is safe since we only call const functions of the EventPrincipal after this point
+    PrincipalGetAdapter adapter(const_cast<EventPrincipal&>(ep), moduleDescription_);
+    adapter.setConsumer(this);
+    Trig result;
+    auto bh = adapter.getByToken_(TypeID(typeid(TriggerResults)),PRODUCT_TYPE, token, mcc);
+    convert_handle(std::move(bh), result);
+    return result;
   }
 
   bool
