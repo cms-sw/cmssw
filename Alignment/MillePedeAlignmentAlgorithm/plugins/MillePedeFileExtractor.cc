@@ -19,8 +19,8 @@ MillePedeFileExtractor::MillePedeFileExtractor(const edm::ParameterSet& iConfig)
 
 MillePedeFileExtractor::~MillePedeFileExtractor() {}
 
-void MillePedeFileExtractor::beginRun(const edm::Run& iRun,
-                                      edm::EventSetup const&) {
+void MillePedeFileExtractor::endRun(const edm::Run& iRun,
+                                    edm::EventSetup const&) {
   // Getting our hands on the vector of FileBlobs
   edm::Handle<FileBlobCollection> theFileBlobCollection;
   iRun.getByLabel(theFileBlobModule, theFileBlobLabel, theFileBlobCollection);
@@ -67,19 +67,18 @@ void MillePedeFileExtractor::fillDescriptions(
       "Keep the fileDir empty if you want to write to the current "
       "directory.");
 
-  desc.add<std::string>("outputBinaryFile", "milleBinaryISN%04d.dat")
-      ->setComment(
-            "Base filename of the files that will be created. This must "
-            "contain "
-            "a placeholder for an index number in the standard C formatting "
-            "style, like %04d.");
+  desc.add<std::string>("outputBinaryFile", "milleBinary%04d.dat")->setComment(
+      "Base filename of the files that will be created. This must "
+      "contain "
+      "a placeholder for an index number in the standard C formatting "
+      "style, like %04d.");
 
   desc.add<std::string>("fileBlobModule", "millePedeFileConverter")->setComment(
       "Name of the module that should have generated the blob in the "
       "root file. Make sure you overwrite this, if you have changed "
       "this is the configuration of the MillePedeFileConverter.");
 
-  desc.add<std::string>("fileBlobLabel", "milleBinaryISN.dat")->setComment(
+  desc.add<std::string>("fileBlobLabel", "milleBinary.dat")->setComment(
       "It's probably a good idea to keep the label the same as the "
       "original filename(s). See configuration of "
       "MillePedeFileConverter, it should be the same there.");

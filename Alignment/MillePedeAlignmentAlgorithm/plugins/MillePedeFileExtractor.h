@@ -1,12 +1,24 @@
-#ifndef MillePedeFileConverter_h
-#define MillePedeFileConverter_h
+#ifndef MillePedeFileExtractor_h
+#define MillePedeFileExtractor_h
 
 // Original Author:  Broen van Besien
 //         Created:  Mon, 23 Mar 2015 14:56:15 GMT
 
 /*
- * This analyzer... blahblahblha... BVB: TODO
+ * This analyzer will extract all fileblobs in the input edm/root file and
+ * write them as files to the file system.
  *
+ * It searches for the files in the vector of fileblobs that should exist on
+ * the level of the run. Unique filenames for each file are generated based
+ * on a formating directive in the output filename parameter.
+ *
+ * The operation is performed during the endRun phase.
+ *
+ * The original embedding of the (binary) files in the edm/root files can be
+ * done with the corresponding module MillePedeFileConverer.
+ *
+ * For more info about the possible parameters, type:
+ * edmPluginHelp -p MillePedeFileExtractor
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -22,7 +34,7 @@ class MillePedeFileExtractor : public edm::EDAnalyzer {
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   void analyze(const edm::Event&, const edm::EventSetup&) {}
 
   std::string theOutputDir;
