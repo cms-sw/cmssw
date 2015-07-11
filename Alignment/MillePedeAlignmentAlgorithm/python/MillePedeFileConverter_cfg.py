@@ -4,6 +4,12 @@ process = cms.Process("MillePedeFileConverter")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
+# This is just a test configuration. It should not be loaded directly in any
+# other configuration.
+# The filenames below are just suggestions.
+# To get all info about this module, type:
+# edmPluginHelp -p MillePedeFileConverter
+
 # Using the normal standard messagelogger, with its standard configuration,
 # but setting the category of messages to MillePedeFileActions
 process.MessageLogger = process.MessageLogger.clone(
