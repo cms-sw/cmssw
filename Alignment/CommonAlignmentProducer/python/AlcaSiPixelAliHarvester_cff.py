@@ -1,15 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 import copy
 
-
-
-
-
 SiPixelAliMilleFileExtractor = cms.EDAnalyzer("MillePedeFileExtractor",
-    #FIXME: handle with an InputLabel instead of 
     fileBlobModule = cms.string("SiPixelAliMillePedeFileConverter"),
     fileBlobLabel  = cms.string(''),
-    outputBinaryFile = cms.string('pippo2.dat'))
+    # File names the Extractor will use to write the fileblobs in the root
+    # file as real binary files to disk, so that the pede step can read them.
+    # This includes the formatting directive "%04d" which will be expanded to
+    # 0000, 0001, 0002,...
+    outputBinaryFile = cms.string('pedeBinary%04d.dat'))
 
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import AlignmentProducer
@@ -97,10 +96,9 @@ SiPixelAliPedeAlignmentProducer.tjTkAssociationMapTag = 'TrackRefitter2'
 
 SiPixelAliPedeAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliPedeAlignmentProducer.algoConfig.mode = 'pede'
-# FIXME: this needs to be addressed
-SiPixelAliPedeAlignmentProducer.algoConfig.mergeBinaryFiles = [
-				SiPixelAliMilleFileExtractor.outputBinaryFile.value()
-				]
+# Input binary files for the pede step: We use the same value as for the output binary files of the extractor.
+# That way the output of the extractor automatically becomes the input for pede.
+SiPixelAliPedeAlignmentProducer.algoConfig.mergeBinaryFiles = [SiPixelAliMilleFileExtractor.outputBinaryFile.value()]
 SiPixelAliPedeAlignmentProducer.algoConfig.monitorFile = 'millePedeMonitor_pede.root'
 SiPixelAliPedeAlignmentProducer.algoConfig.binaryFile = ''
 SiPixelAliPedeAlignmentProducer.algoConfig.TrajectoryFactory = BrokenLinesBzeroTrajectoryFactory
@@ -108,7 +106,7 @@ SiPixelAliPedeAlignmentProducer.algoConfig.TrajectoryFactory.MomentumEstimate = 
 SiPixelAliPedeAlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = 'BrokenLinesCoarse' #Coarse' #Fine' #'BreakPoints'
 SiPixelAliPedeAlignmentProducer.algoConfig.TrajectoryFactory.UseInvalidHits = True # to account for multiple scattering in these layers
 SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.pedeCommand = 'pede'
-SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.method = 'inversion  5  0.8' 
+SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.method = 'inversion  5  0.8'
 SiPixelAliPedeAlignmentProducer.algoConfig.pedeSteerer.options = cms.vstring(
     #'regularisation 1.0 0.05', # non-stated pre-sigma 50 mrad or 500 mum
     'entries 500',
