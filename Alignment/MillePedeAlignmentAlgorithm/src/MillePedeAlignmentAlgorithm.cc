@@ -60,6 +60,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <sys/stat.h>
 
 #include <TMath.h>
 #include <TMatrixDSymEigen.h>
@@ -287,14 +288,16 @@ void MillePedeAlignmentAlgorithm::terminate()
   if (this->isMode(myMilleBit) || !theConfig.getParameter<std::string>("binaryFile").empty()) {
     files.push_back(theDir + theConfig.getParameter<std::string>("binaryFile"));
   } else {
-    const std::vector<std::string> plainFiles
-      (theConfig.getParameter<std::vector<std::string> >("mergeBinaryFiles"));
-    for (std::vector<std::string>::const_iterator i = plainFiles.begin(), iEnd = plainFiles.end();
-         i != iEnd; ++i) {
-      files.push_back(theDir + *i);
+    const std::vector<std::string> plainFiles(theConfig.getParameter<std::vector<std::string> >("mergeBinaryFiles"));
+    files = getExistingFormattedFiles(plainFiles, theDir);
+    // Do some logging:
+    std::string filesForLogOutput;
+    for (std::vector<std::string>::const_iterator i = files.begin(), iEnd = files.end(); i != iEnd; ++i) {
+      filesForLogOutput += " " + *i;
     }
+    edm::LogInfo("Alignment") << "Based on the config parameter mergeBinaryFiles, using the following files as input:" << filesForLogOutput;
   }
-  
+
   // cache all positions, rotations and deformations
   theAlignmentParameterStore->cacheTransformations();
 
@@ -304,9 +307,41 @@ void MillePedeAlignmentAlgorithm::terminate()
   }
 
   // parameters from pede are not yet applied,
-  // so we can still write start positions (but with hit statistics in case of mille): 
+  // so we can still write start positions (but with hit statistics in case of mille):
   this->doIO(0);
   theLastWrittenIov = 0;
+}
+
+std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(const std::vector<std::string> plainFiles, std::string theDir) {
+  std::vector<std::string> files;
+  for (std::vector<std::string>::const_iterator i = plainFiles.begin(), iEnd = plainFiles.end(); i != iEnd; ++i) {
+    std::string theInputFileName = *i;
+    int theNumber = 0;
+    while (true) {
+      // Create a formatted version of the filename, with growing numbers
+      // If the parameter doesn't contain a formatting directive, it just stays unchanged
+      char theNumberedInputFileName[200];
+      sprintf(theNumberedInputFileName, theInputFileName.c_str(), theNumber);
+      std::string theCompleteInputFileName = theDir + theNumberedInputFileName;
+      // Check if the file exists
+      struct stat buffer;
+      if (stat (theCompleteInputFileName.c_str(), &buffer) == 0) {
+        // If the file exists, add it to the list
+        files.push_back(theCompleteInputFileName);
+        if (theNumberedInputFileName == theInputFileName) {
+          // If the filename didn't contain a formatting directive, no reason to look any further, break out of the loop
+          break;
+        } else {
+          // Otherwise look for the next number
+          theNumber++;
+        }
+      } else {
+        // The file doesn't exist, break out of the loop
+        break;
+      }
+    }
+  }
+  return files;
 }
 
 // Run the algorithm on trajectories and tracks -------------------------------
