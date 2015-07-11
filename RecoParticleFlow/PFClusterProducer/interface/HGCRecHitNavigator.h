@@ -18,27 +18,39 @@ class HGCRecHitNavigator : public PFRecHitNavigatorBase {
 
 
   HGCRecHitNavigator(const edm::ParameterSet& iConfig){
-    eeNav_ = new hgcee(iConfig.getParameter<edm::ParameterSet>("hgcee"));
-    hefNav_ = new hgchef(iConfig.getParameter<edm::ParameterSet>("hgchef"));
-    hebNav_ = new hgcheb(iConfig.getParameter<edm::ParameterSet>("hgcheb"));
+    if( iConfig.exists("hgcee") ) {
+      eeNav_ = new hgcee(iConfig.getParameter<edm::ParameterSet>("hgcee"));
+    } else {
+      eeNav_ = nullptr;
+    }
+    if( iConfig.exists("hgchef") ) {
+      hefNav_ = new hgchef(iConfig.getParameter<edm::ParameterSet>("hgchef"));
+    } else {
+      hefNav_ = nullptr;
+    }
+    if( iConfig.exists("hgcheb") ) {
+      hebNav_ = new hgcheb(iConfig.getParameter<edm::ParameterSet>("hgcheb"));
+    } else {
+      hebNav_ = nullptr;
+    }
   }
 
   void beginEvent(const edm::EventSetup& iSetup) {
-    eeNav_->beginEvent(iSetup); 
-    hefNav_->beginEvent(iSetup);
-    hebNav_->beginEvent(iSetup);
+    if( nullptr != eeNav_ )  eeNav_->beginEvent(iSetup); 
+    if( nullptr != hefNav_ ) hefNav_->beginEvent(iSetup);
+    if( nullptr != hebNav_ ) hebNav_->beginEvent(iSetup);
   }
 
   void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
     switch( hit.layer() ) {
     case D1:
-      eeNav_->associateNeighbours(hit,hits,refProd);
+      if( nullptr != eeNav_ )  eeNav_->associateNeighbours(hit,hits,refProd);
       break;
     case D2:
-      hefNav_->associateNeighbours(hit,hits,refProd);
+      if( nullptr != hefNav_ ) hefNav_->associateNeighbours(hit,hits,refProd);
       break;
     case D3:
-      hebNav_->associateNeighbours(hit,hits,refProd);
+      if( nullptr != hebNav_ ) hebNav_->associateNeighbours(hit,hits,refProd);
       break;
     default:
       break;
@@ -48,13 +60,13 @@ class HGCRecHitNavigator : public PFRecHitNavigatorBase {
   virtual void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,const DetIdToHitIdx& hitmap,edm::RefProd<reco::PFRecHitCollection>& refProd) override {
     switch( hit.layer() ) {
     case D1:
-      eeNav_->associateNeighbours(hit,hits,hitmap,refProd);
+      if( nullptr != eeNav_ )  eeNav_->associateNeighbours(hit,hits,hitmap,refProd);
       break;
     case D2:
-      hefNav_->associateNeighbours(hit,hits,hitmap,refProd);
+      if( nullptr != hefNav_ ) hefNav_->associateNeighbours(hit,hits,hitmap,refProd);
       break;
     case D3:
-      hebNav_->associateNeighbours(hit,hits,hitmap,refProd);
+      if( nullptr != hebNav_ ) hebNav_->associateNeighbours(hit,hits,hitmap,refProd);
       break;
     default:
       break;
