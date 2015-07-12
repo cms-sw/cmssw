@@ -84,7 +84,9 @@ process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
 process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)
 
 #
+process.valCscTriggerPrimitiveDigis.gangedME1a = cms.untracked.bool(False)
 
+process.valCsctfTrackDigis.SectorProcessor.gangedME1a = cms.untracked.bool(False)
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
                                 process.l1HwValEmulatorMonitorPath,

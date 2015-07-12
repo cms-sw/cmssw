@@ -192,20 +192,26 @@ void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   h1_EeleOPout_barrel = bookH1(iBooker, "EeleOPout_barrel","ele E_{ele}/P_{out} in barrel",nbineop,0.,eopmax,"E_{ele}/P_{out}");
   h1_EeleOPout_endcaps = bookH1(iBooker, "EeleOPout_endcaps","ele E_{ele}/P_{out} in endcaps",nbineop,0.,eopmax,"E_{ele}/P_{out}");
   h1_dEtaSc_propVtx_barrel = bookH1(iBooker, "dEtaSc_propVtx_barrel","ele #eta_{sc} - #eta_{tr}, prop from vertex, in barrel",nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
-  h1_dEtaSc_propVtx_endcaps = bookH1(iBooker, "dEtaSc_propVtx_endcaps","ele #eta_{sc} - #eta_{tr}, prop from vertex, in endcaps",nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
+  h1_dEtaSc_propVtx_endcapsPos = bookH1(iBooker, "dEtaSc_propVtx_endcapsPos","ele #eta_{sc} - #eta_{tr}, prop from vertex, in positive endcap",nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
+  h1_dEtaSc_propVtx_endcapsNeg = bookH1(iBooker, "dEtaSc_propVtx_endcapsNeg","ele #eta_{sc} - #eta_{tr}, prop from vertex, in negative endcap",nbindetamatch,detamatchmin,detamatchmax,"#eta_{sc} - #eta_{tr}");
   py_dEtaSc_propVtxVsPhi = bookP1(iBooker, "dEtaSc_propVtxVsPhi","ele #eta_{sc} - #eta_{tr}, prop from vertex vs #phi",nbinphi2D,phimin,phimax,detamatchmin,detamatchmax,"#phi (rad)","<#eta_{sc} - #eta_{tr}>");
   h1_dEtaEleCl_propOut_barrel = bookH1(iBooker, "dEtaEleCl_propOut_barrel","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, in barrel",nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
-  h1_dEtaEleCl_propOut_endcaps = bookH1(iBooker, "dEtaEleCl_propOut_endcaps","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, in endcaps",nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
+  h1_dEtaEleCl_propOut_endcapsPos = bookH1(iBooker, "dEtaEleCl_propOut_endcapsPos","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, in positive endcap",nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
+  h1_dEtaEleCl_propOut_endcapsNeg = bookH1(iBooker, "dEtaEleCl_propOut_endcapsNeg","ele #eta_{EleCl} - #eta_{tr}, prop from outermost, in negative endcap",nbindetamatch,detamatchmin,detamatchmax,"#eta_{elecl} - #eta_{tr}");
   h1_dPhiSc_propVtx_barrel = bookH1(iBooker, "dPhiSc_propVtx_barrel","ele #phi_{sc} - #phi_{tr}, prop from vertex, in barrel",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
-  h1_dPhiSc_propVtx_endcaps = bookH1(iBooker, "dPhiSc_propVtx_endcaps","ele #phi_{sc} - #phi_{tr}, prop from vertex, in endcaps",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
+  h1_dPhiSc_propVtx_endcapsPos = bookH1(iBooker, "dPhiSc_propVtx_endcapsPos","ele #phi_{sc} - #phi_{tr}, prop from vertex, in positive endcap",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
+  h1_dPhiSc_propVtx_endcapsNeg = bookH1(iBooker, "dPhiSc_propVtx_endcapsNeg","ele #phi_{sc} - #phi_{tr}, prop from vertex, in negative endcap",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{sc} - #phi_{tr} (rad)");
   py_dPhiSc_propVtxVsPhi = bookP1(iBooker, "dPhiSc_propVtxVsPhi","ele #phi_{sc} - #phi_{tr}, prop from vertex vs #phi",nbinphi2D,phimin,phimax,dphimatchmin,dphimatchmax,"#phi (rad)","<#phi_{sc} - #phi_{tr}> (rad)");
   h1_dPhiEleCl_propOut_barrel = bookH1(iBooker, "dPhiEleCl_propOut_barrel","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, in barrel",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
-  h1_dPhiEleCl_propOut_endcaps = bookH1(iBooker, "dPhiEleCl_propOut_endcaps","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, in endcaps",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
+  h1_dPhiEleCl_propOut_endcapsPos = bookH1(iBooker, "dPhiEleCl_propOut_endcapsPos","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, in positive endcap",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
+  h1_dPhiEleCl_propOut_endcapsNeg = bookH1(iBooker, "dPhiEleCl_propOut_endcapsNeg","ele #phi_{EleCl} - #phi_{tr}, prop from outermost, in negative endcap",nbindphimatch,dphimatchmin,dphimatchmax,"#phi_{elecl} - #phi_{tr} (rad)");
   h1_Hoe_barrel = bookH1(iBooker, "Hoe_barrel","ele hadronic energy / em energy, in barrel", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY E1 P") ;
   h1_Hoe_endcaps = bookH1(iBooker, "Hoe_endcaps","ele hadronic energy / em energy, in endcaps", nbinhoe, hoemin, hoemax,"H/E","Events","ELE_LOGY E1 P") ;
   py_HoeVsPhi = bookP1(iBooker, "HoeVsPhi","ele hadronic energy / em energy vs #phi",nbinphi2D,phimin,phimax,hoemin,hoemax,"#phi (rad)","<H/E>","E1 P") ;
-  h1_sclSigEtaEta_barrel = bookH1(iBooker, "sclSigEtaEta_barrel","ele supercluster sigma ieta ieta in barrel",100,0.,0.05,"sietaieta");
-  h1_sclSigEtaEta_endcaps = bookH1(iBooker, "sclSigEtaEta_endcaps","ele supercluster sigma ieta ieta in endcaps",100,0.,0.05,"sietaieta");
+  h1_sclSigEtaEta_barrel = bookH1(iBooker, "sclSigEtaEta_barrel","ele sigma eta eta in barrel",100,0.,0.05,"sietaieta");
+  h1_sclSigEtaEta_endcaps = bookH1(iBooker, "sclSigEtaEta_endcaps","ele sigma eta eta in endcaps",100,0.,0.05,"sietaieta");
+  h1_sigIEtaIEta5x5_barrel = bookH1(iBooker, "sigIEtaIEta5x5_barrel","ele sigma ieta ieta 5x5 in barrel",100,0.,0.05,"sietaieta5x5");
+  h1_sigIEtaIEta5x5_endcaps = bookH1(iBooker, "sigIEtaIEta5x5_endcaps","ele sigma ieta ieta 5x5 in endcaps",100,0.,0.05,"sietaieta5x5");
 
   // fbrem
   h1_fbrem = bookH1(iBooker, "fbrem","ele brem fraction",100,0.,1.,"P_{in} - P_{out} / P_{in}") ;
@@ -221,6 +227,11 @@ void ElectronAnalyzer::bookHistograms( DQMStore::IBooker & iBooker, edm::Run con
   h1_tkSumPt_dr03 = bookH1(iBooker, "tkSumPt_dr03","tk isolation sum, dR=0.3",100,0.0,20.,"TkIsoSum (GeV/c)","Events","ELE_LOGY E1 P");
   h1_ecalRecHitSumEt_dr03 = bookH1(iBooker, "ecalRecHitSumEt_dr03","ecal isolation sum, dR=0.3",100,0.0,20.,"EcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
   h1_hcalTowerSumEt_dr03 = bookH1(iBooker, "hcalTowerSumEt_dr03","hcal isolation sum, dR=0.3",100,0.0,20.,"HcalIsoSum (GeV)","Events","ELE_LOGY E1 P");
+
+  // pf isolation
+  h1_PFch_dr03 = bookH1(iBooker, "PFch_dr03","Charged PF candidate sum, dR=0.3",100,0.0,20.,"PF charged (GeV/c)","Events","ELE_LOGY E1 P");
+  h1_PFem_dr03 = bookH1(iBooker, "PFem_dr03","Neutral EM PF candidate sum, dR=0.3",100,0.0,20.,"PF neutral EM (GeV)","Events","ELE_LOGY E1 P");
+  h1_PFnh_dr03 = bookH1(iBooker, "PFnh_dr03","Neutral Had PF candidate sum, dR=0.3",100,0.0,20.,"PF neutral Had (GeV)","Events","ELE_LOGY E1 P");
 
   // di-electron mass
   setBookIndex(200) ;
@@ -299,6 +310,20 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     // select electrons
     if (!selected(gsfIter,vertexTIP)) continue ;
 
+    // invariant mass of 2 selected electrons
+    reco::GsfElectronCollection::const_iterator gsfIter2 ;
+    for
+      ( gsfIter2=gsfIter+1;
+	gsfIter2!=gsfElectrons->end() ;
+	gsfIter2++ )
+      {
+        if (!selected(gsfIter2,vertexTIP)) continue ;
+	float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
+        h1_mee->Fill(invMass) ;
+        if ( ( (gsfIter->charge())*(gsfIter2->charge()) )<0. )
+	  { h1_mee_os->Fill(invMass) ; }
+      }
+    
     // basic quantities
     if (gsfIter->isEB()) h1_vertexPt_barrel->Fill( gsfIter->pt() );
     if (gsfIter->isEE()) h1_vertexPt_endcaps->Fill( gsfIter->pt() );
@@ -339,17 +364,27 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
       h1_dPhiEleCl_propOut_barrel->Fill(gsfIter->deltaPhiEleClusterTrackAtCalo());
       h1_Hoe_barrel->Fill(gsfIter->hadronicOverEm());
       h1_sclSigEtaEta_barrel->Fill( gsfIter->scSigmaEtaEta() );
+      h1_sigIEtaIEta5x5_barrel->Fill( gsfIter->full5x5_sigmaIetaIeta() );
      }
     if (gsfIter->isEE())
      {
       h1_Eop_endcaps->Fill( gsfIter->eSuperClusterOverP() );
       h1_EeleOPout_endcaps->Fill( gsfIter->eEleClusterOverPout() );
-      h1_dEtaSc_propVtx_endcaps->Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());
-      h1_dEtaEleCl_propOut_endcaps->Fill(gsfIter->deltaEtaEleClusterTrackAtCalo());
-      h1_dPhiSc_propVtx_endcaps->Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());
-      h1_dPhiEleCl_propOut_endcaps->Fill(gsfIter->deltaPhiEleClusterTrackAtCalo());
+      if (gsfIter->eta() > 0) {
+	h1_dEtaSc_propVtx_endcapsPos->Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());
+	h1_dEtaEleCl_propOut_endcapsPos->Fill(gsfIter->deltaEtaEleClusterTrackAtCalo());
+	h1_dPhiSc_propVtx_endcapsPos->Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());
+	h1_dPhiEleCl_propOut_endcapsPos->Fill(gsfIter->deltaPhiEleClusterTrackAtCalo());
+      }
+      else {
+	h1_dEtaSc_propVtx_endcapsNeg->Fill(gsfIter->deltaEtaSuperClusterTrackAtVtx());
+	h1_dEtaEleCl_propOut_endcapsNeg->Fill(gsfIter->deltaEtaEleClusterTrackAtCalo());
+	h1_dPhiSc_propVtx_endcapsNeg->Fill(gsfIter->deltaPhiSuperClusterTrackAtVtx());
+	h1_dPhiEleCl_propOut_endcapsNeg->Fill(gsfIter->deltaPhiEleClusterTrackAtCalo());
+      }
       h1_Hoe_endcaps->Fill(gsfIter->hadronicOverEm());
       h1_sclSigEtaEta_endcaps->Fill( gsfIter->scSigmaEtaEta() );
+      h1_sigIEtaIEta5x5_endcaps->Fill( gsfIter->full5x5_sigmaIetaIeta() );
      }
     py_EopVsPhi->Fill( gsfIter->phi(), gsfIter->eSuperClusterOverP() );
     py_dEtaSc_propVtxVsPhi->Fill(gsfIter->phi(), gsfIter->deltaEtaSuperClusterTrackAtVtx());
@@ -377,6 +412,13 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
     h1_tkSumPt_dr03->Fill(gsfIter->dr03TkSumPt());
     h1_ecalRecHitSumEt_dr03->Fill(gsfIter->dr03EcalRecHitSumEt());
     h1_hcalTowerSumEt_dr03->Fill(gsfIter->dr03HcalTowerSumEt());
+
+    // PF isolation
+    GsfElectron::PflowIsolationVariables pfIso = gsfIter->pfIsolationVariables();
+    h1_PFch_dr03->Fill( pfIso.sumChargedHadronPt ); 
+    h1_PFem_dr03->Fill( pfIso.sumPhotonEt ); 
+    h1_PFnh_dr03->Fill( pfIso.sumNeutralHadronEt ); 
+
 
    }
 
@@ -410,17 +452,6 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
        gsfIter!=gsfElectrons->end() ;
        gsfIter++ )
      {
-      reco::GsfElectronCollection::const_iterator gsfIter2 ;
-      for
-       ( gsfIter2=gsfIter+1;
-         gsfIter2!=gsfElectrons->end() ;
-         gsfIter2++ )
-       {
-        float invMass = computeInvMass(*gsfIter,*gsfIter2) ;
-        if(matchingObjectNum == 1){h1_mee->Fill(invMass) ;}
-        if ((matchingObjectNum == 1) && (((gsfIter->charge())*(gsfIter2->charge()))<0.))
-         { h1_mee_os->Fill(invMass) ; }
-       }
 
       double vertexTIP =
        (gsfIter->vertex().x()-bs.position().x()) * (gsfIter->vertex().x()-bs.position().x()) +
@@ -470,7 +501,7 @@ float ElectronAnalyzer::computeInvMass
  {
   math::XYZTLorentzVector p12 = e1.p4()+e2.p4() ;
   float mee2 = p12.Dot(p12) ;
-  float invMass = sqrt(mee2) ;
+  float invMass = mee2 > 0. ? sqrt(mee2) : 0;
   return invMass ;
  }
 

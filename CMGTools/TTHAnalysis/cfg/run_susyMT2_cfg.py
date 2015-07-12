@@ -207,7 +207,7 @@ sequence = cfg.Sequence(
 
 
 
-from PhysicsTools.HeppyCore.framework.heppy import getHeppyOption
+from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 #-------- HOW TO RUN
 # choose 2 for full production

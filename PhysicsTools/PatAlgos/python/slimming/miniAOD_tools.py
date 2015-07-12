@@ -142,12 +142,17 @@ def miniAOD_customizeCommon(process):
 	 lazyParser = cms.bool(True) )
     process.patJets.userData.userFloats.src += [ cms.InputTag("caloJetMap:pt"), cms.InputTag("caloJetMap:emEnergyFraction") ]
 
+    #EGM object modifications
+    from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma_modifications
+    process.slimmedElectrons.modifierConfig.modifications = egamma_modifications
+    process.slimmedPhotons.modifierConfig.modifications   = egamma_modifications
+
     #VID Electron IDs
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
                     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV50_CSA14_25ns_cff',
                     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV50_CSA14_startup_cff']
-    switchOnVIDElectronIdProducer(process)
+    switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.electronIDValueMapProducer.src = \
@@ -159,8 +164,8 @@ def miniAOD_customizeCommon(process):
     process.electronIDValueMapProducer.esReducedRecHitCollection = \
         cms.InputTag("reducedEgamma","reducedESRecHits")
     for idmod in electron_ids:
-        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
-
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False)
+    
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
@@ -222,7 +227,6 @@ def miniAOD_customizeCommon(process):
     process.slimmedMETsPuppi.rawUncertainties   = cms.InputTag("patPFMetPuppi") # only central value
     process.slimmedMETsPuppi.type1Uncertainties = cms.InputTag("patPFMetT1")    # only central value for now
     del process.slimmedMETsPuppi.type1p2Uncertainties # not available
-
 
 def miniAOD_customizeMC(process):
     process.muonMatch.matched = "prunedGenParticles"

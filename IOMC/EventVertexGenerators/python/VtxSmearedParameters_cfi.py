@@ -406,6 +406,28 @@ NominalCollision2015VtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.0),
     Z0 = cms.double(0.0)
 )
+ZeroTeslaRun247324CollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(80.0),
+    Emittance = cms.double(1.070e-5),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(4.125),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.08621),
+    Y0 = cms.double(0.1657),
+    Z0 = cms.double(-1.688)
+)
+Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(65.0),
+    Emittance = cms.double(5.411e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.3),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.06006),
+    Y0 = cms.double(0.10007),
+    Z0 = cms.double(-1.708)
+)
 # Test HF offset
 ShiftedCollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),

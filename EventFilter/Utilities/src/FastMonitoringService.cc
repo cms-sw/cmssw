@@ -246,6 +246,11 @@ namespace evf{
     exception_detected_=true; 
   }
 
+  void FastMonitoringService::setExceptionDetected(unsigned int ls) {
+    if (!ls) exception_detected_=true;
+    else exceptionInLS_.push_back(ls);
+  }
+
   void FastMonitoringService::jobFailure()
   {
     macrostate_ = FastMonitoringThread::sError;
@@ -307,6 +312,7 @@ namespace evf{
 		  avgLeadTime_.erase(oldLumi);
 		  filesProcessedDuringLumi_.erase(oldLumi);
 		  accuSize_.erase(oldLumi);
+		  lockStatsDuringLumi_.erase(oldLumi);
 		  processedEventsPerLumi_.erase(oldLumi);
 	  }
 	  lastGlobalLumi_= newLumi;
@@ -583,6 +589,13 @@ namespace evf{
 	  }
   }
 
+  void FastMonitoringService::reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount)
+  {
+          std::lock_guard<std::mutex> lock(fmt_.monlock_);
+	  lockStatsDuringLumi_[ls]=std::pair<double,unsigned int>(waitTime,lockCount);
+
+  }
+
   //for the output module
   unsigned int FastMonitoringService::getEventsProcessedForLumi(unsigned int lumi) {
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
@@ -615,6 +628,17 @@ namespace evf{
       if (iti != filesProcessedDuringLumi_.end())
 	fmt_.m_data.fastFilesProcessedJ_ = iti->second;
       else fmt_.m_data.fastFilesProcessedJ_=0;
+
+      auto itrd = lockStatsDuringLumi_.find(ls);
+      if (itrd != lockStatsDuringLumi_.end()) {
+	fmt_.m_data.fastLockWaitJ_ = itrd->second.first;
+	fmt_.m_data.fastLockCountJ_ = itrd->second.second;
+      }
+      else {
+       fmt_.m_data.fastLockWaitJ_=0.;
+       fmt_.m_data.fastLockCountJ_=0.;
+      }
+ 
     }
     else return;
 

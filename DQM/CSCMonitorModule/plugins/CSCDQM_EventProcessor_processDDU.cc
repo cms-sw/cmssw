@@ -42,9 +42,10 @@ void EventProcessor::processDDU(const CSCDDUEventData& dduData, const CSCDCCExam
     {
       // dduID -= (FEDNumbering::MINCSCDDUFEDID - 1); /// TODO: Can require DDU-RUI remapping for actual system
       dduID = cscdqm::Utility::getRUIfromDDUId(dduHeader.source_id());
-      if (dduID < 0) {
-	   LOG_WARN <<  "DDU source ID (" << dduHeader.source_id() << ") is out of valid range. Remapping to DDU ID 1.";
-	   dduID = 1;
+      if (dduID < 0)
+        {
+          LOG_WARN <<  "DDU source ID (" << dduHeader.source_id() << ") is out of valid range. Remapping to DDU ID 1.";
+          dduID = 1;
         }
     }
   else
@@ -333,6 +334,27 @@ void EventProcessor::processDDU(const CSCDDUEventData& dduData, const CSCDCCExam
 
   if (getDDUHisto(h::DDU_TRAILER_ERRORSTAT_TABLE, dduID, mo)) mo->SetEntries(config->getNEvents());
   if (getDDUHisto(h::DDU_TRAILER_ERRORSTAT_FREQUENCY, dduID, mo)) mo->SetEntries(config->getNEvents());
+
+  ///** Check DDU Output Path status in DDU Header
+  uint32_t ddu_output_path_status = dduHeader.output_path_status();
+  if (getEMUHisto(h::EMU_ALL_DDUS_OUTPUT_PATH_STATUS, mo))
+    {
+      if (ddu_output_path_status)
+        {
+          mo->Fill(dduID,1); // Any Error
+          for (int i=0; i<16; i++)
+            {
+              if ((ddu_output_path_status>>i) & 0x1)
+                {
+                  mo->Fill(dduID,i+2); // Fill Summary Histo
+                }
+            }
+        }
+      else
+        {
+          mo->Fill(dduID,0); // No Errors
+        }
+    }
 
 
   uint32_t nCSCs = 0;

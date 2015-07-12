@@ -1,0 +1,151 @@
+# "LowPU" menu
+
+HLT_FullTrack12_v* 						# JIRA: CMSHLT-273 (for PU=0.4 runs)
+HLT_FullTrack20_v* 						# JIRA: CMSHLT-273 (for PU=0.4 runs) 
+HLT_FullTrack30_v* 						# JIRA: CMSHLT-273 (for PU=0.4 runs) 
+HLT_FullTrack50_v* 						# JIRA: CMSHLT-273 (for PU=0.4 runs)
+
+HLT_PixelTracks_Multiplicity60_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+HLT_PixelTracks_Multiplicity85_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+HLT_PixelTracks_Multiplicity110_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+HLT_PixelTracks_Multiplicity135_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+HLT_PixelTracks_Multiplicity160_v* 				# JIRA: CMSHLT-150 (for low PU runs)
+
+HLT_Ele5_SC5_JPsi_Mass2to4p5_v*					# JIRA: CMSHLT-280 (for low PU runs)
+
+HLT_PFJet15_NoCaloMatched_v*					# JIRA: CMSHLT-260, mod. CMSHLT-285 (for LHCf runs)
+#HLT_PFJet20_NoCaloMatched_v*					# JIRA: CMSHLT-260, mod. CMSHLT-285 (for LHCf runs)
+#HLT_L1RomanPots_v*						# JIRA: CMSHLT-260, removed by CMSHLT-411
+HLT_L1RomanPots_SinglePixelTrack04_v*				# JIRA: CMSHLT-260 (for LHCf runs)
+
+HLT_L1Tech6_BPTX_MinusOnly_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1Tech5_BPTX_PlusOnly_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1Tech7_NoBPTX_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1CastorHighJet_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1CastorMediumJet_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1CastorMuon_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1DoubleJet20_v*						# JIRA: CMSHLT-260, CMSHLT-287 (for LHCf and VdM scan runs)
+HLT_L1DoubleJet28_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1DoubleJet32_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1DoubleMuOpen_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1TOTEM0_RomanPotsAND_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1TOTEM1_MinBias_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1TOTEM3_ZeroBias_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1MinimumBiasHF1OR_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1MinimumBiasHF2OR_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1MinimumBiasHF1AND_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1MinimumBiasHF2AND_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+
+#HLT_DiPFJetAve30_HFJEC_v*					# JIRA: CMSHLT-133, removed by CMSHLT-411
+
+#HLT_L1TechCastorMediumJet_v*					# JIRA: CMSHLT-260 (replaced by the path with the "algo" L1 seed)
+#HLT_L1TechCastorHaloMuon_v*					# JIRA: CMSHLT-260 (replaced by the path with the "algo" L1 seed)
+HLT_L1CastorMediumJet_PFJet15_v*				# JIRA: CMSHLT-334, CMSHLT-376 (for low PU runs)
+
+HLT_DiPFJet15_NoCaloMatched_v*					# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_DiPFJet15_FBEta2_NoCaloMatched_v*				# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_DiPFJet15_FBEta3_NoCaloMatched_v*				# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_PFJet15_FwdEta2_NoCaloMatched_v*				# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_PFJet15_FwdEta3_NoCaloMatched_v*				# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_PFJet25_NoCaloMatched_v*					# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_PFJet25_FwdEta2_NoCaloMatched_v*				# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_PFJet25_FwdEta3_NoCaloMatched_v*				# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_PFJet40_NoCaloMatched_v*					# JIRA: CMSHLT-285 (for LHCf runs)
+#HLT_PFJet40_FwdEta2_NoCaloMatched_v*				# JIRA: CMSHLT-285, removed by CMSHLT-411
+#HLT_PFJet40_FwdEta3_NoCaloMatched_v*				# JIRA: CMSHLT-285, removed by CMSHLT-411
+HLT_DiPFJetAve15_HFJEC_v*					# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_DiPFJetAve25_HFJEC_v*					# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_DiPFJetAve35_HFJEC_v*					# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_DiPFJetAve15_Central_v*					# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_DiPFJetAve25_Central_v*					# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_DiPFJetAve35_Central_v*					# JIRA: CMSHLT-285 (for LHCf runs)
+HLT_L1RomanPots_SinglePixelTrack02_v*				# JIRA: CMSHLT-285 (for LHCf runs)
+
+HLT_AK4CaloJet30_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_AK4CaloJet40_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_AK4CaloJet50_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_AK4CaloJet80_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_AK4CaloJet100_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_AK4PFJet30_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_AK4PFJet50_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_AK4PFJet80_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_AK4PFJet100_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_HISinglePhoton10_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_HISinglePhoton15_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_HISinglePhoton20_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_HISinglePhoton40_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+HLT_HISinglePhoton60_v*						# JIRA: CMSHLT-279 (for VdM scan runs)
+
+HLT_HIL1DoubleMu0_v*						# JIRA: CMSHLT-258 (for LHCf runs)
+HLT_HIL2Mu3_v*							# JIRA: CMSHLT-258 (for LHCf runs)
+HLT_HIL2DoubleMu0_v*						# JIRA: CMSHLT-258 (for LHCf runs)
+HLT_HIL3Mu3_v*							# JIRA: CMSHLT-258 (for LHCf runs)
+
+HLT_L1SingleMuOpen_v*						# JIRA: CMSHLT-261, CMSHLT-411 (for commissioning and LowPU)
+HLT_L1SingleMuOpen_DT_v*					# JIRA: CMSHLT-261 (for commissioning)
+HLT_L1Tech_DT_GlobalOR_v*					# JIRA: CMSHLT-261 (for commissioning)
+
+HLT_JetE30_NoBPTX_v*						# JIRA: CMSHLT-385
+HLT_JetE30_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-385
+HLT_JetE50_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-385
+HLT_JetE70_NoBPTX3BX_NoHalo_v*					# JIRA: CMSHLT-385
+
+HLT_ZeroBias_v*							# JIRA: CMSHLT-117
+
+#HLT_L1SingleEG5_OR_EG10_OR_EG20_v*				# JIRA: CMSHLT-290 (only for beam splashes)
+HLT_Activity_Ecal_SC7_v*					# JIRA: CMSHLT-252
+HLT_EcalCalibration_v*						# JIRA: CMSHLT-281
+AlCa_EcalPhiSym_v*						# JIRA: CMSHLT-276
+
+HLT_HcalCalibration_v*						# JIRA: CMSHLT-306
+HLT_GlobalRunHPDNoise_v*					# JIRA: CMSHLT-306
+HLT_L1Tech_HBHEHO_totalOR_v*					# JIRA: CMSHLT-306
+HLT_L1Tech_HCAL_HF_single_channel_v*				# JIRA: CMSHLT-306
+HLT_HcalNZS_v*							# JIRA: CMSHLT-306
+HLT_HcalPhiSym_v*						# JIRA: CMSHLT-306
+HLT_HcalUTCA_v*							# JIRA: CMSHLT-306
+HLT_HcalCalibration_v*						# JIRA: CMSHLT-306
+
+AlCa_EcalPi0EBonly_LowPU_v*					# JIRA: CMSHLT-380 (for PU=0.4 runs)
+AlCa_EcalPi0EEonly_LowPU_v*					# JIRA: CMSHLT-380 (for PU=0.4 runs)
+AlCa_EcalEtaEBonly_LowPU_v*					# JIRA: CMSHLT-380 (for PU=0.4 runs)
+AlCa_EcalEtaEEonly_LowPU_v*					# JIRA: CMSHLT-380 (for PU=0.4 runs)
+
+#AlCa_RPCMuonNoTriggers_v*					# JIRA: CMSHLT-231 (L1 seeds not in the LowPU L1 menu)
+#AlCa_RPCMuonNoHits_v*						# JIRA: CMSHLT-231 (L1 seeds not in the LowPU L1 menu)
+#AlCa_RPCMuonNormalisation_v*					# JIRA: CMSHLT-231 (L1 seeds not in the LowPU L1 menu)
+
+AlCa_LumiPixels_Random_v*					# JIRA: CMSHLT-239
+AlCa_LumiPixels_ZeroBias_v*					# JIRA: CMSHLT-239
+
+HLT_IsoTrackHE_v*						# JIRA: CMSHLT-289
+HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
+
+HLT_Random_v*							# JIRA: CMSHLT-244
+
+HLT_Physics_v*							# skim
+DST_Physics_v*							# skim
+
+#DQM_FEDIntegrity_v*
+HLTriggerFirstPath
+HLTriggerFinalPath
+HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
+#RatesMonitoring						# CMSHLT-344, only in 'online'
+AOutput
+DQMOutput							# online DQMFileSaver
+DQMEventDisplayOutput
+DQMCalibrationOutput
+CalibrationOutput
+EcalCalibrationOutput
+#TrackerCalibrationOutput
+RPCMONOutput
+ALCAPHISYMOutput
+ALCAP0Output
+ALCALUMIPIXELSOutput
+#ElectronStreamOutput						# JIRA: CMSHLT-366
+#ExpressForCosmicsOutput					# only in 'GRun' and 'cosmics', not in 'online'
+ExpressOutput
+LookAreaOutput
+NanoDSTOutput
+#HLTDQMOutput
+#HLTMONOutput

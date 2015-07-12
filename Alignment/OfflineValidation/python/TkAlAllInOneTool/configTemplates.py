@@ -44,7 +44,7 @@ source /afs/cern.ch/cms/caf/setup.sh
 cd .oO[CMSSW_BASE]Oo./src
 export SCRAM_ARCH=.oO[SCRAM_ARCH]Oo.
 eval `scramv1 ru -sh`
-rfmkdir -p .oO[datadir]Oo. &>! /dev/null
+#rfmkdir -p .oO[datadir]Oo. &>! /dev/null
 
 #remove possible result file from previous runs
 previous_results=$(cmsLs -l /store/caf/user/$USER/.oO[eosdir]Oo. | awk '{print $5}')
@@ -165,9 +165,6 @@ find . -name "*.stdout" -exec gzip -f {} \;
 ######################################################################
 mergeParallelResults="""
 
-#set directory to which TkAlOfflineJobsMerge.C saves the merged file
-# export OUTPUTDIR=.oO[datadir]Oo.
-export OUTPUTDIR=.
 .oO[copyMergeScripts]Oo.
 .oO[haddLoop]Oo.
 
@@ -241,13 +238,14 @@ done
 ######################################################################
 ######################################################################
 extendedValidationTemplate="""
+#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
 void TkAlExtendedOfflineValidation()
 {
   // load framework lite just to find the CMSSW libs...
   gSystem->Load("libFWCoreFWLite");
   AutoLibraryLoader::enable();
   //compile the makro
-  gROOT->ProcessLine(".L .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C++");
+  //gROOT->ProcessLine(".L .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C++");
   // gROOT->ProcessLine(".L ./PlotAlignmentValidation.C++");
 
   .oO[extendedInstantiation]Oo.
@@ -255,7 +253,7 @@ void TkAlExtendedOfflineValidation()
   p.setTreeBaseDir(".oO[OfflineTreeBaseDir]Oo.");
   p.plotDMR(".oO[DMRMethod]Oo.",.oO[DMRMinimum]Oo.,".oO[DMROptions]Oo.");
   p.plotSurfaceShapes(".oO[SurfaceShapes]Oo.");
-  p.plotChi2(".oO[resultPlotFile]Oo._result.root");
+  p.plotChi2("root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./.oO[resultPlotFile]Oo._result.root");
 }
 """
 

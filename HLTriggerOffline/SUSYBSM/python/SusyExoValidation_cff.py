@@ -3,8 +3,14 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_BTAG_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveMET_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_MET_MUON_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux200_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux250_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux300_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux350_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux400_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux475_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux600_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_inclusiveHT_aux800_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_SingleLepton_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_MET_SingleLepton_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_Mu_HT_BTag_SingleLepton_cff import *
@@ -33,8 +39,14 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_InclusiveMET +
                                 SUSY_HLT_MET_BTAG +
                                 SUSY_HLT_MET_MUON +
+                                SUSY_HLT_InclusiveHT_aux200 + 
+                                SUSY_HLT_InclusiveHT_aux250 +
+                                SUSY_HLT_InclusiveHT_aux300 + 
                                 SUSY_HLT_InclusiveHT_aux350 + 
+                                SUSY_HLT_InclusiveHT_aux400 +
+                                SUSY_HLT_InclusiveHT_aux475 + 
                                 SUSY_HLT_InclusiveHT_aux600 +
+                                SUSY_HLT_InclusiveHT_aux800 + 
                                 SUSY_HLT_Mu_HT_SingleLepton +
                                 SUSY_HLT_Mu_HT_MET_SingleLepton +
                                 SUSY_HLT_Mu_HT_BTag_SingleLepton +
@@ -90,8 +102,14 @@ HLTSusyExoValSeq_FastSim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM +
                                         SUSY_HLT_Ele_HT_MET_SingleLepton_FASTSIM +
                                         SUSY_HLT_Ele_HT_BTag_SingleLepton_FASTSIM +
                                         SUSY_HLT_Ele_HT_Control_SingleLepton_FASTSIM +
+                                        SUSY_HLT_InclusiveHT_aux200_FASTSIM + 
+                                        SUSY_HLT_InclusiveHT_aux250_FASTSIM + 
+                                        SUSY_HLT_InclusiveHT_aux300_FASTSIM + 
                                         SUSY_HLT_InclusiveHT_aux350_FASTSIM + 
+                                        SUSY_HLT_InclusiveHT_aux400_FASTSIM + 
+                                        SUSY_HLT_InclusiveHT_aux475_FASTSIM + 
                                         SUSY_HLT_InclusiveHT_aux600_FASTSIM +
+                                        SUSY_HLT_InclusiveHT_aux800_FASTSIM +
                                         SUSY_HLT_MET_MUON_ER_FASTSIM +
                                         SUSY_HLT_MET_HT_MUON_FASTSIM +
                                         SUSY_HLT_MET_HT_MUON_ER_FASTSIM +

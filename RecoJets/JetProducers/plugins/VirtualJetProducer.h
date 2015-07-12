@@ -44,7 +44,7 @@ protected:
       PFClusterJet,
       LastJetType  // no real type, technical
     };
-    static const char *names[];
+    static const char *const names[];
     static Type byName(const std::string &name);
   };
     

@@ -25,6 +25,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlUpsilonMuMu_Output_cff import
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBias_Output_cff import *
 from Alignment.CommonAlignmentProducer.ALCARECOTkAlMinBiasHI_Output_cff import *
 
+
 # AlCaReco for pixel calibration using muons
 from Calibration.TkAlCaRecoProducers.ALCARECOSiPixelLorentzAngle_Output_cff import *
 # AlCaReco for tracker calibration using MinBias events
@@ -38,6 +39,9 @@ from Alignment.CommonAlignmentProducer.ALCARECOTkAlBeamHalo_Output_cff import *
 ###############################################################
 # ECAL calibration with isol. electrons
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalIsolElectron_Output_cff import *
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalUncalIsolElectron_Output_cff import *
+from Calibration.EcalAlCaRecoProducers.ALCARECOEcalRecalIsolElectron_Output_cff import *
+
 # The following paths are obsoleted since pi0 calibration
 # has a HLT path (argiro,20080314 )
 # ECAL calibration with pi0 
@@ -58,6 +62,8 @@ from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalGammaJet_Output_cff import
 # HCAL calibration with isolated tracks
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrk_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIsoTrkNoHLT_Output_cff import *
+# HCAL calibration with iterative phi sym                                                                                       
+from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalIterativePhiSym_Output_cff import *
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_Output_cff import *
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBiasHI_Output_cff import *
@@ -104,3 +110,63 @@ from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import 
 
 # stream for the LumiPixels workflow
 from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixelsMinBias_Output_cff import *
+
+###############################################################
+# hotline skim workflows
+###############################################################
+from Calibration.Hotline.hotlineSkims_Output_cff import *
+
+ALCARECOEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *',
+        'keep edmTriggerResults_*_*_*'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlZMuMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsInCollisions_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmicsHLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0T_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlCosmics0THLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlLAS_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMuonIsolated_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMuonIsolatedPA_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlJpsiMuMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlUpsilonMuMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalIterativePhiSym_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMinBias_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlBeamHalo_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalZeroBias_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripCalMinBias_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalElectron_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalUncalElectron_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalPi0Calib_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOEcalCalEtaCalib_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalDijets_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalGammaJet_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalIsoTrk_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalIsoTrkNoHLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalMinBias_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalHO_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalHOCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalNoise_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlStandAloneCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlGlobalCosmicsInCollisions_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlGlobalCosmics_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlCalIsolatedMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlZMuMu_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlOverlaps_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECODtCalib_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOLumiPixels_noDrop.outputCommands)
+#ALCARECOEventContent.outputCommands.extend(OutALCARECOHotline.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlMinBiasHI_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOHcalCalMinBiasHI_noDrop.outputCommands)
+
+
+ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')

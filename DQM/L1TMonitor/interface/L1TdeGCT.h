@@ -56,16 +56,22 @@ class L1TdeGCT : public DQMEDAnalyzer {
  // dqm histogram folder
   std::string histFolder_;
 
+  bool m_stage1_layer2_;
+  
   // dqm common
   bool monitorDaemon_;
  
   // (em) iso, no-iso, (jets) cen, for, tau & energy sums.
-  static const int nGctColl_ = dedefs::GCThfbit-dedefs::GCTisolaem+1; 
+  static const int nGctColl_ = dedefs::GCThfbit-dedefs::GCTisolaem+1;
+  static const int nStage1Layer2Coll_ = dedefs::GCTisotaujets-dedefs::GCTisolaem+1;
 
   // counters
   int colCount[nGctColl_];
   int nWithCol[nGctColl_];
 
+  int colCount_stage1Layer2[nStage1Layer2Coll_];
+  int nWithCol_stage1Layer2[nStage1Layer2Coll_];
+  
   // Ranges and labels
   const int    phiNBins = 18  ;
   const double phiMinim = -0.5;
@@ -73,19 +79,19 @@ class L1TdeGCT : public DQMEDAnalyzer {
   const int    etaNBins = 22  ;
   const double etaMinim = -0.5;
   const double etaMaxim = 21.5;
-  const int    rnkNBins = 63;
-  const double rnkMinim = 0.5;
-  const double rnkMaxim = 63.5;
   static const int nerr = 5; 
   const int nbit = 32;
   std::string cLabel[nGctColl_]= 
     {"IsoEM", "NoisoEM", "CenJet", "ForJet", "TauJet", "HT", "MET", "ET", "MHT", "HFSums", "HFCnts"};
+  std::string sLabel[nStage1Layer2Coll_]=
+    {"IsoEM", "NoisoEM", "CenJet", "ForJet", "TauJet", "HT", "MET", "ET", "MHT", "Stage1HFSums", "HFCnts", "IsoTauJet"};
   std::string errLabel[nerr]= 
     {"Agree", "Loc. Agree", "L.Disagree", "Data only", "Emul only"};
 
   // MEs
   MonitorElement* sysrates;
   MonitorElement* sysncand[2];
+  
   MonitorElement* errortype[nGctColl_];
   // location
   MonitorElement* etaphi [nGctColl_];
@@ -96,12 +102,26 @@ class L1TdeGCT : public DQMEDAnalyzer {
   MonitorElement* phiData[nGctColl_];
   MonitorElement* rnkData[nGctColl_];
 
+  MonitorElement* errortype_stage1layer2[nStage1Layer2Coll_];
+  // location
+  MonitorElement* etaphi_stage1layer2 [nStage1Layer2Coll_];
+  MonitorElement* eta_stage1layer2    [nStage1Layer2Coll_];
+  MonitorElement* phi_stage1layer2    [nStage1Layer2Coll_];
+  MonitorElement* rnk_stage1layer2    [nStage1Layer2Coll_];
+  MonitorElement* etaData_stage1layer2[nStage1Layer2Coll_];
+  MonitorElement* phiData_stage1layer2[nStage1Layer2Coll_];
+  MonitorElement* rnkData_stage1layer2[nStage1Layer2Coll_];
+
   // trigger data word
+ 
   MonitorElement* dword [nGctColl_];
   MonitorElement* eword [nGctColl_];
   MonitorElement* deword[nGctColl_];
   MonitorElement* masked[nGctColl_];
-
+  MonitorElement* dword_stage1layer2 [nStage1Layer2Coll_];
+  MonitorElement* eword_stage1layer2 [nStage1Layer2Coll_];
+  MonitorElement* deword_stage1layer2[nStage1Layer2Coll_];
+  MonitorElement* masked_stage1layer2[nStage1Layer2Coll_];
  public:
 
 };

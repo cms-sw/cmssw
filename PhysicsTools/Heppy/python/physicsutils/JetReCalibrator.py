@@ -9,7 +9,7 @@ class JetReCalibrator:
             CMGTools/RootTools/data/jec  (see the getJec.py there to make the dumps).
            It will apply the L1,L2,L3 and possibly the residual corrections to the jets."""
         # Make base corrections
-        path = jecPath #"%s/src/CMGTools/RootTools/data/jec" % os.environ['CMSSW_BASE'];
+        path = os.path.expandvars(jecPath) #"%s/src/CMGTools/RootTools/data/jec" % os.environ['CMSSW_BASE'];
         self.L1JetPar  = ROOT.JetCorrectorParameters("%s/%s_L1FastJet_%s.txt" % (path,globalTag,jetFlavour),"");
         self.L2JetPar  = ROOT.JetCorrectorParameters("%s/%s_L2Relative_%s.txt" % (path,globalTag,jetFlavour),"");
         self.L3JetPar  = ROOT.JetCorrectorParameters("%s/%s_L3Absolute_%s.txt" % (path,globalTag,jetFlavour),"");
@@ -25,6 +25,8 @@ class JetReCalibrator:
         self.JetCorrector = ROOT.FactorizedJetCorrector(self.vPar)
         if os.path.exists("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour)):
             self.JetUncertainty = ROOT.JetCorrectionUncertainty("%s/%s_Uncertainty_%s.txt" % (path,globalTag,jetFlavour));
+        elif os.path.exists("%s/Uncertainty_FAKE.txt" % path):
+            self.JetUncertainty = ROOT.JetCorrectionUncertainty("%s/Uncertainty_FAKE.txt" % path);
         else:
             print 'Missing JEC uncertainty file "%s/%s_Uncertainty_%s.txt", so jet energy uncertainties will not be available' % (path,globalTag,jetFlavour)
             self.JetUncertainty = None
@@ -38,11 +40,10 @@ class JetReCalibrator:
             print "Warning: %d out of %d jets flagged bad by JEC." % (len(badJets), len(jets))
         for bj in badJets:
             jets.remove(bj)
-    def correct(self,jet,rho,delta=0,metShift=[0,0]):
-        """Corrects a jet energy (optionally shifting it also by delta times the JEC uncertainty)
-           If a two-component list is passes as 'metShift', it will be modified adding to the first and second
-           component the change to the MET along x and y due to the JEC, defined as the negative difference 
-           between the new and old jet 4-vectors, for jets with corrected pt > 10."""
+
+    def getCorrection(self,jet,rho,delta=0,metShift=[0,0]):
+        """Calculates the correction factor of a jet without modifying it
+        """
         self.JetCorrector.setJetEta(jet.eta())
         self.JetCorrector.setJetPt(jet.pt() * jet.rawFactor())
         self.JetCorrector.setJetA(jet.jetArea())
@@ -67,6 +68,14 @@ class JetReCalibrator:
                 metShift[0] -= jet.px()*jet.rawFactor()*corr*delta*jet.jetEnergyCorrUncertainty
                 metShift[1] -= jet.py()*jet.rawFactor()*corr*delta*jet.jetEnergyCorrUncertainty
         #print "   jet with raw pt %6.2f eta %+5.3f phi %+5.3f: previous corr %.4f, my corr %.4f " % (jet.pt()*jet.rawFactor(), jet.eta(), jet.phi(), 1./jet.rawFactor(), corr)
+        return corr
+
+    def correct(self,jet,rho,delta=0,metShift=[0,0]):
+        """Corrects a jet energy (optionally shifting it also by delta times the JEC uncertainty)
+           If a two-component list is passes as 'metShift', it will be modified adding to the first and second
+           component the change to the MET along x and y due to the JEC, defined as the negative difference
+           between the new and old jet 4-vectors, for jets with corrected pt > 10."""
+        corr = self.getCorrection(jet,rho,delta,metShift)
         if corr <= 0:
             return False
         jet.setP4(jet.p4() * (corr * jet.rawFactor()))

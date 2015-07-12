@@ -28,8 +28,9 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(250000) )
 
 # Input for AlCaRecoTriggerBitsRcd,
 # either via GloblalTag (use of _cfi instead of _cff sufficient and faster):
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi")
-process.GlobalTag.globaltag = "GR09_P_V8_34X::All"#"DESIGN_3X_V13::All" #choose your tag
+from Configuration.AlCa.autoCond_condDBv2 import autoCond
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cfi")
+process.GlobalTag.globaltag = autoCond['run2_data']
 
 # ...or specify database and tag:  
 #import CondCore.DBCommon.CondDBSetup_cfi

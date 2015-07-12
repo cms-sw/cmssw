@@ -11,7 +11,7 @@ inputSample = cfg.Component(
     files = miniAodFiles(),
     )
 inputSample.isMC = True
-# inputSample.splitFactor = 2 
+inputSample.splitFactor = 2 
 
 selectedComponents  = [inputSample]
 

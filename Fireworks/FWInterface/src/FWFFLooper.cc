@@ -16,6 +16,7 @@
 #include "Fireworks/Core/interface/FWRecoGeom.h"
 #include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/FWMagField.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometry.h"
 #include "Fireworks/Geometry/interface/FWRecoGeometryRecord.h"
 
@@ -172,7 +173,10 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
 
    displayConfigFilename = ps.getUntrackedParameter<std::string>("displayConfigFilename", displayConfigFilename);
    geometryFilename = ps.getUntrackedParameter<std::string>("geometryFilename", geometryFilename);
-
+   if( !geometryFilename.empty())
+   {
+      loadDefaultGeometryFile();
+   }
    setGeometryFilename(geometryFilename);
    setConfigFilename(displayConfigFilename);
 
@@ -283,7 +287,7 @@ FWFFLooper::autoLoadNewEvent()
    else
    {
       m_autoReload = false;
-      setIsPlaying(false);
+      CmsShowMainBase::stopPlaying();
       guiManager()->enableActions();
       guiManager()->getMainFrame()->enableComplexNavigation(false);
    }
@@ -294,7 +298,7 @@ FWFFLooper::stopPlaying()
 {
    stopAutoLoadTimer();
    m_autoReload = false;
-   setIsPlaying(false);
+   CmsShowMainBase::stopPlaying();
    guiManager()->enableActions();
    guiManager()->getMainFrame()->enableComplexNavigation(false);
    checkPosition();
@@ -380,6 +384,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
       fwLog(fwlog::kInfo) << "ConditionsInRunBlock not available\n";
    }
    static_cast<CmsEveMagField*>(m_MagField)->SetFieldByCurrent(current);
+   context()->getField()->setFFFieldMag(m_MagField->GetMaxFieldMag());
 }
 
 //------------------------------------------------------------------------------

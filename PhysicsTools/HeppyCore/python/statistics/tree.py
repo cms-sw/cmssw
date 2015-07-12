@@ -130,20 +130,3 @@ class Tree(object):
             fillit = self.fillers[varName]
             for (i,v) in enumerate(values):
                 fillit(a[i],v)
-
-if __name__=='__main__':
-    
-    from ROOT import TFile
-
-    f = TFile('TreeNumpy.root','RECREATE')
-    t = TreeNumpy('Colin', 'Another test tree')
-    t.var('a')
-    t.var('b')
-
-    t.fill('a', 3)
-    t.fill('a', 4)
-    t.fill('b', 5)
-    t.tree.Fill()
-
-    f.Write()
-    f.Close()

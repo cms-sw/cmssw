@@ -1,20 +1,14 @@
+import re,os
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.GetScenario import getScenario
 
 """
 Example configuration for online reconstruction meant for visualization clients.
 """
-
-
 from DQM.Integration.test.inputsource_cfi import options,runType,source
-
-
-
-
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
 scenarios = {'pp_run': 'ppRun2','cosmic_run':'cosmicsRun2','hi_run':'HeavyIons'}
-
 
 if not runType.getRunTypeName() in scenarios.keys():
     msg = "Error getting the scenario out of the 'runkey', no mapping for: %s\n"%runType.getRunTypeName()
@@ -41,6 +35,21 @@ kwds = {}
 process = scenario.visualizationProcessing(globalTag='DUMMY', writeTiers=['FEVT'], **kwds)
 
 process.source = source
+process.source.inputFileTransitionsEachEvent = cms.untracked.bool(True)
+process.source.skipFirstLumis                = cms.untracked.bool(True)
+process.source.minEventsPerLumi              = cms.untracked.int32(0)
+process.source.nextLumiTimeoutMillis         = cms.untracked.int32(10000)
+process.source.streamLabel                   = cms.untracked.string('streamDQM')
+
+m = re.search(r"\((\w+)\)", str(source.runNumber))
+runno = str(m.group(1))
+outDir= '/fff/BU0/output/EvD/run'+runno
+
+#create output directory
+try:
+    os.mkdir(outDir)
+except:
+    pass
 
 process.load("DQM.Integration.test.FrontierCondition_GT_autoExpress_cfi")
 
@@ -52,8 +61,22 @@ process.options = cms.untracked.PSet(
 process.maxEvents = cms.untracked.PSet(
         input = cms.untracked.int32(-1)
     )
+oldo = process._Process__outputmodules["FEVToutput"]
+del process._Process__outputmodules["FEVToutput"]
 
+process.FEVToutput = cms.OutputModule("JsonWritingTimeoutPoolOutputModule",
+    splitLevel = oldo.splitLevel,
+    eventAutoFlushCompressedSize = oldo.eventAutoFlushCompressedSize,
+    outputCommands = oldo.outputCommands,
+    fileName = oldo.fileName,
+    dataset = oldo.dataset,
+    runNumber = cms.untracked.uint32(int(runno)),
+    streamLabel = cms.untracked.string("streamEvDOutput_dqmcluster"),
+    # output path must exist!
+    outputPath = cms.untracked.string(outDir),
+)
 
+process.DQMMonitoringService = cms.Service("DQMMonitoringService")
 
 dump = False
 if dump:

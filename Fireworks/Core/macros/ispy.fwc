@@ -2,10 +2,10 @@
  <config name="EventItems" version="1">
   <config name="Jets" version="3">
    <config name="type" version="0">
-     <string>std::vector&lt;reco::CaloJet&gt;</string>
+     <string>std::vector&lt;reco::PFJet&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>iterativeCone5CaloJets</string>
+     <string>ak4PFJets</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
@@ -1119,7 +1119,5 @@
     <string>reco::Track</string>
     <string>reco::Vertex</string>
   </config>
- </config>
- <config name="TriggerTables" version="1">
  </config>
 </config>
