@@ -94,7 +94,7 @@ class JetAnalyzer( Analyzer ):
         ## Read jets, if necessary recalibrate and shift MET
         if self.cfg_ana.copyJetsByValue: 
           import ROOT
-          allJets = map(lambda j:Jet(ROOT.pat.Jet(j)), self.handles['jets'].product()) #copy-by-value is safe if JetAnalyzer is ran more than once
+          allJets = map(lambda j:Jet(ROOT.pat.Jet(ROOT.edm.Ptr(ROOT.pat.Jet)(ROOT.edm.ProductID(),j,0))), self.handles['jets'].product()) #copy-by-value is safe if JetAnalyzer is ran more than once
         else: 
           allJets = map(Jet, self.handles['jets'].product()) 
 
