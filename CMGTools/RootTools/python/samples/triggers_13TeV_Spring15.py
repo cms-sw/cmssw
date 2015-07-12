@@ -41,6 +41,12 @@ triggers_1mu_iso      = triggers_1mu_iso_r + triggers_1mu_iso_w
 triggers_1e_50ns = [ "HLT_Ele27_eta2p1_WP75_Gsf_v*", "HLT_Ele27_eta2p1_WPLoose_Gsf_v*", "HLT_Ele27_eta2p1_WPTight_Gsf_v*" ]
 triggers_1e      = [ "HLT_Ele32_eta2p1_WP75_Gsf_v*", "HLT_Ele32_eta2p1_WPLoose_Gsf_v*", "HLT_Ele32_eta2p1_WPTight_Gsf_v*" ]
 
+# Lepton fake rate triggers (prescaled)
+triggers_FR_1mu_iso = [ "HLT_Mu%d_TrkIsoVVL_v*" % pt for pt in (8,17,24,34) ]
+triggers_FR_1mu_noiso = [ "HLT_Mu%d_v*" % pt for pt in (8,17,24,34) ]
+triggers_FR_1e_noiso = [ "HLT_Ele%d_CaloIdM_TrackIdM_PFJet30_v*" % pt for pt in (8,12,18,23,33) ]
+triggers_FR_1e_iso   = [ "HLT_Ele%d_CaloIdL_TrackIdL_IsoVL_PFJet30_v*" % pt for pt in (12,18,23,33) ] #note: no 8
+
 ### GP: did not look at anything below this
 
 ### ----> for the MT2 analysis
