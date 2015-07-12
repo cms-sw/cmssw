@@ -142,7 +142,7 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'BE5DPixel10DLHCCNoDefect' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DLHCCNoDefect',
                  'BE5DPixel10DDefect' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DDefect',
                  'BE5DPixel10DCoolingDefect' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DCoolingDefect',
-                 'Extended2023HGCalNoExtPix_ee18' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalNoExtPix_ee18_fh9'#XXX
+                 'Extended2023HGCalNoExtPix_ee18' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalNoExtPix_ee18_fh9'
                  }
 
 upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
