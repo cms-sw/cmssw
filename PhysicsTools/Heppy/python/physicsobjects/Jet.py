@@ -1,4 +1,6 @@
 from PhysicsTools.Heppy.physicsobjects.PhysicsObject import *
+from PhysicsTools.HeppyCore.utils.deltar import deltaPhi
+import math
 
 loose_WP = [
     (0, 2.5, -0.8),
@@ -123,6 +125,87 @@ class Jet(PhysicsObject):
              return lt.pt()
         else :
              return 0. 
+    def qgl(self) :
+       if not hasattr(self,"qgl_value") :
+	  if hasattr(self,"qgl_rho") : #check if qgl calculator is configured
+              self.computeQGvars()
+              self.qgl_value=self.qgl_calc(self,self.qgl_rho)
+	  else :
+              self.qgl_value=0. #if no qgl calculator configured
+		  
+       return self.qgl_value
+
+    def computeQGvars(self):
+       #return immediately if qgvars already computed or if qgl is disabled
+       if not hasattr(self,"qgl_rho") or getattr(self,"hasQGVvars",False) :
+	  return self
+       self.hasQGvars = True
+	 
+       jet = self
+       jet.mult = 0
+       sum_weight = 0.
+       sum_pt = 0.    
+       sum_deta = 0.  
+       sum_dphi = 0.  
+       sum_deta2 = 0. 
+       sum_detadphi = 0.
+       sum_dphi2 = 0.   
+
+
+
+       for ii in range(0, jet.numberOfDaughters()) :
+
+         part = jet.daughter(ii)
+
+         if part.charge() == 0 : # neutral particles 
+
+           if part.pt() < 1.: continue
+
+         else : # charged particles
+
+           if part.trackHighPurity()==False: continue
+           if part.fromPV()<=1: continue             
+
+
+         jet.mult += 1
+
+         deta = part.eta() - jet.eta()
+         dphi = deltaPhi(part.phi(), jet.phi())
+         partPt = part.pt()                    
+         weight = partPt*partPt                
+         sum_weight += weight                  
+         sum_pt += partPt                      
+         sum_deta += deta*weight               
+         sum_dphi += dphi*weight               
+         sum_deta2 += deta*deta*weight         
+         sum_detadphi += deta*dphi*weight      
+         sum_dphi2 += dphi*dphi*weight         
+
+
+
+
+       a = 0.
+       b = 0.
+       c = 0.
+
+       if sum_weight > 0 :
+         jet.ptd = math.sqrt(sum_weight)/sum_pt
+         ave_deta = sum_deta/sum_weight        
+         ave_dphi = sum_dphi/sum_weight        
+         ave_deta2 = sum_deta2/sum_weight      
+         ave_dphi2 = sum_dphi2/sum_weight      
+         a = ave_deta2 - ave_deta*ave_deta     
+         b = ave_dphi2 - ave_dphi*ave_dphi     
+         c = -(sum_detadphi/sum_weight - ave_deta*ave_dphi)
+       else: jet.ptd = 0.                                  
+
+       delta = math.sqrt(math.fabs((a-b)*(a-b)+4.*c*c))
+
+       if a+b-delta > 0: jet.axis2 = -math.log(math.sqrt(0.5*(a+b-delta)))
+       else: jet.axis2 = -1.                                              
+       return jet	
+   
+
 
 class GenJet( PhysicsObject):
     pass

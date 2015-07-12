@@ -56,6 +56,6 @@ if __name__ == '__main__':
 
     (options,args) = parser.parse_args()
 
-    main(options, args)
+    main(options, args, parser)
     if not options.interactive:
         exit() # trigger exit also from ipython
