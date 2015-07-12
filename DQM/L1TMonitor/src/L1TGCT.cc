@@ -58,6 +58,7 @@ const float R12MIN = -0.5;
 const float R12MAX = 4095.5;
 
 L1TGCT::L1TGCT(const edm::ParameterSet & ps) :
+  monitorDir_(ps.getUntrackedParameter<std::string>("monitorDir","")),
   gctCenJetsSource_(ps.getParameter<edm::InputTag>("gctCentralJetsSource")),
   gctForJetsSource_(ps.getParameter<edm::InputTag>("gctForwardJetsSource")),
   gctTauJetsSource_(ps.getParameter<edm::InputTag>("gctTauJetsSource")),
@@ -112,13 +113,7 @@ void L1TGCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Ev
 
   nev_ = 0;
 
-  if (m_stage1_layer2_ == true){  
-    ibooker.setCurrentFolder("L1T/stage1layer2");
-  }  
-  if (m_stage1_layer2_ == false){
-    ibooker.setCurrentFolder("L1T/L1TGCT");
-  }
-
+  ibooker.setCurrentFolder(monitorDir_);
   runId_     = ibooker.bookInt("iRun");
   runId_->Fill(-1);
   lumisecId_ = ibooker.bookInt("iLumiSection");

@@ -26,6 +26,8 @@ namespace evf{
       DoubleJ fastThroughputJ_;
       DoubleJ fastAvgLeadTimeJ_;
       IntJ fastFilesProcessedJ_;
+      DoubleJ fastLockWaitJ_;
+      IntJ fastLockCountJ_;
 
       unsigned int varIndexThrougput_;
 
@@ -52,10 +54,14 @@ namespace evf{
 	fastThroughputJ_ = 0;
 	fastAvgLeadTimeJ_ = 0;
 	fastFilesProcessedJ_ = 0;
+        fastLockWaitJ_ = 0;
+        fastLockCountJ_ = 0;
         fastMacrostateJ_.setName("Macrostate");
         fastThroughputJ_.setName("Throughput");
         fastAvgLeadTimeJ_.setName("AverageLeadTime");
 	fastFilesProcessedJ_.setName("FilesProcessed");
+	fastLockWaitJ_.setName("LockWaitUs");
+	fastLockCountJ_.setName("LockCount");
 
         fastPathProcessedJ_ = 0;
         fastPathProcessedJ_.setName("Processed");
@@ -68,6 +74,8 @@ namespace evf{
         fm->registerGlobalMonitorable(&fastThroughputJ_,false);
         fm->registerGlobalMonitorable(&fastAvgLeadTimeJ_,false);
         fm->registerGlobalMonitorable(&fastFilesProcessedJ_,false);
+        fm->registerGlobalMonitorable(&fastLockWaitJ_,false);
+        fm->registerGlobalMonitorable(&fastLockCountJ_,false);
 
 	for (unsigned int i=0;i<nStreams;i++) {
 	 AtomicMonUInt * p  = new AtomicMonUInt;

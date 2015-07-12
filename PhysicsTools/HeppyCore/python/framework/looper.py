@@ -183,15 +183,15 @@ class Looper(object):
             print 'Stopped loop following a UserWarning exception'
 
         info = self.logger.info
-        info('number of events processed: {nEv}'.format(nEv=iEv+1))
-        info('')
+        warning = self.logger.warning
+        warning('number of events processed: {nEv}'.format(nEv=iEv+1))
+        warning('')
         info( self.cfg_comp )
         info('')        
         for analyzer in self.analyzers:
             analyzer.endLoop(self.setup)
         if self.timeReport:
             allev = max([x['events'] for x in self.timeReport])
-            warning = self.logger.warning
             warning("\n      ---- TimeReport (all times in ms; first evt is skipped) ---- ")
             warning("%9s   %9s    %9s   %9s %6s   %s" % ("processed","all evts","time/proc", " time/all", "  [%] ", "analyer"))
             warning("%9s   %9s    %9s   %9s %6s   %s" % ("---------","--------","---------", "---------", " -----", "-------------"))
@@ -266,3 +266,4 @@ if __name__ == '__main__':
     looper = Looper( 'Loop', cfg.config,nPrint = 5)
     looper.loop()
     looper.write()
+

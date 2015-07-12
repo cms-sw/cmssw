@@ -86,16 +86,17 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es)
         //std::cout << "pt_method from 4 " << std::endl; 
 	lowQualityFlag = 4;
 	isBeamStartConf = true;
-	pt_lut = new ptdat[1<<21];
-
-	edm::ESHandle<L1MuCSCPtLut> ptLUT;
-	es.get<L1MuCSCPtLutRcd>().get(ptLUT);
-	const L1MuCSCPtLut *myConfigPt_ = ptLUT.product();
-
-	memcpy((void*)pt_lut,(void*)myConfigPt_->lut(),(1<<21)*sizeof(ptdat));
-
-	lut_read_in = true;
-
+	if ( !lut_read_in) {
+	  pt_lut = new ptdat[1<<21];
+	  
+	  edm::ESHandle<L1MuCSCPtLut> ptLUT;
+	  es.get<L1MuCSCPtLutRcd>().get(ptLUT);
+	  const L1MuCSCPtLut *myConfigPt_ = ptLUT.product();
+	  
+	  memcpy((void*)pt_lut,(void*)myConfigPt_->lut(),(1<<21)*sizeof(ptdat));
+	  
+	  lut_read_in = true;
+	}
 	edm::ESHandle< L1MuTriggerScales > scales ;
 	es.get< L1MuTriggerScalesRcd >().get( scales ) ;
 	trigger_scale = scales.product() ;

@@ -13,6 +13,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -32,17 +34,23 @@ GsfEleDxyCut::GsfEleDxyCut(const edm::ParameterSet& c) :
   _dxyCutValueEE(c.getParameter<double>("dxyCutValueEE")),
   _barrelCutOff(c.getParameter<double>("barrelCutOff")) {
   edm::InputTag vertextag = c.getParameter<edm::InputTag>("vertexSrc");
+  edm::InputTag vertextagMiniAOD = c.getParameter<edm::InputTag>("vertexSrcMiniAOD"); 
   contentTags_.emplace("vertices",vertextag);
+  contentTags_.emplace("verticesMiniAOD",vertextagMiniAOD);
 }
 
 void GsfEleDxyCut::setConsumes(edm::ConsumesCollector& cc) {
-  auto vtcs = 
-    cc.consumes<reco::VertexCollection>(contentTags_["vertices"]);
+  auto vtcs = cc.mayConsume<reco::VertexCollection>(contentTags_["vertices"]);
+  auto vtcsMiniAOD = cc.mayConsume<reco::VertexCollection>(contentTags_["verticesMiniAOD"]);
   contentTokens_.emplace("vertices",vtcs);
+  contentTokens_.emplace("verticesMiniAOD",vtcsMiniAOD);
 }
 
 void GsfEleDxyCut::getEventContent(const edm::EventBase& ev) {    
+  // First try AOD, then go to miniAOD. Use the same Handle since collection class is the same.
   ev.getByLabel(contentTags_["vertices"],_vtxs);
+  if (!_vtxs.isValid())
+    ev.getByLabel(contentTags_["verticesMiniAOD"],_vtxs);
 }
 
 CutApplicatorBase::result_type 
@@ -57,4 +65,13 @@ operator()(const reco::GsfElectronPtr& cand) const{
 		       cand->gsfTrack()->dxy(vtxs[0].position()) : 
 		       cand->gsfTrack()->dxy() );
   return std::abs(dxy) < dxyCutValue;
+}
+
+double GsfEleDxyCut::value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);
+  const reco::VertexCollection& vtxs = *_vtxs;
+  const double dxy = ( vtxs.size() ? 
+		       ele->gsfTrack()->dxy(vtxs[0].position()) : 
+		       ele->gsfTrack()->dxy() );
+  return std::abs(dxy);
 }

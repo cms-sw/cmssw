@@ -41,7 +41,6 @@ class DTChamberId;
 class DTSuperLayerId;
 class DTLayerId;
 
-//-class DTChamberEfficiencyTest: public edm::EDAnalyzer{
 class DTChamberEfficiencyTest: public DQMEDHarvester{
 
 public:

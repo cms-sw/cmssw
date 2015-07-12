@@ -73,21 +73,16 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
-#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
-
-
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
-
 
 #include <map>
 #include <string>
@@ -121,8 +116,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&,std::map<std::string,MonitorElement*>&,int);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& ,std::map<std::string,MonitorElement*>&,bool,bool,int);
+  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&, const reco::Candidate::PolarLorentzVector&, std::map<std::string,MonitorElement*>&,std::vector<bool>);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& , const reco::Candidate::PolarLorentzVector& ,std::map<std::string,MonitorElement*>&,bool,bool,std::vector<bool>);
   void makeRatePlot(std::string, double);
 
 //  bool selectHighPtJetEvent(const edm::Event&);
@@ -135,16 +130,12 @@ class METAnalyzer : public DQMEDAnalyzer{
  // Book MonitorElements
   void bookMESet(std::string,DQMStore::IBooker &,std::map<std::string,MonitorElement*>&);
 // Book MonitorElements
-  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool ,bool);
+  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool ,bool,bool);
 
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
   // Switch for verbosity
   int verbose_;
-
-
-  L1GtUtils m_l1GtUtils;
-
 
   std::string MetType_;
   std::string FolderName_;
@@ -161,6 +152,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
   edm::EDGetTokenT<pat::JetCollection>        patJetsToken_;
+  edm::EDGetTokenT<reco::MuonCollection>         MuonsToken_;
 
   edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
 
@@ -404,11 +396,11 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meMETPhiHFEGammasMinus_BXm1Filled;
 
   //MEs where we fill if two previous bunches are filled (25 ns bunch spacing)
-  MonitorElement* meChargedHadronEtFraction_BXm1Bxm2Filled;
-  MonitorElement* mePhotonEtFraction_BXm1Bxm2Filled;
-  MonitorElement* meNeutralHadronEtFraction_BXm1Bxm2Filled;
-  MonitorElement* meMET_BXm1Bxm2Filled;
-  MonitorElement* meSumET_BXm1Bxm2Filled;
+  MonitorElement* meChargedHadronEtFraction_BXm2BXm1Filled;
+  MonitorElement* mePhotonEtFraction_BXm2BXm1Filled;
+  MonitorElement* meNeutralHadronEtFraction_BXm2BXm1Filled;
+  MonitorElement* meMET_BXm2BXm1Filled;
+  MonitorElement* meSumET_BXm2BXm1Filled;
 
   MonitorElement* meCHF_Barrel;
   MonitorElement* meCHF_EndcapPlus;
@@ -416,15 +408,15 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meCHF_Barrel_BXm1Empty;
   MonitorElement* meCHF_EndcapPlus_BXm1Empty;
   MonitorElement* meCHF_EndcapMinus_BXm1Empty;
-  MonitorElement* meCHF_Barrel_BXm1BXm2Empty;
-  MonitorElement* meCHF_EndcapPlus_BXm1BXm2Empty;
-  MonitorElement* meCHF_EndcapMinus_BXm1BXm2Empty;
+  MonitorElement* meCHF_Barrel_BXm2BXm1Empty;
+  MonitorElement* meCHF_EndcapPlus_BXm2BXm1Empty;
+  MonitorElement* meCHF_EndcapMinus_BXm2BXm1Empty;
   MonitorElement* meCHF_Barrel_BXm1Filled;
   MonitorElement* meCHF_EndcapPlus_BXm1Filled;
   MonitorElement* meCHF_EndcapMinus_BXm1Filled;
-  MonitorElement* meCHF_Barrel_BXm1BXm2Filled;
-  MonitorElement* meCHF_EndcapPlus_BXm1BXm2Filled;
-  MonitorElement* meCHF_EndcapMinus_BXm1BXm2Filled;
+  MonitorElement* meCHF_Barrel_BXm2BXm1Filled;
+  MonitorElement* meCHF_EndcapPlus_BXm2BXm1Filled;
+  MonitorElement* meCHF_EndcapMinus_BXm2BXm1Filled;
 
   MonitorElement* meNHF_Barrel;
   MonitorElement* meNHF_EndcapPlus;
@@ -432,15 +424,15 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meNHF_Barrel_BXm1Empty;
   MonitorElement* meNHF_EndcapPlus_BXm1Empty;
   MonitorElement* meNHF_EndcapMinus_BXm1Empty;
-  MonitorElement* meNHF_Barrel_BXm1BXm2Empty;
-  MonitorElement* meNHF_EndcapPlus_BXm1BXm2Empty;
-  MonitorElement* meNHF_EndcapMinus_BXm1BXm2Empty;
+  MonitorElement* meNHF_Barrel_BXm2BXm1Empty;
+  MonitorElement* meNHF_EndcapPlus_BXm2BXm1Empty;
+  MonitorElement* meNHF_EndcapMinus_BXm2BXm1Empty;
   MonitorElement* meNHF_Barrel_BXm1Filled;
   MonitorElement* meNHF_EndcapPlus_BXm1Filled;
   MonitorElement* meNHF_EndcapMinus_BXm1Filled;
-  MonitorElement* meNHF_Barrel_BXm1BXm2Filled;
-  MonitorElement* meNHF_EndcapPlus_BXm1BXm2Filled;
-  MonitorElement* meNHF_EndcapMinus_BXm1BXm2Filled;
+  MonitorElement* meNHF_Barrel_BXm2BXm1Filled;
+  MonitorElement* meNHF_EndcapPlus_BXm2BXm1Filled;
+  MonitorElement* meNHF_EndcapMinus_BXm2BXm1Filled;
 
   MonitorElement* mePhF_Barrel;
   MonitorElement* mePhF_EndcapPlus;
@@ -448,51 +440,51 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* mePhF_Barrel_BXm1Empty;
   MonitorElement* mePhF_EndcapPlus_BXm1Empty;
   MonitorElement* mePhF_EndcapMinus_BXm1Empty;
-  MonitorElement* mePhF_Barrel_BXm1BXm2Empty;
-  MonitorElement* mePhF_EndcapPlus_BXm1BXm2Empty;
-  MonitorElement* mePhF_EndcapMinus_BXm1BXm2Empty;
+  MonitorElement* mePhF_Barrel_BXm2BXm1Empty;
+  MonitorElement* mePhF_EndcapPlus_BXm2BXm1Empty;
+  MonitorElement* mePhF_EndcapMinus_BXm2BXm1Empty;
   MonitorElement* mePhF_Barrel_BXm1Filled;
   MonitorElement* mePhF_EndcapPlus_BXm1Filled;
   MonitorElement* mePhF_EndcapMinus_BXm1Filled;
-  MonitorElement* mePhF_Barrel_BXm1BXm2Filled;
-  MonitorElement* mePhF_EndcapPlus_BXm1BXm2Filled;
-  MonitorElement* mePhF_EndcapMinus_BXm1BXm2Filled;
+  MonitorElement* mePhF_Barrel_BXm2BXm1Filled;
+  MonitorElement* mePhF_EndcapPlus_BXm2BXm1Filled;
+  MonitorElement* mePhF_EndcapMinus_BXm2BXm1Filled;
 
   MonitorElement* meHFHadF_Plus;
   MonitorElement* meHFHadF_Minus;
   MonitorElement* meHFHadF_Plus_BXm1Empty;
   MonitorElement* meHFHadF_Minus_BXm1Empty;
-  MonitorElement* meHFHadF_Plus_BXm1BXm2Empty;
-  MonitorElement* meHFHadF_Minus_BXm1BXm2Empty;
+  MonitorElement* meHFHadF_Plus_BXm2BXm1Empty;
+  MonitorElement* meHFHadF_Minus_BXm2BXm1Empty;
   MonitorElement* meHFHadF_Plus_BXm1Filled;
   MonitorElement* meHFHadF_Minus_BXm1Filled;
-  MonitorElement* meHFHadF_Plus_BXm1BXm2Filled;
-  MonitorElement* meHFHadF_Minus_BXm1BXm2Filled;
+  MonitorElement* meHFHadF_Plus_BXm2BXm1Filled;
+  MonitorElement* meHFHadF_Minus_BXm2BXm1Filled;
 
   MonitorElement* meHFEMF_Plus;
   MonitorElement* meHFEMF_Minus;
   MonitorElement* meHFEMF_Plus_BXm1Empty;
   MonitorElement* meHFEMF_Minus_BXm1Empty;
-  MonitorElement* meHFEMF_Plus_BXm1BXm2Empty;
-  MonitorElement* meHFEMF_Minus_BXm1BXm2Empty;
+  MonitorElement* meHFEMF_Plus_BXm2BXm1Empty;
+  MonitorElement* meHFEMF_Minus_BXm2BXm1Empty;
   MonitorElement* meHFEMF_Plus_BXm1Filled;
   MonitorElement* meHFEMF_Minus_BXm1Filled;
-  MonitorElement* meHFEMF_Plus_BXm1BXm2Filled;
-  MonitorElement* meHFEMF_Minus_BXm1BXm2Filled;
+  MonitorElement* meHFEMF_Plus_BXm2BXm1Filled;
+  MonitorElement* meHFEMF_Minus_BXm2BXm1Filled;
 
-  MonitorElement* meMETPhiChargedHadronsBarrel_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiChargedHadronsEndcapPlus_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiChargedHadronsEndcapMinus_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiNeutralHadronsBarrel_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiNeutralHadronsEndcapPlus_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiNeutralHadronsEndcapMinus_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiPhotonsBarrel_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiPhotonsEndcapPlus_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiPhotonsEndcapMinus_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiHFHadronsPlus_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiHFHadronsMinus_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiHFEGammasPlus_BXm1Bxm2Filled;
-  MonitorElement* meMETPhiHFEGammasMinus_BXm1Bxm2Filled;
+  MonitorElement* meMETPhiChargedHadronsBarrel_BXm2BXm1Filled;
+  MonitorElement* meMETPhiChargedHadronsEndcapPlus_BXm2BXm1Filled;
+  MonitorElement* meMETPhiChargedHadronsEndcapMinus_BXm2BXm1Filled;
+  MonitorElement* meMETPhiNeutralHadronsBarrel_BXm2BXm1Filled;
+  MonitorElement* meMETPhiNeutralHadronsEndcapPlus_BXm2BXm1Filled;
+  MonitorElement* meMETPhiNeutralHadronsEndcapMinus_BXm2BXm1Filled;
+  MonitorElement* meMETPhiPhotonsBarrel_BXm2BXm1Filled;
+  MonitorElement* meMETPhiPhotonsEndcapPlus_BXm2BXm1Filled;
+  MonitorElement* meMETPhiPhotonsEndcapMinus_BXm2BXm1Filled;
+  MonitorElement* meMETPhiHFHadronsPlus_BXm2BXm1Filled;
+  MonitorElement* meMETPhiHFHadronsMinus_BXm2BXm1Filled;
+  MonitorElement* meMETPhiHFEGammasPlus_BXm2BXm1Filled;
+  MonitorElement* meMETPhiHFEGammasMinus_BXm2BXm1Filled;
 
   double ptMinCand_;
 
@@ -550,6 +542,23 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meHFEMEtFraction_profile;
   MonitorElement* meHFEMEt_profile;
 
+  MonitorElement* meZJets_u_par;
+  MonitorElement* meZJets_u_par_ZPt_0_15;
+  MonitorElement* meZJets_u_par_ZPt_15_30;
+  MonitorElement* meZJets_u_par_ZPt_30_55;
+  MonitorElement* meZJets_u_par_ZPt_55_75;
+  MonitorElement* meZJets_u_par_ZPt_75_150;
+  MonitorElement* meZJets_u_par_ZPt_150_290;
+  MonitorElement* meZJets_u_par_ZPt_290;
+  
+  MonitorElement* meZJets_u_perp;
+  MonitorElement* meZJets_u_perp_ZPt_0_15;
+  MonitorElement* meZJets_u_perp_ZPt_15_30;
+  MonitorElement* meZJets_u_perp_ZPt_30_55;
+  MonitorElement* meZJets_u_perp_ZPt_55_75;
+  MonitorElement* meZJets_u_perp_ZPt_75_150;
+  MonitorElement* meZJets_u_perp_ZPt_150_290;
+  MonitorElement* meZJets_u_perp_ZPt_290;
 
   std::map< std::string,MonitorElement* >map_dijet_MEs;
   std::vector<unsigned int> nCh;

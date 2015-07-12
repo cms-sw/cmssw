@@ -26,14 +26,8 @@ options.register('skipFirstLumis',
 
 # Parameters for runType
 
-options.register('runtype',
-         'cosmic_run',
-        VarParsing.VarParsing.multiplicity.singleton,
-        VarParsing.VarParsing.varType.string,
-          "Type of Run in CMS")
-
 options.register ('runkey',
-          'cosmic_run',
+          'pp_run',
           VarParsing.VarParsing.multiplicity.singleton,
           VarParsing.VarParsing.varType.string,
           "Run Keys of CMS")
@@ -44,9 +38,9 @@ options.parseArguments()
 #if len(sys.argv) > 1:
 #  options.parseArguments()
 
-runType = RunType(['pp_run','cosmic_run','hi_run','hpu_run'])
+runType = RunType()
 if not options.runkey.strip():
-  options.runkey = 'cosmic_run'
+  options.runkey = 'pp_run'
 
 runType.setRunType(options.runkey.strip())
 
@@ -58,7 +52,7 @@ source = cms.Source("DQMStreamerReader",
     streamLabel = cms.untracked.string('streamDQM'),
     minEventsPerLumi = cms.untracked.int32(1),
     delayMillis = cms.untracked.uint32(500),
-    nextLumiTimeoutMillis = cms.untracked.int32(30000),
+    nextLumiTimeoutMillis = cms.untracked.int32(90000),
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
     deleteDatFiles = cms.untracked.bool(False),
     endOfRunKills  = cms.untracked.bool(True),

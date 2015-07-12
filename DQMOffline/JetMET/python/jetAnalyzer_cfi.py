@@ -7,6 +7,8 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     JetType = cms.string('calo'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4CaloL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4CaloJets"),
+    METCollectionLabel     = cms.InputTag("caloMet"),
+    muonsrc = cms.InputTag("muons"),
     l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),
     filljetHighLevel =cms.bool(False),
     #
@@ -57,10 +59,10 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     JetIDVersion               = cms.string("PURE09"),
     #
     #actually done only for PFJets at the moment
-    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdProducer","fullDiscriminant"),
-    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdProducer","cutbasedDiscriminant"),
-    InputMVAPUIDValue = cms.InputTag("pileupJetIdProducer","fullId"),
-    InputCutPUIDValue = cms.InputTag("pileupJetIdProducer","cutbasedId"),
+    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","full53xDiscriminant"),
+    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedDiscriminant"),
+    InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","full53xId"),
+    InputCutPUIDValue = cms.InputTag("pileupJetIdEvaluatorDQM","cutbasedId"),
 
     InputQGMultiplicity = cms.InputTag("QGTagger", "mult"),
     InputQGLikelihood = cms.InputTag("QGTagger", "qgLikelihood"),
@@ -108,8 +110,7 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     JetType = cms.string('pf'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJets"),
-    #JetCorrections = cms.InputTag("ak4PFCHSL1FastL2L3Corrector"),
-    #jetsrc = cms.InputTag("ak4PFJetsCHS"),
+    METCollectionLabel     = cms.InputTag("pfMet"),
     filljetHighLevel  = cms.bool(False),
     DCSFilterForJetMonitoring = cms.PSet(
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
@@ -126,18 +127,20 @@ jetDQMAnalyzerAk4PFCleaned=jetDQMAnalyzerAk4PFUncleaned.clone(
         ptThreshold = cms.double(20.),
         asymmetryThirdJetCut = cms.double(30),
         balanceThirdJetCut = cms.double(0.2),
-        )
+        ),
+    METCollectionLabel     = cms.InputTag("pfMet"),
 )
 
 jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     filljetHighLevel =cms.bool(True),
     JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJetsCHS"),
+    METCollectionLabel     = cms.InputTag("pfMETT1"),
     #actually done only for PFJets at the moment
-    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdProducerChs","fullDiscriminant"),
-    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdProducerChs","cutbasedDiscriminant"),
-    InputMVAPUIDValue = cms.InputTag("pileupJetIdProducerChs","fullId"),
-    InputCutPUIDValue = cms.InputTag("pileupJetIdProducerChs","cutbasedId"),
+    InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","fullDiscriminant"),
+    InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","cutbasedDiscriminant"),
+    InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorCHSDQM","fullId"),
+    InputCutPUIDValue = cms.InputTag("pileupJetIdEvaluatorCHSDQM","cutbasedId"),
     fillCHShistos =cms.bool(True),
 )
 
@@ -148,6 +151,7 @@ jetDQMAnalyzerAk4PFCHSUncleanedMiniAOD=jetDQMAnalyzerAk4PFUncleaned.clone(
         ),
     JetType = cms.string('miniaod'),#pf, calo or jpt
     jetsrc = cms.InputTag("slimmedJets"),
+    METCollectionLabel     = cms.InputTag("slimmedMETs"),
 )
 
 jetDQMAnalyzerAk4PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCleaned.clone(

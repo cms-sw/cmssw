@@ -16,6 +16,12 @@ const std::string cmsshow::sSearchFiles          = "Open Remote Data File";
 const std::string cmsshow::sLoadConfig           = "Load Configuration";
 const std::string cmsshow::sSaveConfig           = "Save Configuration";
 const std::string cmsshow::sSaveConfigAs         = "Save Configuration As";
+
+const std::string cmsshow::sLoadPartialConfig           = "Load Partial Configuration";
+const std::string cmsshow::sSavePartialConfig           = "Save Partial Configuration";
+const std::string cmsshow::sSavePartialConfigAs         = "Save Partial Configuration As";
+
+
 const std::string cmsshow::sExportImage          = "Export Main View Image";
 const std::string cmsshow::sExportAllImages      = "Export Images of All Views";
 

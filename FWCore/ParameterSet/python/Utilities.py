@@ -101,6 +101,11 @@ def convertToUnscheduled(proc):
     proc.options = cms.untracked.PSet()
   proc.options.allowUnscheduled = cms.untracked.bool(True)
 
+  proc=cleanUnscheduled(proc)
+  return proc
+
+def cleanUnscheduled(proc):
+  import FWCore.ParameterSet.Config as cms
   l = proc.paths
   droppedPaths =[]
   #have to get them now since switching them after the
@@ -144,6 +149,22 @@ def convertToUnscheduled(proc):
   dependentProducers = set()
   firstPass = True
 
+
+  def getUnqualifiedName(name):
+    if name[0] in set(['!','-']):
+        return name[1:]
+    return name
+
+  def getQualifiedModule(name,proc):
+    unqual_name = getUnqualifiedName(name)
+    p=getattr(proc,unqual_name)
+    if unqual_name != name:
+      if name[0] == '!':
+        p = ~p
+      elif name[0] == '-':
+        p = cms.ignore(p)
+    return p
+
   while True :
 
     dependentsFoundThisPass = False
@@ -177,23 +198,23 @@ def convertToUnscheduled(proc):
   # On each path we drop EDProducers except we
   # keep the EDProducers that depend on EDFilters
   for pName,p in l.iteritems():
-    nodes = []
-    v = cms.ModuleNodeVisitor(nodes)
+    qualified_names = []
+    v = cms.DecoratedNodeNameVisitor(qualified_names)
     p.visit(v)
-    names = [node.label_() for node in nodes]
     remaining =[]
 
-    for n in names:
-      if not isinstance(getattr(proc,n), cms.EDProducer):
+    for n in qualified_names:
+      unqual_name = getUnqualifiedName(n)
+      if not isinstance(getattr(proc,unqual_name), cms.EDProducer):
         remaining.append(n)
       else :
-        if n in dependentProducers :
+        if unqual_name in dependentProducers :
           remaining.append(n)
 
     if remaining:
-      p=getattr(proc,remaining[0])
+      p = getQualifiedModule(remaining[0],proc)
       for m in remaining[1:]:
-        p+=getattr(proc,m)
+        p+=getQualifiedModule(m,proc)
       setattr(proc,pName,cms.Path(p))
     # drop empty paths
     else:
@@ -202,7 +223,7 @@ def convertToUnscheduled(proc):
   # If there is a schedule then it needs to point at
   # the new Path objects
   if proc.schedule:
-    proc.schedule = cms.Schedule([getattr(proc,p) for p in pathNamesInScheduled])
+      proc._Process__schedule = None
   return proc
 
 if __name__ == "__main__":
@@ -277,8 +298,9 @@ if __name__ == "__main__":
             process.f1 = cms.EDFilter("Filter")
             process.f2 = cms.EDFilter("Filter2")
             process.f3 = cms.EDFilter("Filter3")
+            process.f4 = cms.EDFilter("FIlter4")
             process.p1 = cms.Path(process.a+process.b+process.f1+process.d+process.e+process.f+process.g+process.h+process.k)
-            process.p4 = cms.Path(process.a+process.f2+process.b+process.f1)
+            process.p4 = cms.Path(process.a+process.f2+process.b+~process.f1+cms.ignore(process.f4))
             process.p2 = cms.Path(process.a+process.b)
             process.p3 = cms.Path(process.f1)
             convertToUnscheduled(process)
@@ -294,10 +316,11 @@ if __name__ == "__main__":
             self.assert_(hasattr(process,'f1'))
             self.assert_(hasattr(process,'f2'))
             self.assert_(not hasattr(process,'f3'))
+            self.assert_(hasattr(process,'f4'))
             self.assertEqual(process.p1.dumpPython(None),'cms.Path(process.f1+process.d+process.e+process.f+process.g+process.h+process.k)\n')
             self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
-            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+process.f1)\n')
+            self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+~process.f1+cms.ignore(process.f4))\n')
         def testWithSchedule(self):
             import FWCore.ParameterSet.Config as cms
             process = cms.Process("TEST")
@@ -337,6 +360,7 @@ if __name__ == "__main__":
             self.assertEqual(process.p2.dumpPython(None),'cms.Path()\n')
             self.assertEqual(process.p3.dumpPython(None),'cms.Path(process.f1)\n')
             self.assertEqual(process.p4.dumpPython(None),'cms.Path(process.f2+process.f1)\n')
-            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3])
+# there is no longer a schedule. 
+#            self.assertEqual([p for p in process.schedule],[process.p1,process.p4,process.p2,process.p3])
 
     unittest.main()

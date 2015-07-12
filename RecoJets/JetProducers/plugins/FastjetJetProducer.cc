@@ -244,6 +244,11 @@ void FastjetJetProducer::produce( edm::Event & iEvent, const edm::EventSetup & i
   
   }
 
+  // fjClusterSeq_ retains quite a lot of memory - about 1 to 7Mb at 200 pileup
+  // depending on the exact configuration; and there are 24 FastjetJetProducers in the
+  // sequence so this adds up to about 60 Mb. It's allocated every time runAlgorithm
+  // is called, so safe to delete here.
+  fjClusterSeq_.reset();
 }
 
 
@@ -368,6 +373,12 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
     LogDebug("FastjetTrackJetProducer") << "Put " << jets->size() << " jets in the event.\n";
     iEvent.put(jets);
 
+    // Clear the work vectors so that memory is free for other modules.
+    // Use the trick of swapping with an empty vector so that the memory
+    // is actually given back rather than silently kept.
+    decltype(fjInputs_)().swap(fjInputs_);
+    decltype(fjJets_)().swap(fjJets_);
+    decltype(inputs_)().swap(inputs_);  
 }
 
 
