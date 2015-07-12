@@ -32,6 +32,17 @@ met_globalVariables = [
 
    # ----------------------- type1met studies info -------------------------------------------------------------------- #     
 
+    NTupleVariable("metType1_Pt", lambda ev : ev.metType1.pt() if  hasattr(ev,'metType1') else  0 , help="type1, V5, pt"),
+    NTupleVariable("metType1_Phi", lambda ev : ev.metType1.phi() if  hasattr(ev,'metType1') else  0 , help="type1, V5, phi"),
+
+    NTupleVariable("metType1D_Pt", lambda ev : ev.metType1D.pt() if  hasattr(ev,'metType1D') else  0 , help="type1, V5, pt"),
+    NTupleVariable("metType1D_Phi", lambda ev : ev.metType1D.phi() if  hasattr(ev,'metType1D') else  0 , help="type1, V5, phi"),
+
+    NTupleVariable("metType1U_Pt", lambda ev : ev.metType1U.pt() if  hasattr(ev,'metType1U') else  0 , help="type1, V5, pt"),
+    NTupleVariable("metType1U_Phi", lambda ev : ev.metType1U.phi() if  hasattr(ev,'metType1U') else  0 , help="type1, V5, phi"),
+
+   # -------------
+
     NTupleVariable("ak4MET_Pt", lambda ev : ev.ak4MET.pt() if  hasattr(ev,'ak4MET') else  0 , help="type1, V4, pt"),
     NTupleVariable("ak4MET_Phi", lambda ev : ev.ak4MET.phi() if  hasattr(ev,'ak4MET') else  0 , help="ype1, V4, phi"),
 
@@ -49,6 +60,10 @@ met_globalVariables = [
 
    # ----------------------- tkMet info -------------------------------------------------------------------- #     
 
+    NTupleVariable("tkmet_genPt", lambda ev : ev.tkGenMet.pt() if  hasattr(ev,'tkGenMet') else  0 , help="TK E_{T}^{miss} dz<0.1 pt"),
+    NTupleVariable("tkmet_genPhi", lambda ev : ev.tkGenMet.phi() if  hasattr(ev,'tkGenMet') else  0 , help="TK E_{T}^{miss} dz<0.1 phi"),
+
+    ##
     NTupleVariable("tkmet_pt", lambda ev : ev.tkMet.pt() if  hasattr(ev,'tkMet') else  0, help="TK E_{T}^{miss} dz<0.1 pt"),
     NTupleVariable("tkmet_phi", lambda ev : ev.tkMet.phi() if  hasattr(ev,'tkMet') else  0 , help="TK E_{T}^{miss} dz<0.1 phi"),
     NTupleVariable("tkmet_sumEt", lambda ev : ev.tkMet.sumEt if  hasattr(ev,'tkMet') else  0 , help="TK sumEt charged dz<0.1 pt"),
@@ -56,18 +71,17 @@ met_globalVariables = [
     NTupleVariable("tkmet_uPara_zll", lambda ev : ev.tkMet.upara_zll if  hasattr(ev,'tkMet') and hasattr(ev,'zll_p4') else -999 , help="TK sumEt charged dz<0.1 pt"),
     NTupleVariable("tkmet_uPerp_zll", lambda ev : ev.tkMet.uperp_zll if  hasattr(ev,'tkMet') and hasattr(ev,'zll_p4') else -999 , help="TK sumEt charged dz<0.1 pt"),
 
-    NTupleVariable("tkmet_genPt", lambda ev : ev.tkGenMet.pt() if  hasattr(ev,'tkGenMet') else  0 , help="TK E_{T}^{miss} dz<0.1 pt"),
-    NTupleVariable("tkmet_genPhi", lambda ev : ev.tkGenMet.phi() if  hasattr(ev,'tkGenMet') else  0 , help="TK E_{T}^{miss} dz<0.1 phi"),
+    ##
+    NTupleVariable("tkmetchs_pt", lambda ev : ev.tkMetPVchs.pt() if  hasattr(ev,'tkMetPVchs') else  0, help="TK E_{T}^{miss} fromPV>0 pt"),
+    NTupleVariable("tkmetchs_phi", lambda ev : ev.tkMetPVchs.phi() if  hasattr(ev,'tkMetPVchs') else  0, help="TK E_{T}^{miss} fromPV>0 phi"),
+    NTupleVariable("tkmetchs_sumEt", lambda ev : ev.tkMetPVchs.sumEt if  hasattr(ev,'tkMetPVchs') else  0, help="TK sumEt charged fromPV>0"),
 
-#    NTupleVariable("tkmetchs_pt", lambda ev : ev.tkMetchs.pt(), help="TK E_{T}^{miss} fromPV>0 pt"),
-#    NTupleVariable("tkmetchs_phi", lambda ev : ev.tkMetchs.phi(), help="TK E_{T}^{miss} fromPV>0 phi"),
-#    #    NTupleVariable("tkmetchs_sumEt", lambda ev : ev.tkMetchs.sumEt, help="TK sumEt charged fromPV>0"),
-#
+    NTupleVariable("tkmetchs_uPara_zll", lambda ev : ev.tkMetPVchs.upara_zll if  hasattr(ev,'tkMetPVchs') and hasattr(ev,'zll_p4') else -999 , help="TK sumEt charged fromPV>0 pt"),
+    NTupleVariable("tkmetchs_uPerp_zll", lambda ev : ev.tkMetPVchs.uperp_zll if  hasattr(ev,'tkMetPVchs') and hasattr(ev,'zll_p4') else -999 , help="TK sumEt charged fromPV>0 pt"),
 
 #    NTupleVariable("tkmetPVLoose_pt", lambda ev : ev.tkMetPVLoose.pt(), help="TK E_{T}^{miss} fromPV>1 pt"),
 #    NTupleVariable("tkmetPVLoose_phi", lambda ev : ev.tkMetPVLoose.phi(), help="TK E_{T}^{miss} fromPV>1 phi"),
-#    #    NTupleVariable("tkmetPVLoose_sumEt", lambda ev : ev.tkMetPVLoose.sumEt, help="TK sumEt charged fromPV>1"),
-#                                                                                                                                                                                                   
+#    NTupleVariable("tkmetPVLoose_sumEt", lambda ev : ev.tkMetPVLoose.sumEt, help="TK sumEt charged fromPV>1"),
 
 #    NTupleVariable("tkmetPVTight_pt", lambda ev : ev.tkMetPVTight.pt(), help="TK E_{T}^{miss} fromPV>2 pt"),
 #    NTupleVariable("tkmetPVTight_phi", lambda ev : ev.tkMetPVTight.phi(), help="TK E_{T}^{miss} fromPV>2 phi"),
@@ -88,4 +102,5 @@ met_collections = {
     "gentauleps"      : NTupleCollection("genLepFromTau", genParticleWithLinksType, 10, help="Generated leptons (e/mu) from decays of taus from W/Z/h decays"),
     "gentaus"         : NTupleCollection("genTau",     genParticleWithLinksType, 10, help="Generated leptons (tau) from W/Z decays"),                            
     "generatorSummary" : NTupleCollection("GenPart", genParticleWithLinksType, 100 , help="Hard scattering particles, with ancestry and links"),
+#    "selectedLeptons" : NTupleCollection("lep", leptonType, 50, help="Leptons after the preselection", filter=lambda l : l.pt()>10 ),
     }
