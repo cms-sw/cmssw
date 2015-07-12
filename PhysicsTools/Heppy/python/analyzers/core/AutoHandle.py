@@ -14,6 +14,7 @@ class AutoHandle( Handle, object ):
         self.type = type
         self.mayFail = mayFail
         self.lazy = lazy
+        self.isLoaded = False
         Handle.__init__(self, self.type)
     def product(self):
         if not self.isLoaded :
