@@ -1,0 +1,15 @@
+<use name="root"/>
+<use name="rootcore"/>
+<use name="rootinteractive"/>
+<use name="rootpy"/>
+<use name="clhepheader"/>
+<use name="DataFormats/HepMCCandidate"/>
+<use name="fastjet"/>
+<use name="fastjet-contrib"/>
+<use name="boost"/>
+<use name="roottmva"/>
+<use name="rootminuit2"/>
+<use name="lhapdf"/>
+<export>
+  <lib   name="1"/>
+</export>
