@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+ln -sf $CMSSW_BASE/src/PhysicsTools/HeppyCore/scripts/heppy_loop.py tmp_heppy.py
+ipython --pdb -- tmp_heppy.py "$@" 
+rm tmp_heppy.py

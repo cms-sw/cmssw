@@ -73,7 +73,7 @@ process.source = cms.Source("PoolSource",
 
 
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 
 #from Configuration.GlobalRuns.reco_TLR_41X import customisePPData

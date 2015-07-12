@@ -44,7 +44,10 @@ class ttHhistoCounterAnalyzer( Analyzer ):
                 wgt_ = float(w.wgt)
                 self.inputLHE.Fill(id_, wgt_)
 
-        genWeight_ = float(self.mchandles['GenInfo'].product().weight())
-        self.inputGenWeights.Fill(1, genWeight_);
+        if self.cfg_comp.isMC:
+            genWeight_ = float(self.mchandles['GenInfo'].product().weight())
+            self.inputGenWeights.Fill(1, genWeight_)
+        else:
+            self.inputGenWeights.Fill(1)
 
         return True

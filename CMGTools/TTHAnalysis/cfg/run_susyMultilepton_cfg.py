@@ -246,7 +246,15 @@ elif test == '2lss-sync': # sync
     selectedComponents = [ comp ]
 elif test == '74X-MC':
     what = getHeppyOption("sample")
-    if what == "TT":
+    if what == "TTLep":
+        selectedComponents = [ TTLep_pow ]
+        comp = selectedComponents[0]
+        comp.files = [ '/store/mc/RunIISpring15DR74/TTTo2L2Nu_13TeV-powheg/MINIAODSIM/Asympt25ns_MCRUN2_74_V9-v1/50000/0C1B984D-F408-E511-872E-0002C90B7F2E.root' ]
+        tmpfil = os.path.expandvars("/tmp/$USER/0C1B984D-F408-E511-872E-0002C90B7F2E.root")
+        if not os.path.exists(tmpfil):
+            os.system("xrdcp root://eoscms//eos/cms%s %s" % (comp.files[0],tmpfil))
+        comp.files = [ tmpfil ]
+    elif what == "TT":
         ttHLepSkim.minLeptons = 0
         selectedComponents = [ TT_bx25 ]
     elif what == "Z":
