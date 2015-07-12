@@ -9,6 +9,7 @@ public:
 
   result_type operator()(const reco::MuonPtr&) const override final;
   CandidateType candidateType() const override final { return MUON; }
+  double value(const reco::CandidatePtr&) const override final;
 
 private:
   double maxGlbNormChi2_, maxChi2LocalPos_, maxTrkKink_;
@@ -44,4 +45,10 @@ CutApplicatorBase::result_type MuonSegmentCompatibilityCut::operator()(const rec
 
   return compat > (isGoodGlb ? minCompatGlb_ : minCompatNonGlb_);
 
+}
+
+double MuonSegmentCompatibilityCut::value(const reco::CandidatePtr& cand) const
+{
+  const reco::MuonPtr muon(cand);
+  return muon::segmentCompatibility(*muon);
 }

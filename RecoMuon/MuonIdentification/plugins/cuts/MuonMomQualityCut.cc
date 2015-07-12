@@ -9,6 +9,7 @@ public:
 
   result_type operator()(const reco::MuonPtr&) const override final;
   CandidateType candidateType() const override final { return MUON; }
+  double value(const reco::CandidatePtr&) const override final;
 
 private:
   const double maxRelPtErr_;
@@ -32,3 +33,11 @@ CutApplicatorBase::result_type MuonMomQualityCut::operator()(const reco::MuonPtr
   return true;
 }
 
+double MuonMomQualityCut::value(const reco::CandidatePtr& cand) const
+{
+  const reco::MuonPtr muon(cand);
+  const auto trackRef = muon->muonBestTrack();
+  if ( trackRef.isNull() ) return -1;
+
+  return trackRef->ptError()/trackRef->pt();
+}

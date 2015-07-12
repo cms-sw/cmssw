@@ -9,6 +9,7 @@ public:
 
   result_type operator()(const reco::MuonPtr&) const override final;
   CandidateType candidateType() const override final { return MUON; }
+  double value(const reco::CandidatePtr&) const override final;
 
 private:
   const int minNumberOfMatchedStations_;
@@ -30,4 +31,10 @@ CutApplicatorBase::result_type MuonMatchCut::operator()(const reco::MuonPtr& muo
 
   return true;
 
+}
+
+double MuonMatchCut::value(const reco::CandidatePtr& cand) const
+{
+  const reco::MuonPtr muon(cand);
+  return muon->numberOfMatchedStations();
 }

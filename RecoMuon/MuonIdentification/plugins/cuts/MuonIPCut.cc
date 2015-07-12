@@ -10,6 +10,7 @@ public:
 
   result_type operator()(const reco::MuonPtr&) const override final;
   CandidateType candidateType() const override final { return MUON; }
+  double value(const reco::CandidatePtr&) const override final;
 
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
@@ -72,3 +73,20 @@ CutApplicatorBase::result_type MuonIPCut::operator()(const reco::MuonPtr& cand) 
   return true;
 }
 
+double MuonIPCut::value(const reco::CandidatePtr& cand) const
+{
+  const reco::MuonPtr muon(cand);
+  reco::TrackRef trackRef;
+  if      ( trackType_ == INNERTRACK    ) trackRef = muon->innerTrack();
+  else if ( trackType_ == MUONBESTTRACK ) trackRef = muon->muonBestTrack();
+  if ( trackRef.isNull() ) return -1;
+
+  const auto& vtxPos = vtxs_->at(0).position();
+  double dxy = std::abs(trackRef->dxy(vtxPos));
+  if ( dxy > maxDxy_ ) return dxy;
+
+  const double dz = std::abs(trackRef->dz(vtxPos));
+  if ( dz > maxDz_ ) return dz;
+
+  return dz;
+}

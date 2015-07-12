@@ -10,6 +10,7 @@ public:
 
   result_type operator()(const reco::MuonPtr&) const override final;
   CandidateType candidateType() const override final { return MUON; }
+  double value(const reco::CandidatePtr&) const override final;
 
 private:
   unsigned int type_;
@@ -27,7 +28,7 @@ MuonTypeByOrCut::MuonTypeByOrCut(const edm::ParameterSet& c):
     if      ( boost::iequals(x, "GlobalMuon")     ) type_ |= reco::Muon::GlobalMuon;
     else if ( boost::iequals(x, "TrackerMuon")    ) type_ |= reco::Muon::TrackerMuon;
     else if ( boost::iequals(x, "StandAloneMuon") ) type_ |= reco::Muon::StandAloneMuon;
-    else if ( boost::iequals(x, "CaloMmuon")       ) type_ |= reco::Muon::CaloMuon;
+    else if ( boost::iequals(x, "CaloMmuon")      ) type_ |= reco::Muon::CaloMuon;
     else if ( boost::iequals(x, "PFMuon")         ) type_ |= reco::Muon::PFMuon;
     else if ( boost::iequals(x, "RPCMuon")        ) type_ |= reco::Muon::RPCMuon;
   }
@@ -39,3 +40,8 @@ CutApplicatorBase::result_type MuonTypeByOrCut::operator()(const reco::MuonPtr& 
   return (muon->type() & type_) != 0;
 }
 
+double MuonTypeByOrCut::value(const reco::CandidatePtr& cand) const
+{
+  const reco::MuonPtr muon(cand);
+  return muon->type() & type_;
+}
