@@ -10,6 +10,7 @@
 		<Constant name="EESpCaDepth" value="  8.0*mm"/>
 		<Constant name="EESpaXYOff" value="  1.8*mm"/>
 		<Constant name="EESpAirZOff" value="  3.0*mm"/>
+		<Constant name="EEIRECR"  value="115*mm"/>
 		<Constant name="EEIRECAL" value="200*mm"/>
 		<Constant name="EEIREREG" value="250*mm"/>
 		<Constant name="EEInnerAngle" value="5.9*deg"/>
