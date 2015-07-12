@@ -1,5 +1,2 @@
-TTH    : TTH : 1 ; FillColor=ROOT.kOrange+10
-ref_TTH+ : Reference_72X_TTH : 1 ; FillColor=ROOT.kAzure+2, Label="Ref."
-
-TT_bx25    : TT_bx25 : 1 ; FillColor=ROOT.kOrange+10
-ref_TT_bx25+ : Reference_TT_bx25 : 1 ; FillColor=ROOT.kAzure+2, Label="Ref."
+new  : New : 1 ; FillColor=ROOT.kOrange+10
+ref+ : Ref : 1 ; FillColor=ROOT.kAzure+2, Label="Ref."
