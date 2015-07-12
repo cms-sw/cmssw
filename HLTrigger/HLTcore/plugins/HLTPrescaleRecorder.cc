@@ -18,7 +18,6 @@
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 
 #include <sys/time.h>
 #include "DataFormats/Provenance/interface/Timestamp.h"
@@ -119,9 +118,9 @@ void HLTPrescaleRecorder::beginRun(edm::Run const& iRun, const edm::EventSetup& 
 
   if (src_==-1) {
     /// From PrescaleTable tracked PSet
-    ParameterSet pPSet(getProcessParameterSet());
+    ParameterSet const& pPSet(getProcessParameterSetContainingModule(moduleDescription()));
     ParameterSet iPS(pPSet.getParameter<ParameterSet>(psetName_));
-
+  
     string defaultLabel(iPS.getParameter<std::string>("lvl1DefaultLabel"));
     vector<string> labels(iPS.getParameter<std::vector<std::string> >("lvl1Labels"));
     vector<ParameterSet> vpTable(iPS.getParameter<std::vector<ParameterSet> >("prescaleTable"));

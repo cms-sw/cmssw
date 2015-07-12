@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="eregalgo.xml" eval="true">
+  <Constant name="InnerNM_Z" value="([escon:InnerNM1_Z]+[escon:InnerNM1_Dz])"/>
+</ConstantsSection>
+  
+<SolidSection label="eregalgo.xml">
+  <Polycone name="ECAL" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="-[ectkcable:z4CabEC]" rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
+    <ZSection z="-[escon:ESRearZ]"     rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
+    <ZSection z="-[escon:ESRearZ]"     rMin="[eecon:EEIRECR]"      rMax="[eecon:EBRMax]"/>
+    <ZSection z="-[escon:ESFrontZ]"    rMin="[eecon:EEIRECR]"      rMax="[eecon:EBRMax]"/>
+    <ZSection z="-[escon:ESFrontZ]"    rMin="[eecon:EBRMin]"       rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESFrontZ]"    rMin="[eecon:EBRMin]"       rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESFrontZ]"    rMin="[escon:R_MIN]"      rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESRearZ]"     rMin="[escon:R_MIN]"      rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESRearZ]"     rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [ectkcable:z4CabEC]" rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
+  </Polycone>
+  <Polycone name="EREG" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z=" [escon:ESFrontZ]"    rMin="[escon:R_MIN]"      rMax="[escon:Front_window_Al]"/>
+    <ZSection z=" [escon:ESRearZ]"     rMin="[escon:R_MIN]"      rMax="[escon:R_MAX]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="eregalgo.xml">
+  <LogicalPart name="ECAL" category="unspecified">
+    <rSolid name="ECAL"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="EREG" category="unspecified">
+    <rSolid name="EREG"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="eregalgo.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="eregalgo:ECAL"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+   <rParent name="eregalgo:ECAL"/>
+   <rChild name="eregalgo:EREG"/>
+   <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+   <rParent name="eregalgo:ECAL"/>
+   <rChild name="eregalgo:EREG"/>
+   <rRotation name="rotations:180D"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

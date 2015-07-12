@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SolidSection label="esalgo.xml">
+  <Polycone name="SF" startPhi="0" deltaPhi="360*deg">
+    <ZSection z="[escon:ESFrontZ]" rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
+    <ZSection z="[escon:ESRearZ]"  rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="esalgo.xml">
+  <LogicalPart name="SF" category="unspecified">
+    <rSolid name="SF"/>
+    <rMaterial name="materials:E_Polythene"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="esalgo.xml">
+  <PosPart copyNumber="1">
+    <rParent name="eregalgo:EREG"/>
+    <rChild name="esalgo:SF"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>

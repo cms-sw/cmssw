@@ -41,8 +41,6 @@
 
 #include <set>
 
-#include "FWCore/ParameterSet/interface/Registry.h"
-
 //
 // class decleration
 //
@@ -217,7 +215,7 @@ TagProbeFitTreeProducer::checkMother(const reco::GenParticleRef &ref) const {
 void
 TagProbeFitTreeProducer::endJob() {
     // ask to write the current PSet info into the TTree header
-    treeFiller_->writeProvenance(edm::getProcessParameterSet());
+    treeFiller_->writeProvenance(edm::getProcessParameterSetContainingModule(moduleDescription()));
 }
 
 //define this as a plug-in
