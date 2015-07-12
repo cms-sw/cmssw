@@ -6,7 +6,7 @@ susyFullHad_globalVariables = susyCore_globalVariables + [
     ## Generator information
     ##--------------------------------------------------
 ##    NTupleVariable("genQScale", lambda ev : ev.genQScale, help="Generator level binning quantity, QScale"),
-    NTupleVariable("LHEweight_original", lambda ev: ev.LHE_originalWeight, help="original LHE weight"),
+    NTupleVariable("LHEweight_original", lambda ev: ev.LHE_originalWeight if  hasattr(ev,'LHE_originalWeight') else  0, help="original LHE weight"),
     
     ##--------------------------------------------------
     ## energy sums
