@@ -6,6 +6,7 @@
 
 #include "HLTrigger/HLTanalyzers/interface/HLTAnalyzer.h"
 #include "HLTMessages.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 typedef std::pair<const char *, const edm::InputTag *> MissingCollectionInfo;
 
@@ -905,7 +906,7 @@ void HLTAnalyzer::endJob() {
     if (m_file)
         m_file->cd();
     
-    const edm::ParameterSet &thepset = edm::getProcessParameterSet();   
+    const edm::ParameterSet &thepset = edm::getProcessParameterSetContainingModule(moduleDescription());
     TList *list = HltTree->GetUserInfo();   
     list->Add(new TObjString(thepset.dump().c_str()));   
     
