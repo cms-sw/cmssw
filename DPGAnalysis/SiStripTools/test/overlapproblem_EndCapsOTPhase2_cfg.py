@@ -8,7 +8,7 @@ process = cms.Process("OverlapProblem")
 options = VarParsing.VarParsing("analysis")
 
 options.register('globalTag',
-                 "DONOTEXIST::All",
+                 "DONOTEXIST",
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string,          # string, int, or float
                  "GlobalTag")
@@ -224,9 +224,9 @@ process.trackcount.wanted2DHistos=cms.untracked.bool(True)
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.globaltag = options.globalTag
-from Configuration.AlCa.GlobalTag import GlobalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.siStripQualityESProducer.ListOfRecordToMerge=cms.VPSet(

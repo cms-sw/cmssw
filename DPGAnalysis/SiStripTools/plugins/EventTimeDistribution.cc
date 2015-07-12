@@ -235,7 +235,7 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   if(*_bxincycle) {  (*_bxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); }
 
   if(*_orbit) {
-    (*_orbit)->SetBit(TH1::kCanRebin);
+    (*_orbit)->SetCanExtend(TH1::kXaxis);
     (*_orbit)->GetXaxis()->SetTitle("time [Orb#]");
   }
 
@@ -252,7 +252,7 @@ EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   }
 
   if(_orbitvsbxincycle && *_orbitvsbxincycle) {
-    (*_orbitvsbxincycle)->SetBit(TH1::kCanRebin);
+    (*_orbitvsbxincycle)->SetCanExtend(TH1::kYaxis);
     (*_orbitvsbxincycle)->GetXaxis()->SetTitle("Event BX mod(70)"); (*_orbitvsbxincycle)->GetYaxis()->SetTitle("time [Orb#]");
   }
 

@@ -1,4 +1,5 @@
 <lcgdict>
+  <class name="reco::TrackBase::AlgoMask"/>
   <class name="reco::HitPattern" ClassVersion="12">
       <version ClassVersion="12" checksum="3922863495"/>
       <version ClassVersion="11" checksum="1621684703"/>
@@ -6,7 +7,9 @@
   <class name="reco::TrackResiduals" ClassVersion="10">
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
-  <class name="reco::TrackBase" ClassVersion="14">
+  <class name="reco::TrackBase" ClassVersion="15">
+   <version ClassVersion="16" checksum="3673246687"/>
+   <version ClassVersion="15" checksum="1802760569"/>
    <version ClassVersion="14" checksum="3929365050"/>
    <version ClassVersion="13" checksum="1244921154"/>
    <version ClassVersion="12" checksum="2704717983"/>
@@ -351,7 +354,9 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track" ClassVersion="14">
+  <class name="reco::Track" ClassVersion="15">
+   <version ClassVersion="16" checksum="697987788"/>
+   <version ClassVersion="15" checksum="3694119510"/>
    <version ClassVersion="14" checksum="4228121071"/>
    <version ClassVersion="13" checksum="36410295"/>
    <version ClassVersion="12" checksum="1190637787"/>
@@ -430,6 +435,7 @@
      <class name="edm::reftobase::IndirectHolder<reco::Track>"/>
      <class name="edm::reftobase::BaseHolder<reco::Track>"/>
      <class name="edm::reftobase::RefHolder<reco::TrackRef>"/>
+     <class name="edm::reftobase::RefHolder<edm::Ptr<reco::Track> >"/>
      <class name="edm::reftobase::Holder<reco::Track, reco::TrackRef>"/>
 
      <class name="std::vector<edm::RefToBase<reco::Track> >" />

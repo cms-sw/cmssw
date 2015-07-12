@@ -38,8 +38,9 @@ set NNHIRD = 25
 
 set CustomRun1 = " "
 set CustomRun2 = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"
-set CustomRun2pp50ns = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns"
-set CustomRun2HI     = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI"
+set CustomRun2pp50ns  = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns"
+set CustomRun2ppLowPU = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_lowPU"
+set CustomRun2HI      = "SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI"
  
 set XL1T    = "" # syntax: tag,record[,connect,label]
 set XL1TPP1 = "" # "L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
@@ -50,6 +51,7 @@ set XL1THI  = "" # "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTri
 #set XL1THI = "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2011_v0/sqlFile/L1Menu_CollisionsHeavyIons2011_v0_mc.db"
 set XL1TPI  = "" # "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS"
 #set XL1TPI =  "L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2013_v0_mc,L1GtTriggerMenuRcd,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_CollisionsHeavyIons2013_v0/sqlFile/L1Menu_CollisionsHeavyIons2013_v0_mc.db" 
+set XL1TLOWPU  = "" # ""
 
 # specific workflows, first varying the globaltags, then the hlt tables
 
@@ -84,7 +86,8 @@ foreach gtag ( MC DATA )
     continue
   endif
 
-  foreach table ( GRun 50nsGRun HIon PIon 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
+#  foreach table ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 25ns14e33_v2 50ns_5e33_v2 Fake )
+  foreach table ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 Fake )
 
     set name = ${table}_${gtag}  
 
@@ -208,6 +211,18 @@ foreach gtag ( MC DATA )
       set Custom1 = $CustomRun2
       set Custom2 = " "
       set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == LowPU ) then
+      set XL1T = $XL1TLOWPU
+      set XHLT = HLT:LowPU
+      set GTAG = ${BASE2}_LowPU
+      set RTAG = ${BASE2RD}_LowPU
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun
+      set Custom1 = $CustomRun2ppLowPU
+      set Custom2 = " "
+      set L1REPACK = L1REPACK:GCTGT
     else
       # unsupported
       continue
@@ -234,13 +249,9 @@ foreach gtag ( MC DATA )
     echo "Creating DigiL1RawHLT $name"
     cmsDriver.py RelVal                 --step=DIGI:pdigi_valid,L1,DIGI2RAW,$XHLT   --conditions=$GTAG --filein=$InputGenSim                        --custom_conditions=$XL1T  --fileout=RelVal_DigiL1RawHLT_$name.root --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RAW-HLT'  --eventcontent=FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --customise=$Custom1 --customise=$Custom2  --scenario=$SCEN --python_filename=RelVal_DigiL1RawHLT_$name.py  --processName=$PNAME
 
-    if ( ($table != HIon) && ($table != PIon) ) then
-
     echo
     echo "Creating FastSim $name"
-    cmsDriver.py TTbar_Tauola_13TeV_cfi --step=GEN,SIM,RECOBEFMIX,DIGI,L1,L1Reco,RECO,$XHLT --fast --conditions=$GTAG                               --custom_conditions=$XL1T  --fileout=FastSim_GenToHLT_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RECO'     --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.FASTSIM --customise=$Custom1 --customise=$Custom2  --scenario=$SCEN --python_filename=FastSim_GenToHLT_$name.py     --processName=$PNAME
-
-    endif
+    cmsDriver.py TTbar_Tauola_13TeV_cfi --step=GEN,SIM,RECOBEFMIX,DIGI,L1,L1Reco,RECO,$XHLT --fast --conditions=$GTAG                               --custom_conditions=$XL1T  --fileout=FastSim_GenToHLT_$name.root    --number=$NN $DATAMC --no_exec --datatier 'GEN-SIM-DIGI-RECO'     --eventcontent FEVTDEBUGHLT --customise=HLTrigger/Configuration/CustomConfigs.L1THLT  --customise=$Custom1 --customise=$Custom2  --scenario=$SCEN --python_filename=FastSim_GenToHLT_$name.py     --processName=$PNAME
 
     endif
 

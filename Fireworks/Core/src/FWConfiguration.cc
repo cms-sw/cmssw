@@ -211,7 +211,7 @@ attrEscape(std::string value)
     Streaming the top level configuration item will stream all its children.
   */
 void
-streamTo(std::ostream& oTo, const FWConfiguration& iConfig, const std::string &name)
+FWConfiguration::streamTo(std::ostream& oTo, const FWConfiguration& iConfig, const std::string &name)
 {
    static int recursionLevel = -1;
    recursionLevel += 1;
@@ -229,7 +229,7 @@ streamTo(std::ostream& oTo, const FWConfiguration& iConfig, const std::string &n
       for(FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin();
           it != iConfig.keyValues()->end();
           ++it) {
-         streamTo(oTo, it->second, attrEscape(it->first));
+          FWConfiguration::streamTo(oTo, it->second, attrEscape(it->first));
       }
    }
    oTo << indentation << "</config>" << std::endl;

@@ -35,7 +35,8 @@ private:
   bool verbose_;
   TokenType physicsObjectSrc_;
     
-  std::vector<std::unique_ptr<SelectorType> > ids_;  
+  std::vector<std::unique_ptr<SelectorType> > ids_;
+
 };
 
 //
@@ -52,6 +53,8 @@ private:
 template< class PhysicsObjectPtr , class SelectorType >
 VersionedIdProducer<PhysicsObjectPtr,SelectorType>::
 VersionedIdProducer(const edm::ParameterSet& iConfig) {
+  constexpr char bitmap_label[] = "Bitmap";
+  
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose", false);
   
   physicsObjectSrc_ = 
@@ -78,6 +81,7 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
 
     if( idMD5 != calculated_md5 ) {
       edm::LogError("IdConfigurationNotValidated")
+        << "ID: " << ids_.back()->name() << "\n"
 	<< "The expected md5: " << idMD5 << " does not match the md5\n"
 	<< "calculated by the ID: " << calculated_md5 << " please\n"
 	<< "update your python configuration or determine the source\n"
@@ -99,19 +103,27 @@ VersionedIdProducer(const edm::ParameterSet& iConfig) {
 	    << "at the next relevant POG meeting." << std::endl;
     }
 
-    edm::LogWarning("IdInformation")
-      << idmsg.str();
+    if( !isPOGApproved ) {
+      edm::LogWarning("IdInformation")
+        << idmsg.str();
+    } else {
+      edm::LogInfo("IdInformation")
+        << idmsg.str();
+    }    
 
     produces<std::string>(idname);
     produces<edm::ValueMap<bool> >(idname);
     produces<edm::ValueMap<float> >(idname); // for PAT
-    produces<edm::ValueMap<unsigned> >(idname);
+    produces<edm::ValueMap<unsigned> >(idname);  
+    produces<edm::ValueMap<unsigned> >(idname+std::string(bitmap_label));
   }
 }
 
 template< class PhysicsObjectPtr , class SelectorType >
 void VersionedIdProducer<PhysicsObjectPtr,SelectorType>::
 produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  constexpr char bitmap_label[] = "Bitmap";
+  
   edm::Handle<Collection> physicsObjectsHandle;
   iEvent.getByToken(physicsObjectSrc_,physicsObjectsHandle);
 
@@ -121,14 +133,17 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::auto_ptr<edm::ValueMap<bool> > outPass(new edm::ValueMap<bool>() );
     std::auto_ptr<edm::ValueMap<float> > outPassf(new edm::ValueMap<float>() );
     std::auto_ptr<edm::ValueMap<unsigned> > outHowFar(new edm::ValueMap<unsigned>() );
+    std::auto_ptr<edm::ValueMap<unsigned> > outBitmap(new edm::ValueMap<unsigned>() );
     std::vector<bool> passfail;
     std::vector<float> passfailf;
     std::vector<unsigned> howfar;
+    std::vector<unsigned> bitmap;
     for(size_t i = 0; i < physicsobjects.size(); ++i) {
       auto po = physicsobjects.ptrAt(i);
       passfail.push_back((*id)(po,iEvent));
       passfailf.push_back(passfail.back());
       howfar.push_back(id->howFarInCutFlow());
+      bitmap.push_back(id->bitMap());
     }
     
     edm::ValueMap<bool>::Filler fillerpassfail(*outPass);
@@ -143,11 +158,17 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     fillerhowfar.insert(physicsObjectsHandle, howfar.begin(), howfar.end() );
     fillerhowfar.fill();  
     
+    edm::ValueMap<unsigned>::Filler fillerbitmap(*outBitmap);
+    fillerbitmap.insert(physicsObjectsHandle, bitmap.begin(), bitmap.end() );
+    fillerbitmap.fill(); 
+
     iEvent.put(outPass,id->name());
     iEvent.put(outPassf,id->name());
     iEvent.put(outHowFar,id->name());
+    iEvent.put(outBitmap,id->name()+std::string(bitmap_label));
     iEvent.put(std::auto_ptr<std::string>(new std::string(id->md5String())),
 	       id->name());
+    
   }   
 }
 

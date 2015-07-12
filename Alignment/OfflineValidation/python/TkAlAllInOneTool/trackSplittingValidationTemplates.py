@@ -20,7 +20,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.Geometry.GeometryDB_cff")
 
 # including global tag
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 # setting global tag
 #process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
 # process.GlobalTag.connect="frontier://FrontierProd/CMS_COND_31X_GLOBALTAG"
@@ -141,7 +141,9 @@ process.TrackRefitter2 = process.TrackRefitter1.clone(
 
 ### Now adding the construction of global Muons
 # what Chang did...
-process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
+#   In 74X it no longer works if ReconstructionCosmics is imported
+#   Results in 73X are identical with or without it so it seems safe to remove
+#process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 
 process.cosmicValidation = cms.EDAnalyzer("CosmicSplitterValidation",
 	ifSplitMuons = cms.bool(False),
