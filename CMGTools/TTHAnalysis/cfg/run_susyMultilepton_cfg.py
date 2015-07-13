@@ -172,26 +172,52 @@ if False: # select only a subset of a sample, corresponding to a given luminosit
         c.files = c.files[:nfiles]
         c.splitFactor = len(c.files)
 
-#  selectedComponents = [
-#    ] + WJetsToLNuHT + DYJetsM50HT + [ #DYJetsToLL_M50,
-#     TTJets ]+ SingleTop +[
-#     TTWJets,TTZJets, TTH,
-#     WZJetsTo3LNu, ZZTo4L,
-#     #GGHZZ4L, GGHTT, VBFTT, 
-#     SMS_T1tttt_2J_mGl1500_mLSP100, SMS_T1tttt_2J_mGl1200_mLSP800,
-#     T5ttttDeg_mGo1000_mStop300_mCh285_mChi280, T5ttttDeg_mGo1000_mStop300_mCh285_mChi280_dil,
-#     T5qqqqWW_mGo1200_mCh1000_mChi800_dilep, T5qqqqWWDeg_mGo1000_mCh315_mChi300_dilep
-#  ]
-#  if False:
-#      ttHLepSkim.minLeptons = 1
-#      QCDPtEMEnriched.remove(QCD_Pt10to20_EMEnriched)
-#      selectedComponents = [ QCD_Mu15 ] + QCD_Mu5 + QCDPtEMEnriched + QCDPtbcToE
+if True: # For running on data
+    json = None; 
+    processing = "Run2015B-PromptReco-v1"; short = "Run2015B_v1"; 
+    run_ranges = [ (251168,251168), (251244,251244), (251251,251252) ]
+    DatasetsAndTriggers = []
+    DatasetsAndTriggers.append( ("DoubleMuon", triggers_mumu_iso + triggers_mumu_ss + triggers_mumu_ht + triggers_3mu + triggers_3mu_alt) )
+    DatasetsAndTriggers.append( ("DoubleEG",   triggers_ee + triggers_ee_ht + triggers_3e) )
+    DatasetsAndTriggers.append( ("MuonEG",     triggers_mue + triggers_mue_ht + triggers_2mu1e + triggers_2e1mu) )
+    DatasetsAndTriggers.append( ("SingleMuon", triggers_1mu_iso + triggers_1mu_iso_50ns + triggers_1mu_noniso) )
+    DatasetsAndTriggers.append( ("SingleElectron", triggers_1e + triggers_1e_50ns) )
+    selectedComponents = []; vetos = []
+    for pd,triggers in DatasetsAndTriggers:
+        for run_range in run_ranges:
+            label = "runs_%d_%d" % run_range if run_range[0] != run_range[1] else "run_%d" % (run_range[0],)
+            comp = kreator.makeDataComponent(pd+"_"+short+"_"+label, 
+                                             "/"+pd+"/"+processing+"/MINIAOD", 
+                                             "CMS", ".*root", 
+                                             json=json, 
+                                             run_range=run_range, 
+                                             triggers=triggers[:], vetoTriggers = vetos[:])
+            print "Will process %s (%d files)" % (comp.name, len(comp.files))
+            # print "\ttrigger sel %s, veto %s"i % (triggers, vetos)
+            comp.splitFactor = 1 #len(comp.files)
+            comp.fineSplitFactor = 4
+            selectedComponents.append( comp )
+        vetos += triggers
+    if json is None:
+        susyCoreSequence.remove(jsonAna)
 
+if False: # QCD
+    selectedComponents = QCD_MuX
+    ttHLepSkim.minLeptons = 1
+    FRTrigs = triggers_FR_1mu_iso + triggers_FR_1mu_noiso + triggers_FR_1e_noiso + triggers_FR_1e_iso
+    for c in selectedComponents:
+        c.triggers = [] # FRTrigs
+        c.vetoTriggers = [] 
+        c.files = c.files[:len(c.files)/4]
+        c.splitFactor = len(c.files)
+    for t in FRTrigs:
+        tShort = t.replace("HLT_","FR_").replace("_v*","")
+        triggerFlagsAna.triggerBits[tShort] = [ t ]
+    treeProducer.collections = {
+        "selectedLeptons" : NTupleCollection("LepGood",  leptonTypeSusyExtra, 8, help="Leptons after the preselection"),
+        "cleanJets"       : NTupleCollection("Jet",     jetTypeSusy, 15, help="Cental jets after full selection and cleaning, sorted by pt"),
+    }
 
-# -- fine splitting, for some private MC samples with a single file
-#for comp in selectedComponents:
-#    comp.splitFactor = 1
-#    comp.fineSplitFactor = 40
 
     
 #-------- SEQUENCE -----------
