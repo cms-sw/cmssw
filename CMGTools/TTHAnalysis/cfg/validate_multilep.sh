@@ -11,7 +11,7 @@ function do_run {
     echo "Will run as $name";
     rm -r $name 2> /dev/null
     heppy $name run_susyMultilepton_cfg.py -p 0 -o nofetch $*
-    if test -d $name/*_Chunk0; then (cd $name; haddChunks.py -c .); fi; 
+    if ls -1 $name/ | grep -q _Chunk0; then (cd $name; haddChunks.py -c .); fi; 
     echo "Run done. press enter to continue (ctrl-c to break)";
     read DUMMY;
 }
