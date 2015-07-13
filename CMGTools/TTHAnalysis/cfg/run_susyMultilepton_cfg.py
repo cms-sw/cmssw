@@ -200,6 +200,7 @@ if True: # For running on data
         vetos += triggers
     if json is None:
         susyCoreSequence.remove(jsonAna)
+    eventFlagsAna.processName = 'RECO'
 
 if False: # QCD
     selectedComponents = QCD_MuX
