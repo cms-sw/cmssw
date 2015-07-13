@@ -8,6 +8,13 @@ EDM_REGISTER_PLUGINFACTORY(l1t::UnpackerFactoryT,"UnpackerFactory");
 namespace l1t {
    const UnpackerFactory UnpackerFactory::instance_;
 
+   void
+   getBXRange(int nbx, int& first, int& last)
+   {
+      last = floor(nbx / 2.);
+      first = std::min(0, -last + (1 - nbx % 2));
+   }
+
    std::shared_ptr<Unpacker>
    UnpackerFactory::make(const std::string& name) const
    {

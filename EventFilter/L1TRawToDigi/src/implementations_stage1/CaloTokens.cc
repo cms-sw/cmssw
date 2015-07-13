@@ -13,6 +13,8 @@ namespace l1t {
          auto isotautag = cfg.getParameter<edm::InputTag>("IsoTauInputLabel");
          auto tagHFBitCounts = cfg.getParameter<edm::InputTag>("HFBitCountsInputLabel");
          auto tagHFRingSums = cfg.getParameter<edm::InputTag>("HFRingSumsInputLabel");
+         auto tagRegion = cfg.getParameter<edm::InputTag>("RegionInputLabel");
+         auto tagEmCand = cfg.getParameter<edm::InputTag>("EmCandInputLabel");
 
          towerToken_ = cc.consumes<CaloTowerBxCollection>(tag);
          egammaToken_ = cc.consumes<EGammaBxCollection>(tag);
@@ -22,6 +24,10 @@ namespace l1t {
          isotauToken_ = cc.consumes<TauBxCollection>(isotautag);
          calospareHFBitCountsToken_ = cc.consumes<CaloSpareBxCollection>(tagHFBitCounts);
          calospareHFRingSumsToken_ = cc.consumes<CaloSpareBxCollection>(tagHFRingSums);
+         caloregionToken_ = cc.consumes<L1CaloRegionCollection>(tagRegion);
+         caloemCandToken_ = cc.consumes<L1CaloEmCollection>(tagEmCand);
+
+         
       }
    }
 }
