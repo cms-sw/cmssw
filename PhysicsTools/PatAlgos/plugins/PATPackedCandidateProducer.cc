@@ -72,6 +72,7 @@ namespace pat {
             edm::EDGetTokenT< edm::ValueMap<float> >         PuppiWeight_;
             edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >    PuppiCandsMap_;
             edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCands_;
+            edm::EDGetTokenT<edm::View<reco::CompositePtrCandidate> > SVWhiteList_;
 
             double minPtForTrackProperties_;
             // for debugging
@@ -94,6 +95,7 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PuppiWeight_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   PuppiCandsMap_(consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   PuppiCands_(consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
+  SVWhiteList_(consumes<edm::View< reco::CompositePtrCandidate > >(iConfig.getParameter<edm::InputTag>("secondaryVerticesForWhiteList"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {
   produces< std::vector<pat::PackedCandidate> > ();
@@ -129,7 +131,19 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
     const edm::Association<reco::VertexCollection> &  associatedPV=*(assoHandle.product());
     const edm::ValueMap<int>  &  associationQuality=*(assoQualityHandle.product());
            
+    edm::Handle<edm::View<reco::CompositePtrCandidate > > svWhiteListHandle;
+    iEvent.getByToken(SVWhiteList_,svWhiteListHandle);
+    const edm::View<reco::CompositePtrCandidate > &  svWhiteList=*(svWhiteListHandle.product());
+    std::set<unsigned int> whiteList;
+    for(unsigned int i=0; i<svWhiteList.size();i++)
+    {
+      for(unsigned int j=0; j< svWhiteList[i].numberOfSourceCandidatePtrs(); j++) {
+          const edm::Ptr<reco::Candidate> & c = svWhiteList[i].sourceCandidatePtr(j);
+          if(c.id() == cands.id()) whiteList.insert(c.key());
+      }
+    }
  
+
     edm::Handle<reco::VertexCollection> PVs;
     iEvent.getByToken( PVs_, PVs );
     reco::VertexRef PV(PVs.id());
@@ -189,7 +203,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
           }
           // properties of the best track 
           outPtrP->back().setLostInnerHits( lostHits );
-          if(outPtrP->back().pt() > minPtForTrackProperties_) {
+          if(outPtrP->back().pt() > minPtForTrackProperties_ || whiteList.find(ic)!=whiteList.end()) {
             outPtrP->back().setTrackProperties(*ctrack);
             //outPtrP->back().setTrackProperties(*ctrack,tsos.curvilinearError());
           }
