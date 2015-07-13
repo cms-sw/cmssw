@@ -356,7 +356,11 @@ class LeptonAnalyzer( Analyzer ):
             mu.miniAbsIsoCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, mu.miniIsoR, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0);
         else:
             mu.miniAbsIsoCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, mu.miniIsoR, {"mu":0.0001,"eleB":0,"eleE":0.015}[what], 0.0,self.IsolationComputer.selfVetoNone);
-        if self.miniIsolationPUCorr == "weights":
+
+        if self.miniIsolationPUCorr == None: puCorr = self.cfg_ana.mu_isoCorr if what=="mu" else self.cfg_ana.ele_isoCorr
+        else: puCorr = self.miniIsolationPUCorr
+
+        if puCorr == "weights":
             if what == "mu":
                 mu.miniAbsIsoNeutral = self.IsolationComputer.neutralAbsIsoWeighted(mu.physObj, mu.miniIsoR, 0.01, 0.5);
             else:
@@ -373,16 +377,17 @@ class LeptonAnalyzer( Analyzer ):
                 #mu.miniAbsIsoPhoSV  = self.IsolationComputer.photonAbsIsoRaw(    mu.physObj, mu.miniIsoR, 0.0, 0.0) 
                 #mu.miniAbsIsoNHadSV = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, mu.miniIsoR, 0.0, 0.0) 
                 #mu.miniAbsIsoNeutral = mu.miniAbsIsoPhoSV + mu.miniAbsIsoNHadSV  
-            if self.miniIsolationPUCorr == "rhoArea":
+            if puCorr == "rhoArea":
                 mu.miniAbsIsoNeutral = max(0.0, mu.miniAbsIsoNeutral - mu.rho * mu.EffectiveArea03 * (mu.miniIsoR/0.3)**2)
-            elif self.miniIsolationPUCorr == "deltaBeta":
+            elif puCorr == "deltaBeta":
                 if what == "mu":
                     mu.miniAbsIsoPU = self.IsolationComputer.puAbsIso(mu.physObj, mu.miniIsoR, 0.01, 0.5);
                 else:
                     mu.miniAbsIsoPU = self.IsolationComputer.puAbsIso(mu.physObj, mu.miniIsoR, 0.015 if what == "eleE" else 0.0, 0.0,self.IsolationComputer.selfVetoNone);
                 mu.miniAbsIsoNeutral = max(0.0, mu.miniAbsIsoNeutral - 0.5*mu.miniAbsIsoPU)
-            elif self.miniIsolationPUCorr != 'raw':
-                raise RuntimeError, "Unsupported miniIsolationCorr name '" + str(self.cfg_ana.miniIsolationCorr) +  "'! For now only 'rhoArea', 'deltaBeta', 'raw', 'weights' are supported (and 'weights' is not tested)."
+            elif puCorr != 'raw':
+                raise RuntimeError, "Unsupported miniIsolationCorr name '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw', 'weights' are supported (and 'weights' is not tested)."
+
         mu.miniAbsIso = mu.miniAbsIsoCharged + mu.miniAbsIsoNeutral
         mu.miniRelIso = mu.miniAbsIso/mu.pt()
 
@@ -510,6 +515,7 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     doMiniIsolation = False, # off by default since it requires access to all PFCandidates 
     packedCandidates = 'packedPFCandidates',
     miniIsolationPUCorr = 'rhoArea', # Allowed options: 'rhoArea' (EAs for 03 cone scaled by R^2), 'deltaBeta', 'raw' (uncorrected), 'weights' (delta beta weights; not validated)
+                                     # Choose None to just use the individual object's PU correction
     miniIsolationVetoLeptons = None, # use 'inclusive' to veto inclusive leptons and their footprint in all isolation cones
     # do MC matching 
     do_mc_match = True, # note: it will in any case try it only on MC, not on data
