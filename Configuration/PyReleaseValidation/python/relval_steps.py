@@ -1101,9 +1101,10 @@ defaultDataSets['Extended2023HGCalMuon']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_
 defaultDataSets['Extended2023HGCalMuonPandora']=defaultDataSets['Extended2023HGCalMuon'] # Geometry is the same, only reco is different
 defaultDataSets['Extended2023SHCalNoTaper']='CMSSW_6_2_0_SLHC20_patch1-DES23_62_V1_refSHNoTaper-v'
 defaultDataSets['2019WithGEMAging']='CMSSW_6_2_0_SLHC20-DES19_62_V8_UPG2019withGEM-v'
-defaultDataSets['Extended2023HGCalPandoraMuonScopeDoc_ee28_fh12']=defaultDataSets['Extended2023HGCalMuon']
-defaultDataSets['Extended2023HGCalPandoraMuonScopeDoc_ee24_fh11']=defaultDataSets['Extended2023HGCalMuon']
-defaultDataSets['Extended2023HGCalPandoraMuonScopeDoc_ee18_fh9']=defaultDataSets['Extended2023HGCalMuon']
+defaultDataSets['Extended2023HGCalScopeDoc_ee28_fh12']=defaultDataSets['Extended2023HGCalMuon']
+defaultDataSets['Extended2023HGCalScopeDoc_ee24_fh11']=defaultDataSets['Extended2023HGCalMuon']
+defaultDataSets['Extended2023HGCalScopeDoc_ee18_fh9']=defaultDataSets['Extended2023HGCalMuon']
+defaultDataSets['Extended2023HGCalNoExtPix_ee18']=defaultDataSets['Extended2023HGCalMuon']
 keys=defaultDataSets.keys()
 for key in keys:
   defaultDataSets[key+'PU']=defaultDataSets[key]
