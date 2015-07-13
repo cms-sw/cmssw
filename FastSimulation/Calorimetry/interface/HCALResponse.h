@@ -28,7 +28,7 @@ namespace edm {
 
 class HCALResponse
 {
-public:
+ public:
   HCALResponse(const edm::ParameterSet& pset);
   ~HCALResponse(){ } 
 
@@ -38,7 +38,7 @@ public:
   double responseHCAL(int _mip, double energy, double eta, int partype, RandomEngineAndDistribution const*);
 
   //Get the energy and eta dependent mip fraction
-   double getMIPfraction(double energy, double eta);
+  double getMIPfraction(double energy, double eta);
 
   // legacy methods using simple formulae
   double getHCALEnergyResponse(double e, int hit, RandomEngineAndDistribution const*);
@@ -47,7 +47,7 @@ public:
   void correctHF(double e, int type);
   vec1 & getCorrHF() {return corrHF;}   
   
-private:
+ private:
 
   // calculates interpolated-extrapolated response smearing factors
   // for hadrons, muons, and e/gamma (the last in HF specifically)
