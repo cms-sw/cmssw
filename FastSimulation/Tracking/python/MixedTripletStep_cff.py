@@ -22,7 +22,7 @@ mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
         maxZ0 = 30
         ),
     minLayersCrossed = 3,
-    hitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks"),
+    #hitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks"),
     hitCombinationMasks = cms.InputTag("mixedTripletStepMasks","hitCombinationMasks"),
     ptMin =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius,
@@ -39,7 +39,7 @@ mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traj
         maxZ0 = 30
         ),
     minLayersCrossed = 3,
-    hitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks"),
+    #hitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks"),
     hitCombinationMasks = cms.InputTag("mixedTripletStepMasks","hitCombinationMasks"),
     ptMin =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius,
@@ -54,6 +54,7 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 mixedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = cms.InputTag("mixedTripletStepSeeds"),
     MinNumberOfCrossedLayers = 3
+    #hitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks"),
 )
 
 # tracks

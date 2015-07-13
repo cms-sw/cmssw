@@ -20,7 +20,7 @@ detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.tr
         maxZ0 = 50
         ),
     minLayersCrossed = 3,
-    hitMasks = cms.InputTag("detachedTripletStepMasks","hitMasks"),
+    #hitMasks = cms.InputTag("detachedTripletStepMasks","hitMasks"),
     hitCombinationMasks = cms.InputTag("detachedTripletStepMasks","hitCombinationMasks"),
     ptMin = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
     originHalfLength = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
@@ -33,6 +33,7 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = cms.InputTag("detachedTripletStepSeeds"),
     MinNumberOfCrossedLayers = 3
+    #hitMasks = cms.InputTag("detachedTripletStepMasks","hitMasks"),
     )
 
 # tracks 

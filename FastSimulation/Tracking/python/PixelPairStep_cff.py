@@ -23,7 +23,7 @@ pixelPairStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
         ),
     minLayersCrossed = 2,
     nSigmaZ = 3,
-    hitMasks = cms.InputTag("pixelPairStepMasks","hitMasks"),
+    #hitMasks = cms.InputTag("pixelPairStepMasks","hitMasks"),
     hitCombinationMasks = cms.InputTag("pixelPairStepMasks","hitCombinationMasks"), 
     ptMin = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
@@ -35,6 +35,7 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 pixelPairStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = cms.InputTag("pixelPairStepSeeds"),
     MinNumberOfCrossedLayers = 2 # ?
+    #hitMasks = cms.InputTag("pixelPairStepMasks","hitMasks"),
 )
 
 # tracks

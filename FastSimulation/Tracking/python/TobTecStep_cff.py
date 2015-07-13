@@ -23,7 +23,7 @@ tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajec
         maxZ0 = -1
     ),
     minLayersCrossed = 4,
-    hitMasks = cms.InputTag("tobTecStepMasks","hitMasks"),
+    #hitMasks = cms.InputTag("tobTecStepMasks","hitMasks"),
     hitCombinationMasks = cms.InputTag("tobTecStepMasks","hitCombinationMasks"),
     ptMin = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.ptMin,
     originHalfLength = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet.RegionPSet.originHalfLength,
@@ -39,7 +39,7 @@ tobTecStepSeedsPair = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traject
         maxZ0 = 99
     ),
     minLayersCrossed = 4,
-    hitMasks = cms.InputTag("tobTecStepMasks","hitMasks"),
+    #hitMasks = cms.InputTag("tobTecStepMasks","hitMasks"),
     hitCombinationMasks = cms.InputTag("tobTecStepMasks","hitCombinationMasks"),
     ptMin = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.ptMin,
     originHalfLength = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet.RegionPSet.originHalfLength,
@@ -54,6 +54,7 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 tobTecStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = cms.InputTag("tobTecStepSeeds"),
     MinNumberOfCrossedLayers = 3
+    #hitMasks = cms.InputTag("tobTecStepMasks","hitMasks"),
 )
 
 # tracks 

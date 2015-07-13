@@ -23,7 +23,7 @@ lowPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.traje
         maxZ0 = 50
     ),
     minLayersCrossed = 3,
-    hitMasks = cms.InputTag("lowPtTripletStepMasks","hitMasks"),
+    #hitMasks = cms.InputTag("lowPtTripletStepMasks","hitMasks"),
     hitCombinationMasks = cms.InputTag("lowPtTripletStepMasks","hitCombinationMasks"),
     nSigmaZ = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
     ptMin = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
@@ -36,6 +36,7 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 lowPtTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = cms.InputTag("lowPtTripletStepSeeds"),
     MinNumberOfCrossedLayers = 3
+    #hitMasks = cms.InputTag("lowPtTripletStepMasks","hitMasks"),
 )
 
 # tracks
