@@ -51,7 +51,7 @@ def getFiles(filesPagePath):
     for row in table.findAll('tr'):
         # first cell is the cell where the info is stored
         id   = row['id']; cell = row.find('td') 
-        text = cell.text; url  = cell.find('a')['href']
+        text = cell.text; url  = '../' + cell.find('a')['href']
         currentLevel = id.count('_')
         # if current level is more than old one, push current item
         if currentLevel > level:
@@ -87,7 +87,7 @@ def getPackages(packagesPagePath):
     table = page.find('table', {'class' : 'directory'})
     for row in table.findAll('tr'):
         cell = row.find('td')
-        url  = cell.find('a')['href']
+        url  = '../' + cell.find('a')['href']
         # yeah, it is not that good method to parse a string but it is
         # simple... please see the pages.html file.
         pkg = cell.text.replace('Package ', '').split('/')
@@ -104,7 +104,7 @@ def getClasses(classesPagePath):
     for cell in content.findAll('td'):
         aTag = cell.find('a')
         if not aTag or not aTag.has_key('href'): continue
-        data[aTag.text] = aTag['href']
+        data[aTag.text] = '../' + aTag['href']
     return data
 
 def prepareTemplate():
@@ -166,7 +166,7 @@ def generateTree(tree):
     root = BeautifulSoup('<ul></ul>')
     names = tree.keys(); names.sort()
     for name in names:
-        node = BeautifulSoup('<li></li>')
+        node = BeautifulSoup('<li><div></div></li>')
         if type(tree[name]) == dict:
             title = BeautifulSoup('<span class="folder"></span>')
             title.span.append(name)
@@ -184,13 +184,13 @@ def generateTree(tree):
                 title.span.append(link)
             if len(tree[name]) == 0:
                 title.span['class'] = 'emptyFolder'
-            else: node.li['class'] = 'collapsable'
+            else: node.li.div['class'] = 'hitarea expandable-hitarea'
             node.li.append(generateTree(tree[name]))
         elif type(tree[name]) == str or type(tree[name]) == unicode:
-            link = BeautifulSoup('<a></a>')
+            link = BeautifulSoup('<a><span class="file"></span></a>')
             link.a['target'] = '_blank'
             link.a['href']   = tree[name]
-            link.a.append(name)
+            link.a.span.append(name)
             node.li.append(link)
         else:
             node.li.append(name)
@@ -266,7 +266,6 @@ if __name__ == "__main__":
     # merge files and the tree collected from cmsdoxy/CMSSWTagCollector
     for domain in tree: # Core
         for l1 in tree[domain]: # Configuration
-            if not l1 in files: continue
             for l2 in tree[domain][l1]:
                 # put github link if exists in classes dict
                 link = githubBase.format(cmsswVersion, '%s/%s'%(l1,l2))
@@ -274,7 +273,7 @@ if __name__ == "__main__":
                 # prepare package documentation link if exits 
                 if packages.has_key(l1) and packages[l1].has_key(l2):
                     tree[domain][l1][l2]['__packageDoc__'] = packages[l1][l2]
-                if not l2 in files[l1]: continue
+                if not l1 in files or not l2 in files[l1]: continue
                 for file in files[l1][l2]:
                     # no need to have header file extension (.h)
                     file = file.replace('.h', '')
