@@ -61,7 +61,7 @@ for comp in mcSamples:
     comp.triggers = triggers_1mu_iso
     comp.vetoTriggers = []
 
-from PhysicsTools.HeppyCore.framework.heppy import getHeppyOption
+from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 test = getHeppyOption('test')
 if test == "1":
     comp = DYJetsToLL_M50
