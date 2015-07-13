@@ -92,7 +92,6 @@ clusterLabel     ['muonSeededStepOutIn'] = cms.vstring('Strip')
 clusterBin       ['muonSeededStepOutIn'] = cms.int32(500)
 clusterMax       ['muonSeededStepOutIn'] = cms.double(100000)
 
-seedSequenceName ['muonSeededStepOutInDisplaced'] = cms.Sequence(muonSeededOutInTracks)
 seedInputTag     ['muonSeededStepOutInDisplaced'] = cms.InputTag("muonSeededSeedsOutInDisplaced")
 trackCandInputTag['muonSeededStepOutInDisplaced'] = cms.InputTag("muonSeededTrackCandidatesOutInDisplacedg")
 trackSeedSizeBin ['muonSeededStepOutInDisplaced'] = cms.int32(15)
