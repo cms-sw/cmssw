@@ -52,5 +52,5 @@
 #pragma link C++ function ComputeOOTFractionvsFill;
 #pragma link C++ class OOTResult;
 #pragma link C++ class OOTSummary;
-#pragma link C++ function BSvsBPIX;
+#pragma link C++ function BSvsBPIXPlot;
 #endif
