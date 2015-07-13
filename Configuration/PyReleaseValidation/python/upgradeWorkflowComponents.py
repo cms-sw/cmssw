@@ -13,16 +13,16 @@ upgradeKeys=['2017',
              'Extended2023',
              'Extended2023HGCalMuon',
              'Extended2023SHCal',
-             'Extended2023HGCalPandoraMuonScopeDoc_ee28_fh12',
+             'Extended2023HGCalScopeDoc_ee28_fh12',
              'Extended2023TTI',
              'Extended2023Muon',
              'Extended2023HGCalV6Muon',
              'Extended2023SHCalNoTaperNoExtPix',
              'Extended2023Pixel',
              'Extended2023SHCalNoTaper',
-             'Extended2023HGCalPandoraMuonScopeDoc_ee24_fh11',
+             'Extended2023HGCalScopeDoc_ee24_fh11',
              'Extended2023HGCal',
-             'Extended2023HGCalPandoraMuonScopeDoc_ee18_fh9',
+             'Extended2023HGCalScopeDoc_ee18_fh9',
              'BE5DPixel10DLHCC',
              'Extended2023HGCalV4',
              'Extended2023HGCalMuonPU',
@@ -35,9 +35,12 @@ upgradeKeys=['2017',
              'BE5DPixel10DLHCCNoDefect',
              'BE5DPixel10DDefect',
              'BE5DPixel10DCoolingDefect',
-             'Extended2023HGCalPandoraMuonScopeDoc_ee28_fh12PU',
-             'Extended2023HGCalPandoraMuonScopeDoc_ee24_fh11PU',
-             'Extended2023HGCalPandoraMuonScopeDoc_ee18_fh9PU'
+             'Extended2023HGCalScopeDoc_ee28_fh12PU',
+             'Extended2023HGCalScopeDoc_ee24_fh11PU',
+             'Extended2023HGCalScopeDoc_ee18_fh9PU',
+             'Extended2023HGCalNoExtPix_ee18',
+             'Extended2023HGCalNoExtPix_ee18PU'
+	     
          ]
 
 
@@ -54,7 +57,7 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023' : 'Extended2023,Extended2023Reco',
                'Extended2023HGCalMuon' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco',
                'Extended2023SHCal' : 'Extended2023SHCal,Extended2023SHCalReco',
-               'Extended2023HGCalPandoraMuonScopeDoc_ee28_fh12' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco',
+               'Extended2023HGCalScopeDoc_ee28_fh12' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco',
                'Extended2023TTI' : 'Extended2023TTI,Extended2023TTIReco',
                'Extended2023Muon' : 'Extended2023Muon,Extended2023MuonReco',
                'BE5DPixel10DLHCC' : 'ExtendedPhase2TkBE5DPixel10DLHCC',
@@ -62,16 +65,18 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023SHCalNoTaperNoExtPix' : 'Extended2023SHCalNoTaperNoExtPix',
                'Extended2023Pixel' : 'Extended2023Pixel,Extended2023PixelReco',
                'Extended2023SHCalNoTaper' : 'Extended2023SHCalNoTaper,Extended2023SHCalNoTaperReco',
-               'Extended2023HGCalPandoraMuonScopeDoc_ee24_fh11' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco',
+               'Extended2023HGCalScopeDoc_ee24_fh11' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco',
                'Extended2023HGCal' : 'Extended2023HGCal,Extended2023HGCalReco',
-               'Extended2023HGCalPandoraMuonScopeDoc_ee18_fh9' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco',
+               'Extended2023HGCalScopeDoc_ee18_fh9' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco',
                'Extended2023HGCalV4' : 'Extended2023HGCalV4Muon,Extended2023HGCalV4MuonReco',
                'Extended2023HGCalMuonPandora' : 'Extended2023HGCalMuon,Extended2023HGCalMuonReco',
                'Extended2023SHCalNoTaperFast' : 'Extended2023SHCalNoTaper,Extended2023SHCalNoTaperReco',
                'Extended2023HGCalNoExtPix' : 'Extended2023HGCalNoExtPix',
                'BE5DPixel10DLHCCNoDefect' : 'ExtendedPhase2TkBE5DPixel10DLHCC',
                'BE5DPixel10DDefect' : 'ExtendedPhase2TkBE5DPixel10D',
-               'BE5DPixel10DCoolingDefect' : 'ExtendedPhase2TkBE5DPixel10D'
+               'BE5DPixel10DCoolingDefect' : 'ExtendedPhase2TkBE5DPixel10D',
+               'Extended2023HGCalNoExtPix_ee18' : 'Extended2023HGCalNoExtPix'
+	       
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
@@ -86,7 +91,7 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023' : 'auto:upgradePLS3',
              'Extended2023HGCalMuon' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
              'Extended2023SHCal' : 'auto:upgradePLS3',
-             'Extended2023HGCalPandoraMuonScopeDoc_ee28_fh12' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
+             'Extended2023HGCalScopeDoc_ee28_fh12' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
              'Extended2023TTI' : 'auto:upgradePLS3',
              'Extended2023Muon' : 'auto:upgradePLS3',
              'BE5DPixel10DLHCC' : 'auto:upgradePLS3',
@@ -94,16 +99,17 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023SHCalNoTaperNoExtPix' : 'auto:upgradePLS3',
              'Extended2023Pixel' : 'auto:upgradePLS3',
              'Extended2023SHCalNoTaper' : 'PH2_1K_FB_V6::All',#EB aged at 1000fb-1
-             'Extended2023HGCalPandoraMuonScopeDoc_ee24_fh11' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
+             'Extended2023HGCalScopeDoc_ee24_fh11' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
              'Extended2023HGCal' : 'auto:upgradePLS3',
-             'Extended2023HGCalPandoraMuonScopeDoc_ee18_fh9' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
+             'Extended2023HGCalScopeDoc_ee18_fh9' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
              'Extended2023HGCalV4' : 'auto:upgradePLS3',
              'Extended2023HGCalMuonPandora' : 'PH2_1K_FB_V6::All', #EB aged at 1000fb-1
              'Extended2023SHCalNoTaperFast' : 'auto:upgradePLS3',
              'Extended2023HGCalNoExtPix' : 'auto:upgradePLS3',
              'BE5DPixel10DLHCCNoDefect' : 'auto:upgradePLS3',
              'BE5DPixel10DDefect' : 'auto:upgradePLS3',
-             'BE5DPixel10DCoolingDefect' : 'auto:upgradePLS3'
+             'BE5DPixel10DCoolingDefect' : 'auto:upgradePLS3',
+             'Extended2023HGCalNoExtPix_ee18' : 'PH2_1K_FB_V6::All' #EB aged at 1000fb-1
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
@@ -118,7 +124,7 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023',
                  'Extended2023HGCalMuon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
                  'Extended2023SHCal' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCal',
-                 'Extended2023HGCalPandoraMuonScopeDoc_ee28_fh12' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuonScopeDoc_ee28_fh12',
+                 'Extended2023HGCalScopeDoc_ee28_fh12' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuonScopeDoc_ee28_fh12',
                  'Extended2023TTI' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023TTI',
                  'Extended2023Muon' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Muon',
                  'BE5DPixel10DLHCC' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DLHCC',
@@ -126,16 +132,17 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023SHCalNoTaperNoExtPix' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCalNoExtPix',
                  'Extended2023Pixel' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023Pixel',
                  'Extended2023SHCalNoTaper' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCal',
-                 'Extended2023HGCalPandoraMuonScopeDoc_ee24_fh11' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuonScopeDoc_ee24_fh11',
+                 'Extended2023HGCalScopeDoc_ee24_fh11' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuonScopeDoc_ee24_fh11',
                  'Extended2023HGCal' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCal',
-                 'Extended2023HGCalPandoraMuonScopeDoc_ee18_fh9' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuonScopeDoc_ee18_fh9',
+                 'Extended2023HGCalScopeDoc_ee18_fh9' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuonScopeDoc_ee18_fh9',
                  'Extended2023HGCalV4' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
                  'Extended2023HGCalMuonPandora' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalPandoraMuon',
                  'Extended2023SHCalNoTaperFast' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCalTime',
                  'Extended2023HGCalNoExtPix' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalPandoraMuonNoExtPix',
                  'BE5DPixel10DLHCCNoDefect' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DLHCCNoDefect',
                  'BE5DPixel10DDefect' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DDefect',
-                 'BE5DPixel10DCoolingDefect' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DCoolingDefect'
+                 'BE5DPixel10DCoolingDefect' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_phase2_BE5DPixel10DCoolingDefect',
+                 'Extended2023HGCalNoExtPix_ee18' : 'RecoParticleFlow/PandoraTranslator/customizeHGCalPandora_cff.cust_2023HGCalNoExtPix_ee18_fh9'
                  }
 
 upgradeFragments=['FourMuPt_1_200_cfi','SingleElectronPt10_cfi',
@@ -196,7 +203,7 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuon':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
                    'Extended2023SHCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalPandoraMuonScopeDoc_ee28_fh12':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
+                   'Extended2023HGCalScopeDoc_ee28_fh12':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
                    'Extended2023TTI':['GenSimHLBeamSpotFull','DigiTrkTrigFull'], ##no need to go beyond local reco
                    'Extended2023Muon':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'BE5DPixel10DLHCC':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
@@ -204,9 +211,9 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaperNoExtPix':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023Pixel':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaper':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalPandoraMuonScopeDoc_ee24_fh11':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
+                   'Extended2023HGCalScopeDoc_ee24_fh11':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
                    'Extended2023HGCal':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalPandoraMuonScopeDoc_ee18_fh9':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
+                   'Extended2023HGCalScopeDoc_ee18_fh9':['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
                    'Extended2023HGCalV4' : ['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCalMuonPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
                    'Extended2023SHCalNoTaperPU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPU','HARVESTFullPU'],
@@ -218,9 +225,11 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'BE5DPixel10DLHCCNoDefect':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'BE5DPixel10DDefect':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
                    'BE5DPixel10DCoolingDefect':['GenSimHLBeamSpotFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalPandoraMuonScopeDoc_ee28_fh12PU': ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
-                   'Extended2023HGCalPandoraMuonScopeDoc_ee24_fh11PU': ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
-                   'Extended2023HGCalPandoraMuonScopeDoc_ee18_fh9PU': ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL']
+                   'Extended2023HGCalScopeDoc_ee28_fh12PU': ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
+                   'Extended2023HGCalScopeDoc_ee24_fh11PU': ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
+                   'Extended2023HGCalScopeDoc_ee18_fh9PU': ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL'],
+                   'Extended2023HGCalNoExtPix_ee18' : ['GenSimHLBeamSpotFull','DigiFull','RecoFullHGCAL'],
+                   'Extended2023HGCalNoExtPix_ee18PU' : ['GenSimHLBeamSpotFull','DigiFullPU','RecoFullPUHGCAL']
                    }
 
 from  Configuration.PyReleaseValidation.relval_steps import Kby
