@@ -61,6 +61,37 @@ for comp in mcSamples:
     comp.triggers = triggers_1mu_iso
     comp.vetoTriggers = []
 
+## Example of running on data, runs 251251-251252
+if True: # For running on data
+    json = None; 
+    processing = "Run2015B-PromptReco-v1"; short = "Run2015B_v1"; 
+    run_ranges = [ (251251,251252) ]
+    DatasetsAndTriggers = []
+    DatasetsAndTriggers.append( ("DoubleMuon", triggers_mumu) ) # + triggers_3mu) )
+    DatasetsAndTriggers.append( ("DoubleEG",   triggers_ee) ) # + triggers_3e) )
+    #DatasetsAndTriggers.append( ("MuonEG",     triggers_mue + triggers_2mu1e + triggers_2e1mu) )
+    #DatasetsAndTriggers.append( ("SingleElectron", triggers_1e) )
+    #DatasetsAndTriggers.append( ("SingleMuon", triggers_1mu_iso) )
+    selectedComponents = []; vetos = []
+    for pd,triggers in DatasetsAndTriggers:
+        for run_range in run_ranges:
+            label = "runs_%d_%d" % run_range if run_range[0] != run_range[1] else "run_%d" % (run_range[0],)
+            comp = kreator.makeDataComponent(pd+"_"+short+"_"+label, 
+                                             "/"+pd+"/"+processing+"/MINIAOD", 
+                                             "CMS", ".*root", 
+                                             json=json, 
+                                             run_range=run_range, 
+                                             triggers=triggers[:], vetoTriggers = vetos[:])
+            print "Will process %s (%d files)" % (comp.name, len(comp.files))
+            # print "\ttrigger sel %s, veto %s"i % (triggers, vetos)
+            comp.splitFactor = 1 #len(comp.files)
+            comp.fineSplitFactor = 1
+            selectedComponents.append( comp )
+        vetos += triggers
+    if json is None:
+        sequence.remove(jsonAna)
+
+
 from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 test = getHeppyOption('test')
 if test == "1":
