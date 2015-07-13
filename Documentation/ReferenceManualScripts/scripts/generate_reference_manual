@@ -2,33 +2,41 @@
 
 cmsenv
 
-set CMSSW_BASE = `echo $CMSSW_BASE`
-set VER     = `echo $CMSSW_VERSION`
 set SOURCE  = $CMSSW_BASE/src
 set SCRIPTS = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/python
 set DATA    = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/data
 set DOC     = $CMSSW_BASE/doc
+set HTML    = $DOC/html
 
 if (-e $DOC) then
     rm -Rf $DOC
 endif
 
 mkdir $DOC
-mkdir $DOC/html
-cp -rf $DATA/iframes/ $DOC/html
 
-sed -e 's|@CMSSW_IN@|'$SOURCE'|g' -e 's|@CMSSW_OUT@|'$DOC'|g' -e 's|@DOXY_PATH@|'$DATA'|g' $DATA/configfile > $DATA/configfile.conf
+sed -e 's|@CMSSW_IN@|'$SOURCE'|g' -e 's|@CMSSW_OUT@|'$DOC'|g' -e 's|@DOXY_PATH@|'$DATA'|g' $DATA/Doxygen.conf > $DATA/Doxygen.conf.tmp
 
-time doxygen $DATA/configfile.conf
+doxygen $DATA/Doxygen.conf.tmp
 
+rm $DATA/Doxygen.conf.tmp
 
-rm $DATA/configfile.conf
+cp -r $DATA/iframes $HTML/
 
-time python $SCRIPTS/MainPageGenerator.py $DATA/ $DOC/html/ $VER index.html
-time python $SCRIPTS/Splitter.py $DOC/html/ annotated.html annotatedList_
-time python $SCRIPTS/ConfigFiles.py $DOC/html/ configfiles.html
-time python $SCRIPTS/Splitter.py $DOC/html/ namespaces.html namespaceList_
-time python $SCRIPTS/PackageSplitter.py $DOC/html/ pages.html packageDocumentation_
+cp $HTML/index.html $HTML/index.html.original
+python $SCRIPTS/MainPageGenerator.py $HTML/index.html $DATA $CMSSW_VERSION
 
-cd $CMSSW_BASE/..
-find $VER/doc -type f -name "*.html" > $CMSSW_BASE/$VER.index
+cp $HTML/annotated.html $HTML/annotated.html.original
+python $SCRIPTS/TableParser.py $HTML/annotated.html
+cp $HTML/annotatedList_A.html $HTML/annotated.html
+
+cp $HTML/namespaces.html $HTML/namespaces.html.original
+python $SCRIPTS/TableParser.py $HTML/namespaces.html
+cp $HTML/namespacesList_A.html $HTML/namespaces.html
+
+cp $HTML/pages.html $HTML/pages.html.original
+python $SCRIPTS/TableParser.py $HTML/pages.html
+cp $HTML/pagesList_A.html $HTML/pages.html
+
+cp $HTML/namespaces.html.original $HTML/configfiles.html
+python $SCRIPTS/TableParser.py $HTML/configfiles.html
+cp $HTML/configfilesList_A.html $HTML/configfiles.html
