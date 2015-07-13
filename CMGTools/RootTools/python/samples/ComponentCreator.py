@@ -153,38 +153,22 @@ class ComponentCreator(object):
         )
         return component
 
-#    def makeDataComponent(self,name,datasets,user,pattern,json=None):
-#         files=[]
-#
-#         for dataset in datasets:
-#             files=files+self.getFiles(dataset,user,pattern)
-#        
-#         component = cfg.DataComponent(
-#             dataset=dataset,
-#             name = name,
-#             files = files,
-#             intLumi=1,
-#             triggers = [],
-#             json=json
-#         )
-#
-#         return component
-
-    def makeDataComponent(self,name,dataset,user,pattern,json=None):
+    def makeDataComponent(self,name,dataset,user,pattern,json=None,run_range=None,triggers=[],vetoTriggers=[]):
         component = cfg.DataComponent(
             #dataset = dataset,
             name = name,
-            files = self.getFiles(dataset,user,pattern),
+            files = self.getFiles(dataset,user,pattern,run_range=run_range),
             intLumi = 1,
-            triggers = [],
+            triggers = triggers,
             json = json
             )
+        component.vetoTriggers = vetoTriggers
         
         return component
 
-    def getFiles(self, dataset, user, pattern, useAAA=False):
+    def getFiles(self, dataset, user, pattern, useAAA=False, run_range=None):
         # print 'getting files for', dataset,user,pattern
-        ds = createDataset( user, dataset, pattern, True )
+        ds = createDataset( user, dataset, pattern, readcache=True, run_range=run_range )
         files = ds.listOfGoodFiles()
         mapping = 'root://eoscms.cern.ch//eos/cms%s'
         if useAAA: mapping = 'root://cms-xrd-global.cern.ch/%s'

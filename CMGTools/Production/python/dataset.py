@@ -436,39 +436,33 @@ def writeDatasetToCache( cachename, dataset ):
 def createDataset( user, dataset, pattern, readcache=False, 
                    basedir = None, run_range = None):
     
-    
-    def cacheFileName(data, user, pattern):
-        return '{user}%{name}%{pattern}.pck'.format( user = user, name = data.replace('/','_'), pattern = pattern)
 
-    def writeCache(dataset):
-        writeDatasetToCache( cacheFileName(dataset.name, dataset.user, dataset.pattern), dataset )
+    def cacheFileName(data, user, pattern, run_range):
+        rr = "_run%s_%s" % (run_range[0], run_range[1]) if run_range else ""
+        return '{user}%{name}{rr}%{pattern}.pck'.format( user = user, name = data.replace('/','_'), pattern = pattern, rr=rr)
 
-    def readCache(data, user, pattern):
-        return getDatasetFromCache( cacheFileName(data, user, pattern) )
+    def writeCache(dataset, run_range):
+        writeDatasetToCache( cacheFileName(dataset.name, dataset.user, dataset.pattern, run_range), dataset )
+
+    def readCache(data, user, pattern, run_range):
+        return getDatasetFromCache( cacheFileName(data, user, pattern, run_range) )
 
     if readcache:
         try:
-            data = readCache(dataset, user, pattern)
+            data = readCache(dataset, user, pattern, run_range)
         except IOError:
             readcache = False
     if not readcache:
+        print "CreateDataset called: '%s', '%s', '%s', run_range %r" % (user, dataset, pattern, run_range) 
         if user == 'CMS':
-            data = CMSDataset( dataset , run_range = run_range)
+            data = CMSDataset( dataset, run_range = run_range)
             info = False
         elif user == 'LOCAL':
             data = LocalDataset( dataset, basedir, pattern)
             info = False
         else:
             data = Dataset( dataset, user, pattern)
-        writeCache(data)
-##     if user == 'CMS':
-##         data = CMSDataset( dataset )
-##     elif user == 'LOCAL':
-##         if basedir is None:
-##             basedir = os.environ['CMGLOCALBASEDIR']
-##         data = LocalDataset( dataset, basedir, pattern )
-##     else:
-##         data = Dataset( user, dataset, pattern )
+        writeCache(data, run_range)
     return data
 
 ### MM
