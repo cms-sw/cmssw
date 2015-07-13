@@ -397,15 +397,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     edm::Handle<FastTMRecHitCombinations> recHitCombinations;
     e.getByToken(recHitTokens, recHitCombinations);
 
-    std::cout << "# combinations " << recHitCombinations->size() << std::endl;
-    int nmask = 0;
-    if(hitCombinationMasks_exists){
-      std::cout << " # def " << hitCombinationMasks->size() << std::endl;
-    for(unsigned int n =0;n<hitCombinationMasks->size();n++)
-      if(hitCombinationMasks->at(n)) nmask++;
-  }
-  std::cout << " # masked " << nmask << std::endl;
-
     std::auto_ptr<TrajectorySeedCollection> output{new TrajectorySeedCollection()};
     
     for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
@@ -441,7 +432,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
       std::vector<TrajectorySeedHitCandidate> trackerRecHits;
       for (const auto & _hit : recHitCombination )
 	{
-	  if(hitMasks_exist
+	  if(hitMasks_exists
 	     && size_t(_hit.id()) < hitMasks->size() 
 	     && hitMasks->at(_hit.id()))
 	    {
@@ -534,7 +525,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	    
 	  }
       } //end loop over recHitCombinations
-    std::cout << " # seeds: " << output->size() << std::endl;
     e.put(output);
 }
 

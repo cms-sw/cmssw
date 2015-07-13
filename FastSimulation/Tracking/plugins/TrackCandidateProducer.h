@@ -50,9 +50,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
 
   bool rejectOverlaps;
   bool splitHits;
-  bool hitMasks_exist;
-  bool hitCombinationMasks_exist;
-
+  bool hitMasks_exists;
  
   edm::InputTag simTracks_;
 

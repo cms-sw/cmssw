@@ -51,8 +51,8 @@ TrackCandidateProducer::TrackCandidateProducer(const edm::ParameterSet& conf)
   splitHits = conf.getParameter<bool>("SplitHits");
 
   // input tags, labels, tokens
-  hitMasks_exist = conf.exists("hitMasks");
-  if (hitMasks_exist){
+  hitMasks_exists = conf.exists("hitMasks");
+  if (hitMasks_exists){
     edm::InputTag hitMasksTag = conf.getParameter<edm::InputTag>("hitMasks");
     hitMasksToken = consumes<std::vector<bool> >(hitMasksTag);
   }
@@ -101,8 +101,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   std::auto_ptr<std::vector<bool> > hitMasks(new std::vector<bool>());
 
-  // the tracks to be skipped                                                                                                                                                                                        
-  if (hitMasks_exist == true){
+  // the hits to be skipped
+  if (hitMasks_exists == true){
     edm::Handle<std::vector<bool> > hitMasks;
     e.getByToken(hitMasksToken,hitMasks);
   }
@@ -129,10 +129,12 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     unsigned numberOfCrossedLayers = 0;      
     for (const auto & _hit : recHitCombination) {
 
-      if(hitMasks_exist){
-	if (hitMasks->at(_hit.id()) == true)
+      if(hitMasks_exists
+	 && size_t(_hit.id()) < hitMasks->size() 
+	 && hitMasks->at(_hit.id()))
+	{
 	  continue;
-      }
+	}
       recHitCandidate = TrajectorySeedHitCandidate(&_hit,trackerGeometry.product(),trackerTopology.product());
       if ( recHitCandidates.size() == 0 || !recHitCandidate.isOnTheSameLayer(recHitCandidates.back()) ) {
 	++numberOfCrossedLayers;
