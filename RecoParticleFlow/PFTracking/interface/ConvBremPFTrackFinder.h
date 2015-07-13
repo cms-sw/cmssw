@@ -25,6 +25,9 @@
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 #include "TMVA/Reader.h"
 
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include <memory>
+
 class PFEnergyCalibration;
 
 class ConvBremPFTrackFinder {
@@ -82,16 +85,20 @@ class ConvBremPFTrackFinder {
   TransientTrackBuilder builder_;
   double mvaBremConvCutBarrelLowPt_,mvaBremConvCutBarrelHighPt_,mvaBremConvCutEndcapsLowPt_,mvaBremConvCutEndcapsHighPt_;
   std::string mvaWeightFileConvBremBarrelLowPt_, mvaWeightFileConvBremBarrelHighPt_,mvaWeightFileConvBremEndcapsLowPt_,mvaWeightFileConvBremEndcapsHighPt_;
-  TMVA::Reader    *tmvaReaderBarrelLowPt_;
-  TMVA::Reader    *tmvaReaderBarrelHighPt_;
-  TMVA::Reader    *tmvaReaderEndcapsLowPt_;
-  TMVA::Reader    *tmvaReaderEndcapsHighPt_;  
+  std::unique_ptr<TMVA::Reader> tmvaReaderBarrelLowPt_;
+  std::unique_ptr<TMVA::Reader> tmvaReaderBarrelHighPt_;
+  std::unique_ptr<TMVA::Reader> tmvaReaderEndcapsLowPt_;
+  std::unique_ptr<TMVA::Reader> tmvaReaderEndcapsHighPt_;  
+  std::unique_ptr<GBRForest> gbrBarrelLowPt_;
+  std::unique_ptr<GBRForest> gbrBarrelHighPt_;
+  std::unique_ptr<GBRForest> gbrEndcapsLowPt_;
+  std::unique_ptr<GBRForest> gbrEndcapsHighPt_;  
 
   std::vector<reco::PFRecTrackRef> pfRecTrRef_vec_;
   float secR,secPout,ptRatioGsfKF,sTIP,Epout,detaBremKF,secPin;
   //int nHITS1;
   float nHITS1;
 
-  PFEnergyCalibration* pfcalib_;
+  std::unique_ptr<PFEnergyCalibration> pfcalib_;
 
 };
