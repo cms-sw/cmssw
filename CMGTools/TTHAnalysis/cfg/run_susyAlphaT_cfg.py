@@ -85,16 +85,17 @@ ttHJetMETSkim.nBJet       = ('CSVM', 0, "jet.pt() > 50")     # require at least 
 ##------------------------------------------
 
 isoTrackAna.setOff=False
+isoTrackAna.doRelIsolation = True
 
 ##------------------------------------------
 ##  ALPHAT VARIABLES
 ##------------------------------------------
 
-from CMGTools.TTHAnalysis.analyzers.ttHAlphaTVarAnalyzer import ttHAlphaTVarAnalyzer
+from PhysicsTools.Heppy.analyzers.eventtopology.AlphaTAnalyzer import AlphaTAnalyzer
 from CMGTools.TTHAnalysis.analyzers.ttHAlphaTControlAnalyzer import ttHAlphaTControlAnalyzer
 # Tree Producer
 ttHAlphaTAna = cfg.Analyzer(
-            ttHAlphaTVarAnalyzer, name='ttHAlphaTVarAnalyzer'
+            AlphaTAnalyzer, name='AlphaTAnalyzer'
             )
 
 ttHAlphaTControlAna = cfg.Analyzer(
@@ -137,34 +138,15 @@ sequence = cfg.Sequence(susyCoreSequence + [
 
 
 #-------- SAMPLES AND TRIGGERS -----------
-from CMGTools.RootTools.samples.samples_13TeV_CSA14 import *
+from CMGTools.RootTools.samples.samples_13TeV_74X import *
 
 
 # Selected samples as defined on the AlphaT twiki
-WJetsToLNu   = [ WJetsToLNu_HT100to200_PU_S14_POSTLS170, WJetsToLNu_HT200to400_PU_S14_POSTLS170, WJetsToLNu_HT400to600_PU_S14_POSTLS170, WJetsToLNu_HT600toInf_PU_S14_POSTLS170]
-
-# Currently not defined in the samples file could be added from here: https://cmsweb.cern.ch/das/request?view=list&limit=100&instance=prod%2Fglobal&input=dataset%3D%2F*DYJetsToLL*13TeV*%2F*PU20bx25*%2F*AODSIM
-#DYJetsToLL  = []
-# Currently not defined in the samples file could be added from here: https://cmsweb.cern.ch/das/request?view=list&limit=100&instance=prod%2Fglobal&input=dataset%3D%2F*ZJetsToNuNu*13TeV*%2F*PU20bx25*%2F*AODSIM
-#ZJetsToNuNu = []
-# https://cmsweb.cern.ch/das/request?view=list&limit=100&instance=prod%2Fglobal&input=dataset%3D%2F*GJets*13TeV*%2F*PU20bx25*%2F*AODSIM
-#GJets       = []
-
-# NOT INCLUDING: /TTJets_MSDecaysCKM_central_Tune4C_13TeV-madgraph-tauola/Spring14miniaod-PU20bx25_POSTLS170_V5-v2/MINIAODSIM
-TTbar        = [ TTpythia8_PU20bx25 ]
-# https://cmsweb.cern.ch/das/request?view=list&limit=100&instance=prod%2Fglobal&input=dataset%3D%2FTToBLNu*13TeV*%2FSpring*PU20bx25*%2F*AODSIM
-#TToBLNu     = []
-# https://cmsweb.cern.ch/das/request?view=list&limit=100&instance=prod%2Fglobal&input=dataset%3D%2FSMS-T1qqqq*13TeV*%2FSpring*PU20bx25*%2F*AODSIM
-#T1qqqq       = []
-# https://cmsweb.cern.ch/das/request?view=list&limit=100&instance=prod%2Fglobal&input=dataset%3D%2FSMS-T1bbbb*13TeV*%2FSpring*PU20bx25*%2F*AODSIM
-#T1bbbb       = []
-T1tttt       = [ T1tttt_PU20bx25 ]
 
 
 #selectedComponents = [ SingleMu, DoubleElectron, TTHToWW_PUS14, DYJetsToLL_M50_PU20bx25, TTJets_PUS14 ]
 selectedComponents = []
-selectedComponents.extend( WJetsToLNu )
-selectedComponents.extend( TTbar )
+selectedComponents.extend( [TTJets_50ns] )
 
 
 
@@ -177,7 +159,7 @@ test = 1
 # Test a single component, using a single thread.
 #--------------------------------------------------
 if test==1:
-    comp               = TTJets_PU20bx25
+    comp               =  TTJets_50ns 
     #comp.files = ['/afs/cern.ch/work/p/pandolf/CMSSW_7_0_6_patch1_2/src/CMGTools/TTHAnalysis/cfg/pickevents.root']
     comp.files         = comp.files[:1]
     
