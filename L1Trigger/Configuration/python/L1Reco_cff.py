@@ -35,6 +35,16 @@ from Configuration.StandardSequences.Eras import eras
 # A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
 modifyL1TriggerConfigurationL1RecoForRun2_ = eras.run2_common.makeProcessModifier( _loadMenuFromXML )
 
+#
+# If the Stage 1 trigger is running, there is also some different configuration than
+# the general Run 2 stuff.
+#
+def _customiseForStage1( processObject ) :
+    processObject.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
+    processObject.load('L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi')
+# Again, a unique name is required so I'll use "modify<python filename>ForStage1Trigger_"
+modifyL1TriggerConfigurationL1RecoForStage1Trigger_ = eras.stage1L1Trigger.makeProcessModifier( _customiseForStage1 )
+
 # conditions in edm
 import EventFilter.L1GlobalTriggerRawToDigi.conditionDumperInEdm_cfi
 conditionsInEdm = EventFilter.L1GlobalTriggerRawToDigi.conditionDumperInEdm_cfi.conditionDumperInEdm.clone()
