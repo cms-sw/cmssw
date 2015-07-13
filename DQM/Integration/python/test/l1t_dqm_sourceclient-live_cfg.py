@@ -78,6 +78,10 @@ process.RawToDigi.remove("castorDigis")
 # for GCT, unpack all five samples
 process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
+if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+else:
+    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 # 
 process.l1tMonitorPath = cms.Path(process.l1tMonitorOnline)
 

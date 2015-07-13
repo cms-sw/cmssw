@@ -49,7 +49,9 @@ process = customise(process)
 #----------------------------
 # Proton-Proton Specific Part
 #----------------------------
-if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.hpu_run):
+if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or 
+    process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
+    process.runType.getRunType() == process.runType.hpu_run):
     print "[beampixel_dqm_sourceclient-live_cfg]::running pp"
 
     process.castorDigis.InputLabel           = cms.InputTag("rawDataCollector")

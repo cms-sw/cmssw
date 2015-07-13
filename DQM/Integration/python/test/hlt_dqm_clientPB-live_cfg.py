@@ -12,8 +12,8 @@ process.load("DQM.Integration.test.pbsource_cfi")
 #### DQM Environment
 #----------------------------
 process.load("DQM.Integration.test.environment_cfi")
-process.dqmEnv.subSystemFolder = 'HLT'
-process.dqmEnv.eventInfoFolder = 'EventInfo/HLTfromPBfile'
+process.dqmEnv.subSystemFolder = 'HLTpb'
+process.dqmEnv.eventInfoFolder = 'EventInfo'
 process.dqmSaver.dirName = './HLT'
 #-----------------------------
 
