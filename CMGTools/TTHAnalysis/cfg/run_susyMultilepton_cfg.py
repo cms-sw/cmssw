@@ -172,7 +172,7 @@ if False: # select only a subset of a sample, corresponding to a given luminosit
         c.files = c.files[:nfiles]
         c.splitFactor = len(c.files)
 
-if True: # For running on data
+if False: # For running on data
     json = None; 
     processing = "Run2015B-PromptReco-v1"; short = "Run2015B_v1"; 
     run_ranges = [ (251168,251168), (251244,251244), (251251,251252) ]
@@ -200,7 +200,6 @@ if True: # For running on data
         vetos += triggers
     if json is None:
         susyCoreSequence.remove(jsonAna)
-    eventFlagsAna.processName = 'RECO'
 
 if False: # QCD
     selectedComponents = QCD_MuX
@@ -293,23 +292,26 @@ elif test == '74X-MC':
             comp.files = comp.files[:1]
             comp.splitFactor = 1
             comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
-elif test == '74X-Data':
-    from CMGTools.RootTools.samples.samples_13TeV_74X import *
-    from CMGTools.RootTools.samples.samples_8TeVReReco_74X import *
-    what = getHeppyOption("sample")
-    if what == "SingleMu":
-        selectedComponents = [ SingleMu_740p9 ]
-    elif what == "Z":
-        selectedComponents = [ SingleMuZ_740p9, DoubleElectronZ_740p9 ]
-    elif what == "MuEG":
-        selectedComponents = [ MuEG_740p9 ]
-    else:
-        selectedComponents = dataSamples740p9
-    if not getHeppyOption("all"):
-        for comp in selectedComponents:
-            comp.files = comp.files[:1]
-            comp.splitFactor = 1
-            comp.fineSplitFactor = 1 if getHeppyOption("single") else 4
+elif test == 'PromptReco':
+    DoubleMuon = kreator.makeDataComponent("DoubleMuon_Run2015B_run251252",
+                        "/DoubleMuon/Run2015B-PromptReco-v1/MINIAOD", 
+                        "CMS", ".*root",
+                        run_range = (251252,251252),
+                        triggers = triggers_mumu_iso)
+    DoubleEG = kreator.makeDataComponent("DoubleEG_Run2015B_run251252",
+                        "/DoubleEG/Run2015B-PromptReco-v1/MINIAOD", 
+                        "CMS", ".*root",
+                        run_range = (251252,251252),
+                        triggers = triggers_ee)
+    selectedComponents = [ DoubleMuon, DoubleEG ]
+    for comp in selectedComponents:
+        comp.splitFactor = 1
+        if getHeppyOption("single"):
+            selectedComponents = [ comp ]
+            break
+        else:
+            comp.fineSplitFactor = 2
+    if jsonAna in sequence: sequence.remove(jsonAna)
 elif test == "express":
     selectedComponents = [ MuEG_740p9 ]
     comp = selectedComponents[0]
