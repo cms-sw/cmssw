@@ -9,13 +9,15 @@ class TriggerBitAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TriggerBitAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         self.processName = getattr(self.cfg_ana,"processName","HLT")
+        self.fallbackName = getattr(self.cfg_ana,"fallbackProcessName",None)
         self.outprefix   = getattr(self.cfg_ana,"outprefix",  self.processName)
         self.unrollbits = ( hasattr(self.cfg_ana,"unrollbits") and self.cfg_ana.unrollbits )
  
 
     def declareHandles(self):
         super(TriggerBitAnalyzer, self).declareHandles()
-        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','',self.processName), 'edm::TriggerResults' )
+        fallback = ('TriggerResults','',self.fallbackName) if self.fallbackName else None
+        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','',self.processName), 'edm::TriggerResults', fallbackLabel=fallback )
 
     def beginLoop(self, setup):
         super(TriggerBitAnalyzer,self).beginLoop(setup)
@@ -76,6 +78,7 @@ setattr(TriggerBitAnalyzer,"defaultConfig",cfg.Analyzer(
 setattr(TriggerBitAnalyzer,"defaultEventFlagsConfig",cfg.Analyzer(
     TriggerBitAnalyzer, name="EventFlags",
     processName = 'PAT',
+    fallbackProcessName = 'RECO',
     outprefix   = 'Flag',
     triggerBits = {
         "HBHENoiseFilter" : [ "Flag_HBHENoiseFilter" ],
