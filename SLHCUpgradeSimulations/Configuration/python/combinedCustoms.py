@@ -631,12 +631,19 @@ def cust_2023HGCalMuon(process):
 
 def cust_2023HGCalV6Muon(process):
     """
-    Customisation function for the Extended2023HGCalV6Muon geometry. Currently does
-    exactly the same as the cust_2023HGCalMuon function but this could change in the
-    future.
+    Customisation function for the Extended2023HGCalV6Muon geometry. 
+    Modded so that the reco step will run. 
+    No serious RECO development is expected for V6, just validation.
+    Any real work will come with V7
     """
     process = cust_2023HGCal_common(process)
     process = customise_me0(process)
+    if hasattr(process,'reconstruction_step'):
+        del process.particleFlowRecHitHGCEE.navigator.hgcheb
+        del process.particleFlowRecHitHGCEE.producers[2]
+        process.particleFlowClusterHGCEE.initialClusteringStep.hgcalGeometryNames.HGC_HCALB = cms.string("")
+        process.particleFlowRecHitHGC = cms.Sequence(process.particleFlowRecHitHGCEE+process.particleFlowRecHitHGCHEF)
+        process.particleFlowClusterHGC = cms.Sequence(process.particleFlowClusterHGCEE+process.particleFlowClusterHGCHEF)
     return process
 
 def cust_2023SHCalTime(process):
