@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 #pfCombinedSecondaryVertexSoftLeptonCtagLJetTags 
 pfCombinedTMVACtagLJetTags  = cms.EDProducer(
    "JetTagProducer",
-   jetTagComputer = cms.string('charmTagsComputer'),
+   jetTagComputer = cms.string('charmTagsComputerCvsL'),
    tagInfos = cms.VInputTag(
       cms.InputTag('pfImpactParameterTagInfos'),
       cms.InputTag('pfInclusiveSecondaryVertexFinderCtagLTagInfos'),
@@ -11,3 +11,7 @@ pfCombinedTMVACtagLJetTags  = cms.EDProducer(
       cms.InputTag('softPFElectronsTagInfos'),
       )
 )
+
+pfCombinedTMVACtagBJetTags = pfCombinedTMVACtagLJetTags.clone(
+   jetTagComputer = cms.string('charmTagsComputerCvsB')
+   )
