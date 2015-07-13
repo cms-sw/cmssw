@@ -14,11 +14,22 @@ process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 process.load("DQM.Physics.susyDQM_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 process.source = cms.Source("PoolSource",
-        fileNames = cms.untracked.vstring('root://eoscms//eos/cms/store/relval/CMSSW_7_4_0_pre9/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_74_V7-v1/00000/3C474394-DBD3-E411-92EC-0025905A6056.root'
-        #fileNames = cms.untracked.vstring('root://eoscms//eos/cms//store/relval/CMSSW_7_4_0_pre2/RelValLM1_sfts_13/GEN-SIM-RECO/MCRUN2_73_V7-v1/00000/B07FFC5F-EA84-E411-92A3-02163E010509.root'
+    fileNames = cms.untracked.vstring(
+        #CMSSW_7_5_0_pre5 relvals
+        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/26C0DAA2-180B-E511-A8AB-00261894386F.root',
+        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/8E99B59F-180B-E511-B9EA-00248C0BE005.root',
+        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/54D253B1-C30B-E511-8918-0025905A605E.root'
+        #CMSSW_7_5_0_pre5 ttbar
+        'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/56FA331B-B90B-E511-93CE-0025905B858E.root',
+        'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/6605FE82-120B-E511-8721-00261894384F.root',
+        'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre5/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/86B3E421-B90B-E511-A5BE-003048FFCBFC.root'
+        #CMSSW_7_5_0_pre4 ttbar
+        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V1-v1/00000/1050C70B-54F6-E411-8CE2-0025905A7786.root',
+        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V1-v1/00000/5811D602-54F6-E411-9821-0025905A611C.root',
+        #'root://eoscms:///eos/cms/store/relval/CMSSW_7_5_0_pre4/RelValTTbarLepton_13/GEN-SIM-RECO/MCRUN2_75_V1-v1/00000/90838E13-FAF5-E411-B7DD-003048FF9AA6.root'
     )
 )
 
