@@ -211,8 +211,8 @@ from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 #-------- HOW TO RUN
 # choose 2 for full production
-test = 3
-isData = False
+test = 0
+isData = True
 doSpecialSettingsForMECCA = 1
 if test==0:
     # ------------------------------------------------------------------------------------------- #
@@ -221,13 +221,13 @@ if test==0:
     from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
     kreator = ComponentCreator()
     testComponent = kreator.makeMCComponent("testComponent", "/GJets_HT-200to400_Tune4C_13TeV-madgraph-tauola/Phys14DR-PU20bx25_PHYS14_25_V1-v1/MINIAODSIM", "CMS", ".*root",489.9)
-    mcSamples=[testComponent]
+    samples=[testComponent]
 
     dataDir = os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/data"
     json=dataDir+'/json/Cert_Run2012ABCD_22Jan2013ReReco.json'
     from CMGTools.TTHAnalysis.setup.Efficiencies import *
 
-    for comp in mcSamples:
+    for comp in samples:
         comp.isMC = True
         comp.isData = False
         comp.splitFactor = 250 
@@ -242,7 +242,10 @@ if test==0:
     comp=testComponent
     #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/gjets_ht200to400_miniaodsim_fix.root']
     #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
-    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/QCD_Pt_1000to1400_Asympt25ns/0AF8E723-53F9-E411-86B4-0025905C2CBA.root']
+    # 74X 
+    #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/QCD_Pt_1000to1400_Asympt25ns/0AF8E723-53F9-E411-86B4-0025905C2CBA.root']
+    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
+
 
     selectedComponents = [comp]
     comp.splitFactor = 10
@@ -327,7 +330,7 @@ if isData:
     eventFlagsAna.processName = 'HLT'
     jetAna.recalibrateJets = False
     photonAna.do_mc_match = False
-    for comp in dataSamples:
+    for comp in samples:
         comp.isMC = False
         comp.isData = True
         #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
