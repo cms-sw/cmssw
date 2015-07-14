@@ -64,9 +64,9 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
     php.rTable   = DDVectorGetter::get( "rTable" );
     php.phibin   = DDVectorGetter::get( "phibin" );
     php.phitable = DDVectorGetter::get( "phitable" );  
-    for (unsigned int i = 0; i<nEtaMax; ++i) {
+    for (unsigned int i = 1; i<=nEtaMax; ++i) {
       std::stringstream sstm;
-      sstm << "layerGroupEta" << i;
+      sstm << "layerGroupSimEta" << i;
       std::string tempName = sstm.str();
       if (DDVectorGetter::check(tempName)) {
 	HcalParameters::LayerItem layerGroupEta;
@@ -94,7 +94,10 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   } else {
     throw cms::Exception("HcalParametersFromDD") << "Not found "<< attribute.c_str() << " but needed.";
   }
-
+  for( unsigned int i = 0; i < php.rTable.size(); ++i ) {
+    unsigned int k = php.rTable.size() - i - 1;
+    php.etaTableHF.push_back( -log( tan( 0.5 * atan( php.rTable[k] / php.gparHF[4] ))));
+  }
   //Special parameters at reconstruction level
   attribute = "OnlyForHcalRecNumbering"; 
   DDValue val2( attribute, value, 0.0 );
@@ -112,9 +115,9 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
     php.topologyMode = getTopologyMode("TopologyMode", sv);
     php.etagroup = dbl_to_int( DDVectorGetter::get( "etagroup" ));
     php.phigroup = dbl_to_int( DDVectorGetter::get( "phigroup" ));
-    for (unsigned int i = 0; i<nEtaMax; ++i) {
+    for (unsigned int i = 1; i<=nEtaMax; ++i) {
       std::stringstream sstm;
-      sstm << "layergroupEta" << i;
+      sstm << "layerGroupRecEta" << i;
       std::string tempName = sstm.str();
       if (DDVectorGetter::check(tempName)) {
 	HcalParameters::LayerItem layerGroupEta;
@@ -131,6 +134,12 @@ bool HcalParametersFromDD::build(const DDCompactView* cpv,
   int i(0);
   std::cout << "HcalParametersFromDD: MaxDepth: ";
   for (const auto& it : php.maxDepth) std::cout << it << ", ";
+  std::cout << std::endl;
+  std::cout << "HcalParametersFromDD: ModHB [" << php.modHB.size() << "]: ";
+  for (const auto& it : php.modHB) std::cout << it << ", ";
+  std::cout << std::endl;
+  std::cout << "HcalParametersFromDD: ModHE [" << php.modHE.size() << "]: ";
+  for (const auto& it : php.modHE) std::cout << it << ", ";
   std::cout << std::endl;
   std::cout << "HcalParametersFromDD: " << php.phioff.size() << " phioff values";
   std::vector<double>::const_iterator it;
