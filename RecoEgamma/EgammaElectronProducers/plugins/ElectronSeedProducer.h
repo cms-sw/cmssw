@@ -36,6 +36,7 @@ namespace edm
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 class ElectronSeedProducer : public edm::stream::EDProducer<>
  {
@@ -57,13 +58,15 @@ class ElectronSeedProducer : public edm::stream::EDProducer<>
       ( const reco::BeamSpot & bs,
 	const edm::Handle<reco::SuperClusterCollection> & superClusters,
 	reco::SuperClusterRefVector &sclRefs,
-	std::vector<float> & hoe1s, std::vector<float> & hoe2s ) ;
+	std::vector<float> & hoe1s, std::vector<float> & hoe2s, edm::Event& e, const edm::EventSetup& setup ) ;
     void filterSeeds(edm::Event& e, const edm::EventSetup& setup, reco::SuperClusterRefVector &sclRefs);
     
     edm::EDGetTokenT<reco::SuperClusterCollection> superClusters_[2] ;
     edm::EDGetTokenT<TrajectorySeedCollection> initialSeeds_ ;
     edm::EDGetTokenT<std::vector<reco::Vertex> > filterVtxTag_;
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_ ;
+    edm::EDGetTokenT<EcalRecHitCollection> ebRecHitCollection_;
+    edm::EDGetTokenT<EcalRecHitCollection> eeRecHitCollection_;
 
     edm::ParameterSet conf_ ;
     ElectronSeedGenerator * matcher_ ;
@@ -94,6 +97,10 @@ class ElectronSeedProducer : public edm::stream::EDProducer<>
     //  double hOverEHFMinE_;
     // super cluster Et cut
     double SCEtCut_;
+
+    bool applySigmaIEtaIEtaCut_;
+    double maxSigmaIEtaIEtaBarrel_;
+    double maxSigmaIEtaIEtaEndcaps_;
 
     bool fromTrackerSeeds_;
     bool prefilteredSeeds_;
