@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq,gtNameAndConnect
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,stepSKIMPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq,gtNameAndConnect
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
@@ -34,6 +34,7 @@ class Reco(Scenario):
 
         """
         step = stepALCAPRODUCER(args['skims'])
+        PhysicsSkimStep = stepSKIMPRODUCER(args['PhysicsSkims'])
         dqmStep= dqmSeq(args,'')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -56,8 +57,7 @@ class Reco(Scenario):
         if self.cbSc == 'pp':
             eiStep=',EI'
 
-        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+miniAODStep+',DQM'+dqmStep+',ENDJOB'
-
+        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+PhysicsSkimStep+miniAODStep+',DQM'+dqmStep+',ENDJOB'
 
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
