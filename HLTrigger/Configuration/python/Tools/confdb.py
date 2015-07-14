@@ -55,7 +55,7 @@ class HLTProcess(object):
 
     # get the configuration from ConfdB
     from confdbOfflineConverter import OfflineConverter
-    self.converter = OfflineConverter(database = self.config.menu.db)
+    self.converter = OfflineConverter(version = self.config.menu.version, database = self.config.menu.database)
     self.buildPathList()
     self.buildOptions()
     self.getRawConfigurationFromDB()
