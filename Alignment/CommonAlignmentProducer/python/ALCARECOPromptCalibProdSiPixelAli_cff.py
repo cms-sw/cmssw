@@ -7,7 +7,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 ALCARECOTkAlMinBiasFilterForSiPixelAli = copy.deepcopy(hltHighLevel)
 ALCARECOTkAlMinBiasFilterForSiPixelAli.HLTPaths = ['pathALCARECOTkAlMinBias']
 ALCARECOTkAlMinBiasFilterForSiPixelAli.throw = True ## dont throw on unknown path names
-ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("TriggerResults","","reRECO")
+ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
 
 
 
@@ -16,20 +16,43 @@ ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("Trigger
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import offlineBeamSpot
 
 # Ingredient: AlignmentTrackSelector
+# track selector for HighPurity tracks
+#-- AlignmentTrackSelector
+from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import AlignmentTrackSelector
+SiPixelAliHighPuritySelector = AlignmentTrackSelector.clone(
+        applyBasicCuts = True,
+        #filter = True,
+        src = 'ALCARECOTkAlMinBias',
+        trackQualities = ["highPurity"],
+        pMin = 4.,
+        )
+
+
+
 # track selection for alignment
 from Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi import AlignmentTrackSelector
-AlignmentTrackSelector.src = 'ALCARECOTkAlMinBias'  #'SiPixelAliTrackFitter' #'ALCARECOTkAlCosmicsCTF0T' #TkAlZMuMu' #MinBias' #'generalTracks' ## ALCARECOTkAlMuonIsolated # adjust to input file
-AlignmentTrackSelector.pMin = 4.
-AlignmentTrackSelector.ptMin = 0. #HIGHER CUT, LESS TRACKS, MORE EVENTS, LESS TIME THOUGH?????
-AlignmentTrackSelector.ptMax = 200.
-AlignmentTrackSelector.etaMin = -999.
-AlignmentTrackSelector.etaMax = 999.
-AlignmentTrackSelector.nHitMin = 10
-AlignmentTrackSelector.nHitMin2D = 3
-AlignmentTrackSelector.chi2nMax = 100.
-AlignmentTrackSelector.applyMultiplicityFilter = False# True
-AlignmentTrackSelector.maxMultiplicity = 1
-AlignmentTrackSelector.minHitsPerSubDet.inPIXEL = 2
+SiPixelAliTrackSelector = AlignmentTrackSelector.clone(
+	src = 'SiPixelAliTrackFitter',
+	applyBasicCuts = True,
+	pMin = 8.,
+	ptMin = 1.0,
+	etaMin = -999.,
+	etaMax = 999.,
+	nHitMin = 8,
+	nHitMin2D = 2,
+	chi2nMax = 9999.,
+	applyMultiplicityFilter = False,
+	maxMultiplicity = 1,
+	applyNHighestPt = False,
+	nHighestPt = 1,
+	seedOnlyFrom = 0,
+	applyIsolationCut = False,
+	minHitIsolation = 0.8,
+	applyChargeCheck = False,
+	minHitChargeStrip = 30.,
+)
+#Special option for PCL
+SiPixelAliTrackSelector.minHitsPerSubDet.inPIXEL = 2
 
 
 # Ingredient: SiPixelAliTrackRefitter0
@@ -39,104 +62,45 @@ from RecoTracker.TrackProducer.TrackRefitters_cff import *
 # TrackRefitter (normal tracks), TrackRefitterP5 (cosmics) or TrackRefitterBHM (beam halo)
 
 SiPixelAliTrackRefitter0 = TrackRefitter.clone(
-        src = 'AlignmentTrackSelector',   #'ALCARECOTkAlMinBias'#'ALCARECOTkAlCosmicsCTF0T' #'ALCARECOTkAlMuonIsolated'
+        src = 'SiPixelAliHighPuritySelector',   #'ALCARECOTkAlMinBias'#'ALCARECOTkAlCosmicsCTF0T' #'ALCARECOTkAlMuonIsolated'
         NavigationSchool = '',            # to avoid filling hit pattern
                                               )
 
+SiPixelAliTrackRefitter1 = SiPixelAliTrackRefitter0.clone(
+	src = 'SiPixelAliTrackSelector'
+)
 
 #-- Alignment producer
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
 from Alignment.CommonAlignmentProducer.TrackerAlignmentProducerForPCL_cff import AlignmentProducer 
 SiPixelAliMilleAlignmentProducer = copy.deepcopy(AlignmentProducer)
-
 SiPixelAliMilleAlignmentProducer.ParameterBuilder.Selector = cms.PSet(
-        alignParams = cms.vstring(
-                'TrackerTPBHalfBarrel,111111',
-                'TrackerTPEHalfCylinder,111111',
+    alignParams = cms.vstring(
+        'TrackerTPBHalfBarrel,111111',
+        'TrackerTPEHalfCylinder,111111',
 
-                'TrackerTIBHalfBarrel,ffffff',
-                'TrackerTOBHalfBarrel,ffffff',
-                'TrackerTIDEndcap,ffffff',
-                'TrackerTECEndcap,ffffff'
-                )
+        'TrackerTIBHalfBarrel,ffffff',
+        'TrackerTOBHalfBarrel,ffffff',
+        'TrackerTIDEndcap,ffffff',
+        'TrackerTECEndcap,ffffff'
         )
+    )
 
 SiPixelAliMilleAlignmentProducer.doMisalignmentScenario = False #True
 
-SiPixelAliMilleAlignmentProducer.MisalignmentScenario = cms.PSet(
-        setRotations = cms.bool(True),
-        setTranslations = cms.bool(True),
-        seed = cms.int32(1234567),
-        distribution = cms.string('fixed'), # gaussian, uniform (or so...)
-        setError = cms.bool(True), #GF ???????
-        TPBHalfBarrel1 = cms.PSet(
-                dXlocal = cms.double(0.0020),
-                dYlocal = cms.double(-0.0015),
-                dZlocal = cms.double(0.0100),
-                phiXlocal = cms.double(1.e-4),
-                phiYlocal = cms.double(-2.e-4),
-                phiZlocal = cms.double(5.e-4),
-
-                ),
-        TPBHalfBarrel2 = cms.PSet(
-                dXlocal = cms.double(-0.0020),
-                dYlocal = cms.double(0.0030),
-                dZlocal = cms.double(-0.020),
-                phiXlocal = cms.double(1.e-3),
-                phiYlocal = cms.double(2.e-4),
-                phiZlocal = cms.double(-2.e-4),
-
-                ),
-        TPEEndcap1 = cms.PSet(
-                TPEHalfCylinder1 = cms.PSet(
-                        dXlocal = cms.double(0.0050),
-                        dYlocal = cms.double(0.0020),
-                        dZlocal = cms.double(-0.005),
-                        phiXlocal = cms.double(-1.e-5),
-                        phiYlocal = cms.double(2.e-3),
-                        phiZlocal = cms.double(2.e-5),
-                    ),
-                TPEHalfCylinder2 = cms.PSet(
-                        dXlocal = cms.double(0.0020),
-                        dYlocal = cms.double(0.0030),
-                        dZlocal = cms.double(-0.01),
-                        phiXlocal = cms.double(1.e-4),
-                        phiYlocal = cms.double(-1.e-4),
-                        phiZlocal = cms.double(2.e-4),
-                    ),
-            ),
-        TPEEndcap2 = cms.PSet(
-                TPEHalfCylinder1 = cms.PSet(
-                        dXlocal = cms.double(-0.0080),
-                        dYlocal = cms.double(0.0050),
-                        dZlocal = cms.double(-0.005),
-                        phiXlocal = cms.double(1.e-3),
-                        phiYlocal = cms.double(-3.e-4),
-                        phiZlocal = cms.double(2.e-4),
-                    ),
-                TPEHalfCylinder2 = cms.PSet(
-                        dXlocal = cms.double(0.0020),
-                        dYlocal = cms.double(0.0030),
-                        dZlocal = cms.double(-0.005),
-                        phiXlocal = cms.double(-1.e-3),
-                        phiYlocal = cms.double(2.e-4),
-                        phiZlocal = cms.double(3.e-4),
-                    ),
-            )
-    )
 
 SiPixelAliMilleAlignmentProducer.checkDbAlignmentValidity = False
 SiPixelAliMilleAlignmentProducer.applyDbAlignment = True
-SiPixelAliMilleAlignmentProducer.tjTkAssociationMapTag = 'SiPixelAliTrackFitter'
+SiPixelAliMilleAlignmentProducer.tjTkAssociationMapTag = 'SiPixelAliTrackRefitter1'
 
 SiPixelAliMilleAlignmentProducer.algoConfig = MillePedeAlignmentAlgorithm
 SiPixelAliMilleAlignmentProducer.algoConfig.mode = 'mille'
 SiPixelAliMilleAlignmentProducer.algoConfig.mergeBinaryFiles = cms.vstring()
-SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile = 'milleBinary.dat'
-SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory = BrokenLinesTrajectoryFactory
-#SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory.MomentumEstimate = 10
-SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory.MaterialEffects = 'BrokenLinesCoarse' #Coarse' #Fine' #'BreakPoints'
-SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory.UseInvalidHits = True # to account for multiple scattering in these layers
+SiPixelAliMilleAlignmentProducer.algoConfig.binaryFile = 'milleBinary_0.dat'
+SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory = cms.PSet(
+      #process.BrokenLinesBzeroTrajectoryFactory
+      BrokenLinesTrajectoryFactory
+      )
 
 
 
@@ -145,18 +109,18 @@ SiPixelAliMilleAlignmentProducer.algoConfig.TrajectoryFactory.UseInvalidHits = T
 import RecoTracker.FinalTrackSelectors.TrackerTrackHitFilter_cff as HitFilter
 # Reference config at /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/MP/MPproduction/aliConfigTemplates/Cosmics38T_BL_default_cfg.py
 SiPixelAliTrackerTrackHitFilter = HitFilter.TrackerTrackHitFilter.clone(
-    src = 'SiPixelAliTrackRefitter0', #'ALCARECOTkAlCosmicsCTF0T',
-    useTrajectories= False,#True, # for angle selections + pixel cluster charge
+    src = 'SiPixelAliTrackRefitter0', #'ALCARECOTkAlCosmicsCTF0T',	
+    # this is needed only if you require some selections; but it will work even if you don't ask for them
+    useTrajectories= True,
     minimumHits = 8,
-    commands = [], # Ref. has equivalent pharse...
-    detsToIgnore = [], #is default
-    replaceWithInactiveHits = True, # needed for multiple scattering
-    stripAllInvalidHits = False, #default
+    replaceWithInactiveHits = True,
     rejectBadStoNHits = True,
-    StoNcommands = ["ALL 18.0"], # 18 for tracker in peak mode, 5 for deconvolution mode
-#    rejectLowAngleHits = True,
-    TrackAngleCut = 0.1, # 0.35, # in rads, starting from the module surface; .35 for cosmcics ok, .17 for collision tracks
-    usePixelQualityFlag = True
+    commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC"), #,"drop TID stereo","drop TEC stereo")
+    stripAllInvalidHits = False,
+    StoNcommands = cms.vstring("ALL 18.0"),
+    rejectLowAngleHits = True,
+    TrackAngleCut = 0.17, # in rads, starting from the module surface; .35 for cosmcics ok, .17 for collision tracks
+    usePixelQualityFlag = True #False
     )
 
 # Ingredient: SiPixelAliSiPixelAliTrackFitter
@@ -189,9 +153,12 @@ SiPixelAliMillePedeFileConverter = cms.EDProducer("MillePedeFileConverter",
 
 seqALCARECOPromptCalibProdSiPixelAli = cms.Sequence(ALCARECOTkAlMinBiasFilterForSiPixelAli*
                                                     offlineBeamSpot*
-                                                    AlignmentTrackSelector*
+                                                    SiPixelAliHighPuritySelector*
                                                     SiPixelAliTrackRefitter0*
                                                     SiPixelAliTrackerTrackHitFilter*
                                                     SiPixelAliTrackFitter*
+						    SiPixelAliTrackSelector*
+						    SiPixelAliTrackRefitter1*
+
                                                     SiPixelAliMilleAlignmentProducer*
                                                     SiPixelAliMillePedeFileConverter)
