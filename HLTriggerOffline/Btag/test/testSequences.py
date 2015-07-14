@@ -12,7 +12,7 @@ process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltB
 
 
 process.source = cms.Source("PoolSource",
-	fileNames = cms.untracked.vstring("root://xrootd.ba.infn.it///store/relval/CMSSW_7_2_0_pre8/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS172_V15-v1/00000/8A425442-2A50-E411-A51B-0025905A60B2.root")
+	fileNames = cms.untracked.vstring("root://xrootd.ba.infn.it///store/relval/CMSSW_7_4_6_patch6/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_MCRUN2_74_V9-v1/00000/001B6988-AF25-E511-B936-0025905A4964.root")
 )
 
 
