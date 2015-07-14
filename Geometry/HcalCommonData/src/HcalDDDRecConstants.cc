@@ -530,5 +530,5 @@ HcalDDDRecConstants::getDepth(const unsigned int i) const
       return last->layerGroup;
     last = it;
   }
-  return last->layerGroup;//hpar->layerGroupEtaRec.back().layerGroup;
+  return last->layerGroup;
 }
