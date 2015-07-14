@@ -34,7 +34,7 @@ public:
 	~PileupJetIdAlgo(); 
 	
 	PileupJetIdentifier computeIdVariables(const reco::Jet * jet, 
-					       float jec, const reco::Vertex *, const reco::VertexCollection &,
+					       float jec, const reco::Vertex *, const reco::VertexCollection &, double rho,
 					       bool calculateMva=false);
 
 	PileupJetIdentifier computeIdVariables(const pat::Jet * jet,
@@ -62,7 +62,7 @@ protected:
 
 	void setup(); 
 	void runMva(); 
-	void bookReader();	
+	void bookReader(float jetEta);	
 	void resetVariables();
 	void initVariables();
 
@@ -71,7 +71,7 @@ protected:
 	variables_list_t variables_;
 
 	TMVA::Reader * reader_;
-	std::string    tmvaWeights_, tmvaMethod_; 
+	std::string    tmvaWeights_, tmvaWeights_jteta_0_2_, tmvaWeights_jteta_2_2p5_, tmvaWeights_jteta_2p5_3_, tmvaWeights_jteta_3_5_, tmvaMethod_; 
 	std::vector<std::string>  tmvaVariables_;
 	std::vector<std::string>  tmvaSpectators_;
 	std::map<std::string,std::string>  tmvaNames_;
