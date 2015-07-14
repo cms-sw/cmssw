@@ -74,10 +74,8 @@ class HLTProcess(object):
 
     data, err = self.converter.query( *args )
     if 'ERROR' in err or 'Exhausted Resultset' in err or 'CONFIG_NOT_FOUND' in err:
-        print "%s: error while retriving the HLT menu" % os.path.basename(sys.argv[0])
-        print
-        print err
-        print
+        sys.stderr.write("%s: error while retrieving the HLT menu\n\n" % os.path.basename(sys.argv[0]))
+        sys.stderr.write(err + "\n\n")
         sys.exit(1)
     self.data = data
 
@@ -98,10 +96,8 @@ class HLTProcess(object):
 
     data, err = self.converter.query( *args )
     if 'ERROR' in err or 'Exhausted Resultset' in err or 'CONFIG_NOT_FOUND' in err:
-        print "%s: error while retriving the list of paths from the HLT menu" % os.path.basename(sys.argv[0])
-        print
-        print err
-        print
+        sys.stderr.write("%s: error while retrieving the list of paths from the HLT menu\n\n" % os.path.basename(sys.argv[0]))
+        sys.stderr.write(err + "\n\n")
         sys.exit(1)
     filter = re.compile(r' *= *cms.(End)?Path.*')
     paths  = [ filter.sub('', line) for line in data.splitlines() if filter.search(line) ]
