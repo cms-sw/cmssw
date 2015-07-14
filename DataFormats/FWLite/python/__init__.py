@@ -228,7 +228,7 @@ class Lumis:
                 if len (argsList[0]) > 3:
                     raise RuntimeError, "getByLabel Error: label tuple has too " \
                         "many arguments '%s'" % argsList[0]
-                argsList = list(*argsList[0])
+                argsList = list(argsList[0])
             if( type(argsList[0]) is str and ":" in argsList[0] ):
                 if argsList[0].count(":") > 3:
                     raise RuntimeError, "getByLabel Error: label tuple has too " \
@@ -386,7 +386,7 @@ class Runs:
                 if len (argsList[0]) > 3:
                     raise RuntimeError, "getByLabel Error: label tuple has too " \
                         "many arguments '%s'" % argsList[0]
-                argsList = list(*argsList[0])
+                argsList = list(argsList[0])
             if( type(argsList[0]) is str and ":" in argsList[0] ):
                 if argsList[0].count(":") > 3:
                     raise RuntimeError, "getByLabel Error: label tuple has too " \
@@ -562,7 +562,7 @@ class Events:
                 if len (argsList[0]) > 3:
                     raise RuntimeError, "getByLabel Error: label tuple has too " \
                         "many arguments '%s'" % argsList[0]
-                argsList = list(*argsList[0])
+                argsList = list(argsList[0])
             if( type(argsList[0]) is str and ":" in argsList[0] ):
                 if argsList[0].count(":") > 3:
                     raise RuntimeError, "getByLabel Error: label tuple has too " \
