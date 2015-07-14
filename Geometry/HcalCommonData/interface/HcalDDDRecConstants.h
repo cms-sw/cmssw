@@ -52,7 +52,7 @@ public:
     else if (type == 1) return gconsHE;
     else {std::vector<std::pair<double,double> > gcons; return gcons;}
   }
-  const std::vector<int> &  getDepth(const int i) const {return layerGroup[i];}
+  const std::vector<int> &  getDepth(const unsigned int i) const;
   std::vector<HcalEtaBin>   getEtaBins(const int itype) const;
   std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
   std::pair<int,int>        getEtaRange(const int i) const
@@ -80,9 +80,10 @@ public:
        
 private:
   void                      initialize(void);
+  unsigned int              layerGroupSize( unsigned int eta ) const;
+  unsigned int              layerGroup( unsigned int eta, unsigned int i ) const;
 
   bool                tobeInitialized;
-  static const int    nEtaMax=100;
   const HcalParameters      *hpar;
   const HcalDDDSimConstants &hcons;
   int                 modeTopo_;  // Mode for topology
@@ -97,7 +98,6 @@ private:
   std::vector<double> phibin;     // Phi step for all eta bins (HB, HE, HO)
   std::vector<double> phibinHF;   // Phi step for all eta bins (HF)
   std::vector<int>    phiUnitS;   // Phi unit at SIM stage
-  std::vector<int>    layerGroup[nEtaMax];
   std::vector<int>    nOff;     // Speical eta bin #'s in barrel and endcap
   std::vector<std::pair<double,double> > gconsHB; // Geometry constatnts HB
   std::vector<std::pair<double,double> > gconsHE; // Geometry constatnts HE
