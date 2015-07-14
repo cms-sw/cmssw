@@ -61,7 +61,7 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   conf_ = iConfig.getParameter<edm::ParameterSet>("SeedConfiguration") ;
 
   initialSeeds_ = consumes<TrajectorySeedCollection>(conf_.getParameter<edm::InputTag>("initialSeeds")) ;
-  SCEtCut_ = conf_.getParameter<double>("SCEtCut") ;
+  SCEtCut_ = conf_.getParameter<double>("SCEtCut");
   fromTrackerSeeds_ = conf_.getParameter<bool>("fromTrackerSeeds") ;
   prefilteredSeeds_ = conf_.getParameter<bool>("preFilteredSeeds") ;
 
@@ -90,7 +90,8 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 
   applySigmaIEtaIEtaCut_ = conf_.getParameter<bool>("applySigmaIEtaIEtaCut");
 
-  if (applySigmaIEtaIEtaCut_)
+  // apply sigma_ieta_ieta cut
+  if (applySigmaIEtaIEtaCut_ == true)
     {
       maxSigmaIEtaIEtaBarrel_ = conf_.getParameter<double>("maxSigmaIEtaIEtaBarrel");
       maxSigmaIEtaIEtaEndcaps_ = conf_.getParameter<double>("maxSigmaIEtaIEtaEndcaps");
@@ -106,9 +107,11 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
 
   matcher_ = new ElectronSeedGenerator(conf_,esg_tokens) ;
 
-  //  get collections from config'
-  ebRecHitCollection_ = consumes<EcalRecHitCollection> (iConfig.getParameter<edm::InputTag>("ebRecHitCollection"));
-  eeRecHitCollection_ = consumes<EcalRecHitCollection> (iConfig.getParameter<edm::InputTag>("eeRecHitCollection"));
+  //  get collections from config
+  if (applySigmaIEtaIEtaCut_ == true) {
+    ebRecHitCollection_ = consumes<EcalRecHitCollection> (iConfig.getParameter<edm::InputTag>("ebRecHitCollection"));
+    eeRecHitCollection_ = consumes<EcalRecHitCollection> (iConfig.getParameter<edm::InputTag>("eeRecHitCollection"));
+  }
 
   superClusters_[0]=
     consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("barrelSuperClusters")) ;
@@ -356,6 +359,8 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd0.add<edm::InputTag>("measurementTrackerEvent",edm::InputTag("MeasurementTrackerEvent"));
     psd0.add<edm::InputTag>("vertices",edm::InputTag("offlinePrimaryVerticesWithBS"));
     psd0.add<bool>("applyHOverECut",true);
+    psd0.add<edm::InputTag>("ebRecHitCollection", edm::InputTag("ecalRecHit", "EcalRecHitsEB"));
+    psd0.add<edm::InputTag>("eeRecHitCollection", edm::InputTag("ecalRecHit", "EcalRecHitsEE"));
     psd0.add<bool>("applySigmaIEtaIEtaCut", false);
     psd0.add<double>("DeltaPhi2F",0.012);
     psd0.add<double>("PhiMin2F",-0.003);
