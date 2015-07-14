@@ -229,6 +229,7 @@ process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
 process.phltJetHI = cms.Path( process.hltJetHI )
 process.pcollisionEventSelection = cms.Path(process.collisionEventSelection)
 # process.pHBHENoiseFilter = cms.Path( process.HBHENoiseFilter ) #should be put back in later
+process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
 process.phfCoincFilter = cms.Path(process.hfCoincFilter )
 process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
