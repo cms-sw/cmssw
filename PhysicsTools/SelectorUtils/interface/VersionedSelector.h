@@ -28,6 +28,7 @@
 #endif
 
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/SelectorUtils/interface/CandidateCut.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
@@ -113,12 +114,12 @@ class VersionedSelector : public Selector<T> {
 
   /* VID BY VALUE */
   bool operator()( typename T::value_type const & t ) {
-    const T temp(&t,0); // assuming T is edm::Ptr
+    const T temp(edm::ProductID(),&t,0); // assuming T is edm::Ptr
     return this->operator()(temp);
   }
 
   bool operator()( typename T::value_type const & t, edm::EventBase const & e) {
-    const T temp(&t,0);
+    const T temp(edm::ProductID(),&t,0);
     return this->operator()(temp,e);
   }
   
