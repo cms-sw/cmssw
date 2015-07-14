@@ -50,28 +50,61 @@ class ConnectionL1TMenuXml(object):
 
 # type used to store a reference to an HLT configuration
 class ConnectionHLTMenu(object):
+  valid_versions  = 'v1', 'v2'
+  valid_databases = 'online', 'offline', 'adg'
+  compatibility   = { 'hltdev': ('v1', 'offline'), 'orcoff': ('v1', 'adg') }
+
   def __init__(self, value):
-    self.value = value
-    self.db    = None
-    self.name  = None
-    self.run   = None
+    self.version    = None
+    self.database   = None
+    self.name       = None
+    self.run        = None
 
-    # extract the database and configuration name
-    if value:
-      if ':' in self.value:
-        (db, name) = self.value.split(':')
-        if db == 'run':
-          self.db   = 'orcoff'
-          self.run  = name
-        elif db in ('hltdev', 'orcoff'):
-          self.db   = db
-          self.name = name
-        else:
-          raise Exception('Unknown ConfDB database "%s", valid values are "hltdev" (default) and "orcoff")' % db)
+    if not value:
+      return
+
+    if not ':' in value:
+      # default to 'v1/offline'
+      self.version    = 'v1'
+      self.database   = 'offline'
+      self.name       = value
+      return
+
+    # extract the version, database and configuration name
+    tokens = value.split(':')
+    if len(tokens) != 2:
+      raise Exception('Invalid HLT menu specification "%s"' % value)
+    (db, name) = tokens
+    # check if the menu should be automatically determined based on the run number
+    if db == 'run':
+      self.version  = 'v1'
+      self.database = 'adg'
+      self.run      = name
+    # check for backward compatibility names
+    elif db in self.compatibility:
+      self.version, self.database = self.compatibility[db]
+      self.name = name
+    else:
+      if '/' in db:
+        # extract the version and database
+        tokens = db.split('/')
+        if len(tokens) != 2:
+          raise Exception('Invalid HLT menu specification "%s"' % value)
+        (v, db) = tokens
+        if v not in self.valid_versions:
+          raise Exception('Invalid HLT database version "%s", valid values are "%s"' % (v, '", "'.join(self.valid_versions)))
+        if db not in self.valid_databases:
+          raise Exception('Invalid HLT database "%s", valid values are "%s"' % (db, '", "'.join(self.valid_databases)))
+        self.version  = v
+        self.database = db
+        self.name     = name
       else:
-        self.db   = 'hltdev'
-        self.name = self.value
-
+        # use the default version for the given database
+        if db not in self.valid_databases:
+          raise Exception('Invalid HLT database "%s", valid values are "%s"' % (db, '", "'.join(self.valid_databases)))
+        self.version  = 'v1'
+        self.database = db
+        self.name     = name
 
 # options marked with a (*) only apply when creating a whole process configuration
 class HLTProcessOptions(object):
