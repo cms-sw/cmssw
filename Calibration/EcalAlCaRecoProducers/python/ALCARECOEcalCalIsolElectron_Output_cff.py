@@ -40,7 +40,7 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     'keep *_addPileupInfo_*_*',
     'keep *_genParticles_*_*',
     'keep recoGsfElectron*_gsfElectrons*_*_*',
-    'keep recoGsfElectron*_gedGsfElectrons_*_*',
+    'keep recoGsfElectron*_gedGsfElectrons*_*_*',
     'keep recoPhoton*_gedPhotons_*_*',
     'keep recoCaloClusters_*_*_*',
     'keep recoSuperClusters_*_*_*',
