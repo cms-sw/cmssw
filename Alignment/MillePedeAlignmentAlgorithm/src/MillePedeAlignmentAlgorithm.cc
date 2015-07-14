@@ -299,10 +299,6 @@ void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 }
 void MillePedeAlignmentAlgorithm::terminate()
 {
-  terminate();
-}
-void MillePedeAlignmentAlgorithm::terminate()
-{
   delete theMille;// delete to close binary before running pede below (flush would be enough...)
   theMille = 0;
 
