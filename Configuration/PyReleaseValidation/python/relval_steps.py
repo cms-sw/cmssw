@@ -1082,7 +1082,7 @@ steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--conditions':'auto:run1_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
-steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
+steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains',
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
@@ -1118,6 +1118,26 @@ steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQualit
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
+
+
+steps['ALCAHARVD1']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
+                    '--conditions':'auto:run1_data',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--filein':'file:PromptCalibProd.root'}
+
+steps['ALCAHARVD2']={'-s':'ALCAHARVEST:SiStripQuality',
+                    '--conditions':'auto:run1_data',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--filein':'file:PromptCalibProdSiStrip.root'}
+
+steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains',
+                    '--conditions':'auto:run1_data',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--filein':'file:PromptCalibProdSiStripGains.root'}
+
 
 steps['RECOHISt4']=steps['RECOHI']
 
