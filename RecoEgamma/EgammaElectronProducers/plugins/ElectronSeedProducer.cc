@@ -16,6 +16,8 @@
 //
 //
 
+#include <vector>
+
 #include "ElectronSeedProducer.h"
 
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
@@ -43,6 +45,9 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 #include <string>
 
@@ -83,6 +88,13 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
      maxHEndcaps_=conf_.getParameter<double>("maxHEndcaps") ;
    }
 
+  applySigmaIEtaIEtaCut_ = conf_.getParameter<bool>("applySigmaIEtaIEtaCut");
+  if (applySigmaIEtaIEtaCut_)
+    {
+      maxSigmaIEtaIEtaBarrel_ = conf_.getParameter<double>("maxSigmaIEtaIEtaBarrel");
+      maxSigmaIEtaIEtaEndcaps_ = conf_.getParameter<double>("maxSigmaIEtaIEtaEndcaps");
+    }
+
   edm::ParameterSet rpset = conf_.getParameter<edm::ParameterSet>("RegionPSet");
   filterVtxTag_ = consumes<std::vector<reco::Vertex> >(rpset.getParameter<edm::InputTag> ("VertexProducer"));
 
@@ -94,6 +106,9 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
   matcher_ = new ElectronSeedGenerator(conf_,esg_tokens) ;
 
   //  get collections from config'
+  ebRecHitCollection_ = consumes<EcalRecHitCollection> (iConfig.getParameter<edm::InputTag>("ebRecHitCollection"));
+  eeRecHitCollection_ = consumes<EcalRecHitCollection> (iConfig.getParameter<edm::InputTag>("eeRecHitCollection"));
+
   superClusters_[0]=
     consumes<reco::SuperClusterCollection>(iConfig.getParameter<edm::InputTag>("barrelSuperClusters")) ;
   superClusters_[1]=
@@ -177,7 +192,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     e.getByToken(superClusters_[i],clusters);
     SuperClusterRefVector clusterRefs ;
     std::vector<float> hoe1s, hoe2s ;
-    filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s);
+    filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s,e, iSetup);
     if ((fromTrackerSeeds_) && (prefilteredSeeds_))
       { filterSeeds(e,iSetup,clusterRefs) ; }
     matcher_->run(e,iSetup,clusterRefs,hoe1s,hoe2s,theInitialSeedColl,*seeds);
@@ -211,8 +226,14 @@ void ElectronSeedProducer::filterClusters
  ( const reco::BeamSpot & bs,
    const edm::Handle<reco::SuperClusterCollection> & superClusters,
    SuperClusterRefVector & sclRefs,
-   std::vector<float> & hoe1s, std::vector<float> & hoe2s )
+   std::vector<float> & hoe1s, std::vector<float> & hoe2s,
+   edm::Event & event, const edm::EventSetup & setup)
  {
+
+   noZS::EcalClusterLazyTools lazyTool_noZS(event, setup, ebRecHitCollection_, eeRecHitCollection_);
+   std::vector<float> sigmaIEtaIEtaEB_;
+   std::vector<float> sigmaIEtaIEtaEE_;
+
   for (unsigned int i=0;i<superClusters->size();++i)
    {
     const SuperCluster & scl = (*superClusters)[i] ;
@@ -223,6 +244,7 @@ void ElectronSeedProducer::filterClusters
 //       { continue ; }
 //      sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;
        double had1, had2, had, scle ;
+
        bool HoeVeto = false ;
        if (applyHOverECut_==true)
         {
@@ -247,6 +269,14 @@ void ElectronSeedProducer::filterClusters
          hoe2s.push_back(std::numeric_limits<float>::infinity()) ;
         }
      }
+
+    if (applySigmaIEtaIEtaCut_ == true)
+      {
+	std::vector<float> vCov = lazyTool_noZS.localCovariances(*(scl.seed()));
+	int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
+	if (detector==EcalBarrel) sigmaIEtaIEtaEB_ .push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+	if (detector==EcalEndcap) sigmaIEtaIEtaEE_ .push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
+      }
    }
   LogDebug("ElectronSeedProducer")<<"Filtered out "<<sclRefs.size()<<" superclusters from "<<superClusters->size() ;
  }
@@ -297,6 +327,8 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd0.add<edm::InputTag>("hcalTowers",edm::InputTag("towerMaker"));
     psd0.add<double>("LowPtThreshold",5.0);
     psd0.add<double>("maxHOverEBarrel",0.15);
+    psd0.add<double>("maxSigmaIEtaIEtaBarrel", 0.5);
+    psd0.add<double>("maxSigmaIEtaIEtaEndcaps", 0.5);
     psd0.add<bool>("dynamicPhiRoad",true);
     psd0.add<double>("ePhiMax1",0.075);
     psd0.add<std::string>("measurementTrackerName","");
