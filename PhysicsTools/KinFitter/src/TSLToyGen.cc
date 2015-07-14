@@ -425,7 +425,7 @@ void  TSLToyGen::createHists() {
 	TH1D* newhisto =  new TH1D( name, name, 100, arrmin[h], arrmax[h]) ; 
 	((TObjArray*) histarrays[h])->Add( newhisto );
 
-	//	newhisto->SetBit(TH1::kCanRebin);
+	//	newhisto->SetCanExtend(TH1::kAllAxes);
       }
     }
   }

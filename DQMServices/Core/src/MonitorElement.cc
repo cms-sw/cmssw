@@ -1201,8 +1201,8 @@ MonitorElement::addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1,
   Double_t stats2[NUM_STAT];
   Double_t stats3[NUM_STAT];
 
-  bool isRebinOn = sum->TestBit(TH1::kCanRebin);
-  sum->ResetBit(TH1::kCanRebin);
+  bool isRebinOn = sum->CanExtendAllAxes();
+  sum->SetCanExtend(TH1::kNoAxis);
 
   for (Int_t i = 0; i < NUM_STAT; ++i)
     stats1[i] = stats2[i] = stats3[i] = 0;
@@ -1234,7 +1234,7 @@ MonitorElement::addProfiles(TProfile *h1, TProfile *h2, TProfile *sum, float c1,
 
   sum->SetEntries(entries);
   sum->PutStats(stats3);
-  if (isRebinOn) sum->SetBit(TH1::kCanRebin);
+  if (isRebinOn) sum->SetCanExtend(TH1::kAllAxes);
 }
 
 // implementation: Giuseppe.Della-Ricca@ts.infn.it
@@ -1251,8 +1251,8 @@ MonitorElement::addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, flo
   Double_t stats2[NUM_STAT];
   Double_t stats3[NUM_STAT];
 
-  bool isRebinOn = sum->TestBit(TH1::kCanRebin);
-  sum->ResetBit(TH1::kCanRebin);
+  bool isRebinOn = sum->CanExtendAllAxes();
+  sum->SetCanExtend(TH1::kNoAxis);
 
   for (Int_t i = 0; i < NUM_STAT; ++i)
     stats1[i] = stats2[i] = stats3[i] = 0;
@@ -1286,7 +1286,7 @@ MonitorElement::addProfiles(TProfile2D *h1, TProfile2D *h2, TProfile2D *sum, flo
     }
   sum->SetEntries(entries);
   sum->PutStats(stats3);
-  if (isRebinOn) sum->SetBit(TH1::kCanRebin);
+  if (isRebinOn) sum->SetCanExtend(TH1::kAllAxes);
 }
 
 void

@@ -282,9 +282,9 @@ SiStripApvGain * SiStripGainCosmicCalculator::getNewObject() {
 
   std::cout<<"total_nr_of_events="<<total_nr_of_events<<std::endl;
   // book some more histograms
-  TH1F *ChargeOfEachAPVPair = new TH1F("ChargeOfEachAPVPair","ChargeOfEachAPVPair",1,0,1); ChargeOfEachAPVPair->SetBit(TH1::kCanRebin);
-  TH1F *EntriesApvPairs = new TH1F("EntriesApvPairs","EntriesApvPairs",1,0,1); EntriesApvPairs->SetBit(TH1::kCanRebin);
-  TH1F * NrOfEntries = new TH1F("NrOfEntries","NrOfEntries",351,-0.5,350.5);// NrOfEntries->SetBit(TH1::kCanRebin);
+  TH1F *ChargeOfEachAPVPair = new TH1F("ChargeOfEachAPVPair","ChargeOfEachAPVPair",1,0,1); ChargeOfEachAPVPair->SetCanExtend(TH1::kAllAxes);
+  TH1F *EntriesApvPairs = new TH1F("EntriesApvPairs","EntriesApvPairs",1,0,1); EntriesApvPairs->SetCanExtend(TH1::kAllAxes);
+  TH1F * NrOfEntries = new TH1F("NrOfEntries","NrOfEntries",351,-0.5,350.5);// NrOfEntries->SetCanExtend(TH1::kAllAxes);
   TH1F * ModuleThickness = new TH1F("ModuleThickness","ModuleThickness",2,0.5,2.5); HlistOtherHistos->Add(ModuleThickness);
   ModuleThickness->GetXaxis()->SetBinLabel(1,"320mu"); ModuleThickness->GetXaxis()->SetBinLabel(2,"500mu"); ModuleThickness->SetYTitle("Nr APVPairs");
   TH1F * ModuleWidth = new TH1F("ModuleWidth","ModuleWidth",5,0.5,5.5); HlistOtherHistos->Add(ModuleWidth);
@@ -323,8 +323,8 @@ SiStripApvGain * SiStripGainCosmicCalculator::getNewObject() {
   MeanCharge = MeanCharge / NrOfApvPairs;
   // calculate correction
   TH1F* CorrectionOfEachAPVPair = (TH1F*) ChargeOfEachAPVPair->Clone("CorrectionOfEachAPVPair");
-  TH1F *ChargeOfEachAPVPairControlView = new TH1F("ChargeOfEachAPVPairControlView","ChargeOfEachAPVPairControlView",1,0,1); ChargeOfEachAPVPairControlView->SetBit(TH1::kCanRebin);
-TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairControlView","CorrectionOfEachAPVPairControlView",1,0,1); CorrectionOfEachAPVPairControlView->SetBit(TH1::kCanRebin);
+  TH1F *ChargeOfEachAPVPairControlView = new TH1F("ChargeOfEachAPVPairControlView","ChargeOfEachAPVPairControlView",1,0,1); ChargeOfEachAPVPairControlView->SetCanExtend(TH1::kAllAxes);
+TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairControlView","CorrectionOfEachAPVPairControlView",1,0,1); CorrectionOfEachAPVPairControlView->SetCanExtend(TH1::kAllAxes);
   std::ofstream APVPairTextOutput("apvpair_corrections.txt");
   APVPairTextOutput<<"# MeanCharge = "<<MeanCharge<<std::endl;
   APVPairTextOutput<<"# Nr. of APVPairs = "<<NrOfApvPairs<<std::endl;

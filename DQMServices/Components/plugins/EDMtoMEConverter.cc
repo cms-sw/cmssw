@@ -186,7 +186,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // define new monitor element
         if (dbe) {
           me1[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
-          if (me1[i] && me1[i]->getTH1F() && me1[i]->getTH1F()->TestBit(TH1::kCanRebin) == true) {
+          if (me1[i] && me1[i]->getTH1F() && me1[i]->getTH1F()->CanExtendAllAxes()) {
             TList list;
             list.Add(&metoedmobject[i].object);
             if (me1[i]->getTH1F()->Merge(&list) == -1)
@@ -245,7 +245,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // define new monitor element
         if (dbe) {
           me1[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
-          if (me1[i] && me1[i]->getTH1S() && me1[i]->getTH1S()->TestBit(TH1::kCanRebin) == true) {
+          if (me1[i] && me1[i]->getTH1S() && me1[i]->getTH1S()->CanExtendAllAxes()) {
             TList list;
             list.Add(&metoedmobject[i].object);
             if (me1[i]->getTH1S()->Merge(&list) == -1)
@@ -304,7 +304,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // define new monitor element
         if (dbe) {
           me1[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
-          if (me1[i] && me1[i]->getTH1D() && me1[i]->getTH1D()->TestBit(TH1::kCanRebin) == true) {
+          if (me1[i] && me1[i]->getTH1D() && me1[i]->getTH1D()->CanExtendAllAxes()) {
             TList list;
             list.Add(&metoedmobject[i].object);
             if (me1[i]->getTH1D()->Merge(&list) == -1)
@@ -363,7 +363,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // define new monitor element
         if (dbe) {
           me2[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
-          if (me2[i] && me2[i]->getTH2F() && me2[i]->getTH2F()->TestBit(TH1::kCanRebin) == true) {
+          if (me2[i] && me2[i]->getTH2F() && me2[i]->getTH2F()->CanExtendAllAxes()) {
             TList list;
             list.Add(&metoedmobject[i].object);
             if (me2[i]->getTH2F()->Merge(&list) == -1)
@@ -422,7 +422,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // define new monitor element
         if (dbe) {
           me2[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
-          if (me2[i] && me2[i]->getTH2S() && me2[i]->getTH2S()->TestBit(TH1::kCanRebin) == true) {
+          if (me2[i] && me2[i]->getTH2S() && me2[i]->getTH2S()->CanExtendAllAxes()) {
             TList list;
             list.Add(&metoedmobject[i].object);
             if (me2[i]->getTH2S()->Merge(&list) == -1)
@@ -481,7 +481,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // define new monitor element
         if (dbe) {
           me2[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
-          if (me2[i] && me2[i]->getTH2D() && me2[i]->getTH2D()->TestBit(TH1::kCanRebin) == true) {
+          if (me2[i] && me2[i]->getTH2D() && me2[i]->getTH2D()->CanExtendAllAxes()) {
             TList list;
             list.Add(&metoedmobject[i].object);
             if (me2[i]->getTH2D()->Merge(&list) == -1)
@@ -540,7 +540,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // define new monitor element
         if (dbe) {
           me3[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
-          if (me3[i] && me3[i]->getTH3F() && me3[i]->getTH3F()->TestBit(TH1::kCanRebin) == true) {
+          if (me3[i] && me3[i]->getTH3F() && me3[i]->getTH3F()->CanExtendAllAxes()) {
             TList list;
             list.Add(&metoedmobject[i].object);
             if (me3[i]->getTH3F()->Merge(&list) == -1)
@@ -600,7 +600,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // define new monitor element
         if (dbe) {
           me4[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
-          if (me4[i] && me4[i]->getTProfile() && me4[i]->getTProfile()->TestBit(TH1::kCanRebin) == true) {
+          if (me4[i] && me4[i]->getTProfile() && me4[i]->getTProfile()->CanExtendAllAxes()) {
             TList list;
             list.Add(&metoedmobject[i].object);
             if (me4[i]->getTProfile()->Merge(&list) == -1)
@@ -659,7 +659,7 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
         // define new monitor element
         if (dbe) {
           me5[i] = dbe->get(dir+"/"+metoedmobject[i].object.GetName());
-          if (me5[i] && me5[i]->getTProfile2D() && me5[i]->getTProfile2D()->TestBit(TH1::kCanRebin) == true) {
+          if (me5[i] && me5[i]->getTProfile2D() && me5[i]->getTProfile2D()->CanExtendAllAxes()) {
             TList list;
             list.Add(&metoedmobject[i].object);
             if (me5[i]->getTProfile2D()->Merge(&list) == -1)

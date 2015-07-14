@@ -179,7 +179,7 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig)
     strstr.str("");
     strstr << "br_" << pid;
     h_br[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),0,0,0);
-    h_br[pid]->SetBit(TH1::kCanRebin);
+    h_br[pid]->SetCanExtend(TH1::kAllAxes);
     h_br_ref[pid] = (TH1D*)(h_br[pid]->Clone(strstr.str().c_str()));
     h_br_ref[pid]->SetTitle(h_br_ref[pid]->GetName());
     knownDecayModes[pid] = vector<string>();
