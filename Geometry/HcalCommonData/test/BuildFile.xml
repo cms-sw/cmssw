@@ -8,3 +8,11 @@
  <use name="CondFormats/GeometryObjects"/>
  <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="HcalSimNumberingTester.cc" name="testHcalSimNumberingTester">
+ <use name="CondFormats/GeometryObjects"/>
+ <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="HcalRecNumberingTester.cc" name="testHcalRecNumberingTester">
+ <use name="CondFormats/GeometryObjects"/>
+ <flags   EDM_PLUGIN="1"/>
+</library>

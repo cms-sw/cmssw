@@ -21,7 +21,7 @@ public:
   std::vector<double> zHE;    
   std::vector<double> dzHE;
   std::vector<double> zHO;
-  double              dzVcal;
+
   std::vector<double> rhoxHB;
   std::vector<double> zxHB;
   std::vector<double> dyHB;
@@ -44,7 +44,9 @@ public:
   std::vector<double> HBGains;
   std::vector<double> HEGains;
   std::vector<double> HFGains;
-
+  std::vector<double> etaTableHF;
+  double              dzVcal;
+  
   std::vector<int>    maxDepth;
   std::vector<int>    modHB;
   std::vector<int>    modHE;
