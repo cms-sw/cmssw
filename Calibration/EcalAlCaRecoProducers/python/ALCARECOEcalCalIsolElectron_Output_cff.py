@@ -71,4 +71,11 @@ OutALCARECOEcalCalElectron=copy.deepcopy(OutALCARECOEcalCalElectron_noDrop)
 OutALCARECOEcalCalElectron.outputCommands.insert(0, "drop *")
 OutALCARECOEcalCalElectron.outputCommands+=OutALCARECOEcalCalElectron_specific
 
+OutALCARECOEcalCalWElectron=copy.deepcopy(OutALCARECOEcalCalElectron)
+OutALCARECOEcalCalWElectron_noDrop=copy.deepcopy(OutALCARECOEcalCalElectron_noDrop)
+OutALCARECOEcalCalZElectron=copy.deepcopy(OutALCARECOEcalCalElectron)
+OutALCARECOEcalCalZElectron_noDrop=copy.deepcopy(OutALCARECOEcalCalElectron_noDrop)
+
+
+
 
