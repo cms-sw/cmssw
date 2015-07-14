@@ -89,6 +89,7 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
    }
 
   applySigmaIEtaIEtaCut_ = conf_.getParameter<bool>("applySigmaIEtaIEtaCut");
+
   if (applySigmaIEtaIEtaCut_)
     {
       maxSigmaIEtaIEtaBarrel_ = conf_.getParameter<double>("maxSigmaIEtaIEtaBarrel");
@@ -355,6 +356,7 @@ ElectronSeedProducer::fillDescriptions(edm::ConfigurationDescriptions& descripti
     psd0.add<edm::InputTag>("measurementTrackerEvent",edm::InputTag("MeasurementTrackerEvent"));
     psd0.add<edm::InputTag>("vertices",edm::InputTag("offlinePrimaryVerticesWithBS"));
     psd0.add<bool>("applyHOverECut",true);
+    psd0.add<bool>("applySigmaIEtaIEtaCut", false);
     psd0.add<double>("DeltaPhi2F",0.012);
     psd0.add<double>("PhiMin2F",-0.003);
     psd0.add<double>("hOverEHFMinE",0.8);
