@@ -22,13 +22,6 @@ workflows[300]=['Pyquen_GammaJet_pt20_2760GeV',['Pyquen_GammaJet_pt20_2760GeV','
 workflows[301]=['Pyquen_DiJet_pt80to120_2760GeV',['Pyquen_DiJet_pt80to120_2760GeV','DIGIHIMIX','RECOHIMIX','HARVESTHI']]
 workflows[302]=['Pyquen_ZeemumuJets_pt10_2760GeV',['Pyquen_ZeemumuJets_pt10_2760GeV','DIGIHIMIX','RECOHIMIX','HARVESTHI']]
 
-#fastsim
-workflows[400]=['TTbar',['TTbarFSPU','HARVESTFS']]
-# temporarily redefine test 401 to pass tests during pu cfg transitation of FastSim
-#workflows[401]=['TTbarNewMix',['TTbarFSPU2','HARVESTFS','MINIAODMCUP15FS']]
-workflows[401]=['TTbarNewMix',['TTbarFSPU','HARVESTFS','MINIAODMCUP15FS']]
-
-
 # 50 ns at 13 TeV and POSTLS1
 workflows[50200]=['',['ZEE_13','DIGIUP15_PU50','RECOUP15_PU50','HARVESTUP15_PU50','MINIAODMCUP1550']]
 workflows[50202]=['',['TTbar_13','DIGIUP15_PU50','RECOUP15_PU50','HARVESTUP15_PU50','MINIAODMCUP1550']]
