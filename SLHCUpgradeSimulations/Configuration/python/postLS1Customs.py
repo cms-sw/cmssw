@@ -4,6 +4,10 @@ from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 
 def customisePostLS1_Common(process):
 
+    # deal with L1 Emulation separately
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForStage1
+    process = customiseSimL1EmulatorForStage1(process)
+
     # deal with CSC separately
     from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_PostLS1
     process = customise_csc_PostLS1(process)
@@ -41,10 +45,6 @@ def customisePostLS1_Common(process):
 
 def customisePostLS1(process):
 
-    # deal with L1 Emulation separately
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_25ns
-    process = customiseSimL1EmulatorForPostLS1_25ns(process)
-
     # common customisation
     process = customisePostLS1_Common(process)
 
@@ -59,10 +59,6 @@ def customisePostLS1(process):
 
 def customisePostLS1_lowPU(process):
 
-    # deal with L1 Emulation separately
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_lowPU
-    process = customiseSimL1EmulatorForPostLS1_lowPU(process)
-
     # common customisations
     process = customisePostLS1_Common(process)
 
@@ -72,11 +68,8 @@ def customisePostLS1_lowPU(process):
 
     return process
 
-def customisePostLS1_50ns(process):
 
-    # deal with L1 Emulation separately
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_50ns
-    process = customiseSimL1EmulatorForPostLS1_50ns(process)
+def customisePostLS1_50ns(process):
 
     # common customisations
     process = customisePostLS1_Common(process)
