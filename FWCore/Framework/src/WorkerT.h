@@ -78,6 +78,9 @@ namespace edm {
   private:
     virtual bool implDo(EventPrincipal& ep, EventSetup const& c,
                         ModuleCallingContext const* mcc) override;
+    virtual bool implDoPrePrefetchSelection(StreamID id,
+                                            EventPrincipal& ep,
+                                            ModuleCallingContext const* mcc) override;
     virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) override;
     virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,

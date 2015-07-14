@@ -214,6 +214,14 @@ namespace edm {
     convert_handle(std::move(bh), result);
     return result;
   }
+  
+  bool OutputModule::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
+    
+    auto& s = selectors_[id.value()];
+    detail::TRBESSentry products_sentry(s);
+
+    return wantAllEvents_ or s.wantEvent(ep,mcc);
+  }
 
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
@@ -224,13 +232,6 @@ namespace edm {
     FDEBUG(2) << "writeEvent called\n";
 
     {
-      auto& s = selectors_[ep.streamID().value()];
-      detail::TRBESSentry products_sentry(s);
-      if(!wantAllEvents_) {
-        if(!s.wantEvent(ep, mcc)) {
-          return true;
-        }
-      }
       std::lock_guard<std::mutex> guard(mutex_);
       
       {
