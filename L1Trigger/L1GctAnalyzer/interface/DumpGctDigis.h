@@ -39,13 +39,13 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
-  void doRctEM(const edm::Event&, const edm::InputTag& label);
-  void doEM(const edm::Event&, const edm::InputTag& label);
-  void doRegions(const edm::Event&, const edm::InputTag& label);
-  void doJets(const edm::Event&, const edm::InputTag& label);
-  void doInternEM(const edm::Event&, const edm::InputTag& label);
-  void doFibres(const edm::Event&, const edm::InputTag& label);
-  void doEnergySums(const edm::Event&, const edm::InputTag& label);
+  void doRctEM(const edm::Event&, const edm::InputTag& label, std::stringstream& text);
+  void doEM(const edm::Event&, const edm::InputTag& label, std::stringstream& text);
+  void doRegions(const edm::Event&, const edm::InputTag& label, std::stringstream& text);
+  void doJets(const edm::Event&, const edm::InputTag& label, std::stringstream& text);
+  void doInternEM(const edm::Event&, const edm::InputTag& label, std::stringstream& text);
+  void doFibres(const edm::Event&, const edm::InputTag& label, std::stringstream& text);
+  void doEnergySums(const edm::Event&, const edm::InputTag& label, std::stringstream& text);
   
 private:
   // ----------member data ---------------------------
@@ -65,7 +65,8 @@ private:
   bool doFibres_;
   bool doEnergySums_;
 
-  unsigned rctEmMinRank_;
+  unsigned emMinRank_;
+  unsigned jetMinRank_;
 
   std::ofstream outFile_;
   
