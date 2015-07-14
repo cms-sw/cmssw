@@ -109,7 +109,7 @@ def get_var_pset(mvaname):
       default = cms.double(get_var_default(mvaname))
       )
    idx = get_var_idx(mvaname)
-   if idx:
+   if idx is not None:
       pset.idx = cms.int32(idx)
    return pset
 

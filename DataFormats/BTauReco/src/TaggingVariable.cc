@@ -127,7 +127,7 @@ const char* const TaggingVariableTokens[] = {
   /* [trackPtRatio]                             = */ "trackPtRatio",
   /* [trackPParRatio]                           = */ "trackPParRatio",
 
-  /* [trackIp2dVal]                             = */ "trackIp2dVal",
+  /* [trackIp2dSig]                             = */ "trackIp2dSig",
   /* [trackSip2dVal]                            = */ "trackSip2dVal",
   /* [trackSip2dSig]                            = */ "trackSip2dSig",
   /* [trackSip3dVal]                            = */ "trackSip3dVal",

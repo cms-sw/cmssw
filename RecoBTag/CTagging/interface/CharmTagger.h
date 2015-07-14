@@ -9,6 +9,12 @@
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 
+//DEBUGGING
+#include "TFile.h"
+#include "TNtuple.h"
+#include <memory>
+#include <map>
+
 /** \class CharmTagger
  *  \author M. Verzetti, U. Rochester, N.Y.
  *  copied from ElectronTagger.h
@@ -18,7 +24,7 @@ class CharmTagger : public JetTagComputer {
 public:
   /// explicit ctor 
 	CharmTagger(const edm::ParameterSet & );
-	~CharmTagger(){}
+	~CharmTagger();//{}
   virtual float discriminator(const TagInfoHelper & tagInfo) const override;
 	typedef std::vector<edm::ParameterSet> vpset;
 	
@@ -35,9 +41,11 @@ private:
 	[[cms::thread_guard("mutex_")]] std::unique_ptr<TMVAEvaluator> mvaID_;
 	CombinedSVSoftLeptonComputer sl_computer_;
 	std::vector<MVAVar> variables_;
-	// std:: variables_;
-	// std::vector<TaggingVariableName> name_ids_;
-	// std::vector<>
+	
+	//DEBUGGING! because there seems to be no easier way to do it -.-'
+	bool debug_mode_;
+	std::unique_ptr<TFile> ext_file_;
+	TNtuple *tree_;
 };
 
 #endif

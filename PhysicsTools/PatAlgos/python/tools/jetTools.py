@@ -437,22 +437,22 @@ class AddJetCollection(ConfigToolBase):
                             setupSVClustering(getattr(process, btagInfo+_labelName+postfix), _algo, rParam, fatJets, groomedFatJets)
                     if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfosCA15':
                         setattr(process, btagInfo+_labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfosCA15.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfosCA15'+_labelName+postfix), extSVCollection=svSource))
-                    if btagInfo == 'pfInclusiveSecondaryVertexFinderCtagLTagInfos':
+                    if btagInfo == 'pfInclusiveSecondaryVertexFinderCvsLTagInfos':
                         setattr(
                             process, 
                             btagInfo+_labelName+postfix, 
-                            btag.pfInclusiveSecondaryVertexFinderCtagLTagInfos.clone(
+                            btag.pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(
                                 trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix), 
                                 extSVCollection=svSource
                                 )
                             )
                         if svClustering:
                             setupSVClustering(getattr(process, btagInfo+_labelName+postfix), _algo, rParam, fatJets, groomedFatJets)
-                    if btagInfo == 'pfInclusiveSecondaryVertexFinderCtagBTagInfos':
+                    if btagInfo == 'pfInclusiveSecondaryVertexFinderCvsBTagInfos':
                         setattr(
                             process, 
                             btagInfo+_labelName+postfix, 
-                            btag.pfInclusiveSecondaryVertexFinderCtagBTagInfos.clone(
+                            btag.pfInclusiveSecondaryVertexFinderCvsBTagInfos.clone(
                                 trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix), 
                                 extSVCollection=svSource
                                 )

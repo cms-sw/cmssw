@@ -23,12 +23,12 @@ RecoBTagFEVT = cms.PSet(
         'keep *_pfCombinedMVABJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexSoftLeptonBJetTags_*_*',
-        ##	'keep *_pfCombinedSecondaryVertexSoftLeptonCtagLJetTags_*_*',
+        ##	'keep *_pfCombinedSecondaryVertexSoftLeptonCvsLJetTags_*_*',
         'keep *_inclusiveCandidateSecondaryVertices_*_*',
         #CTagging
-        'keep *_pfInclusiveSecondaryVertexFinderCtagLTagInfos_*_*',
-        'keep *_pfCombinedTMVACtagLJetTags_*_*',
-        'keep *_pfCombinedTMVACtagBJetTags_*_*'
+        'keep *_pfInclusiveSecondaryVertexFinderCvsLTagInfos_*_*',
+        'keep *_pfCombinedCvsLJetTags_*_*',
+        'keep *_pfCombinedCvsBJetTags_*_*'
     )
 )
 #RECO content
@@ -54,11 +54,11 @@ RecoBTagRECO = cms.PSet(
         'keep *_pfCombinedMVAV2BJetTags_*_*',
 ##	'keep *_pfCombinedSecondaryVertexSoftLeptonCtagLJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexSoftLeptonBJetTags_*_*',
-##	'keep *_pfCombinedSecondaryVertexSoftLeptonCtagLJetTags_*_*',	
+##	'keep *_pfCombinedSecondaryVertexSoftLeptonCvsLJetTags_*_*',	
         'keep *_inclusiveCandidateSecondaryVertices_*_*'
         #CTaggning
-        'keep *_pfCombinedTMVACtagLJetTags_*_*',
-        'keep *_pfCombinedTMVACtagBJetTags_*_*'
+        'keep *_pfCombinedCvsLJetTags_*_*',
+        'keep *_pfCombinedCvsBJetTags_*_*'
     )
 )
 #AOD content
@@ -75,7 +75,7 @@ RecoBTagAOD = cms.PSet(
         'keep *_pfJetBProbabilityBJetTags_*_*',
 #        'keep *_pfSecondaryVertexTagInfos_*_*',
 #        'keep *_pfInclusiveSecondaryVertexFinderTagInfos_*_*',
-#	'keep *_pfInclusiveSecondaryVertexFinderCtagLTagInfos_*_*',
+#	'keep *_pfInclusiveSecondaryVertexFinderCvsLTagInfos_*_*',
         'keep *_pfSimpleSecondaryVertexHighEffBJetTags_*_*',
         'keep *_pfSimpleSecondaryVertexHighPurBJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexBJetTags_*_*',
@@ -84,10 +84,10 @@ RecoBTagAOD = cms.PSet(
         'keep *_pfCombinedMVABJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
 	'keep *_pfCombinedSecondaryVertexSoftLeptonBJetTags_*_*',
-##	'keep *_pfCombinedSecondaryVertexSoftLeptonCtagLJetTags_*_*',
+##	'keep *_pfCombinedSecondaryVertexSoftLeptonCvsLJetTags_*_*',	
         'keep *_inclusiveCandidateSecondaryVertices_*_*'
         #CTaggning
-        'keep *_pfCombinedTMVACtagLJetTags_*_*',
-        'keep *_pfCombinedTMVACtagBJetTags_*_*'
+        'keep *_pfCombinedCvsLJetTags_*_*',
+        'keep *_pfCombinedCvsBJetTags_*_*'
     )
 )

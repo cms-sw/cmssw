@@ -53,7 +53,7 @@ class JetTagComputer {
 			if (!castInfo)
 				throw cms::Exception("InvalidCast")
 					<< "Invalid TagInfo cast "
-					   "in call to JetTagComputer::get."
+					   "in call to JetTagComputer::get( index="<< index <<" )."
 					<< std::endl;
 
 			return *castInfo;

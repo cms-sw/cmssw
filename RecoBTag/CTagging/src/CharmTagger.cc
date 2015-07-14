@@ -9,6 +9,8 @@
 #include <map>
 #include <iostream>
 
+#include "TDirectory.h" //DEBUG
+
 CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
 	sl_computer_(configuration.getParameter<edm::ParameterSet>("slComputerCfg"))
 {
@@ -24,6 +26,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
 	std::vector<std::string> variable_names;
 	variable_names.reserve(vars_def.size());
 	std::cout << "CFG provided " << vars_def.size() << " variables" << std::endl;
+
 	for(auto &var : vars_def) {
 		variable_names.push_back(
 			var.getParameter<std::string>("name")
@@ -42,23 +45,55 @@ CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
 		variables_.push_back(mva_var);
 	}
 	std::vector<std::string> spectators;
-	std::cout << "variable_names has " << variable_names.size() << " names" << std::endl;
 	
 	mvaID_->initialize("Color:Silent:Error", "BDT", weight_file.fullPath(), variable_names, spectators);
+
+  //DEBUG
+	debug_mode_ = configuration.existsAs<std::string>("debugFile");
+	if(debug_mode_){
+		std::cout << "variable_names has " << variable_names.size() << " names" << std::endl;
+		ext_file_.reset(new TFile(configuration.getParameter<std::string>("debugFile").c_str(), "recreate")); //DEBUG
+		variable_names.push_back("jetPt" ); 
+		variable_names.push_back("jetEta"); 
+		variable_names.push_back("vertexCategory"); 
+		std::stringstream ntnames;
+		bool first=true;
+		for(auto &vname : variable_names){
+			if(!first) ntnames << ":";
+			first = false;
+			ntnames << vname;
+		}
+		TDirectory *context = gDirectory;
+		ext_file_->cd();
+		tree_ = new TNtuple("tree", "flat support tree", ntnames.str().c_str()); //DEBUG
+		context->cd();
+	}
 }
 
+CharmTagger::~CharmTagger()//DEBUG
+{
+	if(debug_mode_){
+		TDirectory *context = gDirectory;
+		ext_file_->cd();
+		tree_->Write();
+		ext_file_->Close();
+		context->cd();
+	}
+}
 
 /// b-tag a jet based on track-to-jet parameters in the extened info collection
 float CharmTagger::discriminator(const TagInfoHelper & tagInfo) const {
   // default value, used if there are no leptons associated to this jet
   const reco::CandIPTagInfo & ip_info = tagInfo.get<reco::CandIPTagInfo>(0);//"pfImpactParameterTagInfos");
 	const reco::CandSecondaryVertexTagInfo & sv_info = tagInfo.get<reco::CandSecondaryVertexTagInfo>(1);//"pfInclusiveSecondaryVertexFinderCtagLTagInfos");
-	const reco::CandSoftLeptonTagInfo& softel_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(2);//"softPFMuonsTagInfos");
-	const reco::CandSoftLeptonTagInfo& softmu_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(3);//"softPFElectronsTagInfos");
+	const reco::CandSoftLeptonTagInfo& softmu_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(2);//"softPFMuonsTagInfos");
+	const reco::CandSoftLeptonTagInfo& softel_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(3);//"softPFElectronsTagInfos");
 	reco::TaggingVariableList vars = sl_computer_(ip_info, sv_info, softmu_info, softel_info);
 
 	// Loop over input variables
 	std::map<std::string, float> inputs;
+	std::vector<float> debug_values; // DEBUG
+	debug_values.reserve(variables_.size()+2);  // DEBUG
 	for(auto &mva_var : variables_){
 		//vectorial tagging variable
 		if(mva_var.has_index){
@@ -69,6 +104,13 @@ float CharmTagger::discriminator(const TagInfoHelper & tagInfo) const {
 		else {
 			inputs[mva_var.name] = vars.get(mva_var.id, mva_var.default_value);
 		}
+		debug_values.push_back(inputs[mva_var.name]);
+	}
+	if(debug_mode_){
+		debug_values.push_back(vars.get(reco::btau::TaggingVariableName::jetPt) ); //DEBUG
+		debug_values.push_back(vars.get(reco::btau::TaggingVariableName::jetEta)); //DEBUG
+		debug_values.push_back(vars.get(reco::btau::TaggingVariableName::vertexCategory, 99)); //DEBUG
+		tree_->Fill(&debug_values[0]);
 	}
 
   // TMVAEvaluator is not thread safe
