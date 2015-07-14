@@ -65,12 +65,12 @@ namespace l1t {
                   res[15] = jet_unp;
                   res[21] = etsum_unp;
                } else if (fed == 1360) {
-                  res[1] = mp_unp;
-                  res[3] = mp_unp;
-                  res[5] = mp_unp;
-                  res[7] = mp_unp;
-                  res[9] = mp_unp;
-                  res[11] = mp_unp;
+                  res[121] = mp_unp;
+                  res[123] = mp_unp;
+                  res[125] = mp_unp;
+                  res[127] = mp_unp;
+                  res[129] = mp_unp;
+                  res[131] = mp_unp;
 
                   for (int link = 0; link < 144; link += 2)
                      res[link] = tower_unp;

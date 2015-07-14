@@ -34,6 +34,16 @@ options.register('mpHeaderFrames',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "MP header frames in tx")
+options.register('mpKeyLinkRx',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "MP packet key link (Rx)")
+options.register('mpKeyLinkTx',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "MP packet key link (Tx)")
 options.register('dmFramesPerEvent',
                  6,
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -197,6 +207,8 @@ if (options.doMP):
 process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPerEvent)
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
 process.stage2MPRaw.boardOffset    = cms.untracked.int32(boardOffset)
+process.stage2MPRaw.rxKeyLink    = cms.untracked.int32(options.mpKeyLinkRx)
+process.stage2MPRaw.txKeyLink    = cms.untracked.int32(options.mpKeyLinkTx)
 #process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
 process.stage2MPRaw.nHeaderFrames = cms.untracked.int32(options.mpHeaderFrames)
 process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
