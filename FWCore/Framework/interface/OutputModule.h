@@ -209,6 +209,8 @@ namespace edm {
     virtual void reallyCloseFile();
 
     void registerProductsAndCallbacks(OutputModule const*, ProductRegistry const*) {}
+    
+    bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
 
     /// Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}

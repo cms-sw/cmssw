@@ -215,6 +215,7 @@ namespace edm {
       
       void registerProductsAndCallbacks(OutputModuleBase const*, ProductRegistry const*) {}
 
+      bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
       
       // Do the end-of-file tasks; this is only called internally, after
       // the appropriate tests have been done.
