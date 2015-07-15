@@ -88,6 +88,8 @@ void pat::PATMETSlimmer::maybeReadShifts(const edm::ParameterSet &basePSet, cons
 	  shifts_.push_back(OneMETShift(pat::MET::MuonEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnUp,   level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::ElectronEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::PhotonEnUp,   level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
+	  shifts_.push_back(OneMETShift(pat::MET::PhotonEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::TauEnUp,   level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::TauEnDown, level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
 	  shifts_.push_back(OneMETShift(pat::MET::UnclusteredEnUp,   level, baseTag, consumesCollector(), readFromMiniAOD, false, true));
@@ -122,6 +124,8 @@ pat::PATMETSlimmer::OneMETShift::OneMETShift(pat::MET::METUncertainty shift_, pa
         case pat::MET::MuonEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "MuonEnDown"); break;
         case pat::MET::ElectronEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "ElectronEnUp");   break;
         case pat::MET::ElectronEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "ElectronEnDown"); break;
+        case pat::MET::PhotonEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "PhotonEnUp");   break;
+        case pat::MET::PhotonEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "PhotonEnDown"); break;
         case pat::MET::TauEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "TauEnUp");   break;
         case pat::MET::TauEnDown: snprintf(buff, 1023, baseTagStr.c_str(), "TauEnDown"); break;
         case pat::MET::UnclusteredEnUp  : snprintf(buff, 1023, baseTagStr.c_str(), "UnclusteredEnUp");   break;
