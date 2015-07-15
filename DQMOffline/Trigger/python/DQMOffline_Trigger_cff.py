@@ -47,6 +47,8 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 #from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
 
+# BTV
+from DQMOffline.Trigger.BTVHLTOfflineAnalyzer_cff import *
 
 from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import *
 from DQMOffline.Trigger.HILowLumiHLTOfflineSource_cfi import *
@@ -81,7 +83,8 @@ offlineHLTSource = cms.Sequence(
     muonFullOfflineDQM *
     HLTTauDQMOffline *
     #jetMETHLTOfflineSource *
-    jetMETHLTOfflineAnalyzer *
+    jetMETHLTOfflineAnalyzer * 
+    BTVHLTOfflineAnalyzer *
     fsqHLTOfflineSourceSequence *
     HILowLumiHLTOfflineSourceSequence *
     #TnPEfficiency *
