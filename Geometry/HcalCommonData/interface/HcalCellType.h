@@ -24,10 +24,11 @@ public:
   };
 
   HcalCellType(HcalSubdetector detType, int etaBin, int phiBin, 
-	       int depthSegment,const HcalCell& cell, int readoutDirection,
-	       double samplingFactor, int numberZ, int nmodule,
-	       double halfSize, int units);
-  HcalCellType(const HcalCellType&);
+	       int depthSegment, const HcalCell& cell, int readoutDirection=0,
+	       double samplingFactor=0, int numberZ=0, int nmodule=0,
+	       double halfSize=0, int units=0);
+  HcalCellType(const HcalCellType &right);
+  const HcalCellType& operator=(const HcalCellType &right);
   ~HcalCellType();
 
   void setMissingPhi(std::vector<int>&, std::vector<int>&);
@@ -38,11 +39,13 @@ public:
                                                                                
   /// which eta ring it belongs to, starting from one
   int etaBin() const {return theEtaBin;}
+  void setEta(int bin, double etamin, double etamax);
                                                                                
   /// which depth segment it is, starting from 1
   /// absolute within the tower, so HE depth of the
   /// overlap doesn't start at 1.
   int depthSegment() const {return theDepthSegment;}
+  void setDepth(int bin, double dmin, double dmax);
 
   /// the number of these cells in a ring
   int nPhiBins() const {return theNumberOfPhiBins;}
@@ -54,6 +57,7 @@ public:
   /// phi offset in degrees
   double phiOffset() const {return thePhiOffset;}
   int    unitPhi() const {return theUnitPhi;}
+  void   setPhi(int bins, int unit, double dphi, double phioff);
 
   /// Number of halves (forward/backward)
   int nHalves() const {return theNumberOfZ;}
