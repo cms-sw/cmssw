@@ -46,15 +46,15 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "Input unskimmed jet collection for T1 MET computation", Type=cms.InputTag, acceptNoneValue=True)
 	self.addParameter(self._defaultParameters, 'pfCandCollection', cms.InputTag('particleFlow'),
                           "pf Candidate collection", Type=cms.InputTag, acceptNoneValue=True)
-        self.addParameter(self._defaultParameters, 'autoJetCleaning', 'Full',
-                          "Enable the jet cleaning for the uncertainty computation: Full for tau/photons/jet cleaning, Partial for jet cleaning, None or Manual for no cleaning", Type=str)
+        self.addParameter(self._defaultParameters, 'autoJetCleaning', 'LepClean',
+                          "Enable the jet cleaning for the uncertainty computation: Full for tau/photons/jet cleaning, Partial for jet cleaning, LepClean for jet cleaning with muon and electrons only, None or Manual for no cleaning", Type=str)
         self.addParameter(self._defaultParameters, 'jetFlavor', 'AK4PFchs',
                           "Use AK4PF/AK4PFchs for PFJets,AK4Calo for CaloJets", Type=str)
         self.addParameter(self._defaultParameters, 'jetCorrectionType', 'L1L2L3-L1',
                           "Use L1L2L3-L1 for the standard L1 removal / L1L2L3-RC for the random-cone correction", Type=str)
 
         self.addParameter(self._defaultParameters, 'jetCorLabelUpToL3', cms.InputTag('ak4PFL1FastL2L3Corrector'), "Use ak4PFL1FastL2L3Corrector (ak4PFchsL1FastL2L3Corrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Corrector for CaloJets", Type=cms.InputTag)
-        self.addParameter(self._defaultParameters, 'jetCorLabelL3Res', cms.InputTag('ak4PFL1FastL2L3ResidualCorrector'), "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFchsL1FastL2L3ResiduaCorrectorl) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=cms.InputTag)
+        self.addParameter(self._defaultParameters, 'jetCorLabelL3Res', cms.InputTag('ak4PFL1FastL2L3ResidualCorrector'), "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFchsL1FastL2L3ResiduaCorrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=cms.InputTag)
         self.addParameter(self._defaultParameters, 'jecUncertaintyFile', 'PhysicsTools/PatUtils/data/Summer13_V1_DATA_UncertaintySources_AK5PF.txt',
                           "Extra JES uncertainty file", Type=str)
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'SubTotalMC',
@@ -1166,7 +1166,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
     # function enabling the auto jet cleaning for uncertainties ===============
     def jetCleaning(self, process, autoJetCleaning, postfix ):
 
-        if autoJetCleaning == "None" or autoJetCleaning == "Manual" :
+        if autoJetCleaning != "None" or autoJetCleaning == "Manual" :
             return self._parameters["jetCollection"].value
 
         #retrieve collections
@@ -1205,12 +1205,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             )
         cleanPatJetProducer.checkOverlaps.muons.src = muonCollection
         cleanPatJetProducer.checkOverlaps.electrons.src = electronCollection
-        if isValidInputTag(photonCollection):
+        if isValidInputTag(photonCollection) and autoJetCleaning != "LepClean":
             cleanPatJetProducer.checkOverlaps.photons.src = photonCollection
         else:
             del cleanPatJetProducer.checkOverlaps.photons
             
-        if isValidInputTag(tauCollection):
+        if isValidInputTag(tauCollection) and autoJetCleaning != "LepClean":
             cleanPatJetProducer.checkOverlaps.taus.src = tauCollection
         else:
             del cleanPatJetProducer.checkOverlaps.taus
@@ -1234,6 +1234,8 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                         electronColl="selectedPatElectrons",
                                         muonColl="selectedPatMuons",
                                         tauColl="selectedPatTaus",
+                                        jetCleaning="LepClean",
+                                        jecUnFile="PhysicsTools/PatUtils/data/Summer13_V1_DATA_UncertaintySources_AK5PF.txt", #no 13 TeV uncertainties yet...
                                         postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
@@ -1250,6 +1252,8 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                       electronCollection=electronColl,
                                       muonCollection=muonColl,
                                       tauCollection=tauColl,
+                                      autoJetCleaning=jetCleaning,
+                                      jecUncertaintyFile=jecUnFile,
                                       postfix=""
                                       )
     
@@ -1265,6 +1269,8 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                       electronCollection=electronColl,
                                       muonCollection=muonColl,
                                       tauCollection=tauColl,
+                                      autoJetCleaning=jetCleaning,
+                                      jecUncertaintyFile=jecUnFile,
                                       postfix=""
                                       )
     
@@ -1280,6 +1286,8 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                       electronCollection=electronColl,
                                       muonCollection=muonColl,
                                       tauCollection=tauColl,
+                                      autoJetCleaning=jetCleaning,
+                                      jecUncertaintyFile=jecUnFile,
                                       postfix="",
                                       )
 
@@ -1296,6 +1304,11 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                tauColl="slimmedTaus",
                                pfCandColl = "packedPFCandidates",
                                jetFlav="AK4PFchs",
+                               jetCleaning="LepClean",
+                               jetConfig=False,
+                               jetCorLabelL3=cms.InputTag('ak4PFL1FastL2L3Corrector'),
+                               jetCorLabelRes=cms.InputTag('ak4PFchsL1FastL2L3ResiduaCorrector'),
+                               jecUnFile="PhysicsTools/PatUtils/data/Summer13_V1_DATA_UncertaintySources_AK5PF.txt", #no 13 TeV uncertainties yet...
                                postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
@@ -1313,23 +1326,33 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       photonCollection=photonColl,
                                       pfCandCollection =pfCandColl,
                                       onMiniAOD=True,
+                                      autoJetCleaning=jetCleaning,
+                                      manualJetConfig=jetConfig,
                                       jetFlavor=jetFlav,
+                                      jetCorLabelUpToL3=jetCorLabelL3,
+                                      jetCorLabelL3Res=jetCorLabelRes,
+                                      jecUncertaintyFile=jecUnFile,
                                       postfix="",
                                       )
     
     #MET T1+Txy
     runMETCorrectionsAndUncertainties(process, metType="PF",
-                                  correctionLevel=["T1","Txy"],
-                                  computeUncertainties=False,
-                                  produceIntermediateCorrections=True,
-                                  addToPatDefaultSequence=False,
-                                  jetCollection=jetColl,
-                                  electronCollection=electronColl,
-                                  muonCollection=muonColl,
-                                  tauCollection=tauColl,
-                                  photonCollection=photonColl,
-                                  pfCandCollection =pfCandColl,
-                                  onMiniAOD=True,
-                                  jetFlavor=jetFlav,
-                                  postfix="",
-                                  )
+                                      correctionLevel=["T1","Txy"],
+                                      computeUncertainties=False,
+                                      produceIntermediateCorrections=True,
+                                      addToPatDefaultSequence=False,
+                                      jetCollection=jetColl,
+                                      electronCollection=electronColl,
+                                      muonCollection=muonColl,
+                                      tauCollection=tauColl,
+                                      photonCollection=photonColl,
+                                      pfCandCollection =pfCandColl,
+                                      onMiniAOD=True,
+                                      autoJetCleaning=jetCleaning,
+                                      manualJetConfig=jetConfig,
+                                      jetFlavor=jetFlav,
+                                      jetCorLabelUpToL3=jetCorLabelL3,
+                                      jetCorLabelL3Res=jetCorLabelRes,
+                                      jecUncertaintyFile=jecUnFile,
+                                      postfix="",
+                                      )
