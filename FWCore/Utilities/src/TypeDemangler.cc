@@ -1,7 +1,7 @@
 #include <cxxabi.h>
 #include <cctype>
 #include <string>
-#include "boost/regex.hpp"
+#include <regex>
 #include "FWCore/Utilities/interface/Exception.h"
 
 /********************************************************************
@@ -27,9 +27,9 @@
 namespace {
   void
   reformatter(std::string& input, char const* exp, char const* format) {
-    boost::regex regexp(exp, boost::regex::egrep);
-    while(boost::regex_match(input, regexp)) {
-      std::string newstring = boost::regex_replace(input, regexp, format);
+    std::regex regexp(exp, std::regex::egrep);
+    while(std::regex_match(input, regexp)) {
+      std::string newstring = std::regex_replace(input, regexp, format);
       input.swap(newstring);
     }
   }
