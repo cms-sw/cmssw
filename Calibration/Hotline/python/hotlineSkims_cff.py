@@ -209,7 +209,7 @@ htFilter = cms.EDFilter(
 seqHotlineSkimHT = cms.Sequence(htMht * htSelector * htFilter)
 
 #high-mass dileptons
-dimuons = cms.EDProducer(
+dimuonsHotLine = cms.EDProducer(
     "CandViewShallowCloneCombiner",
     decay = cms.string("muons muons"),
     checkCharge = cms.bool(False),
@@ -229,7 +229,7 @@ diEMu = cms.EDProducer(
 )
 dimuonMassFilter = cms.EDFilter(
     "CandViewCountFilter",
-    src = cms.InputTag("dimuons"),
+    src = cms.InputTag("dimuonsHotLine"),
     minNumber = cms.uint32(1)
 )
 dielectronMassFilter = cms.EDFilter(
@@ -243,12 +243,12 @@ diEMuMassFilter = cms.EDFilter(
     minNumber = cms.uint32(1)
 )
 
-seqHotlineSkimMassiveDimuon = cms.Sequence(dimuons * dimuonMassFilter)
+seqHotlineSkimMassiveDimuon = cms.Sequence(dimuonsHotLine * dimuonMassFilter)
 seqHotlineSkimMassiveDielectron = cms.Sequence(dielectrons * dielectronMassFilter)
 seqHotlineSkimMassiveEMu = cms.Sequence(diEMu * diEMuMassFilter)
 
 ## select events with at least one good PV
-pvFilter = cms.EDFilter(
+pvFilterHotLine = cms.EDFilter(
     "VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
     cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
@@ -260,64 +260,64 @@ from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import HBHENoiseFilter
 from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import HBHENoiseFilterResultProducer
 
 ## select events with high pfMET
-pfMETSelector = cms.EDFilter(
+pfMETSelectorHotLine = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("pfMet"),
     cut = cms.string( "pt()>"+str(pfMetCut) )
 )
 
-pfMETCounter = cms.EDFilter(
+pfMETCounterHotLine = cms.EDFilter(
     "CandViewCountFilter",
-    src = cms.InputTag("pfMETSelector"),
+    src = cms.InputTag("pfMETSelectorHotLine"),
     minNumber = cms.uint32(1),
 )
 
 seqHotlineSkimPFMET = cms.Sequence(
-   pvFilter*
+   pvFilterHotLine*
    HBHENoiseFilterResultProducer*
    HBHENoiseFilter*
-   pfMETSelector*
-   pfMETCounter
+   pfMETSelectorHotLine*
+   pfMETCounterHotLine
 )
 
 ## select events with high caloMET
-caloMETSelector = cms.EDFilter(
+caloMETSelectorHotLine = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("caloMetM"),
     cut = cms.string( "pt()>"+str(caloMetCut) )
 )
 
-caloMETCounter = cms.EDFilter(
+caloMETCounterHotLine = cms.EDFilter(
     "CandViewCountFilter",
-    src = cms.InputTag("caloMETSelector"),
+    src = cms.InputTag("caloMETSelectorHotLine"),
     minNumber = cms.uint32(1),
 )
 
 seqHotlineSkimCaloMET = cms.Sequence(
-   pvFilter*
+   pvFilterHotLine*
    HBHENoiseFilterResultProducer*
    HBHENoiseFilter*
-   caloMETSelector*
-   caloMETCounter
+   caloMETSelectorHotLine*
+   caloMETCounterHotLine
 )
 
 ## select events with extreme PFMET/CaloMET ratio
-CondMETSelector = cms.EDProducer(
+CondMETSelectorHotLine = cms.EDProducer(
    "CandViewShallowCloneCombiner",
    decay = cms.string("pfMet caloMetM"),
    cut = cms.string("(daughter(0).pt/daughter(1).pt > "+str(PFOverCaloRatioCut)+" && daughter(1).pt > "+str(condCaloMetCut)+") || (daughter(1).pt/daughter(0).pt > "+str(caloOverPFRatioCut)+" && daughter(0).pt > "+str(condPFMetCut)+" )  " )
 )
 
-CondMETCounter = cms.EDFilter(
+CondMETCounterHotLine = cms.EDFilter(
     "CandViewCountFilter",
-    src = cms.InputTag("CondMETSelector"),
+    src = cms.InputTag("CondMETSelectorHotLine"),
     minNumber = cms.uint32(1),
 )
 
 seqHotlineSkimCondMET = cms.Sequence(
-   pvFilter*
+   pvFilterHotLine*
    HBHENoiseFilterResultProducer*
    HBHENoiseFilter*
-   CondMETSelector*
-   CondMETCounter
+   CondMETSelectorHotLine*
+   CondMETCounterHotLine
 )
