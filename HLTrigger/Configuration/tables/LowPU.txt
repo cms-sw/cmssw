@@ -30,11 +30,16 @@ HLT_L1DoubleJet32_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
 HLT_L1DoubleMuOpen_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
 HLT_L1TOTEM0_RomanPotsAND_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
 HLT_L1TOTEM1_MinBias_v*						# JIRA: CMSHLT-287 (for VdM scan runs)
-HLT_L1TOTEM3_ZeroBias_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1TOTEM2_ZeroBias_v*					# JIRA: CMSHLT-461 (for low PU runs)
+#HLT_L1TOTEM3_ZeroBias_v*					# JIRA: CMSHLT-287 (for VdM scan runs), removed by CMSHLT-461
 HLT_L1MinimumBiasHF1OR_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
 HLT_L1MinimumBiasHF2OR_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
 HLT_L1MinimumBiasHF1AND_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
 HLT_L1MinimumBiasHF2AND_v*					# JIRA: CMSHLT-287 (for VdM scan runs)
+HLT_L1MinimumBiasHF1OR_NoBptxGate_v*				# JIRA: CMSHLT-461 (for low PU runs)
+HLT_L1MinimumBiasHF2OR_NoBptxGate_v*				# JIRA: CMSHLT-461 (for low PU runs)
+HLT_L1MinimumBiasHF1AND_NoBptxGate_v*				# JIRA: CMSHLT-461 (for low PU runs)
+HLT_L1MinimumBiasHF2AND_NoBptxGate_v*				# JIRA: CMSHLT-461 (for low PU runs)
 
 #HLT_DiPFJetAve30_HFJEC_v*					# JIRA: CMSHLT-133, removed by CMSHLT-411
 
@@ -131,8 +136,9 @@ HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 #RatesMonitoring						# CMSHLT-344, only in 'online'
-AOutput
+PhysicsEGammaCommissioningOutput
 DQMOutput							# online DQMFileSaver
+DQMOfflineOutput                                                # JIRA: CMSHLT-462
 DQMEventDisplayOutput
 DQMCalibrationOutput
 CalibrationOutput
@@ -142,7 +148,6 @@ RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
 ALCALUMIPIXELSOutput
-#ElectronStreamOutput						# JIRA: CMSHLT-366
 #ExpressForCosmicsOutput					# only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
 LookAreaOutput
