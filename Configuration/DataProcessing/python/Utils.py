@@ -31,7 +31,7 @@ def stepSKIMPRODUCER(PhysicsSkims):
     """
 
     step = ''
-    if (len(PhysicsSkims)>0 ) & ( PhysicsSkims!=[''] ) :
+    if len(PhysicsSkims) >0 :
         step = ',SKIM:'+('+'.join(PhysicsSkims))
     return step
 

@@ -34,8 +34,6 @@ class ppRun2(Reco):
         """
         if not 'skims' in args:
             args['skims']=['@allForPrompt']
-        if not 'PhysicsSkims' in args:
-            args['PhysicsSkims']=['']
 
         if not 'customs' in args:
             args['customs']=['Configuration/DataProcessing/RecoTLR.customisePromptRun2']
