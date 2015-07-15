@@ -165,6 +165,8 @@ void CentralityDQM::analyze(const edm::Event& iEvent,
   h_vertex_y->Fill(vertex->begin()->y());
   h_vertex_z->Fill(vertex->begin()->z());
 
+  if (!ep.isValid()) return;
+
   EvtPlaneCollection::const_iterator rp = ep->begin();
   h_ep_HFm1->Fill((rp+HFm1)->angle());
   h_ep_HFp1->Fill((rp+HFp1)->angle());

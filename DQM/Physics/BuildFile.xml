@@ -21,4 +21,5 @@
 <use   name="RecoJets/JetProducers"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="DQM/PhysicsHWW"/>
+<use   name="RecoHI/HiEvtPlaneAlgos">
 <flags   EDM_PLUGIN="1"/> 
