@@ -82,9 +82,9 @@ OutALCARECOEcalCalWElectron_noDrop.SelectEvents = cms.untracked.PSet(
 OutALCARECOEcalCalZElectron=copy.deepcopy(OutALCARECOEcalCalElectron)
 OutALCARECOEcalCalZElectron_noDrop=copy.deepcopy(OutALCARECOEcalCalElectron_noDrop)
 
-OutALCARECOEcalCalZElectron.SelectEvents =  = cms.untracked.PSet(
+OutALCARECOEcalCalZElectron.SelectEvents =  cms.untracked.PSet(
     SelectEvents = cms.vstring('pathALCARECOEcalCalZElectron', 'pathALCARECOEcalCalZSCElectron')    )
-OutALCARECOEcalCalZElectron_noDrop.SelectEvents =  = cms.untracked.PSet(
+OutALCARECOEcalCalZElectron_noDrop.SelectEvents =  cms.untracked.PSet(
     SelectEvents = cms.vstring('pathALCARECOEcalCalZElectron', 'pathALCARECOEcalCalZSCElectron')    )
 
 
