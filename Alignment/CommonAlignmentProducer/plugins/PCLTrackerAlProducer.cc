@@ -209,6 +209,12 @@ void PCLTrackerAlProducer
   PRINT_INFO(CLASS_NAME, FUNC_NAME, "called");
   // Do not forward edm::Run
   theAlignmentAlgo->beginRun(setup);
+
+  if (setupChanged(setup)) {
+    initAlignmentAlgorithm(setup);
+  }
+
+
 }
 
 //_____________________________________________________________________________
@@ -1012,7 +1018,7 @@ void PCLTrackerAlProducer
   /* !!! TODO: HACK for MillePede !!!
      Because the pede-part of MillePede needs at least 1 Event for initializing
      the geometry */
-  if (nevent_ == 0) return;
+  //if (nevent_ == 0) return;
 
   PRINT_INFO(CLASS_NAME, FUNC_NAME, "terminating algorithm");
   edm::LogInfo("Alignment") << "@SUB=PCLTrackerAlProducer::finish"
