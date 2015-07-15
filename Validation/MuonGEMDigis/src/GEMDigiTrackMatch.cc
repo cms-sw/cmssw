@@ -52,7 +52,7 @@ void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
       if( station->station()==2 ) continue;
       int station_num = (station->station()==1) ? 1 : 2;
       TString title_suffix2 = title_suffix + TString::Format(" Station%d", station_num);
-      TString histname_suffix2 = histname_suffix = TString::Format("_st%d", station_num);
+      TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
       TString dcEta_title_strip = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
       TString dcEta_histname_strip = TString::Format("strip_dcEta%s", histname_suffix2.Data());
       TString dcEta_title_pad = TString::Format("Pad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
