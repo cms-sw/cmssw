@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V103 (CMSSW_7_4_6_patch3)
+# /frozen/2015/25ns14e33/v3.0/HLT/V1 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process( "HLTGRun" )
+process = cms.Process( "HLT25ns14e33v3" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V103')
+  tableName = cms.string('/frozen/2015/25ns14e33/v3.0/HLT/V1')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -53096,7 +53096,7 @@ process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_AK
 
 process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:RelVal_Raw_GRun_DATA.root',
+        'file:RelVal_Raw_25ns14e33_v3_DATA.root',
     ),
     inputCommands = cms.untracked.vstring(
         'keep *'
@@ -53109,35 +53109,35 @@ process = loadL1menu(process)
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLT25ns14e33v3' )
 
 if 'hltPreExpressCosmicsOutputSmart' in process.__dict__:
-    process.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreExpressCosmicsOutputSmart.hltResults = cms.InputTag( 'TriggerResults', '', 'HLT25ns14e33v3' )
 
 if 'hltPreExpressOutputSmart' in process.__dict__:
-    process.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreExpressOutputSmart.hltResults        = cms.InputTag( 'TriggerResults', '', 'HLT25ns14e33v3' )
 
 if 'hltPreDQMForHIOutputSmart' in process.__dict__:
-    process.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreDQMForHIOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLT25ns14e33v3' )
 
 if 'hltPreDQMForPPOutputSmart' in process.__dict__:
-    process.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreDQMForPPOutputSmart.hltResults       = cms.InputTag( 'TriggerResults', '', 'HLT25ns14e33v3' )
 
 if 'hltPreHLTDQMResultsOutputSmart' in process.__dict__:
-    process.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreHLTDQMResultsOutputSmart.hltResults  = cms.InputTag( 'TriggerResults', '', 'HLT25ns14e33v3' )
 
 if 'hltPreHLTDQMOutputSmart' in process.__dict__:
-    process.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreHLTDQMOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLT25ns14e33v3' )
 
 if 'hltPreHLTMONOutputSmart' in process.__dict__:
-    process.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreHLTMONOutputSmart.hltResults         = cms.InputTag( 'TriggerResults', '', 'HLT25ns14e33v3' )
 
 if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
-    process.hltDQMHLTScalers.processname                      = 'HLTGRun'
+    process.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', 'HLT25ns14e33v3' )
+    process.hltDQMHLTScalers.processname                      = 'HLT25ns14e33v3'
 
 if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname              = 'HLTGRun'
+    process.hltDQML1SeedLogicScalers.processname              = 'HLT25ns14e33v3'
 
 # limit the number of events to be processed
 process.maxEvents = cms.untracked.PSet(
@@ -53152,7 +53152,7 @@ process.options = cms.untracked.PSet(
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
-    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_GRun')
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:run2_hlt_25ns14e33_v3')
     process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     for pset in process.GlobalTag.toGet.value():
@@ -53169,16 +53169,16 @@ if 'MessageLogger' in process.__dict__:
 
 # add specific customizations
 _customInfo = {}
-_customInfo['menuType'  ]= "GRun"
+_customInfo['menuType'  ]= "25ns14e33_v3"
 _customInfo['globalTags']= {}
-_customInfo['globalTags'][True ] = "auto:run2_hlt_GRun"
-_customInfo['globalTags'][False] = "auto:run2_mc_GRun"
+_customInfo['globalTags'][True ] = "auto:run2_hlt_25ns14e33_v3"
+_customInfo['globalTags'][False] = "auto:run2_mc_25ns14e33_v3"
 _customInfo['inputFiles']={}
-_customInfo['inputFiles'][True]  = "file:RelVal_Raw_GRun_DATA.root"
-_customInfo['inputFiles'][False] = "file:RelVal_Raw_GRun_MC.root"
+_customInfo['inputFiles'][True]  = "file:RelVal_Raw_25ns14e33_v3_DATA.root"
+_customInfo['inputFiles'][False] = "file:RelVal_Raw_25ns14e33_v3_MC.root"
 _customInfo['maxEvents' ]=  100
-_customInfo['globalTag' ]= "auto:run2_hlt_GRun"
-_customInfo['inputFile' ]=  ['file:RelVal_Raw_GRun_DATA.root']
+_customInfo['globalTag' ]= "auto:run2_hlt_25ns14e33_v3"
+_customInfo['inputFile' ]=  ['file:RelVal_Raw_25ns14e33_v3_DATA.root']
 _customInfo['realData'  ]=  True
 from HLTrigger.Configuration.customizeHLTforALL import customizeHLTforAll
 process = customizeHLTforAll(process,_customInfo)
