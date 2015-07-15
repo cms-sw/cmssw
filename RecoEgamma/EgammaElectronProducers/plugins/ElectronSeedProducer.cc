@@ -234,7 +234,6 @@ void ElectronSeedProducer::filterClusters
    edm::Event & event, const edm::EventSetup & setup)
  {
 
-   noZS::EcalClusterLazyTools lazyTool_noZS(event, setup, ebRecHitCollection_, eeRecHitCollection_);
    std::vector<float> sigmaIEtaIEtaEB_;
    std::vector<float> sigmaIEtaIEtaEE_;
 
@@ -276,6 +275,7 @@ void ElectronSeedProducer::filterClusters
 
     if (applySigmaIEtaIEtaCut_ == true)
       {
+	noZS::EcalClusterLazyTools lazyTool_noZS(event, setup, ebRecHitCollection_, eeRecHitCollection_);
 	std::vector<float> vCov = lazyTool_noZS.localCovariances(*(scl.seed()));
 	int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
 	if (detector==EcalBarrel) sigmaIEtaIEtaEB_ .push_back(isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
