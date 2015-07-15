@@ -32,7 +32,7 @@ process.dqmEnv.subSystemFolder    = "PixelLumi"
 # for local running
 process.dqmSaver.dirName = '.'
 
-process.source.SelectEvents = cms.untracked.vstring("AlCa_LumiPixels_ZeroBias*")
+process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*")
 #process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
 #if (process.runType.getRunType() == process.runType.hi_run):
 #    process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_hi.root'
