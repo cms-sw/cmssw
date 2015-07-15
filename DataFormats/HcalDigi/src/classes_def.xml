@@ -1,4 +1,10 @@
 <lcgdict>
+   <class name="QIE10DataFrame">
+   </class>
+   <class name="std::vector<QIE10DataFrame>">
+   </class>
+   <class name="edm::Wrapper<std::vector<QIE10DataFrame> >">
+   </class>
    <class name="HcalQIESample" ClassVersion="10">
     <version ClassVersion="10" checksum="3046719551"/>
    </class>
