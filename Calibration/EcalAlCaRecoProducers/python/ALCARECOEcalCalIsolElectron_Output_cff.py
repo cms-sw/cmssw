@@ -41,6 +41,7 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     'keep *_genParticles_*_*',
     'keep recoGsfElectron*_gsfElectrons*_*_*',
     'keep recoGsfElectron*_gedGsfElectrons_*_*',
+    'keep recoGsfElectron*_gedGsfElectronCores_*_*',
     'keep recoPhoton*_gedPhotons_*_*',
     'keep recoCaloClusters_*_*_*',
     'keep recoSuperClusters_*_*_*',
@@ -73,9 +74,19 @@ OutALCARECOEcalCalElectron.outputCommands+=OutALCARECOEcalCalElectron_specific
 
 OutALCARECOEcalCalWElectron=copy.deepcopy(OutALCARECOEcalCalElectron)
 OutALCARECOEcalCalWElectron_noDrop=copy.deepcopy(OutALCARECOEcalCalElectron_noDrop)
+OutALCARECOEcalCalWElectron.SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring('pathALCARECOEcalCalWElectron')   )
+OutALCARECOEcalCalWElectron_noDrop.SelectEvents = cms.untracked.PSet(
+    SelectEvents = cms.vstring('pathALCARECOEcalCalWElectron')   )
+
+
 OutALCARECOEcalCalZElectron=copy.deepcopy(OutALCARECOEcalCalElectron)
 OutALCARECOEcalCalZElectron_noDrop=copy.deepcopy(OutALCARECOEcalCalElectron_noDrop)
 
+OutALCARECOEcalCalZElectron.SelectEvents =  cms.untracked.PSet(
+    SelectEvents = cms.vstring('pathALCARECOEcalCalZElectron', 'pathALCARECOEcalCalZSCElectron')    )
+OutALCARECOEcalCalZElectron_noDrop.SelectEvents =  cms.untracked.PSet(
+    SelectEvents = cms.vstring('pathALCARECOEcalCalZElectron', 'pathALCARECOEcalCalZSCElectron')    )
 
 
 
