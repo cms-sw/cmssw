@@ -94,6 +94,7 @@ class ValidationJob:
             else:
                 firstRun = "1"
             firstAlign = Alignment( firstAlignName, self.__config, firstRun )
+            firstAlignName = firstAlign.name
             secondAlignList = alignmentsList[1].split()
             secondAlignName = secondAlignList[0].strip()
             if len( secondAlignList ) > 1:
@@ -105,6 +106,7 @@ class ValidationJob:
             else:
                 secondAlign = Alignment( secondAlignName, self.__config,
                                          secondRun )
+                secondAlignName = secondAlign.name
             # check if alignment was already compared previously
             try:
                 randomWorkdirPart = \
@@ -429,7 +431,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
                                        %( iniFile ) )
             else:
                 raise AllInOneError, ( "'%s' does exist, but parsing of the "
-                                       "content failed!" )
+                                       "content failed!" ) % iniFile
 
     # get the job name
     if options.Name == None:
