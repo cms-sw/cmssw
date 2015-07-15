@@ -83,12 +83,16 @@ def customisePostLS1_50ns(process):
 
 def customisePostLS1_HI(process):
 
-    # deal with L1 Emulation separately
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_HI
-    process = customiseSimL1EmulatorForPostLS1_HI(process)
-
     # common customisation
     process = customisePostLS1_Common(process)
+
+    # HI Specific additional customizations:
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_Additional_HI
+    process = customiseSimL1EmulatorForPostLS1_Additional_HI(process)
+
+    # HI L1Menu:
+    from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0
+    process = L1Menu_CollisionsHeavyIons2015_v0(process)
 
     return process
 
