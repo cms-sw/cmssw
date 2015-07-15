@@ -223,6 +223,10 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                 x = xint;
             if (xvar == "runNumber")
                 runNumber = x;
+            if (yvar == "phi" && y >= pi)
+                y -= 2*pi;
+            if (yvar == "phi" && y <= -pi)
+                y += 2*pi;
             if ((runNumber < minrun && runNumber > 1) || (runNumber > maxrun && maxrun > 0))  //minrun and maxrun are global variables.
             {
                 notincluded++;
@@ -1921,6 +1925,10 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
                 x = xint;
             if (var == "runNumber")
                 runNumber = x;
+            if (var == "phi" && x >= pi)
+                x -= 2*pi;
+            if (var == "phi" && x <= -pi)
+                x += 2*pi;
             if ((runNumber < minrun && runNumber > 1) || (runNumber > maxrun && maxrun > 0)) continue;
 
             totallength++;
