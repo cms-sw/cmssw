@@ -332,7 +332,9 @@ int main(int argc, char* argv[]) {
       defaultServices.push_back("AdaptorConfig");
       defaultServices.push_back("SiteLocalConfigService");
       defaultServices.push_back("StatisticsSenderService");
-      defaultServices.push_back("CondorStatusService");
+      // This default is disabled pending widespread testing.  See conversation
+      // in PR #10056
+      //defaultServices.push_back("CondorStatusService");
 
       // Default parameters will be used for the default services
       // if they are not overridden from the configuration files.
