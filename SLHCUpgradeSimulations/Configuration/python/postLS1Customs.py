@@ -91,8 +91,8 @@ def customisePostLS1_HI(process):
     process = customiseSimL1EmulatorForPostLS1_Additional_HI(process)
 
     # HI L1Menu:
-    from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0
-    process = L1Menu_CollisionsHeavyIons2015_v0(process)
+    #from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0
+    #process = L1Menu_CollisionsHeavyIons2015_v0(process)
 
     return process
 
