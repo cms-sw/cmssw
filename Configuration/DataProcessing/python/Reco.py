@@ -34,7 +34,9 @@ class Reco(Scenario):
 
         """
         step = stepALCAPRODUCER(args['skims'])
-        PhysicsSkimStep = stepSKIMPRODUCER(args['PhysicsSkims'])
+        PhysicsSkimStep = ''
+        if (args.has_key("PhysicsSkims")) :
+            PhysicsSkimStep = stepSKIMPRODUCER(args['PhysicsSkims'])
         dqmStep= dqmSeq(args,'')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -263,7 +265,6 @@ class Reco(Scenario):
         """
         skims = []
         if 'skims' in args:
-            print 'here'
             skims = args['skims']
 
 
