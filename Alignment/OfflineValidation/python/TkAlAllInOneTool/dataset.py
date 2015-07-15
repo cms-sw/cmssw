@@ -189,10 +189,16 @@ class Dataset:
                             msg += "\nCheck your config file to make sure that it worked properly."
                             print msg
 
-                            self.__firstUsedRun = -1
-                            self.__lastUsedRun = -1
+                            runlist = self.__getRunList()
                             if firstRun or lastRun:
+                                self.__firstusedrun = -1
+                                self.__lastusedrun = -1
                                 jsoncontents = re.sub("\d+:(\d+|max)-\d+:(\d+|max)", self.getForceRunRangeFunction(firstRun, lastRun), jsoncontents)
+                                self.__firstusedrun = max(self.__firstusedrun, int(self.__findInJson(runlist[0],"run_number")))
+                                self.__lastusedrun = min(self.__lastusedrun, int(self.__findInJson(runlist[-1],"run_number")))
+                            else:
+                                self.__firstusedrun = int(self.__findInJson(runlist[0],"run_number"))
+                                self.__lastusedrun = int(self.__findInJson(runlist[-1],"run_number"))
                             lumiSecExtend = jsoncontents
                             splitLumiList = [[""]]
 
@@ -202,11 +208,13 @@ class Dataset:
                 lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
                                for lumis in lumiSecStr ]
                 lumiSecExtend = "\n".join( lumiSecStr )
-                self.__firstusedrun = splitLumiList[0][0].split(":")[0]
-                self.__lastusedrun = splitLumiList[-1][-1].split(":")[0]
+                runlist = self.__getRunList()
+                self.__firstusedrun = max(int(splitLumiList[0][0].split(":")[0]), int(self.__findInJson(runlist[0],"run_number")))
+                self.__lastusedrun = min(int(splitLumiList[-1][-1].split(":")[0]), int(self.__findInJson(runlist[-1],"run_number")))
         else:
-            self.__firstusedrun = self.__findInJson(self.__getRunList()[0],"run_number")
-            self.__lastusedrun = self.__findInJson(self.__getRunList()[-1],"run_number")
+            runlist = self.__getRunList()
+            self.__firstusedrun = int(self.__findInJson(self.__getRunList()[0],"run_number"))
+            self.__lastusedrun = int(self.__findInJson(self.__getRunList()[-1],"run_number"))
 
         if crab:
             files = ""
@@ -277,7 +285,6 @@ class Dataset:
     def forcerunrange(self, firstRun, lastRun, s):
         """s must be in the format run1:lum1-run2:lum2"""
         s = s.group()
-        print s
         run1 = s.split("-")[0].split(":")[0]
         lum1 = s.split("-")[0].split(":")[1]
         run2 = s.split("-")[1].split(":")[0]
@@ -290,10 +297,10 @@ class Dataset:
         if int(run2) > lastRun:
             run2 = lastRun
             lum2 = "max"
-        if int(run1) < self.__firstUsedRun:
-            self.__firstUsedRun = int(run1)
-        if int(run2) > self.__lastUsedRun:
-            self.__lastUsedRun = int(run2)
+        if int(run1) < self.__firstusedrun or self.__firstusedrun < 0:
+            self.__firstusedrun = int(run1)
+        if int(run2) > self.__lastusedrun:
+            self.__lastusedrun = int(run2)
         return "%s:%s-%s:%s" % (run1, lum1, run2, lum2)
 
     def getForceRunRangeFunction(self, firstRun, lastRun):
@@ -314,8 +321,20 @@ class Dataset:
         except KeyError:
             error = None
         if error or self.__findInJson(jsondict,"status") != 'ok' or "data" not in jsondict:
-            msg = ("The DAS query returned a error.  Here is the output\n" + str(jsondict) +
-                   "\nIt's possible that this was a server error.  If so, it may work if you try again later")
+            jsonstr = str(jsondict)
+            if len(jsonstr) > 10000:
+                jsonfile = "das_query_output_%i.txt"
+                i = 0
+                while os.path.lexists(jsonfile % i):
+                    i += 1
+                jsonfile = jsonfile % i
+                theFile = open( jsonfile, "w" )
+                theFile.write( jsonstr )
+                theFile.close()
+                msg = "The DAS query returned an error.  The output is very long, and has been stored in:\n" + jsonfile
+            else:
+                msg = "The DAS query returned a error.  Here is the output\n" + jsonstr
+            msg += "\nIt's possible that this was a server error.  If so, it may work if you try again later"
             raise AllInOneError(msg)
         return self.__findInJson(jsondict,"data")
 
@@ -452,9 +471,12 @@ class Dataset:
                     "Try limiting the run range using firstRun, lastRun, begin, end, or JSON,\n"
                     "or increasing the tolerance (in dataset.py) from %s.") % (self.__name, firstrunB, lastrunB, tolerance)
         except TypeError:
-            if "unknown" in firstrunB:
-                return firstrunB
-            else:
+            try:
+                if "unknown" in firstrunB:
+                    return firstrunB
+                else:
+                    return lastrunB
+            except TypeError:
                 return lastrunB
 
     def __getFileInfoList( self, dasLimit, parent = False ):
