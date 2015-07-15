@@ -151,8 +151,8 @@ namespace pat {
       enum METUncertainty {
 	JetResUp=0, JetResDown=1, JetEnUp=2, JetEnDown=3,
         MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7,
-	PhotonEnUp=8, PhotonEnDown=9, TauEnUp=10,TauEnDown=11,
-        UnclusteredEnUp=12,UnclusteredEnDown=13, NoShift=14, METUncertaintySize=15,
+	TauEnUp=8, TauEnDown=9, UnclusteredEnUp=10, UnclusteredEnDown=11,
+	PhotonEnUp=12, PhotonEnDown=13, NoShift=14, METUncertaintySize=15,
 	JetResUpSmear=16, JetResDownSmear=17, METFullUncertaintySize=18
       };
       enum METCorrectionLevel {
