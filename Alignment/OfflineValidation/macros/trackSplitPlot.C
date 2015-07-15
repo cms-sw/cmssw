@@ -34,7 +34,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
     if (nFiles < 1) nFiles = 1;
 
     const Int_t n = nFiles;
-    
+
     setTDRStyle();
     gStyle->SetOptStat(0);        //for histograms, the mean and rms are included in the legend if nFiles >= 2
                                   //if nFiles == 1, there is no legend, so they're in the statbox
@@ -212,7 +212,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
         if (relative && pull)
             tree->SetBranchAddress(sigmaorgvariable,&sigmaorg);
-   
+
         Int_t notincluded = 0;                              //this counts the number that aren't in the right run range.
                                                             //it's subtracted from lengths[i] in order to normalize the histograms
 
@@ -223,6 +223,10 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                 x = xint;
             if (xvar == "runNumber")
                 runNumber = x;
+            if (yvar == "phi" && y >= pi)
+                y -= 2*pi;
+            if (yvar == "phi" && y <= -pi)
+                y += 2*pi;
             if ((runNumber < minrun && runNumber > 1) || (runNumber > maxrun && maxrun > 0))  //minrun and maxrun are global variables.
             {
                 notincluded++;
@@ -273,14 +277,14 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
                 }
             }
 
-            if (lengths[i] < 10 ? true : 
+            if (lengths[i] < 10 ? true :
                 (((j+1)/(int)(pow(10,(int)(log10(lengths[i]))-1)))*(int)(pow(10,(int)(log10(lengths[i]))-1)) == j + 1 || j + 1 == lengths[i]))
             //print when j+1 is a multiple of 10^x, where 10^x has 1 less digit than lengths[i]
             // and when it's finished
             //For example, if lengths[i] = 123456, it will print this when j+1 = 10000, 20000, ..., 120000, 123456
             //So it will print between 10 and 100 times: 10 when lengths[i] = 10^x and 100 when lengths[i] = 10^x - 1
             {
-                cout << j + 1 << "/" << lengths[i] << ": "; 
+                cout << j + 1 << "/" << lengths[i] << ": ";
                 if (type == Profile || type == ScatterPlot || type == Resolution)
                     cout << x << ", " << y << endl;
                 if (type == OrgHistogram)
@@ -466,7 +470,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
             return 0;
         }
 
-        
+
         c1->Update();
         Double_t x1min  = .98*gPad->GetUxmin() + .02*gPad->GetUxmax();
         Double_t x2max  = .02*gPad->GetUxmin() + .98*gPad->GetUxmax();
@@ -482,7 +486,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         }
         Double_t newy2max = placeLegend(legend,width,height,x1min,y1min,x2max,y2max);
         maxp->GetYaxis()->SetRangeUser(gPad->GetUymin(),(newy2max-.02*gPad->GetUymin())/.98);
-                
+
         legend->SetFillStyle(0);
         legend->Draw();
     }
@@ -556,23 +560,15 @@ void saveplot(TCanvas *c1,TString saveas)
     if (saveas == "")
         return;
     TString saveas2 = saveas,
-            saveas3 = saveas,
-            saveas4;
+            saveas3 = saveas;
     saveas2.ReplaceAll(".pngepsroot","");
     saveas3.Remove(saveas3.Length()-11);
     if (saveas2 == saveas3)
     {
-        stringstream s1,s2,s3;
-        s1 << saveas2 << ".png";
-        s2 << saveas2 << ".eps";
-        s3 << saveas2 << ".root";
-        saveas2 = s1.str();
-        saveas3 = s2.str();
-        saveas4 = s3.str();
-        c1->SaveAs(saveas2);
-        c1->SaveAs(saveas3);
-        c1->SaveAs(saveas4);
-        return;
+        c1->SaveAs(saveas.ReplaceAll(".pngepsroot",".png"));
+        c1->SaveAs(saveas.ReplaceAll(".png",".eps"));
+        c1->SaveAs(saveas.ReplaceAll(".eps",".root"));
+        c1->SaveAs(saveas.ReplaceAll(".root",".pdf"));
     }
     else
     {
@@ -704,7 +700,7 @@ void misalignmentDependence(TCanvas *c1old,
     {
         yaxislabel = axislabel(yvar,'y',relative,resolution,pull);
         for (Int_t i = 0; i < nFiles; i++)
-        { 
+        {
             if (!used[i]) continue;
             if (!resolution)
             {
@@ -865,7 +861,7 @@ void misalignmentDependence(TCanvas *c1old,
             stufftodelete->Add(g);
             delete[] xvalues;        //A TGraph2DErrors has its own copy of xvalues and yvalues, so it's ok to delete these copies.
             delete[] yvalues;
-            
+
             TString xaxislabel = "#epsilon_{";
             xaxislabel.Append(misalignment);
             xaxislabel.Append("}cos(#delta)");
@@ -1127,7 +1123,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
             functionname = "#Deltad_{xy}/#delta(#Deltad_{xy})=-Asin(2#phi_{org}+B)";
             //functionname = "#Deltad_{xy}/#delta(#Deltad_{xy})=-Asin(2#phi_{org}+B)+C";
         }
-        
+
         if (xvar == "theta" && yvar == "dz" && !resolution && !pull)
         {
             f = new TF1("line","-[0]*(x-[1])");
@@ -1280,7 +1276,7 @@ Bool_t misalignmentDependence(TCanvas *c1old,
                                f,parameter,parametername,functionname,relative,resolution,pull,saveas);
     delete f;
     return true;
-    
+
 }
 
 
@@ -1426,7 +1422,7 @@ void makePlots(Int_t nFiles,TString *files,TString *names,TString misalignment,D
                 for (Int_t i = 0; i < nPlots; i++)
                 {
                     stringstream ss;
-                    ss << directory << slashstring << plotnames[i] << "." << pullstring 
+                    ss << directory << slashstring << plotnames[i] << "." << pullstring
                        << xvarstring << yvarstring << relativestring << ".pngepsroot";
                     s.push_back(ss.str());
                     if (misalignment != "")
@@ -1745,17 +1741,33 @@ TString axislabel(TString variable, Char_t axis, Bool_t relative, Bool_t resolut
         s << "#Delta";
     s << fancyname(variable);
     if (relative && axis == 'y')
-        s << " / " << fancyname(variable);
+    {
+        s << " / ";
+        if (!pull)
+            s << "(";
+        s << fancyname(variable);
+    }
     Bool_t nHits = (variable[0] == 'n' && variable[1] == 'H' && variable[2] == 'i'
                                        && variable[3] == 't' && variable[4] == 's');
     if (relative || (axis == 'x' && variable != "runNumber" && !nHits))
         s << "_{org}";
-    if (pull && axis == 'y')
+    if (axis == 'y')
     {
-        s << " / #delta(#Delta" << fancyname(variable);
-        if (relative)
-            s << " / " << fancyname(variable) << "_{org}";
-        s << ")";
+        if (pull)
+        {
+            s << " / #delta(#Delta" << fancyname(variable);
+            if (relative)
+                s << " / " << fancyname(variable) << "_{org}";
+            s << ")";
+        }
+        else
+        {
+            if (!relative)
+                s << " / ";
+            s << "#sqrt{2}";
+            if (relative)
+                s << ")";
+        }
     }
     if (resolution && axis == 'y')
         s << ")";
@@ -1913,6 +1925,10 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
                 x = xint;
             if (var == "runNumber")
                 runNumber = x;
+            if (var == "phi" && x >= pi)
+                x -= 2*pi;
+            if (var == "phi" && x <= -pi)
+                x += 2*pi;
             if ((runNumber < minrun && runNumber > 1) || (runNumber > maxrun && maxrun > 0)) continue;
 
             totallength++;
@@ -2276,7 +2292,7 @@ void setTDRStyle() {
   gStyle->SetEndErrorSize(2);
   //gStyle->SetErrorMarker(20);
   gStyle->SetErrorX(0.);
-  
+
   gStyle->SetMarkerStyle(7);
 
   //For the fit/function:
@@ -2364,7 +2380,7 @@ void setTDRStyle() {
   gStyle->SetOptLogz(0);
 
   // Postscript options:
-  
+
   gStyle->SetPaperSize(20.,20.);
   // gStyle->SetLineScalePS(Float_t scale = 3);
   // gStyle->SetLineStyleString(Int_t i, const char* text);
