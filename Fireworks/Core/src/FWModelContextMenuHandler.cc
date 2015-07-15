@@ -42,6 +42,7 @@ enum MenuOptions {
    //   kPrint,
    kOpenDetailViewMO,
    kAfterOpenDetailViewMO,
+   kOpen3DRegion,
    kOpenObjectControllerMO=100,
    kOpenCollectionControllerMO,
    kViewOptionsMO=1000,
@@ -171,6 +172,11 @@ FWModelContextMenuHandler::chosenItem(Int_t iChoice)
       case kOpenCollectionControllerMO:
       {
          m_guiManager->showEDIFrame();
+         break;
+      }
+      case kOpen3DRegion:
+      {
+         m_guiManager->open3DRegion();
          break;
       }
       case kOpenDetailViewMO:
@@ -336,9 +342,10 @@ FWModelContextMenuHandler::createModelContext() const
       //      m_modelPopup->AddEntry("Print ...",kPrint);
       m_modelPopup->AddEntry(kOpenDetailView,kOpenDetailViewMO);
       m_nDetailViewEntries=1;
-      m_modelPopup->AddSeparator();
       m_seperator = dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Last());
       assert(0!=m_seperator);
+      m_modelPopup->AddEntry("Open 3D Region ...",kOpen3DRegion);
+      m_modelPopup->AddSeparator();
       m_modelPopup->AddEntry("Open Object Controller ...",kOpenObjectControllerMO);
       m_afterViewSeperator = dynamic_cast<TGMenuEntry*>(m_modelPopup->GetListOfEntries()->Last());
       m_modelPopup->AddEntry("Open Collection Controller ...",kOpenCollectionControllerMO);

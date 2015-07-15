@@ -23,6 +23,7 @@
 // user include files
 #include "Rtypes.h"
 #include "Fireworks/Core/interface/FWEveView.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 // forward declarations
@@ -63,6 +64,9 @@ public:
    void setCurrentDMTVertex(double x, double y, double z);
 
    void showEcalBarrel(bool);
+
+   void setClip(float eta, float phi);
+
 private:
    FW3DViewBase(const FW3DViewBase&);    // stop default
 
@@ -84,16 +88,25 @@ private:
    FWBoolParameter m_showEcalBarrel;
 
    FWEnumParameter m_rnrStyle;
-   FWBoolParameter m_clipParam;
    FWBoolParameter m_selectable;
 
    FWEnumParameter m_cameraType;
+
+   FWBoolParameter m_clipEnable;
+   FWDoubleParameter m_clipEta;
+   FWDoubleParameter m_clipPhi;
+   FWDoubleParameter m_clipDelta1;
+   FWDoubleParameter m_clipDelta2;
+
 
    FW3DViewDistanceMeasureTool* m_DMT;
    TEveLine* m_DMTline;
 
    void selectable( bool );
-   void sceneClip( bool );
+
+   void enableSceneClip( bool );
+   void updateClipPlanes();
+
    void rnrStyle(long);
    void showMuonBarrel( long );
    void setCameraType(long);
