@@ -125,7 +125,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
                 payload.label = cms.untracked.string( label )
             payload.tag = cms.string( tag )
             if connection:
-                payload.connect = cms.untracked.string( connection )
+                payload.connect = cms.string( connection )
             essource.toGet.append( payload )
 
     return essource
