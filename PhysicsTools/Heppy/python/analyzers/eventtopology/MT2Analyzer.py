@@ -32,6 +32,7 @@ import os
 class MT2Analyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(MT2Analyzer,self).__init__(cfg_ana,cfg_comp,looperName) 
+        self.jetPt = cfg_ana.jetPt
 
     def declareHandles(self):
         super(MT2Analyzer, self).declareHandles()
@@ -155,11 +156,16 @@ class MT2Analyzer( Analyzer ):
 
 
         objects40jc = [ j for j in event.cleanJets if j.pt() > 40 and abs(j.eta())<2.5 ]
+        objectsXjc = [ j for j in event.cleanJets if j.pt() > self.jetPt and abs(j.eta())<2.5 ]
 
 #### get hemispheres via AntiKT -1 antikt, 1 kt, 0 CA
         if len(objects40jc)>=2:
 
             event.mt2ViaKt_had=self.getMT2AKT(event, objects40jc, event.met, "_had")
+
+        if len(objectsXjc)>=2:
+
+            event.mt2ViaKt_Xj_had=self.getMT2AKT(event, objectsXjc, event.met, "_Xj_had")
 
 ## ===> hadronic MT2 (as used in the SUS-13-019)
 #### get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)
@@ -168,14 +174,23 @@ class MT2Analyzer( Analyzer ):
 
             event.mt2_had = self.getMT2Hemi(event,objects40jc, event.met, "_had")
 
+        if len(objectsXjc)>=2:
+
+            event.mt2_Xj_had = self.getMT2Hemi(event,objectsXjc, event.met, "_Xj_had")
+
 #### do same things for GEN
 
         if self.cfg_comp.isMC:
             allGenJets = [ x for x in self.handles['genJets'].product() ] 
             objects40jc_Gen = [ j for j in allGenJets if j.pt() > 40 and abs(j.eta())<2.5 ]
+            objectsXjc_Gen = [ j for j in allGenJets if j.pt() > self.jetPt and abs(j.eta())<2.5 ]
      
             if len(objects40jc_Gen)>=2:
                 event.mt2_gen = self.getMT2Hemi(event,objects40jc_Gen, event.met.genMET(), "_gen")
+
+            if len(objectsXjc_Gen)>=2:
+                event.mt2_Xj_gen = self.getMT2Hemi(event,objectsXjc_Gen, event.met.genMET(), "_Xj_gen")
+
         else:
             event.mt2_gen = -999.
 
@@ -187,12 +202,18 @@ class MT2Analyzer( Analyzer ):
             objects10lc = [ l for l in event.selectedLeptons if l.pt() > 10 and abs(l.eta())<2.5 ] + [ t for t in event.selectedIsoCleanTrack ]
 
         objects40j10lc = objects40jc + objects10lc
-
         objects40j10lc.sort(key = lambda obj : obj.pt(), reverse = True)
+
+        objectsXj10lc = objectsXjc + objects10lc
+        objectsXj10lc.sort(key = lambda obj : obj.pt(), reverse = True)
 
         if len(objects40j10lc)>=2:
 
             event.mt2 = self.getMT2Hemi(event,objects40j10lc,event.met,"") # no postfit since this is the nominal MT2
+
+        if len(objectsXj10lc)>=2:
+
+            event.mt2_Xj = self.getMT2Hemi(event,objectsXj10lc,event.met,"_Xj") # no postfit since this is the nominal MT2
 
 ## ===> full gamma_MT2
 
@@ -213,6 +234,23 @@ class MT2Analyzer( Analyzer ):
                 
                 event.gamma_mt2 = self.getMT2Hemi(event,gamma_objects40jc,event.gamma_met,"_gamma")
 
+        event.gamma_mt2_Xj=-999
+        event.pseudoJet1_Xj_gamma  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        event.pseudoJet2_Xj_gamma  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+            
+        if hasattr(event, 'gamma_met'):
+
+            gamma_objectsXjc = [ j for j in event.gamma_cleanJets if j.pt() > self.jetPt and abs(j.eta())<2.5 ]
+            
+            gamma_objectsXj10lc = gamma_objectsXjc + objects10lc
+            
+            gamma_objectsXj10lc.sort(key = lambda obj : obj.pt(), reverse = True)
+            
+            if len(gamma_objectsXjc)>=2:
+                
+                event.gamma_mt2_Xj = self.getMT2Hemi(event,gamma_objectsXjc,event.gamma_met,"_Xj_gamma")
+
+
 
 ## ===> zll_MT2
         
@@ -228,19 +266,39 @@ class MT2Analyzer( Analyzer ):
             
                 event.zll_mt2 = self.getMT2Hemi(event,objects40jc,event.zll_met,"_zll")
 
+        event.zll_mt2_Xj=-999
+        event.pseudoJet1_Xj_zll  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        event.pseudoJet2_Xj_zll  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+                
+        if hasattr(event, 'zll_met'):
+
+            csLeptons = [ l for l in event.selectedLeptons if l.pt() > 10 and abs(l.eta()) < 2.5 ]
+            
+            if len(csLeptons)==2 and len(objectsXjc)>=2:
+            
+                event.zll_mt2_Xj = self.getMT2Hemi(event,objectsXjc,event.zll_met,"_Xj_zll")
+
 
 #### do the mt2 with one or two b jets (medium CSV)                                                                                                                                                                                                         
         if len(event.bjetsMedium)>=2:
 
            event.mt2bb = self.computeMT2(event.bjetsMedium[0], event.bjetsMedium[1], event.met)
+           event.mt2bb_Xj = self.computeMT2(event.bjetsMedium[0], event.bjetsMedium[1], event.met)
 #            print 'MT2bb(2b)',event.mt2bb                                                                                                                                                                                                                 
         if len(event.bjetsMedium)==1:
 
             objects40jcCSV = [ j for j in event.cleanJets if j.pt() > 40 and abs(j.eta())<2.5 and j.p4()!=event.bjetsMedium[0].p4() ]
             objects40jcCSV.sort(key = lambda l : l.btag('combinedInclusiveSecondaryVertexV2BJetTags'), reverse = True)
 
+            objectsXjcCSV = [ j for j in event.cleanJets if j.pt() > self.jetPt and abs(j.eta())<2.5 and j.p4()!=event.bjetsMedium[0].p4() ]
+            objectsXjcCSV.sort(key = lambda l : l.btag('combinedInclusiveSecondaryVertexV2BJetTags'), reverse = True)
+
             if len(objects40jcCSV)>0:
                 event.mt2bb = self.computeMT2(event.bjetsMedium[0], objects40jcCSV[0], event.met)
+
+            if len(objectsXjcCSV)>0:
+                event.mt2bb_Xj = self.computeMT2(event.bjetsMedium[0], objectsXjcCSV[0], event.met)
+
 ##                print 'MT2bb(1b)',event.mt2bb                                                                                                                                                                                                             
 
 ## ===> leptonic MT2 (as used in the SUS-13-025 )                                                                                                                                                                                                           
@@ -273,6 +331,27 @@ class MT2Analyzer( Analyzer ):
         event.pseudoViaKtJet2_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
         event.pseudoViaAKtJet1_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
         event.pseudoViaAKtJet2_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+
+        event.mt2_Xj_gen=-999
+        event.mt2bb_Xj=-999
+
+        event.mt2_Xj_had=-999
+        event.pseudoJet1_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        event.pseudoJet2_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        event.multPseudoJet1_Xj_had=0
+        event.multPseudoJet2_Xj_had=0
+        
+        event.mt2_Xj=-999
+        event.pseudoJet1_Xj = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        event.pseudoJet2_Xj = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+
+        event.mt2ViaKt_Xj_had=-999
+        event.mt2ViaAKt_Xj_had=-999
+        event.pseudoViaKtJet1_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        event.pseudoViaKtJet2_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        event.pseudoViaAKtJet1_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        event.pseudoViaAKtJet2_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+
 
         ###
 
