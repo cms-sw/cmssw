@@ -11,7 +11,7 @@ echo "from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *" >> HiReRecoJets_cff.py
 
 for system in PbPb pp pPb
 do
-    for sample in data mix jec
+    for sample in data mix jec mc
     do
         for algo in ak
         do

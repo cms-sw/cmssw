@@ -23,7 +23,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-                            fileNames = cms.untracked.vstring("/store/user/tuos/HIAOD2015/round3/June01/JETv2/HIHighPt/JET_AOD_DATA750pre5_round3v02/150602_224917/0000/step2_RAW2DIGI_L1Reco_JET_AOD_10.root")
+                            fileNames = cms.untracked.vstring("file:140.53_RunHI2011+RunHI2011+RECOHID11+HARVESTDHI/step2_AOD.root")
                         )
 
 
@@ -175,9 +175,9 @@ process.ana_step = cms.Path(#process.heavyIon*
                             process.ggHiNtuplizer +
                             process.pfcandAnalyzer +
 #temp                            process.hltMuTree +
-                            process.HiForest +
-                            process.anaTrack +
-                            process.pixelTrack
+                            process.HiForest
+                            #process.anaTrack +
+                            #process.pixelTrack
                             )
 
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')

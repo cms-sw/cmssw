@@ -1,10 +1,3 @@
-#!/usr/bin/env python2
-# Run the foresting configuration on PbPb in CMSSW_5_3_X, using the new HF/Voronoi jets
-# Author: Alex Barbieri
-# Date: 2013-10-15
-
-hiTrackQuality = "highPurity"              # iterative tracks
-
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('HiForest')
 process.options = cms.untracked.PSet(
@@ -165,16 +158,12 @@ process.quickTrackAssociatorByHits.ComponentName = cms.string('quickTrackAssocia
 
 
 #####################
-# photons
-process.load('HeavyIonsAnalysis.JetAnalysis.EGammaAnalyzers_cff')
-process.multiPhotonAnalyzer.GenEventScale = cms.InputTag("generator")
-process.multiPhotonAnalyzer.HepMCProducer = cms.InputTag("generator")
-process.RandomNumberGeneratorService.multiPhotonAnalyzer = process.RandomNumberGeneratorService.generator.clone()
-process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
+# Photons
+#####################
 
-process.photonMatch.matched = cms.InputTag("genParticles")
-process.multiPhotonAnalyzer.GenParticleProducer = cms.InputTag("genParticles")
+process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 process.ggHiNtuplizer.genParticleSrc = cms.InputTag("genParticles")
+
 #####################
 # muons
 ######################
@@ -213,7 +202,6 @@ process.ana_step = cms.Path(process.heavyIon*
                             #process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
                             process.hiSelectGenJets +
                             process.jetSequences +
-                            process.photonStep +
                             process.ggHiNtuplizer +
                             process.pfcandAnalyzer +
                             process.rechitAna +
