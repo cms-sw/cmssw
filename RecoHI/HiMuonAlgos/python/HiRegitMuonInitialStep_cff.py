@@ -61,7 +61,7 @@ hiRegitMuInitialStepTracks                 = RecoTracker.IterativeTracking.Initi
 
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-hiRegitMuInitialStepSelector               = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.clone( 
+hiRegitMuInitialStepSelector               = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone( 
     src                 ='hiRegitMuInitialStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
     trackSelectors= cms.VPSet(

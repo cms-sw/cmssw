@@ -9,7 +9,7 @@ pixelLessStepSimTrackIds=FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrack
     trackCollection = cms.InputTag("mixedTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.TrackQuality,
     maxChi2 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.maxChi2,
-    overrideTrkQuals = cms.InputTag('mixedTripletStep')
+    trackClassifier                          = cms.InputTag('mixedTripletStep',"QualityMasks")
 )
 
 # trajectory seeds 
@@ -47,8 +47,10 @@ pixelLessStepTracks = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessS
     Propagator = 'PropagatorWithMaterial'
 )
 # final selection
-pixelLessStepSelector = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSelector.clone()
-pixelLessStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+pixelLessStepClassifier1 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClassifier1.clone()
+pixelLessStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+pixelLessStepClassifier2 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClassifier2.clone()
+pixelLessStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
 pixelLessStep = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStep.clone()
 
 # Final sequence 
@@ -56,7 +58,7 @@ PixelLessStep = cms.Sequence(pixelLessStepSimTrackIds
                              +pixelLessStepSeeds
                              +pixelLessStepTrackCandidates
                              +pixelLessStepTracks
-                             +pixelLessStepSelector
+                             +pixelLessStepClassifier1*pixelLessStepClassifier2
                              +pixelLessStep                             
                          )
 

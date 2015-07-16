@@ -25,7 +25,6 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FastSimulation/Tracking/plugins/SimTrackIdProducer.h"
 #include <vector>
-#include <stdio.h> 
 
 SimTrackIdProducer::SimTrackIdProducer(const edm::ParameterSet& conf)
 {
@@ -37,12 +36,11 @@ SimTrackIdProducer::SimTrackIdProducer(const edm::ParameterSet& conf)
  
   maxChi2_ = conf.getParameter<double>("maxChi2");
 
+  auto const & classifier = conf.getParameter<edm::InputTag>("trackClassifier");
+  if ( !classifier.label().empty())
+     srcQuals = consumes<QualityMaskCollection>(classifier);
 
-  if (conf.exists("overrideTrkQuals")) {
-    edm::InputTag overrideTrkQuals = conf.getParameter<edm::InputTag>("overrideTrkQuals");
-    if ( !(overrideTrkQuals==edm::InputTag("")) )
-      overrideTrkQuals_.push_back( consumes<edm::ValueMap<int> >(overrideTrkQuals) );
-  }
+
   trackQuality_=reco::TrackBase::undefQuality;
   filterTracks_=false;
   if (conf.exists("TrackQuality")){
@@ -66,31 +64,23 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
   // The input track collection handle
   edm::Handle<reco::TrackCollection> trackCollection;
   e.getByToken(trackToken,trackCollection);
-  
-  std::vector<edm::Handle<edm::ValueMap<int> > > quals;
-  if ( overrideTrkQuals_.size() > 0) {
-    quals.resize(1);
-    e.getByToken(overrideTrkQuals_[0],quals[0]);
+ 
+  unsigned char qualMask = ~0;
+  if (trackQuality_!=reco::TrackBase::undefQuality) qualMask = 1<<trackQuality_; 
+
+  QualityMaskCollection const * pquals=nullptr;
+  if (!srcQuals.isUninitialized()) {
+     edm::Handle<QualityMaskCollection> hqual;
+     e.getByToken(srcQuals, hqual);
+     pquals = hqual.product();
   }
 
   for (size_t i = 0 ; i!=trackCollection->size();++i)
   {
-    const reco::Track & track = trackCollection->at(i);
-    reco::TrackRef trackRef(trackCollection,i);
+    const reco::Track & track = (*trackCollection)[i];
     if (filterTracks_) {
-      bool goodTk = true;
-      
-      if ( quals.size()!=0) {
-        int qual=(*(quals[0]))[trackRef];
-	//std::cout << qual << std::endl;
-        if ( qual < 0 ) {goodTk=false;}
-        //note that this does not work for some trackquals (goodIterative or undefQuality)                 
-        else
-          goodTk = ( qual & (1<<trackQuality_))>>trackQuality_;
-	  }
-      else
-        goodTk=(track.quality(trackQuality_));
-      if ( !goodTk) continue;    
+      bool goodTk =  (pquals) ? (*pquals)[i] & qualMask : track.quality(trackQuality_);
+      if ( !goodTk) continue;
     }
     if(track.chi2()>maxChi2_) continue ; 
     
