@@ -1,7 +1,7 @@
 
 
 import FWCore.ParameterSet.Config as cms
-from PhysicsTools.PatAlgos.patHeavyIonSequences_cff import *
+from HeavyIonsAnalysis.JetAnalysis.patHeavyIonSequences_cff import patJetGenJetMatch, patJetPartonMatch, patJetCorrFactors, patJets
 from HeavyIonsAnalysis.JetAnalysis.inclusiveJetAnalyzer_cff import *
 
 ak7PFmatch = patJetGenJetMatch.clone(
@@ -17,7 +17,7 @@ ak7PFparton = patJetPartonMatch.clone(src = cms.InputTag("ak7PFJets"),
 ak7PFcorr = patJetCorrFactors.clone(
     useNPV = False,
 #    primaryVertices = cms.InputTag("hiSelectedVertex"),
-    levels   = cms.vstring('L2Relative','L3Absolute'),                                                                
+    levels   = cms.vstring('L2Relative','L3Absolute'),
     src = cms.InputTag("ak7PFJets"),
     payload = "AK7PF_hiIterativeTracks"
     )

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process('HiForest')
 process.options = cms.untracked.PSet(
     # wantSummary = cms.untracked.bool(True)
-    SkipEvent = cms.untracked.vstring('ProductNotFound')
+    #SkipEvent = cms.untracked.vstring('ProductNotFound')
 )
 
 #####################################################################################
@@ -23,7 +23,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-                            fileNames = cms.untracked.vstring("file:AOD_sample_file.root")
+                            fileNames = cms.untracked.vstring("/store/user/tuos/HIAOD2015/round3/June01/JETv2/HIHighPt/JET_AOD_DATA750pre5_round3v02/150602_224917/0000/step2_RAW2DIGI_L1Reco_JET_AOD_10.root")
                         )
 
 
@@ -123,8 +123,6 @@ process.load('HeavyIonsAnalysis.JetAnalysis.ExtraTrackReco_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.TrkAnalyzers_cff')
 process.load("HeavyIonsAnalysis.TrackAnalysis.METAnalyzer_cff")
 process.load("HeavyIonsAnalysis.JetAnalysis.pfcandAnalyzer_cfi")
-process.load('HeavyIonsAnalysis.JetAnalysis.rechitanalyzer_cfi')
-process.rechitAna = cms.Sequence(process.rechitanalyzer+process.pfTowers)
 process.pfcandAnalyzer.skipCharged = False
 process.pfcandAnalyzer.pfPtMin = 0
 
@@ -148,10 +146,6 @@ process.pixelTrack.doPFMatching = False
 #####################
 
 # photons
-process.load('HeavyIonsAnalysis.JetAnalysis.EGammaAnalyzers_cff')
-process.photonStep_withReco.remove(process.photonMatch)
-process.photonStep.remove(process.photonMatch)
-process.RandomNumberGeneratorService.multiPhotonAnalyzer = process.RandomNumberGeneratorService.generator.clone()
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 process.ggHiNtuplizer.doGenParticles = False
 process.ggHiNtuplizer.gsfElectronLabel = cms.InputTag("gedGsfElectronsTmp") # this is not correct...
@@ -178,12 +172,10 @@ process.ana_step = cms.Path(#process.heavyIon*
                             process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.jetSequences +
-                            #process.photonStep +
                             process.ggHiNtuplizer +
                             process.pfcandAnalyzer +
-                            #process.rechitAna +
 #temp                            process.hltMuTree +
-                            process.HiForest+
+                            process.HiForest
                             process.anaTrack +
                             process.pixelTrack
                             )
