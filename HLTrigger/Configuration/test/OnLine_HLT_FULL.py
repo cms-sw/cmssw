@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V264 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/HLT/V266 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V264')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V266')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -58593,7 +58593,8 @@ process.hltOutputDQMOffline = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PFHT350_v2',
   'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v2' ) ),
-    outputCommands = cms.untracked.vstring( 'keep *_hltIter2Merged_*_*',
+    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep *_hltIter2Merged_*_*',
       'keep *_hltL1GtObjectMap_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltSiPixelClusters_*_*',
