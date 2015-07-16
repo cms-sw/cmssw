@@ -1,0 +1,2 @@
+trigger : HLT_DoubleMu || HLT_DoubleEl
+Z1: 60 < mZ1  && mZ1 < 120

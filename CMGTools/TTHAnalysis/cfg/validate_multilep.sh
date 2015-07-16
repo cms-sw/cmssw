@@ -11,7 +11,7 @@ function do_run {
     echo "Will run as $name";
     rm -r $name 2> /dev/null
     heppy $name run_susyMultilepton_cfg.py -p 0 -o nofetch $*
-    if test -d $name/*_Chunk0; then (cd $name; haddChunks.py -c .); fi; 
+    if ls -1 $name/ | grep -q _Chunk0; then (cd $name; haddChunks.py -c .); fi; 
     echo "Run done. press enter to continue (ctrl-c to break)";
     read DUMMY;
 }
@@ -33,6 +33,7 @@ function do_plot {
       # ---- CUT FILE ---
       CUTS=susy-multilepton/validation.txt
       test -f susy-multilepton/validation-${PROC}.txt && CUTS=susy-multilepton/validation-${PROC}.txt
+      echo $PROC | grep -q Run2015 && CUTS=susy-multilepton/validation-data.txt
       python mcPlots.py -f --s2v --tree treeProducerSusyMultilepton  -P ${DIR} $MCA $CUTS ${CUTS/.txt/_plots.txt} \
               --pdir plots/74X/validation/${PROCR} -p new,ref -u -e \
               --plotmode=nostack --showRatio --maxRatioRange 0.65 1.35 --flagDifferences
@@ -41,12 +42,15 @@ function do_plot {
 
 
 case $WHAT in
-    72X)
-        $RUN && do_run $DIR -o test=1 -N 2000;
-        do_plot TTH 72X_TTH
-        ;;
     Data)
-        echo "Test for Data not implemented";
+        $RUN && do_run $DIR -o test=PromptReco  -N 5000;
+        do_plot DoubleMuon_Run2015B_run251252 DoubleMuon_Run2015B_run251252
+        do_plot DoubleEG_Run2015B_run251252 DoubleEG_Run2015B_run251252
+        ;;
+    DataHS)
+        $RUN && do_run $DIR -o test=PromptReco  -N 25000;
+        do_plot DoubleMuon_Run2015B_run251252 DoubleMuon_Run2015B_run251252 .25k
+        do_plot DoubleEG_Run2015B_run251252 DoubleEG_Run2015B_run251252 .25k
         ;;
     MC)
         $RUN && do_run $DIR -o test=74X-MC -o sample=TTLep -N 2000;

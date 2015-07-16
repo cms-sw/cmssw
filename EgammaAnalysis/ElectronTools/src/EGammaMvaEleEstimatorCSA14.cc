@@ -12,6 +12,7 @@ EGammaMvaEleEstimatorCSA14::EGammaMvaEleEstimatorCSA14() :
 fMethodname("BDTG method"),
 fisInitialized(kFALSE),
 fMVAType(kTrig),
+fUseFixedEoPDef(kFALSE),
 fUseBinnedVersion(kTRUE),
 fNMVABins(0)
 {
@@ -43,7 +44,8 @@ void EGammaMvaEleEstimatorCSA14::initialize( std::string methodName,
 void EGammaMvaEleEstimatorCSA14::initialize( std::string methodName,
                                        EGammaMvaEleEstimatorCSA14::MVAType type,
                                        Bool_t useBinnedVersion,
-				       std::vector<std::string> weightsfiles
+				       std::vector<std::string> weightsfiles,
+                                       Bool_t useFixedEoPDef
   ) {
 
   //clean up first
@@ -58,6 +60,7 @@ void EGammaMvaEleEstimatorCSA14::initialize( std::string methodName,
   fMVAType = type;
   fMethodname = methodName;
   fUseBinnedVersion = useBinnedVersion;
+  fUseFixedEoPDef = useFixedEoPDef;
 
   //Define expected number of bins
   UInt_t ExpectedNBins = 0;
@@ -283,21 +286,18 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
 
 
   // Pure ECAL -> shower shapes
-  std::vector<float> vCov = myEcalCluster.localCovariances(*(ele.superCluster()->seed())) ;
-  if (!isnan(vCov[0])) fMVAVar_see = sqrt (vCov[0]); //EleSigmaIEtaIEta
-  else fMVAVar_see = 0.;
-  if (!isnan(vCov[2])) fMVAVar_spp = sqrt (vCov[2]);   //EleSigmaIPhiIPhi
-  else fMVAVar_spp = 0.;    
+  fMVAVar_see = ele.full5x5_sigmaIetaIeta();
+  fMVAVar_spp = ele.full5x5_sigmaIphiIphi();
 
   fMVAVar_etawidth        =  ele.superCluster()->etaWidth();
   fMVAVar_phiwidth        =  ele.superCluster()->phiWidth();
-  fMVAVar_OneMinusE1x5E5x5        =  (ele.e5x5()) !=0. ? 1.-(myEcalCluster.e1x5(*(ele.superCluster()->seed()))/myEcalCluster.e5x5(*(ele.superCluster()->seed()))) : -1. ;
-  fMVAVar_R9              =  myEcalCluster.e3x3(*(ele.superCluster()->seed())) / ele.superCluster()->rawEnergy();
+  fMVAVar_OneMinusE1x5E5x5 = (ele.full5x5_e5x5()) !=0. ? 1. - (ele.full5x5_e1x5() / ele.full5x5_e5x5()) : -1. ;
+  fMVAVar_R9               =  ele.full5x5_r9();
 
   // Energy matching
   fMVAVar_HoE             =  ele.hadronicOverEm();
   fMVAVar_EoP             =  ele.eSuperClusterOverP();
-  fMVAVar_IoEmIoP         =  (1.0/ele.ecalEnergy()) - (1.0 / ele.p());  // in the future to be changed with ele.gsfTrack()->p()
+  fMVAVar_IoEmIoP         =  (1.0/ele.ecalEnergy()) - (1.0 / ele.trackMomentumAtVtx().R());
   fMVAVar_eleEoPout       =  ele.eEleClusterOverPout();
   fMVAVar_PreShowerOverRaw=  ele.superCluster()->preshowerEnergy() / ele.superCluster()->rawEnergy();
 
@@ -305,9 +305,9 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const reco::GsfElectron& ele,
   // Spectators
   fMVAVar_eta             =  ele.superCluster()->eta();
   fMVAVar_abseta          =  fabs(ele.superCluster()->eta());
-  fMVAVar_pt              =  ele.pt();                          
-  fMVAVar_isBarrel        =  (ele.superCluster()->eta()<1.479);
-  fMVAVar_isEndcap        =  (ele.superCluster()->eta()>1.479);
+  fMVAVar_pt              =  ele.pt();
+  fMVAVar_isBarrel        =  ele.isEB();
+  fMVAVar_isEndcap        =  ele.isEE();
   fMVAVar_SCeta           =  ele.superCluster()->eta();
  
 
@@ -428,7 +428,7 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const pat::Electron& ele,
     // Energy matching
     fMVAVar_HoE             =  ele.hadronicOverEm();
     fMVAVar_EoP             =  ele.eSuperClusterOverP();
-    fMVAVar_IoEmIoP         =  (1.0/ele.ecalEnergy()) - (1.0 / ele.p());  // in the future to be changed with ele.gsfTrack()->p()
+    fMVAVar_IoEmIoP         =  (1.0/ele.ecalEnergy()) - (1.0 / (fUseFixedEoPDef ? ele.trackMomentumAtVtx().R() : ele.p()));
     fMVAVar_eleEoPout       =  ele.eEleClusterOverPout();
     fMVAVar_PreShowerOverRaw=  ele.superCluster()->preshowerEnergy() / ele.superCluster()->rawEnergy();
     
@@ -437,8 +437,8 @@ Double_t EGammaMvaEleEstimatorCSA14::mvaValue(const pat::Electron& ele,
     fMVAVar_eta             =  ele.superCluster()->eta();
     fMVAVar_abseta          =  fabs(ele.superCluster()->eta());
     fMVAVar_pt              =  ele.pt();
-    fMVAVar_isBarrel        =  (ele.superCluster()->eta()<1.479);
-    fMVAVar_isEndcap        =  (ele.superCluster()->eta()>1.479);
+    fMVAVar_isBarrel        =  ele.isEB();
+    fMVAVar_isEndcap        =  ele.isEE();
     fMVAVar_SCeta           =  ele.superCluster()->eta();
     
 

@@ -51,8 +51,14 @@ void EGammaMvaEleEstimatorFWLite::initialize( std::string methodName,
             estimatorCSA14_->initialize(methodName, EGammaMvaEleEstimatorCSA14::kNonTrig, useBinnedVersion, weightspaths);
             break;
         case EGammaMvaEleEstimatorFWLite::kNonTrigPhys14:
+            {
+            // Original Phys14 electron id was using a wrong E/P definition in the application.
+            // We preserve this feature for backwards compatibility
+            bool hasEoPbug = (weightsfiles[0].find("EgammaAnalysis/ElectronTools/data/PHYS14/") != std::string::npos);
             estimatorCSA14_ = new EGammaMvaEleEstimatorCSA14();
-            estimatorCSA14_->initialize(methodName, EGammaMvaEleEstimatorCSA14::kNonTrigPhys14, useBinnedVersion, weightspaths);
+            estimatorCSA14_->initialize(methodName, EGammaMvaEleEstimatorCSA14::kNonTrigPhys14, useBinnedVersion, weightspaths,
+                                        /* useFixedEoPDef = */!hasEoPbug);
+            }
             break;
         default:
             return;

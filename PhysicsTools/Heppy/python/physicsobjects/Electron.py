@@ -1,5 +1,6 @@
 from PhysicsTools.Heppy.physicsobjects.Lepton import Lepton
 from PhysicsTools.Heppy.physicsutils.ElectronMVAID import *
+from PhysicsTools.HeppyCore.utils.deltar import deltaR
 import ROOT
 
 class Electron( Lepton ):
@@ -31,6 +32,7 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Run2_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigPhys14","VLoose")
         elif id == "POG_MVA_ID_Run2_NonTrig_Loose":    return self.mvaIDRun2("NonTrigPhys14","Loose")
         elif id == "POG_MVA_ID_Run2_NonTrig_Tight":    return self.mvaIDRun2("NonTrigPhys14","Tight")
+        elif id == "MVA_ID_NonTrig_Phys14Fix_HZZ":     return self.mvaIDRun2("NonTrigPhys14Fix","HZZ")
         elif id.startswith("POG_Cuts_ID_"):
                 return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_"))
         for ID in self.electronIDs():
@@ -218,11 +220,19 @@ class Electron( Lepton ):
                     elif (eta < 1.479): return self.mvaRun2(name) > 0.57;
                     else              : return self.mvaRun2(name) > 0.05;
                 else: raise RuntimeError, "Ele MVA ID Working point not found"
+            elif name == "NonTrigPhys14Fix":
+                if wp == "HZZ":
+                    if self.pt() <= 10:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.586;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.712;
+                        else            : return self.mvaRun2(name) > -0.662;
+                    else:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.652;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.701;
+                        else            : return self.mvaRun2(name) > -0.350;
             else: raise RuntimeError, "Ele MVA ID type not found"
 
 
-    def mvaIDZZ(self):
-        return self.mvaIDLoose() and (self.gsfTrack().trackerExpectedHitsInner().numberOfLostHits()<=1)
 
     def chargedHadronIsoR(self,R=0.4):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumChargedHadronPt
@@ -250,6 +260,28 @@ class Electron( Lepton ):
         if   R == 0.3: return self.physObj.pfIsolationVariables().sumPUPt
         elif R == 0.4: return self.physObj.puChargedHadronIso()
         raise RuntimeError, "Electron chargedHadronIso missing for R=%s" % R
+
+
+    def absIsoWithFSR(self, R=0.4, puCorr="rhoArea", dBetaFactor=0.5):
+        '''
+        Calculate Isolation, subtract FSR, apply specific PU corrections" 
+        '''
+        photonIso = self.photonIsoR(R)
+        if hasattr(self,'fsrPhotons'):
+            for gamma in self.fsrPhotons:
+                dr = deltaR(gamma.eta(), gamma.phi(), self.physObj.eta(), self.physObj.phi())
+                if (self.isEB() or dr > 0.08) and dr < R:
+                    photonIso = max(photonIso-gamma.pt(),0.0)                
+        if puCorr == "deltaBeta":
+            offset = dBetaFactor * self.puChargedHadronIsoR(R)
+        elif puCorr == "rhoArea":
+            offset = self.rho*getattr(self,"EffectiveArea"+(str(R).replace(".","")))
+        elif puCorr in ["none","None",None]:
+            offset = 0
+        else:
+             raise RuntimeError, "Unsupported PU correction scheme %s" % puCorr
+        return self.chargedHadronIsoR(R)+max(0.,photonIso+self.neutralHadronIsoR(R)-offset)            
+
 
     def dxy(self, vertex=None):
         '''Returns dxy.

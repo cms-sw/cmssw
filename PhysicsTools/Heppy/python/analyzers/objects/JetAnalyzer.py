@@ -59,12 +59,17 @@ class JetAnalyzer( Analyzer ):
         if   self.recalibrateJets == "MC"  : self.recalibrateJets =     self.cfg_comp.isMC
         elif self.recalibrateJets == "Data": self.recalibrateJets = not self.cfg_comp.isMC
         elif self.recalibrateJets not in [True,False]: raise RuntimeError, "recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets
+        
         self.doJEC = self.recalibrateJets or (self.shiftJEC != 0) or self.addJECShifts
         if self.doJEC:
+          doResidual = getattr(cfg_ana, 'applyL2L3Residual', 'Data')
+          if   doResidual == "MC":   doResidual = self.cfg_comp.isMC
+          elif doResidual == "Data": doResidual = not self.cfg_comp.isMC
+          elif doResidual not in [True,False]: raise RuntimeError, "If specified, applyL2L3Residual must be any of { True, False, 'MC', 'Data'(default)}"
           if self.cfg_comp.isMC:
-            self.jetReCalibrator = JetReCalibrator(mcGT,self.cfg_ana.recalibrationType, False,cfg_ana.jecPath)
+            self.jetReCalibrator = JetReCalibrator(mcGT,self.cfg_ana.recalibrationType, doResidual, cfg_ana.jecPath)
           else:
-            self.jetReCalibrator = JetReCalibrator(dataGT,self.cfg_ana.recalibrationType, True,cfg_ana.jecPath)
+            self.jetReCalibrator = JetReCalibrator(dataGT,self.cfg_ana.recalibrationType, doResidual, cfg_ana.jecPath)
         self.doPuId = getattr(self.cfg_ana, 'doPuId', True)
         self.jetLepDR = getattr(self.cfg_ana, 'jetLepDR', 0.4)
         self.jetLepArbitration = getattr(self.cfg_ana, 'jetLepArbitration', lambda jet,lepton: lepton) 
@@ -361,6 +366,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     doPuId = False, # Not commissioned in 7.0.X
     doQG = False, 
     recalibrateJets = False,
+    applyL2L3Residual = 'Data', # if recalibrateJets, apply L2L3Residual to Data only
     recalibrationType = "AK4PFchs",
     shiftJEC = 0, # set to +1 or -1 to apply +/-1 sigma shift to the nominal jet energies
     addJECShifts = False, # if true, add  "corr", "corrJECUp", and "corrJECDown" for each jet (requires uncertainties to be available!)
