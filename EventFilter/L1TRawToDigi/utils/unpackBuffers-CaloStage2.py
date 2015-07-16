@@ -248,7 +248,7 @@ process.dumpRaw = cms.EDAnalyzer(
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1360, 1366, 1404 ),
-    dumpPayload = cms.untracked.bool ( False )
+    dumpPayload = cms.untracked.bool ( options.dump )
 )
 
 # raw to digi
