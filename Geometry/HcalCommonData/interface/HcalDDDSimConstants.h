@@ -37,7 +37,6 @@ public:
   double                    getEtaHO(double& etaR, double& x, double& y, 
 				     double& z) const;
   std::pair<int,int>        getiEtaRange(const int i) const {return std::pair<int,int>(hpar->etaMin[i],hpar->etaMax[i]);}
-  std::vector<double>       getEtaTableHF() const;
   unsigned int              findLayer(int layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const;
   const std::vector<double> &  getGparHF() const {return hpar->gparHF;}
   const std::vector<double> &  getLayer0Wt() const {return hpar->Layer0Wt;}
@@ -62,15 +61,16 @@ private:
   double                    getGain (HcalSubdetector subdet, int depth) const;
   void                      printTileHB(int eta, int depth) const;
   void                      printTileHE(int eta, int depth) const;
+  unsigned int              layerGroupSize( unsigned int eta ) const;
+  unsigned int              layerGroup( unsigned int eta, unsigned int i ) const;
   
   const HcalParameters* hpar;
-  static const int    nEtaMax=100;
+
   static const int    nDepthMax=9;
   std::vector<int>    maxDepth; // Maximum depths in HB/HE/HF/HO
   int                 nEta;     // Number of bins in eta for HB and HE
   int                 nR;       // Number of bins in r
   int                 nPhiF;    // Number of bins in phitable
-  std::vector<int>    layerGroup[nEtaMax]; // Depth index for a given layer
   std::vector<int>    depths[nDepthMax];   // Maximum layer number for a depth 
   int                 nDepth;   // Number of bins in depth0
   int                 nzHB, nmodHB;     // Number of halves and modules in HB

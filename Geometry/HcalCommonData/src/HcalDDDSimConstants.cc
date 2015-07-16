@@ -8,6 +8,41 @@
 
 //#define DebugLog
 
+unsigned int
+HcalDDDSimConstants::layerGroupSize( unsigned int eta ) const
+{
+  unsigned int k = 0;
+  for( auto const & it : hpar->layerGroupEtaSim )
+  {
+    if( it.layer == eta + 1 )
+    {
+      return it.layerGroup.size();
+    }
+    if( it.layer > eta + 1 )
+      break;
+    k = it.layerGroup.size();
+  }
+  return k;
+}
+
+unsigned int
+HcalDDDSimConstants::layerGroup( unsigned int eta, unsigned int i ) const
+{
+  unsigned int k = 0;
+  for( auto const & it :  hpar->layerGroupEtaSim )
+  {
+    if( it.layer == eta + 1 )
+    {
+      return it.layerGroup.at( i );
+    }
+    if( it.layer > eta + 1 )
+      break;
+
+    k = it.layerGroup.at( i );
+  }
+  return k;
+}
+
 HcalDDDSimConstants::HcalDDDSimConstants(const HcalParameters* hp) : hpar(hp) {
 
 #ifdef DebugLog
@@ -196,11 +231,11 @@ std::pair<int,int> HcalDDDSimConstants::getEtaDepth(int det, int etaR, int phi,
     depth = 4;
   } else {
     if (lay >= 0) {
-      depth= layerGroup[etaR-1][lay-1];
+      depth= layerGroup( etaR-1, lay-1 );
       if (etaR == hpar->noff[0] && lay > 1) {
 	int   kphi   = phi + int((hpar->phioff[3]+0.1)/hpar->phibin[etaR-1]);
 	kphi         = (kphi-1)%4 + 1;
-	if (kphi == 2 || kphi == 3) depth = layerGroup[etaR-1][lay-2];
+	if (kphi == 2 || kphi == 3) depth = layerGroup( etaR-1, lay-2 );
       }
     } else if (det == static_cast<int>(HcalBarrel)) {
       if (depth==3) depth = 2;
@@ -463,21 +498,14 @@ void HcalDDDSimConstants::initialize( void ) {
   nR        = hpar->rTable.size();
   nPhiF     = nR - 1;
 
-  //Layer grouping
-  for (int i=0; i<nEta-1; ++i) {
-    unsigned int k = findLayer(i+1, hpar->layerGroupEtaSim); 
-    if (k < hpar->layerGroupEtaSim.size()) { 
-      layerGroup[i] = hpar->layerGroupEtaSim[k].layerGroup;
-    } else {
-      layerGroup[i] = layerGroup[i-1]; 
-    }
 #ifdef DebugLog
+  for (int i=0; i<nEta-1; ++i) {
     std::cout << "HcalDDDSimConstants:Read LayerGroup" << i << ":";
-    for (unsigned int k=0; k<layerGroup[i].size(); k++) 
-      std::cout << " [" << k << "] = " << layerGroup[i][k];
+    for (unsigned int k=0; k<layerGroupSize( i ); k++) 
+      std::cout << " [" << k << "] = " << layerGroup( i, k );
     std::cout << std::endl;
-#endif
   }
+#endif
 
   // Geometry parameters for HF
   dlShort   = hpar->gparHF[0];
@@ -492,10 +520,10 @@ void HcalDDDSimConstants::initialize( void ) {
   maxDepth = hpar->maxDepth;
   maxDepth[0] = maxDepth[1] = 0;
   for (int i=0; i<nEta-1; ++i) {
-    unsigned int imx = layerGroup[i].size();
-    int laymax = (imx > 0) ? layerGroup[i][imx-1] : 0;
+    unsigned int imx = layerGroupSize( i );
+    int laymax = (imx > 0) ? layerGroup( i, imx-1 ) : 0;
     if (i < hpar->etaMax[0]) {
-      int laymax0 = (imx > 16) ? layerGroup[i][16] : laymax;
+      int laymax0 = (imx > 16) ? layerGroup( i, 16 ) : laymax;
       if (i+1 == hpar->etaMax[0] && laymax0 > 2) laymax0 = 2;
       if (maxDepth[0] < laymax0) maxDepth[0] = laymax0;
     }
@@ -512,10 +540,10 @@ void HcalDDDSimConstants::initialize( void ) {
   int maxdepth = (maxDepth[1]>maxDepth[0]) ? maxDepth[1] : maxDepth[0];
   for (int i=0; i<maxdepth; ++i) {
     for (int k=0; k<nEta-1; ++k) {
-      int layermx = ((k+1 < hpar->etaMin[1]) && i < maxDepth[0]) ? 17 : (int)layerGroup[k].size();
+      int layermx = ((k+1 < hpar->etaMin[1]) && i < maxDepth[0]) ? 17 : (int)layerGroupSize( k );
       int ll      = layermx;
       for (int l=layermx-1; l >= 0; --l) {
-	if (layerGroup[k][l] == i+1) {
+	if ((int)layerGroup( k, l ) == i+1) {
 	  ll = l+1; break;
 	}
       }
