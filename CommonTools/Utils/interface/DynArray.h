@@ -3,6 +3,7 @@
 
 template<typename T>
 class DynArray {
+public:
    T * a=nullptr;
    unsigned int s=0;
 public :

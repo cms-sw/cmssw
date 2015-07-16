@@ -25,8 +25,9 @@ namespace {
 
   template<typename T,typename Comp>
   inline float cut(T val, const T * cuts, Comp comp) {
-    for (int i=2; i>=0; --i) 
+    for (int i=2; i>=0; --i) {
       if ( comp(val,cuts[i]) ) return mvaVal[i];
+    }
     return -1.f; 
   }
     
@@ -66,7 +67,7 @@ namespace {
 
      
       
-      float ret = -1.f;
+      float ret = 1.f;
       auto  nLayers = trk.hitPattern().trackerLayersWithMeasurement();
       ret = std::min(ret,cut(nLayers,minLayers,std::greater_equal<int>()));
       if (ret==-1.f) return ret;
