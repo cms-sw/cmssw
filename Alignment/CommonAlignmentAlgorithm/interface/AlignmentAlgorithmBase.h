@@ -2,11 +2,21 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 
-///
-/// Base class for the alignment algorithm
-///
-/// Each alignment algorithm should derive from this class
-///
+/**
+ * @package   Alignment/CommonAlignmentAlgorithm
+ * @file      AlignmentAlgorithmBase.h
+ *
+ * @author    ???
+ *
+ * Last update:
+ * @author    Max Stark (max.stark@cern.ch)
+ * @date      2015/07/16
+ *
+ * @brief     Interface/Base class for alignment algorithms, each alignment
+ *            algorithm has to be derived from this class
+ */
+
+
 
 /*** System includes ***/
 #include <vector>
@@ -19,12 +29,6 @@ namespace edm  { class EventSetup; class ParameterSet; }
 namespace reco { class Track; class BeamSpot; }
 
 /*** Alignment ***/
-// These data formats cannot be forward declared since they are typedefs,
-// hence, include the headers that define the typedef's (no need to include
-// in dependencies in BuildFile):
-// class TsosVectorCollection;
-// class TkFittedLasBeamCollection;
-// class AliClusterValueMap;
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
@@ -52,6 +56,9 @@ class AlignmentAlgorithmBase {
   public:
     // TODO: DEPRECATED: For not breaking the interface, used in serveral files.
     //                   If possible use the global typedefs above.
+    // With global typedefs one does not have to typedef again like
+    // typedef AlignmentAlgorithmBase::ConstTrajTrackPair ConstTrajTrackPair;
+    // in other files.
     typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair;
     typedef ConstTrajTrackPairs ConstTrajTrackPairCollection;
     typedef cond::RealTimeType<cond::runnumber>::type RunNumber;
