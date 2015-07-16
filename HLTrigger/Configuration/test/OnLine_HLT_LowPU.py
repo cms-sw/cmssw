@@ -13643,10 +13643,6 @@ process.source = cms.Source( "PoolSource",
     )
 )
 
-# load 2015 Run-2 L1 Menu for LowPU
-from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v4 as loadL1Menu
-process = loadL1Menu(process)
-
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
     process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLTLowPU' )
