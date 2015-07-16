@@ -100,7 +100,8 @@ genAna.allGenTaus = True
 
 # Core Analyzer
 ttHCoreEventAna.mhtForBiasedDPhi = "mhtJet40jvec"
-ttHCoreEventAna.jetPt = 40.
+#ttHCoreEventAna.jetPt = 40.
+ttHCoreEventAna.jetPt = 30. ### jet pt 30
 
 # switch off the SV and MC matching
 #ttHSVAna.do_mc_match = False
@@ -113,7 +114,8 @@ from CMGTools.TTHAnalysis.analyzers.ttHMT2Control import ttHMT2Control
 
 ttHMT2Control = cfg.Analyzer(
             ttHMT2Control, name = 'ttHMT2Control',
-            jetPt = 40.,
+#            jetPt = 40.,
+            jetPt = 30., ### jet pt 30
             )
 
 ##------------------------------------------
@@ -125,7 +127,8 @@ from CMGTools.TTHAnalysis.analyzers.ttHTopoVarAnalyzer import ttHTopoVarAnalyzer
 ttHTopoJetAna = cfg.Analyzer(
             ttHTopoVarAnalyzer, name = 'ttHTopoVarAnalyzer',
             doOnlyDefault = True,
-            jetPt = 40.,
+#            jetPt = 40.,
+            jetPt = 30., ### jet pt 30
             )
 
 from PhysicsTools.Heppy.analyzers.eventtopology.MT2Analyzer import MT2Analyzer
@@ -133,7 +136,8 @@ from PhysicsTools.Heppy.analyzers.eventtopology.MT2Analyzer import MT2Analyzer
 MT2Ana = cfg.Analyzer(
     MT2Analyzer, name = 'MT2Analyzer',
     doOnlyDefault = True,
-    jetPt = 40.,
+#    jetPt = 40.,
+    jetPt = 40., ### jet pt 30
     )
 
 ##------------------------------------------
