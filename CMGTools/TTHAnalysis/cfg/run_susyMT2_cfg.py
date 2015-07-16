@@ -249,8 +249,8 @@ from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 #-------- HOW TO RUN
 # choose 2 for full production
-test = 3
-isData = True
+test = 2
+isData = False
 doSpecialSettingsForMECCA = 1
 if test==0:
     # ------------------------------------------------------------------------------------------- #
@@ -332,11 +332,20 @@ elif test==2:
 #]
 
     from CMGTools.RootTools.samples.samples_13TeV_74X import *
-    selectedComponents = [ 
-TTJets, TTJets_LO, # TTJets
-QCD_Pt80to120, QCD_Pt120to170, QCD_Pt300to470, QCD_Pt470to600, QCD_Pt1000to1400, QCD_Pt1400to1800, QCD_Pt1800to2400, QCD_Pt2400to3200, QCD_Pt3200toInf, # QCD_Pt
-]
+### 25 ns
+#    selectedComponents = [ 
+#TTJets, TTJets_LO, # TTJets
+#QCD_Pt80to120, QCD_Pt120to170, QCD_Pt300to470, QCD_Pt470to600, QCD_Pt1000to1400, QCD_Pt1400to1800, QCD_Pt1800to2400, QCD_Pt2400to3200, QCD_Pt3200toInf, # QCD_Pt
+#]
 
+### 50 ns
+    selectedComponents = [ 
+TTJets_LO_50ns, 
+WJetsToLNu_50ns, 
+DYJetsToLL_M50_50ns, 
+QCDPt_50ns,
+]
+    
     # test all components (1 thread per component).
     for comp in selectedComponents:
         comp.splitFactor = 1200
