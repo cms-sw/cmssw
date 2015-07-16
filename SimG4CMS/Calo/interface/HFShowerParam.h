@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
@@ -28,7 +29,7 @@ class HFShowerParam {
 public:    
 
   HFShowerParam(std::string & name, const DDCompactView & cpv, 
-		edm::ParameterSet const & p);
+		const HcalDDDSimConstants& hcons, edm::ParameterSet const & p);
   virtual ~HFShowerParam();
 
 public:    
