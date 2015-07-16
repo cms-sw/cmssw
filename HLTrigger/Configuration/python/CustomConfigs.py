@@ -31,6 +31,8 @@ def Base(process):
 #        process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 #        process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://Frontie#rProd/')
 #        
+    process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
+
     process=ProcessName(process)
 
     return(process)
