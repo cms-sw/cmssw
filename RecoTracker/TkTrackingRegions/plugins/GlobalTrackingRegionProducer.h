@@ -27,10 +27,10 @@ public:
 
   virtual ~GlobalTrackingRegionProducer(){}
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event&, const edm::EventSetup&) const {
-    std::vector<TrackingRegion* > result;
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override {
+    std::vector<std::unique_ptr<TrackingRegion> > result;
     result.push_back( 
-        new GlobalTrackingRegion( thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );
+        std::make_unique<GlobalTrackingRegion>( thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );
     return result;
   }
 

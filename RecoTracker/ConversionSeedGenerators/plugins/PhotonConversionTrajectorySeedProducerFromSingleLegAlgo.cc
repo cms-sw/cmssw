@@ -97,7 +97,6 @@ PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::find(const edm::Event &
 
    // clear memory
   theHitsGenerator->clearCache();
-  for (IR ir=regions.begin(), irEnd=regions.end(); ir < irEnd; ++ir) delete (*ir);
 
   seedCollection = nullptr;
 

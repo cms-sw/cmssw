@@ -113,9 +113,9 @@ public:
   virtual ~PointSeededTrackingRegionsProducer() {}
     
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // always need the beam spot (as a fall back strategy for vertex modes)
     edm::Handle< reco::BeamSpot > bs;
@@ -176,7 +176,7 @@ public:
 	
       for (size_t  j=0; j<origins.size() && n_regions < m_maxNRegions; ++j) {
 
-        result.push_back( new RectangularEtaPhiTrackingRegion(
+        result.push_back( std::make_unique<RectangularEtaPhiTrackingRegion>(
           direction, // GlobalVector
           origins[j].first, // GlobalPoint
           m_ptMin,
