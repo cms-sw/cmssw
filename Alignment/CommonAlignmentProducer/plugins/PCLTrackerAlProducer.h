@@ -1,17 +1,22 @@
 #ifndef Alignment_CommonAlignmentProducer_PCLTrackerAlProducer_h
 #define Alignment_CommonAlignmentProducer_PCLTrackerAlProducer_h
 
-/// \class AlignmentProducer
-///
-/// Package     : Alignment/CommonAlignmentProducer
-/// Description : calls alignment algorithms
-///
-///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.27 $
-///  last update: $Date: 2012/06/13 16:23:30 $
-///  by         : $Author: yana $
-
-// TODO: Update Doxygen description
+/**
+ * @package   Alignment/CommonAlignmentProducer
+ * @file      PCLTrackerAlProducer.h
+ *
+ * @author    Max Stark (max.stark@cern.ch)
+ * @date      2015/07/16
+ *
+ * @brief     Tracker-AlignmentProducer for the Prompt Calibration Loop (PCL)
+ *
+ * Code is based on standard offline AlignmentProducer (see AlignmentProducer.h)
+ * Main difference is the base-class exchange from an ESProducerLooper to an
+ * EDAnalyzer,
+ *
+ * @note      Only for Tracker-Alignment usage.
+ * @todo      Remove all the muon alignment stuff
+ */
 
 
 
@@ -45,13 +50,13 @@
 
 /*** Records for ESWatcher ***/
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
 
-#include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
@@ -82,6 +87,7 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     /*** Code which implements the interface
          Called from outside ***/
 
+    //!
     virtual void beginJob() override;
     virtual void endJob()   override;
 
@@ -103,10 +109,11 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     /*** Code which is independent of Event & Setup
          Called from constructor ***/
 
-    // TODO: Add missing method description
-
+    /// Creates the choosen alignment algorithm (specified in config-file)
     void createAlignmentAlgorithm(const edm::ParameterSet&);
+    /// Creates the mointors (specified in config-file)
     void createMonitors          (const edm::ParameterSet&);
+    /// Creates the calibrations (specified in config-file)
     void createCalibrations      (const edm::ParameterSet&);
 
 
@@ -114,32 +121,54 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     /*** Code which is dependent of Event & Setup
          Called and checked for each Event ***/
 
-    // TODO: Add missing method description
-
+    /// Checks if one of the EventSetup-Records has changed
     bool setupChanged(const edm::EventSetup&);
+
+    /// Creates Geometry and Alignables of the Tracker and initializes the
+    /// AlignmentAlgorithm @theAlignmentAlgo
     void initAlignmentAlgorithm(const edm::EventSetup&);
+
+    /// Initializes Beamspot @theBeamSpot of Alignables @theExtraAlignables
     void initBeamSpot(const edm::Event&);
+
+    /// Creates ideal geometry @theTrackerGeometry from IdealGeometryRecord
     void createGeometries(const edm::EventSetup&);
+
+    /// Applies Alignments from Database (GlobalPositionRcd) to Geometry
+    /// @theTrackerGeometry
     void applyAlignmentsToDB(const edm::EventSetup&);
+
+    /// Creates Alignables @theTrackerAlignables from the previously loaded
+    /// Geometry @theTrackerGeometry
     void createAlignables(const TrackerTopology* const);
+
+    /// Creates the @theAlignmentParameterStore, which manages all Alignables
     void buildParameterStore();
+
+    /// Applies misalignment scenario to @theTrackerAlignables
     void applyMisalignment();
-    void simpleMisalignment(const Alignables&, const std::string&, float, float, bool);
+
+    /// Applies misalignment scenario to @theTrackerAlignables
+    void simpleMisalignment(const Alignables&, const std::string&,
+                            float, float, bool);
+
+    /// Applies Alignments, AlignmentErrors and SurfaceDeformations to
+    /// @theTrackerGeometry
     void applyAlignmentsToGeometry();
 
-    /// Apply DB constants belonging to (Err)Rcd to geometry,
-    /// taking into account 'globalPosition' correction.
+    /// Applies DB constants belonging to (Err)Rcd to Geometry, taking into
+    /// account 'globalPosition' correction.
     template<class G, class Rcd, class ErrRcd>
     void applyDB(G*, const edm::EventSetup&, const AlignTransform&) const;
 
-    /// Apply DB constants for surface deformations
+    /// Applies DB constants for SurfaceDeformations
     template<class G, class DeformationRcd>
     void applyDB(G*, const edm::EventSetup&) const;
 
-    /// Read in survey records
+    /// Reads in survey records
     void readInSurveyRcds(const edm::EventSetup&);
     
-    /// Add survey info to an alignable
+    /// Adds survey info to an Alignable
     void addSurveyInfo(Alignable*);
 
 
@@ -147,24 +176,28 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     /*** Code for writing results to database
          Called from endJob() ***/
 
-    // TODO: Add missing method description
-
+    /// Steers activities after end of job, terminates the AlignmentAlgorithm
+    /// @theAlignmentAlgo
     void finish();
+
+    /// Writes Alignments (i.e. Records) to database-file
     void storeAlignmentsToDB();
+
+    /// Makes unique RunRanges (specified in config-file)
     RunRanges makeNonOverlappingRunRanges(const edm::VParameterSet&);
 
-    /// Write alignments and alignment errors for all sub detectors and the
+    /// Writes Alignments and AlignmentErrors for all sub detectors and the
     /// given run number
     void writeForRunRange(cond::Time_t);
 
-    /// Write alignment and/or errors to DB for record names
+    /// Writes Alignments and/or AlignmentErrors to DB for record names
     /// (removes *globalCoordinates before writing if non-null...).
-    /// Takes over ownership of alignments and alignmentErrrors.
+    /// Takes over ownership of Alignments and AlignmentErrors.
     void writeDB(Alignments*, const std::string&, AlignmentErrorsExtended*,
                  const std::string&, const AlignTransform*, cond::Time_t) const;
 
-    /// Write surface deformations (bows & kinks) to DB for given record name
-    /// Takes over ownership of alignmentsurfaceDeformations.
+    /// Writes SurfaceDeformations (bows & kinks) to DB for given record name
+    /// Takes over ownership of AlignmentSurfaceDeformations.
     void writeDB(AlignmentSurfaceDeformations*,
                  const std::string&, cond::Time_t) const;
 
@@ -188,6 +221,7 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     /// GlobalPositions that might be read from DB, NULL otherwise
     const Alignments* globalPositions_;
 
+    // TODO: Change pointers to std::shared_ptr
     boost::shared_ptr<TrackerGeometry> theTrackerGeometry;
     boost::shared_ptr<DTGeometry>      theMuonDTGeometry;
     boost::shared_ptr<CSCGeometry>     theMuonCSCGeometry;
@@ -208,13 +242,13 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     const bool   doTracker_, doMuon_, useExtras_;
     const bool   useSurvey_;
 
-    // map with tracks/trajectories
+    /// Map with tracks/trajectories
     const edm::InputTag tjTkAssociationMapTag_;
-    // beam spot
+    /// BeamSpot
     const edm::InputTag beamSpotTag_;
-    // LAS beams in edm::Run (ignore if empty)
+    /// LAS beams in edm::Run (ignore if empty)
     const edm::InputTag tkLasBeamTag_;
-    // ValueMap containing associtaion cluster - flag
+    /// ValueMap containing associtaion cluster-flag
     const edm::InputTag clusterValueMapTag_;
 
 
