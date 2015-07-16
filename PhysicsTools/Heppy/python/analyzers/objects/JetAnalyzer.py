@@ -100,13 +100,22 @@ class JetAnalyzer( Analyzer ):
         self.deltaMetFromJEC = [0.,0.]
 #        print "before. rho",self.rho,self.cfg_ana.collectionPostFix,'allJets len ',len(allJets),'pt', [j.pt() for j in allJets]
         if self.doJEC:
-#            print "\nCalibrating jets %s for lumi %d, event %d" % (self.cfg_ana.jetCol, event.lumi, event.eventId)
-            self.jetReCalibrator.correctAll(allJets, rho, delta=self.shiftJEC, metShift=self.deltaMetFromJEC)
+            badjets = []
+            for delta, shift in [(1.0, "JECUp"), (0.0, ""), (-1.0, "JECDown")]:
+                for j1 in allJets:
+                    corr = self.jetReCalibrator.getCorrection(j1, rho, delta, self.deltaMetFromJEC)
+                    setattr(j1, "corr"+shift, corr)
+            #apply nominal corrections
+            for jet in allJets:
+                corr = jet.corr
+                if corr > 0:
+                    jet.setP4(jet.p4() * (corr * jet.rawFactor()))
+                    jet.setRawFactor(1.0/corr)
+                else:
+                    badjets += [jet]
+            for jet in badjets:
+                allJets.remove(jet)
 
-        for delta, shift in [(1.0, "JECUp"), (0.0, ""), (-1.0, "JECDown")]:
-            for j1 in allJets:
-                corr = self.jetReCalibrator.getCorrection(j1, rho, delta, self.deltaMetFromJEC)
-                setattr(j1, "corr"+shift, corr)
 
         self.allJetsUsedForMET = allJets
 #        print "after. rho",self.rho,self.cfg_ana.collectionPostFix,'allJets len ',len(allJets),'pt', [j.pt() for j in allJets]
