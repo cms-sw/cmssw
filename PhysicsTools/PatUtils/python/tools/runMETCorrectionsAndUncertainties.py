@@ -1074,13 +1074,25 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         chs = self._parameters["CHS"].value
         jetColName="ak4PFJets"
         CHSname=""
+        pfCandColl=pfCandCollection
         if chs:
             CHSname="chs"
-            jetColName="ak4PFJetsCHSCS"
+            jetColName="ak4PFJetsCHS"
+
+            #fixme, top projection missing for CHS jets
+            pfCHS = cms.EDFilter("CandPtrSelector", src = pfCandCollection, cut = cms.string("fromPV"))
+            setattr(process,"pfCHS",pfCHS)
+            pfCandColl = cms.InputTag("pfCHS")
+
+
 
         if not hasattr(process, jetColName):
-            process.load("RecoJets.JetProducers."+jetColName+"_cfi")
-            getattr(process, jetColName).src = pfCandCollection 
+            process.load("RecoJets.JetProducers.ak4PFJets_cfi")
+            
+            if chs:
+                setattr(process, jetColName, getattr(process,"ak4PFJets").clone() )
+
+            getattr(process, jetColName).src = pfCandColl 
             getattr(process, jetColName).doAreaFastjet = True
             
             patMetModuleSequence += getattr(process, jetColName)
@@ -1103,8 +1115,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         
 
     def miniAODConfiguration(self, process, pfCandCollection, patMetModuleSequence, repro74X, postfix ):
-      
-        if not hasattr(process, "pfMet") and self._parameters["metType"] == "PF":
+        
+        if not hasattr(process, "pfMet") and self._parameters["metType"].value == "PF":
             process.load("RecoMET.METProducers.PFMET_cfi")
             process.pfMet.src = pfCandCollection
             process.pfMet.calculateSignificance = False
@@ -1123,7 +1135,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         #    getattr(process, "puJetIdForPFMVAMEt").vertexes = cms.InputTag("offlineSlimmedPrimaryVertices")
         #    getattr(process, "patMVAMet").addGenMET  = False
 
-        if not hasattr(process, "slimmedMETs") and self._parameters["metType"] == "PF":
+        if not hasattr(process, "slimmedMETs") and self._parameters["metType"].value == "PF":
+
+            process.load("PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi")
+            process.selectedPatJets.cut = cms.string("pt > 10")
+
             process.load("PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi")
             process.slimmedMETs.src = cms.InputTag("patPFMetT1")
             process.slimmedMETs.runningOnMiniAOD = True
