@@ -42,6 +42,7 @@ def customizeHLTforAll(process, _customInfo = None):
             if hasattr(process,'GlobalTag'):
                 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
                 process.GlobalTag = GlobalTag(process.GlobalTag, _globalTag, '')
+                process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 
 # inputFile
         if _inputFile[0] == "@":
