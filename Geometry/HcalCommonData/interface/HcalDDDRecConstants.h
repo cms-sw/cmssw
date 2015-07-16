@@ -52,27 +52,27 @@ public:
     else if (type == 1) return gconsHE;
     else {std::vector<std::pair<double,double> > gcons; return gcons;}
   }
-  const std::vector<int> &  getDepth(const int i) const {return layerGroup[i];}
+  const std::vector<int> &  getDepth(const unsigned int i) const;
   std::vector<HcalEtaBin>   getEtaBins(const int itype) const;
   std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
   std::pair<int,int>        getEtaRange(const int i) const
-    {return std::pair<int,int>(iEtaMin[i],iEtaMax[i]);}
-  const std::vector<double> &      getEtaTable()   const {return etaTable;}
+    {return std::pair<int,int>(hpar->etaMin[i],hpar->etaMax[i]);}
+  const std::vector<double> &      getEtaTable()   const {return hpar->etaTable;}
   const std::vector<double> &      getEtaTableHF() const {return hpar->etaTableHF;}
   std::pair<double,double>  getEtaLimit(const int i) const 
-    {return std::pair<double,double>(etaTable[i],etaTable[i+1]);}
+    {return std::pair<double,double>(hpar->etaTable[i],hpar->etaTable[i+1]);}
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
 				    int idepth) const;
-  int                       getMaxDepth(const int type) const {return maxDepth[type];}
-  int                       getNEta() const {return nEta;}
+  int                       getMaxDepth(const int type) const {return hpar->maxDepth[type];}
+  int                       getNEta() const {return hpar->etagroup.size();}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return hpar->phioff[i];}
   const std::vector<double> &      getPhiOffs()    const {return hpar->phioff;}
   const std::vector<double> &      getPhiTable()   const {return phibin;}
-  const std::vector<double> &      getPhiTableHF() const {return phibinHF;}
+  const std::vector<double> &      getPhiTableHF() const {return hpar->phitable;}
   double                    getRZ(int subdet, int ieta, int depth) const;
   std::vector<HcalActiveLength>    getThickActive(const int type) const;
-  int                       getTopoMode() const {return modeTopo_;}
+  int                       getTopoMode() const {return hpar->topologyMode;}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;
@@ -80,29 +80,18 @@ public:
        
 private:
   void                      initialize(void);
+  unsigned int              layerGroupSize( unsigned int eta ) const;
+  unsigned int              layerGroup( unsigned int eta, unsigned int i ) const;
 
-  bool                tobeInitialized;
-  static const int    nEtaMax=100;
   const HcalParameters      *hpar;
   const HcalDDDSimConstants &hcons;
-  int                 modeTopo_;  // Mode for topology
-  std::vector<int>    etaGroup;   // Eta Grouping
   std::vector<std::pair<int,int> > etaSimValu; // eta ranges at Sim stage
-  std::vector<double> etaTable;   // Eta table (HB+HE)
   std::vector<int>    ietaMap;    // Map Sim level ieta to Rec level ieta
-  std::vector<int>    iEtaMin, iEtaMax; // Minimum and maximum eta
-  std::vector<int>    maxDepth;   // Maximum depth in HB/HE/HF/HO           
-  int                 nEta;       // Number of bins in eta for HB and HE
-  std::vector<int>    phiGroup;   // Eta Grouping
   std::vector<double> phibin;     // Phi step for all eta bins (HB, HE, HO)
-  std::vector<double> phibinHF;   // Phi step for all eta bins (HF)
   std::vector<int>    phiUnitS;   // Phi unit at SIM stage
-  std::vector<int>    layerGroup[nEtaMax];
-  std::vector<int>    nOff;     // Speical eta bin #'s in barrel and endcap
   std::vector<std::pair<double,double> > gconsHB; // Geometry constatnts HB
   std::vector<std::pair<double,double> > gconsHE; // Geometry constatnts HE
   int                 nModule[2], nHalves[2];     // Modules, Halves for HB/HE
-  enum { kHOSizePreLS1 = 2160, kHFSizePreLS1 = 1728 } ;
 };
 
 #endif
