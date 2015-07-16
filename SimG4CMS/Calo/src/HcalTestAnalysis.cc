@@ -184,7 +184,7 @@ void HcalTestAnalysis::update(const BeginOfRun * run) {
   }
   int  idet = static_cast<int>(HcalBarrel);
   while (loop) {
-    HcalCellType::HcalCell tmp = numberingFromDDD->cell(idet,1,1,etac,phic);
+    HcalCellType::HcalCell tmp = numberingFromDDD->ddConstants().cell(idet,1,1,etac,phic);
     if (tmp.ok) {
       if (eta) eta0 = tmp.eta;
       if (phi) phi0 = tmp.phi;
