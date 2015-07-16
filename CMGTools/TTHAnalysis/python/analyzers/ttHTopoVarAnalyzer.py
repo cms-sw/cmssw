@@ -26,6 +26,7 @@ def mtw(x1,x2):
 class ttHTopoVarAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(ttHTopoVarAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName) 
+        self.jetPt = cfg_ana.jetPt
 
     def declareHandles(self):
         super(ttHTopoVarAnalyzer, self).declareHandles()
@@ -38,21 +39,37 @@ class ttHTopoVarAnalyzer( Analyzer ):
 
     def makeMinMT(self,event):
 
-        objectsb40jc = [ j for j in event.cleanJets if j.pt() > 40 and abs(j.eta())<2.5 and j.btagWP("CSVv2IVFM")]
+#        objectsb40jc = [ j for j in event.cleanJets if j.pt() > 40 and abs(j.eta())<2.5 and j.btagWP("CSVv2IVFM")]
+#
+#        if len(objectsb40jc)>0:
+#            for bjet in objectsb40jc:
+#                mtTemp = mtw(bjet, event.met)
+#                event.minMTBMet = min(event.minMTBMet,mtTemp)
 
-        if len(objectsb40jc)>0:
-            for bjet in objectsb40jc:
+        objectsbXjc = [ j for j in event.cleanJets if j.pt() > self.jetPt and abs(j.eta())<2.5 and j.btagWP("CSVv2IVFM")]
+
+        if len(objectsbXjc)>0:
+            for bjet in objectsbXjc:
                 mtTemp = mtw(bjet, event.met)
                 event.minMTBMet = min(event.minMTBMet,mtTemp)
 
+
     def makeMinMTGamma(self,event):
 
-        gamma_objectsb40jc = [ j for j in event.gamma_cleanJets if j.pt() > 40 and abs(j.eta())<2.5 and j.btagWP("CSVv2IVFM")]
+#        gamma_objectsb40jc = [ j for j in event.gamma_cleanJets if j.pt() > 40 and abs(j.eta())<2.5 and j.btagWP("CSVv2IVFM")]
+#
+#        if len(gamma_objectsb40jc)>0:
+#            for bjet in gamma_objectsb40jc:
+#                mtTemp = mtw(bjet, event.gamma_met)
+#                event.gamma_minMTBMet = min(event.gamma_minMTBMet,mtTemp)
 
-        if len(gamma_objectsb40jc)>0:
-            for bjet in gamma_objectsb40jc:
+        gamma_objectsbXjc = [ j for j in event.gamma_cleanJets if j.pt() > self.jetPt and abs(j.eta())<2.5 and j.btagWP("CSVv2IVFM")]
+
+        if len(gamma_objectsbXjc)>0:
+            for bjet in gamma_objectsbXjc:
                 mtTemp = mtw(bjet, event.gamma_met)
                 event.gamma_minMTBMet = min(event.gamma_minMTBMet,mtTemp)
+
 
     def makeMT2W(self, event):
 #        print '==> INSIDE THE PRINT MT2'

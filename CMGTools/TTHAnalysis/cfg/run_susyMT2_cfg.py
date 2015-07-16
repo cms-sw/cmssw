@@ -98,6 +98,10 @@ metAna.recalibrate = False
 # store all taus by default
 genAna.allGenTaus = True
 
+# Core Analyzer
+ttHCoreEventAna.mhtForBiasedDPhi = "mhtJet40jvec"
+ttHCoreEventAna.jetPt = 40.
+
 # switch off the SV and MC matching
 #ttHSVAna.do_mc_match = False
 
@@ -108,7 +112,8 @@ genAna.allGenTaus = True
 from CMGTools.TTHAnalysis.analyzers.ttHMT2Control import ttHMT2Control
 
 ttHMT2Control = cfg.Analyzer(
-            ttHMT2Control, name = 'ttHMT2Control'
+            ttHMT2Control, name = 'ttHMT2Control',
+            jetPt = 40.,
             )
 
 ##------------------------------------------
@@ -119,14 +124,16 @@ from CMGTools.TTHAnalysis.analyzers.ttHTopoVarAnalyzer import ttHTopoVarAnalyzer
 
 ttHTopoJetAna = cfg.Analyzer(
             ttHTopoVarAnalyzer, name = 'ttHTopoVarAnalyzer',
-            doOnlyDefault = True
+            doOnlyDefault = True,
+            jetPt = 40.,
             )
 
 from PhysicsTools.Heppy.analyzers.eventtopology.MT2Analyzer import MT2Analyzer
 
 MT2Ana = cfg.Analyzer(
     MT2Analyzer, name = 'MT2Analyzer',
-    doOnlyDefault = True
+    doOnlyDefault = True,
+    jetPt = 40.,
     )
 
 ##------------------------------------------
@@ -150,19 +157,46 @@ ttHZskim = cfg.Analyzer(
 ##  PRODUCER
 ##------------------------------------------
 
-from CMGTools.RootTools.samples.triggers_13TeV_PHYS14 import triggers_HT900, triggers_MET170, triggers_HTMET, triggers_MT2_mumu, triggers_MT2_ee, triggers_MT2_mue, triggers_1mu, triggers_photon155,triggers_1mu_isolow
+#from CMGTools.RootTools.samples.triggers_13TeV_PHYS14 import triggers_HT900, triggers_MET170, triggers_HTMET, triggers_MT2_mumu, triggers_MT2_ee, triggers_MT2_mue, triggers_1mu, triggers_photon155,triggers_1mu_isolow
+#
+#triggerFlagsAna.triggerBits = {
+#            'HT900' : triggers_HT900,
+#            'MET170' : triggers_MET170,
+#            'ht350met120' : triggers_HTMET,
+#            'SingleMu' : triggers_1mu_isolow,
+#            'DoubleMu' : triggers_MT2_mumu,
+#            'DoubleEl' : triggers_MT2_ee,
+#            'MuEG'     : triggers_MT2_mue,
+#            'htXprescale' : triggers_HTMET,
+#            'Photons'  : triggers_photon155
+#}
 
+
+from CMGTools.RootTools.samples.triggers_13TeV_Spring15 import triggers_HT900, triggers_HT800, triggers_MET170, triggers_HTMET100, triggers_HTMET120, triggers_MT2_mumu, triggers_MT2_ee, triggers_MT2_e, triggers_MT2_mu, triggers_dijet, triggers_ht350, triggers_ht475, triggers_photon75, triggers_photon90, triggers_photon120, triggers_photon75ps, triggers_photon90ps, triggers_photon120ps, triggers_photon155, triggers_photon165_HE10, triggers_photon175
 
 triggerFlagsAna.triggerBits = {
-            'HT900' : triggers_HT900,
-            'MET170' : triggers_MET170,
-            'ht350met120' : triggers_HTMET,
-            'SingleMu' : triggers_1mu_isolow,
-            'DoubleMu' : triggers_MT2_mumu,
-            'DoubleEl' : triggers_MT2_ee,
-            'MuEG'     : triggers_MT2_mue,
-            'htXprescale' : triggers_HTMET,
-            'Photons'  : triggers_photon155
+'PFHT900' : triggers_HT900,
+'PFHT800' : triggers_HT800,
+'PFMET170' : triggers_MET170,
+'PFHT350_PFMET100' : triggers_HTMET100,
+'PFHT350_PFMET120' : triggers_HTMET120,
+'SingleMu' : triggers_MT2_mu,
+'SingleEl' : triggers_MT2_e,
+'DoubleMu' : triggers_MT2_mumu,
+'DoubleEl' : triggers_MT2_ee,
+#'MuEG' : triggers_MT2_mue,
+'DiJet' : triggers_dijet,
+'ht350prescale' : triggers_ht350,
+'ht475prescale' : triggers_ht475,
+'Photon75_R9Id90_HE10_IsoM' : triggers_photon75,
+'Photon90_R9Id90_HE10_IsoM' : triggers_photon90,
+'Photon120_R9Id90_HE10_IsoM' : triggers_photon120,
+'Photon75' : triggers_photon75ps,
+'Photon90' : triggers_photon90ps,
+'Photon120' : triggers_photon120ps,
+'Photon155' : triggers_photon155,
+'Photon165_HE10' : triggers_photon165_HE10,
+'Photon175' : triggers_photon175,
 }
 
 #-------- SEQUENCE
@@ -211,8 +245,8 @@ from PhysicsTools.HeppyCore.framework.heppy_loop import getHeppyOption
 
 #-------- HOW TO RUN
 # choose 2 for full production
-test = 0
-isData = True
+test = 1
+isData = False
 doSpecialSettingsForMECCA = 1
 if test==0:
     # ------------------------------------------------------------------------------------------- #
@@ -255,9 +289,10 @@ elif test==1:
     # Uncomment the two following lines to run on a specific event
     #eventSelector.toSelect = [ 84142401 ]
     #sequence = cfg.Sequence([eventSelector] + sequence)
-    #from CMGTools.TTHAnalysis.samples.samples_13TeV_PHYS14 import *
+    
+#    from CMGTools.RootTools.samples.samples_13TeV_PHYS14 import *
     from CMGTools.RootTools.samples.samples_13TeV_74X import *
-    from CMGTools.RootTools.samples.samples_8TeVReReco_74X import *
+#    from CMGTools.RootTools.samples.samples_8TeVReReco_74X import *
 
 #    comp=GJets_HT200to400
 #    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/gjets_ht200to400_miniaodsim_fix.root']
@@ -266,6 +301,9 @@ elif test==1:
     #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/TTJets_miniAOD_fixPhoton_forSynch.root']
     comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
 #    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
+
+#    comp=TTJets
+#    comp.files = comp.files[:1]
 
     selectedComponents = [comp]
     comp.splitFactor = 1
