@@ -9,8 +9,8 @@ from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
 # customization of run L1 emulator for 2015 Stage 1 configuration
 def customiseSimL1EmulatorForStage1(process):
 
-    process.load("L1Trigger.L1TCommon.l1tDigiToRaw_cfi")
-    process.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
+    process.load("L1Trigger.L1TCommon.l1tDigiToRaw_cfi")    
+    process.load("EventFilter.L1TRawToDigi.caloStage1Digis_cfi")
     process.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
 
     process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
