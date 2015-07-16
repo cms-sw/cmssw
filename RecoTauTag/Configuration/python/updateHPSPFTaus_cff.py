@@ -11,4 +11,17 @@ authors: Evan Friis, Wisconsin
 
 '''
 
-updateHPSPFTaus = cms.Sequence()
+updateHPSPFTaus = cms.Sequence(
+     hpsPFTauChargedIsoPtSum*
+     hpsPFTauNeutralIsoPtSum*
+     hpsPFTauPUcorrPtSum*
+     hpsPFTauNeutralIsoPtSumWeight*
+     hpsPFTauFootprintCorrection*
+     hpsPFTauPhotonPtSumOutsideSignalCone*
+     hpsPFTauDiscriminationByRawCombinedIsolationDBSumPtCorr3Hits*
+     hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits*
+     hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits*
+     hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits*
+     hpsPFTauDiscriminationByPhotonPtSumOutsideSignalCone*
+     hpsPFTauDiscriminationByRawPileupWeightedIsolation3Hits
+)
