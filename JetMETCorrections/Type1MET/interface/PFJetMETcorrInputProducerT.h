@@ -83,8 +83,10 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       offsetCorrLabel_ = cfg.getParameter<edm::InputTag>("offsetCorrLabel");
       offsetCorrToken_ = consumes<reco::JetCorrector>(offsetCorrLabel_);
     }
-    jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel");
+    jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel"); //for MC
+    jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes"); //for data
     jetCorrToken_ = consumes<reco::JetCorrector>(jetCorrLabel_);
+    jetCorrResToken_ = consumes<reco::JetCorrector>(jetCorrLabelRes_);
 
     jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
       cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
@@ -134,6 +136,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
+
     std::auto_ptr<CorrMETData> type1Correction(new CorrMETData());
     for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
 	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
@@ -142,7 +145,13 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     }
 
     edm::Handle<reco::JetCorrector> jetCorr;
-    evt.getByToken(jetCorrToken_, jetCorr);
+    //automatic switch for residual corrections
+    if(evt.isRealData() ) {
+      jetCorrLabel_ = jetCorrLabelRes_;
+      evt.getByToken(jetCorrResToken_, jetCorr);
+    } else {
+      evt.getByToken(jetCorrToken_, jetCorr);
+    }
 
     typedef std::vector<T> JetCollection;
     edm::Handle<JetCollection> jets;
@@ -237,7 +246,9 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
   edm::InputTag offsetCorrLabel_;
   edm::EDGetTokenT<reco::JetCorrector> offsetCorrToken_; // e.g. 'ak5CaloJetL1Fastjet'
   edm::InputTag jetCorrLabel_;
+  edm::InputTag jetCorrLabelRes_;
   edm::EDGetTokenT<reco::JetCorrector> jetCorrToken_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
+  edm::EDGetTokenT<reco::JetCorrector> jetCorrResToken_;    // e.g. 'ak5CaloJetL1FastL2L3' (MC) / 'ak5CaloJetL1FastL2L3Residual' (Data)
   Textractor jetCorrExtractor_;
 
   double jetCorrEtaMax_; // do not use JEC factors for |eta| above this threshold

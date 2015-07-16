@@ -428,6 +428,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if "T1" in correctionLevel and not self._parameters["CHS"].value:  
             getattr(process, "corrPfMetType1").src =  cms.InputTag("ak4PFJets")
             getattr(process, "corrPfMetType1").jetCorrLabel = "ak4PFL1FastL2L3Corrector"
+            getattr(process, "corrPfMetType1").jetCorrLabelRes = "ak4PFL1FastL2L3ResidualCorrector"
             getattr(process, "corrPfMetType1").offsetCorrLabel = "ak4PFL1FastjetCorrector"
 
         #create the main MET producer
