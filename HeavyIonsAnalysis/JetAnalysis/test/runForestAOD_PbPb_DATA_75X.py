@@ -175,7 +175,7 @@ process.ana_step = cms.Path(#process.heavyIon*
                             process.ggHiNtuplizer +
                             process.pfcandAnalyzer +
 #temp                            process.hltMuTree +
-                            process.HiForest
+                            process.HiForest +
                             process.anaTrack +
                             process.pixelTrack
                             )
