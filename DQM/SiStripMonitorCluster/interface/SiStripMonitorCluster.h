@@ -56,6 +56,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
     MonitorElement* ClusterSignalOverNoiseVsPos = 0;
     MonitorElement* ModuleLocalOccupancy = 0;
     MonitorElement* NrOfClusterizedStrips = 0; // can be used at client level for occupancy calculations
+    MonitorElement* Module_ClusWidthVsAmpTH2 = 0;
   };
 
   struct LayerMEs{ // MEs for Layer Level
@@ -71,6 +72,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
     MonitorElement* LayerLocalOccupancyTrend = 0;
     MonitorElement* LayerNumberOfClusterProfile = 0;
     MonitorElement* LayerClusterWidthProfile = 0;
+    MonitorElement* LayerClusWidthVsAmpTH2 = 0;
 
   };
 
@@ -84,6 +86,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
     MonitorElement* SubDetApvDBxProf2 = 0;
     MonitorElement* SubDetClusterChargeTH1 = 0;
     MonitorElement* SubDetClusterWidthTH1 = 0;
+    MonitorElement* SubDetClusWidthVsAmpTH2 = 0;
   };
 
   struct ClusterProperties { // Cluster Properties
@@ -104,6 +107,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   MonitorElement* NumberOfStripClus = 0;
   MonitorElement* BPTXrateTrend = 0;
   MonitorElement* NclusVsCycleTimeProf2D = 0;
+  MonitorElement* ClusWidthVsAmpTH2 = 0;
 
  private:
 
@@ -123,6 +127,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
   MonitorElement * bookMETrend(const char* , DQMStore::IBooker & ibooker);
   MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName , DQMStore::IBooker & ibooker);
+  MonitorElement* bookME2D(const char* ParameterSetLabel, const char* HistoName , DQMStore::IBooker & ibooker);
 
   edm::ParameterSet conf_;
   std::map<uint32_t, ModMEs> ModuleMEsMap;
@@ -159,6 +164,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   bool layerswitchnrclusterizedstrip;
   bool layerswitchnumclusterprofon;
   bool layerswitchclusterwidthprofon;
+  bool layer_clusterWidth_vs_amplitude_on;
   
   bool globalswitchstripnoise2apvcycle;
   bool globalswitchstripnoise3apvcycle;
@@ -174,6 +180,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   bool moduleswitchcluswidthon;
   bool moduleswitchlocaloccupancy;
   bool moduleswitchnrclusterizedstrip;
+  bool module_clusterWidth_vs_amplitude_on;
   bool subdetswitchtotclusprofon;
   bool subdetswitchapvcycleprofon;
   bool subdetswitchapvcycleth2on;
@@ -182,6 +189,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   bool subdetswitchtotclusth1on;
   bool subdetswitchcluschargeon;
   bool subdetswitchcluswidthon;
+  bool subdet_clusterWidth_vs_amplitude_on;
   bool globalswitchapvcycledbxth2on;
   bool globalswitchcstripvscpix;
   bool globalswitchMultiRegions;
@@ -189,6 +197,7 @@ class SiStripMonitorCluster : public DQMEDAnalyzer {
   bool createTrendMEs;
   bool trendVsLs_;
   bool globalswitchnclusvscycletimeprof2don;
+  bool clusterWidth_vs_amplitude_on;
 
   bool Mod_On_;
   bool ClusterHisto_;
