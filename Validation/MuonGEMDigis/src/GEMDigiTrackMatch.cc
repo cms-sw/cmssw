@@ -54,11 +54,11 @@ void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
       TString title_suffix2 = title_suffix + TString::Format(" Station%d", station_num);
       TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
       TString dcEta_title_strip = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
-      TString dcEta_histname_strip = TString::Format("strip_dcEta%s", histname_suffix2.Data());
+      TString dcEta_histname_strip = TString::Format("strip_dcEta_trk%s", histname_suffix2.Data());
       TString dcEta_title_pad = TString::Format("Pad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
-      TString dcEta_histname_pad = TString::Format("pad_dcEta%s", histname_suffix2.Data());
+      TString dcEta_histname_pad = TString::Format("pad_dcEta_trk%s", histname_suffix2.Data());
       TString dcEta_title_copad = TString::Format("CoPad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
-      TString dcEta_histname_copad = TString::Format("copad_dcEta%s", histname_suffix2.Data());
+      TString dcEta_histname_copad = TString::Format("copad_dcEta_trk%s", histname_suffix2.Data());
 
       int nXbins = station->rings()[0]->nSuperChambers()*2;
       int nRoll1 = station->rings()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
@@ -200,7 +200,7 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if(station == 3) station = 2;
 
       TString histname_suffix_strip = TString::Format("_r%d_st%d", region, station);
-      TString dcEta_histname_strip = TString::Format("strip_dcEta%s", histname_suffix_strip.Data());
+      TString dcEta_histname_strip = TString::Format("strip_dcEta_trk%s", histname_suffix_strip.Data());
       theStrip_dcEta[dcEta_histname_strip.Hash()]->Fill(binX, binY);
     }
 
@@ -222,7 +222,7 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if(station == 3) station = 2;
   
       TString histname_suffix_pad = TString::Format("_r%d_st%d", region, station);
-      TString dcEta_histname_pad = TString::Format("pad_dcEta%s", histname_suffix_pad.Data());
+      TString dcEta_histname_pad = TString::Format("pad_dcEta_trk%s", histname_suffix_pad.Data());
       thePad_dcEta[dcEta_histname_pad.Hash()]->Fill(binX, binY);
   
     }  
@@ -243,7 +243,7 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
       int binY = nroll;
       
       TString histname_suffix_copad = TString::Format("_r%d_st%d", region, station);
-      TString dcEta_histname_copad = TString::Format("copad_dcEta%s", histname_suffix_copad.Data());
+      TString dcEta_histname_copad = TString::Format("copad_dcEta_trk%s", histname_suffix_copad.Data());
       theCoPad_dcEta[dcEta_histname_copad.Hash()]->Fill(binX, binY);
       theCoPad_dcEta[dcEta_histname_copad.Hash()]->Fill(binX+1, binY);
     }
