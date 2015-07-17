@@ -1,4 +1,3 @@
-<!-- this is template of the table placed on the front page -->
 <div class="content">
 <script>
 function changeState(item) {
@@ -19,7 +18,9 @@ $( document ).ready(function() {
             $('div#'+row.attr('id')).slideToggle(256);
             // we dont want to load whole iframes before they are showed
             var iframe = $('div#'+row.attr('id')).find('iframe');
-            /// FIXME: no need to set it again and again!
+            // no need to set the source again again if already set
+            if(iframe.attr('src')) return;
+
             iframe.attr('src', iframe.attr('data-src'));
         });
     });
