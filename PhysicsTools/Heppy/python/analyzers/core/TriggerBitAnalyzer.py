@@ -30,7 +30,7 @@ class TriggerBitAnalyzer( Analyzer ):
                     trigVec.push_back(TP)
                     if self.unrollbits :
                         if TP not in self.allPaths :
-                            self.allPaths.update(TP)
+                            self.allPaths.update([TP])
                             trigVecBit = ROOT.vector(ROOT.string)()
                             trigVecBit.push_back(TP)
                             outname="%s_BIT_%s"%(self.outprefix,TP)
