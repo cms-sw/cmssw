@@ -9,17 +9,35 @@
 #include "TLorentzVector.h"
 
 
+// CORAL
+#include "CoralBase/AttributeList.h"
+#include "CoralBase/Attribute.h"
+#include "CoralBase/MessageStream.h"
+#include "CoralKernel/Context.h"
+#include "CoralKernel/IProperty.h"
+#include "CoralKernel/IPropertyManager.h"
+#include "RelationalAccess/ISessionProxy.h"
+#include "RelationalAccess/IConnectionServiceConfiguration.h"
+#include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/ITransaction.h"
+#include "RelationalAccess/ITable.h"
+#include "RelationalAccess/TableDescription.h"
+#include "RelationalAccess/ITableDataEditor.h"
+#include "RelationalAccess/IQuery.h"
+#include "RelationalAccess/ICursor.h"
+
 #include <iostream>
 #include <iomanip>
 #include <stdio.h>
 #include <string>
 #include <sstream>
 #include <math.h>
+#include <vector>
 
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
-DQMExample_Step1::DQMExample_Step1(const edm::ParameterSet& ps)
+DQMExample_Step1::DQMExample_Step1(const edm::ParameterSet& ps): m_connectionService(), m_session(), m_connectionString( "" )
 {
   edm::LogInfo("DQMExample_Step1") <<  "Constructor  DQMExample_Step1::DQMExample_Step1 " << std::endl;
   
@@ -42,6 +60,59 @@ DQMExample_Step1::DQMExample_Step1(const edm::ParameterSet& ps)
   ptThrJet_ = ps.getUntrackedParameter<double>("PtThrJet");
   ptThrMet_ = ps.getUntrackedParameter<double>("PtThrMet");
  
+  //DQMStore
+  //dbe_ = edm::Service<DQMStore>().operator->();
+  
+  //Database connection configuration parameters
+  edm::ParameterSet connectionParameters = ps.getParameter<edm::ParameterSet>("DBParameters");
+  std::string authPath = connectionParameters.getUntrackedParameter<std::string>("authPath", "");
+  int messageLevel = connectionParameters.getUntrackedParameter<int>("messageLevel",0);
+  coral::MsgLevel level = coral::Error;
+  switch (messageLevel) {
+  case 0 :
+    level = coral::Error;
+    break;    
+  case 1 :
+      level = coral::Warning;
+    break;
+  case 2 :
+    level = coral::Info;
+    break;
+  case 3 :
+    level = coral::Debug;
+    break;
+  default:
+    level = coral::Error;
+  }
+  bool enableConnectionSharing = connectionParameters.getUntrackedParameter<bool>("enableConnectionSharing",true);
+  int connectionTimeOut = connectionParameters.getUntrackedParameter<int>("connectionTimeOut",600);
+  bool enableReadOnlySessionOnUpdateConnection = connectionParameters.getUntrackedParameter<bool>("enableReadOnlySessionOnUpdateConnection",true);
+  int connectionRetrialPeriod = connectionParameters.getUntrackedParameter<int>("connectionRetrialPeriod",30);
+  int connectionRetrialTimeOut = connectionParameters.getUntrackedParameter<int>("connectionRetrialTimeOut",180);
+  bool enablePoolAutomaticCleanUp = connectionParameters.getUntrackedParameter<bool>("enablePoolAutomaticCleanUp",false);
+  //connection string
+  m_connectionString = ps.getParameter<std::string>("connect");
+  //now configure the DB connection
+  coral::IConnectionServiceConfiguration& coralConfig = m_connectionService.configuration();
+  //TODO: set up the authentication mechanism
+  
+  // message streaming
+  coral::MessageStream::setMsgVerbosity( level );
+  //connection sharing
+  if(enableConnectionSharing) coralConfig.enableConnectionSharing();
+  else coralConfig.disableConnectionSharing();
+  //connection timeout
+  coralConfig.setConnectionTimeOut(connectionTimeOut);
+  //read-only session on update connection
+  if(enableReadOnlySessionOnUpdateConnection) coralConfig.enableReadOnlySessionOnUpdateConnections();
+  else coralConfig.disableReadOnlySessionOnUpdateConnections();
+  //connection retrial period
+  coralConfig.setConnectionRetrialPeriod( connectionRetrialPeriod );
+  //connection retrial timeout
+  coralConfig.setConnectionRetrialTimeOut( connectionRetrialTimeOut );
+  //pool automatic cleanup
+  if(enablePoolAutomaticCleanUp) coralConfig.enablePoolAutomaticCleanUp();
+  else coralConfig.disablePoolAutomaticCleanUp();
 }
 
 //
@@ -55,10 +126,93 @@ DQMExample_Step1::~DQMExample_Step1()
 //
 // -------------------------------------- beginRun --------------------------------------------
 //
-void DQMExample_Step1::dqmBeginRun(edm::Run const &, edm::EventSetup const &)
+void DQMExample_Step1::dqmBeginRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginRun" << std::endl;
+//open the CORAL session at beginRun:
+  //connect to DB only if you have events to process!
+  m_session.reset( m_connectionService.connect( m_connectionString, coral::Update ) );
+  //do not run in production!
+  //create the relevant tables
+  coral::ISchema& schema = m_session->nominalSchema();
+  m_session->transaction().start( false );
+  bool dqmTablesExist = schema.existsTable( "DQM_HISTOS" );
+  if( ! dqmTablesExist ) {
+    int columnSize = 200;
+    coral::TableDescription descr;
+    descr.setName( "DQM_HISTOS" );
+    descr.insertColumn( "HISTO_NAME", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
+    descr.insertColumn( "RUN_NUMBER", coral::AttributeSpecification::typeNameForType<unsigned int>() );
+    descr.insertColumn( "LUMISECTION", coral::AttributeSpecification::typeNameForType<unsigned int>() );
+    descr.insertColumn( "X_BINS", coral::AttributeSpecification::typeNameForType<int>() );
+    descr.insertColumn( "X_LOW", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "X_UP", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Y_BINS", coral::AttributeSpecification::typeNameForType<int>() );
+    descr.insertColumn( "Y_LOW", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Y_UP", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Z_BINS", coral::AttributeSpecification::typeNameForType<int>() );
+    descr.insertColumn( "Z_LOW", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Z_UP", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "ENTRIES", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "X_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "X_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "X_RMS", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "X_RMS_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "X_UNDERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "X_OVERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Y_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Y_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Y_RMS", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Y_RMS_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Y_UNDERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Y_OVERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Z_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Z_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Z_RMS", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Z_RMS_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Z_UNDERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.insertColumn( "Z_OVERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    descr.setNotNullConstraint( "HISTO_NAME" );
+    descr.setNotNullConstraint( "RUN_NUMBER" );
+    descr.setNotNullConstraint( "LUMISECTION" );
+    descr.setNotNullConstraint( "X_BINS" );
+    descr.setNotNullConstraint( "X_LOW" );
+    descr.setNotNullConstraint( "X_UP" );
+    descr.setNotNullConstraint( "Y_BINS" );
+    descr.setNotNullConstraint( "Y_LOW" );
+    descr.setNotNullConstraint( "Y_UP" );
+    descr.setNotNullConstraint( "Z_BINS" );
+    descr.setNotNullConstraint( "Z_LOW" );
+    descr.setNotNullConstraint( "Z_UP" );
+    descr.setNotNullConstraint( "ENTRIES" );
+    descr.setNotNullConstraint( "X_MEAN" );
+    descr.setNotNullConstraint( "X_MEAN_ERROR" );
+    descr.setNotNullConstraint( "X_RMS" );
+    descr.setNotNullConstraint( "X_RMS_ERROR" );
+    descr.setNotNullConstraint( "X_UNDERFLOW" );
+    descr.setNotNullConstraint( "X_OVERFLOW" );
+    descr.setNotNullConstraint( "Y_MEAN" );
+    descr.setNotNullConstraint( "Y_MEAN_ERROR" );
+    descr.setNotNullConstraint( "Y_RMS" );
+    descr.setNotNullConstraint( "Y_RMS_ERROR" );
+    descr.setNotNullConstraint( "Y_UNDERFLOW" );
+    descr.setNotNullConstraint( "Y_OVERFLOW" );
+    descr.setNotNullConstraint( "Z_MEAN" );
+    descr.setNotNullConstraint( "Z_MEAN_ERROR" );
+    descr.setNotNullConstraint( "Z_RMS" );
+    descr.setNotNullConstraint( "Z_RMS_ERROR" );
+    descr.setNotNullConstraint( "Z_UNDERFLOW" );
+    descr.setNotNullConstraint( "Z_OVERFLOW" );
+    std::vector<std::string> columnsForIndex;
+    columnsForIndex.push_back( "HISTO_NAME" );
+    columnsForIndex.push_back( "RUN_NUMBER" );
+    columnsForIndex.push_back( "LUMISECTION" );
+    descr.setPrimaryKey( columnsForIndex );
+    schema.createTable( descr );
+  }
+  m_session->transaction().commit();
 }
+
 //
 // -------------------------------------- bookHistos --------------------------------------------
 //
@@ -305,6 +459,84 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
 {
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endLuminosityBlock" << std::endl;
+  //get the data from the histograms and fill the DB table
+  m_session->transaction().start(false);
+  coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "DQM_HISTOS" ).dataEditor();
+  coral::AttributeList insertData;
+  insertData.extend< std::string >( "HISTO_NAME" );
+  insertData.extend< unsigned int >( "RUN_NUMBER" );
+  insertData.extend< unsigned int >( "LUMISECTION" );
+  insertData.extend< int >( "X_BINS" );
+  insertData.extend< double >( "X_LOW" );
+  insertData.extend< double >( "X_UP" );
+  insertData.extend< int >( "Y_BINS" );
+  insertData.extend< double >( "Y_LOW" );
+  insertData.extend< double >( "Y_UP" );
+  insertData.extend< int >( "Z_BINS" );
+  insertData.extend< double >( "Z_LOW" );
+  insertData.extend< double >( "Z_UP" );
+  insertData.extend< double >( "ENTRIES" );
+  insertData.extend< double >( "X_MEAN" );
+  insertData.extend< double >( "X_MEAN_ERROR" );
+  insertData.extend< double >( "X_RMS" );
+  insertData.extend< double >( "X_RMS_ERROR" );
+  insertData.extend< double >( "X_UNDERFLOW");
+  insertData.extend< double >( "X_OVERFLOW" );
+  insertData.extend< double >( "Y_MEAN" );
+  insertData.extend< double >( "Y_MEAN_ERROR" );
+  insertData.extend< double >( "Y_RMS" );
+  insertData.extend< double >( "Y_RMS_ERROR" );
+  insertData.extend< double >( "Y_UNDERFLOW");
+  insertData.extend< double >( "Y_OVERFLOW" );
+  insertData.extend< double >( "Z_MEAN" );
+  insertData.extend< double >( "Z_MEAN_ERROR" );
+  insertData.extend< double >( "Z_RMS" );
+  insertData.extend< double >( "Z_RMS_ERROR" );
+  insertData.extend< double >( "Z_UNDERFLOW");
+  insertData.extend< double >( "Z_OVERFLOW" );
+  insertData[ "HISTO_NAME" ].data< std::string >() = h_vertex_number->getFullname();
+  insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
+  insertData[ "LUMISECTION" ].data< unsigned int >() = lumiSeg.luminosityBlock();
+  insertData[ "X_BINS" ].data< int >() = h_vertex_number->getNbinsX(); //or h_vertex_number->getTH1()->GetNbinsX() ?
+  insertData[ "X_LOW" ].data< double >() = h_vertex_number->getTH1()->GetXaxis()->GetXmin();
+  insertData[ "X_UP" ].data< double >() = h_vertex_number->getTH1()->GetXaxis()->GetXmax();
+  //FIXME: should determine from the ME itself whether or not
+  // the definitions of the 2nd and 3rd dimensions of the histograms are to be inserted!
+  insertData[ "Y_BINS" ].data< int >() = 0; //h_vertex_number->getNbinsY();
+  insertData[ "Y_LOW" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetYaxis()->GetXMin();
+  insertData[ "Y_UP" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetYaxis()->GetXMax();
+  insertData[ "Z_BINS" ].data< int >() = 0; //h_vertex_number->getNbinsZ();
+  insertData[ "Z_LOW" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetZaxis()->GetXMin();
+  insertData[ "Z_UP" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetZaxis()->GetXMax();
+  insertData[ "ENTRIES" ].data< double >() = h_vertex_number->getEntries(); //or h_vertex_number->getTH1()->GetEntries() ?
+  //FIXME: if we use MonitorElement::getMean{Error} or MonitorElement::getRMS{Error}
+  // there is a check on the dimension of the TH1, which must be larger than the axis number - 1
+  // i.e. 0 for x axis, 1 for y axis, 2 for z axis.
+  // If we get the pointer to the TH1 object, we can avoid this check, and we are guaranteed that
+  // TH1 will give 0 for non-existing dimensions
+  // (indeed, in TH1::GetStats, the stats array is inizialized to 0 for elements between 4 and 10).
+  insertData[ "X_MEAN" ].data< double >() = h_vertex_number->getTH1()->GetMean();
+  insertData[ "X_MEAN_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetMeanError();
+  insertData[ "X_RMS" ].data< double >() = h_vertex_number->getTH1()->GetRMS();
+  insertData[ "X_RMS_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetRMSError();
+  //FIXME: should determine from the ME itself whether or not the underflow and overflow bins are to be inserted.
+  // Also, we should define what underflow and overflow mean in 2-D and 3-D histos.
+  insertData[ "X_UNDERFLOW" ].data< double >() = h_vertex_number->getTH1()->GetBinContent( 0 );
+  insertData[ "X_OVERFLOW" ].data< double >() = h_vertex_number->getTH1()->GetBinContent( h_vertex_number->getTH1()->GetNbinsX() + 1 );
+  insertData[ "Y_MEAN" ].data< double >() = h_vertex_number->getTH1()->GetMean( 2 );
+  insertData[ "Y_MEAN_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetMeanError( 2 );
+  insertData[ "Y_RMS" ].data< double >() = h_vertex_number->getTH1()->GetRMS( 2 );
+  insertData[ "Y_RMS_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetRMSError( 2 );
+  insertData[ "Y_UNDERFLOW" ].data< double >() = 0.;
+  insertData[ "Y_OVERFLOW" ].data< double >() = 0.;
+  insertData[ "Z_MEAN" ].data< double >() = h_vertex_number->getTH1()->GetMean( 3 );
+  insertData[ "Z_MEAN_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetMeanError( 3 );
+  insertData[ "Z_RMS" ].data< double >() = h_vertex_number->getTH1()->GetRMS( 3 );
+  insertData[ "Z_RMS_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetRMSError( 3 );
+  insertData[ "Z_UNDERFLOW" ].data< double >() = 0.;
+  insertData[ "Z_OVERFLOW" ].data< double >() = 0.;
+  editor.insertRow( insertData );
+  m_session->transaction().commit();
 }
 
 
@@ -314,7 +546,18 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 void DQMExample_Step1::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endRun" << std::endl;
+
+  //no more data to process:
+  //close DB session
+  m_session.reset();
 }
+
+
+
+
+
+
+
 
 
 //

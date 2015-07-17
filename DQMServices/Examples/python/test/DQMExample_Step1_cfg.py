@@ -28,7 +28,7 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
         #reco from relVals
-        'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/datatest/forTutorial/step2_RAW2DIGI_RECO_fromRelValTTbarLepton.root'
+        'file:/build/aandrzej/CMSSW_7_6_0_pre1/src/DQMServices/Examples/python/test/1324.0_TTbarLepton_13+TTbarLepton_13INPUT+DIGIUP15+RECOUP15+HARVESTUP15+MINIAODMCUP15/step3.root'
         )
 )
 

@@ -44,6 +44,17 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
+//CORAL includes
+#include "RelationalAccess/ConnectionService.h"
+
+//STL includes
+#include <memory>
+#include <string>
+
+//forward declarations
+namespace coral {
+  class ISessionProxy;
+}
  
 class DQMExample_Step1: public DQMEDAnalyzer{
 
@@ -121,6 +132,13 @@ private:
   MonitorElement* h_jPhi_leading;
   
   MonitorElement* h_ePt_diff;
+  
+  //CORAL connection
+  coral::ConnectionService m_connectionService;
+  //unique pointer to a CORAL session proxy
+  std::unique_ptr<coral::ISessionProxy> m_session;
+  //connection string
+  std::string m_connectionString;
 };
 
 
