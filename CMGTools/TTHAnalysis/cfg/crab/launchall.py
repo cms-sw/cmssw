@@ -3,10 +3,10 @@ import imp, os
 # datasets to run as defined from run_susyMT2.cfg
 # number of jobs to run per dataset decided based on splitFactor and fineSplitFactor from cfg file
 # in principle one only needs to modify the following two lines:
-production_label = "prod74Xdata_Run2015B_vendredi"
-cmg_version = 'MT2_CMGTools-from-CMSSW_7_4_3'
+production_label = "prod747data_test"
+cmg_version = 'MT2_CMGTools-from-CMSSW_7_4_7'
 
-debug  = False
+debug  = True
 useAAA = True
 
 JSON = "$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/DCSONLY_Run2015B.json"
