@@ -9,7 +9,7 @@ cmg_version = 'MT2_CMGTools-from-CMSSW_7_4_7'
 debug  = True
 useAAA = True
 
-JSON = "$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/DCSONLY_Run2015B.json"
+JSON = "$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/json_DCSONLY_Run2015B.txt"
 #JSON = "$CMSSW_BASE/src/CMGTools/TTHAnalysis/data/json/Cert_246908-251252_13TeV_PromptReco_Collisions15_JSON.txt"
 
 #recreate cached datasets for data that keep evolving (remove)
