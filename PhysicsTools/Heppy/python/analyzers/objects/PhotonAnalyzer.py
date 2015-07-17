@@ -288,6 +288,7 @@ class PhotonAnalyzer( Analyzer ):
         gamma.ftprAbsIsoCharged03 = self.IsolationComputer.chargedAbsIso(gamma.physObj, 0.3, 0, 0.0);
         gamma.ftprAbsIsoPho03     = self.IsolationComputer.photonAbsIsoRaw( gamma.physObj, 0.3, 0, 0.0);
         gamma.ftprAbsIsoNHad03    = self.IsolationComputer.neutralHadAbsIsoRaw( gamma.physObj, 0.3, 0, 0.0);
+        gamma.ftprAbsIso03 = gamma.ftprAbsIsoCharged03 + gamma.ftprAbsIsoPho03 + gamma.ftprAbsIsoNHad03
         if self.cfg_ana.gamma_isoCorr == "rhoArea":
             gamma.ftprAbsIso03 = (max(gamma.ftprAbsIsoCharged03-gamma.rho*gamma.EffectiveArea03[0],0) + max(gamma.ftprAbsIsoPho03-gamma.rho*gamma.EffectiveArea03[1],0) + max(gamma.ftprAbsIsoNHad03 - gamma.rho*gamma.EffectiveArea03[2],0))
         elif self.cfg_ana.gamma_isoCorr != 'raw':
