@@ -12,6 +12,9 @@ cfg.Analyzer.nosubdir = True
 ## Redefine what I need
 ##------------------------------------------
 
+### jet pt treshold for mt2 calculation
+mt2JPt = 30.0
+
 #Vertex
 vertexAna.keepFailingEvents = True # keep events with no good vertices
 
@@ -99,9 +102,10 @@ metAna.recalibrate = False
 genAna.allGenTaus = True
 
 # Core Analyzer
-ttHCoreEventAna.mhtForBiasedDPhi = "mhtJet40jvec"
+#ttHCoreEventAna.mhtForBiasedDPhi = "mhtJet40jvec"
+ttHCoreEventAna.mhtForBiasedDPhi = "mhtJetXjvec"
 #ttHCoreEventAna.jetPt = 40.
-ttHCoreEventAna.jetPt = 30. ### jet pt 30
+ttHCoreEventAna.jetPt = mt2JPt ### jet pt 30: this will change ht and mht
 
 # switch off the SV and MC matching
 #ttHSVAna.do_mc_match = False
@@ -115,7 +119,7 @@ from CMGTools.TTHAnalysis.analyzers.ttHMT2Control import ttHMT2Control
 ttHMT2Control = cfg.Analyzer(
             ttHMT2Control, name = 'ttHMT2Control',
 #            jetPt = 40.,
-            jetPt = 30., ### jet pt 30
+            jetPt = mt2JPt, ### jet pt 30: this will change control variables (gamma_ and zll_)
             )
 
 ##------------------------------------------
@@ -128,7 +132,7 @@ ttHTopoJetAna = cfg.Analyzer(
             ttHTopoVarAnalyzer, name = 'ttHTopoVarAnalyzer',
             doOnlyDefault = True,
 #            jetPt = 40.,
-            jetPt = 30., ### jet pt 30
+            jetPt = mt2JPt, ### jet pt 30: this will change diffMetMht and deltaPhiMin
             )
 
 from PhysicsTools.Heppy.analyzers.eventtopology.MT2Analyzer import MT2Analyzer
@@ -137,7 +141,7 @@ MT2Ana = cfg.Analyzer(
     MT2Analyzer, name = 'MT2Analyzer',
     doOnlyDefault = True,
 #    jetPt = 40.,
-    jetPt = 30., ### jet pt 30
+    jetPt = mt2JPt, ### jet pt 30: this will change MT2 and pseudo-jets
     )
 
 ##------------------------------------------
@@ -301,13 +305,13 @@ elif test==1:
 #    comp=GJets_HT200to400
 #    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/gjets_ht200to400_miniaodsim_fix.root']
 
-    comp=TTJets
-    #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/TTJets_miniAOD_fixPhoton_forSynch.root']
-    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
-#    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
-
 #    comp=TTJets
-#    comp.files = comp.files[:1]
+#    #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTfilesPHY14/TTJets_miniAOD_fixPhoton_forSynch.root']
+#    comp.files = ['/afs/cern.ch/user/d/dalfonso/public/TESTspring/ttbar25nsmad_1ECE44F9-5F02-E511-9A65-02163E00EA1F.root']
+#    #comp.files = ['/afs/cern.ch/user/d/dalfonso/public/74samples/JetHT_GR_R_74_V12_19May_RelVal/1294BDDB-B7FE-E411-8028-002590596490.root']
+
+    comp=TTJets
+    comp.files = comp.files[:1]
 
     selectedComponents = [comp]
     comp.splitFactor = 1
@@ -342,8 +346,19 @@ elif test==2:
     selectedComponents = [ 
 TTJets_LO_50ns, 
 WJetsToLNu_50ns, 
-DYJetsToLL_M50_50ns, 
-QCDPt_50ns,
+DYJetsToLL_M50_50ns,
+QCD_Pt80to120_50ns,
+QCD_Pt120to170_50ns,
+QCD_Pt170to300_50ns,
+QCD_Pt300to470_50ns,
+QCD_Pt470to600_50ns,
+QCD_Pt600to800_50ns,
+QCD_Pt800to1000_50ns,
+QCD_Pt1000to1400_50ns,
+QCD_Pt1400to1800_50ns,
+QCD_Pt1800to2400_50ns,
+QCD_Pt2400to3200_50ns,
+QCD_Pt3200toInf_50ns,
 ]
     
     # test all components (1 thread per component).
@@ -369,10 +384,9 @@ elif test==3:
     #, JetHT_Run2015B, HTMHT_Run2015B, MET_Run2015B, SingleElectron_Run2015B, SingleMu_Run2015B, SingleMuon_Run2015B, SinglePhoton_Run2015B, EGamma_Run2015B, DoubleEG_Run2015B, MuonEG_Run2015B, DoubleMuon_Run2015B, minBias_Run2015B, zeroBias_Run2015B]
 
     comp = JetHT_Run2015B
-#    comp.files = ['root://xrootd-cms.infn.it//store/data/Run2015B/JetHT/MINIAOD/PromptReco-v1/000/251/244/00000/741C7214-1B28-E511-A528-02163E013406.root']
+    comp.files = ['root://xrootd-cms.infn.it//store/data/Run2015B/JetHT/MINIAOD/PromptReco-v1/000/251/244/00000/741C7214-1B28-E511-A528-02163E013406.root']
 #    comp.files = ['/shome/mmasciov/741C7214-1B28-E511-A528-02163E013406.root']
-    comp.files = ['/shome/mmasciov/EA306540-E928-E511-B726-02163E0143C0.root']
-    comp.splitFactor  = 1
+#    comp.files = ['/shome/mmasciov/EA306540-E928-E511-B726-02163E0143C0.root']
     selectedComponents = [comp]
     
 # ------------------------------------------------------------------------------------------- #
