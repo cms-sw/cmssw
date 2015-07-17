@@ -2,6 +2,7 @@
 
 cmsenv
 
+set PWDv    = `pwd`
 set SOURCE  = $CMSSW_BASE/src
 set SCRIPTS = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/python
 set DATA    = $CMSSW_BASE/src/Documentation/ReferenceManualScripts/data
@@ -40,3 +41,8 @@ cp $HTML/pagesList_A.html $HTML/pages.html
 cp $HTML/namespaces.html.original $HTML/configfiles.html
 python $SCRIPTS/TableParser.py $HTML/configfiles.html
 cp $HTML/configfilesList_A.html $HTML/configfiles.html
+
+
+cd $CMSSW_BASE/..
+find $CMSSW_VERSION/doc -type f -name "*.html" > $CMSSW_BASE/$CMSSW_VERSION.index
+cd $PWDv
