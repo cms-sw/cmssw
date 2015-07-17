@@ -239,7 +239,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
       edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::analyze: unable to read L1 jet collection " << l1ExtraJets_.encode();
     }
 
-    if(met.isValid()) {
+    if(met.isValid() && met.product()->size() > 0) {
       if(!doRefAnalysis_) {
 	if( met.product()->begin()->et() > l1ETMMin_) l1etmEt_->Fill(met.product()->begin()->et());
       }
@@ -306,7 +306,7 @@ void HLTTauDQML1Plotter::analyze( const edm::Event& iEvent, const edm::EventSetu
             }
         }
 
-	if(met.isValid()) {
+	if(met.isValid() && met.product()->size() > 0) {
           l1etmEt_->Fill(met.product()->begin()->et());
           l1etmPhi_->Fill(met.product()->begin()->phi());
 
