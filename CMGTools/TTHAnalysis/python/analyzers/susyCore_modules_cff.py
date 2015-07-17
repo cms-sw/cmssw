@@ -264,8 +264,9 @@ isoTrackAna = cfg.Analyzer(
     dzPartMax = 0.1,
     maxAbsIso = 8,
     #####
-    MaxIsoSum = 0.1, ### unused
-    MaxIsoSumEMU = 0.2, ### unused
+    doRelIsolation = False,
+    MaxIsoSum = 0.1, ### unused if not rel iso
+    MaxIsoSumEMU = 0.2, ### unused if not rel iso
     doSecondVeto = False,
     #####
     doPrune = True
