@@ -23,7 +23,9 @@ caloParams = cms.ESProducer(
     # regions
     regionLsb        = cms.double(0.5),
     regionPUSType    = cms.string("None"),
+    regionPUSVersion = cms.int32(0),
     regionPUSParams  = cms.vdouble(),
+    regionPUSLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/regionPUS_PUM0_LUT_v0.txt"),
 
     # EG
     egLsb                      = cms.double(0.5),

@@ -9,7 +9,9 @@ import L1Trigger.L1TCalorimeter.caloParams_cfi
 caloStage1Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone()
 
 caloStage1Params.regionPUSType    = cms.string("PUM0")       #"None" for no PU subtraction, "PUM0", "HICaloRingSub"
+caloStage1Params.regionPUSVersion = cms.int32(1) # 0 uses PUSParams, 1 uses PUSLUTFile
 caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
+caloStage1Params.regionPUSLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/regionPUS_PUM0_LUT_v0.txt")
 
 # EG
 caloStage1Params.egLsb                = cms.double(1.)

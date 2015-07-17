@@ -14,14 +14,14 @@
 #define Stage2Layer2JetAlgorithmFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetAlgorithm.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 namespace l1t {
 
   // Imp1 is for v1 and v2
   class Stage2Layer2JetAlgorithmFirmwareImp1 : public Stage2Layer2JetAlgorithm {
   public:
-    Stage2Layer2JetAlgorithmFirmwareImp1(CaloParams* params);
+    Stage2Layer2JetAlgorithmFirmwareImp1(CaloParamsHelper* params);
     virtual ~Stage2Layer2JetAlgorithmFirmwareImp1();
     virtual void processEvent(const std::vector<CaloTower> & towers,
 			      std::vector<Jet> & jets, std::vector<Jet> & alljets);
@@ -33,15 +33,15 @@ namespace l1t {
 
     double calibFit(double*, double*);
 
-    int donutPUEstimate(int jetEta, int jetPhi, int size, 
+    int donutPUEstimate(int jetEta, int jetPhi, int size,
                         const std::vector<l1t::CaloTower> & towers);
-    
-    int chunkyDonutPUEstimate(int jetEta, int jetPhi, int pos, 
+
+    int chunkyDonutPUEstimate(int jetEta, int jetPhi, int pos,
                               const std::vector<l1t::CaloTower> & towers);
 
   private:
 
-    CaloParams* const params_;
+    CaloParamsHelper* const params_;
 
   };
 

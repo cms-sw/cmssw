@@ -18,9 +18,8 @@ namespace l1t {
   /// --------------- For heavy ion -------------------------------------
   void HICaloRingSubtraction(const std::vector<l1t::CaloRegion> & regions,
 			     std::vector<l1t::CaloRegion> *subRegions,
-			     std::vector<double> regionPUSParams,
-			     std::string regionPUSType)
-  {
+			     CaloParamsHelper *params)  {
+    std::string regionPUSType = params->regionPUSType();
     int puLevelHI[L1CaloRegionDetId::N_ETA];
 
     for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
@@ -84,10 +83,8 @@ namespace l1t {
 
   void RegionCorrection(const std::vector<l1t::CaloRegion> & regions,
 			std::vector<l1t::CaloRegion> *subRegions,
-			std::vector<double> regionPUSParams,
-			std::string regionPUSType)
-  {
-
+			CaloParamsHelper *params)  {
+    std::string regionPUSType = params->regionPUSType();
     if(regionPUSType == "None") {
       for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
 	  notCorrectedRegion != regions.end(); notCorrectedRegion++){
@@ -97,7 +94,7 @@ namespace l1t {
     }
 
     if (regionPUSType == "HICaloRingSub") {
-      HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
+      HICaloRingSubtraction(regions, subRegions, params);
     }
 
     if (regionPUSType == "PUM0") {
@@ -120,14 +117,8 @@ namespace l1t {
 	int regionEta = notCorrectedRegion->hwEta();
 	int regionPhi = notCorrectedRegion->hwPhi();
 
-	int puSub = ceil(regionPUSParams[18*regionEta+pumbin]*2);
-	// The values in regionSubtraction are MULTIPLIED by
-	// RegionLSB=.5 (physicalRegionEt), so to get back unmultiplied
-	// regionSubtraction we want to multiply the number by 2
-	// (aka divide by LSB).
-
-	//if(puSub > 0)
-	//std::cout << "eta: " << regionEta << " pusub: " << puSub << std::endl;
+	//int puSub = ceil(regionPUSParams[18*regionEta+pumbin]*2);
+	int puSub = params->regionPUSValue(pumbin, regionEta);
 
 	int regionEtCorr = std::max(0, regionET - puSub);
 
@@ -135,9 +126,6 @@ namespace l1t {
 	CaloRegion newSubRegion(*&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, notCorrectedRegion->hwQual(), notCorrectedRegion->hwEtEm(), notCorrectedRegion->hwEtHad());
 	subRegions->push_back(newSubRegion);
       }
-      //std::cout << "PUM0 " << puMult << std::endl;
     }
-
   }
-
 }

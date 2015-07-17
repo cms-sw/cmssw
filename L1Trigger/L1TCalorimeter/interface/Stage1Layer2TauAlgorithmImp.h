@@ -3,8 +3,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2TauAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2JetAlgorithmImp.h"
-//#include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1TauIsolationLUT.h"
 
@@ -15,7 +14,7 @@ namespace l1t {
 
   class Stage1Layer2SingleTrackHI : public Stage1Layer2TauAlgorithm {
   public:
-    Stage1Layer2SingleTrackHI(CaloParamsStage1* params);
+    Stage1Layer2SingleTrackHI(CaloParamsHelper* params);
     virtual ~Stage1Layer2SingleTrackHI();
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
                               const std::vector<l1t::CaloRegion> & regions,
@@ -23,13 +22,13 @@ namespace l1t {
                               std::vector<l1t::Tau> * taus);
 
   private:
-    CaloParamsStage1* const params_;
+    CaloParamsHelper* const params_;
 
  };
 
   class Stage1Layer2TauAlgorithmImpPP : public Stage1Layer2TauAlgorithm {
   public:
-    Stage1Layer2TauAlgorithmImpPP(CaloParamsStage1* params);
+    Stage1Layer2TauAlgorithmImpPP(CaloParamsHelper* params);
     virtual ~Stage1Layer2TauAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
                               const std::vector<l1t::CaloRegion> & regions,
@@ -38,7 +37,7 @@ namespace l1t {
 
   private:
 
-    CaloParamsStage1* const params_;
+    CaloParamsHelper* const params_;
 
     string findNESW(int ieta, int iphi, int neta, int nphi) const;
 
@@ -54,7 +53,7 @@ namespace l1t {
 
   class Stage1Layer2TauAlgorithmImpHW : public Stage1Layer2TauAlgorithm {
   public:
-    Stage1Layer2TauAlgorithmImpHW(CaloParamsStage1* params);
+    Stage1Layer2TauAlgorithmImpHW(CaloParamsHelper* params);
     virtual ~Stage1Layer2TauAlgorithmImpHW();
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
                               const std::vector<l1t::CaloRegion> & regions,
@@ -63,8 +62,8 @@ namespace l1t {
 
   private:
 
-    CaloParamsStage1* const params_;
-    Stage1TauIsolationLUT* isoTauLut;    
+    CaloParamsHelper* const params_;
+    Stage1TauIsolationLUT* isoTauLut;
 
 
     string findNESW(int ieta, int iphi, int neta, int nphi) const;

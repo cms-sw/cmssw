@@ -14,7 +14,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsStage1* params) : params_(params) {}
+l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsHelper* params) : params_(params) {}
 
 l1t::Stage1Layer2SingleTrackHI::~Stage1Layer2SingleTrackHI(){};
 
@@ -25,14 +25,11 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 						  std::vector<l1t::Tau> * isoTaus,
 						  std::vector<l1t::Tau> * taus)
 {
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
-
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Tau> *preGtEtaTaus = new std::vector<l1t::Tau>();
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
 
-  HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
+  HICaloRingSubtraction(regions, subRegions, params_);
   findRegions(subRegions, preGtEtaTaus);
   TauToGtEtaScales(params_, preGtEtaTaus, preGtTaus);
   TauToGtPtScales(params_, preGtTaus, taus);

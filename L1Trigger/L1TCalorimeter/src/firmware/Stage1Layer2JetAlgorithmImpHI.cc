@@ -16,7 +16,7 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpHI::Stage1Layer2JetAlgorithmImpHI(CaloParamsStage1* params) : params_(params) { };
+Stage1Layer2JetAlgorithmImpHI::Stage1Layer2JetAlgorithmImpHI(CaloParamsHelper* params) : params_(params) { };
 
 Stage1Layer2JetAlgorithmImpHI::~Stage1Layer2JetAlgorithmImpHI(){};
 
@@ -25,14 +25,11 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
 						 std::vector<l1t::Jet> * jets,
 						 std::vector<l1t::Jet> * preGtJets ){
 
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
-
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> *unSortedJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> *preGtEtaJets = new std::vector<l1t::Jet>();
 
-  HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
+  HICaloRingSubtraction(regions, subRegions, params_);
   TwoByTwoFinder(subRegions, unSortedJets);
   SortJets(unSortedJets, preGtEtaJets);
   JetToGtEtaScales(params_, preGtEtaJets, preGtJets);
