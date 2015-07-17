@@ -1,0 +1,223 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SolidSection label="hgcalEE.xml">
+ <Polyhedra name="HGCalEEM" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+  <ZSection z="[hgcal:zMinEE]" rMin="[hgcal:rMinEEMin]" rMax="[hgcal:rMapEEMin]"/>
+  <ZSection z="[hgcal:zMaxEE]" rMin="[hgcal:rMinEEMax]" rMax="[hgcal:rMapEEMax]"/>
+ </Polyhedra>
+</SolidSection>
+
+<LogicalPartSection label="hgcalEE.xml">
+ <LogicalPart name="HGCalEEM" category="unspecified"> 
+  <rSolid name="HGCalEEM"/> 
+  <rMaterial name="materials:Air"/> 
+ </LogicalPart>
+</LogicalPartSection> 
+
+<PosPartSection label="hgcalEE.xml">
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalEE"/>
+  <String name="ChildName"    value="HGCalEEM"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo"  value="1"/>
+  <Numeric name="N"           value="18"/>
+  <Numeric name="StartAngle"  value="0*deg"/>
+  <Numeric name="RangeAngle"  value="360*deg"/>
+  <Numeric name="Radius" value="0*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
+ </Algorithm>
+ <Algorithm name="hgcal:DDHGCalEEAlgo">
+  <rParent name="hgcalEE:HGCalEEM"/>
+  <Vector name="MaterialNames" type="string" nEntries="14">
+   materials:Tungsten, materials:Tungsten, materials:Tungsten, materials:Lead, 
+   materials:Lead,     materials:Lead,     materials:Copper,   materials:Copper,
+   materials:Silicon,  materials:M_NEMA FR4 plate,             materials:Air,
+   materials:Foam,     materials:Aluminium, materials:Air</Vector>
+  <Vector name="VolumeNames" type="string" nEntries="14">
+   EEAbsorber1, EEAbsorber2, EEAbsorber3,  EEAbsorber4, EEAbsorber5, 
+   EEAbsorber6, EECuFrame,   EEHeatShield, EESensitive, EEPCB, 
+   EEAirGap,    EEThermalScreen, EEScreenCover, EEThermalGap</Vector>
+  <Vector name="Thickness" type="numeric" nEntries="14">
+   1.75*mm,  2.8*mm,  4.2*mm,  1.0*mm,  2.1*mm,  4.4*mm, 
+   0.5*mm,   3.0*mm,  0.1*mm,  1.2*mm,  2.0*mm, 16.0*mm, 2.0*mm, 10.0*mm</Vector>
+  <String name="Rotation" value="rotations:YXZ4"/>
+  <Vector name="LayerType" type="numeric" nEntries="245"> 12, 11, 12, 13,
+      6, 10, 9, 8, 8, 8, 7, 3,
+   0, 6, 10, 9, 8, 8, 8, 7, 3, 7, 8, 8, 8, 9, 10, 6,
+   0, 6, 10, 9, 8, 8, 8, 7, 3, 7, 8, 8, 8, 9, 10, 6,
+   0, 6, 10, 9, 8, 8, 8, 7, 3, 7, 8, 8, 8, 9, 10, 6,
+   0, 6, 10, 9, 8, 8, 8, 7, 3, 7, 8, 8, 8, 9, 10, 6,
+   0, 6, 10, 9, 8, 8, 8, 7, 3, 7, 8, 8, 8, 9, 10, 6,
+   1, 6, 10, 9, 8, 8, 8, 7, 4, 7, 8, 8, 8, 9, 10, 6,
+   1, 6, 10, 9, 8, 8, 8, 7, 4, 7, 8, 8, 8, 9, 10, 6,
+   1, 6, 10, 9, 8, 8, 8, 7, 4, 7, 8, 8, 8, 9, 10, 6,
+   1, 6, 10, 9, 8, 8, 8, 7, 4, 7, 8, 8, 8, 9, 10, 6,
+   1, 6, 10, 9, 8, 8, 8, 7, 4, 7, 8, 8, 8, 9, 10, 6,
+   2, 6, 10, 9, 8, 8, 8, 7, 5, 7, 8, 8, 8, 9, 10, 6,
+   2, 6, 10, 9, 8, 8, 8, 7, 5, 7, 8, 8, 8, 9, 10, 6,
+   2, 6, 10, 9, 8, 8, 8, 7, 5, 7, 8, 8, 8, 9, 10, 6,
+   2, 6, 10, 9, 8, 8, 8, 7, 5, 7, 8, 8, 8, 9, 10, 6,
+   2, 6, 10, 9, 8, 8, 8, 7, 3
+  </Vector>
+  <Vector name="HeightType" type="numeric" nEntries="245">
+   0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+   0, 1, 1, 1, 1, 1, 1, 1, 1
+  </Vector>
+  <Vector name="LayerThick" type="numeric" nEntries="245"> 30*mm, 30*mm, 30*mm, 30*mm,
+   8.00*mm, 8.00*mm, 8.00*mm, 8.00*mm, 8.00*mm, 8.00*mm, 8.00*mm, 8.00*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,16.75*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,18.90*mm,
+  22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,
+  22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,
+  22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,
+  22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,
+  22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,
+  22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,
+  22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,
+  22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,22.60*mm,
+  12.20*mm,12.20*mm,12.20*mm,12.20*mm,12.20*mm,12.20*mm,12.20*mm,12.20*mm,
+  12.20*mm </Vector>
+  <Numeric name="zMinBlock"   value="[hgcal:zMinEE]"/>
+  <Numeric name="Sectors"     value="18"/>
+  <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
+  <Vector name="SlopeTop" type="numeric" nEntries="4">
+    [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
+  <Vector name="ZFront" type="numeric" nEntries="4">
+    [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
+  <Vector name="RMaxFront" type="numeric" nEntries="4">
+    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal2], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
+ </Algorithm>
+</PosPartSection> 
+
+<SpecParSection label="hgcalEE.xml" eval="true">
+  <SpecPar name="HGCalEE">
+    <PartSelector path="//HGCalEESensitive.*"/>
+    <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+    <Parameter name="Granularity" value="9.5*mm"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>
