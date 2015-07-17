@@ -13,6 +13,13 @@ total = 0  # total number of jobs for given dataset, not used at the moment
 nevents = None # this means run all events
 nprint  = 0 # quiet printout, change if you want to print the first nprint events
 useAAA = True # use xrootd by default
+json = None
+
+def XrootdRedirector():
+    americas     = ["CO", "MX","US"]
+    oldcontinent = ["AT", "BE", "CH", "DE", "EE", "ES", "FR", "GR", "HU", "IT", "RU", "UK"]
+    region = os.environ["GLIDEIN_CMSSite"].split("_")[1] if "GLIDEIN_CMSSite" in os.environ else ""
+    return  "xrootd-cms.infn.it/" if region in oldcontinent else "cmsxrootd.fnal.gov/" if region in americas else "cms-xrd-global.cern.ch/" 
 
 # arguments of scriptExe
 print "ARGV:",sys.argv
@@ -31,6 +38,9 @@ for arg in sys.argv[2:]:
     elif arg.split("=")[0] == "useAAA":
         useAAA = not (arg.split("=")[1] == 'False') # 'True' by default
         if useAAA: print "chosen to run via xrootd"
+    elif arg.split("=")[0] == "json":
+        json = arg.split("=")[1]
+        print "run on json:", json
 
 print "dataset:", dataset
 print "job", job , " out of", total
@@ -47,10 +57,12 @@ from PhysicsTools.HeppyCore.framework.heppy import split
 selectedComponents = []
 for comp in config.components:
     if comp.name == dataset:
+        if comp.isData and json != None:
+            comp.json = json
         # this selects the files and events and changes the name to _ChunkX according to fineSplitFactor and splitFactor
         newComp = split([comp])[job-1] # first job number is 1
         if useAAA:
-            newComp.files = [x.replace("root://eoscms.cern.ch//eos/cms","root://cms-xrd-global.cern.ch/") for x in newComp.files]
+            newComp.files = [x.replace("root://eoscms.cern.ch//eos/cms","root://" + XrootdRedirector()) for x in newComp.files]
         selectedComponents.append(newComp)
 
 # check selectedComponents
@@ -80,6 +92,7 @@ looper.write()
 
 # assign the right name
 os.rename("Output/mt2.root", "mt2.root")
+os.rename("Output/RLTInfo.root", "RLTInfo.root")
 
 # print in crab log file the content of the job log files, so one can see it from 'crab getlog'
 print "-"*25
