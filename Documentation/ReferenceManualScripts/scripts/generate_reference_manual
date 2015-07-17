@@ -31,7 +31,7 @@ cp $HTML/annotatedList_A.html $HTML/annotated.html
 
 cp $HTML/namespaces.html $HTML/namespaces.html.original
 python $SCRIPTS/TableParser.py $HTML/namespaces.html
-cp $HTML/namespacesList_A.html $HTML/namespaces.html
+cp $HTML/namespaceList_A.html $HTML/namespaces.html
 
 cp $HTML/pages.html $HTML/pages.html.original
 python $SCRIPTS/TableParser.py $HTML/pages.html
