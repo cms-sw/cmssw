@@ -250,6 +250,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     cosmictpSelector.initEvent(simHitsTPAssoc);
   }
 
+  const reco::Vertex::Point *thePVposition = nullptr;
   if(doPlotsOnlyForTruePV_) {
     edm::Handle<TrackingVertexCollection> htv;
     event.getByToken(label_tv, htv);
@@ -267,6 +268,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     auto pvFound = v_r2s.find(pvPtr);
     if(pvFound == v_r2s.end())
       return;
+
+    thePVposition = &(pvPtr->position());
   }
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -578,7 +581,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimLayers = nLayers_tPCeff[tpr];
         int nSimPixelLayers = nPixelLayers_tPCeff[tpr];
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
-        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
+        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition);
           sts++;
           if(matchedTrackPointer)
             asts++;
@@ -677,7 +680,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 
 	double dR=dR_trk[i];
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction,dR);
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(), thePVposition, isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR);
         h_reco_coll[ww]->Fill(www);
         if(isSimMatched) {
           h_assoc2_coll[ww]->Fill(www);
