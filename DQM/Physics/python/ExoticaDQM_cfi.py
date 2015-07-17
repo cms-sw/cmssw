@@ -6,7 +6,7 @@ ExoticaDQM = cms.EDAnalyzer(
     #Trigger Results
     TriggerResults           = cms.InputTag('TriggerResults','','HLT'),
 #    HltPaths                 = cms.vstring('HLT_*'),
-    HltPaths                 = cms.vstring("HLT_Mu","HLT_ELe","HLT_Photon","HLT_PFHT","HLT_PFMET"),
+    HltPaths                 = cms.vstring("HLT_Mu","HLT_Ele","HLT_Photon","HLT_PFHT","HLT_HT","HLT_PFMET","HLT_MET","HLT_"),
 
     #Physics objects
     vertexCollection         = cms.InputTag('offlinePrimaryVertices'),
