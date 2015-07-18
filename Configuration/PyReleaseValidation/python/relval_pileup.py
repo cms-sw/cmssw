@@ -22,13 +22,6 @@ workflows[300]=['Pyquen_GammaJet_pt20_2760GeV',['Pyquen_GammaJet_pt20_2760GeV','
 workflows[301]=['Pyquen_DiJet_pt80to120_2760GeV',['Pyquen_DiJet_pt80to120_2760GeV','DIGIHIMIX','RECOHIMIX','HARVESTHI']]
 workflows[302]=['Pyquen_ZeemumuJets_pt10_2760GeV',['Pyquen_ZeemumuJets_pt10_2760GeV','DIGIHIMIX','RECOHIMIX','HARVESTHI']]
 
-#fastsim
-workflows[400]=['TTbar',['TTbarFSPU','HARVESTFS']]
-# temporarily redefine test 401 to pass tests during pu cfg transitation of FastSim
-#workflows[401]=['TTbarNewMix',['TTbarFSPU2','HARVESTFS','MINIAODMCUP15FS']]
-workflows[401]=['TTbarNewMix',['TTbarFSPU','HARVESTFS','MINIAODMCUP15FS']]
-
-
 # 50 ns at 13 TeV and POSTLS1
 workflows[50200]=['',['ZEE_13','DIGIUP15_PU50','RECOUP15_PU50','HARVESTUP15_PU50','MINIAODMCUP1550']]
 workflows[50202]=['',['TTbar_13','DIGIUP15_PU50','RECOUP15_PU50','HARVESTUP15_PU50','MINIAODMCUP1550']]
@@ -55,10 +48,8 @@ workflows[25209]=['',['QCD_FlatPt_15_3000HS_13','DIGIUP15_PU25','RECOUP15_PU25',
 workflows[25400] = ['ZEE_13',["FS_ZEE_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]
 workflows[25402] = ['TTbar_13',["FS_TTbar_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]
 workflows[25403] = ['H130GGgluonfusion_13',["FS_H130GGgluonfusion_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]
-#workflow[25404]
 workflows[25405] = ['ZTT_13',["FS_ZTT_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]
 workflows[25406] = ['ZMM_13',["FS_ZMM_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]
 workflows[25407] = ['NuGen_UP15',["FS_NuGun_UP15_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]
 workflows[25408] = ['SMS-T1tttt_mGl-1500_mLSP-100_13',["FS_SMS-T1tttt_mGl-1500_mLSP-100_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]]
 workflows[25409] = ['QCD_FlatPt_15_3000HS_13',["FS_QCD_FlatPt_15_3000HS_13_UP15_PU25","HARVESTUP15FS","MINIAODMCUP15FS"]] 
-
