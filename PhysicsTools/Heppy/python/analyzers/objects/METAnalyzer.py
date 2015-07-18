@@ -44,7 +44,9 @@ class METAnalyzer( Analyzer ):
         chargedchs = []
         chargedPVLoose = []
         chargedPVTight = []
-
+        dochs=getattr(self.cfg_ana,"includeTkMetCHS",True)       
+        dotight=getattr(self.cfg_ana,"includeTkMetPVTight",True)       
+        doloose=getattr(self.cfg_ana,"includeTkMetPVLoose",True)       
         pfcands = self.handles['cmgCand'].product()
 
         for i in xrange(pfcands.size()):
@@ -56,13 +58,13 @@ class METAnalyzer( Analyzer ):
                 if abs(pfcands.at(i).dz())<=self.cfg_ana.dzMax:
                     charged.append(pfcands.at(i))
 
-                if pfcands.at(i).fromPV()>0:
+                if dochs and  pfcands.at(i).fromPV()>0:
                     chargedchs.append(pfcands.at(i))
 
-                if pfcands.at(i).fromPV()>1:
+                if doloose and pfcands.at(i).fromPV()>1:
                     chargedPVLoose.append(pfcands.at(i))
 
-                if pfcands.at(i).fromPV()>2:
+                if dotight and pfcands.at(i).fromPV()>2:
                     chargedPVTight.append(pfcands.at(i))
 
         import ROOT
@@ -216,8 +218,8 @@ class METAnalyzer( Analyzer ):
         if self.cfg_ana.doTkMet: 
             self.makeTkMETs(event);
 
-            if self.cfg_comp.isMC and hasattr(event, 'genParticles'):
-                self.makeGenTkMet(event)
+        if getattr(self.cfg_ana,"doTkGenMet",self.cfg_ana.doTkMet) and self.cfg_comp.isMC and hasattr(event, 'genParticles'):
+            self.makeGenTkMet(event)
 
         return True
 
@@ -230,6 +232,9 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     recalibrate = True,
     jetAnalyzerCalibrationPostFix = "",
     doTkMet = False,
+    includeTkMetCHS = True,
+    includeTkMetPVLoose = True,
+    includeTkMetPVTight = True,
     doMetNoPU = True,  
     doMetNoMu = False,  
     doMetNoEle = False,  
