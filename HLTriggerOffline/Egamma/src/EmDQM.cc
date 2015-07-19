@@ -253,7 +253,7 @@ EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
                     filterPSet = makePSetForL1SeedToSuperClusterMatchFilter(moduleLabel);
                  }
                  else if (moduleType == "HLTEgammaEtFilter") {
-                    filterPSet = makePSetForEtFilter(moduleLabel);
+		   filterPSet = makePSetForEtFilter(moduleLabel);
                  }
                  else if (moduleType == "HLTElectronOneOEMinusOneOPFilterRegional") {
                     filterPSet = makePSetForOneOEMinusOneOPFilter(moduleLabel);
@@ -366,7 +366,6 @@ EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
 
       hltCollectionLabelsFoundPerPath.reserve(paramSets.size());
       hltCollectionLabelsMissedPerPath.reserve(paramSets.size());
-
       ////////////////////////////////////////////////////////////
       // loop over all the trigger path parameter sets
       ////////////////////////////////////////////////////////////
@@ -587,6 +586,7 @@ EmDQM::~EmDQM(){
 
 bool EmDQM::checkGeneratedParticlesRequirement(const edm::Event & event)
 {
+
   ////////////////////////////////////////////////////////////
    // Decide if this was an event of interest.               //
    //  Did the highest energy particles happen               //
@@ -608,11 +608,11 @@ bool EmDQM::checkGeneratedParticlesRequirement(const edm::Event & event)
      // in principle, there should collections produced with the python configuration
      // (other than 'genParticles') which fulfill these criteria
      if (  !( abs((*currentGenParticle).pdgId())==pdgGen  && (*currentGenParticle).status()==1 && (*currentGenParticle).et() > 2.0)  )  continue;
-
+     
      reco::LeafCandidate tmpcand( *(currentGenParticle) );
 
      if (tmpcand.et() < plotEtMin) continue;
-
+     
      allSortedGenParticles.push_back(tmpcand);
    }
 
@@ -621,7 +621,6 @@ bool EmDQM::checkGeneratedParticlesRequirement(const edm::Event & event)
    // return false if not enough particles found
    if (allSortedGenParticles.size() < gencut_)
      return false;
-
    // additional check (this might be legacy code and we need to check
    // whether this should not be removed ?)
 
@@ -706,8 +705,9 @@ void
 EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
 {
   // loop over all the trigger path parameter sets
-  unsigned int vPos = 0;
-  for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt, ++vPos) {
+  unsigned int vPos = 0; 
+
+  for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt, ++vPos) { 
     SetVarsFromPSet(psetIt);
     // get the set forthe current path
     hltCollectionLabelsFound = hltCollectionLabelsFoundPerPath.at(vPos);
@@ -736,10 +736,12 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     } else {
       event.getByToken(gencutColl_manualConf_token, cutCounter);
     }
+
     if (cutCounter->size() < (unsigned int)gencut_) {
       //edm::LogWarning("EmDQM") << "Less than "<< gencut_ <<" gen particles with pdgId=" << pdgGen;
       continue;
     }
+
 
     // fill L1 and HLT info
     // get objects possed by each filter
@@ -766,7 +768,6 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
       if (!checkGeneratedParticlesRequirement(event))
         continue;
     }
-
     // It was an event worth keeping. Continue.
 
     ////////////////////////////////////////////////////////////
@@ -780,7 +781,6 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     //               Fill generator info                      //
     ////////////////////////////////////////////////////////////
     // the gencut_ highest Et generator objects of the preselected type are our matches
-
     std::vector<reco::Particle> sortedGen;
     for(edm::View<reco::Candidate>::const_iterator genpart = cutCounter->begin(); genpart != cutCounter->end();genpart++){
       reco::Particle tmpcand(  genpart->charge(), genpart->p4(), genpart->vertex(),genpart->pdgId(),genpart->status() );
@@ -789,7 +789,6 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
       }
     }
     std::sort(sortedGen.begin(),sortedGen.end(),pTComparator_ );
-
     // Now the collection of gen particles is sorted by pt.
     // So, remove all particles from the collection so that we 
     // only have the top "1 thru gencut_" particles in it
@@ -1092,11 +1091,12 @@ EmDQM::findEgammaPaths()
          int scCount = countSubstring(path, "_SC");
          int eleCount = countSubstring(path, "Ele");
          int doubleEleCount = countSubstring(path, "DoubleEle");
+         int doubleSCCount = countSubstring(path, "DiSC");
          int tripleEleCount = countSubstring(path, "TripleEle");
          int photonCount = countSubstring(path, "Photon");
          int doublePhotonCount = countSubstring(path, "DoublePhoton");
 
-         int totEleCount = 2*tripleEleCount + doubleEleCount + eleCount + scCount;
+         int totEleCount = 2*tripleEleCount + doubleEleCount + eleCount + scCount + 2*doubleSCCount;
          int totPhotonCount = doublePhotonCount + photonCount;
 
          if (totEleCount + totPhotonCount < 1) continue;
