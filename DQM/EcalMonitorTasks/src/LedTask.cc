@@ -74,7 +74,8 @@ namespace ecaldqm {
   void
   LedTask::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
   {
-    if(++emptyLS_ > emptyLSLimit_) emptyLS_ = -1;
+    isemptyLS = 0;
+    if(emptyLS_+1 > emptyLSLimit_) emptyLS_ = -1;
   }
 
   void
@@ -185,6 +186,9 @@ namespace ecaldqm {
 
       meSignalRate.fill((index <= kEEmHigh ? index : index + nEBDCC) + 1, enable_[index] ? 1 : 0);
     }
+
+    if(!enable && isemptyLS >= 0) isemptyLS = 1;
+    else if(enable) isemptyLS = -1;
 
     if(enable) emptyLS_ = 0;
     else if(ledOnExpected) return;
@@ -309,6 +313,11 @@ namespace ecaldqm {
 
       meAOverP.fill(id, aop);
     }
+  }
+
+  void
+  LedTask::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&){
+    if(isemptyLS == 1)emptyLS_ += 1;
   }
 
   DEFINE_ECALDQM_WORKER(LedTask);
