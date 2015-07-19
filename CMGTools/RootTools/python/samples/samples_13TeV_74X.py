@@ -188,7 +188,7 @@ SingleTop_50ns = [
 ]
 
 # cross section from StandardModelCrossSectionsat13TeV NNLO times BR=(3*0.108)**2
-WWTo2L2Nu_50ns = kreator.makeMCComponent("WWTo2L2Nu", "/WWTo2L2Nu_13TeV-powheg/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v2/MINIAODSIM", "CMS", ".*root", 118.7*((3*0.108)**2) )
+WWTo2L2Nu_50ns = kreator.makeMCComponent("WWTo2L2Nu_50ns", "/WWTo2L2Nu_13TeV-powheg/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v2/MINIAODSIM", "CMS", ".*root", 118.7*((3*0.108)**2) )
 
 # cross section from StandardModelCrossSectionsat13TeV (NLO MCFM, mll > 12); to be checked if it's really m(ll) > 12 also for Pythia sample
 ZZp8_50ns = kreator.makeMCComponent("ZZp8_50ns", "/ZZ_TuneCUETP8M1_13TeV-pythia8/RunIISpring15DR74-Asympt50ns_MCRUN2_74_V9A-v2/MINIAODSIM", "CMS", ".*root", 31.8)
@@ -277,9 +277,9 @@ jetHT_0T = cfg.DataComponent(
 
 ### ----------------------------- summary ----------------------------------------
 
-mcSamples_Asymptotic25ns = TTs + SingleTop + VJets + WJetsToLNuHT + GJetsHT + QCDPt + DiBosons + Higgs
+mcSamples_Asymptotic25ns = TTs + SingleTop + VJets + WJetsToLNuHT + GJetsHT + QCDPt + DiBosons + Higgs + QCD_ElX
 
-mcSamples_Asymptotic50ns = [ TTJets_50ns, TTJets_LO_50ns, WJetsToLNu_50ns, DYJetsToLL_M10to50_50ns, DYJetsToLL_M50_50ns ] + QCDPt_50ns + SingleTop_50ns + DiBosons_50ns
+mcSamples_Asymptotic50ns = [ TTJets_50ns, TTJets_LO_50ns, WJetsToLNu_50ns, DYJetsToLL_M10to50_50ns, DYJetsToLL_M50_50ns ] + QCDPt_50ns + SingleTop_50ns + DiBosons_50ns + QCD_MuX_50ns
 
 mcSamples = RelVals740 + mcSamples_Asymptotic25ns + mcSamples_Asymptotic50ns
 
