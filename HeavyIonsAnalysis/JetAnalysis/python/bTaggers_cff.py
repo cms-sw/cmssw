@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from PhysicsTools.PatAlgos.patHeavyIonSequences_cff import *
+#from PhysicsTools.PatAlgos.patHeavyIonSequences_cff import *
+from HeavyIonsAnalysis.JetAnalysis.patHeavyIonSequences_cff import *
+from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import *
+
 
 #load all the b-tagging algorithms
 from RecoBTag.ImpactParameter.positiveOnlyJetProbabilityComputer_cfi import *
@@ -160,7 +163,7 @@ class bTaggers:
 
         self.PatJetPartonAssociationLegacy       = patJetPartonAssociationLegacy.clone(
             jets = cms.InputTag(jetname+"Jets"),
-            partons = cms.InputTag("genPartons")
+            partons = cms.InputTag("myPartons")
             )
 
         self.PatJetFlavourAssociationLegacy      = patJetFlavourAssociationLegacy.clone(

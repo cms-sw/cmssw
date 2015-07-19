@@ -142,7 +142,7 @@ process.hiEvtAnalyzer.doMC = cms.bool(False) #the gen info dataformat has change
 process.load('HeavyIonsAnalysis.EventAnalysis.hltanalysis_cff')
 process.load('HeavyIonsAnalysis.JetAnalysis.HiGenAnalyzer_cfi')
 
-hltProcName = "reHLT"
+hltProcName = "HLT"
 process.hltanalysis.HLTProcessName = cms.string(hltProcName)
 process.hltanalysis.hltresults = cms.InputTag("TriggerResults","",hltProcName)
 process.hltanalysis.l1GtObjectMapRecord = cms.InputTag("hltL1GtObjectMap","",hltProcName)
@@ -186,18 +186,12 @@ process.quickTrackAssociatorByHits.ComponentName = cms.string('quickTrackAssocia
 
 
 #####################
-# photons
-process.load('HeavyIonsAnalysis.JetAnalysis.EGammaAnalyzers_cff')
-process.multiPhotonAnalyzer.GenEventScale = cms.InputTag("hiSignal")
-process.multiPhotonAnalyzer.HepMCProducer = cms.InputTag("hiSignal")
-process.RandomNumberGeneratorService.multiPhotonAnalyzer = process.RandomNumberGeneratorService.generator.clone()
-
-#####################
 # muons
 ######################
 process.load("HeavyIonsAnalysis.MuonAnalysis.hltMuTree_cfi")
 process.hltMuTree.doGen = cms.untracked.bool(True)
 
+process.load("PhysicsTools.JetMCAlgos.SelectPartons_cff")
 
 process.load("RecoJets.Configuration.GenJetParticles_cff")
 process.genParticlesForJets.ignoreParticleIDs += cms.vuint32( 12,14,16)
@@ -205,7 +199,7 @@ process.load("RecoHI.HiJetAlgos.HiGenJets_cff")
 
 
 process.hiExtraGenSequence = cms.Sequence(
-    process.genPartons*
+    process.myPartons*
     process.genParticlesForJets*
     process.ak3HiGenJets
     )
@@ -218,6 +212,7 @@ process.reRecoJets = cms.Sequence(
     *process.akPu3PFJets
     )
 
+process.load("GeneratorInterface.HiGenCommon.HeavyIon_cff")
 
 process.ana_step = cms.Path(process.heavyIon*
                             process.centralityBin*
