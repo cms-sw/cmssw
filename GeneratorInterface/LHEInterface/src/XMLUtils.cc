@@ -17,7 +17,6 @@
 #include "XMLUtils.h"
 
 XERCES_CPP_NAMESPACE_USE
-#define BUF_SIZE 8192 
 
 namespace lhef {
 
@@ -207,7 +206,10 @@ StorageInputStream::StorageInputStream(StorageWrap &in) :
 	in(in),
         lstr(LZMA_STREAM_INIT),
         compression_(false),
-        lasttotal_(0)
+        lasttotal_(0),
+	buffLoc_(0),
+	buffTotal_(0)
+
 {
   // Check the kind of file.
   char header[6];
@@ -276,33 +278,37 @@ unsigned int StorageInputStream::readBytes(XMLByte* const buf,
   // the amount of bytes read and we wait for being called
   // again by xerces.
   unsigned int bytes = size * sizeof(XMLByte);
-//  std::cout << "bites " << bytes << std::endl;
-  uint8_t inBuf[BUF_SIZE];
-  unsigned int rd = in->read((void*)inBuf, BUF_SIZE);
-  lstr.next_in = inBuf;
-  lstr.avail_in = rd;
-  lstr.next_out = buf;
-  lstr.avail_out = bytes;
-/*  for (unsigned int i = 0; i < size; ++i){
-    std::cout << buf[i] ;
-  }  
-  std::cout << std::endl;*/
+  if ( !( buffLoc_<buffTotal_)) {
 
-  int ret = lzma_code(&lstr, LZMA_RUN);
-  if(ret != LZMA_OK && ret != LZMA_STREAM_END) {  /* decompression error */
-    lzma_end(&lstr);
-    throw cms::Exception("IO") << "Error while reading compressed LHE file";
-  }
+    unsigned int rd = in->read((void*)bufferCom_, sizeof(bufferCom_));
+    lstr.next_in = bufferCom_;
+    lstr.avail_in = rd;
+    lstr.next_out = bufferUnc_;
+    lstr.avail_out = sizeof(bufferUnc_);//bytes;
+    buffLoc_=0;
+
+    int ret = lzma_code(&lstr, LZMA_RUN);
+    if(ret != LZMA_OK && ret != LZMA_STREAM_END) {  /* decompression error */
+      lzma_end(&lstr);
+      throw cms::Exception("IO") << "Error while reading compressed LHE file";
+    }
   // If we did not consume everything we put it back.
 //  std::cout << "lstr.avail_in " << lstr.avail_in << " lstr.total_in " << lstr.total_in << std::endl;
 //  std::cout << "lstr.avail_out " << lstr.avail_out << " lstr.total_out " << lstr.total_out << std::endl;
-  if (lstr.avail_in){
+    if (lstr.avail_in){
 //    std::cout << "rolling back" << std::endl;
-    in->position(-(IOOffset)(lstr.avail_in), Storage::CURRENT);    
-  }  
-  pos = lstr.total_out;
-  unsigned int read = lstr.total_out - lasttotal_;
-  lasttotal_ = lstr.total_out;
+      in->position(-(IOOffset)(lstr.avail_in), Storage::CURRENT);    
+    }  
+    pos = lstr.total_out;
+    buffTotal_= lstr.total_out - lasttotal_;
+    lasttotal_ = lstr.total_out;
+    buffLoc_=0;
+  }
+  //now return whats needed
+  unsigned int read=std::min(buffTotal_-buffLoc_,bytes);
+  void *rawBuf = reinterpret_cast<void*>(buf);
+  memcpy(rawBuf,&bufferUnc_[buffLoc_],bytes);
+  buffLoc_+=read;
   return read;
 }
 
