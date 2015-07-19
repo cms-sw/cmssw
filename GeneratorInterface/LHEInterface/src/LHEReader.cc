@@ -477,11 +477,6 @@ LHEReader::~LHEReader()
       XMLHandler::Object event = handler->gotObject;
       handler->gotObject = XMLHandler::kNone;
     
-      std::istringstream data;
-      if (event != XMLHandler::kNone) {
-        data.str(handler->buffer);
-        handler->buffer.clear();
-      }
         
       switch(event) {
       case XMLHandler::kNone:
@@ -496,6 +491,11 @@ LHEReader::~LHEReader()
         break;
         
       case XMLHandler::kInit:
+	{
+	std::istringstream data;
+	data.str(handler->buffer);
+	handler->buffer.clear();
+
         curRunInfo.reset(new LHERunInfo(data));
 		
         std::for_each(handler->headers.begin(),
@@ -503,12 +503,14 @@ LHEReader::~LHEReader()
                       boost::bind(&LHERunInfo::addHeader,
                                   curRunInfo.get(), _1));
         handler->headers.clear();
+	}
         break;
         
       case XMLHandler::kComment:
         break;
         
       case XMLHandler::kEvent:
+	{
         if (!curRunInfo.get())
           throw cms::Exception("InvalidState")
             << "Got LHE event without"
@@ -523,6 +525,10 @@ LHEReader::~LHEReader()
           return boost::shared_ptr<LHEEvent>();
         else if (maxEvents > 0)
           maxEvents--;
+
+	std::istringstream data;
+	data.str(handler->buffer);
+	handler->buffer.clear();
 
 	boost::shared_ptr<LHEEvent> lheevent;
 	lheevent.reset(new LHEEvent(curRunInfo, data));
@@ -539,6 +545,7 @@ LHEReader::~LHEReader()
           lheevent->setScales(handler->scales);
         }
         return lheevent;
+	}
       }
     }
     
