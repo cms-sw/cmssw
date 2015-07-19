@@ -1,31 +1,29 @@
 import ConfigParser
 import os
+import re
 import copy
+import collections
 from TkAlExceptions import AllInOneError
 
 
-class AdaptedDict(dict):
+class AdaptedDict(collections.OrderedDict):
     """
     Dictionary which handles updates of values for already existing keys
     in a modified way.
-    Instead of replacing the old value, the new value is appended to the
-    value string separated by `self.getSep()`.
+    adapteddict[key] returns a list of all values associated with key
     This dictionary is used in the class `BetterConfigParser` instead of the
     default `dict_type` of the `ConfigParser` class.
     """
 
-    def getSep(self):
-        """
-        This method returns the separator used to separate the values for 
-        duplicate options in a config.
-        """
-        return " |/| "
+    def __init__(self, *args, **kwargs):
+        self.validationslist = []
+        collections.OrderedDict.__init__(self, *args, **kwargs)
 
-    def __setitem__(self, key, value, dict_setitem=dict.__setitem__):
+    def __setitem__(self, key, value, dict_setitem=collections.OrderedDict.__setitem__):
         """
         od.__setitem__(i, y) <==> od[i]=y
         Updating an existing key appends the new value to the old value
-        separated by `self.getSep()` instead of replacing it.
+        instead of replacing it.
 
         Arguments:
         - `key`: key part of the key-value pair
@@ -33,23 +31,32 @@ class AdaptedDict(dict):
         - `dict_item`: method which is used for finally setting the item
         """
 
-        if "__name__" in self and self["__name__"]=="validation" \
-                and key in self and value!=self[key][0]:
-            the_value = [self[key][0]+self.getSep()+value[0]]
+        if key != "__name__" and "__name__" in self and self["__name__"]=="validation":
+            if isinstance(value, (str, unicode)):
+                for index, item in enumerate(self.validationslist[:]):
+                    if item == (key, value.split("\n")):
+                        self.validationslist[index] = (key, value)
+                        return
+            self.validationslist.append((key, value))
         else:
-            the_value = value
-        dict_setitem(self, key, the_value)
+            dict_setitem(self, key, value)
 
+    def __getitem__(self, key):
+        if key != "__name__" and "__name__" in self and self["__name__"]=="validation":
+            return [validation[1] for validation in self.validationslist if validation[0] == key]
+        else:
+            return collections.OrderedDict.__getitem__(self, key)
+
+    def items(self):
+        if "__name__" in self and self["__name__"]=="validation":
+            return self.validationslist
+        else:
+            return collections.OrderedDict.items(self)
 
 class BetterConfigParser(ConfigParser.ConfigParser):
     def __init__(self):
         ConfigParser.ConfigParser.__init__(self,dict_type=AdaptedDict)
-        dummyDict = AdaptedDict()
-        self._sep = dummyDict.getSep()
-        del dummyDict
-
-    def getSep(self):
-        return self._sep
+        self._optcre = self.OPTCRE_VALIDATION
 
     def optionxform(self, optionstr):
         return optionstr
@@ -172,3 +179,39 @@ class BetterConfigParser(ConfigParser.ConfigParser):
                        %(option, section))
                 raise AllInOneError(msg)
 
+    def items(self, section, raw=False, vars=None):
+        if section == "validation":
+            if raw or vars:
+                raise NotImplementedError("'raw' and 'vars' do not work for betterConfigParser.items()!")
+            items = self._sections["validation"].items()
+            return items
+        else:
+            return ConfigParser.ConfigParser.items(self, section, raw, vars)
+
+    def write(self, fp):
+        """Write an .ini-format representation of the configuration state."""
+        for section in self._sections:
+            fp.write("[%s]\n" % section)
+            for (key, value) in self._sections[section].items():
+                if key == "__name__" or not isinstance(value, (str, unicode)):
+                    continue
+                if value is not None:
+                    key = " = ".join((key, str(value).replace('\n', '\n\t')))
+                fp.write("%s\n" % (key))
+            fp.write("\n")
+
+
+    #Preexisting validations in the validation section have syntax:
+    #  preexistingoffline myoffline
+    #with no = or :.  This regex takes care of that.
+    OPTCRE_VALIDATION = re.compile(
+        r'(?P<option>'
+        r'(?P<preexisting>preexisting)?'
+        r'[^:=\s][^:=]*)'                     # very permissive!
+        r'\s*(?(preexisting)|'                # IF preexisting does not exist:
+        r'(?P<vi>[:=])\s*'                    #   any number of space/tab,
+                                              #   followed by separator
+                                              #   (either : or =), followed
+                                              #   by any # space/tab
+        r'(?P<value>.*))$'                    #   everything up to eol
+        )

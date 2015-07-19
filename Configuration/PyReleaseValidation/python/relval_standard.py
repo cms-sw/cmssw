@@ -240,6 +240,8 @@ workflows[1352] = ['HSCPstop_M_200_13TeV', ['HSCPstop_M_200_13TeV','DIGIUP15','R
 workflows[1353] = ['RSGravitonToGaGa_13TeV', ['RSGravitonToGaGa_13TeV','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
 workflows[1354] = ['WpToENu_M-2000_13TeV', ['WpToENu_M-2000_13TeV','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
 
+workflows[1355] = ['', ['DisplacedSUSY_stopToBottom_M_300_1000mm_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
+
 ### HI test ###
 
 ###  Run I cond.
