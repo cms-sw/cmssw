@@ -4,7 +4,7 @@ import os
 
 #####COMPONENT CREATOR
 
-from CMGTools.TTHAnalysis.samples.ComponentCreator import ComponentCreator
+from CMGTools.RootTools.samples.ComponentCreator import ComponentCreator
 kreator = ComponentCreator()
 
 dataDir = os.environ['CMSSW_BASE']+"/src/CMGTools/TTHAnalysis/data"
