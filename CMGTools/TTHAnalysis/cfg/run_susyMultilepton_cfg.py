@@ -175,7 +175,7 @@ if False: # select only a subset of a sample, corresponding to a given luminosit
 if False: # For running on data
     json = None; 
     processing = "Run2015B-PromptReco-v1"; short = "Run2015B_v1"; 
-    run_ranges = [ (251168,251168), (251244,251244), (251251,251252) ]
+    run_ranges = [ (251244,251244), (251251,251252), (251559,251562), (251636,251636), (251638,251638), (251640,251640), (251643,251643), (251721,251721), (251883,251883) ]
     DatasetsAndTriggers = []
     DatasetsAndTriggers.append( ("DoubleMuon", triggers_mumu_iso + triggers_mumu_ss + triggers_mumu_ht + triggers_3mu + triggers_3mu_alt) )
     DatasetsAndTriggers.append( ("DoubleEG",   triggers_ee + triggers_ee_ht + triggers_3e) )
@@ -183,6 +183,24 @@ if False: # For running on data
     DatasetsAndTriggers.append( ("SingleMuon", triggers_1mu_iso + triggers_1mu_iso_50ns + triggers_1mu_noniso) )
     DatasetsAndTriggers.append( ("SingleElectron", triggers_1e + triggers_1e_50ns) )
     selectedComponents = []; vetos = []
+    if False: # for fake rate measurements in data
+        lepAna.loose_muon_dxy = 999
+        lepAna.loose_electron_dxy = 999
+        ttHLepSkim.minLeptons = 1
+        FRTrigs = triggers_FR_1mu_iso + triggers_FR_1mu_noiso + triggers_FR_1e_noiso + triggers_FR_1e_iso
+        for t in FRTrigs:
+            tShort = t.replace("HLT_","FR_").replace("_v*","")
+            triggerFlagsAna.triggerBits[tShort] = [ t ]
+        FRTrigs_mu = triggers_FR_1mu_iso + triggers_FR_1mu_noiso
+        FRTrigs_el = triggers_FR_1e_noiso + triggers_FR_1e_iso
+        for pd,trig in DatasetsAndTriggers:
+            if pd in ['DoubleMuon','SingleMuon']:
+                trig.extend(FRTrigs_mu)
+            elif pd in ['DoubleEG','SingleElectron']:
+                trig.extend(FRTrigs_el)
+            else:
+                print 'the strategy for trigger selection on MuonEG for FR studies should yet be implemented'
+                assert(False)
     for pd,triggers in DatasetsAndTriggers:
         for run_range in run_ranges:
             label = "runs_%d_%d" % run_range if run_range[0] != run_range[1] else "run_%d" % (run_range[0],)
@@ -193,7 +211,7 @@ if False: # For running on data
                                              run_range=run_range, 
                                              triggers=triggers[:], vetoTriggers = vetos[:])
             print "Will process %s (%d files)" % (comp.name, len(comp.files))
-            # print "\ttrigger sel %s, veto %s"i % (triggers, vetos)
+#            print "\ttrigger sel %s, veto %s" % (triggers, vetos)
             comp.splitFactor = 1 #len(comp.files)
             comp.fineSplitFactor = 4
             selectedComponents.append( comp )
@@ -202,14 +220,15 @@ if False: # For running on data
         susyCoreSequence.remove(jsonAna)
 
 if False: # QCD
-    selectedComponents = QCD_MuX
+    selectedComponents = QCD_MuX_50ns + QCDPt_50ns + QCD_ElX
+    lepAna.loose_muon_dxy = 999
+    lepAna.loose_electron_dxy = 999
     ttHLepSkim.minLeptons = 1
     FRTrigs = triggers_FR_1mu_iso + triggers_FR_1mu_noiso + triggers_FR_1e_noiso + triggers_FR_1e_iso
     for c in selectedComponents:
         c.triggers = [] # FRTrigs
         c.vetoTriggers = [] 
-        c.files = c.files[:len(c.files)/4]
-        c.splitFactor = len(c.files)
+        c.splitFactor = len(c.files)/4
     for t in FRTrigs:
         tShort = t.replace("HLT_","FR_").replace("_v*","")
         triggerFlagsAna.triggerBits[tShort] = [ t ]
