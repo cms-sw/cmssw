@@ -54,7 +54,7 @@ class TrackSplittingValidation(GenericValidationData):
         repMap = self.getRepMap()
         comparestring = self.getCompareStrings("TrackSplittingValidation")
         if validationsSoFar != "":
-            validationsSoFar += ','
+            validationsSoFar += ',"\n              "'
         validationsSoFar += comparestring
         return validationsSoFar
 
