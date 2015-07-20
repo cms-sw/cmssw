@@ -7,3 +7,4 @@
 <use   name="DQMServices/Core"/>
 <use   name="root"/>
 <use   name="clhep"/>
+<use   name="CalibFormats/CaloTPG"/>

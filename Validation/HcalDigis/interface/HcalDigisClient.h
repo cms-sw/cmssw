@@ -78,6 +78,21 @@ private:
         msm_->find(name)->second->Fill(X, weight);
     }
 
+    //TP Code
+    void projectY(std::string name_to, TH2F* TH2F_from){
+      TH1F * ave_et_ieta = msm_->find(name_to)->second->getTH1F();
+
+      for(int ix = 1; ix <= TH2F_from->GetXaxis()->GetNbins(); ++ix){
+	TH1D * d1 = TH2F_from->ProjectionY("d1",ix,ix);
+	double mean1 = d1->GetMean();
+	ave_et_ieta->SetBinContent(ix,mean1);
+	ave_et_ieta->SetBinError(ix,d1->GetMeanError());
+      }
+
+      msm_->find(name_to)->second->update();
+    }
+    //TP Code
+
     void book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY) {
         if (!msm_->count(name)) (*msm_)[name] = ib.book2D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
     }

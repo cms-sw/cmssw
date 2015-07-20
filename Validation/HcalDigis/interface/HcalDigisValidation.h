@@ -33,6 +33,12 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+/*TP Code*/
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+/*~TP Code*/
 
 
 #include <map>
@@ -79,6 +85,10 @@ private:
 
     void fill1D(std::string name, double X, double weight = 1);
 
+    //TP Code
+    void book2D(DQMStore::IBooker &ib, std::string name, int nx, double xmin, double xmax, int ny, double ymin, double ymax);
+    //~TP Code
+
     void book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
 
     void fill2D(std::string name, double X, double Y, double weight = 1);
@@ -112,6 +122,11 @@ private:
 
     edm::ESHandle<CaloGeometry> geometry;
     edm::ESHandle<HcalDbService> conditions;
+
+    //TP Code
+    edm::ESHandle<HcalTopology> htopo;
+    //~TP Code
+
     int nevent1;
     int nevent2;
     int nevent3;
