@@ -32,5 +32,6 @@ public:
 
 private:
   std::string dbe_path_,dbe_hist_prefix_,compareable_dbe_path_,compareable_dbe_hist_prefix_ ,outputFile_;
+//  std::string dbe_strip_prefix_, dbe_pad_prefix_, dbe_copad_prefix_;
 };
 #endif
