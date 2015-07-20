@@ -10,6 +10,8 @@
 ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf) {
 
+  _tag = conf.getParameter<std::string>("mvaTag");
+  
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
 
