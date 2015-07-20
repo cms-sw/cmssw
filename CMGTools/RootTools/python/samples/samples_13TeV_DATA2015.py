@@ -11,7 +11,8 @@ kreator = ComponentCreator()
 dataDir = "$CMSSW_BASE/src/CMGTools/TTHAnalysis/data"  # use environmental variable, useful for instance to run on CRAB
 #json=dataDir+'/json/Cert_246908-248005_13TeV_PromptReco_Collisions15_ZeroTesla_JSON.txt'
 #lumi: delivered= 4.430 (/nb) recorded= 4.013 (/nb)
-json=dataDir+'/json/DCSONLY_Run2015B.json'
+json=dataDir+'/json/json_DCSONLY_Run2015B.txt'
+#json=dataDir+'/json/Cert_246908-251252_13TeV_PromptReco_Collisions15_JSON.txt' # golden json 5.6/pb
 
 #jetHT_0T = cfg.DataComponent(
 #    name = 'jetHT_0T',

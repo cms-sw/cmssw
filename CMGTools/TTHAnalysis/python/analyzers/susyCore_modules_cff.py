@@ -366,6 +366,7 @@ ttHCoreEventAna = cfg.Analyzer(
     maxLeps = 4, ## leptons to consider
     mhtForBiasedDPhi = "mhtJet40jvec",
     jetForBiasedDPhi = "cleanJets",
+    jetPt = 40.,
     )
 
 ## Jet-MET based Skim (generic, but requirements depend on the final state)

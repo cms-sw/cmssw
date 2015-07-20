@@ -52,12 +52,30 @@ triggers_FR_1e_iso   = [ "HLT_Ele%d_CaloIdL_TrackIdL_IsoVL_PFJet30_v*" % pt for 
 ### ----> for the MT2 analysis
 
 triggers_HT900 = ["HLT_PFHT900_v*"]
+triggers_HT800 = ["HLT_PFHT800_v*"]
 triggers_MET170 = ["HLT_PFMET170_NoiseCleaned_v*"]
-triggers_HTMET = ["HLT_PFHT350_PFMET120_NoiseCleaned_v*"]
+triggers_HTMET120 = ["HLT_PFHT350_PFMET120_NoiseCleaned_v*"]
+triggers_HTMET100 = ["HLT_PFHT350_PFMET100_NoiseCleaned_v*"]
+triggers_ht350 = ["HLT_PFHT350_v*"] # prescaled
+triggers_ht475 = ["HLT_PFHT475_v*"] # prescaled
 
+triggers_dijet = ["HLT_DiPFJetAve40_v*", "HLT_DiPFJetAve60_v*"]
+
+triggers_photon75ps = ["HLT_Photon75_v*"]
+triggers_photon90ps = ["HLT_Photon90_v*"]
+triggers_photon120ps = ["HLT_Photon120_v*"]
+triggers_photon75 = ["HLT_Photon75_R9Id90_HE10_IsoM_v*"]
+triggers_photon90 = ["HLT_Photon90_R9Id90_HE10_IsoM_v*"]
+triggers_photon120 = ["HLT_Photon120_R9Id90_HE10_IsoM_v*"]
 triggers_photon155 = ["HLT_Photon155_v*"]
+triggers_photon175 = ["HLT_Photon175_v*"]
+triggers_photon165_HE10 = ["HLT_Photon165_HE10_v*"]
 
-triggers_MT2_mumu = triggers_mumu_iso
-triggers_MT2_ee   = triggers_ee
+triggers_MT2_mumu = ["HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*", "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*"]
+
+triggers_MT2_ee = ["HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*"]
 
 triggers_MT2_mue = triggers_mue
+
+triggers_MT2_mu = ["HLT_IsoMu17_eta2p1_v*","HLT_IsoMu20_eta2p1_v*", "HLT_IsoMu20_v*"]
+triggers_MT2_e = ["HLT_Ele23_WPLoose_Gsf_v*", "HLT_Ele27_eta2p1_WPLoose_Gsf_v*", "HLT_Ele32_eta2p1_WPLoose_Gsf_v*"]
