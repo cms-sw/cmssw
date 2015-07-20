@@ -185,9 +185,9 @@ class StorageInputStream :
         bool            compression_;
         unsigned int    lasttotal_;
 
-	uint8_t bufferCom_[16777216];
-	uint8_t bufferUnc_[134217728];
-	unsigned int buffLoc_,buffSize_,buffTotal_;
+        unsigned int buffLoc_ = 0,buffTotal_ = 0;
+        std::vector<uint8_t> buffer_;
+        static constexpr unsigned bufferSize_ = 16*1024*1024;
 };
 
 typedef XMLInputSourceWrapper<CBInputStream> CBInputSource;
