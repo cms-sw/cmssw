@@ -44,41 +44,41 @@ void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
 
   int nstation = geom.regions()[0]->stations().size();
 
-  for( auto& region : GEMGeometry_->regions() ){
-    int region_num = region->region();
-    TString title_suffix = TString::Format(" at Region%d", region_num);
-    TString histname_suffix = TString::Format("_r%d", region_num);
-    for( auto& station : region->stations() ){
-      if( station->station()==2 ) continue;
-      int station_num = (station->station()==1) ? 1 : 2;
-      TString title_suffix2 = title_suffix + TString::Format(" Station%d", station_num);
-      TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
-      TString dcEta_title_strip = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
-      TString dcEta_histname_strip = TString::Format("strip_dcEta_trk%s", histname_suffix2.Data());
-      TString dcEta_title_pad = TString::Format("Pad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
-      TString dcEta_histname_pad = TString::Format("pad_dcEta_trk%s", histname_suffix2.Data());
-      TString dcEta_title_copad = TString::Format("CoPad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
-      TString dcEta_histname_copad = TString::Format("copad_dcEta_trk%s", histname_suffix2.Data());
+//  for( auto& region : GEMGeometry_->regions() ){
+//    int region_num = region->region();
+//    TString title_suffix = TString::Format(" at Region%d", region_num);
+//    TString histname_suffix = TString::Format("_r%d", region_num);
+//    for( auto& station : region->stations() ){
+//      if( station->station()==2 ) continue;
+//      int station_num = (station->station()==1) ? 1 : 2;
+//      TString title_suffix2 = title_suffix + TString::Format(" Station%d", station_num);
+//      TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
+//      TString dcEta_title_strip = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
+//      TString dcEta_histname_strip = TString::Format("strip_dcEta_trk%s", histname_suffix2.Data());
+//      TString dcEta_title_pad = TString::Format("Pad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
+//      TString dcEta_histname_pad = TString::Format("pad_dcEta_trk%s", histname_suffix2.Data());
+//      TString dcEta_title_copad = TString::Format("CoPad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
+//      TString dcEta_histname_copad = TString::Format("copad_dcEta_trk%s", histname_suffix2.Data());
 
-      int nXbins = station->rings()[0]->nSuperChambers()*2;
-      int nRoll1 = station->rings()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
-      int nRoll2 = station->rings()[0]->superChambers()[0]->chambers()[1]->etaPartitions().size();
-      int nYbins = ( nRoll1 > nRoll2 ) ? nRoll1 : nRoll2;
+//      int nXbins = station->rings()[0]->nSuperChambers()*2;
+//      int nRoll1 = station->rings()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
+//      int nRoll2 = station->rings()[0]->superChambers()[0]->chambers()[1]->etaPartitions().size();
+//      int nYbins = ( nRoll1 > nRoll2 ) ? nRoll1 : nRoll2;
 
-      theStrip_dcEta[ dcEta_histname_strip.Hash() ] = ibooker.book2D(dcEta_histname_strip, dcEta_title_strip, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
-      thePad_dcEta[ dcEta_histname_pad.Hash() ] = ibooker.book2D(dcEta_histname_pad, dcEta_title_pad, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
-      theCoPad_dcEta[ dcEta_histname_copad.Hash() ] = ibooker.book2D(dcEta_histname_copad, dcEta_title_copad, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
-      int idx = 0;
-      for(unsigned int sCh=1; sCh <= station->superChambers().size(); sCh++ ){
-        for(unsigned int Ch=1; Ch<=2; Ch++){
-          idx++;
-          TString label = TString::Format("ch%d_la%d", sCh, Ch);
-          theStrip_dcEta[ dcEta_histname_strip.Hash() ]->setBinLabel(idx, label.Data());
-          thePad_dcEta[ dcEta_histname_pad.Hash() ]->setBinLabel(idx, label.Data());
-          theCoPad_dcEta[ dcEta_histname_copad.Hash() ]->setBinLabel(idx, label.Data());
-        }
-      }
-    }
+//      theStrip_dcEta[ dcEta_histname_strip.Hash() ] = ibooker.book2D(dcEta_histname_strip, dcEta_title_strip, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
+//      thePad_dcEta[ dcEta_histname_pad.Hash() ] = ibooker.book2D(dcEta_histname_pad, dcEta_title_pad, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
+//      theCoPad_dcEta[ dcEta_histname_copad.Hash() ] = ibooker.book2D(dcEta_histname_copad, dcEta_title_copad, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
+//      int idx = 0;
+//      for(unsigned int sCh=1; sCh <= station->superChambers().size(); sCh++ ){
+//        for(unsigned int Ch=1; Ch<=2; Ch++){
+//          idx++;
+//          TString label = TString::Format("ch%d_la%d", sCh, Ch);
+//          theStrip_dcEta[ dcEta_histname_strip.Hash() ]->setBinLabel(idx, label.Data());
+//          thePad_dcEta[ dcEta_histname_pad.Hash() ]->setBinLabel(idx, label.Data());
+//          theCoPad_dcEta[ dcEta_histname_copad.Hash() ]->setBinLabel(idx, label.Data());
+//        }
+//      }
+//    }
 
   }
 
@@ -157,97 +157,97 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
 
-  MySimTrack track_; 
-  for (auto& t: sim_trks)
-  {
-    if (!isSimTrackGood(t)) 
-    { continue; } 
+//  MySimTrack track_; 
+//  for (auto& t: sim_trks)
+//  {
+//    if (!isSimTrackGood(t)) 
+//    { continue; } 
 
     // match hits and digis to this SimTrack
       
-    const SimHitMatcher& match_sh = SimHitMatcher( t, iEvent, geom, cfg_, simHitsToken_, simTracksToken_, simVerticesToken_);
-    const GEMDigiMatcher& match_gd = GEMDigiMatcher( match_sh, iEvent, geom, cfg_ ,gem_digiToken_, gem_padToken_, gem_copadToken_);
+//    const SimHitMatcher& match_sh = SimHitMatcher( t, iEvent, geom, cfg_, simHitsToken_, simTracksToken_, simVerticesToken_);
+//    const GEMDigiMatcher& match_gd = GEMDigiMatcher( match_sh, iEvent, geom, cfg_ ,gem_digiToken_, gem_padToken_, gem_copadToken_);
       
-    track_.pt = t.momentum().pt();
-    track_.phi = t.momentum().phi();
-    track_.eta = t.momentum().eta();
-    std::fill( std::begin(track_.hitOdd), std::end(track_.hitOdd),false);
-    std::fill( std::begin(track_.hitEven), std::end(track_.hitEven),false);
+//    track_.pt = t.momentum().pt();
+//    track_.phi = t.momentum().phi();
+//    track_.eta = t.momentum().eta();
+//    std::fill( std::begin(track_.hitOdd), std::end(track_.hitOdd),false);
+//    std::fill( std::begin(track_.hitEven), std::end(track_.hitEven),false);
 
-    for ( int i= 0 ; i< 3 ; i++) {
-      for ( int j= 0 ; j<2 ; j++) {
-        track_.gem_sh[i][j]  = false;
-        track_.gem_dg[i][j]  = false;
-        track_.gem_pad[i][j] = false;
-      }
-    }
+//    for ( int i= 0 ; i< 3 ; i++) {
+//      for ( int j= 0 ; j<2 ; j++) {
+//        track_.gem_sh[i][j]  = false;
+//        track_.gem_dg[i][j]  = false;
+//        track_.gem_pad[i][j] = false;
+//      }
+//    }
 
-    const auto gem_dg_ids_ch = match_gd.chamberIds();
-    for(auto d: gem_dg_ids_ch)
-    {
-      const GEMDetId id(d);
+//    const auto gem_dg_ids_ch = match_gd.chamberIds();
+//    for(auto d: gem_dg_ids_ch)
+//    {
+//      const GEMDetId id(d);
 
-      Int_t region = (Int_t) id.region();
-      Int_t layer = (Int_t) id.layer();
-      Int_t station = (Int_t) id.station();
-      Int_t chamber = (Int_t) id.chamber();
-      Int_t nroll = (Int_t) id.roll();
+//      Int_t region = (Int_t) id.region();
+//      Int_t layer = (Int_t) id.layer();
+//      Int_t station = (Int_t) id.station();
+//      Int_t chamber = (Int_t) id.chamber();
+//      Int_t nroll = (Int_t) id.roll();
   
-      int layer_num = layer-1;
-      int binX = (chamber-1)*2+layer_num;
-      int binY = nroll;
-      if(station == 2) continue;
-      if(station == 3) station = 2;
+//      int layer_num = layer-1;
+//      int binX = (chamber-1)*2+layer_num;
+//      int binY = nroll;
+//      if(station == 2) continue;
+//      if(station == 3) station = 2;
 
-      TString histname_suffix_strip = TString::Format("_r%d_st%d", region, station);
-      TString dcEta_histname_strip = TString::Format("strip_dcEta_trk%s", histname_suffix_strip.Data());
-      theStrip_dcEta[dcEta_histname_strip.Hash()]->Fill(binX, binY);
-    }
+//      TString histname_suffix_strip = TString::Format("_r%d_st%d", region, station);
+//      TString dcEta_histname_strip = TString::Format("strip_dcEta_trk%s", histname_suffix_strip.Data());
+//      theStrip_dcEta[dcEta_histname_strip.Hash()]->Fill(binX, binY);
+//    }
 
-    const auto gem_pad_ids_ch = match_gd.chamberIdsWithPads();
-    for(auto d: gem_pad_ids_ch)
-    {
-      const GEMDetId id(d);
+//    const auto gem_pad_ids_ch = match_gd.chamberIdsWithPads();
+//    for(auto d: gem_pad_ids_ch)
+//    {
+//      const GEMDetId id(d);
   
-      Int_t region = (Int_t) id.region();
-      Int_t layer = (Int_t) id.layer();
-      Int_t station = (Int_t) id.station();
-      Int_t chamber = (Int_t) id.chamber();
-      Int_t nroll = (Int_t) id.roll();
+//      Int_t region = (Int_t) id.region();
+//      Int_t layer = (Int_t) id.layer();
+//      Int_t station = (Int_t) id.station();
+//      Int_t chamber = (Int_t) id.chamber();
+//      Int_t nroll = (Int_t) id.roll();
 
-      int layer_num = layer-1;
-      int binX = (chamber-1)*2+layer_num;
-      int binY = nroll;
-      if(station == 2) continue;
-      if(station == 3) station = 2;
+//      int layer_num = layer-1;
+//      int binX = (chamber-1)*2+layer_num;
+//      int binY = nroll;
+//      if(station == 2) continue;
+//      if(station == 3) station = 2;
   
-      TString histname_suffix_pad = TString::Format("_r%d_st%d", region, station);
-      TString dcEta_histname_pad = TString::Format("pad_dcEta_trk%s", histname_suffix_pad.Data());
-      thePad_dcEta[dcEta_histname_pad.Hash()]->Fill(binX, binY);
+//      TString histname_suffix_pad = TString::Format("_r%d_st%d", region, station);
+//      TString dcEta_histname_pad = TString::Format("pad_dcEta_trk%s", histname_suffix_pad.Data());
+//      thePad_dcEta[dcEta_histname_pad.Hash()]->Fill(binX, binY);
   
-    }  
+//    }  
   
-    const auto gem_copad_ids_ch = match_gd.superChamberIdsWithCoPads();
-    for(auto d: gem_copad_ids_ch)
-    {
-      const GEMDetId id(d);
+//    const auto gem_copad_ids_ch = match_gd.superChamberIdsWithCoPads();
+//    for(auto d: gem_copad_ids_ch)
+//    {
+//      const GEMDetId id(d);
  
-      Int_t region = (Int_t) id.region();
-      Int_t layer = (Int_t) id.layer();
-      Int_t station = (Int_t) id.station();
-      Int_t chamber = (Int_t) id.chamber();
-      Int_t nroll = (Int_t) id.roll();
+//      Int_t region = (Int_t) id.region();
+//      Int_t layer = (Int_t) id.layer();
+//      Int_t station = (Int_t) id.station();
+//      Int_t chamber = (Int_t) id.chamber();
+//      Int_t nroll = (Int_t) id.roll();
    
-      int layer_num = layer-1;
-      int binX = (chamber-1)*2+layer_num;
-      int binY = nroll;
+//      int layer_num = layer-1;
+//      int binX = (chamber-1)*2+layer_num;
+//      int binY = nroll;
       
-      TString histname_suffix_copad = TString::Format("_r%d_st%d", region, station);
-      TString dcEta_histname_copad = TString::Format("copad_dcEta_trk%s", histname_suffix_copad.Data());
-      theCoPad_dcEta[dcEta_histname_copad.Hash()]->Fill(binX, binY);
-      theCoPad_dcEta[dcEta_histname_copad.Hash()]->Fill(binX+1, binY);
-    }
-  }
+//      TString histname_suffix_copad = TString::Format("_r%d_st%d", region, station);
+//      TString dcEta_histname_copad = TString::Format("copad_dcEta_trk%s", histname_suffix_copad.Data());
+//      theCoPad_dcEta[dcEta_histname_copad.Hash()]->Fill(binX, binY);
+//      theCoPad_dcEta[dcEta_histname_copad.Hash()]->Fill(binX+1, binY);
+//    }
+//  }
 
   if ( detailPlot_) {
     edm::ESHandle<GEMGeometry> hGeom;
