@@ -14,6 +14,8 @@ production_label = os.environ["PROD_LABEL"]
 cmg_version = os.environ["CMG_VERSION"]
 debug  = os.environ["DEBUG"] == 'True'
 useAAA = os.environ["USEAAA"] == 'True'
+if "JSON" in os.environ:
+    JSON = os.environ["JSON"]
 
 if debug:
     NJOBS = 4
@@ -45,3 +47,10 @@ except NameError:
     pass
 else:
     config.JobType.scriptArgs += ["nevents="+str(NEVENTS)]
+
+try: 
+    JSON
+except NameError:
+    pass
+else:
+    config.JobType.scriptArgs += ["json="+JSON]
