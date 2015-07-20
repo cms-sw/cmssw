@@ -133,6 +133,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
     private:
 	friend class LHEReader;
 
+        bool                            skipEvent = false;
 	DOMImplementation		*impl;
 	std::string			buffer;
 	Object				gotObject;
@@ -197,6 +198,9 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     xmlNodes.push_back(elem);
     return;
   } else if ( mode == kEvent ) {
+
+    if (skipEvent) {return;}
+
     DOMElement *elem = xmlEvent->createElement(qname);    
     attributesToDom(elem, attributes);
 
@@ -246,29 +250,32 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
   } if (name == "init") {
       mode = kInit;
   } else if (name == "event") {
-    if (!impl)
-      impl = DOMImplementationRegistry::getDOMImplementation(
-							  XMLUniStr("Core"));
-    if(xmlEvent)  xmlEvent->release();
-    xmlEvent = impl->createDocument(0, qname, 0);
-    weightsinevent.resize(0);
-    scales.clear();
+    if (!skipEvent)
+    {
+      if (!impl)
+        impl = DOMImplementationRegistry::getDOMImplementation(
+  							  XMLUniStr("Core"));
+      if(xmlEvent)  xmlEvent->release();
+      xmlEvent = impl->createDocument(0, qname, 0);
+      weightsinevent.resize(0);
+      scales.clear();
     
-    npLO = -99;
-    npNLO = -99;
-    const XMLCh *npLOval = attributes.getValue(XMLString::transcode("npLO"));
-    if (npLOval) {
-      const char *npLOs = XMLSimpleStr(npLOval);      
-      sscanf(npLOs,"%d",&npLO);
+      npLO = -99;
+      npNLO = -99;
+      const XMLCh *npLOval = attributes.getValue(XMLString::transcode("npLO"));
+      if (npLOval) {
+        const char *npLOs = XMLSimpleStr(npLOval);      
+        sscanf(npLOs,"%d",&npLO);
+      }
+      const XMLCh *npNLOval = attributes.getValue(XMLString::transcode("npNLO"));
+      if (npNLOval) {
+        const char *npNLOs = XMLSimpleStr(npNLOval);      
+         sscanf(npNLOs,"%d",&npNLO);
+     }    
+    
+      xmlEventNodes.resize(1);
+      xmlEventNodes[0] = xmlEvent->getDocumentElement();
     }
-    const XMLCh *npNLOval = attributes.getValue(XMLString::transcode("npNLO"));
-    if (npNLOval) {
-      const char *npNLOs = XMLSimpleStr(npNLOval);      
-      sscanf(npNLOs,"%d",&npNLO);
-    }    
-    
-    xmlEventNodes.resize(1);
-    xmlEventNodes[0] = xmlEvent->getDocumentElement();
     mode = kEvent;    
   }
   
@@ -336,7 +343,15 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
     }
     else if (name == "event" && 
 	mode == kEvent && 
-	xmlEventNodes.size() >= 1) { // handling of weights in LHE file
+	(skipEvent || (xmlEventNodes.size() >= 1))) { // handling of weights in LHE file
+
+      if (skipEvent)
+      {
+        gotObject = mode;
+        mode = kNone;
+        return;
+      }
+
       for(DOMNode *node = xmlEventNodes[0]->getFirstChild();
 	  node; node = node->getNextSibling()) {
 	switch( node->getNodeType() ) {
@@ -365,7 +380,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 	default:
 	  break;
 	}
-      }      
+      }
     }
     else if (mode == kEvent) {
       //skip unknown tags
@@ -400,8 +415,11 @@ void LHEReader::XMLHandler::characters(const XMLCh *const data_,
 		offset++;	
 
 	if( mode == kEvent ) {
-	  DOMText *text = xmlEvent->createTextNode(data_+offset);
-	  xmlEventNodes.back()->appendChild(text);
+          if (!skipEvent)
+          {
+            DOMText *text = xmlEvent->createTextNode(data_+offset);
+            xmlEventNodes.back()->appendChild(text);
+          }
 	  return;
 	}	
 
@@ -473,6 +491,7 @@ LHEReader::~LHEReader()
         curDoc.reset(curSource->createReader(*handler));
         curRunInfo.reset();
       }
+      handler->skipEvent = firstEvent > 0;
     
       XMLHandler::Object event = handler->gotObject;
       handler->gotObject = XMLHandler::kNone;
