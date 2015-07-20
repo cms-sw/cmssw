@@ -69,7 +69,8 @@ class PhotonMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
 
   inline int getNCategories(){return nCategories;};
   bool isEndcapCategory( int category );
-  const inline std::string getName(){return name_;};
+  const inline std::string getName(){return _name;};
+  const inline std::string getTag(){return _tag;};
 
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
@@ -92,7 +93,12 @@ class PhotonMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   // MVA name. This is a unique name for this MVA implementation.
   // It will be used as part of ValueMap names.
   // For simplicity, keep it set to the class name.
-  const std::string name_ = "PhotonMVAEstimatorRun2Spring15NonTrig";
+  const std::string _name = "PhotonMVAEstimatorRun2Spring15NonTrig";
+
+  // MVA tag. This is an additional string variable to distinguish
+  // instances of the estimator of this class configured with different
+  // weight files.
+  std::string _tag;
 
   // Data members
   std::vector< std::unique_ptr<TMVA::Reader> > _tmvaReaders;

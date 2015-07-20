@@ -9,6 +9,8 @@ PhotonMVAEstimatorRun2Phys14NonTrig::PhotonMVAEstimatorRun2Phys14NonTrig(const e
   //
   // Construct the MVA estimators
   //
+  _tag = conf.getParameter<std::string>("mvaTag");
+
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
 

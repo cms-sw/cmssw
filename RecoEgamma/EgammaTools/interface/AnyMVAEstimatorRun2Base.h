@@ -34,6 +34,10 @@ class AnyMVAEstimatorRun2Base {
   // The name is a unique name associated with a particular MVA implementation,
   // it is found as a const data member in a derived class.
   virtual const std::string getName() = 0;
+  // An extra variable string set during construction that can be used
+  // to distinguish different instances of the estimator configured with
+  // different weight files. The tag can be used to construct names of ValueMaps, etc.
+  virtual const std::string getTag() = 0;
 
   //
   // Extra event content - if needed.
