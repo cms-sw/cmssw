@@ -24,16 +24,6 @@ GEMDigiTrackMatch::GEMDigiTrackMatch(const edm::ParameterSet& ps) : GEMTrackMatc
 }
 
 void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& run, edm::EventSetup const & iSetup){
-  const GEMGeometry* GEMGeometry_;
-  try {
-    edm::ESHandle<GEMGeometry> hGeom;
-    iSetup.get<MuonGeometryRecord>().get(hGeom);
-    GEMGeometry_ = &*hGeom;
-  }
-  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    edm::LogError("GEMCoPadDigiValidation") << "+++ Error : GEM geometry is unavailable on histogram booking. +++\n";
-    return;
-  }
 
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
@@ -44,45 +34,6 @@ void GEMDigiTrackMatch::bookHistograms(DQMStore::IBooker& ibooker, edm::Run cons
 
   int nstation = geom.regions()[0]->stations().size();
 
-//  for( auto& region : GEMGeometry_->regions() ){
-//    int region_num = region->region();
-//    TString title_suffix = TString::Format(" at Region%d", region_num);
-//    TString histname_suffix = TString::Format("_r%d", region_num);
-//    for( auto& station : region->stations() ){
-//      if( station->station()==2 ) continue;
-//      int station_num = (station->station()==1) ? 1 : 2;
-//      TString title_suffix2 = title_suffix + TString::Format(" Station%d", station_num);
-//      TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
-//      TString dcEta_title_strip = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
-//      TString dcEta_histname_strip = TString::Format("strip_dcEta_trk%s", histname_suffix2.Data());
-//      TString dcEta_title_pad = TString::Format("Pad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
-//      TString dcEta_histname_pad = TString::Format("pad_dcEta_trk%s", histname_suffix2.Data());
-//      TString dcEta_title_copad = TString::Format("CoPad's occupancy for detector component %s;;#eta-partition", title_suffix2.Data());
-//      TString dcEta_histname_copad = TString::Format("copad_dcEta_trk%s", histname_suffix2.Data());
-
-//      int nXbins = station->rings()[0]->nSuperChambers()*2;
-//      int nRoll1 = station->rings()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
-//      int nRoll2 = station->rings()[0]->superChambers()[0]->chambers()[1]->etaPartitions().size();
-//      int nYbins = ( nRoll1 > nRoll2 ) ? nRoll1 : nRoll2;
-
-//      theStrip_dcEta[ dcEta_histname_strip.Hash() ] = ibooker.book2D(dcEta_histname_strip, dcEta_title_strip, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
-//      thePad_dcEta[ dcEta_histname_pad.Hash() ] = ibooker.book2D(dcEta_histname_pad, dcEta_title_pad, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
-//      theCoPad_dcEta[ dcEta_histname_copad.Hash() ] = ibooker.book2D(dcEta_histname_copad, dcEta_title_copad, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
-//      int idx = 0;
-//      for(unsigned int sCh=1; sCh <= station->superChambers().size(); sCh++ ){
-//        for(unsigned int Ch=1; Ch<=2; Ch++){
-//          idx++;
-//          TString label = TString::Format("ch%d_la%d", sCh, Ch);
-//          theStrip_dcEta[ dcEta_histname_strip.Hash() ]->setBinLabel(idx, label.Data());
-//          thePad_dcEta[ dcEta_histname_pad.Hash() ]->setBinLabel(idx, label.Data());
-//          theCoPad_dcEta[ dcEta_histname_copad.Hash() ]->setBinLabel(idx, label.Data());
-//        }
-//      }
-//    }
-
-  }
-
-  
   if ( detailPlot_) { 
     for( int j=0 ; j<nstation ; j++) {
       string track_eta_name  = string("track_eta")+s_suffix[j];
