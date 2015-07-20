@@ -970,9 +970,6 @@ steps['RECODAlCaCalo']=merge([{'--scenario':'pp',},dataRecoAlCaCalo])
 steps['RECODSplit']=steps['RECOD'] # finer job splitting  
 steps['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
                               },steps['RECOD']])
-steps['RECOSKIM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM',
-                          },steps['RECOSKIMALCA']])
-
 steps['REPACKHID']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,REPACK',
                          '--datatier':'RAW',

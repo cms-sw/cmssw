@@ -23,12 +23,13 @@ workflows.addOverride(1303,overridesEv5)
 
 ### data ###
 workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD','HARVESTDC']]
-workflows[4.6]  = ['', ['MinimumBias2010A','RECOSKIM','HARVESTD']]
-#workflows[4.7]  = ['', ['MinimumBias2010B','RECOSKIMALCA','HARVESTD']]
-#workflows[4.8]  = ['', ['WZMuSkim2010A','RECOSKIM','HARVESTD']]
-#workflows[4.9]  = ['', ['WZEGSkim2010A','RECOSKIM','HARVESTD']]
-#workflows[4.10] = ['', ['WZMuSkim2010B','RECOSKIM','HARVESTD']]
-#workflows[4.11] = ['', ['WZEGSkim2010B','RECOSKIM','HARVESTD']]
+#workflows[4.6]  = ['', ['MinimumBias2010A','RECOD','HARVESTD']]
+workflows[4.6]  = ['', ['MinimumBias2010A','RECOD','HARVESTD']]
+#workflows[4.7]  = ['', ['MinimumBias2010B','RECODALCA','HARVESTD']]
+#workflows[4.8]  = ['', ['WZMuSkim2010A','RECOD','HARVESTD']]
+#workflows[4.9]  = ['', ['WZEGSkim2010A','RECOD','HARVESTD']]
+#workflows[4.10] = ['', ['WZMuSkim2010B','RECOD','HARVESTD']]
+#workflows[4.11] = ['', ['WZEGSkim2010B','RECOD','HARVESTD']]
 
 workflows[4.12] = ['', ['RunMinBias2010B','RECOD','HARVESTD']]
 #workflows[4.13] = ['', ['RunMu2010B','RECOD','HARVESTD']]
