@@ -35,6 +35,7 @@ struct MySimTrack
   bool gem_sh[3][2] ;
   bool gem_dg[3][2] ;
   bool gem_pad[3][2] ;
+  bool gem_rh[3][2] ;
   bool hitOdd[3];
   bool hitEven[3];
 };

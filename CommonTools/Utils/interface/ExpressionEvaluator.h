@@ -11,7 +11,7 @@ public:
   ExpressionEvaluator(const char * pkg,  const char * iname, const std::string & iexpr);
   ~ExpressionEvaluator();
   
-  template< typename EXPR>
+  template<typename EXPR, typename... CArgs>
   EXPR * expr() const { 
     typedef EXPR * factoryP();
     return reinterpret_cast<factoryP*>(m_expr)();

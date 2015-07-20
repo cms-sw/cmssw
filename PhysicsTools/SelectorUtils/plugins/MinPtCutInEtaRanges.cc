@@ -15,7 +15,11 @@ public:
       _minPt.push_back(minPt);
     }
   }
-  
+
+  double value(const reco::CandidatePtr& cand) const override final {
+    return cand->pt();
+  }
+
   result_type asCandidate(const argument_type&) const override final;
 
 private:

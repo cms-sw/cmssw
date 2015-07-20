@@ -340,9 +340,9 @@ baseDataSetRelease=[
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
     'CMSSW_7_5_0_pre4-MCRUN2_75_V1-v1',                     # 3 - 13 TeV samples with GEN-SIM from 750_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',            # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_5_0_pre5-PU25ns_MCRUN2_75_V5-v1',              # 5 - fullSim PU 25ns premix
-    'CMSSW_7_5_0_pre5-PU50ns_MCRUN2_75_V4-v1',              # 6 - fullSim PU 50ns premix
-    'CMSSW_7_5_0_pre5-MCRUN2_75_V5_FastSim-v1'              # 7 - fastSim premix
+    'CMSSW_7_5_0_pre6-PU25ns_75X_mcRun2_asymptotic_v1-v1',  # 5 - fullSim PU 25ns premix
+    'CMSSW_7_5_0_pre6-PU50ns_75X_mcRun2_startup_v1-v1',     # 6 - fullSim PU 50ns premix
+    'CMSSW_7_5_0_pre6-75X_mcRun2_asymptotic_v1_FastSim-v1'  # 7 - fastSim premix
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -526,7 +526,7 @@ steps['ZpTT_1500_8TeVINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_8TeV_T
 steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
 steps['Cosmics_UP15']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Up2015Defaults])
 steps['CosmicsSPLoose']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--scenario':'cosmics'},Kby(5000,100000),step1Defaults])
-steps['CosmicsSPLoose_UP15']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--scenario':'cosmics'},Kby(5000,100000),step1Up2015Defaults])
+steps['CosmicsSPLoose_UP15']=merge([{'cfg':'UndergroundCosmicSPLooseMu_cfi.py','--scenario':'cosmics'},Kby(5000,500000),step1Up2015Defaults])
 steps['BeamHalo']=merge([{'cfg':'BeamHalo_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Defaults])
 steps['BeamHalo_13']=merge([{'cfg':'BeamHalo_13TeV_cfi.py','--scenario':'cosmics'},Kby(9,100),step1Up2015Defaults])
 
@@ -658,9 +658,49 @@ steps['H130GGgluonfusionFS_13']=merge([{'cfg':'H130GGgluonfusion_13TeV_TuneCUETP
 steps['SingleMuPt10FS_UP15']=merge([{'cfg':'SingleMuPt10_pythia8_cfi'},step1FastUpg2015Defaults])
 steps['SingleMuPt100FS_UP15']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1FastUpg2015Defaults])
 
-#step1FastPU
+### FastSim: produce sample of minbias events for PU mixing
 steps['MinBiasFS_13_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPUNewMixing])
 
+### FastSim: template to produce signal and overlay with minbias events
+PUFS25={'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/CMSSW_7_5_0_pre5-MCRUN2_75_V5_FastSim-v1/GEN-SIM-RECO'}
+FS_UP15_PU25_OVERLAY = merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] )
+
+### FastSim: produce sample of premixed minbias events
+steps["FS_PREMIXUP15_PU25"] = merge([
+        {"cfg":"SingleNuE10_cfi",
+         "--fast":"",
+         "--conditions":"auto:run2_mc",
+         "--magField":"38T_PostLS1",
+         "-s":"GEN,SIM,RECOBEFMIX,DIGIPREMIX,L1,DIGI2RAW",
+         "--eventcontent":"PREMIX",
+         "--datatier":"GEN-SIM-DIGI-RAW",
+         "--customise":"SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1"
+         },
+        PUFS25,Kby(100,500)])
+
+### Fastsim: template to produce signal and overlay it with premixed minbias events
+FS_PREMIXUP15_PU25_OVERLAY = merge([
+        {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns,VALIDATION",
+         "--datamix" : "PreMix",
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/CMSSW_7_5_0_pre4-PU25ns_MCRUN2_75_V1_FastSim-v2/GEN-SIM-DIGI-RAW", ##NEED CHANGE to pre5 which is not exist yet?
+         "--customise":"SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1"
+         },
+        Kby(100,500),step1FastUpg2015Defaults])
+
+### FastSim: list of processes used in FastSim validation
+fs_proclist = ["ZEE_13",'TTbar_13','H130GGgluonfusion_13','ZTT_13','ZMM_13','NuGun_UP15','QCD_FlatPt_15_3000HS_13','SMS-T1tttt_mGl-1500_mLSP-100_13']
+
+### FastSim: produces sample of signal events, overlayed with premixed minbias events
+for x in fs_proclist:
+    key = "FS_" + x + "_PRMXUP15_PU25"
+    steps[key] = merge([FS_PREMIXUP15_PU25_OVERLAY,{"cfg":steps[x]["cfg"]}])
+
+### FastSim: produce sample of signal events, overlayed with minbias events
+for x in fs_proclist:
+    key = "FS_" + x + "_UP15_PU25"
+    steps[key] = merge([{"cfg":steps[x]["cfg"]},FS_UP15_PU25_OVERLAY])
+
+###
 steps['TTbarSFS']=merge([{'cfg':'TTbar_8TeV_TuneCUETP8M1_cfi'},
                         {'-s':'GEN,SIM',
                          '--eventcontent':'FEVTDEBUG',
@@ -899,7 +939,7 @@ steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd50ns,digiPremixUp2015Defaults50
 
 
 dataReco={'--conditions':'auto:run1_data',
-          '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
+          '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+Hotline,DQM',
           '--datatier':'RECO,DQMIO',
           '--eventcontent':'RECO,DQM',
           '--data':'',
@@ -1094,7 +1134,7 @@ steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--conditions':'auto:run1_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
-steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
+steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains',
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
@@ -1130,6 +1170,26 @@ steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQualit
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
+
+
+steps['ALCAHARVD1']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
+                    '--conditions':'auto:run1_data',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--filein':'file:PromptCalibProd.root'}
+
+steps['ALCAHARVD2']={'-s':'ALCAHARVEST:SiStripQuality',
+                    '--conditions':'auto:run1_data',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--filein':'file:PromptCalibProdSiStrip.root'}
+
+steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains',
+                    '--conditions':'auto:run1_data',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--filein':'file:PromptCalibProdSiStripGains.root'}
+
 
 steps['RECOHISt4']=steps['RECOHI']
 steps['RECOHIMIX']=merge([steps['RECOHI'],{'--pileup':'HiMix','--pileup_input':'das:/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1])}])

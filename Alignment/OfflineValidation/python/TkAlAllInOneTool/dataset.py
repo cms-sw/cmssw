@@ -277,7 +277,6 @@ class Dataset:
     def forcerunrange(self, firstRun, lastRun, s):
         """s must be in the format run1:lum1-run2:lum2"""
         s = s.group()
-        print s
         run1 = s.split("-")[0].split(":")[0]
         lum1 = s.split("-")[0].split(":")[1]
         run2 = s.split("-")[1].split(":")[0]
@@ -328,6 +327,7 @@ class Dataset:
                         if datatype is not None:
                             raise AllInOneError(self.__filename + " has multiple 'data type' lines.")
                         datatype = line.replace("#data type: ", "").replace("\n","")
+                        return datatype
                 return "unknown"
 
         dasQuery_type = ( 'dataset dataset=%s | grep dataset.datatype,'
@@ -354,10 +354,12 @@ class Dataset:
                                 "\nIt's possible that this was a server error.  If so, it may work if you try again later")
 
     def __getMagneticField( self ):
-        Bfieldlocation = os.path.join( self.__cmsswrelease, "python", "Configuration", "StandardSequences" )
-        Bfieldlist = [ f.replace("MagneticField_",'').replace("_cff.py",'') \
+        Bfieldlocation = os.path.join( self.__cmssw, "python", "Configuration", "StandardSequences" )
+        if not os.path.isdir(Bfieldlocation):
+            Bfieldlocation = os.path.join( self.__cmsswrelease, "python", "Configuration", "StandardSequences" )
+        Bfieldlist = [ f.replace("_cff.py",'') \
                            for f in os.listdir(Bfieldlocation) \
-                               if f.startswith("MagneticField_") and f.endswith("_cff.py") and f != "MagneticField_cff.py" ]
+                               if f.startswith("MagneticField_") and f.endswith("_cff.py") ]
         Bfieldlist.sort( key = lambda Bfield: -len(Bfield) ) #Put it in order of decreasing length, so that searching in the name gives the longer match
 
         if self.__predefined:
@@ -369,25 +371,36 @@ class Dataset:
                         if datatype is not None:
                             raise AllInOneError(self.__filename + " has multiple 'data type' lines.")
                         datatype = line.replace("#data type: ", "").replace("\n","")
+                        datatype = datatype.split("#")[0].strip()
                     if line.startswith("#magnetic field: "):
                         if Bfield is not None:
                             raise AllInOneError(self.__filename + " has multiple 'magnetic field' lines.")
                         Bfield = line.replace("#magnetic field: ", "").replace("\n","")
+                        Bfield = Bfield.split("#")[0].strip()
                 if Bfield is not None:
                     Bfield = Bfield.split(",")[0]
                     if Bfield in Bfieldlist or Bfield == "unknown":
                         return Bfield
+                    #===========================================================================
+                    #For compatibility with already written datasets - remove this at some point
+                    #(until the next === line)
+                    #It's currently June 2015, anytime starting in 2016 is more than safe
+                    elif Bfield == "AutoFromDBCurrent":
+                        return "MagneticField"
+                    elif "MagneticField_" + Bfield in Bfieldlist:
+                        return "MagneticField_" + Bfield
+                    #===========================================================================
                     else:
                         print "Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield
                         print "Using Bfield='unknown' - this will revert to the default"
                         return "unknown"
                 elif datatype == "data":
-                    return "AutoFromDBCurrent"           #this should be in the "#magnetic field" line, but for safety in case it got messed up
+                    return "MagneticField"           #this should be in the "#magnetic field" line, but for safety in case it got messed up
                 else:
                     return "unknown"
 
         if self.__dataType == "data":
-            return "AutoFromDBCurrent"
+            return "MagneticField"
 
         dasQuery_B = ( 'dataset dataset=%s'%( self.__name ) )             #try to find the magnetic field from DAS
         data = self.__getData( dasQuery_B )                               #it seems to be there for the newer (7X) MC samples, except cosmics
@@ -396,6 +409,10 @@ class Dataset:
             Bfield = self.__findInJson(data, ["dataset", "mcm", "sequences", "magField"])
             if Bfield in Bfieldlist:
                 return Bfield
+            elif Bfield == "38T" or Bfield == "38T_PostLS1":
+                return "MagneticField"
+            elif "MagneticField_" + Bfield in Bfieldlist:
+                return "MagneticField_" + Bfield
             elif Bfield == "":
                 pass
             else:
@@ -406,7 +423,12 @@ class Dataset:
             pass
 
         for possibleB in Bfieldlist:
-            if possibleB in self.__name.replace("TkAlCosmics0T", ""):         #for some reason all cosmics dataset names contain this string
+            if (possibleB != "MagneticField"
+              and possibleB.replace("MagneticField_","") in self.__name.replace("TkAlCosmics0T", "")):
+                #final attempt - try to identify the dataset from the name
+                #all cosmics dataset names contain "TkAlCosmics0T"
+                if possibleB == "MagneticField_38T" or possibleB == "MagneticField_38T_PostLS1":
+                    return "MagneticField"
                 return possibleB
 
         return "unknown"
@@ -416,9 +438,14 @@ class Dataset:
            For data, it gets the magnetic field from the runs.  This is important for
            deciding which template to use for offlinevalidation
         """
-        if "T" in self.__magneticField:                       #for MC
-            Bfield = self.__magneticField.split("T")[0]
-            return float(Bfield) / 10.0                       #e.g. 38T and 38T_PostLS1 both return 3.8
+        if self.__dataType == "mc" and self.__magneticField == "MagneticField":
+            return 3.8                                        #For 3.8T MC the default MagneticField is used
+        if "T" in self.__magneticField:
+            Bfield = self.__magneticField.split("T")[0].replace("MagneticField_","")
+            try:
+                return float(Bfield) / 10.0                       #e.g. 38T and 38T_PostLS1 both return 3.8
+            except ValueError:
+                pass
         if self.__predefined:
             with open(self.__filename) as f:
                 Bfield = None
@@ -426,7 +453,7 @@ class Dataset:
                     if line.startswith("#magnetic field: ") and "," in line:
                         if Bfield is not None:
                             raise AllInOneError(self.__filename + " has multiple 'magnetic field' lines.")
-                        return float(line.replace("#magnetic field: ", "").split(",")[1])
+                        return float(line.replace("#magnetic field: ", "").split(",")[1].split("#")[0].strip())
 
         if run > 0:
             dasQuery = ('run = %s'%run)                         #for data
@@ -721,8 +748,11 @@ class Dataset:
                                             repMap = theMap,
                                             parent = parent)
         magneticField = self.__magneticField
-        if magneticField == "AutoFromDBCurrent":
-            magneticField = "%s, %s" % (magneticField, str(self.__getMagneticFieldForRun()).replace("\n"," ")[0])
+        if magneticField == "MagneticField":
+            magneticField = "%s, %s     #%s" % (magneticField,
+                                                str(self.__getMagneticFieldForRun()).replace("\n"," ").split("#")[0].strip(),
+                                                "Use MagneticField_cff.py; the number is for determining which track selection to use."
+                                               )
         dataset_cff = dataset_cff.replace(".oO[magneticField]Oo.",magneticField)
         filePath = os.path.join( self.__cmssw, "src", packageName,
                                  "python", outName + "_cff.py" )

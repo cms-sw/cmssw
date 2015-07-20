@@ -13,49 +13,34 @@
       <PARAM name="xmin">0.0</PARAM>
       <PARAM name="xmax">800.0</PARAM>
 </QTEST>
-<!--
-<QTEST name="XrangeWithin:GoodTrackNumberOfRecHitsPerTrack" activate="true"> 
--->
-<QTEST name="XrangeWithin:TrackNumberOfRecHitsPerTrack" activate="true"> 
+<QTEST name="XrangeWithin:NumberOfRecHitsPerTrack" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.80</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="xmin">5.0</PARAM> 
      <PARAM name="xmax">35.0</PARAM> 
 </QTEST>
-<!--
-<QTEST name="MeanWithinExpected:GoodTrackNumberOfRecHitsPerTrack" activate="true"> 
--->
-<QTEST name="MeanWithinExpected:TrackNumberOfRecHitsPerTrack" activate="true"> 
+<QTEST name="MeanWithinExpected:NumberOfRecHitsPerTrack" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.80</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="xmin">8.0</PARAM> 
      <PARAM name="xmax">15.0</PARAM> 
 </QTEST>
-<!--
-<QTEST name="XrangeWithin:GoodTrackNumberOfRecHitsPerTrack" activate="true"> 
--->
-<QTEST name="XrangeWithin:TrackNumberOfRecHitsPerTrack" activate="true"> 
+<QTEST name="XrangeWithin:NumberOfRecHitsPerTrack" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.80</PARAM> 
      <PARAM name="warning">0.90</PARAM> 
      <PARAM name="xmin">5.0</PARAM> 
      <PARAM name="xmax">35.0</PARAM> 
 </QTEST>
-<!--
-<QTEST name="MeanWithinExpected:GoodTrackChi2oNDF" activate="true"> 
--->
-<QTEST name="MeanWithinExpected:TrackChi2oNDF" activate="true"> 
+<QTEST name="MeanWithinExpected:Chi2oNDF" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.85</PARAM> 
      <PARAM name="warning">0.95</PARAM> 
      <PARAM name="xmin">0.5</PARAM> 
      <PARAM name="xmax">1.5</PARAM> 
 </QTEST>
-<!--
-<QTEST name="XrangeWithin:GoodTrackPt" activate="true"> 
--->
 <QTEST name="XrangeWithin:TrackPt" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.85</PARAM> 
@@ -115,14 +100,14 @@
 <LINK name="*TrackParameters/*/GeneralProperties/NumberOfTracks_GenTk">
   <TestName activate="true">XrangeWithin:NumberOfTracks</TestName>
 </LINK>
-<LINK name="*TrackParameters/*/HitProperties/TrackNumberOfRecHitsPerTrack_GenTk">
-  <TestName activate="true">XrangeWithin:TrackNumberOfRecHitsPerTrack</TestName>
+<LINK name="*TrackParameters/*/HitProperties/NumberOfRecHitsPerTrack_GenTk">
+  <TestName activate="true">XrangeWithin:NumberOfRecHitsPerTrack</TestName>
 </LINK>
-<LINK name="*TrackParameters/*/HitProperties/TrackNumberOfRecHitsPerTrack_GenTk">
-  <TestName activate="true">MeanWithinExpected:TrackNumberOfRecHitsPerTrack</TestName>
+<LINK name="*TrackParameters/*/HitProperties/NumberOfRecHitsPerTrack_GenTk">
+  <TestName activate="true">MeanWithinExpected:NumberOfRecHitsPerTrack</TestName>
 </LINK>
-<LINK name="*TrackParameters/*/GeneralProperties/TrackChi2oNDF_GenTk">
-  <TestName activate="true">MeanWithinExpected:TrackChi2oNDF</TestName>
+<LINK name="*TrackParameters/*/GeneralProperties/Chi2oNDF_GenTk">
+  <TestName activate="true">MeanWithinExpected:Chi2oNDF</TestName>
 </LINK>
 <LINK name="*TrackParameters/*/GeneralProperties/TrackPt_ImpactPoint_GenTk">
   <TestName activate="true">XrangeWithin:TrackPt</TestName>

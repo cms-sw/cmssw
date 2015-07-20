@@ -63,7 +63,7 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 
 # magnetic field
-process.load("Configuration.StandardSequences.MagneticField_.oO[magneticField]Oo._cff")
+process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
 
 # adding geometries
 from CondCore.DBCommon.CondDBSetup_cfi import *

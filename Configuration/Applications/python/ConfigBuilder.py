@@ -2054,7 +2054,7 @@ class ConfigBuilder(object):
 
 
         outputModuleCfgCode=""
-        if not 'HARVESTING' in self.stepMap.keys() and not 'SKIM' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
+        if not 'HARVESTING' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
                 outputModuleCfgCode=self.addOutput()
 
         self.addCommon()
@@ -2202,6 +2202,14 @@ class ConfigBuilder(object):
 		for module in self.importsUnsch:
 			self.process.load(module)
 			self.pythonCfgCode += ("process.load('"+module+"')\n")
+
+		#and clean the unscheduled stuff	
+		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import cleanUnscheduled\n"
+		self.pythonCfgCode+="process=cleanUnscheduled(process)\n"
+
+		from FWCore.ParameterSet.Utilities import cleanUnscheduled
+		self.process=cleanUnscheduled(self.process)
+
 
 	self.pythonCfgCode += self.addCustomise(1)
 

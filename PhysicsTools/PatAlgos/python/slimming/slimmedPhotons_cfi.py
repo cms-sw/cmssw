@@ -13,4 +13,6 @@ slimmedPhotons = cms.EDProducer("PATPhotonSlimmer",
     saveNonZSClusterShapes = cms.string("(r9()>0.8 || chargedHadronIso()<20 || chargedHadronIso()<0.3*pt())"), # save additional user floats: (sigmaIetaIeta,sigmaIphiIphi,sigmaIetaIphi,r9,e1x5_over_e5x5)_NoZS 
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+    modifyPhotons = cms.bool(True),
+    modifierConfig = cms.PSet( modifications = cms.VPSet() )
 )

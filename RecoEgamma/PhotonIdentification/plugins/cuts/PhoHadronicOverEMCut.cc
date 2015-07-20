@@ -12,6 +12,8 @@ public:
   
   result_type operator()(const reco::PhotonPtr&) const override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return PHOTON; 
   }
@@ -32,4 +34,10 @@ operator()(const reco::PhotonPtr& cand) const {
       _hadronicOverEMCutValueEB : _hadronicOverEMCutValueEE );
 
   return cand->hadronicOverEm() < hadronicOverEMCutValue;
+}
+
+double PhoHadronicOverEMCut::
+value(const reco::CandidatePtr& cand) const {
+  reco::PhotonPtr pho(cand);
+  return pho->hadronicOverEm();
 }

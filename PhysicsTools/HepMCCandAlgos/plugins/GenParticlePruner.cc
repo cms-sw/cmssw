@@ -36,8 +36,8 @@ private:
   void flagMothers(const reco::GenParticle &, int);
   void recursiveFlagDaughters(size_t, const reco::GenParticleCollection &, int, std::vector<size_t> &);
   void recursiveFlagMothers(size_t, const reco::GenParticleCollection &, int, std::vector<size_t> &);
-  void getDaughterKeys(std::vector<size_t> &, const reco::GenParticleRefVector&) const;
-  void getMotherKeys(std::vector<size_t> &, const reco::GenParticleRefVector&) const;
+  void getDaughterKeys(std::vector<size_t> &, std::vector<size_t> &, const reco::GenParticleRefVector&) const;
+  void getMotherKeys(std::vector<size_t> &, std::vector<size_t> &, const reco::GenParticleRefVector&) const;
 };
 
 using namespace edm;
@@ -247,16 +247,17 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
     // parentage/descendency. In some cases, a circular referencing is encountered,
     // which would result in an infinite loop. The list is checked to
     // avoid this.
-    vector<size_t> daIndxs;
-    getDaughterKeys(daIndxs, gen.daughterRefVector());
-    std::sort(daIndxs.begin(),daIndxs.end());
-    for(size_t i=0; i<daIndxs.size(); ++i)
-      newGen.addDaughter( GenParticleRef(outRef, daIndxs[i]) );
-    vector<size_t> moIndxs;
-    getMotherKeys(moIndxs, gen.motherRefVector());
-    std::sort(moIndxs.begin(),moIndxs.end());
-    for(size_t i=0; i<moIndxs.size(); ++i)
-      newGen.addMother( GenParticleRef(outRef, moIndxs[i]) );
+    vector<size_t> daIndxs, daNewIndxs;
+    getDaughterKeys(daIndxs, daNewIndxs, gen.daughterRefVector());
+    std::sort(daNewIndxs.begin(),daNewIndxs.end());
+    for(size_t i=0; i<daNewIndxs.size(); ++i)
+      newGen.addDaughter( GenParticleRef(outRef, daNewIndxs[i]) );
+
+    vector<size_t> moIndxs, moNewIndxs;
+    getMotherKeys(moIndxs, moNewIndxs, gen.motherRefVector());
+    std::sort(moNewIndxs.begin(),moNewIndxs.end());
+    for(size_t i=0; i<moNewIndxs.size(); ++i)
+      newGen.addMother( GenParticleRef(outRef, moNewIndxs[i]) );
   }
 
 
@@ -271,38 +272,42 @@ void GenParticlePruner::produce(Event& evt, const EventSetup& es) {
 }
 
 
-void GenParticlePruner::getDaughterKeys(vector<size_t> & daIndxs,
+void GenParticlePruner::getDaughterKeys(vector<size_t> & daIndxs, vector<size_t> & daNewIndxs,
 					const GenParticleRefVector& daughters) const {
   for(GenParticleRefVector::const_iterator j = daughters.begin();
       j != daughters.end(); ++j) {
     GenParticleRef dau = *j;
-    int idx = flags_[dau.key()];
-    if (find(daIndxs.begin(), daIndxs.end(), idx) != daIndxs.end()) continue;
-    if (idx > 0 ) {
-      daIndxs.push_back( idx );
-    } else {
-      const GenParticleRefVector & daus = dau->daughterRefVector();
-      if(daus.size()>0)
-        getDaughterKeys(daIndxs, daus);
+    if (find(daIndxs.begin(), daIndxs.end(), dau.key()) == daIndxs.end()) {
+      daIndxs.push_back( dau.key() );
+      int idx = flags_[dau.key()];
+      if (idx > 0 ) {
+        daNewIndxs.push_back( idx );
+      } else {
+        const GenParticleRefVector & daus = dau->daughterRefVector();
+        if(daus.size()>0)
+          getDaughterKeys(daIndxs, daNewIndxs, daus);
+      }
     }
   }
 }
 
 
 
-void GenParticlePruner::getMotherKeys(vector<size_t> & moIndxs,
+void GenParticlePruner::getMotherKeys(vector<size_t> & moIndxs, vector<size_t> & moNewIndxs,
 				      const GenParticleRefVector& mothers) const {
   for(GenParticleRefVector::const_iterator j = mothers.begin();
       j != mothers.end(); ++j) {
     GenParticleRef mom = *j;
-    int idx = flags_[mom.key()];
-    if (find(moIndxs.begin(), moIndxs.end(), idx) != moIndxs.end()) continue;
-    if (idx >= 0 ) {
-      moIndxs.push_back( idx );
-    } else {
-      const GenParticleRefVector & moms = mom->motherRefVector();
-      if(moms.size()>0)
-        getMotherKeys(moIndxs, moms);
+    if (find(moIndxs.begin(), moIndxs.end(), mom.key()) == moIndxs.end()) {
+      moIndxs.push_back( mom.key() );
+      int idx = flags_[mom.key()];
+      if (idx >= 0 ) {
+        moNewIndxs.push_back( idx );
+      } else {
+        const GenParticleRefVector & moms = mom->motherRefVector();
+        if(moms.size()>0)
+          getMotherKeys(moIndxs, moNewIndxs, moms);
+      }
     }
   }
 }

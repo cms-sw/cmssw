@@ -53,7 +53,7 @@ dedxSeq = cms.Sequence(offlineBeamSpot + MeasurementTrackerEvent + TrackRefitter
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
 from TrackingTools.TrackAssociator.default_cfi import *
 
-muonEcalDetIds = cms.EDProducer("InterestingEcalDetIdProducer",
+muonEcalDetIdsEXOHSCP = cms.EDProducer("InterestingEcalDetIdProducer",
 								inputCollection = cms.InputTag("muons")
 								)
 highPtTrackEcalDetIds = cms.EDProducer("HighPtTrackEcalDetIdProducer",
@@ -65,7 +65,7 @@ highPtTrackEcalDetIds = cms.EDProducer("HighPtTrackEcalDetIdProducer",
 
 
 
-detIdProduceSeq = cms.Sequence(muonEcalDetIds+highPtTrackEcalDetIds)
+detIdProduceSeq = cms.Sequence(muonEcalDetIdsEXOHSCP+highPtTrackEcalDetIds)
 
 reducedHSCPEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
      recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
@@ -73,7 +73,7 @@ reducedHSCPEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
 	         #high p_t tracker track ids
 	         cms.InputTag("highPtTrackEcalDetIds"),
              #muons
-             cms.InputTag("muonEcalDetIds")
+             cms.InputTag("muonEcalDetIdsEXOHSCP")
              ),
      reducedHitsCollection = cms.string('')
 )
@@ -83,7 +83,7 @@ reducedHSCPEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
 	         #high p_t tracker track ids
 	         cms.InputTag("highPtTrackEcalDetIds"),
              #muons
-             cms.InputTag("muonEcalDetIds")
+             cms.InputTag("muonEcalDetIdsEXOHSCP")
              ),
      reducedHitsCollection = cms.string('')
 )

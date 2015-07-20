@@ -17,6 +17,7 @@ public:
                          pixelMultiplicityAlpha_(), 
                          pixelMultiplicityBeta_(),
                          isMatched_(), 
+                         stereoHitFirst_(false),
                          componentMono_(),
                          componentStereo_() {}
   
@@ -59,10 +60,13 @@ public:
   const bool& isMatched()  const { return isMatched_;}
   const SiTrackerGSRecHit2D *monoHit() const { return &componentMono_;}
   const SiTrackerGSRecHit2D *stereoHit() const { return &componentStereo_;}
+  const SiTrackerGSRecHit2D *firstHit() const { return stereoHitFirst_ ? &componentStereo_ : &componentMono_;}
+  const SiTrackerGSRecHit2D *secondHit() const { return stereoHitFirst_ ? &componentMono_ : &componentStereo_;}
 
  ClusterRef const& cluster() const { return cluster_;}
   void setClusterRef(const ClusterRef &ref) { cluster_  = ref; }
- 
+  void setStereoLayerFirst(bool stereoHitFirst = true){stereoHitFirst_ = stereoHitFirst;}
+
   void setEeId(uint32_t eeId){eeId_ = eeId;}
 
   virtual bool sharesInput( const TrackingRecHit* other, SharedInputType what) const;
@@ -75,6 +79,7 @@ private:
   int const pixelMultiplicityAlpha_;
   int const pixelMultiplicityBeta_;
   bool isMatched_;
+  bool stereoHitFirst_;
 
   SiTrackerGSRecHit2D componentMono_;
   SiTrackerGSRecHit2D componentStereo_;

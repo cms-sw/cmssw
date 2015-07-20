@@ -13,6 +13,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -63,4 +65,13 @@ operator()(const reco::GsfElectronPtr& cand) const{
 		      cand->gsfTrack()->dz(vtxs[0].position()) : 
 		      cand->gsfTrack()->dz() );
   return std::abs(dz) < dzCutValue;
+}
+
+double GsfEleDzCut::value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);
+  const reco::VertexCollection& vtxs = *_vtxs;
+  const double dz = ( vtxs.size() ? 
+		      ele->gsfTrack()->dz(vtxs[0].position()) : 
+		      ele->gsfTrack()->dz() );
+  return std::abs(dz);
 }

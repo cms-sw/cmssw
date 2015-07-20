@@ -21,5 +21,5 @@ photonIDValueMapProducer = cms.EDProducer('PhotonIDValueMapProducer',
                                           verticesMiniAOD = cms.InputTag("offlineSlimmedPrimaryVertices"),
                                           pfCandidatesMiniAOD = cms.InputTag("packedPFCandidates"),
                                           # there is no need for the isolation map here, for miniAOD it is inside packedPFCandidates
-                                          srcMiniAOD = cms.InputTag('slimmedPhotons'),
+                                          srcMiniAOD = cms.InputTag('slimmedPhotons',processName=cms.InputTag.skipCurrentProcess()),
                                           )

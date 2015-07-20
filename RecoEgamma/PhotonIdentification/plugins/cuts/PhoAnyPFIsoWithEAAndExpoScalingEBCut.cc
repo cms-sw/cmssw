@@ -12,6 +12,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+  
   CandidateType candidateType() const override final { 
     return PHOTON; 
   }
@@ -82,6 +84,21 @@ CutApplicatorBase::result_type
 PhoAnyPFIsoWithEAAndExpoScalingEBCut::
 operator()(const reco::PhotonPtr& cand) const{  
 
+  // in case we are by-value
+  const std::string& inst_name = contentTags_.find(anyPFIsoWithEA_)->second.instance();
+  edm::Ptr<pat::Photon> pat(cand);
+  float anyisoval = -1.0;
+  if( _anyPFIsoMap.isValid() && _anyPFIsoMap->contains( cand.id() ) ) {
+    anyisoval = (*_anyPFIsoMap)[cand];
+  } else if ( _anyPFIsoMap.isValid() && _anyPFIsoMap->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    anyisoval = _anyPFIsoMap->begin()[cand.key()];
+  } else if ( _anyPFIsoMap.isValid() ){ // throw an exception
+    anyisoval = (*_anyPFIsoMap)[cand];
+  }
+
   // Figure out the cut value
   // The value is generally pt-dependent: C1 + pt * C2
   const float pt = cand->pt();
@@ -96,7 +113,7 @@ operator()(const reco::PhotonPtr& cand) const{
       : _C1_EE + pt * _C2_EE);
   
   // Retrieve the variable value for this particle
-  float anyPFIso = (*_anyPFIsoMap)[cand];
+  float anyPFIso = _anyPFIsoMap.isValid() ? anyisoval : pat->userFloat(inst_name);
 
   // Apply pile-up correction
   double eA = _effectiveAreas.getEffectiveArea( absEta );
@@ -109,4 +126,48 @@ operator()(const reco::PhotonPtr& cand) const{
 
   // Apply the cut and return the result
   return anyPFIsoWithEA < isolationCutValue;
+}
+
+double PhoAnyPFIsoWithEAAndExpoScalingEBCut::
+value(const reco::CandidatePtr& cand) const {
+  reco::PhotonPtr pho(cand);
+
+  // in case we are by-value
+  const std::string& inst_name = contentTags_.find(anyPFIsoWithEA_)->second.instance();
+  edm::Ptr<pat::Photon> pat(cand);
+  float anyisoval = -1.0;
+  if( _anyPFIsoMap.isValid() && _anyPFIsoMap->contains( cand.id() ) ) {
+    anyisoval = (*_anyPFIsoMap)[cand];
+  } else if ( _anyPFIsoMap.isValid() && _anyPFIsoMap->idSize() == 1 &&
+              cand.id() == edm::ProductID() ) {
+    // in case we have spoofed a ptr
+    //note this must be a 1:1 valuemap (only one product input)
+    anyisoval = _anyPFIsoMap->begin()[cand.key()];
+  } else if ( _anyPFIsoMap.isValid() ){ // throw an exception
+    anyisoval = (*_anyPFIsoMap)[cand];
+  }
+
+  // Figure out the cut value
+  // The value is generally pt-dependent: C1 + pt * C2
+  const float pt = pho->pt();
+
+  // In this version of the isolation cut we apply
+  // exponential pt scaling to the barrel isolation cut,
+  // and linear pt scaling to the endcap isolation cut.
+  double absEta = std::abs(pho->superCluster()->eta());
+  
+  // Retrieve the variable value for this particle
+  float anyPFIso = _anyPFIsoMap.isValid() ? anyisoval : pat->userFloat(inst_name);
+
+  // Apply pile-up correction
+  double eA = _effectiveAreas.getEffectiveArea( absEta );
+  double rho = *_rhoHandle;
+  float anyPFIsoWithEA = std::max(0.0, anyPFIso - rho * eA);
+
+  // Divide by pT if the relative isolation is requested
+  if( _useRelativeIso )
+    anyPFIsoWithEA /= pt;
+
+  // Apply the cut and return the result
+  return anyPFIsoWithEA;
 }

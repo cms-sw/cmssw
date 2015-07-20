@@ -88,6 +88,8 @@ def applySubstructure( process ) :
         dropTrackRefs = cms.string("1"),
         dropSpecific = cms.string("1"),
         dropTagInfos = cms.string("1"),
+        modifyJets = cms.bool(True),
+        modifierConfig = cms.PSet( modifications = cms.VPSet() )
     )
 
     
@@ -133,6 +135,8 @@ def applySubstructure( process ) :
         dropTrackRefs = cms.string("1"),
         dropSpecific = cms.string("1"),
         dropTagInfos = cms.string("1"),
+        modifyJets = cms.bool(True),
+        modifierConfig = cms.PSet( modifications = cms.VPSet() )
     )
     
     ## Establish references between PATified fat jets and subjets using the BoostedJetMerger

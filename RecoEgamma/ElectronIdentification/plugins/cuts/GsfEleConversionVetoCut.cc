@@ -14,6 +14,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -70,4 +72,16 @@ operator()(const reco::GsfElectronPtr& cand) const{
       << "Couldn't find a necessary collection, returning true!";
   }
   return true;
+}
+
+double GsfEleConversionVetoCut::value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);
+  if( _thebs.isValid() && _convs.isValid() ) {
+    return !ConversionTools::hasMatchedConversion(*ele,_convs,
+						  _thebs->position());
+  } else {
+    edm::LogWarning("GsfEleConversionVetoCut")
+      << "Couldn't find a necessary collection, returning true!";
+    return true;
+  }
 }

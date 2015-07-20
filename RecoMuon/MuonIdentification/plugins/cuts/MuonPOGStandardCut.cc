@@ -14,6 +14,8 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   void getEventContent(const edm::EventBase&) override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
 private:
   enum CutType {
     LOOSE, MEDIUM, TIGHT, SOFT, HIGHPT,
@@ -57,13 +59,51 @@ void MuonPOGStandardCut::getEventContent(const edm::EventBase& ev)
 // Functors for evaluation
 CutApplicatorBase::result_type MuonPOGStandardCut::operator()(const reco::MuonPtr& cand) const
 {
-  if ( cutType_ == LOOSE ) return muon::isLooseMuon(*cand);
-  else if ( cutType_ == TIGHT ) return muon::isTightMuon(*cand, vtxs_->at(0));
-  else if ( cutType_ == MEDIUM ) return muon::isMediumMuon(*cand);
-  else if ( cutType_ == SOFT ) return muon::isSoftMuon(*cand, vtxs_->at(0));
-  else if ( cutType_ == HIGHPT ) return muon::isHighPtMuon(*cand, vtxs_->at(0));
-
+  switch( cutType_ ){
+  case LOOSE:
+    return muon::isLooseMuon(*cand);
+    break;
+  case TIGHT:
+    return muon::isTightMuon(*cand, vtxs_->at(0));
+    break;
+  case MEDIUM:
+    return muon::isMediumMuon(*cand);
+    break;
+  case SOFT:
+    return muon::isSoftMuon(*cand, vtxs_->at(0));
+    break;
+  case HIGHPT:
+    return muon::isHighPtMuon(*cand, vtxs_->at(0));
+    break;
+  case NONE:
+    return false;
+    break;
+  }
+  
   return true;
 }
 
-
+double MuonPOGStandardCut::value(const reco::CandidatePtr& cand) const {
+  edm::Ptr<reco::Muon> mu(cand);
+  switch( cutType_ ){
+  case LOOSE:
+    return muon::isLooseMuon(*mu);
+    break;
+  case TIGHT:
+    return muon::isTightMuon(*mu, vtxs_->at(0));
+    break;
+  case MEDIUM:
+    return muon::isMediumMuon(*mu);
+    break;
+  case SOFT:
+    return muon::isSoftMuon(*mu, vtxs_->at(0));
+    break;
+  case HIGHPT:
+    return muon::isHighPtMuon(*mu, vtxs_->at(0));
+    break;
+  case NONE:
+    return false;
+    break;
+  }
+  return 1.0;
+ }

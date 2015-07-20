@@ -97,15 +97,49 @@ namespace edm {
     AssociationMap() { }
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    // You will see better performance if you use other constructors.
+    // Use this when the arguments the other constructors require are
+    // not easily available.
     explicit
     AssociationMap(EDProductGetter const* getter) :
       ref_(getter) { }
 #endif
 
+    // It is rare for this to be useful
     explicit
     AssociationMap(const ref_type & ref) : ref_(ref) { }
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+    // In most cases this is the best constructor to use.
+    // This constructor should be passed 2 arguments, except in the
+    // case where the template parameter is OneToValue where it should
+    // be passed 1 argument. In most cases, the arguments will be valid
+    // Handle's to the containers. Internally, the AssociationMap holds
+    // a RefProd for each container. An argument passed here is forwarded
+    // to a RefProd constructor. Alternatively, you can pass in
+    // a RefProd or anything else a RefProd can be constructed from.
+    // The exceptional case is when the container template argument
+    // is a View (For your peace of mind, I suggest you stop reading
+    // this comment here if you are not dealing with the View case).
+    // Usually one would not pass a Handle argument in the View
+    // case. Then internally AssociationMap holds a RefToBaseProd
+    // for each container instead of a RefProd and one would pass a
+    // RefToBaseProd as an argument in that case. Also see the comments
+    // at the top of this file that are relevant to the View case.
+    // In the View case, the code would sometimes look similar to
+    // the following:
+    //
+    //   typedef edm::AssociationMap<edm::OneToOne<edm::View<X>, edm::View<Y> > > AssocOneToOneView;
+    //   edm::Handle<edm::View<X> > inputView1;
+    //   event.getByToken(inputToken1V_, inputView1);
+    //   edm::Handle<edm::View<Y> > inputView2;
+    //   event.getByToken(inputToken2V_, inputView2);
+    //   // If you are certain the Views are not empty!
+    //   std::auto_ptr<AssocOneToOneView> assoc8(new AssocOneToOneView(
+    //     edm::makeRefToBaseProdFrom(inputView1->refAt(0), event),
+    //     edm::makeRefToBaseProdFrom(inputView2->refAt(0), event)
+    //   ));
+
     template<typename... Args>
     AssociationMap(Args... args) : ref_(std::forward<Args>(args)...) {}
 #endif

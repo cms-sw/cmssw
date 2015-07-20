@@ -52,7 +52,11 @@ class Reco(Scenario):
         if 'customs' in args:
             options.customisation_file=args['customs']
 
-        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+step+miniAODStep+',DQM'+dqmStep+',ENDJOB'
+        eiStep=''
+        if self.cbSc == 'pp':
+            eiStep=',EI'
+
+        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+miniAODStep+',DQM'+dqmStep+',ENDJOB'
 
 
         dictIO(options,args)
@@ -90,7 +94,12 @@ class Reco(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM'+dqmStep+',ENDJOB'
+
+        eiStep=''
+        if self.cbSc == 'pp':
+            eiStep=',EI'
+
+        options.step = 'RAW2DIGI,L1Reco,RECO'+eiStep+step+',DQM'+dqmStep+',ENDJOB'
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
         options.filein = 'tobeoverwritten.xyz'
@@ -124,7 +133,11 @@ class Reco(Scenario):
         if 'preFilter' in args:
             options.step +='FILTER:'+args['preFilter']+','
 
-        options.step += 'RAW2DIGI,L1Reco,RECO,ENDJOB'
+        eiStep=''
+        if self.cbSc == 'pp':
+            eiStep=',EI'
+
+        options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
 
 
         dictIO(options,args)

@@ -12,6 +12,8 @@ public:
   
   result_type operator()(const reco::GsfElectronPtr&) const override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -40,4 +42,7 @@ operator()(const reco::GsfElectronPtr& cand) const{
   return std::abs(dEtaInSeed(cand))<dEtaInSeedCutValue;
 }
 
-
+double GsfEleDEtaInSeedCut::value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);  
+  return std::abs(dEtaInSeed(ele));
+}

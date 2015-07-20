@@ -9,6 +9,8 @@ public:
   
   result_type operator()(const reco::GsfElectronPtr&) const override final;
 
+  double value(const reco::CandidatePtr& cand) const override final;
+
   CandidateType candidateType() const override final { 
     return ELECTRON; 
   }
@@ -42,4 +44,10 @@ operator()(const reco::GsfElectronPtr& cand) const{
 
   return e1x5OverE5x5 > minE1x5OverE5x5Cut_(cand) || e2x5OverE5x5 > minE2x5OverE5x5Cut_(cand);
  
+}
+
+double GsfEleFull5x5E2x5OverE5x5Cut::
+value(const reco::CandidatePtr& cand) const {
+  reco::GsfElectronPtr ele(cand);  
+  return ele->full5x5_e2x5Max()/ele->full5x5_e1x5();
 }

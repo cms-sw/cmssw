@@ -255,3 +255,27 @@ def configureHEEPElectronID_V51(wpEB, wpEE):
         )
     return parameterSet
 
+def configureHEEPElectronID_V60(wpEB, wpEE):
+    """
+    This function configures the full cms.PSet for a VID ID and returns it.
+    The inputs: two objects of the type HEEP_WorkingPoint_V1, one
+    containing the cuts for the Barrel (EB) and the other one for the Endcap (EE).
+    """
+    parameterSet = cms.PSet(
+        idName = cms.string("heepElectronID-HEEPV60"),
+        cutFlow = cms.VPSet(
+            psetMinPtCut(),                               #0
+            psetGsfEleSCEtaMultiRangeCut(),               #1
+            psetGsfEleDEtaInSeedCut(wpEB,wpEE),           #2
+            psetGsfEleDPhiInCut(wpEB,wpEE),               #3
+            psetGsfEleFull5x5SigmaIEtaIEtaCut(wpEB,wpEE), #4
+            psetGsfEleFull5x5E2x5OverE5x5Cut(wpEB,wpEE),  #5
+            psetGsfEleHadronicOverEMLinearCut(wpEB,wpEE), #6 
+            psetGsfEleTrkPtIsoCut(wpEB,wpEE),             #7
+            psetGsfEleEmHadD1IsoRhoCut(wpEB,wpEE),        #8
+            psetGsfEleDxyCut(wpEB,wpEE),                  #9
+            psetGsfEleMissingHitsCut(wpEB,wpEE),          #10,
+            psetGsfEleEcalDrivenCut(wpEB,wpEE)            #11
+            )
+        )
+    return parameterSet

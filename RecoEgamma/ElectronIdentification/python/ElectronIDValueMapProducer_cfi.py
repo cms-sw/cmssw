@@ -15,5 +15,5 @@ electronIDValueMapProducer = cms.EDProducer('ElectronIDValueMapProducer',
                                           ebReducedRecHitCollectionMiniAOD = cms.InputTag("reducedEgamma:reducedEBRecHits"),
                                           eeReducedRecHitCollectionMiniAOD = cms.InputTag("reducedEgamma:reducedEERecHits"),
                                           esReducedRecHitCollectionMiniAOD = cms.InputTag("reducedEgamma:reducedESRecHits"),
-                                          srcMiniAOD = cms.InputTag('slimmedElectrons'),
+                                          srcMiniAOD = cms.InputTag('slimmedElectrons',processName=cms.InputTag.skipCurrentProcess()),
 )

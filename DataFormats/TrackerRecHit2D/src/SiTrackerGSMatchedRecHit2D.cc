@@ -19,6 +19,7 @@ SiTrackerGSMatchedRecHit2D::SiTrackerGSMatchedRecHit2D( const LocalPoint& pos, c
   pixelMultiplicityAlpha_(pixelMultiplicityX), 
   pixelMultiplicityBeta_(pixelMultiplicityY), 
   isMatched_(isMatched), 
+  stereoHitFirst_(false),
   componentMono_(*rMono), 
   componentStereo_(*rStereo)
 {}
@@ -39,6 +40,7 @@ SiTrackerGSMatchedRecHit2D::SiTrackerGSMatchedRecHit2D( const LocalPoint& pos, c
   pixelMultiplicityAlpha_(pixelMultiplicityX), 
   pixelMultiplicityBeta_(pixelMultiplicityY), 
   isMatched_(0), 
+  stereoHitFirst_(false),
   componentMono_(), 
   componentStereo_()
 {}

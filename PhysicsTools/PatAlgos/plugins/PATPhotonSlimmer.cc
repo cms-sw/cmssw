@@ -13,6 +13,8 @@
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
+#include "PhysicsTools/PatAlgos/interface/ObjectModifier.h"
+
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
@@ -28,6 +30,7 @@ namespace pat {
       virtual ~PATPhotonSlimmer() { }
 
       virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
 
     private:
       edm::EDGetTokenT<edm::View<pat::Photon> > src_;
@@ -40,6 +43,8 @@ namespace pat {
       bool linkToPackedPF_;
       StringCutObjectSelector<pat::Photon> saveNonZSClusterShapes_;
       edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_;
+      bool modifyPhoton_;
+      std::unique_ptr<pat::ObjectModifier<pat::Photon> > photonModifier_;
   };
 
 } // namespace
@@ -54,8 +59,18 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
     saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes")),
     reducedBarrelRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
-    reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")))
+    reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection"))),
+    modifyPhoton_(iConfig.getParameter<bool>("modifyPhotons"))
 {
+    edm::ConsumesCollector sumes(consumesCollector());
+    if( modifyPhoton_ ) {
+      const edm::ParameterSet& mod_config = iConfig.getParameter<edm::ParameterSet>("modifierConfig");
+      photonModifier_.reset(new pat::ObjectModifier<pat::Photon>(mod_config) );
+      photonModifier_->setConsumes(sumes);
+    } else {
+      photonModifier_.reset(nullptr);
+    }
+    
     produces<std::vector<pat::Photon> >();
     if (linkToPackedPF_) {
         reco2pf_ = consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>("recoToPFMap"));
@@ -64,6 +79,11 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
     }
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+}
+
+void 
+pat::PATPhotonSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& iSetup) {
+  if( modifyPhoton_ ) photonModifier_->setEventContent(iSetup);
 }
 
 void 
@@ -87,10 +107,14 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     auto_ptr<vector<pat::Photon> >  out(new vector<pat::Photon>());
     out->reserve(src->size());
 
+    if( modifyPhoton_ ) { photonModifier_->setEvent(iEvent); }
+
     std::vector<unsigned int> keys;
     for (View<pat::Photon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
         out->push_back(*it);
         pat::Photon & photon = out->back();
+
+        if( modifyPhoton_ ) { photonModifier_->modify(photon); }
 
         if (dropSuperClusters_(photon)) { photon.superCluster_.clear(); photon.embeddedSuperCluster_ = false; }
 	if (dropBasicClusters_(photon)) { photon.basicClusters_.clear(); }
