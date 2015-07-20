@@ -1089,11 +1089,9 @@ steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
 
 # for premixing: no --pileup_input for replay; GEN-SIM only available for in-time event, from FEVTDEBUGHLT previous step
 steps['RECOPRMXUP15_PU25']=merge([
-        {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
         step3Up2015Defaults])
 steps['RECOPRMXUP15_PU50']=merge([
-        {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},
         step3Up2015Defaults50ns])
 
@@ -1219,7 +1217,7 @@ steps['HARVESTGEN2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTG
 
 
 #data
-steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
+steps['HARVESTD']={'-s':'HARVESING:@standardDQM+@miniAODDQM',
                    '--conditions':'auto:run1_data',
                    '--data':'',
                    '--filetype':'DQM',
@@ -1288,19 +1286,9 @@ steps['HARVESTUP15']={
     }
 
 
-steps['HARVESTUP15_PU25']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
-                   '--conditions':'auto:run2_mc', 
-                   '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                   '--filetype':'DQM',
-                   }
+steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
-steps['HARVESTUP15_PU50']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
-                   '--conditions':'auto:run2_mc_50ns', 
-                   '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                   '--filetype':'DQM',
-                   }
+steps['HARVESTUP15_PU50']=merge([{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},steps['HARVESTUP15']])
 
 # unSchHarvestOverrides={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM'}
 # steps['HARVESTmAODUP15']=merge([unSchHarvestOverrides,steps['HARVESTUP15']])
