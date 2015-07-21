@@ -537,7 +537,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	      v->getMEhisto_PtCorrelation_L1HLT()->Fill(toc[*ki].pt(),toc[*kj].pt());
 	      v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
 	      v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
-	      v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
+	      v->getMEhisto_PhiResolution_L1HLT()->Fill(toc[*ki].phi()-toc[*kj].phi());
 	    }
 	    //Jet Triggers
 	    if(v->getObjectType() == trigger::TriggerJet){
@@ -549,8 +549,8 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 		  v->getMEhisto_EtaCorrelation_L1HLT()->Fill(toc[*ki].eta(),toc[*kj].eta());
 		  v->getMEhisto_PhiCorrelation_L1HLT()->Fill(toc[*ki].phi(),toc[*kj].phi());
 		  v->getMEhisto_PtResolution_L1HLT()->Fill((toc[*ki].pt()-toc[*kj].pt())/(toc[*ki].pt()));
-		  v->getMEhisto_EtaResolution_L1HLT()->Fill((toc[*ki].eta()-toc[*kj].eta())/(toc[*ki].eta()));
-		  v->getMEhisto_PhiResolution_L1HLT()->Fill((toc[*ki].phi()-toc[*kj].phi())/(toc[*ki].phi()));
+		  v->getMEhisto_EtaResolution_L1HLT()->Fill(toc[*ki].eta()-toc[*kj].eta());
+		  v->getMEhisto_PhiResolution_L1HLT()->Fill(toc[*ki].phi()-toc[*kj].phi());
 		}
 	      }
 	      if(((deltaR(hltTrigEta, hltTrigPhi, l1TrigEta, l1TrigPhi) < 0.4 ) 
@@ -589,8 +589,8 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),CaloJetPhi[iCalo]);
 			//
 			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-CaloJetPt[iCalo])/(toc[*kj].pt()));
-			v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-CaloJetEta[iCalo])/(toc[*kj].eta()));
-			v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-CaloJetPhi[iCalo])/(toc[*kj].phi()));
+			v->getMEhisto_EtaResolution_HLTRecObj()->Fill(toc[*kj].eta()-CaloJetEta[iCalo]);
+			v->getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-CaloJetPhi[iCalo]);
 		      }
                       
 		      //-------------------------------------------------------    
@@ -635,8 +635,8 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 			v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),PFJetPhi[iPF]);
 			//
 			v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].pt()-PFJetPt[iPF])/(toc[*kj].pt()));
-			v->getMEhisto_EtaResolution_HLTRecObj()->Fill((toc[*kj].eta()-PFJetEta[iPF])/(toc[*kj].eta()));
-			v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-PFJetPhi[iPF])/(toc[*kj].phi()));
+			v->getMEhisto_EtaResolution_HLTRecObj()->Fill(toc[*kj].eta()-PFJetEta[iPF]);
+			v->getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-PFJetPhi[iPF]);
                       }
 		      
 		      //-------------------------------------------------------    
@@ -673,7 +673,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	      v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].et(),met.et());
 	      v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),met.phi());
 	      v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].et()-met.et())/(toc[*kj].et()));
-	      v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-met.phi())/(toc[*kj].phi())); 
+	      v->getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-met.phi()); 
 	    }
 	    
 	    //--------------------------------------------------------
@@ -689,7 +689,7 @@ JetMETHLTOfflineSource::fillMEforMonAllTrigger(const Event & iEvent, const edm::
 	      v->getMEhisto_PtCorrelation_HLTRecObj()->Fill(toc[*kj].et(),pfmet.et());
 	      v->getMEhisto_PhiCorrelation_HLTRecObj()->Fill(toc[*kj].phi(),pfmet.phi());
 	      v->getMEhisto_PtResolution_HLTRecObj()->Fill((toc[*kj].et()-pfmet.et())/(toc[*kj].et()));
-	      v->getMEhisto_PhiResolution_HLTRecObj()->Fill((toc[*kj].phi()-pfmet.phi())/(toc[*kj].phi())); 
+	      v->getMEhisto_PhiResolution_HLTRecObj()->Fill(toc[*kj].phi()-pfmet.phi()); 
 	    }
 	  }//Loop over HLT trigger candidates
 	  if((v->getTriggerType().compare("DiJet_Trigger") == 0)) diJetFire = true;
@@ -1738,12 +1738,12 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  PtResolution_L1HLT->getTH1();
 	  
 	  histoname = labelname+"_l1HLTEtaResolution";
-	  title = labelname+"_l1HLTEtaResolution;(#eta(L1)-#eta(HLT))/#eta(L1)"+trigPath;
+	  title = labelname+"_l1HLTEtaResolution;#eta(L1)-#eta(HLT)"+trigPath;
 	  MonitorElement * EtaResolution_L1HLT = iBooker.book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  EtaResolution_L1HLT->getTH1();
 	  
 	  histoname = labelname+"_l1HLTPhiResolution";
-	  title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
+	  title = labelname+"_l1HLTPhiResolution;#Phi(L1)-#Phi(HLT)"+trigPath;
 	  MonitorElement * PhiResolution_L1HLT = iBooker.book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  PhiResolution_L1HLT->getTH1();
 	  
@@ -1768,12 +1768,12 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  PtResolution_HLTRecObj->getTH1();
 	  
 	  histoname = labelname+"_hltRecObjEtaResolution";
-	  title = labelname+"_hltRecObjEtaResolution;(#eta(HLT)-#eta(Reco))/#eta(HLT)"+trigPath;
+	  title = labelname+"_hltRecObjEtaResolution;#eta(HLT)-#eta(Reco)"+trigPath;
 	  MonitorElement * EtaResolution_HLTRecObj = iBooker.book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  EtaResolution_HLTRecObj->getTH1();
 	  
 	  histoname = labelname+"_hltRecObjPhiResolution";
-	  title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
+	  title = labelname+"_hltRecObjPhiResolution;#Phi(HLT)-#Phi(Reco)"+trigPath;
 	  MonitorElement * PhiResolution_HLTRecObj = iBooker.book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  PhiResolution_HLTRecObj->getTH1();
 	  
@@ -1958,7 +1958,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  PtResolution_L1HLT->getTH1();
 	  
 	  histoname = labelname+"_l1HLTPhiResolution";
-	  title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
+	  title = labelname+"_l1HLTPhiResolution;#Phi(L1)-#Phi(HLT)"+trigPath;
 	  MonitorElement * PhiResolution_L1HLT = iBooker.book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  PhiResolution_L1HLT->getTH1();
 	  
@@ -1978,7 +1978,7 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	  PtResolution_HLTRecObj->getTH1();
 	  
 	  histoname = labelname+"_hltRecObjPhiResolution";
-	  title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
+	  title = labelname+"_hltRecObjPhiResolution;#Phi(HLT)-#Phi(Reco)"+trigPath;
 	  MonitorElement * PhiResolution_HLTRecObj = iBooker.book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  PhiResolution_HLTRecObj->getTH1();
 	  
