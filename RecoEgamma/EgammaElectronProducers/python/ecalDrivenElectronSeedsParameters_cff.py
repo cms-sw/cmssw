@@ -34,7 +34,12 @@ ecalDrivenElectronSeedsParameters = cms.PSet(
     # H/E towers
     hcalTowers = cms.InputTag("towerMaker"),
     hOverEPtMin = cms.double(0.),
-    
+
+    # sigma_ietaieta
+    applySigmaIEtaIEtaCut = cms.bool(False),
+    maxSigmaIEtaIEtaBarrel = cms.double(0.5),
+    maxSigmaIEtaIEtaEndcaps = cms.double(0.5),    
+
     # r/z windows
     nSigmasDeltaZ1 = cms.double(5.), ## in case beam spot is used for the matching
     deltaZ1WithVertex = cms.double(25.), ## in case reco vertex is used for the matching
