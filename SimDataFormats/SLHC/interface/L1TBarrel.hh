@@ -315,7 +315,7 @@ public:
 	    if (!pass1) continue; 
 	    */
 
-	    double dist=hypot(rdeltaphi/cutrphi,deltaz/cutrz);
+	    double dist=hypot(rdeltaphi/(cutrphi*phiSF),deltaz/cutrz);
 
 	    if (dist<distbest){
 	      tmp=L->stubs_[jSector][j];
@@ -423,7 +423,7 @@ public:
 	    if (fabs(rdeltaphi)>0.2*phiSF) continue;
 	    if (fabs(deltar)>3.0) continue;
 	    
-	    double dist=hypot(rdeltaphi/0.2,deltar/3.0);
+	    double dist=hypot(rdeltaphi/(0.2*phiSF),deltar/3.0);
 	    
 	    if (dist<distbest){
 	      tmp=D->stubs_[jSector][j];

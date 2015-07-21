@@ -385,10 +385,13 @@ double StackedTrackerGeometry::findRoughPt( double aMagneticFieldStrength, const
       deltaPhi = 2*M_PI - deltaPhi;
 
     /// Return the rough Pt
-    return ( deltaRadius * mPtFactor / deltaPhi );
+    double roughPt = deltaRadius * mPtFactor / deltaPhi;
+    if (roughPt > 10000.) roughPt = 9999.;
+    return roughPt;
   }
   else if (tempDetId.isEndcap())
   {
+    /*
     /// Test approximated formula for Endcap stubs
     /// Check always to be consistent with HitMatchingAlgorithm_window2012.h
     double roughPt = innerPointRadius * innerPointRadius * mPtFactor / fabs(findAverageLocalPosition( stub->getClusterRef(0).get() ).x()) ;
@@ -396,6 +399,17 @@ double StackedTrackerGeometry::findRoughPt( double aMagneticFieldStrength, const
     roughPt = roughPt / 2.;
 
     /// Return the rough Pt
+    return roughPt;
+    */
+
+    double deltax = fabs(findAverageLocalPosition( stub->getClusterRef(0).get() ).x()-findAverageLocalPosition( stub->getClusterRef(1).get() ).x())
+      -fabs((innerHitPosition.z()-outerHitPosition.z())/innerHitPosition.z())*fabs(findAverageLocalPosition( stub->getClusterRef(0).get() ).x());
+    double deltaPhi = fabs(deltax)/innerPointRadius;
+    double deltaR = fabs(outerHitPosition.z()-innerHitPosition.z())*innerPointRadius/fabs(innerHitPosition.z());
+
+    /// Return the rough Pt
+    double roughPt = deltaR * mPtFactor / deltaPhi;
+    if (roughPt > 10000.) roughPt = 9999.;
     return roughPt;
   }
 

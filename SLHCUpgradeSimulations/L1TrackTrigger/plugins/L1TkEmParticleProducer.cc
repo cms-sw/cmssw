@@ -84,6 +84,7 @@ class L1TkEmParticleProducer : public edm::EDProducer {
 	float DRmax;
 	float PTMINTRA;
 	bool PrimaryVtxConstrain;	// use the primary vertex (default = false)
+        //bool DeltaZConstrain;	// use z = z of the leading track within DR < DRmax;
 	float DeltaZMax;	// | z_track - z_primaryvtx | < DeltaZMax in cm. 
 				// Used only when PrimaryVtxConstrain = True.
 	float IsoCut;
@@ -116,6 +117,7 @@ L1TkEmParticleProducer::L1TkEmParticleProducer(const edm::ParameterSet& iConfig)
    DRmin = (float)iConfig.getParameter<double>("DRmin");
    DRmax = (float)iConfig.getParameter<double>("DRmax");
    PrimaryVtxConstrain = iConfig.getParameter<bool>("PrimaryVtxConstrain");
+   //DeltaZConstrain = iConfig.getParameter<bool>("DeltaZConstrain");
    DeltaZMax = (float)iConfig.getParameter<double>("DeltaZMax");
 	// cut applied on the isolation (if this number is <= 0, no cut is applied)
    IsoCut = (float)iConfig.getParameter<double>("IsoCut");
@@ -214,6 +216,32 @@ L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	//std::cout << " here an EG w et = " << et << std::endl;
 
+	//float z_leadingTrack = -999;
+	//float Pt_leadingTrack = -999;
+
+/*
+	if (DeltaZConstrain) {
+		// first loop over the tracks to find the leading one in DR < DRmax
+           for (trackIter = L1TkTrackHandle->begin(); trackIter != L1TkTrackHandle->end(); ++trackIter) {
+              float Pt = trackIter->getMomentum().perp();
+              float Eta = trackIter->getMomentum().eta();
+              float Phi = trackIter->getMomentum().phi();
+              float z  = trackIter->getPOCA().z();
+              if (fabs(z) > ZMAX) continue;
+              if (Pt < PTMINTRA) continue;
+              float chi2 = trackIter->getChi2();
+              if (chi2 > CHI2MAX) continue;
+              float dr = deltaR(Eta, eta, Phi,phi);
+              if (dr < DRmax) {
+		   if (Pt > Pt_leadingTrack) {
+		      Pt_leadingTrack = Pt;
+		      z_leadingTrack = z;
+		   }
+	      }
+	   } // end loop over the tracks
+	} // endif DeltaZConstrain
+*/
+
 	for (trackIter = L1TkTrackHandle->begin(); trackIter != L1TkTrackHandle->end(); ++trackIter) {
 
 	   float Pt = trackIter->getMomentum().perp();
@@ -228,6 +256,12 @@ L1TkEmParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	   if (PrimaryVtxConstrain) {
 	     if ( zvtxL1tk > -999 && fabs( z - zvtxL1tk) >= DeltaZMax) continue;
 	   }
+
+/*
+	   if (DeltaZConstrain) {
+	      if ( fabs( z - z_leadingTrack) >= DeltaZMax) continue;
+	   }
+*/
 
 	   float dr = deltaR(Eta, eta, Phi,phi);
 	   if (dr < DRmax && dr >= DRmin)  {

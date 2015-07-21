@@ -50,7 +50,7 @@ public:
 
   void write(ofstream& out){
     
-    out << "L1SimTrack: " 
+    out << "SimTrack: " 
 	<< id_ << "\t" 
 	<< type_ << "\t" 
 	<< pt_ << "\t" 
@@ -197,6 +197,7 @@ public:
 
   SLHCEvent() {
     //empty constructor to be used with 'filler' functions
+    eventnum_=0;
   }
 
   void setIPx(double x) { x_offset=x;}
@@ -257,9 +258,9 @@ public:
     bool foundclose=false;
 
     for (unsigned int i=0;i<stubs_.size();i++) {
-      if (fabs(stubs_[i].x()-stub.x())<0.2&&
-	  fabs(stubs_[i].y()-stub.y())<0.2&&
-	  fabs(stubs_[i].z()-stub.z())<2.0) {
+      if (fabs(stubs_[i].x()-stub.x())<0.02&&
+	  fabs(stubs_[i].y()-stub.y())<0.02&&
+	  fabs(stubs_[i].z()-stub.z())<0.2) {
 	foundclose=true;
       }
     }
@@ -547,7 +548,7 @@ public:
 	if(it==digihash_.end()){
 	  static int count=0;
 	  count++;
-	  if (count<5) {
+	  if (count<0) {
 	    cout << "Warning did not find digi"<<endl;
 	  } 
  	}
@@ -573,7 +574,7 @@ public:
 	if(it==digihash_.end()){
 	  static int count=0;
 	  count++;
-	  if (count < 5) {
+	  if (count < 0) {
 	    cout << "Warning did not find digi in disks"<<endl;
 	  }
 	}
