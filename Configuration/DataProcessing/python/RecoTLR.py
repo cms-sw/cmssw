@@ -38,12 +38,13 @@ def customiseDataRun2Common(process):
     process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
     if hasattr(process,'valCscTriggerPrimitiveDigis'):
         #this is not doing anything at the moment
-        process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.untracked.bool(False)
+        process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.bool(False)
     if hasattr(process,'valCsctfTrackDigis'):
         process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
 
     process=customise_Reco(process)
     process=customise_RawToDigi(process)
+    process=customise_DQM(process)
 
     return process
 
