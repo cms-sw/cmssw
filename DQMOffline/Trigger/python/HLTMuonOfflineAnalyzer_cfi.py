@@ -36,7 +36,7 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
       "HLT_TkMu20_v1",
       "HLT_L1SingleMu16_v",
       "HLT_L2Mu10_v",
-      "HLT_HIL1DoubleMuOpen", #for HI
+      "HLT_HIL1DoubleMu0", #for HI
       "HLT_HIL2Mu3", #for HI
       "HLT_HIL2Mu7", #for HI
       "HLT_HIL2Mu15", #for HI
