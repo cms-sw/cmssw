@@ -164,7 +164,7 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     etaCorrE = 1. + aEtaBarrel(t) + 2.2*bEtaBarrel(t)*std::abs(eta)*std::abs(eta);
     etaCorrH = 1.;
     // etaCorr = 1.;
-    t = max(tt, thresh+etaCorrE*a*e+etaCorrH*b*h);
+    //t = max(tt, thresh+etaCorrE*a*e+etaCorrH*b*h);
 
     if ( e > 0. && thresh > 0. ) 
       e = h > 0. ? threshE-threshH + etaCorrE * a * e : threshE + etaCorrE * a * e;
@@ -196,7 +196,7 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     etaCorrE = 1. + aEtaEndcap(t) + 0.1*bEtaEndcap(t)*etaPow;
     etaCorrH = 1. + aEtaEndcap(t) + bEtaEndcap(t)*etaPow;
     
-    t = min(999.9,max(tt, thresh + etaCorrE*a*e + etaCorrH*b*h));
+    //t = min(999.9,max(tt, thresh + etaCorrE*a*e + etaCorrH*b*h));
 
     if ( e > 0. && thresh > 0. ) 
       e = h > 0. ? threshE-threshH + etaCorrE * a * e : threshE + etaCorrE * a * e;
