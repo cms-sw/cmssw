@@ -438,6 +438,33 @@ int addFile(MEStore& micromes, int fd) {
   return 0;
 }
 
+// The idea is to preload root library (before forking).
+// Which is significant for performance and especially memory usage,
+// because root aakes a long time to init (and somehow manages to launch a subshell).
+void tryRootPreload() {
+    // write a single histogram
+    TH1F obj_th1f("preload_th1f", "preload_th1f", 2, 0, 1);
+
+    TBufferFile write_buffer(TBufferFile::kWrite);
+    write_buffer.WriteObject(&obj_th1f);
+
+    dqmstorepb::ROOTFilePB preload_file;
+    dqmstorepb::ROOTFilePB::Histo* hw = preload_file.add_histo();
+    hw->set_size(write_buffer.Length());
+    hw->set_flags(0);
+    hw->set_streamed_histo((const void*)write_buffer.Buffer(), write_buffer.Length());
+
+    // now load this th1f
+    const dqmstorepb::ROOTFilePB::Histo &hr = preload_file.histo(0);
+    std::string path;
+    std::string objname;
+    TObject *obj = NULL;
+    get_info(hr, path, objname, &obj);
+    delete obj;
+
+    // all done
+}
+
 /* fork_id represents the position in a node (node number). */
 void addFilesWithFork(int parent_fd, const int fork_id, const int fork_total, const std::vector<std::string> filenames) {
   DEBUG(1, "Start process: " << fork_id << " parent: " << (fork_id / 2) << std::endl);
@@ -509,6 +536,8 @@ void addFilesWithFork(int parent_fd, const int fork_id, const int fork_total, co
 int addFiles(const std::string &output_filename,
              const std::vector<std::string> &filenames,
              int nthreads) {
+
+  tryRootPreload();
 
   DEBUG(1, "Writing file" << std::endl);
   int out_fd = ::open(output_filename.c_str(),
