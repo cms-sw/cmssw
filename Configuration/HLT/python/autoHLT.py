@@ -3,9 +3,9 @@
 
 autoHLT = {
   'frozen25ns' : '25ns14e33_v3',
-  'relval25ns' : '25ns14e33_v3',
+  'relval25ns' : '25ns14e33_v2',
   'frozen50ns' : '50ns_5e33_v3',
-  'relval50ns' : '50ns_5e33_v3',
+  'relval50ns' : '50ns_5e33_v2',
   'fake'       : 'Fake',
   'test'       : 'GRun',
 }
