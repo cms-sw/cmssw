@@ -7,9 +7,6 @@
 //
 //
 
-// Don't compile until CMSSW_7_5_0_pre5 or later
-#ifdef CMSSW_7_5_0_pre5_OR_LATER
-
 #include "HeavyIonsAnalysis/EventAnalysis/interface/HIClusterCompatibilityFilter.h"
 
 HIClusterCompatibilityFilter::HIClusterCompatibilityFilter(const edm::ParameterSet& iConfig):
@@ -136,4 +133,3 @@ HIClusterCompatibilityFilter::fillDescriptions(edm::ConfigurationDescriptions& d
 }
 
 DEFINE_FWK_MODULE(HIClusterCompatibilityFilter);
-#endif
