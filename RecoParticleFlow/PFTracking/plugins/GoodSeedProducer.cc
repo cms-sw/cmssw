@@ -507,7 +507,7 @@ namespace goodseedhelpers {
         reader.AddVariable("pt", &pt);
         reader.AddVariable("eta", &eta);
         
-        reader.BookMVA(method_, weights[j].fullPath().c_str());
+        std::unique_ptr<TMVA::IMethod> temp( reader.BookMVA(method_, weights[j].fullPath().c_str()) );
         
         gbr[j].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader.FindMVA(method_) ) ) );
       }    
