@@ -13,7 +13,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
-process.load('FastSimulation.Configuration.FamosSequences_cff')
+process.load('FastSimulation.Configuration.Reconstruction_BefMix_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
@@ -33,13 +33,18 @@ process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
 
     plugins=cms.PSet(
         defaultPlugin = cms.PSet(
-            type=cms.string("TrackingRecHitNoSmearingPlugin"),
+            type=cms.string("PixelBarrelTemplateSmearerPlugin"),
             #select=cms.string("true || (tecGlued && (subdetId==!FPX)) || ((BPX==subdetId) && (layer!=2) && (pxbModule>5))"),
             select=cms.string("tibGlued || tidGlued || tobGlued || tecGlued"),
 
         )
     )
 )
+
+process.RandomNumberGeneratorService. recHitProducer = cms.PSet(
+    initialSeed = cms.untracked.uint32(12345),
+    engineName = cms.untracked.string('TRandom3')
+  )
 
 process.tracking_step=cms.Path(
     process.siTrackerGaussianSmearingRecHits
