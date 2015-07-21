@@ -33,8 +33,6 @@ class FamosProducer : public edm::stream::EDProducer <>
   
   // token for hepmc from signal event
   edm::EDGetTokenT<edm::HepMCProduct> sourceToken;
-  // token for hepmc from pu
-  edm::EDGetTokenT<edm::HepMCProduct> puToken;
 };
 
 #endif

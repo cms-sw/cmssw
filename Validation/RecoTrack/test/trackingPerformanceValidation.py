@@ -8,10 +8,10 @@ import Validation.RecoTrack.plotting.validation as validation
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_7_4_0_pre6'
+RefRelease='CMSSW_7_5_0_pre3'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_7_4_0_pre8'
+NewRelease='CMSSW_7_5_0_pre4'
 
 #import Validation.RecoTrack.plotting.plotting as plotting
 #plotting.missingOk = True
@@ -63,7 +63,7 @@ fastsimstartupsamples = [
 ]
 
 pileupfastsimstartupsamples = [
-#    Sample('RelValTTbar', putype="AVE20", midfix="13", fastsim=True, fastsimCorrespondingFullsimPileup="50ns")
+    Sample('RelValTTbar', putype="25ns", midfix="13_PU25", fastsim=True)
 ]
 
 ### Track algorithm name and quality. Can be a list.
@@ -83,7 +83,9 @@ val = trackingPlots.TrackingValidation(
 )
 val.download()
 val.doPlots(algos=Algos, qualities=Qualities, refRelease=RefRelease,
-                   refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.plotter)
+            refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.plotter,
+            plotterDrawArgs={"ratio": True}
+)
 
 # Timing plots
 #val2 = validation.Validation(
@@ -93,11 +95,12 @@ val.doPlots(algos=Algos, qualities=Qualities, refRelease=RefRelease,
 #             refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.timePlotter,
 #             algos=None, qualities=None)
 
-val3 = validation.Validation(
-    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
-    fastsimSamples=[], newRelease=NewRelease,
-    selectionName="_tp")
-val3.download()
-val3.doPlots(algos=None, qualities=None, refRelease=RefRelease,
-             refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.tpPlotter)
+# TrackingParticle plots
+#val3 = validation.Validation(
+#    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
+#    fastsimSamples=[], newRelease=NewRelease,
+#    selectionName="_tp")
+#val3.download()
+#val3.doPlots(algos=None, qualities=None, refRelease=RefRelease,
+#             refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.tpPlotter)
 

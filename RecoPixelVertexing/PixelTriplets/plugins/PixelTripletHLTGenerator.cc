@@ -1,4 +1,5 @@
 #include "RecoPixelVertexing/PixelTriplets/plugins/PixelTripletHLTGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 
 #include "ThirdHitPredictionFromInvParabola.h"
 #include "ThirdHitRZPrediction.h"
@@ -30,15 +31,13 @@ using namespace std;
 using namespace ctfseeding;
 
 PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
-  : thePairGenerator(0),
-    theLayerCache(0),
+  : HitTripletGeneratorFromPairAndLayers(cfg),
     useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),
     extraHitRZtolerance(cfg.getParameter<double>("extraHitRZtolerance")),
     extraHitRPhitolerance(cfg.getParameter<double>("extraHitRPhitolerance")),
     useMScat(cfg.getParameter<bool>("useMultScattering")),
     useBend(cfg.getParameter<bool>("useBending"))
 {
-  theMaxElement=cfg.getParameter<unsigned int>("maxElement");
   dphi =  (useFixedPreFiltering) ?  cfg.getParameter<double>("phiPreFiltering") : 0;
   
   edm::ParameterSet comparitorPSet =
@@ -49,32 +48,19 @@ PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg
   }
 }
 
-PixelTripletHLTGenerator::~PixelTripletHLTGenerator() { 
-  delete thePairGenerator;
-}
-
-void PixelTripletHLTGenerator::init( const HitPairGenerator & pairs,
-				     LayerCacheType* layerCache)
-{
-  thePairGenerator = pairs.clone();
-  theLayerCache = layerCache;
-}
-
-void PixelTripletHLTGenerator::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
-                                                std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) {
-  thePairGenerator->setSeedingLayers(pairLayers);
-  theLayers = thirdLayers;
-}
+PixelTripletHLTGenerator::~PixelTripletHLTGenerator() {}
 
 void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region, 
 					   OrderedHitTriplets & result,
 					   const edm::Event & ev,
-					   const edm::EventSetup& es)
+					   const edm::EventSetup& es,
+					   SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+					   const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers)
 {
 
   if (theComparitor) theComparitor->init(ev, es);
   
-  auto const & doublets = thePairGenerator->doublets(region,ev,es);
+  auto const & doublets = thePairGenerator->doublets(region,ev,es, pairLayers);
   
   if (doublets.empty()) return;
 
@@ -84,7 +70,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   // std::cout << "pairs " << doublets.size() << std::endl;
   
   float regOffset = region.origin().perp(); //try to take account of non-centrality (?)
-  int size = theLayers.size();
+  int size = thirdLayers.size();
   
   #ifdef __clang__
   std::vector<ThirdHitRZPrediction<PixelRecoLineRZ>> preds(size);
@@ -110,10 +96,10 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   
   // fill the prediction vector
   for (int il=0; il!=size; ++il) {
-    thirdHitMap[il] = &(*theLayerCache)(theLayers[il], region, ev, es);
+    thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, ev, es);
     auto const & hits = *thirdHitMap[il];
     ThirdHitRZPrediction<PixelRecoLineRZ> & pred = preds[il];
-    pred.initLayer(theLayers[il].detLayer());
+    pred.initLayer(thirdLayers[il].detLayer());
     pred.initTolerance(extraHitRZtolerance);
     
     layerTree.clear();
@@ -136,7 +122,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
     //add fudge factors in case only one hit and also for floating-point inaccuracy
     hitTree[il].build(layerTree, phiZ); // make KDtree
     rzError[il] = maxErr; //save error
-    // std::cout << "layer " << theLayers[il].detLayer()->seqNum() << " " << layerTree.size() << std::endl; 
+    // std::cout << "layer " << thirdLayers[il].detLayer()->seqNum() << " " << layerTree.size() << std::endl; 
   }
   
   float imppar = region.originRBound();
@@ -172,7 +158,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
       
       auto const & hits = *thirdHitMap[il];
       
-      const DetLayer * layer = theLayers[il].detLayer();
+      const DetLayer * layer = thirdLayers[il].detLayer();
       auto barrelLayer = layer->isBarrel();
 
       ThirdHitCorrection correction(es, region.ptMin(), layer, line, point2, outSeq, useMScat, useBend); 
@@ -265,7 +251,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	  hitTree[il].search(phiZ, foundNodes);
 	}
 
-      // std::cout << ip << ": " << theLayers[il].detLayer()->seqNum() << " " << foundNodes.size() << " " << prmin << " " << prmax << std::endl;
+      // std::cout << ip << ": " << thirdLayers[il].detLayer()->seqNum() << " " << foundNodes.size() << " " << prmin << " " << prmax << std::endl;
 
 
       // int kk=0;

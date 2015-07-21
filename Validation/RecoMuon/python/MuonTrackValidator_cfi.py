@@ -21,6 +21,7 @@ muonTrackValidator = cms.EDAnalyzer("MuonTrackValidator",
     #
     # selection of TP for evaluation of efficiency, from "TrackingParticleSelectionForEfficiency"
     signalOnlyTP = cms.bool(True),
+    intimeOnlyTP = cms.bool(False),
     stableOnlyTP = cms.bool(False),
     chargedOnlyTP = cms.bool(True),
     pdgIdTP = cms.vint32(13,-13),

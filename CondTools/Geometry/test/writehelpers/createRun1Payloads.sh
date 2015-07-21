@@ -17,7 +17,6 @@ sed -i {s/TagXX/${mytag}/g} splitRun1Database.sh
 # large XML file for the Extended2015 scenario.
 # Input cff                    Output file
 # GeometryExtended_cff         geSingleBigFile.xml
-sed -i '{s/Extended2015/Extended/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
 # Now convert the content of the large XML file into
@@ -25,8 +24,6 @@ cmsRun geometryxmlwriter.py
 # Also reads in the little XML files again and fills
 # the DDCompactView. From the DDCompactView the
 # reco parts of the database are also filled.
-sed -i '{s/Extended2015/Extended/g}' xmlgeometrywriter.py
-sed -i '{s/Extended2015/Extended/g}' geometrywriter.py
 cmsRun geometrywriter.py
 
 # Now put the other scenarios into the database.

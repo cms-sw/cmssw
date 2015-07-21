@@ -84,7 +84,8 @@ public:
   }
 
   void setSecondHitPattern(Trajectory* traj, T& track, 
-			   const Propagator* prop, const MeasurementTrackerEvent* measTk );
+			   const Propagator* prop, const MeasurementTrackerEvent* measTk,
+                           const TrackerTopology* ttopo);
 
   const edm::ParameterSet& getConf() const {return conf_;}
  private:

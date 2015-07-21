@@ -17,15 +17,17 @@ class TrackingParticleSelector {
 public:
   TrackingParticleSelector(){}
   TrackingParticleSelector ( double ptMin,double minRapidity,double maxRapidity,
-			     double tip,double lip,int minHit, bool signalOnly, bool chargedOnly, bool stableOnly,
+			     double tip,double lip,int minHit, bool signalOnly, bool intimeOnly, bool chargedOnly, bool stableOnly,
 			     const std::vector<int>& pdgId = std::vector<int>()) :
     ptMin2_( ptMin*ptMin ), minRapidity_( minRapidity ), maxRapidity_( maxRapidity ),
-    tip2_( tip*tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) { }
+    tip2_( tip*tip ), lip_( lip ), minHit_( minHit ), signalOnly_(signalOnly), intimeOnly_(intimeOnly), chargedOnly_(chargedOnly), stableOnly_(stableOnly), pdgId_( pdgId ) { }
 
   /// Operator() performs the selection: e.g. if (tPSelector(tp)) {...}
   bool operator()( const TrackingParticle & tp ) const {
     // signal only means no PU particles
     if (signalOnly_ && !(tp.eventId().bunchCrossing()== 0 && tp.eventId().event() == 0)) return false;
+    // intime only means no OOT PU particles
+    if (intimeOnly_ && !(tp.eventId().bunchCrossing()==0)) return false;
 
     auto pdgid = tp.pdgId();
     if(!pdgId_.empty()) {
@@ -71,6 +73,7 @@ private:
   double lip_;
   int    minHit_;
   bool signalOnly_;
+  bool intimeOnly_;
   bool chargedOnly_;
   bool stableOnly_;
   std::vector<int> pdgId_;
@@ -94,6 +97,7 @@ namespace reco {
 	  cfg.getParameter<double>( "lip" ),
 	  cfg.getParameter<int>( "minHit" ),
 	  cfg.getParameter<bool>( "signalOnly" ),
+          cfg.getParameter<bool>( "intimeOnly" ),
 	  cfg.getParameter<bool>( "chargedOnly" ),
 	  cfg.getParameter<bool>( "stableOnly" ),
 	cfg.getParameter<std::vector<int> >( "pdgId" ));

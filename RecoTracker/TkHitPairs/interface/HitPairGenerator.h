@@ -25,26 +25,11 @@ public:
 
   virtual ~HitPairGenerator() { }
 
-  virtual void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) = 0;
-
   virtual const OrderedHitPairs & run(
     const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
 
-  // temporary interface for backward compatibility only
-  virtual void hitPairs( 
-    const TrackingRegion& reg, OrderedHitPairs & prs, const edm::EventSetup& es) {}
-
-  // new interface with no temphits copy
-  virtual HitDoublets doublets( const TrackingRegion& reg, 
-			     const edm::Event & ev,  const edm::EventSetup& es) {
-    assert(0=="not implemented");
-  }
-
-
   virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
       const edm::Event & ev,  const edm::EventSetup& es) = 0;
-
-  virtual HitPairGenerator* clone() const = 0;
 
   virtual void clear() final;
 

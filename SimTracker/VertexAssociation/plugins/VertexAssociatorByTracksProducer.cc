@@ -46,6 +46,7 @@ namespace {
                     param.getParameter<double>("lipTP"),
                     param.getParameter<int>("minHitTP"),
                     param.getParameter<bool>("signalOnlyTP"),
+                    param.getParameter<bool>("intimeOnlyTP"),
                     param.getParameter<bool>("chargedOnlyTP"),
 		    param.getParameter<bool>("stableOnlyTP"),
                     param.getParameter<std::vector<int> >("pdgIdTP")

@@ -71,6 +71,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 					pset.getParameter<double>("lipTP"),
 					pset.getParameter<int>("minHitTP"),
 					pset.getParameter<bool>("signalOnlyTP"),
+					pset.getParameter<bool>("intimeOnlyTP"),
 					pset.getParameter<bool>("chargedOnlyTP"),
 					pset.getParameter<bool>("stableOnlyTP"),
 					pset.getParameter<std::vector<int> >("pdgIdTP"));
@@ -93,9 +94,22 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 					  psetVsEta.getParameter<double>("lip"),
 					  psetVsEta.getParameter<int>("minHit"),
 					  psetVsEta.getParameter<bool>("signalOnly"),
+					  psetVsEta.getParameter<bool>("intimeOnly"),
 					  psetVsEta.getParameter<bool>("chargedOnly"),
 					  psetVsEta.getParameter<bool>("stableOnly"),
 					  psetVsEta.getParameter<std::vector<int> >("pdgId"));
+
+  dRtpSelectorNoPtCut = TrackingParticleSelector(0.0,
+                                                 psetVsEta.getParameter<double>("minRapidity"),
+                                                 psetVsEta.getParameter<double>("maxRapidity"),
+                                                 psetVsEta.getParameter<double>("tip"),
+                                                 psetVsEta.getParameter<double>("lip"),
+                                                 psetVsEta.getParameter<int>("minHit"),
+                                                 psetVsEta.getParameter<bool>("signalOnly"),
+                                                 psetVsEta.getParameter<bool>("intimeOnly"),
+                                                 psetVsEta.getParameter<bool>("chargedOnly"),
+                                                 psetVsEta.getParameter<bool>("stableOnly"),
+                                                 psetVsEta.getParameter<std::vector<int> >("pdgId"));
 
   useGsf = pset.getParameter<bool>("useGsf");
 
@@ -133,9 +147,20 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     return me;
   };
 
+  //Booking histograms concerning with simulated tracks
+  if(doSimPlots_) {
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_ + "simulation");
+
+    histoProducerAlgo_->bookSimHistos(ibook);
+
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_);
+  }
 
   for (unsigned int ww=0;ww<associators.size();ww++){
     ibook.cd();
+    // FIXME: these need to be moved to a subdirectory whose name depends on the associator
     ibook.setCurrentFolder(dirName_);
 
     h_reco_coll.push_back(binLabels( ibook.book1D("num_reco_coll", "N of reco track vs track collection", nintColl, minColl, maxColl) ));
@@ -144,6 +169,9 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     h_simul_coll.push_back(binLabels( ibook.book1D("num_simul_coll", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
     h_looper_coll.push_back(binLabels( ibook.book1D("num_duplicate_coll", "N of associated (recoToSim) looper tracks vs track collection", nintColl, minColl, maxColl) ));
     h_pileup_coll.push_back(binLabels( ibook.book1D("num_pileup_coll", "N of associated (recoToSim) pileup tracks vs track collection", nintColl, minColl, maxColl) ));
+
+    h_assoc_coll_allPt.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll_allPt", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
+    h_simul_coll_allPt.push_back(binLabels( ibook.book1D("num_simul_coll_allPt", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
 
     for (unsigned int www=0;www<label.size();www++){
       ibook.cd();
@@ -167,16 +195,6 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
 
       ibook.setCurrentFolder(dirName.c_str());
 
-      //Booking histograms concerning with simulated tracks
-      if(doSimPlots_) {
-        string subDirName = dirName + "/simulation";
-        ibook.setCurrentFolder(subDirName.c_str());
-
-        histoProducerAlgo_->bookSimHistos(ibook);
-
-        ibook.cd();
-        ibook.setCurrentFolder(dirName.c_str());
-      }
       if(doSimTrackPlots_) {
         histoProducerAlgo_->bookSimTrackHistos(ibook);
       }
@@ -281,13 +299,21 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   std::vector<std::tuple<TrackingParticle::Vector, TrackingParticle::Point>> momVert_tPCeff;
   selected_tPCeff.reserve(tPCeff.size());
   momVert_tPCeff.reserve(tPCeff.size());
+  int nIntimeTPs = 0;
   if(parametersDefinerIsCosmic_) {
     for(size_t j=0; j<tPCeff.size(); ++j) {
       TrackingParticleRef tpr(TPCollectionHeff, j);
+
+      TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
+      TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
+      if(doSimPlots_) {
+        histoProducerAlgo_->fill_generic_simTrack_histos(momentum, vertex, tpr->eventId().bunchCrossing());
+      }
+      if(tpr->eventId().bunchCrossing() == 0)
+        ++nIntimeTPs;
+
       if(cosmictpSelector(tpr,&bs,event,setup)) {
         selected_tPCeff.push_back(j);
-        TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tpr);
-        TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tpr);
         momVert_tPCeff.emplace_back(momentum, vertex);
       }
     }
@@ -295,6 +321,17 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   else {
     size_t j=0;
     for(auto const& tp: tPCeff) {
+
+      // TODO: do we want to fill these from all TPs that include IT
+      // and OOT (as below), or limit to IT+OOT TPs passing tpSelector
+      // (as it was before)? The latter would require another instance
+      // of tpSelector with intimeOnly=False.
+      if(doSimPlots_) {
+        histoProducerAlgo_->fill_generic_simTrack_histos(tp.momentum(), tp.vertex(), tp.eventId().bunchCrossing());
+      }
+      if(tp.eventId().bunchCrossing() == 0)
+        ++nIntimeTPs;
+
       if(tpSelector(tp)) {
         selected_tPCeff.push_back(j);
 	TrackingParticleRef tpr(TPCollectionHeff, j);
@@ -304,6 +341,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       }
       ++j;
     }
+  }
+  if(doSimPlots_) {
+    histoProducerAlgo_->fill_simTrackBased_histos(nIntimeTPs);
   }
 
   //calculate dR for TPs
@@ -474,10 +514,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	// - vertexTP
 	// - dxySim
 	// - dzSim
-
-        if(doSimPlots_) {
-          histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp.eventId().bunchCrossing());
-        }
         if(!doSimTrackPlots_)
           continue;
 
@@ -514,21 +550,26 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
         histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
           sts++;
-          h_simul_coll[ww]->Fill(www);
-          if (matchedTrackPointer) {
+          if(matchedTrackPointer)
             asts++;
-            h_assoc_coll[ww]->Fill(www);
+          if(dRtpSelectorNoPtCut(tp)) {
+            h_simul_coll_allPt[ww]->Fill(www);
+            if (matchedTrackPointer) {
+              h_assoc_coll_allPt[ww]->Fill(www);
+            }
+
+            if(dRtpSelector(tp)) {
+              h_simul_coll[ww]->Fill(www);
+              if (matchedTrackPointer) {
+                h_assoc_coll[ww]->Fill(www);
+              }
+            }
           }
 
 
 
 
       } // End  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
-
-      if(doSimPlots_) {
-        histoProducerAlgo_->fill_simTrackBased_histos(w, st);
-      }
-
 
       // ##############################################
       // fill recoTracks histograms (LOOP OVER TRACKS)

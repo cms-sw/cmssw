@@ -35,7 +35,7 @@ process.TrackerGeometryExtraWriter = cms.EDAnalyzer("PGeometricDetExtraBuilder")
 process.TrackerParametersWriter = cms.EDAnalyzer("PTrackerParametersDBBuilder")
 
 process.CaloGeometryWriter = cms.EDAnalyzer("PCaloGeometryBuilder")
-process.HcalParametersWriter = cms.EDAnalyzer("PHcalParametersDBBuilder")
+process.HcalParametersWriter = cms.EDAnalyzer("HcalParametersDBBuilder")
 
 process.CSCGeometryWriter = cms.EDAnalyzer("CSCRecoIdealDBLoader")
 
@@ -56,7 +56,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
                                                             cms.PSet(record = cms.string('PEcalEndcapRcd'),   tag = cms.string('EERECO_Geometry2015_TagXX')),
                                                             cms.PSet(record = cms.string('PEcalPreshowerRcd'),tag = cms.string('EPRECO_Geometry2015_TagXX')),
                                                             cms.PSet(record = cms.string('PHcalRcd'),         tag = cms.string('HCALRECO_Geometry2015_TagXX')),
-                                                            cms.PSet(record = cms.string('PHcalParametersRcd'), tag = cms.string('HCALParameters_Geometry2015_TagXX')),
+                                                            cms.PSet(record = cms.string('HcalParametersRcd'), tag = cms.string('HCALParameters_Geometry2015_TagXX')),
                                                             cms.PSet(record = cms.string('PCaloTowerRcd'),    tag = cms.string('CTRECO_Geometry2015_TagXX')),
                                                             cms.PSet(record = cms.string('PZdcRcd'),          tag = cms.string('ZDCRECO_Geometry2015_TagXX')),
                                                             cms.PSet(record = cms.string('PCastorRcd'),       tag = cms.string('CASTORRECO_Geometry2015_TagXX')),

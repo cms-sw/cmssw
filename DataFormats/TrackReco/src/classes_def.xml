@@ -51,7 +51,7 @@
                 }
             };
 
-            auto oldHitPatternToTrackingRecHitPair = [&](const uint32_t pattern) {
+            auto appendOldHitPattern = [&](const uint32_t pattern) {
                 // value used for those parameters needed by XXXDetId constructors
                 // but that we do not care about because they are not stored in the
                 // HitPattern.
@@ -107,26 +107,7 @@
 
                 DetId detId;
                 if (detector == DetId::Tracker) {
-                    switch (subdet) {
-                    case PixelSubdetector::PixelBarrel:
-                        detId = PXBDetId(layer, DONT_CARE, DONT_CARE);
-                        break;
-                    case PixelSubdetector::PixelEndcap:
-                        detId = PXFDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE);
-                        break;
-                    case StripSubdetector::TIB:
-                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
-                        break;
-                    case StripSubdetector::TID:
-                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
-                        break;
-                    case StripSubdetector::TOB:
-                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
-                        break;
-                    case StripSubdetector::TEC:
-                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
-                        break;
-                    }
+                    return newObj->appendTrackerHit(subdet, layer, stereo, hitType);
                 } else if (detector == DetId::Muon) {
                     switch (subdet) {
                     case MuonSubdetId::DT: {
@@ -149,8 +130,9 @@
                     }
                     break;
                     }
+                    return newObj->appendMuonHit(detId, hitType);
                 }
-                return std::pair<DetId, TrackingRecHit::Type>(detId, hitType);
+                return false;
             };
 
             auto fillNewHitPatternWithOldHitPattern = [&](const uint32_t oldHitPattern[]) {
@@ -160,8 +142,7 @@
                     if (pattern == 0) {
                         break;
                     }
-                    std::pair<DetId, TrackingRecHit::Type> hitInfo = oldHitPatternToTrackingRecHitPair(pattern);
-                    if (!newObj->appendHit(hitInfo.first, hitInfo.second)) {
+                    if(!appendOldHitPattern(pattern)) {
                         return false;
                     }
                 }
@@ -183,7 +164,7 @@
       <![CDATA[
             using namespace reco;
 
-            auto newHitPatternToPair = [&](const uint16_t pattern, const HitPattern::HitCategory category) {
+            auto appendNewHitPattern = [&](const uint16_t pattern, const HitPattern::HitCategory category) {
                 // value used for those parameters needed by XXXDetId constructors
                 // but that we do not care about.
                 const uint8_t DONT_CARE = 1;
@@ -241,28 +222,15 @@
                     break;
                 }
 
+                if (category == HitPattern::MISSING_INNER_HITS) {
+                    hitType = TrackingRecHit::missing_inner;
+                } else if (category == HitPattern::MISSING_OUTER_HITS) {
+                    hitType = TrackingRecHit::missing_outer;
+                }
+
                 DetId detId;
                 if (detector == DetId::Tracker) {
-                    switch (subdet) {
-                    case PixelSubdetector::PixelBarrel:
-                        detId = PXBDetId(layer, DONT_CARE, DONT_CARE);
-                        break;
-                    case PixelSubdetector::PixelEndcap:
-                        detId = PXFDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE);
-                        break;
-                    case StripSubdetector::TIB:
-                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
-                        break;
-                    case StripSubdetector::TID:
-                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
-                        break;
-                    case StripSubdetector::TOB:
-                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
-                        break;
-                    case StripSubdetector::TEC:
-                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
-                        break;
-                    }
+                    return newObj->appendTrackerHitPattern(subdet, layer, stereo, hitType);
                 } else if (detector == DetId::Muon) {
                     switch (subdet) {
                     case MuonSubdetId::DT: {
@@ -285,23 +253,16 @@
                     }
                     break;
                     }
+                    return newObj->appendMuonHitPattern(detId, hitType);
                 }
-
-                if (category == HitPattern::MISSING_INNER_HITS) {
-                    hitType = TrackingRecHit::missing_inner;
-                } else if (category == HitPattern::MISSING_OUTER_HITS) {
-                    hitType = TrackingRecHit::missing_outer;
-                }
-
-                return std::pair<DetId, TrackingRecHit::Type>(detId, hitType);
+                return false;
             };
 
             auto fillNewHitPatternFromNewHitPattern = [&](const HitPattern hitPattern, const HitPattern::HitCategory category) {
                 uint8_t hitCount = hitPattern.numberOfHits(HitPattern::TRACK_HITS);
                 for (int i = 0; i < hitCount; i++) {
                     uint16_t pattern = hitPattern.getHitPattern(HitPattern::TRACK_HITS, i);
-                    std::pair<DetId, TrackingRecHit::Type> hitInfo = newHitPatternToPair(pattern, category);
-                    if (!newObj->appendHitPattern(hitInfo.first, hitInfo.second)) {
+                    if(!appendNewHitPattern(pattern, category)) {
                         return false;
                     }
                 }
@@ -438,6 +399,9 @@
 
      <class name="std::pair<edm::RefToBase<reco::Track>,double>" />
      <class name="std::vector<std::pair<edm::RefToBase<reco::Track>,double> >" />
+
+     <class name="reco::TrackBaseRefVector"/>
+     <class name="edm::Wrapper<reco::TrackBaseRefVector>"/>
 
      <!-- RefToBaseProd<reco::Track> -->
      <class name="edm::RefToBaseProd<reco::Track>" />

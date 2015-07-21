@@ -243,7 +243,7 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
 						      << " number of " << parameters.getUntrackedParameter<uint32_t>("NumberOfEvents",0)
 						      << " occup " << parameters.getUntrackedParameter<double>("OccupancyThreshold",0)
 						      << " OccupancyHisto" << parameters.getUntrackedParameter<std::string>("OccupancyHisto") << std::endl;
-
+  
   // Check Number of Events
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
@@ -262,7 +262,6 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos(){
   if (!gotNentries) {
     edm::LogWarning("SiStripQualityHotStripIdentifierRoot") <<" [SiStripQualityHotStripIdentifierRoot::bookHistos] :: Histogram with to check # of evemnts missing" <<std::endl;
   }
-  
   for (; iter!=iterEnd;++iter) {
     std::string me_name = (*iter)->getName();
     

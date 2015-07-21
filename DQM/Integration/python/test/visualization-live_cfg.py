@@ -8,6 +8,7 @@ Example configuration for online reconstruction meant for visualization clients.
 from DQM.Integration.test.inputsource_cfi import options,runType,source
 
 # this is needed to map the names of the run-types chosen by DQM to the scenarios, ideally we could converge to the same names
+#scenarios = {'pp_run': 'ppRun2B0T','cosmic_run':'cosmicsRun2','hi_run':'HeavyIons'}
 scenarios = {'pp_run': 'ppRun2','cosmic_run':'cosmicsRun2','hi_run':'HeavyIons'}
 
 if not runType.getRunTypeName() in scenarios.keys():

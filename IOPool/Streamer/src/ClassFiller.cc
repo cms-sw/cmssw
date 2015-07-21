@@ -4,8 +4,7 @@
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
-
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 
 #include "TClass.h"
 
@@ -26,7 +25,10 @@ namespace edm {
 
   void loadCap(std::string const& name) {
     FDEBUG(1) << "Loading dictionary for " << name << "\n";
-    edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + name);
+    TypeWithDict typedict = TypeWithDict::byName(name);
+    if (!typedict) {
+      throw cms::Exception("DictionaryMissingClass") << "The dictionary of class '" << name << "' is missing!";
+    }
     TClass* cl = TClass::GetClass(name.c_str());
     loadType(TypeID(*cl->GetTypeInfo()));
   }

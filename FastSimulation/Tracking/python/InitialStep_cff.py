@@ -38,17 +38,7 @@ firstStepPrimaryVerticesBeforeMixing =  RecoTracker.IterativeTracking.InitialSte
 initialStepSelector = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.clone()
 initialStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 initialStep = RecoTracker.IterativeTracking.InitialStep_cff.initialStep.clone()
-"""
-import FastSimulation.Tracking.SimTrackIdProducer_cfi
-initialStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
-                                    TrackQuality = cms.string('highPurity'),
-                                    maxChi2 = cms.double(9.0),
-                                    trackCollection = cms.InputTag("initialStepTracks"),
-#                                    overrideTrkQuals = cms.InputTag(''),
-                                    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits")
-                                    
-                                    )
-"""
+
 # Final sequence
 InitialStep = cms.Sequence(initialStepSeeds
                            +initialStepTrackCandidates

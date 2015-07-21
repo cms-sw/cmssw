@@ -26,6 +26,9 @@
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 #include <TF1.h>
 
 using namespace std;
@@ -49,6 +52,7 @@ TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiT
 					pset.getParameter<double>("lipTP"),
 					pset.getParameter<int>("minHitTP"),
 					pset.getParameter<bool>("signalOnlyTP"),
+					pset.getParameter<bool>("intimeOnlyTP"),
 					pset.getParameter<bool>("chargedOnlyTP"),
 					pset.getParameter<bool>("stableOnlyTP"),
 					pset.getParameter<std::vector<int> >("pdgIdTP"));
@@ -65,6 +69,14 @@ TrackerSeedValidator::~TrackerSeedValidator(){delete histoProducerAlgo_;}
 void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::EventSetup const& setup) {
   setup.get<IdealMagneticFieldRecord>().get(theMF);
   setup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
+
+  {
+    ibook.cd();
+    ibook.setCurrentFolder(dirName_ + "simulation");
+
+    //Booking histograms concerning with simulated tracks
+    histoProducerAlgo_->bookSimHistos(ibook);
+  }
 
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
@@ -90,15 +102,6 @@ void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run con
 
       ibook.setCurrentFolder(dirName.c_str());
 
-      string subDirName = dirName + "/simulation";
-      ibook.setCurrentFolder(subDirName.c_str());
-
-      //Booking histograms concerning with simulated tracks
-      histoProducerAlgo_->bookSimHistos(ibook);
-
-      ibook.cd();
-      ibook.setCurrentFolder(dirName.c_str());
-
       //Booking histograms concerning with reconstructed tracks
       histoProducerAlgo_->bookSimTrackHistos(ibook);
       histoProducerAlgo_->bookRecoHistos(ibook);
@@ -115,6 +118,10 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
   edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP;
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
+
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<TrackerTopologyRcd>().get(httopo);
+  const TrackerTopology& ttopo = *httopo;
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
   event.getByToken(label_tp_effic,TPCollectionHeff);
@@ -222,7 +229,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
           st++;
         }
 
-	histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp->eventId().bunchCrossing());
+        if(w == 0)
+          histoProducerAlgo_->fill_generic_simTrack_histos(momentumTP,vertexTP, tp->eventId().bunchCrossing());
 
 	const TrajectorySeed* matchedSeedPointer=0;
 	std::vector<std::pair<edm::RefToBase<TrajectorySeed>, double> > rt;
@@ -266,7 +274,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  //GlobalPoint vSeed(vSeed1.x()-bs.x0(),vSeed1.y()-bs.y0(),vSeed1.z()-bs.z0());
 	  PerigeeTrajectoryError seedPerigeeErrors = PerigeeConversions::ftsToPerigeeError(tsAtClosestApproachSeed.trackStateAtPCA());
 	  matchedTrackPointer = new reco::Track(0.,0., vSeed1, pSeed, 1, seedPerigeeErrors.covarianceMatrix());
-	  matchedTrackPointer->appendHits(matchedSeedPointer->recHits().first,matchedSeedPointer->recHits().second);
+	  matchedTrackPointer->appendHits(matchedSeedPointer->recHits().first,matchedSeedPointer->recHits().second, ttopo);
 	}
 
 	double dR=0;//fixme: plots vs dR not implemented for now
@@ -278,7 +286,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
       } // End  for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
 
-      histoProducerAlgo_->fill_simTrackBased_histos(w, st);
+      if(w == 0)
+        histoProducerAlgo_->fill_simTrackBased_histos(st);
 
       //
       //fill reconstructed seed histograms
@@ -316,7 +325,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 
 	//fixme
 	reco::Track* trackFromSeed = new reco::Track(0.,0., vSeed1, pSeed, 1, seedPerigeeErrors.covarianceMatrix());
-	trackFromSeed->appendHits(seed->recHits().first,seed->recHits().second);
+	trackFromSeed->appendHits(seed->recHits().first,seed->recHits().second, ttopo);
 
 	bool isSigSimMatched(false);
 	bool isSimMatched(false);

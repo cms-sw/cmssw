@@ -155,7 +155,8 @@ TrackProducerBase<T>::getFromEvt(edm::Event& theEvent,edm::Handle<TrackCollectio
 
 template <class T> void
 TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track, 
-					  const Propagator* prop, const MeasurementTrackerEvent* measTk){
+					  const Propagator* prop, const MeasurementTrackerEvent* measTk,
+                                          const TrackerTopology* ttopo){
   using namespace std;
   /// have to clone the propagator in order to change its propagation direction. Have to remember to delete the clone!!
   Propagator* localProp = prop->clone();
@@ -227,7 +228,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
         //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){
         if(measDet.isActive()){ 
 	        InvalidTrackingRecHit tmpHit(*detWithState.front().first, TrackingRecHit::missing_inner);
-	        track.appendHitPattern(tmpHit);
+	        track.appendHitPattern(tmpHit, *ttopo);
 	        //cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
         }else{
 	        //cout << "WARNING: this hit is NOT marked as lost because the detector was marked as inactive" << endl;
@@ -249,7 +250,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet.isActive()){
           InvalidTrackingRecHit tmpHit(*detWithState.front().first,TrackingRecHit::missing_outer);
-          track.appendHitPattern(tmpHit);
+          track.appendHitPattern(tmpHit, *ttopo);
 	      //cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
       }else{
 	      //cout << "WARNING: this hit is NOT marked as lost because the detector was marked as inactive" << endl;

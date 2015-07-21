@@ -98,6 +98,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 #include "CondFormats/GeometryObjects/interface/PCaloGeometry.h"
 #include "CondFormats/GeometryObjects/interface/PHcalParameters.h"
+#include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformanceWorkingPoint.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTGraphPayload.h"

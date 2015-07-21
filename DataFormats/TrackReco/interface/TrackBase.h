@@ -313,14 +313,30 @@ public:
 
     /// append hit patterns from vector of hit references
     template<typename C>
-    bool appendHits(const C &c);
+    bool appendHits(const C &c, const TrackerTopology& ttopo);
 
     template<typename I>
-    bool appendHits(const I &begin, const I &end);
+    bool appendHits(const I &begin, const I &end, const TrackerTopology& ttopo);
 
     /// append a single hit to the HitPattern
-    bool appendHitPattern(const TrackingRecHit &hit);
-    bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType);
+    bool appendHitPattern(const TrackingRecHit &hit, const TrackerTopology& ttopo);
+    bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
+
+    /**
+     * This is meant to be used only in cases where the an
+     * already-packed hit information is re-interpreted in terms of
+     * HitPattern (i.e. MiniAOD PackedCandidate, and the IO rule for
+     * reading old versions of HitPattern)
+     */
+    bool appendTrackerHitPattern(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType);
+
+    /**
+     * This is meant to be used only in cases where the an
+     * already-packed hit information is re-interpreted in terms of
+     * HitPattern (i.e. the IO rule for reading old versions of
+     * HitPattern)
+     */
+    bool appendMuonHitPattern(const DetId& id, TrackingRecHit::Type hitType);
 
     /// Sets HitPattern as empty
     void resetHitPattern();
@@ -413,14 +429,22 @@ inline const HitPattern & TrackBase::hitPattern() const
     return hitPattern_;
 }
 
-inline bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hitType)
+inline bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo)
 {
-    return hitPattern_.appendHit(id, hitType);
+    return hitPattern_.appendHit(id, hitType, ttopo);
 }
 
-inline bool TrackBase::appendHitPattern(const TrackingRecHit &hit)
+inline bool TrackBase::appendHitPattern(const TrackingRecHit &hit, const TrackerTopology& ttopo)
 {
-    return hitPattern_.appendHit(hit);
+    return hitPattern_.appendHit(hit, ttopo);
+}
+
+inline bool TrackBase::appendTrackerHitPattern(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType) {
+    return hitPattern_.appendTrackerHit(subdet, layer, stereo, hitType);
+}
+
+inline bool TrackBase::appendMuonHitPattern(const DetId& id, TrackingRecHit::Type hitType) {
+    return hitPattern_.appendMuonHit(id, hitType);
 }
 
 inline void TrackBase::resetHitPattern()
@@ -429,15 +453,15 @@ inline void TrackBase::resetHitPattern()
 }
 
 template<typename I>
-bool TrackBase::appendHits(const I &begin, const I &end)
+bool TrackBase::appendHits(const I &begin, const I &end, const TrackerTopology& ttopo)
 {
-    return hitPattern_.appendHits(begin, end);
+    return hitPattern_.appendHits(begin, end, ttopo);
 }
 
 template<typename C>
-bool TrackBase::appendHits(const C &c)
+bool TrackBase::appendHits(const C &c, const TrackerTopology& ttopo)
 {
-    return setHitPattern(c.begin(), c.end());
+    return hitPattern_.appendHits(c.begin(), c.end(), ttopo);
 }
 
 inline TrackBase::index TrackBase::covIndex(index i, index j)

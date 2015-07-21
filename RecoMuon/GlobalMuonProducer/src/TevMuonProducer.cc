@@ -148,7 +148,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 	miniMap.push_back(thisPair);
       }
     }
-    theTrackLoader->loadTracks(trajectories,event,miniMap,glbMuons,theRefits[ww]);
+    theTrackLoader->loadTracks(trajectories,event,miniMap,glbMuons, *tTopo, theRefits[ww]);
   }
 
   filler.insert(glbMuons, dytTmp.begin(), dytTmp.end());

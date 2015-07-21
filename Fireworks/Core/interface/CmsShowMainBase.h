@@ -141,6 +141,7 @@ protected:
    void eventChangedSlot();
    virtual void eventChangedImp();
    void sendVersionInfo();
+   fireworks::Context* context() { return m_contextPtr; }
 
 private:
    // The base class is responsible for the destruction of fwlite / FF

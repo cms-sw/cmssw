@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection  label="hcalSimNumberingEta4.xml" eval="true">
+  <Vector name="phioff" type="numeric" nEntries="5">
+    0.0*deg, 0.0*deg, 0.0*deg, 10.0*deg, 10.0*deg
+  </Vector>
+  <Vector name="etaTable" type="numeric" nEntries="77">
+    0.000, 0.087, 0.174, 0.261, 0.348, 0.435, 0.522, 0.609, 0.696,
+    0.783, 0.870, 0.957, 1.044, 1.131, 1.218, 1.305, 1.392, 1.479,
+    1.566, 1.653, 1.740, 1.7625, 1.7850, 1.8075, 1.830, 1.855,
+    1.880, 1.905, 1.930, 1.95825, 1.98650, 2.01475, 2.043, 2.07525,
+    2.10750, 2.13975, 2.172, 2.2095, 2.2470, 2.2845, 2.322, 2.3665,
+    2.4110, 2.4555, 2.500, 2.5375, 2.5750, 2.6125, 2.650, 2.7045,
+    2.7590, 2.8135, 2.868, 2.9010, 2.9340, 2.9670, 3.000, 3.037,
+    3.074, 3.111, 3.148, 3.191, 3.234, 3.277, 3.320, 3.372, 3.425,
+    3.477, 3.530, 3.587, 3.645, 3.702, 3.760, 3.820, 3.880, 3.940,
+    4.000
+  </Vector>
+  <Vector name="rTable" type="numeric" nEntries="14">
+    12.50*cm, 16.90*cm, 20.10*cm, 24.00*cm, 28.60*cm, 34.00*cm,
+    40.60*cm, 48.30*cm, 57.60*cm, 68.60*cm, 81.80*cm, 97.50*cm,
+    116.20*cm, 130.00*cm
+  </Vector>
+  <Vector name="phibin" type="numeric" nEntries="76">
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 2.5*deg,
+    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg,
+    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg,
+    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg,
+    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg,
+    2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg, 2.5*deg,
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg,
+    5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg, 5.0*deg
+  </Vector>
+  <Vector name="phitable" type="numeric" nEntries="13">
+    10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg,
+    10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 20.0*deg,
+    20.0*deg
+  </Vector>
+  <Vector name="layerGroupEta1" type="numeric" nEntries="19">
+    1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4
+  </Vector>
+  <Vector name="layerGroupEta16" type="numeric" nEntries="19">
+    1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
+  </Vector>
+  <Vector name="layerGroupEta17" type="numeric" nEntries="19">
+    1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5
+  </Vector>
+  <Vector name="etaMin" type="numeric" nEntries="4">
+    1, 16, 29, 1
+  </Vector>
+  <Vector name="etaMax" type="numeric" nEntries="4">
+    16, 76, 41, 15
+  </Vector>
+  <Vector name="etaRange" type="numeric" nEntries="4">
+    1.392, 3.000, 5.500, 1.305
+  </Vector>
+  <Vector name="gparHF" type="numeric" nEntries="7">
+    22.0*cm, 165.0*cm, 30.0*cm, 0.0*cm, 1115.0*cm, 0.375*cm,
+    1137.0*cm
+  </Vector>
+  <Vector name="noff" type="numeric" nEntries="13">
+    15, 99, 4, 10, 5, 2, 4, 18, 19, 11, 12, 13, 14
+  </Vector>
+  <Vector name="Layer0Wt" type="numeric" nEntries="2">
+    1.2, 1.2
+  </Vector>
+  <Vector name="HBGains" type="numeric" nEntries="4">
+    117.0, 117.0, 117.0, 217.0
+  </Vector>
+  <Vector name="HBShift" type="numeric" nEntries="4">
+    0, 0, 0, 0
+  </Vector>
+  <Vector name="HEGains" type="numeric" nEntries="4">
+    178.0, 178.0, 178.0, 178.0
+  </Vector>
+  <Vector name="HEShift" type="numeric" nEntries="4">
+    0, 0, 0, 0
+  </Vector>
+  <Vector name="HFGains" type="numeric" nEntries="4">
+    2.840, 2.090, 0.000, 0.000
+  </Vector>
+  <Vector name="HFShift" type="numeric" nEntries="4">
+    0, 0, 0, 0
+  </Vector>
+</ConstantsSection>
+
+<SpecParSection label="hcalSimNumberingEta4.xml" eval="true">
+  <SpecPar name="hcal">
+    <PartSelector path="//HBS.*"/>
+    <PartSelector path="//HTS.*"/>
+    <PartSelector path="//.*HES.*"/>
+    <PartSelector path="//HVQF"/>
+    <Parameter name="OnlyForHcalSimNumbering" value="HCAL" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

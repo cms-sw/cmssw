@@ -29,31 +29,38 @@ TauRefProducer = cms.EDProducer("HLTTauRefProducer",
                             lipMinTrack = cms.untracked.double(0.2),
                             IdCollection = cms.untracked.InputTag("elecIDext")
                             ),
-                   Jets = cms.untracked.PSet(
+                    Jets = cms.untracked.PSet(
                             JetCollection = cms.untracked.InputTag("ak4PFJetsCHS"),
                             etMin = cms.untracked.double(15.0),
                             doJets = cms.untracked.bool(False)
                             ),
-                   Towers = cms.untracked.PSet(
+                    Towers = cms.untracked.PSet(
                             TowerCollection = cms.untracked.InputTag("towerMaker"),
                             etMin = cms.untracked.double(10.0),
                             doTowers = cms.untracked.bool(False),
                             towerIsolation = cms.untracked.double(5.0)
                             ),
 
-                   Muons = cms.untracked.PSet(
+                    Muons = cms.untracked.PSet(
                             doMuons = cms.untracked.bool(True),
                             MuonCollection = cms.untracked.InputTag("muons"),
                             ptMin = cms.untracked.double(15.0)
                             ),
 
-                   Photons = cms.untracked.PSet(
+                    Photons = cms.untracked.PSet(
                             doPhotons = cms.untracked.bool(False),
                             PhotonCollection = cms.untracked.InputTag("gedPhotons"),
                             etMin = cms.untracked.double(15.0),
                             ECALIso = cms.untracked.double(3.0)
                             ),
-                  EtaMax = cms.untracked.double(2.3)
+
+                    MET = cms.untracked.PSet(
+                            doMET = cms.untracked.bool(True),
+                            METCollection = cms.untracked.InputTag("caloMet"), 
+                            ptMin = cms.untracked.double(0.0)
+                            ),
+
+                    EtaMax = cms.untracked.double(2.3)
                   )
 
 #----------------------------------MONITORS--------------------------------------------------------------------------
@@ -66,8 +73,11 @@ hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     L1Plotter = cms.untracked.PSet(
         DQMFolder             = cms.untracked.string('L1'),
         L1Taus                = cms.untracked.InputTag("l1extraParticles", "Tau"),
+        L1IsoTaus             = cms.untracked.InputTag("l1extraParticles", "IsoTau"),
         L1Jets                = cms.untracked.InputTag("l1extraParticles", "Central"),
         L1JetMinEt            = cms.untracked.double(40), # FIXME: this value is arbitrary at the moment
+        L1ETM                 = cms.untracked.InputTag("l1extraParticles", "MET"),
+        L1ETMMin              = cms.untracked.double(50),
     ),
     Paths = cms.untracked.string("PFTau"),
     PathSummaryPlotter = cms.untracked.PSet(
@@ -87,6 +97,10 @@ hltTauOfflineMonitor_PFTaus = cms.EDAnalyzer("HLTTauDQMOfflineSource",
                                     cms.untracked.PSet(
                                         FilterName        = cms.untracked.InputTag("TauRefProducer","Muons"),
                                         matchObjectID     = cms.untracked.int32(13),
+                                    ),
+                                    cms.untracked.PSet(
+                                        FilterName        = cms.untracked.InputTag("TauRefProducer","MET"),
+					matchObjectID     = cms.untracked.int32(0),
                                     ),
                                 ),
     ),

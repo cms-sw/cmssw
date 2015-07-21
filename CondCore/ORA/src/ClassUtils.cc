@@ -1,14 +1,15 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/ORA/interface/Reference.h"
 #include "CondCore/ORA/interface/NamedRef.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "ClassUtils.h"
 //
 #include <typeinfo>
 #include <cxxabi.h>
 // externals
+#include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "TROOT.h"
 #include "TDictAttributeMap.h"
 
@@ -28,8 +29,10 @@ void ora::RflxDeleter::operator()( void* ptr ){
 }
 
 void ora::ClassUtils::loadDictionary( const std::string& className ){
-  static std::string const prefix("LCGReflex/");
-  edmplugin::PluginCapabilities::get()->load(prefix + className);
+    edm::TypeWithDict typedict = edm::TypeWithDict::byName(className);
+    if (!typedict) {
+      throw edm::Exception(edm::errors::DictionaryNotFound) << "The dictionary of class '" << className << "' is missing!" << std::endl;
+    }
 }
 
 void* ora::ClassUtils::upCast( const edm::TypeWithDict& type,

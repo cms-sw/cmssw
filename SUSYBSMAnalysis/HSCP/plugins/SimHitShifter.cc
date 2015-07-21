@@ -65,7 +65,6 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "FastSimulation/Tracking/test/FastTrackAnalyzer.h"
 
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"

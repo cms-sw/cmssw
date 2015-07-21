@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/one/EDProducerBase.h"
+#include "FWCore/Framework/interface/stream/EDProducerBase.h"
 
 #include "EventFilter/L1TRawToDigi/interface/Packer.h"
 #include "EventFilter/L1TRawToDigi/interface/Unpacker.h"
@@ -16,7 +16,9 @@ namespace l1t {
                return std::unique_ptr<PackerTokens>(new GTTokens(cfg, cc));
             };
 
-            virtual PackerMap getPackers(int fed, int fw) override {
+            virtual void fillDescription(edm::ParameterSetDescription& desc) override {};
+
+            virtual PackerMap getPackers(int fed, unsigned int fw) override {
                PackerMap res;
 
                if (fed == 1404) { 
@@ -35,7 +37,7 @@ namespace l1t {
                return res;
             };
 
-            virtual void registerProducts(edm::one::EDProducerBase& prod) override {
+            virtual void registerProducts(edm::stream::EDProducerBase& prod) override {
 	      
 	       prod.produces<EGammaBxCollection>("GT");
 	       prod.produces<EtSumBxCollection>("GT");
@@ -50,7 +52,7 @@ namespace l1t {
                return std::unique_ptr<UnpackerCollections>(new GTCollections(e));
             };
 
-            virtual UnpackerMap getUnpackers(int fed, int board, int amc, int fw) override {
+            virtual UnpackerMap getUnpackers(int fed, int board, int amc, unsigned int fw) override {
 
   	       auto egamma_unp = UnpackerFactory::get()->make("stage2::EGammaUnpacker");
 	       auto etsum_unp = UnpackerFactory::get()->make("stage2::EtSumUnpacker");

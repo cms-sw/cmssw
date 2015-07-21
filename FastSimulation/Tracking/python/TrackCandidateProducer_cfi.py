@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 trackCandidateProducer = cms.EDProducer(
     "TrackCandidateProducer",
-    recHits = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits"),
+    recHits = cms.InputTag("siTrackerGaussianSmearingRecHits"),
     # The smallest number of crossed layers to make a candidate
     MinNumberOfCrossedLayers = cms.uint32(5),
 

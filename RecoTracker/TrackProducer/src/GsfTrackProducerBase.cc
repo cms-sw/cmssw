@@ -35,7 +35,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 			       std::auto_ptr<reco::GsfTrackExtraCollection>& selGsfTrackExtras,
 			       std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
 			       AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder,
-			       const reco::BeamSpot& bs)
+			       const reco::BeamSpot& bs, const TrackerTopology *ttopo)
 {
 
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
@@ -109,7 +109,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
         edm::Handle<MeasurementTrackerEvent> mte;
         evt.getByToken(mteSrc_, mte);
 	// NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track,prop,&*mte);
+	setSecondHitPattern(theTraj,track,prop,&*mte, ttopo);
       }
     //==============================================================
     
@@ -131,7 +131,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
     unsigned int nHitsAdded = 0;
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
-      track.appendHitPattern(hit);
+      track.appendHitPattern(hit, *ttopo);
       ++nHitsAdded;
     }
     tx.setHits(rHits, hidx, nHitsAdded);
@@ -146,7 +146,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
                 j != transHits.end(); j++) {
             if ((**j).hit() != 0){
                 TrackingRecHit *hit = (**j).hit()->clone();
-                track.appendHitPattern(*hit);
+                track.appendHitPattern(*hit, *ttopo);
                 selHits->push_back(hit);
                 tx.add(TrackingRecHitRef(rHits, hidx++));
             }
@@ -156,7 +156,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
                 j != transHits.begin() - 1; --j) {
             if ((**j).hit() != 0){
                 TrackingRecHit *hit = (**j).hit()->clone();
-                track.appendHitPattern(*hit);
+                track.appendHitPattern(*hit, *ttopo);
                 selHits->push_back(hit);
                 tx.add(TrackingRecHitRef(rHits, hidx++));
             }

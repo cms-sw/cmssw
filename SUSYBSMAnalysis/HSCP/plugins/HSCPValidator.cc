@@ -46,7 +46,6 @@
 #include <DataFormats/GeometryVector/interface/LocalPoint.h>
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-#include "FastSimulation/Tracking/test/FastTrackAnalyzer.h"
 #include "Geometry/RPCGeometry/interface/RPCRoll.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"

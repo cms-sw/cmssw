@@ -75,7 +75,8 @@ def customise_Digi(process):
     process.mix.digitizers.pixel.thePixelChipEfficiency_FPix1 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelChipEfficiency_FPix2 = cms.double(0.999)
     process.mix.digitizers.pixel.thePixelChipEfficiency_FPix3 = cms.double(0.999)
-    process.mix.digitizers.pixel.AddPixelInefficiency = cms.bool(True)
+# something broken in the configs above - turn off for now
+    process.mix.digitizers.pixel.AddPixelInefficiency = cms.bool(False)
 
     process=customise_pixelMixing_PU(process)
     return process

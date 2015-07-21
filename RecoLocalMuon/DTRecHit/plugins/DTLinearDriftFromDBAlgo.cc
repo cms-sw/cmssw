@@ -14,8 +14,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
-#include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
-#include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsUncertRcd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -33,19 +33,9 @@ DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config) :
   doVdriftCorr(config.getParameter<bool>("doVdriftCorr")),
   // Option to force going back to digi time at Step 2 
   stepTwoFromDigi(config.getParameter<bool>("stepTwoFromDigi")),
-  useUncertDB(false),
+  useUncertDB(config.getParameter<bool>("useUncertDB")),
   // Set verbose output
-  debug(config.getUntrackedParameter<bool>("debug"))
-{
-  if(debug)
-    cout<<"[DTLinearDriftFromDBAlgo] Constructor called"<<endl;
-
-  // Check for compatibility with older configurations
-  if (config.existsAs<bool>("useUncertDB")) {
-    // Assign hit uncertainties based on new uncertainties DB
-    useUncertDB= config.getParameter<bool>("useUncertDB");
-  }
-}
+  debug(config.getUntrackedParameter<bool>("debug")){}
 
 
 
@@ -68,12 +58,10 @@ void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
   nominalB = field->nominalValue();
 
   if (useUncertDB) {
-    ESHandle<DTRecoUncertainties> uncerts;
-    setup.get<DTRecoUncertaintiesRcd>().get(uncerts);
+    ESHandle<DTRecoConditions> uncerts;
+    setup.get<DTRecoConditionsUncertRcd>().get(uncerts);
     uncertMap = &*uncerts;
-  
-    // check uncertainty map type
-    if (uncertMap->version()>1) edm::LogError("NotImplemented") << "DT Uncertainty DB version unknown: " << uncertMap->version();
+    if (uncertMap->version()>1) edm::LogError("NotImplemented") << "DT Uncertainty DB version unsupported: " << uncertMap->version();
   }
   
   if(debug) {
@@ -178,7 +166,8 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
 
   if (useUncertDB) {
     // Read the uncertainty from the DB for the given channel and step
-    hitResolution = uncertMap->get(wireId, step-1);
+    double args[1] = {double(step-1)};
+    hitResolution = uncertMap->get(wireId, args);
   }
   
   //only in step 3

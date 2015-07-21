@@ -8,21 +8,17 @@ CombinedHitPairGenerator::CombinedHitPairGenerator(const edm::ParameterSet& cfg,
   theSeedingLayerToken(iC.consumes<SeedingLayerSetsHits>(cfg.getParameter<edm::InputTag>("SeedingLayers")))
 {
   theMaxElement = cfg.getParameter<unsigned int>("maxElement");
-  theGenerator.reset(new HitPairGeneratorFromLayerPair(0, 1, &theLayerCache, 0, theMaxElement));
+  theGenerator = std::make_unique<HitPairGeneratorFromLayerPair>(0, 1, &theLayerCache, theMaxElement);
 }
 
 CombinedHitPairGenerator::CombinedHitPairGenerator(const CombinedHitPairGenerator& cb):
   theSeedingLayerToken(cb.theSeedingLayerToken),
-  theGenerator(new HitPairGeneratorFromLayerPair(0, 1, &theLayerCache, 0, cb.theMaxElement))
+  theGenerator(std::make_unique<HitPairGeneratorFromLayerPair>(0, 1, &theLayerCache, cb.theMaxElement))
 {
   theMaxElement = cb.theMaxElement;
 }
 
 CombinedHitPairGenerator::~CombinedHitPairGenerator() {}
-
-void CombinedHitPairGenerator::setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet layers) {
-  assert(0 == "not implemented");
-}
 
 void CombinedHitPairGenerator::hitPairs(
    const TrackingRegion& region, OrderedHitPairs  & result,
@@ -35,8 +31,7 @@ void CombinedHitPairGenerator::hitPairs(
     throw cms::Exception("Configuration") << "CombinedHitPairGenerator expects SeedingLayerSetsHits::numberOfLayersInSet() to be 2, got " << layers.numberOfLayersInSet();
 
   for(SeedingLayerSetsHits::SeedingLayerSet layerSet: layers) {
-    theGenerator->setSeedingLayers(layerSet);
-    theGenerator->hitPairs( region, result, ev, es);
+    theGenerator->hitPairs( region, result, ev, es, layerSet);
   }
 
   theLayerCache.clear();

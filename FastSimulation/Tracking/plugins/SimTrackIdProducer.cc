@@ -100,7 +100,7 @@ SimTrackIdProducer::produce(edm::Event& e, const edm::EventSetup& es)
           const SiTrackerGSMatchedRecHit2D* fsimhit = dynamic_cast<const SiTrackerGSMatchedRecHit2D*>(hit);
           if (fsimhit)
           {
-              SimTrackIds->push_back(fsimhit->simtrackId());
+              SimTrackIds->push_back(fsimhit->simTrackId(0));
           }
       }
       

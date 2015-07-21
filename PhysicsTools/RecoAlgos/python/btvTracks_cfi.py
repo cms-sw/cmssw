@@ -25,7 +25,7 @@ btvTracks = cms.EDProducer("RecoTrackSelector",
     copyTrajectories = cms.untracked.bool(False) # don't set this to true on AOD!
 )
 
-btvTrackRefs = cms.EDFilter("RecoTrackRefSelector",
+btvTrackRefs = cms.EDProducer("RecoTrackViewRefSelector",
     _content
 )
 

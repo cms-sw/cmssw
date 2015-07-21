@@ -55,6 +55,9 @@
 
 #include "Fireworks/Core/interface/ActionsList.h"
 
+#include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/FWMagField.h"
+
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/interface/CmsShowMainFrame.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
@@ -477,6 +480,10 @@ CmsShowMain::fileChangedSlot(const TFile *file)
    if (file)
       guiManager()->titleChanged(m_navigator->frameTitle());
 
+
+   if (context()->getField()->getSource() == FWMagField::kNone) {
+      context()->getField()->resetFieldEstimate();
+   }
    m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 

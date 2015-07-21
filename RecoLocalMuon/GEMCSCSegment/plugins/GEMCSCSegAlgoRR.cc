@@ -214,7 +214,7 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
 	  auto rhLP_inSegmRef = cscChamber->toLocal(rhGP);
 	  // calculate the extrapolation of the CSC segment to the GEM plane (z-coord)
 	  // to get x- and y- coordinate 
-	  float xe, ye, ze = 0.0; 
+	  float xe = 0.0, ye = 0.0, ze = 0.0;
 	  if(segLD.z() != 0)
 	    {
 	      xe = segLP.x()+segLD.x()*rhLP_inSegmRef.z()/segLD.z();

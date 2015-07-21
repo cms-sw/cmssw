@@ -28,25 +28,25 @@
     10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 20.0*deg,
     20.0*deg
   </Vector>
-  <Vector name="layerGroupEta1" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta1" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4
   </Vector>
-  <Vector name="layerGroupEta15" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta15" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4
   </Vector>
-  <Vector name="layerGroupEta16" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta16" type="numeric" nEntries="19">
     1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
   </Vector>
-  <Vector name="layerGroupEta17" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta17" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
   </Vector>
-  <Vector name="layerGroupEta18" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta18" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
   </Vector>
-  <Vector name="layerGroupEta19" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta19" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
   </Vector>
-  <Vector name="layerGroupEta27" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta27" type="numeric" nEntries="19">
     1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
   </Vector>
   <Vector name="etaMin" type="numeric" nEntries="4">
@@ -54,6 +54,9 @@
   </Vector>
   <Vector name="etaMax" type="numeric" nEntries="4">
     16, 29, 41, 15
+  </Vector>
+  <Vector name="MaxDepth" type="numeric" nEntries="4">
+     2,  3,  2, 4
   </Vector>
   <Vector name="etaRange" type="numeric" nEntries="4">
     1.392, 3.000, 5.500, 1.305

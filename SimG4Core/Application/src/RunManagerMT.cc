@@ -24,6 +24,7 @@
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 #include "SimG4Core/Application/interface/G4RegionReporter.h"
 #include "SimG4Core/Application/interface/CMSGDMLWriteStructure.h"
+#include "SimG4Core/Geometry/interface/G4CheckOverlap.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
@@ -65,7 +66,8 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
-      m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
+      m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),
+      m_g4overlap(p.getParameter<edm::ParameterSet>("G4CheckOverlap")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_fieldBuilder(nullptr)
 {    
@@ -97,7 +99,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   
   // DDDWorld: get the DDCV from the ES and use it to build the World
   G4LogicalVolumeToDDLogicalPartMap map_;
-  m_world.reset(new DDDWorld(pDD, map_, m_catalog, m_check));
+  m_world.reset(new DDDWorld(pDD, map_, m_catalog, false));
   m_registry.dddWorldSignal_(m_world.get());
 
   // setup the magnetic field
@@ -178,15 +180,21 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
       G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
     }
   }
+
+  // geometry dump
   if("" != m_WriteFile) {
     G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
     gdml.Write(m_WriteFile, m_world->GetWorldVolume(), true);
   }
 
+  // G4Region dump
   if("" != m_RegionFile) {
     G4RegionReporter rrep;
     rrep.ReportRegions(m_RegionFile);
   }
+
+  // Intersection check
+  if(m_check) { G4CheckOverlap check(m_g4overlap); }
 
   // If the Geant4 particle table is needed, decomment the lines below
   //

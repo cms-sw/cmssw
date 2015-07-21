@@ -1,6 +1,6 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/PatCandidates/interface/libminifloat.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -155,15 +155,15 @@ void pat::PackedCandidate::unpackTrk() const {
     track_ = reco::Track(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
     
     if(innerLost == validHitInFirstPixelBarrelLayer){
-        track_.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::valid); 
+        track_.appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 1, 0, TrackingRecHit::valid); 
         i++; 
     }
     for(;i<numberOfPixelHits_; i++) {
-       track_.appendHitPattern(PXBDetId(i > 1 ? 3 : 2, 0, 0), TrackingRecHit::valid); 
+       track_.appendTrackerHitPattern(PixelSubdetector::PixelBarrel, i > 1 ? 3 : 2, 0, TrackingRecHit::valid); 
     }
     
     for(;i<numberOfHits_;i++) {
-	   track_.appendHitPattern(TIBDetId(1, 0, 0, 1, 1, 0), TrackingRecHit::valid); 
+          track_.appendTrackerHitPattern(StripSubdetector::TIB, 1, 1, TrackingRecHit::valid);
     }
 
     switch (innerLost) {
@@ -172,11 +172,11 @@ void pat::PackedCandidate::unpackTrk() const {
         case noLostInnerHits:
             break;
         case oneLostInnerHit:
-            track_.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
+            track_.appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 1, 0, TrackingRecHit::missing_inner);
             break;
         case moreLostInnerHits:
-            track_.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
-            track_.appendHitPattern(PXBDetId(2, 0, 0), TrackingRecHit::missing_inner);
+            track_.appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 1, 0, TrackingRecHit::missing_inner);
+            track_.appendTrackerHitPattern(PixelSubdetector::PixelBarrel, 2, 0, TrackingRecHit::missing_inner);
             break;
     };
 

@@ -234,8 +234,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       // - dxyGen
       // - dzGen
       
-      if(doSimPlots_) {
-        histoProducerAlgo_->fill_generic_simTrack_histos(w,momentumTP,vertexTP, tp->collisionId());//fixme: check meaning of collisionId
+      if(doSimPlots_ && w == 0) {
+        histoProducerAlgo_->fill_generic_simTrack_histos(momentumTP,vertexTP, tp->collisionId());//fixme: check meaning of collisionId
       }
       if(!doSimTrackPlots_)
         continue;
@@ -280,8 +280,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
       
     } // End  for (GenParticleCollection::size_type i=0; i<tPCeff.size(); i++){
     
-    if(doSimPlots_) {
-      histoProducerAlgo_->fill_simTrackBased_histos(w, st);
+    if(doSimPlots_ && w == 0) {
+      histoProducerAlgo_->fill_simTrackBased_histos(st);
     }
     
     

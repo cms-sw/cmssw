@@ -15,6 +15,7 @@
 <use name="Geometry/TrackerNumberingBuilder"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/EcalAlgo"/>
+<use name="Geometry/HcalCommonData"/>
 <use name="Geometry/HcalTowerAlgo"/>
 <use name="Geometry/ForwardGeometry"/>
 <use name="Geometry/CSCGeometryBuilder"/>

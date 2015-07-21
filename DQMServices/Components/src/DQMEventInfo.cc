@@ -7,7 +7,6 @@
 #include "DQMEventInfo.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include <TSystem.h>
 
 #include <stdio.h>
@@ -95,7 +94,10 @@ void DQMEventInfo::bookHistograms(DQMStore::IBooker & ibooker,
   ibooker.setCurrentFolder(subfolder);
 
   //Online static histograms
-  const edm::ParameterSet &sourcePSet = edm::getProcessParameterSet().getParameterSet("@main_input");
+  const edm::ParameterSet &sourcePSet =
+    edm::getProcessParameterSetContainingModule(moduleDescription())
+    .getParameterSet("@main_input");
+
   if (sourcePSet.getParameter<std::string>("@module_type") == "EventStreamHttpReader" ){
     std::string evSelection;
     std::vector<std::string> evSelectionList;

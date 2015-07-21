@@ -7,6 +7,7 @@ trackingParticlesSelection = cms.PSet(
     stableOnlyTP = cms.bool(False),
     pdgIdTP = cms.vint32(),
     signalOnlyTP = cms.bool(False),
+    intimeOnlyTP = cms.bool(False),
     minRapidityTP = cms.double(-5.0),
     minHitTP = cms.int32(0),
     ptMinTP = cms.double(0.1),
