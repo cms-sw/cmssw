@@ -1375,7 +1375,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
     if (useFit_) {
       legend << " #mu = " << fitResults.first << " #mum, #sigma = " << fitResults.second << " #mum";
     } else {
-      legend << " #mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
+      legend << " #mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #pm " << h->GetRMSError(1)*10000 << " #mum, " << (int) h->GetEntries() << " modules" ;
     }
   } else if (plotinfo.variable == "rmsX" || plotinfo.variable == "rmsY") {
     legend << " #mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
