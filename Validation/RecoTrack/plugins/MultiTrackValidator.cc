@@ -49,7 +49,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   doSimPlots_(pset.getUntrackedParameter<bool>("doSimPlots")),
   doSimTrackPlots_(pset.getUntrackedParameter<bool>("doSimTrackPlots")),
   doRecoTrackPlots_(pset.getUntrackedParameter<bool>("doRecoTrackPlots")),
-  dodEdxPlots_(pset.getUntrackedParameter<bool>("dodEdxPlots"))
+  dodEdxPlots_(pset.getUntrackedParameter<bool>("dodEdxPlots")),
+  doPVAssociationPlots_(pset.getUntrackedParameter<bool>("doPVAssociationPlots"))
 {
   //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
 
@@ -65,7 +66,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
     m_dEdx2Tag = consumes<edm::ValueMap<reco::DeDxData> >(pset.getParameter< edm::InputTag >("dEdx2Tag"));
   }
 
-  if(doPlotsOnlyForTruePV_) {
+  if(doPlotsOnlyForTruePV_ || doPVAssociationPlots_) {
     label_tv = consumes<TrackingVertexCollection>(pset.getParameter< edm::InputTag >("label_tv"));
     recoVertexToken_ = consumes<edm::View<reco::Vertex> >(pset.getUntrackedParameter<edm::InputTag>("label_vertex"));
     vertexAssociatorToken_ = consumes<reco::VertexToTrackingVertexAssociator>(pset.getUntrackedParameter<edm::InputTag>("vertexAssociator"));
@@ -251,7 +252,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   }
 
   const reco::Vertex::Point *thePVposition = nullptr;
-  if(doPlotsOnlyForTruePV_) {
+  if(doPlotsOnlyForTruePV_ || doPVAssociationPlots_) {
     edm::Handle<TrackingVertexCollection> htv;
     event.getByToken(label_tv, htv);
 
@@ -263,13 +264,18 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
     auto v_r2s = hvassociator->associateRecoToSim(hvertex, htv);
     auto pvPtr = hvertex->refAt(0);
-    if(pvPtr->isFake() || pvPtr->ndof() < 0) // skip junk vertices
+    if(!(pvPtr->isFake() || pvPtr->ndof() < 0)) { // skip junk vertices
+      auto pvFound = v_r2s.find(pvPtr);
+      if(pvFound != v_r2s.end()) {
+        if(doPVAssociationPlots_) {
+          thePVposition = &(pvPtr->position());
+        }
+      }
+      else if(doPlotsOnlyForTruePV_)
+        return;
+    }
+    else if(doPlotsOnlyForTruePV_)
       return;
-    auto pvFound = v_r2s.find(pvPtr);
-    if(pvFound == v_r2s.end())
-      return;
-
-    thePVposition = &(pvPtr->position());
   }
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;

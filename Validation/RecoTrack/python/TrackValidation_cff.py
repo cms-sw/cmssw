@@ -154,6 +154,7 @@ trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    )
 trackValidator.useLogPt=cms.untracked.bool(True)
 trackValidator.dodEdxPlots = True
+trackValidator.doPVAssociationPlots = True
 #trackValidator.minpT = cms.double(-1)
 #trackValidator.maxpT = cms.double(3)
 #trackValidator.nintpT = cms.int32(40)

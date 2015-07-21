@@ -78,4 +78,5 @@ multiTrackValidator = cms.EDAnalyzer(
     doSimTrackPlots = cms.untracked.bool(True),
     doRecoTrackPlots = cms.untracked.bool(True),
     dodEdxPlots = cms.untracked.bool(False),
+    doPVAssociationPlots = cms.untracked.bool(False), # do plots that require true PV, if True, label_vertex and vertexAssociator are read
 )
