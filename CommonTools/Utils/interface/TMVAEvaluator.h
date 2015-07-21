@@ -17,7 +17,7 @@ class TMVAEvaluator {
 
     void initialize(const std::string & options, const std::string & method, const std::string & weightFile,
                     const std::vector<std::string> & variables, const std::vector<std::string> & spectators);
-    float evaluate(const std::map<std::string,float> & inputs);
+    float evaluate(const std::map<std::string,float> & inputs, const bool useSpectators=false);
 
   private:
     bool mIsInitialized;
