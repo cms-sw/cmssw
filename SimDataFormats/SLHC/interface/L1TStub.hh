@@ -59,6 +59,7 @@ public:
 	<< layer_ << "\t" 
 	<< ladder_ << "\t" 
 	<< module_ << "\t"
+	<< iphi_ << "\t"
 	<< -1 << "\t"
 	<< pt_ << "\t" 
 	<< x_ << "\t" 
