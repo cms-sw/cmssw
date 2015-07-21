@@ -39,23 +39,20 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, int lay,
   
   //set default values
   std::pair<int,int> cellAssignment( (x>0)?1:0, -1 );
-  if (reco) 
-    {
-      h    =  moduler_[i].h;
-      bl   =  moduler_[i].bl;
-      tl   =  moduler_[i].tl;
-      alpha=  moduler_[i].alpha;
-      if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
-      cellAssignment=assignCell(x, y, h, bl, tl, alpha, index.second);
-    } 
-  else 
-    {
-      h    =  modules_[i].h;
-      bl   =  modules_[i].bl;
-      tl   =  modules_[i].tl;
-      alpha=  modules_[i].alpha;
-      cellAssignment=assignCell(x, y, h, bl, tl, alpha, index.second);
-    }
+  if (reco) {
+    h    =  moduler_[i].h;
+    bl   =  moduler_[i].bl;
+    tl   =  moduler_[i].tl;
+    alpha=  moduler_[i].alpha;
+    if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
+    cellAssignment=assignCell(x, y, h, bl, tl, alpha, index.second);
+  } else {
+    h    =  modules_[i].h;
+    bl   =  modules_[i].bl;
+    tl   =  modules_[i].tl;
+    alpha=  modules_[i].alpha;
+    cellAssignment=assignCell(x, y, h, bl, tl, alpha, index.second);
+  }
   
   return cellAssignment;
 }
