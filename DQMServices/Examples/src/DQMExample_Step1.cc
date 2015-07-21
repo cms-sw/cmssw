@@ -21,6 +21,8 @@
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ITable.h"
+#include "RelationalAccess/IPrimaryKey.h"
+#include "RelationalAccess/IForeignKey.h"
 #include "RelationalAccess/TableDescription.h"
 #include "RelationalAccess/ITableDataEditor.h"
 #include "RelationalAccess/IQuery.h"
@@ -33,6 +35,7 @@
 #include <sstream>
 #include <math.h>
 #include <vector>
+#include <ctime>
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -136,80 +139,162 @@ void DQMExample_Step1::dqmBeginRun(edm::Run const& run, edm::EventSetup const& e
   //create the relevant tables
   coral::ISchema& schema = m_session->nominalSchema();
   m_session->transaction().start( false );
-  bool dqmTablesExist = schema.existsTable( "DQM_HISTOS" );
-  if( ! dqmTablesExist ) {
+  bool dqmTablesExist = schema.existsTable( "HISTOGRAM" );
+  if( ! dqmTablesExist )
+  {
     int columnSize = 200;
-    coral::TableDescription descr;
-    descr.setName( "DQM_HISTOS" );
-    descr.insertColumn( "HISTO_NAME", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
-    descr.insertColumn( "RUN_NUMBER", coral::AttributeSpecification::typeNameForType<unsigned int>() );
-    descr.insertColumn( "LUMISECTION", coral::AttributeSpecification::typeNameForType<unsigned int>() );
-    descr.insertColumn( "X_BINS", coral::AttributeSpecification::typeNameForType<int>() );
-    descr.insertColumn( "X_LOW", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "X_UP", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Y_BINS", coral::AttributeSpecification::typeNameForType<int>() );
-    descr.insertColumn( "Y_LOW", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Y_UP", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Z_BINS", coral::AttributeSpecification::typeNameForType<int>() );
-    descr.insertColumn( "Z_LOW", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Z_UP", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "ENTRIES", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "X_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "X_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "X_RMS", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "X_RMS_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "X_UNDERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "X_OVERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Y_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Y_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Y_RMS", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Y_RMS_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Y_UNDERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Y_OVERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Z_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Z_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Z_RMS", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Z_RMS_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Z_UNDERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.insertColumn( "Z_OVERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
-    descr.setNotNullConstraint( "HISTO_NAME" );
-    descr.setNotNullConstraint( "RUN_NUMBER" );
-    descr.setNotNullConstraint( "LUMISECTION" );
-    descr.setNotNullConstraint( "X_BINS" );
-    descr.setNotNullConstraint( "X_LOW" );
-    descr.setNotNullConstraint( "X_UP" );
-    descr.setNotNullConstraint( "Y_BINS" );
-    descr.setNotNullConstraint( "Y_LOW" );
-    descr.setNotNullConstraint( "Y_UP" );
-    descr.setNotNullConstraint( "Z_BINS" );
-    descr.setNotNullConstraint( "Z_LOW" );
-    descr.setNotNullConstraint( "Z_UP" );
-    descr.setNotNullConstraint( "ENTRIES" );
-    descr.setNotNullConstraint( "X_MEAN" );
-    descr.setNotNullConstraint( "X_MEAN_ERROR" );
-    descr.setNotNullConstraint( "X_RMS" );
-    descr.setNotNullConstraint( "X_RMS_ERROR" );
-    descr.setNotNullConstraint( "X_UNDERFLOW" );
-    descr.setNotNullConstraint( "X_OVERFLOW" );
-    descr.setNotNullConstraint( "Y_MEAN" );
-    descr.setNotNullConstraint( "Y_MEAN_ERROR" );
-    descr.setNotNullConstraint( "Y_RMS" );
-    descr.setNotNullConstraint( "Y_RMS_ERROR" );
-    descr.setNotNullConstraint( "Y_UNDERFLOW" );
-    descr.setNotNullConstraint( "Y_OVERFLOW" );
-    descr.setNotNullConstraint( "Z_MEAN" );
-    descr.setNotNullConstraint( "Z_MEAN_ERROR" );
-    descr.setNotNullConstraint( "Z_RMS" );
-    descr.setNotNullConstraint( "Z_RMS_ERROR" );
-    descr.setNotNullConstraint( "Z_UNDERFLOW" );
-    descr.setNotNullConstraint( "Z_OVERFLOW" );
-    std::vector<std::string> columnsForIndex;
-    columnsForIndex.push_back( "HISTO_NAME" );
-    columnsForIndex.push_back( "RUN_NUMBER" );
-    columnsForIndex.push_back( "LUMISECTION" );
-    descr.setPrimaryKey( columnsForIndex );
-    schema.createTable( descr );
+
+    // Create the first table
+    coral::TableDescription table1;
+    table1.setName( "HISTOGRAM" );
+    table1.insertColumn( "NAME", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
+    table1.insertColumn( "PATH", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
+    table1.insertColumn( "TIMESTAMP", coral::AttributeSpecification::typeNameForType<unsigned int>());
+    table1.insertColumn( "TITLE", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
+
+    table1.setNotNullConstraint( "NAME" );
+    table1.setNotNullConstraint( "PATH" );
+    table1.setNotNullConstraint( "TIMESTAMP" );
+    table1.setNotNullConstraint( "TITLE" );
+
+    std::vector<std::string> columnsForPrimaryKey1;
+    columnsForPrimaryKey1.push_back( "NAME" );
+    columnsForPrimaryKey1.push_back( "PATH" );
+    table1.setPrimaryKey( columnsForPrimaryKey1 );
+
+    schema.createTable( table1 );
+    std::cout << "Table1 created" << std::endl;
+
+    // Create the second table
+    coral::TableDescription table2;
+    table2.setName( "HISTOGRAM_PROPS" );
+    table2.insertColumn( "NAME", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
+    table2.insertColumn( "PATH", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
+    table2.insertColumn( "RUN_NUMBER", coral::AttributeSpecification::typeNameForType<unsigned int>() );
+    table2.insertColumn( "X_BINS", coral::AttributeSpecification::typeNameForType<int>() );
+    table2.insertColumn( "X_LOW", coral::AttributeSpecification::typeNameForType<double>() );
+    table2.insertColumn( "X_UP", coral::AttributeSpecification::typeNameForType<double>() );
+    table2.insertColumn( "Y_BINS", coral::AttributeSpecification::typeNameForType<int>() );
+    table2.insertColumn( "Y_LOW", coral::AttributeSpecification::typeNameForType<double>() );
+    table2.insertColumn( "Y_UP", coral::AttributeSpecification::typeNameForType<double>() );
+    table2.insertColumn( "Z_BINS", coral::AttributeSpecification::typeNameForType<int>() );
+    table2.insertColumn( "Z_LOW", coral::AttributeSpecification::typeNameForType<double>() );
+    table2.insertColumn( "Z_UP", coral::AttributeSpecification::typeNameForType<double>() );
+
+    table2.setNotNullConstraint( "NAME" );
+    table2.setNotNullConstraint( "PATH" );
+    table2.setNotNullConstraint( "RUN_NUMBER" );
+    table2.setNotNullConstraint( "X_BINS" );
+    table2.setNotNullConstraint( "X_LOW" );
+    table2.setNotNullConstraint( "X_UP" );
+    table2.setNotNullConstraint( "Y_BINS" );
+    table2.setNotNullConstraint( "Y_LOW" );
+    table2.setNotNullConstraint( "Y_UP" );
+    table2.setNotNullConstraint( "Z_BINS" );
+    table2.setNotNullConstraint( "Z_LOW" );
+    table2.setNotNullConstraint( "Z_UP" );
+
+    std::vector<std::string> columnsForPrimaryKey2;
+    columnsForPrimaryKey2.push_back( "NAME" );
+    columnsForPrimaryKey2.push_back( "PATH" );
+    columnsForPrimaryKey2.push_back( "RUN_NUMBER" );
+    table2.setPrimaryKey( columnsForPrimaryKey2 );
+
+    std::vector<std::string> columnsForForeignKey2;
+    columnsForForeignKey2.push_back( "NAME" );
+    columnsForForeignKey2.push_back( "PATH" );
+
+    table2.createForeignKey( "table2_FK", columnsForForeignKey2, "HISTOGRAM", columnsForPrimaryKey1 );
+
+    schema.createTable( table2 );
+    std::cout << "Table2 created" << std::endl;
+
+    // Create the third table
+    coral::TableDescription table3;
+    table3.setName( "HISTOGRAM_VALUES" );
+    table3.insertColumn( "NAME", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
+    table3.insertColumn( "PATH", coral::AttributeSpecification::typeNameForType<std::string>(), columnSize, false );
+    table3.insertColumn( "RUN_NUMBER", coral::AttributeSpecification::typeNameForType<unsigned int>() );
+    table3.insertColumn( "LUMISECTION", coral::AttributeSpecification::typeNameForType<unsigned int>() );
+    table3.insertColumn( "ENTRIES", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "X_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "X_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "X_RMS", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "X_RMS_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "X_UNDERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "X_OVERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Y_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Y_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Y_RMS", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Y_RMS_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Y_UNDERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Y_OVERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Z_MEAN", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Z_MEAN_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Z_RMS", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Z_RMS_ERROR", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Z_UNDERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+    table3.insertColumn( "Z_OVERFLOW", coral::AttributeSpecification::typeNameForType<double>() );
+
+    table3.setNotNullConstraint( "NAME" );
+    table3.setNotNullConstraint( "PATH" );
+    table3.setNotNullConstraint( "RUN_NUMBER" );
+    table3.setNotNullConstraint( "LUMISECTION" );
+    table3.setNotNullConstraint( "ENTRIES" );
+    table3.setNotNullConstraint( "X_MEAN" );
+    table3.setNotNullConstraint( "X_MEAN_ERROR" );
+    table3.setNotNullConstraint( "X_RMS" );
+    table3.setNotNullConstraint( "X_RMS_ERROR" );
+    table3.setNotNullConstraint( "X_UNDERFLOW" );
+    table3.setNotNullConstraint( "X_OVERFLOW" );
+    table3.setNotNullConstraint( "Y_MEAN" );
+    table3.setNotNullConstraint( "Y_MEAN_ERROR" );
+    table3.setNotNullConstraint( "Y_RMS" );
+    table3.setNotNullConstraint( "Y_RMS_ERROR" );
+    table3.setNotNullConstraint( "Y_UNDERFLOW" );
+    table3.setNotNullConstraint( "Y_OVERFLOW" );
+    table3.setNotNullConstraint( "Z_MEAN" );
+    table3.setNotNullConstraint( "Z_MEAN_ERROR" );
+    table3.setNotNullConstraint( "Z_RMS" );
+    table3.setNotNullConstraint( "Z_RMS_ERROR" );
+    table3.setNotNullConstraint( "Z_UNDERFLOW" );
+    table3.setNotNullConstraint( "Z_OVERFLOW" );
+
+    std::vector<std::string> columnsForPrimaryKey3;
+    columnsForPrimaryKey3.push_back( "NAME" );
+    columnsForPrimaryKey3.push_back( "PATH" );
+    columnsForPrimaryKey3.push_back( "RUN_NUMBER" );
+    columnsForPrimaryKey3.push_back( "LUMISECTION" );
+    table3.setPrimaryKey( columnsForPrimaryKey3 );
+
+    std::vector<std::string> columnsForForeignKey3;
+    columnsForForeignKey3.push_back( "NAME" );
+    columnsForForeignKey3.push_back( "PATH" );
+    columnsForForeignKey3.push_back( "RUN_NUMBER" );
+
+    table3.createForeignKey( "table2_FK", columnsForForeignKey3, "HISTOGRAM_PROPS", columnsForPrimaryKey2 );
+
+    schema.createTable( table3 );
+    std::cout << "Table3 created" << std::endl;
+
   }
+  m_session->transaction().commit();
+
+  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endLuminosityBlock" << std::endl;
+
+  m_session->transaction().start(false);
+  coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM" ).dataEditor();
+  coral::AttributeList insertData;
+  insertData.extend< std::string >( "NAME" );
+  insertData.extend< std::string >( "PATH" );
+  insertData.extend< unsigned int >( "TIMESTAMP" );
+  insertData.extend< std::string >( "TITLE" );
+
+  insertData[ "NAME" ].data< std::string >() = h_vertex_number->getName();
+  insertData[ "PATH" ].data< std::string >() = h_vertex_number->getPathname();
+  insertData[ "TIMESTAMP" ].data< unsigned int >() = std::time(nullptr);
+  insertData[ "TITLE" ].data< std::string >() = h_vertex_number->getFullname();
+  editor.insertRow( insertData );
   m_session->transaction().commit();
 }
 
@@ -458,23 +543,120 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
 //
 void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& eSetup) 
 {
+  //bool histogramRecordExist = false;
+  bool histogramPropsRecordExist = false;
+
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endLuminosityBlock" << std::endl;
   //get the data from the histograms and fill the DB table
+
+  coral::ISchema& schema = m_session->nominalSchema();
+ /* m_session->transaction().start(true);
+  coral::IQuery* queryHistogram = schema.tableHandle( "HISTOGRAM" ).newQuery();
+  queryHistogram->addToOutputList( "NAME" );
+  queryHistogram->addToOutputList( "PATH" );
+  std::string condition = "NAME = \"" + h_vertex_number->getName() + "\" AND PATH = \"" + h_vertex_number->getPathname() + "\"";
+  coral::AttributeList conditionData;
+  queryHistogram->setCondition( condition, conditionData );
+  queryHistogram->setMemoryCacheSize( 5 );
+  coral::ICursor& cursor1 = queryHistogram->execute();
+  int numberOfRows = 0;
+  while(cursor1.next())
+  {
+    cursor1.currentRow().toOutputStream( std::cout ) << std::endl;
+    ++numberOfRows;
+  }
+  delete queryHistogram;
+  if ( numberOfRows == 1 )
+  {
+    histogramRecordExist = true;
+  }
+  m_session->transaction().commit();
+
   m_session->transaction().start(false);
-  coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "DQM_HISTOS" ).dataEditor();
+  std::cout << "After query" << std::endl;
+  if(!histogramRecordExist)
+  {
+      coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM" ).dataEditor();
+      coral::AttributeList insertData;
+      insertData.extend< std::string >( "NAME" );
+      insertData.extend< std::string >( "PATH" );
+      insertData.extend< unsigned int >( "TIMESTAMP" );
+      insertData.extend< std::string >( "TITLE" );
+
+      insertData[ "NAME" ].data< std::string >() = h_vertex_number->getName();
+      insertData[ "PATH" ].data< std::string >() = h_vertex_number->getPathname();
+      insertData[ "TIMESTAMP" ].data< unsigned int >() = std::time(nullptr);
+      insertData[ "TITLE" ].data< std::string >() = h_vertex_number->getFullname();
+      editor.insertRow( insertData );
+  }
+  m_session->transaction().commit();
+*/
+  m_session->transaction().start(true);
+  coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery();
+  queryHistogramProps->addToOutputList( "NAME" );
+  queryHistogramProps->addToOutputList( "PATH" );
+  queryHistogramProps->addToOutputList( "RUN_NUMBER" );
+
+  std::string condition = "NAME = \"" + h_vertex_number->getName() + "\" AND PATH = \"" + h_vertex_number->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(lumiSeg.run()) + "\"";
+  coral::AttributeList conditionData2;
+  queryHistogramProps->setCondition( condition, conditionData2 );
+  queryHistogramProps->setMemoryCacheSize( 5 );
+  coral::ICursor& cursor2 = queryHistogramProps->execute();
+  int numberOfRows = 0;
+  while(cursor2.next())
+  {
+    cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
+    ++numberOfRows;
+  }
+  delete queryHistogramProps;
+  if ( numberOfRows == 1 )
+  {
+    histogramPropsRecordExist = true;
+  }
+  m_session->transaction().commit();
+
+  m_session->transaction().start(false);
+  if(!histogramPropsRecordExist)
+  {
+      coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_PROPS" ).dataEditor();
+      coral::AttributeList insertData;
+      insertData.extend< std::string >( "NAME" );
+      insertData.extend< std::string >( "PATH" );
+      insertData.extend< unsigned int >( "RUN_NUMBER" );
+      insertData.extend< int >( "X_BINS" );
+      insertData.extend< double >( "X_LOW" );
+      insertData.extend< double >( "X_UP" );
+      insertData.extend< int >( "Y_BINS" );
+      insertData.extend< double >( "Y_LOW" );
+      insertData.extend< double >( "Y_UP" );
+      insertData.extend< int >( "Z_BINS" );
+      insertData.extend< double >( "Z_LOW" );
+      insertData.extend< double >( "Z_UP" );
+
+      insertData[ "NAME" ].data< std::string >() = h_vertex_number->getName();
+      insertData[ "PATH" ].data< std::string >() = h_vertex_number->getPathname();
+      insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
+      insertData[ "X_BINS" ].data< int >() = h_vertex_number->getNbinsX(); //or h_vertex_number->getTH1()->GetNbinsX() ?
+      insertData[ "X_LOW" ].data< double >() = h_vertex_number->getTH1()->GetXaxis()->GetXmin();
+      insertData[ "X_UP" ].data< double >() = h_vertex_number->getTH1()->GetXaxis()->GetXmax();
+      insertData[ "Y_BINS" ].data< int >() = 0; //h_vertex_number->getNbinsY();
+      insertData[ "Y_LOW" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetYaxis()->GetXMin();
+      insertData[ "Y_UP" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetYaxis()->GetXMax();
+      insertData[ "Z_BINS" ].data< int >() = 0; //h_vertex_number->getNbinsZ();
+      insertData[ "Z_LOW" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetZaxis()->GetXMin();
+      insertData[ "Z_UP" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetZaxis()->GetXMax();
+      editor.insertRow( insertData );
+  }
+  m_session->transaction().commit();
+
+  m_session->transaction().start(false);
+
+  coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
   coral::AttributeList insertData;
-  insertData.extend< std::string >( "HISTO_NAME" );
+  insertData.extend< std::string >( "NAME" );
+  insertData.extend< std::string >( "PATH" );
   insertData.extend< unsigned int >( "RUN_NUMBER" );
   insertData.extend< unsigned int >( "LUMISECTION" );
-  insertData.extend< int >( "X_BINS" );
-  insertData.extend< double >( "X_LOW" );
-  insertData.extend< double >( "X_UP" );
-  insertData.extend< int >( "Y_BINS" );
-  insertData.extend< double >( "Y_LOW" );
-  insertData.extend< double >( "Y_UP" );
-  insertData.extend< int >( "Z_BINS" );
-  insertData.extend< double >( "Z_LOW" );
-  insertData.extend< double >( "Z_UP" );
   insertData.extend< double >( "ENTRIES" );
   insertData.extend< double >( "X_MEAN" );
   insertData.extend< double >( "X_MEAN_ERROR" );
@@ -494,33 +676,16 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   insertData.extend< double >( "Z_RMS_ERROR" );
   insertData.extend< double >( "Z_UNDERFLOW");
   insertData.extend< double >( "Z_OVERFLOW" );
-  insertData[ "HISTO_NAME" ].data< std::string >() = h_vertex_number->getFullname();
+
+  insertData[ "NAME" ].data< std::string >() = h_vertex_number->getName();
+  insertData[ "PATH" ].data< std::string >() = h_vertex_number->getPathname();
   insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
   insertData[ "LUMISECTION" ].data< unsigned int >() = lumiSeg.luminosityBlock();
-  insertData[ "X_BINS" ].data< int >() = h_vertex_number->getNbinsX(); //or h_vertex_number->getTH1()->GetNbinsX() ?
-  insertData[ "X_LOW" ].data< double >() = h_vertex_number->getTH1()->GetXaxis()->GetXmin();
-  insertData[ "X_UP" ].data< double >() = h_vertex_number->getTH1()->GetXaxis()->GetXmax();
-  //FIXME: should determine from the ME itself whether or not
-  // the definitions of the 2nd and 3rd dimensions of the histograms are to be inserted!
-  insertData[ "Y_BINS" ].data< int >() = 0; //h_vertex_number->getNbinsY();
-  insertData[ "Y_LOW" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetYaxis()->GetXMin();
-  insertData[ "Y_UP" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetYaxis()->GetXMax();
-  insertData[ "Z_BINS" ].data< int >() = 0; //h_vertex_number->getNbinsZ();
-  insertData[ "Z_LOW" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetZaxis()->GetXMin();
-  insertData[ "Z_UP" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetZaxis()->GetXMax();
   insertData[ "ENTRIES" ].data< double >() = h_vertex_number->getEntries(); //or h_vertex_number->getTH1()->GetEntries() ?
-  //FIXME: if we use MonitorElement::getMean{Error} or MonitorElement::getRMS{Error}
-  // there is a check on the dimension of the TH1, which must be larger than the axis number - 1
-  // i.e. 0 for x axis, 1 for y axis, 2 for z axis.
-  // If we get the pointer to the TH1 object, we can avoid this check, and we are guaranteed that
-  // TH1 will give 0 for non-existing dimensions
-  // (indeed, in TH1::GetStats, the stats array is inizialized to 0 for elements between 4 and 10).
   insertData[ "X_MEAN" ].data< double >() = h_vertex_number->getTH1()->GetMean();
   insertData[ "X_MEAN_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetMeanError();
   insertData[ "X_RMS" ].data< double >() = h_vertex_number->getTH1()->GetRMS();
   insertData[ "X_RMS_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetRMSError();
-  //FIXME: should determine from the ME itself whether or not the underflow and overflow bins are to be inserted.
-  // Also, we should define what underflow and overflow mean in 2-D and 3-D histos.
   insertData[ "X_UNDERFLOW" ].data< double >() = h_vertex_number->getTH1()->GetBinContent( 0 );
   insertData[ "X_OVERFLOW" ].data< double >() = h_vertex_number->getTH1()->GetBinContent( h_vertex_number->getTH1()->GetNbinsX() + 1 );
   insertData[ "Y_MEAN" ].data< double >() = h_vertex_number->getTH1()->GetMean( 2 );
@@ -553,13 +718,6 @@ void DQMExample_Step1::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 }
 
 
-
-
-
-
-
-
-
 //
 // -------------------------------------- book histograms --------------------------------------------
 //
@@ -569,17 +727,19 @@ void DQMExample_Step1::bookHistos(DQMStore::IBooker & ibooker_)
   ibooker_.setCurrentFolder("Physics/TopTest");
 
   h_vertex_number = ibooker_.book1D("Vertex_number", "Number of event vertices in collection", 40,-0.5,   39.5 );
-
   h_pfMet        = ibooker_.book1D("pfMet",        "Pf Missing E_{T}; GeV"          , 20,  0.0 , 100);
-
   h_eMultiplicity = ibooker_.book1D("NElectrons","# of electrons per event",10,0.,10.);
+
+
   h_ePt_leading_matched = ibooker_.book1D("ElePt_leading_matched","Pt of leading electron",50,0.,100.);
   h_eEta_leading_matched = ibooker_.book1D("EleEta_leading_matched","Eta of leading electron",50,-5.,5.);
   h_ePhi_leading_matched = ibooker_.book1D("ElePhi_leading_matched","Phi of leading electron",50,-3.5,3.5);
 
+  /// by run
   h_ePt_leading = ibooker_.book1D("ElePt_leading","Pt of leading electron",50,0.,100.);
   h_eEta_leading = ibooker_.book1D("EleEta_leading","Eta of leading electron",50,-5.,5.);
   h_ePhi_leading = ibooker_.book1D("ElePhi_leading","Phi of leading electron",50,-3.5,3.5);
+  ///
 
   h_jMultiplicity = ibooker_.book1D("NJets","# of electrons per event",10,0.,10.);
   h_jPt_leading = ibooker_.book1D("JetPt_leading","Pt of leading Jet",150,0.,300.);
