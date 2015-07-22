@@ -91,6 +91,8 @@ private:
 
     void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
 
+    void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY, const char *option);
+
     void fillPf(std::string name, double X, double Y);
 
     MonitorElement* monitor(std::string name);

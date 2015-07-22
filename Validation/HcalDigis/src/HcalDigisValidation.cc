@@ -86,7 +86,7 @@ void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &
     book1D(ib,"HcalDigiTask_tp_ntp_HF", tp_hl_ntp_sub);
     book1D(ib,"HcalDigiTask_tp_ntp_10_ieta", tp_hl_ieta);
     book2D(ib,"HcalDigiTask_tp_et_ieta", tp_hl_ieta, tp_hl_et);
-    bookPf(ib,"HcalDigiTask_tp_ave_et_ieta",tp_hl_ieta, tp_hl_et); 
+    bookPf(ib,"HcalDigiTask_tp_ave_et_ieta", tp_hl_ieta, tp_hl_et, " "); 
 
 }
 
@@ -1057,6 +1057,10 @@ void HcalDigisValidation::fill2D(std::string name, double X, double Y, double we
 
 void HcalDigisValidation::bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY) {
     if (!msm_->count(name)) (*msm_)[name] = ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
+}
+
+void HcalDigisValidation::bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY, const char *option) {
+    if (!msm_->count(name)) (*msm_)[name] = ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max, option);
 }
 
 void HcalDigisValidation::fillPf(std::string name, double X, double Y) {
