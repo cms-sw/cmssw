@@ -128,7 +128,7 @@ checkRZOld(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::Even
   }
 }
 
-OuterEstimator *
+std::unique_ptr<OuterEstimator>
   RectangularEtaPhiTrackingRegion::estimator(const BarrelDetLayer* layer,const edm::EventSetup& iSetup) const
 {
 
@@ -184,13 +184,13 @@ OuterEstimator *
     phiRange = phiPrediction(detRWindow.mean()); 
   }
 
-  return new OuterEstimator(
+  return std::make_unique<OuterEstimator>(
 			    OuterDetCompatibility( layer, phiRange, detRWindow, hitZWindow),
 			    OuterHitCompatibility( phiPrediction, zPrediction ),
 			    iSetup);
 }
 
-OuterEstimator *
+std::unique_ptr<OuterEstimator>
 RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const edm::EventSetup& iSetup) const
 {
 
@@ -241,7 +241,7 @@ RectangularEtaPhiTrackingRegion::estimator(const ForwardDetLayer* layer,const ed
     hitRWindow = Range(w1.min(),w2.max()).intersection(detRWindow);
   }
 
-  return new OuterEstimator(
+  return std::make_unique<OuterEstimator>(
     OuterDetCompatibility( layer, phiRange, hitRWindow, detZWindow),
     OuterHitCompatibility( phiPrediction, rPrediction),iSetup );
 }
@@ -292,7 +292,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   //ESTIMATOR
 
   const DetLayer * detLayer = layer.detLayer();
-  OuterEstimator * est = 0;
+  std::unique_ptr<OuterEstimator> est;
 
   bool measurementMethod = false;
   if(theMeasurementTrackerUsage == UseMeasurementTracker::kAlways) measurementMethod = true;
@@ -321,7 +321,7 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
     MeasurementEstimator * findDetAndHits = &etaPhiEstimator;
     if (est){
       LogDebug("RectangularEtaPhiTrackingRegion")<<"use pixel specific estimator.";
-      findDetAndHits = est;
+      findDetAndHits = est.get();
     }
     else{
       LogDebug("RectangularEtaPhiTrackingRegion")<<"use generic etat phi estimator.";
@@ -390,7 +390,6 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
   }
   
   // std::cout << "RectangularEtaPhiTrackingRegion hits "  << result.size() << std::endl;
-  delete est;
 
   return result;
 }

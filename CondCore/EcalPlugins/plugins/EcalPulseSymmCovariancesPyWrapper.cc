@@ -1,6 +1,6 @@
 #include "CondFormats/EcalObjects/interface/EcalPulseShapes.h"
-#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
-#include "CondTools/Ecal/interface/EcalPulseCovariancesXMLTranslator.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseSymmCovariances.h"
+#include "CondTools/Ecal/interface/EcalPulseSymmCovariancesXMLTranslator.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include "TH2F.h"
 #include "TCanvas.h"
@@ -29,7 +29,7 @@
 
 namespace {
 	struct Printer {
-		void doit(EcalPulseCovariance const & item) {
+		void doit(EcalPulseSymmCovariance const & item) {
                   for(int s = 0; s<EcalPulseShape::TEMPLATESAMPLES; ++s)
                     ss << item.val(THERAW,s);
 			ss << " ";
@@ -45,23 +45,23 @@ namespace cond {
           enum Quantity { sample_0=1, sample_1=2, sample_2=3, sample_3=4, sample_4=5, sample_5=6, sample_6=7, sample_7=8, sample_8=9, sample_9=10, sample_10=11, sample_11=12 };
 		enum How { singleChannel, bySuperModule, all};
 
-		float average(EcalPulseCovariances const & pulseshapes, Quantity q) {
+		float average(EcalPulseSymmCovariances const & pulseshapes, Quantity q) {
 			return std::accumulate(
-                                               boost::make_transform_iterator(pulseshapes.barrelItems().begin(),bind(&EcalPulseCovariance::val,_1,THERAW,q-1)),
-                                               boost::make_transform_iterator(pulseshapes.barrelItems().end(),bind(&EcalPulseCovariance::val,_1,THERAW,q-1)),
+                                               boost::make_transform_iterator(pulseshapes.barrelItems().begin(),bind(&EcalPulseSymmCovariance::val,_1,THERAW,q-1)),
+                                               boost::make_transform_iterator(pulseshapes.barrelItems().end(),bind(&EcalPulseSymmCovariance::val,_1,THERAW,q-1)),
                                                0.)/float(pulseshapes.barrelItems().size());
 		}
 
-		void extractAverage(EcalPulseCovariances const & pulseshapes, Quantity q, std::vector<int> const &,  std::vector<float> & result) {
+		void extractAverage(EcalPulseSymmCovariances const & pulseshapes, Quantity q, std::vector<int> const &,  std::vector<float> & result) {
 			result.resize(1);
 			result[0] = average(pulseshapes,q);
 		}
 
-		void extractSuperModules(EcalPulseCovariances const & pulseshapes, Quantity q, std::vector<int> const & which,  std::vector<float> & result) {
+		void extractSuperModules(EcalPulseSymmCovariances const & pulseshapes, Quantity q, std::vector<int> const & which,  std::vector<float> & result) {
 			// bho...
 		}
 
-		void extractSingleChannel(EcalPulseCovariances const & pulseshapes, Quantity q, std::vector<int> const & which,  std::vector<float> & result) {
+		void extractSingleChannel(EcalPulseSymmCovariances const & pulseshapes, Quantity q, std::vector<int> const & which,  std::vector<float> & result) {
 			for (unsigned int i=0; i<which.size();i++) {
 				// absolutely arbitraty
 				if ((unsigned int) (which[i])<  pulseshapes.barrelItems().size())
@@ -69,11 +69,11 @@ namespace cond {
 			}
 		}
 
-		typedef boost::function<void(EcalPulseCovariances const & pulseshapes, Quantity q, std::vector<int> const & which,  std::vector<float> & result)> PulseCovarianceExtractor;
+		typedef boost::function<void(EcalPulseSymmCovariances const & pulseshapes, Quantity q, std::vector<int> const & which,  std::vector<float> & result)> PulseSymmCovarianceExtractor;
 	}
 
 	template<>
-	struct ExtractWhat<EcalPulseCovariances> {
+	struct ExtractWhat<EcalPulseSymmCovariances> {
 
 		ecalpulsecovariance::Quantity m_quantity;
 		ecalpulsecovariance::How m_how;
@@ -91,19 +91,19 @@ namespace cond {
 
 
 	template<>
-	class ValueExtractor<EcalPulseCovariances>: public  BaseValueExtractor<EcalPulseCovariances> {
+	class ValueExtractor<EcalPulseSymmCovariances>: public  BaseValueExtractor<EcalPulseSymmCovariances> {
 	public:
 
-		static ecalpulsecovariance::PulseCovarianceExtractor & extractor(ecalpulsecovariance::How how) {
-			static  ecalpulsecovariance::PulseCovarianceExtractor fun[3] = { 
-				ecalpulsecovariance::PulseCovarianceExtractor(ecalpulsecovariance::extractSingleChannel),
-				ecalpulsecovariance::PulseCovarianceExtractor(ecalpulsecovariance::extractSuperModules),
-				ecalpulsecovariance::PulseCovarianceExtractor(ecalpulsecovariance::extractAverage)
+		static ecalpulsecovariance::PulseSymmCovarianceExtractor & extractor(ecalpulsecovariance::How how) {
+			static  ecalpulsecovariance::PulseSymmCovarianceExtractor fun[3] = { 
+				ecalpulsecovariance::PulseSymmCovarianceExtractor(ecalpulsecovariance::extractSingleChannel),
+				ecalpulsecovariance::PulseSymmCovarianceExtractor(ecalpulsecovariance::extractSuperModules),
+				ecalpulsecovariance::PulseSymmCovarianceExtractor(ecalpulsecovariance::extractAverage)
 			};
 			return fun[how];
 		}
 
-		typedef EcalPulseCovariances Class;
+		typedef EcalPulseSymmCovariances Class;
 		typedef ExtractWhat<Class> What;
 		static What what() { return What();}
 
@@ -129,27 +129,27 @@ namespace cond {
 
 	template<>
 	std::string
-		PayLoadInspector<EcalPulseCovariances>::dump() const {
+		PayLoadInspector<EcalPulseSymmCovariances>::dump() const {
 			std::stringstream ss;
 			EcalCondHeader header;
-			ss<<EcalPulseCovariancesXMLTranslator::dumpXML(header,object());
+			ss<<EcalPulseSymmCovariancesXMLTranslator::dumpXML(header,object());
 			return ss.str();
 	}  // dump
 
 
-	class EcalPulseCovariancesHelper: public EcalPyWrapperHelper<EcalPulseCovariance>{
+	class EcalPulseSymmCovariancesHelper: public EcalPyWrapperHelper<EcalPulseSymmCovariance>{
 	public:
-          EcalPulseCovariancesHelper():EcalPyWrapperHelper<EcalObject>(EcalPulseShape::TEMPLATESAMPLES){}
+          EcalPulseSymmCovariancesHelper():EcalPyWrapperHelper<EcalObject>(EcalPulseShape::TEMPLATESAMPLES){}
 	protected:
-		typedef EcalPulseCovariance EcalObject;
-		type_vValues getValues( const std::vector<EcalPulseCovariance> & vItems) override
+		typedef EcalPulseSymmCovariance EcalObject;
+		type_vValues getValues( const std::vector<EcalPulseSymmCovariance> & vItems) override
 		{
 			type_vValues vValues(total_values);
 
                         for(int s = 0; s<EcalPulseShape::TEMPLATESAMPLES; ++s) vValues[s].first = Form("sample_0.vs.sample_%d",s);
 
                         //get info:
-                        for(std::vector<EcalPulseCovariance>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
+                        for(std::vector<EcalPulseSymmCovariance>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
                           for(int s = 0; s<EcalPulseShape::TEMPLATESAMPLES; ++s) vValues[s].second = iItems->val(THERAW,s);
                         }
                         return vValues;
@@ -157,9 +157,9 @@ namespace cond {
 	};
 
 	template<>
-	std::string PayLoadInspector<EcalPulseCovariances>::summary() const {
+	std::string PayLoadInspector<EcalPulseSymmCovariances>::summary() const {
 		std::stringstream ss;
-		EcalPulseCovariancesHelper helper;
+		EcalPulseSymmCovariancesHelper helper;
 		ss << helper.printBarrelsEndcaps(object().barrelItems(), object().endcapItems());
 		return ss.str();
 	}  // summary
@@ -167,7 +167,7 @@ namespace cond {
 
 	// return the real name of the file including extension...
 	template<>
-	std::string PayLoadInspector<EcalPulseCovariances>::plot(std::string const & filename,
+	std::string PayLoadInspector<EcalPulseSymmCovariances>::plot(std::string const & filename,
 		std::string const &, 
 		std::vector<int> const&, 
 		std::vector<float> const& ) const {
@@ -213,7 +213,7 @@ namespace cond {
 						float y = -1 - ieta;
 						if(sign == 1) y = ieta;
                                                 for(int s = 0; s<EcalPulseShape::TEMPLATESAMPLES; ++s) {
-                                                  barrel_s[s]->Fill(iphi, y, fabs(object()[id.rawId()].covval[THERAW][s]));
+                                                  barrel_s[s]->Fill(iphi, y, fabs(object()[id.rawId()].val(THERAW,s)));
                                                 }
 					}  // iphi
 				}   // ieta
@@ -224,11 +224,11 @@ namespace cond {
 						EEDetId id(ix+1,iy+1,thesign);
 						if (thesign==1) {
                                                   for(int s = 0; s<EcalPulseShape::TEMPLATESAMPLES; ++s)
-                                                    endc_p_s[s]->Fill(ix+1,iy+1,fabs(object()[id.rawId()].covval[THERAW][s]));
+                                                    endc_p_s[s]->Fill(ix+1,iy+1,fabs(object()[id.rawId()].val(THERAW,s)));
 						}
 						else { 
                                                   for(int s = 0; s<EcalPulseShape::TEMPLATESAMPLES; ++s)
-                                                    endc_m_s[s]->Fill(ix+1,iy+1,fabs(object()[id.rawId()].covval[THERAW][s]));
+                                                    endc_m_s[s]->Fill(ix+1,iy+1,fabs(object()[id.rawId()].val(THERAW,s)));
 						}
 					}  // iy
 				}   // ix
@@ -322,7 +322,7 @@ namespace cond {
 
 namespace condPython {
 	template<>
-	void defineWhat<EcalPulseCovariances>() {
+	void defineWhat<EcalPulseSymmCovariances>() {
 		using namespace boost::python;
 		enum_<cond::ecalpulsecovariance::Quantity>("Quantity")
 			.value("sample_0",cond::ecalpulsecovariance::sample_0)
@@ -342,7 +342,7 @@ namespace condPython {
 			.value("all",cond::ecalpulsecovariance::all)
 			;
 
-		typedef cond::ExtractWhat<EcalPulseCovariances> What;
+		typedef cond::ExtractWhat<EcalPulseSymmCovariances> What;
 		class_<What>("What",init<>())
 			.def("set_quantity",&What::set_quantity)
 			.def("set_how",&What::set_how)
@@ -356,4 +356,4 @@ namespace condPython {
 
 
 
-PYTHON_WRAPPER(EcalPulseCovariances,EcalPulseCovariances);
+PYTHON_WRAPPER(EcalPulseSymmCovariances,EcalPulseSymmCovariances);

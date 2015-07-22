@@ -11,8 +11,8 @@
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <TString.h>
 
-#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
-#include "CondTools/Ecal/interface/EcalPulseCovariancesXMLTranslator.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseSymmCovariances.h"
+#include "CondTools/Ecal/interface/EcalPulseSymmCovariancesXMLTranslator.h"
 #include "CondTools/Ecal/interface/DOMHelperFunctions.h"
 #include "CondTools/Ecal/interface/XMLTags.h"
 
@@ -21,9 +21,9 @@ using namespace XERCES_CPP_NAMESPACE;
 using namespace xuti;
 using namespace std;
 
-int  EcalPulseCovariancesXMLTranslator::readXML(const std::string& filename, 
+int  EcalPulseSymmCovariancesXMLTranslator::readXML(const std::string& filename, 
 					  EcalCondHeader& header,
-					  EcalPulseCovariances& record){
+					  EcalPulseSymmCovariances& record){
 
   cms::concurrency::xercesInitialize();
 
@@ -36,7 +36,7 @@ int  EcalPulseCovariancesXMLTranslator::readXML(const std::string& filename,
 
   DOMDocument* xmlDoc = parser->getDocument();
   if (!xmlDoc) {
-    std::cout << "EcalPulseCovariancesXMLTranslator::Error parsing document" << std::endl;
+    std::cout << "EcalPulseSymmCovariancesXMLTranslator::Error parsing document" << std::endl;
     return -1;
   }
 
@@ -49,23 +49,28 @@ int  EcalPulseCovariancesXMLTranslator::readXML(const std::string& filename,
   int chan = 0;
   while(cellnode) {
     //    std::cout << " Channel " << chan << std::endl;
-    float covs[EcalPulseShape::TEMPLATESAMPLES][EcalPulseShape::TEMPLATESAMPLES];
+    float covs[EcalPulseShape::TEMPLATESAMPLES*(EcalPulseShape::TEMPLATESAMPLES+1)/2];
 
     DetId detid = readCellId(dynamic_cast<DOMElement*>(cellnode));
     //    std::cout << " readCell Id Channel " << chan << " tag " << mean12_tag << std::endl;
 
-    std::vector<std::string> pulsecov_tag(static_cast<size_t>(std::pow(EcalPulseShape::TEMPLATESAMPLES,2)));
-    for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) {
-      int i = k/EcalPulseShape::TEMPLATESAMPLES;
-      int j = k%EcalPulseShape::TEMPLATESAMPLES;
-      pulsecov_tag[k] = Form("samplecov_%d_%d",i,j);
+    std::vector<std::string> pulsecov_tag(static_cast<size_t>(EcalPulseShape::TEMPLATESAMPLES*(EcalPulseShape::TEMPLATESAMPLES+1)/2));
+    for(int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i) { 
+      for(int j=0; j<EcalPulseShape::TEMPLATESAMPLES; ++j) {
+        int k=-1;
+        if(j >= i) k = j + (EcalPulseShape::TEMPLATESAMPLES-1)*i;
+        else k = i + (EcalPulseShape::TEMPLATESAMPLES-1)*j;
+        pulsecov_tag[k] = Form("samplecov_%d_%d",i,j);
+      }
     }
 
-    DOMNode** covs_node = new DOMNode*[int(std::pow(EcalPulseShape::TEMPLATESAMPLES,2))];
-    for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k)
+    DOMNode** covs_node = new DOMNode*[int(EcalPulseShape::TEMPLATESAMPLES*(EcalPulseShape::TEMPLATESAMPLES+1)/2)];
+    for(int k=0; k<EcalPulseShape::TEMPLATESAMPLES*(EcalPulseShape::TEMPLATESAMPLES+1)/2; ++k) {
       covs_node[k] = getChildNode(cellnode,pulsecov_tag[k]); 
+      GetNodeData(covs_node[k], covs[k]);  
+    }
 
-    for(int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i) for(int j=0; j<EcalPulseShape::TEMPLATESAMPLES; ++j) record[detid].covval[i][j] = covs[i][j];
+    for(int k=0; k<EcalPulseShape::TEMPLATESAMPLES*(EcalPulseShape::TEMPLATESAMPLES+1)/2; ++k) record[detid].covval[k] = covs[k];
 
     cellnode = cellnode->getNextSibling();
 
@@ -80,16 +85,16 @@ int  EcalPulseCovariancesXMLTranslator::readXML(const std::string& filename,
   return 0;
  }
 
-int EcalPulseCovariancesXMLTranslator::writeXML(const std::string& filename, 
+int EcalPulseSymmCovariancesXMLTranslator::writeXML(const std::string& filename, 
 					  const EcalCondHeader& header,
-					  const EcalPulseCovariances& record){
+					  const EcalPulseSymmCovariances& record){
   std::fstream fs(filename.c_str(),ios::out);
   fs<< dumpXML(header,record);
   return 0;  
 }
 
 
-std::string EcalPulseCovariancesXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalPulseCovariances& record){
+std::string EcalPulseSymmCovariancesXMLTranslator::dumpXML(const EcalCondHeader& header,const EcalPulseSymmCovariances& record){
 
   cms::concurrency::xercesInitialize();
   DOMImplementation*  impl =
@@ -100,7 +105,7 @@ std::string EcalPulseCovariancesXMLTranslator::dumpXML(const EcalCondHeader& hea
 
   DOMDocumentType* doctype = impl->createDocumentType(fromNative("XML").c_str(), 0, 0 );
   DOMDocument *    doc = 
-    impl->createDocument( 0, fromNative(PulseCovariances_tag).c_str(), doctype );
+    impl->createDocument( 0, fromNative(PulseSymmCovariances_tag).c_str(), doctype );
 
   doc->setEncoding(fromNative("UTF-8").c_str() );
   doc->setStandalone(true);
@@ -112,7 +117,10 @@ std::string EcalPulseCovariancesXMLTranslator::dumpXML(const EcalCondHeader& hea
   for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) {
     int i = k/EcalPulseShape::TEMPLATESAMPLES;
     int j = k%EcalPulseShape::TEMPLATESAMPLES;
-    pulsecov_tag[k] = Form("samplecov_%d_%d",i,j);
+    int linK=-1;
+    if(j >= i) linK = j + (EcalPulseShape::TEMPLATESAMPLES-1)*i;
+    else linK = i + (EcalPulseShape::TEMPLATESAMPLES-1)*j;
+    pulsecov_tag[linK] = Form("samplecov_%d_%d",i,j);
   }
 
   xuti::writeHeader(root,header);
@@ -126,11 +134,11 @@ std::string EcalPulseCovariancesXMLTranslator::dumpXML(const EcalCondHeader& hea
 
     DOMElement* cellnode=writeCell(root,rawid);
 
-    for(int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i) for(int j=0; j<EcalPulseShape::TEMPLATESAMPLES; ++j)
-                                                           WriteNodeWithValue(cellnode,pulsecov_tag[i*EcalPulseShape::TEMPLATESAMPLES+j],record[rawid].covval[i][j]);
-
+    for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) { 
+      WriteNodeWithValue(cellnode,pulsecov_tag[k],record[rawid].covval[k]);
+    }
+    
   }
-
   if (!record.endcapItems().size()) return std::string();
   for(int cellid = 0;
 	cellid < EEDetId::kSizeForDenseIndexing;
@@ -143,9 +151,9 @@ std::string EcalPulseCovariancesXMLTranslator::dumpXML(const EcalCondHeader& hea
 
     DOMElement* cellnode=writeCell(root,rawid);
 
-    for(int i=0; i<EcalPulseShape::TEMPLATESAMPLES; ++i) for(int j=0; j<EcalPulseShape::TEMPLATESAMPLES; ++j)
-                                                           WriteNodeWithValue(cellnode,pulsecov_tag[i*EcalPulseShape::TEMPLATESAMPLES+j],record[rawid].covval[i][j]);
-
+    for(int k=0; k<std::pow(EcalPulseShape::TEMPLATESAMPLES,2); ++k) { 
+      WriteNodeWithValue(cellnode,pulsecov_tag[k],record[rawid].covval[k]);
+    }
   }
 
   std::string dump= toNative(writer->writeToString(*root)); 

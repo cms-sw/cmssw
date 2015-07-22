@@ -318,19 +318,19 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
       {
 	TrackInformation * temp = dynamic_cast<TrackInformation* >(info);
 	if (temp ==0) edm::LogError("TrackerSimInfo")<< " Error:G4VUserTrackInformation is not a TrackInformation.";
-	if (temp->storeTrack() == false) 
-	  {
+        else {
+          if (temp->storeTrack() == false) {
 	    // Go to the mother!
 	    LogDebug("TrackerSimDebug")<< " TkAccumulatingSensitiveDetector:createHit(): setting the TrackID from "
 		      << theTrackIDInsideTheSimHit;
 	    theTrackIDInsideTheSimHit = theTrack->GetParentID();
 	    LogDebug("TrackerSimDebug")<< " to the mother one " << theTrackIDInsideTheSimHit << " " << theEnergyLoss;
 	  }
-	else
-	  {
+          else {
 	    LogDebug("TrackerSimDebug")<< " TkAccumulatingSensitiveDetector:createHit(): leaving the current TrackID " 
 		      << theTrackIDInsideTheSimHit;
 	  }
+        }
       }
     
     px  = aStep->GetPreStepPoint()->GetMomentum().x()/GeV;
