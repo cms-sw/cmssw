@@ -1124,7 +1124,12 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
             patMetModuleSequence += getattr(process, "pfMet")
 
-            getattr(process, "patPFMet").addGenMET  = False
+          #  getattr(process, "patPFMet").addGenMET  = False
+            
+            process.genMetExtractor = cms.EDProducer("GenMETExtractor",
+                                                     metSource= cms.InputTag("slimmedMETs","","PAT")
+                                                     )
+            getattr(process, "patPFMet").genMETSource = cms.InputTag("genMetExtractor")
      
             getattr(process, "patPFMetTxyCorr").srcPFlow = pfCandCollection
             getattr(process, "patPFMetTxyCorr").vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices")
