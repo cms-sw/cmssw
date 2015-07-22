@@ -22,6 +22,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TrackTrigger/interface/TTCluster.h"
@@ -110,6 +111,9 @@ private:
   bool SaveAllTracks;
   bool DoPixelTrack;
   bool SaveStubs;
+
+  edm::InputTag L1TrackInputTag;
+  edm::InputTag MCTruthTrackInputTag;
 
 
   //-----------------------------------------------------------------------------------------------
@@ -218,6 +222,8 @@ L1TrackNtupleMaker::L1TrackNtupleMaker(edm::ParameterSet const& iConfig) :
   SaveAllTracks = iConfig.getParameter< bool >("SaveAllTracks");
   DoPixelTrack = iConfig.getParameter< bool >("DoPixelTrack");
   SaveStubs = iConfig.getParameter< bool >("SaveStubs");
+  L1TrackInputTag = iConfig.getParameter<edm::InputTag>("L1TrackInputTag");
+  MCTruthTrackInputTag = iConfig.getParameter<edm::InputTag>("MCTruthTrackInputTag");
 
 }
 
@@ -508,7 +514,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // L1 tracks
   edm::Handle< std::vector< TTTrack< Ref_PixelDigi_ > > > TTTrackHandle;
-  iEvent.getByLabel("TTTracksFromPixelDigis", "Level1TTTracks", TTTrackHandle);
+  //iEvent.getByLabel("TTTracksFromPixelDigis", "Level1TTTracks", TTTrackHandle);
+  iEvent.getByLabel(L1TrackInputTag, TTTrackHandle);
   
   // L1 stubs
   edm::Handle< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > > > TTStubHandle;
@@ -520,7 +527,8 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // MC truth association maps
   edm::Handle< TTTrackAssociationMap< Ref_PixelDigi_ > > MCTruthTTTrackHandle;
-  iEvent.getByLabel("TTTrackAssociatorFromPixelDigis", "Level1TTTracks", MCTruthTTTrackHandle);
+  //iEvent.getByLabel("TTTrackAssociatorFromPixelDigis", "Level1TTTracks", MCTruthTTTrackHandle);
+  iEvent.getByLabel(MCTruthTrackInputTag, MCTruthTTTrackHandle);
   edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
   iEvent.getByLabel("TTClusterAssociatorFromPixelDigis", "ClusterAccepted", MCTruthTTClusterHandle);
   edm::Handle< TTStubAssociationMap< Ref_PixelDigi_ > > MCTruthTTStubHandle;

@@ -88,7 +88,9 @@ process.L1TrackNtuple = cms.EDAnalyzer('L1TrackNtupleMaker',
                                        DebugMode = cms.bool(False),      ## printout lots of debug statements
                                        SaveAllTracks = cms.bool(True),   ## save all L1 tracks, not just truth matched to primary particle
                                        DoPixelTrack = cms.bool(False),   ## save information for pixel tracks
-                                       SaveStubs = cms.bool(False)       ## save some info for *all* stubs
+                                       SaveStubs = cms.bool(False),      ## save some info for *all* stubs
+                                       L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),               ## TTTrack input
+                                       MCTruthTrackInputTag = cms.InputTag("TTTrackAssociatorFromPixelDigis", "Level1TTTracks"), ## MCTruth input 
                                        )
 process.ana = cms.Path(process.L1TrackNtuple)
 
