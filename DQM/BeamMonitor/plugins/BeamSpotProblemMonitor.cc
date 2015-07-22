@@ -118,7 +118,7 @@ void BeamSpotProblemMonitor::beginJob() {
         histName += "_all";
         histTitle += " all";
         hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
-        hs[histName]->getTH1()->SetBit(TH1::kCanRebin);
+        hs[histName]->getTH1()->SetCanExtend(TH1::kAllAxes);
         hs[histName]->setAxisTitle(xtitle,1);
         hs[histName]->setAxisTitle(ytitle,2);
 

@@ -21,7 +21,6 @@ l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
     # input tag for the L1 GCT hardware record 
     L1GctDataInputTag = cms.InputTag("gctDigis"),   
 
-    DQMStore = cms.untracked.bool(False),
     DirName = cms.untracked.string("L1TEMU/GTexpert"), 
     
     # exclude algorithm triggers from comparison data - emulator by 

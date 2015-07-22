@@ -67,8 +67,6 @@ L1GtUtils::L1GtUtils() :
 
     m_runIDCache(0),
 
-    m_provRunIDCache(0),
-    
     m_physicsDaqPartition(0),
 
     m_retrieveL1EventSetup(false),
@@ -78,6 +76,18 @@ L1GtUtils::L1GtUtils() :
     {
 
     // empty
+}
+
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector&& iC,
+                     bool useL1GtTriggerMenuLite) :
+    L1GtUtils(pset, iC, useL1GtTriggerMenuLite) { }
+
+L1GtUtils::L1GtUtils(edm::ParameterSet const& pset,
+                     edm::ConsumesCollector& iC,
+                     bool useL1GtTriggerMenuLite) :
+    L1GtUtils() {
+    m_l1GtUtilsHelper.reset(new L1GtUtilsHelper(pset, iC, useL1GtTriggerMenuLite));
 }
 
 // destructor
@@ -266,21 +276,21 @@ void L1GtUtils::retrieveL1EventSetup(const edm::EventSetup& evSetup) {
 }
 
 
-void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Run& iRun,
-        const edm::InputTag& l1GtMenuLiteInputTag) {
+void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Run& iRun) {
 
-    //
     m_retrieveL1GtTriggerMenuLite = true;
 
     // get L1GtTriggerMenuLite
     edm::Handle<L1GtTriggerMenuLite> l1GtMenuLite;
-    iRun.getByLabel(l1GtMenuLiteInputTag, l1GtMenuLite);
+    if( !m_l1GtUtilsHelper->l1GtTriggerMenuLiteToken().isUninitialized() ) {
+      iRun.getByToken(m_l1GtUtilsHelper->l1GtTriggerMenuLiteToken(), l1GtMenuLite);
+    }
 
     if (!l1GtMenuLite.isValid()) {
 
         LogDebug("L1GtUtils") << "\nL1GtTriggerMenuLite with \n  "
-                << l1GtMenuLiteInputTag
-                << "\nrequested in configuration, but not found in the event."
+                << m_l1GtUtilsHelper->l1GtTriggerMenuLiteInputTag()
+                << "\nrequested, but not found in the run."
                 << std::endl;
 
         m_l1GtMenuLiteValid = false;
@@ -289,7 +299,7 @@ void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Run& iRun,
         m_l1GtMenuLiteValid = true;
 
         LogDebug("L1GtUtils") << "\nL1GtTriggerMenuLite with \n  "
-                << l1GtMenuLiteInputTag << "\nretrieved for run "
+                << m_l1GtUtilsHelper->l1GtTriggerMenuLiteInputTag() << "\nretrieved for run "
                 << iRun.runAuxiliary().run() << std::endl;
 
         m_algorithmMapLite = &(m_l1GtMenuLite->gtAlgorithmMap());
@@ -303,14 +313,12 @@ void L1GtUtils::retrieveL1GtTriggerMenuLite(const edm::Run& iRun,
                 = &(m_l1GtMenuLite->gtPrescaleFactorsAlgoTrig());
         m_prescaleFactorsTechTrigLite
                 = &(m_l1GtMenuLite->gtPrescaleFactorsTechTrig());
-
     }
-
 }
 
 void L1GtUtils::getL1GtRunCache(const edm::Run& iRun,
-        const edm::EventSetup& evSetup, const bool useL1EventSetup,
-        const bool useL1GtTriggerMenuLite, const edm::InputTag& l1GtTmLInputTag) {
+        const edm::EventSetup& evSetup, bool useL1EventSetup,
+        bool useL1GtTriggerMenuLite) {
 
     // first call will turn this to true: the quantities which can be cached in
     // beginRun will not be cached then in analyze
@@ -328,31 +336,13 @@ void L1GtUtils::getL1GtRunCache(const edm::Run& iRun,
     // L1GtTriggerMenuLite is defined per run and produced in prompt reco by L1Reco
     // and put in the Run section
     if (useL1GtTriggerMenuLite) {
-        retrieveL1GtTriggerMenuLite(iRun, l1GtTmLInputTag);
+        retrieveL1GtTriggerMenuLite(iRun);
     }
-
 }
-
-
-void L1GtUtils::getL1GtRunCache(const edm::Run& iRun,
-        const edm::EventSetup& evSetup, bool useL1EventSetup,
-        bool useL1GtTriggerMenuLite) {
-
-    if (useL1GtTriggerMenuLite) {
-        getL1GtTriggerMenuLiteInputTag(iRun, m_provL1GtTriggerMenuLiteInputTag);
-
-    }
-
-    getL1GtRunCache(iRun, evSetup, useL1EventSetup, useL1GtTriggerMenuLite,
-            m_provL1GtTriggerMenuLiteInputTag);
-
-}
-
-
 
 void L1GtUtils::getL1GtRunCache(const edm::Event& iEvent,
         const edm::EventSetup& evSetup, const bool useL1EventSetup,
-        const bool useL1GtTriggerMenuLite, const edm::InputTag& l1GtTmLInputTag) {
+        const bool useL1GtTriggerMenuLite) {
 
     // if there was no retrieval and caching in beginRun, do it here
     if (!m_beginRunCache) {
@@ -376,174 +366,12 @@ void L1GtUtils::getL1GtRunCache(const edm::Event& iEvent,
             // L1GtTriggerMenuLite is defined per run and produced in prompt reco by L1Reco
             // and put in the Run section
             if (useL1GtTriggerMenuLite) {
-                retrieveL1GtTriggerMenuLite(iRun, l1GtTmLInputTag);
+                retrieveL1GtTriggerMenuLite(iRun);
             }
         }
-
-        // find from provenance and cache the input tags for L1GlobalTriggerRecord and
-        // L1GlobalTriggerReadoutRecord
-        getL1GtRecordInputTag(iEvent, m_provL1GtRecordInputTag,
-                m_provL1GtReadoutRecordInputTag);
-
-        //
         m_runIDCache = runID;
-
     }
-
 }
-
-
-void L1GtUtils::getL1GtRunCache(const edm::Event& iEvent,
-        const edm::EventSetup& evSetup, const bool useL1EventSetup,
-        const bool useL1GtTriggerMenuLite) {
-
-    // if the input tag for L1GtTriggerMenuLite was not found in beginRun, do it here
-    if (!m_beginRunCache) {
-
-        const edm::Run& iRun = iEvent.getRun();
-        edm::RunID runID = iRun.runAuxiliary().id();
-
-        if (runID != m_provRunIDCache) {
-
-            if (useL1GtTriggerMenuLite) {
-
-                getL1GtTriggerMenuLiteInputTag(iRun,
-                        m_provL1GtTriggerMenuLiteInputTag);
-            }
-
-            //
-            m_provRunIDCache = runID;
-        }
-
-    }
-
-    // call now the general method for getL1GtRunCache
-    getL1GtRunCache(iEvent, evSetup, useL1EventSetup, useL1GtTriggerMenuLite,
-            m_provL1GtTriggerMenuLiteInputTag);
-
-}
-
-
-void L1GtUtils::getL1GtRecordInputTag(const edm::Event& iEvent,
-        edm::InputTag& l1GtRecordInputTag,
-        edm::InputTag& l1GtReadoutRecordInputTag) const {
-
-    typedef std::vector<edm::Provenance const*> Provenances;
-    Provenances provenances;
-    std::string friendlyName;
-    std::string modLabel;
-    std::string instanceName;
-    std::string processName;
-
-    bool foundL1GtRecord = false;
-    bool foundL1GtReadoutRecord = false;
-
-    LogDebug("L1GtUtils") << "\nTry to get AllProvenance for event "
-            << iEvent.id().event() << std::endl;
-
-    iEvent.getAllProvenance(provenances);
-
-    LogTrace("L1GtUtils") << "\n" << "Event contains " << provenances.size()
-            << " product" << (provenances.size() == 1 ? "" : "s")
-            << " with friendlyClassName, moduleLabel, productInstanceName and processName:\n"
-            << std::endl;
-
-    for (Provenances::iterator itProv = provenances.begin(), itProvEnd =
-            provenances.end(); itProv != itProvEnd; ++itProv) {
-
-        friendlyName = (*itProv)->friendlyClassName();
-        modLabel = (*itProv)->moduleLabel();
-        instanceName = (*itProv)->productInstanceName();
-        processName = (*itProv)->processName();
-
-        LogTrace("L1GtUtils") << friendlyName << "\t \"" << modLabel
-                << "\" \t \"" << instanceName << "\" \t \"" << processName
-                << "\"" << std::endl;
-
-        if (friendlyName == "L1GlobalTriggerRecord") {
-            l1GtRecordInputTag = edm::InputTag(modLabel, instanceName,
-                    processName);
-            foundL1GtRecord = true;
-        } else if (friendlyName == "L1GlobalTriggerReadoutRecord") {
-
-            l1GtReadoutRecordInputTag = edm::InputTag(modLabel, instanceName,
-                    processName);
-            foundL1GtReadoutRecord = true;
-        }
-    }
-
-    // if not found, return empty input tags
-    if (!foundL1GtRecord) {
-        l1GtRecordInputTag = edm::InputTag();
-    } else {
-        LogTrace("L1GtUtils")
-                << "\nL1GlobalTriggerRecord found in the event with \n  "
-                << l1GtRecordInputTag << std::endl;
-    }
-
-    if (!foundL1GtReadoutRecord) {
-        l1GtReadoutRecordInputTag = edm::InputTag();
-    } else {
-        LogTrace("L1GtUtils")
-                << "\nL1GlobalTriggerReadoutRecord found in the event with \n  "
-                << l1GtReadoutRecordInputTag << std::endl;
-    }
-
-}
-
-void L1GtUtils::getL1GtTriggerMenuLiteInputTag(const edm::Run& iRun,
-        edm::InputTag& l1GtTriggerMenuLiteInputTag) const {
-
-    typedef std::vector<edm::Provenance const*> Provenances;
-    Provenances provenances;
-    std::string friendlyName;
-    std::string modLabel;
-    std::string instanceName;
-    std::string processName;
-
-    bool foundL1GtTriggerMenuLite = false;
-
-    LogDebug("L1GtUtils") << "\nTry to get AllProvenance for run "
-            << iRun.runAuxiliary().run() << std::endl;
-
-    iRun.getAllProvenance(provenances);
-
-    LogTrace("L1GtUtils") << "\n" << "Run contains " << provenances.size()
-            << " product" << (provenances.size() == 1 ? "" : "s")
-            << " with friendlyClassName, moduleLabel, productInstanceName and processName:\n"
-            << std::endl;
-
-    for (Provenances::iterator itProv = provenances.begin(), itProvEnd =
-            provenances.end(); itProv != itProvEnd; ++itProv) {
-
-        friendlyName = (*itProv)->friendlyClassName();
-        modLabel = (*itProv)->moduleLabel();
-        instanceName = (*itProv)->productInstanceName();
-        processName = (*itProv)->processName();
-
-        LogTrace("L1GtUtils") << friendlyName << "\t \"" << modLabel
-                << "\" \t \"" << instanceName << "\" \t \"" << processName
-                << "\"" << std::endl;
-
-        if (friendlyName == "L1GtTriggerMenuLite") {
-            l1GtTriggerMenuLiteInputTag = edm::InputTag(modLabel, instanceName,
-                    processName);
-            foundL1GtTriggerMenuLite = true;
-        }
-
-    }
-
-    if (!foundL1GtTriggerMenuLite) {
-        l1GtTriggerMenuLiteInputTag = edm::InputTag();
-        LogTrace("L1GtUtils") << "\nL1GtTriggerMenuLite not found in Run"
-                << std::endl;
-    } else {
-        LogTrace("L1GtUtils") << "\nL1GtTriggerMenuLite found in Run with \n  "
-                << l1GtTriggerMenuLiteInputTag << std::endl;
-    }
-
-}
-
 
 const bool L1GtUtils::l1AlgoTechTrigBitNumber(
         const std::string& nameAlgoTechTrig, TriggerCategory& trigCategory,
@@ -883,8 +711,6 @@ const bool L1GtUtils::l1TriggerNameFromBit(const int& bitNumber,
 }
 
 const int L1GtUtils::l1Results(const edm::Event& iEvent,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag,
         const std::string& nameAlgoTechTrig, bool& decisionBeforeMask,
         bool& decisionAfterMask, int& prescaleFactor, int& triggerMask) const {
 
@@ -1001,8 +827,9 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
     bool gtReadoutRecordValid = false;
 
     edm::Handle<L1GlobalTriggerRecord> gtRecord;
-    iEvent.getByLabel(l1GtRecordInputTag, gtRecord);
-
+    if( !m_l1GtUtilsHelper->l1GtRecordToken().isUninitialized() ) {
+      iEvent.getByToken(m_l1GtUtilsHelper->l1GtRecordToken(), gtRecord);
+    }
     if (gtRecord.isValid()) {
 
         validRecord = true;
@@ -1011,13 +838,14 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
 
         iErrorRecord = 10;
         LogDebug("L1GtUtils") << "\nL1GlobalTriggerRecord with \n  "
-                << l1GtRecordInputTag << "\nnot found in the event."
+                << m_l1GtUtilsHelper->l1GtRecordInputTag() << "\nnot found in the event."
                 << std::endl;
     }
 
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(l1GtReadoutRecordInputTag, gtReadoutRecord);
-
+    if( !m_l1GtUtilsHelper->l1GtReadoutRecordToken().isUninitialized() ) {
+      iEvent.getByToken(m_l1GtUtilsHelper->l1GtReadoutRecordToken(), gtReadoutRecord);
+    }
     if (gtReadoutRecord.isValid()) {
 
         gtReadoutRecordValid = true;
@@ -1027,7 +855,7 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
 
         iErrorRecord = iErrorRecord + 100;
         LogDebug("L1GtUtils") << "\nL1GlobalTriggerReadoutRecord with \n  "
-                << l1GtReadoutRecordInputTag << "\nnot found in the event."
+                << m_l1GtUtilsHelper->l1GtReadoutRecordInputTag() << "\nnot found in the event."
                 << std::endl;
 
     }
@@ -1062,9 +890,9 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
 
         LogDebug("L1GtUtils") << "\nError: "
                 << "\nNo valid L1GlobalTriggerRecord with \n  "
-                << l1GtRecordInputTag << "\nfound in the event."
+                << m_l1GtUtilsHelper->l1GtRecordInputTag() << "\nfound in the event."
                 << "\nNo valid L1GlobalTriggerReadoutRecord with \n  "
-                << l1GtReadoutRecordInputTag << "\nfound in the event."
+                << m_l1GtUtilsHelper->l1GtReadoutRecordInputTag() << "\nfound in the event."
                 << std::endl;
 
         iError = l1ConfCode + iErrorRecord;
@@ -1345,49 +1173,6 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
     }
 
     return iError;
-
-}
-
-
-const int L1GtUtils::l1Results(const edm::Event& iEvent,
-        const std::string& nameAlgoTechTrig, bool& decisionBeforeMask,
-        bool& decisionAfterMask, int& prescaleFactor, int& triggerMask) const {
-
-    // initial values for returned results
-    decisionBeforeMask = false;
-    decisionAfterMask = false;
-    prescaleFactor = -1;
-    triggerMask = -1;
-
-    int l1ErrorCode = 0;
-
-    l1ErrorCode = l1Results(iEvent, m_provL1GtRecordInputTag,
-            m_provL1GtReadoutRecordInputTag, nameAlgoTechTrig, decisionBeforeMask,
-            decisionAfterMask, prescaleFactor, triggerMask);
-
-    return l1ErrorCode;
-
-}
-
-//
-
-const bool L1GtUtils::decisionBeforeMask(const edm::Event& iEvent,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgoTechTrig, int& errorCode) const {
-
-    // initial values
-    bool decisionBeforeMask = false;
-    bool decisionAfterMask = false;
-    int prescaleFactor = -1;
-    int triggerMask = -1;
-
-    errorCode = l1Results(iEvent, l1GtRecordInputTag,
-            l1GtReadoutRecordInputTag, nameAlgoTechTrig, decisionBeforeMask,
-            decisionAfterMask, prescaleFactor, triggerMask);
-
-    return decisionBeforeMask;
-
 }
 
 const bool L1GtUtils::decisionBeforeMask(const edm::Event& iEvent,
@@ -1403,28 +1188,6 @@ const bool L1GtUtils::decisionBeforeMask(const edm::Event& iEvent,
             decisionAfterMask, prescaleFactor, triggerMask);
 
     return decisionBeforeMask;
-
-}
-
-//
-
-const bool L1GtUtils::decisionAfterMask(const edm::Event& iEvent,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgoTechTrig, int& errorCode) const {
-
-    // initial values
-    bool decisionBeforeMask = false;
-    bool decisionAfterMask = false;
-    int prescaleFactor = -1;
-    int triggerMask = -1;
-
-    errorCode = l1Results(iEvent, l1GtRecordInputTag,
-            l1GtReadoutRecordInputTag, nameAlgoTechTrig, decisionBeforeMask,
-            decisionAfterMask, prescaleFactor, triggerMask);
-
-    return decisionAfterMask;
-
 }
 
 const bool L1GtUtils::decisionAfterMask(const edm::Event& iEvent,
@@ -1440,28 +1203,6 @@ const bool L1GtUtils::decisionAfterMask(const edm::Event& iEvent,
             decisionAfterMask, prescaleFactor, triggerMask);
 
     return decisionAfterMask;
-
-}
-
-//
-
-const bool L1GtUtils::decision(const edm::Event& iEvent,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgoTechTrig, int& errorCode) const {
-
-    // initial values
-    bool decisionBeforeMask = false;
-    bool decisionAfterMask = false;
-    int prescaleFactor = -1;
-    int triggerMask = -1;
-
-    errorCode = l1Results(iEvent, l1GtRecordInputTag,
-            l1GtReadoutRecordInputTag, nameAlgoTechTrig, decisionBeforeMask,
-            decisionAfterMask, prescaleFactor, triggerMask);
-
-    return decisionAfterMask;
-
 }
 
 const bool L1GtUtils::decision(const edm::Event& iEvent,
@@ -1477,28 +1218,6 @@ const bool L1GtUtils::decision(const edm::Event& iEvent,
             decisionAfterMask, prescaleFactor, triggerMask);
 
     return decisionAfterMask;
-
-}
-
-//
-
-const int L1GtUtils::prescaleFactor(const edm::Event& iEvent,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgoTechTrig, int& errorCode) const {
-
-    // initial values
-    bool decisionBeforeMask = false;
-    bool decisionAfterMask = false;
-    int prescaleFactor = -1;
-    int triggerMask = -1;
-
-    errorCode = l1Results(iEvent, l1GtRecordInputTag,
-            l1GtReadoutRecordInputTag, nameAlgoTechTrig, decisionBeforeMask,
-            decisionAfterMask, prescaleFactor, triggerMask);
-
-    return prescaleFactor;
-
 }
 
 const int L1GtUtils::prescaleFactor(const edm::Event& iEvent,
@@ -1514,26 +1233,6 @@ const int L1GtUtils::prescaleFactor(const edm::Event& iEvent,
             decisionAfterMask, prescaleFactor, triggerMask);
 
     return prescaleFactor;
-
-}
-
-const int L1GtUtils::triggerMask(const edm::Event& iEvent,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag,
-        const std::string& nameAlgoTechTrig, int& errorCode) const {
-
-    // initial values
-    bool decisionBeforeMask = false;
-    bool decisionAfterMask = false;
-    int prescaleFactor = -1;
-    int triggerMask = -1;
-
-    errorCode = l1Results(iEvent, l1GtRecordInputTag,
-            l1GtReadoutRecordInputTag, nameAlgoTechTrig, decisionBeforeMask,
-            decisionAfterMask, prescaleFactor, triggerMask);
-
-    return triggerMask;
-
 }
 
 const int L1GtUtils::triggerMask(const edm::Event& iEvent,
@@ -1549,7 +1248,6 @@ const int L1GtUtils::triggerMask(const edm::Event& iEvent,
             decisionAfterMask, prescaleFactor, triggerMask);
 
     return triggerMask;
-
 }
 
 const int L1GtUtils::triggerMask(const std::string& nameAlgoTechTrig,
@@ -1758,8 +1456,6 @@ const int L1GtUtils::triggerMask(const std::string& nameAlgoTechTrig,
 }
 
 const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag,
         const TriggerCategory& trigCategory, int& errorCode) const {
 
     // initialize the index to a negative value
@@ -1789,8 +1485,9 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
     bool gtReadoutRecordValid = false;
 
     edm::Handle<L1GlobalTriggerRecord> gtRecord;
-    iEvent.getByLabel(l1GtRecordInputTag, gtRecord);
-
+    if( !m_l1GtUtilsHelper->l1GtRecordToken().isUninitialized() ) {
+      iEvent.getByToken(m_l1GtUtilsHelper->l1GtRecordToken(), gtRecord);
+    }
     if (gtRecord.isValid()) {
 
         validRecord = true;
@@ -1799,13 +1496,14 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
 
         iErrorRecord = 10;
         LogDebug("L1GtUtils") << "\nL1GlobalTriggerRecord with \n  "
-                << l1GtRecordInputTag << "\nnot found in the event."
+                << m_l1GtUtilsHelper->l1GtRecordInputTag() << "\nnot found in the event."
                 << std::endl;
     }
 
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(l1GtReadoutRecordInputTag, gtReadoutRecord);
-
+    if( !m_l1GtUtilsHelper->l1GtReadoutRecordToken().isUninitialized() ) {
+      iEvent.getByToken(m_l1GtUtilsHelper->l1GtReadoutRecordToken(), gtReadoutRecord);
+    }
     if (gtReadoutRecord.isValid()) {
 
         gtReadoutRecordValid = true;
@@ -1815,7 +1513,7 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
 
         iErrorRecord = iErrorRecord + 100;
         LogDebug("L1GtUtils") << "\nL1GlobalTriggerReadoutRecord with \n  "
-                << l1GtReadoutRecordInputTag << "\nnot found in the event."
+                << m_l1GtUtilsHelper->l1GtReadoutRecordInputTag() << "\nnot found in the event."
                 << std::endl;
 
     }
@@ -1850,9 +1548,9 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
 
         LogDebug("L1GtUtils") << "\nError: "
                 << "\nNo valid L1GlobalTriggerRecord with \n  "
-                << l1GtRecordInputTag << "\nfound in the event."
+                << m_l1GtUtilsHelper->l1GtRecordInputTag() << "\nfound in the event."
                 << "\nNo valid L1GlobalTriggerReadoutRecord with \n  "
-                << l1GtReadoutRecordInputTag << "\nfound in the event."
+                << m_l1GtUtilsHelper->l1GtReadoutRecordInputTag() << "\nfound in the event."
                 << std::endl;
 
         iError = l1ConfCode + iErrorRecord;
@@ -1961,29 +1659,7 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
 
 }
 
-
-const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
-        const TriggerCategory& trigCategory, int& errorCode) const {
-
-    // initialize error code and return value
-    int iError = 0;
-    int pfIndex = -1;
-
-    pfIndex = prescaleFactorSetIndex(iEvent, m_provL1GtRecordInputTag,
-            m_provL1GtReadoutRecordInputTag, trigCategory, iError);
-
-    // return the error code and the index value
-    // if the  error code is 0, the index returned is -1
-    errorCode = iError;
-    return pfIndex;
-
-}
-
-
-
 const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag,
         const TriggerCategory& trigCategory, int& errorCode) {
 
     // clear the vector before filling it
@@ -1992,8 +1668,7 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
     // initialize error code
     int iError = 0;
 
-    const int pfIndex = prescaleFactorSetIndex(iEvent, l1GtRecordInputTag,
-            l1GtReadoutRecordInputTag, trigCategory, iError);
+    const int pfIndex = prescaleFactorSetIndex(iEvent, trigCategory, iError);
 
     if (iError == 0) {
 
@@ -2055,26 +1730,6 @@ const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
     return m_prescaleFactorSet;
 
 }
-
-const std::vector<int>& L1GtUtils::prescaleFactorSet(const edm::Event& iEvent,
-        const TriggerCategory& trigCategory, int& errorCode) {
-
-    // clear the vector before filling it
-    m_prescaleFactorSet.clear();
-
-    // initialize error code
-    int iError = 0;
-
-    m_prescaleFactorSet = prescaleFactorSet(iEvent, m_provL1GtRecordInputTag,
-            m_provL1GtReadoutRecordInputTag, trigCategory, iError);
-
-    errorCode = iError;
-    return m_prescaleFactorSet;
-
-}
-
-
-
 
 const std::vector<unsigned int>& L1GtUtils::triggerMaskSet(
         const TriggerCategory& trigCategory, int& errorCode) {
@@ -2424,47 +2079,11 @@ L1GtUtils::LogicalExpressionL1Results::LogicalExpressionL1Results(
 
         m_l1GtUtils(l1GtUtils),
 
-        m_l1GtRecordInputTag(edm::InputTag()),
-
-        m_l1GtReadoutRecordInputTag(edm::InputTag()),
-
         m_l1ConfCode(-1),
 
         m_validL1Configuration(false),
 
         m_validLogicalExpression(false),
-
-        m_l1GtInputTagsFromProv(true),
-
-        m_l1ResultsAlreadyCalled(false),
-
-        m_expL1TriggersSize(0),
-
-        m_expBitsTechTrigger(false) {
-
-    initialize();
-}
-
-L1GtUtils::LogicalExpressionL1Results::LogicalExpressionL1Results(
-        const std::string& expression, L1GtUtils& l1GtUtils,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag) :
-
-        m_logicalExpression(expression),
-
-        m_l1GtUtils(l1GtUtils),
-
-        m_l1GtRecordInputTag(l1GtRecordInputTag),
-
-        m_l1GtReadoutRecordInputTag(l1GtReadoutRecordInputTag),
-
-        m_l1ConfCode(-1),
-
-        m_validL1Configuration(false),
-
-        m_validLogicalExpression(false),
-
-        m_l1GtInputTagsFromProv(false),
 
         m_l1ResultsAlreadyCalled(false),
 
@@ -2762,15 +2381,7 @@ const std::vector<std::pair<std::string, int> >& L1GtUtils::LogicalExpressionL1R
 
     }
 
-    if (m_l1GtInputTagsFromProv) {
-
-        l1Results(iEvent, m_l1GtUtils.provL1GtRecordInputTag(),
-                m_l1GtUtils.provL1GtReadoutRecordInputTag());
-
-    } else {
-
-        l1Results(iEvent, m_l1GtRecordInputTag, m_l1GtReadoutRecordInputTag);
-    }
+    l1Results(iEvent);
 
     m_l1ResultsAlreadyCalled = true;
 
@@ -2794,9 +2405,7 @@ void L1GtUtils::LogicalExpressionL1Results::reset(
     }
 }
 
-void L1GtUtils::LogicalExpressionL1Results::l1Results(const edm::Event& iEvent,
-        const edm::InputTag& l1GtRecordInputTag,
-        const edm::InputTag& l1GtReadoutRecordInputTag) {
+void L1GtUtils::LogicalExpressionL1Results::l1Results(const edm::Event& iEvent) {
 
     // reset the vectors before filling them
     reset(m_decisionsBeforeMask);
@@ -2823,8 +2432,7 @@ void L1GtUtils::LogicalExpressionL1Results::l1Results(const edm::Event& iEvent,
         const std::string& trigNameOrAlias = (m_expL1Triggers[iTrig]).tokenName;
 
         if (m_expTriggerInMenu[iTrig]) {
-            errorCode = m_l1GtUtils.l1Results(iEvent, l1GtRecordInputTag,
-                    l1GtReadoutRecordInputTag, trigNameOrAlias,
+            errorCode = m_l1GtUtils.l1Results(iEvent, trigNameOrAlias,
                     decisionBeforeMaskValue, decisionAfterMaskValue,
                     prescaleFactorValue, triggerMaskValue);
 
@@ -2882,4 +2490,3 @@ void L1GtUtils::LogicalExpressionL1Results::l1Results(const edm::Event& iEvent,
 
 const std::string L1GtUtils::EmptyString = "";
 const int L1GtUtils::L1GtNotValidError = 99999;
-

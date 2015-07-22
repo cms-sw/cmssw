@@ -25,7 +25,6 @@ QGSPCMS_BERT_EML::QGSPCMS_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
-  bool munucl  = p.getParameter<bool>("FlagMuNucl");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP_BERT_EML with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
@@ -37,7 +36,6 @@ QGSPCMS_BERT_EML::QGSPCMS_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map,
 
     // Synchroton Radiation & GN Physics
     G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
-    if(munucl) { G4String yes = "on"; gn->MuonNuclear(yes); }
     RegisterPhysics(gn);
   }
 

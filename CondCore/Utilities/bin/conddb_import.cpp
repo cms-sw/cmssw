@@ -64,6 +64,7 @@ int cond::ImportUtilities::execute(){
     connPool.setAuthenticationPath( getOptionValue<std::string>( "authPath") ); 
   }
   connPool.configure();
+  std::cout <<"# Running import tool for conditions on release "<<cond::currentCMSSWVersion()<<std::endl;
   std::cout <<"# Connecting to source database on "<<sourceConnect<<std::endl;
   persistency::Session sourceSession = connPool.createSession( sourceConnect );
 

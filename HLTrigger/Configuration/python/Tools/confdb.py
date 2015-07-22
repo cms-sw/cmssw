@@ -255,13 +255,19 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
         if '50ns' in self.config.type :
           self.data += """
 # load 2015 Run-2 L1 Menu for 50ns
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
+from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v3 as loadL1Menu
 process = loadL1Menu(process)
 """
         elif 'HIon' in self.config.type :
           self.data += """
 # load 2015 Run-2 L1 Menu for HIon
 from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
+process = loadL1Menu(process)
+"""
+        elif 'LowPU' in self.config.type :
+          self.data += """
+# load 2015 Run-2 L1 Menu for LowPU
+from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v3 as loadL1Menu
 process = loadL1Menu(process)
 """
         else :

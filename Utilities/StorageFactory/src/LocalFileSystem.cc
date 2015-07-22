@@ -230,13 +230,14 @@ LocalFileSystem::initFSList(void)
 
   free(mtab);
 #else
+  const char * const _PATH_MOUNTED_LINUX = "/proc/self/mounts";
   struct mntent *m;
-  FILE *mtab = setmntent(_PATH_MOUNTED, "r");
+  FILE *mtab = setmntent(_PATH_MOUNTED_LINUX, "r");
   if (! mtab)
   {
     int nerr = errno;
     edm::LogWarning("LocalFileSystem::initFSList()")
-      << "Cannot read '" << _PATH_MOUNTED << "': "
+      << "Cannot read '" << _PATH_MOUNTED_LINUX << "': "
       << strerror(nerr) << " (error " << nerr << ")";
     return -1;
   }
@@ -366,7 +367,7 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
     }
   }
   // In the case of a bind mount, try looking again at the source directory.
-  if (best->bind && best->origin)
+  if (best && best->bind && best->origin)
   {
     struct stat s2;
     struct statfs sfs2;

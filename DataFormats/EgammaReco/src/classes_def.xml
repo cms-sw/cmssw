@@ -128,7 +128,6 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SuperCluster> >, edm::RefProd<std::vector<reco::HFEMClusterShape> > >"/>
 
-  <class pattern="edm::KeyVal<*>" />
   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />

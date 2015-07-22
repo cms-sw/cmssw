@@ -9,19 +9,21 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxJetAlgoFirmware.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
+
 
 #include <vector>
 #include <algorithm>
 
-//bool operator > ( l1t::Jet& a, l1t::Jet& b )
-//{
-//  if ( a.hwPt() > b.hwPt() ){ 
-//    return true;
-//  } else {
-//    return false;
-//  }
-//}
+inline bool operator> ( l1t::Jet& a, l1t::Jet& b )
+{
+  if ( a.hwPt() > b.hwPt() ){ 
+    return true;
+  } else {
+    return false;
+  }
+}
+
+#include "L1Trigger/L1TCalorimeter/interface/BitonicSort.h"
 
 l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::Stage2Layer2DemuxJetAlgoFirmwareImp1(CaloParams* params) :
   params_(params)
@@ -42,20 +44,20 @@ void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l
 
   // Set the output jets to the input jets
   outputJets = inputJets;
-
+  
   // Sort the jets by pT
-  //  std::vector<l1t::Jet>::iterator start(outputJets.begin());
-  //  std::vector<l1t::Jet>::iterator end(outputJets.end());
-
-  //  BitonicSort< l1t::Jet >(down,start,end);
-
+  std::vector<l1t::Jet>::iterator start(outputJets.begin());
+  std::vector<l1t::Jet>::iterator end(outputJets.end());
+  
+  BitonicSort< l1t::Jet >(down,start,end);
+  
   // Transform the eta and phi onto the ouput scales to GT 
   for (std::vector<l1t::Jet>::iterator jet = outputJets.begin(); jet != outputJets.end(); ++jet )
     {
-
+      
       jet->setHwPhi(2*jet->hwPhi());
       jet->setHwEta(2*jet->hwEta());
-
+      
       if (jet->hwPt()>0x7FF){
         jet->setHwPt(0x7FF);
       } else {

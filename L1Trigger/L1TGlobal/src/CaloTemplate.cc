@@ -113,6 +113,8 @@ void CaloTemplate::print(std::ostream& myCout) const
         << std::hex << m_objectParameter[i].etaRange << std::endl;
         myCout << "    phiRange          = "
         << std::hex << m_objectParameter[i].phiRange << std::endl;
+        myCout << "    isolationLUT      = "
+        << std::hex << m_objectParameter[i].isolationLUT << std::endl;
     }
 
     if ( wsc() ) {

@@ -115,7 +115,7 @@ namespace edm {
   std::unique_ptr<InputSource>
   makeInput(ParameterSet& params,
             CommonParams const& common,
-            ProductRegistry& preg,
+            std::shared_ptr<ProductRegistry> preg,
             std::shared_ptr<BranchIDListHelper> branchIDListHelper,
             std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
             std::shared_ptr<ActivityRegistry> areg,
@@ -513,7 +513,7 @@ namespace edm {
     preallocations_ = PreallocationConfiguration{nThreads,nStreams,nConcurrentLumis,nConcurrentRuns};
 
     // initialize the input source
-    input_ = makeInput(*parameterSet, *common, *items.preg_, items.branchIDListHelper_, items.thinnedAssociationsHelper_, items.actReg_, items.processConfiguration_, preallocations_);
+    input_ = makeInput(*parameterSet, *common, items.preg_, items.branchIDListHelper_, items.thinnedAssociationsHelper_, items.actReg_, items.processConfiguration_, preallocations_);
 
     // intialize the Schedule
     schedule_ = items.initSchedule(*parameterSet,subProcessParameterSet.get(),preallocations_,&processContext_);
@@ -521,7 +521,7 @@ namespace edm {
     // set the data members
     act_table_ = std::move(items.act_table_);
     actReg_ = items.actReg_;
-    preg_.reset(items.preg_.release());
+    preg_ = items.preg_;
     branchIDListHelper_ = items.branchIDListHelper_;
     thinnedAssociationsHelper_ = items.thinnedAssociationsHelper_;
     processConfiguration_ = items.processConfiguration_;

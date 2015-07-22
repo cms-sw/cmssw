@@ -70,9 +70,7 @@ process.trackAssociatorByPull = process.trackAssociatorByChi2.clone(chi2cut = 50
 ########### configuration MultiTrackValidatorGenPs ########
 process.multiTrackValidatorGenPs.outputFile = 'multitrackvalidatorgenps.root'
 process.multiTrackValidatorGenPs.associators = ['trackAssociatorByChi2','trackAssociatorByPull']
-process.multiTrackValidatorGenPs.skipHistoFit=cms.untracked.bool(False)
 process.multiTrackValidatorGenPs.UseAssociators = cms.bool(True)
-process.multiTrackValidatorGenPs.runStandalone = cms.bool(True)
 process.MTVHistoProducerAlgoForTrackerBlock.maxPt = cms.double(1100)
 
 process.load("Validation.RecoTrack.cuts_cff")

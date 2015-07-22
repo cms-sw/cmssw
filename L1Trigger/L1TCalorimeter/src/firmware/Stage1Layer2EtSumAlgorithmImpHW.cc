@@ -255,13 +255,16 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(const std::vector<SimpleRegion
 }
 
 // converts phase from 3Q16 to 0-71
+// Expects abs(phase) <= 205887 (pi*2^16)
 int
 l1t::Stage1Layer2EtSumAlgorithmImpHW::cordicToMETPhi(int phase)
 {
+  assert(abs(phase)<=205887);
   for(size_t i=0; i<cordicPhiValues.size()-1; ++i)
     if ( phase >= cordicPhiValues[i] && phase < cordicPhiValues[i+1] )
       return i;
-  return -1;
+  // if phase == +205887 (+pi), return zero
+  return 0;
 }
 
 int l1t::Stage1Layer2EtSumAlgorithmImpHW::DiJetPhi(const std::vector<l1t::Jet> * jets)  const {

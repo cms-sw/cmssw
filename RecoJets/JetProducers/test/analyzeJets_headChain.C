@@ -1,7 +1,7 @@
 {
 
   gSystem->Load("libFWCoreFWLite.so"); 
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   TChain chain("Events");
   chain.Add("evtgen_jets.root");
   chain.Add("evtgen_jets2.root");

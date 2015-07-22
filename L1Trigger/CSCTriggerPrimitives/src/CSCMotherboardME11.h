@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboardME11_h
-#define CSCTriggerPrimitives_CSCMotherboardME11_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11_h
+#define L1Trigger_CSCTriggerPrimitives_CSCMotherboardME11_h
 
 /** \class CSCMotherboardME11
  *
@@ -54,7 +54,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   void setConfigParameters(const CSCDBL1TPParameters* conf);
 
   /** additional Cathode LCT processor for ME1a */
-  CSCCathodeLCTProcessor* clct1a;
+  std::unique_ptr<CSCCathodeLCTProcessor> clct1a;
 
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b();

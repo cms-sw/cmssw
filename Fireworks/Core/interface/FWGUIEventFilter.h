@@ -1,3 +1,7 @@
+
+#ifndef Fireworks_Core_GUIEventFilter_h
+#define Fireworks_Core_GUIEventFilter_h
+
 #include <list>
 
 #include "TGFrame.h"
@@ -79,3 +83,4 @@ private:
    CmsShowNavigator*    m_navigator;
 };
 
+#endif

@@ -1,6 +1,7 @@
 #ifndef FWCore_PrescaleService_PrescaleService_h
 #define FWCore_PrescaleService_PrescaleService_h
 
+#include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/SaveConfiguration.h"
 
@@ -12,6 +13,8 @@
 namespace edm {
   class ActivityRegistry;
   class ConfigurationDescriptions;
+  class PathsAndConsumesOfModulesBase;
+  class ProcessContext;
 
   namespace service {
 
@@ -47,6 +50,7 @@ namespace edm {
       //
       // private member functions
       //
+      void preBeginJob(PathsAndConsumesOfModulesBase const&, ProcessContext const&);
       void postBeginJob();
       
       //
@@ -57,8 +61,10 @@ namespace edm {
       const unsigned int    lvl1Default_;
       const std::vector<ParameterSet> vpsetPrescales_;
       PrescaleTable_t prescaleTable_;
+      ParameterSetID processParameterSetID_;
     };
   }
 }
 
 #endif
+

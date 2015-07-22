@@ -18,6 +18,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
 #include<fstream>
+#include <atomic>
 
 class SimHitPrinter {
 public:
@@ -34,7 +35,7 @@ public:
   void printLocal(LocalPoint,LocalPoint) const;
   void printGlobal(GlobalPoint) const;
 private:
-  static std::ofstream * theFile;
+  static std::atomic<std::ofstream*> theFile;
 };
 
 #endif

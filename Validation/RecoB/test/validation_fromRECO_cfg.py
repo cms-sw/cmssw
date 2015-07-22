@@ -10,7 +10,6 @@ start customization
 tag =  'POSTLS172_V3::All'
 #Do you want to apply JEC? For data, no need to add 'Residual', the code is checking if events are Data or MC and add 'Residual' for Data.
 applyJEC = True
-corrLabel = 'ak4PFCHSL1FastL2L3'
 #Data or MC?
 runOnMC    = True
 #Flavour plots for MC: "all" = plots for all jets ; "dusg" = plots for d, u, s, dus, g independently ; not mandatory and any combinations are possible 
@@ -39,10 +38,11 @@ print "Global Tag : ", tag
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
-process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
+process.load("JetMETCorrections.Configuration.JetCorrectors_cff")
 #keep the logging output to a nice level
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.JECseq = cms.Sequence(process.ak4PFCHSL1FastL2L3CorrectorChain)
 
 if runOnMC:
     #for MC jet flavour
@@ -62,7 +62,7 @@ if runOnMC:
     process.bTagHarvestMC.flavPlots = flavPlots
     process.bTagValidation.doPUid = cms.bool(PUid)
     process.bTagValidation.doJEC = applyJEC
-    process.bTagValidation.JECsource = cms.string(corrLabel)
+    process.bTagValidation.JECsourceMC = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
     process.ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
                                              src = cms.InputTag("ak4GenJets"),
                                              cut = cms.string('pt > 8.'),
@@ -77,7 +77,8 @@ else :
     process.bTagAnalysis.tagConfig = tagConfig
     process.bTagHarvest.tagConfig = tagConfig
     process.bTagAnalysis.doJEC = applyJEC
-    process.bTagAnalysis.JECsource = cms.string(corrLabel)
+    process.bTagAnalysis.JECsourceData = cms.InputTag("ak4PFCHSL1FastL2L3ResidualCorrector")
+    process.JECseq *= (process.ak4PFCHSResidualCorrector * process.ak4PFCHSL1FastL2L3ResidualCorrector)
 
 # load the full reconstraction configuration, to make sure we're getting all needed dependencies
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -99,7 +100,7 @@ if runOnMC:
 else:
     process.dqmSeq = cms.Sequence(process.bTagAnalysis * process.bTagHarvest * process.dqmSaver)
 
-process.plots = cms.Path(process.dqmSeq)
+process.plots = cms.Path(process.JECseq*process.dqmSeq)
     
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'

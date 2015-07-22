@@ -3,8 +3,10 @@ import FWCore.ParameterSet.Config as cms
 
 mergedSuperClusters = cms.EDProducer("SuperClusterMerger",
   src = cms.VInputTag( 
-    cms.InputTag("correctedHybridSuperClusters"),
-    cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
+#    cms.InputTag("correctedHybridSuperClusters"),
+#    cms.InputTag("correctedMulti5x5SuperClustersWithPreshower")
+     cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALBarrel"),
+     cms.InputTag("particleFlowSuperClusterECAL","particleFlowSuperClusterECALEndcapWithPreshower")
   )
 )
 

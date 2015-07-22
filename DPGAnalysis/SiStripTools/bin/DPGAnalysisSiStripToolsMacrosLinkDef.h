@@ -8,6 +8,8 @@
 #include "UtilityMacros.h"
 #include "TrackPlots.h"
 #include "SeedMultiplicityPlots.h"
+#include "OOTMultiplicityPlotMacros.h"
+#include "BSvsBPIX.h"
 #ifdef __CINT__
 #pragma link off all functions;
 #pragma link C++ function PlotTrackerXsect;
@@ -43,4 +45,12 @@
 #pragma link C++ function SeedMultiplicityPlots;
 #pragma link C++ function SeedMultiplicityComparisonPlot;
 #pragma link C++ function PlotDebugFPIX_XYMap;
+#pragma link C++ function FillingScheme;
+#pragma link C++ function FillingSchemeFromProfile;
+#pragma link C++ function ComputeOOTFraction;
+#pragma link C++ function ComputeOOTFractionvsRun;
+#pragma link C++ function ComputeOOTFractionvsFill;
+#pragma link C++ class OOTResult;
+#pragma link C++ class OOTSummary;
+#pragma link C++ function BSvsBPIX;
 #endif

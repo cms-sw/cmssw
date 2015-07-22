@@ -7,7 +7,6 @@ from Alignment.TrackerAlignment.Scenarios_cff import *
 # algorithms
 from Alignment.HIPAlignmentAlgorithm.HIPAlignmentAlgorithm_cfi import *
 from Alignment.MillePedeAlignmentAlgorithm.MillePedeAlignmentAlgorithm_cfi import *
-from Alignment.KalmanAlignmentAlgorithm.KalmanAlignmentAlgorithm_cfi import *
 # parameters
 from Alignment.CommonAlignmentAlgorithm.AlignmentParameterStore_cfi import *
 

@@ -10,6 +10,8 @@
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PVSelector.h"
 #include "PhysicsTools/SelectorUtils/interface/RunLumiSelector.h"
+#include "PhysicsTools/SelectorUtils/interface/MakePyVIDClassBuilder.h"
+
 
 namespace PhysicsTools_SelectorUtils {
   struct dictionary {
@@ -18,7 +20,7 @@ namespace PhysicsTools_SelectorUtils {
     edm::Wrapper<pat::strbitset> wstrbitset;
     std::vector< pat::strbitset> vstrbitset;
     edm::Wrapper< std::vector< pat::strbitset> > wvstrbitset;
-        
+    
   };
 
 }

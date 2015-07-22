@@ -50,7 +50,6 @@ void doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrec
   for (auto it = trackingrechits.begin();it!=trackingrechits.end();++it) {
     {
       SiTrackerGSMatchedRecHit2D * rechit = dynamic_cast<SiTrackerGSMatchedRecHit2D*>(&(*it));
-      std::cout << rechit << std::endl;
       if(rechit){
 	rechit->setEeId(id.rawId());
 	continue;
@@ -58,7 +57,6 @@ void doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrec
     }
     {
       SiTrackerGSRecHit2D * rechit = dynamic_cast<SiTrackerGSRecHit2D*>(&(*it));
-      std::cout << rechit << std::endl;
       if(rechit){
 	rechit->setEeId(id.rawId());
 	continue;

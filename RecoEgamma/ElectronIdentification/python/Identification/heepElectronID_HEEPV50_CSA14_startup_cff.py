@@ -42,14 +42,14 @@ heepElectronID_HEEPV50_CSA14_startup = cms.PSet(
                   full5x5SigmaIEtaIEtaCutValueEE = cms.double(0.03),
                   full5x5SigmaIEtaIEtaMap = cms.InputTag("electronIDValueMapProducer","eleFull5x5SigmaIEtaIEta"),
                   barrelCutOff = cms.double(ebCutOff),
-                  needsAdditionalProducts = cms.bool(True),
+                  needsAdditionalProducts = cms.bool(False),
                   isIgnored = cms.bool(False)),
         cms.PSet( cutName = cms.string('GsfEleFull5x5E2x5OverE5x5Cut'),
                   minE1x5OverE5x5EB = cms.double(0.83),
                   minE1x5OverE5x5EE = cms.double(-1),
                   minE2x5OverE5x5EB = cms.double(0.94),
                   minE2x5OverE5x5EE = cms.double(-1),
-                  needsAdditionalProducts = cms.bool(True),
+                  needsAdditionalProducts = cms.bool(False),
                   e1x5 = cms.InputTag("electronIDValueMapProducer","eleFull5x5E1x5"),
                   e2x5 = cms.InputTag("electronIDValueMapProducer","eleFull5x5E2x5"),
                   e5x5 = cms.InputTag("electronIDValueMapProducer","eleFull5x5E5x5"),
@@ -88,6 +88,7 @@ heepElectronID_HEEPV50_CSA14_startup = cms.PSet(
                   dxyCutValueEB = cms.double(0.02),
                   dxyCutValueEE = cms.double(0.05),
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
+                  vertexSrcMiniAOD = cms.InputTag("offlineSlimmedPrimaryVertices"),
                   barrelCutOff = cms.double(ebCutOff),
                   needsAdditionalProducts = cms.bool(True),
                   isIgnored = cms.bool(False)),
@@ -101,6 +102,7 @@ heepElectronID_HEEPV50_CSA14_startup = cms.PSet(
                   dzCutValueEB = cms.double(0.1),
                   dzCutValueEE = cms.double(0.1),
                   vertexSrc = cms.InputTag("offlinePrimaryVertices"),
+                  vertexSrcMiniAOD = cms.InputTag("offlineSlimmedPrimaryVertices"),
                   barrelCutOff = cms.double(ebCutOff),
                   needsAdditionalProducts = cms.bool(True),
                   isIgnored = cms.bool(True))                 
@@ -111,4 +113,4 @@ heepElectronID_HEEPV50_CSA14_startup = cms.PSet(
 
 
 central_id_registry.register(heepElectronID_HEEPV50_CSA14_startup.idName,
-                             '6263b722071c650fe885b31db4ebe20c')
+                             '7bd98d98ba7b76c6f15bf279942a8b19')

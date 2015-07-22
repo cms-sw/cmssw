@@ -58,6 +58,7 @@
 #include "boost/multi_array.hpp"
 
 #include <iostream>
+#include <memory>
 using namespace std;
 
 class TrackClusterSplitter : public edm::EDProducer 
@@ -150,7 +151,8 @@ private:
 
   // sim strip split
   typedef std::pair<uint32_t, EncodedEventId> SimHitIdpr;
-  TrackerHitAssociator* hitAssociator;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  std::unique_ptr<TrackerHitAssociator> hitAssociator;
   
   template<typename C> 
   static const C* getCluster(const TrackingRecHit* hit) ;
@@ -232,7 +234,8 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 #define foreach BOOST_FOREACH
 
 TrackClusterSplitter::TrackClusterSplitter(const edm::ParameterSet& iConfig):
-  useTrajectories_(iConfig.getParameter<bool>("useTrajectories"))
+  useTrajectories_(iConfig.getParameter<bool>("useTrajectories")),
+  trackerHitAssociatorConfig_(consumesCollector())
 {
   if (useTrajectories_) {
     trajTrackAssociations_ = consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssociations"));
@@ -349,7 +352,7 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(stripClusters_, inputStripClusters);
   
   if(simSplitStrip_)
-    hitAssociator = new TrackerHitAssociator(iEvent);
+    hitAssociator.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
 
     
   allSiPixelClusters.clear(); siPixelDetsWithClusters.clear();
@@ -516,9 +519,6 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<edmNew::DetSetVector<SiPixelCluster> > newPixelClusters( splitClusters( siPixelDetsWithClusters, vertices->front() ) );
   std::auto_ptr<edmNew::DetSetVector<SiStripCluster> > newStripClusters( splitClusters( siStripDetsWithClusters, vertices->front() ) );
   
-  if ( simSplitStrip_ )
-    delete hitAssociator;
-
   iEvent.put(newPixelClusters);
   iEvent.put(newStripClusters);
     

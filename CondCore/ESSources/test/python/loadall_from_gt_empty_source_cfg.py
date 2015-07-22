@@ -15,7 +15,7 @@ options.register('messageLevel',
                  VarParsing.VarParsing.varType.int,
                  "Message level; default to 0")
 options.register('globalTag',
-                 'START70_V2::All', #default value
+                 'GR_P_V50', #default value
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "GlobalTag")
@@ -58,10 +58,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
                                      detailedInfo = cms.untracked.PSet( threshold = cms.untracked.string( 'INFO' ) ),
                                      )
 
-process.add_( cms.Service( "PrintEventSetupDataRetrieval",
-                           printProviders=cms.untracked.bool( True )
-                           )
-              )
+#process.add_( cms.Service( "PrintEventSetupDataRetrieval",
+#                           printProviders=cms.untracked.bool( True )
+#                           )
+#              )
 
 CondDBSetup = cms.PSet( DBParameters = cms.PSet( authenticationPath = cms.untracked.string( '.' ),
                                                  connectionRetrialPeriod = cms.untracked.int32( 10 ),
@@ -97,9 +97,9 @@ elif options.refresh == 4:
 
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
                                   CondDBSetup,
-                                  connect = cms.string( 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG' ),
+                                  connect = cms.string( 'frontier://FrontierProd/CMS_CONDITIONS' ),
                                   #connect = cms.string('sqlite_fip:CondCore/TagCollection/data/GlobalTag.db'), #For use during release integration
-                                  globaltag = cms.string( 'UNSPECIFIED::All' ),
+                                  globaltag = cms.string( '' ),
                                   RefreshAlways = cms.untracked.bool( refreshAlways ),
                                   RefreshOpenIOVs = cms.untracked.bool( refreshOpenIOVs ),
                                   RefreshEachRun=cms.untracked.bool( refreshEachRun ),

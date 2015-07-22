@@ -39,7 +39,6 @@ class DTGeometry;
 class DTChamberId;
 class DTLayerId;
 
-//-class DTChamberEfficiencyClient: public edm::EDAnalyzer{
 class DTChamberEfficiencyClient: public DQMEDHarvester{
 
 public:

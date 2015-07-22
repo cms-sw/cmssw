@@ -232,6 +232,6 @@ void HistogramBase::bookProfile(DQMStore::IBooker & ibooker , HistogramConfig & 
 	      yAxisTitle);
 
   //automatically set the axis range: will accomodate new values keeping the same number of bins.
-  if (aConfig.monitorEle) aConfig.monitorEle->getTProfile()->SetBit(TH1::kCanRebin);
+  if (aConfig.monitorEle) aConfig.monitorEle->getTProfile()->SetCanExtend(TH1::kAllAxes);
 }
  

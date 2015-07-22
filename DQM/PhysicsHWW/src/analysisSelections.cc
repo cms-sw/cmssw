@@ -7,7 +7,7 @@
 
 namespace HWWFunctions {
 
-  void doCutFlow(HWW& hww, int i_hyp, EventMonitor::hypo_monitor& monitor, EGammaMvaEleEstimator* egammaMvaEleEstimator, MuonMVAEstimator* muonMVAEstimator){
+  void doCutFlow(HWW& hww, int i_hyp, EventMonitor& monitor, EGammaMvaEleEstimator* egammaMvaEleEstimator, MuonMVAEstimator* muonMVAEstimator){
 
     HypothesisType type = getHypothesisTypeNew(hww, i_hyp);
     double weight = 1.0;

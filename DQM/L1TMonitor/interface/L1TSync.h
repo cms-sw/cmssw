@@ -35,6 +35,8 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -143,6 +145,7 @@ class L1TSync : public DQMEDAnalyzer {
     edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord>    m_l1GtEvmSource;
     edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>       m_l1GtDataDaqInputTag;
 
+    L1GtUtils m_l1GtUtils;
 };
 
 #endif

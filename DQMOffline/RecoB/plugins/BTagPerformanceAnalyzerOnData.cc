@@ -1,7 +1,6 @@
 #include "DQMOffline/RecoB/plugins/BTagPerformanceAnalyzerOnData.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DQMOffline/RecoB/interface/TagInfoPlotterFactory.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 using namespace reco;
 using namespace edm;
@@ -21,12 +20,13 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
   ),
   etaRanges(pSet.getParameter< vector<double> >("etaRanges")),
   ptRanges(pSet.getParameter< vector<double> >("ptRanges")),
-  JECsource(pSet.getParameter<std::string>( "JECsource" )),
   doJEC(pSet.getParameter<bool>( "doJEC" )),
   moduleConfig(pSet.getParameter< vector<edm::ParameterSet> >("tagConfig"))
 {
   genToken = mayConsume<GenEventInfoProduct>(edm::InputTag("generator"));
   slInfoToken = consumes<SoftLeptonTagInfoCollection>(pSet.getParameter<InputTag>("softLeptonInfo"));
+  jecMCToken = mayConsume<JetCorrector>(pSet.getParameter<edm::InputTag>( "JECsourceMC" ));
+  jecDataToken = consumes<JetCorrector>(pSet.getParameter<edm::InputTag>( "JECsourceData" ));
   for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin();
        iModule != moduleConfig.end(); ++iModule) {
 
@@ -215,9 +215,10 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
   if(doJEC) {
     edm::Handle<GenEventInfoProduct> genInfoHandle; //check if data or MC                                                                                                                                 
     iEvent.getByToken(genToken, genInfoHandle);
-    std::string allJECsource = JECsource;
-    if( !genInfoHandle.isValid() ) allJECsource += "Residual";
-    corrector = JetCorrector::getJetCorrector (allJECsource,iSetup);   //Get the jet corrector from the event setup
+    edm::Handle<JetCorrector> corrHandle;
+    if( !genInfoHandle.isValid() ) iEvent.getByToken( jecDataToken, corrHandle);
+    else iEvent.getByToken( jecMCToken, corrHandle);
+    corrector = corrHandle.product();
   }
   //
 
@@ -246,7 +247,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
       reco::Jet correctedJet = *(tagI->first);     
       double jec = 1.0;
       if(doJEC && corrector) {
-	jec = corrector->correction(*(tagI->first),iEvent,iSetup);
+	jec = corrector->correction(*(tagI->first));
       }
       //
 
@@ -282,7 +283,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
       reco::Jet correctedJet = *(tagI->first);     
       double jec = 1.0;
       if(doJEC && corrector) {
-	jec = corrector->correction(*(tagI->first),iEvent,iSetup);
+	jec = corrector->correction(*(tagI->first));
       }
       //
 
@@ -369,7 +370,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
       reco::Jet correctedJet = *(jetRef);     
       double jec = 1.0;
       if(doJEC && corrector) {
-	jec = corrector->correction(*(jetRef),iEvent,iSetup);
+	jec = corrector->correction(*(jetRef));
       }
       //
 

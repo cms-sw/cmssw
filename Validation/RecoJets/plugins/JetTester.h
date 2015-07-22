@@ -97,6 +97,9 @@ class JetTester : public DQMEDAnalyzer {
   MonitorElement* mPtCorrOverReco_Eta_200_600;
   MonitorElement* mPtCorrOverReco_Eta_600_1500;
   MonitorElement* mPtCorrOverReco_Eta_1500_3500;
+  MonitorElement* mPtCorrOverReco_Eta_3500_5000;
+  MonitorElement* mPtCorrOverReco_Eta_5000_6500;
+  MonitorElement* mPtCorrOverReco_Eta_3500;
   MonitorElement* mPtCorrOverGen_GenPt_B;
   MonitorElement* mPtCorrOverGen_GenPt_E;
   MonitorElement* mPtCorrOverGen_GenPt_F;
@@ -105,6 +108,9 @@ class JetTester : public DQMEDAnalyzer {
   MonitorElement* mPtCorrOverGen_GenEta_200_600;
   MonitorElement* mPtCorrOverGen_GenEta_600_1500;
   MonitorElement* mPtCorrOverGen_GenEta_1500_3500;
+  MonitorElement* mPtCorrOverGen_GenEta_3500_5000;
+  MonitorElement* mPtCorrOverGen_GenEta_5000_6500;
+  MonitorElement* mPtCorrOverGen_GenEta_3500;
 
   // Generation
   MonitorElement* mGenEta;
@@ -133,6 +139,14 @@ class JetTester : public DQMEDAnalyzer {
   MonitorElement* mPtRecoOverGen_E_1500_3500;
   MonitorElement* mPtRecoOverGen_F_1500_3500;
 
+  MonitorElement* mPtRecoOverGen_B_3500_5000;
+  MonitorElement* mPtRecoOverGen_E_3500_5000;
+  MonitorElement* mPtRecoOverGen_B_5000_6500;
+  MonitorElement* mPtRecoOverGen_E_5000_6500;
+  MonitorElement* mPtRecoOverGen_B_3500;
+  MonitorElement* mPtRecoOverGen_E_3500;
+  MonitorElement* mPtRecoOverGen_F_3500;
+
   // Generation profiles
   MonitorElement* mPtRecoOverGen_GenPt_B;
   MonitorElement* mPtRecoOverGen_GenPt_E;
@@ -145,6 +159,10 @@ class JetTester : public DQMEDAnalyzer {
   MonitorElement* mPtRecoOverGen_GenEta_200_600;
   MonitorElement* mPtRecoOverGen_GenEta_600_1500;
   MonitorElement* mPtRecoOverGen_GenEta_1500_3500;
+  MonitorElement* mPtRecoOverGen_GenEta_3500_5000;
+  MonitorElement* mPtRecoOverGen_GenEta_5000_6500;
+  MonitorElement* mPtRecoOverGen_GenEta_3500;
+
 
   // Some jet algebra
   MonitorElement* mEtaFirst;

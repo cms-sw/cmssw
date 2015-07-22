@@ -71,7 +71,12 @@ def recoGeoLoad(score):
       # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
       #from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
       #call to customisation function cust_2023Muon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-     # process = cust_2023Muon(process)
+      #process = cust_2023Muon(process)
+
+    elif  score == "GEMDev":
+      from Configuration.AlCa.autoCond import autoCond
+      process.GlobalTag.globaltag = autoCond['mc']
+      process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 
     elif score == "SLHCDB": # orig dumpFWRecoSLHCGeometry_cfg.py
       process.GlobalTag.globaltag = 'DESIGN42_V17::All'

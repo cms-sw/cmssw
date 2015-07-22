@@ -18,6 +18,7 @@
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/HIPhotonIsolation.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -77,7 +78,7 @@ namespace DataFormats_EgammaCandidates {
     edm::ValueMap<edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >  valMap;
     //    std::pair<reco::PFCandidateRef,bool> value_pfiso;
     // std::vector<std::pair<reco::PFCandidateRef,bool> > values_pfiso;
-    //edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >  valueMap_iso; 
+    //edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > >  valueMap_iso;
     //edm::Wrapper<edm::ValueMap<std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,bool> > > > valueMap_iso_wr;
 
     reco::Photon::FiducialFlags pff ;
@@ -143,7 +144,7 @@ namespace DataFormats_EgammaCandidates {
     edm::Ref<reco::GsfElectronCollection> r4;
     edm::RefProd<reco::GsfElectronCollection> rp4;
     edm::Wrapper<edm::RefVector<reco::GsfElectronCollection> > rv4;
-    
+
 
     reco::SiStripElectronCollection v5;
     edm::Wrapper<reco::SiStripElectronCollection> w5;
@@ -212,5 +213,14 @@ namespace DataFormats_EgammaCandidates {
     edm::Ptr<reco::Photon>	 ptr_ph;
     edm::PtrVector<reco::Photon>	 ptrv_ph;
    } ;
+
+  reco::HIPhotonIsolation hiIso;
+  edm::Wrapper<reco::HIPhotonIsolation> w_hiIso;
+
+  edm::ValueMap<reco::HIPhotonIsolation> hiIsoMap;
+  edm::Wrapper<edm::ValueMap<reco::HIPhotonIsolation> > w_hiIsoMap;
+
+  std::vector<reco::HIPhotonIsolation> v_hiIso;
+  edm::Wrapper<std::vector<reco::HIPhotonIsolation> > w_v_hiIso;
 
  }

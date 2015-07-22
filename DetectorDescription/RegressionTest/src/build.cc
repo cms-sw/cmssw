@@ -34,7 +34,7 @@ File elements.xml:
   Material(elem) Oxygen  
 */
 void regressionTest_setup() {
-   ClhepEvaluator & eval = ExprEval::instance();
+   ClhepEvaluator & eval = ExprEvalSingleton::instance();
    
    string ns = "setup"; // current namespace faking the filename 'setup.xml'
    
@@ -111,11 +111,11 @@ void regressionTest_first( ) {
   ///load the new cpv
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
-  DDLParser myP(cpv);// = DDLParser::instance();
+  DDLParser myP(cpv);
   
   cout << "main::about to set configuration" << endl;
   
-  ClhepEvaluator & eval = ExprEval::instance();
+  ClhepEvaluator & eval = ExprEvalSingleton::instance();
   string ns("first");
   DDSolid support = DDSolidFactory::box(DDName("support",ns),
 					eval.eval(ns,"[setup:corner]/4."),
@@ -184,10 +184,9 @@ void output(string filename)
   ///load the new cpv
   DDCompactView cpv;
   cout << "main::initialize DDL parser" << endl;
-  DDLParser myP(cpv);// = DDLParser::instance();
+  DDLParser myP(cpv);
 
   cout << "main::about to set configuration" << endl;
-  //    myP->SetConfig("configuration.xml");
   FIPConfiguration cf(cpv);
   cf.readConfig("DetectorDescription/RegressionTest/test/configuration.xml");
 
@@ -225,10 +224,10 @@ void testParser()
     cout << "main:: initialize" << endl;
     DDCompactView cpv;
     cout << "main::initialize DDL parser" << endl;
-    DDLParser myP(cpv);// = DDLParser::instance();
+    DDLParser myP(cpv);
 
     cout << "main::about to set configuration" << endl;
-    //    myP->SetConfig("configuration.xml");
+
     FIPConfiguration cf(cpv);
     cf.readConfig("DetectorDescription/RegressionTest/test/configuration.xml");
 

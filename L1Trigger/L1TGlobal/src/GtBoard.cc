@@ -34,7 +34,7 @@
 
 #include "L1Trigger/L1TGlobal/interface/MuonTemplate.h"
 #include "L1Trigger/L1TGlobal/interface/CaloTemplate.h"
-#include "CondFormats/L1TObjects/interface/L1GtEnergySumTemplate.h"
+#include "L1Trigger/L1TGlobal/interface/EnergySumTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtJetCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfBitCountsTemplate.h"
 #include "CondFormats/L1TObjects/interface/L1GtHfRingEtSumsTemplate.h"
@@ -54,7 +54,6 @@
 
 
 //#include "L1Trigger/GlobalTrigger/interface/L1CaloCondition.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtEnergySumCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtJetCountsCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtHfBitCountsCondition.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtHfRingEtSumsCondition.h"
@@ -67,6 +66,7 @@
 // Conditions for uGt
 #include "L1Trigger/L1TGlobal/interface/MuCondition.h"
 #include "L1Trigger/L1TGlobal/interface/CaloCondition.h"
+#include "L1Trigger/L1TGlobal/interface/EnergySumCondition.h"
 
 //   *** Comment out what do we do with this.
 #include "L1Trigger/GlobalTrigger/interface/L1GtEtaPhiConversions.h"
@@ -432,7 +432,7 @@ void l1t::GtBoard::runGTL(
     const std::vector<std::vector<CaloTemplate> >& corrCalo =
             m_l1GtMenu->corCaloTemplate();
 
-    const std::vector<std::vector<L1GtEnergySumTemplate> >& corrEnergySum =
+    const std::vector<std::vector<EnergySumTemplate> >& corrEnergySum =
             m_l1GtMenu->corEnergySumTemplate();
 
     LogDebug("l1t|Global") << "Size corrMuon " << corrMuon.size() 
@@ -595,12 +595,11 @@ void l1t::GtBoard::runGTL(
                     break;
                 case CondEnergySum: {
 
-/*  Don't access conditions for now		
-                    L1GtEnergySumCondition* eSumCondition = new L1GtEnergySumCondition(
+                    EnergySumCondition* eSumCondition = new EnergySumCondition(
                             itCond->second, this);
 
                     eSumCondition->setVerbosity(m_verbosity);
-                    eSumCondition->evaluateConditionStoreResult();
+                    eSumCondition->evaluateConditionStoreResult(iBxInEvent);
 
                     cMapResults[itCond->first] = eSumCondition;
 
@@ -614,6 +613,7 @@ void l1t::GtBoard::runGTL(
 
                 }
                     break;
+/*  Don't access conditions for now		
                 case CondJetCounts: {
                     L1GtJetCountsCondition* jcCondition = new L1GtJetCountsCondition(
                             itCond->second, this, nrL1JetCounts);
@@ -631,9 +631,9 @@ void l1t::GtBoard::runGTL(
                     }
 
                     //                  delete jcCondition;
-*/
                 }
                     break;
+*/
                 case CondExternal: {
   
  /*  Don't access conditions for now 
@@ -802,8 +802,7 @@ void l1t::GtBoard::runGTL(
                 }
                     break;
                 default: {
-
-                    // do nothing
+                   // do nothing
 
                 }
                     break;

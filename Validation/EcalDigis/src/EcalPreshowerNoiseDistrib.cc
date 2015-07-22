@@ -12,44 +12,29 @@ EcalPreshowerNoiseDistrib::EcalPreshowerNoiseDistrib(const edm::ParameterSet& ps
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
     
-  dbe_ = 0;
-  
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-  
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-  
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
-  
   // histos
   meESDigiMultiplicity_=0;
   for (int ii=0; ii<3; ii++ ) { meESDigiADC_[ii] = 0; }
+  
+}
 
+void EcalPreshowerNoiseDistrib::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) {
   Char_t histo[200];
-  if ( dbe_ ) {
-    sprintf (histo, "multiplicity" ) ;
-    meESDigiMultiplicity_ = dbe_->book1D(histo, histo, 1000, 0., 137728);
-    
-    for ( int ii = 0; ii < 3 ; ii++ ) {
-      sprintf (histo, "esRefHistos%02d", ii) ;
-      meESDigiADC_[ii] = dbe_->book1D(histo, histo, 35, 983.5, 1018.5) ;
-    }
-    
-    for ( int ii = 0; ii < 3 ; ii++ ) {
-      sprintf (histo, "esRefHistosCorr%02d", ii) ;
-      meESDigiCorr_[ii] = dbe_->book2D(histo, histo, 35, 983.5, 1018.5, 35, 983.5, 1018.5) ;
-    }
-        
-    meESDigi3D_ = dbe_->book3D("meESDigi3D_", "meESDigi3D_", 35, 983.5, 1018.5, 35, 983.5, 1018.5, 35, 983.5, 1018.5) ;
+
+  sprintf (histo, "multiplicity" ) ;
+  meESDigiMultiplicity_ = ibooker.book1D(histo, histo, 1000, 0., 137728);
+
+  for ( int ii = 0; ii < 3 ; ii++ ) {
+    sprintf (histo, "esRefHistos%02d", ii) ;
+    meESDigiADC_[ii] = ibooker.book1D(histo, histo, 35, 983.5, 1018.5) ;
   }
+
+  for ( int ii = 0; ii < 3 ; ii++ ) {
+    sprintf (histo, "esRefHistosCorr%02d", ii) ;
+    meESDigiCorr_[ii] = ibooker.book2D(histo, histo, 35, 983.5, 1018.5, 35, 983.5, 1018.5) ;
+  }
+
+  meESDigi3D_ = ibooker.book3D("meESDigi3D_", "meESDigi3D_", 35, 983.5, 1018.5, 35, 983.5, 1018.5, 35, 983.5, 1018.5) ;
 }
 
 

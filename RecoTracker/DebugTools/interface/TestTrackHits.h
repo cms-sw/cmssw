@@ -77,8 +77,7 @@ private:
     throw cms::Exception("CkfDebugger error: rechit of dimension not 1,2,3,4,5");
   }
 
-  const edm::ParameterSet conf_;
-  TrackerHitAssociator * hitAssociator;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   std::string propagatorName;
   std::string builderName;

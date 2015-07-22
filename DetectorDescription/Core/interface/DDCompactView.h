@@ -3,7 +3,6 @@
 
 #include <vector>
 
-#include "DetectorDescription/Core/interface/DDAlgo.h"
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/graphwalker.h"
 
@@ -118,12 +117,6 @@ public:
   //! Prototype version of calculating the weight of a detector component
   double weight(const DDLogicalPart & p) const;
 
-  //! positioning...
-  void algoPosPart(const DDLogicalPart & self,
-		   const DDLogicalPart & parent,
-		   DDAlgo & algo
-		   );
-  
   void position (const DDLogicalPart & self,
 		 const DDLogicalPart & parent,
 		 std::string copyno,

@@ -9,7 +9,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -91,7 +91,7 @@ class EwkElecDQM : public DQMEDAnalyzer {
   unsigned int PUMax_, PUBinCount_;
 
   bool isValidHltConfig_;
-  HLTConfigProvider hltConfigProvider_;
+  HLTPrescaleProvider hltPrescaleProvider_;
 
   unsigned int nall;
   unsigned int nrec;

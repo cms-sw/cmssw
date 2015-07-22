@@ -230,7 +230,7 @@ void testCaloGeometryTools::testBorderCrossing()
   unsigned counter=0;
   for(unsigned ic=0;ic<size;++ic)
     {
-      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec[ic]);
+      CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(vec[ic]);
       for(unsigned in=0;in<8;++in)
 	{
 	  if(neighbours[in].null()) continue;
@@ -257,7 +257,7 @@ void testCaloGeometryTools::testBorderCrossing()
   counter=0;
   for(unsigned ic=0;ic<size;++ic)
     {
-      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec2[ic]);
+      CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(vec2[ic]);
       for(unsigned in=0;in<8;++in)
 	{
 	  if(neighbours[in].null()) continue;

@@ -29,7 +29,7 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
   std::string value     = "HF";
   DDSpecificsFilter filter1;
   DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
+  filter1.setCriteria(ddv1,DDCompOp::equals);
   DDFilteredView fv1(cpv);
   fv1.addFilter(filter1);
   bool dodet = fv1.firstChild();
@@ -79,7 +79,7 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
   value     = name;
   DDSpecificsFilter filter2;
   DDValue           ddv2(attribute,value,0);
-  filter2.setCriteria(ddv2,DDSpecificsFilter::equals);
+  filter2.setCriteria(ddv2,DDCompOp::equals);
   DDFilteredView fv2(cpv);
   fv2.addFilter(filter2);
   dodet     = fv2.firstChild();

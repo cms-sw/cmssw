@@ -86,6 +86,17 @@ namespace edmtest {
       edm::ParameterSet proc_pset;
       event.getProcessParameterSet(event.processHistory().rbegin()->processName(),proc_pset);
 
+      {
+        // test the function getProcessParameterSetContainingModule this is a
+        // convenient spot to test because this module is run in both a
+        // a single process and in a subprocess.
+        edm::ParameterSet proc_pset2 = edm::getProcessParameterSetContainingModule(moduleDescription());
+        assert(proc_pset2.id() == proc_pset.id());
+        vstring paths1 = proc_pset.getParameter<vstring>("@paths");
+        vstring paths2 = proc_pset2.getParameter<vstring>("@paths");
+        assert(paths1 == paths2);
+      }
+
       edm::pset::Registry* reg = edm::pset::Registry::instance();
 
       if (!expectedPaths_.empty()) {

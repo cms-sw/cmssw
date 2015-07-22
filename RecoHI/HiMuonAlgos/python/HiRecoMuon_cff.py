@@ -33,8 +33,8 @@ globalMuons.TrackerCollectionLabel = hiTracks
 # replace with heavy ion jet label
 muons.JetExtractorPSet.JetCollectionLabel = cms.InputTag("iterativeConePu5CaloJets")
 
-# turn off calo muons for timing considerations?
-#muons.fillCaloCompatibility = cms.bool(False)
+# turn off calo muons for timing considerations
+muons.minPCaloMuon = cms.double( 1.0E9 )
 
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
 

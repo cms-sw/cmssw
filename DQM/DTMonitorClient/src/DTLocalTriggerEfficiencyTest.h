@@ -47,11 +47,7 @@ protected:
   /// DQM Client Diagnostic
 
   void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);
-
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
-
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, 
-                               edm::LuminosityBlock const &, edm::EventSetup const &);
+  void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
  private:
 

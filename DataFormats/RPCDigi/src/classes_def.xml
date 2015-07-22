@@ -8,7 +8,7 @@
 <class name="MuonDigiCollection<RPCDetId,RPCDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<RPCDetId,RPCDigi>>" splitLevel="0"/> 
 
-<class name="edm::Wrapper<std::map <std::pair<int,int>, int> > "/> 
+<class name="edm::Wrapper<std::map <std::pair<int,int>, int> >"/> 
 <class name="RPCRawDataCounts" ClassVersion="10">
  <version ClassVersion="10" checksum="977138550"/>
 </class>

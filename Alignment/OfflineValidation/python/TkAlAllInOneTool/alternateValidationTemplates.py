@@ -263,7 +263,7 @@ process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True
 process.TrackerTrackHitFilter.StoNcommands = cms.vstring("ALL 18.0")
 process.TrackerTrackHitFilter.rejectLowAngleHits = True
-process.TrackerTrackHitFilter.TrackAngleCut = 0.35 # in rads, starting from the module surface
+process.TrackerTrackHitFilter.TrackAngleCut = 0.1 # in rads, starting from the module surface
 process.TrackerTrackHitFilter.usePixelQualityFlag = True #False
 
 #-- TrackProducer

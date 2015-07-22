@@ -14,7 +14,6 @@
  ***************************************************************************/
 
 #include "DetectorDescription/Parser/src/DDLAlgorithm.h"
-#include "DetectorDescription/Parser/src/DDLAlgoPosPart.h"
 #include "DetectorDescription/Parser/src/DDLBooleanSolid.h"
 #include "DetectorDescription/Parser/src/DDLBox.h"
 #include "DetectorDescription/Parser/src/DDLCompositeMaterial.h"
@@ -157,10 +156,6 @@ DDLElementRegistry::getElement( const std::string& name )
     {
       myret = new DDLPosPart(this);
     }
-    else if (name == "AlgoPosPart")
-    {
-      myret = new DDLAlgoPosPart(this);
-    }
     else if (name == "CompositeMaterial")
     {
       myret = new DDLCompositeMaterial(this);
@@ -215,7 +210,7 @@ DDLElementRegistry::getElement( const std::string& name )
     // Supporting Cast of elements.
     //  All elements which simply accumulate attributes which are then used
     //  by one of the above elements.
-    else if (name == "MaterialFraction" || name == "ParE" || name == "ParS"
+    else if (name == "MaterialFraction"
 	     || name == "RZPoint" || name == "PartSelector"
 	     || name == "Parameter" || name == "ZSection"
 	     || name == "Translation" 

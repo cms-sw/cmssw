@@ -45,11 +45,18 @@ namespace edm {
           Exception::throwThis(errors::InvalidReference,
             "can't insert transient references in uninitialized AssociationMap");
         }
-        if(ref.key.productGetter() == nullptr) {
+        //another thread might change the value of productGetter()
+        auto getter =ref.key.productGetter();
+        if(getter == nullptr) {
           Exception::throwThis(errors::LogicError,
-            "can't insert into AssociationMap unless it was initialized with a getter or RefProd or RefToBaseProd");
+            "Can't insert into AssociationMap unless it was properly initialized.\n"
+            "The most common fix for this is to add an argument to the call to the\n"
+            "AssociationMap constructor that is a valid Handle to the container.\n"
+            "If you don't have a valid handle or the template parameter to the\n"
+            "AssociationMap is a View, then see the comments in AssociationMap.h.\n"
+            "(note this was a new requirement added in the 7_5_X release series)\n");
         }
-        ref.key = KeyRefProd(k.id(), ref.key.productGetter());
+        ref.key = KeyRefProd(k.id(), getter);
       }
       helpers::checkRef(ref.key, k);
       index_type ik = index_type(k.key());

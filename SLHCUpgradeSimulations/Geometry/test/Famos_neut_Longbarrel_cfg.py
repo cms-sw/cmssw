@@ -165,14 +165,13 @@ process.multiTrackValidator.label = ['ctfWithMaterialTracks']
 #process.multiTrackValidator.label = ['cutsRecoTracks']
 #process.multiTrackValidator.label_tp_effic = cms.InputTag("cutsTPEffic")
 #process.multiTrackValidator.label_tp_fake = cms.InputTag("cutsTPFake")
-process.multiTrackValidator.sim = 'famosSimHits'
+process.multiTrackValidator.sim = ['famosSimHits']
 process.multiTrackValidator.associators = ['trackAssociatorByHits']
 process.multiTrackValidator.UseAssociators = True
 process.multiTrackValidator.outputFile = "validstdgeom_muon_50GeV.root"
 process.multiTrackValidator.nint = cms.int32(20)
 process.multiTrackValidator.nintpT = cms.int32(25)
 process.multiTrackValidator.maxpT = cms.double(50.0)
-process.multiTrackValidator.skipHistoFit = False
 ##### with John's changes ##############################
 process.load("SLHCUpgradeSimulations.Geometry.oldTracking_wtriplets")
 #process.PixelLayerTriplets.layerList = cms.vstring('BPix1+BPix2+BPix3',

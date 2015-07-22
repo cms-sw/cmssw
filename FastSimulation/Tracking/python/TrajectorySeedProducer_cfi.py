@@ -25,7 +25,7 @@ trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
     ptMin = cms.double(-1),
 
     # Inputs: tracker rechits, beam spot position.
-    recHits = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits"),
+    recHits = cms.InputTag("siTrackerGaussianSmearingRecHits"),
 
     layerList = cms.vstring(),
 )

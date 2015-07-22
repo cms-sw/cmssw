@@ -41,8 +41,6 @@
 
 #include <set>
 
-#include "FWCore/ParameterSet/interface/Registry.h"
-
 //
 // class decleration
 //
@@ -148,13 +146,12 @@ TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
     using namespace edm; using namespace std;
     Handle<reco::CandidateView> src, allProbes;
     Handle<Association<vector<reco::GenParticle> > > tagMatches, probeMatches;
-
     treeFiller_->init(iEvent); // read out info from the event if needed (external vars, list of passing probes, ...)
     if (oldTagFiller_.get()) oldTagFiller_->init(iEvent);
     if (tagFiller_.get())    tagFiller_->init(iEvent);
     if (pairFiller_.get())   pairFiller_->init(iEvent);
     if (mcFiller_.get())     mcFiller_->init(iEvent);
-
+    
     // on mc we want to load also the MC match info
     if (isMC_) {
         iEvent.getByToken(tagMatchesToken_, tagMatches);
@@ -167,16 +164,20 @@ TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
     for (tnp::TagProbePairs::const_iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
         // on mc, fill mc info (on non-mc, let it to 'true', the treeFiller will ignore it anyway
         bool mcTrue = false;
+	float mcMass = 0.f;
         if (isMC_) {
             reco::GenParticleRef mtag = (*tagMatches)[it->tag], mprobe = (*probeMatches)[it->probe];
             mcTrue = checkMother(mtag) && checkMother(mprobe);
-            if (mcTrue && mcFiller_.get()) mcFiller_->fill(reco::CandidateBaseRef(mprobe));
-        }
+	    if (mcTrue) {
+	      mcMass = (mtag->p4() + mprobe->p4()).mass();
+	      if (mcFiller_.get()) mcFiller_->fill(reco::CandidateBaseRef(mprobe));
+	    }
+	}
         // fill in the variables for this t+p pair
 	if (tagFiller_.get())    tagFiller_->fill(it->tag);
 	if (oldTagFiller_.get()) oldTagFiller_->fill(it->tag);
 	if (pairFiller_.get())   pairFiller_->fill(it->pair);
-	treeFiller_->fill(it->probe, it->mass, mcTrue);
+	treeFiller_->fill(it->probe, it->mass, mcTrue, mcMass);
     }
 
     if (isMC_ && makeMCUnbiasTree_) {
@@ -214,7 +215,7 @@ TagProbeFitTreeProducer::checkMother(const reco::GenParticleRef &ref) const {
 void
 TagProbeFitTreeProducer::endJob() {
     // ask to write the current PSet info into the TTree header
-    treeFiller_->writeProvenance(edm::getProcessParameterSet());
+    treeFiller_->writeProvenance(edm::getProcessParameterSetContainingModule(moduleDescription()));
 }
 
 //define this as a plug-in

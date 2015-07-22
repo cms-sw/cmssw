@@ -106,7 +106,7 @@ HLTMuonOfflineAnalyzer::moduleLabels(string path)
   vector<string>::iterator iter = modules.begin();
 
   while (iter != modules.end())
-    if (iter->find("Filtered") == string::npos) 
+    if ((iter->find("Filtered") == string::npos)&&(iter->find("hltL1s") == string::npos)) 
       iter = modules.erase(iter);
     else
       ++iter;

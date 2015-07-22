@@ -49,7 +49,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 
 // forward declarations
 class TH1D;
@@ -200,7 +200,7 @@ private:
   TTree* pf_tree_;
 
   // trigger info
-  HLTConfigProvider hltConfig_; // variable for the access
+  HLTPrescaleProvider hltPrescaleProvider_;
   std::vector<int> photonTrigFired_;
   std::vector<int> photonTrigPrescale_;
   std::vector<int> jetTrigFired_;

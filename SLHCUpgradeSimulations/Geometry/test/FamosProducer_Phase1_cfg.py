@@ -19,7 +19,6 @@ process.RandomNumberGeneratorService.simSiPixelDigis = cms.PSet(
 process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
 process.generator.PGunParameters.PartID[0] = 13
 ## for 4 muons to test with vertex
-#process.FlatRandomPtGunSource.PGunParameters.PartID = cms.untracked.vint32(13,-13,13,-13)
 ## for opposite sign back-to-back dimuon pairs
 process.generator.PGunParameters.MinPt = 0.9
 process.generator.PGunParameters.MaxPt = 50.0
@@ -119,15 +118,13 @@ process.multiTrackValidator.label = ['ctfWithMaterialTracks']
 #process.multiTrackValidator.label = ['cutsRecoTracks']
 #process.multiTrackValidator.label_tp_effic = cms.InputTag("cutsTPEffic")
 #process.multiTrackValidator.label_tp_fake = cms.InputTag("cutsTPFake")
-process.multiTrackValidator.sim = 'famosSimHits'
+process.multiTrackValidator.sim = ['famosSimHits']
 process.multiTrackValidator.associators = ['trackAssociatorByHits']
 process.multiTrackValidator.UseAssociators = True
 process.multiTrackValidator.outputFile = "validphase1_muon_50GeV.root"
 process.multiTrackValidator.nint = cms.int32(20)
 process.multiTrackValidator.nintpT = cms.int32(25)
 process.multiTrackValidator.maxpT = cms.double(50.0)
-process.multiTrackValidator.skipHistoFit = cms.untracked.bool(False)
-process.multiTrackValidator.runStandalone = cms.bool(True)
 
 ##### with John's changes ##############################
 process.load("SLHCUpgradeSimulations.Geometry.oldTracking_wtriplets")

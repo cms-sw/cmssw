@@ -104,12 +104,29 @@ float SimpleJetCorrector::correctionBin(unsigned fBin,const std::vector<float>& 
       sserr<<"two many variables: "<<N<<" maximum is 4";
       handleError("SimpleJetCorrector",sserr.str());
     }
+  const std::vector<float>& par = mParameters.record(fBin).parameters();
+
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,03,00)
+  Double_t params[par.size() - 2 * N];
+  for(unsigned int i=2*N;i<par.size();i++)
+    {
+      params[i-2*N] = par[i];
+    }
+  Double_t x[4] = {};
+  for(unsigned i=0;i<N;i++)
+    {
+      x[i] = (fY[i] < par[2*i]) ? par[2*i] : (fY[i] > par[2*i+1]) ? par[2*i+1] : fY[i];
+    }
+  if (mParameters.definitions().isResponse()) {
+    return invert(x, params);
+  }
+  return mFunc.EvalPar(x, params);
+#else
   float result = -1;
   //Have to do calculation using a temporary TFormula to avoid
   // thread safety issues
   TFormula tFunc(mFunc);
 
-  const std::vector<float>& par = mParameters.record(fBin).parameters();
   for(unsigned int i=2*N;i<par.size();i++)
     tFunc.SetParameter(i-2*N,par[i]);
   float x[4] = {};
@@ -124,6 +141,7 @@ float SimpleJetCorrector::correctionBin(unsigned fBin,const std::vector<float>& 
   else
     result = tFunc.Eval(x[0],x[1],x[2],x[3]);
   return result;
+#endif
 }
 //------------------------------------------------------------------------
 //--- find invertion variable (JetPt) ------------------------------------
@@ -145,6 +163,30 @@ unsigned SimpleJetCorrector::findInvertVar()
 //------------------------------------------------------------------------
 //--- inversion ----------------------------------------------------------
 //------------------------------------------------------------------------
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,03,00)
+float SimpleJetCorrector::invert(const Double_t *args, const Double_t *params) const
+{
+  unsigned nMax = 50;
+  float precision = 0.0001;
+  float rsp = 1.0;
+  float e = 1.0;
+  Double_t x[4];
+  unsigned nLoop=0;
+
+  // 4 dimensions (x, y, z, t) supported in TFormula
+  memcpy(&x, args, sizeof(Double_t) * 4);
+
+  while(e > precision && nLoop < nMax)
+    {
+      rsp = mFunc.EvalPar(x, params);
+      float tmp = x[mInvertVar] * rsp;
+      e = fabs(tmp - args[mInvertVar])/args[mInvertVar];
+      x[mInvertVar] = args[mInvertVar]/rsp;
+      nLoop++;
+    }
+  return 1./rsp;
+}
+#else
 float SimpleJetCorrector::invert(const std::vector<float>& fX, TFormula& tFunc) const
 {
   unsigned nMax = 50;
@@ -166,11 +208,4 @@ float SimpleJetCorrector::invert(const std::vector<float>& fX, TFormula& tFunc) 
     }
   return 1./rsp;
 }
-
-
-
-
-
-
-
-
+#endif

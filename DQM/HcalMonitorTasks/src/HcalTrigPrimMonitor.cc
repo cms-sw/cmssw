@@ -198,6 +198,7 @@ HcalTrigPrimMonitor::processEvent (
       const edm::Handle <HcalTrigPrimDigiCollection>& data_tp_col,
       const edm::Handle <HcalTrigPrimDigiCollection>& emul_tp_col) {
 
+	bool useD1=false;
    std::vector<int> errorflag_per_event[2][2];
    std::vector<int> errorflag_per_event_oot[2][2];
    for (int isZS = 0; isZS <= 1; ++isZS) {
@@ -221,6 +222,9 @@ HcalTrigPrimMonitor::processEvent (
       int iphi = data_tp->id().iphi();
       int isHF = data_tp->id().ietaAbs() >= 29 ? 1 : 0;
 
+	  // Temporary fix for Hcal Trig Towers Mismatch
+	  if (data_tp->id().depth()==1)
+		  useD1 = true;
 
       //
       if (data_tp->SOI_compressedEt() > 0) {
@@ -239,7 +243,11 @@ HcalTrigPrimMonitor::processEvent (
       }
 
       //check missing from emulator
-      HcalTrigPrimDigiCollection::const_iterator emul_tp = emul_tp_col->find(data_tp->id());
+	  // Temporary fix for Hcal Trig Towers Mismatch
+      HcalTrigPrimDigiCollection::const_iterator emul_tp = 
+		  emul_tp_col->find(HcalTrigTowerDetId(
+				data_tp->id().ieta(), data_tp->id().iphi(), 
+				0));
       if (emul_tp == emul_tp_col->end()) {
          bool pass_ZS = true;	 
          bool pass_ZS_OOT = true;	 
@@ -466,7 +474,11 @@ HcalTrigPrimMonitor::processEvent (
       int iphi(emul_tp->id().iphi());
       int isHF = emul_tp->id().ietaAbs() >= 29 ? 1 : 0;
 
-      HcalTrigPrimDigiCollection::const_iterator data_tp = data_tp_col->find(emul_tp->id());
+	  // Temporary fix for Hcal Trig Towers Mismatch
+      HcalTrigPrimDigiCollection::const_iterator data_tp = 
+		  data_tp_col->find(HcalTrigTowerDetId(
+			  emul_tp->id().ieta(), emul_tp->id().iphi(), 
+			  useD1 ? 1 : 0));
       if (data_tp == data_tp_col->end()) {
          bool pass_ZS = true;
          bool pass_OOT_ZS = true;

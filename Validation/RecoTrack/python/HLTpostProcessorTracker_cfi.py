@@ -66,24 +66,5 @@ postProcessorHLTtracking = cms.EDAnalyzer("DQMGenericClient",
                              "h_thetapulleta '#theta Pull vs #eta' thetapull_vs_eta",
                              "h_thetapullphi '#theta Pull vs #phi' thetapull_vs_phi"
                              ),
-    profile= cms.untracked.vstring(
-                         "chi2mean 'mean #chi^{2} vs #eta' chi2_vs_eta",
-                         "chi2mean_vs_phi 'mean #chi^{2} vs #phi' chi2_vs_phi",
-                         "chi2mean_vs_nhits 'mean #chi^{2} vs n. hits' chi2_vs_nhits",
-                         "hits_eta 'mean #hits vs eta' nhits_vs_eta",
-                         "hits_phi 'mean #hits vs #phi' nhits_vs_phi",
-                         "losthits_eta 'mean #lost hits vs #eta' nlosthits_vs_eta",
-			 "PXBhits_eta 'mean # PXB hits vs #eta' nPXBhits_vs_eta",
-			 "PXFhits_eta 'mean # PXF hits vs #eta' nPXFhits_vs_eta",
-			 "TIBhits_eta 'mean # TIB hits vs #eta' nTIBhits_vs_eta",
-			 "TIDhits_eta 'mean # TID hits vs #eta' nTIDhits_vs_eta",
-			 "TOBhits_eta 'mean # TOB hits vs #eta' nTOBhits_vs_eta",
-			 "TEChits_eta 'mean # TEC hits vs #eta' nTEChits_vs_eta",
-			 "LayersWithMeas_eta 'mean # LayersWithMeas vs #eta' nLayersWithMeas_vs_eta",
-			 "PXLlayersWith2dMeas 'mean # PXLlayersWithMeas vs #eta' nPXLlayersWith2dMeas",
-			 "STRIPlayersWithMeas_eta 'mean # STRIPlayersWithMeas vs #eta' nSTRIPlayersWithMeas_eta",
-			 "STRIPlayersWith1dMeas_eta 'mean # STRIPlayersWith1dMeas vs #eta' nSTRIPlayersWith1dMeas_eta",
-			 "STRIPlayersWith2dMeas_eta 'mean # STRIPlayersWith2dMeas vs #eta' nSTRIPlayersWith2dMeas_eta"
-                         ),
     outputFileName = cms.untracked.string("")
 )

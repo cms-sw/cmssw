@@ -98,6 +98,14 @@ namespace cond {
     std::string execmessage;
   };
 
+  struct GTMetadata_t {
+    Time_t validity;
+    std::string description;
+    std::string release;
+    boost::posix_time::ptime insertionTime;
+    boost::posix_time::ptime snapshotTime;
+  };
+
   class GTEntry_t {
   public: 
     GTEntry_t():

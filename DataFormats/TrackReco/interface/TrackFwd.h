@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
 
 namespace reco
 {
@@ -29,6 +30,9 @@ typedef TrackRefVector::iterator track_iterator;
 
 /// persistent reference to a Track, using views
 typedef edm::RefToBase<reco::Track> TrackBaseRef;
+
+/// vector of persistent references to a Track, using views
+typedef edm::RefToBaseVector<reco::Track> TrackBaseRefVector;
 
 } // namespace reco
 

@@ -26,7 +26,7 @@
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
@@ -1137,7 +1137,7 @@ void HIPAlignmentAlgorithm::fillRoot(const edm::EventSetup& iSetup)
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 	
   for (std::vector<Alignable*>::const_iterator it=theAlignables.begin();

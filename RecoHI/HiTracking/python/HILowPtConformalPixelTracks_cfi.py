@@ -2,10 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoPixelVertexing.PixelTriplets.PixelTripletHLTGenerator_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+from RecoPixelVertexing.PixelTrackFitting.PixelFitterByConformalMappingAndLine_cfi import *
 from RecoHI.HiTracking.HIPixelTrackFilter_cfi import *
 from RecoHI.HiTracking.HITrackingRegionProducer_cfi import *
-
-from RecoPixelVertexing.PixelTrackFitting.PixelFitterByConformalMappingAndLine_cfi import *
 
 hiConformalPixelTracks = cms.EDProducer("PixelTrackProducer",
                                         
@@ -22,7 +21,7 @@ hiConformalPixelTracks = cms.EDProducer("PixelTrackProducer",
                                         # Ordered Hits
                                         OrderedHitsFactoryPSet = cms.PSet( 
     ComponentName = cms.string( "StandardHitTripletGenerator" ),
-    SeedingLayers = cms.string( "PixelLayerTriplets" ),
+    SeedingLayers = cms.InputTag( "PixelLayerTriplets" ),
     GeneratorPSet = cms.PSet( 
     PixelTripletHLTGenerator
     )

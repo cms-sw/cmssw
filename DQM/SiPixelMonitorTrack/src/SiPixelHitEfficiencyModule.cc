@@ -33,7 +33,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 
 using namespace std; 
@@ -57,7 +57,7 @@ SiPixelHitEfficiencyModule::~SiPixelHitEfficiencyModule() {
 void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::EventSetup const & iSetup, DQMStore::IBooker & iBooker,int type, bool isUpgrade) {
   
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);

@@ -1,4 +1,5 @@
 #include "CondFormats/HcalObjects/interface/HcalCholeskyMatrices.h"
+#include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 
 HcalCholeskyMatrices::HcalCholeskyMatrices(const HcalTopology* topo) : HcalCondObjectContainerBase(topo) 
 {
@@ -21,7 +22,7 @@ HcalCholeskyMatrices::initContainer(DetId fId)
     case(HcalForward) : for (unsigned int i=0; i<sizeFor(fId); i++) HFcontainer.push_back(emptyItem); break;
     default: break;
     }
-}
+  }
 }
 
 
@@ -38,15 +39,18 @@ HcalCholeskyMatrices::getValues(DetId fId, bool throwOnFail) const
       case(HcalForward) : if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );  
       case(HcalOuter) : if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  
     default: break;
-    }
+      }
     }
   }
   
   //  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
   //  if (cell->rawId() == emptyHcalCholeskyMatrix.rawId() ) 
-  if ((!cell) || (cell->rawId() != fId ) ) {
+  if ((!cell) || (!hcalEqualDetId(cell,fId))) {
+//     (fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) != HcalDetId(fId)) ||
+//     (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) != HcalZDCDetId(fId)) ||
+//     (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() != fId))) {
     if (throwOnFail) {
-    throw cms::Exception ("Conditions not found") 
+      throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << fId.rawId();
     } else {
       cell=0;
@@ -63,10 +67,12 @@ HcalCholeskyMatrices::exists(DetId fId) const
   
   //  HcalCholeskyMatrix emptyHcalCholeskyMatrix;
   if (cell)
-    //    if (cell->rawId() != emptyHcalCholeskyMatrix.rawId() ) 
-    if (cell->rawId() == fId ) 
+    if (!hcalEqualDetId(cell,fId))
+//	(fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) == HcalDetId(fId)) ||
+//	(fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) == HcalZDCDetId(fId)) ||
+//	(fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() == fId)))
       return true;
-
+  
   return false;
 }
 
@@ -92,13 +98,13 @@ HcalCholeskyMatrices::addValues(const HcalCholeskyMatrix& myItem)
 	if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  break;  
       default: break;
       }
-      }
-      }
+    }
+  }
 
   if (cell!=0) {
     (*cell)=myItem;
-	success = true;
-      }
+    success = true;
+  }
 
   if (!success) 
     throw cms::Exception ("Filling of conditions failed") 
@@ -111,26 +117,22 @@ HcalCholeskyMatrices::getAllChannels() const
 {
   std::vector<DetId> channels;
   HcalCholeskyMatrix emptyHcalCholeskyMatrix;
-  for (unsigned int i=0; i<HBcontainer.size(); i++)
-    {
-      if (emptyHcalCholeskyMatrix.rawId() != HBcontainer.at(i).rawId() )
-	channels.push_back( DetId(HBcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HEcontainer.size(); i++)
-    {
-      if (emptyHcalCholeskyMatrix.rawId() != HEcontainer.at(i).rawId() )
-	channels.push_back( DetId(HEcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HOcontainer.size(); i++)
-    {
-      if (emptyHcalCholeskyMatrix.rawId() != HOcontainer.at(i).rawId() )
-	channels.push_back( DetId(HOcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HFcontainer.size(); i++)
-    {
-      if (emptyHcalCholeskyMatrix.rawId() != HFcontainer.at(i).rawId() )
-	channels.push_back( DetId(HFcontainer.at(i).rawId()) );
-    }
+  for (unsigned int i=0; i<HBcontainer.size(); i++) {
+    if (emptyHcalCholeskyMatrix.rawId() != HBcontainer.at(i).rawId() )
+      channels.push_back( DetId(HBcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HEcontainer.size(); i++) {
+    if (emptyHcalCholeskyMatrix.rawId() != HEcontainer.at(i).rawId() )
+      channels.push_back( DetId(HEcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HOcontainer.size(); i++) {
+    if (emptyHcalCholeskyMatrix.rawId() != HOcontainer.at(i).rawId() )
+      channels.push_back( DetId(HOcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HFcontainer.size(); i++) {
+    if (emptyHcalCholeskyMatrix.rawId() != HFcontainer.at(i).rawId() )
+      channels.push_back( DetId(HFcontainer.at(i).rawId()) );
+  }
   return channels;
 }
 

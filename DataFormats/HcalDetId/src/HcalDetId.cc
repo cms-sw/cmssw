@@ -12,9 +12,9 @@ HcalDetId::HcalDetId(uint32_t rawid) : DetId(rawid) {
 
 HcalDetId::HcalDetId(HcalSubdetector subdet, int tower_ieta, int tower_iphi, int depth) : DetId(Hcal,subdet) {
   // (no checking at this point!)
-  id_ |= ((depth&0x1F)<<14) |
-    ((tower_ieta>0)?(0x2000|(tower_ieta<<7)):((-tower_ieta)<<7)) |
-    (tower_iphi&0x7F);
+  id_ |= ((depth&kHcalDepthMask1)<<kHcalDepthOffset1) |
+    ((tower_ieta>0)?(kHcalZsideMask1|(tower_ieta<<kHcalEtaOffset1)):((-tower_ieta)<<kHcalEtaOffset1)) |
+    (tower_iphi&kHcalPhiMask1);
 }
 
 HcalDetId::HcalDetId(const DetId& gen) {
@@ -22,7 +22,8 @@ HcalDetId::HcalDetId(const DetId& gen) {
     HcalSubdetector subdet=(HcalSubdetector(gen.subdetId()));
     if (gen.det()!=Hcal || 
 	(subdet!=HcalBarrel && subdet!=HcalEndcap && 
-	 subdet!=HcalOuter && subdet!=HcalForward )) {
+	 subdet!=HcalOuter && subdet!=HcalForward &&
+	 subdet!=HcalTriggerTower && subdet!=HcalOther)) {
       throw cms::Exception("Invalid DetId") << "Cannot initialize HcalDetId from " << std::hex << gen.rawId() << std::dec; 
     }  
   }
@@ -34,10 +35,10 @@ HcalDetId& HcalDetId::operator=(const DetId& gen) {
     HcalSubdetector subdet=(HcalSubdetector(gen.subdetId()));
     if (gen.det()!=Hcal || 
 	(subdet!=HcalBarrel && subdet!=HcalEndcap && 
-	 subdet!=HcalOuter && subdet!=HcalForward ))
-      {
-	throw cms::Exception("Invalid DetId") << "Cannot assign HcalDetId from " << std::hex << gen.rawId() << std::dec; 
-      }  
+	 subdet!=HcalOuter && subdet!=HcalForward &&
+	 subdet!=HcalTriggerTower && subdet!=HcalOther)) {
+      throw cms::Exception("Invalid DetId") << "Cannot assign HcalDetId from " << std::hex << gen.rawId() << std::dec; 
+    }  
   }
   id_=gen.rawId();
   return (*this);
@@ -61,6 +62,7 @@ std::ostream& operator<<(std::ostream& s,const HcalDetId& id) {
   case(HcalEndcap) : return s << "(HE " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
   case(HcalForward) : return s << "(HF " << id.ieta() << ',' << id.iphi() << ',' << id.depth() << ')';
   case(HcalOuter) : return s << "(HO " << id.ieta() << ',' << id.iphi() << ')';
+  case(HcalTriggerTower) : return s << "(HT " << id.ieta() << ',' << id.iphi() << ')';
   default : return s << id.rawId();
   }
 }

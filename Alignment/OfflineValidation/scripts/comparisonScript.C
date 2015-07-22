@@ -33,25 +33,79 @@ void comparisonScript (TString inFile,//="mp1510_vs_mp1509.Comparison_commonTrac
     //         from r and dphi
 
     // now the object to produce the comparison plots is created
-    GeometryComparisonPlotter * cp = new GeometryComparisonPlotter (inFile, outDir);
+    
+    // Plot Translations
+    GeometryComparisonPlotter * trans = new GeometryComparisonPlotter (inFile, outDir);
     // x and y contain the couples to plot
     // -> every combination possible will be performed
     // /!\ always give units (otherwise, unexpected bug from root...)
     vector<TString> x,y;
-    x.push_back("r");                                           cp->SetBranchUnits("r",     "cm");  
-    x.push_back("phi");                                         cp->SetBranchUnits("phi",   "rad");
-    x.push_back("z");                                           cp->SetBranchUnits("z",     "cm");      //cp->SetBranchMax("z", 100); cp->SetBranchMin("z", -100);
-    y.push_back("dr");		cp->SetBranchSF("dr", 	10000);     cp->SetBranchUnits("dr",    "#mum");
-    y.push_back("dz");		cp->SetBranchSF("dz", 	10000);     cp->SetBranchUnits("dz",    "#mum");
-    y.push_back("rdphi");	cp->SetBranchSF("rdphi",10000);     cp->SetBranchUnits("rdphi", "#mum rad");
-    y.push_back("dx");		cp->SetBranchSF("dx", 	10000);     cp->SetBranchUnits("dx",    "#mum");    //cp->SetBranchMax("dx", 10); cp->SetBranchMin("dx", -10);
-    y.push_back("dy");		cp->SetBranchSF("dy", 	10000);     cp->SetBranchUnits("dy",    "#mum");    //cp->SetBranchMax("dy", 10); cp->SetBranchMin("dy", -10);
-    cp->MakePlots(x, y); // default output is pdf, but png gives a nicer result, so we use it as well
+    x.push_back("r");                                           	trans->SetBranchUnits("r",     "cm");  
+    x.push_back("phi");                                         	trans->SetBranchUnits("phi",   "rad");
+    x.push_back("z");                                           	trans->SetBranchUnits("z",     "cm");      //trans->SetBranchMax("z", 100); trans->SetBranchMin("z", -100);
+    y.push_back("dr");		trans->SetBranchSF("dr", 	10000);     trans->SetBranchUnits("dr",    "#mum");
+    y.push_back("dz");		trans->SetBranchSF("dz", 	10000);     trans->SetBranchUnits("dz",    "#mum");
+    y.push_back("rdphi");	trans->SetBranchSF("rdphi",10000);      trans->SetBranchUnits("rdphi", "#mum rad");
+    y.push_back("dx");		trans->SetBranchSF("dx", 	10000);     trans->SetBranchUnits("dx",    "#mum");    //trans->SetBranchMax("dx", 10); trans->SetBranchMin("dx", -10);
+    y.push_back("dy");		trans->SetBranchSF("dy", 	10000);     trans->SetBranchUnits("dy",    "#mum");    //trans->SetBranchMax("dy", 10); trans->SetBranchMin("dy", -10);
+    trans->SetGrid(1,1);
+    trans->MakePlots(x, y); // default output is pdf, but png gives a nicer result, so we use it as well
     // remark: what takes the more time is the creation of the output files,
     //         not the looping on the tree (because the code is perfect, of course :p)
-    cp->SetGrid(1,1);
-    cp->SetPrintOption("png");
-    cp->MakePlots(x, y);
+    trans->SetGrid(1,1);
+    trans->SetPrintOption("png");
+    trans->MakePlots(x, y);
+
+    
+    // Plot Rotations
+    GeometryComparisonPlotter * rot = new GeometryComparisonPlotter (inFile, outDir);
+    // x and y contain the couples to plot
+    // -> every combination possible will be performed
+    // /!\ always give units (otherwise, unexpected bug from root...)
+    vector<TString> a,b;
+    a.push_back("alpha");       									rot->SetBranchUnits("alpha",    "rad");  
+    a.push_back("beta");        									rot->SetBranchUnits("beta",   "rad");
+    a.push_back("gamma");       									rot->SetBranchUnits("gamma",   "rad");
+    b.push_back("dalpha");	rot->SetBranchSF("dalpha", 	1000);      rot->SetBranchUnits("dalpha",    "mrad");      
+    b.push_back("dbeta");   rot->SetBranchSF("dbeta", 	1000);    	rot->SetBranchUnits("dbeta",    "mrad");     
+    b.push_back("dgamma");  rot->SetBranchSF("dgamma", 	1000);    	rot->SetBranchUnits("dgamma",    "mrad");    
+    rot->SetGrid(1,1);
+    rot->MakePlots(a, b); // default output is pdf, but png gives a nicer result, so we use it as well
+    // remark: what takes the more time is the creation of the output files,
+    //         not the looping on the tree (because the code is perfect, of course :p)
+    rot->SetGrid(1,1);
+    rot->SetPrintOption("png");
+    rot->MakePlots(a, b);
+    
+    // Plot cross talk
+    GeometryComparisonPlotter * cross = new GeometryComparisonPlotter (inFile, outDir);
+    // x and y contain the couples to plot
+    // -> every combination possible will be performed
+    // /!\ always give units (otherwise, unexpected bug from root...)
+    vector<TString> dx,dy;
+    dx.push_back("dalpha"); cross->SetBranchSF("dalpha", 1000);     cross->SetBranchUnits("dalpha", "mrad");      
+    dx.push_back("dbeta");  cross->SetBranchSF("dbeta", 1000);     	cross->SetBranchUnits("dbeta",  "mrad");     
+    dx.push_back("dgamma"); cross->SetBranchSF("dgamma", 1000);     cross->SetBranchUnits("dgamma", "mrad"); 
+    dy.push_back("dr");		cross->SetBranchSF("dr", 	10000);     cross->SetBranchUnits("dr",    "#mum");
+    dy.push_back("dz");		cross->SetBranchSF("dz", 	10000);     cross->SetBranchUnits("dz",    "#mum");
+    dy.push_back("rdphi");	cross->SetBranchSF("rdphi",10000);      cross->SetBranchUnits("rdphi", "#mum rad");
+    dy.push_back("dx");		cross->SetBranchSF("dx", 	10000);     cross->SetBranchUnits("dx",    "#mum");  
+    dy.push_back("dy");		cross->SetBranchSF("dy", 	10000);     cross->SetBranchUnits("dy",    "#mum");     
+    cross->SetGrid(1,1);
+    cross->MakePlots(dx,dy); // default output is pdf, but png gives a nicer result, so we use it as well
+    // remark: what takes the more time is the creation of the output files,
+    //         not the looping on the tree (because the code is perfect, of course :p)
+    cross->SetGrid(1,1);
+    cross->SetPrintOption("png");
+    cross->MakePlots(dx, dy);
+
+    //Additional cross talk plots with dangles on y-axis
+    cross->SetPrintOption("pdf");
+    cross->MakePlots(dy,dx);
+    
+    cross->SetGrid(1,1);
+    cross->SetPrintOption("png");
+    cross->MakePlots(dy, dx);
 
     // now the same object can be reused with other specifications/cuts
     //void SetPrint               (const bool);           // activates the printing of the individual and global pdf

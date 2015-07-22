@@ -34,24 +34,6 @@
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="DTTtrigPyWrapper.cc" name="DTTtrigPyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/DTObjects"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
-<library   file="DTMtimePyWrapper.cc" name="DTMtimePyInterface">
-  <use   name="CondCore/Utilities"/>
-  <use   name="CondFormats/DTObjects"/>
-  <use   name="boost"/>
-  <use   name="boost_filesystem"/>
-  <use   name="boost_python"/>
-  <use   name="boost_regex"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   file="DTStatusFlagPyWrapper.cc" name="DTStatusFlagPyInterface">
   <use   name="CondCore/Utilities"/>
   <use   name="CondFormats/DTObjects"/>

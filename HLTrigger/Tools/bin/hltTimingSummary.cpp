@@ -20,7 +20,7 @@
 
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 //--- Created by:  
@@ -630,7 +630,7 @@ int main(int argc, char ** argv) {
     
   //-- Load libraries ---//
   gSystem->Load("libFWCoreFWLite") ;
-  AutoLibraryLoader::enable () ;
+  FWLiteEnabler::enable () ;
 
   //--- Default arguments ---//
   std::string filename = "hlt.root" ;

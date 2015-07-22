@@ -1,5 +1,5 @@
 
-from RecoHI.HiTracking.HILowPtConformalPixelTracks_cfi import *
+from RecoHI.HiTracking.hiMergedConformalPixelTracking_cff import *
 from RecoHI.HiTracking.LowPtTracking_PbPb_cff import *
 from RecoHI.HiTracking.hiLowPtTripletStep_cff import *
 from RecoHI.HiTracking.hiMixedTripletStep_cff import *
@@ -23,11 +23,7 @@ hiTracking = cms.Sequence(
     )
 
 hiTracking_wConformalPixel = cms.Sequence(
-    hiBasicTracking
-    *hiDetachedTripletStep
-    *hiLowPtTripletStep
-    *hiPixelPairStep
-    *hiGeneralTracks
-    *hiConformalPixelTracks    
+    hiTracking
+    *hiMergedConformalPixelTracking 
     )
 

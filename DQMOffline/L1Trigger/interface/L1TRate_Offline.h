@@ -31,6 +31,8 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -126,6 +128,8 @@ private:
   
   // MonitorElement
   MonitorElement* m_ErrorMonitor;
+
+  L1GtUtils m_l1GtUtils;
 };
 
 #endif

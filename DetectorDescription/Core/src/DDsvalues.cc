@@ -92,19 +92,11 @@ bool DDfetch(const DDsvalues_type * p, DDValue & v)
 unsigned int DDfetch(const std::vector<const DDsvalues_type *> & sp, DDValue & toFetch, std::vector<DDValue> & result)
 {
    unsigned int count = 0;
-   std::vector<const DDsvalues_type *>::const_iterator it(sp.begin()), ed(sp.end());
-   for (; it != ed; ++it) {
-     if (DDfetch(*it, toFetch)) {
+   for( const auto & it : sp ) {
+     if (DDfetch( it, toFetch)) {
        result.push_back(toFetch);
        ++count;
      }
    }    
    return count;
 }
-
-/*
-DDValue DDsvalues_type::operator[](const unsigned int& i) const
-{
-    return DDValue(i);
-}
-*/

@@ -68,7 +68,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf,
 
   //-- Template Calibration Object from DB
 #ifdef NEW_CPEERROR
-  if(theFlag_!=0) templateDBobject_ = templateDBobject;
+  if(theFlag_!=0) templateDBobject_ = templateDBobject; // flag to check if it is generic or templates
 #else
   templateDBobject_ = templateDBobject;
 #endif
@@ -78,6 +78,7 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf,
 
   // Read templates and/or generic errors from DB
   LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB"); 
+  //cout<<" use generros/templaets "<<LoadTemplatesFromDB_<<endl;
 
   //--- Algorithm's verbosity
   theVerboseLevel = 
@@ -107,7 +108,6 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf,
   //useLAAlignmentOffsets_ = conf.existsAs<bool>("useLAAlignmentOffsets")?
   //conf.getParameter<bool>("useLAAlignmentOffsets"):false;
 
-
   // Used only for testing
   lAOffset_ = conf.existsAs<double>("lAOffset")?  // fixed LA value 
               conf.getParameter<double>("lAOffset"):0.0;
@@ -130,7 +130,8 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf,
 			   <<lAOffset_<<" "<<lAWidthBPix_<<" "<<lAWidthFPix_<<endl; //dk
   
   fillDetParams();
-  
+
+  //cout<<" LA "<<lAOffset_<<" "<<lAWidthBPix_<<" "<<lAWidthFPix_<<endl; //dk
 }
 
 //-----------------------------------------------------------------------------
@@ -186,6 +187,7 @@ void PixelCPEBase::fillDetParams()
 
     if(theFlag_==0) { // for generic
 #ifdef NEW_CPEERROR
+      if(LoadTemplatesFromDB_ ) // do only if genError requested 
 	p.detTemplateId = genErrorDBObject_->getGenErrorID(p.theDet->geographicalId().rawId());
 #else   
       if(useNewSimplerErrors) 

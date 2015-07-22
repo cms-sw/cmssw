@@ -37,6 +37,7 @@ class SiPixelFedCablingMap;
 class SiPixelGainCalibrationOfflineSimService;
 class SiPixelLorentzAngle;
 class SiPixelQuality;
+class SiPixelDynamicInefficiency;
 class TrackerGeometry;
 class TrackerTopology;
 
@@ -67,6 +68,7 @@ class SiPixelDigitizerAlgorithm  {
 		const TrackerTopology *tTopo,
                 CLHEP::HepRandomEngine*);
   void calculateInstlumiFactor(PileupMixingContent* puInfo);
+  void init_DynIneffDB(const edm::EventSetup&, const unsigned int&);
 
  private:
   
@@ -79,6 +81,9 @@ class SiPixelDigitizerAlgorithm  {
   //Accessing Map and Geom:
   edm::ESHandle<SiPixelFedCablingMap> map_;
   edm::ESHandle<TrackerGeometry> geom_;
+
+  // Get Dynamic Inefficiency scale factors from DB
+  edm::ESHandle<SiPixelDynamicInefficiency> SiPixelDynamicInefficiency_;
 
   // Define internal classes
 
@@ -240,15 +245,30 @@ class SiPixelDigitizerAlgorithm  {
    */
    struct PixelEfficiencies {
      PixelEfficiencies(const edm::ParameterSet& conf, bool AddPixelInefficiency, int NumberOfBarrelLayers, int NumberOfEndcapDisks);
+     bool FromConfig; // If true read from Config, otherwise use Database
+
+     double theInstLumiScaleFactor;
+     std::vector<double> pu_scale; // in config: 0-3 BPix, 4-5 FPix (inner, outer)
+     std::vector<std::vector<double> > thePUEfficiency; // Instlumi dependent efficiency
+
+     // Read factors from Configuration
      double thePixelEfficiency[20];     // Single pixel effciency
      double thePixelColEfficiency[20];  // Column effciency
      double thePixelChipEfficiency[20]; // ROC efficiency
      std::vector<double> theLadderEfficiency_BPix[20]; // Ladder efficiency
      std::vector<double> theModuleEfficiency_BPix[20]; // Module efficiency
-     std::vector<double> thePUEfficiency[20]; // Instlumi dependent efficiency
      double theInnerEfficiency_FPix[20]; // Fpix inner module efficiency
      double theOuterEfficiency_FPix[20]; // Fpix outer module efficiency
      unsigned int FPixIndex;         // The Efficiency index for FPix Disks
+
+     // Read factors from DB and fill containers
+     std::map<uint32_t, double> PixelGeomFactors;
+     std::map<uint32_t, double> ColGeomFactors;
+     std::map<uint32_t, double> ChipGeomFactors;
+     std::map<uint32_t, size_t > iPU;
+
+     void init_from_db(const edm::ESHandle<TrackerGeometry>&, const edm::ESHandle<SiPixelDynamicInefficiency>&);
+     bool matches(const DetId&, const DetId&, const std::vector<uint32_t >&);
    };
 
  //
@@ -264,10 +284,6 @@ class SiPixelDigitizerAlgorithm  {
    };
 
  private:
-   // Needed by dynamic inefficiency 
-   // 0-3 BPix, 4-5 FPix (inner, outer)
-   double _pu_scale[20];
-
     // Internal typedefs
     typedef std::map<int, Amplitude, std::less<int> > signal_map_type;  // from Digi.Skel.
     typedef signal_map_type::iterator          signal_map_iterator; // from Digi.Skel.  
@@ -306,9 +322,6 @@ class SiPixelDigitizerAlgorithm  {
     //-- Allow for upgrades
     const int NumberOfBarrelLayers;     // Default = 3
     const int NumberOfEndcapDisks;      // Default = 2
-
-    const double theInstLumiScaleFactor;
-    const double bunchScaleAt25;
 
     //-- make_digis 
     const float theElectronPerADC;     // Gain, number of electrons per adc count.
@@ -427,7 +440,7 @@ class SiPixelDigitizerAlgorithm  {
     void module_killing_conf(uint32_t detID); // remove dead modules using the list in the configuration file PixelDigi_cfi.py
     void module_killing_DB(uint32_t detID);  // remove dead modules uisng the list in the DB
 
-    const PixelEfficiencies pixelEfficiencies_;
+    PixelEfficiencies pixelEfficiencies_;
     const PixelAging pixelAging_;
 
     double calcQ(float x) const {

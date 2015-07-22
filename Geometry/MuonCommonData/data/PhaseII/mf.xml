@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-<ConstantsSection label="hcalalgo.xml" eval="true">
+<!-- <ConstantsSection label="hcalalgo.xml" eval="true"> -->
+<ConstantsSection label="mf.xml" eval="true">
   <Constant name="z1ME0" value="5.241*m"/>
   <Constant name="z2ME0" value="5.541*m"/>
   <Constant name="rMinME0" value="[z1ME0]*[etaMax:slope]"/>

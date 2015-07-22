@@ -8,7 +8,7 @@ process = cms.Process("ManyFEDErrors")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DONOTEXIST",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -63,7 +63,7 @@ process.froml1abcHEs = cms.EDProducer("EventWithHistoryProducerFromL1ABC",
                                       l1ABCCollection=cms.InputTag("scalersRawToDigi")
                                       )
 process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
-process.APVPhases.wantHistos = cms.untracked.bool(True)
+process.load("DPGAnalysis.SiStripTools.l1TSDebugger_cfi")
 
 process.load("DPGAnalysis.SiStripTools.eventtimedistribution_cfi")
 process.eventtimedistribution.historyProduct = cms.InputTag("froml1abcHEs")
@@ -99,7 +99,7 @@ process.eventtimedistrmanyfederrorsmidthr = process.eventtimedistribution.clone(
 process.eventtimedistrmanyfederrorslowthr = process.eventtimedistribution.clone()
 process.eventtimedistrnomanyfederrors = process.eventtimedistribution.clone()
 
-process.seqEventHistoryReco = cms.Sequence(process.froml1abcHEs + process.APVPhases)
+process.seqEventHistoryReco = cms.Sequence(process.froml1abcHEs + process.APVPhases + process.l1TSDebugger)
 
 process.apvcyclephasemonitor = cms.EDAnalyzer('APVCyclePhaseMonitor',
                                               apvCyclePhaseCollection = cms.InputTag("APVPhases"),
@@ -290,8 +290,9 @@ process.pmanyfederrorsallthr = cms.Path(
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = options.globalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 
 process.TFileService = cms.Service('TFileService',

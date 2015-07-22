@@ -39,6 +39,7 @@ class ThreeThresholdAlgorithm final : public StripClusterizerAlgorithm {
 
   void stripByStripEnd(output_t::FastFiller & out) override { endCandidate(out);}
 
+  void cleanState() override {clearCandidate();}
 
 
  private:

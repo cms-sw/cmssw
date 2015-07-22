@@ -8,7 +8,7 @@ process = cms.Process("OverlapProblemALCAZmumu")
 options = VarParsing.VarParsing("analysis")
 
 options.register('globalTag',
-                 "DONOTEXIST::All",
+                 "DONOTEXIST",
                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                  VarParsing.VarParsing.varType.string,          # string, int, or float
                  "GlobalTag")
@@ -43,8 +43,6 @@ process.refittedTracks.src = cms.InputTag("generalTracks")
 process.refittedTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
 process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff')
-process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(18)  # check if they induce a difference
-process.trackerTopologyConstants.pxb_ladderMask = cms.uint32(1023)  # check if they induce a difference
 
 #process.KFFittingSmootherWithOutliersRejectionAndRK.LogPixelProbabilityCut = cms.double(-16.0)
 
@@ -97,8 +95,9 @@ process.p0 = cms.Path( process.seqTrackRefitting
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = options.globalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
 
 process.TFileService = cms.Service('TFileService',

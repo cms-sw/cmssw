@@ -4,13 +4,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 
 
 SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet& iConfig, const TrackerTopology* theTopo):
+  ratio_(1.5),
   lowoccupancy_(0),
   highoccupancy_(100),
   absolutelow_(0),
@@ -83,6 +83,8 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::extractBadAPVSandStr
       striptree->Branch("StripOccupancy",       &singleStripOccupancy, "StripOccupancy/D");
       striptree->Branch("StripHits",            &stripHits,         "StripHits/I");
       striptree->Branch("PoissonProb",          &poissonProb,       "PoissonProb/D");
+      striptree->Branch("MedianAPVHits",        &medianAPVHits,     "MedianAPVHits/D");
+      striptree->Branch("AvgAPVHits",           &avgAPVHits,        "AvgAPVHits/D");
     }
 
   HistoMap::iterator it=DM.begin();
@@ -659,6 +661,17 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::iterativeSearch(Apv&
   long double meanVal=1.*histo.NEntries[apv]/(1.*Nbins-histo.NEmptyBins[apv]); 
   evaluatePoissonian(vPoissonProbs,meanVal);
 
+  // Find median occupancy, taking into account only good strips
+  unsigned int goodstripentries[128];
+  int nGoodStrips = 0;
+  for (size_t i=ibinStart; i<ibinStop; ++i){
+    if (ishot[(apv*128)+i-1]==0){
+      goodstripentries[nGoodStrips] = (unsigned int)histo.th1f[apv]->GetBinContent(i);
+      nGoodStrips++;
+    }
+  }
+  double median = TMath::Median(nGoodStrips,goodstripentries);
+
   for (size_t i=ibinStart; i<ibinStop; ++i){
     unsigned int entries= (unsigned int)histo.th1f[apv]->GetBinContent(i);
 
@@ -666,10 +679,11 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::iterativeSearch(Apv&
       stripoccupancy[i-1] = entries/(double) Nevents_;
       striphits[i-1]      = entries;
       poissonprob[i-1]    = 1-vPoissonProbs[entries];
+      medianapvhits[apv]  = median;
+      avgapvhits[apv] = meanVal;
     }
 
-    if (entries<=MinNumEntriesPerStrip_ || entries <= minNevents_)
-      continue;
+    if (entries<=MinNumEntriesPerStrip_ || entries <= minNevents_ || entries / median < ratio_) continue;
 
     if(diff<vPoissonProbs[entries]){
       ishot[i-1] = 1;

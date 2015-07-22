@@ -159,6 +159,19 @@ uint32_t MuonSensitiveDetector::setDetUnitId(G4Step * aStep)
 { 
   //  G4VPhysicalVolume * pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
   MuonBaseNumber num = g4numbering->PhysicalVolumeToBaseNumber(aStep);
+
+  std::stringstream MuonBaseNumber; 
+  // LogDebug :: Print MuonBaseNumber
+  MuonBaseNumber << "MuonNumbering :: number of levels = "<<num.getLevels()<<std::endl;
+  MuonBaseNumber << "Level \t SuperNo \t BaseNo"<<std::endl;
+  for (int level=1;level<=num.getLevels();level++) {
+    MuonBaseNumber << level << " \t " << num.getSuperNo(level)
+	      << " \t " << num.getBaseNo(level) << std::endl;
+  }
+  std::string MuonBaseNumbr = MuonBaseNumber.str();
+
+  LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::setDetUnitId :: "<<MuonBaseNumbr;
+  LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::setDetUnitId :: MuonDetUnitId = "<<(numbering->baseNumberToUnitNumber(num));
   return numbering->baseNumberToUnitNumber(num);
 }
 
@@ -190,6 +203,7 @@ bool MuonSensitiveDetector::newHit(G4Step * aStep){
   G4VPhysicalVolume* pv = aStep->GetPreStepPoint()->GetPhysicalVolume();
   G4Track * t  = aStep->GetTrack();
   uint32_t currentUnitId=setDetUnitId(aStep);
+  LogDebug("MuonSimDebug") <<"MuonSensitiveDetector::newHit :: currentUnitId = "<<currentUnitId;
   unsigned int currentTrackID=t->GetTrackID();
   //unsigned int currentEventID=G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
   bool changed=((pv!=thePV) || 

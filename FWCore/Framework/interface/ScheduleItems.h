@@ -54,7 +54,7 @@ namespace edm {
     clear();
 
     std::shared_ptr<ActivityRegistry> actReg_;
-    std::unique_ptr<SignallingProductRegistry> preg_;
+    std::shared_ptr<SignallingProductRegistry> preg_;
     std::shared_ptr<BranchIDListHelper> branchIDListHelper_;
     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     std::unique_ptr<ExceptionToActionTable const> act_table_;

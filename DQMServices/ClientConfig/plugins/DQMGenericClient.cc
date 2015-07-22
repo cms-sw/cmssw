@@ -853,7 +853,7 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 
 //      histoY->Fit(fitFcn->GetName(),"RME");
       double *par = fitFcn->GetParameters();
-      double *err = fitFcn->GetParErrors();
+      const double *err = fitFcn->GetParErrors();
 
       meanME->setBinContent(i, par[1]);
       meanME->setBinError(i, err[1]);

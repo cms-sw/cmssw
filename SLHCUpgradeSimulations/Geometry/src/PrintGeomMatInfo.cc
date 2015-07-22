@@ -113,7 +113,7 @@ void PrintGeomMatInfo::update(const BeginOfJob * job)
 	    std::string sd        = names[i];
 	    DDSpecificsFilter filter;
 	    DDValue           ddv(attribute,sd,0);
-	    filter.setCriteria(ddv,DDSpecificsFilter::equals);
+	    filter.setCriteria(ddv,DDCompOp::equals);
 	    DDFilteredView fv(*pDD);
 	    std::cout << "PrintGeomMatInfo:: Get Filtered view for " 
 		      << attribute << " = " << sd << std::endl;

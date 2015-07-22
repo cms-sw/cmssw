@@ -46,7 +46,7 @@ hiPixelPairSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerPairs_cfi.PixelLay
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
 hiPixelPairSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.VertexCollection=cms.InputTag("hiSelectedVertex")
-hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.ptMin = 4.0
+hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.ptMin = 1.0
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.005
 hiPixelPairSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ = 4.0
 # sigmaZVertex is only used when usedFixedError is True -Matt
@@ -123,18 +123,25 @@ hiPixelPairGlobalPrimTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackP
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src='hiPixelPairGlobalPrimTracks',
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('HIMVASelectorIter6'),
+    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiPixelPairStepLoose',
+    useMVA = cms.bool(False)
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiPixelPairStepTight',
     preFilterName = 'hiPixelPairStepLoose',
+    useMVA = cms.bool(True),
+    minMVA = cms.double(-0.58)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiPixelPairStep',
     preFilterName = 'hiPixelPairStepTight',
-    min_nhits = 14
+    useMVA = cms.bool(True),
+    minMVA = cms.double(0.77)
     ),
     ) #end of vpset
     ) #end of clone

@@ -223,7 +223,7 @@ if __name__ == "__main__":
     ROOT.gSystem.Load("libFWCoreFWLite")
     ROOT.gSystem.Load("libDataFormatsFWLite")
     ROOT.gSystem.Load("libReflexDict")
-    ROOT.AutoLibraryLoader.enable()
+    ROOT.FWLiteEnabler::enable()
     mylist, etaPhiFound = getObjectList (objectName, goName, options.verbose,
                                          options.privateMemberData)
     if not len (mylist):

@@ -37,6 +37,7 @@
 #include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TProfile.h"
 // std
@@ -115,7 +116,7 @@ void SiStripMonitorPedestals::createMEs(DQMStore::IBooker & ibooker , const edm:
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<uint32_t> SelectedDetIds;

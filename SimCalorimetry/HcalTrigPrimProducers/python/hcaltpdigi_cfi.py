@@ -8,6 +8,8 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     ZS_threshold = cms.uint32(1),  ## threshold for setting fine grain bit
     numberOfSamples = cms.int32(4),
     numberOfPresamples = cms.int32(2),
+    numberOfSamplesHF = cms.int32(4),
+    numberOfPresamplesHF = cms.int32(2),
     MinSignalThreshold = cms.uint32(0), # For HF PMT veto
     PMTNoiseThreshold = cms.uint32(0),  # For HF PMT veto
 #

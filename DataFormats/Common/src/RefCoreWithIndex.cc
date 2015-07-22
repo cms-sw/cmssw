@@ -9,7 +9,7 @@
 namespace edm {
 
   RefCoreWithIndex::RefCoreWithIndex(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient, unsigned int iIndex) :
-      cachePtr_(prodPtr?prodPtr:prodGetter),
+      cachePtr_(prodPtr),
       processIndex_(theId.processIndex()),
       productIndex_(theId.productIndex()),
       elementIndex_(iIndex)
@@ -17,15 +17,30 @@ namespace edm {
         if(transient) {
           setTransient();
         }
-        if(prodPtr!=0 || prodGetter==0) {
-          setCacheIsProductPtr();
+        if(prodPtr==nullptr && prodGetter!=nullptr) {
+          setCacheIsProductGetter(prodGetter);
         }
       }
 
   RefCoreWithIndex::RefCoreWithIndex(RefCore const& iCore, unsigned int iIndex):
-  cachePtr_(iCore.cachePtr_),
+  cachePtr_(iCore.cachePtr_.load()),
   processIndex_(iCore.processIndex_),
   productIndex_(iCore.productIndex_),
   elementIndex_(iIndex){}
   
+  RefCoreWithIndex::RefCoreWithIndex( RefCoreWithIndex const& iOther) :
+    cachePtr_(iOther.cachePtr_.load()),
+    processIndex_(iOther.processIndex_),
+    productIndex_(iOther.productIndex_),
+    elementIndex_(iOther.elementIndex_){}
+  
+  RefCoreWithIndex& RefCoreWithIndex::operator=( RefCoreWithIndex const& iOther) {
+    cachePtr_ = iOther.cachePtr_.load();
+    processIndex_ = iOther.processIndex_;
+    productIndex_ = iOther.productIndex_;
+    elementIndex_ = iOther.elementIndex_;
+    return *this;
+  }
+
 }
+

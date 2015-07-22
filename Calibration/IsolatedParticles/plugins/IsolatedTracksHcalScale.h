@@ -76,6 +76,10 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+
+// tracker hit associator
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+
 // ecal / hcal
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -131,6 +135,8 @@ private:
   spr::trackSelectionParameters selectionParameters;
   double      a_mipR, a_coneR, a_charIsoR, a_neutIsoR;
   double      tMinE_, tMaxE_;
+
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   edm::EDGetTokenT<reco::TrackCollection>   tok_genTrack_;
   edm::EDGetTokenT<reco::VertexCollection>  tok_recVtx_;

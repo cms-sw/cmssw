@@ -8,8 +8,6 @@
   <class name="edm::Wrapper<std::vector<TrackingVertex> >" />
   <class name="TrackingVertexRef" />
   <class name="TrackingVertexRefVector" />
-  <class pattern="edm::Ref<std::vector<TrackingVertex>,*>" />
-  <class pattern="edm::RefVector<std::vector<TrackingVertex>,*>" />
   <class name="edm::RefProd<std::vector<TrackingVertex> >" />
 
   <class name="TrackingParticle" ClassVersion="11">
@@ -18,15 +16,10 @@
   </class>
   <class name="std::vector<TrackingParticle>" />
   <class name="edm::Wrapper<std::vector<TrackingParticle> >" />
-  <class pattern="edm::Ref<std::vector<TrackingParticle>,*>" />
-  <class pattern="edm::RefVector<std::vector<TrackingParticle>,*>" />
   <class name="edm::RefProd<std::vector<TrackingParticle> >" />
   <class name="TrackingParticleRef" />
   <class name="TrackingParticleRefVector" />
-
-  <class pattern="edm::Ref< std::vector<HepMC::GenVertex>,*>" />
-  <class pattern="edm::RefVector< std::vector<HepMC::GenVertex>,*>" />
-
+  <class name="edm::Wrapper<TrackingParticleRefVector>"/>
  
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track> >" />
   <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Track>,edm::RefProd<std::vector<TrackingParticle> > >" />
@@ -38,7 +31,4 @@
 
   <class name="std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> >" />
   <class name="std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double>" />
-
-  <class pattern="edm::Wrapper<edm::RefVector<std::vector<TrackingParticle>,*> >" />
-
 </lcgdict>

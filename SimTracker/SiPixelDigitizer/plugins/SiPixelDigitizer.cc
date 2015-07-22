@@ -92,7 +92,8 @@ namespace CLHEP {
 namespace cms
 {
   SiPixelDigitizer::SiPixelDigitizer(const edm::ParameterSet& iConfig, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC):
-    first(true),
+    firstInitializeEvent_(true),
+    firstFinalizeEvent_(true),
     _pixeldigialgo(),
     hitsProducer(iConfig.getParameter<std::string>("hitsProducer")),
     trackerContainers(iConfig.getParameter<std::vector<std::string> >("RoutList")),
@@ -140,7 +141,7 @@ namespace cms
        std::set<unsigned int> detIds;
        std::vector<PSimHit> const& simHits = *hSimHits.product();
        edm::ESHandle<TrackerTopology> tTopoHand;
-       iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+       iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
        const TrackerTopology *tTopo=tTopoHand.product();
        for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
          unsigned int detId = (*it).detUnitId();
@@ -165,10 +166,11 @@ namespace cms
   
   void
   SiPixelDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {
-    if(first){
+    if(firstInitializeEvent_){
       _pixeldigialgo->init(iSetup);
-      first = false;
+      firstInitializeEvent_ = false;
     }
+
     // Make sure that the first crossing processed starts indexing the sim hits from zero.
     // This variable is used so that the sim hits from all crossing frames have sequential
     // indices used to create the digi-sim link (if configured to do so) rather than starting
@@ -179,7 +181,7 @@ namespace cms
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType, pDD);
     iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
     edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
     // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
@@ -249,13 +251,18 @@ namespace cms
     CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
 
     edm::ESHandle<TrackerTopology> tTopoHand;
-    iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+    iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
     const TrackerTopology *tTopo=tTopoHand.product();
 
     std::vector<edm::DetSet<PixelDigi> > theDigiVector;
     std::vector<edm::DetSet<PixelDigiSimLink> > theDigiLinkVector;
  
     PileupInfo_ = getEventPileupInfo();
+    if (firstFinalizeEvent_) {
+      const unsigned int bunchspace = PileupInfo_->getMix_bunchSpacing();
+      _pixeldigialgo->init_DynIneffDB(iSetup, bunchspace);
+      firstFinalizeEvent_ = false;
+    }
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
 
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){

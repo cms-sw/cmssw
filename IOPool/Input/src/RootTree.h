@@ -90,6 +90,7 @@ namespace edm {
     bool current(EntryNumber entry) const {return entry < entries_ && entry >= 0;}
     void rewind() {entryNumber_ = 0;}
     void close();
+    bool skipEntries(unsigned int& offset);
     EntryNumber const& entryNumber() const {return entryNumber_;}
     EntryNumber const& entryNumberForIndex(unsigned int index) const;
     EntryNumber const& entries() const {return entries_;}

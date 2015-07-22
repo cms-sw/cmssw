@@ -23,29 +23,29 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # Input source
 process.source = cms.Source("PoolSource",
-    firstEvent = cms.untracked.uint32(1),
-    noEventSort = cms.untracked.bool(True),	
-    duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-    fileNames = cms.untracked.vstring(
-'file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/3_1_X/mc_nue.root'
-    )
-)
+                            firstEvent = cms.untracked.uint32(1),
+                            noEventSort = cms.untracked.bool(True),	
+                            duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
+                            fileNames = cms.untracked.vstring(
+        'file:/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/3_1_X/mc_nue.root'
+        )
+                            )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
-)
+    )
 
 process.options = cms.untracked.PSet(
 
-)
+    )
 
 
 # Output definition
 
 process.FEVT = cms.OutputModule("PoolOutputModule",
-     outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
-     fileName = cms.untracked.string("HcalValHarvestingEDM.root")
-)
+                                outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
+                                fileName = cms.untracked.string("HcalValHarvestingEDM.root")
+                                )
 
 # DQM
 
@@ -84,31 +84,31 @@ process.GlobalTag.globaltag = autoCond['mc']
 # HCAL validation
 
 process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
-    outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
-    HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
-    HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
-    HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
-    eventype                  = cms.untracked.string('single'),
-    mc                        = cms.untracked.string('yes'),
-    sign = cms.untracked.string('*'),
-    hcalselector              = cms.untracked.string('noise'),
-    ecalselector              = cms.untracked.string('no'),
-    useAllHistos              = cms.untracked.bool(True),
-    Famos                     = cms.untracked.bool(True) 
-)
+                                          outputFile                = cms.untracked.string('HcalRecHitValidationRelVal.root'),
+                                          HBHERecHitCollectionLabel = cms.untracked.InputTag("hbhereco"),
+                                          HFRecHitCollectionLabel   = cms.untracked.InputTag("hfreco"),
+                                          HORecHitCollectionLabel   = cms.untracked.InputTag("horeco"),
+                                          eventype                  = cms.untracked.string('single'),
+                                          mc                        = cms.untracked.string('yes'),
+                                          sign = cms.untracked.string('*'),
+                                          hcalselector              = cms.untracked.string('noise'),
+                                          ecalselector              = cms.untracked.string('no'),
+                                          useAllHistos              = cms.untracked.bool(True),
+                                          Famos                     = cms.untracked.bool(True) 
+                                          )
 
 process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
-     outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
-     DQMDirName = cms.string("/") # root directory
-)
+                                           outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
+                                           DQMDirName = cms.string("/") # root directory
+                                           )
 
 
 # Path and EndPath definitions
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVT)
 process.hcalHitsValidation_step = cms.EndPath(
- process.hcalRecoAnalyzer *
- process.hcalrechitsClient * 
- process.dqmSaver)
+    process.hcalRecoAnalyzer *
+    process.hcalrechitsClient * 
+    process.dqmSaver)
 # process.MEtoEDMConverter
 # )
 

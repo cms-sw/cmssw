@@ -78,7 +78,7 @@ process.dqmSaver.forceRunNumber = 1
 
 # Remove the HLT harvesting from the validation harvesting step
 process.validationHarvesting = cms.Path(process.postValidation)
-process.trackingOnlyHarvesting = cms.Path(process.postProcessorTrack)
+process.trackingOnlyHarvesting = cms.Path(process.postProcessorTrackSequence)
 process.seedingOnlyHarvesting = cms.Path(process.postProcessorSeed)
 #process.schedule = cms.Schedule(process.edmtome_step,process.validationHarvesting,process.dqmsave_step)
 #process.schedule = cms.Schedule(process.edmtome_step,process.trackingOnlyHarvesting,process.seedingOnlyHarvesting,process.dqmsave_step)

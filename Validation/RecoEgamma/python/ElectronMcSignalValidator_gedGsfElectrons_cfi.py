@@ -17,7 +17,7 @@ electronMcSignalHistosCfg = cms.PSet(
   Nbinhoe = cms.int32(100), Hoemin = cms.double(0.0), Hoemax = cms.double(0.5),
   Nbinpoptrue = cms.int32(75), Poptruemin = cms.double(0.0), Poptruemax = cms.double(1.5),
   Nbinerror = cms.int32(30), Energyerrormax = cms.double(30.0),
-  EfficiencyFlag = cms.bool(False), StatOverflowFlag = cms.bool(False)
+  EfficiencyFlag = cms.bool(True), StatOverflowFlag = cms.bool(False)
 )
 
 electronMcSignalValidator = cms.EDAnalyzer("ElectronMcSignalValidator",

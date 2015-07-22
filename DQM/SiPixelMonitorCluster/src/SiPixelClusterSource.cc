@@ -27,6 +27,7 @@
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 // DataFormats
@@ -200,7 +201,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
 
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *pTT = tTopoHandle.product();
 
   LogVerbatim ("PixelDQM") << " *** Geometry node for TrackerGeom is  "<<&(*pDD)<<std::endl;
@@ -232,6 +233,7 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
           PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id),pTT,isUpgrade).halfCylinder();
           int disk   = PixelEndcapName(DetId(id),pTT,isUpgrade).diskName();
+	  if (disk>noOfDisks) noOfDisks=disk;
           int blade  = PixelEndcapName(DetId(id),pTT,isUpgrade).bladeName();
           int panel  = PixelEndcapName(DetId(id),pTT,isUpgrade).pannelName();
           int module = PixelEndcapName(DetId(id),pTT,isUpgrade).plaquetteName();

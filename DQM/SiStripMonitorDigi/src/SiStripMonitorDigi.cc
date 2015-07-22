@@ -38,6 +38,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 /* mia: but is there not a smarter way ?!?!?! */
 const double NORBITS_PER_SECOND = 11223.;
@@ -316,18 +317,13 @@ void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, cons
 
 }
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::beginJob(){
-}
-
-
-//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es ){
 
   if ( show_mechanical_structure_view ){
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    es.get<IdealGeometryRecord>().get(tTopoHandle);
+    es.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
@@ -456,7 +452,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
 						    "" );
       ShotsVsTimeApvShotsGlobal->setAxisTitle("Time (s)",1);
       ShotsVsTimeApvShotsGlobal->setAxisTitle("# Apv Shots",2);
-      if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::DQM_KIND_TPROFILE) ShotsVsTimeApvShotsGlobal->getTH1()->SetBit(TH1::kCanRebin);
+      if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::DQM_KIND_TPROFILE) ShotsVsTimeApvShotsGlobal->getTH1()->SetCanExtend(TH1::kAllAxes);
     }
 
     //cumulative number of Strips in APV shots
@@ -562,7 +558,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   TotalNShots=0;
@@ -862,16 +858,6 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   }
 }//end of method analyze
 //--------------------------------------------------------------------------------------------
-
-void SiStripMonitorDigi::endJob(void){
-  bool outputMEsInRootFile   = conf_.getParameter<bool>("OutputMEsInRootFile");
-  std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
-
-  // save histograms in a file
-  if(outputMEsInRootFile)     dqmStore_->save(outputFileName);
-  
-}//end of method
-//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
   std::map<uint32_t, ModMEs >::iterator pos = DigiMEs.find(idet);
   ModMEs mod_me = pos->second;
@@ -901,7 +887,7 @@ MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IBooker & ibooker , co
   if(!me) return me;
 
   me->setAxisTitle("Event Time in Seconds",1);
-  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetBit(TH1::kCanRebin);
+  if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) me->getTH1()->SetCanExtend(TH1::kAllAxes);
   return me;
 }
 
@@ -1085,7 +1071,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 						    Parameters.getParameter<double>("ymax"),
 						    "" );
     subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
-    if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetBit(TH1::kCanRebin);
+    if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
   
   // Number of Digi vs Bx - Profile
@@ -1191,7 +1177,7 @@ void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::stri
 						      "" );
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("Time (s)",1);
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("# Apv Shots",2);
-    if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetNApvShotsProf->getTH1()->SetBit(TH1::kCanRebin);
+    if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetNApvShotsProf->getTH1()->SetCanExtend(TH1::kAllAxes);
   }
 
 

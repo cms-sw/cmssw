@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 ## select events with at least one good PV
-pvFilter = cms.EDFilter(
+pvFilterHighMETSkim = cms.EDFilter(
     "VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
     cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
@@ -11,48 +11,91 @@ pvFilter = cms.EDFilter(
 
 
 ## apply HBHE Noise filter
-import CommonTools.RecoAlgos.HBHENoiseFilter_cfi
-HBHENoiseFilter = CommonTools.RecoAlgos.HBHENoiseFilter_cfi.HBHENoiseFilter.clone()
+## import CommonTools.RecoAlgos.HBHENoiseFilter_cfi
+## HBHENoiseFilter = CommonTools.RecoAlgos.HBHENoiseFilter_cfi.HBHENoiseFilter.clone()
 
 
 ## select events with high pfMET
-pfMETSelector = cms.EDFilter(
+pfMETSelectorHighMETSkim = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("pfMet"),
-    cut = cms.string( "pt()>150" )
+    cut = cms.string( "pt()>200" )
     )
 
-pfMETCounter = cms.EDFilter(
+pfMETCounterHighMETSkim = cms.EDFilter(
     "CandViewCountFilter",
-    src = cms.InputTag("pfMETSelector"),
+    src = cms.InputTag("pfMETSelectorHighMETSkim"),
     minNumber = cms.uint32(1),
     )
 
-pfMETSelSeq = cms.Sequence(pvFilter*
-                           HBHENoiseFilter*
-                           pfMETSelector*
-                           pfMETCounter
+pfMETSelSeq = cms.Sequence(
+			   pvFilterHighMETSkim*
+                           ##HBHENoiseFilter*
+                           pfMETSelectorHighMETSkim*
+                           pfMETCounterHighMETSkim
                            )
 
 
 
-## select events with high tcMET
-tcMETSelector = cms.EDFilter(
+## select events with high caloMET
+caloMETSelectorHighMETSkim = cms.EDFilter(
     "CandViewSelector",
-    src = cms.InputTag("tcMet"),
-    cut = cms.string( "pt()>150" )
+    src = cms.InputTag("caloMetM"),
+    cut = cms.string( "pt()>200" )
     )
 
-tcMETCounter = cms.EDFilter(
+caloMETCounterHighMETSkim = cms.EDFilter(
     "CandViewCountFilter",
-    src = cms.InputTag("tcMETSelector"),
+    src = cms.InputTag("caloMETSelectorHighMETSkim"),
     minNumber = cms.uint32(1),
     )
 
-tcMETSelSeq = cms.Sequence(pvFilter*
-                           HBHENoiseFilter*
-                           tcMETSelector*
-                           tcMETCounter
+caloMETSelSeq = cms.Sequence(
+			   pvFilterHighMETSkim*
+                           ##HBHENoiseFilter*
+                           caloMETSelectorHighMETSkim*
+                           caloMETCounterHighMETSkim
                            )
 
+
+## select events with high MET dependent on PF and Calo MET Conditions
+CondMETSelectorHighMETSkim = cms.EDProducer(
+   "CandViewShallowCloneCombiner",
+   decay = cms.string("pfMet caloMetM"),
+   cut = cms.string(" (daughter(0).pt > 200) || (daughter(0).pt/daughter(1).pt > 2 && daughter(1).pt > 150 ) || (daughter(1).pt/daughter(0).pt > 2 && daughter(0).pt > 150 )  " )
+   )
+
+CondMETCounterHighMETSkim = cms.EDFilter(
+    "CandViewCountFilter",
+    src = cms.InputTag("CondMETSelectorHighMETSkim"),
+    minNumber = cms.uint32(1),
+    )
+
+CondMETSelSeq = cms.Sequence(
+                           pvFilterHighMETSkim*
+                           ##HBHENoiseFilter*
+                           CondMETSelectorHighMETSkim*
+                           CondMETCounterHighMETSkim
+                           )
+
+
+
+## select events with PAT METs in MINIAODSIM - remember to keep the right branches in the cmsDriver
+miniMETSelectorHighMETSkim = cms.EDFilter(
+    "CandViewSelector",
+    src = cms.InputTag("slimmedMETs"),
+    cut = cms.string( "pt()>200" )
+    )
+
+miniMETCounterHighMETSkim = cms.EDFilter(
+    "CandViewCountFilter",
+    src = cms.InputTag("miniMETSelectorHighMETSkim"),
+    minNumber = cms.uint32(1),
+    )
+
+miniMETSelSeq = cms.Sequence(
+                           ##HBHENoiseFilter*
+                           miniMETSelectorHighMETSkim*
+                           miniMETCounterHighMETSkim
+                           )
 

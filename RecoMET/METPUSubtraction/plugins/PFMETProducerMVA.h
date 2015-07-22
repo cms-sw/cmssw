@@ -106,7 +106,6 @@ namespace reco
     edm::EDGetTokenT<edm::Handle<double> > srcRho_;
 
     std::string correctorLabel_;
-    bool isOld42_ ;
     bool useType1_;
     
     double globalThreshold_;

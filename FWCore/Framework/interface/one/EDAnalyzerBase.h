@@ -63,8 +63,6 @@ namespace edm {
       // Warning: the returned moduleDescription will be invalid during construction
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
-    protected:
-      
       void callWhenNewProductsRegistered(std::function<void(BranchDescription const&)> const& func);
 
     private:

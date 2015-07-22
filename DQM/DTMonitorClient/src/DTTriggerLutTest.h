@@ -33,10 +33,8 @@ protected:
 
   /// BeginRun
   void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  void Bookings(DQMStore::IBooker &, DQMStore::IGetter &);
 
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &);
-
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
 
   /// Run client analysis
   void runClientDiagnostic(DQMStore::IBooker &, DQMStore::IGetter &);

@@ -2,7 +2,7 @@
 
 
 gSystem->Load("libFWCoreFWLite.so");
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
 TFile f("testPFPAT.root");
 
 TTree* Events = 0;

@@ -15,7 +15,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 
 #include <string>
 #include <map>

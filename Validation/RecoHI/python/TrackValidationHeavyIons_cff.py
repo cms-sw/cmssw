@@ -26,7 +26,6 @@ hiTrackValidator = multiTrackValidator.clone(
     label_tp_fake  = cms.InputTag("cutsTPFake"),
     signalOnlyTP = cms.bool(False),
     trackCollectionForDrCalculation = cms.InputTag("cutsRecoTracks"),
-    skipHistoFit = cms.untracked.bool(True), # done in post-processing
     minpT = cms.double(1.0),
     maxpT = cms.double(100.0),
     nintpT = cms.int32(40),

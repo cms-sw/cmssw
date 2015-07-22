@@ -110,7 +110,8 @@ FastSimRecoTrackerRECO = cms.PSet(
 #AOD content
 FastSimRecoTrackerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep recoTracks_iterativeGSWithMaterialTracks_*_*',
-                                           'keep *_generalTracksBeforeMixing_*_*')
+                                           #'keep *_generalTracksBeforeMixing_*_*'
+                                           )
 )
 
 

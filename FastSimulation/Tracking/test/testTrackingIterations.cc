@@ -10,11 +10,9 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -57,6 +55,7 @@ private:
   std::vector<edm::InputTag> thirdTracks;
   std::vector<edm::InputTag> fourthTracks;
   std::vector<edm::InputTag> fifthTracks;
+  bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;
   // Histograms
@@ -347,7 +346,7 @@ testTrackingIterations::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHand;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHand);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
   const TrackerTopology *tTopo=tTopoHand.product();
 
 
@@ -378,9 +377,8 @@ testTrackingIterations::analyze(const edm::Event& iEvent, const edm::EventSetup&
   mySimEvent[1]->fill( *fastSimTracks, *fastSimVertices );
 
   // Get the GS RecHits
-  //  edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
-  edm::Handle<SiTrackerGSMatchedRecHit2DCollection> theGSRecHits;
-  iEvent.getByLabel("siTrackerGaussianSmearingRecHits","TrackerGSMatchedRecHits", theGSRecHits);
+  edm::Handle<FastTMRecHitCombinations> recHitCombinations;
+  iEvent.getByLabel("siTrackerGaussianSmearingRecHits",recHitCombinations);
   TrajectorySeedHitCandidate theFirstSeedingTrackerRecHit;
 
 
@@ -545,7 +543,7 @@ testTrackingIterations::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	theLayerNumber=tTopo->layer(theDetId);
 	if(hit==0){
 	  const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(ihit)));
-	  firstID = theFirstSeedingRecHit->simtrackId();
+	  firstID = theFirstSeedingRecHit->simTrackId(0);
 	  firstSubDetId =  theSubDetId;
 	  firstLayerNumber = theLayerNumber;	
 	  std::cout << "First Hit " << " Subdet " << firstSubDetId << ", Layer " << firstLayerNumber << std::endl;
@@ -575,21 +573,15 @@ testTrackingIterations::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if (DEBUG) {
 	//get the Simtrack ID for this track for the FastSim 
 	if(ievt==1) {
-	  std::cout << "HERE Simtrack = " << firstID << "\tNUMBER of rechits" << theGSRecHits->size() << std::endl;
+	  std::cout << "HERE Simtrack = " << firstID << "\tNUMBER of " << recHitCombinations->size() << std::endl;
 	  // Get all the rechits associated to this track
-	  SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(firstID);
-	  SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-	  SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-	  SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
-	  std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
+	  std::cout <<"counting: "<< recHitCombinations->at(firstID).size() <<" hits to be considered "<< std::endl;
 	  
 	  int hitnum=0;
 	  TrajectorySeedHitCandidate theCurrentRecHit;
-	  for ( iterRecHit = theRecHitRangeIteratorBegin; 
-		iterRecHit != theRecHitRangeIteratorEnd; 
-		++iterRecHit) {
+	  for ( const auto _hit : recHitCombinations->at(firstID)) {
 	    
-	    theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),theGeometry,tTopo);
+	    theCurrentRecHit = TrajectorySeedHitCandidate(&_hit,theGeometry,tTopo);
 	    std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
 	    hitnum++;
 	  }
@@ -657,7 +649,7 @@ testTrackingIterations::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 	if(hit==0){
 	  const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = (const SiTrackerGSMatchedRecHit2D*) (&(*(ihit)));
-	  firstID = theFirstSeedingRecHit->simtrackId();
+	  firstID = theFirstSeedingRecHit->hitCombinationId();
 	  firstSubDetId =  theSubDetId;
 	  firstLayerNumber = theLayerNumber;	
 	  std::cout << "First Hit " << " Subdet " << firstSubDetId << ", Layer " << firstLayerNumber << std::endl; 
@@ -687,22 +679,14 @@ testTrackingIterations::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if (DEBUG) {
 	//get the Simtrack ID for this track for the FastSim 
 	if(ievt==1) {
-	  std::cout << "HERE Simtrack = " << firstID << "\tNUMBER of rechits" << theGSRecHits->size() << std::endl;
+	  std::cout << "HERE Simtrack = " << firstID << "\tNUMBER of " << recHitCombinations->size() << std::endl;
 	  // Get all the rechits associated to this track
-	  SiTrackerGSMatchedRecHit2DCollection::range theRecHitRange = theGSRecHits->get(firstID);
-	  SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
-	  SiTrackerGSMatchedRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
-	  SiTrackerGSMatchedRecHit2DCollection::const_iterator iterRecHit;
-	  
-	  std::cout <<"counting: "<< theRecHitRangeIteratorEnd-theRecHitRangeIteratorBegin <<" hits to be considered "<< std::endl;
 	  
 	  int hitnum=0;
 	  TrajectorySeedHitCandidate theCurrentRecHit;
-	  for ( iterRecHit = theRecHitRangeIteratorBegin; 
-		iterRecHit != theRecHitRangeIteratorEnd; 
-		++iterRecHit) {
+	  for ( const auto & _hit : recHitCombinations->at(firstID) ) {
 	    
-	    theCurrentRecHit = TrajectorySeedHitCandidate(&(*iterRecHit),theGeometry,tTopo);
+	    theCurrentRecHit = TrajectorySeedHitCandidate(&_hit,theGeometry,tTopo);
 	    std::cout << hitnum << " Hit DetID = " <<   theCurrentRecHit.subDetId() << "\tLayer = " << theCurrentRecHit.layerNumber() << std::endl;	
 	    hitnum++;
 	    

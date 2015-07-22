@@ -9,7 +9,6 @@
 #include <map>
 #include <string>
 
-class BeginOfJob;
 class BeginOfRun;
 class G4LogicalVolume;
 class G4VPhysicalVolume;
@@ -17,7 +16,7 @@ class G4VPhysicalVolume;
 typedef std::multimap< G4LogicalVolume*, G4VPhysicalVolume*, std::less<G4LogicalVolume*> > mmlvpv;
 
 class CheckOverlap : public SimWatcher,
-		     public Observer<const BeginOfRun *> {
+  		     public Observer<const BeginOfRun *> {
 
 public:
 

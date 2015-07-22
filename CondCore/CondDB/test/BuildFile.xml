@@ -4,10 +4,15 @@
 <use   name="CondFormats/Common"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Utilities"/>
 <library   name="testCondDBDict" file="">
 </library>
 <bin   file="testConditionDatabase_0.cpp" name="testConditionDatabase_0">
   <lib   name="testCondDBDict"/>
+</bin>
+<bin   file="testConditionDatabase_1.cpp" name="testConditionDatabase_1">
+</bin>
+<bin   file="testConditionDatabase_2.cpp" name="testConditionDatabase_2">
 </bin>
 <bin   file="testRootStreaming.cpp" name="testRootStreaming">
   <lib   name="testCondDBDict"/>

@@ -169,7 +169,7 @@ _Base = sqlalchemy.ext.declarative.declarative_base()
 
 
 class Tag(_Base):
-    __tablename__       = 'tag'
+    __tablename__       = 'TAG'
 
     name                = sqlalchemy.Column(sqlalchemy.String(name_length),           primary_key=True)
     time_type           = sqlalchemy.Column(sqlalchemy.Enum(*tuple(TimeType)),        nullable=False)
@@ -185,19 +185,19 @@ class Tag(_Base):
 
 
 class IOV(_Base):
-    __tablename__       = 'iov'
+    __tablename__       = 'IOV'
 
-    tag_name            = sqlalchemy.Column(sqlalchemy.ForeignKey('tag.name'),        primary_key=True)
+    tag_name            = sqlalchemy.Column(sqlalchemy.ForeignKey('TAG.name'),        primary_key=True)
     since               = sqlalchemy.Column(sqlalchemy.Integer,                       primary_key=True)
     insertion_time      = sqlalchemy.Column(sqlalchemy.TIMESTAMP,                     primary_key=True)
-    payload_hash        = sqlalchemy.Column(sqlalchemy.ForeignKey('payload.hash'),    nullable=False)
+    payload_hash        = sqlalchemy.Column(sqlalchemy.ForeignKey('PAYLOAD.hash'),    nullable=False)
 
     tag                 = sqlalchemy.orm.relationship('Tag')
     payload             = sqlalchemy.orm.relationship('Payload')
 
 
 class Payload(_Base):
-    __tablename__       = 'payload'
+    __tablename__       = 'PAYLOAD'
 
     hash                = sqlalchemy.Column(sqlalchemy.CHAR(hash_length),             primary_key=True)
     object_type         = sqlalchemy.Column(sqlalchemy.String(name_length),           nullable=False)
@@ -208,7 +208,7 @@ class Payload(_Base):
 
 
 class GlobalTag(_Base):
-    __tablename__       = 'global_tag'
+    __tablename__       = 'GLOBAL_TAG'
 
     name                = sqlalchemy.Column(sqlalchemy.String(name_length),           primary_key=True)
     validity            = sqlalchemy.Column(sqlalchemy.Integer,                       nullable=False)
@@ -219,12 +219,12 @@ class GlobalTag(_Base):
 
 
 class GlobalTagMap(_Base):
-    __tablename__       = 'global_tag_map'
+    __tablename__       = 'GLOBAL_TAG_MAP'
 
-    global_tag_name     = sqlalchemy.Column(sqlalchemy.ForeignKey('global_tag.name'), primary_key=True)
+    global_tag_name     = sqlalchemy.Column(sqlalchemy.ForeignKey('GLOBAL_TAG.name'), primary_key=True)
     record              = sqlalchemy.Column(sqlalchemy.String(name_length),           primary_key=True)
     label               = sqlalchemy.Column(sqlalchemy.String(name_length),           primary_key=True)
-    tag_name            = sqlalchemy.Column(sqlalchemy.ForeignKey('tag.name'),        nullable=False)
+    tag_name            = sqlalchemy.Column(sqlalchemy.ForeignKey('TAG.name'),        nullable=False)
 
     global_tag          = sqlalchemy.orm.relationship('GlobalTag')
     tag                 = sqlalchemy.orm.relationship('Tag')

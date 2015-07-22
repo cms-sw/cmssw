@@ -54,8 +54,8 @@ process.load("Validation.Configuration.postValidation_cff")
 process.load("HLTriggerOffline.Muon.HLTMuonPostVal_cff")
 if (onlyRecoMuons):
     from Validation.Configuration.postValidation_cff import *
-    postValidation.remove(postProcessorTrack)
-    postValidation_fastsim.remove(postProcessorTrack)
+    postValidation.remove(postProcessorTrackSequence)
+    postValidation_fastsim.remove(postProcessorTrackSequence)
     from HLTriggerOffline.Muon.HLTMuonPostVal_cff import *
     HLTMuonPostVal.remove(hltMuonPostProcessors)
     HLTMuonPostVal_FastSim.remove(hltMuonPostProcessors)

@@ -33,6 +33,8 @@
   <class name="QGLikelihoodSystematicsObject::Entry"/>
   <class name="std::vector<QGLikelihoodSystematicsObject::Entry>"/>     
 
+  <class name="METCorrectorParameters"/>
+
 
 </selection>
 </lcgdict>

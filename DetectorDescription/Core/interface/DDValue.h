@@ -86,6 +86,7 @@ public:
   //! A DDValue a is smaller than a DDValue b if (a.id()<b.id()) OR (a.id()==b.id() and value(a)<value(b))
   bool operator<( const DDValue & ) const;
 
+private:
   ///Only used internally
   struct StringHolder {
     StringHolder() {}
@@ -110,7 +111,6 @@ public:
     std::atomic<unsigned int> value_;
   };
   
-private:  
   void init( const std::string & );
  
   using Names = tbb::concurrent_vector<StringHolder,tbb::zero_allocator<StringHolder>>;

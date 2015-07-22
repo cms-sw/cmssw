@@ -36,7 +36,7 @@ pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajecto
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 pixelLessStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("pixelLessStepSeeds"),
+    src = cms.InputTag("pixelLessStepSeeds"),
     MinNumberOfCrossedLayers = 6 # ?
 )
 

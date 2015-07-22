@@ -56,9 +56,8 @@ DTTriggerLutTest::~DTTriggerLutTest(){
 }
 
 
-void DTTriggerLutTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
-                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
-  if (bookingdone) return;
+void DTTriggerLutTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+
   bookingdone = 1;  
 
   vector<string>::const_iterator iTr   = trigSources.begin();
@@ -116,6 +115,8 @@ void DTTriggerLutTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
 }
 
 void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+
+   if (!bookingdone) Bookings(ibooker,igetter);
 
   // Reset lut percentage 1D summaries
   if (detailedAnalysis){
@@ -357,6 +358,4 @@ void DTTriggerLutTest::fillWhPlot(MonitorElement *plot, int sect, int stat, floa
   
 }
 
-
-void DTTriggerLutTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}
 

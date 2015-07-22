@@ -61,6 +61,8 @@ public:
       unsigned int etaRange;
       unsigned int phiRange;
 
+      unsigned int isolationLUT;
+
       unsigned int etaWindowLower;
       unsigned int etaWindowUpper;
       unsigned int etaWindowVetoLower;

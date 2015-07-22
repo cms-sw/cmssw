@@ -22,6 +22,10 @@
 
 #include "SeedToTrackProducer.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+
 //
 // class declaration
 //
@@ -92,6 +96,10 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iSetup.get<IdealMagneticFieldRecord>().get(theMGField);
     iSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
+    edm::ESHandle<TrackerTopology> httopo;
+    iSetup.get<TrackerTopologyRcd>().get(httopo);
+    const TrackerTopology& ttopo = *httopo;
+
     // now read the L2 seeds collection :
     edm::Handle<TrajectorySeedCollection> L2seedsCollection;
     iEvent.getByToken(L2seedsTagT_,L2seedsCollection);
@@ -144,7 +152,7 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         unsigned int nHitsAdded = 0;
         for(TrajectorySeed::recHitContainer::const_iterator itRecHits=(L2seeds->at(i)).recHits().first; itRecHits!=(L2seeds->at(i)).recHits().second; ++itRecHits, ++countRH) {
             TrackingRecHit* hit = (itRecHits)->clone();
-            theTrack.appendHitPattern(*hit);
+            theTrack.appendHitPattern(*hit, ttopo);
             selectedTrackHits->push_back(hit);
             nHitsAdded++;
         }

@@ -32,6 +32,8 @@
 
 #include "DataFormats/Common/interface/View.h"
 
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -119,8 +121,8 @@ EwkElecDQM::EwkElecDQM(const ParameterSet& cfg)
       eJetMin_(cfg.getUntrackedParameter<double>("EJetMin", 999999.)),
       nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999)),
       PUMax_(cfg.getUntrackedParameter<unsigned int>("PUMax", 60)),
-      PUBinCount_(cfg.getUntrackedParameter<unsigned int>("PUBinCount", 12))
-
+      PUBinCount_(cfg.getUntrackedParameter<unsigned int>("PUBinCount", 12)),
+      hltPrescaleProvider_(cfg, consumesCollector(), *this)
       //       caloJetCollection_(cfg.getUntrackedParameter<edm:InputTag>("CaloJetCollection","sisCone5CaloJets"))
 {
   isValidHltConfig_ = false;
@@ -141,7 +143,7 @@ void EwkElecDQM::dqmBeginRun(const Run& iRun, const EventSetup& iSet) {
   // isValidHltConfig_ could be used to short-circuit analyze() in case of
   // problems
   isValidHltConfig_ =
-      hltConfigProvider_.init(iRun, iSet, "HLT", isConfigChanged);
+      hltPrescaleProvider_.init(iRun, iSet, "HLT", isConfigChanged);
 
   LogTrace("") << "isValidHltConfig_=" << isValidHltConfig_ << "\n";
 }
@@ -450,6 +452,8 @@ void EwkElecDQM::analyze(const Event& ev, const EventSetup& iSet) {
   const edm::TriggerNames& trigNames = ev.triggerNames(*triggerResults);
   bool trigger_fired = false;
 
+  HLTConfigProvider const&  hltConfigProvider = hltPrescaleProvider_.hltConfigProvider();
+
   /* very old code
   for (unsigned int i=0; i<triggerResults->size(); i++) {
         if (triggerResults->accept(i)) {
@@ -490,10 +494,10 @@ if not
           if(!found) continue;
 
           bool prescaled=false;
-          for (unsigned int ps= 0; ps<  hltConfigProvider_.prescaleSize();
+          for (unsigned int ps= 0; ps<  hltConfigProvider.prescaleSize();
 ps++){
               const unsigned int prescaleValue =
-hltConfigProvider_.prescaleValue(ps, trigName) ;
+hltConfigProvider.prescaleValue(ps, trigName) ;
               if (prescaleValue != 1) prescaled =true;
           }
 
@@ -503,7 +507,7 @@ hltConfigProvider_.prescaleValue(ps, trigName) ;
   */
 
   // get the prescale set for this event
-  const int prescaleSet = hltConfigProvider_.prescaleSet(ev, iSet);
+  const int prescaleSet = hltPrescaleProvider_.prescaleSet(ev, iSet);
   if (prescaleSet == -1) {
     LogTrace("") << "Failed to determine prescaleSet\n";
     // std::cout << "Failed to determine prescaleSet. Check cmsRun GlobalTag\n";
@@ -525,7 +529,7 @@ hltConfigProvider_.prescaleValue(ps, trigName) ;
     if (!found) continue;
 
     // skip trigger, if it is prescaled
-    if (hltConfigProvider_.prescaleValue(prescaleSet, trigName) != 1) continue;
+    if (hltConfigProvider.prescaleValue(prescaleSet, trigName) != 1) continue;
 
     // std::cout << "found unprescaled trigger that fired: " << trigName <<
     // "\n";

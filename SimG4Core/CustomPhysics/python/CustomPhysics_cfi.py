@@ -12,6 +12,7 @@ customPhysicsSetup = cms.PSet(
     amplitude = cms.double(100.0), ##
 
     # R-hadron physics setup
+    rhadronPhysics = cms.bool(True),
     resonant = cms.bool(False),
     gamma = cms.double(0.1),
     reggeModel = cms.bool(False),
@@ -19,4 +20,3 @@ customPhysicsSetup = cms.PSet(
     mixing = cms.double(1.)
 
 )
-

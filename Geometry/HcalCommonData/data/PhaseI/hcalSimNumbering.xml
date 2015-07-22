@@ -28,13 +28,13 @@
     10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 10.0*deg, 20.0*deg,
     20.0*deg
   </Vector>
-  <Vector name="layerGroupEta1" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta1" type="numeric" nEntries="19">
     1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4
   </Vector>
-  <Vector name="layerGroupEta16" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta16" type="numeric" nEntries="19">
     1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
   </Vector>
-  <Vector name="layerGroupEta17" type="numeric" nEntries="19">
+  <Vector name="layerGroupSimEta17" type="numeric" nEntries="19">
     1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5
   </Vector>
   <Vector name="etaMin" type="numeric" nEntries="4">
@@ -42,6 +42,9 @@
   </Vector>
   <Vector name="etaMax" type="numeric" nEntries="4">
     16, 29, 41, 15
+  </Vector>
+  <Vector name="MaxDepth" type="numeric" nEntries="4">
+     3,  5,  4,  4
   </Vector>
   <Vector name="etaRange" type="numeric" nEntries="4">
     1.392, 3.000, 5.500, 1.305
@@ -62,14 +65,14 @@
   <Vector name="HBShift" type="numeric" nEntries="4">
     0, 0, 0, 0
   </Vector>
-  <Vector name="HEGains" type="numeric" nEntries="4">
-    178.0, 178.0, 178.0, 178.0
+  <Vector name="HEGains" type="numeric" nEntries="5">
+    178.0, 178.0, 178.0, 178.0, 178.0
   </Vector>
-  <Vector name="HEShift" type="numeric" nEntries="4">
-    0, 0, 0, 0
+  <Vector name="HEShift" type="numeric" nEntries="5">
+    0, 0, 0, 0, 0
   </Vector>
   <Vector name="HFGains" type="numeric" nEntries="4">
-    2.840, 2.090, 0.000, 0.000
+    2.840, 2.090, 2.840, 2.090
   </Vector>
   <Vector name="HFShift" type="numeric" nEntries="4">
     0, 0, 0, 0

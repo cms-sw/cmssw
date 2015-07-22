@@ -38,7 +38,7 @@ process.vertexHistoryAnalyzer.vertexProducer = 'svTagInfoProxy2'
 
 process.GlobalTag.globaltag = 'MC_38Y_V9::All'
 
-process.p = cms.Path(process.playback * process.svTagInfoProxy * process.svTagInfoSelector * process.svTagInfoProxy2 * process.vertexHistoryAnalyzer)
+process.p = cms.Path(process.playback * process.svTagInfoProxy * process.svTagInfoSelector * process.svTagInfoProxy2 * process.trackAssociatorByHits * process.vertexAssociatorSequence * process.vertexHistoryAnalyzer)
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 readFiles = cms.untracked.vstring()

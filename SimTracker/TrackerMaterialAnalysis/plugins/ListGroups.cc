@@ -423,7 +423,7 @@ ListGroups::analyze(const edm::Event& evt, const edm::EventSetup& setup) {
   DDFilteredView fv(*hDdd);
 
   DDSpecificsFilter filter;
-  filter.setCriteria(DDValue("TrackingMaterialGroup", ""), DDSpecificsFilter::not_equals);
+  filter.setCriteria(DDValue("TrackingMaterialGroup", ""), DDCompOp::not_equals);
   fv.addFilter(filter);
 
   while (fv.next()) {

@@ -47,7 +47,9 @@ class CutApplicatorBase : public candf::CandidateCut {
   enum CandidateType{NONE,
 		     ELECTRON,MUON,PHOTON,TAU,
 		     PATELECTRON,PATMUON,PATPHOTON,PATTAU};
-  
+
+ CutApplicatorBase(): CandidateCut() {}
+
  CutApplicatorBase(const edm::ParameterSet& c) :
   _name(c.getParameter<std::string>("cutName")) {
   }
@@ -84,7 +86,7 @@ class CutApplicatorBase : public candf::CandidateCut {
   
   virtual CandidateType candidateType() const { return NONE; }
 
-  const std::string& name() const { return _name; }
+  virtual const std::string& name() const { return _name; }
   
   //! Destructor
   virtual ~CutApplicatorBase(){};

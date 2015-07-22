@@ -3,6 +3,7 @@
 <library   name="PhysicsToolsIsolationAlgos_plugins" file="*.cc">
   <use   name="CommonTools/Utils"/>
   <use   name="DataFormats/Candidate"/>
+  <use   name="DataFormats/PatCandidates"/>
   <use   name="DataFormats/TauReco"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="PhysicsTools/IsolationAlgos"/>

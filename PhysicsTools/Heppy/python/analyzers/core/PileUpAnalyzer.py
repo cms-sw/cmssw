@@ -62,8 +62,8 @@ class PileUpAnalyzer( Analyzer ):
             if not hasattr(self.cfg_comp,"puFileMC") or (self.cfg_comp.puFileMC is None and self.cfg_comp.puFileData is None):
                 self.enable = False
             else:
-                assert( os.path.isfile(self.cfg_comp.puFileMC) )
-                assert( os.path.isfile(self.cfg_comp.puFileData) )
+                assert( os.path.isfile(os.path.expandvars(self.cfg_comp.puFileMC)) )
+                assert( os.path.isfile(os.path.expandvars(self.cfg_comp.puFileData)) )
 
                 self.mcfile = TFile( self.cfg_comp.puFileMC )
                 self.mchist = self.mcfile.Get('pileup')

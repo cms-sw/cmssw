@@ -20,7 +20,7 @@ the following sequence of commands.
   cmsenv
   root.exe
   gSystem->Load("libFWCoreFWLite.so");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
   TFile f("good.root");
 
 Then this one will draw just a simple variable:
@@ -53,7 +53,7 @@ using ROOT's "Draw" interface.
 #include <string>
 #include <vector>
 #include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "TFile.h"
 #include "TTree.h"
 #include "TBranch.h"
@@ -93,7 +93,7 @@ public:
   {
     if(!sWasRun_) {
       gSystem->Load("libFWCoreFWLite.so");
-      AutoLibraryLoader::enable();
+      FWLiteEnabler::enable();
       
       char* argv[] = {CHARSTAR("testFWCoreFWLite"),
 		      CHARSTAR("/bin/bash"),

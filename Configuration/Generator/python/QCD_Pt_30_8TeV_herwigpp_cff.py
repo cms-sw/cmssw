@@ -1,28 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.Generator.HerwigppDefaults_cfi import *
-
+from Configuration.Generator.HerwigppUE_V23_cfi import *
+from Configuration.Generator.HerwigppPDF_MRST2001_LO_cfi import *
+from Configuration.Generator.HerwigppEnergy_8TeV_cfi import *
 
 generator = cms.EDFilter("ThePEGGeneratorFilter",
 	herwigDefaultsBlock,
+	herwigppUESettingsBlock,
+	herwigppPDFSettingsBlock,
+	herwigppEnergySettingsBlock,
 
 	configFiles = cms.vstring(),
 	parameterSets = cms.vstring(
-		'cm8TeV',
-		'pdfMRST2001',
+		'hwpp_cm_8TeV',
+		'hwpp_pdf_MRST2001',
 		'Summer09QCDParameters',
-		'basicSetup',
-		'setParticlesStableForDetector',
+		'hwpp_cmsDefaults',
 	),
 
 	Summer09QCDParameters = cms.vstring(
-		'cd /Herwig/MatrixElements/',
-		'insert SimpleQCD:MatrixElements[0] MEQCD2to2',
 
-		'cd /',
-		'set /Herwig/Cuts/JetKtCut:MinKT 30*GeV',
-		'set /Herwig/Cuts/QCDCuts:MHatMin 0.0*GeV',
-		'set /Herwig/UnderlyingEvent/MPIHandler:IdenticalToUE 0',
+                'insert /Herwig/MatrixElements/SimpleQCD:MatrixElements[0] /Herwig/MatrixElements/MEQCD2to2',
+
+                'set /Herwig/Cuts/JetKtCut:MinKT 30*GeV',
+                'set /Herwig/Cuts/QCDCuts:MHatMin 0.0*GeV',
+                'set /Herwig/UnderlyingEvent/MPIHandler:IdenticalToUE 0',
 	),
 
 	crossSection = cms.untracked.double(6.22927e+07),

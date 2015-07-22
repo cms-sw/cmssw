@@ -26,7 +26,9 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				   std::auto_ptr<reco::TrackCollection>& selTracks,
 				   std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 				   std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-				   AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder, int BeforeOrAfter)
+				   AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder,
+                                   const TrackerTopology *ttopo,
+                                   int BeforeOrAfter)
 {
 
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
@@ -107,7 +109,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
         edm::Handle<MeasurementTrackerEvent> mte;
         evt.getByToken(mteSrc_, mte);
 	// NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track,prop,&*mte);
+	setSecondHitPattern(theTraj,track,prop,&*mte, ttopo);
       }
     //==============================================================
     
@@ -127,7 +129,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
     tx.setHits(rHits,ih,ie-ih);
     for (;ih<ie; ++ih) {
       auto const & hit = (*selHits)[ih];
-      track.appendHitPattern(hit);
+      track.appendHitPattern(hit, *ttopo);
     }
     
     // ----

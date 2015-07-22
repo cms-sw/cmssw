@@ -18,6 +18,7 @@ patMuonsWithoutTrigger = PhysicsTools.PatAlgos.producersLayer1.muonProducer_cfi.
     embedPFCandidate    = False,
     embedCaloMETMuonCorrs = cms.bool(False),
     embedTcMETMuonCorrs   = cms.bool(False),
+    embedPfEcalEnergy     = cms.bool(False),
     # then switch off some features we don't need
     #addTeVRefits = False, ## <<--- this doesn't work. PAT bug ??
     embedPickyMuon = False,
@@ -68,10 +69,14 @@ addL1UserData(patMuonsWithoutTrigger, "muonL1Info")
 ### ==== Unpack trigger, and match ====
 from PhysicsTools.PatAlgos.triggerLayer1.triggerProducer_cfi import patTrigger as patTriggerFull
 patTriggerFull.onlyStandAlone = True
-patTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
+patTrigger = cms.EDProducer("TriggerObjectFilterByCollection",
     src = cms.InputTag("patTriggerFull"),
-    cut = cms.string('coll("hltL1extraParticles") || coll("hltL2MuonCandidates") || coll("hltL3MuonCandidates") || coll("hltGlbTrkMuonCands") || coll("hltMuTrackJpsiCtfTrackCands") || coll("hltMuTrackJpsiEffCtfTrackCands") || coll("hltMuTkMuJpsiTrackerMuonCands")'),
+    collections = cms.vstring("hltL1extraParticles", "hltL2MuonCandidates", "hltL3MuonCandidates", "hltGlbTrkMuonCands", "hltMuTrackJpsiCtfTrackCands", "hltMuTrackJpsiEffCtfTrackCands", "hltMuTkMuJpsiTrackerMuonCands"),
 ) 
+#patTrigger = cms.EDFilter("PATTriggerObjectStandAloneSelector",
+#    src = cms.InputTag("patTriggerFull"),
+#    cut = cms.string('coll("hltL1extraParticles") || coll("hltL2MuonCandidates") || coll("hltL3MuonCandidates") || coll("hltGlbTrkMuonCands") || coll("hltMuTrackJpsiCtfTrackCands") || coll("hltMuTrackJpsiEffCtfTrackCands") || coll("hltMuTkMuJpsiTrackerMuonCands")'),
+#) 
 
 ### ==== Then perform a match for all HLT triggers of interest
 muonTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
@@ -107,14 +112,14 @@ muonMatchHLTCtfTrack2 = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll
 muonMatchHLTTrackMu  = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTkMuJpsiTrackerMuonCands")'), maxDeltaR = 0.1, maxDPtRel = 10.0) #maxDeltaR Changed accordingly to Zoltan tuning. 
 
 patTriggerMatchers1Mu = cms.Sequence(
-      muonMatchHLTL1 +
+      #muonMatchHLTL1 +   # keep off by default, since it is slow and usually not needed
       muonMatchHLTL2 +
       muonMatchHLTL3 +
       muonMatchHLTL3T 
 )
 patTriggerMatchers1MuInputTags = [
-    cms.InputTag('muonMatchHLTL1','propagatedReco'), # fake, will match if and only if he muon did propagate to station 2
-    cms.InputTag('muonMatchHLTL1'),
+    #cms.InputTag('muonMatchHLTL1','propagatedReco'), # fake, will match if and only if he muon did propagate to station 2
+    #cms.InputTag('muonMatchHLTL1'),
     cms.InputTag('muonMatchHLTL2'),
     cms.InputTag('muonMatchHLTL3'),
     cms.InputTag('muonMatchHLTL3T'),
@@ -200,6 +205,19 @@ def addMCinfo(process):
 
 def addDiMuonTriggers(process):
     print "[MuonAnalysis.MuonAssociators.patMuonsWithTrigger_cff] Di-muon triggers are already enabled by default"
+
+def addHLTL1Passthrough(process, embedder="patMuonsWithTrigger"):
+    process.patMuonsWithTriggerSequence.replace(process.muonMatchHLTL3, process.muonMatchHLTL1 + process.muonMatchHLTL3)
+    getattr(process,embedder).matches += [ cms.InputTag('muonMatchHLTL1'), cms.InputTag('muonMatchHLTL1','propagatedReco') ]
+
+def useExtendedL1Match(process, patMuonProd="patMuonsWithoutTrigger", byWhat=["ByQ"]):
+    process.load("MuonAnalysis.MuonAssociators.muonL1MultiMatch_cfi")
+    process.globalReplace('muonL1Info', process.muonL1MultiMatch.clone(src = process.muonL1Info.src.value()))
+    pmp = getattr(process, patMuonProd)
+    for X in byWhat:
+        pmp.userData.userInts.src   += [ cms.InputTag('muonL1Info', "quality"+X) ]
+        pmp.userData.userFloats.src += [ cms.InputTag('muonL1Info', "deltaR"+X) ]
+        pmp.userData.userCands.src  += [ cms.InputTag('muonL1Info', X) ]
 
 def useL1MatchingWindowForSinglets(process):
     "Change the L1 trigger matching window to be suitable also for CSC single triggers"

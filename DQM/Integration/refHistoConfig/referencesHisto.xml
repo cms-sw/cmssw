@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE RefHistos  SYSTEM "referenceHisto.dtd"> 
-
-<RefHistos DataSetName="Cosmic" SoftwareVersion="CMSSW_3_2_3" GlobalTag="GR09_P_V1">
-
-  <MetaData destDB="fake" tag="Cosmics" since="1"/>
-  &Generic;
-
-</RefHistos>

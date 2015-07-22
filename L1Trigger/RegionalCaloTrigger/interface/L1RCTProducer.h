@@ -88,12 +88,12 @@ class L1RCTProducer : public edm::EDProducer
     eeFed,
     hbheFed,
     hfFed,
-    c_max = hfFed
+    hfFedUp,
+    c_max = hfFedUp
   };
 
+  static const int crateFED[18][6];
 
-
-  static const int crateFED[18][5];
   static const int minBarrel = 1;
   static const int maxBarrel = 17;
   static const int minEndcap = 17;

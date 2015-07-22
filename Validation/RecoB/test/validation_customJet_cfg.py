@@ -16,7 +16,7 @@ options.parseArguments()
 
 whichJets  = options.jets 
 applyJEC = True
-corrLabel = 'ak4PFCHSL1FastL2L3'
+corrLabel = "ak4PFCHS"
 tag =  'MCRUN2_74_V7::All'
 useTrigger = False
 triggerPath = "HLT_PFJet80_v*"
@@ -37,7 +37,7 @@ process = cms.Process("validation")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
-process.load("JetMETCorrections.Configuration.JetCorrectionServices_cff")
+process.load("JetMETCorrections.Configuration.JetCorrectors_cff")
 process.load("CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi")
 process.load("RecoJets.JetAssociationProducers.ak4JTA_cff")
 process.load("RecoBTag.Configuration.RecoBTag_cff")
@@ -45,6 +45,7 @@ process.load("PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi")
 process.load("PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi")
 process.load("PhysicsTools.JetMCAlgos.CaloJetsMCFlavour_cfi")
 process.load("PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi")
+process.JECseq = cms.Sequence(getattr(process,corrLabel+"L1FastL2L3CorrectorChain"))
 
 newjetID=cms.InputTag(whichJets)
 process.ak4JetFlavourInfos.jets               = newjetID
@@ -84,7 +85,7 @@ if runOnMC:
     process.bTagValidation.applyPtHatWeight = False
     process.bTagValidation.doJetID = True
     process.bTagValidation.doJEC = applyJEC
-    process.bTagValidation.JECsource = cms.string(corrLabel)
+    process.bTagValidation.JECsourceMC = cms.InputTag(corrLabel+"L1FastL2L3Corrector")
     process.bTagValidation.flavPlots = flavPlots
     process.bTagHarvestMC.flavPlots = flavPlots
     #process.bTagValidation.ptRecJetMin = cms.double(20.)
@@ -101,7 +102,8 @@ if runOnMC:
 else:
     process.load("DQMOffline.RecoB.bTagAnalysisData_cfi")
     process.bTagAnalysis.doJEC = applyJEC
-    process.bTagAnalysis.JECsource = cms.string(corrLabel)
+    process.bTagAnalysis.JECsourceData = cms.InputTag(corrLabel+"L1FastL2L3ResidualCorrector")
+    process.JECseq *= (getattr(process,corrLabel+"ResidualCorrector") * getattr(process,corrLabel+"L1FastL2L3ResidualCorrector"))
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
@@ -121,9 +123,9 @@ else:
     process.dqmSeq = cms.Sequence(process.bTagAnalysis * process.bTagHarvest * process.dqmSaver)
 
 if useTrigger:
-    process.plots = cms.Path(process.bTagHLT * process.jetSequences * process.dqmSeq)
+    process.plots = cms.Path(process.bTagHLT * process.JECseq * process.jetSequences * process.dqmSeq)
 else:
-    process.plots = cms.Path(process.jetSequences * process.dqmSeq)
+    process.plots = cms.Path(process.JECseq * process.jetSequences * process.dqmSeq)
     
 process.dqmEnv.subSystemFolder = 'BTAG'
 process.dqmSaver.producer = 'DQM'

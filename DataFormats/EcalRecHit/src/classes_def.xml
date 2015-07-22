@@ -28,7 +28,6 @@
   <class name="edm::RefVector<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >,EcalRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >"/>
 
-  <class name="EcalRecHitCollection"/>
   <class name="edm::Wrapper<EcalRecHitCollection>"/>
  
   <class name="edm::DetSet<EcalRecHit>"/>

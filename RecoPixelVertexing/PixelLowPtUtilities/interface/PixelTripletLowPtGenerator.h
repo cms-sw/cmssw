@@ -7,7 +7,6 @@
     provided Layers
  */
 
-#include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
@@ -28,31 +27,22 @@ class   PixelTripletLowPtGenerator :
  public:
    PixelTripletLowPtGenerator( const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-   virtual ~PixelTripletLowPtGenerator() { delete thePairGenerator; delete theFilter; }
+  virtual ~PixelTripletLowPtGenerator();
 
-  void setSeedingLayers(SeedingLayerSetsHits::SeedingLayerSet pairLayers,
-                        std::vector<SeedingLayerSetsHits::SeedingLayer> thirdLayers) override;
-
-  void init( const HitPairGenerator & pairs, LayerCacheType* layerCache) override;
-
-   virtual void hitTriplets(const TrackingRegion& region, OrderedHitTriplets & trs,  const edm::Event & ev, const edm::EventSetup& es);
-
-   const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
+  virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
+                            const edm::Event & ev, const edm::EventSetup& es,
+                            SeedingLayerSetsHits::SeedingLayerSet pairLayers,
+                            const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;
 
  private:
   void getTracker (const edm::EventSetup& es);
   GlobalPoint getGlobalPosition(const TrackingRecHit* recHit);
 
   const TrackerGeometry * theTracker;
-  TripletFilter * theFilter;
+  std::unique_ptr<TripletFilter> theFilter;
 
-  edm::ParameterSet         ps;
-  HitPairGenerator * thePairGenerator;
-  std::vector<SeedingLayerSetsHits::SeedingLayer> theLayers;
-  LayerCacheType * theLayerCache;
 
   edm::EDGetTokenT<SiPixelClusterShapeCache> theClusterShapeCacheToken;
-
   double nSigMultipleScattering;
   double rzTolerance;
   double maxAngleRatio;

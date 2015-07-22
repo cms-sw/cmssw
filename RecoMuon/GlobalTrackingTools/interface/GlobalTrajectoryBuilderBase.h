@@ -13,8 +13,6 @@
  *   matching between the reconstructed tracks
  *   in the muon system and the tracker.
  *
- *
- *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
  *  \author A. Everett 		 Purdue University
@@ -26,25 +24,20 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-class RectangularEtaPhiTrackingRegion;
-class TrajectoryStateOnSurface;
+#include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
+//Forward declare classes from same package (RecoMuon)
 class GlobalMuonTrackMatcher;
 class MuonDetLayerMeasurements;
 class MuonServiceProxy;
-class Trajectory;
-class TrackTransformer;
-class TrajectoryFitter;
 class MuonTrackingRegionBuilder;
-class TransientTrackingRecHitBuilder;
 class GlobalMuonRefitter;
-class TrackerTopology;
-
-namespace edm {class ParameterSet; class Event;}
-namespace reco {class TransientTrack;}
-
-//              ---------------------
-//              -- Class Interface --
-//              ---------------------
 
 class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 
@@ -54,16 +47,12 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
     typedef TransientTrackingRecHit::RecHitPointer RecHitPointer;
     typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
-
     typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
     typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
     typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
     typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
-
     typedef std::vector<Trajectory> TC;
     typedef TC::const_iterator TI;
-
-  public:
 
     /// constructor with Parameter Set and MuonServiceProxy
     GlobalTrajectoryBuilderBase(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
@@ -153,12 +142,10 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
 	else if ( !barrel_a && !barrel_b ) return  fabs(a->globalPosition().z()) < fabs(b->globalPosition().z());
 	else if ( barrel_a && !barrel_b  ) return true;
 	else if ( !barrel_a && barrel_b  ) return false;
-	 //shouldn;t really get here in any case (there's some sense to throw here )
+	 //shouldn't really get here in any case (there's some sense to throw here )
 	 return false;
       }
     };
-
-  protected:
 
     std::string theCategory;
     float thePtCut;
@@ -174,20 +161,16 @@ class GlobalTrajectoryBuilderBase : public MuonTrajectoryBuilder {
     GlobalMuonRefitter* theGlbRefitter;
     unsigned long long theCacheId_TRH;
     bool theRPCInTheFit;
-  
+    bool  theRefitFlag;
     int   theMuonHitsOption;
     float theTECxScale;
     float theTECyScale;
     std::string theTrackerPropagatorName;
- 
     const edm::Event* theEvent;
-
     std::string theTrackerRecHitBuilderName;
     edm::ESHandle<TransientTrackingRecHitBuilder> theTrackerRecHitBuilder;
-    
     std::string theMuonRecHitBuilderName;
     edm::ESHandle<TransientTrackingRecHitBuilder> theMuonRecHitBuilder;
-
-    const TrackerTopology *tTopo_;
+    const TrackerTopology *theTopo;
 };
 #endif

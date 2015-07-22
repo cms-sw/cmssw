@@ -38,11 +38,11 @@ void CombinedHitPairGeneratorForPhotonConversion::hitPairs(
 {
   edm::Handle<SeedingLayerSetsHits> hlayers;
   ev.getByToken(theSeedingLayerToken, hlayers);
-  assert(hlayers->numberOfLayersInSet() == 2);
+  const SeedingLayerSetsHits& layers = *hlayers;
+  assert(layers.numberOfLayersInSet() == 2);
 
-  for(SeedingLayerSetsHits::LayerSetIndex i=0; i<hlayers->size(); ++i) {
-    theGenerator->setSeedingLayers((*hlayers)[i]);
-    theGenerator->hitPairs( convRegion, region, result, ev, es);
+  for(SeedingLayerSetsHits::LayerSetIndex i=0; i<layers.size(); ++i) {
+    theGenerator->hitPairs( convRegion, region, result, layers[i], ev, es);
   }
 
 }

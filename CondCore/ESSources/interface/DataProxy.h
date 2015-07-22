@@ -76,7 +76,7 @@ namespace cond {
     DataProxyWrapperBase();
     explicit DataProxyWrapperBase(std::string const & il);
     // late initialize (to allow to load ALL library first)
-    virtual void lateInit(cond::persistency::Session& session, const std::string & tag,
+    virtual void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
 			  std::string const & il, std::string const & cs)=0;
 
     void addInfo(std::string const & il, std::string const & cs, std::string const & tag);
@@ -127,11 +127,11 @@ public:
   }
 
   // late initialize (to allow to load ALL library first)
-  virtual void lateInit(cond::persistency::Session& session, const std::string & tag,
+  virtual void lateInit(cond::persistency::Session& session, const std::string & tag, const boost::posix_time::ptime& snapshotTime,
 			std::string const & il, std::string const & cs) {
     m_proxy.reset(new PayProxy(m_source.empty() ?  (const char *)(0) : m_source.c_str() ) );
     m_proxy->setUp( session );
-    m_proxy->loadTag( tag);
+    m_proxy->loadTag( tag, snapshotTime );
     m_edmProxy.reset(new DataProxy(m_proxy));
     addInfo(il, cs, tag);
   }

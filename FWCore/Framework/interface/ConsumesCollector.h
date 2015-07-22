@@ -14,6 +14,12 @@
 consumesCollector() method. This instance can then be passed to helper classes in order to register
 the data the helper will request from an Event, LuminosityBlock or Run on behalf of the module.
 
+     WARNING: The ConsumesCollector should be used during the time that modules are being
+constructed. It should not be saved and used later. It will not work if it is used to call
+the consumes function during beginJob, beginRun, beginLuminosity block, event processing or
+at any later time. It can be used while the module constructor is running or be contained in
+a functor passed to the Framework with a call to callWhenNewProductsRegistered.
+
 */
 //
 // Original Author:  Chris Jones
@@ -33,9 +39,13 @@ namespace edm {
   {
     
   public:
-    //virtual ~ConsumesCollector();
-    ConsumesCollector(ConsumesCollector&& iOther): m_consumer(iOther.m_consumer){}
-    
+
+    ConsumesCollector() = delete;
+    ConsumesCollector(ConsumesCollector const&) = default;
+    ConsumesCollector(ConsumesCollector&&) = default;
+    ConsumesCollector& operator=(ConsumesCollector const&) = default;
+    ConsumesCollector& operator=(ConsumesCollector&&) = default;
+
     // ---------- member functions ---------------------------
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
@@ -89,11 +99,6 @@ namespace edm {
     ConsumesCollector(EDConsumerBase* iConsumer):
     m_consumer(iConsumer) {}
 
-    ConsumesCollector() = delete;
-    ConsumesCollector(const ConsumesCollector&) = delete; // stop default
-    
-    const ConsumesCollector& operator=(const ConsumesCollector&) = delete; // stop default
-    
     // ---------- member data --------------------------------
     EDConsumerBase* m_consumer;
     

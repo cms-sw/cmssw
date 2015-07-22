@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCTriggerPrimitivesProducer_h
-#define CSCTriggerPrimitives_CSCTriggerPrimitivesProducer_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesProducer_h
+#define L1Trigger_CSCTriggerPrimitives_CSCTriggerPrimitivesProducer_h
 
 /** \class CSCTriggerPrimitivesProducer
  *
@@ -22,12 +22,15 @@
 
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
-#include <FWCore/Framework/interface/ConsumesCollector.h>
-#include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/one/EDProducer.h>
-#include <FWCore/Framework/interface/Event.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Utilities/interface/InputTag.h>
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 class CSCTriggerPrimitivesBuilder;
 
@@ -45,14 +48,18 @@ class CSCTriggerPrimitivesProducer : public edm::one::EDProducer<edm::one::Share
  
   edm::InputTag compDigiProducer_;
   edm::InputTag wireDigiProducer_;
+  edm::InputTag gemPadDigiProducer_;
+  edm::InputTag rpcDigiProducer_;
   edm::EDGetTokenT<CSCComparatorDigiCollection> comp_token_;
   edm::EDGetTokenT<CSCWireDigiCollection> wire_token_;
+  edm::EDGetTokenT<GEMPadDigiCollection> gem_pad_token_;
+  edm::EDGetTokenT<RPCDigiCollection> rpc_digi_token_;
  
   // switch to force the use of parameters from config file rather then from DB
   bool debugParameters_;
   // switch to for enabling checking against the list of bad chambers
   bool checkBadChambers_;
-  CSCTriggerPrimitivesBuilder* lctBuilder_;
+  std::unique_ptr<CSCTriggerPrimitivesBuilder> lctBuilder_;
 };
 
 #endif

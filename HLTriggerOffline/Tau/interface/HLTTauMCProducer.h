@@ -20,6 +20,9 @@ in Offline Trigger DQM etc
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "HepMC/GenEvent.h"
+#include "DataFormats/METReco/interface/GenMET.h"
+#include "DataFormats/METReco/interface/GenMETCollection.h"
+
 #include <vector>
 #include <string>
 #include "TLorentzVector.h"
@@ -46,6 +49,7 @@ public:
 		      kOther, kUndefined};
 
   edm::EDGetTokenT<reco::GenParticleCollection> MC_;
+  edm::EDGetTokenT<reco::GenMETCollection> MCMET_;
   double ptMinMCTau_;
   double ptMinMCElectron_;
   double ptMinMCMuon_;

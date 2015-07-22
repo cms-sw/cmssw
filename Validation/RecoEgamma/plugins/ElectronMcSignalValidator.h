@@ -36,7 +36,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;
     edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
     edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
-    edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_;    // new 03/02/2015 
+    edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_; 
     edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_ ;
     bool readAOD_;
 
@@ -96,7 +96,10 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_recCoreNum;
     MonitorElement *h1_recTrackNum;
     MonitorElement *h1_recSeedNum;
-    MonitorElement *h1_recOfflineVertices; // new 2015.04.02
+    MonitorElement *h1_recOfflineVertices; 
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices; // new 2015.15.05
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_barrel; // new 2015.15.05
+    MonitorElement *h2_scl_EoEtrueVsrecOfflineVertices_endcaps; // new 2015.15.05
 
     MonitorElement *h1_mc_Eta;
     MonitorElement *h1_mc_AbsEta;
@@ -224,9 +227,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_SigIEtaIEta;
     MonitorElement *h1_scl_SigIEtaIEta_barrel;
     MonitorElement *h1_scl_SigIEtaIEta_endcaps;
-    MonitorElement *h1_scl_full5x5_sigmaIetaIeta; // new 2014.01.12
-    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_barrel; // new 2014.01.12
-    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_endcaps; // new 2014.01.12
+    MonitorElement *h1_scl_full5x5_sigmaIetaIeta; 
+    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_barrel; 
+    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_endcaps; 
     MonitorElement *h1_scl_E1x5;
     MonitorElement *h1_scl_E1x5_barrel;
     MonitorElement *h1_scl_E1x5_endcaps;
@@ -236,6 +239,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_E5x5;
     MonitorElement *h1_scl_E5x5_barrel;
     MonitorElement *h1_scl_E5x5_endcaps;
+    MonitorElement *h1_scl_bcl_EtotoEtrue; // new 2015.18.05
+    MonitorElement *h1_scl_bcl_EtotoEtrue_barrel; // new 2015.18.05
+    MonitorElement *h1_scl_bcl_EtotoEtrue_endcaps; // new 2015.18.05
 
     MonitorElement *h1_ele_ambiguousTracks;
     MonitorElement *h2_ele_ambiguousTracksVsEta;
@@ -403,9 +409,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_fbrem;
     MonitorElement *h1_ele_fbrem_barrel;
     MonitorElement *h1_ele_fbrem_endcaps;
-    MonitorElement *h1_ele_superclusterfbrem; // new 2014.02.12
-    MonitorElement *h1_ele_superclusterfbrem_barrel; // new 2014.02.12
-    MonitorElement *h1_ele_superclusterfbrem_endcaps; // new 2014.02.12
+    MonitorElement *h1_ele_superclusterfbrem; 
+    MonitorElement *h1_ele_superclusterfbrem_barrel; 
+    MonitorElement *h1_ele_superclusterfbrem_endcaps; 
 
     MonitorElement *p1_ele_fbremVsEta_mode;
     MonitorElement *p1_ele_fbremVsEta_mean;

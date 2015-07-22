@@ -22,7 +22,6 @@ class DQMStore;
 class MonitorElement;
 class DTReadOutMapping;
 
-//-class DTDAQInfo : public edm::EDAnalyzer {
 class DTDAQInfo : public DQMEDHarvester {
 public:
   /// Constructor

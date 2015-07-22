@@ -16,6 +16,9 @@
   <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="" target="getter_">
     <![CDATA[edm::EDProductGetter::assignEDProductGetter(getter_); ]]>
   </ioread>
+  <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="" target="elementsInBlocks_">
+    <![CDATA[elementsInBlocks_ = nullptr; ]]>
+  </ioread>
   <ioread sourceClass = "reco::PFCandidate" version="[1-]" targetClass="reco::PFCandidate" source="std::vector<unsigned long long> refsInfo_" target="refsCollectionCache_">
     <![CDATA[refsCollectionCache_.clear();refsCollectionCache_.resize(onfile.refsInfo_.size(),0); ]]>
   </ioread>
@@ -34,9 +37,9 @@
   <class name="reco::PFCandidatePtr"/>
   <class name="std::vector<reco::PFCandidatePtr>"/>
   <class name="edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
-  <class name="edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > "/>
-  <class name="std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > "/>
-  <class name="std::vector<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > "/>
+  <class name="edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >"/>
+  <class name="std::vector<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
   <class name="edm::Wrapper<edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > >"/>
   <class name="edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >"/>
   <class name="edm::Wrapper<edm::ValueMap<edm::Ptr<reco::PFCandidate> > >"/>

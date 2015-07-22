@@ -18,7 +18,7 @@ mix = cms.EDProducer("MixingModule",
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
 
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         type = cms.string('probFunction'),
         nbPileupEvents = cms.PSet(
           probFunctionVariable = cms.vint32(0,1,2,3,4,5,6,7,8,9,10),

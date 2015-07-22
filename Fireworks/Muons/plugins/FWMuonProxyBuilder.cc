@@ -9,8 +9,11 @@
 // Original Author:  Chris Jones
 //         Created:  Thu Dec  4 19:28:07 EST 2008
 //
+#include "TEveTrack.h"
 
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Muons/interface/FWMuonBuilder.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 
@@ -19,6 +22,8 @@ class FWMuonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>
 public:
    FWMuonProxyBuilder( void ) {}
    virtual ~FWMuonProxyBuilder( void ) {}
+
+   virtual void setItem(const FWEventItem* iItem);
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -38,11 +43,24 @@ private:
    mutable FWMuonBuilder m_builder;
 };
 
+
+void
+FWMuonProxyBuilder::setItem(const FWEventItem* iItem)
+{
+   FWProxyBuilderBase::setItem(iItem);
+   
+   if (iItem) {
+      iItem->getConfig()->assertParam("LineWidth", long(1), long(1), long(4));
+   }
+}
+
 void
 FWMuonProxyBuilder::build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
-   m_builder.buildMuon( this, &iData, &oItemHolder, true, false );
+   int width = item()->getConfig()->value<long>("LineWidth");
+   m_builder.setLineWidth(width);
 
+   m_builder.buildMuon( this, &iData, &oItemHolder, true, false );
    increaseComponentTransparency( iIndex, &oItemHolder, "Chamber", 60 );
 }
 

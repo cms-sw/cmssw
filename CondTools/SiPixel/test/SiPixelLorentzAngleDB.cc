@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -32,8 +32,9 @@ SiPixelLorentzAngleDB::SiPixelLorentzAngleDB(edm::ParameterSet const& conf) :
 	useFile_ = conf_.getParameter<bool>("useFile");		
 	fileName_ = conf_.getParameter<string>("fileName");
 
-        BPixParameters_ = conf_.getUntrackedParameter<Parameters>("BPixParameters");
-        FPixParameters_ = conf_.getUntrackedParameter<Parameters>("FPixParameters");
+        BPixParameters_   = conf_.getUntrackedParameter<Parameters>("BPixParameters");
+        FPixParameters_   = conf_.getUntrackedParameter<Parameters>("FPixParameters");
+        ModuleParameters_ = conf_.getUntrackedParameter<Parameters>("ModuleParameters");
 }
 
   //BeginJob
@@ -58,7 +59,7 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 
         //Retrieve tracker topology from geometry
         edm::ESHandle<TrackerTopology> tTopoHandle;
-        es.get<IdealGeometryRecord>().get(tTopoHandle);
+        es.get<TrackerTopologyRcd>().get(tTopoHandle);
         const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -77,10 +78,21 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 		// fill bpix values for LA 
 		if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
 				
-                cout << " pixel barrel:" << "  layer=" << tTopo->pxbLayer(detidc.rawId()) << "  ladder=" << tTopo->pxbLadder(detidc.rawId()) << "  module=" << tTopo->pxbModule(detidc.rawId()) << endl;
+                cout << " pixel barrel:" << "  layer=" << tTopo->pxbLayer(detidc.rawId()) << "  ladder=" << tTopo->pxbLadder(detidc.rawId()) << "  module=" << tTopo->pxbModule(detidc.rawId()) << "  rawId=" << detidc.rawId() << endl;
 
 		   if(!useFile_){
 
+                        //first individuals are put
+		        for(Parameters::iterator it = ModuleParameters_.begin(); it != ModuleParameters_.end(); ++it) {
+                           if( it->getParameter<unsigned int>("rawid") == detidc.rawId() )
+                           {
+                              float lorentzangle = (float)it->getParameter<double>("angle");
+                              LorentzAngle->putLorentzAngle(detid.rawId(),lorentzangle);
+                              cout << " individual value=" << lorentzangle << " put into rawid=" << detid.rawId() << endl;
+                           }
+                        }
+
+                        //modules already put are automatically skipped
 		        for(Parameters::iterator it = BPixParameters_.begin(); it != BPixParameters_.end(); ++it) {
                            if( it->getParameter<unsigned int>("module") == tTopo->pxbModule(detidc.rawId()) && it->getParameter<unsigned int>("layer") == tTopo->pxbLayer(detidc.rawId()) )
                            {
@@ -96,9 +108,19 @@ void SiPixelLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 		   // fill fpix values for LA 
 		} else if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
 				
-                      cout << " pixel endcap:" << "  side=" << tTopo->pxfSide(detidc.rawId()) << "  disk=" << tTopo->pxfDisk(detidc.rawId()) << "  blade=" << tTopo->pxfBlade(detidc.rawId()) << "  panel=" << tTopo->pxfPanel(detidc.rawId()) << "  module=" << tTopo->pxfModule(detidc.rawId()) << endl;
+                      cout << " pixel endcap:" << "  side=" << tTopo->pxfSide(detidc.rawId()) << "  disk=" << tTopo->pxfDisk(detidc.rawId()) << "  blade=" << tTopo->pxfBlade(detidc.rawId()) << "  panel=" << tTopo->pxfPanel(detidc.rawId()) << "  module=" << tTopo->pxfModule(detidc.rawId()) << "  rawId=" << detidc.rawId() << endl;
 
+                        //first individuals are put
+		        for(Parameters::iterator it = ModuleParameters_.begin(); it != ModuleParameters_.end(); ++it) {
+                           if( it->getParameter<unsigned int>("rawid") == detidc.rawId() )
+                           {
+                              float lorentzangle = (float)it->getParameter<double>("angle");
+                              LorentzAngle->putLorentzAngle(detid.rawId(),lorentzangle);
+                              cout << " individual value=" << lorentzangle << " put into rawid=" << detid.rawId() << endl;
+                           }
+                        }
 
+                        //modules already put are automatically skipped
 		        for(Parameters::iterator it = FPixParameters_.begin(); it != FPixParameters_.end(); ++it) {
                            if( it->getParameter<unsigned int>("side") == tTopo->pxfSide(detidc.rawId()) && it->getParameter<unsigned int>("disk") == tTopo->pxfDisk(detidc.rawId()) && it->getParameter<unsigned int>("HVgroup") == HVgroup( tTopo->pxfPanel(detidc.rawId()), tTopo->pxfModule(detidc.rawId()) ) )
                            {

@@ -13,8 +13,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
@@ -26,7 +26,10 @@ process.load('CommonTools.ParticleFlow.EITopPAG_cff')
 process.load('Configuration.StandardSequences.Validation_cff')
 process.load('DQMOffline.Configuration.DQMOfflineMC_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag=autoCond['run1_data']
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 process.maxEvents = cms.untracked.PSet(
@@ -111,25 +114,55 @@ process.analyze = cms.EndPath(process.IsoTrigHB + process.IsoTrigHE + process.Is
 #process.mix.digitizers = cms.PSet()
 #for a in process.aliases: delattr(process, a)
 #process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data_GRun', '')
 
 process.load('Calibration.IsolatedParticles.HLT_IsoTrack_cff')
 
-#process.myHLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath,
-#                                        process.HLT_IsoTrackHE_v16,
-#                                        process.HLT_IsoTrackHB_v15,
-#                                        process.HLTriggerFinalPath
-#                                        ))
+process.HLT_IsoTrackHE_v16 = cms.Path(process.HLTBeginSequence + 
+                                      process.hltL1sL1SingleJet68 + 
+                                      process.hltPreIsoTrackHE +
+                                      process.HLTDoLocalPixelSequence + 
+                                      process.hltPixelLayerTriplets + 
+                                      process.hltPixelTracks + 
+                                      process.hltPixelVertices +
+                                      process.hltTrimmedPixelVertices +
+                                      process.hltIsolPixelTrackProdHE +
+                                      process.hltIsolPixelTrackL2FilterHE + 
+                                      process.HLTDoFullUnpackingEgammaEcalSequence + 
+                                      process.hltIsolEcalPixelTrackProdHE + 
+                                      process.hltEcalIsolPixelTrackL2FilterHE +
+                                      process.HLTDoLocalStripSequence + 
+                                      process.hltIter0PFLowPixelSeedsFromPixelTracks +
+                                      process.hltIter0PFlowCkfTrackCandidates +
+                                      process.hltIter0PFlowCtfWithMaterialTracks +
+                                      process.hltHcalITIPTCorrectorHE + 
+                                      process.hltIsolPixelTrackL3FilterHE + 
+                                      process.HLTEndSequence 
+                                      )
 
-process.HLT_IsoTrackHE_v16 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68 + process.hltPreIsoTrackHE + process.HLTDoLocalPixelSequence + process.hltPixelLayerTripletsHITHB + process.hltHITPixelTracksHB + process.hltPixelLayerTripletsHITHE + process.hltHITPixelTracksHE + process.hltHITPixelVerticesHE + process.hltIsolPixelTrackProdHE + process.hltIsolPixelTrackL2FilterHE + 
-process.HLTDoFullUnpackingEgammaEcalSequence + process.hltIsolEcalPixelTrackProdHE + process.hltEcalIsolPixelTrackL2FilterHE +
-process.HLTDoLocalStripSequence + process.hltPixelLayerTriplets + process.hltHITPixelTripletSeedGeneratorHE + process.hltHITCkfTrackCandidatesHE + process.hltHITCtfWithMaterialTracksHE + process.hltHITIPTCorrectorHE + process.hltIsolPixelTrackL3FilterHE + process.HLTEndSequence )
-process.HLT_IsoTrackHB_v15 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68 + process.hltPreIsoTrackHB + process.HLTDoLocalPixelSequence + process.hltPixelLayerTripletsHITHB + process.hltHITPixelTracksHB + process.hltHITPixelVerticesHB + process.hltIsolPixelTrackProdHB + process.hltIsolPixelTrackL2FilterHB + 
-process.HLTDoFullUnpackingEgammaEcalSequence + process.hltIsolEcalPixelTrackProdHB + process.hltEcalIsolPixelTrackL2FilterHB +
-process.HLTDoLocalStripSequence + process.hltPixelLayerTriplets + process.hltHITPixelTripletSeedGeneratorHB + process.hltHITCkfTrackCandidatesHB + process.hltHITCtfWithMaterialTracksHB + process.hltHITIPTCorrectorHB + process.hltIsolPixelTrackL3FilterHB + process.HLTEndSequence )
+process.HLT_IsoTrackHB_v15 = cms.Path(process.HLTBeginSequence + 
+                                      process.hltL1sL1SingleJet68 + 
+                                      process.hltPreIsoTrackHB +
+                                      process.HLTDoLocalPixelSequence + 
+                                      process.hltPixelLayerTriplets + 
+                                      process.hltPixelTracks + 
+                                      process.hltPixelVertices + 
+                                      process.hltTrimmedPixelVertices +
+                                      process.hltIsolPixelTrackProdHB + 
+                                      process.hltIsolPixelTrackL2FilterHB +
+                                      process.HLTDoFullUnpackingEgammaEcalSequence + 
+                                      process.hltIsolEcalPixelTrackProdHB + 
+                                      process.hltEcalIsolPixelTrackL2FilterHB +
+                                      process.HLTDoLocalStripSequence + 
+                                      process.hltIter0PFLowPixelSeedsFromPixelTracks +
+                                      process.hltIter0PFlowCkfTrackCandidates +
+                                      process.hltIter0PFlowCtfWithMaterialTracks +
+                                      process.hltHcalITIPTCorrectorHB + 
+                                      process.hltIsolPixelTrackL3FilterHB + 
+                                      process.HLTEndSequence 
+                                      )
 
 process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath,process.HLT_IsoTrackHE_v16,process.HLT_IsoTrackHB_v15,process.HLTriggerFinalPath))
+
 
 ## remove any instance of the FastTimerService
 if 'FastTimerService' in process.__dict__:

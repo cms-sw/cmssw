@@ -141,14 +141,14 @@ DetLayer getDetLayer(DetId detId, const TrackerTopology *tTopo)
     return DetLayer(det, layer);
 }
 
-TrackQuality::TrackQuality(const edm::ParameterSet &config) :
-        associatorPSet_(config.getParameter<edm::ParameterSet>("hitAssociator"))
+TrackQuality::TrackQuality(const edm::ParameterSet &config,  edm::ConsumesCollector& iC) :
+        trackerHitAssociatorConfig_(config.getParameter<edm::ParameterSet>("hitAssociator"), std::move(iC))
 {
 }
 
 void TrackQuality::newEvent(const edm::Event &ev, const edm::EventSetup &es)
 {
-    associator_.reset(new TrackerHitAssociator(ev, associatorPSet_));
+    associator_.reset(new TrackerHitAssociator(ev, trackerHitAssociatorConfig_));
 }
 
 void TrackQuality::evaluate(SimParticleTrail const &spt,

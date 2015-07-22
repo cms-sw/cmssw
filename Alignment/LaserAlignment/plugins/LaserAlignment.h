@@ -244,7 +244,5 @@ class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer>, public 
   std::string theAlignRecordName, theErrorRecordName;
 
   bool firstEvent_;
-
-  const edm::ParameterSet theParameterSet;
 };
 #endif

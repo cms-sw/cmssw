@@ -7,7 +7,7 @@
 #include <sstream>
 #include <fstream>
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/RootTreeHandler.h"
 
 /**
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 
   // load framework libraries
   gSystem->Load( "libFWCoreFWLite" );
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
   // open input file (can be located on castor)
   TFile* inFile = TFile::Open(fileName.c_str());

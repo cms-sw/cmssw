@@ -24,7 +24,7 @@ mix = cms.EDProducer("MixingModule",
     playback = cms.untracked.bool(True),
     useCurrentProcessOnly = cms.bool(False),
 
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),

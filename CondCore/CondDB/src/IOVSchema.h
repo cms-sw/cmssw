@@ -82,25 +82,20 @@ namespace cond {
       column( SINCE, cond::Time_t );
       column( PAYLOAD_HASH, std::string, PAYLOAD::PAYLOAD_HASH_SIZE );
       column( INSERTION_TIME, boost::posix_time::ptime );
-      
-      struct MAX_SINCE {					 
-	typedef cond::Time_t type;				   
-	static constexpr size_t size = 0;
-	static std::string tableName(){ return SINCE::tableName(); }	
-	static std::string fullyQualifiedName(){ 
-	  return std::string("MAX(")+SINCE::fullyQualifiedName()+")";
-	} 
-      };
+
       struct SINCE_GROUP {					 
 	typedef cond::Time_t type;				   
 	static constexpr size_t size = 0;
 	static std::string tableName(){ return SINCE::tableName(); }	
 	static std::string fullyQualifiedName(){ 
-	  std::string sgroupSize = boost::lexical_cast<std::string>(cond::time::SINCE_GROUP_SIZE);
-	  return "("+SINCE::fullyQualifiedName()+"/"+sgroupSize+")*"+sgroupSize;	  
+	  return "MIN("+SINCE::fullyQualifiedName()+")";	  
 	} 
+	static std::string group(){
+	  std::string sgroupSize = boost::lexical_cast<std::string>( cond::time::SINCE_GROUP_SIZE);
+	  return "CAST("+SINCE::fullyQualifiedName()+"/"+sgroupSize+" AS INT )*"+sgroupSize;
+	}
       };
-
+ 
       struct SEQUENCE_SIZE {
 	typedef unsigned int type;
 	static constexpr size_t size = 0;
@@ -125,7 +120,11 @@ namespace cond {
 				      const boost::posix_time::ptime& snapshotTime, 
 				      std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
 	size_t selectLatest( const std::string& tag, std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
+	size_t selectSnapshot( const std::string& tag,
+                               const boost::posix_time::ptime& snapshotTime,
+                               std::vector<std::tuple<cond::Time_t,cond::Hash> >& iovs);
 	bool getLastIov( const std::string& tag, cond::Time_t& since, cond::Hash& hash );
+	bool getSnapshotLastIov( const std::string& tag, const boost::posix_time::ptime& snapshotTime, cond::Time_t& since, cond::Hash& hash );
 	bool getSize( const std::string& tag, size_t& size );
         bool getSnapshotSize( const std::string& tag, const boost::posix_time::ptime& snapshotTime, size_t& size );
 	void insertOne( const std::string& tag, cond::Time_t since, cond::Hash payloadHash, const boost::posix_time::ptime& insertTime);

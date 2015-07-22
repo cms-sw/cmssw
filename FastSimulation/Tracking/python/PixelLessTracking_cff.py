@@ -10,7 +10,7 @@ import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 pixelLessWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 # The sequence
 pixelLessTracking = cms.Sequence(pixelLessSeeds*pixelLessTrackCandidates*pixelLessWithMaterialTracks)
-pixelLessTrackCandidates.SeedProducer = cms.InputTag("pixelLessSeeds")
+pixelLessTrackCandidates.src = cms.InputTag("pixelLessSeeds")
 pixelLessWithMaterialTracks.src = 'pixelLessTrackCandidates'
 pixelLessWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
 pixelLessWithMaterialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'

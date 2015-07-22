@@ -7,6 +7,7 @@
 
 // Geometry
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 // Alignment
 #include "CondFormats/Alignment/interface/Alignments.h"
@@ -23,7 +24,7 @@ TrackerAlignment::TrackerAlignment( const edm::EventSetup& setup ):
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::ESHandle<TrackerGeometry> trackerGeometry;

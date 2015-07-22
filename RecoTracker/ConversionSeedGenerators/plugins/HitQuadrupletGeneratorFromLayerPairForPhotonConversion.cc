@@ -36,16 +36,15 @@ HitQuadrupletGeneratorFromLayerPairForPhotonConversion::HitQuadrupletGeneratorFr
 							     unsigned int inner,
 							     unsigned int outer,
 							     LayerCacheType* layerCache,
-							     unsigned int nSize,
 							     unsigned int max)
-  : HitPairGenerator(nSize),
-    theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner)
+  : theLayerCache(*layerCache), theOuterLayer(outer), theInnerLayer(inner),
+    theMaxElement(max)
 {
-  theMaxElement=max;
   ss = new std::stringstream;
 }
 
 void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const TrackingRegion & region, OrderedHitPairs & result,
+								      const Layers& layers,
 								      const edm::Event& event, const edm::EventSetup& es)
 {
 
@@ -55,8 +54,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
   typedef OrderedHitPair::OuterRecHit OuterHit;
   typedef RecHitsSortedInPhi::Hit Hit;
 
-  Layer innerLayerObj = innerLayer();
-  Layer outerLayerObj = outerLayer();
+  Layer innerLayerObj = layers[theInnerLayer];
+  Layer outerLayerObj = layers[theOuterLayer];
 
   size_t totCountP2=0, totCountP1=0, totCountM2=0, totCountM1=0, selCount=0;
 #ifdef mydebug_QSeed

@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SolidSection label="muonBase.xml">
+  <Tubs name="MUON1" rMin="[cms:CalorMuonR]" rMax="[cms:CMSR1]" dz="[cms:MuonBeamZ2]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Polycone name="MUON2" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="-[cms:MuonBeamZ2]"  rMin="[cms:MERmin3]"     rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:TotemMuonZ2]" rMin="[cms:MERmin3]"     rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:TotemMuonZ2]" rMin="[cms:TotemMuonR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:TotemMuonZ1]" rMin="[cms:TotemMuonR1]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:MEndcapZ1]"   rMin="[cms:MERmin2]"     rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:MBarZ]"       rMin="[cms:MERmin1]"     rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:MEndcapZ0]"   rMin="[cms:MERmin1]"     rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:MuonBeamZ0]"  rMin="[cms:MuonBeamR0]"  rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="-[cms:CalorBeamZ2]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR2]"/>
+    <ZSection z="-[cms:CalorBeamZ3]" rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR2]"/>
+  </Polycone>
+  <Polycone name="MUON3" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[cms:CalorBeamZ3]"  rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR2]"/>
+    <ZSection z="[cms:CalorBeamZ2]"  rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR2]"/>
+    <ZSection z="[cms:CalorBeamZ2]"  rMin="[cms:CalorBeamR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:MuonBeamZ0]"   rMin="[cms:MuonBeamR0]"  rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:MEndcapZ0]"    rMin="[cms:MERmin1]"     rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:MBarZ]"        rMin="[cms:MERmin1]"     rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:MEndcapZ1]"    rMin="[cms:MERmin2]"     rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:TotemMuonZ1]"  rMin="[cms:TotemMuonR1]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:TotemMuonZ1]"  rMin="[cms:TotemMuonR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:TotemMuonZ2]"  rMin="[cms:TotemMuonR2]" rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:TotemMuonZ2]"  rMin="[cms:MERmin3]"     rMax="[cms:CalorMuonR]"/>
+    <ZSection z="[cms:MuonBeamZ2]"   rMin="[cms:MERmin3]"     rMax="[cms:CalorMuonR]"/>
+  </Polycone>
+  <UnionSolid name="MUON0">
+    <rSolid name="MUON1"/>
+    <rSolid name="MUON2"/>
+    <Translation x="0.0*fm" y="0.0*fm" z="0.0*fm"/>
+  </UnionSolid>
+  <UnionSolid name="MUON">
+    <rSolid name="MUON0"/>
+    <rSolid name="MUON3"/>
+    <Translation x="0.0*fm" y="0.0*fm" z="0.0*fm"/>
+  </UnionSolid>
+  <Tubs name="MB" rMin="[cms:MBarRmin]" rMax="[cms:CMSR1]" dz="[cms:MBarZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="MBWheel" rMin="[cms:MBarRmin]" rMax="[cms:MBarRmax]" dz="[cms:MBRingZ]" startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="muonBase.xml">
+  <LogicalPart name="MUON" category="unspecified">
+    <rSolid name="MUON"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="MB" category="unspecified">
+    <rSolid name="MB"/>
+    <rMaterial name="materials:M_B_Air"/>
+  </LogicalPart>
+  <LogicalPart name="MBWheel_0" category="unspecified">
+    <rSolid name="MBWheel"/>
+    <rMaterial name="materials:M_B_Air"/>
+  </LogicalPart>
+  <LogicalPart name="MBWheel_1P" category="unspecified">
+    <rSolid name="MBWheel"/>
+    <rMaterial name="materials:M_B_Air"/>
+  </LogicalPart>
+  <LogicalPart name="MBWheel_2P" category="unspecified">
+    <rSolid name="MBWheel"/>
+    <rMaterial name="materials:M_B_Air"/>
+  </LogicalPart>
+  <LogicalPart name="MBWheel_1N" category="unspecified">
+    <rSolid name="MBWheel"/>
+    <rMaterial name="materials:M_B_Air"/>
+  </LogicalPart>
+  <LogicalPart name="MBWheel_2N" category="unspecified">
+    <rSolid name="MBWheel"/>
+    <rMaterial name="materials:M_B_Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+</DDDefinition>

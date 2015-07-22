@@ -4,21 +4,6 @@
 #include "DetectorDescription/Base/interface/DDdebug.h"
 
 using DDI::Division;
-
-// void DD_NDC(const DDName & n) {
-//  std::vector<DDName> & ns = DIVNAMES::instance()[n.name()];
-//  typedef std::vector<DDName>::iterator IT;
-//  bool alreadyIn(false);
-//  for(IT p = ns.begin(); p != ns.end() ; ++p) {
-//    if ( p->ns() == n.ns()) {
-//      alreadyIn = true;
-//      break;
-//    } 
-//  }
-//  if (!alreadyIn) {
-//    ns.push_back(n);
-//  }  
-// }
   
 std::ostream & 
 operator<<(std::ostream & os, const DDDivision & div)
@@ -45,7 +30,6 @@ DDDivision::DDDivision() : DDBase<DDName, DDI::Division*>()
 DDDivision::DDDivision( const DDName & name) : DDBase<DDName,DDI::Division*>()
 {
   prep_ = StoreT::instance().create(name);
-  //  DD_NDC(name);
 }
 
 DDDivision::DDDivision( const DDName & name,
@@ -57,7 +41,6 @@ DDDivision::DDDivision( const DDName & name,
 {
   DCOUT('C', "create Division name=" << name << " parent=" << parent.name() << " axis=" << DDAxesNames::name(axis) << " nReplicas=" << nReplicas << " width=" << width << " offset=" << offset);
   prep_ = StoreT::instance().create(name, new Division(parent, axis, nReplicas, width, offset)); 
-  //  DD_NDC(name);
 } 
 
 DDDivision::DDDivision( const DDName & name,
@@ -68,7 +51,6 @@ DDDivision::DDDivision( const DDName & name,
 {
   DCOUT('C', "create Division name=" << name << " parent=" << parent.name() << " axis=" << DDAxesNames::name(axis) << " nReplicas=" << nReplicas << " offset=" << offset);
   prep_ = StoreT::instance().create(name, new Division(parent, axis, nReplicas, offset)); 
-  //  DD_NDC(name);
 }
 
 DDDivision::DDDivision( const DDName & name,
@@ -79,7 +61,6 @@ DDDivision::DDDivision( const DDName & name,
 {
   DCOUT('C', "create Division name=" << name << " parent=" << parent.name() << " axis=" << DDAxesNames::name(axis) << " width=" << width << " offset=" << offset);
   prep_ = StoreT::instance().create(name, new Division(parent, axis, width, offset)); 
-  //  DD_NDC(name);
 }
 
 DDAxes DDDivision::axis() const

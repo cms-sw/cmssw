@@ -27,7 +27,6 @@
 #include <type_traits>
 #endif
 #include <memory>
-#include "boost/static_assert.hpp"
 
 namespace edm {
   template<class T> class Ptr;

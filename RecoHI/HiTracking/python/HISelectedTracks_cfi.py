@@ -6,18 +6,25 @@ import FWCore.ParameterSet.Config as cms
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src='hiGlobalPrimTracks',
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('HIMVASelectorIter4'),
+    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
     name = 'hiInitialStepLoose',
-    keepAllTracks = True  # Make an exception for the 1st iteration
+    useMVA = cms.bool(False)
     ), #end of pset
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
     name = 'hiInitialStepTight',
     preFilterName = 'hiInitialStepLoose',
+    useMVA = cms.bool(True),
+    minMVA = cms.double(-0.38)
     ),
     RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
     name = 'hiInitialStep',
     preFilterName = 'hiInitialStepTight',
+    useMVA = cms.bool(True),
+    minMVA = cms.double(-0.77)
     ),
     ) #end of vpset
     ) #end of clone  
@@ -31,6 +38,7 @@ hiSelectedTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackList
     hasSelector=cms.vint32(1),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("hiInitialStepSelector","hiInitialStep")),
     copyExtras = True,
+    copyMVA = cms.bool(True),
     makeReKeyedSeeds = cms.untracked.bool(False)
     )
 

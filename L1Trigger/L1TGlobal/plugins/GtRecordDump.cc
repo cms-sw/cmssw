@@ -526,8 +526,8 @@ unsigned int GtRecordDump::formatEG(std::vector<l1t::EGamma>::const_iterator eg)
   packedVal |= ((eg->hwPhi()   & 0xff)   <<17);
   packedVal |= ((eg->hwEta()   & 0xff)   <<9);
   packedVal |= ((eg->hwPt()    & 0x1ff)  <<0);
-  packedVal |= ((eg->hwIso()   & 0x1)    <<25);
-  packedVal |= ((eg->hwQual()  & 0x1)    <<26);
+  packedVal |= ((eg->hwIso()   & 0x3)    <<25);
+  packedVal |= ((eg->hwQual()  & 0x31)   <<27);
   
   return packedVal;
 }
@@ -540,8 +540,8 @@ unsigned int GtRecordDump::formatTau(std::vector<l1t::Tau>::const_iterator tau){
   packedVal |= ((tau->hwPhi()   & 0xff)   <<17);
   packedVal |= ((tau->hwEta()   & 0xff)   <<9);
   packedVal |= ((tau->hwPt()    & 0x1ff)  <<0);
-  packedVal |= ((tau->hwIso()   & 0x1)    <<25);
-  packedVal |= ((tau->hwQual()  & 0x1)    <<26);  
+  packedVal |= ((tau->hwIso()   & 0x3)    <<25);
+  packedVal |= ((tau->hwQual()  & 0x31)   <<27);  
   
   return packedVal;
 }

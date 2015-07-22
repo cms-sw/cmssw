@@ -9,4 +9,4 @@ RAW,HLT:@relval25ns,RAW2DIGI,L1Reco --datatier GEN-SIM-DIGI-RAW-HLTDEBUG -n 10 -
 
 # Reconstruct with the standard reconstruction sequence
 cmsDriver.py step3  --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --conditions auto:run2_mc -s RAW2DIGI,L1Reco,RECO,EI,V\
-ALIDATION,DQM --datatier GEN-SIM-RECO,DQMIO -n 10 --magField 38T_PostLS1 --eventcontent RECOSIM,DQM --filein file:digi.root --fileout reco.root
+ALIDATION,DQM --datatier GEN-SIM-RECO,DQMIO -n 10 --magField 38T_PostLS1 --eventcontent FEVTDEBUGHLT,DQM --filein file:digi.root --fileout reco.root

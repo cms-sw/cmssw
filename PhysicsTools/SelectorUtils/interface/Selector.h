@@ -186,7 +186,7 @@ class Selector : public std::binary_function<T, pat::strbitset, bool>  {
       if ( icut->first == i ) {
 	found = icut;
       }
-    }
+    }    
     ++(found->second);
   }
 

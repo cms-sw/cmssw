@@ -33,6 +33,7 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
+#include <memory>
 #include <string>
 
 
@@ -40,7 +41,7 @@ class GenericTriggerEventFlag {
 
     // Utility classes
     edm::ESWatcher< AlCaRecoTriggerBitsRcd > * watchDB_;
-    L1GtUtils                                  l1Gt_;
+    std::unique_ptr<L1GtUtils>                 l1Gt_;
     HLTConfigProvider                          hltConfig_;
     bool                                       hltConfigInit_;
     // Configuration parameters
@@ -85,9 +86,13 @@ class GenericTriggerEventFlag {
 
   public:
 
-    // Constructors and destructor
-    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC ) : GenericTriggerEventFlag( config, iC ) {}; // To be called from the ED module's c'tor
-    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC ); // To be called from the ED module's c'tor
+    // Constructors must be called from the ED module's c'tor
+    template <typename T>
+    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC, T& module );
+
+    template <typename T>
+    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC, T& module );
+
     ~GenericTriggerEventFlag();
 
     // Public methods
@@ -99,6 +104,8 @@ class GenericTriggerEventFlag {
   private:
 
     // Private methods
+
+    GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC );
 
     // DCS
     bool acceptDcs( const edm::Event & event );
@@ -132,5 +139,15 @@ class GenericTriggerEventFlag {
 
 };
 
+template <typename T>
+GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector && iC, T& module ) :
+  GenericTriggerEventFlag(config, iC, module) {
+}
+
+template <typename T>
+GenericTriggerEventFlag::GenericTriggerEventFlag( const edm::ParameterSet & config, edm::ConsumesCollector & iC, T& module ) :
+  GenericTriggerEventFlag(config, iC) {
+    l1Gt_.reset(new L1GtUtils(config, iC, false, module));
+}
 
 #endif

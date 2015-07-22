@@ -22,7 +22,7 @@ ElectronMcSignalValidator/h_ele_Et                          1 1 1 0
 ElectronMcSignalValidator/h_ele_outerP_mode                 1 1 1 0
 ElectronMcSignalValidator/h_ele_outerPt_mode                1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexPtVsEta_pfx           0 1 1 0
-ElectronMcSignalValidator/h_ele_ecalEnergyError		    1 1 0 0
+ElectronMcSignalValidator/h_ele_ecalEnergyError		        1 1 0 0
 ElectronMcSignalValidator/h_ele_ecalEnergyError_barrel      1 1 0 0
 ElectronMcSignalValidator/h_ele_ecalEnergyError_endcaps     1 1 1 0
 ElectronMcSignalValidator/h_ele_combinedP4Error             1 1 0 0
@@ -34,7 +34,7 @@ Comparison with MC truth (residuals)
 ElectronMcSignalValidator/h_ele_ChargeMnChargeTrue          1 1 1 0
 ElectronMcSignalValidator/h_ele_PoPtrue                     1 1 0 0
 ElectronMcSignalValidator/h_ele_PoPtrue_barrel              1 1 0 0
-ElectronMcSignalValidator/h_ele_PoPtrue_endcaps             1	1 1 0
+ElectronMcSignalValidator/h_ele_PoPtrue_endcaps             1 1 1 0
 ElectronMcSignalValidator/h_ele_PoPtrue_golden_barrel       1 1 0 0
 ElectronMcSignalValidator/h_ele_PoPtrue_golden_endcaps      1 1 1 0
 ElectronMcSignalValidator/h_ele_PoPtrue_showering_barrel    1 1 0 0
@@ -48,6 +48,12 @@ ElectronMcSignalValidator/h_scl_EoEtrue_barrel_new_phigap   1 1 1 0
 ElectronMcSignalValidator/h_scl_EoEtrue_ebeegap_new         1 1 1 0
 ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new         1 1 0 0
 ElectronMcSignalValidator/h_scl_EoEtrue_endcaps_new_deegap  1 1 1 0
+ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_pfx 0 1 0 0
+ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_barrel_pfx 0 1 0 0
+ElectronMcSignalValidator/h_scl_EoEtrueVsrecOfflineVertices_endcaps_pfx 0 1 1 0
+ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue              1 1 0 0
+ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue_barrel       1 1 0 0
+ElectronMcSignalValidator/h_scl_bcl_EtotoEtrue_endcaps      1 1 1 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue                1 1 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_barrel         1 1 0 0
 ElectronMcSignalValidator/h_ele_EtaMnEtaTrue_endcaps        1 1 1 0

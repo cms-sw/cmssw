@@ -41,8 +41,8 @@ GEMGeometry* GEMGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
   // Asking only for the MuonGEM's
   DDSpecificsFilter filter;
   filter.setCriteria(val, // name & value of a variable 
-		     DDSpecificsFilter::matches,
-		     DDSpecificsFilter::AND, 
+		     DDCompOp::matches,
+		     DDLogOp::AND, 
 		     true, // compare strings otherwise doubles
 		     true // use merged-specifics or simple-specifics
 		     );

@@ -8,7 +8,7 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 
 
 ROOT.gSystem.Load("libFWCoreFWLite")
-ROOT.AutoLibraryLoader.enable()
+ROOT.FWLiteEnabler.enable()
 
 # Whether warn() should print anythingg
 quietWarn = False
@@ -222,13 +222,18 @@ class Lumis:
         # handle is always the last argument
         argsList = list (args)
         handle = argsList.pop()
-        if len(argsList)==1 and \
-               ( isinstance (argsList[0], tuple) or
-                 isinstance (argsList[0], list) ) :
-            if len (argsList) > 3:
-                raise RuntimeError, "getByLabel Error: label tuple has too " \
-                      "many arguments '%s'" % argsList[0]
-            argsList = list(argsList[0])
+        if len(argsList)==1 :
+            if( isinstance (argsList[0], tuple) or
+                isinstance (argsList[0], list) ) :
+                if len (argsList[0]) > 3:
+                    raise RuntimeError, "getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0]
+                argsList = list(argsList[0])
+            if( type(argsList[0]) is str and ":" in argsList[0] ):
+                if argsList[0].count(":") > 3:
+                    raise RuntimeError, "getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0].split(":")
+                argsList = argsList[0].split(":")
         while len(argsList) < 3:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
@@ -375,13 +380,18 @@ class Runs:
         # handle is always the last argument
         argsList = list (args)
         handle = argsList.pop()
-        if len(argsList)==1 and \
-               ( isinstance (argsList[0], tuple) or
-                 isinstance (argsList[0], list) ) :
-            if len (argsList) > 3:
-                raise RuntimeError, "getByLabel Error: label tuple has too " \
-                      "many arguments '%s'" % argsList[0]
-            argsList = list(argsList[0])
+        if len(argsList)==1 :
+            if( isinstance (argsList[0], tuple) or
+                isinstance (argsList[0], list) ) :
+                if len (argsList[0]) > 3:
+                    raise RuntimeError, "getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0]
+                argsList = list(argsList[0])
+            if( type(argsList[0]) is str and ":" in argsList[0] ):
+                if argsList[0].count(":") > 3:
+                    raise RuntimeError, "getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0].split(":")
+                argsList = argsList[0].split(":")
         while len(argsList) < 3:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList
@@ -546,13 +556,18 @@ class Events:
         # handle is always the last argument
         argsList = list (args)
         handle = argsList.pop()
-        if len(argsList)==1 and \
-               ( isinstance (argsList[0], tuple) or
-                 isinstance (argsList[0], list) ) :
-            if len (argsList) > 3:
-                raise RuntimeError, "getByLabel Error: label tuple has too " \
-                      "many arguments '%s'" % argsList[0]
-            argsList = list(argsList[0])
+        if len(argsList)==1 :
+            if( isinstance (argsList[0], tuple) or
+                isinstance (argsList[0], list) ) :
+                if len (argsList[0]) > 3:
+                    raise RuntimeError, "getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0]
+                argsList = list(argsList[0])
+            if( type(argsList[0]) is str and ":" in argsList[0] ):
+                if argsList[0].count(":") > 3:
+                    raise RuntimeError, "getByLabel Error: label tuple has too " \
+                        "many arguments '%s'" % argsList[0].split(":")
+                argsList = argsList[0].split(":")
         while len(argsList) < 3:
             argsList.append ('')
         (moduleLabel, productInstanceLabel, processLabel) = argsList

@@ -1,0 +1,259 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hcalendcapalgo.xml" eval="true">
+  <Constant name="etaMinF"     value="1.392"/>
+  <Constant name="slopeTopF"   value="tan(2.0*atan(exp(-[etaMinF])))"/>
+  <Constant name="slopeTop"    value="tan(53.0*deg)"/>
+  <Constant name="zShiftHE"    value="-23.92*mm"/>
+  <Constant name="z1Beam"      value="2412.7*mm"/>
+  <Constant name="rMaxHECal2"  value="2639.0*mm"/>    
+  <Constant name="rMaxHECal3"  value="2459.0*mm"/>
+  <Constant name="zHECal1"     value="3684.0*mm"/>
+  <Constant name="zHECal2"     value="(([rMaxHECal2]/[slopeTop])+[z1Beam])"/>
+  <Constant name="zHECal3"     value="4870.5*mm"/>
+  <Constant name="zHECal4"     value="5218.5*mm"/>
+  <Constant name="zHECal5"     value="5242.5*mm"/>
+  <Constant name="rMinHECal1"  value="[etaMax:slope]*[zHECal1]"/>
+  <Constant name="rMinHECal2"  value="[etaMax:slope]*[zHECal2]"/>
+  <Constant name="rMinHECal3"  value="[etaMax:slope]*[zHECal3]"/>    
+  <Constant name="rMinHECal4"  value="[etaMax:slope]*[zHECal4]"/>
+  <Constant name="rMinHECal5"  value="[etaMax:slope]*[zHECal5]"/>
+  <Constant name="rMaxHECal1"  value="([zHECal1]-[z1Beam])*[slopeTop]"/>
+  <Constant name="zHECalP1"    value="3739.5*mm"/>
+  <Constant name="zHECalP2"    value="4435.5*mm"/>
+  <Constant name="rMinHECalP1" value="[etaMax:slope]*[zHECalP1]"/>
+  <Constant name="rMinHECalP2" value="[etaMax:slope]*[zHECalP2]"/>
+  <Constant name="rMaxHECalP1" value="([zHECalP1]-[z1Beam])*[slopeTop]"/>
+</ConstantsSection>
+
+<SolidSection label="hcalendcapalgo.xml">
+  <Polyhedra name="HE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zHECal1]" rMin="[rMinHECal1]" rMax="[rMaxHECal1]"/>
+    <ZSection z="[zHECal2]" rMin="[rMinHECal2]" rMax="[rMaxHECal2]"/>
+    <ZSection z="[zHECal3]" rMin="[rMinHECal3]" rMax="[rMaxHECal2]"/>
+    <ZSection z="[zHECal3]" rMin="[rMinHECal3]" rMax="[rMaxHECal3]"/>
+    <ZSection z="[zHECal5]" rMin="[rMinHECal5]" rMax="[rMaxHECal3]"/>
+  </Polyhedra>
+  <Polyhedra name="HEFront" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zHECal1]" rMin="[rMinHECal1]" rMax="[rMaxHECal1]"/>
+    <ZSection z="[zHECal2]" rMin="[rMinHECal2]" rMax="[rMaxHECal2]"/>
+    <ZSection z="[zHECal3]" rMin="[rMinHECal3]" rMax="[rMaxHECal2]"/>
+    <ZSection z="[zHECal3]" rMin="[rMinHECal3]" rMax="[rMaxHECal3]"/>
+    <ZSection z="[zHECal4]" rMin="[rMinHECal4]" rMax="[rMaxHECal3]"/>
+  </Polyhedra>
+  <Polyhedra name="HEModule" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+    <ZSection z="[zHECal1]" rMin="[rMinHECal1]" rMax="[rMaxHECal1]"/>
+    <ZSection z="[zHECal2]" rMin="[rMinHECal2]" rMax="[rMaxHECal2]"/>
+    <ZSection z="[zHECal3]" rMin="[rMinHECal3]" rMax="[rMaxHECal2]"/>
+    <ZSection z="[zHECal3]" rMin="[rMinHECal3]" rMax="[rMaxHECal3]"/>
+    <ZSection z="[zHECal4]" rMin="[rMinHECal4]" rMax="[rMaxHECal3]"/>
+  </Polyhedra>
+  <Polyhedra name="HEPart1" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+    <ZSection z="[zHECal1]"  rMin="[rMinHECal1]"  rMax="[rMaxHECal1]"/>
+    <ZSection z="[zHECalP1]" rMin="[rMinHECalP1]" rMax="[rMaxHECalP1]"/>
+  </Polyhedra>
+  <Polyhedra name="HEPart2" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+    <ZSection z="[zHECalP1]" rMin="[rMinHECalP1]" rMax="[rMaxHECalP1]"/>
+    <ZSection z="[zHECal2]"  rMin="[rMinHECal2]"  rMax="[rMaxHECal2]"/>
+    <ZSection z="[zHECalP2]" rMin="[rMinHECalP2]" rMax="[rMaxHECal2]"/>
+  </Polyhedra>
+  <Polyhedra name="HEPart3" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+    <ZSection z="[zHECalP2]" rMin="[rMinHECalP2]" rMax="[rMaxHECal2]"/>
+    <ZSection z="[zHECal3]"  rMin="[rMinHECal3]"  rMax="[rMaxHECal2]"/>
+    <ZSection z="[zHECal3]"  rMin="[rMinHECal3]"  rMax="[rMaxHECal3]"/>
+    <ZSection z="[zHECal4]"  rMin="[rMinHECal4]"  rMax="[rMaxHECal3]"/>
+  </Polyhedra>
+  <Polyhedra name="HEBack" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zHECal4]" rMin="[rMinHECal4]" rMax="[rMaxHECal3]"/>
+    <ZSection z="[zHECal5]" rMin="[rMinHECal5]" rMax="[rMaxHECal3]"/>
+  </Polyhedra>
+</SolidSection>
+
+<LogicalPartSection label="hcalencapalgo.xml">
+  <LogicalPart name="HE" category="unspecified">
+    <rSolid name="HE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HEFront" category="unspecified">
+    <rSolid name="HEFront"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HEModule" category="unspecified">
+    <rSolid name="HEModule"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HEPart1" category="unspecified">
+    <rSolid name="HEPart1"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HEPart2" category="unspecified">
+    <rSolid name="HEPart2"/>
+    <rMaterial name="materials:H_Brass"/>
+  </LogicalPart>
+  <LogicalPart name="HEPart3" category="unspecified">
+    <rSolid name="HEPart3"/>
+    <rMaterial name="materials:H_Brass"/>
+  </LogicalPart>
+  <LogicalPart name="HEBack" category="unspecified">
+    <rSolid name="HEBack"/>
+    <rMaterial name="materials:H_Brass"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hcalendcapalgo.xml">
+  <PosPart copyNumber="1">
+    <rParent name="hcalalgo:HCal"/>
+    <rChild name="hcalendcapalgo:HE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hcalalgo:HCal"/>
+    <rChild name="hcalendcapalgo:HE"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hcalendcapalgo:HE"/>
+    <rChild name="hcalendcapalgo:HEFront"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="hcalendcapalgo:HE"/>
+    <rChild name="hcalendcapalgo:HEBack"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Algorithm name="global:DDAngular">
+    <rParent name="hcalendcapalgo:HEFront"/>
+    <String name="ChildName" value="hcalendcapalgo:HEModule"/>
+    <Numeric name="N" value="18"/>
+    <Numeric name="StartCopyNo" value="1"/>
+    <Numeric name="IncrCopyNo"  value="1"/>
+    <Numeric name="RangeAngle"  value="360*deg"/>
+    <Numeric name="StartAngle"  value="0*deg"/>
+    <Numeric name="Radius"      value="0"/>
+    <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+    <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
+   </Algorithm>
+   <PosPart copyNumber="1">
+    <rParent name="hcalendcapalgo:HEModule"/>
+    <rChild name="hcalendcapalgo:HEPart1"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="hcalendcapalgo:HEModule"/>
+    <rChild name="hcalendcapalgo:HEPart2"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="3">
+    <rParent name="hcalendcapalgo:HEModule"/>
+    <rChild name="hcalendcapalgo:HEPart3"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <Algorithm name="hcal:DDHCalEndcapModuleAlgo">
+    <rParent name="hcalendcapalgo:HEPart1"/>
+    <String  name="MaterialName"  value="materials:Air"/>
+    <String  name="AbsorberMat"   value="materials:H_Brass"/>
+    <String  name="PlasticMat"    value="materials:Polyethylene"/>
+    <String  name="ScintMat"      value="materials:Scintillator"/>
+    <String  name="Rotation"      value="hcalrotations:YXZ4"/>
+    <Numeric name="Sectors"       value="18"/>
+    <Numeric name="ZMinBlock"     value="[zHECal1]"/>
+    <Numeric name="ZMaxBlock"     value="[zHECalP1]"/>
+    <Numeric name="Z1Beam"        value="[z1Beam]"/>
+    <Numeric name="ZiDip"         value="[zHECal3]"/>
+    <Numeric name="DzStep"        value="87.0*mm"/>
+    <Numeric name="ModuleThick"   value="43.5*mm"/>
+    <Numeric name="LayerThick"    value="12.0*mm"/>
+    <Numeric name="ScintThick"    value="9.0*mm"/>
+    <Numeric name="RMaxFront"     value="[rMaxHECal1]"/>
+    <Numeric name="RMaxBack"      value="[rMaxHECalP1]"/>
+    <Numeric name="TrimLeft"      value="0.5*mm"/>
+    <Numeric name="TrimRight"     value="1.5*mm"/>
+    <Numeric name="TolAbs"        value="0.75*mm"/>
+    <Numeric name="SlopeBottom"   value="[etaMax:slope]"/>
+    <Numeric name="SlopeTop"      value="[slopeTop]"/>
+    <Numeric name="SlopeTopFront" value="[slopeTop]"/>
+    <Numeric name="ModType"       value="0"/>
+    <Numeric name="ModNumber"     value="-1"/>
+    <Numeric name="LayerType"     value="0"/>
+    <Vector name="LayerNumber" type="numeric" nEntries="2"> 0, 1 </Vector>
+    <Vector name="PhiName" type="string" nEntries="2"> Phi0, Phi1</Vector>
+    <Vector name="LayerName" type="string" nEntries="1"> Layer00</Vector>
+    <String  name="MotherName"    value="HE"/>
+    <String  name="ModName"       value="Part1"/>
+    <Numeric name="IdOffset"      value="4000"/>
+  </Algorithm>
+  <Algorithm name="hcal:DDHCalEndcapModuleAlgo">
+    <rParent name="hcalendcapalgo:HEPart2"/>
+    <String  name="MaterialName"  value="materials:Air"/>
+    <String  name="AbsorberMat"   value="materials:H_Brass"/>
+    <String  name="PlasticMat"    value="materials:Polyethylene"/>
+    <String  name="ScintMat"      value="materials:Scintillator"/>
+    <String  name="Rotation"      value="hcalrotations:YXZ4"/>
+    <Numeric name="Sectors"       value="18"/>
+    <Numeric name="ZMinBlock"     value="[zHECalP1]"/>
+    <Numeric name="ZMaxBlock"     value="[zHECalP2]"/>
+    <Numeric name="Z1Beam"        value="[z1Beam]"/>
+    <Numeric name="ZiDip"         value="[zHECal3]"/>
+    <Numeric name="DzStep"        value="87.0*mm"/>
+    <Numeric name="ModuleThick"   value="9.0*mm"/>
+    <Numeric name="LayerThick"    value="7.0*mm"/>
+    <Numeric name="ScintThick"    value="3.7*mm"/>
+    <Numeric name="RMaxFront"     value="[rMaxHECal2]"/>
+    <Numeric name="RMaxBack"      value="[rMaxHECal3]"/>
+    <Numeric name="TrimLeft"      value="0.5*mm"/>
+    <Numeric name="TrimRight"     value="0.5*mm"/>
+    <Numeric name="TolAbs"        value="0.75*mm"/>
+    <Numeric name="SlopeBottom"   value="[etaMax:slope]"/>
+    <Numeric name="SlopeTop"      value="[slopeTop]"/>
+    <Numeric name="SlopeTopFront" value="[slopeTop]"/>
+    <Numeric name="ModType"       value="1"/>
+    <Numeric name="ModNumber"     value="1"/>
+    <Numeric name="LayerType"     value="1"/>
+    <Vector name="LayerNumber" type="numeric" nEntries="8"> 
+       2, 3, 4, 5, 6, 7, 8, 9 </Vector>
+    <Vector name="PhiName" type="string" nEntries="2"> Phi0, Phi1</Vector>
+    <Vector name="LayerName" type="string" nEntries="8"> Layer02, Layer03, 
+       Layer04, Layer05, Layer06, Layer07, Layer08, Layer09</Vector>
+    <String  name="MotherName"    value="HE"/>
+    <String  name="ModName"       value="Part2"/>
+    <Numeric name="IdOffset"      value="4000"/>
+  </Algorithm>
+  <Algorithm name="hcal:DDHCalEndcapModuleAlgo">
+    <rParent name="hcalendcapalgo:HEPart3"/>
+    <String  name="MaterialName"  value="materials:Air"/>
+    <String  name="AbsorberMat"   value="materials:H_Brass"/>
+    <String  name="PlasticMat"    value="materials:Polyethylene"/>
+    <String  name="ScintMat"      value="materials:Scintillator"/>
+    <String  name="Rotation"      value="hcalrotations:YXZ4"/>
+    <Numeric name="Sectors"       value="18"/>
+    <Numeric name="ZMinBlock"     value="[zHECalP2]"/>
+    <Numeric name="ZMaxBlock"     value="[zHECal4]"/>
+    <Numeric name="Z1Beam"        value="[z1Beam]"/>
+    <Numeric name="ZiDip"         value="[zHECal3]"/>
+    <Numeric name="DzStep"        value="87.0*mm"/>
+    <Numeric name="ModuleThick"   value="9.0*mm"/>
+    <Numeric name="LayerThick"    value="7.0*mm"/>
+    <Numeric name="ScintThick"    value="3.7*mm"/>
+    <Numeric name="RMaxFront"     value="[rMaxHECal2]"/>
+    <Numeric name="RMaxBack"      value="[rMaxHECal3]"/>
+    <Numeric name="TrimLeft"      value="0.5*mm"/>
+    <Numeric name="TrimRight"     value="0.5*mm"/>
+    <Numeric name="TolAbs"        value="0.75*mm"/>
+    <Numeric name="SlopeBottom"   value="[etaMax:slope]"/>
+    <Numeric name="SlopeTop"      value="[slopeTop]"/>
+    <Numeric name="SlopeTopFront" value="[slopeTop]"/>
+    <Numeric name="ModType"       value="1"/>
+    <Numeric name="ModNumber"     value="1"/>
+    <Numeric name="LayerType"     value="1"/>
+    <Vector name="LayerNumber" type="numeric" nEntries="9">
+       10, 11, 12, 13, 14, 15, 16, 17, 18 </Vector>
+    <Vector name="PhiName" type="string" nEntries="2"> Phi0, Phi1</Vector>
+    <Vector name="LayerName" type="string" nEntries="9"> Layer10, Layer11, 
+       Layer12, Layer13, Layer14, Layer15, Layer16, Layer17, Layer18</Vector>
+    <String  name="MotherName"    value="HE"/>
+    <String  name="ModName"       value="Part3"/>
+    <Numeric name="IdOffset"      value="4000"/>
+  </Algorithm>
+</PosPartSection>
+</DDDefinition>

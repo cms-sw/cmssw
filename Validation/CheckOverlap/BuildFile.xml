@@ -1,4 +1,5 @@
 <flags   EDM_PLUGIN="1"/>
+<use   name="SimG4Core/Application"/>
 <use   name="SimG4Core/Notification"/>
 <use   name="SimG4Core/Watcher"/>
 <use   name="Geometry/Records"/>

@@ -4,6 +4,7 @@ trackingParticles = cms.PSet(
 	accumulatorType = cms.string('TrackingTruthAccumulator'),
 	createUnmergedCollection = cms.bool(True),
 	createMergedBremsstrahlung = cms.bool(True),
+	createInitialVertexCollection = cms.bool(False),
 	alwaysAddAncestors = cms.bool(True),
 	maximumPreviousBunchCrossing = cms.uint32(9999),
 	maximumSubsequentBunchCrossing = cms.uint32(9999),

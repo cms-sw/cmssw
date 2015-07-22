@@ -9,9 +9,9 @@
 
 #include "Alignment/LaserAlignment/plugins/LaserAlignment.h"
 #include "FWCore/Framework/interface/Run.h"
-
-
-
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
 
 ///
 ///
@@ -39,8 +39,7 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
   theAlignableTracker(),
   theAlignRecordName( "TrackerAlignmentRcd" ),
   theErrorRecordName( "TrackerAlignmentErrorExtendedRcd" ),
-  firstEvent_(true),
-  theParameterSet( theConf )
+  firstEvent_(true)
 {
 
 
@@ -267,7 +266,7 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    theSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+    theSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     // access the tracker
@@ -290,8 +289,10 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
       // the AlignableTracker object is initialized with the ideal geometry
       edm::ESHandle<GeometricDet> theGeometricDet;
       theSetup.get<IdealGeometryRecord>().get(theGeometricDet);
+      edm::ESHandle<PTrackerParameters> ptp;
+      theSetup.get<PTrackerParametersRcd>().get( ptp );
       TrackerGeomBuilderFromGeometricDet trackerBuilder;
-      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, theParameterSet);
+      TrackerGeometry* theRefTracker = trackerBuilder.build(&*theGeometricDet, *ptp );
       
       theAlignableTracker = new AlignableTracker(&(*theRefTracker), tTopo);
     }

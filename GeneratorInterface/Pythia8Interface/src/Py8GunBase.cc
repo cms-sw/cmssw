@@ -1,8 +1,6 @@
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 
-#include "GeneratorInterface/Pythia8Interface/plugins/HepMCA2.h"
-
 using namespace Pythia8;
 
 const std::vector<std::string> gen::Py8GunBase::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -72,7 +70,6 @@ bool Py8GunBase::residualDecay()
 
   if(NPartsAfterDecays == NPartsBeforeDecays) return true;
   
-  HepMC::Pythia8ToHepMCA toHepMCA;
   bool result = true;
 
   for ( int ipart=NPartsAfterDecays; ipart>NPartsBeforeDecays; ipart-- )
@@ -102,7 +99,7 @@ bool Py8GunBase::residualDecay()
 	    
       part->set_status(2);
 	    
-      result = toHepMCA.append_event( fDecayer->event, event().get(), part);
+      result = toHepMC.fill_next_event( *(fDecayer.get()), event().get(), -1, true, part);
 
     }
   } 

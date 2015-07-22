@@ -16,8 +16,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 #rocess.TrackerGeometricDetESModule = cms.ESProducer( "TrackerGeometricDetESModule",
 #  fromDDD = cms.bool( False )
 #)
-process.load('Geometry.TrackerGeometryBuilder.trackerSLHCGeometry_cfi')
-process.trackerSLHCGeometry.applyAlignment = cms.bool(False)
+process.load('Geometry.TrackerGeometryBuilder.trackerGeometry_cfi')
+process.trackerGeometry.applyAlignment = cms.bool(False)
 
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag

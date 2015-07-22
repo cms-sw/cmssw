@@ -23,10 +23,13 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   G4DataQuestionaire it(photon);
 
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
+  bool tracking= p.getParameter<bool>("TrackingCut");
   bool ssPhys  = p.getUntrackedParameter<bool>("ExoticaPhysicsSS",false);
+  double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT_EML for regular particles";
-
+			      << "QGSP_FTFP_BERT_EML for regular particles \n"
+			      << "CustomPhysicsList " << ssPhys << " for exotics; "
+                              << " tracking cut " << tracking << "  t(ns)= " << timeLimit/ns;
   // EM Physics
   RegisterPhysics(new CMSEmStandardPhysics(ver));
   //RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
@@ -50,7 +53,11 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   RegisterPhysics(new G4IonPhysics(ver));
 
   // Neutron tracking cut
-  RegisterPhysics(new G4NeutronTrackingCut(ver));
+  if (tracking) {
+    G4NeutronTrackingCut* ncut= new G4NeutronTrackingCut(ver);
+    ncut->SetTimeLimit(timeLimit);
+    RegisterPhysics(ncut);
+  }
 
   // Custom Physics
   if(ssPhys) {

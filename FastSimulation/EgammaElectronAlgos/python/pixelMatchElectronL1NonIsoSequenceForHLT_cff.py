@@ -38,19 +38,15 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 
 hltCkfL1NonIsoTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-#hltCkfL1NonIsoTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoElectronPixelSeeds")
-hltCkfL1NonIsoTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds")
+#hltCkfL1NonIsoTrackCandidates.src = cms.InputTag("hltL1NonIsoElectronPixelSeeds")
+hltCkfL1NonIsoTrackCandidates.src = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds")
 #hltCkfL1NonIsoTrackCandidates.TrackProducers = []
-hltCkfL1NonIsoTrackCandidates.MaxNumberOfCrossedLayers = 999
-hltCkfL1NonIsoTrackCandidates.SeedCleaning = True
 hltCkfL1NonIsoTrackCandidates.SplitHits = False
 
 #not needed 
 #hltCkfL1NonIsoStartUpTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-#hltCkfL1NonIsoStartUpTrackCandidates.SeedProducer = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds")
+#hltCkfL1NonIsoStartUpTrackCandidates.src = cms.InputTag("hltL1NonIsoStartUpElectronPixelSeeds")
 #hltCkfL1NonIsoStartUpTrackCandidates.TrackProducers = []
-#hltCkfL1NonIsoStartUpTrackCandidates.MaxNumberOfCrossedLayers = 999
-#hltCkfL1NonIsoStartUpTrackCandidates.SeedCleaning = True
 #hltCkfL1NonIsoStartUpTrackCandidates.SplitHits = False
 
 # CTF track fit with material

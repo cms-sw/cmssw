@@ -194,18 +194,51 @@ private:
   std::string theTrackQuality;
   edm::InputTag muonsrc_;
   std::vector <double> track_cosmic_xposition , track_cosmic_yposition, track_cosmic_zposition, track_cosmic_xmomentum,track_cosmic_ymomentum, track_cosmic_zmomentum, track_cosmic_rad, track_cosmic_detid;
- };
+
+  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
+  edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes_;
+  edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
+  edm::EDGetTokenT<reco::BeamSpot>         tok_bs_;
+  edm::EDGetTokenT<EcalRecHitCollection>   tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection>   tok_EE_;
+  edm::EDGetTokenT<HBHERecHitCollection>   tok_hbhe_;
+  edm::EDGetTokenT<reco::MuonCollection>   tok_muon_;
+};
 
 HcalRaddamMuon::HcalRaddamMuon(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
   HLTriggerResults_ = iConfig.getUntrackedParameter<edm::InputTag>("HLTriggerResults_");
+  muonsrc_          = iConfig.getUntrackedParameter<edm::InputTag>("MuonSource");
   verbosity_        = iConfig.getUntrackedParameter<int>("Verbosity",0);
   isAOD_            = iConfig.getUntrackedParameter<bool>("IsAOD",false);
   isSLHC_           = iConfig.getUntrackedParameter<bool>("IsSLHC",true);
   maxDepth_         = iConfig.getUntrackedParameter<int>("MaxDepth",4);
-  //  muonsrc_           = iConfig.getUntrackedParameter<edm::InputTag>("muonsrc");
+
   if (maxDepth_ > 7)      maxDepth_ = 7;
   else if (maxDepth_ < 1) maxDepth_ = 4;
+
+  tok_hcal_    = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
+  tok_trigRes_ = consumes<edm::TriggerResults>(HLTriggerResults_);
+  tok_recVtx_  = consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"));
+  tok_bs_      = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  if (isAOD_) {
+    tok_EB_    = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
+    tok_EE_    = consumes<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+    if (isSLHC_) {
+      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("reducedHcalRecHits","hbheUpgradeReco"));
+    } else {
+      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("reducedHcalRecHits", "hbhereco"));
+    }
+  } else {
+    tok_EB_    = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+    tok_EE_    = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+    if (isSLHC_) {
+      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("hbheUpgradeReco"));
+    } else {
+      tok_hbhe_= consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
+    }
+  }
+  tok_muon_    = consumes<reco::MuonCollection>(muonsrc_);
 }
 
 HcalRaddamMuon::~HcalRaddamMuon() {
@@ -229,10 +262,10 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   BXNumber = iEvent.bunchCrossing();
  
   edm::Handle<edm::PCaloHitContainer> calosimhits;
-  iEvent.getByLabel("g4SimHits","HcalHits",calosimhits);
+  iEvent.getByToken(tok_hcal_,calosimhits);
  
   edm::Handle<edm::TriggerResults> _Triggers;
-  iEvent.getByLabel(HLTriggerResults_,_Triggers); 
+  iEvent.getByToken(tok_trigRes_,_Triggers); 
   
   if ((verbosity_%10)>1) std::cout << "size of all triggers " 
 				   << all_triggers.size() << std::endl;
@@ -288,32 +321,21 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const HcalTopology* theHBHETopology = htopo.product();
 
   edm::Handle<reco::BeamSpot> bmspot;
-  iEvent.getByLabel("offlineBeamSpot",bmspot);
+  iEvent.getByToken(tok_bs_,bmspot);
 
   edm::Handle<reco::VertexCollection> vtx;
-  iEvent.getByLabel("offlinePrimaryVertices",vtx);
+  iEvent.getByToken(tok_recVtx_,vtx);
   
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
-  if (isAOD_) {
-    iEvent.getByLabel("EcalRecHitsEB",barrelRecHitsHandle);
-    iEvent.getByLabel("EcalRecHitsEE",endcapRecHitsHandle);
-  } else {
-    iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",barrelRecHitsHandle);
-    iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",endcapRecHitsHandle);
-  }
+  iEvent.getByToken(tok_EB_,barrelRecHitsHandle);
+  iEvent.getByToken(tok_EE_,endcapRecHitsHandle);
   
   edm::Handle<HBHERecHitCollection> hbhe;
-  if (isSLHC_) {
-    if (isAOD_) iEvent.getByLabel("reducedHcalRecHits","hbheUpgradeReco",hbhe);
-    else        iEvent.getByLabel("hbheUpgradeReco", hbhe);
-  } else {
-    if (isAOD_) iEvent.getByLabel("reducedHcalRecHits","hbhereco",hbhe);
-    else        iEvent.getByLabel("hbhereco", hbhe);
-  }
+  iEvent.getByToken(tok_hbhe_,hbhe);
     
   edm::Handle<reco::MuonCollection> _Muon;
-  iEvent.getByLabel("muons",_Muon);
+  iEvent.getByToken(tok_muon_,_Muon);
   const reco::Vertex& vertex = (*(vtx)->begin());  
  
   math::XYZPoint bspot;

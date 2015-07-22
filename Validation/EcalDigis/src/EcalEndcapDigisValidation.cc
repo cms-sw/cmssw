@@ -18,23 +18,6 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
  
   // verbosity switch
   verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
-                                                                                                                                           
-  dbe_ = 0;
-                                                                                                                                          
-  // get hold of back-end interface
-  dbe_ = Service<DQMStore>().operator->();
-                                                                                                                                          
-  if ( dbe_ ) {
-    if ( verbose_ ) {
-      dbe_->setVerbose(1);
-    } else {
-      dbe_->setVerbose(0);
-    }
-  }
-                                                                                                                                          
-  if ( dbe_ ) {
-    if ( verbose_ ) dbe_->showDirStructure();
-  }
 
   gainConv_[1] = 1.;
   gainConv_[2] = 2.;
@@ -68,77 +51,74 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
 
   meEEnADCafterSwitch_ = 0;
  
-  Char_t histo[200];
- 
-  
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("EcalDigisV/EcalDigiTask");
-  
-    sprintf (histo, "EcalDigiTask Endcap occupancy z+" ) ;
-    meEEDigiOccupancyzp_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-    
-    sprintf (histo, "EcalDigiTask Endcap occupancy z-" ) ;
-    meEEDigiOccupancyzm_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
-  
-    sprintf (histo, "EcalDigiTask Endcap multiplicity z+" ) ;
-    meEEDigiMultiplicityzp_ = dbe_->book1D(histo, histo, 100, 0., 7324.);
-    
-    sprintf (histo, "EcalDigiTask Endcap multiplicity z-" ) ;
-    meEEDigiMultiplicityzm_ = dbe_->book1D(histo, histo, 100, 0., 7324.);
-    
-    sprintf (histo, "EcalDigiTask Endcap global pulse shape" ) ;
-    meEEDigiADCGlobal_ = dbe_->bookProfile(histo, histo, 10, 0, 10, 10000, 0., 1000.) ;
-
-    for (int i = 0; i < 10 ; i++ ) {
-
-      sprintf (histo, "EcalDigiTask Endcap analog pulse %02d", i+1) ;
-      meEEDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 4000, 0., 400.);
-
-      sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 0 - Saturated", i+1) ;
-      meEEDigiADCgS_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
-
-      sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 1", i+1) ;
-      meEEDigiADCg1_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
-
-      sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 6", i+1) ;
-      meEEDigiADCg6_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
-
-      sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 12", i+1) ;
-      meEEDigiADCg12_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
-
-      sprintf (histo, "EcalDigiTask Endcap gain pulse %02d", i+1) ;
-      meEEDigiGain_[i] = dbe_->book1D(histo, histo, 4, 0, 4);
-    }
-    
-    sprintf (histo, "EcalDigiTask Endcap pedestal for pre-sample" ) ;
-    meEEPedestal_ = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5) ;
-
-    sprintf (histo, "EcalDigiTask Endcap maximum position gt 100 ADC" ) ;
-    meEEMaximumgt100ADC_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
-
-    sprintf (histo, "EcalDigiTask Endcap maximum position gt 20 ADC" ) ;
-    meEEMaximumgt20ADC_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
-
-    sprintf (histo, "EcalDigiTask Endcap ADC counts after gain switch" ) ;
-    meEEnADCafterSwitch_ = dbe_->book1D(histo, histo, 10, 0., 10.) ;
-
-  }
- 
 }
 
 EcalEndcapDigisValidation::~EcalEndcapDigisValidation(){
  
 }
 
-void EcalEndcapDigisValidation::beginRun(Run const &, EventSetup const & c){
+void EcalEndcapDigisValidation::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&){
+
+    Char_t histo[200];
+
+    ibooker.setCurrentFolder("EcalDigisV/EcalDigiTask");
+  
+    sprintf (histo, "EcalDigiTask Endcap occupancy z+" ) ;
+    meEEDigiOccupancyzp_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    
+    sprintf (histo, "EcalDigiTask Endcap occupancy z-" ) ;
+    meEEDigiOccupancyzm_ = ibooker.book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  
+    sprintf (histo, "EcalDigiTask Endcap multiplicity z+" ) ;
+    meEEDigiMultiplicityzp_ = ibooker.book1D(histo, histo, 100, 0., 7324.);
+    
+    sprintf (histo, "EcalDigiTask Endcap multiplicity z-" ) ;
+    meEEDigiMultiplicityzm_ = ibooker.book1D(histo, histo, 100, 0., 7324.);
+    
+    sprintf (histo, "EcalDigiTask Endcap global pulse shape" ) ;
+    meEEDigiADCGlobal_ = ibooker.bookProfile(histo, histo, 10, 0, 10, 10000, 0., 1000.) ;
+
+    for (int i = 0; i < 10 ; i++ ) {
+
+      sprintf (histo, "EcalDigiTask Endcap analog pulse %02d", i+1) ;
+      meEEDigiADCAnalog_[i] = ibooker.book1D(histo, histo, 4000, 0., 400.);
+
+      sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 0 - Saturated", i+1) ;
+      meEEDigiADCgS_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+
+      sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 1", i+1) ;
+      meEEDigiADCg1_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+
+      sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 6", i+1) ;
+      meEEDigiADCg6_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+
+      sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 12", i+1) ;
+      meEEDigiADCg12_[i] = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5);
+
+      sprintf (histo, "EcalDigiTask Endcap gain pulse %02d", i+1) ;
+      meEEDigiGain_[i] = ibooker.book1D(histo, histo, 4, 0, 4);
+    }
+    
+    sprintf (histo, "EcalDigiTask Endcap pedestal for pre-sample" ) ;
+    meEEPedestal_ = ibooker.book1D(histo, histo, 4096, -0.5, 4095.5) ;
+
+    sprintf (histo, "EcalDigiTask Endcap maximum position gt 100 ADC" ) ;
+    meEEMaximumgt100ADC_ = ibooker.book1D(histo, histo, 10, 0., 10.) ;
+
+    sprintf (histo, "EcalDigiTask Endcap maximum position gt 20 ADC" ) ;
+    meEEMaximumgt20ADC_ = ibooker.book1D(histo, histo, 10, 0., 10.) ;
+
+    sprintf (histo, "EcalDigiTask Endcap ADC counts after gain switch" ) ;
+    meEEnADCafterSwitch_ = ibooker.book1D(histo, histo, 10, 0., 10.) ;
+
+}
+
+void EcalEndcapDigisValidation::dqmBeginRun(edm::Run const&, edm::EventSetup const& c){
 
   checkCalibrations(c);
 
-}
+} 
 
-void EcalEndcapDigisValidation::endJob(){
-
-}
 
 void EcalEndcapDigisValidation::analyze(Event const & e, EventSetup const & c){
 

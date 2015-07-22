@@ -1,6 +1,6 @@
 {
 gSystem->Load("libFWCoreFWLite.so");
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
 TFile file("RefittedTracks.root");
 /////////SET THESE VALUES///////////////
 float intervals[] = {0,0.8,1.4,2.0,2.5};

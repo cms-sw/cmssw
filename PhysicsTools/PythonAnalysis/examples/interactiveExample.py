@@ -5,7 +5,7 @@ from ROOT import *
 
 # prepare the FWLite autoloading mechanism
 gSystem.Load("libFWCoreFWLite.so")
-AutoLibraryLoader.enable()
+FWLiteEnabler::enable()
 
 # enable support for files > 2 GB
 gSystem.Load("libIOPoolTFileAdaptor")

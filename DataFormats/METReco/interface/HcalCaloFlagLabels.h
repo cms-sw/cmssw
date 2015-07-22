@@ -18,12 +18,13 @@ namespace HcalCaloFlagLabels
 		      HSCP_ExpFit=5,
                       HBHETimingTrustBits=6, // 2-bit counter; not yet in use
                       HBHETimingShapedCutsBits=8, // 3-bit counter
-            HBHENegativeNoise=27,
+		      HBHENegativeNoise=27,
 		      HBHEIsolatedNoise=11,
 		      HBHEFlatNoise=12,
 		      HBHESpikeNoise=13,
 		      HBHETriangleNoise=14,
-		      HBHETS4TS5Noise=15
+		      HBHETS4TS5Noise=15,
+		      HBHEPulseFitBit=29
   };
 
   enum HFTimingTrustFlag{HFTimingTrustBits=6};
@@ -52,7 +53,6 @@ namespace HcalCaloFlagLabels
 		   // This bit is not yet in use (as of March 2012), but can be used to mark sim hits to which noise has been intentionally added
 		   AddedSimHcalNoise=28,
 		   // The following bits are all user-defined; reverse-order them so that UserDefinedBit0 will be the last removed
-		   UserDefinedBit2 = 29,
 		   UserDefinedBit1 = 30,
 		   UserDefinedBit0 = 31
 }; 

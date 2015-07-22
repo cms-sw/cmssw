@@ -4,7 +4,7 @@ root -l -b << EOF
   TString dummy = makeshared.ReplaceAll("-W ", "");
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();;
   gSystem->Load("libDataFormatsFWLite.so");
   gSystem->Load("libDataFormatsCommon.so");
   .x GetLuminosity.C+

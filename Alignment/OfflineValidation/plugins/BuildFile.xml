@@ -48,5 +48,6 @@
 <use   name="Geometry/CaloGeometry"/>
 <library   file="*.cc" name="AlignmentOfflinevalidationPlugins">
   <use   name="Alignment/OfflineValidation"/>
+  <use   name="CondFormats/GeometryObjects"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

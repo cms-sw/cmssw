@@ -78,7 +78,7 @@ void testmakepset::secsourceAux() {
   "    fileName = cms.string('file:CumHits.root')\n"
   ")\n"
   "process.mix = cms.EDFilter('MixingModule',\n"
-  "    input = cms.SecSource('PoolSource',\n"
+  "    input = cms.SecSource('EmbeddedRootSource',\n"
   "        fileNames = cms.untracked.vstring('file:pileup.root')\n"
   "    ),\n"
   "    max_bunch = cms.int32(3),\n"
@@ -100,7 +100,7 @@ void testmakepset::secsourceAux() {
   // Make sure this ParameterSet object has the right contents
   edm::ParameterSet const& mixingModuleParams = ps->getParameterSet("mix");
   edm::ParameterSet const& secondarySourceParams = mixingModuleParams.getParameterSet("input");
-  CPPUNIT_ASSERT(secondarySourceParams.getParameter<std::string>("@module_type") == "PoolSource");
+  CPPUNIT_ASSERT(secondarySourceParams.getParameter<std::string>("@module_type") == "EmbeddedRootSource");
   CPPUNIT_ASSERT(secondarySourceParams.getParameter<std::string>("@module_label") == "input");
   CPPUNIT_ASSERT(secondarySourceParams.getUntrackedParameter<std::vector<std::string> >("fileNames")[0] == "file:pileup.root");
 }

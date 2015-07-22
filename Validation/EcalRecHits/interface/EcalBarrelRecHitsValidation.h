@@ -33,8 +33,9 @@
 #include <vector>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class EcalBarrelRecHitsValidation: public edm::EDAnalyzer{
+class EcalBarrelRecHitsValidation: public DQMEDAnalyzer{
 
 public:
 
@@ -47,20 +48,13 @@ EcalBarrelRecHitsValidation(const edm::ParameterSet& ps);
 protected:
 
 /// Analyze
+void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
 void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-// BeginJob
-void beginJob();
-
-// EndJob
-void endJob(void);
 
 private:
 
  bool verbose_;
  
- DQMStore* dbe_;
-
  // fix for consumes
  edm::EDGetTokenT< EBDigiCollection > EBdigiCollection_token_;
  edm::EDGetTokenT< EBUncalibratedRecHitCollection > EBuncalibrechitCollection_token_;

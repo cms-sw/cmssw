@@ -42,7 +42,8 @@ public:
       value_( params.existsAs<std::string>("value") ? params.getParameter<std::string>("value") : "" ),
       values_( params.existsAs<std::vector<std::string> >("values") ? params.getParameter<std::vector<std::string> >("values") : std::vector<std::string>() ),
       valueLabels_( params.existsAs<std::vector<std::string> >("valueLabels") ? params.getParameter<std::vector<std::string> >("valueLabels") : std::vector<std::string>() ),
-      lazyParser_( params.existsAs<bool>("lazyParser") ? params.getParameter<bool>("lazyParser") : false )
+      lazyParser_( params.existsAs<bool>("lazyParser") ? params.getParameter<bool>("lazyParser") : false ),
+      multiValue_(false)
   {
     if( value_!="" )
     {

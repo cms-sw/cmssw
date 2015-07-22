@@ -34,6 +34,8 @@
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
+#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include <TString.h>
 
 #include <iostream>
@@ -111,6 +113,7 @@ class L1TRate : public DQMEDAnalyzer {
     // Others
     //DQMStore* dbe;  // The DQM Service Handle
 
+    L1GtUtils m_l1GtUtils;
 };
 
 #endif

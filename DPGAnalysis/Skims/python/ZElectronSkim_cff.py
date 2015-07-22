@@ -1,87 +1,58 @@
 import FWCore.ParameterSet.Config as cms
 
-HLTPath = "HLT_Ele*"
-HLTProcessName = "HLT"
+# run on MIONAOD
+RUN_ON_MINIAOD = False
+#print "ZEE SKIM. RUN ON MINIAOD = ",RUN_ON_MINIAOD
 
-### cut on electron tag
-ELECTRON_ET_CUT_MIN_TIGHT = 20.0
-ELECTRON_ET_CUT_MIN_LOOSE = 10.0
-
-MASS_CUT_MIN = 40.
-
+# cuts
+ELECTRON_CUT=("pt > 10 && abs(eta)<2.5")
+DIELECTRON_CUT=("mass > 40 && mass < 140 && daughter(0).pt>20 && daughter(1).pt()>10")
 
 
-##    _____ _           _                     ___    _ 
-##   | ____| | ___  ___| |_ _ __ ___  _ __   |_ _|__| |
-##   |  _| | |/ _ \/ __| __| '__/ _ \| '_ \   | |/ _` |
-##   | |___| |  __/ (__| |_| | | (_) | | | |  | | (_| |
-##   |_____|_|\___|\___|\__|_|  \___/|_| |_| |___\__,_|
-##   
-# Electron ID  ######
-from DPGAnalysis.Skims.WElectronSkim_cff import *
+# single lepton selectors
+if RUN_ON_MINIAOD:
+    goodZeeElectrons = cms.EDFilter("PATElectronRefSelector",
+                                    src = cms.InputTag("slimmedElectrons"),
+                                    cut = cms.string(ELECTRON_CUT)
+                                    )
+else:
+    goodZeeElectrons = cms.EDFilter("GsfElectronRefSelector",
+                                    src = cms.InputTag("gedGsfElectrons"),
+                                    cut = cms.string(ELECTRON_CUT)
+                                    )
 
-PassingVeryLooseId = goodElectrons.clone(
-    cut = cms.string(
-        goodElectrons.cut.value() +
-        #    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=1 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits
-            " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=1 )" #wrt std WP90 allowing 1 numberOfMissingExpectedHits 
-            " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN_LOOSE) + ")"
-            " && ((isEB"
-            " && ( dr03TkSumPt/p4.Pt <0.2 && dr03EcalRecHitSumEt/p4.Pt < 0.3 && dr03HcalTowerSumEt/p4.Pt  < 0.3 )"
-            " && (sigmaIetaIeta<0.012)"
-            " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
-            " && ( -0.01<deltaEtaSuperClusterTrackAtVtx<0.01 )"
-            " && (hadronicOverEm<0.15)"
-            ")"
-            " || (isEE"
-            " && ( dr03TkSumPt/p4.Pt <0.2 && dr03EcalRecHitSumEt/p4.Pt < 0.3 && dr03HcalTowerSumEt/p4.Pt  < 0.3 )"
-            " && (sigmaIetaIeta<0.033)"
-            " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )" 
-            " && ( -0.01<deltaEtaSuperClusterTrackAtVtx<0.01 )"
-            " && (hadronicOverEm<0.15) "
-            "))"
-        )
-    )
+# electron ID (sync with the AlCaReco: https://raw.githubusercontent.com/cms-sw/cmssw/CMSSW_7_5_X/Calibration/EcalAlCaRecoProducers/python/WZElectronSkims_cff.py)
+identifiedElectrons = goodZeeElectrons.clone(cut = cms.string(goodZeeElectrons.cut.value() +
+                                                              " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=2)"
+                                                              " && ((isEB"
+                                                              " && ( ((pfIsolationVariables().sumChargedHadronPt + max(0.0,pfIsolationVariables().sumNeutralHadronEt + pfIsolationVariables().sumPhotonEt - 0.5 * pfIsolationVariables().sumPUPt))/p4.pt)<0.164369)"
+                                                              " && (full5x5_sigmaIetaIeta<0.011100)"
+                                                              " && ( - 0.252044<deltaPhiSuperClusterTrackAtVtx< 0.252044 )"
+                                                       " && ( -0.016315<deltaEtaSuperClusterTrackAtVtx<0.016315 )"
+                                                              " && (hadronicOverEm<0.345843)"
+                                                              ")"
+                                                              " || (isEE"
+                                                              " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=3)"
+                                                              " && ( ((pfIsolationVariables().sumChargedHadronPt + max(0.0,pfIsolationVariables().sumNeutralHadronEt + pfIsolationVariables().sumPhotonEt - 0.5 * pfIsolationVariables().sumPUPt))/p4.pt)<0.212604 )"
+                                                              " && (full5x5_sigmaIetaIeta<0.033987)"
+                                                              " && ( -0.245263<deltaPhiSuperClusterTrackAtVtx<0.245263 )"
+                                                              " && ( -0.010671<deltaEtaSuperClusterTrackAtVtx<0.010671 )"
+                                                              " && (hadronicOverEm<0.134691) "
+                                                              "))"
+                                                              )
+                                             )
 
-PassingTightId = PassingVeryLooseId.clone(
-    cut = cms.string(
-        PassingVeryLooseId.cut.value() +
-        " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN_TIGHT) + ")"
-        )
-    )
+# dilepton selectors
+diZeeElectrons = cms.EDProducer("CandViewShallowCloneCombiner",
+                                decay       = cms.string("identifiedElectrons identifiedElectrons"),
+                                checkCharge = cms.bool(False),
+                                cut         = cms.string(DIELECTRON_CUT)
+                                )
+# dilepton counters
+diZeeElectronsFilter = cms.EDFilter("CandViewCountFilter",
+                                    src = cms.InputTag("diZeeElectrons"),
+                                    minNumber = cms.uint32(1)
+                                    )
 
-Zele_sequence = cms.Sequence(
-    PassingVeryLooseId
-    *PassingTightId 
-    )
-                         
-
-
-##    _____ ___   ____    ____       _          
-##   |_   _( _ ) |  _ \  |  _ \ __ _(_)_ __ ___ 
-##     | | / _ \/\ |_) | | |_) / _` | | '__/ __|
-##     | || (_>  <  __/  |  __/ (_| | | |  \__ \
-##     |_| \___/\/_|     |_|   \__,_|_|_|  |___/
-##                                              
-##   
-import copy
-from HLTrigger.HLTfilters.hltHighLevel_cfi import *
-ZEEHltFilter = copy.deepcopy(hltHighLevel)
-ZEEHltFilter.throw = cms.bool(False)
-ZEEHltFilter.HLTPaths = [HLTPath]
-
-tagGsf = cms.EDProducer("CandViewShallowCloneCombiner",
-    #    decay = cms.string("PassingWP90 goodElectrons"),
-    # decay = cms.string("PassingVeryLooseId PassingVeryLooseId"),
-    decay = cms.string("PassingTightId PassingVeryLooseId"),
-    checkCharge = cms.bool(False), 
-    cut   = cms.string("mass > " + str(MASS_CUT_MIN))
-    )
-tagGsfCounter = cms.EDFilter("CandViewCountFilter",
-    src = cms.InputTag("tagGsf"),
-    minNumber = cms.uint32(1)
-    )
-tagGsfFilter = cms.Sequence(tagGsf * tagGsfCounter)
-tagGsfSeq = cms.Sequence( ZEEHltFilter * Zele_sequence * tagGsfFilter )  
-#tagGsfSeq = cms.Sequence( ZEEHltFilter * Zele_sequence )  
-#tagGsfSeq = cms.Sequence( ZEEHltFilter )  
+#sequences
+zdiElectronSequence = cms.Sequence( goodZeeElectrons * identifiedElectrons * diZeeElectrons * diZeeElectronsFilter )

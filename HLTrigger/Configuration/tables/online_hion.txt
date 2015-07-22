@@ -1,92 +1,25 @@
 # "HIon" menu
-HLT_HIZeroBias_v*
-HLT_HIZeroBiasXOR_v*
-HLT_HIZeroBiasPixel_SingleTrack_v*
-HLT_HIMinBiasBSC_v*
-HLT_HIMinBiasBSC_OR_v*
-HLT_HIMinBiasHF_v*
-HLT_HIMinBiasHf_OR_v*
-HLT_HIMinBiasHfOrBSC_v*
-HLT_HIMinBiasPixel_SingleTrack_v*
-HLT_HIMinBiasZDC_Calo_v*
-HLT_HIMinBiasZDC_Calo_PlusOrMinus_v*
-HLT_HIMinBiasZDCPixel_SingleTrack_v*
-HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v*
-HLT_HIBptxXOR_v*
-HLT_HIL1Algo_BptxXOR_BSC_OR_v*
-HLT_HIL1DoubleMuOpen_v*
-HLT_HIL1DoubleMu0_HighQ_v*
-HLT_HIL2Mu3_v*
-HLT_HIL2Mu3_NHitQ_v*
-HLT_HIL2Mu7_v*
-HLT_HIL2Mu15_v*
-HLT_HIL2DoubleMu0_v*
-HLT_HIL2DoubleMu0_NHitQ_v*
-HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v*
-HLT_HIL2DoubleMu3_v*
-HLT_HIL3Mu3_v*
-HLT_HIL3DoubleMuOpen_v*
-HLT_HIL3DoubleMuOpen_Mgt2_v*
-HLT_HIL3DoubleMuOpen_Mgt2_SS_v*
-HLT_HIL3DoubleMuOpen_Mgt2_OS_v*
-HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v*
-HLT_HISinglePhoton15_v*
-HLT_HISinglePhoton20_v*
-HLT_HISinglePhoton30_v*
-HLT_HISinglePhoton40_v*
-HLT_HIPhoton10_Photon15_v*
-HLT_HIPhoton15_Photon20_v*
-HLT_HIDoublePhoton10_v*
-HLT_HIDoublePhoton15_v*
-HLT_HIDoublePhoton20_v*
-HLT_HIJet55_v*
-HLT_HIJet65_v*
-HLT_HIJet80_v*
-HLT_HIJet95_v*
-HLT_HIDiJet55_v*
-HLT_HIJet65_Jet55_v*
-HLT_HIJetE30_NoBPTX_v*
-HLT_HIJetE50_NoBPTX3BX_NoHalo_v*
-HLT_HIMET120_v*
-HLT_HIMET200_v*
-HLT_HIMET220_v*
-HLT_HIPhysics_v*
-HLT_HIActivityHF_Coincidence3_v*
-HLT_HIActivityHF_Single3_v*
-HLT_HIClusterVertexCompatibility_v*
-HLT_HICentralityVeto_v*
-HLT_HIFullTrack12_L1Central_v*
-HLT_HIFullTrack12_L1Peripheral_v*
-HLT_HIFullTrack14_L1Central_v*
-HLT_HIFullTrack14_L1Peripheral_v*
-HLT_HIFullTrack20_L1Central_v*
-HLT_HIFullTrack20_L1Peripheral_v*
-HLT_HIFullTrack25_L1Central_v*
-HLT_HIFullTrack25_L1Peripheral_v*
-HLT_HIRandom_v*
-HLT_HIUCC010_v*
-HLT_HIUCC015_v*
-HLT_HICentral10_v*
-HLT_HIUPCNeuMuPixel_SingleTrack_v*
-HLT_HIUPCNeuEG2Pixel_SingleTrack_v*
-HLT_HIUPCNeuEG5Pixel_SingleTrack_v*
-HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v*
-HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v*
-HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v*
-HLT_HIDTCalibration_v*
-HLT_HIEcalCalibration_v*
-HLT_HIHcalCalibration_v*
+
+HLT_HIL1DoubleMu0_HighQ_v*			# CMSHLT-198
+HLT_HIL2Mu3_v*					# CMSHLT-198
+HLT_HIL2Mu7_v*					# CMSHLT-198
+HLT_HIL2Mu15_v*					# CMSHLT-198
+HLT_HIL2Mu3_NHitQ_v*				# CMSHLT-198
+HLT_HIL2DoubleMu0_v*				# CMSHLT-198
+HLT_HIL2DoubleMu0_NHitQ_v*			# CMSHLT-198
+HLT_HIL2DoubleMu3_v*				# CMSHLT-198
+HLT_HIL3Mu3_v*					# CMSHLT-198
+HLT_HIL3DoubleMuOpen_v*				# CMSHLT-198
+HLT_HIL3DoubleMuOpen_SS_v*			# CMSHLT-198
+HLT_HIL3DoubleMuOpen_OS_v*			# CMSHLT-198
+HLT_HIL3DoubleMuOpen_OS_NoCowboy_v*		# CMSHLT-198
+
+HLT_Physics_v*
+
+HLTriggerFirstPath
 HLTriggerFinalPath
-AForHIOutput
-ALCAP0Output
-ALCAPHISYMOutput
-ALCALUMIPIXELSOutput
-CalibrationOutput
+HLTAnalyzerEndpath
+
+AOutput
+RatesMonitoring
 DQMOutput
-EcalCalibrationOutput
-ExpressForHIOutput
-HLTDQMOutput
-HLTDQMResultsOutput
-HLTMONOutput
-NanoDSTOutput
-RPCMONOutput

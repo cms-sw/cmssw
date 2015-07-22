@@ -44,7 +44,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -67,9 +67,9 @@ private:
   edm::InputTag trackTagsOut_; //used to select what tracks to read from configuration file
   edm::InputTag trackTagsOld_; //used to select what tracks to read from configuration file
   edm::InputTag tpTags_; //used to select what tracks to read from configuration file
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> theAssociatorOldToken;
   edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> theAssociatorOutToken;
-  TrackerHitAssociator* hitAssociator;
   edm::ESHandle<TrackerGeometry> theG;
   std::string out;
   TFile * file;
@@ -122,6 +122,7 @@ TestOutliers::TestOutliers(const edm::ParameterSet& iConfig)
   trackTagsOut_(iConfig.getUntrackedParameter<edm::InputTag>("tracksOut")),
   trackTagsOld_(iConfig.getUntrackedParameter<edm::InputTag>("tracksOld")),
   tpTags_(iConfig.getUntrackedParameter<edm::InputTag>("tp")),
+  trackerHitAssociatorConfig_(consumesCollector()),
   theAssociatorOldToken(consumes<reco::TrackToTrackingParticleAssociator>(iConfig.getUntrackedParameter<edm::InputTag>("TrackAssociatorByHitsOld"))),
   theAssociatorOutToken(consumes<reco::TrackToTrackingParticleAssociator>(iConfig.getUntrackedParameter<edm::InputTag>("TrackAssociatorByHitsOut"))),
   out(iConfig.getParameter<std::string>("out"))
@@ -158,7 +159,7 @@ void
 TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
 
 
@@ -177,7 +178,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<reco::BeamSpot> beamSpot;
   iEvent.getByLabel("offlineBeamSpot",beamSpot); 
 
-  hitAssociator = new TrackerHitAssociator(iEvent);
+  TrackerHitAssociator hitAssociator(iEvent, trackerHitAssociatorConfig_);
 
   edm::Handle<reco::TrackToTrackingParticleAssociator> hAssociatorOld;
   iEvent.getByToken(theAssociatorOldToken, hAssociatorOld);
@@ -546,7 +547,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	      
 	    //LogTrace("TestOutliers") << "vector<SimHitIdpr>";		  
 	    //look if the hit comes from a correct sim track
-	    std::vector<SimHitIdpr> simTrackIds = hitAssociator->associateHitId(**itHit);
+	    std::vector<SimHitIdpr> simTrackIds = hitAssociator.associateHitId(**itHit);
 	    bool goodhit = false;
 	    for(size_t j=0; j<simTrackIds.size(); j++){
 	      for (size_t jj=0; jj<tpids.size(); jj++){
@@ -596,7 +597,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    //get the vector of sim hit associated and choose the one with the largest energy loss
 	    //double delta = 99999;
 	    //LocalPoint rhitLPv = (*itHit)->localPosition();
-	    //vector<PSimHit> assSimHits = hitAssociator->associateHit(**itHit);
+	    //vector<PSimHit> assSimHits = hitAssociator.associateHit(**itHit);
 	    //if (assSimHits.size()==0) continue;
 	    //PSimHit shit;
 	    //for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
@@ -610,7 +611,7 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    unsigned int monoId = 0;
 	    std::vector<double> energyLossM;
 	    std::vector<double> energyLossS;
-	    std::vector<PSimHit> assSimHits = hitAssociator->associateHit(**itHit);
+	    std::vector<PSimHit> assSimHits = hitAssociator.associateHit(**itHit);
 	    if (assSimHits.size()==0) continue;
 	    PSimHit shit;
 	    std::vector<unsigned int> trackIds;
@@ -888,7 +889,6 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       }
     }    
   }
-  delete hitAssociator;
 }
 
 

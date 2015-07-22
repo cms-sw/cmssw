@@ -3,7 +3,7 @@ from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlo
 
 mixData = cms.EDProducer("DataMixingModule",
           hcalSimBlock,
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.0)
         ),

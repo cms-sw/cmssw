@@ -39,7 +39,7 @@ class GenericTriggerEventFlagTest : public edm::EDFilter {
 
 
 GenericTriggerEventFlagTest::GenericTriggerEventFlagTest( const edm::ParameterSet & iConfig )
-: genericTriggerEventFlag_( new GenericTriggerEventFlag( iConfig, consumesCollector() ) )
+  : genericTriggerEventFlag_( new GenericTriggerEventFlag( iConfig, consumesCollector(), *this ) )
 {
 }
 

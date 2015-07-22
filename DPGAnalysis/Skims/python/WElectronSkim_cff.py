@@ -153,16 +153,16 @@ WEnuHltFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 #--------------------------#
 #recompute rho
 import RecoJets.Configuration.RecoPFJets_cff
-kt6PFJetsForRhoCorrection = RecoJets.Configuration.RecoPFJets_cff.kt6PFJets.clone(
+kt6PFJetsForRhoCorrectionWElectronSkim = RecoJets.Configuration.RecoPFJets_cff.kt6PFJets.clone(
     doRhoFastjet = True,
     Rho_EtaMax = 2.5
 )
 
 
-elecMetSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter * kt6PFJetsForRhoCorrection)
+elecMetSeq = cms.Sequence( WEnuHltFilter * ele_sequence * elecMetFilter * kt6PFJetsForRhoCorrectionWElectronSkim)
 
 
-from Configuration.EventContent.EventContent_cff import OutALCARECOEcalCalElectron
+from Configuration.EventContent.AlCaRecoOutput_cff import OutALCARECOEcalCalElectron
 WElectronSkimContent = OutALCARECOEcalCalElectron.clone()
 WElectronSkimContent.outputCommands.extend( [ 
   "keep *_pfMet_*_*", 

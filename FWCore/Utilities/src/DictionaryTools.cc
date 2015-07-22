@@ -20,12 +20,6 @@
 
 namespace edm {
 
-  std::string const&
-  dictionaryPlugInPrefix() {
-    static std::string const prefix("LCGReflex/");
-    return prefix;
-  }
-
   static TypeSet missingTypes_;
 
   TypeSet&

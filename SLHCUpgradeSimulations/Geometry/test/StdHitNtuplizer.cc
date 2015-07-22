@@ -30,7 +30,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
@@ -66,6 +66,7 @@ using namespace reco;
 
 StdHitNtuplizer::StdHitNtuplizer(edm::ParameterSet const& conf) : 
   conf_(conf), 
+  trackerHitAssociatorConfig_(conf, consumesCollector()),
   src_( conf.getParameter<edm::InputTag>( "src" ) ),
   rphiRecHits_( conf.getParameter<edm::InputTag>("rphiRecHits") ),
   stereoRecHits_( conf.getParameter<edm::InputTag>("stereoRecHits") ),
@@ -121,7 +122,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
 
@@ -141,7 +142,7 @@ void StdHitNtuplizer::analyze(const edm::Event& e, const edm::EventSetup& es)
   e.getByLabel( src_, recHitColl);
 
   // for finding matched simhit
-  TrackerHitAssociator associate( e, conf_ );
+  TrackerHitAssociator associate( e, trackerHitAssociatorConfig_ );
 
 //  std::cout << " Step A: Standard RecHits found " << (recHitColl.product())->dataSize() << std::endl;
   if((recHitColl.product())->dataSize() > 0) {

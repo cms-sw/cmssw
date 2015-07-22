@@ -28,6 +28,8 @@ namespace cond {
       void setUp( Session dbSession );
       
       void loadTag( const std::string& tag );
+
+      void loadTag( const std::string& tag, const boost::posix_time::ptime& snapshotTime );
       
       void reload();
       

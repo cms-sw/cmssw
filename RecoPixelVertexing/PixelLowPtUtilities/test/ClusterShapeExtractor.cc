@@ -34,6 +34,7 @@
 #include <utility>
 #include <vector>
 #include <fstream>
+#include <memory>
 
 using namespace std;
 
@@ -85,7 +86,6 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 
    TFile * file;
 
-   edm::ParameterSet theConfig;
    string trackProducer;
    bool hasSimHits;
    bool hasRecTracks;
@@ -93,7 +93,8 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
    edm::EDGetTokenT<SiPixelClusterShapeCache> theClusterShapeCacheToken;
 
    const TrackerGeometry * theTracker;
-   TrackerHitAssociator  * theHitAssociator;
+   std::unique_ptr<TrackerHitAssociator> theHitAssociator;
+   TrackerHitAssociator::Config trackerHitAssociatorConfig_;
    const ClusterShapeHitFilter * theClusterShape;
 
    vector<TH2F *> hspc; // simulated pixel cluster
@@ -153,8 +154,8 @@ void ClusterShapeExtractor::beginRun(const edm::Run & run, const edm::EventSetup
 
 /*****************************************************************************/
 ClusterShapeExtractor::ClusterShapeExtractor
-  (const edm::ParameterSet& pset) : theConfig(pset),
-                                    theClusterShapeCacheToken(consumes<SiPixelClusterShapeCache>(pset.getParameter<edm::InputTag>("clusterShapeCacheSrc")))
+  (const edm::ParameterSet& pset) : theClusterShapeCacheToken(consumes<SiPixelClusterShapeCache>(pset.getParameter<edm::InputTag>("clusterShapeCacheSrc"))),
+  trackerHitAssociatorConfig_(pset, consumesCollector())
 {
   trackProducer = pset.getParameter<string>("trackProducer"); 
   hasSimHits    = pset.getParameter<bool>("hasSimHits"); 
@@ -417,7 +418,7 @@ void ClusterShapeExtractor::analyzeSimHits
   (const edm::Event& ev, const edm::EventSetup& es)
 {
   // Get associator
-  theHitAssociator = new TrackerHitAssociator(ev,theConfig);
+  theHitAssociator.reset(new TrackerHitAssociator(ev,trackerHitAssociatorConfig_));
 
   // Pixel hits
   {
@@ -459,8 +460,6 @@ void ClusterShapeExtractor::analyzeSimHits
     processMatchedRecHits(recHits);
   }
   }
-
-  delete theHitAssociator;
 }
 
 /*****************************************************************************/

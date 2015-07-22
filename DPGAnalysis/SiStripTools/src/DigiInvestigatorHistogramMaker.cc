@@ -1,4 +1,5 @@
 #include "DPGAnalysis/SiStripTools/interface/DigiInvestigatorHistogramMaker.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -10,7 +11,8 @@
 
 
 DigiInvestigatorHistogramMaker::DigiInvestigatorHistogramMaker(edm::ConsumesCollector&& iC):
-  _hitname(), _nbins(500), m_maxLS(100), m_LSfrac(4), _scalefact(), _runHisto(true), _binmax(), _labels(), _rhm(iC), _nmultvsorbrun(), _nmult() { }
+  _hitname(), _nbins(500), m_maxLS(100), m_LSfrac(4), _scalefact(), _runHisto(true), _fillHisto(false), _binmax(), _labels(), _rhm(iC), _fhm(iC,true), _nmultvsorbrun(), 
+  _nmultvsbxrun(), _nmultvsbxfill(), _nmult() { }
 
 DigiInvestigatorHistogramMaker::DigiInvestigatorHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
   _hitname(iConfig.getUntrackedParameter<std::string>("hitName","digi")),
@@ -19,8 +21,9 @@ DigiInvestigatorHistogramMaker::DigiInvestigatorHistogramMaker(const edm::Parame
   m_LSfrac(iConfig.getUntrackedParameter<unsigned int>("startingLSFraction",4)),
   _scalefact(iConfig.getUntrackedParameter<int>("scaleFactor",5)),
   _runHisto(iConfig.getUntrackedParameter<bool>("runHisto",true)),
-  _labels(), _rhm(iC), _nmultvsorbrun(), _nmult(), _subdirs()
-{
+  _fillHisto(iConfig.getUntrackedParameter<bool>("fillHisto",false)),
+    _labels(), _rhm(iC), _fhm(iC,true), _nmultvsorbrun(), _nmultvsbxrun(), _nmultvsbxfill(), _nmult(), _subdirs() 
+{ 
 
   std::vector<edm::ParameterSet>
     wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("wantedSubDets",std::vector<edm::ParameterSet>()));
@@ -100,6 +103,14 @@ void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
 	sprintf(name,"n%sdigivsorbrun",slab.c_str());
 	sprintf(title,"%s %s mean multiplicity vs orbit",slab.c_str(),_hitname.c_str());
 	_nmultvsorbrun[i] = _rhm.makeTProfile(name,title,m_LSfrac*m_maxLS,0,m_maxLS*262144);
+	sprintf(name,"n%sdigivsbxrun",slab.c_str());
+	sprintf(title,"%s %s mean multiplicity vs BX",slab.c_str(),_hitname.c_str());
+	_nmultvsbxrun[i] = _rhm.makeTProfile(name,title,3564,-0.5,3563.5);
+      }
+      if(_fillHisto) {
+	sprintf(name,"n%sdigivsbxfill",slab.c_str());
+	sprintf(title,"%s %s mean multiplicity vs BX",slab.c_str(),_hitname.c_str());
+	_nmultvsbxfill[i] = _fhm.makeTProfile(name,title,3564,-0.5,3563.5);
       }
 
     }
@@ -109,7 +120,7 @@ void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
 
 }
 
-void DigiInvestigatorHistogramMaker::beginRun(const unsigned int nrun) {
+void DigiInvestigatorHistogramMaker::beginRun(const edm::Run& iRun) {
 
   //  char runname[100];
   //  sprintf(runname,"run_%d",nrun);
@@ -119,7 +130,9 @@ void DigiInvestigatorHistogramMaker::beginRun(const unsigned int nrun) {
   //  currdir = &(*tfserv);
   //  _rhm.beginRun(nrun,*currdir);
 
-  _rhm.beginRun(nrun, tfserv->tFileDirectory());
+  _rhm.beginRun(iRun,tfserv->tFileDirectory());
+  _fhm.beginRun(iRun,tfserv->tFileDirectory());
+
 
   for(std::map<unsigned int,std::string>::const_iterator lab=_labels.begin();lab!=_labels.end();++lab) {
 
@@ -134,16 +147,26 @@ void DigiInvestigatorHistogramMaker::beginRun(const unsigned int nrun) {
     //    sprintf(title,"%s %s mean multiplicity vs orbit",slab.c_str(),_hitname.c_str());
     //    _nmultvsorbrun[i] = subd.make<TProfile>(name,title,_norbbin,0.5,11223*_norbbin+0.5);
     if(_runHisto) {
-      (*_nmultvsorbrun[i])->GetXaxis()->SetTitle("time [orbit#]");    (*_nmultvsorbrun[i])->GetYaxis()->SetTitle("Hits");
-      (*_nmultvsorbrun[i])->SetBit(TH1::kCanRebin);
+      if(*_nmultvsorbrun[i]) {
+	(*_nmultvsorbrun[i])->GetXaxis()->SetTitle("time [orbit#]");    (*_nmultvsorbrun[i])->GetYaxis()->SetTitle("Hits");
+	(*_nmultvsorbrun[i])->SetCanExtend(TH1::kXaxis);
+      }
+      if(*_nmultvsbxrun[i]) {
+	(*_nmultvsbxrun[i])->GetXaxis()->SetTitle("BX#");  (*_nmultvsbxrun[i])->GetYaxis()->SetTitle("Mean Number of Hits"); 
+      }
+    }
+    if(_fillHisto) {
+      if(*_nmultvsbxfill[i]) {
+	(*_nmultvsbxfill[i])->GetXaxis()->SetTitle("BX#");  (*_nmultvsbxfill[i])->GetYaxis()->SetTitle("Mean Number of Hits"); 
+      }
     }
   }
 
 
 }
 
-void DigiInvestigatorHistogramMaker::fill(const unsigned int orbit, const std::map<unsigned int,int>& ndigi) {
-
+void DigiInvestigatorHistogramMaker::fill(const edm::Event& iEvent, const std::map<unsigned int,int>& ndigi) {
+  
   for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();digi++) {
 
     if(_labels.find(digi->first) != _labels.end()) {
@@ -152,7 +175,11 @@ void DigiInvestigatorHistogramMaker::fill(const unsigned int orbit, const std::m
 
       _nmult[i]->Fill(digi->second);
       if(_runHisto) {
-	if(_nmultvsorbrun[i] && *_nmultvsorbrun[i]) (*_nmultvsorbrun[i])->Fill(orbit,digi->second);
+	if(_nmultvsorbrun[i] && *_nmultvsorbrun[i]) (*_nmultvsorbrun[i])->Fill(iEvent.orbitNumber(),digi->second);
+	if(_nmultvsbxrun[i] && *_nmultvsbxrun[i]) (*_nmultvsbxrun[i])->Fill(iEvent.bunchCrossing()%3564,digi->second);
+      }
+      if(_fillHisto) {
+	if(_nmultvsbxfill[i] && *_nmultvsbxfill[i]) (*_nmultvsbxfill[i])->Fill(iEvent.bunchCrossing()%3564,digi->second);
       }
     }
 

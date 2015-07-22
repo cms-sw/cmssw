@@ -18,7 +18,7 @@
 <use   name="TrackingTools/MaterialEffects"/>
 <use   name="TrackingTools/Records"/>
 <use   name="CommonTools/Utils"/>
-
+<use   name="RecoTracker/TkHitPairs"/>
 <export>
   <lib   name="1"/>
 </export>

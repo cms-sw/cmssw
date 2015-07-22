@@ -38,10 +38,8 @@ from FastSimulation.Tracking.GlobalPixelTracking_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 
 hltCkfL1SeededLargeWindowTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-hltCkfL1SeededLargeWindowTrackCandidates.SeedProducer = cms.InputTag("hltL1SeededLargeWindowElectronPixelSeeds")
+hltCkfL1SeededLargeWindowTrackCandidates.src = cms.InputTag("hltL1SeededLargeWindowElectronPixelSeeds")
 hltCkfL1SeededLargeWindowTrackCandidates.TrackProducers = cms.VInputTag(cms.InputTag("hltCtfL1SeededWithMaterialTracks"))
-hltCkfL1SeededLargeWindowTrackCandidates.MaxNumberOfCrossedLayers = 999
-hltCkfL1SeededLargeWindowTrackCandidates.SeedCleaning = True
 hltCkfL1SeededLargeWindowTrackCandidates.SplitHits = False
 
 

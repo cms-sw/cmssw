@@ -161,7 +161,7 @@ void BeamMonitor::beginJob() {
 
   h_vx_vy = dbe_->book2D("trk_vx_vy","Vertex (PCA) position of selected tracks",vxBin,vxMin,vxMax,vxBin,vxMin,vxMax);
   h_vx_vy->getTH2F()->SetOption("COLZ");
-  //   h_vx_vy->getTH1()->SetBit(TH1::kCanRebin);
+  //   h_vx_vy->getTH1()->SetCanExtend(TH1::kAllAxes);
   h_vx_vy->setAxisTitle("x coordinate of input track at PCA (cm)",1);
   h_vx_vy->setAxisTitle("y coordinate of input track at PCA (cm)",2);
 
@@ -244,7 +244,7 @@ void BeamMonitor::beginJob() {
 	histName += "_all";
 	histTitle += " all";
 	hs[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
-	hs[histName]->getTH1()->SetBit(TH1::kCanRebin);
+	hs[histName]->getTH1()->SetCanExtend(TH1::kAllAxes);
 	hs[histName]->setAxisTitle(xtitle,1);
 	hs[histName]->setAxisTitle(ytitle,2);
 	hs[histName]->getTH1()->SetOption("E1");
@@ -272,27 +272,27 @@ void BeamMonitor::beginJob() {
 
   h_x0 = dbe_->book1D("BeamMonitorFeedBack_x0","x coordinate of beam spot (Fit)",100,-0.01,0.01);
   h_x0->setAxisTitle("x_{0} (cm)",1);
-  h_x0->getTH1()->SetBit(TH1::kCanRebin);
+  h_x0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   h_y0 = dbe_->book1D("BeamMonitorFeedBack_y0","y coordinate of beam spot (Fit)",100,-0.01,0.01);
   h_y0->setAxisTitle("y_{0} (cm)",1);
-  h_y0->getTH1()->SetBit(TH1::kCanRebin);
+  h_y0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   h_z0 = dbe_->book1D("BeamMonitorFeedBack_z0","z coordinate of beam spot (Fit)",dzBin,dzMin,dzMax);
   h_z0->setAxisTitle("z_{0} (cm)",1);
-  h_z0->getTH1()->SetBit(TH1::kCanRebin);
+  h_z0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   h_sigmaX0 = dbe_->book1D("BeamMonitorFeedBack_sigmaX0","sigma x0 of beam spot (Fit)",100,0,0.05);
   h_sigmaX0->setAxisTitle("#sigma_{X_{0}} (cm)",1);
-  h_sigmaX0->getTH1()->SetBit(TH1::kCanRebin);
+  h_sigmaX0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   h_sigmaY0 = dbe_->book1D("BeamMonitorFeedBack_sigmaY0","sigma y0 of beam spot (Fit)",100,0,0.05);
   h_sigmaY0->setAxisTitle("#sigma_{Y_{0}} (cm)",1);
-  h_sigmaY0->getTH1()->SetBit(TH1::kCanRebin);
+  h_sigmaY0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   h_sigmaZ0 = dbe_->book1D("BeamMonitorFeedBack_sigmaZ0","sigma z0 of beam spot (Fit)",100,0,10);
   h_sigmaZ0->setAxisTitle("#sigma_{Z_{0}} (cm)",1);
-  h_sigmaZ0->getTH1()->SetBit(TH1::kCanRebin);
+  h_sigmaZ0->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   // Histograms of all reco tracks (without cuts):
   h_trkPt=dbe_->book1D("trkPt","p_{T} of all reco'd tracks (no selection)",200,0.,50.);
@@ -331,22 +331,22 @@ void BeamMonitor::beginJob() {
   // Monitor only the PV with highest sum pt of assoc. trks:
   h_PVx[0] = dbe_->book1D("PVX","x coordinate of Primary Vtx",50,-0.01,0.01);
   h_PVx[0]->setAxisTitle("PVx (cm)",1);
-  h_PVx[0]->getTH1()->SetBit(TH1::kCanRebin);
+  h_PVx[0]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   h_PVy[0] = dbe_->book1D("PVY","y coordinate of Primary Vtx",50,-0.01,0.01);
   h_PVy[0]->setAxisTitle("PVy (cm)",1);
-  h_PVy[0]->getTH1()->SetBit(TH1::kCanRebin);
+  h_PVy[0]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   h_PVz[0] = dbe_->book1D("PVZ","z coordinate of Primary Vtx",dzBin,dzMin,dzMax);
   h_PVz[0]->setAxisTitle("PVz (cm)",1);
 
   h_PVx[1] = dbe_->book1D("PVXFit","x coordinate of Primary Vtx (Last Fit)",50,-0.01,0.01);
   h_PVx[1]->setAxisTitle("PVx (cm)",1);
-  h_PVx[1]->getTH1()->SetBit(TH1::kCanRebin);
+  h_PVx[1]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   h_PVy[1] = dbe_->book1D("PVYFit","y coordinate of Primary Vtx (Last Fit)",50,-0.01,0.01);
   h_PVy[1]->setAxisTitle("PVy (cm)",1);
-  h_PVy[1]->getTH1()->SetBit(TH1::kCanRebin);
+  h_PVy[1]->getTH1()->SetCanExtend(TH1::kAllAxes);
 
   h_PVz[1] = dbe_->book1D("PVZFit","z coordinate of Primary Vtx (Last Fit)",dzBin,dzMin,dzMax);
   h_PVz[1]->setAxisTitle("PVz (cm)",1);

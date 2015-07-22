@@ -52,7 +52,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.edmtome_step = cms.Path(process.EDMtoME)
 process.dqmsave_step = cms.Path(process.DQMSaver)
 process.load('Validation.RecoTrack.PostProcessorTracker_cfi')
-process.mtv_harvesting = cms.Path(process.postProcessorTrack)
+process.mtv_harvesting = cms.Path(process.postProcessorTrackSequence)
 process.postProcessorTrack.subDirs = cms.untracked.vstring('Tracking/Track/*','Tracking/Seed/*')
 
 # Schedule definition

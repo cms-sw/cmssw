@@ -103,9 +103,6 @@ process.SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=True
 process.SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=True
 process.SiStripMonitorCluster.TH1StripNoise2ApvCycle.globalswitchon=True
 process.SiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon=True
-process.SiStripMonitorCluster.OutputMEsInRootFile.globalswitchon=True
-
-process.SiStripMonitorCluster.OutputFileName = 'SiStripMonitorCluster.root'
 
 
 process.outP = cms.OutputModule("AsciiOutputModule")

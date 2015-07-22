@@ -27,11 +27,13 @@ mixedTripletStepClusters = trackClusterRemover.clone(
 
 # SEEDING LAYERS
 from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
+from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepSeedLayers
 mixedTripletStepSeedLayersA = cms.EDProducer("SeedingLayersEDProducer",
-    layerList = cms.vstring('BPix1+BPix2+BPix3', 
-        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
-        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', 
-        'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'),
+     layerList = cms.vstring('BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'),
+#    layerList = cms.vstring('BPix1+BPix2+BPix3', 
+#        'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg', 
+#        'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg', 
+#        'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg'),
     BPix = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
@@ -128,7 +130,8 @@ mixedTripletStepSeeds.seedCollections = cms.VInputTag(
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 mixedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    maxLostHits = 0,
+#    maxLostHits = 0,
+    constantValueForLostHitsFractionFilter = 1.4,
     minimumNumberOfHits = 3,
     minPt = 0.1
     )
@@ -207,15 +210,17 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='mixedTripletStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter4_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'mixedTripletStepVtxLoose',
+            GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
+            mvaType = cms.string("Prompt"),
             useMVA = cms.bool(True),
-            minMVA = cms.double(-0.5),
+            useMVAonly = cms.bool(True),
+            minMVA = cms.double(-0.2),
             chi2n_par = 9999,
             #chi2n_par = 1.0,
-            #res_par = ( 0.003, 0.001 ),
+            res_par = ( 0.003, 0.001 ),
             #minNumberLayers = 3,
             #maxNumberLostLayers = 1,
             #minNumber3DLayers = 2,
@@ -226,11 +231,13 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'mixedTripletStepTrkLoose',
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV'),
             useMVA = cms.bool(True),
+            useMVAonly = cms.bool(True),
             minMVA = cms.double(-0.5),
             chi2n_par = 9999,
             #chi2n_par = 0.6,
-            #res_par = ( 0.003, 0.001 ),
+            res_par = ( 0.003, 0.001 ),
             #minNumberLayers = 4,
             #maxNumberLostLayers = 1,
             #minNumber3DLayers = 3,
@@ -242,6 +249,7 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'mixedTripletStepVtxTight',
             preFilterName = 'mixedTripletStepVtxLoose',
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV'),
             chi2n_par = 0.6,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
@@ -255,6 +263,7 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'mixedTripletStepTrkTight',
             preFilterName = 'mixedTripletStepTrkLoose',
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV'),
             chi2n_par = 0.4,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 5,
@@ -268,18 +277,15 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'mixedTripletStepVtx',
             preFilterName = 'mixedTripletStepVtxLoose',
+            GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
             chi2n_par = 9999,
             useMVA = cms.bool(True),
-            minMVA = cms.double(0.5),
+            useMVAonly = cms.bool(True),
+            minMVA = cms.double(-0.2),
+            mvaType = cms.string("Prompt"),
             qualityBit = cms.string('highPurity'),
             keepAllTracks = cms.bool(True),
-            #chi2n_par = 0.4,
-            #res_par = ( 0.003, 0.001 ),
-            #minNumberLayers = 3,
-            #maxNumberLostLayers = 1,
-            #minNumber3DLayers = 3,
-            #max_minMissHitOutOrIn = 1,
-            #max_lostHitFraction = 1.0,
+            res_par = ( 0.003, 0.001 ),
             d0_par1 = ( 1.0, 3.0 ),
             dz_par1 = ( 1.0, 3.0 ),
             d0_par2 = ( 1.1, 3.0 ),
@@ -289,17 +295,13 @@ mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
             name = 'mixedTripletStepTrk',
             preFilterName = 'mixedTripletStepTrkLoose',
             chi2n_par = 9999,
+            GBRForestLabel = cms.string('MVASelectorIter4_13TeV'),
             useMVA = cms.bool(True),
+            useMVAonly = cms.bool(True),
             minMVA = cms.double(0.5),
             qualityBit = cms.string('highPurity'),
             keepAllTracks = cms.bool(True),
-            #chi2n_par = 0.25,
-            #res_par = ( 0.003, 0.001 ),
-            #minNumberLayers = 5,
-            #maxNumberLostLayers = 0,
-            #minNumber3DLayers = 4,
-            #max_minMissHitOutOrIn = 1,
-            #max_lostHitFraction = 1.0,
+            res_par = ( 0.003, 0.001 ),
             d0_par1 = ( 0.8, 4.0 ),
             dz_par1 = ( 0.8, 4.0 ),
             d0_par2 = ( 0.8, 4.0 ),

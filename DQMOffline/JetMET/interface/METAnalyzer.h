@@ -73,21 +73,16 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "DQMOffline/JetMET/interface/JetMETDQMDCSFilter.h"
-#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
-
-
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
-
 
 #include <map>
 #include <string>
@@ -121,8 +116,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&,std::map<std::string,MonitorElement*>&,int);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& ,std::map<std::string,MonitorElement*>&,bool,bool,int);
+  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&, const reco::Candidate::PolarLorentzVector&, std::map<std::string,MonitorElement*>&,std::vector<bool>);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& , const reco::Candidate::PolarLorentzVector& ,std::map<std::string,MonitorElement*>&,bool,bool,std::vector<bool>);
   void makeRatePlot(std::string, double);
 
 //  bool selectHighPtJetEvent(const edm::Event&);
@@ -135,16 +130,12 @@ class METAnalyzer : public DQMEDAnalyzer{
  // Book MonitorElements
   void bookMESet(std::string,DQMStore::IBooker &,std::map<std::string,MonitorElement*>&);
 // Book MonitorElements
-  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool ,bool);
+  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool ,bool,bool);
 
   // ----------member data ---------------------------
   edm::ParameterSet parameters;
   // Switch for verbosity
   int verbose_;
-
-
-  L1GtUtils m_l1GtUtils;
-
 
   std::string MetType_;
   std::string FolderName_;
@@ -161,6 +152,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::EDGetTokenT<reco::CaloJetCollection>       caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection>         pfJetsToken_;
   edm::EDGetTokenT<pat::JetCollection>        patJetsToken_;
+  edm::EDGetTokenT<reco::MuonCollection>         MuonsToken_;
 
   edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
 
@@ -550,6 +542,23 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meHFEMEtFraction_profile;
   MonitorElement* meHFEMEt_profile;
 
+  MonitorElement* meZJets_u_par;
+  MonitorElement* meZJets_u_par_ZPt_0_15;
+  MonitorElement* meZJets_u_par_ZPt_15_30;
+  MonitorElement* meZJets_u_par_ZPt_30_55;
+  MonitorElement* meZJets_u_par_ZPt_55_75;
+  MonitorElement* meZJets_u_par_ZPt_75_150;
+  MonitorElement* meZJets_u_par_ZPt_150_290;
+  MonitorElement* meZJets_u_par_ZPt_290;
+  
+  MonitorElement* meZJets_u_perp;
+  MonitorElement* meZJets_u_perp_ZPt_0_15;
+  MonitorElement* meZJets_u_perp_ZPt_15_30;
+  MonitorElement* meZJets_u_perp_ZPt_30_55;
+  MonitorElement* meZJets_u_perp_ZPt_55_75;
+  MonitorElement* meZJets_u_perp_ZPt_75_150;
+  MonitorElement* meZJets_u_perp_ZPt_150_290;
+  MonitorElement* meZJets_u_perp_ZPt_290;
 
   std::map< std::string,MonitorElement* >map_dijet_MEs;
   std::vector<unsigned int> nCh;

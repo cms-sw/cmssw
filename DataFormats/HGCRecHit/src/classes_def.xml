@@ -1,0 +1,48 @@
+<lcgdict>
+  <class name="HGCUncalibratedRecHit" ClassVersion="12">
+   <version ClassVersion="12" checksum="1059956450"/>
+  </class>
+  <class name="std::vector<HGCUncalibratedRecHit>"/>
+  <class name="edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >"/>
+  <class name="edm::Wrapper<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> > >" splitLevel="0"/>
+  <class name="edm::Ref<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >,HGCUncalibratedRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >,HGCUncalibratedRecHit> >"/>
+  <class name="edm::RefVector<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >,HGCUncalibratedRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> >,HGCUncalibratedRecHit> >"/>
+  <class name="edm::RefProd<edm::SortedCollection<HGCUncalibratedRecHit,edm::StrictWeakOrdering<HGCUncalibratedRecHit> > >"/>
+
+  <class name="HGCRecHit" ClassVersion="12">
+   <version ClassVersion="12" checksum="3568613480"/>
+   <version ClassVersion="11" checksum="3873633606"/>
+  </class>
+  <class name="std::vector<HGCRecHit>"/>
+  <class name="edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >"/>
+  <class name="edm::Wrapper<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> > >" />
+  <class name="edm::Ref<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit> >"/>
+  <class name="edm::RefVector<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> >,HGCRecHit> >"/>
+  <class name="edm::RefProd<edm::SortedCollection<HGCRecHit,edm::StrictWeakOrdering<HGCRecHit> > >"/>
+
+  <class name="edm::Wrapper<HGCRecHitCollection>"/>
+ 
+  <class name="edm::DetSet<HGCRecHit>"/>
+  <class name="edm::DetSetVector<HGCRecHit>"/>
+  <class name="std::vector<edm::DetSet<HGCRecHit> >"/>
+  <class name="std::vector<std::vector<edm::DetSet<HGCRecHit> > >"/>
+  <class name="edm::Wrapper<edm::DetSet<HGCRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<edm::DetSet<HGCRecHit> > >"/>
+  <class name="edm::Wrapper<edm::DetSetVector<HGCRecHit> >"/>
+  <class name="edm::Wrapper<std::vector<std::vector<edm::DetSet<HGCRecHit> > > >"/>
+
+  <class name="edm::RegionIndex<HGCRecHit>"><field name="getter_" transient="true"/> </class>
+  <class name="std::vector< edm::RegionIndex<HGCRecHit> >"/>
+  <class name="edm::LazyGetter<HGCRecHit>"><field name="unpacker_" transient="true"/> </class>
+  <class name="edm::Ref<edm::LazyGetter<HGCRecHit>,edm::RegionIndex<HGCRecHit>,edm::FindRegion<HGCRecHit> >"/>
+  <class name="std::vector<edm::Ref<edm::LazyGetter<HGCRecHit>,edm::RegionIndex<HGCRecHit>,edm::FindRegion<HGCRecHit> > >"/>
+  <class name="edm::RefGetter<HGCRecHit>"/>
+
+  <class name="edm::Wrapper<edm::LazyGetter<HGCRecHit> >"/>
+  <class name="edm::Wrapper<edm::RefGetter<HGCRecHit> >"/>
+ 
+  <class name="edm::Ref< edm::LazyGetter<HGCRecHit>, HGCRecHit, edm::FindValue<HGCRecHit> >"/>
+
+  <class name="edm::reftobase::Holder<CaloRecHit, edm::Ref<edm::SortedCollection<HGCRecHit, edm::StrictWeakOrdering<HGCRecHit> >, HGCRecHit, edm::refhelper::FindUsingAdvance<edm::SortedCollection<HGCRecHit, edm::StrictWeakOrdering<HGCRecHit> >, HGCRecHit> > >" />
+  <enum name="HGCSeverityLevel::SeverityLevel"/> 
+</lcgdict>

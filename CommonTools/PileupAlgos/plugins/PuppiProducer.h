@@ -46,8 +46,9 @@ private:
 	std::string     fPuppiName;
 	std::string     fPFName;	
 	std::string     fPVName;
+	bool 			fPuppiDiagnostics;
 	bool            fUseDZ;
-        float           fDZCut;
+	float           fDZCut;
 	std::unique_ptr<PuppiContainer> fPuppiContainer;
 	std::vector<RecoObj> fRecoObjCollection;
         std::auto_ptr< PFOutputCollection >          fPuppiCandidates;

@@ -1,5 +1,5 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripApvGainsDQM.h"
-
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "TCanvas.h"
@@ -37,7 +37,7 @@ void SiStripApvGainsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetIds
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   ModMEs CondObj_ME;
@@ -82,7 +82,7 @@ void SiStripApvGainsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedDe
   
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();

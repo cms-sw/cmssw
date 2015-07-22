@@ -10,7 +10,7 @@
 #include "TObjString.h"
 #include "TH1F.h"
 
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 
 #include <memory>
 #include <cassert>
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 
 
  
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 
   //Tell Root we want to be multi-threaded
   TThread::Initialize();

@@ -45,7 +45,7 @@ class TestAssociator : public edm::EDAnalyzer
 
  private:
   
-  edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
   const StripTopology* topol;
   int numStrips;    // number of strips in the module
   bool doPixel_, doStrip_;

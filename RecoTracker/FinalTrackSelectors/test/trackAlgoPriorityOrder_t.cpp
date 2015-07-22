@@ -7,7 +7,7 @@ int main(void) {
     reco::TrackBase::TrackAlgorithm algo = static_cast<reco::TrackBase::TrackAlgorithm>(ialgo);
 
     const unsigned int priority = trackAlgoPriorityOrder[algo];
-    //std::cout << "Algorithm " << reco::TrackBase::algoName(algo) << " has priority " << priority << std::endl;
+    std::cout << "Algorithm " << reco::TrackBase::algoName(algo) << " has priority " << priority << std::endl;
 
     if(impl::algoPriorityOrder[priority] != algo) {
       std::cout << "Priority for algo " << reco::TrackBase::algoName(algo) << " is inconsistent: algo " << algo << " has priority " << priority << ", which maps back to algo " << impl::algoPriorityOrder[priority] << std::endl;

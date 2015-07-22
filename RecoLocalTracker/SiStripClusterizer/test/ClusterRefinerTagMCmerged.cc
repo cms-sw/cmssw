@@ -5,7 +5,9 @@
 ClusterRefinerTagMCmerged::
 ClusterRefinerTagMCmerged(const edm::ParameterSet& conf) 
   : inputTag( conf.getParameter<edm::InputTag>("UntaggedClusterProducer") ),
-    confClusterRefiner_(conf.getParameter<edm::ParameterSet>("ClusterRefiner")) {
+    confClusterRefiner_(conf.getParameter<edm::ParameterSet>("ClusterRefiner")),
+    useAssociateHit_(!confClusterRefiner_.getParameter<bool>("associateRecoTracks")),
+    trackerHitAssociatorConfig_(confClusterRefiner_, consumesCollector()) {
   produces< edmNew::DetSetVector<SiStripCluster> > ();
   inputToken = consumes< edmNew::DetSetVector<SiStripCluster> >(inputTag);
 }
@@ -16,7 +18,7 @@ produce(edm::Event& event, const edm::EventSetup& es)  {
   std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
   output->reserve(10000,4*10000);
 
-  associator_.reset(new TrackerHitAssociator(event, confClusterRefiner_));
+  associator_.reset(new TrackerHitAssociator(event, trackerHitAssociatorConfig_));
   edm::Handle< edmNew::DetSetVector<SiStripCluster> >     input;  
 
   if ( findInput(inputToken, input, event) ) refineCluster(input, output);
@@ -43,8 +45,7 @@ refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
       SiStripCluster* newCluster = new SiStripCluster(clust->firstStrip(), amp.begin(), amp.end());
       if (associator_ != 0) {
         std::vector<SimHitIdpr> simtrackid;
-	bool useAssociateHit = !confClusterRefiner_.getParameter<bool>("associateRecoTracks");
-	if (useAssociateHit) {
+	if (useAssociateHit_) {
 	  std::vector<PSimHit> simhit;
 	  associator_->associateCluster(clust, DetId(detId), simtrackid, simhit);
 	  NtkAll = simtrackid.size();

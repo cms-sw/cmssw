@@ -494,6 +494,7 @@ class DTCalibrationWorker:
 
 		self.runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config,False)
 		#self.runTtrigValidSummary(run,residualsResidCorr,summaryResiduals,config,False)
+
 		self.runDQMClient(run,'',config,False)
 
 		sys.exit(0)

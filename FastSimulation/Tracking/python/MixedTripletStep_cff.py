@@ -57,7 +57,7 @@ mixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixed
 #track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 mixedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
-    SeedProducer = cms.InputTag("mixedTripletStepSeeds"),
+    src = cms.InputTag("mixedTripletStepSeeds"),
     MinNumberOfCrossedLayers = 3
 )
 

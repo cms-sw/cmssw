@@ -98,6 +98,7 @@ class GenericValidation:
                 "CMSSW_RELEASE_BASE": self.cmsswreleasebase,
                 "alignmentName": alignment.name,
                 "condLoad": alignment.getConditions(),
+                "condLoad": alignment.getConditions(),
                 })
         return result
 

@@ -40,9 +40,9 @@ public:
   virtual bool isPixel() const GCC11_OVERRIDE { return true;}
 
   
-  virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
+  virtual SiPixelRecHit * clone() const GCC11_OVERRIDE {return new SiPixelRecHit( * this); }
 #ifndef __GCCXML__
-  virtual RecHitPointer cloneSH() const { return std::make_shared<SiPixelRecHit>(*this);}
+  virtual RecHitPointer cloneSH() const GCC11_OVERRIDE { return std::make_shared<SiPixelRecHit>(*this);}
 #endif
 
   
@@ -50,18 +50,18 @@ public:
 
   void setClusterRef(ClusterRef const & ref)  {setClusterPixelRef(ref);}
 
-  virtual int dimension() const {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+  virtual int dimension() const GCC11_OVERRIDE {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const GCC11_OVERRIDE { getKfComponents2D(holder); }
   
   
-  virtual bool canImproveWithTrack() const {return true;}
+  virtual bool canImproveWithTrack() const GCC11_OVERRIDE {return true;}
 private:
   // double dispatch
-  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+  virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
     return cloner(*this,tsos).release();
   }
 #ifndef __GCCXML__
-  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
     return cloner.makeShared(*this,tsos);
   }
 #endif  

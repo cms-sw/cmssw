@@ -91,7 +91,7 @@ LogMessageMonitor::LogMessageMonitor(const edm::ParameterSet& iConfig)
   edm::ConsumesCollector c{ consumesCollector() };
    //now do what ever initialization is needed
   lumiDetails_         = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
-  genTriggerEventFlag_ = new GenericTriggerEventFlag(iConfig, consumesCollector());
+  genTriggerEventFlag_ = new GenericTriggerEventFlag(iConfig, consumesCollector(), *this);
 }
 
 

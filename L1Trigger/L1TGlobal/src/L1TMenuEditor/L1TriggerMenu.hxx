@@ -239,6 +239,7 @@ namespace l1t
   class CalorimeterObjectType;
   class MuonRequstedCharge;
   class MuonRequstedChargeCorr;
+  class EnergySumsObjectType;
   class EtThreshold;
   class PtThreshold;
   class AlgorithmName;
@@ -251,16 +252,17 @@ namespace l1t
   class Condition;
   class Window;
   class DeltaRequirement;
+  class CalorimeterIsolationLUT;
   class CalorimeterObjectRequirement;
   class CalorimeterObjectRequirements;
   class CalorimeterCondition;
   class MuonObjectRequirement;
-  class MuonObjectRequirementList;
+  class MuonObjectRequirements;
   class MuonQualityLUT;
   class MuonIsolationLUT;
   class MuonCondition;
+  class EnergySumsObjectRequirement;
   class EnergySumsCondition;
-  class CorrelationCondition;
   class Algorithm;
   class AlgorithmMapping;
   class AlgorithmList;
@@ -1062,6 +1064,64 @@ namespace l1t
     static const value _xsd_MuonRequstedChargeCorr_indexes_[3];
   };
 
+  class EnergySumsObjectType: public ::xml_schema::string
+  {
+    public:
+    enum value
+    {
+      ett,
+      etm,
+      htt,
+      htm
+    };
+
+    EnergySumsObjectType (value v);
+
+    EnergySumsObjectType (const char* v);
+
+    EnergySumsObjectType (const ::std::string& v);
+
+    EnergySumsObjectType (const ::xml_schema::string& v);
+
+    EnergySumsObjectType (const ::xercesc::DOMElement& e,
+                          ::xml_schema::flags f = 0,
+                          ::xml_schema::container* c = 0);
+
+    EnergySumsObjectType (const ::xercesc::DOMAttr& a,
+                          ::xml_schema::flags f = 0,
+                          ::xml_schema::container* c = 0);
+
+    EnergySumsObjectType (const ::std::string& s,
+                          const ::xercesc::DOMElement* e,
+                          ::xml_schema::flags f = 0,
+                          ::xml_schema::container* c = 0);
+
+    EnergySumsObjectType (const EnergySumsObjectType& x,
+                          ::xml_schema::flags f = 0,
+                          ::xml_schema::container* c = 0);
+
+    virtual EnergySumsObjectType*
+    _clone (::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0) const;
+
+    EnergySumsObjectType&
+    operator= (value v);
+
+    virtual
+    operator value () const
+    {
+      return _xsd_EnergySumsObjectType_convert ();
+    }
+
+    protected:
+    value
+    _xsd_EnergySumsObjectType_convert () const;
+
+    public:
+    static const char* const _xsd_EnergySumsObjectType_literals_[4];
+    static const value _xsd_EnergySumsObjectType_indexes_[4];
+  };
+
   class EtThreshold: public ::xsd::cxx::tree::fundamental_base< ::xml_schema::unsigned_int, char, ::xml_schema::simple_type >
   {
     public:
@@ -1548,23 +1608,6 @@ namespace l1t
     void
     condEnergySums (const condEnergySums_sequence& s);
 
-    // condCorrelation
-    // 
-    typedef ::l1t::CorrelationCondition condCorrelation_type;
-    typedef ::xsd::cxx::tree::sequence< condCorrelation_type > condCorrelation_sequence;
-    typedef condCorrelation_sequence::iterator condCorrelation_iterator;
-    typedef condCorrelation_sequence::const_iterator condCorrelation_const_iterator;
-    typedef ::xsd::cxx::tree::traits< condCorrelation_type, char > condCorrelation_traits;
-
-    const condCorrelation_sequence&
-    condCorrelation () const;
-
-    condCorrelation_sequence&
-    condCorrelation ();
-
-    void
-    condCorrelation (const condCorrelation_sequence& s);
-
     // Constructors.
     //
     ConditionList ();
@@ -1595,7 +1638,6 @@ namespace l1t
     condCalorimeter_sequence condCalorimeter_;
     condMuon_sequence condMuon_;
     condEnergySums_sequence condEnergySums_;
-    condCorrelation_sequence condCorrelation_;
   };
 
   class Condition: public ::xml_schema::type
@@ -1837,6 +1879,56 @@ namespace l1t
     ::xsd::cxx::tree::one< deltaEtaRange_type > deltaEtaRange_;
   };
 
+  class CalorimeterIsolationLUT: public ::xml_schema::type
+  {
+    public:
+    // isolation
+    // 
+    typedef ::xml_schema::boolean isolation_type;
+    typedef ::xsd::cxx::tree::sequence< isolation_type > isolation_sequence;
+    typedef isolation_sequence::iterator isolation_iterator;
+    typedef isolation_sequence::const_iterator isolation_const_iterator;
+    typedef ::xsd::cxx::tree::traits< isolation_type, char > isolation_traits;
+
+    const isolation_sequence&
+    isolation () const;
+
+    isolation_sequence&
+    isolation ();
+
+    void
+    isolation (const isolation_sequence& s);
+
+    // Constructors.
+    //
+    CalorimeterIsolationLUT ();
+
+    CalorimeterIsolationLUT (const ::xercesc::DOMElement& e,
+                             ::xml_schema::flags f = 0,
+                             ::xml_schema::container* c = 0);
+
+    CalorimeterIsolationLUT (const CalorimeterIsolationLUT& x,
+                             ::xml_schema::flags f = 0,
+                             ::xml_schema::container* c = 0);
+
+    virtual CalorimeterIsolationLUT*
+    _clone (::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0) const;
+
+    virtual 
+    ~CalorimeterIsolationLUT ();
+
+    // Implementation.
+    //
+    protected:
+    void
+    parse (::xsd::cxx::xml::dom::parser< char >&,
+           ::xml_schema::flags);
+
+    protected:
+    isolation_sequence isolation_;
+  };
+
   class CalorimeterObjectRequirement: public ::xml_schema::type
   {
     public:
@@ -1891,9 +1983,30 @@ namespace l1t
     void
     etaWindow (const etaWindow_sequence& s);
 
+    // isolationLut
+    // 
+    typedef ::l1t::CalorimeterIsolationLUT isolationLut_type;
+    typedef ::xsd::cxx::tree::traits< isolationLut_type, char > isolationLut_traits;
+
+    const isolationLut_type&
+    isolationLut () const;
+
+    isolationLut_type&
+    isolationLut ();
+
+    void
+    isolationLut (const isolationLut_type& x);
+
+    void
+    isolationLut (::std::auto_ptr< isolationLut_type > p);
+
     // Constructors.
     //
-    CalorimeterObjectRequirement (const etThreshold_type&);
+    CalorimeterObjectRequirement (const etThreshold_type&,
+                                  const isolationLut_type&);
+
+    CalorimeterObjectRequirement (const etThreshold_type&,
+                                  ::std::auto_ptr< isolationLut_type >&);
 
     CalorimeterObjectRequirement (const ::xercesc::DOMElement& e,
                                   ::xml_schema::flags f = 0,
@@ -1921,6 +2034,7 @@ namespace l1t
     ::xsd::cxx::tree::one< etThreshold_type > etThreshold_;
     phiWindow_sequence phiWindow_;
     etaWindow_sequence etaWindow_;
+    ::xsd::cxx::tree::one< isolationLut_type > isolationLut_;
   };
 
   class CalorimeterObjectRequirements: public ::xml_schema::type
@@ -2283,7 +2397,7 @@ namespace l1t
     ::xsd::cxx::tree::one< isolationLut_type > isolationLut_;
   };
 
-  class MuonObjectRequirementList: public ::xml_schema::type
+  class MuonObjectRequirements: public ::xml_schema::type
   {
     public:
     // objectRequirement
@@ -2305,22 +2419,22 @@ namespace l1t
 
     // Constructors.
     //
-    MuonObjectRequirementList ();
+    MuonObjectRequirements ();
 
-    MuonObjectRequirementList (const ::xercesc::DOMElement& e,
-                               ::xml_schema::flags f = 0,
-                               ::xml_schema::container* c = 0);
+    MuonObjectRequirements (const ::xercesc::DOMElement& e,
+                            ::xml_schema::flags f = 0,
+                            ::xml_schema::container* c = 0);
 
-    MuonObjectRequirementList (const MuonObjectRequirementList& x,
-                               ::xml_schema::flags f = 0,
-                               ::xml_schema::container* c = 0);
+    MuonObjectRequirements (const MuonObjectRequirements& x,
+                            ::xml_schema::flags f = 0,
+                            ::xml_schema::container* c = 0);
 
-    virtual MuonObjectRequirementList*
+    virtual MuonObjectRequirements*
     _clone (::xml_schema::flags f = 0,
             ::xml_schema::container* c = 0) const;
 
     virtual 
-    ~MuonObjectRequirementList ();
+    ~MuonObjectRequirements ();
 
     // Implementation.
     //
@@ -2472,7 +2586,7 @@ namespace l1t
 
     // objectRequirements
     // 
-    typedef ::l1t::MuonObjectRequirementList objectRequirements_type;
+    typedef ::l1t::MuonObjectRequirements objectRequirements_type;
     typedef ::xsd::cxx::tree::traits< objectRequirements_type, char > objectRequirements_traits;
 
     const objectRequirements_type&
@@ -2595,15 +2709,164 @@ namespace l1t
     ::xsd::cxx::tree::one< relativeBx_type > relativeBx_;
   };
 
+  class EnergySumsObjectRequirement: public ::xml_schema::type
+  {
+    public:
+    // etThreshold
+    // 
+    typedef ::l1t::EtThreshold etThreshold_type;
+    typedef ::xsd::cxx::tree::traits< etThreshold_type, char > etThreshold_traits;
+
+    const etThreshold_type&
+    etThreshold () const;
+
+    etThreshold_type&
+    etThreshold ();
+
+    void
+    etThreshold (const etThreshold_type& x);
+
+    void
+    etThreshold (::std::auto_ptr< etThreshold_type > p);
+
+    // phiWindow
+    // 
+    typedef ::l1t::Window phiWindow_type;
+    typedef ::xsd::cxx::tree::sequence< phiWindow_type > phiWindow_sequence;
+    typedef phiWindow_sequence::iterator phiWindow_iterator;
+    typedef phiWindow_sequence::const_iterator phiWindow_const_iterator;
+    typedef ::xsd::cxx::tree::traits< phiWindow_type, char > phiWindow_traits;
+
+    const phiWindow_sequence&
+    phiWindow () const;
+
+    phiWindow_sequence&
+    phiWindow ();
+
+    void
+    phiWindow (const phiWindow_sequence& s);
+
+    // Constructors.
+    //
+    EnergySumsObjectRequirement (const etThreshold_type&);
+
+    EnergySumsObjectRequirement (const ::xercesc::DOMElement& e,
+                                 ::xml_schema::flags f = 0,
+                                 ::xml_schema::container* c = 0);
+
+    EnergySumsObjectRequirement (const EnergySumsObjectRequirement& x,
+                                 ::xml_schema::flags f = 0,
+                                 ::xml_schema::container* c = 0);
+
+    virtual EnergySumsObjectRequirement*
+    _clone (::xml_schema::flags f = 0,
+            ::xml_schema::container* c = 0) const;
+
+    virtual 
+    ~EnergySumsObjectRequirement ();
+
+    // Implementation.
+    //
+    protected:
+    void
+    parse (::xsd::cxx::xml::dom::parser< char >&,
+           ::xml_schema::flags);
+
+    protected:
+    ::xsd::cxx::tree::one< etThreshold_type > etThreshold_;
+    phiWindow_sequence phiWindow_;
+  };
+
   class EnergySumsCondition: public ::l1t::Condition
   {
     public:
+    // comparison_operator
+    // 
+    typedef ::l1t::ComparisonOperator comparison_operator_type;
+    typedef ::xsd::cxx::tree::traits< comparison_operator_type, char > comparison_operator_traits;
+
+    const comparison_operator_type&
+    comparison_operator () const;
+
+    comparison_operator_type&
+    comparison_operator ();
+
+    void
+    comparison_operator (const comparison_operator_type& x);
+
+    void
+    comparison_operator (::std::auto_ptr< comparison_operator_type > p);
+
+    // objectType
+    // 
+    typedef ::l1t::EnergySumsObjectType objectType_type;
+    typedef ::xsd::cxx::tree::traits< objectType_type, char > objectType_traits;
+
+    const objectType_type&
+    objectType () const;
+
+    objectType_type&
+    objectType ();
+
+    void
+    objectType (const objectType_type& x);
+
+    void
+    objectType (::std::auto_ptr< objectType_type > p);
+
+    // objectRequirement
+    // 
+    typedef ::l1t::EnergySumsObjectRequirement objectRequirement_type;
+    typedef ::xsd::cxx::tree::traits< objectRequirement_type, char > objectRequirement_traits;
+
+    const objectRequirement_type&
+    objectRequirement () const;
+
+    objectRequirement_type&
+    objectRequirement ();
+
+    void
+    objectRequirement (const objectRequirement_type& x);
+
+    void
+    objectRequirement (::std::auto_ptr< objectRequirement_type > p);
+
+    // relativeBx
+    // 
+    typedef ::l1t::RelativeBx relativeBx_type;
+    typedef ::xsd::cxx::tree::traits< relativeBx_type, char > relativeBx_traits;
+
+    const relativeBx_type&
+    relativeBx () const;
+
+    relativeBx_type&
+    relativeBx ();
+
+    void
+    relativeBx (const relativeBx_type& x);
+
+    void
+    relativeBx (::std::auto_ptr< relativeBx_type > p);
+
     // Constructors.
     //
     EnergySumsCondition (const uid_type&,
                          const name_type&,
                          const comment_type&,
-                         const locked_type&);
+                         const locked_type&,
+                         const comparison_operator_type&,
+                         const objectType_type&,
+                         const objectRequirement_type&,
+                         const relativeBx_type&);
+
+    EnergySumsCondition (const uid_type&,
+                         const name_type&,
+                         const comment_type&,
+                         const locked_type&,
+                         const comparison_operator_type&,
+                         const objectType_type&,
+                         ::std::auto_ptr< objectRequirement_type >&,
+                         const relativeBx_type&);
 
     EnergySumsCondition (const ::xercesc::DOMElement& e,
                          ::xml_schema::flags f = 0,
@@ -2619,32 +2882,19 @@ namespace l1t
 
     virtual 
     ~EnergySumsCondition ();
-  };
 
-  class CorrelationCondition: public ::l1t::Condition
-  {
-    public:
-    // Constructors.
+    // Implementation.
     //
-    CorrelationCondition (const uid_type&,
-                          const name_type&,
-                          const comment_type&,
-                          const locked_type&);
+    protected:
+    void
+    parse (::xsd::cxx::xml::dom::parser< char >&,
+           ::xml_schema::flags);
 
-    CorrelationCondition (const ::xercesc::DOMElement& e,
-                          ::xml_schema::flags f = 0,
-                          ::xml_schema::container* c = 0);
-
-    CorrelationCondition (const CorrelationCondition& x,
-                          ::xml_schema::flags f = 0,
-                          ::xml_schema::container* c = 0);
-
-    virtual CorrelationCondition*
-    _clone (::xml_schema::flags f = 0,
-            ::xml_schema::container* c = 0) const;
-
-    virtual 
-    ~CorrelationCondition ();
+    protected:
+    ::xsd::cxx::tree::one< comparison_operator_type > comparison_operator_;
+    ::xsd::cxx::tree::one< objectType_type > objectType_;
+    ::xsd::cxx::tree::one< objectRequirement_type > objectRequirement_;
+    ::xsd::cxx::tree::one< relativeBx_type > relativeBx_;
   };
 
   class Algorithm: public ::xml_schema::type

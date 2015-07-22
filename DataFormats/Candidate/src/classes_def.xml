@@ -122,7 +122,6 @@
   <class name="edm::reftobase::RefHolder<reco::CandidateRef>"/>
   <class name="edm::reftobase::RefHolder<reco::CandidatePtr>"/>
 
-  <class name="edm::RefToBase<reco::Candidate>" />
   <class name="std::vector<edm::RefToBase<reco::Candidate> >" />
   <class name="std::vector<edm::Ptr<reco::Candidate> >" />
   <class name="std::vector<edm::PtrVector<reco::Candidate> >" />

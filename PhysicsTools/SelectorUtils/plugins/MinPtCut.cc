@@ -6,6 +6,10 @@ public:
     CutApplicatorBase(c),
     _minPt(c.getParameter<double>("minPt")) { }
   
+  double value(const reco::CandidatePtr& cand) const override final {
+    return cand->pt();
+  }
+
   result_type asCandidate(const argument_type& cand) const override final {
     return cand->pt() > _minPt;
   }

@@ -50,7 +50,10 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     StorePhysicsTables = cms.bool(False),
     RestorePhysicsTables = cms.bool(False),
     CheckOverlap = cms.untracked.bool(False),
-    G4Commands = cms.vstring(''),
+    G4CheckOverlap = cms.PSet(
+        NodeNames = cms.vstring()
+    ),
+    G4Commands = cms.vstring(),
     FileNameField = cms.untracked.string(''),
     FileNameGDML = cms.untracked.string(''),
     FileNameRegions = cms.untracked.string(''),

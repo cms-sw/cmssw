@@ -19,7 +19,9 @@
 namespace l1t {
 
   void HICaloRingSubtraction(const std::vector<l1t::CaloRegion> & regions,
-			     std::vector<l1t::CaloRegion> *subRegions);
+			     std::vector<l1t::CaloRegion> *subRegions,
+			     std::vector<double> regionPUSparams,
+			     std::string regionPUSType);
 
   void simpleHWSubtraction(const std::vector<l1t::CaloRegion> & regions,
 			   std::vector<l1t::CaloRegion> *subRegions);

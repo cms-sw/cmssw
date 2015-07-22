@@ -14,6 +14,8 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 
 DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
@@ -74,6 +76,9 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<TrackerTopologyRcd>().get(httopo);
+
   //get additional es_modules needed by the DAF	
   edm::ESHandle<MultiRecHitCollector> measurementCollectorHandle;
   std::string measurementCollectorName = getConf().getParameter<std::string>("MeasurementCollector");
@@ -119,16 +124,16 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   //put everything in the event
   putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), 
            outputRHColl, outputTColl, outputTEColl, 
-           outputTrajectoryColl, algoResults, theBuilder.product());
+           outputTrajectoryColl, algoResults, theBuilder.product(), httopo.product());
   putInEvtTrajAnn(theEvent, trajannResults, outputTrajAnnColl);
 
   //put in theEvent before and after DAF tracks collections
   putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), 
            outputRHCollBeforeDAF, outputTCollBeforeDAF, outputTECollBeforeDAF, 
-           outputTrajectoryCollBeforeDAF, algoResultsBeforeDAF, theBuilder.product(), 1);
+           outputTrajectoryCollBeforeDAF, algoResultsBeforeDAF, theBuilder.product(), httopo.product(), 1);
   putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), 
            outputRHCollAfterDAF, outputTCollAfterDAF, outputTECollAfterDAF, 
-           outputTrajectoryCollAfterDAF, algoResultsAfterDAF, theBuilder.product(), 2);
+           outputTrajectoryCollAfterDAF, algoResultsAfterDAF, theBuilder.product(), httopo.product(), 2);
 
   LogDebug("DAFTrackProducer") << "end the DAF algorithm." << "\n";
 }

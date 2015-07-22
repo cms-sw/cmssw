@@ -21,8 +21,8 @@ namespace {
 }
 
 PixelBarrelName::PixelBarrelName(const DetId & id, const TrackerTopology* tt, bool phase) 
-  : PixelModuleName(true), phase1(phase)
-{
+  : PixelModuleName(true), thePart(mO), theLayer(0),
+    theModule(0), theLadder(0), phase1(phase) {
 
   theLayer = tt->pxbLayer(id);
   int oldModule = tt->pxbModule(id) -4; if (oldModule<=0) oldModule--;
@@ -54,10 +54,10 @@ PixelBarrelName::PixelBarrelName(const DetId & id, const TrackerTopology* tt, bo
 }
 
 PixelBarrelName::PixelBarrelName(const DetId & id, bool phase) 
-  : PixelModuleName(true), phase1(phase)
-{
+  : PixelModuleName(true), thePart(mO), theLayer(0),
+    theModule(0), theLadder(0), phase1(phase) {
  
-//  uint32_t rawId = id.rawId(); 
+  //  uint32_t rawId = id.rawId(); 
   PXBDetId cmssw_numbering(id);
 
   theLayer = cmssw_numbering.layer();
@@ -177,9 +177,9 @@ int PixelBarrelName::convertLadderNumber(int oldLadder) {
 }
 
 // constructor from name string
-PixelBarrelName::PixelBarrelName(std::string name) 
+PixelBarrelName::PixelBarrelName(std::string name, bool phase) 
   : PixelModuleName(true), thePart(mO), theLayer(0),
-    theModule(0), theLadder(0) {
+    theModule(0), theLadder(0), phase1(phase) {
 
   // parse the name string
   // first, check to make sure this is an BPix name, should start with "BPix_"

@@ -217,13 +217,13 @@ void VertexHistogramMaker::beginRun(const edm::Run& iRun) {
 
     if(m_runHistoProfile) {
       (*m_hvtxxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hvtxxvsorbrun)->GetYaxis()->SetTitle("X [cm]");
-      (*m_hvtxxvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hvtxxvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*m_hvtxyvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hvtxyvsorbrun)->GetYaxis()->SetTitle("Y [cm]");
-      (*m_hvtxyvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hvtxyvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*m_hvtxzvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hvtxzvsorbrun)->GetYaxis()->SetTitle("Z [cm]");
-      (*m_hvtxzvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hvtxzvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*m_hnvtxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hnvtxvsorbrun)->GetYaxis()->SetTitle("Nvertices");
-      (*m_hnvtxvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hnvtxvsorbrun)->SetCanExtend(TH1::kAllAxes);
     }
 
     if(m_runHistoBXProfile) {
@@ -243,9 +243,9 @@ void VertexHistogramMaker::beginRun(const edm::Run& iRun) {
 
     if(m_runHisto2D) {
       (*m_hnvtxvsbxvsorbrun)->GetXaxis()->SetTitle("BX#"); (*m_hnvtxvsbxvsorbrun)->GetYaxis()->SetTitle("time [orbit#]");
-      (*m_hnvtxvsbxvsorbrun)->SetBit(TH1::kCanRebin);
+      (*m_hnvtxvsbxvsorbrun)->SetCanExtend(TH1::kAllAxes);
       (*m_hnvtxvsorbrun2D)->GetXaxis()->SetTitle("time [orbit#]");   (*m_hnvtxvsorbrun2D)->GetYaxis()->SetTitle("Nvertices");
-      (*m_hnvtxvsorbrun2D)->SetBit(TH1::kCanRebin);
+      (*m_hnvtxvsorbrun2D)->SetCanExtend(TH1::kAllAxes);
     }
   }
 }
@@ -284,13 +284,13 @@ void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const fl
 	  if(m_hvtxzvsorbrun && *m_hvtxzvsorbrun )  (*m_hvtxzvsorbrun)->Fill(orbit,vtx->z(),weight);
 	}
 	if(m_runHistoBXProfile) {
-	  if(m_hvtxxvsbxrun && *m_hvtxxvsbxrun )  (*m_hvtxxvsbxrun)->Fill(bx,vtx->x(),weight);
-	  if(m_hvtxyvsbxrun && *m_hvtxyvsbxrun )  (*m_hvtxyvsbxrun)->Fill(bx,vtx->y(),weight);
-	  if(m_hvtxzvsbxrun && *m_hvtxzvsbxrun )  (*m_hvtxzvsbxrun)->Fill(bx,vtx->z(),weight);
+	  if(m_hvtxxvsbxrun && *m_hvtxxvsbxrun )  (*m_hvtxxvsbxrun)->Fill(bx%3564,vtx->x(),weight);
+	  if(m_hvtxyvsbxrun && *m_hvtxyvsbxrun )  (*m_hvtxyvsbxrun)->Fill(bx%3564,vtx->y(),weight);
+	  if(m_hvtxzvsbxrun && *m_hvtxzvsbxrun )  (*m_hvtxzvsbxrun)->Fill(bx%3564,vtx->z(),weight);
 	  if(m_runHisto2D) {
-	    if(m_hvtxxvsbx2drun && *m_hvtxxvsbx2drun )  (*m_hvtxxvsbx2drun)->Fill(bx,vtx->x(),weight);
-	    if(m_hvtxyvsbx2drun && *m_hvtxyvsbx2drun )  (*m_hvtxyvsbx2drun)->Fill(bx,vtx->y(),weight);
-	    if(m_hvtxzvsbx2drun && *m_hvtxzvsbx2drun )  (*m_hvtxzvsbx2drun)->Fill(bx,vtx->z(),weight);
+	    if(m_hvtxxvsbx2drun && *m_hvtxxvsbx2drun )  (*m_hvtxxvsbx2drun)->Fill(bx%3564,vtx->x(),weight);
+	    if(m_hvtxyvsbx2drun && *m_hvtxyvsbx2drun )  (*m_hvtxyvsbx2drun)->Fill(bx%3564,vtx->y(),weight);
+	    if(m_hvtxzvsbx2drun && *m_hvtxzvsbx2drun )  (*m_hvtxzvsbx2drun)->Fill(bx%3564,vtx->z(),weight);
 	  }
 	}
       }
@@ -335,13 +335,13 @@ void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const fl
       if(m_hnvtxvsorbrun && *m_hnvtxvsorbrun )  (*m_hnvtxvsorbrun)->Fill(orbit,ntruevtx,weight);
     }
     if(m_runHistoBXProfile) {
-      if(m_hnvtxvsbxrun && *m_hnvtxvsbxrun )  (*m_hnvtxvsbxrun)->Fill(bx,ntruevtx,weight);
+      if(m_hnvtxvsbxrun && *m_hnvtxvsbxrun )  (*m_hnvtxvsbxrun)->Fill(bx%3564,ntruevtx,weight);
       if(m_runHistoBXProfile2D) {
-	if(m_hnvtxvsbxvslumirun && *m_hnvtxvsbxvslumirun && bxlumi >= 0.)  (*m_hnvtxvsbxvslumirun)->Fill(bx,bxlumi,ntruevtx,weight);
+	if(m_hnvtxvsbxvslumirun && *m_hnvtxvsbxvslumirun && bxlumi >= 0.)  (*m_hnvtxvsbxvslumirun)->Fill(bx%3564,bxlumi,ntruevtx,weight);
       }
     }
     if(m_runHisto2D) {
-      if(m_hnvtxvsbxvsorbrun && *m_hnvtxvsbxvsorbrun )  (*m_hnvtxvsbxvsorbrun)->Fill(bx,orbit,ntruevtx,weight);
+      if(m_hnvtxvsbxvsorbrun && *m_hnvtxvsbxvsorbrun )  (*m_hnvtxvsbxvsorbrun)->Fill(bx%3564,orbit,ntruevtx,weight);
       if(m_hnvtxvsorbrun2D && *m_hnvtxvsorbrun2D )  {
 	if(ntruevtx < (*m_hnvtxvsorbrun2D)->GetYaxis()->GetXmax() && ntruevtx > (*m_hnvtxvsorbrun2D)->GetYaxis()->GetXmin()) {
 	  (*m_hnvtxvsorbrun2D)->Fill(orbit,ntruevtx,weight);

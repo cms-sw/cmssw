@@ -39,7 +39,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
     std::string value     = "HcalHits";
     DDSpecificsFilter filter1;
     DDValue           ddv1(attribute,value,0);
-    filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
+    filter1.setCriteria(ddv1,DDCompOp::equals);
     DDFilteredView fv1(cpv);
     fv1.addFilter(filter1);
     sensitives = getNames(fv1);
@@ -55,7 +55,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
     value     = "HF";
     DDSpecificsFilter filter2;
     DDValue           ddv2(attribute,value,0);
-    filter2.setCriteria(ddv2,DDSpecificsFilter::equals);
+    filter2.setCriteria(ddv2,DDCompOp::equals);
     DDFilteredView fv2(cpv);
     fv2.addFilter(filter2);
     hfNames = getNames(fv2);
@@ -80,7 +80,7 @@ void MaterialBudgetHcalHistos::fillBeginJob(const DDCompactView & cpv) {
       value     = ecalRO[k];
       DDSpecificsFilter filter3;
       DDValue           ddv3(attribute,value,0);
-      filter3.setCriteria(ddv3,DDSpecificsFilter::equals);
+      filter3.setCriteria(ddv3,DDCompOp::equals);
       DDFilteredView fv3(cpv);
       fv3.addFilter(filter3);
       std::vector<std::string> senstmp = getNames(fv3);

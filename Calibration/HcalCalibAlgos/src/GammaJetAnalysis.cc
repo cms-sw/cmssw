@@ -68,7 +68,9 @@ unsigned int helper_findTrigger(const std::vector<std::string>& list,
 
 // -------------------------------------------------
 
-GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig) {
+GammaJetAnalysis::GammaJetAnalysis(const edm::ParameterSet& iConfig) :
+  hltPrescaleProvider_(iConfig, consumesCollector(), *this) {
+
   // set parameters
   debug_               = iConfig.getUntrackedParameter<int>("debug", 0);
   debugHLTTrigNames    = iConfig.getUntrackedParameter<int>("debugHLTTrigNames",1);
@@ -353,7 +355,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       if (!writeTriggerPrescale_) photonTrigPrescale_.push_back(-1);
       else {
 	// for triggers with two L1 seeds this fails
-	std::pair<int,int> prescaleVals= hltConfig_.prescaleValues(iEvent,evSetup, evTrigNames.triggerName(id));
+	std::pair<int,int> prescaleVals= hltPrescaleProvider_.prescaleValues(iEvent,evSetup, evTrigNames.triggerName(id));
 	photonTrigPrescale_.push_back(prescaleVals.first * prescaleVals.second);
       }
     }
@@ -368,7 +370,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       int fired= triggerResults->accept(id);
       if (fired) jetTrigFlag=true;
       jetTrigFired_.push_back(fired);
-      std::pair<int,int> prescaleVals= hltConfig_.prescaleValues(iEvent,evSetup,evTrigNames.triggerName(id));
+      std::pair<int,int> prescaleVals = hltPrescaleProvider_.prescaleValues(iEvent,evSetup,evTrigNames.triggerName(id));
       jetTrigPrescale_.push_back(prescaleVals.first * prescaleVals.second);
     }
   }
@@ -1594,7 +1596,7 @@ void GammaJetAnalysis::beginRun(const edm::Run &iRun,
     if (debug_>0) edm::LogInfo("GammaJetAnalysis") << "Initializing trigger information for individual run";
     bool changed(true);
     std::string processName="HLT";
-    if (hltConfig_.init(iRun,setup,processName,changed)) {
+    if (hltPrescaleProvider_.init(iRun,setup,processName,changed)) {
       // if init returns TRUE, initialisation has succeeded!
       if (changed) {
 	// The HLT config has actually changed wrt the previous Run, hence rebook your

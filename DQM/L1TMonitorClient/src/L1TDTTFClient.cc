@@ -36,8 +36,6 @@ L1TDTTFClient::~L1TDTTFClient(){
 //--------------------------------------------------------
 void L1TDTTFClient::book(DQMStore::IBooker &ibooker)
 {
-
-  ibooker.setCurrentFolder(l1tdttffolder_);
   
   edm::LogInfo("L1TDTTFClient")<<"[L1TDTTFClient]: Begin Job";
 
@@ -64,7 +62,7 @@ void L1TDTTFClient::book(DQMStore::IBooker &ibooker)
   char mename[100];//ME name
 
   /// SUMMARY
-
+  ibooker.setCurrentFolder(inclusivepath_); 
   /// DTTF Tracks per Wheel ditribution
   sprintf(hname, "dttf_02_nTracks");
   sprintf(mename, "DTTF Tracks by Wheel");

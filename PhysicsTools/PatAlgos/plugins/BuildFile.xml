@@ -16,6 +16,7 @@
   <use   name="DataFormats/HeavyIonEvent"/>
   <use   name="PhysicsTools/PatUtils"/>
   <use   name="CondFormats/JetMETObjects"/>
+  <use   name="CommonTools/CandAlgos"/>
   <use   name="JetMETCorrections/Objects"/>
   <use   name="JetMETCorrections/JetCorrector"/>
   <use   name="TrackingTools/TransientTrack"/>

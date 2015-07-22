@@ -13,7 +13,7 @@
 
 #include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 typedef TrajectoryStateOnSurface TSOS;
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
@@ -21,15 +21,15 @@ using namespace std;
 using namespace edm;
 
 TestSmoothHits::TestSmoothHits(const edm::ParameterSet& iConfig):
-  conf_(iConfig){
-  LogTrace("TestSmoothHits") << conf_<< std::endl;
-  propagatorName = conf_.getParameter<std::string>("Propagator");   
-  builderName = conf_.getParameter<std::string>("TTRHBuilder");   
-  srcName = conf_.getParameter<std::string>("src");   
-  fname = conf_.getParameter<std::string>("Fitter");
-  sname = conf_.getParameter<std::string>("Smoother");
-  mineta = conf_.getParameter<double>("mineta");
-  maxeta = conf_.getParameter<double>("maxeta");
+  trackerHitAssociatorConfig_(consumesCollector()){
+  LogTrace("TestSmoothHits") << iConfig<< std::endl;
+  propagatorName = iConfig.getParameter<std::string>("Propagator");   
+  builderName = iConfig.getParameter<std::string>("TTRHBuilder");   
+  srcName = iConfig.getParameter<std::string>("src");   
+  fname = iConfig.getParameter<std::string>("Fitter");
+  sname = iConfig.getParameter<std::string>("Smoother");
+  mineta = iConfig.getParameter<double>("mineta");
+  maxeta = iConfig.getParameter<double>("maxeta");
 }
 
 TestSmoothHits::~TestSmoothHits(){}
@@ -190,13 +190,13 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
-  iSetup.get<IdealGeometryRecord>().get(tTopo);
+  iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
 
   LogTrace("TestSmoothHits") << "new event" << std::endl;
 
   iEvent.getByLabel(srcName,theTCCollection ); 
-  hitAssociator = new TrackerHitAssociator(iEvent);
+  TrackerHitAssociator hitAssociator(iEvent, trackerHitAssociatorConfig_);
 
   TrajectoryStateCombiner combiner;
 
@@ -251,7 +251,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       double delta = 99999;
       LocalPoint rhitLPv = rhit->localPosition();
 
-      std::vector<PSimHit> assSimHits = hitAssociator->associateHit(*(rhit->hit()));
+      std::vector<PSimHit> assSimHits = hitAssociator.associateHit(*(rhit->hit()));
       if (assSimHits.size()==0) continue;
       PSimHit shit;
       for(std::vector<PSimHit>::const_iterator m=assSimHits.begin(); m<assSimHits.end(); m++){
@@ -440,7 +440,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	CTTRHp tMonoHit = 
 	  theBuilder->build(&m);
 	if (tMonoHit==0) continue;
-	vector<PSimHit> assMonoSimHits = hitAssociator->associateHit(*tMonoHit->hit());
+	vector<PSimHit> assMonoSimHits = hitAssociator.associateHit(*tMonoHit->hit());
 	if (assMonoSimHits.size()==0) continue;
 	const PSimHit sMonoHit = *(assSimHits.begin());
 	const Surface * monoSurf = &( tMonoHit->det()->surface() );
@@ -535,7 +535,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	CTTRHp tStereoHit = 
 	  theBuilder->build(&s);
 	if (tStereoHit==0) continue;
-	vector<PSimHit> assStereoSimHits = hitAssociator->associateHit(*tStereoHit->hit());
+	vector<PSimHit> assStereoSimHits = hitAssociator.associateHit(*tStereoHit->hit());
 	if (assStereoSimHits.size()==0) continue;
 	const PSimHit sStereoHit = *(assSimHits.begin());
 	const Surface * stereoSurf = &( tStereoHit->det()->surface() );
@@ -628,7 +628,6 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       //#endif
     }
   }
-  delete hitAssociator;
   LogTrace("TestSmoothHits") << "end of event" << std::endl;
 }
 

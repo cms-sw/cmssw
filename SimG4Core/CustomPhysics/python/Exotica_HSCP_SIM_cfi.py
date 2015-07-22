@@ -29,7 +29,7 @@ def customise(process):
 	process.g4SimHits.Physics.type = cms.string('SimG4Core/Physics/CustomPhysics')
 	# add verbosity
 	process.g4SimHits.Physics.Verbosity = cms.untracked.int32(0)
-	process.g4SimHits.G4Commands = cms.vstring('')
+	#process.g4SimHits.G4Commands = cms.vstring("/control/cout/ignoreThreadsExcept 0")
 	# check flavor of exotics and choose exotica Physics List
 	if FLAVOR=="gluino" or FLAVOR=="stop":
           process.customPhysicsSetup.processesDef = PROCESS_FILE
@@ -41,7 +41,7 @@ def customise(process):
         # add custom options
         process.g4SimHits.Physics = cms.PSet(
             process.g4SimHits.Physics, #keep all default value and add others
-            process.customPhysicsSetup,
+            process.customPhysicsSetup
         )	
 
 	return (process)

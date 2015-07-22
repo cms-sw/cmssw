@@ -19,8 +19,8 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceP
 
   ParameterSet muonparms   = parameters.getParameter<edm::ParameterSet>("SingleMuonTrigger");
   ParameterSet dimuonparms = parameters.getParameter<edm::ParameterSet>("DoubleMuonTrigger");
-  _SingleMuonEventFlag     = new GenericTriggerEventFlag( muonparms, consumesCollector() );
-  _DoubleMuonEventFlag     = new GenericTriggerEventFlag( dimuonparms, consumesCollector() );
+  _SingleMuonEventFlag     = new GenericTriggerEventFlag( muonparms, consumesCollector(), *this );
+  _DoubleMuonEventFlag     = new GenericTriggerEventFlag( dimuonparms, consumesCollector(), *this );
 
   // Trigger Expresions in case de connection to the DB fails
   singlemuonExpr_          = muonparms.getParameter<std::vector<std::string> >("hltPaths");

@@ -22,12 +22,13 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/StreamID.h"
 
 @example_myparticle #include "DataFormats/MuonReco/interface/Muon.h"
 @example_myparticle #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
@@ -39,7 +40,7 @@
 // class declaration
 //
 
-class __class__ : public edm::EDProducer {
+class __class__ : public edm::stream::EDProducer<> {
    public:
       explicit __class__(const edm::ParameterSet&);
       ~__class__();
@@ -47,10 +48,10 @@ class __class__ : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() override;
+      virtual void beginStream(edm::StreamID) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-      
+      virtual void endStream() override;
+
       //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
@@ -99,7 +100,7 @@ __class__::__class__(const edm::ParameterSet& iConfig)
 __class__::~__class__()
 {
  
-   // do anything here that needs to be done at desctruction time
+   // do anything here that needs to be done at destruction time
    // (e.g. close files, deallocate resources etc.)
 
 }
@@ -173,15 +174,15 @@ __class__::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 @example_myparticle    iEvent.put( move(newParticles), "particles" );
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-__class__::beginJob()
+// ------------ method called once each stream before processing any runs, lumis or events  ------------
+void
+__class__::beginStream(edm::StreamID)
 {
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-__class__::endJob() {
+// ------------ method called once each stream after processing all runs, lumis and events  ------------
+void
+__class__::endStream() {
 }
 
 // ------------ method called when starting to processes a run  ------------

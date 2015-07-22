@@ -1356,16 +1356,19 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
  // look through our KF tracks in this block and match 
  void PFEGammaAlgo::
  removeOrLinkECALClustersToKFTracks() {
+   typedef std::multimap<double, unsigned> MatchedMap;
+   typedef const reco::PFBlockElementGsfTrack* GsfTrackElementPtr;
    if( !_splayedblock[reco::PFBlockElement::ECAL].size() ||
        !_splayedblock[reco::PFBlockElement::TRACK].size()   ) return;
-   std::multimap<double, unsigned> matchedGSFs, matchedECALs;
+   MatchedMap matchedGSFs, matchedECALs;
+   std::unordered_map<GsfTrackElementPtr,MatchedMap> gsf_ecal_cache;
    for( auto& kftrack : _splayedblock[reco::PFBlockElement::TRACK] ) {
      matchedGSFs.clear();
      _currentblock->associatedElements(kftrack.first->index(), _currentlinks,
 				       matchedGSFs,
 				       reco::PFBlockElement::GSF,
 				       reco::PFBlock::LINKTEST_ALL);
-     if( !matchedGSFs.size() ) { // only run this is we aren't associated to GSF
+     if( !matchedGSFs.size() ) { // only run this if we aren't associated to GSF
        LesserByDistance closestTrackToECAL(_currentblock,_currentlinks,
 					   &kftrack);      
        auto ecalbegin = _splayedblock[reco::PFBlockElement::ECAL].begin();
@@ -1395,13 +1398,19 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   if(elemasgsf->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) {
 	     continue; // keep clusters that have a found conversion GSF near
 	   }
-	   matchedECALs.clear();
-	   _currentblock->associatedElements(elemasgsf->index(), _currentlinks,
-					     matchedECALs,
-					     reco::PFBlockElement::ECAL,
-					     reco::PFBlock::LINKTEST_ALL);
-	   if( matchedECALs.size() ) {
-	     if( matchedECALs.begin()->second == closestECAL.first->index() ) {
+	   // make sure cache exists
+	   if( !gsf_ecal_cache.count(elemasgsf) ) {
+	     matchedECALs.clear();
+	     _currentblock->associatedElements(elemasgsf->index(), _currentlinks,
+					       matchedECALs,
+					       reco::PFBlockElement::ECAL,
+					       reco::PFBlock::LINKTEST_ALL);
+	     gsf_ecal_cache.emplace(elemasgsf,matchedECALs);
+	     MatchedMap().swap(matchedECALs);
+	   } 
+	   const MatchedMap& ecal_matches = gsf_ecal_cache[elemasgsf];	   
+	   if( ecal_matches.size() ) {
+	     if( ecal_matches.begin()->second == closestECAL.first->index() ) {
 	       gsflinked = true;
 	       break;
 	     }

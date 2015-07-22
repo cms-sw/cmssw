@@ -10,6 +10,7 @@
 #include "G4VPhysicsConstructor.hh"
 
 class G4ProcessHelper;
+class G4Decay;
 
 class CustomPhysicsList : public G4VPhysicsConstructor 
 {
@@ -20,16 +21,13 @@ public:
   virtual void ConstructParticle();
   virtual void ConstructProcess();
 
-protected:
-
-  void addCustomPhysics();
-
 private:
 
-  void setupRHadronPhycis(G4ParticleDefinition* particle);
-  void setupSUSYPhycis(G4ParticleDefinition* particle);
+  static G4ThreadLocal G4Decay* fDecayProcess;
+  static G4ThreadLocal G4ProcessHelper* myHelper;
+  static G4ThreadLocal bool fInitialized;
 
-  G4ProcessHelper *myHelper;
+  bool fHadronicInteraction;
 
   edm::ParameterSet myConfig;
 

@@ -6,7 +6,7 @@ if( TClass::GetClass("edmtest::Thing") ) {
 cout <<"class not present yet"<<endl;
 
 gSystem->Load("libFWCoreFWLite");
-AutoLibraryLoader::enable();
+FWLiteEnabler::enable();
 if( !TClass::GetClass("edmtest::Thing") ) {
    cout <<"class still missing"<<endl;
    exit(1);

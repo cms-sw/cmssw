@@ -574,8 +574,8 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       goodVxCountHistory->Reset();
       fitResults->Reset();
 
-      reportSummary->Fill(0.);
-      reportSummaryMap->Fill(0.5, 0.5, 0.);
+      reportSummary->Fill(-1.);
+      reportSummaryMap->Fill(0.5, 0.5, -1.);
 
       Vertices.clear();
       
@@ -789,7 +789,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
   int goodData;
   unsigned int nParams = 9;
 
-  if ((lumiCounter%nLumiReset == 0) && (nLumiReset != 0) && (beginTimeOfFit != 0) && (runNumber != 0))
+  if ((nLumiReset != 0) && (lumiCounter%nLumiReset == 0) && (beginTimeOfFit != 0) && (runNumber != 0))
     {
       endTimeOfFit  = lumiBlock.endTime().value();
       endLumiOfFit  = lumiBlock.luminosityBlock();
@@ -1028,7 +1028,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 
       delete myLinFit;
 
-      // Exponential fit to the historical plots
+      // Exponential fit to the historical plot
       TF1* myExpFit = new TF1("myExpFit", "[0]*exp(-x/[1])", hitCountHistory->getTH1()->GetXaxis()->GetXmin(), hitCountHistory->getTH1()->GetXaxis()->GetXmax());
       myExpFit->SetLineColor(2);
       myExpFit->SetLineWidth(2);
@@ -1057,7 +1057,6 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
     {
       histTitle << "Fitted Beam Spot [cm] (no ongoing fits)";
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
-      reportSummaryMap->Fill(0.5, 0.5, 1.0);
       hitCounter->ShiftFillLast(totalHits, std::sqrt(totalHits), 1);
       reset("nohisto");
     }
@@ -1191,9 +1190,9 @@ void Vx3DHLTAnalyzer::beginRun (const Run& iRun, const EventSetup& iSetup)
 
       dbe->setCurrentFolder("BeamPixel/EventInfo");
       reportSummary = dbe->bookFloat("reportSummary");
-      reportSummary->Fill(0.);
+      reportSummary->Fill(-1.);
       reportSummaryMap = dbe->book2D("reportSummaryMap","Pixel-Vertices Beam Spot: % Good Fits", 1, 0., 1., 1, 0., 1.);
-      reportSummaryMap->Fill(0.5, 0.5, 0.);
+      reportSummaryMap->Fill(0.5, 0.5, -1.);
       dbe->setCurrentFolder("BeamPixel/EventInfo/reportSummaryContents");
 
       // Convention for reportSummary and reportSummaryMap:

@@ -119,7 +119,7 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
 
   // Reconstruct 
   LogTrace(metname)<<"Track Reconstruction"<<endl;
-  theTrackFinder->reconstruct(seeds,event);
+  theTrackFinder->reconstruct(seeds,event, eventSetup);
  
   LogTrace(metname)<<"Event loaded"
 		   <<"================================"

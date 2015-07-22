@@ -1,5 +1,6 @@
 #!/bin/sh
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtended.db -t XMLFILE_Geometry_TagXX_Extended_mc -i XMLFILE_Geometry_TagXX_Extended_mc
+conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileExtendedTest2014.db -t XMLFILE_Geometry_TagXX_ExtendedTest2014_mc -i XMLFILE_Geometry_TagXX_ExtendedTest2014_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:GeometryFileIdeal.db -t XMLFILE_Geometry_TagXX_Ideal_mc -i XMLFILE_Geometry_TagXX_Ideal_mc
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKRECO_Geometry.db -t TKRECO_Geometry_TagXX -i TKRECO_Geometry_TagXX
 conddb_import -f sqlite_file:myfile.db -c sqlite_file:TKExtra_Geometry.db -t TKExtra_Geometry_TagXX -i TKExtra_Geometry_TagXX

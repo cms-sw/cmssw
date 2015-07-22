@@ -17,7 +17,7 @@ HiTrackingRegionWithVertexBlock = cms.PSet(
 
 # global tracking region for low-pt pixel tracks
 HiLowPtTrackingRegionWithVertexBlock = cms.PSet(
-    ptMin         = cms.double(0.2),
+    ptMin         = cms.double(0.25),
     originRadius  = cms.double(0.2),
     nSigmaZ       = cms.double(3.0),
     beamSpot      = cms.InputTag("offlineBeamSpot"),

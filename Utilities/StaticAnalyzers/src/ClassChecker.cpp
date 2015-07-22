@@ -671,7 +671,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
                     WalkAST walker(this,BR, mgr.getAnalysisDeclContext(RD), (*(RD->ctor_begin()))->getMostRecentDecl() ) ;
                     std::string buf;
                     llvm::raw_string_ostream os(buf);
-                    os << "Mutable member '" <<t.getAsString()<<" "<<*D << "' in data class '"<<support::getQualifiedName(*RD)<<"', might be thread-unsafe when accessing via a const handle.";
+                    os << "Mutable member '" <<t.getCanonicalType().getAsString()<<" "<<*D << "' in data class '"<<support::getQualifiedName(*RD)<<"', might be thread-unsafe when accessing via a const handle.";
                     BR.EmitBasicReport(D, this, "Mutable member in data class",
                         "Data Class Const Correctness", os.str(), DLoc);
                     std::string pname = support::getQualifiedName(*(RD));

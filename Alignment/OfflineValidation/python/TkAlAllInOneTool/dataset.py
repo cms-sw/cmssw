@@ -653,7 +653,7 @@ class Dataset:
         if self.__predefined:
             snippet = ("process.load(\"Alignment.OfflineValidation.%s_cff\")\n"
                        "process.maxEvents = cms.untracked.PSet(\n"
-                       "    input = cms.untracked.int32(.oO[nEvents]Oo.)\n"
+                       "    input = cms.untracked.int32(.oO[nEvents]Oo. / .oO[parallelJobs]Oo.)\n"
                        ")\n"
                        "process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[parallelJobs]Oo.)"
                        %(self.__name))
@@ -664,7 +664,7 @@ class Dataset:
             return snippet
         theMap = { "process": "process.",
                    "tab": " " * len( "process." ),
-                   "nEvents": ".oO[nEvents]Oo.",
+                   "nEvents": ".oO[nEvents]Oo. / .oO[parallelJobs]Oo.",
                    "skipEventsString": "process.source.skipEvents=cms.untracked.uint32(.oO[nIndex]Oo.*.oO[nEvents]Oo./.oO[parallelJobs]Oo.)\n",
                    "importCms": "",
                    "header": ""

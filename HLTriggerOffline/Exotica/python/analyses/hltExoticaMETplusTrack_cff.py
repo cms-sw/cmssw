@@ -5,7 +5,8 @@ METplusTrackPSet = cms.PSet(
         #"HLT_MET80_v",                 # For debugging 
         #"HLT_MET85_Track50_dEdx3p6_v", # For debugging
         "HLT_MET75_IsoTrk50_v", 
-        "HLT_MET95_IsoTrk50_v" 
+        "HLT_MET95_IsoTrk50_v", 
+        "HLT_MET60_IsoTrk35_Loose_v" 
     ),
     recPFMETLabel = cms.InputTag("pfMet"),
     #recMETLabel   = cms.InputTag("hltPFMETProducer"),

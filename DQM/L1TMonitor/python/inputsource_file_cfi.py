@@ -9,8 +9,8 @@ import FWCore.ParameterSet.Config as cms
 
 # choose one sample identifier from the list of data samples 
 #
-#sampleIdentifier = '165633-CAFDQM'
-sampleIdentifier = '195378'
+sampleIdentifier = '165633-CAFDQM'
+#sampleIdentifier = '195378'
 
 maxNumberEvents = 5000
 

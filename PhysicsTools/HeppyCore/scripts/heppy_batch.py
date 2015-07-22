@@ -11,6 +11,34 @@ from PhysicsTools.HeppyCore.utils.batchmanager import BatchManager
 
 from PhysicsTools.HeppyCore.framework.heppy import split
 
+def batchScriptPADOVA( index, jobDir='./'):
+   '''prepare the LSF version of the batch script, to run on LSF'''
+   script = """#!/bin/bash
+#BSUB -q local
+#BSUB -J test
+#BSUB -o test.log
+cd {jdir}
+echo 'PWD:'
+pwd
+export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
+source $VO_CMS_SW_DIR/cmsset_default.sh
+echo 'environment:'
+echo
+env > local.env
+env
+# ulimit -v 3000000 # NO
+echo 'copying job dir to worker'
+eval `scram runtime -sh`
+ls
+echo 'running'
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck >& local.output
+exit $? 
+#echo
+#echo 'sending the job directory back'
+#echo cp -r Loop/* $LS_SUBCWD 
+""".format(jdir=jobDir)
+
+   return script
 
 def batchScriptPISA( index, remoteDir=''):
    '''prepare the LSF version of the batch script, to run on LSF'''
@@ -44,14 +72,47 @@ exit $?
 """
    return script
 
-
-def batchScriptCERN( index, remoteDir=''):
+def batchScriptCERN( jobDir, remoteDir=''):
    '''prepare the LSF version of the batch script, to run on LSF'''
+   
+   dirCopy = """echo 'sending the logs back'  # will send also root files if copy failed
+cp -r Loop/* $LS_SUBCWD
+if [ $? -ne 0 ]; then
+   echo 'ERROR: problem copying job directory back'
+else
+   echo 'job directory copy succeeded'
+fi"""
+   if remoteDir=='':
+      cpCmd=dirCopy
+   elif remoteDir.startswith("/pnfs/psi.ch"):
+       cpCmd="""echo 'sending root files to remote dir'
+export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH # Fabio's workaround to fix gfal-tools with CMSSW
+for f in Loop/mt2*.root
+do
+   ff=`basename $f | cut -d . -f 1`
+   #d=`echo $f | cut -d / -f 2`
+   gfal-mkdir {srm}
+   echo "gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root"
+   gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root
+   if [ $? -ne 0 ]; then
+      echo "ERROR: remote copy failed for file $ff"
+   else
+      echo "remote copy succeeded"
+      rm Loop/$ff.root
+   fi
+done
+#fi
+""".format(idx=jobDir[jobDir.find("_Chunk")+6:].strip("/"), srm='srm://t3se01.psi.ch'+remoteDir+jobDir[jobDir.rfind("/"):jobDir.find("_Chunk")]) + dirCopy
+   else:
+       print "chosen location not supported yet: ", remoteDir
+       print 'path must start with "/pnfs/psi.ch"'
+       sys.exit(1)
+
    script = """#!/bin/bash
 #BSUB -q 8nm
 echo 'environment:'
 echo
-env
+env | sort
 # ulimit -v 3000000 # NO
 echo 'copying job dir to worker'
 cd $CMSSW_BASE/src
@@ -65,9 +126,9 @@ cd `find . -type d | grep /`
 echo 'running'
 python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
 echo
-echo 'sending the job directory back'
-cp -r Loop/* $LS_SUBCWD 
-""" 
+{copy}
+""".format(copy=cpCmd)
+
    return script
 
 
@@ -178,7 +239,7 @@ echo 'running'
 python {cmssw}/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
 echo
 echo 'sending the job directory back'
-mv Loop/* ./
+mv Loop/* ./ && rm -r Loop
 """.format(jobdir = jobDir,cmssw = cmssw_release)
    return script
 
@@ -208,13 +269,15 @@ class MyBatchManager( BatchManager ):
        storeDir = self.remoteOutputDir_.replace('/castor/cern.ch/cms','')
        mode = self.RunningMode(options.batch)
        if mode == 'LXPLUS':
-           scriptFile.write( batchScriptCERN( storeDir, value) ) # watch out arguments are swapped (although not used)
+           scriptFile.write( batchScriptCERN( jobDir, storeDir) ) 
        elif mode == 'PSI':
            scriptFile.write( batchScriptPSI ( value, jobDir, storeDir ) ) # storeDir not implemented at the moment
        elif mode == 'LOCAL':
            scriptFile.write( batchScriptLocal( storeDir, value) )  # watch out arguments are swapped (although not used)
        elif mode == 'PISA' :
 	   scriptFile.write( batchScriptPISA( storeDir, value) ) 	
+       elif mode == 'PADOVA' :
+           scriptFile.write( batchScriptPADOVA( value, jobDir) )        
        elif mode == 'IC':
            scriptFile.write( batchScriptIC(jobDir) )
        scriptFile.close()

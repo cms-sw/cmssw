@@ -47,7 +47,7 @@ class UnbinnedLikelihoodFit : public TObject
     double getParameterValue(uint32_t i) { return function_ ? function_->GetParameter(i) : 0; }
     double getParameterError(uint32_t i) { return function_ ? function_->GetParError(i)  : 0; }
     double* getParameterValues() { return function_ ? function_->GetParameters() : NULL; }
-    double* getParameterErrors() { return function_ ? function_->GetParErrors()  : NULL; }
+    const double* getParameterErrors() { return function_ ? function_->GetParErrors()  : NULL; }
   
   private:
     // input data

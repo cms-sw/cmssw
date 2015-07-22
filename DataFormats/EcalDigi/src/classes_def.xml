@@ -95,10 +95,10 @@
    <class name="edm::StrictWeakOrdering<EcalPnDiodeDigi>" /> <!-- Root6 -->
    <class name="edm::SortedCollection<EcalMatacqDigi,edm::StrictWeakOrdering<EcalMatacqDigi> >"/>
    <class name="edm::Wrapper<edm::SortedCollection<ESDataFrame,edm::StrictWeakOrdering<ESDataFrame> > >" splitLevel="0" id="C3D41492-2914-2291-7C22-BBE6D77043F7"/>
-   <class name="edm::Wrapper<edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > > " splitLevel="0" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
-   <class name="edm::Wrapper<edm::SortedCollection<EcalPseudoStripInputDigi,edm::StrictWeakOrdering<EcalPseudoStripInputDigi> > > " splitLevel="0" id=""/>
+   <class name="edm::Wrapper<edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > >" splitLevel="0" id="D932A444-CBDD-A27C-4D85-BFED25EFBCF8"/>
+   <class name="edm::Wrapper<edm::SortedCollection<EcalPseudoStripInputDigi,edm::StrictWeakOrdering<EcalPseudoStripInputDigi> > >" splitLevel="0" id=""/>
    <class name="edm::Wrapper<edm::SortedCollection<EBSrFlag,edm::StrictWeakOrdering<EBSrFlag> > >" splitLevel="0" id="C0D3A113-A36C-40F1-A388-28ECE47DCBA5"/>
    <class name="edm::Wrapper<edm::SortedCollection<EESrFlag,edm::StrictWeakOrdering<EESrFlag> > >" splitLevel="0" id="CE18D35E-E4F5-4685-8D9A-213D9ACB0606"/>
-   <class name="edm::Wrapper<edm::SortedCollection<EcalPnDiodeDigi,edm::StrictWeakOrdering<EcalPnDiodeDigi> > > " id="8104DEE4-28BC-284A-8397-7EF8F5DBA1B1"/>
-   <class name="edm::Wrapper<edm::SortedCollection<EcalMatacqDigi,edm::StrictWeakOrdering<EcalMatacqDigi> > > " id="09B54EAE-7A1A-B892-117A-EFE5E32AF982"/>
+   <class name="edm::Wrapper<edm::SortedCollection<EcalPnDiodeDigi,edm::StrictWeakOrdering<EcalPnDiodeDigi> > >" id="8104DEE4-28BC-284A-8397-7EF8F5DBA1B1"/>
+   <class name="edm::Wrapper<edm::SortedCollection<EcalMatacqDigi,edm::StrictWeakOrdering<EcalMatacqDigi> > >" id="09B54EAE-7A1A-B892-117A-EFE5E32AF982"/>
 </lcgdict>

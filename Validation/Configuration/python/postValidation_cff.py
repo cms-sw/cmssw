@@ -15,12 +15,13 @@ from Validation.RPCRecHits.postValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
 from Validation.RecoEgamma.photonFastSimPostProcessor_cff import *
 from Validation.RecoVertex.PrimaryVertexAnalyzer4PUSlimmed_Client_cfi import *
+from Validation.RecoMET.METPostProcessor_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
 
 postValidation = cms.Sequence(
       recoMuonPostProcessors
-    + postProcessorTrack
+    + postProcessorTrackSequence
     + postProcessorVertex
     + MuIsoValPostProcessor
     + calotowersPostProcessor
@@ -32,18 +33,19 @@ postValidation = cms.Sequence(
     + rpcRecHitPostValidation_step
     + runTauEff + makeBetterPlots
     + bTagCollectorSequenceMCbcl
+    + METPostProcessor
 )
 
 postValidation_preprod = cms.Sequence(
     recoMuonPostProcessors
-  + postProcessorTrack
+  + postProcessorTrackSequence
   + MuIsoValPostProcessor
 )  
 
 
 postValidation_fastsim = cms.Sequence(
       recoMuonPostProcessorsFastSim
-    + postProcessorTrack
+    + postProcessorTrackSequence
     + MuIsoValPostProcessor
     + fastSimPhotonPostProcessor
     + bTagCollectorSequenceMC
@@ -53,4 +55,8 @@ postValidation_fastsim = cms.Sequence(
  
 postValidation_gen = cms.Sequence(
     EventGeneratorPostProcessor
+)
+
+postValidationCosmics = cms.Sequence(
+      postProcessorMuonMultiTrack
 )

@@ -40,7 +40,7 @@ from DQM.TrackingMonitorSource.TrackingSourceConfig_Tier0_HeavyIons_cff import *
 
 triggerOfflineDQMSource.remove(jetMETHLTOfflineAnalyzer)
 
-egammaDQMOffline.remove(electronAnalyzerSequence)
+#egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)
 egammaDQMOffline.remove(zmumugammaOldAnalysis)
 egammaDQMOffline.remove(photonAnalysis)
@@ -49,6 +49,14 @@ triggerOfflineDQMSource.remove(ak4PFL1FastL2L3CorrectorChain)
 from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import getFSQHI
 fsqHLTOfflineSource.todo = getFSQHI()
 
+
+dqmElectronGeneralAnalysis.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
+dqmElectronGeneralAnalysis.TrackCollection = cms.InputTag("hiGeneralTracks")
+dqmElectronGeneralAnalysis.VertexCollection = cms.InputTag("hiSelectedVertex")
+dqmElectronAnalysisAllElectrons.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
+dqmElectronAnalysisSelectionEt.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
+dqmElectronAnalysisSelectionEtIso.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
+dqmElectronTagProbeAnalysis.ElectronCollection = cms.InputTag("gedGsfElectronsTmp")
 
 
 stdPhotonAnalysis.isHeavyIon = True

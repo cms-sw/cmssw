@@ -17,7 +17,7 @@
    <version ClassVersion="10" checksum="1253390925"/>
   </class>
   <class name="std::vector<FSimVertexType>"/>
-  <class name="edm::Wrapper< std::vector<FSimVertexType> > "/>  
+  <class name="edm::Wrapper< std::vector<FSimVertexType> >"/>  
   <class name="edm::Ref< std::vector<FSimVertexType>, FSimVertexType, edm::refhelper::FindUsingAdvance< std::vector<FSimVertexType>, FSimVertexType> >"/>
 
   <class name="FSimDisplacedVertex" ClassVersion="11">
@@ -25,7 +25,7 @@
    <version ClassVersion="10" checksum="251560649"/>
   </class>
   <class name="std::vector<FSimDisplacedVertex>"/>
-  <class name="edm::Wrapper< std::vector<FSimDisplacedVertex> > "/>  
+  <class name="edm::Wrapper< std::vector<FSimDisplacedVertex> >"/>  
   <class name="edm::Ref< std::vector<FSimDisplacedVertex>, FSimDisplacedVertex, edm::refhelper::FindUsingAdvance< std::vector<FSimDisplacedVertex>, FSimDisplacedVertex> >"/>
 
 </lcgdict>

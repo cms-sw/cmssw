@@ -144,7 +144,7 @@ void l1t::TriggerMenuXmlParser::setVecCaloTemplate(
 }
 
 void l1t::TriggerMenuXmlParser::setVecEnergySumTemplate(
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& vecEnergySumTempl) {
+        const std::vector<std::vector<EnergySumTemplate> >& vecEnergySumTempl) {
 
     m_vecEnergySumTemplate = vecEnergySumTempl;
 }
@@ -206,7 +206,7 @@ void l1t::TriggerMenuXmlParser::setCorCaloTemplate(
 }
 
 void l1t::TriggerMenuXmlParser::setCorEnergySumTemplate(
-        const std::vector<std::vector<L1GtEnergySumTemplate> >& corEnergySumTempl) {
+        const std::vector<std::vector<EnergySumTemplate> >& corEnergySumTempl) {
 
     m_corEnergySumTemplate = corEnergySumTempl;
 }
@@ -1501,7 +1501,7 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
 
     int nrObj = getNumFromType(type);
     if (nrObj < 0) {
-        edm::LogError("TriggerMenuXmlParser") << "Unknown type for calo-condition (" << type
+        edm::LogError("TriggerMenuXmlParser") << "Unknown type for muon-condition (" << type
             << ")" << "\nCan not determine number of trigger objects. " << std::endl;
         return false;
     }
@@ -1549,7 +1549,7 @@ bool l1t::TriggerMenuXmlParser::parseMuon(l1t::MuonCondition condMu,
     boost::uint64_t tempUIntH, tempUIntL;
     boost::uint64_t dst;
     int cnt = 0;
-    for( l1t::MuonObjectRequirementList::objectRequirement_const_iterator objPar = condMu.objectRequirements().objectRequirement().begin();
+    for( l1t::MuonObjectRequirements::objectRequirement_const_iterator objPar = condMu.objectRequirements().objectRequirement().begin();
 	 objPar != condMu.objectRequirements().objectRequirement().end(); ++objPar ){
 
       // ET Threshold
@@ -1953,6 +1953,25 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
       if( cnt<nrObj ) objParameter[cnt].phiRange = dst;
 
 
+      int cntIso=0;
+      int isolationLUT = 0;
+      for( l1t::CalorimeterIsolationLUT::isolation_const_iterator iIsoFlag = objPar->isolationLut().isolation().begin();
+	   iIsoFlag != objPar->isolationLut().isolation().end(); ++iIsoFlag ){
+	
+	bool flag = (*iIsoFlag);
+
+	isolationLUT |= (flag << cntIso);
+
+	LogDebug("l1t|Global")
+	  << "\n isolation flag " << cntIso << " = " << flag
+	  << "\n isolationLUT = " << isolationLUT 
+	  << std::endl;
+
+	cntIso++;
+      }
+
+      objParameter[cnt].isolationLUT = isolationLUT;
+
 
       int cntEta=0;
       unsigned int etaWindowLower=-1, etaWindowUpper=-1, etaWindowVetoLower=-1, etaWindowVetoUpper=-1;
@@ -2163,71 +2182,169 @@ bool l1t::TriggerMenuXmlParser::parseCalo(l1t::CalorimeterCondition condCalo,
  *
  */
 
-bool l1t::TriggerMenuXmlParser::parseEnergySum(
-        XERCES_CPP_NAMESPACE::DOMNode* node, const std::string& name,
+bool l1t::TriggerMenuXmlParser::parseEnergySum(l1t::EnergySumsCondition condEnergySum,
         unsigned int chipNr, const bool corrFlag) {
 
     XERCES_CPP_NAMESPACE_USE
 
-      /*
     // get condition, particle name and type name
-    std::string condition = getXMLAttribute(node, m_xmlConditionAttrCondition);
-    std::string particle = getXMLAttribute(node, m_xmlConditionAttrObject);
-    std::string type = getXMLAttribute(node, m_xmlConditionAttrType);
+
+    std::string condition = "calo";
+    std::string type = l1t2string( condEnergySum.objectType() );
+    std::string name = l1t2string( condEnergySum.name() );
+
+    LogDebug("l1t|Global")
+      << "\n ****************************************** " 
+      << "\n      DARRENS TEST OUTPUT (in parseEnergySum) " 
+      << "\n condition = " << condition 
+      << "\n type      = " << type 
+      << "\n name      = " << name 
+      << std::endl;
 
     // determine object type type
     L1GtObject energySumObjType;
     GtConditionType cType;
 
-    if ((particle == m_xmlConditionAttrObjectETM) && (type == m_xmlConditionAttrObjectETM)) {
-
-        energySumObjType = ETM;
-        cType = TypeETM;
-
+    if( type == m_xmlConditionAttrObjectETM ){
+      energySumObjType = ETM;
+      cType = TypeETM;
     }
-    else if ((particle == m_xmlConditionAttrObjectETT) && (type == m_xmlConditionAttrObjectETT)) {
-
-        energySumObjType = ETT;
-        cType = TypeETT;
-
+    else if( type == m_xmlConditionAttrObjectETT ){
+      energySumObjType = ETT;
+      cType = TypeETT;
     }
-    else if ((particle == m_xmlConditionAttrObjectHTT) && (type == m_xmlConditionAttrObjectHTT)) {
-
-        energySumObjType = HTT;
-        cType = TypeHTT;
-
+    else if( type == m_xmlConditionAttrObjectHTT ){
+      energySumObjType = HTT;
+      cType = TypeHTT;
     }
-    else if ((particle == m_xmlConditionAttrObjectHTM) && (type == m_xmlConditionAttrObjectHTM)) {
-
-        energySumObjType = HTM;
-        cType = TypeHTM;
-
+    else if( type == m_xmlConditionAttrObjectHTM ){
+      energySumObjType = HTM;
+      cType = TypeHTM;
     }
     else {
-        edm::LogError("TriggerMenuXmlParser")
-            << "Wrong particle or type for energy-sum condition (" << particle << ", " << type
-            << ")" << std::endl;
-        return false;
+      edm::LogError("TriggerMenuXmlParser")
+	<< "Wrong type for energy-sum condition (" << type
+	<< ")" << std::endl;
+      return false;
     }
+
+
 
     // global object
     int nrObj = 1;
 
-    // get greater equal flag
+    std::string str_etComparison = l1t2string( condEnergySum.comparison_operator() );
 
-    int intGEq = getGEqFlag(node, m_xmlTagEtThreshold);
-    if (intGEq < 0) {
-        edm::LogError("TriggerMenuXmlParser") << "Error getting \"greater or equal\" flag"
-            << std::endl;
-        return false;
+    // get greater equal flag
+    int intGEq = ( str_etComparison=="ge" ) ? 1 : 0;
+    if( intGEq < 0 ){
+      edm::LogError("TriggerMenuXmlParser") 
+	<< "Error getting \"greater or equal\" flag"
+	<< std::endl;
+      return false;
     }
     // set the boolean value for the ge_eq mode
     bool gEq = (intGEq != 0);
 
+
     // get values
 
     // temporary storage of the parameters
-    std::vector<L1GtEnergySumTemplate::ObjectParameter> objParameter(nrObj);
+    std::vector<EnergySumTemplate::ObjectParameter> objParameter(nrObj);
+
+
+    int cnt = 0;
+
+    l1t::EnergySumsObjectRequirement objPar = condEnergySum.objectRequirement();
+
+    // ET Threshold
+    objParameter[cnt].etThreshold = objPar.etThreshold();
+
+    int cntPhi=0;
+    unsigned int phiWindowLower=-1, phiWindowUpper=-1, phiWindowVetoLower=-1, phiWindowVetoUpper=-1;
+    for( l1t::EnergySumsObjectRequirement::phiWindow_const_iterator phiWindow =objPar.phiWindow().begin();
+	 phiWindow != objPar.phiWindow().end(); ++phiWindow ){
+      
+      LogDebug("l1t|Global")
+	<< "\n phiWindow begin = " << phiWindow->lower()
+	<< "\n phiWindow end   = " << phiWindow->upper() 
+	<< std::endl;
+
+      if( cntPhi==0 ){      phiWindowLower = phiWindow->lower(); phiWindowUpper = phiWindow->upper(); }
+      else if( cntPhi==1 ){ phiWindowVetoLower = phiWindow->lower(); phiWindowVetoUpper = phiWindow->upper(); }
+      cntPhi++;
+    }
+
+    objParameter[cnt].phiWindowLower     = phiWindowLower;
+    objParameter[cnt].phiWindowUpper     = phiWindowUpper;
+    objParameter[cnt].phiWindowVetoLower = phiWindowVetoLower;
+    objParameter[cnt].phiWindowVetoUpper = phiWindowVetoUpper;
+
+      
+    // Output for debugging
+    LogDebug("l1t|Global") 
+      << "\n      EnergySum ET high threshold (hex) for energy sum object " << cnt << " = "
+      << std::hex << objParameter[cnt].etThreshold << std::dec
+      << "\n      phiWindow Lower / Upper for calo object " << cnt << " = "
+      << objParameter[cnt].phiWindowLower << " / " << objParameter[cnt].phiWindowUpper
+      << "\n      phiWindowVeto Lower / Upper for calo object " << cnt << " = "
+      << objParameter[cnt].phiWindowVetoLower << " / " << objParameter[cnt].phiWindowVetoUpper
+      << std::endl;
+
+
+
+
+    int relativeBx = l1t2int( condEnergySum.relativeBx() );
+
+    // object types - all same energySumObjType
+    std::vector<L1GtObject> objType(nrObj, energySumObjType);
+
+    // now create a new energySum condition
+
+    EnergySumTemplate energySumCond(name);
+
+    energySumCond.setCondType(cType);
+    energySumCond.setObjectType(objType);
+    energySumCond.setCondGEq(gEq);
+    energySumCond.setCondChipNr(chipNr);
+    energySumCond.setCondRelativeBx(relativeBx);
+
+    energySumCond.setConditionParameter(objParameter);
+
+    if (edm::isDebugEnabled() ) {
+
+        std::ostringstream myCoutStream;
+        energySumCond.print(myCoutStream);
+        LogTrace("TriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
+
+    }
+
+    // insert condition into the map
+    if ( !insertConditionIntoMap(energySumCond, chipNr)) {
+
+        edm::LogError("TriggerMenuXmlParser")
+                << "    Error: duplicate condition (" << name << ")"
+                << std::endl;
+
+        return false;
+    }
+    else {
+
+        if (corrFlag) {
+            (m_corEnergySumTemplate[chipNr]).push_back(energySumCond);
+
+        }
+        else {
+            (m_vecEnergySumTemplate[chipNr]).push_back(energySumCond);
+        }
+
+    }
+
+
+
+    /*
+
+
 
     // need at least two values for phi
     std::vector<boost::uint64_t> tmpValues((nrObj > 2) ? nrObj : 2);
@@ -2313,48 +2430,6 @@ bool l1t::TriggerMenuXmlParser::parseEnergySum(
 
     }
 
-    // object types - all same energySumObjType
-    std::vector<L1GtObject> objType(nrObj, energySumObjType);
-
-    // now create a new energySum condition
-
-    L1GtEnergySumTemplate energySumCond(name);
-
-    energySumCond.setCondType(cType);
-    energySumCond.setObjectType(objType);
-    energySumCond.setCondGEq(gEq);
-    energySumCond.setCondChipNr(chipNr);
-
-    energySumCond.setConditionParameter(objParameter);
-
-    if (edm::isDebugEnabled() ) {
-
-        std::ostringstream myCoutStream;
-        energySumCond.print(myCoutStream);
-        LogTrace("TriggerMenuXmlParser") << myCoutStream.str() << "\n" << std::endl;
-
-    }
-
-    // insert condition into the map
-    if ( !insertConditionIntoMap(energySumCond, chipNr)) {
-
-        edm::LogError("TriggerMenuXmlParser")
-                << "    Error: duplicate condition (" << name << ")"
-                << std::endl;
-
-        return false;
-    }
-    else {
-
-        if (corrFlag) {
-            (m_corEnergySumTemplate[chipNr]).push_back(energySumCond);
-
-        }
-        else {
-            (m_vecEnergySumTemplate[chipNr]).push_back(energySumCond);
-        }
-
-    }
       */
 
     //
@@ -3754,6 +3829,22 @@ bool l1t::TriggerMenuXmlParser::parseConditions( l1t::ConditionList conditions )
       l1t::MuonCondition condition = (*condMu);
 
       parseMuon( condition, chipNr );
+    }
+
+    LogDebug("l1t|Global")  << " ====> condEnergySums " << std::endl;
+    for (l1t::ConditionList::condEnergySums_const_iterator condEnergySums = conditions.condEnergySums().begin();
+	 condEnergySums != conditions.condEnergySums().end(); ++condEnergySums ){
+
+      LogDebug("l1t|Global")
+	<< condEnergySums->name()  << " {"                    
+	<< "  comment: " << condEnergySums->comment()
+	<< "  locked: "      << condEnergySums->locked()     
+	<< "}" 
+	<< std::endl;
+
+      l1t::EnergySumsCondition condition = (*condEnergySums);
+
+      parseEnergySum( condition, chipNr );
     }
 
 

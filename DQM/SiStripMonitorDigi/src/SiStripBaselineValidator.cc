@@ -37,13 +37,7 @@ using namespace std;
 SiStripBaselineValidator::SiStripBaselineValidator(const edm::ParameterSet& conf){
 
   srcProcessedRawDigi_ =  conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" );
-  createOutputFile_ = conf.getUntrackedParameter<bool>("saveFile",false);
-  outputFile_   = conf.getParameter<std::string>("outputFile");
-  dbe = &*edm::Service<DQMStore>();
   moduleRawDigiToken_ = consumes<edm::DetSetVector<SiStripRawDigi> >(conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" ) );
-
-
-
 }
 
 SiStripBaselineValidator::~SiStripBaselineValidator()
@@ -56,19 +50,12 @@ void SiStripBaselineValidator::bookHistograms(DQMStore::IBooker & ibooker, const
   ibooker.setCurrentFolder("SiStrip/BaselineValidator");
   
   h1NumbadAPVsRes_ = ibooker.book1D("ResAPVs",";#ResAPVs", 100, 1.0, 10001);
-  //dbe->tag(h1NumbadAPVsRes_->getFullname(),1);
   ibooker.tag(h1NumbadAPVsRes_,1);
   
   h1ADC_vs_strip_ = ibooker.book2D("ADCvsAPVs",";ADCvsAPVs", 768,-0.5,767.5,  1023, -0.5, 1022.5);
   ibooker.tag(h1ADC_vs_strip_,2);
   
   return;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void SiStripBaselineValidator::beginJob()
-{
-
 }
 
 void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetup& es)
@@ -114,17 +101,6 @@ void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetu
 
 
 } /// analyzer loop
-
-
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SiStripBaselineValidator::endJob() {
-
-    if (!outputFile_.empty() && createOutputFile_) {
-       dbe->save(outputFile_);
-    }  
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(SiStripBaselineValidator);

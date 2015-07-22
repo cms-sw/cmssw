@@ -478,7 +478,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
     for(int dK=0; dK<15; dK++)
     {
       eDtStub[dJ][dK] = -55;
-      eDtStub[dJ][dK] = -55;
+      dDtStub[dJ][dK] = -55;
       dDtStub[7][dK] = -55;
     }
   }

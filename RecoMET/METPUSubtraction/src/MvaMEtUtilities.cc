@@ -80,7 +80,7 @@ reco::Candidate::LorentzVector MvaMEtUtilities::jetP4(const std::vector<reco::PU
   reco::Candidate::LorentzVector retVal(0.,0.,0.,0.);
   if ( idx < jets.size() ) {
     std::vector<reco::PUSubMETCandInfo> jets_sorted = jets;
-    std::sort(jets_sorted.begin(), jets_sorted.end()); 
+    std::sort(jets_sorted.rbegin(), jets_sorted.rend());
     retVal = jets_sorted[idx].p4();
   }
   return retVal;

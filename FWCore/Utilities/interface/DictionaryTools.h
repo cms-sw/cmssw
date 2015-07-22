@@ -30,9 +30,6 @@ TypeSet& missingTypes();
 
 void public_base_classes(TypeWithDict const& type,
                          std::vector<TypeWithDict>& baseTypes);
-
-std::string const& dictionaryPlugInPrefix();
-
 } // namespace edm
 
 #endif // FWCore_Utilities_DictionaryTools_h

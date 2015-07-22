@@ -8,12 +8,12 @@ SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   pfJetCollection = cms.InputTag('ak4PFJets'),
                                                   jetTagCollection = cms.InputTag('pfCombinedSecondaryVertexBJetTags'),
 
-                                                  vertexCollection = cms.InputTag('offlinePrimaryVertices'),
+                                                  vertexCollection = cms.InputTag('goodOfflinePrimaryVertices'),
                                                   conversionCollection = cms.InputTag(''),
                                                   beamSpot = cms.InputTag(''),
 
                                                   leptonFilter = cms.InputTag('hltL3MuVVVLIsoFIlter','','HLT'),
-                                                  hltHt = cms.InputTag('hltPFHT400','','HLT'),
+                                                  hltHt = cms.InputTag('hltPFHT','','HLT'),
                                                   hltMet = cms.InputTag(''),
                                                   hltJets = cms.InputTag('hltSelector4CentralJetsL1FastJet','','HLT'),
                                                   hltJetTags = cms.InputTag('hltCombinedSecondaryVertexBJetTagsCalo','','HLT'),
@@ -23,7 +23,7 @@ SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
 
                                                   hltProcess = cms.string('HLT'),
 
-                                                  triggerPath = cms.string('HLT_Mu15_IsoVVVL_BTagCSV07_PFHT400'),
+                                                  triggerPath = cms.string('HLT_Mu15_IsoVVVL_BTagCSV0p72_PFHT400'),
                                                   triggerPathAuxiliary = cms.string('HLT_IsoMu27_v'),
                                                   triggerPathLeptonAuxiliary = cms.string('HLT_PFHT350_PFMET120_NoiseCleaned_v'),
 
@@ -43,7 +43,7 @@ SUSY_HLT_Mu_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                   )
 
 SUSY_HLT_Mu_HT_BTag_SingleLepton_POSTPROCESSING = cms.EDAnalyzer('DQMGenericClient',
-                                                                 subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_BTagCSV07_PFHT400'),
+                                                                 subDirs = cms.untracked.vstring('HLT/SUSYBSM/HLT_Mu15_IsoVVVL_BTagCSV0p72_PFHT400'),
                                                                  efficiency = cms.vstring(
         "leptonTurnOn_eff ';Offline Muon p_{T} [GeV];#epsilon' leptonTurnOn_num leptonTurnOn_den",
         "pfHTTurnOn_eff ';Offline PF H_{T} [GeV];#epsilon' pfHTTurnOn_num pfHTTurnOn_den",

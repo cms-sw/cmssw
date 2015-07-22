@@ -1,7 +1,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 
 //the selectores used to select the tracks
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentTrackSelector.h"
@@ -65,6 +65,6 @@ private:
 
 };
 
-typedef ObjectSelector<TrackConfigSelector>  AlignmentTrackSelectorModule;
+typedef ObjectSelectorStream<TrackConfigSelector>  AlignmentTrackSelectorModule;
 
 DEFINE_FWK_MODULE( AlignmentTrackSelectorModule );

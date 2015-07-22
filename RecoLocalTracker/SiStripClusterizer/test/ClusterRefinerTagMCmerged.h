@@ -33,8 +33,10 @@ private:
   typedef edm::EDGetTokenT< edmNew::DetSetVector<SiStripCluster> > token_t;
   token_t inputToken;
   edm::ParameterSet confClusterRefiner_;
+  bool useAssociateHit_; 
 
-  std::shared_ptr<TrackerHitAssociator> associator_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+  std::unique_ptr<TrackerHitAssociator> associator_;
 
 };
 

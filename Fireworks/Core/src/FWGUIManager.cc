@@ -10,7 +10,7 @@
 //         Created:  Mon Feb 11 11:06:40 EST 2008
 
 
-//
+
 
 // system include files
 #include <boost/bind.hpp>
@@ -81,8 +81,8 @@
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
-
 #include "FWCore/Common/interface/EventBase.h"
+
 
 
 // constants, enums and typedefs
@@ -95,6 +95,8 @@ FWGUIManager* FWGUIManager::m_guiManager = 0;
 //
 // constructors and destructor
 //
+
+
 FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                            const FWViewManagerManager* iVMMgr,
                            FWNavigatorBase* navigator):
@@ -167,8 +169,11 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
       getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
+      getAction(cmsshow::sLoadPartialConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForPartialLoadConfigurationFile));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
+      getAction(cmsshow::sSavePartialConfig)->activated.connect(sigc::mem_fun(this, &FWGUIManager::savePartialToConfigurationFile));
       getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForSaveConfigurationFile));
+      getAction(cmsshow::sSavePartialConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForPartialSaveConfigurationFile));
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
@@ -823,6 +828,20 @@ FWGUIManager::promptForLoadConfigurationFile()
    loadFromConfigurationFile_(name);
 }
 
+
+void
+FWGUIManager::promptForPartialLoadConfigurationFile()
+{
+   std::string name;
+   if (!promptForConfigurationFile(name, kFDOpen))
+      return;
+  
+   
+   loadPartialFromConfigurationFile_(name);
+   //
+}
+
+
 /** Emits the signal which requests to save the current configuration in the 
     file picked up in the dialog.
   */
@@ -832,7 +851,24 @@ FWGUIManager::promptForSaveConfigurationFile()
    std::string name;
    if (!promptForConfigurationFile(name, kFDSave))
       return;
+
    writeToConfigurationFile_(name);
+}
+
+void
+FWGUIManager::promptForPartialSaveConfigurationFile()
+{
+   std::string name;
+   if (!promptForConfigurationFile(name, kFDSave))
+      return;
+
+   writePartialToConfigurationFile_(name);
+}
+
+void
+FWGUIManager::savePartialToConfigurationFile()
+{
+   writePartialToConfigurationFile_("current");
 }
 
 void

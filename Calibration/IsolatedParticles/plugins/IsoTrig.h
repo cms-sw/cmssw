@@ -30,7 +30,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Calibration/IsolatedParticles/interface/TrackSelection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -120,7 +120,7 @@ private:
   double getDistInCM(double eta1,double phi1, double eta2,double phi2);
 
   // ----------member data ---------------------------
-  HLTConfigProvider          hltConfig_;
+  HLTPrescaleProvider hltPrescaleProvider_;
   std::vector<std::string>   trigNames;
   edm::InputTag              PixcandTag_, L1candTag_, L2candTag_;
   std::vector<edm::InputTag> pixelTracksSources_;

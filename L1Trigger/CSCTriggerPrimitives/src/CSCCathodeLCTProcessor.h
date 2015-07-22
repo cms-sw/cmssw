@@ -1,5 +1,5 @@
-#ifndef CSCTriggerPrimitives_CSCCathodeLCTProcessor_h
-#define CSCTriggerPrimitives_CSCCathodeLCTProcessor_h
+#ifndef L1Trigger_CSCTriggerPrimitives_CSCCathodeLCTProcessor_h
+#define L1Trigger_CSCTriggerPrimitives_CSCCathodeLCTProcessor_h
 
 /** \class CSCCathodeLCTProcessor
  *
@@ -26,12 +26,13 @@
  *
  */
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
+#include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
+#include "L1Trigger/CSCCommonTrigger/interface/CSCConstants.h"
+
 #include <vector>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h>
-#include <DataFormats/CSCDigi/interface/CSCCLCTDigi.h>
-#include <CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h>
-#include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 class CSCCathodeLCTProcessor
 {

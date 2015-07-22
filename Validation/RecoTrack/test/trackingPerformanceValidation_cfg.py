@@ -42,10 +42,6 @@ process.quickTrackAssociatorByHits.Cut_RecoToSim = cms.double(0.75)
 
 
 ### configuration MultiTrackValidator ###
-process.multiTrackValidator.outputFile = 'val.SAMPLE.root'
-process.multiTrackValidator.runStandalone = True
-
-
 process.cutsRecoTracks.algorithm = cms.vstring(ALGORITHM)
 process.cutsRecoTracks.quality = cms.vstring(QUALITY)
 
@@ -55,7 +51,6 @@ process.multiTrackValidator.useLogPt=cms.untracked.bool(True)
 process.multiTrackValidator.minpT = cms.double(0.1)
 process.multiTrackValidator.maxpT = cms.double(1000)
 process.multiTrackValidator.nintpT = cms.int32(40)
-process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 
 process.multiTrackValidator.label = ['TRACKS']
 #if (process.multiTrackValidator.label[0] == 'generalTracks'):

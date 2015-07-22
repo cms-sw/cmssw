@@ -68,7 +68,7 @@ private:
   edm::EDGetTokenT<reco::VertexCollection> _recoVertexCollectionToken;
   bool _firstOnly;
 
-  PrescaleWeightProvider* _weightprov;
+  std::unique_ptr<PrescaleWeightProvider> _weightprov;
 };
 
 //
@@ -87,7 +87,7 @@ AnotherPrimaryVertexAnalyzer::AnotherPrimaryVertexAnalyzer(const edm::ParameterS
   , _recoVertexCollectionToken(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("pvCollection")))
   , _firstOnly(iConfig.getUntrackedParameter<bool>("firstOnly",false))
   , _weightprov(iConfig.getParameter<bool>("usePrescaleWeight")
-		? new PrescaleWeightProvider(iConfig.getParameter<edm::ParameterSet>("prescaleWeightProviderPSet"), consumesCollector())
+		? new PrescaleWeightProvider(iConfig.getParameter<edm::ParameterSet>("prescaleWeightProviderPSet"), consumesCollector(), *this)
 		: 0
 		)
 {
@@ -102,12 +102,6 @@ AnotherPrimaryVertexAnalyzer::AnotherPrimaryVertexAnalyzer(const edm::ParameterS
 
 AnotherPrimaryVertexAnalyzer::~AnotherPrimaryVertexAnalyzer()
 {
-
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-  delete _weightprov;
-
 }
 
 

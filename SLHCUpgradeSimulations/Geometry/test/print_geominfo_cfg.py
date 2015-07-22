@@ -44,7 +44,6 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("FastSimulation/Configuration/FlatPtMuonGun_cfi")
 process.generator.PGunParameters.PartID[0] = 13
-# replace FlatRandomPtGunSource.PGunParameters.PartID={13}
 process.generator.PGunParameters.MinPt = 0.9
 process.generator.PGunParameters.MaxPt = 50.0
 process.generator.PGunParameters.MinEta = -2.4

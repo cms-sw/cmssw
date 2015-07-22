@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -38,7 +38,13 @@
 // class declaration
 //
 
-class __class__ : public edm::EDAnalyzer {
+// If the analyzer does not use TFileService, please remove
+// the template argument to the base class so the class inherits
+// from  edm::one::EDAnalyzer<> and also remove the line from
+// constructor "usesResource("TFileService");"
+// This will improve performance in multithreaded jobs.
+
+class __class__ : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
    public:
       explicit __class__(const edm::ParameterSet&);
       ~__class__();
@@ -50,11 +56,6 @@ class __class__ : public edm::EDAnalyzer {
       virtual void beginJob() override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
-
-      //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
 @example_track       edm::InputTag trackTags_; //used to select what tracks to read from configuration file
@@ -78,6 +79,7 @@ __class__::__class__(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
+   usesResource("TFileService");
 @example_histo   edm::Service<TFileService> fs;
 @example_histo   histo = fs->make<TH1D>("charge" , "Charges" , 200 , -2 , 2 );
 
@@ -138,38 +140,6 @@ void
 __class__::endJob() 
 {
 }
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void 
-__class__::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void 
-__class__::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-__class__::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-__class__::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-*/
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void

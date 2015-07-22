@@ -258,6 +258,10 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
 
   // Set the physics list for the worker, share from master
   PhysicsList *physicsList = runManagerMaster.physicsListForWorker();
+
+  edm::LogInfo("SimG4CoreApplication") 
+    << "RunManagerMTWorker: start initialisation of PhysicsList for a thread";
+
   physicsList->InitializeWorker();
   kernel->SetPhysics(physicsList);
   kernel->InitializePhysics();
@@ -271,17 +275,17 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
   m_tls->registry.beginOfJobSignal_(&aBeginOfJob);
 
   initializeUserActions();
-
+  /*
   for(const std::string& command: runManagerMaster.G4Commands()) {
     edm::LogInfo("SimG4CoreApplication") << "RunManagerMTWorker:: Requests UI: "
                                          << command;
     G4UImanager::GetUIpointer()->ApplyCommand(command);
   }
+  */
 }
 
 void RunManagerMTWorker::initializeUserActions() {
   m_tls->runInterface.reset(new SimRunInterface(this, false));
-
   m_tls->userRunAction.reset(new RunAction(m_pRunAction, m_tls->runInterface.get()));
   m_tls->userRunAction->SetMaster(false);
   Connect(m_tls->userRunAction.get());

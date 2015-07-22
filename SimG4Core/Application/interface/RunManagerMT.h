@@ -123,6 +123,7 @@ private:
   edm::ParameterSet m_pField;
   edm::ParameterSet m_pPhysics; 
   edm::ParameterSet m_pRunAction;      
+  edm::ParameterSet m_g4overlap;
   std::vector<std::string> m_G4Commands;
 
   std::unique_ptr<DDDWorld> m_world;

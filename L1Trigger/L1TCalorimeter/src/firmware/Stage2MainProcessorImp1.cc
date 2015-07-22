@@ -67,6 +67,7 @@ void l1t::Stage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::C
   // processing below is performed by the MP
   std::vector<l1t::CaloCluster> egClusters;
   std::vector<l1t::CaloCluster> tauClusters;
+  std::vector<l1t::Jet> mpAllJets;
   std::vector<l1t::EtSum> towerSums;
   std::vector<l1t::EtSum> jetSums;
 
@@ -75,9 +76,9 @@ void l1t::Stage2MainProcessorFirmwareImp1::processEvent(const std::vector<l1t::C
   m_egAlgo->processEvent( egClusters, outTowers, mpEGammas );
   m_tauClusterAlgo->processEvent( outTowers, tauClusters );
   m_tauAlgo->processEvent( tauClusters,outTowers, mpTaus );
-  m_jetAlgo->processEvent( outTowers, mpJets );
+  m_jetAlgo->processEvent( outTowers, mpJets, mpAllJets );
   m_sumAlgo->processEvent( outTowers, towerSums );
-  m_jetSumAlgo->processEvent( mpJets, jetSums );  
+  m_jetSumAlgo->processEvent( mpAllJets, jetSums );  
 
   clusters.insert( clusters.end(), egClusters.begin(), egClusters.end() );
 

@@ -37,7 +37,7 @@ HFShowerFibreBundle::HFShowerFibreBundle(std::string & name,
   G4String value     = name;
   DDSpecificsFilter filter0;
   DDValue           ddv0(attribute,value,0);
-  filter0.setCriteria(ddv0,DDSpecificsFilter::equals);
+  filter0.setCriteria(ddv0,DDCompOp::equals);
   DDFilteredView fv0(cpv);
   fv0.addFilter(filter0);
   if (fv0.firstChild()) {
@@ -62,7 +62,7 @@ HFShowerFibreBundle::HFShowerFibreBundle(std::string & name,
   value     = "HFPMT";
   DDSpecificsFilter filter1;
   DDValue           ddv1(attribute,value,0);
-  filter1.setCriteria(ddv1,DDSpecificsFilter::equals);
+  filter1.setCriteria(ddv1,DDCompOp::equals);
   DDFilteredView fv1(cpv);
   fv1.addFilter(filter1);
   if (fv1.firstChild()) {

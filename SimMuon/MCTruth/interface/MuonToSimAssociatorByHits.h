@@ -6,13 +6,13 @@
 #include "SimMuon/MCTruth/interface/MuonToSimAssociatorBase.h"
 
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHitsHelper.h"
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 
 class MuonToSimAssociatorByHits : public MuonToSimAssociatorBase {
   
  public:
   
   MuonToSimAssociatorByHits (const edm::ParameterSet& conf, edm::ConsumesCollector && iC);   
-  MuonToSimAssociatorByHits (const edm::ParameterSet& conf);   
   ~MuonToSimAssociatorByHits();
 
 
@@ -31,6 +31,7 @@ class MuonToSimAssociatorByHits : public MuonToSimAssociatorBase {
 
   MuonAssociatorByHitsHelper helper_;
   edm::ParameterSet const conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
 };
 

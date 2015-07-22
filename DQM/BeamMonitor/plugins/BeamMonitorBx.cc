@@ -294,7 +294,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
       if (createHisto) {
 	edm::LogInfo("BX|BeamMonitorBx") << "histName = " << histName << "; histTitle = " << histTitle << std::endl;
 	hst[histName] = dbe_->book1D(histName,histTitle,40,0.5,40.5);
-	hst[histName]->getTH1()->SetBit(TH1::kCanRebin);
+	hst[histName]->getTH1()->SetCanExtend(TH1::kAllAxes);
 	hst[histName]->setAxisTitle(xtitle,1);
 	hst[histName]->setAxisTitle(ytitle,2);
 	hst[histName]->getTH1()->SetOption("E1");
@@ -321,7 +321,7 @@ void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMa
 
   hst[histName] = dbe_->book1D(histName,"Number of Good Reconstructed Vertices",40,0.5,40.5);
   hst[histName]->setAxisTitle(xtitle,1);
-  hst[histName]->getTH1()->SetBit(TH1::kCanRebin);
+  hst[histName]->getTH1()->SetCanExtend(TH1::kAllAxes);
   hst[histName]->getTH1()->SetOption("E1");
 
 }

@@ -15,12 +15,15 @@ using namespace std;
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
                                                     uint32_t FG_threshold, uint32_t ZS_threshold,
                                                     int numberOfSamples, int numberOfPresamples,
+                                                    int numberOfSamplesHF, int numberOfPresamplesHF,
                                                     uint32_t minSignalThreshold, uint32_t PMT_NoiseThreshold)
                                                    : incoder_(0), outcoder_(0),
                                                    theThreshold(0), peakfind_(pf), weights_(w), latency_(latency),
                                                    FG_threshold_(FG_threshold), ZS_threshold_(ZS_threshold),
                                                    numberOfSamples_(numberOfSamples),
                                                    numberOfPresamples_(numberOfPresamples),
+                                                   numberOfSamplesHF_(numberOfSamplesHF),
+                                                   numberOfPresamplesHF_(numberOfPresamplesHF),
                                                    minSignalThreshold_(minSignalThreshold),
                                                    PMT_NoiseThreshold_(PMT_NoiseThreshold),
                                                    peak_finder_algorithm_(2)
@@ -29,6 +32,8 @@ HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<d
    if (!peakfind_){
       numberOfSamples_ = 1; 
       numberOfPresamples_ = 0;
+      numberOfSamplesHF_ = 1; 
+      numberOfPresamplesHF_ = 0;
    }
    // Switch to integer for comparisons - remove compiler warning
    ZS_threshold_I_ = ZS_threshold_;
@@ -126,7 +131,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
       addSignal(zero_samples);
 
       // Mask off depths: fgid is the same for both depths
-      uint32_t fgid = (frame.id().rawId() | 0x1c000) ;
+      uint32_t fgid = (frame.id().maskDepth());
 
       if ( theTowerMapFGSum.find(ids[0]) == theTowerMapFGSum.end() ) {
          SumFGContainer sumFG;
@@ -262,10 +267,10 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
 
    // Align digis and TP
    int dgPresamples=samples.presamples(); 
-   int tpPresamples=numberOfPresamples_;
+   int tpPresamples=numberOfPresamplesHF_;
    int shift = dgPresamples - tpPresamples;
    int dgSamples=samples.size();
-   int tpSamples=numberOfSamples_;
+   int tpSamples=numberOfSamplesHF_;
    if(shift<0 || shift+tpSamples>dgSamples){
 	edm::LogInfo("HcalTriggerPrimitiveAlgo::analyzeHF") << 
 	    "TP presample or size from the configuration file is out of the accessible range. Using digi values from data instead...";

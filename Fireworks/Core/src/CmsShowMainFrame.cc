@@ -91,6 +91,13 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    CSGAction *loadConfig   = new CSGAction(this, cmsshow::sLoadConfig.c_str());
    CSGAction *saveConfig   = new CSGAction(this, cmsshow::sSaveConfig.c_str());
    CSGAction *saveConfigAs = new CSGAction(this, cmsshow::sSaveConfigAs.c_str());
+
+
+   CSGAction *loadPartialConfig   = new CSGAction(this, cmsshow::sLoadPartialConfig.c_str());
+   CSGAction *savePartialConfig   = new CSGAction(this, cmsshow::sSavePartialConfig.c_str());
+   CSGAction *savePartialConfigAs = new CSGAction(this, cmsshow::sSavePartialConfigAs.c_str());
+
+
    CSGAction *exportImage  = new CSGAction(this, cmsshow::sExportImage.c_str());
    CSGAction *exportImages = new CSGAction(this, cmsshow::sExportAllImages.c_str());
    CSGAction *quit = new CSGAction(this, cmsshow::sQuit.c_str());
@@ -155,9 +162,19 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    appendData->createMenuEntry(fileMenu);
    searchFiles->createMenuEntry(fileMenu);
    //searchFiles->disable();
+
+   fileMenu->AddSeparator();
    loadConfig->createMenuEntry(fileMenu);
    saveConfig->createMenuEntry(fileMenu);
    saveConfigAs->createMenuEntry(fileMenu);
+
+ 
+   TGPopupMenu*  partialSaveMenu = new TGPopupMenu(gClient->GetRoot());
+   fileMenu->AddPopup("Advanced Configuration", partialSaveMenu);
+
+   loadPartialConfig->createMenuEntry(partialSaveMenu);
+   savePartialConfig->createMenuEntry(partialSaveMenu);
+   savePartialConfigAs->createMenuEntry(partialSaveMenu);
    fileMenu->AddSeparator();
     
    exportImage->createMenuEntry(fileMenu);
@@ -171,8 +188,13 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    saveConfig->createShortcut(kKey_S, "CTRL", GetId());
    saveConfigAs->createShortcut(kKey_S, "CTRL+SHIFT", GetId());
    exportImage->createShortcut(kKey_P, "CTRL", GetId());
-   exportImages->createShortcut(kKey_P, "CTRL+SHIFT", GetId());
+   // comment out the followinf one, seems to get double open file dialog events on OSX
+   // exportImages->createShortcut(kKey_P, "CTRL+SHIFT", GetId());
    quit->createShortcut(kKey_Q, "CTRL", GetId());
+
+   loadPartialConfig->createShortcut(kKey_W, "CTRL", GetId());
+   savePartialConfig->createShortcut(kKey_Y, "CTRL", GetId());
+   savePartialConfigAs->createShortcut(kKey_Y, "CTRL+SHIFT", GetId());
 
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
@@ -664,6 +686,7 @@ void CmsShowMainFrame::HandleMenu(Int_t id) {
 }
 
 Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
+
    if (event->fType == kGKeyPress) {
       const std::vector<CSGAction*>& alist = getListOfActions();
       std::vector<CSGAction*>::const_iterator it_act;
@@ -681,6 +704,15 @@ Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
             //  return kTRUE;
             return false;
          }
+      }
+
+      // special case is --live option where Space key is grabbed
+      static UInt_t spacecode =  gVirtualX->KeysymToKeycode((int)kKey_Space);
+      if (event->fCode == spacecode && event->fState == 0 ) {
+          if (playEventsAction()->isRunning() )
+              playEventsAction()->switchMode();
+          else if (playEventsBackwardsAction()->isRunning() )
+              playEventsBackwardsAction()->switchMode();
       }
    }
    return kFALSE;

@@ -14,9 +14,13 @@ process.MessageLogger.cerr =  cms.untracked.PSet(
     resolution = cms.untracked.PSet(limit = cms.untracked.int32(-1))
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+process.GlobalTag.globaltag = ''
+
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
+process.DTGeometryESModule.fromDDD = False
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("DQMServices.Core.DQM_cfg")
@@ -58,4 +62,4 @@ process.resolutionTest.readFile = cms.untracked.bool(True)
 
 process.dtValidSequence = cms.Sequence(process.resolutionTest*process.qTester)
 process.validation_step = cms.Path(process.dtValidSequence)
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''

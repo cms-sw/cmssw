@@ -31,6 +31,7 @@ class G4ExcitedStringDecay;
 class G4LundStringFragmentation;
 class G4GeneratorPrecompoundInterface;
 class G4CascadeInterface;
+class G4DiffuseElastic;
 class G4PhysicsLogVector;
 
 static const int numHadrons = 30;
@@ -68,6 +69,7 @@ private:
   G4GeneratorPrecompoundInterface* theCascade; 
 
   G4CascadeInterface* theBertiniCascade;
+  G4DiffuseElastic* theDiffuseElastic;
 
   G4Step* dummyStep;
   G4Track* currTrack;
@@ -84,6 +86,9 @@ private:
 
   double theDistCut;
   double distMin;
+
+  double intLengthElastic;
+  double intLengthInelastic;
 
   int currIdx;
   size_t index;

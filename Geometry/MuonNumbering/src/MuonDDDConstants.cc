@@ -20,8 +20,8 @@ MuonDDDConstants::MuonDDDConstants( const DDCompactView& cpv ) {
   
   DDSpecificsFilter filter;
   filter.setCriteria(val,
-		     DDSpecificsFilter::not_equals,
-		     DDSpecificsFilter::AND, 
+		     DDCompOp::not_equals,
+		     DDLogOp::AND, 
 		     true, // compare strings otherwise doubles
 		     true  // use merged-specifics or simple-specifics
 		     );

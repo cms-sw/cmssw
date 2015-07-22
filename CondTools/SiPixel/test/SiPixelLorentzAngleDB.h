@@ -46,6 +46,7 @@ class SiPixelLorentzAngleDB : public edm::EDAnalyzer
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters BPixParameters_;
   Parameters FPixParameters_;
+  Parameters ModuleParameters_;
 
   std::string fileName_;
   bool useFile_;

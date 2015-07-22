@@ -2,7 +2,9 @@
 #define CALIBFORMATS_HCALOBJECTS_HCALCALIBRATIONSSET_H 1
 
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
+#include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include <vector>
 
 /** \class HcalCalibrationsSet
@@ -18,7 +20,9 @@ public:
   void clear();
 private:
   struct CalibSetObject {
-    CalibSetObject(const DetId& aid) : id(aid) { }
+    CalibSetObject(const DetId& aid) {
+      id = hcalTransformedId(aid);
+    }
     DetId id;
     HcalCalibrations calib;
     bool operator<(const CalibSetObject& cso) const { return id < cso.id; }

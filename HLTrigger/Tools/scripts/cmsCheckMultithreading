@@ -1,0 +1,39 @@
+#! /bin/bash
+
+if [ ! "$1" ]; then
+  echo "usage: $0 CONFIG"
+  echo 
+  echo "Check if the modules used by the CONFIG python file are 'legacy', 'global', 'stream' or 'one' modules, and if they implement the 'fillDescriptions()' method."
+  exit 1
+fi
+
+cat "$1" | grep 'cms\.EDAnalyzer\|cms\.EDFilter\|cms\.EDProducer\|cms\.OutputModule' | cut -d'"' -f2 | sort -u | while read MODULE
+do
+  edmPluginHelp -p $MODULE | {
+    read N CLASS TYPE P
+    read
+    if [ ! "$CLASS" ]; then
+      printf "%-64s%-64s%-16s%-16s%s\n" $MODULE "--" "--" "--" "--"
+    else
+      FILL=`grep -q "not implemented the function" && echo "no" || echo "yes"`
+      PACKAGE=`cmsglimpse -w -y $CLASS | grep ":\s*DEFINE_FWK_MODULE.*\<$CLASS\>" | cut -d/ -f2-3 | sort -u | head -n1`
+      if ! [ "$PACKAGE" ] && [ "$CMSSW_RELEASE_BASE" ]; then
+        PACKAGE=`grep "^\s*DEFINE_FWK_MODULE.*\<$CLASS\>" -rl $CMSSW_RELEASE_BASE/src/ | sed -e"s|$CMSSW_RELEASE_BASE/src/||g" | cut -d/ -f-2 | sort -u | head -n1`
+      fi
+      if ! [ "$PACKAGE" ]; then
+        PACKAGE=`grep "^\s*DEFINE_FWK_MODULE.*\<$CLASS\>" -rl $CMSSW_BASE/src/ | sed -e"s|$CMSSW_BASE/src/||g" | cut -d/ -f-2 | sort -u | head -n1`
+      fi
+      if ! [ "$PACKAGE" ]; then
+        PACKAGE="--"
+      fi
+      TYPE=`echo $TYPE | sed -e's/[()]//g'`
+      MT=`echo $TYPE | cut -s -d: -f1`
+      ED=`echo $TYPE | cut -s -d: -f3`
+      if ! [ "$MT" ]; then
+        MT="legacy"
+        ED="$TYPE"
+      fi
+      printf "%-64s%-64s%-16s%-16s%s\n" $MODULE $PACKAGE $ED $MT $FILL
+    fi
+  }
+done

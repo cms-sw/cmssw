@@ -255,7 +255,7 @@ namespace edm {
     // really needed, we should remove them.
 
     std::shared_ptr<ActivityRegistry>           actReg_;
-    std::shared_ptr<ProductRegistry const>      preg_;
+    std::shared_ptr<ProductRegistry>            preg_;
     std::shared_ptr<BranchIDListHelper>         branchIDListHelper_;
     std::shared_ptr<ThinnedAssociationsHelper>  thinnedAssociationsHelper_;
     ServiceToken                                  serviceToken_;

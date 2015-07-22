@@ -25,5 +25,5 @@ b2gDiJetHLTValidation = cms.EDAnalyzer('B2GHadronicHLTValidation',
         minJets      = cms.untracked.uint32(2),
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p41']),
+        vsPaths      = cms.untracked.vstring(['HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p45']),
 )

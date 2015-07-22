@@ -19,8 +19,8 @@ DTGeometryParserFromDDD::DTGeometryParserFromDDD(const DDCompactView* cview, con
     // Asking only for the Muon DTs
     DDSpecificsFilter filter;
     filter.setCriteria(val,  // name & value of a variable 
-		       DDSpecificsFilter::matches,
-		       DDSpecificsFilter::AND, 
+		       DDCompOp::matches,
+		       DDLogOp::AND, 
 		       true, // compare strings otherwise doubles
 		       true  // use merged-specifics or simple-specifics
 		       );

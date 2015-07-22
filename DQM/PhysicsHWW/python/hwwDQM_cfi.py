@@ -1,5 +1,4 @@
 from DQM.PhysicsHWW.hwwAnalyzer_cfi import *
-from DQM.PhysicsHWW.puJetIDAlgo_cff import *
 from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi import *
 from RecoBTag.Configuration.RecoBTag_cff import *
 

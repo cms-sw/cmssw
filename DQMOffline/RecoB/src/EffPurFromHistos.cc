@@ -150,6 +150,7 @@ EffPurFromHistos::EffPurFromHistos (const FlavourHistograms<double> * dDiscrimin
 
   // divide to get efficiency vs. discriminator cut from absolute numbers
   discrCutEfficScan->divide ( *discrNoCutEffic );  // does: histos including discriminator cut / flat histo
+  discrCutEfficScan->setEfficiencyFlag();
 }
 
 
@@ -478,10 +479,15 @@ void EffPurFromHistos::compute (DQMStore::IBooker & ibook)
   HistoProviderDQM prov("Btag",label_,ibook);
   if(mcPlots_>2){
     EffFlavVsBEff_d    = (prov.book1D ( hB + "D"    + hE , hB + "D"    + hE , nBinOutput , startOutput , endOutput ));
+    EffFlavVsBEff_d->setEfficiencyFlag();
     EffFlavVsBEff_u    = (prov.book1D ( hB + "U"    + hE , hB + "U"    + hE , nBinOutput , startOutput , endOutput )) ;
+    EffFlavVsBEff_u->setEfficiencyFlag();
     EffFlavVsBEff_s    = (prov.book1D ( hB + "S"    + hE , hB + "S"    + hE , nBinOutput , startOutput , endOutput )) ;
+    EffFlavVsBEff_s->setEfficiencyFlag();
     EffFlavVsBEff_g    = (prov.book1D ( hB + "G"    + hE , hB + "G"    + hE , nBinOutput , startOutput , endOutput )) ;
+    EffFlavVsBEff_g->setEfficiencyFlag();
     EffFlavVsBEff_dus  = (prov.book1D ( hB + "DUS"  + hE , hB + "DUS"  + hE , nBinOutput , startOutput , endOutput )) ;
+    EffFlavVsBEff_dus->setEfficiencyFlag();
   }
   else {
     EffFlavVsBEff_d = 0;
@@ -491,10 +497,15 @@ void EffPurFromHistos::compute (DQMStore::IBooker & ibook)
     EffFlavVsBEff_dus = 0;
   }
   EffFlavVsBEff_c    = (prov.book1D ( hB + "C"    + hE , hB + "C"    + hE , nBinOutput , startOutput , endOutput )) ;
+  EffFlavVsBEff_c->setEfficiencyFlag();
   EffFlavVsBEff_b    = (prov.book1D ( hB + "B"    + hE , hB + "B"    + hE , nBinOutput , startOutput , endOutput )) ;
+  EffFlavVsBEff_b->setEfficiencyFlag();
   EffFlavVsBEff_ni   = (prov.book1D ( hB + "NI"   + hE , hB + "NI"   + hE , nBinOutput , startOutput , endOutput )) ;
+  EffFlavVsBEff_ni->setEfficiencyFlag();
   EffFlavVsBEff_dusg = (prov.book1D ( hB + "DUSG" + hE , hB + "DUSG" + hE , nBinOutput , startOutput , endOutput )) ;
+  EffFlavVsBEff_dusg->setEfficiencyFlag();
   EffFlavVsBEff_pu   = (prov.book1D ( hB + "PU"   + hE , hB + "PU"   + hE , nBinOutput , startOutput , endOutput )) ;
+  EffFlavVsBEff_pu->setEfficiencyFlag();
 
   if(mcPlots_>2){
     EffFlavVsBEff_d->getTH1F()->SetXTitle ( "b-jet efficiency" );

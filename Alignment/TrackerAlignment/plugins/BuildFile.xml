@@ -3,6 +3,7 @@
 <library   name="AlignmentTrackerAlignmentPlugin" file="*Misalign*.cc">
   <use   name="Alignment/TrackerAlignment"/>
   <use   name="CondFormats/Alignment"/>
+  <use   name="CondFormats/GeometryObjects"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 

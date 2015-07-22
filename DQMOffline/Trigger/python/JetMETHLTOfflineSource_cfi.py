@@ -46,7 +46,8 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
                                        "HLT_DiPFJetAve",
                                        "HLT_PFMET",
                                        "HLT_PFchMET",
-                                       "HLT_MET"),
+                                       "HLT_MET",
+                                       "HLT_CaloMET"),
     pathRejectKeyword = cms.untracked.vstring("dEdx","NoBPTX"),
     #
     pathPairs = cms.VPSet(

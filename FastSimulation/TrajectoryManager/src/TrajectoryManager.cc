@@ -76,7 +76,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
        matEff.getParameter<bool>("MultipleScattering") || 
        matEff.getParameter<bool>("NuclearInteraction")
        )
-       theMaterialEffects = new MaterialEffects(matEff);
+    theMaterialEffects = new MaterialEffects(matEff);
 
   // Save SimHits according to Optiom
   // Only the hits from first half loop is saved
@@ -135,8 +135,8 @@ TrajectoryManager::~TrajectoryManager() {
 
   //Write the histograms
   /*
-  myHistos->put("histos.root");
-  if ( myHistos ) delete myHistos;
+    myHistos->put("histos.root");
+    if ( myHistos ) delete myHistos;
   */
 }
 
@@ -297,10 +297,10 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 	      createPSimHits(*cyliter, PP, thePSimHits[fsimi], fsimi,mySimEvent->track(fsimi).type(), tTopo);
 
 	    /*
-	    myHistos->fill("h302",PP.X() ,PP.Y());
-	    if ( sin(PP.vertex().Phi()) > 0. ) 
+	      myHistos->fill("h302",PP.X() ,PP.Y());
+	      if ( sin(PP.vertex().Phi()) > 0. ) 
 	      myHistos->fill("h303",PP.Z(),PP.R());
-	    else
+	      else
 	      myHistos->fill("h303",PP.Z(),-PP.R());
 	    */
 
@@ -309,11 +309,11 @@ TrajectoryManager::reconstruct(const TrackerTopology *tTopo, RandomEngineAndDist
 
 	// Fill Histos (~poor man event display)
 	/*	 
-	myHistos->fill("h300",PP.x(),PP.y());
-	if ( sin(PP.vertex().phi()) > 0. ) 
-	  myHistos->fill("h301",PP.z(),sqrt(PP.vertex().Perp2()));
-	else
-	  myHistos->fill("h301",PP.z(),-sqrt(PP.vertex().Perp2()));
+		 myHistos->fill("h300",PP.x(),PP.y());
+		 if ( sin(PP.vertex().phi()) > 0. ) 
+		 myHistos->fill("h301",PP.z(),sqrt(PP.vertex().Perp2()));
+		 else
+		 myHistos->fill("h301",PP.z(),-sqrt(PP.vertex().Perp2()));
 	*/
 
 	//The particle may have lost its energy in the material
@@ -485,7 +485,7 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi, Random
     // Move, rescale and rotate daugthers, grand-daughters, etc. 
     moveAllDaughters(fsimi,r,rescale);
 
-  // The particle is not decayed in the GenEvent, decay it with PYTHIA 
+    // The particle is not decayed in the GenEvent, decay it with PYTHIA 
   } else { 
 
     // Decays are not activated : do nothing
@@ -560,9 +560,9 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   AnalyticalPropagator alongProp(&mf, anyDirection);
   InsideBoundsMeasurementEstimator est;
 
-//   std::cout << "PP.X() = " << PP.X() << std::endl;
-//   std::cout << "PP.Y() = " << PP.Y() << std::endl;
-//   std::cout << "PP.Z() = " << PP.Z() << std::endl;
+  //   std::cout << "PP.X() = " << PP.X() << std::endl;
+  //   std::cout << "PP.Y() = " << PP.Y() << std::endl;
+  //   std::cout << "PP.Z() = " << PP.Z() << std::endl;
   
   typedef GeometricSearchDet::DetWithState   DetWithState;
   const DetLayer* tkLayer = detLayer(layer,PP.Z());
@@ -678,9 +678,9 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
 
   // FIXME: fix the track ID and the particle ID
   PSimHit hit( entry, exit, lmom.mag(), tof, eloss, pID,
-		  det.geographicalId().rawId(), localTkID,
-		  lmom.theta(),
-		  lmom.phi());
+	       det.geographicalId().rawId(), localTkID,
+	       lmom.theta(),
+	       lmom.phi());
 
   // Check that the PSimHit is physically on the module!
   unsigned subdet = DetId(hit.detUnitId()).subdetId(); 
@@ -792,19 +792,19 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
     -( det.surface().toGlobal(hit.localPosition()) - IP ).mag2() 
     : 
     // These hits are kept!
-     ( det.surface().toGlobal(hit.localPosition()) - IP ).mag2();
+    ( det.surface().toGlobal(hit.localPosition()) - IP ).mag2();
 
   // Fill Histos (~poor man event display)
   /*  
-     GlobalPoint gpos( det.toGlobal(hit.localPosition()));
-//      std::cout << "gpos.x() = " << gpos.x() << std::endl;
-//      std::cout << "gpos.y() = " << gpos.y() << std::endl;
+      GlobalPoint gpos( det.toGlobal(hit.localPosition()));
+      //      std::cout << "gpos.x() = " << gpos.x() << std::endl;
+      //      std::cout << "gpos.y() = " << gpos.y() << std::endl;
 
-     myHistos->fill("h300",gpos.x(),gpos.y());
-     if ( sin(gpos.phi()) > 0. ) 
-     myHistos->fill("h301",gpos.z(),gpos.perp());
-     else
-     myHistos->fill("h301",gpos.z(),-gpos.perp());
+      myHistos->fill("h300",gpos.x(),gpos.y());
+      if ( sin(gpos.phi()) > 0. ) 
+      myHistos->fill("h301",gpos.z(),gpos.perp());
+      else
+      myHistos->fill("h301",gpos.z(),-gpos.perp());
   */
   return std::pair<double,PSimHit>(dist,hit);
 
@@ -814,16 +814,16 @@ void
 TrajectoryManager::initializeLayerMap()
 {
 
-// These are the BoundSurface&, the BoundDisk* and the BoundCylinder* for that layer
-//   const BoundSurface& theSurface = layer.surface();
-//   BoundDisk* theDisk = layer.disk();  // non zero for endcaps
-//   BoundCylinder* theCylinder = layer.cylinder(); // non zero for barrel
-//   int theLayer = layer.layerNumber(); // 1->3 PixB, 4->5 PixD, 
-//                                       // 6->9 TIB, 10->12 TID, 
-//                                       // 13->18 TOB, 19->27 TEC
+  // These are the BoundSurface&, the BoundDisk* and the BoundCylinder* for that layer
+  //   const BoundSurface& theSurface = layer.surface();
+  //   BoundDisk* theDisk = layer.disk();  // non zero for endcaps
+  //   BoundCylinder* theCylinder = layer.cylinder(); // non zero for barrel
+  //   int theLayer = layer.layerNumber(); // 1->3 PixB, 4->5 PixD, 
+  //                                       // 6->9 TIB, 10->12 TID, 
+  //                                       // 13->18 TOB, 19->27 TEC
 
-/// ATTENTION: HARD CODED LOGIC! If Famos layer numbering changes this logic needs to 
-/// be adapted to the new numbering!
+  /// ATTENTION: HARD CODED LOGIC! If Famos layer numbering changes this logic needs to 
+  /// be adapted to the new numbering!
 
   const std::vector< const BarrelDetLayer*>&   barrelLayers = 
     theGeomSearchTracker->barrelLayers();
@@ -839,11 +839,11 @@ TrajectoryManager::initializeLayerMap()
   for (auto fl=posForwardLayers.begin();
        fl != posForwardLayers.end(); ++fl) {
     LogDebug("FastTracking") << "Z pos "
-			    << (**fl).surface().position().z()
-			    << " radii " 
-			    << (**fl).specificSurface().innerRadius() 
-			    << ", " 
-			    << (**fl).specificSurface().outerRadius(); 
+			     << (**fl).surface().position().z()
+			     << " radii " 
+			     << (**fl).specificSurface().innerRadius() 
+			     << ", " 
+			     << (**fl).specificSurface().outerRadius(); 
   }
 
   const float rTolerance = 1.5;
@@ -856,8 +856,8 @@ TrajectoryManager::initializeLayerMap()
     const BoundDisk* disk = i->disk();
 
     LogDebug("FastTracking") << "Famos Layer no " << i->layerNumber()
-			    << " is sensitive? " << i->sensitive()
-			    << " pos " << i->surface().position();
+			     << " is sensitive? " << i->sensitive()
+			     << " pos " << i->surface().position();
     if (!i->sensitive()) continue;
 
     if (cyl != 0) {
@@ -870,7 +870,7 @@ TrajectoryManager::initializeLayerMap()
 	  theLayerMap[i->layerNumber()] = *bl;
 	  found = true;
 	  LogDebug("FastTracking")<< "Corresponding DetLayer found with radius "
-				 << (**bl).specificSurface().radius();
+				  << (**bl).specificSurface().radius();
 	  break;
 	}
       }
@@ -880,7 +880,7 @@ TrajectoryManager::initializeLayerMap()
     }
     else {
       LogDebug("FastTracking") << " disk radii " << disk->innerRadius() 
-		 << ", " << disk->outerRadius();
+			       << ", " << disk->outerRadius();
       bool found = false;
       for (auto fl=posForwardLayers.begin();
 	   fl != posForwardLayers.end(); ++fl) {
@@ -889,11 +889,11 @@ TrajectoryManager::initializeLayerMap()
 	  theLayerMap[i->layerNumber()] = *fl;
 	  found = true;
 	  LogDebug("FastTracking") << "Corresponding DetLayer found with Z pos "
-				  << (**fl).surface().position().z()
-				  << " and radii " 
-				  << (**fl).specificSurface().innerRadius() 
-				  << ", " 
-				  << (**fl).specificSurface().outerRadius(); 
+				   << (**fl).surface().position().z()
+				   << " and radii " 
+				   << (**fl).specificSurface().innerRadius() 
+				   << ", " 
+				   << (**fl).specificSurface().outerRadius(); 
 	  break;
 	}
       }
@@ -904,7 +904,7 @@ TrajectoryManager::initializeLayerMap()
   }
 
   // Put the negative layers in the same map but with an offset
- const  std::vector< const ForwardDetLayer*>&  negForwardLayers = theGeomSearchTracker->negForwardLayers();
+  const  std::vector< const ForwardDetLayer*>&  negForwardLayers = theGeomSearchTracker->negForwardLayers();
   for (auto nl=negForwardLayers.begin();
        nl != negForwardLayers.end(); ++nl) {
     for (int i=0; i<=theNegLayerOffset; i++) {
@@ -936,12 +936,12 @@ TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
     std::map<double,PSimHit>::const_iterator itEnd = (itrack->second).end();
     for( ; it!= itEnd; ++it) { 
       /*
-      DetId theDetUnitId((it->second).detUnitId());
-      const GeomDet* theDet = theGeomTracker->idToDet(theDetUnitId);
-      std::cout << "Track/z/r after : "
-		<< (it->second).trackId() << " " 
-		<< theDet->surface().toGlobal((it->second).localPosition()).z() << " " 
-		<< theDet->surface().toGlobal((it->second).localPosition()).perp() << std::endl;
+	DetId theDetUnitId((it->second).detUnitId());
+	const GeomDet* theDet = theGeomTracker->idToDet(theDetUnitId);
+	std::cout << "Track/z/r after : "
+	<< (it->second).trackId() << " " 
+	<< theDet->surface().toGlobal((it->second).localPosition()).z() << " " 
+	<< theDet->surface().toGlobal((it->second).localPosition()).perp() << std::endl;
       */
       // Keep only those hits that are on the physical volume of a module
       // (The other hits have been assigned a negative <double> value. 

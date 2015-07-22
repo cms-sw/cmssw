@@ -40,7 +40,8 @@ HiProtoTrackFilterBlock = cms.PSet(
 
 HiConformalPixelFilterBlock = cms.PSet(
     ComponentName = cms.string( "HIPixelTrackFilter" ),
-    ptMin = cms.double( 0.2 ),
+    clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache"),
+    ptMin = cms.double( 0.25 ),
     chi2 = cms.double( 80.0 ),
     useClusterShape = cms.bool( False ),
     VertexCollection = cms.InputTag("hiSelectedVertex"),
