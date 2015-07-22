@@ -50,6 +50,10 @@
 //STL includes
 #include <memory>
 #include <string>
+#include <vector>
+#include <initializer_list>
+
+
 
 //forward declarations
 namespace coral {
@@ -132,6 +136,10 @@ private:
   MonitorElement* h_jPhi_leading;
   
   MonitorElement* h_ePt_diff;
+
+  std::vector <MonitorElement *> histogramsPerLumi;
+  std::vector <MonitorElement *> histogramsPerRun;
+  double test_entries;
   
   //CORAL connection
   coral::ConnectionService m_connectionService;

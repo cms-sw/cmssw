@@ -42,8 +42,12 @@
 //
 DQMExample_Step1::DQMExample_Step1(const edm::ParameterSet& ps): m_connectionService(), m_session(), m_connectionString( "" )
 {
-  edm::LogInfo("DQMExample_Step1") <<  "Constructor  DQMExample_Step1::DQMExample_Step1 " << std::endl;
+  //edm::LogInfo("DQMExample_Step1") <<  "Constructor  DQMExample_Step1::DQMExample_Step1 " << std::endl;
   
+  std::cout << "\t###" << std::endl;
+  std::cout << "DQMExample_Step1" << std::endl;
+  std::cout << "\t###" << std::endl;
+
   // Get parameters from configuration file
   theElectronCollection_   = consumes<reco::GsfElectronCollection>(ps.getParameter<edm::InputTag>("electronCollection"));
   theCaloJetCollection_    = consumes<reco::CaloJetCollection>(ps.getParameter<edm::InputTag>("caloJetCollection"));
@@ -131,8 +135,15 @@ DQMExample_Step1::~DQMExample_Step1()
 //
 void DQMExample_Step1::dqmBeginRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
+  std::cout << "\t###" << std::endl;
+  std::cout << "dqmBeginRun" << std::endl;
+  std::cout << "\t###" << std::endl;
+
+  test_entries = 0;
+
+
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginRun" << std::endl;
-//open the CORAL session at beginRun:
+  //open the CORAL session at beginRun:
   //connect to DB only if you have events to process!
   m_session.reset( m_connectionService.connect( m_connectionString, coral::Update ) );
   //do not run in production!
@@ -276,26 +287,12 @@ void DQMExample_Step1::dqmBeginRun(edm::Run const& run, edm::EventSetup const& e
 
     schema.createTable( table3 );
     std::cout << "Table3 created" << std::endl;
-
   }
   m_session->transaction().commit();
 
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endLuminosityBlock" << std::endl;
 
   m_session->transaction().start(false);
-  coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM" ).dataEditor();
-  coral::AttributeList insertData;
-  insertData.extend< std::string >( "NAME" );
-  insertData.extend< std::string >( "PATH" );
-  insertData.extend< unsigned int >( "TIMESTAMP" );
-  insertData.extend< std::string >( "TITLE" );
-
-  insertData[ "NAME" ].data< std::string >() = h_vertex_number->getName();
-  insertData[ "PATH" ].data< std::string >() = h_vertex_number->getPathname();
-  insertData[ "TIMESTAMP" ].data< unsigned int >() = std::time(nullptr);
-  insertData[ "TITLE" ].data< std::string >() = h_vertex_number->getFullname();
-  editor.insertRow( insertData );
-  m_session->transaction().commit();
 }
 
 //
@@ -303,8 +300,11 @@ void DQMExample_Step1::dqmBeginRun(edm::Run const& run, edm::EventSetup const& e
 //
 void DQMExample_Step1::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
 {
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::bookHistograms" << std::endl;
-  
+  //edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::bookHistograms" << std::endl;
+  std::cout << "\t###" << std::endl;
+  std::cout << "bookHistograms" << std::endl;
+  std::cout << "\t###" << std::endl;
+
   //book at beginRun
   bookHistos(ibooker_);
 }
@@ -314,7 +314,10 @@ void DQMExample_Step1::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run con
 void DQMExample_Step1::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, 
                                             edm::EventSetup const& context) 
 {
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginLuminosityBlock" << std::endl;
+  //edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginLuminosityBlock" << std::endl;
+  std::cout << "\t###" << std::endl;
+  std::cout << "beginLuminosityBlock" << std::endl;
+  std::cout << "\t###" << std::endl;
 }
 
 
@@ -323,8 +326,10 @@ void DQMExample_Step1::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 //
 void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::analyze" << std::endl;
-
+  //edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::analyze" << std::endl;
+  std::cout << "\t###" << std::endl;
+  std::cout << "analyze" << std::endl;
+  std::cout << "\t###" << std::endl;
 
   //-------------------------------
   //--- Vertex Info
@@ -546,8 +551,12 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   //bool histogramRecordExist = false;
   bool histogramPropsRecordExist = false;
 
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endLuminosityBlock" << std::endl;
+  //edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endLuminosityBlock" << std::endl;
   //get the data from the histograms and fill the DB table
+  std::cout << "\t###" << std::endl;
+  std::cout << "endLuminosityBlock" << std::endl;
+  std::cout << "\t###" << std::endl;
+
 
   coral::ISchema& schema = m_session->nominalSchema();
  /* m_session->transaction().start(true);
@@ -591,117 +600,269 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   }
   m_session->transaction().commit();
 */
-  m_session->transaction().start(true);
-  coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery();
-  queryHistogramProps->addToOutputList( "NAME" );
-  queryHistogramProps->addToOutputList( "PATH" );
-  queryHistogramProps->addToOutputList( "RUN_NUMBER" );
+  //h_vertex_number
 
-  std::string condition = "NAME = \"" + h_vertex_number->getName() + "\" AND PATH = \"" + h_vertex_number->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(lumiSeg.run()) + "\"";
-  coral::AttributeList conditionData2;
-  queryHistogramProps->setCondition( condition, conditionData2 );
-  queryHistogramProps->setMemoryCacheSize( 5 );
-  coral::ICursor& cursor2 = queryHistogramProps->execute();
-  int numberOfRows = 0;
-  while(cursor2.next())
+  for (MonitorElement * histogram : histogramsPerLumi)
   {
-    cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
-    ++numberOfRows;
+
+    m_session->transaction().start(true);
+    coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery();
+    queryHistogramProps->addToOutputList( "NAME" );
+    queryHistogramProps->addToOutputList( "PATH" );
+    queryHistogramProps->addToOutputList( "RUN_NUMBER" );
+
+    std::string condition = "NAME = \"" + histogram->getName() + "\" AND PATH = \"" + histogram->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(lumiSeg.run()) + "\"";
+    coral::AttributeList conditionData2;
+    queryHistogramProps->setCondition( condition, conditionData2 );
+    queryHistogramProps->setMemoryCacheSize( 5 );
+    coral::ICursor& cursor2 = queryHistogramProps->execute();
+    int numberOfRows = 0;
+    while(cursor2.next())
+    {
+      cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
+      ++numberOfRows;
+    }
+    delete queryHistogramProps;
+    if ( numberOfRows == 1 )
+    {
+      histogramPropsRecordExist = true;
+    }
+    m_session->transaction().commit();
+
+    m_session->transaction().start(false);
+    if(!histogramPropsRecordExist)
+    {
+        coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_PROPS" ).dataEditor();
+        coral::AttributeList insertData;
+        insertData.extend< std::string >( "NAME" );
+        insertData.extend< std::string >( "PATH" );
+        insertData.extend< unsigned int >( "RUN_NUMBER" );
+        insertData.extend< int >( "X_BINS" );
+        insertData.extend< double >( "X_LOW" );
+        insertData.extend< double >( "X_UP" );
+        insertData.extend< int >( "Y_BINS" );
+        insertData.extend< double >( "Y_LOW" );
+        insertData.extend< double >( "Y_UP" );
+        insertData.extend< int >( "Z_BINS" );
+        insertData.extend< double >( "Z_LOW" );
+        insertData.extend< double >( "Z_UP" );
+
+        insertData[ "NAME" ].data< std::string >() = histogram->getName();
+        insertData[ "PATH" ].data< std::string >() = histogram->getPathname();
+        insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
+        insertData[ "X_BINS" ].data< int >() = histogram->getNbinsX(); //or histogram->getTH1()->GetNbinsX() ?
+        insertData[ "X_LOW" ].data< double >() = histogram->getTH1()->GetXaxis()->GetXmin();
+        insertData[ "X_UP" ].data< double >() = histogram->getTH1()->GetXaxis()->GetXmax();
+        insertData[ "Y_BINS" ].data< int >() = 0; //histogram->getNbinsY();
+        insertData[ "Y_LOW" ].data< double >() = 0.; //histogram->getTH1()->GetYaxis()->GetXMin();
+        insertData[ "Y_UP" ].data< double >() = 0.; //histogram->getTH1()->GetYaxis()->GetXMax();
+        insertData[ "Z_BINS" ].data< int >() = 0; //histogram->getNbinsZ();
+        insertData[ "Z_LOW" ].data< double >() = 0.; //histogram->getTH1()->GetZaxis()->GetXMin();
+        insertData[ "Z_UP" ].data< double >() = 0.; //histogram->getTH1()->GetZaxis()->GetXMax();
+        editor.insertRow( insertData );
+    }
+    m_session->transaction().commit();
+
+    m_session->transaction().start(false);
+
+    std::cout << "\t###" << std::endl;
+    std::cout << "endLuminosityBlock CHCE WRZUCIC: " << lumiSeg.luminosityBlock() << std::endl;
+    std::cout << "\t###" << std::endl;
+    coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
+    coral::AttributeList insertData;
+    insertData.extend< std::string >( "NAME" );
+    insertData.extend< std::string >( "PATH" );
+    insertData.extend< unsigned int >( "RUN_NUMBER" );
+    insertData.extend< unsigned int >( "LUMISECTION" );
+    insertData.extend< double >( "ENTRIES" );
+    insertData.extend< double >( "X_MEAN" );
+    insertData.extend< double >( "X_MEAN_ERROR" );
+    insertData.extend< double >( "X_RMS" );
+    insertData.extend< double >( "X_RMS_ERROR" );
+    insertData.extend< double >( "X_UNDERFLOW");
+    insertData.extend< double >( "X_OVERFLOW" );
+    insertData.extend< double >( "Y_MEAN" );
+    insertData.extend< double >( "Y_MEAN_ERROR" );
+    insertData.extend< double >( "Y_RMS" );
+    insertData.extend< double >( "Y_RMS_ERROR" );
+    insertData.extend< double >( "Y_UNDERFLOW");
+    insertData.extend< double >( "Y_OVERFLOW" );
+    insertData.extend< double >( "Z_MEAN" );
+    insertData.extend< double >( "Z_MEAN_ERROR" );
+    insertData.extend< double >( "Z_RMS" );
+    insertData.extend< double >( "Z_RMS_ERROR" );
+    insertData.extend< double >( "Z_UNDERFLOW");
+    insertData.extend< double >( "Z_OVERFLOW" );
+
+    insertData[ "NAME" ].data< std::string >() = histogram->getName();
+    insertData[ "PATH" ].data< std::string >() = histogram->getPathname();
+    insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
+    insertData[ "LUMISECTION" ].data< unsigned int >() = lumiSeg.luminosityBlock();
+    insertData[ "ENTRIES" ].data< double >() = histogram->getEntries(); //or histogram->getTH1()->GetEntries() ?
+    insertData[ "X_MEAN" ].data< double >() = histogram->getTH1()->GetMean();
+    insertData[ "X_MEAN_ERROR" ].data< double >() = histogram->getTH1()->GetMeanError();
+    insertData[ "X_RMS" ].data< double >() = histogram->getTH1()->GetRMS();
+    insertData[ "X_RMS_ERROR" ].data< double >() = histogram->getTH1()->GetRMSError();
+    insertData[ "X_UNDERFLOW" ].data< double >() = histogram->getTH1()->GetBinContent( 0 );
+    insertData[ "X_OVERFLOW" ].data< double >() = histogram->getTH1()->GetBinContent( histogram->getTH1()->GetNbinsX() + 1 );
+    insertData[ "Y_MEAN" ].data< double >() = histogram->getTH1()->GetMean( 2 );
+    insertData[ "Y_MEAN_ERROR" ].data< double >() = histogram->getTH1()->GetMeanError( 2 );
+    insertData[ "Y_RMS" ].data< double >() = histogram->getTH1()->GetRMS( 2 );
+    insertData[ "Y_RMS_ERROR" ].data< double >() = histogram->getTH1()->GetRMSError( 2 );
+    insertData[ "Y_UNDERFLOW" ].data< double >() = 0.;
+    insertData[ "Y_OVERFLOW" ].data< double >() = 0.;
+    insertData[ "Z_MEAN" ].data< double >() = histogram->getTH1()->GetMean( 3 );
+    insertData[ "Z_MEAN_ERROR" ].data< double >() = histogram->getTH1()->GetMeanError( 3 );
+    insertData[ "Z_RMS" ].data< double >() = histogram->getTH1()->GetRMS( 3 );
+    insertData[ "Z_RMS_ERROR" ].data< double >() = histogram->getTH1()->GetRMSError( 3 );
+    insertData[ "Z_UNDERFLOW" ].data< double >() = 0.;
+    insertData[ "Z_OVERFLOW" ].data< double >() = 0.;
+    editor.insertRow( insertData );
+    m_session->transaction().commit();
   }
-  delete queryHistogramProps;
-  if ( numberOfRows == 1 )
+
+  test_entries += h_ePt_leading->getEntries();
+  for (MonitorElement * histogram : histogramsPerRun)
   {
-    histogramPropsRecordExist = true;
+
+    m_session->transaction().start(true);
+    coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery();
+    queryHistogramProps->addToOutputList( "NAME" );
+    queryHistogramProps->addToOutputList( "PATH" );
+    queryHistogramProps->addToOutputList( "RUN_NUMBER" );
+
+    std::string condition = "NAME = \"" + histogram->getName() + "\" AND PATH = \"" + histogram->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(lumiSeg.run()) + "\"";
+    coral::AttributeList conditionData2;
+    queryHistogramProps->setCondition( condition, conditionData2 );
+    queryHistogramProps->setMemoryCacheSize( 5 );
+    coral::ICursor& cursor2 = queryHistogramProps->execute();
+    int numberOfRows = 0;
+    while(cursor2.next())
+    {
+      cursor2.currentRow().toOutputStream( std::cout ) << std::endl;
+      ++numberOfRows;
+    }
+    delete queryHistogramProps;
+    if ( numberOfRows == 1 )
+    {
+      histogramPropsRecordExist = true;
+    }
+    m_session->transaction().commit();
+
+    m_session->transaction().start(false);
+    if(!histogramPropsRecordExist)
+    {
+        coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_PROPS" ).dataEditor();
+        coral::AttributeList insertData;
+        insertData.extend< std::string >( "NAME" );
+        insertData.extend< std::string >( "PATH" );
+        insertData.extend< unsigned int >( "RUN_NUMBER" );
+        insertData.extend< int >( "X_BINS" );
+        insertData.extend< double >( "X_LOW" );
+        insertData.extend< double >( "X_UP" );
+        insertData.extend< int >( "Y_BINS" );
+        insertData.extend< double >( "Y_LOW" );
+        insertData.extend< double >( "Y_UP" );
+        insertData.extend< int >( "Z_BINS" );
+        insertData.extend< double >( "Z_LOW" );
+        insertData.extend< double >( "Z_UP" );
+
+        insertData[ "NAME" ].data< std::string >() = histogram->getName();
+        insertData[ "PATH" ].data< std::string >() = histogram->getPathname();
+        insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
+        insertData[ "X_BINS" ].data< int >() = histogram->getNbinsX(); //or histogram->getTH1()->GetNbinsX() ?
+        insertData[ "X_LOW" ].data< double >() = histogram->getTH1()->GetXaxis()->GetXmin();
+        insertData[ "X_UP" ].data< double >() = histogram->getTH1()->GetXaxis()->GetXmax();
+        insertData[ "Y_BINS" ].data< int >() = 0; //histogram->getNbinsY();
+        insertData[ "Y_LOW" ].data< double >() = 0.; //histogram->getTH1()->GetYaxis()->GetXMin();
+        insertData[ "Y_UP" ].data< double >() = 0.; //histogram->getTH1()->GetYaxis()->GetXMax();
+        insertData[ "Z_BINS" ].data< int >() = 0; //histogram->getNbinsZ();
+        insertData[ "Z_LOW" ].data< double >() = 0.; //histogram->getTH1()->GetZaxis()->GetXMin();
+        insertData[ "Z_UP" ].data< double >() = 0.; //histogram->getTH1()->GetZaxis()->GetXMax();
+        editor.insertRow( insertData );
+    }
+    m_session->transaction().commit();
+
+/*
+    bool firstLuminosityOfRun;
+    m_session->transaction().start(true);
+    coral::IQuery* queryHistogramValues = schema.tableHandle( "HISTOGRAM_VALUES" ).newQuery();
+    queryHistogramValues->addToOutputList( "LUMISECTION" );
+
+    std::string condition2 = "NAME = \"" + histogram->getName() + "\" AND PATH = \"" + histogram->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(lumiSeg.run()) + "\"";
+    coral::AttributeList conditionData3;
+    queryHistogramValues->setCondition( condition2, conditionData3 );
+    queryHistogramValues->setMemoryCacheSize( 5 );
+    coral::ICursor& cursor3 = queryHistogramValues->execute();
+    int numberOfRows = 0;
+    std::string luminosity = cursor3.currentRow();
+    while(cursor3.next())
+    {
+      cursor3.currentRow().toOutputStream( std::cout ) << std::endl;
+      ++numberOfRows;
+    }
+    delete queryHistogramValues;
+    if ( numberOfRows == 0 )
+    {
+      firstLuminosityOfRun = true;
+    }
+    m_session->transaction().commit();
+
+    m_session->transaction().start(false);
+
+    coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
+    coral::AttributeList insertData;
+    insertData.extend< std::string >( "NAME" );
+    insertData.extend< std::string >( "PATH" );
+    insertData.extend< unsigned int >( "RUN_NUMBER" );
+    insertData.extend< unsigned int >( "LUMISECTION" );
+    insertData.extend< double >( "ENTRIES" );
+    insertData.extend< double >( "X_MEAN" );
+    insertData.extend< double >( "X_MEAN_ERROR" );
+    insertData.extend< double >( "X_RMS" );
+    insertData.extend< double >( "X_RMS_ERROR" );
+    insertData.extend< double >( "X_UNDERFLOW");
+    insertData.extend< double >( "X_OVERFLOW" );
+    insertData.extend< double >( "Y_MEAN" );
+    insertData.extend< double >( "Y_MEAN_ERROR" );
+    insertData.extend< double >( "Y_RMS" );
+    insertData.extend< double >( "Y_RMS_ERROR" );
+    insertData.extend< double >( "Y_UNDERFLOW");
+    insertData.extend< double >( "Y_OVERFLOW" );
+    insertData.extend< double >( "Z_MEAN" );
+    insertData.extend< double >( "Z_MEAN_ERROR" );
+    insertData.extend< double >( "Z_RMS" );
+    insertData.extend< double >( "Z_RMS_ERROR" );
+    insertData.extend< double >( "Z_UNDERFLOW");
+    insertData.extend< double >( "Z_OVERFLOW" );
+
+    insertData[ "NAME" ].data< std::string >() = histogram->getName();
+    insertData[ "PATH" ].data< std::string >() = histogram->getPathname();
+    insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
+    insertData[ "LUMISECTION" ].data< unsigned int >() = lumiSeg.luminosityBlock();
+    insertData[ "ENTRIES" ].data< double >() = histogram->getEntries(); //or histogram->getTH1()->GetEntries() ?
+    insertData[ "X_MEAN" ].data< double >() = histogram->getTH1()->GetMean();
+    insertData[ "X_MEAN_ERROR" ].data< double >() = histogram->getTH1()->GetMeanError();
+    insertData[ "X_RMS" ].data< double >() = histogram->getTH1()->GetRMS();
+    insertData[ "X_RMS_ERROR" ].data< double >() = histogram->getTH1()->GetRMSError();
+    insertData[ "X_UNDERFLOW" ].data< double >() = histogram->getTH1()->GetBinContent( 0 );
+    insertData[ "X_OVERFLOW" ].data< double >() = histogram->getTH1()->GetBinContent( histogram->getTH1()->GetNbinsX() + 1 );
+    insertData[ "Y_MEAN" ].data< double >() = histogram->getTH1()->GetMean( 2 );
+    insertData[ "Y_MEAN_ERROR" ].data< double >() = histogram->getTH1()->GetMeanError( 2 );
+    insertData[ "Y_RMS" ].data< double >() = histogram->getTH1()->GetRMS( 2 );
+    insertData[ "Y_RMS_ERROR" ].data< double >() = histogram->getTH1()->GetRMSError( 2 );
+    insertData[ "Y_UNDERFLOW" ].data< double >() = 0.;
+    insertData[ "Y_OVERFLOW" ].data< double >() = 0.;
+    insertData[ "Z_MEAN" ].data< double >() = histogram->getTH1()->GetMean( 3 );
+    insertData[ "Z_MEAN_ERROR" ].data< double >() = histogram->getTH1()->GetMeanError( 3 );
+    insertData[ "Z_RMS" ].data< double >() = histogram->getTH1()->GetRMS( 3 );
+    insertData[ "Z_RMS_ERROR" ].data< double >() = histogram->getTH1()->GetRMSError( 3 );
+    insertData[ "Z_UNDERFLOW" ].data< double >() = 0.;
+    insertData[ "Z_OVERFLOW" ].data< double >() = 0.;
+    editor.insertRow( insertData );
+    m_session->transaction().commit();*/
   }
-  m_session->transaction().commit();
 
-  m_session->transaction().start(false);
-  if(!histogramPropsRecordExist)
-  {
-      coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_PROPS" ).dataEditor();
-      coral::AttributeList insertData;
-      insertData.extend< std::string >( "NAME" );
-      insertData.extend< std::string >( "PATH" );
-      insertData.extend< unsigned int >( "RUN_NUMBER" );
-      insertData.extend< int >( "X_BINS" );
-      insertData.extend< double >( "X_LOW" );
-      insertData.extend< double >( "X_UP" );
-      insertData.extend< int >( "Y_BINS" );
-      insertData.extend< double >( "Y_LOW" );
-      insertData.extend< double >( "Y_UP" );
-      insertData.extend< int >( "Z_BINS" );
-      insertData.extend< double >( "Z_LOW" );
-      insertData.extend< double >( "Z_UP" );
-
-      insertData[ "NAME" ].data< std::string >() = h_vertex_number->getName();
-      insertData[ "PATH" ].data< std::string >() = h_vertex_number->getPathname();
-      insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
-      insertData[ "X_BINS" ].data< int >() = h_vertex_number->getNbinsX(); //or h_vertex_number->getTH1()->GetNbinsX() ?
-      insertData[ "X_LOW" ].data< double >() = h_vertex_number->getTH1()->GetXaxis()->GetXmin();
-      insertData[ "X_UP" ].data< double >() = h_vertex_number->getTH1()->GetXaxis()->GetXmax();
-      insertData[ "Y_BINS" ].data< int >() = 0; //h_vertex_number->getNbinsY();
-      insertData[ "Y_LOW" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetYaxis()->GetXMin();
-      insertData[ "Y_UP" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetYaxis()->GetXMax();
-      insertData[ "Z_BINS" ].data< int >() = 0; //h_vertex_number->getNbinsZ();
-      insertData[ "Z_LOW" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetZaxis()->GetXMin();
-      insertData[ "Z_UP" ].data< double >() = 0.; //h_vertex_number->getTH1()->GetZaxis()->GetXMax();
-      editor.insertRow( insertData );
-  }
-  m_session->transaction().commit();
-
-  m_session->transaction().start(false);
-
-  coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
-  coral::AttributeList insertData;
-  insertData.extend< std::string >( "NAME" );
-  insertData.extend< std::string >( "PATH" );
-  insertData.extend< unsigned int >( "RUN_NUMBER" );
-  insertData.extend< unsigned int >( "LUMISECTION" );
-  insertData.extend< double >( "ENTRIES" );
-  insertData.extend< double >( "X_MEAN" );
-  insertData.extend< double >( "X_MEAN_ERROR" );
-  insertData.extend< double >( "X_RMS" );
-  insertData.extend< double >( "X_RMS_ERROR" );
-  insertData.extend< double >( "X_UNDERFLOW");
-  insertData.extend< double >( "X_OVERFLOW" );
-  insertData.extend< double >( "Y_MEAN" );
-  insertData.extend< double >( "Y_MEAN_ERROR" );
-  insertData.extend< double >( "Y_RMS" );
-  insertData.extend< double >( "Y_RMS_ERROR" );
-  insertData.extend< double >( "Y_UNDERFLOW");
-  insertData.extend< double >( "Y_OVERFLOW" );
-  insertData.extend< double >( "Z_MEAN" );
-  insertData.extend< double >( "Z_MEAN_ERROR" );
-  insertData.extend< double >( "Z_RMS" );
-  insertData.extend< double >( "Z_RMS_ERROR" );
-  insertData.extend< double >( "Z_UNDERFLOW");
-  insertData.extend< double >( "Z_OVERFLOW" );
-
-  insertData[ "NAME" ].data< std::string >() = h_vertex_number->getName();
-  insertData[ "PATH" ].data< std::string >() = h_vertex_number->getPathname();
-  insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
-  insertData[ "LUMISECTION" ].data< unsigned int >() = lumiSeg.luminosityBlock();
-  insertData[ "ENTRIES" ].data< double >() = h_vertex_number->getEntries(); //or h_vertex_number->getTH1()->GetEntries() ?
-  insertData[ "X_MEAN" ].data< double >() = h_vertex_number->getTH1()->GetMean();
-  insertData[ "X_MEAN_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetMeanError();
-  insertData[ "X_RMS" ].data< double >() = h_vertex_number->getTH1()->GetRMS();
-  insertData[ "X_RMS_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetRMSError();
-  insertData[ "X_UNDERFLOW" ].data< double >() = h_vertex_number->getTH1()->GetBinContent( 0 );
-  insertData[ "X_OVERFLOW" ].data< double >() = h_vertex_number->getTH1()->GetBinContent( h_vertex_number->getTH1()->GetNbinsX() + 1 );
-  insertData[ "Y_MEAN" ].data< double >() = h_vertex_number->getTH1()->GetMean( 2 );
-  insertData[ "Y_MEAN_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetMeanError( 2 );
-  insertData[ "Y_RMS" ].data< double >() = h_vertex_number->getTH1()->GetRMS( 2 );
-  insertData[ "Y_RMS_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetRMSError( 2 );
-  insertData[ "Y_UNDERFLOW" ].data< double >() = 0.;
-  insertData[ "Y_OVERFLOW" ].data< double >() = 0.;
-  insertData[ "Z_MEAN" ].data< double >() = h_vertex_number->getTH1()->GetMean( 3 );
-  insertData[ "Z_MEAN_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetMeanError( 3 );
-  insertData[ "Z_RMS" ].data< double >() = h_vertex_number->getTH1()->GetRMS( 3 );
-  insertData[ "Z_RMS_ERROR" ].data< double >() = h_vertex_number->getTH1()->GetRMSError( 3 );
-  insertData[ "Z_UNDERFLOW" ].data< double >() = 0.;
-  insertData[ "Z_OVERFLOW" ].data< double >() = 0.;
-  editor.insertRow( insertData );
-  m_session->transaction().commit();
 }
 
 
@@ -710,7 +871,71 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 //
 void DQMExample_Step1::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
-  edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endRun" << std::endl;
+  //edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endRun" << std::endl;
+  std::cout << "\t###" << std::endl;
+  std::cout << "endRun" << std::endl;
+  std::cout << "\t###" << std::endl;
+
+
+  //for (MonitorElement * histogram : histogramsPerRun)
+  //{
+    m_session->transaction().start(false);
+
+    coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
+    coral::AttributeList insertData;
+    insertData.extend< std::string >( "NAME" );
+    insertData.extend< std::string >( "PATH" );
+    insertData.extend< unsigned int >( "RUN_NUMBER" );
+    insertData.extend< unsigned int >( "LUMISECTION" );
+    insertData.extend< double >( "ENTRIES" );
+    insertData.extend< double >( "X_MEAN" );
+    insertData.extend< double >( "X_MEAN_ERROR" );
+    insertData.extend< double >( "X_RMS" );
+    insertData.extend< double >( "X_RMS_ERROR" );
+    insertData.extend< double >( "X_UNDERFLOW");
+    insertData.extend< double >( "X_OVERFLOW" );
+    insertData.extend< double >( "Y_MEAN" );
+    insertData.extend< double >( "Y_MEAN_ERROR" );
+    insertData.extend< double >( "Y_RMS" );
+    insertData.extend< double >( "Y_RMS_ERROR" );
+    insertData.extend< double >( "Y_UNDERFLOW");
+    insertData.extend< double >( "Y_OVERFLOW" );
+    insertData.extend< double >( "Z_MEAN" );
+    insertData.extend< double >( "Z_MEAN_ERROR" );
+    insertData.extend< double >( "Z_RMS" );
+    insertData.extend< double >( "Z_RMS_ERROR" );
+    insertData.extend< double >( "Z_UNDERFLOW");
+    insertData.extend< double >( "Z_OVERFLOW" );
+
+    insertData[ "NAME" ].data< std::string >() = h_ePt_leading->getName();
+    insertData[ "PATH" ].data< std::string >() = h_ePt_leading->getPathname();
+    insertData[ "RUN_NUMBER" ].data< unsigned int >() = 999;
+    insertData[ "LUMISECTION" ].data< unsigned int >() = 999;
+
+    insertData[ "ENTRIES" ].data< double >() = test_entries; //or h_ePt_leading->getTH1()->GetEntries() ?
+
+    insertData[ "X_MEAN" ].data< double >() = h_ePt_leading->getTH1()->GetMean();
+    insertData[ "X_MEAN_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetMeanError();
+    insertData[ "X_RMS" ].data< double >() = h_ePt_leading->getTH1()->GetRMS();
+    insertData[ "X_RMS_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetRMSError();
+    insertData[ "X_UNDERFLOW" ].data< double >() = h_ePt_leading->getTH1()->GetBinContent( 0 );
+    insertData[ "X_OVERFLOW" ].data< double >() = h_ePt_leading->getTH1()->GetBinContent( h_ePt_leading->getTH1()->GetNbinsX() + 1 );
+    insertData[ "Y_MEAN" ].data< double >() = h_ePt_leading->getTH1()->GetMean( 2 );
+    insertData[ "Y_MEAN_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetMeanError( 2 );
+    insertData[ "Y_RMS" ].data< double >() = h_ePt_leading->getTH1()->GetRMS( 2 );
+    insertData[ "Y_RMS_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetRMSError( 2 );
+    insertData[ "Y_UNDERFLOW" ].data< double >() = 0.;
+    insertData[ "Y_OVERFLOW" ].data< double >() = 0.;
+    insertData[ "Z_MEAN" ].data< double >() = h_ePt_leading->getTH1()->GetMean( 3 );
+    insertData[ "Z_MEAN_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetMeanError( 3 );
+    insertData[ "Z_RMS" ].data< double >() = h_ePt_leading->getTH1()->GetRMS( 3 );
+    insertData[ "Z_RMS_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetRMSError( 3 );
+    insertData[ "Z_UNDERFLOW" ].data< double >() = 0.;
+    insertData[ "Z_OVERFLOW" ].data< double >() = 0.;
+    editor.insertRow( insertData );
+    m_session->transaction().commit();
+  //}
+
 
   //no more data to process:
   //close DB session
@@ -723,6 +948,9 @@ void DQMExample_Step1::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 //
 void DQMExample_Step1::bookHistos(DQMStore::IBooker & ibooker_)
 {
+  std::cout << "\t###" << std::endl;
+  std::cout << "bookHistos" << std::endl;
+  std::cout << "\t###" << std::endl;
   ibooker_.cd();
   ibooker_.setCurrentFolder("Physics/TopTest");
 
@@ -759,6 +987,52 @@ void DQMExample_Step1::bookHistos(DQMStore::IBooker & ibooker_)
 
   ibooker_.cd();  
 
+  m_session->transaction().start(false);
+
+  coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM" ).dataEditor();
+
+  if(histogramsPerLumi.empty())
+  {
+    histogramsPerLumi.push_back(h_vertex_number);
+    histogramsPerLumi.push_back(h_pfMet);
+    histogramsPerLumi.push_back(h_eMultiplicity);
+  }
+  if(histogramsPerRun.empty())
+  {
+    histogramsPerRun.push_back(h_ePt_leading);
+    histogramsPerRun.push_back(h_eEta_leading);
+    histogramsPerRun.push_back(h_ePhi_leading);
+  }
+  for (MonitorElement * histogram : histogramsPerLumi)
+  {
+      coral::AttributeList insertData;
+      insertData.extend< std::string >( "NAME" );
+      insertData.extend< std::string >( "PATH" );
+      insertData.extend< unsigned int >( "TIMESTAMP" );
+      insertData.extend< std::string >( "TITLE" );
+
+      insertData[ "NAME" ].data< std::string >() = histogram->getName();
+      insertData[ "PATH" ].data< std::string >() = histogram->getPathname();
+      insertData[ "TIMESTAMP" ].data< unsigned int >() = std::time(nullptr);
+      insertData[ "TITLE" ].data< std::string >() = histogram->getFullname();
+      editor.insertRow( insertData );
+  }
+  for (MonitorElement * histogram : histogramsPerRun)
+  {
+      coral::AttributeList insertData;
+      insertData.extend< std::string >( "NAME" );
+      insertData.extend< std::string >( "PATH" );
+      insertData.extend< unsigned int >( "TIMESTAMP" );
+      insertData.extend< std::string >( "TITLE" );
+
+      insertData[ "NAME" ].data< std::string >() = histogram->getName();
+      insertData[ "PATH" ].data< std::string >() = histogram->getPathname();
+      insertData[ "TIMESTAMP" ].data< unsigned int >() = std::time(nullptr);
+      insertData[ "TITLE" ].data< std::string >() = histogram->getFullname();
+      editor.insertRow( insertData );
+  }
+
+  m_session->transaction().commit();
 }
 
 
