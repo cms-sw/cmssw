@@ -48,7 +48,7 @@ class JSONAnalyzer( Analyzer ):
         self.count.register('All Lumis')
         self.count.register('Passed Lumis')
 
-        if self.useLumiBlocks:
+        if self.useLumiBlocks and not self.cfg_comp.isMC and not self.lumiList is None:
             lumis = Lumis(self.cfg_comp.files)
             for lumi in lumis:
                 lumiid = lumi.luminosityBlockAuxiliary().id()
