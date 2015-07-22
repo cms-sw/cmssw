@@ -424,9 +424,9 @@ Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(5.3),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.06006),
-    Y0 = cms.double(0.10007),
-    Z0 = cms.double(-1.708)
+    X0 = cms.double(0.08533),
+    Y0 = cms.double(0.16973),
+    Z0 = cms.double(-1.223)
 )
 # Test HF offset
 ShiftedCollision2015VtxSmearingParameters = cms.PSet(
