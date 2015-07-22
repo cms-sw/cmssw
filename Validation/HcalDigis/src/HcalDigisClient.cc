@@ -39,10 +39,6 @@ void HcalDigisClient::booking(DQMStore::IBooker &ib, std::string subdetopt) {
         book1D(ib,strtmp, ietaLim);
     }
     
-    //TP Code
-    book1D(ib,"HcalDigiTask_tp_ave_et_ieta", 71, -35.5, 35.5);
-    //~TP Code
-
 }
 
 void HcalDigisClient::runClient(DQMStore::IBooker &ib, DQMStore::IGetter &ig) {
@@ -88,8 +84,8 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
       
       if(hcalMEs[ih]->getName() == "HcalDigiTask_tp_et_ieta"){
 	//TP code
-	TH2F * tp_et_ieta = hcalMEs[ih]->getTH2F();
-	projectY("HcalDigiTask_tp_ave_et_ieta",tp_et_ieta);
+	//TH2F * tp_et_ieta = hcalMEs[ih]->getTH2F();
+	//projectY("HcalDigiTask_tp_ave_et_ieta",tp_et_ieta);
 	//~TP Code
       }
 

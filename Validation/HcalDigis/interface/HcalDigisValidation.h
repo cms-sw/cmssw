@@ -85,10 +85,6 @@ private:
 
     void fill1D(std::string name, double X, double weight = 1);
 
-    //TP Code
-    void book2D(DQMStore::IBooker &ib, std::string name, int nx, double xmin, double xmax, int ny, double ymin, double ymax);
-    //~TP Code
-
     void book2D(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
 
     void fill2D(std::string name, double X, double Y, double weight = 1);
