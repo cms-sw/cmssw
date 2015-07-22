@@ -5,6 +5,9 @@
 
 #include <cassert>
 
+#include "getBestVertex.h"
+
+
 namespace {
 
   
@@ -46,6 +49,13 @@ namespace {
     return tk.hitPattern().numberOfValidPixelHits();
   }
       
+  inline float dz(reco::Track const & trk, Point const & bestVertex) {
+      return std::abs(trk.dz(bestVertex));
+  }
+  inline float dr(reco::Track const & trk, Point const & bestVertex) {
+      return std::abs(trk.dxy(bestVertex));
+  }
+
   struct Cuts {
     
     Cuts(const edm::ParameterSet & cfg) {
@@ -55,7 +65,9 @@ namespace {
       fillArrayI(min3DLayers,cfg,"min3DLayers");
       fillArrayI(minLayers,cfg,"minLayers");
       fillArrayI(maxLostLayers,cfg,"maxLostLayers");
-		
+      fillArrayF(maxDz,cfg,"maxDz");
+      fillArrayF(maxDr,cfg,"maxDr");
+
     }
     
     
@@ -82,6 +94,15 @@ namespace {
       ret = std::min(ret,cut(nPixelHits(trk),minPixelHits,std::greater_equal<int>()));
       if (ret==-1.f) return ret;
       ret = std::min(ret,cut(lostLayers(trk),maxLostLayers,std::less_equal<int>()));
+     
+      if (maxDz[2]<std::numeric_limits<float>::max() || maxDr[2]<std::numeric_limits<float>::max()) {
+        if (ret==-1.f) return ret;
+        Point bestVertex = getBestVertex(trk,vertices);
+        ret = std::min(ret,cut(dz(trk,bestVertex), maxDz,std::less_equal<float>()));
+        ret = std::min(ret,cut(dr(trk,bestVertex), maxDr,std::less_equal<float>()));
+      }
+
+      
 
       return ret;
       
@@ -98,6 +119,9 @@ namespace {
       desc.add<std::vector<int>>("maxLostLayers",{99,3,3});
       desc.add<std::vector<double>>("maxChi2",{9999.,25.,16.});
       desc.add<std::vector<double>>("maxChi2n",{9999.,1.0,0.4});
+      desc.add<std::vector<double>>("maxDz",{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()});
+      desc.add<std::vector<double>>("maxDr",{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()});
+
     }
 
 
@@ -107,6 +131,8 @@ namespace {
     int min3DLayers[3];
     int minPixelHits[3];
     int maxLostLayers[3];
+    float maxDz[3];
+    float maxDr[3];
 
   };
 

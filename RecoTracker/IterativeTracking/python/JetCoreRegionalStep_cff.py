@@ -127,9 +127,38 @@ jetCoreRegionalStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackPro
 
 # Final selection
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepClassifier1
+#from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepClassifier1
 
-jetCoreRegionalStep = initialStepClassifier1.clone()
+#jetCoreRegionalStep = initialStepClassifier1.clone()
+#jetCoreRegionalStep.src='jetCoreRegionalStepTracks'
+#jetCoreRegionalStep.qualityCuts = [-0.3,0.0,0.2]
+#jetCoreRegionalStep.vertices = 'firstStepGoodPrimaryVertices'
+
+#jetCoreRegionalStepClassifier1 = initialStepClassifier1.clone()
+#jetCoreRegionalStepClassifier1.src = 'jetCoreRegionalStepTracks'
+#jetCoreRegionalStepClassifier1.qualityCuts = [-0.2,0.0,0.4]
+#jetCoreRegionalStepClassifier2 = detachedTripletStepClassifier1.clone()
+#jetCoreRegionalStepClassifier2.src = 'jetCoreRegionalStepTracks'
+
+
+
+#from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
+#jetCoreRegionalStep = ClassifierMerger.clone()
+#jetCoreRegionalStep.inputClassifiers=['jetCoreRegionalStepClassifier1','jetCoreRegionalStepClassifier2']
+
+
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
+jetCoreRegionalStep = TrackCutClassifier.clone()
 jetCoreRegionalStep.src='jetCoreRegionalStepTracks'
+jetCoreRegionalStep.mva.minPixelHits = [1,1,1]
+jetCoreRegionalStep.mva.maxChi2 = [9999.,9999.,9999.]
+jetCoreRegionalStep.mva.maxChi2n = [1.6,1.0,0.7]
+jetCoreRegionalStep.mva.minLayers = [3,5,5]
+jetCoreRegionalStep.mva.min3DLayers = [1,2,3]
+jetCoreRegionalStep.mva.maxLostLayers = [4,3,2]
+jetCoreRegionalStep.mva.maxDz = [0.5,0.2,0.1];
+jetCoreRegionalStep.mva.maxDr = [0.1,0.05,0.03];
+jetCoreRegionalStep.vertices = 'firstStepGoodPrimaryVertices'
 
 
 # Final sequence
@@ -140,4 +169,5 @@ JetCoreRegionalStep = cms.Sequence(initialStepTrackRefsForJets*caloJetsForTrk*je
                                    jetCoreRegionalStepSeeds*
                                    jetCoreRegionalStepTrackCandidates*
                                    jetCoreRegionalStepTracks*
+#                                   jetCoreRegionalStepClassifier1*jetCoreRegionalStepClassifier2*
                                    jetCoreRegionalStep)
