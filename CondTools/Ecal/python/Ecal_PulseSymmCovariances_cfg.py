@@ -29,14 +29,14 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     logconnect = cms.untracked.string('sqlite_file:logecalcovariances_popcon_'+suffix+'.db'),
     timetype = cms.untracked.string('runnumber'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('EcalPulseCovariancesRcd'),
-        tag = cms.string('EcalPulseCovariances_'+suffix)
+        record = cms.string('EcalPulseSymmCovariancesRcd'),
+        tag = cms.string('EcalPulseSymmCovariances_'+suffix)
     ))
 )
 
-process.Test1 = cms.EDAnalyzer("ExTestEcalPulseCovariancesAnalyzer",
+process.Test1 = cms.EDAnalyzer("ExTestEcalPulseSymmCovariancesAnalyzer",
     SinceAppendMode = cms.bool(True),
-    record = cms.string('EcalPulseCovariancesRcd'),
+    record = cms.string('EcalPulseSymmCovariancesRcd'),
     loggingOn = cms.untracked.bool(True),
     Source = cms.PSet(
         firstRun = cms.string('1' if POPULATE_MC else FIRST_RUN_DATA),

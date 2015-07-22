@@ -131,6 +131,8 @@ namespace cond {
       FETCH_PAYLOAD_CASE( EcalPulseShape )
       FETCH_PAYLOAD_CASE( EcalCondObjectContainer<EcalPulseCovariance> )
       FETCH_PAYLOAD_CASE( EcalPulseCovariance )
+      FETCH_PAYLOAD_CASE( EcalCondObjectContainer<EcalPulseSymmCovariance> )
+      FETCH_PAYLOAD_CASE( EcalPulseSymmCovariance )
       FETCH_PAYLOAD_CASE( FileBlob )
       FETCH_PAYLOAD_CASE( GBRForest )
       FETCH_PAYLOAD_CASE( GBRForestD )

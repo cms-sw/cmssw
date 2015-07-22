@@ -1,5 +1,5 @@
-#ifndef ECAL_PULSECOVARIANCES_HANDLER_H
-#define ECAL_PULSECOVARIANCES_HANDLER_H
+#ifndef ECAL_PULSESYMMCOVARIANCES_HANDLER_H
+#define ECAL_PULSESYMMCOVARIANCES_HANDLER_H
 
 #include <vector>
 #include <typeinfo>
@@ -23,8 +23,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
-#include "CondFormats/EcalObjects/interface/EcalPulseCovariances.h"
-#include "CondFormats/DataRecord/interface/EcalPulseCovariancesRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPulseSymmCovariances.h"
+#include "CondFormats/DataRecord/interface/EcalPulseSymmCovariancesRcd.h"
 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -39,19 +39,19 @@ namespace edm {
 namespace popcon
 {
 
-  class EcalPulseCovariancesHandler : public popcon::PopConSourceHandler<EcalPulseCovariances>
+  class EcalPulseSymmCovariancesHandler : public popcon::PopConSourceHandler<EcalPulseSymmCovariances>
     {
       
     public:
-      EcalPulseCovariancesHandler(edm::ParameterSet const & );
-      ~EcalPulseCovariancesHandler();
-      bool checkPulseCovariance(EcalPulseCovariances::Item* item);
-      void fillSimPulseCovariance( EcalPulseCovariances::Item* item, bool isbarrel );
+      EcalPulseSymmCovariancesHandler(edm::ParameterSet const & );
+      ~EcalPulseSymmCovariancesHandler();
+      bool checkPulseSymmCovariance(EcalPulseSymmCovariances::Item* item);
+      void fillSimPulseSymmCovariance( EcalPulseSymmCovariances::Item* item, bool isbarrel );
       void getNewObjects();
       std::string id() const { return m_name;}
 
     private:
-      const EcalPulseCovariances * mypulseshapes;
+      const EcalPulseSymmCovariances * mypulseshapes;
 
       unsigned int m_firstRun ;
       unsigned int m_lastRun ;
