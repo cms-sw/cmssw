@@ -85,8 +85,45 @@ class EDMtoMEConverter : public edm::EDAnalyzer
 
   std::vector<std::string> classtypes;
 
-  edm::InputTag runInputTag_;
-  edm::InputTag lumiInputTag_;
+  edm::EDGetTokenT<MEtoEDM<TH1F> > runInputTagTH1F_;
+  edm::EDGetTokenT<MEtoEDM<TH1F> > lumiInputTagTH1F_;
+
+  edm::EDGetTokenT<MEtoEDM<TH1S> > runInputTagTH1S_;
+  edm::EDGetTokenT<MEtoEDM<TH1S> > lumiInputTagTH1S_;
+
+  edm::EDGetTokenT<MEtoEDM<TH1D> > runInputTagTH1D_;
+  edm::EDGetTokenT<MEtoEDM<TH1D> > lumiInputTagTH1D_;
+
+  edm::EDGetTokenT<MEtoEDM<TH2F> > runInputTagTH2F_;
+  edm::EDGetTokenT<MEtoEDM<TH2F> > lumiInputTagTH2F_;
+
+  edm::EDGetTokenT<MEtoEDM<TH2S> > runInputTagTH2S_;
+  edm::EDGetTokenT<MEtoEDM<TH2S> > lumiInputTagTH2S_;
+
+  edm::EDGetTokenT<MEtoEDM<TH2D> > runInputTagTH2D_;
+  edm::EDGetTokenT<MEtoEDM<TH2D> > lumiInputTagTH2D_;
+
+  edm::EDGetTokenT<MEtoEDM<TH3F> > runInputTagTH3F_;
+  edm::EDGetTokenT<MEtoEDM<TH3F> > lumiInputTagTH3F_;
+
+  edm::EDGetTokenT<MEtoEDM<TProfile> > runInputTagTProfile_;
+  edm::EDGetTokenT<MEtoEDM<TProfile> > lumiInputTagTProfile_;
+
+  edm::EDGetTokenT<MEtoEDM<TProfile2D> > runInputTagTProfile2D_;
+  edm::EDGetTokenT<MEtoEDM<TProfile2D> > lumiInputTagTProfile2D_;
+
+  edm::EDGetTokenT<MEtoEDM<double> > runInputTagDouble_;
+  edm::EDGetTokenT<MEtoEDM<double> > lumiInputTagDouble_;
+
+  edm::EDGetTokenT<MEtoEDM<int> > runInputTagInt_;
+  edm::EDGetTokenT<MEtoEDM<int> > lumiInputTagInt_;
+
+  edm::EDGetTokenT<MEtoEDM<long long> > runInputTagInt64_;
+  edm::EDGetTokenT<MEtoEDM<long long> > lumiInputTagInt64_;
+
+  edm::EDGetTokenT<MEtoEDM<TString> > runInputTagString_;
+  edm::EDGetTokenT<MEtoEDM<TString> > lumiInputTagString_;
+
 
 }; // end class declaration
 
