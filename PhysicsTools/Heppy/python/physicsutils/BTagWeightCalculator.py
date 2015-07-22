@@ -11,7 +11,7 @@ class BTagWeightCalculator:
         self.pt_bins_lf = np.array([20, 30, 40, 60, 10000])
         self.eta_bins_lf = np.array([0, 0.8, 1.6, 2.41])
 
-        self.btag = "combinedInclusiveSecondaryVertexV2BJetTags"
+        self.btag = "pfCombinedInclusiveSecondaryVertexV2BJetTags"
         self.init(fn_hf, fn_lf)
 
     def getBin(self, bvec, val):
