@@ -59,7 +59,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   else if ( enableCSC & enableGEM & !enableRPC ) backward = muonLayout->allCscGemBackwardLayers(); // CSC + GEM
   else if ( !enableCSC & enableGEM & !enableRPC ) backward = muonLayout->backwardGEMLayers(); //GEM only
   else if ( enableCSC & !enableGEM & !enableRPC ) backward = muonLayout->backwardCSCLayers(); //CSC only
-  else backward = muonLayout->backwardCSCLayers();
+  else backward = muonLayout->allBackwardLayers();
 
   PRINT("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Backward DetLayers";
   for (auto i : backward ) printLayer(i);
@@ -70,7 +70,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   else if ( enableCSC & enableGEM & !enableRPC ) forward = muonLayout->allCscGemForwardLayers(); // CSC + GEM
   else if ( !enableCSC & enableGEM & !enableRPC ) forward = muonLayout->forwardGEMLayers(); //GEM only
   else if ( enableCSC & !enableGEM & !enableRPC ) forward = muonLayout->forwardCSCLayers(); //CSC only
-  else forward = muonLayout->forwardCSCLayers();
+  else forward = muonLayout->allForwardLayers();
 
   PRINT("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Forward DetLayers" << std::endl;
   for (auto i : forward ) printLayer(i);
