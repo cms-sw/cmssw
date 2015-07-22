@@ -11,6 +11,9 @@
  * Chang Liu:
  * add compatibleLayers
  * add constructor for MuonTkNavigation
+ *
+ * Cesare Calabria:
+ * GEMs implementation.
  */
 
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
@@ -36,7 +39,7 @@ using namespace std;
 #define PRINT(x) edm::LogInfo(x)
 #endif
 
-MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout,  MuonNavigationSchool const & sh,  bool enableRPC) :
+MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout,  MuonNavigationSchool const & sh,   bool enableCSC, bool enableRPC, bool enableGEM) :
   school(&sh) {
 
   PRINT("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" << std::endl;
@@ -52,7 +55,10 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   PRINT("MuonNavigationPrinter")  << "BACKWARD:" << std::endl;
 
   vector<const DetLayer*> backward;
-  if ( enableRPC ) backward = muonLayout->allBackwardLayers();
+  if ( enableCSC & enableGEM & enableRPC ) backward = muonLayout->allBackwardLayers();
+  else if ( enableCSC & enableGEM & !enableRPC ) backward = muonLayout->allCscGemBackwardLayers(); // CSC + GEM
+  else if ( !enableCSC & enableGEM & !enableRPC ) backward = muonLayout->backwardGEMLayers(); //GEM only
+  else if ( enableCSC & !enableGEM & !enableRPC ) backward = muonLayout->backwardCSCLayers(); //CSC only
   else backward = muonLayout->backwardCSCLayers();
 
   PRINT("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Backward DetLayers";
@@ -60,7 +66,10 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   PRINT("MuonNavigationPrinter") << "==============================" << std::endl;
   PRINT("MuonNavigationPrinter") << "FORWARD:" << std::endl;
   vector<const DetLayer*> forward;
-  if ( enableRPC ) forward = muonLayout->allForwardLayers();
+  if ( enableCSC & enableGEM & enableRPC ) forward = muonLayout->allForwardLayers();
+  else if ( enableCSC & enableGEM & !enableRPC ) forward = muonLayout->allCscGemForwardLayers(); // CSC + GEM
+  else if ( !enableCSC & enableGEM & !enableRPC ) forward = muonLayout->forwardGEMLayers(); //GEM only
+  else if ( enableCSC & !enableGEM & !enableRPC ) forward = muonLayout->forwardCSCLayers(); //CSC only
   else forward = muonLayout->forwardCSCLayers();
 
   PRINT("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Forward DetLayers" << std::endl;
