@@ -209,8 +209,8 @@ def switchToPFTauHPS(process,
     ## adapt cleanPatTaus
     if hasattr(process, "cleanPatTaus" + patTauLabel + postfix):
         getattr(process, "cleanPatTaus" + patTauLabel + postfix).preselection = \
-        'pt > 20 & abs(eta) < 2.3 & tauID("decayModeFindingOldDMs") > 0.5 & tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5' \
-        + ' & tauID("againstMuonTight3") > 0.5 & tauID("againstElectronLoose") > 0.5'
+        'pt > 18 & abs(eta) < 2.3 & tauID("decayModeFinding") > 0.5 & tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5' \
+        + ' & tauID("againstMuonTight3") > 0.5 & tauID("againstElectronVLooseMVA5") > 0.5'
 
 # Select switcher by string
 def switchToPFTauByType(process,
