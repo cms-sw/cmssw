@@ -87,8 +87,8 @@ struct GsfElectronAlgo::GeneralData
   ElectronHcalHelper * hcalHelper, * hcalHelperPflow ;
   EcalClusterFunctionBaseClass * superClusterErrorFunction ;
   EcalClusterFunctionBaseClass * crackCorrectionFunction ;
-  SoftElectronMVAEstimator *sElectronMVAEstimator;
-  ElectronMVAEstimator *iElectronMVAEstimator;
+  //SoftElectronMVAEstimator *sElectronMVAEstimator;
+  //ElectronMVAEstimator *iElectronMVAEstimator;
   const RegressionHelper::Configuration regCfg;
   RegressionHelper * regHelper;
  } ;
@@ -104,9 +104,8 @@ struct GsfElectronAlgo::GeneralData
    const EcalRecHitsConfiguration & recHitsConfig,
    EcalClusterFunctionBaseClass * superClusterErrorFunc,
    EcalClusterFunctionBaseClass * crackCorrectionFunc,
-   const SoftElectronMVAEstimator::Configuration & mva_NIso_Config,
-   const ElectronMVAEstimator::Configuration & mva_Iso_Config,
-
+   const SoftElectronMVAEstimator::Configuration & /*mva_NIso_Config*/,
+   const ElectronMVAEstimator::Configuration & /*mva_Iso_Config*/,
    const RegressionHelper::Configuration & regConfig
    )
  : inputCfg(inputConfig),
@@ -119,8 +118,8 @@ struct GsfElectronAlgo::GeneralData
    hcalHelperPflow(new ElectronHcalHelper(hcalConfigPflow)),
    superClusterErrorFunction(superClusterErrorFunc),
    crackCorrectionFunction(crackCorrectionFunc),
-   sElectronMVAEstimator(new SoftElectronMVAEstimator(mva_NIso_Config)),
-   iElectronMVAEstimator(new ElectronMVAEstimator(mva_Iso_Config)),
+   //sElectronMVAEstimator(new SoftElectronMVAEstimator(mva_NIso_Config)),
+   //iElectronMVAEstimator(new ElectronMVAEstimator(mva_Iso_Config)),
    regCfg(regConfig),
    regHelper(new RegressionHelper(regConfig))
   {}
@@ -129,8 +128,8 @@ GsfElectronAlgo::GeneralData::~GeneralData()
  {
   delete hcalHelper ;
   delete hcalHelperPflow ;
-  delete sElectronMVAEstimator;
-  delete iElectronMVAEstimator;
+  //delete sElectronMVAEstimator;
+  //delete iElectronMVAEstimator;
   delete regHelper;
  }
 
@@ -1192,7 +1191,7 @@ void GsfElectronAlgo::setMVAOutputs(const gsfAlgoHelpers::HeavyObjectCache* hoc,
     {
 	if(generalData_->strategyCfg.gedElectronMode==true){
                 float mva_NIso_Value=	hoc->sElectronMVAEstimator->mva( *(*el), *(eventData_->vertices));
-		float mva_Iso_Value =   generalData_->iElectronMVAEstimator->mva( *(*el), eventData_->vertices->size() );
+		float mva_Iso_Value =   hoc->iElectronMVAEstimator->mva( *(*el), eventData_->vertices->size() );
 	        GsfElectron::MvaOutput mvaOutput ;
 	        mvaOutput.mva_e_pi = mva_NIso_Value ;
 		mvaOutput.mva_Isolated = mva_Iso_Value ;
