@@ -438,10 +438,8 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
   nKs->Fill( (float) numK0sFound );
-  numK0sFound = 0.;
 
   double numLamFound = 0.;
-  mass = 0.;
   radDist.clear();
   // Lambdas
   if ( lambdaCollection->size() > 0 ) {
@@ -562,7 +560,6 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
   nLam->Fill( (double) numLamFound );
-  numLamFound = 0.;
 
 
   ///////////////////////////////
