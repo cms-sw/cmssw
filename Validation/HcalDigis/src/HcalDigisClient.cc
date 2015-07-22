@@ -82,13 +82,6 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
 
     for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
       
-      if(hcalMEs[ih]->getName() == "HcalDigiTask_tp_et_ieta"){
-	//TP code
-	//TH2F * tp_et_ieta = hcalMEs[ih]->getTH2F();
-	//projectY("HcalDigiTask_tp_ave_et_ieta",tp_et_ieta);
-	//~TP Code
-      }
-
          if (hcalMEs[ih]->getName() == "nevtot") nevtot = hcalMEs[ih];
 
          strtmp = "HcalDigiTask_ieta_iphi_occupancy_map_depth1_" + subdet_;
