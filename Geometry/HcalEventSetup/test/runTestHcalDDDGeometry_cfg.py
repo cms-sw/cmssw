@@ -3,8 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GeometryTest")
 
 process.load("Geometry.CMSCommonData.hcalOnlyGeometryXML_cfi")
-process.load("Geometry.HcalEventSetup.HcalTopology_cfi")
-
 #process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.MessageLogger = cms.Service("MessageLogger",
@@ -41,6 +39,7 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 )
 
 process.load("Geometry.HcalEventSetup.HcalDDDGeometry_cfi")
+process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
 
 process.prod = cms.EDAnalyzer("HcalDDDGeometryAnalyzer")
 

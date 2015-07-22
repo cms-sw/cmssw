@@ -7,17 +7,27 @@ process.load("Geometry.HcalCommonData.testPhase0GeometryXML_cfi")
 process.load("Geometry.HcalCommonData.hcalDDConstants_cff")
 process.load("Geometry.HcalEventSetup.hcalTopologyIdeal_cfi")
 
-process.HcalHardcodeGeometryEP = cms.ESProducer("HcalHardcodeGeometryEP" ,
-                                                appendToDataLabel = cms.string("_master"),
-                                                HcalReLabel = HcalReLabel
-                                                )
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations = cms.untracked.vstring('cout'),
+    categories = cms.untracked.vstring('HCalGeom'),
+    debugModules = cms.untracked.vstring('*'),
+    cout = cms.untracked.PSet(
+      threshold = cms.untracked.string('DEBUG'),
+      default = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+      ),
+      HCalGeom = cms.untracked.PSet(
+        limit = cms.untracked.int32(0)
+      )
+    )
+)
+
 process.source = cms.Source("EmptySource")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
-    )
+)
 
-process.hga = cms.EDAnalyzer("HcalGeometryAnalyzer",
-                             HcalReLabel = HcalReLabel,
+process.hga = cms.EDAnalyzer("HcalGeometryTester",
                              HCALGeometryLabel = cms.string("_master") )
 
 process.Timing = cms.Service("Timing")
