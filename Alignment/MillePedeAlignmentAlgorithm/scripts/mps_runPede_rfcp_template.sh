@@ -7,6 +7,10 @@
 #temporary fix (?):
 #unset PYTHONHOME
 
+cd $CMSSW_BASE/src
+eval `scramv1 runtime -sh`
+cd -
+
 # these defaults will be overwritten by MPS
 RUNDIR=$HOME/scratch0/some/path
 MSSDIR=/castor/cern.ch/user/u/username/another/path
