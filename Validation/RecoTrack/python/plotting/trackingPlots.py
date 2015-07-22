@@ -316,7 +316,9 @@ _tracks_map = {
         'tobTecStep'          : 'cutsRecoTobTecStep_trackingParticleRecoAsssociation',
         'jetCoreRegionalStep' : 'cutsRecoJetCoreRegionalStep_trackingParticleRecoAsssociation',
         'muonSeededStepInOut' : 'cutsRecoMuonSeededStepInOut_trackingParticleRecoAsssociation',
-        'muonSeededStepOutIn' : 'cutsRecoMuonSeededStepOutIn_trackingParticleRecoAsssociation'
+        'muonSeededStepOutIn' : 'cutsRecoMuonSeededStepOutIn_trackingParticleRecoAsssociation',
+        'ak4PFJets'           : 'cutsRecoAK4PFJets_trackingParticleRecoAsssociation',
+        'btvLike'             : 'cutsRecoBtvLike_trackingParticleRecoAsssociation',
     },
     "highPurity": {
         'ootb'                : 'cutsRecoHp_trackingParticleRecoAsssociation',

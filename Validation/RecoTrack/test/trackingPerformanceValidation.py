@@ -13,8 +13,8 @@ RefRelease='CMSSW_7_5_0'
 ### Relval release (set if different from $CMSSW_VERSION)
 NewRelease='CMSSW_7_6_0_pre1'
 
-#import Validation.RecoTrack.plotting.plotting as plotting
-#plotting.missingOk = True
+import Validation.RecoTrack.plotting.plotting as plotting
+plotting.missingOk = True
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
@@ -67,7 +67,9 @@ pileupfastsimstartupsamples = [
 ]
 
 ### Track algorithm name and quality. Can be a list.
-Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn']
+Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
+        'ak4PFJets','btvLike'
+]
 #Algos= ['ootb']
 Qualities=['', 'highPurity']
 
