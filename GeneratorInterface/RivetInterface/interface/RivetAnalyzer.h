@@ -2,27 +2,21 @@
 #define GeneratorInterface_RivetInterface_RivetAnalyzer
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "Rivet/AnalysisHandler.hh"
 
 //DQM services
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "Rivet/Tools/RivetYODA.hh"
-#include "YODA/ROOTCnv.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
+#include "Rivet/Tools/RivetYODA.hh"
+//#include "YODA/ROOTCnv.h"
 
 #include <vector>
 #include <string>
-
-namespace edm{
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-  class InputTag;
-}
 
 class RivetAnalyzer : public edm::EDAnalyzer
 {
@@ -31,26 +25,26 @@ class RivetAnalyzer : public edm::EDAnalyzer
 
   virtual ~RivetAnalyzer();
 
-  virtual void beginJob();
+  virtual void beginJob() override;
 
-  virtual void endJob();  
+  virtual void endJob() override;
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
   
   private:
 
   void normalizeTree();
 
-  edm::InputTag            _hepmcCollection;
+  edm::EDGetTokenT<edm::HepMCProduct> _hepmcCollection;
   bool                     _useExternalWeight;
   bool                     _useLHEweights;
   int                      _LHEweightNumber;
-  edm::InputTag            _LHECollection;
-  edm::InputTag            _genEventInfoCollection;
+  edm::EDGetTokenT<LHEEventProduct> _LHECollection;
+  edm::EDGetTokenT<GenEventInfoProduct> _genEventInfoCollection;
   Rivet::AnalysisHandler   _analysisHandler;   
   bool                     _isFirstEvent;
   std::string              _outFileName;

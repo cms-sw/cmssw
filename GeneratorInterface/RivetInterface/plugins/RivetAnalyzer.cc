@@ -1,22 +1,13 @@
 #include "GeneratorInterface/RivetInterface/interface/RivetAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
-
-#include <string>
-#include <vector>
-#include <iostream>
-#include <cstdlib>
-#include <cstring>
 
 using namespace Rivet;
 using namespace edm;
@@ -33,15 +24,15 @@ _produceDQM(pset.getParameter<bool>("ProduceDQMOutput"))
   //retrive the analysis name from paarmeter set
   std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
   
-  _hepmcCollection = pset.getParameter<edm::InputTag>("HepMCCollection");
+  _hepmcCollection = consumes<HepMCProduct>(pset.getParameter<edm::InputTag>("HepMCCollection"));
 
   _useExternalWeight = pset.getParameter<bool>("UseExternalWeight");
   if (_useExternalWeight) {
     if (!pset.exists("GenEventInfoCollection")){
       throw cms::Exception("RivetAnalyzer") << "when using an external event weight you have to specify the GenEventInfoProduct collection from which the weight has to be taken " ; 
     }
-    _genEventInfoCollection = pset.getParameter<edm::InputTag>("GenEventInfoCollection");
-    _LHECollection          = pset.getParameter<edm::InputTag>("LHECollection");
+    _genEventInfoCollection = consumes<GenEventInfoProduct>(pset.getParameter<edm::InputTag>("GenEventInfoCollection"));
+    _LHECollection          = consumes<LHEEventProduct>(pset.getParameter<edm::InputTag>("LHECollection"));
     _useLHEweights          = pset.getParameter<bool>("useLHEweights");
     _LHEweightNumber        = pset.getParameter<int>("LHEweightNumber");    
     
@@ -93,7 +84,7 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
   
   //get the hepmc product from the event
   edm::Handle<HepMCProduct> evt;
-  iEvent.getByLabel(_hepmcCollection, evt);
+  iEvent.getByToken(_hepmcCollection, evt);
 
   // get HepMC GenEvent
   const HepMC::GenEvent *myGenEvent = evt->GetEvent();
@@ -111,11 +102,11 @@ void RivetAnalyzer::analyze(const edm::Event& iEvent,const edm::EventSetup& iSet
     
     if(!_useLHEweights){
       edm::Handle<GenEventInfoProduct> genEventInfoProduct;
-      iEvent.getByLabel(_genEventInfoCollection, genEventInfoProduct);
+      iEvent.getByToken(_genEventInfoCollection, genEventInfoProduct);
       tmpGenEvtPtr->weights()[0] = genEventInfoProduct->weight();
     }else{
       edm::Handle<LHEEventProduct> lheEventHandle;
-      iEvent.getByLabel(_LHECollection,lheEventHandle);
+      iEvent.getByToken(_LHECollection,lheEventHandle);
       const LHEEventProduct::WGT& wgt = lheEventHandle->weights().at(_LHEweightNumber);
       tmpGenEvtPtr->weights()[0] = wgt.wgt;
     }
