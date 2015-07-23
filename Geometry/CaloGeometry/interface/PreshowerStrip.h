@@ -15,7 +15,6 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Revision: 1.12 $
 \author F. Cossutti
    
 */
