@@ -797,6 +797,12 @@ FWEveViewManager::supportedTypesAndRepresentations() const
       for (size_t bii = 0, bie = blist.size(); bii != bie; ++bii)
       {
          BuilderInfo &info = blist[bii];
+         
+         if (context().getHidePFBuilders()) {
+            const static std::string pfExt = "PF ";
+            if (std::string::npos != info.m_name.find(pfExt))
+               continue;
+               }
 
          unsigned int bitPackedViews = info.m_viewBit;
          bool representsSubPart = (info.m_name.substr(info.m_name.find_first_of('@')-1, 1)=="!");
@@ -806,7 +812,7 @@ FWEveViewManager::supportedTypesAndRepresentations() const
          std::string name;
          bool isSimple;
          info.classType(name, isSimple);
-         if(isSimple)
+         if(isSimple) 
          {
             returnValue.add(boost::shared_ptr<FWRepresentationCheckerBase>(new FWSimpleRepresentationChecker(name, it->first,bitPackedViews,representsSubPart, FFOnly)) );
          }
