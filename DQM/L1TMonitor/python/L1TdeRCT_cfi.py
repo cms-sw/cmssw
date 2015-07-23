@@ -16,6 +16,6 @@ l1TdeRCT = cms.EDAnalyzer("L1TdeRCT",
     gtEGAlgoName = cms.string("L1_SingleEG1"),
     doubleThreshold = cms.int32(3),
     filterTriggerType = cms.int32(1),
-    selectBX= cms.untracked.int32(2)   
+    selectBX= cms.untracked.int32(0)
 )
 
