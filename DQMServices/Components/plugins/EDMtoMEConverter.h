@@ -39,6 +39,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <tuple>
 
 #include "TString.h"
 #include "TList.h"
@@ -63,7 +64,7 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   virtual void respondToOpenInputFile(const edm::FileBlock&);
 
   template <class T>
-  void getData(T& iGetFrom, bool iEndRun);
+  void getData(T& iGetFrom);
 
   typedef std::vector<uint32_t> TagList;
 
@@ -77,54 +78,44 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   bool convertOnEndRun;
 
   DQMStore *dbe;
-  std::vector<MonitorElement*> me1, me2, me3, me4, me5, me6, me7, me8;
 
   // private statistics information
   unsigned int iCountf;
   std::map<int,int> iCount;
 
-  std::vector<std::string> classtypes;
+  template <typename T>
+  class Tokens {
+  public:
+    using type = T;
+    using Product = MEtoEDM<T>;
 
-  edm::EDGetTokenT<MEtoEDM<TH1F> > runInputTagTH1F_;
-  edm::EDGetTokenT<MEtoEDM<TH1F> > lumiInputTagTH1F_;
+    Tokens() {}
 
-  edm::EDGetTokenT<MEtoEDM<TH1S> > runInputTagTH1S_;
-  edm::EDGetTokenT<MEtoEDM<TH1S> > lumiInputTagTH1S_;
+    void set(const edm::InputTag& runInputTag, const edm::InputTag& lumiInputTag, edm::ConsumesCollector& iC);
 
-  edm::EDGetTokenT<MEtoEDM<TH1D> > runInputTagTH1D_;
-  edm::EDGetTokenT<MEtoEDM<TH1D> > lumiInputTagTH1D_;
+    void getData(const edm::Run& iRun, edm::Handle<Product>& handle) const;
+    void getData(const edm::LuminosityBlock& iLumi, edm::Handle<Product>& handle) const;
+    
+  private:
+    edm::EDGetTokenT<Product> runToken;
+    edm::EDGetTokenT<Product> lumiToken;
+  };
 
-  edm::EDGetTokenT<MEtoEDM<TH2F> > runInputTagTH2F_;
-  edm::EDGetTokenT<MEtoEDM<TH2F> > lumiInputTagTH2F_;
-
-  edm::EDGetTokenT<MEtoEDM<TH2S> > runInputTagTH2S_;
-  edm::EDGetTokenT<MEtoEDM<TH2S> > lumiInputTagTH2S_;
-
-  edm::EDGetTokenT<MEtoEDM<TH2D> > runInputTagTH2D_;
-  edm::EDGetTokenT<MEtoEDM<TH2D> > lumiInputTagTH2D_;
-
-  edm::EDGetTokenT<MEtoEDM<TH3F> > runInputTagTH3F_;
-  edm::EDGetTokenT<MEtoEDM<TH3F> > lumiInputTagTH3F_;
-
-  edm::EDGetTokenT<MEtoEDM<TProfile> > runInputTagTProfile_;
-  edm::EDGetTokenT<MEtoEDM<TProfile> > lumiInputTagTProfile_;
-
-  edm::EDGetTokenT<MEtoEDM<TProfile2D> > runInputTagTProfile2D_;
-  edm::EDGetTokenT<MEtoEDM<TProfile2D> > lumiInputTagTProfile2D_;
-
-  edm::EDGetTokenT<MEtoEDM<double> > runInputTagDouble_;
-  edm::EDGetTokenT<MEtoEDM<double> > lumiInputTagDouble_;
-
-  edm::EDGetTokenT<MEtoEDM<int> > runInputTagInt_;
-  edm::EDGetTokenT<MEtoEDM<int> > lumiInputTagInt_;
-
-  edm::EDGetTokenT<MEtoEDM<long long> > runInputTagInt64_;
-  edm::EDGetTokenT<MEtoEDM<long long> > lumiInputTagInt64_;
-
-  edm::EDGetTokenT<MEtoEDM<TString> > runInputTagString_;
-  edm::EDGetTokenT<MEtoEDM<TString> > lumiInputTagString_;
-
-
+  std::tuple<
+    Tokens<TH1F>,
+    Tokens<TH1S>,
+    Tokens<TH1D>,
+    Tokens<TH2F>,
+    Tokens<TH2S>,
+    Tokens<TH2D>,
+    Tokens<TH3F>,
+    Tokens<TProfile>,
+    Tokens<TProfile2D>,
+    Tokens<double>,
+    Tokens<int>,
+    Tokens<long long>,
+    Tokens<TString>
+    > tokens_;
 }; // end class declaration
 
 #endif
