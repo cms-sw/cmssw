@@ -112,7 +112,6 @@
              corrJet->scaleEnergy(scale);
          }
          const reco::Jet * theJet = ( applyJec ? corrJet : &jet );
-         
          PileupJetIdentifier puIdentifier;
          if( produceJetIds_ ) {
              puIdentifier = ialgo->computeIdVariables(theJet, jec,  &(*vtx), vertexes, runMvas_);
@@ -198,7 +197,7 @@
       "beta",
       "betaStar",
       "DR_weighted",
-      "min(pull,0.1)",
+      "pull",
       "jetR",
       "jetRchg",
     });
@@ -206,8 +205,8 @@
     vpsd1.add<bool>("cutBased", false);
     vpsd1.add<std::string>("tmvaWeights", "RecoJets/JetProducers/data/MVAJetPuID.weights.xml.gz");
     vpsd1.add<std::vector<std::string>>("tmvaSpectators", {
-      "pt",
-      "eta",
+      "jetEta",
+      "jetPt",
     });
     vpsd1.add<std::string>("label", "CATEv0");
     vpsd1.add<int>("version", -1);
