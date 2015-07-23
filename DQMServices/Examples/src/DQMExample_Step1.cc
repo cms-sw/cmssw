@@ -36,6 +36,7 @@
 #include <math.h>
 #include <vector>
 #include <ctime>
+#include <cmath>
 
 //
 // -------------------------------------- Constructor --------------------------------------------
@@ -138,9 +139,6 @@ void DQMExample_Step1::dqmBeginRun(edm::Run const& run, edm::EventSetup const& e
   std::cout << "\t###" << std::endl;
   std::cout << "dqmBeginRun" << std::endl;
   std::cout << "\t###" << std::endl;
-
-  test_entries = 0;
-
 
   edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginRun" << std::endl;
   //open the CORAL session at beginRun:
@@ -250,7 +248,7 @@ void DQMExample_Step1::dqmBeginRun(edm::Run const& run, edm::EventSetup const& e
     table3.setNotNullConstraint( "NAME" );
     table3.setNotNullConstraint( "PATH" );
     table3.setNotNullConstraint( "RUN_NUMBER" );
-    table3.setNotNullConstraint( "LUMISECTION" );
+    //table3.setNotNullConstraint( "LUMISECTION" );
     table3.setNotNullConstraint( "ENTRIES" );
     table3.setNotNullConstraint( "X_MEAN" );
     table3.setNotNullConstraint( "X_MEAN_ERROR" );
@@ -559,47 +557,7 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
 
 
   coral::ISchema& schema = m_session->nominalSchema();
- /* m_session->transaction().start(true);
-  coral::IQuery* queryHistogram = schema.tableHandle( "HISTOGRAM" ).newQuery();
-  queryHistogram->addToOutputList( "NAME" );
-  queryHistogram->addToOutputList( "PATH" );
-  std::string condition = "NAME = \"" + h_vertex_number->getName() + "\" AND PATH = \"" + h_vertex_number->getPathname() + "\"";
-  coral::AttributeList conditionData;
-  queryHistogram->setCondition( condition, conditionData );
-  queryHistogram->setMemoryCacheSize( 5 );
-  coral::ICursor& cursor1 = queryHistogram->execute();
-  int numberOfRows = 0;
-  while(cursor1.next())
-  {
-    cursor1.currentRow().toOutputStream( std::cout ) << std::endl;
-    ++numberOfRows;
-  }
-  delete queryHistogram;
-  if ( numberOfRows == 1 )
-  {
-    histogramRecordExist = true;
-  }
-  m_session->transaction().commit();
 
-  m_session->transaction().start(false);
-  std::cout << "After query" << std::endl;
-  if(!histogramRecordExist)
-  {
-      coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM" ).dataEditor();
-      coral::AttributeList insertData;
-      insertData.extend< std::string >( "NAME" );
-      insertData.extend< std::string >( "PATH" );
-      insertData.extend< unsigned int >( "TIMESTAMP" );
-      insertData.extend< std::string >( "TITLE" );
-
-      insertData[ "NAME" ].data< std::string >() = h_vertex_number->getName();
-      insertData[ "PATH" ].data< std::string >() = h_vertex_number->getPathname();
-      insertData[ "TIMESTAMP" ].data< unsigned int >() = std::time(nullptr);
-      insertData[ "TITLE" ].data< std::string >() = h_vertex_number->getFullname();
-      editor.insertRow( insertData );
-  }
-  m_session->transaction().commit();
-*/
   //h_vertex_number
 
   for (MonitorElement * histogram : histogramsPerLumi)
@@ -721,9 +679,24 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     m_session->transaction().commit();
   }
 
-  test_entries += h_ePt_leading->getEntries();
-  for (MonitorElement * histogram : histogramsPerRun)
+  for (std::vector<std::pair <MonitorElement *, values> >::iterator it = histogramsPerRun.begin() ; it != histogramsPerRun.end(); ++it)
   {
+    if((*it).second.test_entries != 0)
+    {
+      (*it).second.test_x_mean = ((*it).second.test_x_mean*(*it).second.test_entries + h_ePt_leading->getTH1()->GetMean()*h_ePt_leading->getEntries())/((*it).second.test_entries+h_ePt_leading->getEntries());
+      (*it).second.test_x_mean_error = ((*it).second.test_x_mean_error*(*it).second.test_entries + h_ePt_leading->getTH1()->GetMeanError()*h_ePt_leading->getEntries())/((*it).second.test_entries+h_ePt_leading->getEntries());
+      (*it).second.test_x_rms = sqrt(((*it).second.test_entries*pow((*it).second.test_x_rms,2.0) + h_ePt_leading->getEntries()*pow(h_ePt_leading->getTH1()->GetRMS(),2.0))/((*it).second.test_entries+h_ePt_leading->getEntries()));
+      (*it).second.test_x_rms_error = sqrt(((*it).second.test_entries*pow((*it).second.test_x_rms_error,2.0) + h_ePt_leading->getEntries()*pow(h_ePt_leading->getTH1()->GetRMSError(),2.0))/((*it).second.test_entries+h_ePt_leading->getEntries()));
+    }
+    else
+    {
+      (*it).second.test_run = lumiSeg.run();
+      (*it).second.test_x_mean = (*it).first->getTH1()->GetMean();
+      (*it).second.test_x_mean_error = (*it).first->getTH1()->GetMeanError();
+      (*it).second.test_x_rms = (*it).first->getTH1()->GetRMS();
+      (*it).second.test_x_rms_error = (*it).first->getTH1()->GetRMSError();
+    }
+    (*it).second.test_entries += (*it).first->getEntries();
 
     m_session->transaction().start(true);
     coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery();
@@ -731,7 +704,7 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
     queryHistogramProps->addToOutputList( "PATH" );
     queryHistogramProps->addToOutputList( "RUN_NUMBER" );
 
-    std::string condition = "NAME = \"" + histogram->getName() + "\" AND PATH = \"" + histogram->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(lumiSeg.run()) + "\"";
+    std::string condition = "NAME = \"" + (*it).first->getName() + "\" AND PATH = \"" + (*it).first->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(lumiSeg.run()) + "\"";
     coral::AttributeList conditionData2;
     queryHistogramProps->setCondition( condition, conditionData2 );
     queryHistogramProps->setMemoryCacheSize( 5 );
@@ -767,12 +740,12 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
         insertData.extend< double >( "Z_LOW" );
         insertData.extend< double >( "Z_UP" );
 
-        insertData[ "NAME" ].data< std::string >() = histogram->getName();
-        insertData[ "PATH" ].data< std::string >() = histogram->getPathname();
+        insertData[ "NAME" ].data< std::string >() = (*it).first->getName();
+        insertData[ "PATH" ].data< std::string >() = (*it).first->getPathname();
         insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
-        insertData[ "X_BINS" ].data< int >() = histogram->getNbinsX(); //or histogram->getTH1()->GetNbinsX() ?
-        insertData[ "X_LOW" ].data< double >() = histogram->getTH1()->GetXaxis()->GetXmin();
-        insertData[ "X_UP" ].data< double >() = histogram->getTH1()->GetXaxis()->GetXmax();
+        insertData[ "X_BINS" ].data< int >() = (*it).first->getNbinsX(); //or histogram->getTH1()->GetNbinsX() ?
+        insertData[ "X_LOW" ].data< double >() = (*it).first->getTH1()->GetXaxis()->GetXmin();
+        insertData[ "X_UP" ].data< double >() = (*it).first->getTH1()->GetXaxis()->GetXmax();
         insertData[ "Y_BINS" ].data< int >() = 0; //histogram->getNbinsY();
         insertData[ "Y_LOW" ].data< double >() = 0.; //histogram->getTH1()->GetYaxis()->GetXMin();
         insertData[ "Y_UP" ].data< double >() = 0.; //histogram->getTH1()->GetYaxis()->GetXMax();
@@ -782,85 +755,6 @@ void DQMExample_Step1::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
         editor.insertRow( insertData );
     }
     m_session->transaction().commit();
-
-/*
-    bool firstLuminosityOfRun;
-    m_session->transaction().start(true);
-    coral::IQuery* queryHistogramValues = schema.tableHandle( "HISTOGRAM_VALUES" ).newQuery();
-    queryHistogramValues->addToOutputList( "LUMISECTION" );
-
-    std::string condition2 = "NAME = \"" + histogram->getName() + "\" AND PATH = \"" + histogram->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(lumiSeg.run()) + "\"";
-    coral::AttributeList conditionData3;
-    queryHistogramValues->setCondition( condition2, conditionData3 );
-    queryHistogramValues->setMemoryCacheSize( 5 );
-    coral::ICursor& cursor3 = queryHistogramValues->execute();
-    int numberOfRows = 0;
-    std::string luminosity = cursor3.currentRow();
-    while(cursor3.next())
-    {
-      cursor3.currentRow().toOutputStream( std::cout ) << std::endl;
-      ++numberOfRows;
-    }
-    delete queryHistogramValues;
-    if ( numberOfRows == 0 )
-    {
-      firstLuminosityOfRun = true;
-    }
-    m_session->transaction().commit();
-
-    m_session->transaction().start(false);
-
-    coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
-    coral::AttributeList insertData;
-    insertData.extend< std::string >( "NAME" );
-    insertData.extend< std::string >( "PATH" );
-    insertData.extend< unsigned int >( "RUN_NUMBER" );
-    insertData.extend< unsigned int >( "LUMISECTION" );
-    insertData.extend< double >( "ENTRIES" );
-    insertData.extend< double >( "X_MEAN" );
-    insertData.extend< double >( "X_MEAN_ERROR" );
-    insertData.extend< double >( "X_RMS" );
-    insertData.extend< double >( "X_RMS_ERROR" );
-    insertData.extend< double >( "X_UNDERFLOW");
-    insertData.extend< double >( "X_OVERFLOW" );
-    insertData.extend< double >( "Y_MEAN" );
-    insertData.extend< double >( "Y_MEAN_ERROR" );
-    insertData.extend< double >( "Y_RMS" );
-    insertData.extend< double >( "Y_RMS_ERROR" );
-    insertData.extend< double >( "Y_UNDERFLOW");
-    insertData.extend< double >( "Y_OVERFLOW" );
-    insertData.extend< double >( "Z_MEAN" );
-    insertData.extend< double >( "Z_MEAN_ERROR" );
-    insertData.extend< double >( "Z_RMS" );
-    insertData.extend< double >( "Z_RMS_ERROR" );
-    insertData.extend< double >( "Z_UNDERFLOW");
-    insertData.extend< double >( "Z_OVERFLOW" );
-
-    insertData[ "NAME" ].data< std::string >() = histogram->getName();
-    insertData[ "PATH" ].data< std::string >() = histogram->getPathname();
-    insertData[ "RUN_NUMBER" ].data< unsigned int >() = lumiSeg.run();
-    insertData[ "LUMISECTION" ].data< unsigned int >() = lumiSeg.luminosityBlock();
-    insertData[ "ENTRIES" ].data< double >() = histogram->getEntries(); //or histogram->getTH1()->GetEntries() ?
-    insertData[ "X_MEAN" ].data< double >() = histogram->getTH1()->GetMean();
-    insertData[ "X_MEAN_ERROR" ].data< double >() = histogram->getTH1()->GetMeanError();
-    insertData[ "X_RMS" ].data< double >() = histogram->getTH1()->GetRMS();
-    insertData[ "X_RMS_ERROR" ].data< double >() = histogram->getTH1()->GetRMSError();
-    insertData[ "X_UNDERFLOW" ].data< double >() = histogram->getTH1()->GetBinContent( 0 );
-    insertData[ "X_OVERFLOW" ].data< double >() = histogram->getTH1()->GetBinContent( histogram->getTH1()->GetNbinsX() + 1 );
-    insertData[ "Y_MEAN" ].data< double >() = histogram->getTH1()->GetMean( 2 );
-    insertData[ "Y_MEAN_ERROR" ].data< double >() = histogram->getTH1()->GetMeanError( 2 );
-    insertData[ "Y_RMS" ].data< double >() = histogram->getTH1()->GetRMS( 2 );
-    insertData[ "Y_RMS_ERROR" ].data< double >() = histogram->getTH1()->GetRMSError( 2 );
-    insertData[ "Y_UNDERFLOW" ].data< double >() = 0.;
-    insertData[ "Y_OVERFLOW" ].data< double >() = 0.;
-    insertData[ "Z_MEAN" ].data< double >() = histogram->getTH1()->GetMean( 3 );
-    insertData[ "Z_MEAN_ERROR" ].data< double >() = histogram->getTH1()->GetMeanError( 3 );
-    insertData[ "Z_RMS" ].data< double >() = histogram->getTH1()->GetRMS( 3 );
-    insertData[ "Z_RMS_ERROR" ].data< double >() = histogram->getTH1()->GetRMSError( 3 );
-    insertData[ "Z_UNDERFLOW" ].data< double >() = 0.;
-    insertData[ "Z_OVERFLOW" ].data< double >() = 0.;
-    editor.insertRow( insertData );
-    m_session->transaction().commit();*/
   }
 
 }
@@ -879,6 +773,8 @@ void DQMExample_Step1::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 
   //for (MonitorElement * histogram : histogramsPerRun)
   //{
+  for (std::vector<std::pair <MonitorElement *, values> >::iterator it = histogramsPerRun.begin() ; it != histogramsPerRun.end(); ++it)
+  {
     m_session->transaction().start(false);
 
     coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
@@ -907,34 +803,36 @@ void DQMExample_Step1::endRun(edm::Run const& run, edm::EventSetup const& eSetup
     insertData.extend< double >( "Z_UNDERFLOW");
     insertData.extend< double >( "Z_OVERFLOW" );
 
-    insertData[ "NAME" ].data< std::string >() = h_ePt_leading->getName();
-    insertData[ "PATH" ].data< std::string >() = h_ePt_leading->getPathname();
-    insertData[ "RUN_NUMBER" ].data< unsigned int >() = 999;
-    insertData[ "LUMISECTION" ].data< unsigned int >() = 999;
+    insertData[ "NAME" ].data< std::string >() = (*it).first->getName();
+    insertData[ "PATH" ].data< std::string >() = (*it).first->getPathname();
+    insertData[ "RUN_NUMBER" ].data< unsigned int >() = (*it).second.test_run;
+    //insertData[ "LUMISECTION" ].data< unsigned int >() = 999;
 
-    insertData[ "ENTRIES" ].data< double >() = test_entries; //or h_ePt_leading->getTH1()->GetEntries() ?
+    insertData[ "ENTRIES" ].data< double >() = (*it).second.test_entries; //or h_ePt_leading->getTH1()->GetEntries() ?
 
-    insertData[ "X_MEAN" ].data< double >() = h_ePt_leading->getTH1()->GetMean();
-    insertData[ "X_MEAN_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetMeanError();
-    insertData[ "X_RMS" ].data< double >() = h_ePt_leading->getTH1()->GetRMS();
-    insertData[ "X_RMS_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetRMSError();
-    insertData[ "X_UNDERFLOW" ].data< double >() = h_ePt_leading->getTH1()->GetBinContent( 0 );
-    insertData[ "X_OVERFLOW" ].data< double >() = h_ePt_leading->getTH1()->GetBinContent( h_ePt_leading->getTH1()->GetNbinsX() + 1 );
-    insertData[ "Y_MEAN" ].data< double >() = h_ePt_leading->getTH1()->GetMean( 2 );
-    insertData[ "Y_MEAN_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetMeanError( 2 );
-    insertData[ "Y_RMS" ].data< double >() = h_ePt_leading->getTH1()->GetRMS( 2 );
-    insertData[ "Y_RMS_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetRMSError( 2 );
+    insertData[ "X_MEAN" ].data< double >() = (*it).second.test_x_mean;            //h_ePt_leading->getTH1()->GetMean();
+    insertData[ "X_MEAN_ERROR" ].data< double >() = (*it).second.test_x_mean_error;      //h_ePt_leading->getTH1()->GetMeanError();
+    insertData[ "X_RMS" ].data< double >() = (*it).second.test_x_rms;             //h_ePt_leading->getTH1()->GetRMS();
+    insertData[ "X_RMS_ERROR" ].data< double >() = (*it).second.test_x_rms_error;      //h_ePt_leading->getTH1()->GetRMSError();
+
+
+    insertData[ "X_UNDERFLOW" ].data< double >() = (*it).first->getTH1()->GetBinContent( 0 );
+    insertData[ "X_OVERFLOW" ].data< double >() = (*it).first->getTH1()->GetBinContent( (*it).first->getTH1()->GetNbinsX() + 1 );
+    insertData[ "Y_MEAN" ].data< double >() = (*it).first->getTH1()->GetMean( 2 );
+    insertData[ "Y_MEAN_ERROR" ].data< double >() = (*it).first->getTH1()->GetMeanError( 2 );
+    insertData[ "Y_RMS" ].data< double >() = (*it).first->getTH1()->GetRMS( 2 );
+    insertData[ "Y_RMS_ERROR" ].data< double >() = (*it).first->getTH1()->GetRMSError( 2 );
     insertData[ "Y_UNDERFLOW" ].data< double >() = 0.;
     insertData[ "Y_OVERFLOW" ].data< double >() = 0.;
-    insertData[ "Z_MEAN" ].data< double >() = h_ePt_leading->getTH1()->GetMean( 3 );
-    insertData[ "Z_MEAN_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetMeanError( 3 );
-    insertData[ "Z_RMS" ].data< double >() = h_ePt_leading->getTH1()->GetRMS( 3 );
-    insertData[ "Z_RMS_ERROR" ].data< double >() = h_ePt_leading->getTH1()->GetRMSError( 3 );
+    insertData[ "Z_MEAN" ].data< double >() = (*it).first->getTH1()->GetMean( 3 );
+    insertData[ "Z_MEAN_ERROR" ].data< double >() = (*it).first->getTH1()->GetMeanError( 3 );
+    insertData[ "Z_RMS" ].data< double >() = (*it).first->getTH1()->GetRMS( 3 );
+    insertData[ "Z_RMS_ERROR" ].data< double >() = (*it).first->getTH1()->GetRMSError( 3 );
     insertData[ "Z_UNDERFLOW" ].data< double >() = 0.;
     insertData[ "Z_OVERFLOW" ].data< double >() = 0.;
     editor.insertRow( insertData );
     m_session->transaction().commit();
-  //}
+  }
 
 
   //no more data to process:
@@ -999,9 +897,10 @@ void DQMExample_Step1::bookHistos(DQMStore::IBooker & ibooker_)
   }
   if(histogramsPerRun.empty())
   {
-    histogramsPerRun.push_back(h_ePt_leading);
-    histogramsPerRun.push_back(h_eEta_leading);
-    histogramsPerRun.push_back(h_ePhi_leading);
+    values values_h_ePt_leading, values_h_eEta_leading, values_h_ePhi_leading;
+    histogramsPerRun.push_back(std::pair<MonitorElement *, values>(h_ePt_leading, values_h_ePt_leading));
+    histogramsPerRun.push_back(std::pair<MonitorElement *, values>(h_eEta_leading, values_h_eEta_leading));
+    histogramsPerRun.push_back(std::pair<MonitorElement *, values>(h_ePhi_leading, values_h_ePhi_leading));
   }
   for (MonitorElement * histogram : histogramsPerLumi)
   {
@@ -1017,7 +916,7 @@ void DQMExample_Step1::bookHistos(DQMStore::IBooker & ibooker_)
       insertData[ "TITLE" ].data< std::string >() = histogram->getFullname();
       editor.insertRow( insertData );
   }
-  for (MonitorElement * histogram : histogramsPerRun)
+  for (std::vector<std::pair <MonitorElement *, values> >::iterator it = histogramsPerRun.begin() ; it != histogramsPerRun.end(); ++it)
   {
       coral::AttributeList insertData;
       insertData.extend< std::string >( "NAME" );
@@ -1025,10 +924,10 @@ void DQMExample_Step1::bookHistos(DQMStore::IBooker & ibooker_)
       insertData.extend< unsigned int >( "TIMESTAMP" );
       insertData.extend< std::string >( "TITLE" );
 
-      insertData[ "NAME" ].data< std::string >() = histogram->getName();
-      insertData[ "PATH" ].data< std::string >() = histogram->getPathname();
+      insertData[ "NAME" ].data< std::string >() = (*it).first->getName();
+      insertData[ "PATH" ].data< std::string >() = (*it).first->getPathname();
       insertData[ "TIMESTAMP" ].data< unsigned int >() = std::time(nullptr);
-      insertData[ "TITLE" ].data< std::string >() = histogram->getFullname();
+      insertData[ "TITLE" ].data< std::string >() = (*it).first->getFullname();
       editor.insertRow( insertData );
   }
 

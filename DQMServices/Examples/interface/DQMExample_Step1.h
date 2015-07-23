@@ -50,10 +50,29 @@
 //STL includes
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 #include <initializer_list>
 
+//histogram's values per run
+struct values {
+  int test_run;
+  int test_entries;
+  double test_x_mean;
+  double test_x_mean_error;
+  double test_x_rms;
+  double test_x_rms_error;
 
+  double test_y_mean;
+  double test_y_mean_error;
+  double test_y_rms;
+  double test_y_rms_error;
+
+  double test_z_mean;
+  double test_z_mean_error;
+  double test_z_rms;
+  double test_z_rms_error;
+};
 
 //forward declarations
 namespace coral {
@@ -138,9 +157,27 @@ private:
   MonitorElement* h_ePt_diff;
 
   std::vector <MonitorElement *> histogramsPerLumi;
-  std::vector <MonitorElement *> histogramsPerRun;
-  double test_entries;
-  
+  std::vector < std::pair <MonitorElement *, values> > histogramsPerRun;
+
+/*
+  int test_run;
+  int test_entries;
+  double test_x_mean;
+  double test_x_mean_error;
+  double test_x_rms;
+  double test_x_rms_error;
+
+  double test_y_mean;
+  double test_y_mean_error;
+  double test_y_rms;
+  double test_y_rms_error;
+
+  double test_z_mean;
+  double test_z_mean_error;
+  double test_z_rms;
+  double test_z_rms_error;
+  */
+
   //CORAL connection
   coral::ConnectionService m_connectionService;
   //unique pointer to a CORAL session proxy
