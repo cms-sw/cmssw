@@ -35,6 +35,7 @@ const float ETAMAX = 21.5;
 
 
 L1TRCT::L1TRCT(const ParameterSet & ps) :
+   histFolder_ (ps.getUntrackedParameter<std::string>("HistFolder", "L1T/L1TRCT")),
    rctSource_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSource") )),
    rctSource_L1CEMCollection_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSource") )),
    rctSource_GCT_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("gctSource") )),
@@ -85,7 +86,7 @@ void L1TRCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Ev
 {
   nev_ = 0;
   
-  ibooker.setCurrentFolder("L1T/L1TRCT");
+  ibooker.setCurrentFolder(histFolder_);
 
   runId_=ibooker.bookInt("iRun");
   runId_->Fill(-1);

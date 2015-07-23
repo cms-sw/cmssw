@@ -121,6 +121,7 @@ private:
 
 
   int nev_; // Number of events processed
+  std::string histFolder_;
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
