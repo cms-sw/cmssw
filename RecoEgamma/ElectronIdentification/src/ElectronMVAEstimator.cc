@@ -7,9 +7,25 @@
 
 #include "TMVA/Reader.h"
 #include "TMVA/MethodBDT.h"
+#include "TMVA/MethodCategory.h"
 
 namespace {
   constexpr char ele_mva_name[] = "BDTSimpleCat";
+
+  class ExtraDeliciousHack : public TMVA::MethodCategory {
+  public:
+    ExtraDeliciousHack( TMVA::DataSetInfo& dsi,
+                        const TString& theWeightFile,
+                        TDirectory* theTargetDir = NULL ) : 
+      TMVA::MethodCategory(dsi,theWeightFile,theTargetDir) {      
+    }
+    TMVA::IMethod* GetMethod(const std::string& title) const {
+      for( unsigned i = 0; i < fMethods.size(); ++i ) {
+        std::cout << fMethods[i]->GetName() << std::endl;
+      }
+      return TMVA::MethodCategory::GetMethod(TString(title.c_str()));
+    }  
+  };
 }
 
 ElectronMVAEstimator::ElectronMVAEstimator():
@@ -78,9 +94,35 @@ ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
   // Taken from Daniele (his mail from the 30/11)
   //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
   // training of the 7/12 with Nvtx added
-
+  std::cout << "parsing tmva xml" << std::endl;
   std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(ele_mva_name,weightsfiles[0]) );
+  tmvaReader.Print("V");
+  std::cout << "parsed tmva xml" << std::endl;
+  std::cout << "converting to GBR" << std::endl;
+  std::cout << "mva ptr = " << tmvaReader.FindMVA(ele_mva_name) << std::endl;
+  TMVA::MethodCategory* cate = dynamic_cast<TMVA::MethodCategory*>(tmvaReader.FindMVA(ele_mva_name));
+  std::cout << "casted to MethodCategory = " << cate << std::endl;
+  cate->Print();
+  std::cout << cate->DataInfo().GetName() << std::endl;
+  std::cout << cate->GetWeightFileName() << std::endl;
+  ExtraDeliciousHack hack(cate->DataInfo(),cate->GetWeightFileName(),NULL);
+  std::ifstream the_xml_file(cate->GetWeightFileName().Data());
+  std::string xml_str((std::istreambuf_iterator<char>(the_xml_file)),
+                      std::istreambuf_iterator<char>());
+  the_xml_file.close();
+  std::cout << xml_str << std::endl;
+  std::cout << "made hack!" << std::endl;   
+  hack.SetupMethod();
+  std::cout << "Setup" << std::endl;
+  hack.DeclareCompatibilityOptions();
+  std::cout << "options" << std::endl;
+  hack.ReadStateFromXMLString(xml_str.c_str());
+  std::cout << "state from file" << std::endl;
+  hack.CheckSetup();
+  std::cout << "checksetup" << std::endl;
+  std::cout << "sub ptr = " << hack.GetMethod(std::string("BDT::Category_BDTSimpleCat_10")) << std::endl;
   gbr.reset(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(ele_mva_name) ) ) );
+  std::cout << "converted to GBR" << std::endl;
 }
 
 double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nvertices ) const {
