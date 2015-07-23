@@ -68,15 +68,13 @@
     <Variable VarIndex="10" Expression="beta" Label="beta" Title="beta" Unit="" Internal="beta" Type="F" Min="0.00000000e+00" Max="5.29895439e+01"/>
     <Variable VarIndex="11" Expression="betaStar" Label="betaStar" Title="betaStar" Unit="" Internal="betaStar" Type="F" Min="0.00000000e+00" Max="2.21961346e+01"/>
     <Variable VarIndex="12" Expression="DR_weighted" Label="DR_weighted" Title="DR_weighted" Unit="" Internal="DR_weighted" Type="F" Min="0.00000000e+00" Max="1.19186155e-01"/>
-    <Variable VarIndex="13" Expression="min(pull,0.1)" Label="pull" Title="pull" Unit="" Internal="pull" Type="F" Min="0.00000000e+00" Max="2.82162037e-02"/>
+    <Variable VarIndex="13" Expression="pull" Label="pull" Title="pull" Unit="" Internal="pull" Type="F" Min="0.00000000e+00" Max="2.82162037e-02"/>
     <Variable VarIndex="14" Expression="jetR" Label="jetR" Title="jetR" Unit="" Internal="jetR" Type="F" Min="5.23106046e-02" Max="1.00000000e+00"/>
     <Variable VarIndex="15" Expression="jetRchg" Label="jetRchg" Title="jetRchg" Unit="" Internal="jetRchg" Type="F" Min="0.00000000e+00" Max="1.00000000e+00"/>
   </Variables>
-  <Spectators NSpec="4">
-    <Spectator SpecIndex="0" Expression="eta" Label="eta" Title="F" Unit="" Internal="eta" Type="F" Min="-4.99988747e+00" Max="4.99994993e+00"/>
-    <Spectator SpecIndex="1" Expression="pt" Label="pt" Title="F" Unit="" Internal="pt" Type="F" Min="2.00000038e+01" Max="9.99999313e+01"/>
-    <Spectator SpecIndex="2" Expression="nTrueInt" Label="nTrueInt" Title="I" Unit="" Internal="nTrueInt" Type="F" Min="2.00000000e+00" Max="4.60000000e+01"/>
-    <Spectator SpecIndex="3" Expression="dRMatch" Label="dRMatch" Title="F" Unit="" Internal="dRMatch" Type="F" Min="4.19948447e-06" Max="1.00000000e+03"/>
+  <Spectators NSpec="2">
+    <Spectator SpecIndex="0" Expression="jetEta" Label="jetEta" Title="F" Unit="" Internal="jetEta" Type="F" Min="-4.99988747e+00" Max="4.99994993e+00"/>
+    <Spectator SpecIndex="1" Expression="jetPt" Label="jetPt" Title="F" Unit="" Internal="jetPt" Type="F" Min="2.00000038e+01" Max="9.99999313e+01"/>
   </Spectators>
   <Classes NClass="2">
     <Class Name="Signal" Index="0"/>
