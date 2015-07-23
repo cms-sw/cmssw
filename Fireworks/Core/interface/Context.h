@@ -88,6 +88,9 @@ public:
    void  voteMaxEtAndEnergy(float Et, float energy) const;
    void  resetMaxEtAndEnergy() const;
 
+   bool getHidePFBuilders() const { return m_hidePFBuilders; }
+   void setHidePFBuilders( bool x ) { m_hidePFBuilders = x; } 
+
    // ---------- member functions ---------------------------
   
    void initEveElements();
@@ -128,6 +131,8 @@ private:
 
    mutable float                 m_maxEt;
    mutable float                 m_maxEnergy;
+
+   mutable bool          m_hidePFBuilders;
 
    TEveCaloDataHist     *m_caloData;
    TEveCaloDataVec      *m_caloDataHF;
