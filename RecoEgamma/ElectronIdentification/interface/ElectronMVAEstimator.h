@@ -22,7 +22,7 @@ class ElectronMVAEstimator {
   const Configuration cfg_;
   void bindVariables(float vars[18]) const;
   
-  std::unique_ptr<const GBRForest> gbr;
+  std::vector<std::unique_ptr<const GBRForest> > gbr;
   
   Float_t       fbrem;      //0
   Float_t       detain;     //1
