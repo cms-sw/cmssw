@@ -11,21 +11,6 @@
 
 namespace {
   constexpr char ele_mva_name[] = "BDTSimpleCat";
-
-  class ExtraDeliciousHack : public TMVA::MethodCategory {
-  public:
-    ExtraDeliciousHack( TMVA::DataSetInfo& dsi,
-                        const TString& theWeightFile,
-                        TDirectory* theTargetDir = NULL ) : 
-      TMVA::MethodCategory(dsi,theWeightFile,theTargetDir) {      
-    }
-    TMVA::IMethod* GetMethod(const std::string& title) const {
-      for( unsigned i = 0; i < fMethods.size(); ++i ) {
-        std::cout << fMethods[i]->GetName() << std::endl;
-      }
-      return TMVA::MethodCategory::GetMethod(TString(title.c_str()));
-    }  
-  };
 }
 
 ElectronMVAEstimator::ElectronMVAEstimator():
@@ -60,7 +45,7 @@ ElectronMVAEstimator::ElectronMVAEstimator(std::string fileName):
   //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
   // training of the 7/12 with Nvtx added
   std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(ele_mva_name,fileName.c_str()) );
-  gbr.reset(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(ele_mva_name) ) ) );
+  gbr.emplace_back(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(ele_mva_name) ) ) );
 }
 
 ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
@@ -70,59 +55,34 @@ ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
     path_mvaWeightFileEleID = edm::FileInPath ( cfg_.vweightsfiles[ifile].c_str() ).fullPath();
     weightsfiles.push_back(path_mvaWeightFileEleID);
   }
-  TMVA::Reader tmvaReader("!Color:Silent");
-  tmvaReader.AddVariable("fbrem",&fbrem);
-  tmvaReader.AddVariable("detain", &detain);
-  tmvaReader.AddVariable("dphiin", &dphiin);
-  tmvaReader.AddVariable("sieie", &sieie);
-  tmvaReader.AddVariable("hoe", &hoe);
-  tmvaReader.AddVariable("eop", &eop);
-  tmvaReader.AddVariable("e1x5e5x5", &e1x5e5x5);
-  tmvaReader.AddVariable("eleopout", &eleopout);
-  tmvaReader.AddVariable("detaeleout", &detaeleout);
-  tmvaReader.AddVariable("kfchi2", &kfchi2);
-  tmvaReader.AddVariable("kfhits", &mykfhits);
-  tmvaReader.AddVariable("mishits",&mymishits);
-  tmvaReader.AddVariable("dist", &absdist);
-  tmvaReader.AddVariable("dcot", &absdcot);
-  tmvaReader.AddVariable("nvtx", &myNvtx);
-
-  tmvaReader.AddSpectator("eta",&eta);
-  tmvaReader.AddSpectator("pt",&pt);
-  tmvaReader.AddSpectator("ecalseed",&ecalseed);
-  
-  // Taken from Daniele (his mail from the 30/11)
-  //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
-  // training of the 7/12 with Nvtx added
-  std::cout << "parsing tmva xml" << std::endl;
-  std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(ele_mva_name,weightsfiles[0]) );
-  tmvaReader.Print("V");
-  std::cout << "parsed tmva xml" << std::endl;
-  std::cout << "converting to GBR" << std::endl;
-  std::cout << "mva ptr = " << tmvaReader.FindMVA(ele_mva_name) << std::endl;
-  TMVA::MethodCategory* cate = dynamic_cast<TMVA::MethodCategory*>(tmvaReader.FindMVA(ele_mva_name));
-  std::cout << "casted to MethodCategory = " << cate << std::endl;
-  cate->Print();
-  std::cout << cate->DataInfo().GetName() << std::endl;
-  std::cout << cate->GetWeightFileName() << std::endl;
-  ExtraDeliciousHack hack(cate->DataInfo(),cate->GetWeightFileName(),NULL);
-  std::ifstream the_xml_file(cate->GetWeightFileName().Data());
-  std::string xml_str((std::istreambuf_iterator<char>(the_xml_file)),
-                      std::istreambuf_iterator<char>());
-  the_xml_file.close();
-  std::cout << xml_str << std::endl;
-  std::cout << "made hack!" << std::endl;   
-  hack.SetupMethod();
-  std::cout << "Setup" << std::endl;
-  hack.DeclareCompatibilityOptions();
-  std::cout << "options" << std::endl;
-  hack.ReadStateFromXMLString(xml_str.c_str());
-  std::cout << "state from file" << std::endl;
-  hack.CheckSetup();
-  std::cout << "checksetup" << std::endl;
-  std::cout << "sub ptr = " << hack.GetMethod(std::string("BDT::Category_BDTSimpleCat_10")) << std::endl;
-  gbr.reset(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(ele_mva_name) ) ) );
-  std::cout << "converted to GBR" << std::endl;
+  for( const auto& wgtfile : weightsfiles ) {
+    TMVA::Reader tmvaReader("!Color:Silent");
+    tmvaReader.AddVariable("fbrem",&fbrem);
+    tmvaReader.AddVariable("detain", &detain);
+    tmvaReader.AddVariable("dphiin", &dphiin);
+    tmvaReader.AddVariable("sieie", &sieie);
+    tmvaReader.AddVariable("hoe", &hoe);
+    tmvaReader.AddVariable("eop", &eop);
+    tmvaReader.AddVariable("e1x5e5x5", &e1x5e5x5);
+    tmvaReader.AddVariable("eleopout", &eleopout);
+    tmvaReader.AddVariable("detaeleout", &detaeleout);
+    tmvaReader.AddVariable("kfchi2", &kfchi2);
+    tmvaReader.AddVariable("kfhits", &mykfhits);
+    tmvaReader.AddVariable("mishits",&mymishits);
+    tmvaReader.AddVariable("dist", &absdist);
+    tmvaReader.AddVariable("dcot", &absdcot);
+    tmvaReader.AddVariable("nvtx", &myNvtx);
+    
+    tmvaReader.AddSpectator("eta",&eta);
+    tmvaReader.AddSpectator("pt",&pt);
+    tmvaReader.AddSpectator("ecalseed",&ecalseed);
+    
+    // Taken from Daniele (his mail from the 30/11)
+    //  tmvaReader.BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
+    // training of the 7/12 with Nvtx added
+    std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA(ele_mva_name,wgtfile) );
+    gbr.emplace_back(new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA(ele_mva_name) ) ) );
+  }
 }
 
 double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nvertices ) const {
@@ -155,7 +115,15 @@ double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nverti
   vars[17] = myElectron.ecalDrivenSeed();
   
   bindVariables(vars);
-  double result =  gbr->GetAdaBoostClassifier(vars);
+
+  //0 pt &lt; 10 &amp;&amp; abs(eta)&lt;=1.485
+  //1 pt &gt;= 10 &amp;&amp; abs(eta)&lt;=1.485
+  //2 pt &lt; 10 &amp;&amp; abs(eta)&gt; 1.485
+  //3 pt &gt;= 10 &amp;&amp;  abs(eta)&gt; 1.485
+
+  const unsigned index = (unsigned)(myElectron.pt() >= 10) + 2*(unsigned)(std::abs(myElectron.eta()) > 1.485);
+
+  double result =  gbr[index]->GetAdaBoostClassifier(vars);
 //  
 //  std::cout << "fbrem" << vars[0] << std::endl;
 //  std::cout << "detain"<< vars[1] << std::endl;
