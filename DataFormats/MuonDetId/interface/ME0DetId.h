@@ -47,14 +47,14 @@ class ME0DetId :public DetId {
     return int((id_>>RegionStartBit_) & RegionMask_) + minRegionId;
   }
 
-  /// Layer id: each station have two layers of chambers: layer 1 is the inner chamber and layer 6 is the outer chamber 
-  int layer() const{
-    return int((id_>>LayerStartBit_) & LayerMask_) + minLayerId;
-  }
-
   /// Chamber id: it identifies a chamber in a ring it goes from 1 to 36 
   int chamber() const{
     return int((id_>>ChamberStartBit_) & ChamberMask_) + minChamberId;
+  }
+
+  /// Layer id: each chamber has six layers of chambers: layer 1 is the inner layer and layer 6 is the outer layer 
+  int layer() const{
+    return int((id_>>LayerStartBit_) & LayerMask_) + minLayerId;
   }
 
  /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
@@ -64,10 +64,16 @@ class ME0DetId :public DetId {
   }
 
 
-  /// Return the corresponding ChamberId
+  /// Return the corresponding ChamberId (mask layers)
   ME0DetId chamberId() const {
     return ME0DetId(id_ & chamberIdMask_);
   }
+  /// Return the corresponding LayerId (mask eta partition)
+  // /*
+  ME0DetId layerId() const {
+    return ME0DetId(id_ & layerIdMask_);
+  }
+  // */
 
   static const int minRegionId=     -1;
   static const int maxRegionId=      1;
@@ -98,7 +104,11 @@ class ME0DetId :public DetId {
   static const int RollStartBit_ =  LayerStartBit_+LayerNumBits_;  
   static const unsigned int RollMask_     =  0X1F;
  
-  static const uint32_t chamberIdMask_ = ~(RollMask_<<RollStartBit_);
+  // original, to me looks more like a roll mask instead of a layer mask
+  // static const uint32_t chamberIdMask_ = ~(RollMask_<<RollStartBit_);
+  // maybe it should be more something like ...
+  static const uint32_t chamberIdMask_ = ~(LayerMask_<<LayerStartBit_);
+  static const uint32_t layerIdMask_ = ~(RollMask_<<RollStartBit_);
 
  private:
   void init(int region, 
