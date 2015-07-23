@@ -15,6 +15,9 @@ dttfDigis = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone()
 import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
 gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
 
+import EventFilter.RctRawToDigi.l1RctHwDigis_cfi
+rctDigis = EventFilter.RctRawToDigi.l1RctHwDigis_cfi.l1RctHwDigis.clone()
+
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
 
