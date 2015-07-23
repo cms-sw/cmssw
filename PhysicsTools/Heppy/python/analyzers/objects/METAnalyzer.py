@@ -45,7 +45,7 @@ class METAnalyzer( Analyzer ):
         uX = - met.px() - boson.px()
         uY = - met.py() - boson.py()
         u1 = (uX*boson.px() + uY*boson.py())/boson.pt()
-        u2 = (uX*boson.px() - uY*boson.py())/boson.pt()
+        u2 = (uX*boson.py() - uY*boson.px())/boson.pt()
 
         setattr(met, "upara"+postfix, u1)
         setattr(met, "uperp"+postfix, u2)
