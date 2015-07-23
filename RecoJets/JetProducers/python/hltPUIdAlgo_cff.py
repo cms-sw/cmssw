@@ -5,7 +5,7 @@ from RecoJets.JetProducers.hltPUIdParams_cfi import *
 full_74x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
- tmvaWeights = cms.string("RecoJets/JetProducers/data/MVAJetPuID.weights.xml"),
+ tmvaWeights = cms.string("RecoJets/JetProducers/data/MVAJetPuID.weights.xml.gz"),
  tmvaMethod  = cms.string("JetID"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(

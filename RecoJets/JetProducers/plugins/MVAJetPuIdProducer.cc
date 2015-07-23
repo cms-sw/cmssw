@@ -204,7 +204,7 @@
     });
     vpsd1.add<std::string>("tmvaMethod", "JetID");
     vpsd1.add<bool>("cutBased", false);
-    vpsd1.add<std::string>("tmvaWeights", "RecoJets/JetProducers/data/MVAJetPuID.weights.xml");
+    vpsd1.add<std::string>("tmvaWeights", "RecoJets/JetProducers/data/MVAJetPuID.weights.xml.gz");
     vpsd1.add<std::vector<std::string>>("tmvaSpectators", {
       "pt",
       "eta",
