@@ -44,7 +44,7 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
 }
 
 
-float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs)
+float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, const bool useSpectators)
 {
   if(!mIsInitialized)
   {
@@ -52,7 +52,12 @@ float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs)
     return -99.;
   }
 
-  if( inputs.size() < mVariables.size() )
+  if( useSpectators && inputs.size() < ( mVariables.size() + mSpectators.size() ) )
+  {
+    edm::LogError("MissingInputs") << "Too few inputs provided (" << inputs.size() << " provided but " << mVariables.size() << " input and " << mSpectators.size() << " spectator variables expected).";
+    return -99.;
+  }
+  else if( inputs.size() < mVariables.size() )
   {
     edm::LogError("MissingInputVariable(s)") << "Too few input variables provided (" << inputs.size() << " provided but " << mVariables.size() << " expected).";
     return -99.;
@@ -64,7 +69,20 @@ float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs)
     if (inputs.count(it->first)>0)
       it->second = inputs.at(it->first);
     else
-      edm::LogError("MissingInputVariable") << "Variable " << it->first << " is missing from the list of input variables. The returned discriminator value might not be sensible.";
+      edm::LogError("MissingInputVariable") << "Input variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+  }
+
+  // if using spectator variables
+  if(useSpectators)
+  {
+    // set the spectator variable values
+    for(std::map<std::string,float>::iterator it = mSpectators.begin(); it!=mSpectators.end(); ++it)
+    {
+      if (inputs.count(it->first)>0)
+        it->second = inputs.at(it->first);
+      else
+        edm::LogError("MissingSpectatorVariable") << "Spectator variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+    }
   }
 
   // evaluate the MVA
