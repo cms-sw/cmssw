@@ -85,14 +85,14 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
   reportSummaryMap_->setBinLabel(28,"Stable B",2);
   reportSummaryMap_->setBinLabel(29,"Valid",2);
   reportSummaryMap_->setAxisTitle("Luminosity Section");
-  reportSummaryMap_->getTH2F()->SetBit(TH1::kCanRebin);
+  reportSummaryMap_->getTH2F()->SetCanExtend(TH1::kAllAxes);
 
   dbe_->cd();  
   dbe_->setCurrentFolder(subsystemname_ +"/LhcInfo/");
   hBeamMode_=dbe_->book1D("beamMode","beamMode",XBINS,1.,XBINS+1);
   hBeamMode_->getTH1F()->GetYaxis()->Set(21,0.5,21.5);
   hBeamMode_->getTH1F()->SetMaximum(21.5);
-  hBeamMode_->getTH1F()->SetBit(TH1::kCanRebin);
+  hBeamMode_->getTH1F()->SetCanExtend(TH1::kAllAxes);
 
   hBeamMode_->setAxisTitle("Luminosity Section",1);
   hBeamMode_->setBinLabel(1,"no mode",2);
@@ -121,20 +121,20 @@ DQMProvInfo::beginRun(const edm::Run& r, const edm::EventSetup &c ) {
 
   hLhcFill_=dbe_->book1D("lhcFill","LHC Fill Number",XBINS,1.,XBINS+1);
   hLhcFill_->setAxisTitle("Luminosity Section",1);
-  hLhcFill_->getTH1F()->SetBit(TH1::kCanRebin);
+  hLhcFill_->getTH1F()->SetCanExtend(TH1::kAllAxes);
   
   hMomentum_=dbe_->book1D("momentum","Beam Energy [GeV]",XBINS,1.,XBINS+1);
   hMomentum_->setAxisTitle("Luminosity Section",1);
-  hMomentum_->getTH1F()->SetBit(TH1::kCanRebin);
+  hMomentum_->getTH1F()->SetCanExtend(TH1::kAllAxes);
 
   hIntensity1_=dbe_->book1D("intensity1","Intensity Beam 1",XBINS,1.,XBINS+1);
   hIntensity1_->setAxisTitle("Luminosity Section",1);
   hIntensity1_->setAxisTitle("N [E10]",2);
-  hIntensity1_->getTH1F()->SetBit(TH1::kCanRebin);
+  hIntensity1_->getTH1F()->SetCanExtend(TH1::kAllAxes);
   hIntensity2_=dbe_->book1D("intensity2","Intensity Beam 2",XBINS,1.,XBINS+1);
   hIntensity2_->setAxisTitle("Luminosity Section",1);
   hIntensity2_->setAxisTitle("N [E10]",2);
-  hIntensity2_->getTH1F()->SetBit(TH1::kCanRebin);
+  hIntensity2_->getTH1F()->SetCanExtend(TH1::kAllAxes);
 
   dbe_->cd();  
   dbe_->setCurrentFolder(subsystemname_ +"/ProvInfo/");
