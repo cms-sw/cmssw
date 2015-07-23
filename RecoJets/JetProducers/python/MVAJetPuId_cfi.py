@@ -1,7 +1,7 @@
 from RecoJets.JetProducers.hltPUIdAlgo_cff import *
 
 MVAJetPuIdCalculator = cms.EDProducer('MVAJetPuId',
-                                      produceJetIds = cms.bool(True),
+                                      produceJetIds = cms.bool(False),
                                       jetids = cms.InputTag(""),
                                       runMvas = cms.bool(True),
                                       algos = cms.VPSet(cms.VPSet(full_74x)),
