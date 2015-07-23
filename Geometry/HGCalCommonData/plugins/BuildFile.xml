@@ -1,0 +1,13 @@
+<use   name="DetectorDescription/Parser"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="Geometry/HGCalCommonData"/>
+<use   name="Geometry/Records"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="DetectorDescription/Core"/>
+
+<flags   EDM_PLUGIN="1"/>
+<library file="DD*.cc,module.cc" name="GeometryHGCalCommonDataPlugin"> </library>
+<library file="HGCalNumberingInitialization.cc" name="GeometryHGCalNumberingInitialization"> </library>
+<library file="FastTimeNumberingInitialization.cc" name="GeometryFastTimeNumberingInitialization"> </library>

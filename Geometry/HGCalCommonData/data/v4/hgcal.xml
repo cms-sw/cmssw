@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcal.xml" eval="true">
+  <Constant name="zHGCal1"    value="3170.0*mm"/>
+  <Constant name="zHGCal2"    value="3907.1*mm"/>
+  <Constant name="zHGCal3"    value="4497.0*mm"/>
+  <Constant name="zHGCal4"    value="5236.5*mm"/>
+  <Constant name="zMinEE"     value="3170.0*mm"/>
+  <Constant name="zMaxEE"     value="3501.3*mm"/>
+  <Constant name="zMinHE"     value="3501.3*mm"/>
+  <Constant name="zMaxHE"     value="5236.5*mm"/>
+  <Constant name="rMinHGCal1" value="[etaMax:slope]*[zHGCal1]"/>
+  <Constant name="rMinHGCal2" value="[etaMax:slope]*[zHGCal2]"/>    
+  <Constant name="rMinHGCal3" value="[etaMax:slope]*[zHGCal3]"/>
+  <Constant name="rMinHGCal4" value="[etaMax:slope]*[zHGCal4]"/>
+  <Constant name="rMinEEMin"  value="[etaMax:slope]*[zMinEE]"/>
+  <Constant name="rMinEEMax"  value="[etaMax:slope]*[zMaxEE]"/>
+  <Constant name="rMinHEMin"  value="[etaMax:slope]*[zMinHE]"/>
+  <Constant name="rMinHEMax"  value="[etaMax:slope]*[zMaxHE]"/>
+  <Constant name="thetaMax2"  value="25.672*deg"/>
+  <Constant name="thetaMax3"  value="53.0*deg"/>
+  <Constant name="rMaxHGCal1" value="152.371*cm"/>
+  <Constant name="rMaxHGCal2" value="187.801*cm"/>
+  <Constant name="rMaxHGCal3" value="266.083*cm"/>
+  <Constant name="rMaxHGCal4" value="[rMaxHGCal3]"/>
+  <Constant name="slope2"     value="([rMaxHGCal2]-[rMaxHGCal1])/([zHGCal2]-[zHGCal1])"/>
+  <Constant name="slope3"     value="([rMaxHGCal3]-[rMaxHGCal2])/([zHGCal3]-[zHGCal2])"/>
+  <Constant name="rMaxEEMin"  value="([rMaxHGCal1]+[slope2]*([zMinEE]-[zHGCal1]))"/>
+  <Constant name="rMaxEEMax"  value="([rMaxHGCal1]+[slope2]*([zMaxEE]-[zHGCal1]))"/>
+  <Constant name="rMaxHEMin"  value="([rMaxHGCal1]+[slope2]*([zMinHE]-[zHGCal1]))"/>
+  <Constant name="rMaxHEMax"  value="[rMaxHGCal3]"/>
+  <Constant name="factor1"    value="cos(10*deg)"/>
+  <Constant name="factor2"    value="cos(10*deg)"/>
+  <Constant name="rMapEEMin"  value="[rMaxEEMin]*[factor1]"/>
+  <Constant name="rMapEEMax"  value="[rMaxEEMax]*[factor1]"/>
+  <Constant name="rMapHEMin"  value="[rMaxHEMin]*[factor1]"/>
+  <Constant name="rMapHGCal2" value="[rMaxHGCal2]*[factor1]"/>
+  <Constant name="rMapHGCal3" value="[rMaxHGCal3]*[factor2]"/>
+  <Constant name="rMapHEMax"  value="[rMaxHEMax]*[factor2]"/>
+</ConstantsSection>
+
+<SolidSection label="hgcal.xml">
+  <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]"/>
+    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]"/>
+    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+    <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]"/>
+  </Polycone>
+  <Polyhedra name="HGCalEE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zMinEE]" rMin="[rMinEEMin]" rMax="[rMapEEMin]"/>
+    <ZSection z="[zMaxEE]" rMin="[rMinEEMax]" rMax="[rMapEEMax]"/>
+  </Polyhedra>
+  <Polyhedra name="HGCalHE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zMinHE]"  rMin="[rMinHEMin]"  rMax="[rMapHEMin]"/>
+    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMapHGCal2]"/>
+    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMapHGCal3]"/>
+    <ZSection z="[zMaxHE]"  rMin="[rMinHEMax]"  rMax="[rMapHEMax]"/>
+  </Polyhedra>
+</SolidSection>
+
+<LogicalPartSection label="hgcal.xml">
+  <LogicalPart name="HGCal" category="unspecified">
+    <rSolid name="HGCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEE" category="unspecified">
+    <rSolid name="HGCalEE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHE" category="unspecified">
+    <rSolid name="HGCalHE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcal.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="HGCal"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="HGCal"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="HGCal"/>
+    <rChild name="HGCalEE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="HGCal"/>
+    <rChild name="HGCalHE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>
