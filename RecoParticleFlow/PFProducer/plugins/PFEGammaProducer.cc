@@ -207,7 +207,9 @@ PFEGammaProducer::beginRun(const edm::Run & run,
                      const edm::EventSetup & es) 
 {
 
+  /* // kept for historical reasons
   if(useRegressionFromDB_) {
+    
     edm::ESHandle<GBRForest> readerPFLCEB;
     edm::ESHandle<GBRForest> readerPFLCEE;    
     edm::ESHandle<GBRForest> readerPFGCEB;
@@ -227,11 +229,11 @@ PFEGammaProducer::beginRun(const edm::Run & run,
     es.get<GBRWrapperRcd>().get("PFEcalResolution",readerPFRes);
     ReaderEcalRes_=readerPFRes.product();
 
-    /*
+    
     LogDebug("PFEGammaProducer")<<"setting regressions from DB "<<std::endl;
-    */
+    
   } 
-
+  */
 
   //pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
     
