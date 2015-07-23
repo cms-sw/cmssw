@@ -33,7 +33,7 @@ l1tRct.gctSource = 'gctDigis'
 
 l1tRctfromGCT = l1tRct.clone()
 l1tRctfromGCT.rctSource = 'l1RctHwDigis'
-l1tRctfromGCT.HistFolder = cms.untracked.string('L1T/L1TRCTfromGCT')
+l1tRctfromGCT.HistFolder = cms.untracked.string('L1T/L1TRCT_FromGCT')
 
 # GCT DQM module 
 from DQM.L1TMonitor.L1TGCT_cfi import *

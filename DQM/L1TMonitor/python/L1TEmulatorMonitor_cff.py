@@ -43,7 +43,7 @@ l1TdeRCT.rctSourceEmul = 'valRctDigis'
 
 l1TdeRCTfromGCT = l1TdeRCT.clone()
 l1TdeRCTfromGCT.rctSourceData = 'l1RctHwDigis'
-l1TdeRCTfromGCT.HistFolder = cms.untracked.string('L1TEMU/L1TdeRCTfromGCT')
+l1TdeRCTfromGCT.HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT_FromGCT')
 
 from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
 
