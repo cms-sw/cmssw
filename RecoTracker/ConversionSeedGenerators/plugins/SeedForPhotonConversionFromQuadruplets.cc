@@ -734,6 +734,8 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::buildSeed(
 #endif
   }
 
+  if(!hit) return nullptr;
+
   PTrajectoryStateOnDet const &  PTraj =
       trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
 

@@ -125,6 +125,7 @@ int main()
     testSerialization<EcalSamplesCorrelation>();
     testSerialization<EcalPulseShapes>();
     testSerialization<EcalPulseCovariances>();
+    testSerialization<EcalPulseSymmCovariances>();
     testSerialization<std::map<std::pair<EcalXtalGroupId, EcalTBWeights::EcalTDCId>, EcalWeightSet>>();
     testSerialization<std::map<uint32_t, EcalTPGFineGrainConstEB>>();
     testSerialization<std::map<uint32_t, EcalTPGFineGrainStripEE::Item>>();

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SpecParSection label="regions.xml" eval="true">
+  <SpecPar name="hgcee">
+    <PartSelector path="//HGCalEE"/>
+    <Parameter name="CMSCutsRegion" value="HGCalEERegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="0.03*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="0.03*mm"/>
+    <Parameter name="ProdCutsForGamma" value="0.03*mm"/>
+  </SpecPar>
+  <SpecPar name="hgche">
+    <PartSelector path="//HGCalHE"/>
+    <Parameter name="CMSCutsRegion" value="HGCalHERegion" eval="false"/>
+    <Parameter name="ProdCutsForElectrons" value="0.03*mm"/>
+    <Parameter name="ProdCutsForPositrons" value="0.03*mm"/>
+    <Parameter name="ProdCutsForGamma" value="0.03*mm"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

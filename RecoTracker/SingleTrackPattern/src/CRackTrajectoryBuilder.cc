@@ -665,7 +665,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory &traj,
                double currChi2 = theEstimator->estimate(prSt, *tmpHit).second;
                if ( currChi2 < chi2min )
                  {
-                   currChi2 = chi2min;
+                   chi2min = currChi2;
                    bestHit = tmpHit;
                  }
              }

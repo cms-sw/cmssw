@@ -187,13 +187,6 @@ namespace edm
 	}
     }
 
-    TriggerResultsBasedEventSelector::handle_t
-    TriggerResultsBasedEventSelector::getOneTriggerResults(EventPrincipal const& ev, ModuleCallingContext const* mcc)
-    {
-      fill(ev, mcc);
-      return returnOneHandleOrThrow();
-    }
-
     bool
     TriggerResultsBasedEventSelector::wantEvent(EventPrincipal const& ev, ModuleCallingContext const* mcc)
     {
@@ -219,30 +212,6 @@ namespace edm
       return match_found;
     }
     
-    TriggerResultsBasedEventSelector::handle_t
-    TriggerResultsBasedEventSelector::returnOneHandleOrThrow()
-    {
-      switch (numberFound_)
-	{
-	case 0:
-	  throw edm::Exception(edm::errors::ProductNotFound,
-			       "TooFewProducts")
-	    << "TriggerResultsBasedEventSelector::returnOneHandleOrThrow: "
-	    << " too few products found, "
-	    << "exepcted one, got zero\n";
-	case 1:
-
-	  break;
-	default:
-	  throw edm::Exception(edm::errors::ProductNotFound,
-			       "TooManyMatches")
-	    << "TriggerResultsBasedEventSelector::returnOneHandleOrThrow: "
-	    << "too many products found, "
-	    << "expected one, got " << numberFound_ << '\n';
-	}
-      return selectors_[0].product();
-    }
-
     TriggerResultsBasedEventSelector::size_type
     TriggerResultsBasedEventSelector::fill(EventPrincipal const& ev, ModuleCallingContext const* mcc)
     {

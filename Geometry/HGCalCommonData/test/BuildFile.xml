@@ -1,0 +1,10 @@
+<use   name="FWCore/Framework"/>
+<use   name="Geometry/HGCalCommonData"/>
+<use   name="Geometry/Records"/>
+<use   name="DetectorDescription/Core"/>
+<use   name="DataFormats/ForwardDetId"/>
+<use   name="CoralBase"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="HGCGeometryTester.cc" name="testHGCGeometry">  </library>
+<library   file="HGCalNumberingTester.cc" name="testHGCalNumbering">  </library>
+<library   file="FastTimeNumberingTester.cc" name="testFastTimeNumbering">  </library>

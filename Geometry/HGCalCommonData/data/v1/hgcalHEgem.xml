@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalHEgem.xml" eval="true">
+  <Constant name="ZminHEgem"  value="5193*mm"/>
+  <Constant name="ZmaxHEgem"  value="5541*mm"/>
+  <Constant name="rMinHEgem1" value="[etaMax:slope]*[ZminHEgem]"/>
+  <Constant name="rMinHEgem2" value="[etaMax:slope]*[ZmaxHEgem]"/>
+  <Constant name="rMaxHEgem"  value="[hgcal:rMaxHGCal4]"/>
+  <Constant name="rMapHEgem"  value="[rMaxHEgem]*[hgcal:factor2]"/>
+</ConstantsSection> 
+
+<SolidSection label="hgcalHEgem.xml" >
+ <Polyhedra name="HGCalHEGem" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+  <ZSection z="[ZminHEgem]"     rMin="[rMinHEgem1]"       rMax="[rMapHEgem]"/>
+  <ZSection z="[ZmaxHEgem]"     rMin="[rMinHEgem2]"       rMax="[rMapHEgem]"/>
+ </Polyhedra>
+</SolidSection>
+
+<LogicalPartSection label="hgcalHEgem.xml">
+ <LogicalPart name="HGCalHEGem" category="unspecified">
+  <rSolid name="HGCalHEGem"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+
+<PosPartSection label="hgcalHEgem.xml">
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName"    value="HGCalHEGem"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo"  value="1"/>
+  <Numeric name="N"           value="18"/>
+  <Numeric name="StartAngle"  value="0*deg"/>
+  <Numeric name="RangeAngle"  value="360*deg"/>
+  <Numeric name="Radius"      value="0*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
+ </Algorithm>
+  <Algorithm name="hgcal:DDHGCalHEAlgo">
+  <rParent name="hgcalHEgem:HGCalHEGem"/>
+  <Vector name="MaterialNames" type="string" nEntries="7">
+   materials:H_Brass, materials:H_Brass, materials:M_Kapton_Cu, 
+   materials:M_GEM_Gas,materials:M_GEM_Foil,materials:M_GEM_Gas,
+   materials:M_Rdout_Brd</Vector>
+  <Vector name="VolumeNames" type="string" nEntries="7">
+   HEGemAbsorber, HEGemShield, HEGemKapton, HEGem1Sensitive, HEGemFoil,
+   HEGem2Sensitive, HEGemReadout</Vector>
+  <Vector name="Type" type="numeric" nEntries="7">
+   0, 1, -1, -1, -1, -1, -1</Vector>
+  <Vector name="Thickness" type="numeric" nEntries="7">
+   34.5*mm, 9.0*mm, 2.0*mm, 3.0*mm, 0.06*mm, 1.0*mm, 1.94*mm </Vector>
+  <Vector name="ZMinType" type="numeric" nEntries="7">
+   5193.0*mm, 5227.5*mm, 5227.5*mm, 5229.5*mm, 5232.5*mm, 5232.56*mm,
+   5233.56*mm</Vector>
+  <Vector name="Offsets" type="numeric" nEntries="7">
+   1, 1, 1, 1, 1, 11, 1</Vector> 
+  <String name="Rotation"     value="rotations:YXZ4"/>
+  <Vector name="LayerType" type="numeric" nEntries="56">
+   0, 2, 3, 4, 5, 6, 1, 0, 2, 3, 4, 5, 6, 1, 0, 2, 3, 4, 5, 6, 1,
+   0, 2, 3, 4, 5, 6, 1, 0, 2, 3, 4, 5, 6, 1, 0, 2, 3, 4, 5, 6, 1,
+   0, 2, 3, 4, 5, 6, 1, 0, 2, 3, 4, 5, 6, 1 </Vector>
+  <Vector name="HeightType" type="numeric" nEntries="56">
+   0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
+   0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 </Vector>
+  <Numeric name="ThickModule" value="43.5*mm"/>
+  <Numeric name="Sectors"     value="18"/>
+  <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
+  <Vector name="SlopeTop" type="numeric" nEntries="4">
+    [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
+  <Vector name="ZFront" type="numeric" nEntries="4">
+    [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
+  <Vector name="RMaxFront" type="numeric" nEntries="4">
+    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal2], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
+ </Algorithm>
+</PosPartSection>
+
+<SpecParSection label="hgcalHEgem.xml" eval="true">
+  <SpecPar name="HGCalHEGem">
+    <PartSelector path="//HGCalHEGemSensitive.*"/>
+    <Parameter name="Volume" value="HGCalHEGemSensitive" eval="false"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

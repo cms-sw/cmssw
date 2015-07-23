@@ -446,6 +446,7 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
           }
           hitcounter++;
         }
+        if(!MaxWeightHit) continue;
 
         auto myref1 = reinterpret_cast<const BaseTrackerRecHit *>(initHit)->firstClusterRef();
         auto myref2 = reinterpret_cast<const BaseTrackerRecHit *>(MaxWeightHit)->firstClusterRef();
