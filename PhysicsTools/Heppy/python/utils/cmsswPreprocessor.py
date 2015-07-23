@@ -4,10 +4,10 @@ import re
 import imp
 from PhysicsTools.HeppyCore.framework.config import CFG
 class CmsswPreprocessor :
-	def __init__(self,configFile,command="cmsRun",options={}) :
+	def __init__(self,configFile,command="cmsRun", addOrigAsSecondary=True) :
 		self.configFile=configFile
 		self.command=command
-                self.options=options
+		self.addOrigAsSecondary=addOrigAsSecondary
 	
 	def run(self,component,wd,firstEvent,nEvents):
 		print wd,firstEvent,nEvents
@@ -59,7 +59,8 @@ class CmsswPreprocessor :
 		#component.options.secondaryInputFiles=[outfilename]
 
                 #use new as primary and original as secondary
-                component.options.secondaryInputFiles= component.files
+                if self.addOrigAsSecondary:
+                    component.options.secondaryInputFiles= component.files
 		component.options.inputFiles=[outfilename]
                 component.files=[outfilename]
 
