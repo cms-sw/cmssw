@@ -6,7 +6,7 @@ full_74x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
  tmvaWeights = cms.string("RecoJets/JetProducers/data/MVAJetPuID.weights.xml.gz"),
- tmvaMethod  = cms.string("JetID"),
+ tmvaMethod  = cms.string("BDTG"),
  version = cms.int32(-1),
  tmvaVariables = cms.vstring(
     "rho"     ,
@@ -22,13 +22,13 @@ full_74x = cms.PSet(
     "beta"   , 
     "betaStar"   , 
     "DR_weighted"   , 
-    "min(pull,0.1)"   , 
+    "pull"   , 
     "jetR"   , 
     "jetRchg"	
     ),
  tmvaSpectators = cms.vstring(
-    "pt",
-    "eta",
+    "jetEta",
+    "jetPt",
     ),
  JetIdParams = full_74x_wp,
  label = cms.string("CATEv0")
