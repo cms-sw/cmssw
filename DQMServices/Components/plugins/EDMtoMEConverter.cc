@@ -12,10 +12,49 @@
 using namespace lat;
 
 EDMtoMEConverter::EDMtoMEConverter(const edm::ParameterSet & iPSet) :
-  verbosity(0), frequency(0),
-  runInputTag_(iPSet.getParameter<edm::InputTag>("runInputTag")),
-  lumiInputTag_(iPSet.getParameter<edm::InputTag>("lumiInputTag"))
+  verbosity(0), frequency(0)
 {
+  runInputTagTH1F_  = consumes<MEtoEDM<TH1F>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagTH1F_ = consumes<MEtoEDM<TH1F>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagTH1S_  = consumes<MEtoEDM<TH1S>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagTH1S_ = consumes<MEtoEDM<TH1S>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagTH1D_  = consumes<MEtoEDM<TH1D>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagTH1D_ = consumes<MEtoEDM<TH1D>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagTH2F_  = consumes<MEtoEDM<TH2F>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagTH2F_ = consumes<MEtoEDM<TH2F>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagTH2S_  = consumes<MEtoEDM<TH2S>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagTH2S_ = consumes<MEtoEDM<TH2S>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagTH2D_  = consumes<MEtoEDM<TH2D>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagTH2D_ = consumes<MEtoEDM<TH2D>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagTH3F_  = consumes<MEtoEDM<TH3F>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagTH3F_ = consumes<MEtoEDM<TH3F>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagTProfile_  = consumes<MEtoEDM<TProfile>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagTProfile_ = consumes<MEtoEDM<TProfile>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagTProfile2D_  = consumes<MEtoEDM<TProfile2D>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagTProfile2D_ = consumes<MEtoEDM<TProfile2D>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagDouble_  = consumes<MEtoEDM<double>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagDouble_ = consumes<MEtoEDM<double>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagInt_  = consumes<MEtoEDM<int>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagInt_ = consumes<MEtoEDM<int>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagInt64_  = consumes<MEtoEDM<long long>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagInt64_ = consumes<MEtoEDM<long long>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+  runInputTagString_  = consumes<MEtoEDM<TString>,edm::InRun>(iPSet.getParameter<edm::InputTag>("runInputTag"));
+  lumiInputTagString_ = consumes<MEtoEDM<TString>,edm::InLumi>(iPSet.getParameter<edm::InputTag>("lumiInputTag"));
+
+
+
   std::string MsgLoggerCat = "EDMtoMEConverter_EDMtoMEConverter";
 
   // get information from parameter set
@@ -136,13 +175,6 @@ template <class T>
 void
 EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 {
-  edm::InputTag* inputTag = 0;
-  if (iEndRun) {
-    inputTag = &runInputTag_;
-  } else {
-    inputTag = &lumiInputTag_;
-  }
-
   std::string MsgLoggerCat = "EDMtoMEConverter_getData";
 
   if (verbosity >= 0)
@@ -152,7 +184,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH1F") {
       edm::Handle<MEtoEDM<TH1F> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+	iGetFrom.getByToken(runInputTagTH1F_, metoedm);
+      else
+	iGetFrom.getByToken(lumiInputTagTH1F_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -211,7 +246,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH1S") {
       edm::Handle<MEtoEDM<TH1S> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+	iGetFrom.getByToken(runInputTagTH1S_, metoedm);
+      else
+	iGetFrom.getByToken(lumiInputTagTH1S_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -270,7 +308,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH1D") {
       edm::Handle<MEtoEDM<TH1D> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagTH1D_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagTH1D_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -329,7 +370,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH2F") {
       edm::Handle<MEtoEDM<TH2F> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagTH2F_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagTH2F_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -388,7 +432,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH2S") {
       edm::Handle<MEtoEDM<TH2S> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagTH2S_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagTH2S_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -447,7 +494,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH2D") {
       edm::Handle<MEtoEDM<TH2D> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagTH2D_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagTH2D_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -506,7 +556,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TH3F") {
       edm::Handle<MEtoEDM<TH3F> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagTH3F_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagTH3F_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -565,7 +618,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TProfile") {
       edm::Handle<MEtoEDM<TProfile> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagTProfile_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagTProfile_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -625,7 +681,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "TProfile2D") {
       edm::Handle<MEtoEDM<TProfile2D> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagTProfile2D_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagTProfile2D_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -684,8 +743,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "Double") {
       edm::Handle<MEtoEDM<double> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
-
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagDouble_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagDouble_, metoedm);
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
         //  << "MEtoEDM<double> doesn't exist in run";
@@ -737,7 +798,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "Int64") {
       edm::Handle<MEtoEDM<long long> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagInt64_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagInt64_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -797,7 +861,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "Int") {
       edm::Handle<MEtoEDM<int> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagInt_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagInt_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
@@ -857,7 +924,10 @@ EDMtoMEConverter::getData(T& iGetFrom, bool iEndRun)
 
     if (classtypes[ii] == "String") {
       edm::Handle<MEtoEDM<TString> > metoedm;
-      iGetFrom.getByLabel(*inputTag, metoedm);
+      if(iEndRun)
+        iGetFrom.getByToken(runInputTagString_, metoedm);
+      else
+        iGetFrom.getByToken(lumiInputTagString_, metoedm);
 
       if (!metoedm.isValid()) {
         //edm::LogWarning(MsgLoggerCat)
