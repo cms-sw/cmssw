@@ -21,7 +21,7 @@ process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 
 ########### standard includes ##############################
-process.load("Configuration.StandardSequences.MagneticField_.oO[magneticField]Oo._cff")
+process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.Geometry.GeometryDB_cff")
 
