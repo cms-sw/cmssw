@@ -17,7 +17,8 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   filterOnlyEffRun_(0,0,0,0,0.,0.,0.,0.),
   hepMCFilterEffRun_(0,0,0,0,0.,0.,0.,0.),
   filterOnlyEffStat_(0,0,0,0,0.,0.,0.,0.),
-  hepMCFilterEffStat_(0,0,0,0,0.,0.,0.,0.)
+  hepMCFilterEffStat_(0,0,0,0,0.,0.,0.,0.),
+  maxAbsWeight_(0.)
 {
   xsecBeforeMatching_.clear();
   xsecAfterMatching_.clear(); 
@@ -29,6 +30,8 @@ GenXSecAnalyzer::GenXSecAnalyzer(const edm::ParameterSet& iConfig):
   hepMCFilterInfoToken_ = consumes<GenFilterInfo,edm::InLumi>(edm::InputTag("generator",""));
   genLumiInfoToken_ = consumes<GenLumiInfoProduct,edm::InLumi>(edm::InputTag("generator",""));
   lheRunInfoToken_ = consumes<LHERunInfoProduct,edm::InRun>(edm::InputTag("externalLHEProducer",""));
+  genEventInfoToken_ = consumes<GenEventInfoProduct>(edm::InputTag("generator",""));
+
 }
 
 GenXSecAnalyzer::~GenXSecAnalyzer()
@@ -74,15 +77,24 @@ GenXSecAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&)
 }
 
 void
-GenXSecAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
-
+GenXSecAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {    
 }
 
 
 
 void
-GenXSecAnalyzer::analyze(const edm::Event&, const edm::EventSetup&)
+GenXSecAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&)
 {
+
+  edm::Handle<GenEventInfoProduct> genEventInfo;
+  iEvent.getByToken(genEventInfoToken_,genEventInfo);
+  if (!genEventInfo.isValid()) return;
+  
+  double absweight = std::abs(genEventInfo->weight());
+  if (absweight > maxAbsWeight_) {
+    maxAbsWeight_ = absweight;
+  }
+
 }
 
 
@@ -626,8 +638,48 @@ GenXSecAnalyzer::endJob() {
       << " = " 
       <<  std::scientific << std::setprecision(3) 
       << filterOnly_event_eff << " +- " << filterOnly_event_err;
+      
+    double filterOnly_event_neg = filterOnlyEffStat_.numPassNegativeEvents();
+    double filterOnly_event_negfrac = filterOnly_event_neg / filterOnly_event_total;
+    double filterOnly_event_negfrac_err   = filterOnly_event_total > 0 ?
+        sqrt((1-filterOnly_event_negfrac)*filterOnly_event_negfrac/filterOnly_event_total): -1;
+    edm::LogPrint("GenXSecAnalyzer") 
+      << "Fraction of negative weights (event-level)= " 
+      << "(" << filterOnly_event_neg << ")"
+      << " / "
+      << "(" << filterOnly_event_total << ")"
+      << " = " 
+      <<  std::scientific << std::setprecision(3) 
+      << filterOnly_event_negfrac << " +- " << filterOnly_event_negfrac_err;
+      
+    double statratio = (sqrt(filterOnly_event_total)/filterOnly_event_total)/(sqrt(filterOnlyEffStat_.sumWeights2())/filterOnlyEffStat_.sumWeights());
+    statratio *= statratio;
+    edm::LogPrint("GenXSecAnalyzer") 
+      << "Equivalent statistic power relative to unweighted sample= " 
+      <<  std::scientific << std::setprecision(3) 
+      << statratio;      
+      
+    if (jetMatchEffStat_.count(10000)) {
+      double overall_event_total = jetMatchEffStat_[10000].numTotalPositiveEvents() + jetMatchEffStat_[10000].numTotalNegativeEvents();
+      double overall_event_eff   = overall_event_total > 0 ? filterOnly_event_pass/overall_event_total : 0;
+      double overall_event_err   = overall_event_total > 0 ?  
+        sqrt((1-overall_event_eff)*overall_event_eff/overall_event_total): -1;    
+      edm::LogPrint("GenXSecAnalyzer") 
+          << "Overall efficiency (event-level) = " 
+          << "(" << filterOnly_event_pass << ")"
+          << " / "
+          << "(" << overall_event_total << ")"
+          << " = " 
+          <<  std::scientific << std::setprecision(3) 
+          << overall_event_eff << " +- " << overall_event_err;
+    }
 
   }
+  
+  edm::LogPrint("GenXSecAnalyzer") 
+    << "Maximum absolute weight= " 
+    <<  std::scientific << std::setprecision(3) 
+    << maxAbsWeight_; 
 
   edm::LogPrint("GenXSecAnalyzer") 
     << "After filter: final cross section = " 

@@ -19,7 +19,7 @@
 //
 #include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
 #include "Pythia8Plugins/JetMatching.h"
-#include "Pythia8Plugins/aMCatNLOHooks.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/aMCatNLOHooksCMS.h"
 
 // Emission Veto Hooks
 //
@@ -100,7 +100,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     //
     JetMatchingHook* fJetMatchingHook;
     Pythia8::JetMatchingMadgraph *fJetMatchingPy8InternalHook;
-    Pythia8::amcnlo_unitarised_interface *fMergingHook;
+    Pythia8::amcnlo_unitarised_interfaceCMS *fMergingHook;
     
     // Emission Veto Hooks
     //
@@ -144,6 +144,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   NHooks(0)
 {
 
+  fMasterGen->settings.addFlag("Merging:doNL3Tilde",false);
+    
   // J.Y.: the following 3 parameters are hacked "for a reason"
   //
   if ( params.exists( "PPbarInitialState" ) )
@@ -413,16 +415,23 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   }
   
   if (internalMerging && !fMergingHook) {
-    int scheme = ( fMasterGen->settings.flag("Merging:doUMEPSTree")
-                || fMasterGen->settings.flag("Merging:doUMEPSSubt")) ?
-                1 :
-                 ( ( fMasterGen->settings.flag("Merging:doUNLOPSTree")
-                || fMasterGen->settings.flag("Merging:doUNLOPSSubt")
-                || fMasterGen->settings.flag("Merging:doUNLOPSLoop")
-                || fMasterGen->settings.flag("Merging:doUNLOPSSubtNLO")) ?
-                2 :
-                0 );
-    fMergingHook = new Pythia8::amcnlo_unitarised_interface(scheme);
+    int scheme = 0;
+    if ( fMasterGen->settings.flag("Merging:doUMEPSTree")
+                || fMasterGen->settings.flag("Merging:doUMEPSSubt") ) {
+      scheme = 1;
+    }
+    else if ( fMasterGen->settings.flag("Merging:doUNLOPSTree")
+                 || fMasterGen->settings.flag("Merging:doUNLOPSSubt")
+                 || fMasterGen->settings.flag("Merging:doUNLOPSLoop")
+                || fMasterGen->settings.flag("Merging:doUNLOPSSubtNLO")) {
+      scheme = 2;
+    }
+    else if ( fMasterGen->settings.flag("Merging:doNL3Tree")
+                || fMasterGen->settings.flag("Merging:doNL3Loop")
+                || fMasterGen->settings.flag("Merging:doNL3Subt")) {
+      scheme = 3;
+    }
+    fMergingHook = new Pythia8::amcnlo_unitarised_interfaceCMS(scheme);
     fMasterGen->setUserHooksPtr(fMergingHook);
   }
   
@@ -451,6 +460,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
     fMasterGen->setLHAupPtr(lhaUP.get());
     edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
     status = fMasterGen->init();
+  }
+  
+  if (fMergingHook) {
+    fMergingHook->setNHardOutPartons(fMasterGen->mergingHooksPtr->nHardOutPartons());
   }
   
   if ( pythiaPylistVerbosity > 10 )

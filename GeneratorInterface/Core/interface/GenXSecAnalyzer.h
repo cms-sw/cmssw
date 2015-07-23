@@ -26,6 +26,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 //
 // class declaration
@@ -58,6 +59,7 @@ private:
   edm::EDGetTokenT<GenFilterInfo> genFilterInfoToken_;
   edm::EDGetTokenT<GenFilterInfo> hepMCFilterInfoToken_;
   edm::EDGetTokenT<GenLumiInfoProduct> genLumiInfoToken_;
+  edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
   edm::EDGetTokenT<LHERunInfoProduct> lheRunInfoToken_;
   
   // ----------member data --------------------------
@@ -118,6 +120,8 @@ private:
  // updated for each luminosity block, initialized in every run
   // used for computation
   std::map<int, GenLumiInfoProduct::XSec> currentLumiBlockLHEXSec_;
+  
+  double maxAbsWeight_;
 
 
 
