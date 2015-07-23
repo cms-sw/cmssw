@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<SolidSection label="fastTimingElement.xml">
+  <Box  name="SFBX" dx="0.5*[fastTiming:dxTiming]" dy="0.5*[fastTiming:dxTiming]" dz="0.5*[fastTiming:dzTiming]"/>
+</SolidSection>
+
+<LogicalPartSection label="fastTimingElement.xml">
+  <LogicalPart name="SFBX" category="unspecified">
+    <rSolid name="SFBX"/>
+    <rMaterial name="materials:E_Silicon"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<Algorithm name="hgcal:DDHGCalNoTaperEndcap">
+  <rParent name="fastTiming:SFLY"/>
+  <String name="ChildName" value="fastTimingElement:SFBX"/>
+  <Numeric name="n"           value="125"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo"  value="1"/>
+  <Numeric name="invert"      value="1"/>
+  <Numeric name="rMin"        value="[fastTiming:rInTiming]"/>
+  <Numeric name="rMax"        value="[fastTiming:rOutTiming]"/> 
+  <Numeric name="tiltAngle"   value="0"/>
+  <Numeric name="zoffset"     value="0"/>
+  <Numeric name="xyoffset"    value="[fastTiming:dxTiming]"/>
+</Algorithm>
+
+<SpecParSection label="FastTimingElement.xml" eval="true">
+  <SpecPar name="fastTiminingElement">
+    <PartSelector path="//SFBX"/>
+    <Parameter name="Volume" value="SFBX" eval="false"/>
+    <Parameter name="geomType" value="1"/>
+   </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

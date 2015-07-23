@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="fastTiming.xml" eval="true">
+  <Constant name="rInTiming"  value="51.60*cm"/>
+  <Constant name="rOutTiming" value="100.0*cm"/>
+  <Constant name="dxTiming"   value="8.00*mm"/>
+  <Constant name="dzTiming"   value="0.30*mm"/>
+  <Constant name="dzCeramic"  value="1.00*mm"/>
+  <Constant name="dzG10"      value="1.00*mm"/>
+  <Constant name="zTiming"    value="([escon:ESMidZ]-0.15*mm)"/>
+  <Constant name="zCeramic"   value="([zTiming]+0.5*([dzTiming]+[dzCeramic]))"/>
+  <Constant name="zG10"       value="([zCeramic]+0.5*([dzG10]+[dzCeramic]))"/>
+</ConstantsSection>
+
+<MaterialSection label="fastTiming.xml">
+  <CompositeMaterial name="Al600" density="3.72*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="1.0">
+      <rMaterial name="materials:Alumina"/>
+    </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+
+<SolidSection label="fastTiming.xml">
+  <Tubs name="SFLY" rMin="[rInTiming]" rMax="[rOutTiming]" dz="0.5*[dzTiming]"  startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="SFAX" rMin="[rInTiming]" rMax="[rOutTiming]" dz="0.5*[dzCeramic]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="SFCX" rMin="[rInTiming]" rMax="[rOutTiming]" dz="0.5*[dzG10]"     startPhi="0*deg" deltaPhi="360*deg"/>
+</SolidSection>
+
+<LogicalPartSection label="fastTiming.xml">
+  <LogicalPart name="SFLY" category="unspecified">
+    <rSolid name="SFLY"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+  <!-- ceramic -->
+  <LogicalPart name="SFAX" category="unspecified">
+    <rSolid name="SFAX"/>
+    <rMaterial name="fastTiming:Al600"/>
+  </LogicalPart>
+  <LogicalPart name="SFCX" category="unspecified">
+    <rSolid name="SFCX"/>
+    <rMaterial name="materials:E_G10"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="fastTiming.xml">
+  <PosPart copyNumber="1">
+    <rParent name="esalgo:SF"/>
+    <rChild name="fastTiming:SFLY"/>
+    <Translation x="0*fm" y="0*fm" z="[zTiming]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="esalgo:SF"/>
+    <rChild name="fastTiming:SFAX"/>
+    <Translation x="0*fm" y="0*fm" z="[zCeramic]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="esalgo:SF"/>
+    <rChild name="fastTiming:SFCX"/>
+    <Translation x="0*fm" y="0*fm" z="[zG10]"/>
+  </PosPart>
+</PosPartSection>
+
+</DDDefinition>
