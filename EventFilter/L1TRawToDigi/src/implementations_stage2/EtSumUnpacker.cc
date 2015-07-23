@@ -60,21 +60,6 @@ namespace stage2 {
        res_->push_back(bx,et);
 
 
-       //  MET
-
-       raw_data = block.payload()[i++];
-
-       l1t::EtSum met = l1t::EtSum();
-    
-       met.setHwPt(raw_data & 0xFFF);
-       met.setHwPhi((raw_data >> 20) & 0xFFF);//12) & 0xFF);
-       met.setType(l1t::EtSum::kMissingEt);       
-
-       LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt() << " bx " << bx;
-
-       res_->push_back(bx,met);
-
-
        // HT
 
        raw_data = block.payload()[i++];
@@ -89,6 +74,21 @@ namespace stage2 {
        res_->push_back(bx,ht);
 
 
+       //  MET
+
+       raw_data = block.payload()[i++];
+
+       l1t::EtSum met = l1t::EtSum();
+    
+       met.setHwPt(raw_data & 0xFFF);
+       met.setHwPhi((raw_data >> 12) & 0xFF);
+       met.setType(l1t::EtSum::kMissingEt);       
+
+       LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt() << " bx " << bx;
+
+       res_->push_back(bx,met);
+
+
        // MHT
 
        raw_data = block.payload()[i++];
@@ -96,7 +96,7 @@ namespace stage2 {
        l1t::EtSum mht = l1t::EtSum();
     
        mht.setHwPt(raw_data & 0xFFF);
-       mht.setHwPhi((raw_data >> 20) & 0xFFF);//12) & 0xFF);
+       mht.setHwPhi((raw_data >> 12) & 0xFF);
        mht.setType(l1t::EtSum::kMissingHt);       
 
        LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt() << " bx " << bx;
