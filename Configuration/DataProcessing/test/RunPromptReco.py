@@ -27,6 +27,7 @@ class RunPromptReco:
         self.globalTag = None
         self.inputLFN = None
         self.alcaRecos = None
+        self.PhysicsSkims = None
 
     def __call__(self):
         if self.scenario == None:
@@ -85,6 +86,8 @@ class RunPromptReco:
 
                 if self.alcaRecos:
                     kwds['skims'] = self.alcaRecos
+                if self.PhysicsSkims:
+                    kwds['PhysicsSkims'] = self.PhysicsSkims
 
             process = scenario.promptReco(self.globalTag, **kwds)
 
@@ -112,7 +115,7 @@ class RunPromptReco:
 
 if __name__ == '__main__':
     valid = ["scenario=", "reco", "aod", "miniaod","dqm", "dqmio", "no-output",
-             "global-tag=", "lfn=", "alcarecos=" ]
+             "global-tag=", "lfn=", "alcarecos=", "PhysicsSkims=" ]
     usage = \
 """
 RunPromptReco.py <options>
@@ -127,13 +130,16 @@ Where options are:
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
- --alcarecos=plus_seprated_list
+ --alcarecos=alcareco_plus_seprated_list
+ --PhysicsSkims=skim_plus_seprated_list
 
 Example:
 
 python RunPromptReco.py --scenario=cosmics --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlCosmics0T+MuAlGlobalCosmics
 
 python RunPromptReco.py --scenario=pp --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias
+
+python RunPromptReco.py --scenario=ppRun2 --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever --alcarecos=TkAlMinBias+SiStripCalMinBias --PhysicsSkims=@SingleMuon
 
 """
     try:
@@ -167,5 +173,7 @@ python RunPromptReco.py --scenario=pp --reco --aod --dqmio --global-tag GLOBALTA
             recoinator.inputLFN = arg
         if opt == "--alcarecos":
             recoinator.alcaRecos = [ x for x in arg.split('+') if len(x) > 0 ]
+        if opt == "--PhysicsSkims":
+            recoinator.PhysicsSkims = [ x for x in arg.split('+') if len(x) > 0 ]
 
     recoinator()
