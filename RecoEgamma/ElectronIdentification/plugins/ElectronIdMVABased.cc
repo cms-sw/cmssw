@@ -40,7 +40,7 @@
 using namespace std;
 using namespace reco;
 
-namespace {
+namespace gsfidhelper {
   class HeavyObjectCache {
   public:
     HeavyObjectCache(const edm::ParameterSet& config) {
@@ -54,18 +54,18 @@ namespace {
   };
 }
 
-class ElectronIdMVABased : public edm::stream::EDFilter< edm::GlobalCache<HeavyObjectCache> > {
+class ElectronIdMVABased : public edm::stream::EDFilter< edm::GlobalCache<gsfidhelper::HeavyObjectCache> > {
 public:
-  explicit ElectronIdMVABased(const edm::ParameterSet&, const HeavyObjectCache*);
+  explicit ElectronIdMVABased(const edm::ParameterSet&, const gsfidhelper::HeavyObjectCache*);
   ~ElectronIdMVABased();
   
   
-  static std::unique_ptr<HeavyObjectCache> 
+  static std::unique_ptr<gsfidhelper::HeavyObjectCache> 
   initializeGlobalCache( const edm::ParameterSet& conf ) {
-    return std::unique_ptr<HeavyObjectCache>(new HeavyObjectCache(conf));
+    return std::unique_ptr<gsfidhelper::HeavyObjectCache>(new gsfidhelper::HeavyObjectCache(conf));
   }
   
-  static void globalEndJob(HeavyObjectCache const* ) {
+  static void globalEndJob(gsfidhelper::HeavyObjectCache const* ) {
   }
   
 private:
@@ -94,7 +94,7 @@ private:
 //
 // constructors and destructor
 //
-ElectronIdMVABased::ElectronIdMVABased(const edm::ParameterSet& iConfig, const HeavyObjectCache*) {
+ElectronIdMVABased::ElectronIdMVABased(const edm::ParameterSet& iConfig, const gsfidhelper::HeavyObjectCache*) {
   vertexToken = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexTag"));
   electronToken = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("electronTag"));
   thresholdBarrel = iConfig.getParameter<double>("thresholdBarrel");
