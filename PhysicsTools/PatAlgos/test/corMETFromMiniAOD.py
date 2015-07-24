@@ -65,8 +65,18 @@ process.source = cms.Source("PoolSource",
 from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
 
 #default configuration for miniAOD reprocessing
-runMetCorAndUncFromMiniAOD(process)
+runMetCorAndUncFromMiniAOD(process, isData=False)
 
+### -------------------------------------------------------------------
+### the lines below remove the L2L3 residual uncertainties when processing data
+### -------------------------------------------------------------------
+process.patPFMetT1T2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.patPFMetT1T2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.patPFMetT2Corr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.patPFMetT2SmearCorr.jetCorrLabelRes = cms.InputTag("L3Absolute")
+process.shiftedPatJetEnDown.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+process.shiftedPatJetEnUp.jetCorrLabelUpToL3Res = cms.InputTag("ak4PFCHSL1FastL2L3Corrector")
+### ------------------------------------------------------------------
 
 process.MINIAODSIMoutput = cms.OutputModule("PoolOutputModule",
     compressionLevel = cms.untracked.int32(4),

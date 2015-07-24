@@ -53,8 +53,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.addParameter(self._defaultParameters, 'jetCorrectionType', 'L1L2L3-L1',
                           "Use L1L2L3-L1 for the standard L1 removal / L1L2L3-RC for the random-cone correction", Type=str)
 
-        self.addParameter(self._defaultParameters, 'jetCorLabelUpToL3', cms.InputTag('ak4PFL1FastL2L3Corrector'), "Use ak4PFL1FastL2L3Corrector (ak4PFchsL1FastL2L3Corrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Corrector for CaloJets", Type=cms.InputTag)
-        self.addParameter(self._defaultParameters, 'jetCorLabelL3Res', cms.InputTag('ak4PFL1FastL2L3ResidualCorrector'), "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFchsL1FastL2L3ResiduaCorrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=cms.InputTag)
+        self.addParameter(self._defaultParameters, 'jetCorLabelUpToL3', cms.InputTag('ak4PFCHSL1FastL2L3Corrector'), "Use ak4PFL1FastL2L3Corrector (ak4PFCHSL1FastL2L3Corrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Corrector for CaloJets", Type=cms.InputTag)
+        self.addParameter(self._defaultParameters, 'jetCorLabelL3Res', cms.InputTag('ak4PFCHSL1FastL2L3ResidualCorrector'), "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFCHSL1FastL2L3ResiduaCorrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=cms.InputTag)
         self.addParameter(self._defaultParameters, 'jecUncertaintyFile', 'PhysicsTools/PatUtils/data/Summer13_V1_DATA_UncertaintySources_AK5PF.txt',
                           "Extra JES uncertainty file", Type=str)
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'SubTotalMC',
@@ -71,6 +71,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                   "Flag to enable/disable the jet reclustering", Type=bool)
         self.addParameter(self._defaultParameters, 'CHS', False,
                   "Flag to enable/disable the CHS jets", Type=bool)
+        self.addParameter(self._defaultParameters, 'runOnData', False,
+                          "Switch for data/MC processing", Type=bool)
         self.addParameter(self._defaultParameters, 'onMiniAOD', False,
                           "Switch on miniAOD configuration", Type=bool)
         self.addParameter(self._defaultParameters, 'repro74X', False,
@@ -108,6 +110,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  manualJetConfig         =None,
                  reclusterJets           =None,
                  CHS                     =None,
+                 runOnData               =None,
                  onMiniAOD               =None,
                  repro74X                =None,
                  postfix                 =None):
@@ -166,6 +169,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             reclusterJets = self._defaultParameters['reclusterJets'].value
         if CHS is None :
             CHS = self._defaultParameters['CHS'].value
+        if runOnData is None :
+            runOnData = self._defaultParameters['runOnData'].value
         if onMiniAOD is None :
             onMiniAOD = self._defaultParameters['onMiniAOD'].value
         if repro74X is None :
@@ -195,7 +200,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('mvaMetLeptons',mvaMetLeptons),
         
         self.setParameter('addToPatDefaultSequence',addToPatDefaultSequence),
-    
+        self.setParameter('runOnData',runOnData),
         self.setParameter('onMiniAOD',onMiniAOD),
         self.setParameter('repro74X',repro74X),
         self.setParameter('postfix',postfix),
@@ -1124,13 +1129,16 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
             patMetModuleSequence += getattr(process, "pfMet")
 
-          #  getattr(process, "patPFMet").addGenMET  = False
-            
-            process.genMetExtractor = cms.EDProducer("GenMETExtractor",
-                                                     metSource= cms.InputTag("slimmedMETs","","PAT")
-                                                     )
-            getattr(process, "patPFMet").genMETSource = cms.InputTag("genMetExtractor")
+            getattr(process, "patPFMet").addGenMET  = False
+            if not self._parameters["runOnData"].value:
+                getattr(process, "patPFMet").addGenMET  = True
+                process.genMetExtractor = cms.EDProducer("GenMETExtractor",
+                                                         metSource= cms.InputTag("slimmedMETs","","PAT")
+                                                         )
+                patMetModuleSequence += getattr(process, "genMetExtractor")
+                getattr(process, "patPFMet").genMETSource = cms.InputTag("genMetExtractor")
      
+
             getattr(process, "patPFMetTxyCorr").srcPFlow = pfCandCollection
             getattr(process, "patPFMetTxyCorr").vertexCollection = cms.InputTag("offlineSlimmedPrimaryVertices")
 
@@ -1173,8 +1181,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         # normal or CHS jets =============================
         if "chs" in jetFlavor:
             self.setParameter("CHS",True)
-            jetCorLabelUpToL3Name += "chs"
-            jetCorLabelL3ResName += "chs"
+            jetCorLabelUpToL3Name += "CHS" #chs
+            jetCorLabelL3ResName += "CHS"
         else:
             self.setParameter("CHS",False)
 
@@ -1332,9 +1340,10 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                pfCandColl = "packedPFCandidates",
                                jetFlav="AK4PFchs",
                                jetCleaning="LepClean",
+                               isData=False,
                                jetConfig=False,
-                               jetCorLabelL3=cms.InputTag('ak4PFL1FastL2L3Corrector'),
-                               jetCorLabelRes=cms.InputTag('ak4PFchsL1FastL2L3ResiduaCorrector'),
+                               jetCorLabelL3=cms.InputTag('ak4PFCHSL1FastL2L3Corrector'),
+                               jetCorLabelRes=cms.InputTag('ak4PFCHSL1FastL2L3ResiduaCorrector'),
                                jecUnFile="PhysicsTools/PatUtils/data/Summer13_V1_DATA_UncertaintySources_AK5PF.txt", #no 13 TeV uncertainties yet...
                                postfix=""):
 
@@ -1352,6 +1361,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       tauCollection=tauColl,
                                       photonCollection=photonColl,
                                       pfCandCollection =pfCandColl,
+                                      runOnData=isData,
                                       onMiniAOD=True,
                                       autoJetCleaning=jetCleaning,
                                       manualJetConfig=jetConfig,
@@ -1374,6 +1384,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       tauCollection=tauColl,
                                       photonCollection=photonColl,
                                       pfCandCollection =pfCandColl,
+                                      runOnData=isData,
                                       onMiniAOD=True,
                                       autoJetCleaning=jetCleaning,
                                       manualJetConfig=jetConfig,
