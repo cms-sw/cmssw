@@ -47,7 +47,7 @@ public:
 
   void setId(int32_t id)            {id_ = id;}
   void setEeId(int32_t eeId)        {eeId_ = eeId;}
-  void setHitCombinationId(int32_t hitCombinationId) {hitCombinationId_ = hitCombinationId;}
+  virtual void setHitCombinationId(int32_t hitCombinationId) {hitCombinationId_ = hitCombinationId;}
   void addSimTrackId(int32_t simTrackId)  {simTrackIds_.push_back(simTrackId);}
   void addSimTrackIds(const std::vector<int32_t> & simTrackIds)  {simTrackIds_.insert(simTrackIds_.end(),simTrackIds.begin(),simTrackIds.end());}
 
