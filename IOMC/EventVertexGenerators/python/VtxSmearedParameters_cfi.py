@@ -424,9 +424,9 @@ Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(5.3),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.08535),
-    Y0 = cms.double(0.16973),
-    Z0 = cms.double(-1.223)
+    X0 = cms.double(), # from fill 4008, absolute coordinates X0 =  0.07798 [cm]. BPix position, absolute coordinates XXX [cm]. Final position YYY [cm].
+    Y0 = cms.double(), # from fill 4008, absolute coordinates Y0 =  0.09714 [cm]. BPix position, absolute coordinates XXX [cm]. Final position YYY [cm]. 
+    Z0 = cms.double()  # from fill 4008, absolute coordinates Z0 = -1.610   [cm]. BPix position, absolute coordinates XXX [cm]. Final position YYY [cm].
 )
 # Test HF offset
 ShiftedCollision2015VtxSmearingParameters = cms.PSet(
