@@ -43,13 +43,13 @@ public:
   static constexpr double SECONDS_PER_LS = double(0x40000)/double(FREQ_ORBIT);
 
   // Using all pixel clusters:
-  static constexpr double XSEC_PIXEL_CLUSTER = 10.08e-24d; //in cm^2
-  static constexpr double XSEC_PIXEL_CLUSTER_UNC = 0.17e-24d;
+  static constexpr double XSEC_PIXEL_CLUSTER = 10.08e-24; //in cm^2
+  static constexpr double XSEC_PIXEL_CLUSTER_UNC = 0.17e-24;
 
   // Excluding the inner barrel layer.
-  static constexpr double rXSEC_PIXEL_CLUSTER = 6.08e-24d; //in cm^2
-  static constexpr double rXSEC_PIXEL_CLUSTER_UNC = 0.084e-24d;
-  static constexpr double CM2_TO_NANOBARN = 1.d/1.e-33d;
+  static constexpr double rXSEC_PIXEL_CLUSTER = 6.08e-24; //in cm^2
+  static constexpr double rXSEC_PIXEL_CLUSTER_UNC = 0.084e-24;
+  static constexpr double CM2_TO_NANOBARN = 1.0/1.e-33;
   static const unsigned int lastBunchCrossing = 3564;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
@@ -84,9 +84,9 @@ private:
       numB(kNumLayers, 0),
       numFM(kNumDisks, 0),
       numFP(kNumDisks, 0),
-      dnumB(kNumLayers, 0.d),
-      dnumFM(kNumDisks, 0.d),
-      dnumFP(kNumDisks, 0.d)
+      dnumB(kNumLayers, 0.0),
+      dnumFM(kNumDisks, 0.0),
+      dnumFP(kNumDisks, 0.0)
 
     {
     }
@@ -94,13 +94,13 @@ private:
     {
       for(unsigned int i  = 0 ; i< numB.size(); i++){
         numB[i]=0;
-        dnumB[i]=0.d;
+        dnumB[i]=0.0;
       }
       for(unsigned int i  = 0 ; i< numFM.size(); i++){
         numFM[i] = 0;
         numFP[i] = 0;
-        dnumFM[i] = 0.d;
-        dnumFP[i] = 0.d;
+        dnumFM[i] = 0.0;
+        dnumFP[i] = 0.0;
       }
     }
     std::vector<UInt_t> numB;

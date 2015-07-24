@@ -529,10 +529,10 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   double total_recorded_unc_square = 0.;
   
   // Obtain bunch-by-bunch cluster counts and compute totals for lumi calculation.
-  double totalcounts = 0.d;
-  double etotalcounts = 0.d;
-  double totalevents = 0.d;
-  double lumi_factor_per_bx = 0.d;
+  double totalcounts = 0.0;
+  double etotalcounts = 0.0;
+  double totalevents = 0.0;
+  double lumi_factor_per_bx = 0.0;
   if(useInnerBarrelLayer) 
     lumi_factor_per_bx = FREQ_ORBIT * SECONDS_PER_LS * fResetIntervalInLumiSections / XSEC_PIXEL_CLUSTER  ;
   else
@@ -563,7 +563,7 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
     double average_cluster_count = events_per_bx !=0 ? double(total)/events_per_bx : 0.;
     double average_cluster_count_unc = events_per_bx!=0 ? etotal/events_per_bx : 0.;
     double pixel_bx_lumi_per_ls =  lumi_factor_per_bx * average_cluster_count / CM2_TO_NANOBARN ;
-    double pixel_bx_lumi_per_ls_unc = 0.d;
+    double pixel_bx_lumi_per_ls_unc = 0.0;
     if(useInnerBarrelLayer) 
       pixel_bx_lumi_per_ls_unc = sqrt(lumi_factor_per_bx*lumi_factor_per_bx *
 				      (average_cluster_count_unc*average_cluster_count_unc +
@@ -623,7 +623,7 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
     if(totalevents > 10){
       total_recorded = lumi_factor_per_bx * totalcounts / totalevents / CM2_TO_NANOBARN ;
     }
-    else total_recorded = 0.d;
+    else total_recorded = 0.0;
     
     std::cout << " Total recorded " << total_recorded  << std::endl;
     fHistTotalRecordedLumiByLS->setBinContent(ls,total_recorded);
@@ -680,13 +680,13 @@ unsigned int PixelLumiDQM::calculateBunchMask(MonitorElement *e, std::vector<boo
 unsigned int PixelLumiDQM::calculateBunchMask(std::vector<float> &e, unsigned int nbins, std::vector<bool> &mask){
   // Take the cumulative cluster count histogram and find max and average of non-empty bins.
   unsigned int active_count = 0;
-  double maxc = 0.d;
-  double ave = 0.d; // Average of non-empty bins
+  double maxc = 0.0;
+  double ave = 0.0; // Average of non-empty bins
   unsigned int non_empty_bins = 0;
   
   for(unsigned int i = 1; i<= nbins; i++){
     double bin = e[i];
-    if(bin !=0.d){
+    if(bin !=0.0){
       if(maxc<bin) maxc = bin;
       ave += bin;
       non_empty_bins++;
