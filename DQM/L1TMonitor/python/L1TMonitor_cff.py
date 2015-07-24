@@ -80,7 +80,6 @@ l1s.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM")
 ############################################################
 # Stage1 unpacker
 from L1Trigger.L1TCommon.l1tRawToDigi_cfi import *
-#caloStage1Digis.FedId = cms.int32(809)
 
 # transfer stage1 format digis to legacy format digis
 
@@ -88,6 +87,12 @@ from L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi import *
 
 #################################################################
 
+# GMT digis in parallel running
+from EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi import *
+gtgmtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
+gtgmtDigis.DaqGtInputTag = 'rawDataCollector'
+
+#############################################################
 
 #
 # define sequences 
@@ -127,6 +132,7 @@ l1ExtraStage1DqmSeq = cms.Sequence(
 #     modules are independent, so the order is irrelevant 
 
 l1tMonitorOnline = cms.Sequence(
+                          gtgmtDigis*
                           bxTiming +
                           l1tDttf +
                           l1tCsctf + 
@@ -142,6 +148,7 @@ l1tMonitorOnline = cms.Sequence(
 
 l1tMonitorStage1Online = cms.Sequence(
                           bxTiming +
+                          gtgmtDigis*
                           l1tDttf +
                           l1tCsctf + 
                           l1tRpctf +

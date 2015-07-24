@@ -6,5 +6,7 @@ caloStage1LegacyFormatDigis = cms.EDProducer(
     InputRlxTauCollection = cms.InputTag("caloStage1Digis:rlxTaus"),
     InputIsoTauCollection = cms.InputTag("caloStage1Digis:isoTaus"),
     InputHFSumsCollection = cms.InputTag("caloStage1Digis:HFRingSums"),
-    InputHFCountsCollection = cms.InputTag("caloStage1Digis:HFBitCounts")
+    InputHFCountsCollection = cms.InputTag("caloStage1Digis:HFBitCounts"),
+    bxMin = cms.int32(-2),
+    bxMax = cms.int32(2)
 )

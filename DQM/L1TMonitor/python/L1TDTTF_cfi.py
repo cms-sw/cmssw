@@ -8,7 +8,7 @@ l1tDttf = cms.EDAnalyzer("L1TDTTF",
     online = cms.untracked.bool(True),
     l1tInfoFolder = cms.untracked.string('L1T/EventInfo'),
     dttpgSource = cms.InputTag("dttfDigis"),
-    gmtSource = cms.InputTag("gtDigis"),
+    gmtSource = cms.InputTag("gtgmtDigis"),
     MuonCollection = cms.InputTag("muons")
 )
 
