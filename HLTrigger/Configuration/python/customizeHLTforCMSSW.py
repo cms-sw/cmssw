@@ -104,6 +104,15 @@ def customiseFor10087(process):
             delattr(process.hltCaloStage1Digis, 'FedId')
     return process
 
+def customiseFor10234(process):
+    if hasattr(process, 'hltCaloStage1Digis'):
+        if hasattr(process.hltCaloStage1Digis, 'FWId'):
+            delattr(process.hltCaloStage1Digis, 'FWId')
+        if hasattr(process.hltCaloStage1Digis, 'FedId'):
+            delattr(process.hltCaloStage1Digis, 'FedId')
+    return process
+
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process,menuType="GRun",fastSim=False):
     import os

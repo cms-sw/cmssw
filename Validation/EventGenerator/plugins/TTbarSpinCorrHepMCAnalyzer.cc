@@ -88,24 +88,15 @@ void TTbarSpinCorrHepMCAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 // ------------ method called once each job just before starting event loop  ------------
 void TTbarSpinCorrHepMCAnalyzer::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
     ///Setting the DQM top directories
-    TString dir="Generator/";
+  std::string dir="Generator/";
     dir+="TTbarSpinCorr";
-    DQMHelper dqm(&i); i.setCurrentFolder(dir.Data());
+    DQMHelper dqm(&i); i.setCurrentFolder(dir);
 
     // Number of analyzed events
-    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.);
-    
-    _h_asym = dqm.book1dHisto("TTbar_asym","Asymmetr", 2, -1., 1.);
-    _h_asym->setAxisTitle("Asymmetry");
-
-    _h_deltaPhi = dqm.book1dHisto("TTbar_deltaPhi","#Delta#phi(ll)", 320, 0, 3.2);
-    _h_deltaPhi->setAxisTitle("#Delta#phi(ll)");
-    
-    _h_llpairPt = dqm.book1dHisto("TTbar_llpairPt","Lepton pair transverse momentum", 1000, 0, 1000);
-    _h_llpairPt->setAxisTitle("p_{T}(ll)");
-    
-    _h_llpairM  = dqm.book1dHisto("TTbar_llpairM","Lepton pair invariant mass", 1000, 0, 1000);
-    _h_llpairM->setAxisTitle("M(ll)");
-
+    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"bin","Number of Events");
+    _h_asym = dqm.book1dHisto("TTbar_asym","Asymmetr", 2, -1., 1.,"Asymmetry","Number of Events");
+    _h_deltaPhi = dqm.book1dHisto("TTbar_deltaPhi","#Delta#phi(ll)", 320, 0, 3.2,"#Delta#phi_{ll} (rad)","Number of Events");
+    _h_llpairPt = dqm.book1dHisto("TTbar_llpairPt","Lepton pair transverse momentum", 1000, 0, 1000,"p_{T}^{ll} (GeV)","Number of Events");
+    _h_llpairM  = dqm.book1dHisto("TTbar_llpairM","Lepton pair invariant mass", 1000, 0, 1000,"M_{ll} (GeV)","Number of Events");
 }
 

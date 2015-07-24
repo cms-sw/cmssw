@@ -11,5 +11,6 @@
   <use   name="DataFormats/TrackerRecHit2D"/>
   <use   name="DataFormats/Alignment"/>
   <use   name="RecoTracker/TransientTrackingRecHit"/>
+  <use   name="Utilities/General"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

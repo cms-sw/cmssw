@@ -10,7 +10,7 @@
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "Validation/RecoTrack/interface/MultiTrackValidatorBase.h"
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgo.h"
-
+#include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 
 class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorBase {
  public:
@@ -31,6 +31,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   //these are used by MTVGenPs
   bool UseAssociators;
   const bool parametersDefinerIsCosmic_;
+  const bool doPlotsOnlyForTruePV_;
   const bool doSimPlots_;
   const bool doSimTrackPlots_;
   const bool doRecoTrackPlots_;
@@ -54,6 +55,8 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
 
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
   edm::EDGetTokenT<edm::View<reco::Track> > labelTokenForDrCalculation;
+  edm::EDGetTokenT<edm::View<reco::Vertex> > recoVertexToken_;
+  edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
 
   std::vector<MonitorElement *> h_reco_coll, h_assoc_coll, h_assoc2_coll, h_simul_coll, h_looper_coll, h_pileup_coll;
   std::vector<MonitorElement *> h_assoc_coll_allPt, h_simul_coll_allPt;
