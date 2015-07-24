@@ -344,7 +344,7 @@ baseDataSetRelease=[
     'CMSSW_7_5_0-PU25ns_75X_mcRun2_asymptotic_v1-v1',       # 5 - fullSim PU 25ns premix
     'CMSSW_7_5_0-PU50ns_75X_mcRun2_startup_v1-v1',          # 6 - fullSim PU 50ns premix
     'CMSSW_7_5_0-75X_mcRun2_asymptotic_v1_FastSim-v1',      # 7 - fastSim PU for mixing
-    'CMSSW_7_5_0_pre5-MCRUN2_75_V5_FastSim-v1',             # 8 - fastSim mb
+    'CMSSW_7_5_0-75X_mcRun2_asymptotic_v1_FastSim-v1',      # 8 - fastSim mb // FIXME [Hengne]: this is actually the same as 7, to be removed
     'CMSSW_7_5_0_pre4-PU25ns_MCRUN2_75_V1_FastSim-v2'       # 9 - fastSim pre-premix 
     ]
 
