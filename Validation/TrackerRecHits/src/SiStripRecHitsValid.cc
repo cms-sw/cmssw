@@ -24,24 +24,6 @@
 using namespace std;
 using namespace edm;
 
-namespace helper { 
-    struct GetDetId { 
-        template<typename X> 
-        DetId operator()(const X &x) { return DetId(x.detId()); }
-    };
-
-    template<typename T>
-    std::pair<typename T::DetSet::const_iterator, typename T::DetSet::const_iterator> 
-    getRange(const T &detset, const DetId &id) {
-        typedef std::pair<typename T::DetSet::const_iterator, typename T::DetSet::const_iterator> return_type;
-        typename T::const_iterator match = detset.find(id);
-        if (match == detset.end()) return return_type();
-        typename T::DetSet hits = *match;
-        return return_type(hits.begin(), hits.end());
-    } 
-}
-
-
 
 //Constructor
 SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
@@ -215,17 +197,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   e.getByToken(rphiRecHitsToken_, rechitsrphi);
   e.getByToken(stereoRecHitsToken_, rechitsstereo);
 
-  int numrechitrphi   =0;
-  int numrechitstereo    =0;
-  int numrechitmatched=0;
-
   //Variables in order to count total num of rechitrphi,rechitstereo, rechitmatched in subdetectors
-  std::map<std::string, std::vector<int> > totnumrechitrphi;
-  std::map<std::string, std::vector<int> > totnumrechitstereo;
-  std::map<std::string, std::vector<int> > totnumrechitmatched;
-  totnumrechitrphi.clear();
-  totnumrechitstereo.clear();
-  totnumrechitmatched.clear();
+  std::map<std::string, int > totnumrechitrphi;
+  std::map<std::string, int > totnumrechitstereo;
+  std::map<std::string, int > totnumrechitmatched;
   int totrechitrphi =0;
   int totrechitstereo =0;
   int totrechitmatched =0;
@@ -235,179 +210,144 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   edm::ESHandle<TrackerGeometry> pDD;
   es.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry &tracker(*pDD);
-  // FIXME: this using of vector<DetId> is suboptimal, but I don't want to re-write the full class now
-  std::vector<DetId> IDs; 
-  IDs.reserve(rechitsrphi->size() + rechitsmatched->size() + rechitsstereo->size());
-  std::transform(rechitsrphi->begin(), rechitsrphi->end(), std::back_inserter(IDs), helper::GetDetId() );
-  std::transform(rechitsstereo->begin(), rechitsstereo->end(), std::back_inserter(IDs), helper::GetDetId() );
-  std::transform(rechitsmatched->begin(), rechitsmatched->end(), std::back_inserter(IDs), helper::GetDetId() );
-  // loop over DetIds
-  //  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-  for(std::vector<DetId>::const_iterator it = IDs.begin(); it != IDs.end(); ++it ){//loop on detector with hits
-    uint32_t myid=((*it).rawId());       
-    DetId detid = ((*it));
-    
-    rechitrphi.clear();
-    rechitstereo.clear();
-    rechitmatched.clear();
-    
-    numrechitrphi =0;
-    //loop over rechits-rphi in the same subdetector
-    std::pair<SiStripRecHit2DCollection::DetSet::const_iterator,SiStripRecHit2DCollection::DetSet::const_iterator> rechitrphiRange = helper::getRange(*rechitsrphi, detid);
-    SiStripRecHit2DCollection::DetSet::const_iterator rechitrphiRangeIteratorBegin = rechitrphiRange.first;
-    SiStripRecHit2DCollection::DetSet::const_iterator rechitrphiRangeIteratorEnd   = rechitrphiRange.second;
-    SiStripRecHit2DCollection::DetSet::const_iterator iterrphi=rechitrphiRangeIteratorBegin;
-    
-    numrechitrphi = rechitrphiRangeIteratorEnd - rechitrphiRangeIteratorBegin;   
-         
-    if(numrechitrphi > 0 ){
-      totrechitrphi+=numrechitrphi;
-      for(iterrphi=rechitrphiRangeIteratorBegin; iterrphi!=rechitrphiRangeIteratorEnd;++iterrphi){
-	
-	const GeomDetUnit *  det = tracker.idToDetUnit(detid);
-	const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-	const StripTopology &topol=(StripTopology&)stripdet->topology();
-	SiStripRecHit2D const rechit=*iterrphi;
-	//analyze RecHits 
-	rechitanalysis(rechit,topol,associate);
-	rechitrphi.push_back(rechitpro);
-      }
-    }
-    
-    //loop over rechits-stereo in the same subdetector
-    numrechitstereo=0;
-    std::pair<SiStripRecHit2DCollection::DetSet::const_iterator,SiStripRecHit2DCollection::DetSet::const_iterator> rechitstereoRange = helper::getRange(*rechitsstereo, detid);
-    SiStripRecHit2DCollection::DetSet::const_iterator rechitstereoRangeIteratorBegin = rechitstereoRange.first;
-    SiStripRecHit2DCollection::DetSet::const_iterator rechitstereoRangeIteratorEnd   = rechitstereoRange.second;
-    SiStripRecHit2DCollection::DetSet::const_iterator iterstereo=rechitstereoRangeIteratorBegin;
-    numrechitstereo = rechitstereoRangeIteratorEnd - rechitstereoRangeIteratorBegin;   
-    if(numrechitstereo > 0){
-      totrechitstereo+=numrechitstereo;
-      for(iterstereo=rechitstereoRangeIteratorBegin; iterstereo!=rechitstereoRangeIteratorEnd;++iterstereo){
-	const GeomDetUnit *  det = tracker.idToDetUnit(detid);
-	const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
-	const StripTopology &topol=(StripTopology&)stripdet->topology();
-	SiStripRecHit2D const rechit=*iterstereo;
-	//analyze RecHits 
-	rechitanalysis(rechit,topol,associate);
-	rechitstereo.push_back(rechitpro);
-      }
-    }
-    
-    //now matched hits
-    //loop over rechits-matched in the same subdetector
-    numrechitmatched=0;
-    std::pair<SiStripMatchedRecHit2DCollection::DetSet::const_iterator,SiStripMatchedRecHit2DCollection::DetSet::const_iterator> rechitmatchedRange = helper::getRange(*rechitsmatched, detid);
-    SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorBegin = rechitmatchedRange.first;
-    SiStripMatchedRecHit2DCollection::DetSet::const_iterator rechitmatchedRangeIteratorEnd   = rechitmatchedRange.second;
-    SiStripMatchedRecHit2DCollection::DetSet::const_iterator itermatched=rechitmatchedRangeIteratorBegin;
-    numrechitmatched = rechitmatchedRangeIteratorEnd - rechitmatchedRangeIteratorBegin;   
-    if(numrechitmatched > 0){
-      totrechitmatched +=numrechitmatched;
+  
+  SiStripHistoId hidmanager;
+  SiStripFolderOrganizer fold_organ;
 
-      for(itermatched=rechitmatchedRangeIteratorBegin; itermatched!=rechitmatchedRangeIteratorEnd;++itermatched){
-	SiStripMatchedRecHit2D const rechit=*itermatched;
-	const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
-	//analyze RecHits 
-	rechitanalysis_matched(rechit, gluedDet, associate);
-	rechitmatched.push_back(rechitpro);
-      }
-    }
-    
-    SiStripHistoId hidmanager;
+  // start loops over detectors with detected rechitsrphi
+  for (auto it = rechitsrphi->begin(), itEnd = rechitsrphi->end(); it != itEnd; ++it) {
+    DetId detid = (*it).detId();
+    uint32_t myid = detid.rawId();       
+    auto detsetIter = rechitsrphi->find(detid);
+    totrechitrphi += detsetIter->size();
+  
     std::string label = hidmanager.getSubdetid(myid,tTopo,true);
     std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
-    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
-    //std::cout << "label " << label << endl;
-    SiStripFolderOrganizer fold_organ;
     std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
-  
-    if(numrechitrphi>0 || numrechitstereo>0 || numrechitmatched){
 
-      totnumrechitrphi[det_lay_pair.first].push_back(numrechitrphi);
-      totnumrechitstereo[det_lay_pair.first].push_back(numrechitstereo);
-      totnumrechitmatched[det_lay_pair.first].push_back(numrechitmatched);
-
-      for (std::vector<RecHitProperties>::iterator irh=rechitrphi.begin(); irh!=rechitrphi.end(); ++irh) {
-	if(iLayerME != LayerMEsMap.end()){
-	  fillME(iLayerME->second.meWclusrphi,(*irh).clusiz);
-	  fillME(iLayerME->second.meAdcrphi,(*irh).cluchg);
-	  fillME(iLayerME->second.mePosxrphi,(*irh).x);
-	  fillME(iLayerME->second.meResolxrphi,(*irh).resolxx);
-	  fillME(iLayerME->second.meNsimHitrphi,(*irh).NsimHit);
-	  if ((*irh).NsimHit > 0) {
-	    std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
-	    fillME(iSubDetME->second.meBunchrphi, (*irh).bunch);
-	    if ((*irh).bunch == 0) fillME(iSubDetME->second.meEventrphi, (*irh).event);
-	  }
-	  if ( (*irh).resx != -999999. || (*irh).pullMF != -999999. || (*irh).chi2 != -999999. ){
-	    fillME(iLayerME->second.meResrphi,(*irh).resx);
-	    fillME(iLayerME->second.mePullLFrphi,(*irh).resx/sqrt((*irh).resolxx));
-	    fillME(iLayerME->second.mePullMFrphi,(*irh).pullMF);
-	    fillME(iLayerME->second.meChi2rphi,(*irh).chi2);
-	  }
-	}
+    totnumrechitrphi[det_lay_pair.first] = totnumrechitrphi[det_lay_pair.first] + detsetIter->size();
+    //loop over rechits-rphi in the same subdetector
+    if(iLayerME != LayerMEsMap.end()){
+      for(auto iterrphi= detsetIter->begin(), iterEnd = detsetIter->end(); iterrphi != iterEnd; ++iterrphi){	
+        const GeomDetUnit *  det = tracker.idToDetUnit(detid);
+        const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+        const StripTopology &topol=(StripTopology&)stripdet->topology();
+        SiStripRecHit2D const rechit=*iterrphi;
+        //analyze RecHits 
+        rechitanalysis(rechit,topol,associate);
+        // fill the result in a histogram
+        fillME(iLayerME->second.meWclusrphi,rechitpro.clusiz);
+        fillME(iLayerME->second.meAdcrphi,rechitpro.cluchg);
+        fillME(iLayerME->second.mePosxrphi,rechitpro.x);
+        fillME(iLayerME->second.meResolxrphi,rechitpro.resolxx);
+        fillME(iLayerME->second.meNsimHitrphi,rechitpro.NsimHit);
+        if (rechitpro.NsimHit > 0) {
+          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          fillME(iSubDetME->second.meBunchrphi, rechitpro.bunch);
+          if (rechitpro.bunch == 0) fillME(iSubDetME->second.meEventrphi, rechitpro.event);
+        }
+        if ( rechitpro.resx != -999999. || rechitpro.pullMF != -999999. || rechitpro.chi2 != -999999. ){
+          fillME(iLayerME->second.meResrphi,rechitpro.resx);
+          fillME(iLayerME->second.mePullLFrphi,rechitpro.resx/sqrt(rechitpro.resolxx));
+          fillME(iLayerME->second.mePullMFrphi,rechitpro.pullMF);
+          fillME(iLayerME->second.meChi2rphi,rechitpro.chi2);
+        }
       }
-      
-      
-      for (std::vector<RecHitProperties>::iterator irh=rechitstereo.begin(); irh!=rechitstereo.end(); ++irh) {
-	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-	  fillME(iStereoAndMatchedME->second.meWclusStereo,(*irh).clusiz);
-	  fillME(iStereoAndMatchedME->second.meAdcStereo,(*irh).cluchg);
-	  fillME(iStereoAndMatchedME->second.mePosxStereo,(*irh).x);
-	  fillME(iStereoAndMatchedME->second.meResolxStereo,sqrt((*irh).resolxx));
-	  fillME(iStereoAndMatchedME->second.meNsimHitStereo,(*irh).NsimHit);
-	  if ((*irh).NsimHit > 0) {
-	    std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
-	    fillME(iSubDetME->second.meBunchStereo, (*irh).bunch);
-	    if ((*irh).bunch == 0) fillME(iSubDetME->second.meEventStereo, (*irh).event);
-	  }
-	  if ( (*irh).resx != -999999. || (*irh).pullMF != -999999. || (*irh).chi2 != -999999. ){
-	    fillME(iStereoAndMatchedME->second.meResStereo,(*irh).resx);
-	    fillME(iStereoAndMatchedME->second.mePullLFStereo,(*irh).resx/sqrt((*irh).resolxx));
-	    fillME(iStereoAndMatchedME->second.mePullMFStereo,(*irh).pullMF);
-	    fillME(iStereoAndMatchedME->second.meChi2Stereo,(*irh).chi2);
-	  }
-	}
-      }
-
-      for (std::vector<RecHitProperties>::iterator irh=rechitmatched.begin(); irh!=rechitmatched.end(); ++irh) {
-	if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-	  fillME(iStereoAndMatchedME->second.mePosxMatched,(*irh).x);
-	  fillME(iStereoAndMatchedME->second.mePosyMatched,(*irh).y);
-	  fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt((*irh).resolxx));
-	  fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt((*irh).resolyy));
-	  fillME(iStereoAndMatchedME->second.meNsimHitMatched,(*irh).NsimHit);
-	  if ((*irh).NsimHit > 0) {
-	    std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
-	    fillME(iSubDetME->second.meBunchMatched, (*irh).bunch);
-	    if ((*irh).bunch == 0) fillME(iSubDetME->second.meEventMatched, (*irh).event);
-	  }
-	  if ( (*irh).resx != -999999. || (*irh).resy != -999999. || (*irh).chi2 != -999999. ){
-	    fillME(iStereoAndMatchedME->second.meResxMatched,(*irh).resx);
-	    fillME(iStereoAndMatchedME->second.meResyMatched,(*irh).resy);
-	    fillME(iStereoAndMatchedME->second.meChi2Matched,(*irh).chi2);
-	  }
-	}
-      }
-
     }
-    
-  }//End of loop over detectors
-  
+  }
 
+  // start loops over detectors with detected rechitsstereo
+  for (auto it = rechitsstereo->begin(), itEnd = rechitsstereo->end(); it != itEnd; ++it) {
+    DetId detid = (*it).detId();
+    uint32_t myid= detid.rawId();       
+    auto detsetIter = rechitsstereo->find(detid);
+    totrechitstereo += detsetIter->size();
+ 
+    std::string label = hidmanager.getSubdetid(myid,tTopo,true);
+    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
+    std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
+   
+    totnumrechitstereo[det_lay_pair.first] = totnumrechitstereo[det_lay_pair.first] + detsetIter->size();
+    //loop over rechits-stereo in the same subdetector
+    if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
+      for(auto iterstereo=detsetIter->begin(), iterEnd = detsetIter->end(); iterstereo!=iterEnd; ++iterstereo){
+        const GeomDetUnit *  det = tracker.idToDetUnit(detid);
+        const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
+        const StripTopology &topol=(StripTopology&)stripdet->topology();
+        SiStripRecHit2D const rechit=*iterstereo;
+        //analyze RecHits
+        rechitanalysis(rechit,topol,associate);
+        // fill the result in a histogram
+        fillME(iStereoAndMatchedME->second.meWclusStereo,rechitpro.clusiz);
+        fillME(iStereoAndMatchedME->second.meAdcStereo,rechitpro.cluchg);
+        fillME(iStereoAndMatchedME->second.mePosxStereo,rechitpro.x);
+        fillME(iStereoAndMatchedME->second.meResolxStereo,sqrt(rechitpro.resolxx));
+        fillME(iStereoAndMatchedME->second.meNsimHitStereo,rechitpro.NsimHit);
+        if (rechitpro.NsimHit > 0) {
+          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          fillME(iSubDetME->second.meBunchStereo, rechitpro.bunch);
+          if (rechitpro.bunch == 0) fillME(iSubDetME->second.meEventStereo, rechitpro.event);
+        }
+        if ( rechitpro.resx != -999999. || rechitpro.pullMF != -999999. || rechitpro.chi2 != -999999. ){
+          fillME(iStereoAndMatchedME->second.meResStereo,rechitpro.resx);
+          fillME(iStereoAndMatchedME->second.mePullLFStereo,rechitpro.resx/sqrt(rechitpro.resolxx));
+          fillME(iStereoAndMatchedME->second.mePullMFStereo,rechitpro.pullMF);
+          fillME(iStereoAndMatchedME->second.meChi2Stereo,rechitpro.chi2);
+        }
+      }
+    }
+  }
+
+  // start loops over detectors with detected rechitmatched
+  for (auto it = rechitsmatched->begin(), itEnd = rechitsmatched->end(); it != itEnd; ++it) {
+    DetId detid = (*it).detId();
+    uint32_t myid = detid.rawId();       
+    auto detsetIter = rechitsmatched->find(detid);
+    totrechitmatched += detsetIter->size();
+ 
+    std::string label = hidmanager.getSubdetid(myid,tTopo,true);
+    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
+    std::pair<std::string,int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid,tTopo,true);
+   
+    totnumrechitmatched[det_lay_pair.first] = totnumrechitmatched[det_lay_pair.first] + detsetIter->size();
+    //loop over rechits-matched in the same subdetector
+    if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
+      for(auto itermatched=detsetIter->begin(), iterEnd = detsetIter->end(); itermatched!=iterEnd; ++itermatched){
+        SiStripMatchedRecHit2D const rechit=*itermatched;
+        const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
+        //analyze RecHits 
+        rechitanalysis_matched(rechit, gluedDet, associate);
+        // fill the result in a histogram
+        fillME(iStereoAndMatchedME->second.mePosxMatched,rechitpro.x);
+        fillME(iStereoAndMatchedME->second.mePosyMatched,rechitpro.y);
+        fillME(iStereoAndMatchedME->second.meResolxMatched,sqrt(rechitpro.resolxx));
+        fillME(iStereoAndMatchedME->second.meResolyMatched,sqrt(rechitpro.resolyy));
+        fillME(iStereoAndMatchedME->second.meNsimHitMatched,rechitpro.NsimHit);
+        if (rechitpro.NsimHit > 0) {
+          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          fillME(iSubDetME->second.meBunchMatched, rechitpro.bunch);
+          if (rechitpro.bunch == 0) fillME(iSubDetME->second.meEventMatched, rechitpro.event);
+        }
+        if ( rechitpro.resx != -999999. || rechitpro.resy != -999999. || rechitpro.chi2 != -999999. ){
+          fillME(iStereoAndMatchedME->second.meResxMatched,rechitpro.resx);
+          fillME(iStereoAndMatchedME->second.meResyMatched,rechitpro.resy);
+          fillME(iStereoAndMatchedME->second.meChi2Matched,rechitpro.chi2);
+        }
+      }
+    }
+  }//End of loops over detectors
+  
   //now fill the cumulative histograms of the hits
-  for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); iSubdet++){
+  for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); ++iSubdet){
     std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find((*iSubdet));
-    fillME(iSubDetME->second.meNumrphi,std::accumulate(totnumrechitrphi[(*iSubdet)].rbegin(), totnumrechitrphi[(*iSubdet)].rend(), 0));
-    fillME(iSubDetME->second.meNumStereo,std::accumulate(totnumrechitstereo[(*iSubdet)].rbegin(), totnumrechitstereo[(*iSubdet)].rend(), 0));
-    fillME(iSubDetME->second.meNumMatched,std::accumulate(totnumrechitmatched[(*iSubdet)].rbegin(), totnumrechitmatched[(*iSubdet)].rend(), 0));
+    fillME(iSubDetME->second.meNumrphi,totnumrechitrphi[(*iSubdet)]);
+    fillME(iSubDetME->second.meNumStereo,totnumrechitstereo[(*iSubdet)]);
+    fillME(iSubDetME->second.meNumMatched,totnumrechitmatched[(*iSubdet)]);
   }
 
   fillME(totalMEs.meNumTotrphi,totrechitrphi);
   fillME(totalMEs.meNumTotStereo,totrechitstereo);
   fillME(totalMEs.meNumTotMatched,totrechitmatched);
- 
 }
 
   
