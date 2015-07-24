@@ -88,5 +88,5 @@ template class FWPFPatJetLegoProxyBuilder<reco::PFJet>;
 template class FWPFPatJetLegoProxyBuilder<pat::Jet>;
 
 //______________________________________________________________________________
-REGISTER_FWPROXYBUILDER(FWPFJetLegoProxyBuilder, reco::PFJet, "PF Jet", FWViewType::kLegoPFECALBit | FWViewType::kLegoBit );
-REGISTER_FWPROXYBUILDER(FWPatJetLegoProxyBuilder, pat::Jet, "PF PatJet", FWViewType::kLegoPFECALBit | FWViewType::kLegoBit );
+REGISTER_FWPROXYBUILDER(FWPFJetLegoProxyBuilder, reco::PFJet, "Jet PFConstituents", FWViewType::kLegoPFECALBit | FWViewType::kLegoBit );
+REGISTER_FWPROXYBUILDER(FWPatJetLegoProxyBuilder, pat::Jet, "PatJet PFConstituents", FWViewType::kLegoPFECALBit | FWViewType::kLegoBit );
