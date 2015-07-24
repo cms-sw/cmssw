@@ -15,7 +15,7 @@ def _build_query(menu):
   if menu.run:
     return '--runNumber %s' % menu.run
   else:
-    return '--%s --configName %s' % (menu.db, menu.name)
+    return '--%s --configName %s' % (menu.database, menu.name)
 
 def getPathList(menu, selection):
   cmdline = 'hltConfigFromDB --cff %s --noedsources --noes --noservices --nosequences --nomodules' % _build_query(menu)
