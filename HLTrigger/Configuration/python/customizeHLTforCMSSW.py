@@ -127,5 +127,5 @@ def customiseHLTforCMSSW(process,menuType="GRun",fastSim=False):
         process = customiseFor10087(process)
         process = customizeHLTforNewJetCorrectors(process)
     if cmsswVersion >= "CMSSW_7_4":
-        process = customiseFor10234(process)
+        process = customiseFor10087(process)
     return process
