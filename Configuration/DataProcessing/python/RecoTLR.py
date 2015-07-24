@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi,customise_DQM
 from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
@@ -38,12 +38,16 @@ def customiseDataRun2Common(process):
     process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
     if hasattr(process,'valCscTriggerPrimitiveDigis'):
         #this is not doing anything at the moment
-        process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.untracked.bool(False)
+        process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.bool(False)
     if hasattr(process,'valCsctfTrackDigis'):
         process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
 
-    process=customise_Reco(process)
-    process=customise_RawToDigi(process)
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction'):
+        process=customise_Reco(process)
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM(process)
 
     return process
 
