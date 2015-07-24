@@ -582,9 +582,9 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
         int nps=(amc13->AMCId(iamc)>>12)&0xF;
 
         HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
-        int nwords=uhtr.getRawLengthBytes()/2;
-        for (int iw=0; iw<nwords; iw++) 
-            printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
+//        int nwords=uhtr.getRawLengthBytes()/2;
+//        for (int iw=0; iw<nwords; iw++) 
+//            printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
 
         HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
         while (i!=iend) {
@@ -595,7 +595,6 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
                 std::cout << "its not a header" << std::endl;
                 continue;
             }
-            std::cout << "passed header check" <<std::endl;
             ///////////////////////////////////////////////HE UNPACKER//////////////////////////////////////////////////////////////////////////////////////
             if (i.flavor() == 1 || i.flavor() == 0) {
                 int ifiber=((i.channelid()>>2)&0x1F);
@@ -605,10 +604,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
                 // Count from current position to next header, or equal to end
                 const uint16_t* head_pos = i.raw();
                 int ns = 0;
-                std::cout << "Right before loop"<<std::endl;
                 for (++i; i != iend && !i.isHeader(); ++i) {
                     ns++;
-                    std::cout << "In the loop!" << std::endl;
                 }
                 // Check QEI11 container exists
                 if (colls.qie11 == 0) {
@@ -763,7 +760,6 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
                         ++i);	
             }
         }
-        std::cout << "If you are reading this I survived the loop" << std::endl;
     }
 }
 
