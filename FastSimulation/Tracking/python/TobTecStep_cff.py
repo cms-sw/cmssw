@@ -65,8 +65,14 @@ tobTecStepTracks = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepTracks
 )
 
 # final selection
-tobTecStepSelector = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSelector.clone()
-tobTecStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+tobTecStepClassifier1 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClassifier1.clone()
+tobTecStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+tobTecStepClassifier2 = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClassifier2.clone()
+tobTecStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
+
+tobTecStep = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStep.clone()
+
+
 
 # Final sequence 
 TobTecStep = cms.Sequence(tobTecStepMasks
@@ -75,5 +81,6 @@ TobTecStep = cms.Sequence(tobTecStepMasks
                           +tobTecStepSeeds
                           +tobTecStepTrackCandidates
                           +tobTecStepTracks
-                          +tobTecStepSelector                          
+                          +tobTecStepClassifier1*tobTecStepClassifier2
+                          +tobTecStep
                       )
