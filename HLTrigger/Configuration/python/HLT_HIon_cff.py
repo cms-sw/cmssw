@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V105 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/HIon/V106 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V105')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V106')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -470,9 +470,9 @@ fragment.transferSystem = cms.PSet(
   )
 )
 fragment.streams = cms.PSet( 
-  A = cms.vstring( 'HLTPhysics',
-    'InitialPDForHI' ),
-  DQM = cms.vstring( 'OnlineMonitor' )
+  DQM = cms.vstring( 'OnlineMonitor' ),
+  PhysicsEGammaCommissioning = cms.vstring( 'HLTPhysics',
+    'InitialPDForHI' )
 )
 fragment.datasets = cms.PSet( 
   HLTPhysics = cms.vstring( 'HLT_Physics_v2' ),

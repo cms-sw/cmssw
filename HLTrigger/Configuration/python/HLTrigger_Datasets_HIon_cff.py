@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-# dump of the Stream A Datasets defined in the HLT table as Stream A Datasets
+# dump of the Stream PhysicsEGammaCommissioning Datasets defined in the HLT table as Stream A Datasets
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHLTPhysics_selector
 streamA_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
