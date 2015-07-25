@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/PIon/V105 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/PIon/V106 (CMSSW_7_4_6_patch3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V105')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V106')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -470,12 +470,12 @@ process.transferSystem = cms.PSet(
   )
 )
 process.streams = cms.PSet( 
-  A = cms.vstring( 'HLTPhysics',
-    'JetHT',
+  DQM = cms.vstring( 'OnlineMonitor' ),
+  PhysicsEGammaCommissioning = cms.vstring( 'HLTPhysics',
     'SingleElectron',
-    'SingleMuon',
     'Templates' ),
-  DQM = cms.vstring( 'OnlineMonitor' )
+  PhysicsHadronsTaus = cms.vstring( 'JetHT' ),
+  PhysicsMuons = cms.vstring( 'SingleMuon' )
 )
 process.datasets = cms.PSet( 
   HLTPhysics = cms.vstring( 'HLT_Physics_v2' ),
@@ -8328,7 +8328,15 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     reportBy = cms.untracked.string( "job" ),
     HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
-process.hltPreAOutput = cms.EDFilter( "HLTPrescaler",
+process.hltPrePhysicsEGammaCommissioningOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPrePhysicsHadronsTausOutput = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltPrePhysicsMuonsOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -8351,8 +8359,8 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     daqPartitions = cms.uint32( 1 )
 )
 
-process.hltOutputA = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputA.root" ),
+process.hltOutputPhysicsEGammaCommissioning = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsEGammaCommissioning.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -8360,10 +8368,38 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_CaloJet260_v2',
   'HLT_Ele27_eta2p1_WPLoose_Gsf_v1',
-  'HLT_Mu50_v2',
-  'HLT_PFJet260_v2',
   'HLT_Photon20_CaloIdVL_IsoL_v2',
   'HLT_Physics_v2' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltL1GtObjectMap_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsHadronsTaus = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsHadronsTaus.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_PFJet260_v2' ) ),
+    outputCommands = cms.untracked.vstring( 'drop *',
+      'keep *_hltL1GtObjectMap_*_*',
+      'keep FEDRawDataCollection_rawDataCollector_*_*',
+      'keep FEDRawDataCollection_source_*_*',
+      'keep edmTriggerResults_*_*_*',
+      'keep triggerTriggerEvent_*_*_*' )
+)
+process.hltOutputPhysicsMuons = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputPhysicsMuons.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Mu50_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
@@ -8468,7 +8504,9 @@ process.HLT_Photon20_CaloIdVL_IsoL_v2 = cms.Path( process.HLTBeginSequence + pro
 process.HLT_Physics_v2 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltPreAnalyzerEndpath + process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport )
-process.AOutput = cms.EndPath( process.hltGtDigis + process.hltPreAOutput + process.hltOutputA )
+process.PhysicsEGammaCommissioningOutput = cms.EndPath( process.hltGtDigis + process.hltPrePhysicsEGammaCommissioningOutput + process.hltOutputPhysicsEGammaCommissioning )
+process.PhysicsHadronsTausOutput = cms.EndPath( process.hltGtDigis + process.hltPrePhysicsHadronsTausOutput + process.hltOutputPhysicsHadronsTaus )
+process.PhysicsMuonsOutput = cms.EndPath( process.hltGtDigis + process.hltPrePhysicsMuonsOutput + process.hltOutputPhysicsMuons )
 
 # load the DQMStore and DQMRootOutputModule
 process.load( "DQMServices.Core.DQMStore_cfi" )
@@ -8480,7 +8518,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtDigis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart + process.hltOutputDQM )
 
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_CaloJet260_v2, process.HLT_Ele27_eta2p1_WPLoose_Gsf_v1, process.HLT_Mu50_v2, process.HLT_PFJet260_v2, process.HLT_Photon20_CaloIdVL_IsoL_v2, process.HLT_Physics_v2, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.AOutput, process.DQMOutput ))
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_CaloJet260_v2, process.HLT_Ele27_eta2p1_WPLoose_Gsf_v1, process.HLT_Mu50_v2, process.HLT_PFJet260_v2, process.HLT_Photon20_CaloIdVL_IsoL_v2, process.HLT_Physics_v2, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.PhysicsEGammaCommissioningOutput, process.PhysicsHadronsTausOutput, process.PhysicsMuonsOutput, process.DQMOutput ))
 
 
 process.source = cms.Source( "PoolSource",
