@@ -22,6 +22,7 @@ from RecoTracker.IterativeTracking.PixelPairStep_cff import *
 hiRegitMuPixelPairStepClusters = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.clone(
     trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
 		overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
+                trackClassifier       = cms.InputTag(''),
 		oldClusterRemovalInfo = cms.InputTag(""),
 		TrackQuality          = cms.string('tight')
 )
@@ -81,7 +82,7 @@ hiRegitMuPixelPairStepTracks                 = RecoTracker.IterativeTracking.Pix
 
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-hiRegitMuPixelPairStepSelector               = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSelector.clone( 
+hiRegitMuPixelPairStepSelector               = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone( 
     src                 ='hiRegitMuPixelPairStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
     trackSelectors= cms.VPSet(

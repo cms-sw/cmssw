@@ -104,8 +104,6 @@ namespace edm {
             branchesActivate(TypeID(typeid(std::vector<reco::Track>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(std::vector<reco::TrackExtra>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >)).friendlyClassName(),std::string(""),tag,label);
-	    InputTag mvatag(tag.label(),"MVAVals");
-            branchesActivate(TypeID(typeid(edm::ValueMap<float>)).friendlyClassName(),std::string(""),mvatag,label);
             adjustersObjects_.push_back(new Adjuster<edm::OwnVector<TrackingRecHit> >(tag, consumesCollector()));
 	    // note: no crossing frame is foreseen to be used for this object type
 	    
