@@ -9,9 +9,11 @@
    <version ClassVersion="11" checksum="1613493049"/>
    <version ClassVersion="10" checksum="877294307"/>
   </class>
-  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="13">
-   <version ClassVersion="13" checksum="1553184391"/>
-   <version ClassVersion="12" checksum="2874379530"/>
+  <class name="SiTrackerGSMatchedRecHit2D" ClassVersion="15">
+   <version ClassVersion="15" checksum="312033037"/>
+   <version ClassVersion="14" checksum="1553184391"/>
+   <version ClassVersion="13" checksum="2874379530"/>
+   <version ClassVersion="12" checksum="312033037"/>
    <version ClassVersion="11" checksum="1553184391"/>
    <version ClassVersion="10" checksum="3741285161"/>
   </class>
@@ -132,6 +134,14 @@
 
   <class name="edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit2D,edm::ClonePolicy<SiStripRecHit2D> >,edm::ClonePolicy<SiStripRecHit2D> >,SiStripRecHit2D> >"/>
   <class name="edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D> >"/>
+
+ <class name="std::vector<SiTrackerGSRecHit2D>"/>
+ <class name="edmNew::DetSetVector<SiTrackerGSRecHit2D>"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<SiTrackerGSRecHit2D> >"/>
+ 
+ <class name="std::vector<SiTrackerGSMatchedRecHit2D>"/>
+ <class name="edmNew::DetSetVector<SiTrackerGSMatchedRecHit2D>"/>
+ <class name="edm::Wrapper<edmNew::DetSetVector<SiTrackerGSMatchedRecHit2D> >"/>
 
  <class name="std::vector<SiStripRecHit2D>"/>
  <class name="std::vector<SiStripRecHit1D>"/>

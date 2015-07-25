@@ -1,3 +1,4 @@
+
 /** SiPixelGaussianSmearingRecHitConverterAlgorithm.cc
  * ---------------------------------------------------------------------
  * Description:  see SiPixelGaussianSmearingRecHitConverterAlgorithm.h
@@ -30,6 +31,7 @@
 // ROOT
 #include <TFile.h>
 #include <TH1F.h>
+#include <TH2F.h>
 //#include <TAxis.h>
 
 //#define FAMOS_DEBUG
@@ -44,6 +46,7 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   pset_(pset),
   thePixelPart(pixelPart)
 {
+  std::cout << "P SiPixelGaussianSmearingRecHitConverterAlgorithm"<< std::endl;
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   useCMSSWPixelParameterization = pset.getParameter<bool>("UseCMSSWPixelParametrization");
 
@@ -54,7 +57,14 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
        TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
      thePixelResolutionFileName2 =  pset_.getParameter<string>( "NewPixelBarrelResolutionFile2" );
      thePixelResolutionFile2 = new
-       TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
+      TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
+     //ALICE: loading new pixel barrel resolution file as defined in ../python/SiTrackerGaussianSmearingRecHitConverter_cfi.py 
+     thePixelResolutionFileName3 = pset_.getParameter<string>( "NewPixelBarrelResolutionFile3" );
+     thePixelResolutionFile3 = new 
+       TFile( edm::FileInPath( thePixelResolutionFileName3 ).fullPath().c_str()  ,"READ");
+     probfileName = pset_.getParameter<string>( "probfilebarrel" );
+     probfile = new
+       TFile( edm::FileInPath( probfileName ).fullPath().c_str()  ,"READ");
      initializeBarrel();
      tempId = pset_.getParameter<int> ( "templateIdBarrel" );
      if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
@@ -70,6 +80,13 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
      thePixelResolutionFileName1 = pset_.getParameter<string>( "NewPixelForwardResolutionFile" );
      thePixelResolutionFile1 = new
        TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
+     //ALICE: loading new pixel forward resolution file as defined in ../python/SiTrackerGaussianSmearingRecHitConverter_cfi.py
+     thePixelResolutionFileName2 = pset_.getParameter<string>( "NewPixelForwardResolutionFile2" );
+     thePixelResolutionFile2 = new
+       TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
+     probfileName = pset_.getParameter<string>( "probfileforward" );
+     probfile =new
+       TFile( edm::FileInPath( probfileName ).fullPath().c_str()  ,"READ");
      initializeForward();
      tempId = pset_.getParameter<int> ( "templateIdForward" );
      if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
@@ -82,11 +99,12 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   else
      throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm :")
        <<"Not a pixel detector"<<endl;
+  std::cout << "end P SiPixelGaussianSmearingRecHitConverterAlgorithm"<< std::endl;
 }
 
 SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitConverterAlgorithm()
 {
-  
+  std::cout << "P ~SiPixelGaussianSmearingRecHitConverterAlgorithm"<< std::endl;
   std::map<unsigned,const SimpleHistogramGenerator*>::const_iterator it;
   for ( it=theXHistos.begin(); it!=theXHistos.end(); ++it )
     delete it->second;
@@ -95,7 +113,7 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitC
 
   theXHistos.clear();
   theYHistos.clear();
-
+  std::cout << "end P ~SiPixelGaussianSmearingRecHitConverterAlgorithm"<< std::endl;
 }
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
@@ -105,11 +123,11 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   const double boundY,
   RandomEngineAndDistribution const* random)
 {
-
-#ifdef FAMOS_DEBUG
+  std::cout << "P smearHit"<< std::endl;
+  #ifdef FAMOS_DEBUG
   std::cout << " Pixel smearing in " << thePixelPart 
 	    << std::endl;
-#endif
+  #endif
   //
   // at the beginning the position is the Local Point in the local pixel module reference frame
   // same code as in PixelCPEBase
@@ -117,30 +135,40 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   float locx = localDir.x();
   float locy = localDir.y();
   float locz = localDir.z();
-
   // alpha: angle with respect to local x axis in local (x,z) plane
   float cotalpha = locx/locz;
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
-#ifdef FAMOS_DEBUG
+    #ifdef FAMOS_DEBUG
     std::cout << " isFlipped " << std::endl;
-#endif
+    #endif
   }
   // beta: angle with respect to local y axis in local (y,z) plane
   float cotbeta = locy/locz;
   float sign=1.;
+  //ALICE TESTING AREA
+  /*  float loceta = fabs(-log((double)(-cotbeta+sqrt((double)(1.+cotbeta*cotbeta)))));
+  float locdis = sqrt(pow(locx, 2) + pow(locy, 2));
+  std::cout << "cotbeta local x local y local eta local distance" << std::endl;
+  std::cout << cotbeta << " " << locx << " " << locy << " " << loceta << " " << locdis << std::endl;
+  probfile = new TFile( "FastSimulation/TrackingRecHitProducer/data/mergeprob.root"  ,"READ");
+  TH2F * probhisto = (TH2F*)probfile->Get("h2bc");
+  float prob = probhisto->GetBinContent(probhisto->GetXaxis()->FindFixBin(locdis),probhisto->GetYaxis()->FindFixBin(loceta));
+  std::cout << "probability of merging: " << prob << std::endl;
+  float probability = ((double) rand() / (RAND_MAX));
+  std::cout << probability << std::endl;*/
   if( isForward ) {
     if( cotbeta < 0 ) sign=-1.;
     cotbeta = sign*cotbeta;
   }
+
   
-  
-  //
-#ifdef FAMOS_DEBUG
+ 
+  #ifdef FAMOS_DEBUG
   std::cout << " Local Direction " << simHit.localDirection()
 	    << " cotalpha(x) = " << cotalpha
 	    << " cotbeta(y) = "  << cotbeta
 	    << std::endl;
-#endif
+  #endif
   
   const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
   const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(theSpecificTopology);
@@ -156,18 +184,18 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   //Get the center of the struck pixel in measurement position
   float pixelCenterY = 0.5 + (int)mpy;
   float pixelCenterX = 0.5 + (int)mpx;
-#ifdef FAMOS_DEBUG
+  #ifdef FAMOS_DEBUG
   cout<<"Struck pixel center at pitch units x: "<<pixelCenterX<<" y: "<<pixelCenterY<<endl;
-#endif
+  #endif
 
   const MeasurementPoint mpCenter(pixelCenterX, pixelCenterY);
   //Transform the center of the struck pixel back into local position
   const Local3DPoint lpCenter = rectPixelTopology->localPosition( mpCenter );
-#ifdef FAMOS_DEBUG
+  #ifdef FAMOS_DEBUG
   cout<<"Struck point at cm x: "<<lp.x()<<" y: "<<lp.y()<<endl;
   cout<<"Struck pixel center at cm x: "<<lpCenter.x()<<" y: "<<lpCenter.y()<<endl;
   cout<<"The boundX is "<<boundX<<" boundY is "<<boundY<<endl;
-#endif
+  #endif
 
   //Get the relative position of struck point to the center of the struck pixel
   float xtrk = lp.x() - lpCenter.x();
@@ -350,12 +378,12 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
   // as for resolution matrix
   //
-#ifdef FAMOS_DEBUG
+  #ifdef FAMOS_DEBUG
   std::cout << " Pixel Errors "
 	    << "\talpha(x) = " << theErrorX
 	    << "\tbeta(y) = "  << theErrorY
 	    << std::endl;	
-#endif
+  #endif
   // Generate position
   // get resolution histograms
   int cotalphaHistBin = (int)( ( cotalpha - rescotAlpha_binMin ) / rescotAlpha_binWidth + 1 );
@@ -368,6 +396,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   //
   unsigned int theXHistN;
   unsigned int theYHistN;
+  //ALICE: redid numbers associated with regular barrel and forward hits to match new histogram labeling
   if( !isForward ) {
      if(edge)
      {
@@ -379,22 +408,26 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
        if(singlex)
        {
 	 if(hitbigx)  theXHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
-	 else 	theXHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	 else 	theXHistN = 1 * 10000 + cotbetaHistBin * 10 + cotalphaHistBin ; 
+	 //else   theXHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
        }
        else
        {
 	 if(hasBigPixelInX)  theXHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
-	 else 	theXHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	 else 	theXHistN = 1 * 100000 + 1 * 10000 + cotbetaHistBin * 100 + cotalphaHistBin * 10 + (nqbin+1);
+	 //else   theXHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
        }
        if(singley)
        {
 	 if(hitbigy)  theYHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
-	 else 	theYHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	 else 	theYHistN = 1 * 10000 + cotbetaHistBin * 10 + cotalphaHistBin ;
+	 //else   theYHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
        }
        else
        {
 	 if(hasBigPixelInY)  theYHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
-	 else 	theYHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	 else 	theYHistN = 1 * 100000 + 1 * 10000 + cotbetaHistBin * 100 + cotalphaHistBin * 10 + (nqbin+1);
+	 //else   theYHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
        }
      }
   }
@@ -411,16 +444,20 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
          if( hitbigx )
 	   theXHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
 	 else
-	   theXHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	   theXHistN = cotbetaHistBin * 10 + cotalphaHistBin;
+       //theXHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
        else
-         theXHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+         theXHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 +  (nqbin+1);
+       //theXHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
        if( singley )
          if( hitbigy )
 	   theYHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
 	 else
-	   theYHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	   theYHistN = cotbetaHistBin * 10 + cotalphaHistBin;
+       //theYHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
        else
-         theYHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+         theYHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 + (nqbin+1);
+       //theYHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
      }
   }
   unsigned int counter = 0;
@@ -438,7 +475,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
       Local3DPoint(simHit.localPosition().x() + thePositionX , 
                    simHit.localPosition().y() + thePositionY , 
                    simHit.localPosition().z() + thePositionZ );
-#ifdef FAMOS_DEBUG
+    #ifdef FAMOS_DEBUG
     std::cout << " Detector bounds: "
               << "\t\tx = " << boundX
               << "\ty = " << boundY
@@ -447,7 +484,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
               << "\tx = " << thePosition.x()
               << "\ty = " << thePosition.y()
               << std::endl;       
-#endif  
+    #endif  
     counter++;
     if(counter > 20) {
       thePosition = Local3DPoint(simHit.localPosition().x(), 
@@ -456,7 +493,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
       break;
     }
   } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
-
+  std::cout << "end P smearHit"<< std::endl;
 }
  
 //-----------------------------------------------------------------------------
@@ -472,17 +509,54 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 // in the E direction) to global coordinates. There is probably a much 
 // better way.(PJ: And faster!)
 //-----------------------------------------------------------------------------
+bool SiPixelGaussianSmearingRecHitConverterAlgorithm::hitsMerge(const PSimHit& simHit)
+{
+  std::cout << "P hitsMerge"<< std::endl;
+  LocalVector localDir = simHit.momentumAtEntry().unit();
+  float locy = localDir.y();
+  float locz = localDir.z();
+  float cotbeta = locy/locz;
+  float loceta = fabs(-log((double)(-cotbeta+sqrt((double)(1.+cotbeta*cotbeta)))));
+
+  const Local3DPoint lp = simHit.localPosition();
+  float lpy = lp.y();
+  float lpx = lp.x();
+  float locdis = 10000.*sqrt(pow(lpx, 2) + pow(lpy, 2));
+
+  //  std::cout << "cotbeta local x local y local eta local distance" << std::endl;
+  // std::cout << cotbeta << " " << lpx << " " << lpy << " " << loceta << " " << locdis << std::endl;
+ 
+  //  if( isForward ) {
+  //  probfile = new TFile( "FastSimulation/TrackingRecHitProducer/data/fmergeprob.root"  ,"READ");}
+    //  std::cout << "Forward" << std::endl;}
+  //else {
+  //  probfile = new TFile( "FastSimulation/TrackingRecHitProducer/data/bmergeprob.root"  ,"READ");}
+    // std::cout << "Barrel" << std::endl;} 
+  TH2F * probhisto = (TH2F*)probfile->Get("h2bc");
+  float prob = probhisto->GetBinContent(probhisto->GetXaxis()->FindFixBin(locdis),probhisto->GetYaxis()->FindFixBin(loceta));
+  float randprob = ((double) rand() / (RAND_MAX));
+  
+  // std::cout << "probability of merging: " << prob << " and assigned probability: " << randprob << std::endl;
+  std::cout << "end P hitsMerge"<< std::endl;
+  if (randprob <= prob) {
+    std::cout << "True!" << std::endl;
+    return true;}
+  else return false;
+}
 bool SiPixelGaussianSmearingRecHitConverterAlgorithm::isFlipped(const PixelGeomDetUnit* theDet) const {
-  // Check the relative position of the local +/- z in global coordinates.
+  std::cout << "P isFlipped"<< std::endl;
+ // Check the relative position of the local +/- z in global coordinates.
   float tmp1 = theDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
   float tmp2 = theDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
   //  std::cout << " 1: " << tmp1 << " 2: " << tmp2 << std::endl;
+  std::cout << "end P isFlipped"<< std::endl;
   if ( tmp2<tmp1 ) return true;
   else return false;    
 }
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeBarrel()
 {
+  std::cout << "P initializeBarrel"<< std::endl;
   //Hard coded at the moment, can easily be changed to be configurable
   rescotAlpha_binMin = -0.2;
   rescotAlpha_binWidth = 0.08 ;
@@ -495,52 +569,71 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeBarrel()
   resqbin_binN = 4;
 
   // Initialize the barrel histos once and for all, and prepare the random generation
-  for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin )
+  for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin ) 
      for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )  {
          unsigned int singleBigPixelHistN = 1 * 100000
                                         + cotalphaHistBin * 100
                                         + cotbetaHistBin ;
-         theXHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singleBigPixelHistN ) ) );
-         theYHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singleBigPixelHistN ) ) );
-         unsigned int singlePixelHistN = 1 * 100000 + 1 * 1000
-                                        + cotalphaHistBin * 100
-                                        + cotbetaHistBin ;
-         theXHistos[singlePixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singlePixelHistN ) ) );
-         theYHistos[singlePixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singlePixelHistN ) ) );
-         for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
-             unsigned int edgePixelHistN = cotalphaHistBin * 1000
-                                        +  cotbetaHistBin * 10
+	 theXHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
+										      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singleBigPixelHistN ) ) ); 
+	 theYHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
+									              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singleBigPixelHistN ) ) );
+	 //	 	 unsigned int singlePixelHistN = 1 * 100000 + 1 * 1000
+	 //                               + cotalphaHistBin * 100
+	 //                              + cotbetaHistBin ;
+	 // theXHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+	 //							     (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singlePixelHistN ) ) );
+	 // theYHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+	 //							     (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singlePixelHistN ) ) );
+	 //ALICE: getting new histogram
+	 unsigned int singlePixelHistN = 1 * 10000 
+	                               + cotbetaHistBin * 10
+	                               + cotalphaHistBin ;
+	 theXHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+	 							                   (TH1F*) thePixelResolutionFile3->Get(  Form( "hx%u" , singlePixelHistN ) ) );
+	 theYHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+	 							                   (TH1F*) thePixelResolutionFile3->Get(  Form( "hy%u" , singlePixelHistN ) ) );
+	 for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
+		       unsigned int edgePixelHistN = cotalphaHistBin * 1000
+		                        +  cotbetaHistBin * 10
                                         +  qbinBin;
              theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hx0%u" ,edgePixelHistN ) ) );
-             theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hy0%u" ,edgePixelHistN ) ) );
-             unsigned int multiPixelBigHistN = 1 * 1000000 + 1 * 100000
-                                           + cotalphaHistBin * 1000
+								                     (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hx0%u" ,edgePixelHistN ) ) );
+	     theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
+								                    (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hy0%u" ,edgePixelHistN ) ) );
+	     unsigned int multiPixelBigHistN = 1 * 1000000 + 1 * 100000
+	                                    + cotalphaHistBin * 1000
                                            + cotbetaHistBin * 10
                                            + qbinBin;
              theXHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" ,multiPixelBigHistN ) ) );
-             theYHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
-              (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" ,multiPixelBigHistN ) ) );
-             unsigned int multiPixelHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000
-                                           + cotalphaHistBin * 1000
-                                           + cotbetaHistBin * 10
-                                           + qbinBin;
-             theXHistos[multiPixelHistN] = new SimpleHistogramGenerator(
-             (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , multiPixelHistN ) ) );
-             theYHistos[multiPixelHistN] = new SimpleHistogramGenerator(
-             (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , multiPixelHistN ) ) );
-          } //end for qbinBin
+									                 (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" ,multiPixelBigHistN ) ) );
+	      theYHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
+									                 (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" ,multiPixelBigHistN ) ) );
+	      //   unsigned int multiPixelHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000
+	      //	                            + cotalphaHistBin * 1000
+	      //	                            + cotbetaHistBin * 10
+	      //	                            + qbinBin;
+	      // theXHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+	      //								 (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , multiPixelHistN ) ) );
+	      //theYHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+	      //								 (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , multiPixelHistN ) ) );
+	      //ALICE: getting new histogram
+	           unsigned int multiPixelHistN = 1 * 100000 + 1 * 10000
+	                                 + cotbetaHistBin * 100
+	                                 + cotalphaHistBin * 10
+	                                 + qbinBin;
+	        theXHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+	      								             (TH1F*) thePixelResolutionFile3->Get(  Form( "hx%u" , multiPixelHistN ) ) );
+	       theYHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+	      								             (TH1F*) thePixelResolutionFile3->Get(  Form( "hy%u" , multiPixelHistN ) ) );
+	   	 } //end for qbinBin
      }//end for cotalphaHistBin, cotbetaHistBin
+  std::cout << "endP initializeBarrel"<< std::endl;
 }
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeForward()
 {
+  std::cout << "P initializeForward"<< std::endl;
   //Hard coded at the moment, can easily be changed to be configurable
   rescotAlpha_binMin = 0.1;
   rescotAlpha_binWidth = 0.1 ;
@@ -558,29 +651,40 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeForward()
          for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
 	    unsigned int edgePixelHistN = cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
 	    theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx0%u" ,edgePixelHistN ) ) );
+								      	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx0%u" ,edgePixelHistN ) ) );
 	    theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy0%u" ,edgePixelHistN ) ) );
-	    unsigned int PixelHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
+								      	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy0%u" ,edgePixelHistN ) ) );
+	    /* unsigned int PixelHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
 	    theXHistos[PixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,PixelHistN ) ) );
+								  (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,PixelHistN ) ) );
 	    theYHistos[PixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,PixelHistN ) ) );
-	 }//end cotalphaHistBin, cotbetaHistBin, qbinBin
+	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,PixelHistN ) ) );*/
+	    //ALICE: getting new histogram
+	    unsigned int PixelHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 +  qbinBin;
+	    theXHistos[PixelHistN] = new SimpleHistogramGenerator(
+	    							  	    (TH1F*) thePixelResolutionFile2->Get(  Form( "hx0%u" ,PixelHistN ) ) );
+	    theYHistos[PixelHistN] = new SimpleHistogramGenerator(
+	    							 	    (TH1F*) thePixelResolutionFile2->Get(  Form( "hy0%u" ,PixelHistN ) ) );
+	   }//end cotalphaHistBin, cotbetaHistBin, qbinBin
 
   for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin )
     for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )
     {
       unsigned int SingleBigPixelHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
       theXHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SingleBigPixelHistN ) ) );
+								           (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SingleBigPixelHistN ) ) );
       theYHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SingleBigPixelHistN ) ) );
-      unsigned int SinglePixelHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
-      theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SinglePixelHistN ) ) );
-      theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SinglePixelHistN ) ) );
-
-    }
+								           (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SingleBigPixelHistN ) ) );
+      //      unsigned int SinglePixelHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+      // theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
+      //									    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SinglePixelHistN ) ) );
+      //theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(               (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SinglePixelHistN ) ) );
+      //ALICE: getting new histogram
+      unsigned int SinglePixelHistN = cotbetaHistBin * 10 + cotalphaHistBin;
+        theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
+      								         (TH1F*) thePixelResolutionFile2->Get(  Form( "hx000%u" ,SinglePixelHistN ) ) );
+       theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
+      								        (TH1F*) thePixelResolutionFile2->Get(  Form( "hy000%u" ,SinglePixelHistN ) ) );
+      }
+  std::cout << "end P initializeForward"<< std::endl;
 }
