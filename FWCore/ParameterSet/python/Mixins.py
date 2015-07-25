@@ -229,9 +229,58 @@ class _Parameterizable(object):
     def __raiseBadSetAttr(name):
         raise TypeError(name+" does not already exist, so it can only be set to a CMS python configuration type")
     def dumpPython(self, options=PrintOptions()):
+        sortedNames = sorted(self.parameterNames_())
+        if len(sortedNames) > 200:
+        #Too many parameters for a python function call
+        # The solution is to create a temporary dictionary which
+        # is constructed by concatenating long lists (with maximum
+        # 200 entries each) together.
+        # This looks like
+        #  **dict( [(...,...), ...] + [...] + ... )
+            others = []
+            usings = []
+            for name in sortedNames:
+                param = self.__dict__[name]
+                # we don't want minuses in names
+                name2 = name.replace('-','_')
+                options.indent()
+                #_UsingNodes don't get assigned variables
+                if name.startswith("using_"):
+                    usings.append(options.indentation()+param.dumpPython(options))
+                else:
+                    others.append((name2, param.dumpPython(options)))
+                options.unindent()
+
+            resultList = ',\n'.join(usings)
+            longOthers = options.indentation()+"**dict(\n"
+            options.indent()
+            longOthers += options.indentation()+"[\n"
+            entriesInList = 0
+            options.indent()
+            for n,v in others:
+                entriesInList +=1
+                if entriesInList > 200:
+                    #need to start a new list
+                    options.unindent()
+                    longOthers += options.indentation()+"] +\n"+options.indentation()+"[\n"
+                    entriesInList = 0
+                    options.indent()
+                longOthers += options.indentation()+'("'+n+'" , '+v+' ),\n'
+            
+            longOthers += options.indentation()+"]\n"
+            options.unindent()
+            longOthers +=options.indentation()+")\n"
+            options.unindent()
+            ret = []
+            if resultList:
+                ret.append(resultList)
+            if longOthers:
+                ret.append(longOthers)
+            return ",\n".join(ret)
+        #Standard case, small number of parameters
         others = []
         usings = []
-        for name in sorted(self.parameterNames_()):
+        for name in sortedNames:
             param = self.__dict__[name]
             # we don't want minuses in names
             name2 = name.replace('-','_')
@@ -358,19 +407,8 @@ class _TypedParameterizable(_Parameterizable):
         nparam = len(self.parameterNames_())
         if nparam == 0:
             result += ")\n"
-        elif nparam < 256:
-            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation() + ")\n"
         else:
-            # too big.  Need to dump externally
-            #NOTE: in future should explore just creating a dict
-            #  {'foo':cms.uint32(1), .... }
-            # and pass it to the constructor using the **{...} notation
-            label = ""
-            try:
-               label = "process."+self.label_()
-            except:
-               label = "FIX-THIS"
-            result += ")\n" + self.dumpPythonAttributes(label, options)
+            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation() + ")\n"
         return result
 
     def dumpPythonAttributes(self, myname, options):
@@ -663,4 +701,17 @@ if __name__ == "__main__":
             self.assertEqual(a.isModified(),True)
             a.resetModified()
             self.assertEqual(a.isModified(),False)
+        def testLargeParameterizable(self):
+            class tLPTest(_TypedParameterizable):
+                pass
+            class tLPTestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            class __DummyModule(object):
+                def __init__(self):
+                    self.tLPTest = tLPTest
+                    self.tLPTestType = tLPTestType
+            p = tLPTest("MyType",** { "a"+str(x): tLPTestType(x) for x in xrange(0,300) } )
+            #check they are the same
+            self.assertEqual(p.dumpPython(), eval(p.dumpPython(),{"cms": __DummyModule()}).dumpPython())
     unittest.main()
