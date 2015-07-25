@@ -1781,7 +1781,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	    if(c.eta()>(-3.0)&& c.eta()<(-1.479)){
 	      px_PhotonsEndcapMinus-=c.px();
 	      py_PhotonsEndcapMinus-=c.py();
-	      pt_sum_PhF_Endcap_plus+=c.et();
+	      pt_sum_PhF_Endcap_minus+=c.et();
 	    }else if(c.eta()>=(-1.479)&& c.eta()<=1.479){
 	      px_PhotonsBarrel-=c.px();
 	      py_PhotonsBarrel-=c.py();
@@ -1789,7 +1789,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	    }else if(c.eta()>1.479 && c.eta()<3.0){
 	      px_PhotonsEndcapPlus-=c.px();
 	      py_PhotonsEndcapPlus-=c.py();
-	      pt_sum_PhF_Endcap_minus+=c.et();
+	      pt_sum_PhF_Endcap_plus+=c.et();
 	    }
 	  }
 	  if(c.particleId()==6){//HFHadrons
