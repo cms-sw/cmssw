@@ -23,6 +23,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
 
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
 /// \brief Abstract
@@ -49,11 +51,33 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 
 
-class GoodSeedProducer final : public edm::stream::EDProducer<> {
+
+namespace goodseedhelpers {
+  class HeavyObjectCache {
+    constexpr static unsigned int kMaxWeights = 9;
+  public:
+    HeavyObjectCache(const edm::ParameterSet& conf);
+    std::array<std::unique_ptr<const GBRForest>,kMaxWeights> gbr;    
+  private:
+    // for temporary variable binding while reading
+    float eP,eta,pt,nhit,dpt,chired,chiRatio;
+    float chikfred,trk_ecalDeta,trk_ecalDphi;    
+  };
+}
+
+class GoodSeedProducer final : public edm::stream::EDProducer<edm::GlobalCache<goodseedhelpers::HeavyObjectCache> > {
   typedef TrajectoryStateOnSurface TSOS;
-   public:
-      explicit GoodSeedProducer(const edm::ParameterSet&);
+ public:
+  explicit GoodSeedProducer(const edm::ParameterSet&, const goodseedhelpers::HeavyObjectCache*);
   
+  static std::unique_ptr<goodseedhelpers::HeavyObjectCache> 
+    initializeGlobalCache( const edm::ParameterSet& conf ) {
+       return std::unique_ptr<goodseedhelpers::HeavyObjectCache>(new goodseedhelpers::HeavyObjectCache(conf));
+   }
+  
+  static void globalEndJob(goodseedhelpers::HeavyObjectCache const* ) {
+  }
+
    private:
       virtual void beginRun(const edm::Run & run,const edm::EventSetup&) override;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
@@ -144,10 +168,7 @@ class GoodSeedProducer final : public edm::stream::EDProducer<> {
       ///TRACK QUALITY
       bool useQuality_;
       reco::TrackBase::TrackQuality trackQuality_;
-	
-      ///READER FOR TMVA
-      std::array<std::unique_ptr<TMVA::Reader>,9> reader{};
-
+      
       ///VARIABLES NEEDED FOR TMVA
       float eP,eta,pt,nhit,dpt,chired,chiRatio;
       float chikfred,trk_ecalDeta,trk_ecalDphi;                      
