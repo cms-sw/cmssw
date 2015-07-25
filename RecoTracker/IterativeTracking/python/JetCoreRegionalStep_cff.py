@@ -156,8 +156,8 @@ jetCoreRegionalStep.mva.maxChi2n = [1.6,1.0,0.7]
 jetCoreRegionalStep.mva.minLayers = [3,5,5]
 jetCoreRegionalStep.mva.min3DLayers = [1,2,3]
 jetCoreRegionalStep.mva.maxLostLayers = [4,3,2]
-jetCoreRegionalStep.mva.maxDz = [0.5,0.2,0.1];
-jetCoreRegionalStep.mva.maxDr = [0.1,0.05,0.03];
+jetCoreRegionalStep.mva.maxDz = [0.5,0.35,0.2];
+jetCoreRegionalStep.mva.maxDr = [0.3,0.2,0.1];
 jetCoreRegionalStep.vertices = 'firstStepGoodPrimaryVertices'
 
 
