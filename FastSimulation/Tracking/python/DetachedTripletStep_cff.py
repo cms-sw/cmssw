@@ -45,11 +45,11 @@ detachedTripletStepTracks = _detachedTripletStep.detachedTripletStepTracks.clone
 )
 
 #final selection
-detachedTripletStepClassifier1 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClassifier1.clone()
+detachedTripletStepClassifier1 = _detachedTripletStep.detachedTripletStepClassifier1.clone()
 detachedTripletStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
-detachedTripletStepClassifier2 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClassifier2.clone()
+detachedTripletStepClassifier2 = _detachedTripletStep.detachedTripletStepClassifier2.clone()
 detachedTripletStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
-detachedTripletStep = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStep.clone() 
+detachedTripletStep = _detachedTripletStep.detachedTripletStep.clone() 
 
 # Final sequence 
 DetachedTripletStep = cms.Sequence(detachedTripletStepMasks
