@@ -1,4 +1,5 @@
 <use   name="Geometry/FCalGeometry"/>
+<use   name="Geometry/CaloTopology"/>
 
 <export>
   <lib   name="1"/>

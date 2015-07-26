@@ -18,8 +18,6 @@
  * in July 2015.
  *
  * The CODEC class used below *must* implement the following interfaces:
- * CODEC::data_type      -- the type of the data that is encoded or decoded
- *                       -- this could be a class or even some POD type
  * 
  * CODEC::getCodecType() const -- returns an unsigned char indexing the codec
  *
@@ -30,7 +28,7 @@
  *     -- decodes a std::vector<bool> into DATA
  * 
  * DATA must implement the following interfaces:
- * DATA::print(std::ostream& out) const 
+ * DATA::operator<<(std::ostream& out) const 
  *     -- prints the contents of the formatted data
  *
  *******/
@@ -41,17 +39,17 @@ namespace l1t {
   class HGCFETriggerDigi {
   public:
     typedef std::vector<bool> data_payload;
-    typedef DetId key_type; 
+    typedef uint32_t key_type; 
 
     HGCFETriggerDigi() : codec_((unsigned char)0xffff) {}
     ~HGCFETriggerDigi() {}
     
     //detector id information
-    const DetId& id() const { return detid_; } // for edm::SortedCollection
+    uint32_t id() const { return detid_; } // for edm::SortedCollection
     template<typename IDTYPE>
     IDTYPE getDetId() const { return IDTYPE(detid_); }
     template<typename IDTYPE>
-    void   setDetId(const IDTYPE& id) { detid_ = id; }
+    void   setDetId(const IDTYPE& id) { detid_ = id.uint32_t(); }
 
     // encoding and decoding
     unsigned char getWhichCodec() const { return codec_; }
@@ -83,7 +81,7 @@ namespace l1t {
     void print(const CODEC& codec, std::ostream& out) const;
 
   private:
-    DetId detid_;         // save in the abstract form
+    uint32_t detid_;         // save in the abstract form
     unsigned char codec_; // 0xffff is special and means no encoder
     data_payload  data_;    
   };  
@@ -96,8 +94,8 @@ namespace l1t {
         << " given to data encoded with HGC codec type: " 
         << codec_;
     }
-    codec.decode(data_).print(out);
-    out << std::endl << "decoded from: ";
+    out << codec.decode(data_);
+    out << std::endl << " decoded from: " << std::endl;
     this->print(out);
   }
 }

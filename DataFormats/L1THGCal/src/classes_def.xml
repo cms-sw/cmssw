@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="l1t::HGCFETriggerDigi" ClassVersion="10">
-    <version ClassVersion="10" checksum="3473737270"/>
+    <version ClassVersion="10" checksum="3197268020"/>
   </class>
   <class name="l1t::HGCFETriggerDigiCollection"/>  
   <class name="edm::Wrapper<l1t::HGCFETriggerDigiCollection>"/> 

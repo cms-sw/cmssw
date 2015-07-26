@@ -1,4 +1,13 @@
-<library   name="RecoParticleFlowPFClusterProducerPlugins" file="*.cc">
+<library   name="L1TriggerL1THGCalPlugins" file="*.cc">
   <use   name="Geometry/FCalGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="L1Trigger/L1THGCal"/>
+  <use   name="Geometry/Records"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   name="L1TriggerL1THGCalPlugins_geometries" file="geometries/*.cc">
+  <use   name="Geometry/FCalGeometry"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="L1Trigger/L1THGCal"/>  
   <flags   EDM_PLUGIN="1"/>
 </library>
