@@ -75,7 +75,7 @@ hotlineDQM_MET = cms.EDAnalyzer('HotlineDQM',
      trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
 
      triggerPath = cms.string('HLT_MET250_v'),
-     triggerFilter = cms.InputTag('hltMETClean250', '', 'HLT'),
+     triggerFilter = cms.InputTag('hltMET250', '', 'HLT'),
 
      useMet = cms.bool(True)
 )
@@ -91,7 +91,7 @@ hotlineDQM_MET_Tight = cms.EDAnalyzer('HotlineDQM',
      trigSummary = cms.InputTag('hltTriggerSummaryAOD','','HLT'),
 
      triggerPath = cms.string('HLT_MET300_v'),
-     triggerFilter = cms.InputTag('hltMETClean300', '', 'HLT'),
+     triggerFilter = cms.InputTag('hltMET300', '', 'HLT'),
 
      useMet = cms.bool(True)
 )
