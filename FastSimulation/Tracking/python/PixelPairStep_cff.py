@@ -8,7 +8,7 @@ from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMas
 pixelPairStepMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("lowPtTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
+    overrideTrkQuals = cms.InputTag('lowPtTripletStep', "QualityMasks"),                        
     oldHitCombinationMasks = cms.InputTag("lowPtTripletStepMasks","hitCombinationMasks"),
     oldHitMasks = cms.InputTag("lowPtTripletStepMasks","hitMasks")
 )

@@ -8,7 +8,7 @@ import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
 detachedTripletStepMasks = FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
     trackCollection = _detachedTripletStep.detachedTripletStepClusters.trajectories,
     TrackQuality = _detachedTripletStep.detachedTripletStepClusters.TrackQuality,
-    overrideTrkQuals =  _detachedTripletStep.detachedTripletStepClusters.overrideTrkQuals
+    overrideTrkQuals = cms.InputTag('initialStep',"QualityMasks")
 )
 
 # trajectory seeds
