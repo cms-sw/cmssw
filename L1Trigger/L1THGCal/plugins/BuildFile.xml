@@ -1,0 +1,4 @@
+<library   name="RecoParticleFlowPFClusterProducerPlugins" file="*.cc">
+  <use   name="Geometry/FCalGeometry"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
