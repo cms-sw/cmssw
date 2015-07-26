@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoJets.JetProducers.PileupJetIDParams_cfi import full_5x_chs
+from RecoJets.JetProducers.PileupJetIDParams_cfi import full_74x_chs
 
 pileupJetId = cms.EDProducer('PileupJetIdProducer',
      produceJetIds = cms.bool(True),
@@ -8,7 +8,7 @@ pileupJetId = cms.EDProducer('PileupJetIdProducer',
      runMvas = cms.bool(True),
      jets = cms.InputTag("ak4PFJetsCHS"),
      vertexes = cms.InputTag("offlinePrimaryVertices"),
-     algos = cms.VPSet(full_5x_chs),
+     algos = cms.VPSet(full_74x_chs),
      rho     = cms.InputTag("fixedGridRhoFastjetAll"),
      jec     = cms.string("AK4PFchs"),
      applyJec = cms.bool(True),

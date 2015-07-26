@@ -4,10 +4,12 @@ from RecoJets.JetProducers.PileupJetIDParams_cfi import *
 
 #_stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
 _stdalgos_5x = cms.VPSet(full_5x,cutbased,PhilV1)
+_stdalgos_7x = cms.VPSet(full_74x_chs,cutbased)
 
 #_chsalgos_4x = cms.VPSet(full,   cutbased) 
 _chsalgos_5x = cms.VPSet(full_5x_chs,cutbased)
-_chsalgos = _chsalgos_5x
+_chsalgos_7x = cms.VPSet(full_74x_chs,cutbased)
+_chsalgos = _chsalgos_7x
 
 #import os
 #try:
@@ -19,8 +21,8 @@ _chsalgos = _chsalgos_5x
 #    _stdalgos    = _stdalgos_4x
 #    _chsalgos    = _chsalgos_4x
 #else:
-_stdalgos    = _stdalgos_5x
-_chsalgos    = _chsalgos_5x
+_stdalgos    = _stdalgos_7x
+_chsalgos    = _chsalgos_7x
 
 pileupJetIdProducer = cms.EDProducer('PileupJetIdProducer',
                          produceJetIds = cms.bool(True),
@@ -29,7 +31,6 @@ pileupJetIdProducer = cms.EDProducer('PileupJetIdProducer',
                          jets = cms.InputTag("selectedPatJetsPFlow"),
                          vertexes = cms.InputTag("offlinePrimaryVertices"),
                          algos = cms.VPSet(_stdalgos),
-                                     
                          rho     = cms.InputTag("fixedGridRhoFastjetAll"),
                          jec     = cms.string("AK4PF"),
                          applyJec = cms.bool(False),
@@ -45,7 +46,6 @@ pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
                          jets = cms.InputTag("selectedPatJetsPFlow"),
                          vertexes = cms.InputTag("offlinePrimaryVertices"),
                          algos = cms.VPSet(_chsalgos),
-                                        
                          rho     = cms.InputTag("fixedGridRhoFastjetAll"),
                          jec     = cms.string("AK4PFchs"),
                          applyJec = cms.bool(False),
