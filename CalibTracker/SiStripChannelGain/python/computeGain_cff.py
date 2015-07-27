@@ -24,8 +24,8 @@ SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
 
     saveSummary         = cms.untracked.bool(False),
 
-    GoodFracForTagProd  = cms.untracked.double(0.95),
-    NClustersForTagProd = cms.untracked.double(2E8),
+    GoodFracForTagProd  = cms.untracked.double(0.98),
+    NClustersForTagProd = cms.untracked.double(1E8),
     
 
     SinceAppendMode     = cms.bool(True),
