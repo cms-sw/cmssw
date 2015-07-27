@@ -105,8 +105,9 @@ workflows[4.78] = ['',['WElSkim2012D','HLTDSKIM','RECODreHLT','HARVESTDreHLT']]
 workflows[140.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3','HARVESTDHI']]
 workflows[140.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11','HARVESTDHI']]
 workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
+
 ### run2 ###
-workflows[134.71] = ['',['RunHLTPhy2015B','HLTD','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.71] = ['',['RunHLTPhy2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
 
 
 ### fastsim ###
