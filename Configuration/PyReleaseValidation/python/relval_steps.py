@@ -970,8 +970,10 @@ steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps[
 
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODAlCaCalo']=merge([{'--scenario':'pp',},dataRecoAlCaCalo])
-steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataReco])
-steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
+#steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataReco])
+#steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
+steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data',},dataReco])
+steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data',},dataRecoAlCaCalo])
 
 steps['RECODSplit']=steps['RECOD'] # finer job splitting  
 steps['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
