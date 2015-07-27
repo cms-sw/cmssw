@@ -10,9 +10,12 @@ process.GlobalTag.globaltag = 'START53_V7G::All'
 process.load('CommonTools/PileupAlgos/Puppi_cff')
 process.load('CommonTools/PileupAlgos/softKiller_cfi')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2) )
 process.source = cms.Source("PoolSource",
-                            fileNames  = cms.untracked.vstring('/store/relval/CMSSW_7_2_0_pre6/RelValProdTTbar/AODSIM/PRE_STA72_V4-v1/00000/BA8284B4-4F40-E411-9AA2-002590593878.root')
+	fileNames  = cms.untracked.vstring(
+		# '/store/mc/RunIISpring15DR74/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/GEN-SIM-RECO/AsymptFlat0to50bx25Reco_MCRUN2_74_V9-v3/10000/0009D30B-0207-E511-B581-0026182FD753.root'
+		'/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/PU50ns_MCRUN2_74_V8_gensim_740pre7-v1/00000/32FD5AA2-41EC-E411-94B1-0025905B8572.root'
+		)
 )
 process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop *_MEtoEDMConverter_*_*")
@@ -24,7 +27,7 @@ process.options = cms.untracked.PSet(
 )
 
 
-process.puSequence = cms.Sequence(process.puppi*process.softKiller)
+process.puSequence = cms.Sequence(process.puppi)
 process.p = cms.Path(process.puSequence)
 process.output = cms.OutputModule("PoolOutputModule",
                                   outputCommands = cms.untracked.vstring('drop *',
