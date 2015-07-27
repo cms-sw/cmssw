@@ -39,7 +39,6 @@ protected:
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c);
 
 private:
 
@@ -51,7 +50,6 @@ private:
   edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
   edm::EDGetTokenT<Level1TriggerScalersCollection> l1tscollectionToken_;
    // histograms
-  MonitorElement * MySCALhisto_;
   MonitorElement * hlresync_;
   MonitorElement * hlOC0_;
   MonitorElement * hlTE_;
