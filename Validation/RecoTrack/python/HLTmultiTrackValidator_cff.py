@@ -41,19 +41,9 @@ hltIter4MergedV = hltMultiTrackValidator.clone()
 hltIter4MergedV.label                           = cms.VInputTag( cms.InputTag("hltIter4Merged") )
 hltIter4MergedV.trackCollectionForDrCalculation = cms.InputTag("hltIter4Merged")
 
-from Validation.RecoTrack.cutsTPEffic_cfi import *
-from Validation.RecoTrack.cutsTPFake_cfi import *
-
-from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
-
 hltMultiTrackValidation = cms.Sequence(
-#    simHitTPAssocProducer
-#    +
     hltTPClusterProducer
-#    + tpToHLTtracksAssociationSequence # not needed because MTV is configured to use the associators in itself, instead we need the hltTrackAssociatorByHits
     + hltTrackAssociatorByHits
-    + cms.ignore(cutsTPEffic)
-    + cms.ignore(cutsTPFake)
     + hltPixelTracksV
     + hltIter0V
     + hltIter1V
