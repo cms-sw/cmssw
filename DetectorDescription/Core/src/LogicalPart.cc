@@ -76,7 +76,6 @@ std::vector<const DDsvalues_type*> LogicalPart::specifics() const
 
 void LogicalPart::specificsV(std::vector<const DDsvalues_type*> & result) const
 {
-  typedef std::vector<std::pair<const DDPartSelection*, const DDsvalues_type* > > sp_type;
   for( const auto& it : specifics_ ) {
     const DDPartSelection & ps = *(it.first);
     if (ps.size()==1 && ps[0].selectionType_==ddanylogp) {
