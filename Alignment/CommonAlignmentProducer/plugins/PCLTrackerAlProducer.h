@@ -8,11 +8,13 @@
  * @author    Max Stark (max.stark@cern.ch)
  * @date      2015/07/16
  *
- * @brief     Tracker-AlignmentProducer for the Prompt Calibration Loop (PCL)
+ * @brief     Tracker-AlignmentProducer for Prompt Calibration Loop (PCL)
  *
  * Code is based on standard offline AlignmentProducer (see AlignmentProducer.h)
  * Main difference is the base-class exchange from an ESProducerLooper to an
- * EDAnalyzer,
+ * EDAnalyzer. For further information regarding aligment workflow on PCL see:
+ *
+ * https://indico.cern.ch/event/394130/session/0/contribution/8/attachments/1127471/1610233/2015-07-16_PixelPCL_Ali.pdf
  *
  * @note      Only for Tracker-Alignment usage.
  * @todo      Remove all the muon alignment stuff
@@ -30,18 +32,22 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondCore/DBCommon/interface/Time.h"
 
 /*** Alignment ***/
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
+
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterBuilder.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
+
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/AlignableExtras.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/AlignmentErrorsExtended.h"
 #include "CondFormats/Alignment/interface/AlignmentSurfaceDeformations.h"
@@ -49,15 +55,17 @@
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 
 /*** Records for ESWatcher ***/
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurfaceDeformationRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerAlignmentErrorExtendedRcd.h"
+
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/DTAlignmentErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCAlignmentErrorExtendedRcd.h"
-
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/TrackerSurveyErrorExtendedRcd.h"
@@ -69,15 +77,11 @@
 /*** Forward declarations ***/
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-/*** Typedefs ***/
-// TODO: Move this at the end of AlignmentMonitorBase.h
-typedef std::vector<AlignmentMonitorBase*> AlignmentMonitors;
-
 
 
 class PCLTrackerAlProducer : public edm::EDAnalyzer {
-  /**************************** PUBLIC METHODS ********************************/
-  public: /********************************************************************/
+  //========================== PUBLIC METHODS ==================================
+  public: //====================================================================
 
     /// Constructor
     PCLTrackerAlProducer(const edm::ParameterSet&);
@@ -102,17 +106,18 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
 
-
-  /************************** PRIVATE METHODS *********************************/
-  private: /*******************************************************************/
+    //======================== PRIVATE METHODS =================================
+    private: //=================================================================
 
     /*** Code which is independent of Event & Setup
          Called from constructor ***/
 
     /// Creates the choosen alignment algorithm (specified in config-file)
     void createAlignmentAlgorithm(const edm::ParameterSet&);
-    /// Creates the mointors (specified in config-file)
+
+    /// Creates the monitors (specified in config-file)
     void createMonitors          (const edm::ParameterSet&);
+
     /// Creates the calibrations (specified in config-file)
     void createCalibrations      (const edm::ParameterSet&);
 
@@ -203,8 +208,8 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
 
 
 
-  /*************************** PRIVATE DATA ***********************************/
-  /****************************************************************************/
+  //========================== PRIVATE DATA ====================================
+  //============================================================================
 
     /*** Alignment data ***/
 
@@ -255,13 +260,17 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
 
     /*** ESWatcher ***/
 
+    edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd;
+    edm::ESWatcher<GlobalPositionRcd>   watchGlobalPositionRcd;
+
     edm::ESWatcher<TrackerAlignmentRcd>              watchTrackerAlRcd;
     edm::ESWatcher<TrackerAlignmentErrorExtendedRcd> watchTrackerAlErrorExtRcd;
     edm::ESWatcher<TrackerSurfaceDeformationRcd>     watchTrackerSurDeRcd;
-    edm::ESWatcher<DTAlignmentRcd>                   watchDTAlRcd;
-    edm::ESWatcher<DTAlignmentErrorExtendedRcd>      watchDTAlErrExtRcd;
-    edm::ESWatcher<CSCAlignmentRcd>                  watchCSCAlRcd;
-    edm::ESWatcher<CSCAlignmentErrorExtendedRcd>     watchCSCAlErrExtRcd;
+
+    edm::ESWatcher<DTAlignmentRcd>               watchDTAlRcd;
+    edm::ESWatcher<DTAlignmentErrorExtendedRcd>  watchDTAlErrExtRcd;
+    edm::ESWatcher<CSCAlignmentRcd>              watchCSCAlRcd;
+    edm::ESWatcher<CSCAlignmentErrorExtendedRcd> watchCSCAlErrExtRcd;
 
     edm::ESWatcher<TrackerSurveyRcd>              watchTkSurveyRcd;
     edm::ESWatcher<TrackerSurveyErrorExtendedRcd> watchTkSurveyErrExtRcd;
