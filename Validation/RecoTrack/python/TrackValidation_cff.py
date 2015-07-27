@@ -171,7 +171,8 @@ trackValidatorFromPV = trackValidator.clone(
     label_tp_fake = "trackingParticlesSignal",
     associators = ["trackingParticleRecoTrackAsssociationSignal"],
     trackCollectionForDrCalculation = "generalTracksFromPV",
-    doPlotsOnlyForTruePV = True
+    doPlotsOnlyForTruePV = True,
+    doPVAssociationPlots = False,
 )
 trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
 trackValidatorFromPVStandalone.label.extend([
@@ -220,6 +221,7 @@ trackValidatorAllTPEffic = trackValidator.clone(
     ],
     doSimPlots = False,
     doRecoTrackPlots = False, # Fake rate of all tracks vs. all TPs is already included in trackValidator
+    doPVAssociationPlots = False,
 )
 trackValidatorAllTPEffic.histoProducerAlgoBlock.generalTpSelector.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsEta.signalOnly = False
