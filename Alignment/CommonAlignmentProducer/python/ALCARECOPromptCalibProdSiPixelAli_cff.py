@@ -9,7 +9,7 @@ ALCARECOTkAlMinBiasFilterForSiPixelAli.HLTPaths = ['pathALCARECOTkAlMinBias']
 ALCARECOTkAlMinBiasFilterForSiPixelAli.throw = True ## dont throw on unknown path names
 ALCARECOTkAlMinBiasFilterForSiPixelAli.TriggerResultsTag = cms.InputTag("TriggerResults","","RECO")
 
-
+from Alignment.CommonAlignmentProducer.LSNumberFilter_cfi import *
 
 
 # Ingredient: offlineBeamSpot
@@ -152,6 +152,7 @@ SiPixelAliMillePedeFileConverter = cms.EDProducer("MillePedeFileConverter",
 
 
 seqALCARECOPromptCalibProdSiPixelAli = cms.Sequence(ALCARECOTkAlMinBiasFilterForSiPixelAli*
+                                                    lsNumberFilter*
                                                     offlineBeamSpot*
                                                     SiPixelAliHighPuritySelector*
                                                     SiPixelAliTrackRefitter0*
@@ -159,6 +160,5 @@ seqALCARECOPromptCalibProdSiPixelAli = cms.Sequence(ALCARECOTkAlMinBiasFilterFor
                                                     SiPixelAliTrackFitter*
 						    SiPixelAliTrackSelector*
 						    SiPixelAliTrackRefitter1*
-
                                                     SiPixelAliMilleAlignmentProducer*
                                                     SiPixelAliMillePedeFileConverter)

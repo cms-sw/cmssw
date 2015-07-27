@@ -72,3 +72,6 @@
   <use   name="DataFormats/DTRecHit"/>
   <use   name="DataFormats/RPCRecHit"/>
 </library>
+<library   file="LSNumberFilter.cc" name="AlignmentCommonAlignmentProducerFilter">
+  <flags   EDM_PLUGIN="1"/>
+</library>
