@@ -7,6 +7,7 @@
 
 SiStripHotStripAlgorithmFromClusterOccupancy::SiStripHotStripAlgorithmFromClusterOccupancy(const edm::ParameterSet& iConfig, const TrackerTopology* theTopo):
     prob_(1.E-7),
+    ratio_(1.5),
     MinNumEntries_(0),
     MinNumEntriesPerStrip_(0),
     Nevents_(0),
@@ -57,7 +58,9 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
   striptree->Branch("StripOccupancy",       &stripOccupancy,    "StripOccupancy/D");
   striptree->Branch("StripHits",            &stripHits,         "StripHits/I");
   striptree->Branch("PoissonProb",          &poissonProb,       "PoissonProb/D");
-  }
+  striptree->Branch("MedianAPVHits",        &medianAPVHits,     "MedianAPVHits/D");
+  striptree->Branch("AvgAPVHits",           &avgAPVHits,        "AvgAPVHits/D");
+}
 
   
   HistoMap::iterator it=DM.begin();
@@ -198,6 +201,8 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
 	stripOccupancy = stripoccupancy[strip];
 	stripHits      = striphits[strip];
 	poissonProb    = poissonprob[strip];
+	medianAPVHits  = medianapvhits[strip/128];
+	avgAPVHits     = avgapvhits[strip/128];
 
 	hotStripsPerModule = hotstripspermodule;
 	hotStripsPerAPV    = hotstripsperapv[strip/128];
@@ -249,6 +254,17 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
   long double meanVal=1.*histo._NEntries/(1.*Nbins-histo._NEmptyBins); 
   evaluatePoissonian(vPoissonProbs,meanVal);
 
+  // Find median occupancy, taking into account only good strips
+  unsigned int goodstripentries[128];
+  int nGoodStrips = 0;
+  for (size_t i=ibinStart; i<ibinStop; ++i){
+    if (ishot[(apv*128)+i-1]==0){
+      goodstripentries[nGoodStrips] = (unsigned int)histo._th1f->GetBinContent(i);
+      nGoodStrips++;
+    }
+  }
+  double median = TMath::Median(nGoodStrips,goodstripentries);
+
   for (size_t i=ibinStart; i<ibinStop; ++i){
     unsigned int entries= (unsigned int)histo._th1f->GetBinContent(i);
 
@@ -256,10 +272,10 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::iterativeSearch(pHisto& histo
       stripoccupancy[(apv*128)+i-1] = entries/(double) Nevents_;
       striphits[(apv*128)+i-1]      = entries;
       poissonprob[(apv*128)+i-1]    = 1-vPoissonProbs[entries];
+      medianapvhits[apv]  = median;
+      avgapvhits[apv] = meanVal;
     }
-
-    if (entries<=MinNumEntriesPerStrip_ || entries <= minNevents_)
-      continue;
+    if (entries<=MinNumEntriesPerStrip_ || entries <= minNevents_ || entries / median < ratio_) continue;
 
     if(diff<vPoissonProbs[entries]){
       ishot[(apv*128)+i-1] = 1;
