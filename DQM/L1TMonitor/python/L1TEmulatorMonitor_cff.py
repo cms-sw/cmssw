@@ -37,12 +37,12 @@ from DQM.L1TMonitor.L1TdeGCT_cfi import *
 from DQM.L1TMonitor.L1TdeStage1Layer2_cfi import *
 
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
-l1TdeRCT.rctSourceData = 'rctDigis'
+l1TdeRCT.rctSourceData = 'l1RctHwDigis'
 l1TdeRCT.gctSourceData = 'gctDigis'
 l1TdeRCT.rctSourceEmul = 'valRctDigis'
 
 l1TdeRCTfromGCT = l1TdeRCT.clone()
-l1TdeRCTfromGCT.rctSourceData = 'l1RctHwDigis'
+l1TdeRCTfromGCT.rctSourceData = 'gctDigis'
 l1TdeRCTfromGCT.HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT_FromGCT')
 
 from DQM.L1TMonitor.L1TdeCSCTF_cfi import *
