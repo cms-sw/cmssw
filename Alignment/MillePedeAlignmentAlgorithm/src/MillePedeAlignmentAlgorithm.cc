@@ -78,6 +78,9 @@ typedef TrajectoryFactoryBase::ReferenceTrajectoryCollection RefTrajColl;
 
 #include "Alignment/CommonAlignmentParametrization/interface/AlignmentParametersFactory.h"
 
+
+
+
 // Constructor ----------------------------------------------------------------
 //____________________________________________________
 MillePedeAlignmentAlgorithm::MillePedeAlignmentAlgorithm(const edm::ParameterSet &cfg) :
@@ -241,11 +244,26 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 }
 
 //____________________________________________________
+bool MillePedeAlignmentAlgorithm::supportsCalibrations() {
+  return true;
+}
+
+//____________________________________________________
 bool MillePedeAlignmentAlgorithm::addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals)
 {
   theCalibrations.insert(theCalibrations.end(), iCals.begin(), iCals.end());
   thePedeLabels->addCalibrations(iCals);
   return true;
+}
+
+//_____________________________________________________________________________
+bool MillePedeAlignmentAlgorithm::processesEvents()
+{
+  if (isMode(myMilleBit)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 //____________________________________________________
@@ -276,6 +294,10 @@ bool MillePedeAlignmentAlgorithm::setParametersForRunRange(const RunRange &runra
 //____________________________________________________
 void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 {
+  terminate();
+}
+void MillePedeAlignmentAlgorithm::terminate()
+{
   delete theMille;// delete to close binary before running pede below (flush would be enough...)
   theMille = 0;
 
@@ -290,7 +312,7 @@ void MillePedeAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
       files.push_back(theDir + *i);
     }
   }
-  
+
   // cache all positions, rotations and deformations
   theAlignmentParameterStore->cacheTransformations();
 
@@ -342,7 +364,6 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup, const EventI
 
   } // end of reference trajectory and track loop
 }
-
 
 //____________________________________________________
 std::pair<unsigned int, unsigned int>
