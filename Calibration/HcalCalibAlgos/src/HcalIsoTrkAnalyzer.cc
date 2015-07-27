@@ -163,7 +163,7 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   labelEB_                            = iConfig.getParameter<std::string>("EBRecHitLabel");
   labelEE_                            = iConfig.getParameter<std::string>("EERecHitLabel");
   labelHBHE_                          = iConfig.getParameter<std::string>("HBHERecHitLabel");
-  edm::InputTag labelBS               = iConfig.getParameter<edm::InputTag>("BeamSpotLabel");
+  std::string labelBS                 = iConfig.getParameter<std::string>("BeamSpotLabel");
   std::string modnam                  = iConfig.getUntrackedParameter<std::string>("ModuleName","");
   std::string prdnam                  = iConfig.getUntrackedParameter<std::string>("ProducerName","");
   ignoreTrigger_                      = iConfig.getUntrackedParameter<bool>("IgnoreTriggers", false);
