@@ -35,7 +35,17 @@ process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
         defaultPlugin = cms.PSet(
             type=cms.string("PixelBarrelTemplateSmearerPlugin"),
             #select=cms.string("true || (tecGlued && (subdetId==!FPX)) || ((BPX==subdetId) && (layer!=2) && (pxbModule>5))"),
-            select=cms.string("tibGlued || tidGlued || tobGlued || tecGlued"),
+            NewPixelBarrelResolutionFile1 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrel38T.root'),
+            NewPixelBarrelResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrelEdge38T.root'),
+            NewPixelBarrelResolutionFile3 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution2014.root'),
+            NewPixelForwardResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionForward38T.root'),
+            NewPixelForwardResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelForwardResolution2014.root'),
+            UseCMSSWPixelParametrization = cms.bool(True),
+            probfilebarrel = cms.string('FastSimulation/TrackingRecHitProducer/data/bmergeprob.root'),
+            probfileforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fmergeprob.root'),
+            templateIdBarrel = cms.int32( 40 ),
+            templateIdForward  = cms.int32( 41 ),
+            select=cms.string("tibGlued || tidGlued || tobGlued || tecGlued || subdetId==BPX"),
 
         )
     )
