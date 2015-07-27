@@ -47,6 +47,7 @@ private:
 	std::string     fPFName;	
 	std::string     fPVName;
 	bool 			fPuppiDiagnostics;
+	bool 			fPuppiForLeptons;
 	bool            fUseDZ;
 	float           fDZCut;
 	std::unique_ptr<PuppiContainer> fPuppiContainer;
