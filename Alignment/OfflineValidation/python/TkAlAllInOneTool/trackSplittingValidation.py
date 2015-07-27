@@ -54,7 +54,7 @@ class TrackSplittingValidation(GenericValidationData):
         repMap = self.getRepMap()
         comparestring = self.getCompareStrings("TrackSplittingValidation")
         if validationsSoFar != "":
-            validationsSoFar += ','
+            validationsSoFar += ',"\n              "'
         validationsSoFar += comparestring
         return validationsSoFar
 
@@ -68,5 +68,5 @@ class TrackSplittingValidation(GenericValidationData):
         parameters = " ".join(os.path.join("root://eoscms//eos/cms", file.lstrip("/")) for file in repMap["resultFiles"])
 
         mergedoutputfile = os.path.join("root://eoscms//eos/cms", repMap["finalResultFile"].lstrip("/"))
-        validationsSoFar += "hadd %s %s\n" % (mergedoutputfile, parameters)
+        validationsSoFar += "hadd -f %s %s\n" % (mergedoutputfile, parameters)
         return validationsSoFar

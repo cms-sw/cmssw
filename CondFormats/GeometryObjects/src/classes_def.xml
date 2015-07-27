@@ -84,6 +84,7 @@
    <field name="phigroup"         mapping="blob"/>
    <field name="layerGroupEtaSim" mapping="blob"/>
    <field name="layerGroupEtaRec" mapping="blob"/>
+   <field name="etaTableHF"       mapping="blob"/>
  </class>
  <class name="HcalParameters::LayerItem"/>
  <class name="std::vector<HcalParameters::LayerItem>"/>

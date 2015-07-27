@@ -127,6 +127,10 @@ void HcalParametersAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::E
   for( const auto& it : pars->HFGains ) {
     std::cout << it << ", ";
   }
+  std::cout << "\netaTableHF: ";
+  for( const auto& it : pars->etaTableHF ) {
+    std::cout << it << ", ";
+  }
   std::cout << "\nmodHB: ";
   for( const auto& it : pars->modHB ) {
     std::cout << it << ", ";

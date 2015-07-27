@@ -182,6 +182,7 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
 
   } 
 
+  if(!hit) return;
   
   PTrajectoryStateOnDet const & PTraj = 
     trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());

@@ -1,7 +1,6 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="DetectorDescription/Base"/>
-<use   name="boost_serialization"/>
 <export>
   <lib   name="1"/>
 </export>

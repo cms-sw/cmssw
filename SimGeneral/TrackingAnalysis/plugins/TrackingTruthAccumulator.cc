@@ -1105,15 +1105,14 @@ namespace // Unnamed namespace for things only used in this file
 		if( pTrackingParticle==NULL )
 		{
 			// Need to make sure the production vertex has been created first
-			TrackingVertex* pProductionVertex=pOutput->getTrackingVertex( pDecayTrack->pParentVertex );
-			if( pProductionVertex==NULL )
+			if( pOutput->getTrackingVertex( pDecayTrack->pParentVertex ) == nullptr )
 			{
 				// TrackingVertex doesn't exist in the output collection yet. However, it's already been
 				// created in the addTrack() function and a temporary reference to it set in the TrackingParticle.
 				// I'll use that reference to create a copy in the output collection. When the TrackingParticle
 				// is added to the output collection a few lines below the temporary reference to the parent
 				// vertex will be cleared, and the correct one referring to the output collection will be set.
-				pProductionVertex=pOutput->addTrackingVertex( pDecayTrack->pParentVertex, *trackingParticle.parentVertex() );
+				pOutput->addTrackingVertex( pDecayTrack->pParentVertex, *trackingParticle.parentVertex() );
 			}
 
 

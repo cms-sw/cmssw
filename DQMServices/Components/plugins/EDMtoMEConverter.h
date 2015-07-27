@@ -39,6 +39,7 @@
 #include <memory>
 #include <vector>
 #include <map>
+#include <tuple>
 
 #include "TString.h"
 #include "TList.h"
@@ -63,7 +64,7 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   virtual void respondToOpenInputFile(const edm::FileBlock&);
 
   template <class T>
-  void getData(T& iGetFrom, bool iEndRun);
+  void getData(T& iGetFrom);
 
   typedef std::vector<uint32_t> TagList;
 
@@ -77,17 +78,44 @@ class EDMtoMEConverter : public edm::EDAnalyzer
   bool convertOnEndRun;
 
   DQMStore *dbe;
-  std::vector<MonitorElement*> me1, me2, me3, me4, me5, me6, me7, me8;
 
   // private statistics information
   unsigned int iCountf;
   std::map<int,int> iCount;
 
-  std::vector<std::string> classtypes;
+  template <typename T>
+  class Tokens {
+  public:
+    using type = T;
+    using Product = MEtoEDM<T>;
 
-  edm::InputTag runInputTag_;
-  edm::InputTag lumiInputTag_;
+    Tokens() {}
 
+    void set(const edm::InputTag& runInputTag, const edm::InputTag& lumiInputTag, edm::ConsumesCollector& iC);
+
+    void getData(const edm::Run& iRun, edm::Handle<Product>& handle) const;
+    void getData(const edm::LuminosityBlock& iLumi, edm::Handle<Product>& handle) const;
+    
+  private:
+    edm::EDGetTokenT<Product> runToken;
+    edm::EDGetTokenT<Product> lumiToken;
+  };
+
+  std::tuple<
+    Tokens<TH1F>,
+    Tokens<TH1S>,
+    Tokens<TH1D>,
+    Tokens<TH2F>,
+    Tokens<TH2S>,
+    Tokens<TH2D>,
+    Tokens<TH3F>,
+    Tokens<TProfile>,
+    Tokens<TProfile2D>,
+    Tokens<double>,
+    Tokens<int>,
+    Tokens<long long>,
+    Tokens<TString>
+    > tokens_;
 }; // end class declaration
 
 #endif

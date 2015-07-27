@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
 
-<ConstantsSection  label="hcalSimNumbering.xml" eval="true">
+<ConstantsSection  label="hcalRecNumbering.xml" eval="true">
   <Vector name="etagroup" type="numeric" nEntries="29">
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
@@ -10,25 +10,25 @@
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
   </Vector>
-  <Vector name="layergroupEta1" type="numeric" nEntries="19">
+  <Vector name="layerGroupRecEta1" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4
   </Vector>
-  <Vector name="layergroupEta15" type="numeric" nEntries="19">
+  <Vector name="layerGroupRecEta15" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4
   </Vector>
-  <Vector name="layergroupEta16" type="numeric" nEntries="19">
+  <Vector name="layerGroupRecEta16" type="numeric" nEntries="19">
     1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
   </Vector>
-  <Vector name="layergroupEta17" type="numeric" nEntries="19">
+  <Vector name="layerGroupRecEta17" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
   </Vector>
-  <Vector name="layergroupEta18" type="numeric" nEntries="19">
+  <Vector name="layerGroupRecEta18" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
   </Vector>
-  <Vector name="layergroupEta19" type="numeric" nEntries="19">
+  <Vector name="layerGroupRecEta19" type="numeric" nEntries="19">
     1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
   </Vector>
-  <Vector name="layergroupEta27" type="numeric" nEntries="19">
+  <Vector name="layerGroupRecEta27" type="numeric" nEntries="19">
     1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3
   </Vector>
 </ConstantsSection>

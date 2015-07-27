@@ -29,7 +29,7 @@ namespace {
   }
 
   std::string
-  replaceWithRegexp(boost::smatch const& matches,
+  replaceWithRegexp(std::smatch const& matches,
                     std::string const& outputFormat) {
     std::string result = outputFormat;
     std::stringstream str;
@@ -258,17 +258,17 @@ namespace edm {
 
     Rules const& rules = (*(rulesIterator)).second;
 
-    boost::smatch destinationMatches;
-    boost::smatch nameMatches;
+    std::smatch destinationMatches;
+    std::smatch nameMatches;
 
     /* Look up for a matching rule*/
     for (Rules::const_iterator i = rules.begin(); i != rules.end(); ++i) {
 
-      if (!boost::regex_match(destination, destinationMatches, i->destinationMatch)) {
+      if (!std::regex_match(destination, destinationMatches, i->destinationMatch)) {
         continue;
       }
 
-      if (!boost::regex_match(name, i->pathMatch)) {
+      if (!std::regex_match(name, i->pathMatch)) {
         continue;
       }
 
@@ -282,7 +282,7 @@ namespace edm {
         }
       }
 
-      boost::regex_match(name, nameMatches, i->pathMatch);
+      std::regex_match(name, nameMatches, i->pathMatch);
       name = replaceWithRegexp(nameMatches, i->result);
 
       if ((direct == false) && (chain != "")) {

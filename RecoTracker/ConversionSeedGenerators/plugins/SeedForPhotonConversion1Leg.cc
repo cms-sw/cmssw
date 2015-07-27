@@ -191,7 +191,8 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
 #endif
   } 
   
-  
+  if(!hit) return nullptr;
+
   PTrajectoryStateOnDet const & PTraj =
       trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
   

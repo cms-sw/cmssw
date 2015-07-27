@@ -189,10 +189,16 @@ class Dataset:
                             msg += "\nCheck your config file to make sure that it worked properly."
                             print msg
 
-                            self.__firstUsedRun = -1
-                            self.__lastUsedRun = -1
+                            runlist = self.__getRunList()
                             if firstRun or lastRun:
+                                self.__firstusedrun = -1
+                                self.__lastusedrun = -1
                                 jsoncontents = re.sub("\d+:(\d+|max)-\d+:(\d+|max)", self.getForceRunRangeFunction(firstRun, lastRun), jsoncontents)
+                                self.__firstusedrun = max(self.__firstusedrun, int(self.__findInJson(runlist[0],"run_number")))
+                                self.__lastusedrun = min(self.__lastusedrun, int(self.__findInJson(runlist[-1],"run_number")))
+                            else:
+                                self.__firstusedrun = int(self.__findInJson(runlist[0],"run_number"))
+                                self.__lastusedrun = int(self.__findInJson(runlist[-1],"run_number"))
                             lumiSecExtend = jsoncontents
                             splitLumiList = [[""]]
 
@@ -202,11 +208,13 @@ class Dataset:
                 lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
                                for lumis in lumiSecStr ]
                 lumiSecExtend = "\n".join( lumiSecStr )
-                self.__firstusedrun = splitLumiList[0][0].split(":")[0]
-                self.__lastusedrun = splitLumiList[-1][-1].split(":")[0]
+                runlist = self.__getRunList()
+                self.__firstusedrun = max(int(splitLumiList[0][0].split(":")[0]), int(self.__findInJson(runlist[0],"run_number")))
+                self.__lastusedrun = min(int(splitLumiList[-1][-1].split(":")[0]), int(self.__findInJson(runlist[-1],"run_number")))
         else:
-            self.__firstusedrun = self.__findInJson(self.__getRunList()[0],"run_number")
-            self.__lastusedrun = self.__findInJson(self.__getRunList()[-1],"run_number")
+            runlist = self.__getRunList()
+            self.__firstusedrun = int(self.__findInJson(self.__getRunList()[0],"run_number"))
+            self.__lastusedrun = int(self.__findInJson(self.__getRunList()[-1],"run_number"))
 
         if crab:
             files = ""
@@ -277,7 +285,6 @@ class Dataset:
     def forcerunrange(self, firstRun, lastRun, s):
         """s must be in the format run1:lum1-run2:lum2"""
         s = s.group()
-        print s
         run1 = s.split("-")[0].split(":")[0]
         lum1 = s.split("-")[0].split(":")[1]
         run2 = s.split("-")[1].split(":")[0]
@@ -290,10 +297,10 @@ class Dataset:
         if int(run2) > lastRun:
             run2 = lastRun
             lum2 = "max"
-        if int(run1) < self.__firstUsedRun:
-            self.__firstUsedRun = int(run1)
-        if int(run2) > self.__lastUsedRun:
-            self.__lastUsedRun = int(run2)
+        if int(run1) < self.__firstusedrun or self.__firstusedrun < 0:
+            self.__firstusedrun = int(run1)
+        if int(run2) > self.__lastusedrun:
+            self.__lastusedrun = int(run2)
         return "%s:%s-%s:%s" % (run1, lum1, run2, lum2)
 
     def getForceRunRangeFunction(self, firstRun, lastRun):
@@ -314,8 +321,20 @@ class Dataset:
         except KeyError:
             error = None
         if error or self.__findInJson(jsondict,"status") != 'ok' or "data" not in jsondict:
-            msg = ("The DAS query returned a error.  Here is the output\n" + str(jsondict) +
-                   "\nIt's possible that this was a server error.  If so, it may work if you try again later")
+            jsonstr = str(jsondict)
+            if len(jsonstr) > 10000:
+                jsonfile = "das_query_output_%i.txt"
+                i = 0
+                while os.path.lexists(jsonfile % i):
+                    i += 1
+                jsonfile = jsonfile % i
+                theFile = open( jsonfile, "w" )
+                theFile.write( jsonstr )
+                theFile.close()
+                msg = "The DAS query returned an error.  The output is very long, and has been stored in:\n" + jsonfile
+            else:
+                msg = "The DAS query returned a error.  Here is the output\n" + jsonstr
+            msg += "\nIt's possible that this was a server error.  If so, it may work if you try again later"
             raise AllInOneError(msg)
         return self.__findInJson(jsondict,"data")
 
@@ -328,6 +347,7 @@ class Dataset:
                         if datatype is not None:
                             raise AllInOneError(self.__filename + " has multiple 'data type' lines.")
                         datatype = line.replace("#data type: ", "").replace("\n","")
+                        return datatype
                 return "unknown"
 
         dasQuery_type = ( 'dataset dataset=%s | grep dataset.datatype,'
@@ -354,10 +374,12 @@ class Dataset:
                                 "\nIt's possible that this was a server error.  If so, it may work if you try again later")
 
     def __getMagneticField( self ):
-        Bfieldlocation = os.path.join( self.__cmsswrelease, "python", "Configuration", "StandardSequences" )
-        Bfieldlist = [ f.replace("MagneticField_",'').replace("_cff.py",'') \
+        Bfieldlocation = os.path.join( self.__cmssw, "python", "Configuration", "StandardSequences" )
+        if not os.path.isdir(Bfieldlocation):
+            Bfieldlocation = os.path.join( self.__cmsswrelease, "python", "Configuration", "StandardSequences" )
+        Bfieldlist = [ f.replace("_cff.py",'') \
                            for f in os.listdir(Bfieldlocation) \
-                               if f.startswith("MagneticField_") and f.endswith("_cff.py") and f != "MagneticField_cff.py" ]
+                               if f.startswith("MagneticField_") and f.endswith("_cff.py") ]
         Bfieldlist.sort( key = lambda Bfield: -len(Bfield) ) #Put it in order of decreasing length, so that searching in the name gives the longer match
 
         if self.__predefined:
@@ -369,25 +391,36 @@ class Dataset:
                         if datatype is not None:
                             raise AllInOneError(self.__filename + " has multiple 'data type' lines.")
                         datatype = line.replace("#data type: ", "").replace("\n","")
+                        datatype = datatype.split("#")[0].strip()
                     if line.startswith("#magnetic field: "):
                         if Bfield is not None:
                             raise AllInOneError(self.__filename + " has multiple 'magnetic field' lines.")
                         Bfield = line.replace("#magnetic field: ", "").replace("\n","")
+                        Bfield = Bfield.split("#")[0].strip()
                 if Bfield is not None:
                     Bfield = Bfield.split(",")[0]
                     if Bfield in Bfieldlist or Bfield == "unknown":
                         return Bfield
+                    #===========================================================================
+                    #For compatibility with already written datasets - remove this at some point
+                    #(until the next === line)
+                    #It's currently June 2015, anytime starting in 2016 is more than safe
+                    elif Bfield == "AutoFromDBCurrent":
+                        return "MagneticField"
+                    elif "MagneticField_" + Bfield in Bfieldlist:
+                        return "MagneticField_" + Bfield
+                    #===========================================================================
                     else:
                         print "Your dataset has magnetic field '%s', which does not exist in your CMSSW version!" % Bfield
                         print "Using Bfield='unknown' - this will revert to the default"
                         return "unknown"
                 elif datatype == "data":
-                    return "AutoFromDBCurrent"           #this should be in the "#magnetic field" line, but for safety in case it got messed up
+                    return "MagneticField"           #this should be in the "#magnetic field" line, but for safety in case it got messed up
                 else:
                     return "unknown"
 
         if self.__dataType == "data":
-            return "AutoFromDBCurrent"
+            return "MagneticField"
 
         dasQuery_B = ( 'dataset dataset=%s'%( self.__name ) )             #try to find the magnetic field from DAS
         data = self.__getData( dasQuery_B )                               #it seems to be there for the newer (7X) MC samples, except cosmics
@@ -396,6 +429,10 @@ class Dataset:
             Bfield = self.__findInJson(data, ["dataset", "mcm", "sequences", "magField"])
             if Bfield in Bfieldlist:
                 return Bfield
+            elif Bfield == "38T" or Bfield == "38T_PostLS1":
+                return "MagneticField"
+            elif "MagneticField_" + Bfield in Bfieldlist:
+                return "MagneticField_" + Bfield
             elif Bfield == "":
                 pass
             else:
@@ -406,7 +443,12 @@ class Dataset:
             pass
 
         for possibleB in Bfieldlist:
-            if possibleB in self.__name.replace("TkAlCosmics0T", ""):         #for some reason all cosmics dataset names contain this string
+            if (possibleB != "MagneticField"
+              and possibleB.replace("MagneticField_","") in self.__name.replace("TkAlCosmics0T", "")):
+                #final attempt - try to identify the dataset from the name
+                #all cosmics dataset names contain "TkAlCosmics0T"
+                if possibleB == "MagneticField_38T" or possibleB == "MagneticField_38T_PostLS1":
+                    return "MagneticField"
                 return possibleB
 
         return "unknown"
@@ -416,9 +458,14 @@ class Dataset:
            For data, it gets the magnetic field from the runs.  This is important for
            deciding which template to use for offlinevalidation
         """
-        if "T" in self.__magneticField:                       #for MC
-            Bfield = self.__magneticField.split("T")[0]
-            return float(Bfield) / 10.0                       #e.g. 38T and 38T_PostLS1 both return 3.8
+        if self.__dataType == "mc" and self.__magneticField == "MagneticField":
+            return 3.8                                        #For 3.8T MC the default MagneticField is used
+        if "T" in self.__magneticField:
+            Bfield = self.__magneticField.split("T")[0].replace("MagneticField_","")
+            try:
+                return float(Bfield) / 10.0                       #e.g. 38T and 38T_PostLS1 both return 3.8
+            except ValueError:
+                pass
         if self.__predefined:
             with open(self.__filename) as f:
                 Bfield = None
@@ -426,7 +473,7 @@ class Dataset:
                     if line.startswith("#magnetic field: ") and "," in line:
                         if Bfield is not None:
                             raise AllInOneError(self.__filename + " has multiple 'magnetic field' lines.")
-                        return float(line.replace("#magnetic field: ", "").split(",")[1])
+                        return float(line.replace("#magnetic field: ", "").split(",")[1].split("#")[0].strip())
 
         if run > 0:
             dasQuery = ('run = %s'%run)                         #for data
@@ -452,9 +499,12 @@ class Dataset:
                     "Try limiting the run range using firstRun, lastRun, begin, end, or JSON,\n"
                     "or increasing the tolerance (in dataset.py) from %s.") % (self.__name, firstrunB, lastrunB, tolerance)
         except TypeError:
-            if "unknown" in firstrunB:
-                return firstrunB
-            else:
+            try:
+                if "unknown" in firstrunB:
+                    return firstrunB
+                else:
+                    return lastrunB
+            except TypeError:
                 return lastrunB
 
     def __getFileInfoList( self, dasLimit, parent = False ):
@@ -721,8 +771,11 @@ class Dataset:
                                             repMap = theMap,
                                             parent = parent)
         magneticField = self.__magneticField
-        if magneticField == "AutoFromDBCurrent":
-            magneticField = "%s, %s" % (magneticField, str(self.__getMagneticFieldForRun()).replace("\n"," ")[0])
+        if magneticField == "MagneticField":
+            magneticField = "%s, %s     #%s" % (magneticField,
+                                                str(self.__getMagneticFieldForRun()).replace("\n"," ").split("#")[0].strip(),
+                                                "Use MagneticField_cff.py; the number is for determining which track selection to use."
+                                               )
         dataset_cff = dataset_cff.replace(".oO[magneticField]Oo.",magneticField)
         filePath = os.path.join( self.__cmssw, "src", packageName,
                                  "python", outName + "_cff.py" )

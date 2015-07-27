@@ -433,7 +433,8 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
 
   void rechitanalysis(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const StripGeomDetUnit *stripdet, edm::ESHandle < StripClusterParameterEstimator > stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D);
   
-  void rechitanalysis_matched(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const GluedGeomDet* gluedDet,TrackerHitAssociator& associate, edm::ESHandle < StripClusterParameterEstimator > stripcpe, std::string matchedmonorstereo);
+  enum class MatchStatus { matched, monoHit, stereoHit};
+  void rechitanalysis_matched(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const GluedGeomDet* gluedDet,TrackerHitAssociator& associate, edm::ESHandle < StripClusterParameterEstimator > stripcpe, const MatchStatus matchedmonorstereo);
  
 
   float track_rapidity;

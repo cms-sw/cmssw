@@ -1,210 +1,210 @@
 <?xml version="1.0"?>
-<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 <ConstantsSection label="gem21.xml" eval="true">
   <Constant name="z1"		value="786.5*cm"/>
   <Constant name="z2"		value="792.8*cm"/>
   <Constant name="z3"		value="799.8*cm"/>
   <Constant name="rMinS"	value="196.0*cm"/>
   <Constant name="rMinL"	value="128.2*cm"/>
-  <Constant name="rMax"	value="330.15*cm"/>
+  <Constant name="rMax"	        value="330.15*cm"/>
   <Constant name="Angle"	value="10.0*deg"/>
   <Constant name="slope"	value="tan([Angle])"/>
-  <Constant name="thickness"  value="73.8*mm"/>
+  <Constant name="thickness"    value="73.8*mm"/>
   <Constant name="hthick"	value="[thickness]/2."/>
   <Constant name="dzGB21"	value="64.05*cm"/>
   <Constant name="dzGB21L"	value="98.0*cm"/>
   <Constant name="dyGB21"	value="8.100*mm"/>
-  <Constant name="dxTopGB21"  value="61.537*cm"/>
-  <Constant name="dxTopGB21L" value="[dxTopGB21]"/>
-  <Constant name="dxBotGB21"  value="([dxTopGB21]-2*[slope]*[dzGB21])"/>
-  <Constant name="dxBotGB21L" value="([dxTopGB21L]-2*[slope]*[dzGB21L])"/>
-  <Constant name="dyGA21"     value="4.600*mm"/>
-  <Constant name="dzGA21"     value="63.55*cm"/>
-  <Constant name="dzGA21L"    value="97.0*cm"/>
-  <Constant name="dxTopGA21"  value="[dxTopGB21]-10.*cm"/>
-  <Constant name="dxBotGA21"  value="([dxTopGA21]-2*[slope]*[dzGA21])"/>
-  <Constant name="dxTopGA21L" value="[dxTopGB21L]-10.*cm"/>
-  <Constant name="dxBotGA21L" value="([dxTopGA21L]-2*[slope]*[dzGA21L])"/>
-  <Constant name="rPos"       value="([rMinS]+[dzGB21])"/>
+  <Constant name="dxTopGB21"    value="61.537*cm"/>
+  <Constant name="dxTopGB21L"   value="[dxTopGB21]"/>
+  <Constant name="dxBotGB21"    value="([dxTopGB21]-2*[slope]*[dzGB21])"/>
+  <Constant name="dxBotGB21L"   value="([dxTopGB21L]-2*[slope]*[dzGB21L])"/>
+  <Constant name="dyGA21"       value="4.600*mm"/>
+  <Constant name="dzGA21"       value="63.55*cm"/>
+  <Constant name="dzGA21L"      value="97.0*cm"/>
+  <Constant name="dxTopGA21"    value="[dxTopGB21]-10.*cm"/>
+  <Constant name="dxBotGA21"    value="([dxTopGA21]-2*[slope]*[dzGA21])"/>
+  <Constant name="dxTopGA21L"   value="[dxTopGB21L]-10.*cm"/>
+  <Constant name="dxBotGA21L"   value="([dxTopGA21L]-2*[slope]*[dzGA21L])"/>
+  <Constant name="rPos"         value="([rMinS]+[dzGB21])"/>
   <Constant name="rPosL"	value="([rMinL]+[dzGB21L])"/>
-  <Constant name="dxFrame"    value="10.0*mm"/>
-  <Constant name="dyBase"     value="3.2*mm"/>
-  <Constant name="dyTop"      value="2.6*mm"/>
-  <Constant name="dzGBI21"    value="([dzGB21]-[dxFrame])"/>
-  <Constant name="dzGBI21L"   value="([dzGB21L]-[dxFrame])"/>
-  <Constant name="dyGBI21"    value="([dyGB21]-0.5*([dyBase]+[dyTop]))"/>
-  <Constant name="dxTopGBI21" value="([dxTopGB21]-[slope]*[dxFrame])"/>
-  <Constant name="dxBotGBI21" value="([dxTopGBI21]-2*[slope]*[dzGBI21])"/>
-  <Constant name="dxTopGAI21" value="([dxTopGA21]-[dyTop])"/>
-  <Constant name="dxTopGBJ21" value="[dxTopGAI21]"/>
-  <Constant name="dxTopGBI21L" value="([dxTopGB21L]-[slope]*[dxFrame])"/>
-  <Constant name="dxBotGBI21L" value="([dxTopGBI21L]-2*[slope]*[dzGBI21L])"/>
-  <Constant name="dxTopGAI21L" value="([dxTopGA21L]-[dyTop])"/>
-  <Constant name="dxTopGBJ21L" value="[dxTopGAI21L]"/>
-  <Constant name="slope1"     value="(([dxTopGA21]-[dxBotGA21])/(2*[dzGA21]))"/>
-  <Constant name="slope1L"    value="(([dxTopGA21L]-[dxBotGA21L])/(2*[dzGA21L]))"/>
-  <Constant name="dxBotGBJ21" value="([dxTopGBJ21]-2*[slope1]*[dzGBI21])"/>
-  <Constant name="dxBotGBJ21L" value="([dxTopGBJ21L]-2*[slope]*[dzGBI21L])"/>
-  <Constant name="dyGAI21"    value="([dyGA21]-0.5*[dyTop])"/>
-  <Constant name="dzGAI21"    value="([dzGA21]-[dxFrame])"/>
-  <Constant name="dzGAI21L"   value="([dzGA21L]-[dxFrame])"/>
-  <Constant name="dxBotGAI21" value="([dxTopGAI21]-2*[slope1]*[dzGAI21])"/>
-  <Constant name="dxBotGAI21L" value="([dxTopGAI21L]-2*[slope]*[dzGAI21L])"/>
-  <Constant name="ypGM21"     value="(-[dyGB21]+[dyBase]+[dyGBI21])"/>
-  <Constant name="dzCard"     value="([dzGA21]-5.*mm)"/>
-  <Constant name="dzCardL"    value="([dzGA21L]-5.*mm)"/>
-  <Constant name="dyFoil"     value="0.025*mm"/>
-  <Constant name="dyGap1"     value="(3.0*mm-[dyFoil])/2"/>
-  <Constant name="dxTopCard"  value="([dxTopGB21]-[dyTop])"/>
-  <Constant name="dxTopCardL" value="([dxTopGB21L]-[dyTop]-0.5*mm)"/>
-  <Constant name="dxBotCard"  value="([dxTopCard]-2*[slope]*[dzCard])"/>
-  <Constant name="dxBotCardL" value="([dxTopCardL]-2*[slope]*[dzCardL])"/>
-  <Constant name="yGap1"      value="(-[dyGBI21]+[dyGap1])"/>
-  <Constant name="dzS1"  value="7.63*cm"/>
-  <Constant name="dzS2"  value="7.63*cm"/>
-  <Constant name="dzS3"  value="7.63*cm"/>
-  <Constant name="dzS4"  value="7.63*cm"/>
-  <Constant name="dzS5"  value="7.63*cm"/>
-  <Constant name="dzS6"  value="7.63*cm"/>
-  <Constant name="dzS7"  value="7.63*cm"/>
-  <Constant name="dzS8"  value="7.63*cm"/>
-  <Constant name="dzS9"  value="7.63*cm"/>
-  <Constant name="dzS10" value="7.63*cm"/>
-  <Constant name="dzS11" value="7.63*cm"/>
-  <Constant name="dzS12" value="7.63*cm"/>
-  <Constant name="dzGap" value="0.5000*mm"/>
-  <Constant name="dzIn"  value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+7*[dzGap])"/>
-  <Constant name="dzInL" value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+[dzS9]+[dzS10]+[dzS11]+[dzS12]+7*[dzGap])"/>
-  <Constant name="z10"   value="([dzIn]-[dzS1])"/> 
-  <Constant name="z20"   value="([z10]-[dzS1]-2*[dzGap]-[dzS2])"/> 
-  <Constant name="z30"   value="([z20]-[dzS2]-2*[dzGap]-[dzS3])"/> 
-  <Constant name="z40"   value="([z30]-[dzS3]-2*[dzGap]-[dzS4])"/> 
-  <Constant name="z50"   value="([z40]-[dzS4]-2*[dzGap]-[dzS5])"/> 
-  <Constant name="z60"   value="([z50]-[dzS5]-2*[dzGap]-[dzS6])"/> 
-  <Constant name="z70"   value="([z60]-[dzS6]-2*[dzGap]-[dzS7])"/> 
-  <Constant name="z80"   value="([z70]-[dzS7]-2*[dzGap]-[dzS8])"/> 
-  <Constant name="z90"   value="([z80]-[dzS8]-2*[dzGap]-[dzS9])"/> 
-  <Constant name="z100"  value="([z90]-[dzS9]-2*[dzGap]-[dzS10])"/> 
-  <Constant name="z110"  value="([z100]-[dzS10]-2*[dzGap]-[dzS11])"/> 
-  <Constant name="z120"  value="([z110]-[dzS11]-2*[dzGap]-[dzS12])"/> 
-  <Constant name="z10L"  value="([dzInL]-[dzS1])"/> 
-  <Constant name="z20L"  value="([z10L]-[dzS1]-2*[dzGap]-[dzS2])"/> 
-  <Constant name="z30L"  value="([z20L]-[dzS2]-2*[dzGap]-[dzS3])"/> 
-  <Constant name="z40L"  value="([z30L]-[dzS3]-2*[dzGap]-[dzS4])"/> 
-  <Constant name="z50L"  value="([z40L]-[dzS4]-2*[dzGap]-[dzS5])"/> 
-  <Constant name="z60L"  value="([z50L]-[dzS5]-2*[dzGap]-[dzS6])"/> 
-  <Constant name="z70L"  value="([z60L]-[dzS6]-2*[dzGap]-[dzS7])"/> 
-  <Constant name="z80L"  value="([z70L]-[dzS7]-2*[dzGap]-[dzS8])"/> 
-  <Constant name="z90L"  value="([z80L]-[dzS8]-2*[dzGap]-[dzS9])"/> 
-  <Constant name="z100L" value="([z90L]-[dzS9]-2*[dzGap]-[dzS10])"/> 
-  <Constant name="z110L" value="([z100L]-[dzS10]-2*[dzGap]-[dzS11])"/> 
-  <Constant name="z120L" value="([z110L]-[dzS11]-2*[dzGap]-[dzS12])"/>  
-  <Constant name="dxTop" value="20.997*cm * 2.+ 14.*cm"/>
-  <Constant name="dx11"  value="([dxTop]-[slope]*([dzIn]-[z10]+[dzS1]))"/>
-  <Constant name="dx12"  value="([dxTop]-[slope]*([dzIn]-[z10]-[dzS1]))"/>
-  <Constant name="dx21"  value="([dxTop]-[slope]*([dzIn]-[z20]+[dzS2]))"/>
-  <Constant name="dx22"  value="([dxTop]-[slope]*([dzIn]-[z20]-[dzS2]))"/>
-  <Constant name="dx31"  value="([dxTop]-[slope]*([dzIn]-[z30]+[dzS3]))"/>
-  <Constant name="dx32"  value="([dxTop]-[slope]*([dzIn]-[z30]-[dzS3]))"/>
-  <Constant name="dx41"  value="([dxTop]-[slope]*([dzIn]-[z40]+[dzS4]))"/>
-  <Constant name="dx42"  value="([dxTop]-[slope]*([dzIn]-[z40]-[dzS4]))"/>
-  <Constant name="dx51"  value="([dxTop]-[slope]*([dzIn]-[z50]+[dzS5]))"/>
-  <Constant name="dx52"  value="([dxTop]-[slope]*([dzIn]-[z50]-[dzS5]))"/>
-  <Constant name="dx61"  value="([dxTop]-[slope]*([dzIn]-[z60]+[dzS6]))"/>
-  <Constant name="dx62"  value="([dxTop]-[slope]*([dzIn]-[z60]-[dzS6]))"/>
-  <Constant name="dx71"  value="([dxTop]-[slope]*([dzIn]-[z70]+[dzS7]))"/>
-  <Constant name="dx72"  value="([dxTop]-[slope]*([dzIn]-[z70]-[dzS7]))"/>
-  <Constant name="dx81"  value="([dxTop]-[slope]*([dzIn]-[z80]+[dzS8]))"/>
-  <Constant name="dx82"  value="([dxTop]-[slope]*([dzIn]-[z80]-[dzS8]))"/>
-  <Constant name="dx91"  value="([dxTop]-[slope]*([dzIn]-[z90]+[dzS9]))"/>
-  <Constant name="dx92"  value="([dxTop]-[slope]*([dzIn]-[z90]-[dzS9]))"/>
-  <Constant name="dx101"  value="([dxTop]-[slope]*([dzIn]-[z100]+[dzS10]))"/>
-  <Constant name="dx102"  value="([dxTop]-[slope]*([dzIn]-[z100]-[dzS10]))"/>
-  <Constant name="dx111"  value="([dxTop]-[slope]*([dzIn]-[z110]+[dzS11]))"/>
-  <Constant name="dx112"  value="([dxTop]-[slope]*([dzIn]-[z110]-[dzS11]))"/>
-  <Constant name="dx121"  value="([dxTop]-[slope]*([dzIn]-[z120]+[dzS12]))"/>
-  <Constant name="dx122"  value="([dxTop]-[slope]*([dzIn]-[z120]-[dzS12]))"/>
-  <Constant name="dyGap2"     value="(1.0*mm-2*[dyFoil])/2"/>
-  <Constant name="yFoil1"     value="([yGap1]+[dyGap1]+[dyFoil])"/>
-  <Constant name="yGap2"      value="([yFoil1]+[dyGap2]+[dyFoil])"/>
-  <Constant name="yFoil2"     value="([yGap2]+[dyGap2]+[dyFoil])"/>
-  <Constant name="dyGap3"     value="(2.0*mm-2*[dyFoil])/2"/>
-  <Constant name="yGap3"      value="([yFoil2]+[dyGap3]+[dyFoil])"/>
-  <Constant name="dzFoil"     value="[dzIn]"/>
-  <Constant name="dzFoilL"    value="[dzInL]"/>
-  <Constant name="dxTopFoil"  value="20.997*cm * 2.+ 14.*cm"/>
-  <Constant name="dxTopFoilL" value="[dxTopFoil]"/>
-  <Constant name="dxBotFoil"  value="([dxTopFoil]-2*[slope]*[dzFoil])"/>
-  <Constant name="dxBotFoilL" value="([dxTopFoilL]-2*[slope]*[dzFoilL])"/>
-  <Constant name="yFoil3"     value="([yGap3]+[dyGap3]+[dyFoil])"/>
-  <Constant name="dyGap4"     value="(1.0*mm-[dyFoil])/2"/>
-  <Constant name="yGap4"      value="([yFoil3]+[dyGap4]+[dyFoil])"/>
-  <Constant name="dyReadOut"  value="1.5*mm"/>
-  <Constant name="yReadOut"   value="(-[dyGBI21]+7.0*mm+[dyReadOut])"/>
-  <Constant name="Tilt"       value="2.5*deg"/>
-  <Constant name="TubeBotL"   value="60.0*mm"/>
-  <Constant name="TubeHeight" value="1132.0*mm"/>
-  <Constant name="TubeMidL"   value="25.0*mm"/>
-  <Constant name="TubeTopL"   value="85.0*mm"/>
-  <Constant name="TubeRMin"   value="3.0*mm"/>
-  <Constant name="TubeRMax"   value="4.0*mm"/>
-  <Constant name="TubeSlantL" value="([TubeHeight]/cos([Tilt]))"/>
-  <Constant name="xTubeBot"   value="0.0*fm"/>
-  <Constant name="xTubeSlant" value="(([TubeBotL]/2)+([TubeRMax]*cos([Tilt]))+([TubeSlantL]*sin([Tilt])/2))"/>
-  <Constant name="xTubeMid"   value="([xTubeSlant]+([TubeRMax]*cos([Tilt]))+([TubeSlantL]*sin([Tilt])+[TubeMidL])/2)"/>
-  <Constant name="xTubeTop"   value="([xTubeMid]+[TubeMidL]/2+[TubeRMax])"/>
-  <Constant name="zTubeTop"   value="([dzGBI21]-[TubeTopL]/2)"/>
-  <Constant name="zTubeMid"   value="([zTubeTop]-[TubeTopL]/2+[TubeRMax])"/>
-  <Constant name="zTubeSlant" value="([zTubeMid]+[TubeRMax]-([TubeSlantL]*cos([Tilt])/2))"/>
+  <Constant name="dxFrame"      value="10.0*mm"/>
+  <Constant name="dyBase"       value="3.2*mm"/>
+  <Constant name="dyTop"        value="2.6*mm"/>
+  <Constant name="dzGBI21"      value="([dzGB21]-[dxFrame])"/>
+  <Constant name="dzGBI21L"     value="([dzGB21L]-[dxFrame])"/>
+  <Constant name="dyGBI21"      value="([dyGB21]-0.5*([dyBase]+[dyTop]))"/>
+  <Constant name="dxTopGBI21"   value="([dxTopGB21]-[slope]*[dxFrame])"/>
+  <Constant name="dxBotGBI21"   value="([dxTopGBI21]-2*[slope]*[dzGBI21])"/>
+  <Constant name="dxTopGAI21"   value="([dxTopGA21]-[dyTop])"/>
+  <Constant name="dxTopGBJ21"   value="[dxTopGAI21]"/>
+  <Constant name="dxTopGBI21L"  value="([dxTopGB21L]-[slope]*[dxFrame])"/>
+  <Constant name="dxBotGBI21L"  value="([dxTopGBI21L]-2*[slope]*[dzGBI21L])"/>
+  <Constant name="dxTopGAI21L"  value="([dxTopGA21L]-[dyTop])"/>
+  <Constant name="dxTopGBJ21L"  value="[dxTopGAI21L]"/>
+  <Constant name="slope1"       value="(([dxTopGA21]-[dxBotGA21])/(2*[dzGA21]))"/>
+  <Constant name="slope1L"      value="(([dxTopGA21L]-[dxBotGA21L])/(2*[dzGA21L]))"/>
+  <Constant name="dxBotGBJ21"   value="([dxTopGBJ21]-2*[slope1]*[dzGBI21])"/>
+  <Constant name="dxBotGBJ21L"  value="([dxTopGBJ21L]-2*[slope]*[dzGBI21L])"/>
+  <Constant name="dyGAI21"      value="([dyGA21]-0.5*[dyTop])"/>
+  <Constant name="dzGAI21"      value="([dzGA21]-[dxFrame])"/>
+  <Constant name="dzGAI21L"     value="([dzGA21L]-[dxFrame])"/>
+  <Constant name="dxBotGAI21"   value="([dxTopGAI21]-2*[slope1]*[dzGAI21])"/>
+  <Constant name="dxBotGAI21L"  value="([dxTopGAI21L]-2*[slope]*[dzGAI21L])"/>
+  <Constant name="ypGM21"       value="(-[dyGB21]+[dyBase]+[dyGBI21])"/>
+  <Constant name="dzCard"       value="([dzGA21]-5.*mm)"/>
+  <Constant name="dzCardL"      value="([dzGA21L]-5.*mm)"/>
+  <Constant name="dyFoil"       value="0.025*mm"/>
+  <Constant name="dyGap1"       value="(3.0*mm-[dyFoil])/2"/>
+  <Constant name="dxTopCard"    value="([dxTopGB21]-[dyTop])"/>
+  <Constant name="dxTopCardL"   value="([dxTopGB21L]-[dyTop]-0.5*mm)"/>
+  <Constant name="dxBotCard"    value="([dxTopCard]-2*[slope]*[dzCard])"/>
+  <Constant name="dxBotCardL"   value="([dxTopCardL]-2*[slope]*[dzCardL])"/>
+  <Constant name="yGap1"        value="(-[dyGBI21]+[dyGap1])"/>
+  <Constant name="dzS1"         value="7.63*cm"/>
+  <Constant name="dzS2"         value="7.63*cm"/>
+  <Constant name="dzS3"         value="7.63*cm"/>
+  <Constant name="dzS4"         value="7.63*cm"/>
+  <Constant name="dzS5"         value="7.63*cm"/>
+  <Constant name="dzS6"         value="7.63*cm"/>
+  <Constant name="dzS7"         value="7.63*cm"/>
+  <Constant name="dzS8"         value="7.63*cm"/>
+  <Constant name="dzS9"         value="7.63*cm"/>
+  <Constant name="dzS10"        value="7.63*cm"/>
+  <Constant name="dzS11"        value="7.63*cm"/>
+  <Constant name="dzS12"        value="7.63*cm"/>
+  <Constant name="dzGap"        value="0.5000*mm"/>
+  <Constant name="dzIn"         value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+7*[dzGap])"/>
+  <Constant name="dzInL"        value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+[dzS9]+[dzS10]+[dzS11]+[dzS12]+11*[dzGap])"/>
+  <Constant name="z10"          value="([dzIn]-[dzS1])"/> 
+  <Constant name="z20"          value="([z10]-[dzS1]-2*[dzGap]-[dzS2])"/> 
+  <Constant name="z30"          value="([z20]-[dzS2]-2*[dzGap]-[dzS3])"/> 
+  <Constant name="z40"          value="([z30]-[dzS3]-2*[dzGap]-[dzS4])"/> 
+  <Constant name="z50"          value="([z40]-[dzS4]-2*[dzGap]-[dzS5])"/> 
+  <Constant name="z60"          value="([z50]-[dzS5]-2*[dzGap]-[dzS6])"/> 
+  <Constant name="z70"          value="([z60]-[dzS6]-2*[dzGap]-[dzS7])"/> 
+  <Constant name="z80"          value="([z70]-[dzS7]-2*[dzGap]-[dzS8])"/> 
+  <Constant name="z90"          value="([z80]-[dzS8]-2*[dzGap]-[dzS9])"/> 
+  <Constant name="z100"         value="([z90]-[dzS9]-2*[dzGap]-[dzS10])"/> 
+  <Constant name="z110"         value="([z100]-[dzS10]-2*[dzGap]-[dzS11])"/> 
+  <Constant name="z120"         value="([z110]-[dzS11]-2*[dzGap]-[dzS12])"/> 
+  <Constant name="z10L"         value="([dzInL]-[dzS1])"/> 
+  <Constant name="z20L"         value="([z10L]-[dzS1]-2*[dzGap]-[dzS2])"/> 
+  <Constant name="z30L"         value="([z20L]-[dzS2]-2*[dzGap]-[dzS3])"/> 
+  <Constant name="z40L"         value="([z30L]-[dzS3]-2*[dzGap]-[dzS4])"/> 
+  <Constant name="z50L"         value="([z40L]-[dzS4]-2*[dzGap]-[dzS5])"/> 
+  <Constant name="z60L"         value="([z50L]-[dzS5]-2*[dzGap]-[dzS6])"/> 
+  <Constant name="z70L"         value="([z60L]-[dzS6]-2*[dzGap]-[dzS7])"/> 
+  <Constant name="z80L"         value="([z70L]-[dzS7]-2*[dzGap]-[dzS8])"/> 
+  <Constant name="z90L"         value="([z80L]-[dzS8]-2*[dzGap]-[dzS9])"/> 
+  <Constant name="z100L"        value="([z90L]-[dzS9]-2*[dzGap]-[dzS10])"/> 
+  <Constant name="z110L"        value="([z100L]-[dzS10]-2*[dzGap]-[dzS11])"/> 
+  <Constant name="z120L"        value="([z110L]-[dzS11]-2*[dzGap]-[dzS12])"/>  
+  <Constant name="dxTop"        value="20.997*cm * 2.+ 14.*cm"/>
+  <Constant name="dx11"         value="([dxTop]-[slope]*([dzIn]-[z10]+[dzS1]))"/>
+  <Constant name="dx12"         value="([dxTop]-[slope]*([dzIn]-[z10]-[dzS1]))"/>
+  <Constant name="dx21"         value="([dxTop]-[slope]*([dzIn]-[z20]+[dzS2]))"/>
+  <Constant name="dx22"         value="([dxTop]-[slope]*([dzIn]-[z20]-[dzS2]))"/>
+  <Constant name="dx31"         value="([dxTop]-[slope]*([dzIn]-[z30]+[dzS3]))"/>
+  <Constant name="dx32"         value="([dxTop]-[slope]*([dzIn]-[z30]-[dzS3]))"/>
+  <Constant name="dx41"         value="([dxTop]-[slope]*([dzIn]-[z40]+[dzS4]))"/>
+  <Constant name="dx42"         value="([dxTop]-[slope]*([dzIn]-[z40]-[dzS4]))"/>
+  <Constant name="dx51"         value="([dxTop]-[slope]*([dzIn]-[z50]+[dzS5]))"/>
+  <Constant name="dx52"         value="([dxTop]-[slope]*([dzIn]-[z50]-[dzS5]))"/>
+  <Constant name="dx61"         value="([dxTop]-[slope]*([dzIn]-[z60]+[dzS6]))"/>
+  <Constant name="dx62"         value="([dxTop]-[slope]*([dzIn]-[z60]-[dzS6]))"/>
+  <Constant name="dx71"         value="([dxTop]-[slope]*([dzIn]-[z70]+[dzS7]))"/>
+  <Constant name="dx72"         value="([dxTop]-[slope]*([dzIn]-[z70]-[dzS7]))"/>
+  <Constant name="dx81"         value="([dxTop]-[slope]*([dzIn]-[z80]+[dzS8]))"/>
+  <Constant name="dx82"         value="([dxTop]-[slope]*([dzIn]-[z80]-[dzS8]))"/>
+  <Constant name="dx91"         value="([dxTop]-[slope]*([dzIn]-[z90]+[dzS9]))"/>
+  <Constant name="dx92"         value="([dxTop]-[slope]*([dzIn]-[z90]-[dzS9]))"/>
+  <Constant name="dx101"        value="([dxTop]-[slope]*([dzIn]-[z100]+[dzS10]))"/>
+  <Constant name="dx102"        value="([dxTop]-[slope]*([dzIn]-[z100]-[dzS10]))"/>
+  <Constant name="dx111"        value="([dxTop]-[slope]*([dzIn]-[z110]+[dzS11]))"/>
+  <Constant name="dx112"        value="([dxTop]-[slope]*([dzIn]-[z110]-[dzS11]))"/>
+  <Constant name="dx121"        value="([dxTop]-[slope]*([dzIn]-[z120]+[dzS12]))"/>
+  <Constant name="dx122"        value="([dxTop]-[slope]*([dzIn]-[z120]-[dzS12]))"/>
+  <Constant name="dyGap2"       value="(1.0*mm-2*[dyFoil])/2"/>
+  <Constant name="yFoil1"       value="([yGap1]+[dyGap1]+[dyFoil])"/>
+  <Constant name="yGap2"        value="([yFoil1]+[dyGap2]+[dyFoil])"/>
+  <Constant name="yFoil2"       value="([yGap2]+[dyGap2]+[dyFoil])"/>
+  <Constant name="dyGap3"       value="(2.0*mm-2*[dyFoil])/2"/>
+  <Constant name="yGap3"        value="([yFoil2]+[dyGap3]+[dyFoil])"/>
+  <Constant name="dzFoil"       value="[dzIn]"/>
+  <Constant name="dzFoilL"      value="[dzInL]"/>
+  <Constant name="dxTopFoil"    value="20.997*cm * 2.+ 14.*cm"/>
+  <Constant name="dxTopFoilL"   value="[dxTopFoil]"/>
+  <Constant name="dxBotFoil"    value="([dxTopFoil]-2*[slope]*[dzFoil])"/>
+  <Constant name="dxBotFoilL"   value="([dxTopFoilL]-2*[slope]*[dzFoilL])"/>
+  <Constant name="yFoil3"       value="([yGap3]+[dyGap3]+[dyFoil])"/>
+  <Constant name="dyGap4"       value="(1.0*mm-[dyFoil])/2"/>
+  <Constant name="yGap4"        value="([yFoil3]+[dyGap4]+[dyFoil])"/>
+  <Constant name="dyReadOut"    value="1.5*mm"/>
+  <Constant name="yReadOut"     value="(-[dyGBI21]+7.0*mm+[dyReadOut])"/>
+  <Constant name="Tilt"         value="2.5*deg"/>
+  <Constant name="TubeBotL"     value="60.0*mm"/>
+  <Constant name="TubeHeight"   value="1132.0*mm"/>
+  <Constant name="TubeMidL"     value="25.0*mm"/>
+  <Constant name="TubeTopL"     value="85.0*mm"/>
+  <Constant name="TubeRMin"     value="3.0*mm"/>
+  <Constant name="TubeRMax"     value="4.0*mm"/>
+  <Constant name="TubeSlantL"   value="([TubeHeight]/cos([Tilt]))"/>
+  <Constant name="xTubeBot"     value="0.0*fm"/>
+  <Constant name="xTubeSlant"   value="(([TubeBotL]/2)+([TubeRMax]*cos([Tilt]))+([TubeSlantL]*sin([Tilt])/2))"/>
+  <Constant name="xTubeMid"     value="([xTubeSlant]+([TubeRMax]*cos([Tilt]))+([TubeSlantL]*sin([Tilt])+[TubeMidL])/2)"/>
+  <Constant name="xTubeTop"     value="([xTubeMid]+[TubeMidL]/2+[TubeRMax])"/>
+  <Constant name="zTubeTop"     value="([dzGBI21]-[TubeTopL]/2)"/>
+  <Constant name="zTubeMid"     value="([zTubeTop]-[TubeTopL]/2+[TubeRMax])"/>
+  <Constant name="zTubeSlant"   value="([zTubeMid]+[TubeRMax]-([TubeSlantL]*cos([Tilt])/2))"/>
   <!--- Constant name="zTubeBot"
   value="([zTubeSlant]+[TubeRMax]-([TubeSlantL]*cos([Tilt])/2))"/ -->
-  <Constant name="dxStrip"    value="42.11*cm"/>
-  <Constant name="dxStrip1"   value="([dxStrip]-2.83*cm)"/>
-  <Constant name="dxStrip2"   value="([dxStrip1]-2.83*cm)"/>
-  <Constant name="dxStrip3"   value="([dxStrip2]-2.83*cm)"/>
-  <Constant name="dxStrip4"   value="([dxStrip3]-2.83*cm)"/>
-  <Constant name="dxStrip5"   value="([dxStrip4]-2.83*cm)"/>
-  <Constant name="dxStrip6"   value="([dxStrip5]-2.83*cm)"/>
-  <Constant name="dxStrip7"   value="([dxStrip6]-2.83*cm)"/>
-  <Constant name="dxStrip8"   value="([dxStrip7]-2.83*cm)"/>
-  <Constant name="dyStrip"    value="0.5*mm"/>
-  <Constant name="dzStrip"    value="17.0*mm"/>
-  <Constant name="dzStripX"   value="7.0*mm"/>
-  <Constant name="yStrip"     value="([yReadOut]+[dyReadOut]+[dyStrip])"/>
-  <Constant name="zStrip0"    value="([dzGBI21]-86.68*mm)"/>
-  <Constant name="Gap01"      value="152.50*mm"/>
-  <Constant name="Gap12"      value="152.50*mm"/>
-  <Constant name="Gap23"      value="152.50*mm"/>
-  <Constant name="Gap34"      value="152.50*mm"/>
-  <Constant name="Gap45"      value="152.50*mm"/>
-  <Constant name="Gap56"      value="152.50*mm"/>
-  <Constant name="Gap67"      value="152.50*mm"/>
-  <Constant name="Gap78"      value="152.50*mm"/>
-  <Constant name="Gap89"      value="152.50*mm"/>
-  <Constant name="zStrip1"    value="([zStrip0]-[Gap01])"/>
-  <Constant name="zStrip2"    value="([zStrip1]-[Gap12])"/>
-  <Constant name="zStrip3"    value="([zStrip2]-[Gap23])"/>
-  <Constant name="zStrip4"    value="([zStrip3]-[Gap34])"/>
-  <Constant name="zStrip5"    value="([zStrip4]-[Gap45])"/>
-  <Constant name="zStrip6"    value="([zStrip5]-[Gap56])"/>
-  <Constant name="zStrip7"    value="([zStrip6]-[Gap67])"/>
-  <Constant name="zStrip8"    value="([zStrip7]-[Gap78])"/>
-  <Constant name="zStrip9"    value="([zStrip8]-[Gap89])"/>
-  <Constant name="zTubeBot"   value="([zStrip7] - 62.50*mm)"/>
-  <Constant name="dzHybrid"   value="22.0*mm"/>
-  <Constant name="dyHybrid"   value="0.5*mm"/>
-  <Constant name="dxHybrid"   value="25.0*mm"/>
-  <Constant name="xHybrid0"   value="167.97*mm"/>
-  <Constant name="xHybrid1"   value="([xHybrid0] - 11.*mm)"/>
-  <Constant name="xHybrid2"   value="([xHybrid1] - 11.*mm)"/>
-  <Constant name="xHybrid3"   value="([xHybrid2] - 11.*mm)"/>
-  <Constant name="xHybrid4"   value="([xHybrid3] - 11.*mm)"/>
-  <Constant name="xHybrid5"   value="([xHybrid4] - 11.*mm)"/>
-  <Constant name="xHybrid6"   value="([xHybrid5] - 11.*mm)"/>
-  <Constant name="xHybrid7"   value="([xHybrid6] - 11.*mm)"/>
-  <Constant name="xHybrid8"   value="([xHybrid7] - 11.*mm)"/>
-  <Constant name="yHybrid"    value="([yStrip]+[dyStrip]+[dyHybrid])"/>
-  <Constant name="yTube"      value="([yHybrid]+[dyHybrid]+[TubeRMax])"/>
+  <Constant name="dxStrip"      value="42.11*cm"/>
+  <Constant name="dxStrip1"     value="([dxStrip]-2.83*cm)"/>
+  <Constant name="dxStrip2"     value="([dxStrip1]-2.83*cm)"/>
+  <Constant name="dxStrip3"     value="([dxStrip2]-2.83*cm)"/>
+  <Constant name="dxStrip4"     value="([dxStrip3]-2.83*cm)"/>
+  <Constant name="dxStrip5"     value="([dxStrip4]-2.83*cm)"/>
+  <Constant name="dxStrip6"     value="([dxStrip5]-2.83*cm)"/>
+  <Constant name="dxStrip7"     value="([dxStrip6]-2.83*cm)"/>
+  <Constant name="dxStrip8"     value="([dxStrip7]-2.83*cm)"/>
+  <Constant name="dyStrip"      value="0.5*mm"/>
+  <Constant name="dzStrip"      value="17.0*mm"/>
+  <Constant name="dzStripX"     value="7.0*mm"/>
+  <Constant name="yStrip"       value="([yReadOut]+[dyReadOut]+[dyStrip])"/>
+  <Constant name="zStrip0"      value="([dzGBI21]-86.68*mm)"/>
+  <Constant name="Gap01"        value="152.50*mm"/>
+  <Constant name="Gap12"        value="152.50*mm"/>
+  <Constant name="Gap23"        value="152.50*mm"/>
+  <Constant name="Gap34"        value="152.50*mm"/>
+  <Constant name="Gap45"        value="152.50*mm"/>
+  <Constant name="Gap56"        value="152.50*mm"/>
+  <Constant name="Gap67"        value="152.50*mm"/>
+  <Constant name="Gap78"        value="152.50*mm"/>
+  <Constant name="Gap89"        value="152.50*mm"/>
+  <Constant name="zStrip1"      value="([zStrip0]-[Gap01])"/>
+  <Constant name="zStrip2"      value="([zStrip1]-[Gap12])"/>
+  <Constant name="zStrip3"      value="([zStrip2]-[Gap23])"/>
+  <Constant name="zStrip4"      value="([zStrip3]-[Gap34])"/>
+  <Constant name="zStrip5"      value="([zStrip4]-[Gap45])"/>
+  <Constant name="zStrip6"      value="([zStrip5]-[Gap56])"/>
+  <Constant name="zStrip7"      value="([zStrip6]-[Gap67])"/>
+  <Constant name="zStrip8"      value="([zStrip7]-[Gap78])"/>
+  <Constant name="zStrip9"      value="([zStrip8]-[Gap89])"/>
+  <Constant name="zTubeBot"     value="([zStrip7] - 62.50*mm)"/>
+  <Constant name="dzHybrid"     value="22.0*mm"/>
+  <Constant name="dyHybrid"     value="0.5*mm"/>
+  <Constant name="dxHybrid"     value="25.0*mm"/>
+  <Constant name="xHybrid0"     value="167.97*mm"/>
+  <Constant name="xHybrid1"     value="([xHybrid0] - 11.*mm)"/>
+  <Constant name="xHybrid2"     value="([xHybrid1] - 11.*mm)"/>
+  <Constant name="xHybrid3"     value="([xHybrid2] - 11.*mm)"/>
+  <Constant name="xHybrid4"     value="([xHybrid3] - 11.*mm)"/>
+  <Constant name="xHybrid5"     value="([xHybrid4] - 11.*mm)"/>
+  <Constant name="xHybrid6"     value="([xHybrid5] - 11.*mm)"/>
+  <Constant name="xHybrid7"     value="([xHybrid6] - 11.*mm)"/>
+  <Constant name="xHybrid8"     value="([xHybrid7] - 11.*mm)"/>
+  <Constant name="yHybrid"      value="([yStrip]+[dyStrip]+[dyHybrid])"/>
+  <Constant name="yTube"        value="([yHybrid]+[dyHybrid]+[TubeRMax])"/>
 </ConstantsSection>
 
 <RotationSection label="gemf.xml">
@@ -216,13 +216,6 @@
 </RotationSection>
 
 <SolidSection label="gem21.xml">
-  <Polycone name="GEM21" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[z1]" rMin="[rMinS]" rMax="[rMax]"/>
-    <ZSection z="[z2]" rMin="[rMinS]" rMax="[rMax]"/>
-    <ZSection z="[z2]" rMin="[rMinL]" rMax="[rMax]"/>
-    <ZSection z="[z3]" rMin="[rMinL]" rMax="[rMax]"/>
-  </Polycone>
-		
   <Tubs name="GE21S" rMin="[rMinS]" rMax="[rMax]" dz="[hthick]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="GE21L" rMin="[rMinL]" rMax="[rMax]" dz="[hthick]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Trd1 name="GB21" dz="[dzGB21]" dy1="[dyGB21]" dy2="[dyGB21]" dx1="[dxBotGB21]" dx2="[dxTopGB21]" />

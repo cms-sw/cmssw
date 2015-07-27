@@ -46,6 +46,5 @@ InitialStep = cms.Sequence(initialStepSeeds
                            +firstStepPrimaryVerticesBeforeMixing
                            +initialStepSelector
                            +initialStep
-   #                        +initialStepSimTrackIds
                            )
 

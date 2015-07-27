@@ -5,6 +5,6 @@ METPostprocessing = cms.EDAnalyzer('METTesterPostProcessor')
 
 ################ Postprocessing Harvesting #########################
 METPostprocessingHarvesting = cms.EDAnalyzer('METTesterPostProcessorHarvesting',
-                    METTypeRECO = cms.InputTag("pfMetT1"),
+                    METTypeRECO = cms.InputTag("PfMetT1"),
                     METTypeMiniAOD = cms.InputTag("slimmedMETs")
                    )  

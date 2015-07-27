@@ -81,7 +81,6 @@ private:
   std::vector<double> pt_interv;
   std::vector<double> chi2_cuts;
   bool refitHits;
-  bool debug;
   std::string filterName_;
   std::string builderName_;
 
