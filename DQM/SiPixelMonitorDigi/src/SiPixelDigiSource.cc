@@ -538,23 +538,19 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   // Actual digi occupancy in a FED compared to average digi occupancy per FED
   if(averageDigiOccupancy){
-    /* int maxfed=0;
-       for(int i=0; i!=32; i++){
-       if(nDigisPerFed[i]>maxfed) maxfed=nDigisPerFed[i];
-       std::cout <<"Max Fed " << maxfed << std::endl;
-       }*/ // why to remove the highes occupancy fed? It makes no sense
+
     for(int i=0; i!=40; i++){
       float averageOcc = 0.;
       if(i<32){
         float averageBPIXFed = float(nBPIXDigis)/32.;
-	std::cout << "Average bpix digis " << averageBPIXFed  << std::endl;  
+	
 	if(averageBPIXFed>0.) averageOcc = nDigisPerFed[i]/averageBPIXFed;
       }else{
         float averageFPIXFed = float(nFPIXDigis)/8.;
 	if(averageFPIXFed>0.) averageOcc = nDigisPerFed[i]/averageFPIXFed;
       }
       averageDigiOccupancy->setBinContent(i+1,averageOcc);
-      std::cout << "Average occ " << averageOcc  << std::endl;  
+      
       int lumiSections8 = int(lumiSection/8);
       if (modOn){
 	if (avgfedDigiOccvsLumi){
