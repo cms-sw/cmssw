@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/Run.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Parse.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -98,6 +99,7 @@ PCLTrackerAlProducer
           ++iCal) {
     delete *iCal;
   }
+
   // TODO: Delete monitors as well?
 
   delete theAlignmentParameterStore;
@@ -109,9 +111,9 @@ PCLTrackerAlProducer
 
 
 
-/******************************************************************************
- *** INTERFACE IMPLEMENTATION                                               ***
- ******************************************************************************/
+//=============================================================================
+//===   INTERFACE IMPLEMENTATION                                            ===
+//=============================================================================
 
 //_____________________________________________________________________________
 void PCLTrackerAlProducer
@@ -279,9 +281,9 @@ void PCLTrackerAlProducer
 
 
 
-/******************************************************************************
- *** PRIVATE METHOD IMPLEMENTATION                                          ***
- ******************************************************************************/
+//=============================================================================
+//===   PRIVATE METHOD IMPLEMENTATION                                       ===
+//=============================================================================
 
 /*** Code which is independent of Event & Setup
      Called from constructor ***/
@@ -368,18 +370,26 @@ bool PCLTrackerAlProducer
 {
   bool changed = false;
 
+  if (watchIdealGeometryRcd.check(setup)) {
+    changed = true;
+  }
+
+  if (watchGlobalPositionRcd.check(setup)) {
+    changed = true;
+  }
+
   if (doTracker_) {
     if (watchTrackerAlRcd.check(setup)) {
         changed = true;
-      }
+    }
 
-      if (watchTrackerAlErrorExtRcd.check(setup)) {
-        changed = true;
-      }
+    if (watchTrackerAlErrorExtRcd.check(setup)) {
+      changed = true;
+    }
 
-      if (watchTrackerSurDeRcd.check(setup)) {
-        changed = true;
-      }
+    if (watchTrackerSurDeRcd.check(setup)) {
+      changed = true;
+    }
   }
 
   if (doMuon_) {
