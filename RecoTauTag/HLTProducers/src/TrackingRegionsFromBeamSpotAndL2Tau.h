@@ -66,9 +66,9 @@ public:
   virtual ~TrackingRegionsFromBeamSpotAndL2Tau() {}
     
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // use beam spot to pick up the origin
     edm::Handle<reco::BeamSpot> bsHandle;
@@ -101,7 +101,7 @@ public:
       
       GlobalVector direction(jet.momentum().x(), jet.momentum().y(), jet.momentum().z());
 
-      RectangularEtaPhiTrackingRegion* etaphiRegion = new RectangularEtaPhiTrackingRegion(
+      result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
           direction,
           origin,
           m_ptMin,
@@ -113,8 +113,7 @@ public:
           m_precise,
           measurementTracker,
           m_searchOpt
-      );
-      result.push_back(etaphiRegion);
+      ));
       ++n_regions;
     }
     //std::cout<<"nregions = "<<n_regions<<std::endl;

@@ -55,6 +55,7 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
     return ;
   }
 
+  // Why is the regions variable (and theRegionProducer) needed at all?
   regions = theRegionProducer->regions(event,setup);
 
   event.getByToken(token_vertex, vertexHandle);
