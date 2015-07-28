@@ -121,6 +121,8 @@ ElectronIdMVABased::~ElectronIdMVABased()
 // ------------ method called on each new Event  ------------
 bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
+
+  constexpr double etaEBEE = 1.485;
   
   std::auto_ptr<reco::GsfElectronCollection> mvaElectrons(new reco::GsfElectronCollection);
   
@@ -135,13 +137,13 @@ bool ElectronIdMVABased::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     double mvaVal = globalCache()->mvaID_->mva( *egIter, nVtx );
     double isoDr03 = egIter->dr03TkSumPt() + egIter->dr03EcalRecHitSumEt() + egIter->dr03HcalTowerSumEt();
     double eleEta = fabs(egIter->eta());
-    if (eleEta <= 1.485 && mvaVal > thresholdBarrel && isoDr03 < thresholdIsoBarrel) {
+    if (eleEta <= etaEBEE && mvaVal > thresholdBarrel && isoDr03 < thresholdIsoBarrel) {
       mvaElectrons->push_back( *egIter );
       reco::GsfElectron::MvaOutput myMvaOutput;
       myMvaOutput.mva_Isolated = mvaVal;
       mvaElectrons->back().setMvaOutput(myMvaOutput);
     }
-    else if (eleEta > 1.485 && mvaVal > thresholdEndcap  && isoDr03 < thresholdIsoEndcap) {
+    else if (eleEta > etaEBEE && mvaVal > thresholdEndcap  && isoDr03 < thresholdIsoEndcap) {
       mvaElectrons->push_back( *egIter );
       reco::GsfElectron::MvaOutput myMvaOutput;
       myMvaOutput.mva_Isolated = mvaVal;
