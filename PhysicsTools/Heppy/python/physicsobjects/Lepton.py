@@ -44,6 +44,23 @@ class Lepton( PhysicsObject):
         rel = self.absIso(dBetaFactor, allCharged)/self.pt()
         return rel
 
+    def absIsoR(self, R=0.3, dBetaFactor=0, allCharged=False):
+        if dBetaFactor>0 and self.puChargedHadronIsoR(R)<0:
+            raise ValueError('If you want to use dbeta corrections, you must make sure that the pu charged hadron iso is available. This should never happen') 
+        neutralIso = self.neutralHadronIsoR(R) + self.photonIsoR(R)
+        #Recover FSR
+        if hasattr(self, 'fsrPhotons'):
+            for gamma in self.fsrPhotons:
+                neutralIso = neutralIso - gamma.pt()
+        corNeutralIso = neutralIso - dBetaFactor * self.puChargedHadronIsoR(R)
+        charged = self.chargedHadronIsoR(R)
+        if allCharged:
+            charged = self.chargedAllIsoR(R)
+        return charged + max(corNeutralIso, 0.)
+
+    def relIsoR(self, R=0.3, dBetaFactor=0, allCharged=False):
+        return self.absIsoR(R, dBetaFactor, allCharged)/self.pt()
+
     def relEffAreaIso(self,rho):
         '''MIKE, missing doc'''
         return self.absEffAreaIso(rho)/self.pt()
