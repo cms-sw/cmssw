@@ -10,6 +10,7 @@ recoTrackSelectorPSet = cms.PSet(
     maxRapidity = cms.double(5.0),
     quality = cms.vstring('loose'),
     algorithm = cms.vstring(),
+    originalAlgorithm = cms.vstring(),
     minLayer = cms.int32(3),
     min3DLayer = cms.int32(0),
     minHit = cms.int32(0),

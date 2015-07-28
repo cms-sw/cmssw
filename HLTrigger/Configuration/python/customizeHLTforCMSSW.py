@@ -112,12 +112,19 @@ def customiseFor10234(process):
             delattr(process.hltCaloStage1Digis, 'FedId')
     return process
 
+# upgrade RecoTrackSelector to allow selection on originalAlgo (PR #XXXX)
+def customiseForXXXX(process):
+    if hasattr(process,'hltBSoftMuonMu5L3') :
+       setattr(process.hltBSoftMuonMu5L3,'originalAlgorithm', cms.vstring())
+    return process
 
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process,menuType="GRun",fastSim=False):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
+    if cmsswVersion >= "CMSSW_7_6":
+        process = customiseForXXXX(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor9232(process)
         process = customiseFor8679(process)
