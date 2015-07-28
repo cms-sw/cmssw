@@ -15,6 +15,7 @@
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <lzma.h>
 
+
 class Storage;
 
 namespace lhef {
@@ -183,6 +184,10 @@ class StorageInputStream :
         lzma_stream     lstr;
         bool            compression_;
         unsigned int    lasttotal_;
+
+        unsigned int buffLoc_ = 0,buffTotal_ = 0;
+        std::vector<uint8_t> buffer_;
+        static constexpr unsigned bufferSize_ = 16*1024*1024;
 };
 
 typedef XMLInputSourceWrapper<CBInputStream> CBInputSource;
