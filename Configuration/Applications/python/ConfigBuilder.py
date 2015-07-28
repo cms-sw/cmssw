@@ -2183,6 +2183,11 @@ class ConfigBuilder(object):
 		from FWCore.ParameterSet.Utilities import convertToUnscheduled
 		self.process=convertToUnscheduled(self.process)
 
+		pathsToDelete=['reconstruction_step','raw2digi_step','L1Reco_step','eventinterpretation_step']
+		for p in pathsToDelete:
+			self.pythonCfgCode+="if hasattr(process,'"+p+"'): del process."+p+"\n"
+			if hasattr(self.process,p): delattr(self.process,p)
+
 		#now add the unscheduled stuff
 		for module in self.importsUnsch:
 			self.process.load(module)
