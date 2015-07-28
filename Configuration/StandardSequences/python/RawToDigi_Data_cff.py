@@ -4,7 +4,7 @@ from Configuration.StandardSequences.RawToDigi_cff import *
 
 RawToDigi = cms.Sequence(csctfDigis
                          +dttfDigis
-                         +l1RctHwDigis
+                         +rctHwDigis
                          +gctDigis
                          +gtDigis
                          +gtEvmDigis
