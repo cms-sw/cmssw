@@ -1150,7 +1150,7 @@ steps['ALCAHARVD4']={'-s':'ALCAHARVEST:SiPixelAli',
                     '--conditions':'auto:run1_data',
                     '--scenario':'pp',
                     '--data':'',
-                    '--filein':'file:PromptCalibProdSiStripGains.root'}
+                    '--filein':'file:PromptCalibProdSiPixelAli.root'}
 
 steps['RECOHISt4']=steps['RECOHI']
 
