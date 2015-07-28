@@ -36,8 +36,10 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 namespace l1t {  
+  constexpr unsigned char hgcal_bad_codec(0xff);
   class HGCFETriggerDigi {
   public:
+    
     typedef std::vector<bool> data_payload;
     typedef uint32_t key_type; 
 
@@ -56,7 +58,7 @@ namespace l1t {
     
     template<typename CODEC,typename DATA>
     void encode(const CODEC& codec, const DATA& data) {
-      if( codec_ != 0xffff ) {
+      if( codec_ != hgcal_bad_codec ) {
          throw cms::Exception("HGCTriggerAlreadyEncoded")
            << "HGC Codec and data already set with codec: " 
            << std::hex << codec_ << std::dec;

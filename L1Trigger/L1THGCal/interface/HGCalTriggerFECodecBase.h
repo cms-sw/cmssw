@@ -1,17 +1,13 @@
-#ifndef __L1Trigger_L1THGCal_HGCalTriggerGeometryBase_h__
-#define __L1Trigger_L1THGCal_HGCalTriggerGeometryBase_h__
-
-#include <iostream>
-#include <unordered_set>
-#include <unordered_map>
-
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#ifndef __L1Trigger_L1THGCal_HGCalTriggerFECodecBase_h__
+#define __L1Trigger_L1THGCal_HGCalTriggerFECodecBase_h__
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
-#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
-#include "Geometry/CaloTopology/interface/HGCalTopology.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+
+#include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
+
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
 /*******
  *
@@ -25,6 +21,7 @@
 
 class HGCalTriggerFECodecBase { 
  public:  
+  typedef HGCalTriggerGeometry::Module Module;
   
   HGCalTriggerFECodecBase(const edm::ParameterSet& conf) : 
     name_(conf.getParameter<std::string>("CodecName")),
@@ -36,20 +33,92 @@ class HGCalTriggerFECodecBase {
   
   const unsigned char getCodecType() const { return codec_idx_; }
   
-  template<typename DECODER,typename DATA>
-  DATA decode(const DECODER& decoder, const std::vector<bool>& stream) const {
-    return decoder(stream);
-  }
+  // give the FECodec a module + input digis and it sets itself
+  // with the approprate data
+  virtual void setDataPayload(const Module& cell, 
+                              const HGCEEDigiCollection&,
+                              const HGCHEDigiCollection&,
+                              const HGCHEDigiCollection& ) = 0;
+  virtual void unSetDataPayload() = 0;
+  // get the set data out for your own enjoyment
+  virtual std::vector<bool> getDataPayload() const = 0;
 
-  template<typename ENCODER,typename DATA>
-  std::vector<bool> encode(const ENCODER& decoder, const DATA& data) const {
-    return encoder(data);
-  }
+  // abstract interface to manipulating l1t::HGCFETriggerDigis
+  // these will yell at you if you haven't set the data in the Codec class
+  virtual void encode(l1t::HGCFETriggerDigi&) = 0;
+  virtual void decode(l1t::HGCFETriggerDigi&) = 0;
 
  private:
   const std::string name_;
   unsigned char codec_idx_; // I hope we never come to having 256 FE codecs :-)
 };
+
+// ----> all codec classes derive from this <----
+// inheritance looks like class MyCodec : public HGCalTriggerFE::Codec<MyCodec,MyData>
+namespace HGCalTriggerFE {
+  template<typename Impl,typename DATA>
+  class Codec : public HGCalTriggerFECodecBase { 
+  public:
+    Codec(const edm::ParameterSet& conf) :  
+    HGCalTriggerFECodecBase(conf),
+    dataIsSet_(false) {
+    }
+    
+    // mark these as final since at this level we know 
+    // the implementation of the codec
+    virtual void encode(l1t::HGCFETriggerDigi& digi) override final {
+      if( !dataIsSet_ ) {
+        edm::LogWarning("HGCalTriggerFECodec|NoDataPayload")
+          << "No data payload was set for HGCTriggerFECodec: "
+          << this->name();
+      }
+      digi.encode(static_cast<const Impl&>(*this),data_);      
+    }
+    virtual void decode(l1t::HGCFETriggerDigi& digi) override final {
+      if( dataIsSet_ ) {
+        edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
+          << "Data payload was already set for HGCTriggerFECodec: "
+          << this->name() << " overwriting current data!";
+      }
+      digi.decode(static_cast<const Impl&>(*this),data_);
+      dataIsSet_ = true;
+    }  
+    
+    virtual void setDataPayload(const Module& mod, 
+                                const HGCEEDigiCollection& ee, 
+                                const HGCHEDigiCollection& fh,
+                                const HGCHEDigiCollection& bh ) override final {
+      if( dataIsSet_ ) {
+        edm::LogWarning("HGCalTriggerFECodec|OverwritePayload")
+          << "Data payload was already set for HGCTriggerFECodec: "
+          << this->name() << " overwriting current data!";
+      }
+      static_cast<Impl&>(*this).setDataPayloadImpl(mod,ee,fh,bh);
+      dataIsSet_ = true;
+    }
+
+    virtual void unSetDataPayload() override final {
+      memset(&data_,0,sizeof(DATA));
+      dataIsSet_ = false;
+    }
+    std::vector<bool> getDataPayload() const override final { 
+      return this->encode(data_); 
+    }
+        
+    std::vector<bool> encode(const DATA& data) const {
+      return static_cast<const Impl&>(*this).encodeImpl(data);
+    }
+
+    DATA decode(const std::vector<bool>& data) const {
+      return static_cast<const Impl&>(*this).decodeImpl(data);
+    }    
+
+  protected:    
+    DATA data_;
+  private:
+    bool dataIsSet_;
+  };
+}
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 typedef edmplugin::PluginFactory< HGCalTriggerFECodecBase* (const edm::ParameterSet&) > HGCalTriggerFECodecFactory;
