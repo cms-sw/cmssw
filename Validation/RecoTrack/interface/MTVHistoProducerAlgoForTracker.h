@@ -42,7 +42,9 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   void fill_recoAssociated_simTrack_histos(int count,
 					   const TrackingParticle& tp,
 					   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
-					   double dxy, double dz, int nSimHits,
+					   double dxy, double dz,
+                                           double dxyPV, double dzPV,
+                                           int nSimHits,
                                            int nSimLayers, int nSimPixelLayers, int nSimStripMonoAndStereoLayers,
 					   const reco::Track* track,
 					   int numVertices,
@@ -160,6 +162,8 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi, h_pileupphi;
   std::vector<MonitorElement*> h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy, h_pileupdxy;
   std::vector<MonitorElement*> h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_pileupdz;
+  std::vector<MonitorElement*> h_recodxypv, h_assocdxypv, h_assoc2dxypv, h_simuldxypv, h_looperdxypv, h_misiddxypv, h_pileupdxypv;
+  std::vector<MonitorElement*> h_recodzpv, h_assocdzpv, h_assoc2dzpv, h_simuldzpv, h_looperdzpv, h_misiddzpv, h_pileupdzpv;
 
   std::vector<MonitorElement*> h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
   std::vector<MonitorElement*> h_assocdr, h_assoc2dr, h_simuldr, h_recodr, h_pileupdr;

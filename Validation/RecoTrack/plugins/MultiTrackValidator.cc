@@ -252,6 +252,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   }
 
   const reco::Vertex::Point *thePVposition = nullptr;
+  const TrackingVertex::LorentzVector *theSimPVPosition = nullptr;
   if(doPlotsOnlyForTruePV_ || doPVAssociationPlots_) {
     edm::Handle<TrackingVertexCollection> htv;
     event.getByToken(label_tv, htv);
@@ -269,6 +270,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       if(pvFound != v_r2s.end()) {
         if(doPVAssociationPlots_) {
           thePVposition = &(pvPtr->position());
+          theSimPVPosition = &(pvFound->val[0].first->position());
         }
       }
       else if(doPlotsOnlyForTruePV_)
@@ -517,6 +519,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	double dxySim(0);
 	double dzSim(0);
+        double dxyPVSim = 0;
+        double dzPVSim = 0;
 	double dR=dR_tPCeff[iTP];
 
 	//---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
@@ -531,6 +535,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
 	    dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2())
 	      * momentum.z()/sqrt(momentum.perp2());
+
+            if(theSimPVPosition) {
+              // As in TrackBase::dxy(Point) and dz(Point)
+              dxyPVSim = -(vertex.x()-theSimPVPosition->x())*sin(momentum.phi()) + (vertex.y()-theSimPVPosition->y())*cos(momentum.phi());
+              dzPVSim = vertex.z()-theSimPVPosition->z() - ( (vertex.x()-theSimPVPosition->x()) + (vertex.y()-theSimPVPosition->y()) )/sqrt(momentum.perp2()) * momentum.z()/sqrt(momentum.perp2());
+            }
 	  }
 	//If the TrackingParticle is comics, get the momentum and vertex at PCA
 	else
@@ -540,6 +550,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    dxySim = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
 	    dzSim = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2())
 	      * momentumTP.z()/sqrt(momentumTP.perp2());
+
+            // Do dxy and dz vs. PV make any sense for cosmics? I guess not
 	  }
 	//---------- THE PART ABOVE HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 
@@ -587,7 +599,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimLayers = nLayers_tPCeff[tpr];
         int nSimPixelLayers = nPixelLayers_tPCeff[tpr];
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
-        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition);
+        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition);
           sts++;
           if(matchedTrackPointer)
             asts++;

@@ -277,7 +277,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	}
 
 	double dR=0;//fixme: plots vs dR not implemented for now
-	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,tp->momentum(),tp->vertex(),dxySim,dzSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,
+	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,tp->momentum(),tp->vertex(),dxySim,dzSim,0,0,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,
 								matchedTrackPointer,puinfo.getPU_NumInteractions(),dR, nullptr);
 
 	sts++;
