@@ -367,11 +367,5 @@ def customise_Reco(process,pileup):
     process.templates.DoLorentz=False
     process.templates.LoadTemplatesFromDB = cms.bool(False)
     process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
-    process.GlobalTag.toGet = cms.VPSet(
-        cms.PSet(record = cms.string("SiPixelLorentzAngleRcd"),
-                 tag = cms.string("SiPixelLorentzAngle_0_106_612_slhc1_mc"),
-                 connect = cms.string("frontier://FrontierProd/CMS_COND_31X_PIXEL")
-                 )
-        )
 
     return process
