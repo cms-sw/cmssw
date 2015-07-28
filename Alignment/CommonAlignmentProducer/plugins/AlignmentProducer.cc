@@ -640,6 +640,8 @@ void AlignmentProducer::simpleMisalignment_(const Alignables &alivec, const std:
 //__________________________________________________________________________________________________
 void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
 {
+   edm::ESTransientHandle<DDCompactView> cpv;
+   iSetup.get<IdealGeometryRecord>().get( cpv );
 
    if (doTracker_) {
      edm::ESHandle<GeometricDet> geometricDet;
@@ -649,9 +651,6 @@ void AlignmentProducer::createGeometries_( const edm::EventSetup& iSetup )
    }
 
    if (doMuon_) {
-     edm::ESTransientHandle<DDCompactView> cpv;
-     iSetup.get<IdealGeometryRecord>().get( cpv );
-
      edm::ESHandle<MuonDDDConstants> mdc;
      iSetup.get<MuonNumberingRecord>().get(mdc);
      DTGeometryBuilderFromDDD DTGeometryBuilder;
