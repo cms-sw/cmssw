@@ -7,22 +7,32 @@
 namespace edm {
   class ConfigurationDescriptions;
   class ParameterSet;
+  class ActivityRegistry;
 
   namespace service {
     class InitRootHandlers : public RootHandlers {
 
+      friend int cmssw_stacktrace(void *);
+
     public:
-      explicit InitRootHandlers(ParameterSet const& pset);
+      explicit InitRootHandlers(ParameterSet const& pset, ActivityRegistry& iReg);
       virtual ~InitRootHandlers();
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
     private:
+      static char *const *getPstackArgv();
       virtual void enableWarnings_() override;
       virtual void ignoreWarnings_() override;
       virtual void willBeUsingThreads() override;
       virtual void initializeThisThreadForUse() override;
 
+      void cachePidInfoHandler(unsigned int, unsigned int) {cachePidInfo();}
+      void cachePidInfo();
+
+      static const int pidStringLength_ = 200;
+      static char pidString_[pidStringLength_];
+      static char * const pstackArgv_[];
       bool unloadSigHandler_;
       bool resetErrHandler_;
       bool loadAllDictionaries_;
