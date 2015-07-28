@@ -34,8 +34,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-//#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+//#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -66,8 +66,8 @@
 
 //#define DebugLog
 
-//class HcalIsoTrkAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
-class HcalIsoTrkAnalyzer : public edm::EDAnalyzer {
+class HcalIsoTrkAnalyzer : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::SharedResources> {
+  //class HcalIsoTrkAnalyzer : public edm::EDAnalyzer {
 
 public:
   explicit HcalIsoTrkAnalyzer(edm::ParameterSet const&);
@@ -129,7 +129,7 @@ private:
 HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) : 
   nRun_(0) {
 
-  //usesResource("TFileService");
+  usesResource("TFileService");
 
   //now do whatever initialization is needed
   const double isolationRadius(28.9);
