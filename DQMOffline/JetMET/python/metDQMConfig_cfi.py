@@ -139,7 +139,7 @@ pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
 #both CaloMET and type1 MET only cleaned plots are filled
 pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
     METType=cms.untracked.string('pf'),
-    METCollectionLabel     = cms.InputTag("pfMetT1"),
+    METCollectionLabel     = cms.InputTag("pfMETT1"),
     srcPFlow = cms.InputTag('particleFlow', ''),
     JetCollectionLabel  = cms.InputTag("ak4PFJetsCHS"),
     JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),

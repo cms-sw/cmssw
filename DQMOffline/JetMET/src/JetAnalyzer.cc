@@ -1916,39 +1916,39 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if(Thiscleaned && pass_corrected){
 	if(fabs(correctedJet.eta()) <= 1.3) {
 	  if(correctedJet.pt()<=50.){
-	    mMVAPUJIDDiscriminant_lowPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel"]; if(mMVAPUJIDDiscriminant_lowPt_Barrel && mMVAPUJIDDiscriminant_lowPt_Barrel->getRootObject()) mMVAPUJIDDiscriminant_lowPt_Barrel->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));  
+	    mMVAPUJIDDiscriminant_lowPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel"]; if(mMVAPUJIDDiscriminant_lowPt_Barrel && mMVAPUJIDDiscriminant_lowPt_Barrel->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_lowPt_Barrel->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); } 
 	  }
 	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
-	    mMVAPUJIDDiscriminant_mediumPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Barrel"]; if(mMVAPUJIDDiscriminant_mediumPt_Barrel && mMVAPUJIDDiscriminant_mediumPt_Barrel->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_Barrel->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	    mMVAPUJIDDiscriminant_mediumPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Barrel"]; if(mMVAPUJIDDiscriminant_mediumPt_Barrel && mMVAPUJIDDiscriminant_mediumPt_Barrel->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_mediumPt_Barrel->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); }
 	  }
 	  if(correctedJet.pt()>140.){
-	    mMVAPUJIDDiscriminant_highPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Barrel"]; if(mMVAPUJIDDiscriminant_highPt_Barrel && mMVAPUJIDDiscriminant_highPt_Barrel->getRootObject()) mMVAPUJIDDiscriminant_highPt_Barrel->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	    mMVAPUJIDDiscriminant_highPt_Barrel=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Barrel"]; if(mMVAPUJIDDiscriminant_highPt_Barrel && mMVAPUJIDDiscriminant_highPt_Barrel->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_highPt_Barrel->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); }
 	  }
 	  mCHFracVSpT_Barrel = map_of_MEs[DirName+"/"+"CHFracVSpT_Barrel"]; if(mCHFracVSpT_Barrel && mCHFracVSpT_Barrel->getRootObject()) mCHFracVSpT_Barrel->Fill(correctedJet.pt(),(*patJets)[ijet].chargedHadronEnergyFraction());
 	  mNHFracVSpT_Barrel = map_of_MEs[DirName+"/"+"NHFracVSpT_Barrel"];if (mNHFracVSpT_Barrel && mNHFracVSpT_Barrel->getRootObject()) mNHFracVSpT_Barrel->Fill(correctedJet.pt(),(*patJets)[ijet].neutralHadronEnergyFraction());
 	  mPhFracVSpT_Barrel = map_of_MEs[DirName+"/"+"PhFracVSpT_Barrel"];if (mPhFracVSpT_Barrel && mPhFracVSpT_Barrel->getRootObject()) mPhFracVSpT_Barrel->Fill(correctedJet.pt(),(*patJets)[ijet].neutralEmEnergyFraction());
 	}else if(fabs(correctedJet.eta()) <= 3) {
 	  if(correctedJet.pt()<=50.){
-	    mMVAPUJIDDiscriminant_lowPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap"]; if(mMVAPUJIDDiscriminant_lowPt_EndCap && mMVAPUJIDDiscriminant_lowPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_lowPt_EndCap->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));  
+	    mMVAPUJIDDiscriminant_lowPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap"]; if(mMVAPUJIDDiscriminant_lowPt_EndCap && mMVAPUJIDDiscriminant_lowPt_EndCap->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_lowPt_EndCap->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); } 
 	  }
 	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
-	    mMVAPUJIDDiscriminant_mediumPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap"]; if(mMVAPUJIDDiscriminant_mediumPt_EndCap && mMVAPUJIDDiscriminant_mediumPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_EndCap->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	    mMVAPUJIDDiscriminant_mediumPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap"]; if(mMVAPUJIDDiscriminant_mediumPt_EndCap && mMVAPUJIDDiscriminant_mediumPt_EndCap->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_mediumPt_EndCap->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); }
 	  }
 	  if(correctedJet.pt()>140.){
-	    mMVAPUJIDDiscriminant_highPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_EndCap"]; if(mMVAPUJIDDiscriminant_highPt_EndCap && mMVAPUJIDDiscriminant_highPt_EndCap->getRootObject()) mMVAPUJIDDiscriminant_highPt_EndCap->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	    mMVAPUJIDDiscriminant_highPt_EndCap=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_EndCap"]; if(mMVAPUJIDDiscriminant_highPt_EndCap && mMVAPUJIDDiscriminant_highPt_EndCap->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_highPt_EndCap->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); }
 	  }
 	  mCHFracVSpT_EndCap = map_of_MEs[DirName+"/"+"CHFracVSpT_EndCap"]; if(mCHFracVSpT_EndCap && mCHFracVSpT_EndCap->getRootObject()) mCHFracVSpT_EndCap->Fill(correctedJet.pt(),(*patJets)[ijet].chargedHadronEnergyFraction());
 	  mNHFracVSpT_EndCap = map_of_MEs[DirName+"/"+"NHFracVSpT_EndCap"];if (mNHFracVSpT_EndCap && mNHFracVSpT_EndCap->getRootObject()) mNHFracVSpT_EndCap->Fill(correctedJet.pt(),(*patJets)[ijet].neutralHadronEnergyFraction());
 	  mPhFracVSpT_EndCap = map_of_MEs[DirName+"/"+"PhFracVSpT_EndCap"];if (mPhFracVSpT_EndCap && mPhFracVSpT_EndCap->getRootObject()) mPhFracVSpT_EndCap->Fill(correctedJet.pt(),(*patJets)[ijet].neutralEmEnergyFraction());
 	}else if(fabs(correctedJet.eta()) <= 5) {
 	  if(correctedJet.pt()<=50.){
-	    mMVAPUJIDDiscriminant_lowPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Forward"]; if(mMVAPUJIDDiscriminant_lowPt_Forward && mMVAPUJIDDiscriminant_lowPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_lowPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));  
+	    mMVAPUJIDDiscriminant_lowPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Forward"]; if(mMVAPUJIDDiscriminant_lowPt_Forward && mMVAPUJIDDiscriminant_lowPt_Forward->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_lowPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); } 
 	  }
 	  if (correctedJet.pt()>50. && correctedJet.pt()<=140.) {
-	    mMVAPUJIDDiscriminant_mediumPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Forward"]; if(mMVAPUJIDDiscriminant_mediumPt_Forward && mMVAPUJIDDiscriminant_mediumPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_mediumPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	    mMVAPUJIDDiscriminant_mediumPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Forward"]; if(mMVAPUJIDDiscriminant_mediumPt_Forward && mMVAPUJIDDiscriminant_mediumPt_Forward->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_mediumPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));} 
 	  }
 	  if(correctedJet.pt()>140.){
-	    mMVAPUJIDDiscriminant_highPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Forward"]; if(mMVAPUJIDDiscriminant_highPt_Forward && mMVAPUJIDDiscriminant_highPt_Forward->getRootObject()) mMVAPUJIDDiscriminant_highPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant")); 
+	    mMVAPUJIDDiscriminant_highPt_Forward=map_of_MEs[DirName+"/"+"MVAPUJIDDiscriminant_highPt_Forward"]; if(mMVAPUJIDDiscriminant_highPt_Forward && mMVAPUJIDDiscriminant_highPt_Forward->getRootObject()){if((*patJets)[ijet].hasUserFloat("pileupJetId:fullDiscriminant"))  mMVAPUJIDDiscriminant_highPt_Forward->Fill( (*patJets)[ijet].userFloat("pileupJetId:fullDiscriminant"));} 
 	  }
 	  mHFHFracVSpT_Forward = map_of_MEs[DirName+"/"+"HFHFracVSpT_Forward"]; if (mHFHFracVSpT_Forward && mHFHFracVSpT_Forward->getRootObject())    mHFHFracVSpT_Forward->Fill(correctedJet.pt(),(*patJets)[ijet].HFHadronEnergyFraction ());	
 	  mHFEFracVSpT_Forward = map_of_MEs[DirName+"/"+"HFEFracVSpT_Forward"]; if (mHFEFracVSpT_Forward && mHFEFracVSpT_Forward->getRootObject())    mHFEFracVSpT_Forward->Fill (correctedJet.pt(),(*patJets)[ijet].HFEMEnergyFraction ());

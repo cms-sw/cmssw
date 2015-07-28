@@ -24,8 +24,18 @@ newAK4PFL1FastL2L3CorrectorChain = cms.Sequence(
 
 metPreValidSeq=cms.Sequence(ak4PFL1FastjetCorrector * ak4PFL2RelativeCorrector * ak4PFL3AbsoluteCorrector)
 
+valCorrPfMetType1=corrPfMetType1.clone(jetCorrLabel = cms.InputTag('newAK4PFL1FastL2L3Corrector'))
 
-corrPfMetType1.jetCorrLabel = cms.InputTag('newAK4PFL1FastL2L3Corrector')
+PfMetT1=pfMetT1.clone(srcCorrections = cms.VInputTag(
+        cms.InputTag('valCorrPfMetType1', 'type1')
+        ))
+
+PfMetT0pcT1=pfMetT0pcT1.clone(
+    srcCorrections = cms.VInputTag(
+        cms.InputTag('corrPfMetType0PfCand'),
+        cms.InputTag('valCorrPfMetType1', 'type1')
+        )
+    )
 
 METRelValSequence = cms.Sequence(
     metAnalyzer*
@@ -44,11 +54,11 @@ METRelValSequence = cms.Sequence(
     #genMetCaloAndNonPromptAnalyzer
     correctionTermsPfMetType0PFCandidateForValidation*
     newAK4PFL1FastL2L3CorrectorChain*
-    corrPfMetType1*
+    valCorrPfMetType1*
     #pfchsMETcorr*
     pfMetT0pc*
-    pfMetT1*
-    pfMetT0pcT1*
+    PfMetT1*
+    PfMetT0pcT1*
     pfType0CorrectedMetAnalyzer*
     pfType1CorrectedMetAnalyzer*
     pfType01CorrectedMetAnalyzer
@@ -72,11 +82,11 @@ METValidation = cms.Sequence(
     #genMetCaloAndNonPromptAnalyzer
     correctionTermsPfMetType0PFCandidateForValidation*
     newAK4PFL1FastL2L3CorrectorChain*
-    corrPfMetType1*
+    valCorrPfMetType1*
     #pfchsMETcorr*
     pfMetT0pc*
-    pfMetT1*
-    pfMetT0pcT1*
+    PfMetT1*
+    PfMetT0pcT1*
     pfType0CorrectedMetAnalyzer*
     pfType1CorrectedMetAnalyzer*
     pfType01CorrectedMetAnalyzer
