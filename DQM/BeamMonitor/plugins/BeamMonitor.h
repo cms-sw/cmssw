@@ -117,6 +117,8 @@ class BeamMonitor : public edm::EDAnalyzer {
 
     // MonitorElements:
     MonitorElement * h_nTrk_lumi;
+    MonitorElement * h_nVtx_lumi;
+    MonitorElement * h_nVtx_lumi_all;
     MonitorElement * h_d0_phi0;
     MonitorElement * h_trk_z0;
     MonitorElement * h_vx_vy;
