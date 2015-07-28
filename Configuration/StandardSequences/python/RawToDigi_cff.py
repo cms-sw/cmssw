@@ -16,7 +16,7 @@ import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
 gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
 
 import EventFilter.RctRawToDigi.l1RctHwDigis_cfi
-l1RctHwDigis = EventFilter.RctRawToDigi.l1RctHwDigis_cfi.l1RctHwDigis.clone()
+rctHwDigis = EventFilter.RctRawToDigi.l1RctHwDigis_cfi.l1RctHwDigis.clone()
 
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
@@ -58,7 +58,7 @@ tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
 RawToDigi = cms.Sequence(csctfDigis
                          +dttfDigis
-                         +l1RctHwDigis
+                         +rctHwDigis
                          +gctDigis
                          +gtDigis
                          +gtEvmDigis
@@ -92,7 +92,7 @@ RawToDigi_noTk = cms.Sequence(csctfDigis
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 csctfDigis.producer = 'rawDataCollector'
 dttfDigis.DTTF_FED_Source = 'rawDataCollector'
-l1RctHwDigis.inputLabel = 'rawDataCollector'
+rctHwDigis.inputLabel = 'rawDataCollector'
 gctDigis.inputLabel = 'rawDataCollector'
 gtDigis.DaqGtInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
