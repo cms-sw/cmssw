@@ -47,7 +47,7 @@ def extractPages(configFileFlag = False):
 # pages = {'PackageA' : [..], 'PackageB' : [...]}
 def extractPagesForPackage():
     # initial page, A
-    pages = {'A':[]}
+    pages = {}
     table = htmlPage.find('table', {'class' : tableClassName})
     for row in table.findAll('tr'):
         # first cell contains name of the package...
@@ -63,7 +63,7 @@ def extractPagesForPackage():
 def generateTab(items, curr, tabClass = 'tabs3'):
     itemTagMap = {}; tab = ''
     for item in items:
-        fn  = fileNameTemplate % item # generate file name
+        fn  = fileNameTemplate % item.replace(' ', '') # generate file name
         if item != curr: tab += '<li><a href="%s">%s</a></li>' % (fn, item)
         else: tab += '<li class="current"><a href="%s">%s</a></li>'%(fn, item)
     return '<div class="%s"><ul class="tablist">%s</ul></div>' % (tabClass,tab)
@@ -77,11 +77,7 @@ if __name__ == "__main__":
     htmlFullPath     = sys.argv[1]
     htmlFilePath     = os.path.split(htmlFullPath)[0]
     htmlFileName     = os.path.split(htmlFullPath)[1]
-    fileNameTemplate = htmlFileName.replace('.html', 'List_%s.html')
-    # since we have to provide backward compatibility, we must have
-    # namespaceList_{A,B,C...} instead of having namespacesList_{A,B,C..}
-    # (please notice the plural suffix). This is only valid for namespace files
-    fileNameTemplate = fileNameTemplate.replace('namespaces', 'namespace')
+    fileNameTemplate = htmlFileName.replace('.html', '_%s.html')
 
     # load the html page
     with open(htmlFullPath) as f:
@@ -94,7 +90,7 @@ if __name__ == "__main__":
     # list) and annotated.html (~class list) files, class names are the same
     # tabs2. this is why we are setting 'the destination tab class name' up
     # differently depending on the html file name.
-    if htmlFileName == 'pages.html':
+    if htmlFileName == 'packageDocumentation.html':
         pages = extractPagesForPackage()
         destTabClassName = 'tabs'
     elif htmlFileName == 'configfiles.html':
@@ -129,6 +125,6 @@ if __name__ == "__main__":
             table.append(row)
         # replace blank character with '_'. Please notice that you will not
         # be able to use original page name after this line.
-        page = page.replace(' ', '_')
+        page = page.replace(' ', '')
         with open('%s/%s'%(htmlFilePath, fileNameTemplate % page), 'w') as f:
             f.write(str(temp))

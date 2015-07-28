@@ -23,22 +23,27 @@ rm $DATA/Doxygen.conf.tmp
 
 cp -r $DATA/iframes $HTML/
 
-cp $HTML/index.html $HTML/index.html.original
+cp $HTML/index.html $HTML/index.original.html
 python $SCRIPTS/MainPageGenerator.py $HTML/index.html $DATA $CMSSW_VERSION
 
-cp $HTML/annotated.html $HTML/annotated.html.original
-python $SCRIPTS/TableParser.py $HTML/annotated.html
+# backup original pages
+cp $HTML/annotated.html $HTML/annotated.original.html
+cp $HTML/namespaces.html $HTML/namespaces.original.html
+cp $HTML/pages.html $HTML/pages.original.html
+
+cp $HTML/annotated.original.html $HTML/annotatedList.html
+python $SCRIPTS/TableParser.py $HTML/annotatedList.html
 cp $HTML/annotatedList_A.html $HTML/annotated.html
 
-cp $HTML/namespaces.html $HTML/namespaces.html.original
-python $SCRIPTS/TableParser.py $HTML/namespaces.html
+cp $HTML/namespaces.original.html $HTML/namespaceList.html
+python $SCRIPTS/TableParser.py $HTML/namespaceList.html
 cp $HTML/namespaceList_A.html $HTML/namespaces.html
 
-cp $HTML/pages.html $HTML/pages.html.original
-python $SCRIPTS/TableParser.py $HTML/pages.html
-cp $HTML/pagesList_A.html $HTML/pages.html
+cp $HTML/pages.original.html $HTML/packageDocumentation.html
+python $SCRIPTS/TableParser.py $HTML/packageDocumentation.html
+cp $HTML/packageDocumentation_All.html $HTML/pages.html
 
-cp $HTML/namespaces.html.original $HTML/configfiles.html
+cp $HTML/namespaces.html.original $HTML/configfilesList.html
 python $SCRIPTS/TableParser.py $HTML/configfiles.html
 cp $HTML/configfilesList_A.html $HTML/configfiles.html
 

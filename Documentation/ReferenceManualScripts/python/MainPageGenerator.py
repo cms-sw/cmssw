@@ -294,7 +294,7 @@ if __name__ == "__main__":
     with open("%s/index.html" % htmlFilePath, 'w') as f:
         f.write(bsBugFix())
 
-    print 'generating tree views...'
+    print 'generating domain pages...'
     # generate tree view pages
     for domain in tree:
         page  = generateTreeViewPage(tree[domain], domain)
