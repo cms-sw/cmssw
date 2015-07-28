@@ -53,6 +53,7 @@
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
@@ -138,7 +139,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   theAlignableNavigator = new AlignableNavigator(extras, tracker, muon);

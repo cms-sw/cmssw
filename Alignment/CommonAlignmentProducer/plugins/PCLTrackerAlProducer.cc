@@ -41,6 +41,9 @@
 /*** Geometry ***/
 #include "Geometry/TrackingGeometryAligner/interface/GeometryAligner.h"
 
+#include "CondFormats/GeometryObjects/interface/PTrackerParameters.h"
+#include "Geometry/Records/interface/PTrackerParametersRcd.h"
+
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeomBuilderFromGeometricDet.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -432,7 +435,7 @@ void PCLTrackerAlProducer
 {
   // Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  setup.get<IdealGeometryRecord>().get(tTopoHandle);
+  setup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   // Create the geometries from the ideal geometries (first time only)
@@ -484,8 +487,12 @@ void PCLTrackerAlProducer
     setup.get<IdealGeometryRecord>().get(geometricDet);
 
     TrackerGeomBuilderFromGeometricDet trackerBuilder;
+
+    edm::ESHandle<PTrackerParameters> ptp;
+    setup.get<PTrackerParametersRcd>().get( ptp );
+
     theTrackerGeometry = boost::shared_ptr<TrackerGeometry>(
-      trackerBuilder.build(&(*geometricDet), theParameterSet)
+        trackerBuilder.build(&(*geometricDet), *ptp )
     );
   }
 
