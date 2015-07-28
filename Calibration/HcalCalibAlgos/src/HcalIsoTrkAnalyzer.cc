@@ -34,7 +34,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+//#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -65,7 +66,8 @@
 
 //#define DebugLog
 
-class HcalIsoTrkAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+//class HcalIsoTrkAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
+class HcalIsoTrkAnalyzer : public edm::EDAnalyzer {
 
 public:
   explicit HcalIsoTrkAnalyzer(edm::ParameterSet const&);
@@ -76,8 +78,8 @@ public:
 private:
   virtual void analyze(edm::Event const&, edm::EventSetup const&) override;
   virtual void beginJob() ;
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-  virtual void endRun(edm::Run const&, edm::EventSetup const&);
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+  virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
  
@@ -91,7 +93,6 @@ private:
 		edm::Handle<HBHERecHitCollection>& hbhe);
   double dR(math::XYZTLorentzVector&, math::XYZTLorentzVector&);
 
-  bool                          changed_;
   unsigned int                  nRun_;
   edm::Service<TFileService>    fs;
   HLTConfigProvider             hltConfig_;
@@ -126,9 +127,10 @@ private:
 };
 
 HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) : 
-  changed_(false), nRun_(0) {
+  nRun_(0) {
 
-  usesResource("TFileService");
+  //usesResource("TFileService");
+
   //now do whatever initialization is needed
   const double isolationRadius(28.9);
   trigNames_                          = iConfig.getParameter<std::vector<std::string> >("Triggers");
@@ -218,8 +220,9 @@ HcalIsoTrkAnalyzer::HcalIsoTrkAnalyzer(const edm::ParameterSet& iConfig) :
   edm::LogInfo("HcalIsoTrack") << "Process " << processName_ << " L1Filter:" 
 			       << l1Filter_ << " L2Filter:" << l2Filter_
 			       << " L3Filter:" << l3Filter_;
-  for (unsigned int k=0; k<trigNames_.size(); ++k)
+  for (unsigned int k=0; k<trigNames_.size(); ++k) {
     edm::LogInfo("HcalIsoTrack") << "Trigger[" << k << "] " << trigNames_[k];
+  }
 }
 
 HcalIsoTrkAnalyzer::~HcalIsoTrkAnalyzer() { }
@@ -269,8 +272,9 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   }
 #ifdef DebugLog
   edm::LogInfo("HcalIsoTrack") << "Primary Vertex " << leadPV;
-  if (beamSpotH.isValid()) edm::LogInfo("HcalIsoTrack") << "Beam Spot " 
-							<< beamSpotH->position();
+  if (beamSpotH.isValid()) {
+    edm::LogInfo("HcalIsoTrack") << " Beam Spot " << beamSpotH->position();
+  }
 #endif  
   // RecHits
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
@@ -456,10 +460,12 @@ void HcalIsoTrkAnalyzer::beginJob() {
 
 
 // ------------ method called when starting to processes a run  ------------
-void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, 
-				  edm::EventSetup const& iSetup) {
+void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
+  bool changed_(true);
+  bool flag =  hltConfig_.init(iRun,iSetup,processName_,changed_);
   edm::LogInfo("HcalIsoTrack") << "Run[" << nRun_ << "] " << iRun.run() 
-			       << " hltconfig.init " << hltConfig_.init(iRun,iSetup,processName_,changed_);
+			       << " process " << processName_ << " init flag "
+			       << flag << " change flag " << changed_;
 
   // check if trigger names in (new) config                       
   if (changed_) {
@@ -470,15 +476,16 @@ void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun,
     const unsigned int n(hltConfig_.size());
     for (unsigned itrig=0; itrig<trigNames_.size(); itrig++) {
       unsigned int triggerindx = hltConfig_.triggerIndex(trigNames_[itrig]);
-      if (triggerindx >= n)
+      if (triggerindx >= n) {
 	edm::LogWarning("HcalIsoTrack") << trigNames_[itrig] << " " 
 					<< triggerindx << " does not exist in "
 					<< "the current menu";
 #ifdef DebugLog
-      else
+      } else {
 	edm::LogInfo("HcalIsoTrack") << trigNames_[itrig] << " " 
 				     << triggerindx << " exists";
 #endif
+      }
     }
   }
 }
@@ -605,9 +612,10 @@ void HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 	  t_hmaxNearP<eIsolation_) {
 	tree->Fill();
 #ifdef DebugLog
-	for (unsigned int k=0; k<t_trgbits->size(); k++) 
+	for (unsigned int k=0; k<t_trgbits->size(); k++) {
 	  edm::LogInfo("HcalIsoTrack") << "trigger bit is  = " 
 				       << t_trgbits->at(k);
+	}
 #endif
       }
     }
