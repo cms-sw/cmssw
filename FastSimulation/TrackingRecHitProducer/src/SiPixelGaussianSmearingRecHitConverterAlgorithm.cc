@@ -100,6 +100,7 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
      throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm :")
        <<"Not a pixel detector"<<endl;
   std::cout << "end P SiPixelGaussianSmearingRecHitConverterAlgorithm"<< std::endl;
+  std::cout << "I'm really here?" << std::endl;
 }
 
 SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitConverterAlgorithm()
@@ -556,7 +557,7 @@ bool SiPixelGaussianSmearingRecHitConverterAlgorithm::isFlipped(const PixelGeomD
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeBarrel()
 {
-  std::cout << "P initializeBarrel"<< std::endl;
+  std::cout << "P initializeBarrel inside spgs"<< std::endl;
   //Hard coded at the moment, can easily be changed to be configurable
   rescotAlpha_binMin = -0.2;
   rescotAlpha_binWidth = 0.08 ;
@@ -633,7 +634,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeBarrel()
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeForward()
 {
-  std::cout << "P initializeForward"<< std::endl;
+  std::cout << "P initializeForward inside spgs"<< std::endl;
   //Hard coded at the moment, can easily be changed to be configurable
   rescotAlpha_binMin = 0.1;
   rescotAlpha_binWidth = 0.1 ;
