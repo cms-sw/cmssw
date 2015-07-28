@@ -33,7 +33,9 @@ class MTVHistoProducerAlgo{
 
   virtual void bookSimHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookSimTrackHistos(DQMStore::IBooker& ibook)=0;
+  virtual void bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecoHistos(DQMStore::IBooker& ibook)=0;
+  virtual void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecodEdxHistos(DQMStore::IBooker& ibook)=0;
 
   virtual void fill_generic_simTrack_histos(const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx)=0;

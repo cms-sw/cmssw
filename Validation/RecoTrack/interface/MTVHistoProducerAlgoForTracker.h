@@ -31,7 +31,9 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   void bookSimHistos(DQMStore::IBooker& ibook) override;
   void bookSimTrackHistos(DQMStore::IBooker& ibook) override;
+  void bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook) override;
   void bookRecoHistos(DQMStore::IBooker& ibook) override;
+  void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook) override;
   void bookRecodEdxHistos(DQMStore::IBooker& ibook) override;
 
 
