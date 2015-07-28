@@ -9,8 +9,9 @@ import PhysicsTools.HeppyCore.framework.config as cfg
 
 from CMGTools.TTHAnalysis.analyzers.susyCore_modules_cff import *
 
-
 #-------- REDEFINE WHAT I NEED -----------
+
+SOS = False ## switch True to overwrite settings for SOS skim (N.B. default settings are those from multilepton preselection)
 
 # Lepton Skimming
 ttHLepSkim.minLeptons = 2
@@ -23,11 +24,34 @@ lepAna.doMiniIsolation = True
 lepAna.packedCandidates = 'packedPFCandidates'
 lepAna.miniIsolationPUCorr = 'rhoArea'
 lepAna.miniIsolationVetoLeptons = None # use 'inclusive' to veto inclusive leptons and their footprint in all isolation cones
-    
+
 # Lepton Preselection
 lepAna.loose_electron_id = "POG_MVA_ID_Run2_NonTrig_VLoose"
-
 isolation = "miniIso"
+
+if SOS == True:
+## -- SOS preselection settings ---
+
+    # Lepton Skimming
+    ttHLepSkim.minLeptons = 2
+    ttHLepSkim.maxLeptons = 999
+    ttHLepSkim.ptCuts = [5,3]
+    
+    # Jet-Met Skimming
+    ttHJetMETSkim.jetPtCuts = [100,]
+    ttHJetMETSkim.metCut    = 100
+
+    # Lepton Preselection
+    lepAna.inclusive_muon_pt  = 3
+    lepAna.loose_muon_pt  = 3
+    lepAna.inclusive_electron_pt  = 5
+    lepAna.loose_electron_pt  = 5
+    isolation = "absIso03"
+
+    # Lepton-Jet Cleaning
+    jetAna.minLepPt = 20 
+    # otherwise with only absIso cut at 10 GeV and no relIso we risk cleaning away good jets
+
 #isolation = "ptRel"
 if isolation == "ptRel": 
     # delay isolation cut for leptons of pt > 10, for which we do pTrel recovery
@@ -54,6 +78,11 @@ elif isolation == "miniIso":
 elif isolation == None:
     lepAna.loose_muon_isoCut     = lambda muon : True
     lepAna.loose_electron_isoCut = lambda elec : True
+elif isolation == "absIso03":
+    lepAna.loose_muon_absIso = 10.0
+    lepAna.loose_electron_relIso = 99.0
+    lepAna.loose_muon_relIso = 99.0
+    lepAna.loose_electron_absIso = 10.0
 else:
     # nothing to do, will use normal relIso03
     pass
@@ -154,6 +183,9 @@ triggerFlagsAna.triggerBits = {
     'DoubleMu_8TeV' : triggers_mumu_8TeV + triggers_mumu_run1,
     'MuEG_8TeV'     : triggers_mue_8TeV + triggers_mue_run1,
     'DoubleEl_8TeV' : triggers_ee_8TeV + triggers_ee_run1,
+    'MonoJet80MET90' : triggers_SOS_Jet80MET90,
+    'MonoJet80MET120' : triggers_SOS_Jet80MET120,
+    'METMu5' : triggers_SOS_MET120Mu5,
 }
 
 from CMGTools.RootTools.samples.samples_13TeV_74X import *
@@ -172,35 +204,43 @@ if False: # select only a subset of a sample, corresponding to a given luminosit
         c.files = c.files[:nfiles]
         c.splitFactor = len(c.files)
 
-if False: # For running on data
-    json = None; 
+if True: # For running on data
+    json = "/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/DCSOnly/json_DCSONLY_Run2015B.txt"; 
     processing = "Run2015B-PromptReco-v1"; short = "Run2015B_v1"; 
-    run_ranges = [ (251244,251244), (251251,251252), (251559,251562), (251636,251636), (251638,251638), (251640,251640), (251643,251643), (251721,251721), (251883,251883) ]
+    run_ranges = [ (251027, 251883) ]
+    #run_ranges = [ (251244,251244), (251251,251252), (251559,251562), (251636,251636), (251638,251638), (251640,251640), (251643,251643), (251721,251721), (251883,251883) ]
     DatasetsAndTriggers = []
-    DatasetsAndTriggers.append( ("DoubleMuon", triggers_mumu_iso + triggers_mumu_ss + triggers_mumu_ht + triggers_3mu + triggers_3mu_alt) )
-    DatasetsAndTriggers.append( ("DoubleEG",   triggers_ee + triggers_ee_ht + triggers_3e) )
-    DatasetsAndTriggers.append( ("MuonEG",     triggers_mue + triggers_mue_ht + triggers_2mu1e + triggers_2e1mu) )
-    DatasetsAndTriggers.append( ("SingleMuon", triggers_1mu_iso + triggers_1mu_iso_50ns + triggers_1mu_noniso) )
-    DatasetsAndTriggers.append( ("SingleElectron", triggers_1e + triggers_1e_50ns) )
-    selectedComponents = []; vetos = []
-    if False: # for fake rate measurements in data
-        lepAna.loose_muon_dxy = 999
-        lepAna.loose_electron_dxy = 999
-        ttHLepSkim.minLeptons = 1
-        FRTrigs = triggers_FR_1mu_iso + triggers_FR_1mu_noiso + triggers_FR_1e_noiso + triggers_FR_1e_iso
-        for t in FRTrigs:
-            tShort = t.replace("HLT_","FR_").replace("_v*","")
-            triggerFlagsAna.triggerBits[tShort] = [ t ]
-        FRTrigs_mu = triggers_FR_1mu_iso + triggers_FR_1mu_noiso
-        FRTrigs_el = triggers_FR_1e_noiso + triggers_FR_1e_iso
-        for pd,trig in DatasetsAndTriggers:
-            if pd in ['DoubleMuon','SingleMuon']:
-                trig.extend(FRTrigs_mu)
-            elif pd in ['DoubleEG','SingleElectron']:
-                trig.extend(FRTrigs_el)
-            else:
-                print 'the strategy for trigger selection on MuonEG for FR studies should yet be implemented'
-                assert(False)
+    selectedComponents = []; vetos = []  
+ 
+    if SOS == True:
+        DatasetsAndTriggers.append( ("MET", triggers_SOS_Jet80MET90 + triggers_SOS_Jet80MET120 + triggers_SOS_MET120Mu5 ) )
+        #DatasetsAndTriggers.append( ("SingleMuon", triggers_1mu_iso + triggers_1mu_iso_50ns + triggers_1mu_noniso) )
+    else:
+        DatasetsAndTriggers.append( ("DoubleMuon", triggers_mumu_iso + triggers_mumu_ss + triggers_mumu_ht + triggers_3mu + triggers_3mu_alt) )
+        DatasetsAndTriggers.append( ("DoubleEG",   triggers_ee + triggers_ee_ht + triggers_3e) )
+        DatasetsAndTriggers.append( ("MuonEG",     triggers_mue + triggers_mue_ht + triggers_2mu1e + triggers_2e1mu) )
+        DatasetsAndTriggers.append( ("SingleMuon", triggers_1mu_iso + triggers_1mu_iso_50ns + triggers_1mu_noniso) )
+        DatasetsAndTriggers.append( ("SingleElectron", triggers_1e + triggers_1e_50ns) )
+
+        if False: # for fake rate measurements in data
+            lepAna.loose_muon_dxy = 999
+            lepAna.loose_electron_dxy = 999
+            ttHLepSkim.minLeptons = 1
+            FRTrigs = triggers_FR_1mu_iso + triggers_FR_1mu_noiso + triggers_FR_1e_noiso + triggers_FR_1e_iso
+            for t in FRTrigs:
+                tShort = t.replace("HLT_","FR_").replace("_v*","")
+                triggerFlagsAna.triggerBits[tShort] = [ t ]
+                FRTrigs_mu = triggers_FR_1mu_iso + triggers_FR_1mu_noiso
+                FRTrigs_el = triggers_FR_1e_noiso + triggers_FR_1e_iso
+                for pd,trig in DatasetsAndTriggers:
+                    if pd in ['DoubleMuon','SingleMuon']:
+                        trig.extend(FRTrigs_mu)
+                    elif pd in ['DoubleEG','SingleElectron']:
+                        trig.extend(FRTrigs_el)
+                    else:
+                        print 'the strategy for trigger selection on MuonEG for FR studies should yet be implemented'
+                        assert(False)
+                        
     for pd,triggers in DatasetsAndTriggers:
         for run_range in run_ranges:
             label = "runs_%d_%d" % run_range if run_range[0] != run_range[1] else "run_%d" % (run_range[0],)
