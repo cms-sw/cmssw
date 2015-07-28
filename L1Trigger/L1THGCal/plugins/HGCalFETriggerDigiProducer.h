@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
 
 #include <memory>
 
@@ -26,7 +27,7 @@ class HGCalFETriggerDigiProducer : public edm::EDProducer {
   edm::EDGetToken inputee_, inputfh_, inputbh_;
   // algorithm containers
   std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_;
-  
+  std::unique_ptr<HGCalTriggerFECodecBase> codec_;
 };
 
 DEFINE_FWK_MODULE(HGCalFETriggerDigiProducer);

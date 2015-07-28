@@ -47,6 +47,8 @@ class HGCalTriggerFECodecBase {
   // these will yell at you if you haven't set the data in the Codec class
   virtual void encode(l1t::HGCFETriggerDigi&) = 0;
   virtual void decode(l1t::HGCFETriggerDigi&) = 0;
+  virtual void print(const l1t::HGCFETriggerDigi& digi,
+                     std::ostream& out = std::cout) const = 0;
 
  private:
   const std::string name_;
@@ -105,6 +107,11 @@ namespace HGCalTriggerFE {
       return this->encode(data_); 
     }
         
+    virtual void print(const l1t::HGCFETriggerDigi& digi,
+                       std::ostream& out = std::cout) const override final {
+      digi.print(static_cast<const Impl&>(*this),out);
+    }
+
     std::vector<bool> encode(const DATA& data) const {
       return static_cast<const Impl&>(*this).encodeImpl(data);
     }

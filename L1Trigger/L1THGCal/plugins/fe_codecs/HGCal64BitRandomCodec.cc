@@ -6,8 +6,15 @@
 using namespace HGCalTriggerFE;
 
 struct HGCal64BitRandomDataPayload {
+ 
   unsigned int payload;
 };
+
+std::ostream& operator<<(std::ostream& o, 
+                         const HGCal64BitRandomDataPayload& data) { 
+  o << std::hex << data.payload << std::dec;
+  return o;
+}
 
 class HGCal64BitRandomCodec : public Codec<HGCal64BitRandomCodec,HGCal64BitRandomDataPayload> {
 public:
