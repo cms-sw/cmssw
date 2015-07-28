@@ -439,6 +439,29 @@ Realistic50ns13TeVCollisionZeroTeslaVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.16867), # from fill 4008, absolute coordinates Y0 =  0.09714 [cm]. BPix position, absolute coordinates -0.0715252 [cm]. Final position  0.16867 [cm]. 
     Z0 = cms.double(-1.0985)  # from fill 4008, absolute coordinates Z0 = -1.610   [cm]. BPix position, absolute coordinates -0.511453  [cm]. Final position -1.0985  [cm].
 )
+
+# From 2015B 3.8T data
+# Centroid absolute positions extracted from fill 4008:
+# X =  0.07798 cm
+# Y =  0.09714 cm
+# Z = -1.610   cm
+#
+# BPIX absolute position extracted from PCL-like alignment run after magnet ramp-up:
+# X = -0.026837  cm
+# Y = -0.0715252 cm
+# Z = -0.511453  cm
+Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(65.0),
+    Emittance = cms.double(5.411e-08),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(5.3),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.10482),
+    Y0 = cms.double(0.16867),
+    Z0 = cms.double(-1.0985)
+)
+
 # Test HF offset
 ShiftedCollision2015VtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
