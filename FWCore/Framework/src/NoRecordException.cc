@@ -15,23 +15,25 @@
 // user include files
 #include "FWCore/Framework/interface/NoRecordException.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-
-void
-edm::eventsetup::no_record_exception_message_builder(cms::Exception& oException,const char* iName) {
-   oException
-   << "No \"" 
-   << iName
-   << "\" record found in the EventSetup.\n Please add an ESSource or ESProducer that delivers such a record.\n";
-}   
-
-void
-edm::eventsetup::no_dependent_record_exception_message_builder(cms::Exception& oException, const EventSetupRecordKey& iKey, const char* iName) {
-   oException
-   << "No \"" 
-   << iName
-   << "\" record found in the dependent record \""<<iKey.type().name()
-   << "\".\n Please add an ESSource or ESProducer that delivers the \""
-   << iName<<"\" record.";
+edm::IOVSyncValue const&
+edm::eventsetup::iovSyncValueFrom( EventSetup const& iES) {
+    return iES.iovSyncValue();
 }
+
+
+void
+edm::eventsetup::no_record_exception_message_builder(cms::Exception& oException,const char* iName, IOVSyncValue const& iValue) {
+   oException
+   << "No \"" 
+   << iName
+   << "\" record found in the EventSetup for IOV\n"
+   << "Run: "<<iValue.eventID().run()
+   <<" LuminosityBlock: "<<iValue.luminosityBlockNumber()
+   <<" Event: "<<iValue.eventID().event()
+   <<" Time: "<<iValue.time().value()
+   <<"\n Please add an ESSource or ESProducer that delivers such a record.\n";
+}   
