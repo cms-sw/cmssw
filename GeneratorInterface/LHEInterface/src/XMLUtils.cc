@@ -263,7 +263,6 @@ unsigned int StorageInputStream::readBytes(XMLByte* const buf, const unsigned in
         }
         buffLoc_=0;
         buffTotal_=rd;
-        std::cout << "Total buffer data read: " << buffTotal_ << std::endl;
         if (buffTotal_ == 0)
         {
             return 0;
@@ -295,7 +294,6 @@ unsigned int StorageInputStream::readBytes(XMLByte* const buf, const unsigned in
             // If this becomes problematic, we can make the buffer circular.
         if (!dataRead)
         {
-            std::cout << "Unable to decompress any bytes." << std::endl;
                 // NOTE: lstr.avail_in == buffTotal-buffLoc_
             in->position(-(IOOffset)(lstr.avail_in), Storage::CURRENT);
             buffLoc_ = 0;
@@ -304,7 +302,6 @@ unsigned int StorageInputStream::readBytes(XMLByte* const buf, const unsigned in
         }
         dataRead = (size - lstr.avail_out);
     }
-    //std::cout << "Read " << dataRead << " bytes into output buffer." << std::endl;
     return dataRead;
 }
 
