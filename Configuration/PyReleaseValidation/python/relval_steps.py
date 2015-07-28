@@ -947,7 +947,7 @@ steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd50ns,digiPremixUp2015Defaults50
 dataReco={ '--runUnscheduled':'',
           '--conditions':'auto:run1_data',
           '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM:@standardDQM+@miniAODDQM',
-          #'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM:@standardDQM+@miniAODDQM',  # re-vert if there are issues
+          #'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM:@standardDQM+@miniAODDQM',  # re-vert PAT away if there are issues
           '--datatier':'RECO,MINIAOD,DQMIO',
           '--eventcontent':'RECO,MINIAOD,DQM',
           '--data':'',
@@ -972,12 +972,10 @@ steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps[
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODAlCaCalo']=merge([{'--scenario':'pp',},dataRecoAlCaCalo])
 
-hltKey='fake' # TSG suggests  frozen50ns => try it later
-menu = autoHLT[hltKey]
+hltKey='frozen50ns'
+menuR2 = autoHLT[hltKey]
 
-
-# steps['HLTDR2']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey,},{'--conditions':'auto:run2_hlt_%s'%menu,},steps['HLTD'] ] )
-# no HLT customization for run2_hlt
+# no GT customization for HLT frozen50ns
 steps['HLTDR2']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey,},{'--conditions':'auto:run2_hlt',},steps['HLTD'] ] )
 
 steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data',},dataReco])
