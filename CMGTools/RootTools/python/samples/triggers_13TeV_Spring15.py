@@ -79,3 +79,9 @@ triggers_MT2_mue = triggers_mue
 
 triggers_MT2_mu = ["HLT_IsoMu17_eta2p1_v*","HLT_IsoMu20_eta2p1_v*", "HLT_IsoMu20_v*"]
 triggers_MT2_e = ["HLT_Ele23_WPLoose_Gsf_v*", "HLT_Ele27_eta2p1_WPLoose_Gsf_v*", "HLT_Ele32_eta2p1_WPLoose_Gsf_v*"]
+
+# RC: adding SOS triggers
+
+triggers_SOS_Jet80MET90 = ["HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v*"]
+triggers_SOS_Jet80MET120 = ["HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v*"]
+triggers_SOS_MET120Mu5 = ["HLT_PFMET120_NoiseCleaned_Mu5_v*"]
