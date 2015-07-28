@@ -584,7 +584,8 @@ testeventprocessor::serviceConfigSaveTest() {
                              "process.p1 = cms.Path(process.m1)\n");
 
    edm::EventProcessor proc(configuration, true);
-   edm::ParameterSet topPset(edm::getProcessParameterSet());
+   edm::ProcessConfiguration const& processConfiguration = proc.processConfiguration();
+   edm::ParameterSet const& topPset(edm::getParameterSet(processConfiguration.parameterSetID()));
    CPPUNIT_ASSERT(topPset.existsAs<edm::ParameterSet>("DummyStoreConfigService", true));
 }
 
