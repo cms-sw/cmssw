@@ -19,8 +19,9 @@ namespace boost { namespace spirit { namespace classic { } } } using namespace b
 
 using namespace boost::spirit;
 
-struct VectorMakeDouble
+class VectorMakeDouble
 {
+public:
   void operator() (char const* str, char const* end) const
     {
       ddlVector_->do_makeDouble(str, end);
@@ -29,12 +30,13 @@ struct VectorMakeDouble
   VectorMakeDouble() {
     ddlVector_ = dynamic_cast < DDLVector* > (DDLGlobalRegistry::instance().getElement("Vector"));
   }
-  
+private: 
   DDLVector * ddlVector_;
 };
 
-struct VectorMakeString
+class VectorMakeString
 {
+public:
   void operator() (char const* str, char const* end) const
     {
       ddlVector_->do_makeString(str, end);
@@ -43,7 +45,7 @@ struct VectorMakeString
   VectorMakeString() {
     ddlVector_ = dynamic_cast < DDLVector* > (DDLGlobalRegistry::instance().getElement("Vector"));
   }
-  
+private:
   DDLVector * ddlVector_;
 };
 
