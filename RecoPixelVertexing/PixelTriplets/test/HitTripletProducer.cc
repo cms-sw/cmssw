@@ -81,7 +81,7 @@ void HitTripletProducer::analyze(
 
 //  GlobalTrackingRegion region;
 
-  typedef std::vector<TrackingRegion* > Regions;
+  typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
   Regions regions = theRegionProducer->regions(ev,es);
   const TrackingRegion & region = *regions[0];
 

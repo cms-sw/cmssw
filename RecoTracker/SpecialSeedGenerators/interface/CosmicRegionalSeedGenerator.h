@@ -54,7 +54,7 @@ class CosmicRegionalSeedGenerator : public TrackingRegionProducer {
 
   virtual ~CosmicRegionalSeedGenerator() {}
   
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& event, const edm::EventSetup& es) const;
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& event, const edm::EventSetup& es) const override;
 
  private:
   edm::ParameterSet conf_;

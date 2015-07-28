@@ -49,12 +49,12 @@ class MuonTrackingRegionBuilder : public TrackingRegionProducer {
     virtual ~MuonTrackingRegionBuilder() {}
 
     /// Create Region of Interest
-    virtual std::vector<TrackingRegion* > regions(const edm::Event&, const edm::EventSetup&) const override;
+    virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event&, const edm::EventSetup&) const override;
   
     /// Define tracking region
-    RectangularEtaPhiTrackingRegion* region(const reco::TrackRef&) const;
-    RectangularEtaPhiTrackingRegion* region(const reco::Track& t) const { return region(t,*theEvent); }
-    RectangularEtaPhiTrackingRegion* region(const reco::Track&, const edm::Event&) const;
+    std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::TrackRef&) const;
+    std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track& t) const { return region(t,*theEvent); }
+    std::unique_ptr<RectangularEtaPhiTrackingRegion> region(const reco::Track&, const edm::Event&) const;
 
     /// Pass the Event to the algo at each event
     virtual void setEvent(const edm::Event&);

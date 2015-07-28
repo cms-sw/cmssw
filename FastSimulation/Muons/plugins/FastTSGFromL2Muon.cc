@@ -107,7 +107,7 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 	 || muRef->innerMomentum().R() < 2.5 ) continue;
     
     // Define the region of interest
-    RectangularEtaPhiTrackingRegion * region = theRegionBuilder->region(muRef);
+    std::unique_ptr<RectangularEtaPhiTrackingRegion> region = theRegionBuilder->region(muRef);
 
     // Copy the collection of seeds (ahem, this is time consuming!)
     std::vector<TrajectorySeed> tkSeeds;
@@ -135,16 +135,13 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
 	const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
 
-	if ( clean(muRef,region,aSeed,theSimTrack) ) tkSeeds.push_back(*aSeed);
+	if ( clean(muRef,region.get(),aSeed,theSimTrack) ) tkSeeds.push_back(*aSeed);
 	tkIds.insert(simTrackId);
 
       } // End loop on seeds
  
     } // End loop on seed collections
   
-    // Free memory
-    delete region;
-
     // A plot
     // if(h_nSeedPerTrack) h_nSeedPerTrack->Fill(tkSeeds.size());
 
