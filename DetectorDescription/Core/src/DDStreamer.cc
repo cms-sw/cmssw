@@ -19,12 +19,12 @@
 #include<iomanip>
 
 DDStreamer::DDStreamer()
- : cpv_(0), o_(0), i_(0)
+ : o_(0), i_(0)
  {
  }
 
 DDStreamer::DDStreamer(std::ostream & os)
- :  cpv_(0), o_(0), i_(0)
+ :  o_(0), i_(0)
 {
   if (os) {
     o_ = &os;
@@ -35,7 +35,7 @@ DDStreamer::DDStreamer(std::ostream & os)
 }
 
 DDStreamer::DDStreamer(std::istream & is)
- :  cpv_(0), o_(0), i_(0)
+ :  o_(0), i_(0)
 {
   if (is) {
     i_ = &is;

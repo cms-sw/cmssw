@@ -1,4 +1,3 @@
-using namespace std;
 
 #include <cmath>
 #include <iostream>
@@ -21,6 +20,8 @@ using namespace std;
 
 #include <Math/RotationZ.h>
 #include <Math/AxisAngle.h>
+
+using namespace std;
 
 /*
 File setup.xml:
