@@ -1549,7 +1549,7 @@ edm::PSimHitContainer TestGEMCSCSegmentAnalyzer::SimHitMatched(std::vector<GEMRe
       	int roll_sim = idGem.roll();
         
       	LocalPoint lp = itHit->entryPoint();
-        GlobalPoint hitGP_sim(gemGeom->idToDet(itHit->detUnitId())->surface().toGlobal(lp));
+        // GlobalPoint hitGP_sim(gemGeom->idToDet(itHit->detUnitId())->surface().toGlobal(lp));
       	float strip_sim = gemGeom->etaPartition(idGem)->strip(lp);
       	if(region != region_sim) continue;
       	if(layer != layer_sim) continue;
