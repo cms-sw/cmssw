@@ -417,7 +417,18 @@ ZeroTeslaRun247324CollisionVtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.1657),
     Z0 = cms.double(-1.688)
 )
-Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
+
+# From 2015A 0T data
+# Centroid absolute positions extracted from fills:
+# X = 0.059395  cm
+# Y = 0.099686  cm
+# Z = -1.722240 cm
+#
+# BPIX absolute position extracted from first collision alignment:
+# X = -0.0259503 cm
+# Y = -0.07004   cm
+# Z = -0.498917  cm
+Realistic50ns13TeVCollisionZeroTeslaVtxSmearingParameters = cms.PSet(
     Phi = cms.double(0.0),
     BetaStar = cms.double(65.0),
     Emittance = cms.double(5.411e-08),
