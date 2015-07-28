@@ -246,7 +246,7 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
         //Now get rid of the thrown out weights for the particle collection
 
         // if( std::abs(pWeight) < std::numeric_limits<double>::denorm_min() ) continue; // this line seems not to work like it's supposed to...
-        if(std::abs(pWeight) <= 0. ) continue;
+        // if(std::abs(pWeight) <= 0. ) continue;
 
         //Produce
         PseudoJet curjet( pWeight*fPFParticles[i0].px(), pWeight*fPFParticles[i0].py(), pWeight*fPFParticles[i0].pz(), pWeight*fPFParticles[i0].e());
