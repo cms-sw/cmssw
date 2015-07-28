@@ -1607,7 +1607,7 @@ class ConfigBuilder(object):
             return
 
     def prepare_PATFILTER(self, sequence=None):
-            self.load("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff")
+            self.loadAndRemember("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff")
 	    from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import allMetFilterPaths
 	    for filt in allMetFilterPaths:
 		    self.schedule.append(getattr(self.process,'Flag_'+filt))
