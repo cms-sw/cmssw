@@ -42,7 +42,8 @@ cp $HTML/namespaces.html.original $HTML/configfiles.html
 python $SCRIPTS/TableParser.py $HTML/configfiles.html
 cp $HTML/configfilesList_A.html $HTML/configfiles.html
 
-
 cd $CMSSW_BASE/..
 find $CMSSW_VERSION/doc -type f -name "*.html" > $CMSSW_BASE/$CMSSW_VERSION.index
 cd $PWDv
+
+echo "## In case of a problem, please email cmsdoxy[at]cern.ch ##"
