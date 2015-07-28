@@ -1194,7 +1194,7 @@ steps['ALCAHARVD4']={'-s':'ALCAHARVEST:SiPixelAli',
                     '--conditions':'auto:run1_data',
                     '--scenario':'pp',
                     '--data':'',
-                    '--filein':'file:PromptCalibProdSiStripGains.root'}
+                    '--filein':'file:PromptCalibProdSiPixelAli.root'}
 
 steps['RECOHISt4']=steps['RECOHI']
 steps['RECOHIMIX']=merge([steps['RECOHI'],{'--pileup':'HiMix','--pileup_input':'das:/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1])}])
