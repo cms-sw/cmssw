@@ -101,6 +101,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
   doAllPlots     = conf_.getParameter<bool>("doAllPlots");
   doAllSeedPlots = conf_.getParameter<bool>("doSeedParameterHistos");
   doTCPlots      = conf_.getParameter<bool>("doTrackCandHistos");
+  doAllTCPlots   = conf_.getParameter<bool>("doAllTrackCandHistos");
   doPT           = conf_.getParameter<bool>("doSeedPTHisto");
   doETA          = conf_.getParameter<bool>("doSeedETAHisto");
   doPHI          = conf_.getParameter<bool>("doSeedPHIHisto");
@@ -221,40 +222,49 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker)
     TrackCandPhi->setAxisTitle("Track Candidate #phi", 1);
     TrackCandPhi->setAxisTitle("Number of Track Candidates", 2);
     
-    histname = "TrackCandTheta_"+tcProducer.label() + "_";
-    TrackCandTheta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, ThetaBin, ThetaMin, ThetaMax);
-    TrackCandTheta->setAxisTitle("Track Candidate #theta", 1);
-    TrackCandTheta->setAxisTitle("Number of Track Candidates", 2);
+    if (doTheta) {
+      histname = "TrackCandTheta_"+tcProducer.label() + "_";
+      TrackCandTheta = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, ThetaBin, ThetaMin, ThetaMax);
+      TrackCandTheta->setAxisTitle("Track Candidate #theta", 1);
+      TrackCandTheta->setAxisTitle("Number of Track Candidates", 2);
+    }
     
-    histname = "TrackCandQ_"+tcProducer.label() + "_";
-    TrackCandQ = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TrackQBin, TrackQMin, TrackQMax);
-    TrackCandQ->setAxisTitle("Track Candidate Charge", 1);
-    TrackCandQ->setAxisTitle("Number of Track Candidates",2);
+    if (doAllTCPlots) {
+      histname = "TrackCandQ_"+tcProducer.label() + "_";
+      TrackCandQ = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TrackQBin, TrackQMin, TrackQMax);
+      TrackCandQ->setAxisTitle("Track Candidate Charge", 1);
+      TrackCandQ->setAxisTitle("Number of Track Candidates",2);
+
+      histname = "TrackCandDxy_"+tcProducer.label() + "_";
+      TrackCandDxy = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDxyBin, TCDxyMin, TCDxyMax);
+      TrackCandDxy->setAxisTitle("Track Candidate d_{xy} (cm)", 1);
+      TrackCandDxy->setAxisTitle("Number of Track Candidates",2);
+      
+      histname = "TrackCandDz_"+tcProducer.label() + "_";
+      TrackCandDz = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDzBin, TCDzMin, TCDzMax);
+      TrackCandDz->setAxisTitle("Track Candidate d_{z} (cm)", 1);
+      TrackCandDz->setAxisTitle("Number of Track Candidates",2);
+
+      histname = "NumberOfRecHitsPerTrackCand_"+tcProducer.label() + "_";
+      NumberOfRecHitsPerTrackCand = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCHitBin, TCHitMin, TCHitMax);
+      NumberOfRecHitsPerTrackCand->setAxisTitle("Number of RecHits per Track Candidate", 1);
+      NumberOfRecHitsPerTrackCand->setAxisTitle("Number of Track Candidates",2);
     
-    histname = "TrackCandDxy_"+tcProducer.label() + "_";
-    TrackCandDxy = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDxyBin, TCDxyMin, TCDxyMax);
-    TrackCandDxy->setAxisTitle("Track Candidate d_{xy} (cm)", 1);
-    TrackCandDxy->setAxisTitle("Number of Track Candidates",2);
-    
-    histname = "TrackCandDz_"+tcProducer.label() + "_";
-    TrackCandDz = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCDzBin, TCDzMin, TCDzMax);
-    TrackCandDz->setAxisTitle("Track Candidate d_{z} (cm)", 1);
-    TrackCandDz->setAxisTitle("Number of Track Candidates",2);
-    
-    histname = "NumberOfRecHitsPerTrackCand_"+tcProducer.label() + "_";
-    NumberOfRecHitsPerTrackCand = ibooker.book1D(histname+CatagoryName, histname+CatagoryName, TCHitBin, TCHitMin, TCHitMax);
-    NumberOfRecHitsPerTrackCand->setAxisTitle("Number of RecHits per Track Candidate", 1);
-    NumberOfRecHitsPerTrackCand->setAxisTitle("Number of Track Candidates",2);
-    
-    histname = "NumberOfRecHitsPerTrackCandVsPhiProfile_"+tcProducer.label() + "_";
-    NumberOfRecHitsPerTrackCandVsPhiProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, TCHitBin, TCHitMin, TCHitMax,"s");
-    NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Track Candidate #phi",1);
-    NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
-    
-    histname = "NumberOfRecHitsPerTrackCandVsEtaProfile_"+tcProducer.label() + "_";
-    NumberOfRecHitsPerTrackCandVsEtaProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, TCHitBin, TCHitMin, TCHitMax,"s");
-    NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Track Candidate #eta",1);
-    NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
+      histname = "NumberOfRecHitsPerTrackCandVsPhiProfile_"+tcProducer.label() + "_";
+      NumberOfRecHitsPerTrackCandVsPhiProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax, TCHitBin, TCHitMin, TCHitMax,"s");
+      NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Track Candidate #phi",1);
+      NumberOfRecHitsPerTrackCandVsPhiProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
+      
+      histname = "NumberOfRecHitsPerTrackCandVsEtaProfile_"+tcProducer.label() + "_";
+      NumberOfRecHitsPerTrackCandVsEtaProfile = ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, TCHitBin, TCHitMin, TCHitMax,"s");
+      NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Track Candidate #eta",1);
+      NumberOfRecHitsPerTrackCandVsEtaProfile->setAxisTitle("Number of RecHits of each Track Candidate",2);
+    }
+
+    histname = "TrackCandPhiVsEta_"+tcProducer.label() + "_";
+    TrackCandPhiVsEta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    TrackCandPhiVsEta->setAxisTitle("Track Candidate #eta", 1);
+    TrackCandPhiVsEta->setAxisTitle("Track Candidate #phi", 2);
   }
   
 }
@@ -355,15 +365,16 @@ void TrackBuildingAnalyzer::analyze
   
   if (doTCPlots){
     // fill the ME's
-    TrackCandQ->Fill( state.charge() );
+    if (doAllTCPlots) TrackCandQ->Fill( state.charge() );
     TrackCandPt->Fill( pt );
     TrackCandEta->Fill( eta );
     TrackCandPhi->Fill( phi );
-    TrackCandTheta->Fill( theta );
-    TrackCandDxy->Fill( dxy );
-    TrackCandDz->Fill( dz );
-    NumberOfRecHitsPerTrackCand->Fill( numberOfHits );
-    NumberOfRecHitsPerTrackCandVsEtaProfile->Fill( eta, numberOfHits );
-    NumberOfRecHitsPerTrackCandVsPhiProfile->Fill( phi, numberOfHits );
+    TrackCandPhiVsEta->Fill( eta, phi );
+    if (doTheta) TrackCandTheta->Fill( theta );
+    if (doAllTCPlots) TrackCandDxy->Fill( dxy );
+    if (doAllTCPlots) TrackCandDz->Fill( dz );
+    if (doAllTCPlots) NumberOfRecHitsPerTrackCand->Fill( numberOfHits );
+    if (doAllTCPlots) NumberOfRecHitsPerTrackCandVsEtaProfile->Fill( eta, numberOfHits );
+    if (doAllTCPlots) NumberOfRecHitsPerTrackCandVsPhiProfile->Fill( phi, numberOfHits );
   }
 }
