@@ -14,6 +14,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/Records"/>
+<use   name="Geometry/GEMGeometry"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="SimDataFormats/Vertex"/>
