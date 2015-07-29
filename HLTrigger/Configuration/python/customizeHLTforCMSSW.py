@@ -116,6 +116,7 @@ def customiseFor10234(process):
 def customiseFor10418(process):
     if hasattr(process,'hltBSoftMuonMu5L3') :
        setattr(process.hltBSoftMuonMu5L3,'originalAlgorithm', cms.vstring())
+       setattr(process.hltBSoftMuonMu5L3,'algorithmMaskContains', cms.vstring())
     return process
 
 # CMSSW version specific customizations
