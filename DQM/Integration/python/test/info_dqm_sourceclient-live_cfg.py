@@ -6,16 +6,17 @@ process = cms.Process("DQM")
 #### Event Source
 #----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #----------------------------
 #### DQM Environment
 #----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'Info'
+process.dqmSaver.tag = 'Info'
 #-----------------------------
 process.load("DQMServices.Components.DQMProvInfo_cfi")
 
@@ -28,9 +29,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # Global tag
 # Condition for P5 cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.connect = "frontier://(proxyurl=http://localhost:3128)(serverurl=http://frontier1.cms:8000/FrontierOnProd)(serverurl=http://frontier2.cms:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG"
@@ -118,5 +119,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

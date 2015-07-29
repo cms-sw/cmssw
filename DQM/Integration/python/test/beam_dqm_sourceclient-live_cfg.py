@@ -12,10 +12,10 @@ runFirstStepTrk = True
 # Common part for PP and H.I Running
 #-----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #--------------------------
 # HLT Filter
@@ -27,13 +27,11 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 #----------------------------
 # DQM Live Environment
 #-----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'BeamMonitor'
-# uncomment for running local test
-#process.dqmSaver.dirName     = '.'
+process.dqmSaver.tag = 'BeamMonitor'
 
-import DQMServices.Components.DQMEnvironment_cfi
-process.dqmEnvPixelLess = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
+process.dqmEnvPixelLess = process.dqmEnv.clone()
 process.dqmEnvPixelLess.subSystemFolder = 'BeamMonitor_PixelLess'
 
 #----------------------------
@@ -60,12 +58,12 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 # Calibration
 #---------------
 # Condition for P5 cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 # Change Beam Monitor variables
-if process.dqmSaver.producer.value() is "Playback":
+if process.dqmRunConfig.type.value() is "playback":
   process.dqmBeamMonitor.BeamFitter.WriteAscii = False
   process.dqmBeamMonitor.BeamFitter.AsciiFileName = '/nfshome0/yumiceva/BeamMonitorDQM/BeamFitResults.txt'
   process.dqmBeamMonitor.BeamFitter.WriteDIPAscii = True
@@ -127,7 +125,7 @@ if ( process.runType.getRunType() == process.runType.cosmic_run or process.runTy
 #-----------------------------------------------------------
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
 

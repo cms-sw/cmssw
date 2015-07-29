@@ -7,15 +7,16 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 #----------------------------
 # Event Source
 #----------------------------
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 #process.DQMEventStreamHttpReader.consumerName = 'DQM Luminosity Consumer'
 #process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputALCALUMIPIXELS')
 
 #----------------------------
 # DQM Environment
 #----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "Info/Lumi"
+process.dqmSaver.tag = "Lumi"
 
 #---------------------------------------------
 # Global Tag
@@ -35,7 +36,7 @@ process.expressLumiProducer=cms.EDProducer("ExpressLumiProducer",
 # Sub-system Configuration
 #----------------------------
 ### @@@@@@ Comment when running locally @@@@@@ ###
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.GlobalTag.DBParameters.authenticationPath  = process.DBService.authPath
 ### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("Configuration.StandardSequences.Services_cff")
@@ -72,5 +73,5 @@ process.p = cms.Path(process.reconstruction_step *
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

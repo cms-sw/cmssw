@@ -8,20 +8,20 @@ process.maxEvents = cms.untracked.PSet(
 
 
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #process.load("DQMServices.Core.DQM_cfg")
-process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 #----------------------------
 #### DQM Live Environment
 #----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FED'
-process.dqmSaver.dirName = '.'
+process.dqmSaver.tag = 'FED'
+# process.dqmSaver.path= '.'
 
 process.load("DQM.TrigXMonitorClient.HLTScalersClient_cfi")
 process.load("DQM.TrigXMonitorClient.L1TScalersClient_cfi")
@@ -38,5 +38,5 @@ process.pDQM = cms.Path(process.l1tsClient+
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

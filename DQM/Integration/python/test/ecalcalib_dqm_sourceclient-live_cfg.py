@@ -18,10 +18,10 @@ process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
 process.load("CalibCalorimetry.EcalLaserCorrection.ecalLaserCorrectionService_cfi")
 process.load("DQM.EcalMonitorTasks.EcalCalibMonitorTasks_cfi")
 process.load("DQM.EcalMonitorClient.EcalCalibMonitorClient_cfi")
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.load("FWCore.Modules.preScaler_cfi")
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 ### Individual module setups ###
 
@@ -161,7 +161,6 @@ process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecalcalib_reference
 process.ecalPedestalMonitorTask.verbosity = 0
 process.ecalPedestalMonitorTask.commonParameters.onlineMode = True
 
-process.dqmSaver.convention = cms.untracked.string('Online')
 
 process.ecalLaserLedMonitorTask.verbosity = 0
 process.ecalLaserLedMonitorTask.collectionTags.EBLaserLedUncalibRecHit = "ecalLaserLedUncalibRecHit:EcalUncalibRecHitsEB"
@@ -189,6 +188,7 @@ process.ecalPNDiodeMonitorTask.verbosity = 0
 process.ecalPNDiodeMonitorTask.commonParameters.onlineMode = True
 
 process.dqmEnv.subSystemFolder = cms.untracked.string('EcalCalibration')
+process.dqmSaver.tag = cms.untracked.string('EcalCalibration')
 
 ### Sequences ###
 
@@ -210,5 +210,5 @@ process.dqmOutputPath = cms.EndPath(process.dqmSaver)
 process.schedule = cms.Schedule(process.ecalLaserLedPath,process.ecalTestPulsePath,process.ecalPedestalPath,process.ecalClientPath,process.dqmEndPath,process.dqmOutputPath)
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

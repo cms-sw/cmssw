@@ -6,10 +6,10 @@ process = cms.Process("EvFDQM")
 #### Event Source
 #----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #----------------------------
 #### DQM Environment
@@ -19,9 +19,10 @@ process.load("DQMServices.Core.DQM_cfg")
 #----------------------------
 #### DQM Environment
 #----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'FEDTest'
-process.dqmSaver.dirName = '.'
+process.dqmSaver.tag = 'FEDTest'
+# process.dqmSaver.path = '.'
 #-----------------------------
 
 
@@ -32,10 +33,10 @@ process.MessageLogger = cms.Service("MessageLogger",
                                     )
 
 # Global tag
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 # Need for test in lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi")
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi")
 
 
 #-----------------------------
@@ -167,5 +168,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

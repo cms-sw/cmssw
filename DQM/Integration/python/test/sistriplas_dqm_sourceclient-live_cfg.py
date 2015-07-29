@@ -9,10 +9,10 @@ process.MessageLogger = cms.Service( "MessageLogger",
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-#process.load("DQM.Integration.test.inputsource_cfi")
+#process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-process.load("DQM.Integration.test.fileinputsource_cfi")
+process.load("DQM.Integration.config.fileinputsource_cfi")
 
 process.maxEvents = cms.untracked.PSet(
   input = cms.untracked.int32( -1 )
@@ -24,17 +24,16 @@ process.siStripDigis.ProductLabel = "source"#"hltCalibrationRaw"
 # Calibration
 #--------------------------
 # Condition for P5 cluster
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+#process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus
-process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
-process.load("DQMServices.Components.DQMEnvironment_cfi")
 #----------------------------
 # DQM Live Environment
 #-----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "SiStripLAS"
-process.dqmSaver.dirName = '.'
+process.dqmSaver.tag = "SiStripLAS"
 #----------------------------
 # DQM Alignment Software
 #----------------------------
@@ -65,5 +64,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

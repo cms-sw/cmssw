@@ -5,21 +5,21 @@ process = cms.Process("CASTORDQM")
 # Event Source
 #================================+
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #================================
 # DQM Environment
 #================================
-process.load("DQMServices.Components.DQMEnvironment_cfi")
 #process.DQMStore.referenceFileName = 'castor_reference.root'
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "Castor"
+process.dqmSaver.tag = "Castor"
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -281,14 +281,6 @@ process.castorMonitor = cms.EDAnalyzer("CastorMonitorModule",
        LED_ADC_Thresh = cms.untracked.double(-1000.0)
 )
 
-### the filename prefix 
-#process.dqmSaver.producer = 'DQM'
-#process.dqmSaver.dirName = '/tmp/'
-#process.dqmSaver.convention = 'Online'
-#process.dqmSaver.saveByRun = True
-# for local test
-process.dqmSaver.dirName = '.'
-
 #-----------------------------
 # Scheduling
 #-----------------------------
@@ -322,5 +314,5 @@ if (process.runType.getRunTypeName() == process.runType.hi_run):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

@@ -6,16 +6,15 @@ process = cms.Process("DTDQM")
 #### Event Source
 #----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #----------------------------
 #### DQM Environment
 #----------------------------
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference.root'
 #process.DQMStore.referenceFileName = "DT_reference.root"
 
@@ -23,7 +22,7 @@ process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/dt_reference.root'
 #### DQM Live Environment
 #----------------------------
 process.dqmEnv.subSystemFolder = 'DT'
-process.dqmSaver.dirName = "."
+process.dqmSaver.tag = "DT"
 #-----------------------------
 
 
@@ -32,9 +31,9 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration/StandardSequences/MagneticField_cff") 
 process.load("DQM.DTMonitorModule.dt_dqm_sourceclient_common_cff")
 #---- for P5 (online) DB access
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #---- for offline DB
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 
 # message logger
@@ -89,5 +88,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
