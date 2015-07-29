@@ -821,7 +821,7 @@ steps['RECODAlCaCalo']=merge([{'--scenario':'pp',},dataRecoAlCaCalo])
 hltKey='frozen50ns'
 menuR2 = autoHLT[hltKey]
 # no GT customization for HLT frozen50ns
-steps['HLTDR2']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey,},{'--conditions':'auto:run2_hlt',},steps['HLTD'] ] )
+steps['HLTDR2']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
 steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataReco])
