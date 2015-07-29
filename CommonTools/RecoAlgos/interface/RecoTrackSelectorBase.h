@@ -35,6 +35,8 @@ public:
         algorithm_.push_back(reco::TrackBase::algoByName(algorithm));
       for(const std::string& algorithm: cfg.getParameter<std::vector<std::string> >("originalAlgorithm"))
         originalAlgorithm_.push_back(reco::TrackBase::algoByName(algorithm));
+      for(const std::string& algorithm: cfg.getParameter<std::vector<std::string> >("algorithmMaskContains"))
+        algorithmMask_.push_back(reco::TrackBase::algoByName(algorithm));
     }
 
   void init(const edm::Event& event, const edm::EventSetup& es) {
@@ -66,6 +68,11 @@ public:
     }
     if (!originalAlgorithm_.empty() && algo_ok) {
       if (std::find(originalAlgorithm_.begin(), originalAlgorithm_.end(), t.originalAlgo()) == originalAlgorithm_.end()) algo_ok = false;
+    }
+    if(!algorithmMask_.empty() && algo_ok) {
+      if(std::find_if(algorithmMask_.begin(), algorithmMask_.end(), [&](reco::TrackBase::TrackAlgorithm algo) -> bool { // for some reason I have to either explicitly give the return type, or use static_cast<bool>()
+            return t.algoMask()[algo];
+          }) == algorithmMask_.end()) algo_ok = false;
     }
     return
       (
@@ -103,6 +110,7 @@ private:
   std::vector<reco::TrackBase::TrackQuality> quality_;
   std::vector<reco::TrackBase::TrackAlgorithm> algorithm_;
   std::vector<reco::TrackBase::TrackAlgorithm> originalAlgorithm_;
+  std::vector<reco::TrackBase::TrackAlgorithm> algorithmMask_;
 
   reco::Track::Point vertex_;
 };
