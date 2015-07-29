@@ -12,6 +12,9 @@
 #include "TMVA/Reader.h"
  
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
+const Int_t NWPs =3;
+const Int_t NEtas =4;
+const Int_t NPts =4;
 
 
 class MVAJetPuId {
@@ -63,9 +66,9 @@ class MVAJetPuId {
 		Int_t   version_;
 		Float_t impactParTkThreshod_;
 		bool    cutBased_;
-		Float_t mvacut_     [3][4][4]; //Keep the array fixed
-		Float_t rmsCut_     [3][4][4]; //Keep the array fixed
-		Float_t betaStarCut_[3][4][4]; //Keep the array fixed
+		Float_t mvacut_     [NWPs][NEtas][NPts]; //Keep the array fixed
+		Float_t rmsCut_     [NWPs][NEtas][NPts]; //Keep the array fixed
+		Float_t betaStarCut_[NWPs][NEtas][NPts]; //Keep the array fixed
 };
 
 #endif
