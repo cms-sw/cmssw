@@ -9,12 +9,11 @@ subsystem="HcalCalib"
 #----------------------------
 # DQM Environment
 #-----------------------------
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = subsystem
+process.dqmSaver.tag = subsystem
+# process.dqmSaver.path= "."
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
-process.dqmSaver.dirName = "."
 
 print "Running with run type = ", process.runType.getRunType()
 
@@ -39,10 +38,10 @@ if (host==HcalCalibPlaybackHost):
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-#process.load("DQM.Integration.test.inputsource_cfi")
+#process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-process.load("DQM.Integration.test.fileinputsource_cfi")
+process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #process.DQMEventStreamHttpReader.consumerName = 'Hcal Orbit Gap DQM Consumer'
 #process.DQMEventStreamHttpReader.SelectEvents =  cms.untracked.PSet(SelectEvents = cms.vstring('HLT_HcalCalibratio*','HLT_TechTrigHCALNoise*','HLT_L1Tech_HBHEHO_totalOR*'))
@@ -57,9 +56,9 @@ process.load("DQM.Integration.test.fileinputsource_cfi")
 # Hcal Conditions: from Global Conditions Tag 
 #-----------------------------
 # DB Condition for online cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # DB condition for offline test
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
@@ -282,5 +281,5 @@ if (HEAVYION):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

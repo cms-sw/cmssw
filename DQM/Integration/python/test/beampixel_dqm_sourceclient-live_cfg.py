@@ -7,7 +7,7 @@ process = cms.Process("BeamPixel")
 # Common for PP and HI running
 #----------------------------
 ### @@@@@@ Comment when running locally @@@@@@ ###
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 #----------------------------
 # HLT Filter
@@ -19,8 +19,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",SelectedTrigg
 #----------------------------
 # DQM Environment
 #----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = "BeamPixel"
+process.dqmSaver.tag = "BeamPixel"
 
 
 #----------------------------
@@ -29,7 +30,7 @@ process.dqmEnv.subSystemFolder = "BeamPixel"
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 
 #----------------------------
@@ -42,7 +43,7 @@ process.phystrigger = cms.Sequence(process.hltTriggerTypeFilter)
 #----------------------------
 # Process Customizations
 #----------------------------
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
 
@@ -95,7 +96,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             zStep              = cms.double(0.05),
                                             VxErrCorr          = cms.double(1.3),  # Keep checking this with later release
                                             fileName           = cms.string("/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmSaver.producer.value() is "Playback":
+    if process.dqmRunConfig.type.value() is "playback":
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
     else:
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
@@ -182,7 +183,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             zStep              = cms.double(0.05),
                                             VxErrCorr          = cms.double(1.3),  # Keep checking this with later release
                                             fileName           = cms.string("/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt"))
-    if process.dqmSaver.producer.value() is "Playback":
+    if process.dqmRunConfig.type.value() is "playback":
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
     else:
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")

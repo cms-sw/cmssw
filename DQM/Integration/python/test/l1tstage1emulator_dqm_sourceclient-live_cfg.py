@@ -14,34 +14,30 @@ process = cms.Process("L1TEmuDQMlive")
 # Event Source
 #
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 #
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #----------------------------
 # DQM Environment
 #
  
-#
-
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.dqmEnv.subSystemFolder = 'L1TEMUStage1'
-
-#
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 # for local test
-process.dqmSaver.dirName = '.'
+process.dqmEnv.subSystemFolder = 'L1TEMUStage1'
+process.dqmSaver.tag = 'L1TEMUStage1'
+
 #
 # no references needed
 # replace DQMStore.referenceFileName = "L1TEMU_reference.root"
 
 #
 # Condition for P5 cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 # Condition for lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 #process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
@@ -183,13 +179,6 @@ process.l1Stage1GtHwValidation.DirName = cms.untracked.string("L1TEMUStage1/GTex
 #
 # process.l1EmulatorEventInfoClient.verbose = cms.untracked.bool(True)
 
-# un-comment next lines in case you use the file for private tests on the playback server
-# see https://twiki.cern.ch/twiki/bin/view/CMS/DQMTest for instructions
-#
-#process.dqmSaver.dirName = '.'
-#process.dqmSaver.saveByRun = 1
-#process.dqmSaver.saveAtJobEnd = True
-
 print "Running with run type = ", process.runType.getRunType()
 process.castorDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.csctfDigis.producer = cms.InputTag("rawDataCollector")
@@ -234,5 +223,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

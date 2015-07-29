@@ -13,10 +13,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 ##
 #----------------------------
@@ -27,10 +27,9 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #----------------------------
 # DQM Live Environment
 #-----------------------------
-process.load("DQM.Integration.test.environment_cfi")
-process.dqmEnv.subSystemFolder    = "PixelLumi"
-# for local running
-process.dqmSaver.dirName = '.'
+process.load("DQM.Integration.config.environment_cfi")
+process.dqmEnv.subSystemFolder = "PixelLumi"
+process.dqmSaver.tag = "PixelLumi"
 
 process.source.SelectEvents = cms.untracked.vstring("HLT_ZeroBias*")
 #process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
@@ -55,9 +54,9 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # GLOBALTAG
 #-------------------------------------------------
 # Condition for P5 cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 #-----------------------
 #  Reconstruction Modules
@@ -92,9 +91,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
 #----------------------
 process.load("DQM.PixelLumi.PixelLumiDQM_cfi") 
 
-process.dqmSaver.producer = "Playback"
-
-if process.dqmSaver.producer.value() is "Playback":
+if process.dqmRunConfig.type.value() is "playback":
     process.pixel_lumi_dqm.logFileName = cms.untracked.string("pixel_lumi.txt")
 else:
     process.pixel_lumi_dqm.logFileName = cms.untracked.string("/nfshome0/dqmpro/pixel_lumi.txt")
@@ -121,5 +118,5 @@ process.DQMmodules = cms.Sequence(process.dqmEnv*
 process.p = cms.Path(process.Reco*process.DQMmodules)
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

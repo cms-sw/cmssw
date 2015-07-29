@@ -21,10 +21,10 @@ process.load("SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cfi
 process.load("L1Trigger.Configuration.L1RawToDigi_cff")
 process.load("DQM.EcalMonitorTasks.EcalMonitorTask_cfi")
 process.load("DQM.EcalMonitorClient.EcalMonitorClient_cfi")
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.load("FWCore.Modules.preScaler_cfi")
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 ### Individual module setups ###
 
@@ -137,8 +137,7 @@ process.preScaler.prescaleFactor = 1
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/ecal_reference.root"
 
 process.dqmEnv.subSystemFolder = cms.untracked.string('Ecal')
-
-process.dqmSaver.convention = cms.untracked.string('Online')
+process.dqmSaver.tag = cms.untracked.string('Ecal')
 
 process.simEcalTriggerPrimitiveDigis.InstanceEB = "ebDigis"
 process.simEcalTriggerPrimitiveDigis.InstanceEE = "eeDigis"
@@ -200,5 +199,5 @@ elif runTypeName == runType.hpu_run:
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

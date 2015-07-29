@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 process = cms.Process("HcalTimingTest")
 
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 print "Running with run type = ", process.runType.getRunType()
 
@@ -48,21 +48,16 @@ process.DQMStore.verbose = 0
 #### BEGIN DQM Online Environment #######################
 ### replace YourSubsystemName by the name of your source ###
 ### use it for dqmEnv, dqmSaver
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 ### path where to save the output file
-#process.dqmSaver.dirName = '.'
-### the filename prefix
-#process.dqmSaver.producer = 'DQM'
-### possible conventions are "Online", "Offline" and "RelVal"
-#process.dqmSaver.convention = 'Online'
+#process.dqmSaver.path = '.'
 process.dqmEnv.subSystemFolder = 'HcalTiming'
+process.dqmSaver.tag = 'HcalTiming'
 
 process.p = cms.Path(process.hcalDigis*process.l1GtUnpack*process.hcalTimingMonitor*process.dqmEnv*process.dqmSaver)
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
 #--------------------------------------------------
