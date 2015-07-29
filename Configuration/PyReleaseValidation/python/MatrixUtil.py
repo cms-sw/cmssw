@@ -47,7 +47,6 @@ def expandLsInterval(lumis):
     return range(lumis[0],(lumis[1]+1))
 
 from DPGAnalysis.Skims.golden_json_2015 import * 
-#jsonFile2015 = findFileInPath("DPGAnalysis/Skims/data/Cert_190456-208686_8TeV_22Jan2013ReReco_Collisions12_JSON.txt")
 jsonFile2015 = findFileInPath("DPGAnalysis/Skims/data/Cert_246908-XXXXXX_13TeV_PromptReco_Collisions15_JSON.txt")
 
 import json
@@ -57,7 +56,7 @@ with open(jsonFile2015) as data_file:
 # return a portion of the 2015 golden json
 # LS for a full run by default; otherwise a subset of which you determined the size
 def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
-    print "maxNum is %s"%(maxNum)
+    # print "maxNum is %s"%(maxNum)
     if type(list_runs[0]) !=int:
         print "ERROR: list_runs must be a list of intergers"
         return None
@@ -66,7 +65,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
 
     for run in list_runs:
         if str(run) in l_json.keys():
-            print "run %s is there"%(run)
+            # print "run %s is there"%(run)
             runNumber = run
             for LSsegment in l_json[str(run)] :
                 print LSsegment
@@ -78,12 +77,11 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
                     local_dict[runNumber].append(LSsegment)
                 else: 
                     local_dict[runNumber] = [LSsegment]
-                print "total LS so far  %s    -   grow %s"%(ls_count,local_dict)
+                # print "total LS so far  %s    -   grow %s"%(ls_count,local_dict)
             #local_dict[runNumber] = [1,2,3]
         else:
             print "run %s is NOT there\n\n"%(run)
-            pass
-        print "++    %s"%(local_dict)
+        # print "++    %s"%(local_dict)
 
     if ( len(local_dict.keys()) > 0 ) :
         return local_dict
@@ -91,8 +89,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
         print "No luminosity section interval passed the json and your selection; returning None"
         return None
 
-#print "THIS IS WHAT I RETURN: %s"%( selectedLS(l_json,[199570,195378,195379],150) )
-print "\n\n\n THIS IS WHAT I RETURN: %s \n\n"%( selectedLS([251244,251251]) )
+# print "\n\n\n THIS IS WHAT I RETURN: %s \n\n"%( selectedLS([251244,251251]) )
 
 
 

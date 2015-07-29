@@ -15,9 +15,9 @@ overridesEv5={'-n':'5'}
 workflows[1] = ['', ['ProdMinBias','DIGIPROD1','RECOPROD1']]
 workflows[2] = ['', ['ProdTTbar','DIGIPROD1','RECOPROD1']]
 workflows[3] = ['', ['ProdQCD_Pt_3000_3500','DIGIPROD1','RECOPROD1']]
-workflows.addOverride(3,overridesEv5)
+workflows.addOverride(3,overridesEv5)                                                      #######################################################
 #workflows[1301] = ['', ['ProdMinBias_13','DIGIUP15PROD1','RECOPRODUP15','MINIAODMCUP15']] # Re-add miniaod here, to keep event content scrutinized
-workflows[1301] = ['', ['ProdMinBias_13','DIGIUP15PROD1','RECOPRODUP15']]
+workflows[1301] = ['', ['ProdMinBias_13','DIGIUP15PROD1','RECOPRODUP15']]                  ######################################################## 
 workflows[1302] = ['', ['ProdTTbar_13','DIGIUP15PROD1','RECOPRODUP15']]
 workflows[1303] = ['', ['ProdQCD_Pt_3000_3500_13','DIGIUP15PROD1','RECOPRODUP15']]
 workflows.addOverride(1303,overridesEv5)
