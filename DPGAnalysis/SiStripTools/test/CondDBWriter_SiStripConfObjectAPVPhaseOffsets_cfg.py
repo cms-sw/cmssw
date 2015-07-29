@@ -33,7 +33,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:apvphaseoffsets_forHLT.db'),
+    connect = cms.string('sqlite_file:apvphaseoffsets_forHLT_66_9.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripConfObjectRcd'),
         tag = cms.string('SiStripAPVPhaseOffsets_real_v1')
@@ -45,6 +45,6 @@ process.siStripConfObjectDummyDBWriter.label=cms.untracked.string("apvphaseoffse
 
 # This specifies the IOV, not the EmptySource (to see why look at the DummyDBWriter code)
 process.siStripConfObjectDummyDBWriter.OpenIovAt = ""
-process.siStripConfObjectDummyDBWriter.OpenIovAtTime = 237426
+process.siStripConfObjectDummyDBWriter.OpenIovAtTime = 246940
 
 process.p1 = cms.Path(process.siStripConfObjectDummyDBWriter)

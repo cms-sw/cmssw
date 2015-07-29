@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
 
-process = cms.Process("allanalyzers")
+process = cms.Process("bsvsbpix")
 
 #prepare options
 
@@ -70,6 +70,23 @@ process.source = cms.Source("PoolSource",
                     inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
                     )
 
+process.load("RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi")
+process.onlineBeamSpotProducer.setSigmaZ = cms.double(-1.)
+
+from DPGAnalysis.SiStripTools.occupancyplotsselections_bpixladders_cff import *
+
+process.spclusoccuprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
+                                        clusterdigiCollection = cms.InputTag("siPixelClusters"),
+                                        withClusterSize = cms.untracked.bool(True),
+                                        wantedSubDets = cms.VPSet()
+                                        )
+process.spclusoccuprod.wantedSubDets.extend(OccupancyPlotsBPIXLadders)
+process.spclusmultprod = process.spclusoccuprod.clone(withClusterSize = cms.untracked.bool(False))
+
+process.load("DPGAnalysis.SiStripTools.occupancyplots_cfi")
+process.occupancyplots.wantedSubDets = process.spclusmultprod.wantedSubDets
+process.occupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"))
+process.occupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"))
 
 process.load("Validation.RecoVertex.bspvanalyzer_cfi")
 process.bspvanalyzer.pvCollection = cms.InputTag("goodVertices")
@@ -86,6 +103,8 @@ process.bspvnoslope = process.bspvanalyzer.clone()
 process.bspvnoslope.bspvHistogramMakerPSet.useSlope = cms.bool(False)
 
 process.load("Validation.RecoVertex.beamspotanalyzer_cfi")
+process.onlinebeamspotanalyzer = process.beamspotanalyzer.clone(bsCollection = cms.InputTag("onlineBeamSpotProducer"))
+
 
 process.load("Validation.RecoVertex.anotherprimaryvertexanalyzer_cfi")
 process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoBXProfile2D = cms.untracked.bool(True)
@@ -94,8 +113,11 @@ process.primaryvertexanalyzer.vHistogramMakerPSet.runHisto2D = cms.untracked.boo
 process.load("Validation.RecoVertex.pvSelectionSequence_cff")
 
 
-process.p0 = cms.Path(process.goodVertices + 
-                      process.beamspotanalyzer + 
+process.p0 = cms.Path(process.onlineBeamSpotProducer +
+                      process.spclusoccuprod + process.spclusmultprod +
+                      process.occupancyplots +
+                      process.goodVertices + 
+                      process.beamspotanalyzer + process.onlinebeamspotanalyzer + 
                       process.primaryvertexanalyzer + 
                       process.bspvanalyzer + process.bspvnoslope)
 
@@ -105,8 +127,11 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
 
+process.load("Configuration.StandardSequences.GeometryDB_cff")
+
+process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 process.TFileService = cms.Service('TFileService',
-                                   fileName = cms.string('allanalyzers.root')
+                                   fileName = cms.string('bsvsbpix.root')
                                    )
 

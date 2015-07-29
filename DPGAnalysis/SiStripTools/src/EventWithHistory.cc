@@ -41,7 +41,11 @@ EventWithHistory::EventWithHistory(const edm::Event& event, const L1AcceptBunchC
       if(orbitoffset < (long long)l1abc->orbitNumber()) {
 	unsigned int neworbit = l1abc->orbitNumber() - orbitoffset;
 	int newbx = l1abc->bunchCrossing() - bxoffset;
-	
+
+	/* 
+	   the lines below assumes that the BX number is between 0 and 3563. If this is not the case it will jump to 0 and to the next orbit in case of 
+	   evets with BX=3564
+	*/
 	while(newbx > 3563) {
 	  ++neworbit;
 	  newbx -= 3564;
