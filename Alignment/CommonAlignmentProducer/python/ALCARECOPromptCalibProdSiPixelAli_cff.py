@@ -57,7 +57,9 @@ SiPixelAliTrackSelector.minHitsPerSubDet.inPIXEL = 2
 
 # Ingredient: SiPixelAliTrackRefitter0
 # refitting
-from RecoTracker.TrackProducer.TrackRefitters_cff import *
+from RecoTracker.IterativeTracking.InitialStep_cff import *
+from RecoTracker.Configuration.RecoTrackerP5_cff import *
+from RecoTracker.TrackProducer.TrackRefitter_cfi import *
 # In the following use
 # TrackRefitter (normal tracks), TrackRefitterP5 (cosmics) or TrackRefitterBHM (beam halo)
 
