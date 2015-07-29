@@ -144,7 +144,7 @@ def _exists(session, primary_key, value):
     try: 
         ret = session.query(primary_key).\
     	    filter(primary_key == value).\
-            count() != 0
+    	    count() != 0
     except sqlalchemy.exc.OperationalError:
         pass
 
@@ -858,8 +858,8 @@ def _copy_tag(args, session1, session2, first, second):
     logging.info('Copying tag %s to %s ...', str_db_object(args.db, first), str_db_object(args.destdb, second))
 
     # Copy the tag
-    tag = _rawdict(session1.query(conddb.Tag).get(args.first))
-    tag['name'] = args.second
+    tag = _rawdict(session1.query(conddb.Tag).get(first))
+    tag['name'] = second
     tag['end_of_validity'] = 0 # XXX: SQLite does not work with long ints...
     session2.add(conddb.Tag(**tag))
 
@@ -872,7 +872,7 @@ def _copy_tag(args, session1, session2, first, second):
     if getattr(args, 'from') is not None:
         prev_iov = session1.query(conddb.IOV.since).\
             filter(
-                conddb.IOV.tag_name == args.first,
+                conddb.IOV.tag_name == first,
                 conddb.IOV.since <= getattr(args, 'from'),
             ).\
             order_by(conddb.IOV.since.desc()).\
@@ -883,7 +883,7 @@ def _copy_tag(args, session1, session2, first, second):
 
     # Copy the distinct payloads referenced in the IOVs of the tag
     # FIXME: Put the DISTINCT query as a subquery (we can't directly use distinct on BLOBs)
-    query = session1.query(conddb.IOV.payload_hash).filter(conddb.IOV.tag_name == args.first)
+    query = session1.query(conddb.IOV.payload_hash).filter(conddb.IOV.tag_name == first)
     if prev_iov is not None:
         query = query.filter(conddb.IOV.since >= prev_iov)
     if args.to is not None:
@@ -897,7 +897,7 @@ def _copy_tag(args, session1, session2, first, second):
             session2.add(conddb.Payload(** _rawdict(session1.query(conddb.Payload).filter(conddb.Payload.hash == payload_hash).one())))
 
     # Copy the IOVs of the tag
-    query = session1.query(conddb.IOV).filter(conddb.IOV.tag_name == args.first)
+    query = session1.query(conddb.IOV).filter(conddb.IOV.tag_name == first)
     if prev_iov is not None:
         query = query.filter(conddb.IOV.since >= prev_iov)
     if args.to is not None:
@@ -905,7 +905,7 @@ def _copy_tag(args, session1, session2, first, second):
     for iov in query:
         logging.debug('Copying IOV %s -> %s...', str_iov(iov.since, iov.insertion_time), iov.payload_hash)
         iov = _rawdict(iov)
-        iov['tag_name'] = args.second
+        iov['tag_name'] = second
 
         # In the first IOV of the tag we need to use the starting point given
         # by the user, instead of the one coming from the source tag; unless
@@ -962,14 +962,18 @@ def copy(args):
         # Copy the global tag
         global_tag = _rawdict(session1.query(conddb.GlobalTag).get(args.first))
         global_tag['name'] = args.second
+        global_tag['validity'] = 0 # XXX: SQLite does not work with long ints...
         session2.add(conddb.GlobalTag(**global_tag))
 
         # Copy the tags of the global tag
+        logging.debug('Creating query for tag %s filter %s ...', conddb.GlobalTagMap.tag_name, args.first)
         query = session1.query(conddb.GlobalTagMap.tag_name).filter(conddb.GlobalTagMap.global_tag_name == args.first).distinct()
         for (tag, ) in query:
-            if _exists(session2, conddb.Tag.name, tag):
+            logging.debug('Copying tag %s to %s for GT %s ...', str_db_object(args.db, tag), str_db_object(args.destdb, tag), str_db_object(args.destdb, args.second))
+            if _exists(session2, conddb.Tag.name, tag ):
                 logging.warn('Skipping copy of tag %s to %s since it already exists... *The tags may differ in content*', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
             else:
+                logging.debug('going to copy tag %s to %s ... ', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
                 _copy_tag(args, session1, session2, tag, tag)
 
         # Copy the map of the global tag
