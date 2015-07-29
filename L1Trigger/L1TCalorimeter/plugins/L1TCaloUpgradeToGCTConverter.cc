@@ -359,8 +359,15 @@ L1TCaloUpgradeToGCTConverter::fillDescriptions(ConfigurationDescriptions& descri
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<int>("bxMin",0);
+  desc.add<int>("bxMax",0);
+  desc.add<InputTag>("InputCollection");
+  desc.add<InputTag>("InputRlxTauCollection");
+  desc.add<InputTag>("InputIsoTauCollection");
+  desc.add<edm::InputTag>("InputHFSumsCollection");
+  desc.add<edm::InputTag>("InputHFCountsCollection");
+  descriptions.add("L1TCaloUpgradeToGCTConverter", desc);
+
 }
 
 //define this as a plug-in

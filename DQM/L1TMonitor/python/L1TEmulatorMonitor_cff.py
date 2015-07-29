@@ -55,15 +55,12 @@ from L1Trigger.L1TCommon.l1tRawToDigi_cfi import *
 # transfer stage1 format digis to legacy format digis
 
 from L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi import *
-caloStage1LegacyFormatDigis.bxMin = cms.int32(0)
-caloStage1LegacyFormatDigis.bxMax = cms.int32(0)
 
 ############################################################
 
 # GMT unpack from Fed813 in legacy stage1 parallel running                                                               
 from EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi import *
-gtgmtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-gtgmtDigis.DaqGtInputTag = 'rawDataCollector'
+l1GtUnpack.DaqGtInputTag = 'rawDataCollector'
 
 #############################################################           
 
