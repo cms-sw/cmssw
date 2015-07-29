@@ -73,40 +73,40 @@ void MVAJetPuId::setup()
 	initVariables();
 
 
-		tmvaVariables_.clear();
-		tmvaVariables_.push_back( "rho"  );
-		tmvaVariables_.push_back( "nTot" );
-		tmvaVariables_.push_back( "nCh" );
-		tmvaVariables_.push_back( "axisMajor"   );
-		tmvaVariables_.push_back( "axisMinor"   );
-		tmvaVariables_.push_back( "fRing0"    );
-		tmvaVariables_.push_back( "fRing1" );
-		tmvaVariables_.push_back( "fRing2"   );
-		tmvaVariables_.push_back( "fRing3"  );
-		tmvaVariables_.push_back( "ptD"  );
-		tmvaVariables_.push_back( "beta"   );
-		tmvaVariables_.push_back( "betaStar"  );
-		tmvaVariables_.push_back( "DR_weighted"  );
-		tmvaVariables_.push_back( "pull" );
-		tmvaVariables_.push_back( "jetR");
-		tmvaVariables_.push_back( "jetRchg");
+	tmvaVariables_.clear();
+	tmvaVariables_.push_back( "rho"  );
+	tmvaVariables_.push_back( "nTot" );
+	tmvaVariables_.push_back( "nCh" );
+	tmvaVariables_.push_back( "axisMajor"   );
+	tmvaVariables_.push_back( "axisMinor"   );
+	tmvaVariables_.push_back( "fRing0"    );
+	tmvaVariables_.push_back( "fRing1" );
+	tmvaVariables_.push_back( "fRing2"   );
+	tmvaVariables_.push_back( "fRing3"  );
+	tmvaVariables_.push_back( "ptD"  );
+	tmvaVariables_.push_back( "beta"   );
+	tmvaVariables_.push_back( "betaStar"  );
+	tmvaVariables_.push_back( "DR_weighted"  );
+	tmvaVariables_.push_back( "pull" );
+	tmvaVariables_.push_back( "jetR");
+	tmvaVariables_.push_back( "jetRchg");
 
-		tmvaNames_["rho"] = "rho";
-		tmvaNames_["nTot"] = "nTot";
-		tmvaNames_["nCh"] = "nCh";
-		tmvaNames_["axisMajor"] = "axisMajor";
-		tmvaNames_["axisMinor"] = "axisMinor";
-		tmvaNames_["fRing0"] = "fRing0";
-		tmvaNames_["fRing1"] = "fRing1";
-		tmvaNames_["fRing2"] = "fRing2";
-		tmvaNames_["fRing3"] = "fRing3";
-		tmvaNames_["ptD"] = "ptD";
-		tmvaNames_["beta"] = "beta";
-		tmvaNames_["betaStar"] = "betaStar";
-		tmvaNames_["DR_weighted"] = "DR_weighted";
-		tmvaNames_["pull"] = "pull";  
-		tmvaNames_["jetR"] = "jetR";  
-		tmvaNames_["jetRchg"] = "jetRchg";
+	tmvaNames_["rho"] = "rho";
+	tmvaNames_["nTot"] = "nTot";
+	tmvaNames_["nCh"] = "nCh";
+	tmvaNames_["axisMajor"] = "axisMajor";
+	tmvaNames_["axisMinor"] = "axisMinor";
+	tmvaNames_["fRing0"] = "fRing0";
+	tmvaNames_["fRing1"] = "fRing1";
+	tmvaNames_["fRing2"] = "fRing2";
+	tmvaNames_["fRing3"] = "fRing3";
+	tmvaNames_["ptD"] = "ptD";
+	tmvaNames_["beta"] = "beta";
+	tmvaNames_["betaStar"] = "betaStar";
+	tmvaNames_["DR_weighted"] = "DR_weighted";
+	tmvaNames_["pull"] = "pull";  
+	tmvaNames_["jetR"] = "jetR";  
+	tmvaNames_["jetRchg"] = "jetRchg";
 }
 
 
@@ -175,13 +175,13 @@ std::pair<int,int> MVAJetPuId::getJetIdKey(float jetPt, float jetEta)
 {
 	int ptId = 0;                                                                                                                                    
 	if(jetPt > 10 && jetPt < 20) ptId = 1;                                                                                 
-	if(jetPt > 20 && jetPt < 30) ptId = 2;                                                                                 
-	if(jetPt > 30              ) ptId = 3;                                                                                          
+	if(jetPt >= 20 && jetPt < 30) ptId = 2;                                                                                 
+	if(jetPt >= 30              ) ptId = 3;                                                                                          
 
 	int etaId = 0;                                                                                                                                   
 	if(fabs(jetEta) > 2.5  && fabs(jetEta) < 2.75) etaId = 1;                                                              
-	if(fabs(jetEta) > 2.75 && fabs(jetEta) < 3.0 ) etaId = 2;                                                              
-	if(fabs(jetEta) > 3.0  && fabs(jetEta) < 5.0 ) etaId = 3;                                 
+	if(fabs(jetEta) >= 2.75 && fabs(jetEta) < 3.0 ) etaId = 2;                                                              
+	if(fabs(jetEta) >= 3.0  && fabs(jetEta) < 5.0 ) etaId = 3;                                 
 	return std::pair<int,int>(ptId,etaId);
 }
 
@@ -212,7 +212,6 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 		bool calculateMva) 
 {
 
-	static std::atomic<int> printWarning{10};
 	typedef std::vector <reco::PFCandidatePtr> constituents_type;
 	typedef std::vector <reco::PFCandidatePtr>::iterator constituents_iterator;
 
@@ -228,9 +227,9 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 
 	reco::PFCandidatePtr lLead, lSecond, lLeadNeut, lLeadEm, lLeadCh, lTrail;
 	std::vector<float> frac, fracCh, fracEm, fracNeut;
-	float cones[] = { 0.1, 0.2, 0.3, 0.4 };
+	float cones[4] = { 0.1, 0.2, 0.3, 0.4 };
 	size_t ncones = sizeof(cones)/sizeof(float);
-	float * coneFracs[]     = { &internalId_.fRing0_, &internalId_.fRing1_, &internalId_.fRing2_, &internalId_.fRing3_};
+	float * coneFracs[4]     = { &internalId_.fRing0_, &internalId_.fRing1_, &internalId_.fRing2_, &internalId_.fRing3_};
 	TMatrixDSym covMatrix(2); covMatrix = 0.;
 
 	reco::TrackRef impactTrack;
@@ -300,41 +299,37 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 		}
 
 		if(  icand->trackRef().isNonnull() && icand->trackRef().isAvailable() ) {
-			try { 
-				float tkpt = icand->trackRef()->pt(); 
-				sumTkPt += tkpt;
-				bool inVtx0 = find( vtx->tracks_begin(), vtx->tracks_end(), reco::TrackBaseRef(icand->trackRef()) ) != vtx->tracks_end();
-				bool inAnyOther = false;
+			float tkpt = icand->trackRef()->pt(); 
+			sumTkPt += tkpt;
+			bool inVtx0 = find( vtx->tracks_begin(), vtx->tracks_end(), reco::TrackBaseRef(icand->trackRef()) ) != vtx->tracks_end();
+			bool inAnyOther = false;
 
-				double dZ0 = fabs(icand->trackRef()->dz(vtx->position()));
-				double dZ = dZ0;
-				for(reco::VertexCollection::const_iterator  vi=allvtx.begin(); vi!=allvtx.end(); ++vi ) {
-					const reco::Vertex & iv = *vi;
-					if( iv.isFake() || iv.ndof() < 4 ) { continue; }
+			double dZ0 = fabs(icand->trackRef()->dz(vtx->position()));
+			double dZ = dZ0;
+			for(reco::VertexCollection::const_iterator  vi=allvtx.begin(); vi!=allvtx.end(); ++vi ) {
+				const reco::Vertex & iv = *vi;
+				if( iv.isFake() || iv.ndof() < 4 ) { continue; }
 
-					bool isVtx0  = (iv.position() - vtx->position()).r() < 0.02;
+				bool isVtx0  = (iv.position() - vtx->position()).r() < 0.02;
 
-					if( ! isVtx0 && ! inAnyOther ) {
-						inAnyOther = find( iv.tracks_begin(), iv.tracks_end(), reco::TrackBaseRef(icand->trackRef()) ) != iv.tracks_end();
-					}
-
-					dZ = std::min(dZ,fabs(icand->trackRef()->dz(iv.position())));
-				}
-				if( inVtx0 && ! inAnyOther ) {
-					internalId_.betaClassic_ += tkpt;
-				} else if( ! inVtx0 && inAnyOther ) {
-					internalId_.betaStarClassic_ += tkpt;
+				if( ! isVtx0 && ! inAnyOther ) {
+					inAnyOther = find( iv.tracks_begin(), iv.tracks_end(), reco::TrackBaseRef(icand->trackRef()) ) != iv.tracks_end();
 				}
 
-				if( dZ0 < 0.2 ) {
-					internalId_.beta_ += tkpt;
-				} else if( dZ < 0.2 ) {
-					internalId_.betaStar_ += tkpt;
-				}
-			} catch (cms::Exception &e) {
-				if(printWarning-- > 0) { std::cerr << e << std::endl; }
+				dZ = std::min(dZ,fabs(icand->trackRef()->dz(iv.position())));
 			}
-		}
+			if( inVtx0 && ! inAnyOther ) {
+				internalId_.betaClassic_ += tkpt;
+			} else if( ! inVtx0 && inAnyOther ) {
+				internalId_.betaStarClassic_ += tkpt;
+			}
+
+			if( dZ0 < 0.2 ) {
+				internalId_.beta_ += tkpt;
+			} else if( dZ < 0.2 ) {
+				internalId_.betaStar_ += tkpt;
+			}
+		} 
 
 		if( lTrail.isNull() || candPt < lTrail->pt() ) {
 			lTrail = icand; 
@@ -358,9 +353,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 	if( impactTrack.isNonnull() && impactTrack.isAvailable() ) {
 		internalId_.d0_ = fabs(impactTrack->dxy(vtx->position()));
 		internalId_.dZ_ = fabs(impactTrack->dz(vtx->position()));
-	} else {
-		if(printWarning-- > 0) { std::cerr << "WARNING : did not find any valid track reference attached to the jet " << std::endl; 
-		}
+	}else{ 
 		internalId_.nTot_ = constituents.size(); 
 		SetPtEtaPhi(*lLead,internalId_.leadPt_,internalId_.leadEta_,internalId_.leadPhi_);                 
 		SetPtEtaPhi(*lSecond,internalId_.secondPt_,internalId_.secondEta_,internalId_.secondPhi_);        
@@ -439,7 +432,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 			reco::PFCandidatePtr part = pfjet->getPFConstituent(i);
 			float weight =part->pt()*part->pt() ;
 			float deta = part->eta() - jet->eta();
-			float dphi = 2*atan(tan((part->phi()-jet->phi())/2));
+			float dphi = reco::deltaPhi(*part, *jet);
 			float ddeta, ddphi, ddR;
 			ddeta = deta - ave_deta ;
 			ddphi = 2*atan(tan((dphi - ave_dphi)/2.)) ;
@@ -492,7 +485,7 @@ void MVAJetPuId::initVariables()
 {
 	internalId_.idFlag_    = 0;
 	INIT_VARIABLE(mva        , "", -100.);
-	
+
 	INIT_VARIABLE(jetPt      , "jetPt", 0.);
 	INIT_VARIABLE(jetEta     , "jetEta", large_val);
 	INIT_VARIABLE(jetPhi     , "", large_val);
