@@ -132,6 +132,11 @@ steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElec
 # Run2015B=[251642] #  251561 251638 251642
 Run2015B=selectedLS([251251])
 steps['RunHLTPhy2015B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015B-v1/RAW',label='hltPhy2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleEG2015B']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015B-v1/RAW',label='doubEG2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleMuon2015B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015B-v1/RAW',label='doubMu2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunJetHT2015B']={'INPUT':InputInfo(dataSet='/JetHT/Run2015B-v1/RAW',label='jetHT2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMET2015B']={'INPUT':InputInfo(dataSet='/MET/Run2015B-v1/RAW',label='met2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMuonEG2015B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015B-v1/RAW',label='muEG2015B',events=100000,location='STD', ls=Run2015B)}
 
 def gen(fragment,howMuch):
     global step1Defaults

@@ -108,6 +108,11 @@ workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
 
 ### run2 ###
 workflows[134.71] = ['',['RunHLTPhy2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.72] = ['',['RunDoubleEG2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.73] = ['',['RunDoubleMuon2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.74] = ['',['RunJetHT2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.75] = ['',['RunMET2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.76] = ['',['RunMuonEG2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
 
 
 ### fastsim ###
