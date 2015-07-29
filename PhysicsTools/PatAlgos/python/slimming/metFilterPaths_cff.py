@@ -25,6 +25,10 @@ Flag_trkPOG_logErrorTooManyClusters = cms.Path(~logErrorTooManyClusters)
 # and the summary
 Flag_METFilters = cms.Path(metFilters)
 
+#add your new path here!!
+allMetFilterPaths=['HBHENoiseFilter','CSCTightHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','goodVertices','eeBadScFilter',
+                   'ecalLaserCorrFilter','trkPOGFilters','trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters','METFilters']
+
        
 def miniAOD_customizeMETFiltersFastSim(process):
     """Replace some MET filters that don't work in FastSim with trivial bools"""
