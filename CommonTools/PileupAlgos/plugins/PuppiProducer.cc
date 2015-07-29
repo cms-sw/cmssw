@@ -217,13 +217,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( fastjet::PseudoJet const & i ){ return i.user_index() == val; } );
     if ( puppiMatched != lCandidates.end() ) {
       pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
-      fPuppiCandidates->push_back(pCand);
+      // fPuppiCandidates->push_back(pCand);
     } else {
       pVec.SetPxPyPzE( 0, 0, 0, 0);
     }
     pCand.setP4(pVec);
     puppiP4s.push_back( pVec );
-    // fPuppiCandidates->push_back(pCand);
+    fPuppiCandidates->push_back(pCand);
   }
 
   //Compute the modified p4s
