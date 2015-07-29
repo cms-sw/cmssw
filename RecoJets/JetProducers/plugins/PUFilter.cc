@@ -1,35 +1,40 @@
-/* -*- C++ -*-
- * Package:    HLTrigger/JetMET
- * Class:      PUFilter
- * \class PUFilter PUFilter.cc HLTrigger/JetMET/plugins/PUFilter.cc
- *
- *  Description: [one line class summary]
- *
- *   Implementation:
- *        [Notes on implementation]
- *         Original Author:  Silvio DONATO
- *                  Created:  Fri, 17 Jul 2015 12:22:46 GMT
- *
- *                  */
-
-
 #include <memory>
 
-#include "RecoJets/JetProducers/plugins/PUFilter.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/JetCollection.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
+#include "DataFormats/Common/interface/ValueMap.h"
+class PUFilter : public edm::global::EDProducer <> {
+   public:
+      explicit PUFilter(const edm::ParameterSet&);
+
+      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+   private:
+      const edm::EDGetTokenT<edm::View<reco::PFJet> > jetsToken_;
+      const edm::EDGetTokenT<edm::ValueMap<int> > jetPuIdToken_;
+      virtual void produce(edm::StreamID , edm::Event& , const edm::EventSetup & ) const override;
+     };
+
 
 PUFilter::PUFilter(const edm::ParameterSet& iConfig):
 jetsToken_( consumes<edm::View<reco::PFJet> > (iConfig.getParameter<edm::InputTag>("Jets") ) ),
 jetPuIdToken_( consumes<edm::ValueMap<int> > (iConfig.getParameter<edm::InputTag>("JetPUID") ) )
 {
    produces<std::vector<reco::PFJet> > ();
-}
-
-
-PUFilter::~PUFilter()
-{
- 
-   
-
 }
 
 
@@ -47,23 +52,11 @@ PUFilter::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSetup &
   std::auto_ptr<std::vector<reco::PFJet> > goodjets(new std::vector<reco::PFJet> );
   for( size_t i = 0; i < jetsH->size(); ++i ) {
     auto jet = jetsH->refAt(i);
-/*    if (jet->pt()>40){
-        std::cout << "jet pt = " << jet->pt() ;
-        std::cout << " ID = " << (*id_decisions)[jet] << std::endl;
-    }
-  */  if((*id_decisions)[jet]) goodjets->push_back(*jet);
+    if((*id_decisions)[jet]) goodjets->push_back(*jet);
   }
   iEvent.put(goodjets);
 }
 
-void
-PUFilter::beginJob()
-{
-}
-
-void
-PUFilter::endJob() {
-}
 void
 PUFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
     edm::ParameterSetDescription desc;
@@ -73,4 +66,3 @@ PUFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.setUnknown();
 }
 DEFINE_FWK_MODULE(PUFilter);
-
