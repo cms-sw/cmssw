@@ -100,9 +100,10 @@ def customiseSimL1EmulatorForPostLS1_25ns(process):
     process = L1Menu_Collisions2015_25ns_v2(process)
     return process
 
-def customiseSimL1EmulatorForPostLS1_HI(process):
-    # load the Stage 1 configuration
-    process = customiseSimL1EmulatorForStage1(process)
+# additional customizations needed for HI:
+# -> no L1 Menu added here
+# -> common post LS1 customizations not called here
+def customiseSimL1EmulatorForPostLS1_Additional_HI(process):
     # set the Stage 1 heavy ions-specific parameters
     # all of these should eventually end up in a GT
     if hasattr(process,'RCTConfigProducers'):
@@ -117,6 +118,4 @@ def customiseSimL1EmulatorForPostLS1_HI(process):
         process.caloStage1Params.regionPUSType = cms.string("zeroWall")
     if hasattr(process,'caloConfig'):
         process.caloConfig.fwVersionLayer2 = cms.uint32(1)
-    # move to the heavy ions draft L1 menu once the HLT has been updated accordingly
-    process = L1Menu_CollisionsHeavyIons2015_v0(process)
     return process
