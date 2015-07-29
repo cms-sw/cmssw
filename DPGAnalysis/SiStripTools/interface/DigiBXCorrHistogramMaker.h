@@ -370,10 +370,10 @@ void DigiBXCorrHistogramMaker<T>::fill(const T& he, const std::map<int,int>& ndi
 	  }
 	}
 
-	m_ndigivsbx[i]->Fill(he.bx(),digi->second);
-	if(m_ndigivsbx2D.find(i)!=m_ndigivsbx2D.end()) m_ndigivsbx2D[i]->Fill(he.bx(),digi->second);
-	if(m_ndigivsbx2Dzoom.find(i)!=m_ndigivsbx2Dzoom.end()) m_ndigivsbx2Dzoom[i]->Fill(he.bx(),digi->second);
-	if(m_ndigivsbx2Dzoom2.find(i)!=m_ndigivsbx2Dzoom2.end()) m_ndigivsbx2Dzoom2[i]->Fill(he.bx(),digi->second);
+	m_ndigivsbx[i]->Fill(he.bx()%3564,digi->second);
+	if(m_ndigivsbx2D.find(i)!=m_ndigivsbx2D.end()) m_ndigivsbx2D[i]->Fill(he.bx()%3564,digi->second);
+	if(m_ndigivsbx2Dzoom.find(i)!=m_ndigivsbx2Dzoom.end()) m_ndigivsbx2Dzoom[i]->Fill(he.bx()%3564,digi->second);
+	if(m_ndigivsbx2Dzoom2.find(i)!=m_ndigivsbx2Dzoom2.end()) m_ndigivsbx2Dzoom2[i]->Fill(he.bx()%3564,digi->second);
 
 
 	if(he.depth()>0) {
