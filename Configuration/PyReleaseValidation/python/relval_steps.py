@@ -1087,7 +1087,7 @@ steps['HARVESTD']={'-s':'HARVESTING:@standardDQM+@miniAODDQM',
                    '--scenario':'pp'}
 
 steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTD'] ])
-steps['HARVESTDR2reHLT'] = merge([ {'--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',}, steps['HARVESTD'] ])
+steps['HARVESTDR2reHLT'] = merge([ {'--conditions':'auto:run2_data',}, steps['HARVESTD'] ])
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
