@@ -230,30 +230,87 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 #define NB_SUBLEVELS 6
 #endif
 #define NB_Z_SLICES 2
-    TGraph * graphs[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES];
-    long int ipoint[x.size()][y.size()][NB_SUBLEVELS*NB_Z_SLICES];
-    for (unsigned int ix = 0 ; ix < x.size() ; ix++)
-    { 
-        for (unsigned int iy = 0 ; iy < y.size() ; iy++)
-        {
-            //if (x[ix] == y[iy]) continue;       // do not plot graphs like (r,r) or (phi,phi)
-            for (unsigned int igraph = 0 ; igraph < NB_SUBLEVELS*NB_Z_SLICES ; igraph++)
-            {
-                // declaring
-                ipoint[ix][iy][igraph] = 0; // the purpose of an index for every graph is to avoid thousands of points at the origin of each
-                graphs[ix][iy][igraph] = new TGraph ();
-#define COLOR_CODE(icolor) int(icolor/4)+icolor+1
-                graphs[ix][iy][igraph]->SetMarkerColor(COLOR_CODE(igraph));
-                graphs[ix][iy][igraph]->SetMarkerStyle(6);
-                // pimping
-                graphs[ix][iy][igraph]->SetName (x[ix]+y[iy]+_sublevel_names[igraph%NB_SUBLEVELS]+TString(igraph>=NB_SUBLEVELS ? "n"      : "p"       ));
-                graphs[ix][iy][igraph]->SetTitle(            _sublevel_names[igraph%NB_SUBLEVELS]+TString(igraph>=NB_SUBLEVELS ? " at z<0": " at z>=0")
-                                                + TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
-                                                + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
-                graphs[ix][iy][igraph]->SetMarkerStyle(6);
-            }
-        }
+    // Use different ordering of Plots in Multigraph if x.size()>y.size()
+	// Otherwise the plots are very squeezed
+    int nxPlots = 0;
+    int nyPlots = 0;
+    if (y.size() >= x.size()){
+		nxPlots = x.size();
+		nyPlots = y.size();
+	}
+	else{
+		nxPlots = y.size();
+		nyPlots = x.size();
+	}
+	cout << "nxPlots: " << nxPlots << endl;
+	cout << "nyPlots: " << nyPlots << endl;
+
+    TGraph * graphs[nxPlots][nyPlots][NB_SUBLEVELS*NB_Z_SLICES];
+    long int ipoint[nxPlots][nyPlots][NB_SUBLEVELS*NB_Z_SLICES];
+    
+    TMultiGraph * mgraphs[nxPlots][nyPlots][1+NB_SUBLEVELS]; // the 0th is for global plots, the 1..6th for sublevel plots
+    TCanvas * c[nxPlots][nyPlots][1+NB_SUBLEVELS],
+            * c_global[1+NB_SUBLEVELS];
+    canvas_index++; // this static index is a safety used in case the MakePlots method is used several times to avoid overloading
+    
+    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS ; ic++)
+    {
+        c_global[ic] = new TCanvas (TString::Format("global_%s_%d", ic==0?"tracker":_sublevel_names[ic-1].Data(),
+                                                                    canvas_index),
+                                    TString::Format("Global overview of the %s variables", ic==0?"tracker":_sublevel_names[ic-1].Data()),
+                                   _window_width,
+                                   _window_height);
+        c_global[ic]->Divide(nxPlots,nyPlots);
     }
+    
+    if (y.size() >= x.size()){
+	    for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+	    { 
+	        for (unsigned int iy = 0 ; iy < y.size() ; iy++)
+	        {
+	            //if (x[ix] == y[iy]) continue;       // do not plot graphs like (r,r) or (phi,phi)
+	            for (unsigned int igraph = 0 ; igraph < NB_SUBLEVELS*NB_Z_SLICES ; igraph++)
+	            {
+	                // declaring
+	                ipoint[ix][iy][igraph] = 0; // the purpose of an index for every graph is to avoid thousands of points at the origin of each
+	                graphs[ix][iy][igraph] = new TGraph ();
+#define COLOR_CODE(icolor) int(icolor/4)+icolor+1
+	                graphs[ix][iy][igraph]->SetMarkerColor(COLOR_CODE(igraph));
+	                graphs[ix][iy][igraph]->SetMarkerStyle(6);
+	                // pimping
+	                graphs[ix][iy][igraph]->SetName (x[ix]+y[iy]+_sublevel_names[igraph%NB_SUBLEVELS]+TString(igraph>=NB_SUBLEVELS ? "n"      : "p"       ));
+	                graphs[ix][iy][igraph]->SetTitle(            _sublevel_names[igraph%NB_SUBLEVELS]+TString(igraph>=NB_SUBLEVELS ? " at z<0": " at z>=0")
+	                                                + TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+	                                                + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+	                graphs[ix][iy][igraph]->SetMarkerStyle(6);
+	            }
+	        }
+	    }
+	}
+    else{
+	    for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+	    { 
+	        for (unsigned int iy = 0 ; iy < y.size() ; iy++)
+	        {
+	            //if (x[ix] == y[iy]) continue;       // do not plot graphs like (r,r) or (phi,phi)
+	            for (unsigned int igraph = 0 ; igraph < NB_SUBLEVELS*NB_Z_SLICES ; igraph++)
+	            {
+	                // declaring
+	                ipoint[iy][ix][igraph] = 0; // the purpose of an index for every graph is to avoid thousands of points at the origin of each
+	                graphs[iy][ix][igraph] = new TGraph ();
+#define COLOR_CODE(icolor) int(icolor/4)+icolor+1
+	                graphs[iy][ix][igraph]->SetMarkerColor(COLOR_CODE(igraph));
+	                graphs[iy][ix][igraph]->SetMarkerStyle(6);
+	                // pimping
+	                graphs[iy][ix][igraph]->SetName (x[ix]+y[iy]+_sublevel_names[igraph%NB_SUBLEVELS]+TString(igraph>=NB_SUBLEVELS ? "n"      : "p"       ));
+	                graphs[iy][ix][igraph]->SetTitle(            _sublevel_names[igraph%NB_SUBLEVELS]+TString(igraph>=NB_SUBLEVELS ? " at z<0": " at z>=0")
+	                                                + TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]
+	                                                + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);
+	                graphs[iy][ix][igraph]->SetMarkerStyle(6);
+	            }
+	        }
+	    }
+	}
 #ifdef DEBUG
     cout << __FILE__ << ":" << __LINE__ << ":Info: Creation of the TGraph[" << x.size() << "][" << y.size() << "][" << NB_SUBLEVELS*NB_Z_SLICES << "] ended." << endl;
 #endif
@@ -310,10 +367,18 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 
                 // FILLING GRAPH
                 const short int igraph = (branch_i["sublevel"]-1) + (branch_f["z"]>=0?0:NB_SUBLEVELS);
-                graphs[ix][iy][igraph]->SetPoint(ipoint[ix][iy][igraph],
-                                                 _SF[x[ix]]*branch_f[x[ix]],
-                                                 _SF[y[iy]]*branch_f[y[iy]]);
-                ipoint[ix][iy][igraph]++;
+                if (y.size() >= x.size()){
+	                graphs[ix][iy][igraph]->SetPoint(ipoint[ix][iy][igraph],
+	                                                 _SF[x[ix]]*branch_f[x[ix]],
+	                                                 _SF[y[iy]]*branch_f[y[iy]]);
+	                ipoint[ix][iy][igraph]++;
+				}
+                else{
+	                graphs[iy][ix][igraph]->SetPoint(ipoint[iy][ix][igraph],
+	                                                 _SF[x[ix]]*branch_f[x[ix]],
+	                                                 _SF[y[iy]]*branch_f[y[iy]]);
+	                ipoint[iy][ix][igraph]++;
+				}
             }
         }
     }
@@ -336,188 +401,312 @@ void GeometryComparisonPlotter::MakePlots (vector<TString> x, // axes to combine
 #endif
     }
     // declaring TMultiGraphs and TCanvas
-    TMultiGraph * mgraphs[x.size()][y.size()][1+NB_SUBLEVELS]; // the 0th is for global plots, the 1..6th for sublevel plots
-    TCanvas * c[x.size()][y.size()][1+NB_SUBLEVELS],
-            * c_global[1+NB_SUBLEVELS];
-    canvas_index++; // this static index is a safety used in case the MakePlots method is used several times to avoid overloading
-    for (unsigned int ic = 0 ; ic <= NB_SUBLEVELS ; ic++)
-    {
-        c_global[ic] = new TCanvas (TString::Format("global_%s_%d", ic==0?"tracker":_sublevel_names[ic-1].Data(),
-                                                                    canvas_index),
-                                    TString::Format("Global overview of the %s variables", ic==0?"tracker":_sublevel_names[ic-1].Data()),
-                                   _window_width,
-                                   _window_height);
-        c_global[ic]->Divide(x.size(),y.size());
-    }
-#define INDEX_IN_GLOBAL_CANVAS(i1,i2) 1 + i1 + i2*x.size()
+    // Usually more y variables than x variables
     // creating TLegend
     TLegend * legend = MakeLegend(.1,.92,.9,1.);
     if (_write) legend->Write();
-    // running on the TGraphs to produce the TMultiGraph and draw/print them
-    for (unsigned int ix = 0 ; ix < x.size() ; ix++)
-    {
+    
+    if (y.size() >= x.size()){
+#define INDEX_IN_GLOBAL_CANVAS(i1,i2) 1 + i1 + i2*x.size()
+	    // running on the TGraphs to produce the TMultiGraph and draw/print them
+	    for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+	    {
 #ifdef DEBUG
-        cout << __FILE__ << ":" << __LINE__ << ":Info: x[" << ix << "]="<< x[ix] << endl;
+	        cout << __FILE__ << ":" << __LINE__ << ":Info: x[" << ix << "]="<< x[ix] << endl;
 #endif
-//        // left and right margin for drawing
-//        double  left_margin_factor = 1.,
-//               right_margin_factor = 1.;
-//             if (_min[x[ix]] > 0)  left_margin_factor = 0.9;
-//        else if (_min[x[ix]] < 0)  left_margin_factor = 1.1;
-//             if (_max[x[ix]] > 0) right_margin_factor = 1.1;
-//        else if (_max[x[ix]] < 0) right_margin_factor = 0.9;
-//#ifdef DEBUG
-//        cout << __FILE__ << ":" << __LINE__ << ":Info: left_margin_factor=" <<  left_margin_factor
-//                                            <<  " and right_margin_factor=" << right_margin_factor << endl;
-//#endif
-        // looping on Y axes
-        for (unsigned int iy = 0 ; iy < y.size() ; iy++)
-        {
-//            // lower and upper margin for drawing
-//            double lower_margin_factor = 1.,
-//                   upper_margin_factor = 1.;
-//                 if (_min[y[iy]] > 0) lower_margin_factor = 0.9;
-//            else if (_min[y[iy]] < 0) lower_margin_factor = 1.1;
-//                 if (_max[y[iy]] > 0) upper_margin_factor = 1.1;
-//            else if (_max[y[iy]] < 0) upper_margin_factor = 0.9;
-//#ifdef DEBUG
-//            cout << __FILE__ << ":" << __LINE__ << ":Info: lower_margin_factor=" << lower_margin_factor
-//                                                <<   " and upper_margin_factor=" << upper_margin_factor << endl;
-//#endif
-
-
+	//        // left and right margin for drawing
+	//        double  left_margin_factor = 1.,
+	//               right_margin_factor = 1.;
+	//             if (_min[x[ix]] > 0)  left_margin_factor = 0.9;
+	//        else if (_min[x[ix]] < 0)  left_margin_factor = 1.1;
+	//             if (_max[x[ix]] > 0) right_margin_factor = 1.1;
+	//        else if (_max[x[ix]] < 0) right_margin_factor = 0.9;
+	//#ifdef DEBUG
+	//        cout << __FILE__ << ":" << __LINE__ << ":Info: left_margin_factor=" <<  left_margin_factor
+	//                                            <<  " and right_margin_factor=" << right_margin_factor << endl;
+	//#endif
+	        // looping on Y axes
+	        for (unsigned int iy = 0 ; iy < y.size() ; iy++)
+	        {
+	//            // lower and upper margin for drawing
+	//            double lower_margin_factor = 1.,
+	//                   upper_margin_factor = 1.;
+	//                 if (_min[y[iy]] > 0) lower_margin_factor = 0.9;
+	//            else if (_min[y[iy]] < 0) lower_margin_factor = 1.1;
+	//                 if (_max[y[iy]] > 0) upper_margin_factor = 1.1;
+	//            else if (_max[y[iy]] < 0) upper_margin_factor = 0.9;
+	//#ifdef DEBUG
+	//            cout << __FILE__ << ":" << __LINE__ << ":Info: lower_margin_factor=" << lower_margin_factor
+	//                                                <<   " and upper_margin_factor=" << upper_margin_factor << endl;
+	//#endif
+	
+	
 #ifdef DEBUG
-            cout << __FILE__ << ":" << __LINE__ << ":Info: x[" << ix << "]=" << x[ix]
-                                                <<   " and y[" << iy << "]=" << y[iy] 
-                                                <<   "\t-> creating TMultiGraph" << endl;
+	            cout << __FILE__ << ":" << __LINE__ << ":Info: x[" << ix << "]=" << x[ix]
+	                                                <<   " and y[" << iy << "]=" << y[iy] 
+	                                                <<   "\t-> creating TMultiGraph" << endl;
 #endif
-            mgraphs[ix][iy][0] = new TMultiGraph (TString::Format("mgr_%s_vs_%s_tracker_%d", x[ix].Data(),
-                                                                                             y[iy].Data(),
-                                                                                             canvas_index),        // name
-                                                  //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for Tracker") // graph title
-                                                    TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]                     // x axis title
-                                                  + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);                   // y axis title
-
-            /// TRACKER
-            // fixing ranges and filling TMultiGraph
-            // for (unsigned short int jgraph = NB_SUBLEVELS*NB_Z_SLICES-1 ; jgraph >= 0 ; --jgraph)
-            for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES ; jgraph++)
-            {
-                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
-//#ifdef DEBUG
-//                cout << __FILE__ << ":" << __LINE__ << ":Info: setting X-axis range of " << graphs[ix][iy][jgraph]->GetName() << endl;
-//#endif
-//                graphs[ix][iy][jgraph]->GetXaxis()->SetLimits   ( left_margin_factor*_min[x[ix]],
-//                                                                 right_margin_factor*_max[x[ix]]); // for X axis, use SetLimits
-//#ifdef DEBUG
-//                cout << __FILE__ << ":" << __LINE__ << ":Info: setting Y-axis range of " << graphs[ix][iy][jgraph]->GetName() << endl;
-//#endif
-//                graphs[ix][iy][jgraph]->GetYaxis()->SetRangeUser(lower_margin_factor*_min[y[iy]],
-//                                                                 upper_margin_factor*_max[y[iy]]); // for Y axis, use SetRangeUser
-//                // moreover, for the ranges to be effective in TMultiGraph, the option AP should be given for the first graph and 
-//                // only P for the others (assuming all stacked graphs have received the same x- and y-ranges)
-
+	            mgraphs[ix][iy][0] = new TMultiGraph (TString::Format("mgr_%s_vs_%s_tracker_%d", x[ix].Data(),
+	                                                                                             y[iy].Data(),
+	                                                                                             canvas_index),        // name
+	                                                  //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for Tracker") // graph title
+	                                                    TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]                     // x axis title
+	                                                  + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);                   // y axis title
+	
+	            /// TRACKER
+	            // fixing ranges and filling TMultiGraph
+	            // for (unsigned short int jgraph = NB_SUBLEVELS*NB_Z_SLICES-1 ; jgraph >= 0 ; --jgraph)
+	            for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES ; jgraph++)
+	            {
+	                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
+	//#ifdef DEBUG
+	//                cout << __FILE__ << ":" << __LINE__ << ":Info: setting X-axis range of " << graphs[ix][iy][jgraph]->GetName() << endl;
+	//#endif
+	//                graphs[ix][iy][jgraph]->GetXaxis()->SetLimits   ( left_margin_factor*_min[x[ix]],
+	//                                                                 right_margin_factor*_max[x[ix]]); // for X axis, use SetLimits
+	//#ifdef DEBUG
+	//                cout << __FILE__ << ":" << __LINE__ << ":Info: setting Y-axis range of " << graphs[ix][iy][jgraph]->GetName() << endl;
+	//#endif
+	//                graphs[ix][iy][jgraph]->GetYaxis()->SetRangeUser(lower_margin_factor*_min[y[iy]],
+	//                                                                 upper_margin_factor*_max[y[iy]]); // for Y axis, use SetRangeUser
+	//                // moreover, for the ranges to be effective in TMultiGraph, the option AP should be given for the first graph and 
+	//                // only P for the others (assuming all stacked graphs have received the same x- and y-ranges)
+	
 #ifdef DEBUG
-                cout << __FILE__ << ":" << __LINE__ << ":Info: writing TGraph to file" << endl;
+	                cout << __FILE__ << ":" << __LINE__ << ":Info: writing TGraph to file" << endl;
 #endif
-                // write into root file
-                if (_write) graphs[ix][iy][igraph]->Write();
-                if (graphs[ix][iy][igraph]->GetN() == 0)
-                {
+	                // write into root file
+	                if (_write) graphs[ix][iy][igraph]->Write();
+	                if (graphs[ix][iy][igraph]->GetN() == 0)
+	                {
 #ifdef TALKATIVE
-                    cout <<  __FILE__ << ":" << __LINE__ << ":Info: " << graphs[ix][iy][igraph]->GetName()  << " is empty." << endl;
+	                    cout <<  __FILE__ << ":" << __LINE__ << ":Info: " << graphs[ix][iy][igraph]->GetName()  << " is empty." << endl;
 #endif
-                    continue;
-                }
+	                    continue;
+	                }
 #ifdef DEBUG
-                cout << __FILE__ << ":" << __LINE__ << ":Info: cloning, coloring and adding TGraph "
-                                                    << _sublevel_names[igraph%NB_SUBLEVELS] 
-                                                    << (igraph >= NB_SUBLEVELS ? "(z<0)" : "(z>0)")
-                                                    << " to global TMultiGraph" << endl;
+	                cout << __FILE__ << ":" << __LINE__ << ":Info: cloning, coloring and adding TGraph "
+	                                                    << _sublevel_names[igraph%NB_SUBLEVELS] 
+	                                                    << (igraph >= NB_SUBLEVELS ? "(z<0)" : "(z>0)")
+	                                                    << " to global TMultiGraph" << endl;
 #endif
-                // clone to prevent any injure on the graph
-                TGraph * gr = (TGraph *) graphs[ix][iy][igraph]->Clone();
-                // color
-                gr->SetMarkerColor(COLOR_CODE(igraph%NB_SUBLEVELS));
-                mgraphs[ix][iy][0]->Add(gr, "P");//, (mgraphs[ix][iy][0]->GetListOfGraphs()==0?"AP":"P"));
-            }
-            
-            /// SUBLEVELS (1..6)
-            for (unsigned int isublevel = 1 ; isublevel <= NB_SUBLEVELS ; isublevel++)
-            {
+	                // clone to prevent any injure on the graph
+	                TGraph * gr = (TGraph *) graphs[ix][iy][igraph]->Clone();
+	                // color
+	                gr->SetMarkerColor(COLOR_CODE(igraph%NB_SUBLEVELS));
+	                mgraphs[ix][iy][0]->Add(gr, "P");//, (mgraphs[ix][iy][0]->GetListOfGraphs()==0?"AP":"P"));
+	            }
+	            
+	            /// SUBLEVELS (1..6)
+	            for (unsigned int isublevel = 1 ; isublevel <= NB_SUBLEVELS ; isublevel++)
+	            {
 #ifdef DEBUG
-                cout << __FILE__ << ":" << __LINE__ << ":Info: cloning, coloring and adding TGraph "
-                                                    << _sublevel_names[isublevel-1] << " to sublevel TMultiGraph" << endl;
+	                cout << __FILE__ << ":" << __LINE__ << ":Info: cloning, coloring and adding TGraph "
+	                                                    << _sublevel_names[isublevel-1] << " to sublevel TMultiGraph" << endl;
 #endif
-                mgraphs[ix][iy][isublevel] = new TMultiGraph (TString::Format("%s_vs_%s_%s_%d", x[ix].Data(),
-                                                                                                y[iy].Data(),
-                                                                                                _sublevel_names[isublevel-1].Data(),
-                                                                                                canvas_index),             // name
-                                                             //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for ") +
-                                                              _sublevel_names[isublevel-1]                                 // graph title
-                                                              + TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]   // x axis title
-                                                              + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]); // y axis title
-                 graphs[ix][iy][             isublevel-1]->SetMarkerColor(kBlack);
-                 graphs[ix][iy][NB_SUBLEVELS+isublevel-1]->SetMarkerColor(kRed);
-                if (graphs[ix][iy][             isublevel-1]->GetN() > 0) mgraphs[ix][iy][isublevel]->Add(graphs[ix][iy][             isublevel-1], "P"); //(mgraphs[ix][iy][isublevel-1]->GetListOfGraphs()==0?"AP":"P")); // z>0
+	                mgraphs[ix][iy][isublevel] = new TMultiGraph (TString::Format("%s_vs_%s_%s_%d", x[ix].Data(),
+	                                                                                                y[iy].Data(),
+	                                                                                                _sublevel_names[isublevel-1].Data(),
+	                                                                                                canvas_index),             // name
+	                                                             //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for ") +
+	                                                              _sublevel_names[isublevel-1]                                 // graph title
+	                                                              + TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]   // x axis title
+	                                                              + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]); // y axis title
+	                 graphs[ix][iy][             isublevel-1]->SetMarkerColor(kBlack);
+	                 graphs[ix][iy][NB_SUBLEVELS+isublevel-1]->SetMarkerColor(kRed);
+	                if (graphs[ix][iy][             isublevel-1]->GetN() > 0) mgraphs[ix][iy][isublevel]->Add(graphs[ix][iy][             isublevel-1], "P"); //(mgraphs[ix][iy][isublevel-1]->GetListOfGraphs()==0?"AP":"P")); // z>0
 #ifdef TALKATIVE
-                else    cout << __FILE__ << ":" << __LINE__ << ":Info: graphs[ix][iy][isublevel-1]=" << graphs[ix][iy][isublevel-1]->GetName() << " is empty -> not added into " << mgraphs[ix][iy][isublevel]->GetName() << endl;
+	                else    cout << __FILE__ << ":" << __LINE__ << ":Info: graphs[ix][iy][isublevel-1]=" << graphs[ix][iy][isublevel-1]->GetName() << " is empty -> not added into " << mgraphs[ix][iy][isublevel]->GetName() << endl;
 #endif
-                if (graphs[ix][iy][NB_SUBLEVELS+isublevel-1]->GetN() > 0) mgraphs[ix][iy][isublevel]->Add(graphs[ix][iy][NB_SUBLEVELS+isublevel-1], "P"); //(mgraphs[ix][iy][isublevel-1]->GetListOfGraphs()==0?"AP":"P")); // z<0
+	                if (graphs[ix][iy][NB_SUBLEVELS+isublevel-1]->GetN() > 0) mgraphs[ix][iy][isublevel]->Add(graphs[ix][iy][NB_SUBLEVELS+isublevel-1], "P"); //(mgraphs[ix][iy][isublevel-1]->GetListOfGraphs()==0?"AP":"P")); // z<0
 #ifdef TALKATIVE
-                else    cout << __FILE__ << ":" << __LINE__ << ":Info: graphs[ix][iy][NB_SUBLEVEL+isublevel-1]=" << graphs[ix][iy][NB_Z_SLICES+isublevel-1]->GetName() << " is empty -> not added into " << mgraphs[ix][iy][isublevel]->GetName() << endl;
+	                else    cout << __FILE__ << ":" << __LINE__ << ":Info: graphs[ix][iy][NB_SUBLEVEL+isublevel-1]=" << graphs[ix][iy][NB_Z_SLICES+isublevel-1]->GetName() << " is empty -> not added into " << mgraphs[ix][iy][isublevel]->GetName() << endl;
 #endif
 #if NB_Z_SLICES!=2
-                cout << __FILE__ << ":" << __LINE__ << ":Error: color code incomplete for Z slices..." << endl;
+	                cout << __FILE__ << ":" << __LINE__ << ":Error: color code incomplete for Z slices..." << endl;
 #endif
-            }
-
-            // fixing ranges, saving, and drawing of TMultiGraph (tracker AND sublevels, i.e. 1+NB_SUBLEVELS objects)
-            // the individual canvases are saved, but the global are just drawn and will be saved later
-            for (unsigned short int imgr = 0 ; imgr <= NB_SUBLEVELS ; imgr++)
-            {
+	            }
+	
+	            // fixing ranges, saving, and drawing of TMultiGraph (tracker AND sublevels, i.e. 1+NB_SUBLEVELS objects)
+	            // the individual canvases are saved, but the global are just drawn and will be saved later
+	            for (unsigned short int imgr = 0 ; imgr <= NB_SUBLEVELS ; imgr++)
+	            {
 #ifdef DEBUG
-                cout << __FILE__ << ":" << __LINE__ << ":Info: treating individual canvases." << endl;
+	                cout << __FILE__ << ":" << __LINE__ << ":Info: treating individual canvases." << endl;
 #endif
-                // drawing into individual canvas and printing it (including a legend for the tracker canvas)
-                c[ix][iy][imgr] = new TCanvas (TString::Format("c_%s_vs_%s_%s_%d", x[ix].Data(),
-                                                                                   y[iy].Data(),
-                                                                                   imgr==0?"tracker":_sublevel_names[imgr-1].Data(),
-                                                                                   canvas_index),
-                                               TString::Format("%s vs. %s at %s level", x[ix].Data(),
-                                                                                        y[iy].Data(),
-                                                                                        imgr==0?"tracker":_sublevel_names[imgr-1].Data()),
-                                               _window_width,
-                                               _window_height);
-                c[ix][iy][imgr]->SetGrid(_grid_x,_grid_y); // grid
-                if (mgraphs[ix][iy][imgr]->GetListOfGraphs() != 0) mgraphs[ix][iy][imgr]->Draw("A");
-                if (imgr == 0 && _legend) legend->Draw(); // only for the tracker
-                if (_print) c[ix][iy][imgr]->Print(_output_directory + mgraphs[ix][iy][imgr]->GetName() + ExtensionFromPrintOption(_print_option), _print_option);
+	                // drawing into individual canvas and printing it (including a legend for the tracker canvas)
+	                c[ix][iy][imgr] = new TCanvas (TString::Format("c_%s_vs_%s_%s_%d", x[ix].Data(),
+	                                                                                   y[iy].Data(),
+	                                                                                   imgr==0?"tracker":_sublevel_names[imgr-1].Data(),
+	                                                                                   canvas_index),
+	                                               TString::Format("%s vs. %s at %s level", x[ix].Data(),
+	                                                                                        y[iy].Data(),
+	                                                                                        imgr==0?"tracker":_sublevel_names[imgr-1].Data()),
+	                                               _window_width,
+	                                               _window_height);
+	                c[ix][iy][imgr]->SetGrid(_grid_x,_grid_y); // grid
+	                if (mgraphs[ix][iy][imgr]->GetListOfGraphs() != 0) mgraphs[ix][iy][imgr]->Draw("A");
+	                if (imgr == 0 && _legend) legend->Draw(); // only for the tracker
+	                if (_print) c[ix][iy][imgr]->Print(_output_directory + mgraphs[ix][iy][imgr]->GetName() + ExtensionFromPrintOption(_print_option), _print_option);
+	
+	//                // setting ranges
+	//#ifdef DEBUG
+	//                cout << __FILE__ << ":" << __LINE__ << ":Info: setting X-axis range of " << mgraphs[ix][iy][imgr]->GetName() << endl;
+	//#endif
+	//                mgraphs[ix][iy][imgr]->GetXaxis()->SetLimits   ( left_margin_factor*_min[x[ix]],
+	//                                                                right_margin_factor*_max[x[ix]]); // for X axis, use SetLimits
+	//#ifdef DEBUG
+	//                cout << __FILE__ << ":" << __LINE__ << ":Info: setting Y-axis range of " << graphs[ix][iy][imgr]->GetName() << endl;
+	//#endif
+	//                mgraphs[ix][iy][imgr]->GetYaxis()->SetRangeUser(lower_margin_factor*_min[y[iy]],
+	//                                                                upper_margin_factor*_max[y[iy]]); // for Y axis, use SetRangeUser
+	
+	                // writing into root file
+	                if (_write) mgraphs[ix][iy][imgr]->Write();
+	
+	                // drawing into global canvas
+	                c_global[imgr]->cd(INDEX_IN_GLOBAL_CANVAS(ix,iy)); 
+	                c_global[imgr]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetFillStyle(4000); //  make the pad transparent
+	                c_global[imgr]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetGrid(_grid_x,_grid_y); // grid
+	                if (mgraphs[ix][iy][imgr]->GetListOfGraphs() != 0) mgraphs[ix][iy][imgr]->Draw("A");
+	                // printing will be performed after customisation (e.g. legend or title) just after the loops on ix and iy
+	            }
+	        } // end of loop on y
+	    }     // end of loop on x
+	}
+	
+    // Use different ordering of Plots in Multigraph if x.size()>y.size()
+	// Otherwise the plots are very squeezed
+    else{
+#define INDEX_IN_GLOBAL_CANVAS_Y(i1,i2) 1 + i1 + i2*y.size()
+	    // creating TLegend
+	    TLegend * legend = MakeLegend(.1,.92,.9,1.);
+	    if (_write) legend->Write();
+	    // running on the TGraphs to produce the TMultiGraph and draw/print them
+	    for (unsigned int ix = 0 ; ix < x.size() ; ix++)
+	    {
+#ifdef DEBUG
+	        cout << __FILE__ << ":" << __LINE__ << ":Info: x[" << ix << "]="<< x[ix] << endl;
+#endif
 
-//                // setting ranges
-//#ifdef DEBUG
-//                cout << __FILE__ << ":" << __LINE__ << ":Info: setting X-axis range of " << mgraphs[ix][iy][imgr]->GetName() << endl;
-//#endif
-//                mgraphs[ix][iy][imgr]->GetXaxis()->SetLimits   ( left_margin_factor*_min[x[ix]],
-//                                                                right_margin_factor*_max[x[ix]]); // for X axis, use SetLimits
-//#ifdef DEBUG
-//                cout << __FILE__ << ":" << __LINE__ << ":Info: setting Y-axis range of " << graphs[ix][iy][imgr]->GetName() << endl;
-//#endif
-//                mgraphs[ix][iy][imgr]->GetYaxis()->SetRangeUser(lower_margin_factor*_min[y[iy]],
-//                                                                upper_margin_factor*_max[y[iy]]); // for Y axis, use SetRangeUser
+	        // looping on Y axes
+	        for (unsigned int iy = 0 ; iy < y.size() ; iy++)
+	        {
+	
+#ifdef TALKATIVE
+	            cout << __FILE__ << ":" << __LINE__ << ":Info: x[" << ix << "]=" << x[ix]
+	                                                <<   " and y[" << iy << "]=" << y[iy] 
+	                                                <<   "\t-> creating TMultiGraph" << endl;
+#endif
+	            mgraphs[iy][ix][0] = new TMultiGraph (TString::Format("mgr_%s_vs_%s_tracker_%d", x[ix].Data(),
+	                                                                                             y[iy].Data(),
+	                                                                                             canvas_index),        // name
+	                                                  //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for Tracker") // graph title
+	                                                    TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]                     // x axis title
+	                                                  + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]);                   // y axis title
+	
+	            /// TRACKER
+	            // fixing ranges and filling TMultiGraph
+	            // for (unsigned short int jgraph = NB_SUBLEVELS*NB_Z_SLICES-1 ; jgraph >= 0 ; --jgraph)
+	            for (unsigned short int jgraph = 0 ; jgraph < NB_SUBLEVELS*NB_Z_SLICES ; jgraph++)
+	            {
+	                unsigned short int igraph = NB_SUBLEVELS*NB_Z_SLICES - jgraph - 1; // reverse counting for humane readability (one of the sublevel takes much more place than the others)
+	
+	
+#ifdef DEBUG
+	                cout << __FILE__ << ":" << __LINE__ << ":Info: writing TGraph to file" << endl;
+#endif
+	                // write into root file
+	                if (_write) graphs[iy][ix][igraph]->Write();
+	                if (graphs[iy][ix][igraph]->GetN() == 0)
+	                {
+#ifdef TALKATIVE
+	                    cout <<  __FILE__ << ":" << __LINE__ << ":Info: " << graphs[iy][ix][igraph]->GetName()  << " is empty." << endl;
+#endif
+	                    continue;
+	                }
+#ifdef DEBUG
+	                cout << __FILE__ << ":" << __LINE__ << ":Info: cloning, coloring and adding TGraph "
+	                                                    << _sublevel_names[igraph%NB_SUBLEVELS] 
+	                                                    << (igraph >= NB_SUBLEVELS ? "(z<0)" : "(z>0)")
+	                                                    << " to global TMultiGraph" << endl;
+#endif
+	                // clone to prevent any injure on the graph
+	                TGraph * gr = (TGraph *) graphs[iy][ix][igraph]->Clone();
+	                // color
+	                gr->SetMarkerColor(COLOR_CODE(igraph%NB_SUBLEVELS));
+	                mgraphs[iy][ix][0]->Add(gr, "P");//, (mgraphs[iy][ix][0]->GetListOfGraphs()==0?"AP":"P"));
+	            }
+	            
+	            /// SUBLEVELS (1..6)
+	            for (unsigned int isublevel = 1 ; isublevel <= NB_SUBLEVELS ; isublevel++)
+	            {
 
-                // writing into root file
-                if (_write) mgraphs[ix][iy][imgr]->Write();
-
-                // drawing into global canvas
-                c_global[imgr]->cd(INDEX_IN_GLOBAL_CANVAS(ix,iy)); 
-                c_global[imgr]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetFillStyle(4000); //  make the pad transparent
-                c_global[imgr]->GetPad(INDEX_IN_GLOBAL_CANVAS(ix,iy))->SetGrid(_grid_x,_grid_y); // grid
-                if (mgraphs[ix][iy][imgr]->GetListOfGraphs() != 0) mgraphs[ix][iy][imgr]->Draw("A");
-                // printing will be performed after customisation (e.g. legend or title) just after the loops on ix and iy
-            }
-        } // end of loop on y
-    }     // end of loop on x
+#ifdef DEBUG
+	                cout << __FILE__ << ":" << __LINE__ << ":Info: cloning, coloring and adding TGraph "
+	                                                    << _sublevel_names[isublevel-1] << " to sublevel TMultiGraph" << endl;
+#endif
+	                mgraphs[iy][ix][isublevel] = new TMultiGraph (TString::Format("%s_vs_%s_%s_%d", x[ix].Data(),
+	                                                                                                y[iy].Data(),
+	                                                                                                _sublevel_names[isublevel-1].Data(),
+	                                                                                                canvas_index),             // name
+	                                                             //LateXstyle(x[ix]) + TString(" vs. ") + LateXstyle(y[iy]) + TString(" for ") +
+	                                                              _sublevel_names[isublevel-1]                                 // graph title
+	                                                              + TString (";") + LateXstyle(x[ix]) + " /" + _units[x[ix]]   // x axis title
+	                                                              + TString (";") + LateXstyle(y[iy]) + " /" + _units[y[iy]]); // y axis title
+	                 graphs[iy][ix][             isublevel-1]->SetMarkerColor(kBlack);
+	                 graphs[iy][ix][NB_SUBLEVELS+isublevel-1]->SetMarkerColor(kRed);
+	                if (graphs[iy][ix][             isublevel-1]->GetN() > 0) mgraphs[iy][ix][isublevel]->Add(graphs[iy][ix][             isublevel-1], "P"); //(mgraphs[iy][ix][isublevel-1]->GetListOfGraphs()==0?"AP":"P")); // z>0
+#ifdef TALKATIVE
+	                else    cout << __FILE__ << ":" << __LINE__ << ":Info: graphs[iy][ix][isublevel-1]=" << graphs[iy][ix][isublevel-1]->GetName() << " is empty -> not added into " << mgraphs[iy][ix][isublevel]->GetName() << endl;
+#endif
+	                if (graphs[iy][ix][NB_SUBLEVELS+isublevel-1]->GetN() > 0) mgraphs[iy][ix][isublevel]->Add(graphs[iy][ix][NB_SUBLEVELS+isublevel-1], "P"); //(mgraphs[iy][ix][isublevel-1]->GetListOfGraphs()==0?"AP":"P")); // z<0
+#ifdef TALKATIVE
+	                else    cout << __FILE__ << ":" << __LINE__ << ":Info: graphs[iy][ix][NB_SUBLEVEL+isublevel-1]=" << graphs[iy][ix][NB_Z_SLICES+isublevel-1]->GetName() << " is empty -> not added into " << mgraphs[iy][ix][isublevel]->GetName() << endl;
+#endif
+#if NB_Z_SLICES!=2
+	                cout << __FILE__ << ":" << __LINE__ << ":Error: color code incomplete for Z slices..." << endl;
+#endif
+	            }
+	
+	            // fixing ranges, saving, and drawing of TMultiGraph (tracker AND sublevels, i.e. 1+NB_SUBLEVELS objects)
+	            // the individual canvases are saved, but the global are just drawn and will be saved later
+	            for (unsigned short int imgr = 0 ; imgr <= NB_SUBLEVELS ; imgr++)
+	            {
+#ifdef DEBUG
+	                cout << __FILE__ << ":" << __LINE__ << ":Info: treating individual canvases." << endl;
+#endif
+	                // drawing into individual canvas and printing it (including a legend for the tracker canvas)
+	                c[iy][ix][imgr] = new TCanvas (TString::Format("c_%s_vs_%s_%s_%d", x[ix].Data(),
+	                                                                                   y[iy].Data(),
+	                                                                                   imgr==0?"tracker":_sublevel_names[imgr-1].Data(),
+	                                                                                   canvas_index),
+	                                               TString::Format("%s vs. %s at %s level", x[ix].Data(),
+	                                                                                        y[iy].Data(),
+	                                                                                        imgr==0?"tracker":_sublevel_names[imgr-1].Data()),
+	                                               _window_width,
+	                                               _window_height);
+	                c[iy][ix][imgr]->SetGrid(_grid_y,_grid_x); // grid
+	                if (mgraphs[iy][ix][imgr]->GetListOfGraphs() != 0) mgraphs[iy][ix][imgr]->Draw("A");
+	                if (imgr == 0 && _legend) legend->Draw(); // only for the tracker
+	                if (_print) c[iy][ix][imgr]->Print(_output_directory + mgraphs[iy][ix][imgr]->GetName() + ExtensionFromPrintOption(_print_option), _print_option);
+	
+	
+	
+	                // writing into root file
+	                if (_write) mgraphs[iy][ix][imgr]->Write();
+	
+	                // drawing into global canvas
+	                c_global[imgr]->cd(INDEX_IN_GLOBAL_CANVAS_Y(iy,ix)); 
+	                c_global[imgr]->GetPad(INDEX_IN_GLOBAL_CANVAS_Y(iy,ix))->SetFillStyle(4000); //  make the pad transparent
+	                c_global[imgr]->GetPad(INDEX_IN_GLOBAL_CANVAS_Y(iy,ix))->SetGrid(_grid_y,_grid_x); // grid
+	                if (mgraphs[iy][ix][imgr]->GetListOfGraphs() != 0) mgraphs[iy][ix][imgr]->Draw("A");
+	                // printing will be performed after customisation (e.g. legend or title) just after the loops on ix and iy
+	            }
+	        } // end of loop on y
+	    }     // end of loop on x
+	}
+    
 
     // CUSTOMISATION
     gStyle->SetOptTitle(0); // otherwise, the title is repeated in every pad of the global canvases
