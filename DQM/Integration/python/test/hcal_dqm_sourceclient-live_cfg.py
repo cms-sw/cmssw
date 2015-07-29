@@ -11,18 +11,17 @@ subsystem="Hcal" # specify subsystem name here
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #----------------------------
 # DQM Environment
 #-----------------------------
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = subsystem
+process.dqmSaver.tag = subsystem
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 
 print "Running with run type = ", process.runType.getRunType()
@@ -48,10 +47,10 @@ if (host==HcalPlaybackHost):
 # Hcal Conditions: from Global Conditions Tag 
 #-----------------------------
 # DB Condition for online cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 # DB condition for offline test
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
@@ -344,5 +343,5 @@ if (HEAVYION):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

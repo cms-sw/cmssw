@@ -38,29 +38,27 @@ process.csc2DRecHits.readBadChambers = cms.bool(False)
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #----------------------------
 # DQM Environment
 #-----------------------------
 
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-
 #----------------------------
 # DQM Playback Environment
 #-----------------------------
 
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "CSC"
+process.dqmSaver.tag = "CSC"
 
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/csc_reference.root'
 
 #process.DQM.collectorHost = 'pccmsdqm02.cern.ch'
 #process.DQM.collectorHost = 'localhost'
-process.dqmSaver.dirName = '.'
 
 #-----------------------------
 # Magnetic Field
@@ -78,7 +76,7 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # Global Tag
 #-------------------------------------------------
 # Condition for P5 cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 
 #--------------------------------------
@@ -125,7 +123,7 @@ del cscConditions
 
 
 # Condition for lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 #--------------------------
 # Service
@@ -215,5 +213,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

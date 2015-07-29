@@ -6,16 +6,21 @@ process = cms.Process("HARVESTING")
 #### Histograms Source
 #----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.pbsource_cfi")
+process.load("DQM.Integration.config.pbsource_cfi")
 
 #----------------------------
 #### DQM Environment
 #----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'HLTpb'
 process.dqmEnv.eventInfoFolder = 'EventInfo'
-process.dqmSaver.dirName = './HLT'
+process.dqmSaver.tag = 'HLTpb'
+#process.dqmSaver.path = './HLT'
 #-----------------------------
+
+# customise for playback
+if process.dqmRunConfig.type.value() is "playback":
+    process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
 
 # DQM Modules
 # FastTimerService client

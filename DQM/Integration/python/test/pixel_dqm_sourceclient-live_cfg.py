@@ -17,10 +17,10 @@ QTestfile = 'DQM/SiPixelMonitorClient/test/sipixel_qualitytest_config.xml'
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 ##
 #----------------------------
@@ -31,10 +31,9 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #----------------------------
 # DQM Live Environment
 #-----------------------------
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "Pixel"
-# for local running
-process.dqmSaver.dirName = '.'
+process.dqmSaver.tag = "Pixel"
 
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/pixel_reference_pp.root'
 if (process.runType.getRunType() == process.runType.hi_run):
@@ -59,9 +58,9 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # GLOBALTAG
 #-------------------------------------------------
 # Condition for P5 cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 #-----------------------
 #  Reconstruction Modules
@@ -141,7 +140,7 @@ process.SiPixelDigiSource.diskOn = True
 process.p = cms.Path(process.Reco*process.DQMmodules*process.SiPixelRawDataErrorSource*process.SiPixelDigiSource*process.SiPixelClusterSource*process.PixelP5DQMClientWithDataCertification)
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
 
 #--------------------------------------------------

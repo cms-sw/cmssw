@@ -22,32 +22,25 @@ offlineTesting=not live
 #-----------------------------
 # for live online DQM in P5
 if (live):
-    process.load("DQM.Integration.test.inputsource_cfi")
+    process.load("DQM.Integration.config.inputsource_cfi")
 # for testing in lxplus
 elif(offlineTesting):
-    process.load("DQM.Integration.test.fileinputsource_cfi")
-
-#----------------------------
-# DQM Environment
-#-----------------------------
-process.load("DQMServices.Components.DQMEnvironment_cfi")
+    process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #----------------------------
 # DQM Live Environment
 #-----------------------------
-#from DQM.Integration.test.environment_cfi import HEAVYION
+#from DQM.Integration.config.environment_cfi import HEAVYION
 
 #process.runType.setRunType('cosmic_run')
 #process.runType.setRunType('pp_run')
 
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.DQM.filter = '^(SiStrip|Tracking)(/[^/]+){0,5}$'
 
 process.dqmEnv.subSystemFolder    = "SiStrip"
-process.dqmSaver.saveByLumiSection = 30
-
-# uncomment for running in local
-process.dqmSaver.dirName     = '.'
+process.dqmSaver.tag = "SiStrip"
+process.dqmSaver.backupLumiCount = 30
 
 process.dqmEnvTr = cms.EDAnalyzer("DQMEventInfo",
                  subSystemFolder = cms.untracked.string('Tracking'),
@@ -87,10 +80,10 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #--------------------------
 # Condition for P5 cluster
 if (live):
-    process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+    process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus
 elif(offlineTesting):
-    process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+    process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 #--------------------------------------------
 ## Patch to avoid using Run Info information in reconstruction
@@ -587,5 +580,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
     
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

@@ -6,10 +6,10 @@ from FWCore.MessageLogger.MessageLogger_cfi import *
 
 ## Input source
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 ## HLX configuration
 process.load("DQM.HLXMonitor.hlx_dqm_sourceclient_cfi")
@@ -21,11 +21,9 @@ process.hlxdqmsource.PrimaryHLXDAQIP = 'vmepcs2f17-21'
 process.hlxdqmsource.SourcePort = 51010
 
 ## Set up env and saver
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder    = "HLX"
-
-process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.dqmSaver.dirName = '.'
+process.dqmSaver.tag= "HLX"
 
 ## Lumi reference file
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/hlx_reference.root'
@@ -42,10 +40,6 @@ process.hlxQualityTester = cms.EDAnalyzer("QualityTester",
 
 process.p = cms.Path(process.hlxdqmsource*process.hlxQualityTester*process.dqmEnv*process.dqmSaver)
 
-## Shouldn't need this anymore ...
-##process.hlxdqmsource.outputDir = process.dqmSaver.dirName
-
-
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

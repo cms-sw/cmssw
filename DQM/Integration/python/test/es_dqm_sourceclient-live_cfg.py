@@ -7,15 +7,15 @@ process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load("FWCore.Modules.preScaler_cfi")
 
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 # Condition for P5 cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 # Condition for lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 process.load("EventFilter.ESRawToDigi.esRawToDigi_cfi")
 #process.ecalPreshowerDigis = EventFilter.ESRawToDigi.esRawToDigi_cfi.esRawToDigi.clone()
@@ -36,13 +36,13 @@ process.preScaler.prescaleFactor = 1
 #                                   )
 
 #process.load("DQMServices.Core.DQM_cfg")
-#process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.load("DQM.Integration.test.environment_cfi")
+process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'EcalPreshower'
+process.dqmSaver.tag = 'EcalPreshower'
 process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/es_reference.root'
 # for local test
-process.dqmSaver.dirName = '.'
+#process.dqmSaver.path = '.'
 
 process.load("DQM/EcalPreshowerMonitorModule/EcalPreshowerMonitorTasks_cfi")
 process.ecalPreshowerIntegrityTask.ESDCCCollections = cms.InputTag("esRawToDigi")
@@ -80,5 +80,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
