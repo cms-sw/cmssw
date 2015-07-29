@@ -423,7 +423,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int ww=0;ww<associators.size();ww++){
-    for (unsigned int www=0;www<label.size();www++){
+    for (unsigned int www=0;www<label.size();www++, w++){ // need to increment w here, since there are many continues in the loop body
       //
       //get collections from the event
       //
@@ -737,8 +737,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
                                  << "Total Reconstructed: " << rT << "\n"
                                  << "Total Associated (recoToSim): " << at << "\n"
                                  << "Total Fakes: " << rT-at << "\n";
-
-      w++;
     } // End of  for (unsigned int www=0;www<label.size();www++){
   } //END of for (unsigned int ww=0;ww<associators.size();ww++){
 
