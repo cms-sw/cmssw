@@ -61,7 +61,7 @@ public:
     // Using this constructor will cause it to look for valid InputTags in
     // the following ways in the specified order until they are found.
     //   1. The configuration
-    //   2. Search all products from the RECO process for the required type
+    //   2. Search all products from the preferred input tags for the required type
     //   3. Search all products from any other process for the required type
     template <typename T>
     L1GtUtils(edm::ParameterSet const& pset,
@@ -79,7 +79,7 @@ public:
     // the following ways in the specified order until they are found.
     //   1. The constructor arguments
     //   2. The configuration
-    //   3. Search all products from the RECO process for the required type
+    //   3. Search all products from the preferred input tags for the required type
     //   4. Search all products from any other process for the required type
     template <typename T>
     L1GtUtils(edm::ParameterSet const& pset,
