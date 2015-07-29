@@ -101,72 +101,28 @@ firstStepPrimaryVertices.vertexCollections = cms.VPSet(
  
 
 # Final selection
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepSelector
-from RecoTracker.IterativeTracking.LowPtTripletStep_cff import lowPtTripletStepSelector
-initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='initialStepTracks',
-    useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
-    trackSelectors= cms.VPSet(
-    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-        name = 'initialStepLoose',
-        useMVA = cms.bool(True),
-        minMVA = cms.double(-0.9),
-        useMVAonly = cms.bool(True),
-        mvaType = cms.string('Prompt'),
-        GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
-        ), #end of pset
-    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-        name = 'initialStepTight',
-        preFilterName = 'initialStepLoose',
-        GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
-        mvaType = cms.string("Prompt"),
-        ),
-    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-        name = 'initialStepV1',
-        preFilterName = 'initialStepLoose',
-        GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
-        mvaType = cms.string("Prompt"),
-        minMVA = cms.double(-0.7),
-        useMVA = cms.bool(True),
-        useMVAonly = cms.bool(True),
-        qualityBit = cms.string('highPurity'),
-        keepAllTracks = cms.bool(True),
-        ),
-    lowPtTripletStepSelector.trackSelectors[2].clone(
-        name = 'initialStepV4',
-        preFilterName=cms.string(''),
-        keepAllTracks = cms.bool(False)
-        ),
-    detachedTripletStepSelector.trackSelectors[4].clone(
-        name = 'initialStepV2',
-        preFilterName=cms.string(''),
-        keepAllTracks = cms.bool(False)
-        ),
-    detachedTripletStepSelector.trackSelectors[5].clone(
-        name = 'initialStepV3',
-        preFilterName=cms.string(''),
-        keepAllTracks = cms.bool(False)
-        )
-    ) #end of vpset
-)#end of clone
-import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-initialStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('initialStepTracks'),
-                                   cms.InputTag('initialStepTracks'),
-                                   cms.InputTag('initialStepTracks'),
-                                   cms.InputTag('initialStepTracks')),
-    hasSelector=cms.vint32(1,1,1,1),
-    shareFrac = cms.double(0.99),
-    indivShareFrac=cms.vdouble(1.0,1.0,1.0,1.0),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStepV1"),
-                                       cms.InputTag("initialStepSelector","initialStepV4"),
-                                       cms.InputTag("initialStepSelector","initialStepV2"),
-                                       cms.InputTag("initialStepSelector","initialStepV3")),
-    setsToMerge = cms.VPSet(cms.PSet( tLists=cms.vint32(0,1,2,3), pQual=cms.bool(True) )),
-    writeOnlyTrkQuals=cms.bool(True)
-    )
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
+
+initialStepClassifier1 = TrackMVAClassifierPrompt.clone()
+initialStepClassifier1.src = 'initialStepTracks'
+initialStepClassifier1.GBRForestLabel = 'MVASelectorIter0_13TeV'
+initialStepClassifier1.qualityCuts = [-0.9,-0.8,-0.7]
+
+from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTripletStepClassifier1
+from RecoTracker.IterativeTracking.LowPtTripletStep_cff import lowPtTripletStep
+initialStepClassifier2 = detachedTripletStepClassifier1.clone()
+initialStepClassifier2.src = 'initialStepTracks'
+initialStepClassifier3 = lowPtTripletStep.clone()
+initialStepClassifier3.src = 'initialStepTracks'
+
+
+
+from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
+initialStep = ClassifierMerger.clone()
+initialStep.inputClassifiers=['initialStepClassifier1','initialStepClassifier2','initialStepClassifier3']
+
+
 
 # Final sequence
 InitialStep = cms.Sequence(initialStepSeedLayers*
@@ -174,5 +130,5 @@ InitialStep = cms.Sequence(initialStepSeedLayers*
                            initialStepTrackCandidates*
                            initialStepTracks*
                            firstStepPrimaryVertices*
-                           initialStepSelector*
+                           initialStepClassifier1*initialStepClassifier2*initialStepClassifier3*
                            initialStep)

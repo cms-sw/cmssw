@@ -8,7 +8,7 @@ from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMas
 mixedTripletStepMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("pixelPairStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
+    overrideTrkQuals = cms.InputTag('pixelPairStep',"QualityMasks"),                        
     oldHitCombinationMasks = cms.InputTag("pixelPairStepMasks","hitCombinationMasks"),
     oldHitMasks = cms.InputTag("pixelPairStepMasks","hitMasks")
 )
@@ -65,8 +65,11 @@ mixedTripletStepTracks = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixe
 )
 
 # final selection
-mixedTripletStepSelector = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSelector.clone()
-mixedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+mixedTripletStepClassifier1 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClassifier1.clone()
+mixedTripletStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+mixedTripletStepClassifier2 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClassifier2.clone()
+mixedTripletStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
+
 mixedTripletStep = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStep.clone()
 
 # Final sequence 
@@ -76,6 +79,6 @@ MixedTripletStep =  cms.Sequence(mixedTripletStepMasks
                                  +mixedTripletStepSeeds
                                  +mixedTripletStepTrackCandidates
                                  +mixedTripletStepTracks
-                                 +mixedTripletStepSelector
+                                 +mixedTripletStepClassifier1*mixedTripletStepClassifier2
                                  +mixedTripletStep                                 
                              )
