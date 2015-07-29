@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ###########################################################
-## Working points for the 5X training
+## Working points for the 7X training
 ###########################################################
 full_74x_chs_wp  = cms.PSet(
     #4 Eta Categories  0-2 2.-2.5 2.5-3.0 3.0-5.0                                                                                                                                              
@@ -25,6 +25,9 @@ full_74x_chs_wp  = cms.PSet(
     Pt3050_Loose   = cms.vdouble(-0.15,-0.26,-0.16,-0.16)   
 )
 
+###########################################################
+## Working points for the 5X training
+###########################################################
 full_5x_wp = cms.PSet(
     #4 Eta Categories  0-2.5 2.5-2.75 2.75-3.0 3.0-5.0
 
