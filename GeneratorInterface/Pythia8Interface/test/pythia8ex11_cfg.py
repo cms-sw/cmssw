@@ -1,3 +1,5 @@
+#Using evtgen plugin
+
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
@@ -11,35 +13,18 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-    comEnergy = cms.double(7000.),
-    #PPbarInitialState = cms.PSet(),
-    #SLHAFileForPythia8 = cms.string('Configuration/Generator/data/CSA07SUSYBSM_LM9p_sftsdkpyt_slha.out'),
-    #reweightGen = cms.PSet(),
-    #reweightGenRap = cms.PSet( # flat in eta
-    #   yLabSigmaFunc = cms.string("15.44/pow(x,0.0253)-12.56"),
-    #   yLabPower = cms.double(2.),
-    #   yCMSigmaFunc = cms.string("5.45/pow(x+64.84,0.34)"),
-    #   yCMPower = cms.double(2.),
-    #   pTHatMin = cms.double(15.),
-    #   pTHatMax = cms.double(3000.)
-    #),
-    #reweightGenPtHatRap = cms.PSet( # flat in Pt and eta
-    #   yLabSigmaFunc = cms.string("15.44/pow(x,0.0253)-12.56"),
-    #   yLabPower = cms.double(2.),
-    #   yCMSigmaFunc = cms.string("5.45/pow(x+64.84,0.34)"),
-    #   yCMPower = cms.double(2.),
-    #   pTHatMin = cms.double(15.),
-    #   pTHatMax = cms.double(3000.)
-    #),
+    comEnergy = cms.double(13000.),
+    useEvtGenPlugin = cms.PSet(),
+    #evtgenDecFile = cms.string("mydecfile"),
+    #evtgenPdlFile = cms.string("mypdlfile"),
     PythiaParameters = cms.PSet(
-        pythia8_example02 = cms.vstring('HardQCD:all = on',
-                                        'PhaseSpace:pTHatMin = 20.'),
-        parameterSets = cms.vstring('pythia8_example02')
+        pythia8_example11 = cms.vstring('HardQCD:hardbbbar = on'),
+        parameterSets = cms.vstring('pythia8_example11')
     )
 )
 
 # in order to use lhapdf PDF add a line like this to pythia8_example02:
-# 'PDF:pSet = LHAPDF6:CT10'
+# 'PDF:pSet = LHAPDF5:MRST2004nlo.LHpdf'
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
@@ -62,7 +47,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('pythia8ex2.root')
+    fileName = cms.untracked.string('pythia8ex11.root')
 )
 
 process.p = cms.Path(process.generator)
