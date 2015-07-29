@@ -14,10 +14,10 @@ l1compare = cms.EDProducer("L1Comparator",
     DTFsourceData = cms.InputTag("dttfDigis"),
     DTFsourceEmul = cms.InputTag("valDttfDigis"),
     
-    RPCsourceData = cms.InputTag("gtDigis"),
+    RPCsourceData = cms.InputTag("l1GtUnpack"),
     RPCsourceEmul = cms.InputTag("valRpcTriggerDigis"),
     
-    GMTsourceData = cms.InputTag("gtDigis"),
+    GMTsourceData = cms.InputTag("l1GtUnpack"),
     GMTsourceEmul = cms.InputTag("valGmtDigis"),
     
     FEDsourceData = cms.untracked.InputTag("rawDataCollector"),
@@ -31,8 +31,8 @@ l1compare = cms.EDProducer("L1Comparator",
     
     # ECAL TPG (ETP), HCAL TPG (HTP), CSC TF (CTF) LTC, GT not supported - expert modules in DQM
     COMPARE_COLLS = cms.untracked.vuint32(
-       0,  0,  1,  1,  0,  1,  0,  0,  1,  0,  1, 0
-    # ETP,HTP,RCT,GCT,DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT,
+        0,  0,  1,  1,   0,  1,  0,  0,  1,  0,  1, 0
+    # ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT
     )
 )
 
