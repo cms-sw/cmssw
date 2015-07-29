@@ -53,6 +53,7 @@ class EcalClusterFunctionBaseClass ;
 #include <list>
 #include <string>
 
+#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgoHeavyObjectCache.h"
 
 class GsfElectronAlgo {
 
@@ -219,14 +220,15 @@ class GsfElectronAlgo {
     void beginEvent( edm::Event & ) ;
     void displayInternalElectrons( const std::string & title ) const ;
     void clonePreviousElectrons() ;
-    void completeElectrons() ; // do not redo cloned electrons done previously
+    void completeElectrons(const gsfAlgoHelpers::HeavyObjectCache*) ; // do not redo cloned electrons done previously
     void addPflowInfo() ; // now deprecated
     void setAmbiguityData( bool ignoreNotPreselected = true ) ;
     void removeNotPreselectedElectrons() ;
     void removeAmbiguousElectrons() ;
     void copyElectrons( reco::GsfElectronCollection & ) ;
     void setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaInput> & mvaInputs)  ;
-    void setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs) ;
+    void setMVAOutputs(const gsfAlgoHelpers::HeavyObjectCache*,
+                       const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs) ;
     void endEvent() ;
 
   private :
@@ -241,7 +243,7 @@ class GsfElectronAlgo {
     EventData * eventData_ ;
     ElectronData * electronData_ ;
 
-    void createElectron() ;
+    void createElectron(const gsfAlgoHelpers::HeavyObjectCache*) ;
 
     void setMVAepiBasedPreselectionFlag(reco::GsfElectron * ele);
     void setCutBasedPreselectionFlag( reco::GsfElectron * ele, const reco::BeamSpot & ) ;

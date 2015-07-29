@@ -70,9 +70,18 @@ process.RawToDigi.remove("siStripDigis")
 process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 
+if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+else:
+    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+
 # L1HvVal + emulator monitoring path
 process.l1HwValEmulatorMonitorPath = cms.Path(process.l1HwValEmulatorMonitor)
 
+if (process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+else:
+    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
 # for RCT at P5, read FED vector from OMDS
 #process.load("L1TriggerConfig.RCTConfigProducers.l1RCTOmdsFedVectorProducer_cfi")
 #process.valRctDigis.getFedsFromOmds = cms.bool(True)
@@ -84,7 +93,9 @@ process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
 process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)
 
 #
+process.valCscTriggerPrimitiveDigis.gangedME1a = cms.untracked.bool(False)
 
+process.valCsctfTrackDigis.SectorProcessor.gangedME1a = cms.untracked.bool(False)
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
                                 process.l1HwValEmulatorMonitorPath,

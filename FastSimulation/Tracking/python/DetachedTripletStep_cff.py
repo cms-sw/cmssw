@@ -8,7 +8,7 @@ import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
 detachedTripletStepMasks = FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
     trackCollection = _detachedTripletStep.detachedTripletStepClusters.trajectories,
     TrackQuality = _detachedTripletStep.detachedTripletStepClusters.TrackQuality,
-    overrideTrkQuals =  _detachedTripletStep.detachedTripletStepClusters.overrideTrkQuals
+    overrideTrkQuals = cms.InputTag('initialStep',"QualityMasks")
 )
 
 # trajectory seeds
@@ -45,8 +45,10 @@ detachedTripletStepTracks = _detachedTripletStep.detachedTripletStepTracks.clone
 )
 
 #final selection
-detachedTripletStepSelector = _detachedTripletStep.detachedTripletStepSelector.clone()
-detachedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+detachedTripletStepClassifier1 = _detachedTripletStep.detachedTripletStepClassifier1.clone()
+detachedTripletStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+detachedTripletStepClassifier2 = _detachedTripletStep.detachedTripletStepClassifier2.clone()
+detachedTripletStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
 detachedTripletStep = _detachedTripletStep.detachedTripletStep.clone() 
 
 # Final sequence 
@@ -54,6 +56,6 @@ DetachedTripletStep = cms.Sequence(detachedTripletStepMasks
                                    +detachedTripletStepSeeds
                                    +detachedTripletStepTrackCandidates
                                    +detachedTripletStepTracks
-                                   +detachedTripletStepSelector
+                                   +detachedTripletStepClassifier1*detachedTripletStepClassifier2
                                    +detachedTripletStep
                                    )

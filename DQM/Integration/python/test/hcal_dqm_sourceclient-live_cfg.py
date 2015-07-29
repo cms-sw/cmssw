@@ -190,7 +190,7 @@ if (HEAVYION):
     process.hcalHotCellMonitor.ETThreshold = cms.untracked.double(10.0)
     process.hcalHotCellMonitor.ETThreshold_HF  = cms.untracked.double(10.0)
     
-if process.runType.getRunType() == process.runType.cosmic_run:
+if (process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
     process.hcalDetDiagTimingMonitor.CosmicsCorr=True
 
 

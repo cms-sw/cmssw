@@ -13,6 +13,8 @@
  *
  *
  *   \author  R.Bellan - INFN TO
+ *
+ *   modified by A. Sharma to add fillDescription function
  */
 //
 //--------------------------------------------------
@@ -20,6 +22,8 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -38,7 +42,7 @@ class L2MuonProducer : public edm::stream::EDProducer<> {
   
   /// reconstruct muons
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);   
  private:
 
   // MuonSeed Collection Label

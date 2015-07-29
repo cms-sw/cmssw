@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 
@@ -29,13 +28,15 @@ class FastTrackingMaskProducer : public edm::stream::EDProducer <>
 
  private:
 
+  using QualityMaskCollection = std::vector<unsigned char>;
+
 
 
   // consumes                                                                                                                 
   edm::EDGetTokenT<reco::TrackCollection>  trackToken_;
   edm::EDGetTokenT<std::vector<bool> > hitMasksToken_;
   edm::EDGetTokenT<std::vector<bool> > hitCombinationMasksToken_;
-  edm::EDGetTokenT<edm::ValueMap<int> > trkQualsToken_;
+  edm::EDGetTokenT<QualityMaskCollection> trkQualsToken_;
   // set value in constructor
   bool oldHitMasks_exists_;
   bool oldHitCombinationMasks_exists_;
