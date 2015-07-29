@@ -284,13 +284,13 @@ void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const fl
 	  if(m_hvtxzvsorbrun && *m_hvtxzvsorbrun )  (*m_hvtxzvsorbrun)->Fill(orbit,vtx->z(),weight);
 	}
 	if(m_runHistoBXProfile) {
-	  if(m_hvtxxvsbxrun && *m_hvtxxvsbxrun )  (*m_hvtxxvsbxrun)->Fill(bx,vtx->x(),weight);
-	  if(m_hvtxyvsbxrun && *m_hvtxyvsbxrun )  (*m_hvtxyvsbxrun)->Fill(bx,vtx->y(),weight);
-	  if(m_hvtxzvsbxrun && *m_hvtxzvsbxrun )  (*m_hvtxzvsbxrun)->Fill(bx,vtx->z(),weight);
+	  if(m_hvtxxvsbxrun && *m_hvtxxvsbxrun )  (*m_hvtxxvsbxrun)->Fill(bx%3564,vtx->x(),weight);
+	  if(m_hvtxyvsbxrun && *m_hvtxyvsbxrun )  (*m_hvtxyvsbxrun)->Fill(bx%3564,vtx->y(),weight);
+	  if(m_hvtxzvsbxrun && *m_hvtxzvsbxrun )  (*m_hvtxzvsbxrun)->Fill(bx%3564,vtx->z(),weight);
 	  if(m_runHisto2D) {
-	    if(m_hvtxxvsbx2drun && *m_hvtxxvsbx2drun )  (*m_hvtxxvsbx2drun)->Fill(bx,vtx->x(),weight);
-	    if(m_hvtxyvsbx2drun && *m_hvtxyvsbx2drun )  (*m_hvtxyvsbx2drun)->Fill(bx,vtx->y(),weight);
-	    if(m_hvtxzvsbx2drun && *m_hvtxzvsbx2drun )  (*m_hvtxzvsbx2drun)->Fill(bx,vtx->z(),weight);
+	    if(m_hvtxxvsbx2drun && *m_hvtxxvsbx2drun )  (*m_hvtxxvsbx2drun)->Fill(bx%3564,vtx->x(),weight);
+	    if(m_hvtxyvsbx2drun && *m_hvtxyvsbx2drun )  (*m_hvtxyvsbx2drun)->Fill(bx%3564,vtx->y(),weight);
+	    if(m_hvtxzvsbx2drun && *m_hvtxzvsbx2drun )  (*m_hvtxzvsbx2drun)->Fill(bx%3564,vtx->z(),weight);
 	  }
 	}
       }
@@ -335,13 +335,13 @@ void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const fl
       if(m_hnvtxvsorbrun && *m_hnvtxvsorbrun )  (*m_hnvtxvsorbrun)->Fill(orbit,ntruevtx,weight);
     }
     if(m_runHistoBXProfile) {
-      if(m_hnvtxvsbxrun && *m_hnvtxvsbxrun )  (*m_hnvtxvsbxrun)->Fill(bx,ntruevtx,weight);
+      if(m_hnvtxvsbxrun && *m_hnvtxvsbxrun )  (*m_hnvtxvsbxrun)->Fill(bx%3564,ntruevtx,weight);
       if(m_runHistoBXProfile2D) {
-	if(m_hnvtxvsbxvslumirun && *m_hnvtxvsbxvslumirun && bxlumi >= 0.)  (*m_hnvtxvsbxvslumirun)->Fill(bx,bxlumi,ntruevtx,weight);
+	if(m_hnvtxvsbxvslumirun && *m_hnvtxvsbxvslumirun && bxlumi >= 0.)  (*m_hnvtxvsbxvslumirun)->Fill(bx%3564,bxlumi,ntruevtx,weight);
       }
     }
     if(m_runHisto2D) {
-      if(m_hnvtxvsbxvsorbrun && *m_hnvtxvsbxvsorbrun )  (*m_hnvtxvsbxvsorbrun)->Fill(bx,orbit,ntruevtx,weight);
+      if(m_hnvtxvsbxvsorbrun && *m_hnvtxvsbxvsorbrun )  (*m_hnvtxvsbxvsorbrun)->Fill(bx%3564,orbit,ntruevtx,weight);
       if(m_hnvtxvsorbrun2D && *m_hnvtxvsorbrun2D )  {
 	if(ntruevtx < (*m_hnvtxvsorbrun2D)->GetYaxis()->GetXmax() && ntruevtx > (*m_hnvtxvsorbrun2D)->GetYaxis()->GetXmin()) {
 	  (*m_hnvtxvsorbrun2D)->Fill(orbit,ntruevtx,weight);

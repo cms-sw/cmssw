@@ -176,10 +176,10 @@ void DigiInvestigatorHistogramMaker::fill(const edm::Event& iEvent, const std::m
       _nmult[i]->Fill(digi->second);
       if(_runHisto) {
 	if(_nmultvsorbrun[i] && *_nmultvsorbrun[i]) (*_nmultvsorbrun[i])->Fill(iEvent.orbitNumber(),digi->second);
-	if(_nmultvsbxrun[i] && *_nmultvsbxrun[i]) (*_nmultvsbxrun[i])->Fill(iEvent.bunchCrossing(),digi->second);
+	if(_nmultvsbxrun[i] && *_nmultvsbxrun[i]) (*_nmultvsbxrun[i])->Fill(iEvent.bunchCrossing()%3564,digi->second);
       }
       if(_fillHisto) {
-	if(_nmultvsbxfill[i] && *_nmultvsbxfill[i]) (*_nmultvsbxfill[i])->Fill(iEvent.bunchCrossing(),digi->second);
+	if(_nmultvsbxfill[i] && *_nmultvsbxfill[i]) (*_nmultvsbxfill[i])->Fill(iEvent.bunchCrossing()%3564,digi->second);
       }
     }
 
