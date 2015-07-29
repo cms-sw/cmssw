@@ -1,4 +1,3 @@
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -22,7 +21,6 @@
 class MVAJetPuIdProducer : public edm::stream::EDProducer <> {
 public:
    explicit MVAJetPuIdProducer(const edm::ParameterSet&);
-   ~MVAJetPuIdProducer();
 
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -42,10 +40,10 @@ private:
    FactorizedJetCorrector *jecCor_;
    std::vector<JetCorrectorParameters> jetCorPars_;
 
-       edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
-       edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
-       edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier> > input_vm_pujetid_token_;
-       edm::EDGetTokenT<double> input_rho_token_;
+   edm::EDGetTokenT<edm::View<reco::Jet> > input_jet_token_;
+   edm::EDGetTokenT<reco::VertexCollection> input_vertex_token_;
+   edm::EDGetTokenT<edm::ValueMap<StoredPileupJetIdentifier> > input_vm_pujetid_token_;
+   edm::EDGetTokenT<double> input_rho_token_;
 
 };
 

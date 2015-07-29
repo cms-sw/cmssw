@@ -1,6 +1,6 @@
 #include <memory>
 #include "RecoJets/JetProducers/plugins/MVAJetPuIdProducer.h"
- 
+#include "FWCore/Framework/interface/Frameworkfwd.h" 
  
  MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
  {
@@ -35,15 +35,9 @@
  
      input_jet_token_ = consumes<edm::View<reco::Jet> >(jets_);
      input_vertex_token_ = consumes<reco::VertexCollection>(vertexes_);
-         input_vm_pujetid_token_ = consumes<edm::ValueMap<StoredPileupJetIdentifier> >(jetids_);
-         input_rho_token_ = consumes<double>(rho_); 
+     input_vm_pujetid_token_ = consumes<edm::ValueMap<StoredPileupJetIdentifier> >(jetids_);
+     input_rho_token_ = consumes<double>(rho_); 
  
- }
- 
- 
- 
- MVAJetPuIdProducer::~MVAJetPuIdProducer()
- {
  }
  
  
@@ -86,7 +80,7 @@
         vector<pair<string,MVAJetPuId *> >::iterator algoi = algos_.begin();
         MVAJetPuId * ialgo = algoi->second;
         
-        const Jet & jet = jets.at(i);
+        const Jet & jet = jets[i];
          
          float jec = 0.;
          if( applyJec_ ) {
@@ -94,10 +88,7 @@
                  iEvent.getByToken(input_rho_token_,rhoH);
                  rho = *rhoH;
              }
-             if( jecCor_ == 0 ) {
-                 /*initJetEnergyCorrector( iSetup, iEvent.isRealData() );*/
-             }
-                       jecCor_->setJetPt(jet.pt());
+             jecCor_->setJetPt(jet.pt());
              jecCor_->setJetEta(jet.eta());
              jecCor_->setJetA(jet.jetArea());
              jecCor_->setRho(rho);
@@ -126,9 +117,7 @@
          }
          
          if( runMvas_ ) {
-             //mvas[algoi->first].push_back( puIdentifier.mva() );
-             //idflags[algoi->first].push_back( puIdentifier.idFlag() );
-             for( algos_.begin(); algoi!=algos_.end(); ++algoi) {
+             for( ; algoi!=algos_.end(); ++algoi) {
                  ialgo = algoi->second;
                  ialgo->set(puIdentifier);
                  PileupJetIdentifier id = ialgo->computeMva();
@@ -296,30 +285,6 @@
 
  }
  
-/*
- *    void 
- *       MVAJetPuIdProducer::initJetEnergyCorrector(const edm::EventSetup &iSetup, bool isData)
- *          {
- *             std::vector<std::string> jecLevels;
- *                jecLevels.push_back("L1FastJet");
- *                   jecLevels.push_back("L2Relative");
- *                      jecLevels.push_back("L3Absolute");
- *                         if(isData && ! residualsFromTxt_ ) jecLevels.push_back("L2L3Residual");
- *
- *                            edm::ESHandle<JetCorrectorParametersCollection> parameters;
- *                               iSetup.get<JetCorrectionsRecord>().get(jec_,parameters);
- *                                  for(std::vector<std::string>::const_iterator ll = jecLevels.begin(); ll != jecLevels.end(); ++ll)
- *                                     { 
- *                                        const JetCorrectorParameters& ip = (*parameters)[*ll];
- *                                           jetCorPars_.push_back(ip); 
- *                                              } 
- *                                                 if( isData && residualsFromTxt_ ) {
- *                                                    jetCorPars_.push_back(JetCorrectorParameters(residualsTxt_.fullPath())); 
- *                                                       }
- *
- *                                                          jecCor_ = new FactorizedJetCorrector(jetCorPars_);
- *                                                             }
- *                                                                */
 DEFINE_FWK_MODULE(MVAJetPuIdProducer);
 
 
