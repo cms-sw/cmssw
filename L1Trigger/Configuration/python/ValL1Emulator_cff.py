@@ -123,10 +123,10 @@ valRpcTriggerDigis.label = 'muonRPCDigis'
 import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi
 valGmtDigis = L1Trigger.GlobalMuonTrigger.gmtDigis_cfi.gmtDigis.clone()
 #
-valGmtDigis.DTCandidates = cms.InputTag('gtgmtDigis','DT')
-valGmtDigis.CSCCandidates = cms.InputTag('gtgmtDigis','CSC')
-valGmtDigis.RPCbCandidates = cms.InputTag('gtgmtDigis','RPCb')
-valGmtDigis.RPCfCandidates = cms.InputTag('gtgmtDigis','RPCf')
+valGmtDigis.DTCandidates = cms.InputTag('l1GtUnpack','DT')
+valGmtDigis.CSCCandidates = cms.InputTag('l1GtUnpack','CSC')
+valGmtDigis.RPCbCandidates = cms.InputTag('l1GtUnpack','RPCb')
+valGmtDigis.RPCfCandidates = cms.InputTag('l1GtUnpack','RPCf')
 valGmtDigis.MipIsoData = 'gctDigis'
 
 # producers for technical triggers 
@@ -149,7 +149,7 @@ valHcalTechTrigDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi.si
 # Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi
 valGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
-valGtDigis.GmtInputTag = 'gtgmtDigis'
+valGtDigis.GmtInputTag = 'l1GtUnpack'
 valGtDigis.GctInputTag = 'gctDigis'
 valGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
                                                     cms.InputTag('valRpcTechTrigDigis'),
@@ -158,7 +158,7 @@ valGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
 # Global Trigger emulator for Stage1 
 import L1Trigger.GlobalTrigger.gtDigis_cfi
 valStage1GtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
-valStage1GtDigis.GmtInputTag = 'gtgmtDigis'
+valStage1GtDigis.GmtInputTag = 'l1GtUnpack'
 valStage1GtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
 valStage1GtDigis.TechnicalTriggersInputTags = cms.VInputTag(
                                                     cms.InputTag('valRpcTechTrigDigis'),

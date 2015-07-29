@@ -55,15 +55,12 @@ from L1Trigger.L1TCommon.l1tRawToDigi_cfi import *
 # transfer stage1 format digis to legacy format digis
 
 from L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi import *
-caloStage1LegacyFormatDigis.bxMin = cms.int32(0)
-caloStage1LegacyFormatDigis.bxMax = cms.int32(0)
 
 ############################################################
 
 # GMT unpack from Fed813 in legacy stage1 parallel running                                                                     
 from EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi import *
-gtgmtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-gtgmtDigis.DaqGtInputTag = 'rawDataCollector'
+l1GtUnpack.DaqGtInputTag = 'rawDataCollector'
 
 #############################################################                 
 
@@ -81,14 +78,14 @@ l1ExpertDataVsEmulator = cms.Sequence(
 
 
 l1EmulatorMonitor = cms.Sequence(
-                            gtgmtDigis*
+                            l1GtUnpack*
                             l1demon+
                             l1ExpertDataVsEmulator             
                             )
 
 # for use in processes where hardware validation is not run
 l1HwValEmulatorMonitor = cms.Sequence(
-                                gtgmtDigis*
+                                l1GtUnpack*
                                 L1HardwareValidation*
                                 l1EmulatorMonitor
                                 )
@@ -113,7 +110,7 @@ l1EmulatorMonitorStage1 = cms.Sequence(
 l1Stage1HwValEmulatorMonitor = cms.Sequence(
     caloStage1Digis*
     caloStage1LegacyFormatDigis*    
-    gtgmtDigis*
+    l1GtUnpack*
     L1HardwareValidationforStage1 +
     l1EmulatorMonitorStage1                            
     )

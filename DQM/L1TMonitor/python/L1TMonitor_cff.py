@@ -84,13 +84,14 @@ from L1Trigger.L1TCommon.l1tRawToDigi_cfi import *
 # transfer stage1 format digis to legacy format digis
 
 from L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi import *
+caloStage1LegacyFormatDigis.bxMin = cms.int32(-2)
+caloStage1LegacyFormatDigis.bxMax = cms.int32(2)
 
 #################################################################
 
 # GMT digis in parallel running
 from EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi import *
-gtgmtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-gtgmtDigis.DaqGtInputTag = 'rawDataCollector'
+l1GtUnpack.DaqGtInputTag = 'rawDataCollector'
 
 #############################################################
 
@@ -132,7 +133,7 @@ l1ExtraStage1DqmSeq = cms.Sequence(
 #     modules are independent, so the order is irrelevant 
 
 l1tMonitorOnline = cms.Sequence(
-                          gtgmtDigis*
+                          l1GtUnpack*
                           bxTiming +
                           l1tDttf +
                           l1tCsctf + 
@@ -148,7 +149,7 @@ l1tMonitorOnline = cms.Sequence(
 
 l1tMonitorStage1Online = cms.Sequence(
                           bxTiming +
-                          gtgmtDigis*
+                          l1GtUnpack*
                           l1tDttf +
                           l1tCsctf + 
                           l1tRpctf +
