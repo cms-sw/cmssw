@@ -197,7 +197,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
-    process.gtgmtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.l1compare.FEDsourceEmul = cms.untracked.InputTag("rawDataRepacker")
