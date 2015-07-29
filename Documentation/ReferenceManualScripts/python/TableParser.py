@@ -125,6 +125,6 @@ if __name__ == "__main__":
             table.append(row)
         # replace blank character with '_'. Please notice that you will not
         # be able to use original page name after this line.
-        page = page.replace(' ', '')
+        page = page.replace(' ', '_')
         with open('%s/%s'%(htmlFilePath, fileNameTemplate % page), 'w') as f:
             f.write(str(temp))
