@@ -9,7 +9,6 @@ process = cms.Process("BeamPixel")
 ### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("DQM.Integration.test.inputsource_cfi")
 
-
 #----------------------------
 # HLT Filter
 #----------------------------
@@ -50,7 +49,9 @@ process = customise(process)
 #----------------------------
 # Proton-Proton Specific Part
 #----------------------------
-if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.hpu_run):
+if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or 
+    process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
+    process.runType.getRunType() == process.runType.hpu_run):
     print "[beampixel_dqm_sourceclient-live_cfg]::running pp"
 
     process.castorDigis.InputLabel           = cms.InputTag("rawDataCollector")
@@ -77,6 +78,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     process.pixelVertexDQM = cms.EDAnalyzer("Vx3DHLTAnalyzer",
                                             vertexCollection   = cms.untracked.InputTag("pixelVertices"),
+                                            #pixelHitCollection = cms.untracked.InputTag("siPixelRecHits"),
                                             pixelHitCollection = cms.untracked.InputTag("siPixelRecHitsPreSplitting"),
                                             debugMode          = cms.bool(True),
                                             nLumiReset         = cms.uint32(2),
@@ -91,12 +93,14 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.05),
-                                            VxErrCorr          = cms.double(1.3), # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.3),  # Keep checking this with later release
                                             fileName           = cms.string("/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt"))
     if process.dqmSaver.producer.value() is "Playback":
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
     else:
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmpro/BeamMonitorDQM/BeamPixelResults.txt")
+
+
 
 
     process.load("RecoVertex.PrimaryVertexProducer.OfflinePixel3DPrimaryVertices_cfi")
@@ -105,7 +109,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
     process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
     #process.dqmBeamMonitor.PVFitter.errorScale = 1.25 #keep checking this with new release expected close to 1.2
-
+    
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
     process.PixelLayerTriplets.FPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
@@ -115,7 +119,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # Pixel-Vertices Configuration
     #----------------------------
-    process.reconstruction_step = cms.Sequence(process.siPixelDigis*
+    process.reconstruction_step  = cms.Sequence(process.siPixelDigis*
                                                process.offlineBeamSpot*
                                                process.siPixelClustersPreSplitting*
                                                process.siPixelRecHitsPreSplitting*
@@ -176,7 +180,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
                                             zStep              = cms.double(0.05),
-                                            VxErrCorr          = cms.double(1.3), # Keep checking this with later release
+                                            VxErrCorr          = cms.double(1.3),  # Keep checking this with later release
                                             fileName           = cms.string("/nfshome0/yumiceva/BeamMonitorDQM/BeamPixelResults.txt"))
     if process.dqmSaver.producer.value() is "Playback":
        process.pixelVertexDQM.fileName = cms.string("/nfshome0/dqmdev/BeamMonitorDQM/BeamPixelResults.txt")
@@ -202,3 +206,4 @@ if (process.runType.getRunType() == process.runType.hi_run):
     # Define Path
     #----------------------------
     process.p = cms.Path(process.phystrigger*process.reconstruction_step*process.pixelVertexDQM*process.dqmmodules)
+    
