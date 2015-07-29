@@ -43,9 +43,9 @@ cp $HTML/pages.original.html $HTML/packageDocumentation.html
 python $SCRIPTS/TableParser.py $HTML/packageDocumentation.html
 cp $HTML/packageDocumentation_All.html $HTML/pages.html
 
-cp $HTML/namespaces.html.original $HTML/configfilesList.html
-python $SCRIPTS/TableParser.py $HTML/configfiles.html
-cp $HTML/configfilesList_A.html $HTML/configfiles.html
+cp $HTML/namespaces.original.html $HTML/configfilesList.html
+python $SCRIPTS/TableParser.py $HTML/configfilesList.html
+cp $HTML/configfilesList_All.html $HTML/configfiles.html
 
 cd $CMSSW_BASE/..
 find $CMSSW_VERSION/doc -type f -name "*.html" > $CMSSW_BASE/$CMSSW_VERSION.index
