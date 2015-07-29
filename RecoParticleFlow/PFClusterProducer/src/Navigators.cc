@@ -118,7 +118,10 @@ class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId,C
 
 
   void beginEvent(const edm::EventSetup& iSetup) {
-    topology_.reset( new CaloTowerTopology() );
+    edm::ESHandle<CaloTowerTopology> caloTowerTopology;
+    iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
+    topology_.release();
+    topology_.reset(caloTowerTopology.product());
   }
 };
 

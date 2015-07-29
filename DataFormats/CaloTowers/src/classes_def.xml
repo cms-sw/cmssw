@@ -3,7 +3,8 @@
    <version ClassVersion="11" checksum="4063982642"/>
    <version ClassVersion="10" checksum="2444816232"/>
   </class>
-  <class name="CaloTower" ClassVersion="12">
+  <class name="CaloTower" ClassVersion="13">
+   <version ClassVersion="13" checksum="3299778598"/>
    <version ClassVersion="12" checksum="3702399054"/>
    <version ClassVersion="11" checksum="565241750"/>
    <version ClassVersion="10" checksum="17125795"/>

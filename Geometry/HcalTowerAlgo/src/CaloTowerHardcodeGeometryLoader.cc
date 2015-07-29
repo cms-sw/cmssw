@@ -6,8 +6,9 @@
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
-std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons) {
+std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const CaloTowerTopology *limits, const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons) {
 
+  m_limits = limits;
   m_hcaltopo = hcaltopo;
   m_hcons = hcons;
 
@@ -15,13 +16,13 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
   theHFEtaBounds   = m_hcons->getEtaTableHF();
   theHBHEEtaBounds = m_hcons->getEtaTable();
 
-  CaloTowerGeometry* geom=new CaloTowerGeometry();
+  CaloTowerGeometry* geom=new CaloTowerGeometry(m_limits);
 
   if( 0 == geom->cornersMgr() ) geom->allocateCorners ( 
-     CaloTowerGeometry::k_NumberOfCellsForCorners ) ;
+     geom->numberOfCellsForCorners() ) ;
   if( 0 == geom->parMgr() ) geom->allocatePar (
-     CaloTowerGeometry::k_NumberOfParametersPerShape*CaloTowerGeometry::k_NumberOfShapes,
-     CaloTowerGeometry::k_NumberOfParametersPerShape ) ;
+     geom->numberOfParametersPerShape()*geom->numberOfShapes(),
+     geom->numberOfParametersPerShape() ) ;
 
   int nnn=0;
   // simple loop
@@ -63,10 +64,11 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   const double HFthick = 165;
   // Tower 17 is the last EB tower
 
-  int etaRing=abs(ieta);
+  //use CT topology to get proper ieta for hcal
+  int etaRing=m_limits->convertCTtoHcal(abs(ieta));
   int sign=(ieta>0)?(1):(-1);
   double eta1, eta2;
-  if (abs(ieta)>m_hcaltopo->lastHERing()) {
+  if (abs(ieta)>m_limits->lastHERing()) {
     eta1 = theHFEtaBounds[etaRing-m_hcaltopo->firstHFRing()];
     eta2 = theHFEtaBounds[etaRing-m_hcaltopo->firstHFRing()+1];
   } else {
@@ -85,13 +87,13 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
 
   double x,y,z,thickness;
   bool alongZ=true;
-  if (abs(ieta)>m_hcaltopo->lastHERing()) { // forward
+  if (abs(ieta)>m_limits->lastHERing()) { // forward
     z=HFz;
     double r=z/sinh(eta);
     x=r * cos(phi);
     y=r * sin(phi);
     thickness=HFthick/tanh(eta);
-  } else if (abs(ieta)>m_hcaltopo->firstHERing()+1) { // EE-containing
+  } else if (abs(ieta)>m_limits->firstHERing()+1) { // EE-containing
     z=EEz;
     double r=z/sinh(eta);
     x=r * cos(phi);

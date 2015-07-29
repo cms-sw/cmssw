@@ -3,6 +3,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 // severity level for ECAL
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
@@ -62,7 +63,8 @@ CaloTowersCreator::CaloTowersCreator(const edm::ParameterSet& conf) :
         conf.getParameter<double>("MomHBDepth"),
         conf.getParameter<double>("MomHEDepth"),
         conf.getParameter<double>("MomEBDepth"),
-        conf.getParameter<double>("MomEEDepth")
+        conf.getParameter<double>("MomEEDepth"),
+        conf.getParameter<int>("HcalPhase")
 	),
 
   ecalLabels_(conf.getParameter<std::vector<edm::InputTag> >("ecalInputs")),
@@ -132,10 +134,12 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   // get the necessary event setup objects...
   edm::ESHandle<CaloGeometry> pG;
   edm::ESHandle<HcalTopology> htopo;
-  edm::ESHandle<CaloTowerConstituentsMap> cttopo;
+  edm::ESHandle<CaloTowerTopology> cttopo;
+  edm::ESHandle<CaloTowerConstituentsMap> ctmap;
   c.get<CaloGeometryRecord>().get(pG);
   c.get<HcalRecNumberingRecord>().get(htopo);
   c.get<HcalRecNumberingRecord>().get(cttopo);
+  c.get<HcalRecNumberingRecord>().get(ctmap);
  
   // ECAL channel status map ****************************************
   edm::ESHandle<EcalChannelStatus> ecalChStatus;
@@ -166,7 +170,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   algo_.setHOEScale(HOEScale);
   algo_.setHF1EScale(HF1EScale);
   algo_.setHF2EScale(HF2EScale);
-  algo_.setGeometry(cttopo.product(),htopo.product(),pG.product());
+  algo_.setGeometry(cttopo.product(),ctmap.product(),htopo.product(),pG.product());
 
   // for treatment of problematic and anomalous cells
 
@@ -237,7 +241,7 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
     if ( (ec_tmp->begin()->detid()).subdetId() == EcalBarrel ) {
       ebHandle = ec_tmp;
     }
-    else if ((ec_tmp->begin()->detid()).subdetId() == EcalEndcap ) {
+    else if ((ec_tmp->begin()->detid()).subdetId() == EcalEndcap) {
       eeHandle = ec_tmp;
     }
   }
