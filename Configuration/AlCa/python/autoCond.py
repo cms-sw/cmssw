@@ -26,7 +26,7 @@ autoCond = {
     # GlobalTag for Run2 HLT: it points to the online GT
     'run2_hlt'          :   '75X_dataRun2_HLT_v1',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
-    'phase1_2017_design' :  'DES17_70_V2', # placeholder (GT not meant for standard RelVal)
+    'phase1_2017_design' :  '75X_upgrade2017_design_v0',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design' :  'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
