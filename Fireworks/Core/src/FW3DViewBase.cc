@@ -246,13 +246,13 @@ void
 FW3DViewBase::setClip(float eta, float phi)
 {
    // called from popup menu via FWGUIManager
-
+   /*
    m_showMuonBarrel.set(1);
    m_showMuonEndcap.set(true);
    m_showPixelBarrel.set(true);
    m_showPixelEndcap.set(true);
    m_showTrackerBarrel.set(true);
-
+   */
    m_clipEta.set(eta);
    m_clipPhi.set(phi);
    m_clipEnable.set(true);
