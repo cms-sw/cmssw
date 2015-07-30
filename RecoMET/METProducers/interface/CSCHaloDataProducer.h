@@ -115,7 +115,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoMuon/TrackingTools/interface/MuonSegmentMatcher.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
@@ -125,8 +124,6 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-
-class MuonServiceProxy;
 
 namespace reco
 {
@@ -152,7 +149,6 @@ class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     std::vector< edm::InputTag > vIT_HLTBit  ;
 
     //Muon-Segment Matching
-    MuonServiceProxy* TheService;
     MuonSegmentMatcher *TheMatcher;
 
     //RecHit Level
