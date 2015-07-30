@@ -454,7 +454,7 @@ PFProducer::beginRun(const edm::Run & run,
   }
   */
   
-  if(useRegressionFromDB_) {
+  if(usePFPhotons_ && useRegressionFromDB_) {
     edm::ESHandle<GBRForest> readerPFLCEB;
     edm::ESHandle<GBRForest> readerPFLCEE;    
     edm::ESHandle<GBRForest> readerPFGCEB;
