@@ -5,13 +5,13 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 //#include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <iostream>
@@ -153,7 +153,7 @@ namespace edm {
     uint32 run = 1;
 
     //Get the Process PSet ID
-    ParameterSetID toplevel = pset::getProcessParameterSetID();
+    ParameterSetID toplevel = moduleDescription().mainParameterSetID();
 
     //In case we need to print it
     //  cms::Digest dig(toplevel.compactForm());
