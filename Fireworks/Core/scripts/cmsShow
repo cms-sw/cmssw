@@ -103,7 +103,7 @@ setupEnv()
         unset DYLD_LIBRARY_PATH
      fi
      export  DYLD_LIBRARY_PATH=$CMSSW_BASE/external/gcc/lib64
-     export PATH=${ROOTSYS}/bin:$PATH
+     export PATH=$CMSSW_BASE/external/gcc/bin:${ROOTSYS}/bin:$PATH
      export ROOT_INCLUDE_PATH=${CMSSW_BASE}/external/gcc/include:${CMSSW_BASE}/external/gcc/include/x86_64-redhat-linux-gnu:${CMSSW_BASE}/external/gcc/include/backward:${CMSSW_BASE}/external/var-inc:$CMSSW_BASE/external/var-inc/sigc++:$CMSSW_BASE/external/var-inc/HepMC/include:${CMSSW_BASE}/src
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
