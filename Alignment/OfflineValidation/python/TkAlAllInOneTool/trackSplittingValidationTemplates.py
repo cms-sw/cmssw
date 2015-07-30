@@ -253,8 +253,8 @@ void fillmatrix()
 /*
 The variables are defined in Alignment/OfflineValidation/macros/trackSplitPlot.h
  as follows:
-TString xvariables[xsize]      = {"pt", "eta", "phi", "dz",  "dxy", "theta",
-                                  "qoverpt", "runNumber","nHits",""};
+TString xvariables[xsize]      = {"", "pt", "eta", "phi", "dz",  "dxy", "theta",
+                                  "qoverpt", "runNumber", "nHits"};
 
 TString yvariables[ysize]      = {"pt", "pt",  "eta", "phi", "dz",  "dxy", "theta",
                                   "qoverpt", ""};
