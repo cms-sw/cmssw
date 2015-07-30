@@ -1,30 +1,31 @@
 import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
-import RecoTracker.IterativeTracking.DetachedTripletStep_cff
-# simtrack id producer
-import FastSimulation.Tracking.SimTrackIdProducer_cfi
-detachedTripletStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
-    #tracjectories = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.trajectories.value(),
-    trackCollection = cms.InputTag("initialStepTracks"),
-    TrackQuality = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.TrackQuality,
-    maxChi2 = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.maxChi2,
-    overrideTrkQuals =  cms.InputTag('initialStep')
-    )
+import RecoTracker.IterativeTracking.DetachedTripletStep_cff as _detachedTripletStep
+
+# fast tracking mask producer
+import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
+detachedTripletStepMasks = FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
+    trackCollection = _detachedTripletStep.detachedTripletStepClusters.trajectories,
+    TrackQuality = _detachedTripletStep.detachedTripletStepClusters.TrackQuality,
+    overrideTrkQuals = cms.InputTag('initialStep',"QualityMasks")
+)
+
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        skipSimTrackIds = [cms.InputTag("detachedTripletStepSimTrackIds")],
         pTMin = 0.02,
         maxD0 = 30.0,
         maxZ0 = 50
         ),
     minLayersCrossed = 3,
-    ptMin = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
-    originHalfLength = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
-    originRadius = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
-    layerList = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSeedLayers.layerList.value()
+    #hitMasks = cms.InputTag("detachedTripletStepMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("detachedTripletStepMasks","hitCombinationMasks"),
+    ptMin = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
+    originHalfLength = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength,
+    originRadius = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
+    layerList = _detachedTripletStep.detachedTripletStepSeedLayers.layerList.value()
     )
 
 # track candidates
@@ -32,10 +33,11 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = cms.InputTag("detachedTripletStepSeeds"),
     MinNumberOfCrossedLayers = 3
+    #hitMasks = cms.InputTag("detachedTripletStepMasks","hitMasks"),
     )
 
 # tracks 
-detachedTripletStepTracks = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepTracks.clone(
+detachedTripletStepTracks = _detachedTripletStep.detachedTripletStepTracks.clone(
     Fitter = 'KFFittingSmootherSecond',
     TTRHBuilder = 'WithoutRefit',
     Propagator = 'PropagatorWithMaterial'
@@ -43,15 +45,17 @@ detachedTripletStepTracks = RecoTracker.IterativeTracking.DetachedTripletStep_cf
 )
 
 #final selection
-detachedTripletStepSelector = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepSelector.clone()
-detachedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
-detachedTripletStep = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStep.clone() 
+detachedTripletStepClassifier1 = _detachedTripletStep.detachedTripletStepClassifier1.clone()
+detachedTripletStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+detachedTripletStepClassifier2 = _detachedTripletStep.detachedTripletStepClassifier2.clone()
+detachedTripletStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
+detachedTripletStep = _detachedTripletStep.detachedTripletStep.clone() 
 
 # Final sequence 
-DetachedTripletStep = cms.Sequence(detachedTripletStepSimTrackIds
+DetachedTripletStep = cms.Sequence(detachedTripletStepMasks
                                    +detachedTripletStepSeeds
                                    +detachedTripletStepTrackCandidates
                                    +detachedTripletStepTracks
-                                   +detachedTripletStepSelector
+                                   +detachedTripletStepClassifier1*detachedTripletStepClassifier2
                                    +detachedTripletStep
                                    )

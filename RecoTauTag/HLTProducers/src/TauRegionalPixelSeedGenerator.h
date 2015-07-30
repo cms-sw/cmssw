@@ -71,8 +71,8 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
     virtual ~TauRegionalPixelSeedGenerator() {}
     
 
-    virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const {
-      std::vector<TrackingRegion* > result;
+    virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override {
+      std::vector<std::unique_ptr<TrackingRegion> > result;
 
       //      double originZ;
       double deltaZVertex, deltaRho;
@@ -110,18 +110,17 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	{
           GlobalVector jetVector(myJet.momentum().x(),myJet.momentum().y(),myJet.momentum().z());
 //          GlobalPoint  vertex(0, 0, originZ);
-          RectangularEtaPhiTrackingRegion* etaphiRegion = new RectangularEtaPhiTrackingRegion( jetVector,
-                                                                                               vertex,
-                                                                                               m_ptMin,
-                                                                                               deltaRho,
-                                                                                               deltaZVertex,
-                                                                                               m_deltaEta,
-                                                                                               m_deltaPhi,
-											       m_howToUseMeasurementTracker,
-											       true,
-											       measurementTracker,
-											       m_searchOpt);
-          result.push_back(etaphiRegion);
+          result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>( jetVector,
+                                                                              vertex,
+                                                                              m_ptMin,
+                                                                              deltaRho,
+                                                                              deltaZVertex,
+                                                                              m_deltaEta,
+                                                                              m_deltaPhi,
+                                                                              m_howToUseMeasurementTracker,
+                                                                              true,
+                                                                              measurementTracker,
+                                                                              m_searchOpt));
       }
 
       return result;

@@ -93,7 +93,7 @@ void TSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es){
     //define the region of interest
     std::unique_ptr<RectangularEtaPhiTrackingRegion> region;
     if(theRegionBuilder){
-      region.reset(theRegionBuilder->region(muRef));
+      region = theRegionBuilder->region(muRef);
     }
     
     //Make seeds container

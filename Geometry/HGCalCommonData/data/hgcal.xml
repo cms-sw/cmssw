@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcal.xml" eval="true">
+  <Constant name="zHGCal1" value="3170.0*mm"/>
+  <Constant name="zHGCal2" value="3431.0*mm"/>
+  <Constant name="zHGCal3" value="3750.22*mm"/>
+  <Constant name="zHGCal4" value="4491.27*mm"/>
+  <Constant name="zHGCal5" value="5541.0*mm"/>
+  <Constant name="rMinHGCal1" value="[etaMax:slope]*[zHGCal1]"/>
+  <Constant name="rMinHGCal2" value="[etaMax:slope]*[zHGCal2]"/>
+  <Constant name="rMinHGCal3" value="[etaMax:slope]*[zHGCal3]"/>    
+  <Constant name="rMinHGCal4" value="[etaMax:slope]*[zHGCal4]"/>
+  <Constant name="rMinHGCal5" value="[etaMax:slope]*[zHGCal5]"/>
+  <Constant name="rMaxHGCal1" value="1590.0*mm"/>
+  <Constant name="rMaxHGCal3" value="1775.0*mm"/>
+  <Constant name="slope2"     value="([rMaxHGCal3]-[rMaxHGCal1])/([zHGCal3]-[zHGCal1])"/>
+  <Constant name="rMaxHGCal2" value="([rMaxHGCal1]+[slope2]*([zHGCal2]-[zHGCal1]))"/>
+  <Constant name="rMaxHGCal4" value="2737.6*mm"/>    
+  <Constant name="factor"     value="cos(10*deg)"/>
+  <Constant name="rMapHGCal1" value="[rMaxHGCal1]*[factor]"/>
+  <Constant name="rMapHGCal2" value="[rMaxHGCal2]*[factor]"/>
+</ConstantsSection>
+
+<SolidSection label="hgcal.xml">
+  <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]"/>
+    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+    <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]"/>
+    <ZSection z="[zHGCal5]" rMin="[rMinHGCal5]" rMax="[rMaxHGCal4]"/>
+  </Polycone>
+  <Polyhedra name="HGCalEE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMapHGCal1]"/>
+    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMapHGCal2]"/>
+  </Polyhedra>
+  <Polycone name="HGCalHE" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]"/>
+    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+    <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]"/>
+    <ZSection z="[zHGCal5]" rMin="[rMinHGCal5]" rMax="[rMaxHGCal4]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="hgcal.xml">
+  <LogicalPart name="HGCal" category="unspecified">
+    <rSolid name="HGCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEE" category="unspecified">
+    <rSolid name="HGCalEE"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHE" category="unspecified">
+    <rSolid name="HGCalHE"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcal.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="HGCal"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="HGCal"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="HGCal"/>
+    <rChild name="HGCalEE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="HGCal"/>
+    <rChild name="HGCalHE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

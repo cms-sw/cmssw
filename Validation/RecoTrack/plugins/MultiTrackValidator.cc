@@ -45,6 +45,7 @@ typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   MultiTrackValidatorBase(pset,consumesCollector()),
   parametersDefinerIsCosmic_(parametersDefiner == "CosmicParametersDefinerForTP"),
+  doPlotsOnlyForTruePV_(pset.getUntrackedParameter<bool>("doPlotsOnlyForTruePV")),
   doSimPlots_(pset.getUntrackedParameter<bool>("doSimPlots")),
   doSimTrackPlots_(pset.getUntrackedParameter<bool>("doSimTrackPlots")),
   doRecoTrackPlots_(pset.getUntrackedParameter<bool>("doRecoTrackPlots")),
@@ -62,6 +63,12 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   if(dodEdxPlots_) {
     m_dEdx1Tag = consumes<edm::ValueMap<reco::DeDxData> >(pset.getParameter< edm::InputTag >("dEdx1Tag"));
     m_dEdx2Tag = consumes<edm::ValueMap<reco::DeDxData> >(pset.getParameter< edm::InputTag >("dEdx2Tag"));
+  }
+
+  if(doPlotsOnlyForTruePV_) {
+    label_tv = consumes<TrackingVertexCollection>(pset.getParameter< edm::InputTag >("label_tv"));
+    recoVertexToken_ = consumes<edm::View<reco::Vertex> >(pset.getUntrackedParameter<edm::InputTag>("label_vertex"));
+    vertexAssociatorToken_ = consumes<reco::VertexToTrackingVertexAssociator>(pset.getUntrackedParameter<edm::InputTag>("vertexAssociator"));
   }
 
   tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
@@ -163,15 +170,20 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     // FIXME: these need to be moved to a subdirectory whose name depends on the associator
     ibook.setCurrentFolder(dirName_);
 
-    h_reco_coll.push_back(binLabels( ibook.book1D("num_reco_coll", "N of reco track vs track collection", nintColl, minColl, maxColl) ));
-    h_assoc2_coll.push_back(binLabels( ibook.book1D("num_assoc(recoToSim)_coll", "N of associated (recoToSim) tracks vs track collection", nintColl, minColl, maxColl) ));
-    h_assoc_coll.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
-    h_simul_coll.push_back(binLabels( ibook.book1D("num_simul_coll", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
-    h_looper_coll.push_back(binLabels( ibook.book1D("num_duplicate_coll", "N of associated (recoToSim) looper tracks vs track collection", nintColl, minColl, maxColl) ));
-    h_pileup_coll.push_back(binLabels( ibook.book1D("num_pileup_coll", "N of associated (recoToSim) pileup tracks vs track collection", nintColl, minColl, maxColl) ));
+    if(doSimTrackPlots_) {
+      h_assoc_coll.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
+      h_simul_coll.push_back(binLabels( ibook.book1D("num_simul_coll", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
 
-    h_assoc_coll_allPt.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll_allPt", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
-    h_simul_coll_allPt.push_back(binLabels( ibook.book1D("num_simul_coll_allPt", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
+      h_assoc_coll_allPt.push_back(binLabels( ibook.book1D("num_assoc(simToReco)_coll_allPt", "N of associated (simToReco) tracks vs track collection", nintColl, minColl, maxColl) ));
+      h_simul_coll_allPt.push_back(binLabels( ibook.book1D("num_simul_coll_allPt", "N of simulated tracks vs track collection", nintColl, minColl, maxColl) ));
+
+    }
+    if(doRecoTrackPlots_) {
+      h_reco_coll.push_back(binLabels( ibook.book1D("num_reco_coll", "N of reco track vs track collection", nintColl, minColl, maxColl) ));
+      h_assoc2_coll.push_back(binLabels( ibook.book1D("num_assoc(recoToSim)_coll", "N of associated (recoToSim) tracks vs track collection", nintColl, minColl, maxColl) ));
+      h_looper_coll.push_back(binLabels( ibook.book1D("num_duplicate_coll", "N of associated (recoToSim) looper tracks vs track collection", nintColl, minColl, maxColl) ));
+      h_pileup_coll.push_back(binLabels( ibook.book1D("num_pileup_coll", "N of associated (recoToSim) pileup tracks vs track collection", nintColl, minColl, maxColl) ));
+    }
 
     for (unsigned int www=0;www<label.size();www++){
       ibook.cd();
@@ -238,6 +250,24 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     cosmictpSelector.initEvent(simHitsTPAssoc);
   }
 
+  if(doPlotsOnlyForTruePV_) {
+    edm::Handle<TrackingVertexCollection> htv;
+    event.getByToken(label_tv, htv);
+
+    edm::Handle<edm::View<reco::Vertex> > hvertex;
+    event.getByToken(recoVertexToken_, hvertex);
+
+    edm::Handle<reco::VertexToTrackingVertexAssociator> hvassociator;
+    event.getByToken(vertexAssociatorToken_, hvassociator);
+
+    auto v_r2s = hvassociator->associateRecoToSim(hvertex, htv);
+    auto pvPtr = hvertex->refAt(0);
+    if(pvPtr->isFake() || pvPtr->ndof() < 0) // skip junk vertices
+      return;
+    auto pvFound = v_r2s.find(pvPtr);
+    if(pvFound == v_r2s.end())
+      return;
+  }
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   event.getByToken(bsSrc,recoBeamSpotHandle);
@@ -393,7 +423,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int ww=0;ww<associators.size();ww++){
-    for (unsigned int www=0;www<label.size();www++){
+    for (unsigned int www=0;www<label.size();www++, w++){ // need to increment w here, since there are many continues in the loop body
       //
       //get collections from the event
       //
@@ -707,8 +737,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
                                  << "Total Reconstructed: " << rT << "\n"
                                  << "Total Associated (recoToSim): " << at << "\n"
                                  << "Total Fakes: " << rT-at << "\n";
-
-      w++;
     } // End of  for (unsigned int www=0;www<label.size();www++){
   } //END of for (unsigned int ww=0;ww<associators.size();ww++){
 

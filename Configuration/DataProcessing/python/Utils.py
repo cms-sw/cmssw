@@ -20,6 +20,21 @@ def stepALCAPRODUCER(skims):
         step = ',ALCAPRODUCER:'+('+'.join(skims))
     return step
 
+
+def stepSKIMPRODUCER(PhysicsSkims):
+    """
+    _stepSKIMPRODUCER_
+
+    Creates and returns the configuration string for the SKIM step
+    starting from the list of skims to be run.
+
+    """
+
+    step = ''
+    if len(PhysicsSkims) >0 :
+        step = ',SKIM:'+('+'.join(PhysicsSkims))
+    return step
+
 def addMonitoring(process):
     """
     _addMonitoring_

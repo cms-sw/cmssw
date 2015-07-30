@@ -1118,14 +1118,11 @@ SiTrackerGaussianSmearingRecHitConverter::loadMatchedRecHits(
     lastRecHit = theRecHits.end();
 
   int hitCombinationId = 0;
-  int hitId = 0;
   for( ; it != lastRecHit ; ++it ) { 
     recHitCombinations.push_back(FastTMRecHitCombination());
     for(auto hit = it->second.begin();hit!=it->second.end();++hit){
       recHitCombinations.back().push_back(*hit);
       recHitCombinations.back().back().setHitCombinationId(hitCombinationId);
-      recHitCombinations.back().back().setId(hitId);
-      hitId++;
     }
     hitCombinationId++;
   }

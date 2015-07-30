@@ -38,6 +38,5 @@ private:
   int m_rotNumSeed;
   std::string m_fname;
   std::ostream* m_xos;
-  int m_specNameCount;
 };
 

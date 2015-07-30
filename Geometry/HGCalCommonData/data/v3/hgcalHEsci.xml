@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcalHEsci.xml" eval="true">
+  <Constant name="ZminHEsci"  value="4366.5*mm"/>
+  <Constant name="ZmaxHEsci"  value="5236.5*mm"/>
+  <Constant name="rMinHEsci1" value="[etaMax:slope]*[ZminHEsci]"/>
+  <Constant name="rMinHEsci2" value="[etaMax:slope]*[ZmaxHEsci]"/>
+  <Constant name="rMaxHEsci1" value="([hgcal:rMaxHGCal2]+[hgcal:slope3]*([ZminHEsci]-[hgcal:zHGCal2]))"/>
+  <Constant name="rMaxHEsci2" value="([hgcal:rMaxHGCal3])"/>
+  <Constant name="rMapHEsci1" value="[rMaxHEsci1]*[hgcal:factor2]"/>
+  <Constant name="rMapHEsci2" value="[rMaxHEsci2]*[hgcal:factor2]"/>
+</ConstantsSection> 
+
+<SolidSection label="hgcalHEsci.xml" >
+ <Polyhedra name="HGCalHEScintillator" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+  <ZSection z="[ZminHEsci]"     rMin="[rMinHEsci1]"       rMax="[rMapHEsci1]"/>
+  <ZSection z="[hgcal:zHGCal3]" rMin="[hgcal:rMinHGCal3]" rMax="[hgcal:rMapHGCal3]"/>
+  <ZSection z="[ZmaxHEsci]"     rMin="[rMinHEsci2]"       rMax="[rMapHEsci2]"/>
+ </Polyhedra>
+</SolidSection>
+
+<LogicalPartSection label="hgcalHEsci.xml">
+ <LogicalPart name="HGCalHEScintillator" category="unspecified">
+  <rSolid name="HGCalHEScintillator"/>
+  <rMaterial name="materials:Air"/>
+ </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcalHEsci.xml">
+ <Algorithm name="global:DDAngular">
+  <rParent name="hgcal:HGCalHE"/>
+  <String name="ChildName"    value="HGCalHEScintillator"/>
+  <Numeric name="StartCopyNo" value="1"/>
+  <Numeric name="IncrCopyNo"  value="1"/>
+  <Numeric name="N"           value="18"/>
+  <Numeric name="StartAngle"  value="0*deg"/>
+  <Numeric name="RangeAngle"  value="360*deg"/>
+  <Numeric name="Radius"      value="0*m"/>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
+ </Algorithm>
+  <Algorithm name="hgcal:DDHGCalHEAlgo">
+  <rParent name="hgcalHEsci:HGCalHEScintillator"/>
+  <Vector name="MaterialNames" type="string" nEntries="3">
+   materials:H_Brass, materials:H_Brass, materials:Scintillator</Vector>
+  <Vector name="VolumeNames" type="string" nEntries="3">
+   HEScintillatorAbsorber, HEScintillatorShield, 
+   HEScintillatorSensitive</Vector>
+  <Vector name="Type" type="numeric" nEntries="3">0, 1, -1</Vector>
+  <Vector name="Thickness" type="numeric" nEntries="3">
+   34.5*mm, 9.0*mm, 9.0*mm </Vector>
+  <Vector name="ZMinType" type="numeric" nEntries="3">
+   4366.5*mm, 4401.0*mm, 4401.0*mm</Vector>
+  <Vector name="Offsets" type="numeric" nEntries="3"> 1, 1, 1</Vector>
+  <String name="Rotation"     value="rotations:YXZ4"/>
+  <Vector name="LayerType" type="numeric" nEntries="60">
+   0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1,
+   0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1,
+   0, 2, 1, 0, 2, 1, 0, 2, 1, 0, 2, 1 </Vector>
+  <Vector name="HeightType" type="numeric" nEntries="60">
+   0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1,
+   0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1,
+   0, 1, 1, 0, 1, 1, 0, 1, 1, 0, 1, 1 </Vector>
+  <Numeric name="ThickModule" value="43.5*mm"/>
+  <Numeric name="Sectors"     value="18"/>
+  <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
+  <Vector name="SlopeTop" type="numeric" nEntries="4">
+    [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
+  <Vector name="ZFront" type="numeric" nEntries="4">
+    [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
+  <Vector name="RMaxFront" type="numeric" nEntries="4">
+    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal2], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
+ </Algorithm>
+</PosPartSection>
+
+<SpecParSection label="hgcalHEsci.xml" eval="true">
+  <SpecPar name="HGCalHEScintillator">
+    <PartSelector path="//HGCalHEScintillatorSensitive.*"/>
+    <Parameter name="Volume" value="HGCalHEScintillatorSensitive" eval="false"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+    <Parameter name="Granularity" value="10*mm"/>
+  </SpecPar>
+</SpecParSection>
+
+</DDDefinition>

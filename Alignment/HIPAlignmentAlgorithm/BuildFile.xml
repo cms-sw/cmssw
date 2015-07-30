@@ -9,4 +9,5 @@
 <use   name="Alignment/CommonAlignment"/>
 <use   name="Alignment/CommonAlignmentAlgorithm"/>
 <use   name="Alignment/TrackerAlignment"/>
+<use   name="Utilities/General"/>
 <flags   EDM_PLUGIN="1"/>

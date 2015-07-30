@@ -1,29 +1,31 @@
+
 import FWCore.ParameterSet.Config as cms
 
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.LowPtTripletStep_cff
 
-# simtrack id producer                                                                
-import FastSimulation.Tracking.SimTrackIdProducer_cfi
-lowPtTripletStepSimTrackIds = FastSimulation.Tracking.SimTrackIdProducer_cfi.simTrackIdProducer.clone(
+# fast tracking mask producer
+from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer 
+lowPtTripletStepMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("detachedTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.TrackQuality,
-    maxChi2 = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.maxChi2,
-    overrideTrkQuals = cms.InputTag('detachedTripletStep')
-)
+    overrideTrkQuals = cms.InputTag('detachedTripletStep',"QualityMasks"),                        
+    oldHitCombinationMasks = cms.InputTag("detachedTripletStepMasks","hitCombinationMasks"),
+    oldHitMasks = cms.InputTag("detachedTripletStepMasks","hitMasks")
+    )
+
 
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 lowPtTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        skipSimTrackIds = [
-            cms.InputTag("detachedTripletStepSimTrackIds"),
-            cms.InputTag("lowPtTripletStepSimTrackIds")],
         pTMin = 0.1,
         maxD0 = 5.0,
         maxZ0 = 50
     ),
     minLayersCrossed = 3,
+    #hitMasks = cms.InputTag("lowPtTripletStepMasks","hitMasks"),
+    hitCombinationMasks = cms.InputTag("lowPtTripletStepMasks","hitCombinationMasks"),
     nSigmaZ = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
     ptMin = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
     originRadius = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
@@ -35,6 +37,7 @@ import FastSimulation.Tracking.TrackCandidateProducer_cfi
 lowPtTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = cms.InputTag("lowPtTripletStepSeeds"),
     MinNumberOfCrossedLayers = 3
+    #hitMasks = cms.InputTag("lowPtTripletStepMasks","hitMasks"),
 )
 
 # tracks
@@ -45,13 +48,13 @@ lowPtTripletStepTracks = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowP
 )
 
 # final selection
-lowPtTripletStepSelector = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepSelector.clone()
-lowPtTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+lowPtTripletStep = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStep.clone()
+lowPtTripletStep.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final swquence 
-LowPtTripletStep = cms.Sequence(lowPtTripletStepSimTrackIds
+LowPtTripletStep = cms.Sequence(lowPtTripletStepMasks
                                 +lowPtTripletStepSeeds
                                 +lowPtTripletStepTrackCandidates
                                 +lowPtTripletStepTracks  
-                                +lowPtTripletStepSelector   
+                                +lowPtTripletStep   
                                 )

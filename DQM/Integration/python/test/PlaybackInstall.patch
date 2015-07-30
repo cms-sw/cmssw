@@ -13,3 +13,15 @@ index 86d7bda..f2e3ab2 100644
                    filter = cms.untracked.string('')
                    )
  
+diff --git a/DQM/Integration/python/test/hlt_dqm_clientPB-live_cfg.py b/DQM/Integration/python/test/hlt_dqm_clientPB-live_cfg.py
+index 49b2d0b..c780650 100644
+--- a/DQM/Integration/python/test/hlt_dqm_clientPB-live_cfg.py
++++ b/DQM/Integration/python/test/hlt_dqm_clientPB-live_cfg.py
+@@ -13,6 +13,6 @@ process.load("DQM.Integration.test.pbsource_cfi")
+ #----------------------------
+ process.load("DQM.Integration.test.environment_cfi")
+ process.dqmEnv.subSystemFolder = 'HLTpb'
+-process.dqmEnv.eventInfoFolder = 'EventInfo'
++process.dqmEnv.eventInfoFolder = 'EventInfo/Random'
+ process.dqmSaver.dirName = './HLT'
+ #-----------------------------

@@ -5,13 +5,13 @@
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSelector.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 //#include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
 #include <iostream>
@@ -69,6 +69,7 @@ namespace edm {
     hltbits_(0),
     origSize_(0),
     host_name_(),
+    trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
     hltTriggerSelections_(),
     outputModuleId_(0) {
     // no compression as default value - we need this!
@@ -152,7 +153,7 @@ namespace edm {
     uint32 run = 1;
 
     //Get the Process PSet ID
-    ParameterSetID toplevel = pset::getProcessParameterSetID();
+    ParameterSetID toplevel = moduleDescription().mainParameterSetID();
 
     //In case we need to print it
     //  cms::Digest dig(toplevel.compactForm());
@@ -198,7 +199,7 @@ namespace edm {
 
     hltbits_.clear();  // If there was something left over from last event
 
-    Handle<TriggerResults> const& prod = getTriggerResults(e, mcc);
+    Handle<TriggerResults> const& prod = getTriggerResults(trToken_,e, mcc);
     //Trig const& prod = getTrigMask(e);
     std::vector<unsigned char> vHltState;
 

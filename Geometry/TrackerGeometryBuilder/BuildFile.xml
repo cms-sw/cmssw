@@ -1,9 +1,7 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/SiPixelDetId"/>
-<use   name="DataFormats/SiStripDetId"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="FWCore/MessageLogger"/>
-<use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CommonTopologies"/>

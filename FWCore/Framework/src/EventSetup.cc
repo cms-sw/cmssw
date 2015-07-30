@@ -17,6 +17,7 @@
 // user include files
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupKnownRecordsSupplier.h"
 
 namespace edm {
 //
@@ -109,6 +110,12 @@ EventSetup::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>
       ++it) {
     oToFill.push_back(it->first);
   }
+}
+
+bool
+EventSetup::recordIsProvidedByAModule( eventsetup::EventSetupRecordKey const& iKey) const
+{
+  return knownRecords_->isKnown(iKey);
 }
 
 //

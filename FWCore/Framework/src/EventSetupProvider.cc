@@ -31,8 +31,25 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 
+
 namespace edm {
    namespace eventsetup {
+
+     namespace {
+       class KnownRecordsSupplierImpl : public EventSetupKnownRecordsSupplier {
+       public:
+         using Map = std::map<EventSetupRecordKey, boost::shared_ptr<EventSetupRecordProvider> >;
+         
+         explicit KnownRecordsSupplierImpl( Map const& iMap) : map_(iMap) {}
+         
+         bool isKnown(EventSetupRecordKey const& iKey) const override {
+           return map_.find(iKey) != map_.end();
+         }
+         
+       private:
+         Map map_;
+       };
+     }
 
 //
 // constants, enums and typedefs
@@ -48,6 +65,7 @@ namespace edm {
 EventSetupProvider::EventSetupProvider(unsigned subProcessIndex, const PreferredProviderInfo* iInfo) :
 eventSetup_(),
 providers_(),
+knownRecordsSupplier_( std::make_unique<KnownRecordsSupplierImpl>(providers_)),
 mustFinishConfiguration_(true),
 subProcessIndex_(subProcessIndex),
 preferredProviderInfo_((0!=iInfo) ? (new PreferredProviderInfo(*iInfo)): 0),
@@ -59,6 +77,7 @@ psetIDToRecordKey_(new std::map<ParameterSetIDHolder, std::set<EventSetupRecordK
 recordToPreferred_(new std::map<EventSetupRecordKey, std::map<DataKey, ComponentDescription> >),
 recordsWithALooperProxy_(new std::set<EventSetupRecordKey>)
 {
+  eventSetup_.setKnownRecordsSupplier(knownRecordsSupplier_.get());
 }
 
 // EventSetupProvider::EventSetupProvider(const EventSetupProvider& rhs)

@@ -32,37 +32,37 @@ BasicGenParticleValidation::~BasicGenParticleValidation() {}
 
 
 void BasicGenParticleValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
-	///Setting the DQM top directories
-        DQMHelper dqm(&i); i.setCurrentFolder("Generator/GenParticles");
-	///Booking the ME's
-    
-    // Number of analyzed events
-    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.);
-
-	///multiplicity
-	genPMultiplicity = dqm.book1dHisto("genPMultiplicty", "Log(No. all GenParticles)", 50, -1, 5); //Log
-    //difference in HepMC and reco multiplicity
-    genMatched = dqm.book1dHisto("genMatched", "Difference reco - matched", 50, -25, 25);
-    //multiple matching
-    multipleMatching = dqm.book1dHisto("multipleMatching", "multiple reco HepMC matching", 50, 0, 50);
-    //momentum difference of matched particles
-    matchedResolution = dqm.book1dHisto("matchedResolution", "log10(momentum difference of matched particles)", 70, -10., -3.);
-
-    // GenJet general distributions
-    genJetMult = dqm.book1dHisto("genJetMult", "GenJet multiplicity", 50, 0, 50);
-    genJetEnergy = dqm.book1dHisto("genJetEnergy", "Log10(GenJet energy)", 60, -1, 5);
-    genJetPt = dqm.book1dHisto("genJetPt", "Log10(GenJet pt)", 60, -1, 5);
-    genJetEta = dqm.book1dHisto("genJetEta", "GenJet eta", 220, -11, 11);
-    genJetPhi = dqm.book1dHisto("genJetPhi", "GenJet phi", 360, -180, 180);
-    genJetDeltaEtaMin = dqm.book1dHisto("genJetDeltaEtaMin", "GenJet minimum rapidity gap", 30, 0, 30);
-    
-    genJetPto1 = dqm.book1dHisto("genJetPto1", "GenJet multiplicity above 1 GeV", 50, 0, 50);
-    genJetPto10 = dqm.book1dHisto("genJetPto10", "GenJet multiplicity above 10 GeV", 50, 0, 50);
-    genJetPto100 = dqm.book1dHisto("genJetPto100", "GenJet multiplicity above 100 GeV", 50, 0, 50);
-    genJetCentral = dqm.book1dHisto("genJetCentral", "GenJet multiplicity |eta|.lt.2.5", 50, 0, 50);
-
-    genJetTotPt = dqm.book1dHisto("genJetTotPt", "Log10(GenJet total pt)", 100, -5, 5);
-
+  ///Setting the DQM top directories
+  DQMHelper dqm(&i); i.setCurrentFolder("Generator/GenParticles");
+  ///Booking the ME's
+  
+  // Number of analyzed events
+  nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"","Number of Events");
+  
+  ///multiplicity
+  genPMultiplicity = dqm.book1dHisto("genPMultiplicty", "Log(No. all GenParticles)", 50, -1, 5,"log_{10}(N_{All GenParticles})","Number of Events"); //Log
+  //difference in HepMC and reco multiplicity
+  genMatched = dqm.book1dHisto("genMatched", "Difference reco - matched", 50, -25, 25,"N_{All GenParticles}-N_{Matched}","Number of Events");
+  //multiple matching
+  multipleMatching = dqm.book1dHisto("multipleMatching", "multiple reco HepMC matching", 50, 0, 50,"N_{multiple reco HepMC matching}","Number of Events");
+  //momentum difference of matched particles
+  matchedResolution = dqm.book1dHisto("matchedResolution", "log10(momentum difference of matched particles)", 70, -10., -3.,"log_{10}(#DeltaP_{matched Particles})","Number of Events");
+  
+  // GenJet general distributions
+  genJetMult = dqm.book1dHisto("genJetMult", "GenJet multiplicity", 50, 0, 50,"N_{gen-jets}","Number of Events");
+  genJetEnergy = dqm.book1dHisto("genJetEnergy", "Log10(GenJet energy)", 60, -1, 5,"log_{10}(E^{gen-jets}) (log_{10}(GeV))","Number of Events");
+  genJetPt = dqm.book1dHisto("genJetPt", "Log10(GenJet pt)", 60, -1, 5,"log_{10}(P_{t}^{gen-jets}) (log_{10}(GeV))","Number of Events");
+  genJetEta = dqm.book1dHisto("genJetEta", "GenJet eta", 220, -11, 11,"#eta^{gen-jets}","Number of Events");
+  genJetPhi = dqm.book1dHisto("genJetPhi", "GenJet phi", 360, -180, 180,"#phi^{gen-jets} (rad)","Number of Events");
+  genJetDeltaEtaMin = dqm.book1dHisto("genJetDeltaEtaMin", "GenJet minimum rapidity gap", 30, 0, 30,"#delta#eta_{min}^{gen-jets}","Number of Events");
+  
+  genJetPto1 = dqm.book1dHisto("genJetPto1", "GenJet multiplicity above 1 GeV", 50, 0, 50,"N_{gen-jets P_{t}>1GeV}","Number of Events");
+  genJetPto10 = dqm.book1dHisto("genJetPto10", "GenJet multiplicity above 10 GeV", 50, 0, 50,"N_{gen-jets P_{t}>10GeV}","Number of Events");
+  genJetPto100 = dqm.book1dHisto("genJetPto100", "GenJet multiplicity above 100 GeV", 50, 0, 50,"N_{gen-jets P_{t}>100GeV}","Number of Events");
+  genJetCentral = dqm.book1dHisto("genJetCentral", "GenJet multiplicity |eta|.lt.2.5", 50, 0, 50,"N_{gen-jets |#eta|#leq2.5}","Number of Events");
+  
+  genJetTotPt = dqm.book1dHisto("genJetTotPt", "Log10(GenJet total pt)", 100, -5, 5,"log_{10}(#SigmaP_{t}^{gen-jets}) (log_{10}(GeV))","Number of Events");
+  
   return;
 }
 

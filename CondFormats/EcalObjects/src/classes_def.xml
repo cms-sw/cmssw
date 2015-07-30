@@ -262,4 +262,15 @@
    <field name = "ee_" mapping = "blob"/>
 </class>
 
+<!-- base class -->
+<class name="EcalPulseSymmCovariance"/>
+<!-- templates for EcalCondObjectContainer having the class as template parameter -->
+<class name="std::vector<EcalPulseSymmCovariance>"/>
+<class name="EcalContainer<EEDetId,EcalPulseSymmCovariance>"/>
+<class name="EcalContainer<EBDetId,EcalPulseSymmCovariance>"/>
+<class name="EcalCondObjectContainer<EcalPulseSymmCovariance>">
+   <field name = "eb_" mapping = "blob"/>
+   <field name = "ee_" mapping = "blob"/>
+</class>
+
 </lcgdict>

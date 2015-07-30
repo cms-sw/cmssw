@@ -186,7 +186,7 @@ def customise_Reco(process,pileup):
     #use with latest pixel geometry
     process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
     # Need this line to stop error about missing siPixelDigis.
-    process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
+    process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 
     # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
     process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
@@ -364,7 +364,8 @@ def customise_Reco(process,pileup):
     process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
     process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
     process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
-
-
+    process.templates.DoLorentz=False
+    process.templates.LoadTemplatesFromDB = cms.bool(False)
+    process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
 
     return process

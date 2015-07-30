@@ -8,7 +8,7 @@ lowPtTripletStepClusters = trackClusterRemover.clone(
     pixelClusters                            = cms.InputTag("siPixelClusters"),
     stripClusters                            = cms.InputTag("siStripClusters"),
     oldClusterRemovalInfo                    = cms.InputTag("detachedTripletStepClusters"),
-    overrideTrkQuals                         = cms.InputTag('detachedTripletStep'),
+    trackClassifier                          = cms.InputTag('detachedTripletStep',"QualityMasks"),
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
 )
@@ -106,40 +106,16 @@ lowPtTripletStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.cl
 lowPtTripletStepTrackCandidates.TrajectoryCleaner = 'lowPtTripletStepTrajectoryCleanerBySharedHits'
 
 # Final selection
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='lowPtTripletStepTracks',
-    useAnyMVA = cms.bool(True),
-    trackSelectors= cms.VPSet(
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'lowPtTripletStepLoose',
-            GBRForestLabel = cms.string('MVASelectorIter1_13TeV'),
-            useMVA = cms.bool(True),
-            minMVA = cms.double(-0.6),
-            mvaType = cms.string("Prompt"),
-            useMVAonly = cms.bool(True),
-            chi2n_par = cms.double(9999),
-            ), #end of pset
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'lowPtTripletStepTight',
-            preFilterName = 'lowPtTripletStepLoose',
-            GBRForestLabel = cms.string('MVASelectorIter1_13TeV'),
-            mvaType = cms.string("Prompt"),
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'lowPtTripletStep',
-            preFilterName = 'lowPtTripletStepLoose',
-            GBRForestLabel = cms.string('MVASelectorIter1_13TeV'),
-            useMVA = cms.bool(True),
-            minMVA = cms.double(-0.1),
-            mvaType = cms.string("Prompt"),
-            useMVAonly = cms.bool(True),
-            qualityBit = cms.string('highPurity'),
-            keepAllTracks = cms.bool(True),
-            chi2n_par = cms.double(9999),
-            ),
-        ) #end of vpset
-    ) #end of clone
+
+
+
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
+lowPtTripletStep =  TrackMVAClassifierPrompt.clone()
+lowPtTripletStep.src = 'lowPtTripletStepTracks'
+lowPtTripletStep.GBRForestLabel = 'MVASelectorIter1_13TeV'
+lowPtTripletStep.qualityCuts = [-0.6,-0.3,-0.1]
+
+
 
 # Final sequence
 LowPtTripletStep = cms.Sequence(lowPtTripletStepClusters*
@@ -147,4 +123,4 @@ LowPtTripletStep = cms.Sequence(lowPtTripletStepClusters*
                                 lowPtTripletStepSeeds*
                                 lowPtTripletStepTrackCandidates*
                                 lowPtTripletStepTracks*
-                                lowPtTripletStepSelector)
+                                lowPtTripletStep)

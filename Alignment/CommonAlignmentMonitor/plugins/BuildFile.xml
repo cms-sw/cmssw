@@ -107,6 +107,7 @@
   <use   name="DataFormats/Alignment"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/TrackerRecHit2D"/>
+  <use   name="Utilities/General"/>
   <use   name="rootcore"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
