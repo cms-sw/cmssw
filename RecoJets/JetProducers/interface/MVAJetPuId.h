@@ -12,12 +12,15 @@
 #include "TMVA/Reader.h"
  
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
-const Int_t NWPs =3;
-const Int_t NEtas =4;
-const Int_t NPts =4;
 
 
 class MVAJetPuId {
+
+
+	static constexpr int NWPs = 3;
+	static constexpr int NPts = 4;
+	static constexpr int NEtas = 4;
+	
 	public:
 		enum version_t { USER=-1, CATEv0=0 };
 
@@ -45,14 +48,18 @@ class MVAJetPuId {
 
 		const variables_list_t & getVariables() const { return variables_; };
 
+
+	
+
 	protected:
+
 
 		void setup(); 
 		void runMva(); 
 		void bookReader();  
 		void resetVariables();
 		void initVariables();
-
+	
 
 		PileupJetIdentifier internalId_;
 		variables_list_t variables_;
