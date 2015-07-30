@@ -245,6 +245,7 @@ def miniAOD_customizeMC(process):
     process.patPhotons.embedGenMatch = False
     process.patTaus.embedGenMatch = False
     process.patJets.embedGenPartonMatch = False
+    process.patJets.addJetFlavourInfo = True
     #also jet flavour must be switched to ak4
     process.patJetFlavourAssociation.rParam = 0.4
 
