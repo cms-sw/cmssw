@@ -38,7 +38,7 @@
     public:
 
        GBRTree();
-       explicit GBRTree(const TMVA::DecisionTree *tree);
+       explicit GBRTree(const TMVA::DecisionTree *tree, double scale, bool useyesnoleaf, bool adjustboundary);
        virtual ~GBRTree();
        
        double GetResponse(const float* vector) const;
@@ -65,7 +65,7 @@
         unsigned int CountIntermediateNodes(const TMVA::DecisionTreeNode *node);
         unsigned int CountTerminalNodes(const TMVA::DecisionTreeNode *node);
       
-        void AddNode(const TMVA::DecisionTreeNode *node);
+        void AddNode(const TMVA::DecisionTreeNode *node, double scale, bool isregression, bool useyesnoleaf, bool adjustboundary);
         
 	std::vector<unsigned char> fCutIndices;
 	std::vector<float> fCutVals;
