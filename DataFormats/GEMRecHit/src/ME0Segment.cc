@@ -13,8 +13,24 @@ namespace {
   DetId buildDetId(ME0DetId id) {
     return ME0DetId(id.region(),1,id.chamber(),id.roll());
   }
-
 }
+
+class ProjectionMatrixDiag {
+  // Aider class to make the return of the projection Matrix thread-safe
+protected:
+  AlgebraicMatrix theProjectionMatrix;
+public:
+  ProjectionMatrixDiag() : theProjectionMatrix(4,5,0) {
+    theProjectionMatrix[0][1] = 1;
+    theProjectionMatrix[1][2] = 1;
+    theProjectionMatrix[2][3] = 1;
+    theProjectionMatrix[3][4] = 1;
+  }
+  const AlgebraicMatrix &getMatrix() const {
+    return (theProjectionMatrix);
+  }
+};
+
 
 ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, LocalPoint origin, 
 	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
@@ -71,18 +87,9 @@ AlgebraicVector ME0Segment::parameters() const {
   return result;
 }
 
-
 AlgebraicMatrix ME0Segment::projectionMatrix() const {
-  static AlgebraicMatrix theProjectionMatrix( 4, 5, 0);
-  static bool isInitialized = false;
-  if (!isInitialized) {
-    theProjectionMatrix[0][1] = 1;
-    theProjectionMatrix[1][2] = 1;
-    theProjectionMatrix[2][3] = 1;
-    theProjectionMatrix[3][4] = 1;
-    isInitialized=true;
-  }    
-  return theProjectionMatrix;
+  static const ProjectionMatrixDiag theProjectionMatrix;
+  return (theProjectionMatrix.getMatrix());
 }
 
 float ME0Segment::time() const {
