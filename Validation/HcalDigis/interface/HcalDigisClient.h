@@ -28,15 +28,9 @@ class HcalDigisClient : public DQMEDHarvester {
 public:
     explicit HcalDigisClient(const edm::ParameterSet&);
 
-    ~HcalDigisClient() {
-    };
+    ~HcalDigisClient();
 
 private:
-
-
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) {
-    };
-
 
     virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter & igetter ) {
       igetter.setCurrentFolder("HcalDigisV/HcalDigiTask"); // moved this line from constructor

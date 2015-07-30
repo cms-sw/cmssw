@@ -29,6 +29,11 @@ HcalDigisClient::HcalDigisClient(const edm::ParameterSet& iConfig) {
 }
 
 
+HcalDigisClient::~HcalDigisClient() {
+    delete msm_;
+}
+
+
 void HcalDigisClient::booking(DQMStore::IBooker &ib, std::string subdetopt) {
 
     std::string strtmp;
@@ -78,7 +83,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*> &hcalMEs
     MonitorElement * ieta_iphi_occupancy_map4(0);
 
 
-    std::cout << " Number of histos " <<     hcalMEs.size() << std::endl;
+    // std::cout << " Number of histos " <<     hcalMEs.size() << std::endl;
 
     for (unsigned int ih = 0; ih < hcalMEs.size(); ih++) {
       

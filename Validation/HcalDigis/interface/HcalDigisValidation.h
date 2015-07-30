@@ -54,8 +54,7 @@ class HcalDigisValidation : public DQMEDAnalyzer {
 public:
     explicit HcalDigisValidation(const edm::ParameterSet&);
 
-    ~HcalDigisValidation() {
-    };
+    ~HcalDigisValidation(); 
 
     virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
@@ -72,10 +71,6 @@ private:
     };
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-    void beginRun();
-
-    void endRun();
 
     std::map<std::string, MonitorElement*> *msm_;
 

@@ -49,6 +49,12 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
 
 }
 
+
+HcalDigisValidation::~HcalDigisValidation() {
+    delete msm_;
+}
+
+
 void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &run, edm::EventSetup const &es)
 {
 
@@ -84,6 +90,7 @@ void HcalDigisValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const &
     book1D(ib,"HcalDigiTask_tp_ntp_HB", tp_hl_ntp_sub);
     book1D(ib,"HcalDigiTask_tp_ntp_HE", tp_hl_ntp_sub);
     book1D(ib,"HcalDigiTask_tp_ntp_HF", tp_hl_ntp_sub);
+    book1D(ib,"HcalDigiTask_tp_ntp_ieta", tp_hl_ieta);
     book1D(ib,"HcalDigiTask_tp_ntp_10_ieta", tp_hl_ieta);
     book2D(ib,"HcalDigiTask_tp_et_ieta", tp_hl_ieta, tp_hl_et);
     bookPf(ib,"HcalDigiTask_tp_ave_et_ieta", tp_hl_ieta, tp_hl_et, " "); 
@@ -549,6 +556,8 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
        fill1D("HcalDigiTask_tp_et_HF",en);
        ++chf;
      }
+
+     fill1D("HcalDigiTask_tp_ntp_ieta",ieta);
      if ( en > 10. ) fill1D("HcalDigiTask_tp_ntp_10_ieta",ieta);
 
    }//end data TP collection 
@@ -939,7 +948,7 @@ void HcalDigisValidation::eval_occupancy() {
     std::string strtmp;
 
     float fev = float (nevtot);
-        std::cout << "*** nevtot " <<  nevtot << std::endl;
+        // std::cout << "*** nevtot " <<  nevtot << std::endl;
 
     float sumphi_1, sumphi_2, sumphi_3, sumphi_4;
     float phi_factor;
@@ -1024,14 +1033,6 @@ void HcalDigisValidation::eval_occupancy() {
         fill1D(strtmp, deta, cnorm);
 
     } // end of i-loop
-
-}
-
-void HcalDigisValidation::beginRun() {
-
-}
-
-void HcalDigisValidation::endRun() {
 
 }
 
