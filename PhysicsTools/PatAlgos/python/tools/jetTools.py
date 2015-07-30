@@ -318,7 +318,7 @@ class AddJetCollection(ConfigToolBase):
                 _newPatJetFlavourAssociation.rParam=rParam
                 _newPatJetFlavourAssociation.bHadrons=cms.InputTag("patJetPartons"+postfix,"bHadrons")
                 _newPatJetFlavourAssociation.cHadrons=cms.InputTag("patJetPartons"+postfix,"cHadrons")
-                _newPatJetFlavourAssociation.partons=cms.InputTag("patJetPartons"+postfix,"partons")
+                _newPatJetFlavourAssociation.partons=cms.InputTag("patJetPartons"+postfix,"physicsPartons")
             else :
                 setattr(process, 'patJetFlavourAssociation'+_labelName+postfix,
                         patJetFlavourAssociation.clone(
@@ -327,7 +327,7 @@ class AddJetCollection(ConfigToolBase):
                             rParam=rParam,
                             bHadrons = cms.InputTag("patJetPartons"+postfix,"bHadrons"),
                             cHadrons = cms.InputTag("patJetPartons"+postfix,"cHadrons"),
-                            partons = cms.InputTag("patJetPartons"+postfix,"partons")
+                            partons = cms.InputTag("patJetPartons"+postfix,"physicsPartons")
                         )
                 )
                 knownModules.append('patJetFlavourAssociation'+_labelName+postfix)
