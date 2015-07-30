@@ -25,7 +25,7 @@ MVAJetPuId::MVAJetPuId(const edm::ParameterSet & ps)
 	version_             = ps.getParameter<int>("version");
 	reader_              = 0;
 	edm::ParameterSet jetConfig = ps.getParameter<edm::ParameterSet>("JetIdParams");
-	for(int i0 = 0; i0 < 3; i0++) { 
+	for(int i0 = 0; i0 < NWPs; i0++) { 
 		std::string lCutType                            = "Tight";
 		if(i0 == PileupJetIdentifier::kMedium) lCutType = "Medium";
 		if(i0 == PileupJetIdentifier::kLoose)  lCutType = "Loose";
@@ -34,10 +34,10 @@ MVAJetPuId::MVAJetPuId(const edm::ParameterSet & ps)
 			std::vector<double> pt1020 = jetConfig.getParameter<std::vector<double> >(("Pt1020_"+lCutType).c_str());
 			std::vector<double> pt2030 = jetConfig.getParameter<std::vector<double> >(("Pt2030_"+lCutType).c_str());
 			std::vector<double> pt3050 = jetConfig.getParameter<std::vector<double> >(("Pt3050_"+lCutType).c_str());
-			for(int i2 = 0; i2 < 4; i2++) mvacut_[i0][0][i2] = pt010 [i2];
-			for(int i2 = 0; i2 < 4; i2++) mvacut_[i0][1][i2] = pt1020[i2];
-			for(int i2 = 0; i2 < 4; i2++) mvacut_[i0][2][i2] = pt2030[i2];
-			for(int i2 = 0; i2 < 4; i2++) mvacut_[i0][3][i2] = pt3050[i2];
+			for(int i2 = 0; i2 < NPts; i2++) mvacut_[i0][0][i2] = pt010 [i2];
+			for(int i2 = 0; i2 < NPts; i2++) mvacut_[i0][1][i2] = pt1020[i2];
+			for(int i2 = 0; i2 < NPts; i2++) mvacut_[i0][2][i2] = pt2030[i2];
+			for(int i2 = 0; i2 < NPts; i2++) mvacut_[i0][3][i2] = pt3050[i2];
 
 		}
 	}
@@ -415,13 +415,19 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 		float a = ave_deta2-ave_deta*ave_deta;
 		float b = ave_dphi2-ave_dphi*ave_dphi;
 		float c = -(sum_detadphi/sumPt2-ave_deta*ave_dphi);
-		float delta = sqrt(fabs((a-b)*(a-b)+4*c*c));
 		float axis1=0; float axis2=0;
+		if((((a-b)*(a-b)+4*c*c))>0) {
+		float delta = sqrt(((a-b)*(a-b)+4*c*c));
 		if (a+b+delta > 0) {
 			axis1 = sqrt(0.5*(a+b+delta));
 		}
 		if (a+b-delta > 0) {
 			axis2 = sqrt(0.5*(a+b-delta));
+		}
+		}
+		else {
+	 	   axis1=-1;
+		   axis2=-1;
 		}
 		internalId_.axisMajor_ = axis1; //sqrt(fabs(eigVals(0)));
 		internalId_.axisMinor_ = axis2;//sqrt(fabs(eigVals(1)));
@@ -435,7 +441,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 			float dphi = reco::deltaPhi(*part, *jet);
 			float ddeta, ddphi, ddR;
 			ddeta = deta - ave_deta ;
-			ddphi = 2*atan(tan((dphi - ave_dphi)/2.)) ;
+			ddphi = reco::deltaPhi(dphi,ave_dphi);//2*atan(tan((dphi - ave_dphi)/2.)) ;
 			ddR = sqrt(ddeta*ddeta + ddphi*ddphi);
 			ddetaR_sum += ddR*ddeta*weight;
 			ddphiR_sum += ddR*ddphi*weight;
