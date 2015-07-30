@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.puJetIDParams_cfi import *
+from RecoJets.JetProducers.PileupJetIDCutParams_cfi import full_74x_chs
 
 ####################################################################################################################  
 full_53x = cms.PSet(
@@ -31,44 +32,6 @@ full_53x = cms.PSet(
     ),
  JetIdParams = full_53x_wp,
  label = cms.string("full53x")
- )
-####################################################################################################################
-full_74x_chs = cms.PSet(
- impactParTkThreshold = cms.double(1.) ,
- cutBased = cms.bool(False),
- etaBinnedWeights = cms.bool(True),
- tmvaWeights_jteta_0_2 = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_0_2.xml.gz"),
- tmvaWeights_jteta_2_2p5 = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_2_2p5.xml.gz"),
- tmvaWeights_jteta_2p5_3 = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_2p5_3.xml.gz"),
- tmvaWeights_jteta_3_5 = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_3_5.xml.gz"),
- tmvaMethod  = cms.string("JetIDMVAHighPt"),
- version = cms.int32(-1),
- tmvaVariables = cms.vstring(
-    "DRweighted"     ,
-    "rho"       ,
-    "nTot"     ,
-    "nCh" ,
-    "axisMajor" ,
-    "axisMinor",
-    "fRing0"  ,
-    "fRing1"      ,
-    "fRing2"   ,
-    "fRing3"   ,
-    "ptD"   ,
-    "beta"   ,
-    "betaStar"   ,
-    "min(pull,0.1)"   ,
-    "jetR"   ,
-    "jetRchg"   ,
-    ),
- tmvaSpectators = cms.vstring(
-    "p4.fCoordinates.fPt"   ,
-    "p4.fCoordinates.fEta"   ,
-    "nTrueInt"   ,
-    "dRMatch"   ,
-    ),
- JetIdParams = full_74x_chs_wp,
- label = cms.string("full")
  )
 ####################################################################################################################  
 full_53x_chs = cms.PSet(
