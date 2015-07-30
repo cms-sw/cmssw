@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.puJetIDParams_cfi import *
-from RecoJets.JetProducers.PileupJetIDCutParams_cfi import full_74x_chs
+from RecoJets.JetProducers.PileupJetIDParams_cfi import full_74x_chs
 
 ####################################################################################################################  
 full_53x = cms.PSet(
