@@ -36,7 +36,11 @@
        virtual ~GBRForest();
        
        double GetResponse(const float* vector) const;
-       double GetClassifier(const float* vector) const;
+       double GetGradBoostClassifier(const float* vector) const;
+       double GetAdaBoostClassifier(const float* vector) const { return GetResponse(vector); }
+       
+       //for backwards-compatibility
+       double GetClassifier(const float* vector) const { return GetGradBoostClassifier(vector); }
        
        void SetInitialResponse(double response) { fInitialResponse = response; }
        
@@ -61,7 +65,7 @@ inline double GBRForest::GetResponse(const float* vector) const {
 }
 
 //_______________________________________________________________________
-inline double GBRForest::GetClassifier(const float* vector) const {
+inline double GBRForest::GetGradBoostClassifier(const float* vector) const {
   double response = GetResponse(vector);
   return 2.0/(1.0+exp(-2.0*response))-1; //MVA output between -1 and 1
 }
