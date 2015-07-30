@@ -66,7 +66,7 @@ class ME0DetId :public DetId {
 
   /// Return the corresponding ChamberId (mask layers)
   ME0DetId chamberId() const {
-    return ME0DetId(id_ & chamberIdMask_);
+    return ME0DetId(id_ & chamberIdMask_ & layerIdMask_);
   }
   /// Return the corresponding LayerId (mask eta partition)
   // /*
@@ -106,7 +106,10 @@ class ME0DetId :public DetId {
  
   // original, to me looks more like a roll mask instead of a layer mask
   // static const uint32_t chamberIdMask_ = ~(RollMask_<<RollStartBit_);
-  // maybe it should be more something like ...
+  // maybe it should be more something like ... 
+  // although this way, when I print out the chamberId I get 
+  // - Layer = 0 (as desired)
+  // - EtaPartition = 1 (not desired, should be reset to 0)
   static const uint32_t chamberIdMask_ = ~(LayerMask_<<LayerStartBit_);
   static const uint32_t layerIdMask_ = ~(RollMask_<<RollStartBit_);
 
