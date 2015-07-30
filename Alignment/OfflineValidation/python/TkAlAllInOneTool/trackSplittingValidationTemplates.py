@@ -167,32 +167,10 @@ process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.Alig
 
 trackSplitPlotExecution="""
 #make track splitting plots
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
-then
-    rfmkdir -p .oO[workdir]Oo./TrackSplittingPlots
-else
-    mkdir -p TrackSplittingPlots
-fi
 
 rfcp .oO[trackSplitPlotScriptPath]Oo. .
 root -x -b -q TkAlTrackSplitPlot.C++
-rfmkdir -p .oO[datadir]Oo./TrackSplittingPlots
 
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
-then
-    image_files=$(find .oO[workdir]Oo./TrackSplittingPlots/* -maxdepth 0)
-    echo ${image_files}
-    ls .oO[workdir]Oo./TrackSplittingPlots
-else
-    image_files=$(find TrackSplittingPlots/* -maxdepth 0)
-    echo ${image_files}
-    ls TrackSplittingPlots
-fi
-
-for image in ${image_files}
-do
-    cp -r ${image} .oO[datadir]Oo./TrackSplittingPlots
-done
 """
 
 ######################################################################
@@ -289,12 +267,13 @@ phases must be filled in for sagitta, elliptical, and skew if values is;
 void TkAlTrackSplitPlot()
 {
     //fillmatrix();                                                         //(C)
-    makePlots(".oO[trackSplitPlotInstantiation]Oo.",
+    makePlots(
+              ".oO[trackSplitPlotInstantiation]Oo.",
               //misalignment,values,phases,                                 //(A)
-              "TrackSplittingPlots"
+              ".oO[datadir]Oo./TrackSplittingPlots"
               //,"xvar","yvar"                                              //(B)
               //,plotmatrix                                                 //(C)
-              );
+             );
 }
 """
 
