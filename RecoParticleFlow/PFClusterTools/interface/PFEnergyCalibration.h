@@ -47,20 +47,20 @@ class PFEnergyCalibration
   double energyEm(const reco::PFCluster& clusterEcal,
 		  std::vector<double> &EclustersPS1,
 		  std::vector<double> &EclustersPS2,
-		  bool crackCorrection = true);
+		  bool crackCorrection = true) const;
   double energyEm(const reco::PFCluster& clusterEcal,
 		  double ePS1,  double ePS2,
-		  bool crackCorrection = true);
+		  bool crackCorrection = true) const;
 
   double energyEm(const reco::PFCluster& clusterEcal,
 		  std::vector<double> &EclustersPS1,
 		  std::vector<double> &EclustersPS2,
 		  double &ps1,double&ps2,
-		  bool crackCorrection=true);
+		  bool crackCorrection=true) const;
   double energyEm(const reco::PFCluster& clusterEcal,
 		  double ePS1, double ePS2,
 		  double &ps1,double&ps2,
-		  bool crackCorrection=true);
+		  bool crackCorrection=true) const;
 
   // ECAL+HCAL (abc) calibration, with E and eta dependent coefficients, for hadrons
   void energyEmHad(double t, double& e, double&h, double eta, double phi) const;
@@ -97,22 +97,22 @@ class PFEnergyCalibration
 
  private:
   
-  double minimum(double a,double b);
-  double dCrackPhi(double phi, double eta);
-  double CorrPhi(double phi, double eta);
-  double CorrEta(double eta);
-  double CorrBarrel(double E, double eta);
-  double Alpha(double eta);
-  double Beta(double E, double eta);
-  double Gamma(double etaEcal);
-  double EcorrBarrel(double E, double eta, double phi, bool crackCorrection=true);
-  double EcorrZoneBeforePS(double E, double eta);
-  double EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal);
-  double EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal,double&, double&);
-  double EcorrPS_ePSNil(double eEcal,double eta);
-  double EcorrZoneAfterPS(double E, double eta);
-  double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,bool crackCorrection=true);
-  double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double&,double&,bool crackCorrection=true);
+  double minimum(double a,double b) const;
+  double dCrackPhi(double phi, double eta) const;
+  double CorrPhi(double phi, double eta) const;
+  double CorrEta(double eta) const;
+  double CorrBarrel(double E, double eta) const;
+  double Alpha(double eta) const;
+  double Beta(double E, double eta) const;
+  double Gamma(double etaEcal) const;
+  double EcorrBarrel(double E, double eta, double phi, bool crackCorrection=true) const;
+  double EcorrZoneBeforePS(double E, double eta) const;
+  double EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal) const;
+  double EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal,double&, double&) const;
+  double EcorrPS_ePSNil(double eEcal,double eta) const;
+  double EcorrZoneAfterPS(double E, double eta) const;
+  double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,bool crackCorrection=true) const;
+  double Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double&,double&,bool crackCorrection=true) const;
 
   // The calibration functions
   double aBarrel(double x) const;
