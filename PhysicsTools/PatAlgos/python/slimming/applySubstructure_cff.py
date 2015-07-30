@@ -17,7 +17,7 @@ def applySubstructure( process ) :
     from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets as patJetsDefault
 
     #add AK8
-    addJetCollection(process, labelName = 'AK8',
+    addJetCollection(process, labelName = '', postfix = 'AK8',
                      jetSource = cms.InputTag('ak8PFJetsCHS'),
                      algo= 'AK', rParam = 0.8,
                      jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'),

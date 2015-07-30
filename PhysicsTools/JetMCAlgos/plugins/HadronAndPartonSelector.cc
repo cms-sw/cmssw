@@ -255,7 +255,7 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      partonSelector_->run(particles,partons);
      for(reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it)
      {
-       if( !(it->fromHardProcessBeforeFSR() || (( partonMode_=="Pythia8" ) && (it->status()==23)) )) continue; // this particle is the direct descendant of a hard process particle of the same pdg id. For outgoing particles the kinematics are those before QCD or QED FSR. Or status==23 for Pythia8 (otherwise W->qq in ttbar sample doesn't work).
+       if( !(it->status()==3 || it->status()==23)) continue;
        if( !CandMCTagUtils::isParton( *it ) ) continue;  // skip particle if not a parton
        physicsPartons->push_back( reco::GenParticleRef( particles, it - particles->begin() ) );
      }
