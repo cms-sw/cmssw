@@ -41,6 +41,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    // switches
    bool doGenParticles_;
    bool runOnParticleGun_;
+   bool useValMapIso_;
 
    // handles to collections of objects
    edm::EDGetTokenT<vector<PileupSummaryInfo> >    genPileupCollection_;

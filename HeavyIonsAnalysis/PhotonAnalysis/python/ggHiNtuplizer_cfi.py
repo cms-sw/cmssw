@@ -4,6 +4,7 @@ ggHiNtuplizer = cms.EDAnalyzer(
     "ggHiNtuplizer",
     doGenParticles     = cms.bool(True),
     runOnParticleGun   = cms.bool(False),
+    useValMapIso       = cms.bool(True),
     pileupCollection   = cms.InputTag("addPileupInfo"),
     genParticleSrc     = cms.InputTag("hiGenParticles"),
     gsfElectronLabel   = cms.InputTag("ecalDrivenGsfElectrons"),

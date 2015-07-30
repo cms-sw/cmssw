@@ -15,13 +15,16 @@ ggHiNtuplizer::ggHiNtuplizer(const edm::ParameterSet& ps)
    // class instance configuration
    doGenParticles_         = ps.getParameter<bool>("doGenParticles");
    runOnParticleGun_       = ps.getParameter<bool>("runOnParticleGun");
+   useValMapIso_           = ps.getParameter<bool>("useValMapIso");
    genPileupCollection_    = consumes<vector<PileupSummaryInfo> >   (ps.getParameter<edm::InputTag>("pileupCollection"));
    genParticlesCollection_ = consumes<vector<reco::GenParticle> >   (ps.getParameter<edm::InputTag>("genParticleSrc"));
    gsfElectronsCollection_ = consumes<edm::View<reco::GsfElectron> >(ps.getParameter<edm::InputTag>("gsfElectronLabel"));
    recoPhotonsCollection_  = consumes<edm::View<reco::Photon> >     (ps.getParameter<edm::InputTag>("recoPhotonSrc"));
    recoMuonsCollection_    = consumes<edm::View<reco::Muon> >       (ps.getParameter<edm::InputTag>("recoMuonSrc"));
    vtxCollection_          = consumes<vector<reco::Vertex> >        (ps.getParameter<edm::InputTag>("VtxLabel"));
-   recoPhotonsHiIso_ = consumes<edm::ValueMap<reco::HIPhotonIsolation> > (ps.getParameter<edm::InputTag>("recoPhotonHiIsolationMap"));
+   if(useValMapIso_){
+     recoPhotonsHiIso_ = consumes<edm::ValueMap<reco::HIPhotonIsolation> > (ps.getParameter<edm::InputTag>("recoPhotonHiIsolationMap"));
+   }
 
    // initialize output TTree
    edm::Service<TFileService> fs;
@@ -633,11 +636,14 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es)
 {
    // Fills tree branches with photons.
 
-   edm::Handle<edm::View<reco::Photon> > recoPhotonsHandle;
-   e.getByToken(recoPhotonsCollection_, recoPhotonsHandle);
-   edm::Handle<edm::ValueMap<reco::HIPhotonIsolation> > recoPhotonHiIsoHandle;
-   e.getByToken(recoPhotonsHiIso_, recoPhotonHiIsoHandle);
-   const edm::ValueMap<reco::HIPhotonIsolation> & isoMap = * recoPhotonHiIsoHandle;
+  edm::Handle<edm::View<reco::Photon> > recoPhotonsHandle;
+  e.getByToken(recoPhotonsCollection_, recoPhotonsHandle);
+  edm::Handle<edm::ValueMap<reco::HIPhotonIsolation> > recoPhotonHiIsoHandle;
+  edm::ValueMap<reco::HIPhotonIsolation> isoMap;
+  if(useValMapIso_){
+    e.getByToken(recoPhotonsHiIso_, recoPhotonHiIsoHandle);
+    isoMap = * recoPhotonHiIsoHandle;
+  }
 
    // loop over photons
    for (edm::View<reco::Photon>::const_iterator pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end(); ++pho) {
@@ -695,25 +701,28 @@ void ggHiNtuplizer::fillPhotons(const edm::Event& e, const edm::EventSetup& es)
       //    phoBC2Eta_.push_back(-99);
       // }
 
-      unsigned int idx = pho - recoPhotonsHandle->begin();
-      edm::RefToBase<reco::Photon> photonRef = recoPhotonsHandle->refAt(idx);
+      if(useValMapIso_)
+      {
+	unsigned int idx = pho - recoPhotonsHandle->begin();
+	edm::RefToBase<reco::Photon> photonRef = recoPhotonsHandle->refAt(idx);
 
-      pho_ecalClusterIsoR2_.push_back(isoMap[photonRef].ecalClusterIsoR2());
-      pho_ecalClusterIsoR3_.push_back(isoMap[photonRef].ecalClusterIsoR3());
-      pho_ecalClusterIsoR4_.push_back(isoMap[photonRef].ecalClusterIsoR4());
-      pho_ecalClusterIsoR5_.push_back(isoMap[photonRef].ecalClusterIsoR5());
-      pho_hcalRechitIsoR1_.push_back(isoMap[photonRef].hcalRechitIsoR1());
-      pho_hcalRechitIsoR2_.push_back(isoMap[photonRef].hcalRechitIsoR2());
-      pho_hcalRechitIsoR3_.push_back(isoMap[photonRef].hcalRechitIsoR3());
-      pho_hcalRechitIsoR4_.push_back(isoMap[photonRef].hcalRechitIsoR4());
-      pho_hcalRechitIsoR5_.push_back(isoMap[photonRef].hcalRechitIsoR5());
-      pho_trackIsoR1PtCut20_.push_back(isoMap[photonRef].trackIsoR1PtCut20());
-      pho_trackIsoR2PtCut20_.push_back(isoMap[photonRef].trackIsoR2PtCut20());
-      pho_trackIsoR3PtCut20_.push_back(isoMap[photonRef].trackIsoR3PtCut20());
-      pho_trackIsoR4PtCut20_.push_back(isoMap[photonRef].trackIsoR4PtCut20());
-      pho_trackIsoR5PtCut20_.push_back(isoMap[photonRef].trackIsoR5PtCut20());
-      pho_swissCrx_.push_back(isoMap[photonRef].swissCrx());
-      pho_seedTime_.push_back(isoMap[photonRef].seedTime());
+	pho_ecalClusterIsoR2_.push_back(isoMap[photonRef].ecalClusterIsoR2());
+	pho_ecalClusterIsoR3_.push_back(isoMap[photonRef].ecalClusterIsoR3());
+	pho_ecalClusterIsoR4_.push_back(isoMap[photonRef].ecalClusterIsoR4());
+	pho_ecalClusterIsoR5_.push_back(isoMap[photonRef].ecalClusterIsoR5());
+	pho_hcalRechitIsoR1_.push_back(isoMap[photonRef].hcalRechitIsoR1());
+	pho_hcalRechitIsoR2_.push_back(isoMap[photonRef].hcalRechitIsoR2());
+	pho_hcalRechitIsoR3_.push_back(isoMap[photonRef].hcalRechitIsoR3());
+	pho_hcalRechitIsoR4_.push_back(isoMap[photonRef].hcalRechitIsoR4());
+	pho_hcalRechitIsoR5_.push_back(isoMap[photonRef].hcalRechitIsoR5());
+	pho_trackIsoR1PtCut20_.push_back(isoMap[photonRef].trackIsoR1PtCut20());
+	pho_trackIsoR2PtCut20_.push_back(isoMap[photonRef].trackIsoR2PtCut20());
+	pho_trackIsoR3PtCut20_.push_back(isoMap[photonRef].trackIsoR3PtCut20());
+	pho_trackIsoR4PtCut20_.push_back(isoMap[photonRef].trackIsoR4PtCut20());
+	pho_trackIsoR5PtCut20_.push_back(isoMap[photonRef].trackIsoR5PtCut20());
+	pho_swissCrx_.push_back(isoMap[photonRef].swissCrx());
+	pho_seedTime_.push_back(isoMap[photonRef].seedTime());
+      }
 
       nPho_++;
 
