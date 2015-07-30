@@ -1,6 +1,7 @@
 #include <memory>
 #include "RecoJets/JetProducers/plugins/MVAJetPuIdProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h" 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
  
  MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
  {
