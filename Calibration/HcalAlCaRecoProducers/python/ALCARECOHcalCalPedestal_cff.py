@@ -5,22 +5,22 @@ import FWCore.ParameterSet.Config as cms
 #------------------------------------------------
 
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
-hcalDigiAlCaMB.InputLabel = 'hltHcalCalibrationRaw'
+#### hcalDigiAlCaMB.InputLabel = 'hltHcalCalibrationRaw'
 #from EventFilter.HcalRawToDigi.HcalRawToDigi_cfi import *
 #hcalDigis.InputLabel = 'hltHcalCalibrationRaw'
 from RecoLocalCalo.Configuration.hcalLocalRecoNZS_cff import *
 
-hbherecoMB.firstSample = 0
-hbherecoMB.samplesToAdd = 4
-hbherecoMB.digiLabel = 'hcalDigiAlCaMB'
+####hbherecoMB.firstSample = 0
+####hbherecoMB.samplesToAdd = 4
+####hbherecoMB.digiLabel = 'hcalDigiAlCaMB'
 
-hfrecoMB.firstSample = 0
-hfrecoMB.samplesToAdd = 2
-hfrecoMB.digiLabel = 'hcalDigiAlCaMB'
+####hfrecoMB.firstSample = 0
+####hfrecoMB.samplesToAdd = 2
+####hfrecoMB.digiLabel = 'hcalDigiAlCaMB'
 
-horecoMB.firstSample = 0
-horecoMB.samplesToAdd = 4
-horecoMB.digiLabel = 'hcalDigiAlCaMB'
+####horecoMB.firstSample = 0
+####horecoMB.samplesToAdd = 4
+####horecoMB.digiLabel = 'hcalDigiAlCaMB'
 
 
 import EventFilter.HcalRawToDigi.HcalCalibTypeFilter_cfi
