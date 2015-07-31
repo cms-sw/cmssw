@@ -1,4 +1,4 @@
-#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring15Trig25ns.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimatorRun2Spring15NonTrig.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
@@ -9,7 +9,7 @@
 
 #include "TMath.h"
 
-ElectronMVAEstimatorRun2Spring15Trig25ns::ElectronMVAEstimatorRun2Spring15Trig25ns(const edm::ParameterSet& conf):
+ElectronMVAEstimatorRun2Spring15NonTrig::ElectronMVAEstimatorRun2Spring15NonTrig(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf){
 
   _tag = conf.getParameter<std::string>("mvaTag");
@@ -36,14 +36,14 @@ ElectronMVAEstimatorRun2Spring15Trig25ns::ElectronMVAEstimatorRun2Spring15Trig25
 
 }
 
-ElectronMVAEstimatorRun2Spring15Trig25ns::
-~ElectronMVAEstimatorRun2Spring15Trig25ns(){
+ElectronMVAEstimatorRun2Spring15NonTrig::
+~ElectronMVAEstimatorRun2Spring15NonTrig(){
   
   _tmvaReaders.clear();
 }
 
 
-void ElectronMVAEstimatorRun2Spring15Trig25ns::setConsumes(edm::ConsumesCollector&& cc){
+void ElectronMVAEstimatorRun2Spring15NonTrig::setConsumes(edm::ConsumesCollector&& cc){
 
   // All tokens for event content needed by this MVA
 
@@ -60,7 +60,7 @@ void ElectronMVAEstimatorRun2Spring15Trig25ns::setConsumes(edm::ConsumesCollecto
 
 }
 
-void ElectronMVAEstimatorRun2Spring15Trig25ns::getEventContent(const edm::Event& iEvent){
+void ElectronMVAEstimatorRun2Spring15NonTrig::getEventContent(const edm::Event& iEvent){
 
   // Get data needed for conversion rejection
   iEvent.getByToken(_beamSpotToken, _theBeamSpot);
@@ -83,7 +83,7 @@ void ElectronMVAEstimatorRun2Spring15Trig25ns::getEventContent(const edm::Event&
   
 }
 
-float ElectronMVAEstimatorRun2Spring15Trig25ns::
+float ElectronMVAEstimatorRun2Spring15NonTrig::
 mvaValue( const edm::Ptr<reco::Candidate>& particle){
   
   int iCategory = findCategory( particle );
@@ -120,7 +120,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& particle){
   return result;
 }
 
-int ElectronMVAEstimatorRun2Spring15Trig25ns::findCategory( const edm::Ptr<reco::Candidate>& particle){
+int ElectronMVAEstimatorRun2Spring15NonTrig::findCategory( const edm::Ptr<reco::Candidate>& particle){
   
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
@@ -162,7 +162,7 @@ int ElectronMVAEstimatorRun2Spring15Trig25ns::findCategory( const edm::Ptr<reco:
   return iCategory;
 }
 
-bool ElectronMVAEstimatorRun2Spring15Trig25ns::
+bool ElectronMVAEstimatorRun2Spring15NonTrig::
 isEndcapCategory(int category ){
 
   bool isEndcap = false;
@@ -173,7 +173,7 @@ isEndcapCategory(int category ){
 }
 
 
-TMVA::Reader *ElectronMVAEstimatorRun2Spring15Trig25ns::
+TMVA::Reader *ElectronMVAEstimatorRun2Spring15NonTrig::
 createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
 
   //
@@ -241,7 +241,7 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
 }
 
 // A function that should work on both pat and reco objects
-void ElectronMVAEstimatorRun2Spring15Trig25ns::fillMVAVariables(const edm::Ptr<reco::Candidate>& particle){
+void ElectronMVAEstimatorRun2Spring15NonTrig::fillMVAVariables(const edm::Ptr<reco::Candidate>& particle){
 
   // Try to cast the particle into a reco particle.
   // This should work for both reco and pat.
@@ -331,7 +331,7 @@ void ElectronMVAEstimatorRun2Spring15Trig25ns::fillMVAVariables(const edm::Ptr<r
 
 }
 
-void ElectronMVAEstimatorRun2Spring15Trig25ns::constrainMVAVariables(){
+void ElectronMVAEstimatorRun2Spring15NonTrig::constrainMVAVariables(){
 
   // Check that variables do not have crazy values
 

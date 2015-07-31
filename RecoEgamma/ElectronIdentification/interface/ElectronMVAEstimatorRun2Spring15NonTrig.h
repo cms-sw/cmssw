@@ -1,5 +1,5 @@
-#ifndef RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Spring15Trig25ns_H
-#define RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Spring15Trig25ns_H
+#ifndef RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Spring15NonTrig_H
+#define RecoEgamma_ElectronIdentification_ElectronMVAEstimatorRun2Spring15NonTrig_H
 
 #include "RecoEgamma/EgammaTools/interface/AnyMVAEstimatorRun2Base.h"
 
@@ -18,7 +18,7 @@
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
 
-class ElectronMVAEstimatorRun2Spring15Trig25ns : public AnyMVAEstimatorRun2Base{
+class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   
  public:
 
@@ -81,8 +81,8 @@ class ElectronMVAEstimatorRun2Spring15Trig25ns : public AnyMVAEstimatorRun2Base{
   };
   
   // Constructor and destructor
-  ElectronMVAEstimatorRun2Spring15Trig25ns(const edm::ParameterSet& conf);
-  ~ElectronMVAEstimatorRun2Spring15Trig25ns();
+  ElectronMVAEstimatorRun2Spring15NonTrig(const edm::ParameterSet& conf);
+  ~ElectronMVAEstimatorRun2Spring15NonTrig();
 
   // Calculation of the MVA value
   float mvaValue( const edm::Ptr<reco::Candidate>& particle);
@@ -115,7 +115,7 @@ class ElectronMVAEstimatorRun2Spring15Trig25ns : public AnyMVAEstimatorRun2Base{
   // MVA name. This is a unique name for this MVA implementation.
   // It will be used as part of ValueMap names.
   // For simplicity, keep it set to the class name.
-  const std::string _name = "ElectronMVAEstimatorRun2Spring15Trig25ns";
+  const std::string _name = "ElectronMVAEstimatorRun2Spring15NonTrig";
   // MVA tag. This is an additional string variable to distinguish
   // instances of the estimator of this class configured with different
   // weight files.
@@ -145,7 +145,7 @@ class ElectronMVAEstimatorRun2Spring15Trig25ns : public AnyMVAEstimatorRun2Base{
 };
 
 DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
-		  ElectronMVAEstimatorRun2Spring15Trig25ns,
-		  "ElectronMVAEstimatorRun2Spring15Trig25ns");
+		  ElectronMVAEstimatorRun2Spring15NonTrig,
+		  "ElectronMVAEstimatorRun2Spring15NonTrig");
 
 #endif
