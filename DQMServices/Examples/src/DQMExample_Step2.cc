@@ -63,16 +63,16 @@ void DQMExample_Step2::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter&
   for (int iBin=1; iBin<numerator->getNbinsX(); ++iBin)
     {
       if(denominator->getBinContent(iBin) == 0)
-	h_ptRatio->setBinContent(iBin, 0.);
+        h_ptRatio->setBinContent(iBin, 0.);
       else
-	h_ptRatio->setBinContent(iBin, numerator->getBinContent(iBin) / denominator->getBinContent(iBin));
+        h_ptRatio->setBinContent(iBin, numerator->getBinContent(iBin) / denominator->getBinContent(iBin));
     }
 }
 
 //
 // -------------------------------------- get in the endLumi if needed --------------------------------------------
 //
-void DQMExample_Step2::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_, edm::LuminosityBlock const & iLumi, edm::EventSetup const& iSetup) 
+void DQMExample_Step2::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_, edm::LuminosityBlock const & iLumi, edm::EventSetup const& iSetup)
 {
   edm::LogInfo("DQMExample_Step2") <<  "DQMExample_Step2::endLumi " << std::endl;
 }
