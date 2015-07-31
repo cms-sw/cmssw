@@ -119,5 +119,13 @@ def customiseForRunI(process):
     if 'TrackSeedMonjetCoreRegionalStep' in process.TrackingDQMSourceTier0MinBias.moduleNames():
        process.TrackingDQMSourceTier0MinBias.remove(process.TrackSeedMonjetCoreRegionalStep)
 
+    if hasattr(process, 'TrackingDQMSourceTier0Common') and 'TrackSeedMonjetCoreRegionalStep' in process.TrackingDQMSourceTier0Common.moduleNames():
+        process.TrackingDQMSourceTier0Common.remove(process.TrackSeedMonjetCoreRegionalStep)
+
+    if hasattr(process, 'TrackingDQMSourceTier0') and 'TrackSeedMonjetCoreRegionalStep' in process.TrackingDQMSourceTier0.moduleNames():
+        process.TrackingDQMSourceTier0.remove(process.TrackSeedMonjetCoreRegionalStep)
+
+    if hasattr(process, 'TrackingDQMSourceTier0MinBias') and 'TrackSeedMonjetCoreRegionalStep' in process.TrackingDQMSourceTier0MinBias.moduleNames():
+        process.TrackingDQMSourceTier0MinBias.remove(process.TrackSeedMonjetCoreRegionalStep)
 
     return process
