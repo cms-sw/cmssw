@@ -143,6 +143,12 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
    for(std::set<std::string>::iterator it = detailViews.begin(), itEnd=detailViews.end();
        it!=itEnd;
        ++it) {
+
+      if (m_context->getHidePFBuilders()) {
+         std::size_t found = it->find("PF ");
+         if (found != std::string::npos)
+            break;
+      }
       std::string::size_type first = it->find_first_of('@');
       std::string type = it->substr(0,first);
 
