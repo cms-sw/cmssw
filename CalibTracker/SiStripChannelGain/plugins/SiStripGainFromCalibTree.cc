@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -187,7 +188,8 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
       unsigned int BAD;
       unsigned int MASKED;
 
-  
+      edm::EDGetTokenT<edm::View<reco::Track>> tracksToken;
+      edm::EDGetTokenT<TrajTrackAssociationCollection> associationsToken;
 
    private :
       class isEqual{
@@ -233,6 +235,9 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 
    dbe = edm::Service<DQMStore>().operator->();
    dbe->setVerbose(10);
+
+   tracksToken = consumes<edm::View<reco::Track>>(theTracksLabel);
+   associationsToken = consumes<TrajTrackAssociationCollection>(theTracksLabel);
 }
 
 void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
@@ -817,8 +822,8 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
   //FROM SHALLOW GAIN
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;         iSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );  
   edm::ESHandle<SiStripGain> gainHandle;                     iSetup.get<SiStripGainRcd>().get(gainHandle);
-  edm::Handle<edm::View<reco::Track> > tracks;               iEvent.getByLabel(theTracksLabel, tracks);    
-  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByLabel(theTracksLabel, associations);
+  edm::Handle<edm::View<reco::Track> > tracks;               iEvent.getByToken(tracksToken, tracks);
+  edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByToken(associationsToken, associations);
 
   for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); association++) {
        const Trajectory*  traj  = association->key.get();
