@@ -65,7 +65,7 @@ def customiseDataRun2Common_25ns(process):
     return process
 
 # common+50ns. Needed only for runs >= 253000
-def customiseDataRun2Common_50ns(process):
+def customiseDataRun2Common_50nsRunsAfter253000(process):
     process = customiseDataRun2Common(process)
 
     if hasattr(process,'particleFlowClusterECAL'):
@@ -113,7 +113,7 @@ def customiseExpressRun2(process):
 
 def customiseExpressRun2_50ns(process):
     process = customiseExpress(process)
-    process = customiseDataRun2Common_50ns(process)
+    process = customiseDataRun2Common_50nsRunsAfter253000(process)
     return process
 
 def customiseExpressRun2B0T(process):
@@ -138,6 +138,11 @@ def customisePrompt(process):
 def customisePromptRun2(process):
     process = customisePrompt(process)
     process = customiseDataRun2Common_25ns(process)
+    return process
+
+def customisePromptRun2_50ns(process):
+    process = customisePrompt(process)
+    process = customiseDataRun2Common_50nsRunsAfter253000(process)
     return process
 
 def customisePromptRun2B0T(process):
