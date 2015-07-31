@@ -51,7 +51,4 @@ hcalCalibPedestal = EventFilter.HcalRawToDigi.HcalCalibTypeFilter_cfi.hcalCalibT
 seqALCARECOHcalCalPedestal = cms.Sequence(hcalCalibPedestal*
                                           hcalDigiAlCaPedestals*
                                           gtDigisAlCaPedestals*
-                                          hcalLocalRecoSequencePedestals*
-                                          hbherecoPedestals*
-                                          hfrecoPedestals*
-                                          horecoPedestals)
+                                          hcalLocalRecoSequencePedestals)
