@@ -523,25 +523,34 @@ class Plot:
         return len(self._histograms)
 
     def getName(self):
-        return str(self._name)
+        if isinstance(self._name, list):
+            return str(self._name[0])
+        else:
+            return str(self._name)
 
     def drawRatioUncertainty(self):
         return self._ratioUncertainty
 
-    def _createOne(self, tdir):
+    def _createOne(self, index, tdir):
         """Create one histogram from a TDirectory."""
         if tdir == None:
             return None
 
-        # If name is Efficiency instead of string, call its create()
-        if hasattr(self._name, "create"):
-            th1 = self._name.create(tdir)
+        # If name is a list, pick the name by the index
+        if isinstance(self._name, list):
+            name = self._name[index]
         else:
-            th1 = tdir.Get(self._name)
+            name = self._name
+
+        # If name is Efficiency instead of string, call its create()
+        if hasattr(name, "create"):
+            th1 = name.create(tdir)
+        else:
+            th1 = tdir.Get(name)
 
         # Check the histogram exists
         if th1 == None:
-            print "Did not find {histo} from {dir}".format(histo=self._name, dir=tdir.GetPath())
+            print "Did not find {histo} from {dir}".format(histo=name, dir=tdir.GetPath())
             if missingOk or self._ignoreIfMissing:
                 return None
             else:
@@ -551,7 +560,7 @@ class Plot:
 
     def create(self, tdirs):
         """Create histograms from list of TDirectories"""
-        self._histograms = [self._createOne(tdir) for tdir in tdirs]
+        self._histograms = [self._createOne(i, tdir) for i, tdir in enumerate(tdirs)]
 
         if self._histogramModifier is not None:
             self._histograms = self._histogramModifier(self._histograms)
@@ -682,7 +691,7 @@ class Plot:
             style(h, _plotStylesMarker[i], _plotStylesColor[i])
             histos.append(h)
         if len(histos) == 0:
-            print "No histograms for plot {name}".format(name=self._name)
+            print "No histograms for plot {name}".format(name=self.getName())
             return
 
         # Return value if number, or algo-specific value if AlgoOpt
