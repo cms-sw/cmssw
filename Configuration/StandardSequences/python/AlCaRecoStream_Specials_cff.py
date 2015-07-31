@@ -27,7 +27,6 @@ ALCARECOStreamEcalCalEtaCalib = cms.FilteredStream(
 
 # ECAL calibration with pi0
 from Calibration.EcalAlCaRecoProducers.ALCARECOEcalCalPi0Calib_cff import *
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
 
 pathALCARECOEcalCalPi0Calib = cms.Path(seqALCARECOEcalCalPi0Calib*ALCARECOEcalCalPi0CalibDQM)
 
@@ -63,8 +62,6 @@ ALCARECOStreamHcalCalMinBias = cms.FilteredStream(
 # HCAL Pedestals
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalPedestal_cff import *
 
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
-
 pathALCARECOHcalCalPedestal = cms.Path(seqALCARECOHcalCalPedestal*ALCARECOHcalCalPhisymDQM)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
@@ -77,8 +74,6 @@ ALCARECOStreamHcalCalPedestal = cms.FilteredStream(
         selectEvents = OutALCARECOHcalCalPedestal.SelectEvents,
         dataTier = cms.untracked.string('ALCARECO')
         )
-
-
 
 # AlCaReco for LumiPixel stream
 from Calibration.TkAlCaRecoProducers.ALCARECOLumiPixels_cff import *
