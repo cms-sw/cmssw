@@ -10,6 +10,8 @@ particleFlowEGamma.vertexCollection = cms.InputTag("hiSelectedVertex")
 gedGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 gedGsfElectronsTmp.ctfTracksTag = cms.InputTag("hiGeneralTracks")
 gedGsfElectronsTmp.vtxTag = cms.InputTag("hiSelectedVertex")
+gedGsfElectronsTmp.minSCEtBarrel = cms.double(15.0)
+gedGsfElectronsTmp.minSCEtEndcaps = cms.double(15.0)
 gedPhotonsTmp.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
 gedPhotonsTmp.regressionConfig.vertexCollection = cms.InputTag("hiSelectedVertex")
 gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
@@ -30,7 +32,7 @@ particleFlowBlock.elementImporters = cms.VPSet(
     cms.PSet( importerName = cms.string("GSFTrackImporter"),
               source = cms.InputTag("pfTrackElec"),
               gsfsAreSecondary = cms.bool(False),
-              superClustersArePF = cms.bool(True) ),        
+              superClustersArePF = cms.bool(True) ),
     cms.PSet( importerName = cms.string("SuperClusterImporter"),
                   source_eb = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
                   source_ee = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
@@ -47,7 +49,7 @@ particleFlowBlock.elementImporters = cms.VPSet(
               DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
                                                        1.0,1.0),
               NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
-              ),        
+              ),
     # to properly set SC based links you need to run ECAL importer
     # after you've imported all SCs to the block
     cms.PSet( importerName = cms.string("ECALClusterImporter"),
