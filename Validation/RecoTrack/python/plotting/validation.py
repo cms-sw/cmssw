@@ -293,7 +293,7 @@ class Sample:
             midfix += "_"+self._midfix
         if self.hasPileup():
             if self._fastsim:
-                sample = sample.replace("RelVal", "RelValFS_")
+                #sample = sample.replace("RelVal", "RelValFS_")
                 # old style
                 #pileup = "PU_"
                 #midfix += "_"+self.pileupType(newRelease)
