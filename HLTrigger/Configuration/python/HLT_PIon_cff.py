@@ -1476,10 +1476,10 @@ fragment.hltCaloStage1Digis = cms.EDProducer( "L1TRawToDigi",
     Setup = cms.string( "stage1::CaloSetup" ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     lenSlinkHeader = cms.untracked.int32( 8 ),
-    FWId = cms.untracked.int32( 2 ),
+    #FWId = cms.untracked.int32( 2 ),
     lenAMCHeader = cms.untracked.int32( 8 ),
     lenAMCTrailer = cms.untracked.int32( 0 ),
-    FedId = cms.int32( 1352 )
+    #FedId = cms.int32( 1352 )
 )
 fragment.hltCaloStage1LegacyFormatDigis = cms.EDProducer( "L1TCaloUpgradeToGCTConverter",
     InputHFCountsCollection = cms.InputTag( 'hltCaloStage1Digis','HFBitCounts' ),

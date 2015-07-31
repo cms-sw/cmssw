@@ -68,7 +68,7 @@ MP7PacketReader::load() {
                 // Here the 64 bit uint is converted into a 32 bit uint, the data valid bit is stripped in the 64->32 bit conversion.
                 pkt.links_[lIt->first] = std::vector<uint32_t>(
                         lIt->second.begin() + p.first + header_,
-                        lIt->second.begin() + p.second - footer_
+                        lIt->second.begin() + p.second - footer_ + 1
                         );
             }
             pkt.first_ = p.first + header_;
