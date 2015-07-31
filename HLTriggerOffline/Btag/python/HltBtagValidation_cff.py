@@ -4,7 +4,7 @@ from HLTriggerOffline.Btag.hltBtagJetMCTools_cff import *
 #denominator trigger
 hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring(
-      "HLT_PFMET120_NoiseCleaned_BTagCSV07_*"),
+      "HLT_PFMET120_NoiseCleaned_BTag* OR HLT_CaloMHTNoPU90_PFMET90_PFMHT90_ID* OR HLT_QuadPFJet_VBF* OR HLT_Ele32_eta2p1_* OR HLT_IsoMu24_eta2p1_*"),
     hltResults = cms.InputTag( "TriggerResults", "", "HLT" ),
 #    l1tResults = cms.InputTag( "simGtDigis" ),
     l1tResults = cms.InputTag( "gtDigis" ),
@@ -12,27 +12,44 @@ hltBtagTriggerSelection = cms.EDFilter( "TriggerResultsFilter",
 )
 
 #correct the jet used for the matching
-hltBtagJetsbyRef.jets = cms.InputTag("hltSelector4CentralJetsL1FastJet")
+hltBtagJetsbyRef.jets = cms.InputTag("ak4GenJetsNoNu")
 
 #define HltVertexValidationVertices for the vertex DQM validation
 HltVertexValidationVertices= cms.EDAnalyzer("HLTVertexPerformanceAnalyzer",
         SimVertexCollection = cms.InputTag("g4SimHits"),
 	TriggerResults = cms.InputTag('TriggerResults','',"HLT"),
 	HLTPathNames =cms.vstring(
-	'HLT_PFMET120_NoiseCleaned_BTagCSV07_', 
+	'HLT_PFMET120_NoiseCleaned_BTag',
+	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_ID',
+	'HLT_QuadPFJet_VBF',
+	'HLT_Ele32_eta2p1_',
+	'HLT_IsoMu24_eta2p1_'
 	),
 	Vertex = cms.VInputTag(
 		cms.InputTag("hltVerticesL3"), 
 		cms.InputTag("hltFastPrimaryVertex"), 
 		cms.InputTag("hltFastPVPixelVertices"),
+		cms.InputTag("hltVerticesPF"), 
 	)
 )
 
 #define bTagValidation for the b-tag DQM validation (distribution plot)
 hltbTagValidation = cms.EDAnalyzer("HLTBTagPerformanceAnalyzer",
 	TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-	HLTPathNames = cms.vstring('HLT_PFMET120_NoiseCleaned_BTagCSV07_'),
-	JetTag = cms.VInputTag(cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo")),
+	HLTPathNames =cms.vstring(
+	'HLT_PFMET120_NoiseCleaned_BTag',
+	'HLT_CaloMHTNoPU90_PFMET90_PFMHT90_ID',
+	'HLT_QuadPFJet_VBF',
+	'HLT_Ele32_eta2p1_',
+	'HLT_IsoMu24_eta2p1_'
+	),
+	JetTag = cms.VInputTag(
+		cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo"),
+		cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo"),
+		cms.InputTag("hltCombinedSecondaryVertexBJetTagsCalo"),
+		cms.InputTag("hltCombinedSecondaryVertexBJetTagsPF"),
+		cms.InputTag("hltCombinedSecondaryVertexBJetTagsPF"),
+		),
 	MinJetPT = cms.double(20),
 	mcFlavours = cms.PSet(
 		light = cms.vuint32(1, 2, 3, 21), # udsg

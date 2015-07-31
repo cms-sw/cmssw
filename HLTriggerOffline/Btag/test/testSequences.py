@@ -8,7 +8,7 @@ process.load("HLTriggerOffline.Btag.HltBtagValidation_cff")
 process.load("HLTriggerOffline.Btag.HltBtagValidationFastSim_cff")
 process.load("HLTriggerOffline.Btag.HltBtagPostValidation_cff")
 
-process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltBTagPostVal)
+process.DQM_BTag = cms.Path(    process.hltbtagValidationSequence + process.HltBTagPostVal + process.dqmSaver)
 
 
 process.source = cms.Source("PoolSource",
