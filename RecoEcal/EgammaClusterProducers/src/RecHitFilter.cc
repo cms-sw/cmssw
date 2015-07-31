@@ -25,15 +25,12 @@
 #include "RecoEcal/EgammaClusterProducers/interface/RecHitFilter.h"
 
 
-RecHitFilter::RecHitFilter(const edm::ParameterSet& ps)
+RecHitFilter::RecHitFilter(const edm::ParameterSet& ps):
+  noiseEnergyThreshold_(ps.getParameter<double>("noiseEnergyThreshold")),
+  noiseChi2Threshold_(ps.getParameter<double>("noiseChi2Threshold")),
+  reducedHitCollection_(ps.getParameter<std::string>("reducedHitCollection")),
+  hitCollection_(consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("hitCollection")))  
 {
-
-  noiseEnergyThreshold_  = ps.getParameter<double>("noiseEnergyThreshold");
-  noiseChi2Threshold_    = ps.getParameter<double>("noiseChi2Threshold");
-  hitCollection_         = 
-	  consumes<EcalRecHitCollection>(ps.getParameter<edm::InputTag>("hitCollection"));
-  reducedHitCollection_  = ps.getParameter<std::string>("reducedHitCollection");
-
   produces< EcalRecHitCollection >(reducedHitCollection_);
 }
 
@@ -43,7 +40,7 @@ RecHitFilter::~RecHitFilter()
 }
 
 
-void RecHitFilter::produce(edm::Event& evt, const edm::EventSetup& es)
+void RecHitFilter::produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const
 {
   // get the hit collection from the event:
   edm::Handle<EcalRecHitCollection> rhcHandle;
