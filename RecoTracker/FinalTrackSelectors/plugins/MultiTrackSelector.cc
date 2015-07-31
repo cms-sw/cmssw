@@ -122,6 +122,11 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   forest_.reserve(trkSelectors.size());
 
   produces<edm::ValueMap<float> >("MVAVals");
+  
+  //foward compatibility
+  produces<MVACollection>("MVAValues");
+  produces<QualityMaskCollection>("QualityMasks");
+
 
   for ( unsigned int i=0; i<trkSelectors.size(); i++) {
 
@@ -360,6 +365,9 @@ void MultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) const
 
     //    evt.put(selTracks,name_[i]);
     evt.put(selTracksValueMap,name_[i]);
+    for (auto & q : selTracks) q=std::max(q,0);
+    auto quals = std::make_unique<QualityMaskCollection>(selTracks.begin(),selTracks.end());
+    evt.put(std::move(quals),name_[i]);
   }
 }
 
@@ -572,6 +580,8 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
     mvaFiller.fill();
     evt.put(mvaValValueMap,"MVAVals");
+    auto mvas = std::make_unique<MVACollection>(mvaVals_.begin(),mvaVals_.end());
+    evt.put(std::move(mvas),"MVAValues");
     return;
   }
 
@@ -658,6 +668,8 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
     mvaFiller.insert(hSrcTrack,mvaVals_.begin(),mvaVals_.end());
     mvaFiller.fill();
     evt.put(mvaValValueMap,"MVAVals");
+    auto mvas = std::make_unique<MVACollection>(mvaVals_.begin(),mvaVals_.end());
+    evt.put(std::move(mvas),"MVAValues");
   }
 
 }
