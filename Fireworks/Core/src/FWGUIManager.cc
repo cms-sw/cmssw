@@ -8,10 +8,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-
-
-
-
 // system include files
 #include <boost/bind.hpp>
 #include <stdexcept>
@@ -81,7 +77,14 @@
 #include "Fireworks/Core/src/FWModelContextMenuHandler.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
+
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FW3DViewBase.h"
+
 #include "FWCore/Common/interface/EventBase.h"
+
+#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Exception.h"
 
 
 
@@ -640,6 +643,36 @@ FWGUIManager::showEDIFrame(int iToShow)
       m_ediFrame->show(static_cast<FWDataCategories>(iToShow));
    }
    m_ediFrame->MapRaised();
+}
+
+
+void
+FWGUIManager::open3DRegion()
+{
+   FWModelId id =  *(m_context->selectionManager()->selected().begin());
+   float eta =0, phi = 0;
+   {
+      edm::TypeWithDict type = edm::TypeWithDict((TClass*)id.item()->modelType());
+      using namespace boost::spirit::classic;
+      reco::parser::ExpressionPtr tmpPtr;
+      reco::parser::Grammar grammar(tmpPtr,type);
+      edm::ObjectWithDict o(type, (void*)id.item()->modelData(id.index()));
+      try {
+         parse("theta()", grammar.use_parser<1>() >> end_p, space_p).full;
+         eta =  tmpPtr->value(o);
+         parse("phi()", grammar.use_parser<1>() >> end_p, space_p).full;
+         phi =  tmpPtr->value(o);
+
+         ViewMap_i it = createView( "3D Tower", m_viewSecPack->NewSlot());
+         FW3DViewBase* v = static_cast<FW3DViewBase*>(it->second);
+         v->setClip(eta, phi);
+         it->first->UndockWindow();
+      }
+      catch(const reco::parser::BaseException& e)
+      {
+         std::cout <<" FWModelFilter failed to base "<< e.what() << std::endl;
+      }
+   }
 }
 
 void
@@ -1362,8 +1395,6 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
 
    // disable first docked view
    checkSubviewAreaIconState(0);
-
- 
 }
 
 void
