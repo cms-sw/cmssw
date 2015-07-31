@@ -27,10 +27,12 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-#process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
-#process.load('Configuration.Geometry.GeometryExtended2019_cff')
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023_cff')
+# process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+# process.load('Configuration.Geometry.GeometryExtended2019_cff')
+# process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+# process.load('Configuration.Geometry.GeometryExtended2023_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
@@ -42,6 +44,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
+process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
 
 ### Try to do RecoLocalMuon on all muon detectors ###
 #####################################################
@@ -62,7 +65,8 @@ process.localreco = cms.Sequence(muonlocalreco)
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 from Configuration.AlCa.GlobalTag import GlobalTag
 # process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Fix DT and CSC Alignment #
 ############################
@@ -106,16 +110,16 @@ process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
 ##########################
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        # 'file:out_digi.root'
-        'file:out_digi_100GeV_1000evts.root'
+        'file:out_digi.root'
+        # 'file:out_digi_100GeV_1000evts.root'
         # 'file:out_digi_1To100GeV_1000evts.root'
     )
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
-        # 'file:out_local_reco.root'
-        'file:out_local_reco_100GeV_1000evts.root'
+        'file:out_local_reco.root'
+        # 'file:out_local_reco_100GeV_1000evts.root'
         # 'file:out_local_reco_1To100GeV_1000evts.root'
     ),
     outputCommands = cms.untracked.vstring(
@@ -128,7 +132,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ### Paths and Schedules
 #######################
-process.rechit_step  = cms.Path(process.localreco+process.gemRecHits)
+process.rechit_step  = cms.Path(process.localreco+process.gemRecHits+process.me0RecHits)
 process.endjob_step  = cms.Path(process.endOfProcess)
 process.out_step     = cms.EndPath(process.output)
 
