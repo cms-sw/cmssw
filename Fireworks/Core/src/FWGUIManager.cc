@@ -160,6 +160,9 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
 
       for (int i = 0 ; i < FWViewType::kTypeSize; ++i)
       {
+         if (m_context->getHidePFBuilders() && (i == FWViewType::kLegoPFECAL || i == FWViewType::kRhoPhiPF))
+             continue;
+
          bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT || i ==  FWViewType::kLegoPFECAL);
          CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
