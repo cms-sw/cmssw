@@ -520,7 +520,7 @@ class Plot:
 
     def getNumberOfHistograms(self):
         """Return number of existing histograms."""
-        return len(self._histograms)
+        return len(filter(lambda h: h is not None, self._histograms))
 
     def getName(self):
         if isinstance(self._name, list):
