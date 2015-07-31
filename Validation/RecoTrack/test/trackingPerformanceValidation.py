@@ -31,11 +31,16 @@ startupsamples= [
     Sample('RelValSingleMuPt100', midfix="UP15")
 ]
 
+def putype(t):
+    if "_pmx" in NewRelease:
+        return {"default": t, NewRelease: "pmx"+t}
+    return t
+
 pileupstartupsamples = [
-    Sample('RelValTTbar', putype="25ns", midfix="13"),
-    Sample('RelValTTbar', putype="50ns", midfix="13"),
-    Sample('RelValZMM', putype="25ns", midfix="13"),
-    Sample('RelValZMM', putype="50ns", midfix="13")
+    Sample('RelValTTbar', putype=putype("25ns"), midfix="13"),
+    Sample('RelValTTbar', putype=putype("50ns"), midfix="13"),
+    Sample('RelValZMM', putype=putype("25ns"), midfix="13"),
+    Sample('RelValZMM', putype=putype("50ns"), midfix="13")
 ]
 
 upgradesamples = [
@@ -65,6 +70,11 @@ fastsimstartupsamples = [
 pileupfastsimstartupsamples = [
     Sample('RelValTTbar', putype="25ns", midfix="13", fastsim=True)
 ]
+
+if "_pmx" in NewRelease:
+    startupsamples = []
+    fastsimstartupsamples = []
+    pileupfastsimstartupsamples = []
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
