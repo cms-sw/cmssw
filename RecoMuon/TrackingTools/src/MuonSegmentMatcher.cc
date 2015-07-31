@@ -44,11 +44,14 @@ MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters,
   :
   DTSegmentTags_(matchParameters.getParameter<edm::InputTag>("DTsegments")),
   CSCSegmentTags_(matchParameters.getParameter<edm::InputTag>("CSCsegments")),
-  RPCHitTags_(matchParameters.getParameter<edm::InputTag>("RPChits")),
   dtRadius_(matchParameters.getParameter<double>("DTradius")),
   dtTightMatch(matchParameters.getParameter<bool>("TightMatchDT")),
   cscTightMatch(matchParameters.getParameter<bool>("TightMatchCSC"))
 {
+  if (matchParameters.existsAs<edm::InputTag>("RPChits")) {
+     RPCHitTags_=matchParameters.getParameter<edm::InputTag>("RPChits");
+  } else RPCHitTags_=edm::InputTag("rpcRecHits");
+
   dtRecHitsToken = iC.consumes<DTRecSegment4DCollection>(DTSegmentTags_);
   allSegmentsCSCToken = iC.consumes<CSCSegmentCollection>(CSCSegmentTags_) ;
   rpcRecHitsToken = iC.consumes<RPCRecHitCollection>(RPCHitTags_) ;
