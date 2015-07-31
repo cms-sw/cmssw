@@ -47,7 +47,8 @@ private:
 		std::auto_ptr<reco::TrackCollection>& selTracks,
 		std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 		std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-		AlgoProductCollection& algoResults);
+		AlgoProductCollection& algoResults,
+                const TrackerTopology *ttopo);
 };
 
 #endif

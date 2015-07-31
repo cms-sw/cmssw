@@ -39,6 +39,6 @@
 <use name="FWCore/RootAutoLibraryLoader"/>
 <use name="rootcint"/>
 
-<library file="*.cc" name="HGCalPandoraTranslatorPlugins">
+<library file="*.cc" name="RecoParticleFlowPandoraTranslatorPlugins">
    <flags EDM_PLUGIN="1"/>
 </library>

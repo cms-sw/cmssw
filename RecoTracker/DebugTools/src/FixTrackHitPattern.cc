@@ -25,6 +25,9 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iSetup, const reco::Track& track) 
@@ -55,6 +58,10 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
   edm::ESHandle<MagneticField> magField;
   iSetup.get<IdealMagneticFieldRecord>().get(magField);
   AnalyticalPropagator  propagator(&(*magField), alongMomentum);
+
+  edm::ESHandle<TrackerTopology> httopo;
+  iSetup.get<IdealGeometryRecord>().get(httopo);
+  const TrackerTopology& ttopo = *httopo;
 
   // This is used to check if a track is compatible with crossing a sensor.
   // Use +3.0 rather than default -3.0 here, so hit defined as inside acceptance if 
@@ -119,7 +126,7 @@ FixTrackHitPattern::Result FixTrackHitPattern::analyze(const edm::EventSetup& iS
 	    // Hence record that the track should have produced a hit here, but did not.
 	    // Store the information in a HitPattern.
 	    InvalidTrackingRecHit  tmpHit(id, TrackingRecHit::missing);
-	    newHitPattern.set(tmpHit, counter);      
+	    newHitPattern.set(tmpHit, counter, ttopo);
             counter++; 
 	  } else {
 	    // Missing hit expected here, since sensor was not functioning.

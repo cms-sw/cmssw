@@ -32,6 +32,7 @@ class MuonUpdatorAtVertex;
 class TrajectorySmoother;
 class ForwardDetLayer;
 class BarrelDetLayer;
+class TrackerTopology;
 
 class MuonTrackLoader {
   public:
@@ -47,24 +48,29 @@ class MuonTrackLoader {
    
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&,const std::string& = "", 
+                                                        edm::Event&,
+                                                        const TrackerTopology& ttopo,
+                                                        const std::string& = "", 
 							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
                                                         edm::Event&, std::vector<bool>&,
+                                                        const TrackerTopology& ttopo,
 							const std::string& = "", 
 							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
                                                         edm::Event&,const std::vector<std::pair<Trajectory*, reco::TrackRef> >&, 
+                                                        const TrackerTopology& ttopo,
 							const std::string& = "", 
 							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::MuonTrackLinksCollection> loadTracks(const CandidateContainer&,
-								 edm::Event&); 
+								 edm::Event&,
+                                                                 const TrackerTopology& ttopo);
   
   private:
  

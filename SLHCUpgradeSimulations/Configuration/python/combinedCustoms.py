@@ -5,6 +5,9 @@ from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import customise a
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import customise as customiseBE5DPixel10D
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCC import customise as customiseBE5DPixel10DLHCC
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCCCooling import customise as customiseBE5DPixel10DLHCCCooling
+from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DLHCCNoDefect import customise as customiseBE5DPixel10DLHCCNoDefect
+from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DCoolingDefect import customise as customiseBE5DPixel10DCoolingDefect
+from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10DDefect import customise as customiseBE5DPixel10DDefect
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10Ddev import customise as customiseBE5DPixel10Ddev
 
 from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE import l1EventContent as customise_ev_BE
@@ -59,6 +62,30 @@ def cust_phase2_BE5DPixel10DLHCC(process):
 def cust_phase2_BE5DPixel10DLHCCCooling(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10DLHCCCooling(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=jetCustoms.customise_jets(process)
+    return process
+
+def cust_phase2_BE5DPixel10DLHCCNoDefect(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10DLHCCNoDefect(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=jetCustoms.customise_jets(process)
+    return process
+
+def cust_phase2_BE5DPixel10DDefect(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10DDefect(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=jetCustoms.customise_jets(process)
+    return process
+
+def cust_phase2_BE5DPixel10DCoolingDefect(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10DCoolingDefect(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=jetCustoms.customise_jets(process)
@@ -604,12 +631,19 @@ def cust_2023HGCalMuon(process):
 
 def cust_2023HGCalV6Muon(process):
     """
-    Customisation function for the Extended2023HGCalV6Muon geometry. Currently does
-    exactly the same as the cust_2023HGCalMuon function but this could change in the
-    future.
+    Customisation function for the Extended2023HGCalV6Muon geometry. 
+    Modded so that the reco step will run. 
+    No serious RECO development is expected for V6, just validation.
+    Any real work will come with V7
     """
     process = cust_2023HGCal_common(process)
     process = customise_me0(process)
+    if hasattr(process,'reconstruction_step'):
+        del process.particleFlowRecHitHGCEE.navigator.hgcheb
+        del process.particleFlowRecHitHGCEE.producers[2]
+        process.particleFlowClusterHGCEE.initialClusteringStep.hgcalGeometryNames.HGC_HCALB = cms.string("")
+        process.particleFlowRecHitHGC = cms.Sequence(process.particleFlowRecHitHGCEE+process.particleFlowRecHitHGCHEF)
+        process.particleFlowClusterHGC = cms.Sequence(process.particleFlowClusterHGCEE+process.particleFlowClusterHGCHEF)
     return process
 
 def cust_2023SHCalTime(process):

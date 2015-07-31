@@ -28,6 +28,10 @@
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include <vector>
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 using namespace pixeltrackfitting;
 
 PixelTracksProducer::PixelTracksProducer(const edm::ParameterSet& conf) : 
@@ -90,7 +94,11 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     e.put(trackExtras);
     return;
   }
-  
+
+  edm::ESHandle<TrackerTopology> httopo;
+  es.get<IdealGeometryRecord>().get(httopo);
+  const TrackerTopology& ttopo = *httopo;
+
   //only one region Global, but it is called at every event...
   //maybe there is a smarter way to set it only once
   //NEED TO FIX
@@ -139,7 +147,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     
     for (unsigned int k = 0; k < hits.size(); k++) {
       TrackingRecHit *hit = (hits.at(k))->clone();
-      track->setHitPattern(*hit, k);
+      track->setHitPattern(*hit, k, ttopo);
       recHits->push_back(hit);
     }
 

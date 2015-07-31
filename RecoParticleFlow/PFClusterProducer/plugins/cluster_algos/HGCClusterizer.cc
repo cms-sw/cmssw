@@ -450,7 +450,9 @@ void HGCClusterizer::update(const edm::EventSetup& es) {
   es.get<TrackerDigiGeometryRecord>().get(_tkGeom);
   // get HGC geometries (assume that layers are ordered in Z!)
   for( unsigned i = 0; i < _hgcGeometries.size(); ++i ) {
-    es.get<IdealGeometryRecord>().get(_hgc_names[i],_hgcGeometries[i]);
+    if( _hgc_names[i] != "" ) {
+      es.get<IdealGeometryRecord>().get(_hgc_names[i],_hgcGeometries[i]);
+    }
   }
 
   // make propagator
@@ -458,6 +460,7 @@ void HGCClusterizer::update(const edm::EventSetup& es) {
   // setup HGC layers for track propagation
   Surface::RotationType rot; //unit rotation matrix
   for( unsigned i = 0; i < _hgcGeometries.size(); ++i ) {
+    if( !_hgcGeometries[i].isValid() ) continue;
     _minusSurface[i].clear();
     _plusSurface[i].clear();
     const HGCalDDDConstants &dddCons=_hgcGeometries[i]->topology().dddConstants();

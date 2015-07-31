@@ -10,6 +10,10 @@
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 #include <vector>
 
 using namespace pixeltrackfitting;
@@ -43,11 +47,14 @@ void PixelTrackProducer::produce(edm::Event& ev, const edm::EventSetup& es)
   TracksWithTTRHs tracks;
   theReconstruction.run(tracks,ev,es);
 
+  edm::ESHandle<TrackerTopology> httopo;
+  es.get<IdealGeometryRecord>().get(httopo);
+
   // store tracks
-  store(ev, tracks);
+  store(ev, tracks, *httopo);
 }
 
-void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWithHits)
+void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWithHits, const TrackerTopology& ttopo)
 {
   std::auto_ptr<reco::TrackCollection> tracks(new reco::TrackCollection());
   std::auto_ptr<TrackingRecHitCollection> recHits(new TrackingRecHitCollection());
@@ -64,7 +71,7 @@ void PixelTrackProducer::store(edm::Event& ev, const TracksWithTTRHs& tracksWith
     {
       TrackingRecHit *hit = hits[k]->hit()->clone();
 
-      track->setHitPattern(*hit, k);
+      track->setHitPattern(*hit, k, ttopo);
       recHits->push_back(hit);
     }
     tracks->push_back(*track);

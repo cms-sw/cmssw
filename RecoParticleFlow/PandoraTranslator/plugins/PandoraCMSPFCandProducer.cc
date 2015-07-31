@@ -5,6 +5,7 @@
 #include "LCContentFast.h"
 #include "RecoParticleFlow/PandoraTranslator/interface/CMSTemplateAlgorithm.h"
 #include "RecoParticleFlow/PandoraTranslator/interface/CMSGlobalHadronCompensationPlugin.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/MaskedLayerManager.h"
 //#include "PandoraMonitoringApi.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -103,6 +104,7 @@ namespace cms_content {
 //
 PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iConfig) : 
   debugPrint(iConfig.getParameter<bool>("debugPrint")), debugHisto(iConfig.getParameter<bool>("debugHisto")), useRecoTrackAsssociation(iConfig.getParameter<bool>("useRecoTrackAsssociation")),
+  LayerManager(nullptr),
   m_calibEE(ForwardSubdetector::HGCEE,"EE",debugPrint), m_calibHEF(ForwardSubdetector::HGCHEF,"HEF",debugPrint), m_calibHEB(ForwardSubdetector::HGCHEB,"HEB",debugPrint), calibInitialized(false),
   _deltaPtOverPtForPfo(iConfig.getParameter<double>("MaxDeltaPtOverPtForPfo")),
   _deltaPtOverPtForClusterlessPfo(iConfig.getParameter<double>("MaxDeltaPtOverPtForClusterlessPfo"))
@@ -132,6 +134,15 @@ PandoraCMSPFCandProducer::PandoraCMSPFCandProducer(const edm::ParameterSet& iCon
   m_useOverburdenCorrection = iConfig.getParameter<bool>("useOverburdenCorrection");
   _outputFileName = iConfig.getParameter<std::string>("outputFile");
 
+  DoLayerMasking = iConfig.getParameter<bool>("DoLayerMasking");
+  if(DoLayerMasking) {
+    LayerManager = new MaskedLayerManager(iConfig.getParameter<edm::ParameterSet>("LayerMaskingParams"));
+    //get the layer gangings, which will be needed in processRecHits
+    m_LayerGangingEE = LayerManager->buildLayerGanging(ForwardSubdetector::HGCEE);
+    m_LayerGangingHEF = LayerManager->buildLayerGanging(ForwardSubdetector::HGCHEF);
+    m_LayerGangingHEB = LayerManager->buildLayerGanging(ForwardSubdetector::HGCHEB);
+  }
+  
   stm = new steerManager(m_energyWeightingFilename.fullPath().c_str());
   
   speedoflight = (CLHEP::c_light/CLHEP::cm)/CLHEP::ns;
@@ -151,6 +162,10 @@ PandoraCMSPFCandProducer::~PandoraCMSPFCandProducer()
     delete m_hitEperLayer_HAD[ForwardSubdetector::HGCEE];
     delete m_hitEperLayer_HAD[ForwardSubdetector::HGCHEF];
     delete m_hitEperLayer_HAD[ForwardSubdetector::HGCHEB]; 
+  }
+  
+  if(DoLayerMasking){
+    delete LayerManager;
   }
 }
 
@@ -381,30 +396,51 @@ void PandoraCMSPFCandProducer::prepareGeometry(){ // function to setup a geometr
     nHGCeeLayers = nHGClayers[0]; nHGChefLayers = nHGClayers[1]; nHGChebLayers = nHGClayers[2]/2;
     if(debugPrint) std::cout << "HGCEE layers = " << nHGCeeLayers << ", HGCHEF layers = " << nHGChefLayers << ", HGCHEB layers = " << nHGChebLayers << std::endl;
 
-    //set layer max vals in calib objects
-    m_calibEE.m_TotalLayers = nHGCeeLayers;
-    m_calibHEF.m_TotalLayers = nHGChefLayers;
-    m_calibHEB.m_TotalLayers = nHGChebLayers;
-
+	//objects for setting up absorber weighting and layer masking
+	std::multimap<unsigned,unsigned> ganged_layers_EE, ganged_layers_HEF, ganged_layers_HEB;
+	if(DoLayerMasking){
+		ganged_layers_EE = LayerManager->buildAbsorberGanging(ForwardSubdetector::HGCEE);
+		ganged_layers_HEF = LayerManager->buildAbsorberGanging(ForwardSubdetector::HGCHEF);
+		ganged_layers_HEB = LayerManager->buildAbsorberGanging(ForwardSubdetector::HGCHEB);
+	}
+	CalibHGC* m_calib[] = {&m_calibEE, &m_calibHEF, &m_calibHEB};
+	std::multimap<unsigned,unsigned>* ganged_layers[] = {&ganged_layers_EE, &ganged_layers_HEF, &ganged_layers_HEB};
+	unsigned int nMaskedLayers[] = {0,0,0};
+	
     //open ROOT file with histograms containing layer depths
     TFile* file = TFile::Open(m_layerDepthFilename.fullPath().c_str(),"READ");
     TH1F* h_x0 = (TH1F*)file->Get("x0");
     TH1F* h_lambda = (TH1F*)file->Get("lambda");
-    unsigned h_max = h_x0->GetNbinsX();
-    for(unsigned ih = 1; ih <= h_max; ih++){
-        if(ih <= nHGCeeLayers) {
-            m_calibEE.nCellRadiationLengths.push_back(h_x0->GetBinContent(ih));
-            m_calibEE.nCellInteractionLengths.push_back(h_lambda->GetBinContent(ih));
-        }
-        else if(ih <= nHGCeeLayers + nHGChefLayers){
-            m_calibHEF.nCellRadiationLengths.push_back(h_x0->GetBinContent(ih));
-            m_calibHEF.nCellInteractionLengths.push_back(h_lambda->GetBinContent(ih));
-        }
-        else if(ih <= nHGCeeLayers + nHGChefLayers + nHGChebLayers){
-            m_calibHEB.nCellRadiationLengths.push_back(h_x0->GetBinContent(ih));
-            m_calibHEB.nCellInteractionLengths.push_back(h_lambda->GetBinContent(ih));
-        }
-    }
+	unsigned h_max = h_x0->GetNbinsX();
+	for(unsigned ih = 1; ih <= h_max; ih++){
+		double buffer_x0, buffer_lambda;
+		buffer_x0 = buffer_lambda = 0;
+		
+		int det_index = 0;
+		int layer_offset = 0;
+		if(ih <= nHGCeeLayers) { det_index = 0; }
+		else if(ih <= nHGCeeLayers + nHGChefLayers) { det_index = 1; layer_offset = nHGCeeLayers; }
+		else if(ih <= nHGCeeLayers + nHGChefLayers + nHGChebLayers) { det_index = 2; layer_offset = nHGCeeLayers + nHGChefLayers; }
+		
+		if(DoLayerMasking){
+			if( ganged_layers[det_index]->count(ih - layer_offset) ) {
+				auto range = ganged_layers[det_index]->equal_range(ih - layer_offset);
+				for( auto itr = range.first; itr != range.second; ++itr ) {
+					buffer_x0 += h_x0->GetBinContent(itr->second + layer_offset);
+					buffer_lambda += h_lambda->GetBinContent(itr->second + layer_offset);
+				}
+				++nMaskedLayers[det_index];
+			}
+			else continue;
+		}
+		else {
+			buffer_x0 = h_x0->GetBinContent(ih);
+			buffer_lambda = h_lambda->GetBinContent(ih);
+		}
+		
+		m_calib[det_index]->nCellRadiationLengths.push_back(buffer_x0);
+		m_calib[det_index]->nCellInteractionLengths.push_back(buffer_lambda);
+	}
     //close file
     file->Close();
     //set calibration layers: EE*2* for EE, HEF1 for HEF and HEB
@@ -415,6 +451,19 @@ void PandoraCMSPFCandProducer::prepareGeometry(){ // function to setup a geometr
     m_calibHEB.calibrationRadiationLength = m_calibHEF.nCellRadiationLengths[1];
     m_calibHEB.calibrationInteractionLength = m_calibHEF.nCellInteractionLengths[1];
 
+	//reset layer max vals if masking is enabled
+	//automatically adds the proper number of layers to Pandora geometry further down
+	if(DoLayerMasking){
+		nHGCeeLayers = nMaskedLayers[0];
+		nHGChefLayers = nMaskedLayers[1];
+		nHGChebLayers = nMaskedLayers[2];
+	}
+	
+	//set layer max vals in calib objects
+    m_calibEE.m_TotalLayers = nHGCeeLayers;
+    m_calibHEF.m_TotalLayers = nHGChefLayers;
+    m_calibHEB.m_TotalLayers = nHGChebLayers;
+	
     //toggle use of overburden corrections
     m_calibEE.useOverburdenCorrection = m_useOverburdenCorrection;
 
@@ -485,7 +534,7 @@ void PandoraCMSPFCandProducer::prepareGeometry(){ // function to setup a geometr
   //corner parameters for EB
   double min_innerRadius = 99999.0 ; double max_outerRadius = 0.0 ;
   double min_innerZ = 99999.0 ; double max_outerZ = 0.0 ;
-  CalculateCornerSubDetectorParameters(ecalBarrelGeometry, ecalBarrelCells, pandora::ECAL_BARREL, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
+  CalculateCornerSubDetectorParameters(ecalBarrelGeometry, ecalBarrelCells, pandora::ECAL_BARREL, ForwardSubdetector::ForwardEmpty, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
                                        false, min_innerR_depth_eb, min_innerZ_depth_eb);
   SetCornerSubDetectorParameters(*ebParameters, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ); // One ECAL layer
   SetSingleLayerParameters(*ebParameters,*ebLayerParameters);
@@ -494,7 +543,7 @@ void PandoraCMSPFCandProducer::prepareGeometry(){ // function to setup a geometr
   //corner parameters for HB
   min_innerRadius = 99999.0 ; max_outerRadius = 0.0 ;
   min_innerZ = 99999.0 ; max_outerZ = 0.0 ;
-  CalculateCornerSubDetectorParameters(hcalBarrelGeometry, hcalBarrelCells, pandora::HCAL_BARREL, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
+  CalculateCornerSubDetectorParameters(hcalBarrelGeometry, hcalBarrelCells, pandora::HCAL_BARREL, ForwardSubdetector::ForwardEmpty, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
                                        false, min_innerR_depth_hb, min_innerZ_depth_hb);
   SetCornerSubDetectorParameters(*hbParameters, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ);
   SetSingleLayerParameters(*hbParameters, *hbLayerParameters);
@@ -503,7 +552,7 @@ void PandoraCMSPFCandProducer::prepareGeometry(){ // function to setup a geometr
   //corner & layer parameters for EE
   min_innerRadius = 99999.0 ; max_outerRadius = 0.0 ;
   min_innerZ = 99999.0 ; max_outerZ = 0.0 ;
-  CalculateCornerSubDetectorParameters(HGCEEGeometry, ecalEndcapCells, pandora::ECAL_ENDCAP, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
+  CalculateCornerSubDetectorParameters(HGCEEGeometry, ecalEndcapCells, pandora::ECAL_ENDCAP, ForwardSubdetector::HGCEE, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
                                        true, min_innerR_depth_ee, min_innerZ_depth_ee);
   SetCornerSubDetectorParameters(*eeParameters, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ);
   SetMultiLayerParameters(*eeParameters, hgcEELayerParameters, min_innerR_depth_ee, min_innerZ_depth_ee, nHGCeeLayers, m_calibEE);
@@ -513,9 +562,9 @@ void PandoraCMSPFCandProducer::prepareGeometry(){ // function to setup a geometr
   //consider both HEF and HEB together
   min_innerRadius = 99999.0 ; max_outerRadius = 0.0 ;
   min_innerZ = 99999.0 ; max_outerZ = 0.0 ;
-  CalculateCornerSubDetectorParameters(HGCHEFGeometry, hcalEndcapCellsFront, pandora::HCAL_ENDCAP, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
+  CalculateCornerSubDetectorParameters(HGCHEFGeometry, hcalEndcapCellsFront, pandora::HCAL_ENDCAP, ForwardSubdetector::HGCHEF, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
                                        true, min_innerR_depth_hef, min_innerZ_depth_hef);
-  CalculateCornerSubDetectorParameters(HGCHEBGeometry, hcalEndcapCellsBack, pandora::HCAL_ENDCAP, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
+  CalculateCornerSubDetectorParameters(HGCHEBGeometry, hcalEndcapCellsBack, pandora::HCAL_ENDCAP, ForwardSubdetector::HGCHEB, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ,
                                        true, min_innerR_depth_heb, min_innerZ_depth_heb);
   SetCornerSubDetectorParameters(*heParameters, min_innerRadius, max_outerRadius, min_innerZ, max_outerZ);
   SetMultiLayerParameters(*heParameters, hgcHEFLayerParameters, min_innerR_depth_hef, min_innerZ_depth_hef, nHGChefLayers, m_calibHEF);
@@ -554,6 +603,33 @@ void PandoraCMSPFCandProducer::prepareGeometry(){ // function to setup a geometr
 
 }
 
+unsigned int PandoraCMSPFCandProducer::GetHGCLayer(const DetId& detid, const ForwardSubdetector& subdet) const {
+	unsigned int layer = 0;
+    if(subdet==ForwardSubdetector::HGCEE) {
+		layer = (unsigned int) ((HGCEEDetId)(detid)).layer() ;
+		if(DoLayerMasking){
+			auto iter = m_LayerGangingEE.find(layer);
+			if(iter != m_LayerGangingEE.end()) layer = iter->second;
+		}
+	}
+    else if(subdet==ForwardSubdetector::HGCHEF){
+		layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
+		if(DoLayerMasking){
+			auto iter = m_LayerGangingHEF.find(layer);
+			if(iter != m_LayerGangingHEF.end()) layer = iter->second;
+		}
+	}
+    else if(subdet==ForwardSubdetector::HGCHEB){
+		layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
+		if(DoLayerMasking){
+			auto iter = m_LayerGangingHEB.find(layer);
+			if(iter != m_LayerGangingHEB.end()) layer = iter->second;
+		}
+	}
+	
+	return layer;
+}
+
 void PandoraCMSPFCandProducer::SetDefaultSubDetectorParameters(const std::string &subDetectorName, const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const {
   //identification
   parameters.m_subDetectorName = subDetectorName;
@@ -572,7 +648,7 @@ void PandoraCMSPFCandProducer::SetDefaultSubDetectorParameters(const std::string
   parameters.m_isMirroredInZ = true ; // Duplicate detector +/- z
 }
 
-void PandoraCMSPFCandProducer::CalculateCornerSubDetectorParameters(const CaloSubdetectorGeometry* geom,  const std::vector<DetId>& cells, const pandora::SubDetectorType subDetectorType, 
+void PandoraCMSPFCandProducer::CalculateCornerSubDetectorParameters(const CaloSubdetectorGeometry* geom,  const std::vector<DetId>& cells, const pandora::SubDetectorType subDetectorType, const ForwardSubdetector& subdet,
                                                       double& min_innerRadius, double& max_outerRadius, double& min_innerZ, double& max_outerZ,
                                                       bool doLayers, std::vector<double>& min_innerR_depth, std::vector<double>& min_innerZ_depth) const
 {
@@ -603,10 +679,8 @@ void PandoraCMSPFCandProducer::CalculateCornerSubDetectorParameters(const CaloSu
     const CaloCellGeometry *thisCell = geom->getGeometry(*ib);
     const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
     
-    //kind of hacky
-    unsigned int layer = 0;
-    if(doLayers && subDetectorType==pandora::ECAL_ENDCAP) layer = (unsigned int) ((HGCEEDetId)(*ib)).layer() ;
-    else if(doLayers && subDetectorType==pandora::HCAL_ENDCAP) layer = (unsigned int) ((HGCHEDetId)(*ib)).layer() ;    
+    //get correct layer for this subdet
+	unsigned int layer = GetHGCLayer(*ib,subdet);
     
     //inner radius calculation
     double avgX_inner = 0.25 * (corners[ci[0]].x() + corners[ci[1]].x() + corners[ci[2]].x() + corners[ci[3]].x()) ;
@@ -975,9 +1049,7 @@ void PandoraCMSPFCandProducer::ProcessRecHits(const reco::PFRecHit* rh, unsigned
         return;
     }
     
-    unsigned int layer = 0;
-    if(calib.m_id==ForwardSubdetector::HGCEE) layer = (unsigned int) ((HGCEEDetId)(detid)).layer() ;
-    else if(calib.m_id==ForwardSubdetector::HGCHEF || calib.m_id==ForwardSubdetector::HGCHEB) layer = (unsigned int) ((HGCHEDetId)(detid)).layer() ;
+    unsigned int layer = GetHGCLayer(detid,calib.m_id);
     
     //hack because calo and HGC CornersVec are different formats
     const HGCalGeometry::CornersVec corners = ( std::move( geom->getCorners( detid ) ) );
@@ -1331,18 +1403,16 @@ void PandoraCMSPFCandProducer::preparePFO(edm::Event& iEvent){
                                  // for increasing path length at non-normal incidence
     
           ForwardSubdetector thesubdet = (ForwardSubdetector)detid.subdetId();
+		  unsigned layer = GetHGCLayer(detid,(ForwardSubdetector)thesubdet);
           if (thesubdet == 3) {
-            int layer = (int) ((HGCEEDetId)(detid)).layer() ;
             clusterEMenergyECAL += hgcHit->energy() * cos_theta * m_calibEE.GetADC2GeV() * m_calibEE.GetEMCalib(layer,eta);
             clusterHADenergyECAL += hgcHit->energy() * cos_theta * m_calibEE.GetADC2GeV() * m_calibEE.GetHADCalib(layer,eta);
           }
           else if (thesubdet == 4) {
-            int layer = (int) ((HGCHEDetId)(detid)).layer() ;
             clusterEMenergyHCAL += hgcHit->energy() * cos_theta * m_calibHEF.GetADC2GeV() * m_calibHEF.GetEMCalib(layer,eta);
             clusterHADenergyHCAL += hgcHit->energy() * cos_theta * m_calibHEF.GetADC2GeV() * m_calibHEF.GetHADCalib(layer,eta);
           }
           else if (thesubdet == 5) {
-            int layer = (int) ((HGCHEDetId)(detid)).layer() ;
             clusterEMenergyHCAL += hgcHit->energy() * cos_theta * m_calibHEB.GetADC2GeV() * m_calibHEB.GetEMCalib(layer,eta);
             clusterHADenergyHCAL += hgcHit->energy() * cos_theta * m_calibHEB.GetADC2GeV() * m_calibHEB.GetHADCalib(layer,eta);
           }

@@ -11,6 +11,8 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
   KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
@@ -58,6 +60,9 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<IdealGeometryRecord>().get(httopo);
+
   //
   //declare and get TrackColection to be retrieved from the event
   //
@@ -77,7 +82,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   }
   
   //put everything in the event
-  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults, httopo.product());
   LogDebug("TrackProducer") << "end" << "\n";
 }
 

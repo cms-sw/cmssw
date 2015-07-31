@@ -211,7 +211,6 @@ int HcalSimHitsClient::SimHitsEndjob(const std::vector<MonitorElement*> &hcalMEs
   
   for (int itime=0; itime<nTime; itime++) {
     for (unsigned int det=0; det<divisions.size();det++) {
-      std::cout<<"itime:"<<itime<<"det:"<<det<<std::endl;
       int ny= Occupancy_map[itime][det]->getNbinsY();
       int nx= Occupancy_map[itime][det]->getNbinsX(); 
 

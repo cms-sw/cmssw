@@ -124,6 +124,63 @@ class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
   }
 };
 
+#include "RecoParticleFlow/PFClusterProducer/interface/MaskedLayerManager.h"
+class PFRecHitQTestHGCLayerMask : public PFRecHitQTestBase {
+ public:
+  PFRecHitQTestHGCLayerMask() {
+
+  }
+
+  PFRecHitQTestHGCLayerMask(const edm::ParameterSet& iConfig):
+    PFRecHitQTestBase(iConfig)
+    {
+      const edm::ParameterSet& masking_info = iConfig.getParameter<edm::ParameterSet>("masking_info");
+      mask_.reset(new MaskedLayerManager(masking_info));
+    }
+
+    void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+    }
+
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestHGCLayerMask only works for HGCAL!";
+      return false;
+    }
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestHGCLayerMask only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestHGCLayerMask only works for HGCAL!";
+      return false;
+    }
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestHGCLayerMask only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestHGCLayerMask only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {      
+      return pass(hit);
+    }
+
+ protected:
+    std::unique_ptr<MaskedLayerManager> mask_;
+
+  bool pass(const reco::PFRecHit& hit) {    
+    return !(mask_->isRecHitDropped(hit)); // function called returns true if rechit is dropped, so invert here
+  }
+};
+
 
 //
 //  Quality test that checks kHCAL Severity

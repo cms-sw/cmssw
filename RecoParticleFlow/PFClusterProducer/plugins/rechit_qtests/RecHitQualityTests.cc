@@ -15,3 +15,4 @@ DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALTimeVsDepth, "PFRecHitQ
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHCALThresholdVsDepth, "PFRecHitQTestHCALThresholdVsDepth");
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestShashlikTiming, "PFRecHitQTestShashlikTiming");
 
+DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHGCLayerMask, "PFRecHitQTestHGCLayerMask");

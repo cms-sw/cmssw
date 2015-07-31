@@ -243,24 +243,24 @@ namespace reco {
     }
     /// set hit patterns from vector of hit references
     template<typename C>
-    void setHitPattern( const C & c ) { hitPattern_.set( c.begin(), c.end() ); }
+    void setHitPattern( const C & c, const TrackerTopology& ttopo ) { hitPattern_.set( c.begin(), c.end(), ttopo ); }
     template<typename C>
-    void setTrackerExpectedHitsInner( const C & c ) { trackerExpectedHitsInner_.set( c.begin(), c.end() ); }
+    void setTrackerExpectedHitsInner( const C & c, const TrackerTopology& ttopo ) { trackerExpectedHitsInner_.set( c.begin(), c.end(), ttopo ); }
     template<typename C>
-    void setTrackerExpectedHitsOuter( const C & c ) { trackerExpectedHitsOuter_.set( c.begin(), c.end() ); }
+    void setTrackerExpectedHitsOuter( const C & c, const TrackerTopology& ttopo ) { trackerExpectedHitsOuter_.set( c.begin(), c.end(), ttopo ); }
     
     template<typename I>
-    void setHitPattern( const I & begin, const I & end ) { hitPattern_.set( begin, end ); }
+    void setHitPattern( const I & begin, const I & end, const TrackerTopology& ttopo ) { hitPattern_.set( begin, end, ttopo ); }
     template<typename I>
-    void setTrackerExpectedHitsInner( const I & begin, const I & end ) { trackerExpectedHitsInner_.set( begin, end ); }
+    void setTrackerExpectedHitsInner( const I & begin, const I & end, const TrackerTopology& ttopo ) { trackerExpectedHitsInner_.set( begin, end, ttopo ); }
     template<typename I>
-    void setTrackerExpectedHitsOuter( const I & begin, const I & end ) { trackerExpectedHitsOuter_.set( begin, end ); }
+    void setTrackerExpectedHitsOuter( const I & begin, const I & end, const TrackerTopology& ttopo ) { trackerExpectedHitsOuter_.set( begin, end, ttopo ); }
 
     /// set hit pattern for specified hit
-    void setHitPattern( const TrackingRecHit & hit, size_t i ) { hitPattern_.set( hit, i ); }
-    void appendHitPattern( const TrackingRecHit & hit) { hitPattern_.appendHit( hit); }
-    void setTrackerExpectedHitsInner( const TrackingRecHit & hit, size_t i ) { trackerExpectedHitsInner_.set( hit, i ); }
-    void setTrackerExpectedHitsOuter( const TrackingRecHit & hit, size_t i ) { trackerExpectedHitsOuter_.set( hit, i ); }
+    void setHitPattern( const TrackingRecHit & hit, size_t i, const TrackerTopology& ttopo ) { hitPattern_.set( hit, i, ttopo ); }
+    void appendHitPattern( const TrackingRecHit & hit, const TrackerTopology& ttopo) { hitPattern_.appendHit( hit, ttopo ); }
+    void setTrackerExpectedHitsInner( const TrackingRecHit & hit, size_t i, const TrackerTopology& ttopo ) { trackerExpectedHitsInner_.set( hit, i, ttopo ); }
+    void setTrackerExpectedHitsOuter( const TrackingRecHit & hit, size_t i, const TrackerTopology& ttopo ) { trackerExpectedHitsOuter_.set( hit, i, ttopo ); }
 
     /// set hitPattern from pre-defined hitPattern
     void setHitPattern( const HitPattern& hitP) {hitPattern_ = hitP;}

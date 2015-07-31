@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoParticleFlow.PFClusterProducer.hgcLayerMaskingConfig_cff import *
+
 particleFlowRecHitHGCHEF = cms.EDProducer("PFRecHitProducer",
     useHitMap = cms.untracked.bool(True),
     navigator = cms.PSet(
@@ -19,6 +21,10 @@ particleFlowRecHitHGCHEF = cms.EDProducer("PFRecHitProducer",
                   recHitEnergyIs_keV = cms.bool(False),
                   recHitEnergyMultiplier = cms.double(1.0)
                   ),
+                cms.PSet(
+                  name = cms.string("PFRecHitQTestHGCLayerMask"),
+                  masking_info = hgcLayerMasking
+                  )
                 )
            )          
     )          
