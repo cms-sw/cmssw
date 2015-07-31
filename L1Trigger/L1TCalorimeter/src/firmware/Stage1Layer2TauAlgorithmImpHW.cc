@@ -22,11 +22,15 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2TauAlgorithmImpHW::Stage1Layer2TauAlgorithmImpHW(CaloParamsStage1* params) : params_(params)
+Stage1Layer2TauAlgorithmImpHW::Stage1Layer2TauAlgorithmImpHW(CaloParamsHelper* params) : params_(params)
 {
+
+  isoTauLut = new Stage1TauIsolationLUT(params_);
 }
 
-Stage1Layer2TauAlgorithmImpHW::~Stage1Layer2TauAlgorithmImpHW(){};
+Stage1Layer2TauAlgorithmImpHW::~Stage1Layer2TauAlgorithmImpHW(){
+  delete isoTauLut;
+};
 
 
 
@@ -38,8 +42,6 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 
   double towerLsb = params_->towerLsbSum();
 
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
   int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauNeighbourThreshold= floor( params_->tauNeighbourThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauMaxPtTauVeto = floor( params_->tauMaxPtTauVeto()/towerLsb + 0.5);
@@ -51,7 +53,7 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
 
 
@@ -128,11 +130,15 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 	  int jetEt=AssociatedJetPt(region->hwEta(), region->hwPhi(),unCorrJets);
 	  if (jetEt>0){
 	    unsigned int MAX_LUT_ADDRESS = params_->tauIsolationLUT()->maxSize()-1;
-	    unsigned int lutAddress = isoLutIndex(tauEt,jetEt);
+	    // unsigned int lutAddress = isoLutIndex(tauEt,jetEt);
+	    unsigned lutAddress = isoTauLut->lutAddress(tauEt,jetEt);
 	    if (tauEt >0){
 	      if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
-	      isoFlag= params_->tauIsolationLUT()->data(lutAddress);
+	      isoFlag = params_->tauIsolationLUT()->data(lutAddress);
+	      // isoFlag= isoTauLut->lutPayload(lutAddress);
+	      // if (isoFlag != params_->tauIsolationLUT()->data(lutAddress)) std::cout << "XXX -- isoFlag: " << isoFlag << "\tisoFlag2: " <<  params_->tauIsolationLUT()->data(lutAddress) << std::endl;
 	    }
+
 	  }else{ // no associated jet
 	    isoFlag=1;
 	  }
@@ -314,6 +320,7 @@ unsigned l1t::Stage1Layer2TauAlgorithmImpHW::isoLutIndex(unsigned int tauPt,unsi
   if (tauPt>maxTau) tauPt=maxTau;
 
   unsigned int address= (jetPt << nbitsTau) + tauPt;
+
   // std::cout << address << "\t## " << tauPt << " " << jetPt << std::endl;
   return address;
 }

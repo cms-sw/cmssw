@@ -11,7 +11,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2FlowAlgorithm::Stage1Layer2FlowAlgorithm(CaloParamsStage1* params) : params_(params)
+l1t::Stage1Layer2FlowAlgorithm::Stage1Layer2FlowAlgorithm(CaloParamsHelper* params) : params_(params)
 {
  //now do what ever initialization is needed
  //Converting phi to be as it is define at GCT (-pi to pi instead of 0 to 2*pi)

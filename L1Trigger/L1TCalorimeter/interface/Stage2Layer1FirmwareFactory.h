@@ -15,7 +15,7 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2PreProcessor.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 
 namespace l1t {
@@ -24,7 +24,7 @@ namespace l1t {
   public:
     typedef boost::shared_ptr<Stage2PreProcessor> ReturnType;
 
-    ReturnType create(unsigned fwv, CaloParams* params);
+    ReturnType create(unsigned fwv, CaloParamsHelper* params);
 
   };
 

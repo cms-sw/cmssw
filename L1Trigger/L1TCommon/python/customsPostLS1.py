@@ -99,7 +99,22 @@ def customiseSimL1EmulatorForPostLS1_HI(process):
     # load the Stage 1 configuration
     process = customiseSimL1EmulatorForStage1(process)
     # set the Stage 1 heavy ions-specific parameters
-    process.simCaloStage1Digis.FirmwareVersion = cms.uint32(1)
+    # all of these should eventually end up in a GT,
+    # but for now overwrite any settings coming from GT
+    process.load('L1Trigger.L1TCalorimeter.caloStage1RCTLuts_cff')
+    process.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
+    if hasattr(process,'RCTConfigProducers'):
+        process.RCTConfigProducers.eicIsolationThreshold = cms.uint32(7)
+        process.RCTConfigProducers.hOeCut = cms.double(999)
+        process.RCTConfigProducers.eMinForHoECut = cms.double(999)
+        process.RCTConfigProducers.eMaxForHoECut = cms.double(999)
+        process.RCTConfigProducers.hMinForHoECut = cms.double(999)
+        process.RCTConfigProducers.eMinForFGCut = cms.double(999)
+    if hasattr(process,'caloStage1Params'):
+        process.caloStage1Params.jetSeedThreshold = cms.double(0.)
+        process.caloStage1Params.regionPUSType = cms.string("zeroWall")
+    if hasattr(process,'caloConfig'):
+        process.caloConfig.fwVersionLayer2 = cms.uint32(1)
     # move to the heavy ions draft L1 menu once the HLT has been updated accordingly
-    process = L1Menu_CollisionsHeavyIons2015_v0(process)
+    process = L1Menu_CollisionsHeavyIons2015_v2(process)
     return process

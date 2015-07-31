@@ -12,10 +12,10 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2Nav.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 /*****************************************************************/
-l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParams* params, ClusterInput clusterInput) :
+l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParamsHelper* params, ClusterInput clusterInput) :
   clusterInput_(clusterInput),
   seedThreshold_(1),
   clusterThreshold_(1),
@@ -28,29 +28,29 @@ l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmw
 
 
 /*****************************************************************/
-l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::~Stage2Layer2ClusterAlgorithmFirmwareImp1() 
+l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::~Stage2Layer2ClusterAlgorithmFirmwareImp1()
 /*****************************************************************/
 {
 }
 
 
 /*****************************************************************/
-void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters) 
+void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::processEvent(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters)
 /*****************************************************************/
 {
-  if (clusterInput_==E) 
+  if (clusterInput_==E)
   {
-    seedThreshold_    = floor(params_->egSeedThreshold()/params_->towerLsbE()); 
+    seedThreshold_    = floor(params_->egSeedThreshold()/params_->towerLsbE());
     clusterThreshold_ = floor(params_->egNeighbourThreshold()/params_->towerLsbE());
   }
-  else if (clusterInput_==EH) 
+  else if (clusterInput_==EH)
   {
-    seedThreshold_    = floor(params_->egSeedThreshold()/params_->towerLsbSum()); 
+    seedThreshold_    = floor(params_->egSeedThreshold()/params_->towerLsbSum());
     clusterThreshold_ = floor(params_->egNeighbourThreshold()/params_->towerLsbSum());
   }
-  if (clusterInput_==H) 
+  if (clusterInput_==H)
   {
-    seedThreshold_    = floor(params_->egSeedThreshold()/params_->towerLsbH()); 
+    seedThreshold_    = floor(params_->egSeedThreshold()/params_->towerLsbH());
     clusterThreshold_ = floor(params_->egNeighbourThreshold()/params_->towerLsbH());
   }
 
@@ -93,7 +93,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
       // H/E is currently encoded on 9 bits, from 0 to 1
       int hwEtHadTh = (tower.hwEtHad()>=hcalThreshold_ ? tower.hwEtHad() : 0);
       int hOverE    = (tower.hwEtEm()>0 ? (hwEtHadTh<<9)/tower.hwEtEm() : 511);
-      if(hOverE>511) hOverE = 511; 
+      if(hOverE>511) hOverE = 511;
       cluster.setHOverE(hOverE);
       // FG of the cluster is FG of the seed
       bool fg = (tower.hwQual() & (0x1<<2));
@@ -123,7 +123,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
       const l1t::CaloTower& towerSE = l1t::CaloTools::getTower(towers, iEtaP, iPhiP);
       const l1t::CaloTower& towerS  = l1t::CaloTools::getTower(towers, iEta , iPhiP);
       const l1t::CaloTower& towerSW = l1t::CaloTools::getTower(towers, iEtaM, iPhiP);
-      const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, iEtaM, iPhi ); 
+      const l1t::CaloTower& towerW  = l1t::CaloTools::getTower(towers, iEtaM, iPhi );
       const l1t::CaloTower& towerNN = l1t::CaloTools::getTower(towers, iEta , iPhiM2);
       const l1t::CaloTower& towerSS = l1t::CaloTools::getTower(towers, iEta , iPhiP2);
       int towerEtNW = 0;
@@ -286,7 +286,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<
       // END NOT_IN_FIRMWARE
     }
     else // iEta==1
-    { 
+    {
       if(clusterNW.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       if(clusterN .hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
       if(clusterNE.hwPt() >  cluster.hwPt()) cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
@@ -777,4 +777,3 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
     }
   }
 }
-
