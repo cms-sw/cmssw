@@ -46,12 +46,12 @@ from RecoMET.METFilters.trackingPOGFilters_cff import *
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
-   HBHENoiseIsoFilter*
+#   HBHENoiseIsoFilter*
    CSCTightHaloFilter *
 #   hcalLaserEventFilter *
-   EcalDeadCellTriggerPrimitiveFilter 
+   EcalDeadCellTriggerPrimitiveFilter* 
 #   *goodVertices * trackingFailureFilter *
-#   eeBadScFilter *
+   eeBadScFilter
 #   ecalLaserCorrFilter *
 #   trkPOGFilters
 )
