@@ -89,9 +89,7 @@ process.l1EmulatorMonitorClientPath = cms.Path(process.l1EmulatorMonitorClient)
 process.l1EmulatorMonitorEndPath = cms.EndPath(process.dqmEnv*process.dqmSaver)
 
 #
-process.valCscTriggerPrimitiveDigis.gangedME1a = cms.untracked.bool(False)
 
-process.valCsctfTrackDigis.SectorProcessor.gangedME1a = cms.untracked.bool(False)
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
                                 process.l1HwValEmulatorMonitorPath,
@@ -182,6 +180,7 @@ process.ecalDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataCollector")
 process.gctDigis.inputLabel = cms.InputTag("rawDataCollector")
 process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
+process.gtgmtDigis.DaqGtInputTag = cms.InputTag("rawDataCollector")
 process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataCollector")
 process.hcalDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.l1compare.FEDsourceEmul = cms.untracked.InputTag("rawDataCollector")
@@ -204,6 +203,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.ecalPreshowerDigis.sourceTag = cms.InputTag("rawDataRepacker")
     process.gctDigis.inputLabel = cms.InputTag("rawDataRepacker")
     process.gtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
+    process.gtgmtDigis.DaqGtInputTag = cms.InputTag("rawDataRepacker")
     process.gtEvmDigis.EvmGtInputTag = cms.InputTag("rawDataRepacker")
     process.hcalDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.l1compare.FEDsourceEmul = cms.untracked.InputTag("rawDataRepacker")
