@@ -297,6 +297,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    AutoLibraryLoader::enable();
 
    TEveManager::Create(kFALSE, eveMode ? "FIV" : "FI");
+ 
+   if(vm.count(kExpertCommandOpt)) 
+   {
+      m_context->setHidePFBuilders(false);
+   }
+   else {
+      m_context->setHidePFBuilders(true);
+   }
 
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
@@ -337,14 +345,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    {
       m_context->getField()->setSource(FWMagField::kUser);
       m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
-   }
-
-   if(vm.count(kExpertCommandOpt)) 
-   {
-      m_context->setHidePFBuilders(false);
-   }
-   else {
-      m_context->setHidePFBuilders(true);
    }
 
    if ( m_inputFiles.empty()) {
