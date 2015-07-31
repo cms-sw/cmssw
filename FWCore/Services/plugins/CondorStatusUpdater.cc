@@ -78,6 +78,9 @@ namespace edm {
 
 using namespace edm::service;
 
+const unsigned int CondorStatusService::m_defaultUpdateInterval;
+constexpr float CondorStatusService::m_defaultEmaInterval;
+
 CondorStatusService::CondorStatusService(ParameterSet const& pset, edm::ActivityRegistry& ar)
   :
     m_debug(false),
