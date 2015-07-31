@@ -21,7 +21,7 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
+Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParamsHelper* params) : params_(params)
 {
 }
 
@@ -37,8 +37,6 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   double towerLsb = params_->towerLsbSum();
 
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
   int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int tauNeighbourThreshold= floor( params_->tauNeighbourThreshold()/towerLsb + 0.5); // convert GeV to HW units
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
@@ -54,7 +52,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
 
 
@@ -271,10 +269,10 @@ int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
 unsigned l1t::Stage1Layer2TauAlgorithmImpPP::isoLutIndex(unsigned int tauPt,unsigned int jetPt) const
 {
   //const unsigned int nbitsTau=9;  // number of bits used for et in LUT file (needed for left shift operation)
-  //const unsigned int nbitsJet=9; 
+  //const unsigned int nbitsJet=9;
 
   const unsigned int nbitsTau=8;  // number of bits used for et in LUT file (needed for left shift operation)
-  const unsigned int nbitsJet=8; 
+  const unsigned int nbitsJet=8;
 
   const unsigned int maxJet = pow(2,nbitsJet)-1;
   const unsigned int maxTau = pow(2,nbitsTau)-1;

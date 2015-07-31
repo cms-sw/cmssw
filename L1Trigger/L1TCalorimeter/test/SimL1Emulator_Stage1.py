@@ -40,9 +40,13 @@ process.output = cms.OutputModule(
 process.options = cms.untracked.PSet()
 
 # Other statements
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag.connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG')
 process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
+
+process.load('L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi')
 
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
 
@@ -68,3 +72,6 @@ process.schedule = cms.Schedule(
 
 # Spit out filter efficiency at the end.
 process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))
+
+#from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_HI
+#customiseSimL1EmulatorForPostLS1_HI(process)

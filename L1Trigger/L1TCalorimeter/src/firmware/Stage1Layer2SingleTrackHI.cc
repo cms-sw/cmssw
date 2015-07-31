@@ -14,7 +14,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsStage1* params) : params_(params) {}
+l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsHelper* params) : params_(params) {}
 
 l1t::Stage1Layer2SingleTrackHI::~Stage1Layer2SingleTrackHI(){};
 
@@ -29,7 +29,7 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
   std::vector<l1t::Tau> *preGtEtaTaus = new std::vector<l1t::Tau>();
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
 
-  HICaloRingSubtraction(regions, subRegions);
+  HICaloRingSubtraction(regions, subRegions, params_);
   findRegions(subRegions, preGtEtaTaus);
   TauToGtEtaScales(params_, preGtEtaTaus, preGtTaus);
   TauToGtPtScales(params_, preGtTaus, taus);
@@ -47,7 +47,7 @@ void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> 
   for(std::vector<l1t::CaloRegion>::const_iterator region = sr->begin(); region != sr->end(); region++)
   {
     int regionET = region->hwPt();
-    if((region->hwEta() < 5) || (region->hwEta() > 16)) continue;
+    if((region->hwEta() < 8) || (region->hwEta() > 13)) continue;
     if (regionET > regionETMax)
     {
       regionETMax = regionET;

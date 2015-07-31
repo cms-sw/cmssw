@@ -9,7 +9,7 @@
 
 namespace l1t {
 
-  void calibrateAndRankJets(CaloParamsStage1 *params,
+  void calibrateAndRankJets(CaloParamsHelper *params,
 			    const std::vector<l1t::Jet> * input,
 			    std::vector<l1t::Jet> *output){
 
@@ -29,7 +29,7 @@ namespace l1t {
     }
   }
 
-  void calibrateAndRankTaus(CaloParamsStage1 *params,
+  void calibrateAndRankTaus(CaloParamsHelper *params,
 			    const std::vector<l1t::Tau> * input,
 			    std::vector<l1t::Tau> *output){
 
@@ -50,7 +50,7 @@ namespace l1t {
   }
 
 
-  void JetToGtEtaScales(CaloParamsStage1 *params,
+  void JetToGtEtaScales(CaloParamsHelper *params,
 			const std::vector<l1t::Jet> * input,
 			std::vector<l1t::Jet> *output){
 
@@ -74,7 +74,7 @@ namespace l1t {
     }
   }
 
-  void JetToGtPtScales(CaloParamsStage1 *params,
+  void JetToGtPtScales(CaloParamsHelper *params,
 			const std::vector<l1t::Jet> * input,
 			std::vector<l1t::Jet> *output){
 
@@ -92,7 +92,7 @@ namespace l1t {
   }
 
 
-  void EGammaToGtScales(CaloParamsStage1 *params,
+  void EGammaToGtScales(CaloParamsHelper *params,
 			const std::vector<l1t::EGamma> * input,
 			std::vector<l1t::EGamma> *output){
 
@@ -117,7 +117,7 @@ namespace l1t {
     }
   }
 
-  void TauToGtEtaScales(CaloParamsStage1 *params,
+  void TauToGtEtaScales(CaloParamsHelper *params,
 			const std::vector<l1t::Tau> * input,
 			std::vector<l1t::Tau> *output){
     for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
@@ -141,7 +141,7 @@ namespace l1t {
     }
   }
 
-  void TauToGtPtScales(CaloParamsStage1 *params,
+  void TauToGtPtScales(CaloParamsHelper *params,
 		       const std::vector<l1t::Tau> * input,
 		       std::vector<l1t::Tau> *output){
     for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
@@ -158,7 +158,7 @@ namespace l1t {
   }
 
 
-  void EtSumToGtScales(CaloParamsStage1 *params,
+  void EtSumToGtScales(CaloParamsHelper *params,
 		       const std::vector<l1t::EtSum> * input,
 		       std::vector<l1t::EtSum> *output){
     for(std::vector<l1t::EtSum>::const_iterator itEtSum = input->begin();

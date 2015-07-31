@@ -17,7 +17,7 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParamsStage1* params) : params_(params) {};
+Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParamsHelper* params) : params_(params) {};
 
 Stage1Layer2JetAlgorithmImpPP::~Stage1Layer2JetAlgorithmImpPP(){};
 
@@ -35,14 +35,12 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   double towerLsb = params_->towerLsbSum();
   int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
-  std::string regionPUSType = params_->regionPUSType();
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
   std::string jetCalibrationType = params_->jetCalibrationType();
   std::vector<double> jetCalibrationParams = params_->jetCalibrationParams();
 
   //Region Correction will return uncorrected subregions
   //if regionPUSType is set to None in the config
-  RegionCorrection(regions, subRegions, regionPUSParams, regionPUSType);
+  RegionCorrection(regions, subRegions, params_);
 
 
   slidingWindowJetFinder(jetSeedThreshold, subRegions, uncalibjets);
