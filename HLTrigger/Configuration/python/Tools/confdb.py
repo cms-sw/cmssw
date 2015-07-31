@@ -235,6 +235,45 @@ process = customizeHLTforAll(process,_customInfo)
     # if requested, instrument the self with the modules and EndPath needed for timing studies
     self.instrumentTiming()
 
+#    if self.config.type not in ('Fake','FULL') :
+#      procfrag = self.labels['process'].split('.')[0]
+#      if '50ns_5e33_v1' in self.config.type :
+#        self.data += """
+## load 2015 Run-2 L1 Menu for 50ns
+#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
+#%s = loadL1Menu(%s)
+#""" %(procfrag,procfrag)
+#      elif '25ns14e33_v1' in self.config.type :
+#        self.data += """
+## load 2015 Run-2 L1 Menu for 25ns
+#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
+#%s = loadL1menu(%s)
+#""" %(procfrag,procfrag)
+#      elif '50ns' in self.config.type :
+#        self.data += """
+## load 2015 Run-2 L1 Menu for 50ns
+#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v4 as loadL1Menu
+#%s = loadL1Menu(%s)
+#""" %(procfrag,procfrag)
+#      elif 'HIon' in self.config.type :
+#        self.data += """
+## load 2015 Run-2 L1 Menu for HIon
+#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
+#%s = loadL1Menu(%s)
+#""" %(procfrag,procfrag)
+#      elif 'LowPU' in self.config.type :
+#        self.data += """
+## load 2015 Run-2 L1 Menu for LowPU
+#from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v4 as loadL1Menu
+#%s = loadL1Menu(%s)
+#""" %(procfrag,procfrag)
+#      else :
+#        self.data += """
+## load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
+#from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
+#%s = loadL1menu(%s)
+#""" %(procfrag,procfrag)
+
     if self.config.fragment:
       self.data += """
 # dummyfy hltGetConditions in cff's
@@ -246,32 +285,6 @@ if 'hltGetConditions' in %(dict)s and 'HLTriggerFirstPath' in %(dict)s :
 """
 
     else:
-
-      if self.config.type not in ('Fake',) :
-        if '50ns' in self.config.type :
-          self.data += """
-# load 2015 Run-2 L1 Menu for 50ns
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v3 as loadL1Menu
-process = loadL1Menu(process)
-"""
-        elif 'HIon' in self.config.type :
-          self.data += """
-# load 2015 Run-2 L1 Menu for HIon
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0 as loadL1Menu
-process = loadL1Menu(process)
-"""
-        elif 'LowPU' in self.config.type :
-          self.data += """
-# load 2015 Run-2 L1 Menu for LowPU
-from L1Trigger.Configuration.customise_overwriteL1Menu import  L1Menu_Collisions2015_lowPU_v3 as loadL1Menu
-process = loadL1Menu(process)
-"""
-        else :
-          self.data += """
-# load 2015 Run-2 L1 Menu for 25ns (default for GRun, PIon)
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_25ns_v2 as loadL1menu
-process = loadL1menu(process)
-"""
 
       # override the process name and adapt the relevant filters
       self.overrideProcessName()

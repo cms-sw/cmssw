@@ -20,6 +20,6 @@ HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath
 
-AOutput
+PhysicsEGammaCommissioningOutput
 RatesMonitoring
 DQMOutput

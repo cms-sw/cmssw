@@ -1,11 +1,11 @@
-# /frozen/2015/50ns_5e33/v1.2/HLT/V2 (CMSSW_7_4_0)
+# /frozen/2015/50ns_5e33/v1.2/HLT/V3 (CMSSW_7_4_0)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT50ns5e33v1" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/frozen/2015/50ns_5e33/v1.2/HLT/V2')
+  tableName = cms.string('/frozen/2015/50ns_5e33/v1.2/HLT/V3')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -19185,7 +19185,7 @@ process.hltEle45CaloIdVTGsfTrkIdTCleanAK4PFJet = cms.EDProducer( "HLTPFJetCollec
 )
 process.hltEle45CaloIdVTGsfTrkIdTDiCentralPFJet50EleCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter",
     saveTags = cms.bool( True ),
-    originalTag = cms.InputTag( "hltPFJetsCorrectedMatchedToL1" ),
+    originalTag = cms.InputTag( "hltEle45CaloIdVTGsfTrkIdTCleanAK4PFJet" ),
     inputTag = cms.InputTag( "hltEle45CaloIdVTGsfTrkIdTCleanAK4PFJet" ),
     MinJetPt = cms.double( 50.0 ),
     triggerType = cms.int32( 0 ),
@@ -26265,7 +26265,7 @@ process.hltMu40eta2p1CleanAK4PFJet = cms.EDProducer( "HLTPFJetCollectionsForBoos
 )
 process.hltMu40eta2p1DiCentralPFJet50MuCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter",
     saveTags = cms.bool( True ),
-    originalTag = cms.InputTag( "hltPFJetsCorrectedMatchedToL1" ),
+    originalTag = cms.InputTag( "hltMu40eta2p1CleanAK4PFJet" ),
     inputTag = cms.InputTag( "hltMu40eta2p1CleanAK4PFJet" ),
     MinJetPt = cms.double( 50.0 ),
     triggerType = cms.int32( 0 ),
@@ -26274,7 +26274,7 @@ process.hltMu40eta2p1DiCentralPFJet50MuCleaned = cms.EDFilter( "HLTPFJetCollecti
 )
 process.hltMu40eta2p1CentralPFJet200MuCleaned = cms.EDFilter( "HLTPFJetCollectionsFilter",
     saveTags = cms.bool( True ),
-    originalTag = cms.InputTag( "hltPFJetsCorrectedMatchedToL1" ),
+    originalTag = cms.InputTag( "hltMu40eta2p1CleanAK4PFJet" ),
     inputTag = cms.InputTag( "hltMu40eta2p1CleanAK4PFJet" ),
     MinJetPt = cms.double( 200.0 ),
     triggerType = cms.int32( 0 ),
@@ -51135,10 +51135,6 @@ process.source = cms.Source( "PoolSource",
         'keep *'
     )
 )
-
-# load 2015 Run-2 L1 Menu for 50ns
-from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_Collisions2015_50ns_v1 as loadL1Menu
-process = loadL1Menu(process)
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
