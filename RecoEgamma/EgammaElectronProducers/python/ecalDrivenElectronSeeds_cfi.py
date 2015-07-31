@@ -9,6 +9,8 @@ from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeedsParameters_cff im
 ecalDrivenElectronSeeds = cms.EDProducer("ElectronSeedProducer",
     barrelSuperClusters = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
     endcapSuperClusters = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
+    #ebRecHitCollection  = cms.InputTag("ecalRecHit", "EcalRecHitsEB"),
+    #eeRecHitCollection  = cms.InputTag("ecalRecHit", "EcalRecHitsEE"),
     SeedConfiguration = cms.PSet(
         ecalDrivenElectronSeedsParameters,
 #        OrderedHitsFactoryPSet = cms.PSet(
