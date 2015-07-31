@@ -122,7 +122,7 @@ process.BeamSpotProblemModule = cms.Sequence( process.qTester
                                             )
 
 #make it off for cosmic run
-if ( process.runType.getRunType() == process.runType.cosmic_run):
+if ( process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1):
     process.dqmBeamSpotProblemMonitor.AlarmOFFThreshold = 5       #Should be < AlalrmONThreshold 
 #-----------------------------------------------------------
 
@@ -135,7 +135,9 @@ process = customise(process)
 # Proton-Proton Stuff
 #--------------------------
 
-if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.hpu_run):
+if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.pp_run_stage1 or
+    process.runType.getRunType() == process.runType.cosmic_run or process.runType.getRunType() == process.runType.cosmic_run_stage1 or 
+    process.runType.getRunType() == process.runType.hpu_run):
 
     print "[beam_dqm_sourceclient-live_cfg]:: Running pp"
 

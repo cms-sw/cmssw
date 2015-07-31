@@ -27,7 +27,7 @@ options.register('skipFirstLumis',
 # Parameters for runType
 
 options.register ('runkey',
-          'cosmic_run',
+          'pp_run',
           VarParsing.VarParsing.multiplicity.singleton,
           VarParsing.VarParsing.varType.string,
           "Run Keys of CMS")
@@ -52,7 +52,7 @@ source = cms.Source("DQMProtobufReader",
     streamLabel = cms.untracked.string('streamDQMHistograms'),
 
     delayMillis = cms.untracked.uint32(500),
-    nextLumiTimeoutMillis = cms.untracked.int32(30000),
+    nextLumiTimeoutMillis = cms.untracked.int32(120000),
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
     deleteDatFiles = cms.untracked.bool(False),
     endOfRunKills  = cms.untracked.bool(True),

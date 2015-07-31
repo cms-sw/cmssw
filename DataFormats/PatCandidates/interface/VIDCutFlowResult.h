@@ -103,7 +103,7 @@ namespace vid {
       return (bool)(0x1&(bitmap_>>idx)); 
     }
 
-    bool getCutValue(const unsigned idx) const {
+    double getCutValue(const unsigned idx) const {
       return values_[idx];
     } 
   };
