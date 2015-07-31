@@ -21,7 +21,9 @@
 
 using namespace l1t;
 
-L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig)
+L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig) :
+  bxMin_(iConfig.getParameter<int>("bxMin")),
+  bxMax_(iConfig.getParameter<int>("bxMax"))
 {
   produces<L1GctEmCandCollection>("isoEm");
   produces<L1GctEmCandCollection>("nonIsoEm");
@@ -111,6 +113,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   int bxCounter = 0;
 
   for(int itBX=EGamma->getFirstBX(); itBX<=EGamma->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
 
     //looping over EGamma elments with a specific BX
@@ -146,6 +152,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=RlxTau->getFirstBX(); itBX<=RlxTau->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     //looping over Tau elments with a specific BX
     int tauCount = 0; //max 4
@@ -168,6 +178,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=IsoTau->getFirstBX(); itBX<=IsoTau->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     //looping over Iso Tau elments with a specific BX
     int isoTauCount = 0; //max 4
@@ -190,6 +204,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=Jet->getFirstBX(); itBX<=Jet->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     //looping over Jet elments with a specific BX
     int forCount = 0; //max 4
@@ -221,7 +239,12 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=EtSum->getFirstBX(); itBX<=EtSum->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
+
     //looping over EtSum elments with a specific BX
     for (EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX);
 	itEtSum != EtSum->end(itBX); ++itEtSum){
@@ -250,6 +273,10 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 
   bxCounter = 0;
   for(int itBX=HfSums->getFirstBX(); itBX<=HfSums->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX,
 							       0,
@@ -332,8 +359,15 @@ L1TCaloUpgradeToGCTConverter::fillDescriptions(ConfigurationDescriptions& descri
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<int>("bxMin",0);
+  desc.add<int>("bxMax",0);
+  desc.add<InputTag>("InputCollection");
+  desc.add<InputTag>("InputRlxTauCollection");
+  desc.add<InputTag>("InputIsoTauCollection");
+  desc.add<edm::InputTag>("InputHFSumsCollection");
+  desc.add<edm::InputTag>("InputHFCountsCollection");
+  descriptions.add("L1TCaloUpgradeToGCTConverter", desc);
+
 }
 
 //define this as a plug-in

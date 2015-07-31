@@ -71,6 +71,10 @@ using namespace edm;
     EDGetToken EtSumToken_;
     EDGetToken HfSumsToken_;
     EDGetToken HfCountsToken_;
+
+    int bxMin_;
+    int bxMax_;
+
   };
 
 #endif
