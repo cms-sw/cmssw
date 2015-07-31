@@ -4,10 +4,6 @@ from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 
 def customisePostLS1_Common(process):
 
-    # deal with L1 Emulation separately
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForStage1
-    process = customiseSimL1EmulatorForStage1(process)
-
     # deal with CSC separately
     from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_PostLS1
     process = customise_csc_PostLS1(process)
@@ -45,6 +41,10 @@ def customisePostLS1_Common(process):
 
 def customisePostLS1(process):
 
+    # deal with L1 Emulation separately
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForStage1
+    process = customiseSimL1EmulatorForStage1(process)
+
     # common customisation
     process = customisePostLS1_Common(process)
 
@@ -57,6 +57,7 @@ def customisePostLS1(process):
     return process
 
 
+# Note: same as 50ns version below now that menu is in GT...
 def customisePostLS1_lowPU(process):
 
     # common customisations
@@ -82,6 +83,10 @@ def customisePostLS1_50ns(process):
 
 
 def customisePostLS1_HI(process):
+
+    # deal with L1 Emulation separately
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForStage1
+    process = customiseSimL1EmulatorForStage1(process)
 
     # common customisation
     process = customisePostLS1_Common(process)
