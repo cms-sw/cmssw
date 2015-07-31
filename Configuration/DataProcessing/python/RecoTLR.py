@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi
 from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
@@ -42,8 +41,39 @@ def customiseDataRun2Common(process):
     if hasattr(process,'valCsctfTrackDigis'):
         process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
 
-    process=customise_Reco(process)
-    process=customise_RawToDigi(process)
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForStage1
+    process = customiseSimL1EmulatorForStage1(process)
+
+    from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi,customise_DQM
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction'):
+        process=customise_Reco(process)
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM(process)
+
+    return process
+
+##############################################################################
+# common+25ns
+def customiseDataRun2Common_25ns(process):
+    process = customiseDataRun2Common(process)
+
+    from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM_25ns(process)
+    return process
+
+# common+50ns. Needed only for runs >= 253000
+def customiseDataRun2Common_50ns(process):
+    process = customiseDataRun2Common(process)
+
+    if hasattr(process,'particleFlowClusterECAL'):
+        process.particleFlowClusterECAL.energyCorrector.autoDetectBunchSpacing = False
+        process.particleFlowClusterECAL.energyCorrector.bunchSpacing = cms.int32(50)
+    if hasattr(process,'ecalMultiFitUncalibRecHit'):
+        process.ecalMultiFitUncalibRecHit.algoPSet.useLumiInfoRunHeader = False
+        process.ecalMultiFitUncalibRecHit.algoPSet.bunchSpacing = cms.int32(50)
 
     return process
 
@@ -78,9 +108,12 @@ def customiseExpress(process):
 ##############################################################################
 def customiseExpressRun2(process):
     process = customiseExpress(process)
-    process = customiseDataRun2Common(process)
-    process.SiStripClusterChargeCutTight.value = -1.
-    process.SiStripClusterChargeCutLoose.value = -1.
+    process = customiseDataRun2Common_25ns(process)
+    return process
+
+def customiseExpressRun2_50ns(process):
+    process = customiseExpress(process)
+    process = customiseDataRun2Common_50ns(process)
     return process
 
 def customiseExpressRun2B0T(process):
@@ -104,9 +137,7 @@ def customisePrompt(process):
 ##############################################################################
 def customisePromptRun2(process):
     process = customisePrompt(process)
-    process = customiseDataRun2Common(process)
-    process.SiStripClusterChargeCutTight.value = -1.
-    process.SiStripClusterChargeCutLoose.value = -1.
+    process = customiseDataRun2Common_25ns(process)
     return process
 
 def customisePromptRun2B0T(process):
@@ -148,72 +179,3 @@ def customisePromptHI(process):
     return process
 
 ##############################################################################
-
-def planBTracking(process):
-
-    # stuff from LowPtTripletStep_cff
-    process.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.3
-
-    # stuff from PixelLessStep_cff
-    process.pixelLessStepClusters.oldClusterRemovalInfo=cms.InputTag("tobTecStepClusters")
-    process.pixelLessStepClusters.trajectories= cms.InputTag("tobTecStepTracks")
-    process.pixelLessStepClusters.overrideTrkQuals=cms.InputTag('tobTecStepSelector','tobTecStep')
-    process.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.7
-    process.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.5
-
-    # stuff from PixelPairStep_cff
-    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
-
-    # stuff from TobTecStep_cff
-    process.tobTecStepClusters.oldClusterRemovalInfo=cms.InputTag("detachedTripletStepClusters")
-    process.tobTecStepClusters.trajectories= cms.InputTag("detachedTripletStepTracks")
-    process.tobTecStepClusters.overrideTrkQuals=cms.InputTag('detachedTripletStep')
-    process.tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 5.0
-
-    # stuff from DetachedTripletStep_cff
-    process.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.35
-
-    # stuff from iterativeTk_cff
-    process.iterTracking = cms.Sequence(process.InitialStep*
-                                        process.LowPtTripletStep*
-                                        process.PixelPairStep*
-                                        process.DetachedTripletStep*
-                                        process.TobTecStep*
-                                        process.PixelLessStep*
-                                        process.generalTracks*
-                                        process.ConvStep*
-                                        process.conversionStepTracks
-                                        )
-    
-    
-    # stuff from RecoTracker_cff
-    process.newCombinedSeeds.seedCollections=cms.VInputTag(
-        cms.InputTag('initialStepSeeds'),
-        cms.InputTag('pixelPairStepSeeds'),
-    #    cms.InputTag('mixedTripletStepSeeds'),
-        cms.InputTag('pixelLessStepSeeds')
-        )
-
-    # stuff from Kevin's fragment
-    process.generalTracks.TrackProducers = (cms.InputTag('initialStepTracks'),
-                                            cms.InputTag('lowPtTripletStepTracks'),
-                                            cms.InputTag('pixelPairStepTracks'),
-                                            cms.InputTag('detachedTripletStepTracks'),
-                                            cms.InputTag('pixelLessStepTracks'),
-                                            cms.InputTag('tobTecStepTracks'))
-    process.generalTracks.hasSelector=cms.vint32(1,1,1,1,1,1)
-    process.generalTracks.selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStep"),
-                                                             cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
-                                                             cms.InputTag("pixelPairStepSelector","pixelPairStep"),
-                                                             cms.InputTag("detachedTripletStep"),
-                                                             cms.InputTag("pixelLessStepSelector","pixelLessStep"),
-                                                             cms.InputTag("tobTecStepSelector","tobTecStep")
-                                                             )
-    process.generalTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) ) )
-
-
-    if hasattr(process,'dqmoffline_step'):
-        process.dqmoffline_step.remove(process.TrackMonStep4)
-        #process.dqmoffline_step.remove(process.TrackMonStep5)
-        
-    return process
