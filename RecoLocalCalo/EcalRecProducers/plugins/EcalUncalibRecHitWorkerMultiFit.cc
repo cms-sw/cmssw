@@ -656,6 +656,8 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
 	      edm::ParameterDescription<double>("chi2ThreshEE_", 50.0, true) and
 	      edm::ParameterDescription<edm::ParameterSetDescription>("EcalPulseShapeParameters", psd0, true));
 
+ psd.addOptionalNode(edm::ParameterDescription<int>("bunchSpacing", 0, true), true);
+
  return psd;
 }
 
