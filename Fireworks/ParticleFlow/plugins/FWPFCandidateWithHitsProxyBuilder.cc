@@ -344,4 +344,4 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWPFCandidateWithHitsProxyBuilder, reco::PFCandidateCollection,"PF CandidatesWithHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWPFCandidateWithHitsProxyBuilder, reco::PFCandidateCollection,"PFCandidatesWithHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
