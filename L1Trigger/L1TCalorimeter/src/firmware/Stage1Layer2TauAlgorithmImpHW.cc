@@ -131,12 +131,13 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 	if ((highestNeighborTauVeto == 0 && regionTauVeto == 0) || tauEt > tauMaxPtTauVeto) {
 	  int jetEt=AssociatedJetPt(region->hwEta(), region->hwPhi(),unCorrJets);
 	  if (jetEt>0){
-	    // unsigned int MAX_LUT_ADDRESS = params_->tauIsolationLUT()->maxSize()-1;
+	    unsigned int MAX_LUT_ADDRESS = params_->tauIsolationLUT()->maxSize()-1;
 	    // unsigned int lutAddress = isoLutIndex(tauEt,jetEt);
 	    unsigned lutAddress = isoTauLut->lutAddress(tauEt,jetEt);
 	    if (tauEt >0){
-	      // if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
-	      isoFlag= isoTauLut->lutPayload(lutAddress);
+	      if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
+	      isoFlag = params_->tauIsolationLUT()->data(lutAddress);
+	      // isoFlag= isoTauLut->lutPayload(lutAddress);
 	      // if (isoFlag != params_->tauIsolationLUT()->data(lutAddress)) std::cout << "XXX -- isoFlag: " << isoFlag << "\tisoFlag2: " <<  params_->tauIsolationLUT()->data(lutAddress) << std::endl;
 	    }
 
