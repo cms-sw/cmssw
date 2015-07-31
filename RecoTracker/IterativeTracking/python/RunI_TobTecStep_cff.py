@@ -10,7 +10,7 @@ tobTecStepClusters = trackClusterRemover.clone(
     pixelClusters                            = cms.InputTag("siPixelClusters"),
     stripClusters                            = cms.InputTag("siStripClusters"),
     oldClusterRemovalInfo                    = cms.InputTag("pixelLessStepClusters"),
-    overrideTrkQuals                         = cms.InputTag('pixelLessStepSelector','pixelLessStep'),
+    overrideTrkQuals                         = cms.InputTag('pixelLessStepSelector','QualityMasks'),
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
 )
@@ -171,7 +171,7 @@ tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clo
     )
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+tobTecStep = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='tobTecStepTracks',
     useAnyMVA = cms.bool(False),
     GBRForestLabel = cms.string('MVASelectorIter6'),
@@ -202,7 +202,7 @@ tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mult
             dz_par2 = ( 1.4, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'tobTecStep',
+            name = 'QualityMasks',
             preFilterName = 'tobTecStepTight',
             chi2n_par = 0.2,
             res_par = ( 0.003, 0.001 ),
@@ -224,6 +224,6 @@ TobTecStep = cms.Sequence(tobTecStepClusters*
                           tobTecStepSeeds*
                           tobTecStepTrackCandidates*
                           tobTecStepTracks*
-                          tobTecStepSelector)
+                          tobTecStep)
 
 

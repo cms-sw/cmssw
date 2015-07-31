@@ -152,7 +152,7 @@ pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             dz_par2 = ( 1.1, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'pixelLessStep',
+            name = 'QualityMasks',
             preFilterName = 'pixelLessStepTight',
             chi2n_par = 0.2,
             res_par = ( 0.003, 0.001 ),

@@ -125,7 +125,6 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   
   //foward compatibility
   produces<MVACollection>("MVAValues");
-  produces<QualityMaskCollection>("QualityMasks");
 
 
   for ( unsigned int i=0; i<trkSelectors.size(); i++) {
@@ -208,6 +207,7 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
 
     //    produces<std::vector<int> >(name_[i]).setBranchAlias( name_[i] + "TrackQuals");
     produces<edm::ValueMap<int> >(name_[i]).setBranchAlias( name_[i] + "TrackQuals");
+    produces<QualityMaskCollection>(name_[i]).setBranchAlias( name_[i] + "QualityMasks");
     if(useAnyMVA_){
       bool thisMVA = false;
       if(trkSelectors[i].exists("useMVA"))thisMVA = trkSelectors[i].getParameter<bool>("useMVA");
