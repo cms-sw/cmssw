@@ -620,6 +620,7 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
  psd.addNode(edm::ParameterDescription<std::vector<int>>("activeBXs", {-5,-4,-3,-2,-1,0,1,2,3,4}, true) and
 	      edm::ParameterDescription<bool>("ampErrorCalculation", true, true) and
 	      edm::ParameterDescription<bool>("useLumiInfoRunHeader", true, true) and
+	      edm::ParameterDescription<int>("bunchSpacing", 0, true) and
 	      edm::ParameterDescription<bool>("doPrefitEB", false, true) and
 	      edm::ParameterDescription<bool>("doPrefitEE", false, true) and
 	      edm::ParameterDescription<double>("prefitMaxChiSqEB", 25., true) and
@@ -655,8 +656,6 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
 	      edm::ParameterDescription<double>("chi2ThreshEB_", 65.0, true) and
 	      edm::ParameterDescription<double>("chi2ThreshEE_", 50.0, true) and
 	      edm::ParameterDescription<edm::ParameterSetDescription>("EcalPulseShapeParameters", psd0, true));
-
- psd.addOptionalNode(edm::ParameterDescription<int>("bunchSpacing", 0, true), true);
 
  return psd;
 }
