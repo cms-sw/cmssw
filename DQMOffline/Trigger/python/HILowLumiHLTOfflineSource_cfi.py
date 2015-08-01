@@ -47,6 +47,24 @@ def getHILowLumiTriggers():
     )
     ret.append(hltHICaloJet100)
 
+    hltHICaloJet30ForEndOfFill = hltHICaloJet30.clone(partialPathName = cms.string("HLT_AK4CaloJet30ForEndOfFill_v"),
+                                  triggerSelection = cms.string("HLT_AK4CaloJet30ForEndOfFill_v*"),
+                                  dqmhistolabel = cms.string("hltHICaloJet30ForEndOfFill")
+    )
+    ret.append(hltHICaloJet30ForEndOfFill)
+
+    hltHICaloJet40ForEndOfFill = hltHICaloJet30.clone(partialPathName = cms.string("HLT_AK4CaloJet40ForEndOfFill_v"),
+                                  triggerSelection = cms.string("HLT_AK4CaloJet40ForEndOfFill_v*"),
+                                  dqmhistolabel = cms.string("hltHICaloJet40ForEndOfFill")
+    )
+    ret.append(hltHICaloJet40ForEndOfFill)
+
+    hltHICaloJet50ForEndOfFill = hltHICaloJet30.clone(partialPathName = cms.string("HLT_AK4CaloJet50ForEndOfFill_v"),
+                                  triggerSelection = cms.string("HLT_AK4CaloJet50ForEndOfFill_v*"),
+                                  dqmhistolabel = cms.string("hltHICaloJet50ForEndOfFill")
+    )
+    ret.append(hltHICaloJet50ForEndOfFill)
+
 
     hltHIPFJet30 = hltHICaloJet30.clone(partialPathName = cms.string("HLT_AK4PFJet30_v"),
                                   triggerSelection = cms.string("HLT_AK4PFJet30_v*"),
@@ -72,6 +90,18 @@ def getHILowLumiTriggers():
                                   dqmhistolabel = cms.string("hltHIPFJet100")
     )
     ret.append(hltHIPFJet100)
+
+    hltHIPFJet30ForEndOfFill = hltHIPFJet30.clone(partialPathName = cms.string("HLT_AK4PFJet30ForEndOfFill_v"),
+                                  triggerSelection = cms.string("HLT_AK4PFJet30ForEndOfFill_v*"),
+                                  dqmhistolabel = cms.string("hltHIPFJet30ForEndOfFill")
+    )
+    ret.append(hltHIPFJet30ForEndOfFill)
+
+    hltHIPFJet50ForEndOfFill = hltHIPFJet30.clone(partialPathName = cms.string("HLT_AK4PFJet50ForEndOfFill_v"),
+                                  triggerSelection = cms.string("HLT_AK4PFJet50ForEndOfFill_v*"),
+                                  dqmhistolabel = cms.string("hltHIPFJet50ForEndOfFill")
+    )
+    ret.append(hltHIPFJet50ForEndOfFill)
 
     hltHISinglePhoton10 = hltHICaloJet30.clone(partialPathName = cms.string("HLT_HISinglePhoton10_v"),
                                                triggerSelection = cms.string("HLT_HISinglePhoton10_v*"),
@@ -105,6 +135,24 @@ def getHILowLumiTriggers():
     )
     ret.append(hltHISinglePhoton60)
 
+    hltHISinglePhoton10ForEndOfFill = hltHISinglePhoton10.clone(partialPathName = cms.string("HLT_HISinglePhoton10ForEndOfFill_v"),
+                                                    triggerSelection = cms.string("HLT_HISinglePhoton10ForEndOfFill_v*"),
+                                                    dqmhistolabel = cms.string("hltHISinglePhoton10ForEndOfFill")
+    )
+    ret.append(hltHISinglePhoton10ForEndOfFill)
+
+    hltHISinglePhoton15ForEndOfFill = hltHISinglePhoton10.clone(partialPathName = cms.string("HLT_HISinglePhoton15ForEndOfFill_v"),
+                                                    triggerSelection = cms.string("HLT_HISinglePhoton15ForEndOfFill_v*"),
+                                                    dqmhistolabel = cms.string("hltHISinglePhoton15ForEndOfFill")
+    )
+    ret.append(hltHISinglePhoton15ForEndOfFill)
+
+    hltHISinglePhoton20ForEndOfFill = hltHISinglePhoton10.clone(partialPathName = cms.string("HLT_HISinglePhoton20ForEndOfFill_v"),
+                                                    triggerSelection = cms.string("HLT_HISinglePhoton20ForEndOfFill_v*"),
+                                                    dqmhistolabel = cms.string("hltHISinglePhoton20ForEndOfFill")
+    )
+    ret.append(hltHISinglePhoton20ForEndOfFill)
+
     return ret
 
 def getFullTrackVPSet():
@@ -112,6 +160,29 @@ def getFullTrackVPSet():
     thresholds = [12, 20, 30, 50]
     for t in thresholds:
         partialPathName = "HLT_FullTrack"+str(t)+"_v"
+        hltFullTrack =  cms.PSet(
+            triggerSelection = cms.string(partialPathName+"*"),
+            handlerType = cms.string("FromHLT"),
+            partialPathName = cms.string(partialPathName),
+            partialFilterName  = cms.string("hltHighPtFullTrack"),
+            dqmhistolabel  = cms.string("hltHighPtFullTrack"),
+            mainDQMDirname = cms.untracked.string(dirname),
+            singleObjectsPreselection = cms.string("1==1"),
+            singleObjectDrawables =  cms.VPSet(
+                cms.PSet (name = cms.string("pt"), expression = cms.string("pt"), bins = cms.int32(100), min = cms.double(0), max = cms.double(100)),
+                cms.PSet (name = cms.string("eta"), expression = cms.string("eta"), bins = cms.int32(100), min = cms.double(-2.5), max = cms.double(2.5)),
+                cms.PSet (name = cms.string("phi"), expression = cms.string("phi"), bins = cms.int32(100), min = cms.double(-3.15), max = cms.double(3.15))
+            ),
+            combinedObjectSelection =  cms.string("1==1"),
+            combinedObjectSortCriteria = cms.string("at(0).pt"),
+            combinedObjectDimension = cms.int32(1),
+            combinedObjectDrawables =  cms.VPSet()
+        )
+        ret.append(hltFullTrack)
+
+    thresholds2 = [12]
+    for t in thresholds2:
+        partialPathName = "HLT_FullTrack"+str(t)+"ForEndOfFill_v"
         hltFullTrack =  cms.PSet(
             triggerSelection = cms.string(partialPathName+"*"),
             handlerType = cms.string("FromHLT"),

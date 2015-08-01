@@ -1,12 +1,14 @@
-#include "FWCore/Framework/interface/Event.h"
+#include <iomanip>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/CRC32Calculator.h"
+
 #include "EventFilter/L1TRawToDigi/interface/AMCSpec.h"
 
 #define EDM_ML_DEBUG 1
 
 namespace amc {
-   Header::Header(unsigned int amc_no, unsigned int board_id, unsigned int size, unsigned int block)
+   BlockHeader::BlockHeader(unsigned int amc_no, unsigned int board_id, unsigned int size, unsigned int block)
    {
       // Determine size
       unsigned int max_block_no = 0;
@@ -49,7 +51,7 @@ namespace amc {
    }
 
    unsigned int
-   Header::getBlocks() const
+   BlockHeader::getBlocks() const
    {
       // The first block of a segmented event has a size of 1023, all
       // following have a max size of 4096.  Segmentation only happens
@@ -61,7 +63,7 @@ namespace amc {
    }
 
    unsigned int
-   Header::getBlockSize() const
+   BlockHeader::getBlockSize() const
    {
       // More and not Segmented means the first of multiple blocks.  For
       // these, getSize() returns the total size of the AMC packet, not the
@@ -71,10 +73,69 @@ namespace amc {
       return getSize();
    }
 
-   Packet::Packet(unsigned int amc, unsigned int board, const std::vector<uint64_t>& load) :
-      header_(amc, board, load.size()),
-      payload_(load)
+   Header::Header(unsigned int amc_no, unsigned int lv1_id, unsigned int bx_id, unsigned int size,
+         unsigned int or_n, unsigned int board_id, unsigned int user) :
+      data0_(
+            (uint64_t(amc_no & AmcNo_mask) << AmcNo_shift) |
+            (uint64_t(lv1_id & LV1ID_mask) << LV1ID_shift) |
+            (uint64_t(bx_id & BX_mask) << BX_shift) |
+            (uint64_t(size & Size_mask) << Size_shift)
+      ),
+      data1_(
+            (uint64_t(or_n & OrN_mask) << OrN_shift) |
+            (uint64_t(board_id & BoardID_mask) << BoardID_shift) |
+            (uint64_t(user & User_mask) << User_shift)
+      )
    {
+   }
+
+   Trailer::Trailer(unsigned int crc, unsigned int lv1_id, unsigned int size) :
+      data_(
+            (uint64_t(crc & CRC_mask) << CRC_shift) |
+            (uint64_t(lv1_id & LV1ID_mask) << LV1ID_shift) |
+            (uint64_t(size & Size_mask) << Size_shift)
+      )
+   {
+   }
+
+   bool
+   Trailer::check(unsigned int crc, unsigned int lv1_id, unsigned int size) const
+   {
+      if (crc != getCRC() || size != getSize() || (lv1_id & LV1ID_mask) != getLV1ID()) {
+         edm::LogWarning("L1T")
+            << "Found AMC trailer with:"
+            << "\n\tLV1 ID " << getLV1ID() << ", size " << getSize()
+            << ", CRC " << std::hex << std::setw(8) << std::setfill('0') << getCRC() << std::dec
+            << "\nBut expected:"
+            << "\n\tLV1 ID " << (lv1_id & LV1ID_mask) << ", size " << size
+            << ", CRC " << std::hex << std::setw(8) << std::setfill('0') << crc;
+         return false;
+      }
+      return true;
+   }
+
+   void
+   Trailer::writeCRC(const uint64_t *start, uint64_t *end)
+   {
+      std::string dstring(reinterpret_cast<const char*>(start), reinterpret_cast<const char*>(end) + 4);
+      auto crc = cms::CRC32Calculator(dstring).checksum();
+
+      *end = ((*end) & ~(uint64_t(CRC_mask) << CRC_shift)) | (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift);
+   }
+
+   Packet::Packet(unsigned int amc, unsigned int board, unsigned int lv1id, unsigned int orbit, unsigned int bx, const std::vector<uint64_t>& load) :
+      block_header_(amc, board, load.size() + 3), // add 3 words for header (2) and trailer (1)
+      header_(amc, lv1id, bx, load.size() + 3, orbit, board, 0),
+      trailer_(0, lv1id, load.size() + 3)
+   {
+      auto hdata = header_.raw();
+      payload_.reserve(load.size() + 3);
+      payload_.insert(payload_.end(), hdata.begin(), hdata.end());
+      payload_.insert(payload_.end(), load.begin(), load.end());
+      payload_.insert(payload_.end(), trailer_.raw());
+
+      auto ptr = payload_.data();
+      Trailer::writeCRC(ptr, ptr + payload_.size() - 1);
    }
 
    void
@@ -83,12 +144,31 @@ namespace amc {
       payload_.insert(payload_.end(), data, data + size);
    }
 
+   void
+   Packet::finalize(unsigned int lv1, unsigned int bx, bool legacy_mc)
+   {
+      if (legacy_mc) {
+         header_ = Header(block_header_.getAMCNumber(), lv1, bx, block_header_.getSize(), 0, block_header_.getBoardID(), 0);
+
+         payload_.insert(payload_.begin(), {0, 0});
+         payload_.insert(payload_.end(), {0});
+      } else {
+         header_ = Header(payload_.data());
+         trailer_ = Trailer(&payload_.back());
+
+         std::string check(reinterpret_cast<const char*>(payload_.data()), payload_.size() * 8 - 4);
+         auto crc = cms::CRC32Calculator(check).checksum();
+
+         trailer_.check(crc, lv1, header_.getSize());
+      }
+   }
+
    std::vector<uint64_t>
    Packet::block(unsigned int id) const
    {
-      if (id == 0 and id == header_.getBlocks() - 1) {
+      if (id == 0 and id == block_header_.getBlocks() - 1) {
          return payload_;
-      } else if (id == header_.getBlocks() - 1) {
+      } else if (id == block_header_.getBlocks() - 1) {
          return std::vector<uint64_t>(payload_.begin() + id * split_block_size, payload_.end());
       } else {
          return std::vector<uint64_t>(payload_.begin() + id * split_block_size, payload_.begin() + (id + 1) * split_block_size);
@@ -98,242 +178,10 @@ namespace amc {
    std::unique_ptr<uint64_t[]>
    Packet::data()
    {
-      std::unique_ptr<uint64_t[]> res(new uint64_t[payload_.size()]);
-      for (unsigned int i = 0; i < payload_.size(); ++i)
-         res.get()[i] = payload_[i];
+      // Remove 3 words: 2 for the header, 1 for the trailer
+      std::unique_ptr<uint64_t[]> res(new uint64_t[payload_.size() - 3]);
+      for (unsigned int i = 0; i < payload_.size() - 3; ++i)
+         res.get()[i] = payload_[i + 2];
       return res;
-   }
-}
-
-namespace amc13 {
-   Header::Header(unsigned int namc, unsigned int orbit)
-   {
-      data_ =
-         (static_cast<uint64_t>(namc & nAMC_mask) << nAMC_shift) |
-         (static_cast<uint64_t>(orbit & OrN_mask) << OrN_shift) |
-         (static_cast<uint64_t>(fov & uFOV_mask) << uFOV_shift);
-   }
-
-   bool
-   Header::valid()
-   {
-      return (getNumberOfAMCs() <= max_amc) && (getFormatVersion() == fov);
-   }
-
-   Trailer::Trailer(unsigned int crc, unsigned int blk, unsigned int lv1, unsigned int bx)
-   {
-      data_ =
-         (static_cast<uint64_t>(crc & CRC_mask) << CRC_shift) |
-         (static_cast<uint64_t>(blk & BlkNo_mask) << BlkNo_shift) |
-         (static_cast<uint64_t>(lv1 & LV1_mask) << LV1_shift) |
-         (static_cast<uint64_t>(bx & BX_mask) << BX_shift);
-   }
-
-   void
-   Packet::add(unsigned int amc_no, unsigned int board, const std::vector<uint64_t>& load)
-   {
-      edm::LogInfo("AMC") << "Adding board " << board << " with payload size " << load.size()
-         << " as payload #" << amc_no;
-      // Start by indexing with 1
-      payload_.push_back(amc::Packet(amc_no, board, load));
-   }
-
-   bool
-   Packet::parse(const uint64_t *data, unsigned int size)
-   {
-      // Need at least a header and trailer
-      // TODO check if this can be removed
-      if (size < 2) {
-         edm::LogError("AMC") << "AMC13 packet size too small";
-         return false;
-      }
-
-      auto block_start = data;
-      header_ = Header(data++);
-
-      if (!header_.valid()) {
-         edm::LogError("AMC")
-            << "Invalid header for AMC13 packet: "
-            << "format version " << header_.getFormatVersion()
-            << ", " << header_.getNumberOfAMCs()
-            << " AMC packets, orbit " << header_.getOrbitNumber();
-         return false;
-      }
-
-      if (size < 2 + header_.getNumberOfAMCs())
-         return false;
-
-      // Initial filling of AMC payloads.  First, get the headers.  The
-      // first payload follows afterwards.
-      for (unsigned int i = 0; i < header_.getNumberOfAMCs(); ++i) {
-         payload_.push_back(amc::Packet(data++));
-      }
-
-      unsigned int tot_size = 0; // total payload size
-      unsigned int tot_nblocks = 0; // total blocks of payload
-      unsigned int maxblocks = 0; // counting the # of amc13 header/trailers (1 ea per block)
-
-      for (const auto& amc: payload_) {
-         tot_size += amc.header().getSize();
-         tot_nblocks += amc.header().getBlocks();
-         maxblocks = std::max(maxblocks, amc.header().getBlocks());
-      }
-
-      unsigned int words = tot_size + // payload size
-                           tot_nblocks + // AMC headers
-                           2 * maxblocks; // AMC13 headers
-
-      if (size < words) {
-         edm::LogError("L1T")
-            << "Encountered AMC 13 packet with "
-            << size << " words, "
-            << "but expected "
-            << words << " words: "
-            << tot_size << " payload words, "
-            << tot_nblocks << " AMC header words, and 2 AMC 13 header words.";
-         return false;
-      }
-
-      // Read in the first AMC block and append the payload to the
-      // corresponding AMC packet.
-      for (auto& amc: payload_) {
-         amc.addPayload(data, amc.header().getBlockSize());
-         data += amc.header().getBlockSize();
-      }
-      auto block_end = data;
-
-      Trailer t(data++);
-
-      std::string check(reinterpret_cast<const char*>(block_start), reinterpret_cast<const char*>(block_end));
-      cms::CRC32Calculator crc(check);
-
-      if (crc.checksum() != t.getCRC()) {
-         edm::LogWarning("L1T") << "Mismatch in checksums for block 0";
-      }
-
-      if (t.getBlock() != 0 ) {
-         edm::LogWarning("L1T")
-            << "Block trailer mismatch: "
-            << "expected block 0, but trailer is for block "
-            << t.getBlock();
-      }
-
-      // Read in remaining AMC blocks
-      for (unsigned int b = 1; b < maxblocks; ++b) {
-         block_start = data;
-
-         Header block_h(data++);
-         std::vector<amc::Header> headers;
-
-         for (unsigned int i = 0; i < block_h.getNumberOfAMCs(); ++i)
-            headers.push_back(amc::Header(data++));
-
-         for (const auto& amc: headers) {
-            payload_[amc.getAMCNumber() - 1].addPayload(data, amc.getBlockSize());
-            data += amc.getBlockSize();
-         }
-
-         block_end = data;
-
-         t = Trailer(data++);
-
-         check = std::string(reinterpret_cast<const char*>(block_start), reinterpret_cast<const char*>(block_end));
-         crc = cms::CRC32Calculator(check);
-
-         if (crc.checksum() != t.getCRC()) {
-            edm::LogWarning("L1T") << "Mismatch in checksums for block " << b;
-         }
-
-         if (t.getBlock() != 0 ) {
-            edm::LogWarning("L1T")
-               << "Block trailer mismatch: "
-               << "expected block " << b
-               << ", but trailer is for block " << t.getBlock();
-         }
-      }
-
-      return true;
-   }
-
-   unsigned int
-   Packet::blocks() const
-   {
-      unsigned int maxblocks = 0;
-
-      for (const auto& amc: payload_)
-         maxblocks = std::max(maxblocks, amc.blocks());
-
-      return maxblocks;
-   }
-
-   unsigned int
-   Packet::size() const
-   {
-      unsigned int words = 0;
-      unsigned int blocks = 0;
-      unsigned int maxblocks = 0;
-
-      for (const auto& amc: payload_) {
-         words += amc.size();
-         blocks += amc.blocks();
-         maxblocks = std::max(maxblocks, amc.blocks());
-      }
-
-      // Size is total amount of words + # of blocks for AMC headers + # of
-      // maxblocks for AMC13 block header, trailer
-      return words + blocks + maxblocks * 2;
-   }
-
-   bool
-   Packet::write(const edm::Event& ev, unsigned char * ptr, unsigned int size) const
-   {
-      if (size < this->size() * 8)
-         return false;
-
-      if (size % 8 != 0)
-         return false;
-
-      uint64_t * data = reinterpret_cast<uint64_t*>(ptr);
-
-      for (unsigned int b = 0; b < blocks(); ++b) {
-         uint64_t * block_start = data;
-
-         std::vector<uint64_t> block_headers;
-         std::vector<uint64_t> block_load;
-         for (const auto& amc: payload_) {
-            edm::LogInfo("AMC")
-               << "Considering block " << b
-               << " for payload " << amc.header().getBoardID()
-               << " with size " << amc.size()
-               << " and " << amc.blocks() << " blocks";
-            if (amc.blocks() < b + 1)
-               continue;
-
-            block_headers.push_back(amc.header(b));
-            auto words = amc.block(b);
-            block_load.insert(block_load.end(), words.begin(), words.end());
-         }
-
-         if (b == 0) {
-            amc13::Header h(block_headers.size(), ev.orbitNumber());
-            edm::LogInfo("AMC")
-               << "Writing header for AMC13 packet: "
-               << "format version " << h.getFormatVersion()
-               << ", " << h.getNumberOfAMCs()
-               << " AMC packets, orbit " << h.getOrbitNumber();
-         }
-
-         *(data++) = amc13::Header(block_headers.size(), ev.orbitNumber()).raw();
-
-         block_headers.insert(block_headers.end(), block_load.begin(), block_load.end());
-         for (const auto& word: block_headers)
-            *(data++) = word;
-
-         std::string dstring(reinterpret_cast<char*>(block_start), reinterpret_cast<char*>(data));
-         cms::CRC32Calculator crc(dstring);
-         *(data++) = Trailer(crc.checksum(), b, ev.id().event(), ev.bunchCrossing()).raw();
-      }
-
-      return true;
    }
 }
