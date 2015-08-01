@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("digiTest")
+process = cms.Process("simHitTest")
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet(
 #)
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-         'file:step2.root'
+       'file:step1.root'
        )
 )
 process.load('Configuration.StandardSequences.Services_cff')
@@ -31,19 +31,20 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.load("DQMServices.Components.DQMFileSaver_cfi")
 process.load("DQMServices.Components.DQMEventInfo_cfi")
-process.dqmEnv.subSystemFolder    = "Ph2TkDigi"
+process.dqmEnv.subSystemFolder    = "TrackerSimHit"
 process.dqmSaver.convention = cms.untracked.string('Online')
 process.dqmSaver.producer = cms.untracked.string('DQM')
 process.dqmSaver.saveAtJobEnd = cms.bool(True)
 
 
-process.load('SimTracker.SiPhase2Digitizer.Phase2TrackerMonitorDigi_cfi')
-process.load('SimTracker.SiPhase2Digitizer.Phase2TrackerValidateDigi_cfi')
+process.simHitMon = cms.EDAnalyzer("SimHitTest",
+    TopFolderName = cms.string("TrackerSimHit")
+)
 
-process.digiana_seq = cms.Sequence(process.digiMon*process.dqmEnv*process.dqmSaver)
+process.ana_seq = cms.Sequence(process.simHitMon*process.dqmEnv*process.dqmSaver)
 
 #process.digi_step = cms.Sequence(process.siPixelRawData*process.siPixelDigis)
-process.p = cms.Path(process.digiana_seq)  
+process.p = cms.Path(process.ana_seq)  
 
 # customisation of the process.                                                                                                                              
 

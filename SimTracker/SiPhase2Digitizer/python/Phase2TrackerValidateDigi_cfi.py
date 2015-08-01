@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 digiValid = cms.EDAnalyzer("Phase2TrackerValidateDigi",
     Verbosity = cms.bool(False),
-    TopFolderName = cms.string("Phase2Tracker"),
+    TopFolderName = cms.string("Ph2TkDigi"),
     PixelDigiSource    = cms.InputTag("simSiPixelDigis","Pixel"),                          
     OuterTrackerDigiSource    = cms.InputTag("mix", "Tracker"),                          
     DigiSimLinkSource    = cms.InputTag("simSiPixelDigis"),                          

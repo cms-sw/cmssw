@@ -118,7 +118,6 @@ namespace cms
 	  // The insert succeeded, so this detector element has not yet been processed.
 	  const std::string algotype = getAlgoType(detId_raw);
 	  Phase2TrackerGeomDetUnit* phase2det = detectorUnits_[detId_raw];
-
 	  // access to magnetic field in global coordinates
 	  GlobalVector bfield = pSetup_->inTesla(phase2det->surface().position());
 	  LogDebug("PixelDigitizer") << "B-field(T) at " << phase2det->surface().position() << "(cm): " 
@@ -196,34 +195,33 @@ namespace cms
     addPixelCollection(iEvent, iSetup);
     addOuterTrackerCollection(iEvent, iSetup);
   }
-  // Fill the StackedTrackerDetId to DetId mapping here
   void Phase2TrackerDigitizer::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
-    // Get Stack Geometry information     
-    edm::ESHandle<StackedTrackerGeometry> stkgeomHandle;
-    iSetup.get<StackedTrackerGeometryRecord>().get(stkgeomHandle);
-    stkGeom_ = &(*stkgeomHandle);
-    for (auto stk = stkGeom_->stacks().begin(); stk != stkGeom_->stacks().end(); ++stk) {
-      StackedTrackerDetUnit* stackDetUnit = (*stk);
-      detIdStackDetIdmap_[stackDetUnit->stackMember(0)] = stackDetUnit;
-      detIdStackDetIdmap_[stackDetUnit->stackMember(1)] = stackDetUnit;
-    }
   }
   std::string Phase2TrackerDigitizer::getAlgoType(unsigned int detId_raw) {
-    DetId detId = DetId(detId_raw);
+    DetId detId(detId_raw); 
+
     std::string algotype = "";
-    if (detId.det() == DetId::Detector::Tracker) {
-      if (detIdStackDetIdmap_.find(detId) != detIdStackDetIdmap_.end()) {
-	StackedTrackerDetId stackDetId = detIdStackDetIdmap_[detId]->Id();
-	if (stkGeom_->isPSModule(stackDetId)) {
-	  if (detId == detIdStackDetIdmap_[detId]->stackMember(0))
-	    algotype = PixelinPS;
-	  else if (detId == detIdStackDetIdmap_[detId]->stackMember(1))
-	    algotype = StripinPS;
-	}
-	else algotype = TwoStrip;
-      }
-      else algotype = InnerPixel;
+    switch(pDD_->getDetectorType(detId)){
+    
+    case TrackerGeometry::ModuleType::Ph1PXB:
+      algotype = InnerPixel;
+      break;
+    case TrackerGeometry::ModuleType::Ph1PXF:
+      algotype = InnerPixel;
+      break;
+    case TrackerGeometry::ModuleType::Ph2PSP:
+      algotype = PixelinPS;
+      break;
+    case TrackerGeometry::ModuleType::Ph2PSS:
+      algotype = StripinPS;
+      break;
+    case TrackerGeometry::ModuleType::Ph2SS:
+      algotype = TwoStrip;
+      break;
+    default:
+      edm::LogError("Phase2TrackerDigitizer")<<"ERROR - Wrong Detector Type, No Algorithm available "<< pDD_->getDetectorType(detId_raw);
     }
+ 
     return algotype;
   }
   void Phase2TrackerDigitizer::addPixelCollection(edm::Event& iEvent, const edm::EventSetup& iSetup) {

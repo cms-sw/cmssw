@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("digiTest")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(10)
 )
 #process.MessageLogger = cms.Service("MessageLogger",
 #    debugModules = cms.untracked.vstring('siPixelRawData'),
@@ -13,7 +13,7 @@ process.maxEvents = cms.untracked.PSet(
 #)
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-         'file:step2.root'
+         'file:/afs/cern.ch/user/d/dutta/work/public/Digitizer/data/6_2_SLHCDEV_TBeam/step2_BeamTest_June2015_0T.root'
        )
 )
 process.load('Configuration.StandardSequences.Services_cff')
@@ -31,19 +31,18 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 process.load("DQMServices.Components.DQMFileSaver_cfi")
 process.load("DQMServices.Components.DQMEventInfo_cfi")
-process.dqmEnv.subSystemFolder    = "Ph2TkDigi"
+process.dqmEnv.subSystemFolder    = "TBeamSimulation"
 process.dqmSaver.convention = cms.untracked.string('Online')
 process.dqmSaver.producer = cms.untracked.string('DQM')
 process.dqmSaver.saveAtJobEnd = cms.bool(True)
 
 
-process.load('SimTracker.SiPhase2Digitizer.Phase2TrackerMonitorDigi_cfi')
-process.load('SimTracker.SiPhase2Digitizer.Phase2TrackerValidateDigi_cfi')
+process.load('SimTracker.SiPhase2Digitizer.TBeamTest_cfi')
 
-process.digiana_seq = cms.Sequence(process.digiMon*process.dqmEnv*process.dqmSaver)
+process.tbeam_simul_seq = cms.Sequence(process.tbeamTest*process.dqmEnv*process.dqmSaver)
 
 #process.digi_step = cms.Sequence(process.siPixelRawData*process.siPixelDigis)
-process.p = cms.Path(process.digiana_seq)  
+process.p = cms.Path(process.tbeam_simul_seq)  
 
 # customisation of the process.                                                                                                                              
 
