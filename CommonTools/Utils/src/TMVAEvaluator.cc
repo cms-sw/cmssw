@@ -2,10 +2,11 @@
 
 #include "CommonTools/Utils/interface/TMVAZipReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TMVA/MethodBDT.h"
 
 
 TMVAEvaluator::TMVAEvaluator() :
-  mIsInitialized(false)
+  mIsInitialized(false), mUsingGBRForest(false)
 {
 }
 
@@ -16,7 +17,7 @@ TMVAEvaluator::~TMVAEvaluator()
 
 
 void TMVAEvaluator::initialize(const std::string & options, const std::string & method, const std::string & weightFile,
-                               const std::vector<std::string> & variables, const std::vector<std::string> & spectators)
+                               const std::vector<std::string> & variables, const std::vector<std::string> & spectators, const bool useGBRForest)
 {
   // initialize the TMVA reader
   mReader.reset(new TMVA::Reader(options.c_str()));
@@ -38,7 +39,18 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
   }
 
   // load the TMVA weights
-  reco::details::loadTMVAWeights(mReader.get(), mMethod.c_str(), weightFile.c_str());
+  mIMethod = std::unique_ptr<TMVA::IMethod>( reco::details::loadTMVAWeights(mReader.get(), mMethod.c_str(), weightFile.c_str()) );
+
+  if (useGBRForest)
+  {
+    mGBRForest.reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( mReader->FindMVA(mMethod.c_str()) ) ) );
+
+    // now can free some memory
+    mReader.reset(nullptr);
+    mIMethod.reset(nullptr);
+
+    mUsingGBRForest = true;
+  }
 
   mIsInitialized = true;
 }
@@ -46,28 +58,40 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
 
 float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, const bool useSpectators)
 {
+  // default value
+  float value = -99.;
+
   if(!mIsInitialized)
   {
     edm::LogError("InitializationError") << "TMVAEvaluator not properly initialized.";
-    return -99.;
+    return value;
   }
 
   if( useSpectators && inputs.size() < ( mVariables.size() + mSpectators.size() ) )
   {
     edm::LogError("MissingInputs") << "Too few inputs provided (" << inputs.size() << " provided but " << mVariables.size() << " input and " << mSpectators.size() << " spectator variables expected).";
-    return -99.;
+    return value;
   }
   else if( inputs.size() < mVariables.size() )
   {
     edm::LogError("MissingInputVariable(s)") << "Too few input variables provided (" << inputs.size() << " provided but " << mVariables.size() << " expected).";
-    return -99.;
+    return value;
   }
+
+  float * vars = nullptr; // pointer to float, initialize to nothing
+  if (mUsingGBRForest)
+    vars = new float[mVariables.size()]; // allocate n floats and save ptr in vars
 
   // set the input variable values
   for(std::map<std::string,float>::iterator it = mVariables.begin(); it!=mVariables.end(); ++it)
   {
     if (inputs.count(it->first)>0)
-      it->second = inputs.at(it->first);
+    {
+      if (mUsingGBRForest)
+        vars[std::distance(mVariables.begin(),it)] = inputs.at(it->first);
+      else
+        it->second = inputs.at(it->first);
+    }
     else
       edm::LogError("MissingInputVariable") << "Input variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
   }
@@ -86,7 +110,14 @@ float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, const 
   }
 
   // evaluate the MVA
-  float value = mReader->EvaluateMVA(mMethod.c_str());
+  if (mUsingGBRForest)
+    value = mGBRForest->GetClassifier(vars);
+  else
+    value = mReader->EvaluateMVA(mMethod.c_str());
+
+
+  delete [] vars;  // when done, free memory pointed to by vars
+  vars = nullptr;  // clear vars to prevent using invalid memory reference
 
   return value;
 }

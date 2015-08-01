@@ -1,5 +1,6 @@
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/MessageLogger"/>
+<use   name="CondFormats/EgammaObjects"/>
 <use   name="boost"/>
 <use   name="roothistmatrix"/>
 <use   name="roottmva"/>
