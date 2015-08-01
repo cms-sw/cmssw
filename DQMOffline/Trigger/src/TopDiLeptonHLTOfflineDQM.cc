@@ -199,9 +199,6 @@ namespace HLTOfflineDQMTopDiLepton {
         if( !event.getByToken(triggerTable_, triggerTable) ) return;
       }
 
-      edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefsHandle;
-      if(!event.getByToken(triggerEventWithRefsTag_,triggerEventWithRefsHandle)) return;
-
       /*
          ------------------------------------------------------------
 
@@ -226,7 +223,7 @@ namespace HLTOfflineDQMTopDiLepton {
       edm::Handle<edm::View<reco::Muon> > muons;
       if( !event.getByToken(muons_, muons) ) {
         edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
-            << "Muon collection not found \n";
+          << "Muon collection not found \n";
         return;
       }
 
@@ -258,7 +255,7 @@ namespace HLTOfflineDQMTopDiLepton {
       edm::Handle<edm::View<reco::GsfElectron> > elecs;
       if( !event.getByToken(elecs_, elecs) ) {
         edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
-            << "Electron collection not found \n";
+          << "Electron collection not found \n";
         return;
       }
 
@@ -309,7 +306,7 @@ namespace HLTOfflineDQMTopDiLepton {
       edm::Handle<edm::View<reco::Jet> > jets; 
       if( !event.getByToken(jets_, jets) ) {
         edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
-            << "Jet collection not found \n";
+          << "Jet collection not found \n";
         return;
       }
 
@@ -500,205 +497,209 @@ namespace HLTOfflineDQMTopDiLepton {
          ------------------------------------------------------------
          */
 
-      // loop over trigger paths 
-      for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
-        // consider only path from triggerPaths
-        string name = triggerNames.triggerNames()[i].c_str();
-        bool isInteresting = false;
-        for (unsigned int j=0; j<triggerPaths.size(); j++) {
-          if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase)) isInteresting = true; 
-        }
-        if (!isInteresting) continue;
-        // dump infos on the considered trigger path 
-        const unsigned int triggerIndex = triggerNames.triggerIndex(name);
-        // get modules for the considered trigger path
-        const vector<string>& moduleLabels(hltConfig.moduleLabels(triggerIndex));
-        const unsigned int moduleIndex(triggerTable->index(triggerIndex));
-        // Results from TriggerEventWithRefs product
-        electronIds_.clear(); electronRefs_.clear();
-        muonIds_.clear();     muonRefs_.clear();
-        // look only for modules actually run in this path
-        unsigned int kElec=0;
-        unsigned int kMuon=0;
-        for (unsigned int k=0; k<=moduleIndex; ++k) {
-          const string& moduleLabel(moduleLabels[k]);
-          const string  moduleType(hltConfig.moduleType(moduleLabel));
-          // check whether the module is packed up in TriggerEventWithRef product
-          const unsigned int filterIndex(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
-          if (filterIndex<triggerEventWithRefsHandle->size()) {
-            triggerEventWithRefsHandle->getObjects(filterIndex,electronIds_,electronRefs_);
+      edm::Handle<trigger::TriggerEventWithRefs> triggerEventWithRefsHandle;
+      if(event.getByToken(triggerEventWithRefsTag_,triggerEventWithRefsHandle)) {
+
+        // loop over trigger paths 
+        for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
+          // consider only path from triggerPaths
+          string name = triggerNames.triggerNames()[i].c_str();
+          bool isInteresting = false;
+          for (unsigned int j=0; j<triggerPaths.size(); j++) {
+            if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase)) isInteresting = true; 
+          }
+          if (!isInteresting) continue;
+          // dump infos on the considered trigger path 
+          const unsigned int triggerIndex = triggerNames.triggerIndex(name);
+          // get modules for the considered trigger path
+          const vector<string>& moduleLabels(hltConfig.moduleLabels(triggerIndex));
+          const unsigned int moduleIndex(triggerTable->index(triggerIndex));
+          // Results from TriggerEventWithRefs product
+          electronIds_.clear(); electronRefs_.clear();
+          muonIds_.clear();     muonRefs_.clear();
+          // look only for modules actually run in this path
+          unsigned int kElec=0;
+          unsigned int kMuon=0;
+          for (unsigned int k=0; k<=moduleIndex; ++k) {
+            const string& moduleLabel(moduleLabels[k]);
+            const string  moduleType(hltConfig.moduleType(moduleLabel));
+            // check whether the module is packed up in TriggerEventWithRef product
+            const unsigned int filterIndex(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
+            if (filterIndex<triggerEventWithRefsHandle->size()) {
+              triggerEventWithRefsHandle->getObjects(filterIndex,electronIds_,electronRefs_);
+              const unsigned int nElectrons(electronIds_.size());
+              if (nElectrons>0) kElec = k;
+
+              triggerEventWithRefsHandle->getObjects(filterIndex,muonIds_,muonRefs_);
+              const unsigned int nMuons(muonIds_.size());
+              if (nMuons>0) kMuon = k;
+
+            }
+          }
+          bool l1Matched = false;
+          bool l2Matched = false;
+          double l1DeltaRMin = 500.;
+          double l2DeltaRMin = 500.;
+          unsigned int l1IndMatched = 500;
+          unsigned int l2IndMatched = 500;
+          // access to hlt dielecs
+          electronIds_.clear(); electronRefs_.clear();
+          if (kElec > 0 && kMuon < 1 && isoElecs.size()>0) {
+            const string& moduleLabelElec(moduleLabels[kElec]);
+            const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
+            const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
+            triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
             const unsigned int nElectrons(electronIds_.size());
-            if (nElectrons>0) kElec = k;
-
-            triggerEventWithRefsHandle->getObjects(filterIndex,muonIds_,muonRefs_);
-            const unsigned int nMuons(muonIds_.size());
-            if (nMuons>0) kMuon = k;
-
-          }
-        }
-        bool l1Matched = false;
-        bool l2Matched = false;
-        double l1DeltaRMin = 500.;
-        double l2DeltaRMin = 500.;
-        unsigned int l1IndMatched = 500;
-        unsigned int l2IndMatched = 500;
-        // access to hlt dielecs
-        electronIds_.clear(); electronRefs_.clear();
-        if (kElec > 0 && kMuon < 1 && isoElecs.size()>0) {
-          const string& moduleLabelElec(moduleLabels[kElec]);
-          const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
-          const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
-          triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
-          const unsigned int nElectrons(electronIds_.size());
-          double deltar1 = 600.;
-          double deltar2 = 600.;
-          for (unsigned int inde = 0; inde < isoElecs.size(); inde++) {
-            if (nElectrons > 0) deltar1 = deltaR(*electronRefs_[0],*isoElecs[inde]); 
-            if (nElectrons > 1) deltar2 = deltaR(*electronRefs_[1],*isoElecs[inde]); 
-            if (deltar1 < deltar2 && deltar1 < l1DeltaRMin) {
-              l1DeltaRMin = deltar1;
-              l1IndMatched = inde;
+            double deltar1 = 600.;
+            double deltar2 = 600.;
+            for (unsigned int inde = 0; inde < isoElecs.size(); inde++) {
+              if (nElectrons > 0) deltar1 = deltaR(*electronRefs_[0],*isoElecs[inde]); 
+              if (nElectrons > 1) deltar2 = deltaR(*electronRefs_[1],*isoElecs[inde]); 
+              if (deltar1 < deltar2 && deltar1 < l1DeltaRMin) {
+                l1DeltaRMin = deltar1;
+                l1IndMatched = inde;
+              }
+              if (deltar2 < deltar1 && deltar2 < l2DeltaRMin) {
+                l2DeltaRMin = deltar2;
+                l2IndMatched = inde;
+              }
             }
-            if (deltar2 < deltar1 && deltar2 < l2DeltaRMin) {
-              l2DeltaRMin = deltar2;
-              l2IndMatched = inde;
-            }
-          }
-          if (nElectrons > 0 && l1IndMatched < 500) fill("leptDeltaREta_", isoElecs[l1IndMatched]->eta(), l1DeltaRMin);   
-          if (nElectrons > 1 && l2IndMatched < 500) fill("leptDeltaREta_", isoElecs[l2IndMatched]->eta(), l2DeltaRMin);   
-          if (l1DeltaRMin < DRMIN) {
-            l1Matched = true;
-            fill("matchingMon_", 0.5 );
-            fill("leptResolution_", fabs(isoElecs[l1IndMatched]->pt()-electronRefs_[0]->pt())/isoElecs[l1IndMatched]->pt() );   
-          }
-          if (l2DeltaRMin < DRMIN) {
-            l2Matched = true;
-            fill("matchingMon_", 1.5 );
-            fill("leptResolution_", fabs(isoElecs[l2IndMatched]->pt()-electronRefs_[1]->pt())/isoElecs[l2IndMatched]->pt() );   
-          }
-        }
-        // access to hlt dimuons
-        muonIds_.clear(); muonRefs_.clear();
-        l1DeltaRMin = 500.; l2DeltaRMin = 500.; double l3DeltaRMin = 500.;
-        l1IndMatched = 500; l2IndMatched = 500; double l3IndMatched = 500;
-        if (kMuon > 0 && kElec < 1 && isoMuons.size()>0) {
-          const string& moduleLabelMuon(moduleLabels[kMuon]);
-          const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
-          const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
-          triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
-          trigger::VRmuon myMuonRefs;
-          const unsigned int nMuons(muonIds_.size());
-          for (unsigned int l=0; l<nMuons; l++) {
-            bool isNew = true;
-            for (unsigned int ll=0; ll<myMuonRefs.size(); ll++) {
-              if (fabs((myMuonRefs[ll]->pt()-muonRefs_[l]->pt())/muonRefs_[l]->pt()) < 1e-5) isNew = false;
-            }
-            if (isNew) myMuonRefs.push_back(muonRefs_[l]);
-          }
-          const unsigned int nMyMuons(myMuonRefs.size());
-          double deltar1 = 600.;
-          double deltar2 = 600.;
-          double deltar3 = 600.;
-          for (unsigned int indm = 0; indm < isoMuons.size(); indm++) {
-            if (nMyMuons > 0) deltar1 = deltaR(*myMuonRefs[0],*isoMuons[indm]); 
-            if (nMyMuons > 1) deltar2 = deltaR(*myMuonRefs[1],*isoMuons[indm]); 
-            if (nMyMuons > 2) deltar3 = deltaR(*myMuonRefs[2],*isoMuons[indm]); 
-            if (nMyMuons > 0 && (nMyMuons<1 || deltar1 < deltar2) && (nMyMuons<2 || deltar1<deltar3) && deltar1 < l1DeltaRMin) {
-              l1DeltaRMin = deltar1;
-              l1IndMatched = indm;
-            }
-            if (nMyMuons > 1 && deltar2 < deltar1 && (nMyMuons<3 || deltar2<deltar3) && deltar2 < l2DeltaRMin) {
-              l2DeltaRMin = deltar2;
-              l2IndMatched = indm;
-            }
-            if (nMyMuons > 2 && deltar3 < deltar1 && deltar3 < deltar2 && deltar3 < l3DeltaRMin) {
-              l3DeltaRMin = deltar3;
-              l3IndMatched = indm;
-            }
-          }
-          if (nMyMuons > 0 && l1IndMatched < 500) fill("leptDeltaREta_", isoMuons[l1IndMatched]->eta(), l1DeltaRMin);   
-          if (nMyMuons > 1 && l2IndMatched < 500) fill("leptDeltaREta_", isoMuons[l2IndMatched]->eta(), l2DeltaRMin);   
-          if (nMyMuons > 2 && l3IndMatched < 500) fill("leptDeltaREta_", isoMuons[l3IndMatched]->eta(), l3DeltaRMin);   
-          if (l1DeltaRMin < DRMIN) {
-            l1Matched = true;
-            fill("matchingMon_", 0.5 );
-            fill("leptResolution_", fabs(isoMuons[l1IndMatched]->pt()-myMuonRefs[0]->pt())/isoMuons[l1IndMatched]->pt() );   
-            if (l2DeltaRMin < DRMIN) {
-              l2Matched = true;
-              fill("matchingMon_", 1.5 );
-              fill("leptResolution_", fabs(isoMuons[l2IndMatched]->pt()-myMuonRefs[1]->pt())/isoMuons[l2IndMatched]->pt() );
-            } else if (l3DeltaRMin < DRMIN) {
-              l2Matched = true;
-              fill("matchingMon_", 1.5 );
-              fill("leptResolution_", fabs(isoMuons[l3IndMatched]->pt()-myMuonRefs[2]->pt())/isoMuons[l3IndMatched]->pt() );
-            } 
-          } else {
-            if (l2DeltaRMin < DRMIN) {
+            if (nElectrons > 0 && l1IndMatched < 500) fill("leptDeltaREta_", isoElecs[l1IndMatched]->eta(), l1DeltaRMin);   
+            if (nElectrons > 1 && l2IndMatched < 500) fill("leptDeltaREta_", isoElecs[l2IndMatched]->eta(), l2DeltaRMin);   
+            if (l1DeltaRMin < DRMIN) {
               l1Matched = true;
               fill("matchingMon_", 0.5 );
-              fill("leptResolution_", fabs(isoMuons[l2IndMatched]->pt()-myMuonRefs[1]->pt())/isoMuons[l2IndMatched]->pt() );
-              if (l3DeltaRMin < DRMIN) {
+              fill("leptResolution_", fabs(isoElecs[l1IndMatched]->pt()-electronRefs_[0]->pt())/isoElecs[l1IndMatched]->pt() );   
+            }
+            if (l2DeltaRMin < DRMIN) {
+              l2Matched = true;
+              fill("matchingMon_", 1.5 );
+              fill("leptResolution_", fabs(isoElecs[l2IndMatched]->pt()-electronRefs_[1]->pt())/isoElecs[l2IndMatched]->pt() );   
+            }
+          }
+          // access to hlt dimuons
+          muonIds_.clear(); muonRefs_.clear();
+          l1DeltaRMin = 500.; l2DeltaRMin = 500.; double l3DeltaRMin = 500.;
+          l1IndMatched = 500; l2IndMatched = 500; double l3IndMatched = 500;
+          if (kMuon > 0 && kElec < 1 && isoMuons.size()>0) {
+            const string& moduleLabelMuon(moduleLabels[kMuon]);
+            const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
+            const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
+            triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+            trigger::VRmuon myMuonRefs;
+            const unsigned int nMuons(muonIds_.size());
+            for (unsigned int l=0; l<nMuons; l++) {
+              bool isNew = true;
+              for (unsigned int ll=0; ll<myMuonRefs.size(); ll++) {
+                if (fabs((myMuonRefs[ll]->pt()-muonRefs_[l]->pt())/muonRefs_[l]->pt()) < 1e-5) isNew = false;
+              }
+              if (isNew) myMuonRefs.push_back(muonRefs_[l]);
+            }
+            const unsigned int nMyMuons(myMuonRefs.size());
+            double deltar1 = 600.;
+            double deltar2 = 600.;
+            double deltar3 = 600.;
+            for (unsigned int indm = 0; indm < isoMuons.size(); indm++) {
+              if (nMyMuons > 0) deltar1 = deltaR(*myMuonRefs[0],*isoMuons[indm]); 
+              if (nMyMuons > 1) deltar2 = deltaR(*myMuonRefs[1],*isoMuons[indm]); 
+              if (nMyMuons > 2) deltar3 = deltaR(*myMuonRefs[2],*isoMuons[indm]); 
+              if (nMyMuons > 0 && (nMyMuons<1 || deltar1 < deltar2) && (nMyMuons<2 || deltar1<deltar3) && deltar1 < l1DeltaRMin) {
+                l1DeltaRMin = deltar1;
+                l1IndMatched = indm;
+              }
+              if (nMyMuons > 1 && deltar2 < deltar1 && (nMyMuons<3 || deltar2<deltar3) && deltar2 < l2DeltaRMin) {
+                l2DeltaRMin = deltar2;
+                l2IndMatched = indm;
+              }
+              if (nMyMuons > 2 && deltar3 < deltar1 && deltar3 < deltar2 && deltar3 < l3DeltaRMin) {
+                l3DeltaRMin = deltar3;
+                l3IndMatched = indm;
+              }
+            }
+            if (nMyMuons > 0 && l1IndMatched < 500) fill("leptDeltaREta_", isoMuons[l1IndMatched]->eta(), l1DeltaRMin);   
+            if (nMyMuons > 1 && l2IndMatched < 500) fill("leptDeltaREta_", isoMuons[l2IndMatched]->eta(), l2DeltaRMin);   
+            if (nMyMuons > 2 && l3IndMatched < 500) fill("leptDeltaREta_", isoMuons[l3IndMatched]->eta(), l3DeltaRMin);   
+            if (l1DeltaRMin < DRMIN) {
+              l1Matched = true;
+              fill("matchingMon_", 0.5 );
+              fill("leptResolution_", fabs(isoMuons[l1IndMatched]->pt()-myMuonRefs[0]->pt())/isoMuons[l1IndMatched]->pt() );   
+              if (l2DeltaRMin < DRMIN) {
+                l2Matched = true;
+                fill("matchingMon_", 1.5 );
+                fill("leptResolution_", fabs(isoMuons[l2IndMatched]->pt()-myMuonRefs[1]->pt())/isoMuons[l2IndMatched]->pt() );
+              } else if (l3DeltaRMin < DRMIN) {
                 l2Matched = true;
                 fill("matchingMon_", 1.5 );
                 fill("leptResolution_", fabs(isoMuons[l3IndMatched]->pt()-myMuonRefs[2]->pt())/isoMuons[l3IndMatched]->pt() );
               } 
+            } else {
+              if (l2DeltaRMin < DRMIN) {
+                l1Matched = true;
+                fill("matchingMon_", 0.5 );
+                fill("leptResolution_", fabs(isoMuons[l2IndMatched]->pt()-myMuonRefs[1]->pt())/isoMuons[l2IndMatched]->pt() );
+                if (l3DeltaRMin < DRMIN) {
+                  l2Matched = true;
+                  fill("matchingMon_", 1.5 );
+                  fill("leptResolution_", fabs(isoMuons[l3IndMatched]->pt()-myMuonRefs[2]->pt())/isoMuons[l3IndMatched]->pt() );
+                } 
+              }
+              if (l3DeltaRMin < DRMIN) {
+                l1Matched = true;
+                fill("matchingMon_", 0.5 );
+                fill("leptResolution_", fabs(isoMuons[l3IndMatched]->pt()-myMuonRefs[2]->pt())/isoMuons[l3IndMatched]->pt() );
+              }
+            } 
+          }
+          // access to hlt elec-muon
+          electronIds_.clear(); electronRefs_.clear();
+          muonIds_.clear(); muonRefs_.clear();
+          l1DeltaRMin = 500.; l2DeltaRMin = 500.; 
+          l1IndMatched = 500; l2IndMatched = 500; 
+          if (kElec > 0 && kMuon > 0 && isoElecs.size()>0) {
+            const string& moduleLabelElec(moduleLabels[kElec]);
+            const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
+            const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
+            triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
+            const unsigned int nElectrons(electronIds_.size());
+            double deltar = 600.;
+            for (unsigned int inde = 0; inde < isoElecs.size(); inde++) {
+              if (nElectrons > 0) deltar = deltaR(*electronRefs_[0],*isoElecs[inde]); 
+              if (deltar < l1DeltaRMin) {
+                l1DeltaRMin = deltar;
+                l1IndMatched = inde;
+              }
             }
-            if (l3DeltaRMin < DRMIN) {
+            if (nElectrons > 0 && l1IndMatched < 500) fill("leptDeltaREta_", isoElecs[l1IndMatched]->eta(), l1DeltaRMin);   
+            if (l1DeltaRMin < DRMIN) {
               l1Matched = true;
               fill("matchingMon_", 0.5 );
-              fill("leptResolution_", fabs(isoMuons[l3IndMatched]->pt()-myMuonRefs[2]->pt())/isoMuons[l3IndMatched]->pt() );
-            }
-          } 
-        }
-        // access to hlt elec-muon
-        electronIds_.clear(); electronRefs_.clear();
-        muonIds_.clear(); muonRefs_.clear();
-        l1DeltaRMin = 500.; l2DeltaRMin = 500.; 
-        l1IndMatched = 500; l2IndMatched = 500; 
-        if (kElec > 0 && kMuon > 0 && isoElecs.size()>0) {
-          const string& moduleLabelElec(moduleLabels[kElec]);
-          const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
-          const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
-          triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
-          const unsigned int nElectrons(electronIds_.size());
-          double deltar = 600.;
-          for (unsigned int inde = 0; inde < isoElecs.size(); inde++) {
-            if (nElectrons > 0) deltar = deltaR(*electronRefs_[0],*isoElecs[inde]); 
-            if (deltar < l1DeltaRMin) {
-              l1DeltaRMin = deltar;
-              l1IndMatched = inde;
+              fill("leptResolution_", fabs(isoElecs[l1IndMatched]->pt()-electronRefs_[0]->pt())/isoElecs[l1IndMatched]->pt() );   
             }
           }
-          if (nElectrons > 0 && l1IndMatched < 500) fill("leptDeltaREta_", isoElecs[l1IndMatched]->eta(), l1DeltaRMin);   
-          if (l1DeltaRMin < DRMIN) {
-            l1Matched = true;
-            fill("matchingMon_", 0.5 );
-            fill("leptResolution_", fabs(isoElecs[l1IndMatched]->pt()-electronRefs_[0]->pt())/isoElecs[l1IndMatched]->pt() );   
-          }
-        }
-        if (kElec > 0 && kMuon > 0 && isoMuons.size()>0) {
-          const string& moduleLabelMuon(moduleLabels[kMuon]);
-          const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
-          const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
-          triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
-          const unsigned int nMuons(muonIds_.size());
-          if (isoMuons.size()<1) continue;
-          double deltar = 600.;
-          for (unsigned int indm = 0; indm < isoMuons.size(); indm++) {
-            if (nMuons > 0) deltar = deltaR(*muonRefs_[0],*isoMuons[indm]); 
-            if (deltar < l2DeltaRMin) {
-              l2DeltaRMin = deltar;
-              l2IndMatched = indm;
+          if (kElec > 0 && kMuon > 0 && isoMuons.size()>0) {
+            const string& moduleLabelMuon(moduleLabels[kMuon]);
+            const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
+            const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
+            triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
+            const unsigned int nMuons(muonIds_.size());
+            if (isoMuons.size()<1) continue;
+            double deltar = 600.;
+            for (unsigned int indm = 0; indm < isoMuons.size(); indm++) {
+              if (nMuons > 0) deltar = deltaR(*muonRefs_[0],*isoMuons[indm]); 
+              if (deltar < l2DeltaRMin) {
+                l2DeltaRMin = deltar;
+                l2IndMatched = indm;
+              }
+            }
+            if (nMuons > 0 && l2IndMatched < 500) fill("leptDeltaREta_", isoMuons[l2IndMatched]->eta(), l2DeltaRMin);   
+            if (l2DeltaRMin < DRMIN) {
+              l2Matched = true;
+              fill("matchingMon_", 1.5 );
+              fill("leptResolution_", fabs(isoMuons[l2IndMatched]->pt()-muonRefs_[0]->pt())/isoMuons[l2IndMatched]->pt() );   
             }
           }
-          if (nMuons > 0 && l2IndMatched < 500) fill("leptDeltaREta_", isoMuons[l2IndMatched]->eta(), l2DeltaRMin);   
-          if (l2DeltaRMin < DRMIN) {
-            l2Matched = true;
-            fill("matchingMon_", 1.5 );
-            fill("leptResolution_", fabs(isoMuons[l2IndMatched]->pt()-muonRefs_[0]->pt())/isoMuons[l2IndMatched]->pt() );   
-          }
+          if (l1Matched && l2Matched) fill("matchingMon_", 2.5 );
         }
-        if (l1Matched && l2Matched) fill("matchingMon_", 2.5 );
       }
 
     }
@@ -767,11 +768,11 @@ TopDiLeptonHLTOfflineDQM::dqmBeginRun(const edm::Run& iRun, const edm::EventSetu
 
   bool changed(true);
   if (!hltConfig_.init(iRun,iSetup,"*",changed)) {
-        edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
-            << "Config extraction failure with process name "
-            << hltConfig_.processName()
-            << "\n";
-        return;
+    edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
+      << "Config extraction failure with process name "
+      << hltConfig_.processName()
+      << "\n";
+    return;
   }
 }
 
@@ -827,7 +828,7 @@ TopDiLeptonHLTOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup
   }
 }
 
-void
+  void
 TopDiLeptonHLTOfflineDQM::bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&)
 {
   for (auto& sel: selection_) {

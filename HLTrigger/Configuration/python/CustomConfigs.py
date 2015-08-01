@@ -31,6 +31,8 @@ def Base(process):
 #        process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
 #        process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://Frontie#rProd/')
 #        
+    process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
+
     process=ProcessName(process)
 
     return(process)
@@ -58,9 +60,10 @@ def L1THLT(process):
 
     if not ('HLTAnalyzerEndpath' in process.__dict__) :
         from HLTrigger.Configuration.HLT_FULL_cff import fragment
+        process.hltGtDigis = fragment.hltGtDigis
         process.hltL1GtTrigReport = fragment.hltL1GtTrigReport
         process.hltTrigReport = fragment.hltTrigReport
-        process.HLTAnalyzerEndpath = cms.EndPath(process.hltL1GtTrigReport + process.hltTrigReport)
+        process.HLTAnalyzerEndpath = cms.EndPath(process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport)
         process.schedule.append(process.HLTAnalyzerEndpath)
 
     process=Base(process)

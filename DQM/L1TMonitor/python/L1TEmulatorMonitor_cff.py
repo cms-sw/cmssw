@@ -27,7 +27,6 @@ valStage1GtDigis.AlgorithmTriggersUnprescaled = True
 valStage1GtDigis.TechnicalTriggersUnprescaled = True
 valStage1GtDigis.TechnicalTriggersVetoUnmasked = True
 
-
 # DQM modules
 from DQM.L1TMonitor.L1TDEMON_cfi import *
 
@@ -59,6 +58,12 @@ from L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi import *
 
 ############################################################
 
+# GMT unpack from Fed813 in legacy stage1 parallel running                                                                     
+from EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi import *
+l1GtUnpack.DaqGtInputTag = 'rawDataCollector'
+
+#############################################################                 
+
 
 l1TdeRCTSeq = cms.Sequence(
                     l1TdeRCT
@@ -73,20 +78,22 @@ l1ExpertDataVsEmulator = cms.Sequence(
 
 
 l1EmulatorMonitor = cms.Sequence(
+                            l1GtUnpack*
                             l1demon+
                             l1ExpertDataVsEmulator             
                             )
 
 # for use in processes where hardware validation is not run
 l1HwValEmulatorMonitor = cms.Sequence(
+                                l1GtUnpack*
                                 L1HardwareValidation*
                                 l1EmulatorMonitor
                                 )
 
 # for stage1
 l1ExpertDataVsEmulatorStage1 = cms.Sequence(
-    caloStage1Digis*
-    caloStage1LegacyFormatDigis*
+    #caloStage1Digis*
+    #caloStage1LegacyFormatDigis*
     l1TdeStage1Layer2 +
     l1TdeCSCTF +
     l1Stage1GtHwValidation +
@@ -94,8 +101,8 @@ l1ExpertDataVsEmulatorStage1 = cms.Sequence(
     )
 
 l1EmulatorMonitorStage1 = cms.Sequence(
-    caloStage1Digis*
-    caloStage1LegacyFormatDigis*    
+    #caloStage1Digis*
+    #caloStage1LegacyFormatDigis*    
     l1demonstage1+
     l1ExpertDataVsEmulatorStage1
     )
@@ -103,6 +110,7 @@ l1EmulatorMonitorStage1 = cms.Sequence(
 l1Stage1HwValEmulatorMonitor = cms.Sequence(
     caloStage1Digis*
     caloStage1LegacyFormatDigis*    
+    l1GtUnpack*
     L1HardwareValidationforStage1 +
     l1EmulatorMonitorStage1                            
     )

@@ -3,6 +3,7 @@
 <use name="DataFormats/L1Trigger"/>
 <use name="DataFormats/L1TCalorimeter"/>
 <use name="L1Trigger/L1TCalorimeter"/>
+<use name="L1Trigger/L1TGlobal"/>
 <export>
   <lib name="1"/>
 </export>
