@@ -41,8 +41,8 @@ def customiseDataRun2Common(process):
     if hasattr(process,'valCsctfTrackDigis'):
         process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
 
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForStage1
-    process = customiseSimL1EmulatorForStage1(process)
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
+    process=customiseL1RecoForStage1(process)
 
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi,customise_DQM
     if hasattr(process,'RawToDigi'):
