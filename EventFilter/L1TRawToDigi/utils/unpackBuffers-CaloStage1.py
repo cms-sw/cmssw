@@ -9,31 +9,42 @@ import FWCore.ParameterSet.Config as cms
 # options
 import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing('analysis')
-options.register('mpLatency',
+options.register('skipEvents',
                  0,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
-                 "MP latency (frames)")
-options.register('mpOffset',
+                 "Number of events to skip")
+options.register('framesPerEvent',
+                 6,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "N frames per event")
+options.register('offset',
                  0,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
-                 "MP offset (frames)")
-options.register('dmLatency',
+                 "Jet board offset (frames)")
+options.register('egLatency',
                  0,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
-                 "Demux latency (frames)")
-options.register('dmOffset',
-                 0,
+                 "EG board latency (frames)")
+options.register('jetLatency',
+                 40,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
-                 "Demux offset (frames)")
+                 "Jet board latency (frames)")
+options.register('egDelay',
+                 54,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "EG input delay wrt regions (frames)")
 options.register('dump',
                  False,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
+
                  
 options.parseArguments()
 
@@ -69,13 +80,13 @@ process.options = cms.untracked.PSet(
 process.output = cms.OutputModule(
     "PoolOutputModule",
     outputCommands = cms.untracked.vstring("keep *"),
-    fileName = cms.untracked.string('l1tCalo_2016_EDM.root')
+    fileName = cms.untracked.string('l1tCalo_2015_EDM.root')
 )
 
 # Additional output definition
 # TTree output file
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
-process.TFileService.fileName = cms.string('l1tCalo_2016_histos.root')
+process.TFileService.fileName = cms.string('l1tCalo_2015_histos.root')
 
 
 # enable debug message logging for our modules
@@ -97,56 +108,47 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
 
 # buffer dump to RAW
-process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
+process.load('EventFilter.L1TRawToDigi.stage1MP7BufferRaw_cfi')
 
-mpOffsets = cms.untracked.vint32()
-for i in range (0,11):
-    mpOffsets.append(options.mpOffset)
+# skip events
+jetOffset = options.offset + (options.skipEvents * options.framesPerEvent)
+egOffset  = jetOffset + options.egDelay
 
-mpLatencies = cms.untracked.vint32()
-for i in range (0,11):
-    mpLatencies.append(options.mpLatency)
 
-process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
-process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
-process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
-process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
+# print some debug info
+print "egOffset      = ", egOffset
+print "jetOffset     = ", jetOffset
+print " "
 
-process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(options.dmOffset)
-process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
-process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
-process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
 
-process.rawDataCollector.verbose = cms.untracked.int32(2)
+# pack into arrays
+latencies = [ options.jetLatency, options.egLatency ]
+offsets   = [ jetOffset,  egOffset ]
+
+process.stage1Raw.nFramesPerEvent    = cms.untracked.int32(options.framesPerEvent)
+process.stage1Raw.nFramesOffset    = cms.untracked.vuint32(offsets)
+process.stage1Raw.nFramesLatency   = cms.untracked.vuint32(latencies)
+process.stage1Raw.rxFile = cms.untracked.string("rx_summary.txt")
+process.stage1Raw.txFile = cms.untracked.string("tx_summary.txt")
 
 # dump raw data
 process.dumpRaw = cms.EDAnalyzer( 
     "DumpFEDRawDataProduct",
-    label = cms.untracked.string("rawDataCollector"),
-    feds = cms.untracked.vint32 ( 1360, 1366 ),
+    label = cms.untracked.string("stage1Raw"),
+    feds = cms.untracked.vint32 ( 1352 ),
     dumpPayload = cms.untracked.bool ( options.dump )
 )
 
 # raw to digi
-process.load('EventFilter.L1TRawToDigi.caloStage2Digis_cfi')
-process.caloStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
-
-process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
-process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage2Digis")
+process.load('EventFilter.L1TRawToDigi.caloStage1Digis_cfi')
+process.caloStage1Digis.InputLabel = cms.InputTag('stage1Raw')
 
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.stage2MP7BufferRaw
-#    process.stage2MPRaw
-#    +process.stage2DemuxRaw
+    process.stage1Raw
     +process.dumpRaw
-    +process.caloStage2Digis
-#    +process.l1tStage2CaloAnalyzer
+    +process.caloStage1Digis
+
 )
 
 process.out = cms.EndPath(

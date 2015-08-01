@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 l1tRpctf = cms.EDAnalyzer("L1TRPCTF",
     disableROOToutput = cms.untracked.bool(True),
-    rpctfSource = cms.InputTag("gtDigis"),
+    rpctfSource = cms.InputTag("l1GtUnpack"),
     rpctfRPCDigiSource = cms.InputTag("muonRPCDigis"),
     output_dir = cms.untracked.string('L1T/L1TRPCTF'),
     rateUpdateTime = cms.int32(20), # update after 20 seconds
