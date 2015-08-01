@@ -179,13 +179,12 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   //
   // Create the reader  
   //
-  TMVA::Reader *tmpTMVAReader = new TMVA::Reader( "!Color:Silent:Error" );
+  TMVA::Reader *tmpTMVAReader = new TMVA::Reader( "V:!Color:!Silent:!Error" );
 
   //
   // Configure all variables and spectators. Note: the order and names
   // must match what is found in the xml weights file!
   //
-
   // Pure ECAL -> shower shapes
   tmpTMVAReader->AddVariable("ele_oldsigmaietaieta", &_allMVAVars.see);
   tmpTMVAReader->AddVariable("ele_oldsigmaiphiiphi", &_allMVAVars.spp);
@@ -230,7 +229,7 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   tmpTMVAReader->AddSpectator("ele_expected_inner_hits",    &_allMVAVars.expectedInnerHits);
   tmpTMVAReader->AddSpectator("ele_vtxconv",                &_allMVAVars.vtxconv);
   tmpTMVAReader->AddSpectator("mc_event_weight",            &_allMVAVars.mcEventWeight);
-  tmpTMVAReader->AddSpectator("mc_ele_CBMatching_category", &_allMVAVars.mcCBMatchingCategory);
+  tmpTMVAReader->AddSpectator("mc_ele_CBmatching_category", &_allMVAVars.mcCBmatchingCategory);
 
   //
   // Book the method and set up the weights file
@@ -326,7 +325,7 @@ void ElectronMVAEstimatorRun2Spring15NonTrig::fillMVAVariables(const edm::Ptr<re
   _allMVAVars.expectedInnerHits    = 999;
   _allMVAVars.vtxconv              = 999;
   _allMVAVars.mcEventWeight        = 999;
-  _allMVAVars.mcCBMatchingCategory = 999;
+  _allMVAVars.mcCBmatchingCategory = 999;
 
 
 }

@@ -36,6 +36,8 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   };
 
   // Define the struct that contains all necessary for MVA variables
+  // Note: all variables have to be floats for TMVA Reader, even if 
+  // the training was done with ints.
   struct AllVariables {
     // Pure ECAL -> shower shapes
     float see;
@@ -54,8 +56,8 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
     // Energy matching
     float fbrem;
 
-    int gsfhits;
-    int expectedMissingInnerHits;
+    float gsfhits;
+    float expectedMissingInnerHits;
     float convVtxFitProbability;
 
     float EoP;
@@ -76,7 +78,7 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
     float expectedInnerHits;
     float vtxconv;   
     float mcEventWeight;
-    float mcCBMatchingCategory;
+    float mcCBmatchingCategory;
     
   };
   
