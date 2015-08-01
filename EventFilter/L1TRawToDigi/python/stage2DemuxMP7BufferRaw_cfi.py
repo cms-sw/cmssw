@@ -1,3 +1,4 @@
+
 import FWCore.ParameterSet.Config as cms
 
 stage2DemuxRaw = cms.EDProducer(
@@ -21,7 +22,7 @@ stage2DemuxRaw = cms.EDProducer(
     lenSlinkTrailer  = cms.untracked.int32(8),
 
     # readout parameters
-    boardId          = cms.untracked.vint32( 1 ),
+    boardId          = cms.untracked.vint32( 0 ),
     mux              = cms.untracked.bool(False),
     muxOffset        = cms.untracked.int32(0),
 
@@ -51,10 +52,10 @@ stage2DemuxRaw = cms.EDProducer(
                                                     0,0,0,0), # q17 68-71
             
             txBlockLength    = cms.untracked.vint32(0,0,0,0, # q0 0-3
-                                                    0,0,0,0, # q1 4-7
-                                                    0,0,0,0, # q2 8-11
-                                                    6,0,0,0, # q3 12-15
-                                                    0,0,6,0, # q4 16-19
+                                                    0,0,6,6, # q1 4-7
+                                                    0,0,6,0, # q2 8-11
+                                                    0,0,0,0, # q3 12-15
+                                                    0,0,0,0, # q4 16-19
                                                     0,0,0,0, # q5 20-23
                                                     0,0,0,0, # q6 24-27
                                                     0,0,0,0, # q7 28-31
@@ -66,7 +67,7 @@ stage2DemuxRaw = cms.EDProducer(
                                                     0,0,0,0, # q13 52-55
                                                     0,0,0,0, # q14 56-59
                                                     0,0,0,0, # q15 60-63
-                                                    0,0,6,0, # q16 64-67
+                                                    0,0,0,0, # q16 64-67
                                                     0,0,0,0) # q17 68-71
             )
         )
