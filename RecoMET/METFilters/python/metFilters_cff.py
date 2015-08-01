@@ -13,6 +13,9 @@ from RecoMET.METFilters.hcalLaserEventFilter_cfi import *
 ## The ECAL dead cell trigger primitive filter _______________________________||
 from RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi import *
 
+## The ECAL dead cell trigger primitive filter _______________________________||
+from RecoMET.METFilters.EcalDeadCellBoundaryEnergyFilter_cfi import *
+
 ## The EE bad SuperCrystal filter ____________________________________________||
 from RecoMET.METFilters.eeBadScFilter_cfi import *
 
