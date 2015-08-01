@@ -179,7 +179,7 @@ createSingleReader(const int iCategory, const edm::FileInPath &weightFile){
   //
   // Create the reader  
   //
-  TMVA::Reader *tmpTMVAReader = new TMVA::Reader( "V:!Color:!Silent:!Error" );
+  TMVA::Reader *tmpTMVAReader = new TMVA::Reader( "!Color:Silent:!Error" );
 
   //
   // Configure all variables and spectators. Note: the order and names
