@@ -67,7 +67,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 	gbrForest = new GBRForest(bdt);  
 	delete mvaReader;
 	TMVA::Tools::DestroyInstance();
-      } else if ( (*category)->inputFileType_ == jobEntryType::kGBRForest ) {
+      } else if ( (*category)->inputFileType_ == categoryEntryType::kGBRForest ) {
 	TFile* inputFile = new TFile((*category)->inputFileName_.data());
 	//gbrForest = dynamic_cast<GBRForest*>(inputFile->Get((*category)->gbrForestName_.data())); // CV: dynamic_cast<GBRForest*> fails for some reason ?!
 	gbrForest = (GBRForest*)inputFile->Get((*category)->gbrForestName_.data());
