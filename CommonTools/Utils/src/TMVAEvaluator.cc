@@ -6,7 +6,7 @@
 
 
 TMVAEvaluator::TMVAEvaluator() :
-  mIsInitialized(false), mUsingGBRForest(false)
+  mIsInitialized(false), mUsingGBRForest(false), mUseAdaBoost(false)
 {
 }
 
@@ -17,7 +17,7 @@ TMVAEvaluator::~TMVAEvaluator()
 
 
 void TMVAEvaluator::initialize(const std::string & options, const std::string & method, const std::string & weightFile,
-                               const std::vector<std::string> & variables, const std::vector<std::string> & spectators, const bool useGBRForest)
+                               const std::vector<std::string> & variables, const std::vector<std::string> & spectators, bool useGBRForest, bool useAdaBoost)
 {
   // initialize the TMVA reader
   mReader.reset(new TMVA::Reader(options.c_str()));
@@ -27,15 +27,15 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
   // add input variables
   for(std::vector<std::string>::const_iterator it = variables.begin(); it!=variables.end(); ++it)
   {
-    mVariables.insert( std::pair<std::string,float>(*it,0.) );
-    mReader->AddVariable(it->c_str(), &mVariables.at(*it));
+    mVariables.insert( std::make_pair( *it, std::make_pair( it - variables.begin(), 0. ) ) );
+    mReader->AddVariable(it->c_str(), &(mVariables.at(*it).second));
   }
 
   // add spectator variables
   for(std::vector<std::string>::const_iterator it = spectators.begin(); it!=spectators.end(); ++it)
   {
-    mSpectators.insert( std::pair<std::string,float>(*it,0.) );
-    mReader->AddSpectator(it->c_str(), &mSpectators.at(*it));
+    mSpectators.insert( std::make_pair( *it, std::make_pair( it - spectators.begin(), 0. ) ) );
+    mReader->AddSpectator(it->c_str(), &(mSpectators.at(*it).second));
   }
 
   // load the TMVA weights
@@ -50,13 +50,14 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
     mIMethod.reset(nullptr);
 
     mUsingGBRForest = true;
+    mUseAdaBoost = useAdaBoost;
   }
 
   mIsInitialized = true;
 }
 
 
-float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, const bool useSpectators)
+float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, bool useSpectators)
 {
   // default value
   float value = -99.;
@@ -83,14 +84,14 @@ float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, const 
     vars = new float[mVariables.size()]; // allocate n floats and save ptr in vars
 
   // set the input variable values
-  for(std::map<std::string,float>::iterator it = mVariables.begin(); it!=mVariables.end(); ++it)
+  for(auto it = mVariables.begin(); it!=mVariables.end(); ++it)
   {
     if (inputs.count(it->first)>0)
     {
       if (mUsingGBRForest)
-        vars[std::distance(mVariables.begin(),it)] = inputs.at(it->first);
+        vars[it->second.first] = inputs.at(it->first);
       else
-        it->second = inputs.at(it->first);
+        it->second.second = inputs.at(it->first);
     }
     else
       edm::LogError("MissingInputVariable") << "Input variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
@@ -99,19 +100,29 @@ float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, const 
   // if using spectator variables
   if(useSpectators)
   {
-    // set the spectator variable values
-    for(std::map<std::string,float>::iterator it = mSpectators.begin(); it!=mSpectators.end(); ++it)
+    if(mUsingGBRForest)
+      edm::LogWarning("UnsupportedFunctionality") << "Use of spectator variables with GBRForest is not supported. Spectator variables will be ignored.";
+    else
     {
-      if (inputs.count(it->first)>0)
-        it->second = inputs.at(it->first);
-      else
-        edm::LogError("MissingSpectatorVariable") << "Spectator variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+      // set the spectator variable values
+      for(auto it = mSpectators.begin(); it!=mSpectators.end(); ++it)
+      {
+        if (inputs.count(it->first)>0)
+          it->second.second = inputs.at(it->first);
+        else
+          edm::LogError("MissingSpectatorVariable") << "Spectator variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+      }
     }
   }
 
   // evaluate the MVA
   if (mUsingGBRForest)
-    value = mGBRForest->GetClassifier(vars);
+  {
+    if (mUseAdaBoost)
+      value = mGBRForest->GetAdaBoostClassifier(vars);
+    else
+      value = mGBRForest->GetGradBoostClassifier(vars);
+  }
   else
     value = mReader->EvaluateMVA(mMethod.c_str());
 
