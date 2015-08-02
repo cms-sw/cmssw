@@ -121,8 +121,7 @@ workflows[5.2] = ['SingleMuPt10', ['SingleMuPt10FS','HARVESTFS']]
 workflows[5.3] = ['SingleMuPt100', ['SingleMuPt100FS','HARVESTFS']]
 workflows[5.4] = ['ZEE', ['ZEEFS','HARVESTFS']]
 workflows[5.5] = ['ZTT',['ZTTFS','HARVESTFS']]
-
-workflows[5.6]  = ['QCD_FlatPt_15_3000', ['QCDFlatPt153000FS','HARVESTFS']]
+workflows[5.6] = ['QCD_FlatPt_15_3000', ['QCDFlatPt153000FS','HARVESTFS']]
 workflows[5.7] = ['H130GGgluonfusion', ['H130GGgluonfusionFS','HARVESTFS']]
 
 ### fastsim_13 TeV ###
@@ -135,7 +134,7 @@ workflows[135.6] = ['QCD_FlatPt_15_3000_13', ['QCDFlatPt153000FS_13','HARVESTUP1
 workflows[135.7] = ['H130GGgluonfusion_13', ['H130GGgluonfusionFS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[135.9] = ['ZMM_13',['ZMMFS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 workflows[135.11] = ['SMS-T1tttt_mGl-1500_mLSP-100_13', ['SMS-T1tttt_mGl-1500_mLSP-100FS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
-
+workflows[135.12] = ['QCD_Pt_80_120_13', ['QCD_Pt_80_120FS_13','HARVESTUP15FS','MINIAODMCUP15FS']]
 
 ### MinBias fastsim_13 TeV for mixing ###
 workflows[135.8] = ['',['MinBiasFS_13_ForMixing']]
@@ -251,6 +250,8 @@ workflows[1352] = ['HSCPstop_M_200_13TeV', ['HSCPstop_M_200_13TeV','DIGIUP15','R
 workflows[1353] = ['RSGravitonToGaGa_13TeV', ['RSGravitonToGaGa_13TeV','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1354] = ['WpToENu_M-2000_13TeV', ['WpToENu_M-2000_13TeV','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1355] = ['', ['DisplacedSUSY_stopToBottom_M_300_1000mm_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+
+workflows[1355] = ['', ['DisplacedSUSY_stopToBottom_M_300_1000mm_13','DIGIUP15','RECOUP15','HARVESTUP15','MINIAODMCUP15']]
 
 ### HI test ###
 
