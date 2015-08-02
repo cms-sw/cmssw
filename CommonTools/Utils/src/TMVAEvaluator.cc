@@ -2,17 +2,21 @@
 
 #include "CommonTools/Utils/interface/TMVAZipReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "TMVA/MethodBDT.h"
 
 
 TMVAEvaluator::TMVAEvaluator() :
-  mIsInitialized(false), mUsingGBRForest(false), mUseAdaBoost(false)
+  mIsInitialized(false), mUsingGBRForest(false), mUseAdaBoost(false), mReleaseAtEnd(false)
 {
 }
 
 
 TMVAEvaluator::~TMVAEvaluator()
 {
+  if (mReleaseAtEnd)
+    mGBRForest.release();
 }
 
 
@@ -54,6 +58,37 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
   }
 
   mIsInitialized = true;
+}
+
+
+void TMVAEvaluator::initializeGBRForest(const GBRForest* gbrForest, const std::vector<std::string> & variables,
+                                        const std::vector<std::string> & spectators, bool useAdaBoost)
+{
+  // add input variables
+  for(std::vector<std::string>::const_iterator it = variables.begin(); it!=variables.end(); ++it)
+    mVariables.insert( std::make_pair( *it, std::make_pair( it - variables.begin(), 0. ) ) );
+
+  // add spectator variables
+  for(std::vector<std::string>::const_iterator it = spectators.begin(); it!=spectators.end(); ++it)
+    mSpectators.insert( std::make_pair( *it, std::make_pair( it - spectators.begin(), 0. ) ) );
+
+  mGBRForest.reset( gbrForest );
+
+  mIsInitialized = true;
+  mUsingGBRForest = true;
+  mUseAdaBoost = useAdaBoost;
+  mReleaseAtEnd = true; // need to release ownership at the end if getting GBRForest from an external source
+}
+
+
+void TMVAEvaluator::initializeGBRForest(const edm::EventSetup &iSetup, const std::string & label,
+                                        const std::vector<std::string> & variables, const std::vector<std::string> & spectators, bool useAdaBoost)
+{
+  edm::ESHandle<GBRForest> gbrForestHandle;
+
+  iSetup.get<GBRWrapperRcd>().get(label.c_str(), gbrForestHandle);
+
+  initializeGBRForest(gbrForestHandle.product(), variables, spectators, useAdaBoost);
 }
 
 

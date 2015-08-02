@@ -9,6 +9,7 @@
 #include "TMVA/Reader.h"
 #include "TMVA/IMethod.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 
 class TMVAEvaluator {
@@ -19,12 +20,17 @@ class TMVAEvaluator {
 
     void initialize(const std::string & options, const std::string & method, const std::string & weightFile,
                     const std::vector<std::string> & variables, const std::vector<std::string> & spectators, bool useGBRForest=false, bool useAdaBoost=false);
+    void initializeGBRForest(const GBRForest* gbrForest, const std::vector<std::string> & variables,
+                             const std::vector<std::string> & spectators, bool useAdaBoost=false);
+    void initializeGBRForest(const edm::EventSetup &iSetup, const std::string & label,
+                             const std::vector<std::string> & variables, const std::vector<std::string> & spectators, bool useAdaBoost=false);
     float evaluate(const std::map<std::string,float> & inputs, bool useSpectators=false);
 
   private:
     bool mIsInitialized;
     bool mUsingGBRForest;
     bool mUseAdaBoost;
+    bool mReleaseAtEnd;
 
     std::string mMethod;
     std::unique_ptr<TMVA::Reader> mReader;
