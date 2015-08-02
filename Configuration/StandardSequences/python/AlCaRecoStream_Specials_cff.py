@@ -44,8 +44,6 @@ ALCARECOStreamEcalCalPi0Calib = cms.FilteredStream(
 # HCAL calibration with min.bias
 from Calibration.HcalAlCaRecoProducers.ALCARECOHcalCalMinBias_cff import *
 
-from DQMOffline.Configuration.AlCaRecoDQM_cff import *
-
 pathALCARECOHcalCalMinBias = cms.Path(seqALCARECOHcalCalMinBias*ALCARECOHcalCalPhisymDQM)
 
 from Configuration.EventContent.AlCaRecoOutput_cff import *
