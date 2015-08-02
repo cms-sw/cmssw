@@ -57,7 +57,10 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
  #                   trigVec.push_back(TP)
  #               tr.var( 'HLT_'+T, int )
 #                self.triggerBitCheckers.append( (T, TriggerBitChecker(trigVec)) )
- 
+
+        if not isMC:
+            tr.var('intLumi', int, storageType="i")
+
         if isMC:
             ## cross section
             tr.var('xsec', float)
@@ -112,6 +115,9 @@ class AutoFillTreeProducer( TreeAnalyzerNumpy ):
 #       triggerResults = self.handles['TriggerResults'].product()
 #       for T,TC in self.triggerBitCheckers:
 #           tr.fill("HLT_"+T, TC.check(event.object(), triggerResults))
+
+        if not isMC:
+            tr.fill('intLumi', getattr(self.cfg_comp,'intLumi',1.0))
 
         if isMC:
             ## xsection, if available
