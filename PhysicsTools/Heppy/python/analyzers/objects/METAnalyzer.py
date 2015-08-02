@@ -191,7 +191,14 @@ class METAnalyzer( Analyzer ):
         self.met_sumet = self.met.sumEt()
         if  hasattr(event,'zll_p4'):
             self.adduParaPerp(self.met,event.zll_p4,"_zll")
-            self.adduParaPerp(self.met,event.zll_p4,"_zll")
+
+        if  hasattr(event,'zll_p4'):
+            px,py=self.met.shiftedPx(self.met.NoShift, self.met.Raw),self.met.shiftedPy(self.met.NoShift, self.met.Raw)
+            self.met_raw=ROOT.reco.Particle.LorentzVector(px,py,0,math.hypot(px,py))
+            self.adduParaPerp(self.met_raw, event.zll_p4,"_zll")
+            event.met_raw=self.met_raw
+            event.met_raw.upara_zll=self.met_raw.upara_zll
+            event.met_raw.uperp_zll=self.met_raw.uperp_zll
 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
           deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
