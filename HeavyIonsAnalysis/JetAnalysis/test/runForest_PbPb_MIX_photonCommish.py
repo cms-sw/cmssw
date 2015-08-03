@@ -24,7 +24,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-        "/store/user/mnguyen/Hydjet_Quenched_MinBias_5020GeV/HydjetMB_740pre8_MCHI2_74_V3_53XBS_RECO_v5/fa4d7cedb51d6196cc0424fd90debe3f/step3_RAW2DIGI_L1Reco_RECO_102_1_Jzk.root"
+        "file:/mnt/hadoop/cms/store/user/richard/MBHydjet5020/Hydjet_Quenched_MinBias_5020GeV/HydjetMB5020_750_75X_mcRun2_HeavyIon_v1_RealisticHICollisions2011_STARTHI50_mc_RECOSIM_v3/150729_144407/0000/step3_469.root"
 
     ))
 
@@ -164,9 +164,14 @@ process.quickTrackAssociatorByHits.ComponentName = cms.string('quickTrackAssocia
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 process.ggHiNtuplizer.gsfElectronLabel   = cms.InputTag("gedGsfElectronsTmp")
 process.ggHiNtuplizer.genParticleSrc = cms.InputTag("genParticles")
-process.ggHiNtuplizer.useValMapIso = cms.bool(False)
+#process.ggHiNtuplizer.useValMapIso = cms.bool(False)
 
-process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag("gedPhotonsTmp"))
+process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag("gedPhotonsTmp"),
+                                                       recoPhotonHiIsolationMap = cms.InputTag("photonIsolationHIProducerGED"))
+
+# re-run old-style isolation on new photons
+from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
+process.photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer = cms.InputTag("gedPhotonsTmp"))
 
 #####################
 # muons
@@ -211,6 +216,7 @@ process.ana_step = cms.Path(process.heavyIon*
                             process.jetSequences +
                             process.ggHiNtuplizer +
                             process.gedPhotonsTmp +
+                            process.photonIsolationHIProducerGED +
                             process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.rechitAna +
