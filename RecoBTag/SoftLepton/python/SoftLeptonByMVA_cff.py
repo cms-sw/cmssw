@@ -1,28 +1,35 @@
 import FWCore.ParameterSet.Config as cms
 
+softPFElectronCommon = cms.PSet(
+    #gbrForestLabel = cms.string("btag_SoftPFElectron_TMVA420_BDT_74X_v1"),
+    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFElectron_BDT.weights.xml.gz'),
+    useGBRForest = cms.bool(True),
+    useAdaBoost = cms.bool(False)
+)
+
 softPFElectronBJetTags = cms.EDProducer("JetTagProducer",
     jetTagComputer = cms.string('softPFElectronComputer'),
     tagInfos = cms.VInputTag(cms.InputTag("softPFElectronsTagInfos"))
 )
 softPFElectronComputer = cms.ESProducer("ElectronTaggerESProducer",
+    softPFElectronCommon,
     ipSign = cms.string("any"),
-    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFElectron_BDT.weights.xml.gz')
 )
 negativeSoftPFElectronBJetTags = cms.EDProducer("JetTagProducer",
     jetTagComputer = cms.string('negativeSoftPFElectronComputer'),
     tagInfos = cms.VInputTag(cms.InputTag("softPFElectronsTagInfos"))
 )
 negativeSoftPFElectronComputer = cms.ESProducer("ElectronTaggerESProducer",
-    ipSign = cms.string("negative"),
-    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFElectron_BDT.weights.xml.gz')
+    softPFElectronCommon,
+    ipSign = cms.string("negative")
 )
 positiveSoftPFElectronBJetTags = cms.EDProducer("JetTagProducer",
     jetTagComputer = cms.string('positiveSoftPFElectronComputer'),
     tagInfos = cms.VInputTag(cms.InputTag("softPFElectronsTagInfos"))
 )
 positiveSoftPFElectronComputer = cms.ESProducer("ElectronTaggerESProducer",
-    ipSign = cms.string("positive"),
-    weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFElectron_BDT.weights.xml.gz')
+    softPFElectronCommon,
+    ipSign = cms.string("positive")
 )
 softPFMuonBJetTags = cms.EDProducer("JetTagProducer",
     jetTagComputer = cms.string('softPFMuonComputer'),
