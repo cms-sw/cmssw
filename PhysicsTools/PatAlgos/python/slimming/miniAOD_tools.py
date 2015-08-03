@@ -282,18 +282,14 @@ def miniAOD_customizeMC(process):
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
-    process.patJetPartonsAK8.particles = "prunedGenParticles"
     process.patJetGenJetMatchAK8.matched =  "slimmedGenJetsAK8"
     process.patMuons.embedGenMatch = False
     process.patElectrons.embedGenMatch = False
     process.patPhotons.embedGenMatch = False
     process.patTaus.embedGenMatch = False
     process.patJets.embedGenPartonMatch = False
-    process.patJets.addJetFlavourInfo = True
-    process.patJetsAK8.addJetFlavourInfo = True
     #also jet flavour must be switched
     process.patJetFlavourAssociation.rParam = 0.4
-    process.patJetFlavourAssociationAK8.rParam = 0.8
 
 def miniAOD_customizeOutput(out):
     out.dropMetaData = cms.untracked.string('ALL')
