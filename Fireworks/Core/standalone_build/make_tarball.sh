@@ -165,6 +165,7 @@ getFireworksSources()
 
 getCmsLibs()
 {
+mkdir -p $tard/lib
     echo "=========================================================="
     echo "=========================================================="
     echo "get CMS libs"
@@ -325,15 +326,15 @@ else
 fi
 extra_list="/CondFormats/Serialization /Geometry/CommonDetUnit /DataFormats/MuonSeed"
 getCmsLibs
-
+exit
 getExternals
 getCmsSources
 getFireworksSources
 
-mkdir -p ${tard}/lib
+
 getCmsLibs
 
-cp /usr/include/wchar.h $tard/external/var/inc
+cp /usr/include/wchar.h $tard/external/var-inc
 getDataFiles
 echo $tard
 if [ -n "$doTar" ] ; then
