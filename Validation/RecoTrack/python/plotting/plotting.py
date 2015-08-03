@@ -647,6 +647,7 @@ class Plot:
             i = h.Integral()
             if i == 0:
                 continue
+            h.Sumw2()
             h.Scale(1.0/i)
 
     def draw(self, algo, pad, ratio, ratioFactor, nrows):
