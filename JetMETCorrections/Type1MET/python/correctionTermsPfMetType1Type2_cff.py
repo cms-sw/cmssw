@@ -72,7 +72,8 @@ correctionTermsPfMetType1Type2 = cms.Sequence(
     pfCandsNotInJetsPtrForMetCorr +
     pfCandsNotInJetsForMetCorr +
     pfCandMETcorr +
-    ak4PFL1FastL2L3CorrectorChain + # NOTE: use "ak4PFL1FastL2L3CorrectorChain" for MC / "ak4PFL1FastL2L3ResidualCorrectorChain" for Data
+    ak4PFCHSL1FastL2L3ResidualCorrectorChain + #Data full chain
+    ak4PFCHSL1FastL2L3Corrector + #MC last corrector, previous are already in the data chain
     corrPfMetType1 +
     corrPfMetType2
     )
