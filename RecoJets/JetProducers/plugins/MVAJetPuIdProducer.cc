@@ -2,6 +2,7 @@
 #include "RecoJets/JetProducers/plugins/MVAJetPuIdProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h" 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
  
  MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
  {
