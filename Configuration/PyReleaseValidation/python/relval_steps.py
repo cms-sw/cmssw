@@ -232,7 +232,7 @@ baseDataSetRelease=[
     'CMSSW_7_6_0_pre2-PU50ns_75X_mcRun2_startup_v2-v1',     # 6 - fullSim PU 50ns premix
     'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2_FastSim-v1', # 7 - fastSim premix
     'CMSSW_7_6_0_pre2-75X_mcRun2_HeavyIon_v2-v1',           # 8 Run2 HI GEN-SIM
-    'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2_FastSim-v1',             # 9 - fastSim mb
+    'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2_FastSim-v1',             # 9 - fastSim mb  ##FIXME: this is a repeated par same as 7. Hengne will fix this in 760pre3 after some tests. 
     'CMSSW_7_6_0_pre2-PU25ns_75X_mcRun2_asymptotic_v2_FastSim-v1'       # 10 - fastSim pre-premix 
     ]
 
@@ -571,7 +571,7 @@ steps["FS_PREMIXUP15_PU25"] = merge([
 FS_PREMIXUP15_PU25_OVERLAY = merge([
         {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns,VALIDATION",
          "--datamix" : "PreMix",
-         "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[10],), 
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[10],),
          "--customise":"SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1"
          },
         Kby(100,500),step1FastUpg2015Defaults])
@@ -941,7 +941,7 @@ steps['RECOUP15AlCaCalo']=merge([step3Up2015DefaultsAlCaCalo]) # todo: remove UP
 #steps['RECOUP15PROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC', '--datatier' : 'AODSIM,DQMIO', '--eventcontent' : 'AODSIM,DQM'},step3Up2015Defaults])
 
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
-steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaCalo']]) 
+steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaCalo']])
 
 steps['RECODR2reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2']])
 steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2AlCaEle']])
@@ -1031,15 +1031,15 @@ steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibP
                   '--eventcontent':'ALCARECO'}
 
 # step4
-step4Defaults = {
-                  '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps', 
+step4Defaults = { 
+                  '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps',
                   '-n'            : 1000,
                   '--conditions'  : 'auto:run1_mc',
                   '--datatier'    : 'ALCARECO',
                   '--eventcontent': 'ALCARECO',
                   }
-step4Up2015Defaults = {
-                        '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps', 
+step4Up2015Defaults = { 
+                        '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps',
                         '-n'            : 1000,
                         '--conditions'  : 'auto:run2_mc',
                         '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
