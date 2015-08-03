@@ -94,7 +94,12 @@ namespace evf {
     //replace hltOutoputA with stream if the HLT menu uses this convention
     std::string testPrefix="hltOutput";
     if (stream_label_.find(testPrefix)==0) 
-            stream_label_=std::string("stream")+stream_label_.substr(testPrefix.size());
+      stream_label_=std::string("stream")+stream_label_.substr(testPrefix.size());
+
+    if (stream_label_.find("_")!=std::string::npos) {
+      throw cms::Exception("RecoEventOutputModuleForFU")
+        << "Underscore character is reserved can not be used for stream names in FFF, but was detected in stream name -: " << stream_label_;
+    }
 
     fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
     
