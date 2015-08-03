@@ -208,7 +208,7 @@ process.ana_step = cms.Path(process.heavyIon*
 #temp                            process.hltobject *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
-                            process.HiGenParticleAna*
+                            #process.HiGenParticleAna*
                             #process.hiGenJetsCleaned*
                             process.quickTrackAssociatorByHits*
                             #process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
