@@ -18,11 +18,17 @@ class ElectronTagger : public JetTagComputer {
 public:
 
   /// explicit ctor 
- ElectronTagger(const edm::ParameterSet & );
+  ElectronTagger(const edm::ParameterSet & );
+  void initialize(const JetTagComputerRecord &) override;
   virtual float discriminator(const TagInfoHelper & tagInfo) const override;
 
 private:
-  btag::LeptonSelector m_selector;
+  const btag::LeptonSelector m_selector;
+  const std::string m_gbrForestLabel;
+  const edm::FileInPath m_weightFile;
+  const bool m_useGBRForest;
+  const bool m_useAdaBoost;
+
   mutable std::mutex m_mutex;
   [[cms::thread_guard("m_mutex")]] std::unique_ptr<TMVAEvaluator> mvaID;
 };
