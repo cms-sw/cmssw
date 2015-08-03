@@ -103,7 +103,7 @@ bTagCommonBlock = cms.PSet(
         ),
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedMVABJetTags"),
+            label = cms.InputTag("pfCombinedMVABJetTags"),
             folder = cms.string("combMVA")
         ),
         cms.PSet(
