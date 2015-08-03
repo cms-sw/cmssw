@@ -43,6 +43,9 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   
   if (useLumiInfoRunHeader_) {
     bunchSpacing_ = c.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
+    bunchSpacingManual_ = 0;
+  } else {
+    bunchSpacingManual_ = ps.getParameter<int>("bunchSpacing");
   }
 
   doPrefitEB_ = ps.getParameter<bool>("doPrefitEB");
@@ -127,10 +130,10 @@ void
 EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
 {
 
+  int bunchspacing = 450;
+
   if (useLumiInfoRunHeader_) {
 
-    int bunchspacing = 450;
-    
     if (evt.isRealData()) {
       edm::RunNumber_t run = evt.run();
       if (run == 178003 ||
@@ -143,8 +146,11 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
           run == 209151) {
         bunchspacing = 25;
       }
-      else {
+      else if (run < 253000) {
         bunchspacing = 50;
+      }
+      else {
+	bunchspacing = 25;
       }
     }
     else {
@@ -153,6 +159,12 @@ EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
       bunchspacing = *bunchSpacingH;
     }
     
+  }
+  else {
+    bunchspacing = bunchSpacingManual_;
+  }
+
+  if (useLumiInfoRunHeader_ || bunchSpacingManual_ > 0){
     if (bunchspacing == 25) {
       activeBX.resize(10);
       activeBX << -5,-4,-3,-2,-1,0,1,2,3,4;
@@ -608,6 +620,7 @@ EcalUncalibRecHitWorkerMultiFit::getAlgoDescription() {
  psd.addNode(edm::ParameterDescription<std::vector<int>>("activeBXs", {-5,-4,-3,-2,-1,0,1,2,3,4}, true) and
 	      edm::ParameterDescription<bool>("ampErrorCalculation", true, true) and
 	      edm::ParameterDescription<bool>("useLumiInfoRunHeader", true, true) and
+	      edm::ParameterDescription<int>("bunchSpacing", 0, true) and
 	      edm::ParameterDescription<bool>("doPrefitEB", false, true) and
 	      edm::ParameterDescription<bool>("doPrefitEE", false, true) and
 	      edm::ParameterDescription<double>("prefitMaxChiSqEB", 25., true) and
