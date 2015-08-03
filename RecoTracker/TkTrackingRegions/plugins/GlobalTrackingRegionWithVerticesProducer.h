@@ -38,10 +38,10 @@ public:
 
   virtual ~GlobalTrackingRegionWithVerticesProducer(){}
 
-  virtual std::vector<TrackingRegion* > regions
-    (const edm::Event& ev, const edm::EventSetup&) const
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions
+    (const edm::Event& ev, const edm::EventSetup&) const override
   {
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     GlobalPoint theOrigin;
     edm::Handle<reco::BeamSpot> bsHandle;
@@ -65,17 +65,17 @@ public:
           if (iV->isFake() && !(theUseFakeVertices && theUseFixedError)) continue;
 	  GlobalPoint theOrigin_       = GlobalPoint(iV->x(),iV->y(),iV->z());
 	  double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV->zError())*theSigmaZVertex); 
-	  result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise) );
+	  result.push_back( std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise) );
       }
       
       if (result.empty()) {
-        result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise) );
+        result.push_back( std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise) );
       }
     }
     else
     {
       result.push_back(
-        new GlobalTrackingRegion(thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise) );
+        std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin, theOriginRadius, bsSigmaZ, thePrecise) );
     }
 
     return result;

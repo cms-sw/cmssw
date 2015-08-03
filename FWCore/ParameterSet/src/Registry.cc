@@ -2,15 +2,11 @@
 // ----------------------------------------------------------------------
 
 #include <ostream>
-#include <mutex>
 
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
 namespace edm {
   namespace pset {
-    static std::mutex s_mutex;
-    [[cms::thread_guard("s_mutex")]] static ParameterSetID s_ProcessParameterSetID;
 
     Registry*
     Registry::instance() {
@@ -61,52 +57,5 @@ namespace edm {
         os << item.first << " " << item.second << '\n';
       }
     }
-
-    ParameterSetID
-    getProcessParameterSetID() {
-      std::lock_guard<std::mutex> guard(s_mutex);
-      if (!s_ProcessParameterSetID.isValid()) {
-        throw edm::Exception(errors::LogicError)
-          << "Illegal attempt to access the process top level parameter set ID\n"
-          << "before that parameter set has been frozen and registered.\n"
-          << "The parameter set can be changed during module validation,\n"
-          << "which occurs concurrently with module construction.\n"
-          << "It is illegal to access the parameter set before it is frozen.\n";
-      }
-      return s_ProcessParameterSetID;
-    }
-
-    void setProcessParameterSetID(ParameterSetID const& id) {
-      pset::s_ProcessParameterSetID = id;
-    }
-
   } // namespace pset
-
-  ParameterSet const& getProcessParameterSet() {
-    ParameterSetID p;
-    {
-      std::lock_guard<std::mutex> guard(pset::s_mutex);
-      p = pset::s_ProcessParameterSetID;
-    }
-    
-    if (!p.isValid()) {
-      throw edm::Exception(errors::LogicError)
-        << "Illegal attempt to access the process top level parameter set ID\n"
-        << "before that parameter set has been frozen and registered.\n"
-        << "The parameter set can be changed during module validation,\n"
-        << "which occurs concurrently with module construction.\n"
-        << "It is illegal to access the parameter set before it is frozen.\n";
-    }
-
-    pset::Registry const& reg = *pset::Registry::instance();
-    ParameterSet const* result;
-    if (nullptr == (result = reg.getMapped(p))) {
-      throw edm::Exception(errors::EventCorruption, "Unknown ParameterSetID")
-        << "Unable to find the ParameterSet for id: "
-        << p
-        << ";\nthis was supposed to be the process ParameterSet\n";
-    }
-    return *result;
-  }
-
 } // namespace edm

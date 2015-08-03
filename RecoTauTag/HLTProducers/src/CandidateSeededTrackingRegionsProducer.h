@@ -109,9 +109,9 @@ public:
   virtual ~CandidateSeededTrackingRegionsProducer() {}
     
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // pick up the candidate objects of interest
     edm::Handle< reco::CandidateView > objects;
@@ -180,7 +180,7 @@ public:
 
       for (size_t  j=0; j<origins.size() && n_regions < m_maxNRegions; ++j)
       {
-        result.push_back( new RectangularEtaPhiTrackingRegion(
+        result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
           direction,
           origins[j].first,
           m_ptMin,

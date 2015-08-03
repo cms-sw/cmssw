@@ -66,7 +66,7 @@ FastTrackingMaskProducer::FastTrackingMaskProducer(const edm::ParameterSet& conf
     if(trkQualsTag == edm::InputTag(""))
       overRideTrkQuals_ = false;
     else
-      trkQualsToken_ = consumes<edm::ValueMap<int> >(trkQualsTag);
+      trkQualsToken_ = consumes<QualityMaskCollection>(trkQualsTag);
   }
 
   // required track quality
@@ -92,7 +92,7 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
   e.getByToken(trackToken_,trackCollection);
 
   // the track quality collection
-  edm::Handle<edm::ValueMap<int> > quals;
+  edm::Handle<QualityMaskCollection> quals;
   if ( overRideTrkQuals_ ) {
     e.getByToken(trkQualsToken_,quals);
   }
@@ -122,7 +122,7 @@ FastTrackingMaskProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	bool goodTk = true;
 
 	if ( overRideTrkQuals_ ) {
-	  int qual= (*quals)[trackRef];
+	  int qual= (*quals)[i];
 	  if ( qual < 0 ){
 	    goodTk=false;
 	  }

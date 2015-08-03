@@ -37,7 +37,5 @@ class OutputDDToDDL : public edm::EDAnalyzer {
   int rotNumSeed_;
   std::string fname_;
   std::ostream* xos_;
-  int specNameCount_;
-
 };
 

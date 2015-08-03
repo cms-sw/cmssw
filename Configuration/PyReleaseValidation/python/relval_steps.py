@@ -1,118 +1,4 @@
-class Matrix(dict):
-    def __setitem__(self,key,value):
-        if key in self:
-            print "ERROR in Matrix"
-            print "overwritting",key,"not allowed"
-        else:
-            self.update({float(key):WF(float(key),value)})
-
-    def addOverride(self,key,override):
-        self[key].addOverride(override)
-            
-#the class to collect all possible steps
-class Steps(dict):
-    def __setitem__(self,key,value):
-        if key in self:
-            print "ERROR in Step"
-            print "overwritting",key,"not allowed"
-            import sys
-            sys.exit(-9)
-        else:
-            self.update({key:value})
-            # make the python file named <step>.py
-            #if not '--python' in value:                self[key].update({'--python':'%s.py'%(key,)})
-
-    def overwrite(self,keypair):
-        value=self[keypair[1]]
-        self.update({keypair[0]:value})
-        
-class WF(list):
-    def __init__(self,n,l):
-        self.extend(l)
-        self.num=n
-        #the actual steps of this WF
-        self.steps=[]
-        self.overrides={}
-    def addOverride(self,overrides):
-        self.overrides=overrides
-        
-    def interpret(self,stepsDict):
-        for s in self:
-            print 'steps',s,stepsDict[s]
-            steps.append(stepsDict[s])
-
-    
-InputInfoNDefault=2000000    
-class InputInfo(object):
-    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
-        self.run = run
-        self.files = files
-        self.events = events
-        self.location = location
-        self.label = label
-        self.dataSet = dataSet
-        self.split = split
-        self.ib_blacklist = ib_blacklist
-        self.ib_block = ib_block
-        
-    def das(self, das_options):
-        if len(self.run) is not 0:
-            command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()])
-            command = "({0})".format(command)
-        else:
-            command = "das_client.py %s --query '%s'" % (das_options, self.queries()[0])
-       
-        # Run filter on DAS output 
-        if self.ib_blacklist:
-            command += " | grep -E -v "
-            command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
-        command += " | sort -u"
-        return command
-
-    def lumiRanges(self):
-        if len(self.run) != 0:
-            return "echo '{\n"+",".join(('"%d":[[1,268435455]]\n'%(x,) for x in self.run))+"}'"
-        return None
-
-    def queries(self):
-        query_by = "block" if self.ib_block else "dataset"
-        query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
-        if len(self.run) is not 0:
-            return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.run]
-        else:
-            return ["file {0}={1} site=T2_CH_CERN".format(query_by, query_source)]
-
-    def __str__(self):
-        if self.ib_block:
-            return "input from: {0} with run {1}#{2}".format(self.dataSet, self.ib_block, self.run)
-        return "input from: {0} with run {1}".format(self.dataSet, self.run)
-    
-# merge dictionaries, with prioty on the [0] index
-def merge(dictlist,TELL=False):
-    import copy
-    last=len(dictlist)-1
-    if TELL: print last,dictlist
-    if last==0:
-        # ONLY ONE ITEM LEFT
-        return copy.copy(dictlist[0])
-    else:
-        reducedlist=dictlist[0:max(0,last-1)]
-        if TELL: print reducedlist
-        # make a copy of the last item
-        d=copy.copy(dictlist[last])
-        # update with the last but one item
-        d.update(dictlist[last-1])
-        # and recursively do the rest
-        reducedlist.append(d)
-        return merge(reducedlist,TELL)
-
-def remove(d,key,TELL=False):
-    import copy
-    e = copy.deepcopy(d)
-    if TELL: print "original dict, BEF: %s"%d
-    del e[key]
-    if TELL: print "copy-removed dict, AFT: %s"%e
-    return e
+from MatrixUtil import *
 
 # step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
@@ -134,7 +20,6 @@ step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              }
 
 steps = Steps()
-#wmsplit = {}
 
 #### Production test section ####
 steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_pythia8_TuneCUETP8M1_cff','--relval':'9000,300'},step1Defaults])
@@ -142,8 +27,6 @@ steps['ProdTTbar']=merge([{'cfg':'TTbar_8TeV_TuneCUETP8M1_cfi','--relval':'9000,
 steps['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_TuneCUETP8M1_cfi','--relval':'9000,50'},step1Defaults])
 
 #### data ####
-#list of run to harvest for 2010A: 144086,144085,144084,144083,144011,139790,139789,139788,139787,138937,138934,138924,138923
-#list of run to harvest for 2010B: 149442,149291,149181,149011,148822,147929,147115,146644
 Run2010ASk=[138937,138934,138924,138923,139790,139789,139788,139787,144086,144085,144084,144083,144011]
 Run2010BSk=[146644,147115,147929,148822,149011,149181,149182,149291,149294,149442]
 steps['MinimumBias2010A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2010A-valskim-v6/RAW-RECO',label='run2010A',location='STD',run=Run2010ASk)}
@@ -245,13 +128,15 @@ steps['ZMuSkim2012D']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012D-ZMu-PromptS
 steps['WElSkim2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-WElectron-PromptSkim-v1/USER',label='wEl2012D',location='STD',run=Run2012Dsk)}
 steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElectron-PromptSkim-v1/RAW-RECO',label='zEl2012D',location='STD',run=Run2012Dsk)}
 
-#### Standard release validation samples ####
-
-stCond={'--conditions':'auto:run1_mc'}
-def Kby(N,s):
-    return {'--relval':'%s000,%s'%(N,s)}
-def Mby(N,s):
-    return {'--relval':'%s000000,%s'%(N,s)}
+#### run2 ####
+# Run2015B=[251642] #  251561 251638 251642
+Run2015B=selectedLS([251251])
+steps['RunHLTPhy2015B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015B-v1/RAW',label='hltPhy2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleEG2015B']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015B-v1/RAW',label='doubEG2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleMuon2015B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015B-v1/RAW',label='doubMu2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunJetHT2015B']={'INPUT':InputInfo(dataSet='/JetHT/Run2015B-v1/RAW',label='jetHT2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMET2015B']={'INPUT':InputInfo(dataSet='/MET/Run2015B-v1/RAW',label='met2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMuonEG2015B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015B-v1/RAW',label='muEG2015B',events=100000,location='STD', ls=Run2015B)}
 
 def gen(fragment,howMuch):
     global step1Defaults
@@ -315,6 +200,7 @@ steps['Wjet_Pt_3000_3500_13']=gen2015('Wjet_Pt_3000_3500_13TeV_TuneCUETP8M1_cfi'
 steps['SMS-T1tttt_mGl-1500_mLSP-100_13']=gen2015('SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi',Kby(9,50))
 steps['QCD_FlatPt_15_3000_13']=gen2015('QCDForPF_13TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['QCD_FlatPt_15_3000HS_13']=gen2015('QCDForPF_13TeV_TuneCUETP8M1_cfi',Kby(50,100))
+steps['DisplacedSUSY_stopToBottom_M_300_1000mm_13']=gen2015('DisplacedSUSY_stopToBottom_M_300_1000mm_TuneCUETP8M1_13TeV_pythia8_cff',Kby(9,100))
 
 steps['ZpMM_2250_8TeV']=gen('ZpMM_2250_8TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['ZpEE_2250_8TeV']=gen('ZpEE_2250_8TeV_TuneCUETP8M1_cfi',Kby(9,100))
@@ -431,10 +317,9 @@ steps['ADDMonoJet_d3MD3_13INPUT']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_
 steps['RSKKGluon_m3000GeV_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRSKKGluon_m3000GeV_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['Cosmics_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['BeamHalo_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-#Comment for now, remove TeV out from dataset in future
-#steps['HSCPstop_M_200_13INPUT']={'INPUT':InputInfo(dataSet='/RelValHSCPstop_M_200_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-#steps['RSGravitonToGaGa_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRSGravitonToGaGa_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-#steps['WpToENu_M-2000_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWpToENu_M-2000_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+steps['HSCPstop_M_200_13INPUT']={'INPUT':InputInfo(dataSet='/RelValHSCPstop_M_200_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+steps['RSGravitonToGaGa_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRSGravitonToGaGa_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
+steps['WpToENu_M-2000_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWpToENu_M-2000_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['DisplacedSUSY_stopToBottom_M_300_1000mm_13INPUT']={'INPUT':InputInfo(dataSet='/RelValDisplacedSUSY_stopToBottom_M_300_1000mm_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 
 # particle guns with postLS1 geometry recycle GEN-SIM input
@@ -607,25 +492,6 @@ steps['PhotonJets_Pt_10_13_HI']=merge([hiDefaults,steps['PhotonJets_Pt_10_13']])
 steps['ZMM_13_HI']=merge([hiDefaults,steps['ZMM_13']])
 steps['ZEEMM_13_HI']=merge([hiDefaults,steps['ZEEMM_13']])
 
-
-def changeRefRelease(steps,listOfPairs):
-    for s in steps:
-        if ('INPUT' in steps[s]):
-            oldD=steps[s]['INPUT'].dataSet
-            for (ref,newRef) in listOfPairs:
-                if  ref in oldD:
-                    steps[s]['INPUT'].dataSet=oldD.replace(ref,newRef)
-        if '--pileup_input' in steps[s]:
-            for (ref,newRef) in listOfPairs:
-                if ref in steps[s]['--pileup_input']:
-                    steps[s]['--pileup_input']=steps[s]['--pileup_input'].replace(ref,newRef)
-        
-def addForAll(steps,d):
-    for s in steps:
-        steps[s].update(d)
-
-
-
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
 step1FastDefaults =merge([{'-s':'GEN,SIM,RECOBEFMIX,DIGI:pdigi_valid,L1,L1Reco,RECO,EI,HLT:@fake,VALIDATION',
@@ -684,7 +550,8 @@ steps['SingleMuPt100FS_UP15']=merge([{'cfg':'SingleMuPt100_pythia8_cfi'},step1Fa
 steps['MinBiasFS_13_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M1_cfi'},Kby(100,1000),step1FastPUNewMixing])
 
 ### FastSim: template to produce signal and overlay with minbias events
-PUFS25={'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[9],)}
+PUFS25={'--pileup':'AVE_35_BX_25ns',
+        '--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[9],)}
 FS_UP15_PU25_OVERLAY = merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] )
 
 ### FastSim: produce sample of premixed minbias events
@@ -758,21 +625,6 @@ step1LHEDefaults=merge([{'-s':'LHE',
                          '--conditions':'auto:run2_mc_FULL'                         
                          },
                         step1Defaults])
-
-
-def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
-    import copy
-    c=copy.copy(d)
-    if suffix:
-        c['-s']=c['-s'].replace('genvalid','genvalid_'+suffix)
-    if fi:
-        c['--filein']='lhe:%d'%(fi,)
-    if dataSet:
-        c['--filein']='das:%s'%(dataSet,)
-    c['cfg']=fragment
-    return c
-
-
 
 steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
@@ -959,11 +811,11 @@ premixProd50ns = merge([{'-s':'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval50ns
 steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd25ns,digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd50ns,digiPremixUp2015Defaults50ns])
 
-
-dataReco={'--conditions':'auto:run1_data',
-          '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias+Hotline,DQM',
-          '--datatier':'RECO,DQMIO',
-          '--eventcontent':'RECO,DQM',
+dataReco={ '--runUnscheduled':'',
+          '--conditions':'auto:run1_data',
+          '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM:@standardDQM+@miniAODDQM',
+          '--datatier':'RECO,MINIAOD,DQMIO',
+          '--eventcontent':'RECO,MINIAOD,DQM',
           '--data':'',
           '--process':'reRECO',
           '--scenario':'pp',
@@ -986,12 +838,19 @@ steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps[
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODAlCaEle']=merge([{'--scenario':'pp',},dataRecoAlCaEle])
 
+hltKey='frozen50ns'
+menuR2 = autoHLT[hltKey]
+# no GT customization for HLT frozen50ns
+steps['HLTDR2']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+
+# custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
+steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataReco])
+steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
+
+
 steps['RECODSplit']=steps['RECOD'] # finer job splitting  
 steps['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
                               },steps['RECOD']])
-steps['RECOSKIM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM',
-                          },steps['RECOSKIMALCA']])
-
 steps['REPACKHID']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,REPACK',
                          '--datatier':'RAW',
@@ -1022,6 +881,8 @@ steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForExpr
 
 steps['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '-s':'RAW2DIGI,L1Reco,RECO,DQM,ALCA:MuAlCalIsolatedMu+DtCalib',
+                          '--datatier':'RECO,DQMIO',     # no miniAOD for cosmics
+                          '--eventcontent':'RECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
                           },dataReco])
 
@@ -1045,13 +906,18 @@ step3DefaultsAlCaEle=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron
 steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
 #for 2015
-step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
-                 '--conditions':'auto:run2_mc', 
-                 '-n':'10',
-                 '--datatier':'GEN-SIM-RECO,DQMIO',
-                 '--eventcontent':'RECOSIM,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
-                 }
+step3Up2015Defaults = {
+    #'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
+    '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
+    '--runUnscheduled':'',
+    '--conditions':'auto:run2_mc', 
+    '--magField'    : '38T_PostLS1',
+    '-n':'10',
+    '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
+    '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
+    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+    }
+
 step3Up2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},step3Up2015Defaults])
 
 step3Up2015DefaultsAlCaEle = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron,VALIDATION,DQM'},step3Up2015Defaults])
@@ -1065,11 +931,11 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--customise'    :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                  }
 
-unSchOverrides={'--runUnscheduled':'','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM','--eventcontent':'RECOSIM,MINIAODSIM,DQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO'}
-step3Up2015DefaultsUnsch = merge([unSchOverrides,step3Up2015Defaults])
-step3DefaultsUnsch = merge([unSchOverrides,step3Defaults])
+# mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
+#unSchOverrides={'--runUnscheduled':'','-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM','--eventcontent':'RECOSIM,MINIAODSIM,DQM','--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO'}
+#step3Up2015DefaultsUnsch = merge([unSchOverrides,step3Up2015Defaults])
+#step3DefaultsUnsch = merge([unSchOverrides,step3Defaults])
 
-                             
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
 steps['RECOUP15AlCaEle']=merge([step3Up2015DefaultsAlCaEle]) # todo: remove UP from label
 
@@ -1078,11 +944,15 @@ steps['RECOUP15AlCaEle']=merge([step3Up2015DefaultsAlCaEle]) # todo: remove UP f
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
 steps['RECODreHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaEle']])
 
+steps['RECODR2reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2']])
+steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2AlCaEle']])
+
 steps['RECO']=merge([step3Defaults])
 steps['RECOAlCaEle']=merge([step3DefaultsAlCaEle])
 steps['RECODBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECO']])
 steps['RECOPROD1']=merge([{ '-s' : 'RAW2DIGI,L1Reco,RECO,EI', '--datatier' : 'GEN-SIM-RECO,AODSIM', '--eventcontent' : 'RECOSIM,AODSIM'},step3Defaults])
-steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'},step3Up2015Defaults])
+#steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,DQMIO','--eventcontent':'AODSIM,DQM'},step3Up2015Defaults])
+steps['RECOPRODUP15']=merge([{ '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,DQM:DQMOfflinePOGMC','--datatier':'AODSIM,MINIAODSIM,DQMIO','--eventcontent':'AODSIM,MINIAODSIM,DQM'},step3Up2015Defaults])
 steps['RECOCOS']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},stCond,step3Defaults])
 steps['RECOHAL']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu,DQM','--scenario':'cosmics'},step3Up2015Hal])
 steps['RECOMIN']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias,VALIDATION,DQM'},stCond,step3Defaults])
@@ -1095,24 +965,24 @@ steps['RECOPU2']=merge([PU2,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
 
+# mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
 #steps['RECOmAOD']=merge([step3DefaultsUnsch])
-steps['RECOmAODUP15']=merge([step3Up2015DefaultsUnsch])
+#steps['RECOmAODUP15']=merge([step3Up2015DefaultsUnsch])
 
 
 # for premixing: no --pileup_input for replay; GEN-SIM only available for in-time event, from FEVTDEBUGHLT previous step
 steps['RECOPRMXUP15_PU25']=merge([
-        {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
         step3Up2015Defaults])
 steps['RECOPRMXUP15_PU50']=merge([
-        {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},
         step3Up2015Defaults50ns])
 
 recoPremixUp15prod = merge([
-        {'-s':'RAW2DIGI,L1Reco,RECO,EI'},
-        {'--datatier' : 'GEN-SIM-RECO,AODSIM'}, 
-        {'--eventcontent' : 'RECOSIM,AODSIM'},
+        #{'-s':'RAW2DIGI,L1Reco,RECO,EI'}, # tmp
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,DQM:DQMOfflinePOGMC'},
+        {'--datatier' : 'AODSIM,MINIAODSIM,DQMIO'}, 
+        {'--eventcontent' : 'AODSIM,MINIAODSIM,DQMIO'},
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
         step3Up2015Defaults])
 
@@ -1230,13 +1100,14 @@ steps['HARVESTGEN2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTG
 
 
 #data
-steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
+steps['HARVESTD']={'-s':'HARVESTING:@standardDQM+@miniAODDQM',
                    '--conditions':'auto:run1_data',
                    '--data':'',
                    '--filetype':'DQM',
                    '--scenario':'pp'}
 
 steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTD'] ])
+steps['HARVESTDR2reHLT'] = merge([ {'--conditions':'auto:run2_data',}, steps['HARVESTD'] ])
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
@@ -1282,34 +1153,29 @@ steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                    '--scenario':'pp'}
 steps['HARVESTHI']=merge([hiDefaults,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                     '--mc':'',
-                    '--filetype':'DQM'}])
+                    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI',
+                    '--filetype':'DQM',
+                    '--scenario':'HeavyIons'}])
 steps['HARVESTHI2011']=merge([hiDefaults2011,{'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                    '--mc':'',
-                    '--filetype':'DQM'}])
-steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
-                   '--conditions':'auto:run2_mc', 
-                   '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                   '--filetype':'DQM',
-                   }
+                                              '--mc':'',
+                                              '--filetype':'DQM'}])
+steps['HARVESTUP15']={
+    # '-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
+    '-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM', # todo: remove UP from label
+    '--conditions':'auto:run2_mc', 
+    '--magField'    : '38T_PostLS1',
+    '--mc':'',
+    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+    '--filetype':'DQM',
+    }
 
 
-steps['HARVESTUP15_PU25']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
-                   '--conditions':'auto:run2_mc', 
-                   '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                   '--filetype':'DQM',
-                   }
+steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
-steps['HARVESTUP15_PU50']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
-                   '--conditions':'auto:run2_mc_50ns', 
-                   '--mc':'',
-                   '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                   '--filetype':'DQM',
-                   }
+steps['HARVESTUP15_PU50']=merge([{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},steps['HARVESTUP15']])
 
-unSchHarvestOverrides={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM'}
-steps['HARVESTmAODUP15']=merge([unSchHarvestOverrides,steps['HARVESTUP15']])
+# unSchHarvestOverrides={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM'}
+# steps['HARVESTmAODUP15']=merge([unSchHarvestOverrides,steps['HARVESTUP15']])
 
 steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvestingFS',
                         '--conditions':'auto:run2_mc',
@@ -1391,12 +1257,12 @@ stepMiniAODMC = merge([{'--conditions'   : 'auto:run2_mc',
                         '--filein'       :'file:step3.root'
                         },stepMiniAODDefaults])
 
-steps['MINIAODDATA']       =merge([stepMiniAODData])
-steps['MINIAODDreHLT']     =merge([{'--conditions':'auto:run1_data_%s'%menu},stepMiniAODData])
-steps['MINIAODDATAs2']     =merge([{'--filein':'file:step2.root'},stepMiniAODData])
+#steps['MINIAODDATA']       =merge([stepMiniAODData])
+#steps['MINIAODDreHLT']     =merge([{'--conditions':'auto:run1_data_%s'%menu},stepMiniAODData])
+#steps['MINIAODDATAs2']     =merge([{'--filein':'file:step2.root'},stepMiniAODData])
 steps['MINIAODMCUP15']     =merge([stepMiniAODMC])
-steps['MINIAODMCUP1550']   =merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},stepMiniAODMC])
-steps['MINIAODMCUP15HI']   =merge([{'--conditions':'auto:run2_mc_HIon','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI'},stepMiniAODMC])
+#steps['MINIAODMCUP1550']   =merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},stepMiniAODMC])
+#steps['MINIAODMCUP15HI']   =merge([{'--conditions':'auto:run2_mc_HIon','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_HI'},stepMiniAODMC])
 steps['MINIAODMCUP15FS']   =merge([{'--filein':'file:step1.root','--fast':''},stepMiniAODMC])
 steps['MINIAODMCUP15FS50'] =merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},steps['MINIAODMCUP15FS']])
 
@@ -1579,4 +1445,3 @@ for step in upgradeSteps:
             k=step+'_'+key
             if step in upgradeStepDict and key in upgradeStepDict[step]: 
                 steps[k]=merge([upgradeStepDict[step][key]])
-            

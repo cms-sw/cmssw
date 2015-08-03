@@ -61,10 +61,10 @@ public:
 
   virtual ~L3MumuTrackingRegion(){}
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, 
-      const edm::EventSetup& es) const {
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev,
+      const edm::EventSetup& es) const override {
 
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     const MeasurementTrackerEvent *measurementTracker = nullptr;
     if(!theMeasurementTrackerToken.isUninitialized()) {
@@ -94,7 +94,7 @@ public:
 	    reco::TrackRef iTrk =  (*trackIt).castTo<reco::TrackRef>() ;
             GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
             result.push_back(
-                             new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(ci->z())),
+                             std::make_unique<RectangularEtaPhiTrackingRegion>( dirVector, GlobalPoint(0,0,float(ci->z())),
                                                                   thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
 								  m_howToUseMeasurementTracker,
 								  true,
@@ -110,7 +110,7 @@ public:
     for(reco::TrackCollection::const_iterator iTrk = trks->begin();iTrk != trks->end();iTrk++) {
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
       result.push_back( 
-	  new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(originz)), 
+         std::make_unique<RectangularEtaPhiTrackingRegion>( dirVector, GlobalPoint(0,0,float(originz)),
 					       thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
 					       m_howToUseMeasurementTracker,
 					       true,

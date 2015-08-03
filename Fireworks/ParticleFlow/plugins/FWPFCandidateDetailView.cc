@@ -528,4 +528,4 @@ void FWPFCandidateDetailView::buildGLEventScene()
 
 }
 
-REGISTER_FWDETAILVIEW(FWPFCandidateDetailView, reco::PFCandidate, particleFlowRecHitECAL&particleFlowRecHitHF&particleFlowClusterECAL);
+REGISTER_FWDETAILVIEW(FWPFCandidateDetailView, PF Candidate, particleFlowRecHitECAL&particleFlowRecHitHF&particleFlowClusterECAL);

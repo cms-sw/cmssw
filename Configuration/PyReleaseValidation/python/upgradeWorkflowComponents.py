@@ -57,7 +57,7 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023HGCalMuon4Eta' : 'Extended2023HGCalMuon4Eta,Extended2023HGCalMuon4EtaReco',
                'Extended2023HGCalV4' : 'Extended2023HGCalV4Muon,Extended2023HGCalV4MuonReco'
                }
-upgradeGTs={ '2017' : 'auto:run2_design',
+upgradeGTs={ '2017' : 'auto:phase1_2017_design',
              '2019' : 'auto:upgrade2019',
              '2019WithGEM' : 'auto:upgrade2019',
              '2017Aging' : 'W17_300_62E2::All',

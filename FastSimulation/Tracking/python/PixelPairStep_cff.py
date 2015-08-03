@@ -8,7 +8,7 @@ from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMas
 pixelPairStepMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("lowPtTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('lowPtTripletStepSelector','lowPtTripletStep'),
+    overrideTrkQuals = cms.InputTag('lowPtTripletStep', "QualityMasks"),                        
     oldHitCombinationMasks = cms.InputTag("lowPtTripletStepMasks","hitCombinationMasks"),
     oldHitMasks = cms.InputTag("lowPtTripletStepMasks","hitMasks")
 )
@@ -45,13 +45,13 @@ pixelPairStepTracks = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairS
     Propagator = 'PropagatorWithMaterial'
 )
 # final Selection
-pixelPairStepSelector = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepSelector.clone()
-pixelPairStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+pixelPairStep = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStep.clone()
+pixelPairStep.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final sequence 
 PixelPairStep = cms.Sequence(pixelPairStepMasks
                              +pixelPairStepSeeds
                              +pixelPairStepTrackCandidates
                              +pixelPairStepTracks
-                             +pixelPairStepSelector                                                        
-                             )
+                             +pixelPairStep 
+                         )

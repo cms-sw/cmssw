@@ -8,7 +8,7 @@ from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMas
 pixelLessStepMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("mixedTripletStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('mixedTripletStep'),
+    overrideTrkQuals = cms.InputTag('mixedTripletStep',"QualityMasks"),
     oldHitCombinationMasks = cms.InputTag("mixedTripletStepMasks","hitCombinationMasks"),
     oldHitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks")
 )
@@ -45,8 +45,10 @@ pixelLessStepTracks = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessS
     Propagator = 'PropagatorWithMaterial'
 )
 # final selection
-pixelLessStepSelector = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSelector.clone()
-pixelLessStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+pixelLessStepClassifier1 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClassifier1.clone()
+pixelLessStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+pixelLessStepClassifier2 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClassifier2.clone()
+pixelLessStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
 pixelLessStep = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStep.clone()
 
 # Final sequence 
@@ -54,7 +56,7 @@ PixelLessStep = cms.Sequence(pixelLessStepMasks
                              +pixelLessStepSeeds
                              +pixelLessStepTrackCandidates
                              +pixelLessStepTracks
-                             +pixelLessStepSelector
+                             +pixelLessStepClassifier1*pixelLessStepClassifier2
                              +pixelLessStep                             
                          )
 
