@@ -137,8 +137,11 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
           run == 209151) {
         bunchspacing = 25;
       }
-      else {
+      else if (run < 253000) {
         bunchspacing = 50;
+      } 
+      else {
+	bunchspacing = 25;
       }
     }
     else {
@@ -146,6 +149,9 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
       evt.getByToken(bunchSpacing_,bunchSpacingH);
       bunchspacing = *bunchSpacingH;
     }
+  }
+  else {
+    bunchspacing = bunchSpacingManual_;
   }
   
   const std::vector<std::string> condnames_mean = (bunchspacing == 25) ? _condnames_mean_25ns : _condnames_mean_50ns;
