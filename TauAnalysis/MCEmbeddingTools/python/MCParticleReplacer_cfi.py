@@ -31,6 +31,7 @@ generator = cms.EDProducer("MCParticleReplacer",
             ),
             parameterSets = cms.vstring('Tauola')
         ),
+        VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
         PythiaParameters = cms.PSet(
             pythiaUESettingsBlock,
             pgunTauolaParameters = cms.vstring(["MDME(%d,1)=0" % x for x in range(89, 143)]),
@@ -47,6 +48,7 @@ generator = cms.EDProducer("MCParticleReplacer",
                 mdtau = cms.int32(0)
             )
         ),
+        VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
         PythiaParameters = cms.PSet(
             pythiaUESettings = cms.vstring(
                 'MSTJ(11)=3     ! Choice of the fragmentation function',

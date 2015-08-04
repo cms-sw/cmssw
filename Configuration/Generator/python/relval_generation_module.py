@@ -135,6 +135,7 @@ def _generate_PGUN(step, evt_type, energy, evtnumber):
         generator = cms.EDProducer("FlatRandomPtGunProducer",
                             psethack = cms.string(id_string),
                             firstRun = cms.untracked.uint32(1),
+                            VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                             PGunParameters = cms.PSet(
                                 PartID = part_id,
                                 MinEta = cms.double(ETA_MAX),
@@ -152,6 +153,7 @@ def _generate_PGUN(step, evt_type, energy, evtnumber):
         generator = cms.EDProducer("FlatRandomEGunProducer",
                             psethack = cms.string(id_string),
                             firstRun = cms.untracked.uint32(1),
+                            VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                             PGunParameters = cms.PSet(
                                 PartID = part_id,
                                 MinEta = cms.double(ETA_MAX),
@@ -187,6 +189,7 @@ def _generate_QCD(step, evt_type, energy, evtnumber):
                         pythiaHepMCVerbosity=cms.untracked.bool(False),
                         maxEventsToPrint = cms.untracked.int32(0), 
                         filterEfficiency = cms.untracked.double(1),  
+                    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                         PythiaParameters = cms.PSet\
                         (parameterSets = cms.vstring\
                                             ("pythiaUESettings",
@@ -216,6 +219,7 @@ def _generate_MINBIAS(step, evt_type, energy, evtnumber):
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),  
+                    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                         PythiaParameters = cms.PSet\
                         (parameterSets = cms.vstring\
                                             ("pythiaUESettings",
@@ -333,6 +337,7 @@ def _generate_Higgs(step, evt_type, energy, evtnumber):
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),  
                       pythiaVerbosity =cms.untracked.bool(False),
+                  VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                       PythiaParameters = cms.PSet\
                        (parameterSets = cms.vstring('PythiaUESettings','processParameters'),
                         PythiaUESettings = user_pythia_ue_settings(),
@@ -384,6 +389,7 @@ def _generate_udscb_jets\
     # Build the process source
     generator = cms.EDFilter('Pythia6GeneratorFilter',
                       pythiaVerbosity =cms.untracked.bool(True),
+                  VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                       PythiaParameters = cms.PSet\
                                (parameterSets = cms.vstring\
                                                    ("pythiaUESettings","pythiaJets"),
@@ -412,6 +418,7 @@ def _generate_TTBAR(step, evt_type, energy, evtnumber):
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),                     
+                  VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                       PythiaParameters = cms.PSet\
                                 (parameterSets = cms.vstring\
                                                    ('pythiaUESettings',
@@ -499,6 +506,7 @@ def _generate_Zll(step, evt_type, energy, evtnumber):
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),    
+                  VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                       PythiaParameters = cms.PSet\
                                (parameterSets = cms.vstring('PythiaUESettings','processParameters'),
                                 PythiaUESettings=user_pythia_ue_settings(),
@@ -536,6 +544,7 @@ def _generate_Wl(step, evt_type, energy, evtnumber):
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),
+                  VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                       PythiaParameters = cms.PSet\
                                (parameterSets = cms.vstring('PythiaUESettings','processParameters'),
                                 PythiaUESettings=user_pythia_ue_settings(),
@@ -607,6 +616,7 @@ def _generate_ZPll(step, evt_type, energy, evtnumber):
                       pythiaHepMCVerbosity=cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0), 
                       filterEfficiency = cms.untracked.double(1),    
+                  VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                       PythiaParameters = cms.PSet\
                                (parameterSets = cms.vstring('PythiaUESettings','processParameters'),
                                 PythiaUESettings=user_pythia_ue_settings(),
@@ -718,6 +728,7 @@ def _generate_HpT(step, evt_type, energy, evtnumber):
                       pythiaHepMCVerbosity = cms.untracked.bool(False),
                       maxEventsToPrint = cms.untracked.int32(0),
                       filterEfficiency = cms.untracked.double(1.0),
+                  VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                       PythiaParameters = cms.PSet(\
                        parameterSets = cms.vstring('PythiaUESettings', 'processParameters', 'pythiaMSSMmhmax'),
                        PythiaUESettings=user_pythia_ue_settings(),

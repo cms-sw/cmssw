@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MaxEta = cms.double(1.3),

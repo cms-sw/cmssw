@@ -54,6 +54,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 	),
         parameterSets = cms.vstring('Tauola')
     ),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
 
         pythiaHZZ4tau = cms.vstring('PMAS(25,1)=190.0        !mass of Higgs', 

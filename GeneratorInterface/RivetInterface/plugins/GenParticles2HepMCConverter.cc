@@ -1,6 +1,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,6 +20,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "GeneratorInterface/Core/interface/EventVertexHelper.h"
 
 #include <iostream>
 #include <map>
@@ -31,10 +33,12 @@ public:
   explicit GenParticles2HepMCConverter(const edm::ParameterSet& pset);
   ~GenParticles2HepMCConverter() {};
 
-  //void beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) override;
+private:
+  void beginLuminosityBlock(edm::LuminosityBlock& lumi, const edm::EventSetup& eventSetup);
+  void beginRun(const edm::Run& run, const edm::EventSetup& eventSetup) override;
   void produce(edm::Event& event, const edm::EventSetup& eventSetup) override;
 
-private:
+  EventVertexHelper eventVertexHelper_;
 //  edm::InputTag lheEventToken_;
   edm::EDGetTokenT<reco::CandidateView> genParticlesToken_;
 //  edm::InputTag genRunInfoToken_;
@@ -56,7 +60,8 @@ private:
 
 };
 
-GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet& pset)
+GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet& pset) :
+   eventVertexHelper_(pset, consumesCollector())
 {
 //  lheEventToken_ = pset.getParameter<edm::InputTag>("lheEvent");
   genParticlesToken_ = consumes<reco::CandidateView>(pset.getParameter<edm::InputTag>("genParticles"));
@@ -66,8 +71,13 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
   produces<edm::HepMCProduct>();
 }
 
-//void GenParticles2HepMCConverter::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
-//{
+void GenParticles2HepMCConverter::beginLuminosityBlock(edm::LuminosityBlock& lumi, const edm::EventSetup& eventSetup)
+{
+  eventVertexHelper_.beginLuminosityBlock(lumi, eventSetup);
+}
+
+void GenParticles2HepMCConverter::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
+{
   //edm::Handle<GenRunInfoProduct> genRunInfoHandle;
   //event.getByToken(genRunInfoToken_, genRunInfoHandle);
   // const double xsecIn = genRunInfoHandle->internalXSec().value();
@@ -76,7 +86,8 @@ GenParticles2HepMCConverter::GenParticles2HepMCConverter(const edm::ParameterSet
   // const double xsecLOErr = genRunInfoHandle->externalXSecLO().error();
   // const double xsecNLO = genRunInfoHandle->externalXSecNLO().value();
   // const double xsecNLOErr = genRunInfoHandle->externalXSecNLO().error();
-//}
+  eventVertexHelper_.beginRun(run, eventSetup);
+}
 
 void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
@@ -200,6 +211,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
 
   std::auto_ptr<edm::HepMCProduct> hepmc_product(new edm::HepMCProduct());
   hepmc_product->addHepMCData(hepmc_event);
+  eventVertexHelper_.smearVertex(event, *hepmc_product);
   event.put(hepmc_product);
 
 }

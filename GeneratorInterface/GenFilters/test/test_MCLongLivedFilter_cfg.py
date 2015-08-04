@@ -36,6 +36,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     ymin = cms.untracked.double(-10.0),
     maxEventsToPrint = cms.untracked.int32(0),
     comEnergy = cms.double(10000.0),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         process.pythiaDefaultBlock,
         # User cards - name is "myParameters"                                

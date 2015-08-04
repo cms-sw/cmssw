@@ -30,6 +30,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
         parameterSets = cms.vstring('EvtGen')
     ),
     
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         py8UESettings = cms.vstring( 'StringZ:usePetersonB = on',      # these 2 together ==
 	                             'StringZ:usePetersonC = on',      # mstj(11)=3

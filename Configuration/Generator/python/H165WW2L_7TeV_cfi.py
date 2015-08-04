@@ -18,6 +18,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
     crossSection = cms.untracked.double(0.325),
     maxEventsToPrint = cms.untracked.int32(3),
     comEnergy = cms.double(7000.0),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('PMAS(25,1)=165.0        !mass of Higgs', 

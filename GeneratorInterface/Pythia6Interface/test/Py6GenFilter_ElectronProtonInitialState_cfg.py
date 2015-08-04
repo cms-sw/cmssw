@@ -44,6 +44,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     ),
     comEnergy = cms.double(0.0), # set to 0.0 as it's NOT used with this initial state 
                                  # the parameter but must be present (by Fwk)
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
 
         pythiaHZZ4tau = cms.vstring('PMAS(25,1)=190.0        !mass of Higgs', 

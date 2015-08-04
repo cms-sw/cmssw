@@ -4,6 +4,7 @@ from GeneratorInterface.Pythia6Interface.pythiaDefault_cff import *
 generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.0),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         # Default (mostly empty - to keep PYTHIA default) card file
         # Name of the set is "pythiaDefault"

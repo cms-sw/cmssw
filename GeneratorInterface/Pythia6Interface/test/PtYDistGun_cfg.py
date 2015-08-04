@@ -36,6 +36,7 @@ process.generator = cms.EDProducer("Pythia6PtYDistGun",
    pythiaHepMCVerbosity = cms.untracked.bool(True),
    pythiaPylistVerbosity = cms.untracked.int32(1),
 
+   VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
    PGunParameters = cms.PSet(                    
       ParticleID = cms.vint32(443),
       kinematicsFile = cms.FileInPath(

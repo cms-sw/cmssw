@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloTest")
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-
 #Geometry
 process.load("SimG4CMS.Calo.testGeometryPMTXML_cfi")
 
@@ -39,6 +39,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(13),
         MinEta = cms.double(2.95),
@@ -55,21 +56,12 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 
 process.Timing = cms.Service("Timing")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
-
 process.USER = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent_HFPMT.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.USER)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.Physics.DefaultCutValue = 0.1

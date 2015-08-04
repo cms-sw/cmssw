@@ -20,6 +20,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
         ),
         parameterSets = cms.vstring('Tauola')
     ),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL         = 11 ', 

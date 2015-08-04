@@ -49,6 +49,7 @@ process.randomEngineStateProducer = cms.EDProducer("RandomEngineStateProducer")
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(11),
         MinE = cms.double(50.001),

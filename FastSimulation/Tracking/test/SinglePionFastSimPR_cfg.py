@@ -48,6 +48,7 @@ process.RandomNumberGeneratorService.generator.initialSeed= ==seed1==
 process.generator = cms.EDProducer(
     "FlatRandomPtGunProducer",
     firstRun = cms.untracked.uint32(1),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MinPt = cms.double(==MINPT==.0),

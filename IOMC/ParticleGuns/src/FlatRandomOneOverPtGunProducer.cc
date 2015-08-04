@@ -111,6 +111,7 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
 
   std::auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
   BProduct->addHepMCData( fEvt );
+  smearVertex(e, *BProduct);
   e.put(BProduct);
 
   std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));

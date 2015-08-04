@@ -5,6 +5,7 @@ from GeneratorInterface.ExhumeInterface.ExhumeParameters_cfi import ExhumeParame
 source = cms.Source("EmptySource")
 
 generator = cms.EDFilter("ExhumeGeneratorFilter",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
        parameterSets = cms.vstring()
     ),

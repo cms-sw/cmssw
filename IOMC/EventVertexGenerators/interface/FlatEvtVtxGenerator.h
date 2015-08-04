@@ -1,33 +1,27 @@
-#ifndef IOMC_FlatEvtVtxGenerator_H
-#define IOMC_FlatEvtVtxGenerator_H
+#ifndef IOMC_EventGenerators_FlatEvtVtxGenerator_h
+#define IOMC_EventGenerators_FlatEvtVtxGenerator_h
 
 /**
- * Generate event vertices according to a Flat distribution. 
+ * Generate event vertices according to a Flat distribution.
  * Attention: All values are assumed to be cm!
  *
  */
 
-#include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
+#include <memory>
+#include "GeneratorInterface/Core/interface/BaseEvtVtxGenerator.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-class FlatEvtVtxGenerator : public BaseEvtVtxGenerator 
-{
+class FlatEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
-  FlatEvtVtxGenerator(const edm::ParameterSet & p);
+  FlatEvtVtxGenerator(edm::ParameterSet const& p, edm::ConsumesCollector& iC);
   virtual ~FlatEvtVtxGenerator();
+  FlatEvtVtxGenerator(FlatEvtVtxGenerator const&) = delete;
+  FlatEvtVtxGenerator& operator=(FlatEvtVtxGenerator const&) = delete;
 
-  /// return a new event vertex
-  //virtual CLHEP::Hep3Vector* newVertex();
-  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
+private:
+  virtual void generateNewVertex_(edm::HepMCProduct& product, CLHEP::HepRandomEngine& engine) override;
 
-  virtual TMatrixD* GetInvLorentzBoost() {
-	  return 0;
-  }
+  HepMC::FourVector* newVertex(CLHEP::HepRandomEngine&);
 
-    
   /// set min in X in cm
   void minX(double m=0.0);
   /// set min in Y in cm
@@ -41,13 +35,8 @@ public:
   void maxY(double m=0);
   /// set max in Z in cm
   void maxZ(double m=0);
-  
-private:
-  /** Copy constructor */
-  FlatEvtVtxGenerator(const FlatEvtVtxGenerator &p);
-  /** Copy assignment operator */
-  FlatEvtVtxGenerator&  operator = (const FlatEvtVtxGenerator & rhs );
-private:
+
+  std::unique_ptr<HepMC::FourVector> fVertex;
   double fMinX, fMinY, fMinZ;
   double fMaxX, fMaxY, fMaxZ;
   double fTimeOffset;

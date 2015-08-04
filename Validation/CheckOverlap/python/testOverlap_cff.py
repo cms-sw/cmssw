@@ -46,6 +46,7 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(14),
         MinEta = cms.double(-3.5),

@@ -15,6 +15,7 @@
 
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/FileBlock.h"
@@ -47,6 +48,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include "GeneratorInterface/Core/interface/EventVertexHelper.h"
 
 namespace edm
 {
@@ -66,6 +68,7 @@ namespace edm
 
     virtual ~HadronizerFilter();
 
+  private:
     virtual bool filter(Event& e, EventSetup const& es) override;
     virtual void beginRun(Run const&, EventSetup const&) override;
     virtual void endRun(Run const&, EventSetup const&) override;
@@ -74,11 +77,11 @@ namespace edm
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
     virtual void endLuminosityBlockProduce(LuminosityBlock &, EventSetup const&) override;
 
-  private:
     Hadronizer hadronizer_;
     // gen::ExternalDecayDriver* decayer_;
     Decayer* decayer_;
     HepMCFilterDriver *filter_;
+    EventVertexHelper eventVertexHelper_;
     InputTag runInfoProductTag_;
     EDGetTokenT<LHERunInfoProduct> runInfoProductToken_;
     EDGetTokenT<LHEEventProduct> eventProductToken_;
@@ -96,6 +99,7 @@ namespace edm
     hadronizer_(ps),
     decayer_(0),
     filter_(0),
+    eventVertexHelper_(ps, consumesCollector()),
     runInfoProductTag_(),
     runInfoProductToken_(),
     eventProductToken_(),
@@ -274,6 +278,7 @@ namespace edm
 
     std::auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
     bare_product->addHepMCData( finalEvent.release() );
+    eventVertexHelper_.smearVertex(ev, *bare_product);
     ev.put(bare_product);
 
     return true;
@@ -305,6 +310,7 @@ namespace edm
     lhef::LHERunInfo* lheRunInfo = hadronizer_.getLHERunInfo().get();
     lheRunInfo->initLumi();
 
+    eventVertexHelper_.beginRun(run, es);
   }
 
   template <class HAD, class DEC>
@@ -377,6 +383,8 @@ namespace edm
 	<< "Failed to initialize hadronizer "
 	<< hadronizer_.classname()
 	<< " for external parton generation\n";
+
+    eventVertexHelper_.beginLuminosityBlock(lumi, es);
   }
 
   template <class HAD, class DEC>

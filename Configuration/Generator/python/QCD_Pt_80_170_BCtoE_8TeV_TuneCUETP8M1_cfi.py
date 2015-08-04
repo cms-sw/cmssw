@@ -9,6 +9,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          filterEfficiency = cms.untracked.double(0.056),
                          crossSection = cms.untracked.double(1189000.),
                          comEnergy = cms.double(8000.0),  # center of mass energy in GeV
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,

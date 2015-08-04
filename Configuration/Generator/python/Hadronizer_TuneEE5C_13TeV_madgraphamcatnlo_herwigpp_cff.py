@@ -15,7 +15,8 @@ generator = cms.EDFilter("ThePEGHadronizerFilter",
 	herwigppLHEFileSettingsBlock,
 	herwigppMECorrectionsSettingsBlock,
 
-	configFiles = cms.vstring(),
+	VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
+        configFiles = cms.vstring(),
 	parameterSets = cms.vstring(
 		'hwpp_cmsDefaults',
 		'hwpp_ue_EE5C',

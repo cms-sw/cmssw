@@ -1,5 +1,5 @@
-#ifndef IOMC_BetafuncEvtVtxGenerator_H
-#define IOMC_BetafuncEvtVtxGenerator_H
+#ifndef IOMC_EventVertexGenerators_BetafuncEvtVtxGenerator_h
+#define IOMC_EventVertexGenerators_BetafuncEvtVtxGenerator_h
 
 /*
 ________________________________________________________________________
@@ -18,29 +18,30 @@ ________________________________________________________________________
 ________________________________________________________________________
 */
 
-#include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
+#include <memory>
+
+#include "TMatrixD.h"
+
+#include "GeneratorInterface/Core/interface/BaseEvtVtxGenerator.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/SimBeamSpotObjectsRcd.h"
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator 
-{
+class BetafuncEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
-  BetafuncEvtVtxGenerator(const edm::ParameterSet & p);
+  BetafuncEvtVtxGenerator(edm::ParameterSet const& p, edm::ConsumesCollector& iC);
   virtual ~BetafuncEvtVtxGenerator();
 
-  virtual void beginRun(const edm::Run & , const edm::EventSetup&) override;
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  BetafuncEvtVtxGenerator(BetafuncEvtVtxGenerator const&) = delete;
+  BetafuncEvtVtxGenerator& operator=(BetafuncEvtVtxGenerator const&) = delete;
 
-  /// return a new event vertex
-  //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
+private:
+  virtual void beginRun_(edm::Run const&, edm::EventSetup const&) override;
+  virtual void beginLuminosityBlock_(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-  virtual TMatrixD* GetInvLorentzBoost();
+  virtual void generateNewVertex_(edm::HepMCProduct& product, CLHEP::HepRandomEngine& engine) override;
 
+  HepMC::FourVector* newVertex(CLHEP::HepRandomEngine&);
+  TMatrixD* GetInvLorentzBoost();
     
   /// set resolution in Z in cm
   void sigmaZ(double s=1.0);
@@ -64,19 +65,12 @@ public:
 
   /// beta function
   double BetaFunction(double z, double z0);
-    
-private:
-  /** Copy constructor */
-  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p);
-  /** Copy assignment operator */
-  BetafuncEvtVtxGenerator&  operator = (const BetafuncEvtVtxGenerator & rhs );
   
-private:
-
+  std::unique_ptr<HepMC::FourVector> fVertex;
   bool readDB_;
 
   double alpha_, phi_;
-  //TMatrixD boost_;
+  std::unique_ptr<TMatrixD> boost_;
   
   double fX0, fY0, fZ0;
   double fSigmaZ;
@@ -85,7 +79,7 @@ private:
   //  double falpha;
   double fTimeOffset;
 
-  void update(const edm::EventSetup& iEventSetup);
+  void update(edm::EventSetup const& iEventSetup);
   edm::ESWatcher<SimBeamSpotObjectsRcd> parameterWatcher_;
 };
 

@@ -46,7 +46,7 @@ process.simulation = cms.Sequence( process.dummyModule )
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.generator)
-process.simulation_step = cms.Path(process.VtxSmeared*process.simulationWithFamos)
+process.simulation_step = cms.Path(process.simulationWithFamos)
 process.reconstruction_step = cms.Path(process.reconstructionWithFamos)
 
 # Only events accepted by L1 + HLT are reconstructed

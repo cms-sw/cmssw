@@ -16,9 +16,10 @@ common_beam_direction_parameters = cms.PSet(
 # this module takes input in the units of *cm* and *radian*!!!
 #
 
-VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
+VertexSmearingParameters = cms.PSet(
     common_beam_direction_parameters,
     VtxSmearedCommon,
+    vertexGeneratorType = cms.string("BeamProfileVtxGenerator"),
     BeamMeanX       = cms.double(0.0),
     BeamMeanY       = cms.double(0.0),
     BeamSigmaX      = cms.double(0.0001),

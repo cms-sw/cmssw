@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDProducer("BeamHaloProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     GENMOD = cms.untracked.int32(1),
     LHC_B1 = cms.untracked.int32(1),
     LHC_B2 = cms.untracked.int32(0),

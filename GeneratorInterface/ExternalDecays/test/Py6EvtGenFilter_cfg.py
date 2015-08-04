@@ -46,6 +46,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
              ),
         parameterSets = cms.vstring('EvtGen')
     ),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
 
         process.pythiaUESettingsBlock,

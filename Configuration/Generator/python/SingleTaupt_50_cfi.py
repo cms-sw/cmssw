@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDProducer("Pythia6PtGun",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         ParticleID = cms.vint32(-15),
         AddAntiParticle = cms.bool(False),

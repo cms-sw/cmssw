@@ -82,6 +82,7 @@ process.hiSignal = cms.EDFilter("PyquenGeneratorFilter",
                                     bFixed = cms.double(0.0),
                                     bMin = cms.double(0.0),
                                     bMax = cms.double(0.0),
+                                    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                                     PythiaParameters = cms.PSet(
             pythiaUpsilonToMuons = cms.vstring('BRAT(1034) = 0 ',
                                                            'BRAT(1035) = 1 ',

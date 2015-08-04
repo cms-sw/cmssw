@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from GeneratorInterface.ExhumeInterface.ExhumeParameters_cfi import ExhumeParameters as ExhumeParametersRef
 
 generator = cms.EDFilter("ExhumeGeneratorFilter",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
        parameterSets = cms.vstring()
     ),

@@ -172,6 +172,7 @@ process.famosPileUp.VertexGenerator = process.GaussVtxSmearingParameters
 #    pythiaPylistVerbosity = cms.untracked.int32(0),
 #    filterEfficiency = cms.untracked.double(1.0),
 #    comEnergy = cms.double(14000.0),
+#    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 #    PythiaParameters = cms.PSet(
 #        process.pythiaUESettingsBlock,
 #        processParameters = cms.vstring('MSEL      = 0     ! User defined processes', 
@@ -186,6 +187,7 @@ process.famosPileUp.VertexGenerator = process.GaussVtxSmearingParameters
 #)
 ################
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         MaxPt = cms.double(200.0),
         MinPt = cms.double(0.9),

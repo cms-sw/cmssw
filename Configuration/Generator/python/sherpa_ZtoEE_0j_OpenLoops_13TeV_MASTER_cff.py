@@ -4,6 +4,7 @@ import os
 source = cms.Source("EmptySource")
 
 generator = cms.EDFilter("SherpaGeneratorFilter",
+  VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
   maxEventsToPrint = cms.int32(0),
   filterEfficiency = cms.untracked.double(1.0),
   crossSection = cms.untracked.double(-1),

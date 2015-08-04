@@ -64,7 +64,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.common_beam_direction_parameters = cms.PSet(
     MinEta       = cms.double(0.7397),
@@ -84,6 +83,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
         MinE   = cms.double(19.99),
@@ -93,6 +93,12 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
+process.generator.VertexSmearing.MeanX = -420.0
+process.generator.VertexSmearing.MeanY = 18.338
+process.generator.VertexSmearing.MeanZ = -340.11
+process.generator.VertexSmearing.SigmaX = 0.000001
+process.generator.VertexSmearing.SigmaY = 0.000001
+process.generator.VertexSmearing.SigmaZ = 0.000001
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
@@ -103,14 +109,8 @@ process.Tracer = cms.Service("Tracer")
 
 process.Timing = cms.Service("Timing")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
-process.VtxSmeared.MeanX = -420.0
-process.VtxSmeared.MeanY = 18.338
-process.VtxSmeared.MeanZ = -340.11
-process.VtxSmeared.SigmaX = 0.000001
-process.VtxSmeared.SigmaY = 0.000001
-process.VtxSmeared.SigmaZ = 0.000001
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'

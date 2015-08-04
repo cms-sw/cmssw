@@ -24,6 +24,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          UseExternalGenerators = cms.untracked.bool(True),
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
                          pythiaPylistVerbosity = cms.untracked.int32(1),
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,

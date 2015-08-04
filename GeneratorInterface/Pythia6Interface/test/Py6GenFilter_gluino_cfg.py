@@ -36,6 +36,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     stopHadrons = cms.bool(False),
     gluinoHadrons = cms.bool(True),
 
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
 
         pythiaUESettingsBlock,

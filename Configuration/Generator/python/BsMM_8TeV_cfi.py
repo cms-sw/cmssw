@@ -10,6 +10,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
     # put here the cross section of your process (in pb)
     crossSection = cms.untracked.double(547000.0),
     maxEventsToPrint = cms.untracked.int32(0),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('PMAS(5,1)=4.8          ! b quark mass', 

@@ -13,6 +13,7 @@ process.generator = cms.EDFilter("Pythia8JetGun",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     pythiaHepMCVerbosity = cms.untracked.bool(True),
 
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
        ParticleID = cms.vint32(211,-211,111,111,130),
         # this defines "absolute" energy spead of particles in the jet
@@ -28,6 +29,7 @@ process.generator = cms.EDFilter("Pythia8JetGun",
     ),
 
     # no detailed pythia6 settings necessary            
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         parameterSets = cms.vstring() 
     )

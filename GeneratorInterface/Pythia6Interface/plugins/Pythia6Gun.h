@@ -19,6 +19,7 @@
 // #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
+#include "GeneratorInterface/Core/interface/EventVertexHelper.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 
@@ -45,11 +46,15 @@ namespace gen
 
     Pythia6Gun( const edm::ParameterSet& );
     virtual ~Pythia6Gun();
-    void beginJob() override;
-    void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-    void beginRun( edm::Run const&, edm::EventSetup const& ) override;
-    void endRun( edm::Run const&, edm::EventSetup const& ) override;
-    void produce( edm::Event&, const edm::EventSetup& ) override;
+
+  private:
+    virtual void beginJob() override;
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    virtual void beginRun( edm::Run const&, edm::EventSetup const& ) override;
+    virtual void endRun( edm::Run const&, edm::EventSetup const& ) override;
+    virtual void produce( edm::Event&, const edm::EventSetup& ) override;
+
+    EventVertexHelper eventVertexHelper_;
 
   protected:
    

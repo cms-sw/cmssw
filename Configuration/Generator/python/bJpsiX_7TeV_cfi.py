@@ -9,6 +9,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
     crossSection = cms.untracked.double(54710000000.0),
     maxEventsToPrint = cms.untracked.int32(0),
     comEnergy = cms.double(7000.0),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL        = 1        ! user defined subprocess', 

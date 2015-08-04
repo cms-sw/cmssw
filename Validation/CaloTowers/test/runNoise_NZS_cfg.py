@@ -18,7 +18,7 @@ from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.g4SimHits.UseMagneticField = False
 
@@ -26,7 +26,7 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load("DQMServices.Core.DQM_cfg")
-process.DQM.collectorHost = ''
+#process.DQM.collectorHost = ''
 
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('ProductNotFound')
@@ -78,6 +78,19 @@ process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient",
      DQMDirName = cms.string("/") # root directory
 )
 
+process.VtxSmeared = cms.EDProducer("EventVertexProducer",
+     src = cms.InputTag("generator"),
+)
+
+from IOMC.EventVertexGenerators.VtxSmearedGauss_cfi import VertexSmearingParameters
+
+VertexSmearingParameters.SigmaX = 0.00001
+VertexSmearingParameters.SigmaY = 0.00001
+VertexSmearingParameters.SigmaZ = 0.00001
+
+process.VtxSmeared.VertexSmearing = cms.PSet(
+    VertexSmearingParameters
+)
 
 #------------------------------------
 
@@ -87,9 +100,6 @@ process.simHcalDigis.HOlevel = -1000
 process.simHcalDigis.HFlevel = -1000
 process.simHcalDigis.useConfigZSvalues = 1
 
-process.VtxSmeared.SigmaX = 0.00001
-process.VtxSmeared.SigmaY = 0.00001
-process.VtxSmeared.SigmaZ = 0.00001
 
 
 ### Special - CaloOnly ------------------------------------

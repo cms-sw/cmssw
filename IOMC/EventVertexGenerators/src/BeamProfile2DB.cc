@@ -110,7 +110,7 @@ BeamProfile2DB::endJob()
   
   poolDbService->createNewIOV<SimBeamSpotObjects>(beam,
 						  poolDbService->beginOfTime(),poolDbService->endOfTime(),
-						  "SimBeamSpotObjectsRcd"  );
+						  "SimBeamSpotObjectsRcd");
 
 }
 

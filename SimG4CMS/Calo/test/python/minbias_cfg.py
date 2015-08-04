@@ -94,7 +94,6 @@ process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('minbias_QGSP_BERT_EML.root')
 )
-
 # Event output
 process.load("Configuration.EventContent.EventContent_cff")
 
@@ -103,7 +102,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simevent_minbias_QGSP_BERT_EML.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
 process.outpath = cms.EndPath(process.o1)
 process.generator.pythiaHepMCVerbosity = False
 process.generator.pythiaPylistVerbosity = 0

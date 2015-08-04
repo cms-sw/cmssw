@@ -59,6 +59,7 @@ process.generator = cms.EDFilter("Herwig6HadronizerFilter",
             parameterSets = cms.vstring( "Photos" )
         ),
 
+        VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
         HerwigParameters = cms.PSet(
                 herwigUEsettings = cms.vstring(
                        'JMUEO     = 1       ! multiparton interaction model',

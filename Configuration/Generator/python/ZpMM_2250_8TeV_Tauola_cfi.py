@@ -30,6 +30,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 #        parameterSets = cms.vstring('Tauola')
 #    ),
                          
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         # Default (mostly empty - to keep PYTHIA default) card file
         # Name of the set is "pythiaDefault"

@@ -43,6 +43,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
        MEMAIN_excres = cms.string(""),
        outTree_flag = cms.int32(0)         # 1=yes, write out the tree for future sanity check
     ),    
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythia8_mg = cms.vstring(''), # this pset is for very initial testing
         # this pset below is actually used in large-scale (production-type) tests

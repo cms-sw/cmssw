@@ -64,6 +64,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 process.GlobalTag.globaltag = 'DESIGN42_V17::All'
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         MaxPt = cms.double(50.0),
         MinPt = cms.double(0.9),
@@ -96,6 +97,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
 #    pythiaHepMCVerbosity = cms.untracked.bool(False),
 #    comEnergy = cms.double(14000.0),
 #    maxEventsToPrint = cms.untracked.int32(0),
+#    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 #    PythiaParameters = cms.PSet(
 #        pythiaUESettings = cms.vstring('MSTJ(11)=3     ! Choice of the fragmentation function',
 #            'MSTJ(22)=2     ! Decay those unstable particles',

@@ -28,6 +28,7 @@ generator = cms.EDFilter(
     ),
 
     
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
     pythiaUESettingsBlock,
          bbbarSettings = cms.vstring('MSEL = 1'), 

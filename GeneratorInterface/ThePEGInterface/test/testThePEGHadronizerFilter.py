@@ -24,7 +24,8 @@ process.load('Configuration.Generator.HerwigppDefaults_cfi')
 
 process.generator = cms.EDFilter('ThePEGHadronizerFilter',
     process.herwigDefaultsBlock,
-    configFiles = cms.vstring(),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
+        configFiles = cms.vstring(),
     lheDefaults1 = cms.vstring(
          'cd /Herwig/Cuts',
          'create ThePEG::Cuts NoCuts',

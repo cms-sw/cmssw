@@ -4,6 +4,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="FWCore/Utilities"/>
+<use   name="GeneratorInterface/Core"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="boost"/>
 <use   name="clhep"/>

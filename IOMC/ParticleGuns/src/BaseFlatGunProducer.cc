@@ -5,6 +5,7 @@
 #include <ostream>
 #include <memory>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -28,6 +29,7 @@ using namespace std;
 using namespace CLHEP;
 
 BaseFlatGunProducer::BaseFlatGunProducer( const ParameterSet& pset ) :
+   eventVertexHelper_(pset, consumesCollector()),
    fEvt(0)
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
 {
@@ -90,9 +92,11 @@ BaseFlatGunProducer::~BaseFlatGunProducer()
 void BaseFlatGunProducer::beginRun(const edm::Run & r, const EventSetup& es )
 {
    es.getData( fPDGTable ) ;
+   eventVertexHelper_.beginRun(r, es);
    return ;
 
 }
+
 void BaseFlatGunProducer::endRun(const Run &run, const EventSetup& es ) {
 }
 
@@ -104,4 +108,17 @@ void BaseFlatGunProducer::endRunProduce(Run &run, const EventSetup& es )
    // later on we might put the info into the run info that this is a PGun
    auto_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
    run.put( genRunInfo );
+}
+
+
+void BaseFlatGunProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const EventSetup& es )
+{
+   eventVertexHelper_.beginLuminosityBlock(lumi, es);
+}
+
+void BaseFlatGunProducer::endLuminosityBlock(const LuminosityBlock &run, const EventSetup& es ) {
+}
+
+void BaseFlatGunProducer::smearVertex(const edm::Event& event, edm::HepMCProduct& product) {
+   eventVertexHelper_.smearVertex(event, product);
 }

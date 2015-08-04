@@ -14,7 +14,6 @@ process.load("Configuration.StandardSequences.MagneticField_0T_cff")
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('FastSimulation.Configuration.FamosSequences_cff')
-process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load('FastSimulation.Configuration.HLT_GRun_cff')
 process.load('FastSimulation.Configuration.Validation_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -62,10 +61,6 @@ process.BeamSpotFakeConditions.Z0=0
 process.famosSimHits.VertexGenerator.SigmaX=0
 process.famosSimHits.VertexGenerator.SigmaY=0
 process.famosSimHits.VertexGenerator.SigmaZ=0  
-
-process.VtxSmeared.SigmaX = 0.00001 # unuseful?
-process.VtxSmeared.SigmaY = 0.00001 # unuseful?
-process.VtxSmeared.SigmaZ = 0.00001 # unuseful?
 
 # Make the tracker transparent
 process.famosSimHits.MaterialEffects.PairProduction = False

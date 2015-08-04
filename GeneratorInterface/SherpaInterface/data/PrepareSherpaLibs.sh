@@ -56,6 +56,7 @@ function build_python_cff() {
   echo "source = cms.Source(\"EmptySource\")"                              >> ${cfffilename}
   echo ""                                                                  >> ${cfffilename}
   echo "generator = cms.EDFilter(\"SherpaGeneratorFilter\","               >> ${cfffilename}
+  echo "  VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters"))," >> ${cfffilename}
   echo "  maxEventsToPrint = cms.int32(0),"                                >> ${cfffilename}
   echo "  filterEfficiency = cms.untracked.double(1.0),"                   >> ${cfffilename}
   echo "  crossSection = cms.untracked.double(-1),"                        >> ${cfffilename}

@@ -14,6 +14,7 @@ generator = cms.EDFilter("Herwig6GeneratorFilter",
 	printCards = cms.untracked.bool(False),
 	useJimmy = cms.bool(True),
 
+	VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 	HerwigParameters = cms.PSet(
 		herwigQCDjets = cms.vstring(
 			'IPROC     = 1500    ! QCD 2->2 processes', 

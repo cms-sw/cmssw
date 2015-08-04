@@ -6,6 +6,7 @@ from GeneratorInterface.HydjetInterface.hydjetDefaultParameters_cff import *
 generator = cms.EDFilter("HydjetGeneratorFilter",
                          hydjetDefaultParameters,
 
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          maxEventsToPrint = cms.untracked.int32(0),
                          pythiaPylistVerbosity = cms.untracked.int32(0),
                          firstEvent = cms.untracked.uint32(1),

@@ -10,6 +10,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          comEnergy = cms.double(8000.0),
                          crossSection = cms.untracked.double(51560000000.),
                          reweightGen = cms.PSet(),
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,

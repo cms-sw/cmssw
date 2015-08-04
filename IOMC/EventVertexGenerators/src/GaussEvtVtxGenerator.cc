@@ -1,19 +1,16 @@
 
-
 #include "IOMC/EventVertexGenerators/interface/GaussEvtVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-//#include "CLHEP/Vector/ThreeVector.h"
 #include "HepMC/SimpleVector.h"
 
-GaussEvtVtxGenerator::GaussEvtVtxGenerator(const edm::ParameterSet & p )
-: BaseEvtVtxGenerator(p)
-{ 
+GaussEvtVtxGenerator::GaussEvtVtxGenerator(edm::ParameterSet const& p, edm::ConsumesCollector&) :
+    BaseEvtVtxGenerator(), fVertex(new HepMC::FourVector()) { 
   fMeanX =  p.getParameter<double>("MeanX")*cm;
   fMeanY =  p.getParameter<double>("MeanY")*cm;
   fMeanZ =  p.getParameter<double>("MeanZ")*cm;
@@ -39,56 +36,47 @@ GaussEvtVtxGenerator::GaussEvtVtxGenerator(const edm::ParameterSet & p )
   }
 }
 
-GaussEvtVtxGenerator::~GaussEvtVtxGenerator() 
-{
+GaussEvtVtxGenerator::~GaussEvtVtxGenerator() {
 }
 
-
-//Hep3Vector* GaussEvtVtxGenerator::newVertex() {
-HepMC::FourVector* GaussEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
-  double X,Y,Z,T;
-  X = CLHEP::RandGaussQ::shoot(engine, fMeanX, fSigmaX);
-  Y = CLHEP::RandGaussQ::shoot(engine, fMeanY, fSigmaY);
-  Z = CLHEP::RandGaussQ::shoot(engine, fMeanZ, fSigmaZ);
-  T = CLHEP::RandGaussQ::shoot(engine, fTimeOffset, fSigmaZ);
-
-  //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
-  if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set( X, Y, Z, T);
-
-  return fVertex;
+void GaussEvtVtxGenerator::generateNewVertex_(edm::HepMCProduct& product, CLHEP::HepRandomEngine& engine) {
+   product.applyVtxGen(newVertex(engine));
 }
 
-void GaussEvtVtxGenerator::sigmaX(double s) 
-{ 
-  if (s>=0 ) {
+HepMC::FourVector* GaussEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine& engine) {
+  double X = CLHEP::RandGaussQ::shoot(&engine, fMeanX, fSigmaX);
+  double Y = CLHEP::RandGaussQ::shoot(&engine, fMeanY, fSigmaY);
+  double Z = CLHEP::RandGaussQ::shoot(&engine, fMeanZ, fSigmaZ);
+  double T = CLHEP::RandGaussQ::shoot(&engine, fTimeOffset, fSigmaZ);
+
+  fVertex->set(X, Y, Z, T);
+  return fVertex.get();
+}
+
+void GaussEvtVtxGenerator::sigmaX(double s) { 
+  if (s>=0) {
     fSigmaX=s; 
-  }
-  else {
+  } else {
     throw cms::Exception("LogicError")
       << "Error in GaussEvtVtxGenerator::sigmaX: "
       << "Illegal resolution in X (negative)";
   }
 }
 
-void GaussEvtVtxGenerator::sigmaY(double s) 
-{ 
-  if (s>=0 ) {
+void GaussEvtVtxGenerator::sigmaY(double s) { 
+  if (s>=0) {
     fSigmaY=s; 
-  }
-  else {
+  } else {
     throw cms::Exception("LogicError")
       << "Error in GaussEvtVtxGenerator::sigmaY: "
       << "Illegal resolution in Y (negative)";
   }
 }
 
-void GaussEvtVtxGenerator::sigmaZ(double s) 
-{ 
-  if (s>=0 ) {
+void GaussEvtVtxGenerator::sigmaZ(double s) { 
+  if (s>=0) {
     fSigmaZ=s; 
-  }
-  else {
+  } else {
     throw cms::Exception("LogicError")
       << "Error in GaussEvtVtxGenerator::sigmaZ: "
       << "Illegal resolution in Z (negative)";

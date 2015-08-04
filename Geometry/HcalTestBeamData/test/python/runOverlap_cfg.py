@@ -50,6 +50,7 @@ process.common_beam_direction_parameters = cms.PSet(
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
         MinE   = cms.double(9.99),

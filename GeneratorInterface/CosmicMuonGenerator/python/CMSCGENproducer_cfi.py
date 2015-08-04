@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDProducer("CosMuoGenProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     RadiusOfTarget = cms.double(8000.0),
     TIFOnly_constant = cms.bool(False),
     TIFOnly_linear = cms.bool(False),

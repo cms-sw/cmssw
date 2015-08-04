@@ -21,6 +21,7 @@ particle_property_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/
 user_decay_file = cms.FileInPath('GeneratorInterface/ExternalDecays/data/Bu_Kstarmumu_Kspi.dec'),
 list_forced_decays = cms.vstring('MyB+','MyB-')),
 parameterSets = cms.vstring('EvtGen')),
+VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 PythiaParameters = cms.PSet(
 pythiaUESettingsBlock,
 bbbarSettings = cms.vstring('MSEL = 1'),

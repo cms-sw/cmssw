@@ -18,6 +18,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          # put here the cross section of your process (in pb)
                          crossSection = cms.untracked.double(0.388),
                          maxEventsToPrint = cms.untracked.int32(3),
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,

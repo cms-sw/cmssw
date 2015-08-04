@@ -97,7 +97,6 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
 
 process.TFileService = cms.Service("TFileService",
@@ -111,8 +110,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent_minbias1_QGSP_BERT_EML.root')
 )
-
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.caloSimHitStudy*process.rndmStore)
 process.outpath = cms.EndPath(process.o1)
 process.generator.pythiaHepMCVerbosity = False
 process.generator.pythiaPylistVerbosity = 0

@@ -20,6 +20,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
     comEnergy = cms.double(13000.0),
     crossSection = cms.untracked.double(0),
     maxEventsToPrint = cms.untracked.int32(0),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
     pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL=61          ! Quarkonia', 

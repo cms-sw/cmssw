@@ -7,6 +7,7 @@ generator = cms.EDFilter("Pythia6HadronizerFilter",
     maxEventsToPrint = cms.untracked.int32(0),
     comEnergy = cms.double(7000.0),
 
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL=0          ! User defined processes',

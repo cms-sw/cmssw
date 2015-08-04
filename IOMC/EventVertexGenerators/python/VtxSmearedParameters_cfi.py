@@ -15,6 +15,7 @@ VtxSmearedCommon = cms.PSet(
 )
 # Gaussian smearing
 GaussVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("GaussEvtVtxGenerator"),
     MeanX = cms.double(0.0),
     MeanY = cms.double(0.0),
     MeanZ = cms.double(0.0),
@@ -25,6 +26,7 @@ GaussVtxSmearingParameters = cms.PSet(
 )
 # Flat Smearing
 FlatVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("FlatEvtVtxGenerator"),
     MaxZ = cms.double(5.3),
     MaxX = cms.double(0.0015),
     MaxY = cms.double(0.0015),
@@ -48,6 +50,7 @@ FlatVtxSmearingParameters = cms.PSet(
 
 # 900 GeV collisions, transverse beam size = 293 microns 
 Early900GeVCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(1100.0),
     Emittance = cms.double(1.564e-06),
@@ -60,6 +63,7 @@ Early900GeVCollisionVtxSmearingParameters = cms.PSet(
 )
 #  2.2 TeV collisions, transverse beam size 188 microns
 Early2p2TeVCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(1100.0),
     Emittance = cms.double(6.4e-07),
@@ -72,6 +76,7 @@ Early2p2TeVCollisionVtxSmearingParameters = cms.PSet(
 )
 #  7 TeV collisions, transverse beam size with betastar=  11m is 105 microns,
 Early7TeVCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(1100.0),
     Emittance = cms.double(2.0e-07),
@@ -84,6 +89,7 @@ Early7TeVCollisionVtxSmearingParameters = cms.PSet(
 )
 #  7 TeV collisions, transverse beam size with betastar=  2m is  45 microns,
 Nominal7TeVCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(200.0),
     Emittance = cms.double(2.0e-07),
@@ -96,6 +102,7 @@ Nominal7TeVCollisionVtxSmearingParameters = cms.PSet(
 )
 # 900 GeV realistic 2010 collisions, transverse beam size is 200 microns
 Realistic900GeVCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(1000.0),
     Emittance = cms.double(8.34e-07),
@@ -108,6 +115,7 @@ Realistic900GeVCollisionVtxSmearingParameters = cms.PSet(
 )
 # 7 TeV realistic collisions, beamspot width ~28 microns - appropriate for 2nd half of Commissioning10
 Realistic7TeVCollisionComm10VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(200.0),
     Emittance = cms.double(0.804e-07),
@@ -120,6 +128,7 @@ Realistic7TeVCollisionComm10VtxSmearingParameters = cms.PSet(
 )
 # 7 TeV realistic collisions, beamspot width ~43 microns - appropriate for 2010A
 Realistic7TeVCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(350.0),
     Emittance = cms.double(1.072e-07),
@@ -132,6 +141,7 @@ Realistic7TeVCollisionVtxSmearingParameters = cms.PSet(
 )
 # 7 TeV realistic collisions, beamspot width ~38 microns - appropriate for 2010B
 Realistic7TeVCollision2010BVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(350.0),
     Emittance = cms.double(0.804e-07),
@@ -145,6 +155,7 @@ Realistic7TeVCollision2010BVtxSmearingParameters = cms.PSet(
 # 7 TeV realistic collisions, updated for 2011
 # normalized emittance 2.5 microns, transverse beam size is 32 microns
 Realistic7TeV2011CollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(150.0),
     Emittance = cms.double(0.67e-07),
@@ -158,6 +169,7 @@ Realistic7TeV2011CollisionVtxSmearingParameters = cms.PSet(
 # HI realistic collisions, updated for 2011
 # estimated beamspot width 31-35 microns
 RealisticHI2011CollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(100.0),
     Emittance = cms.double(2.04e-07),
@@ -171,6 +183,7 @@ RealisticHI2011CollisionVtxSmearingParameters = cms.PSet(
 # 2.76 TeV estimated collisions, 11m beta*
 # normalized emittance 2.5 microns, transverse beam size is 140 microns
 Realistic2p76TeV2011CollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(1100.0),
     Emittance = cms.double(1.70e-07),
@@ -184,6 +197,7 @@ Realistic2p76TeV2011CollisionVtxSmearingParameters = cms.PSet(
 # 2.76 TeV estimated collisions for 2013, 11m beta*
 # sigmaZ set to 8 cm
 Realistic2p76TeV2013CollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(1100.0),
     Emittance = cms.double(1.70e-07),
@@ -197,6 +211,7 @@ Realistic2p76TeV2013CollisionVtxSmearingParameters = cms.PSet(
 # HI realistic pPb collisions, updated for 2013
 # 
 RealisticHIpPb2013CollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(80.0),
     Emittance = cms.double(6.25e-07),
@@ -210,6 +225,7 @@ RealisticHIpPb2013CollisionVtxSmearingParameters = cms.PSet(
 # 7 TeV centered collisions with parameters for 2011
 # normalized emittance 2.5 microns, transverse beam size is 32 microns
 Centered7TeV2011CollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(150.0),
     Emittance = cms.double(0.67e-07),
@@ -222,6 +238,7 @@ Centered7TeV2011CollisionVtxSmearingParameters = cms.PSet(
 )
 # 8 TeV realistic collisions, transverse beam width size is 20 microns
 Realistic8TeVCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(70.0),
     Emittance = cms.double(0.586e-07),
@@ -234,6 +251,7 @@ Realistic8TeVCollisionVtxSmearingParameters = cms.PSet(
 )
 # 8 TeV realistic collisions, transverse beam width size is 20 microns, updated for observed SigmaZ
 Realistic8TeV2012CollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(70.0),
     Emittance = cms.double(0.586e-07),
@@ -246,6 +264,7 @@ Realistic8TeV2012CollisionVtxSmearingParameters = cms.PSet(
 )
 # 10 TeV collisions, transverse beam size = 46 microns
 Early10TeVCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(300.0),
     Emittance = cms.double(1.406e-07),
@@ -258,6 +277,7 @@ Early10TeVCollisionVtxSmearingParameters = cms.PSet(
 )
 # Test offset
 Early10TeVX322Y100VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(300.0),
     Emittance = cms.double(1.406e-07),
@@ -270,6 +290,7 @@ Early10TeVX322Y100VtxSmearingParameters = cms.PSet(
 )
 # Test offset
 Early10TeVX322Y250VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(300.0),
     Emittance = cms.double(1.406e-07),
@@ -282,6 +303,7 @@ Early10TeVX322Y250VtxSmearingParameters = cms.PSet(
 )
 # Test offset
 Early10TeVX322Y500VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(300.0),
     Emittance = cms.double(1.406e-07),
@@ -294,6 +316,7 @@ Early10TeVX322Y500VtxSmearingParameters = cms.PSet(
 )
 # Test offset
 Early10TeVX322Y1000VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(300.0),
     Emittance = cms.double(1.406e-07),
@@ -306,6 +329,7 @@ Early10TeVX322Y1000VtxSmearingParameters = cms.PSet(
 )
 # Test offset
 Early10TeVX322Y5000VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(300.0),
     Emittance = cms.double(1.406e-07),
@@ -318,6 +342,7 @@ Early10TeVX322Y5000VtxSmearingParameters = cms.PSet(
 )
 # Test offset
 Early10TeVX322Y10000VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(300.0),
     Emittance = cms.double(1.406e-07),
@@ -330,6 +355,7 @@ Early10TeVX322Y10000VtxSmearingParameters = cms.PSet(
 )
 
 EarlyCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(200.0),
     Emittance = cms.double(1.006e-07),
@@ -341,6 +367,7 @@ EarlyCollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 NominalCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.000142),
     BetaStar = cms.double(55.0),
     Emittance = cms.double(1.006e-07),
@@ -352,6 +379,7 @@ NominalCollisionVtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 NominalCollision1VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(55.0),
     Emittance = cms.double(1.006e-07),
@@ -363,6 +391,7 @@ NominalCollision1VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 NominalCollision2VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.000142),
     BetaStar = cms.double(55.0),
     Emittance = cms.double(1.006e-07),
@@ -374,6 +403,7 @@ NominalCollision2VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 NominalCollision3VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(55.0),
     Emittance = cms.double(1.006e-07),
@@ -385,6 +415,7 @@ NominalCollision3VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 NominalCollision4VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(55.0),
     Emittance = cms.double(1.006e-07),
@@ -396,6 +427,7 @@ NominalCollision4VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 NominalCollision2015VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(65.0),
     Emittance = cms.double(5.411e-08),
@@ -407,6 +439,7 @@ NominalCollision2015VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 ZeroTeslaRun247324CollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(80.0),
     Emittance = cms.double(1.070e-5),
@@ -451,6 +484,7 @@ Realistic50ns13TeVCollisionZeroTeslaVtxSmearingParameters = cms.PSet(
 # Y = -0.0715252 cm
 # Z = -0.511453  cm
 Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(65.0),
     Emittance = cms.double(5.411e-08),
@@ -464,6 +498,7 @@ Realistic50ns13TeVCollisionVtxSmearingParameters = cms.PSet(
 
 # Test HF offset
 ShiftedCollision2015VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(65.0),
     Emittance = cms.double(5.411e-08),
@@ -475,6 +510,7 @@ ShiftedCollision2015VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 Shifted5mmCollision2015VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(65.0),
     Emittance = cms.double(5.411e-08),
@@ -486,6 +522,7 @@ Shifted5mmCollision2015VtxSmearingParameters = cms.PSet(
     Z0 = cms.double(0.0)
 )
 Shifted15mmCollision2015VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(65.0),
     Emittance = cms.double(5.411e-08),
@@ -500,6 +537,7 @@ Shifted15mmCollision2015VtxSmearingParameters = cms.PSet(
 # Estimate for 2015 PbPb collisions, based on feedback from accelerator                                                                                  
 # Beamspot centroid shifted to match pp expectation for 2015                                                                                             
 NominalHICollision2015VtxSmearingParameters = cms.PSet(
+    vertexGeneratorType = cms.string("BetafuncEvtVtxGenerator"),
     Phi = cms.double(0.0),
     BetaStar = cms.double(60.0),
     Emittance = cms.double(1.70e-07),

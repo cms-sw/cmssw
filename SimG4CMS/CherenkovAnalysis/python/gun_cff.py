@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 source = cms.Source("EmptySource")
 
 generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(11),
         MinEta = cms.double(0.0),
@@ -17,7 +18,8 @@ generator = cms.EDProducer("FlatRandomEGunProducer",
 )
 
 # Don't smear our vertex!
-VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
+generator.VertexSmearing = cms.PSet(
+    vertexGeneratorType = cms.string("GaussEvtVtxGenerator"),
     src    = cms.InputTag("generator"),
     MeanX  = cms.double(0.0),
     MeanY  = cms.double(-2.0),

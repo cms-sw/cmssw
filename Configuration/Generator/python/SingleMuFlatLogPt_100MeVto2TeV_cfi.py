@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # distribution is flat in log(Pt).
 generator = cms.EDProducer("FlatRandomOneOverPtGunProducer",
 
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         # This specifies range in 1/Pt
         # It coresponds to Pt = 0.1 to 2000 GeV

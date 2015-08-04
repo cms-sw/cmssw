@@ -51,7 +51,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.common_beam_direction_parameters = cms.PSet(
     MinEta       = cms.double(0.2175),
@@ -67,6 +66,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
         MinE   = cms.double(50.0),
@@ -95,9 +95,10 @@ process.common_heavy_suppression1 = cms.PSet(
 process.Timing = cms.Service("Timing")
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
-process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
+process.generator.VertexSmearing = cms.PSet(
     process.common_beam_direction_parameters,
     VtxSmearedCommon,
+    vertexGeneratorType = cms.string("BeamProfileVtxGenerator"),
     BeamMeanX       = cms.double(0.0),
     BeamMeanY       = cms.double(0.0),
     BeamSigmaX      = cms.double(0.0001),
@@ -111,7 +112,7 @@ process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
     TimeOffset      = cms.double(0.)
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 
 process.common_maximum_timex = cms.PSet(

@@ -13,6 +13,7 @@ process.generator = cms.EDFilter("Pythia8EGun",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     pythiaHepMCVerbosity = cms.untracked.bool(True),
 
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
        ParticleID = cms.vint32(23),
        AddAntiParticle = cms.bool(True),
@@ -37,6 +38,7 @@ process.generator = cms.EDFilter("Pythia8EGun",
         parameterSets = cms.vstring('Tauola')
     ),
 
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
 	py8ZDecaySettings = cms.vstring(  '23:onMode = off', # turn OFF all Z decays
 					  '23:onIfAny = 15'  # turn ON Z->tautau

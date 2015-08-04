@@ -28,6 +28,7 @@ process.generator = cms.EDProducer("Pythia6JetGun",
     pythiaHepMCVerbosity = cms.untracked.bool(True),    
        
     # Generate a number of particles with some fermi motion
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         ParticleID = cms.vint32(211,-211,111,111,130),
         # this defines "absolute" energy spead of particles in the jet
@@ -43,6 +44,7 @@ process.generator = cms.EDProducer("Pythia6JetGun",
     ),
     
     # no detailed pythia6 settings necessary    
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         parameterSets = cms.vstring()
     

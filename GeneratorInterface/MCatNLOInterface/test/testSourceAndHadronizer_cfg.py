@@ -31,6 +31,7 @@ process.generator = cms.EDFilter("Herwig6HadronizerFilter",
 
         numTrialsMPI = cms.untracked.int32(1),
 
+	VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 	HerwigParameters = cms.PSet(
 		parameterSets = cms.vstring(
 			'herwigMcatnlo'

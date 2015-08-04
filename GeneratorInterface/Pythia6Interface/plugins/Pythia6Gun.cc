@@ -10,6 +10,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,6 +24,7 @@ using namespace gen;
 
 
 Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
+   eventVertexHelper_(pset, consumesCollector()),
    fPy6Service( new Pythia6Service(pset) ),
    fEvt(0)
    // fPDGTable( new DefaultConfig::ParticleDataTable("PDG Table") )
@@ -71,14 +73,15 @@ void Pythia6Gun::beginJob()
 
 }
 
-void Pythia6Gun::beginRun( Run const&, EventSetup const& es )
+void Pythia6Gun::beginRun(Run const& run, EventSetup const& es)
 {
    std::cout << " FYI: MSTU(10)=1 is ENFORCED in Py6-PGuns, for technical reasons"
              << std::endl;
+   eventVertexHelper_.beginRun(run, es);
    return;
 }
 
-void Pythia6Gun::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&) {
+void Pythia6Gun::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const& es) {
 
    assert ( fPy6Service ) ;
 
@@ -93,6 +96,8 @@ void Pythia6Gun::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup co
    call_pygive("MSTU(10)=1");
       
    call_pyinit("NONE", "", "", 0.0);
+
+   eventVertexHelper_.beginLuminosityBlock(lumi, es);
 }
 
 void Pythia6Gun::endRun( Run const&, EventSetup const& es )
@@ -234,6 +239,7 @@ void Pythia6Gun::loadEvent( edm::Event& evt )
    
    if(fEvt)  bare_product->addHepMCData( fEvt );
 
+   eventVertexHelper_.smearVertex(evt, *bare_product);
    evt.put(bare_product);
 
    

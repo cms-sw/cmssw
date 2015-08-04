@@ -55,6 +55,7 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(True),
     comEnergy = cms.double(900.0),
     maxEventsToPrint = cms.untracked.int32(0),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaUESettings = cms.vstring('MSTJ(11)=3     ! Choice of the fragmentation function', 
             'MSTJ(22)=2     ! Decay those unstable particles', 
@@ -88,7 +89,6 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
             'processParameters')
     )
 )
-
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent.root')
@@ -104,7 +104,7 @@ process.common_maximum_timex = cms.PSet(
     MaxTrackTimes = cms.vdouble()
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 process.g4SimHits.Physics.MonopoleCharge = 1

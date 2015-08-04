@@ -16,6 +16,7 @@ herwig6Parameters = cms.PSet(
 
 generator = cms.EDFilter("PomwigGeneratorFilter",
     herwig6Parameters,
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     HerwigParameters = cms.PSet(
         parameterSets = cms.vstring('SDInclusiveWmunu'),
         SDInclusiveWmunu = cms.vstring('NSTRU      = 14         ! H1 Pomeron Fit B', 

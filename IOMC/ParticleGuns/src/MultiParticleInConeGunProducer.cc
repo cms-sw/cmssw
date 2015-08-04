@@ -190,6 +190,7 @@ void MultiParticleInConeGunProducer::produce(Event &e, const EventSetup& es)
 
    auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
+   smearVertex(e, *BProduct);
    e.put(BProduct);
 
    auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));

@@ -26,9 +26,9 @@ namespace edm {
 
 		void addHepMCData(HepMC::GenEvent *evt);
 
-		void applyVtxGen(HepMC::FourVector *vtxShift) const;
+		void applyVtxGen(HepMC::FourVector *vtxShift);
 
-		void boostToLab(TMatrixD *lorentz, std::string type) const;
+		void boostToLab(TMatrixD *lorentz, std::string type);
 
 		const HepMC::GenEvent &getHepMCData() const;
 
@@ -45,9 +45,9 @@ namespace edm {
 	    private:
 		HepMC::GenEvent	*evt_;
 
-		mutable bool	isVtxGenApplied_ ;
-		mutable bool	isVtxBoostApplied_;
-		mutable bool	isPBoostApplied_;
+		bool	isVtxGenApplied_ ;
+		bool	isVtxBoostApplied_;
+		bool	isPBoostApplied_;
 	
 	};
 

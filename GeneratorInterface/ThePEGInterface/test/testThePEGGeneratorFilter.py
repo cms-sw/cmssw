@@ -30,7 +30,8 @@ process.generator = cms.EDFilter("ThePEGGeneratorFilter",
 	process.herwigDefaultsBlock,
 	herwigValidationBlock,
 
-	configFiles = cms.vstring(
+	VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
+        configFiles = cms.vstring(
 #		'MSSM.model'
 	),
 

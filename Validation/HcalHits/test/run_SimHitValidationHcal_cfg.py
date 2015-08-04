@@ -25,7 +25,6 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.load('Validation.HcalHits.SimHitsValidationHcal_cfi')
 process.load("DQMServices.Core.DQM_cfg")
-process.DQM.collectorHost = ''
 process.load("DQMServices.Components.MEtoEDMConverter_cfi")
 
 process.maxEvents = cms.untracked.PSet(
@@ -63,6 +62,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('MC_60_V5::All')
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+				   VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 				   PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MinEta = cms.double(-5.0),

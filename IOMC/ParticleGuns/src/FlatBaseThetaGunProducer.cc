@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -18,6 +19,7 @@
 using namespace edm;
 
 FlatBaseThetaGunProducer::FlatBaseThetaGunProducer(const edm::ParameterSet& pset) :
+   eventVertexHelper_(pset, consumesCollector()),
    fEvt(0) {
 
   edm::ParameterSet pgun_params = pset.getParameter<edm::ParameterSet>("PGunParameters") ;
@@ -49,7 +51,9 @@ FlatBaseThetaGunProducer::~FlatBaseThetaGunProducer() {
 
 void FlatBaseThetaGunProducer::beginRun(const edm::Run &r, const edm::EventSetup& es ) {
    es.getData( fPDGTable ) ;
+   eventVertexHelper_.beginRun(r, es);
 }
+
 void FlatBaseThetaGunProducer::endRun(const Run &run, const EventSetup& es ) {
 }
 
@@ -60,4 +64,17 @@ void FlatBaseThetaGunProducer::endRunProduce(Run &run, const EventSetup& es )
    // later on we might put the info into the run info that this is a PGun
    std::auto_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
    run.put( genRunInfo );
+}
+
+
+void FlatBaseThetaGunProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const EventSetup& es )
+{
+   eventVertexHelper_.beginLuminosityBlock(lumi, es);
+}
+
+void FlatBaseThetaGunProducer::endLuminosityBlock(const LuminosityBlock &run, const EventSetup& es ) {
+}
+
+void FlatBaseThetaGunProducer::smearVertex(const edm::Event& event, edm::HepMCProduct& product) {
+   eventVertexHelper_.smearVertex(event, product);
 }

@@ -35,6 +35,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
         parameterSets = cms.vstring('Tauola')
     ),
     
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         py8GeneralSettings = cms.vstring(  'Main:timesAllowErrors    = 10000', 
                                            'ParticleDecays:limitTau0 = on',

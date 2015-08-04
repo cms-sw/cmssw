@@ -5,6 +5,7 @@ from GeneratorInterface.CascadeInterface.Cascade2Parameters_cfi import Cascade2P
 source = cms.Source("EmptySource")
 
 generator = cms.EDFilter('Cascade2GeneratorFilter',
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          PythiaParameters = cms.PSet(
                                processParameters = cms.vstring('PMAS(4,1) = 1.6   ! charm mass',
                                                                'PMAS(5,1) = 4.75  ! bottom mass',

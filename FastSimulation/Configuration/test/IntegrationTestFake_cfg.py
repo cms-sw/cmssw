@@ -61,7 +61,7 @@ process.famosSimHits.SimulateTracking = True
 # Famos with everything !
 #process.p1 = cms.Path(process.ProductionFilterSequence*process.famosWithEverything)
 process.source = cms.Source("EmptySource")
-process.simulation = cms.Path(process.generator*process.VtxSmeared*process.famosWithEverything)
+process.simulation = cms.Path(process.generator*process.famosWithEverything)
 
 # To write out events (not need: FastSimulation _is_ fast!)
 #process.load("FastSimulation.Configuration.EventContent_cff")

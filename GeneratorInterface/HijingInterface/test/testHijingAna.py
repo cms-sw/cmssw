@@ -12,6 +12,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10000)
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDFilter("HijingGeneratorFilter",
+                                     VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                                      frame = cms.string('CMS     '),
                                      targ = cms.string('P       '),
                                      izp = cms.int32(82),

@@ -26,6 +26,7 @@ process.generator = cms.EDFilter("Herwig6HadronizerFilter",
 
 	emulatePythiaStatusCodes = cms.untracked.bool(True),
 
+	VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 	HerwigParameters = cms.PSet(
 		parameterSets = cms.vstring(
 			'jimmyUESettings',

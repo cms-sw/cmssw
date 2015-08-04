@@ -6,6 +6,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("EcalSelectiveReadoutValid")
 # initialize  MessageLogger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
 # initialize magnetic field
 process.load("Configuration.StandardSequences.MagneticField_cff")
@@ -24,11 +25,6 @@ process.load("Geometry.EcalMapping.EcalMappingRecord_cfi")
 process.load("DQMServices.Core.DQM_cfg")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-
-# event vertex smearing - applies only once (internal check)
-# Note : all internal generators will always do (0,0,0) vertex
-#
-process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
 # run simulation, with EcalHits Validation specific watcher 
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -66,15 +62,6 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('QCD_pt30_50_all_SRValidation.root')
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(9876),
-        simEcalUnsuppressedDigis = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
-
 #Pythia configuration to generate multijet event with pt_hat between 30
 #and 50 GeV/c
 process.load("Configuration.Generator.QCD_Pt_30_50_cfi")
@@ -90,6 +77,17 @@ process.DQM.collectorHost = ''
 process.g4SimHits.Generator.HepMCProductLabel = 'source'
 
 process.simEcalDigis.writeSrFlags = True
+
+# event vertex smearing - applies only once (internal check)
+# Note : all internal generators will always do (0,0,0) vertex
+#
+process.VtxSmeared = cms.EDProducer("EventVertexProducer",
+    src = cms.InputTag("generator"),
+)
+from IOMC.EventVertexGenerators.VtxSmearedGauss_cfi import VertexSmearingParameters
+process.VtxSmeared.VertexSmearing = cms.PSet(
+    VertexSmearingParameters
+)
 
 # detector response simulation path:
 process.detSim = cms.Sequence(process.VtxSmeared*process.g4SimHits)

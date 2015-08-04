@@ -20,6 +20,7 @@ process.common_pgun_particleID = cms.PSet(
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
 # process.load("Configuration.StandardSequences.GeometryExtended_cff")
 process.load("SimG4CMS.Forward.castorGeometryXML_cfi")
@@ -49,15 +50,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # Define the random generator seeds based on the current clock
 t = datetime.datetime.now()
-
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits  = cms.untracked.uint32(t.second),         # std: 9784
-        VtxSmeared = cms.untracked.uint32(t.microsecond),
-        generator  = cms.untracked.uint32(t.second*t.microsecond)     # std: 135799753
-    )
-    #sourceSeed = cms.untracked.uint32(135799753)         # std: 135799753
-)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000000000)
@@ -105,6 +97,7 @@ process.g4SimHits.SteppingAction = cms.PSet(
 )
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         process.common_pgun_particleID,
         MinEta = cms.double(-6.6),
@@ -154,7 +147,7 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
 ))
 
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 #process.outpath = cms.EndPath(process.o1)
 EOF
 #

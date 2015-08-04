@@ -32,10 +32,6 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
         initialSeed = cms.untracked.uint32(int(mySeed)),      
         engineName = cms.untracked.string('HepJamesRandom') 
     ),                                                      
-    VtxSmeared = cms.PSet(
-        initialSeed = cms.untracked.uint32(98765432),
-        engineName = cms.untracked.string('HepJamesRandom')
-    ),
     g4SimHits = cms.PSet(
         initialSeed = cms.untracked.uint32(11),
         engineName = cms.untracked.string('HepJamesRandom')
@@ -109,6 +105,7 @@ process.load("MagneticField.Engine.uniformMagneticField_cfi")
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
         PartID = cms.vint32(11),
@@ -129,9 +126,10 @@ from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
 # this module takes input in the units of *cm* and *radian*!!!
 #
 
-process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
+process.generator.VertexSmearing = cms.PSet(
     process.common_beam_direction_parameters,
     VtxSmearedCommon,
+    vertexGeneratorType = cms.string("BeamProfileVtxGenerator"),
 #    BeamSigmaX = cms.double(2.4),
 #    BeamSigmaY = cms.double(2.4),
 #    GaussianProfile = cms.bool(False),
@@ -248,7 +246,7 @@ if mySample == "gf":
 print "physics type : ", process.g4SimHits.Physics.type
 
 # sequences
-process.doSimHits = cms.Sequence(process.ProductionFilterSequence*process.VtxSmeared*process.g4SimHits)
+process.doSimHits = cms.Sequence(process.ProductionFilterSequence*process.g4SimHits)
 process.doSimTB = cms.Sequence(process.SimEcalTBG4Object*process.SimEcalTBHodoscope*process.SimEcalEventHeader)
 process.doEcalDigis = cms.Sequence(process.mix)
 #process.p1 = cms.Path(process.doSimHits*process.doSimTB*process.doEcalDigis*process.localReco_tbsim*process.treeProducerCalibSimul)
@@ -276,7 +274,7 @@ process.MessageLogger.categories=cms.untracked.vstring('FwkJob'
                                                        ,'BeamProfileVtxGenerator'
                                                        )
 
-#process.MessageLogger.debugModule = cms.untracked.vstring('g4SimHits','VtxSmeared')
+#process.MessageLogger.debugModule = cms.untracked.vstring('g4SimHits')
 
 #Configuring the G4msg.log output
 process.MessageLogger.G4msg =  cms.untracked.PSet(

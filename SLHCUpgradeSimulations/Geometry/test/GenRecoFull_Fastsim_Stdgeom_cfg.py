@@ -164,6 +164,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(0),
     filterEfficiency = cms.untracked.double(1.0),
     comEnergy = cms.double(14000.0),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         process.pythiaUESettingsBlock,
         processParameters = cms.vstring('MSEL      = 0     ! User defined processes', 

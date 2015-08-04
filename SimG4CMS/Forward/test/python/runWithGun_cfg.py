@@ -40,7 +40,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(2)
@@ -52,6 +51,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MinEta = cms.double(-6.5),
@@ -64,7 +64,6 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
-
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent_QGSP_BERT_EML.root')
@@ -84,7 +83,7 @@ process.common_maximum_timex = cms.PSet(
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble()
 )
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 process.g4SimHits.ECalSD.StoreSecondary = True

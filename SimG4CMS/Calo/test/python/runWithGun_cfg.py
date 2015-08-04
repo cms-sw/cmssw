@@ -77,6 +77,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MinEta = cms.double(-3.0),
@@ -89,7 +90,6 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
-
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent_QGSP_FTFP_BERT_EML.root')
@@ -115,7 +115,7 @@ process.common_maximum_timex = cms.PSet(
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble()
 )
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy)
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.caloSimHitStudy)
 process.outpath = cms.EndPath(process.o1)
 process.caloSimHitStudy.MaxEnergy = 1000.0
 #process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'

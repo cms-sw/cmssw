@@ -8,6 +8,7 @@ pythiaPylistVerbosity = cms.untracked.int32(1),
 filterEfficiency = cms.untracked.double(1.0),
 pythiaHepMCVerbosity = cms.untracked.bool(False),
 comEnergy = cms.double(13000.),
+VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 PythiaParameters = cms.PSet(
 pythia8CommonSettingsBlock,
 pythia8CUEP8M1SettingsBlock,

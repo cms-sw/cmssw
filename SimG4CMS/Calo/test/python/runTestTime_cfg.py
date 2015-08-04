@@ -51,6 +51,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MinEta = cms.double(-5.5),
@@ -63,7 +64,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
-
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent.root')
@@ -73,7 +73,7 @@ process.Timing = cms.Service("Timing")
 
 process.Tracer = cms.Service("Tracer")
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.common_maximum_timex = cms.PSet(
     MaxTrackTime  = cms.double(1000.0),

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <time.h>
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
@@ -57,6 +58,7 @@ BeamHaloProducer::~BeamHaloProducer() {
 
 
 BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
+  eventVertexHelper_(pset, consumesCollector()),
   evt(0),
   isInitialized_(false)
 {
@@ -101,7 +103,7 @@ void BeamHaloProducer::setRandomEngine(CLHEP::HepRandomEngine* v) {
   _BeamHalo_randomEngine = v;
 }
 
-void BeamHaloProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&)
+void BeamHaloProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const& es)
 {
   if(!isInitialized_) {
     isInitialized_ = true;
@@ -111,6 +113,12 @@ void BeamHaloProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSe
     long seed = 1; // This seed is not actually used
     call_ki_bhg_init(seed);
   }
+  eventVertexHelper_.beginLuminosityBlock(lumi, es);
+}
+
+void BeamHaloProducer::beginRun(Run const& run, EventSetup const& es)
+{
+  eventVertexHelper_.beginRun(run, es);
 }
 
 void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
@@ -157,6 +165,7 @@ void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
 	//	evt->print();
   std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
   if (evt) CMProduct->addHepMCData(evt);
+  eventVertexHelper_.smearVertex(e, *CMProduct);
   e.put(CMProduct);
 
   auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
