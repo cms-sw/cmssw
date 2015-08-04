@@ -525,11 +525,7 @@ class Validation:
         refValFilePath = os.path.join(refdir, valname)
         if not os.path.exists(refValFilePath):
             print "Reference file %s not found" % refValFilePath
-            if not plotting.missingOk:
-                print "If this is acceptable, please set 'plotting.missingOk=True'"
-                sys.exit(1)
-            else:
-                refValFile = None
+            refValFile = None
         else:
             refValFile = ROOT.TFile.Open(refValFilePath)
 
@@ -537,9 +533,7 @@ class Validation:
         try:
             subdir = self._getDirectoryName(quality, algo)
         except KeyError, e:
-            if plotting.missingOk:
-                return
-            raise e
+            return
         newValFile = _copySubDir(harvestedfile, valname, self._plotter.getPossibleDirectoryNames(), subdir)
         fileList = [valname]
 
@@ -599,9 +593,7 @@ class Validation:
         try:
             subdir = self._getDirectoryName(quality, algo)
         except KeyError, e:
-            if plotting.missingOk:
-                return
-            raise e
+            return
 
         # Do plots
         print "Comparing FullSim and FastSim {sample} {algo} {quality}".format(
@@ -764,9 +756,7 @@ class SimpleValidation:
                         try:
                             subdir = self._algoDirMap[q][a]
                         except KeyError, e:
-                            if plotting.missingOk:
-                                return
-                            raise e
+                            return
                 self._doPlots(a, q, subdir)
 
         for tf in self._openFiles:

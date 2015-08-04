@@ -17,9 +17,6 @@ def main(opts):
     files = opts.files
     labels = [f.replace(".root", "") for f in files]
 
-    if opts.ignoreMissing:
-        plotting.missingOk = True
-
     drawArgs={}
     if opts.ratio:
         drawArgs["ratio"] = True
@@ -50,5 +47,8 @@ if __name__ == "__main__":
     for f in opts.files:
         if not os.path.exists(f):
             parser.error("DQM file %s does not exist" % f)
+
+    if opts.ignoreMissing:
+        print "--ignoreMissing is now the only operation mode, so you can stop using this parameter"
 
     main(opts)

@@ -6,9 +6,6 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 #########################################################
 ########### User Defined Variables (BEGIN) ##############
 
-#import Validation.RecoTrack.plotting.plotting as plotting
-#plotting.missingOk = True
-
 ### Reference release
 RefRelease='CMSSW_7_5_0'
 

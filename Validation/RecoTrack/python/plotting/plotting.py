@@ -6,10 +6,6 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-# Flag to indicate if it is ok to have missing files or histograms
-# Set to true e.g. if there is no reference histograms
-missingOk = False
-
 class AlgoOpt:
     """Class to allow algorithm-specific values for e.g. plot bound values"""
     def __init__(self, default, **kwargs):
@@ -34,10 +30,7 @@ def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
         print "Did not find {obj} from {dir}".format(obj=name, dir=tdirectory.GetPath())
-        if missingOk:
-            return None
-        else:
-            sys.exit(1)
+        return None
     return obj
 
 
@@ -459,7 +452,6 @@ class Plot:
         ratioYmax    -- Float for y axis maximum in ratio pad (default 1.1)
         ratioUncertainty -- Plot uncertainties on ratio? (default True)
         histogramModifier -- Function to be called in create() to modify the histograms (default None)
-        ignoreIfMissing -- If this plot is missing from DQM file, ignoring this plot is safe regardless of the global missingOk setting (default False)
         """
         self._name = name
 
@@ -514,8 +506,6 @@ class Plot:
 
         _set("histogramModifier", None)
 
-        _set("ignoreIfMissing", False)
-
         self._histograms = []
 
     def getNumberOfHistograms(self):
@@ -551,10 +541,7 @@ class Plot:
         # Check the histogram exists
         if th1 == None:
             print "Did not find {histo} from {dir}".format(histo=name, dir=tdir.GetPath())
-            if missingOk or self._ignoreIfMissing:
-                return None
-            else:
-                sys.exit(1)
+            return None
 
         return th1
 
@@ -1220,20 +1207,12 @@ class Plotter:
                     if d:
                         return d
                     else:
-                        msg = "Did not find subdirectory '%s' from directory '%s' in file %s" % (subdir, pd, tfile.GetName())
-                        if missingOk:
-                            print msg
-                            return None
-                        else:
-                            raise Exception(msg)
+                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subdir, pd, tfile.GetName())
+                        return None
                 else:
                     return d
-        msg = "Did not find any of directories '%s' from file %s" % (",".join(self._possibleDirs), tfile.GetName())
-        if missingOk:
-            print msg
-            return None
-        else:
-            raise Exception(msg)
+        print "Did not find any of directories '%s' from file %s" % (",".join(self._possibleDirs), tfile.GetName())
+        return None
 
     def create(self, files, labels, subdir=None):
         """Create histograms from a list of TFiles.

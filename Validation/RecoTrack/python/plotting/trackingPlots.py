@@ -90,7 +90,7 @@ _dupandfake4 = PlotGroup("dupandfake4", [
 )
 
 # These don't exist in FastSim
-_common = {"stat": True, "drawStyle": "hist", "ignoreIfMissing": True}
+_common = {"stat": True, "drawStyle": "hist"}
 _dedx = PlotGroup("dedx", [
     Plot("h_dedx_estim1", normalizeToUnitArea=True, xtitle="dE/dx, harm2", **_common),
     Plot("h_dedx_estim2", normalizeToUnitArea=True, xtitle="dE/dx, trunc40", **_common),
