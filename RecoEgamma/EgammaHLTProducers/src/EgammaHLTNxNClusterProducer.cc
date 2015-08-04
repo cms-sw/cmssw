@@ -22,6 +22,8 @@
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTNxNClusterProducer.h"
 #include "TVector3.h"
 
+#include <memory>
+
 EgammaHLTNxNClusterProducer::EgammaHLTNxNClusterProducer(const edm::ParameterSet& ps):
   doBarrel_               (ps.getParameter<bool>("doBarrel")),
   doEndcaps_              (ps.getParameter<bool>("doEndcaps")),
@@ -179,13 +181,13 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt, const edm::Ev
   es.get<CaloGeometryRecord>().get(geoHandle);
   
   const CaloSubdetectorGeometry *geometry_p;
-  CaloSubdetectorTopology *topology_p;
+  std::unique_ptr<CaloSubdetectorTopology> topology_p;
   if (detector == reco::CaloID::DET_ECAL_BARREL) {
     geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
-    topology_p = new EcalBarrelTopology(geoHandle);
+    topology_p.reset(new EcalBarrelTopology(geoHandle));
   }else {
     geometry_p = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-    topology_p = new EcalEndcapTopology(geoHandle); 
+    topology_p.reset(new EcalEndcapTopology(geoHandle)); 
   }
   
   const CaloSubdetectorGeometry *geometryES_p;
