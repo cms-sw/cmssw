@@ -254,7 +254,7 @@ namespace l1t {
    void
    L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
      edm::ParameterSetDescription desc;
-     desc.addOptional<unsigned int>("FWId",-1)->setComment("32 bits: if the first eight bits are 0xff, will read the 74x MC format - but need to have FWOverride=true");
+     desc.add<unsigned int>("FWId",-1)->setComment("32 bits: if the first eight bits are 0xff, will read the 74x MC format - but need to have FWOverride=true");
      desc.add<bool>("FWOverride", false);
      desc.addUntracked<bool>("CTP7", false);
      desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
