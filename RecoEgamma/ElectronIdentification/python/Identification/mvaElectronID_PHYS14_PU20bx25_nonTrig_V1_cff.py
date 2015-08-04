@@ -105,5 +105,5 @@ central_id_registry.register( mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80.idName,
 central_id_registry.register( mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90.idName,
                               '7d091368510c32f0ab29a53323cae95a')
 
-mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
-mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(False)
+mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(False)
