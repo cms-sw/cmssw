@@ -55,42 +55,81 @@ namespace edm
   DataMixingTrackingParticleWorker::~DataMixingTrackingParticleWorker() { 
   }  
 
+  // Need an event initialization
+
+  void DataMixingTrackingParticleWorker::initializeEvent(edm::Event const& e, edm::EventSetup const& iSetup) {	
+
+    // Create new track/vertex lists, getting references, too, so that we can cross-link everything
+
+    NewTrackList_ = std::auto_ptr<std::vector<TrackingParticle>>(new std::vector<TrackingParticle>());
+    //NewVertexList_ = std::auto_ptr<std::vector<TrackingVertex>>(new std::vector<TrackingVertex>());
+    TempVertexList_ = std::vector<TrackingVertex>();
+
+    TrackListRef_  =const_cast<edm::Event&>( e ).getRefBeforePut< std::vector<TrackingParticle> >(TrackingParticleCollectionDM_); 
+    VertexListRef_ =const_cast<edm::Event&>( e ).getRefBeforePut< std::vector<TrackingVertex> >(TrackingParticleCollectionDM_);    
+
+  }					   
 
 
   void DataMixingTrackingParticleWorker::addTrackingParticleSignals(const edm::Event &e) { 
 
-    // Create new track/vertex lists; Rely on the fact that addSignals gets called first...
+    // grab Vertices, store copy, preserving indices.  Easier to loop over vertices first - fewer links
 
-    NewTrackList_ = std::auto_ptr<std::vector<TrackingParticle>>(new std::vector<TrackingParticle>());
-    NewVertexList_ = std::auto_ptr<std::vector<TrackingVertex>>(new std::vector<TrackingVertex>());
+    edm::Handle<std::vector<TrackingVertex>> vtxs;
+    e.getByToken(VtxSigToken_, vtxs);
+
+    int StartingIndexV = int(TempVertexList_.size());  // should be zero here, but keep for consistency
+    int StartingIndexT = int(NewTrackList_->size());  // should be zero here, but keep for consistency
+
+    if (vtxs.isValid()) {
+      for (std::vector<TrackingVertex>::const_iterator vtx = vtxs->begin();  vtx != vtxs->end();  ++vtx) {
+	TempVertexList_.push_back(*vtx);
+      }
+    }
 
     // grab tracks, store copy
 
-    //edm::Handle<std::vector<TrackingParticle>> generalTrkHandle;
-    //e.getByLabel("generalTracks", generalTrkHandle);
     edm::Handle<std::vector<TrackingParticle>> tracks;
     e.getByToken(TrackSigToken_, tracks);
 
     if (tracks.isValid()) {
       for (std::vector<TrackingParticle>::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
+	auto oldRef=track->parentVertex();
+	auto newRef=TrackingVertexRef( VertexListRef_, oldRef.index()+StartingIndexV-1 );
 	NewTrackList_->push_back(*track);
-      }
-      
-    }
-    // grab Vertices, store copy
 
-    //edm::Handle<std::vector<TrackingVertex>> generalTrkHandle;
-    //e.getByLabel("generalTracks", generalTrkHandle);
-    edm::Handle<std::vector<TrackingVertex>> vtxs;
-    e.getByToken(VtxSigToken_, vtxs);
+	auto & Ntrack = NewTrackList_->back();  //modify copy
 
-    if (vtxs.isValid()) {
-      for (std::vector<TrackingVertex>::const_iterator vtx = vtxs->begin();  vtx != vtxs->end();  ++vtx) {
-	NewVertexList_->push_back(*vtx);
-      }
-      
+        Ntrack.setParentVertex( newRef );
+        Ntrack.clearDecayVertices();
+
+	// next, loop over daughter vertices, same strategy
+
+	for( auto const& vertexRef : track->decayVertices() ) {
+	  auto newRef=TrackingVertexRef( VertexListRef_, vertexRef.index()+StartingIndexV-1 );
+	  Ntrack.addDecayVertex(newRef);
+	}
+      }      
     }
 
+    // Now that tracks are handled, go back and put correct Refs in vertices
+
+    for (auto & vertex : TempVertexList_ ) {
+
+      vertex.clearParentTracks();
+      vertex.clearDaughterTracks();
+
+      for( auto const& trackRef : vertex.sourceTracks() ) {
+        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT-1 );
+        vertex.addParentTrack(newRef);
+      }
+
+      // next, loop over daughter tracks, same strategy                                                                 
+      for( auto const& trackRef : vertex.daughterTracks() ) {
+        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT-1 );
+        vertex.addDaughterTrack(newRef);
+      }
+    }
   } // end of addTrackingParticleSignals
 
 
@@ -100,22 +139,8 @@ namespace edm
 
     LogDebug("DataMixingTrackingParticleWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
-
-    std::shared_ptr<Wrapper<std::vector<TrackingParticle> >  const> inputPTR =
-      getProductByTag<std::vector<TrackingParticle> >(*ep, TrackingParticlePileInputTag_, mcc);
-
-    if(inputPTR ) {
-
-      const std::vector<TrackingParticle>  *tracks = const_cast< std::vector<TrackingParticle> * >(inputPTR->product());
-
-    // grab tracks, store copy
-
-
-      for (std::vector<TrackingParticle>::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
-	NewTrackList_->push_back(*track);
-      }
-
-    }
+    int StartingIndexV = int(TempVertexList_.size());  // keep track of offsets
+    int StartingIndexT = int(NewTrackList_->size());  // keep track of offsets
 
     std::shared_ptr<Wrapper<std::vector<TrackingVertex> >  const> inputVPTR =
       getProductByTag<std::vector<TrackingVertex> >(*ep, TrackingParticlePileInputTag_, mcc);
@@ -124,21 +149,70 @@ namespace edm
 
       const std::vector<TrackingVertex>  *vtxs = const_cast< std::vector<TrackingVertex> * >(inputVPTR->product());
 
-    // grab vertices, store copy
+      // grab vertices, store copy
 
       for (std::vector<TrackingVertex>::const_iterator vtx = vtxs->begin();  vtx != vtxs->end();  ++vtx) {
-	NewVertexList_->push_back(*vtx);
+	TempVertexList_.push_back(*vtx);
       }
-
     }
 
-  }
+
+    std::shared_ptr<Wrapper<std::vector<TrackingParticle> >  const> inputPTR =
+      getProductByTag<std::vector<TrackingParticle> >(*ep, TrackingParticlePileInputTag_, mcc);
+
+    if(inputPTR ) {
+
+      const std::vector<TrackingParticle>  *tracks = const_cast< std::vector<TrackingParticle> * >(inputPTR->product());
+
+      // grab tracks, store copy
+      for (std::vector<TrackingParticle>::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
+	auto oldRef=track->parentVertex();
+	auto newRef=TrackingVertexRef( VertexListRef_, oldRef.index()+StartingIndexV-1 );
+	NewTrackList_->push_back(*track);
+
+	auto & Ntrack = NewTrackList_->back();  //modify copy
+
+        Ntrack.setParentVertex( newRef );
+        Ntrack.clearDecayVertices();
+
+	// next, loop over daughter vertices, same strategy
+
+	for( auto const& vertexRef : track->decayVertices() ) {
+	  auto newRef=TrackingVertexRef( VertexListRef_, vertexRef.index()+StartingIndexV-1 );
+	  Ntrack.addDecayVertex(newRef);
+	}
+      }      
+    }
+
+    // Now that tracks are handled, go back and put correct Refs in vertices
+
+    for (auto & vertex : TempVertexList_ ) {
+
+      vertex.clearParentTracks();
+      vertex.clearDaughterTracks();
+
+      for( auto const& trackRef : vertex.sourceTracks() ) {
+        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT-1 );
+        vertex.addParentTrack(newRef);
+      }
+
+      // next, loop over daughter tracks, same strategy                                                                 
+      for( auto const& trackRef : vertex.daughterTracks() ) {
+        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT-1 );
+        vertex.addDaughterTrack(newRef);
+      }
+    }
+
+
+  } // end of addPileups
 
 
  
   void DataMixingTrackingParticleWorker::putTrackingParticle(edm::Event &e) {
 
-    // collection of Tracks to put in the event
+    // collection of Vertices to put in the event
+
+    NewVertexList_ = std::auto_ptr<std::vector<TrackingVertex>>(new std::vector<TrackingVertex>(TempVertexList_));    
 
     // put the collection of digis in the event   
     LogInfo("DataMixingTrackingParticleWorker") << "total # Merged Tracks: " << NewTrackList_->size() ;
@@ -150,7 +224,7 @@ namespace edm
 
     // clear local storage for this event
     //NewTrackList_.clear();
-    //NewVertexList_.clear();
+    TempVertexList_.clear();
   }
 
 } //edm

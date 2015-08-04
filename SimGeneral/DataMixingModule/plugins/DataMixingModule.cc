@@ -293,6 +293,9 @@ namespace edm
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
     }
+
+    TrackingParticleWorker_->initializeEvent( e, ES );
+
   }
   
 
