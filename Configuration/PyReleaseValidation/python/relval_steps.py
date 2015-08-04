@@ -230,7 +230,8 @@ baseDataSetRelease=[
     'CMSSW_7_5_0_pre6-PU25ns_75X_mcRun2_asymptotic_v1-v1',  # 5 - fullSim PU 25ns premix
     'CMSSW_7_5_0_pre6-PU50ns_75X_mcRun2_startup_v1-v1',     # 6 - fullSim PU 50ns premix
     'CMSSW_7_5_0_pre6-75X_mcRun2_asymptotic_v1_FastSim-v1', # 7 - fastSim premix
-    'CMSSW_7_5_0_pre6-75X_mcRun2_HeavyIon_v1-v1'            # 8 Run2 HI GEN-SIM
+    'CMSSW_7_5_0_pre5-MCRUN2_75_V5_FastSim-v1',             # 8 - fastSim mb
+    'CMSSW_7_5_0_pre4-PU25ns_MCRUN2_75_V1_FastSim-v2'       # 9 - fastSim pre-premix 
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -539,7 +540,6 @@ steps["FS_PREMIXUP15_PU25"] = merge([
         {"cfg":"SingleNuE10_cfi",
          "--fast":"",
          "--conditions":"auto:run2_mc",
-         "--magField":"38T_PostLS1",
          "-s":"GEN,SIM,RECOBEFMIX,DIGIPREMIX,L1,DIGI2RAW",
          "--eventcontent":"PREMIX",
          "--datatier":"GEN-SIM-DIGI-RAW",
@@ -891,7 +891,6 @@ step3Up2015Defaults = {
     '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
     '--runUnscheduled':'',
     '--conditions':'auto:run2_mc', 
-    '--magField'    : '38T_PostLS1',
     '-n':'10',
     '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
     '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
@@ -1143,7 +1142,6 @@ steps['HARVESTUP15']={
     # '-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
     '-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM', # todo: remove UP from label
     '--conditions':'auto:run2_mc', 
-    '--magField'    : '38T_PostLS1',
     '--mc':'',
     '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
     '--filetype':'DQM',
