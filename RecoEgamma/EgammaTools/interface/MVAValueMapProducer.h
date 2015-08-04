@@ -80,7 +80,7 @@ MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& 
     //
     // Compose and save the names of the value maps to be produced
     //
-    const auto& currentEstimator = mvaItr->second;
+    //const auto& currentEstimator = mvaItr->second;
     const std::string thisValueMapName = mvaItr->first + "Values";
     const std::string thisCategoriesMapName = mvaItr->first + "Categories";
     mvaValueMapNames_.push_back( thisValueMapName );
