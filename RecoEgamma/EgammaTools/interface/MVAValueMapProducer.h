@@ -52,9 +52,8 @@ class MVAValueMapProducer : public edm::stream::EDProducer< edm::GlobalCache<ega
   // for miniAOD case
   edm::EDGetToken srcMiniAOD_;
 
-  // MVA estimator
-  std::vector<std::unique_ptr<AnyMVAEstimatorRun2Base>> mvaEstimators_;
-
+  // MVA estimators are now stored in MVAObjectCache!
+  
   // Value map names
   std::vector <std::string> mvaValueMapNames_;
   std::vector <std::string> mvaCategoriesMapNames_;
@@ -120,13 +119,13 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
  
   // Loop over MVA estimators
   const auto& all_mvas = globalCache()->allMVAs();
-  for( auto mva_itr = all_mvas.begin(); mva_itr != all_mvas.end(); ++mva_itr ){
+  for( auto mva_itr = all_mvas.begin(); mva_itr != all_mvas.end(); ++mva_itr ){    
     const int iEstimator = std::distance(all_mvas.begin(),mva_itr);
 
     // Set up all event content, such as ValueMaps produced upstream or other,
     // original event data pieces, that is needed (if any is implemented in the specific
     // MVA classes)
-    //mvaEstimators_[iEstimator]->getEventContent( iEvent );
+    const auto& thisEstimator = mva_itr->second;
 
     std::vector<float> mvaValues;
     std::vector<int> mvaCategories;
@@ -134,8 +133,8 @@ void MVAValueMapProducer<ParticleType>::produce(edm::Event& iEvent, const edm::E
     // Loop over particles
     for (size_t i = 0; i < src->size(); ++i){
       auto iCand = src->ptrAt(i);      
-      mvaValues.push_back( mvaEstimators_[iEstimator]->mvaValue( iCand, iEvent ) );
-      mvaCategories.push_back( mvaEstimators_[iEstimator]->findCategory( iCand ) );
+      mvaValues.push_back( thisEstimator->mvaValue( iCand, iEvent ) );
+      mvaCategories.push_back( thisEstimator->findCategory( iCand ) );
     } // end loop over particles
 
     writeValueMap(iEvent, src, mvaValues, mvaValueMapNames_[iEstimator] );  
