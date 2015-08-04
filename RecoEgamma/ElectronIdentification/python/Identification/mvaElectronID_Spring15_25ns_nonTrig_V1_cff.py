@@ -10,7 +10,7 @@ import FWCore.ParameterSet.Config as cms
 #
 # The following MVA is derived for 25ns Spring15 MC samples for non-triggering electrons.
 # See more documentation in this presentation (P.Pigard):
-#     https://indico.cern.ch/event/370506/   (as of this writing, talk is not yet posted)
+#     https://indico.cern.ch/event/370506/contribution/1/attachments/1135340/1624370/20150726_EID_POG_circulating_vAsPresentedC.pdf
 #
 
 # This MVA implementation class name
@@ -57,12 +57,12 @@ MVA_WP90 = EleMVA_6Categories_WP(
     idName = idName,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 = -0.5, # EB1 low pt
-    cutCategory1 = -0.3, # EB2 low pt
-    cutCategory2 = -0.3, # EE low pt 
-    cutCategory3 =  0.9, # EB1       
-    cutCategory4 =  0.8, # EB2       
-    cutCategory5 =  0.4  # EE        
+    cutCategory0 = -0.083313, # EB1 low pt
+    cutCategory1 = -0.235222, # EB2 low pt
+    cutCategory2 = -0.67099, # EE low pt 
+    cutCategory3 =  0.913286, # EB1       
+    cutCategory4 =  0.805013, # EB2       
+    cutCategory5 =  0.358969  # EE        
     )
 
 #
@@ -90,7 +90,7 @@ mvaEleID_Spring15_25ns_nonTrig_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-central_id_registry.register( mvaEleID_Spring15_25ns_nonTrig_V1_wp90.idName,
-                              '2843b2cc0f591c95a69fb32341a043ec')
+central_id_registry.register(mvaEleID_Spring15_25ns_nonTrig_V1_wp90.idName,
+                             'ac4fdc160eefe9eae7338601c02ed4bb')
 
-mvaEleID_Spring15_25ns_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(False)
+mvaEleID_Spring15_25ns_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
