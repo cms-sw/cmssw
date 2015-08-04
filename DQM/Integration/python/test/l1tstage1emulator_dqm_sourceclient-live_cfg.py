@@ -26,7 +26,7 @@ process.load("DQM.Integration.test.inputsource_cfi")
 #
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.dqmEnv.subSystemFolder = 'L1TEMUStage1'
+process.dqmEnv.subSystemFolder = 'L1TEMU'
 
 #
 process.load("DQM.Integration.test.environment_cfi")
@@ -138,11 +138,11 @@ process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeCSCTF)
 
 process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
 
-process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMUStage1')
+process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMU/Stage1Layer2')
 
-process.l1TdeStage1Layer2.HistFolder = cms.untracked.string('L1TEMUStage1/Stage1Layer2expert')
+process.l1TdeStage1Layer2.HistFolder = cms.untracked.string('L1TEMU/Stage1Layer2expert')
 
-process.l1Stage1GtHwValidation.DirName = cms.untracked.string("L1TEMUStage1/GTexpert")
+process.l1Stage1GtHwValidation.DirName = cms.untracked.string("L1TEMU/Stage1GTexpert")
 
 #
 # remove a module / sequence from l1EmulatorMonitorClient
