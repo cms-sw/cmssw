@@ -153,7 +153,7 @@ process.l1ExtraDQMStage1.DirName=cms.string("L1T/L1ExtraStage1")
 process.l1tMonitorStage1Online.remove(process.l1tRctSeq)
 
 #process.l1tMonitorOnline.remove(process.l1tGctSeq)
-
+process.l1tStage1Layer2.monitorDir = cms.untracked.string("L1T/L1TStage1Layer2")
 
 # remove module(s) or system sequence from l1tMonitorEndPath
 #
