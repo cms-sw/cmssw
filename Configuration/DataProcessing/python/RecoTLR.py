@@ -30,11 +30,15 @@ def customiseCosmicData(process):
 ##############################################################################
 # this is supposed to be added on top of other (Run1) data customs
 def customiseDataRun2Common(process):
-    process.CSCGeometryESModule.useGangedStripsInME1a = cms.bool(False)
-    process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-    process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-    process.csc2DRecHits.readBadChannels = cms.bool(False)
-    process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+    if hasattr(process,'CSCGeometryESModule'):
+        process.CSCGeometryESModule.useGangedStripsInME1a = cms.bool(False)
+    if hasattr(process,'CSCIndexerESProducer'):
+        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+    if hasattr(process,'CSCChannelMapperESProducer'):
+        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+    if hasattr(process,'csc2DRecHits'):
+        process.csc2DRecHits.readBadChannels = cms.bool(False)
+        process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
     if hasattr(process,'valCscTriggerPrimitiveDigis'):
         #this is not doing anything at the moment
         process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.untracked.bool(False)
