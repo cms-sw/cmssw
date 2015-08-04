@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej"), 
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","MSSMHbb"), 
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection
@@ -316,5 +316,18 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         minCandidates = cms.uint32(1),
         HtJetPtMin = cms.untracked.double(30),
         HtJetEtaMax = cms.untracked.double(3.0),
+        ),
+   MSSMHbb  = cms.PSet(
+        hltPathsToCheck = cms.vstring(
+            "HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v",
+            "HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v",
+            "HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v",
+            "HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v",
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        jetTagLabel  = cms.string("combinedInclusiveSecondaryVertexV2BJetTags"),
+        # -- Analysis specific cuts
+        minCandidates = cms.uint32(3),
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.941, 0.941 , 0.00, 0, 0, 0, 100, 100, 0.0, 0.0),
         ),
 )
