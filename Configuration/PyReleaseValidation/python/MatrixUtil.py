@@ -40,12 +40,65 @@ class WF(list):
         for s in self:
             print 'steps',s,stepsDict[s]
             steps.append(stepsDict[s])
-
     
+
+
+def expandLsInterval(lumis):
+    return range(lumis[0],(lumis[1]+1))
+
+from DPGAnalysis.Skims.golden_json_2015 import * 
+jsonFile2015 = findFileInPath("DPGAnalysis/Skims/data/Cert_246908-XXXXXX_13TeV_PromptReco_Collisions15_JSON.txt")
+
+import json
+with open(jsonFile2015) as data_file:
+    data_json = json.load(data_file)
+
+# return a portion of the 2015 golden json
+# LS for a full run by default; otherwise a subset of which you determined the size
+def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
+    # print "maxNum is %s"%(maxNum)
+    if type(list_runs[0]) !=int:
+        print "ERROR: list_runs must be a list of intergers"
+        return None
+    local_dict = {}
+    ls_count = 0
+
+    for run in list_runs:
+        if str(run) in l_json.keys():
+            # print "run %s is there"%(run)
+            runNumber = run
+            for LSsegment in l_json[str(run)] :
+                print LSsegment
+                ls_count += (LSsegment[-1] - LSsegment[0] + 1)
+                if (ls_count > maxNum) & (maxNum != -1):
+                    break
+                    # return local_dict
+                if runNumber in local_dict.keys():
+                    local_dict[runNumber].append(LSsegment)
+                else: 
+                    local_dict[runNumber] = [LSsegment]
+                # print "total LS so far  %s    -   grow %s"%(ls_count,local_dict)
+            #local_dict[runNumber] = [1,2,3]
+        else:
+            print "run %s is NOT there\n\n"%(run)
+        # print "++    %s"%(local_dict)
+
+    if ( len(local_dict.keys()) > 0 ) :
+        return local_dict
+    else :
+        print "No luminosity section interval passed the json and your selection; returning None"
+        return None
+
+# print "\n\n\n THIS IS WHAT I RETURN: %s \n\n"%( selectedLS([251244,251251]) )
+
+
+
+
 InputInfoNDefault=2000000    
 class InputInfo(object):
-    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
+    def __init__(self,dataSet,label='',run=[],ls={},files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
         self.run = run
+        self.ls = ls
         self.files = files
         self.events = events
         self.location = location
@@ -56,8 +109,12 @@ class InputInfo(object):
         self.ib_block = ib_block
         
     def das(self, das_options):
-        if len(self.run) is not 0:
-            command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()])
+        if len(self.run) is not 0 or self.ls:
+            # take at most 5 queries, to avoid sinking das
+
+            # do  if you have LS queries
+            # command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
+            command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()[:3] ])
             command = "({0})".format(command)
         else:
             command = "das_client.py %s --query '%s'" % (das_options, self.queries()[0])
@@ -72,11 +129,33 @@ class InputInfo(object):
     def lumiRanges(self):
         if len(self.run) != 0:
             return "echo '{\n"+",".join(('"%d":[[1,268435455]]\n'%(x,) for x in self.run))+"}'"
+        if self.ls :
+            return "echo '{\n"+",".join(('"%d" : %s\n'%( int(x),self.ls[x]) for x in self.ls.keys()))+"}'"
         return None
 
     def queries(self):
         query_by = "block" if self.ib_block else "dataset"
         query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
+
+        if self.ls :
+            the_queries = []
+            #for query_run in self.ls.keys():
+            # print "run is %s"%(query_run)
+            # if you have a LS list specified, still query das for the full run (multiple ls queries take forever)
+            # and use step1_lumiRanges.log to run only on LS which respect your selection
+
+            # DO WE WANT T2_CERN ?
+            return ["file {0}={1} run={2}".format(query_by, query_source, query_run) for query_run in self.ls.keys()]
+            #return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.ls.keys()]
+
+
+                # 
+                #for a_range in self.ls[query_run]:
+                #    # print "a_range is %s"%(a_range)
+                #    the_queries +=  ["file {0}={1} run={2} lumi={3} ".format(query_by, query_source, query_run, query_ls) for query_ls in expandLsInterval(a_range) ]
+            #print the_queries
+            return the_queries
+
         if len(self.run) is not 0:
             return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.run]
         else:
@@ -86,6 +165,7 @@ class InputInfo(object):
         if self.ib_block:
             return "input from: {0} with run {1}#{2}".format(self.dataSet, self.ib_block, self.run)
         return "input from: {0} with run {1}".format(self.dataSet, self.run)
+
     
 # merge dictionaries, with prioty on the [0] index
 def merge(dictlist,TELL=False):
