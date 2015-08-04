@@ -17,7 +17,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputer.h"
-#include "RecoBTau/JetTagComputer/interface/CombinedMVAJetTagComputer.h"
+#include "RecoBTag/Combined/interface/CombinedMVAJetTagComputer.h"
 
 using namespace reco;
 using namespace PhysicsTools;
