@@ -41,9 +41,6 @@ def customiseDataRun2Common(process):
     if hasattr(process,'valCsctfTrackDigis'):
         process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
 
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
-    process=customiseL1RecoForStage1(process)
-
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi,customise_DQM
     if hasattr(process,'RawToDigi'):
         process=customise_RawToDigi(process)
@@ -55,18 +52,24 @@ def customiseDataRun2Common(process):
     return process
 
 ##############################################################################
-# common+25ns
+# common+ "25ns" Use this for data daking starting from runs in 2015C (>= 253256 )
 def customiseDataRun2Common_25ns(process):
     process = customiseDataRun2Common(process)
+
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
+    process=customiseL1RecoForStage1(process)
 
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
     if hasattr(process,'dqmoffline_step'):
         process=customise_DQM_25ns(process)
     return process
 
-# common+50ns. Needed only for runs >= 253000
+# common+50ns. Needed only for runs >= 253000 if taken with 50ns
 def customiseDataRun2Common_50nsRunsAfter253000(process):
     process = customiseDataRun2Common(process)
+
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
+    process=customiseL1RecoForStage1(process)
 
     if hasattr(process,'particleFlowClusterECAL'):
         process.particleFlowClusterECAL.energyCorrector.autoDetectBunchSpacing = False
@@ -80,7 +83,7 @@ def customiseDataRun2Common_50nsRunsAfter253000(process):
 ##############################################################################
 def customiseCosmicDataRun2(process):
     process = customiseCosmicData(process)
-    process = customiseDataRun2Common(process)
+    process = customiseDataRun2Common_25ns(process)
     return process
 
 
@@ -100,8 +103,8 @@ def customiseVALSKIM(process):
 def customiseExpress(process):
     process= customisePPData(process)
 
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
+    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
     
     return process
 
@@ -128,7 +131,7 @@ def customisePrompt(process):
     #add the lumi producer in the prompt reco only configuration
     if not hasattr(process,'lumiProducer'):
         #unscheduled..
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
         process.lumiProducer=lumiProducer
     process.reconstruction_step+=process.lumiProducer
 
@@ -161,8 +164,8 @@ def customisePromptRun2B0T(process):
 def customiseExpressHI(process):
     #deprecated process= customiseCommonHI(process)
 
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
+    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
     
     return process
 
@@ -170,13 +173,13 @@ def customiseExpressHI(process):
 def customisePromptHI(process):
     #deprecated process= customiseCommonHI(process)
 
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
+    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
 
      #add the lumi producer in the prompt reco only configuration
     if not hasattr(process,'lumiProducer'):
         #unscheduled..
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
         process.lumiProducer=lumiProducer
     process.reconstruction_step+=process.lumiProducer
         
