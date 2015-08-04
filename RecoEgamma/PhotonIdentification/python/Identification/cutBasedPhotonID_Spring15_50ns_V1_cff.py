@@ -5,25 +5,25 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools import *
 
 #
-# This is the first version of PHYS14 cuts, optimized on  PHYS14 samples. 
+# This is the first version of Spring15  cuts, optimized on Spring15 50ns samples. 
 #
-# The ID cuts below are optimized IDs for PHYS14 Scenario PU 20, bx 25ns
+# The ID cuts below are optimized IDs for Spring 50ns Scenario
 # The cut values are taken from the twiki:
-#       https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2#PHYS14_selections_PU20_bunch_cro
+#       https://twiki.cern.ch/twiki/bin/viewauth/CMS/CutBasedPhotonIdentificationRun2
 #       (where they may not stay, if a newer version of cuts becomes available for these
 #        conditions)
 # See also the presentation explaining these working points (this will not change):
-#       https://indico.cern.ch/event/367863/contribution/0/material/slides/0.pdf
+#       https://indico.cern.ch/event/369239/contribution/2/attachments/1134693/1623149/spring15_pcb.pdf
 
 #
 # First, define cut values
 #
 
 # Loose working point Barrel and Endcap
-idName = "cutBasedPhotonID-PHYS14-PU20bx25-V1-standalone-loose"
-WP_Loose_EB = WorkingPoint_V1(
+idName = "cutBasedPhotonID-Spring15-50ns-V1-standalone-loose"
+WP_Loose_EB = WorkingPoint_V2(
     idName    ,  # idName
-    0.05     ,  # hOverECut
+    0.05      ,  # hOverECut
     0.0103    ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + exp(pt*C2+C3)
     2.44      ,  # absPFChaHadIsoWithEACut_C1
@@ -34,9 +34,9 @@ WP_Loose_EB = WorkingPoint_V1(
     1.92      ,  # absPFPhoIsoWithEACut_C1
     0.0043       # absPFPhoIsoWithEACut_C2
     )
-WP_Loose_EE = WorkingPoint_V1(
+WP_Loose_EE = WorkingPoint_V2(
     idName    ,  #idName
-    0.05     ,  # hOverECut
+    0.05      ,  # hOverECut
     0.0277    ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + exp(pt*C2+C3)
     1.84      ,  # absPFChaHadIsoWithEACut_C1
@@ -49,10 +49,10 @@ WP_Loose_EE = WorkingPoint_V1(
     )
 
 # Medium working point Barrel and Endcap
-idName = "cutBasedPhotonID-PHYS14-PU20bx25-V1-standalone-medium"
-WP_Medium_EB = WorkingPoint_V1(
+idName = "cutBasedPhotonID-Spring15-50ns-V1-standalone-medium"
+WP_Medium_EB = WorkingPoint_V2(
     idName    ,  # idName
-    0.05     ,  # hOverECut
+    0.05      ,  # hOverECut
     0.0100    ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + exp(pt*C2+C3)
     1.31      ,  # absPFChaHadIsoWithEACut_C1
@@ -61,12 +61,12 @@ WP_Medium_EB = WorkingPoint_V1(
     0.0044    ,  # absPFNeuHadIsoWithEACut_C2
     0.5809    ,  # absPFNeuHadIsowithEACut_C3 
     1.33      ,  # absPFPhoIsoWithEACut_C1
-    0.0043        # absPFPhoIsoWithEACut_C2
+    0.0043       # absPFPhoIsoWithEACut_C2
     )
 
-WP_Medium_EE = WorkingPoint_V1(
+WP_Medium_EE = WorkingPoint_V2(
     idName    ,  #idName
-    0.05    ,  # hOverECut
+    0.05      ,  # hOverECut
     0.0267    ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + exp(pt*C2+C3)
     1.25      ,  # absPFChaHadIsoWithEACut_C1
@@ -79,10 +79,10 @@ WP_Medium_EE = WorkingPoint_V1(
     )
 
 # Tight working point Barrel and Endcap
-idName = "cutBasedPhotonID-PHYS14-PU20bx25-V1-standalone-tight"
-WP_Tight_EB = WorkingPoint_V1(
+idName = "cutBasedPhotonID-Spring15-50ns-V1-standalone-tight"
+WP_Tight_EB = WorkingPoint_V2(
     idName    ,  # idName
-    0.05     ,  # hOverECut
+    0.05      ,  # hOverECut
     0.0010    ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + exp(pt*C2+C3)
     0.91      ,  # absPFChaHadIsoWithEACut_C1
@@ -94,9 +94,9 @@ WP_Tight_EB = WorkingPoint_V1(
     0.0043        # absPFPhoIsoWithEACut_C2
     )
 
-WP_Tight_EE = WorkingPoint_V1(
+WP_Tight_EE = WorkingPoint_V2(
     idName    ,  #idName
-    0.05     ,  # hOverECut
+    0.05      ,  # hOverECut
     0.0267    ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + exp(pt*C2+C3)
     0.65      ,  # absPFChaHadIsoWithEACut_C1
@@ -115,23 +115,23 @@ isoInputs = IsolationCutInputs(
     # chHadIsolationMapName  
     'photonIDValueMapProducer:phoChargedIsolation' ,
     # chHadIsolationEffAreas 
-    "EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfChargedHadrons_50ns.txt" ,
+    "RecoEgamma/PhotonIdentification/data/Spring15/effAreaPhotons_cone03_pfChargedHadrons_50ns.txt" ,
     # neuHadIsolationMapName
     'photonIDValueMapProducer:phoNeutralHadronIsolation' ,
     # neuHadIsolationEffAreas
-    "EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfNeutralHadrons_50ns.txt" ,
+    "RecoEgamma/PhotonIdentification/data/Spring15/effAreaPhotons_cone03_pfNeutralHadrons_50ns.txt" ,
     # phoIsolationMapName  
     "photonIDValueMapProducer:phoPhotonIsolation" ,
     # phoIsolationEffAreas
-    "EgammaAnalysis/PhotonTools/data/PHYS14/effAreaPhotons_cone03_pfPhotons_50ns.txt"
+    "RecoEgamma/PhotonIdentification/data/Spring15/effAreaPhotons_cone03_pfPhotons_50ns.txt"
 )
 
 #
 # Finally, set up VID configuration for all cuts
 #
-cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_loose  = configureVIDCutBasedPhoID_V1 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
-cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_medium = configureVIDCutBasedPhoID_V1 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
-cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_tight  = configureVIDCutBasedPhoID_V1 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
+cutBasedPhotonID_Spring15_50ns_V1_standalone_loose  = configureVIDCutBasedPhoID_V3 ( WP_Loose_EB, WP_Loose_EE, isoInputs)
+cutBasedPhotonID_Spring15_50ns_V1_standalone_medium = configureVIDCutBasedPhoID_V3 ( WP_Medium_EB, WP_Medium_EE, isoInputs)
+cutBasedPhotonID_Spring15_50ns_V1_standalone_tight  = configureVIDCutBasedPhoID_V3 ( WP_Tight_EB, WP_Tight_EE, isoInputs)
 
 ## The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
@@ -140,9 +140,13 @@ cutBasedPhotonID_PHYS14_PU20bx25_V1_standalone_tight  = configureVIDCutBasedPhoI
 # 3) update the MD5 sum strings below and uncomment the lines again.
 #
 
-central_id_registry.register(cutBasedPhotonID_SPRING15_PU20bx50_V1_standalone_loose.idName,
-                             '28dabb0be297b7a5eb26df8ffeef22b9')
-central_id_registry.register(cutBasedPhotonID_SPRING15_PU20bx50_V1_standalone_medium.idName,
-                             'd3d464d7b45f94f3944de95a1c0f498e')
-central_id_registry.register(cutBasedPhotonID_SPRING15_PU20bx50_V1_standalone_tight.idName,
-                             'c61288dd4defe947df67dafc2e868d15')
+central_id_registry.register(cutBasedPhotonID_Spring15_50ns_V1_standalone_loose.idName,
+                             '3d50a36a9fe1a807fefffe0e6712210a')
+central_id_registry.register(cutBasedPhotonID_Spring15_50ns_V1_standalone_medium.idName,
+                             '63a4ab695fabdae62764db5c55f57b10')
+central_id_registry.register(cutBasedPhotonID_Spring15_50ns_V1_standalone_tight.idName,
+                             'ba7401090fc8167acda6801ffb07ca2f')
+
+cutBasedPhotonID_Spring15_50ns_V1_standalone_loose.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Spring15_50ns_V1_standalone_medium.isPOGApproved = cms.untracked.bool(True)
+cutBasedPhotonID_Spring15_50ns_V1_standalone_tight.isPOGApproved = cms.untracked.bool(True)
