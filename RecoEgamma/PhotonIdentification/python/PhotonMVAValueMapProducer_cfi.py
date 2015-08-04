@@ -10,6 +10,9 @@ mvaConfigsForPhoProducer.append( mvaPhoID_PHYS14_PU20bx25_nonTrig_V1_producer_co
 from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V1_cff import *
 mvaConfigsForPhoProducer.append( mvaPhoID_Spring15_50ns_nonTrig_V1_producer_config )
 
+from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2_cff import *
+mvaConfigsForPhoProducer.append( mvaPhoID_Spring15_50ns_nonTrig_V2_producer_config )
+
 from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V0_cff import *
 mvaConfigsForPhoProducer.append( mvaPhoID_Spring15_25ns_nonTrig_V0_producer_config )
 
