@@ -83,7 +83,7 @@ idName = "cutBasedPhotonID-Spring15-50ns-V1-standalone-tight"
 WP_Tight_EB = WorkingPoint_V2(
     idName    ,  # idName
     0.05      ,  # hOverECut
-    0.0010    ,  # full5x5_SigmaIEtaIEtaCut
+    0.0100    ,  # full5x5_SigmaIEtaIEtaCut
 # Isolation cuts are generally absIso < C1 + pt*C2, except for NeuHad is < C1 + exp(pt*C2+C3)
     0.91      ,  # absPFChaHadIsoWithEACut_C1
     0.00      ,  # absPFChaHadIsoWithEACut_C2
@@ -145,7 +145,7 @@ central_id_registry.register(cutBasedPhotonID_Spring15_50ns_V1_standalone_loose.
 central_id_registry.register(cutBasedPhotonID_Spring15_50ns_V1_standalone_medium.idName,
                              '63a4ab695fabdae62764db5c55f57b10')
 central_id_registry.register(cutBasedPhotonID_Spring15_50ns_V1_standalone_tight.idName,
-                             'ba7401090fc8167acda6801ffb07ca2f')
+                             'cb046b1400392c9f5db251b5316a87cb')
 
 cutBasedPhotonID_Spring15_50ns_V1_standalone_loose.isPOGApproved = cms.untracked.bool(True)
 cutBasedPhotonID_Spring15_50ns_V1_standalone_medium.isPOGApproved = cms.untracked.bool(True)
