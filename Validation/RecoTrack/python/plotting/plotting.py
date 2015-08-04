@@ -1139,20 +1139,22 @@ class PlotGroup:
 
         return [name+saveFormat]
 
+#class PlotFolder:
+#    """Represents a collection of PlotGroups, produced from a single folder in a DQM file"""
+#    def __init__(self, plotGroups
+
 
 class Plotter:
     """Represent a collection of PlotGroups."""
-    def __init__(self, possibleDirs, plotGroups, saveFormat=".pdf"):
+    def __init__(self, possibleDirs, plotGroups):
         """Constructor.
 
         Arguments:
         possibleDirs -- List of strings for possible directories of histograms in TFiles
         plotGroups   -- List of PlotGroup objects
-        saveFormat   -- String specifying the plot format (default '.pdf')
         """
         self._possibleDirs = possibleDirs
         self._plotGroups = plotGroups
-        self._saveFormat = saveFormat
 
         _absoluteSize = True
         if _absoluteSize:
@@ -1238,23 +1240,19 @@ class Plotter:
         for pg in self._plotGroups:
             pg.create(dirs)
 
-    def draw(self, algo, prefix=None, separate=False, saveFormat=None, ratio=False):
+    def draw(self, algo, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
         """Draw and save all plots using settings of a given algorithm.
 
         Arguments:
         algo     -- String for the algorithm
         prefix   -- Optional string for file name prefix (default None)
         separate -- Save the plots of a group to separate files instead of a file per group (default False)
-        saveFormat -- If given, overrides the saveFormat
+        saveFormat   -- String specifying the plot format (default '.pdf')
         ratio    -- Add ratio to the plot (default False)
         """
         ret = []
 
-        sf = self._saveFormat
-        if saveFormat is not None:
-            sf = saveFormat
-
         for pg in self._plotGroups:
-            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=sf, ratio=ratio))
+            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio))
         return ret
 
