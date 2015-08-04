@@ -1139,22 +1139,105 @@ class PlotGroup:
 
         return [name+saveFormat]
 
-#class PlotFolder:
-#    """Represents a collection of PlotGroups, produced from a single folder in a DQM file"""
-#    def __init__(self, plotGroups
+class PlotFolder:
+    """Represents a collection of PlotGroups, produced from a single folder in a DQM file"""
+    def __init__(self, *plotGroups):
+        """Constructor.
+
+        Arguments:
+        plotGroups   -- List of PlotGroup objects
+        """
+        self._plotGroups = plotGroups
+
+    def append(self, plotGroup):
+        self._plotGroups.append(plotGroup)
+
+    def set(self, plotGroups):
+        self._plotGroups = plotGroups
+
+    def create(self, files, labels, possibleDirs, subdir=None):
+        """Create histograms from a list of TFiles.
+
+        Arguments:
+        files  -- List of TFiles
+        labels -- List of strings for legend labels corresponding the files
+        possibleDirs -- List of strings for possible directories of histograms in TFiles
+        subdir -- Optional string for subdirectory inside the possibleDirs; if list of strings, then each corresponds to a TFile
+        """
+
+        if len(files) != len(labels):
+            raise Exception("len(files) should be len(labels), now they are %d and %d" % (len(files), len(labels)))
+
+        dirs = []
+        self._labels = []
+        if isinstance(subdir, list):
+            if len(subdir) != len(files):
+                raise Exception("When subdir is a list, len(subdir) should be len(files), now they are %d and %d" % (len(subdir), len(files)))
+
+            for f, l, s in zip(files, labels, subdir):
+                d = self._getDir(f, possibleDirs, s)
+                dirs.append(d)
+                self._labels.append(l)
+        else:
+            for f, l in zip(files, labels):
+                d = self._getDir(f, possibleDirs, subdir)
+                dirs.append(d)
+                self._labels.append(l)
+
+        for pg in self._plotGroups:
+            pg.create(dirs)
+
+    def draw(self, algo, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
+        """Draw and save all plots using settings of a given algorithm.
+
+        Arguments:
+        algo     -- String for the algorithm
+        prefix   -- Optional string for file name prefix (default None)
+        separate -- Save the plots of a group to separate files instead of a file per group (default False)
+        saveFormat   -- String specifying the plot format (default '.pdf')
+        ratio    -- Add ratio to the plot (default False)
+        """
+        ret = []
+
+        for pg in self._plotGroups:
+            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio))
+        return ret
+
+
+    def _getDir(self, tfile, possibleDirs, subdir):
+        """Get TDirectory from TFile."""
+        if tfile is None:
+            return None
+        for pd in possibleDirs:
+            d = tfile.Get(pd)
+            if d:
+                if subdir is not None:
+                    # Pick associator if given
+                    d = d.Get(subdir)
+                    if d:
+                        return d
+                    else:
+                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subdir, pd, tfile.GetName())
+                        return None
+                else:
+                    return d
+        print "Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName())
+        return None
+
+
 
 
 class Plotter:
-    """Represent a collection of PlotGroups."""
-    def __init__(self, possibleDirs, plotGroups):
+    """Combines PlotFolder to possible directories."""
+    def __init__(self, possibleDirs, plotFolder):
         """Constructor.
 
         Arguments:
         possibleDirs -- List of strings for possible directories of histograms in TFiles
-        plotGroups   -- List of PlotGroup objects
+        plotFolder   -- PlotFolder object
         """
         self._possibleDirs = possibleDirs
-        self._plotGroups = plotGroups
+        self._plotFolder = plotFolder
 
         _absoluteSize = True
         if _absoluteSize:
@@ -1190,69 +1273,17 @@ class Plotter:
         """Return the list of possible directory names."""
         return self._possibleDirs
 
-    def append(self, plotGroup):
-        self._plotGroups.append(plotGroup)
-
-    def set(self, plotGroups):
-        self._plotGroups = plotGroups
-
-    def _getDir(self, tfile, subdir):
-        """Get TDirectory from TFile."""
-        if tfile is None:
-            return None
-        for pd in self._possibleDirs:
-            d = tfile.Get(pd)
-            if d:
-                if subdir is not None:
-                    # Pick associator if given
-                    d = d.Get(subdir)
-                    if d:
-                        return d
-                    else:
-                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subdir, pd, tfile.GetName())
-                        return None
-                else:
-                    return d
-        print "Did not find any of directories '%s' from file %s" % (",".join(self._possibleDirs), tfile.GetName())
-        return None
-
     def create(self, files, labels, subdir=None):
         """Create histograms from a list of TFiles.
-
         Arguments:
         files  -- List of TFiles
         labels -- List of strings for legend labels corresponding the files
+        possibleDirs -- List of strings for possible directories of histograms in TFiles
         subdir -- Optional string for subdirectory inside the possibleDirs; if list of strings, then each corresponds to a TFile
         """
-        dirs = []
-        self._labels = []
-        if isinstance(subdir, list):
-            for f, l, s in zip(files, labels, subdir):
-                d = self._getDir(f, s)
-                dirs.append(d)
-                self._labels.append(l)
-        else:
-            for f, l in zip(files, labels):
-                d = self._getDir(f, subdir)
-                dirs.append(d)
-                self._labels.append(l)
+        self._plotFolder.create(files, labels, self._possibleDirs, subdir)
 
-        for pg in self._plotGroups:
-            pg.create(dirs)
-
-    def draw(self, algo, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
-        """Draw and save all plots using settings of a given algorithm.
-
-        Arguments:
-        algo     -- String for the algorithm
-        prefix   -- Optional string for file name prefix (default None)
-        separate -- Save the plots of a group to separate files instead of a file per group (default False)
-        saveFormat   -- String specifying the plot format (default '.pdf')
-        ratio    -- Add ratio to the plot (default False)
-        """
-        ret = []
-
-        for pg in self._plotGroups:
-            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio))
-        return ret
+    def draw(self, *args, **kwargs):
+        """Draw and save all plots using settings of a given algorithm."""
+        return self._plotFolder.draw(*args, **kwargs)
 

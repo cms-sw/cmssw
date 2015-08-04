@@ -1,4 +1,4 @@
-from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, Plotter, AlgoOpt
+from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, PlotFolder, Plotter, AlgoOpt
 import Validation.RecoTrack.plotting.validation as validation
 
 _maxPU = 80
@@ -81,7 +81,7 @@ plotter = Plotter([
     "DQMData/Vertexing/PrimaryVertex",
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV",
     "DQMData/Vertexing/PrimaryVertexV",
-],[
+], PlotFolder(
     _recovsgen,
     _pvtagging,
     _effandfake,
@@ -89,15 +89,15 @@ plotter = Plotter([
     _pull,
     _puritymissing,
     _sumpt2
-])
+))
 plotterGen = Plotter([
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertex",
     "DQMData/Vertexing/PrimaryVertex",
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV",
     "DQMData/Vertexing/PrimaryVertexV",
-],[
+], PlotFolder(
      _genpos
-])
+))
 
 class VertexValidation(validation.Validation):
     def _init__(self, *args, **kwargs):

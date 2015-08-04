@@ -1,4 +1,4 @@
-from plotting import FakeDuplicate, AggregateBins, Plot, PlotGroup, Plotter, AlgoOpt
+from plotting import FakeDuplicate, AggregateBins, Plot, PlotGroup, PlotFolder, Plotter, AlgoOpt
 import validation
 
 _maxEff = [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
@@ -159,7 +159,7 @@ plotter = Plotter([
     "DQMData/Tracking/Track",
     "DQMData/Run 1/RecoTrackV/Run summary/Track",
     "DQMData/RecoTrackV/Track",
-],[
+], PlotFolder(
     _effandfake1,
     _effandfake2,
     _effandfake3,
@@ -175,7 +175,7 @@ plotter = Plotter([
     _pulls,
     _resolutionsEta,
     _resolutionsPt,
-])
+))
 
 import collections
 _iterModuleMap = collections.OrderedDict([
@@ -284,11 +284,10 @@ _pixelTiming = PlotGroup("pixelTiming", [
 timePlotter = Plotter([
     "DQMData/Run 1/DQM/Run summary/TimerService/Paths",
     "DQMData/Run 1/DQM/Run summary/TimerService/process RECO/Paths",
-],[
+], PlotFolder(
     _timing
 #    _pixelTiming
-]
-)
+))
 
 _common = {"stat": True, "normalizeToUnitArea": True, "drawStyle": "hist"}
 _tplifetime = PlotGroup("tplifetime", [
@@ -299,9 +298,9 @@ _tplifetime = PlotGroup("tplifetime", [
 tpPlotter = Plotter([
     "DQMData/Run 1/Tracking/Run summary/TrackingMCTruth/TrackingParticle",
     "DQMData/Tracking/TrackingMCTruth/TrackingParticle",
-], [
+], PlotFolder(
     _tplifetime,
-])
+))
 
 
 _tracks_map = {
@@ -386,10 +385,10 @@ _summaryHp = PlotGroup("summaryHp", [
 
 summaryPlotter = Plotter(
     plotter.getPossibleDirectoryNames(),
-[
+    PlotFolder(
     _summary,
     _summaryHp
-])
+    ))
 
 
 
