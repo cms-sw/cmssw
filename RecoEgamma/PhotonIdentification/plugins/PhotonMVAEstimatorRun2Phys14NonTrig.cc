@@ -50,7 +50,7 @@ mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) c
   
   const int iCategory = findCategory( particle );
   const std::vector<float> vars = std::move( fillMVAVariables( particle, iEvent ) );  
-  const float result = _gbrForests.at(iCategory)->GetGradBoostClassifier(vars.data());
+  const float result = _gbrForests.at(iCategory)->GetClassifier(vars.data());
 
   // DEBUG
   constexpr bool debug = false;
