@@ -8,7 +8,7 @@ MVAJetIdMaker::MVAJetIdMaker(const edm::ParameterSet& iConfig, edm::ConsumesColl
 
   PFJetCollection_     = iCollector.consumes<reco::PFJetCollection> (iConfig.getParameter<edm::InputTag>("pfJetsInputTag"));
   thePVCollection_     = iCollector.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("primaryVertexInputTag"));
-  jetCorrector_        = iConfig.getParameter<std::string>("jetCorrector");
+  theRhoCollection_    = iCollector.consumes<double>(iConfig.getParameter<edm::InputTag>("rhoInputTag"));
 
   fPUJetIdAlgo = new PileupJetIdAlgo(iConfig.getParameter<edm::ParameterSet>("puJetIDParams"));
 
@@ -51,6 +51,12 @@ void MVAJetIdMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
 
   const JetCorrector* corrector=0;
   corrector = JetCorrector::getJetCorrector(jetCorrector_, iSetup); 
+
+  Handle<double> lHrho;
+  validToken = iEvent.getByToken(theRhoCollection_, lHrho); 
+  if(!validToken) return;
+  double lrho = *lHrho;
+
   std::vector<reco::PFJet> lCJets;
   for(reco::PFJetCollection::const_iterator jet=lUCJets.begin(); jet!=lUCJets.end(); ++jet){
 
@@ -87,7 +93,7 @@ void MVAJetIdMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
 		  // calculate mva value only when there are good vertices 
 		  // otherwise store -999
 		  if( lGoodVertices.size()>0 ) {
-		  	PileupJetIdentifier lPUJetId =  fPUJetIdAlgo->computeIdVariables(pCJet,lJec,&lGoodVertices[0],lGoodVertices,true);
+		  	PileupJetIdentifier lPUJetId =  fPUJetIdAlgo->computeIdVariables(pCJet,lJec,&lGoodVertices[0],lGoodVertices,lrho,true);
 		   	hww.pfjets_mvavalue() .push_back( lPUJetId.mva()              );
         hww.pfjets_JEC() .push_back( lJec ); 
 		  
