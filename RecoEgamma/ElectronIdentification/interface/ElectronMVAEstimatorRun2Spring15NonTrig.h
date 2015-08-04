@@ -11,6 +11,8 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
 #include <vector>
 #include <string>
 #include <TROOT.h>
@@ -40,45 +42,45 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   // the training was done with ints.
   struct AllVariables {
     // Pure ECAL -> shower shapes
-    float see;
-    float spp;
-    float OneMinusE1x5E5x5;
-    float R9;
-    float etawidth;
-    float phiwidth;
-    float HoE;
+    float see; // 0
+    float spp; // 1
+    float OneMinusE1x5E5x5; // 2
+    float R9; // 3
+    float etawidth; // 4
+    float phiwidth; // 5
+    float HoE; // 6
     // Endcap only variables
-    float PreShowerOverRaw;
+    float PreShowerOverRaw; // 7
     //Pure tracking variables
-    float kfhits;
-    float kfchi2;
-    float gsfchi2;
+    float kfhits; // 8
+    float kfchi2; // 9
+    float gsfchi2; // 10
     // Energy matching
-    float fbrem;
+    float fbrem; // 11
 
-    float gsfhits;
-    float expectedMissingInnerHits;
-    float convVtxFitProbability;
+    float gsfhits; // 12
+    float expectedMissingInnerHits; // 13
+    float convVtxFitProbability; // 14
 
-    float EoP;
-    float eleEoPout;
-    float IoEmIoP;
+    float EoP; // 15
+    float eleEoPout; // 16
+    float IoEmIoP; // 17
     // Geometrical matchings
-    float deta;
-    float dphi;
-    float detacalo;
+    float deta; // 18
+    float dphi; // 19
+    float detacalo; // 20 
     // Spectator variables  
-    float pt;
-    float isBarrel;
-    float isEndcap;
-    float SCeta;
+    float pt; // 21
+    float isBarrel; // 22
+    float isEndcap; // 23
+    float SCeta; // 24
     //
-    float eClass;               
-    float pfRelIso;             
-    float expectedInnerHits;
-    float vtxconv;   
-    float mcEventWeight;
-    float mcCBmatchingCategory;
+    float eClass; // 25          
+    float pfRelIso; // 26         
+    float expectedInnerHits; // 27
+    float vtxconv; // 28
+    float mcEventWeight; // 29
+    float mcCBmatchingCategory; // 30
     
   };
   
@@ -87,30 +89,30 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   ~ElectronMVAEstimatorRun2Spring15NonTrig();
 
   // Calculation of the MVA value
-  float mvaValue( const edm::Ptr<reco::Candidate>& particle);
+  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
  
   // Utility functions
-  TMVA::Reader *createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
+  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, 
+                                                      const edm::FileInPath &weightFile);
 
-  inline int getNCategories(){return nCategories;};
-  bool isEndcapCategory( int category );
-  const inline std::string getName(){return _name;};
-  const inline std::string getTag(){return _tag;};
+  virtual int getNCategories() const override { return nCategories; }
+  bool isEndcapCategory( int category ) const;
+  virtual const std::string& getName() const override final { return _name; }
+  virtual const std::string& getTag() const override final { return _tag; }
 
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
-  void fillMVAVariables(const edm::Ptr<reco::Candidate>& particle);
-  int findCategory( const edm::Ptr<reco::Candidate>& particle);
+  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
+  int findCategory( const edm::Ptr<reco::Candidate>& particle) const override;
   // The function below ensures that the variables passed to MVA are 
   // within reasonable bounds
-  void constrainMVAVariables();
+  void constrainMVAVariables(AllVariables&) const;
 
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework
-  void setConsumes(edm::ConsumesCollector&&) override;
+  void setConsumes(edm::ConsumesCollector&&) const override final;
   // Call this function once per event to retrieve all needed
   // event content pices
-  void getEventContent(const edm::Event& iEvent) override;
   
  private:
 
@@ -121,28 +123,24 @@ class ElectronMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   // MVA tag. This is an additional string variable to distinguish
   // instances of the estimator of this class configured with different
   // weight files.
-  std::string _tag;
+  const std::string _tag;
 
   // Data members
-  std::vector< std::unique_ptr<TMVA::Reader> > _tmvaReaders;
+  std::vector< std::unique_ptr<const GBRForest> > _gbrForests;
 
   // All variables needed by this MVA
-  std::string _MethodName;
+  const std::string _MethodName;
   AllVariables _allMVAVars;
 
   //
   // Declare all tokens that will be needed to retrieve misc
   // data from the event content required by this MVA
   //
-  edm::EDGetTokenT<reco::BeamSpot> _beamSpotToken;
+  const edm::InputTag _beamSpotLabel;
   // Conversions in AOD and miniAOD have different names
-  edm::EDGetTokenT<reco::ConversionCollection> _conversionsTokenAOD;
-  edm::EDGetTokenT<reco::ConversionCollection> _conversionsTokenMiniAOD;
-  // 
-  // Declare all value maps corresponding to the above tokens
-  //
-  edm::Handle<reco::BeamSpot> _theBeamSpot;
-  edm::Handle<reco::ConversionCollection> _conversions;
+  const edm::InputTag _conversionsLabelAOD;
+  const edm::InputTag _conversionsLabelMiniAOD;
+  
   
 };
 
