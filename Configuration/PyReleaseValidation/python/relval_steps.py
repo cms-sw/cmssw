@@ -543,7 +543,6 @@ steps["FS_PREMIXUP15_PU25"] = merge([
         {"cfg":"SingleNuE10_cfi",
          "--fast":"",
          "--conditions":"auto:run2_mc",
-         "--magField":"38T_PostLS1",
          "-s":"GEN,SIM,RECOBEFMIX,DIGIPREMIX,L1,DIGI2RAW",
          "--eventcontent":"PREMIX",
          "--datatier":"GEN-SIM-DIGI-RAW",
@@ -895,7 +894,6 @@ step3Up2015Defaults = {
     '-s':'RAW2DIGI,L1Reco,RECO,EI,PAT,VALIDATION:@standardValidation+@miniAODValidation,DQM:@standardDQM+@miniAODDQM',
     '--runUnscheduled':'',
     '--conditions':'auto:run2_mc', 
-    '--magField'    : '38T_PostLS1',
     '-n':'10',
     '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
     '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
@@ -1147,7 +1145,6 @@ steps['HARVESTUP15']={
     # '-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
     '-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM', # todo: remove UP from label
     '--conditions':'auto:run2_mc', 
-    '--magField'    : '38T_PostLS1',
     '--mc':'',
     '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
     '--filetype':'DQM',
