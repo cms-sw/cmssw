@@ -223,6 +223,18 @@ foreach gtag ( MC DATA )
       set Custom1 = $CustomRun2ppLowPU
       set Custom2 = " "
       set L1REPACK = L1REPACK:GCTGT
+    else if ( $table == 25nsLowPU ) then
+      set XL1T = $XL1TLOWPU
+      set XHLT = HLT:25nsLowPU
+      set GTAG = ${BASE2}_25nsLowPU
+      set RTAG = ${BASE2RD}_25nsLowPU
+      set NN   = $NNPP
+      set SCEN = pp
+      set InputGenSim = $InputGenSimGRun2
+      set InputLHCRaw = $InputLHCRawGRun
+      set Custom1 = $CustomRun2
+      set Custom2 = " "
+      set L1REPACK = L1REPACK:GCTGT
     else
       # unsupported
       continue
