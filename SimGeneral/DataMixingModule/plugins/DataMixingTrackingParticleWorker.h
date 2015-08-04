@@ -47,6 +47,8 @@ namespace edm
       /**Default destructor*/
       virtual ~DataMixingTrackingParticleWorker();
 
+      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c); // override?                            
+
       void putTrackingParticle(edm::Event &e) ;
       void addTrackingParticleSignals(const edm::Event &e); 
       void addTrackingParticlePileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,
@@ -69,6 +71,10 @@ namespace edm
 
       std::auto_ptr<std::vector<TrackingParticle>> NewTrackList_;
       std::auto_ptr<std::vector<TrackingVertex>> NewVertexList_;
+      std::vector<TrackingVertex> TempVertexList_;
+
+      TrackingParticleRefProd TrackListRef_ ;
+      TrackingVertexRefProd VertexListRef_ ;
 
 
     };
