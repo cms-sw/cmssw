@@ -9,7 +9,7 @@ index 86d7bda..f2e3ab2 100644
 -                  collectorPort = cms.untracked.int32(9190),
 -                  collectorHost = cms.untracked.string('dqm-c2d07-29.cms'),
 +                  collectorPort = cms.untracked.int32(9090),
-+                  collectorHost = cms.untracked.string('dqm-c2d07-11.cms'),
++                  collectorHost = cms.untracked.string('dqm-integration.cms'),
                    filter = cms.untracked.string('')
                    )
  
