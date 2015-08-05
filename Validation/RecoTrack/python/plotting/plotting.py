@@ -117,12 +117,13 @@ class FakeDuplicate:
         return hfakedup
 
 class AggregateBins:
-    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None):
+    def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None):
         self._name = name
         self._histoName = histoName
         self._mapping = mapping
         self._normalizeTo = normalizeTo
         self._scale = scale
+        self._renameBin = renameBin
 
     def __str__(self):
         return self._name
@@ -137,7 +138,10 @@ class AggregateBins:
         # TH1 can't really be used as a map/dict, so convert it here:
         values = {}
         for i in xrange(1, th1.GetNbinsX()+1):
-            values[th1.GetXaxis().GetBinLabel(i)] = (th1.GetBinContent(i), th1.GetBinError(i))
+            binLabel = th1.GetXaxis().GetBinLabel(i)
+            if self._renameBin is not None:
+                binLabel = self._renameBin(binLabel)
+            values[binLabel] = (th1.GetBinContent(i), th1.GetBinError(i))
 
         if isinstance(self._mapping, list):
             for i, label in enumerate(self._mapping):
@@ -1114,13 +1118,22 @@ class PlotGroup:
 
 class PlotFolder:
     """Represents a collection of PlotGroups, produced from a single folder in a DQM file"""
-    def __init__(self, *plotGroups):
+    def __init__(self, *plotGroups, **kwargs):
         """Constructor.
 
         Arguments:
-        plotGroups   -- List of PlotGroup objects
+        plotGroups     -- List of PlotGroup objects
+
+        Keyword arguments
+        loopSubFolders -- Should the subfolders be looped over? (default: True)
         """
         self._plotGroups = plotGroups
+        self._loopSubFolders = kwargs.pop("loopSubFolders", True)
+        if len(kwargs) > 0:
+            raise Exception("Got unexpected keyword arguments: "+ ",".join(kwargs.keys()))
+
+    def loopSubFolders(self):
+        return self._loopSubFolders
 
     def append(self, plotGroup):
         self._plotGroups.append(plotGroup)
@@ -1128,14 +1141,14 @@ class PlotFolder:
     def set(self, plotGroups):
         self._plotGroups = plotGroups
 
-    def create(self, files, labels, possibleDirs, subdir=None):
+    def create(self, files, labels, possibleDqmFolders, dqmSubFolder=None):
         """Create histograms from a list of TFiles.
 
         Arguments:
         files  -- List of TFiles
         labels -- List of strings for legend labels corresponding the files
-        possibleDirs -- List of strings for possible directories of histograms in TFiles
-        subdir -- Optional string for subdirectory inside the possibleDirs; if list of strings, then each corresponds to a TFile
+        possibleDqmFolders -- List of strings for possible directories of histograms in TFiles
+        dqmSubFolder -- Optional string for subdirectory inside the dqmFolder; if list of strings, then each corresponds to a TFile
         """
 
         if len(files) != len(labels):
@@ -1143,19 +1156,15 @@ class PlotFolder:
 
         dirs = []
         self._labels = []
-        if isinstance(subdir, list):
-            if len(subdir) != len(files):
-                raise Exception("When subdir is a list, len(subdir) should be len(files), now they are %d and %d" % (len(subdir), len(files)))
-
-            for f, l, s in zip(files, labels, subdir):
-                d = self._getDir(f, possibleDirs, s)
-                dirs.append(d)
-                self._labels.append(l)
+        if isinstance(dqmSubFolder, list):
+            if len(dqmSubFolder) != len(files):
+                raise Exception("When dqmSubFolder is a list, len(dqmSubFolder) should be len(files), now they are %d and %d" % (len(dqmSubFolder), len(files)))
         else:
-            for f, l in zip(files, labels):
-                d = self._getDir(f, possibleDirs, subdir)
-                dirs.append(d)
-                self._labels.append(l)
+            dqmSubFolder = [dqmSubFolder]*len(files)
+
+        for fil, sf in zip(files, dqmSubFolder):
+            dirs.append(self._getDir(fil, possibleDqmFolders, sf))
+        self._labels = labels
 
         for pg in self._plotGroups:
             pg.create(dirs)
@@ -1176,40 +1185,148 @@ class PlotFolder:
         return ret
 
 
-    def _getDir(self, tfile, possibleDirs, subdir):
+    def _getDir(self, tfile, possibleDqmFolders, dqmSubFolder):
         """Get TDirectory from TFile."""
         if tfile is None:
             return None
-        for pd in possibleDirs:
-            d = tfile.Get(pd)
+        for pdf in possibleDqmFolders:
+            d = tfile.Get(pdf)
             if d:
-                if subdir is not None:
+                if dqmSubFolder is not None:
                     # Pick associator if given
-                    d = d.Get(subdir)
+                    d = d.Get(dqmSubFolder)
                     if d:
                         return d
                     else:
-                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subdir, pd, tfile.GetName())
+                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (dqmSubFolder, pdf, tfile.GetName())
                         return None
                 else:
                     return d
-        print "Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName())
+        print "Did not find any of directories '%s' from file %s" % (",".join(possibleDqmFolders), tfile.GetName())
         return None
 
+    # These are to be overridden by derived classes for customisation
+    def translateSubFolder(self, dqmSubFolderName):
+        return dqmSubFolderName
 
+    def getSelectionName(self, plotFolderName, translatedDqmSubFolder):
+        ret = ""
+        if plotFolderName != "":
+            ret += "_"+plotFolderName
+        if translatedDqmSubFolder is not None:
+            ret += "_"+translatedDqmSubFolder
+        return ret
 
+    def limitSubFolder(self, limitOnlyTo, translatedDqmSubFolder):
+        return translatedDqmSubFolder in limitOnlyTo
+
+class DQMSubFolder:
+    def __init__(self, subfolder, translated):
+        self.subfolder = subfolder
+        self.translated = translated
+
+    def equalTo(self, other):
+        return self.translated == other.translated
+
+class PlotterFolder:
+    """Plotter for one DQM folder."""
+    def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder):
+        self._name = name
+        self._possibleDqmFolders = possibleDqmFolders
+        self._plotFolder = plotFolder
+        #self._dqmSubFolders = [map(lambda sf: DQMSubFolder(sf, self._plotFolder.translateSubFolder(sf)), lst) for lst in dqmSubFolders]
+        if dqmSubFolders is None:
+            self._dqmSubFolders = None
+        else:
+            self._dqmSubFolders = map(lambda sf: DQMSubFolder(sf, self._plotFolder.translateSubFolder(sf)), dqmSubFolders[0])
+            self._dqmSubFolders = filter(lambda sf: sf.translated is not None, self._dqmSubFolders)
+
+        # TODO: matchmaking of dqmsubfolders in case of differences between files
+
+    def getName(self):
+        return self._name
+
+    def getPossibleDQMFolders(self):
+        return self._possibleDqmFolders
+
+    def getDQMSubFolders(self, limitOnlyTo=None):
+        if self._dqmSubFolders is None:
+            return [None]
+
+        if limitOnlyTo is None:
+            return self._dqmSubFolders
+
+        return filter(lambda s: self._plotFolder.limitSubFolder(limitOnlyTo, s.translated), self._dqmSubFolders)
+
+    def getSelectionName(self, dqmSubFolder):
+        return self._plotFolder.getSelectionName(self._name, dqmSubFolder.translated if dqmSubFolder is not None else None)
+
+    def create(self, files, labels, dqmSubFolder):
+        """Create histograms from a list of TFiles.
+        Arguments:
+        files  -- List of TFiles
+        labels -- List of strings for legend labels corresponding the files
+        """
+
+        # TODO: for cases of differently named subfolders, need to think something here
+        self._plotFolder.create(files, labels, self._possibleDqmFolders, dqmSubFolder.subfolder if dqmSubFolder is not None else None)
+
+    def draw(self, *args, **kwargs):
+        """Draw and save all plots using settings of a given algorithm."""
+        return self._plotFolder.draw(*args, **kwargs)
+
+class PlotterInstance:
+    """Instance of plotter that knows the directory content, holds many folders."""
+    def __init__(self, folders):
+        self._plotterFolders = folders
+
+    def iterFolders(self, limitSubFoldersOnlyTo=None):
+        for plotterFolder in self._plotterFolders:
+            limitOnlyTo = None
+            if limitSubFoldersOnlyTo is not None:
+                limitOnlyTo = limitSubFoldersOnlyTo.get(plotterFolder.getName(), None)
+
+            for dqmSubFolder in plotterFolder.getDQMSubFolders(limitOnlyTo=limitOnlyTo):
+                yield plotterFolder, dqmSubFolder
+
+# Helper for Plotter
+class PlotterItem:
+    def __init__(self, name, possibleDirs, plotFolder):
+        self._name = name
+        self._possibleDirs = possibleDirs
+        self._plotFolder = plotFolder
+
+    def readDirs(self, files):
+        if not self._plotFolder.loopSubFolders():
+            return PlotterFolder(self._name, self._possibleDirs, None, self._plotFolder)
+
+        # Find out which of the "possibleDirs" exist in which file
+        subFolders = []
+        for fname in files:
+            isOpenFile = isinstance(fname, ROOT.TFile)
+            if isOpenFile:
+                tfile = fname
+            else:
+                tfile = ROOT.TFile.Open(fname)
+            for pd in self._possibleDirs:
+                d = tfile.Get(pd)
+                if d:
+                    subf = []
+                    for key in d.GetListOfKeys():
+                        if isinstance(key.ReadObj(), ROOT.TDirectory):
+                            subf.append(key.GetName())
+                    subFolders.append(subf)
+                    break
+
+            if not isOpenFile:
+                tfile.Close()
+
+        return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder)
 
 class Plotter:
     """Combines PlotFolder to possible directories."""
-    def __init__(self, possibleDirs, plotFolder):
-        """Constructor.
-
-        Arguments:
-        possibleDirs -- List of strings for possible directories of histograms in TFiles
-        plotFolder   -- PlotFolder object
-        """
-        self._possibleDirs = possibleDirs
-        self._plotFolder = plotFolder
+    def __init__(self):
+        self._plots = []
 
         _absoluteSize = True
         if _absoluteSize:
@@ -1238,24 +1355,15 @@ class Plotter:
 
         ROOT.TH1.AddDirectory(False)
 
-    def setPossibleDirectoryNames(self, possibleDirs):
-        self._possibleDirs = possibleDirs
+    def append(self, name, possibleDirs, plotFolder):
+        """Append a plot folder to the plotter.
 
-    def getPossibleDirectoryNames(self):
-        """Return the list of possible directory names."""
-        return self._possibleDirs
-
-    def create(self, files, labels, subdir=None):
-        """Create histograms from a list of TFiles.
         Arguments:
-        files  -- List of TFiles
-        labels -- List of strings for legend labels corresponding the files
+        name         -- Name of the folder (is used in the output directory naming)
         possibleDirs -- List of strings for possible directories of histograms in TFiles
-        subdir -- Optional string for subdirectory inside the possibleDirs; if list of strings, then each corresponds to a TFile
+        plotFolder   -- PlotFolder object
         """
-        self._plotFolder.create(files, labels, self._possibleDirs, subdir)
+        self._plots.append(PlotterItem(name, possibleDirs, plotFolder))
 
-    def draw(self, *args, **kwargs):
-        """Draw and save all plots using settings of a given algorithm."""
-        return self._plotFolder.draw(*args, **kwargs)
-
+    def readDirs(self, *files):
+        return PlotterInstance([plotterItem.readDirs(files) for plotterItem in self._plots])

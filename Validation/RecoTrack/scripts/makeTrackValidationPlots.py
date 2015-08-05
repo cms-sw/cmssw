@@ -7,11 +7,12 @@ import Validation.RecoTrack.plotting.plotting as plotting
 from Validation.RecoTrack.plotting.validation import SimpleValidation
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
 
-def newdirname(algo, quality):
-    return algo+"_"+quality
-
-def subdirToAlgoQuality(subdir):
-    return subdir.split("_")
+def newdirname(translatedDqmSubFolder):
+    (algo, quality) = translatedDqmSubFolder
+    ret = algo
+    if quality != "":
+        ret += "_"+quality
+    return ret
 
 def main(opts):
     files = opts.files
@@ -26,7 +27,7 @@ def main(opts):
         drawArgs["saveFormat"] = ".png"
 
     val = SimpleValidation(files, labels, opts.outputDir)
-    val.doPlotsAuto(trackingPlots.plotter, subdirToAlgoQuality=subdirToAlgoQuality, newdirFunc=newdirname, plotterDrawArgs=drawArgs)
+    val.doPlots(trackingPlots.plotter, newdirFunc=newdirname, plotterDrawArgs=drawArgs)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files. Note that the output directory structure is not exactly the same as with test/trackingPerformanceValidation.py or test/trackingCompare.py")

@@ -76,12 +76,14 @@ _genpos = PlotGroup("genpos", [
     Plot("GenPV_Z", xtitle="Gen PV pos z", ytitle="N", **_common),
 ])
 
-plotter = Plotter([
+_vertexFolders = [
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertex",
     "DQMData/Vertexing/PrimaryVertex",
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV",
     "DQMData/Vertexing/PrimaryVertexV",
-], PlotFolder(
+]
+plotter = Plotter()
+plotter.append("", _vertexFolders, PlotFolder(
     _recovsgen,
     _pvtagging,
     _effandfake,
@@ -90,12 +92,8 @@ plotter = Plotter([
     _puritymissing,
     _sumpt2
 ))
-plotterGen = Plotter([
-    "DQMData/Run 1/Vertexing/Run summary/PrimaryVertex",
-    "DQMData/Vertexing/PrimaryVertex",
-    "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV",
-    "DQMData/Vertexing/PrimaryVertexV",
-], PlotFolder(
+plotterGen = Plotter()
+plotterGen.append("", _vertexFolders, PlotFolder(
      _genpos
 ))
 

@@ -420,12 +420,10 @@ class Validation:
         if not allFine:
             sys.exit(1)
 
-    def doPlots(self, algos, qualities, refRelease, refRepository, newRepository, plotter, plotterDrawArgs={}):
+    def doPlots(self, refRelease, refRepository, newRepository, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None):
         """Create validation plots.
 
         Arguments:
-        algos         -- List of strings for algoritms
-        qualities     -- List of strings for quality flags (can be None)
         refRelease    -- String for reference CMSSW release
         refRepository -- String for directory where reference root files are
         newRepository -- String for directory whete to put new files
@@ -433,6 +431,7 @@ class Validation:
 
         Keyword arguments:
         plotterDrawArgs -- Dictionary for additional arguments to Plotter.draw() (default: {})
+        limitSubFoldersOnlyTo   -- If not None, should be a dictionary from string to an object. The string is the name of a PlotFolder, and the object is PlotFolder-type specific to limit the subfolders to be processed. In general case the object is a list of strings, but e.g. for track iteration plots it is a function taking the algo and quality as parameters.
         """
         self._refRelease = refRelease
         self._refRepository = refRepository
@@ -440,20 +439,22 @@ class Validation:
         self._plotter = plotter
         self._plotterDrawArgs = plotterDrawArgs
 
-        if qualities is None:
-            qualities = [None]
-        if algos is None:
-            algos = [None]
 
         # New vs. Ref
-        for s in self._fullsimSamples+self._fastsimSamples:
-            for q in qualities:
-                for a in algos:
-                    self._doPlots(a, q, s)
-#                    if s.fullsim() and s.hasPileup():
-#                        self._doPlotsPileup(a, q, s)
+        for sample in self._fullsimSamples+self._fastsimSamples:
+            # Check that the new DQM file exists
+            harvestedFile = sample.filename(self._newRelease)
+            if not os.path.exists(harvestedFile):
+                print "Harvested file %s does not exist!" % harvestedFile
+                sys.exit(1)
+            plotterInstance = plotter.readDirs(harvestedFile)
+            for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+                self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder)
 
-        # Fast vs. Full in New
+                # TODO: the pileup case is still to be migrated
+#               if s.fullsim() and s.hasPileup():
+#                   self._doPlotsPileup(a, q, s)
+
         for fast in self._fastsimSamples:
             correspondingFull = None
             for full in self._fullsimSamples:
@@ -474,12 +475,15 @@ class Validation:
                     raise Exception("Got multiple compatible FullSim samples for FastSim sample %s %s" % (fast.name(), fast.pileup()))
             if correspondingFull is None:
                 raise Exception("Did not find compatible FullSim sample for FastSim sample %s %s" % (fast.name(), fast.pileup()))
-            for q in qualities:
-                for a in algos:
-                    self._doPlotsFastFull(a, q, fast, correspondingFull)
 
-    def _doPlots(self, algo, quality, sample):
-        """Do the real plotting work for a given algorithm, quality flag, and sample."""
+            # If we reach here, the harvestedFile must exist
+            harvestedFile = fast.filename(self._newRelease)
+            plotterInstance = plotter.readDirs(harvestedFile)
+            for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+                self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder)
+
+    def _doPlots(self, sample, harvestedFile, plotterFolder, dqmSubFolder):
+        """Do the real plotting work for a given sample and DQM subfolder"""
         # Get GlobalTags
         refGlobalTag = _getGlobalTag(sample, self._refRelease)
         newGlobalTag = _getGlobalTag(sample, self._newRelease)
@@ -489,8 +493,9 @@ class Validation:
         if sample.hasScenario():
             tmp += "_"+sample.scenario()
         tmp += "_"+sample.pileup()
-        refSelection = refGlobalTag+tmp+self._getSelectionName(quality, algo)
-        newSelection = newGlobalTag+tmp+self._getSelectionName(quality, algo)
+        tmp += plotterFolder.getSelectionName(dqmSubFolder)
+        refSelection = refGlobalTag+tmp
+        newSelection = newGlobalTag+tmp
         if sample.hasPileup():
             refPu = sample.pileupType(self._refRelease)
             if refPu != "":
@@ -498,12 +503,6 @@ class Validation:
             newPu = sample.pileupType(self._newRelease)
             if newPu != "":
                 newSelection += "_"+newPu
-
-        # Check that the new DQM file exists
-        harvestedfile = sample.filename(self._newRelease)
-        if not os.path.exists(harvestedfile):
-            print "Harvested file %s does not exist!" % harvestedfile
-            sys.exit(1)
 
         valname = "val.{sample}.root".format(sample=sample.name())
 
@@ -530,23 +529,20 @@ class Validation:
             refValFile = ROOT.TFile.Open(refValFilePath)
 
         # Copy the relevant histograms to a new validation root file
-        try:
-            subdir = self._getDirectoryName(quality, algo)
-        except KeyError, e:
-            return
-        newValFile = _copySubDir(harvestedfile, valname, self._plotter.getPossibleDirectoryNames(), subdir)
+        # TODO: treat the case where dqmSubFolder is empty
+        newValFile = _copySubDir(harvestedFile, valname, plotterFolder.getPossibleDQMFolders(), dqmSubFolder.subfolder if dqmSubFolder is not None else None)
         fileList = [valname]
 
         # Do the plots
-        print "Comparing ref and new {sim} {sample} {algo} {quality}".format(
+        print "Comparing ref and new {sim} {sample} {translatedFolder}".format(
             sim="FullSim" if not sample.fastsim() else "FastSim",
-            sample=sample.name(), algo=algo, quality=quality)
-        self._plotter.create([refValFile, newValFile], [
+            sample=sample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+        plotterFolder.create([refValFile, newValFile], [
             "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection),
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ],
-                             subdir = subdir)
-        fileList.extend(self._plotter.draw(**self._plotterDrawArgs))
+                               dqmSubFolder)
+        fileList.extend(plotterFolder.draw(**self._plotterDrawArgs))
 
         newValFile.Close()
         if refValFile is not None:
@@ -559,14 +555,14 @@ class Validation:
         for f in fileList:
             shutil.move(f, os.path.join(newdir, f))
 
-    def _doPlotsFastFull(self, algo, quality, fastSample, fullSample):
+    def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder):
         """Do the real plotting work for FastSim vs. FullSim for a given algorithm, quality flag, and sample."""
         # Get GlobalTags
         fastGlobalTag = _getGlobalTag(fastSample, self._newRelease)
         fullGlobalTag = _getGlobalTag(fullSample, self._newRelease)
 
         # Construct selection string
-        tmp = self._getSelectionName(quality, algo)
+        tmp = plotterFolder.getSelectionName(dqmSubFolder)
         fastSelection = fastGlobalTag+"_"+fastSample.pileup()+tmp
         fullSelection = fullGlobalTag+"_"+fullSample.pileup()+tmp
         if fullSample.hasPileup():
@@ -590,20 +586,15 @@ class Validation:
         fastValFile = ROOT.TFile.Open(fastValFilePath)
         fullValFile = ROOT.TFile.Open(fullValFilePath)
 
-        try:
-            subdir = self._getDirectoryName(quality, algo)
-        except KeyError, e:
-            return
-
         # Do plots
-        print "Comparing FullSim and FastSim {sample} {algo} {quality}".format(
-            sample=fastSample.name(), algo=algo, quality=quality)
-        self._plotter.create([fullValFile, fastValFile], [
+        print "Comparing FullSim and FastSim {sample} {translatedFolder}".format(
+            sample=fastSample.name(), translatedFolder=str(dqmSubFolder.translated) if dqmSubFolder is not None else "")
+        plotterFolder.create([fullValFile, fastValFile], [
             "FullSim %s, %s %s" % (fullSample.name(), _stripRelease(self._newRelease), fullSelection),
             "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
         ],
-                             subdir = subdir)
-        fileList = self._plotter.draw(**self._plotterDrawArgs)
+                             dqmSubFolder)
+        fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
         fullValFile.Close()
         fastValFile.Close()
@@ -615,6 +606,7 @@ class Validation:
         for f in fileList:
             shutil.move(f, os.path.join(newdir, f))
 
+    # TODO: this method is still to be migrated
     def _doPlotsPileup(self, algo, quality, sample):
         """Do the real plotting work for Old vs. New pileup scenarios for a given algorithm, quality flag, and sample."""
         # Get GlobalTags
@@ -699,24 +691,14 @@ def _copySubDir(oldfile, newfile, basenames, dirname):
     return newf
 
 def _copyDir(src, dst):
-    """Copy recursively objects from src TDirectory to dst TDirectory."""
+    """Copy non-TTree objects from src TDirectory to dst TDirectory."""
     keys = src.GetListOfKeys()
     for key in keys:
         classname = key.GetClassName()
         cl = ROOT.TClass.GetClass(classname)
         if not cl:
             continue
-        if cl.InheritsFrom("TDirectory"):
-            src2 = src.GetDirectory(key.GetName())
-            dst2 = dst.mkdir(key.GetName())
-            _copyDir(src2, dst2)
-        elif cl.InheritsFrom("TTree"):
-            t = key.ReadObj()
-            dst.cd()
-            newt = t.CloneTree(-1, "fast")
-            newt.Write()
-            newt.Delete()
-        else:
+        if not (cl.InheritsFrom("TTree") and cl.InheritsFrom("TDirectory")):
             dst.cd()
             obj = key.ReadObj()
             obj.Write()
@@ -728,9 +710,7 @@ class SimpleValidation:
         self._labels = labels
         self._newdir = newdir
 
-    def doPlots(self, algos, qualities, plotter, algoDirMap=None, newdirFunc=None, plotterDrawArgs={}):
-        self._plotter = plotter
-        self._algoDirMap = algoDirMap
+    def doPlots(self, plotter, newdirFunc=None, plotterDrawArgs={}):
         self._newdirFunc = newdirFunc
         self._plotterDrawArgs = plotterDrawArgs
 
@@ -741,68 +721,21 @@ class SimpleValidation:
                 sys.exit(1)
             self._openFiles.append(ROOT.TFile.Open(f))
 
-        if qualities is None:
-            qualities = [None]
-        if algos is None:
-            algos = [None]
-
-        for q in qualities:
-            for a in algos:
-                subdir = None
-                if self._algoDirMap is not None:
-                    if hasattr(self._algoDirMap, "__call__"):
-                        subdir = self._algoDirMap(a, q)
-                    else:
-                        try:
-                            subdir = self._algoDirMap[q][a]
-                        except KeyError, e:
-                            return
-                self._doPlots(a, q, subdir)
+        plotterInstance = plotter.readDirs(*self._openFiles)
+        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders():
+            self._doPlots(plotterFolder, dqmSubFolder)
 
         for tf in self._openFiles:
             tf.Close()
         self._openFiles = []
 
-    def doPlotsAuto(self, plotter, subdirToAlgoQuality, newdirFunc=None, plotterDrawArgs={}):
-        self._plotter = plotter
-        self._newdirFunc = newdirFunc
-        self._plotterDrawArgs = plotterDrawArgs
-
-        self._openFiles = []
-        for f in self._files:
-            if not os.path.exists(f):
-                print "File %s not found" % f
-                sys.exit(1)
-            self._openFiles.append(ROOT.TFile.Open(f))
-
-        theDir = None
-        for pd in self._plotter.getPossibleDirectoryNames():
-            theDir = self._openFiles[0].GetDirectory(pd)
-            if theDir:
-                break
-        if not theDir:
-            print "Did not find any of %s directories from file %s" % (",".join(self._plotter.getPossibleDirectoryNames()), tf.GetName())
-            sys.exit(1)
-
-        subdirs = []
-        for key in theDir.GetListOfKeys():
-            if isinstance(key.ReadObj(), ROOT.TDirectory):
-                subdirs.append(key.GetName())
-
-        for s in subdirs:
-            self._doPlots(*subdirToAlgoQuality(s), subdir=s)
-
-        for tf in self._openFiles:
-            tf.Close()
-        self._openFiles = []
-
-    def _doPlots(self, algo, quality, subdir):
-        self._plotter.create(self._openFiles, self._labels, subdir=subdir)
-        fileList = self._plotter.draw(**self._plotterDrawArgs)
+    def _doPlots(self, plotterFolder, dqmSubFolder):
+        plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
+        fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
         newdir = self._newdir
         if self._newdirFunc is not None:
-            newdir = os.path.join(newdir, self._newdirFunc(algo, quality))
+            newdir = os.path.join(newdir, self._newdirFunc(dqmSubFolder.translated if dqmSubFolder is not None else None))
 
         print "Moving plots to %s" % newdir
         if not os.path.exists(newdir):

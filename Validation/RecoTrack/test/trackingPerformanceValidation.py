@@ -1,8 +1,7 @@
 #! /usr/bin/env python
 
-from Validation.RecoTrack.plotting.validation import Sample
+from Validation.RecoTrack.plotting.validation import Sample, Validation
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
-import Validation.RecoTrack.plotting.validation as validation
 
 #########################################################
 ########### User Defined Variables (BEGIN) ##############
@@ -80,31 +79,24 @@ Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripl
 #Algos= ['ootb']
 Qualities=['', 'highPurity']
 
+def limitProcessing(algo, quality):
+    return algo in Algos and quality in Qualities
+
 ### Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/tracking/validation/MC'
 NewRepository = 'new' # copy output into a local folder
 
 # Tracking validation plots
-val = trackingPlots.TrackingValidation(
+val = Validation(
     fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
     fastsimSamples = fastsimstartupsamples + pileupfastsimstartupsamples,
     newRelease=NewRelease,
 )
 val.download()
-val.doPlots(algos=Algos, qualities=Qualities, refRelease=RefRelease,
+val.doPlots(refRelease=RefRelease,
             refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.plotter,
-            plotterDrawArgs={"ratio": True}
-)
-
-# Summary plots
-vals = validation.Validation(
-    fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
-    fastsimSamples = fastsimstartupsamples + pileupfastsimstartupsamples,
-    newRelease=NewRelease, selectionName="_summary"
-)
-vals.doPlots(refRelease=RefRelease,
-             refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.summaryPlotter,
-             algos=None, qualities=None, plotterDrawArgs={"ratio": True}
+            plotterDrawArgs={"ratio": True},
+            limitSubFoldersOnlyTo={"": limitProcessing}
 )
 
 # Timing plots

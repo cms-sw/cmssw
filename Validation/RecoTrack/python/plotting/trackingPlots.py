@@ -1,3 +1,5 @@
+import collections
+
 from plotting import FakeDuplicate, AggregateBins, Plot, PlotGroup, PlotFolder, Plotter
 import validation
 
@@ -154,12 +156,118 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
                             legendDy=-0.02, legendDh=-0.01
 )
 
-plotter = Plotter([
+
+_possibleTrackingColls = [
+    'initialStep',
+    'lowPtTripletStep',
+    'pixelPairStep',
+    'detachedTripletStep',
+    'mixedTripletStep',
+    'pixelLessStep',
+    'tobTecStep',
+    'jetCoreRegionalStep',
+    'muonSeededStepInOut',
+    'muonSeededStepOutIn',
+    'ak4PFJets',
+    'btvLike',
+]
+def _mapCollectionToAlgoQuality(collName):
+    if "Hp" in collName:
+        quality = "highPurity"
+    else:
+        quality = ""
+    collNameLow = collName.replace("Hp", "").lower()
+
+    algo = None
+    if "general" in collNameLow or collNameLow in ["cutsreco", "cutsrecotracks"]:
+        algo = "ootb"
+    else:
+        for coll in _possibleTrackingColls:
+            if coll.lower() in collNameLow:
+                algo = coll
+                break
+        # fallback
+        if algo is None:
+            algo = collName
+
+    return (algo, quality)
+
+def _collhelper(name):
+    return (name, [name])
+_collLabelMap = collections.OrderedDict(map(_collhelper, _possibleTrackingColls))
+_collLabelMapHp = collections.OrderedDict(map(_collhelper, filter(lambda n: "Step" in n, _possibleTrackingColls)))
+def _summaryBinRename(binLabel, highPurity):
+    (algo, quality) = _mapCollectionToAlgoQuality(binLabel)
+    if highPurity:
+        if quality == "highPurity":
+            return algo
+    else:
+        if quality == "":
+            return algo
+    return None
+
+_common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
+_commonAB = {"mapping": _collLabelMap,
+             "renameBin": lambda bl: _summaryBinRename(bl, False)}
+_summary = PlotGroup("summary", [
+    Plot(AggregateBins("efficiency", "effic_vs_coll", **_commonAB),
+         title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+    Plot(AggregateBins("efficiencyAllPt", "effic_vs_coll_allPt", **_commonAB),
+         title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+
+    Plot(AggregateBins("fakerate", "fakerate_vs_coll", **_commonAB), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
+    Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", **_commonAB), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
+    Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
+])
+_commonAB = {"mapping": _collLabelMapHp,
+             "renameBin": lambda bl: _summaryBinRename(bl, True)}
+_summaryHp = PlotGroup("summaryHp", [
+    Plot(AggregateBins("efficiency", "effic_vs_coll", **_commonAB),
+         title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+    Plot(AggregateBins("efficiencyefficiencyAllPt", "effic_vs_coll", **_commonAB),
+         title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
+    Plot(AggregateBins("fakerate", "fakerate_vs_coll", **_commonAB), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
+    Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", **_commonAB), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
+    Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
+])
+
+
+class TrackingPlotFolder(PlotFolder):
+    def _init__(self, *args, **kwargs):
+        super(TrackingPlotFolder, self).__init__(*args, **kwargs)
+
+    def translateSubFolder(self, dqmSubFolderName):
+        spl = dqmSubFolderName.split("_")
+        if len(spl) != 2:
+            return None
+        collName = spl[0]
+        return _mapCollectionToAlgoQuality(collName)
+
+    def getSelectionName(self, plotFolderName, translatedDqmSubFolder):
+        (algo, quality) = translatedDqmSubFolder
+
+        ret = ""
+        if plotFolderName != "":
+            ret += "_"+plotFolderName
+        if quality != "":
+            ret += "_"+quality
+        if not (algo == "ootb" and quality != ""):
+            ret += "_"+algo
+
+        return ret
+
+    def limitSubFolder(self, limitOnlyTo, translatedDqmSubFolder):
+        (algo, quality) = translatedDqmSubFolder
+        return limitOnlyTo(algo, quality)
+
+_trackingFolders = [
     "DQMData/Run 1/Tracking/Run summary/Track",
     "DQMData/Tracking/Track",
     "DQMData/Run 1/RecoTrackV/Run summary/Track",
     "DQMData/RecoTrackV/Track",
-], PlotFolder(
+]
+plotter = Plotter()
+plotter.append("", _trackingFolders, TrackingPlotFolder( # to keep backward compatibility, this set of plots has empty name
     _effandfake1,
     _effandfake2,
     _effandfake3,
@@ -176,8 +284,12 @@ plotter = Plotter([
     _resolutionsEta,
     _resolutionsPt,
 ))
+plotter.append("summary", _trackingFolders, PlotFolder(
+    _summary,
+    _summaryHp,
+    loopSubFolders=False
+))
 
-import collections
 _iterModuleMap = collections.OrderedDict([
     ("initialStepPreSplitting", ["initialStepSeedLayersPreSplitting",
                                  "initialStepSeedsPreSplitting",
@@ -269,7 +381,7 @@ _iterModuleMap = collections.OrderedDict([
 ])
 
 
-_timing = PlotGroup("timing", [
+_timing = PlotGroup("", [
     Plot(AggregateBins("iterative", "reconstruction_step_module_average", _iterModuleMap), ytitle="Average processing time [ms]", title="Average processing time / event", drawStyle="HIST", xbinlabelsize=0.03),
 #    Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap), ytitle="Average processing time", title="Average processing time / event (normalized)", drawStyle="HIST", xbinlabelsize=0.03, normalizeToUnitArea=True)
     Plot(AggregateBins("iterative_norm", "reconstruction_step_module_average", _iterModuleMap, normalizeTo="ak7CaloJets"), ytitle="Average processing time / ak7CaloJets", title="Average processing time / event (normalized to ak7CaloJets)", drawStyle="HIST", xbinlabelsize=0.03)
@@ -281,7 +393,8 @@ _pixelTiming = PlotGroup("pixelTiming", [
     Plot(AggregateBins("pixel", "reconstruction_step_module_average", {"pixelTracks": ["pixelTracks"]}), ytitle="Average processing time [ms]", title="Average processing time / event", drawStyle="HIST")
 ])
 
-timePlotter = Plotter([
+timePlotter = Plotter()
+timePlotter.append("timing", [
     "DQMData/Run 1/DQM/Run summary/TimerService/Paths",
     "DQMData/Run 1/DQM/Run summary/TimerService/process RECO/Paths",
 ], PlotFolder(
@@ -295,7 +408,8 @@ _tplifetime = PlotGroup("tplifetime", [
     Plot("TPtip", xtitle="TP tip", **_common),
 ])
 
-tpPlotter = Plotter([
+tpPlotter = Plotter()
+tpPlotter.append("tp", [
     "DQMData/Run 1/Tracking/Run summary/TrackingMCTruth/TrackingParticle",
     "DQMData/Tracking/TrackingMCTruth/TrackingParticle",
 ], PlotFolder(
@@ -303,107 +417,3 @@ tpPlotter = Plotter([
 ))
 
 
-_tracks_map = {
-    '': { # all tracks
-        'ootb'                : 'general_trackingParticleRecoAsssociation',
-        'initialStep'         : 'cutsRecoInitialStep_trackingParticleRecoAsssociation',
-        'lowPtTripletStep'    : 'cutsRecoLowPtTripletStep_trackingParticleRecoAsssociation',
-        'pixelPairStep'       : 'cutsRecoPixelPairStep_trackingParticleRecoAsssociation',
-        'detachedTripletStep' : 'cutsRecoDetachedTripletStep_trackingParticleRecoAsssociation',
-        'mixedTripletStep'    : 'cutsRecoMixedTripletStep_trackingParticleRecoAsssociation',
-        'pixelLessStep'       : 'cutsRecoPixelLessStep_trackingParticleRecoAsssociation',
-        'tobTecStep'          : 'cutsRecoTobTecStep_trackingParticleRecoAsssociation',
-        'jetCoreRegionalStep' : 'cutsRecoJetCoreRegionalStep_trackingParticleRecoAsssociation',
-        'muonSeededStepInOut' : 'cutsRecoMuonSeededStepInOut_trackingParticleRecoAsssociation',
-        'muonSeededStepOutIn' : 'cutsRecoMuonSeededStepOutIn_trackingParticleRecoAsssociation',
-        'ak4PFJets'           : 'cutsRecoAK4PFJets_trackingParticleRecoAsssociation',
-        'btvLike'             : 'cutsRecoBtvLike_trackingParticleRecoAsssociation',
-    },
-    "highPurity": {
-        'ootb'                : 'cutsRecoHp_trackingParticleRecoAsssociation',
-        'initialStep'         : 'cutsRecoInitialStepHp_trackingParticleRecoAsssociation',
-        'lowPtTripletStep'    : 'cutsRecoLowPtTripletStepHp_trackingParticleRecoAsssociation',
-        'pixelPairStep'       : 'cutsRecoPixelPairStepHp_trackingParticleRecoAsssociation',
-        'detachedTripletStep' : 'cutsRecoDetachedTripletStepHp_trackingParticleRecoAsssociation',
-        'mixedTripletStep'    : 'cutsRecoMixedTripletStepHp_trackingParticleRecoAsssociation',
-        'pixelLessStep'       : 'cutsRecoPixelLessStepHp_trackingParticleRecoAsssociation',
-        'tobTecStep'          : 'cutsRecoTobTecStepHp_trackingParticleRecoAsssociation',
-        'jetCoreRegionalStep' : 'cutsRecoJetCoreRegionalStepHp_trackingParticleRecoAsssociation',
-        'muonSeededStepInOut' : 'cutsRecoMuonSeededStepInOutHp_trackingParticleRecoAsssociation',
-        'muonSeededStepOutIn' : 'cutsRecoMuonSeededStepOutInHp_trackingParticleRecoAsssociation'
-    }
-}
-
-_collLabelMap = collections.OrderedDict([
-    ('generalTracks'       , ['generalTracks']),
-    ('initialStep'         , ['cutsRecoTracksInitialStep']),
-    ('lowPtTripletStep'    , ['cutsRecoTracksLowPtTripletStep']),
-    ('pixelPairStep'       , ['cutsRecoTracksPixelPairStep']),
-    ('detachedTripletStep' , ['cutsRecoTracksDetachedTripletStep']),
-    ('mixedTripletStep'    , ['cutsRecoTracksMixedTripletStep']),
-    ('pixelLessStep'       , ['cutsRecoTracksPixelLessStep']),
-    ('tobTecStep'          , ['cutsRecoTracksTobTecStep']),
-    ('jetCoreRegionalStep' , ['cutsRecoTracksJetCoreRegionalStep']),
-    ('muonSeededStepInOut' , ['cutsRecoTracksMuonSeededStepInOut']),
-    ('muonSeededStepOutIn' , ['cutsRecoTracksMuonSeededStepOutIn']),
-    ('ak4PFJets'           , ['cutsRecoTracksAK4PFJets']),
-    ('btvLike'             , ['cutsRecoTracksBtvLike']),
-])
-_collLabelMapHp = collections.OrderedDict([
-    ('generalTracks'       , ['cutsRecoTracksHp']),
-    ('initialStep'         , ['cutsRecoTracksInitialStepHp']),
-    ('lowPtTripletStep'    , ['cutsRecoTracksLowPtTripletStepHp']),
-    ('pixelPairStep'       , ['cutsRecoTracksPixelPairStepHp']),
-    ('detachedTripletStep' , ['cutsRecoTracksDetachedTripletStepHp']),
-    ('mixedTripletStep'    , ['cutsRecoTracksMixedTripletStepHp']),
-    ('pixelLessStep'       , ['cutsRecoTracksPixelLessStepHp']),
-    ('tobTecStep'          , ['cutsRecoTracksTobTecStepHp']),
-    ('jetCoreRegionalStep' , ['cutsRecoTracksJetCoreRegionalStepHp']),
-    ('muonSeededStepInOut' , ['cutsRecoTracksMuonSeededStepInOutHp']),
-    ('muonSeededStepOutIn' , ['cutsRecoTracksMuonSeededStepOutInHp']),
-])
-_common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
-_summary = PlotGroup("summary", [
-    Plot(AggregateBins("efficiency", "effic_vs_coll", _collLabelMap),
-         title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-    Plot(AggregateBins("efficiencyAllPt", "effic_vs_coll_allPt", _collLabelMap),
-         title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-
-    Plot(AggregateBins("fakerate", "fakerate_vs_coll", _collLabelMap), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
-    Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", _collLabelMap), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
-    Plot(AggregateBins("pileuprate", "pileuprate_coll", _collLabelMap), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
-])
-_summaryHp = PlotGroup("summaryHp", [
-    Plot(AggregateBins("efficiency", "effic_vs_coll", _collLabelMapHp),
-         title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-    Plot(AggregateBins("efficiencyefficiencyAllPt", "effic_vs_coll", _collLabelMapHp),
-         title="Efficiency vs collection (no pT cut in denominator)", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
-    Plot(AggregateBins("fakerate", "fakerate_vs_coll", _collLabelMapHp), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
-    Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", _collLabelMapHp), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
-    Plot(AggregateBins("pileuprate", "pileuprate_coll", _collLabelMapHp), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
-])
-
-summaryPlotter = Plotter(
-    plotter.getPossibleDirectoryNames(),
-    PlotFolder(
-    _summary,
-    _summaryHp
-    ))
-
-
-
-class TrackingValidation(validation.Validation):
-    def _init__(self, *args, **kwargs):
-        super(TrackingValidation, self).__init__(*args, **kwargs)
-
-    def _getDirectoryName(self, quality, algo):
-        return _tracks_map[quality][algo]
-
-    def _getSelectionName(self, quality, algo):
-        ret = ""
-        if quality != "":
-            ret += "_"+quality
-        if not (algo == "ootb" and quality != ""):
-            ret += "_"+algo
-
-        return ret

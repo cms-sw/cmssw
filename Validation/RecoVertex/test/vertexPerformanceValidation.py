@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from Validation.RecoTrack.plotting.validation import Sample
+from Validation.RecoTrack.plotting.validation import Sample, Validation
 import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 
 #########################################################
@@ -38,20 +38,20 @@ pileupstartupsamples = [
 
 ### Vertex collections
 Collections = ["offlinePrimaryVertices", "selectedOfflinePrimaryVertices"]
-Qualities=None
 
 ### Reference and new repository
 RefRepository = '/afs/cern.ch/cms/Physics/tracking/validation/MC'
 NewRepository = 'new' # copy output into a local folder
 
 
-validation = vertexPlots.VertexValidation(
+validation = Validation(
     fullsimSamples = pileupstartupsamples,
     fastsimSamples=[], newRelease=NewRelease)
 validation.download()
-validation.doPlots(algos=Collections, qualities=Qualities, refRelease=RefRelease,
+validation.doPlots(refRelease=RefRelease,
                    refRepository=RefRepository, newRepository=NewRepository, plotter=vertexPlots.plotter,
-                   plotterDrawArgs={"ratio": True}
+                   plotterDrawArgs={"ratio": True},
+                   limitOnlyTo=Collections,
 )
 
 #validation2 = vertexPlots.VertexValidation(
