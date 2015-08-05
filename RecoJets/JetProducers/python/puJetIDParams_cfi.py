@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from RecoJets.JetProducers.PileupJetIDCutParams_cfi import full_74x_chs_wp
 ###########################################################
 ## Working points for the 53X training/New Met Dec 21, 2012
 ###########################################################
