@@ -7,8 +7,19 @@ from Configuration.StandardSequences.Eras import eras
 from FastSimulation.Calorimetry.HcalResponse_cfi import *
 from FastSimulation.Calorimetry.HSParameters_cfi import *
 #from FastSimulation.Configuration.CommonInputs_cff import *
+
+ECALScaleBlock = cms.PSet(
+    ECALResponceScalingParameters = cms.PSet(
+        doScalig = cms.bool( True ),
+        fileName = cms.untracked.string("FastSimulation/Calorimetry/data/scaleECALFastsim.root"),
+        histogramName = cms.untracked.string("scaleVsEVsEta")
+    )
+)
+
+
 FamosCalorimetryBlock = cms.PSet(
     Calorimetry = cms.PSet(
+        ECALScaleBlock,
         HSParameterBlock,
         HCALResponseBlock,
         ECAL = cms.PSet(
