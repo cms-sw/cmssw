@@ -14,6 +14,7 @@
 
 #include "G4DataQuestionaire.hh"
 #include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
+#include "G4SystemOfUnits.hh"
  
 CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map, 
 			     const HepPDT::ParticleDataTable * table_,
