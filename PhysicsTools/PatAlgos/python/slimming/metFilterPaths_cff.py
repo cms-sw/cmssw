@@ -28,7 +28,7 @@ Flag_trkPOG_logErrorTooManyClusters = cms.Path(~logErrorTooManyClusters)
 Flag_METFilters = cms.Path(metFilters)
 
 #add your new path here!!
-allMetFilterPaths=['HBHENoiseFilter','CSCTightHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','goodVertices','eeBadScFilter',
+allMetFilterPaths=['HBHENoiseFilter','CSCTightHaloFilter','hcalLaserEventFilter','EcalDeadCellBoundaryEnergyFilter','EcalDeadCellTriggerPrimitiveFilter','goodVertices','eeBadScFilter',
                    'ecalLaserCorrFilter','trkPOGFilters','trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters','METFilters']
 
        
