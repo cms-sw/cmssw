@@ -41,9 +41,9 @@ class TrackingRecHitMonitorPlugin:
         {
             //std::cout<<getTrackerTopology()->print(product->getDetId())<<std::endl;
 
-
             for (unsigned int irechit = 0; irechit<product->numberOfRecHits(); ++irechit)
             {
+                
                 const SiTrackerGSRecHit2D& recHit = product->getRecHit(irechit);
                 const Local3DPoint& recHitPosition = recHit.localPosition();
                 const LocalError& recHitError = recHit.localPositionError();
@@ -60,7 +60,6 @@ class TrackingRecHitMonitorPlugin:
 
                 _hist->Fill((simHitXmean-recHitPosition.x())/sqrt(recHitError.xx()),(simHitYmean-recHitPosition.y())/sqrt(recHitError.yy()));
             }
-
             return product;
         }
 };

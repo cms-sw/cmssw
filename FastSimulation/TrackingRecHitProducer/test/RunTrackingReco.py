@@ -26,10 +26,8 @@ process.source = cms.Source ("PoolSource",
     fileNames=cms.untracked.vstring('file:SimHits.root'),
 )
 
-process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
-    simHits = cms.InputTag("famosSimHits","TrackerHits"),
 
-    plugins=cms.PSet(
+'''
         defaultPlugin = cms.PSet(
             type=cms.string("PixelBarrelTemplateSmearerPlugin"),
             NewPixelBarrelResolutionFile1 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrel38T.root'),
@@ -45,8 +43,20 @@ process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
             select=cms.string("subdetId==BPX"),
 
         ),
+'''
+
+process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
+    simHits = cms.InputTag("famosSimHits","TrackerHits"),
+
+    plugins=cms.VPSet(
+        cms.PSet(
+            name = cms.string("noSmearing"),
+            type=cms.string("TrackingRecHitNoSmearingPlugin"),
+            select=cms.string("subdetId==BPX")
+        ),
         
-        BPXmonitor = cms.PSet(
+        cms.PSet(
+            name = cms.string("BPXmonitor"),
             type=cms.string("TrackingRecHitMonitorPlugin"),
             xmax=cms.double(5.0),
             ymax=cms.double(5.0),

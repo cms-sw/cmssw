@@ -36,7 +36,6 @@ class TrackingRecHitNoSmearingPlugin:
         {
             //std::cout<<getTrackerTopology()->print(product->getDetId())<<std::endl;
 
-
             for (const PSimHit* simHit: product->getSimHits())
             {
                 const Local3DPoint& position = simHit->localPosition();

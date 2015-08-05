@@ -16,16 +16,18 @@
 TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
 {
     edm::ConsumesCollector consumeCollector = consumesCollector();
-    const edm::ParameterSet& pluginConfigs = config.getParameter<edm::ParameterSet>("plugins");
-    const std::vector<std::string> psetNames = pluginConfigs.getParameterNamesForType<edm::ParameterSet>();
+    const std::vector<edm::ParameterSet>& pluginConfigs = config.getParameter<std::vector<edm::ParameterSet>>("plugins");
 
-    for (unsigned int iplugin = 0; iplugin<psetNames.size(); ++iplugin)
+    for (unsigned int iplugin = 0; iplugin<pluginConfigs.size(); ++iplugin)
     {
-        const edm::ParameterSet& pluginConfig = pluginConfigs.getParameter<edm::ParameterSet>(psetNames[iplugin]);
-        const std::string pluginName = pluginConfig.getParameter<std::string>("type");
-        TrackingRecHitAlgorithm* recHitAlgorithm = TrackingRecHitAlgorithmFactory::get()->tryToCreate(pluginName,psetNames[iplugin],pluginConfig,consumeCollector);
+        const edm::ParameterSet& pluginConfig = pluginConfigs[iplugin];
+        const std::string pluginType = pluginConfig.getParameter<std::string>("type");
+        const std::string pluginName = pluginConfig.getParameter<std::string>("name");
+
+        TrackingRecHitAlgorithm* recHitAlgorithm = TrackingRecHitAlgorithmFactory::get()->tryToCreate(pluginType,pluginName,pluginConfig,consumeCollector);
         if (recHitAlgorithm)
         {
+            std::cout<<"TrackingRecHitProducer: adding plugin '"<<pluginName<<"' as '"<<recHitAlgorithm->getName()<<"'"<<std::endl;
             _recHitAlgorithms.push_back(recHitAlgorithm);
         }
         else
@@ -67,22 +69,30 @@ void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup)
 
         _detIdPipes.clear();
 
+        std::cout<<"TrackingRecHitProducer: setting up pipes"<<std::endl;
         //build pipes for all detIds
         const std::vector<DetId>& detIds = trackerGeometry->detIds();
+        std::vector<unsigned int> numberOfDetIdsPerAlgorithm(_recHitAlgorithms.size(),0);
 
         for (const DetId& detId: detIds)
         {
             TrackerDetIdSelector selector(detId,*trackerTopology);
 
             TrackingRecHitPipe pipe;
-            for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
+            for (unsigned int ialgo = 0; ialgo < _recHitAlgorithms.size(); ++ialgo)
             {
+                TrackingRecHitAlgorithm* algo = _recHitAlgorithms[ialgo];
                 if (selector.passSelection(algo->getSelectionString()))
                 {
+                    numberOfDetIdsPerAlgorithm[ialgo]+=1;
                     pipe.addAlgorithm(algo);
                 }
             }
             _detIdPipes[detId.rawId()]=pipe;
+        }
+        for (unsigned int ialgo = 0; ialgo < _recHitAlgorithms.size(); ++ialgo)
+        {
+            std::cout<<"TrackingRecHitProducer: "<<_recHitAlgorithms[ialgo]->getName()<<": "<<numberOfDetIdsPerAlgorithm[ialgo]<<" dets"<<std::endl;
         }
     }
 }
@@ -100,6 +110,9 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     //build DetId -> PSimHit map
     edm::Handle<std::vector<PSimHit>> simHits;
     event.getByToken(_simHitToken,simHits);
+    
+    std::cout<<"TrackingRecHitProducer: N(SimHits input)="<<simHits->size()<<std::endl;
+    
     std::map<unsigned int,std::vector<const PSimHit*>> hitsPerDetId;
     for (unsigned int ihit = 0; ihit < simHits->size(); ++ihit)
     {
@@ -111,6 +124,9 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     //std::auto_ptr<edm::RefVector<std::vector<PSimHit>>> simHitRefOutputCollection(new edm::RefVector<std::vector<PSimHit>>());
 
     //run pipes
+    
+    unsigned int nRecHits = 0;
+    
     for (std::map<unsigned int,std::vector<const PSimHit*>>::iterator simHitsIt = hitsPerDetId.begin(); simHitsIt != hitsPerDetId.end(); ++simHitsIt)
     {
         const DetId& detId = simHitsIt->first;
@@ -123,7 +139,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
             TrackingRecHitProductPtr product = std::make_shared<TrackingRecHitProduct>(detId,simHits);
 
             product = pipe.produce(product);
-
+            nRecHits+=product->numberOfRecHits();
         }
         else
         {
@@ -131,6 +147,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
             throw cms::Exception("FastSimulation/TrackingRecHitProducer","A PSimHit carries a DetId which does not belong to the TrackerGeometry: "+std::to_string(simHitsIt->first));
         }
     }
+    std::cout<<"TrackingRecHitProducer: N(RecHits produced)="<<nRecHits<<std::endl;
     
     //end event
     for (TrackingRecHitAlgorithm* algo: _recHitAlgorithms)
