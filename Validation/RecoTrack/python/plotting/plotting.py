@@ -496,6 +496,9 @@ class Plot:
         """Return number of existing histograms."""
         return len(filter(lambda h: h is not None, self._histograms))
 
+    def isEmpty(self):
+        return self.getNumberOfHistograms() == 0
+
     def getName(self):
         if isinstance(self._name, list):
             return str(self._name[0])
@@ -951,6 +954,15 @@ class PlotGroup:
         if self._overrideLegendLabels is not None:
             legendLabels = self._overrideLegendLabels
 
+        # Do not draw the group if it would be empty
+        onlyEmptyPlots = True
+        for plot in self._plots:
+            if not plot.isEmpty():
+                onlyEmptyPlots = False
+                break
+        if onlyEmptyPlots:
+            return []
+
         if separate:
             return self._drawSeparate(legendLabels, prefix, saveFormat, ratio)
 
@@ -972,7 +984,8 @@ class PlotGroup:
         # Draw plots to canvas
         for i, plot in enumerate(self._plots):
             pad = canvas.cd(i+1)
-            plot.draw(pad, ratio, self._ratioFactor, nrows)
+            if not plot.isEmpty():
+                plot.draw(pad, ratio, self._ratioFactor, nrows)
 
         # Setup legend
         canvas.cd()
@@ -1024,6 +1037,9 @@ class PlotGroup:
         ret = []
 
         for plot in self._plots:
+            if plot.isEmpty():
+                continue
+
             if ratio:
                 canvas.cd()
                 self._modifyPadForRatio(canvas)
