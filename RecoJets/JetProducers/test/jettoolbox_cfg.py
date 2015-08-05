@@ -77,7 +77,7 @@ process.out.outputCommands += ['keep *_ak4PFJetsCHS_*_*',
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #pileupJetID
 
-process.load('RecoJets.JetProducers.pileupjetidproducer_cfi')
+process.load('RecoJets.JetProducers.PileupJetID_cfi')
 
 process.pileupJetIdCalculator.jets = cms.InputTag("ak4PFJetsCHS")
 process.pileupJetIdEvaluator.jets = cms.InputTag("ak4PFJetsCHS")

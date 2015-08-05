@@ -15,7 +15,7 @@ calibratedAK4PFJetsForPFMVAMEt = cms.EDProducer('PFJetCorrectionProducer',
     correctors = cms.vstring("ak4PFL1FastL2L3") # NOTE: use "ak5PFL1FastL2L3" for MC / "ak5PFL1FastL2L3Residual" for Data
 )
 
-from RecoJets.JetProducers.pileupjetidproducer_cfi import pileupJetIdEvaluator
+from RecoJets.JetProducers.PileupJetID_cfi import pileupJetIdEvaluator
 from RecoJets.JetProducers.PileupJetIDParams_cfi import JetIdParams
 puJetIdForPFMVAMEt = pileupJetIdEvaluator.clone(
     algos = cms.VPSet(
