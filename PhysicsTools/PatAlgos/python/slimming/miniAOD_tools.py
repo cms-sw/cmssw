@@ -158,7 +158,7 @@ def miniAOD_customizeCommon(process):
     process.electronMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     for idmod in electron_ids:
-        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False)
 
     #VID Photon IDs
     photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff',
@@ -175,7 +175,7 @@ def miniAOD_customizeCommon(process):
     process.photonMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
-        setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
+        setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False)
     
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
