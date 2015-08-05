@@ -38,7 +38,7 @@ HLTPFJetIDProducer::~HLTPFJetIDProducer() {}
 void HLTPFJetIDProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
     edm::ParameterSetDescription desc;
     desc.add<double>("minPt", 20.);
-    desc.add<double>("maxEta", 5.2);
+    desc.add<double>("maxEta", 1e99);
     desc.add<double>("CHF", -99.);
     desc.add<double>("NHF", 99.);
     desc.add<double>("CEF", 99.);
