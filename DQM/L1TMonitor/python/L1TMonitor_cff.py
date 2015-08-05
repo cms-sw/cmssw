@@ -35,6 +35,9 @@ l1tRctfromGCT = l1tRct.clone()
 l1tRctfromGCT.rctSource = 'gctDigis'
 l1tRctfromGCT.HistFolder = cms.untracked.string('L1T/L1TRCT_FromGCT')
 
+# RCT PUM DQM
+from DQM.L1TMonitor.L1TPUM_cfi import *
+
 # GCT DQM module 
 from DQM.L1TMonitor.L1TGCT_cfi import *
 from DQM.L1TMonitor.L1TStage1Layer2_cfi import *
@@ -100,7 +103,7 @@ from L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi import *
 
 
 l1tRctSeq = cms.Sequence(
-                    l1tRct + l1tRctfromGCT
+                    l1tRct + l1tRctfromGCT + l1tPUM 
                     )
 
 l1tGctSeq = cms.Sequence(
