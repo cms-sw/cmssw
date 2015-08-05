@@ -5,22 +5,20 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag.globaltag = 'START53_V7G::All'
 
 process.load('CommonTools/PileupAlgos/Puppi_cff')
 process.load('CommonTools/PileupAlgos/softKiller_cfi')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(2) )
 process.source = cms.Source("PoolSource",
-                            fileNames  = cms.untracked.vstring('/store/relval/CMSSW_7_5_0_pre4/RelValQCD_FlatPt_15_3000HS_13/MINIAODSIM/MCRUN2_75_V1-v1/00000/328B19C2-4DF6-E411-92C1-003048FFD796.root')
+	fileNames  = cms.untracked.vstring(
+		# '/store/mc/RunIISpring15DR74/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/GEN-SIM-RECO/AsymptFlat0to50bx25Reco_MCRUN2_74_V9-v3/10000/0009D30B-0207-E511-B581-0026182FD753.root'
+		'/store/relval/CMSSW_7_4_1/RelValZMM_13/GEN-SIM-RECO/PU50ns_MCRUN2_74_V8_gensim_740pre7-v1/00000/32FD5AA2-41EC-E411-94B1-0025905B8572.root'
+		)
 )
 process.source.inputCommands = cms.untracked.vstring("keep *",
                                                      "drop *_MEtoEDMConverter_*_*")
-
-process.puppi.candName = cms.InputTag('packedPFCandidates')
-process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
-process.softKiller.PFCandidates = cms.InputTag('packedPFCandidates')
 
 process.options = cms.untracked.PSet(
   wantSummary = cms.untracked.bool(True),
@@ -29,8 +27,7 @@ process.options = cms.untracked.PSet(
 )
 
 
-process.puSequence = cms.Sequence(process.puppi*process.softKiller)
-#process.puSequence = cms.Sequence(process.puppi)
+process.puSequence = cms.Sequence(process.puppi)
 process.p = cms.Path(process.puSequence)
 process.output = cms.OutputModule("PoolOutputModule",
                                   outputCommands = cms.untracked.vstring('drop *',

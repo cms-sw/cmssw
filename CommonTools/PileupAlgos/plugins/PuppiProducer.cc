@@ -30,6 +30,7 @@
 // ------------------------------------------------------------------------------------------
 PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   fPuppiDiagnostics = iConfig.getParameter<bool>("puppiDiagnostics");
+  fPuppiForLeptons = iConfig.getParameter<bool>("puppiForLeptons");
   fUseDZ     = iConfig.getParameter<bool>("UseDeltaZCut");
   fDZCut     = iConfig.getParameter<double>("DeltaZCut");
   fPuppiContainer = std::unique_ptr<PuppiContainer> ( new PuppiContainer(iConfig) );
@@ -70,6 +71,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tokenVertices_,hVertexProduct);
   const reco::VertexCollection *pvCol = hVertexProduct.product();
 
+   int npv = 0;
+   const reco::VertexCollection::const_iterator vtxEnd = pvCol->end();
+   for (reco::VertexCollection::const_iterator vtxIter = pvCol->begin(); vtxEnd != vtxIter; ++vtxIter) {
+      if (!vtxIter->isFake() && vtxIter->ndof()>=4 && fabs(vtxIter->z())<=24)
+         npv++;
+   }
+
   //Fill the reco objects
   fRecoObjCollection.clear();
   for(CandidateView::const_iterator itPF = pfCol->begin(); itPF!=pfCol->end(); itPF++) {
@@ -87,7 +95,10 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     bool lFirst = true;
     const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
     if(lPack == 0 ) {
+
       const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
+      double curdz = 9999;
+      int closestVtxForUnassociateds = -9999;
       for(reco::VertexCollection::const_iterator iV = pvCol->begin(); iV!=pvCol->end(); ++iV) {
         if(lFirst) {
           if      ( pPF->trackRef().isNonnull()    ) pDZ = pPF->trackRef()   ->dz(iV->position());
@@ -100,40 +111,72 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
         if(iV->trackWeight(pPF->trackRef())>0) {
             closestVtx  = &(*iV);
             break;
-          }
+          }        
+        // in case it's unassocciated, keep more info
+        double tmpdz = 99999;
+        if      ( pPF->trackRef().isNonnull()    ) tmpdz = pPF->trackRef()   ->dz(iV->position());
+        else if ( pPF->gsfTrackRef().isNonnull() ) tmpdz = pPF->gsfTrackRef()->dz(iV->position());
+        if (fabs(tmpdz) < curdz){
+          curdz = fabs(tmpdz);
+          closestVtxForUnassociateds = pVtxId;
+        }
         pVtxId++;
+
       }
-    } else if(lPack->vertexRef().isNonnull() )  {
-        pDZ        = lPack->dz();
-        pD0        = lPack->dxy();
-        closestVtx = &(*(lPack->vertexRef()));
-        pVtxId = (lPack->fromPV() != (pat::PackedCandidate::PVUsedInFit));
-        if( (lPack->fromPV() == pat::PackedCandidate::PVLoose) || (lPack->fromPV() == pat::PackedCandidate::PVTight) ){
-            pVtxId = 0;
-        } 
-    }
+      int tmpFromPV = 0;  
+      // mocking the miniAOD definitions
+      if (closestVtx != 0 && fabs(pReco.charge) > 0 && pVtxId > 0) tmpFromPV = 0;
+      if (closestVtx != 0 && fabs(pReco.charge) > 0 && pVtxId == 0) tmpFromPV = 3;
+      if (closestVtx == 0 && fabs(pReco.charge) > 0 && closestVtxForUnassociateds == 0) tmpFromPV = 2;
+      if (closestVtx == 0 && fabs(pReco.charge) > 0 && closestVtxForUnassociateds != 0) tmpFromPV = 1;
       pReco.dZ      = pDZ;
       pReco.d0      = pD0;
-      
-      if(closestVtx == 0) pReco.vtxId = -1;
-      if(closestVtx != 0) pReco.vtxId = pVtxId;
-      //if(closestVtx != 0) pReco.vtxChi2 = closestVtx->trackWeight(itPF->trackRef());
-      //Set the id for Puppi Algo: 0 is neutral pfCandidate, id = 1 for particles coming from PV and id = 2 for charged particles from non-leading vertex
-      pReco.id       = 0;
-      
-      if(closestVtx != 0 && pVtxId == 0 && fabs(pReco.charge) > 0) pReco.id = 1;
-      if(closestVtx != 0 && pVtxId >  0 && fabs(pReco.charge) > 0) pReco.id = 2;
-      //Add a dZ cut if wanted (this helps)
-      if(fUseDZ && pDZ > -9999 && closestVtx == 0 && (fabs(pDZ) < fDZCut) && fabs(pReco.charge) > 0) pReco.id = 1;
-      if(fUseDZ && pDZ > -9999 && closestVtx == 0 && (fabs(pDZ) > fDZCut) && fabs(pReco.charge) > 0) pReco.id = 2;
-      
-      //std::cout << "pVtxId = " << pVtxId << ", and charge = " << itPF->charge() << ", and closestVtx = " << closestVtx << ", and id = " << pReco.id << std::endl;
-      //std::cout << "charge = " << itPF->charge() << ", pDZ = " << pDZ << ", pVtxId = " << pVtxId << ", closestVtx = " << closestVtx << ", fromPV() = " << lPack->fromPV() << ", pReco.id = " << pReco.id << std::endl;
+      pReco.id = 0; 
+      if (fabs(pReco.charge) == 0){ pReco.id = 0; }
+      if (fabs(pReco.charge) > 0){
+        if (tmpFromPV == 0){ pReco.id = 2; } // 0 is associated to PU vertex
+        if (tmpFromPV == 3){ pReco.id = 1; }
+        if (tmpFromPV == 1 || tmpFromPV == 2){ 
+          pReco.id = 0;
+          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) < fDZCut)) pReco.id = 1;
+          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) > fDZCut)) pReco.id = 2;
+          if (fPuppiForLeptons && tmpFromPV == 1) pReco.id = 2;
+          if (fPuppiForLeptons && tmpFromPV == 2) pReco.id = 1;
+        }
+      }
+    } 
+    else if(lPack->vertexRef().isNonnull() )  {
+      pDZ        = lPack->dz();
+      pD0        = lPack->dxy();
+      closestVtx = &(*(lPack->vertexRef()));
+      pReco.dZ      = pDZ;
+      pReco.d0      = pD0;
+  
+      pReco.id = 0; 
+      if (fabs(pReco.charge) == 0){ pReco.id = 0; }
+      if (fabs(pReco.charge) > 0){
+        if (lPack->fromPV() == 0){ pReco.id = 2; } // 0 is associated to PU vertex
+        if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)){ pReco.id = 1; }
+        if (lPack->fromPV() == (pat::PackedCandidate::PVTight) || lPack->fromPV() == (pat::PackedCandidate::PVLoose)){ 
+          pReco.id = 0;
+          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) < fDZCut)) pReco.id = 1;
+          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) > fDZCut)) pReco.id = 2;
+          if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVLoose)) pReco.id = 2;
+          if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVTight)) pReco.id = 1;
+        }
+      }
+    }
 
-      fRecoObjCollection.push_back(pReco);
+    fRecoObjCollection.push_back(pReco);
+      
+    //   //std::cout << "pVtxId = " << pVtxId << ", and charge = " << itPF->charge() << ", and closestVtx = " << closestVtx << ", and id = " << pReco.id << std::endl;
+    // std::cout << "charge = " << itPF->charge() << ", pDZ = " << pDZ << ", pVtxId = " << pVtxId << ", closestVtx = " << closestVtx << ", fromPV() = " << lPack->fromPV() << ", pReco.id = " << pReco.id << std::endl;
+
+    //   fRecoObjCollection.push_back(pReco);
   }
 
   fPuppiContainer->initialize(fRecoObjCollection);
+  fPuppiContainer->setNPV( npv );
 
   //Compute the weights
   const std::vector<double> lWeights = fPuppiContainer->puppiWeights();
@@ -174,6 +217,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( fastjet::PseudoJet const & i ){ return i.user_index() == val; } );
     if ( puppiMatched != lCandidates.end() ) {
       pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
+      // fPuppiCandidates->push_back(pCand);
     } else {
       pVec.SetPxPyPzE( 0, 0, 0, 0);
     }

@@ -94,6 +94,7 @@ void PuppiAlgo::add(const fastjet::PseudoJet &iParticle,const double &iVal,const
     }
     // for the low PU case, correction.  for checking that the PU-only median will be below the PV particles
     if(std::abs(iParticle.eta()) < fEtaMaxExtrap && (std::abs(puppi_register) >=1 && std::abs(puppi_register) <=2)) fPupsPV.push_back(iVal);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -109,7 +110,7 @@ void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
     int lNBefore = 0;
     for(unsigned int i0 = 0; i0 < iAlgo; i0++) lNBefore += fNCount[i0];
     std::sort(fPups.begin()+lNBefore,fPups.begin()+lNBefore+fNCount[iAlgo]);
-
+    
     // in case you have alphas == 0
     int lNum0 = 0;
     for(int i0 = lNBefore; i0 < lNBefore+fNCount[iAlgo]; i0++) {
@@ -139,8 +140,10 @@ void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
     // some ways to do corrections to fRMS and fMedian
     fRMS [iAlgo] *= fRMSScaleFactor[iAlgo];
 
+    // std::cout << "iAlgo = " << iAlgo << ", fRMSEtaSF = " << fRMSEtaSF << ", fMedEtaSF = " << fMedEtaSF << ", fRMS[iAlgo] = " << fRMS[iAlgo] << ", fMedian[iAlgo] = " << fMedian[iAlgo] << std::endl;
     fRMS[iAlgo]    *= fRMSEtaSF;
     fMedian[iAlgo] *= fMedEtaSF;
+    // std::cout << "*change* -- iAlgo = " << iAlgo << ", fRMSEtaSF = " << fRMSEtaSF << ", fMedEtaSF = " << fMedEtaSF << ", fRMS[iAlgo] = " << fRMS[iAlgo] << ", fMedian[iAlgo] = " << fMedian[iAlgo] << std::endl;
     //if(!fCharged[iAlgo]) std::cout << " Process : " << iAlgo  << " Median : " << fMedian[iAlgo] << " +/- " << fRMS[iAlgo]  << " -- Begin : " << lNBefore << " -- Total :  " << fNCount[iAlgo] << " -- 50% " << lNHalfway  << " Fraction less than @ Median : " << std::endl;
     
     if(!fAdjust[iAlgo]) return;
@@ -150,6 +153,8 @@ void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
     for(unsigned int i0 = 0; i0 < fPupsPV.size(); i0++) if(fPupsPV[i0] <= lMed ) lNPV++;
     double lAdjust = double(lNPV)/double(fPupsPV.size()+fNCount[iAlgo]);
     if(lAdjust > 0) fMedian[iAlgo] -= sqrt(ROOT::Math::chisquared_quantile(lAdjust,1.)*fRMS[iAlgo]);
+
+    // std::cout << "*change2* -- iAlgo = " << iAlgo << ", fRMSEtaSF = " << fRMSEtaSF << ", fMedEtaSF = " << fMedEtaSF << ", fRMS[iAlgo] = " << fRMS[iAlgo] << ", fMedian[iAlgo] = " << fMedian[iAlgo] << std::endl;
 
 }
 ////////////////////////////////////////////////////////////////////////////////
