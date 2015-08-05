@@ -46,10 +46,10 @@ dqmRunConfig = dqmRunConfigDefaults[dqmRunConfigType]
 
 # load the options from the config file, if set
 if dqmFileConfig.has_option("host", "collectorPort"):
-    dqmRunConfig.type = int(dqmFileConfig.get("host", "collectorPort"))
+    dqmRunConfig.collectorPort = int(dqmFileConfig.get("host", "collectorPort"))
 
 if dqmFileConfig.has_option("host", "collectorHost"):
-    dqmRunConfig.type = dqmFileConfig.get("host", "collectorHost")
+    dqmRunConfig.collectorHost = dqmFileConfig.get("host", "collectorHost")
 
 
 # now start the actual configuration
