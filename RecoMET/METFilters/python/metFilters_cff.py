@@ -25,13 +25,16 @@ from RecoMET.METFilters.ecalLaserCorrFilter_cfi import *
 ## The Good vertices collection needed by the tracking failure filter ________||
 goodVertices = cms.EDFilter(
   "VertexSelector",
-  filter = cms.bool(False),
+  filter = cms.bool(True),
   src = cms.InputTag("offlinePrimaryVertices"),
   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
 )
 
 ## The tracking failure filter _______________________________________________||
 from RecoMET.METFilters.trackingFailureFilter_cfi import *
+
+## The primary vertex filter__ _______________________________________________||
+from RecoMET.METFilters.primaryVertexFilter_cfi import *
 
 ## The tracking POG filters __________________________________________________||
 from RecoMET.METFilters.trackingPOGFilters_cff import *
@@ -49,6 +52,7 @@ from RecoMET.METFilters.trackingPOGFilters_cff import *
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
+   primaryVertexFilter*
 #   HBHENoiseIsoFilter*
    CSCTightHaloFilter *
 #   hcalLaserEventFilter *
