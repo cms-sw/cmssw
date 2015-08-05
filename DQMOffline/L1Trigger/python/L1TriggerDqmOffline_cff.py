@@ -134,8 +134,8 @@ l1tMonitorStage1Online.remove(bxTiming)
 #l1ExtraDqmSeq.remove(l1ExtraDQM)
 #l1tMonitorOnline.remove(l1ExtraDqmSeq)
 #
-l1tMonitorStage1Online.remove(l1tRate)
-l1tMonitorStage1Online.remove(l1tBPTX)
+#l1tMonitorStage1Online.remove(l1tRate)
+#l1tMonitorStage1Online.remove(l1tBPTX)
 #l1tMonitorOnline.remove(l1tRctSeq)
 #l1tMonitorOnline.remove(l1tGctSeq)
 
