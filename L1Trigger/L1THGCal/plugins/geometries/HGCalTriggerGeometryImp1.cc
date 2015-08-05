@@ -64,8 +64,6 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
             for(unsigned sector=1; sector<=18; sector++)
             {
                 HGCEEDetId detid(HGCEE, zside, layer, sector, subsector, cell); 
-                GlobalPoint point = esInfo.geom_ee->getPosition(detid);
-                if(point.x()==0 && point.y()==0) std::cout<<" Cell "<<detid()<<" layer="<<layer<<" sector="<<sector<<" subsec="<<subsector<<" cell="<<cell<<"\n";
                 // FIXME: Use temporarily HGCEEDetId to compute trigger cell id
                 HGCEEDetId triggerDetid(HGCEE, zside, layer, sector, 1, triggercell); // Dummy subsector
                 const auto& ret = cells_to_trigger_cells_.insert( std::make_pair(detid(), triggerDetid()) );
