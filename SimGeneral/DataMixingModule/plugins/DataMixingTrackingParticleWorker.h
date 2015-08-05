@@ -24,6 +24,10 @@
 //Data Formats
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+
 
 #include <map>
 #include <vector>
@@ -62,16 +66,27 @@ namespace edm
       edm::InputTag TrackingParticlePileInputTag_ ;    // InputTag for pileup tracks
       std::string TrackingParticleCollectionDM_  ; // secondary name to be given to new TrackingParticle
 
+      edm::InputTag StripLinkPileInputTag_;
+      edm::InputTag PixelLinkPileInputTag_;
+      std::string StripLinkCollectionDM_;
+      std::string PixelLinkCollectionDM_;
+
       edm::EDGetTokenT<std::vector<TrackingParticle> >TrackSigToken_ ;  // Token to retrieve information  
       edm::EDGetTokenT<std::vector<TrackingParticle> >TrackPileToken_ ;  // Token to retrieve information  
       edm::EDGetTokenT<std::vector<TrackingVertex> >VtxSigToken_ ;  // Token to retrieve information  
       edm::EDGetTokenT<std::vector<TrackingVertex> >VtxPileToken_ ;  // Token to retrieve information  
+      edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > StripLinkSigToken_;
+      edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > StripLinkPileToken_;
+      edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > PixelLinkSigToken_;
+      edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > PixelLinkPileToken_;
 
       // 
 
       std::auto_ptr<std::vector<TrackingParticle>> NewTrackList_;
       std::auto_ptr<std::vector<TrackingVertex>> NewVertexList_;
       std::vector<TrackingVertex> TempVertexList_;
+      std::unique_ptr<edm::DetSetVector<StripDigiSimLink> > NewStripLinkList_;
+      std::unique_ptr<edm::DetSetVector<PixelDigiSimLink> > NewPixelLinkList_;
 
       TrackingParticleRefProd TrackListRef_ ;
       TrackingVertexRefProd VertexListRef_ ;

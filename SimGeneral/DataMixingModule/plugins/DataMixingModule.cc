@@ -236,6 +236,8 @@ namespace edm
 
     produces< std::vector<TrackingParticle> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
     produces< std::vector<TrackingVertex> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
+    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("StripDigiSimLinkCollectionDM"));
+    produces< edm::DetSetVector<PixelDigiSimLink> >(ps.getParameter<std::string>("PixelDigiSimLinkCollectionDM"));
 
     TrackingParticleWorker_ = new DataMixingTrackingParticleWorker(ps, consumesCollector());
 
