@@ -292,7 +292,8 @@ FW3DViewBase::updateClipPlanes()
 
       ((Clipsi*)m_glClip)->SetPlaneInfo(&c[0]);
 
-
+      /*
+      // debug
       TEveStraightLineSet* ls = (TEveStraightLineSet*)eventScene()->FindChild(TString("Frust"));
       if (!ls) {
          ls = new TEveStraightLineSet("Frust");
@@ -302,7 +303,7 @@ FW3DViewBase::updateClipPlanes()
 
       in *= 500;
       ls->AddLine(0, 0, 0, in.fX, in.fY, in.fZ);
-   
+      */
 
 
       TEvePointSet* psi = (TEvePointSet*)eventScene()->FindChild(TString("marker"));

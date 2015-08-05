@@ -358,11 +358,11 @@ L1TCaloUpgradeToGCTConverter::fillDescriptions(ConfigurationDescriptions& descri
   ParameterSetDescription desc;
   desc.add<int>("bxMin",0);
   desc.add<int>("bxMax",0);
-  desc.add<InputTag>("InputCollection");
-  desc.add<InputTag>("InputRlxTauCollection");
-  desc.add<InputTag>("InputIsoTauCollection");
-  desc.add<edm::InputTag>("InputHFSumsCollection");
-  desc.add<edm::InputTag>("InputHFCountsCollection");
+  desc.add<edm::InputTag>("InputCollection",edm::InputTag("caloStage1Digis"));
+  desc.add<edm::InputTag>("InputRlxTauCollection",edm::InputTag("caloStage1Digis:rlxTaus"));
+  desc.add<edm::InputTag>("InputIsoTauCollection",edm::InputTag("caloStage1Digis:isoTaus"));
+  desc.add<edm::InputTag>("InputHFSumsCollection",edm::InputTag("caloStage1Digis:HFRingSums"));
+  desc.add<edm::InputTag>("InputHFCountsCollection",edm::InputTag("caloStage1Digis:HFBitCounts"));
   descriptions.add("L1TCaloUpgradeToGCTConverter", desc);
 }
 
