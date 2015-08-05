@@ -95,7 +95,7 @@ namespace edm
     if (tracks.isValid()) {
       for (std::vector<TrackingParticle>::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
 	auto oldRef=track->parentVertex();
-	auto newRef=TrackingVertexRef( VertexListRef_, oldRef.index()+StartingIndexV-1 );
+	auto newRef=TrackingVertexRef( VertexListRef_, oldRef.index()+StartingIndexV );
 	NewTrackList_->push_back(*track);
 
 	auto & Ntrack = NewTrackList_->back();  //modify copy
@@ -106,7 +106,7 @@ namespace edm
 	// next, loop over daughter vertices, same strategy
 
 	for( auto const& vertexRef : track->decayVertices() ) {
-	  auto newRef=TrackingVertexRef( VertexListRef_, vertexRef.index()+StartingIndexV-1 );
+	  auto newRef=TrackingVertexRef( VertexListRef_, vertexRef.index()+StartingIndexV );
 	  Ntrack.addDecayVertex(newRef);
 	}
       }      
@@ -120,13 +120,13 @@ namespace edm
       vertex.clearDaughterTracks();
 
       for( auto const& trackRef : vertex.sourceTracks() ) {
-        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT-1 );
+        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT );
         vertex.addParentTrack(newRef);
       }
 
       // next, loop over daughter tracks, same strategy                                                                 
       for( auto const& trackRef : vertex.daughterTracks() ) {
-        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT-1 );
+        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT );
         vertex.addDaughterTrack(newRef);
       }
     }
@@ -167,7 +167,7 @@ namespace edm
       // grab tracks, store copy
       for (std::vector<TrackingParticle>::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
 	auto oldRef=track->parentVertex();
-	auto newRef=TrackingVertexRef( VertexListRef_, oldRef.index()+StartingIndexV-1 );
+	auto newRef=TrackingVertexRef( VertexListRef_, oldRef.index()+StartingIndexV );
 	NewTrackList_->push_back(*track);
 
 	auto & Ntrack = NewTrackList_->back();  //modify copy
@@ -178,7 +178,7 @@ namespace edm
 	// next, loop over daughter vertices, same strategy
 
 	for( auto const& vertexRef : track->decayVertices() ) {
-	  auto newRef=TrackingVertexRef( VertexListRef_, vertexRef.index()+StartingIndexV-1 );
+	  auto newRef=TrackingVertexRef( VertexListRef_, vertexRef.index()+StartingIndexV );
 	  Ntrack.addDecayVertex(newRef);
 	}
       }      
@@ -192,13 +192,13 @@ namespace edm
       vertex.clearDaughterTracks();
 
       for( auto const& trackRef : vertex.sourceTracks() ) {
-        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT-1 );
+        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT );
         vertex.addParentTrack(newRef);
       }
 
       // next, loop over daughter tracks, same strategy                                                                 
       for( auto const& trackRef : vertex.daughterTracks() ) {
-        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT-1 );
+        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT );
         vertex.addDaughterTrack(newRef);
       }
     }
