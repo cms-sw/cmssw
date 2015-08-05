@@ -33,7 +33,7 @@ egamma_modifications = cms.VPSet(
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromIntValueMaps'),
               electron_config = cms.PSet( ),
               photon_config   = cms.PSet( )
-              )
+              ),
 )
 
 #setup the mva value maps to embed
@@ -51,8 +51,6 @@ setup_mva(egamma_modifications[0].photon_config,
           egamma_modifications[1].photon_config,
           pho_mva_prod_name,
           pho_spring15_nt.mvaSpring15NonTrigClassName)
-<<<<<<< HEAD
-=======
 
 
 #############################################################
@@ -62,45 +60,60 @@ setup_mva(egamma_modifications[0].photon_config,
 egamma_modifications.append(
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromDB'),  
               autoDetectBunchSpacing = cms.bool(True),
+              bunchSpacingTag = cms.InputTag("addPileupInfo:bunchSpacing"),
+              manualBunchSpacing = cms.int32(50),              
               rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
               vertexCollection = cms.InputTag("offlinePrimaryVertices"),
-              bunchSpacingTag = cms.InputTag("addPileupInfo:bunchSpacing"),
-              electron_config = cms.PSet( ecalRefinedRegressionWeightFile = cms.string("RecoEgamma/EgammaTools/data/GBRLikelihood_Clustering_746_bx25_Electrons_GedGsfElectron_results.root"),
-                                          sigmaIetaIphi = cms.InputTag('electronRegressionValueMapProducer:eleFull5x5SigmaIEtaIPhi'),
-                                          e2x5Max       = cms.InputTag('electronRegressionValueMapProducer:e2x5Max'),
-                                          e2x5Left      = cms.InputTag('electronRegressionValueMapProducer:e2x5Left'),
-                                          e2x5Right     = cms.InputTag('electronRegressionValueMapProducer:e2x5Right'),
-                                          e2x5Top       = cms.InputTag('electronRegressionValueMapProducer:e2x5Top'),
-                                          e2x5Bottom    = cms.InputTag('electronRegressionValueMapProducer:e2x5Bottom'),
+              electron_config = cms.PSet( sigmaIetaIphi = cms.InputTag('electronRegressionValueMapProducer:eleFull5x5SigmaIEtaIPhi'),
                                           eMax          = cms.InputTag("electronRegressionValueMapProducer:eMax"),
                                           e2nd          = cms.InputTag("electronRegressionValueMapProducer:e2nd"),
                                           eTop          = cms.InputTag("electronRegressionValueMapProducer:eTop"),
                                           eBottom       = cms.InputTag("electronRegressionValueMapProducer:eBottom"),
                                           eLeft         = cms.InputTag("electronRegressionValueMapProducer:eLeft"),
                                           eRight        = cms.InputTag("electronRegressionValueMapProducer:eRight"),
-                                          e3x3          = cms.InputTag("electronRegressionValueMapProducer:e3x3"),
+                                          clusterMaxDR          = cms.InputTag("electronRegressionValueMapProducer:clusterMaxDR"),
+                                          clusterMaxDRDPhi      = cms.InputTag("electronRegressionValueMapProducer:clusterMaxDRDPhi"),
+                                          clusterMaxDRDEta      = cms.InputTag("electronRegressionValueMapProducer:clusterMaxDRDEta"),
+                                          clusterMaxDRRawEnergy = cms.InputTag("electronRegressionValueMapProducer:clusterMaxDRRawEnergy"),
+                                          clusterRawEnergy0     = cms.InputTag("electronRegressionValueMapProducer:clusterRawEnergy0"),
+                                          clusterRawEnergy1     = cms.InputTag("electronRegressionValueMapProducer:clusterRawEnergy1"),
+                                          clusterRawEnergy2     = cms.InputTag("electronRegressionValueMapProducer:clusterRawEnergy2"),
+                                          clusterDPhiToSeed0    = cms.InputTag("electronRegressionValueMapProducer:clusterDPhiToSeed0"),
+                                          clusterDPhiToSeed1    = cms.InputTag("electronRegressionValueMapProducer:clusterDPhiToSeed1"),
+                                          clusterDPhiToSeed2    = cms.InputTag("electronRegressionValueMapProducer:clusterDPhiToSeed2"),
+                                          clusterDEtaToSeed0    = cms.InputTag("electronRegressionValueMapProducer:clusterDEtaToSeed0"),
+                                          clusterDEtaToSeed1    = cms.InputTag("electronRegressionValueMapProducer:clusterDEtaToSeed1"),
+                                          clusterDEtaToSeed2    = cms.InputTag("electronRegressionValueMapProducer:clusterDEtaToSeed2"),
                                           iPhi          = cms.InputTag("electronRegressionValueMapProducer:iPhi"),
                                           iEta          = cms.InputTag("electronRegressionValueMapProducer:iEta"),
                                           cryPhi        = cms.InputTag("electronRegressionValueMapProducer:cryPhi"),
                                           cryEta        = cms.InputTag("electronRegressionValueMapProducer:cryEta"),
-                                          conditionsMean50ns  = cms.vstring("EBCorrection","EECorrection"),
-                                          conditionsSigma50ns = cms.vstring("EBUncertainty","EEUncertainty"),
-                                          conditionsMean25ns  = cms.vstring("EBCorrection","EECorrection"),
-                                          conditionsSigma25ns = cms.vstring("EBUncertainty","EEUncertainty"),
+                                          intValueMaps = cms.vstring("iPhi", "iEta"),                                          
+                                          
+                                          # EB, EE
+                                          regressionKey_25ns  = cms.vstring('gedelectron_EBCorrection_25ns', 'gedelectron_EECorrection_25ns'),
+                                          uncertaintyKey_25ns = cms.vstring('gedelectron_EBUncertainty_25ns', 'gedelectron_EEUncertainty_25ns'),
+                                          combinationKey_25ns   = cms.string('gedelectron_p4combination_25ns'),
+                                          
+                                          regressionKey_50ns  = cms.vstring('gedelectron_EBCorrection_50ns', 'gedelectron_EECorrection_50ns'),
+                                          uncertaintyKey_50ns = cms.vstring('gedelectron_EBUncertainty_50ns', 'gedelectron_EEUncertainty_50ns'),
+                                          combinationKey_50ns   = cms.string('gedelectron_p4combination_50ns'),
                                           ),
-              photon_config   = cms.PSet( photonRegressionWeightFile = cms.string("RecoEgamma/EgammaTools/data/regweights_forest_v2015_25ns_globalposition_ph.root"),
-                                          sigmaIetaIphi = cms.InputTag('photonRegressionValueMapProducer:sigmaIetaIphi'),
-                                          sigmaIphiIphi = cms.InputTag('photonRegressionValueMapProducer:sigmaIphiIphi'),
-                                          e2x5Max       = cms.InputTag('photonRegressionValueMapProducer:e2x5Max'),
-                                          e2x5Left      = cms.InputTag('photonRegressionValueMapProducer:e2x5Left'),
-                                          e2x5Right     = cms.InputTag('photonRegressionValueMapProducer:e2x5Right'),
-                                          e2x5Top       = cms.InputTag('photonRegressionValueMapProducer:e2x5Top'),
-                                          e2x5Bottom    = cms.InputTag('photonRegressionValueMapProducer:e2x5Bottom'),
-                                          conditionsMean50ns  = cms.vstring("EGRegressionForest_EB","EGRegressionForest_EE"),
-                                          conditionsSigma50ns = cms.vstring("EGRegressionErrForest_EB","EGRegressionErrForest_EE"),
-                                          conditionsMean25ns  = cms.vstring("EGRegressionForest_EB","EGRegressionForest_EE"),
-                                          conditionsSigma25ns = cms.vstring("EGRegressionErrForest_EB","EGRegressionErrForest_EE"),
+
+              photon_config   = cms.PSet( sigmaIetaIphi = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5SigmaIEtaIPhi'),
+                                          sigmaIphiIphi = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5SigmaIPhiIPhi'),
+                                          e2x5Max       = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Max'),
+                                          e2x5Left      = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Left'),
+                                          e2x5Right     = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Right'),
+                                          e2x5Top       = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Top'),
+                                          e2x5Bottom    = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Bottom'),
+
+                                          # EB, EE
+                                          regressionKey_25ns  = cms.vstring('gedphoton_EBCorrection_25ns', 'gedphoton_EECorrection_25ns'),
+                                          uncertaintyKey_25ns = cms.vstring('gedphoton_EBUncertainty_25ns', 'gedphoton_EEUncertainty_25ns'),
+                                          
+                                          regressionKey_50ns  = cms.vstring('gedphoton_EBCorrection_50ns', 'gedphoton_EECorrection_50ns'),
+                                          uncertaintyKey_50ns = cms.vstring('gedphoton_EBUncertainty_50ns', 'gedphoton_EEUncertainty_50ns'),
                                           )
               )
 )
->>>>>>> 604e1cd... first commit of regression modifier
