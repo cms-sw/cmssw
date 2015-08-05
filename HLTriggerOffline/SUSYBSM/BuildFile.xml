@@ -22,4 +22,4 @@
 <use   name="HLTrigger/JetMET"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="rootgraphics"/>
-<flags   EDM_PLUGIN="1"/>
+<flags   EDM_PLUGIN="1"/>  
