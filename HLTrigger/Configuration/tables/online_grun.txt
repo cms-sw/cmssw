@@ -400,6 +400,7 @@ HLT_Dimuon0_Phi_Barrel_v*					# JIRA: CMSHLT-211 (only for 7e33)
 HLT_Mu16_TkMu0_dEta18_Onia_v*					# JIRA: CMSHLT-211 (only for 7e33)
 HLT_Mu16_TkMu0_dEta18_Phi_v*					# JIRA: CMSHLT-211 (only for 7e33)
 
+HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v*				# JIRA: CMSHLT-503
 HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*			# JIRA: CMSHLT-213 (only for 7e33), mod CMSHLT-331
 HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v*			# JIRA: CMSHLT-213 (only for 7e33), mod CMSHLT-331
 HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v*		# JIRA: CMSHLT-213 (only for 7e33), mod CMSHLT-331
