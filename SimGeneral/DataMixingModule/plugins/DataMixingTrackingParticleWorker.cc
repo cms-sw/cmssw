@@ -20,6 +20,16 @@
 
 using namespace std;
 
+namespace {
+  template <typename T>
+  void appendDetSetVector(edm::DetSetVector<T>& target, const edm::DetSetVector<T>& source) {
+    for(auto& detsetSource: source) {
+      auto& detsetTarget = target.find_or_insert(detsetSource.detId());
+      std::copy(detsetSource.begin(), detsetSource.end(), std::back_inserter(detsetTarget));
+    }
+  }
+}
+
 namespace edm
 {
 
@@ -48,6 +58,16 @@ namespace edm
     VtxSigToken_ = iC.consumes<std::vector<TrackingVertex> >(TrackingParticleLabelSig_);
     VtxPileToken_ = iC.consumes<std::vector<TrackingVertex> >(TrackingParticlePileInputTag_);
 
+    StripLinkPileInputTag_ = ps.getParameter<edm::InputTag>("StripDigiSimLinkPileInputTag");
+    PixelLinkPileInputTag_ = ps.getParameter<edm::InputTag>("PixelDigiSimLinkPileInputTag");
+    StripLinkCollectionDM_ = ps.getParameter<std::string>("StripDigiSimLinkCollectionDM");
+    PixelLinkCollectionDM_ = ps.getParameter<std::string>("PixelDigiSimLinkCollectionDM");
+
+    StripLinkSigToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<edm::InputTag>("StripDigiSimLinkLabelSig"));
+    StripLinkPileToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(StripLinkPileInputTag_);
+    PixelLinkSigToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(ps.getParameter<edm::InputTag>("PixelDigiSimLinkLabelSig"));
+    PixelLinkPileToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(PixelLinkPileInputTag_);
+
   }
 	       
 
@@ -68,6 +88,8 @@ namespace edm
     TrackListRef_  =const_cast<edm::Event&>( e ).getRefBeforePut< std::vector<TrackingParticle> >(TrackingParticleCollectionDM_); 
     VertexListRef_ =const_cast<edm::Event&>( e ).getRefBeforePut< std::vector<TrackingVertex> >(TrackingParticleCollectionDM_);    
 
+    NewStripLinkList_ = std::make_unique<edm::DetSetVector<StripDigiSimLink> >();
+    NewPixelLinkList_ = std::make_unique<edm::DetSetVector<PixelDigiSimLink> >();
   }					   
 
 
@@ -130,6 +152,20 @@ namespace edm
         vertex.addDaughterTrack(newRef);
       }
     }
+
+    // Accumulate DigiSimLinks
+    edm::Handle<edm::DetSetVector<StripDigiSimLink> > stripLinks;
+    e.getByToken(StripLinkSigToken_, stripLinks);
+    if(stripLinks.isValid()) {
+      appendDetSetVector(*NewStripLinkList_, *stripLinks);
+    }
+
+    edm::Handle<edm::DetSetVector<PixelDigiSimLink> > pixelLinks;
+    e.getByToken(PixelLinkSigToken_, pixelLinks);
+    if(pixelLinks.isValid()) {
+      appendDetSetVector(*NewPixelLinkList_, *pixelLinks);
+    }
+
   } // end of addTrackingParticleSignals
 
 
@@ -204,6 +240,19 @@ namespace edm
     }
 
 
+    // Accumulate DigiSimLinks
+    std::shared_ptr<Wrapper<edm::DetSetVector<StripDigiSimLink> > const> inputStripPtr =
+      getProductByTag<edm::DetSetVector<StripDigiSimLink> >(*ep, StripLinkPileInputTag_, mcc);
+    if(inputStripPtr) {
+      appendDetSetVector(*NewStripLinkList_, *(inputStripPtr->product()));
+    }
+
+    std::shared_ptr<Wrapper<edm::DetSetVector<PixelDigiSimLink> > const> inputPixelPtr =
+      getProductByTag<edm::DetSetVector<PixelDigiSimLink> >(*ep, PixelLinkPileInputTag_, mcc);
+    if(inputPixelPtr) {
+      appendDetSetVector(*NewPixelLinkList_, *(inputPixelPtr->product()));
+    }
+
   } // end of addPileups
 
 
@@ -221,6 +270,9 @@ namespace edm
 
     e.put( NewTrackList_, TrackingParticleCollectionDM_ );
     e.put( NewVertexList_, TrackingParticleCollectionDM_ );
+
+    e.put( std::move(NewStripLinkList_), StripLinkCollectionDM_ );
+    e.put( std::move(NewPixelLinkList_), PixelLinkCollectionDM_ );
 
     // clear local storage for this event
     //NewTrackList_.clear();
