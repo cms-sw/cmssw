@@ -6,7 +6,7 @@ from DQMOffline.JetMET.metDQMConfig_cff     import *
 from DQMOffline.JetMET.jetAnalyzer_cff   import *
 from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
 from DQMOffline.JetMET.goodOfflinePrimaryVerticesDQM_cfi import *
-from RecoJets.JetProducers.pileupjetidproducer_cfi  import *
+from RecoJets.JetProducers.PileupJetID_cfi  import *
 from RecoJets.JetProducers.QGTagger_cfi  import *
 
 pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(

@@ -153,7 +153,7 @@ def miniAOD_customizeCommon(process):
     process.patJets.addTagInfos = cms.bool(True)
     #
     ## PU JetID
-    process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
+    process.load("RecoJets.JetProducers.PileupJetID_cfi")
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
 
     ## CaloJets
