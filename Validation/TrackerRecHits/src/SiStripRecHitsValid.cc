@@ -157,11 +157,6 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
 
   edm::ParameterSet ParametersNsimHitMatched =  conf_.getParameter<edm::ParameterSet>("TH1NsimHitMatched");
   switchNsimHitMatched = ParametersNsimHitMatched.getParameter<bool>("switchon");
-
-  rechitpro.x = -999999.; rechitpro.y = -999999.; //rechitpro.z = -999999.;  rechitpro.resolxy = -999999.; 
-  rechitpro.resolxx = -999999.; rechitpro.resolyy = -999999.; rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; rechitpro.chi2 = -999999.; rechitpro.NsimHit = -999999.;
-  rechitpro.bunch = -999999.; rechitpro.event = -999999.;
 }
 
 SiStripRecHitsValid::~SiStripRecHitsValid(){
