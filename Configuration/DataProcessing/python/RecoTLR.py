@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi
 from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
@@ -31,26 +30,64 @@ def customiseCosmicData(process):
 ##############################################################################
 # this is supposed to be added on top of other (Run1) data customs
 def customiseDataRun2Common(process):
-    process.CSCGeometryESModule.useGangedStripsInME1a = cms.bool(False)
-    process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-    process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-    process.csc2DRecHits.readBadChannels = cms.bool(False)
-    process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+    if hasattr(process,'CSCGeometryESModule'):
+        process.CSCGeometryESModule.useGangedStripsInME1a = cms.bool(False)
+    if hasattr(process,'CSCIndexerESProducer'):
+        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+    if hasattr(process,'CSCChannelMapperESProducer'):
+        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+    if hasattr(process,'csc2DRecHits'):
+        process.csc2DRecHits.readBadChannels = cms.bool(False)
+        process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
     if hasattr(process,'valCscTriggerPrimitiveDigis'):
         #this is not doing anything at the moment
         process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.untracked.bool(False)
     if hasattr(process,'valCsctfTrackDigis'):
         process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
 
-    process=customise_Reco(process)
-    process=customise_RawToDigi(process)
+    from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi,customise_DQM
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction'):
+        process=customise_Reco(process)
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM(process)
+
+    return process
+
+##############################################################################
+# common+ "25ns" Use this for data daking starting from runs in 2015C (>= 253256 )
+def customiseDataRun2Common_25ns(process):
+    process = customiseDataRun2Common(process)
+
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
+    process=customiseL1RecoForStage1(process)
+
+    from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM_25ns(process)
+    return process
+
+# common+50ns. Needed only for runs >= 253000 if taken with 50ns
+def customiseDataRun2Common_50nsRunsAfter253000(process):
+    process = customiseDataRun2Common(process)
+
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
+    process=customiseL1RecoForStage1(process)
+
+    if hasattr(process,'particleFlowClusterECAL'):
+        process.particleFlowClusterECAL.energyCorrector.autoDetectBunchSpacing = False
+        process.particleFlowClusterECAL.energyCorrector.bunchSpacing = cms.int32(50)
+    if hasattr(process,'ecalMultiFitUncalibRecHit'):
+        process.ecalMultiFitUncalibRecHit.algoPSet.useLumiInfoRunHeader = False
+        process.ecalMultiFitUncalibRecHit.algoPSet.bunchSpacing = cms.int32(50)
 
     return process
 
 ##############################################################################
 def customiseCosmicDataRun2(process):
     process = customiseCosmicData(process)
-    process = customiseDataRun2Common(process)
+    process = customiseDataRun2Common_25ns(process)
     return process
 
 
@@ -70,17 +107,20 @@ def customiseVALSKIM(process):
 def customiseExpress(process):
     process= customisePPData(process)
 
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
+    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
     
     return process
 
 ##############################################################################
 def customiseExpressRun2(process):
     process = customiseExpress(process)
-    process = customiseDataRun2Common(process)
-    process.SiStripClusterChargeCutTight.value = -1.
-    process.SiStripClusterChargeCutLoose.value = -1.
+    process = customiseDataRun2Common_25ns(process)
+    return process
+
+def customiseExpressRun2_50ns(process):
+    process = customiseExpress(process)
+    process = customiseDataRun2Common_50nsRunsAfter253000(process)
     return process
 
 def customiseExpressRun2B0T(process):
@@ -95,7 +135,7 @@ def customisePrompt(process):
     #add the lumi producer in the prompt reco only configuration
     if not hasattr(process,'lumiProducer'):
         #unscheduled..
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
         process.lumiProducer=lumiProducer
     process.reconstruction_step+=process.lumiProducer
 
@@ -104,9 +144,12 @@ def customisePrompt(process):
 ##############################################################################
 def customisePromptRun2(process):
     process = customisePrompt(process)
-    process = customiseDataRun2Common(process)
-    process.SiStripClusterChargeCutTight.value = -1.
-    process.SiStripClusterChargeCutLoose.value = -1.
+    process = customiseDataRun2Common_25ns(process)
+    return process
+
+def customisePromptRun2_50ns(process):
+    process = customisePrompt(process)
+    process = customiseDataRun2Common_50nsRunsAfter253000(process)
     return process
 
 def customisePromptRun2B0T(process):
@@ -125,8 +168,8 @@ def customisePromptRun2B0T(process):
 def customiseExpressHI(process):
     #deprecated process= customiseCommonHI(process)
 
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
+    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
     
     return process
 
@@ -134,13 +177,13 @@ def customiseExpressHI(process):
 def customisePromptHI(process):
     #deprecated process= customiseCommonHI(process)
 
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
+    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
 
      #add the lumi producer in the prompt reco only configuration
     if not hasattr(process,'lumiProducer'):
         #unscheduled..
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import *
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
         process.lumiProducer=lumiProducer
     process.reconstruction_step+=process.lumiProducer
         
@@ -148,72 +191,3 @@ def customisePromptHI(process):
     return process
 
 ##############################################################################
-
-def planBTracking(process):
-
-    # stuff from LowPtTripletStep_cff
-    process.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.3
-
-    # stuff from PixelLessStep_cff
-    process.pixelLessStepClusters.oldClusterRemovalInfo=cms.InputTag("tobTecStepClusters")
-    process.pixelLessStepClusters.trajectories= cms.InputTag("tobTecStepTracks")
-    process.pixelLessStepClusters.overrideTrkQuals=cms.InputTag('tobTecStepSelector','tobTecStep')
-    process.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.7
-    process.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.5
-
-    # stuff from PixelPairStep_cff
-    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
-
-    # stuff from TobTecStep_cff
-    process.tobTecStepClusters.oldClusterRemovalInfo=cms.InputTag("detachedTripletStepClusters")
-    process.tobTecStepClusters.trajectories= cms.InputTag("detachedTripletStepTracks")
-    process.tobTecStepClusters.overrideTrkQuals=cms.InputTag('detachedTripletStep')
-    process.tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 5.0
-
-    # stuff from DetachedTripletStep_cff
-    process.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.35
-
-    # stuff from iterativeTk_cff
-    process.iterTracking = cms.Sequence(process.InitialStep*
-                                        process.LowPtTripletStep*
-                                        process.PixelPairStep*
-                                        process.DetachedTripletStep*
-                                        process.TobTecStep*
-                                        process.PixelLessStep*
-                                        process.generalTracks*
-                                        process.ConvStep*
-                                        process.conversionStepTracks
-                                        )
-    
-    
-    # stuff from RecoTracker_cff
-    process.newCombinedSeeds.seedCollections=cms.VInputTag(
-        cms.InputTag('initialStepSeeds'),
-        cms.InputTag('pixelPairStepSeeds'),
-    #    cms.InputTag('mixedTripletStepSeeds'),
-        cms.InputTag('pixelLessStepSeeds')
-        )
-
-    # stuff from Kevin's fragment
-    process.generalTracks.TrackProducers = (cms.InputTag('initialStepTracks'),
-                                            cms.InputTag('lowPtTripletStepTracks'),
-                                            cms.InputTag('pixelPairStepTracks'),
-                                            cms.InputTag('detachedTripletStepTracks'),
-                                            cms.InputTag('pixelLessStepTracks'),
-                                            cms.InputTag('tobTecStepTracks'))
-    process.generalTracks.hasSelector=cms.vint32(1,1,1,1,1,1)
-    process.generalTracks.selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStep"),
-                                                             cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
-                                                             cms.InputTag("pixelPairStepSelector","pixelPairStep"),
-                                                             cms.InputTag("detachedTripletStep"),
-                                                             cms.InputTag("pixelLessStepSelector","pixelLessStep"),
-                                                             cms.InputTag("tobTecStepSelector","tobTecStep")
-                                                             )
-    process.generalTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) ) )
-
-
-    if hasattr(process,'dqmoffline_step'):
-        process.dqmoffline_step.remove(process.TrackMonStep4)
-        #process.dqmoffline_step.remove(process.TrackMonStep5)
-        
-    return process
