@@ -17,7 +17,7 @@
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitProduct.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -65,17 +65,21 @@ const RandomEngineAndDistribution& TrackingRecHitAlgorithm::getRandomEngine() co
 
 void TrackingRecHitAlgorithm::beginStream(const edm::StreamID& id)
 {
+    std::cout<<_name<<": get random"<<std::endl;
     _randomEngine = std::make_shared<RandomEngineAndDistribution>(id);
+    std::cout<<_name<<": got random"<<std::endl;
 }
 
 void TrackingRecHitAlgorithm::beginEvent(edm::Event& event, const edm::EventSetup& eventSetup)
 {
+    std::cout<<_name<<": begin event"<<std::endl;
     edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
     edm::ESHandle<TrackerTopology> trackerTopologyHandle;
     eventSetup.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-    eventSetup.get<IdealGeometryRecord>().get(trackerTopologyHandle);
+    eventSetup.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
     _trackerGeometry = trackerGeometryHandle.product();
     _trackerTopology = trackerTopologyHandle.product();
+    std::cout<<_name<<": end event"<<std::endl;
 }
 
 std::shared_ptr<TrackingRecHitProduct> TrackingRecHitAlgorithm::process(std::shared_ptr<TrackingRecHitProduct> product) const

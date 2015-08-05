@@ -18,7 +18,7 @@ class TrackingRecHitProduct
         std::vector<const PSimHit*> _simHits;
         
         std::vector<SiTrackerGSRecHit2D> _recHits;
-        std::vector<SiTrackerGSMatchedRecHit2D> _matchedRecHits;
+        std::unordered_map<unsigned int,std::vector<const PSimHit*>> _mapRecHitToSimHits;
         
     public:
         TrackingRecHitProduct(const DetId& detId, std::vector<const PSimHit*> simHits):
@@ -37,14 +37,25 @@ class TrackingRecHitProduct
             return _simHits;
         }
         
-        virtual std::vector<SiTrackerGSRecHit2D>& getRecHits()
+        virtual void addRecHit(SiTrackerGSRecHit2D& recHit, std::vector<const PSimHit*> simHits={})
         {
-            return _recHits;
+            _mapRecHitToSimHits[_recHits.size()]=simHits;
+            _recHits.push_back(recHit);
+        }
+
+        virtual unsigned int numberOfRecHits() const
+        {
+            return _recHits.size();
+        }
+
+        virtual const SiTrackerGSRecHit2D& getRecHit(unsigned int recHitIndex) const
+        {
+            return _recHits[recHitIndex];
         }
         
-        virtual std::vector<SiTrackerGSMatchedRecHit2D>& getMatchedRecHits()
+        virtual const std::vector<const PSimHit*>& getSimHitsFromRecHit(unsigned int recHitIndex)
         {
-            return _matchedRecHits;
+            return _mapRecHitToSimHits[recHitIndex];
         }
         
         virtual ~TrackingRecHitProduct()

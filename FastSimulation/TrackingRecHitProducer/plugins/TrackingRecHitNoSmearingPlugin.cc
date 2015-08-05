@@ -55,7 +55,7 @@ class TrackingRecHitNoSmearingPlugin:
                     -1,         //const int pixelMultiplicityX
                     -1          //const int pixelMultiplicityY
                 );
-                product->getRecHits().push_back(recHit);
+                product->addRecHit(recHit,{simHit});
             }
             return product;
         }

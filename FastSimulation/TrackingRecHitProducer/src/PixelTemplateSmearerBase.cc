@@ -687,7 +687,7 @@ processUnmergedHits( std::vector< const PSimHit* > & unmergedHits,
   //
   for (const PSimHit* simHit : unmergedHits) {
     SiTrackerGSRecHit2D recHit = smearHit( *simHit, detUnit, boundX, boundY, random );
-    product->getRecHits().push_back( recHit );
+    product->addRecHit( recHit ,{simHit});
   }
   return product;
 }
@@ -712,7 +712,7 @@ processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
 	++mg_it ) {
     //
     SiTrackerGSRecHit2D recHit = smearMergeGroup( *mg_it, detUnit, boundX, boundY, random );
-    product->getRecHits().push_back( recHit );
+    product->addRecHit( recHit, **mg_it);
   }
   return product;
 }

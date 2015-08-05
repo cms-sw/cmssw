@@ -29,6 +29,11 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+
+#include "FWCore/Framework/interface/IOVSyncValue.h"
+
+
+
 #include <vector>
 
 namespace edm
@@ -46,15 +51,10 @@ class TrackingRecHitProducer:
 {
     private:
         edm::EDGetTokenT<std::vector<PSimHit>> _simHitToken;
-
         std::vector<TrackingRecHitAlgorithm*> _recHitAlgorithms;
-        
-        const TrackerGeometry* _trackerGeometry;
-        const TrackerTopology* _trackerTopology;
-        
+        edm::IOVSyncValue _iovSyncValue;
         std::map<unsigned int, TrackingRecHitPipe> _detIdPipes;
-
-
+        void setupDetIdPipes(const edm::EventSetup& eventSetup);
 
     public:
         TrackingRecHitProducer(const edm::ParameterSet& config);

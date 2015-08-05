@@ -25,6 +25,11 @@ class TrackingRecHitPipe
             return product;
         }
         
+        inline unsigned int size() const
+        {
+            return _algorithms.size();
+        }
+
         inline void addAlgorithm(TrackingRecHitAlgorithm* algorithm)
         {
             _algorithms.push_back(algorithm);

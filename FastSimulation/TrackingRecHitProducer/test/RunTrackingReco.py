@@ -13,15 +13,13 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
-process.load('FastSimulation.Configuration.Reconstruction_BefMix_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source ("PoolSource",
@@ -34,7 +32,6 @@ process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
     plugins=cms.PSet(
         defaultPlugin = cms.PSet(
             type=cms.string("PixelBarrelTemplateSmearerPlugin"),
-            #select=cms.string("true || (tecGlued && (subdetId==!FPX)) || ((BPX==subdetId) && (layer!=2) && (pxbModule>5))"),
             NewPixelBarrelResolutionFile1 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrel38T.root'),
             NewPixelBarrelResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrelEdge38T.root'),
             NewPixelBarrelResolutionFile3 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution2014.root'),
@@ -45,22 +42,33 @@ process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
             probfileforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fmergeprob.root'),
             templateIdBarrel = cms.int32( 40 ),
             templateIdForward  = cms.int32( 41 ),
-            select=cms.string("tibGlued || tidGlued || tobGlued || tecGlued || subdetId==BPX"),
+            select=cms.string("subdetId==BPX"),
+
+        ),
+        
+        BPXmonitor = cms.PSet(
+            type=cms.string("TrackingRecHitMonitorPlugin"),
+            xmax=cms.double(5.0),
+            ymax=cms.double(5.0),
+            select=cms.string("subdetId==BPX"),
 
         )
     )
 )
-
-process.RandomNumberGeneratorService. recHitProducer = cms.PSet(
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+  recHitProducer = cms.PSet(
     initialSeed = cms.untracked.uint32(12345),
     engineName = cms.untracked.string('TRandom3')
   )
+)
 
 process.tracking_step=cms.Path(
-    process.siTrackerGaussianSmearingRecHits
-    *process.recHitProducer
+    #process.siTrackerGaussianSmearingRecHits
+    process.recHitProducer
     #*process.iterTracking
 )
+
+process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )
 
 process.output = cms.OutputModule("PoolOutputModule",
     SelectEvents = cms.untracked.PSet(
