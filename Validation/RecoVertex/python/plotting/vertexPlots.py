@@ -1,4 +1,4 @@
-from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, PlotFolder, Plotter, AlgoOpt
+from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, PlotFolder, Plotter
 import Validation.RecoTrack.plotting.validation as validation
 
 _maxPU = 80

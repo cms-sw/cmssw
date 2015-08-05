@@ -6,26 +6,6 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
-class AlgoOpt:
-    """Class to allow algorithm-specific values for e.g. plot bound values"""
-    def __init__(self, default, **kwargs):
-        """Constructor.
-
-        Arguments:
-        default -- default value
-
-        Keyword arguments are treated as a dictionary where the key is a name of an algorithm, and the value is a value for that algorithm
-        """
-        self._default = default
-        self._values = {}
-        self._values.update(kwargs)
-
-    def value(self, algo):
-        """Get a value for an algorithm."""
-        if algo in self._values:
-            return self._values[algo]
-        return self._default
-
 def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
@@ -637,7 +617,7 @@ class Plot:
             h.Sumw2()
             h.Scale(1.0/i)
 
-    def draw(self, algo, pad, ratio, ratioFactor, nrows):
+    def draw(self, pad, ratio, ratioFactor, nrows):
         """Draw the histograms using values for a given algorithm."""
 #        if len(self._histograms) == 0:
 #            print "No histograms for plot {name}".format(name=self._name)
@@ -682,15 +662,9 @@ class Plot:
             print "No histograms for plot {name}".format(name=self.getName())
             return
 
-        # Return value if number, or algo-specific value if AlgoOpt
-        def _getVal(val):
-            if hasattr(val, "value"):
-                return val.value(algo)
-            return val
-
         bounds = _findBounds(histos,
-                             xmin=_getVal(self._xmin), xmax=_getVal(self._xmax),
-                             ymin=_getVal(self._ymin), ymax=_getVal(self._ymax))
+                             xmin=self._xmin, xmax=self._xmax,
+                             ymin=self._ymin, ymax=self._ymax)
 
         # Create bounds before stats in order to have the
         # SetRangeUser() calls made before the fit
@@ -959,11 +933,10 @@ class PlotGroup:
         for plot in self._plots:
             plot.create(tdirectories)
 
-    def draw(self, algo, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
+    def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
         """Draw the histograms using values for a given algorithm.
 
         Arguments:
-        algo          -- string for algorithm
         legendLabels  -- List of strings for legend labels (corresponding to the tdirectories in create())
         prefix        -- Optional string for file name prefix (default None)
         separate      -- Save the plots of a group to separate files instead of a file per group (default False)
@@ -975,7 +948,7 @@ class PlotGroup:
             legendLabels = self._overrideLegendLabels
 
         if separate:
-            return self._drawSeparate(algo, legendLabels, prefix, saveFormat, ratio)
+            return self._drawSeparate(legendLabels, prefix, saveFormat, ratio)
 
         cwidth = 500*self._ncols
         nrows = int((len(self._plots)+1)/self._ncols) # this should work also for odd n
@@ -995,7 +968,7 @@ class PlotGroup:
         # Draw plots to canvas
         for i, plot in enumerate(self._plots):
             pad = canvas.cd(i+1)
-            plot.draw(algo, pad, ratio, self._ratioFactor, nrows)
+            plot.draw(pad, ratio, self._ratioFactor, nrows)
 
         # Setup legend
         canvas.cd()
@@ -1026,7 +999,7 @@ class PlotGroup:
 
         return self._save(canvas, saveFormat, prefix=prefix)
 
-    def _drawSeparate(self, algo, legendLabels, prefix, saveFormat, ratio):
+    def _drawSeparate(self, legendLabels, prefix, saveFormat, ratio):
         width = 500
         height = 500
         if ratio:
@@ -1053,7 +1026,7 @@ class PlotGroup:
 
             # Draw plot to canvas
             canvas.cd()
-            plot.draw(algo, canvas, ratio, self._ratioFactor, 1)
+            plot.draw(canvas, ratio, self._ratioFactor, 1)
 
 
             # Setup legend
@@ -1187,11 +1160,10 @@ class PlotFolder:
         for pg in self._plotGroups:
             pg.create(dirs)
 
-    def draw(self, algo, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
+    def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
         """Draw and save all plots using settings of a given algorithm.
 
         Arguments:
-        algo     -- String for the algorithm
         prefix   -- Optional string for file name prefix (default None)
         separate -- Save the plots of a group to separate files instead of a file per group (default False)
         saveFormat   -- String specifying the plot format (default '.pdf')
@@ -1200,7 +1172,7 @@ class PlotFolder:
         ret = []
 
         for pg in self._plotGroups:
-            ret.extend(pg.draw(algo, self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio))
+            ret.extend(pg.draw(self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio))
         return ret
 
 

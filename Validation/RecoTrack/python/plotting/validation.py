@@ -546,7 +546,7 @@ class Validation:
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ],
                              subdir = subdir)
-        fileList.extend(self._plotter.draw(algo, **self._plotterDrawArgs))
+        fileList.extend(self._plotter.draw(**self._plotterDrawArgs))
 
         newValFile.Close()
         if refValFile is not None:
@@ -603,7 +603,7 @@ class Validation:
             "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
         ],
                              subdir = subdir)
-        fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
+        fileList = self._plotter.draw(**self._plotterDrawArgs)
 
         fullValFile.Close()
         fastValFile.Close()
@@ -651,7 +651,7 @@ class Validation:
             "35 BX %s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection),
         ],
                              subdir = self._getDirectoryName(quality, algo))
-        fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
+        fileList = self._plotter.draw(**self._plotterDrawArgs)
 
         newValFile.Close()
         refValFile.Close()
@@ -798,7 +798,7 @@ class SimpleValidation:
 
     def _doPlots(self, algo, quality, subdir):
         self._plotter.create(self._openFiles, self._labels, subdir=subdir)
-        fileList = self._plotter.draw(algo, **self._plotterDrawArgs)
+        fileList = self._plotter.draw(**self._plotterDrawArgs)
 
         newdir = self._newdir
         if self._newdirFunc is not None:
