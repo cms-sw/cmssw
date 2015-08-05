@@ -9,9 +9,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetCastorJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCastorJets_selector.l1tResults = cms.InputTag('')
 streamA_datasetCastorJets_selector.throw      = cms.bool(False)
-streamA_datasetCastorJets_selector.triggerConditions = cms.vstring('HLT_L1CastorHighJet_v1', 
-    'HLT_L1CastorMediumJet_PFJet15_v1', 
-    'HLT_L1CastorMediumJet_v1')
+streamA_datasetCastorJets_selector.triggerConditions = cms.vstring()
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
 streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -163,11 +161,8 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetL1MinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetL1MinimumBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetL1MinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetL1MinimumBias_selector.triggerConditions = cms.vstring('HLT_L1MinimumBiasHF1AND_NoBptxGate_v1', 
-    'HLT_L1MinimumBiasHF1AND_v1', 
-    'HLT_L1MinimumBiasHF1OR_NoBptxGate_v1', 
+streamA_datasetL1MinimumBias_selector.triggerConditions = cms.vstring('HLT_L1MinimumBiasHF1AND_v1', 
     'HLT_L1MinimumBiasHF1OR_v1', 
-    'HLT_L1MinimumBiasHF2AND_NoBptxGate_v1', 
     'HLT_L1MinimumBiasHF2AND_v1', 
     'HLT_L1MinimumBiasHF2OR_NoBptxGate_v1', 
     'HLT_L1MinimumBiasHF2OR_v1')
@@ -200,8 +195,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetToTOTEM_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetToTOTEM_selector.l1tResults = cms.InputTag('')
 streamA_datasetToTOTEM_selector.throw      = cms.bool(False)
-streamA_datasetToTOTEM_selector.triggerConditions = cms.vstring('HLT_L1CastorMuon_v1', 
-    'HLT_L1DoubleJet20_v1', 
+streamA_datasetToTOTEM_selector.triggerConditions = cms.vstring('HLT_L1DoubleJet20_v1', 
     'HLT_L1DoubleJet28_v1', 
     'HLT_L1DoubleJet32_v1', 
     'HLT_L1DoubleMuOpen_v1', 
