@@ -26,28 +26,8 @@ process.source = cms.Source ("PoolSource",
     fileNames=cms.untracked.vstring('file:SimHits.root'),
 )
 
-
-'''
-        defaultPlugin = cms.PSet(
-            type=cms.string("PixelBarrelTemplateSmearerPlugin"),
-            NewPixelBarrelResolutionFile1 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrel38T.root'),
-            NewPixelBarrelResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrelEdge38T.root'),
-            NewPixelBarrelResolutionFile3 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution2014.root'),
-            NewPixelForwardResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionForward38T.root'),
-            NewPixelForwardResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelForwardResolution2014.root'),
-            UseCMSSWPixelParametrization = cms.bool(True),
-            probfilebarrel = cms.string('FastSimulation/TrackingRecHitProducer/data/bmergeprob.root'),
-            probfileforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fmergeprob.root'),
-            templateIdBarrel = cms.int32( 40 ),
-            templateIdForward  = cms.int32( 41 ),
-            select=cms.string("subdetId==BPX"),
-
-        ),
-'''
-
-process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
+process.recHitProducerSimple=cms.EDProducer("TrackingRecHitProducer",
     simHits = cms.InputTag("famosSimHits","TrackerHits"),
-
     plugins=cms.VPSet(
         cms.PSet(
             name = cms.string("noSmearing"),
@@ -65,17 +45,52 @@ process.recHitProducer=cms.EDProducer("TrackingRecHitProducer",
         )
     )
 )
+
+
+process.recHitProducerTemplates=cms.EDProducer("TrackingRecHitProducer",
+    simHits = cms.InputTag("famosSimHits","TrackerHits"),
+    plugins=cms.VPSet(
+        cms.PSet(
+            name = cms.string("pixelBarrelSmearer"),
+            type=cms.string("PixelBarrelTemplateSmearerPlugin"),
+            NewPixelBarrelResolutionFile1 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrel38T.root'),
+            NewPixelBarrelResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionBarrelEdge38T.root'),
+            NewPixelBarrelResolutionFile3 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelBarrelResolution2014.root'),
+            NewPixelForwardResolutionFile = cms.string('FastSimulation/TrackingRecHitProducer/data/NewPixelResolutionForward38T.root'),
+            NewPixelForwardResolutionFile2 = cms.string('FastSimulation/TrackingRecHitProducer/data/PixelForwardResolution2014.root'),
+            UseCMSSWPixelParametrization = cms.bool(True),
+            probfilebarrel = cms.string('FastSimulation/TrackingRecHitProducer/data/bmergeprob.root'),
+            probfileforward = cms.string('FastSimulation/TrackingRecHitProducer/data/fmergeprob.root'),
+            templateIdBarrel = cms.int32( 40 ),
+            templateIdForward  = cms.int32( 41 ),
+            select=cms.string("subdetId==BPX"),
+        ),
+        
+        cms.PSet(
+            name = cms.string("BPXmonitor"),
+            type=cms.string("TrackingRecHitMonitorPlugin"),
+            xmax=cms.double(5.0),
+            ymax=cms.double(5.0),
+            select=cms.string("subdetId==BPX"),
+
+        )
+    )
+)
+
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-  recHitProducer = cms.PSet(
-    initialSeed = cms.untracked.uint32(12345),
-    engineName = cms.untracked.string('TRandom3')
-  )
+    recHitProducerSimple = cms.PSet(
+        initialSeed = cms.untracked.uint32(12345),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+    recHitProducerTemplates = cms.PSet(
+        initialSeed = cms.untracked.uint32(12345),
+        engineName = cms.untracked.string('TRandom3')
+    )
 )
 
 process.tracking_step=cms.Path(
-    #process.siTrackerGaussianSmearingRecHits
-    process.recHitProducer
-    #*process.iterTracking
+    process.recHitProducerSimple
+    #process.recHitProducerTemplates
 )
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )
