@@ -449,6 +449,8 @@ class Validation:
                 sys.exit(1)
             plotterInstance = plotter.readDirs(harvestedFile)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+                if plotterFolder.onlyForPileup() and not sample.hasPileup():
+                    continue
                 self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder)
 
                 # TODO: the pileup case is still to be migrated
@@ -480,6 +482,8 @@ class Validation:
             harvestedFile = fast.filename(self._newRelease)
             plotterInstance = plotter.readDirs(harvestedFile)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
+                if plotterFolder.onlyForPileup() and not fast.hasPileup():
+                    continue
                 self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder)
 
     def _doPlots(self, sample, harvestedFile, plotterFolder, dqmSubFolder):

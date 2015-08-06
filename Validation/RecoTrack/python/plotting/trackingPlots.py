@@ -293,18 +293,18 @@ _summaryPlots = [
     _summaryHp,
 ]
 plotter = Plotter()
-def _appendTrackingPlots(lastDirName, name, algoPlots):
+def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
     # to keep backward compatibility, this set of plots has empty name
-    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots))
+    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup))
     summaryName = ""
     if name != "":
         summaryName += name+"_"
     summaryName += "summary"
-    plotter.append(summaryName, _trackingFolders(lastDirName), PlotFolder(*_summaryPlots, loopSubFolders=False))
+    plotter.append(summaryName, _trackingFolders(lastDirName), PlotFolder(*_summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
-_appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots)
-_appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots)
-_appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots)
+_appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
+_appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
+_appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots, onlyForPileup=True)
 
 
 _iterModuleMap = collections.OrderedDict([

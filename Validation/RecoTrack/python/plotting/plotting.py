@@ -1142,14 +1142,19 @@ class PlotFolder:
 
         Keyword arguments
         loopSubFolders -- Should the subfolders be looped over? (default: True)
+        onlyForPileup  -- Plots this folder only for pileup samples
         """
         self._plotGroups = plotGroups
         self._loopSubFolders = kwargs.pop("loopSubFolders", True)
+        self._onlyForPileup = kwargs.pop("onlyForPileup", False)
         if len(kwargs) > 0:
             raise Exception("Got unexpected keyword arguments: "+ ",".join(kwargs.keys()))
 
     def loopSubFolders(self):
         return self._loopSubFolders
+
+    def onlyForPileup(self):
+        return self._onlyForPileup
 
     def append(self, plotGroup):
         self._plotGroups.append(plotGroup)
@@ -1261,6 +1266,9 @@ class PlotterFolder:
 
     def getName(self):
         return self._name
+
+    def onlyForPileup(self):
+        return self._plotFolder.onlyForPileup()
 
     def getPossibleDQMFolders(self):
         return self._possibleDqmFolders
