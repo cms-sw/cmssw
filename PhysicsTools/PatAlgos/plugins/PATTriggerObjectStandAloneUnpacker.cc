@@ -14,7 +14,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,23 +24,23 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 namespace pat {
-
-  class PATTriggerObjectStandAloneUnpacker : public edm::EDProducer {
-
-    public:
-
-      explicit PATTriggerObjectStandAloneUnpacker( const edm::ParameterSet & iConfig );
-      ~PATTriggerObjectStandAloneUnpacker() {};
-
-    private:
-
-      virtual void produce( edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-
-      edm::EDGetTokenT< TriggerObjectStandAloneCollection > patTriggerObjectsStandAloneToken_;
-      edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
-
+  
+  class PATTriggerObjectStandAloneUnpacker : public edm::global::EDProducer<> {
+    
+  public:
+    
+    explicit PATTriggerObjectStandAloneUnpacker( const edm::ParameterSet & iConfig );
+    ~PATTriggerObjectStandAloneUnpacker() {};
+    
+  private:
+    
+    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    
+    const edm::EDGetTokenT< TriggerObjectStandAloneCollection > patTriggerObjectsStandAloneToken_;
+    const edm::EDGetTokenT< edm::TriggerResults > triggerResultsToken_;
+    
   };
-
+  
 }
 
 
@@ -54,7 +54,7 @@ PATTriggerObjectStandAloneUnpacker::PATTriggerObjectStandAloneUnpacker( const ed
   produces< TriggerObjectStandAloneCollection >();
 }
 
-void PATTriggerObjectStandAloneUnpacker::produce( edm::Event & iEvent, const edm::EventSetup& iSetup)
+void PATTriggerObjectStandAloneUnpacker::produce( edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const
 {
   edm::Handle< TriggerObjectStandAloneCollection > patTriggerObjectsStandAlone;
   iEvent.getByToken( patTriggerObjectsStandAloneToken_, patTriggerObjectsStandAlone );

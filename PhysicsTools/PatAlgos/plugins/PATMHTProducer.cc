@@ -45,6 +45,8 @@ pat::PATMHTProducer::PATMHTProducer(const edm::ParameterSet & iConfig){
   towerEtThreshold_ = iConfig.getParameter<double>( "towerEtThreshold") ;
   useHO_ = iConfig.getParameter<bool>("useHO");
 
+  setUncertaintyParameters();
+  
   produces<pat::MHTCollection>();
 
 }
@@ -52,13 +54,6 @@ pat::PATMHTProducer::PATMHTProducer(const edm::ParameterSet & iConfig){
 
 pat::PATMHTProducer::~PATMHTProducer() {
 }
-
-void pat::PATMHTProducer::beginJob() {
-  setUncertaintyParameters();
-}
-void pat::PATMHTProducer::endJob() {
-}
-
 
 void
 pat::PATMHTProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
@@ -385,63 +380,63 @@ void pat::PATMHTProducer::setUncertaintyParameters(){
   //-- Ecal Uncertainty Functions ------------------------------------//
   //-- From: FastSimulation/Calorimetry/data/HcalResponse.cfi --//
   //-- Ecal Barrel --//
-  ecalEBUncertainty.etUncertainty = new TF1("ecalEBEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3);
+  ecalEBUncertainty.etUncertainty.reset( new TF1("ecalEBEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3) );
   ecalEBUncertainty.etUncertainty->SetParameter(0,0.2);
   ecalEBUncertainty.etUncertainty->SetParameter(1,0.03);
   ecalEBUncertainty.etUncertainty->SetParameter(2,0.005);
 
-  ecalEBUncertainty.phiUncertainty = new TF1("ecalEBphiFunc","[0]*x",1);
+  ecalEBUncertainty.phiUncertainty.reset( new TF1("ecalEBphiFunc","[0]*x",1) );
   ecalEBUncertainty.phiUncertainty->SetParameter(0,0.0174);
 
   //-- Ecal Endcap --//
-  ecalEEUncertainty.etUncertainty = new TF1("ecalEEEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3);
+  ecalEEUncertainty.etUncertainty.reset( new TF1("ecalEEEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3) );
   ecalEEUncertainty.etUncertainty->SetParameter(0,0.2);
   ecalEEUncertainty.etUncertainty->SetParameter(1,0.03);
   ecalEEUncertainty.etUncertainty->SetParameter(2,0.005);
 
-  ecalEEUncertainty.phiUncertainty = new TF1("ecalEEphiFunc","[0]*x",1);
+  ecalEEUncertainty.phiUncertainty.reset( new TF1("ecalEEphiFunc","[0]*x",1) );
   ecalEEUncertainty.phiUncertainty->SetParameter(0,0.087);
 
   //-- Hcal Uncertainty Functions --------------------------------------//
   //-- From: FastSimulation/Calorimetry/data/HcalResponse.cfi --//
   //-- Hcal Barrel --//
-  hcalHBUncertainty.etUncertainty = new TF1("hcalHBEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3);
+  hcalHBUncertainty.etUncertainty.reset( new TF1("hcalHBEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3) );
   hcalHBUncertainty.etUncertainty->SetParameter(0,0.);
   hcalHBUncertainty.etUncertainty->SetParameter(1,1.22);
   hcalHBUncertainty.etUncertainty->SetParameter(2,0.05);
 
-  hcalHBUncertainty.phiUncertainty = new TF1("ecalHBphiFunc","[0]*x",1);
+  hcalHBUncertainty.phiUncertainty.reset( new TF1("ecalHBphiFunc","[0]*x",1) );
   hcalHBUncertainty.phiUncertainty->SetParameter(0,0.087);
 
   //-- Hcal Endcap --//
-  hcalHEUncertainty.etUncertainty = new TF1("hcalHEEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3);
+  hcalHEUncertainty.etUncertainty.reset( new TF1("hcalHEEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3) );
   hcalHEUncertainty.etUncertainty->SetParameter(0,0.);
   hcalHEUncertainty.etUncertainty->SetParameter(1,1.3);
   hcalHEUncertainty.etUncertainty->SetParameter(2,0.05);
 
-  hcalHEUncertainty.phiUncertainty = new TF1("ecalHEphiFunc","[0]*x",1);
+  hcalHEUncertainty.phiUncertainty.reset( new TF1("ecalHEphiFunc","[0]*x",1) );
   hcalHEUncertainty.phiUncertainty->SetParameter(0,0.087);
 
   //-- Hcal Outer --//
-  hcalHOUncertainty.etUncertainty = new TF1("hcalHOEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3);
+  hcalHOUncertainty.etUncertainty.reset( new TF1("hcalHOEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3) );
   hcalHOUncertainty.etUncertainty->SetParameter(0,0.);
   hcalHOUncertainty.etUncertainty->SetParameter(1,1.82);
   hcalHOUncertainty.etUncertainty->SetParameter(2,0.09);
 
-  hcalHOUncertainty.phiUncertainty = new TF1("ecalHOphiFunc","[0]*x",1);
+  hcalHOUncertainty.phiUncertainty.reset( new TF1("ecalHOphiFunc","[0]*x",1) );
   hcalHOUncertainty.phiUncertainty->SetParameter(0,0.087);
 
   //-- Hcal Forward --//
-  hcalHFUncertainty.etUncertainty = new TF1("hcalHFEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3);
+  hcalHFUncertainty.etUncertainty.reset( new TF1("hcalHFEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3) );
   hcalHFUncertainty.etUncertainty->SetParameter(0,0.);
   hcalHFUncertainty.etUncertainty->SetParameter(1,1.82);
   hcalHFUncertainty.etUncertainty->SetParameter(2,0.09);
 
-  hcalHFUncertainty.phiUncertainty = new TF1("ecalHFphiFunc","[0]*x",1);
+  hcalHFUncertainty.phiUncertainty.reset( new TF1("ecalHFphiFunc","[0]*x",1) );
   hcalHFUncertainty.phiUncertainty->SetParameter(0,0.174);
 
   //--- Jet Uncertainty Functions --------------------------------------//
-  jetUncertainty.etUncertainty = new TF1("jetEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3);
+  jetUncertainty.etUncertainty.reset( new TF1("jetEtFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3) );
   //-- values from PTDR 1, ch 11.4 --//
   jetUncertainty.etUncertainty->SetParameter(0, jetEtUncertaintyParameter0_);
   jetUncertainty.etUncertainty->SetParameter(1, jetEtUncertaintyParameter1_);
@@ -449,12 +444,12 @@ void pat::PATMHTProducer::setUncertaintyParameters(){
 
 
   //-- phi value from our own fits --//
-  //jetUncertainty.phiUncertainty = new TF1("jetPhiFunc","[0]*x",1);
+  //jetUncertainty.phiUncertainty.reset( new TF1("jetPhiFunc","[0]*x",1) );
   //jetUncertainty.phiUncertainty->SetParameter(0, jetPhiUncertaintyParameter0_);
 
   //-- phi Functions and values from
   // http://indico.cern.ch/getFile.py/access?contribId=9&sessionId=0&resId=0&materialId=slides&confId=46394
-  jetUncertainty.phiUncertainty = new TF1("jetPhiFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3);
+  jetUncertainty.phiUncertainty.reset( new TF1("jetPhiFunc","x*sqrt(([0]*[0]/(x*x))+([1]*[1]/x)+([2]*[2]))",3) );
   jetUncertainty.phiUncertainty->SetParameter(0, jetPhiUncertaintyParameter0_);
   jetUncertainty.phiUncertainty->SetParameter(1, jetPhiUncertaintyParameter1_);
   jetUncertainty.phiUncertainty->SetParameter(2, jetPhiUncertaintyParameter2_);
@@ -462,9 +457,9 @@ void pat::PATMHTProducer::setUncertaintyParameters(){
 
 
   //-- Jet corrections are assumed not to have an error --//
-  /*jetCorrUncertainty.etUncertainty = new TF1("jetCorrEtFunc","[0]*x",1);
+  /*jetCorrUncertainty.etUncertainty.reset( new TF1("jetCorrEtFunc","[0]*x",1) );
   jetCorrUncertainty.etUncertainty->SetParameter(0,0.0);
-  jetCorrUncertainty.phiUncertainty = new TF1("jetCorrPhiFunc","[0]*x",1);
+  jetCorrUncertainty.phiUncertainty.reset( new TF1("jetCorrPhiFunc","[0]*x",1) );
   jetCorrUncertainty.phiUncertainty->SetParameter(0,0.0*(3.14159/180.));*/
 
 
@@ -474,29 +469,29 @@ void pat::PATMHTProducer::setUncertaintyParameters(){
   // https://twiki.cern.ch/twiki/bin/view/CMS/EgammaCMSSWVal
   // electron resolution in energy is around 3.4%, measured for 10 < pT < 50 at realistic events with pile-up.
 
-  eleUncertainty.etUncertainty = new TF1("eleEtFunc","[0] * x",1);
+  eleUncertainty.etUncertainty.reset( new TF1("eleEtFunc","[0] * x",1) );
   //  eleUncertainty.etUncertainty->SetParameter(0,0.034);
   eleUncertainty.etUncertainty->SetParameter(0, eleEtUncertaintyParameter0_);
 
 
-  eleUncertainty.phiUncertainty = new TF1("elePhiFunc","[0] * x",1);
+  eleUncertainty.phiUncertainty.reset( new TF1("elePhiFunc","[0] * x",1) );
   //  eleUncertainty.phiUncertainty->SetParameter(0,1*(3.14159/180.));
   eleUncertainty.phiUncertainty->SetParameter(0, elePhiUncertaintyParameter0_);
 
   //--- Muon Uncertainty Functions ------------------------------------//
   // and ambiguious values for the muons...
 
-  muonUncertainty.etUncertainty = new TF1("muonEtFunc","[0] * x",1);
+  muonUncertainty.etUncertainty.reset( new TF1("muonEtFunc","[0] * x",1) );
   //  muonUncertainty.etUncertainty->SetParameter(0,0.01);
   muonUncertainty.etUncertainty->SetParameter(0, muonEtUncertaintyParameter0_);
-  muonUncertainty.phiUncertainty = new TF1("muonPhiFunc","[0] * x",1);
+  muonUncertainty.phiUncertainty.reset( new TF1("muonPhiFunc","[0] * x",1) );
   //  muonUncertainty.phiUncertainty->SetParameter(0,1*(3.14159/180.));
   muonUncertainty.phiUncertainty->SetParameter(0, muonPhiUncertaintyParameter0_);
 
   //-- Muon calo deposites are assumed not to have an error --//
-  /*muonCorrUncertainty.etUncertainty = new TF1("muonCorrEtFunc","[0] * x",1);
+  /*muonCorrUncertainty.etUncertainty.reset( new TF1("muonCorrEtFunc","[0] * x",1) );
   muonCorrUncertainty.etUncertainty->SetParameter(0,0.0);
-  muonCorrUncertainty.phiUncertainty = new TF1("muonCorrPhiFunc","[0] * x",1);
+  muonCorrUncertainty.phiUncertainty.reset( new TF1("muonCorrPhiFunc","[0] * x",1) );
   muonCorrUncertainty.phiUncertainty->SetParameter(0,0.0*(3.14159/180.)); */
 
 }

@@ -4,7 +4,7 @@
 #include <memory>
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -12,7 +12,7 @@
 #include "fastjet/contrib/Njettiness.hh"
 
 
-class NjettinessAdder : public edm::EDProducer { 
+class NjettinessAdder : public edm::stream::EDProducer<> { 
  public:
 
     enum MeasureDefinition_t {
