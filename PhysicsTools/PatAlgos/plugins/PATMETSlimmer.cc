@@ -5,7 +5,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,29 +15,31 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 
 namespace pat {
-
-  class PATMETSlimmer : public edm::EDProducer {
+  
+  class PATMETSlimmer : public edm::global::EDProducer<> {
+  public:
+    explicit PATMETSlimmer(const edm::ParameterSet & iConfig);
+    virtual ~PATMETSlimmer() { }
+    
+    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const;
+    
+  private:
+    class OneMETShift {
     public:
-      explicit PATMETSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATMETSlimmer() { }
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-
+      OneMETShift() : shift(pat::MET::NoShift), level(pat::MET::Raw) {}
+      OneMETShift(pat::MET::METUncertainty shift_, pat::MET::METUncertaintyLevel level_, const edm::InputTag & baseTag, edm::ConsumesCollector && cc) ;      
+      void readAndSet(const edm::Event &ev, pat::MET &met) const;
     private:
-      struct OneMETShift {
-          OneMETShift() {}
-          OneMETShift(pat::MET::METUncertainty shift_, pat::MET::METUncertaintyLevel level_, const edm::InputTag & baseTag, edm::ConsumesCollector && cc) ;
-          pat::MET::METUncertainty shift;
-          pat::MET::METUncertaintyLevel level;
-          edm::EDGetTokenT<pat::METCollection> token;
-          void readAndSet(const edm::Event &ev, pat::MET &met) ;
-      };
-      void maybeReadShifts(const edm::ParameterSet &basePSet, const std::string &name, pat::MET::METUncertaintyLevel level) ;
-
-      edm::EDGetTokenT<pat::METCollection> src_;
-      std::vector<OneMETShift> shifts_;
+      const pat::MET::METUncertainty shift;
+      const pat::MET::METUncertaintyLevel level;
+      edm::EDGetTokenT<pat::METCollection> token;
+    };
+    void maybeReadShifts(const edm::ParameterSet &basePSet, const std::string &name, pat::MET::METUncertaintyLevel level) ;
+    
+    edm::EDGetTokenT<pat::METCollection> src_;
+    std::vector<OneMETShift> shifts_;
   };
-
+  
 } // namespace
 
 pat::PATMETSlimmer::PATMETSlimmer(const edm::ParameterSet & iConfig) :
@@ -104,7 +106,7 @@ pat::PATMETSlimmer::OneMETShift::OneMETShift(pat::MET::METUncertainty shift_, pa
 }
 
 void 
-pat::PATMETSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+pat::PATMETSlimmer::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
     using namespace edm;
     using namespace std;
 
@@ -114,7 +116,7 @@ pat::PATMETSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 
     auto_ptr<vector<pat::MET> >  out(new vector<pat::MET>(1, src->front()));
     pat::MET & met = out->back();
-    for (OneMETShift &shift : shifts_) {
+    for (const OneMETShift &shift : shifts_) {
         shift.readAndSet(iEvent, met);
     }
 
@@ -122,7 +124,7 @@ pat::PATMETSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 }
 
 void
-pat::PATMETSlimmer::OneMETShift::readAndSet(const edm::Event &ev, pat::MET &met) {
+pat::PATMETSlimmer::OneMETShift::readAndSet(const edm::Event &ev, pat::MET &met) const {
     edm::Handle<pat::METCollection>  src;
     ev.getByToken(token, src);
     if (src->size() != 1) throw cms::Exception("CorruptData", "More than one MET in the shifted collection");
