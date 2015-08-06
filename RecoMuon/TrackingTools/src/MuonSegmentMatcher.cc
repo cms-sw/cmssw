@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -35,25 +34,27 @@
 #include <vector>
 #include <iostream>
 
-class MuonServiceProxy;
 class MuonSegmentMatcher;
 
 using namespace std;
 
 // constructors and destructor
 
-MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters, MuonServiceProxy* service,edm::ConsumesCollector& iC)
+MuonSegmentMatcher::MuonSegmentMatcher(const edm::ParameterSet& matchParameters, edm::ConsumesCollector& iC)
   :
-  theService(service),
   DTSegmentTags_(matchParameters.getParameter<edm::InputTag>("DTsegments")),
   CSCSegmentTags_(matchParameters.getParameter<edm::InputTag>("CSCsegments")),
   dtRadius_(matchParameters.getParameter<double>("DTradius")),
   dtTightMatch(matchParameters.getParameter<bool>("TightMatchDT")),
   cscTightMatch(matchParameters.getParameter<bool>("TightMatchCSC"))
 {
+  if (matchParameters.existsAs<edm::InputTag>("RPChits")) {
+     RPCHitTags_=matchParameters.getParameter<edm::InputTag>("RPChits");
+  } else RPCHitTags_=edm::InputTag("rpcRecHits");
+
   dtRecHitsToken = iC.consumes<DTRecSegment4DCollection>(DTSegmentTags_);
   allSegmentsCSCToken = iC.consumes<CSCSegmentCollection>(CSCSegmentTags_) ;
-
+  rpcRecHitsToken = iC.consumes<RPCRecHitCollection>(RPCHitTags_) ;
 }
 
 MuonSegmentMatcher::~MuonSegmentMatcher()
@@ -316,6 +317,56 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
   return pointerToCSCSegments;
 
 }
+
+
+vector<const RPCRecHit*> MuonSegmentMatcher::matchRPC(const reco::Track& muon, const edm::Event& event)
+{
+
+  using namespace edm;
+
+  edm::Handle<RPCRecHitCollection> rpcRecHits;
+  event.getByToken(rpcRecHitsToken, rpcRecHits);
+
+  vector<const RPCRecHit*> pointerToRPCRecHits;
+  double RPCCut = 0.001;
+
+  for(RPCRecHitCollection::const_iterator hitRPC = rpcRecHits->begin(); hitRPC != rpcRecHits->end(); hitRPC++) {
+
+    if ( !hitRPC->isValid()) continue; 
+
+    RPCDetId myChamber((*hitRPC).geographicalId().rawId());
+    LocalPoint posLocalRPC = hitRPC->localPosition();
+    bool matched=false;
+
+    for(trackingRecHit_iterator hitC = muon.recHitsBegin(); hitC != muon.recHitsEnd(); ++hitC) {
+      if (!(*hitC)->isValid()) continue; 
+      if ( (*hitC)->geographicalId().det() != DetId::Muon ) continue; 
+      if ( (*hitC)->geographicalId().subdetId() != MuonSubdetId::RPC ) continue;
+      if (!(*hitC)->isValid()) continue;
+
+      //DETECTOR CONSTRUCTION
+      DetId id = (*hitC)->geographicalId();
+      RPCDetId rpcDetIdHit(id.rawId());
+      
+      if (rpcDetIdHit!=myChamber) continue;
+      LocalPoint posLocalMuon = (*hitC)->localPosition();
+	
+//		cout<<"Layer Id (MuonHit) =  "<<rpcDetIdHit<<" Muon Local Position (det frame) "<<posLocalMuon <<endl;
+//		cout<<"Layer Id  (RPCHit) =  "<<myChamber<<"  Hit Local Position (det frame) "<<posLocalRPC <<endl;
+      if((fabs(posLocalMuon.x()-posLocalRPC.x())<RPCCut)) {
+        matched=true;
+        break;
+      }
+
+    }
+    
+    if (matched) pointerToRPCRecHits.push_back(&(*hitRPC));
+  } 
+
+  return pointerToRPCRecHits;
+}
+
+
 
 //define this as a plug-in
 //DEFINE_FWK_MODULE(MuonSegmentMatcher);

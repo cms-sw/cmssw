@@ -67,6 +67,9 @@ class DataFormat:
 # for PAT and/or MINIAOD
 def switchOnVIDElectronIdProducer(process, dataFormat):
     process.load('RecoEgamma.ElectronIdentification.egmGsfElectronIDs_cff')
+    #*always* reset to an empty configuration
+    if( len(process.egmGsfElectronIDs.physicsObjectIDs) > 0 ):
+        process.egmGsfElectronIDs.physicsObjectIDs = cms.VPSet()
     dataFormatString = "Undefined"
     if dataFormat == DataFormat.AOD:
         # No reconfiguration is required, default settings are for AOD
@@ -100,6 +103,9 @@ def setupVIDElectronSelection(process,cutflow,patProducer=None):
 # for PAT and/or MINIAOD
 def switchOnVIDMuonIdProducer(process, dataFormat):
     process.load('RecoMuon.MuonIdentification.muoMuonIDs_cff')
+     #*always* reset to an empty configuration                                                                    
+    if( len(process.muoMuonIDs.physicsObjectIDs) > 0 ):
+        process.muoMuonIDs.physicsObjectIDs = cms.VPSet()
     dataFormatString = "Undefined"
     if dataFormat == DataFormat.AOD:
         # No reconfiguration is required, default settings are for AOD
@@ -134,6 +140,9 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
 # for PAT and/or MINIAOD
 def switchOnVIDPhotonIdProducer(process, dataFormat):
     process.load('RecoEgamma.PhotonIdentification.egmPhotonIDs_cff')
+    #*always* reset to an empty configuration
+    if( len(process.egmPhotonIDs.physicsObjectIDs) > 0 ):
+        process.egmPhotonIDs.physicsObjectIDs = cms.VPSet()
     dataFormatString = "Undefined"
     if dataFormat == DataFormat.AOD:
         # No reconfiguration is required, default settings are for AOD

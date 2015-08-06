@@ -33,11 +33,9 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   IT_ALCT = iConfig.getParameter<edm::InputTag>("ALCTDigiLabel"); 
 
   //Muon to Segment Matching
-  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  TheService = new MuonServiceProxy(serviceParameters);
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
   edm::ConsumesCollector iC = consumesCollector();
-  TheMatcher = new MuonSegmentMatcher(matchParameters, TheService,iC);
+  TheMatcher = new MuonSegmentMatcher(matchParameters, iC);
 
   // Cosmic track selection parameters
   CSCAlgo.SetDetaThreshold( (float) iConfig.getParameter<double>("DetaParam"));

@@ -21,4 +21,6 @@ trackValidator.histoProducerAlgoBlock.TpSelectorForEfficiencyVsVTXZ.stableOnly =
 ###must be commented in normal running
 ###multiTrackValidator.outputFile='validationPlots.root'
 
-
+tracksValidationStandalone.remove(trackValidatorFromPVStandalone)
+tracksValidationStandalone.remove(trackValidatorFromPVAllTPStandalone)
+tracksValidationStandalone.remove(trackValidatorAllTPEfficStandalone)

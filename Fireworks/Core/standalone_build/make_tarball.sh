@@ -167,6 +167,7 @@ getFireworksSources()
 
 getCmsLibs()
 {
+mkdir -p $tard/lib
     echo "=========================================================="
     echo "=========================================================="
     echo "get CMS libs"
@@ -328,7 +329,7 @@ getExternals
 getCmsSources
 getFireworksSources
 
-mkdir -p ${tard}/lib
+
 getCmsLibs
 
 
