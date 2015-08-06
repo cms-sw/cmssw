@@ -18,7 +18,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +39,7 @@ namespace pat {
   class CaloIsolationEnergy;
 
   /// class definition
-  class PATMuonProducer : public edm::EDProducer {
+  class PATMuonProducer : public edm::stream::EDProducer<> {
 
   public:
     /// default constructir

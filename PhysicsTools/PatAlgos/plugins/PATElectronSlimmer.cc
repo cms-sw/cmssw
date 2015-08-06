@@ -9,7 +9,7 @@
 #include "PhysicsTools/PatAlgos/interface/ObjectModifier.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/RefToPtr.h"
@@ -23,28 +23,28 @@
 
 namespace pat {
 
-  class PATElectronSlimmer : public edm::EDProducer {
-    public:
-      explicit PATElectronSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATElectronSlimmer() { }
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
-
+  class PATElectronSlimmer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATElectronSlimmer(const edm::ParameterSet & iConfig);
+    virtual ~PATElectronSlimmer() { }
+    
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override final;
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
+    
     private:
-      edm::EDGetTokenT<edm::View<pat::Electron> > src_;
-
-      StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
-      StringCutObjectSelector<pat::Electron> dropCorrections_,dropIsolations_,dropShapes_,dropExtrapolations_,dropClassifications_;
-
-      edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef>>> reco2pf_;
-      edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
-      edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
-      bool linkToPackedPF_;
-      StringCutObjectSelector<pat::Electron> saveNonZSClusterShapes_;
-      edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_;
-      bool modifyElectron_;
-      std::unique_ptr<pat::ObjectModifier<pat::Electron> > electronModifier_;
+    const edm::EDGetTokenT<edm::View<pat::Electron> > src_;
+    
+    const StringCutObjectSelector<pat::Electron> dropSuperClusters_, dropBasicClusters_, dropPFlowClusters_, dropPreshowerClusters_, dropSeedCluster_, dropRecHits_;
+    const StringCutObjectSelector<pat::Electron> dropCorrections_,dropIsolations_,dropShapes_,dropExtrapolations_,dropClassifications_;
+    
+    const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > reco2pf_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > pf2pc_;
+    const edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
+    const bool linkToPackedPF_;
+    const StringCutObjectSelector<pat::Electron> saveNonZSClusterShapes_;
+    const edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_;
+    const bool modifyElectron_;
+    std::unique_ptr<pat::ObjectModifier<pat::Electron> > electronModifier_;
   };
 
 } // namespace
@@ -62,6 +62,9 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     dropShapes_(iConfig.getParameter<std::string>("dropShapes")),
     dropExtrapolations_(iConfig.getParameter<std::string>("dropExtrapolations")),
     dropClassifications_(iConfig.getParameter<std::string>("dropClassifications")),
+    reco2pf_(mayConsume<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>("recoToPFMap"))),
+    pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
+    pc_(mayConsume<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
     saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes")),
     reducedBarrelRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
@@ -77,14 +80,10 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
       electronModifier_.reset(nullptr);
     }
 
-    produces<std::vector<pat::Electron> >();
-    if (linkToPackedPF_) {
-        reco2pf_ = consumes<edm::ValueMap<std::vector<reco::PFCandidateRef>>>(iConfig.getParameter<edm::InputTag>("recoToPFMap"));
-        pf2pc_   = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
-        pc_   = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
-    }
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
     mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
+
+    produces<std::vector<pat::Electron> >();
 }
 
 void 

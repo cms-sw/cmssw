@@ -5,7 +5,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -15,46 +15,45 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 
 namespace pat {
-
-  class PATMETSlimmer : public edm::EDProducer {
+  
+  class PATMETSlimmer : public edm::global::EDProducer<> {
+  public:
+    explicit PATMETSlimmer(const edm::ParameterSet & iConfig);
+    virtual ~PATMETSlimmer() { }
+    
+    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const;
+    
+  private:
+    class OneMETShift {
     public:
-      explicit PATMETSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATMETSlimmer() { }
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-
+      OneMETShift() : shift(pat::MET::NoShift), level(pat::MET::None), t0FromMiniAOD(false), corShift(false), uncShift(false), isSmeared(false) {}
+      OneMETShift(pat::MET::METUncertainty shift_, pat::MET::METCorrectionType level_, const edm::InputTag & baseTag, edm::ConsumesCollector && cc,
+                  bool t0FromMiniAOD_, bool corShift_, bool uncShift_, bool isSmeared_=false) ;
+      void readAndSet(const edm::Event &ev, pat::MET &met) const;
     private:
-      struct OneMETShift {
-          OneMETShift() {}
-          OneMETShift(pat::MET::METUncertainty shift_, pat::MET::METCorrectionType level_, const edm::InputTag & baseTag, edm::ConsumesCollector && cc,
-		      bool t0FromMiniAOD_, bool corShift_, bool uncShift_, bool isSmeared_=false) ;
-          pat::MET::METUncertainty shift;
-          pat::MET::METCorrectionType level;
-          edm::EDGetTokenT<pat::METCollection> token;
-	  bool t0FromMiniAOD;
-	  bool corShift;
-	  bool uncShift;
-	  bool isSmeared;
-          void readAndSet(const edm::Event &ev, pat::MET &met) ;
-      };
+      const pat::MET::METUncertainty shift;
+      const pat::MET::METCorrectionType level;
+      edm::EDGetTokenT<pat::METCollection> token;
+      const bool t0FromMiniAOD;
+      const bool corShift;
+      const bool uncShift;
+      const bool isSmeared;
+      
+    };
     void maybeReadShifts(const edm::ParameterSet &basePSet, const std::string &name, pat::MET::METCorrectionType level, bool readFromMiniAOD=false) ;
-
-      edm::EDGetTokenT<pat::METCollection> src_;
-      std::vector<OneMETShift> shifts_;
-
-      bool onMiniAOD_;
+    
+    const edm::EDGetTokenT<pat::METCollection> src_;
+    std::vector<OneMETShift> shifts_;
+    
+    const bool onMiniAOD_;
   };
-
+  
 } // namespace
 
 pat::PATMETSlimmer::PATMETSlimmer(const edm::ParameterSet & iConfig) :
-  src_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("src")))
+  src_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+  onMiniAOD_(iConfig.existsAs<bool>("runningOnMiniAOD") ?  iConfig.getParameter<bool>("runningOnMiniAOD") : false)
 {
-  onMiniAOD_ =false;
-  if(iConfig.existsAs<bool>("runningOnMiniAOD")) {
-    onMiniAOD_ = iConfig.getParameter<bool>("runningOnMiniAOD");
-  }
-
   maybeReadShifts( iConfig, "rawVariation", pat::MET::None );
   maybeReadShifts( iConfig, "t1Uncertainties", pat::MET::T1 );
   maybeReadShifts( iConfig, "t01Variation", pat::MET::T0, onMiniAOD_ );
@@ -133,7 +132,7 @@ pat::PATMETSlimmer::OneMETShift::OneMETShift(pat::MET::METUncertainty shift_, pa
 }
 
 void 
-pat::PATMETSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+pat::PATMETSlimmer::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
     using namespace edm;
     using namespace std;
 
@@ -143,9 +142,9 @@ pat::PATMETSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 
     auto_ptr<vector<pat::MET> >  out(new vector<pat::MET>(1, src->front()));
     pat::MET & met = out->back();
-    
-    for (OneMETShift &shift : shifts_) {
-      shift.readAndSet(iEvent, met);
+
+    for (const OneMETShift &shift : shifts_) {
+        shift.readAndSet(iEvent, met);
     }
 
     iEvent.put(out);
@@ -153,8 +152,8 @@ pat::PATMETSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
 }
 
 void
-pat::PATMETSlimmer::OneMETShift::readAndSet(const edm::Event &ev, pat::MET &met) {
 
+pat::PATMETSlimmer::OneMETShift::readAndSet(const edm::Event &ev, pat::MET &met) const {
     edm::Handle<pat::METCollection>  src;
     ev.getByToken(token, src);
 
