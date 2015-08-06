@@ -3,7 +3,7 @@
 DIRBASE="$CMSSW_BASE/src/Alignment/APEEstimation"
 
 
-mkdir $CMSSW_BASE/src/Alignment/TrackerTreeGenerator/hists/
+mkdir $CMSSW_BASE/src/Alignment/TrackerAlignment/hists/
 
 
 mkdir $DIRBASE/hists/
