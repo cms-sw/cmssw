@@ -126,7 +126,17 @@ public:
 	hltIter4 = 35,
 	// steps used by all other objects @HLT
 	hltIterX = 36,
-        algoSize = 37
+   // steps used by HI muon regional iterative tracking
+   hiRegitMuInitialStep = 37,
+   hiRegitMuLowPtTripletStep = 38,
+   hiRegitMuPixelPairStep = 39,
+   hiRegitMuDetachedTripletStep = 40,
+   hiRegitMuMixedTripletStep = 41,
+   hiRegitMuPixelLessStep = 42,
+   hiRegitMuTobTecStep = 43,
+   hiRegitMuMuonSeededStepInOut = 43,
+   hiRegitMuMuonSeededStepOutIn = 44,
+   algoSize = 46
     };
 
     /// algo mask
