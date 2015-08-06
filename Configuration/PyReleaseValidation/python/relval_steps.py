@@ -382,7 +382,8 @@ steps['TTbarLepton_13INPUT']={'INPUT':InputInfo(dataSet='/RelValTTbarLepton_13/%
 steps['ZEE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['Wjet_Pt_80_120_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['Wjet_Pt_3000_3500_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['LM1_sfts_13INPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+#steps['LM1_sfts_13INPUT']={'INPUT':InputInfo(dataSet='/RelValLM1_sfts_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13INPUT']={'INPUT':InputInfo(dataSet='/RelValSMS-T1tttt_mGl-1500_mLSP-100_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['QCD_FlatPt_15_3000_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['QCD_FlatPt_15_3000HS_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQCD_FlatPt_15_3000HS_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['ZpMM_2250_13TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpMM_2250_13TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
@@ -578,8 +579,8 @@ steps['SingleMuPt1000_UPGPhase1']=genepi('SingleMuPt1000_cfi',Kby(9,500))
 steps['TTbarLepton_UPGPhase1_8']=genepi('TTbarLepton_8TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['Wjet_Pt_80_120_UPGPhase1_8']=genepi('Wjet_Pt_80_120_8TeV_TuneCUETP8M1_cfi',Kby(9,100))
 steps['Wjet_Pt_3000_3500_UPGPhase1_8']=genepi('Wjet_Pt_3000_3500_8TeV_TuneCUETP8M1_cfi',Kby(9,50))
-steps['LM1_sfts_UPGPhase1_8']=genepi('LM1_sfts_8TeV_TuneCUETP8M1_cfi',Kby(9,100))
-
+#steps['LM1_sfts_UPGPhase1_8']=genepi('LM1_sfts_8TeV_TuneCUETP8M1_cfi',Kby(9,100))
+steps['SMS-T1tttt_mGl-1500_mLSP-100_13']=gen2015('SMS-T1tttt_mGl-1500_mLSP-100_13TeV-pythia8_cfi',Kby(9,50))
 steps['QCD_Pt_3000_3500_UPGPhase1_8']=genepi('QCD_Pt_3000_3500_8TeV_TuneCUETP8M1_cfi',Kby(9,25))
 steps['QCD_Pt_600_800_UPGPhase1_8']=genepi('QCD_Pt_600_800_8TeV_TuneCUETP8M1_cfi',Kby(9,50))
 steps['QCD_Pt_80_120_UPGPhase1_8']=genepi('QCD_Pt_80_120_8TeV_TuneCUETP8M1_cfi',Kby(9,100))
