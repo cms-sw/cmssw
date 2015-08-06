@@ -28,15 +28,9 @@ class HcalDigisClient : public DQMEDHarvester {
 public:
     explicit HcalDigisClient(const edm::ParameterSet&);
 
-    ~HcalDigisClient() {
-    };
+    ~HcalDigisClient();
 
 private:
-
-
-    virtual void beginRun(edm::Run const&, edm::EventSetup const&) {
-    };
-
 
     virtual void dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter & igetter ) {
       igetter.setCurrentFolder("HcalDigisV/HcalDigiTask"); // moved this line from constructor
@@ -88,6 +82,10 @@ private:
 
     void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY) {
         if (!msm_->count(name)) (*msm_)[name] = ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
+    }
+
+    void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY, const char *option) {
+        if (!msm_->count(name)) (*msm_)[name] = ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max, option);
     }
 
     void fillPf(std::string name, double X, double Y) {

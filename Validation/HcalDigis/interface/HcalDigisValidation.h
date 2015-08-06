@@ -33,6 +33,12 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
+/*TP Code*/
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
+#include "CalibFormats/CaloTPG/interface/CaloTPGRecord.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+/*~TP Code*/
 
 
 #include <map>
@@ -48,8 +54,7 @@ class HcalDigisValidation : public DQMEDAnalyzer {
 public:
     explicit HcalDigisValidation(const edm::ParameterSet&);
 
-    ~HcalDigisValidation() {
-    };
+    ~HcalDigisValidation(); 
 
     virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
 
@@ -67,10 +72,6 @@ private:
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
-    void beginRun();
-
-    void endRun();
-
     std::map<std::string, MonitorElement*> *msm_;
 
     void book1D(DQMStore::IBooker &ib, std::string name, int n, double min, double max);
@@ -84,6 +85,8 @@ private:
     void fill2D(std::string name, double X, double Y, double weight = 1);
 
     void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY);
+
+    void bookPf(DQMStore::IBooker &ib, std::string name, const HistLim& limX, const HistLim& limY, const char *option);
 
     void fillPf(std::string name, double X, double Y);
 
@@ -112,6 +115,11 @@ private:
 
     edm::ESHandle<CaloGeometry> geometry;
     edm::ESHandle<HcalDbService> conditions;
+
+    //TP Code
+    edm::ESHandle<HcalTopology> htopo;
+    //~TP Code
+
     int nevent1;
     int nevent2;
     int nevent3;
