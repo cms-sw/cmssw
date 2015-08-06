@@ -33,13 +33,11 @@ goodVertices = cms.EDFilter(
 ## The tracking failure filter _______________________________________________||
 from RecoMET.METFilters.trackingFailureFilter_cfi import *
 
-<<<<<<< HEAD
 ##noscraping (outdated)_______________________________________________________||
 from RecoMET.METFilters.scrapingFilter_cfi import *
-=======
+
 ## The primary vertex filter__ _______________________________________________||
 from RecoMET.METFilters.primaryVertexFilter_cfi import *
->>>>>>> 59130ea... fix Flag_goodVertices, add PrimaryVertexFilter
 
 ## The tracking POG filters __________________________________________________||
 from RecoMET.METFilters.trackingPOGFilters_cff import *
