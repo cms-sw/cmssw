@@ -46,7 +46,7 @@ Implementation:
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 // ------------------------------------------------------------------------------------------
-class PileupJetIdProducer : public edm::EDProducer {
+class PileupJetIdProducer : public edm::stream::EDProducer<> {
 public:
 	explicit PileupJetIdProducer(const edm::ParameterSet&);
 	~PileupJetIdProducer();
