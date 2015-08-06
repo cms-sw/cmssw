@@ -22,6 +22,8 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                  
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon2_cfi                     import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuonMVA_cfi                   import *
 
+from RecoTauTag.Configuration.HPSPFTaus_cff import *
+
 updateHPSPFTaus = cms.Sequence(
      hpsPFTauChargedIsoPtSum*
      hpsPFTauNeutralIsoPtSum*
