@@ -51,10 +51,9 @@ mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaSpring15NonTrigClassN
 
 # The working point for this MVA that is expected to have about 90% signal
 # efficiency in each category
-# NOTE: AT THIS TIME THE CUT VALUES BELOW ARE NOT REALLY TUNED, THEY ARE JUST A GUESS!!!
-idName = "mvaEleID-Spring15-25ns-nonTrig-V1-wp90"
+idName90 = "mvaEleID-Spring15-25ns-nonTrig-V1-wp90"
 MVA_WP90 = EleMVA_6Categories_WP(
-    idName = idName,
+    idName = idName90,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
     cutCategory0 = -0.083313, # EB1 low pt
@@ -63,6 +62,19 @@ MVA_WP90 = EleMVA_6Categories_WP(
     cutCategory3 =  0.913286, # EB1       
     cutCategory4 =  0.805013, # EB2       
     cutCategory5 =  0.358969  # EE        
+    )
+
+idName80 = "mvaEleID-Spring15-25ns-nonTrig-V1-wp80"
+MVA_WP80 = EleMVA_6Categories_WP(
+    idName = idName80,
+    mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
+    mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
+    cutCategory0 =  0.287435, # EB1 low pt
+    cutCategory1 =  0.221846, # EB2 low pt
+    cutCategory2 = -0.303263, # EE low pt 
+    cutCategory3 =  0.967083, # EB1       
+    cutCategory4 =  0.929117, # EB2       
+    cutCategory5 =  0.726311  # EE        
     )
 
 #
@@ -82,6 +94,7 @@ mvaEleID_Spring15_25ns_nonTrig_V1_producer_config = cms.PSet(
     )
 # Create the VPset's for VID cuts
 mvaEleID_Spring15_25ns_nonTrig_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
+mvaEleID_Spring15_25ns_nonTrig_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80 )
 
 # The MD5 sum numbers below reflect the exact set of cut variables
 # and values above. If anything changes, one has to 
@@ -92,5 +105,8 @@ mvaEleID_Spring15_25ns_nonTrig_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
 
 central_id_registry.register(mvaEleID_Spring15_25ns_nonTrig_V1_wp90.idName,
                              'ac4fdc160eefe9eae7338601c02ed4bb')
+central_id_registry.register(mvaEleID_Spring15_25ns_nonTrig_V1_wp80.idName,
+                             '113c47ceaea0fa687b8bd6d880eb4957')
 
 mvaEleID_Spring15_25ns_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_Spring15_25ns_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
