@@ -14,7 +14,7 @@ HBHENoiseFilter = cms.EDFilter(
 )
 
 # Filter on the standard HCAL noise decision (isolation)
-HBHEIsoNoiseFilter = cms.EDFilter(
+HBHENoiseIsoFilter = cms.EDFilter(
     'BooleanFlagFilter',
     inputLabel = cms.InputTag('HBHENoiseFilterResultProducer','HBHEIsoNoiseFilterResult'),
     reverseDecision = cms.bool(False)
