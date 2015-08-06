@@ -1294,7 +1294,7 @@ class PlotterFolder:
 class PlotterInstance:
     """Instance of plotter that knows the directory content, holds many folders."""
     def __init__(self, folders):
-        self._plotterFolders = folders
+        self._plotterFolders = filter(lambda f: f is not None, folders)
 
     def iterFolders(self, limitSubFoldersOnlyTo=None):
         for plotterFolder in self._plotterFolders:
@@ -1313,11 +1313,9 @@ class PlotterItem:
         self._plotFolder = plotFolder
 
     def readDirs(self, files):
-        if not self._plotFolder.loopSubFolders():
-            return PlotterFolder(self._name, self._possibleDirs, None, self._plotFolder)
-
         # Find out which of the "possibleDirs" exist in which file
         subFolders = []
+        possibleDirFound = False
         for fname in files:
             isOpenFile = isinstance(fname, ROOT.TFile)
             if isOpenFile:
@@ -1327,15 +1325,23 @@ class PlotterItem:
             for pd in self._possibleDirs:
                 d = tfile.Get(pd)
                 if d:
-                    subf = []
-                    for key in d.GetListOfKeys():
-                        if isinstance(key.ReadObj(), ROOT.TDirectory):
-                            subf.append(key.GetName())
-                    subFolders.append(subf)
+                    possibleDirFound = True
+                    if self._plotFolder.loopSubFolders():
+                        subf = []
+                        for key in d.GetListOfKeys():
+                            if isinstance(key.ReadObj(), ROOT.TDirectory):
+                                subf.append(key.GetName())
+                        subFolders.append(subf)
                     break
 
             if not isOpenFile:
                 tfile.Close()
+
+        if not possibleDirFound:
+            return None
+
+        if not self._plotFolder.loopSubFolders():
+            return PlotterFolder(self._name, self._possibleDirs, None, self._plotFolder)
 
         return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder)
 

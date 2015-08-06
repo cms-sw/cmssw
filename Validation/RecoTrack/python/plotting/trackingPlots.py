@@ -179,7 +179,8 @@ def _mapCollectionToAlgoQuality(collName):
     collNameLow = collName.replace("Hp", "").lower()
 
     algo = None
-    if "general" in collNameLow or collNameLow in ["cutsreco", "cutsrecotracks"]:
+    if "general" in collNameLow or collNameLow in ["cutsreco", "cutsrecofrompv", "cutsrecofrompvalltp",
+                                                   "cutsrecotracks", "custrecotracksfrompv", "cutsrecotracksfrompvalltp"]:
         algo = "ootb"
     else:
         for coll in _possibleTrackingColls:
@@ -260,18 +261,21 @@ class TrackingPlotFolder(PlotFolder):
         (algo, quality) = translatedDqmSubFolder
         return limitOnlyTo(algo, quality)
 
-_trackingFolders = [
-    "DQMData/Run 1/Tracking/Run summary/Track",
-    "DQMData/Tracking/Track",
-    "DQMData/Run 1/RecoTrackV/Run summary/Track",
-    "DQMData/RecoTrackV/Track",
-]
-plotter = Plotter()
-plotter.append("", _trackingFolders, TrackingPlotFolder( # to keep backward compatibility, this set of plots has empty name
+def _trackingFolders(lastDirName="Track"):
+    return [
+        "DQMData/Run 1/Tracking/Run summary/"+lastDirName,
+        "DQMData/Tracking/"+lastDirName,
+        "DQMData/Run 1/RecoTrackV/Run summary/"+lastDirName,
+        "DQMData/RecoTrackV/"+lastDirName,
+    ]
+
+_simBasedPlots = [
     _effandfake1,
     _effandfake2,
     _effandfake3,
     _effvspos,
+]
+_recoBasedPlots = [
     _dupandfake1,
     _dupandfake2,
     _dupandfake3,
@@ -283,12 +287,25 @@ plotter.append("", _trackingFolders, TrackingPlotFolder( # to keep backward comp
     _pulls,
     _resolutionsEta,
     _resolutionsPt,
-))
-plotter.append("summary", _trackingFolders, PlotFolder(
+]
+_summaryPlots = [
     _summary,
     _summaryHp,
-    loopSubFolders=False
-))
+]
+plotter = Plotter()
+def _appendTrackingPlots(lastDirName, name, algoPlots):
+    # to keep backward compatibility, this set of plots has empty name
+    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots))
+    summaryName = ""
+    if name != "":
+        summaryName += name+"_"
+    summaryName += "summary"
+    plotter.append(summaryName, _trackingFolders(lastDirName), PlotFolder(*_summaryPlots, loopSubFolders=False))
+_appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
+_appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots)
+_appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots)
+_appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots)
+
 
 _iterModuleMap = collections.OrderedDict([
     ("initialStepPreSplitting", ["initialStepSeedLayersPreSplitting",
