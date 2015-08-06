@@ -547,7 +547,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   // geomtry 
   edm::ESHandle< StackedTrackerGeometry >         StackedGeometryHandle;
-  const StackedTrackerGeometry*                   theStackedGeometry;
+  const StackedTrackerGeometry*                   theStackedGeometry = 0;
   if (SaveStubs) {  
     iSetup.get< StackedTrackerGeometryRecord >().get(StackedGeometryHandle);
     theStackedGeometry = StackedGeometryHandle.product();
