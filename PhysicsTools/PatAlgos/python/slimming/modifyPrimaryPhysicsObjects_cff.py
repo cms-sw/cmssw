@@ -8,9 +8,11 @@ from PhysicsTools.PatAlgos.slimming.modifiedJets_cfi import *
 
 #get any prereqs from POG areas
 from RecoEgamma.ElectronIdentification.ElectronMVAValueMapProducer_cfi import *
+from RecoEgamma.ElectronIdentification.ElectronRegressionValueMapProducer_cfi import *
 from RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi import *
 from RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi import *
-
+from RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi import *
+   
 #clone modules so we have slimmed* -> slimmed*
 slimmedElectrons = modifiedElectrons.clone()
 slimmedPhotons = modifiedPhotons.clone()
@@ -22,6 +24,7 @@ slimmedJetsPuppi = modifiedJets.clone( src = cms.InputTag("slimmedJetsPuppi",pro
 
 modifyPrimaryPhysicsObjects = cms.Sequence( electronMVAValueMapProducer *
                                             photonIDValueMapProducer * photonMVAValueMapProducer * 
+                                            electronRegressionValueMapProducer * photonRegressionValueMapProducer *
                                             slimmedElectrons *
                                             slimmedPhotons *
                                             slimmedMuons     *

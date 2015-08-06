@@ -146,7 +146,7 @@ def miniAOD_customizeCommon(process):
     from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma_modifications
     process.slimmedElectrons.modifierConfig.modifications = egamma_modifications
     process.slimmedPhotons.modifierConfig.modifications   = egamma_modifications
-
+    
     #VID Electron IDs
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
@@ -163,9 +163,17 @@ def miniAOD_customizeCommon(process):
         cms.InputTag("reducedEgamma","reducedEERecHits")
     process.electronIDValueMapProducer.esReducedRecHitCollection = \
         cms.InputTag("reducedEgamma","reducedESRecHits")
+    process.electronRegressionValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False)
     
+    process.load("RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi")
+    process.photonRegressionValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")
+
+
+
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
