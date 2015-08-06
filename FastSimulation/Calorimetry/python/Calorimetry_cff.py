@@ -10,7 +10,7 @@ from FastSimulation.Calorimetry.HSParameters_cfi import *
 
 ECALScaleBlock = cms.PSet(
     ECALResponceScalingParameters = cms.PSet(
-        doScalig = cms.bool( True ),
+        doScalig = cms.bool( False ),
         fileName = cms.untracked.string("FastSimulation/Calorimetry/data/scaleECALFastsim.root"),
         histogramName = cms.untracked.string("scaleVsEVsEta")
     )
