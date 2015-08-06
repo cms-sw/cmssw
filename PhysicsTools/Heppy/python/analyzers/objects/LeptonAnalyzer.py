@@ -65,6 +65,15 @@ class LeptonAnalyzer( Analyzer ):
                 self.IsolationComputer = heppy.IsolationComputer(0.4)
             else:
                 self.IsolationComputer = heppy.IsolationComputer()
+        self.doIsolationScan = getattr(cfg_ana, 'doIsolationScan', False)
+        if self.doIsolationScan:
+            if self.doMiniIsolation:
+                assert (self.miniIsolationPUCorr!="weights")
+                assert (self.miniIsolationVetoLeptons==None)
+            else:
+                self.IsolationComputer = heppy.IsolationComputer()
+            
+
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
     #----------------------------------------
@@ -82,7 +91,7 @@ class LeptonAnalyzer( Analyzer ):
         #rho for electrons
         self.handles['rhoEle'] = AutoHandle( self.cfg_ana.rhoElectron, 'double')
 
-        if self.doMiniIsolation:
+        if self.doMiniIsolation or self.doIsolationScan:
             self.handles['packedCandidates'] = AutoHandle( self.cfg_ana.packedCandidates, 'std::vector<pat::PackedCandidate>')
     def beginLoop(self, setup):
         super(LeptonAnalyzer,self).beginLoop(setup)
@@ -105,8 +114,9 @@ class LeptonAnalyzer( Analyzer ):
         event.selectedElectrons = []
         event.otherLeptons = []
 
-        if self.doMiniIsolation:
+        if self.doMiniIsolation or self.doIsolationScan:
             self.IsolationComputer.setPackedCandidates(self.handles['packedCandidates'].product())
+        if self.doMiniIsolation:
             if self.miniIsolationVetoLeptons == "any":
                 for lep in self.handles['muons'].product(): 
                     self.IsolationComputer.addVeto(lep)
@@ -141,6 +151,10 @@ class LeptonAnalyzer( Analyzer ):
                     self.IsolationComputer.addVeto(lep)
             for lep in event.inclusiveLeptons:
                 self.attachMiniIsolation(lep)
+
+        if self.doIsolationScan:
+            for lep in event.inclusiveLeptons:
+                self.attachIsolationScan(lep)
 
         # make loose leptons (basic selection)
         for mu in inclusiveMuons:
@@ -390,6 +404,40 @@ class LeptonAnalyzer( Analyzer ):
 
         mu.miniAbsIso = mu.miniAbsIsoCharged + mu.miniAbsIsoNeutral
         mu.miniRelIso = mu.miniAbsIso/mu.pt()
+
+
+    def attachIsolationScan(self, mu):
+
+        what = "mu" if (abs(mu.pdgId()) == 13) else ("eleB" if mu.isEB() else "eleE")
+        vetoreg = {"mu":0.0001,"eleB":0,"eleE":0.015}[what]
+
+        if what=="mu":
+            mu.ScanAbsIsoCharged005 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.05, vetoreg, 0.0)
+            mu.ScanAbsIsoCharged01  = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.1, vetoreg, 0.0)
+            mu.ScanAbsIsoCharged02  = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.2, vetoreg, 0.0)
+            mu.ScanAbsIsoCharged03  = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.3, vetoreg, 0.0)
+            mu.ScanAbsIsoCharged04  = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.4, vetoreg, 0.0)
+        else:
+            mu.ScanAbsIsoCharged005 = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.05, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.ScanAbsIsoCharged01  = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.1, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.ScanAbsIsoCharged02  = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.2, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.ScanAbsIsoCharged03  = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.3, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.ScanAbsIsoCharged04  = self.IsolationComputer.chargedAbsIso(mu.physObj, 0.4, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)
+
+        if what=="mu":
+            mu.ScanAbsIsoNeutral005 = self.IsolationComputer.neutralAbsIsoRaw(mu.physObj, 0.05, 0.01, 0.5)
+            mu.ScanAbsIsoNeutral01  = self.IsolationComputer.neutralAbsIsoRaw(mu.physObj, 0.1,  0.01, 0.5)
+            mu.ScanAbsIsoNeutral02  = self.IsolationComputer.neutralAbsIsoRaw(mu.physObj, 0.2,  0.01, 0.5)
+            mu.ScanAbsIsoNeutral03  = self.IsolationComputer.neutralAbsIsoRaw(mu.physObj, 0.3,  0.01, 0.5)
+            mu.ScanAbsIsoNeutral04  = self.IsolationComputer.neutralAbsIsoRaw(mu.physObj, 0.4,  0.01, 0.5)
+        else:
+            vetoreg = {"eleB":0.0,"eleE":0.08}[what]
+            mu.ScanAbsIsoNeutral005 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.05, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.05, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.ScanAbsIsoNeutral01 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.1, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.1, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.ScanAbsIsoNeutral02 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.2, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.2, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.ScanAbsIsoNeutral03 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.3, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.3, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+            mu.ScanAbsIsoNeutral04 = self.IsolationComputer.photonAbsIsoRaw(mu.physObj, 0.4, vetoreg, 0.0, self.IsolationComputer.selfVetoNone)+self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.4, 0.0, 0.0, self.IsolationComputer.selfVetoNone)
+
 
     def matchLeptons(self, event):
         def plausible(rec,gen):
