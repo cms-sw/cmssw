@@ -40,11 +40,10 @@ void QjetsAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     fastjet::ClusterSequence thisClustering_basic(allconstits, jetDef);
     std::vector<fastjet::PseudoJet> out_jets_basic = sorted_by_pt(thisClustering_basic.inclusive_jets(cutoff_));
     //std::cout << newCand.pt() << " " << out_jets_basic.size() <<std::endl;
-    if(out_jets_basic.size()==0){ // jet reclustering failed, most likely due to the higher cutoff. Use a recognizeable default value for this jet
+    if(out_jets_basic.size()!=1){ // jet reclustering did not return exactly 1 jet, most likely due to the higher cutoff or large cone size. Use a recognizeable default value for this jet
       QjetsVolatility.push_back(-1);
       continue;
     }
-    assert( out_jets_basic.size()==1 ); // jet reclustering of one jet should yield exactly one jet at this stage
 
     // setup objects for qjets computation
     fastjet::JetDefinition qjet_def(&qjetsAlgo_);
