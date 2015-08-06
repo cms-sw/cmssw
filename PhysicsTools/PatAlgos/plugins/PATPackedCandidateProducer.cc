@@ -9,7 +9,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -30,58 +30,58 @@
 //#define CRAZYSORT 
 
 namespace pat {
-    ///conversion map from quality flags used in PV association and miniAOD one
-    static int qualityMap[8]  = {1,0,1,1,4,4,5,6};
-
-    class PATPackedCandidateProducer : public edm::EDProducer {
-        public:
-            explicit PATPackedCandidateProducer(const edm::ParameterSet&);
-            ~PATPackedCandidateProducer();
-
-            virtual void produce(edm::Event&, const edm::EventSetup&);
-
-            //sorting of cands to maximize the zlib compression
-            bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) {
-                if (std::abs(i.charge()) == std::abs(j.charge())) {
-                    if(i.charge()!=0){
-                        if(i.pt() > minPtForTrackProperties_ and j.pt() <= minPtForTrackProperties_ ) return true;
-                        if(i.pt() <= minPtForTrackProperties_ and j.pt() > minPtForTrackProperties_ ) return false;
-                  }
-                   if(i.vertexRef() == j.vertexRef()) 
-                      return i.eta() > j.eta();
-                   else 
-                      return i.vertexRef().key() < j.vertexRef().key();
-                }
-                return std::abs(i.charge()) > std::abs(j.charge());
-            }
-            template <typename T>
-            std::vector<size_t> sort_indexes(const std::vector<T> &v ) {
-              std::vector<size_t> idx(v.size());
-              for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
-              std::sort(idx.begin(), idx.end(),[&v,this](size_t i1, size_t i2) { return candsOrdering(v[i1],v[i2]);});
-              return idx;
-           }
-
-        private:
-            edm::EDGetTokenT<reco::PFCandidateCollection>    Cands_;
-            edm::EDGetTokenT<reco::VertexCollection>         PVs_;
-            edm::EDGetTokenT<edm::Association<reco::VertexCollection> > PVAsso_;
-            edm::EDGetTokenT<edm::ValueMap<int> >            PVAssoQuality_;
-            edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
-            edm::EDGetTokenT<reco::TrackCollection>          TKOrigs_;
-            edm::EDGetTokenT< edm::ValueMap<float> >         PuppiWeight_;
-            edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >    PuppiCandsMap_;
-            edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCands_;
-
-            double minPtForTrackProperties_;
-            // for debugging
-            float calcDxy(float dx, float dy, float phi) {
-                return - dx * std::sin(phi) + dy * std::cos(phi);
-            }
-            float calcDz(reco::Candidate::Point p, reco::Candidate::Point v, const reco::Candidate &c) {
-                return p.Z()-v.Z() - ((p.X()-v.X()) * c.px() + (p.Y()-v.Y())*c.py()) * c.pz()/(c.pt()*c.pt());
-            }
-    };
+  ///conversion map from quality flags used in PV association and miniAOD one
+  static int qualityMap[8]  = {1,0,1,1,4,4,5,6};
+  
+  class PATPackedCandidateProducer : public edm::global::EDProducer<> {
+  public:
+    explicit PATPackedCandidateProducer(const edm::ParameterSet&);
+    ~PATPackedCandidateProducer();
+    
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+    
+    //sorting of cands to maximize the zlib compression
+    bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) const {
+      if (std::abs(i.charge()) == std::abs(j.charge())) {
+        if(i.charge()!=0){
+          if(i.pt() > minPtForTrackProperties_ and j.pt() <= minPtForTrackProperties_ ) return true;
+          if(i.pt() <= minPtForTrackProperties_ and j.pt() > minPtForTrackProperties_ ) return false;
+        }
+        if(i.vertexRef() == j.vertexRef()) 
+          return i.eta() > j.eta();
+        else 
+          return i.vertexRef().key() < j.vertexRef().key();
+      }
+      return std::abs(i.charge()) > std::abs(j.charge());
+    }
+    template <typename T>
+    std::vector<size_t> sort_indexes(const std::vector<T> &v ) const {
+      std::vector<size_t> idx(v.size());
+      for (size_t i = 0; i != idx.size(); ++i) idx[i] = i;
+      std::sort(idx.begin(), idx.end(),[&v,this](size_t i1, size_t i2) { return candsOrdering(v[i1],v[i2]);});
+      return idx;
+    }
+    
+  private:
+    const edm::EDGetTokenT<reco::PFCandidateCollection>    Cands_;
+    const edm::EDGetTokenT<reco::VertexCollection>         PVs_;
+    const edm::EDGetTokenT<edm::Association<reco::VertexCollection> > PVAsso_;
+    const edm::EDGetTokenT<edm::ValueMap<int> >            PVAssoQuality_;
+    const edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
+    const edm::EDGetTokenT<reco::TrackCollection>          TKOrigs_;
+    const edm::EDGetTokenT< edm::ValueMap<float> >         PuppiWeight_;
+    const edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >    PuppiCandsMap_;
+    const edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCands_;
+    
+    const double minPtForTrackProperties_;
+    // for debugging
+    float calcDxy(float dx, float dy, float phi) const {
+      return - dx * std::sin(phi) + dy * std::cos(phi);
+    }
+    float calcDz(reco::Candidate::Point p, reco::Candidate::Point v, const reco::Candidate &c) const {
+      return p.Z()-v.Z() - ((p.X()-v.X()) * c.px() + (p.Y()-v.Y())*c.py()) * c.pz()/(c.pt()*c.pt());
+    }
+  };
 }
 
 pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::ParameterSet& iConfig) :
@@ -105,7 +105,7 @@ pat::PATPackedCandidateProducer::~PATPackedCandidateProducer() {}
 
 
 
-void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
     edm::Handle<reco::PFCandidateCollection> cands;
     iEvent.getByToken( Cands_, cands );
