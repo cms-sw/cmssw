@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.puJetIDParams_cfi import *
+from RecoJets.JetProducers.PileupJetIDParams_cfi import full_74x_chs
 
 ####################################################################################################################  
 full_53x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(False),
  tmvaWeights = cms.string("CondFormats/JetMETObjects/data/TMVAClassificationCategory_JetID_53X_Dec2012.weights.xml"),
  tmvaMethod  = cms.string("JetIDMVAHighPt"),
  version = cms.int32(-1),
@@ -31,11 +33,11 @@ full_53x = cms.PSet(
  JetIdParams = full_53x_wp,
  label = cms.string("full53x")
  )
-
 ####################################################################################################################  
 full_53x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(False),
  tmvaWeights = cms.string("CondFormats/JetMETObjects/data/TMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
  #tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_53X_chs_Dec2012.weights.xml"),
  tmvaMethod  = cms.string("JetIDMVAHighPt"),
@@ -67,6 +69,7 @@ full_53x_chs = cms.PSet(
 met_53x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(False),
  tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_JetID_MET_53X_Dec2012.weights.xml.gz"),
  tmvaMethod  = cms.string("JetIDMVAMET"),
  version = cms.int32(-1),
@@ -96,6 +99,7 @@ met_53x = cms.PSet(
 full_5x = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(False),
  tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_fullPlusRMS.weights.xml.gz"),
  tmvaMethod  = cms.string("BDT_fullPlusRMS"),
  version = cms.int32(-1),
@@ -150,6 +154,7 @@ simple_5x = cms.PSet(
 full_5x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(False),
  tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_chsFullPlusRMS.weights.xml.gz"),
  tmvaMethod  = cms.string("BDT_chsFullPlusRMS"),
  version = cms.int32(-1),
@@ -179,6 +184,7 @@ full_5x_chs = cms.PSet(
 simple_5x_chs = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(False),
  tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_5x_BDT_chsSimpleNoVtxCat.weights.xml.gz"),
  tmvaMethod  = cms.string("BDT_chsSimpleNoVtxCat"),
  version = cms.int32(-1),
@@ -204,6 +210,7 @@ simple_5x_chs = cms.PSet(
 full = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(False),
  tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_PuJetIdOptMVA.weights.xml.gz"),
  tmvaMethod  = cms.string("PuJetIdOptMVA"),
  version = cms.int32(-1),
@@ -232,6 +239,7 @@ full = cms.PSet(
 simple = cms.PSet( 
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(False),
  tmvaWeights = cms.string("RecoJets/JetProducers/data/TMVAClassification_PuJetIdMinMVA.weights.xml.gz"),
  tmvaMethod  = cms.string("PuJetIdMinMVA"),
  version = cms.int32(-1),
@@ -275,6 +283,7 @@ PhilV0 = cms.PSet(
 PhilV1 = cms.PSet(
  impactParTkThreshold = cms.double(1.) ,
  cutBased = cms.bool(False),
+ etaBinnedWeights = cms.bool(False),
  tmvaWeights = cms.string("RecoJets/JetProducers/data/mva_JetID_v1.weights.xml.gz"),
  tmvaMethod  = cms.string("JetID"),
  version = cms.int32(-1),

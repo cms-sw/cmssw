@@ -17,5 +17,6 @@
   <use   name="RecoJets/JetProducers"/>
   <use   name="TrackingTools/IPTools"/>
   <use   name="TrackingTools/TransientTrack"/>
+  <use   name="HLTrigger/JetMET"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

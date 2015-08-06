@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 PhotonMETPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_Photon135_PFMET100_NoiseCleaned_v"
+        #"HLT_Photon135_PFMET100_NoiseCleaned_v"
+        "HLT_Photon135_PFMET100_JetIdCleaned_v"
         ),
     recPFMETLabel  = cms.InputTag("pfMet"),
     recPhotonLabel  = cms.InputTag("gedPhotons"),

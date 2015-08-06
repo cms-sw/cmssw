@@ -25,6 +25,8 @@
 #include "TEveScene.h"
 #include "TGLLogicalShape.h"
 #include "TEveCalo.h"
+#include "TEveCaloData.h"
+#include "TEveStraightLineSet.h"
 
 #include "Fireworks/Core/interface/FW3DViewBase.h"
 #include "Fireworks/Core/interface/FW3DViewGeometry.h"
@@ -56,48 +58,30 @@ private:
    Clipsi(const Clipsi&);            // Not implemented
    Clipsi& operator=(const Clipsi&); // Not implemented
 
+   TGLVertex3 vtx[4];
+
 public:
    Clipsi(TGLRnrCtx* ctx):TGLClip(* new TGLClipsiLogical, TGLMatrix(), fgColor), m_rnrCtx(ctx){}
    virtual ~Clipsi() {}
    using TGLClip::Setup;
    virtual void Setup(const TGLBoundingBox & bbox) override {}
 
+   void SetPlaneInfo(TEveVector* vec)
+   {
+      for (int i = 0; i < 4; ++i) {
+         // vec[i].Dump();
+         vtx[i].Set(vec[i].fX, vec[i].fY, vec[i].fZ);
+      }
+   }
+
    using TGLClip::PlaneSet;
    virtual void PlaneSet(TGLPlaneSet_t & planeSet) const override
    {
-      TGLCamera& cam = m_rnrCtx->RefCamera();
-
-      TGLVertex3 f[4];
-
-      f[0] =  Intersection(cam.FrustumPlane(TGLCamera::kFar),
-                           cam.FrustumPlane(TGLCamera::kBottom),
-                           cam.FrustumPlane(TGLCamera::kLeft)).second;
-         
-      f[1] =  Intersection(cam.FrustumPlane(TGLCamera::kFar),
-                           cam.FrustumPlane(TGLCamera::kBottom),
-                           cam.FrustumPlane(TGLCamera::kRight)).second;
-         
-      f[2] =  Intersection(cam.FrustumPlane(TGLCamera::kFar),
-                           cam.FrustumPlane(TGLCamera::kTop),
-                           cam.FrustumPlane(TGLCamera::kRight)).second;
-
-      f[3] =  Intersection(cam.FrustumPlane(TGLCamera::kFar),
-                           cam.FrustumPlane(TGLCamera::kTop),
-                           cam.FrustumPlane(TGLCamera::kLeft)).second;
-
-      TGLVector3 dd  =  cam.FrustumPlane(TGLCamera::kNear).Norm();
-      dd *= (cam.GetFarClip() -cam.GetNearClip() );
-
-      f[0] -= dd;
-      f[1] -= dd;
-      f[2] -= dd;
-      f[3] -= dd;
-
-      TGLVertex3 c;//(cam.GetCenterVec());
-      planeSet.push_back(TGLPlane(c, f[0], f[1]));
-      planeSet.push_back(TGLPlane(c, f[1], f[2]));
-      planeSet.push_back(TGLPlane(c, f[2], f[3]));
-      planeSet.push_back(TGLPlane(c, f[3], f[0]));
+      TGLVertex3 o;
+      planeSet.push_back(TGLPlane(o, vtx[0], vtx[1]));
+      planeSet.push_back(TGLPlane(o, vtx[1], vtx[2]));
+      planeSet.push_back(TGLPlane(o, vtx[2], vtx[3]));
+      planeSet.push_back(TGLPlane(o, vtx[3], vtx[0])); 
    }
 };
 }
@@ -123,9 +107,13 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_ecalBarrel(0),
    m_showEcalBarrel(this, "Show Ecal Barrel", typeId == FWViewType::kISpy ? true : false),
    m_rnrStyle(this, "Render Style", 0l, 0l, 2l),
-   m_clipParam(this, "View dependent Clip", false),
    m_selectable(this, "Enable Tooltips", false),
    m_cameraType(this, "Camera Type", 0l, 0l, 5l),
+   m_clipEnable(this, "Enable Clip", false),
+   m_clipEta(this, "Clip Eta", 0.0, -5.0, 5.0),
+   m_clipPhi(this, "Clip Phi", 0.0, -2.0, 2.0),
+   m_clipDelta1(this, "Clip Delta1", 0.2, 0.01, 2),
+   m_clipDelta2(this, "Clip Delta2", 0.2, 0.01, 2),
    m_DMT(0),
    m_DMTline(0)
 {
@@ -141,7 +129,6 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_rnrStyle.addEntry(TGLRnrCtx::kOutline, "Outline");
    m_rnrStyle.addEntry(TGLRnrCtx::kWireFrame, "WireFrame");
    m_rnrStyle.changed_.connect(boost::bind(&FW3DViewBase::rnrStyle,this, _1));
-   m_clipParam.changed_.connect(boost::bind(&FW3DViewBase::sceneClip,this, _1));
 
    m_selectable.changed_.connect(boost::bind(&FW3DViewBase::selectable,this, _1));
 
@@ -154,6 +141,12 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_cameraType.addEntry(TGLViewer::kCameraOrthoXnOZ,"OrthoXnOZ");
    m_cameraType.addEntry(TGLViewer::kCameraOrthoZnOY,"OrthoZnOY" );  
    m_cameraType.changed_.connect(boost::bind(&FW3DViewBase::setCameraType,this, _1));
+
+   m_clipEnable.changed_.connect(boost::bind(&FW3DViewBase::enableSceneClip,this, _1));
+   m_clipEta.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
+   m_clipPhi.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
+   m_clipDelta1.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
+   m_clipDelta2.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
 
 
     m_ecalBarrel = new TEveBoxSet("ecalBarrel"); 
@@ -230,10 +223,12 @@ FW3DViewBase::selectable( bool x)
       geoScene()->GetGLScene()->SetSelectable(x);
 }
 void
-FW3DViewBase::sceneClip( bool x)
+FW3DViewBase::enableSceneClip( bool x)
 {
    if (m_glClip == 0)  {
       m_glClip = new Clipsi(viewerGL()->GetRnrCtx());
+
+      m_glClip->SetMode(TGLClip::kOutside);
    }
 
    geoScene()->GetGLScene()->SetClip(x ? m_glClip : 0);
@@ -242,7 +237,94 @@ FW3DViewBase::sceneClip( bool x)
       if (strncmp((*it)->GetElementName(), "TopGeoNodeScene", 15) == 0)
          ((TEveScene*)(*it))->GetGLScene()->SetClip(x ? m_glClip : 0);
    }
+   eventScene()->GetGLScene()->SetClip(x ? m_glClip : 0);
+   updateClipPlanes();
    viewerGL()->RequestDraw();
+}
+
+void
+FW3DViewBase::setClip(float eta, float phi)
+{
+   // called from popup menu via FWGUIManager
+   /*
+   m_showMuonBarrel.set(1);
+   m_showMuonEndcap.set(true);
+   m_showPixelBarrel.set(true);
+   m_showPixelEndcap.set(true);
+   m_showTrackerBarrel.set(true);
+   */
+   m_clipEta.set(eta);
+   m_clipPhi.set(phi);
+   m_clipEnable.set(true);
+}
+
+void
+FW3DViewBase::updateClipPlanes()
+{
+   //  TEveScene* gs = (TEveScene*)gEve->GetScenes()->FindChild(TString("TopGeoNodeScene"));
+   //printf("node scene %p\n", gs);
+   if (m_clipEnable.value())
+   {
+      float eta = m_clipEta.value();
+      float phi   = m_clipPhi.value();
+      using namespace TMath;
+      TEveVector in(Sin(eta)*Cos(phi), Sin(eta)*Sin(phi), Cos(eta));
+
+      // one side of cross section plane is paralel to XY plane
+      TEveVector normXY(0., 1., 0);
+      TEveVector b0 = in.Cross(normXY);
+      TEveVector b1 = in.Cross(b0);
+
+      float delta1   = m_clipDelta1.value();
+      float delta2   = m_clipDelta2.value();
+      b0.Normalize();
+      b0 *= Sin(delta1);
+      b1.Normalize();
+      b1 *= Sin(delta2);
+   
+      TEveVector c[4];
+      c[0] += b0; c[0] += b1; 
+      c[1] -= b0; c[1] += b1;  
+      c[2] -= b0; c[2] -= b1;  
+      c[3] += b0; c[3] -= b1; 
+      for (int i = 0; i < 4; ++i)
+         c[i] += in;
+
+      ((Clipsi*)m_glClip)->SetPlaneInfo(&c[0]);
+
+      /*
+      // debug
+      TEveStraightLineSet* ls = (TEveStraightLineSet*)eventScene()->FindChild(TString("Frust"));
+      if (!ls) {
+         ls = new TEveStraightLineSet("Frust");
+         eventScene()->AddElement(ls);
+         ls->SetMainColor(kWhite);
+      }
+
+      in *= 500;
+      ls->AddLine(0, 0, 0, in.fX, in.fY, in.fZ);
+      */
+
+
+      TEvePointSet* psi = (TEvePointSet*)eventScene()->FindChild(TString("marker"));
+      TEvePointSet* marker = (TEvePointSet*)(psi);
+      if (!marker) {
+         marker = new TEvePointSet(8);
+         marker->Reset(4);
+         marker->SetName("marker");
+         marker->SetMarkerColor(kOrange);
+         marker->SetMarkerStyle(3);
+         marker->SetMarkerSize(0.2);
+      }
+      for (int i = 0; i < 4; ++i)
+         marker->SetPoint(i, c[i].fX, c[i].fY, c[i].fZ);
+      eventScene()->AddElement(marker);
+   }
+   /*
+   else {
+      fwLog(fwlog::kError) << "Clipping is not enabled!\n"; 
+   }
+   */
 }
 
 //______________________________________________________________________________
@@ -309,10 +391,14 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_showPixelBarrel).
       addParam(&m_showPixelEndcap).  
       addParam(&m_showEcalBarrel).  
-      separator().
       addParam(&m_rnrStyle).
-      addParam(&m_clipParam).
-      addParam(&m_selectable);
+      addParam(&m_selectable).
+      separator().
+      addParam(&m_clipEnable).
+      addParam(&m_clipEta).
+      addParam(&m_clipPhi).
+      addParam(&m_clipDelta1).
+      addParam(&m_clipDelta2);
 
 
    gui.requestTab("Style").separator();
@@ -321,11 +407,7 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
 
    gui.requestTab("Tools").addParam(&m_cameraType).separator();
    gui.getTabContainer()->AddFrame(m_DMT->buildGUI( gui.getTabContainer()), new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 2));
-
 }
-
-
-
 
 void  FW3DViewBase::showEcalBarrel(bool x) {
     if (x &&  m_ecalBarrel->GetPlex()->Size() == 0) {

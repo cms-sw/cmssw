@@ -36,6 +36,8 @@
 #include "PhysicsTools/MVAComputer/interface/mva_computer_define_plugin.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <boost/filesystem.hpp>
+
 using namespace PhysicsTools;
 
 namespace { // anonymous
@@ -108,7 +110,7 @@ ProcTMVA::ProcTMVA(const char *name,
        ( reader->BookMVA( methodType, weight_text.c_str() ) ) );
   } else {
     // Write to a temporary file
-    TString weight_file_name(std::tmpnam(NULL));
+    TString weight_file_name(boost::filesystem::unique_path().c_str());
     std::ofstream weight_file;
     weight_file.open(weight_file_name.Data());
     weight_file << weight_text;
