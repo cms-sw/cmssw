@@ -831,7 +831,7 @@ bool DrawIteration::createResultHist(TH1*& hist, const std::vector<std::string>&
     hist->SetBinError(iBin, 0.0000001);
     hist->GetXaxis()->SetBinLabel(iBin, label);
   }
-  hist->SetAxisRange(0.,100.,"Y");
+  hist->SetAxisRange(0.,35.,"Y");
   
   return hasEntry;
 }
