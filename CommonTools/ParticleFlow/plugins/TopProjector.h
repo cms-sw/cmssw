@@ -8,7 +8,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -134,7 +134,7 @@ template < class Top, class Bottom>
 };
 
 template< class Top, class Bottom, class Matcher = TopProjectorFwdPtrOverlap<Top,Bottom> >
-class TopProjector : public edm::EDProducer {
+class TopProjector : public edm::stream::EDProducer<> {
 
  public:
 
@@ -199,8 +199,8 @@ TopProjector< Top, Bottom, Matcher>::TopProjector(const edm::ParameterSet& iConf
 
 
 template< class Top, class Bottom, class Matcher >
-void TopProjector< Top, Bottom, Matcher >::produce(edm::Event& iEvent,
-					  const edm::EventSetup& iSetup) {
+void TopProjector< Top, Bottom, Matcher >::produce( edm::Event& iEvent,
+                                                    const edm::EventSetup& iSetup) {
   // get the various collections
 
   // Access the masking collection
