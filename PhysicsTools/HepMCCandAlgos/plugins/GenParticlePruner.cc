@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -19,7 +19,7 @@ namespace helper {
   };
 }
 
-class GenParticlePruner : public edm::EDProducer {
+class GenParticlePruner : public edm::stream::EDProducer<> {
 public:
   GenParticlePruner(const edm::ParameterSet&);
 private:
