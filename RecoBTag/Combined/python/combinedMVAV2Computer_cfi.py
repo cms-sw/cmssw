@@ -8,5 +8,5 @@ combinedMVAV2Computer = cms.ESProducer("CombinedMVAV2JetTagESProducer",
 		'softPFMuonComputer',
 		'softPFElectronComputer'
 	),
-	weightFile = cms.FileInPath('RecoBTau/JetTagComputer/data/CombinedMVAV2.weights.xml')
+	weightFile = cms.FileInPath('RecoBTag/Combined/data/CombinedMVAV2_13_07_2015.weights.xml.gz')
 )

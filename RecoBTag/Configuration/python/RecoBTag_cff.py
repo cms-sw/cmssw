@@ -39,7 +39,7 @@ legacyBTagging = cms.Sequence(
 
     # overall combined taggers
     * combinedMVABJetTags
-    * combinedMVAV2BJetTags
+    + combinedMVAV2BJetTags
 )
 
 # new candidate-based fwk, with PF inputs
@@ -75,7 +75,7 @@ pfBTagging = cms.Sequence(
     # overall combined taggers
     ( #CSV + soft-lepton + jet probability discriminators combined
       pfCombinedMVABJetTags
-      * pfCombinedMVAV2BJetTags
+      + pfCombinedMVAV2BJetTags
 
       #CSV + soft-lepton variables combined (btagger)
       + pfCombinedSecondaryVertexSoftLeptonBJetTags
