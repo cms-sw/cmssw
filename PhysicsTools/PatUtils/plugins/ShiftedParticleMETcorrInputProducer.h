@@ -11,7 +11,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-class ShiftedParticleMETcorrInputProducer : public edm::EDProducer
+class ShiftedParticleMETcorrInputProducer : public edm::global::EDProducer<>
 {
  public:
 
@@ -34,10 +34,10 @@ class ShiftedParticleMETcorrInputProducer : public edm::EDProducer
  private:
   typedef edm::View<reco::Candidate> CandidateView;
 
-  void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
 
-  edm::EDGetTokenT<CandidateView> srcOriginalToken_;
-  edm::EDGetTokenT<CandidateView> srcShiftedToken_;
+  const edm::EDGetTokenT<CandidateView> srcOriginalToken_;
+  const edm::EDGetTokenT<CandidateView> srcShiftedToken_;
 };
 
 #endif

@@ -16,7 +16,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -68,7 +68,7 @@ namespace PFJetMETcorrInputProducer_namespace
 }
 
 template <typename T, typename Textractor>
-class PFJetMETcorrInputProducerT : public edm::EDProducer
+class PFJetMETcorrInputProducerT : public edm::stream::EDProducer<>
 {
  public:
 
@@ -160,6 +160,7 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 
       const static PFJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor {};
       reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(jet);
+
       if ( skipMuons_ ) {
 	const std::vector<reco::CandidatePtr> & cands = jet.daughterPtrVector();
 	for ( std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin();
