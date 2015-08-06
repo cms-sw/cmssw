@@ -1,11 +1,11 @@
-# /frozen/2015/25ns14e33/v3.1/HLT/V2 (CMSSW_7_4_8_HLT2)
+# /frozen/2015/25ns14e33/v3.1/HLT/V3 (CMSSW_7_4_8_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT25ns14e33v3" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/frozen/2015/25ns14e33/v3.1/HLT/V2')
+  tableName = cms.string('/frozen/2015/25ns14e33/v3.1/HLT/V3')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -44188,7 +44188,7 @@ process.hltMETCleanUsingJetID200 = cms.EDFilter( "HLT1CaloMET",
     triggerType = cms.int32( 87 )
 )
 process.hltL1sL1EG25erHTT125orL1HTT125orL1HTT100 = cms.EDFilter( "HLTLevel1GTSeed",
-    L1SeedsLogicalExpression = cms.string( "L1_EG25er_HTT125 OR L1_HTT125" ),
+    L1SeedsLogicalExpression = cms.string( "L1_EG25er_HTT125 OR L1_HTT125 OR L1_HTT100" ),
     saveTags = cms.bool( True ),
     L1MuonCollectionTag = cms.InputTag( "hltL1extraParticles" ),
     L1UseL1TriggerObjectMaps = cms.bool( True ),
