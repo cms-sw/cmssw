@@ -94,7 +94,7 @@ hiRegitMuMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking
 
 # fitting: feed new-names
 hiRegitMuMixedTripletStepTracks                 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTracks.clone(
-    AlgorithmName = cms.string('undefAlgorithm'),
+    AlgorithmName = cms.string('hiRegitMuMixedTripletStep'),
     src                 = 'hiRegitMuMixedTripletStepTrackCandidates',
 )
 
