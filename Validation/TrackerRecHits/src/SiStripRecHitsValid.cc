@@ -157,7 +157,6 @@ SiStripRecHitsValid::SiStripRecHitsValid(const ParameterSet& ps) :
 
   edm::ParameterSet ParametersNsimHitMatched =  conf_.getParameter<edm::ParameterSet>("TH1NsimHitMatched");
   switchNsimHitMatched = ParametersNsimHitMatched.getParameter<bool>("switchon");
-
 }
 
 SiStripRecHitsValid::~SiStripRecHitsValid(){
@@ -213,7 +212,6 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   
   SiStripHistoId hidmanager;
   SiStripFolderOrganizer fold_organ;
-
   // start loops over detectors with detected rechitsrphi
   for (auto it = rechitsrphi->begin(), itEnd = rechitsrphi->end(); it != itEnd; ++it) {
     DetId detid = (*it).detId();
@@ -376,7 +374,7 @@ std::pair<LocalPoint,LocalVector> SiStripRecHitsValid::projectHit( const PSimHit
   double selfAngle = topol.stripAngle( topol.strip( hit.localPosition()));
   
   LocalVector stripDir( sin(selfAngle), cos(selfAngle), 0); // vector along strip in hit frame
-  
+ 
   LocalVector localStripDir( plane.toLocal(stripDet->surface().toGlobal( stripDir)));
   
   return std::pair<LocalPoint,LocalVector>( projectedPos, localStripDir);
@@ -384,32 +382,22 @@ std::pair<LocalPoint,LocalVector> SiStripRecHitsValid::projectHit( const PSimHit
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const StripTopology &topol,TrackerHitAssociator& associate){
   
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.; 
-  rechitpro.resolyy = -999999.; rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; rechitpro.chi2 = -999999.; rechitpro.NsimHit = -999999.;
-  rechitpro.bunch = -999999.; rechitpro.event = -999999.;
-
   LocalPoint position=rechit.localPosition();
   LocalError error=rechit.localPositionError();
-  MeasurementPoint Mposition;
-  MeasurementError Merror;
-  Mposition = topol.measurementPosition(position);
-  Merror = topol.measurementError(position,error);
-  SiStripRecHit2D::ClusterRef clust=rechit.cluster();
-  int clusiz=0;
+  MeasurementPoint Mposition = topol.measurementPosition(position);
+  MeasurementError Merror = topol.measurementError(position,error);
+  const auto & amplitudes=(rechit.cluster())->amplitudes();
   int totcharge=0;
-  clusiz = clust->amplitudes().size();
-  const auto & amplitudes=clust->amplitudes();
-  for(size_t ia=0; ia<amplitudes.size();ia++){
+  for(size_t ia=0; ia<amplitudes.size();++ia){
     totcharge+=amplitudes[ia];
   }
   rechitpro.x = position.x();
   rechitpro.y = position.y();
-  rechitpro.z = position.z();
+  //rechitpro.z = position.z();
   rechitpro.resolxx = error.xx();
-  rechitpro.resolxy = error.xy();
+  //rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
-  rechitpro.clusiz = clusiz;
+  rechitpro.clusiz = amplitudes.size();
   rechitpro.cluchg = totcharge;
 
 
@@ -420,14 +408,17 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
   double mindist = 999999;
   double dist = 999999;
   PSimHit closest;
+ 
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
+  rechitpro.chi2 = -999999.; rechitpro.bunch = -999999.; rechitpro.event = -999999.;
   
   if(!matched.empty()){
 
-    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-      dist = fabs(rechitpro.x - (*m).localPosition().x());
+    for(auto m : matched){
+      dist = fabs(rechitpro.x - m.localPosition().x());
       if(dist<mindist){
 	mindist = dist;
-	closest = (*m);
+	closest = m;
       }
     }  
     rechitpro.bunch = closest.eventId().bunchCrossing();
@@ -466,19 +457,14 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator& associate){
   
-  rechitpro.x = -999999.; rechitpro.y = -999999.; rechitpro.z = -999999.; rechitpro.resolxx = -999999.; rechitpro.resolxy = -999999.; 
-  rechitpro.resolyy = -999999.; rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.; rechitpro.chi2 = -999999.; rechitpro.NsimHit = -999999.;
-  rechitpro.bunch = -999999.; rechitpro.event = -999999.;
-
   LocalPoint position=rechit.localPosition();
   LocalError error=rechit.localPositionError();
 
   rechitpro.x = position.x();
   rechitpro.y = position.y();
-  rechitpro.z = position.z();
+  //rechitpro.z = position.z();
   rechitpro.resolxx = error.xx();
-  rechitpro.resolxy = error.xy();
+  //rechitpro.resolxy = error.xy();
   rechitpro.resolyy = error.yy();
 
   matched.clear();
@@ -492,26 +478,29 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
   PSimHit closest;
   std::pair<LocalPoint,LocalVector> closestPair;
 
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.;rechitpro.pullMF = -999999.; 
+  rechitpro.chi2 = -999999.; rechitpro.bunch = -999999.; rechitpro.event = -999999.;
+  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.;
+
   if(!matched.empty()){
 
     const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
     std::pair<LocalPoint,LocalVector> hitPair;
-    
 
-    for(vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++){
-      SiStripDetId hitDetId(m->detUnitId());
+    for(auto m : matched){
+      SiStripDetId hitDetId(m.detUnitId());
       if (hitDetId.stereo()) {  // project from the stereo sensor
       //project simhit;
-	hitPair= projectHit((*m),partnerstripdet,gluedDet->surface());
-	distx = fabs(rechitpro.x - hitPair.first.x());
-	disty = fabs(rechitpro.y - hitPair.first.y());
+	hitPair= projectHit(m,partnerstripdet,gluedDet->surface());
+	distx = rechitpro.x - hitPair.first.x();
+	disty = rechitpro.y - hitPair.first.y();
 	dist = sqrt(distx*distx+disty*disty);
 	// std::cout << " Simhit position x = " << hitPair.first.x() 
 	//      << " y = " << hitPair.first.y() << " dist = " << dist << std::endl;
 	if(dist<mindist){
 	  mindist = dist;
 	  closestPair = hitPair;
-	  closest = (*m);
+	  closest = m;
 	}
       }
     }  
@@ -577,10 +566,9 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
   // std::cout << "curfold " << curfold << std::endl;
 
   createTotalMEs(ibooker);
-
   // loop over detectors and book MEs
   edm::LogInfo("SiStripTkRecHits|SiStripRecHitsValid")<<"nr. of activeDets:  "<<activeDets.size();
-  for(std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(); detid_iterator!=activeDets.end(); detid_iterator++){
+  for(std::vector<uint32_t>::iterator detid_iterator=activeDets.begin(), detid_end=activeDets.end(); detid_iterator!=detid_end; ++detid_iterator){
     uint32_t detid = (*detid_iterator);
     // remove any eventual zero elements - there should be none, but just in case
     if(detid == 0) {
@@ -594,26 +582,30 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
     std::string label = hidmanager.getSubdetid(detid,tTopo,true);
     // std::cout << "label " << label << endl;
       
-    std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
-    if(iLayerME==LayerMEsMap.end()) {
+    if(LayerMEsMap.find(label)==LayerMEsMap.end()) {
 	
       // get detids for the layer
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
       int32_t lnumber = det_layer_pair.second;
+      std::string lname = det_layer_pair.first; 
       std::vector<uint32_t> layerDetIds;        
-      if (det_layer_pair.first == "TIB") {
-	substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
-      } else if (det_layer_pair.first == "TOB") {
+      if (lname == "TEC") {
+        if (lnumber > 0) {
+	  substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
+        } else if (lnumber < 0) {
+	  substructure.getTECDetectors(activeDets,layerDetIds,1,0,0,0,abs(lnumber),0);
+        }
+      } else if (lname == "TID") {
+         if (lnumber > 0) {
+	   substructure.getTIDDetectors(activeDets,layerDetIds,2,0,abs(lnumber),0);
+        } else if (lnumber < 0) {
+	  substructure.getTIDDetectors(activeDets,layerDetIds,1,0,abs(lnumber),0);
+        }
+      } else if (lname == "TOB") {
 	substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
-      } else if (det_layer_pair.first == "TID" && lnumber > 0) {
-	substructure.getTIDDetectors(activeDets,layerDetIds,2,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TID" && lnumber < 0) {
-	substructure.getTIDDetectors(activeDets,layerDetIds,1,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TEC" && lnumber > 0) {
-	substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
-      } else if (det_layer_pair.first == "TEC" && lnumber < 0) {
-	substructure.getTECDetectors(activeDets,layerDetIds,1,0,0,0,abs(lnumber),0);
-      }
+      } else if (lname == "TIB") {
+	substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
+      }  
       LayerDetMap[label] = layerDetIds;
 
       // book Layer MEs 
@@ -624,40 +616,47 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
       createLayerMEs(ibooker,label);
     }
     // book sub-detector plots 
-    auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
-    // std::cout << "sdet_pair " << sdet_pair.first << " " << sdet_pair.second << std::endl;
     if (SubDetMEsMap.find(det_layer_pair.first) == SubDetMEsMap.end()){
+      auto sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
+      // std::cout << "sdet_pair " << sdet_pair.first << " " << sdet_pair.second << std::endl;
       ibooker.setCurrentFolder(sdet_pair.first);
       createSubDetMEs(ibooker,det_layer_pair.first);        
     }
     //Create StereoAndMatchedMEs
-    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME  = StereoAndMatchedMEsMap.find(label);
-    if(iStereoAndMatchedME==StereoAndMatchedMEsMap.end()) {
+    if(StereoAndMatchedMEsMap.find(label)==StereoAndMatchedMEsMap.end()) {
 	
       // get detids for the stereo and matched layer. We are going to need a bool for these layers
       bool isStereo = false;
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
-      int32_t stereolnumber = det_layer_pair.second;
       std::vector<uint32_t> stereoandmatchedDetIds;        
-      if ( (det_layer_pair.first == "TIB") &&  (tTopo->tibIsStereo(detid) == 1) ) {
-	substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TOB") &&  (tTopo->tobIsStereo(detid) == 1) ) {
-	substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber > 0) && (tTopo->tidIsStereo(detid) == 1) ) {
-	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TID") && (stereolnumber < 0) && (tTopo->tidIsStereo(detid) == 1) ) {
-	substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber > 0) && (tTopo->tecIsStereo(detid) == 1) ) {
-	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
-	isStereo = true;
-      } else if ( (det_layer_pair.first == "TEC") && (stereolnumber < 0) && (tTopo->tecIsStereo(detid) == 1) ) {
-	substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
-	isStereo = true;
+      if ( tTopo->tibIsStereo(detid) == 1 ) {
+        int32_t stereolnumber = det_layer_pair.second;
+        std::string stereolname = det_layer_pair.first;
+        if ( stereolname == "TEC" ) {
+          if ( stereolnumber > 0 ) {
+	    substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
+	    isStereo = true;
+          } else if ( stereolnumber < 0 ) {
+	    substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
+	    isStereo = true;
+          }
+        } else if ( stereolname == "TID" ) {
+          if ( stereolnumber > 0 ) {
+	    substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
+	    isStereo = true;
+          } else if ( stereolnumber < 0 ) {
+	    substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
+	    isStereo = true;
+          }
+        } else if ( stereolname == "TOB" ) {
+	  substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
+	  isStereo = true;
+        } else if ( stereolname == "TIB" ) {
+	  substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
+	  isStereo = true;
+        } 
       }
+
       StereoAndMatchedDetMap[label] = stereoandmatchedDetIds;
 
       if(isStereo){
@@ -670,8 +669,6 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
 	createStereoAndMatchedMEs(ibooker,label);
       }
     }
- 
-
   }//end of loop over detectors
 }
 //------------------------------------------------------------------------------------------
@@ -949,7 +946,7 @@ void SiStripRecHitsValid::createSubDetMEs(DQMStore::IBooker & ibooker,std::strin
   SubDetMEsMap[label]=subdetMEs;
 }
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripRecHitsValid::bookME1D(DQMStore::IBooker & ibooker, const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
+inline MonitorElement* SiStripRecHitsValid::bookME1D(DQMStore::IBooker & ibooker, const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle)
 {
   edm::ParameterSet parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
   return ibooker.book1D(HistoName,HistoTitle,
