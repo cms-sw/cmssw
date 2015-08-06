@@ -10,7 +10,7 @@
  *  (3) the ranking of several matches.
  *
  */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/DeltaR.h"
@@ -60,7 +60,7 @@ namespace reco {
 					       typename C2::value_type>,
 					C1, C2 >
   >
-  class PhysObjectMatcher : public edm::EDProducer {
+  class PhysObjectMatcher : public edm::stream::EDProducer<> {
   public:
     PhysObjectMatcher(const edm::ParameterSet & cfg);
     ~PhysObjectMatcher();

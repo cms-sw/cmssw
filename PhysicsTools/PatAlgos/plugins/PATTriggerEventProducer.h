@@ -29,7 +29,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/GetterOfProducts.h"
 
 #include <string>
@@ -47,7 +47,7 @@
 
 namespace pat {
 
-  class PATTriggerEventProducer : public edm::EDProducer {
+  class PATTriggerEventProducer : public edm::stream::EDProducer<> {
 
     public:
 

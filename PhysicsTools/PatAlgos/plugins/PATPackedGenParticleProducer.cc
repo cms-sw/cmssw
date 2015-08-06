@@ -9,7 +9,7 @@
 #include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -37,21 +37,21 @@
 
 
 namespace pat {
-    class PATPackedGenParticleProducer : public edm::EDProducer {
-        public:
-            explicit PATPackedGenParticleProducer(const edm::ParameterSet&);
-            ~PATPackedGenParticleProducer();
-
-            virtual void produce(edm::Event&, const edm::EventSetup&);
-
-        private:
-            edm::EDGetTokenT<reco::GenParticleCollection>    Cands_;
-            edm::EDGetTokenT<reco::GenParticleCollection>    GenOrigs_;
-            edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    Asso_;
-            edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    AssoOriginal_;
-            edm::EDGetTokenT<reco::VertexCollection>         PVs_;
-            double maxRapidity_;
-    };
+  class PATPackedGenParticleProducer : public edm::global::EDProducer<> {
+  public:
+    explicit PATPackedGenParticleProducer(const edm::ParameterSet&);
+    ~PATPackedGenParticleProducer();
+    
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+    
+  private:
+    const edm::EDGetTokenT<reco::GenParticleCollection>    Cands_;
+    const edm::EDGetTokenT<reco::GenParticleCollection>    GenOrigs_;
+    const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    Asso_;
+    const edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> >    AssoOriginal_;
+    const edm::EDGetTokenT<reco::VertexCollection>         PVs_;
+    const double maxRapidity_;
+  };
 }
 
 pat::PATPackedGenParticleProducer::PATPackedGenParticleProducer(const edm::ParameterSet& iConfig) :
@@ -64,12 +64,11 @@ pat::PATPackedGenParticleProducer::PATPackedGenParticleProducer(const edm::Param
 {
   produces< std::vector<pat::PackedGenParticle> > ();
   produces< edm::Association< std::vector<pat::PackedGenParticle> > >();
-
 }
 
 pat::PATPackedGenParticleProducer::~PATPackedGenParticleProducer() {}
 
-void pat::PATPackedGenParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void pat::PATPackedGenParticleProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
 
     edm::Handle<reco::GenParticleCollection> cands;

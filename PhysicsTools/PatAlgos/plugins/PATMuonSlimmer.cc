@@ -5,7 +5,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -22,7 +22,7 @@
 
 namespace pat {
   
-  class PATMuonSlimmer : public edm::EDProducer {
+  class PATMuonSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATMuonSlimmer(const edm::ParameterSet & iConfig);
     virtual ~PATMuonSlimmer() { }
@@ -31,12 +31,12 @@ namespace pat {
     virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
     
   private:
-    edm::EDGetTokenT<pat::MuonCollection> src_;
-    edm::EDGetTokenT<reco::PFCandidateCollection> pf_;
-    edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
-    bool linkToPackedPF_;
-    StringCutObjectSelector<pat::Muon> saveTeVMuons_;
-    bool modifyMuon_;
+    const edm::EDGetTokenT<pat::MuonCollection> src_;
+    const edm::EDGetTokenT<reco::PFCandidateCollection> pf_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
+    const bool linkToPackedPF_;
+    const StringCutObjectSelector<pat::Muon> saveTeVMuons_;
+    const bool modifyMuon_;
     std::unique_ptr<pat::ObjectModifier<pat::Muon> > muonModifier_;
   };
 
@@ -44,6 +44,8 @@ namespace pat {
 
 pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
     src_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+    pf_(mayConsume<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandidates"))),
+    pf2pc_(mayConsume<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
     linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
     saveTeVMuons_(iConfig.getParameter<std::string>("saveTeVMuons")),
     modifyMuon_(iConfig.getParameter<bool>("modifyMuons"))
@@ -57,10 +59,6 @@ pat::PATMuonSlimmer::PATMuonSlimmer(const edm::ParameterSet & iConfig) :
       muonModifier_.reset(nullptr);
     }
     produces<std::vector<pat::Muon> >();
-    if (linkToPackedPF_) {
-        pf_    = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>("pfCandidates"));
-        pf2pc_ = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
-    }
 }
 
 void 
