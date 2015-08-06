@@ -1,0 +1,5 @@
+# 2010 data
+#from ApeEstimator.ApeEstimator.samples.Cert_136033_149442_7TeV_Dec22ReReco_Collisions10_CMSSWConfig_v3_cff import LumisToProcess
+
+# 2011 data
+from ApeEstimator.ApeEstimator.samples.Cert_160404_173692_7TeV_May10ReRecoAndPromptRecoCombined_Collisions11_CMSSWConfig_cff import LumisToProcess
