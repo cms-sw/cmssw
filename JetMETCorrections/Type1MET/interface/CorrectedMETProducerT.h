@@ -18,7 +18,7 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -61,7 +61,7 @@ namespace CorrectedMETProducer_namespace
 }
 
 template<typename T>
-class CorrectedMETProducerT : public edm::EDProducer  
+class CorrectedMETProducerT : public edm::stream::EDProducer<>  
 {
   typedef std::vector<T> METCollection;
 
@@ -95,7 +95,8 @@ class CorrectedMETProducerT : public edm::EDProducer
 	  rawMEt != rawMEtCollection->end(); ++rawMEt ) {
       CorrMETData correction = algorithm_->compMETCorrection(evt, es);
       
-      static CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory;
+      static const CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory {};
+
       T correctedMEt = correctedMET_factory(*rawMEt, correction);
 
       correctedMEtCollection->push_back(correctedMEt);
