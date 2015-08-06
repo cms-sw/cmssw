@@ -66,13 +66,13 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
                 HGCEEDetId detid(HGCEE, zside, layer, sector, subsector, cell); 
                 // FIXME: Use temporarily HGCEEDetId to compute trigger cell id
                 HGCEEDetId triggerDetid(HGCEE, zside, layer, sector, 1, triggercell); // Dummy subsector
-                const auto& ret = cells_to_trigger_cells_.insert( std::make_pair(detid(), triggerDetid()) );
+                const auto& ret = cells_to_trigger_cells_.insert( std::make_pair(detid, triggerDetid) );
                 if(!ret.second) edm::LogWarning("HGCalTriggerGeometry") << "Duplicate cell in L1TMapping\n";
                 // FIXME: Use temporarily HGCEEDetId to compute module id
                 HGCEEDetId moduleDetid(HGCEE, zside, layer, sector, 1, module); // Dummy subsector
                 // Only the first occurence of the trigger cell is filled (one trigger cell is not
                 // shared between different modules)
-                trigger_cells_to_modules_.insert( std::make_pair(triggerDetid(), moduleDetid()) );
+                trigger_cells_to_modules_.insert( std::make_pair(triggerDetid, moduleDetid) );
             }
         }
     }

@@ -1,0 +1,11 @@
+<!--<use   name="FWCore/Framework"/>-->
+<!--<use   name="FWCore/ParameterSet"/>-->
+<!--<use   name="FWCore/Utilities"/>-->
+<!--<use   name="DataFormats/ForwardDetId"/>-->
+<use   name="Geometry/FCalGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="L1Trigger/L1THGCal"/> 
+<use   name="Geometry/Records"/>
+<use   name="CommonTools/UtilAlgos"/>
+<flags   EDM_PLUGIN="1"/>
+<library   file="HGCalTriggerGeomTester.cc" name="testL1TriggerL1THGCal"> </library>
