@@ -165,7 +165,7 @@ workflows[29] = ['', ['ZEE','DIGI','RECO','HARVEST','ALCAELE']]
 workflows[31] = ['', ['ZTT','DIGI','RECO','HARVEST']]
 workflows[32] = ['', ['H130GGgluonfusion','DIGI','RECO','HARVEST']]
 workflows[33] = ['', ['PhotonJets_Pt_10','DIGI','RECO','HARVEST']]
-workflows[34] = ['', ['QQH1352T_Tauola','DIGI','RECO','HARVEST']]
+workflows[34] = ['', ['QQH1352T','DIGI','RECO','HARVEST']]
 workflows[46] = ['', ['ZmumuJets_Pt_20_300']]
 
 # wip gen-sim being made in 71x_pre7: GF wf uncomment once available 
@@ -200,7 +200,7 @@ workflows[1329] = ['', ['ZEE_13','DIGIUP15','RECOUP15','HARVESTUP15','ALCAELE']]
 workflows[1331] = ['', ['ZTT_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1332] = ['', ['H130GGgluonfusion_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1333] = ['', ['PhotonJets_Pt_10_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1334] = ['', ['QQH1352T_Tauola_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1334] = ['', ['QQH1352T_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1346] = ['', ['ZmumuJets_Pt_20_300_13']]
 
 workflows[1347] = ['', ['Upsilon1SToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
