@@ -16,7 +16,7 @@
  */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -29,7 +29,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 template < class T >
-class JetDeltaRValueMapProducer : public edm::EDProducer {
+class JetDeltaRValueMapProducer : public edm::global::EDProducer<> {
 
 public:
 
@@ -47,7 +47,7 @@ public:
   {
     if( value_!="" )
     {
-      evaluationMap_.insert( std::make_pair( value_, StringObjectFunction<T>( value_, lazyParser_ ) ) );
+      evaluationMap_.insert( std::make_pair( value_, std::unique_ptr<StringObjectFunction<T> >( new StringObjectFunction<T>( value_, lazyParser_ ) ) ) );
       produces< JetValueMap >();
     }
 
@@ -58,7 +58,7 @@ public:
         multiValue_ = true;
         for( size_t i=0; i<valueLabels_.size(); ++i)
         {
-          evaluationMap_.insert( std::make_pair( valueLabels_[i], StringObjectFunction<T>( values_[i], lazyParser_ ) ) );
+          evaluationMap_.insert( std::make_pair( valueLabels_[i], std::unique_ptr<StringObjectFunction<T> >( new StringObjectFunction<T>( values_[i], lazyParser_ ) ) ) );
           produces< JetValueMap >(valueLabels_[i]);
         }
       }
@@ -74,7 +74,7 @@ private:
   virtual void beginJob() override {}
   virtual void endJob() override {}
 
-  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
 
     edm::Handle< typename edm::View<T> > h_jets1;
     iEvent.getByToken( srcToken_, h_jets1 );
@@ -121,11 +121,11 @@ private:
         {
           jets1_locks.at(matched_index) = true;
           if( value_!="" )
-            values.at(matched_index) = (evaluationMap_.at(value_))(*ijet);
+            values.at(matched_index) = (*(evaluationMap_.at(value_)))(*ijet);
           if( multiValue_ )
           {
             for( size_t i=0; i<valueLabels_.size(); ++i)
-              valuesMap.at(valueLabels_[i]).at(matched_index) = (evaluationMap_.at(valueLabels_[i]))(*ijet);
+              valuesMap.at(valueLabels_[i]).at(matched_index) = (*(evaluationMap_.at(valueLabels_[i])))(*ijet);
           }
         }
       }
@@ -166,7 +166,7 @@ private:
   const std::vector<std::string>                   valueLabels_;
   const bool                                       lazyParser_;
   bool                                             multiValue_;
-  std::map<std::string, StringObjectFunction<T> >  evaluationMap_;
+  std::map<std::string, std::unique_ptr<const StringObjectFunction<T> > >  evaluationMap_;
 };
 
 typedef JetDeltaRValueMapProducer<reco::Jet> RecoJetDeltaRValueMapProducer;
