@@ -3,7 +3,7 @@
 // Package:    TrackerTreeGenerator
 // Class:      TrackerTreeGenerator
 // 
-/**\class TrackerTreeGenerator TrackerTreeGenerator.cc Alignment/TrackerTreeGenerator/src/TrackerTreeGenerator.cc
+/**\class TrackerTreeGenerator TrackerTreeGenerator.cc Alignment/TrackerAlignment/src/TrackerTreeGenerator.cc
 
  Description: <one line class summary>
 
@@ -61,7 +61,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 
-#include "Alignment/TrackerTreeGenerator/interface/TrackerTreeVariables.h"
+#include "Alignment/TrackerAlignment/interface/TrackerTreeVariables.h"
 
 #include "TTree.h"
 //

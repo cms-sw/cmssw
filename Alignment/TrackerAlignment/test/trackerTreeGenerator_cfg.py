@@ -66,7 +66,7 @@ print "Using global tag "+process.GlobalTag.globaltag._value
 ##
 ## Analyzer
 ##
-process.load("Alignment.TrackerTreeGenerator.TrackerTreeGenerator_cfi")
+process.load("Alignment.TrackerAlignment.TrackerTreeGenerator_cfi")
 
 
 
@@ -74,7 +74,7 @@ process.load("Alignment.TrackerTreeGenerator.TrackerTreeGenerator_cfi")
 ## Output File Configuration
 ##
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/TrackerTreeGenerator/hists/TrackerTree.root')
+    fileName = cms.string(os.environ['CMSSW_BASE'] + '/src/Alignment/TrackerAlignment/hists/TrackerTree.root')
 )
 
 
