@@ -89,7 +89,7 @@ DTTimingExtractor::DTTimingExtractor(const edm::ParameterSet& iConfig,edm::Consu
   
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
 
-  theMatcher = new MuonSegmentMatcher(matchParameters, theService,iC);
+  theMatcher = new MuonSegmentMatcher(matchParameters, iC);
 }
 
 
