@@ -1143,10 +1143,16 @@ class PlotFolder:
         Keyword arguments
         loopSubFolders -- Should the subfolders be looped over? (default: True)
         onlyForPileup  -- Plots this folder only for pileup samples
+        purpose        -- html.PlotPurpose member class for the purpose of the folder, used for grouping of the plots to the HTML pages
+        page           -- Optional string for the page in HTML generatin
+        section        -- Optional string for the section within a page in HTML generation
         """
         self._plotGroups = plotGroups
         self._loopSubFolders = kwargs.pop("loopSubFolders", True)
         self._onlyForPileup = kwargs.pop("onlyForPileup", False)
+        self._purpose = kwargs.pop("purpose", None)
+        self._page = kwargs.pop("page", None)
+        self._section = kwargs.pop("section", None)
         if len(kwargs) > 0:
             raise Exception("Got unexpected keyword arguments: "+ ",".join(kwargs.keys()))
 
@@ -1155,6 +1161,15 @@ class PlotFolder:
 
     def onlyForPileup(self):
         return self._onlyForPileup
+
+    def getPurpose(self):
+        return self._purpose
+
+    def getPage(self):
+        return self._page
+
+    def getSection(self):
+        return self._section
 
     def append(self, plotGroup):
         self._plotGroups.append(plotGroup)
@@ -1266,6 +1281,15 @@ class PlotterFolder:
 
     def getName(self):
         return self._name
+
+    def getPurpose(self):
+        return self._plotFolder.getPurpose()
+
+    def getPage(self):
+        return self._plotFolder.getPage()
+
+    def getSection(self):
+        return self._plotFolder.getSection()
 
     def onlyForPileup(self):
         return self._plotFolder.onlyForPileup()

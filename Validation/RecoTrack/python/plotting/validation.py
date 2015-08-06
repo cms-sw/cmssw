@@ -9,6 +9,7 @@ ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
 import plotting
+import html
 
 # Mapping from releases to GlobalTags
 _globalTags = {
@@ -207,6 +208,10 @@ class Sample:
         if self._fastsim and self.hasPileup() and self._fastsimCorrespondingFullsimPileup is None:
             self._fastsimCorrespondingFullsimPileup = self._putype
 
+    def digest(self):
+        """Return a tuple uniquely identifying the sample, to be used e.g. as a key to dict"""
+        return (self.name(), self.pileupType(), self.scenario(), self.fastsim())
+
     def sample(self):
         """Get the sample name"""
         return self._sample
@@ -342,13 +347,14 @@ class Sample:
 
 class Validation:
     """Base class for Tracking/Vertex validation."""
-    def __init__(self, fullsimSamples, fastsimSamples, newRelease, newFileModifier=None, selectionName=""):
+    def __init__(self, fullsimSamples, fastsimSamples, newRelease, newRepository, newFileModifier=None, selectionName=""):
         """Constructor.
 
         Arguments:
         fullsimSamples -- List of Sample objects for FullSim samples (may be empty)
         fastsimSamples -- List of Sample objects for FastSim samples (may be empty)
         newRelease     -- CMSSW release to be validated
+        refRepository  -- String for directory where reference root files are
         newFileModifier -- If given, a function to modify the names of the new files (function takes a string and returns a string)
         selectionName  -- If given, use this string as the selection name (appended to GlobalTag for directory names)
         """
@@ -363,6 +369,7 @@ class Validation:
         self._fastsimSamples = fastsimSamples
         if newRelease != "":
             self._newRelease = newRelease
+        self._newBaseDir = os.path.join(newRepository, self._newRelease)
         self._newFileModifier = newFileModifier
         self._selectionName = selectionName
 
@@ -420,25 +427,26 @@ class Validation:
         if not allFine:
             sys.exit(1)
 
-    def doPlots(self, refRelease, refRepository, newRepository, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None):
+    def createHtmlReport(self):
+        return html.Html(self._newRelease, self._newBaseDir)
+
+    def doPlots(self, refRelease, refRepository, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=None):
         """Create validation plots.
 
         Arguments:
         refRelease    -- String for reference CMSSW release
-        refRepository -- String for directory where reference root files are
         newRepository -- String for directory whete to put new files
         plotter       -- plotting.Plotter object that does the plotting
 
         Keyword arguments:
         plotterDrawArgs -- Dictionary for additional arguments to Plotter.draw() (default: {})
         limitSubFoldersOnlyTo   -- If not None, should be a dictionary from string to an object. The string is the name of a PlotFolder, and the object is PlotFolder-type specific to limit the subfolders to be processed. In general case the object is a list of strings, but e.g. for track iteration plots it is a function taking the algo and quality as parameters.
+        htmlReport      -- Object returned by createHtmlReport(), in case HTML report generation is desired
         """
         self._refRelease = refRelease
         self._refRepository = refRepository
-        self._newRepository = newRepository
         self._plotter = plotter
         self._plotterDrawArgs = plotterDrawArgs
-
 
         # New vs. Ref
         for sample in self._fullsimSamples+self._fastsimSamples:
@@ -447,16 +455,21 @@ class Validation:
             if not os.path.exists(harvestedFile):
                 print "Harvested file %s does not exist!" % harvestedFile
                 sys.exit(1)
+
             plotterInstance = plotter.readDirs(harvestedFile)
+            if htmlReport is not None:
+                htmlReport.beginSample(sample)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
                 if plotterFolder.onlyForPileup() and not sample.hasPileup():
                     continue
-                self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder)
-
+                plotFiles = self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder)
+                if htmlReport is not None:
+                    htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
                 # TODO: the pileup case is still to be migrated
 #               if s.fullsim() and s.hasPileup():
 #                   self._doPlotsPileup(a, q, s)
 
+        # Fast vs. Full
         for fast in self._fastsimSamples:
             correspondingFull = None
             for full in self._fullsimSamples:
@@ -481,10 +494,14 @@ class Validation:
             # If we reach here, the harvestedFile must exist
             harvestedFile = fast.filename(self._newRelease)
             plotterInstance = plotter.readDirs(harvestedFile)
+            if htmlReport is not None:
+                htmlReport.beginSample(fast, fastVsFull=True)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
                 if plotterFolder.onlyForPileup() and not fast.hasPileup():
                     continue
-                self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder)
+                plotFiles = self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder)
+                if htmlReport is not None:
+                    htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
     def _doPlots(self, sample, harvestedFile, plotterFolder, dqmSubFolder):
         """Do the real plotting work for a given sample and DQM subfolder"""
@@ -518,7 +535,7 @@ class Validation:
         refdir = os.path.join(*tmp)
 
         # Construct new directory name
-        tmp = [self._newRepository, self._newRelease]
+        tmp = [self._newBaseDir]
         if sample.fastsim():
             tmp.extend(["fastsim", self._newRelease])
         tmp.extend([newSelection, sample.name()])
@@ -535,7 +552,7 @@ class Validation:
         # Copy the relevant histograms to a new validation root file
         # TODO: treat the case where dqmSubFolder is empty
         newValFile = _copySubDir(harvestedFile, valname, plotterFolder.getPossibleDQMFolders(), dqmSubFolder.subfolder if dqmSubFolder is not None else None)
-        fileList = [valname]
+        fileList = []
 
         # Do the plots
         print "Comparing ref and new {sim} {sample} {translatedFolder}".format(
@@ -547,6 +564,7 @@ class Validation:
         ],
                                dqmSubFolder)
         fileList.extend(plotterFolder.draw(**self._plotterDrawArgs))
+        fileList.append(valname)
 
         newValFile.Close()
         if refValFile is not None:
@@ -558,6 +576,8 @@ class Validation:
             os.makedirs(newdir)
         for f in fileList:
             shutil.move(f, os.path.join(newdir, f))
+        subdir = newdir.replace(self._newBaseDir+"/", "")
+        return map(lambda n: os.path.join(subdir, n), fileList)
 
     def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder):
         """Do the real plotting work for FastSim vs. FullSim for a given algorithm, quality flag, and sample."""
@@ -574,9 +594,9 @@ class Validation:
             fastSelection += "_"+fastSample.pileupType(self._newRelease)
 
         # Construct directories for FastSim, FullSim, and for the results
-        fastdir = os.path.join(self._newRepository, self._newRelease, "fastsim", self._newRelease, fastSelection, fastSample.name())
-        fulldir = os.path.join(self._newRepository, self._newRelease, fullSelection, fullSample.name())
-        newdir = os.path.join(self._newRepository, self._newRelease, "fastfull", self._newRelease, fastSelection, fastSample.name())
+        fastdir = os.path.join(self._newBaseDir, "fastsim", self._newRelease, fastSelection, fastSample.name())
+        fulldir = os.path.join(self._newBaseDir, fullSelection, fullSample.name())
+        newdir = os.path.join(self._newBaseDir, "fastfull", self._newRelease, fastSelection, fastSample.name())
 
         # Open input root files
         valname = "val.{sample}.root".format(sample=fastSample.name())
@@ -609,6 +629,8 @@ class Validation:
             os.makedirs(newdir)
         for f in fileList:
             shutil.move(f, os.path.join(newdir, f))
+        subdir = newdir.replace(self._newBaseDir+"/", "")
+        return map(lambda n: os.path.join(subdir, n), fileList)
 
     # TODO: this method is still to be migrated
     def _doPlotsPileup(self, algo, quality, sample):
@@ -623,9 +645,9 @@ class Validation:
         newSelection = newGlobalTag+"_"+sample.pileup()+tmp+"_"+sample.pileupType(self._newRelease)
 
         # Construct directories for FastSim, FullSim, and for the results
-        refdir = os.path.join(self._newRepository, self._newRelease, refSelection, sample.name())
-        newdir = os.path.join(self._newRepository, self._newRelease, newSelection, sample.name())
-        resdir = os.path.join(self._newRepository, self._newRelease, "pileup", self._newRelease, newSelection, sample.name())
+        refdir = os.path.join(self._newBaseDir, refSelection, sample.name())
+        newdir = os.path.join(self._newBaseDir, newSelection, sample.name())
+        resdir = os.path.join(self._newBaseDir, "pileup", self._newRelease, newSelection, sample.name())
 
         # Open input root files
         valname = "val.{sample}.root".format(sample=sample.name())
@@ -658,6 +680,8 @@ class Validation:
             os.makedirs(resdir)
         for f in fileList:
             shutil.move(f, os.path.join(resdir, f))
+        subdir = newdir.replace(self._newBaseDir+"/", "")
+        return map(lambda n: os.path.join(subdir, n), fileList)
 
 def _copySubDir(oldfile, newfile, basenames, dirname):
     """Copy a subdirectory from oldfile to newfile.

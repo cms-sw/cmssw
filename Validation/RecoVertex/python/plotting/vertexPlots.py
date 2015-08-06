@@ -1,5 +1,7 @@
 from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, PlotFolder, Plotter
 import Validation.RecoTrack.plotting.validation as validation
+from Validation.RecoTrack.plotting.html import PlotPurpose
+
 
 _maxPU = 80
 _maxVtx = 60
@@ -90,7 +92,9 @@ plotter.append("", _vertexFolders, PlotFolder(
     _resolution,
     _pull,
     _puritymissing,
-    _sumpt2
+    _sumpt2,
+    purpose=PlotPurpose.Vertexing,
+    page="vertex"
 ))
 plotterGen = Plotter()
 plotterGen.append("", _vertexFolders, PlotFolder(

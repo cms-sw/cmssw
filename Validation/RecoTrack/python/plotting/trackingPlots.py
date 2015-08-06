@@ -2,6 +2,7 @@ import collections
 
 from plotting import FakeDuplicate, AggregateBins, Plot, PlotGroup, PlotFolder, Plotter
 import validation
+from html import PlotPurpose
 
 _maxEff = [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 _maxFake = [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
@@ -286,10 +287,10 @@ _recoBasedPlots = [
     _dedx,
 #    _chargemisid,
     _hitsAndPt,
-    _tuning,
     _pulls,
     _resolutionsEta,
     _resolutionsPt,
+    _tuning,
 ]
 _summaryPlots = [
     _summary,
@@ -298,12 +299,14 @@ _summaryPlots = [
 plotter = Plotter()
 def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
     # to keep backward compatibility, this set of plots has empty name
-    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup))
+    plotter.append(name, _trackingFolders(lastDirName), TrackingPlotFolder(*algoPlots, onlyForPileup=onlyForPileup, purpose=PlotPurpose.TrackingIteration))
     summaryName = ""
     if name != "":
         summaryName += name+"_"
     summaryName += "summary"
-    plotter.append(summaryName, _trackingFolders(lastDirName), PlotFolder(*_summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup))
+    plotter.append(summaryName, _trackingFolders(lastDirName),
+                   PlotFolder(*_summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup,
+                              purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
