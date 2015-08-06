@@ -30,6 +30,9 @@ goodVertices = cms.EDFilter(
 ## The tracking failure filter _______________________________________________||
 from RecoMET.METFilters.trackingFailureFilter_cfi import *
 
+##noscraping (outdated)_______________________________________________________||
+from RecoMET.METFilters.scrapingFilter_cfi import *
+
 ## The tracking POG filters __________________________________________________||
 from RecoMET.METFilters.trackingPOGFilters_cff import *
 ## NOTE: to make tagging mode of the tracking POG filters (three of them), please do:
