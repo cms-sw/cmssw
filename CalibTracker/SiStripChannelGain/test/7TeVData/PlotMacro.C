@@ -390,7 +390,7 @@ void PlotMacro_Core(string input, string moduleName, string output, string TextT
    fclose(pFile);
 
    tkmap->setTitle(TextToPrint + " : Module Gain");
-   tkmap->save                 (true, 0.3, 1.7, output + "_TKMap_Gain_MECH.png");
+   tkmap->save                 (true, 0.7, 1.3, output + "_TKMap_Gain_MECH.png");
    tkmap->reset();    
 
 

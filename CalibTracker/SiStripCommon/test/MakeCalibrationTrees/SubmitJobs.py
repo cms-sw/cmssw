@@ -7,7 +7,7 @@ import commands
 import time
 
 #DATASET = '/MinimumBias/Commissioning2015-SiStripCalMinBias-PromptReco-v1/ALCARECO'
-DATASET = '/StreamExpress/Run2015A-SiStripCalMinBias-Express-v1/ALCARECO'
+DATASET = '/StreamExpress/Run2015B-SiStripCalMinBias-Express-v1/ALCARECO'
 #DATASET='/Cosmics/Commissioning2015-PromptReco-v1/RECO'
 # Set the correct environment
 CMSSWDIR='/afs/cern.ch/cms/tracker/sistrvalidation/Calibration/CalibrationTree/CMSSW_7_4_4_patch2/src/' # CMSSW version to be used for CRUZET2015
@@ -19,7 +19,7 @@ CASTORDIR = '/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calib
 #CASTORDIR = '/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/GRIN' # used for GRIN
 #CASTORDIR = '/castor/cern.ch/cms/store/group/tracker/strip/calibration/calibrationtree/GR12'
 
-nFilesPerJob=50 #used to split jobs when they are many files for a given run
+nFilesPerJob=25 #used to split jobs when they are many files for a given run
 
 os.environ['PATH'] = os.getenv('PATH')+':/afs/cern.ch/cms/sw/common/'
 os.environ['CMS_PATH']='/afs/cern.ch/cms'
@@ -29,7 +29,7 @@ os.environ['SCRAM_ARCH']='slc6_amd64_gcc491'
 initEnv=''
 initEnv+='cd ' + CMSSWDIR + ';'
 initEnv+='source /afs/cern.ch/cms/cmsset_default.sh' + ';'
-initEnv+='eval `scramv1 runtime -sh`' + ';'
+initEnv+='eval `scramv1 runtime -sh`' + ' '
 initEnv+='cd ' + RUNDIR + ';'   
 print initEnv;
 
@@ -91,9 +91,10 @@ if(len(sys.argv)<2):
    os.system('echo ' + '"   "' + ' > FailledRun.txt') #remove the file since these jobs will be resubmitted now
    for line in FAILLEDRUN.splitlines():
       try:
-         run = int(line)
-         runs.append(str(run))
-         print "Job running on run " + str(run) + " failed in the past... Resubmitting"
+         if(int(line.split(' ')[0])!=-1):
+            run = line
+            runs.append(str(run))
+            print "Job running on run " + str(run) + " failed in the past... Resubmitting"
       except:
          continue   
    ####
@@ -101,9 +102,10 @@ if(len(sys.argv)<2):
    #SUBMIT JOB FOR EACH RUN IN THE LIST (see the second part of the script)
    runs.sort()
    runs = list(set(runs)) #remove duplicates
+   runs.sort()
    for run in runs:
       print 'Submitting Run ' + str(run)
-      os.system('bsub -q 2nd -J calibTree_' + str(run.replace(' ','_')) +  ' -R "type == SLC6_64 && pool > 30000" ' + ' "python '+RUNDIR+'/SubmitJobs.py '+str(run)+'"' )
+      os.system('bsub -q 2nd -J calibTree_' + str(run.replace(' ','_')) +  ' -R "type == SLC6_64 && pool > 30000" ' + ' "'+initEnv+'python '+RUNDIR+'/SubmitJobs.py '+str(run)+'"' )
       if(run.split()[0]>LASTRUN):os.system('echo ' + run.split()[0] + ' > LastRun.txt')
    ####
 
@@ -121,7 +123,7 @@ elif(sys.argv[1].isdigit()):
 
    print "Processing files %i to %i of run %i" % (firstFile,lastFile,run)
 
-   globaltag = 'GR_P_V55' #used for GR15
+   globaltag = 'GR_E_V49' #used for GR15
 #  globaltag = 'GR_E_V42' # used in 2015 CRUZET
 #  globaltag = 'GR_E_V33A' # used for GRIN
 #  globaltag = 'GR_P_V40' # used for 2012
@@ -143,7 +145,7 @@ elif(sys.argv[1].isdigit()):
    fileIndex=0
    for f in filesList: 
       if(not f.startswith('/')):continue
-      if((fileIndex>=firstFile and fileIndex<=lastFile)):
+      if((fileIndex>=firstFile and fileIndex<lastFile)):
          files+="'"+f+"',"
       fileIndex+=1
    if(files==''):
