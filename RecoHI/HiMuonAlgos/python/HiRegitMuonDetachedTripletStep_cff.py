@@ -76,17 +76,14 @@ hiRegitMuDetachedTripletStepSelector               = RecoTracker.FinalTrackSelec
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuDetachedTripletStepLoose',
-           qualityBit = cms.string('loose'),
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'hiRegitMuDetachedTripletStepTight',
             preFilterName = 'hiRegitMuDetachedTripletStepLoose',
-            qualityBit = cms.string('loose'),
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'hiRegitMuDetachedTripletStep',
             preFilterName = 'hiRegitMuDetachedTripletStepTight',
-            qualityBit = cms.string('tight'),
             )
         ) #end of vpset
     )

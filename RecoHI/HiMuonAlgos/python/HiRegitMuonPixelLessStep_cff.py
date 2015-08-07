@@ -82,17 +82,14 @@ hiRegitMuPixelLessStepSelector               = RecoTracker.FinalTrackSelectors.m
     trackSelectors = cms.VPSet(  
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuPixelLessStepLoose',
-           qualityBit = cms.string('loose'),
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'hiRegitMuPixelLessStepTight',
             preFilterName = 'hiRegitMuPixelLessStepLoose',
-            qualityBit = cms.string('loose'),
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'hiRegitMuPixelLessStep',
             preFilterName = 'hiRegitMuPixelLessStepTight',
-            qualityBit = cms.string('tight'),
             ),
         ) #end of vpset
 )
