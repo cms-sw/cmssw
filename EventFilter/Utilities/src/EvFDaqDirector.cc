@@ -56,6 +56,7 @@ namespace evf {
     requireTSPSet_(pset.getUntrackedParameter<bool>("requireTransfersPSet",false)),
     selectedTransferMode_(pset.getUntrackedParameter<std::string>("selectedTransferMode","")),
     hltSourceDirectory_(pset.getUntrackedParameter<std::string>("hltSourceDirectory","")),
+    fuLockPollInterval_(pset.getUntrackedParameter<unsigned int>("fuLockPollInterval",2000)),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
@@ -106,6 +107,16 @@ namespace evf {
     char hostname[33];
     gethostname(hostname,32);
     hostname_ = hostname;
+
+    char * fuLockPollIntervalPtr = getenv("FFF_LOCKPOLLINTERVAL");
+    if (fuLockPollIntervalPtr) {
+      try {
+        fuLockPollInterval_=boost::lexical_cast<unsigned int>(std::string(fuLockPollIntervalPtr));
+        edm::LogInfo("Setting fu lock poll interval by environment string: ") << fuLockPollInterval_ << " us";
+      }
+      catch (...) {edm::LogWarning("Unable to parse environment string: ") << std::string(fuLockPollIntervalPtr);}
+    }
+
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
@@ -422,7 +433,7 @@ namespace evf {
     removeFile(getRawFilePath(ls,index));
   }
 
-  EvFDaqDirector::FileStatus EvFDaqDirector::updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize) {
+  EvFDaqDirector::FileStatus EvFDaqDirector::updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime) {
     EvFDaqDirector::FileStatus fileStatus = noFile;
 
     int retval = -1;
@@ -436,24 +447,42 @@ namespace evf {
         //return runEnded;
     }
 
+    timeval ts_lockbegin;
+    gettimeofday(&ts_lockbegin,0);
+
     while (retval==-1) {
       retval = fcntl(fu_readwritelock_fd_, F_SETLK, &fu_rw_flk);
-      if (retval==-1) usleep(50000);
+      if (retval==-1) usleep(fuLockPollInterval_);
       else continue;
 
-      lock_attempts++;
-      if (lock_attempts>100 ||  errno==116) {
+      lock_attempts+=fuLockPollInterval_;
+      if (lock_attempts>5000000 ||  errno==116) {
         if (errno==116)
           edm::LogWarning("EvFDaqDirector") << "Stale lock file handle. Checking if run directory and fu.lock file are present" << std::endl;
         else
           edm::LogWarning("EvFDaqDirector") << "Unable to obtain a lock for 5 seconds. Checking if run directory and fu.lock file are present -: errno "
                                             << errno <<":"<< strerror(errno) << std::endl;
 
+
+        if (stat(getEoLSFilePathOnFU(ls).c_str(),&buf)==0) {
+          edm::LogWarning("EvFDaqDirector") << "Detected local EoLS for lumisection "<< ls ; 
+          ls++;
+          return noFile;
+        }
+
         if (stat(bu_run_dir_.c_str(), &buf)!=0) return runEnded;
         if (stat((bu_run_dir_+"/fu.lock").c_str(), &buf)!=0) return runEnded;
         lock_attempts=0;
       }
     }
+
+    timeval ts_lockend;
+    gettimeofday(&ts_lockend,0);
+    long deltat = (ts_lockend.tv_usec-ts_lockbegin.tv_usec) + (ts_lockend.tv_sec-ts_lockbegin.tv_sec)*1000000;
+    if (deltat>0.) lockWaitTime=deltat;
+
+    
+ 
     if(retval!=0) return fileStatus;
 
 #ifdef DEBUG
@@ -483,17 +512,10 @@ namespace evf {
 	ls = readLs;
 	// there is a new file to grab or lumisection ended
 	if (bumpedOk) {
-	  // rewind and clear
-	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
-	  if (check == 0) {
-	    ftruncate(fu_readwritelock_fd_, 0);
-	    fflush(fu_rw_lock_stream); //this should not be needed ???
-	  } else
-	      edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error "
-	                                      << strerror(errno);
 	  // write new data
 	  check = fseek(fu_rw_lock_stream, 0, SEEK_SET);
 	  if (check == 0) {
+	    ftruncate(fu_readwritelock_fd_, 0);
 	    // write next index in the file, which is the file the next process should take
 	    if (testModeNoBuilderUnit_) {
 	      fprintf(fu_rw_lock_stream, "%u %u %u %u", readLs,
@@ -504,9 +526,8 @@ namespace evf {
 	      fprintf(fu_rw_lock_stream, "%u %u", readLs,
 		      readIndex + 1);
 	    }
-	    fflush(fu_rw_lock_stream);
-	    fsync(fu_readwritelock_fd_);
-
+            fflush(fu_rw_lock_stream);
+            fsync(fu_readwritelock_fd_);
 	    fileStatus = newFile;
 
 	    if (testModeNoBuilderUnit_)
@@ -518,8 +539,8 @@ namespace evf {
 			                     << readIndex + 1;
 
 	  } else
-	      edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error "
-	                                      << strerror(errno);
+	      throw cms::Exception("EvFDaqDirector") << "seek on fu read/write lock for updating failed with error "
+	                                             << strerror(errno);
 	}
       } else
 	edm::LogError("EvFDaqDirector") << "seek on fu read/write lock for reading failed with error "
@@ -633,6 +654,9 @@ namespace evf {
       if (fms_) fms_->accumulateFileSize(ls, previousFileSize_);
       previousFileSize_ = 0;
     }
+
+    //reached limit
+    if (maxLS>=0 && ls > (unsigned int)maxLS) return false; 
 
     struct stat buf;
     std::stringstream ss;
@@ -775,7 +799,7 @@ namespace evf {
 
   void EvFDaqDirector::lockFULocal() {
     //fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_flk);
-    flock(fulocal_rwlock_fd_,LOCK_EX);
+    flock(fulocal_rwlock_fd_,LOCK_SH);
   }
 
   void EvFDaqDirector::unlockFULocal() {
@@ -888,14 +912,14 @@ namespace evf {
         throw cms::Exception("EvFDaqDirector") << msg.str();
       else {
         edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)";
-        return std::string();
+        return std::string("Failsafe");
       }
     }
     //return empty if strict check parameter is not on
     if (!requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
       edm::LogWarning("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter."
                                         << "Switch on requireTSPSet parameter to enforce this requirement. Setting mode to empty string.";
-      return std::string();
+      return std::string("Failsafe");
     }
     if (requireTSPSet_ && (selectedTransferMode_=="" || selectedTransferMode_=="null")) {
       throw cms::Exception("EvFDaqDirector") << "Selected mode string is not provided as DaqDirector parameter.";
@@ -909,7 +933,7 @@ namespace evf {
            throw cms::Exception("EvFDaqDirector") << msg.str();
          else
            edm::LogWarning("EvFDaqDirector") << msg.str() << " (permissive mode)"; 
-           return std::string();
+           return std::string("Failsafe");
     }
     Json::Value destsVec = transferSystemJson_->get(streamRequestName, "").get(selectedTransferMode_,"");
 

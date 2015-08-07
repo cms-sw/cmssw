@@ -116,7 +116,6 @@ class SiStripMonitorMuonHLT : public DQMEDAnalyzer {
       edm::ParameterSet parameters_;
 
       std::string monitorName_;
-      std::string outputFile_;
       int counterEvt_;      ///counter
       int nTrig_;           /// mutriggered events
       int prescaleEvt_;     ///every n events

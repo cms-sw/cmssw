@@ -13,6 +13,7 @@
 
 class DTMtime;
 class DTRecoUncertainties;
+class MagneticField;
 
 class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
  public:
@@ -82,6 +83,10 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
 
   //Map of meantimes
   const DTMtime *mTimeMap;
+
+  // MF field
+  const MagneticField* field;
+  int nominalB;
 
   // Map of hit uncertainties
   const DTRecoUncertainties *uncertMap;

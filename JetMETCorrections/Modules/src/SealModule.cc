@@ -21,6 +21,7 @@
 #include "DataFormats/JetReco/interface/JPTJet.h"
 #include "DataFormats/JetReco/interface/TrackJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
+#include "DataFormats/JetReco/interface/BasicJet.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 
@@ -44,6 +45,9 @@ DEFINE_FWK_MODULE(TrackJetCorrectionProducer);
 
 typedef JetCorrectionProducer<GenJet> GenJetCorrectionProducer;
 DEFINE_FWK_MODULE(GenJetCorrectionProducer);
+
+typedef JetCorrectionProducer<BasicJet> BasicJetCorrectionProducer;
+DEFINE_FWK_MODULE(BasicJetCorrectionProducer);
 
 DEFINE_FWK_EVENTSETUP_MODULE(JetCorrectionESChain);
 

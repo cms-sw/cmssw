@@ -51,8 +51,8 @@ public:
     }
 
     /// get a ref to i-th recHit
-    TrackingRecHitRef recHitRef(unsigned int i) const {                                                               
-        return TrackingRecHitRef(m_hitCollection,m_firstHit+i);
+   TrackingRecHitRef recHitRef(unsigned int i) const {                                                               
+      return TrackingRecHitRef(m_hitCollection,m_firstHit+i);
     }
 
     /// get i-th recHit

@@ -222,32 +222,32 @@ APVCyclePhaseProducerFromL1TS::beginRun(const edm::Run& iRun, const edm::EventSe
 
     if(_hlresync && *_hlresync) {
       (*_hlresync)->GetXaxis()->SetTitle("Orbit");     (*_hlresync)->GetYaxis()->SetTitle("Events");
-      (*_hlresync)->SetBit(TH1::kCanRebin);
+      (*_hlresync)->SetCanExtend(TH1::kXaxis);
     }
 
     if(_hlOC0 && *_hlOC0) {
       (*_hlOC0)->GetXaxis()->SetTitle("Orbit");     (*_hlOC0)->GetYaxis()->SetTitle("Events");
-      (*_hlOC0)->SetBit(TH1::kCanRebin);
+      (*_hlOC0)->SetCanExtend(TH1::kXaxis);
     }
 
     if(_hlTE && *_hlTE) {
       (*_hlTE)->GetXaxis()->SetTitle("Orbit");     (*_hlTE)->GetYaxis()->SetTitle("Events");
-      (*_hlTE)->SetBit(TH1::kCanRebin);
+      (*_hlTE)->SetCanExtend(TH1::kXaxis);
     }
 
     if(_hlstart && *_hlstart) {
       (*_hlstart)->GetXaxis()->SetTitle("Orbit");     (*_hlstart)->GetYaxis()->SetTitle("Events");
-      (*_hlstart)->SetBit(TH1::kCanRebin);
+      (*_hlstart)->SetCanExtend(TH1::kXaxis);
     }
 
     if(_hlEC0 && *_hlEC0) {
       (*_hlEC0)->GetXaxis()->SetTitle("Orbit");     (*_hlEC0)->GetYaxis()->SetTitle("Events");
-      (*_hlEC0)->SetBit(TH1::kCanRebin);
+      (*_hlEC0)->SetCanExtend(TH1::kXaxis);
     }
 
     if(_hlHR && *_hlHR) {
       (*_hlHR)->GetXaxis()->SetTitle("Orbit");     (*_hlHR)->GetYaxis()->SetTitle("Events");
-      (*_hlHR)->SetBit(TH1::kCanRebin);
+      (*_hlHR)->SetCanExtend(TH1::kXaxis);
     }
 
     if(_hdlec0lresync && *_hdlec0lresync) {

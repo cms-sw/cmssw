@@ -15,7 +15,14 @@ else:
   config = open(configname)
 exec config in globals(), hlt.__dict__
 config.close()
-process = hlt.process
+
+if 'process' in hlt.__dict__:
+  process = hlt.process
+elif 'fragment' in hlt.__dict__:
+  process = hlt.fragment
+else:
+  sys.stderr.write("Error: the input is not a valid HLT configuration")
+  sys.exit(1)
 
 # read global prescale service
 prescale = dict()
@@ -207,8 +214,10 @@ def getPrescalesDescription(name, out, end):
 
 # format the information about a path associated to a specific endpath
 def dumpPath(name, out, end):
+  if name not in process.paths:
+    return '        %-*s*** missing ***' % (length, name)
+
   path = process.paths[name]
-  length = max(len(p) for p in process.paths) + 4
   
   # look for prescales
   preDesc = getPrescalesDescription(name, out, end)
@@ -231,8 +240,6 @@ def getEndPath(output):
     if searchOut.found:
       out = o.label_()
       break
-  else:
-    print "    *** corresponding EndPath not found ***"
   return out
 
 
@@ -264,11 +271,14 @@ def dumpStream(stream):
     for path in sorted(unassigned):
       print dumpPath(path, out, end)
 
-  missing    = assigned - allpaths
-  if missing:
-    print '    *** missing paths in the output module ***'
-    for path in sorted(missing):
-      print dumpPath(path, out, end)
+  if not end:
+    print '    *** corresponding EndPath not found ***'
+  else:
+    missing    = assigned - allpaths
+    if missing:
+      print '    *** paths missing from the EndPath\'s output module ***'
+      for path in sorted(missing):
+        print dumpPath(path, out, end)
 
 
 def dumpOutput(stream):
@@ -286,6 +296,12 @@ def dumpOutput(stream):
 # read the list of streams
 streams = process.streams._Parameterizable__parameterNames
 streams.sort()
+
+# figure the longest path name
+length   = 32
+length_p = max(len(p) for p in process.paths)
+length_d = max(len(p) for d in process.datasets.__dict__ if not d.startswith('_') for p in process.datasets.__dict__[d])
+length = max(length_p, length_d, length) + 4
 
 for stream in streams:
   dumpStream(stream)

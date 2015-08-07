@@ -15,7 +15,6 @@ dedxDQMHarm2SO.UsePixel = cms.bool(False)
 dedxDQMHarm2PO = dedxDQMHarm2SP.clone()
 dedxDQMHarm2PO.UseStrip = cms.bool(False)
 
-
 dedxHarmonicSequence = cms.Sequence()
 dedxHarmonicSequence+=dedxDQMHarm2SP
 dedxHarmonicSequence+=dedxDQMHarm2SO

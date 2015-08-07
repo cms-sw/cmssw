@@ -51,7 +51,7 @@ template <typename jetType> class HLTJetCollectionsForBoostedLeptonPlusJets: pub
     edm::InputTag hltLeptonTag;
     edm::InputTag sourceJetTag;
 
-    double minDeltaR_; //min dR for jets and leptons not to match
+    double minDeltaR_; //min dR to consider cleaning
 
     // ----------member data ---------------------------
 };

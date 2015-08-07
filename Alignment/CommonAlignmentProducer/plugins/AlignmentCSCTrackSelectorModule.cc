@@ -1,7 +1,7 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 
 //the selectores used to select the tracks
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentCSCTrackSelector.h"
@@ -41,6 +41,6 @@ struct CSCTrackConfigSelector {
       AlignmentCSCTrackSelector theBaseSelector;
 };
 
-typedef ObjectSelector<CSCTrackConfigSelector>  AlignmentCSCTrackSelectorModule;
+typedef ObjectSelectorStream<CSCTrackConfigSelector>  AlignmentCSCTrackSelectorModule;
 
 DEFINE_FWK_MODULE( AlignmentCSCTrackSelectorModule );

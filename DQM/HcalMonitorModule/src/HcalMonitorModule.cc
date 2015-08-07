@@ -84,6 +84,7 @@ HcalMonitorModule::HcalMonitorModule(const edm::ParameterSet& ps)
   // Set pointers to null
   meCalibType_=0;
   meFEDS_=0;
+  meUTCAFEDS_=0;
   meIevt_=0;
   meIevtHist_=0;
   meEvtsVsLS_=0;
@@ -145,6 +146,7 @@ void HcalMonitorModule::reset(void)
   // Call Reset() on all MonitorElement histograms
   if (meCalibType_) meCalibType_->Reset();
   if (meFEDS_) meFEDS_->Reset();
+  if (meUTCAFEDS_) meUTCAFEDS_->Reset();
   if (meIevt_) meIevt_->Fill(0);
   if (meIevtHist_) meIevtHist_->Reset();
   if (meEvtsVsLS_) meEvtsVsLS_->Reset();
@@ -194,6 +196,9 @@ void HcalMonitorModule::setup(DQMStore::IBooker &ib)
       if (meHF_) meHF_->Fill(-1);
 
       meFEDS_    = ib.book1D("FEDs Unpacked","FEDs Unpacked; Hcal FEDs 700-731",1+(FEDNumbering::MAXHCALFEDID-FEDNumbering::MINHCALFEDID),FEDNumbering::MINHCALFEDID-0.5,FEDNumbering::MAXHCALFEDID+0.5);
+      meUTCAFEDS_    = ib.book1D("uTCA FEDs Unpacked",
+			  "uTCA FEDs Unpacked; Hcal uTCA FEDs 1118, 1120, 1122",
+			  5, 1117.5, 1122.5);
 
       meCalibType_ = ib.book1D("CalibrationType","Calibration Type",9,-0.5,8.5);
       meCalibType_->setBinLabel(1,"Normal",1);
@@ -273,25 +278,40 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c)
   int calibType=-1;
   int numEmptyFEDs = 0 ;
   std::vector<int> calibTypeCounter(8,0) ;
-  for( int i = FEDNumbering::MINHCALFEDID; i <= FEDNumbering::MAXHCALFEDID; i++) 
+  for(int i = FEDNumbering::MINHCALFEDID; 
+		  i <= FEDNumbering::MAXHCALuTCAFEDID; i++) 
     {
+		if (i>FEDNumbering::MAXHCALFEDID && i<FEDNumbering::MINHCALuTCAFEDID)
+			continue;
+
+	  if (debug_>0)
+		std::cout << "### Processin FED: " << i << std::endl;
+
       const FEDRawData& fedData = rawraw->FEDData(i) ;
       
       if ( fedData.size() < 24 ) numEmptyFEDs++ ;
       if ( fedData.size() < 24 ) continue;
 
       int value = (int)((const HcalDCCHeader*)(fedData.data()))->getCalibType() ;
+	  if (debug_>0)
+		  std::cout << "### FED: " << i << " CalibType: " << value
+			  << std::endl;
+		  
       if(value>7) 
 	{
-	  edm::LogWarning("HcalMonitorModule::CalibTypeFilter") << "Unexpected Calibration type: "<< value << " in FED: "<<i<<" (should be 0-7). I am bailing out...";
+	  edm::LogWarning("HcalMonitorModule::CalibTypeFilter") << "Unexpected Calibration type: "<< value << " in FED: "<< i <<" (should be 0-7). I am bailing out...";
 	  return;
 	}
 
       calibTypeCounter.at(value)++ ; // increment the counter for this calib type
     } // for (int i = FEDNumbering::MINHCALFEDID; ...)
-
+ 
   int maxCount = 0;
-  int numberOfFEDIds = FEDNumbering::MAXHCALFEDID  - FEDNumbering::MINHCALFEDID + 1 ;
+  int numberOfFEDIds = (FEDNumbering::MAXHCALFEDID-FEDNumbering::MINHCALFEDID+1) +
+	  (FEDNumbering::MAXHCALuTCAFEDID-FEDNumbering::MINHCALuTCAFEDID+1);
+  if (debug_>0)
+	  std::cout << "numberOfFEDIds=" << numberOfFEDIds << std::endl
+		  << "number of emptyFEDs=" << numEmptyFEDs << std::endl;
   for (unsigned int i=0; i<calibTypeCounter.size(); i++) {
     if ( calibTypeCounter.at(i) > maxCount )
       { calibType = i ; maxCount = calibTypeCounter.at(i) ; }
@@ -322,6 +342,13 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c)
   
   //  Here, we do need this information each event
   edm::Handle<HcalUnpackerReport> report;  
+//  edm::Handle<HcalUnpackerReport> reportUTCA;  
+/*  if (!(e.getByToken(tok_reportUTCA_, reportUTCA)));
+  {
+	  edm::LogWarning("HcalMonitorModule") << "uTCA Unpacker Report " 
+		  << inputLabelReportUTCA_ << " not availalbe";
+	  return;
+  }*/
   if (!(e.getByToken(tok_report_,report)))
     {
       edm::LogWarning("HcalMonitorModule")<<" Unpacker Report "<<inputLabelReport_<<" not available";
@@ -332,7 +359,10 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c)
     {
       const std::vector<int> feds =  (*report).getFedsUnpacked();    
       for(unsigned int f=0; f<feds.size(); ++f)
-	meFEDS_->Fill(feds[f]);    
+		  if (feds[f]<1118)
+			  meFEDS_->Fill(feds[f]);    
+		  else
+			  meUTCAFEDS_->Fill(feds[f]);
       fedsListed_ = true;
     } // if (!fedsListed_)
 
@@ -347,9 +377,14 @@ void HcalMonitorModule::CheckSubdetectorStatus(const edm::Handle<FEDRawDataColle
 
   std::vector<int> fedUnpackList;
   for (int i=FEDNumbering::MINHCALFEDID; 
-       i<=FEDNumbering::MAXHCALFEDID; 
+       i<=FEDNumbering::MAXHCALuTCAFEDID; 
        i++) 
+  {
+	  if (i>FEDNumbering::MAXHCALFEDID && i<FEDNumbering::MINHCALuTCAFEDID)
+		  continue;
     fedUnpackList.push_back(i);
+  }
+	
 
   if (debug_>1) std::cout <<"<HcalMonitorModule::CheckSubdetectorStatus>  Checking subdetector "<<subdet<<std::endl;
   for (std::vector<int>::const_iterator i=fedUnpackList.begin();
@@ -365,7 +400,9 @@ void HcalMonitorModule::CheckSubdetectorStatus(const edm::Handle<FEDRawDataColle
       if (!dccHeader) return;
       int dccid=dccHeader->getSourceId();
       // check for HF
-      if (subdet == HcalForward && dccid>717 && dccid<724)
+//      if (subdet == HcalForward && dccid>717 && dccid<724)
+	if (subdet==HcalForward && ((dccid>=1118 && dccid<=1122) || 
+				(dccid>=718 && dccid<=723)))
 	{
 	  HFpresent_=1;
 	  meHF_->Fill(HFpresent_);

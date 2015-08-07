@@ -6,6 +6,7 @@ using namespace dedefs;
 L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
 
   verbose_ = iConfig.getUntrackedParameter<int>("VerboseFlag",0);
+  m_stage1_layer2_ = iConfig.getParameter<bool>("stage1_layer2_");
 
   if(verbose())
     std::cout << "\nL1COMPARATOR constructor...\n" << std::flush;
@@ -72,14 +73,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   for(int sys=0; sys<DEnsys; sys++) {
     std::string data_label = SystLabel[sys] + "sourceData";
     std::string emul_label = SystLabel[sys] + "sourceEmul";
-    //m_DEsource[sys][0] = iConfig.getParameter<edm::InputTag>(data_label);
-    //m_DEsource[sys][1] = iConfig.getParameter<edm::InputTag>(emul_label);
-    //if(sys==CTF) {
-    //  std::string data_label(""); data_label+="CTTsourceData";
-    //  std::string emul_label(""); emul_label+="CTTsourceEmul";
-    //  m_DEsource[sys][2] = iConfig.getParameter<edm::InputTag>(data_label);
-    //  m_DEsource[sys][3] = iConfig.getParameter<edm::InputTag>(emul_label);
-    //}
+
     if(m_doSys[sys] && verbose()) {
       std::cout << " sys:"   << sys << " label:" << SystLabel[sys]  
 		<< "\n\tdt:" << data_label << " : " <<m_DEsource[sys][0]
@@ -132,7 +126,6 @@ void L1Comparator::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup)
 
   if(verbose())
     std::cout << "\nL1COMPARATOR beginRun...\n" << std::flush;
-
 
   // disable subsystem if not included in current run configuration
   try 
@@ -237,7 +230,9 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1GctJetCandCollection> gct_forjets_emul;
   edm::Handle<L1GctJetCandCollection> gct_taujets_data;
   edm::Handle<L1GctJetCandCollection> gct_taujets_emul;
-
+  edm::Handle<L1GctJetCandCollection> gct_isotaujets_data;
+  edm::Handle<L1GctJetCandCollection> gct_isotaujets_emul;
+      
   edm::Handle<L1GctEtHadCollection>	  gct_ht_data;
   edm::Handle<L1GctEtHadCollection>	  gct_ht_emul;
   edm::Handle<L1GctEtMissCollection>	  gct_etmiss_data;
@@ -252,33 +247,64 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1GctHFBitCountsCollection> gct_hfbcnt_emul;
   edm::Handle<L1GctJetCountsCollection>	  gct_jetcnt_data;  
   edm::Handle<L1GctJetCountsCollection>	  gct_jetcnt_emul;
-
+  
   if(m_doSys[GCT]) {
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"isoEm",   gct_isolaem_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"isoEm",   gct_isolaem_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"nonIsoEm",gct_noisoem_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"nonIsoEm",gct_noisoem_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"cenJets", gct_cenjets_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"cenJets", gct_cenjets_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"forJets", gct_forjets_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"forJets", gct_forjets_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0].label(),"tauJets", gct_taujets_data);
-   iEvent.getByLabel(m_DEsource[GCT][1].label(),"tauJets", gct_taujets_emul);
-
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_ht_data);	  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_ht_emul);	 
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_etmiss_data);  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_etmiss_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_ettota_data);	  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_ettota_emul); 
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_htmiss_data);  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_htmiss_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_hfring_data);
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_hfring_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_hfbcnt_data);
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_hfbcnt_emul);
-   iEvent.getByLabel(m_DEsource[GCT][0],gct_jetcnt_data);  
-   iEvent.getByLabel(m_DEsource[GCT][1],gct_jetcnt_emul);
+    if(m_stage1_layer2_ == false) {
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"isoEm",   gct_isolaem_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"isoEm",   gct_isolaem_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"nonIsoEm",gct_noisoem_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"nonIsoEm",gct_noisoem_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"cenJets", gct_cenjets_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"cenJets", gct_cenjets_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"forJets", gct_forjets_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"forJets", gct_forjets_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"tauJets", gct_taujets_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"tauJets", gct_taujets_emul);
+   
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_ht_data);	  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_ht_emul);	 
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_etmiss_data);  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_etmiss_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_ettota_data);	  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_ettota_emul); 
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_htmiss_data);  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_htmiss_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_hfring_data);
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_hfring_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_hfbcnt_data);
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_hfbcnt_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_jetcnt_data);  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_jetcnt_emul);
+    }
+    if(m_stage1_layer2_ == true){
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"isoEm",   gct_isolaem_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"isoEm",   gct_isolaem_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"nonIsoEm",gct_noisoem_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"nonIsoEm",gct_noisoem_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"cenJets", gct_cenjets_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"cenJets", gct_cenjets_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"forJets", gct_forjets_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"forJets", gct_forjets_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"tauJets", gct_taujets_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"tauJets", gct_taujets_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0].label(),"isoTauJets", gct_isotaujets_data);
+      iEvent.getByLabel(m_DEsource[GCT][1].label(),"isoTauJets", gct_isotaujets_emul);
+   
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_ht_data);	  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_ht_emul);	 
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_etmiss_data);  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_etmiss_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_ettota_data);	  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_ettota_emul); 
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_htmiss_data);  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_htmiss_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_hfring_data);
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_hfring_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_hfbcnt_data);
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_hfbcnt_emul);
+      iEvent.getByLabel(m_DEsource[GCT][0],gct_jetcnt_data);  
+      iEvent.getByLabel(m_DEsource[GCT][1],gct_jetcnt_emul);
+    }
   }
 
   // -- DTP [drift tube trigger primitive]
@@ -305,8 +331,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // -- DTF [drift tube track finder]
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_data_;
   edm::Handle<L1MuDTTrackContainer>       dtf_trk_emul_;
-  L1MuRegionalCandCollection const* dtf_trk_data = 0;
-  L1MuRegionalCandCollection const* dtf_trk_emul = 0;
+  L1MuRegionalCandCollection  const* dtf_trk_data = 0;
+  L1MuRegionalCandCollection  const* dtf_trk_emul = 0;
   if(m_doSys[DTF]) {
     iEvent.getByLabel(m_DEsource[DTF][0].label(),"DATA",dtf_trk_data_);
     iEvent.getByLabel(m_DEsource[DTF][1].label(),"DTTF",dtf_trk_emul_);
@@ -356,19 +382,19 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1MuGMTCandCollection> gmt_emul;
   edm::Handle<L1MuGMTReadoutCollection> gmt_rdt_data_;
   edm::Handle<L1MuGMTReadoutCollection> gmt_rdt_emul_;
-  L1MuRegionalCandCollection const* gmt_rdt_data(new L1MuRegionalCandCollection);
-  L1MuRegionalCandCollection const* gmt_rdt_emul(new L1MuRegionalCandCollection);
+  L1MuRegionalCandCollection  const* gmt_rdt_data(new L1MuRegionalCandCollection);
+  L1MuRegionalCandCollection  const* gmt_rdt_emul(new L1MuRegionalCandCollection);
   //tbd: may compare extended candidates
-  L1MuGMTCandCollection const *gmt_can_data(new L1MuGMTCandCollection);
-  L1MuGMTCandCollection const *gmt_can_emul(new L1MuGMTCandCollection);
+  L1MuGMTCandCollection  const *gmt_can_data(new L1MuGMTCandCollection);
+  L1MuGMTCandCollection  const *gmt_can_emul(new L1MuGMTCandCollection);
   if(m_doSys[GMT]) {
     iEvent.getByLabel(m_DEsource[GMT][0], gmt_data);
     iEvent.getByLabel(m_DEsource[GMT][1], gmt_emul);
     iEvent.getByLabel(m_DEsource[GMT][0], gmt_rdt_data_);
     iEvent.getByLabel(m_DEsource[GMT][1], gmt_rdt_emul_);
   }  
-  L1MuGMTCandCollection      gmt_can_data_vec, gmt_can_emul_vec;
-  L1MuRegionalCandCollection gmt_rdt_data_vec, gmt_rdt_emul_vec;
+  L1MuGMTCandCollection       gmt_can_data_vec, gmt_can_emul_vec;
+  L1MuRegionalCandCollection  gmt_rdt_data_vec, gmt_rdt_emul_vec;
   gmt_can_data_vec.clear();  gmt_can_emul_vec.clear();
   gmt_rdt_data_vec.clear();  gmt_rdt_emul_vec.clear();
   if( gmt_rdt_data_.isValid() && gmt_rdt_emul_.isValid() ) {
@@ -438,24 +464,50 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   ///--- done getting collections. --- 
 
   //check collections validity
-  bool isValidDE[DEnsys][2];// = {false};
+  bool isValidDE[DEnsys][2];
   for(int i=0; i<DEnsys; i++) for(int j=0; j<2; j++) isValidDE[i][j]=false;
-
-  isValidDE[RCT][0] =      rct_em_data .isValid(); isValidDE[RCT][1] =     rct_em_emul .isValid();
+  
+  isValidDE[RCT][0] =      rct_em_data .isValid(); isValidDE[RCT][1] =    rct_em_emul .isValid();
   isValidDE[RCT][0]&=     rct_rgn_data .isValid(); isValidDE[RCT][1] =    rct_rgn_emul .isValid();
 
-  isValidDE[GCT][0] = gct_isolaem_data .isValid(); isValidDE[GCT][1] =gct_isolaem_emul .isValid();
-  isValidDE[GCT][0]&= gct_noisoem_data .isValid(); isValidDE[GCT][1]&=gct_noisoem_emul .isValid();
-  isValidDE[GCT][0]&= gct_cenjets_data .isValid(); isValidDE[GCT][1]&=gct_cenjets_emul .isValid();
-  isValidDE[GCT][0]&= gct_forjets_data .isValid(); isValidDE[GCT][1]&=gct_forjets_emul .isValid();
-  isValidDE[GCT][0]&= gct_taujets_data .isValid(); isValidDE[GCT][1]&=gct_taujets_emul .isValid();
-  isValidDE[GCT][0]&=  gct_etmiss_data .isValid(); isValidDE[GCT][1]&= gct_etmiss_emul .isValid();
-  isValidDE[GCT][0]&=  gct_ettota_data .isValid(); isValidDE[GCT][1]&= gct_ettota_emul .isValid();
-  isValidDE[GCT][0]&=  gct_htmiss_data .isValid(); isValidDE[GCT][1]&= gct_htmiss_emul .isValid();
-  isValidDE[GCT][0]&=  gct_hfring_data .isValid(); isValidDE[GCT][1]&= gct_hfring_emul .isValid();
-  isValidDE[GCT][0]&=  gct_hfbcnt_data .isValid(); isValidDE[GCT][1]&= gct_hfbcnt_emul .isValid();
-//isValidDE[GCT][0]&=  gct_jetcnt_data .isValid(); isValidDE[GCT][1]&= gct_jetcnt_emul .isValid(); #temporary
+  if(m_stage1_layer2_ == false){
+    isValidDE[GCT][0] = gct_isolaem_data .isValid(); isValidDE[GCT][1] = gct_isolaem_emul .isValid();
+    isValidDE[GCT][0]&= gct_noisoem_data .isValid(); isValidDE[GCT][1]&= gct_noisoem_emul .isValid();
+    isValidDE[GCT][0]&= gct_cenjets_data .isValid(); isValidDE[GCT][1]&= gct_cenjets_emul .isValid();
+    isValidDE[GCT][0]&= gct_forjets_data .isValid(); isValidDE[GCT][1]&= gct_forjets_emul .isValid();
+    isValidDE[GCT][0]&= gct_taujets_data .isValid(); isValidDE[GCT][1]&= gct_taujets_emul .isValid();
+    isValidDE[GCT][0]&=  gct_etmiss_data .isValid(); isValidDE[GCT][1]&= gct_etmiss_emul .isValid();
+    isValidDE[GCT][0]&=  gct_ettota_data .isValid(); isValidDE[GCT][1]&= gct_ettota_emul .isValid();
+    isValidDE[GCT][0]&=  gct_htmiss_data .isValid(); isValidDE[GCT][1]&= gct_htmiss_emul .isValid();
+    isValidDE[GCT][0]&=  gct_hfring_data .isValid(); isValidDE[GCT][1]&= gct_hfring_emul .isValid();
+    isValidDE[GCT][0]&=  gct_hfbcnt_data .isValid(); isValidDE[GCT][1]&= gct_hfbcnt_emul .isValid();
+  }
 
+  if(m_stage1_layer2_ == true){
+    isValidDE[GCT][0] = gct_isolaem_data .isValid();
+    isValidDE[GCT][1] = gct_isolaem_emul .isValid();
+    isValidDE[GCT][0]&= gct_noisoem_data .isValid();
+    isValidDE[GCT][1]&= gct_noisoem_emul .isValid();
+    isValidDE[GCT][0]&= gct_cenjets_data .isValid();
+    isValidDE[GCT][1]&= gct_cenjets_emul .isValid();
+    isValidDE[GCT][0]&= gct_forjets_data .isValid();
+    isValidDE[GCT][1]&= gct_forjets_emul .isValid();
+    isValidDE[GCT][0]&= gct_taujets_data .isValid();
+    isValidDE[GCT][1]&= gct_taujets_emul .isValid();
+    isValidDE[GCT][0]&= gct_isotaujets_data .isValid();
+    isValidDE[GCT][1]&= gct_isotaujets_emul .isValid();
+    isValidDE[GCT][0]&= gct_etmiss_data .isValid();
+    isValidDE[GCT][1]&= gct_etmiss_emul .isValid();
+    isValidDE[GCT][0]&= gct_ettota_data .isValid();
+    isValidDE[GCT][1]&= gct_ettota_emul .isValid();
+    isValidDE[GCT][0]&= gct_htmiss_data .isValid();
+    isValidDE[GCT][1]&= gct_htmiss_emul .isValid();
+    isValidDE[GCT][0]&= gct_hfring_data .isValid();
+    isValidDE[GCT][1]&= gct_hfring_emul .isValid();
+    isValidDE[GCT][0]&= gct_hfbcnt_data .isValid();
+    isValidDE[GCT][1]&= gct_hfbcnt_emul .isValid();
+  }
+  
   isValidDE[DTP][0] =      dtp_ph_data_.isValid(); isValidDE[DTP][1] =     dtp_ph_emul_.isValid();
   isValidDE[DTP][0]&=      dtp_th_data_.isValid(); isValidDE[DTP][1]&=     dtp_th_emul_.isValid();
 
@@ -467,8 +519,6 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   isValidDE[LTC][0] =         ltc_data .isValid(); isValidDE[LTC][1] =        ltc_emul .isValid();
 
   isValidDE[GMT][0] =         gmt_data .isValid(); isValidDE[GMT][1] =        gmt_emul .isValid();
-//isValidDE[GMT][0]&=     gmt_rdt_data_.isValid(); isValidDE[GMT][1]&=    gmt_rdt_emul_.isValid();
-
 
   bool isValid[DEnsys];
   for(int i=0; i<DEnsys; i++) {
@@ -499,33 +549,49 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::cout << "L1Comparator start processing the collections.\n" << std::flush;
 
   ///processing : compare the pairs of collections 
-  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloEmCollection>             (     rct_em_data,      rct_em_emul, RCT,RCTem);
-  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloRegionCollection>         (    rct_rgn_data,     rct_rgn_emul, RCT,RCTrgn);
+  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloEmCollection>            ( rct_em_data,      rct_em_emul, RCT,RCTem);
+  if(m_doSys[RCT]&&isValid[RCT]) process<L1CaloRegionCollection>        ( rct_rgn_data,     rct_rgn_emul, RCT,RCTrgn);
+  
+  if(m_stage1_layer2_==false){
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>       (gct_isolaem_data, gct_isolaem_emul, GCT,GCTisolaem);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>       (gct_noisoem_data, gct_noisoem_emul, GCT,GCTnoisoem);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>      (gct_cenjets_data, gct_cenjets_emul, GCT,GCTcenjets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>      (gct_forjets_data, gct_forjets_emul, GCT,GCTforjets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>      (gct_taujets_data, gct_taujets_emul, GCT,GCTtaujets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtHadCollection>	(gct_ht_data,      gct_ht_emul,      GCT,GCTethad);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtMissCollection>	(gct_etmiss_data,  gct_etmiss_emul,  GCT,GCTetmiss);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtTotalCollection>	(gct_ettota_data , gct_ettota_emul,  GCT,GCTettot);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHtMissCollection>	(gct_htmiss_data,  gct_htmiss_emul,  GCT,GCThtmiss);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFRingEtSumsCollection>	(gct_hfring_data,  gct_hfring_emul,  GCT,GCThfring);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFBitCountsCollection>	(gct_hfbcnt_data,  gct_hfbcnt_emul,  GCT,GCThfbit);
+  }
+  
+  if(m_stage1_layer2_ == true){
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>       (gct_isolaem_data,   gct_isolaem_emul,    GCT, GCTisolaem);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>       (gct_noisoem_data,   gct_noisoem_emul,    GCT, GCTnoisoem);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>      (gct_cenjets_data,   gct_cenjets_emul,    GCT, GCTcenjets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>      (gct_forjets_data,   gct_forjets_emul,    GCT, GCTforjets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>      (gct_taujets_data,   gct_taujets_emul,    GCT, GCTtaujets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>      (gct_isotaujets_data,gct_isotaujets_emul, GCT, GCTisotaujets);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtHadCollection>	(gct_ht_data,        gct_ht_emul,         GCT, GCTethad);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtMissCollection>	(gct_etmiss_data,    gct_etmiss_emul,     GCT, GCTetmiss);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtTotalCollection>	(gct_ettota_data ,   gct_ettota_emul,     GCT, GCTettot);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHtMissCollection>	(gct_htmiss_data,    gct_htmiss_emul,     GCT, GCThtmiss);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFRingEtSumsCollection>	(gct_hfring_data,    gct_hfring_emul,     GCT, GCThfring);
+    if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFBitCountsCollection>	(gct_hfbcnt_data,    gct_hfbcnt_emul,     GCT, GCThfbit);
+  }
 
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_isolaem_data, gct_isolaem_emul, GCT,GCTisolaem);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEmCandCollection>          (gct_noisoem_data, gct_noisoem_emul, GCT,GCTnoisoem);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_cenjets_data, gct_cenjets_emul, GCT,GCTcenjets);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_forjets_data, gct_forjets_emul, GCT,GCTforjets);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCandCollection>         (gct_taujets_data, gct_taujets_emul, GCT,GCTtaujets);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtHadCollection>	         (     gct_ht_data,      gct_ht_emul, GCT,GCTethad);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtMissCollection>	         ( gct_etmiss_data,  gct_etmiss_emul, GCT,GCTetmiss);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctEtTotalCollection>	 ( gct_ettota_data , gct_ettota_emul, GCT,GCTettot);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHtMissCollection>	         ( gct_htmiss_data,  gct_htmiss_emul, GCT,GCThtmiss);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFRingEtSumsCollection>	 ( gct_hfring_data,  gct_hfring_emul, GCT,GCThfring);
-  if(m_doSys[GCT]&&isValid[GCT]) process<L1GctHFBitCountsCollection>	 ( gct_hfbcnt_data,  gct_hfbcnt_emul, GCT,GCThfbit);
-//if(m_doSys[GCT]&&isValid[GCT]) process<L1GctJetCountsCollection>	 ( gct_jetcnt_data,  gct_jetcnt_emul, GCT,GCTjetcnt);#missing in emulator
+  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambPhDigiCollection>   ( dtp_ph_data,      dtp_ph_emul, DTP,DTtpPh);
+  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>   ( dtp_th_data,      dtp_th_emul, DTP,DTtpTh);
 
-  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambPhDigiCollection>    (     dtp_ph_data,      dtp_ph_emul, DTP,DTtpPh);
-  if(m_doSys[DTP]&&isValid[DTP]) process<L1MuDTChambThDigiCollection>    (     dtp_th_data,      dtp_th_emul, DTP,DTtpTh);
+  if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>    ( dtf_trk_data,     dtf_trk_emul, DTF,DTtftrk);
 
-  if(m_doSys[DTF]&&isValid[DTF]) process<L1MuRegionalCandCollection>     (    dtf_trk_data,     dtf_trk_emul, DTF,DTtftrk);
+  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>    ( rpc_cen_data,     rpc_cen_emul, RPC,RPCcen);
+  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>    ( rpc_for_data,     rpc_for_emul, RPC,RPCfor);
 
-  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_cen_data,     rpc_cen_emul, RPC,RPCcen);
-  if(m_doSys[RPC]&&isValid[RPC]) process<L1MuRegionalCandCollection>     (    rpc_for_data,     rpc_for_emul, RPC,RPCfor);
-
-  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (        gmt_data,         gmt_emul, GMT,GMTmain);
-  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuRegionalCandCollection>     (    gmt_rdt_data,     gmt_rdt_emul, GMT,GMTrdt);
-  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>          (    gmt_can_data,     gmt_can_emul, GMT,GMTcnd);
+  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>         ( gmt_data,         gmt_emul,     GMT,GMTmain);
+  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuRegionalCandCollection>    ( gmt_rdt_data,     gmt_rdt_emul, GMT,GMTrdt);
+  if(m_doSys[GMT]&&isValid[GMT]) process<L1MuGMTCandCollection>         ( gmt_can_data,     gmt_can_emul, GMT,GMTcnd);
 
   // >>---- GLT ---- <<  
   GltDEDigi gltdigimon;
@@ -595,11 +661,11 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
   if(verbose())
     std::cout << "L1Comparator::process -ing system:" << sys 
 	      << " (" << SystLabel[sys] << "), data type " << cid 
-	      << "...\n" << std::flush;
+	      << "...\n" << std::endl;
   if(verbose())
-  std::cout << "L1Comparator::process debug "
-	    << " (size "  << data->size() << "," <<emul->size() << ")"   
-	    << ".\n" << std::flush;
+    std::cout << "L1Comparator::process debug "
+	      << " (size "  << data->size() << "," <<emul->size() << ")"   
+	      << ".\n" << std::endl;
 
   ///tmp: for getting a clean dump (avoid empty entries)
   bool prt = false; 
@@ -612,7 +678,7 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
     if(tmp.get_ncand(0)==0 && tmp.get_ncand(1)==0)
       prt=false;
     else
-    prt = !tmp.do_compare(m_dumpFile,0);
+      prt = !tmp.do_compare(m_dumpFile,0);
   }
 
   //declare de compare object
@@ -628,12 +694,12 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
 	      << " ndata:"  << ndata
 	      << " nemul:"  << nemul
 	      << " (size "  << data->size() << "," <<emul->size() << ")"   
-	      << ".\n" << std::flush;
+	      << ".\n" << std::endl;
   
   if(ndata==0&&nemul==0) {
     if(verbose())
       std::cout << "L1Comparator::process " 
-		<< "empty collections -- exiting!\n" << std::flush;
+	        << "empty collections -- exiting!\n" << std::endl;
     return;
   }
   
@@ -700,7 +766,7 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
 }
 
 template <class myCol> 
-bool L1Comparator::CompareCollections( edm::Handle<myCol> data, edm::Handle<myCol> emul) {
+bool L1Comparator::CompareCollections(edm::Handle<myCol> data, edm::Handle<myCol> emul) {
   bool match = true;
   typedef typename myCol::size_type col_sz;
   typedef typename myCol::iterator col_it;

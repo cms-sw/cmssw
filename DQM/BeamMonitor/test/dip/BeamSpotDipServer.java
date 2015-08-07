@@ -450,21 +450,21 @@ implements Runnable,DipPublicationErrorHandler
   private void CMS2LHCRF_POS(float x, float y, float z)
   {
     if (x != 0) {//Rotation + Translation + Inversion + Scaling
-	double tmpx = x*rotY[0]*rotZ[0] + y*rotY[0]*rotZ[1] - z*rotY[1] + trans[0];
+	double tmpx = x; //*rotY[0]*rotZ[0] + y*rotY[0]*rotZ[1] - z*rotY[1] + trans[0];
 	Centroid[0] = new Float(tmpx);
 	Centroid[0] *= -1.0*cm2um;
     }
     else
 	Centroid[0] = x;
     if (y != 0) {// Rotation + Translation + Scaling
-	double tmpy = x*(rotX[1]*rotY[1]*rotZ[0] - rotX[0]*rotZ[1]) + y*(rotX[0]*rotZ[0] + rotX[1]*rotY[1]*rotZ[1]) + z*rotX[1]*rotY[0] + trans[1];
+	double tmpy = y; //x*(rotX[1]*rotY[1]*rotZ[0] - rotX[0]*rotZ[1]) + y*(rotX[0]*rotZ[0] + rotX[1]*rotY[1]*rotZ[1]) + z*rotX[1]*rotY[0] + trans[1];
 	Centroid[1] = new Float(tmpy);
 	Centroid[1] *= cm2um;
     }
     else
 	Centroid[1] = y;
     if (z != 0) {//Rotation + Translation + Inversion + Scaling
-	double tmpz = x*(rotX[0]*rotY[1]*rotZ[0] + rotX[1]*rotZ[1]) + y*(rotX[0]*rotY[1]*rotZ[1] - rotX[1]*rotZ[0]) + z*rotX[0]*rotY[0] + trans[2];
+	double tmpz = z; //x*(rotX[0]*rotY[1]*rotZ[0] + rotX[1]*rotZ[1]) + y*(rotX[0]*rotY[1]*rotZ[1] - rotX[1]*rotZ[0]) + z*rotX[0]*rotY[0] + trans[2];
 	Centroid[2] = new Float(tmpz);
 	Centroid[2] *= -1.0*cm2mm;
     }

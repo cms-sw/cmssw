@@ -62,7 +62,7 @@ class MatrixInjector(object):
                 self.DbsUrl = "https://"+self.wmagent+"/dbs/int/global/DBSReader"
 
         if not self.dqmgui:
-            self.dqmgui="https://cmsweb.cern.ch/dqm/relval"
+            self.dqmgui="https://cmsweb.cern.ch/dqm/relval;https://cmsweb-testbed.cern.ch/dqm/relval"
         #couch stuff
         self.couch = 'https://'+self.wmagent+'/couchdb'
 #        self.couchDB = 'reqmgr_config_cache'
@@ -105,7 +105,7 @@ class MatrixInjector(object):
             "mergedLFNBase" : "/store/relval",
             "dashboardActivity" : "relval",
             "Multicore" : opt.nThreads,
-            "Memory" : 2400,
+            "Memory" : 3000,
             "SizePerEvent" : 1234,
             "TimePerEvent" : 1
             }

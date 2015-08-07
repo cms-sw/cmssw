@@ -9,42 +9,26 @@ echo
 echo "Existing cfg files:"
 ls -l OnLine*.py
 
-echo
-echo "Creating OnLine cfg files adding the HLTAnalyzerEndpath:"
-
-foreach gtag ( Data Mc )
-  set GTAG = ` echo $gtag | tr "[a-z]" "[A-Z]" `
-  foreach table ( FULL GRun 50nsGRun HIon PIon 25ns14e33_v1 50ns_5e33_v1 Fake )
-    set oldfile = OnLine_HLT_${table}.py
-    set newfile = OnLine_HLT_${table}_${GTAG}.py
-    ln -s $oldfile $newfile
-  end
-end
-
-echo
-echo "Created OnLine cfg files:"
-ls -l OnLine*.py
+#echo
+#echo "Creating OnLine cfg files adding the HLTAnalyzerEndpath:"
+#
+#foreach gtag ( Data Mc )
+#  set GTAG = ` echo $gtag | tr "[a-z]" "[A-Z]" `
+#  foreach table ( FULL GRun 50nsGRun LowPU HIon PIon 25ns14e33_v1 50ns_5e33_v1 Fake )
+#    set oldfile = OnLine_HLT_${table}.py
+#    set newfile = OnLine_HLT_${table}_${GTAG}.py
+#    ln -s $oldfile $newfile
+#  end
+#end
+#
+#echo
+#echo "Created OnLine cfg files:"
+#ls -l OnLine*.py
 
 echo
 echo "Creating offline cfg files with cmsDriver"
 echo "./cmsDriver.csh"
 time  ./cmsDriver.csh
-
-echo
-echo "Creating special FastSim IntegrationTestWithHLT"
-
-foreach task ( IntegrationTestWithHLT_cfg )
-  echo
-  set name = ${task}
-  rm -f $name.py
-
-  if ( -f $CMSSW_BASE/src/FastSimulation/Configuration/test/$name.py ) then
-    cp         $CMSSW_BASE/src/FastSimulation/Configuration/test/$name.py $name.py
-  else
-    cp $CMSSW_RELEASE_BASE/src/FastSimulation/Configuration/test/$name.py $name.py
-  endif
-  ls -l $name.py
-end
 
 echo
 date +%F\ %a\ %T

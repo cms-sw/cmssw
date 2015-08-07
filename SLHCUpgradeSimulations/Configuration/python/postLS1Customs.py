@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTracker.Configuration.customiseForRunI import customiseForRunI
+
 def customisePostLS1_Common(process):
 
     # deal with CSC separately
@@ -40,8 +42,8 @@ def customisePostLS1_Common(process):
 def customisePostLS1(process):
 
     # deal with L1 Emulation separately
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_25ns
-    process = customiseSimL1EmulatorForPostLS1_25ns(process)
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForStage1
+    process = customiseSimL1EmulatorForStage1(process)
 
     # common customisation
     process = customisePostLS1_Common(process)
@@ -55,11 +57,20 @@ def customisePostLS1(process):
     return process
 
 
-def customisePostLS1_50ns(process):
+# Note: same as 50ns version below now that menu is in GT...
+def customisePostLS1_lowPU(process):
 
-    # deal with L1 Emulation separately
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_50ns
-    process = customiseSimL1EmulatorForPostLS1_50ns(process)
+    # common customisations
+    process = customisePostLS1_Common(process)
+
+    # 50ns specific customisation
+    if hasattr(process,'digitisation_step'):
+        process = customise_Digi_50ns(process)
+
+    return process
+
+
+def customisePostLS1_50ns(process):
 
     # common customisations
     process = customisePostLS1_Common(process)
@@ -74,11 +85,35 @@ def customisePostLS1_50ns(process):
 def customisePostLS1_HI(process):
 
     # deal with L1 Emulation separately
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_HI
-    process = customiseSimL1EmulatorForPostLS1_HI(process)
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForStage1
+    process = customiseSimL1EmulatorForStage1(process)
 
     # common customisation
     process = customisePostLS1_Common(process)
+
+    # HI Specific additional customizations:
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_Additional_HI
+    process = customiseSimL1EmulatorForPostLS1_Additional_HI(process)
+
+    # HI L1Menu:
+    #from L1Trigger.Configuration.customise_overwriteL1Menu import L1Menu_CollisionsHeavyIons2015_v0
+    #process = L1Menu_CollisionsHeavyIons2015_v0(process)
+
+    return process
+
+def customisePostLS1_B0T(process):
+    # 50ns only
+
+    process=customisePostLS1_50ns(process)
+    process=customiseForRunI(process)
+
+    return process
+
+def customisePostLS1_B0T_lowPU(process):
+    # 50ns only
+
+    process=customisePostLS1_lowPU(process)
+    process=customiseForRunI(process)
 
     return process
 
@@ -663,6 +698,7 @@ def customise_L1Emulator(process):
 
 
 def customise_RawToDigi(process):
+    process.RawToDigi.remove(process.gtEvmDigis)
     return process
 
 
@@ -676,33 +712,34 @@ def customise_HLT(process):
 
 def customise_Reco(process):
     #lowering HO threshold with SiPM
-    for prod in process.particleFlowRecHitHO.producers:
-        prod.qualityTests = cms.VPSet(
-            cms.PSet(
-                name = cms.string("PFRecHitQTestThreshold"),
-                threshold = cms.double(0.05) # new threshold for SiPM HO
-            ),
-            cms.PSet(
-                name = cms.string("PFRecHitQTestHCALChannel"),
-                maxSeverities      = cms.vint32(11),
-                cleaningThresholds = cms.vdouble(0.0),
-                flags              = cms.vstring('Standard')
-            )
-        )
+    if hasattr(process,'particleFlowRecHitHO'):
+        for prod in process.particleFlowRecHitHO.producers:
+            prod.qualityTests = cms.VPSet(
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestThreshold"),
+                    threshold = cms.double(0.05) # new threshold for SiPM HO
+                    ),
+                cms.PSet(
+                    name = cms.string("PFRecHitQTestHCALChannel"),
+                    maxSeverities      = cms.vint32(11),
+                    cleaningThresholds = cms.vdouble(0.0),
+                    flags              = cms.vstring('Standard')
+                    )
+                )
 
     #Lower Thresholds also for Clusters!!!    
 
-    for p in process.particleFlowClusterHO.seedFinder.thresholdsByDetector:
-        p.seedingThreshold = cms.double(0.08)
+        for p in process.particleFlowClusterHO.seedFinder.thresholdsByDetector:
+            p.seedingThreshold = cms.double(0.08)
 
-    for p in process.particleFlowClusterHO.initialClusteringStep.thresholdsByDetector:
-        p.gatheringThreshold = cms.double(0.05)
+        for p in process.particleFlowClusterHO.initialClusteringStep.thresholdsByDetector:
+            p.gatheringThreshold = cms.double(0.05)
 
-    for p in process.particleFlowClusterHO.pfClusterBuilder.recHitEnergyNorms:
-        p.recHitEnergyNorm = cms.double(0.05)
+        for p in process.particleFlowClusterHO.pfClusterBuilder.recHitEnergyNorms:
+            p.recHitEnergyNorm = cms.double(0.05)
 
-    process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
-    process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
+        process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
+        process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
 
     return process
 

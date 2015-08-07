@@ -7,7 +7,8 @@ l1tGctClient = cms.EDAnalyzer("L1TGCTClient",
     runInEventLoop=cms.untracked.bool(False),
     runInEndLumi=cms.untracked.bool(True),
     runInEndRun=cms.untracked.bool(True),
-    runInEndJob=cms.untracked.bool(False)
+    runInEndJob=cms.untracked.bool(False),
+    stage1_layer2_=cms.untracked.bool(False)
 )
 
 

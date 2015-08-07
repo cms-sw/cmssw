@@ -38,13 +38,18 @@ class ElectronIDValueMapProducer : public edm::stream::EDProducer<> {
   
   noZS::EcalClusterLazyTools *lazyToolnoZS;
 
+  // for AOD case
   edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollection_;
   edm::EDGetToken src_;
 
-  std::string dataFormat_;
- 
+  // for miniAOD case
+  edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollectionMiniAOD_;
+  edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionMiniAOD_;
+  edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollectionMiniAOD_;
+  edm::EDGetToken srcMiniAOD_;
+
   constexpr static char eleFull5x5SigmaIEtaIEta_[] = "eleFull5x5SigmaIEtaIEta";
   constexpr static char eleFull5x5SigmaIEtaIPhi_[] = "eleFull5x5SigmaIEtaIPhi";
   constexpr static char eleFull5x5E1x5_[] = "eleFull5x5E1x5";
@@ -64,18 +69,27 @@ constexpr char ElectronIDValueMapProducer::eleFull5x5Circularity_[];
 
 ElectronIDValueMapProducer::ElectronIDValueMapProducer(const edm::ParameterSet& iConfig) {
 
-  ebReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("ebReducedRecHitCollection"));
-  eeReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("eeReducedRecHitCollection"));
-  esReducedRecHitCollection_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("esReducedRecHitCollection"));
+  //
+  // Declare consummables, handle both AOD and miniAOD case
+  //
+  ebReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+								       ("ebReducedRecHitCollection"));
+  ebReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+								       ("ebReducedRecHitCollectionMiniAOD"));
 
-  src_ = consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src"));
+  eeReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+								       ("eeReducedRecHitCollection"));
+  eeReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+								       ("eeReducedRecHitCollectionMiniAOD"));
 
-  dataFormat_ = iConfig.getParameter<std::string>("dataFormat");
-  if( dataFormat_ != "RECO" &&  dataFormat_ != "PAT") {
-    throw cms::Exception("InvalidConfiguration") 
-      << "ElectronIDValueMapProducer runs in \"RECO\" or \"PAT\" mode!";
-  }
-  
+  esReducedRecHitCollection_        = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+								       ("esReducedRecHitCollection"));
+  esReducedRecHitCollectionMiniAOD_ = mayConsume<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>
+								       ("esReducedRecHitCollectionMiniAOD"));
+
+  src_        = mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("src"));
+  srcMiniAOD_ = mayConsume<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("srcMiniAOD"));
+
   produces<edm::ValueMap<float> >(eleFull5x5SigmaIEtaIEta_);  
   produces<edm::ValueMap<float> >(eleFull5x5SigmaIEtaIPhi_); 
   produces<edm::ValueMap<float> >(eleFull5x5E1x5_);
@@ -93,19 +107,30 @@ void ElectronIDValueMapProducer::produce(edm::Event& iEvent, const edm::EventSet
 
   using namespace edm;
   
-  lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, ebReducedRecHitCollection_, eeReducedRecHitCollection_); //, esReducedRecHitCollection_
- 
   edm::Handle<edm::View<reco::GsfElectron> > src;
+
+  // Retrieve the collection of electrons from the event.
+  // If we fail to retrieve the collection with the standard AOD
+  // name, we next look for the one with the stndard miniAOD name.
+  bool isAOD = true;
   iEvent.getByToken(src_, src);
-  
-  if( dataFormat_ == "PAT" && src->size() ) {
-    edm::Ptr<pat::Electron> test(src->ptrAt(0));
-    if( test.isNull() || !test.isAvailable() ) {
-      throw cms::Exception("InvalidConfiguration")
-	<<"DataFormat set to \"PAT\" but cannot cast to pat::Electron!";
-    }
+
+  if( !src.isValid() ){
+    isAOD = false;
+    iEvent.getByToken(srcMiniAOD_,src);
   }
 
+  if( isAOD )
+    lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, 
+						  ebReducedRecHitCollection_, 
+						  eeReducedRecHitCollection_,
+						  esReducedRecHitCollection_ );
+  else
+    lazyToolnoZS = new noZS::EcalClusterLazyTools(iEvent, iSetup, 
+						  ebReducedRecHitCollectionMiniAOD_, 
+						  eeReducedRecHitCollectionMiniAOD_,
+						  esReducedRecHitCollectionMiniAOD_ );
+ 
   // size_t n = src->size();
   std::vector<float> eleFull5x5SigmaIEtaIEta, eleFull5x5SigmaIEtaIPhi;
   std::vector<float> eleFull5x5R9, eleFull5x5Circularity;

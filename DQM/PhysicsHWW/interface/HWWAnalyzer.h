@@ -10,6 +10,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "RecoJets/JetProducers/interface/PileupJetIdAlgo.h"
+
 #include "DQM/PhysicsHWW/interface/analysisSelections.h"
 #include "DQM/PhysicsHWW/interface/EGammaMvaEleEstimator.h"
 #include "DQM/PhysicsHWW/interface/MuonMVAEstimator.h"
@@ -30,7 +32,6 @@
 #include "DQM/PhysicsHWW/interface/RhoMaker.h"
 #include "DQM/PhysicsHWW/interface/PFMETMaker.h"
 #include "DQM/PhysicsHWW/interface/TrkMETMaker.h"
-#include "DQM/PhysicsHWW/interface/PileupJetIdAlgo.h"
 #include "DQM/PhysicsHWW/interface/MVAJetIdMaker.h"
 
 #include <DQMServices/Core/interface/DQMStore.h>
@@ -57,8 +58,6 @@ class HWWAnalyzer : public DQMEDAnalyzer {
       EGammaMvaEleEstimator* egammaMvaEleEstimator;
       MuonMVAEstimator* muonMVAEstimator;
   
-      EventMonitor eventMonitor;
-
       VertexMaker         vertexMaker;
       EventMaker          eventMaker;
       TrackMaker          trackMaker;
@@ -76,10 +75,7 @@ class HWWAnalyzer : public DQMEDAnalyzer {
       TrkMETMaker         trkMETMaker;
       MVAJetIdMaker       mvaJetIdMaker;
 
-      MonitorElement* cutflowHist[4];
-        
-      void FillHistograms();
-
+      std::unique_ptr<EventMonitor> eventMonitor;
 };
 
 #endif

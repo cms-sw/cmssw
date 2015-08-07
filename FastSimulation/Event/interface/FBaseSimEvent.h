@@ -138,11 +138,6 @@ public:
 
   const KineParticleFilter& filter() const { return *myFilter; } 
 
-  /// Set the beam spot position
-  inline void setBeamSpot(const math::XYZPoint& aBeamSpot) { 
-    theBeamSpot = aBeamSpot;
-  }
-
  protected:
 
   /// The pointer to the vector of FSimTrack's 
@@ -189,7 +184,6 @@ public:
 
   const ParticleDataTable * pdt;
 
-  math::XYZPoint theBeamSpot;
   double lateVertexPosition;
 
   //  Histos* myHistos;

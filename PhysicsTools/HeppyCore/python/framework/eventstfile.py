@@ -27,19 +27,3 @@ class Events(object):
 
     def __iter__(self):
         return iter(self.tree)
-
-if __name__ == '__main__':
-
-    import sys
-    events = Events(sys.argv[1], 'test_tree')
-    print '\naccessing one event directly'
-    event = events.to(2)
-    print event.var1
-    print '\nlooping on all events:'
-    for iev, ev in enumerate(events):
-         if iev==9:
-             print '...'
-         if iev>=9 and iev<990:
-             continue
-         else:
-             print ev.var1

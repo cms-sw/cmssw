@@ -27,8 +27,11 @@ Created: August 2009
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 namespace spr{
@@ -71,6 +74,7 @@ namespace spr{
 
   HcalDetId getHotCell(std::vector<HBHERecHitCollection::const_iterator>& hit, bool& includeHO, bool& debug);
 
+  HcalDetId getHotCell(std::vector<std::vector<PCaloHit>::const_iterator>& hit, bool& includeHO, bool& debug);
 }
 
 #include "Calibration/IsolatedParticles/interface/eHCALMatrix.icc"

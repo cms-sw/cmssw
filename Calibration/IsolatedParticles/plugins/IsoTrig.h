@@ -17,6 +17,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -83,7 +85,7 @@ private:
   void clearMipCutTreeVectors();
   void clearChgIsolnTreeVectors();
   void pushChgIsolnTreeVecs(math::XYZTLorentzVector &Pixcand, 
-				     math::XYZTLorentzVector &Trkcand, 
+			    math::XYZTLorentzVector &Trkcand, 
 			    std::vector<double> &PixMaxP, double &TrkMaxP, bool &selTk);
   void pushMipCutTreeVecs(math::XYZTLorentzVector &NFcand,
 			  math::XYZTLorentzVector &Trkcand,
@@ -101,6 +103,7 @@ private:
   void chgIsolation(double& etaTriggered, double& phiTriggered,
 		    edm::Handle<reco::TrackCollection>& trkCollection, 
 		    const edm::Event& theEvent);
+  void getGoodTracks(const edm::Event&, edm::Handle<reco::TrackCollection>&);
   void fillHist(int, math::XYZTLorentzVector&);
   void fillDifferences(int, math::XYZTLorentzVector&, math::XYZTLorentzVector&, bool);
   void fillCuts(int, double, double, double, math::XYZTLorentzVector&, int, bool);
@@ -121,8 +124,8 @@ private:
   std::vector<std::string>   trigNames;
   edm::InputTag              PixcandTag_, L1candTag_, L2candTag_;
   std::vector<edm::InputTag> pixelTracksSources_;
-  bool                       doL2L3, doTiming, doMipCutTree, 
-    doTrkResTree, doChgIsolTree, doStudyIsol;
+  bool                       doL2L3, doTiming, doMipCutTree;
+  bool                       doTrkResTree, doChgIsolTree, doStudyIsol;
   int                        verbosity;
   double                     rEB_, zEE_, bfVal;
   std::vector<double>        pixelIsolationConeSizeAtEC_;
@@ -137,16 +140,16 @@ private:
   edm::EDGetTokenT<LumiDetails>            tok_lumi;
   edm::EDGetTokenT<trigger::TriggerEvent>  tok_trigEvt;
   edm::EDGetTokenT<edm::TriggerResults>    tok_trigRes;
- 
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
   edm::EDGetTokenT<reco::TrackCollection>  tok_genTrack_;
   edm::EDGetTokenT<reco::VertexCollection> tok_recVtx_;
   edm::EDGetTokenT<reco::BeamSpot>         tok_bs_;
   edm::EDGetTokenT<EcalRecHitCollection>   tok_EB_;
   edm::EDGetTokenT<EcalRecHitCollection>   tok_EE_;
   edm::EDGetTokenT<HBHERecHitCollection>   tok_hbhe_;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_hlt_;
   edm::EDGetTokenT<reco::VertexCollection> tok_verthb_, tok_verthe_;
-
+  edm::EDGetTokenT<SeedingLayerSetsHits> tok_SeedingLayerhb, tok_SeedingLayerhe;
+  edm::EDGetTokenT<SiPixelRecHitCollection> tok_SiPixelRecHits;
   edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_pixtk_;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>        tok_l1cand_;
   edm::EDGetTokenT<reco::IsolatedPixelTrackCandidateCollection> tok_l2cand_;
@@ -164,12 +167,13 @@ private:
 
   std::map<unsigned int, unsigned int> TrigList;
   std::map<unsigned int, const std::pair<int, int>> TrigPreList;
-  bool                       changed;
+  bool                 changed;
   edm::Service<TFileService> fs;
-  TTree *MipCutTree, *ChgIsolnTree, *TrkResTree, *TimingTree;
+  TTree               *MipCutTree, *ChgIsolnTree, *TrkResTree, *TimingTree;
   std::vector<double> *t_timeL2Prod;
   std::vector<int>    *t_nPixCand;
   std::vector<int>    *t_nPixSeed;
+  std::vector<int>    *t_nGoodTk;
 
   std::vector<double> *t_TrkhCone;
   std::vector<double> *t_TrkP;
@@ -189,7 +193,7 @@ private:
   std::vector<double> *t_PixTrkcandEta;
   std::vector<double> *t_PixTrkcandPhi;
   std::vector<double> *t_PixTrkcandMaxP;
-  std::vector<bool> *t_PixTrkcandselTk;
+  std::vector<bool>   *t_PixTrkcandselTk;
 
   std::vector<double> *t_NFcandP;
   std::vector<double> *t_NFcandPt;
@@ -215,8 +219,8 @@ private:
 
   TH1D                      *h_EnIn, *h_EnOut;
   TH2D                      *h_MipEnMatch, *h_MipEnNoMatch;
-  TH1I                      *h_nHLT, *h_HLT, *h_PreL1, *h_PreHLT, 
-    *h_Pre, *h_nL3Objs, *h_Filters;
+  TH1I                      *h_nHLT, *h_HLT, *h_PreL1, *h_PreHLT; 
+  TH1I                      *h_Pre, *h_nL3Objs, *h_Filters;
   TH1D                      *h_PreL1wt, *h_PreHLTwt, *h_L1ObjEnergy;
   TH1D                      *h_p[20], *h_pt[20], *h_eta[20], *h_phi[20];
   TH1D                      *h_dEtaL1[2], *h_dPhiL1[2], *h_dRL1[2];

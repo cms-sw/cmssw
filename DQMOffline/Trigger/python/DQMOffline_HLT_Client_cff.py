@@ -12,6 +12,8 @@ from DQMOffline.Trigger.HLTTauPostProcessor_cfi import *
 from DQMOffline.Trigger.DQMOffline_HLT_Cert_cff import *
 from DQMOffline.Trigger.HLTInclusiveVBFClient_cfi import *
 from DQMOffline.Trigger.FSQHLTOfflineClient_cfi import  *
+from DQMOffline.Trigger.HILowLumiHLTOfflineClient_cfi import  *
+
 
 hltOfflineDQMClient = cms.Sequence(
 #    hltGeneralSeqClient *
@@ -19,6 +21,7 @@ hltOfflineDQMClient = cms.Sequence(
     hltMuonPostVal *
     jetMETHLTOfflineClient *
     fsqClient *
+    HiJetClient *
     #tagAndProbeEfficiencyPostProcessor *
     HLTTauPostSeq *
     dqmOfflineHLTCert *

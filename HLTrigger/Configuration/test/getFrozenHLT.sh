@@ -1,8 +1,13 @@
 #! /bin/bash
 
 # ConfDB configurations to use
-TABLES="Fake 50ns_5e33_v1 25ns14e33_v1"
+TABLES="Fake 50ns_5e33_v1 25ns14e33_v1 50ns_5e33_v3 25ns14e33_v3"
+#TABLES="Fake 50ns_5e33_v1 25ns14e33_v1"
+# Do not update the frozen menus in 74X
+# TABLES="Fake Fake"
 HLT_Fake="/dev/CMSSW_7_4_0/Fake"
+HLT_50ns_5e33_v3="/frozen/2015/50ns_5e33/v3.0/HLT"
+HLT_25ns14e33_v3="/frozen/2015/25ns14e33/v3.0/HLT"
 HLT_50ns_5e33_v1="/frozen/2015/50ns_5e33/v1.2/HLT"
 HLT_25ns14e33_v1="/frozen/2015/25ns14e33/v1.2/HLT"
 
@@ -25,7 +30,6 @@ function getConfigForCVS() {
   log "  dumping HLT cffs for $NAME from $CONFIG"
   # do not use any conditions or L1 override
   hltGetConfiguration --cff --offline --data  $CONFIG --type $NAME  > HLT_${NAME}_cff.py
-  hltGetConfiguration --fastsim               $CONFIG --type $NAME  > HLT_${NAME}_Famos_cff.py
 }
 
 function getConfigForOnline() {
@@ -47,7 +51,7 @@ hash -r
 
 # cff python dumps, in CVS under HLTrigger/Configuration/pyhon
 log "Extracting cff python dumps"
-FILES=$(eval echo HLT_{$TABLES_}_cff.py HLT_{$TABLES_}_Famos_cff.py)
+FILES=$(eval echo HLT_{$TABLES_}_cff.py)
 rm -f $FILES
 for TABLE in $TABLES; do
   CONFIG=$(eval echo \$$(echo HLT_$TABLE))

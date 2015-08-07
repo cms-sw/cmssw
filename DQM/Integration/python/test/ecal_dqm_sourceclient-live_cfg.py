@@ -184,9 +184,9 @@ process.schedule = cms.Schedule(process.ecalMonitorPath,process.ecalClientPath,p
 
 referenceFileName = process.DQMStore.referenceFileName.pythonValue()
 runTypeName = process.runType.getRunTypeName()
-if runTypeName == 'pp_run':
+if (runTypeName == 'pp_run' or runTypeName == 'pp_run_stage1'):
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_pp.root')
-elif runTypeName == 'cosmic_run':
+elif (runTypeName == 'cosmic_run' or runTypeName == 'cosmic_run_stage1'):
     process.DQMStore.referenceFileName = referenceFileName.replace('.root', '_cosmic.root')
 #    process.dqmEndPath.remove(process.dqmQTest)
     process.ecalMonitorTask.workers = ['EnergyTask', 'IntegrityTask', 'OccupancyTask', 'RawDataTask', 'TimingTask', 'TrigPrimTask', 'PresampleTask', 'SelectiveReadoutTask']

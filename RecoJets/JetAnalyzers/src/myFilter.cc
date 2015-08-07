@@ -37,7 +37,6 @@
 
 
 // include files
-#include "CommonTools/RecoAlgos/interface/HBHENoiseFilter.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
 

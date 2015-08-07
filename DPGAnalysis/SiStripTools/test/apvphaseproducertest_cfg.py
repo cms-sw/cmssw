@@ -11,7 +11,7 @@ process = cms.Process("apvphaseTest")
 options = VarParsing.VarParsing("analysis")
 
 options.register ('globalTag',
-                  "DONOTEXIST::All",
+                  "DONOTEXIST",
                   VarParsing.VarParsing.multiplicity.singleton, # singleton or list
                   VarParsing.VarParsing.varType.string,          # string, int, or float
                   "GlobalTag")
@@ -62,8 +62,8 @@ process.MessageLogger.suppressWarning.append("onlineBeamSpot")
 process.MessageLogger.suppressInfo.append("newTracksFromV0")
 process.MessageLogger.suppressInfo.append("newTracksFromOtobV0")
 
-process.MessageLogger.suppressWarning.append("consecutiveHEs")
-
+#process.MessageLogger.suppressWarning.append("consecutiveHEs")
+process.MessageLogger.suppressInfo.append("l1abcdebugger")
 
 #------------------------------------------------------------------
 
@@ -83,13 +83,18 @@ process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring('')
 
 process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
+process.load("DPGAnalysis.SiStripTools.l1abcdebugger_cfi")
+process.l1abcdebuanydcs = process.l1abcdebugger.clone()
 
 #process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts_cfi")
 
 import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi 
 process.APVPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi.APVPhases 
-#import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi 
-#process.APVPhases2011 = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi.APVPhases 
+#import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2013_cfi 
+#process.APVPhases = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2013_cfi.APVPhases 
+#process.APVPhases.defaultPhases = cms.vint32(57,57,57,57)
+#process.APVPhases.magicOffset = cms.untracked.int32(8)
+
 #import DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2010_cfi 
 #process.APVPhases2010 = DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2010_cfi.APVPhases 
 
@@ -202,6 +207,8 @@ process.load("DPGAnalysis.SiStripTools.apvcyclephasemonitor_cfi")
 
 process.load("DPGAnalysis.SiStripTools.eventtimedistribution_cfi")
 process.eventtimedistribution.wantEWHDepthHisto = cms.untracked.bool(True)
+process.eventtimedistribution.wantDBXvsBX = cms.untracked.bool(True)
+process.eventtimedistribution.wantOrbitvsBXincycle = cms.untracked.bool(True)
 process.eventtimedistranydcs = process.eventtimedistribution.clone()
 process.eventtimedistrdeco = process.eventtimedistribution.clone()
 process.eventtimedistrpeak = process.eventtimedistribution.clone()
@@ -313,8 +320,27 @@ process.TFileService = cms.Service('TFileService',
 
 #----GlobalTag ------------------------
 
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = options.globalTag
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
+#-------------------------------------------------------------------------
+#process.poolDBESSource = cms.ESSource("PoolDBESSource",
+#   BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#   DBParameters = cms.PSet(
+#        messageLevel = cms.untracked.int32(1),
+#        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+#    ),
+#    timetype = cms.untracked.string('runnumber'),
+#    connect = cms.string('sqlite_file:apvphaseoffsets_forHLT.db'),
+#    appendToDataLabel = cms.string("apvphaseoffsets"),
+#    toGet = cms.VPSet(cms.PSet(
+#        record = cms.string('SiStripConfObjectRcd'),
+#        tag = cms.string('SiStripAPVPhaseOffsets_real_v1')
+#    ))
+#)
+#process.es_prefer = cms.ESPrefer("PoolDBESSource","poolDBESSource")
+#-------------------------------------------------------------------------
+
 
 #
 
@@ -322,6 +348,7 @@ process.panydcs = cms.Path(process.consecutiveHEs
                            + process.APVPhases
                            + process.ssqDCShistory
                            + process.eventtimedistranydcs
+                           + process.l1abcdebuanydcs
                            )
 
 process.p0 = cms.Path(process.consecutiveHEs
@@ -333,6 +360,7 @@ process.p0 = cms.Path(process.consecutiveHEs
 #                      + process.apvcyclephasemonitorEC02011 + process.apvcyclephasemonitorEC02010
 #                      + process.apvcyclephasemonitor2011 + process.apvcyclephasemonitor2010
                       + process.eventtimedistribution
+                      + process.l1abcdebugger
 #                      + process.evttimedistrwithnophase
 #                      + process.evttimedistrwithphaseEC02011 + process.evttimedistrwithphaseEC02011
 #                      + process.evttimedistrwithphase2011 + process.evttimedistrwithphase2010
@@ -413,3 +441,4 @@ process.pnonoisybinsdeco = cms.Path(process.consecutiveHEs
                                 + process.ssclusmulttimecorrnonoisybinsdeco
                                 )
 
+process.schedule = cms.Schedule(process.panydcs,process.p0)

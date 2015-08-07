@@ -282,7 +282,7 @@ void AlcaBeamMonitor::analyze(const Event& iEvent, const EventSetup& iSetup ){
     iEvent.getByToken(trackLabel_, TrackCollection);
     const reco::TrackCollection *tracks = TrackCollection.product();
     for ( reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track ) {    
-      hD0Phi0_->Fill(track->phi(), -1*track->dxy(beamSpotsMap_["DB"].position()));
+      hD0Phi0_->Fill(track->phi(), -1*track->dxy());
       hDxyBS_->Fill(-1*track->dxy(beamSpotsMap_["DB"].position()));
     }
   }

@@ -78,42 +78,46 @@ void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSet
 	iEvent.getByToken(AdditionalTracks_, addTracks);
 
 	std::auto_ptr< std::vector<reco::Track> > outTks( new std::vector<reco::Track> );
-	std::vector<unsigned int> asso;
+	std::map<unsigned int, std::vector<unsigned int> > asso;
 	std::map<unsigned int, unsigned int> trackKeys;
 	unsigned int j=0;
 	for(unsigned int i=0;i<cands->size();i++)	{
 		const pat::PackedCandidate & c = (*cands)[i];
 		if(c.charge() != 0 && c.numberOfHits()> 0){
 			outTks->push_back(c.pseudoTrack());
-			if(c.fromPV()==pat::PackedCandidate::PVUsedInFit)
-			{
-				asso.push_back(j);
+			for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
+				if(c.fromPV(ipv)==pat::PackedCandidate::PVUsedInFit)
+					asso[ipv].push_back(j);
 			}
- 			trackKeys[i]=j;
+			trackKeys[i]=j;
 			j++;
 		}	
 	}
-	reco::Vertex  pv = (*pvs)[0];
-	std::auto_ptr< std::vector<reco::Vertex> > outPv( new std::vector<reco::Vertex> );
+
 	int offsetAdd=j;
 	for(unsigned int i = 0; i < addTracks->size(); i++) {
-	      outTks->push_back((*addTracks)[i].pseudoTrack());
-              if((*addTracks)[i].fromPV()==pat::PackedCandidate::PVUsedInFit)
-                        {
-//				std::cout << "USEDINFIT " << i <<std::endl;
-                                asso.push_back(j);
-                        }
-		 j++;
-
+		outTks->push_back((*addTracks)[i].pseudoTrack());
+		for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
+			if((*addTracks)[i].fromPV(ipv)==pat::PackedCandidate::PVUsedInFit)
+				asso[ipv].push_back(j);
+		}
+		j++;
 	}
+	
 	edm::OrphanHandle< std::vector<reco::Track>  > oh = iEvent.put( outTks );
-	for(unsigned int i=0;i<asso.size();i++)
-	{
-		TrackRef r(oh,asso[i]);
-		TrackBaseRef rr(r);
-		pv.add(rr);
+	
+	std::auto_ptr< std::vector<reco::Vertex> > outPv( new std::vector<reco::Vertex> );
+	
+	for(size_t ipv=0;ipv< pvs->size(); ++ipv) {
+		reco::Vertex  pv = (*pvs)[ipv];
+		for(unsigned int i=0;i<asso[ipv].size();i++)
+		{
+			TrackRef r(oh,asso[ipv][i]);
+			TrackBaseRef rr(r);
+			pv.add(rr);
+		}
+		outPv->push_back(pv);
 	}
-	outPv->push_back(pv);
 	iEvent.put(outPv);
 
         std::auto_ptr< std::vector<reco::Vertex> > outSv( new std::vector<reco::Vertex> );

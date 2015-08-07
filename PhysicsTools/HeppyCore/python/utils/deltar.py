@@ -4,7 +4,10 @@
 import math
 import copy
 
-def deltaR2( e1, p1, e2, p2):
+def deltaR2( e1, p1, e2=None, p2=None):
+    """Take either 4 arguments (eta,phi, eta,phi) or two objects that have 'eta', 'phi' methods)"""
+    if (e2 == None and p2 == None):
+        return deltaR2(e1.eta(),e1.phi(), p1.eta(), p1.phi())
     de = e1 - e2
     dp = deltaPhi(p1, p2)
     return de*de + dp*dp
@@ -202,14 +205,3 @@ def matchObjectCollection2 ( objects, matchCollection, deltaRMax = 0.3 ):
 
 
 
-if __name__ == '__main__':
-
-    import sys
-    args = sys.argv[1:]
-    fargs = map( float, args )
-
-    print 'dR2 = ', deltaR2( *fargs )
-    print 'dR = ', deltaR( *fargs )
-    
-
-    

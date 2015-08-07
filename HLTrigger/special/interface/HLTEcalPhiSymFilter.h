@@ -66,8 +66,10 @@ private:
   const edm::EDGetTokenT<EERecHitCollection> endcapHitsToken_;
   const std::string phiSymBarrelDigis_;
   const std::string phiSymEndcapDigis_;
-  const double ampCut_barl_;
-  const double ampCut_endc_; 
+  const std::vector<double> ampCut_barlP_;
+  const std::vector<double> ampCut_barlM_;
+  const std::vector<double> ampCut_endcP_; 
+  const std::vector<double> ampCut_endcM_; 
   const uint32_t statusThreshold_; ///< accept channels with up to this status
   const bool   useRecoFlag_;       ///< use recoflag instead of DB for bad channels
 };

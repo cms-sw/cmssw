@@ -52,3 +52,6 @@ DQMOfflineCosmics = cms.Sequence( DQMOfflineCosmicsPreDPG *
 
 DQMOfflineCosmicsPhysics = cms.Sequence( dqmPhysicsCosmics )
 
+DQMOfflineCosmicsNoHWW = cms.Sequence(DQMOfflineCosmics)
+DQMOfflineCosmicsNoHWW.remove(hwwCosmicDQM)
+

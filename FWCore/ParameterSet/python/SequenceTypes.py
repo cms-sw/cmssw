@@ -26,7 +26,7 @@ class _Sequenceable(object):
             return lookuptable[id(self)]
         except:
             raise KeyError("no "+str(type(self))+" with id "+str(id(self))+" found")
-    def resolve(self, processDict):
+    def resolve(self, processDict,keepIfCannotResolve=False):
         return self
     def isOperation(self):
         """Returns True if the object is an operator (e.g. *,+ or !) type"""
@@ -168,8 +168,8 @@ class _SequenceCollection(_Sequenceable):
     def visitNode(self,visitor):
         for m in self._collection:
             m.visitNode(visitor)
-    def resolve(self, processDict):
-        self._collection = [x.resolve(processDict) for x in self._collection]
+    def resolve(self, processDict,keepIfCannotResolve=False):
+        self._collection = [x.resolve(processDict,keepIfCannotResolve) for x in self._collection]
         return self
     def index(self,item):
         return self._collection.index(item)
@@ -307,9 +307,9 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
         if v.didRemove():
             self._seq = v.result()
         return v.didRemove()
-    def resolve(self, processDict):
+    def resolve(self, processDict,keepIfCannotResolve=False):
         if self._seq is not None:
-            self._seq = self._seq.resolve(processDict)
+            self._seq = self._seq.resolve(processDict,keepIfCannotResolve)
         return self
     def __setattr__(self,name,value):
         if not name.startswith("_"):
@@ -371,8 +371,8 @@ class _UnarySequenceOperator(_BooleanLogicSequenceable):
         (self._operand, found) = self._operand._remove(original)
         if self._operand == None: return (None, True)
         return (self, found)
-    def resolve(self, processDict):
-        self._operand = self._operand.resolve(processDict)
+    def resolve(self, processDict,keepIfCannotResolve=False):
+        self._operand = self._operand.resolve(processDict,keepIfCannotResolve)
         return self
     def isOperation(self):
         return True
@@ -456,11 +456,16 @@ class SequencePlaceholder(_Sequenceable):
     def insertInto(self, parameterSet, myname):
         raise RuntimeError("The SequencePlaceholder "+self._name
                            +" was never overridden")
-    def resolve(self, processDict):
+    def resolve(self, processDict,keepIfCannotResolve=False):
         if not self._name in processDict:
             #print str(processDict.keys())
+            if keepIfCannotResolve:
+                return self
             raise RuntimeError("The SequencePlaceholder "+self._name+ " cannot be resolved.\n Known keys are:"+str(processDict.keys()))
-        return  processDict[self._name].resolve(processDict)
+        o = processDict[self._name]
+        if not isinstance(o,_Sequenceable):
+            raise RuntimeError("The SequencePlaceholder "+self._name+ " refers to an object type which is not allowed to be on a sequence: "+str(type(o)))
+        return o.resolve(processDict)
 
     def _clonesequence(self, lookuptable):
         if id(self) not in lookuptable:

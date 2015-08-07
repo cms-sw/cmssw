@@ -54,6 +54,7 @@ static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kStrictOpt = "strict";
 
+constexpr unsigned int kDefaultSizeOfStackForThreadsInKB = 10*1024; //10MB
 // -----------------------------------------------
 namespace {
   class EventProcessorWithSentry {
@@ -235,7 +236,7 @@ int main(int argc, char* argv[]) {
       if(vm.count(kNumberOfThreadsOpt)) {
         setNThreadsOnCommandLine=true;
         unsigned int nThreads = vm[kNumberOfThreadsOpt].as<unsigned int>();
-        unsigned int stackSize=0;
+        unsigned int stackSize=kDefaultSizeOfStackForThreadsInKB;
         if(vm.count(kSizeOfStackForThreadOpt)) {
           stackSize=vm[kSizeOfStackForThreadOpt].as<unsigned int>();
         }
@@ -295,8 +296,8 @@ int main(int argc, char* argv[]) {
             auto const& ops = pset->getUntrackedParameterSet("options");
             if(ops.existsAs<unsigned int>("numberOfThreads",false)) {
               unsigned int nThreads = ops.getUntrackedParameter<unsigned int>("numberOfThreads");
-              unsigned int stackSize=0;
-              if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",0)) {
+              unsigned int stackSize=kDefaultSizeOfStackForThreadsInKB;
+              if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",false)) {
                 stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
               }
               const auto nThreadsUsed = setNThreads(nThreads,stackSize,tsiPtr);
@@ -321,7 +322,7 @@ int main(int argc, char* argv[]) {
 
       context = "Initializing default service configurations";
       std::vector<std::string> defaultServices;
-      defaultServices.reserve(7);
+      defaultServices.reserve(8);
       defaultServices.push_back("MessageLogger");
       defaultServices.push_back("InitRootHandlers");
 #ifdef linux
@@ -331,6 +332,9 @@ int main(int argc, char* argv[]) {
       defaultServices.push_back("AdaptorConfig");
       defaultServices.push_back("SiteLocalConfigService");
       defaultServices.push_back("StatisticsSenderService");
+      // This default is disabled pending widespread testing.  See conversation
+      // in PR #10056
+      //defaultServices.push_back("CondorStatusService");
 
       // Default parameters will be used for the default services
       // if they are not overridden from the configuration files.

@@ -64,16 +64,17 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 # process.GlobalTag.globaltag = "DESIGN_3X_V13::All" # may choose non-default tag
 # ...or (recommended since simpler) directly from DB/sqlite
+
 import CondCore.DBCommon.CondDBSetup_cfi
 process.dbInput = cms.ESSource(
     "PoolDBESSource",
     CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
-#    connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
-    connect = cms.string('frontier://FrontierProd/CMS_COND_31X_HLT'),
+    # connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
+    connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
     toGet = cms.VPSet(cms.PSet(
         record = cms.string('AlCaRecoTriggerBitsRcd'),
-#        tag = cms.string('TestTag') # choose tag to update
-        tag = cms.string('AlCaRecoHLTpaths_Christmas09_offline')
+        # tag = cms.string('TestTag') # choose tag to update
+        tag = cms.string('AlCaRecoHLTpaths8e29_1e31_v7_hlt')
         )
                       )
     )
@@ -85,14 +86,13 @@ process.PoolDBOutputService = cms.Service(
     CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup,
     timetype = cms.untracked.string('runnumber'),
     connect = cms.string('sqlite_file:AlCaRecoTriggerBits.db'),
-#    connect = cms.string('sqlite_file:AlCaRecoTriggerBitsUpdate.db'),
+    # connect = cms.string('sqlite_file:AlCaRecoTriggerBitsUpdate.db'),
     toPut = cms.VPSet(cms.PSet(
-        record = cms.string('AlCaRecoTriggerBitsRcd'),
-        tag = cms.string('TestTag') # choose output tag you want
-        )
+            record = cms.string('AlCaRecoTriggerBitsRcd'),
+            tag = cms.string('TestTag') # choose output tag you want
+            )
                       )
     )
-
 
 # Put module in path:
 process.p = cms.Path(process.AlCaRecoTriggerBitsRcdUpdate)

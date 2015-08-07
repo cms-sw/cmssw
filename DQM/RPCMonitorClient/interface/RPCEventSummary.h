@@ -35,7 +35,7 @@ public:
   bool enableReportSummary_;
   int prescaleFactor_, minimumEvents_;
 
-  bool init_;
+  bool init_, isIn_;
    bool offlineDQM_;
   int lumiCounter_;
   std::string globalFolder_, prefixFolder_;

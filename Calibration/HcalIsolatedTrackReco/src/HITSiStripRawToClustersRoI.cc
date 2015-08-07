@@ -89,8 +89,13 @@ void HITSiStripRawToClustersRoI::produce(edm::Event& event, const edm::EventSetu
 }
 
 bool HITSiStripRawToClustersRoI::physicalLayer(SubDet& subdet, uint32_t& layer) const {
-  int signedlayer = static_cast<int>(SiStripRegionCabling::physicalLayer(subdet,layer));
-  return (nlayers_ == -1 || signedlayer < nlayers_) ? true : false;
+  uint32_t signedlayer = 0;
+  if (subdet == SiStripRegionCabling::TIB || subdet == SiStripRegionCabling::TID) signedlayer = layer;
+  else if (subdet == SiStripRegionCabling::TOB) signedlayer = SiStripRegionCabling::TIBLAYERS + layer;
+  else if (subdet == SiStripRegionCabling::TEC) signedlayer = SiStripRegionCabling::TIDLAYERS + layer;
+  else signedlayer = SiStripRegionCabling::ALLLAYERS;
+
+  return (nlayers_ == -1 || int(signedlayer) < nlayers_) ? true : false;
 }
 
 void HITSiStripRawToClustersRoI::random(RefGetter& refgetter, edm::Handle<LazyGetter>& lazygetter) const {

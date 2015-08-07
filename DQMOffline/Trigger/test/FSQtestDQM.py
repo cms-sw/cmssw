@@ -30,6 +30,9 @@ process.GlobalTag.globaltag = 'PHYS14_25_V2::All'
 f='./fromMax/events.root'
 #f='fromTomasz/events_hlt_singletrack_v3.root'
 f='/afs/cern.ch/work/m/mazarkin/public/forTomasz/events.root'
+f="/afs/cern.ch/user/c/cwohrman/public/fortomasz/AODSIM_pion_E1To1000GeV_1.root"
+f="/afs/cern.ch/user/c/cwohrman/public/fortomasz/AODSIM_MinBias_CastorJets.root"
+f="/nfs/dust/cms/user/fruboest/2015.03.VDMdqmTest/CMSSW_7_4_0_pre9/ttt/outputFULL.root"
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:'+f

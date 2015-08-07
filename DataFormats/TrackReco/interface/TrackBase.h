@@ -48,13 +48,14 @@
  *
  */
 
+#include "DataFormats/TrackReco/interface/HitPattern.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
-#include "DataFormats/TrackReco/interface/HitPattern.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include <bitset>
 
 namespace reco
 {
@@ -93,6 +94,7 @@ public:
     /// index type
     typedef unsigned int index;
 
+
     /// track algorithm
     enum TrackAlgorithm {
         undefAlgorithm = 0, ctf = 1, rs = 2, cosmics = 3,
@@ -127,6 +129,10 @@ public:
         algoSize = 37
     };
 
+    /// algo mask
+    typedef std::bitset<algoSize> AlgoMask;
+ 
+
     static const std::string algoNames[];
 
     /// track quality
@@ -135,11 +141,12 @@ public:
         loose = 0,
         tight = 1,
         highPurity = 2,
-        confirmed = 3,
-        goodIterative = 4,
+        confirmed = 3,  // means found by more than one iteration
+        goodIterative = 4,  // meaningless
         looseSetWithPV = 5,
         highPuritySetWithPV = 6,
-        qualitySize = 7
+        discarded = 7, // because a better track found. kept in the collection for reference....
+        qualitySize = 8
     };
 
     static const std::string qualityNames[];
@@ -319,9 +326,22 @@ public:
     void resetHitPattern();
 
     ///Track algorithm
-    void setAlgorithm(const TrackAlgorithm a, bool set = true);
+    void setAlgorithm(const TrackAlgorithm a);
+   
+    void setOriginalAlgorithm(const TrackAlgorithm a);
+
+    void setAlgoMask(AlgoMask a) { algoMask_ = a;}
+
+    AlgoMask algoMask() const { return algoMask_;}
+#if ( !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__) ) || defined(__ROOTCLING__)
+    unsigned long long algoMaskUL() const { return algoMask().to_ullong();}
+#endif
+    bool isAlgoInMask(TrackAlgorithm a) const {return algoMask()[a];}
+
 
     TrackAlgorithm algo() const ;
+    TrackAlgorithm originalAlgo() const ;
+
 
     std::string algoName() const;
 
@@ -332,7 +352,7 @@ public:
     ///Track quality
     bool quality(const TrackQuality) const;
 
-    void setQuality(const TrackQuality, bool set = true);
+    void setQuality(const TrackQuality);
 
     static std::string qualityName(TrackQuality);
 
@@ -364,6 +384,9 @@ private:
     /// momentum vector at innermost point
     Vector momentum_;
 
+    /// algo mask, bit set for the algo where it was reconstructed + each algo a track was found overlapping by the listmerger
+    std::bitset<algoSize> algoMask_;
+
     /// number of degrees of freedom
     float ndof_;
 
@@ -372,6 +395,10 @@ private:
 
     /// track algorithm
     uint8_t algorithm_;
+
+    /// track algorithm
+    uint8_t originalAlgorithm_;
+
 
     /// track quality
     uint8_t quality_;
@@ -422,158 +449,36 @@ inline TrackBase::index TrackBase::covIndex(index i, index j)
 
 inline TrackBase::TrackAlgorithm TrackBase::algo() const
 {
-    return (TrackAlgorithm) algorithm_;
+    return (TrackAlgorithm) (algorithm_);
+}
+inline TrackBase::TrackAlgorithm TrackBase::originalAlgo() const
+{
+    return (TrackAlgorithm) (originalAlgorithm_);
 }
 
-inline std::string TrackBase::algoName() const
-{
-    // I'd like to do:
-    // return TrackBase::algoName(algorithm_);
-    // but I cannot define a const static function. Why???
-    switch (algorithm_) {
-    case undefAlgorithm:
-      return "undefAlgorithm";
-      break;
-    case ctf:
-      return "ctf";
-      break;
-    case rs:
-      return "rs";
-      break;
-    case cosmics:
-      return "cosmics";
-      break;
-    case beamhalo:
-      return "beamhalo";
-      break;
-    case initialStep:
-      return "initialStep";
-      break;
-    case lowPtTripletStep:
-      return "lowPtTripletStep";
-      break;
-    case pixelPairStep:
-      return "pixelPairStep";
-      break;
-    case detachedTripletStep:
-      return "detachedTripletStep";
-      break;
-    case mixedTripletStep:
-      return "mixedTripletStep";
-      break;
-    case pixelLessStep:
-      return "pixelLessStep";
-      break;
-    case tobTecStep:
-      return "tobTecStep";
-      break;
-    case jetCoreRegionalStep:
-      return "jetCoreRegionalStep";
-      break;
-    case conversionStep:
-      return "conversionStep";
-      break;
-    case muonSeededStepInOut:
-      return "muonSeededStepInOut";
-      break;
-    case muonSeededStepOutIn:
-      return "muonSeededStepOutIn";
-      break;
-    case outInEcalSeededConv:
-      return "outInEcalSeededConv";
-      break;
-    case inOutEcalSeededConv:
-      return "inOutEcalSeededConv";
-      break;
-    case nuclInter:
-      return "nuclInter";
-      break;
-    case standAloneMuon:
-      return "standAloneMuon";
-      break;
-    case globalMuon:
-      return "globalMuon";
-      break;
-    case cosmicStandAloneMuon:
-      return "cosmicStandAloneMuon";
-      break;
-    case cosmicGlobalMuon:
-      return "cosmicGlobalMuon";
-      break;
-    case iter1LargeD0:
-      return "iter1LargeD0";
-      break;
-    case iter2LargeD0:
-      return "iter2LargeD0";
-      break;
-    case iter3LargeD0:
-      return "iter3LargeD0";
-      break;
-    case iter4LargeD0:
-      return "iter4LargeD0";
-      break;
-    case iter5LargeD0:
-      return "iter5LargeD0";
-      break;
-    case bTagGhostTracks:
-      return "bTagGhostTracks";
-      break;
-    case gsf:
-      return "gsf";
-      break;
-    case hltPixel :
-      return "hltPixel";
-      break;
-    case hltIter0 :
-      return "hltIter0";
-      break;
-    case hltIter1 :
-      return "hltIter1";
-      break;
-    case hltIter2 :
-      return "hltIter2";
-      break;
-    case hltIter3 :
-      return "hltIter3";
-      break;
-    case hltIter4 :
-      return "hltIter4";
-      break;
-    case hltIterX :
-      return "hltIterX";
-      break;
-    default:
-      return "undefAlgorithm";
-      break;
-    }
-}
+
+
+inline std::string TrackBase::algoName() const { return TrackBase::algoName(algo()); }
 
 inline bool TrackBase::quality(const TrackBase::TrackQuality q) const
 {
     switch (q) {
     case undefQuality:
-        return (quality_ == 0);
+        return quality_ == 0;
     case goodIterative:
-        return (((quality_ & (1 << TrackBase::confirmed))  >> TrackBase::confirmed) ||
-                ((quality_ & (1 << TrackBase::highPurity)) >> TrackBase::highPurity));
+        return (quality_ & (1 << TrackBase::highPurity)) >> TrackBase::highPurity;
     default:
         return (quality_ & (1 << q)) >> q;
     }
     return false;
 }
 
-inline void TrackBase::setQuality(const TrackBase::TrackQuality q, bool set)
+inline void TrackBase::setQuality(const TrackBase::TrackQuality q)
 {
     if (q == undefQuality) {
         quality_ = 0;
     } else {
-        //regular OR if setting value to true
-        if (set) {
-            quality_ |= (1 << q);
-        } else {
-            // doing "half-XOR" if unsetting value
-            quality_ &= (~(1 << q));
-        }
+        quality_ |= (1 << q);
     }
 }
 
@@ -892,14 +797,20 @@ inline double TrackBase::validFraction() const
 }
 
 //Track algorithm
-inline void TrackBase::setAlgorithm(const TrackBase::TrackAlgorithm a, bool set)
+inline void TrackBase::setAlgorithm(const TrackBase::TrackAlgorithm a)
 {
-    if (set) {
-        algorithm_ = a;
-    } else {
-        algorithm_ = TrackBase::undefAlgorithm;
-    }
+    algorithm_  = a;
+    algoMask_.reset();
+    setOriginalAlgorithm(a);
 }
+
+inline void TrackBase::setOriginalAlgorithm(const TrackBase::TrackAlgorithm a)
+{
+   originalAlgorithm_  = a;
+   algoMask_.set(a);
+}
+
+
 
 inline int TrackBase::qualityMask() const
 {

@@ -55,10 +55,7 @@ DTLocalTriggerLutTest::~DTLocalTriggerLutTest(){
 }
 
 
-void DTLocalTriggerLutTest::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
-                         edm::LuminosityBlock const & lumiSeg, edm::EventSetup const & context) {
-
-  if (bookingdone) return;
+void DTLocalTriggerLutTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();
@@ -118,6 +115,8 @@ void DTLocalTriggerLutTest::beginRun(const edm::Run& r, const edm::EventSetup& c
 }
 
 void DTLocalTriggerLutTest::runClientDiagnostic(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
+
+  if (!bookingdone) Bookings(ibooker,igetter);
 
   // Loop over Trig & Hw sources
   for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr){
@@ -346,5 +345,3 @@ void DTLocalTriggerLutTest::fillWhPlot(MonitorElement *plot, int sect, int stat,
 
 }
 
-
-void DTLocalTriggerLutTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {}

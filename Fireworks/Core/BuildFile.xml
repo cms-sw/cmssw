@@ -32,6 +32,7 @@
 <lib name="GX11"/>
 <lib name="RGL"/>
 <lib name="GLEW"/>
+<lib name="Gui"/>
 <export>
   <lib name="1"/>
 </export>

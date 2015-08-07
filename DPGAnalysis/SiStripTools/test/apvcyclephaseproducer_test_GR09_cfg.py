@@ -42,7 +42,7 @@ process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 #Geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 # Real data raw to digi
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")

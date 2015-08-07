@@ -231,7 +231,7 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
     }
     if (maxP<maxPForIsolationValue_) {
       reco::IsolatedPixelTrackCandidate newCandidate(pixelTrackRefs[iSeed], l1extra::L1JetParticleRef(l1eTauJets,selj-l1eTauJets->begin()), maxP, sumP);
-      newCandidate.SetEtaPhiEcal(VecSeedsatEC[i].eta, VecSeedsatEC[i].phi);
+      newCandidate.setEtaPhiEcal(VecSeedsatEC[i].eta, VecSeedsatEC[i].phi);
       trackCollection->push_back(newCandidate);
       ntr++;
     }    

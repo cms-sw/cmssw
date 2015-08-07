@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 PureMETPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_PFMET180_NoiseCleaned_v",  # Run2
+        "HLT_PFMET170_NoiseCleaned_v",  # Run2
         "HLT_CaloMET200_NoiseCleaned_v"
         #"HLT_MET120_HBHENoiseCleaned_v" # Run1
         ),

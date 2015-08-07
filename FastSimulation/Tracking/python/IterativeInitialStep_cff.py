@@ -43,8 +43,8 @@ initialStepTracks = initialStepTracks.clone(
     Propagator = 'PropagatorWithMaterial')
 
 #vertices
-from RecoTracker.IterativeTracking.InitialStep_cff import firstStepPrimaryVertices
-firstStepPrimaryVertices = firstStepPrimaryVertices.clone()
+import RecoTracker.IterativeTracking.InitialStep_cff
+firstStepPrimaryVerticesBeforeMixing =  RecoTracker.IterativeTracking.InitialStep_cff.firstStepPrimaryVertices.clone()
 
 # simtrack id producer
 initialStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
@@ -54,12 +54,13 @@ initialStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 
 # Final selection
 from RecoTracker.IterativeTracking.InitialStep_cff import initialStepSelector,initialStep
+initialStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # Final sequence
 InitialStep = cms.Sequence(iterativeInitialSeeds
                            +initialStepTrackCandidates
                            +initialStepTracks                                    
-                           +firstStepPrimaryVertices
+                           +firstStepPrimaryVerticesBeforeMixing
                            +initialStepSelector
                            +initialStep
                            +initialStepSimTrackIds)

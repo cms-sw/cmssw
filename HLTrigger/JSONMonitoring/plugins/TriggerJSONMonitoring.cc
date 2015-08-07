@@ -17,19 +17,17 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
+
 #include <fstream>
 
 TriggerJSONMonitoring::TriggerJSONMonitoring(const edm::ParameterSet& ps)
 {
-  if (ps.exists("triggerResults")) triggerResults_ = ps.getParameter<edm::InputTag> ("triggerResults");
-  else                             triggerResults_ = edm::InputTag("TriggerResults","","HLT");
-
+  triggerResults_      = ps.getParameter<edm::InputTag> ("triggerResults");
   triggerResultsToken_ = consumes<edm::TriggerResults>(triggerResults_);
 
-  if (ps.exists("L1Results")) level1Results_ = ps.getParameter<edm::InputTag>("L1Results");  //DS 
-  else                        level1Results_ = edm::InputTag("hltGtDigis");                  //DS
-
-  m_l1t_results        = consumes<L1GlobalTriggerReadoutRecord>(level1Results_);             //DS
+  level1Results_ = ps.getParameter<edm::InputTag>("L1Results");   
+  m_l1t_results  = consumes<L1GlobalTriggerReadoutRecord>(level1Results_);             
                                                      
 }
 
@@ -41,7 +39,7 @@ void
 TriggerJSONMonitoring::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("triggerResults",edm::InputTag("TriggerResults","","HLT"));
-  desc.add<edm::InputTag>("L1Results",edm::InputTag("hltGtDigis"));              //DS  
+  desc.add<edm::InputTag>("L1Results",edm::InputTag("hltGtDigis"));                
   descriptions.add("triggerJSONMonitoring", desc);
 }
 
@@ -71,7 +69,12 @@ TriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   const std::vector<bool> & algoword = L1TResults.decisionWord();  
   if (algoword.size() == L1AlgoAccept_.size()){
     for (unsigned int i = 0; i < algoword.size(); i++){
-      if (algoword[i]) L1AlgoAccept_[i]++;
+      if (algoword[i]){
+	L1AlgoAccept_[i]++;
+	if (ex == 1) L1AlgoAcceptPhysics_[i]++;
+	if (ex == 2) L1AlgoAcceptCalibration_[i]++;
+	if (ex == 3) L1AlgoAcceptRandom_[i]++;
+      }
     }
   }
   else {
@@ -81,7 +84,12 @@ TriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   const std::vector<bool> & techword = L1TResults.technicalTriggerWord();
   if (techword.size() == L1TechAccept_.size()){
     for (unsigned int i = 0; i < techword.size(); i++){
-      if (techword[i]) L1TechAccept_[i]++;
+      if (techword[i]){
+	L1TechAccept_[i]++;
+	if (ex == 1) L1TechAcceptPhysics_[i]++;
+	if (ex == 2) L1TechAcceptCalibration_[i]++;
+	if (ex == 3) L1TechAcceptRandom_[i]++;
+      }
     }
   }
   else{
@@ -124,6 +132,18 @@ TriggerJSONMonitoring::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     if (acceptedByDS[ds]) hltDatasets_[ds]++;
   }
+
+  //Prescale index
+  prescaleIndex_ = hltConfig_.prescaleSet(iEvent, iSetup);
+
+  //Check that the prescale index hasn't changed inside a lumi section
+  unsigned int newLumi = (unsigned int) iEvent.eventAuxiliary().luminosityBlock();
+  if (oldLumi == newLumi and prescaleIndex_ != oldPrescaleIndex){
+    LogWarning("TriggerJSONMonitoring")<<"Prescale index has changed from "<<oldPrescaleIndex<<" to "<<prescaleIndex_<<" inside lumi section "<<newLumi;
+  }
+  oldLumi = newLumi;
+  oldPrescaleIndex = prescaleIndex_;
+
 }//End analyze function     
 
 void
@@ -139,7 +159,7 @@ TriggerJSONMonitoring::resetRun(bool changed){
     for (unsigned int i = 0; i < L1AlgoNames_.size(); i++) {
       L1AlgoNames_.at(i) = "";
     }
-    //Get L1 algorithm trigger names - //DS     
+    //Get L1 algorithm trigger names -      
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
       int bitNumber = (itAlgo->second).algoBitNumber();
       L1AlgoNames_.at(bitNumber) = itAlgo->first;
@@ -149,16 +169,16 @@ TriggerJSONMonitoring::resetRun(bool changed){
     for (unsigned int i = 0; i < L1TechNames_.size(); i++) {
       L1TechNames_.at(i) = "";
     }
-    //Get L1 technical trigger names - //DS          
+    //Get L1 technical trigger names -           
     for (CItAlgo itAlgo = technicalMap.begin(); itAlgo != technicalMap.end(); itAlgo++) {
       int bitNumber = (itAlgo->second).algoBitNumber();
       L1TechNames_.at(bitNumber) = itAlgo->first;
     }
 
-    L1GlobalType_.clear();  //DS 
-    L1Global_.clear();     //DS
+    L1GlobalType_.clear();   
+    L1Global_.clear();     
     
-    //Set the experimentType - //DS         
+    //Set the experimentType -          
     L1GlobalType_.push_back( "Physics" );
     L1GlobalType_.push_back( "Calibration" );
     L1GlobalType_.push_back( "Random" );
@@ -166,9 +186,9 @@ TriggerJSONMonitoring::resetRun(bool changed){
 
   const unsigned int n  = hltNames_.size();
   const unsigned int d  = datasetNames_.size();
-  const unsigned int la = L1AlgoNames_.size();      //DS 
-  const unsigned int lt = L1TechNames_.size();  //DS   
-  const unsigned int lg = L1GlobalType_.size(); //DS     
+  const unsigned int la = L1AlgoNames_.size();       
+  const unsigned int lt = L1TechNames_.size();     
+  const unsigned int lg = L1GlobalType_.size();      
 
   if (changed) {
     //Resize per-path counters   
@@ -178,9 +198,18 @@ TriggerJSONMonitoring::resetRun(bool changed){
     hltAccept_.resize(n);
     hltReject_.resize(n);
     hltErrors_.resize(n);
+
     L1AlgoAccept_.resize(la);         
+    L1AlgoAcceptPhysics_.resize(la);         
+    L1AlgoAcceptCalibration_.resize(la);         
+    L1AlgoAcceptRandom_.resize(la);         
+
     L1TechAccept_.resize(lt);          
-    L1Global_.resize(lg);           //DS      
+    L1TechAcceptPhysics_.resize(lt);          
+    L1TechAcceptCalibration_.resize(lt);          
+    L1TechAcceptRandom_.resize(lt);          
+
+    L1Global_.resize(lg);                 
     //Resize per-dataset counter    
     hltDatasets_.resize(d);
     //Resize htlIndex     
@@ -233,18 +262,27 @@ TriggerJSONMonitoring::resetLumi(){
   for (unsigned int i = 0; i < hltDatasets_.size(); i++) {
     hltDatasets_[i] = 0;
   }
-  //Reset L1 per-algo counters - //DS    
+  //Reset L1 per-algo counters -     
   for (unsigned int i = 0; i < L1AlgoAccept_.size(); i++) {
-    L1AlgoAccept_[i] = 0;
+    L1AlgoAccept_[i]            = 0;
+    L1AlgoAcceptPhysics_[i]     = 0;
+    L1AlgoAcceptCalibration_[i] = 0;
+    L1AlgoAcceptRandom_[i]      = 0;
   }
-  //Reset L1 per-tech counters - //DS   
+  //Reset L1 per-tech counters -    
   for (unsigned int i = 0; i < L1TechAccept_.size(); i++) {
-    L1TechAccept_[i] = 0;
+    L1TechAccept_[i]            = 0;
+    L1TechAcceptPhysics_[i]     = 0;
+    L1TechAcceptCalibration_[i] = 0;
+    L1TechAcceptRandom_[i]      = 0;
   }
-  //Reset L1 global counters - //DS     
+  //Reset L1 global counters -      
   for (unsigned int i = 0; i < L1GlobalType_.size(); i++) {
     L1Global_[i] = 0;
   }
+
+  //Luminosity and prescale index
+  prescaleIndex_ = 0;
 
 }//End resetLumi function  
 
@@ -258,11 +296,11 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
   std::string monPath = baseRunDir_ + "/";
 
   //Get/update the L1 trigger menu from the EventSetup
-  edm::ESHandle<L1GtTriggerMenu> l1GtMenu;           //DS
-  iSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);    //DS
-  m_l1GtMenu = l1GtMenu.product();                   //DS
-  algorithmMap = m_l1GtMenu->gtAlgorithmMap();       //DS
-  technicalMap = m_l1GtMenu->gtTechnicalTriggerMap();//DS
+  edm::ESHandle<L1GtTriggerMenu> l1GtMenu;           
+  iSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);    
+  m_l1GtMenu = l1GtMenu.product();                   
+  algorithmMap = m_l1GtMenu->gtAlgorithmMap();       
+  technicalMap = m_l1GtMenu->gtTechnicalTriggerMap();
 
   //Get masks (for now, only use them to find the number of triggers)
   edm::ESHandle<L1GtTriggerMask> l1GtAlgoMask;           
@@ -297,7 +335,7 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
 
     writeDefJson(baseRunDir_ + "/" + stHltJsd_);
     
-    //Create definition file for L1 Rates - //DS 
+    //Create definition file for L1 Rates -  
     std::stringstream ssL1Jsd;
     ssL1Jsd << "run" << std::setfill('0') << std::setw(6) << nRun << "_ls0000";
     ssL1Jsd << "_streamL1Rates_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsd";
@@ -364,6 +402,10 @@ TriggerJSONMonitoring::beginRun(edm::Run const& iRun, edm::EventSetup const& iSe
     outL1Ini.close();
   }
 
+  //Initialize variables for verification of prescaleIndex
+  oldLumi          = 0;
+  oldPrescaleIndex = 0;
+
 }//End beginRun function        
 
 void TriggerJSONMonitoring::beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup& iSetup){ resetLumi(); }
@@ -386,9 +428,23 @@ TriggerJSONMonitoring::globalBeginLuminosityBlockSummary(const edm::LuminosityBl
 
   iSummary->hltDatasets = new HistoJ<unsigned int>(1, MAXPATHS);
 
-  iSummary->L1Accept     = new HistoJ<unsigned int>(1, MAXPATHS); //DS                           
-  iSummary->L1TechAccept = new HistoJ<unsigned int>(1, MAXPATHS); //DS 
-  iSummary->L1Global     = new HistoJ<unsigned int>(1, MAXPATHS); //DS 
+  iSummary->prescaleIndex = 100;
+
+  iSummary->L1AlgoAccept            = new HistoJ<unsigned int>(1, MAXPATHS);                            
+  iSummary->L1TechAccept            = new HistoJ<unsigned int>(1, MAXPATHS);  
+  iSummary->L1AlgoAcceptPhysics     = new HistoJ<unsigned int>(1, MAXPATHS);                            
+  iSummary->L1TechAcceptPhysics     = new HistoJ<unsigned int>(1, MAXPATHS);  
+  iSummary->L1AlgoAcceptCalibration = new HistoJ<unsigned int>(1, MAXPATHS);                            
+  iSummary->L1TechAcceptCalibration = new HistoJ<unsigned int>(1, MAXPATHS);  
+  iSummary->L1AlgoAcceptRandom      = new HistoJ<unsigned int>(1, MAXPATHS);                            
+  iSummary->L1TechAcceptRandom      = new HistoJ<unsigned int>(1, MAXPATHS);  
+  iSummary->L1Global                = new HistoJ<unsigned int>(1, MAXPATHS);  
+
+  iSummary->baseRunDir           = "";
+  iSummary->stHltJsd             = "";
+  iSummary->stL1Jsd              = "";
+  iSummary->streamL1Destination  = "";
+  iSummary->streamHLTDestination = "";
 
   return iSummary;
 }//End globalBeginLuminosityBlockSummary function  
@@ -411,21 +467,30 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
     for (unsigned int ui = 0; ui < hltDatasets_.size(); ui++){
       iSummary->hltDatasets->update(hltDatasets_.at(ui));
     }
+    iSummary->prescaleIndex = prescaleIndex_;
+
     iSummary->stHltJsd   = stHltJsd_;
     iSummary->baseRunDir = baseRunDir_;
     
-    for (unsigned int ui = 0; ui < L1AlgoAccept_.size(); ui++){  //DS  
-      iSummary->L1Accept->update(L1AlgoAccept_.at(ui));
+    for (unsigned int ui = 0; ui < L1AlgoAccept_.size(); ui++){    
+      iSummary->L1AlgoAccept           ->update(L1AlgoAccept_.at(ui));
+      iSummary->L1AlgoAcceptPhysics    ->update(L1AlgoAcceptPhysics_.at(ui));
+      iSummary->L1AlgoAcceptCalibration->update(L1AlgoAcceptCalibration_.at(ui));
+      iSummary->L1AlgoAcceptRandom     ->update(L1AlgoAcceptRandom_.at(ui));
     }
-    for (unsigned int ui = 0; ui < L1TechAccept_.size(); ui++){  //DS 
-      iSummary->L1TechAccept->update(L1TechAccept_.at(ui));
+    for (unsigned int ui = 0; ui < L1TechAccept_.size(); ui++){   
+      iSummary->L1TechAccept           ->update(L1TechAccept_.at(ui));
+      iSummary->L1TechAcceptPhysics    ->update(L1TechAcceptPhysics_.at(ui));
+      iSummary->L1TechAcceptCalibration->update(L1TechAcceptCalibration_.at(ui));
+      iSummary->L1TechAcceptRandom     ->update(L1TechAcceptRandom_.at(ui));
     }
-    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){  //DS  
+    for (unsigned int ui = 0; ui < L1GlobalType_.size(); ui++){    
       iSummary->L1Global    ->update(L1Global_.at(ui));
     }
-    iSummary->stL1Jsd = stL1Jsd_;    //DS  
+    iSummary->stL1Jsd = stL1Jsd_;      
+
     iSummary->streamHLTDestination = runCache()->streamHLTDestination;
-    iSummary->streamL1Destination = runCache()->streamL1Destination;
+    iSummary->streamL1Destination  = runCache()->streamL1Destination;
   }
 
   else{
@@ -442,13 +507,19 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
     for (unsigned int ui = 0; ui < hltDatasets_.size(); ui++){
       iSummary->hltDatasets->value().at(ui) += hltDatasets_.at(ui);
     }
-    for (unsigned int ui = 0; ui < L1AlgoAccept_.size(); ui++){  //DS                           
-      iSummary->L1Accept->value().at(ui) += L1AlgoAccept_.at(ui);
+    for (unsigned int ui = 0; ui < L1AlgoAccept_.size(); ui++){                             
+      iSummary->L1AlgoAccept->value().at(ui)            += L1AlgoAccept_.at(ui);
+      iSummary->L1AlgoAcceptPhysics->value().at(ui)     += L1AlgoAcceptPhysics_.at(ui);
+      iSummary->L1AlgoAcceptCalibration->value().at(ui) += L1AlgoAcceptCalibration_.at(ui);
+      iSummary->L1AlgoAcceptRandom->value().at(ui)      += L1AlgoAcceptRandom_.at(ui);
     }
-    for (unsigned int ui = 0; ui < L1TechAccept_.size(); ui++){  //DS                              
-      iSummary->L1TechAccept->value().at(ui) += L1TechAccept_.at(ui);
+    for (unsigned int ui = 0; ui < L1TechAccept_.size(); ui++){                                
+      iSummary->L1TechAccept->value().at(ui)            += L1TechAccept_.at(ui);
+      iSummary->L1TechAcceptPhysics->value().at(ui)     += L1TechAcceptPhysics_.at(ui);
+      iSummary->L1TechAcceptCalibration->value().at(ui) += L1TechAcceptCalibration_.at(ui);
+      iSummary->L1TechAcceptRandom->value().at(ui)      += L1TechAcceptRandom_.at(ui);
     }
-    for (unsigned int ui = 0; ui < L1Global_.size(); ui++){  //DS                             
+    for (unsigned int ui = 0; ui < L1Global_.size(); ui++){                               
       iSummary->L1Global->value().at(ui) += L1Global_.at(ui);
     }
 
@@ -460,7 +531,18 @@ TriggerJSONMonitoring::endLuminosityBlockSummary(const edm::LuminosityBlock& iLu
 void
 TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup, const LuminosityBlockContext* iContext, hltJson::lumiVars* iSummary)
 {
-  if (iSummary->processed->value().at(0)!=0) {
+
+  unsigned int iLs  = iLumi.luminosityBlock();
+  unsigned int iRun = iLumi.run();
+
+  bool writeFiles=true;
+  if (edm::Service<evf::MicroStateService>().isAvailable()) {
+    evf::FastMonitoringService * fms = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
+    if (fms)
+      writeFiles = fms->getEventsProcessedForLumi(iLs)>0;
+  }
+
+  if (iSummary->processed->value().at(0)!=0 && writeFiles) {
     Json::StyledWriter writer;
 
     char hostname[33];
@@ -472,9 +554,6 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
 
     std::stringstream sOutDef;
     sOutDef << monPath << "output_" << getpid() << ".jsd";
-
-    unsigned int iLs  = iLumi.luminosityBlock();
-    unsigned int iRun = iLumi.run();
 
     //Write the .jsndata files which contain the actual rates
     //HLT .jsndata file
@@ -492,6 +571,8 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
 
     hltJsnData[DataPoint::DATA].append(iSummary->hltDatasets->toJsonValue());
 
+    hltJsnData[DataPoint::DATA].append(iSummary->prescaleIndex);
+
     std::string && result = writer.write(hltJsnData);
 
     std::stringstream ssHltJsnData;
@@ -502,15 +583,29 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     outHltJsnData<<result;
     outHltJsnData.close();
 
+    //HLT jsn entries
+    StringJ hltJsnFilelist;
+    hltJsnFilelist.update(ssHltJsnData.str());
+    IntJ hltJsnFilesize    = result.size();
+    IntJ hltJsnFileAdler32 = cms::Adler32(result.c_str(),result.size());
+    StringJ hltJsnInputFiles;
+    hltJsnInputFiles.update("");
+
     //L1 .jsndata file
     Json::Value l1JsnData;
     l1JsnData[DataPoint::SOURCE] = sourceHost;
     l1JsnData[DataPoint::DEFINITION] = iSummary->stL1Jsd;
 
     l1JsnData[DataPoint::DATA].append(iSummary->processed->toJsonValue());
-    l1JsnData[DataPoint::DATA].append(iSummary->L1Accept ->toJsonValue());
-    l1JsnData[DataPoint::DATA].append(iSummary->L1TechAccept ->toJsonValue()); //DS       
-    l1JsnData[DataPoint::DATA].append(iSummary->L1Global ->toJsonValue());     //DS 
+    l1JsnData[DataPoint::DATA].append(iSummary->L1AlgoAccept           ->toJsonValue());
+    l1JsnData[DataPoint::DATA].append(iSummary->L1TechAccept           ->toJsonValue());        
+    l1JsnData[DataPoint::DATA].append(iSummary->L1AlgoAcceptPhysics    ->toJsonValue());
+    l1JsnData[DataPoint::DATA].append(iSummary->L1TechAcceptPhysics    ->toJsonValue());        
+    l1JsnData[DataPoint::DATA].append(iSummary->L1AlgoAcceptCalibration->toJsonValue());
+    l1JsnData[DataPoint::DATA].append(iSummary->L1TechAcceptCalibration->toJsonValue());        
+    l1JsnData[DataPoint::DATA].append(iSummary->L1AlgoAcceptRandom     ->toJsonValue());
+    l1JsnData[DataPoint::DATA].append(iSummary->L1TechAcceptRandom     ->toJsonValue());        
+    l1JsnData[DataPoint::DATA].append(iSummary->L1Global               ->toJsonValue());      
     result = writer.write(l1JsnData);
 
     std::stringstream ssL1JsnData;
@@ -521,40 +616,34 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     outL1JsnData<<result;
     outL1JsnData.close();
 
+    StringJ l1JsnFilelist;
+    l1JsnFilelist.update(ssL1JsnData.str());
+    IntJ l1JsnFilesize    = result.size();
+    IntJ l1JsnFileAdler32 = cms::Adler32(result.c_str(), result.size());
+    StringJ l1JsnInputFiles;               
+    l1JsnInputFiles.update("");
+ 
     //Create special DAQ JSON file for L1 and HLT rates pseudo-streams
     //Only three variables are different between the files: 
     //the file list, the file size and the Adler32 value
-    IntJ daqJsnProcessed_   = iSummary->processed->value().at(0);
-    IntJ daqJsnAccepted_    = daqJsnProcessed_;
-    IntJ daqJsnErrorEvents_ = 0;                  
-    IntJ daqJsnRetCodeMask_ = 0;                 
+    IntJ daqJsnProcessed   = iSummary->processed->value().at(0);
+    IntJ daqJsnAccepted    = daqJsnProcessed;
+    IntJ daqJsnErrorEvents = 0;                  
+    IntJ daqJsnRetCodeMask = 0;                 
 
-    struct stat st;
-
-    //HLT
-    StringJ hltJsnFilelist_;
-    hltJsnFilelist_.update(ssHltJsnData.str());                 
-
-    const char* cName = (monPath+ssHltJsnData.str()).c_str();
-    stat(cName, &st);
-
-    IntJ hltJsnFilesize_    = st.st_size;                    
-    StringJ hltJsnInputFiles_;               
-    hltJsnInputFiles_.update("");
-    IntJ hltJsnFileAdler32_ = cms::Adler32(cName, st.st_size);        
-
+    //write out HLT metadata jsn
     Json::Value hltDaqJsn;
     hltDaqJsn[DataPoint::SOURCE] = sourceHost;
     hltDaqJsn[DataPoint::DEFINITION] = sOutDef.str();
 
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask_.value());
-    hltDaqJsn[DataPoint::DATA].append(hltJsnFilelist_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFilesize_.value());
-    hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles_.value());
-    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFileAdler32_.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask.value());
+    hltDaqJsn[DataPoint::DATA].append(hltJsnFilelist.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFilesize.value());
+    hltDaqJsn[DataPoint::DATA].append(hltJsnInputFiles.value());
+    hltDaqJsn[DataPoint::DATA].append((unsigned int)hltJsnFileAdler32.value());
     hltDaqJsn[DataPoint::DATA].append(iSummary->streamHLTDestination);
 
     result = writer.write(hltDaqJsn);
@@ -567,30 +656,19 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
     outHltDaqJsn<<result;
     outHltDaqJsn.close();
 
-    //L1
-    StringJ l1JsnFilelist_;
-    l1JsnFilelist_.update(ssL1JsnData.str());                 
-
-    cName = (monPath+ssL1JsnData.str()).c_str();
-    stat(cName, &st);
-
-    IntJ l1JsnFilesize_    = st.st_size;                    
-    StringJ l1JsnInputFiles_;               
-    l1JsnInputFiles_.update("");
-    IntJ l1JsnFileAdler32_ = cms::Adler32(cName, st.st_size);        
-
+    //write out HLT metadata jsn
     Json::Value l1DaqJsn;
     l1DaqJsn[DataPoint::SOURCE] = sourceHost;
     l1DaqJsn[DataPoint::DEFINITION] = sOutDef.str();
 
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask_.value());
-    l1DaqJsn[DataPoint::DATA].append(l1JsnFilelist_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFilesize_.value());
-    l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles_.value());
-    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFileAdler32_.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnProcessed.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnAccepted.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnErrorEvents.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)daqJsnRetCodeMask.value());
+    l1DaqJsn[DataPoint::DATA].append(l1JsnFilelist.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFilesize.value());
+    l1DaqJsn[DataPoint::DATA].append(l1JsnInputFiles.value());
+    l1DaqJsn[DataPoint::DATA].append((unsigned int)l1JsnFileAdler32.value());
     l1DaqJsn[DataPoint::DATA].append(iSummary->streamL1Destination);
 
     result = writer.write(l1DaqJsn);
@@ -616,9 +694,15 @@ TriggerJSONMonitoring::globalEndLuminosityBlockSummary(const edm::LuminosityBloc
 
   delete iSummary->hltDatasets;
 
-  delete iSummary->L1Accept;     //DS    
-  delete iSummary->L1TechAccept; //DS             
-  delete iSummary->L1Global;     //DS                  
+  delete iSummary->L1AlgoAccept;         
+  delete iSummary->L1TechAccept;              
+  delete iSummary->L1AlgoAcceptPhysics;         
+  delete iSummary->L1TechAcceptPhysics;              
+  delete iSummary->L1AlgoAcceptCalibration;         
+  delete iSummary->L1TechAcceptCalibration;              
+  delete iSummary->L1AlgoAcceptRandom;         
+  delete iSummary->L1TechAcceptRandom;              
+  delete iSummary->L1Global;                       
 
   //Note: Do not delete the iSummary pointer. The framework does something with it later on    
   //      and deleting it results in a segmentation fault.  
@@ -670,7 +754,12 @@ TriggerJSONMonitoring::writeDefJson(std::string path){
   outfile << "      {" ;
   outfile << " \"name\" : \"Dataset-Accepted\"," ;
   outfile << " \"type\" : \"integer\"," ;
-  outfile << " \"operation\" : \"histo\"}" << std::endl;
+  outfile << " \"operation\" : \"histo\"}," << std::endl;
+
+  outfile << "      {" ;
+  outfile << " \"name\" : \"Prescale-Index\"," ;
+  outfile << " \"type\" : \"integer\"," ;
+  outfile << " \"operation\" : \"sample\"}" << std::endl;
 
   outfile << "   ]" << std::endl;
   outfile << "}" << std::endl;
@@ -680,7 +769,7 @@ TriggerJSONMonitoring::writeDefJson(std::string path){
 
 
 void
-TriggerJSONMonitoring::writeL1DefJson(std::string path){  //DS            
+TriggerJSONMonitoring::writeL1DefJson(std::string path){              
 
   std::ofstream outfile( path );
   outfile << "{" << std::endl;
@@ -691,12 +780,42 @@ TriggerJSONMonitoring::writeL1DefJson(std::string path){  //DS
   outfile << " \"operation\" : \"histo\"}," << std::endl;
 
   outfile << "      {" ;
-  outfile << " \"name\" : \"L1-Accepted\"," ;
+  outfile << " \"name\" : \"L1-AlgoAccepted\"," ;
   outfile << " \"type\" : \"integer\"," ;
   outfile << " \"operation\" : \"histo\"}," << std::endl;
 
   outfile << "      {" ;
   outfile << " \"name\" : \"L1-TechAccepted\"," ;
+  outfile << " \"type\" : \"integer\"," ;
+  outfile << " \"operation\" : \"histo\"}," << std::endl;
+
+  outfile << "      {" ;
+  outfile << " \"name\" : \"L1-AlgoAccepted-Physics\"," ;
+  outfile << " \"type\" : \"integer\"," ;
+  outfile << " \"operation\" : \"histo\"}," << std::endl;
+
+  outfile << "      {" ;
+  outfile << " \"name\" : \"L1-TechAccepted-Physics\"," ;
+  outfile << " \"type\" : \"integer\"," ;
+  outfile << " \"operation\" : \"histo\"}," << std::endl;
+
+  outfile << "      {" ;
+  outfile << " \"name\" : \"L1-AlgoAccepted-Calibration\"," ;
+  outfile << " \"type\" : \"integer\"," ;
+  outfile << " \"operation\" : \"histo\"}," << std::endl;
+
+  outfile << "      {" ;
+  outfile << " \"name\" : \"L1-TechAccepted-Calibration\"," ;
+  outfile << " \"type\" : \"integer\"," ;
+  outfile << " \"operation\" : \"histo\"}," << std::endl;
+
+  outfile << "      {" ;
+  outfile << " \"name\" : \"L1-AlgoAccepted-Random\"," ;
+  outfile << " \"type\" : \"integer\"," ;
+  outfile << " \"operation\" : \"histo\"}," << std::endl;
+
+  outfile << "      {" ;
+  outfile << " \"name\" : \"L1-TechAccepted-Random\"," ;
   outfile << " \"type\" : \"integer\"," ;
   outfile << " \"operation\" : \"histo\"}," << std::endl;
 

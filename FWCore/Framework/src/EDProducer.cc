@@ -34,9 +34,11 @@ namespace edm {
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
     {
-      std::lock_guard<std::mutex> guard(mutex_);
+      //Temporary: switch order of locks to avoid a deadlock with unscheduled
+      // proper fix is to releaes resourcesAcquirer when doing a 'getBy*'
+      std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
       {
-        std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
+        std::lock_guard<std::mutex> guard(mutex_);
         EventSignalsSentry sentry(act,mcc);
         this->produce(e, c);
       }

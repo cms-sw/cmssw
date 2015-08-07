@@ -11,6 +11,7 @@
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefHolder.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/OneToValue.h"
@@ -33,6 +34,7 @@
 
 namespace DataFormats_TrackReco {
   struct dictionary {
+    std::bitset<reco::TrackBase::algoSize> ba;
     reco::TrackExtraCollection v3;
     edm::Wrapper<reco::TrackExtraCollection> c3;
     edm::Ref<reco::TrackExtraCollection> r3;
@@ -84,6 +86,7 @@ namespace DataFormats_TrackReco {
     edm::reftobase::IndirectHolder<reco::Track>         ih_tk;
     //edm::reftobase::BaseHolder<reco::Track>             bh_tk;
     edm::reftobase::RefHolder<reco::TrackRef>           rf_tkr;
+    edm::reftobase::RefHolder<edm::Ptr<reco::Track> > rfh_ptr_tkr;
     edm::reftobase::Holder<reco::Track, reco::TrackRef> h_tk_tkr;
     std::vector< edm::RefToBase<reco::Track> >		rtb_tk_vect;
 

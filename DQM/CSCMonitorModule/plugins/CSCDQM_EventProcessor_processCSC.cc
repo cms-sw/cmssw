@@ -449,7 +449,7 @@ namespace cscdqm {
         if (getCSCHisto(h::CSC_ALCT_DMB_BXN_DIFF, crateID, dmbID, mo)) {
           int alct_dmb_bxn_diff = (int)(alctHeader->BXNCount()-dmbHeader->bxn12());
           if (alct_dmb_bxn_diff > 0) alct_dmb_bxn_diff -= 3564;
-          alct_dmb_bxn_diff %= 64;
+          alct_dmb_bxn_diff %= 32;
           mo->Fill(alct_dmb_bxn_diff);
           mo->SetAxisRange(0.1, 1.1 * (1.0 + mo->GetBinContent(mo->GetMaximumBin())), "Y");
         }
@@ -506,6 +506,17 @@ namespace cscdqm {
             alct_dtime = (int) (alctsDatas[lct].getBX() - (alctHeader->BXNCount()&0x1F));
           }
 
+	  // == Those two summary histos need to be outside of per-chamber CSC_ALCTXX_DTIME histo check. 
+          //    Otherwise will be empty in Offline DQM
+          if (lct == 0) {
+              if (cid.endcap() == 1) {
+                if (mo_CSC_Plus_endcap_ALCT0_dTime) mo_CSC_Plus_endcap_ALCT0_dTime->Fill(alct_dtime);
+              }
+              if (cid.endcap() == 2) {
+                if (mo_CSC_Minus_endcap_ALCT0_dTime) mo_CSC_Minus_endcap_ALCT0_dTime->Fill(alct_dtime);
+              }
+            } 
+
           if (getCSCHisto(h::CSC_ALCTXX_DTIME, crateID, dmbID, lct, mo)) {
 
             if(alct_dtime < -16) {
@@ -522,12 +533,14 @@ namespace cscdqm {
 
             // == For ALCT0 Fill Summary dTime Histograms
             if (lct == 0) {
+	      /* -- Moved outside of CSC histo check
               if (cid.endcap() == 1) {
                 if (mo_CSC_Plus_endcap_ALCT0_dTime) mo_CSC_Plus_endcap_ALCT0_dTime->Fill(alct_dtime);
               }
               if (cid.endcap() == 2) {
                 if (mo_CSC_Minus_endcap_ALCT0_dTime) mo_CSC_Minus_endcap_ALCT0_dTime->Fill(alct_dtime);
               }
+	      */
               if (cscPosition && mo_CSC_ALCT0_BXN_mean) {
                 mo_CSC_ALCT0_BXN_mean->SetBinContent(cscPosition, cscType + 1, dTime_mean);
               }
@@ -535,8 +548,8 @@ namespace cscdqm {
                 mo_CSC_ALCT0_BXN_rms->SetBinContent(cscPosition, cscType + 1, dTime_rms);
               }
             }
-
           }
+	  
 
           if (getCSCHisto(h::CSC_ALCTXX_DTIME_VS_KEYWG, crateID, dmbID, lct, mo)) {
             if(alct_dtime < -16) {
@@ -949,9 +962,20 @@ namespace cscdqm {
               clct_dtime -= 3564;
             }
 
+	    int dTime = clct_dtime;
+
+            if (lct == 0) {
+                if (cid.endcap() == 1) {
+                  if (mo_CSC_Plus_endcap_CLCT0_dTime) mo_CSC_Plus_endcap_CLCT0_dTime->Fill(dTime);
+                }
+                if (cid.endcap() == 2) {
+                  if (mo_CSC_Minus_endcap_CLCT0_dTime) mo_CSC_Minus_endcap_CLCT0_dTime->Fill(dTime);
+                }
+              }
+
             if (getCSCHisto(h::CSC_CLCTXX_DTIME, crateID, dmbID, lct, mo)) {
-              int dTime = clct_dtime;
               /*
+              int dTime = clct_dtime;
               if (clct_dtime < -16) {
                 dTime = clct_dtime + 32;
               } else {
@@ -967,12 +991,14 @@ namespace cscdqm {
 
               // == For CLCT0 Fill Summary dTime Histograms
               if (lct == 0) {
+		/* -- Moved 
                 if (cid.endcap() == 1) {
                   if (mo_CSC_Plus_endcap_CLCT0_dTime) mo_CSC_Plus_endcap_CLCT0_dTime->Fill(dTime);
                 }
                 if (cid.endcap() == 2) {
                   if (mo_CSC_Minus_endcap_CLCT0_dTime) mo_CSC_Minus_endcap_CLCT0_dTime->Fill(dTime);
                 }
+		*/
                 if (cscPosition && mo_CSC_CLCT0_BXN_mean) {
                   mo_CSC_CLCT0_BXN_mean->SetBinContent(cscPosition, cscType + 1, dTime_mean);
                 }
@@ -1057,8 +1083,9 @@ namespace cscdqm {
                 mo->Fill((int)(clctsDatas[lct].getQuality()));
                 if (lct == 0) {
                   MonitorObject* mo1 = 0;
-                  if (cscPosition && getEMUHisto(h::EMU_CSC_CLCT0_QUALITY, mo1))
+                  if (cscPosition && getEMUHisto(h::EMU_CSC_CLCT0_QUALITY, mo1)) {
                     mo1->SetBinContent(cscPosition, cscType + 1, mo->getTH1()->GetMean());
+		  }
                 }
               }
 

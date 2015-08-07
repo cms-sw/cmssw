@@ -325,7 +325,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
 
       math::XYZTLorentzVector p12 = (*gsfIter).p4()+ pSCprobecandidate;
       float mee2 = p12.Dot(p12);
-      float invMass = sqrt(mee2);
+      float invMass = mee2 > 0. ? sqrt(mee2) : 0.;
 
       if( invMass < massLow_ || invMass > massHigh_ ) continue ;
       
@@ -468,7 +468,7 @@ void ElectronTagProbeAnalyzer::analyze( const edm::Event& iEvent, const edm::Eve
 	  h1_mee->Fill(invMass);
 	  math::XYZTLorentzVector p12bis = (*gsfIter).p4()+ bestGsfElectron.p4() ;
 	  float mee2bis = p12.Dot(p12bis);
-	  float invMassEE = sqrt(mee2bis);
+	  float invMassEE = mee2bis > 0. ? sqrt(mee2bis) : 0.;
 	  if(invMassEE >= massLow_ && invMassEE <= massHigh_){h1_mee_os->Fill(invMassEE);}
 	  std::pair<double,double> p(gsfIter->eta(),bestGsfElectron.eta());
 	  TTCheck.push_back(p);
@@ -491,7 +491,7 @@ float ElectronTagProbeAnalyzer::computeInvMass
  {
   math::XYZTLorentzVector p12 = e1.p4()+e2.p4() ;
   float mee2 = p12.Dot(p12) ;
-  float invMass = sqrt(mee2) ;
+  float invMass = mee2 > 0. ? sqrt(mee2) : 0.;
   return invMass ;
  }
 

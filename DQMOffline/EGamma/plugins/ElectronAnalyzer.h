@@ -229,25 +229,29 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h1_dEtaSc_propVtx ;
 //    MonitorElement * h2_dEtaSc_propVtxVsEta ;
     MonitorElement * h1_dEtaSc_propVtx_barrel ;
-    MonitorElement * h1_dEtaSc_propVtx_endcaps ;
+    MonitorElement * h1_dEtaSc_propVtx_endcapsPos ;
+    MonitorElement * h1_dEtaSc_propVtx_endcapsNeg ;
     MonitorElement * py_dEtaSc_propVtxVsPhi ;
 //    MonitorElement * h2_dEtaSc_propVtxVsPt ;
 //    MonitorElement * h1_dEtaEleCl_propOut ;
 //    MonitorElement * h2_dEtaEleCl_propOutVsEta ;
     MonitorElement * h1_dEtaEleCl_propOut_barrel ;
-    MonitorElement * h1_dEtaEleCl_propOut_endcaps ;
+    MonitorElement * h1_dEtaEleCl_propOut_endcapsPos ;
+    MonitorElement * h1_dEtaEleCl_propOut_endcapsNeg ;
 //    MonitorElement * h2_dEtaEleCl_propOutVsPhi ;
 //    MonitorElement * h2_dEtaEleCl_propOutVsPt ;
 //    MonitorElement * h1_dPhiSc_propVtx ;
 //    MonitorElement * h2_dPhiSc_propVtxVsEta ;
     MonitorElement * h1_dPhiSc_propVtx_barrel ;
-    MonitorElement * h1_dPhiSc_propVtx_endcaps ;
+    MonitorElement * h1_dPhiSc_propVtx_endcapsPos ;
+    MonitorElement * h1_dPhiSc_propVtx_endcapsNeg ;
     MonitorElement * py_dPhiSc_propVtxVsPhi ;
 //    MonitorElement * h2_dPhiSc_propVtxVsPt ;
 //    MonitorElement * h1_dPhiEleCl_propOut ;
 //    MonitorElement * h2_dPhiEleCl_propOutVsEta ;
     MonitorElement * h1_dPhiEleCl_propOut_barrel ;
-    MonitorElement * h1_dPhiEleCl_propOut_endcaps ;
+    MonitorElement * h1_dPhiEleCl_propOut_endcapsPos ;
+    MonitorElement * h1_dPhiEleCl_propOut_endcapsNeg ;
 //    MonitorElement * h2_dPhiEleCl_propOutVsPhi ;
 //    MonitorElement * h2_dPhiEleCl_propOutVsPt ;
 //    MonitorElement * h1_Hoe ;
@@ -258,6 +262,8 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
 //    MonitorElement * h2_HoeVsPt ;
     MonitorElement * h1_sclSigEtaEta_barrel ;
     MonitorElement * h1_sclSigEtaEta_endcaps ;
+    MonitorElement * h1_sigIEtaIEta5x5_barrel ;
+    MonitorElement * h1_sigIEtaIEta5x5_endcaps ;
 
     // fbrem related variables
     //MonitorElement * h_outerP ;
@@ -281,6 +287,9 @@ class ElectronAnalyzer : public ElectronDqmAnalyzerBase
     MonitorElement * h1_tkSumPt_dr03 ;
     MonitorElement * h1_ecalRecHitSumEt_dr03 ;
     MonitorElement * h1_hcalTowerSumEt_dr03 ;
+    MonitorElement * h1_PFch_dr03 ;
+    MonitorElement * h1_PFem_dr03 ;
+    MonitorElement * h1_PFnh_dr03 ;
 //    MonitorElement * h1_hcalDepth1TowerSumEt_dr03 ;
 //    MonitorElement * h1_hcalDepth2TowerSumEt_dr03 ;
 //    MonitorElement * h1_tkSumPt_dr04 ;

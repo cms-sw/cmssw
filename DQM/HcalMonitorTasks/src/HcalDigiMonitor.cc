@@ -292,7 +292,7 @@ void HcalDigiMonitor::setup(DQMStore::IBooker &ib)
 				  83,-41.5,41.5);
   DigiOccupancyVME = ib.book2D("Digi VME Occupancy Map",
 				   "Digi VME Occupancy Map;HTR Slot;VME Crate Id",
-				   40,-0.25,19.75,18,-0.5,17.5);
+				   40,-0.25,19.75,36,-0.5,35.5);
   
   DigiOccupancySpigot = ib.book2D("Digi Spigot Occupancy Map",
 				      "Digi Spigot Occupancy Map;Spigot;DCC Id",
@@ -566,13 +566,32 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   // get the DCC header & trailer (or bail out)
   // this needs to be done better, for now basically getting only one number per HBHE/HO/HF
   // will create a map (dccid, spigot) -> DetID to be used in process_Digi later
-  for (int i=FEDNumbering::MINHCALFEDID; i<=FEDNumbering::MAXHCALFEDID; i++) {
+  for (int i=FEDNumbering::MINHCALFEDID; 
+		  i<=FEDNumbering::MAXHCALuTCAFEDID; i++) {
+	  if (i>FEDNumbering::MAXHCALFEDID && i<FEDNumbering::MINHCALuTCAFEDID)
+		  continue;
     const FEDRawData& fed = rawraw->FEDData(i);
     if (fed.size()<12) continue;  //At least the size of headers and trailers of a DCC.    
 
     const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(fed.data());
     if(!dccHeader) return;
+	if (debug_>0)
+		std::cout << "### Processing FED: " << i << std::endl;
 
+	//	For uTCA spigos are useless => by default we have digisize = 4
+	//	As of 20.05.2015
+	//	HF = 2
+	if ((i>=1118 && i<=1122) ||
+			(i>=718 && i<=723))
+	{
+		mindigisizeHF_ = 4;
+		maxdigisizeHF_ = 4;
+		DigiExpectedSize->Fill(2, 4);
+		continue;
+	}
+
+	//	VME readout contains Number of Time Samples per Digi
+	//	uTCA doesn't!
     HcalHTRData htr;  
     for (int spigot=0; spigot<HcalDCCHeader::SPIGOT_COUNT; spigot++) {    
       if (!dccHeader->getSpigotPresent(spigot)) continue;
@@ -582,6 +601,8 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       dccHeader->getSpigotData(spigot, htr, fed.size()); 
       
       int NTS = htr.getNDD(); //number time slices, in precision channels
+	  if (debug_>0)
+		  std::cout << "### Number of TS=" << NTS << std::endl;
       if (NTS==0) continue; // no DAQ data in this HTR (fully zero-suppressed)
       int dccid=dccHeader->getSourceId();
       
@@ -591,7 +612,9 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       int subdet = -1;
       
       if(dccid >= 700 && dccid<=717)  { subdet = 0; mindigisizeHBHE_ = NTS; maxdigisizeHBHE_ = NTS; } // HBHE
-      if(dccid >= 718 && dccid<=723)  { subdet = 2; mindigisizeHF_ = NTS; maxdigisizeHF_ = NTS; }     // HF
+      if((dccid >= 1118 && dccid<=1122) || 
+			  (dccid>=718 && dccid<=723))  
+	  { subdet = 2; mindigisizeHF_ = NTS; maxdigisizeHF_ = NTS; }     // HF
       if(dccid >= 724 && dccid<=731)  { subdet = 1; mindigisizeHO_ = NTS; maxdigisizeHO_ = NTS; }     // HO
       
       DigiExpectedSize->Fill(subdet,int(NTS),1);
@@ -1116,7 +1139,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 	      maxtime=ff;
 	    }
 	}
-      
+    
       if (maxtime>=2 && maxtime<=5 && maxenergy>20 && maxenergy<100)  // only look between time slices 2-5; anything else should be nonsense
 	{
 	  for (int ff=0;ff<digisize;++ff){

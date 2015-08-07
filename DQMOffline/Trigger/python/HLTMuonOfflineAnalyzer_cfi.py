@@ -10,30 +10,33 @@ hltMuonOfflineAnalyzer = cms.EDAnalyzer("HLTMuonOfflineAnalyzer",
 
     ## HLT paths passing any one of these regular expressions will be included
     hltPathsToCheck = cms.vstring(
-      "HLT_Mu40_v",
-      "HLT_IsoMu24_IterTrk02_v",
-      "HLT_IsoTkMu24_IterTrk02_v",
+      "HLT_Mu45_eta2p1_v1",
+      "HLT_Mu50_v",
+      "HLT_IsoMu24_v",
+      "HLT_IsoTkMu24_v",
       "HLT_Mu17_Mu8_DZ_v",
       "HLT_Mu17_TkMu8_DZ_v",
       "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v",
       "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v",
       "HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v",
       "HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v",
-      "HLT_IsoMu20_eta2p1_IterTrk02_v",
-      "HLT_IsoTkMu20_eta2p1_IterTrk02_v",
-      "HLT_IsoMu24_eta2p1_IterTrk02_v",
-      "HLT_IsoTkMu24_eta2p1_IterTrk02_v"
+      "HLT_IsoMu20_eta2p1_v",
+      "HLT_IsoTkMu20_eta2p1_v",
+      "HLT_IsoMu24_eta2p1_v",
+      "HLT_IsoTkMu24_eta2p1_v",
       "HLT_Mu24_eta2p1_v",
-      "HLT_TkMu24_eta2p1_v",
-      "HLT_IsoMu27_IterTrk02_v",
-      "HLT_IsoTkMu27_IterTrk02_v",
+      "HLT_TkMu24_v",
+      "HLT_IsoMu27_v",
+      "HLT_IsoTkMu27_v",
       "HLT_Mu27_v",
       "HLT_TkMu27_v",
       "HLT_IsoMu20_v1",
       "HLT_Mu20_v1",
       "HLT_IsoTkMu20_v1",
       "HLT_TkMu20_v1",
-      "HLT_HIL1DoubleMuOpen", #for HI
+      "HLT_L1SingleMu16_v",
+      "HLT_L2Mu10_v",
+      "HLT_HIL1DoubleMu0", #for pp low pile up
       "HLT_HIL2Mu3", #for HI
       "HLT_HIL2Mu7", #for HI
       "HLT_HIL2Mu15", #for HI

@@ -746,7 +746,7 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
       }
     }
   }
-  if ((title==" Tracker Map from  QTestAlarm") || (maxvalue == minvalue)||!rangefound) printflag = false;
+  if ((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue)||!rangefound) printflag = false;
   if(!temporary_file){
     *savefile << "<?xml version=\"1.0\"  standalone=\"no\" ?>"<<std::endl;
     *savefile << "<svg  xmlns=\"http://www.w3.org/2000/svg\""<<std::endl;
@@ -1345,7 +1345,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
           }
   
  
-  if(title==" Tracker Map from  QTestAlarm"){
+  if(title.find("QTestAlarm")!=std::string::npos){
       for(  i_ccu=ccuMap.begin();i_ccu !=ccuMap.end(); i_ccu++){
           TmCcu *  ccu= i_ccu->second;
           if(ccu!=0) {
@@ -1612,7 +1612,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 	 }
        }
    
-   if(title==" Tracker Map from  QTestAlarm"){
+   if(title.find("QTestAlarm")!=std::string::npos){
       for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
           TmPsu *  psu= ipsu->second;
           if(psu!=0) {
@@ -1896,7 +1896,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     }
   }
   
-  if(title==" Tracker Map from  QTestAlarm"){
+  if(title.find("QTestAlarm")!=std::string::npos){
     for(  ipsu=psuMap.begin();ipsu !=psuMap.end(); ipsu++){
       TmPsu *  psu= ipsu->second;
       if(psu!=0) {
@@ -2190,7 +2190,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 	}
     }
   }
-  if ((title==" Tracker Map from  QTestAlarm") || (maxvalue == minvalue)||!rangefound) printflag = false;
+  if ((title.find("QTestAlarm")!=std::string::npos) || (maxvalue == minvalue)||!rangefound) printflag = false;
 
      if(filetype=="svg"){
       saveAsSingleLayer=false;

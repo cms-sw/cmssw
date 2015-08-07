@@ -42,7 +42,7 @@
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-
+#include "EventFilter/Utilities/interface/crc32c.h"
 
 //JSON file reader
 #include "EventFilter/Utilities/interface/reader.h"
@@ -60,6 +60,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
   numBuffers_(pset.getUntrackedParameter<unsigned int> ("numBuffers",1)),
   getLSFromFilename_(pset.getUntrackedParameter<bool> ("getLSFromFilename", true)),
   verifyAdler32_(pset.getUntrackedParameter<bool> ("verifyAdler32", true)),
+  verifyChecksum_(pset.getUntrackedParameter<bool> ("verifyChecksum", true)),
   useL1EventID_(pset.getUntrackedParameter<bool> ("useL1EventID", false)),
   testModeNoBuilderUnit_(edm::Service<evf::EvFDaqDirector>()->getTestModeNoBuilderUnit()),
   runNumber_(edm::Service<evf::EvFDaqDirector>()->getRunNumber()),
@@ -101,6 +102,9 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 
   numConcurrentReads_=numBuffers_-1;
   singleBufferMode_ = !(numBuffers_>1);
+
+  if (!crc32c_hw_test())
+    edm::LogError("FedRawDataInputSource::FedRawDataInputSource") << "Intel crc32c checksum computation unavailable";
 
   //het handles to DaqDirector and FastMonitoringService because it isn't acessible in readSupervisor thread
 
@@ -202,7 +206,7 @@ bool FedRawDataInputSource::checkNextEvent()
             daqDirector_->lockFULocal2();
             int eol_fd = open(fuEoLS.c_str(), O_RDWR|O_CREAT, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
             close(eol_fd);
-            daqDirector_->lockFULocal2();
+            daqDirector_->unlockFULocal2();
           }
         }
       }
@@ -309,7 +313,6 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::nextEvent()
 
 inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 {
-  const size_t headerSize[4] = {0,2*sizeof(uint32),(4 + 1024) * sizeof(uint32),7*sizeof(uint32)}; //size per version of FRDEventHeader
 
   if (setExceptionState_) threadError();
   if (!currentFile_)
@@ -415,7 +418,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
 
   //file is too short
-  if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < headerSize[detectedFRDversion_])
+  if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < FRDHeaderVersionSize[detectedFRDversion_])
   {
     throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
       "Premature end of input file while reading event header";
@@ -431,19 +434,22 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     unsigned char *dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
 
     //conditions when read amount is not sufficient for the header to fit
-    if (!bufferInputRead_ || bufferInputRead_ < headerSize[detectedFRDversion_]
-       ||  eventChunkSize_ - currentFile_->chunkPosition_ < headerSize[detectedFRDversion_])
+    if (!bufferInputRead_ || bufferInputRead_ < FRDHeaderVersionSize[detectedFRDversion_]
+       ||  eventChunkSize_ - currentFile_->chunkPosition_ < FRDHeaderVersionSize[detectedFRDversion_])
     {
       readNextChunkIntoBuffer(currentFile_);
 
       if (detectedFRDversion_==0) {
         detectedFRDversion_=*((uint32*)dataPosition);
-        assert(detectedFRDversion_>=1 && detectedFRDversion_<=3);
+        if (detectedFRDversion_>5) 
+          throw cms::Exception("FedRawDataInputSource::getNextEvent")
+              << "Unknown FRD version -: " << detectedFRDversion_;
+        assert(detectedFRDversion_>=1);
       }
 
       //recalculate chunk position
       dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
-      if ( bufferInputRead_ < headerSize[detectedFRDversion_])
+      if ( bufferInputRead_ < FRDHeaderVersionSize[detectedFRDversion_])
       {
       throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
 	"Premature end of input file while reading event header";
@@ -458,7 +464,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 	      << " bytes does not fit into a chunk of size:" << eventChunkSize_ << " bytes";
     }
 
-    const uint32_t msgSize = event_->size()-headerSize[detectedFRDversion_];
+    const uint32_t msgSize = event_->size()-FRDHeaderVersionSize[detectedFRDversion_];
 
     if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize)
     {
@@ -490,7 +496,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     unsigned char *dataPosition;
 
     //read header, copy it to a single chunk if necessary
-    bool chunkEnd = currentFile_->advance(dataPosition,headerSize[detectedFRDversion_]);
+    bool chunkEnd = currentFile_->advance(dataPosition,FRDHeaderVersionSize[detectedFRDversion_]);
 
     event_.reset( new FRDEventMsgView(dataPosition) );
     if (event_->size()>eventChunkSize_) {
@@ -500,7 +506,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 	      << " bytes does not fit into a chunk of size:" << eventChunkSize_ << " bytes";
     }
 
-    const uint32_t msgSize = event_->size()-headerSize[detectedFRDversion_];
+    const uint32_t msgSize = event_->size()-FRDHeaderVersionSize[detectedFRDversion_];
 
     if (currentFile_->fileSize_ - currentFile_->bufferPosition_ < msgSize)
     {
@@ -510,16 +516,16 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
     if (chunkEnd) {
       //header was at the chunk boundary, we will have to move payload as well
-      currentFile_->moveToPreviousChunk(msgSize,headerSize[detectedFRDversion_]);
+      currentFile_->moveToPreviousChunk(msgSize,FRDHeaderVersionSize[detectedFRDversion_]);
       chunkIsFree_ = true;
     }
     else {
       //header was contiguous, but check if payload fits the chunk
       if (eventChunkSize_ - currentFile_->chunkPosition_ < msgSize) {
 	//rewind to header start position
-	currentFile_->rewindChunk(headerSize[detectedFRDversion_]);
+	currentFile_->rewindChunk(FRDHeaderVersionSize[detectedFRDversion_]);
 	//copy event to a chunk start and move pointers
-	chunkEnd = currentFile_->advance(dataPosition,headerSize[detectedFRDversion_]+msgSize);
+	chunkEnd = currentFile_->advance(dataPosition,FRDHeaderVersionSize[detectedFRDversion_]+msgSize);
 	assert(chunkEnd);
 	chunkIsFree_=true;
 	//header is moved
@@ -534,17 +540,31 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     }
   }//end multibuffer mode
 
-  if ( verifyAdler32_ && event_->version() >= 3 )
+  if (verifyChecksum_ && event_->version() >= 5)
+  {
+    uint32_t crc=0;
+    crc = crc32c(crc,(const unsigned char*)event_->payload(),event_->eventSize());
+    if ( crc != event_->crc32c() ) {
+      if (fms_) fms_->setExceptionDetected(currentLumiSection_);
+      throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
+        "Found a wrong crc32c checksum: expected 0x" << std::hex << event_->crc32c() <<
+        " but calculated 0x" << crc;
+    }
+  }
+  else if ( verifyAdler32_ && event_->version() >= 3)
   {
     uint32_t adler = adler32(0L,Z_NULL,0);
     adler = adler32(adler,(Bytef*)event_->payload(),event_->eventSize());
 
     if ( adler != event_->adler32() ) {
+      if (fms_) fms_->setExceptionDetected(currentLumiSection_);
       throw cms::Exception("FedRawDataInputSource::getNextEvent") <<
         "Found a wrong Adler32 checksum: expected 0x" << std::hex << event_->adler32() <<
         " but calculated 0x" << adler;
     }
   }
+
+
   currentFile_->nProcessed_++;
 
   return evf::EvFDaqDirector::sameFile;
@@ -667,12 +687,18 @@ edm::Timestamp FedRawDataInputSource::fillFEDRawDataCollection(FEDRawDataCollect
   GTPEventID_=0;
   tcds_pointer_ = 0;
   while (eventSize > 0) {
+    assert(eventSize>=sizeof(fedt_t));
     eventSize -= sizeof(fedt_t);
     const fedt_t* fedTrailer = (fedt_t*) (event + eventSize);
     const uint32_t fedSize = FED_EVSZ_EXTRACT(fedTrailer->eventsize) << 3; //trailer length counts in 8 bytes
-    eventSize -= (fedSize - sizeof(fedh_t));
+    assert(eventSize>=fedSize - sizeof(fedt_t));
+    eventSize -= (fedSize - sizeof(fedt_t));
     const fedh_t* fedHeader = (fedh_t *) (event + eventSize);
     const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
+    if(fedId>FEDNumbering::MAXFEDID)
+    {
+      throw cms::Exception("FedRawDataInputSource::fillFEDRawDataCollection") << "Out of range FED ID : " << fedId;
+    }
     if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
       tcds_pointer_ = (unsigned char *)(event + eventSize );
     }
@@ -871,6 +897,10 @@ void FedRawDataInputSource::readSupervisor()
     uint32_t ls;
     uint32_t fileSize;
 
+    uint32_t monLS=1;
+    uint32_t lockCount=0;
+    uint64_t sumLockWaitTimeUs=0.;
+
     if (fms_) fms_->startedLookingForFile();
 
     evf::EvFDaqDirector::FileStatus status =  evf::EvFDaqDirector::noFile;
@@ -880,14 +910,27 @@ void FedRawDataInputSource::readSupervisor()
 	stop=true;
 	break;
       }
-      
-      status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+     
+      uint64_t thisLockWaitTimeUs=0.;
+      status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
+
+      //monitoring of lock wait time
+      if (thisLockWaitTimeUs>0.)
+        sumLockWaitTimeUs+=thisLockWaitTimeUs;
+      lockCount++;
+      if (ls>monLS) {
+          monLS=ls;
+          if (lockCount)
+            if (fms_) fms_->reportLockWait(monLS,sumLockWaitTimeUs,lockCount);
+          lockCount=0;
+          sumLockWaitTimeUs=0;
+      }
 
       //check again for any remaining index/EoLS files after EoR file is seen
       if ( status == evf::EvFDaqDirector::runEnded) {
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
-        status = daqDirector_->updateFuLock(ls,nextFile,fileSize);
+        status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
       }
 
       if ( status == evf::EvFDaqDirector::runEnded) {
@@ -1085,7 +1128,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     close(fileDescriptor);
 
     if (detectedFRDversion_==0 && chunk->offset_==0) detectedFRDversion_=*((uint32*)chunk->buf_);
-    assert(detectedFRDversion_<=3);
+    assert(detectedFRDversion_<=5);
     chunk->readComplete_=true;//this is atomic to secure the sequential buffer fill before becoming available for processing)
     file->chunks_[chunk->fileIndex_]=chunk;//put the completed chunk in the file chunk vector at predetermined index
 

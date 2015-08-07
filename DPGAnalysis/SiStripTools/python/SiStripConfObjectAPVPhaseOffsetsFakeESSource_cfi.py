@@ -11,7 +11,7 @@ SiStripConfObjectGenerator.Parameters = cms.VPSet(
     cms.PSet(
         ParameterName = cms.string("defaultPhases"),
         ParameterType = cms.string("vint32"),
-        ParameterValue = cms.vint32(48,48,48,48),
+        ParameterValue = cms.vint32(66,66,66,66),
     ),
     cms.PSet(
         ParameterName = cms.string("useEC0"),
@@ -26,7 +26,7 @@ SiStripConfObjectGenerator.Parameters = cms.VPSet(
     cms.PSet(
         ParameterName = cms.string("magicOffset"),
         ParameterType = cms.string("int"),
-        ParameterValue = cms.int32(11),
+        ParameterValue = cms.int32(9),
     ),
 )
 

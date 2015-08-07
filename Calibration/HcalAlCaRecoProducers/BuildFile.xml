@@ -33,4 +33,6 @@
 <use   name="root"/>
 <use   name="TrackPropagation/SteppingHelixPropagator"/>
 <use   name="TrackingTools/TrackAssociator"/>
+<use   name="HLTrigger/HLTcore"/>
+<use   name="Calibration/IsolatedParticles"/>
 <flags   EDM_PLUGIN="1"/>

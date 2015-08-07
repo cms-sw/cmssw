@@ -30,8 +30,12 @@ DTSegmentsTask::DTSegmentsTask(const edm::ParameterSet& pset) {
   debug = pset.getUntrackedParameter<bool>("debug",false); 
   parameters = pset;
   
+  // should be init from pset, but it was commented out...
+  // better false than undefined
+  checkNoisyChannels = false;
+
   // the name of the 4D rec hits collection
-  theRecHits4DLabel_ = consumes<DTRecSegment4DCollection>(parameters.getParameter<std::string>("recHits4DLabel")); 
+  theRecHits4DLabel_ = consumes<DTRecSegment4DCollection>(parameters.getParameter<std::string>("recHits4DLabel"));
 }
 
 

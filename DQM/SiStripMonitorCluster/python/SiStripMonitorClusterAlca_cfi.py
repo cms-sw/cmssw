@@ -4,8 +4,7 @@ import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 
 # SiStripMonitorCluster
 SiStripCalZeroBiasMonitorCluster = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
-    # by default do not write out any file with histograms
-    # can overwrite this in .cfg file with: replace SiStripMonitorCluster.OutputMEsInRootFile = true
+
 SiStripCalZeroBiasMonitorCluster.ClusterProducerStrip = cms.InputTag("calZeroBiasClusters")
 SiStripCalZeroBiasMonitorCluster.ClusterProducerPix = cms.InputTag('siPixelClusters')
 

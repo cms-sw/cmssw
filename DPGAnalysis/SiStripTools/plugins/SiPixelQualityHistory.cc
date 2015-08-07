@@ -199,7 +199,7 @@ SiPixelQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
 
     if(m_badmodrun.find(name)!=m_badmodrun.end()) {
       if(m_badmodrun[name] && *m_badmodrun[name]) {
-	(*m_badmodrun[name])->SetBit(TH1::kCanRebin);
+	(*m_badmodrun[name])->SetCanExtend(TH1::kXaxis);
 	(*m_badmodrun[name])->GetXaxis()->SetTitle("time [Orb#]"); (*m_badmodrun[name])->GetYaxis()->SetTitle("bad components");
       }
     }

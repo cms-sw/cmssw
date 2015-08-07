@@ -85,7 +85,7 @@ namespace evf{
       void removeFile(unsigned int ls, unsigned int index);
       void removeFile(std::string );
 
-      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize);
+      FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize, uint64_t& lockWaitTime);
       void tryInitializeFuLockFile();
       unsigned int getRunNumber() const { return run_; }
       unsigned int getJumpLS() const { return jumpLS_; }
@@ -136,6 +136,7 @@ namespace evf{
       bool requireTSPSet_;
       std::string selectedTransferMode_;
       std::string hltSourceDirectory_;
+      unsigned int fuLockPollInterval_;
 
       std::string hostname_;
       std::string run_string_;

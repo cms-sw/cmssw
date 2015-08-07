@@ -31,10 +31,10 @@
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-#include "FWCore/Framework/interface/ESHandle.h" //DS         
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h" //DS 
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h" //DS 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h" //DS 
+#include "FWCore/Framework/interface/ESHandle.h"          
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"  
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"  
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"  
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
@@ -53,14 +53,22 @@ namespace hltJson {
     HistoJ<unsigned int> *hltErrors; // # of events with error in HLT[i]
     HistoJ<unsigned int> *hltDatasets; // # of events accepted by each dataset 
 
-    std::string baseRunDir;        //Base directory from EvFDaqDirector 
+    unsigned int prescaleIndex; // Prescale index for each lumi section
+
+    std::string baseRunDir; //Base directory from EvFDaqDirector 
     std::string stHltJsd;   //Definition file name for JSON with rates  
 
-    HistoJ<unsigned int> *L1Global;     // Global # of Phyics, Cailibration and Random L1 triggers //DS
-    HistoJ<unsigned int> *L1Accept;     // # of events accepted by L1T[i] //DS 
-    HistoJ<unsigned int> *L1TechAccept; // # of events accepted by L1 Technical Triggers[i] //DS 
+    HistoJ<unsigned int> *L1AlgoAccept;            // # of events accepted by L1T[i]  
+    HistoJ<unsigned int> *L1TechAccept;            // # of events accepted by L1 Technical Triggers[i]  
+    HistoJ<unsigned int> *L1AlgoAcceptPhysics;     // # of Physics events accepted by L1T[i]  
+    HistoJ<unsigned int> *L1TechAcceptPhysics;     // # of Physics events accepted by L1 Technical Triggers[i]  
+    HistoJ<unsigned int> *L1AlgoAcceptCalibration; // # of Calibration events accepted by L1T[i]  
+    HistoJ<unsigned int> *L1TechAcceptCalibration; // # of Calibration events accepted by L1 Technical Triggers[i]  
+    HistoJ<unsigned int> *L1AlgoAcceptRandom;      // # of Random events accepted by L1T[i]  
+    HistoJ<unsigned int> *L1TechAcceptRandom;      // # of Random events accepted by L1 Technical Triggers[i]  
+    HistoJ<unsigned int> *L1Global;                // Global # of Phyics, Cailibration and Random L1 triggers 
     
-    std::string stL1Jsd;                 //Definition file name for JSON with L1 rates            //DS
+    std::string stL1Jsd;                 //Definition file name for JSON with L1 rates            
     std::string streamL1Destination;
     std::string streamHLTDestination;
   };
@@ -122,20 +130,20 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJ
 
   void writeDefJson(std::string path);
 
-  void writeL1DefJson(std::string path);       //DS
+  void writeL1DefJson(std::string path);       
 
   //Variables from cfg and associated tokens 
   edm::InputTag triggerResults_;                               // Input tag for TriggerResults 
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;  // Token for TriggerResults
 
-  edm::InputTag level1Results_;                                 // Input tag for L1 GT Readout Record //DS  
+  edm::InputTag level1Results_;                                 // Input tag for L1 GT Readout Record   
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1t_results; // Token for L1 GT Readout Record
 
   //Variables that change at most once per run 
   HLTConfigProvider hltConfig_;         // to get configuration for HLT
-  const L1GtTriggerMenu* m_l1GtMenu;    // L1 trigger menu  //DS 
-  AlgorithmMap algorithmMap;            // L1 algorithm map //DS 
-  AlgorithmMap technicalMap;            // L1 technical triggeral map //DS
+  const L1GtTriggerMenu* m_l1GtMenu;    // L1 trigger menu   
+  AlgorithmMap algorithmMap;            // L1 algorithm map  
+  AlgorithmMap technicalMap;            // L1 technical triggeral map 
 
   const L1GtTriggerMask* m_l1tAlgoMask;
   const L1GtTriggerMask* m_l1tTechMask;
@@ -153,16 +161,17 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJ
 
   std::string stHltJsd_;                  //Definition file name for JSON with rates
 
-  std::vector<std::string> L1AlgoNames_;  // name of each L1 algorithm trigger      //DS
-  std::vector<int> L1AlgoBitNumber_;      // bit number of each L1 algo trigger     //DS
-  std::vector<std::string> L1TechNames_;  // name of each L1 technical trigger      //DS
-  std::vector<int> L1TechBitNumber_;      // bit number of each L1 tech trigger     //DS
-  std::vector<std::string> L1GlobalType_; // experimentType: Physics, Calibration, Random  //DS
+  std::vector<std::string> L1AlgoNames_;  // name of each L1 algorithm trigger      
+  std::vector<int> L1AlgoBitNumber_;      // bit number of each L1 algo trigger     
+  std::vector<std::string> L1TechNames_;  // name of each L1 technical trigger      
+  std::vector<int> L1TechBitNumber_;      // bit number of each L1 tech trigger     
+  std::vector<std::string> L1GlobalType_; // experimentType: Physics, Calibration, Random  
 
-  std::string stL1Jsd_;                   //Definition file name for JSON with L1 rates           //DS
+  std::string stL1Jsd_;                   //Definition file name for JSON with L1 rates           
 
   //Variables that need to be reset at lumi section boundaries 
-  unsigned int              processed_; // # of events processed 
+  unsigned int              processed_;      // # of events processed 
+  unsigned int              prescaleIndex_;  //Prescale index for each lumi section
 
   std::vector<unsigned int> hltWasRun_; // # of events where HLT[i] was run   
   std::vector<unsigned int> hltL1s_;    // # of events after L1 seed
@@ -173,9 +182,19 @@ class TriggerJSONMonitoring : public edm::stream::EDAnalyzer <edm::RunCache<hltJ
 
   std::vector<unsigned int> hltDatasets_; // # of events accepted by each dataset 
 
-  std::vector<unsigned int> L1Global_;     // Global # of Physics, Calibration and Random L1 triggers //DS
-  std::vector<unsigned int> L1AlgoAccept_; // # of events accepted by L1T[i]  //DS
-  std::vector<unsigned int> L1TechAccept_; // # of events accepted by L1 Technical Triggers[i]  //DS
+  std::vector<unsigned int> L1AlgoAccept_;            // # of events accepted by L1T[i]  
+  std::vector<unsigned int> L1TechAccept_;            // # of events accepted by L1 Technical Triggers[i]  
+  std::vector<unsigned int> L1AlgoAcceptPhysics_;     // # of Physics events accepted by L1T[i]  
+  std::vector<unsigned int> L1TechAcceptPhysics_;     // # of Physics events accepted by L1 Technical Triggers[i]  
+  std::vector<unsigned int> L1AlgoAcceptCalibration_; // # of Calibration events accepted by L1T[i]  
+  std::vector<unsigned int> L1TechAcceptCalibration_; // # of Calibration events accepted by L1 Technical Triggers[i]  
+  std::vector<unsigned int> L1AlgoAcceptRandom_;      // # of Random events accepted by L1T[i]  
+  std::vector<unsigned int> L1TechAcceptRandom_;      // # of Random events accepted by L1 Technical Triggers[i]  
+  std::vector<unsigned int> L1Global_;                // Global # of Physics, Calibration and Random L1 triggers 
+
+  //Variables for confirming that prescale index did not change
+  unsigned int oldLumi;
+  unsigned int oldPrescaleIndex;
 
  private:
 

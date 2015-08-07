@@ -415,4 +415,6 @@
   <field name="group_" mapping="blob" />
  </class>
  <class name="HcalInterpolatedPulseColl" class_version="1"/>
+ <class name="std::vector<PiecewiseScalingPolynomial>"/>
+ <class name="HBHENegativeEFilter" class_version="1"/>
 </lcgdict>   

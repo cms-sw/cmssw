@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import *
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq,gtNameAndConnect
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,stepSKIMPRODUCER,addMonitoring,dictIO,dqmIOSource,harvestingMode,dqmSeq,gtNameAndConnect
 import FWCore.ParameterSet.Config as cms
 from Configuration.DataProcessing.RecoTLR import customisePrompt,customiseExpress
 
@@ -34,11 +34,34 @@ class Reco(Scenario):
 
         """
         step = stepALCAPRODUCER(args['skims'])
+        PhysicsSkimStep = ''
+        if (args.has_key("PhysicsSkims")) :
+            PhysicsSkimStep = stepSKIMPRODUCER(args['PhysicsSkims'])
         dqmStep= dqmSeq(args,'')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
-        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+step+',DQM'+dqmStep+',ENDJOB'
+
+        miniAODStep=''
+
+# if miniAOD is asked for - then retrieve the miniaod config 
+        if 'outputs' in args:
+            for a in args['outputs']:
+                if a['dataTier'] == 'MINIAOD':
+                    miniAODStep=',PAT' 
+                    options.runUnscheduled=True
+                    
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
+        eiStep=''
+        if self.cbSc == 'pp':
+            eiStep=',EI'
+
+        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+PhysicsSkimStep+miniAODStep+',DQM'+dqmStep+',ENDJOB'
+
+
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
         
@@ -74,13 +97,22 @@ class Reco(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',DQM'+dqmStep+',ENDJOB'
+
+        eiStep=''
+        if self.cbSc == 'pp':
+            eiStep=',EI'
+
+        options.step = 'RAW2DIGI,L1Reco,RECO'+eiStep+step+',DQM'+dqmStep+',ENDJOB'
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
         options.filein = 'tobeoverwritten.xyz'
         if 'inputSource' in args:
             options.filetype = args['inputSource']
         process = cms.Process('RECO')
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
         cb.prepare()
@@ -104,7 +136,11 @@ class Reco(Scenario):
         if 'preFilter' in args:
             options.step +='FILTER:'+args['preFilter']+','
 
-        options.step += 'RAW2DIGI,L1Reco,RECO,ENDJOB'
+        eiStep=''
+        if self.cbSc == 'pp':
+            eiStep=',EI'
+
+        options.step += 'RAW2DIGI,L1Reco,RECO'+eiStep+',ENDJOB'
 
 
         dictIO(options,args)
@@ -122,6 +158,10 @@ class Reco(Scenario):
         print "Using %s source"%options.filetype            
 
         process = cms.Process('RECO')
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         cb = ConfigBuilder(options, process = process, with_output = True, with_input = True)
 
         cb.prepare()
@@ -166,6 +206,9 @@ class Reco(Scenario):
             options.conditions += ','+args['globalTagConnect']
 
         options.triggerResultsProcess = 'RECO'
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
         
         process = cms.Process('ALCA')
         cb = ConfigBuilder(options, process = process)
@@ -202,6 +245,10 @@ class Reco(Scenario):
  
         process = cms.Process("HARVESTING")
         process.source = dqmIOSource(args)
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
@@ -218,7 +265,6 @@ class Reco(Scenario):
         """
         skims = []
         if 'skims' in args:
-            print 'here'
             skims = args['skims']
 
 
@@ -234,6 +280,10 @@ class Reco(Scenario):
  
         process = cms.Process("ALCAHARVEST")
         process.source = cms.Source("PoolSource")
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
@@ -261,6 +311,10 @@ class Reco(Scenario):
         options.conditions = gtNameAndConnect(globalTag, args)
         process = cms.Process("SKIM")
         process.source = cms.Source("PoolSource")
+
+        if 'customs' in args:
+            options.customisation_file=args['customs']
+
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 

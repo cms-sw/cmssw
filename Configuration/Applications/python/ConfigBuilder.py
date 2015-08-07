@@ -220,10 +220,6 @@ class ConfigBuilder(object):
 		
         #print "map of steps is:",self.stepMap
 
-	if 'FASTSIM' in self.stepMap:
-		#overriding the --fast option to True
-		self._options.fast=True
-		
         self.with_output = with_output
         if hasattr(self._options,"no_output_flag") and self._options.no_output_flag:
                 self.with_output = False
@@ -522,9 +518,12 @@ class ConfigBuilder(object):
 				theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
 			else:
 				theEventContent = getattr(self.process, theStreamType+"EventContent")
-				
+
+
+			addAlCaSelects=False
 			if theStreamType=='ALCARECO' and not theFilterName:
 				theFilterName='StreamALCACombined'
+				addAlCaSelects=True
 
 			CppType='PoolOutputModule'
 			if self._options.timeoutOutput:
@@ -543,6 +542,13 @@ class ConfigBuilder(object):
 				output.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('filtering_step'))				
 			if theSelectEvent:
 				output.SelectEvents =cms.untracked.PSet(SelectEvents = cms.vstring(theSelectEvent))
+
+			if addAlCaSelects:
+				if not hasattr(output,'SelectEvents'):
+					output.SelectEvents=cms.untracked.PSet(SelectEvents=cms.vstring())
+				for alca in self.AlCaPaths:
+					output.SelectEvents.SelectEvents.extend(getattr(self.process,'OutALCARECO'+alca).SelectEvents.SelectEvents)
+
 			
 			if hasattr(self.process,theModuleLabel):
 				raise Exception("the current process already has a module "+theModuleLabel+" defined")
@@ -968,7 +974,6 @@ class ConfigBuilder(object):
         self.POSTRECODefaultSeq=None
         self.L1HwValDefaultSeq='L1HwVal'
         self.DQMDefaultSeq='DQMOffline'
-        self.FASTSIMDefaultSeq='all'
         self.VALIDATIONDefaultSeq=''
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
@@ -1087,12 +1092,29 @@ class ConfigBuilder(object):
 
         # if fastsim switch event content
 	if self._options.fast:
-		self.SIMDefaultCFF = 'FastSimulation.Configuration.FamosSequences_cff'
-		self.SIMDefaultSeq='simulationWithFamos'
-		self.RECODefaultCFF= 'FastSimulation.Configuration.FamosSequences_cff'
-		self.RECODefaultSeq= 'reconstructionWithFamos'
+		self.SIMDefaultCFF = 'FastSimulation.Configuration.SimIdeal_cff'
+		self.SIMDefaultSeq = 'psim'
+		self.RECODefaultCFF= 'FastSimulation.Configuration.Reconstruction_AftMix_cff'
+		self.RECODefaultSeq= 'reconstruction'
                 self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
                 self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
+		self.RECOBEFMIXDefaultCFF = 'FastSimulation.Configuration.Reconstruction_BefMix_cff'
+		self.RECOBEFMIXDefaultSeq = 'reconstruction_befmix'
+		self.DIGIDefaultCFF = 'FastSimulation.Configuration.Digi_cff'
+		if self._options.datamix == 'PreMix':
+			self.DIGIDefaultCFF="FastSimulation.Configuration.DigiDMPreMix_cff"
+		if "DIGIPREMIX" in self.stepMap.keys():
+			self.DIGIDefaultCFF="FastSimulation.Configuration.Digi_PreMix_cff"
+		if "DATAMIX" in self.stepMap.keys():
+			self.DATAMIXDefaultCFF="FastSimulation.Configuration.DataMixer"+self._options.datamix+"_cff"
+
+		self.DIGIDefaultSeq = 'pdigi'
+		self.L1EMDefaultCFF='FastSimulation.Configuration.SimL1Emulator_cff'
+		self.L1RecoDefaultCFF='FastSimulation.Configuration.L1Reco_cff'
+		self.DIGI2RAWDefaultCFF = 'FastSimulation.Configuration.DigiToRaw_cff'
+		self.DIGI2RAWDefaultSeq = 'DigiToRaw'
+		self.EVTCONTDefaultCFF = "FastSimulation.Configuration.EventContent_cff"
+		self.VALIDATIONDefaultCFF = "FastSimulation.Configuration.Validation_cff"
 
 		
 
@@ -1243,12 +1265,14 @@ class ConfigBuilder(object):
 	from Configuration.AlCa.autoAlca import autoAlca
 	# support @X from autoAlca.py, and recursion support: i.e T0:@Mu+@EG+...
 	self.expandMapping(alcaList,autoAlca)
-	
+	self.AlCaPaths=[]
         for name in alcaConfig.__dict__:
             alcastream = getattr(alcaConfig,name)
             shortName = name.replace('ALCARECOStream','')
             if shortName in alcaList and isinstance(alcastream,cms.FilteredStream):
 	        output = self.addExtraStream(name,alcastream, workflow = workflow)
+		self.executeAndRemember('process.ALCARECOEventContent.outputCommands.extend(process.OutALCARECO'+shortName+'_noDrop.outputCommands)')
+		self.AlCaPaths.append(shortName)
 		if 'DQM' in alcaList:
 			if not self._options.inlineEventContent and hasattr(self.process,name):
 				self.executeAndRemember('process.' + name + '.outputCommands.append("keep *_MEtoEDMConverter_*_*")')
@@ -1435,7 +1459,7 @@ class ConfigBuilder(object):
 
     def prepare_DIGIPREMIX_S2(self, sequence = None):
         """ Enrich the schedule with the digitisation step"""
-        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+	self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
 
 	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
 
@@ -1540,13 +1564,13 @@ class ConfigBuilder(object):
 		else:
 			self.executeAndRemember('process.loadHltConfiguration("%s",%s)'%(sequence.replace(',',':'),optionsForHLTConfig))
         else:
-                if self._options.fast:
-                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_Famos_cff' % sequence)
-                else:
-                    self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
+		self.loadAndRemember('HLTrigger/Configuration/HLT_%s_cff'       % sequence)
 
         if self._options.isMC:
-		self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforMC")
+		if self._options.fast:
+			self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforFastSim")
+		else:
+			self._options.customisation_file.append("HLTrigger/Configuration/customizeHLTforMC.customizeHLTforFullSim")
 
 	if self._options.name != 'HLT':
 		self.additionalCommands.append('from HLTrigger.Configuration.CustomConfigs import ProcessName')
@@ -1557,15 +1581,11 @@ class ConfigBuilder(object):
 		
         self.schedule.append(self.process.HLTSchedule)
         [self.blacklist_paths.append(path) for path in self.process.HLTSchedule if isinstance(path,(cms.Path,cms.EndPath))]
-        if (self._options.fast and 'HLT' in self.stepMap and 'FASTSIM' in self.stepMap):
-                self.finalizeFastSimHLT()
 
 	#this is a fake, to be removed with fastim migration and HLT menu dump
-	if self._options.fast and not 'FASTSIM' in self.stepMap:
+	if self._options.fast:
 		if not hasattr(self.process,'HLTEndSequence'):
 			self.executeAndRemember("process.HLTEndSequence = cms.Sequence( process.dummyModule )")
-		if not hasattr(self.process,'simulation'):
-			self.executeAndRemember("process.simulation = cms.Sequence( process.dummyModule )")
 		
 
     def prepare_RAW2RECO(self, sequence = None):
@@ -1585,6 +1605,12 @@ class ConfigBuilder(object):
 	    #	    if self._options.isRepacked:
 	    #self.renameInputTagsInSequence(sequence)
             return
+
+    def prepare_PATFILTER(self, sequence=None):
+            self.loadAndRemember("PhysicsTools/PatAlgos/slimming/metFilterPaths_cff")
+	    from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff import allMetFilterPaths
+	    for filt in allMetFilterPaths:
+		    self.schedule.append(getattr(self.process,'Flag_'+filt))
 
     def prepare_L1HwVal(self, sequence = 'L1HwVal'):
         ''' Enrich the schedule with L1 HW validation '''
@@ -1643,8 +1669,18 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
         return
 
+    def prepare_RECOBEFMIX(self, sequence = "reconstruction"):
+        ''' Enrich the schedule with the part of reconstruction that is done before mixing in FastSim'''
+        if not self._options.fast:
+                print "ERROR: this step is only implemented for FastSim"
+                sys.exit()
+        self.loadDefaultOrSpecifiedCFF(self.RECOBEFMIXDefaultSeq,self.RECOBEFMIXDefaultCFF)
+        self.scheduleSequence(sequence.split('.')[-1],'reconstruction_befmix_step')
+        return
+
     def prepare_PAT(self, sequence = "miniAOD"):
         ''' Enrich the schedule with PAT '''
+	self.prepare_PATFILTER(self)
         self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF,1) #this is unscheduled
 	if not self._options.runUnscheduled:	
 		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
@@ -1999,78 +2035,6 @@ class ConfigBuilder(object):
             self.process.reconstruction = cms.Path(self.process.reconstructionWithFamos)
             self.schedule.append(self.process.reconstruction)
 
-    def prepare_FASTSIM(self, sequence = "all"):
-        """Enrich the schedule with fastsim"""
-        self.loadAndRemember("FastSimulation/Configuration/FamosSequences_cff")
-
-        if sequence in ('all','allWithHLTFiltering',''):
-            if not 'HLT' in self.stepMap.keys():
-                    self.prepare_HLT(sequence=None)
-
-            self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-            self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-
-            self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
-            self.executeAndRemember("process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)")
-
-            # since we have HLT here, the process should be called HLT
-            self._options.name = "HLT"
-
-            # if we don't want to filter after HLT but simulate everything regardless of what HLT tells, we have to add reconstruction explicitly
-            if sequence == 'all' and not 'HLT' in self.stepMap.keys(): #(a)
-                self.finalizeFastSimHLT()
-	elif sequence == 'sim':
-		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-		
-		self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithFamos)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "simulationWithFamos") )
-		self.schedule.append(self.process.fastsim_step)
-	elif sequence == 'reco':
-		self.executeAndRemember("process.mix.playback = True")
-		self.executeAndRemember("process.reconstruction = cms.Sequence(process.reconstructionWithFamos)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "reconstructionWithFamos") )
-		self.schedule.append(self.process.fastsim_step)
-	elif sequence == 'simExtended':
-		self.executeAndRemember("process.famosSimHits.SimulateCalorimetry = True")
-		self.executeAndRemember("process.famosSimHits.SimulateTracking = True")
-		
-		self.executeAndRemember("process.simulation = cms.Sequence(process.simulationWithSomeReconstruction)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "simulationWithSomeReconstruction") )
-		self.schedule.append(self.process.fastsim_step)
-	elif sequence == 'recoHighLevel':
-		self.executeAndRemember("process.mix.playback = True")
-		self.executeAndRemember("process.reconstruction = cms.Sequence(process.reconstructionHighLevel)")
-		
-		self.process.fastsim_step = cms.Path( getattr(self.process, "reconstructionHighLevel") )
-		self.schedule.append(self.process.fastsim_step)
-        elif sequence == 'famosWithEverything':
-            self.process.fastsim_step = cms.Path( getattr(self.process, "famosWithEverything") )
-            self.schedule.append(self.process.fastsim_step)
-
-            # now the additional commands we need to make the config work
-            self.executeAndRemember("process.VolumeBasedMagneticFieldESProducer.useParametrizedTrackerField = True")
-        else:
-             print "FastSim setting", sequence, "unknown."
-             raise ValueError
-
-        if 'Flat' in self._options.beamspot:
-                beamspotType = 'Flat'
-        elif 'Gauss' in self._options.beamspot:
-                beamspotType = 'Gaussian'
-        else:
-                beamspotType = 'BetaFunc'
-        self.loadAndRemember('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
-        beamspotName = 'process.%sVtxSmearingParameters' %(self._options.beamspot)
-        self.executeAndRemember(beamspotName+'.type = cms.string("%s")'%(beamspotType))
-        self.executeAndRemember('process.famosSimHits.VertexGenerator = '+beamspotName)
-	if hasattr(self.process,'famosPileUp'):
-		self.executeAndRemember('process.famosPileUp.VertexGenerator = '+beamspotName)
-
-
 
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
@@ -2097,7 +2061,7 @@ class ConfigBuilder(object):
 
 
         outputModuleCfgCode=""
-        if not 'HARVESTING' in self.stepMap.keys() and not 'SKIM' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
+        if not 'HARVESTING' in self.stepMap.keys() and not 'ALCAHARVEST' in self.stepMap.keys() and not 'ALCAOUTPUT' in self.stepMap.keys() and self.with_output:
                 outputModuleCfgCode=self.addOutput()
 
         self.addCommon()
@@ -2175,31 +2139,30 @@ class ConfigBuilder(object):
                 self.pythonCfgCode += dumpPython(self.process,endpath)
 
         # dump the schedule
-	if not self._options.runUnscheduled:	
-		self.pythonCfgCode += "\n# Schedule definition\n"
-		result = "process.schedule = cms.Schedule("
+	self.pythonCfgCode += "\n# Schedule definition\n"
+	result = "process.schedule = cms.Schedule("
 
-                # handling of the schedule
-		self.process.schedule = cms.Schedule()
-		for item in self.schedule:
-			if not isinstance(item, cms.Schedule):
-				self.process.schedule.append(item)
-			else:
-				self.process.schedule.extend(item)
-
-		if hasattr(self.process,"HLTSchedule"):
-			beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
-			afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
-			pathNames = ['process.'+p.label_() for p in beforeHLT]
-			result += ','.join(pathNames)+')\n'
-			result += 'process.schedule.extend(process.HLTSchedule)\n'
-			pathNames = ['process.'+p.label_() for p in afterHLT]
-			result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+        # handling of the schedule
+	self.process.schedule = cms.Schedule()
+	for item in self.schedule:
+		if not isinstance(item, cms.Schedule):
+			self.process.schedule.append(item)
 		else:
-			pathNames = ['process.'+p.label_() for p in self.schedule]
-			result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+			self.process.schedule.extend(item)
 
-	        self.pythonCfgCode += result
+	if hasattr(self.process,"HLTSchedule"):
+		beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
+		afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
+		pathNames = ['process.'+p.label_() for p in beforeHLT]
+		result += ','.join(pathNames)+')\n'
+		result += 'process.schedule.extend(process.HLTSchedule)\n'
+		pathNames = ['process.'+p.label_() for p in afterHLT]
+		result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+	else:
+		pathNames = ['process.'+p.label_() for p in self.schedule]
+		result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+
+	self.pythonCfgCode += result
 
 	if self._options.nThreads is not "1":
 		self.pythonCfgCode +="\n"
@@ -2237,13 +2200,23 @@ class ConfigBuilder(object):
 		#this is not supporting the blacklist at this point since I do not understand it
 		self.pythonCfgCode+="#do not add changes to your config after this point (unless you know what you are doing)\n"
 		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import convertToUnscheduled\n"
-
 		self.pythonCfgCode+="process=convertToUnscheduled(process)\n"
+
+		from FWCore.ParameterSet.Utilities import convertToUnscheduled
+		self.process=convertToUnscheduled(self.process)
 
 		#now add the unscheduled stuff
 		for module in self.importsUnsch:
 			self.process.load(module)
 			self.pythonCfgCode += ("process.load('"+module+"')\n")
+
+		#and clean the unscheduled stuff	
+		self.pythonCfgCode+="from FWCore.ParameterSet.Utilities import cleanUnscheduled\n"
+		self.pythonCfgCode+="process=cleanUnscheduled(process)\n"
+
+		from FWCore.ParameterSet.Utilities import cleanUnscheduled
+		self.process=cleanUnscheduled(self.process)
+
 
 	self.pythonCfgCode += self.addCustomise(1)
 

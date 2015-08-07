@@ -10,7 +10,6 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
 #include "FastSimulation/EventProducer/interface/FamosProducer.h"
@@ -47,10 +46,8 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     // The generator input label
     sourceLabel = p.getParameter<edm::InputTag>("SourceLabel");
     genParticleLabel = p.getParameter<edm::InputTag>("GenParticleLabel");
-    beamSpotLabel = p.getParameter<edm::InputTag>("BeamSpotLabel");
 
     // consume declarations
-    beamSpotToken = consumes<reco::BeamSpot>(beamSpotLabel);
     genParticleToken = consumes<reco::GenParticleCollection>(genParticleLabel);
     // FUTURE OBSOLETE CODE
     sourceToken = consumes<edm::HepMCProduct>(sourceLabel);
@@ -81,11 +78,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 
    RandomEngineAndDistribution random(iEvent.streamID());
 
-   //  // The beam spot position
-   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-   iEvent.getByToken(beamSpotToken,recoBeamSpotHandle); 
-   math::XYZPoint BSPosition_ = recoBeamSpotHandle->position();
-
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHand;
    es.get<IdealGeometryRecord>().get(tTopoHand);
@@ -94,7 +86,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
       
    const HepMC::GenEvent* myGenEvent = 0;
    FSimEvent* fevt = famosManager_->simEvent();
-   //   fevt->setBeamSpot(BSPosition_);     
    
    // Get the generated event(s) from the edm::Event
    // 1. Check if a HepMCProduct exists
@@ -125,7 +116,6 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
        myGenEvent = theHepMCProduct->GetEvent();
      } 
 
-     fevt->setBeamSpot(BSPosition_);
      // GEN LEVEL INFO NOT IN HEPMC FORMAT
      //     In case there is no HepMCProduct, seek a genParticle Candidate Collection
      bool genPart = false;

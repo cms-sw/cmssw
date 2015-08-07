@@ -1,9 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
 electronIDValueMapProducer = cms.EDProducer('ElectronIDValueMapProducer',
-                                          ebReducedRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-                                          eeReducedRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
-                                          esReducedRecHitCollection = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+                                          # The module automatically detects AOD vs miniAOD, so we configure both
+                                          #
+                                          # AOD case
+                                          #
+                                          ebReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+                                          eeReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
+                                          esReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsES"),
                                           src = cms.InputTag('gedGsfElectrons'),
-                                          dataFormat = cms.string('RECO')
+                                          #
+                                          # miniAOD case
+                                          #
+                                          ebReducedRecHitCollectionMiniAOD = cms.InputTag("reducedEgamma:reducedEBRecHits"),
+                                          eeReducedRecHitCollectionMiniAOD = cms.InputTag("reducedEgamma:reducedEERecHits"),
+                                          esReducedRecHitCollectionMiniAOD = cms.InputTag("reducedEgamma:reducedESRecHits"),
+                                          srcMiniAOD = cms.InputTag('slimmedElectrons',processName=cms.InputTag.skipCurrentProcess()),
 )

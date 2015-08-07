@@ -138,6 +138,7 @@ namespace edm {
       indexIntoFileIter_ = indexIntoFileEnd_;
     }
 
+    bool skipEntries(unsigned int& offset) {return eventTree_.skipEntries(offset);}
     bool skipEvents(int& offset);
     bool goToEvent(EventID const& eventID);
     bool nextEventEntry() {return eventTree_.next();}

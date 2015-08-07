@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 IsoTrigHB = cms.EDAnalyzer("IsoTrig",
                            Triggers        = cms.untracked.vstring("HLT_IsoTrackHB"),
                            PixcandTag      = cms.InputTag(" "),
-                           L1candTag       = cms.InputTag(" "),
+                           L1candTag       = cms.InputTag("hltL1sL1SingleJet68"),
                            L2candTag       = cms.InputTag("isolEcalPixelTrackProd"),
                            DoL2L3          = cms.untracked.bool(False),
                            DoTimingTree    = cms.untracked.bool(False),

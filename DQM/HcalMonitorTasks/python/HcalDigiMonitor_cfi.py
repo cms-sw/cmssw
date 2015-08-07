@@ -33,7 +33,7 @@ hcalDigiMonitor=cms.EDAnalyzer("HcalDigiMonitor",
                                
                                # disable testing of HO ring 2
                                excludeHORing2  = cms.untracked.bool(False),
-                               excludeHO1P02          = cms.untracked.bool(True),
+                               excludeHO1P02          = cms.untracked.bool(False),
                                excludeBadQPLL         = cms.untracked.bool(True),
 
                                hfRechitLabel                = cms.untracked.InputTag("hfreco"),

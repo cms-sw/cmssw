@@ -160,6 +160,7 @@ namespace pat {
       /// https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId
       bool isTightMuon(const reco::Vertex&) const;
       bool isLooseMuon() const;
+      bool isMediumMuon() const;
       bool isSoftMuon(const reco::Vertex&) const;
       bool isHighPtMuon(const reco::Vertex&) const;
 

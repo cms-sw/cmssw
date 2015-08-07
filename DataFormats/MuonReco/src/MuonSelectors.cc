@@ -764,6 +764,18 @@ bool muon::isLooseMuon(const reco::Muon& muon){
 }
 
 
+bool muon::isMediumMuon(const reco::Muon& muon){
+  if( !( isLooseMuon(muon) && muon.innerTrack()->validFraction() > 0.8 )) return false; 
+
+  bool goodGlb = muon.isGlobalMuon() && 
+    muon.globalTrack()->normalizedChi2() < 3. && 
+    muon.combinedQuality().chi2LocalPosition < 12. && 
+    muon.combinedQuality().trkKink < 20.; 
+
+  return (segmentCompatibility(muon) > (goodGlb ? 0.303 : 0.451)); 
+}
+
+
 bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
   bool muID = muon::isGoodMuon(muon, TMOneStationTight);

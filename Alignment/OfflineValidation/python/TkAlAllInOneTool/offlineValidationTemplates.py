@@ -146,7 +146,7 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
  ##
  ## GlobalTag Conditions (if needed)
  ##
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 
@@ -160,7 +160,7 @@ process.load("Configuration.Geometry.GeometryDB_cff")
  ##
  ## Magnetic Field
  ##
-process.load("Configuration/StandardSequences/MagneticField_.oO[magneticField]Oo._cff")
+process.load("Configuration/StandardSequences/.oO[magneticField]Oo._cff")
 
 .oO[condLoad]Oo.
 
@@ -190,38 +190,14 @@ process.offlineBeamSpot*process.HighPuritySelector*process.TrackRefitter1*proces
 
 ######################################################################
 ######################################################################
-mergeOfflineParallelResults="""
-
-# Merging works also if there is only one file to merge
-# if merged file already exists it will be moved to a backup file (~)
-
-# run TkAlOfflineJobsMerge.C
-echo -e "\n\nMerging results from offline parallel jobs with TkAlOfflineJobsMerge.C"
-#set directory to which TkAlOfflineJobsMerge.C saves the merged file
-# export OUTPUTDIR=.oO[datadir]Oo.
-export OUTPUTDIR=.
-cp .oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/merge_TrackerOfflineValidation.C .
-.oO[haddLoop]Oo.
-
-# create log file
-# ls -al .oO[datadir]Oo./AlignmentValidation*.root > .oO[datadir]Oo./log_rootfilelist.txt
-ls -al AlignmentValidation*.root > .oO[datadir]Oo./log_rootfilelist.txt
-
-# Remove parallel job files
-.oO[rmUnmerged]Oo.
-"""
-
-
-######################################################################
-######################################################################
 mergeOfflineParJobsTemplate="""
+#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/scripts/merge_TrackerOfflineValidation.C"
+
 int TkAlOfflineJobsMerge(TString pars, TString outFile)
 {
 // load framework lite just to find the CMSSW libs...
 gSystem->Load("libFWCoreFWLite");
 AutoLibraryLoader::enable();
-//compile the macro
-gROOT->ProcessLine(".L merge_TrackerOfflineValidation.C++");
 
 return hadd(pars, outFile);
 }
@@ -287,15 +263,7 @@ process.AlignmentTrackSelector.minHitChargeStrip = 50.
 process.TrackerTrackHitFilter.useTrajectories= True  # this is needed only if you require some selections; but it will work even if you don't ask for them
 process.TrackerTrackHitFilter.minimumHits = 8
 process.TrackerTrackHitFilter.commands = cms.vstring("keep PXB","keep PXE","keep TIB","keep TID","keep TOB","keep TEC")
-process.TrackerTrackHitFilter.detsToIgnore = [
-     # see https://hypernews.cern.ch/HyperNews/CMS/get/tracker-performance/484.html
-    # TIB / TID
-    #369136710, 369136714, 402668822,
-    # TOB
-    #436310989, 436310990, 436299301, 436299302,
-    # TEC
-    #470340521, 470063045, 470063046, 470114669, 470114670, 470161093, 470161094, 470164333, 470164334, 470312005, 470312006, 470312009, 470067405, 470067406, 470128813
-]
+process.TrackerTrackHitFilter.detsToIgnore = []
 process.TrackerTrackHitFilter.replaceWithInactiveHits = True
 process.TrackerTrackHitFilter.stripAllInvalidHits = False
 process.TrackerTrackHitFilter.rejectBadStoNHits = True

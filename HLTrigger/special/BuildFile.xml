@@ -1,5 +1,6 @@
 <use   name="root"/>
 <use   name="CalibCalorimetry/EcalLaserCorrection"/>
+<use   name="Calibration/Tools"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/EcalObjects"/>

@@ -26,6 +26,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "trackAlgoPriorityOrder.h"
 
 // this class is obsolete use TrackListMerger
 class SimpleTrackListMerger : public edm::stream::EDProducer<> {
@@ -397,7 +398,7 @@ namespace {
               selected1[i]=0;
 	      selected2[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
 	  }else{
-	    if (track->algo() <= track2->algo()) {
+	    if (trackAlgoPriorityOrder[track->algo()] <= trackAlgoPriorityOrder[track2->algo()]) {
 	      selected2[j]=0;
 	      selected1[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 	    }else{

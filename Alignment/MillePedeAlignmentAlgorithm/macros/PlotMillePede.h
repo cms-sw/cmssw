@@ -230,6 +230,8 @@ class PlotMillePede : public MillePedeTrees
   TString AlignableObjIdString(Int_t objId) const;
 
   void CopyAddBinning(TString &name, const TH1 *hist) const;// extend 'name' taking binning from hist
+  void SetOutName(const TString& name);
+
  private: 
   Int_t PrepareAdd(bool addPlots);
 

@@ -75,10 +75,10 @@ void HWWAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   HWW hww;
 
   //count total events
-  eventMonitor.monitor.count(MM, "total events", 1.0);
-  eventMonitor.monitor.count(EE, "total events", 1.0);
-  eventMonitor.monitor.count(EM, "total events", 1.0);
-  eventMonitor.monitor.count(ME, "total events", 1.0);
+  eventMonitor->count(MM, "total events", 1.0);
+  eventMonitor->count(EE, "total events", 1.0);
+  eventMonitor->count(EM, "total events", 1.0);
+  eventMonitor->count(ME, "total events", 1.0);
 
   //if doTest flag is true, all we do is access all the collections 
   //without having to make it through the cutflow.
@@ -155,36 +155,16 @@ void HWWAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       int bestHyp = bestHypothesis(hww, candidates);
 
       //perform remaining selections
-      doCutFlow(hww, bestHyp, eventMonitor.monitor, egammaMvaEleEstimator, muonMVAEstimator);
+      doCutFlow(hww, bestHyp, *eventMonitor, egammaMvaEleEstimator, muonMVAEstimator);
 
     }
   }  
-
-  FillHistograms();
-
 }//end analyze
 
 
-void HWWAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,edm::Run const &, edm::EventSetup const &){
+void HWWAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,edm::Run const &, edm::EventSetup const &) {
 
-  ibooker.setCurrentFolder("PhysicsHWW");
-
-  cutflowHist[0] = ibooker.book1D("cutflow_mm", "HWW cutflow mm", 21, 0, 21);	
-  cutflowHist[1] = ibooker.book1D("cutflow_ee", "HWW cutflow ee", 21, 0, 21);	
-  cutflowHist[2] = ibooker.book1D("cutflow_em", "HWW cutflow em", 21, 0, 21);	
-  cutflowHist[3] = ibooker.book1D("cutflow_me", "HWW cutflow me", 21, 0, 21);	
-  
-}
-
-void HWWAnalyzer::FillHistograms(){
-
-  for (unsigned int i=0; i<4; i++){
-    for (unsigned int j=0; j<eventMonitor.monitor.counters.size(); j++){
-      cutflowHist[i]->setBinContent(j+1, eventMonitor.monitor.counters[j].nevt[i] - 1); //the "- 1" accounts for the initial count in the EventMonitor constructor
-      cutflowHist[i]->setBinLabel(j+1, eventMonitor.monitor.counters[j].name.c_str(), 1);
-    }
-  }
-
+  eventMonitor.reset(new EventMonitor(ibooker));
 }
 
 DEFINE_FWK_MODULE(HWWAnalyzer);

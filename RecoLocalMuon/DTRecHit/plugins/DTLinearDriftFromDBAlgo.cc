@@ -17,12 +17,17 @@
 #include "CondFormats/DTObjects/interface/DTRecoUncertainties.h"
 #include "CondFormats/DataRecord/interface/DTRecoUncertaintiesRcd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 using namespace std;
 using namespace edm;
 
 DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config) :
   DTRecHitBaseAlgo(config),
+  mTimeMap(0),
+  field(0),
+  nominalB(-1),
   minTime(config.getParameter<double>("minTime")),
   maxTime(config.getParameter<double>("maxTime")),
   doVdriftCorr(config.getParameter<bool>("doVdriftCorr")),
@@ -56,6 +61,11 @@ void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
   ESHandle<DTMtime> mTimeHandle;
   setup.get<DTMtimeRcd>().get(mTimeHandle);
   mTimeMap = &*mTimeHandle;
+
+  ESHandle<MagneticField> magfield;
+  setup.get<IdealMagneticFieldRecord>().get(magfield);
+  field = &*magfield;
+  nominalB = field->nominalValue();
 
   if (useUncertDB) {
     ESHandle<DTRecoUncertainties> uncerts;
@@ -172,7 +182,7 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
   }
   
   //only in step 3
-  if(doVdriftCorr && step == 3){
+  if(doVdriftCorr && step == 3 && nominalB !=0){
     if (abs(wireId.wheel()) == 2 && 
 	wireId.station() == 1 &&
 	wireId.superLayer() != 2) {

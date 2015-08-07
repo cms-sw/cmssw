@@ -9,9 +9,38 @@ import atexit
 
 class OfflineConverter:
 
+    # the machine aliases and interfaces for the *online* database are
+    #   cmsonr1-s.cms, cmsonr2-s.cms, cmsonr3-s.cms
+    #   cmsonr1-v.cms, cmsonr2-v.cms, cmsonr3-v.cms
+    # but the -s and -v interfaces resolve to the same hosts.
+    # The actual machines and interfaces are
+    #   CMSRAC11-S.cms, CMSRAC12-S.cms, CMSRAC21-S.cms
+    #   CMSRAC11-V.cms, CMSRAC12-V.cms, CMSRAC21-V.cms
+
+    # the possible machines and interfaces for the *offline* database are
+    #   cmsr1-s.cms, cmsr2-s.cms, cmsr3-s.cms
+    #   cmsr1-v.cms, cmsr2-v.cms, cmsr3-v.cms
+    # but the -s and -v interfaces resolve to the same hosts
+    # The actual machines and interfaces are
+    #   itrac50011-s.cern.ch, itrac50063-s.cern.ch, itrac50078-s.cern.ch
+    #   itrac50011-v.cern.ch, itrac50063-v.cern.ch, itrac50078-v.cern.ch
+
+    versions = {}
+    versions['v1'] = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter.jar' )
+   #versions['v2'] = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter-v02-01-02.jar' )
+    versions['v2'] = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter-v02-02-04.jar' )
+
     databases = {}
-    databases['orcoff'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch', '-d', 'cms_cond.cern.ch', '-u', 'cms_hlt_gui_r',     '-s', 'convertme!' )
-    databases['hltdev'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch', '-d', 'cms_cond.cern.ch', '-u', 'cms_hltdev_reader', '-s', 'convertme!' )
+    databases['v1'] = {}
+    databases['v1']['offline'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',      '-d', 'cms_cond.cern.ch',      '-u', 'cms_hltdev_reader', '-s', 'convertme!' )
+    databases['v1']['hltdev']  = databases['v1']['offline']     # for backwards compatibility
+    databases['v1']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-s.cms',        '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_r',         '-s', 'convertme!' )
+    databases['v1']['adg']     = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',      '-d', 'cms_cond.cern.ch',      '-u', 'cms_hlt_gui_r',     '-s', 'convertme!' )
+    databases['v1']['orcoff']  = databases['v1']['adg']         # for backwards compatibility
+    databases['v2'] = {}
+    databases['v2']['offline'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',      '-d', 'cms_cond.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertme!' )
+    databases['v2']['online']  = ( '-t', 'oracle', '-h', 'cmsonr1-s.cms',        '-d', 'cms_rcms.cern.ch',      '-u', 'cms_hlt_gdr_r',     '-s', 'convertme!' )
+    databases['v2']['adg']     = ( '-t', 'oracle', '-h', 'cmsonradg1-s.cern.ch', '-d', 'cms_orcon_adg.cern.ch', '-u', 'cms_hlt_gdr_r',     '-s', 'convertme!' )
 
 
     @staticmethod
@@ -25,20 +54,28 @@ class OfflineConverter:
         return dir
 
 
-    def __init__(self, database = 'hltdev', url = None, verbose = False):
+    def __init__(self, version = 'v1', database = 'hltdev', url = None, verbose = False):
         self.verbose = verbose
+        self.version = version
         self.baseDir = '/afs/cern.ch/user/c/confdb/www/lib'
         self.baseUrl = 'http://confdb.web.cern.ch/confdb/lib'
-        self.jars = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter.jar' )
         self.workDir = ''
 
+        # check the schema version
+        if version in self.databases:
+            # pick the jars based on the database version
+            self.jars = self.versions[version]
+        else:
+            # unsupported database version
+            sys.stderr.write( "ERROR: unsupported database version \"%s\"\n" % version)
+
         # check the database
-        if database in self.databases:
+        if database in self.databases[version]:
             # load the connection parameters for the given database
-            self.connect = self.databases[database]
+            self.connect = self.databases[version][database]
         else:
             # unsupported database
-            sys.stderr.write( "ERROR: unknown database \"%s\"\n" % database)
+            sys.stderr.write( "ERROR: unknown database \"%s\" for version \"%s\"\n" % (database, version))
             sys.exit(1)
 
         # check for a custom base URL
@@ -76,11 +113,13 @@ class OfflineConverter:
         # setup the java command line and CLASSPATH
         if self.verbose:
             sys.stderr.write("workDir = %s\n" % self.workDir)
-# Use non-blocking random # source /dev/urandom (instead of /dev/random), see:
-# http://blockdump.blogspot.fr/2012/07/connection-problems-inbound-connection.html
-# Also deal with timezone region not found
-# http://stackoverflow.com/questions/9156379/ora-01882-timezone-region-not-found
-        self.javaCmd = ( 'java', '-cp', ':'.join(self.workDir + '/' + jar for jar in self.jars),'-Djava.security.egd=file:///dev/urandom','-Doracle.jdbc.timezoneAsRegion=false','confdb.converter.BrowserConverter' )
+        # use non-blocking random number source /dev/urandom (instead of /dev/random), see:
+        #   http://blockdump.blogspot.fr/2012/07/connection-problems-inbound-connection.html
+        # deal with timezone region not found
+        #   http://stackoverflow.com/questions/9156379/ora-01882-timezone-region-not-found
+        # increase the thread stack size from the default of 1 MB to work around java.lang.StackOverflowError errors, see
+        #   man java
+        self.javaCmd = ( 'java', '-cp', ':'.join(self.workDir + '/' + jar for jar in self.jars), '-Djava.security.egd=file:///dev/urandom', '-Doracle.jdbc.timezoneAsRegion=false', '-Xss32M', 'confdb.converter.BrowserConverter' )
 
 
     def query(self, *args):
@@ -99,11 +138,17 @@ class OfflineConverter:
 def help():
     sys.stdout.write("""Usage: %s OPTIONS
 
-        --hltdev|--orcoff           (target db [default: hltdev])
+        --v1|--v2                   (specify the ConfDB version [default: v1])
 
-        --configId <id>             (specify configuration by id)
-        --configName <name>         (specify configuration by name)
-        --runNumber <run>           (specify configuration by run)
+        --offline|--online|--adg    (specify the target db [default: offline])
+
+        Note that for v1
+            --orcoff  is a synonim of --adg
+            --offline is a synonim of --hltdev
+
+        --configId <id>             (specify the configuration by id)
+        --configName <name>         (specify the configuration by name)
+        --runNumber <run>           (specify the configuration by run number)
           [exactly one of --configId OR --configName OR --runNumber is required]
 
         --cff                       (retrieve configuration *fragment*)
@@ -135,12 +180,16 @@ def help():
         --sequences <s1[,s2]>       (include sequences, referenced or not!)
         --modules <p1[,p2]>         (include modules, referenced or not!)
         --blocks <m1::p1[,p2][,m2]> (generate parameter blocks)
+
+        --verbose                   (print additional details)
 """)
 
 
 def main():
     args = sys.argv[1:]
-    db = 'hltdev'
+    version = 'v1'
+    db      = 'hltdev'
+    verbose = False
 
     if not args:
         help()
@@ -150,26 +199,46 @@ def main():
         help()
         sys.exit(0)
 
-    if '--orcoff' in args and '--hltdev' in args:
-        sys.stderr.write( "ERROR: conflicting database specifications \"--hltdev\" and \"--orcoff\"\n" )
+    if '--verbose' in args:
+        verbose = True
+        args.remove('--verbose')
+
+    if '--v1' in args and '--v2' in args:
+        sys.stderr.write( "ERROR: conflicting database version specifications \"--v1\" and \"--v2\"\n" )
         sys.exit(1)
 
-    if '--runNumber' in args and '--hltdev' in args:
-        sys.stderr.write( "ERROR: conflicting database specifications \"--hltdev\" and \"--runNumber\"\n" )
-        sys.exit(1)
+    if '--v1' in args:
+        version = 'v1'
+        db      = 'hltdev'
+        args.remove('--v1')
 
-    if '--hltdev' in args:
-        db = 'hltdev'
-        args.remove('--hltdev')
+    if '--v2' in args:
+        version = 'v2'
+        db      = 'offline'
+        args.remove('--v2')
 
-    if '--orcoff' in args:
-        db = 'orcoff'
-        args.remove('--orcoff')
+    _dbs = {}
+    _dbs['v1'] = [ '--%s' % _db for _db in OfflineConverter.databases['v1'] ] + [ '--runNumber' ]
+    _dbs['v2'] = [ '--%s' % _db for _db in OfflineConverter.databases['v2'] ] + [ '--runNumber' ]
+    _dbargs = set(args) & set(sum(_dbs.values(), []))
 
-    if '--runNumber' in args:
-        db = 'orcoff'
+    if _dbargs:
+        if len(_dbargs) > 1:
+            sys.stderr.write( "ERROR: too many database specifications: \"" + "\", \"".join( _dbargs) + "\"\n" )
+            sys.exit(1)
 
-    converter = OfflineConverter(database = db)
+        _arg = _dbargs.pop()
+        db   = _arg[2:]
+        if db == 'runNumber':
+            db = 'adg'
+        else:
+            args.remove(_arg)
+
+        if not db in OfflineConverter.databases[version]:
+            sys.stderr.write( "ERROR: database version \"%s\" incompatible with specification \"%s\"\n" % (version, db) )
+            sys.exit(1)
+
+    converter = OfflineConverter(version = version, database = db, verbose = verbose)
     out, err = converter.query( * args )
     if 'ERROR' in err:
         sys.stderr.write( "%s: error while retriving the HLT menu\n\n%s\n\n" % (sys.argv[0], err) )

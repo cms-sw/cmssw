@@ -24,8 +24,8 @@
 // user include files
 
 #include "FWCore/Framework/interface/EventSetup.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -53,7 +53,7 @@ IsolatedEcalPixelTrackCandidateProducer::~IsolatedEcalPixelTrackCandidateProduce
 // ------------ method called to produce the data  ------------
 void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 #ifdef DebugLog
-  std::cout << "==============Inside IsolatedEcalPixelTrackCandidateProducer" << std::endl;
+  edm::LogInfo("HcalIsoTrack") << "==============Inside IsolatedEcalPixelTrackCandidateProducer";
 #endif
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
@@ -65,7 +65,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
   edm::Handle<EcalRecHitCollection> ecalEE;
   iEvent.getByToken(tok_ee,ecalEE);
 #ifdef DebugLog
-  std::cout << "ecal Collections isValid: " << ecalEB.isValid() << "/" << ecalEE.isValid() << std::endl;
+  edm::LogInfo("HcalIsoTrack") << "ecal Collections isValid: " << ecalEB.isValid() << "/" << ecalEE.isValid();
 #endif
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> trigCand;
@@ -77,18 +77,17 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
 
   reco::IsolatedPixelTrackCandidateCollection * iptcCollection=new reco::IsolatedPixelTrackCandidateCollection;
 #ifdef DebugLog
-  std::cout << "coneSize_ " << coneSizeEta0_ << "/"<< coneSizeEta1_ << " hitCountEthr_ " << hitCountEthr_ << " hitEthr_ " << hitEthr_ << std::endl;
+  edm::LogInfo("HcalIsoTrack") << "coneSize_ " << coneSizeEta0_ << "/"<< coneSizeEta1_ << " hitCountEthr_ " << hitCountEthr_ << " hitEthr_ " << hitEthr_;
 #endif
   for (int p=0; p<nCand; p++) {
     int    nhitIn(0), nhitOut(0);
     double inEnergy(0), outEnergy(0);
     std::pair<double,double> etaPhi(isoPixTrackRefs[p]->track()->eta(), isoPixTrackRefs[p]->track()->phi());
-    if (isoPixTrackRefs[p]->etaPhiEcal()) etaPhi = isoPixTrackRefs[p]->EtaPhiEcal();
+    if (isoPixTrackRefs[p]->etaPhiEcalValid()) etaPhi = isoPixTrackRefs[p]->etaPhiEcal();
     double etaAbs = std::abs(etaPhi.first);
     double coneSize_ = (etaAbs > 1.5) ? coneSizeEta1_ : (coneSizeEta0_*(1.5-etaAbs)+coneSizeEta1_*etaAbs)/1.5;
 #ifdef DebugLog
-    std::cout << "Track: eta/phi " << etaPhi.first << "/" << etaPhi.second << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << std::endl;
-    std::cout << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size() << " coneSize_: " <<  coneSize_ << std::endl;
+    edm::LogInfo("HcalIsoTrack") << "Track: eta/phi " << etaPhi.first << "/" << etaPhi.second << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << "\n" << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size() << " coneSize_: " << coneSize_;
 #endif
     if (etaAbs<1.7) {
       for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++) {
@@ -100,8 +99,7 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
 	  if (eItr->energy() > hitCountEthr_) nhitOut++;
 	  if (eItr->energy() > hitEthr_)      outEnergy += (eItr->energy());
 #ifdef DebugLog
-	  std::cout << "Rechit Close to the track has energy " << eItr->energy()
-		    << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R << std::endl;
+	  edm::LogInfo("HcalIsoTrack") << "Rechit Close to the track has energy " << eItr->energy() << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
 #endif
 	}
       }
@@ -116,24 +114,23 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
 	  if (eItr->energy() > hitCountEthr_) nhitOut++;
 	  if (eItr->energy() > hitEthr_)      outEnergy += (eItr->energy());
 #ifdef DebugLog
-	  std::cout << "Rechit Close to the track has energy " << eItr->energy()
-		    << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R << std::endl;
+	  edm::LogInfo("HcalIsoTrack") << "Rechit Close to the track has energy " << eItr->energy() << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
 #endif
 	}
       }
     }
 #ifdef DebugLog
-    std::cout << "nhitIn:" << nhitIn << " inEnergy:" << inEnergy << " nhitOut:" << nhitOut << " outEnergy:" << outEnergy << std::endl;
+    edm::LogInfo("HcalIsoTrack") << "nhitIn:" << nhitIn << " inEnergy:" << inEnergy << " nhitOut:" << nhitOut << " outEnergy:" << outEnergy;
 #endif
     reco::IsolatedPixelTrackCandidate newca(*isoPixTrackRefs[p]);
-    newca.SetEnergyIn(inEnergy);
-    newca.SetEnergyOut(outEnergy);
-    newca.SetNHitIn(nhitIn);
-    newca.SetNHitOut(nhitOut);
+    newca.setEnergyIn(inEnergy);
+    newca.setEnergyOut(outEnergy);
+    newca.setNHitIn(nhitIn);
+    newca.setNHitOut(nhitOut);
     iptcCollection->push_back(newca);	
   }
 #ifdef DebugLog
-  std::cout << "ncand:" << nCand << " outcollction size:" << iptcCollection->size() << std::endl;
+  edm::LogInfo("HcalIsoTrack") << "ncand:" << nCand << " outcollction size:" << iptcCollection->size();
 #endif
   std::auto_ptr<reco::IsolatedPixelTrackCandidateCollection> outCollection(iptcCollection);
   iEvent.put(outCollection);

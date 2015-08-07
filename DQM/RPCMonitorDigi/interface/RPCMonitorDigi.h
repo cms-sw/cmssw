@@ -48,7 +48,6 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	bool useMuonDigis_;
 
 	void performSourceOperation(std::map < RPCDetId , std::vector<RPCRecHit> > &, std::string );
-	void makeDcsInfo(const edm::Event& ) ;
 	int stripsInRoll(RPCDetId & ,const edm::EventSetup& );
 
 	static const std::string regionNames_[3];
@@ -56,7 +55,6 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 	std::string noiseFolder_;
 	int counter;
 
-	bool dcs_;
 	float muPtCut_, muEtaCut_;
 	bool useRollInfo_;
  	MonitorElement * noiseRPCEvents_ ;

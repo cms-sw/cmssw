@@ -65,6 +65,7 @@
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionBuffer.h"
 #include "CondFormats/HcalObjects/interface/StorableDoubleMap.h"
 #include "CondFormats/HcalObjects/interface/HcalInterpolatedPulseColl.h"
+#include "CondFormats/HcalObjects/interface/HBHENegativeEFilter.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "CondFormats/L1TObjects/interface/L1CaloEcalScale.h"

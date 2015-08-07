@@ -1,38 +1,34 @@
 import FWCore.ParameterSet.Config as cms
 
-# producer for alcaisotrk (HCAL isolated tracks)
-from TrackingTools.TrackAssociator.default_cfi import *
-from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
-
-TrackAssociatorParameterBlock.TrackAssociatorParameters.EERecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackEcalRecHitCollection")
-TrackAssociatorParameterBlock.TrackAssociatorParameters.EBRecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackEcalRecHitCollection")
-TrackAssociatorParameterBlock.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackHBHERecHitCollection")
-TrackAssociatorParameterBlock.TrackAssociatorParameters.HORecHitCollectionLabel = cms.InputTag("IsoProd","IsoTrackHORecHitCollection")
-
-isoAnalyzer = cms.EDAnalyzer("HcalIsoTrkAnalyzer",
-	TrackAssociatorParameterBlock,
-        hbheInput = cms.InputTag("IsoProd:IsoTrackHBHERecHitCollection"),
-        hoInput = cms.InputTag("IsoProd:IsoTrackHORecHitCollection"),
-        eInput = cms.InputTag("IsoProd:IsoTrackEcalRecHitCollection"),
-        HcalIsolTrackInput = cms.InputTag("IsoProd:HcalIsolatedTrackCollection"),
-        trackInput = cms.InputTag("IsoProd:IsoTrackTracksCollection"),
-
-        outputFileName = cms.string("output_IsoAnalyzer.root"),
-        AxB = cms.string("Cone"),
-        calibrationConeSize = cms.double(50.),
-        associationConeSize = cms.double(60),
-        EcalCone = cms.double(9.),
-        EcalConeOuter = cms.double(40.),
-       hottestHitDistance = cms.double(18.),
-
-        noOfIterations = cms.int32(10),
-        eventWeight = cms.double(2.0),
-        energyMinIso = cms.double(10.0),
-        energyMaxIso = cms.double(1000.0),
-        energyECALmip = cms.double(1.0),
-	maxPNear = cms.double(2.0),
-	MinNTrackHitsBarrel = cms.int32(13),
-	MinNTECHitsEndcap = cms.int32(11)
+HcalIsoTrkAnalyzer = cms.EDAnalyzer("HcalIsoTrkAnalyzer",
+                                    TrackLabel        = cms.string("generalTracks"),
+                                    VertexLabel       = cms.string("offlinePrimaryVertices"),
+                                    BeamSpotLabel     = cms.InputTag("offlineBeamSpot"),
+                                    EBRecHitLabel     = cms.string("EcalRecHitsEB"),
+                                    EERecHitLabel     = cms.string("EcalRecHitsEE"),
+                                    HBHERecHitLabel   = cms.string("hbhereco"),
+                                    TriggerEventLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
+                                    TriggerResultLabel= cms.InputTag("TriggerResults","","HLT"),
+                                    Triggers          = cms.vstring("HLT_IsoTrackHB","HLT_IsoTrackHE"),
+                                    TrackQuality      = cms.string("highPurity"),
+                                    ProcessName       = cms.string("HLT"),
+                                    L1Filter          = cms.string(""),
+                                    L2Filter          = cms.string("L2Filter"),
+                                    L3Filter          = cms.string("Filter"),
+                                    MinTrackPt        = cms.double(10.0),
+                                    MaxDxyPV          = cms.double(0.02),
+                                    MaxDzPV           = cms.double(0.02),
+                                    MaxChi2           = cms.double(5.0),
+                                    MaxDpOverP        = cms.double(0.1),
+                                    MinOuterHit       = cms.int32(4),
+                                    MinLayerCrossed   = cms.int32(8),
+                                    MaxInMiss         = cms.int32(0),
+                                    MaxOutMiss        = cms.int32(0),
+                                    ConeRadius        = cms.double(34.98),
+                                    ConeRadiusMIP     = cms.double(14.0),
+                                    MinimumTrackP     = cms.double(20.0),
+                                    MaximumEcalEnergy = cms.double(2.0),
+                                    IsolationEnergy   = cms.double(2.0),
+                                    ModuleName        = cms.untracked.string(""),
+                                    ProducerName      = cms.untracked.string(""),
 )
-
-

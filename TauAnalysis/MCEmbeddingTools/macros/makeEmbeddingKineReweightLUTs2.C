@@ -75,9 +75,9 @@ struct weightEntryType
   }
   TString name_;
   const TH1* lut_;
-  TAxis* xAxis_;
+  const TAxis* xAxis_;
   Int_t numBinsX_;
-  TAxis* yAxis_;
+  const TAxis* yAxis_;
   Int_t numBinsY_;
   int variableX_;
   int variableY_;

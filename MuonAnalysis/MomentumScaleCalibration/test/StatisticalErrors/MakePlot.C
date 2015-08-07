@@ -6,6 +6,8 @@
 #include <vector>
 #include <string>
 
+void makePlot(std::vector<double> vec, double& meanP, double& rmsP, double& sigmaP, std::string parNum);
+void skimValues(std::vector<double>& vec, double mean, double rms);
 
 void MakePlot() {
   ifstream file("Values.txt");

@@ -133,6 +133,14 @@ class MuonKinVsEtaAnalyzer : public DQMEDAnalyzer {
   std::vector<MonitorElement*> chi2LooseTrack;
   std::vector<MonitorElement*> chi2probLooseTrack;
 
+  // Medium muon;
+  std::vector<MonitorElement*> etaMediumTrack;
+  std::vector<MonitorElement*> phiMediumTrack;
+  std::vector<MonitorElement*> pMediumTrack;
+  std::vector<MonitorElement*> ptMediumTrack;
+  std::vector<MonitorElement*> chi2MediumTrack;
+  std::vector<MonitorElement*> chi2probMediumTrack;
+
   // Soft muon;
   std::vector<MonitorElement*> etaSoftTrack;
   std::vector<MonitorElement*> phiSoftTrack;

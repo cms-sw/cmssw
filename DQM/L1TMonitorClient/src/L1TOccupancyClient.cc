@@ -411,7 +411,8 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
     if(nBinsX%2==0){lowBinStrip--;}
     
     // Do we have enough statistics? Min(Max(strip_i,strip_j))>threshold
-    double* maxAvgs = new double[maxBinStrip-upBinStrip+1];
+    std::unique_ptr<double[]> maxAvgs(new double[maxBinStrip-upBinStrip+1]);
+
     int nActualStrips=0; //number of strips that are not fully masked
     for(int i=0, j=upBinStrip, k=lowBinStrip;j<=maxBinStrip;i++,j++,k--) {
       double avg1 = getAvrg(diffHist,iTestName,pAxis,nBinsY,j,pAverageMode);
@@ -430,10 +431,10 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
     defaultMu0up.push_back(50735.3);
     defaultMu0up.push_back(-97.6793);
         
-    TF1* tf = new TF1("myFunc","[0]*(TMath::Log(x*[1]+[2]))+[3]",10.,11000.);
+    TF1 tf("myFunc","[0]*(TMath::Log(x*[1]+[2]))+[3]",10.,11000.);
     vector<double> params = ps.getUntrackedParameter< vector<double> >("params_mu0_up",defaultMu0up);
-    for(unsigned int i=0;i<params.size();i++) {tf->SetParameter(i,params[i]);}
-    int statsup = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
+    for(unsigned int i=0;i<params.size();i++) {tf.SetParameter(i,params[i]);}
+    int statsup = (int)tf.Eval(hservice_->getNBinsHistogram(iTestName));
 
     vector<double> defaultMu0low;
     defaultMu0low.push_back(2.19664);
@@ -442,17 +443,17 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
     defaultMu0low.push_back(19.388);
     
     params = ps.getUntrackedParameter<vector<double> >("params_mu0_low",defaultMu0low);
-    for(unsigned int i=0;i<params.size();i++) {tf->SetParameter(i,params[i]);}
-    int statslow = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
+    for(unsigned int i=0;i<params.size();i++) {tf.SetParameter(i,params[i]);}
+    int statslow = (int)tf.Eval(hservice_->getNBinsHistogram(iTestName));
     
     if(verbose_) {
       cout << "nbins: "   << hservice_->getNBinsHistogram(iTestName) << endl;
       cout << "statsup= " << statsup << ", statslow= " << statslow << endl;
     }
     
-    enoughStats = TMath::MinElement(nActualStrips,maxAvgs)>TMath::Max(statsup,statslow);
+    enoughStats = TMath::MinElement(nActualStrips,maxAvgs.get())>TMath::Max(statsup,statslow);
     if(verbose_) {
-      cout << "stats: " << TMath::MinElement(nActualStrips,maxAvgs) << ", statsAvg: " << diffHist->GetEntries()/hservice_->getNBinsHistogram(iTestName) << ", threshold: " << TMath::Max(statsup,statslow) << endl;
+      cout << "stats: " << TMath::MinElement(nActualStrips,maxAvgs.get()) << ", statsAvg: " << diffHist->GetEntries()/hservice_->getNBinsHistogram(iTestName) << ", threshold: " << TMath::Max(statsup,statslow) << endl;
     }
     
     //if enough statistics
@@ -492,7 +493,7 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
     }
     
     //do we have enough statistics? Min(Max(strip_i,strip_j))>threshold
-    double* maxAvgs = new double[maxBinStrip-upBinStrip+1];
+    std::unique_ptr<double[]> maxAvgs(new double[maxBinStrip-upBinStrip+1]);
     int nActualStrips = 0;
     for(int i=0, j=upBinStrip, k=lowBinStrip;j<=maxBinStrip;i++,j++,k--) {
       double avg1 = getAvrg(diffHist, iTestName, pAxis, nBinsX, j, pAverageMode);
@@ -510,11 +511,11 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
     defaultMu0up.push_back(-97.6793);
         
     vector<double> params = ps.getUntrackedParameter<std::vector<double> >("params_mu0_up",defaultMu0up);
-    TF1* tf = new TF1("myFunc","[0]*(TMath::Log(x*[1]+[2]))+[3]",10.,11000.);
+    TF1 tf("myFunc","[0]*(TMath::Log(x*[1]+[2]))+[3]",10.,11000.);
     for(unsigned int i=0;i<params.size();i++) {
-      tf->SetParameter(i,params[i]);
+      tf.SetParameter(i,params[i]);
     }
-    int statsup = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
+    int statsup = (int)tf.Eval(hservice_->getNBinsHistogram(iTestName));
     
     vector<double> defaultMu0low;
     defaultMu0low.push_back(2.19664);
@@ -524,15 +525,15 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
 
     params = ps.getUntrackedParameter<std::vector<double> >("params_mu0_low",defaultMu0low);
     for(unsigned int i=0;i<params.size();i++) {
-      tf->SetParameter(i,params[i]);
+      tf.SetParameter(i,params[i]);
     }
-    int statslow = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
+    int statslow = (int)tf.Eval(hservice_->getNBinsHistogram(iTestName));
     if(verbose_) {
       cout << "statsup= " << statsup << ", statslow= " << statslow << endl;
     }
-    enoughStats = TMath::MinElement(nActualStrips,maxAvgs)>TMath::Max(statsup,statslow);
+    enoughStats = TMath::MinElement(nActualStrips,maxAvgs.get())>TMath::Max(statsup,statslow);
     if(verbose_) {
-      cout << "stats: " << TMath::MinElement(nActualStrips,maxAvgs) << ", statsAvg: " << diffHist->GetEntries()/hservice_->getNBinsHistogram(iTestName) << ", threshold: " << TMath::Max(statsup,statslow) << endl;
+      cout << "stats: " << TMath::MinElement(nActualStrips,maxAvgs.get()) << ", statsAvg: " << diffHist->GetEntries()/hservice_->getNBinsHistogram(iTestName) << ", threshold: " << TMath::Max(statsup,statslow) << endl;
     }
     
     //if we have enough statistics
@@ -548,7 +549,7 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
     }
   }
   else {if(verbose_){cout << "Invalid axis" << endl;}}
-    
+  
   return (deadChannels.size()-hservice_->getNBinsMasked(iTestName))*1.0/hservice_->getNBinsHistogram(iTestName);
 }
 
@@ -570,7 +571,7 @@ double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int
 
   double avg = 0.0;
   TH1D* proj = NULL;
-  TH2F* histo = (TH2F*) iHist->Clone();
+  TH2F* histo = new TH2F(*iHist);
 
   std::vector<double> values;
   int marked;
@@ -627,8 +628,8 @@ double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int
   else {
     if(verbose_) {cout << "invalid axis" << endl;}
   }
-  delete histo;
   delete proj;
+  delete histo;
   return avg;
 }
 

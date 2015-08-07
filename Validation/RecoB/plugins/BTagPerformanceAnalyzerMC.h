@@ -8,14 +8,16 @@
 #include "DQMOffline/RecoB/interface/JetTagPlotter.h"
 #include "DQMOffline/RecoB/interface/TagCorrelationPlotter.h"
 #include "DQMOffline/RecoB/interface/BaseTagInfoPlotter.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourInfo.h"
 #include "SimDataFormats/JetMatching/interface/JetFlavour.h"
 #include "DQMOffline/RecoB/interface/CorrectJet.h"
 #include "DQMOffline/RecoB/interface/MatchJet.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/Common/interface/Association.h"
-
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 /** \class BTagPerformanceAnalyzerMC
  *
  *  Top level steering routine for b tag performance analysis.
@@ -44,7 +46,7 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
 
   EtaPtBin getEtaPtBin(const int& iEta, const int& iPt);
 
-  typedef std::pair<reco::Jet, reco::JetFlavour> JetWithFlavour;
+  typedef std::pair<reco::Jet, reco::JetFlavourInfo> JetWithFlavour;
   typedef std::map<edm::RefToBase<reco::Jet>, unsigned int, JetRefCompare> FlavourMap;
   typedef std::map<edm::RefToBase<reco::Jet>, reco::JetFlavour::Leptons, JetRefCompare> LeptonMap;
   
@@ -57,6 +59,7 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
   std::vector<std::string> tiDataFormatType;
   AcceptJet jetSelector;   // Decides if jet and parton satisfy kinematic cuts.
   std::vector<double> etaRanges, ptRanges;
+  bool useOldFlavourTool;
   std::string JECsource;
   bool doJEC;
 
@@ -89,7 +92,8 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
   //add consumes 
   edm::EDGetTokenT<GenEventInfoProduct> genToken;
   edm::EDGetTokenT<edm::Association<reco::GenJetCollection>> genJetsMatchedToken;
-  edm::EDGetTokenT<reco::JetFlavourMatchingCollection> jetToken;
+  edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetToken;
+  edm::EDGetTokenT<reco::JetFlavourMatchingCollection> caloJetToken;
   edm::EDGetTokenT<reco::SoftLeptonTagInfoCollection> slInfoToken;
   std::vector< edm::EDGetTokenT<reco::JetTagCollection> > jetTagToken;
   std::vector< std::pair<edm::EDGetTokenT<reco::JetTagCollection>, edm::EDGetTokenT<reco::JetTagCollection>> > tagCorrelationToken;

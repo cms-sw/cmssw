@@ -120,5 +120,10 @@ DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
+
+HLTMonitoring = cms.Sequence(sistripMonitorHLTsequence*trackingMonitorHLT)
                                                                  
-DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence )
+DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence * jetMETDQMOfflineSourceMiniAOD  )
+
+DQMOfflineNoHWW = cms.Sequence(DQMOffline)
+DQMOfflineNoHWW.remove(hwwAnalyzer)

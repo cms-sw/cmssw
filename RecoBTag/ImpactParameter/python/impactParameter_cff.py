@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.TransientTrack.TransientTrackBuilder_cfi import *
 from RecoBTag.ImpactParameter.impactParameterTagInfos_cfi import *
 from RecoBTag.ImpactParameter.pfImpactParameterTagInfos_cfi import *
+from RecoBTag.ImpactParameter.pfImpactParameterTagInfosAK8_cfi import *
+from RecoBTag.ImpactParameter.pfImpactParameterTagInfosCA15_cfi import *
 from RecoBTau.JetTagComputer.jetTagRecord_cfi import *
 # MVA
 from RecoBTag.ImpactParameter.impactParameterMVAComputer_cfi import *

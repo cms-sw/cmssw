@@ -20,5 +20,6 @@ HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath
 
-AOutput
+PhysicsEGammaCommissioningOutput
+#RatesMonitoring				# only in 'online'
 DQMOutput

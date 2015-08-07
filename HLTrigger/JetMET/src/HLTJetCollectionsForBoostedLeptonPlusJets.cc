@@ -12,11 +12,11 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "HLTrigger/JetMET/interface/HLTJetCollectionsForBoostedLeptonPlusJets.h"
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
+#include "CommonTools/Utils/interface/PtComparator.h"
 
 
 
@@ -29,10 +29,14 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::HLTJetCollectionsForBoostedL
 {
   using namespace edm;
   using namespace std;
+
   typedef vector<RefVector<vector<jetType>,jetType,refhelper::FindUsingAdvance<vector<jetType>,jetType> > > JetCollectionVector;
+  typedef vector<jetType> JetCollection;
+
   m_theLeptonToken = consumes<trigger::TriggerFilterObjectWithRefs>(hltLeptonTag);
   m_theJetToken = consumes<std::vector<jetType>>(sourceJetTag);
-  produces<JetCollectionVector> ();
+  produces<JetCollectionVector>();
+  produces<JetCollection>();
 }
 
 template <typename jetType>
@@ -46,13 +50,13 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::~HLTJetCollectionsForBoosted
 template <typename jetType>
 void
 HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-    edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag> ("HltLeptonTag", edm::InputTag("triggerFilterObjectWithRefs"));
-    //(2)
-    desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("jetCollection"));
-    //(2)
-    desc.add<double> ("minDeltaR", 0.5);
-    descriptions.add(defaultModuleLabel<HLTJetCollectionsForBoostedLeptonPlusJets<jetType>>(), desc);
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag> ("HltLeptonTag", edm::InputTag("triggerFilterObjectWithRefs"));
+  //(2)
+  desc.add<edm::InputTag> ("SourceJetTag", edm::InputTag("jetCollection"));
+  //(2)
+  desc.add<double> ("minDeltaR", 0.5);
+  descriptions.add(defaultModuleLabel<HLTJetCollectionsForBoostedLeptonPlusJets<jetType>>(), desc);
 }
 
 //
@@ -71,22 +75,18 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEvent, 
   //(3)
   using namespace reco;
   //(3)
-  
   typedef vector<RefVector<vector<jetType>,jetType,refhelper::FindUsingAdvance<vector<jetType>,jetType> > > JetCollectionVector;
   typedef vector<jetType> JetCollection;
-  typedef edm::RefVector<JetCollection> JetRefVector;
   typedef edm::Ref<JetCollection> JetRef;
-  //(4)
-  typedef math::XYZTLorentzVector LorentzVector;
-  //(4)
+  typedef edm::RefVector<JetCollection> JetRefVector;
 
   Handle<trigger::TriggerFilterObjectWithRefs> PrevFilterOutput;
   iEvent.getByToken(m_theLeptonToken,PrevFilterOutput);
  
   //its easier on the if statement flow if I try everything at once, shouldnt add to timing
   // Electrons can be stored as objects of types TriggerCluster, TriggerElectron, or TriggerPhoton
-  vector<Ref<reco::RecoEcalCandidateCollection> > clusCands;
-  PrevFilterOutput->getObjects(trigger::TriggerCluster,clusCands);
+  vector<reco::RecoChargedCandidateRef> muonCands;
+  PrevFilterOutput->getObjects(trigger::TriggerMuon,muonCands);
 
   vector<Ref<reco::ElectronCollection> > eleCands;
   PrevFilterOutput->getObjects(trigger::TriggerElectron,eleCands);
@@ -94,119 +94,119 @@ HLTJetCollectionsForBoostedLeptonPlusJets<jetType>::produce(edm::Event& iEvent, 
   trigger::VRphoton photonCands;
   PrevFilterOutput->getObjects(trigger::TriggerPhoton, photonCands);
   
-  vector<reco::RecoChargedCandidateRef> muonCands;
-  PrevFilterOutput->getObjects(trigger::TriggerMuon,muonCands);
+  vector<Ref<reco::RecoEcalCandidateCollection> > clusCands;
+  PrevFilterOutput->getObjects(trigger::TriggerCluster,clusCands);
 
   Handle<JetCollection> theJetCollectionHandle;
   iEvent.getByToken(m_theJetToken, theJetCollectionHandle);
   
-  const JetCollection & theJetCollection = *theJetCollectionHandle;
+  typename JetCollection::const_iterator jet;
   
-  auto_ptr < JetCollectionVector > allSelections(new JetCollectionVector());
-  
- if(!clusCands.empty()){ // try trigger clusters
-    for(size_t candNr=0;candNr<clusCands.size();candNr++){  
-        JetRefVector refVector;
-        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(clusCands[candNr]->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
-         else{
-        unsigned int w =0 ; 
-        std::vector<reco::PFCandidatePtr> pfConstituents = theJetCollection[j].getPFConstituents();
-        for(std::vector<reco::PFCandidatePtr>::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
-		   TVector3 ClusP(clusCands[candNr]->p4().Px(),clusCands[candNr]->p4().Py(), clusCands[candNr]->p4().Pz());
-		   TVector3 PFJetConstP((*i_candidate)->px(),(*i_candidate)->py(),(*i_candidate)->pz());
-           double deltaRPFConste = ClusP.DeltaR(PFJetConstP);  
-           if(deltaRPFConste < 0.001 && w==0){
-		   const_cast<LorentzVector&>(theJetCollection[j].p4()) = theJetCollection[j].p4() - clusCands[candNr]->p4();
-            w ++;
-           } //if
+  auto_ptr<JetCollection> allSelections(new JetCollection);
+  auto_ptr<JetCollectionVector> product(new JetCollectionVector);
+
+  std::vector<size_t> usedCands;
+
+  if(!muonCands.empty()){ // muons
+    for (jet = theJetCollectionHandle->begin(); jet != theJetCollectionHandle->end(); jet++) {
+      //const jetType* referenceJet = &*jet;
+      jetType cleanedJet = *jet; //copy original jet
+      for(size_t candNr=0;candNr<muonCands.size();candNr++){
+        if (std::find(usedCands.begin(),usedCands.end(),candNr)!=usedCands.end()) continue;
+        if (deltaR((*muonCands[candNr]),cleanedJet) <= minDeltaR_) {
+          std::vector<edm::Ptr<reco::PFCandidate> > pfConstituents = cleanedJet.getPFConstituents();
+          for(std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
+            if (deltaR((*muonCands[candNr]),(**i_candidate))<0.001) {
+	      cleanedJet.setP4( cleanedJet.p4() - muonCands[candNr]->p4());
+              usedCands.push_back(candNr);
+              break;
+            }//if constituent matched
           }//for constituents
-        refVector.push_back(JetRef(theJetCollectionHandle, j));
-       }//else
-   }
-    allSelections->push_back(refVector);
-    }
- }
+        }//if dR<min
+      }//for cands
+      allSelections->push_back(cleanedJet);
+    }//for jets
+  }//if cands
 
- if(!eleCands.empty()){ // try electrons
-    for(size_t candNr=0;candNr<eleCands.size();candNr++){  
-        JetRefVector refVector;
-        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(eleCands[candNr]->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
-           else{
-        unsigned int w =0 ; 
-        std::vector<reco::PFCandidatePtr> pfConstituents = theJetCollection[j].getPFConstituents();
-        for(std::vector<reco::PFCandidatePtr>::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
-		   TVector3 ElectronP(eleCands[candNr]->p4().Px(),eleCands[candNr]->p4().Py(), eleCands[candNr]->p4().Pz());
-		   TVector3 PFJetConstP((*i_candidate)->px(),(*i_candidate)->py(),(*i_candidate)->pz());
-           double deltaRPFConste = ElectronP.DeltaR(PFJetConstP);  
-           if(deltaRPFConste < 0.001 && w==0){
-		   const_cast<LorentzVector&>(theJetCollection[j].p4()) = theJetCollection[j].p4() - eleCands[candNr]->p4();
-            w ++;
-           } //if
+  if(!eleCands.empty()){ // electrons
+    for (jet = theJetCollectionHandle->begin(); jet != theJetCollectionHandle->end(); jet++) {
+      //const jetType* referenceJet = &*jet;
+      jetType cleanedJet = *jet; //copy original jet
+      for(size_t candNr=0;candNr<eleCands.size();candNr++){
+        if (std::find(usedCands.begin(),usedCands.end(),candNr)!=usedCands.end()) continue;
+        if (deltaR((*eleCands[candNr]),cleanedJet) <= minDeltaR_) {
+          std::vector<edm::Ptr<reco::PFCandidate> > pfConstituents = cleanedJet.getPFConstituents();
+          for(std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
+            if (deltaR((*eleCands[candNr]),(**i_candidate))<0.001) {
+	      cleanedJet.setP4( cleanedJet.p4() - eleCands[candNr]->p4());
+              usedCands.push_back(candNr);
+              break;
+            }//if constituent matched
           }//for constituents
-        refVector.push_back(JetRef(theJetCollectionHandle, j));
-       }//else
-        }//for jet collection
-          
-    allSelections->push_back(refVector);
-    }
- }
- 
- if(!photonCands.empty()){ // try photons
-    for(size_t candNr=0;candNr<photonCands.size();candNr++){  
-        JetRefVector refVector;
-        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-          if (deltaR(photonCands[candNr]->superCluster()->position(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
-          else{
-        unsigned int w =0 ; 
-        std::vector<reco::PFCandidatePtr> pfConstituents = theJetCollection[j].getPFConstituents();
-        for(std::vector<reco::PFCandidatePtr>::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
-		   TVector3 PhotonP(photonCands[candNr]->p4().Px(),photonCands[candNr]->p4().Py(), photonCands[candNr]->p4().Pz());
-		   TVector3 PFJetConstP((*i_candidate)->px(),(*i_candidate)->py(),(*i_candidate)->pz());
-           double deltaRPFConste = PhotonP.DeltaR(PFJetConstP);  
-           if(deltaRPFConste < 0.001 && w==0){
-		   const_cast<LorentzVector&>(theJetCollection[j].p4()) = theJetCollection[j].p4() - photonCands[candNr]->p4();
-            w ++;
-           } //if
+        }//if dR<min
+      }//for cands
+      allSelections->push_back(cleanedJet);
+    }//for jets
+  }//if cands
+
+  if(!photonCands.empty()){ // photons
+    for (jet = theJetCollectionHandle->begin(); jet != theJetCollectionHandle->end(); jet++) {
+      //const jetType* referenceJet = &*jet;
+      jetType cleanedJet = *jet; //copy original jet
+      for(size_t candNr=0;candNr<photonCands.size();candNr++){
+        if (std::find(usedCands.begin(),usedCands.end(),candNr)!=usedCands.end()) continue;
+        if (deltaR((*photonCands[candNr]),cleanedJet) <= minDeltaR_) {
+          std::vector<edm::Ptr<reco::PFCandidate> > pfConstituents = cleanedJet.getPFConstituents();
+          for(std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
+            if (deltaR((*photonCands[candNr]),(**i_candidate))<0.001) {
+	      cleanedJet.setP4( cleanedJet.p4() - photonCands[candNr]->p4());
+              usedCands.push_back(candNr);
+              break;
+            }//if constituent matched
           }//for constituents
-        refVector.push_back(JetRef(theJetCollectionHandle, j));
-       }//else
-        }//for jet collection
-    allSelections->push_back(refVector);
-    }
- }
+        }//if dR<min
+      }//for cands
+      allSelections->push_back(cleanedJet);
+    }//for jets
+  }//if cands
 
- if(!muonCands.empty()){ // muons
-    for(size_t candNr=0;candNr<muonCands.size();candNr++){  
-        JetRefVector refVector;
-        for (unsigned int j = 0; j < theJetCollection.size(); j++) {
-	  if (deltaR(muonCands[candNr]->p4(),theJetCollection[j]) > minDeltaR_) refVector.push_back(JetRef(theJetCollectionHandle, j));
-      else{
-        unsigned int w =0 ; 
-        std::vector<reco::PFCandidatePtr> pfConstituents = theJetCollection[j].getPFConstituents();
-        for(std::vector<reco::PFCandidatePtr>::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
-		   TVector3 MuP(muonCands[candNr]->p4().Px(),muonCands[candNr]->p4().Py(), muonCands[candNr]->p4().Pz());
-		   TVector3 PFJetConstP((*i_candidate)->px(),(*i_candidate)->py(),(*i_candidate)->pz());
-           double deltaRPFConste = MuP.DeltaR(PFJetConstP);  
-           if(deltaRPFConste < 0.001 && w==0){
-		   const_cast<LorentzVector&>(theJetCollection[j].p4()) = theJetCollection[j].p4() - muonCands[candNr]->p4();
-            w ++;
-           } //if
+  if(!clusCands.empty()){ // trigger clusters
+    for (jet = theJetCollectionHandle->begin(); jet != theJetCollectionHandle->end(); jet++) {
+      //const jetType* referenceJet = &*jet;
+      jetType cleanedJet = *jet; //copy original jet
+      for(size_t candNr=0;candNr<clusCands.size();candNr++){
+        if (std::find(usedCands.begin(),usedCands.end(),candNr)!=usedCands.end()) continue;
+        if (deltaR((*clusCands[candNr]),cleanedJet) <= minDeltaR_) {
+          std::vector<edm::Ptr<reco::PFCandidate> > pfConstituents = cleanedJet.getPFConstituents();
+          for(std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator i_candidate = pfConstituents.begin(); i_candidate != pfConstituents.end(); ++i_candidate){
+            if (deltaR((*clusCands[candNr]),(**i_candidate))<0.001) {
+	      cleanedJet.setP4( cleanedJet.p4() - clusCands[candNr]->p4());
+              usedCands.push_back(candNr);
+              break;
+            }//if constituent matched
           }//for constituents
-        refVector.push_back(JetRef(theJetCollectionHandle, j));
-       }//else
-        }
-    allSelections->push_back(refVector);
-    }
- }
+        }//if dR<min
+      }//for cands
+      allSelections->push_back(cleanedJet);
+    }//for jets
+  }//if cands
 
+  NumericSafeGreaterByPt<jetType> compJets;  
+  // reorder cleaned jets
+  std::sort (allSelections->begin(), allSelections->end(), compJets);
+  edm::OrphanHandle<JetCollection> cleanedJetHandle = iEvent.put(allSelections);
 
+  JetCollection const & jets = *cleanedJetHandle;
 
+  JetRefVector cleanedJetRefs;
 
- iEvent.put(allSelections);
-  
+  for (unsigned iJet = 0; iJet < jets.size(); ++iJet) {
+    cleanedJetRefs.push_back(JetRef(cleanedJetHandle, iJet));
+  }
+
+  product->emplace_back(cleanedJetRefs);
+  iEvent.put(product);
+
   return;
   
 }
-

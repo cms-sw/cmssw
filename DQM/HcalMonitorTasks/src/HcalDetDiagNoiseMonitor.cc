@@ -300,7 +300,12 @@ void HcalDetDiagNoiseMonitor::analyze(const edm::Event& iEvent, const edm::Event
   edm::Handle<FEDRawDataCollection> rawdata;
   iEvent.getByToken(tok_raw_,rawdata);
   //checking FEDs for calibration information
-  for(int i=FEDNumbering::MINHCALFEDID;i<=FEDNumbering::MAXHCALFEDID; i++) {
+  for(int i=FEDNumbering::MINHCALFEDID;
+		  i<=FEDNumbering::MAXHCALuTCAFEDID; i++) 
+  {
+	  if (i>FEDNumbering::MAXHCALFEDID && i<FEDNumbering::MINHCALuTCAFEDID)
+		continue;
+
       const FEDRawData& fedData = rawdata->FEDData(i) ;
       if ( fedData.size() < 24 ) continue ;
       orbit= ((const HcalDCCHeader*)(fedData.data()))->getOrbitNumber();

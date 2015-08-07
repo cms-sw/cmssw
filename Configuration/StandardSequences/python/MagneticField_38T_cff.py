@@ -1,12 +1,8 @@
-import FWCore.ParameterSet.Config as cms
+# Load the 3.8 T field map, with the geometry and configuration specified in the GT
 
-# This cfi contains everything needed to use the VolumeBased magnetic
-# field engine.
-#Default is version 85l
-from MagneticField.Engine.volumeBasedMagneticField_090322_2pi_scaled_cfi import *
+from Configuration.StandardSequences.MagneticField_cff import *
 
-# Parabolic parametrized magnetic field used for track building
-from MagneticField.ParametrizedEngine.ParabolicParametrizedField_cfi import ParametrizedMagneticFieldProducer as ParabolicParametrizedMagneticFieldProducer
-ParabolicParametrizedMagneticFieldProducer.label = "ParabolicMf"
+VolumeBasedMagneticFieldESProducer.valueOverride = 18268
+ParabolicParametrizedMagneticFieldProducer.valueOverride = 18268
 
 

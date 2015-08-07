@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="FWTabularWidget"/>
+  <class name="FWTableWidget"/>
+  <class name="FWTableManagerBase"/>
+  <class name="FWCheckedTextTableCellRenderer"/>
+</lcgdict>

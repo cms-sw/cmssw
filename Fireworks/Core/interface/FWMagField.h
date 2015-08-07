@@ -44,6 +44,7 @@ public:
    void   resetFieldEstimate() const;
 
    void   checkFieldInfo(const edm::EventBase*);
+   void   setFFFieldMag(float);
 
 private:
    FWMagField(const FWMagField&); // stop default

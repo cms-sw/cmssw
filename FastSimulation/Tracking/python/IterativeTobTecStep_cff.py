@@ -62,6 +62,7 @@ tobTecStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 
 # track selection
 from RecoTracker.IterativeTracking.TobTecStep_cff import tobTecStepSelector
+tobTecStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # sequence
 TobTecStep = cms.Sequence(iterativeTobTecSeeds

@@ -64,6 +64,7 @@ private:
   template <class T> bool dumpCandidate(const T& dt, const T& em, std::ostream& s);
 
   int verbose() {return verbose_;}
+  bool m_stage1_layer2_;  
 
  private:
 

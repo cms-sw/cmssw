@@ -75,6 +75,7 @@ public:
   MonitorElement* meRun_;
   MonitorElement* meEvt_;
   MonitorElement* meFEDS_;
+  MonitorElement *meUTCAFEDS_;
   MonitorElement* meCalibType_;
   MonitorElement* meCurrentCalibType_;
   MonitorElement* meHB_;
@@ -95,16 +96,19 @@ public:
   int debug_;
   edm::InputTag FEDRawDataCollection_;
   edm::InputTag inputLabelReport_;
+//  edm::InputTag inputLabelReportUTCA_;
   std::string prefixME_;
   int NLumiBlocks_;
 
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
   edm::EDGetTokenT<HcalUnpackerReport> tok_report_;
+//  edm::EDGetTokenT<HcalUnpackerReport> tok_reportUTCA_;
 
   int HBpresent_, HEpresent_, HOpresent_, HFpresent_;
 
   const HcalElectronicsMap*    eMap_;
   EtaPhiHists ChannelStatus;
+//  std::vector<int> _feds;
 
 }; //class HcalMonitorModule : public edm::EDAnalyzer
 

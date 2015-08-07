@@ -55,7 +55,7 @@ pixelPairStepSimTrackIds = cms.EDProducer("SimTrackIdProducer",
 
 # Final selection
 from RecoTracker.IterativeTracking.PixelPairStep_cff import pixelPairStepSelector
-
+pixelPairStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
 
 # sequence
 PixelPairStep = cms.Sequence(iterativePixelPairSeeds+

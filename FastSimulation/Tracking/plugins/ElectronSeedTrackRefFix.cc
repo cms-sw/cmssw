@@ -1,6 +1,5 @@
 #include "FastSimulation/Tracking/plugins/ElectronSeedTrackRefFix.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -119,17 +118,6 @@ ElectronSeedTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.put(oIdMap,preidLabel);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-ElectronSeedTrackRefFix::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ElectronSeedTrackRefFix::endJob() {
-}
- 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
 ElectronSeedTrackRefFix::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

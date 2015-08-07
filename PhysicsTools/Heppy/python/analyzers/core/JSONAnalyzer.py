@@ -1,4 +1,5 @@
 import json
+import os
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 
 from FWCore.PythonUtilities.LumiList import LumiList
@@ -31,7 +32,7 @@ class JSONAnalyzer( Analyzer ):
         if not cfg_comp.isMC:
             if self.cfg_comp.json is None:
                 raise ValueError('component {cname} is not MC, and contains no JSON file. Either remove the JSONAnalyzer for your path or set the "json" attribute of this component'.format(cname=cfg_comp.name))
-            self.lumiList = LumiList(self.cfg_comp.json)
+            self.lumiList = LumiList(os.path.expandvars(self.cfg_comp.json))
         else:
             self.lumiList = None
         

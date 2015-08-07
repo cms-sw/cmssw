@@ -3,13 +3,18 @@ globalTag = {
   'Fake': 'auto:run1_mc_Fake',
   'FULL': 'auto:run2_mc_FULL',
   'GRun': 'auto:run2_mc_GRun',       # used as default
-  '25ns14e33_v1': 'auto:run2_mc_GRun',
-  '50ns_5e33_v1': 'auto:run2_mc_50nsGRun',
+  '25ns14e33_v3': 'auto:run2_mc_25ns14e33_v3',
+  '50ns_5e33_v3': 'auto:run2_mc_50ns_5e33_v3',
+  '25ns14e33_v2': 'auto:run2_mc_25ns14e33_v2',
+  '50ns_5e33_v2': 'auto:run2_mc_50ns_5e33_v2',
+  '25ns14e33_v1': 'auto:run2_mc_25ns14e33_v1',
+  '50ns_5e33_v1': 'auto:run2_mc_50ns_5e33_v1',
   '50nsGRun': 'auto:run2_mc_50nsGRun',
-  '50ns': 'auto:run2_mc_50nsGRun',
-  'HIon': 'auto:run2_mc_HIon',
-  'PIon': 'auto:run2_mc_PIon',
-  'data': 'auto:run1_hlt',
+  '50ns' : 'auto:run2_mc_50nsGRun',
+  'HIon' : 'auto:run2_mc_HIon',
+  'PIon' : 'auto:run2_mc_PIon',
+  'LowPU': 'auto:run2_mc_LowPU',
+  'data' : 'auto:run1_hlt',
 }
 
 
@@ -47,28 +52,64 @@ class ConnectionL1TMenuXml(object):
 
 # type used to store a reference to an HLT configuration
 class ConnectionHLTMenu(object):
+  valid_versions  = 'v1', 'v2'
+  valid_databases = 'online', 'offline', 'adg'
+  compatibility   = { 'hltdev': ('v1', 'offline'), 'orcoff': ('v2', 'adg') }
+
   def __init__(self, value):
-    self.value = value
-    self.db    = None
-    self.name  = None
-    self.run   = None
+    self.version    = None
+    self.database   = None
+    self.name       = None
+    self.run        = None
 
-    # extract the database and configuration name
-    if value:
-      if ':' in self.value:
-        (db, name) = self.value.split(':')
-        if db == 'run':
-          self.db   = 'orcoff'
-          self.run  = name
-        elif db in ('hltdev', 'orcoff'):
-          self.db   = db
-          self.name = name
-        else:
-          raise Exception('Unknown ConfDB database "%s", valid values are "hltdev" (default) and "orcoff")' % db)
+    if not value:
+      return
+
+    if not ':' in value:
+      # default to 'v1/offline'
+      self.version    = 'v1'
+      self.database   = 'offline'
+      self.name       = value
+      return
+
+    # extract the version, database and configuration name
+    tokens = value.split(':')
+    if len(tokens) != 2:
+      raise Exception('Invalid HLT menu specification "%s"' % value)
+    (db, name) = tokens
+    # check if the menu should be automatically determined based on the run number
+    if db == 'run':
+      self.version  = 'v1'
+      self.database = 'adg'
+      self.run      = name
+    # check for backward compatibility names
+    elif db in self.compatibility:
+      self.version, self.database = self.compatibility[db]
+      self.name = name
+    else:
+      if '/' in db:
+        # extract the version and database
+        tokens = db.split('/')
+        if len(tokens) != 2:
+          raise Exception('Invalid HLT menu specification "%s"' % value)
+        (v, db) = tokens
+        if v not in self.valid_versions:
+          raise Exception('Invalid HLT database version "%s", valid values are "%s"' % (v, '", "'.join(self.valid_versions)))
+        if db not in self.valid_databases:
+          raise Exception('Invalid HLT database "%s", valid values are "%s"' % (db, '", "'.join(self.valid_databases)))
+        self.version  = v
+        self.database = db
+        self.name     = name
       else:
-        self.db   = 'hltdev'
-        self.name = self.value
-
+        # use the default version for the given database
+        if db not in self.valid_databases:
+          raise Exception('Invalid HLT database "%s", valid values are "%s"' % (db, '", "'.join(self.valid_databases)))
+        self.database = db
+        if db == 'offline' :
+          self.version  = 'v1'
+        else:
+          self.version  = 'v2'
+        self.name     = name
 
 # options marked with a (*) only apply when creating a whole process configuration
 class HLTProcessOptions(object):
@@ -94,7 +135,6 @@ class HLTProcessOptions(object):
     self.events     = 100         # (*) run on these many events
     self.output     = 'all'       # (*) output 'all', 'minimal' or 'none' output modules
     self.fragment   = False       #     prepare a configuration fragment (true) or a whole process (false)
-    self.fastsim    = False       #     prepare a configuration fragment suitable for FastSim
     self.hilton     = False       #     prepare a configuration for running with hilton-like modules
 
 
@@ -109,11 +149,6 @@ class HLTProcessOptions(object):
     elif name is 'l1Xml' and type(value) is not ConnectionL1TMenuXml:
       # format '--l1Xml' as needed
       object.__setattr__(self, name, ConnectionL1TMenuXml(value))
-    elif name is 'fastsim' and value:
-      # '--fastsim' implies '--fragment' and '--mc'
-      object.__setattr__(self, 'fastsim',   True)
-      object.__setattr__(self, 'fragment',  True)
-      object.__setattr__(self, 'data',      False)
     elif name is 'open' and value:
       # '--open' implies '--unprescale'
       object.__setattr__(self, 'open',      True)

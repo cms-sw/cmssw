@@ -260,20 +260,20 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
   
      histname = "NumberOfTracksVsLS_"+ CategoryName;
      NumberOfTracksVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax, TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
-     NumberOfTracksVsLS->getTH1()->SetBit(TH1::kCanRebin);
+     NumberOfTracksVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
      NumberOfTracksVsLS->setAxisTitle("#Lumi section",1);
      NumberOfTracksVsLS->setAxisTitle("Number of  Tracks",2);
   
      histname = "NumberOfRecHitsPerTrackVsLS_" + CategoryName;
      NumberOfRecHitsPerTrackVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,0.,40.,"");
-     NumberOfRecHitsPerTrackVsLS->getTH1()->SetBit(TH1::kCanRebin);
+     NumberOfRecHitsPerTrackVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
      NumberOfRecHitsPerTrackVsLS->setAxisTitle("#Lumi section",1);
-     NumberOfRecHitsPerTrackVsLS->setAxisTitle("Mean number of RecHits per track",2);
+     NumberOfRecHitsPerTrackVsLS->setAxisTitle("Mean number of Valid RecHits per track",2);
   
      if (doFractionPlot_) {
        histname = "GoodTracksFractionVsLS_"+ CategoryName;
        GoodTracksFractionVsLS = ibooker.bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
-       GoodTracksFractionVsLS->getTH1()->SetBit(TH1::kCanRebin);
+       GoodTracksFractionVsLS->getTH1()->SetCanExtend(TH1::kAllAxes);
        GoodTracksFractionVsLS->setAxisTitle("#Lumi section",1);
        GoodTracksFractionVsLS->setAxisTitle("Fraction of Good Tracks",2);
      }
@@ -297,7 +297,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
     
        histname = "NumberOfTracksVsGoodPVtx";
        NumberOfTracksVsGoodPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,TKNoMin, (TKNoMax+0.5)*3.-0.5,"");
-       NumberOfTracksVsGoodPVtx->getTH1()->SetBit(TH1::kCanRebin);
+       NumberOfTracksVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfTracksVsGoodPVtx->setAxisTitle("Number of PV",1);
        NumberOfTracksVsGoodPVtx->setAxisTitle("Mean number of Tracks per Event",2);
     
@@ -312,7 +312,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
     
        histname = "NumberOfTracksVsBXlumi_"+ CategoryName;
        NumberOfTracksVsBXlumi = ibooker.bookProfile(histname,histname, BXlumiBin,BXlumiMin,BXlumiMax, TKNoMin, TKNoMax,"");
-       NumberOfTracksVsBXlumi->getTH1()->SetBit(TH1::kCanRebin);
+       NumberOfTracksVsBXlumi->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfTracksVsBXlumi->setAxisTitle("lumi BX [10^{30}Hzcm^{-2}]",1);
        NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks",2);
     
@@ -521,7 +521,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  numberOfTracks_num++;
 
 	if ( doProfilesVsLS_ || doAllPlots)
-	  NumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->recHitsSize());
+	  NumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->numberOfValidHits());
 
 	totalRecHits    += track->numberOfValidHits();
 	totalLayers     += track->hitPattern().trackerLayersWithMeasurement();
