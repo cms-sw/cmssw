@@ -86,8 +86,6 @@ offlineHLTSource = cms.Sequence(
     HILowLumiHLTOfflineSourceSequence *
     #TnPEfficiency *
     hltInclusiveVBFSource *
-    trackingMonitorHLT *
-    sistripMonitorHLTsequence *
     higPhotonJetHLTOfflineSource*
     dqmEnvHLT *
     topHLTriggerOfflineDQM *
