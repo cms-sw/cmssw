@@ -103,17 +103,14 @@ hiRegitMuTobTecStepSelector               = RecoTracker.IterativeTracking.TobTec
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuTobTecStepLoose',
-           qualityBit = cms.string('loose'),
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'hiRegitMuTobTecStepTight',
             preFilterName = 'hiRegitMuTobTecStepLoose',
-            qualityBit = cms.string('loose'),
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'hiRegitMuTobTecStep',
             preFilterName = 'hiRegitMuTobTecStepTight',
-            qualityBit = cms.string('tight'),
             ),
         ) #end of vpset
   
