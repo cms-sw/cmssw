@@ -31,7 +31,7 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    void fillGenParticles (const edm::Event&);
    void fillGenPileupInfo(const edm::Event&);
    void fillElectrons    (const edm::Event&, const edm::EventSetup&, math::XYZPoint& pv);
-   void fillPhotons      (const edm::Event&, const edm::EventSetup&);
+   void fillPhotons      (const edm::Event&, const edm::EventSetup&, math::XYZPoint& pv);
    void fillMuons        (const edm::Event&, const edm::EventSetup&, math::XYZPoint& pv);
 
    // Et and pT sums
@@ -42,6 +42,8 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    bool doGenParticles_;
    bool runOnParticleGun_;
    bool useValMapIso_;
+   bool doPfIso_;
+   bool doVsIso_; // also requires above boolean to make sense
 
    // handles to collections of objects
    edm::EDGetTokenT<vector<PileupSummaryInfo> >    genPileupCollection_;
@@ -51,6 +53,9 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    edm::EDGetTokenT<edm::ValueMap<reco::HIPhotonIsolation> > recoPhotonsHiIso_;
    edm::EDGetTokenT<edm::View<reco::Muon> >        recoMuonsCollection_;
    edm::EDGetTokenT<vector<reco::Vertex> >         vtxCollection_;
+   edm::EDGetTokenT<edm::View<reco::PFCandidate> >    pfCollection_;
+   edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground> > voronoiBkgCalo_;
+   edm::EDGetTokenT<edm::ValueMap<reco::VoronoiBackground> > voronoiBkgPF_;
 
    TTree*         tree_;
 
@@ -192,6 +197,121 @@ class ggHiNtuplizer : public edm::EDAnalyzer {
    vector<float>  pho_trackIsoR5PtCut20_;
    vector<float>  pho_swissCrx_;
    vector<float>  pho_seedTime_;
+
+   //photon pf isolation stuff
+   vector<float> pfcIso1;
+   vector<float> pfcIso2;
+   vector<float> pfcIso3;
+   vector<float> pfcIso4;
+   vector<float> pfcIso5;
+
+   vector<float> pfpIso1;
+   vector<float> pfpIso2;
+   vector<float> pfpIso3;
+   vector<float> pfpIso4;
+   vector<float> pfpIso5;
+
+   vector<float> pfnIso1;
+   vector<float> pfnIso2;
+   vector<float> pfnIso3;
+   vector<float> pfnIso4;
+   vector<float> pfnIso5;
+
+   vector<float> pfsumIso1;
+   vector<float> pfsumIso2;
+   vector<float> pfsumIso3;
+   vector<float> pfsumIso4;
+   vector<float> pfsumIso5;
+
+   vector<float> pfcVsIso1;
+   vector<float> pfcVsIso2;
+   vector<float> pfcVsIso3;
+   vector<float> pfcVsIso4;
+   vector<float> pfcVsIso5;
+   vector<float> pfcVsIso1th1;
+   vector<float> pfcVsIso2th1;
+   vector<float> pfcVsIso3th1;
+   vector<float> pfcVsIso4th1;
+   vector<float> pfcVsIso5th1;
+   vector<float> pfcVsIso1th2;
+   vector<float> pfcVsIso2th2;
+   vector<float> pfcVsIso3th2;
+   vector<float> pfcVsIso4th2;
+   vector<float> pfcVsIso5th2;
+
+   vector<float> pfnVsIso1;
+   vector<float> pfnVsIso2;
+   vector<float> pfnVsIso3;
+   vector<float> pfnVsIso4;
+   vector<float> pfnVsIso5;
+   vector<float> pfnVsIso1th1;
+   vector<float> pfnVsIso2th1;
+   vector<float> pfnVsIso3th1;
+   vector<float> pfnVsIso4th1;
+   vector<float> pfnVsIso5th1;
+   vector<float> pfnVsIso1th2;
+   vector<float> pfnVsIso2th2;
+   vector<float> pfnVsIso3th2;
+   vector<float> pfnVsIso4th2;
+   vector<float> pfnVsIso5th2;
+
+
+   vector<float> pfpVsIso1;
+   vector<float> pfpVsIso2;
+   vector<float> pfpVsIso3;
+   vector<float> pfpVsIso4;
+   vector<float> pfpVsIso5;
+   vector<float> pfpVsIso1th1;
+   vector<float> pfpVsIso2th1;
+   vector<float> pfpVsIso3th1;
+   vector<float> pfpVsIso4th1;
+   vector<float> pfpVsIso5th1;
+   vector<float> pfpVsIso1th2;
+   vector<float> pfpVsIso2th2;
+   vector<float> pfpVsIso3th2;
+   vector<float> pfpVsIso4th2;
+   vector<float> pfpVsIso5th2;
+
+
+   vector<float> pfsumVsIso1;
+   vector<float> pfsumVsIso2;
+   vector<float> pfsumVsIso3;
+   vector<float> pfsumVsIso4;
+   vector<float> pfsumVsIso5;
+   vector<float> pfsumVsIso1th1;
+   vector<float> pfsumVsIso2th1;
+   vector<float> pfsumVsIso3th1;
+   vector<float> pfsumVsIso4th1;
+   vector<float> pfsumVsIso5th1;
+   vector<float> pfsumVsIso1th2;
+   vector<float> pfsumVsIso2th2;
+   vector<float> pfsumVsIso3th2;
+   vector<float> pfsumVsIso4th2;
+   vector<float> pfsumVsIso5th2;
+
+
+   vector<float> pfVsSubIso1;
+   vector<float> pfVsSubIso2;
+   vector<float> pfVsSubIso3;
+   vector<float> pfVsSubIso4;
+   vector<float> pfVsSubIso5;
+
+   vector<float> towerIso1;
+   vector<float> towerIso2;
+   vector<float> towerIso3;
+   vector<float> towerIso4;
+   vector<float> towerIso5;
+   vector<float> towerVsIso1;
+   vector<float> towerVsIso2;
+   vector<float> towerVsIso3;
+   vector<float> towerVsIso4;
+   vector<float> towerVsIso5;
+   vector<float> towerVsSubIso1;
+   vector<float> towerVsSubIso2;
+   vector<float> towerVsSubIso3;
+   vector<float> towerVsSubIso4;
+   vector<float> towerVsSubIso5;
+
 
    // reco::Muon
    Int_t          nMu_;
