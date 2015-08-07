@@ -322,7 +322,9 @@ hltHiggsPostWHToENuBB.efficiencyProfile = efficiency_strings_WHToENuBB
 
 #Specific plots for MSSMHbb
 #Jet plots
-NminOneCuts = (_config.__getattribute__("MSSMHbb")).__getattribute__("NminOneCuts")
+#NminOneCuts = (_config.__getattribute__("MSSMHbb")).__getattribute__("NminOneCuts")
+from HLTriggerOffline.Higgs.hltHiggsValidator_cfi import hltHiggsValidator
+NMinOneCuts = hltHiggsValidator.MSSMHbb.NminOneCuts
 if NminOneCuts:
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
