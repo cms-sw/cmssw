@@ -92,14 +92,14 @@ void MVAJetPuId::setup()
 	tmvaVariables_.push_back( "jetRchg");
 
 	tmvaNames_["rho"] = "rho";
-	tmvaNames_["nTot"] = "nTot";
-	tmvaNames_["nCh"] = "nCh";
-	tmvaNames_["axisMajor"] = "axisMajor";
-	tmvaNames_["axisMinor"] = "axisMinor";
-	tmvaNames_["fRing0"] = "fRing0";
-	tmvaNames_["fRing1"] = "fRing1";
-	tmvaNames_["fRing2"] = "fRing2";
-	tmvaNames_["fRing3"] = "fRing3";
+	tmvaNames_["nTot"] = "nParticles";
+	tmvaNames_["nCh"] = "nCharged";
+	tmvaNames_["axisMajor"] = "majW";
+	tmvaNames_["axisMinor"] = "minW";
+	tmvaNames_["fRing0"] = "frac01";
+	tmvaNames_["fRing1"] = "frac02";
+	tmvaNames_["fRing2"] = "frac03";
+	tmvaNames_["fRing3"] = "frac04";
 	tmvaNames_["ptD"] = "ptD";
 	tmvaNames_["beta"] = "beta";
 	tmvaNames_["betaStar"] = "betaStar";
@@ -229,7 +229,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 	std::vector<float> frac, fracCh, fracEm, fracNeut;
 	float cones[4] = { 0.1, 0.2, 0.3, 0.4 };
 	size_t ncones = sizeof(cones)/sizeof(float);
-	float * coneFracs[4]     = { &internalId_.fRing0_, &internalId_.fRing1_, &internalId_.fRing2_, &internalId_.fRing3_};
+	float * coneFracs[4]     = { &internalId_.frac01_, &internalId_.frac02_, &internalId_.frac03_, &internalId_.frac04_};
 	TMatrixDSym covMatrix(2); covMatrix = 0.;
 
 	reco::TrackRef impactTrack;
@@ -343,7 +343,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 	if ( lLeadCh.isNull() )   { lLeadCh   = lTrail; }
 	impactTrack = lLeadCh->trackRef();
 
-	internalId_.nCh_    = pfjet->chargedMultiplicity();
+	internalId_.nCharged_    = pfjet->chargedMultiplicity();
 	internalId_.nNeutrals_   = pfjet->neutralMultiplicity();
 	internalId_.chgEMfrac_   = pfjet->chargedEmEnergy()    /jet->energy();
 	internalId_.neuEMfrac_   = pfjet->neutralEmEnergy()    /jet->energy();
@@ -354,7 +354,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 		internalId_.d0_ = fabs(impactTrack->dxy(vtx->position()));
 		internalId_.dZ_ = fabs(impactTrack->dz(vtx->position()));
 	}else{ 
-		internalId_.nTot_ = constituents.size(); 
+		internalId_.nParticles_ = constituents.size(); 
 		SetPtEtaPhi(*lLead,internalId_.leadPt_,internalId_.leadEta_,internalId_.leadPhi_);                 
 		SetPtEtaPhi(*lSecond,internalId_.secondPt_,internalId_.secondEta_,internalId_.secondPhi_);        
 		SetPtEtaPhi(*lLeadNeut,internalId_.leadNeutPt_,internalId_.leadNeutEta_,internalId_.leadNeutPhi_); 
@@ -375,7 +375,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 		//internalId_.jetW_ = 0.5*(internalId_.etaW_+internalId_.phiW_);
 		//TVectorD eigVals(2); eigVals = TMatrixDSymEigen(covMatrix).GetEigenValues();
 		//	
-		if( internalId_.axisMajor_ < internalId_.axisMinor_ ) { std::swap(internalId_.axisMajor_,internalId_.axisMinor_); }
+		if( internalId_.majW_ < internalId_.minW_ ) { std::swap(internalId_.majW_,internalId_.minW_); }
 
 		//internalId_.dRLeadCent_ = reco::deltaR(*jet,*lLead);
 		if( lSecond.isNonnull() ) { internalId_.dRLead2nd_  = reco::deltaR(*jet,*lSecond); }
@@ -387,17 +387,17 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 			*coneFracs[ic]     /= jetPt;
 		}
 
-		double ptMean = sumPt/internalId_.nTot_;
+		double ptMean = sumPt/internalId_.nParticles_;
 		double ptRMS  = 0;
 		for(unsigned int i0 = 0; i0 < frac.size(); i0++) {ptRMS+=(frac[i0]-ptMean)*(frac[i0]-ptMean);}
-		ptRMS/=internalId_.nTot_;
+		ptRMS/=internalId_.nParticles_;
 		ptRMS=sqrt(ptRMS);
 		internalId_.jetRchg_ = internalId_.leadChPt_/sumPt;
 		internalId_.jetR_ = internalId_.leadPt_/sumPt;
 
 		internalId_.ptMean_  = ptMean;
 		internalId_.ptRMS_   = ptRMS/jetPt;
-		internalId_.pt2A_    = sqrt( internalId_.ptD_     /internalId_.nTot_)/jetPt;
+		internalId_.pt2A_    = sqrt( internalId_.ptD_     /internalId_.nParticles_)/jetPt;
 		internalId_.ptD_     = sqrt( internalId_.ptD_)    / sumPt;
 		internalId_.sumPt_   = sumPt;
 		internalId_.sumChPt_ = sumPtCh;
@@ -429,12 +429,12 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 	 	   axis1=-1;
 		   axis2=-1;
 		}
-		internalId_.axisMajor_ = axis1; //sqrt(fabs(eigVals(0)));
-		internalId_.axisMinor_ = axis2;//sqrt(fabs(eigVals(1)));
+		internalId_.majW_ = axis1; //sqrt(fabs(eigVals(0)));
+		internalId_.minW_ = axis2;//sqrt(fabs(eigVals(1)));
 		//compute Pull
 
 		float ddetaR_sum(0.0), ddphiR_sum(0.0);
-		for(int i=0; i<internalId_.nTot_; ++i) {
+		for(int i=0; i<internalId_.nParticles_; ++i) {
 			reco::PFCandidatePtr part = pfjet->getPFConstituent(i);
 			float weight =part->pt()*part->pt() ;
 			float deta = part->eta() - jet->eta();
@@ -496,7 +496,7 @@ void MVAJetPuId::initVariables()
 	INIT_VARIABLE(jetEta     , "jetEta", large_val);
 	INIT_VARIABLE(jetPhi     , "", large_val);
 	INIT_VARIABLE(jetM       , "", 0.);
-	INIT_VARIABLE(nCh   , "nCh", 0.);
+	INIT_VARIABLE(nCharged   , "nCh", 0.);
 	INIT_VARIABLE(nNeutrals  , "", 0.);
 
 	INIT_VARIABLE(chgEMfrac  , "", 0.);
@@ -506,7 +506,7 @@ void MVAJetPuId::initVariables()
 
 	INIT_VARIABLE(d0         , ""    , -1000.);   
 	INIT_VARIABLE(dZ         , ""    , -1000.);  
-	INIT_VARIABLE(nTot , "nTot"  , 0.);  
+	INIT_VARIABLE(nParticles , "nTot"  , 0.);  
 
 	INIT_VARIABLE(leadPt     , ""    , 0.);  
 	INIT_VARIABLE(leadEta    , ""   , large_val);  
@@ -549,12 +549,12 @@ void MVAJetPuId::initVariables()
 	INIT_VARIABLE(jetW  ,"" ,1.);  
 	INIT_VARIABLE(etaW  ,"" ,1.);  
 	INIT_VARIABLE(phiW  ,"" ,1.);  
-	INIT_VARIABLE(axisMajor  ,"axisMajor" ,1.);  
-	INIT_VARIABLE(axisMinor  ,"axisMinor" ,1.);  
-	INIT_VARIABLE(fRing0    ,"fRing0" ,0.);  
-	INIT_VARIABLE(fRing1    ,"fRing1" ,0.);  
-	INIT_VARIABLE(fRing2    ,"fRing2" ,0.);  
-	INIT_VARIABLE(fRing3    ,"fRing3" ,0.);  
+	INIT_VARIABLE(majW  ,"axisMajor" ,1.);  
+	INIT_VARIABLE(minW  ,"axisMinor" ,1.);  
+	INIT_VARIABLE(frac01    ,"fRing0" ,0.);  
+	INIT_VARIABLE(frac02    ,"fRing1" ,0.);  
+	INIT_VARIABLE(frac03    ,"fRing2" ,0.);  
+	INIT_VARIABLE(frac04    ,"fRing3" ,0.);  
 
 	INIT_VARIABLE(beta   ,"beta" ,0.);  
 	INIT_VARIABLE(betaStar   ,"betaStar" ,0.);  
