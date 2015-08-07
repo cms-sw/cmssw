@@ -24,7 +24,8 @@
 #include<iostream>
 
 HFShower::HFShower(std::string & name, const DDCompactView & cpv, 
-                   edm::ParameterSet const & p, int chk) : cherenkov(0),
+                   const HcalDDDSimConstants& hcons,
+		   edm::ParameterSet const & p, int chk) : cherenkov(0),
                                                            fibre(0),
                                                            chkFibre(chk) {
 
@@ -35,32 +36,14 @@ HFShower::HFShower(std::string & name, const DDCompactView & cpv,
   edm::LogInfo("HFShower") << "HFShower:: Maximum probability cut off " 
                            << probMax << " Check flag " << chkFibre;
 
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,value,0);
-  filter.setCriteria(ddv,DDCompOp::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-  if ( dodet ) {
-    DDsvalues_type sv(fv.mergedSpecifics());
-
-    //Special Geometry parameters
-    int ngpar = 7;
-    gpar      = getDDDArray("gparHF", sv,ngpar);
-    edm::LogInfo("HFShower") << "HFShower: " << ngpar << " gpar (cm)";
-    for (int ig=0; ig<ngpar; ig++)
-      edm::LogInfo("HFShower") << "HFShower: gpar[" << ig << "] = "
-                               << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShower: cannot get filtered "
-                              << " view for " << attribute << " matching " << name;
-    throw cms::Exception("Unknown", "HFShower")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
+  //Special Geometry parameters
+  gpar      = hcons.getGparHF();
+  edm::LogInfo("HFShower") << "HFShower: " << gpar.size() << " gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShower: gpar[" << ig << "] = "
+                             << gpar[ig]/cm << " cm";
   cherenkov = new HFCherenkov(m_HF);
-  fibre     = new HFFibre(name, cpv, p);
+  fibre     = new HFFibre(name, cpv, hcons, p);
 }
 
 HFShower::~HFShower() { 

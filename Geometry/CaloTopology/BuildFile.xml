@@ -4,6 +4,7 @@
 <use   name="DataFormats/Common"/>
 <use   name="boost"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/HcalCommonData"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -73,6 +73,7 @@ private:
   void                          plotProfile(G4Step* step, const G4ThreeVector& pos, 
                                             double edep, double time, int id);
   void                          plotHF(G4ThreeVector& pos, bool emType);
+  void                          modifyDepth(HcalNumberingFromDDD::HcalID& id);
 
   HcalNumberingFromDDD*         numberingFromDDD;
   HcalNumberingScheme*          numberingScheme;
@@ -88,7 +89,7 @@ private:
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   double                        deliveredLumi;
-  G4int                         mumPDG, mupPDG; 
+  G4int                         mumPDG, mupPDG, maxDepthHF; 
   std::vector<double>           layer0wt, gpar;
   std::vector<int>              hfLevels;
   std::vector<G4String>         hfNames, fibreNames, matNames;

@@ -2,11 +2,10 @@
 #define Geometry_HcalTowerAlgo_HcalDDDGeometryLoader_H 1
 
 #include "Geometry/CaloGeometry/interface/CaloVGeometryLoader.h"
-#include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometry.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
-class DDCompactView;
 class CaloCellGeometry;
 class HcalDetId;
 
@@ -18,17 +17,17 @@ class HcalDetId;
  * \author S. Banerjee
 */
 
-class HcalDDDGeometryLoader // : public CaloVGeometryLoader {
-{
-   public:
+class HcalDDDGeometryLoader {
 
-      explicit HcalDDDGeometryLoader(const DDCompactView & cpv);
-      virtual ~HcalDDDGeometryLoader();
+public:
+
+  explicit HcalDDDGeometryLoader(const HcalDDDRecConstants * hcons);
+  virtual ~HcalDDDGeometryLoader();
   
-      typedef CaloSubdetectorGeometry* ReturnType ;
-      ReturnType load(const HcalTopology& topo, DetId::Detector , int );
-      /// Load all of HCAL
-      ReturnType load(const HcalTopology& topo);
+  typedef CaloSubdetectorGeometry* ReturnType ;
+  ReturnType load(const HcalTopology& topo, DetId::Detector , int );
+  /// Load all of HCAL
+  ReturnType load(const HcalTopology& topo);
   
 private:
 
@@ -39,10 +38,10 @@ private:
   void fill(HcalSubdetector, HcalDDDGeometry*, CaloSubdetectorGeometry*);
   
   void makeCell( const HcalDetId &, 
-		 const HcalCellType&, double, 
+		 const HcalCellType& , double, 
 		 double, CaloSubdetectorGeometry* geom) const;
   
-  HcalNumberingFromDDD* numberingFromDDD;
+  const HcalDDDRecConstants* hcalConstants;
 
   HcalTopology* dummyTopology_;
 
