@@ -12,4 +12,9 @@ ggHiNtuplizer = cms.EDAnalyzer(
     recoPhotonHiIsolationMap = cms.InputTag("photonIsolationHIProducer"),
     recoMuonSrc        = cms.InputTag("muons"),
     VtxLabel           = cms.InputTag("hiSelectedVertex"),
+    doPfIso            = cms.bool(True),
+    doVsIso            = cms.bool(True),
+    particleFlowCollection = cms.InputTag("particleFlowTmp"),
+    voronoiBackgroundCalo = cms.InputTag("voronoiBackgroundCalo"),
+    voronoiBackgroundPF = cms.InputTag("voronoiBackgroundPF")
 )
