@@ -154,8 +154,13 @@ streamA_datasetHighMultiplicity_selector.throw      = cms.bool(False)
 streamA_datasetHighMultiplicity_selector.triggerConditions = cms.vstring('HLT_PixelTracks_Multiplicity110_v2', 
     'HLT_PixelTracks_Multiplicity135_v2', 
     'HLT_PixelTracks_Multiplicity160_v2', 
-    'HLT_PixelTracks_Multiplicity60_v2', 
-    'HLT_PixelTracks_Multiplicity85_v2')
+    'HLT_PixelTracks_Multiplicity60_v2')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighMultiplicity85_selector
+streamA_datasetHighMultiplicity85_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHighMultiplicity85_selector.l1tResults = cms.InputTag('')
+streamA_datasetHighMultiplicity85_selector.throw      = cms.bool(False)
+streamA_datasetHighMultiplicity85_selector.triggerConditions = cms.vstring('HLT_PixelTracks_Multiplicity85_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetL1MinimumBias_selector
 streamA_datasetL1MinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
