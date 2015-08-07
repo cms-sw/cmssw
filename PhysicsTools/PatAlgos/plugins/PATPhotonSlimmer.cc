@@ -83,7 +83,6 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
 
 void 
 pat::PATPhotonSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& iSetup) {
-  if( modifyPhoton_ ) photonModifier_->setEventContent(iSetup);
 }
 
 void 
@@ -115,6 +114,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
         pat::Photon & photon = out->back();
 
         if( modifyPhoton_ ) { photonModifier_->modify(photon); }
+	if( modifyPhoton_ ) photonModifier_->setEventContent(iSetup);
 
         if (dropSuperClusters_(photon)) { photon.superCluster_.clear(); photon.embeddedSuperCluster_ = false; }
 	if (dropBasicClusters_(photon)) { photon.basicClusters_.clear(); }
