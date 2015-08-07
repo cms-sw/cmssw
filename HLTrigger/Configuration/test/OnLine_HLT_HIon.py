@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HIon/V114 (CMSSW_7_4_8_HLT2)
+# /dev/CMSSW_7_4_0/HIon/V115 (CMSSW_7_4_8_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V114')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HIon/V115')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -533,7 +533,7 @@ process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "GR_H_V58C" ),
+    globaltag = cms.string( "74X_dataRun2_HLT_v0" ),
     RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     toGet = cms.VPSet( 
