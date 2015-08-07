@@ -2,6 +2,7 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/EgammaObjects"/>
+<use   name="clhep"/>
 <use   name="boost"/>
 <use   name="roothistmatrix"/>
 <use   name="roottmva"/>

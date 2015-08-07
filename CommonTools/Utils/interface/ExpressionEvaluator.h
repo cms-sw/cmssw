@@ -12,7 +12,7 @@ public:
   ~ExpressionEvaluator();
   
   template<typename EXPR, typename... CArgs>
-  EXPR * expr() const { 
+    EXPR* expr() const { 
     typedef EXPR * factoryP();
     return reinterpret_cast<factoryP*>(m_expr)();
   }

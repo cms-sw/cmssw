@@ -59,8 +59,8 @@ void testCutParser::check(const std::string & cut, bool res) {
   for (int lazy = 0; lazy <= 1; ++lazy) {
   std::cerr << "parsing " << (lazy ? "lazy " : "") << "cut: \"" << cut << "\"" << std::endl;
   sel.reset();
-  CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>(cut, sel, lazy));
-  CPPUNIT_ASSERT((*sel)(o) == res);
+  //CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>(cut, sel, lazy));
+  //CPPUNIT_ASSERT((*sel)(o) == res);
   StringCutObjectSelector<reco::Track> select(cut, lazy);
   CPPUNIT_ASSERT(select(trk) == res);
   }
@@ -72,8 +72,8 @@ void testCutParser::checkHit(const std::string & cut, bool res, const SiStripRec
   for (int lazy = 0; lazy <= 1; ++lazy) {
   std::cerr << "parsing " << (lazy ? "lazy " : "") << "cut: \"" << cut << "\"" << std::endl;
   sel.reset();
-  CPPUNIT_ASSERT(reco::parser::cutParser<SiStripRecHit2D>(cut, sel, lazy));
-  CPPUNIT_ASSERT((*sel)(o) == res);
+  //CPPUNIT_ASSERT(reco::parser::cutParser<SiStripRecHit2D>(cut, sel, lazy));
+  //CPPUNIT_ASSERT((*sel)(o) == res);
   StringCutObjectSelector<SiStripRecHit2D> select(cut, lazy);
   CPPUNIT_ASSERT(select(hit) == res);
   }
@@ -85,8 +85,8 @@ void testCutParser::checkMuon(const std::string & cut, bool res, const reco::Muo
   sel.reset();
   for (int lazy = 0; lazy <= 1; ++lazy) {
   std::cerr << "parsing " << (lazy ? "lazy " : "") << "cut: \"" << cut << "\"" << std::endl;
-  CPPUNIT_ASSERT(reco::parser::cutParser<reco::Muon>(cut, sel, lazy));
-  CPPUNIT_ASSERT((*sel)(o) == res);
+  //CPPUNIT_ASSERT(reco::parser::cutParser<reco::Muon>(cut, sel, lazy));
+  //CPPUNIT_ASSERT((*sel)(o) == res);
   StringCutObjectSelector<reco::Muon> select(cut, lazy);
   CPPUNIT_ASSERT(select(mu) == res);
   }
@@ -122,54 +122,54 @@ void testCutParser::checkAll() {
   // note: pt = 3, charge = -1
   check( "", true );
   check( "  ", true );
-  check("pt", true);
-  check("px", false);
-  check( "pt > 2", true );
-  check( "charge < 0", true );
-  check( "pt < 2", false );
-  check( "pt >= 2", true );
-  check( "pt <= 2", false );
-  check( "pt = 3", true );
-  check( "pt == 3", true );
-  check( "pt != 3", false );
-  check( "! pt == 3", false );
-  check( "2.9 < pt < 3.1", true );
-  check( "pt > 2 & charge < 0", true );
-  check( "pt > 2 && charge < 0", true );
-  check( "pt < 2 & charge < 0", false );
-  check( "pt > 2 & charge > 0", false );
-  check( "pt < 2 & charge > 0", false );
-  check( "pt > 2 || charge > 0", true );
-  check( "pt > 2 | charge > 0", true );
-  check( "pt > 2 | charge < 0", true );
-  check( "pt < 2 | charge < 0", true );
-  check( "pt < 2 | charge > 0", false );
-  check( "pt > 2 | charge > 0 | pt < 2", true );
-  check( "pt > 2 | charge > 0 | (pt < 2 && charge < 0)", true );
-  check( "pt > 2 | charge < 0 | (pt < 2 && charge < 0)", true );
-  check( "pt > 2 | charge > 0 | (pt < 2 && charge > 0)", true );
-  check( "(pt) > 2", true );
-  check( "-pt < -2", true );
-  check( "3.9 < pt + 1 < 4.1", true );
-  check( "1.9 < pt - 1 < 2.1", true );
-  check( "5.9 < 2 * pt < 6.1", true );
-  check( "0.9 < pt / 3 < 1.1", true );
-  check( "8.9 < pt ^ 2 < 9.1", true );
-  check( "26.9 < 3 * pt ^ 2 < 27.1", true );
-  check( "27.9 < 3 * pt ^ 2 + 1 < 28.1", true );
-  check( " 0.99 < sin( phi ) < 1.01", true );
-  check( " -0.01 < cos( phi ) < 0.01", true );
-  check( " 8.9 < pow( pt, 2 ) < 9.1", true );
-  check( "( 0.99 < sin( phi ) < 1.01 ) & ( -0.01 < cos( phi ) < 0.01 )", true );
-  check( "( 3.9 < pt + 1 < 4.1 ) | ( pt < 2 )", true );
-  check( " pt = 3 &  pt > 2 | pt < 2", true );
-  check( "( ( pt = 3 &  pt > 2 ) | pt < 2 ) & 26.9 < 3 * pt ^ 2 < 27.1", true );
-  check( "! pt > 2", false );
-  check( "! pt < 2", true );
-  check( "! (( 0.99 < sin( phi ) < 1.01 ) & ( -0.01 < cos( phi ) < 0.01 ))", false );
-  check( "pt && pt > 1",true);
+  check("cand.pt()", true);
+  check("cand.px()", false);
+  check( "cand.pt() > 2", true );
+  check( "cand.charge() < 0", true );
+  check( "cand.pt() < 2", false );
+  check( "cand.pt() >= 2", true );
+  check( "cand.pt() <= 2", false );
+  check( "cand.pt() = 3", true );
+  check( "cand.pt() == 3", true );
+  check( "cand.pt() != 3", false );
+  check( "! cand.pt() == 3", false );
+  check( "2.9 < cand.pt() < 3.1", true );
+  check( "cand.pt() > 2 & cand.charge() < 0", true );
+  check( "cand.pt() > 2 && cand.charge() < 0", true );
+  check( "cand.pt() < 2 & cand.charge() < 0", false );
+  check( "cand.pt() > 2 & cand.charge() > 0", false );
+  check( "cand.pt() < 2 & cand.charge() > 0", false );
+  check( "cand.pt() > 2 || cand.charge() > 0", true );
+  check( "cand.pt() > 2 | cand.charge() > 0", true );
+  check( "cand.pt() > 2 | cand.charge() < 0", true );
+  check( "cand.pt() < 2 | cand.charge() < 0", true );
+  check( "cand.pt() < 2 | cand.charge() > 0", false );
+  check( "cand.pt() > 2 | cand.charge() > 0 | cand.pt() < 2", true );
+  check( "cand.pt() > 2 | cand.charge() > 0 | (cand.pt() < 2 && cand.charge() < 0)", true );
+  check( "cand.pt() > 2 | cand.charge() < 0 | (cand.pt() < 2 && cand.charge() < 0)", true );
+  check( "cand.pt() > 2 | cand.charge() > 0 | (cand.pt() < 2 && cand.charge() > 0)", true );
+  check( "(cand.pt()) > 2", true );
+  check( "-cand.pt() < -2", true );
+  check( "3.9 < cand.pt() + 1 < 4.1", true );
+  check( "1.9 < cand.pt() - 1 < 2.1", true );
+  check( "5.9 < 2 * cand.pt() < 6.1", true );
+  check( "0.9 < cand.pt() / 3 < 1.1", true );
+  check( "8.9 < std::pow(cand.pt(),2.) < 9.1", true );
+  check( "26.9 < 3 * std::pow(cand.pt(),2.) < 27.1", true );
+  check( "27.9 < 3 * std::pow(cand.pt(),2.) + 1 < 28.1", true );
+  check( " 0.99 < std::sin( cand.phi() ) < 1.01", true );
+  check( " -0.01 < std::cos( cand.phi() ) < 0.01", true );
+  check( " 8.9 < std::pow( cand.pt(), 2 ) < 9.1", true );
+  check( "( 0.99 < std::sin( cand.phi() ) < 1.01 ) & ( -0.01 < std::cos( cand.phi() ) < 0.01 )", true );
+  check( "( 3.9 < cand.pt() + 1 < 4.1 ) | ( cand.pt() < 2 )", true );
+  check( " cand.pt() = 3 &  cand.pt() > 2 | cand.pt() < 2", true );
+  check( "( ( cand.pt() = 3 &  cand.pt() > 2 ) | cand.pt() < 2 ) & 26.9 < 3 * std::pow(cand.pt(),2.) < 27.1", true );
+  check( "! cand.pt() > 2", false );
+  check( "! cand.pt() < 2", true );
+  check( "! (( 0.99 < std::sin( cand.phi() ) < 1.01 ) & ( -0.01 < std::cos( cand.phi() ) < 0.01 ))", false );
+  check( "cand.pt() && cand.pt() > 1",true);
   // check trailing space
-  check( "pt > 2 ", true );
+  check( "cand.pt() > 2 ", true );
 
   // check bit tests
   check( "test_bit(7, 0)", true  );
@@ -180,13 +180,13 @@ void testCutParser::checkAll() {
   check( "test_bit(4, 3)", false );
 
   // check quality
-  check("quality('highPurity')", true );
-  check("quality('loose')", false );
-  check("quality('tight')", false );
-  check("quality('confirmed')", false );
-  check("quality('goodIterative')", true);
-  check("quality('looseSetWithPV')", false);
-  check("quality('highPuritySetWithPV')", false);
+  check("cand.quality('highPurity')", true );
+  check("cand.quality('loose')", false );
+  check("cand.quality('tight')", false );
+  check("cand.quality('confirmed')", false );
+  check("cand.quality('goodIterative')", true);
+  check("cand.quality('looseSetWithPV')", false);
+  check("cand.quality('highPuritySetWithPV')", false);
 
   // check handling of errors 
   //   first those who are the same in lazy and non lazy parsing
