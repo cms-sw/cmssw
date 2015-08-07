@@ -25,7 +25,7 @@ workflows.addOverride(1303,overridesEv5)
 ### data ###
 workflows[4.5]  = ['', ['RunCosmicsA','RECOCOSD','ALCACOSD','HARVESTDC']]
 #workflows[4.6]  = ['', ['MinimumBias2010A','RECOD','HARVESTD']]
-workflows[4.6]  = ['', ['MinimumBias2010A','RECOD','HARVESTD']]
+workflows[4.6]  = ['', ['MinimumBias2010A','RECOSKIMALCA','HARVESTD']]
 #workflows[4.7]  = ['', ['MinimumBias2010B','RECODALCA','HARVESTD']]
 #workflows[4.8]  = ['', ['WZMuSkim2010A','RECOD','HARVESTD']]
 #workflows[4.9]  = ['', ['WZEGSkim2010A','RECOD','HARVESTD']]
