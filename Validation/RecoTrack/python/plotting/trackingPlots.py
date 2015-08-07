@@ -195,17 +195,20 @@ def _mapCollectionToAlgoQuality(collName):
 
 def _collhelper(name):
     return (name, [name])
-_collLabelMap = collections.OrderedDict(map(_collhelper, _possibleTrackingColls))
-_collLabelMapHp = collections.OrderedDict(map(_collhelper, filter(lambda n: "Step" in n, _possibleTrackingColls)))
+_collLabelMap = collections.OrderedDict(map(_collhelper, ["generalTracks"]+_possibleTrackingColls))
+_collLabelMapHp = collections.OrderedDict(map(_collhelper, ["generalTracks"]+filter(lambda n: "Step" in n, _possibleTrackingColls)))
 def _summaryBinRename(binLabel, highPurity):
     (algo, quality) = _mapCollectionToAlgoQuality(binLabel)
+    ret = None
     if highPurity:
         if quality == "highPurity":
-            return algo
+            ret = algo
     else:
         if quality == "":
-            return algo
-    return None
+            ret = algo
+    if ret == "ootb":
+        ret = "generalTracks"
+    return ret
 
 _common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
 _commonAB = {"mapping": _collLabelMap,
@@ -304,7 +307,7 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
-_appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots, onlyForPileup=True)
+#_appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots, onlyForPileup=True) # this one is still buggy in 760pre2
 
 
 _iterModuleMap = collections.OrderedDict([
