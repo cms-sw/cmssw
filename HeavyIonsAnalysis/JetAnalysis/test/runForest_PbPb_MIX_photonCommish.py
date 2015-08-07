@@ -162,8 +162,6 @@ process.quickTrackAssociatorByHits.ComponentName = cms.string('quickTrackAssocia
 #####################
 
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
-process.ggHiNtuplizer.gsfElectronLabel   = cms.InputTag("gedGsfElectronsTmp")
-process.ggHiNtuplizer.genParticleSrc = cms.InputTag("genParticles")
 #process.ggHiNtuplizer.useValMapIso = cms.bool(False)
 
 process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag("gedPhotonsTmp"),
