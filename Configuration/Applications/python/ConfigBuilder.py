@@ -8,6 +8,7 @@ from FWCore.ParameterSet.Modules import _Module
 import sys
 import re
 import collections
+from subprocess import Popen,PIPE
 import FWCore.ParameterSet.DictTypes as DictTypes
 class Options:
         pass
@@ -122,12 +123,27 @@ def filesFromList(fileName,s=None):
 	return (prim,sec)
 	
 def filesFromDASQuery(query,s=None):
-	import os
+	import os,time
 	import FWCore.ParameterSet.Config as cms
 	prim=[]
 	sec=[]
 	print "the query is",query
-	for line in os.popen('das_client.py --query "%s"'%(query)):
+	eC=5
+	count=0
+	while eC!=0 and count<3:
+		if count!=0:
+			print 'Sleeping, then retrying DAS'
+			time.sleep(100)
+		p = Popen('das_client.py --query "%s"'%(query), stdout=PIPE,shell=True)
+		tupleP = os.waitpid(p.pid, 0)
+		eC=tupleP[1]
+		count=count+1
+		pipe=p.stdout.read()
+	if eC==0:
+		print "DAS succeeded after",count,"attempts",eC
+	else:
+		print "DAS failed 3 times- I give up"
+	for line in pipe.split('\n'):
 		if line.count(".root")>=2:
 			#two files solution...
 			entries=line.replace("\n","").split()
