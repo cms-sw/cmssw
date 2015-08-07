@@ -50,6 +50,25 @@ process.shallowTracks.Tracks  = 'ALCARECOSiStripCalMinBias'
 process.TkCalPath = cms.Path(process.TkCalFullSequence)
 
 
+#uncomment to OVERWRITE Gain condition in GT
+#process.PoolDBESSource = cms.ESSource("PoolDBESSource",
+#    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
+#    DBParameters = cms.PSet(
+#        messageLevel = cms.untracked.int32(2),
+#        authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
+#    ),
+#    timetype = cms.string('runnumber'),
+#    toGet = cms.VPSet(cms.PSet(
+#        record = cms.string('SiStripApvGainRcd'),
+#        tag = cms.string('SiStripGainFromParticles')
+#    )),
+#    connect = cms.string('sqlite_file:Gains_Sqlite.db')
+#)
+#process.es_prefer_gainpayload = cms.ESPrefer("PoolDBESSource")
+
+
+
+
 process.options = cms.untracked.PSet(
     Rethrow = cms.untracked.vstring('OtherCMS', 
         'StdException', 

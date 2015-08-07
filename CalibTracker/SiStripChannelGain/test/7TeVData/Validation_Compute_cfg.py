@@ -58,18 +58,26 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.DQMStore = cms.Service("DQMStore")
-process.load("DQMServices.Components.DQMFileSaver_cfi")
-process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = '/Express/PCLTest/ALCAPROMPT'
 
-process.EDMtoMEConvert = cms.EDAnalyzer("EDMtoMEConverter",
-    Frequency = cms.untracked.int32(50),
-    Name = cms.untracked.string('EDMtoMEConverter'),
-    Verbosity = cms.untracked.int32(0),
-    convertOnEndLumi = cms.untracked.bool(True),
-    convertOnEndRun = cms.untracked.bool(True),
-    lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterLumi"),
-    runInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterRun")
-)
+if(XXX_PCL_XXX):
+   process.load("DQMServices.Components.DQMFileSaver_cfi")
+   process.dqmSaver.convention = 'Offline'
+   process.dqmSaver.workflow = '/Express/PCLTest/ALCAPROMPT'
 
-process.p = cms.Path(process.EDMtoMEConvert * process.SiStripCalibValidation * process.dqmSaver) 
+   process.EDMtoMEConvert = cms.EDAnalyzer("EDMtoMEConverter",
+       Frequency = cms.untracked.int32(50),
+       Name = cms.untracked.string('EDMtoMEConverter'),
+       Verbosity = cms.untracked.int32(0),
+       convertOnEndLumi = cms.untracked.bool(True),
+       convertOnEndRun = cms.untracked.bool(True),
+       lumiInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterLumi"),
+       runInputTag = cms.InputTag("MEtoEDMConvertSiStripGains","MEtoEDMConverterRun")
+   )
+
+   process.p = cms.Path(process.EDMtoMEConvert * process.SiStripCalibValidation * process.dqmSaver) 
+else:
+   process.p = cms.Path(process.SiStripCalibValidation)
+
+
+#import PhysicsTools.PythonAnalysis.LumiList as LumiList
+#process.source.lumisToProcess = LumiList.LumiList(filename = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions15/13TeV/DCSOnly/json_DCSONLY_Run2015B.txt').getVLuminosityBlockRange()

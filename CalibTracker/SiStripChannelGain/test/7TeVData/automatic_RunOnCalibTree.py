@@ -19,7 +19,7 @@ def numberOfEvents(file):
 	return NEntries	
 
 
-PCLDATASET = '/StreamExpress/Run2015A-PromptCalibProdSiStripGains-Express-v1/ALCAPROMPT' #used if usePCL==True
+PCLDATASET = '/StreamExpress/Run2015B-PromptCalibProdSiStripGains-Express-v1/ALCAPROMPT' #used if usePCL==True
 CALIBTREEPATH = '/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calibrationtree/GR15' #used if usePCL==False
 #CALIBTREEPATH = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR12"
 #CALIBTREEPATH = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
@@ -38,7 +38,7 @@ parser.add_option('-p', '--pcl'        ,    dest='usePCL'             , help='us
 (opt, args) = parser.parse_args()
 
 scriptDir = os.getcwd()
-globaltag = "GR_P_V53" 
+globaltag = "74X_dataRun2_Express_v0" # "GR_E_V49" #"GR_P_V53" V56
 firstRun = int(opt.firstRun)
 lastRun  = int(opt.lastRun)
 MC=""
@@ -86,6 +86,7 @@ if(usePCL==True):
       if(line.startswith('Showing')):continue
       if(len(line)<=0):continue
       linesplit = line.split('   ')
+      print linesplit
       run     = int(line.split('   ')[0])      
       if(run<firstRun or run in runsToVeto):continue
       if(lastRun>0 and run>lastRun):continue      
@@ -98,7 +99,7 @@ if(usePCL==True):
          continue
       if(FileList==""):firstRun=run;
       NEvents = int(NEventsDasOut)
-      if(NEvents<=0):continue
+      if(NEvents<=3000):continue #only keep runs with at least 3K events
       FileList+="#run=" + str(run) + " -->  NEvents="+str(NEvents/1000).rjust(8)+"K\n"
       resultsFiles = commands.getstatusoutput(initEnv+"das_client.py  --limit=9999 --query='file dataset="+PCLDATASET+" run="+str(run)+"'")
       if(int(resultsFiles[0])!=0 or results[1].find('Error:')>=0):
@@ -126,7 +127,7 @@ else:
       if(run<firstRun or run in runsToVeto):continue
       if(lastRun>0 and run>lastRun):continue
       NEvents = numberOfEvents("root://eoscms//eos/cms"+subParts[4]);	
-      if(NEvents<=0):continue
+      if(NEvents<=3000):continue #only keep runs with at least 3K events
       if(FileList==""):firstRun=run;
       FileList += 'calibTreeList.extend(["root://eoscms//eos/cms'+subParts[4]+'"]) #' + str(size).rjust(6)+'MB  NEvents='+str(NEvents/1000).rjust(8)+'K\n'
       NTotalEvents += NEvents;
@@ -137,7 +138,7 @@ else:
 if(lastRun<=0):lastRun = run
 
 print "RunRange=[" + str(firstRun) + "," + str(lastRun) + "] --> NEvents=" + str(NTotalEvents/1000)+"K"
-if(automatic==True and NTotalEvents<1000000):	#ask at least 1M events to perform the calibration
+if(automatic==True and NTotalEvents<500000):	#ask at least 500K events to perform the calibration
 	print 'Not Enough events to run the calibration'
         os.system('echo "Gain calibration postponed" | mail -s "Gain calibration postponed ('+str(firstRun)+' to '+str(lastRun)+') NEvents=' + str(NTotalEvents/1000)+'K" ' + mail)
 	exit(0);

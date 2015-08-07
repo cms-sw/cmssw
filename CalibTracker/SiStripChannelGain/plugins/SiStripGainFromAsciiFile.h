@@ -22,11 +22,11 @@ private:
 
 private:
 
-  struct FibersGain{
-    float fiber[3];
+  struct ModuleGain{
+    float apv[6];
 
-    void soft_reset(){ for (int i=0;i<3;++i) if(fiber[i]==-1)fiber[i]=1; }
-    void hard_reset(float val){ for (int i=0;i<3;++i) fiber[i]=val; }
+    void soft_reset(){ for (int i=0;i<6;++i) if(apv[i]==-1)apv[i]=1; }
+    void hard_reset(float val){ for (int i=0;i<6;++i) apv[i]=val; }
     
   };
 
@@ -34,8 +34,8 @@ private:
   float referenceValue_;
   edm::FileInPath fp_;
 
-  __gnu_cxx::hash_map< unsigned int,FibersGain>  GainsMap;
-  //std::map< unsigned int,FibersGain>  GainsMap;
+  __gnu_cxx::hash_map< unsigned int,ModuleGain>  GainsMap;
+  //std::map< unsigned int,ModuleGain>  GainsMap;
 
 };
 #endif

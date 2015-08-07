@@ -34,11 +34,15 @@ EOF
 
 if [ "$#" != '1' ]; then
 #   cp Empty_Sqlite.db Gains_Sqlite.db
-#   echo "Running: cmsRun Gains_Compute_cfg.py"
-#   cmsRun Gains_Compute_cfg.py
-#   root -l -b -q KeepOnlyGain.C+
-#   echo "Running: cmsRun Validation_Compute_cfg.py"
-#   cmsRun Validation_Compute_cfg.py
+   echo "Running: cmsRun Gains_Compute_cfg.py"
+   cmsRun Gains_Compute_cfg.py
+   root -l -b -q KeepOnlyGain.C+
+
+   #can not run validation from PCL inputs
+   if [[ $1 != *"PCL"* ]]; then
+      echo "Running: cmsRun Validation_Compute_cfg.py"
+      cmsRun Validation_Compute_cfg.py
+   fi
 
    if [ "$#" == '0' ]; then
       sh PlotMacro.sh

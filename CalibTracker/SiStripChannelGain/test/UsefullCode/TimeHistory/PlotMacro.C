@@ -84,9 +84,17 @@ void PlotMacro(){
 //   runRanges.push_back(std::make_pair(207214,207883));
 
 //   //RUN2
-   runRanges.push_back(std::make_pair(247252,247990));
+   runRanges.push_back(std::make_pair(247252,247988));
+   runRanges.push_back(std::make_pair(247989,247990));
    runRanges.push_back(std::make_pair(247992,247992));
    runRanges.push_back(std::make_pair(248003,248025));
+   runRanges.push_back(std::make_pair(248028,250927));
+   runRanges.push_back(std::make_pair(251168,251168));
+   runRanges.push_back(std::make_pair(251244,251244));
+   runRanges.push_back(std::make_pair(251251,251251));
+   runRanges.push_back(std::make_pair(251252,251252));
+   runRanges.push_back(std::make_pair(251328,251612));
+   runRanges.push_back(std::make_pair(251638,251721));
 
    std::vector<stLayerData> resultVec;
 
@@ -112,8 +120,11 @@ void PlotMacro(){
  
       printf("%10s --> ", it->second.c_str());
       for(unsigned int i=0;i<runRanges.size();i++){
-         graph->SetPoint     (i, getLumiFromRun(runRanges[i].first) + (getLumiFromRun(runRanges[i].second)-getLumiFromRun(runRanges[i].first))/2.0 , resultVec[i].LayerGain[it->first] / resultVec[0].LayerGain[it->first]);
-         graph->SetPointError(i,                                      (getLumiFromRun(runRanges[i].second)-getLumiFromRun(runRanges[i].first))/2.0 , 0.0);//resultVec[i].LayerGainErr[it->first] / resultVec[0].LayerGain[it->first]);
+         graph->SetPoint     (i, getLumiFromRun(runRanges[i].first) + (getLumiFromRun(runRanges[i].second)-getLumiFromRun(runRanges[i].first))/2.0 , resultVec[i].LayerGain[it->first]);
+         graph->SetPointError(i,                                      0.0, 0.0);//resultVec[i].LayerGainErr[it->first] / resultVec[0].LayerGain[it->first]);
+
+//         graph->SetPoint     (i, getLumiFromRun(runRanges[i].first) + (getLumiFromRun(runRanges[i].second)-getLumiFromRun(runRanges[i].first))/2.0 , resultVec[i].LayerGain[it->first] / resultVec[0].LayerGain[it->first]);
+//         graph->SetPointError(i,                                      (getLumiFromRun(runRanges[i].second)-getLumiFromRun(runRanges[i].first))/2.0 , 0.0);//resultVec[i].LayerGainErr[it->first] / resultVec[0].LayerGain[it->first]);
          printf("%6.2f ", resultVec[i].LayerGain[it->first]);
 //         printf("%6.2f+-%5.2f ", resultVec[i].LayerGain[it->first], resultVec[i].LayerGainErr[it->first]);
       }printf("\n");
@@ -132,9 +143,9 @@ void PlotMacro(){
 //   frame->GetYaxis()->SetTitle("Average Gain");
 //   frame->SetMaximum(1.25);
 //   frame->SetMinimum(0.80);
-   frame->GetYaxis()->SetTitle("Average Gain Variation");
-   frame->SetMaximum(1.05);
-   frame->SetMinimum(0.90);
+   frame->GetYaxis()->SetTitle("Average Gain");
+   frame->SetMaximum(1.10);
+   frame->SetMinimum(0.85);
    frame->GetYaxis()->SetTitleOffset(1.50);
 
    TLegend* leg = new TLegend(0.15,0.93,0.80, 0.75);
@@ -156,7 +167,7 @@ void PlotMacro(){
       if(it->first.find("lTIB")==string::npos && it->first.find("lTOB")==string::npos)continue;
       it->second->SetLineColor(colorTIBTOB[L]);
       it->second->SetLineWidth(2);
-      it->second->Draw("same L");
+      it->second->Draw("same L*");
       leg->AddEntry(it->second, it->first.c_str() ,"L");
       L++;
    }
@@ -172,7 +183,7 @@ void PlotMacro(){
       if(it->first.find("wTID+")==string::npos && it->first.find("wTEC+")==string::npos)continue;
       it->second->SetLineColor(colorTIDTEC[L]);
       it->second->SetLineWidth(2);
-      it->second->Draw("same L");
+      it->second->Draw("same L*");
       leg->AddEntry(it->second, it->first.c_str() ,"L");
       L++;
    }
@@ -187,7 +198,7 @@ void PlotMacro(){
       if(it->first.find("wTID-")==string::npos && it->first.find("wTEC-")==string::npos)continue;
       it->second->SetLineColor(colorTIDTEC[L]);
       it->second->SetLineWidth(2);
-      it->second->Draw("same L");
+      it->second->Draw("same L*");
       leg->AddEntry(it->second, it->first.c_str() ,"L");
       L++;
    }
@@ -203,7 +214,7 @@ void PlotMacro(){
       if(it->first.find("rTID+")==string::npos && it->first.find("rTEC+")==string::npos)continue;
       it->second->SetLineColor(colorTIDTECr[L]);
       it->second->SetLineWidth(2);
-      it->second->Draw("same L");
+      it->second->Draw("same L*");
       leg->AddEntry(it->second, it->first.c_str() ,"L");
       L++;
    }
@@ -218,7 +229,7 @@ void PlotMacro(){
       if(it->first.find("rTID-")==string::npos && it->first.find("rTEC-")==string::npos)continue;
       it->second->SetLineColor(colorTIDTECr[L]);
       it->second->SetLineWidth(2);
-      it->second->Draw("same L");
+      it->second->Draw("same L*");
       leg->AddEntry(it->second, it->first.c_str() ,"L");
       L++;
    }
