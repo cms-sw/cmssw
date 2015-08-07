@@ -304,13 +304,13 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
     if name != "":
         summaryName += name+"_"
     summaryName += "summary"
-    plotter.append(summaryName, _trackingFolders(lastDirName),
-                   PlotFolder(*_summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup,
-                              purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
+#    plotter.append(summaryName, _trackingFolders(lastDirName),
+#                   PlotFolder(*_summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup,
+#                              purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
-#_appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots, onlyForPileup=True) # this one is still buggy in 760pre2
+_appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots, onlyForPileup=True)
 
 
 _iterModuleMap = collections.OrderedDict([

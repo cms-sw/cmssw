@@ -34,6 +34,12 @@ _trackQualityNameOrder = collections.OrderedDict([
     ("highPurity", "High purity tracks"),
     ("btvLike", "BTV-like selected tracks"),
     ("ak4PFJets", "Tracks from AK4 PF jets (corrected pT &gt; 10 GeV)"),
+    ("allTPEffic_", "All tracks, efficiency denominator contains all TrackingParticles"),
+    ("allTPEffic_highPurity", "High purity tracks, efficiency denominator contains all TrackingParticles"),
+    ("fromPV_", "Tracks from reco PV vs. TrackingParticles from gen PV (fakes include pileup)"),
+    ("fromPV_highPurity", "High purity tracks from reco PV vs. TrackingParticles from gen PV (fakes include pileup)"),
+    ("fromPVAllTP_", "Tracks from reco PV, fake rate numerator contains all TrackingParticles"),
+    ("fromPVAllTP_highPurity", "High purity tracks from reco PV, fake rate numerator contains all TrackingParticles"),
 ])
 
 _trackAlgoName = {
@@ -62,7 +68,7 @@ _pageNameMap = {
 _sectionNameMapOrder = collections.OrderedDict([
     ("", "All tracks"),
     ("allTPEffic", "All tracks, efficiency denominator contains all TrackingParticles"),
-    ("fromPV", "Tracks from reco PV vs. TrackingParticles from gen PV"),
+    ("fromPV", "Tracks from reco PV vs. TrackingParticles from gen PV (fake includes pileup)"),
     ("fromPVAllTP", "Tracks from reco PV, fake rate numerator contains all TrackingParticles"),
     ("offlinePrimaryVertices", "All vertices (offlinePrimaryVertices)"),
     ("selectedOfflinePrimaryVertices", "Selected vertices (selectedOfflinePrimaryVertices)"),
@@ -174,6 +180,7 @@ class PageSet(object):
                 sectionName = dqmSubFolder.translated
             else:
                 sectionName = ""
+
         page.addPlotSet(sectionName, plotFiles)
 
     def write(self, baseDir):
@@ -219,19 +226,26 @@ class TrackingPageSet(PageSet):
     def addPlotSet(self, plotterFolder, dqmSubFolder, plotFiles):
         (algo, quality) = dqmSubFolder.translated
 
+        pageName = algo
+        sectionName = quality
+
         # put all non-iterative stuff under OOTB
         if "ootb" not in algo and "Step" not in algo:
-            quality = algo
-            algo = "ootb"
+            pageName = "ootb"
+            sectionName = algo
 
-        if algo not in self._pages:
+        folderName = plotterFolder.getName()
+        if folderName != "":
+            sectionName = folderName+"_"+sectionName
+
+        if pageName not in self._pages:
             page = TrackingIterPage(self._title, self._base, self._sampleName)
-            self._pages[algo] = page
+            self._pages[pageName] = page
         else:
-            page = self._pages[algo]
-        page.addPlotSet(quality, plotFiles)
+            page = self._pages[pageName]
+        page.addPlotSet(sectionName, plotFiles)
 
-    def _mapPagesName(self, algo):
+    def _mapPagesName(self, algo): # algo = pageName
         return _trackAlgoName.get(algo, algo)
 
     def _orderPages(self, algos):
