@@ -5,7 +5,6 @@ from RecoBTag.SoftLepton.softLepton_cff import *
 from RecoBTag.ImpactParameter.impactParameter_cff import *
 from RecoBTag.SecondaryVertex.secondaryVertex_cff import *
 from RecoBTag.Combined.combinedMVA_cff import *
-from RecoBTag.Combined.combinedMVAV2_cff import *
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 
 legacyBTagging = cms.Sequence(

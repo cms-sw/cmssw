@@ -46,6 +46,7 @@ btagDiscriminators = [
     ,'positiveCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'negativeCombinedInclusiveSecondaryVertexV2BJetTags'
     ,'combinedMVABJetTags'
+    ,'combinedMVAV2BJetTags'
     ,'positiveCombinedMVABJetTags'
     ,'negativeCombinedMVABJetTags'
      # new candidate-based framework (supported with RECO/AOD/MiniAOD)
@@ -102,6 +103,7 @@ btagDiscriminators = [
     ,'pfCombinedSecondaryVertexSoftLeptonBJetTags'
     ,'pfNegativeCombinedSecondaryVertexSoftLeptonBJetTags'
     ,'pfCombinedMVABJetTags'
+    ,'pfCombinedV2MVABJetTags'
     ,'pfPositiveCombinedMVABJetTags'
     ,'pfNegativeCombinedMVABJetTags'
 ]
