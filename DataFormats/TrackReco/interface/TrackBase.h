@@ -134,8 +134,8 @@ public:
    hiRegitMuMixedTripletStep = 41,
    hiRegitMuPixelLessStep = 42,
    hiRegitMuTobTecStep = 43,
-   hiRegitMuMuonSeededStepInOut = 43,
-   hiRegitMuMuonSeededStepOutIn = 44,
+   hiRegitMuMuonSeededStepInOut = 44,
+   hiRegitMuMuonSeededStepOutIn = 45,
    algoSize = 46
     };
 
