@@ -135,7 +135,7 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
               bool IsFarFromBorder(TrajectoryStateOnSurface* trajState, const uint32_t detid, const edm::EventSetup* iSetup);
               void getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange=50, double HighRange=5400);
               bool IsGoodLandauFit(double* FitResults); 
-              void storeOnTree();
+              void storeOnTree(TFileService* tfs);
               void MakeCalibrationMap();
               bool produceTagFilter();
 
@@ -471,7 +471,6 @@ SiStripGainFromCalibTree::algoEndJob() {
    algoComputeMPVandGain();
    
    if(AlgoMode != "PCL" or saveSummary){
-      storeOnTree();
       //also save the 2D monitor elements to this file as TH2D tfs
       tfs = edm::Service<TFileService>().operator->();
       tfs->make<TH2F> (*Charge_Vs_Index->getTH2F());
@@ -484,6 +483,9 @@ SiStripGainFromCalibTree::algoEndJob() {
       tfs->make<TH2F> (*Charge_Vs_PathlengthTECP2->getTH2F());
       tfs->make<TH2F> (*Charge_Vs_PathlengthTECM1->getTH2F());
       tfs->make<TH2F> (*Charge_Vs_PathlengthTECM2->getTH2F());
+
+
+      storeOnTree(tfs);
    }
 }
 
@@ -744,10 +746,8 @@ void SiStripGainFromCalibTree::algoComputeMPVandGain() {
 }
 
 
-void SiStripGainFromCalibTree::storeOnTree()
+void SiStripGainFromCalibTree::storeOnTree(TFileService* tfs)
 {
-  tfs = edm::Service<TFileService>().operator->();
-
    unsigned int  tree_Index;
    unsigned int  tree_Bin;
    unsigned int  tree_DetId;
@@ -847,6 +847,12 @@ void SiStripGainFromCalibTree::storeOnTree()
       tree_NEntries   = APV->NEntries;
       tree_isMasked   = APV->isMasked;
 
+
+     if(tree_DetId==402673324){
+         printf("%i | %i : %f --> %f  (%f)\n", tree_DetId, tree_APVId, tree_PrevGain, tree_Gain, tree_NEntries);
+      }
+
+
       MyTree->Fill();
    }
    if(Gains)fclose(Gains);
@@ -885,7 +891,7 @@ SiStripApvGain* SiStripGainFromCalibTree::getNewObject()
    for(unsigned int a=0;a<APVsCollOrdered.size();a++){
       stAPVGain* APV = APVsCollOrdered[a];
       if(APV==NULL){ printf("Bug\n"); continue; }
-      if(APV->SubDet<2)continue;
+      if(APV->SubDet<=2)continue;
       if(APV->DetId != PreviousDetId){
          if(theSiStripVector!=NULL){
 	    SiStripApvGain::Range range(theSiStripVector->begin(),theSiStripVector->end());
@@ -1060,6 +1066,7 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
 
                if(useCalibration || !FirstSetOfConstants){
                   bool Saturation = false;
+                  charge = 0;
                   for(unsigned int s=0;s<Ampls.size();s++){
                      int StripCharge =  Ampls[s];
                      if(useCalibration && !FirstSetOfConstants){ StripCharge=(int)(StripCharge*(APV->PreviousGain/APV->CalibGain));
