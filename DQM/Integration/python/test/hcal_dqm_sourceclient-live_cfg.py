@@ -18,8 +18,8 @@ cmssw			= os.getenv("CMSSW_VERSION").split("_")
 debugstr		= "### HcalDQM::cfg::DEBUG: "
 warnstr			= "### HcalDQM::cfg::WARN: "
 errorstr		= "### HcalDQM::cfg::ERROR:"
-useOfflineGT	= False
-useFileInput	= False
+useOfflineGT	= True
+useFileInput	= True
 useMap		= False
 
 #-------------------------------------
@@ -104,18 +104,10 @@ process.hbhereco = process.hbheprereco.clone()
 #	New Style
 #-------------------------------------
 process.load("DQM.HcalTasks.HcalDigiTask")
-process.load("DQM.HcalTasks.HcalDeadCellTask")
-process.load("DQM.HcalTasks.HcalHotCellTask")
-process.load("DQM.HcalTasks.HcalLEDTask")
-process.load("DQM.HcalTasks.HcalLaserTask")
-process.load("DQM.HcalTasks.HcalNoiseTask")
-process.load("DQM.HcalTasks.HcalPedestalTask")
 process.load("DQM.HcalTasks.HcalRawTask")
 process.load("DQM.HcalTasks.HcalRecHitTask")
 process.load("DQM.HcalTasks.HcalTPTask")
 process.load("DQM.HcalTasks.HcalTimingTask")
-process.load("DQM.HcalTasks.HcaluTCATask")
-process.load("DQM.HcalClients.HcalDigiClient")
 
 #-------------------------------------
 #	Hcal DQM Tasks and Clients Imports
@@ -163,22 +155,11 @@ if useMap:
 #	New Style Modules
 #-------------------------------------
 process.hcalDigiTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
-process.hcalDeadCellTask.moduleParameters.subsystem = cms.untracked.string(
-		subsystem)
-process.hcalHotCellTask.moduleParameters.subsystem = cms.untracked.string(
-		subsystem)
-process.hcalLEDTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
-process.hcalLaserTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
-process.hcalNoiseTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
-process.hcalPedestalTask.moduleParameters.subsystem = cms.untracked.string(
-		subsystem)
 process.hcalRawTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
 process.hcalRecHitTask.moduleParameters.subsystem = cms.untracked.string(
 		subsystem)
 process.hcalTPTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
 process.hcalTimingTask.moduleParameters.subsystem = cms.untracked.string(
-		subsystem)
-process.hcalDigiClient.moduleParameters.subsystem = cms.untracked.string(
 		subsystem)
 
 #-------------------------------------
