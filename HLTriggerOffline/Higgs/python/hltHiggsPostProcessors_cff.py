@@ -182,7 +182,7 @@ hltHiggsPostAHttH.efficiencyProfile = efficiency_strings
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
 NminOneCutNames = ("EffdEtaqq", "Effmqq", "EffdPhibb", "EffCSV1", "EffCSV2", "EffCSV3",  "EffmaxCSV", "", "", "TurnOn1", "TurnOn2", "TurnOn3", "TurnOn4")
 plot_types = []
-NminOneCuts = (_config.__getattribute__("VBFHbb_2btag")).__getattribute__("NminOneCuts")
+NminOneCuts =_config.VBFHbb_2btag.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
@@ -206,7 +206,7 @@ hltHiggsPostVBFHbb_2btag.efficiencyProfile = efficiency_strings
 #Specific plots for VBFHbb_1btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
 plot_types = []
-NminOneCuts = (_config.__getattribute__("VBFHbb_1btag")).__getattribute__("NminOneCuts")
+NminOneCuts = _config.VBFHbb_1btag.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
@@ -230,7 +230,7 @@ hltHiggsPostVBFHbb_1btag.efficiencyProfile = efficiency_strings
 #Specific plots for VBFHbb_0btag  
 #dEtaqq, mqq, dPhibb, CVS1, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
 plot_types = []
-NminOneCuts = (_config.__getattribute__("VBFHbb_0btag")).__getattribute__("NminOneCuts")
+NminOneCuts = _config.VBFHbb_0btag.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
@@ -255,7 +255,7 @@ hltHiggsPostVBFHbb_0btag.efficiencyProfile = efficiency_strings
 #Specific plots for ZnnHbb
 #Jet plots
 plot_types = ["EffEta", "EffPhi"]
-NminOneCuts = (_config.__getattribute__("ZnnHbb")).__getattribute__("NminOneCuts")
+NminOneCuts = _config.ZnnHbb.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
@@ -288,7 +288,7 @@ hltHiggsPostZnnHbb.efficiencyProfile = efficiency_strings
 
 #Specific plots for X4b
 #Jet plots
-NminOneCuts = (_config.__getattribute__("X4b")).__getattribute__("NminOneCuts")
+NminOneCuts = _config.X4b.NminOneCuts
 if NminOneCuts: 
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
@@ -320,6 +320,29 @@ hltHiggsPostWHToENuBB = hltHiggsPostProcessor.clone()
 hltHiggsPostWHToENuBB.subDirs = ['HLT/Higgs/WHToENuBB']
 hltHiggsPostWHToENuBB.efficiencyProfile = efficiency_strings_WHToENuBB
 
+#Specific plots for MSSMHbb
+#Jet plots
+NMinOneCuts = _config.MSSMHbb.NminOneCuts
+if NminOneCuts:
+    for iCut in range(0,len(NminOneCuts)):
+        if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
+            plot_types.append(NminOneCutNames[iCut])
+
+efficiency_strings = []
+for type in plot_types:
+    for obj in ["Jet"]:
+        for trig in triggers:
+            efficiency_strings.append(efficiency_string(obj,type,trig))
+
+efficiency_strings = get_reco_strings(efficiency_strings)
+
+hltHiggsPostMSSMHbb = hltHiggsPostProcessor.clone()
+hltHiggsPostMSSMHbb.subDirs = ['HLT/Higgs/MSSMHbb']
+hltHiggsPostMSSMHbb.efficiencyProfile = efficiency_strings
+
+
+
+
 hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHWW+
         hltHiggsPostHZZ+
@@ -336,7 +359,8 @@ hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostDoubleHinTaus+
         hltHiggsPostHiggsDalitz+
         hltHiggsPostX4b+
-        hltHiggsPostWHToENuBB
+        hltHiggsPostWHToENuBB+
+        hltHiggsPostMSSMHbb
 
 )
 

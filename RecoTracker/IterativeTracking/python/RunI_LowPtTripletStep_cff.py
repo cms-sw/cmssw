@@ -7,7 +7,7 @@ lowPtTripletStepClusters = trackClusterRemover.clone(
     trajectories                             = cms.InputTag("initialStepTracks"),
     pixelClusters                            = cms.InputTag("siPixelClusters"),
     stripClusters                            = cms.InputTag("siStripClusters"),
-    overrideTrkQuals                         = cms.InputTag('initialStepSelector','initialStep'),
+    overrideTrkQuals                         = cms.InputTag('initialStepSelector','QualityMasks'),
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
 )
@@ -111,7 +111,7 @@ lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cf
             preFilterName = 'lowPtTripletStepLoose',
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'lowPtTripletStep',
+            name = 'QualityMasks',
             preFilterName = 'lowPtTripletStepTight',
             ),
         ),

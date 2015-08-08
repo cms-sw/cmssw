@@ -107,6 +107,8 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     useMVA_.reserve(1);
 
     produces<edm::ValueMap<float> >("MVAVals");
+    //foward compatibility
+    produces<MVACollection>("MVAValues");
     useAnyMVA_ = false;
     forest_[0] = nullptr;
     if(cfg.exists("useAnyMVA")) useAnyMVA_ = cfg.getParameter<bool>("useAnyMVA");
