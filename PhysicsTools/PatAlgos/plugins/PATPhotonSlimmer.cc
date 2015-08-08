@@ -107,6 +107,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     out->reserve(src->size());
 
     if( modifyPhoton_ ) { photonModifier_->setEvent(iEvent); }
+    if( modifyPhoton_ ) photonModifier_->setEventContent(iSetup);
 
     std::vector<unsigned int> keys;
     for (View<pat::Photon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
@@ -114,7 +115,6 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
         pat::Photon & photon = out->back();
 
         if( modifyPhoton_ ) { photonModifier_->modify(photon); }
-	if( modifyPhoton_ ) photonModifier_->setEventContent(iSetup);
 
         if (dropSuperClusters_(photon)) { photon.superCluster_.clear(); photon.embeddedSuperCluster_ = false; }
 	if (dropBasicClusters_(photon)) { photon.basicClusters_.clear(); }
