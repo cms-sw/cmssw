@@ -315,9 +315,13 @@ HLTSusyExoVal = cms.EDAnalyzer("TriggerValidator",
     hltConfigName = cms.string("HLT"),
     hltPathsToCheck = cms.vstring(
       "HLT_PFHT900_v",
-      "HLT_PFHT350_PFMET120_NoiseCleaned_v",
+      #"HLT_PFHT350_PFMET120_NoiseCleaned_v",
       "HLT_PFMET170_NoiseCleaned_v",
-      "HLT_PFMET120_NoiseCleaned_BTagCSV07_v"
+      #"HLT_PFMET120_NoiseCleaned_BTagCSV07_v"
+      "HLT_PFHT350_PFMET120_JetIdCleaned_v",
+      "HLT_PFMET170_JetIdCleaned_v",
+      "HLT_PFMET170_HBHECleaned_v",
+      "HLT_PFMET120_JetIdCleaned_BTagCSV07_v"
     ),
     muonTag = cms.InputTag('muons'),
     histoFileName = cms.untracked.string('MonElements_LM1_IDEAL_30x_v1_300pre7.root'),
