@@ -270,10 +270,23 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     if(!(pvPtr->isFake() || pvPtr->ndof() < 0)) { // skip junk vertices
       auto pvFound = v_r2s.find(pvPtr);
       if(pvFound != v_r2s.end()) {
-        if(doPVAssociationPlots_) {
-          thePVposition = &(pvPtr->position());
-          theSimPVPosition = &(pvFound->val[0].first->position());
+        int simPVindex = -1;
+        int i=0;
+        for(const auto& vertexRefQuality: pvFound->val) {
+          const TrackingVertex& tv = *(vertexRefQuality.first);
+          if(tv.eventId().event() == 0 && tv.eventId().bunchCrossing() == 0) {
+            simPVindex = i;
+          }
+          ++i;
         }
+        if(simPVindex >= 0) {
+          if(doPVAssociationPlots_) {
+            thePVposition = &(pvPtr->position());
+            theSimPVPosition = &(pvFound->val[simPVindex].first->position());
+          }
+        }
+        else if(doPlotsOnlyForTruePV_)
+          return;
       }
       else if(doPlotsOnlyForTruePV_)
         return;
