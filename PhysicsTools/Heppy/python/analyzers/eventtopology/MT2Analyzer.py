@@ -180,11 +180,11 @@ class MT2Analyzer( Analyzer ):
 
 #### do same things for GEN
 
-        if self.cfg_comp.isMC:
+        if self.cfg_comp.isMC and event.met.genMET():
             allGenJets = [ x for x in self.handles['genJets'].product() ] 
             objects40jc_Gen = [ j for j in allGenJets if j.pt() > 40 and abs(j.eta())<2.5 ]
             objectsXjc_Gen = [ j for j in allGenJets if j.pt() > self.jetPt and abs(j.eta())<2.5 ]
-     
+
             if len(objects40jc_Gen)>=2:
                 event.mt2_gen = self.getMT2Hemi(event,objects40jc_Gen, event.met.genMET(), "_gen")
 

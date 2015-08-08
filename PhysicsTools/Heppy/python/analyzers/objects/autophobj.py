@@ -192,9 +192,9 @@ jetTypeExtra = NTupleObjectType("jetExtra",  baseObjectTypes = [ jetType ], vari
   
 metType = NTupleObjectType("met", baseObjectTypes = [ fourVectorType ], variables = [
     NTupleVariable("sumEt", lambda x : x.sumEt() ),
-    NTupleVariable("genPt",  lambda x : x.genMET().pt() , mcOnly=True ),
-    NTupleVariable("genPhi", lambda x : x.genMET().phi(), mcOnly=True ),
-    NTupleVariable("genEta", lambda x : x.genMET().eta(), mcOnly=True ),
+    NTupleVariable("genPt",  lambda x : x.genMET().pt() if x.genMET() else 0 , mcOnly=True ),
+    NTupleVariable("genPhi", lambda x : x.genMET().phi() if x.genMET() else 0, mcOnly=True ),
+    NTupleVariable("genEta", lambda x : x.genMET().eta() if x.genMET() else 0, mcOnly=True ),
 ])
 
 ##------------------------------------------  
