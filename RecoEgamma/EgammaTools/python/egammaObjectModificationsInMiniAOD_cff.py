@@ -61,14 +61,10 @@ egamma_modifications.append(
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromDB'),  
               autoDetectBunchSpacing = cms.bool(True),
               bunchSpacingTag = cms.InputTag("addPileupInfo:bunchSpacing"),
-              manualBunchSpacing = cms.int32(25),              
+              manualBunchSpacing = cms.int32(50),              
               rhoCollection = cms.InputTag("fixedGridRhoFastjetAll"),
               vertexCollection = cms.InputTag("offlinePrimaryVertices"),
-              electron_config = cms.PSet( ecalRefinedRegressionWeightFile25ns = cms.string("RecoEgamma/EgammaTools/data/GBRLikelihood_Clustering_746_bx25_Electrons_GedGsfElectron_results_TEST.root"),
-                                          ecalRefinedRegressionWeightFile50ns = cms.string("RecoEgamma/EgammaTools/data/GBRLikelihood_Clustering_746_bx50_Electrons_GedGsfElectron_results_TEST.root"),
-                                          epCombinationWeightFile25ns = cms.string("RecoEgamma/EgammaTools/data/GBRLikelihood_Clustering_746_bx25_Electrons_GedGsfElectron_results_TEST.root"),
-                                          epCombinationWeightFile50ns = cms.string("RecoEgamma/EgammaTools/data/GBRLikelihood_Clustering_746_bx50_Electrons_GedGsfElectron_results_TEST.root"),
-                                          sigmaIetaIphi = cms.InputTag('electronRegressionValueMapProducer:eleFull5x5SigmaIEtaIPhi'),
+              electron_config = cms.PSet( sigmaIetaIphi = cms.InputTag('electronRegressionValueMapProducer:eleFull5x5SigmaIEtaIPhi'),
                                           eMax          = cms.InputTag("electronRegressionValueMapProducer:eMax"),
                                           e2nd          = cms.InputTag("electronRegressionValueMapProducer:e2nd"),
                                           eTop          = cms.InputTag("electronRegressionValueMapProducer:eTop"),
@@ -92,28 +88,32 @@ egamma_modifications.append(
                                           iEta          = cms.InputTag("electronRegressionValueMapProducer:iEta"),
                                           cryPhi        = cms.InputTag("electronRegressionValueMapProducer:cryPhi"),
                                           cryEta        = cms.InputTag("electronRegressionValueMapProducer:cryEta"),
-
-                                          conditionsMean50ns  = cms.vstring("EBCorrection","EECorrection"),
-                                          conditionsSigma50ns = cms.vstring("EBUncertainty","EEUncertainty"),
-                                          conditionsMean25ns  = cms.vstring("EBCorrection","EECorrection"),
-                                          conditionsSigma25ns = cms.vstring("EBUncertainty","EEUncertainty"),
-
-                                          epConditionsWeight50ns  = cms.string("CombinationWeight"),
-                                          epConditionsWeight25ns  = cms.string("CombinationWeight"),
+                                          intValueMaps = cms.vstring("iPhi", "iEta"),                                          
+                                          
+                                          # EB, EE
+                                          regressionKey_25ns  = cms.vstring('gedelectron_EBCorrection_25ns', 'gedelectron_EECorrection_25ns'),
+                                          uncertaintyKey_25ns = cms.vstring('gedelectron_EBUncertainty_25ns', 'gedelectron_EEUncertainty_25ns'),
+                                          combinationKey_25ns   = cms.string('gedelectron_p4combination_25ns'),
+                                          
+                                          regressionKey_50ns  = cms.vstring('gedelectron_EBCorrection_50ns', 'gedelectron_EECorrection_50ns'),
+                                          uncertaintyKey_50ns = cms.vstring('gedelectron_EBUncertainty_50ns', 'gedelectron_EEUncertainty_50ns'),
+                                          combinationKey_50ns   = cms.string('gedelectron_p4combination_50ns'),
                                           ),
-              photon_config   = cms.PSet( photonRegressionWeightFile25ns = cms.string("RecoEgamma/EgammaTools/data/regweights_forest_v2015_25ns_globalposition_ph.root"),
-                                          photonRegressionWeightFile50ns = cms.string("RecoEgamma/EgammaTools/data/regweights_forest_v2015_25ns_globalposition_ph.root"),
-                                          sigmaIetaIphi = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5SigmaIEtaIPhi'),
+
+              photon_config   = cms.PSet( sigmaIetaIphi = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5SigmaIEtaIPhi'),
                                           sigmaIphiIphi = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5SigmaIPhiIPhi'),
                                           e2x5Max       = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Max'),
                                           e2x5Left      = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Left'),
                                           e2x5Right     = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Right'),
                                           e2x5Top       = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Top'),
                                           e2x5Bottom    = cms.InputTag('photonRegressionValueMapProducer:phoFull5x5E2x5Bottom'),
-                                          conditionsMean50ns  = cms.vstring("EBCorrection","EECorrection"),
-                                          conditionsSigma50ns = cms.vstring("EBUncertainty","EEUncertainty"),
-                                          conditionsMean25ns  = cms.vstring("EBCorrection","EECorrection"),
-                                          conditionsSigma25ns = cms.vstring("EBUncertainty","EEUncertainty"),
+
+                                          # EB, EE
+                                          regressionKey_25ns  = cms.vstring('gedphoton_EBCorrection_25ns', 'gedphoton_EECorrection_25ns'),
+                                          uncertaintyKey_25ns = cms.vstring('gedphoton_EBUncertainty_25ns', 'gedphoton_EEUncertainty_25ns'),
+                                          
+                                          regressionKey_50ns  = cms.vstring('gedphoton_EBCorrection_50ns', 'gedphoton_EECorrection_50ns'),
+                                          uncertaintyKey_50ns = cms.vstring('gedphoton_EBUncertainty_50ns', 'gedphoton_EEUncertainty_50ns'),
                                           )
               )
 )
