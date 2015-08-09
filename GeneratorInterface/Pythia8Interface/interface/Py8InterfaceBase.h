@@ -57,8 +57,8 @@ namespace gen {
          //
          bool useEvtGen;
          EvtGenDecays* evtgenDecays;
-         string evtgenDecFile;
-         string evtgenPdlFile;
+         std::string evtgenDecFile;
+         std::string evtgenPdlFile;
 
       private:
 

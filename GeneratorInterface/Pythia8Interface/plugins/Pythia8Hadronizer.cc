@@ -85,7 +85,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     /// Center-of-Mass energy
     double       comEnergy;
 
-    string LHEInputFileName;
+    std::string LHEInputFileName;
     std::auto_ptr<LHAupLesHouches>  lhaUP;
 
     enum { PP, PPbar, ElectronPositron };
@@ -140,7 +140,7 @@ const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::Sha
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   BaseHadronizer(params), Py8InterfaceBase(params),
   comEnergy(params.getParameter<double>("comEnergy")),
-  LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
+  LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName","")),
   fInitialState(PP),
   fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fMergingHook(0),
@@ -186,7 +186,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   }
     
   if( params.exists( "SLHAFileForPythia8" ) ) {
-    std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
+    std::string slhafilenameshort = params.getParameter<std::string>("SLHAFileForPythia8");
     edm::FileInPath f1( slhafilenameshort );
     
     fMasterGen->settings.mode("SLHA:readFrom", 2);
@@ -201,7 +201,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
      }  
   }
   else if( params.exists( "SLHATableForPythia8" ) ) {
-    std::string slhatable = params.getParameter<string>("SLHATableForPythia8");
+    std::string slhatable = params.getParameter<std::string>("SLHATableForPythia8");
         
     char tempslhaname[] = "pythia8SLHAtableXXXXXX";
     int fd = mkstemp(tempslhaname);
@@ -438,7 +438,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   }
   
   
-  if(LHEInputFileName != string()) {
+  if(LHEInputFileName != std::string()) {
 
     edm::LogInfo("Pythia8Interface") << "Initialize direct pythia8 reading from LHE file "
                                      << LHEInputFileName;
@@ -481,7 +481,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   if (useEvtGen) {
     edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
 
-    string evtgenpath(getenv("EVTGENDATA"));
+    std::string evtgenpath(getenv("EVTGENDATA"));
     evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
     evtgenDecays->readDecayFile("evtgen_userfile.dec");
   }
@@ -527,7 +527,7 @@ bool Pythia8Hadronizer::hadronize()
   DJR.resize(0);
   nME = -1;
   nMEFiltered = -1;
-  if(LHEInputFileName == string()) lhaUP->loadEvent(lheEvent());
+  if(LHEInputFileName == std::string()) lhaUP->loadEvent(lheEvent());
 
   if ( fJetMatchingHook ) 
   {
