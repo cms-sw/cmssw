@@ -304,7 +304,7 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
 
     updateChirp("Files", m_files);
 
-    float ema_coeff = 1 - std::exp(-static_cast<float>(sinceLastUpdate)/m_emaInterval);
+    float ema_coeff = 1 - std::exp(-static_cast<float>(sinceLastUpdate)/std::max(std::min(m_emaInterval, static_cast<float>(jobTime)), 1.0f));
     if (sinceLastUpdate > 0)
     {
         updateChirp("Elapsed", jobTime);
