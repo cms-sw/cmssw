@@ -42,7 +42,7 @@ particleFlowBlock.elementImporters = cms.VPSet(
     # all secondary track importers
     cms.PSet( importerName = cms.string("GeneralTracksImporter"),
               source = cms.InputTag("pfTrack"),
-              muonSrc = cms.InputTag("muons"),
+              muonSrc = cms.InputTag("hiMuons1stStep"),
               useIterativeTracking = cms.bool(False),
               DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
                                                        1.0,1.0),
@@ -66,7 +66,7 @@ particleFlowBlock.elementImporters = cms.VPSet(
 particleFlowTmp.postMuonCleaning = cms.bool(False)
 particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
 particleFlowTmp.usePFElectrons = cms.bool(True)
-particleFlowTmp.muons = cms.InputTag("muons")
+particleFlowTmp.muons = cms.InputTag("hiMuons1stStep")
 particleFlowTmp.usePFConversions = cms.bool(False)
 
 
