@@ -70,6 +70,7 @@ hiRegitMuDetachedTripletStepTracks                 = RecoTracker.IterativeTracki
 
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuDetachedTripletStepSelector               = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src                 ='hiRegitMuDetachedTripletStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
@@ -77,11 +78,11 @@ hiRegitMuDetachedTripletStepSelector               = RecoTracker.FinalTrackSelec
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuDetachedTripletStepLoose',
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuDetachedTripletStepTight',
             preFilterName = 'hiRegitMuDetachedTripletStepLoose',
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuDetachedTripletStep',
             preFilterName = 'hiRegitMuDetachedTripletStepTight',
             )

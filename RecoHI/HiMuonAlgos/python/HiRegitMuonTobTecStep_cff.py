@@ -96,8 +96,8 @@ hiRegitMuTobTecStepTracks                 = RecoTracker.IterativeTracking.TobTec
     src                 = 'hiRegitMuTobTecStepTrackCandidates'
 )
 
-# import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuTobTecStepSelector               = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone( 
     src                 ='hiRegitMuTobTecStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
@@ -105,11 +105,11 @@ hiRegitMuTobTecStepSelector               = RecoTracker.FinalTrackSelectors.mult
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuTobTecStepLoose',
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuTobTecStepTight',
             preFilterName = 'hiRegitMuTobTecStepLoose',
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuTobTecStep',
             preFilterName = 'hiRegitMuTobTecStepTight',
             ),

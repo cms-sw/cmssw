@@ -101,6 +101,7 @@ hiRegitMuMixedTripletStepTracks                 = RecoTracker.IterativeTracking.
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
 hiRegitMuMixedTripletStepSelector =  RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src                 = 'hiRegitMuMixedTripletStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
@@ -108,11 +109,11 @@ hiRegitMuMixedTripletStepSelector =  RecoTracker.FinalTrackSelectors.multiTrackS
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuMixedTripletStepLoose',
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuMixedTripletStepTight',
             preFilterName = 'hiRegitMuMixedTripletStepLoose',
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuMixedTripletStep',
             preFilterName = 'hiRegitMuMixedTripletStepTight',
             )
