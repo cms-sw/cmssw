@@ -145,35 +145,27 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 
   //--- tracking particle selectors for efficiency measurements
   using namespace edm;
-
-  ParameterSet generalTpSelectorPSet = pset.getParameter<ParameterSet>("generalTpSelector");
-  ParameterSet TpSelectorForEfficiencyVsEtaPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsEta");
-  ParameterSet TpSelectorForEfficiencyVsPhiPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPhi");
-  ParameterSet TpSelectorForEfficiencyVsPtPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPt");
-  ParameterSet TpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXR");
-  ParameterSet TpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXZ");
-
-  ParameterSet generalGpSelectorPSet = pset.getParameter<ParameterSet>("generalGpSelector");
-  ParameterSet GpSelectorForEfficiencyVsEtaPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsEta");
-  ParameterSet GpSelectorForEfficiencyVsPhiPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsPhi");
-  ParameterSet GpSelectorForEfficiencyVsPtPSet  = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsPt");
-  ParameterSet GpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXR");
-  ParameterSet GpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXZ");
-
   using namespace reco::modules;
-  generalTpSelector               = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet, iC));
-  TpSelectorForEfficiencyVsEta    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsEtaPSet, iC));
-  TpSelectorForEfficiencyVsPhi    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet, iC));
-  TpSelectorForEfficiencyVsPt     = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet, iC));
-  TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet, iC));
-  TpSelectorForEfficiencyVsVTXZ   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet, iC));
+  auto initTPselector = [&](auto& sel, auto& name) {
+    sel = std::make_unique<TrackingParticleSelector>(ParameterAdapter<TrackingParticleSelector>::make(pset.getParameter<ParameterSet>(name), iC));
+  };
+  auto initGPselector = [&](auto& sel, auto& name) {
+    sel = std::make_unique<GenParticleCustomSelector>(ParameterAdapter<GenParticleCustomSelector>::make(pset.getParameter<ParameterSet>(name), iC));
+  };
 
-  generalGpSelector               = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(generalGpSelectorPSet, iC));
-  GpSelectorForEfficiencyVsEta    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet, iC));
-  GpSelectorForEfficiencyVsPhi    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPhiPSet, iC));
-  GpSelectorForEfficiencyVsPt     = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPtPSet, iC));
-  GpSelectorForEfficiencyVsVTXR   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXRPSet, iC));
-  GpSelectorForEfficiencyVsVTXZ   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXZPSet, iC));
+  initTPselector(generalTpSelector,             "generalTpSelector");
+  initTPselector(TpSelectorForEfficiencyVsEta,  "TpSelectorForEfficiencyVsEta");
+  initTPselector(TpSelectorForEfficiencyVsPhi,  "TpSelectorForEfficiencyVsPhi");
+  initTPselector(TpSelectorForEfficiencyVsPt,   "TpSelectorForEfficiencyVsPt");
+  initTPselector(TpSelectorForEfficiencyVsVTXR, "TpSelectorForEfficiencyVsVTXR");
+  initTPselector(TpSelectorForEfficiencyVsVTXZ, "TpSelectorForEfficiencyVsVTXZ");
+
+  initGPselector(generalGpSelector,             "generalGpSelector");
+  initGPselector(GpSelectorForEfficiencyVsEta,  "GpSelectorForEfficiencyVsEta");
+  initGPselector(GpSelectorForEfficiencyVsPhi,  "GpSelectorForEfficiencyVsPhi");
+  initGPselector(GpSelectorForEfficiencyVsPt,   "GpSelectorForEfficiencyVsPt");
+  initGPselector(GpSelectorForEfficiencyVsVTXR, "GpSelectorForEfficiencyVsVTXR");
+  initGPselector(GpSelectorForEfficiencyVsVTXZ, "GpSelectorForEfficiencyVsVTXZ");
 
   // fix for the LogScale by Ryan
   if(useLogPt){
@@ -191,21 +183,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 
 }
 
-MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
-  delete generalTpSelector;
-  delete TpSelectorForEfficiencyVsEta;
-  delete TpSelectorForEfficiencyVsPhi;
-  delete TpSelectorForEfficiencyVsPt;
-  delete TpSelectorForEfficiencyVsVTXR;
-  delete TpSelectorForEfficiencyVsVTXZ;
-
-  delete generalGpSelector;
-  delete GpSelectorForEfficiencyVsEta;
-  delete GpSelectorForEfficiencyVsPhi;
-  delete GpSelectorForEfficiencyVsPt;
-  delete GpSelectorForEfficiencyVsVTXR;
-  delete GpSelectorForEfficiencyVsVTXZ;
-}
+MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker() {}
 
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
   if(h_ptSIM != nullptr)

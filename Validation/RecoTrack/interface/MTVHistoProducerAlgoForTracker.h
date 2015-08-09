@@ -112,19 +112,19 @@ class MTVHistoProducerAlgoForTracker {
 
 
   //private data members
-  TrackingParticleSelector* generalTpSelector;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsEta;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsPhi;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsPt;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsVTXR;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsVTXZ;
+  std::unique_ptr<TrackingParticleSelector> generalTpSelector;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsEta;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsPhi;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsPt;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsVTXR;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsVTXZ;
 
-  GenParticleCustomSelector* generalGpSelector;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsEta;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsPhi;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsPt;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsVTXR;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsVTXZ;
+  std::unique_ptr<GenParticleCustomSelector> generalGpSelector;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsEta;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsPhi;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsPt;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsVTXR;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsVTXZ;
 
   double minEta, maxEta;  int nintEta;  bool useFabsEta;
   double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;
