@@ -275,7 +275,7 @@ class IsoTrackAnalyzer( Analyzer ):
         if not self.cfg_comp.isMC:
             return True
 
-        if hasattr(event, 'gentaus') and hasattr(event, 'gentauleps') and hasattr(event, 'genleps') :
+        if hasattr(event, 'gentaus') and hasattr(event, 'gentauleps') and hasattr(event, 'genleps') and self.cfg_ana.do_mc_match :
             self.matchIsoTrack(event)        
 
 ###        self.printInfo(event)
@@ -315,5 +315,6 @@ setattr(IsoTrackAnalyzer,"defaultConfig",cfg.Analyzer(
     doSecondVeto = False,
     #####
     doPrune = True,
+    do_mc_match = True, # note: it will in any case try it only on MC, not on data
   )
 )
