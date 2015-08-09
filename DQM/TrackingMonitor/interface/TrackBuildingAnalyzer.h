@@ -82,7 +82,8 @@ class TrackBuildingAnalyzer
         MonitorElement* TrackCandPt;
         MonitorElement* TrackCandEta;
         MonitorElement* TrackCandPhi;
-        MonitorElement* TrackCandTheta;
+        MonitorElement* TrackCandPhiVsEta;
+	MonitorElement* TrackCandTheta;
         MonitorElement* TrackCandQ;
         MonitorElement* TrackCandDxy;
         MonitorElement* TrackCandDz;
@@ -96,6 +97,7 @@ class TrackBuildingAnalyzer
 	bool doAllPlots;
 	bool doAllSeedPlots;
 	bool doTCPlots;
+	bool doAllTCPlots;
        	bool doPT;
 	bool doETA;
 	bool doPHI;
