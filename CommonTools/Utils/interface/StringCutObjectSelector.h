@@ -10,6 +10,7 @@
 #include "CommonTools/Utils/src/SelectorPtr.h"
 #include "CommonTools/Utils/src/SelectorBase.h"
 #include "CommonTools/Utils/interface/cutParser.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 
 #include "CommonTools/Utils/interface/ExpressionEvaluator.h"
@@ -17,13 +18,14 @@
 
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 #include <string>
 #include <cctype>
 
-std::string demangle(const char* name);
+inline std::string demangle(const char* name);
 
 template <class T>
-std::string FriendlyType() {
+inline std::string FriendlyType() {
 
     return demangle(typeid(T).name());
 }
@@ -59,17 +61,22 @@ struct StringCutObjectSelector {
   type_(typeid(T)) {
     
     
-    const std::string the_obj_type(FriendlyType<T>());
-    const std::string the_cut_type(FriendlyType<CutType>());
+    edm::TypeID the_obj_type(typeid(T));
+    edm::TypeID the_cut_type(typeid(CutType));
 
     std::stringstream func;
 
-    std::cout << " building a cut for: " << the_cut_type << " with cut: \"" << cut << "\"" << std::endl;
-
-    const bool whiteSpacesOnly = std::all_of(cut.begin(),cut.end(),isspace);
-
-
-    func << "bool test_bit(unsigned bits, unsigned ibit) const { return 0x1&(bits >> ibit); }\n";
+    std::cout << " building a cut for: " << the_cut_type.className() << " with cut: \"" << cut << "\"" << std::endl;
+    
+    bool whiteSpacesOnly = true;
+    for( auto chr : cut ) {
+      if( !isspace(chr) ) {
+        whiteSpacesOnly = false;
+        break;
+      }
+    }
+    
+    func << "static bool test_bit(unsigned bits, unsigned ibit) { return 0x1&(bits >> ibit); }\n";
     func << std::endl;
     func << "bool eval(" << the_obj_type << " const& cand) const override final {\n";
     func << " return ( " << (!whiteSpacesOnly ? cut : "true") << " );\n";
@@ -79,7 +86,7 @@ struct StringCutObjectSelector {
 
     std::cout << strexpr << std::endl;
 
-    reco::ExpressionEvaluator builder("CommonTools/CandUtils",the_cut_type.c_str(),strexpr.c_str());
+    reco::ExpressionEvaluator builder("CommonTools/CandUtils",the_cut_type.className().c_str(),strexpr.c_str());
     std::cout << "made the builder" << std::endl;
     expr_select_ = builder.expr<CutType>();
     std::cout << "made the expression" << std::endl;

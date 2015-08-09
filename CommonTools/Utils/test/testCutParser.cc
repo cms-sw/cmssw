@@ -129,7 +129,7 @@ void testCutParser::checkAll() {
   check( "cand.pt() < 2", false );
   check( "cand.pt() >= 2", true );
   check( "cand.pt() <= 2", false );
-  check( "cand.pt() = 3", true );
+  check( "cand.pt() == 3", true );
   check( "cand.pt() == 3", true );
   check( "cand.pt() != 3", false );
   check( "! cand.pt() == 3", false );

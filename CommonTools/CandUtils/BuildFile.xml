@@ -1,4 +1,6 @@
 <use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="clhep"/>
 <export>
   <lib   name="1"/>
 </export>
