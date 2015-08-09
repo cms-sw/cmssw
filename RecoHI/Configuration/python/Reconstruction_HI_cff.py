@@ -42,6 +42,7 @@ globalRecoPbPb = cms.Sequence(hiTracking
                               * hiClusterCompatibility
                               * hiEvtPlane
                               * hcalnoise
+                              * muonRecoHighLevelPbPb
                               )
 
 globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
@@ -56,6 +57,7 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               * hiClusterCompatibility
                                               * hiEvtPlane
                                               * hcalnoise
+                                              * muonRecoHighLevelPbPb
                                               )
 
 #--------------------------------------------------------------------------
