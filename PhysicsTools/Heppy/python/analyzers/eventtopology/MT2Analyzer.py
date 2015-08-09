@@ -38,6 +38,7 @@ class MT2Analyzer( Analyzer ):
         super(MT2Analyzer, self).declareHandles()
        #genJets                                                                                                                                                                     
         self.handles['genJets'] = AutoHandle( 'slimmedGenJets','std::vector<reco::GenJet>')
+        self.handles['met'] = AutoHandle( self.cfg_ana.metCollection, 'std::vector<pat::MET>' )
 
     def beginLoop(self, setup):
         super(MT2Analyzer,self).beginLoop(setup)
@@ -59,7 +60,7 @@ class MT2Analyzer( Analyzer ):
 
         return davismt2.get_mt2()
 
-    def getMT2AKT(self, event, TMPobjects40jc, met , postFix):
+    def getMT2AKT(self, event, TMPobjects40jc, met , collectionPostFix, postFix):
 
 #### get hemispheres via AntiKT -1 antikt, 1 kt, 0 CA
         if len(TMPobjects40jc)>=2:
@@ -72,20 +73,22 @@ class MT2Analyzer( Analyzer ):
             groupingViaKt=hemisphereViaKt.getGroupingExclusive(2)
 
             if len(groupingViaKt)>=2:
-                setattr(event, "pseudoViaKtJet1"+postFix, ROOT.reco.Particle.LorentzVector(groupingViaKt[0]) )
-                setattr(event, "pseudoViaKtJet2"+postFix, ROOT.reco.Particle.LorentzVector(groupingViaKt[1]) )
-                return self.computeMT2(getattr(event,'pseudoViaKtJet1'+postFix), getattr(event,'pseudoViaKtJet2'+postFix), met)
+                setattr(event, "pseudoViaKtJet1"+collectionPostFix+postFix, ROOT.reco.Particle.LorentzVector(groupingViaKt[0]) )
+                setattr(event, "pseudoViaKtJet2"+collectionPostFix+postFix, ROOT.reco.Particle.LorentzVector(groupingViaKt[1]) )
+                setattr(event, "mt2ViaAKt"+collectionPostFix+postFix, self.computeMT2(getattr(event,'pseudoViaKtJet1'+collectionPostFix+postFix), getattr(event,'pseudoViaKtJet2'+collectionPostFix+postFix), met) )
+                return self.computeMT2(getattr(event,'pseudoViaKtJet1'+collectionPostFix+postFix), getattr(event,'pseudoViaKtJet2'+collectionPostFix+postFix), met)
 
             if not self.cfg_ana.doOnlyDefault:
                 hemisphereViaAKt = ReclusterJets(objects, -1.,50.0)
                 groupingViaAKt=hemisphereViaAKt.getGroupingExclusive(2)
 
                 if len(groupingViaAKt)>=2:
-                    setattr(event, "pseudoViaAKtJet1"+postFix, ROOT.reco.Particle.LorentzVector(groupingViaAKt[0]) )
-                    setattr(event, "pseudoViaAKtJet2"+postFix, ROOT.reco.Particle.LorentzVector(groupingViaAKt[1]) )
-                    setattr(event, "mt2ViaAKt"+postFix, self.computeMT2(getattr(event,'pseudoViaAKtJet1'+postFix), getattr(event,'pseudoViaAKtJet2'+postFix), met) )
+                    setattr(event, "pseudoViaAKtJet1"+collectionPostFix+postFix, ROOT.reco.Particle.LorentzVector(groupingViaAKt[0]) )
+                    setattr(event, "pseudoViaAKtJet2"+collectionPostFix+postFix, ROOT.reco.Particle.LorentzVector(groupingViaAKt[1]) )
+                    setattr(event, "mt2ViaAKt"+collectionPostFix+postFix, self.computeMT2(getattr(event,'pseudoViaAKtJet1'+collectionPostFix+postFix), getattr(event,'pseudoViaAKtJet2'+collectionPostFix+postFix), met) )
+                    return self.computeMT2(getattr(event,'pseudoViaAKtJet1'+collectionPostFix+postFix), getattr(event,'pseudoViaAKtJet2'+collectionPostFix+postFix), met)
 
-    def getMT2Hemi(self, event, TMPobjects40jc, met, postFix):
+    def getMT2Hemi(self, event, TMPobjects40jc, met, collectionPostFix, postFix):
 
         if len(TMPobjects40jc)>=2:
 
@@ -134,65 +137,92 @@ class MT2Analyzer( Analyzer ):
             pseudoJet2pt2 = pseudoJet2px*pseudoJet2px + pseudoJet2py*pseudoJet2py
 
             if pseudoJet1pt2 >= pseudoJet2pt2:
-                setattr(event, "pseudoJet1"+postFix, ROOT.reco.Particle.LorentzVector( pseudoJet1px, pseudoJet1py, pseudoJet1pz, pseudoJet1energy ))
-                setattr(event, "pseudoJet2"+postFix, ROOT.reco.Particle.LorentzVector( pseudoJet2px, pseudoJet2py, pseudoJet2pz, pseudoJet2energy ))
-                setattr(event, "multPseudoJet1"+postFix, multPSJ1 )
-                setattr(event, "multPseudoJet2"+postFix, multPSJ2 )
+                setattr(event, "pseudoJet1"+collectionPostFix+postFix, ROOT.reco.Particle.LorentzVector( pseudoJet1px, pseudoJet1py, pseudoJet1pz, pseudoJet1energy ))
+                setattr(event, "pseudoJet2"+collectionPostFix+postFix, ROOT.reco.Particle.LorentzVector( pseudoJet2px, pseudoJet2py, pseudoJet2pz, pseudoJet2energy ))
+                setattr(event, "multPseudoJet1"+collectionPostFix+postFix, multPSJ1 )
+                setattr(event, "multPseudoJet2"+collectionPostFix+postFix, multPSJ2 )
             else:
-                setattr(event, "pseudoJet2"+postFix, ROOT.reco.Particle.LorentzVector( pseudoJet1px, pseudoJet1py, pseudoJet1pz, pseudoJet1energy ))
-                setattr(event, "pseudoJet1"+postFix, ROOT.reco.Particle.LorentzVector( pseudoJet2px, pseudoJet2py, pseudoJet2pz, pseudoJet2energy ))
-                setattr(event, "multPseudoJet1"+postFix, multPSJ2 )
-                setattr(event, "multPseudoJet2"+postFix, multPSJ1 )
+                setattr(event, "pseudoJet2"+collectionPostFix+postFix, ROOT.reco.Particle.LorentzVector( pseudoJet1px, pseudoJet1py, pseudoJet1pz, pseudoJet1energy ))
+                setattr(event, "pseudoJet1"+collectionPostFix+postFix, ROOT.reco.Particle.LorentzVector( pseudoJet2px, pseudoJet2py, pseudoJet2pz, pseudoJet2energy ))
+                setattr(event, "multPseudoJet1"+collectionPostFix+postFix, multPSJ2 )
+                setattr(event, "multPseudoJet2"+collectionPostFix+postFix, multPSJ1 )
 
-            return self.computeMT2(getattr(event,'pseudoJet1'+postFix), getattr(event,'pseudoJet2'+postFix), met)
+            setattr(event, "mt2"+collectionPostFix+postFix, self.computeMT2(getattr(event,'pseudoJet1'+collectionPostFix+postFix), getattr(event,'pseudoJet2'+collectionPostFix+postFix), met) )
+            return self.computeMT2(getattr(event,'pseudoJet1'+collectionPostFix+postFix), getattr(event,'pseudoJet2'+collectionPostFix+postFix), met)
 
 
     def makeMT2(self, event):
 #        print '==> INSIDE THE PRINT MT2'
 #        print 'MET=',event.met.pt()
 
+        self.met = ROOT.pat.MET(self.handles['met'].product()[0])
+
         import array
         import numpy
-
 
         objects40jc = [ j for j in event.cleanJets if j.pt() > 40 and abs(j.eta())<2.5 ]
         objectsXjc = [ j for j in event.cleanJets if j.pt() > self.jetPt and abs(j.eta())<2.5 ]
 
+        setattr(event, "mt2ViaKt"+self.cfg_ana.collectionPostFix+"had", -999)
+        setattr(event, "mt2ViaKt"+self.cfg_ana.collectionPostFix+"_Xj_had", -999)
+        setattr(event, "pseudoViaKtJet1"+self.cfg_ana.collectionPostFix+"_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoViaKtJet2"+self.cfg_ana.collectionPostFix+"_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoViaKtJet1"+self.cfg_ana.collectionPostFix+"_Xj_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoViaKtJet2"+self.cfg_ana.collectionPostFix+"_Xj_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+
+        setattr(event, "mt2ViaAKt"+self.cfg_ana.collectionPostFix+"had", -999)
+        setattr(event, "mt2ViaAKt"+self.cfg_ana.collectionPostFix+"_Xj_had", -999)
+        setattr(event, "pseudoViaAKtJet1"+self.cfg_ana.collectionPostFix+"_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoViaAKtJet2"+self.cfg_ana.collectionPostFix+"_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoViaAKtJet1"+self.cfg_ana.collectionPostFix+"_Xj_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoViaAKtJet2"+self.cfg_ana.collectionPostFix+"_Xj_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+
 #### get hemispheres via AntiKT -1 antikt, 1 kt, 0 CA
         if len(objects40jc)>=2:
 
-            event.mt2ViaKt_had=self.getMT2AKT(event, objects40jc, event.met, "_had")
+            self.mt2ViaKt_had=self.getMT2AKT(event, objects40jc, self.met, self.cfg_ana.collectionPostFix, "_had")
 
         if len(objectsXjc)>=2:
 
-            event.mt2ViaKt_Xj_had=self.getMT2AKT(event, objectsXjc, event.met, "_Xj_had")
+            self.mt2ViaKt_Xj_had=self.getMT2AKT(event, objectsXjc, self.met, self.cfg_ana.collectionPostFix, "_Xj_had")
 
 ## ===> hadronic MT2 (as used in the SUS-13-019)
 #### get hemispheres (seed 2: max inv mass, association method: default 3 = minimal lund distance)
 
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_had", -999)
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_Xj_had", -999)
+
+        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_Xj_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_Xj_had", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+
         if len(objects40jc)>=2:
 
-            event.mt2_had = self.getMT2Hemi(event,objects40jc, event.met, "_had")
+            self.mt2_had = self.getMT2Hemi(event,objects40jc, self.met, self.cfg_ana.collectionPostFix, "_had")
 
         if len(objectsXjc)>=2:
 
-            event.mt2_Xj_had = self.getMT2Hemi(event,objectsXjc, event.met, "_Xj_had")
+            self.mt2_Xj_had = self.getMT2Hemi(event,objectsXjc, self.met, self.cfg_ana.collectionPostFix, "_Xj_had")
 
 #### do same things for GEN
 
-        if self.cfg_comp.isMC and event.met.genMET():
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_gen", -999)
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_Xj_gen", -999)
+
+        if self.cfg_comp.isMC and self.met.genMET():
             allGenJets = [ x for x in self.handles['genJets'].product() ] 
             objects40jc_Gen = [ j for j in allGenJets if j.pt() > 40 and abs(j.eta())<2.5 ]
             objectsXjc_Gen = [ j for j in allGenJets if j.pt() > self.jetPt and abs(j.eta())<2.5 ]
 
             if len(objects40jc_Gen)>=2:
-                event.mt2_gen = self.getMT2Hemi(event,objects40jc_Gen, event.met.genMET(), "_gen")
+                self.mt2_gen = self.getMT2Hemi(event,objects40jc_Gen, self.met.genMET(), self.cfg_ana.collectionPostFix, "_gen")
 
             if len(objectsXjc_Gen)>=2:
-                event.mt2_Xj_gen = self.getMT2Hemi(event,objectsXjc_Gen, event.met.genMET(), "_Xj_gen")
+                self.mt2_Xj_gen = self.getMT2Hemi(event,objectsXjc_Gen, self.met.genMET(), self.cfg_ana.collectionPostFix, "_Xj_gen")
 
         else:
-            event.mt2_gen = -999.
+            self.mt2_gen = -999.
 
             
 ## ===> full MT2 (jets + leptons)
@@ -207,19 +237,28 @@ class MT2Analyzer( Analyzer ):
         objectsXj10lc = objectsXjc + objects10lc
         objectsXj10lc.sort(key = lambda obj : obj.pt(), reverse = True)
 
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"", -999)
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_Xj", -999)
+
+        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_Xj", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_Xj", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+
         if len(objects40j10lc)>=2:
 
-            event.mt2 = self.getMT2Hemi(event,objects40j10lc,event.met,"") # no postfit since this is the nominal MT2
+            self.mt2 = self.getMT2Hemi(event,objects40j10lc,self.met,self.cfg_ana.collectionPostFix,"") # no postfit since this is the nominal MT2
 
         if len(objectsXj10lc)>=2:
 
-            event.mt2_Xj = self.getMT2Hemi(event,objectsXj10lc,event.met,"_Xj") # no postfit since this is the nominal MT2
+            self.mt2_Xj = self.getMT2Hemi(event,objectsXj10lc,self.met,self.cfg_ana.collectionPostFix,"_Xj") # no postfit since this is the nominal MT2
 
 ## ===> full gamma_MT2
 
-        event.gamma_mt2=-999
-        event.pseudoJet1_gamma  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoJet2_gamma  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_gamma", -999)
+
+        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_gamma", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_gamma", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
             
         if hasattr(event, 'gamma_met'):
 
@@ -232,11 +271,11 @@ class MT2Analyzer( Analyzer ):
 ##        if len(gamma_objects40j10lc)>=2:
             if len(gamma_objects40jc)>=2:
                 
-                event.gamma_mt2 = self.getMT2Hemi(event,gamma_objects40jc,event.gamma_met,"_gamma")
+                self.gamma_mt2 = self.getMT2Hemi(event,gamma_objects40jc,event.gamma_met,self.cfg_ana.collectionPostFix,"_gamma")
 
-        event.gamma_mt2_Xj=-999
-        event.pseudoJet1_Xj_gamma  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoJet2_Xj_gamma  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_Xj_gamma", -999)
+        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_Xj_gamma", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_Xj_gamma", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
             
         if hasattr(event, 'gamma_met'):
 
@@ -248,15 +287,15 @@ class MT2Analyzer( Analyzer ):
             
             if len(gamma_objectsXjc)>=2:
                 
-                event.gamma_mt2_Xj = self.getMT2Hemi(event,gamma_objectsXjc,event.gamma_met,"_Xj_gamma")
+                self.gamma_mt2_Xj = self.getMT2Hemi(event,gamma_objectsXjc,event.gamma_met,self.cfg_ana.collectionPostFix,"_Xj_gamma")
 
 
 
 ## ===> zll_MT2
         
-        event.zll_mt2=-999
-        event.pseudoJet1_zll  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoJet2_zll  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_zll", -999)
+        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_zll", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_zll", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
                 
         if hasattr(event, 'zll_met'):
 
@@ -264,95 +303,66 @@ class MT2Analyzer( Analyzer ):
             
             if len(csLeptons)==2 and len(objects40jc)>=2:
             
-                event.zll_mt2 = self.getMT2Hemi(event,objects40jc,event.zll_met,"_zll")
+                self.zll_mt2 = self.getMT2Hemi(event,objects40jc,event.zll_met,self.cfg_ana.collectionPostFix,"_zll")
 
-        event.zll_mt2_Xj=-999
-        event.pseudoJet1_Xj_zll  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoJet2_Xj_zll  = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-                
+        setattr(event, "mt2"+self.cfg_ana.collectionPostFix+"_Xj_zll", -999)
+        setattr(event, "pseudoJet1"+self.cfg_ana.collectionPostFix+"_Xj_zll", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+        setattr(event, "pseudoJet2"+self.cfg_ana.collectionPostFix+"_Xj_zll", ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 ))
+
         if hasattr(event, 'zll_met'):
 
             csLeptons = [ l for l in event.selectedLeptons if l.pt() > 10 and abs(l.eta()) < 2.5 ]
             
             if len(csLeptons)==2 and len(objectsXjc)>=2:
             
-                event.zll_mt2_Xj = self.getMT2Hemi(event,objectsXjc,event.zll_met,"_Xj_zll")
+                self.zll_mt2_Xj = self.getMT2Hemi(event,objectsXjc,event.zll_met,self.cfg_ana.collectionPostFix,"_Xj_zll")
 
 
 #### do the mt2 with one or two b jets (medium CSV)                                                                                                                                                                                                         
         if len(event.bjetsMedium)>=2:
 
-           event.mt2bb = self.computeMT2(event.bjetsMedium[0], event.bjetsMedium[1], event.met)
-           event.mt2bb_Xj = self.computeMT2(event.bjetsMedium[0], event.bjetsMedium[1], event.met)
+           event.mt2bb = self.computeMT2(event.bjetsMedium[0], event.bjetsMedium[1], self.met)
+           event.mt2bb_Xj = self.computeMT2(event.bjetsMedium[0], event.bjetsMedium[1], self.met)
 #            print 'MT2bb(2b)',event.mt2bb                                                                                                                                                                                                                 
         if len(event.bjetsMedium)==1:
 
             objects40jcCSV = [ j for j in event.cleanJets if j.pt() > 40 and abs(j.eta())<2.5 and j.p4()!=event.bjetsMedium[0].p4() ]
-            objects40jcCSV.sort(key = lambda l : l.btag('combinedInclusiveSecondaryVertexV2BJetTags'), reverse = True)
+            objects40jcCSV.sort(key = lambda l : l.btag('pfCombinedInclusiveSecondaryVertexV2BJetTags'), reverse = True)
 
             objectsXjcCSV = [ j for j in event.cleanJets if j.pt() > self.jetPt and abs(j.eta())<2.5 and j.p4()!=event.bjetsMedium[0].p4() ]
-            objectsXjcCSV.sort(key = lambda l : l.btag('combinedInclusiveSecondaryVertexV2BJetTags'), reverse = True)
+            objectsXjcCSV.sort(key = lambda l : l.btag('pfCombinedInclusiveSecondaryVertexV2BJetTags'), reverse = True)
 
             if len(objects40jcCSV)>0:
-                event.mt2bb = self.computeMT2(event.bjetsMedium[0], objects40jcCSV[0], event.met)
+                self.mt2bb = self.computeMT2(event.bjetsMedium[0], objects40jcCSV[0], self.met)
+                setattr(event, "mt2bb"+self.cfg_ana.collectionPostFix, self.mt2bb)
 
             if len(objectsXjcCSV)>0:
-                event.mt2bb_Xj = self.computeMT2(event.bjetsMedium[0], objectsXjcCSV[0], event.met)
+                self.mt2bb_Xj = self.computeMT2(event.bjetsMedium[0], objectsXjcCSV[0], self.met)
+                setattr(event, "mt2bb_Xj"+self.cfg_ana.collectionPostFix, self.mt2bb_Xj)
 
-##                print 'MT2bb(1b)',event.mt2bb                                                                                                                                                                                                             
+##                print 'MT2bb(1b)',event.mt2bb
 
 ## ===> leptonic MT2 (as used in the SUS-13-025 )                                                                                                                                                                                                           
         if not self.cfg_ana.doOnlyDefault:
             if len(event.selectedLeptons)>=2:
-                event.mt2lep = self.computeMT2(event.selectedLeptons[0], event.selectedLeptons[1], event.met)
+                self.mt2lep = self.computeMT2(event.selectedLeptons[0], event.selectedLeptons[1], self.met)
+                setattr(event, "mt2lep"+self.cfg_ana.collectionPostFix, self.mt2lep)
 
 ###
 
     def process(self, event):
         self.readCollections( event.input )
 
-        event.mt2_gen=-999
         event.mt2bb=-999
+        event.mt2bb_Xj=-999
         event.mt2lept=-999        
 
-        event.mt2_had=-999
-        event.pseudoJet1_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoJet2_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
         event.multPseudoJet1_had=0
         event.multPseudoJet2_had=0
         
-        event.mt2=-999
-        event.pseudoJet1 = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoJet2 = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-
-        event.mt2ViaKt_had=-999
-        event.mt2ViaAKt_had=-999
-        event.pseudoViaKtJet1_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoViaKtJet2_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoViaAKtJet1_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoViaAKtJet2_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-
-        event.mt2_Xj_gen=-999
-        event.mt2bb_Xj=-999
-
-        event.mt2_Xj_had=-999
-        event.pseudoJet1_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoJet2_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
         event.multPseudoJet1_Xj_had=0
         event.multPseudoJet2_Xj_had=0
-        
-        event.mt2_Xj=-999
-        event.pseudoJet1_Xj = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoJet2_Xj = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-
-        event.mt2ViaKt_Xj_had=-999
-        event.mt2ViaAKt_Xj_had=-999
-        event.pseudoViaKtJet1_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoViaKtJet2_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoViaAKtJet1_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-        event.pseudoViaAKtJet2_Xj_had = ROOT.reco.Particle.LorentzVector( 0, 0, 0, 0 )
-
-
+ 
         ###
 
         self.makeMT2(event)
@@ -367,6 +377,8 @@ class MT2Analyzer( Analyzer ):
 
 setattr(MT2Analyzer,"defaultConfig", cfg.Analyzer(
     class_object = MT2Analyzer,
+    metCollection     = "slimmedMETs",
+    collectionPostFix = "",
     doOnlyDefault = True,
     )
 )
