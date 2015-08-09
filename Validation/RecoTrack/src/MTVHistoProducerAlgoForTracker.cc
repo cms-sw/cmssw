@@ -591,26 +591,31 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 double dR,
 									 const math::XYZPoint *pvPosition){
   bool isMatched = track;
-  auto const nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
+  const auto eta = getEta(momentumTP.eta());
+  const auto phi = momentumTP.phi();
+  const auto pt = getPt(sqrt(momentumTP.perp2()));
+  const auto nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
+  const auto vertxy = sqrt(vertexTP.perp2());
+  const auto vertz = vertexTP.z();
 
   if((*TpSelectorForEfficiencyVsEta)(tp)){
     //effic vs eta
-    fillPlotNoFlow(h_simuleta[count],getEta(momentumTP.eta()));
-    if (isMatched) fillPlotNoFlow(h_assoceta[count],getEta(momentumTP.eta()));
+    fillPlotNoFlow(h_simuleta[count], eta);
+    if (isMatched) fillPlotNoFlow(h_assoceta[count], eta);
     //effic vs hits
-    fillPlotNoFlow(h_simulhit[count],(int)nSimHits);
+    fillPlotNoFlow(h_simulhit[count], nSimHits);
     fillPlotNoFlow(h_simullayer[count], nSimLayers);
     fillPlotNoFlow(h_simulpixellayer[count], nSimPixelLayers);
     fillPlotNoFlow(h_simul3Dlayer[count], nSim3DLayers);
     if(isMatched) {
-      fillPlotNoFlow(h_assochit[count],(int)nSimHits);
+      fillPlotNoFlow(h_assochit[count], nSimHits);
       fillPlotNoFlow(h_assoclayer[count], nSimLayers);
       fillPlotNoFlow(h_assocpixellayer[count], nSimPixelLayers);
       fillPlotNoFlow(h_assoc3Dlayer[count], nSim3DLayers);
       nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
     }
     //effic vs pu
-    fillPlotNoFlow(h_simulpu[count],(int)numVertices);
+    fillPlotNoFlow(h_simulpu[count], numVertices);
     if(isMatched) fillPlotNoFlow(h_assocpu[count],numVertices);
     //efficiency vs dR
     fillPlotNoFlow(h_simuldr[count],dR);
@@ -618,13 +623,13 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
   }
 
   if((*TpSelectorForEfficiencyVsPhi)(tp)){
-    fillPlotNoFlow(h_simulphi[count],momentumTP.phi());
-    if (isMatched) fillPlotNoFlow(h_assocphi[count],momentumTP.phi());
+    fillPlotNoFlow(h_simulphi[count], phi);
+    if (isMatched) fillPlotNoFlow(h_assocphi[count], phi);
   }
 
   if((*TpSelectorForEfficiencyVsPt)(tp)){
-    fillPlotNoFlow(h_simulpT[count],getPt(sqrt(momentumTP.perp2())));
-    if (isMatched) fillPlotNoFlow(h_assocpT[count],getPt(sqrt(momentumTP.perp2())));
+    fillPlotNoFlow(h_simulpT[count], pt);
+    if (isMatched) fillPlotNoFlow(h_assocpT[count], pt);
   }
 
   if((*TpSelectorForEfficiencyVsVTXR)(tp)){
@@ -635,8 +640,8 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
       if (isMatched) fillPlotNoFlow(h_assocdxypv[count], dxyPVSim);
     }
 
-    fillPlotNoFlow(h_simulvertpos[count],sqrt(vertexTP.perp2()));
-    if (isMatched) fillPlotNoFlow(h_assocvertpos[count],sqrt(vertexTP.perp2()));
+    fillPlotNoFlow(h_simulvertpos[count], vertxy);
+    if (isMatched) fillPlotNoFlow(h_assocvertpos[count], vertxy);
   }
 
 
@@ -644,29 +649,29 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     fillPlotNoFlow(h_simuldz[count],dzSim);
     if (isMatched) fillPlotNoFlow(h_assocdz[count],dzSim);
 
-    fillPlotNoFlow(h_simulzpos[count],vertexTP.z());
-    if (isMatched) fillPlotNoFlow(h_assoczpos[count],vertexTP.z());
+    fillPlotNoFlow(h_simulzpos[count], vertz);
+    if (isMatched) fillPlotNoFlow(h_assoczpos[count], vertz);
 
     if(pvPosition) {
       fillPlotNoFlow(h_simuldzpv[count], dzPVSim);
 
       h_simul_dzpvcut[count]->Fill(0);
       h_simul_dzpvsigcut[count]->Fill(0);
-      h_simul_dzpvcut_pt[count]->Fill(0, getPt(sqrt(momentumTP.perp2())));
-      h_simul_dzpvsigcut_pt[count]->Fill(0, getPt(sqrt(momentumTP.perp2())));
+      h_simul_dzpvcut_pt[count]->Fill(0, pt);
+      h_simul_dzpvsigcut_pt[count]->Fill(0, pt);
       if(isMatched) {
         fillPlotNoFlow(h_assocdzpv[count], dzPVSim);
 
         h_simul2_dzpvcut[count]->Fill(0);
         h_simul2_dzpvsigcut[count]->Fill(0);
-        h_simul2_dzpvcut_pt[count]->Fill(0, getPt(sqrt(momentumTP.perp2())));
-        h_simul2_dzpvsigcut_pt[count]->Fill(0, getPt(sqrt(momentumTP.perp2())));
+        h_simul2_dzpvcut_pt[count]->Fill(0, pt);
+        h_simul2_dzpvsigcut_pt[count]->Fill(0, pt);
         const double dzpvcut = std::abs(track->dz(*pvPosition));
         const double dzpvsigcut = dzpvcut / track->dzError();
         h_assoc_dzpvcut[count]->Fill(dzpvcut);
         h_assoc_dzpvsigcut[count]->Fill(dzpvsigcut);
-        h_assoc_dzpvcut_pt[count]->Fill(dzpvcut, getPt(sqrt(momentumTP.perp2())));
-        h_assoc_dzpvsigcut_pt[count]->Fill(dzpvsigcut, getPt(sqrt(momentumTP.perp2())));
+        h_assoc_dzpvcut_pt[count]->Fill(dzpvcut, pt);
+        h_assoc_dzpvsigcut_pt[count]->Fill(dzpvsigcut, pt);
       }
     }
   }
