@@ -293,7 +293,7 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
 
     updateChirp("LastUpdate", now);
 
-    if (m_events > m_lastEventCount)
+    if (!m_events || (m_events > m_lastEventCount))
     {
         updateChirp("Events", m_events);
     }
