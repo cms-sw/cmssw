@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
 def miniAOD_customizeCommon(process):
+    #slimmed pileup information
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedAddPileupInfo_cfi')
+
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
     process.patTaus.isoDeposits = cms.PSet()
