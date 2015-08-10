@@ -121,7 +121,7 @@ DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
 DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
 
-HLTMonitoring = cms.Sequence(sistripMonitorHLTsequence*trackingMonitorHLT)
+HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
                                                                  
 DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence * jetMETDQMOfflineSourceMiniAOD  )
 
