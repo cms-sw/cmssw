@@ -55,8 +55,11 @@ class GBRForestWriter : public edm::EDAnalyzer
       if ( inputFileType_ == kXML ) {
 	inputVariables_ = cfg.getParameter<vstring>("inputVariables");
 	spectatorVariables_ = cfg.getParameter<vstring>("spectatorVariables");
+        methodName_ = cfg.getParameter<std::string>("methodName");
+        gbrForestName_ = ( cfg.existsAs<std::string>("gbrForestName") ? cfg.getParameter<std::string>("gbrForestName") : methodName_ );
       }
-      gbrForestName_ = cfg.getParameter<std::string>("gbrForestName");
+      else
+        gbrForestName_ = cfg.getParameter<std::string>("gbrForestName");
     }
     ~categoryEntryType() {}
     std::string inputFileName_;
@@ -65,6 +68,7 @@ class GBRForestWriter : public edm::EDAnalyzer
     vstring inputVariables_;
     vstring spectatorVariables_;
     std::string gbrForestName_;
+    std::string methodName_;
   };
   struct jobEntryType
   {
