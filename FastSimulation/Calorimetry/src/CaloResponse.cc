@@ -29,23 +29,6 @@ CaloResponse::CaloResponse( const edm::ParameterSet& pset )
 }
 
 
-float CaloResponse::getScale( const RawParticle& particleAtEcalEntrance,
-    const std::map<CaloHitID,float>& hitMap ) const
-{
-
-  double simE = 0; // total simulated energy for this particle
-  for( auto mapIterator : hitMap ) {
-    simE += mapIterator.second;
-  }
-
-  float genEta = std::abs( particleAtEcalEntrance.eta() );
-  float genE = particleAtEcalEntrance.e();
-
-  return getScale( genE, genEta, simE );
-
-}
-
-
 float CaloResponse::getScale( float genE, float genEta, float simE ) const
 {
 
