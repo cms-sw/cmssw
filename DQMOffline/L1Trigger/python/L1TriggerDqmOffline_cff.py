@@ -68,7 +68,7 @@ l1TriggerOffline = cms.Sequence(
 #
  
 l1TriggerEmulatorOnline = cms.Sequence(
-                                l1HwStage1ValEmulatorMonitor
+                                l1Stage1HwValEmulatorMonitor
                                 * dqmEnvL1TEMU
                                 )
 
