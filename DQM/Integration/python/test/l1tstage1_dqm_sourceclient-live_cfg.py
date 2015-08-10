@@ -25,7 +25,7 @@ process.load("DQM.Integration.test.inputsource_cfi")
  
 #
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.dqmEnv.subSystemFolder = 'L1T'
+process.dqmEnv.subSystemFolder = 'L1TStage1'
 
 #
 process.load("DQM.Integration.test.environment_cfi")
