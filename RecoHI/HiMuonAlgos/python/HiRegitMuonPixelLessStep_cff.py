@@ -77,9 +77,12 @@ hiRegitMuPixelLessStepTracks                 = RecoTracker.IterativeTracking.Pix
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 import RecoHI.HiTracking.hiMultiTrackSelector_cfi
-hiRegitMuPixelLessStepSelector               = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone( 
+hiRegitMuPixelLessStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 ='hiRegitMuPixelLessStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('HIMVASelectorIter7'),
+    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
     trackSelectors = cms.VPSet(  
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuPixelLessStepLoose',
