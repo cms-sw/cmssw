@@ -34,6 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
@@ -189,8 +190,8 @@ class ApeEstimator : public edm::EDAnalyzer {
       std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
       TrackerDetectorStruct tkDetector_;
       
-      edm::EDGetTokenT<TrajTrackAssociationCollection> tjTag_;
-      edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
+      edm::EDGetTokenT<TrajTrackAssociationCollection> tjTagToken_;
+      edm::EDGetTokenT<reco::BeamSpot> offlinebeamSpot_;
       
       
       std::map<unsigned int, std::pair<double,double> > m_resErrBins_;
@@ -226,8 +227,8 @@ class ApeEstimator : public edm::EDAnalyzer {
 //
 ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig):
 parameterSet_(iConfig),
-tjTag_(consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
-beamSpot_(consumes<reco::BeamSpot>(parameterSet_.getParameter<edm::InputTag>("offlineBeamSpot"))),
+tjTagToken_(consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
+offlinebeamSpot_(consumes<reco::BeamSpot>(<edm::InputTag>("offlineBeamSpot"))),
 trackCut_(false), maxTracksPerEvent_(parameterSet_.getParameter<unsigned int>("maxTracksPerEvent")),
 minGoodHitsPerTrack_(parameterSet_.getParameter<unsigned int>("minGoodHitsPerTrack")),
 analyzerMode_(parameterSet_.getParameter<bool>("analyzerMode")),
@@ -1300,11 +1301,6 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
     edm::ESHandle<MagneticField> magFieldHandle;
     iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
    
-
-
-
-
- 
     edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
     iSetup.get<SiStripLorentzAngleDepRcd>().get(lorentzAngleHandle);  //MODIFIED BY LOIC QUERTENMONT
 
@@ -2169,8 +2165,7 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    reco::BeamSpot beamSpot;
    edm::Handle<reco::BeamSpot> beamSpotHandle;
-   //~ iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
-   iEvent.getByToken(beamSpot_, beamSpotHandle);
+   iEvent.getByToken(offlinebeamSpot_, beamSpotHandle);
    
    if (beamSpotHandle.isValid()){
      beamSpot = *beamSpotHandle;
@@ -2182,9 +2177,7 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      return;
    }
       
-   //~ edm::InputTag tjTag = parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag");
    edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-   //~ iEvent.getByLabel(tjTag, m_TrajTracksMap);
    iEvent.getByToken(tjTag_, m_TrajTracksMap);
    
    if(analyzerMode_)tkDetector_.TrkSize->Fill(m_TrajTracksMap->size());
