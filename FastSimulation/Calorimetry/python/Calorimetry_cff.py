@@ -8,18 +8,11 @@ from FastSimulation.Calorimetry.HcalResponse_cfi import *
 from FastSimulation.Calorimetry.HSParameters_cfi import *
 #from FastSimulation.Configuration.CommonInputs_cff import *
 
-ECALScaleBlock = cms.PSet(
-    ECALResponceScalingParameters = cms.PSet(
-        doScalig = cms.bool( False ),
-        fileName = cms.untracked.string("FastSimulation/Calorimetry/data/scaleECALFastsim.root"),
-        histogramName = cms.untracked.string("scaleVsEVsEta")
-    )
-)
-
+from FastSimulation.Calorimetry.ECALResponse_cfi import *
 
 FamosCalorimetryBlock = cms.PSet(
     Calorimetry = cms.PSet(
-        ECALScaleBlock,
+        #ECALScaleBlock, # comment out to disable scaling
         HSParameterBlock,
         HCALResponseBlock,
         ECAL = cms.PSet(
