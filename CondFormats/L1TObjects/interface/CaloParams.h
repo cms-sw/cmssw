@@ -255,7 +255,11 @@ namespace l1t {
     double egMaxPtHOverE() const {return egp_.maxPtHOverE_;}
     l1t::LUT* egMaxHOverELUT() { return &pnode_[egMaxHOverE].LUT_; }
     l1t::LUT* egCompressShapesLUT() { return &pnode_[egCompressShapes].LUT_; }
+
+    std::string egShapeIdType() const { return pnode_[egShapeId].type_; }
+    unsigned egShapeIdVersion() const { return pnode_[egShapeId].version_; }
     l1t::LUT* egShapeIdLUT() { return &pnode_[egShapeId].LUT_; }
+
     int egMinPtJetIsolation() const { return egp_.minPtJetIsolation_; }
     int egMaxPtJetIsolation() const { return egp_.maxPtJetIsolation_; }
     int egMinPtHOverEIsolation() const { return egp_.minPtHOverEIsolation_; }
@@ -268,10 +272,9 @@ namespace l1t {
     const std::vector<double> & egPUSParams() const { return pnode_[egPUS].dparams_; }
     double egPUSParam(int ipar) const { return pnode_[egPUS].dparams_.at(ipar); }
 
-
-
     l1t::LUT* egIsolationLUT() { return &pnode_[egIsolation].LUT_; }
     std::string egCalibrationType() const { return pnode_[egCalibration].type_; }
+    unsigned egCalibrationVersion() const { return pnode_[egCalibration].version_; }
     std::vector<double> egCalibrationParams() { return pnode_[egCalibration].dparams_; }
     l1t::LUT* egCalibrationLUT() { return &pnode_[egCalibration].LUT_; }
 
@@ -284,6 +287,8 @@ namespace l1t {
     void setEgMaxPtHOverE(double thresh) { egp_.maxPtHOverE_ = thresh;}
     void setEgMaxHOverELUT(const l1t::LUT & lut) { pnode_[egMaxHOverE].LUT_ = lut; }
     void setEgCompressShapesLUT(const l1t::LUT & lut) { pnode_[egCompressShapes].LUT_ = lut; }
+    void setEgShapeIdType(std::string type) { pnode_[egShapeId].type_ = type; }
+    void setEgShapeIdVersion(unsigned version) { pnode_[egShapeId].version_ = version; }
     void setEgShapeIdLUT(const l1t::LUT & lut) { pnode_[egShapeId].LUT_ = lut; }
     void setEgMinPtJetIsolation(int cutValue) { egp_.minPtJetIsolation_ = cutValue; }
     void setEgMaxPtJetIsolation(int cutValue) { egp_.maxPtJetIsolation_ = cutValue; }
@@ -297,6 +302,7 @@ namespace l1t {
     void setEgPUSParams(const std::vector<double> & params) { pnode_[egPUS].dparams_ = params; }
     void setEgIsolationLUT(const l1t::LUT & lut) { pnode_[egIsolation].LUT_ = lut; }
     void setEgCalibrationType(std::string type) { pnode_[egCalibration].type_ = type; }
+    void setEgCalibrationVersion(unsigned version) { pnode_[egCalibration].version_ = version; }
     void setEgCalibrationParams(std::vector<double> params) { pnode_[egCalibration].dparams_ = params; }
     void setEgCalibrationLUT(const l1t::LUT & lut) { pnode_[egCalibration].LUT_ = lut; }
 

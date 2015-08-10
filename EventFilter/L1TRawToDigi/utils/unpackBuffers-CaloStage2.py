@@ -29,13 +29,33 @@ options.register('mpOffset',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "MP offset (frames)")
+options.register('mpHeaderFrames',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "MP header frames in tx")
+options.register('mpKeyLinkRx',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "MP packet key link (Rx)")
+options.register('mpKeyLinkTx',
+                 0,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "MP packet key link (Tx)")
+options.register('dmFramesPerEvent',
+                 6,
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Demux frames per event")
 options.register('dmLatency',
                  0,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Demux latency (frames)")
 options.register('dmOffset',
-                 0,
+                 28,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Demux offset (frames)")
@@ -60,7 +80,7 @@ options.register('dump',
                  VarParsing.VarParsing.varType.bool,
                  "Print RAW data")
 options.register('debug',
-                 False,
+                 True,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Enable debug data")
@@ -75,7 +95,7 @@ options.register('doDemux',
                  VarParsing.VarParsing.varType.bool,
                  "Read demux data")
 options.register('doGT',
-                 True,
+                 False,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.bool,
                  "Read GT data")
@@ -156,8 +176,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 # buffer dump to RAW
 process.load('EventFilter.L1TRawToDigi.stage2MP7BufferRaw_cff')
 
-mpOffsets = cms.untracked.vint32()
+# skip events
+dmOffset = options.dmOffset + (options.skipEvents * options.dmFramesPerEvent)
 
+mpOffsets = cms.untracked.vint32()
 for i in range (0,options.nMP):
     offset = options.mpOffset + (options.skipEvents / options.nMP)
     if (i < options.skipEvents % options.nMP):
@@ -185,9 +207,12 @@ if (options.doMP):
 process.stage2MPRaw.nFramesPerEvent    = cms.untracked.int32(options.mpFramesPerEvent)
 process.stage2MPRaw.nFramesOffset    = cms.untracked.vuint32(mpOffsets)
 process.stage2MPRaw.boardOffset    = cms.untracked.int32(boardOffset)
+process.stage2MPRaw.rxKeyLink    = cms.untracked.int32(options.mpKeyLinkRx)
+process.stage2MPRaw.txKeyLink    = cms.untracked.int32(options.mpKeyLinkTx)
 #process.stage2MPRaw.nFramesLatency   = cms.untracked.vuint32(mpLatencies)
-process.stage2MPRaw.rxFile = cms.untracked.string("merge/rx_summary.txt")
-process.stage2MPRaw.txFile = cms.untracked.string("merge/tx_summary.txt")
+process.stage2MPRaw.nHeaderFrames = cms.untracked.int32(options.mpHeaderFrames)
+process.stage2MPRaw.rxFile = cms.untracked.string("mp_rx_summary.txt")
+process.stage2MPRaw.txFile = cms.untracked.string("mp_tx_summary.txt")
 
 # Demux config
 if (options.doDemux):
@@ -196,10 +221,11 @@ if (options.doDemux):
     print "dmLatency     = ", options.dmLatency
     print " "
 
-process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(options.dmOffset)
+process.stage2DemuxRaw.nFramesPerEvent    = cms.untracked.int32(options.dmFramesPerEvent)
+process.stage2DemuxRaw.nFramesOffset    = cms.untracked.vuint32(dmOffset)
 process.stage2DemuxRaw.nFramesLatency   = cms.untracked.vuint32(options.dmLatency)
-process.stage2DemuxRaw.rxFile = cms.untracked.string("good/demux/rx_summary.txt")
-process.stage2DemuxRaw.txFile = cms.untracked.string("good/demux/tx_summary.txt")
+process.stage2DemuxRaw.rxFile = cms.untracked.string("demux_rx_summary.txt")
+process.stage2DemuxRaw.txFile = cms.untracked.string("demux_tx_summary.txt")
 
 # GT config
 if (options.doGT):
@@ -222,7 +248,7 @@ process.dumpRaw = cms.EDAnalyzer(
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1360, 1366, 1404 ),
-    dumpPayload = cms.untracked.bool ( False )
+    dumpPayload = cms.untracked.bool ( options.dump )
 )
 
 # raw to digi
@@ -235,11 +261,9 @@ process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 # object analyser
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("caloStage2Digis")
-process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("caloStage2Digis")
+process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
 
 # Path and EndPath definitions
 process.path = cms.Path(
