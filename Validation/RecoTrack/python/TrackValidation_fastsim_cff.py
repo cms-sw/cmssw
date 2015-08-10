@@ -8,6 +8,7 @@ quickTrackAssociatorByHits.useClusterTPAssociation = False
 #TrackAssociatorByHitsRecoDenom.ROUList = ['famosSimHitsTrackerHits']
 trackValidator.useLogPt=cms.untracked.bool(True)
 trackValidator.dodEdxPlots = False
+trackValidator.doPVAssociationPlots = False
 trackValidator.sim = [cms.InputTag('famosSimHits','TrackerHits')]
 
 trackValidator.stableOnlyTP = True

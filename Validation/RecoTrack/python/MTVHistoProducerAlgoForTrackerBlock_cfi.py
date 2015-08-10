@@ -114,4 +114,10 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     dzRes_rangeMax = cms.double(+0.05),
     dzRes_nbin = cms.int32(150),                                   
 
+
+    maxDzpvCumulative = cms.double(0.6),
+    nintDzpvCumulative = cms.int32(240),
+
+    maxDzpvsigCumulative = cms.double(10),
+    nintDzpvsigCumulative = cms.int32(200),
 )
