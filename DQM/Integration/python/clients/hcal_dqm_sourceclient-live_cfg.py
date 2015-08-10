@@ -7,7 +7,6 @@
 #	Standard Python Imports
 #-------------------------------------
 import os, sys, socket, string
-<<<<<<< HEAD:DQM/Integration/python/test/hcal_dqm_sourceclient-live_cfg.py
 
 #-------------------------------------
 #	Standard CMSSW Imports/Definitions
@@ -59,7 +58,6 @@ print debugstr, "Running with run type= ", runType
 #-------------------------------------
 process.load('Configuration.Geometry.GeometryIdeal_cff')
 process.load('FWCore.MessageLogger.MessageLogger_cfi')
-=======
 from DQM.HcalMonitorTasks.HcalMonitorTasks_cfi import SetTaskParams
 
 
@@ -119,7 +117,6 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 #-----------------------------
 # Hcal DQM Source, including Rec Hit Reconstructor
 #-----------------------------
->>>>>>> CMSSW_7_5_X:DQM/Integration/python/clients/hcal_dqm_sourceclient-live_cfg.py
 process.load("EventFilter.HcalRawToDigi.HcalRawToDigi_cfi")
 process.load("RecoLocalCalo.Configuration.hcalLocalReco_cff")
 process.load("SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff")
@@ -341,8 +338,6 @@ process.options = cms.untracked.PSet(
 			"TooFewProducts"
 		)
 )
-=======
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
->>>>>>> CMSSW_7_5_X:DQM/Integration/python/clients/hcal_dqm_sourceclient-live_cfg.py

@@ -7,7 +7,6 @@
 #-------------------------------------
 import os, sys, socket, string
 
-<<<<<<< HEAD:DQM/Integration/python/test/hcalcalib_dqm_sourceclient-live_cfg.py
 #-------------------------------------
 #	Standard CMSSW Imports/Definitions
 #-------------------------------------
@@ -46,7 +45,6 @@ process.dqmEnv.subSystemFolder = subsystem
 referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
-=======
 process = cms.Process("HCALDQM")
 subsystem="HcalCalib"
 
@@ -105,7 +103,6 @@ process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 #process.load("DQM.Integration.config.FrontierCondition_GT_Offline_cfi") 
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
->>>>>>> CMSSW_7_5_X:DQM/Integration/python/clients/hcalcalib_dqm_sourceclient-live_cfg.py
 
 #	Note, runType is obtained after importing DQM-related modules
 #	=> DQM-dependent
@@ -247,7 +244,6 @@ process.options = cms.untracked.PSet(
 			'ProductNotFound'
 		)
 )
-=======
 process.hcalDigis.InputLabel = cms.InputTag("hltHcalCalibrationRaw")
 process.l1GtUnpack.DaqGtInputTag = cms.InputTag("hltHcalCalibrationRaw")
 process.hcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("hltHcalCalibrationRaw")
@@ -279,4 +275,3 @@ if (HEAVYION):
 ### process customizations included here
 from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)
->>>>>>> CMSSW_7_5_X:DQM/Integration/python/clients/hcalcalib_dqm_sourceclient-live_cfg.py
