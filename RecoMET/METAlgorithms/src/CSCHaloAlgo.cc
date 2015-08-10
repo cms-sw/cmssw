@@ -552,7 +552,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
          jSegment != TheCSCSegments->end();
          jSegment++) {
 	 if (jSegment == iSegment) continue;
-
+	 SegmentIsGood=true;
 	 LocalPoint jLocalPosition = jSegment->localPosition();
 	 LocalVector jLocalDirection = jSegment->localDirection();
 	 CSCDetId jCscDetID = jSegment->cscDetId();
