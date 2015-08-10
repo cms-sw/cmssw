@@ -189,6 +189,10 @@ class ApeEstimator : public edm::EDAnalyzer {
       std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
       TrackerDetectorStruct tkDetector_;
       
+      edm::EDGetTokenT<TrajTrackAssociationCollection> tjTag_;
+      edm::EDGetTokenT<reco::BeamSpot> beamSpot_;
+      
+      
       std::map<unsigned int, std::pair<double,double> > m_resErrBins_;
       
       std::map<unsigned int, ReducedTrackerTreeVariables> m_tkTreeVar_;
@@ -221,7 +225,10 @@ class ApeEstimator : public edm::EDAnalyzer {
 // constructors and destructor
 //
 ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig):
-parameterSet_(iConfig), trackCut_(false), maxTracksPerEvent_(parameterSet_.getParameter<unsigned int>("maxTracksPerEvent")),
+parameterSet_(iConfig),
+tjTag_(consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
+beamSpot_(consumes<reco::BeamSpot>(parameterSet_.getParameter<edm::InputTag>("offlineBeamSpot"))),
+trackCut_(false), maxTracksPerEvent_(parameterSet_.getParameter<unsigned int>("maxTracksPerEvent")),
 minGoodHitsPerTrack_(parameterSet_.getParameter<unsigned int>("minGoodHitsPerTrack")),
 analyzerMode_(parameterSet_.getParameter<bool>("analyzerMode")),
 calculateApe_(parameterSet_.getParameter<bool>("calculateApe"))
@@ -2162,7 +2169,8 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    reco::BeamSpot beamSpot;
    edm::Handle<reco::BeamSpot> beamSpotHandle;
-   iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
+   //~ iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
+   iEvent.getByToken(beamSpot_, beamSpotHandle);
    
    if (beamSpotHandle.isValid()){
      beamSpot = *beamSpotHandle;
@@ -2173,10 +2181,11 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                   <<"\n...skip event";
      return;
    }
-   
-   edm::InputTag tjTag = parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag");
+      
+   //~ edm::InputTag tjTag = parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag");
    edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-   iEvent.getByLabel(tjTag, m_TrajTracksMap);
+   //~ iEvent.getByLabel(tjTag, m_TrajTracksMap);
+   iEvent.getByToken(tjTag_, m_TrajTracksMap);
    
    if(analyzerMode_)tkDetector_.TrkSize->Fill(m_TrajTracksMap->size());
    
