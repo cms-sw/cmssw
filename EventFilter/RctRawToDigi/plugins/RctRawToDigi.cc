@@ -39,7 +39,6 @@ RctRawToDigi::RctRawToDigi(const edm::ParameterSet& iConfig) :
   verbose_(iConfig.getUntrackedParameter<bool>("verbose",false))
 {
   LogDebug("RCT") << "RctRawToDigi will unpack FED Id " << fedId_;
-  std::cout<< "RctRawToDigi will unpack FED Id " << fedId_<<std::endl;
   /** Register Products **/
   // RCT collections
   produces<L1CaloEmCollection>();
