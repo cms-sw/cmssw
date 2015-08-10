@@ -110,3 +110,22 @@ def L1Menu_CollisionsHeavyIons2015_v0(process):
 
     return process
 
+def L1Menu_CollisionsHeavyIons2015_v1(process):
+    process.load( 'L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi' )
+    process.l1GtTriggerMenuXml.TriggerMenuLuminosity = 'startup'
+    process.l1GtTriggerMenuXml.DefXmlFile            = 'L1Menu_CollisionsHeavyIons2015.v1.xml'
+
+    process.load( 'L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff' )
+    process.es_prefer_l1GtParameters = cms.ESPrefer( 'L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml' )
+
+    return process
+
+def L1Menu_CollisionsHeavyIons2015_v2(process):
+    process.load( 'L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi' )
+    process.l1GtTriggerMenuXml.TriggerMenuLuminosity = 'startup'
+    process.l1GtTriggerMenuXml.DefXmlFile            = 'L1Menu_CollisionsHeavyIons2015.v2.xml'
+
+    process.load( 'L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff' )
+    process.es_prefer_l1GtParameters = cms.ESPrefer( 'L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml' )
+
+    return process
