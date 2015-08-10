@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -132,7 +132,7 @@ HcalDDDRecConstantsTemp::getThickActive(const int type) const {
   else           return actHE;
 }
 
-class HcalHBHEMuonAnalyzer : public edm::EDAnalyzer {
+class HcalHBHEMuonAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources> {
 
 public:
   explicit HcalHBHEMuonAnalyzer(const edm::ParameterSet&);
@@ -200,6 +200,9 @@ private:
  };
 
 HcalHBHEMuonAnalyzer::HcalHBHEMuonAnalyzer(const edm::ParameterSet& iConfig) {
+
+  usesResource("TFileService");
+
   //now do what ever initialization is needed
   HLTriggerResults_ = iConfig.getParameter<edm::InputTag>("HLTriggerResults");
   labelVtx_         = iConfig.getParameter<std::string>("LabelVertex");

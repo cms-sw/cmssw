@@ -9,7 +9,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -34,72 +34,89 @@
 
 //#define debugLog
 
-// class declaration
-class SimAnalyzerMinbias : public edm::EDAnalyzer {
-
-public:
-  explicit SimAnalyzerMinbias(const edm::ParameterSet&);
-  ~SimAnalyzerMinbias();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob() ;
-  virtual void endJob() ;
-  virtual void beginRun(const edm::Run& r, const edm::EventSetup& iSetup);
-  virtual void endRun(const edm::Run& r, const edm::EventSetup& iSetup);
-    
-private:
-    
-  // ----------member data ---------------------------
-  std::string fOutputFileName ;
-  double      timeCut;
-  TFile*      hOutputFile ;
-  TTree*      myTree;
-  
-  // Root tree members
-  int   mydet, mysubd, depth, iphi, ieta, cells;
-  float mom0_MB, mom1_MB, mom2_MB, mom3_MB, mom4_MB;
+namespace HcalSimMinbias {
   struct myInfo{
     double theMB0, theMB1, theMB2, theMB3, theMB4;
-    void MyInfo() {
+    myInfo() {
       theMB0 = theMB1 = theMB2 = theMB3 = theMB4 = 0;
     }
   };
-  std::map<HcalDetId,myInfo>               myMap;
-  edm::EDGetTokenT<edm::HepMCProduct>      tok_evt_;
-  edm::EDGetTokenT<edm::PCaloHitContainer> tok_hcal_;
+  struct Counters {
+    Counters() {}
+    std::string                        fOutputFileName_;
+    mutable std::map<HcalDetId,myInfo> myMap_;
+  };
+}
+
+// class declaration
+class SimAnalyzerMinbias : public edm::stream::EDAnalyzer<edm::GlobalCache<HcalSimMinbias::Counters> > {
+
+public:
+  explicit SimAnalyzerMinbias(const edm::ParameterSet&, const HcalSimMinbias::Counters* count);
+  ~SimAnalyzerMinbias();
+
+  static std::unique_ptr<HcalSimMinbias::Counters> initializeGlobalCache(edm::ParameterSet const& iConfig) {
+    HcalSimMinbias::Counters* count = new HcalSimMinbias::Counters();
+    count->fOutputFileName_= iConfig.getUntrackedParameter<std::string>("HistOutFile");
+    edm::LogInfo("AnalyzerMB") << "Store o/p in " << count->fOutputFileName_;
+    return std::unique_ptr<HcalSimMinbias::Counters>(count);
+  }
+
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endStream() override;
+  static  void globalEndJob(const HcalSimMinbias::Counters* counters);
+    
+private:
+ 
+  // ----------member data ---------------------------
+  double      timeCut;
+  std::map<HcalDetId,HcalSimMinbias::myInfo> myMap_;
+  edm::EDGetTokenT<edm::HepMCProduct>        tok_evt_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>   tok_hcal_;
 };
 
 // constructors and destructor
 
-SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) {
+SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig, 
+				       const HcalSimMinbias::Counters* count) {
+
   // get name of output file with histogramms
-  fOutputFileName = iConfig.getUntrackedParameter<std::string>("HistOutFile", "simOutput.root");
   timeCut         = iConfig.getUntrackedParameter<double>("TimeCut", 500);
     
   // get token names of modules, producing object collections
   tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
 
-#ifdef debugLog
-  std::cout << "Use Time cut of " << timeCut << " ns and store o/p in "
-	    << fOutputFileName << std::endl;
-#endif
+  edm::LogInfo("AnalyzerMB") << "Use Time cut of " << timeCut << " ns";
+  myMap_.clear();
 }
   
-SimAnalyzerMinbias::~SimAnalyzerMinbias() {
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-}
-  
-void SimAnalyzerMinbias::beginRun( const edm::Run& r, const edm::EventSetup& iSetup) {
-}
-  
-void SimAnalyzerMinbias::endRun( const edm::Run& r, const edm::EventSetup& iSetup) {
-}
-  
-void SimAnalyzerMinbias::beginJob() {
-  hOutputFile   = new TFile( fOutputFileName.c_str(), "RECREATE" ) ;
+SimAnalyzerMinbias::~SimAnalyzerMinbias() { }
 
-  myTree = new TTree("SimJet","SimJet Tree");
+void SimAnalyzerMinbias::endStream() {
+
+  for (std::map<HcalDetId,HcalSimMinbias::myInfo>::const_iterator itr=myMap_.begin(); itr != myMap_.end(); ++itr) {
+    HcalDetId id = itr->first;
+    std::map<HcalDetId,HcalSimMinbias::myInfo>::iterator itr1 = (globalCache()->myMap_).find(id);
+    if (itr1 == globalCache()->myMap_.end()) {
+      HcalSimMinbias::myInfo info;
+      globalCache()->myMap_[id] = info;
+      itr1 = (globalCache()->myMap_).find(id);
+    }
+    itr1->second.theMB0 += itr->second.theMB0;
+    itr1->second.theMB1 += itr->second.theMB1;
+    itr1->second.theMB2 += itr->second.theMB2;
+    itr1->second.theMB3 += itr->second.theMB3;
+    itr1->second.theMB4 += itr->second.theMB4;
+  }
+}
+  
+void SimAnalyzerMinbias::globalEndJob(const HcalSimMinbias::Counters* count) {
+   
+  TFile* hOutputFile = new TFile(count->fOutputFileName_.c_str(), "RECREATE") ;
+  TTree* myTree      = new TTree("RecJet","RecJet Tree");
+  int            mydet, mysubd, depth, iphi, ieta, cells;
+  float          mom0_MB, mom1_MB, mom2_MB, mom3_MB, mom4_MB;
   myTree->Branch("mydet",    &mydet, "mydet/I");
   myTree->Branch("mysubd",   &mysubd, "mysubd/I");
   myTree->Branch("cells",    &cells, "cells");
@@ -112,24 +129,14 @@ void SimAnalyzerMinbias::beginJob() {
   myTree->Branch("mom3_MB",  &mom2_MB, "mom3_MB/F");
   myTree->Branch("mom4_MB",  &mom4_MB, "mom4_MB/F");
 
-  myMap.clear();
-  return ;
-}
-  
-//  EndJob
-//
-void SimAnalyzerMinbias::endJob() {
-   
   cells = 0;
-  // std::cout << " Hello me here" << std::endl;
-  for (std::map<HcalDetId,myInfo>::const_iterator itr=myMap.begin(); 
-       itr != myMap.end(); ++itr) {
+  for (std::map<HcalDetId,HcalSimMinbias::myInfo>::const_iterator itr=count->myMap_.begin(); itr != count->myMap_.end(); ++itr) {
     //  std::cout << " Hello me here" << std::endl;
     mysubd = itr->first.subdet();
     depth  = itr->first.depth();
     iphi   = itr->first.iphi();
     ieta   = itr->first.ieta();
-    myInfo info = itr->second;
+    HcalSimMinbias::myInfo info = itr->second;
     if (info.theMB0 > 0) { 
       mom0_MB = info.theMB0;
       mom1_MB = info.theMB1;
@@ -142,67 +149,40 @@ void SimAnalyzerMinbias::endJob() {
 				 << iphi << " mom0  " << mom0_MB << " mom1 " 
 				 << mom1_MB << " mom2 " << mom2_MB << " mom3 "
 				 << mom3_MB << " mom4 " << mom4_MB;
-#ifdef debugLog
-      std::cout                  << " Result=  " << mysubd << " " << ieta << " "
-				 << iphi << " mom0  " << mom0_MB << " mom1 " 
-				 << mom1_MB << " mom2 " << mom2_MB << " mom3 "
-				 << mom3_MB << " mom4 " << mom4_MB << std::endl;
-#endif
       myTree->Fill();
     }
   }
   edm::LogInfo("AnalyzerMB") << "cells " << cells;    
-#ifdef debugLog
-  std::cout                  << "cells " << cells << std::endl;
-#endif
   hOutputFile->cd();
   myTree->Write();
   hOutputFile->Write();   
   hOutputFile->Close() ;
-  return ;
 }
 
-//
-// member functions
-//
-  
 // ------------ method called to produce the data  ------------
   
 void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, 
 				 const edm::EventSetup&) {
-#ifdef debugLog    
-  std::cout << " Start SimAnalyzerMinbias::analyze " << iEvent.id().run() 
-	    << ":" << iEvent.id().event() << std::endl;
-#endif
+
+  edm::LogInfo("AnalyzerMB") << " Start SimAnalyzerMinbias::analyze " 
+			     << iEvent.id().run() << ":" << iEvent.id().event();
   
   edm::Handle<edm::HepMCProduct> evtMC;
   iEvent.getByToken(tok_evt_, evtMC);  
   if (!evtMC.isValid()) {
-    edm::LogInfo("AnalyzerMB") << "no HepMCProduct found";
-#ifdef debugLog
-    std::cout                  << "no HepMCProduct found" << std::endl;
-#endif
+    edm::LogWarning("AnalyzerMB") << "no HepMCProduct found";
   } else {
     const HepMC::GenEvent * myGenEvent = evtMC->GetEvent();
     edm::LogInfo("AnalyzerMB") << "Event with " << myGenEvent->particles_size()
 			       << " particles + " << myGenEvent->vertices_size()
 			       << " vertices";
-#ifdef debugLog
-    std::cout                  << "Event with " << myGenEvent->particles_size()
-			       << " particles + " << myGenEvent->vertices_size()
-			       << " vertices" << std::endl;
-#endif
   }
 
  
   edm::Handle<edm::PCaloHitContainer> hcalHits;
   iEvent.getByToken(tok_hcal_,hcalHits);
   if (!hcalHits.isValid()) {
-    edm::LogInfo("AnalyzerMB") << "Error! can't get HcalHits product!";
-#ifdef debugLog
-    std::cout                  << "Error! can't get HcalHits product!" 
-			       << std::endl;
-#endif
+    edm::LogWarning("AnalyzerMB") << "Error! can't get HcalHits product!";
     return ;
   }
   
@@ -222,29 +202,25 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent,
        itr1->second += energyhit;
     }
   }
-#ifdef debugLog
-  std::cout << "extract information of " << hitMap.size() << " towers from "
-	    << HitHcal->size() << " hits" << std::endl;
-#endif
+  edm::LogInfo("AnalyzerMB") << "extract information of " << hitMap.size() 
+			     << " towers from " << HitHcal->size() << " hits";
 
   for (std::map<HcalDetId,double>::const_iterator hcalItr=hitMap.begin(); 
        hcalItr != hitMap.end(); ++hcalItr) {
     HcalDetId hid    = hcalItr->first;
     double energyhit = hcalItr->second;
-    std::map<HcalDetId,myInfo>::iterator itr1 = myMap.find(hid);
-    if (itr1 == myMap.end()) {
-      myInfo info;
-      myMap[hid] = info;
-      itr1 = myMap.find(hid);
+    std::map<HcalDetId,HcalSimMinbias::myInfo>::iterator itr1 = myMap_.find(hid);
+    if (itr1 == myMap_.end()) {
+      HcalSimMinbias::myInfo info;
+      myMap_[hid] = info;
+      itr1 = myMap_.find(hid);
     } 
     itr1->second.theMB0++;
     itr1->second.theMB1 += energyhit;
     itr1->second.theMB2 += (energyhit*energyhit);
     itr1->second.theMB3 += (energyhit*energyhit*energyhit);
     itr1->second.theMB4 += (energyhit*energyhit*energyhit*energyhit);
-#ifdef debugLog
-    std::cout << "ID " << hid << " with energy " << energyhit << std::endl;
-#endif
+    edm::LogInfo("AnalyzerMB") << "ID " << hid << " with energy " << energyhit;
   }
 }
 
