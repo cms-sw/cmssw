@@ -499,7 +499,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
     
   // E-p combination 
   //std::array<float, 11> eval_ep;
-  float* eval_ep = new float[11];
+  float eval_ep[11];
 
   float ep = ele.trackMomentumAtVtx().R();
   float tot_energy = sc->rawEnergy()+sc->preshowerEnergy();

@@ -220,8 +220,6 @@ void ElectronRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::
     const auto theseed = iEle->superCluster()->seed();
 
     std::vector<float> vCov = lazyToolnoZS->localCovariances( *theseed );
-    float sep = vCov[1];
-        
     const float eMax = lazyToolnoZS->eMax( *theseed );
     const float e2nd = lazyToolnoZS->e2nd( *theseed );
     const float eTop = lazyToolnoZS->eTop( *theseed );
@@ -242,6 +240,8 @@ void ElectronRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::
     
     double see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
     double spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
+    double sep;
+
     if (see*spp > 0)
         sep = vCov[1] / (see * spp);
     else if (vCov[1] > 0)
