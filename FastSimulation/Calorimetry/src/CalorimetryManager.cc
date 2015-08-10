@@ -140,8 +140,11 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
        fastMuHCAL.getParameter<bool>("EnergyLoss") || 
        fastMuHCAL.getParameter<bool>("MultipleScattering") )
     theMuonHcalEffects = new MaterialEffects(fastMuHCAL);
-  
-  
+
+  if( fastCalo.exists("ECALResponseScaling") ) {
+    ecalCorrection = new CaloResponse( fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling") );
+  }
+
 }
 
 void CalorimetryManager::clean()
@@ -164,6 +167,7 @@ CalorimetryManager::~CalorimetryManager()
   if ( theProfile ) delete theProfile;
   
   if ( theHFShowerLibrary ) delete theHFShowerLibrary;
+  if ( ecalCorrection ) delete ecalCorrection;
 }
 
 void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
@@ -459,14 +463,12 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   theShower.setHcal(&myHcalHitMaker);
   theShower.compute();
   //myHistos->fill("h502", myPart->eta(),myGrid.totalX0());
-  
-  // Apply the scale factors: myHits will be scaled to match with the energy response in fullsim
-  auto correctedEcalHits = doEcalResponseScaling_ ? applyECALScaleFactor( myTrack.ecalEntrance(), myGrid.getHits() ) : myGrid.getHits();
 
+  auto scale = ecalCorrection ? ecalCorrection->getScale( myTrack.ecalEntrance(), myGrid.getHits() ) : 1.;
 
   // Save the hits !
-  updateECAL(myGrid.getHits(),onEcal,myTrack.id());
-  
+  updateECAL( myGrid.getHits(), onEcal,myTrack.id(), scale );
+
   // Now fill the HCAL hits
   updateHCAL(myHcalHitMaker.getHits(),myTrack.id());
   
@@ -477,62 +479,6 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
     //  std::cout << " Deleting myPreshower " << std::endl;
   }
   
-}
-
-std::map<CaloHitID,float> CalorimetryManager::applyECALScaleFactor(
-    const RawParticle& particleAtEcalEntrance,
-    const std::map<CaloHitID,float>& hitMap
-  ) const
-{
-
-  if( !doEcalResponseScaling_ ) {
-    return hitMap;
-  }
-
-  double simE = 0; // total simulated energy for this particle
-  for( auto mapIterator : hitMap ) {
-    simE += mapIterator.second;
-  }
-
-  float genEta = std::abs( particleAtEcalEntrance.eta() );
-  float genE = particleAtEcalEntrance.e();
-
-  float genEavailable = ecalScalesAuxiliaryGenEFinder_->GetBinContent(
-                          ecalScalesAuxiliaryGenEFinder_->FindFixBin( genE ) );
-
-  float r = simE/genE;
-
-  auto rAxis = ecalScales_->GetZaxis();
-  auto binWidth = rAxis->GetBinWidth(1);
-  auto rMin = rAxis->GetXmin();
-  auto rMax = rAxis->GetXmax();
-
-  auto scale = 1.;
-
-  if( r-binWidth/2. > rMin && r+binWidth/2. < rMax ) {
-
-    // make a linear extrapolation between neighbour bins
-    auto scale1 = ecalScales_->GetBinContent( ecalScales_->FindFixBin( genEavailable, genEta, r - binWidth/2. ) );
-    auto scale2 = ecalScales_->GetBinContent( ecalScales_->FindFixBin( genEavailable, genEta, r + binWidth/2. ) );
-
-    auto r1 = rAxis->GetBinCenter( rAxis->FindFixBin( r - binWidth/2. ) );
-    auto r2 = rAxis->GetBinCenter( rAxis->FindFixBin( r + binWidth/2. ) );
-    scale = ( scale1 * ( r2 - r ) + scale2 * ( r - r1 ) ) / binWidth;
-
-  }
-
-  // If the scale is unreasonable small, e.g. zero, do not scale
-  if( scale < 0.0001 ) scale = 1;
-
-  // clone the input map
-  auto outMap = hitMap;
-
-  // Now apply the scales
-  for( auto& mapIterator : outMap ) {
-    mapIterator.second *= scale;
-  }
-
-  return outMap;
 }
 
 void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack,
