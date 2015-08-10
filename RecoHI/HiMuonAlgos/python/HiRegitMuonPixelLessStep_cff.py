@@ -87,10 +87,14 @@ hiRegitMuPixelLessStepSelector               = RecoTracker.FinalTrackSelectors.m
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuPixelLessStepTight',
             preFilterName = 'hiRegitMuPixelLessStepLoose',
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.2)
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuPixelLessStep',
             preFilterName = 'hiRegitMuPixelLessStepTight',
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.09)
             ),
         ) #end of vpset
 )
