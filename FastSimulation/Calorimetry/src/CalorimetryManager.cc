@@ -141,61 +141,9 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
        fastMuHCAL.getParameter<bool>("MultipleScattering") )
     theMuonHcalEffects = new MaterialEffects(fastMuHCAL);
 
-  auto ecalResponceParameters = fastCalo.getParameter<edm::ParameterSet>("ECALResponceScalingParameters");
-  initECALScaleHistos( ecalResponceParameters );
-}
-
-void CalorimetryManager::initECALScaleHistos( const edm::ParameterSet& pset ) {
-
-  // Get the filename and histogram name
-  doEcalResponseScaling_ = pset.getParameter<bool>("doScalig");
-  if( ! doEcalResponseScaling_ ) return;
-  std::string ecalScalesFileName_ = pset.getUntrackedParameter<std::string>("fileName");
-  std::string ecalScalesHistogramName_ = pset.getUntrackedParameter<std::string>("histogramName");
-
-  // Read histo
-  edm::FileInPath myDataFile( ecalScalesFileName_ ); // TODO: check if this is necessary
-  TFile * myFile = new TFile( myDataFile.fullPath().c_str(), "READ" );
-
-  gROOT->cd(); // create histogram in memory
-  auto obj = myFile->Get( ecalScalesHistogramName_.c_str() );
-
-  // Check if histogram exists in file
-  if(!obj) {
-    throw cms::Exception( "FileReadError" )
-      << "Histogram \"" << ecalScalesHistogramName_
-      << "\" not found in file \"" << ecalScalesFileName_
-      << "\", used for correcting the response of the ECAL in FastSim.\n";
+  if( fastCalo.exists("ECALResponseScaling") ) {
+    ecalCorrection = new CaloResponse( fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling") );
   }
-  ecalScales_ = new TH3F( *((TH3F*)obj) );
-
-  myFile->Close();
-  delete myFile;
-
-  // By definition, some genE bins are not filled. Since TH3 has no variable Rebin() method,
-  // we create an auxiliary genE histogram with variable binning:
-  auto oldBinH = ecalScales_->Project3D("x");
-
-  std::vector<float> newBinEdges;
-  std::vector<float> newBinContents;
-
-  int lastFilledBin = 0;
-  for( auto i=1; i<oldBinH->GetNbinsX()+2; i++ ) {
-    if( oldBinH->GetBinContent(i) ) {
-      // The first element does not make much sence, and is omitted. An underflow bin has no lower edge
-      newBinEdges.push_back( 0.5*(oldBinH->GetBinLowEdge(lastFilledBin) + oldBinH->GetBinLowEdge(i+1)) );
-      newBinContents.push_back( oldBinH->GetBinCenter(i) );
-      lastFilledBin = i;
-    }
-  }
-
-  // This histogram's content represent the energy where you have to look at
-  ecalScalesAuxiliaryGenEFinder_ = new TH1F( "auxHelperHisto", "", newBinEdges.size()-2, &newBinEdges[1] );
-  for( int i=0; i<ecalScalesAuxiliaryGenEFinder_->GetNbinsX()+2; i++ ) {
-    ecalScalesAuxiliaryGenEFinder_->SetBinContent( i, newBinContents.at(i) );
-  }
-  // The code "ecalScalesAuxiliaryGenEFinder_->GetBinContent( ecalScalesAuxiliaryGenEFinder_->FindBin( originalEnergy ) )"
-  // should get you the correct energy
 
 }
 
@@ -219,6 +167,7 @@ CalorimetryManager::~CalorimetryManager()
   if ( theProfile ) delete theProfile;
 
   if ( theHFShowerLibrary ) delete theHFShowerLibrary;
+  if ( ecalCorrection ) delete ecalCorrection;
 }
 
 void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)
@@ -514,13 +463,11 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   theShower.setHcal(&myHcalHitMaker);
   theShower.compute();
   //myHistos->fill("h502", myPart->eta(),myGrid.totalX0());
-  
-  // Apply the scale factors: myHits will be scaled to match with the energy response in fullsim
-  auto correctedEcalHits = doEcalResponseScaling_ ? applyECALScaleFactor( myTrack.ecalEntrance(), myGrid.getHits() ) : myGrid.getHits();
 
+  auto scale = ecalCorrection ? ecalCorrection->getScale( myTrack.ecalEntrance(), myGrid.getHits() ) : 1.;
 
   // Save the hits !
-  updateECAL( correctedEcalHits, onEcal,myTrack.id());
+  updateECAL( myGrid.getHits(), onEcal,myTrack.id(), scale );
 
   // Now fill the HCAL hits
   updateHCAL(myHcalHitMaker.getHits(),myTrack.id());
@@ -532,62 +479,6 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
     //  std::cout << " Deleting myPreshower " << std::endl;
   }
   
-}
-
-std::map<CaloHitID,float> CalorimetryManager::applyECALScaleFactor(
-    const RawParticle& particleAtEcalEntrance,
-    const std::map<CaloHitID,float>& hitMap
-  ) const
-{
-
-  if( !doEcalResponseScaling_ ) {
-    return hitMap;
-  }
-
-  double simE = 0; // total simulated energy for this particle
-  for( auto mapIterator : hitMap ) {
-    simE += mapIterator.second;
-  }
-
-  float genEta = std::abs( particleAtEcalEntrance.eta() );
-  float genE = particleAtEcalEntrance.e();
-
-  float genEavailable = ecalScalesAuxiliaryGenEFinder_->GetBinContent(
-                          ecalScalesAuxiliaryGenEFinder_->FindFixBin( genE ) );
-
-  float r = simE/genE;
-
-  auto rAxis = ecalScales_->GetZaxis();
-  auto binWidth = rAxis->GetBinWidth(1);
-  auto rMin = rAxis->GetXmin();
-  auto rMax = rAxis->GetXmax();
-
-  auto scale = 1.;
-
-  if( r-binWidth/2. > rMin && r+binWidth/2. < rMax ) {
-
-    // make a linear extrapolation between neighbour bins
-    auto scale1 = ecalScales_->GetBinContent( ecalScales_->FindFixBin( genEavailable, genEta, r - binWidth/2. ) );
-    auto scale2 = ecalScales_->GetBinContent( ecalScales_->FindFixBin( genEavailable, genEta, r + binWidth/2. ) );
-
-    auto r1 = rAxis->GetBinCenter( rAxis->FindFixBin( r - binWidth/2. ) );
-    auto r2 = rAxis->GetBinCenter( rAxis->FindFixBin( r + binWidth/2. ) );
-    scale = ( scale1 * ( r2 - r ) + scale2 * ( r - r1 ) ) / binWidth;
-
-  }
-
-  // If the scale is unreasonable small, e.g. zero, do not scale
-  if( scale < 0.0001 ) scale = 1;
-
-  // clone the input map
-  auto outMap = hitMap;
-
-  // Now apply the scales
-  for( auto& mapIterator : outMap ) {
-    mapIterator.second *= scale;
-  }
-
-  return outMap;
 }
 
 void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack,

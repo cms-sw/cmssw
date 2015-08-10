@@ -14,6 +14,8 @@
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 
+#include "FastSimulation/Calorimetry/interface/CaloResponse.h"
+
 // For the uint32_t
 //#include <boost/cstdint.hpp>
 #include <map>
@@ -95,17 +97,6 @@ class CalorimetryManager{
   void respCorr(double);
 
   void clean(); 
-
-  /** \brief Scale the hits by a scale derived from fast/fullsim comparison
-    * \param particleAtEcalEntrance The particle which's shower should be simulated
-    * \param hitMap Contains the hits for one simulated particle
-    * \return clone of hitMap with scaled energies
-    *
-    * This method finds the corresponding scale as function of the particles
-    * eta at ecal entrance, true energy at ecal entrance, and total simulated energy.
-    * The hits are scaled and returned.
-    */
-  std::map<CaloHitID,float> applyECALScaleFactor( const RawParticle& particleAtEcalEntrance, const std::map<CaloHitID,float>& hitMap ) const;
 
  private:
 
@@ -199,22 +190,8 @@ class CalorimetryManager{
   bool useShowerLibrary;
   bool useCorrectionSL;
   FastHFShowerLibrary *theHFShowerLibrary;
-  
-  // Needed for ECAL responce correction/scaling
-  bool doEcalResponseScaling_;
-  TH3F* ecalScales_;
-  TH1F* ecalScalesAuxiliaryGenEFinder_;
 
-  /** \brief Method to read in scaling histogram
-    * \param pset PSet containing filename and histogram name
-    *
-    * The histogram should be a TH3F containg the scale as function of
-    * energy at ecal entrance, eta at ecal entrance, and total simulated energy (x,y, and z).
-    * Eta ranges from 0-3, therfore only the absolute value makes sence.
-    * The true energy may not cover the full energy range, therfore an auxiliary histogram
-    * is created, which finds the closest non-empty energy (see example in the code).
-    */
-  void initECALScaleHistos( const edm::ParameterSet& pset );
+  CaloResponse* ecalCorrection;
 
 };
 #endif
