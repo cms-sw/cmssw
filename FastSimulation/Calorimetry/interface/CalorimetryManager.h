@@ -21,8 +21,6 @@
 #include <map>
 #include <algorithm>
 
-#include "TH3F.h"
-
 class FSimEvent;
 class FSimTrack;
 class RawParticle;
