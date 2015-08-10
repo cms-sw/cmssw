@@ -33,7 +33,9 @@ class MTVHistoProducerAlgo{
 
   virtual void bookSimHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookSimTrackHistos(DQMStore::IBooker& ibook)=0;
+  virtual void bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecoHistos(DQMStore::IBooker& ibook)=0;
+  virtual void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook)=0;
   virtual void bookRecodEdxHistos(DQMStore::IBooker& ibook)=0;
 
   virtual void fill_generic_simTrack_histos(const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx)=0;
@@ -42,11 +44,14 @@ class MTVHistoProducerAlgo{
   virtual void fill_recoAssociated_simTrack_histos(int count,
 						   const TrackingParticle& tp,
 						   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
-						   double dxy, double dz, int nSimHits,
+						   double dxy, double dz,
+                                                   double dxyPV, double dzPV,
+                                                   int nSimHits,
                                                    int nSimLayers, int nSimPixelLayers, int nSimStripMonoAndStereoLayers,
 						   const reco::Track* track,
 						   int numVertices,
-						   double dR)=0;
+						   double dR,
+						   const math::XYZPoint *pvPosition)=0;
 
   virtual void fill_recoAssociated_simTrack_histos(int count,
 						   const reco::GenParticle& tp,
@@ -58,6 +63,7 @@ class MTVHistoProducerAlgo{
   virtual void fill_generic_recoTrack_histos(int count,
 				     	     const reco::Track& track,
 				     	     const math::XYZPoint& bsPosition,
+				     	     const math::XYZPoint *pvPosition,
 				     	     bool isMatched,
 				     	     bool isSigMatched,
 				     	     bool isChargeMatched,
