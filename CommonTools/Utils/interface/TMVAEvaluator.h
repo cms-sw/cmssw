@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <mutex>
 
 #include "TMVA/Reader.h"
 #include "TMVA/IMethod.h"
@@ -24,7 +25,7 @@ class TMVAEvaluator {
                              const std::vector<std::string> & spectators, bool useAdaBoost=false);
     void initializeGBRForest(const edm::EventSetup &iSetup, const std::string & label,
                              const std::vector<std::string> & variables, const std::vector<std::string> & spectators, bool useAdaBoost=false);
-    float evaluate(const std::map<std::string,float> & inputs, bool useSpectators=false);
+    float evaluate(const std::map<std::string,float> & inputs, bool useSpectators=false) const;
 
   private:
     bool mIsInitialized;
@@ -33,12 +34,13 @@ class TMVAEvaluator {
     bool mReleaseAtEnd;
 
     std::string mMethod;
-    std::unique_ptr<TMVA::Reader> mReader;
+    mutable std::mutex m_mutex;
+    [[cms::thread_guard("m_mutex")]] std::unique_ptr<TMVA::Reader> mReader;
     std::unique_ptr<TMVA::IMethod> mIMethod;
     std::unique_ptr<const GBRForest> mGBRForest;
 
-    std::map<std::string,std::pair<size_t,float>> mVariables;
-    std::map<std::string,std::pair<size_t,float>> mSpectators;
+    [[cms::thread_guard("m_mutex")]] mutable std::map<std::string,std::pair<size_t,float>> mVariables;
+    [[cms::thread_guard("m_mutex")]] mutable std::map<std::string,std::pair<size_t,float>> mSpectators;
 };
 
 #endif // CommonTools_Utils_TMVAEvaluator_h

@@ -92,7 +92,7 @@ void TMVAEvaluator::initializeGBRForest(const edm::EventSetup &iSetup, const std
 }
 
 
-float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, bool useSpectators)
+float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, bool useSpectators) const
 {
   // default value
   float value = -99.;
@@ -102,6 +102,10 @@ float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, bool u
     edm::LogError("InitializationError") << "TMVAEvaluator not properly initialized.";
     return value;
   }
+
+  // TMVA::Reader is not thread safe
+  if (!mUsingGBRForest)
+    std::lock_guard<std::mutex> lock(m_mutex);
 
   if( useSpectators && inputs.size() < ( mVariables.size() + mSpectators.size() ) )
   {
