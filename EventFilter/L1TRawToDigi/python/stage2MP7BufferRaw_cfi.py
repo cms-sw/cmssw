@@ -53,8 +53,8 @@ stage2MPRaw = cms.EDProducer(
 
     # parameters for non-packetised data
     nFramesPerEvent  = cms.untracked.int32(40),
-    nFramesOffset    = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0),
-    nFramesLatency   = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0,0,0),
+    nFramesOffset    = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0),#,0,0),
+    nFramesLatency   = cms.untracked.vuint32(0,0,0,0,0,0,0,0,0),#,0,0),
 
     # DAQ parameters
     fedId            = cms.untracked.int32(1360),
@@ -64,7 +64,7 @@ stage2MPRaw = cms.EDProducer(
     lenSlinkTrailer  = cms.untracked.int32(8),
 
     # HW parameters
-    boardId          = cms.untracked.vint32( 0,1,2,3,4,5,6,7,8,9,10 ),
+    boardId          = cms.untracked.vint32( 0,1,2,3,4,5,6,7,8 ),#,9,10 ),
     mux              = cms.untracked.bool(True),
     muxOffset        = cms.untracked.int32(0),
 
@@ -82,8 +82,8 @@ stage2MPRaw = cms.EDProducer(
         mpblocks,
         mpblocks,
         mpblocks,
-        mpblocks,
-        mpblocks,
+        #mpblocks,
+        #mpblocks,
     )
 
 )

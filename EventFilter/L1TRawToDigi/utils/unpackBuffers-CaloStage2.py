@@ -100,7 +100,7 @@ options.register('doGT',
                  VarParsing.VarParsing.varType.bool,
                  "Read GT data")
 options.register('nMP',
-                 11,
+                 9,#11,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Number of MPs")

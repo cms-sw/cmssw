@@ -105,15 +105,15 @@ namespace stage2 {
          
        LogDebug("L1T") << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual " << jet.hwQual();
 
-       //res1_->push_back(0,jet);
+       res1_->push_back(0,jet);
 
        // Push them back in the right place (for checking sorting)
-
+       /*
        int blockID = block.header().getID();
        int nPos=0, nNeg=0;
        for (unsigned i=0; i<res1_->size(0); i++)
          res1_->at(0,i).hwEta()>0 ? nPos++ : nNeg++;
-
+       
        if (nJet==1) res1_->push_back(0,jet);
        else if (nJet==0) {
          if (blockID==123) {
@@ -139,7 +139,7 @@ namespace stage2 {
            else if (nNeg>2) res1_->insert(0,nPos+2,jet);
          }
        }
-
+       */
      }
 
      return true;

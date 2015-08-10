@@ -135,7 +135,7 @@ private:
     rxFileReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt")),
     txFileReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt")),
     rxPacketReader_(iConfig.getUntrackedParameter<std::string>("rxFile", "rx_summary.txt"), iConfig.getUntrackedParameter<int>("rxHeaderFrames", 1), 0, iConfig.getUntrackedParameter<int>("rxKeyLink", 0)),
-    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt"), iConfig.getUntrackedParameter<int>("txHeaderFrames", 0), 0, iConfig.getUntrackedParameter<int>("txKeyLink", 0)),
+    txPacketReader_(iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt"), iConfig.getUntrackedParameter<int>("txHeaderFrames", 1), 0, iConfig.getUntrackedParameter<int>("txKeyLink", 0)),
     packetisedData_(iConfig.getUntrackedParameter<bool>("packetisedData", true)),
     nFramesPerEvent_(iConfig.getUntrackedParameter<int>("nFramesPerEvent", 6)),
     iBoard_(iConfig.getUntrackedParameter<int>("boardOffset", 0)),
