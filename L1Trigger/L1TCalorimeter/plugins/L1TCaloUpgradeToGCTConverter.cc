@@ -279,9 +279,31 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
     hfRingEtSumResult->push_back(sum);
 
     hfRingEtSumResult->resize(1*bxCounter);
-    //no hfBitCounts yet
+  }
+
+  bxCounter = 0;
+  for(int itBX=HfCounts->getFirstBX(); itBX<=HfCounts->getLastBX(); ++itBX){
+
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
+    bxCounter++;
+    L1GctHFBitCounts count = L1GctHFBitCounts::fromGctEmulator(itBX,
+							       0,
+							       0,
+							       0,
+							       0);
+    for (CaloSpareBxCollection::const_iterator itCaloSpare = HfCounts->begin(itBX);
+	 itCaloSpare != HfCounts->end(itBX); ++itCaloSpare){
+      for(int i = 0; i < 4; i++)
+      {
+	count.setBitCount(i, itCaloSpare->GetRing(i));
+      }
+    }
+    hfBitCountResult->push_back(count);
     hfBitCountResult->resize(1*bxCounter);
   }
+
 
   e.put(isoEmResult,"isoEm");
   e.put(nonIsoEmResult,"nonIsoEm");
