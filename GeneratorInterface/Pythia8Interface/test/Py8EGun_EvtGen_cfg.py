@@ -12,10 +12,13 @@ process.generator = cms.EDFilter("Pythia8EGun",
     maxEventsToPrint = cms.untracked.int32(1),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     pythiaHepMCVerbosity = cms.untracked.bool(True),
+    useEvtGenPlugin = cms.PSet(),
+    #evtgenDecFile = cms.string("mydecfile"),
+    #evtgenPdlFile = cms.string("mypdlfile"),
 
     PGunParameters = cms.PSet(
-       ParticleID = cms.vint32(23),
-       AddAntiParticle = cms.bool(True),
+       ParticleID = cms.vint32(521),
+       AddAntiParticle = cms.bool(False),
        MinPhi = cms.double(-3.14159265359),
        MaxPhi = cms.double(3.14159265359),
        MinE = cms.double(100.0),
@@ -23,28 +26,12 @@ process.generator = cms.EDFilter("Pythia8EGun",
        MinEta = cms.double(0.0),
        MaxEta = cms.double(2.4)
     ),
-        
-    ExternalDecays = cms.PSet(
-        Tauola = cms.untracked.PSet(
-	     UseTauolaPolarization = cms.bool(True),
-	     InputCards = cms.PSet
-	     ( 
-	        pjak1 = cms.int32(0), # 1 = electron mode
-		pjak2 = cms.int32(0), # 2 = muon mode
-		mdtau = cms.int32(240)  # (any) tau -> nu pi+- 
-	     )
-	),
-        parameterSets = cms.vstring('Tauola')
-    ),
 
     PythiaParameters = cms.PSet(
-	py8ZDecaySettings = cms.vstring(  '23:onMode = off', # turn OFF all Z decays
-					  '23:onIfAny = 15'  # turn ON Z->tautau
-	),
-        parameterSets = cms.vstring(  
-	                              'py8ZDecaySettings' 
-				   )
+        py8Settings = cms.vstring(''),
+        parameterSets = cms.vstring('py8Settings')
     )
+        
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
@@ -69,7 +56,7 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.GEN = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('Py8EGun_Z2tautau.root')
+    fileName = cms.untracked.string('Py8EGun_EvtGen.root')
 )
 
 
