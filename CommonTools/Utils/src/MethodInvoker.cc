@@ -191,13 +191,14 @@ invoker(const edm::TypeWithDict& type) const
 {
   //std::cout << "LazyInvoker for " << name_ << " called on type " <<
   //  type.qualifiedName() << std::endl;
-  SingleInvokerPtr& invoker = invokers_[edm::TypeID(type.typeInfo())];
-  if (!invoker) {
-    //std::cout << "  Making new invoker for " << name_ << " on type " <<
-    //  type.qualifiedName() << std::endl;
-    invoker.reset(new SingleInvoker(type, name_, argsBeforeFixups_));
+  const edm::TypeID thetype(type.typeInfo());
+  auto found = invokers_.find(thetype);
+  if( found != invokers_.cend() ) {
+    return *(found->second);
   }
-  return *invoker;
+  auto to_add = std::make_shared<SingleInvoker>(type, name_, argsBeforeFixups_);
+  auto emplace_result = invokers_.insert(std::make_pair(thetype,to_add) );
+  return *(emplace_result.first->second);
 }
 
 edm::ObjectWithDict
