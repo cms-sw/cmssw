@@ -13,7 +13,7 @@ caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
 
 # EG
 caloStage1Params.egLsb                = cms.double(1.)
-caloStage1Params.egSeedThreshold      = cms.double(1.)
+caloStage1Params.egSeedThreshold      = cms.double(0.)
 
 caloStage1Params.egMinPtJetIsolation = cms.int32(25)
 caloStage1Params.egMaxPtJetIsolation = cms.int32(63)
@@ -44,7 +44,7 @@ caloStage1Params.isoTauEtaMin          = cms.int32(5)
 caloStage1Params.isoTauEtaMax          = cms.int32(16)
 # jets
 caloStage1Params.jetLsb                = cms.double(0.5)
-caloStage1Params.jetSeedThreshold      = cms.double(10.)
+caloStage1Params.jetSeedThreshold      = cms.double(0.)
 caloStage1Params.jetNeighbourThreshold = cms.double(0.)
 caloStage1Params.jetCalibrationType    = cms.string("Stage1JEC")
 caloStage1Params.jetCalibrationParams  = jetSF_8TeV_data
