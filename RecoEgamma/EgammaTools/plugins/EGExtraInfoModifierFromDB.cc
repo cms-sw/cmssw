@@ -501,15 +501,16 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   //std::array<float, 11> eval_ep;
   float* eval_ep = new float[11];
 
+  float ep = ele.trackMomentumAtVtx().R();
   float tot_energy = sc->rawEnergy()+sc->preshowerEnergy();
-  float trkMomentumRelError = ele.trackMomentumError()/ele.trackMomentumAtVtx().R();
+  float trkMomentumRelError = ele.trackMomentumError()/ep;
   eval_ep[0] = tot_energy*mean;
   eval_ep[1] = sigma/mean;
-  eval_ep[2] = ele.trackMomentumAtVtx().R(); 
+  eval_ep[2] = ep; 
   eval_ep[3] = trkMomentumRelError;
   eval_ep[4] = sigma/mean/ele.trackMomentumError();
-  eval_ep[5] = tot_energy*mean/ele.trackMomentumAtVtx().R();
-  eval_ep[6] = tot_energy*mean/ele.trackMomentumAtVtx().R()*sqrt(sigma/mean*sigma/mean+trkMomentumRelError*trkMomentumRelError);
+  eval_ep[5] = tot_energy*mean/ep;
+  eval_ep[6] = tot_energy*mean/ep*sqrt(sigma/mean*sigma/mean+trkMomentumRelError*trkMomentumRelError);
   eval_ep[7] = ele.ecalDriven();
   eval_ep[8] = ele.trackerDrivenSeed();
   eval_ep[9] = int(ele.classification());//eleClass;
