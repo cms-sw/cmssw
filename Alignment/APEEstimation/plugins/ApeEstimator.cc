@@ -228,7 +228,7 @@ class ApeEstimator : public edm::EDAnalyzer {
 ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig):
 parameterSet_(iConfig),
 tjTagToken_(consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
-offlinebeamSpot_(consumes<reco::BeamSpot>(<edm::InputTag>("offlineBeamSpot"))),
+offlinebeamSpot_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
 trackCut_(false), maxTracksPerEvent_(parameterSet_.getParameter<unsigned int>("maxTracksPerEvent")),
 minGoodHitsPerTrack_(parameterSet_.getParameter<unsigned int>("minGoodHitsPerTrack")),
 analyzerMode_(parameterSet_.getParameter<bool>("analyzerMode")),
