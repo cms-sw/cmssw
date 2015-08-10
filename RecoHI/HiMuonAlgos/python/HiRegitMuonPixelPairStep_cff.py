@@ -86,8 +86,8 @@ hiRegitMuPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMu
     src                 ='hiRegitMuPixelPairStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('HIMVASelectorIter5'),
-    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'relpterr', 'nhits', 'nlayers', 'eta']),
+    GBRForestLabel = cms.string('HIMVASelectorIter6'),
+    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuPixelPairStepLoose',
