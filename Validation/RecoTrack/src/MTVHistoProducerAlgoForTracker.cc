@@ -954,6 +954,7 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   double dxyPull=dxyRes/track.dxyError();
   double dzPull=dzRes/track.dzError();
 
+#ifdef EDM_ML_DEBUG
   double contrib_Qoverp = ((qoverpRec-qoverpSim)/qoverpErrorRec)*
     ((qoverpRec-qoverpSim)/qoverpErrorRec)/5;
   double contrib_dxy = ((dxyRec-dxySim)/track.dxyError())*((dxyRec-dxySim)/track.dxyError())/5;
@@ -982,6 +983,7 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
     << "contrib_theta=" << contrib_theta << "\n"<< "contrib_phi=" << contrib_phi << "\n"
     << "" << "\n"
     <<"chi2PULL="<<contrib_Qoverp+contrib_dxy+contrib_dz+contrib_theta+contrib_phi<<"\n";
+#endif
 
   h_pullQoverp[count]->Fill(qoverpPull);
   h_pullTheta[count]->Fill(thetaPull);
