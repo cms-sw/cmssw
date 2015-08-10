@@ -464,7 +464,14 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   theShower.compute();
   //myHistos->fill("h502", myPart->eta(),myGrid.totalX0());
 
-  auto scale = ecalCorrection ? ecalCorrection->getScale( myTrack.ecalEntrance(), myGrid.getHits() ) : 1.;
+  // calculate the total simulated energy for this particle
+  float simE = 0;
+  for( const auto& mapIterator : myGrid.getHits() ) {
+    simE += mapIterator.second;
+  }
+
+  auto scale = ecalCorrection ? ecalCorrection->getScale( myTrack.ecalEntrance().e(),
+     std::abs( myTrack.ecalEntrance().eta() ), simE ) : 1.;
 
   // Save the hits !
   updateECAL( myGrid.getHits(), onEcal,myTrack.id(), scale );
