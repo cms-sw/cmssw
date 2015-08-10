@@ -195,7 +195,6 @@ class ApeEstimator : public edm::EDAnalyzer {
       
       
       std::map<unsigned int, std::pair<double,double> > m_resErrBins_;
-      
       std::map<unsigned int, ReducedTrackerTreeVariables> m_tkTreeVar_;
       
       std::map<std::string,std::vector<double> > m_hitSelection_;
@@ -2178,7 +2177,7 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
       
    edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-   iEvent.getByToken(tjTag_, m_TrajTracksMap);
+   iEvent.getByToken(tjTagToken_, m_TrajTracksMap);
    
    if(analyzerMode_)tkDetector_.TrkSize->Fill(m_TrajTracksMap->size());
    
