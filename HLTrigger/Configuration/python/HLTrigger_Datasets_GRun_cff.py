@@ -92,11 +92,11 @@ streamA_datasetHighMultiplicity_selector.triggerConditions = cms.vstring('HLT_Pi
     'HLT_PixelTracks_Multiplicity160ForEndOfFill_v1', 
     'HLT_PixelTracks_Multiplicity60ForEndOfFill_v1')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighMultplicity85_selector
-streamA_datasetHighMultplicity85_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetHighMultplicity85_selector.l1tResults = cms.InputTag('')
-streamA_datasetHighMultplicity85_selector.throw      = cms.bool(False)
-streamA_datasetHighMultplicity85_selector.triggerConditions = cms.vstring('HLT_PixelTracks_Multiplicity85ForEndOfFill_v1')
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighMultiplicity85_selector
+streamA_datasetHighMultiplicity85_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHighMultiplicity85_selector.l1tResults = cms.InputTag('')
+streamA_datasetHighMultiplicity85_selector.throw      = cms.bool(False)
+streamA_datasetHighMultiplicity85_selector.triggerConditions = cms.vstring('HLT_PixelTracks_Multiplicity85ForEndOfFill_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMonteCarlo_selector
 streamA_datasetMonteCarlo_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

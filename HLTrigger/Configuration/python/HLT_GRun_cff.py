@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V117 (CMSSW_7_4_8_patch1)
+# /dev/CMSSW_7_4_0/GRun/V118 (CMSSW_7_4_8_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V117')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V118')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -489,7 +489,7 @@ fragment.streams = cms.PSet(
     'HcalHPDNoise',
     'HcalNZS',
     'HighMultiplicity',
-    'HighMultplicity85',
+    'HighMultiplicity85',
     'MonteCarlo',
     'NoBPTX',
     'SingleElectron',
@@ -690,7 +690,7 @@ fragment.datasets = cms.PSet(
     'HLT_PixelTracks_Multiplicity135ForEndOfFill_v1',
     'HLT_PixelTracks_Multiplicity160ForEndOfFill_v1',
     'HLT_PixelTracks_Multiplicity60ForEndOfFill_v1' ),
-  HighMultplicity85 = cms.vstring( 'HLT_PixelTracks_Multiplicity85ForEndOfFill_v1' ),
+  HighMultiplicity85 = cms.vstring( 'HLT_PixelTracks_Multiplicity85ForEndOfFill_v1' ),
   JetHT = cms.vstring( 'HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p45_v2',
     'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v2',
     'HLT_AK8PFJet360_TrimMass30_v2',
