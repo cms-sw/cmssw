@@ -227,7 +227,7 @@ struct TrackEvent{
   int   mtrkNHit[MAXTRACKS];
   int   mtrkNlayer[MAXTRACKS];
   int   mtrkNlayer3D[MAXTRACKS];
-  int   mtrkQual[MAXQUAL][MAXTRACKS];
+  bool   mtrkQual[MAXQUAL][MAXTRACKS];
   float mtrkChi2[MAXTRACKS];
   float mtrkNdof[MAXTRACKS];
   float mtrkDz1[MAXTRACKS];
