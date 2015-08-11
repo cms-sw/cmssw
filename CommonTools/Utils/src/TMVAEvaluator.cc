@@ -134,7 +134,7 @@ float TMVAEvaluator::evaluateGBRForest(const std::map<std::string,float> & input
   // default value
   float value = -99.;
 
-  float * vars = new float[mVariables.size()]; // allocate n floats
+  std::unique_ptr<float[]> vars(new float[mVariables.size()]); // allocate n floats
 
   // set the input variable values
   for(auto it = mVariables.begin(); it!=mVariables.end(); ++it)
@@ -147,11 +147,9 @@ float TMVAEvaluator::evaluateGBRForest(const std::map<std::string,float> & input
 
   // evaluate the MVA
   if (mUseAdaBoost)
-    value = mGBRForest->GetAdaBoostClassifier(vars);
+    value = mGBRForest->GetAdaBoostClassifier(vars.get());
   else
-    value = mGBRForest->GetGradBoostClassifier(vars);
-
-  delete [] vars;  // when done, free memory pointed to by vars
+    value = mGBRForest->GetGradBoostClassifier(vars.get());
 
   return value;
 }
