@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 
 

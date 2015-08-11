@@ -41,6 +41,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 #include <iostream>
 #include <iomanip>
