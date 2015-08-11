@@ -204,7 +204,7 @@ SUSY_HLT_HT400_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
 
 SUSY_HLT_alphaT_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/SUSYBSM/SUSY_HLT_HT200_alphaT0p51"
+        "HLT/SUSYBSM/HLT_PFHT200_PFAlphaT0p51_v",
         "HLT/SUSYBSM/HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_v",
         "HLT/SUSYBSM/HLT_PFHT250_DiPFJetAve90_PFAlphaT0p55_v",
         "HLT/SUSYBSM/HLT_PFHT300_DiPFJetAve90_PFAlphaT0p53_v",
