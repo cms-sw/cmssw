@@ -312,7 +312,7 @@ class IndexSection:
 
         return ret
 
-class Html:
+class HtmlReport:
     def __init__(self, newRelease, newBaseDir):
         self._title = "Tracking validation "+newRelease
         self._base = "http://cmsdoc.cern.ch/cms/Physics/tracking/validation/MC/%s/" % newRelease
@@ -366,3 +366,13 @@ class Html:
             f.write(line)
             f.write("\n")
         f.close()
+
+class HtmlReportDummy:
+    def __init__(self):
+        pass
+
+    def beginSample(self, *args, **kwargs):
+        pass
+
+    def addPlots(self, *args, **kwargs):
+        pass

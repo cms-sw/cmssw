@@ -428,9 +428,9 @@ class Validation:
             sys.exit(1)
 
     def createHtmlReport(self):
-        return html.Html(self._newRelease, self._newBaseDir)
+        return html.HtmlReport(self._newRelease, self._newBaseDir)
 
-    def doPlots(self, refRelease, refRepository, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=None, doFastVsFull=True):
+    def doPlots(self, refRelease, refRepository, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True):
         """Create validation plots.
 
         Arguments:
@@ -458,14 +458,12 @@ class Validation:
                 sys.exit(1)
 
             plotterInstance = plotter.readDirs(harvestedFile)
-            if htmlReport is not None:
-                htmlReport.beginSample(sample)
+            htmlReport.beginSample(sample)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
                 if plotterFolder.onlyForPileup() and not sample.hasPileup():
                     continue
                 plotFiles = self._doPlots(sample, harvestedFile, plotterFolder, dqmSubFolder)
-                if htmlReport is not None:
-                    htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+                htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
                 # TODO: the pileup case is still to be migrated
 #               if s.fullsim() and s.hasPileup():
 #                   self._doPlotsPileup(a, q, s)
@@ -497,14 +495,12 @@ class Validation:
             # If we reach here, the harvestedFile must exist
             harvestedFile = fast.filename(self._newRelease)
             plotterInstance = plotter.readDirs(harvestedFile)
-            if htmlReport is not None:
-                htmlReport.beginSample(fast, fastVsFull=True)
+            htmlReport.beginSample(fast, fastVsFull=True)
             for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
                 if plotterFolder.onlyForPileup() and not fast.hasPileup():
                     continue
                 plotFiles = self._doPlotsFastFull(fast, correspondingFull, plotterFolder, dqmSubFolder)
-                if htmlReport is not None:
-                    htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
+                htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
     def _doPlots(self, sample, harvestedFile, plotterFolder, dqmSubFolder):
         """Do the real plotting work for a given sample and DQM subfolder"""
