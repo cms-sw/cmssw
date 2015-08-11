@@ -382,6 +382,9 @@ std::pair<LocalPoint,LocalVector> SiStripRecHitsValid::projectHit( const PSimHit
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const StripTopology &topol,TrackerHitAssociator& associate){
   
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.pullMF = -999999.; 
+  rechitpro.chi2 = -999999.; rechitpro.bunch = -999999.; rechitpro.event = -999999.;
+  
   LocalPoint position=rechit.localPosition();
   LocalError error=rechit.localPositionError();
   MeasurementPoint Mposition = topol.measurementPosition(position);
@@ -409,9 +412,6 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
   float dist = std::numeric_limits<float>::max();
   PSimHit closest;
  
-  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.pullMF = -999999.; 
-  rechitpro.chi2 = -999999.; rechitpro.bunch = -999999.; rechitpro.event = -999999.;
-  
   if(!matched.empty()){
 
     for(auto const &m : matched){
@@ -457,6 +457,10 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
 //--------------------------------------------------------------------------------------------
 void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator& associate){
   
+  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.pullMF = -999999.; 
+  rechitpro.chi2 = -999999.; rechitpro.bunch = -999999.; rechitpro.event = -999999.;
+  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.;
+
   LocalPoint position=rechit.localPosition();
   LocalError error=rechit.localPositionError();
 
@@ -479,10 +483,6 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
   PSimHit closest;
   std::pair<LocalPoint,LocalVector> closestPair;
 
-  rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.pullMF = -999999.; 
-  rechitpro.chi2 = -999999.; rechitpro.bunch = -999999.; rechitpro.event = -999999.;
-  rechitpro.clusiz = -999999.; rechitpro.cluchg = -999999.;
-
   if(!matched.empty()){
 
     const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
@@ -496,7 +496,7 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
 	distx = rechitpro.x - hitPair.first.x();
 	disty = rechitpro.y - hitPair.first.y();
 	dist2 = distx*distx+disty*disty;
-        dist = sqrt(dist2);
+	dist = sqrt(dist2);
 	// std::cout << " Simhit position x = " << hitPair.first.x() 
 	//      << " y = " << hitPair.first.y() << " dist = " << dist << std::endl;
 	if(dist<mindist){
