@@ -534,11 +534,12 @@ class Validation:
         refdir = os.path.join(*tmp)
 
         # Construct new directory name
-        tmp = [self._newBaseDir]
+        tmp = []
         if sample.fastsim():
             tmp.extend(["fastsim", self._newRelease])
         tmp.extend([newSelection, sample.name()])
-        newdir = os.path.join(*tmp)
+        newsubdir = os.path.join(*tmp)
+        newdir = os.path.join(self._newBaseDir, newsubdir)
 
         # Open reference file if it exists
         refValFilePath = os.path.join(refdir, valname)
@@ -575,8 +576,7 @@ class Validation:
             os.makedirs(newdir)
         for f in fileList:
             shutil.move(f, os.path.join(newdir, f))
-        subdir = newdir.replace(self._newBaseDir+"/", "")
-        return map(lambda n: os.path.join(subdir, n), fileList)
+        return map(lambda n: os.path.join(newsubdir, n), fileList)
 
     def _doPlotsFastFull(self, fastSample, fullSample, plotterFolder, dqmSubFolder):
         """Do the real plotting work for FastSim vs. FullSim for a given algorithm, quality flag, and sample."""
@@ -595,7 +595,8 @@ class Validation:
         # Construct directories for FastSim, FullSim, and for the results
         fastdir = os.path.join(self._newBaseDir, "fastsim", self._newRelease, fastSelection, fastSample.name())
         fulldir = os.path.join(self._newBaseDir, fullSelection, fullSample.name())
-        newdir = os.path.join(self._newBaseDir, "fastfull", self._newRelease, fastSelection, fastSample.name())
+        newsubdir = os.path.join("fastfull", self._newRelease, fastSelection, fastSample.name())
+        newdir = os.path.join(self._newBaseDir, newsubdir)
 
         # Open input root files
         valname = "val.{sample}.root".format(sample=fastSample.name())
@@ -628,8 +629,7 @@ class Validation:
             os.makedirs(newdir)
         for f in fileList:
             shutil.move(f, os.path.join(newdir, f))
-        subdir = newdir.replace(self._newBaseDir+"/", "")
-        return map(lambda n: os.path.join(subdir, n), fileList)
+        return map(lambda n: os.path.join(newsubdir, n), fileList)
 
     # TODO: this method is still to be migrated
     def _doPlotsPileup(self, algo, quality, sample):
