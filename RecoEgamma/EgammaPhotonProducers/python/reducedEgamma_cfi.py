@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoEgamma.EgammaTools.regressionESPrefer_cfi import * 
+
 reducedEgamma = cms.EDProducer("ReducedEGProducer",
   keepPhotons = cms.string("pt > 14 && hadTowOverEm()<0.15"), #keep in output
   slimRelinkPhotons = cms.string("pt > 14 && hadTowOverEm()<0.15"), #keep only slimmed SuperCluster plus seed cluster
@@ -68,7 +70,7 @@ gedelectronGBRESSource = cms.ESSource("PoolDBESSource",
                                                                  ),
                                                         cms.PSet(record = cms.string('GBRDWrapperRcd'),
                                                                  tag = cms.string('GBRForestD_gedelectron_EBCorrection_25ns_v0'),
-                                                                 label = cms.untracked.string('gedelectron_EBCorrection_25ns_v0')
+                                                                 label = cms.untracked.string('gedelectron_EBCorrection_25ns')
                                                                  ),
                                                         cms.PSet(record = cms.string('GBRDWrapperRcd'),
                                                                  tag = cms.string('GBRForestD_gedelectron_EBUncertainty_25ns_v0'),
@@ -109,7 +111,7 @@ gedelectronPrefer = cms.ESPrefer('PoolDBESSource',
                                  'gedelectronGBRESSource',
                                  GBRWrapperRcd  = cms.vstring('GBRForest/gedelectron_p4combination_25ns',
                                                               'GBRForest/gedelectron_p4combination_50ns'),
-                                 GBRDWrapperRcd = cms.vstring('GBRForestD/gedelectron_EBCorrection_25ns_v0',
+                                 GBRDWrapperRcd = cms.vstring('GBRForestD/gedelectron_EBCorrection_25ns',
                                                               'GBRForestD/gedelectron_EBUncertainty_25ns',
                                                               'GBRForestD/gedelectron_EECorrection_25ns',
                                                               'GBRForestD/gedelectron_EEUncertainty_25ns',

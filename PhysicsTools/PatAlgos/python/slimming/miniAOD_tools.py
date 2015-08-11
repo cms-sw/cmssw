@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
-def miniAOD_customizeCommon(process):
+def miniAOD_customizeCommon(process): 
+    process.load("RecoEgamma.EgammaTools.regressionESPrefer_cfi")
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
     process.patTaus.isoDeposits = cms.PSet()
