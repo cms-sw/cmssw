@@ -11,7 +11,6 @@
 
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
-#include <DataFormats/GEMRecHit/interface/ME0RecHitCollection.h>
 #include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
 #include <DataFormats/GEMRecHit/interface/ME0Segment.h>
 

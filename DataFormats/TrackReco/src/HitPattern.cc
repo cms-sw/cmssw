@@ -127,38 +127,38 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
             break;
         }
     } else if (detid == DetId::Muon) {
-        switch (subdet) {
-        case MuonSubdetId::DT:
-            layer = ((DTLayerId(id.rawId()).station() - 1) << 2);
-            layer |= DTLayerId(id.rawId()).superLayer();
-            break;
-        case MuonSubdetId::CSC:
-            layer = ((CSCDetId(id.rawId()).station() - 1) << 2);
-            layer |= (CSCDetId(id.rawId()).ring() - 1);
-            break;
-        case MuonSubdetId::RPC: 
-            {
-                RPCDetId rpcid(id.rawId());
-                layer = ((rpcid.station() - 1) << 2);
-                layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
-                layer |= abs(rpcid.region());
-            }
-            break;
-         case MuonSubdetId::GEM:
-            {
-              GEMDetId gemid(id.rawId());
-              layer = ((gemid.roll()-1)<<1);
-              layer |= abs(gemid.layer()-1);
-            }
-            break;
-	case MuonSubdetId::ME0:
-	  ME0DetId me0id(id.rawId());
-	  //Only layer information that is meaningful currently is in the roll/etapartition
-	  layer = (me0id.roll());
-	  break;
-        }
+      switch (subdet) {
+      case MuonSubdetId::DT:
+	layer = ((DTLayerId(id.rawId()).station() - 1) << 2);
+	layer |= DTLayerId(id.rawId()).superLayer();
+	break;
+      case MuonSubdetId::CSC:
+	layer = ((CSCDetId(id.rawId()).station() - 1) << 2);
+	layer |= (CSCDetId(id.rawId()).ring() - 1);
+	break;
+      case MuonSubdetId::RPC: 
+	{
+	  RPCDetId rpcid(id.rawId());
+	  layer = ((rpcid.station() - 1) << 2);
+	  layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
+	  layer |= abs(rpcid.region());
+	  }
+	break;
+      case MuonSubdetId::GEM:
+	{
+	  GEMDetId gemid(id.rawId());
+	  layer = ((gemid.roll()-1)<<1);
+	  layer |= abs(gemid.layer()-1);
+	}
+	break;
+      case MuonSubdetId::ME0:
+	ME0DetId me0id(id.rawId());
+	layer = ( (0) << 2);  //Align a "zero" in the station position, place holder
+	layer |= abs(me0id.region());
+	break;
+      }
     }
-
+    
     pattern |= (layer & LayerMask) << LayerOffset;
 
     // adding mono/stereo bit

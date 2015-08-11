@@ -228,19 +228,19 @@ MuonDetLayerGeometry::backwardGEMLayers() const {
 
 //////////////////// ME0s
 
-const vector<DetLayer*>&
+const vector<const DetLayer*>&
 MuonDetLayerGeometry::allME0Layers() const {
     return me0Layers_all;
 }
 
 
-const vector<DetLayer*>&
+const vector<const DetLayer*>&
 MuonDetLayerGeometry::forwardME0Layers() const {
     return me0Layers_fw;
 }
 
 
-const vector<DetLayer*>&
+const vector<const DetLayer*>&
 MuonDetLayerGeometry::backwardME0Layers() const {
     return me0Layers_bk;
 }
@@ -326,19 +326,19 @@ MuonDetLayerGeometry::allCscGemBackwardLayers() const {
 
 //////////////////// ME0s
 
-const vector<DetLayer*>&
+const vector<const DetLayer*>&
 MuonDetLayerGeometry::allEndcapCscME0Layers() const {
     return allEndcapCscME0;    
 }    
 
 
-const vector<DetLayer*>&
+const vector<const DetLayer*>&
 MuonDetLayerGeometry::allCscME0ForwardLayers() const {
     return allCscME0Forward;    
 }    
 
 
-const vector<DetLayer*>&
+const vector<const DetLayer*>&
 MuonDetLayerGeometry::allCscME0BackwardLayers() const {
     return allCscME0Backward;    
 }    
@@ -383,7 +383,7 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(const DetId &detId) const{
   }
   else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
 
-  std::map<DetId,const DetLayer*>::const_iterator layer = detLayersMap.find(id);
+  std::map<DetId,DetLayer*>::const_iterator layer = detLayersMap.find(id);
   if (layer == detLayersMap.end()) return 0;
   return layer->second; 
 }
