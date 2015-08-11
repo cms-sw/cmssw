@@ -5,7 +5,6 @@
 #include "CommonTools/Utils/interface/TMVAEvaluator.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/interface/LeptonSelector.h"
-#include <mutex>
 
 /** \class ElectronTagger
  *
@@ -29,8 +28,7 @@ private:
   const bool m_useGBRForest;
   const bool m_useAdaBoost;
 
-  mutable std::mutex m_mutex;
-  [[cms::thread_guard("m_mutex")]] std::unique_ptr<TMVAEvaluator> mvaID;
+  std::unique_ptr<TMVAEvaluator> mvaID;
 };
 
 #endif
