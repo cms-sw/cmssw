@@ -18,8 +18,8 @@ cmssw			= os.getenv("CMSSW_VERSION").split("_")
 debugstr		= "### HcalDQM::cfg::DEBUG: "
 warnstr			= "### HcalDQM::cfg::WARN: "
 errorstr		= "### HcalDQM::cfg::ERROR:"
-useOfflineGT	= True
-useFileInput	= True
+useOfflineGT	= False
+useFileInput	= False
 useMap		= False
 
 #-------------------------------------
