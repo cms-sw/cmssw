@@ -51,8 +51,6 @@ float ElectronTagger::discriminator(const TagInfoHelper & tagInfo) const {
   std::mt19937_64 random;
   std::uniform_real_distribution<float> dist(0.f,1.f);
 
-  // TMVAEvaluator is not thread safe
-  std::lock_guard<std::mutex> lock(m_mutex);
   // if there are multiple leptons, look for the highest tag result
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
