@@ -23,6 +23,7 @@ public:
 
 private:
   const btag::LeptonSelector m_selector;
+  const bool m_useCondDB;
   const std::string m_gbrForestLabel;
   const edm::FileInPath m_weightFile;
   const bool m_useGBRForest;
