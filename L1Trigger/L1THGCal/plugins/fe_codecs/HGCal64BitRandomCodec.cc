@@ -54,7 +54,7 @@ HGCal64BitRandomCodec::
 encodeImpl(const HGCal64BitRandomCodec::data_type& data) const {
   std::vector<bool> result;
   result.resize(sizeof(data_type));
-  for( unsigned i = 0; i < sizeof(data_type); ++i ) {
+  for( unsigned i = 0; i < 8*sizeof(data_type); ++i ) {
     result[i] = static_cast<bool>((data.payload >> i) & 0x1);
   }
   return result;
@@ -65,12 +65,12 @@ HGCal64BitRandomCodec::
 decodeImpl(const std::vector<bool>& data) const {
   data_type result;
   result.payload = 0;
-  if( data.size() > sizeof(data_type) ) {
+  if( data.size() > 8*sizeof(data_type) ) {
     edm::LogWarning("HGCal64BitRandomCodec|TruncateInput")
           << "Input to be encoded was larger than data size: "
           << sizeof(data_type) << ". Truncating to fit!";
   }  
-  for( unsigned i = 0; i < sizeof(data_type); ++i ) {
+  for( unsigned i = 0; i < 8*sizeof(data_type); ++i ) {
     result.payload |= static_cast<unsigned int>(data[i]) << i;
   }
   return result;

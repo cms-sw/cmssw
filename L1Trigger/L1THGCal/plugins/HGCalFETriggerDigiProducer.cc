@@ -1,10 +1,37 @@
-#include "HGCalFETriggerDigiProducer.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDProducer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
+
 #include <sstream>
+#include <memory>
+
+class HGCalFETriggerDigiProducer : public edm::EDProducer {  
+ public:    
+  HGCalFETriggerDigiProducer(const edm::ParameterSet&);
+  ~HGCalFETriggerDigiProducer() { }
+  
+  virtual void beginRun(const edm::Run&, 
+                        const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&);
+  
+ private:
+  // inputs
+  edm::EDGetToken inputee_, inputfh_, inputbh_;
+  // algorithm containers
+  std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_;
+  std::unique_ptr<HGCalTriggerFECodecBase> codec_;
+};
+
+DEFINE_FWK_MODULE(HGCalFETriggerDigiProducer);
 
 HGCalFETriggerDigiProducer::
 HGCalFETriggerDigiProducer(const edm::ParameterSet& conf) {
