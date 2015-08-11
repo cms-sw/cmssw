@@ -2,6 +2,7 @@
 
 from Validation.RecoTrack.plotting.validation import Sample, Validation
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
+import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 
 #########################################################
 ########### User Defined Variables (BEGIN) ##############
@@ -16,8 +17,8 @@ NewRelease='CMSSW_7_6_0_pre1'
 startupsamples= [
     Sample('RelValMinBias', midfix="13"),
     Sample('RelValTTbar', midfix="13"),
-    Sample('RelValQCD_Pt_3000_3500', midfix="13"),
     Sample('RelValQCD_Pt_600_800', midfix="13"),
+    Sample('RelValQCD_Pt_3000_3500', midfix="13"),
     Sample('RelValQCD_FlatPt_15_3000', append="HS", midfix="13"),
     Sample('RelValZMM', midfix="13"),
     Sample('RelValWjet_Pt_3000_3500', midfix="13"),
@@ -64,13 +65,15 @@ fastsimstartupsamples = [
 ]
 
 pileupfastsimstartupsamples = [
-    Sample('RelValTTbar', putype="25ns", midfix="13", fastsim=True)
+    Sample('RelValTTbar', putype=putype("25ns"), midfix="13", fastsim=True)
 ]
 
+doFastVsFull = True
 if "_pmx" in NewRelease:
     startupsamples = []
     fastsimstartupsamples = []
-    pileupfastsimstartupsamples = []
+    doFastVsFull = False
+
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
@@ -78,6 +81,7 @@ Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripl
 ]
 #Algos= ['ootb']
 Qualities=['', 'highPurity']
+VertexCollections=["offlinePrimaryVertices", "selectedOfflinePrimaryVertices"]
 
 def limitProcessing(algo, quality):
     return algo in Algos and quality in Qualities
@@ -90,14 +94,31 @@ NewRepository = 'new' # copy output into a local folder
 val = Validation(
     fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
     fastsimSamples = fastsimstartupsamples + pileupfastsimstartupsamples,
-    newRelease=NewRelease,
+    newRelease=NewRelease, newRepository=NewRepository
 )
+htmlReport = val.createHtmlReport()
 val.download()
 val.doPlots(refRelease=RefRelease,
-            refRepository=RefRepository, newRepository=NewRepository, plotter=trackingPlots.plotter,
+            refRepository=RefRepository, plotter=trackingPlots.plotter,
             plotterDrawArgs={"ratio": True},
-            limitSubFoldersOnlyTo={"": limitProcessing}
+#            limitSubFoldersOnlyTo={"": limitProcessing},
+            htmlReport=htmlReport,
+            doFastVsFull=doFastVsFull
 )
+
+valv = Validation(
+    fullsimSamples = pileupstartupsamples,
+    fastsimSamples=[], newRelease=NewRelease, newRepository=NewRepository)
+valv.download()
+valv.doPlots(refRelease=RefRelease,
+             refRepository=RefRepository, plotter=vertexPlots.plotter,
+             plotterDrawArgs={"ratio": True},
+             limitSubFoldersOnlyTo={"": VertexCollections},
+             htmlReport=htmlReport,
+             doFastVsFull=doFastVsFull
+)
+htmlReport.write()
+
 
 # Timing plots
 #val2 = validation.Validation(

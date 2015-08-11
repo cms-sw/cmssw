@@ -46,10 +46,10 @@ NewRepository = 'new' # copy output into a local folder
 
 validation = Validation(
     fullsimSamples = pileupstartupsamples,
-    fastsimSamples=[], newRelease=NewRelease)
+    fastsimSamples=[], newRelease=NewRelease, newRepository=NewRepository)
 validation.download()
 validation.doPlots(refRelease=RefRelease,
-                   refRepository=RefRepository, newRepository=NewRepository, plotter=vertexPlots.plotter,
+                   refRepository=RefRepository, plotter=vertexPlots.plotter,
                    plotterDrawArgs={"ratio": True},
                    limitOnlyTo=Collections,
 )

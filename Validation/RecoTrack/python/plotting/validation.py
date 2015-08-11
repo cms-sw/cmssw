@@ -737,8 +737,8 @@ class SimpleValidation:
         self._labels = labels
         self._newdir = newdir
 
-    def doPlots(self, plotter, newdirFunc=None, plotterDrawArgs={}):
-        self._newdirFunc = newdirFunc
+    def doPlots(self, plotter, subdirprefix, plotterDrawArgs={}):
+        self._subdirprefix=subdirprefix
         self._plotterDrawArgs = plotterDrawArgs
 
         self._openFiles = []
@@ -760,9 +760,8 @@ class SimpleValidation:
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
-        newdir = self._newdir
-        if self._newdirFunc is not None:
-            newdir = os.path.join(newdir, self._newdirFunc(dqmSubFolder.translated if dqmSubFolder is not None else None))
+        newdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
+        newdir = os.path.join(self._newdir, newdir)
 
         print "Moving plots to %s" % newdir
         if not os.path.exists(newdir):

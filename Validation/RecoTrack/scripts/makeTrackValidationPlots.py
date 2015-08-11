@@ -3,16 +3,8 @@
 import os
 import argparse
 
-import Validation.RecoTrack.plotting.plotting as plotting
 from Validation.RecoTrack.plotting.validation import SimpleValidation
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
-
-def newdirname(translatedDqmSubFolder):
-    (algo, quality) = translatedDqmSubFolder
-    ret = algo
-    if quality != "":
-        ret += "_"+quality
-    return ret
 
 def main(opts):
     files = opts.files
@@ -27,7 +19,7 @@ def main(opts):
         drawArgs["saveFormat"] = ".png"
 
     val = SimpleValidation(files, labels, opts.outputDir)
-    val.doPlots(trackingPlots.plotter, newdirFunc=newdirname, plotterDrawArgs=drawArgs)
+    val.doPlots(trackingPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Create standard set of tracking validation plots from one or more DQM files. Note that the output directory structure is not exactly the same as with test/trackingPerformanceValidation.py or test/trackingCompare.py")
@@ -35,6 +27,8 @@ if __name__ == "__main__":
                         help="DQM file to plot the validation plots from")
     parser.add_argument("-o", "--outputDir", type=str, default="plots",
                         help="Plot output directory (default: 'plots')")
+    parser.add_argument("--subdirprefix", type=str, default="plots",
+                        help="Prefix for subdirectories inside outputDir (default: 'plots')")
     parser.add_argument("--ignoreMissing", action="store_true",
                         help="Ignore missing histograms and directories")
     parser.add_argument("--ratio", action="store_true",
