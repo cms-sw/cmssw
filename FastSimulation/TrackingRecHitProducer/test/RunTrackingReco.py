@@ -89,8 +89,8 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 )
 
 process.tracking_step=cms.Path(
-    process.recHitProducerSimple
-    #process.recHitProducerTemplates
+#    process.recHitProducerSimple
+    process.recHitProducerTemplates
 )
 
 process.TFileService = cms.Service("TFileService", fileName = cms.string("histo.root") )

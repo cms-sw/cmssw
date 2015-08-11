@@ -136,10 +136,12 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
     //--- The usual case.  More than one hit on this DetUnit.
     //    Iterate over hits.
     //
+    for (int i = 0; i < nHits; ++i ) {
+      mergeGroupByHit[i] = 0; //initialize this cell to a NULL pointer here      
+    }
     for ( int i = 0; i < nHits-1; ++i ) {
       //
-      mergeGroupByHit[i] = 0;     // initialize this cell to a NULL pointer.
-      
+      //            mergeGroupByHit[i] = 0;     // initialize this cell to a NULL pointer.
       //--- Inner loop over remaining hits.  j starts from i+1 and goes to nHits
       for ( int j = i+1 ; j < nHits; ++j ) {
 	
@@ -159,7 +161,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 	    //
 	    if ( mergeGroupByHit[i] == 0 ) {
 	      // This is the first time we realized i is merged with any
-	      // other hit.  Create a new merge group for i and j.
+	      // other hit.  Create a new merge group for i and j
 	      mergeGroupByHit[i] = new MergeGroup();
 	      listOfMergeGroups.push_back( mergeGroupByHit[i] );   // keep track of it
 	      //
