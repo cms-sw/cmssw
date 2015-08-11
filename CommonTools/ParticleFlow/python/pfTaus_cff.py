@@ -125,51 +125,6 @@ pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
 pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
-
-# Produce primary vertices
-
-from RecoTauTag.RecoTau.PFTauPrimaryVertexProducer_cfi      import *
-from RecoTauTag.RecoTau.PFTauSecondaryVertexProducer_cfi    import *
-from RecoTauTag.RecoTau.PFTauTransverseImpactParameters_cfi import *
-hpsPFTauPrimaryVertexProducer = PFTauPrimaryVertexProducer.clone(
-    PFTauTag = cms.InputTag("hpsPFTauProducer"),
-    ElectronTag = cms.InputTag(""),
-    MuonTag = cms.InputTag(""),
-    PVTag = cms.InputTag("offlinePrimaryVertices"),
-    beamSpot = cms.InputTag("offlineBeamSpot"),
-    TrackCollectionTag = cms.InputTag("generalTracks"),
-    Algorithm = cms.int32(1),
-    useBeamSpot = cms.bool(True),
-    RemoveMuonTracks = cms.bool(False),
-    RemoveElectronTracks = cms.bool(False),
-    useSelectedTaus = cms.bool(False),
-    discriminators = cms.VPSet(
-        cms.PSet(
-            discriminator = cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs'),
-            selectionCut = cms.double(0.5)
-        )
-    ),
-    cut = cms.string("pt > 18.0 & abs(eta) < 2.4")
-)
-
-
-hpsPFTauSecondaryVertexProducer = PFTauSecondaryVertexProducer.clone(
-    PFTauTag = cms.InputTag("hpsPFTauProducer")
-)
-hpsPFTauTransverseImpactParameters = PFTauTransverseImpactParameters.clone(
-    PFTauTag = cms.InputTag("hpsPFTauProducer"),
-    PFTauPVATag = cms.InputTag("hpsPFTauPrimaryVertexProducer"),
-    PFTauSVATag = cms.InputTag("hpsPFTauSecondaryVertexProducer"),
-    useFullCalculation = cms.bool(False)
-)
-hpsPFTauVertexAndImpactParametersSeq = cms.Sequence(
-    hpsPFTauPrimaryVertexProducer*
-    hpsPFTauSecondaryVertexProducer*
-    hpsPFTauTransverseImpactParameters
-)
-
-
-
 pfTausPreSequence = cms.Sequence(
     pfJetTracksAssociatorAtVertex +
     pfTauPFJets08Region +
