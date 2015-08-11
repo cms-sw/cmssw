@@ -7,13 +7,12 @@ SUSY_HLT_Electron_BJet = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   HLTProcess = cms.string('HLT'),
-  TriggerPath = cms.string('HLT_Ele10_CaloId_TrackIdVL_CentralPFJet40_BTagCSV_v'),
+  TriggerPath = cms.string('HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV0p54PF_v'),
   TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdTrackIdVLDphiFilter', '', 'HLT'), #the last filter in the path hltSingleEle10CaloIdTrackIdVLOneOEMinusOneOPFilterRegional
   TriggerFilterJet = cms.InputTag('hltCSVFilterSingleEle10', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
   EtaThrJet = cms.untracked.double(3.0)
 )
-
 
 
 SUSY_HLT_Electron_BJet_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
@@ -23,7 +22,7 @@ SUSY_HLT_Electron_BJet_FASTSIM = cms.EDAnalyzer("SUSY_HLT_Electron_BJet",
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
   HLTProcess = cms.string('HLT'),
-  TriggerPath = cms.string('HLT_Ele10_CaloId_TrackIdVL_CentralPFJet40_BTagCSV_v'),
+  TriggerPath = cms.string('HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV0p54PF_v'),
   TriggerFilterEle = cms.InputTag('hltSingleEle10CaloIdTrackIdVLDphiFilter', '', 'HLT'), #the last filter in the path hltSingleEle10CaloIdTrackIdVLOneOEMinusOneOPFilterRegional
   TriggerFilterJet = cms.InputTag('hltCSVFilterSingleEle10', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
