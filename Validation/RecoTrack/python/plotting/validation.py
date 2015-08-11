@@ -430,7 +430,7 @@ class Validation:
     def createHtmlReport(self):
         return html.Html(self._newRelease, self._newBaseDir)
 
-    def doPlots(self, refRelease, refRepository, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=None):
+    def doPlots(self, refRelease, refRepository, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=None, doFastVsFull=True):
         """Create validation plots.
 
         Arguments:
@@ -442,6 +442,7 @@ class Validation:
         plotterDrawArgs -- Dictionary for additional arguments to Plotter.draw() (default: {})
         limitSubFoldersOnlyTo   -- If not None, should be a dictionary from string to an object. The string is the name of a PlotFolder, and the object is PlotFolder-type specific to limit the subfolders to be processed. In general case the object is a list of strings, but e.g. for track iteration plots it is a function taking the algo and quality as parameters.
         htmlReport      -- Object returned by createHtmlReport(), in case HTML report generation is desired
+        doFastVsFull    -- Do FastSim vs. FullSim comparison? (default: True)
         """
         self._refRelease = refRelease
         self._refRepository = refRepository
@@ -470,6 +471,8 @@ class Validation:
 #                   self._doPlotsPileup(a, q, s)
 
         # Fast vs. Full
+        if not doFastVsFull:
+            return
         for fast in self._fastsimSamples:
             correspondingFull = None
             for full in self._fullsimSamples:
