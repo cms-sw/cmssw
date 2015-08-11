@@ -146,7 +146,7 @@ def miniAOD_customizeCommon(process):
     from RecoEgamma.EgammaTools.egammaObjectModificationsInMiniAOD_cff import egamma_modifications
     process.slimmedElectrons.modifierConfig.modifications = egamma_modifications
     process.slimmedPhotons.modifierConfig.modifications   = egamma_modifications
-
+    
     #VID Electron IDs
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
@@ -163,9 +163,44 @@ def miniAOD_customizeCommon(process):
         cms.InputTag("reducedEgamma","reducedEERecHits")
     process.electronIDValueMapProducer.esReducedRecHitCollection = \
         cms.InputTag("reducedEgamma","reducedESRecHits")
+    process.electronMVAValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronRegressionValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronRegressionValueMapProducer.ebReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEBRecHits")
+    process.electronRegressionValueMapProducer.eeReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEERecHits")
+    process.electronRegressionValueMapProducer.esReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedESRecHits")
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False)
     
+    process.load("RecoEgamma.PhotonIdentification.PhotonRegressionValueMapProducer_cfi")
+    process.photonRegressionValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.photonRegressionValueMapProducer.ebReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEBRecHits")
+    process.photonRegressionValueMapProducer.eeReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEERecHits")
+    process.photonRegressionValueMapProducer.esReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedESRecHits")
+    process.load("RecoEgamma.PhotonIdentification.PhotonIDValueMapProducer_cfi")
+    process.photonIDValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.photonIDValueMapProducer.particleBasedIsolation = \
+        cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")
+    process.photonIDValueMapProducer.ebReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEBRecHits")
+    process.photonIDValueMapProducer.eeReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEERecHits")
+    process.photonIDValueMapProducer.esReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedESRecHits")
+    process.load("RecoEgamma.PhotonIdentification.PhotonMVAValueMapProducer_cfi")
+    process.photonMVAValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")    
+
+
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')

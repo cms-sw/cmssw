@@ -58,4 +58,118 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
   ),
 )
 
+from CondCore.DBCommon.CondDBCommon_cfi import CondDBCommon
+gedelectronGBRESSource = cms.ESSource("PoolDBESSource",
+                                      CondDBCommon,
+                                      DumpStat=cms.untracked.bool(False),
+                                      toGet = cms.VPSet(cms.PSet(record = cms.string('GBRWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_p4combination_25ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_p4combination_25ns')
+                                                                 ),
+                                                        cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_EBCorrection_25ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_EBCorrection_25ns')
+                                                                 ),
+                                                        cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_EBUncertainty_25ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_EBUncertainty_25ns')
+                                                                 ),
+                                                        cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_EECorrection_25ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_EECorrection_25ns')
+                                                                 ),
+                                                        cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_EEUncertainty_25ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_EEUncertainty_25ns')
+                                                                 ),
+                                                        cms.PSet(record = cms.string('GBRWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_p4combination_50ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_p4combination_50ns')
+                                                                 ),
+                                                        cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_EBCorrection_50ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_EBCorrection_50ns')
+                                                                 ),
+                                                        cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_EBUncertainty_50ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_EBUncertainty_50ns')
+                                                                 ),
+                                                        cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_EECorrection_50ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_EECorrection_50ns')
+                                                                 ),
+                                                        cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                                 tag = cms.string('GBRForestD_gedelectron_EEUncertainty_50ns_v0'),
+                                                                 label = cms.untracked.string('gedelectron_EEUncertainty_50ns')
+                                                                 ),
+                                                        )
+                                      )
+gedelectronGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+gedelectronPrefer = cms.ESPrefer('PoolDBESSource',
+                                 'gedelectronGBRESSource',
+                                 GBRWrapperRcd  = cms.vstring('GBRForest/gedelectron_p4combination_25ns',
+                                                              'GBRForest/gedelectron_p4combination_50ns'),
+                                 GBRDWrapperRcd = cms.vstring('GBRForestD/gedelectron_EBCorrection_25ns',
+                                                              'GBRForestD/gedelectron_EBUncertainty_25ns',
+                                                              'GBRForestD/gedelectron_EECorrection_25ns',
+                                                              'GBRForestD/gedelectron_EEUncertainty_25ns',
+                                                              'GBRForestD/gedelectron_EBCorrection_50ns',
+                                                              'GBRForestD/gedelectron_EBUncertainty_50ns',
+                                                              'GBRForestD/gedelectron_EECorrection_50ns',
+                                                              'GBRForestD/gedelectron_EEUncertainty_50ns',
+                                                              )
+                                 )
+
+gedphotonGBRESSource = cms.ESSource("PoolDBESSource",
+                                    CondDBCommon,
+                                    DumpStat=cms.untracked.bool(False),
+                                    toGet = cms.VPSet(cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                               tag = cms.string('GBRForestD_gedphoton_EBCorrection_25ns_v0'),
+                                                               label = cms.untracked.string('gedphoton_EBCorrection_25ns')
+                                                               ),
+                                                      cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                               tag = cms.string('GBRForestD_gedphoton_EBUncertainty_25ns_v0'),
+                                                               label = cms.untracked.string('gedphoton_EBUncertainty_25ns')
+                                                               ),
+                                                      cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                               tag = cms.string('GBRForestD_gedphoton_EECorrection_25ns_v0'),
+                                                               label = cms.untracked.string('gedphoton_EECorrection_25ns')
+                                                               ),
+                                                      cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                               tag = cms.string('GBRForestD_gedphoton_EEUncertainty_25ns_v0'),
+                                                               label = cms.untracked.string('gedphoton_EEUncertainty_25ns')
+                                                               ),
+                                                      cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                               tag = cms.string('GBRForestD_gedphoton_EBCorrection_50ns_v0'),
+                                                               label = cms.untracked.string('gedphoton_EBCorrection_50ns')
+                                                               ),
+                                                      cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                               tag = cms.string('GBRForestD_gedphoton_EBUncertainty_50ns_v0'),
+                                                               label = cms.untracked.string('gedphoton_EBUncertainty_50ns')
+                                                               ),
+                                                      cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                               tag = cms.string('GBRForestD_gedphoton_EECorrection_50ns_v0'),
+                                                               label = cms.untracked.string('gedphoton_EECorrection_50ns')
+                                                               ),
+                                                      cms.PSet(record = cms.string('GBRDWrapperRcd'),
+                                                               tag = cms.string('GBRForestD_gedphoton_EEUncertainty_50ns_v0'),
+                                                               label = cms.untracked.string('gedphoton_EEUncertainty_50ns')
+                                                               ),
+                                                      )
+                                    )
+gedphotonGBRESSource.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+gedphotonPrefer = cms.ESPrefer('PoolDBESSource',
+                               'gedphotonGBRESSource',
+                               GBRDWrapperRcd = cms.vstring('GBRForestD/gedphoton_EBCorrection_25ns',
+                                                            'GBRForestD/gedphoton_EBUncertainty_25ns',
+                                                            'GBRForestD/gedphoton_EECorrection_25ns',
+                                                            'GBRForestD/gedphoton_EEUncertainty_25ns',
+                                                            'GBRForestD/gedphoton_EBCorrection_50ns',
+                                                            'GBRForestD/gedphoton_EBUncertainty_50ns',
+                                                            'GBRForestD/gedphoton_EECorrection_50ns',
+                                                            'GBRForestD/gedphoton_EEUncertainty_50ns',
+                                                            )
+                               )
+
+
 
