@@ -92,6 +92,70 @@ void TMVAEvaluator::initializeGBRForest(const edm::EventSetup &iSetup, const std
 }
 
 
+float TMVAEvaluator::evaluateTMVA(const std::map<std::string,float> & inputs, bool useSpectators) const
+{
+  // default value
+  float value = -99.;
+
+  // TMVA::Reader is not thread safe
+  std::lock_guard<std::mutex> lock(m_mutex);
+
+  // set the input variable values
+  for(auto it = mVariables.begin(); it!=mVariables.end(); ++it)
+  {
+    if (inputs.count(it->first)>0)
+      it->second.second = inputs.at(it->first);
+    else
+      edm::LogError("MissingInputVariable") << "Input variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+  }
+
+  // if using spectator variables
+  if(useSpectators)
+  {
+    // set the spectator variable values
+    for(auto it = mSpectators.begin(); it!=mSpectators.end(); ++it)
+    {
+      if (inputs.count(it->first)>0)
+        it->second.second = inputs.at(it->first);
+      else
+        edm::LogError("MissingSpectatorVariable") << "Spectator variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+    }
+  }
+
+  // evaluate the MVA
+  value = mReader->EvaluateMVA(mMethod.c_str());
+
+  return value;
+}
+
+
+float TMVAEvaluator::evaluateGBRForest(const std::map<std::string,float> & inputs) const
+{
+  // default value
+  float value = -99.;
+
+  float * vars = new float[mVariables.size()]; // allocate n floats
+
+  // set the input variable values
+  for(auto it = mVariables.begin(); it!=mVariables.end(); ++it)
+  {
+    if (inputs.count(it->first)>0)
+      vars[it->second.first] = inputs.at(it->first);
+    else
+      edm::LogError("MissingInputVariable") << "Input variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+  }
+
+  // evaluate the MVA
+  if (mUseAdaBoost)
+    value = mGBRForest->GetAdaBoostClassifier(vars);
+  else
+    value = mGBRForest->GetGradBoostClassifier(vars);
+
+  delete [] vars;  // when done, free memory pointed to by vars
+
+  return value;
+}
+
 float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, bool useSpectators) const
 {
   // default value
@@ -102,10 +166,6 @@ float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, bool u
     edm::LogError("InitializationError") << "TMVAEvaluator not properly initialized.";
     return value;
   }
-
-  // TMVA::Reader is not thread safe
-  if (!mUsingGBRForest)
-    std::lock_guard<std::mutex> lock(m_mutex);
 
   if( useSpectators && inputs.size() < ( mVariables.size() + mSpectators.size() ) )
   {
@@ -118,56 +178,14 @@ float TMVAEvaluator::evaluate(const std::map<std::string,float> & inputs, bool u
     return value;
   }
 
-  float * vars = nullptr; // pointer to float, initialize to nothing
   if (mUsingGBRForest)
-    vars = new float[mVariables.size()]; // allocate n floats and save ptr in vars
-
-  // set the input variable values
-  for(auto it = mVariables.begin(); it!=mVariables.end(); ++it)
   {
-    if (inputs.count(it->first)>0)
-    {
-      if (mUsingGBRForest)
-        vars[it->second.first] = inputs.at(it->first);
-      else
-        it->second.second = inputs.at(it->first);
-    }
-    else
-      edm::LogError("MissingInputVariable") << "Input variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
-  }
-
-  // if using spectator variables
-  if(useSpectators)
-  {
-    if(mUsingGBRForest)
+    if(useSpectators)
       edm::LogWarning("UnsupportedFunctionality") << "Use of spectator variables with GBRForest is not supported. Spectator variables will be ignored.";
-    else
-    {
-      // set the spectator variable values
-      for(auto it = mSpectators.begin(); it!=mSpectators.end(); ++it)
-      {
-        if (inputs.count(it->first)>0)
-          it->second.second = inputs.at(it->first);
-        else
-          edm::LogError("MissingSpectatorVariable") << "Spectator variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
-      }
-    }
-  }
-
-  // evaluate the MVA
-  if (mUsingGBRForest)
-  {
-    if (mUseAdaBoost)
-      value = mGBRForest->GetAdaBoostClassifier(vars);
-    else
-      value = mGBRForest->GetGradBoostClassifier(vars);
+    value = evaluateGBRForest(inputs);
   }
   else
-    value = mReader->EvaluateMVA(mMethod.c_str());
-
-
-  delete [] vars;  // when done, free memory pointed to by vars
-  vars = nullptr;  // clear vars to prevent using invalid memory reference
+    value = evaluateTMVA(inputs, useSpectators);
 
   return value;
 }
