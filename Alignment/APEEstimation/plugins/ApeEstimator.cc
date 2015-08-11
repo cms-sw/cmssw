@@ -34,6 +34,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
@@ -189,8 +190,10 @@ class ApeEstimator : public edm::EDAnalyzer {
       std::map<unsigned int, TrackerSectorStruct> m_tkSector_;
       TrackerDetectorStruct tkDetector_;
       
-      std::map<unsigned int, std::pair<double,double> > m_resErrBins_;
+      edm::EDGetTokenT<TrajTrackAssociationCollection> tjTagToken_;
+      edm::EDGetTokenT<reco::BeamSpot> offlinebeamSpot_;
       
+      std::map<unsigned int, std::pair<double,double> > m_resErrBins_;
       std::map<unsigned int, ReducedTrackerTreeVariables> m_tkTreeVar_;
       
       std::map<std::string,std::vector<double> > m_hitSelection_;
@@ -221,7 +224,10 @@ class ApeEstimator : public edm::EDAnalyzer {
 // constructors and destructor
 //
 ApeEstimator::ApeEstimator(const edm::ParameterSet& iConfig):
-parameterSet_(iConfig), trackCut_(false), maxTracksPerEvent_(parameterSet_.getParameter<unsigned int>("maxTracksPerEvent")),
+parameterSet_(iConfig),
+tjTagToken_(consumes<TrajTrackAssociationCollection>(parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag"))),
+offlinebeamSpot_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
+trackCut_(false), maxTracksPerEvent_(parameterSet_.getParameter<unsigned int>("maxTracksPerEvent")),
 minGoodHitsPerTrack_(parameterSet_.getParameter<unsigned int>("minGoodHitsPerTrack")),
 analyzerMode_(parameterSet_.getParameter<bool>("analyzerMode")),
 calculateApe_(parameterSet_.getParameter<bool>("calculateApe"))
@@ -856,9 +862,6 @@ ApeEstimator::bookSectorHistsForApeCalculation(){
 }
 
 
-
-
-
 // -----------------------------------------------------------------------------------------------------------
 
 void
@@ -1163,8 +1166,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
   const float norResX = resX/errX;
   const float norResY = resY/errY;
   
-  
-  
+    
   // Take global orientation into account for residuals (sign is not important for errors)
   
   float resXprime(999.F), resYprime(999.F), norResXprime(999.F), norResYprime(999.F);
@@ -1293,11 +1295,6 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
     edm::ESHandle<MagneticField> magFieldHandle;
     iSetup.get<IdealMagneticFieldRecord>().get(magFieldHandle);
    
-
-
-
-
- 
     edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
     iSetup.get<SiStripLorentzAngleDepRcd>().get(lorentzAngleHandle);  //MODIFIED BY LOIC QUERTENMONT
 
@@ -1339,9 +1336,7 @@ ApeEstimator::fillHitVariables(const TrajectoryMeasurement& i_meas, const edm::E
     float coveredStrips = std::fabs(projEdge2 - projEdge1);
     
     hitParams.projWidth = coveredStrips;
-    
-    
-    
+      
     
   }
   else{
@@ -2020,8 +2015,7 @@ ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
     // which tracks to take? need min. nr. of selected hits?
     if(goodHitsPerTrack < minGoodHitsPerTrack_)return;
   }
-  
-  
+   
   for(std::vector<TrackStruct::HitParameterStruct>::const_iterator i_hit = trackStruct.v_hitParams.begin();
       i_hit != trackStruct.v_hitParams.end(); ++i_hit){
     // Put here from earlier method
@@ -2033,8 +2027,7 @@ ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
       for(std::vector<unsigned int>::const_iterator i_hitSector = (*i_hit).v_sector.begin(); i_hitSector != (*i_hit).v_sector.end(); ++i_hitSector){
 	if((*i_sector).first == *i_hitSector){moduleInSector = true; break;}
       }
-      if(!moduleInSector)continue;
-      
+      if(!moduleInSector)continue;      
       
       if(!calculateApe_)continue;
       
@@ -2085,8 +2078,7 @@ ApeEstimator::fillHistsForApeCalculation(const TrackStruct& trackStruct){
 void
 ApeEstimator::calculateAPE(){
    // Loop over sectors for calculating APE
-   for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){
-     
+   for(std::map<unsigned int,TrackerSectorStruct>::iterator i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector){    
      
      // Loop over residual error bins to calculate APE for every bin
      for(std::map<unsigned int, std::map<std::string,TH1*> >::const_iterator i_errBins = (*i_sector).second.m_binnedHists.begin();
@@ -2162,7 +2154,7 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    reco::BeamSpot beamSpot;
    edm::Handle<reco::BeamSpot> beamSpotHandle;
-   iEvent.getByLabel("offlineBeamSpot", beamSpotHandle);
+   iEvent.getByToken(offlinebeamSpot_, beamSpotHandle);
    
    if (beamSpotHandle.isValid()){
      beamSpot = *beamSpotHandle;
@@ -2173,10 +2165,9 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                                   <<"\n...skip event";
      return;
    }
-   
-   edm::InputTag tjTag = parameterSet_.getParameter<edm::InputTag>("tjTkAssociationMapTag");
+      
    edm::Handle<TrajTrackAssociationCollection> m_TrajTracksMap;
-   iEvent.getByLabel(tjTag, m_TrajTracksMap);
+   iEvent.getByToken(tjTagToken_, m_TrajTracksMap);
    
    if(analyzerMode_)tkDetector_.TrkSize->Fill(m_TrajTracksMap->size());
    
