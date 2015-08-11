@@ -20,19 +20,20 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-process.GlobalTag = GlobalTag(process.GlobalTag, '75X_dataRun1_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_data', '')
+process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
    cms.PSet(record = cms.string("HeavyIonRcd"),
-      tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v750x02_mc"),
+      tag = cms.string("CentralityTable_HFtowers200_Glauber2010A_eff99_run1v750x01_offline"),
       connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
-      label = cms.untracked.string("HFtowersHydjetDrum5")
+      label = cms.untracked.string("HFtowers")
    ),
 ])
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi") 
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
 process.centralityBin.centralityVariable = cms.string("HFtowers")
-process.centralityBin.nonDefaultGlauberModel = cms.string("HydjetDrum5")
+process.centralityBin.nonDefaultGlauberModel = cms.string("")
 
 process.TFileService = cms.Service("TFileService",
                                   fileName=cms.string("eventtree_filtered_data.root"))

@@ -20,7 +20,8 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 
-process.GlobalTag = GlobalTag(process.GlobalTag, '75X_mcRun2_HeavyIon_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_hi', '')
+process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 process.GlobalTag.toGet.extend([
    cms.PSet(record = cms.string("HeavyIonRcd"),
       tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v750x02_mc"),
