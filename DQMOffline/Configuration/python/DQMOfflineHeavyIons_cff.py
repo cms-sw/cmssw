@@ -43,7 +43,11 @@ triggerOfflineDQMSource.remove(jetMETHLTOfflineAnalyzer)
 #egammaDQMOffline.remove(electronAnalyzerSequence)
 egammaDQMOffline.remove(zmumugammaAnalysis)
 egammaDQMOffline.remove(zmumugammaOldAnalysis)
-egammaDQMOffline.remove(photonAnalysis)
+#egammaDQMOffline.remove(photonAnalysis)
+photonAnalysis.phoProducer = cms.InputTag("gedPhotonsTmp")
+photonAnalysis.isHeavyIon = True
+photonAnalysis.barrelRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEB")
+photonAnalysis.endcapRecHitProducer = cms.InputTag("ecalRecHit", "EcalRecHitsEE")
 
 triggerOfflineDQMSource.remove(ak4PFL1FastL2L3CorrectorChain)
 from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import getFSQHI
@@ -72,7 +76,7 @@ tightAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 looseAnalyzer.inputTags.offlinePVs = cms.InputTag("hiSelectedVertex")
 
 
-DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors 
+DQMOfflineHeavyIonsPrePOG = cms.Sequence( muonMonitors
                                           * TrackMonDQMTier0_hi
                                           * jetMETDQMOfflineSource
                                           * egammaDQMOffline
@@ -88,5 +92,5 @@ DQMOfflineHeavyIonsPOG = cms.Sequence( DQMOfflineHeavyIonsPrePOG *
 DQMOfflineHeavyIons = cms.Sequence( DQMOfflineHeavyIonsPreDPG *
                                     DQMOfflineHeavyIonsPrePOG *
                                     DQMMessageLogger )
-    
+
 #DQMOfflineHeavyIonsPhysics = cms.Sequence( dqmPhysics )
