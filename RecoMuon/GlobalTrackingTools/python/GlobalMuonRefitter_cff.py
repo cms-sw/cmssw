@@ -13,6 +13,7 @@ GlobalMuonRefitter = cms.PSet(
     Chi2CutDT = cms.double(30.0),
     Chi2CutGEM = cms.double(1.0),
     Chi2CutRPC = cms.double(1.0),
+    Chi2CutGEM = cms.double(1.0),
     HitThreshold = cms.int32(1),
 
     Fitter = cms.string('KFFitterForRefitInsideOut'),

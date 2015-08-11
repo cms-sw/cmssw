@@ -53,6 +53,8 @@
 
 <library   file="TestGEMRecHitAnalyzer.cc" name="testGEMRecHittestGEMRecHitAnalyzer">
 </library>
+<library   file="TestME0SegmentAnalyzer.cc" name="testME0SegmenttestME0SegmentAnalyzer">
+</library>
 
 <export>
 </export>

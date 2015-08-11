@@ -8,7 +8,7 @@
  *
  *   \author   C. Liu            Purdue University
  *
- *   \modified by C. Calabria    INFN & Universita  Bari
+ *   \modified by C. Calabria    INFN & Universita  Bari
  */
 
 
@@ -62,7 +62,7 @@ public:
 
   /// if this rec hit is a GEM rec hit 
   bool isGEM() const; 
- 
+
   /// if this rec hit is a RPC rec hit
   bool isRPC() const;
 

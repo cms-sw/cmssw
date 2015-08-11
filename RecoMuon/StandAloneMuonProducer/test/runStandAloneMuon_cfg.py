@@ -42,7 +42,9 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 process.source = cms.Source("PoolSource",
 fileNames = cms.untracked.vstring(
-
+#                  'file:/afs/cern.ch/work/a/archie/public/out_local_reco_SingleMuPt100_750pre1.root'
+#                   'root://cmsxrootd.fnal.gov///store/user/archie/NewSamplesin75XforCSCGEM/out_local_reco_singleMuPt200_75X_neweta.root'
+                    'file:/tmp/archie/out_local_reco_Pt200_new.root'
                  )
            )
 

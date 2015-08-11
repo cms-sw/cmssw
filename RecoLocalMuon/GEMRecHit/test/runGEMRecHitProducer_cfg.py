@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GEMLocalRECO")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
-
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
@@ -61,15 +60,23 @@ process.localreco = cms.Sequence(muonlocalreco)
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 from Configuration.AlCa.GlobalTag import GlobalTag
-# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 
 # Fix DT and CSC Alignment #
 ############################
-from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
-process = fixDTAlignmentConditions(process)
-from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
-process = fixCSCAlignmentConditions(process)
+#from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
+#process = fixDTAlignmentConditions(process)
+#from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
+#process = fixCSCAlignmentConditions(process)
+
+# Explicit configuration of CSC for postls1 = run2 #
+####################################################
+process.load("CalibMuon.CSCCalibration.CSCChannelMapper_cfi")
+process.load("CalibMuon.CSCCalibration.CSCIndexer_cfi")
+process.CSCIndexerESProducer.AlgoName = cms.string("CSCIndexerPostls1")
+process.CSCChannelMapperESProducer.AlgoName = cms.string("CSCChannelMapperPostls1")
+process.CSCGeometryESModule.useGangedStripsInME1a = False
+
 
 # Skip Digi2Raw and Raw2Digi steps for Al Muon detectors #
 ##########################################################
@@ -106,17 +113,13 @@ process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
 ##########################
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        # 'file:out_digi.root'
-        'file:out_digi_100GeV_1000evts.root'
-        # 'file:out_digi_1To100GeV_1000evts.root'
+        'file:/tmp/archie/out_digi_Pt200_new.root'
     )
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
-        # 'file:out_local_reco.root'
-        'file:out_local_reco_100GeV_1000evts.root'
-        # 'file:out_local_reco_1To100GeV_1000evts.root'
+        'file:/tmp/archie/out_local_reco_Pt200_new.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',

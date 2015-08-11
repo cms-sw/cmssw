@@ -11,6 +11,7 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *
  *  Modified by C. Calabria
+ *  Modified by D. Nash
  */
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -71,6 +72,7 @@ public:
   bool theRPCLayer;
   bool theCSCLayer;
   bool theGEMLayer;
+  bool theME0Layer;
   const MuonNavigationSchool* theSchool;
 
   propagators thePropagators;
