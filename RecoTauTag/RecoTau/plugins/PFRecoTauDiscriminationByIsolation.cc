@@ -99,11 +99,15 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
       customIsoCone_ = -1;
     }
 
-    applyPhotonPtSumOutsideSignalConeCut_ = pset.getParameter<bool>("applyPhotonPtSumOutsideSignalConeCut");
-    maxAbsPhotonSumPt_outsideSignalCone_ = pset.getParameter<double>("maxAbsPhotonSumPt_outsideSignalCone");
-    maxRelPhotonSumPt_outsideSignalCone_ = pset.getParameter<double>("maxRelPhotonSumPt_outsideSignalCone");
-
-    applyFootprintCorrection_ = pset.getParameter<bool>("applyFootprintCorrection");
+    applyPhotonPtSumOutsideSignalConeCut_ = ( pset.exists("applyPhotonPtSumOutsideSignalConeCut") ) ?
+      pset.getParameter<bool>("applyPhotonPtSumOutsideSignalConeCut") : false;
+    if ( applyPhotonPtSumOutsideSignalConeCut_ ) {
+      maxAbsPhotonSumPt_outsideSignalCone_ = pset.getParameter<double>("maxAbsPhotonSumPt_outsideSignalCone");
+      maxRelPhotonSumPt_outsideSignalCone_ = pset.getParameter<double>("maxRelPhotonSumPt_outsideSignalCone");
+    }
+    
+    applyFootprintCorrection_ = ( pset.exists("applyFootprintCorrection") ) ?
+      pset.getParameter<bool>("applyFootprintCorrection") : false;
     if ( applyFootprintCorrection_ || storeRawFootprintCorrection_ ) {
       edm::VParameterSet cfgFootprintCorrections = pset.getParameter<edm::VParameterSet>("footprintCorrections");
       for ( edm::VParameterSet::const_iterator cfgFootprintCorrection = cfgFootprintCorrections.begin();
@@ -190,7 +194,6 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
   double discriminate(const PFTauRef& pfTau) const override;
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions); 
 
   inline  double weightedSum(std::vector<PFCandidatePtr> inColl_, double eta, double phi) const {
     double out = 1.0;
@@ -318,19 +321,6 @@ void PFRecoTauDiscriminationByIsolation::beginEvent(const edm::Event& event, con
       (3.14159)*rhoConeSize_*rhoConeSize_;
   }
 }
-
-
-void
-PFRecoTauDiscriminationByIsolation::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
-{
-  edm::ParameterSetDescription iDesc;
-  iDesc.add<bool>("applyPhotonPtSumOutsideSignalConeCut",false);
-  iDesc.add<double>("maxAbsPhotonSumPt_outsideSignalCone",1.e+9);
-  iDesc.add<double>("maxRelPhotonSumPt_outsideSignalCone",0.10);
-  iDesc.add<bool>("applyFootprintCorrection",false);
-}
-
-
 
 double
 PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
