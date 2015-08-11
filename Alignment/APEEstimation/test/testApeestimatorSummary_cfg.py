@@ -120,15 +120,12 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
 ##
 from Alignment.APEEstimation.ApeEstimatorSummary_cff import *
 process.ApeEstimatorSummary1 = ApeEstimatorSummaryBaseline.clone(
-	#~ apeWeight = "entries",
     InputFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '.root',
     ResultsFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '_resultsFile1.root',
     BaselineFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '_baselineApe.root',
 )
 process.ApeEstimatorSummary2 = ApeEstimatorSummaryIter.clone(
-    #~ apeWeight = "entries",
     correctionScaling = 0.6,
-    #~ smoothIteration = False,
     InputFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '.root',
     ResultsFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '_resultsFile2.root',
     BaselineFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '_baselineApe.root',
@@ -136,12 +133,7 @@ process.ApeEstimatorSummary2 = ApeEstimatorSummaryIter.clone(
     ApeOutputFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '_apeOutput2.txt',
 )
 process.ApeEstimatorSummary3 = ApeEstimatorSummaryIter.clone(
-    #~ apeWeight = "entries",
-    #apeWeight = "unity",
-    #apeWeight = "entriesOverSigmaX2",
     correctionScaling = 0.6,
-    #~ smoothIteration = True,
-    #~ smoothFraction = 0.5,
     InputFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '.root',
     ResultsFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '_resultsFile3.root',
     BaselineFile = os.environ['CMSSW_BASE'] + '/src/Alignment/APEEstimation/hists/test_' + options.sample + '_baselineApe.root',
