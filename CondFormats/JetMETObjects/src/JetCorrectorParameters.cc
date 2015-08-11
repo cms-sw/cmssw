@@ -366,6 +366,7 @@ const std::vector<std::string> labels_ = {
   "UncertaintyAux2",
   "UncertaintyAux3",
   "UncertaintyAux4",
+  "L1Residual",
 };
 
 const std::vector<std::string> l5Flavors_ = {
