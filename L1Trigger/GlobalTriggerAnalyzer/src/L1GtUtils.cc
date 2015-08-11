@@ -17,6 +17,7 @@
 
 // system include files
 #include <iomanip>
+#include <vector>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -438,6 +439,25 @@ void L1GtUtils::getL1GtRecordInputTag(const edm::Event& iEvent,
     bool foundL1GtRecord = false;
     bool foundL1GtReadoutRecord = false;
 
+    bool foundMultipleL1GtRecord = false;
+    bool foundMultipleL1GtReadoutRecord = false;
+
+    // use vector here, InputTag has no '<' operator to use std::set
+    std::vector<edm::InputTag> inputTagsL1GtRecord;
+    std::vector<edm::InputTag> inputTagsL1GtReadoutRecord;
+
+    // TODO decide if the preferred input tags must be given as input parameters
+    // or stay hardwired
+    std::vector<edm::InputTag> preferredL1GtRecordInputTag;
+    preferredL1GtRecordInputTag.reserve(5);
+    preferredL1GtRecordInputTag.push_back(edm::InputTag("gtDigis"));
+    preferredL1GtRecordInputTag.push_back(edm::InputTag("hltGtDigis"));
+
+    std::vector<edm::InputTag> preferredL1GtReadoutRecordInputTag;
+    preferredL1GtReadoutRecordInputTag.reserve(5);
+    preferredL1GtReadoutRecordInputTag.push_back(edm::InputTag("gtDigis"));
+    preferredL1GtReadoutRecordInputTag.push_back(edm::InputTag("hltGtDigis"));
+
     LogDebug("L1GtUtils") << "\nTry to get AllProvenance for event "
             << iEvent.id().event() << std::endl;
 
@@ -463,29 +483,132 @@ void L1GtUtils::getL1GtRecordInputTag(const edm::Event& iEvent,
         if (friendlyName == "L1GlobalTriggerRecord") {
             l1GtRecordInputTag = edm::InputTag(modLabel, instanceName,
                     processName);
-            foundL1GtRecord = true;
-        } else if (friendlyName == "L1GlobalTriggerReadoutRecord") {
+            inputTagsL1GtRecord.push_back(l1GtRecordInputTag);
 
+            foundL1GtRecord = true;
+            if (inputTagsL1GtRecord.size() > 1) {
+                foundMultipleL1GtRecord = true;
+            }
+        } else if (friendlyName == "L1GlobalTriggerReadoutRecord") {
             l1GtReadoutRecordInputTag = edm::InputTag(modLabel, instanceName,
                     processName);
+            inputTagsL1GtReadoutRecord.push_back(l1GtReadoutRecordInputTag);
+
             foundL1GtReadoutRecord = true;
+
+             if (inputTagsL1GtReadoutRecord.size() > 1) {
+                foundMultipleL1GtReadoutRecord = true;
+            }
+
         }
     }
 
-    // if not found, return empty input tags
+    // print statistics of L1GlobalTriggerReadoutRecord input tags
+    int nrInpuTags = inputTagsL1GtReadoutRecord.size();
+    if (nrInpuTags == 1) {
+        LogDebug("L1GtUtils") << "\n Unique L1GlobalTriggerReadoutRecord product found in the event."
+                << std::endl;
+
+    } else if (nrInpuTags > 1) {
+        LogDebug("L1GtUtils") << "\nWARNING: Multiple L1GlobalTriggerReadoutRecord products found in the event.\n  "
+                << nrInpuTags
+                << " L1GlobalTriggerReadoutRecord products:"
+                << std::endl;
+    } else {
+        LogDebug("L1GtUtils") << "\nWARNING: No L1GlobalTriggerReadoutRecord product found in the event.\n  "
+                << std::endl;
+    }
+
+    for (int iTag = 0; iTag < nrInpuTags; ++iTag) {
+        edm::LogPrint("L1GtUtils")
+                << inputTagsL1GtReadoutRecord[iTag]
+                << std::endl;
+    }
+
+    // if L1GlobalTriggerRecord and L1GlobalTriggerReadoutRecord are not found, return empty input tags
+    // if multiple tags are found, write a warning and check if a "preferred input tag" is
+    // among the tags - if true, take this tag, otherwise return an empty tag.
     if (!foundL1GtRecord) {
         l1GtRecordInputTag = edm::InputTag();
+    } else if (foundMultipleL1GtRecord)  {
+
+        bool foundPreferredInputTag = false;
+        for (std::vector<edm::InputTag>::const_iterator itTag = inputTagsL1GtRecord.begin(), itTagEnd =
+                inputTagsL1GtRecord.end(); itTag != itTagEnd; ++itTag) {
+
+            for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1GtRecordInputTag.begin(), itPrefTagEnd =
+                    preferredL1GtRecordInputTag.end(); itPrefTag != itPrefTagEnd; ++itPrefTag) {
+
+                    if (itTag->label() == itPrefTag->label()) {
+                        LogDebug("L1GtUtils")
+                            << "\nWARNING: multiple L1GlobalTriggerRecord products found in the event."
+                            << "\nInput tag set to the preferred input tag" << (*itTag)
+                            << std::endl;
+                        l1GtRecordInputTag = *itTag;
+                        foundPreferredInputTag = true;
+                        break;
+                    }
+            }
+
+            if (foundPreferredInputTag) {
+                break;
+            }
+        }
+
+        if (!foundPreferredInputTag) {
+            LogDebug("L1GtUtils")
+                    << "\nWARNING: multiple L1GlobalTriggerRecord products found in the event."
+                    << "\nNo preferred input tag within the found values"
+                    << "\n Input tag put to empty input tag."
+                    << std::endl;
+            l1GtRecordInputTag = edm::InputTag();
+        }
+
     } else {
         LogTrace("L1GtUtils")
-                << "\nL1GlobalTriggerRecord found in the event with \n  "
+                << "\nUnique L1GlobalTriggerRecord found in the event with \n  "
                 << l1GtRecordInputTag << std::endl;
     }
 
     if (!foundL1GtReadoutRecord) {
         l1GtReadoutRecordInputTag = edm::InputTag();
+    } else if (foundMultipleL1GtReadoutRecord)  {
+
+        bool foundPreferredInputTag = false;
+        for (std::vector<edm::InputTag>::const_iterator itTag = inputTagsL1GtReadoutRecord.begin(), itTagEnd =
+                inputTagsL1GtReadoutRecord.end(); itTag != itTagEnd; ++itTag) {
+
+            for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1GtReadoutRecordInputTag.begin(), itPrefTagEnd =
+                    preferredL1GtReadoutRecordInputTag.end(); itPrefTag != itPrefTagEnd; ++itPrefTag) {
+
+                    if (itTag->label() == itPrefTag->label()) {
+                        LogDebug("L1GtUtils")
+                        << "\nWARNING: multiple L1GlobalTriggerReadoutRecord products found in the event."
+                        << "\nInput tag set to the preferred input tag" << (*itTag)
+                        << std::endl;
+                        l1GtReadoutRecordInputTag = *itTag;
+                        foundPreferredInputTag = true;
+                        break;
+                    }
+            }
+
+            if (foundPreferredInputTag) {
+                break;
+            }
+        }
+
+        if (!foundPreferredInputTag) {
+            LogDebug("L1GtUtils")
+                    << "\nWARNING: multiple L1GlobalTriggerReadoutRecord products found in the event."
+                    << "\nNo preferred input tag within the found values"
+                    << "\n Input tag put to empty input tag."
+                    << std::endl;
+            l1GtReadoutRecordInputTag = edm::InputTag();
+        }
+
     } else {
         LogTrace("L1GtUtils")
-                << "\nL1GlobalTriggerReadoutRecord found in the event with \n  "
+                << "\nUnique L1GlobalTriggerReadoutRecord found in the event with \n  "
                 << l1GtReadoutRecordInputTag << std::endl;
     }
 
@@ -2501,9 +2624,9 @@ bool L1GtUtils::LogicalExpressionL1Results::initialize() {
     } catch (cms::Exception & ex) {
         m_validLogicalExpression = false;
 
-        edm::LogWarning("L1GtUtils") << ex;
-        edm::LogWarning("L1GtUtils") << ex.what();
-        edm::LogWarning("L1GtUtils") << ex.explainSelf();
+        LogDebug("L1GtUtils") << ex;
+        LogDebug("L1GtUtils") << ex.what();
+        LogDebug("L1GtUtils") << ex.explainSelf();
     }
 
     // try to convert the string representing each L1 trigger to bit number,
