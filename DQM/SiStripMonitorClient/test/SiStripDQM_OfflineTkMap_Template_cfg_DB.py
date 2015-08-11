@@ -27,12 +27,13 @@ options.register ('runNumber',
 options.parseArguments()
 
 process.MessageLogger = cms.Service("MessageLogger",
-    destinations = cms.untracked.vstring('cout','cerr','PCLBadComponents','QTBadModules'), #Reader, cout
+    destinations = cms.untracked.vstring('cout','cerr','PCLBadComponents','QTBadModules','TopModulesList'), #Reader, cout
     categories = cms.untracked.vstring('SiStripQualityStatistics',
                                        'BadModuleList',
                                        'TkMapParameters',
                                        'TkMapToBeSaved',
-                                       'PSUMapToBeSaved'), #Reader, cout
+                                       'PSUMapToBeSaved',
+				       'TopModules'), #Reader, cout
     debugModules = cms.untracked.vstring('siStripDigis', 
                                          'siStripClusters', 
                                          'siStripZeroSuppression', 
@@ -53,7 +54,11 @@ process.MessageLogger = cms.Service("MessageLogger",
     QTBadModules = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
                                 default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
                                 BadModuleList = cms.untracked.PSet(limit=cms.untracked.int32(100000))
-                                )
+                                ),
+    TopModulesList = cms.untracked.PSet(threshold = cms.untracked.string('INFO'),
+				default = cms.untracked.PSet(limit=cms.untracked.int32(0)),
+				TopModules = cms.untracked.PSet(limit=cms.untracked.int32(100000))
+				)
                                     
 )
 
@@ -73,7 +78,6 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, options.globalTag, '')
-
 # loading TrackerTopologyEP via GeometryDB (since 62x)
 process.load('Configuration.StandardSequences.GeometryDB_cff')
     
@@ -103,9 +107,9 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
        TkMapOptions             = cms.untracked.VPSet(
     cms.PSet(mapName=cms.untracked.string('QTestAlarm'),fedMap=cms.untracked.bool(True),useSSQuality=cms.untracked.bool(True),ssqLabel=cms.untracked.string(""),psuMap=cms.untracked.bool(True),loadLVCabling=cms.untracked.bool(True),mapMax=cms.untracked.double(1.)),
     cms.PSet(mapName=cms.untracked.string('FractionOfBadChannels'),mapMax=cms.untracked.double(-1.),logScale=cms.untracked.bool(True)),
-    cms.PSet(mapName=cms.untracked.string('NumberOfCluster')),
-    cms.PSet(mapName=cms.untracked.string('NumberOfDigi')),
-    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster')),
+    cms.PSet(mapName=cms.untracked.string('NumberOfCluster'),TopModules=cms.untracked.bool(True),numberTopModules=cms.untracked.int32(20)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfDigi'),TopModules=cms.untracked.bool(True)),
+    cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),TopModules=cms.untracked.bool(True)),
     cms.PSet(mapName=cms.untracked.string('NumberOfOfffTrackCluster'),mapSuffix=cms.untracked.string("_autoscale"),mapMax=cms.untracked.double(-1.)),
     cms.PSet(mapName=cms.untracked.string('NumberOfOnTrackCluster')),
     cms.PSet(mapName=cms.untracked.string('StoNCorrOnTrack')),
