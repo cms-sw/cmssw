@@ -13,6 +13,7 @@
 
 ElectronTagger::ElectronTagger(const edm::ParameterSet & cfg):
     m_selector(cfg),
+    m_useCondDB(cfg.getParameter<bool>("useCondDB")),
     m_gbrForestLabel(cfg.existsAs<std::string>("gbrForestLabel") ? cfg.getParameter<std::string>("gbrForestLabel") : ""),
     m_weightFile(cfg.existsAs<edm::FileInPath>("weightFile") ? cfg.getParameter<edm::FileInPath>("weightFile") : edm::FileInPath()),
     m_useGBRForest(cfg.existsAs<bool>("useGBRForest") ? cfg.getParameter<bool>("useGBRForest") : false),
@@ -28,12 +29,11 @@ void ElectronTagger::initialize(const JetTagComputerRecord & record)
 	std::vector<std::string> variables({"sip3d", "sip2d", "ptRel", "deltaR", "ratio", "mva_e_pi"});
 	std::vector<std::string> spectators;
 	
-	if (m_gbrForestLabel!="")
+	if (m_useCondDB)
 	{
 		const GBRWrapperRcd & gbrWrapperRecord = record.getRecord<GBRWrapperRcd>();
 		
 		edm::ESHandle<GBRForest> gbrForestHandle;
-
 		gbrWrapperRecord.get(m_gbrForestLabel.c_str(), gbrForestHandle);
 
 		mvaID->initializeGBRForest(gbrForestHandle.product(), variables, spectators, m_useAdaBoost);

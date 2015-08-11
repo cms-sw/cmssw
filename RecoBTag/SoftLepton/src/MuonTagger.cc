@@ -17,6 +17,7 @@
 
 MuonTagger::MuonTagger(const edm::ParameterSet& cfg):
   m_selector(cfg),
+  m_useCondDB(cfg.getParameter<bool>("useCondDB")),
   m_gbrForestLabel(cfg.existsAs<std::string>("gbrForestLabel") ? cfg.getParameter<std::string>("gbrForestLabel") : ""),
   m_weightFile(cfg.existsAs<edm::FileInPath>("weightFile") ? cfg.getParameter<edm::FileInPath>("weightFile") : edm::FileInPath()),
   m_useGBRForest(cfg.existsAs<bool>("useGBRForest") ? cfg.getParameter<bool>("useGBRForest") : false),
@@ -32,12 +33,11 @@ void MuonTagger::initialize(const JetTagComputerRecord & record)
   std::vector<std::string> variables({"TagInfo1.sip3d", "TagInfo1.sip2d", "TagInfo1.ptRel", "TagInfo1.deltaR", "TagInfo1.ratio"});
   std::vector<std::string> spectators;
 
-  if (m_gbrForestLabel!="")
+  if (m_useCondDB)
   {
      const GBRWrapperRcd & gbrWrapperRecord = record.getRecord<GBRWrapperRcd>();
 
      edm::ESHandle<GBRForest> gbrForestHandle;
-
      gbrWrapperRecord.get(m_gbrForestLabel.c_str(), gbrForestHandle);
 
      mvaID->initializeGBRForest(gbrForestHandle.product(), variables, spectators, m_useAdaBoost);
