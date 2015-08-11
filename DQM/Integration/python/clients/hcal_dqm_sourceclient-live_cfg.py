@@ -25,19 +25,18 @@ useMap		= False
 #-------------------------------------
 #	Central DQM Stuff imports
 #-------------------------------------
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 if useOfflineGT:
-#	process.load('DQM.Integration.test.FrontierCondition_GT_Offline_cfi')
 	process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
-	process.GlobalTag.globaltag = 'GR_P_V56'
+	process.GlobalTag.globaltag = '74X_dataRun2_HLT_v1'
 else:
-	process.load('DQM.Integration.test.FrontierCondition_GT_cfi')
+	process.load('DQM.Integration.config.FrontierCondition_GT_cfi')
 if useFileInput:
-	process.load("DQM.Integration.test.fileinputsource_cfi")
+	process.load("DQM.Integration.config.fileinputsource_cfi")
 else:
-	process.load('DQM.Integration.test.inputsource_cfi')
+	process.load('DQM.Integration.config.inputsource_cfi')
 process.load('DQMServices.Components.DQMEnvironment_cfi')
-process.load('DQM.Integration.test.environment_cfi')
+process.load('DQM.Integration.config.environment_cfi')
 
 #-------------------------------------
 #	Central DQM Customization
@@ -104,18 +103,10 @@ process.hbhereco = process.hbheprereco.clone()
 #	New Style
 #-------------------------------------
 process.load("DQM.HcalTasks.HcalDigiTask")
-process.load("DQM.HcalTasks.HcalDeadCellTask")
-process.load("DQM.HcalTasks.HcalHotCellTask")
-process.load("DQM.HcalTasks.HcalLEDTask")
-process.load("DQM.HcalTasks.HcalLaserTask")
-process.load("DQM.HcalTasks.HcalNoiseTask")
-process.load("DQM.HcalTasks.HcalPedestalTask")
 process.load("DQM.HcalTasks.HcalRawTask")
 process.load("DQM.HcalTasks.HcalRecHitTask")
 process.load("DQM.HcalTasks.HcalTPTask")
 process.load("DQM.HcalTasks.HcalTimingTask")
-process.load("DQM.HcalTasks.HcaluTCATask")
-process.load("DQM.HcalClients.HcalDigiClient")
 
 #-------------------------------------
 #	Hcal DQM Tasks and Clients Imports
@@ -155,30 +146,17 @@ if useMap:
 #	For Debugginb
 #-------------------------------------
 #process.hcalDigiTask.moduleParameters.debug = 10
-#process.hcalPhaseScanTask.moduleParameters.debug = 10
-#process.hcalDigiClient.moduleParameters.debug = cms.untracked.int32(10)
 
 #-------------------------------------
 #	Some Settings before Finishing up
 #	New Style Modules
 #-------------------------------------
 process.hcalDigiTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
-process.hcalDeadCellTask.moduleParameters.subsystem = cms.untracked.string(
-		subsystem)
-process.hcalHotCellTask.moduleParameters.subsystem = cms.untracked.string(
-		subsystem)
-process.hcalLEDTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
-process.hcalLaserTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
-process.hcalNoiseTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
-process.hcalPedestalTask.moduleParameters.subsystem = cms.untracked.string(
-		subsystem)
 process.hcalRawTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
 process.hcalRecHitTask.moduleParameters.subsystem = cms.untracked.string(
 		subsystem)
 process.hcalTPTask.moduleParameters.subsystem = cms.untracked.string(subsystem)
 process.hcalTimingTask.moduleParameters.subsystem = cms.untracked.string(
-		subsystem)
-process.hcalDigiClient.moduleParameters.subsystem = cms.untracked.string(
 		subsystem)
 
 #-------------------------------------
