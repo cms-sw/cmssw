@@ -6,7 +6,8 @@ SUSY_HLT_MET_BTAG = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_BTagCSV07_v'),
+  #TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_BTagCSV07_v'),
+  TriggerPath = cms.string('HLT_PFMET120_JetIdCleaned_BTagCSV07_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
   TriggerFilter = cms.InputTag('hltPFMET120Filter', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
@@ -20,7 +21,8 @@ SUSY_HLT_MET_BTAG_FASTSIM = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
   caloJetCollection = cms.InputTag("ak4CaloJets"),
   TriggerResults = cms.InputTag('TriggerResults','','HLT'),
-  TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_BTagCSV07_v'),
+  #TriggerPath = cms.string('HLT_PFMET120_NoiseCleaned_BTagCSV07_v'),
+  TriggerPath = cms.string('HLT_PFMET120_JetIdCleaned_BTagCSV07_v'),
   TriggerPathAuxiliaryForHadronic = cms.string('HLT_IsoMu24_eta2p1_IterTrk02_v'),
   TriggerFilter = cms.InputTag('hltPFMET120Filter', '', 'HLT'), #the last filter in the path
   PtThrJet = cms.untracked.double(40.0),
@@ -29,7 +31,8 @@ SUSY_HLT_MET_BTAG_FASTSIM = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
 
 
 SUSY_HLT_MET_BTAG_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_NoiseCleaned_BTagCSV07_v"),
+  #subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_NoiseCleaned_BTagCSV07_v"),
+  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_JetIdCleaned_BTagCSV07_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
     "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"
@@ -39,7 +42,8 @@ SUSY_HLT_MET_BTAG_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
 
 
 SUSY_HLT_MET_BTAG_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_NoiseCleaned_BTagCSV07_v"),
+  #subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_NoiseCleaned_BTagCSV07_v"),
+  subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET120_JetIdCleaned_BTagCSV07_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
     "pfHTTurnOn_eff 'Efficiency vs PFHT' pfHTTurnOn_num pfHTTurnOn_den"
