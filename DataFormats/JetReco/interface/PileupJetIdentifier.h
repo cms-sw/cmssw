@@ -22,7 +22,7 @@
 class StoredPileupJetIdentifier {
 public:
 	friend class PileupJetIdAlgo;
-	friend class MVAJetPuId;
+	friend class hltMVAJetPuId;
 
 	StoredPileupJetIdentifier();
 	~StoredPileupJetIdentifier(); 
@@ -71,7 +71,7 @@ public:
 class PileupJetIdentifier : public StoredPileupJetIdentifier {
 public:
 	friend class PileupJetIdAlgo;
-	friend class MVAJetPuId;
+	friend class hltMVAJetPuId;
 
 	PileupJetIdentifier();
 	~PileupJetIdentifier(); 
