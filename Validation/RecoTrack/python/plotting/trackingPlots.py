@@ -100,7 +100,7 @@ _dedx = PlotGroup("dedx", [
     Plot("h_dedx_nom1", **_common),
     Plot("h_dedx_sat1", **_common),
     ],
-                  legendDy=-0.35
+                  legendDy=-0.025
 )
 
 _chargemisid = PlotGroup("chargemisid", [
@@ -143,9 +143,7 @@ _resolutionsEta = PlotGroup("resolutionsEta", [
     Plot("dxyres_vs_eta_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", ymin=0.00009, ymax=0.05, **_common),
     Plot("dzres_vs_eta_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", ymin=0.0009, ymax=0.1, **_common),
     Plot("ptres_vs_eta_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", ymin=0.0059, ymax=0.08, **_common),
-],
-                            legendDy=-0.02, legendDh=-0.01
-)
+])
 _common = {"title": "", "ylog": True, "xlog": True, "xtitle": "p_{T}", "xmin": 0.1, "xmax": 1000}
 _resolutionsPt = PlotGroup("resolutionsPt", [
     Plot("phires_vs_pt_Sigma", ytitle="#sigma(#delta #phi) [rad]", ymin=0.000009, ymax=0.01, **_common),
@@ -153,9 +151,7 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
     Plot("dxyres_vs_pt_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", ymin=0.00009, ymax=0.05, **_common),
     Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", ymin=0.0009, ymax=0.1, **_common),
     Plot("ptres_vs_pt_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", ymin=0.003, ymax=2.2, **_common),
-],
-                            legendDy=-0.02, legendDh=-0.01
-)
+])
 
 
 _possibleTrackingColls = [
@@ -304,9 +300,9 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
     if name != "":
         summaryName += name+"_"
     summaryName += "summary"
-#    plotter.append(summaryName, _trackingFolders(lastDirName),
-#                   PlotFolder(*_summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup,
-#                              purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
+    plotter.append(summaryName, _trackingFolders(lastDirName),
+                   PlotFolder(*_summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup,
+                              purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)

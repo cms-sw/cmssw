@@ -4,8 +4,8 @@ import collections
 _sampleName = {
     "RelValMinBias": "Min Bias",
     "RelValTTbar": "TTbar",
-    "RelValQCD_Pt600_800": "QCD Pt 600 to 800",
-    "RelValQCD_Pt3000_3500": "QCD Pt 3000 to 3500",
+    "RelValQCD_Pt_600_800": "QCD Pt 600 to 800",
+    "RelValQCD_Pt_3000_3500": "QCD Pt 3000 to 3500",
     "RelValQCD_FlatPt_15_3000": "QCD Flat Pt 15 to 3000",
     "RelValZMM": "ZMuMu",
     "RelValWjet_Pt_3000_3500": "Wjet Pt 3000 to 3500",
