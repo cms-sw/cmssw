@@ -260,6 +260,7 @@ HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_JetIdCleaned_v*	# JIRA: CMSHLT-137, CMS
 
 HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL_v*				# JIRA: CMSHLT-139
 
+#HLT_PFHT200_PFAlphaT0p51_v*					# JIRA: CMSHLT-513
 HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63_v*                        # JIRA: CMSHLT-143, mod. CMSHLT-207, mod CMSHLT-354
 HLT_PFHT250_DiPFJetAve90_PFAlphaT0p58_v*                        # JIRA: CMSHLT-143, mod. CMSHLT-207, mod CMSHLT-354
 HLT_PFHT300_DiPFJetAve90_PFAlphaT0p54_v*                        # JIRA: CMSHLT-143, mod. CMSHLT-207, mod CMSHLT-354
@@ -491,6 +492,11 @@ HLT_EcalCalibration_v*						# JIRA: CMSHLT-281
 AlCa_EcalPhiSym_v*						# JIRA: CMSHLT-276
 AlCa_Ele27_WPVeryLoose_Gsf_v*					# JIRA: CMSHLT-366
 
+AlCa_EcalPi0EBonly_v*                                           # JIRA: CMSHLT-514
+AlCa_EcalPi0EEonly_v*                                           # JIRA: CMSHLT-514
+AlCa_EcalEtaEBonly_v*                                           # JIRA: CMSHLT-514
+AlCa_EcalEtaEEonly_v*                                           # JIRA: CMSHLT-514
+
 HLT_HcalCalibration_v*						# JIRA: CMSHLT-306
 HLT_GlobalRunHPDNoise_v*					# JIRA: CMSHLT-306
 HLT_L1Tech_HBHEHO_totalOR_v*					# JIRA: CMSHLT-306
@@ -542,7 +548,7 @@ HLT_IsoTrackHB_v*						# JIRA: CMSHLT-289
 HLTriggerFirstPath
 HLTriggerFinalPath
 #HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
-RatesMonitoring							# CMSHLT-344 only in 'online', not in 'GRun'
+RatesMonitoring 						# CMSHLT-344 only in 'online', not in 'GRun'
 PhysicsEGammaCommissioningOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
