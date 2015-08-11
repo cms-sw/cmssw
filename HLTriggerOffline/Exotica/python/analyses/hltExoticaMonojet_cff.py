@@ -2,13 +2,15 @@ import FWCore.ParameterSet.Config as cms
 
 MonojetPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
-        "HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v", 
-        "HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v", 
-        #"HLT_MonoCentralPFJet80_PFMETNoMu120_PFMHTNoMu120_NoiseCleaned_v",
-        #"HLT_MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_NoiseCleaned_v",
-        "HLT_CaloMET200_NoiseCleaned_v",
-        "HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v",
-        "HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v"
+        #"HLT_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v", 
+        "HLT_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v",
+        #"HLT_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v", 
+        "HLT_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v",
+        "HLT_MET200_JetIdCleaned_v",
+        #"HLT_MonoCentralPFJet80_PFMETNoMu120_NoiseCleaned_PFMHTNoMu120_IDTight_v",
+        "HLT_MonoCentralPFJet80_PFMETNoMu120_JetIdCleaned_PFMHTNoMu120_IDTight_v",
+        #"HLT_MonoCentralPFJet80_PFMETNoMu90_NoiseCleaned_PFMHTNoMu90_IDTight_v"
+        "HLT_MonoCentralPFJet80_PFMETNoMu90_JetIdCleaned_PFMHTNoMu90_IDTight_v"
     ),
 
     recCaloJetLabel    = cms.InputTag("ak4CaloJets"),

@@ -20,12 +20,12 @@ l1Condition = 'legacy'
 
 # for 'file' choose also the type of the global tag and (edit) the actual global tag
 if l1DqmEnv == 'file' :
-    
+
     globalTagType = 'HLT'
     #globalTagType = 'P'
     #globalTagType = 'E'
     #globalTagType = 'R'
-    
+
     if globalTagType == 'HLT' :
         #globalTagValue = 'GR_H_V26'
         globalTagValue = 'MCRUN2_74_V5'
@@ -45,8 +45,8 @@ process = cms.Process("DQM")
 
 # check that a valid choice for environment exists
 
-if not ((l1DqmEnv == 'live') or l1DqmEnv == 'playback' or l1DqmEnv == 'file-P5' or l1DqmEnv == 'file' ) : 
-    print 'No valid input source was chosen. Your value for l1DqmEnv input parameter is:'  
+if not ((l1DqmEnv == 'live') or l1DqmEnv == 'playback' or l1DqmEnv == 'file-P5' or l1DqmEnv == 'file' ) :
+    print 'No valid input source was chosen. Your value for l1DqmEnv input parameter is:'
     print 'l1DqmEnv = ', l1DqmEnv
     print 'Available options: "live", "playback", "file-P5", "file" '
     sys.exit()
@@ -62,16 +62,16 @@ if l1DqmEnv == 'live' :
             )
     process.EventStreamHttpReader.consumerName = 'L1T DQM Consumer'
     process.EventStreamHttpReader.maxEventRequestRate = cms.untracked.double(25.0)
- 
+
 elif l1DqmEnv == 'playback' :
     print 'FIXME'
     sys.exit()
-    
-else : 
+
+else :
     # running on a file
     process.load("DQM.L1TMonitor.inputsource_file_cfi")
-    
-      
+
+
 #----------------------------
 # DQM Environment
 #
@@ -93,22 +93,22 @@ if l1DqmEnv == 'live' :
 
 elif l1DqmEnv == 'playback' :
     print 'FIXME'
-    
+
 elif l1DqmEnv == 'file-P5' :
     process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
     process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
-    
-else : 
+
+else :
     # running on a file, on lxplus (not on .cms)
     process.load("DQM.L1TMonitor.environment_file_cff")
 
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-    
+
     if globalTagType == 'HLT' :
-         process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG' 
-         process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/') 
-                      
+         process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
+         process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
+
     process.GlobalTag.globaltag = globalTagValue+'::All'
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
 
@@ -120,34 +120,34 @@ process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 # sequences needed for L1 trigger DQM
 #
 
-# standard unpacking sequence 
-process.load("Configuration.StandardSequences.RawToDigi_Data_cff")    
+# standard unpacking sequence
+process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 
-# L1 Trigger sequences 
+# L1 Trigger sequences
 
 # l1tMonitor and l1tMonitorEndPathSeq
-process.load("DQM.L1TMonitor.L1TMonitor_cff")    
+process.load("DQM.L1TMonitor.L1TMonitor_cff")
 
 # L1 trigger synchronization module - it uses also HltHighLevel filter
-process.load("DQM.L1TMonitor.L1TSync_cff")    
+process.load("DQM.L1TMonitor.L1TSync_cff")
 
 # l1tMonitorClient and l1tMonitorClientEndPathSeq
-process.load("DQM.L1TMonitorClient.L1TMonitorClient_cff")   
+process.load("DQM.L1TMonitorClient.L1TMonitorClient_cff")
 
 # change the DB connections when not at P5 - works on lxplus only...
-if ( l1DqmEnv == 'file' ) : 
+if ( l1DqmEnv == 'file' ) :
     process.l1tSync.oracleDB = cms.string("oracle://cms_orcon_adg/CMS_COND_31X_L1T")
     process.l1tSync.pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb/ADG")
     #
     process.l1tRate.oracleDB = cms.string("oracle://cms_orcon_adg/CMS_COND_31X_L1T")
     process.l1tRate.pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb/ADG")
-    
+
 
 #-------------------------------------
 # paths & schedule for L1 Trigger DQM
 #
 
-# TODO define a L1 trigger L1TriggerRawToDigi in the standard sequence 
+# TODO define a L1 trigger L1TriggerRawToDigi in the standard sequence
 # to avoid all these remove
 process.rawToDigiPath = cms.Path(process.RawToDigi)
 #
@@ -181,9 +181,9 @@ if l1Condition == 'stage1':
       1.20, 1.21, 1.22, 1.23, 1.24, 1.25, 1.26, 1.27
     )
 else :
-    process.l1tMonitorPath = cms.Path(process.l1tMonitorOnline) 
+    process.l1tMonitorPath = cms.Path(process.l1tMonitorOnline)
     process.l1tMonitorClientPath = cms.Path(process.l1tMonitorClient)
-    
+
 # separate L1TSync path due to the use of the HltHighLevel filter
 process.l1tSyncPath = cms.Path(process.l1tSyncHltFilter+process.l1tSync)
 
@@ -212,7 +212,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 
 #---------------------------------------------
 
-# examples for quick fixes in case of troubles 
+# examples for quick fixes in case of troubles
 #    please do not modify the commented lines
 #
 
@@ -232,13 +232,13 @@ process.l1tMonitorOnline.remove(process.l1tBPTX)
 
 #process.l1tMonitorOnline.remove(process.l1Dttf)
 
-#process.l1tMonitorOnline.remove(process.l1tCsctf) 
+#process.l1tMonitorOnline.remove(process.l1tCsctf)
 
 #process.l1tMonitorOnline.remove(process.l1tRpctf)
 
 #process.l1tMonitorOnline.remove(process.l1tGmt)
 
-#process.l1tMonitorOnline.remove(process.l1tGt) 
+#process.l1tMonitorOnline.remove(process.l1tGt)
 
 #process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
 
@@ -258,7 +258,7 @@ process.l1tMonitorOnline.remove(process.l1tRate)
 process.schedule.remove(process.l1tSyncPath)
 
 
-# 
+#
 # un-comment next lines in case you use the file for private tests using data from the L1T server
 #
 #process.dqmSaver.dirName = '.'
@@ -270,24 +270,24 @@ process.schedule.remove(process.l1tSyncPath)
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.MessageLogger.debugModules = ['l1tGt']
 process.MessageLogger.categories.append('L1TGT')
-process.MessageLogger.destinations = ['L1TDQM_errors', 
-                                      'L1TDQM_warnings', 
-                                      'L1TDQM_info', 
+process.MessageLogger.destinations = ['L1TDQM_errors',
+                                      'L1TDQM_warnings',
+                                      'L1TDQM_info',
                                       'L1TDQM_debug'
                                       ]
 
-process.MessageLogger.L1TDQM_errors = cms.untracked.PSet( 
+process.MessageLogger.L1TDQM_errors = cms.untracked.PSet(
         threshold = cms.untracked.string('ERROR'),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
        )
 
-process.MessageLogger.L1TDQM_warnings = cms.untracked.PSet( 
+process.MessageLogger.L1TDQM_warnings = cms.untracked.PSet(
         threshold = cms.untracked.string('WARNING'),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         ERROR = cms.untracked.PSet( limit = cms.untracked.int32(0) )
         )
 
-process.MessageLogger.L1TDQM_info = cms.untracked.PSet( 
+process.MessageLogger.L1TDQM_info = cms.untracked.PSet(
         threshold = cms.untracked.string('INFO'),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         WARNING = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -295,7 +295,7 @@ process.MessageLogger.L1TDQM_info = cms.untracked.PSet(
         L1TGT = cms.untracked.PSet( limit = cms.untracked.int32(-1) )
         )
 
-process.MessageLogger.L1TDQM_debug = cms.untracked.PSet( 
+process.MessageLogger.L1TDQM_debug = cms.untracked.PSet(
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         INFO = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
@@ -325,7 +325,7 @@ process.siPixelDigis.InputLabel = cms.InputTag("rawDataCollector")
 process.siStripDigis.ProductLabel = cms.InputTag("rawDataCollector")
 process.bxTiming.FedSource = cms.untracked.InputTag("rawDataCollector")
 process.l1s.fedRawData = cms.InputTag("rawDataCollector")
-    
+
 if (process.runType.getRunType() == process.runType.hi_run):
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
     process.csctfDigis.producer = cms.InputTag("rawDataRepacker")
@@ -346,3 +346,6 @@ if (process.runType.getRunType() == process.runType.hi_run):
     process.l1s.fedRawData = cms.InputTag("rawDataRepacker")
 
 
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM
+#call to customisation function customise_DQM imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
+process = customise_DQM(process)
