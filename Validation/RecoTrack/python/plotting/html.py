@@ -150,16 +150,19 @@ class PageSet(object):
         self._sampleName = sampleName
         self._pages = collections.OrderedDict()
 
-        self._prefix = "nopu"
-        if sample.hasPileup():
-            self._prefix = "pu"+sample.pileupType()
+        self._prefix=""
+        if hasattr(sample, "hasPileup"):
+            self._prefix = "nopu"
+            if sample.hasPileup():
+                self._prefix = "pu"+sample.pileupType()
+            self._prefix += "_"
 
         if sample.fastsim():
-            self._prefix += "_fast"
+            self._prefix += "fast_"
             if fastVsFull:
-                self._prefix += "full"
+                self._prefix += "full_"
 
-        self._prefix += "_"+_sampleFileName.get(sample.name(), sample.name())+"_"
+        self._prefix += _sampleFileName.get(sample.label(), sample.label())+"_"
 
     def addPlotSet(self, plotterFolder, dqmSubFolder, plotFiles):
         pageKey = plotterFolder.getPage()
@@ -269,9 +272,11 @@ class IndexSection:
             if fastVsFull:
                 self._sampleName += "vs FullSim "
 
-        pileup = "with no pileup"
-        if sample.hasPileup():
-            pileup = "with %s pileup" % sample.pileupType()
+        pileup = ""
+        if hasattr(sample, "hasPileup"):
+            pileup = "with no pileup"
+            if sample.hasPileup():
+                pileup = "with %s pileup" % sample.pileupType()
         self._sampleName += "%s sample %s" % (_sampleName.get(sample.name(), sample.name()), pileup)
 
         params = [title, base, self._sampleName, sample, fastVsFull]
@@ -313,9 +318,9 @@ class IndexSection:
         return ret
 
 class HtmlReport:
-    def __init__(self, newRelease, newBaseDir):
-        self._title = "Tracking validation "+newRelease
-        self._base = "http://cmsdoc.cern.ch/cms/Physics/tracking/validation/MC/%s/" % newRelease
+    def __init__(self, validationName, newBaseDir, baseUrl):
+        self._title = "Tracking validation "+validationName
+        self._base = baseUrl
         self._newBaseDir = newBaseDir
 
         self._index = [

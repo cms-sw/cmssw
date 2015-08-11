@@ -3,7 +3,7 @@
 # This is an example of plotting the standard tracking validation
 # plots from an explicit set of DQM root files.
 
-from Validation.RecoTrack.plotting.validation import SimpleValidation
+from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSample
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
 
 
@@ -16,6 +16,13 @@ filesLabels = [
 outputDir = "plots"
 subdirprefix = "sample"
 
+
+# To auto-generate HTML pages, uncomment the commented ilnes below
 val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels], outputDir)
-val.doPlots(trackingPlots.plotter, subdirprefix=subdirprefix, plotterDrawArgs={"ratio": True})
+#report = val.createHtmlReport("INSERT_YOUR_BASE_URL_HERE", validationName="Short description of your comparison")
+#report.beginSample(SimpleSample("prefix", "Sample name")
+val.doPlots(trackingPlots.plotter, subdirprefix=subdirprefix, plotterDrawArgs={"ratio": True},
+#            htmlReport=report
+)
+#report.write()
 

@@ -220,6 +220,9 @@ class Sample:
         """Get the sample name"""
         return self._sample
 
+    def label(self):
+        return self._sample
+
     def hasPileup(self):
         """Return True if sample has pileup"""
         return self._putype is not None
@@ -431,7 +434,8 @@ class Validation:
             sys.exit(1)
 
     def createHtmlReport(self):
-        return html.HtmlReport(self._newRelease, self._newBaseDir)
+        baseUrl = "http://cmsdoc.cern.ch/cms/Physics/tracking/validation/MC/%s/" % self._newRelease
+        return html.HtmlReport(self._newRelease, self._newBaseDir, baseUrl)
 
     def doPlots(self, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True):
         """Create validation plots.
@@ -730,13 +734,35 @@ def _copyDir(src, dst):
             obj.Write()
             obj.Delete()
 
+class SimpleSample:
+    def __init__(self, label, name):
+        self._label = label
+        self._name = name
+
+    def digest(self):
+        # Label should be unique among the plotting run, so it serves also as the digest
+        return self._label
+
+    def label(self):
+        return self._label
+
+    def name(self):
+        return self._name
+
+    def fastsim(self):
+        # No need to emulate the release validation fastsim behaviour here
+        return False
+
 class SimpleValidation:
     def __init__(self, files, labels, newdir):
         self._files = files
         self._labels = labels
         self._newdir = newdir
 
-    def doPlots(self, plotter, subdirprefix, plotterDrawArgs={}):
+    def createHtmlReport(self, baseUrl, validationName=""):
+        return html.HtmlReport(validationName, self._newdir, baseUrl)
+
+    def doPlots(self, plotter, subdirprefix, plotterDrawArgs={}, htmlReport=html.HtmlReportDummy()):
         self._subdirprefix=subdirprefix
         self._plotterDrawArgs = plotterDrawArgs
 
@@ -749,7 +775,8 @@ class SimpleValidation:
 
         plotterInstance = plotter.readDirs(*self._openFiles)
         for plotterFolder, dqmSubFolder in plotterInstance.iterFolders():
-            self._doPlots(plotterFolder, dqmSubFolder)
+            plotFiles = self._doPlots(plotterFolder, dqmSubFolder)
+            htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
         for tf in self._openFiles:
             tf.Close()
@@ -759,11 +786,12 @@ class SimpleValidation:
         plotterFolder.create(self._openFiles, self._labels, dqmSubFolder)
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
-        newdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
-        newdir = os.path.join(self._newdir, newdir)
+        newsubdir = self._subdirprefix+plotterFolder.getSelectionName(dqmSubFolder)
+        newdir = os.path.join(self._newdir, newsubdir)
 
         print "Moving plots to %s" % newdir
         if not os.path.exists(newdir):
             os.makedirs(newdir)
         for f in fileList:
             shutil.move(f, os.path.join(newdir, f))
+        return map(lambda n: os.path.join(newsubdir, n), fileList)
