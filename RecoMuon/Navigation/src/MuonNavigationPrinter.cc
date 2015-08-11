@@ -14,11 +14,8 @@
  *
  * Cesare Calabria:
  * GEMs implementation.
-<<<<<<< HEAD
-=======
  * David Nash:
  * ME0s implementation.
->>>>>>> dnash86/ME0-InFullMuonReco-For75X-Port
  */
 
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
@@ -44,11 +41,7 @@ using namespace std;
 #define PRINT(x) edm::LogInfo(x)
 #endif
 
-<<<<<<< HEAD
-MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout,  MuonNavigationSchool const & sh,   bool enableCSC, bool enableRPC, bool enableGEM) :
-=======
 MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout,  MuonNavigationSchool const & sh,   bool enableCSC, bool enableRPC, bool enableGEM, bool enableME0) :
->>>>>>> dnash86/ME0-InFullMuonReco-For75X-Port
   school(&sh) {
 
   PRINT("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" << std::endl;
@@ -64,13 +57,7 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   PRINT("MuonNavigationPrinter")  << "BACKWARD:" << std::endl;
 
   vector<const DetLayer*> backward;
-<<<<<<< HEAD
-  if ( enableCSC & enableGEM & enableRPC ) backward = muonLayout->allBackwardLayers();
-  else if ( enableCSC & enableGEM & !enableRPC ) backward = muonLayout->allCscGemBackwardLayers(); // CSC + GEM
-  else if ( !enableCSC & enableGEM & !enableRPC ) backward = muonLayout->backwardGEMLayers(); //GEM only
-  else if ( enableCSC & !enableGEM & !enableRPC ) backward = muonLayout->backwardCSCLayers(); //CSC only
-  else backward = muonLayout->allBackwardLayers();
-=======
+
   if ( enableCSC & enableGEM & enableRPC & enableME0) backward = muonLayout->allBackwardLayers();
   else if ( enableCSC & enableGEM & !enableRPC & !enableME0) backward = muonLayout->allCscGemBackwardLayers(); // CSC + GEM
   else if ( !enableCSC & enableGEM & !enableRPC & !enableME0 ) backward = muonLayout->backwardGEMLayers(); //GEM only
@@ -78,20 +65,13 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   else if ( enableCSC & !enableGEM & !enableRPC & enableME0) backward = muonLayout->allCscME0BackwardLayers(); //CSC + ME0
   else if ( !enableCSC & !enableGEM & !enableRPC & enableME0) backward = muonLayout->backwardME0Layers(); //ME0 only
   else backward = muonLayout->backwardCSCLayers();
->>>>>>> dnash86/ME0-InFullMuonReco-For75X-Port
 
   PRINT("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Backward DetLayers";
   for (auto i : backward ) printLayer(i);
   PRINT("MuonNavigationPrinter") << "==============================" << std::endl;
   PRINT("MuonNavigationPrinter") << "FORWARD:" << std::endl;
   vector<const DetLayer*> forward;
-<<<<<<< HEAD
-  if ( enableCSC & enableGEM & enableRPC ) forward = muonLayout->allForwardLayers();
-  else if ( enableCSC & enableGEM & !enableRPC ) forward = muonLayout->allCscGemForwardLayers(); // CSC + GEM
-  else if ( !enableCSC & enableGEM & !enableRPC ) forward = muonLayout->forwardGEMLayers(); //GEM only
-  else if ( enableCSC & !enableGEM & !enableRPC ) forward = muonLayout->forwardCSCLayers(); //CSC only
-  else forward = muonLayout->allForwardLayers();
-=======
+
   if ( enableCSC & enableGEM & enableRPC & enableME0 ) forward = muonLayout->allForwardLayers();
   else if ( enableCSC & enableGEM & !enableRPC & !enableME0) forward = muonLayout->allCscGemForwardLayers(); // CSC + GEM
   else if ( !enableCSC & enableGEM & !enableRPC & !enableME0 ) forward = muonLayout->forwardGEMLayers(); //GEM only
@@ -99,7 +79,6 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   else if ( enableCSC & !enableGEM & !enableRPC & enableME0) forward = muonLayout->allCscME0ForwardLayers(); //CSC + ME0
   else if ( !enableCSC & !enableGEM & !enableRPC & enableME0) forward = muonLayout->forwardME0Layers(); //ME0 only
   else forward = muonLayout->forwardCSCLayers();
->>>>>>> dnash86/ME0-InFullMuonReco-For75X-Port
 
   PRINT("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Forward DetLayers" << std::endl;
   for (auto i : forward ) printLayer(i);

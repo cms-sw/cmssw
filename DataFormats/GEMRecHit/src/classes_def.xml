@@ -45,8 +45,6 @@
   <class name="edm::RangeMap<ME0DetId,edm::OwnVector<ME0Segment,edm::ClonePolicy<ME0Segment> >,edm::ClonePolicy<ME0Segment> >" splitLevel="0"/>
   <class name="edm::Wrapper<edm::RangeMap<ME0DetId,edm::OwnVector<ME0Segment,edm::ClonePolicy<ME0Segment> >,edm::ClonePolicy<ME0Segment> > >" splitLevel="0"/>
   <class name="ME0SegmentRef" splitLevel="0"/>
-</selection>
-
 
 </selection>
 <exclusion>

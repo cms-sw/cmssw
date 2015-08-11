@@ -315,20 +315,12 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
 
   LogTrace(metname) 
     << "Number of RecHits: " << trajectoryBW.foundHits() << "\n"
-<<<<<<< HEAD
-    << "Number of DT/CSC/RPC/GEM chamber used (bw): " 
-    << bwfilter()->getDTChamberUsed() << "/"
-    << bwfilter()->getCSCChamberUsed() << "/" 
-    << bwfilter()->getRPCChamberUsed() << "/"
-    << bwfilter()->getGEMChamberUsed();
-=======
     << "Number of DT/CSC/RPC/GEM/ME0 chamber used (bw): " 
     << bwfilter()->getDTChamberUsed() << "/"
     << bwfilter()->getCSCChamberUsed() << "/" 
     << bwfilter()->getRPCChamberUsed() << "/"
     << bwfilter()->getGEMChamberUsed() << "/"
     << bwfilter()->getME0ChamberUsed();
->>>>>>> dnash86/ME0-InFullMuonReco-For75X-Port
   
   // -- The trajectory is "good" if there are at least 2 chambers used in total and at
   //    least 1 is "tracking" (DT or CSC)
