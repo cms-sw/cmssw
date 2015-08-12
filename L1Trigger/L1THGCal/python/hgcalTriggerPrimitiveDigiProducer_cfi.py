@@ -1,6 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-hgcalFETriggerPrimitiveDigiProducer = cms.EDProducer(
+fe_codec = cms.PSet( CodecName = cms.string('HGCal64BitRandomCodec') )
+
+random_cluster_algo =  cms.PSet( AlgorithmName = cms.string('RandomClusterAlgo') )
+
+hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     "HGCalFETriggerDigiProducer",
     eeDigis = cms.InputTag('mix:HGCDigisEE'),
     fhDigis = cms.InputTag('mix:HGCDigisHEfront'),
@@ -10,5 +14,9 @@ hgcalFETriggerPrimitiveDigiProducer = cms.EDProducer(
         eeSDName = cms.string('HGCalEESensitive'),
         fhSDName = cms.string('HGCalHESiliconSensitive'),
         bhSDName = cms.string('HGCalHEScintillatorSensitive'),
+        ),
+    FECodec = fe_codec,
+    BEConfiguration = cms.PSet( 
+        algorithms = cms.VPSet( random_cluster_algo )
         )
     )

@@ -7,8 +7,8 @@
 #include "TRandom3.h"
 
 struct HGCal64BitRandomDataPayload { 
-  unsigned int payload;
-  void reset() { memset(&payload,0,sizeof(unsigned int)); }
+  uint64_t payload;
+  void reset() { memset(&payload,0,sizeof(uint64_t)); }
 };
 
 inline std::ostream& operator<<(std::ostream& o, 
@@ -23,7 +23,7 @@ public:
   
   HGCal64BitRandomCodec(const edm::ParameterSet& conf) :
     Codec(conf) {
-    data_.payload = std::numeric_limits<unsigned int>::max();
+    data_.payload = std::numeric_limits<uint64_t>::max();
     rand.SetSeed(0);
   }
 
