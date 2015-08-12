@@ -82,13 +82,14 @@ void GEMRecHitTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   edm::Handle<edm::PSimHitContainer> simhits;
   edm::Handle<edm::SimTrackContainer> sim_tracks;
-  edm::Handle<edm::SimVertexContainer> sim_vertices;
+  //edm::Handle<edm::SimVertexContainer> sim_vertices;
   iEvent.getByToken(simHitsToken_, simhits);
   iEvent.getByToken(simTracksToken_, sim_tracks);
-  iEvent.getByToken(simVerticesToken_, sim_vertices);
-  if ( !simhits.isValid() || !sim_tracks.isValid() || !sim_vertices.isValid()) return;
+  //iEvent.getByToken(simVerticesToken_, sim_vertices);
+  //if ( !simhits.isValid() || !sim_tracks.isValid() || !sim_vertices.isValid()) return;
+  if ( !simhits.isValid() || !sim_tracks.isValid() ) return;
 
-  const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
+  //const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
 
   MySimTrack track_; 

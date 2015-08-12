@@ -94,6 +94,7 @@ GEMDigiTrackMatch::~GEMDigiTrackMatch() {  }
 
 void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  /*
   edm::ESHandle<GEMGeometry> hGeom;
   iSetup.get<MuonGeometryRecord>().get(hGeom);
   const GEMGeometry& geom = *hGeom;
@@ -106,7 +107,7 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
   iEvent.getByToken(simVerticesToken_, sim_vertices);
   if ( !simhits.isValid() || !sim_tracks.isValid() || !sim_vertices.isValid()) return;
 
-  const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
+//  const edm::SimTrackContainer & sim_trks = *sim_tracks.product();
 
 //  MySimTrack track_; 
 //  for (auto& t: sim_trks)
@@ -199,7 +200,7 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
 //      theCoPad_dcEta[dcEta_histname_copad.Hash()]->Fill(binX+1, binY);
 //    }
 //  }
-
+*/
   if ( detailPlot_) {
     edm::ESHandle<GEMGeometry> hGeom;
     iSetup.get<MuonGeometryRecord>().get(hGeom);
