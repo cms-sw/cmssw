@@ -16,7 +16,7 @@ setDataPayloadImpl(const Module& ,
                    const HGCHEDigiCollection& ) {
   data_.payload = 0;
   for( unsigned i = 0; i < 8*sizeof(data_type); ++i ) {
-    data_.payload |= static_cast<unsigned int>(rand.Rndm() > 0.5) << i;
+    data_.payload |= static_cast<uint64_t>(rand.Rndm() > 0.5) << i;
   }
 }
 
@@ -24,7 +24,7 @@ std::vector<bool>
 HGCal64BitRandomCodec::
 encodeImpl(const HGCal64BitRandomCodec::data_type& data) const {
   std::vector<bool> result;
-  result.resize(sizeof(data_type));
+  result.resize(8*sizeof(data_type));
   for( unsigned i = 0; i < 8*sizeof(data_type); ++i ) {
     result[i] = static_cast<bool>((data.payload >> i) & 0x1);
   }
@@ -42,7 +42,7 @@ decodeImpl(const std::vector<bool>& data) const {
           << sizeof(data_type) << ". Truncating to fit!";
   }  
   for( unsigned i = 0; i < 8*sizeof(data_type); ++i ) {
-    result.payload |= static_cast<unsigned int>(data[i]) << i;
+    result.payload |= static_cast<uint64_t>(data[i]) << i;
   }
   return result;
 }

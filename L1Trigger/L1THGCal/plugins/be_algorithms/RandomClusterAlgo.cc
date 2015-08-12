@@ -50,3 +50,7 @@ void RandomClusterAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
     cluster_product->push_back(0,cluster);
   }
 }
+
+DEFINE_EDM_PLUGIN(HGCalTriggerBackendAlgorithmFactory, 
+                  RandomClusterAlgo,
+                  "RandomClusterAlgo");

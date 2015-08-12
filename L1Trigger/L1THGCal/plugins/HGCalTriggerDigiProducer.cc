@@ -106,7 +106,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
     codec_->encode(digi);
     std::stringstream output;
     codec_->print(digi,output);
-    edm::LogInfo("HGCalTriggerDigiProducer|EncodedDigiInfo")
+    edm::LogInfo("HGCalTriggerDigiProducer")
       << output.str();
     codec_->unSetDataPayload();
   }
