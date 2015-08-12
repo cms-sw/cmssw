@@ -1,6 +1,9 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 
+#include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "DataFormats/L1THGCal/interface/HGCalTower.h"
+
 namespace DataFormats {
   namespace L1THGCal {
     l1t::HGCFETriggerDigi hgcfetd;
@@ -15,5 +18,11 @@ namespace DataFormats {
 
     edm::Wrapper<l1t::HGCFETriggerDigiRefVector> w_v_r_hgcfetd;
     edm::Wrapper<l1t::HGCFETriggerDigiPtrVector> w_v_p_hgcfetd;
+
+    l1t::HGCalTowerBxCollection   hgcalTowerBxColl;
+    l1t::HGCalClusterBxCollection hgcalClusterBxColl;
+
+    edm::Wrapper<l1t::HGCalTowerBxCollection>   w_hgcalTowerBxColl;
+    edm::Wrapper<l1t::HGCalClusterBxCollection> w_hgcalClusterBxColl;
   }
 }

@@ -12,4 +12,13 @@
   <class name="l1t::HGCFETriggerDigiPtr"/>
   <class name="l1t::HGCFETriggerDigiPtrVector"/>
   <class name="edm::Wrapper<l1t::HGCFETriggerDigiPtrVector>"/>  
+
+  <class name="l1t::HGCalTower" />
+  <class name="l1t::HGCalTowerBxCollection"/>
+  <class name="edm::Wrapper<l1t::HGCalTowerBxCollection>"/>
+
+  <class name="l1t::HGCalCluster" />
+  <class name="l1t::HGCalClusterBxCollection"/>
+  <class name="edm::Wrapper<l1t::HGCalClusterBxCollection>"/>
+
 </lcgdict>
