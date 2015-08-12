@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 HTDisplacedJetsPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
+        "HLT_HT200_v",
+        "HLT_HT325_v",
         "HLT_HT650_DisplacedDijet80_Inclusive_v",
         "HLT_HT750_DisplacedDijet80_Inclusive_v",
         "HLT_HT350_DisplacedDijet80_DisplacedTrack_v",
