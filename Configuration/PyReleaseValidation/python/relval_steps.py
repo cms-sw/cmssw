@@ -225,13 +225,12 @@ baseDataSetRelease=[
 #    'CMSSW_7_1_0_pre5-START71_V1-v2',                      # 3 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
     'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2-v1',         # 3 - 13 TeV samples with GEN-SIM from 750_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',            # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_6_0_pre2-PU25ns_75X_mcRun2_asymptotic_v2-v1',  # 5 - fullSim PU 25ns premix
-    'CMSSW_7_6_0_pre2-PU50ns_75X_mcRun2_startup_v2-v1',     # 6 - fullSim PU 50ns premix
-    'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2_FastSim-v1', # 7 - fastSim premix
-    'CMSSW_7_6_0_pre2-75X_mcRun2_HeavyIon_v2-v1', 	    # 8 Run2 HI GEN-SIM
-    'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2_FastSim-v1', # 9 - fastSim mb##FIXME: this is a repeated par same as 7. Hengne will fix this in 760pre3 after some tests.
-    'CMSSW_7_6_0_pre2-PU25ns_75X_mcRun2_asymptotic_v2_FastSim-v1'       # 10 - fastSim pre-premix 
+    'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                  # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
+    'CMSSW_7_6_0_pre2-PU25ns_75X_mcRun2_asymptotic_v2-v1',        # 5 - fullSim PU 25ns premix
+    'CMSSW_7_6_0_pre2-PU50ns_75X_mcRun2_startup_v2-v1',           # 6 - fullSim PU 50ns premix
+    'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2_FastSim-v1',       # 7 - fastSim MinBias for mixing
+    'CMSSW_7_6_0_pre2-PU25ns_75X_mcRun2_asymptotic_v2_FastSim-v1' # 8 - fastSim premixed MinBias
+    'CMSSW_7_6_0_pre2-75X_mcRun2_HeavyIon_v2-v1', 	          # 9 - Run2 HI GEN-SIM
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -462,7 +461,7 @@ hiDefaults2011=merge([hiAlca2011,{'--scenario':'HeavyIons','-n':2,'--beamspot':'
 hiDefaults=merge([hiAlca,{'--scenario':'HeavyIons','-n':2,'--beamspot':'NominalHICollision2015'}])
 
 steps['HydjetQ_MinBias_5020GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_5020GeV_cfi',U2000by1)])
-steps['HydjetQ_MinBias_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[8],),location='STD',split=5)}
+steps['HydjetQ_MinBias_5020GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[9],),location='STD',split=5)}
 
 steps['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults2011,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U2000by1)])
 steps['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/%s/GEN-SIM'%(baseDataSetRelease[1],),location='STD',split=5)}
@@ -534,7 +533,7 @@ steps['MinBiasFS_13_ForMixing']=merge([{'cfg':'MinBias_13TeV_pythia8_TuneCUETP8M
 
 ### FastSim: template to produce signal and overlay with minbias events
 PUFS25={'--pileup':'AVE_35_BX_25ns',
-        '--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[9],)}
+        '--pileup_input':'das:/RelValMinBiasFS_13_ForMixing/%s/GEN-SIM-RECO'%(baseDataSetRelease[7],)}
 FS_UP15_PU25_OVERLAY = merge([PUFS25,Kby(100,500),steps['TTbarFS_13']] )
 
 ### FastSim: produce sample of premixed minbias events
@@ -553,7 +552,7 @@ steps["FS_PREMIXUP15_PU25"] = merge([
 FS_PREMIXUP15_PU25_OVERLAY = merge([
         {"-s" : "GEN,SIM,RECOBEFMIX,DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,L1Reco,RECO,HLT:@relval25ns,VALIDATION",
          "--datamix" : "PreMix",
-         "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[10],),
+         "--pileup_input" : "dbs:/RelValFS_PREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW"%(baseDataSetRelease[8],),
          "--customise":"SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1"
          },
         Kby(100,500),step1FastUpg2015Defaults])
@@ -681,7 +680,7 @@ PU={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM
 PU2={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
 PU25={'-n':10,'--pileup':'AVE_35_BX_25ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],)}
 PU50={'-n':10,'--pileup':'AVE_35_BX_50ns','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[3],)}
-PUHI={'-n':10,'--pileup_input':'das:/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[8])}
+PUHI={'-n':10,'--pileup_input':'das:/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[9])}
 
 
 #PU for FastSim
@@ -1064,7 +1063,7 @@ steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains',
 
 
 steps['RECOHISt4']=steps['RECOHI']
-steps['RECOHIMIX']=merge([steps['RECOHI'],{'--pileup':'HiMix','--pileup_input':'das:/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[8])}])
+steps['RECOHIMIX']=merge([steps['RECOHI'],{'--pileup':'HiMix','--pileup_input':'das:/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[9])}])
 
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVESTGEN']={'-s':'HARVESTING:genHarvesting',
