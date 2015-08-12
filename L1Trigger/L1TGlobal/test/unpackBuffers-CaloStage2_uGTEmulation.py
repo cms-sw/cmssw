@@ -241,7 +241,7 @@ process.dumpRaw = cms.EDAnalyzer(
     "DumpFEDRawDataProduct",
     label = cms.untracked.string("rawDataCollector"),
     feds = cms.untracked.vint32 ( 1360, 1366, 1404 ),
-    dumpPayload = cms.untracked.bool ( False )
+    dumpPayload = cms.untracked.bool ( True )
 )
 
 # raw to digi
@@ -256,7 +256,7 @@ process.gtStage2Digis.InputLabel = cms.InputTag('rawDataCollector')
 process.load('L1Trigger.L1TGlobal.StableParametersConfig_cff')
 process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
 process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
-process.TriggerMenuXml.DefXmlFile = 'L1Menu_CaloSliceTest_2015.xml'
+process.TriggerMenuXml.DefXmlFile = 'L1Menu_CaloSliceTest_2015_v3.xml'
 
 process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
 process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
@@ -303,11 +303,11 @@ process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
 # gt analyzer
 process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
     doText = cms.untracked.bool(options.debug),
-    dmxEGToken = cms.InputTag("None"),
+    dmxEGToken = cms.InputTag("caloStage2Digis"),
     dmxTauToken = cms.InputTag("None"),
     dmxJetToken = cms.InputTag("caloStage2Digis"),
     dmxEtSumToken = cms.InputTag("caloStage2Digis"),
-    egToken = cms.InputTag("None"),
+    egToken = cms.InputTag("gtStage2Digis","GT"),
     tauToken = cms.InputTag("None"),
     jetToken = cms.InputTag("gtStage2Digis","GT"),
     etSumToken = cms.InputTag("gtStage2Digis","GT"),
@@ -317,10 +317,34 @@ process.l1tGlobalAnalyzer = cms.EDAnalyzer('L1TGlobalAnalyzer',
 )
 
 
+# dump records
+process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
+                egInputTag    = cms.InputTag("gtStage2Digis","GT"),
+		muInputTag    = cms.InputTag(""),
+		tauInputTag   = cms.InputTag(""),
+		jetInputTag   = cms.InputTag("gtStage2Digis","GT"),
+		etsumInputTag = cms.InputTag("gtStage2Digis","GT"),
+		uGtRecInputTag = cms.InputTag(""),
+		uGtAlgInputTag = cms.InputTag("emL1uGtFromGtInput"),
+		uGtExtInputTag = cms.InputTag(""),
+		bxOffset       = cms.int32(0),
+		minBx          = cms.int32(0),
+		maxBx          = cms.int32(0),
+		minBxVec       = cms.int32(0),
+		maxBxVec       = cms.int32(0),		
+		dumpGTRecord   = cms.bool(True),
+		dumpVectors    = cms.bool(True),
+		tvFileName     = cms.string( "TestVector.txt" )
+		 )
+		 
+
+
+
+
 # Path and EndPath definitions
 process.path = cms.Path(
-    process.stage2MPRaw
-    +process.stage2DemuxRaw
+#    process.stage2MPRaw
+     process.stage2DemuxRaw
     +process.stage2GTRaw
     +process.rawDataCollector
     +process.dumpRaw
@@ -330,6 +354,7 @@ process.path = cms.Path(
     +process.emL1uGtFromDemuxOutput
     +process.l1tStage2CaloAnalyzer
     +process.l1tGlobalAnalyzer
+    +process.dumpGTRecord
 )
 
 if (not options.doMP):

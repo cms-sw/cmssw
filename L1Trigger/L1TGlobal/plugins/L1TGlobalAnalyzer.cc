@@ -130,9 +130,18 @@ private:
   TH1F* hEmulDxAlgoBits_;
   TH2F* hAlgoBitsEmulGtVsHw_;
   TH2F* hAlgoBitsEmulDxVsHw_;
+  TH2F* hDmxVsGTEGEt_;
+  TH2F* hDmxVsGTEGEta_;
+  TH2F* hDmxVsGTEGPhi_;  
   TH2F* hDmxVsGTJetEt_;
   TH2F* hDmxVsGTJetEta_;
   TH2F* hDmxVsGTJetPhi_;
+  TH2F* hDmxVsGTSumEt_ETT_;
+  TH2F* hDmxVsGTSumEt_HTT_;
+  TH2F* hDmxVsGTSumEt_ETM_;
+  TH2F* hDmxVsGTSumPhi_ETM_;
+  TH2F* hDmxVsGTSumEt_HTM_;
+  TH2F* hDmxVsGTSumPhi_HTM_;
 
 };
 
@@ -430,6 +439,7 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     for ( int ibx=sums->getFirstBX(); ibx<=sums->getLastBX(); ++ibx) {
 
       for ( auto itr = sums->begin(ibx); itr != sums->end(ibx); ++itr ) {
+
 	hbx_.at(Sum)->Fill( ibx );
 	het_.at(Sum)->Fill( itr->hwPt() );
 	heta_.at(Sum)->Fill( itr->hwEta() );
@@ -452,7 +462,10 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       for ( auto itr = algs->begin(ibx); itr != algs->end(ibx); ++itr ) {
            
 	for(int algBit=0; algBit<128; algBit++) {  //Fix Me: Should access size of algo vector...need method in GlobalAlgBlk class
-	  if(itr->getAlgoDecisionFinal(algBit)) hAlgoBits_->Fill(algBit);
+	  if(itr->getAlgoDecisionFinal(algBit)) {
+	    hAlgoBits_->Fill(algBit);
+	    text << "HW Fired Alg Bit : " << algBit  << std::endl;
+	  }  
         }
       }
 
@@ -470,7 +483,10 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       for ( auto itr = emulGtAlgs->begin(ibx); itr != emulGtAlgs->end(ibx); ++itr ) {
            
 	for(int algBit=0; algBit<128; algBit++) { //Fix Me: Should access size of algo vector...need method in GlobalAlgBlk class
-	  if(itr->getAlgoDecisionFinal(algBit)) hEmulGtAlgoBits_->Fill(algBit);
+	  if(itr->getAlgoDecisionFinal(algBit)) {
+	     hEmulGtAlgoBits_->Fill(algBit);
+	     text << "Emul w/ GTInput Fired Alg Bit : " << algBit  << std::endl;
+	  }  
         }
       }
 
@@ -488,8 +504,11 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       for ( auto itr = emulDxAlgs->begin(ibx); itr != emulDxAlgs->end(ibx); ++itr ) {
            
 	for(int algBit=0; algBit<128; algBit++) { //Fix Me: Should access size of algo vector...need method in GlobalAlgBlk class
-	  if(itr->getAlgoDecisionFinal(algBit)) hEmulDxAlgoBits_->Fill(algBit);
-        }
+	  if(itr->getAlgoDecisionFinal(algBit)) {
+	      hEmulDxAlgoBits_->Fill(algBit);
+	      text << "Emul w/ Demux output Fired Alg Bit : " << algBit  << std::endl;
+          }
+	}
       }
 
     }
@@ -497,7 +516,58 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
 
+  // EG (Dmx vs GT)
+  if (m_doEGs & m_doDmxEGs) {
+    Handle< BXVector<l1t::EGamma> > egs;
+    iEvent.getByToken(m_egToken,egs);
 
+    Handle< BXVector<l1t::EGamma> > dmxegs;
+    iEvent.getByToken(m_dmxEGToken,dmxegs);
+    
+    for ( int ibx=egs->getFirstBX(); ibx<=egs->getLastBX(); ++ibx) {
+
+      // Cycle through all GT egs
+      for (unsigned int igtEG=0; igtEG<egs->size(ibx); igtEG++) {
+ 
+	double gtEGEt = egs->at(ibx,igtEG).hwPt();
+        double dmxEGEt = 0.0;
+        if(dmxegs->size(ibx)>igtEG) dmxEGEt = dmxegs->at(ibx,igtEG).hwPt();
+        hDmxVsGTEGEt_->Fill(gtEGEt,dmxEGEt);        
+
+	double gtEGEta = egs->at(ibx,igtEG).hwEta();
+        double dmxEGEta = 0.0;
+        if(dmxegs->size(ibx)>igtEG) dmxEGEta = dmxegs->at(ibx,igtEG).hwEta();
+        hDmxVsGTEGEta_->Fill(gtEGEta,dmxEGEta);        
+
+	double gtEGPhi = egs->at(ibx,igtEG).hwPhi();
+        double dmxEGPhi = 0.0;
+        if(dmxegs->size(ibx)>igtEG) dmxEGPhi = dmxegs->at(ibx,igtEG).hwPhi();
+        hDmxVsGTEGPhi_->Fill(gtEGPhi,dmxEGPhi);        
+
+
+
+      }
+      // if there are extra egs in the dmx record them
+      for (unsigned int idmEG=egs->size(ibx); idmEG<dmxegs->size(ibx); idmEG++) {
+
+        
+	double gtEGEt = 0.0; //no GT jet exists
+        double dmxEGEt = dmxegs->at(ibx,idmEG).hwPt();
+        hDmxVsGTEGEt_->Fill(gtEGEt,dmxEGEt);        
+
+	double gtEGEta = 0.0;
+        double dmxEGEta = dmxegs->at(ibx,idmEG).hwEta();
+        hDmxVsGTEGEta_->Fill(gtEGEta,dmxEGEta);        
+
+	double gtEGPhi = 0.0;
+        double dmxEGPhi  = dmxegs->at(ibx,idmEG).hwPhi();
+        hDmxVsGTEGPhi_->Fill(gtEGPhi,dmxEGPhi);        
+         
+      }      
+       
+    }
+
+  }
   
   // Jets (Dmx vs GT)
   if (m_doJets & m_doDmxJets) {
@@ -551,6 +621,89 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
   }
+
+  // Sums (Dmx vs GT)
+  if (m_doSums & m_doDmxSums) {
+    Handle< BXVector<l1t::EtSum> > sums;
+    iEvent.getByToken(m_sumToken,sums);
+
+    Handle< BXVector<l1t::EtSum> > dmxSums;
+    iEvent.getByToken(m_dmxSumToken,dmxSums);
+    
+    for ( int ibx=sums->getFirstBX(); ibx<=sums->getLastBX(); ++ibx) {
+
+      // Cycle through all GT sums
+      for (unsigned int igtS=0; igtS<sums->size(ibx); igtS++) {
+ 
+	double gtSumEt = sums->at(ibx,igtS).hwPt();
+        double dmxSumEt = 0.0;
+        if(dmxSums->size(ibx)>igtS) dmxSumEt = dmxSums->at(ibx,igtS).hwPt();
+
+	double gtSumPhi = sums->at(ibx,igtS).hwPhi();
+        double dmxSumPhi = 0.0;
+        if(dmxSums->size(ibx)>igtS) dmxSumPhi = dmxSums->at(ibx,igtS).hwPhi();
+
+        if(sums->at(ibx,igtS).getType() == dmxSums->at(ibx,igtS).getType()) {
+          switch(sums->at(ibx,igtS).getType()) {
+	  case l1t::EtSum::EtSumType::kTotalEt:
+  	      hDmxVsGTSumEt_ETT_->Fill(gtSumEt,dmxSumEt);
+
+              break;  
+	  case l1t::EtSum::EtSumType::kTotalHt:
+  	      hDmxVsGTSumEt_HTT_->Fill(gtSumEt,dmxSumEt);
+
+              break;  
+	  case l1t::EtSum::EtSumType::kMissingEt:
+  	      hDmxVsGTSumEt_ETM_->Fill(gtSumEt,dmxSumEt);
+              hDmxVsGTSumPhi_ETM_->Fill(gtSumPhi,dmxSumPhi);
+              break;  
+	  case l1t::EtSum::EtSumType::kMissingHt:
+  	      hDmxVsGTSumEt_HTM_->Fill(gtSumEt,dmxSumEt);
+              hDmxVsGTSumPhi_HTM_->Fill(gtSumPhi,dmxSumPhi);
+              break;
+          default:
+	      break;  
+          }                 
+        } else {
+          text << "WARNING:  EtSum Types do not line up between DeMux and uGT " << std::endl;
+        }
+      }
+      // if there are extra sumss in the dmx record them...should not be any...but let's check
+      for (unsigned int idmS=sums->size(ibx); idmS<dmxSums->size(ibx); idmS++) {
+
+        
+	double gtSumEt = 0.0; //no GT jet exists
+        double dmxSumEt = dmxSums->at(ibx,idmS).hwPt();        
+
+	double gtSumPhi = 0.0;
+        double dmxSumPhi  = dmxSums->at(ibx,idmS).hwPhi();
+
+          switch(dmxSums->at(ibx,idmS).getType()) {
+	  case l1t::EtSum::EtSumType::kTotalEt:
+  	      hDmxVsGTSumEt_ETT_->Fill(gtSumEt,dmxSumEt);
+
+              break;  
+	  case l1t::EtSum::EtSumType::kTotalHt:
+  	      hDmxVsGTSumEt_HTT_->Fill(gtSumEt,dmxSumEt);
+
+              break;  
+	  case l1t::EtSum::EtSumType::kMissingEt:
+  	      hDmxVsGTSumEt_ETM_->Fill(gtSumEt,dmxSumEt);
+              hDmxVsGTSumPhi_ETM_->Fill(gtSumPhi,dmxSumPhi);
+              break;  
+	  case l1t::EtSum::EtSumType::kMissingHt:
+  	      hDmxVsGTSumEt_HTM_->Fill(gtSumEt,dmxSumEt);
+              hDmxVsGTSumPhi_HTM_->Fill(gtSumPhi,dmxSumPhi);
+              break;  
+          default:
+	      break;
+          }                 
+         
+      }      
+       
+    }
+
+  }
   
   
   //Algorithm Bits (Emulation vs HW)
@@ -575,8 +728,10 @@ L1TGlobalAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	    hAlgoBitsEmulGtVsHw_->Fill(algBit,algBit);
 	  }else if(hw & !em) {
             hAlgoBitsEmulGtVsHw_->Fill(algBit,-1.0);
+	    text << "WARNING:  HW Fnd Alg Bit " << algBit << " but emulation did not " << std::endl;
 	  }else if(!hw & em) {
             hAlgoBitsEmulGtVsHw_->Fill(-1.0,algBit);
+	    text << "WARNING:  Emul. Fnd Alg Bit " << algBit << " but hardware did not " << std::endl;
 	  }
         }
       
@@ -660,9 +815,20 @@ L1TGlobalAnalyzer::beginJob()
   hAlgoBitsEmulDxVsHw_ = algDir_.make<TH2F>("hAlgoBitsEmulDxVsHw","Algorithm Bits (Dx) Emulation vs Hardware",101, -1.5,99.5,101,-1.5,99.5);
  
   dmxVGtDir_ = fs->mkdir("DmxVsGT");
-  hDmxVsGTJetEt_  = dmxVGtDir_.make<TH2F>("hDmxVsGTJetEt","Dmx Jet Et versus GT Jet Et",200,-0.5,199.5,200,-0.5,199.5);
+  hDmxVsGTEGEt_  = dmxVGtDir_.make<TH2F>("hDmxVsGTEGEt","Dmx EG Et versus GT EG Et",   400,-0.5,399.5,400,-0.5,399.5);
+  hDmxVsGTEGEta_ = dmxVGtDir_.make<TH2F>("hDmxVsGTEGEta","Dmx EG Eta versus GT EG Eta",227,-113.5,113.5,227,-113.5,113.5);
+  hDmxVsGTEGPhi_ = dmxVGtDir_.make<TH2F>("hDmxVsGTEGPhi","Dmx EG Phi versus GT EG Phi",144,-0.5,143.5,144,-0.5,143.5);
+ 
+  hDmxVsGTJetEt_  = dmxVGtDir_.make<TH2F>("hDmxVsGTJetEt","Dmx Jet Et versus GT Jet Et",   400,-0.5,399.5,400,-0.5,399.5);
   hDmxVsGTJetEta_ = dmxVGtDir_.make<TH2F>("hDmxVsGTJetEta","Dmx Jet Eta versus GT Jet Eta",227,-113.5,113.5,227,-113.5,113.5);
   hDmxVsGTJetPhi_ = dmxVGtDir_.make<TH2F>("hDmxVsGTJetPhi","Dmx Jet Phi versus GT Jet Phi",144,-0.5,143.5,144,-0.5,143.5);
+ 
+  hDmxVsGTSumEt_ETT_  = dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_ETT","Dmx ETT versus GT ETT",400,-0.5,399.5,400,-0.5,399.5);
+  hDmxVsGTSumEt_HTT_  = dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_HTT","Dmx HTT versus GT HTT",400,-0.5,399.5,400,-0.5,399.5);
+  hDmxVsGTSumEt_ETM_  = dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_ETM","Dmx ETM versus GT ETM",400,-0.5,399.5,400,-0.5,399.5);
+  hDmxVsGTSumPhi_ETM_ = dmxVGtDir_.make<TH2F>("hDmxVsGTSumPhi_ETM","Dmx ETM Phi versus GT ETM Phi",144,-0.5,143.5,144,-0.5,143.5);
+  hDmxVsGTSumEt_HTM_  = dmxVGtDir_.make<TH2F>("hDmxVsGTSumEt_HTM","Dmx HTM versus GT HTM",400,-0.5,399.5,400,-0.5,399.5);
+  hDmxVsGTSumPhi_HTM_ = dmxVGtDir_.make<TH2F>("hDmxVsGTSumPhi_HTM","Dmx HTM Phi versus GT HTM Phi",144,-0.5,143.5,144,-0.5,143.5);
 
   if (doEvtDisp_) {
     evtDispDir_ = fs->mkdir("Events");
