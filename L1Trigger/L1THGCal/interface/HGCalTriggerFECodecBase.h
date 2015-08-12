@@ -104,7 +104,7 @@ namespace HGCalTriggerFE {
     }
 
     virtual void unSetDataPayload() override final {
-      memset(&data_,0,sizeof(DATA));
+      data_.reset();
       dataIsSet_ = false;
     }
     std::vector<bool> getDataPayload() const override final { 

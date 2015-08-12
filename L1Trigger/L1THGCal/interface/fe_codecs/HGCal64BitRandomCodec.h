@@ -8,6 +8,7 @@
 
 struct HGCal64BitRandomDataPayload { 
   unsigned int payload;
+  void reset() { memset(&payload,0,sizeof(unsigned int)); }
 };
 
 inline std::ostream& operator<<(std::ostream& o, 
