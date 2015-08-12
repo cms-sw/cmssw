@@ -146,6 +146,8 @@ streamA_datasetSingleElectron_selector.throw      = cms.bool(False)
 streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele105_CaloIdVT_GsfTrkIdT_v2', 
     'HLT_Ele115_CaloIdVT_GsfTrkIdT_v1', 
     'HLT_Ele15_IsoVVVL_BTagCSV0p72_PFHT400_v2', 
+    'HLT_Ele15_IsoVVVL_PFHT350_PFMET50_v1', 
+    'HLT_Ele15_IsoVVVL_PFHT350_v1', 
     'HLT_Ele15_IsoVVVL_PFHT600_v2', 
     'HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v1', 
     'HLT_Ele22_eta2p1_WPLoose_Gsf_v1', 
@@ -208,6 +210,12 @@ streamA_datasetSinglePhoton_selector.triggerConditions = cms.vstring('HLT_Photon
     'HLT_Photon90_R9Id90_HE10_Iso40_EBOnly_VBF_v2', 
     'HLT_Photon90_R9Id90_HE10_IsoM_v2', 
     'HLT_Photon90_v2')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
+streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTemplates_selector.l1tResults = cms.InputTag('')
+streamA_datasetTemplates_selector.throw      = cms.bool(False)
+streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_HT650_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetZeroBias_selector
 streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -311,7 +319,12 @@ streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJet280
     'HLT_DiPFJetAve80_HFJEC_v2', 
     'HLT_DiPFJetAve80_v1', 
     'HLT_HT2000_v1', 
+    'HLT_HT200_v1', 
     'HLT_HT2500_v1', 
+    'HLT_HT275_v1', 
+    'HLT_HT325_v1', 
+    'HLT_HT425_v1', 
+    'HLT_HT575_v1', 
     'HLT_L1_TripleJet_VBF_v2', 
     'HLT_PFHT200_v1', 
     'HLT_PFHT250_v1', 
@@ -528,6 +541,8 @@ streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIs
     'HLT_L2Mu10_v1', 
     'HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_JetIdCleaned_v1', 
     'HLT_Mu15_IsoVVVL_BTagCSV0p72_PFHT400_v2', 
+    'HLT_Mu15_IsoVVVL_PFHT350_PFMET50_v1', 
+    'HLT_Mu15_IsoVVVL_PFHT350_v1', 
     'HLT_Mu15_IsoVVVL_PFHT600_v2', 
     'HLT_Mu16_eta2p1_MET30_JetIdCleaned_v1', 
     'HLT_Mu20_v2', 
