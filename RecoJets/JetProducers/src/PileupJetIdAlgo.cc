@@ -46,7 +46,6 @@ PileupJetIdAlgo::PileupJetIdAlgo(const edm::ParameterSet & ps, bool runMvas)
 	    version_             = ps.getParameter<int>("version");
 	  }
         else version_ = USER;
-	reader_              = nullptr;
 	edm::ParameterSet jetConfig = ps.getParameter<edm::ParameterSet>("JetIdParams");
 	for(int i0 = 0; i0 < 3; i0++) { 
 	  std::string lCutType                            = "Tight";
@@ -101,7 +100,6 @@ PileupJetIdAlgo::PileupJetIdAlgo(int version,
 	tmvaVariables_       = tmvaVariables;
 	version_             = version;
 	
-	reader_              = nullptr;
 	runMvas_=runMvas;
 	
 	setup();
@@ -203,16 +201,6 @@ void PileupJetIdAlgo::setup()
 // ------------------------------------------------------------------------------------------
 PileupJetIdAlgo::~PileupJetIdAlgo() 
 {
-	if( reader_ )
-		delete reader_;
-	if( reader_jteta_0_2_ )
-		delete reader_jteta_0_2_;
-	if( reader_jteta_2_2p5_ )
-		delete reader_jteta_2_2p5_;
-	if( reader_jteta_2p5_3_ )
-		delete reader_jteta_2p5_3_;
-	if( reader_jteta_3_5_ )
-		delete reader_jteta_3_5_;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -236,12 +224,12 @@ void setPtEtaPhi(const reco::Candidate & p, float & pt, float & eta, float &phi 
 void PileupJetIdAlgo::bookReader()
 {
 	if(etaBinnedWeights_){
-		reader_jteta_0_2_ = new TMVA::Reader("!Color:Silent");
-		reader_jteta_2_2p5_ = new TMVA::Reader("!Color:Silent");
-		reader_jteta_2p5_3_ = new TMVA::Reader("!Color:Silent");
-		reader_jteta_3_5_ = new TMVA::Reader("!Color:Silent");
+		reader_jteta_0_2_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
+		reader_jteta_2_2p5_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
+		reader_jteta_2p5_3_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
+		reader_jteta_3_5_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
 	} else {
-		reader_ = new TMVA::Reader("!Color:Silent");
+		reader_ = std::unique_ptr<TMVA::Reader>(new TMVA::Reader("!Color:Silent"));
 	}
 	if(etaBinnedWeights_){
 	  for(std::vector<std::string>::iterator it=tmvaVariables_jteta_0_3_.begin(); it!=tmvaVariables_jteta_0_3_.end(); ++it) {
@@ -280,12 +268,12 @@ void PileupJetIdAlgo::bookReader()
 		}
 	}
 	if(etaBinnedWeights_){
-		reco::details::loadTMVAWeights(reader_jteta_0_2_,  tmvaMethod_.c_str(), tmvaWeights_jteta_0_2_.c_str() ); 
-		reco::details::loadTMVAWeights(reader_jteta_2_2p5_,  tmvaMethod_.c_str(), tmvaWeights_jteta_2_2p5_.c_str() ); 
-		reco::details::loadTMVAWeights(reader_jteta_2p5_3_,  tmvaMethod_.c_str(), tmvaWeights_jteta_2p5_3_.c_str() ); 
-		reco::details::loadTMVAWeights(reader_jteta_3_5_,  tmvaMethod_.c_str(), tmvaWeights_jteta_3_5_.c_str() ); 
+		reco::details::loadTMVAWeights(reader_jteta_0_2_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_0_2_.c_str() ); 
+		reco::details::loadTMVAWeights(reader_jteta_2_2p5_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_2_2p5_.c_str() ); 
+		reco::details::loadTMVAWeights(reader_jteta_2p5_3_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_2p5_3_.c_str() ); 
+		reco::details::loadTMVAWeights(reader_jteta_3_5_.get(),  tmvaMethod_.c_str(), tmvaWeights_jteta_3_5_.c_str() ); 
 	} else {
-		reco::details::loadTMVAWeights(reader_,  tmvaMethod_.c_str(), tmvaWeights_.c_str() ); 
+		reco::details::loadTMVAWeights(reader_.get(),  tmvaMethod_.c_str(), tmvaWeights_.c_str() ); 
 	}
 }
 
