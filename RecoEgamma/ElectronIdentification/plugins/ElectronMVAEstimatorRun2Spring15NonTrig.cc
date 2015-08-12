@@ -315,20 +315,22 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   // Spectator variables  
   allMVAVars.pt              = eleRecoPtr->pt();
   float scEta = superCluster->eta();
-  allMVAVars.isBarrel        = ( std::abs(scEta) < 1.479 );
-  allMVAVars.isEndcap        = ( std::abs(scEta) >= 1.479);
+  constexpr float ebeeSplit = 1.479
+  allMVAVars.isBarrel        = ( std::abs(scEta) < ebeeSplit );
+  allMVAVars.isEndcap        = ( std::abs(scEta) >= ebeeSplit );
   allMVAVars.SCeta           = scEta;
   // The spectator variables below were examined for training, but
   // are not necessary for evaluating the discriminator, so they are
   // given dummy values (the specator variables above are also unimportant).
   // They are introduced only to match the definition of the discriminator 
   // in the weights file.
-  allMVAVars.eClass               = 999;
-  allMVAVars.pfRelIso             = 999;
-  allMVAVars.expectedInnerHits    = 999;
-  allMVAVars.vtxconv              = 999;
-  allMVAVars.mcEventWeight        = 999;
-  allMVAVars.mcCBmatchingCategory = 999;
+  constexpr unsigned nines = 999;
+  allMVAVars.eClass               = nines;
+  allMVAVars.pfRelIso             = nines;
+  allMVAVars.expectedInnerHits    = nines;
+  allMVAVars.vtxconv              = nines;
+  allMVAVars.mcEventWeight        = nines;
+  allMVAVars.mcCBmatchingCategory = nines;
 
   constrainMVAVariables(allMVAVars);
 
