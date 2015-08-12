@@ -94,7 +94,7 @@ storageCounter(StorageAccount::Counter *&c, const char *label)
 }
 
 TStorageFactoryFile::TStorageFactoryFile(void)
-  : storage_(0)
+  : storage_()
 {
   StorageAccount::Stamp stats(storageCounter(s_statsCtor, "construct"));
   stats.tick(0);
@@ -111,7 +111,7 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
                                          Int_t netopt,
                                          Bool_t parallelopen /* = kFALSE */)
   : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
-    storage_(0)
+    storage_()
 {
   try {
     Initialize(path, option);
@@ -125,7 +125,7 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
                                          const char *ftitle /* = "" */,
                                          Int_t compress /* = 1 */)
   : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
-    storage_(0)
+    storage_()
 {
   try {
     Initialize(path, option);
@@ -224,7 +224,6 @@ TStorageFactoryFile::Initialize(const char *path,
 TStorageFactoryFile::~TStorageFactoryFile(void)
 {
   Close();
-  delete storage_;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -329,7 +328,7 @@ TStorageFactoryFile::ReadBufferAsync(Long64_t off, Int_t len)
   // whether the underlying storage supports prefetching.  If it is
   // forced on, pretend it's on, even if the storage doesn't support
   // it, as this turns off the caching in ROOT's side.
-  StorageFactory *f = StorageFactory::get();
+  const StorageFactory *f = StorageFactory::get();
 
   // Verify that we never using async reads in app-only mode
   if (f->cacheHint() == StorageFactory::CACHE_HINT_APPLICATION)
@@ -547,8 +546,6 @@ TStorageFactoryFile::SysOpen(const char *pathname, Int_t flags, UInt_t /* mode *
   if (storage_)
   {
     storage_->close();
-    delete storage_;
-    storage_ = 0;
   }
 
   int                      openFlags = IOFlags::OpenRead;
@@ -580,8 +577,7 @@ TStorageFactoryFile::SysClose(Int_t /* fd */)
   if (storage_)
   {
     storage_->close();
-    delete storage_;
-    storage_ = 0;
+    storage_.release();
   }
 
   stats.tick();

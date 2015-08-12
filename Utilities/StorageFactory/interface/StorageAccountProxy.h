@@ -4,6 +4,7 @@
 # include "Utilities/StorageFactory/interface/StorageAccount.h"
 # include "Utilities/StorageFactory/interface/Storage.h"
 # include <string>
+#include <memory>
 
 /** Proxy class that wraps SEAL's #Storage class with one that ticks
     #StorageAccount counters for significant operations.  The returned
@@ -16,7 +17,7 @@
 class StorageAccountProxy : public Storage
 {
 public:
-  StorageAccountProxy (const std::string &storageClass, Storage *baseStorage);
+  StorageAccountProxy (const std::string &storageClass, std::unique_ptr<Storage> baseStorage);
   ~StorageAccountProxy (void);
 
   using Storage::read;
@@ -39,7 +40,7 @@ public:
 
 protected:
   std::string		m_storageClass;
-  Storage		*m_baseStorage;
+  std::unique_ptr<Storage> m_baseStorage;
 
   StorageAccount::Counter &m_statsRead;
   StorageAccount::Counter &m_statsReadV;

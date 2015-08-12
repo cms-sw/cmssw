@@ -22,7 +22,7 @@ public:
 
 };
 
-class XrdStorageMaker : public StorageMaker
+class XrdStorageMaker final : public StorageMaker
 {
 public:
   static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
@@ -44,12 +44,12 @@ public:
 
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
 			 int mode) override
   {
 
-    StorageFactory *f = StorageFactory::get();
+    const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
@@ -60,8 +60,8 @@ public:
       mode |=  IOFlags::OpenUnbuffered;
 
     std::string fullpath(proto + ":" + path);
-    Storage *file = new XrdFile (fullpath, mode);
-    return f->wrapNonLocalFile(file, proto, std::string(), mode);
+    auto file = std::make_unique<XrdFile>(fullpath, mode);
+    return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
   virtual void stagein (const std::string &proto, const std::string &path) override

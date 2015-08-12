@@ -28,7 +28,9 @@ public:
     READ_HINT_AUTO
   };
 
-  static StorageFactory *get (void);
+  static const StorageFactory *get (void);
+  static StorageFactory *getToModify (void);
+
   ~StorageFactory (void);
 
   // implicit copy constructor
@@ -54,28 +56,28 @@ public:
   std::string	tempPath (void) const;
   double	tempMinFree (void) const;
 
-  void		stagein (const std::string &url);
-  Storage *	open (const std::string &url,
-	    	      int mode = IOFlags::OpenRead);
+  void		stagein (const std::string &url) const;
+  std::unique_ptr<Storage>	open (const std::string &url,
+	    	      int mode = IOFlags::OpenRead) const;
   bool		check (const std::string &url,
-	    	       IOOffset *size = 0);
+	    	       IOOffset *size = 0) const;
   void		activateTimeout (const std::string &url);
 
-  Storage *	wrapNonLocalFile (Storage *s,
+  std::unique_ptr<Storage>	wrapNonLocalFile (std::unique_ptr<Storage> s,
 				  const std::string &proto,
 				  const std::string &path,
-				  int mode);
+				  int mode) const;
 
 private:
   typedef tbb::concurrent_unordered_map<std::string, std::shared_ptr<StorageMaker>> MakerTable;
 
   StorageFactory (void);
-  StorageMaker *getMaker (const std::string &proto);
+  StorageMaker *getMaker (const std::string &proto) const;
   StorageMaker *getMaker (const std::string &url,
 			  std::string &protocol,
-			  std::string &rest);
+			  std::string &rest) const;
   
-  MakerTable	m_makers;
+  mutable MakerTable	m_makers;
   CacheHint	m_cacheHint;
   ReadHint	m_readHint;
   bool		m_accounting;

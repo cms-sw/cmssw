@@ -15,8 +15,8 @@ int main (int argc, char **argv) try
     return EXIT_FAILURE;
   }
 
-  StorageFactory::get ()->enableAccounting(true);
-  std::vector<Storage *> storages;
+  StorageFactory::getToModify ()->enableAccounting(true);
+  std::vector<std::unique_ptr<Storage>> storages;
   std::vector<IOOffset> sizes;	
   for (int i = 1; i < argc; ++i)
   {
@@ -65,7 +65,6 @@ int main (int argc, char **argv) try
   for (size_t i = 0; i < sizes.size(); ++i) 
   {
     storages[i]->close();
-    delete storages[i];
   }
 
   std::cout << StorageAccount::summaryXML () << std::endl;

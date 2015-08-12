@@ -19,7 +19,7 @@ int main (int argc, char **argv) try
   if (! exists) return EXIT_SUCCESS;
 
   static const int SIZE = 1048576;
-  Storage	*s = StorageFactory::get ()->open (argv [1]);
+  auto s = StorageFactory::get ()->open (argv [1]);
   char		*buf = (char *) malloc (SIZE);
   IOSize	n;
 
@@ -27,7 +27,6 @@ int main (int argc, char **argv) try
     std::cout.write (buf, n);
 
   s->close();
-  delete s;
   free (buf);
 
   std::cerr << StorageAccount::summaryXML () << std::endl;

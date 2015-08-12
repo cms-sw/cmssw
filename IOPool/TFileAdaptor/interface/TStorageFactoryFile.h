@@ -2,6 +2,7 @@
 # define TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H
 
 # include <vector>
+# include <memory>
 
 # include "TFile.h"
 
@@ -53,7 +54,7 @@ private:
 
   TStorageFactoryFile(void);
 
-  Storage		*storage_;		//< Real underlying storage
+  std::unique_ptr<Storage>	storage_;		//< Real underlying storage
 };
 
 #endif // TFILE_ADAPTOR_TSTORAGE_FACTORY_FILE_H

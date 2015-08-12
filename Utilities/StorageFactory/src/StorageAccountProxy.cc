@@ -1,9 +1,9 @@
 #include "Utilities/StorageFactory/interface/StorageAccountProxy.h"
 
 StorageAccountProxy::StorageAccountProxy (const std::string &storageClass,
-					  Storage *baseStorage)
+                                          std::unique_ptr<Storage> baseStorage)
   : m_storageClass (storageClass),
-    m_baseStorage (baseStorage),
+    m_baseStorage (std::move(baseStorage)),
     m_statsRead (StorageAccount::counter (m_storageClass, "read")),
     m_statsReadV (StorageAccount::counter (m_storageClass, "readv")),
     m_statsWrite (StorageAccount::counter (m_storageClass, "write")),
@@ -18,7 +18,7 @@ StorageAccountProxy::StorageAccountProxy (const std::string &storageClass,
 StorageAccountProxy::~StorageAccountProxy (void)
 {
   StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, "destruct"));
-  delete m_baseStorage;
+  m_baseStorage.release();
   stats.tick ();
 }
 

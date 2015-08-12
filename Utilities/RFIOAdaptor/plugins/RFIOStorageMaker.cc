@@ -97,11 +97,11 @@ public:
     Cthread_init();
   }
 
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 		         const std::string &path,
 			 int mode) override
   {
-    StorageFactory *f = StorageFactory::get();
+    const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
@@ -111,8 +111,8 @@ public:
     else
       mode |= IOFlags::OpenUnbuffered;
 
-    Storage *file = new RFIOFile(normalise(path), mode);
-    return f->wrapNonLocalFile(file, proto, std::string(), mode);
+    auto file = std::make_unique<RFIOFile>(normalise(path), mode);
+    return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
   virtual void stagein (const std::string &proto,

@@ -75,7 +75,7 @@ namespace edm {
 
     bool newHeader_;
 
-    std::shared_ptr<Storage> storage_;
+    std::unique_ptr<Storage> storage_;
 
     bool endOfFile_;
   };

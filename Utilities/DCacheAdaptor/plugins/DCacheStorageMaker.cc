@@ -29,11 +29,11 @@ public:
 
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
 			 int mode) override
   {
-    StorageFactory *f = StorageFactory::get();
+    const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
@@ -43,8 +43,8 @@ public:
     else
       mode |= IOFlags::OpenUnbuffered;
 
-    Storage *file = new DCacheFile(normalise(proto, path), mode);
-    return f->wrapNonLocalFile(file, proto, std::string(), mode);
+    auto file = std::make_unique<DCacheFile>(normalise(proto, path), mode);
+    return f->wrapNonLocalFile(std::move(file), proto, std::string(), mode);
   }
 
   virtual void stagein (const std::string &proto,

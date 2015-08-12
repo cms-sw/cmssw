@@ -55,11 +55,11 @@ class StormLcgGtStorageMaker : public StorageMaker
 
 
 public:
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &surl,
 			 int mode) override
   {
-    StorageFactory *f = StorageFactory::get();
+    const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
     StorageFactory::CacheHint cacheHint = f->cacheHint();
 
@@ -70,8 +70,8 @@ public:
       mode |= IOFlags::OpenUnbuffered;
 
     std::string path = getTURL(surl);
-    File *file = new File (path, mode); 
-    return f->wrapNonLocalFile (file, proto, path, mode);
+    auto file = std::make_unique<File> (path, mode);
+    return f->wrapNonLocalFile (std::move(file), proto, path, mode);
   }
 
   virtual bool check (const std::string &/*proto*/,

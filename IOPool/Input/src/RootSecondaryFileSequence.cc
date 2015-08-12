@@ -50,7 +50,7 @@ namespace edm {
       enablePrefetching_ = pSLC->enablePrefetching();
     }
 
-    StorageFactory *factory = StorageFactory::get();
+    StorageFactory *factory = StorageFactory::getToModify();
 
     // Prestage the files
     //NOTE: we do not want to stage in all secondary files since we can be given a list of

@@ -3,6 +3,7 @@
 
 # include "Utilities/StorageFactory/interface/IOTypes.h"
 # include <string>
+#include <memory>
 
 class Storage;
 class StorageMaker
@@ -15,7 +16,7 @@ public:
 
   virtual void		stagein (const std::string &proto,
 				 const std::string &path);
-  virtual Storage *	open (const std::string &proto,
+  virtual std::unique_ptr<Storage>	open (const std::string &proto,
 			      const std::string &path,
 			      int mode) = 0;
   virtual bool		check (const std::string &proto,
