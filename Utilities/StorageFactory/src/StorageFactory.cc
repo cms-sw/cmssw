@@ -7,7 +7,6 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <boost/shared_ptr.hpp>
 
 StorageFactory StorageFactory::s_instance;
 
@@ -106,7 +105,7 @@ StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
 
   m_temppath = s;
   m_tempfree = minFreeSpace;
-  m_tempdir = m_lfs.findCachePath(dirs, minFreeSpace);
+  std::tie(m_tempdir, m_unusableDirWarnings) = m_lfs.findCachePath(dirs, minFreeSpace);
 
 #if 0
   std::cerr /* edm::LogInfo("StorageFactory") */

@@ -82,6 +82,7 @@ private:
   double	m_tempfree;
   std::string	m_temppath;
   std::string	m_tempdir;
+  std::string m_unusableDirWarnings;
   unsigned int  m_timeout;
   unsigned int  m_debugLevel;
   LocalFileSystem m_lfs;
