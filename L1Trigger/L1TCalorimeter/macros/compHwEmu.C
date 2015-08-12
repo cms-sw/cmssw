@@ -77,6 +77,24 @@ void compHwEmu(){
   TH1D* hwSort = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/sort");
   TH1D* emSort = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/sort");
 
+  // EG Et
+
+  TH1D* hwEgEt = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/eg/et");
+  TH1D* emEgEt = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/eg/et");
+
+
+  // EG eta
+
+  TH1D* hwEgEta = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/eg/eta");
+  TH1D* emEgEta = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/eg/eta");
+
+  // EG phi
+
+  TH1D* hwEgPhi = (TH1D*)inFileHw->Get("l1tStage2CaloAnalyzer/eg/phi");
+  TH1D* emEgPhi = (TH1D*)inFileEm->Get("l1tStage2CaloAnalyzer/eg/phi");
+
+
+  ////////////////////////////////////////////////////////////////////////////////////
 
   TLine* unity = new TLine(0.1,0.525,0.9,0.525);
   unity->SetLineColor(kBlue);
@@ -1274,5 +1292,174 @@ void compHwEmu(){
  unity->Draw();
  pDSortRatio->Update();
  cSort->SaveAs("compHwEmu/Sorts/DemuxSort.png");
+
+
+ //================ egamma ====================
+
+
+ TCanvas* cDEgEt = new TCanvas("cDEgEt","DEgEt");
+
+ TPad* pDEgEt = new TPad("pEgEt","pEgEt",0,0.3,1,1); 
+ TPad* pDEgEtRatio = new TPad("pEgEtratio","pEgEtratio",0,0,1,0.3);
+ 
+ TPad* pInvDEgEtRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvDEgEtRatio->SetFillStyle(0);
+
+ leg = new TLegend(0.6,0.65,0.85,0.85);
+ leg->SetFillColor(0);
+ leg->AddEntry(hwEgEt,"Hardware Demux", "p");
+ leg->AddEntry(emEgEt,"Emulator Demux", "l");
+
+ hwEgEt->Rebin(10);
+ emEgEt->Rebin(10);
+
+ hwEgEt->SetStats(0);
+ hwEgEt->SetMarkerStyle(21);
+ hwEgEt->SetMarkerColor(1);
+ hwEgEt->SetMarkerSize(0.4);
+ emEgEt->SetLineColor(kRed);
+ hwEgEt->GetXaxis()->SetTitle("Egamma iET");
+ hwEgEt->GetYaxis()->SetTitle("# Egamma");
+ hwEgEt->GetYaxis()->SetTitleSize(0.07);
+ hwEgEt->GetYaxis()->SetTitleOffset(0.48);
+ hwEgEt->GetXaxis()->SetTitleSize(0.04);
+ hwEgEt->GetXaxis()->SetTitleOffset(0.9);
+ pDEgEt->SetBottomMargin(0.08);
+ pDEgEt->Draw();
+ pDEgEt->cd();
+ 
+ TH1D* DEgEtRatio = (TH1D*)hwEgEt->DrawCopy("p");
+ DEgEtRatio->SetMinimum(0);
+ emEgEt->Draw("same");
+ leg->Draw();
+ cDEgEt->cd();
+ pDEgEtRatio->SetTopMargin(0.05);
+ pDEgEtRatio->Draw();
+ pDEgEtRatio->cd();
+ hwEgEt->Divide(emEgEt);
+ hwEgEt->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwEgEt->GetYaxis()->SetTitleSize(0.09);
+ hwEgEt->GetYaxis()->SetLabelSize(0.07);
+ hwEgEt->GetXaxis()->SetLabelSize(0.07);
+ hwEgEt->GetXaxis()->SetTitleSize(0.0);
+ hwEgEt->GetYaxis()->SetTitleOffset(0.35);
+ hwEgEt->SetMinimum(0.8);
+ hwEgEt->SetMaximum(1.2);
+ hwEgEt->Draw("p");
+ cDEgEt->cd();
+ pInvDEgEtRatio->Draw();
+ pInvDEgEtRatio->cd();
+ unity->Draw();
+ pDEgEtRatio->Update();
+ cDEgEt->SaveAs("compHwEmu/DemuxJets/EgEt.png");
+
+
+ 
+ TCanvas* cDEgEta = new TCanvas("cDEgEta","DEgEta");
+ TPad* pDEgEta = new TPad("pEgEta","pEgEta",0,0.3,1,1); 
+ TPad* pDEgEtaRatio = new TPad("pEgEtaratio","pEgEtaratio",0,0,1,0.3);
+ 
+ TPad* pInvDEgEtaRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvDEgEtaRatio->SetFillStyle(0);
+
+ leg = new TLegend(0.4,0.65,0.65,0.85);
+ leg->SetFillColor(0);
+ leg->AddEntry(hwEgEta,"Hardware Demux", "p");
+ leg->AddEntry(emEgEta,"Emulator Demux", "l");
+
+ hwEgEta->SetStats(0);
+ hwEgEta->SetMarkerStyle(21);
+ hwEgEta->SetMarkerColor(1);
+ hwEgEta->SetMarkerSize(0.4);
+ emEgEta->SetLineColor(kRed);
+ hwEgEta->GetXaxis()->SetTitle("Jet i#eta");
+ hwEgEta->GetXaxis()->SetRange(82,146);
+ hwEgEta->GetYaxis()->SetTitle("# Jets");
+ hwEgEta->GetYaxis()->SetTitleSize(0.07);
+ hwEgEta->GetYaxis()->SetTitleOffset(0.48);
+ hwEgEta->GetXaxis()->SetTitleSize(0.04);
+ hwEgEta->GetXaxis()->SetTitleOffset(0.9);
+ pDEgEta->SetBottomMargin(0.08);
+ pDEgEta->Draw();
+ pDEgEta->cd();
+ 
+ TH1D* DEgEtaRatio = (TH1D*)hwEgEta->DrawCopy("p");
+ DEgEtaRatio->SetMinimum(0);
+ emEgEta->Draw("same");
+ leg->Draw();
+ cDEgEta->cd();
+ pDEgEtaRatio->SetTopMargin(0.05);
+ pDEgEtaRatio->Draw();
+ pDEgEtaRatio->cd();
+ hwEgEta->Divide(emEgEta);
+ hwEgEta->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwEgEta->GetYaxis()->SetTitleSize(0.09);
+ hwEgEta->GetYaxis()->SetLabelSize(0.07);
+ hwEgEta->GetXaxis()->SetLabelSize(0.07);
+ hwEgEta->GetXaxis()->SetTitleSize(0.0);
+ hwEgEta->GetYaxis()->SetTitleOffset(0.35);
+ hwEgEta->SetMinimum(0.8);
+ hwEgEta->SetMaximum(1.2);
+ hwEgEta->Draw("p");
+ cDEgEta->cd();
+ pInvDEgEtaRatio->Draw();
+ pInvDEgEtaRatio->cd();
+ unity->Draw();
+ pDEgEtaRatio->Update();
+ cDEgEta->SaveAs("compHwEmu/DemuxJets/EgEta.png");
+
+
+ TCanvas* cDEgPhi = new TCanvas("cDEgPhi","DEgPhi");
+
+ TPad* pDEgPhi = new TPad("pEgPhi","pEgPhi",0,0.3,1,1); 
+ TPad* pDEgPhiRatio = new TPad("pEgPhiratio","pEgPhiratio",0,0,1,0.3);
+  
+ TPad* pInvDEgPhiRatio = new TPad("pInv","pInv", 0,0,1,0.3);
+ pInvDEgPhiRatio->SetFillStyle(0);
+
+ leg = new TLegend(0.75,0.75,0.9,0.9);
+ leg->SetFillColor(0);
+ leg->AddEntry(hwEgPhi,"Hardware Demux", "p");
+ leg->AddEntry(emEgPhi,"Emulator Demux", "l");
+
+ hwEgPhi->SetStats(0);
+ hwEgPhi->SetMarkerStyle(21);
+ hwEgPhi->SetMarkerColor(1);
+ hwEgPhi->SetMarkerSize(0.4);
+ emEgPhi->SetLineColor(kRed);
+ hwEgPhi->GetXaxis()->SetTitle("Jet i#phi");
+ hwEgPhi->GetXaxis()->SetRange(0,73);
+ hwEgPhi->GetYaxis()->SetTitle("# Jets");
+ hwEgPhi->GetYaxis()->SetTitleSize(0.07);
+ hwEgPhi->GetYaxis()->SetTitleOffset(0.48);
+ hwEgPhi->GetXaxis()->SetTitleSize(0.04);
+ hwEgPhi->GetXaxis()->SetTitleOffset(0.9);
+ pDEgPhi->SetBottomMargin(0.08);
+ pDEgPhi->Draw();
+ pDEgPhi->cd();
+
+ TH1D* DEgPhiRatio = (TH1D*)hwEgPhi->DrawCopy("p");
+ DEgPhiRatio->SetMinimum(0);
+ emEgPhi->Draw("same");//"");
+ leg->Draw();
+ cDEgPhi->cd();
+ pDEgPhiRatio->SetTopMargin(0.05);
+ pDEgPhiRatio->Draw();
+ pDEgPhiRatio->cd();
+ hwEgPhi->Divide(emEgPhi);
+ hwEgPhi->GetYaxis()->SetTitle("Ratio HW/EM");
+ hwEgPhi->GetYaxis()->SetTitleSize(0.09);
+ hwEgPhi->GetYaxis()->SetLabelSize(0.07);
+ hwEgPhi->GetXaxis()->SetLabelSize(0.07);
+ hwEgPhi->GetXaxis()->SetTitleSize(0.0);
+ hwEgPhi->GetYaxis()->SetTitleOffset(0.35);
+ hwEgPhi->SetMinimum(0.8);
+ hwEgPhi->SetMaximum(1.2);
+ hwEgPhi->Draw("p");
+ cDEgPhi->cd();
+ pInvDEgPhiRatio->Draw();
+ pInvDEgPhiRatio->cd();
+ unity->Draw();
+ cDEgPhi->SaveAs("compHwEmu/DemuxJets/EgPhi.png");
 
 }

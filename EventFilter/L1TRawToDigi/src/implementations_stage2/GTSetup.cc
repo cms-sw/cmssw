@@ -71,6 +71,8 @@ namespace l1t {
 		  res[10] = egamma_unp;
 		  res[12] = jet_unp;
                   res[14] = jet_unp;
+		  res[16] = tau_unp;
+		  res[18] = tau_unp;
                   res[20] = etsum_unp;
 
                   res[1] = alg_unp;
