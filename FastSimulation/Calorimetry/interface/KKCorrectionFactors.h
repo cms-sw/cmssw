@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
 // Package:    FastSimulation/Calorimetry
-// Class:      CaloResponse
+// Class:      KKCorrectionFactors
 //
-/**\class CaloResponser
+/**\class KKCorrectionFactorsr
  Description: Returns scale from an TH3F histogram in a root file
 */
 //
@@ -24,20 +24,21 @@
 #include <TROOT.h>
 
 
-class CaloResponse {
+class KKCorrectionFactors {
 
  public:
   /* Constructor: pset must contain two strings: "fileName" is the name of the
    * file in which the TH3F named "histogramName" is saved.
    */
-  CaloResponse( const edm::ParameterSet& pset );
-  ~CaloResponse() { delete h3_; };
+  KKCorrectionFactors( const edm::ParameterSet& pset );
+  ~KKCorrectionFactors() { delete h3_; };
 
   float getScale( float genEnergy, float genEta, float simEnergy ) const;
 
  private:
   // histogram which contains the scales
   TH3F* h3_;
+  bool interpolate_;
 
 };
 

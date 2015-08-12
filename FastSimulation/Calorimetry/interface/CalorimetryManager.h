@@ -14,7 +14,7 @@
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 
-#include "FastSimulation/Calorimetry/interface/CaloResponse.h"
+#include "FastSimulation/Calorimetry/interface/KKCorrectionFactors.h"
 
 // For the uint32_t
 //#include <boost/cstdint.hpp>
@@ -189,7 +189,7 @@ class CalorimetryManager{
   bool useCorrectionSL;
   FastHFShowerLibrary *theHFShowerLibrary;
 
-  CaloResponse* ecalCorrection;
+  KKCorrectionFactors* ecalCorrection;
 
 };
 #endif
