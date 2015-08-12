@@ -142,7 +142,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
     theMuonHcalEffects = new MaterialEffects(fastMuHCAL);
 
   if( fastCalo.exists("ECALResponseScaling") ) {
-    ecalCorrection = new CaloResponse( fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling") );
+    ecalCorrection = new KKCorrectionFactors( fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling") );
   }
 
 }
