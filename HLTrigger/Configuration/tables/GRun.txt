@@ -192,7 +192,6 @@ HLT_HT275_v*							# JIRA: CMSHLT-488
 HLT_HT325_v*							# JIRA: CMSHLT-488
 HLT_HT425_v*							# JIRA: CMSHLT-488
 HLT_HT575_v*							# JIRA: CMSHLT-488
-HLT_HT650_v*							# JIRA: CMSHLT-488
 
 HLT_PFHT200_v*                                                  # JIRA: CMSHLT-355
 HLT_PFHT250_v*                                                  # JIRA: CMSHLT-355
@@ -432,11 +431,16 @@ HLT_Mu38NoFiltersNoVtxDisplaced_DisplacedJet60_Loose_v*		# JIRA: CMSHLT-310
 HLT_Mu38NoFiltersNoVtx_DisplacedJet60_Loose_v*			# JIRA: CMSHLT-310
 HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v*			# JIRA: CMSHLT-310
 
-HLT_VBF_DisplacedJet40_VTightID_Hadronic_v* 			# JIRA: CMSHLT-318
-HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v*  			# JIRA: CMSHLT-318
-HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v*  		# JIRA: CMSHLT-318
-HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v*  		# JIRA: CMSHLT-318
-  
+HLT_VBF_DisplacedJet40_VTightID_Hadronic_v*			# JIRA: CMSHLT-318
+HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v*			# JIRA: CMSHLT-318
+HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v*		# JIRA: CMSHLT-318
+HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v*		# JIRA: CMSHLT-318
+
+#HLT_HT400_DisplacedDijet40_Inclusive_v*			# JIRA: CMSHLT-516
+#HLT_HT250_DisplacedDijet40_DisplacedTrack_v*			# JIRA: CMSHLT-516
+#HLT_VBF_DisplacedJet40_Hadronic_2PromptTrack_v*		# JIRA: CMSHLT-516
+#HLT_VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_v*	# JIRA: CMSHLT-516
+
 HLT_Ele22_eta2p1_WPTight_Gsf_v*					# JIRA: CMSHLT-330
 HLT_Ele27_eta2p1_WPTight_Gsf_v*					# JIRA: CMSHLT-330
 HLT_Ele32_eta2p1_WPTight_Gsf_v*					# JIRA: CMSHLT-330

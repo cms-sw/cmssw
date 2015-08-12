@@ -211,12 +211,6 @@ streamA_datasetSinglePhoton_selector.triggerConditions = cms.vstring('HLT_Photon
     'HLT_Photon90_R9Id90_HE10_IsoM_v2', 
     'HLT_Photon90_v2')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
-streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetTemplates_selector.l1tResults = cms.InputTag('')
-streamA_datasetTemplates_selector.throw      = cms.bool(False)
-streamA_datasetTemplates_selector.triggerConditions = cms.vstring('HLT_HT650_v2')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetZeroBias_selector
 streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
