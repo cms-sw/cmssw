@@ -83,8 +83,8 @@ namespace l1t {
     void print(const CODEC& codec, std::ostream& out) const;
 
   private:
-    uint32_t detid_;         // save in the abstract form
-    unsigned char codec_; // 0xffff is special and means no encoder
+    uint32_t detid_;      // save in the abstract form
+    unsigned char codec_; // 0xff is special and means no encoder
     data_payload  data_;    
   };  
 

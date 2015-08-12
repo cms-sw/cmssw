@@ -10,14 +10,15 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
+#include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendProcessor.h"
 
 #include <sstream>
 #include <memory>
 
-class HGCalFETriggerDigiProducer : public edm::EDProducer {  
+class HGCalTriggerDigiProducer : public edm::EDProducer {  
  public:    
-  HGCalFETriggerDigiProducer(const edm::ParameterSet&);
-  ~HGCalFETriggerDigiProducer() { }
+  HGCalTriggerDigiProducer(const edm::ParameterSet&);
+  ~HGCalTriggerDigiProducer() { }
   
   virtual void beginRun(const edm::Run&, 
                         const edm::EventSetup&);
@@ -29,16 +30,18 @@ class HGCalFETriggerDigiProducer : public edm::EDProducer {
   // algorithm containers
   std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_;
   std::unique_ptr<HGCalTriggerFECodecBase> codec_;
+  HGCalTriggerBackendProcessor backEndProcessor_;
 };
 
-DEFINE_FWK_MODULE(HGCalFETriggerDigiProducer);
+DEFINE_FWK_MODULE(HGCalTriggerDigiProducer);
 
-HGCalFETriggerDigiProducer::
-HGCalFETriggerDigiProducer(const edm::ParameterSet& conf) {
-
-  inputee_ = consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis")); 
-  inputfh_ = consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis")); 
-  inputbh_ = consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis")); 
+HGCalTriggerDigiProducer::
+HGCalTriggerDigiProducer(const edm::ParameterSet& conf):
+  inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
+  inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
+  inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))), 
+  backEndProcessor_(conf.getParameterSet("BEConfiguration")) {
+  
   //setup geometry configuration
   const edm::ParameterSet& geometryConfig = 
     conf.getParameterSet("TriggerGeometry");
@@ -56,11 +59,14 @@ HGCalFETriggerDigiProducer(const edm::ParameterSet& conf) {
   HGCalTriggerFECodecBase* codec =
     HGCalTriggerFECodecFactory::get()->create(feCodecName,feCodecConfig);
   codec_.reset(codec);
-
+  codec_->unSetDataPayload();
+  
   produces<l1t::HGCFETriggerDigiCollection>();
+  // register backend processor products
+  backEndProcessor_.setProduces(*this);
 }
 
-void HGCalFETriggerDigiProducer::beginRun(const edm::Run& /*run*/, 
+void HGCalTriggerDigiProducer::beginRun(const edm::Run& /*run*/, 
                                           const edm::EventSetup& es) {
   triggerGeometry_->reset();
   HGCalTriggerGeometryBase::es_info info;
@@ -76,9 +82,9 @@ void HGCalFETriggerDigiProducer::beginRun(const edm::Run& /*run*/,
   triggerGeometry_->initialize(info);
 }
 
-void HGCalFETriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es) {
+void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   std::auto_ptr<l1t::HGCFETriggerDigiCollection> 
-    output( new l1t::HGCFETriggerDigiCollection );
+    fe_output( new l1t::HGCFETriggerDigiCollection );
   
   edm::Handle<HGCEEDigiCollection> ee_digis_h;
   edm::Handle<HGCHEDigiCollection> fh_digis_h, bh_digis_h;
@@ -93,17 +99,24 @@ void HGCalFETriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& e
 
   //we produce one output trigger digi per module in the FE
   //so we use the geometry to tell us what to loop over
-  for( const auto& module : triggerGeometry_->modules() ) {
-    codec_->unSetDataPayload();
-    output->push_back(l1t::HGCFETriggerDigi());
-    l1t::HGCFETriggerDigi& digi = output->back();
+  for( const auto& module : triggerGeometry_->modules() ) {    
+    fe_output->push_back(l1t::HGCFETriggerDigi());
+    l1t::HGCFETriggerDigi& digi = fe_output->back();
     codec_->setDataPayload(*(module.second),ee_digis,fh_digis,bh_digis);
     codec_->encode(digi);
     std::stringstream output;
     codec_->print(digi,output);
-    edm::LogInfo("HGCalFETriggerDigiProducer|EncodedDigiInfo")
+    edm::LogInfo("HGCalTriggerDigiProducer|EncodedDigiInfo")
       << output.str();
+    codec_->unSetDataPayload();
   }
 
-  e.put(output);
+  // get the orphan handle and fe digi collection
+  auto fe_digis_handle = e.put(fe_output);
+  auto fe_digis_coll = *fe_digis_handle;
+  
+  //now we run the emulation of the back-end processor
+  backEndProcessor_.run(fe_digis_coll,triggerGeometry_);
+  backEndProcessor_.putInEvent(e);
+  backEndProcessor_.reset();  
 }

@@ -15,7 +15,11 @@
  * author: L.Gray (FNAL)
  * date: 27 July, 2015
  *
- * 
+ * Base classes for defining HGCal FE codec classes.
+ * The base class defines an abstract interface, which is then specialized
+ * by the "Codec<>" class to handle a specific data format.
+ * To keep the implementation properly factorized, an implementation class
+ * is used to provide the appropriate coding and decoding.
  *
  *******/
 

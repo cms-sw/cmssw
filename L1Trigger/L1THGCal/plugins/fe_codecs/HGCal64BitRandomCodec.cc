@@ -1,42 +1,13 @@
-#include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCal64BitRandomCodec.h"
 #include <limits>
 
 #include "TRandom3.h"
 
 using namespace HGCalTriggerFE;
 
-struct HGCal64BitRandomDataPayload {
- 
-  unsigned int payload;
-};
-
-std::ostream& operator<<(std::ostream& o, 
-                         const HGCal64BitRandomDataPayload& data) { 
-  o << std::hex << data.payload << std::dec;
-  return o;
-}
-
-class HGCal64BitRandomCodec : public Codec<HGCal64BitRandomCodec,HGCal64BitRandomDataPayload> {
-public:
-  typedef HGCal64BitRandomDataPayload data_type;
-  
-  HGCal64BitRandomCodec(const edm::ParameterSet& conf) :
-    Codec(conf) {
-    data_.payload = std::numeric_limits<unsigned int>::max();
-    rand.SetSeed(0);
-  }
-
-  void setDataPayloadImpl(const Module& mod, 
-                          const HGCEEDigiCollection& ee,
-                          const HGCHEDigiCollection& fh,
-                          const HGCHEDigiCollection& bh );
-  
-  std::vector<bool> encodeImpl(const data_type&) const ;
-  data_type         decodeImpl(const std::vector<bool>&) const;  
-
-private:
-  TRandom3 rand;
-};
+DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory, 
+                  HGCal64BitRandomCodec,
+                  "HGCal64BitRandomCodec");
 
 void HGCal64BitRandomCodec::
 setDataPayloadImpl(const Module& , 
@@ -44,7 +15,7 @@ setDataPayloadImpl(const Module& ,
                    const HGCHEDigiCollection&,
                    const HGCHEDigiCollection& ) {
   data_.payload = 0;
-  for( unsigned i = 0; i < sizeof(data_type); ++i ) {
+  for( unsigned i = 0; i < 8*sizeof(data_type); ++i ) {
     data_.payload |= static_cast<unsigned int>(rand.Rndm() > 0.5) << i;
   }
 }
@@ -76,6 +47,4 @@ decodeImpl(const std::vector<bool>& data) const {
   return result;
 }
 
-DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory, 
-                  HGCal64BitRandomCodec,
-                  "HGCal64BitRandomCodec");
+
