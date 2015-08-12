@@ -28,12 +28,12 @@ from DQM.L1TMonitor.BxTiming_cfi import *
 
 # RCT DQM module 
 from DQM.L1TMonitor.L1TRCT_cfi import *
-l1tRct.rctSource = 'rctDigis'
-l1tRct.gctSource = 'gctDigis'
+l1tRct.rctSource = 'caloStage1Digis'
+l1tRct.gctSource = 'caloStage1Digis'
 
-l1tRctfromGCT = l1tRct.clone()
-l1tRctfromGCT.rctSource = 'gctDigis'
-l1tRctfromGCT.HistFolder = cms.untracked.string('L1T/L1TRCT_FromGCT')
+l1tRctfromRCT = l1tRct.clone()
+l1tRctfromRCT.rctSource = 'rctDigis'
+l1tRctfromRCT.HistFolder = cms.untracked.string('L1T/L1TRCT_FromRCT')
 
 # RCT PUM DQM
 from DQM.L1TMonitor.L1TPUM_cfi import *
@@ -104,7 +104,7 @@ from L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi import *
 
 
 l1tRctSeq = cms.Sequence(
-                    l1tRct + l1tRctfromGCT + l1tPUM 
+                    l1tRct + l1tRctfromRCT + l1tPUM 
                     )
 
 l1tGctSeq = cms.Sequence(
