@@ -24,7 +24,12 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-namespace {
+// In principle this should be anonymous namespace, but then
+// DEFINE_FWK_MODULE() will yield compilation warnings, so using
+// (hopefully) unique namespace instead.
+// The point of the namespace is to not to pollute the global
+// namespace (and symbol space).
+namespace tracksToTrajectories {
   struct Count {
     Count(): theNTracks(0), theNFailures(0) {}
     //Using mutable since we want to update the value.
@@ -32,6 +37,7 @@ namespace {
     mutable std::atomic<int> theNFailures;
   };
 }
+using namespace tracksToTrajectories;
 
 class TracksToTrajectories: public edm::stream::EDProducer<edm::GlobalCache<Count>> {
 public:
