@@ -1,4 +1,4 @@
-#include "RecoJets/JetProducers/interface/hltMVAJetPuId.h"
+#include "RecoJets/JetProducers/interface/MVAJetPuId.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -14,7 +14,7 @@
 const float large_val = std::numeric_limits<float>::max();
 
 
-hltMVAJetPuId::hltMVAJetPuId(const edm::ParameterSet & ps) 
+MVAJetPuId::MVAJetPuId(const edm::ParameterSet & ps) 
 {
 	impactParTkThreshod_ = 1.;
 
@@ -48,7 +48,7 @@ hltMVAJetPuId::hltMVAJetPuId(const edm::ParameterSet & ps)
 
 
 
-hltMVAJetPuId::hltMVAJetPuId(int version,
+MVAJetPuId::MVAJetPuId(int version,
 		const std::string & tmvaWeights, 
 		const std::string & tmvaMethod, 
 		Float_t impactParTkThreshod,
@@ -68,7 +68,7 @@ hltMVAJetPuId::hltMVAJetPuId(int version,
 
 
 
-void hltMVAJetPuId::setup()
+void MVAJetPuId::setup()
 {
 	initVariables();
 
@@ -111,7 +111,7 @@ void hltMVAJetPuId::setup()
 
 
 
-hltMVAJetPuId::~hltMVAJetPuId() 
+MVAJetPuId::~MVAJetPuId() 
 {
 	if( reader_ ) {
 		delete reader_;
@@ -137,7 +137,7 @@ void SetPtEtaPhi(const reco::Candidate & p, float & pt, float & eta, float &phi 
 }
 
 
-void hltMVAJetPuId::bookReader()
+void MVAJetPuId::bookReader()
 {
 	reader_ = new TMVA::Reader("!Color:Silent");
 	assert( ! tmvaMethod_.empty() && !  tmvaWeights_.empty() );
@@ -157,13 +157,13 @@ void hltMVAJetPuId::bookReader()
 }
 
 
-void hltMVAJetPuId::set(const PileupJetIdentifier & id)
+void MVAJetPuId::set(const PileupJetIdentifier & id)
 {
 	internalId_ = id;
 }
 
 
-void hltMVAJetPuId::runMva()
+void MVAJetPuId::runMva()
 {
 	if( ! reader_ ) { bookReader();}
 	if(fabs(internalId_.jetEta_) <  5.0) internalId_.mva_ = reader_->EvaluateMVA( tmvaMethod_.c_str() );
@@ -171,7 +171,7 @@ void hltMVAJetPuId::runMva()
 	internalId_.idFlag_ = computeIDflag(internalId_.mva_,internalId_.jetPt_,internalId_.jetEta_);
 }
 
-std::pair<int,int> hltMVAJetPuId::getJetIdKey(float jetPt, float jetEta)
+std::pair<int,int> MVAJetPuId::getJetIdKey(float jetPt, float jetEta)
 {
 	int ptId = 0;                                                                                                                                    
 	if(jetPt > 10 && jetPt < 20) ptId = 1;                                                                                 
@@ -186,13 +186,13 @@ std::pair<int,int> hltMVAJetPuId::getJetIdKey(float jetPt, float jetEta)
 }
 
 
-int hltMVAJetPuId::computeIDflag(float mva, float jetPt, float jetEta)
+int MVAJetPuId::computeIDflag(float mva, float jetPt, float jetEta)
 {
 	std::pair<int,int> jetIdKey = getJetIdKey(jetPt,jetEta);
 	return computeIDflag(mva,jetIdKey.first,jetIdKey.second);
 }
 
-int hltMVAJetPuId::computeIDflag(float mva,int ptId,int etaId)
+int MVAJetPuId::computeIDflag(float mva,int ptId,int etaId)
 {
 	int idFlag(0);
 	if(mva > mvacut_[PileupJetIdentifier::kTight ][ptId][etaId]) idFlag += 1 << PileupJetIdentifier::kTight;
@@ -201,13 +201,13 @@ int hltMVAJetPuId::computeIDflag(float mva,int ptId,int etaId)
 	return idFlag;
 }
 
-PileupJetIdentifier hltMVAJetPuId::computeMva()
+PileupJetIdentifier MVAJetPuId::computeMva()
 {
 	runMva();
 	return PileupJetIdentifier(internalId_);
 }
 
-PileupJetIdentifier hltMVAJetPuId::computeIdVariables(const reco::Jet * jet, float jec, const reco::Vertex * vtx,
+PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float jec, const reco::Vertex * vtx,
 		const reco::VertexCollection & allvtx, double rho,
 		bool calculateMva) 
 {
@@ -462,7 +462,7 @@ PileupJetIdentifier hltMVAJetPuId::computeIdVariables(const reco::Jet * jet, flo
 	return PileupJetIdentifier(internalId_);
 }
 
-std::string hltMVAJetPuId::dumpVariables() const
+std::string MVAJetPuId::dumpVariables() const
 {
 	std::stringstream out;
 	for(variables_list_t::const_iterator it=variables_.begin(); 
@@ -474,7 +474,7 @@ std::string hltMVAJetPuId::dumpVariables() const
 	return out.str();
 }
 
-void hltMVAJetPuId::resetVariables()
+void MVAJetPuId::resetVariables()
 {
 	internalId_.idFlag_    = 0;
 	for(variables_list_t::iterator it=variables_.begin(); 
@@ -487,7 +487,7 @@ void hltMVAJetPuId::resetVariables()
 	internalId_.NAME ## _ = VAL; \
 variables_[ # NAME   ] = std::make_pair(& internalId_.NAME ## _, VAL);
 
-void hltMVAJetPuId::initVariables()
+void MVAJetPuId::initVariables()
 {
 	internalId_.idFlag_    = 0;
 	INIT_VARIABLE(mva        , "", -100.);

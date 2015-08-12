@@ -7,7 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoJets/JetProducers/interface/hltMVAJetPuId.h"
+#include "RecoJets/JetProducers/interface/MVAJetPuId.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -21,9 +21,9 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 
-class hltMVAJetPuIdProducer : public edm::stream::EDProducer <> {
+class MVAJetPuIdProducer : public edm::stream::EDProducer <> {
 public:
-   explicit hltMVAJetPuIdProducer(const edm::ParameterSet&);
+   explicit MVAJetPuIdProducer(const edm::ParameterSet&);
 
    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -36,7 +36,7 @@ private:
    edm::InputTag jets_, vertexes_, jetids_, rho_;
    std::string jec_;
    bool runMvas_, produceJetIds_, inputIsCorrected_, applyJec_;
-   std::vector<std::pair<std::string, hltMVAJetPuId *> > algos_;
+   std::vector<std::pair<std::string, MVAJetPuId *> > algos_;
 
    bool residualsFromTxt_;
    edm::FileInPath residualsTxt_;
@@ -51,7 +51,7 @@ private:
 };
 
  
-hltMVAJetPuIdProducer::hltMVAJetPuIdProducer(const edm::ParameterSet& iConfig)
+MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
 {
      runMvas_ = iConfig.getParameter<bool>("runMvas");
      produceJetIds_ = iConfig.getParameter<bool>("produceJetIds");
@@ -75,7 +75,7 @@ hltMVAJetPuIdProducer::hltMVAJetPuIdProducer(const edm::ParameterSet& iConfig)
      }
      for(std::vector<edm::ParameterSet>::iterator it=algos.begin(); it!=algos.end(); ++it) {
          std::string label = it->getParameter<std::string>("label");
-         algos_.push_back( std::make_pair(label,new hltMVAJetPuId(*it)) );
+         algos_.push_back( std::make_pair(label,new MVAJetPuId(*it)) );
          if( runMvas_ ) {
              produces<edm::ValueMap<float> > (label+"Discriminant");
              produces<edm::ValueMap<int> > (label+"Id");
@@ -91,7 +91,7 @@ hltMVAJetPuIdProducer::hltMVAJetPuIdProducer(const edm::ParameterSet& iConfig)
  
  
  void
- hltMVAJetPuIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+ MVAJetPuIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  {
      using namespace edm;
      using namespace std;
@@ -126,8 +126,8 @@ hltMVAJetPuIdProducer::hltMVAJetPuIdProducer(const edm::ParameterSet& iConfig)
     }
     
     for ( unsigned int i=0; i<jets.size(); ++i ) {
-        vector<pair<string,hltMVAJetPuId *> >::iterator algoi = algos_.begin();
-        hltMVAJetPuId * ialgo = algoi->second;
+        vector<pair<string,MVAJetPuId *> >::iterator algoi = algos_.begin();
+        MVAJetPuId * ialgo = algoi->second;
         
         const Jet & jet = jets[i];
          
@@ -179,7 +179,7 @@ hltMVAJetPuIdProducer::hltMVAJetPuIdProducer(const edm::ParameterSet& iConfig)
      }
      
      if( runMvas_ ) {
-         for(vector<pair<string,hltMVAJetPuId *> >::iterator ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
+         for(vector<pair<string,MVAJetPuId *> >::iterator ialgo = algos_.begin(); ialgo!=algos_.end(); ++ialgo) {
              vector<float> & mva = mvas[ialgo->first];
              auto_ptr<ValueMap<float> > mvaout(new ValueMap<float>());
              ValueMap<float>::Filler mvafiller(*mvaout);
@@ -208,7 +208,7 @@ hltMVAJetPuIdProducer::hltMVAJetPuIdProducer(const edm::ParameterSet& iConfig)
  
  
  void
- hltMVAJetPuIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+ MVAJetPuIdProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<bool>("runMvas", true);
   desc.add<bool>("inputIsCorrected", true);
@@ -330,10 +330,10 @@ hltMVAJetPuIdProducer::hltMVAJetPuIdProducer(const edm::ParameterSet& iConfig)
 
     desc.addVPSet("algos", vpsd1, temp1);
 
-  descriptions.add("hltMVAJetPuIdProducer", desc);
+  descriptions.add("MVAJetPuIdProducer", desc);
 
  }
  
-DEFINE_FWK_MODULE(hltMVAJetPuIdProducer);
+DEFINE_FWK_MODULE(MVAJetPuIdProducer);
 
 

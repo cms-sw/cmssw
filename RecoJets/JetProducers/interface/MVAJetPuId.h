@@ -1,5 +1,5 @@
-#ifndef RecoJets_JetProducers_plugins_hltMVAJetPuId_h
-#define RecoJets_JetProducers_plugins_hltMVAJetPuId_h
+#ifndef RecoJets_JetProducers_plugins_MVAJetPuId_h
+#define RecoJets_JetProducers_plugins_MVAJetPuId_h
  
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
@@ -14,7 +14,7 @@
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
 
-class hltMVAJetPuId {
+class MVAJetPuId {
 
 
 	static constexpr int NWPs = 3;
@@ -24,10 +24,10 @@ class hltMVAJetPuId {
 	public:
 		enum version_t { USER=-1, CATEv0=0 };
 
-		hltMVAJetPuId(int version=CATEv0, const std::string & tmvaWeight="", const std::string & tmvaMethod="", 
+		MVAJetPuId(int version=CATEv0, const std::string & tmvaWeight="", const std::string & tmvaMethod="", 
 				Float_t impactParTkThreshod_=1., const std::vector<std::string> & tmvaVariables= std::vector<std::string>());
-		hltMVAJetPuId(const edm::ParameterSet & ps); 
-		~hltMVAJetPuId(); 
+		MVAJetPuId(const edm::ParameterSet & ps); 
+		~MVAJetPuId(); 
 
 		PileupJetIdentifier computeIdVariables(const reco::Jet * jet, 
 				float jec, const reco::Vertex *, const reco::VertexCollection &,double rho,
