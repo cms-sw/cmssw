@@ -155,9 +155,9 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -940,9 +940,16 @@ void MuScleFit::selectMuons(const edm::Event & event)
     }
   }
 
+  // get the MC event weight
+  edm::Handle<GenEventInfoProduct> genEvtInfo;
+  event.getByLabel("generator", genEvtInfo);
+  double the_genEvtweight = 1.; 
+  if ( genEvtInfo.isValid() ) {
+    the_genEvtweight = genEvtInfo->weight();
+  }
 
   muonPairs_.push_back(MuonPair(MuScleFitUtils::SavedPairMuScleFitMuons.back().first, MuScleFitUtils::SavedPairMuScleFitMuons.back().second,
-				MuScleFitEvent(event.run(), event.id().event(), the_numPUvtx, the_TrueNumInteractions, the_NVtx)
+				MuScleFitEvent(event.run(), event.id().event(), the_genEvtweight, the_numPUvtx, the_TrueNumInteractions, the_NVtx)
 				));
   // Fill the internal genPair tree from the external one
   if( MuScleFitUtils::speedup == false ) {
@@ -1036,7 +1043,7 @@ void MuScleFit::selectMuons(const int maxEvents, const TString & treeFileName)
 
     //FIXME: we loose the additional information besides the 4-momenta
     muonPairs_.push_back(MuonPair(MuScleFitMuon(it->first,-1), MuScleFitMuon(it->second,+1),
-				  MuScleFitEvent((*evtRunIt).first, (*evtRunIt).second, 0, 0, 0) ) // FIXME: order of event and run number mixed up!
+				  MuScleFitEvent((*evtRunIt).first, (*evtRunIt).second, 0, 0, 0, 0) ) // FIXME: order of event and run number mixed up!
 				  );
 
 
