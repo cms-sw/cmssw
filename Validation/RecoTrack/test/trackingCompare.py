@@ -11,8 +11,8 @@ import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
 
 # Example of file - label pairs
 filesLabels = [
-    ("DQM_1.root", "DQM 1 details"),
-    ("DQM_2.root", "DQM 2 details"),
+    ("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO_1.root", "Option 1"),
+    ("DQM_V0001_R000000001__Global__CMSSW_X_Y_Z__RECO_2.root", "Option 2"),
 ]
 
 outputDir = "plots"
