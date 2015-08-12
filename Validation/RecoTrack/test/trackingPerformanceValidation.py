@@ -94,28 +94,24 @@ NewRepository = 'new' # copy output into a local folder
 val = Validation(
     fullsimSamples = startupsamples + pileupstartupsamples + upgradesamples,
     fastsimSamples = fastsimstartupsamples + pileupfastsimstartupsamples,
+    refRelease=RefRelease, refRepository=RefRepository,
     newRelease=NewRelease, newRepository=NewRepository
 )
 htmlReport = val.createHtmlReport()
 val.download()
-val.doPlots(refRelease=RefRelease,
-            refRepository=RefRepository, plotter=trackingPlots.plotter,
-            plotterDrawArgs={"ratio": True},
+val.doPlots(plotter=trackingPlots.plotter, plotterDrawArgs={"ratio": True},
 #            limitSubFoldersOnlyTo={"": limitProcessing},
-            htmlReport=htmlReport,
-            doFastVsFull=doFastVsFull
+            htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )
 
 valv = Validation(
-    fullsimSamples = pileupstartupsamples,
-    fastsimSamples=[], newRelease=NewRelease, newRepository=NewRepository)
+    fullsimSamples = pileupstartupsamples, fastsimSamples=[],
+    refRelease=RefRelease, refRepository=RefRepository,
+    newRelease=NewRelease, newRepository=NewRepository)
 valv.download()
-valv.doPlots(refRelease=RefRelease,
-             refRepository=RefRepository, plotter=vertexPlots.plotter,
-             plotterDrawArgs={"ratio": True},
+valv.doPlots(plotter=vertexPlots.plotter, plotterDrawArgs={"ratio": True},
              limitSubFoldersOnlyTo={"": VertexCollections},
-             htmlReport=htmlReport,
-             doFastVsFull=doFastVsFull
+             htmlReport=htmlReport, doFastVsFull=doFastVsFull
 )
 htmlReport.write()
 

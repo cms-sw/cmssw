@@ -347,12 +347,14 @@ class Sample:
 
 class Validation:
     """Base class for Tracking/Vertex validation."""
-    def __init__(self, fullsimSamples, fastsimSamples, newRelease, newRepository, newFileModifier=None, selectionName=""):
+    def __init__(self, fullsimSamples, fastsimSamples, refRelease, refRepository, newRelease, newRepository, newFileModifier=None, selectionName=""):
         """Constructor.
 
         Arguments:
         fullsimSamples -- List of Sample objects for FullSim samples (may be empty)
         fastsimSamples -- List of Sample objects for FastSim samples (may be empty)
+        refRelease    -- String for reference CMSSW release
+        newRepository -- String for directory whete to put new files
         newRelease     -- CMSSW release to be validated
         refRepository  -- String for directory where reference root files are
         newFileModifier -- If given, a function to modify the names of the new files (function takes a string and returns a string)
@@ -367,8 +369,9 @@ class Validation:
 
         self._fullsimSamples = fullsimSamples
         self._fastsimSamples = fastsimSamples
-        if newRelease != "":
-            self._newRelease = newRelease
+        self._refRelease = refRelease
+        self._refRepository = refRepository
+        self._newRelease = newRelease
         self._newBaseDir = os.path.join(newRepository, self._newRelease)
         self._newFileModifier = newFileModifier
         self._selectionName = selectionName
@@ -430,12 +433,10 @@ class Validation:
     def createHtmlReport(self):
         return html.HtmlReport(self._newRelease, self._newBaseDir)
 
-    def doPlots(self, refRelease, refRepository, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True):
+    def doPlots(self, plotter, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy(), doFastVsFull=True):
         """Create validation plots.
 
         Arguments:
-        refRelease    -- String for reference CMSSW release
-        newRepository -- String for directory whete to put new files
         plotter       -- plotting.Plotter object that does the plotting
 
         Keyword arguments:
@@ -444,8 +445,6 @@ class Validation:
         htmlReport      -- Object returned by createHtmlReport(), in case HTML report generation is desired
         doFastVsFull    -- Do FastSim vs. FullSim comparison? (default: True)
         """
-        self._refRelease = refRelease
-        self._refRepository = refRepository
         self._plotter = plotter
         self._plotterDrawArgs = plotterDrawArgs
 
