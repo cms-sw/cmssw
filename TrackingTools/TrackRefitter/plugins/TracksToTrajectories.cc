@@ -37,7 +37,7 @@ class TracksToTrajectories: public edm::stream::EDProducer<edm::GlobalCache<Coun
 public:
 
   /// Constructor
-  TracksToTrajectories(const edm::ParameterSet&);
+  TracksToTrajectories(const edm::ParameterSet&, const Count*);
 
   /// Destructor
   virtual ~TracksToTrajectories();
@@ -63,7 +63,7 @@ using namespace std;
 using namespace edm;
 
 /// Constructor
-TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet) {
+TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet, const Count*) {
 
   theTracksLabel = consumes<reco::TrackCollection>(parameterSet.getParameter<InputTag>("Tracks"));
 
@@ -156,3 +156,6 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
   event.put(trajectoryCollection,"Refitted");
   event.put(trajTrackMap,"Refitted");
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(TracksToTrajectories);
