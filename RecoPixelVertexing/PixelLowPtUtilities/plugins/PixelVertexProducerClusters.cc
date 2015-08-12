@@ -62,7 +62,7 @@ int getContainedHits
 
 /*****************************************************************************/
 PixelVertexProducerClusters::PixelVertexProducerClusters
-  (const edm::ParameterSet& ps) : pixelLabel_(consumes<SiPixelRecHitCollection>(edm::InputTag("siPixelRecHits")))
+  (const edm::ParameterSet& ps) : pixelToken_(consumes<SiPixelRecHitCollection>(edm::InputTag("siPixelRecHits")))
 {
   // Product
   produces<reco::VertexCollection>();
@@ -90,7 +90,7 @@ void PixelVertexProducerClusters::produce
 
   // Get pixel hit collections
   edm::Handle<SiPixelRecHitCollection> pixelColl;
-  ev.getByToken(pixelLabel_,           pixelColl);
+  ev.getByToken(pixelToken_,           pixelColl);
 
   const SiPixelRecHitCollection* thePixelHits = pixelColl.product();
 

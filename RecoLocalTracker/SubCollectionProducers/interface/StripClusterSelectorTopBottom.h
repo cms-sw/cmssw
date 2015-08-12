@@ -30,13 +30,13 @@ class StripClusterSelectorTopBottom : public edm::global::EDProducer<> {
 
  public:
   explicit StripClusterSelectorTopBottom( const edm::ParameterSet& cfg) :
-    label_( consumes<edmNew::DetSetVector<SiStripCluster>>(cfg.getParameter<edm::InputTag>( "label" ) )),
+    token_( consumes<edmNew::DetSetVector<SiStripCluster>>(cfg.getParameter<edm::InputTag>( "label" ) )),
     y_( cfg.getParameter<double>( "y" ) ) { produces<edmNew::DetSetVector<SiStripCluster> >(); }
   
   void produce( edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
   
  private:
-  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> label_;
+  edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> token_;
   double y_;
 };
 

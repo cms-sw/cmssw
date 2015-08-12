@@ -29,13 +29,13 @@ class PixelClusterSelectorTopBottom : public edm::global::EDProducer<> {
 
  public:
   explicit PixelClusterSelectorTopBottom( const edm::ParameterSet& cfg) :
-    label_( consumes<SiPixelClusterCollectionNew>(cfg.getParameter<edm::InputTag>( "label" )) ),
+    token_( consumes<SiPixelClusterCollectionNew>(cfg.getParameter<edm::InputTag>( "label" )) ),
     y_( cfg.getParameter<double>( "y" ) ) { produces<SiPixelClusterCollectionNew>(); }
   
   void produce( edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
   
  private:
-  edm::EDGetTokenT<SiPixelClusterCollectionNew> label_;
+  edm::EDGetTokenT<SiPixelClusterCollectionNew> token_;
   double y_;
 };
 

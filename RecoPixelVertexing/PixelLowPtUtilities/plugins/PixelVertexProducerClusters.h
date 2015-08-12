@@ -18,6 +18,6 @@ public:
   virtual void produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const override;
 
 private:
-  edm::EDGetTokenT<SiPixelRecHitCollection> pixelLabel_;
+  edm::EDGetTokenT<SiPixelRecHitCollection> pixelToken_;
 };
 #endif

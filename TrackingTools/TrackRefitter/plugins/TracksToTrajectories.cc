@@ -54,7 +54,7 @@ public:
 
  private:
 
-  edm::EDGetTokenT<reco::TrackCollection> theTracksLabel;
+  edm::EDGetTokenT<reco::TrackCollection> theTracksToken;
   std::unique_ptr<TrackTransformerBase> theTrackTransformer;
 };
 
@@ -65,7 +65,7 @@ using namespace edm;
 /// Constructor
 TracksToTrajectories::TracksToTrajectories(const ParameterSet& parameterSet, const Count*) {
 
-  theTracksLabel = consumes<reco::TrackCollection>(parameterSet.getParameter<InputTag>("Tracks"));
+  theTracksToken = consumes<reco::TrackCollection>(parameterSet.getParameter<InputTag>("Tracks"));
 
   ParameterSet trackTransformerParam = parameterSet.getParameter<ParameterSet>("TrackTransformer");
 
@@ -126,7 +126,7 @@ void TracksToTrajectories::produce(Event& event, const EventSetup& setup){
  
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> tracks;
-  event.getByToken(theTracksLabel,tracks);
+  event.getByToken(theTracksToken, tracks);
   
   Ref<vector<Trajectory> >::key_type trajectoryIndex = 0;
   reco::TrackRef::key_type trackIndex = 0;
