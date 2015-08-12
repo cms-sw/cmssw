@@ -29,8 +29,7 @@ public:
         m_showEditor(false),
         m_isParent(false),
         m_isOpen(false),
-        m_blackIcon(true),
-        m_editContext(0)
+        m_blackIcon(true)
    {}
 
    // Where to find the icons
@@ -146,7 +145,6 @@ private:
    bool           m_isParent;
    bool           m_isOpen;
    bool           m_blackIcon;
-   const TGGC*    m_editContext;
 };
 
 #endif

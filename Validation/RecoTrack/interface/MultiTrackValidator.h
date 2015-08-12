@@ -36,6 +36,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   const bool doSimTrackPlots_;
   const bool doRecoTrackPlots_;
   const bool dodEdxPlots_;
+  const bool doPVAssociationPlots_;
   MTVHistoProducerAlgo* histoProducerAlgo_;
 
  private:
