@@ -85,14 +85,17 @@ class Page(object):
             '<html>',
             ' <head>',
             '  <title>%s</title>' % title,
-            '  <base href="%s"/>' % base,
+        ]
+        if base is not None:
+            self._content.append('  <base href="%s"/>' % base)
+        self._content.extend([
             ' </head>',
             ' <body>',
             '  '+sampleName,
             '  <br/>',
             '  <br/>',
             '  <ul>',
-        ]
+        ])
 
         self._plotSets = {}
 
@@ -318,19 +321,22 @@ class IndexSection:
         return ret
 
 class HtmlReport:
-    def __init__(self, validationName, newBaseDir, baseUrl):
+    def __init__(self, validationName, newBaseDir, baseUrl=None):
         self._title = "Tracking validation "+validationName
-        self._base = baseUrl
         self._newBaseDir = newBaseDir
+        self._base = baseUrl
 
         self._index = [
             '<html>',
             ' <head>',
             '  <title>%s</title>' % self._title,
-            '  <base href="%s"/>' % self._base,
+        ]
+        if self._base is not None:
+            self._index.append('  <base href="%s"/>' % self._base)
+        self._index.extend([
             ' </head>',
             ' <body>',
-        ]
+        ])
 
         self._sections = collections.OrderedDict()
 
