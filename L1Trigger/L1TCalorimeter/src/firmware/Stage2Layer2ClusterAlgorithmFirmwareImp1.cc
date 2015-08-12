@@ -422,33 +422,6 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1
         filterSSEE = (clusterSSEE.hwPt() >  cluster.hwPt());
         filterSSE  = (clusterSSE .hwPt() >  cluster.hwPt());
         filterSS   = (clusterSS  .hwPt() >= cluster.hwPt());
-        filterSSW  = (clusterSSW .hwPt() >= cluster.hwPt());
-        filterSSWW = (clusterSSWW.hwPt() >  cluster.hwPt());
-        filterSWW  = (clusterSWW .hwPt() >  cluster.hwPt());
-        filterWW   = (clusterWW  .hwPt() >  cluster.hwPt());
-        filterNWW  = (clusterNWW .hwPt() >  cluster.hwPt());
-        filterNNNW = (clusterNNNW.hwPt() >  cluster.hwPt());
-        filterNNN  = (clusterNNN .hwPt() >  cluster.hwPt());
-        filterNNNE = (clusterNNNE.hwPt() >  cluster.hwPt());
-        filterSSSW = (clusterSSSW.hwPt() >= cluster.hwPt());
-        filterSSS  = (clusterSSS .hwPt() >= cluster.hwPt());
-        filterSSSE = (clusterSSSE.hwPt() >  cluster.hwPt());
-        filterNNNN = (clusterNNNN.hwPt() >  cluster.hwPt());
-        filterSSSS = (clusterSSSS.hwPt() >= cluster.hwPt());
-      }
-      else if(iEta==-1)
-      {
-        filterNNWW = (clusterNNWW.hwPt() >  cluster.hwPt());
-        filterNNW  = (clusterNNW .hwPt() >  cluster.hwPt());
-        filterNN   = (clusterNN  .hwPt() >  cluster.hwPt());
-        filterNNE  = (clusterNNE .hwPt() >  cluster.hwPt());
-        filterNNEE = (clusterNNEE.hwPt() >  cluster.hwPt());
-        filterNEE  = (clusterNEE .hwPt() >  cluster.hwPt());
-        filterEE   = (clusterEE  .hwPt() >  cluster.hwPt());
-        filterSEE  = (clusterSEE .hwPt() >  cluster.hwPt());
-        filterSSEE = (clusterSSEE.hwPt() >  cluster.hwPt());
-        filterSSE  = (clusterSSE .hwPt() >= cluster.hwPt());
-        filterSS   = (clusterSS  .hwPt() >= cluster.hwPt());
         filterSSW  = (clusterSSW .hwPt() >  cluster.hwPt());
         filterSSWW = (clusterSSWW.hwPt() >  cluster.hwPt());
         filterSWW  = (clusterSWW .hwPt() >  cluster.hwPt());
@@ -459,9 +432,36 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1
         filterNNNE = (clusterNNNE.hwPt() >  cluster.hwPt());
         filterSSSW = (clusterSSSW.hwPt() >  cluster.hwPt());
         filterSSS  = (clusterSSS .hwPt() >= cluster.hwPt());
-        filterSSSE = (clusterSSSE.hwPt() >= cluster.hwPt());
+        filterSSSE = (clusterSSSE.hwPt() >  cluster.hwPt());
         filterNNNN = (clusterNNNN.hwPt() >  cluster.hwPt());
         filterSSSS = (clusterSSSS.hwPt() >= cluster.hwPt());
+      }
+      else if(iEta==-1)
+      {
+        filterNNWW = (clusterNNWW.hwPt() >  cluster.hwPt());
+        filterNNW  = (clusterNNW .hwPt() >  cluster.hwPt());
+        filterNN   = (clusterNN  .hwPt() >= cluster.hwPt());
+        filterNNE  = (clusterNNE .hwPt() >= cluster.hwPt());
+        filterNNEE = (clusterNNEE.hwPt() >  cluster.hwPt());
+        filterNEE  = (clusterNEE .hwPt() >  cluster.hwPt());
+        filterEE   = (clusterEE  .hwPt() >  cluster.hwPt());
+        filterSEE  = (clusterSEE .hwPt() >  cluster.hwPt());
+        filterSSEE = (clusterSSEE.hwPt() >  cluster.hwPt());
+        filterSSE  = (clusterSSE .hwPt() >= cluster.hwPt());
+        filterSS   = (clusterSS  .hwPt() >  cluster.hwPt());
+        filterSSW  = (clusterSSW .hwPt() >  cluster.hwPt());
+        filterSSWW = (clusterSSWW.hwPt() >  cluster.hwPt());
+        filterSWW  = (clusterSWW .hwPt() >  cluster.hwPt());
+        filterWW   = (clusterWW  .hwPt() >  cluster.hwPt());
+        filterNWW  = (clusterNWW .hwPt() >  cluster.hwPt());
+        filterNNNW = (clusterNNNW.hwPt() >  cluster.hwPt());
+        filterNNN  = (clusterNNN .hwPt() >= cluster.hwPt());
+        filterNNNE = (clusterNNNE.hwPt() >= cluster.hwPt());
+        filterSSSW = (clusterSSSW.hwPt() >  cluster.hwPt());
+        filterSSS  = (clusterSSS .hwPt() >  cluster.hwPt());
+        filterSSSE = (clusterSSSE.hwPt() >= cluster.hwPt());
+        filterNNNN = (clusterNNNN.hwPt() >= cluster.hwPt());
+        filterSSSS = (clusterSSSS.hwPt() >  cluster.hwPt());
       }
 
       // IN_FIRMWARE
@@ -678,6 +678,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       //  //if(towerEtS<clusterThreshold_ && towerEtE<clusterThreshold_) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
       //  // END IN_FIRMWARE
       //  // NOT_IN_FIRMWARE
+      // FIXME: remove trimming, retune everything without trimming
       //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
       //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
       //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
