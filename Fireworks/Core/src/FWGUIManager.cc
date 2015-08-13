@@ -661,9 +661,9 @@ FWGUIManager::open3DRegion()
       reco::parser::Grammar grammar(tmpPtr,type);
       edm::ObjectWithDict o(type, (void*)id.item()->modelData(id.index()));
       try {
-         parse("theta()", grammar.use_parser<1>() >> end_p, space_p).full;
+         if(parse("theta()", grammar.use_parser<1>() >> end_p, space_p).full) {}
          eta =  tmpPtr->value(o);
-         parse("phi()", grammar.use_parser<1>() >> end_p, space_p).full;
+         if(parse("phi()", grammar.use_parser<1>() >> end_p, space_p).full) {}
          phi =  tmpPtr->value(o);
 
          ViewMap_i it = createView( "3D Tower", m_viewSecPack->NewSlot());
