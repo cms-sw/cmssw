@@ -33,7 +33,7 @@ muonDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
     etaBinSize = cms.double(0.125),
     nEta = cms.int32(48),
     nPhi = cms.int32(48),
-    includeBadChambers = cms.bool(False)
+    includeBadChambers = cms.bool(True)
 )
 
 preshowerDetIdAssociator = cms.ESProducer("DetIdAssociatorESProducer",
