@@ -227,6 +227,10 @@ streamA_datasetBTagCSV_selector.l1tResults = cms.InputTag('')
 streamA_datasetBTagCSV_selector.throw      = cms.bool(False)
 streamA_datasetBTagCSV_selector.triggerConditions = cms.vstring('HLT_DoubleJet90_Double30_DoubleBTagCSV0p67_v2', 
     'HLT_DoubleJet90_Double30_TripleBTagCSV0p67_v2', 
+    'HLT_DoubleJetsC100_DoubleBTagCSV0p85_DoublePFJetsC160_v1', 
+    'HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v1', 
+    'HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v1', 
+    'HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v1', 
     'HLT_QuadJet45_DoubleBTagCSV0p67_v2', 
     'HLT_QuadJet45_TripleBTagCSV0p67_v2', 
     'HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v2', 
