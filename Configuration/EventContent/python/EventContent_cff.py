@@ -511,6 +511,9 @@ PREMIXEventContent.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection
 PREMIXEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
 PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simSiStripDigis_*_*')
 PREMIXEventContent.outputCommands.append('keep PixelDigiSimLinkedmDetSetVector_simSiPixelDigis_*_*')
+PREMIXEventContent.outputCommands.append('keep StripDigiSimLinkedmDetSetVector_simMuonCSCDigis_*_*')
+PREMIXEventContent.outputCommands.append('keep RPCDigiSimLinkedmDetSetVector_*_*_*')
+PREMIXEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
 
 PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoNew_*_*_*')
@@ -518,6 +521,10 @@ PREMIXRAWEventContent.outputCommands.append('drop CrossingFramePlaybackInfoNew_m
 PREMIXRAWEventContent.outputCommands.append('keep *_*_MergedTrackTruth_*')
 PREMIXRAWEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 PREMIXRAWEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
+PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCStripDigiSimLinks_*')
+PREMIXRAWEventContent.outputCommands.append('keep *_*_MuonCSCWireDigiSimLinks_*')
+PREMIXRAWEventContent.outputCommands.append('keep *_*_RPCDigiSimLink_*')
+PREMIXRAWEventContent.outputCommands.append('keep DTLayerIdDTDigiSimLinkMuonDigiCollection_*_*_*')
 
 
 REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
