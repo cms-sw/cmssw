@@ -9,18 +9,21 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
-
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 
 #include "FastSimulation/Tracking/interface/SeedingTree.h"
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 	 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 	 //#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include <memory>
 #include <vector>
 #include <sstream>
@@ -30,6 +33,7 @@ class MagneticField;
 class MagneticFieldMap;
 class TrackerGeometry;
 class PropagatorWithMaterial;
+class MeasurementTrackerEvent;
 
 class TrajectorySeedProducer:
     public edm::stream::EDProducer<>
@@ -47,11 +51,11 @@ class TrajectorySeedProducer:
         double simTrack_pTMin;
         double simTrack_maxD0;
         double simTrack_maxZ0;
-        
+	std::unique_ptr<SeedCreator> seedCreator;
         unsigned int minLayersCrossed;
 
         std::vector<std::vector<TrackingLayer>> seedingLayers;
-
+	std::vector<edm::EDGetTokenT<std::vector<unsigned int> > > skipSimTrackIdTokens;
         double originRadius;
         double ptMin;
         double originHalfLength;
@@ -191,12 +195,22 @@ class TrajectorySeedProducer:
     \param trackerHit hit which is tested.
     \return pointer if this hit is inserted at a leaf which means that a seed has been found. Returns 'nullptr' otherwise.
     */
+    bool testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const;
     const SeedingNode<TrackingLayer>* insertHit(
             const std::vector<TrajectorySeedHitCandidate>& trackerRecHits,
             std::vector<int>& hitIndicesInTree,
             const SeedingNode<TrackingLayer>* node, 
             unsigned int trackerHit
     ) const;
+    
+    typedef std::vector<TrackingRegion* > Regions;
+    Regions regions;
+    //TrackingRegionProducer* theRegionProducer;
+
+    std::unique_ptr<TrackingRegionProducer> theRegionProducer;
+    edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken;
+    const MeasurementTrackerEvent * measurementTrackerEvent;
+    const edm::EventSetup * es_;
 
 
 };
