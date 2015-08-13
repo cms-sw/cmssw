@@ -15,7 +15,7 @@
 #include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
-
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 #include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
@@ -34,6 +34,12 @@
 
 #include <unordered_set>
 
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducerFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
+#include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 template class SeedingTree<TrackingLayer>;
 template class SeedingNode<TrackingLayer>;
@@ -43,14 +49,19 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     magneticFieldMap(nullptr),
     trackerGeometry(nullptr),
     trackerTopology(nullptr),
+    theRegionProducer(nullptr)
+{
+
+  /*
     testBeamspotCompatibility(false),
     beamSpot(nullptr),
     testPrimaryVertexCompatibility(false),
     primaryVertices(nullptr)
-{  
+    {  */
+
     // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>();
-
+    //Regions regions;
     const edm::ParameterSet& simTrackSelectionConfig = conf.getParameter<edm::ParameterSet>("simTrackSelection");
     // The smallest pT,dxy,dz for a simtrack
     simTrack_pTMin = simTrackSelectionConfig.getParameter<double>("pTMin");
@@ -69,28 +80,14 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
       edm::InputTag hitCombinationMasksTag = conf.getParameter<edm::InputTag> ("hitCombinationMasks");   
       hitCombinationMasksToken = consumes<std::vector<bool> >(hitCombinationMasksTag);
     }
+    std::vector<edm::InputTag> skipSimTrackTags = simTrackSelectionConfig.getParameter<std::vector<edm::InputTag> >("skipSimTrackIds");
+    for ( unsigned int k=0; k<skipSimTrackTags.size(); ++k){
+      skipSimTrackIdTokens.push_back(consumes<std::vector<unsigned int> >(skipSimTrackTags[k]));}
 
     // The smallest number of hits for a track candidate
     minLayersCrossed = conf.getParameter<unsigned int>("minLayersCrossed");
 
     edm::InputTag beamSpotTag = conf.getParameter<edm::InputTag>("beamSpot");
-    if (beamSpotTag.label()!="")
-    {
-        testBeamspotCompatibility=true;
-        beamSpotToken = consumes<reco::BeamSpot>(beamSpotTag);
-    }
-    edm::InputTag primaryVertexTag = conf.getParameter<edm::InputTag>("primaryVertex");
-    if (primaryVertexTag.label()!="")
-    {
-        testPrimaryVertexCompatibility=true;
-        recoVertexToken=consumes<reco::VertexCollection>(primaryVertexTag);
-    }
-
-    //make sure that only one test is performed
-    if (testBeamspotCompatibility && testPrimaryVertexCompatibility)
-    {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Either 'beamSpot' or 'primaryVertex' compatiblity should be configured; not both");
-    }
     
     // The name of the hit producer
     edm::InputTag recHitTag = conf.getParameter<edm::InputTag>("recHits");
@@ -115,35 +112,16 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         _seedingTree.insert(trackingLayerList);
         seedingLayers.push_back(std::move(trackingLayerList));
     }
-
-    originRadius = conf.getParameter<double>("originRadius");
-    originHalfLength = conf.getParameter<double>("originHalfLength");
-    ptMin = conf.getParameter<double>("ptMin");
-    nSigmaZ = conf.getParameter<double>("nSigmaZ");
-
-    //make sure that only one cut is configured
-    if (originHalfLength>=0 && nSigmaZ>=0)
-    {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Either 'originHalfLength' or 'nSigmaZ' selection should be configured; not both. Deactivate one (or both) by setting it to <0.");
+    if(conf.exists("RegionFactoryPSet")){
+      edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+      std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+      theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+      measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
+      const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+      std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
+      seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
     }
-
-    //make sure that performance cuts are not interfering with selection on reconstruction
-    if ((ptMin>=0 && simTrack_pTMin>=0) && (ptMin<simTrack_pTMin))
-    {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack pT is tighter than cut on pT estimate from seed.");
-    }
-    if ((originHalfLength>=0 && simTrack_maxZ0>=0) && (originHalfLength>simTrack_maxZ0))
-    {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dz is tighter than cut on dz estimate from seed.");
-    }
-    if ((originRadius>=0 && simTrack_maxD0>=0) && (originRadius>simTrack_maxD0))
-    {
-        throw cms::Exception("FastSimulation/Tracking/TrajectorySeedProducer: bad configuration","Performance cut on SimTrack dxy is tighter than cut on dxy estimate from seed.");
-    }
-    simTrackToken = consumes<edm::SimTrackContainer>(edm::InputTag("famosSimHits"));
-    simVertexToken = consumes<edm::SimVertexContainer>(edm::InputTag("famosSimHits"));
 }
-
 void
 TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) 
 {
@@ -173,7 +151,7 @@ TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, con
     {
         return false;
     }
-    if(((simTrack_maxD0<0) && (simTrack_maxZ0<0)) || (!testPrimaryVertexCompatibility && !testBeamspotCompatibility))
+    if(((simTrack_maxD0<0) && (simTrack_maxZ0<0)))
       {
 	return true;
       }
@@ -196,59 +174,25 @@ TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, con
             0.,0.,4.
     );
     theParticle.setCharge(theSimTrack.charge());
-
-
-    //this are just some cuts on the SimTrack for speed up
-    std::vector<const math::XYZPoint*> origins;
-    if (testBeamspotCompatibility)
-    {
-        origins.push_back(&beamSpot->position());
-    }
-    if (testPrimaryVertexCompatibility)
-    {
-        for (unsigned int iv = 0; iv < primaryVertices->size(); ++iv)
-        {
-            origins.push_back(&(*primaryVertices)[iv].position());
-        }
-    }
-
-    //only one possible origin is required to succeed
-    for (unsigned int i = 0; i < origins.size(); ++i)
-    {
-        if ((simTrack_maxD0>0.0) && ( theParticle.xyImpactParameter(origins[i]->X(),origins[i]->Y()) > simTrack_maxD0 ))
-        {
-            continue;
-        }
-        if ((simTrack_maxZ0>0.0) && ( fabs( theParticle.zImpactParameter(origins[i]->X(),origins[i]->Y()) - origins[i]->Z()) > simTrack_maxZ0))
-        {
-            continue;
-        }
-        return true;
-    }
+    if ((simTrack_maxD0>0.0) && ( theParticle.xyImpactParameter() > simTrack_maxD0 )&&((simTrack_maxZ0>0.0) && ( fabs( theParticle.zImpactParameter()) > simTrack_maxZ0)))
+      {
+	return true;
+      }
     return false;
 }
 
 bool
-TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2) const
+  TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2) const
 {
-
-    const GlobalPoint& globalHitPos1 = hit1.globalPosition();
-    const GlobalPoint& globalHitPos2 = hit2.globalPosition();
-    bool forward = hit1.isForward(); // true if hit is in endcap, false = barrel
-    double error = std::sqrt(hit1.largerError()+hit2.largerError());
-    if (testBeamspotCompatibility)
-      {
-	return compatibleWithBeamSpot(globalHitPos1,globalHitPos2,error,forward);
-      }
-    else if(testPrimaryVertexCompatibility)
-      {
-	return compatibleWithPrimaryVertex(globalHitPos1,globalHitPos2,error,forward);
-      }
-    else
-      {
-	return true;
-      }
- 
+  if(theRegionProducer){
+    return testWithRegions(hit1,hit2);
+  }
+  else 
+    {
+      std::cout<<"Either region producer, or the seed creator cfg is not available."<<std::endl;
+      return false;
+      //The above false is just a temporary solution.
+    }
 }
 
 const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
@@ -370,22 +314,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
     e.getByToken(hitCombinationMasksToken,hitCombinationMasks);	
   }
 
-
-    // Beam spot
-    if (testBeamspotCompatibility)
-      {
-        edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-        e.getByToken(beamSpotToken,recoBeamSpotHandle);
-        beamSpot = recoBeamSpotHandle.product();
-      }
-    
-    // Primary vertices
-    if (testPrimaryVertexCompatibility)
-    {
-      edm::Handle<reco::VertexCollection> theRecVtx;
-        e.getByToken(recoVertexToken,theRecVtx);
-        primaryVertices = theRecVtx.product();
-    }
     
     // SimTracks and SimVertices
     edm::Handle<edm::SimTrackContainer> theSimTracks;
@@ -472,170 +400,56 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	 
 	 The implementation has been chosen such that the tree only needs to be build once upon construction.
       */
-      
+      //Regions regions;
+      regions.clear();
+      if(theRegionProducer){
+	es_ = &es;
+	regions = theRegionProducer->regions(e,es);
+	edm::Handle<MeasurementTrackerEvent> measurementTrackerEventHandle;
+	e.getByToken(measurementTrackerEventToken,measurementTrackerEventHandle);
+	measurementTrackerEvent = measurementTrackerEventHandle.product();
+      }
+
       std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
-      
-      if (seedHitNumbers.size()>0)
-        {
-	  edm::OwnVector<TrackingRecHit> recHits;
-	  for ( unsigned ihit=0; ihit<seedHitNumbers.size(); ++ihit )
-            {
-	      TrackingRecHit* aTrackingRecHit = trackerRecHits[seedHitNumbers[ihit]].hit()->clone();
-	      recHits.push_back(aTrackingRecHit);
-            }
-	  GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),
-				(*theSimVtx)[vertexIndex].position().y(),
-				(*theSimVtx)[vertexIndex].position().z());
-	  
-	  GlobalVector momentum(theSimTrack.momentum().x(),theSimTrack.momentum().y(),theSimTrack.momentum().z());
-	  float charge = theSimTrack.charge();
-	  GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,magneticField);
-	  AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();
-	  //this line help the fit succeed in the case of pixelless tracks (4th and 5th iteration)
-	  //for the future: probably the best thing is to use the mini-kalmanFilter
-	  if(trackerRecHits[seedHitNumbers[0]].subDetId() !=1 ||trackerRecHits[seedHitNumbers[0]].subDetId() !=2)
-            {
-	      errorMatrix = errorMatrix * 0.0000001;
-            }
-	  CurvilinearTrajectoryError initialError(errorMatrix);
-	  FreeTrajectoryState initialFTS(initialParams, initialError);
-	  
-	  const GeomDet* initialLayer = trackerGeometry->idToDet( recHits.back().geographicalId() );
-	  const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
-	  
-	  if (!initialTSOS.isValid())
-            {
-	      break;
-            }
-	  
-	  const AlgebraicSymMatrix55& m = initialTSOS.localError().matrix();
-	  int dim = 5; /// should check if corresponds to m
-	  float localErrors[15];
-	  int k = 0;
-	  for (int i=0; i<dim; ++i)
-	    {
-	      for (int j=0; j<=i; ++j)
-		{
-		  localErrors[k++] = m(i,j);
-		}
-	    }
-	    int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
-	    PTrajectoryStateOnDet initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),initialTSOS.globalMomentum().perp(),localErrors, recHits.back().geographicalId().rawId(), surfaceSide);
-	    output->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
-	    
-	  }
-      } //end loop over recHitCombinations
+      if (seedHitNumbers.size()>0){seedCreator->makeSeed(*output,SeedingHitSet(trackerRecHits[seedHitNumbers[0]].hit(),trackerRecHits[seedHitNumbers[1]].hit(),seedHitNumbers.size()>=3?trackerRecHits[seedHitNumbers[2]].hit():nullptr,seedHitNumbers.size()>=4?trackerRecHits[seedHitNumbers[3]].hit():nullptr));}
+      }//end loop over simtracks
     e.put(output);
 }
 
-
-
 bool
-TrajectorySeedProducer::compatibleWithBeamSpot(
-        const GlobalPoint& gpos1,
-        const GlobalPoint& gpos2,
-        double error,
-        bool forward
-    ) const
-{
-
-    // The hits 1 and 2 positions, in HepLorentzVector's
-    XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
-    XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
-
-    // create a particle with following properties
-    //  - charge = +1
-    //  - vertex at second rechit
-    //  - momentum direction: from first to second rechit
-    //  - magnitude of momentum: nonsense (distance between 1st and 2nd rechit)  
-    ParticlePropagator myPart(thePos2 - thePos1,thePos2,1.,magneticFieldMap);
-
-    /*
-    propagateToBeamCylinder does the following
-       - check there exists a track through the 2 hits and through a
-    cylinder with radius "originRadius" centered around the CMS axis
-       - if such tracks exists, pick the one with maximum pt
-       - track vertex z coordinate is z coordinate of closest approach of
-    track to (x,y) = (0,0)
-       - the particle gets the charge that allows the highest pt
-    */
-    if (originRadius>0)
-    {
-        bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius*1.);
-        if ( !intersect )
-        {
-            return false;
-        }
-    }
-
-    // Check if the constraints are satisfied
-    // 1. pT at cylinder with radius originRadius
-    if ((ptMin>0) && ( myPart.Pt() < ptMin ))
-      {
-        return false;
-      }
-    // 2. Z compatible with beam spot size 
-    // in constuctur only one of originHalfLength,nSigmaZ is allowed to be >= 0
-    double zConstraint = std::max(originHalfLength,beamSpot->sigmaZ()*nSigmaZ);
-    if ((zConstraint>0) && ( fabs(myPart.Z()-beamSpot->position().Z()) > zConstraint ))
-    {
-        return false;
-    }
-    return true;
+  TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
+  //std::cout<<"Inside:testWithRegions1"<<std::endl;
+  const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+  const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+  typedef PixelRecoRange<float> Range;
+  //std::cout<<"Inside:testWithRegions1"<<std::endl;
+  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+    //std::cout<<"Inside:testWithRegions1"<<std::endl;
+    auto const & gs = outerHit.hit()->globalState();
+    auto loc = gs.position-(*ir)->origin().basicVector();
+    const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
+							loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
+    //std::cout<<"Inside:testWithRegions1"<<std::endl;
+    float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
+    float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
+    float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
+    constexpr float nSigmaRZ = 3.46410161514f;
+    Range allowed = checkRZ->range(u);
+    float vErr = nSigmaRZ * dv;
+    Range hitRZ(v-vErr, v+vErr);
+    Range crossRange = allowed.intersection(hitRZ);
+    //std::cout<<"Inside:testWithRegions1"<<std::endl;
+    if( ! crossRange.empty()){
+      //std::cout<<"Inside:testWithRegions1"<<std::endl;
+      std::cout << "init seed creator"<< std::endl;
+      std::cout << "ptmin: " << (**ir).ptMin() << std::endl;
+      std::cout << "" << std::endl;
+      seedCreator->init(**ir,*es_,0);
+      std::cout << "done" << std::endl;
+      return true;}
+    //std::cout<<"Line485"<<std::endl;
+    //seedCreator->init(**ir,*es_,0);
+    //std::cout<<"Line487"<<std::endl;  
+  }
+  return false;
 }
-//this fucntion is currently poorly understood and needs clearer comments in the future
-bool
-TrajectorySeedProducer::compatibleWithPrimaryVertex(
-        const GlobalPoint& gpos1, 
-        const GlobalPoint& gpos2,
-        double error,
-        bool forward
-    ) const 
-{
-
-    unsigned int nVertices = primaryVertices->size();
-    if ( nVertices==0 || ((originHalfLength < 0.0) && (nSigmaZ < 0.0)))
-    {
-        return true;
-    }
-
-    // Loop on primary vertices
-    for ( unsigned iv=0; iv<nVertices; ++iv ) 
-    { 
-        // Z position of the primary vertex
-        const reco::Vertex& vertex = (*primaryVertices)[iv];
-
-        double xV = vertex.x();
-        double yV = vertex.y();
-        double zV = vertex.z();
-
-        // Radii of the two hits with respect to the vertex position
-        double R1 = std::sqrt ( (gpos1.x()-xV)*(gpos1.x()-xV) + (gpos1.y()-yV)*(gpos1.y()-yV) );
-        double R2 = std::sqrt ( (gpos2.x()-xV)*(gpos2.x()-xV) + (gpos2.y()-yV)*(gpos2.y()-yV) );
-
-        double zConstraint = std::max(originHalfLength,vertex.zError()*nSigmaZ);
-        //inner hit must be within a sort of pyramid using
-        //the outer hit and the cylinder around the PV
-        double checkRZ1 = forward ?
-        (gpos1.z()-zV+zConstraint) / (gpos2.z()-zV+zConstraint) * R2 :
-        -zConstraint + R1/R2*(gpos2.z()-zV+zConstraint);
-        double checkRZ2 = forward ?
-        (gpos1.z()-zV-zConstraint)/(gpos2.z()-zV-zConstraint) * R2 :
-        +zConstraint + R1/R2*(gpos2.z()-zV-zConstraint);
-        double checkRZmin = std::min(checkRZ1,checkRZ2)-3.*error;
-        double checkRZmax = std::max(checkRZ1,checkRZ2)+3.*error;
-        // Check if the innerhit is within bounds
-        bool compatible = forward ?
-        checkRZmin < R1 && R1 < checkRZmax : 
-        checkRZmin < gpos1.z()-zV && gpos1.z()-zV < checkRZmax;
-        // If it is, just return ok
-        if ( compatible )
-        {
-            return compatible;
-        }
-    }
-    // Otherwise, return not ok
-    return false;
-
-}  
-
