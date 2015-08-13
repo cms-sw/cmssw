@@ -310,7 +310,7 @@ ChainEvent::atEnd() const
 Long64_t
 ChainEvent::size() const
 {
-  return accumulatedSize_.back();
+  return accumulatedSize_.empty() ? 0 : accumulatedSize_.back();
 }
 
 edm::TriggerNames const&
