@@ -23,5 +23,10 @@ def customiseForPremixingInput(process):
         if producer.type_() == "ClusterTPAssociationProducer":
             replacePixelDigiSimLink(producer.pixelSimLinkSrc)
             replaceStripDigiSimLink(producer.stripSimLinkSrc)
+        if producer.type_() == "MuonAssociatorEDProducer":
+            producer.DTdigisimlinkTag = cms.InputTag("mixData","simMuonDTDigis")
+            producer.CSClinksTag = cms.InputTag("mixData","MuonCSCStripDigiSimLinks")
+            producer.CSCwireLinksTag = cms.InputTag("mixData","MuonCSCWireDigiSimLinks")
+            producer.RPCdigisimlinkTag = cms.InputTag("mixData","RPCDigiSimLink")
 
     return process
