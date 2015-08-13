@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V377 (CMSSW_7_4_8_patch1)
+# /dev/CMSSW_7_4_0/HLT/V382 (CMSSW_7_4_8_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V377')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V382')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -58887,8 +58887,8 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1techIgnorePrescales = cms.bool( False ),
     hltResults = cms.InputTag( "TriggerResults" ),
-    triggerConditions = cms.vstring( 'HLT_IsoMu24_eta2p1_v2 / 8',
-      'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2 / 2',
+    triggerConditions = cms.vstring( 'HLT_IsoMu24_eta2p1_v2',
+      'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v2',
       'HLT_Physics_v2 / 2',
       'HLT_Random_v1',
       'HLT_ZeroBias_v2',
@@ -60441,6 +60441,7 @@ process.hltOutputDQMOffline = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltIter2Merged_*_*',
       'keep *_hltL1GtObjectMap_*_*',
+      'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltSiPixelClusters_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
@@ -60495,6 +60496,7 @@ process.hltOutputHLTMonitor = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltIter2Merged_*_*',
       'keep *_hltL1GtObjectMap_*_*',
+      'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltSiPixelClusters_*_*',
       'keep *_hltSiStripRawToClustersFacility_*_*',
