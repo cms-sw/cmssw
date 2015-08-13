@@ -22,9 +22,8 @@ process.load("DQM.Integration.config.inputsource_cfi")
 #----------------------------
 # DQM Environment
 #
- 
+
 process.load("DQM.Integration.config.environment_cfi")
-# for local test
 process.dqmEnv.subSystemFolder = 'L1TEMUStage1'
 process.dqmSaver.tag = 'L1TEMUStage1'
 
@@ -67,10 +66,10 @@ process.RawToDigi.remove("siStripDigis")
 process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 
-if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
-else:
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+#if ( process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+#else:
+#    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
 
 # L1HvVal + emulator monitoring path
 process.l1HwValEmulatorMonitorPath = cms.Path(process.l1Stage1HwValEmulatorMonitor)
@@ -134,11 +133,11 @@ process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeCSCTF)
 
 process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
 
-process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMUStage1')
+process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMU/Stage1Layer2')
 
-process.l1TdeStage1Layer2.HistFolder = cms.untracked.string('L1TEMUStage1/Stage1Layer2expert')
+process.l1TdeStage1Layer2.HistFolder = cms.untracked.string('L1TEMU/Stage1Layer2expert')
 
-process.l1Stage1GtHwValidation.DirName = cms.untracked.string("L1TEMUStage1/GTexpert")
+process.l1Stage1GtHwValidation.DirName = cms.untracked.string("L1TEMU/Stage1GTexpert")
 
 #
 # remove a module / sequence from l1EmulatorMonitorClient
