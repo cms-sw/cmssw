@@ -315,7 +315,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   // Spectator variables  
   allMVAVars.pt              = eleRecoPtr->pt();
   float scEta = superCluster->eta();
-  constexpr float ebeeSplit = 1.479
+  constexpr float ebeeSplit = 1.479;
   allMVAVars.isBarrel        = ( std::abs(scEta) < ebeeSplit );
   allMVAVars.isEndcap        = ( std::abs(scEta) >= ebeeSplit );
   allMVAVars.SCeta           = scEta;
