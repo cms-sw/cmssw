@@ -23,6 +23,7 @@
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
 	 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 	 //#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include <memory>
 #include <vector>
@@ -203,7 +204,8 @@ class TrajectorySeedProducer:
             unsigned int trackerHit
     ) const;
     
-    typedef std::vector<TrackingRegion* > Regions;
+    //    typedef std::vector<TrackingRegion* > Regions;
+    typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
     Regions regions;
     //TrackingRegionProducer* theRegionProducer;
 
