@@ -21,9 +21,16 @@ namespace stage2 {
    CaloTowerUnpacker::unpack(const Block& block, UnpackerCollections *coll)
    {
 
-     LogDebug("L1T") << "Block ID  = " << block.header().getID() << " size = " << block.header().getSize();
+     // Link number is block_ID / 2
+     unsigned link = block.header().getID()/2;
+     
+     // Also need link number rounded down to even number
+     unsigned link_phi = (link % 2 == 0) ? link : (link -1);
 
-     int nBX = int(ceil(block.header().getSize()/44.)); // Since there are two Rx links per block with 2*28 slices in barrel and endcap + 2*13 for upgraded HF 
+     // number of frames used in a few different places
+     unsigned nframes=40;
+
+     int nBX = int(ceil(block.header().getSize()/nframes)); // Since there are two Rx links per block with 2*28 slices in barrel and endcap + 2*13 for upgraded HF 
 
      // Find the first and last BXs
      int firstBX = -(std::ceil((double)nBX/2.)-1);
@@ -37,23 +44,14 @@ namespace stage2 {
      auto res_ = static_cast<CaloCollections*>(coll)->getTowers();
      res_->setBXRange(std::min(firstBX, res_->getFirstBX()), std::max(lastBX, res_->getLastBX()));
 
-     LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
-
-     // Initialise index
-     int unsigned i = 0;
-
-     // Link number is block_ID / 2
-     unsigned link = block.header().getID()/2;
-     
-     // Also need link number rounded down to even number
-     unsigned link_phi = (link % 2 == 0) ? link : (link -1);
+     LogDebug("L1T") << "Block : id=" << block.header().getID() << ", size=" << block.header().getSize() << ", link=" << link << ", link_phi=" << link_phi << ", nBX=" << nBX << ", firstBX=" << firstBX << ", lastBX=" << lastBX;
 
      // Loop over multiple BX and fill towers collection
      for (int bx=firstBX; bx<=lastBX; bx++){
 
-       for (unsigned frame=1; frame<42 && frame<(block.header().getSize()+1); frame++){
+       for (unsigned iframe=0; iframe<nframes && iframe<block.header().getSize(); ++iframe) {
 
-         uint32_t raw_data = block.payload()[i++];
+         uint32_t raw_data = block.payload().at(iframe);
 
          if ((raw_data & 0xFFFF) != 0) {
 
@@ -66,15 +64,15 @@ namespace stage2 {
            tower1.setHwPhi(link_phi+1); // iPhi starts at 1
 	 
            if (link % 2==0) { // Even number links carry Eta+
-             tower1.setHwEta(frame); // iEta starts at 1
+             tower1.setHwEta(iframe+1); // iEta starts at 1
            } else { // Odd number links carry Eta-
-             tower1.setHwEta(-1*frame);
+             tower1.setHwEta(-1*(iframe+1));
            }
 	 
            LogDebug("L1T") << "Tower 1: Eta " << tower1.hwEta() 
                            << " phi " << tower1.hwPhi() 
                            << " pT " << tower1.hwPt() 
-                           << " frame " << frame 
+                           << " frame " << iframe 
                            << " qual " << tower1.hwQual() 
                            << " EtRatio " << tower1.hwEtRatio();
 
@@ -92,15 +90,15 @@ namespace stage2 {
            tower2.setHwPhi(link_phi+2);
 
            if (link % 2==0) {
-             tower2.setHwEta(frame);
+             tower2.setHwEta(iframe+1);
            } else {
-             tower2.setHwEta(-1*frame);
+             tower2.setHwEta(-1*(iframe+1));
            }
 	 
            LogDebug("L1T") << "Tower 2: Eta " << tower2.hwEta()
                            << " phi " << tower2.hwPhi()
                            << " pT " << tower2.hwPt()
-                           << " frame " << frame
+                           << " frame " << iframe
                            << " qual " << tower2.hwQual()
                            << " EtRatio " << tower2.hwEtRatio();
 
