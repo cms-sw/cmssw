@@ -1,7 +1,7 @@
-*import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
-from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import 
+from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import *
 
 trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
                                         
