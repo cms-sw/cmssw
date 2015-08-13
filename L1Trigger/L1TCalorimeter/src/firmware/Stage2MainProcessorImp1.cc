@@ -29,7 +29,7 @@ l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(unsigned f
 
   m_towerAlgo = new Stage2TowerDecompressAlgorithmFirmwareImp1(m_params);
   m_egClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params,
-							       Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::E);
+							       Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
   m_egAlgo = new Stage2Layer2EGammaAlgorithmFirmwareImp1(m_params);
   m_tauClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params, 
 								Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
