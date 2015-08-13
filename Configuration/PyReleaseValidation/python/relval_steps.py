@@ -228,7 +228,7 @@ baseDataSetRelease=[
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_6_0_pre2-PU25ns_75X_mcRun2_asymptotic_v2-v1',         # 5 - fullSim PU 25ns premix
     'CMSSW_7_6_0_pre2-PU50ns_75X_mcRun2_startup_v2-v1',            # 6 - fullSim PU 50ns premix
-    'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2_FastSim-v1',        # 7 - fastSim MinBias for mixing
+    'CMSSW_7_6_0_pre3-75X_mcRun2_asymptotic_v2_FastSim-v1',        # 7 - fastSim MinBias for mixing
     'CMSSW_7_6_0_pre2-PU25ns_75X_mcRun2_asymptotic_v2_FastSim-v1', # 8 - fastSim premixed MinBias
     'CMSSW_7_6_0_pre2-75X_mcRun2_HeavyIon_v2-v1' 	           # 9 - Run2 HI GEN-SIM
     ]
