@@ -199,6 +199,7 @@ ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event)
 ChainEvent const&
 ChainEvent::toBegin()
 {
+   if (!size()) return *this;
    if (eventIndex_ != 0)
    {
       switchToFile(0);
@@ -301,6 +302,7 @@ ChainEvent::operator bool() const
 bool
 ChainEvent::atEnd() const
 {
+  if (!size()) return true;
   if (eventIndex_ == static_cast<Long64_t>(fileNames_.size())-1) {
     return event_->atEnd();
   }
