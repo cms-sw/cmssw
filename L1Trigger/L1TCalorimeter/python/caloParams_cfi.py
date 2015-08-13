@@ -18,7 +18,7 @@ caloParams = cms.ESProducer(
     towerNBitsE      = cms.int32(8),
     towerNBitsSum    = cms.int32(9),
     towerNBitsRatio  = cms.int32(3),
-    towerEncoding    = cms.bool(False),
+    towerEncoding    = cms.bool(True),
 
     # regions
     regionLsb        = cms.double(0.5),
