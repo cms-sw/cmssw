@@ -80,10 +80,11 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
       edm::InputTag hitCombinationMasksTag = conf.getParameter<edm::InputTag> ("hitCombinationMasks");   
       hitCombinationMasksToken = consumes<std::vector<bool> >(hitCombinationMasksTag);
     }
+    /*
     std::vector<edm::InputTag> skipSimTrackTags = simTrackSelectionConfig.getParameter<std::vector<edm::InputTag> >("skipSimTrackIds");
     for ( unsigned int k=0; k<skipSimTrackTags.size(); ++k){
       skipSimTrackIdTokens.push_back(consumes<std::vector<unsigned int> >(skipSimTrackTags[k]));}
-
+    */
     // The smallest number of hits for a track candidate
     minLayersCrossed = conf.getParameter<unsigned int>("minLayersCrossed");
 
@@ -141,44 +142,6 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es)
     trackerTopology = &(*trackerTopologyHandle);
 
     thePropagator = std::make_shared<PropagatorWithMaterial>(alongMomentum,0.105,magneticField);
-}
-
-bool
-TrajectorySeedProducer::passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex) const
-{
-    //require min pT of the simtrack
-    if ((simTrack_pTMin>0) && ( theSimTrack.momentum().Perp2() < simTrack_pTMin*simTrack_pTMin))
-    {
-        return false;
-    }
-    if(((simTrack_maxD0<0) && (simTrack_maxZ0<0)))
-      {
-	return true;
-      }
-  
-    //require impact parameter of the simtrack
-    BaseParticlePropagator theParticle = BaseParticlePropagator(
-        RawParticle(
-            XYZTLorentzVector(
-                theSimTrack.momentum().px(),
-                theSimTrack.momentum().py(),
-                theSimTrack.momentum().pz(),
-                theSimTrack.momentum().e()
-            ),
-            XYZTLorentzVector(
-                theSimVertex.position().x(),
-                theSimVertex.position().y(),
-                theSimVertex.position().z(),
-                theSimVertex.position().t())
-            ),
-            0.,0.,4.
-    );
-    theParticle.setCharge(theSimTrack.charge());
-    if ((simTrack_maxD0>0.0) && ( theParticle.xyImpactParameter() > simTrack_maxD0 )&&((simTrack_maxZ0>0.0) && ( fabs( theParticle.zImpactParameter()) > simTrack_maxZ0)))
-      {
-	return true;
-      }
-    return false;
 }
 
 bool
@@ -316,12 +279,13 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
     
     // SimTracks and SimVertices
+  /*
     edm::Handle<edm::SimTrackContainer> theSimTracks;
     e.getByToken(simTrackToken,theSimTracks);
     
     edm::Handle<edm::SimVertexContainer> theSimVtx;
     e.getByToken(simVertexToken,theSimVtx);
-    
+  */
     edm::Handle<FastTMRecHitCombinations> recHitCombinations;
     e.getByToken(recHitTokens, recHitCombinations);
 
@@ -337,21 +301,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 	
 	FastTMRecHitCombination recHitCombination = recHitCombinations->at(icomb);
 
-	uint32_t simTrackId = recHitCombination.back().simTrackId(0);
-	const SimTrack& theSimTrack = (*theSimTracks)[simTrackId];
-	int vertexIndex = theSimTrack.vertIndex();
-	if (vertexIndex<0)
-	  {
-	    //tracks are required to be associated to a vertex
-	    continue;
-	  }
-	const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex];
-	
-	if (!this->passSimTrackQualityCuts(theSimTrack,theSimVertex))
-	  {
-	    continue;
-	  }
-	
 	TrajectorySeedHitCandidate previousTrackerHit;
 	TrajectorySeedHitCandidate currentTrackerHit;
 	unsigned int layersCrossed=0;

@@ -56,7 +56,7 @@ class TrajectorySeedProducer:
         unsigned int minLayersCrossed;
 
         std::vector<std::vector<TrackingLayer>> seedingLayers;
-	std::vector<edm::EDGetTokenT<std::vector<unsigned int> > > skipSimTrackIdTokens;
+	//std::vector<edm::EDGetTokenT<std::vector<unsigned int> > > skipSimTrackIdTokens;
         double originRadius;
         double ptMin;
         double originHalfLength;
@@ -70,8 +70,8 @@ class TrajectorySeedProducer:
         const reco::VertexCollection* primaryVertices;
         // tokens
         edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
-        edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
-        edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
+        //edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
+        //edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
         edm::EDGetTokenT<FastTMRecHitCombinations> recHitTokens;
         edm::EDGetTokenT<FastTMRecHitCombination> recHitToken;
         edm::EDGetTokenT<reco::VertexCollection> recoVertexToken;
@@ -94,7 +94,7 @@ class TrajectorySeedProducer:
     \param theSimVertex the associated SimVertex of the SimTrack.
     \return true if a track fulfills the requirements.
     */
-    virtual bool passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex) const;
+    //virtual bool passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex) const;
 
     //! method checks if a TrajectorySeedHitCandidate fulfills the quality requirements.
     /*!
