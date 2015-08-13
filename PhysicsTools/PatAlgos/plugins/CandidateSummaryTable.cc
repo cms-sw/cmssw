@@ -44,7 +44,7 @@ namespace pathelpers {
         auto previousMin = min.load();
         while( previousMin > size and not min.compare_exchange_weak(previousMin, size) ) {}
         auto previousMax = max.load();
-        while( previousMax > size and not max.compare_exchange_weak(previousMax, size) ) {}        
+        while( previousMax < size and not max.compare_exchange_weak(previousMax, size) ) {}        
       }
       total += size;
     }
