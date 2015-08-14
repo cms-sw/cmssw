@@ -1475,7 +1475,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                jetConfig=False,
                                jetCorLabelL3=cms.InputTag('ak4PFCHSL1FastL2L3Corrector'),
                                jetCorLabelRes=cms.InputTag('ak4PFCHSL1FastL2L3ResidualCorrector'),
-                               jecUnFile="PhysicsTools/PatUtils/data/Summer15_50nsV4_DATA_UncertaintySources_AK4PFchs.txt",
+                               jecUncFile="PhysicsTools/PatUtils/data/Summer15_50nsV4_DATA_UncertaintySources_AK4PFchs.txt",
                                postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
@@ -1499,7 +1499,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jetFlavor=jetFlav,
                                       jetCorLabelUpToL3=jetCorLabelL3,
                                       jetCorLabelL3Res=jetCorLabelRes,
-                                      jecUncertaintyFile=jecUnFile,
+                                      jecUncertaintyFile=jecUncFile,
                                       postfix=postfix,
                                       )
     
@@ -1522,6 +1522,6 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       jetFlavor=jetFlav,
                                       jetCorLabelUpToL3=jetCorLabelL3,
                                       jetCorLabelL3Res=jetCorLabelRes,
-                                      jecUncertaintyFile=jecUnFile,
+                                      jecUncertaintyFile=jecUncFile,
                                       postfix=postfix,
                                       )
