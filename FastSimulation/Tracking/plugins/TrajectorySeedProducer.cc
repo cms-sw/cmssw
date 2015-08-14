@@ -52,13 +52,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     theRegionProducer(nullptr)
 {
 
-  /*
-    testBeamspotCompatibility(false),
-    beamSpot(nullptr),
-    testPrimaryVertexCompatibility(false),
-    primaryVertices(nullptr)
-    {  */
-
     // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>();
     //Regions regions;
@@ -75,11 +68,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
       edm::InputTag hitCombinationMasksTag = conf.getParameter<edm::InputTag> ("hitCombinationMasks");   
       hitCombinationMasksToken = consumes<std::vector<bool> >(hitCombinationMasksTag);
     }
-    /*
-    std::vector<edm::InputTag> skipSimTrackTags = simTrackSelectionConfig.getParameter<std::vector<edm::InputTag> >("skipSimTrackIds");
-    for ( unsigned int k=0; k<skipSimTrackTags.size(); ++k){
-      skipSimTrackIdTokens.push_back(consumes<std::vector<unsigned int> >(skipSimTrackTags[k]));}
-    */
+
     // The smallest number of hits for a track candidate
     minLayersCrossed = conf.getParameter<unsigned int>("minLayersCrossed");
 
@@ -273,14 +262,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
   }
 
     
-    // SimTracks and SimVertices
-  /*
-    edm::Handle<edm::SimTrackContainer> theSimTracks;
-    e.getByToken(simTrackToken,theSimTracks);
-    
-    edm::Handle<edm::SimVertexContainer> theSimVtx;
-    e.getByToken(simVertexToken,theSimVtx);
-  */
     edm::Handle<FastTMRecHitCombinations> recHitCombinations;
     e.getByToken(recHitTokens, recHitCombinations);
 
@@ -362,18 +343,18 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
 bool
   TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
-  //std::cout<<"Inside:testWithRegions1"<<std::endl;
+  
   const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
   const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
   typedef PixelRecoRange<float> Range;
-  //std::cout<<"Inside:testWithRegions1"<<std::endl;
+  
   for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
-    //std::cout<<"Inside:testWithRegions1"<<std::endl;
+    
     auto const & gs = outerHit.hit()->globalState();
     auto loc = gs.position-(*ir)->origin().basicVector();
     const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
 							loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
-    //std::cout<<"Inside:testWithRegions1"<<std::endl;
+    
     float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
     float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
     float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
@@ -382,18 +363,15 @@ bool
     float vErr = nSigmaRZ * dv;
     Range hitRZ(v-vErr, v+vErr);
     Range crossRange = allowed.intersection(hitRZ);
-    //std::cout<<"Inside:testWithRegions1"<<std::endl;
+    
     if( ! crossRange.empty()){
-      //std::cout<<"Inside:testWithRegions1"<<std::endl;
       std::cout << "init seed creator"<< std::endl;
       std::cout << "ptmin: " << (**ir).ptMin() << std::endl;
       std::cout << "" << std::endl;
       seedCreator->init(**ir,*es_,0);
       std::cout << "done" << std::endl;
       return true;}
-    //std::cout<<"Line485"<<std::endl;
-    //seedCreator->init(**ir,*es_,0);
-    //std::cout<<"Line487"<<std::endl;  
+    
   }
   return false;
 }
