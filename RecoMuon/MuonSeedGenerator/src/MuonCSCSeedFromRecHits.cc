@@ -164,8 +164,6 @@ int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) cons
   float dPhiGloDir = fabs ( deltaPhi(segment->globalPosition().phi(), segment->globalDirection().phi()) );
 
   if ( dPhiGloDir > .2 ) ++quality;
-  // add a penalty for being ME1A
-  if(segment->isCSC() && CSCDetId(segment->geographicalId()).ring() == 4) ++quality;
   return quality;
 }
 
