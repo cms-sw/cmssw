@@ -247,7 +247,6 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   }
 
 
-  std::cout<<doHd<<doEm<<doHdLayer2<<doEmLayer2<<std::endl;
 
 
   if ( doHd ) {
