@@ -3,7 +3,7 @@
 import sys, os
 import time
 import subprocess
-
+import shutil
 
 def check_output(*popenargs, **kwargs):
     '''Mimics subprocess.check_output() in Python 2.6
@@ -14,13 +14,13 @@ def check_output(*popenargs, **kwargs):
     returnCode = process.returncode
 
     if returnCode:
-        print 'ERROR from process (ret=%s): ' %(str(returnCode),)
-	print '      stderr: %s' % (str(stderr),)
-	print '      stdout: %s' % (str(stdout),)
+        msg = '\nERROR from process (ret=%s): \n' %(str(returnCode),)
+        msg += '      stderr: %s\n' % (str(stderr),)
+	msg += '      stdout: %s\n' % (str(stdout),)
         cmd = kwargs.get("args")
         if cmd is None:
             cmd = popenargs[0]
-        raise subprocess.CalledProcessError(returnCode, cmd)
+        raise subprocess.CalledProcessError(returnCode, cmd+msg)
 
     return stdout
 
@@ -49,7 +49,11 @@ class CondRegressionTester(object):
           if not os.path.exists(self.dbDir): os.makedirs(self.dbDir)
           
           self.logDir = os.path.join( self.topDir, 'logs' )
-          if not os.path.exists(self.logDir): os.makedirs(self.logDir)
+          if not os.path.exists(self.logDir): 
+             os.makedirs(self.logDir)
+          else:  # if it exists, remove the logDir and re-create it
+             shutil.rmtree(self.logDir, ignore_errors=True)
+             os.makedirs(self.logDir)
 
           # add the IB/release itself:
 	  self.regTestSrcDir = os.path.join( os.environ['LOCALRT'], 'src', 'CondCore', 'CondDB', 'test' )
@@ -96,6 +100,7 @@ class CondRegressionTester(object):
 	  if not os.path.exists( os.path.join( self.topDir, rel, 'src', 'CondCore/CondDB/test/testReadWritePayloads.cpp') ):
              print "copying over test source and BuildFile from devArea/IB ... "
 	     cmd += 'cp %s/BuildFile.xml .;' % (self.regTestSrcDir,)
+             cmd += 'cp %s/MyTestData.h .;' % (self.regTestSrcDir,)
              cmd += 'cp %s/testReadWritePayloads.cpp .;' % (self.regTestSrcDir,)
           cmd += 'scram b -j 10 2>&1 ;'
           res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
@@ -106,16 +111,19 @@ class CondRegressionTester(object):
       @print_timing
       def run(self, rel, arch, readOrWrite, dbName):
 
+          if readOrWrite == 'write':
+              self.dbNameList.append( dbName )
+
           cmd = 'cd %s/%s/src; eval `scram run -sh 2>/dev/null` ; ' % (self.topDir, rel, )
           cmd += '../test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (arch, readOrWrite, self.dbDir, dbName)
           
-          res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+	  try:
+             res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+          except Exception, e:
+             self.log( rel, arch, readOrWrite, str(e) )
+             raise e
 
-          with open(os.path.join(self.logDir, rel+arch+'-'+readOrWrite+'.log'), 'w') as logFile:
-             logFile.write( ''.join(res) )
-
-          if readOrWrite == 'write':
-              self.dbNameList.append( dbName )
+          self.log( rel, arch, readOrWrite, ''.join(res) )
 
       @print_timing
       def runSelf(self, readOrWrite, dbNameIn=None):
@@ -128,18 +136,27 @@ class CondRegressionTester(object):
           cmd = 'cd %s/src; eval `scram run -sh 2>/dev/null` ; ' % (os.environ['CMSSW_BASE'], )
           cmd += '../test/%s/testReadWritePayloads %s sqlite_file:///%s/%s ' % (self.arch, readOrWrite, self.dbDir, dbName)
           
-          res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+          try:
+             res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+          except Exception, e:
+             self.log( self.rel, self.arch, readOrWrite, str(e) )
+             raise e
 
-          with open(os.path.join(self.logDir, self.rel+self.arch+'-'+readOrWrite+'.log'), 'w') as logFile:
-             logFile.write( ''.join(res) )
+          self.log( self.rel, self.arch, readOrWrite, ''.join(res) )
 
+      def log(self, rel, arch, readOrWrite, msg):
+
+          with open(os.path.join(self.logDir, readOrWrite+'-'+rel+'-'+arch+'.log'), 'a') as logFile:
+             logFile.write( '\n'+'='*80+'\n' )
+             logFile.write( str(msg) )
 
       @print_timing
       def runAll(self):
 
-          map = { 'CMSSW_7_6_0_pre2' : [ 'slc6_amd64_gcc493', 'ref76pre2-s6493.db'],
-                  'CMSSW_7_5_1'      : [ 'slc6_amd64_gcc491', 'ref751-s6491.db'],
-                  'CMSSW_7_4_9'      : [ 'slc6_amd64_gcc491', 'ref749-s6491.db'],
+          map = { 'CMSSW_7_6_0_pre2'   : [ 'slc6_amd64_gcc493', 'ref760pre2-s6493.db'],
+                  'CMSSW_7_5_1'        : [ 'slc6_amd64_gcc491', 'ref751-s6491.db'],
+                  'CMSSW_7_4_9'        : [ 'slc6_amd64_gcc491', 'ref749-s6491.db'],
+                  'CMSSW_7_3_6_patch1' : [ 'slc6_amd64_gcc491', 'ref736p1-s6491.db'],
           }
 
           # set up the devel areas for the various reference releases
@@ -166,8 +183,10 @@ class CondRegressionTester(object):
                  try:
                     self.run(rel, arch, 'read', item)
                     self.status['%s-%s-%s' % (rel,arch,item)] = True
+                    print "rel %s reading %s was OK." % (rel, item)
                  except:
                     self.status['%s-%s-%s' % (rel,arch,item)] = False
+                    print "rel %s reading %s FAILED." % (rel, item)
 
           # ... and also with this IB/devArea
           for item in self.dbNameList: # for any given rel/arch we check all written DBs
