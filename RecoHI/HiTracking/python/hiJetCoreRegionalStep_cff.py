@@ -5,7 +5,6 @@ import FWCore.ParameterSet.Config as cms
 # run only if there are high pT jets
 from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
 hiInitialStepTrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('hiGlobalPrimTracks'))
-#from RecoJets.JetProducers.caloJetsForTrk_cff import *
 
 #change this to import Bkg substracted Heavy Ion jets:
 from RecoHI.HiJetAlgos.hiCaloJetsForTrk_cff import *
