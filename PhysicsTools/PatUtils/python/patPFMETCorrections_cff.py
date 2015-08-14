@@ -75,18 +75,31 @@ from JetMETCorrections.Type1MET.pfMETmultShiftCorrections_cfi import *
 
 patPFMetTxyCorr = pfMEtMultShiftCorr.clone()
 
-patMultPhiCorrParams_Txy         = cms.VPSet( [pset for pset in multPhiCorrParams_Txy])
-#patMultPhiCorrParams_T0rtT1Txy   = cms.VPSet( [pset for pset in multPhiCorrParams_T0rtT1Txy)
-#patMultPhiCorrParams_T0rtT1T2Txy = cms.VPSet( [pset for pset in multPhiCorrParams_T0rtT1T2Txy)
-patMultPhiCorrParams_T0pcTxy     = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcTxy])
-patMultPhiCorrParams_T0pcT1Txy   = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy])
-patMultPhiCorrParams_T0pcT1T2Txy = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy])
-patMultPhiCorrParams_T1Txy       = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy])
-patMultPhiCorrParams_T1T2Txy     = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy])
-patMultPhiCorrParams_T1SmearTxy  = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy])
-patMultPhiCorrParams_T1T2SmearTxy = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy])
-patMultPhiCorrParams_T0pcT1SmearTxy = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy])
-patMultPhiCorrParams_T0pcT1T2SmearTxy = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy])
+patMultPhiCorrParams_Txy_50ns         = cms.VPSet( [pset for pset in multPhiCorrParams_Txy_50ns])
+patMultPhiCorrParams_T0pcTxy_50ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcTxy_50ns])
+patMultPhiCorrParams_T0pcT1Txy_50ns   = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_50ns])
+patMultPhiCorrParams_T0pcT1T2Txy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_50ns])
+patMultPhiCorrParams_T1Txy_50ns       = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_50ns])
+patMultPhiCorrParams_T1T2Txy_50ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_50ns])
+patMultPhiCorrParams_T1SmearTxy_50ns  = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_50ns])
+patMultPhiCorrParams_T1T2SmearTxy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_50ns])
+patMultPhiCorrParams_T0pcT1SmearTxy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_50ns])
+patMultPhiCorrParams_T0pcT1T2SmearTxy_50ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_50ns])
+
+patMultPhiCorrParams_Txy_25ns         = cms.VPSet( [pset for pset in multPhiCorrParams_Txy_25ns])
+patMultPhiCorrParams_T0pcTxy_25ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcTxy_25ns])
+patMultPhiCorrParams_T0pcT1Txy_25ns   = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_25ns])
+patMultPhiCorrParams_T0pcT1T2Txy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_25ns])
+patMultPhiCorrParams_T1Txy_25ns       = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_25ns])
+patMultPhiCorrParams_T1T2Txy_25ns     = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_25ns])
+patMultPhiCorrParams_T1SmearTxy_25ns  = cms.VPSet( [pset for pset in multPhiCorrParams_T1Txy_25ns])
+patMultPhiCorrParams_T1T2SmearTxy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T1T2Txy_25ns])
+patMultPhiCorrParams_T0pcT1SmearTxy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1Txy_25ns])
+patMultPhiCorrParams_T0pcT1T2SmearTxy_25ns = cms.VPSet( [pset for pset in multPhiCorrParams_T0pcT1T2Txy_25ns])
+
+#from Configuration.StandardSequences.Eras import eras
+#eras.run2_50ns_specific.toModify(patPFMetTxyCorr, parameters=patMultPhiCorrParams_Txy_50ns )
+#eras.run2_25ns_specific.toModify(patPFMetTxyCorr, parameters=patMultPhiCorrParams_Txy_25ns )
 
 patPFMetTxyCorrSequence = cms.Sequence(patPFMetTxyCorr)
 
