@@ -22,6 +22,7 @@
 class StoredPileupJetIdentifier {
 public:
 	friend class PileupJetIdAlgo;
+	friend class MVAJetPuId;
 
 	StoredPileupJetIdentifier();
 	~StoredPileupJetIdentifier(); 
@@ -62,12 +63,15 @@ public:
 	DECLARE_VARIABLE(nTrueInt   ,float);
 
 	DECLARE_VARIABLE(nvtx   ,float);  
+	DECLARE_VARIABLE(DR_weighted,float);
+	DECLARE_VARIABLE(pull,float);
 };
 
 // ----------------------------------------------------------------------------------------------------
 class PileupJetIdentifier : public StoredPileupJetIdentifier {
 public:
 	friend class PileupJetIdAlgo;
+	friend class MVAJetPuId;
 
 	PileupJetIdentifier();
 	~PileupJetIdentifier(); 
