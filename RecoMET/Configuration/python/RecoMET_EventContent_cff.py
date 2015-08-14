@@ -43,6 +43,10 @@ RecoMETRECO = cms.PSet(
                                            'keep recoEcalHaloData_EcalHaloData_*_*',
                                            'keep recoGlobalHaloData_GlobalHaloData_*_*',
                                            'keep recoHcalHaloData_HcalHaloData_*_*',
+<<<<<<< HEAD
+=======
+                                           #'keep *BeamHaloSummary_BeamHaloSummary_*_*'
+>>>>>>> Update RecoMET_EventContent_cff.py
                                            'keep recoBeamHaloSummary_BeamHaloSummary_*_*'
                                            )
     )
@@ -66,11 +70,21 @@ RecoMETAOD = cms.PSet(
                                            'keep recoPFMETs_pfMet_*_*',
                                            'keep recoPFMETs_pfChMet_*_*',
                                            'keep recoPFMETs_pfMetEI_*_*',
+<<<<<<< HEAD
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
+=======
+                                           #'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
+                                           'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_muCorrData_*',
+>>>>>>> Update RecoMET_EventContent_cff.py
                                            'drop recoHcalNoiseRBXs_*_*_*',
                                            'keep HcalNoiseSummary_hcalnoise_*_*',
                                            #'keep *GlobalHaloData_*_*_*',
                                            'keep recoGlobalHaloData_GlobalHaloData_*_*',
+<<<<<<< HEAD
+=======
+                                           'keep recoCSCHaloData_CSCHaloData_*_*',
+                                           #'keep *BeamHaloSummary_BeamHaloSummary_*_*',
+>>>>>>> Update RecoMET_EventContent_cff.py
                                            'keep recoBeamHaloSummary_BeamHaloSummary_*_*'
                                            )
     )
