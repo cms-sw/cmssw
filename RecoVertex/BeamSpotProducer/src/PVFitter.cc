@@ -341,28 +341,36 @@ bool PVFitter::runFitter() {
 
     //bool fit_ok = false;
 
+    TH1F *h1PVx = (TH1F*) hPVx->ProjectionX("h1PVx", 0, -1, "e");
+    TH1F *h1PVy = (TH1F*) hPVy->ProjectionX("h1PVy", 0, -1, "e");
+    TH1F *h1PVz = (TH1F*) hPVx->ProjectionY("h1PVz", 0, -1, "e");
+
+    //Use our own copy for thread safety
+    TF1 gaus("localGaus","gaus");
+
+    h1PVx->Fit(&gaus,"QLM0");
+    h1PVy->Fit(&gaus,"QLM0");
+    h1PVz->Fit(&gaus,"QLM0");
+
+    TF1 *gausx  = h1PVx->GetFunction("localGaus");
+    TF1 *gausy  = h1PVy->GetFunction("localGaus");
+    TF1 *gausz  = h1PVz->GetFunction("localGaus");
+
+    fwidthX     = gausx->GetParameter(2);
+    fwidthY     = gausy->GetParameter(2);
+    fwidthZ     = gausz->GetParameter(2);
+    fwidthXerr  = gausx->GetParError(2);
+    fwidthYerr  = gausy->GetParError(2);
+    fwidthZerr  = gausz->GetParError(2);
+    
+    double estX = gausx->GetParameter(1);
+    double estY = gausy->GetParameter(1); 
+    double estZ = gausz->GetParameter(1);
+    double errX = fwidthX*3.;
+    double errY = fwidthY*3.; 
+    double errZ = fwidthZ*3.;
+
     if ( ! do3DFit_ ) {
-      TH1F *h1PVx = (TH1F*) hPVx->ProjectionX("h1PVx", 0, -1, "e");
-      TH1F *h1PVy = (TH1F*) hPVy->ProjectionX("h1PVy", 0, -1, "e");
-      TH1F *h1PVz = (TH1F*) hPVx->ProjectionY("h1PVz", 0, -1, "e");
-
-      //Use our own copy for thread safety
-      TF1 gaus("localGaus","gaus");
-
-      h1PVx->Fit(&gaus,"QLM0");
-      h1PVy->Fit(&gaus,"QLM0");
-      h1PVz->Fit(&gaus,"QLM0");
-
-      TF1 *gausx = h1PVx->GetFunction("localGaus");
-      TF1 *gausy = h1PVy->GetFunction("localGaus");
-      TF1 *gausz = h1PVz->GetFunction("localGaus");
-
-      fwidthX = gausx->GetParameter(2);
-      fwidthY = gausy->GetParameter(2);
-      fwidthZ = gausz->GetParameter(2);
-      fwidthXerr = gausx->GetParError(2);
-      fwidthYerr = gausy->GetParError(2);
-      fwidthZerr = gausz->GetParError(2);
 
       reco::BeamSpot::CovarianceMatrix matrix;
       matrix(2,2) = gausz->GetParError(1) * gausz->GetParError(1);
@@ -390,9 +398,9 @@ bool PVFitter::runFitter() {
       // fit parameters: positions, widths, x-y correlations, tilts in xz and yz
       //
       MnUserParameters upar;
-      upar.Add("x"     , 0.   	    , 0.02  	     , -10. 	    , 10. 	    ); // 0
-      upar.Add("y"     , 0.   	    , 0.02  	     , -10. 	    , 10. 	    ); // 1
-      upar.Add("z"     , 0.   	    , 0.20  	     , -30. 	    , 30. 	    ); // 2
+      upar.Add("x"     , estX       , errX	     , -10.	    , 10.	    ); // 0
+      upar.Add("y"     , estY       , errY	     , -10.	    , 10.	    ); // 1
+      upar.Add("z"     , estZ       , errZ	     , -30.	    , 30.	    ); // 2
       upar.Add("ex"    , 0.015	    , 0.01  	     , 0.   	    , 10. 	    ); // 3
       upar.Add("corrxy", 0.   	    , 0.02  	     , -1.  	    , 1.  	    ); // 4
       upar.Add("ey"    , 0.015	    , 0.01  	     , 0.   	    , 10. 	    ); // 5
