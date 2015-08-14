@@ -25,11 +25,6 @@ class OfflineConverter:
     #   itrac50011-s.cern.ch, itrac50063-s.cern.ch, itrac50078-s.cern.ch
     #   itrac50011-v.cern.ch, itrac50063-v.cern.ch, itrac50078-v.cern.ch
 
-    versions = {}
-    versions['v1'] = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter.jar' )
-   #versions['v2'] = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter-v02-01-02.jar' )
-    versions['v2'] = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter-v02-02-04.jar' )
-
     databases = {}
     databases['v1'] = {}
     databases['v1']['offline'] = ( '-t', 'oracle', '-h', 'cmsr1-s.cern.ch',      '-d', 'cms_cond.cern.ch',      '-u', 'cms_hltdev_reader', '-s', 'convertme!' )
@@ -57,15 +52,13 @@ class OfflineConverter:
     def __init__(self, version = 'v1', database = 'hltdev', url = None, verbose = False):
         self.verbose = verbose
         self.version = version
-        self.baseDir = '/afs/cern.ch/user/c/confdb/www/lib'
-        self.baseUrl = 'http://confdb.web.cern.ch/confdb/lib'
+        self.baseDir = '/afs/cern.ch/user/c/confdb/www/%s/lib' % version
+        self.baseUrl = 'http://confdb.web.cern.ch/confdb/%s/lib' % version
+        self.jars    = ( 'ojdbc6.jar', 'cmssw-evf-confdb-converter.jar' )
         self.workDir = ''
 
         # check the schema version
-        if version in self.databases:
-            # pick the jars based on the database version
-            self.jars = self.versions[version]
-        else:
+        if version not in self.databases:
             # unsupported database version
             sys.stderr.write( "ERROR: unsupported database version \"%s\"\n" % version)
 
