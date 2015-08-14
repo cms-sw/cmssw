@@ -24,13 +24,6 @@ hiFirstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
 
 # SEEDING LAYERS
 hiJetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
-#    layerList = cms.vstring('BPix1+BPix2', 'BPix1+BPix3', 'BPix2+BPix3', 
-#                            'BPix1+FPix1_pos', 'BPix1+FPix1_neg', 
-#                            'BPix2+FPix1_pos', 'BPix2+FPix1_neg', 
-#                            'FPix1_pos+FPix2_pos', 'FPix1_neg+FPix2_neg',
-#                            #'BPix2+TIB1','BPix2+TIB2',
-#                            'BPix3+TIB1','BPix3+TIB2'
-#),
     layerList = cms.vstring('BPix1+BPix2+BPix3', 
     'BPix1+BPix2+FPix1_pos', 
     'BPix1+BPix2+FPix1_neg', 
@@ -50,7 +43,6 @@ hiJetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         hitErrorRZ = cms.double(0.006),
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
-        #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     ),
     FPix = cms.PSet(
         useErrorsFromParam = cms.bool(True),
@@ -58,13 +50,10 @@ hiJetCoreRegionalStepSeedLayers = cms.EDProducer("SeedingLayersEDProducer",
         hitErrorRZ = cms.double(0.0036),
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
-        #skipClusters = cms.InputTag('jetCoreRegionalStepClusters')
     )
 )
 
 # SEEDS
-#import RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff
-#hiJetCoreRegionalStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromPairsWithVertices_cff.globalSeedsFromPairsWithVertices.clone()
 import RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
 hiJetCoreRegionalStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff.globalSeedsFromTriplets.clone()
 hiJetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
@@ -77,21 +66,14 @@ hiJetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
         deltaPhiRegion = cms.double( 0.30 ), 
         deltaEtaRegion = cms.double( 0.30 ), 
         JetSrc = cms.InputTag( "hiJetsForCoreTracking" ),
-#       JetSrc = cms.InputTag( "ak5CaloJets" ),
         vertexSrc = cms.InputTag( "hiFirstStepGoodPrimaryVertices" ),
         measurementTrackerName = cms.string( "MeasurementTrackerEvent" ),
         howToUseMeasurementTracker = cms.double( -1.0 )
       )
 )
 hiJetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiJetCoreRegionalStepSeedLayers'
-#hiJetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.maxElement = cms.uint32(100000000) 
 hiJetCoreRegionalStepSeeds.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('none'),
-#PixelClusterShapeSeedComparitor'),
-#        FilterAtHelixStage = cms.bool(True),
-#        FilterPixelHits = cms.bool(True),
-#        FilterStripHits = cms.bool(False),
-#       ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
     )
 hiJetCoreRegionalStepSeeds.SeedCreatorPSet.forceKinematicWithRegionDirection = cms.bool( True )
 hiJetCoreRegionalStepSeeds.ClusterCheckPSet.doClusterCheck = cms.bool( False )
@@ -115,7 +97,6 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
 hiJetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
     MeasurementTrackerName = '',
     trajectoryFilter = cms.PSet(refToPSet_ = cms.string('hiJetCoreRegionalStepTrajectoryFilter')),
-    #clustersToSkip = cms.InputTag('jetCoreRegionalStepClusters'),
     maxCand = 50,
     estimator = cms.string('hiJetCoreRegionalStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
@@ -129,9 +110,6 @@ hiJetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates
     maxSeedsBeforeCleaning = cms.uint32(10000),
     TrajectoryBuilderPSet = cms.PSet( refToPSet_ = cms.string('hiJetCoreRegionalStepTrajectoryBuilder')),
     NavigationSchool = cms.string('SimpleNavigationSchool'),
-    ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
-    #numHitsForSeedCleaner = cms.int32(50),
-    #onlyPixelHitsForSeedCleaner = cms.bool(True),
 )
 
 
@@ -166,10 +144,8 @@ hiJetCoreRegionalStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMul
 
 # Final sequence
 hiJetCoreRegionalStep = cms.Sequence(
-#                                   hiInitialStepTrackRefsForJets*
                                    hiCaloJetsForTrk*hiJetsForCoreTracking*
                                    hiFirstStepGoodPrimaryVertices*
-                                   #jetCoreRegionalStepClusters*
                                    hiJetCoreRegionalStepSeedLayers*
                                    hiJetCoreRegionalStepSeeds*
                                    hiJetCoreRegionalStepTrackCandidates*
