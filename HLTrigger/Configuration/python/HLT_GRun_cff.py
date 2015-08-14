@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V125 (CMSSW_7_4_8_patch1)
+# /dev/CMSSW_7_4_0/GRun/V126 (CMSSW_7_4_8_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V125')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V126')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -470,6 +470,7 @@ fragment.transferSystem = cms.PSet(
   )
 )
 fragment.streams = cms.PSet( 
+  ALCAELECTRON = cms.vstring( 'AlCaElectron' ),
   ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
@@ -479,7 +480,6 @@ fragment.streams = cms.PSet(
   DQMEventDisplay = cms.vstring( 'EventDisplay' ),
   DQMOffline = cms.vstring( 'DQMOfflinePD' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  ElectronStream = cms.vstring( 'ElectronStream' ),
   Express = cms.vstring( 'ExpressPhysics' ),
   HLTMonitor = cms.vstring( 'HLTMonitor' ),
   LookArea = cms.vstring( 'LookAreaPD' ),
@@ -513,6 +513,8 @@ fragment.streams = cms.PSet(
   RPCMON = cms.vstring( 'RPCMonitor' )
 )
 fragment.datasets = cms.PSet( 
+  AlCaElectron = cms.vstring( 'AlCa_Ele27_WPVeryLoose_Gsf_v1',
+    'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v2' ),
   AlCaLumiPixels = cms.vstring( 'AlCa_LumiPixels_Random_v1',
     'AlCa_LumiPixels_ZeroBias_v2' ),
   AlCaP0 = cms.vstring( 'AlCa_EcalEtaEBonly_v1',
@@ -649,8 +651,6 @@ fragment.datasets = cms.PSet(
     'HLT_TrkMu17_DoubleTrkMu8NoFiltersNoVtx_v2' ),
   DoubleMuonLowMass = cms.vstring( 'HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v2' ),
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v1' ),
-  ElectronStream = cms.vstring( 'AlCa_Ele27_WPVeryLoose_Gsf_v1',
-    'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v2' ),
   EventDisplay = cms.vstring( 'HLT_AK8PFJet360_TrimMass30_v2',
     'HLT_Photon175_v2' ),
   ExpressPhysics = cms.vstring( 'HLT_HT2000_v1',
