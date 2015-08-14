@@ -52,6 +52,7 @@ class CondRegressionTester(object):
           if not os.path.exists(self.logDir): os.makedirs(self.logDir)
 
           # add the IB/release itself:
+	  self.regTestSrcDir = os.path.join( os.environ['LOCALRT'], 'src', 'CondCore', 'CondDB', 'test' )
           self.rel = os.environ['CMSSW_VERSION']
           self.arch = os.environ['SCRAM_ARCH']
 	  self.dbName = 'self-%s-%s.db' % (self.rel, self.arch)
@@ -93,9 +94,9 @@ class CondRegressionTester(object):
           cmd = 'cd %s/%s/src; eval `scram run -sh`; ' % (self.topDir, rel, )
           cmd += 'git cms-addpkg CondCore/CondDB 2>&1; cd CondCore/CondDB/test; '
 	  if not os.path.exists( os.path.join( self.topDir, rel, 'src', 'CondCore/CondDB/test/testReadWritePayloads.cpp') ):
-             print "copying over test source ... "
-	     cmd += 'cp /afs/cern.ch/user/a/andreasp/public/BuildFile.xml .;'
-             cmd += 'cp /afs/cern.ch/user/a/andreasp/public/testReadWritePayloads.cpp .;'
+             print "copying over test source and BuildFile from devArea/IB ... "
+	     cmd += 'cp %s/BuildFile.xml .;' % (self.regTestSrcDir,)
+             cmd += 'cp %s/testReadWritePayloads.cpp .;' % (self.regTestSrcDir,)
           cmd += 'scram b -j 10 2>&1 ;'
           res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
