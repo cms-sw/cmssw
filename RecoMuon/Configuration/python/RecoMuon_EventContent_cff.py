@@ -23,7 +23,7 @@ from RecoMuon.MuonIsolationProducers.muIsolation_EventContent_cff import *
 # AOD content
 RecoMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_muons_*_*',
-                                           'keep *_*_muons_*',
+                                           'keep *_particleFlow_muons_*',
                                            'drop *_muons_muons1stStep2muonsMap_*',
                                            'drop recoIsoDepositedmValueMap_muons_*_*', #not really used
                                            'drop doubleedmValueMap_muons_muPFIso*_*', #already inside the muon
@@ -59,10 +59,8 @@ RecoMuonAOD = cms.PSet(
 )
 # RECO content
 RecoMuonRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*',
-                                           'keep *_ancientMuonSeed_*_*',
+    outputCommands = cms.untracked.vstring('keep *_ancientMuonSeed_*_*',
                                            'keep *_displacedMuonSeeds_*_*',
-                                           'keep *_mergedStandAloneMuonSeeds_*_*',
                                            'keep TrackingRecHitsOwned_globalMuons_*_*', 
                                            'keep TrackingRecHitsOwned_tevMuons_*_*',
                                            'keep recoCaloMuons_calomuons_*_*',
@@ -80,8 +78,7 @@ RecoMuonRECO = cms.PSet(
                                            'keep TrackingRecHitsOwned_standAloneSETMuons_*_*',
                                            'keep recoTracks_globalSETMuons_*_*',
                                            'keep recoTrackExtras_globalSETMuons_*_*',
-                                           'keep TrackingRecHitsOwned_globalSETMuons_*_*',
-                                           'keep recoMuons_muonsWithSET_*_*')
+                                           'keep TrackingRecHitsOwned_globalSETMuons_*_*')
 )
 # Full Event content 
 RecoMuonFEVT = cms.PSet(
