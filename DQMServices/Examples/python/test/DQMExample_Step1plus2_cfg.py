@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('RECODQM')
-
+process = cms.Process('DQMANDHARVESTING')
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -9,22 +8,19 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
-process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+
+# Other statements
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  #for MC
 
 # load DQM
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.DQMStore.LSbasedMode = cms.untracked.bool(True)
 process.DQMStore.verbose = cms.untracked.int32(4)
 
-# my analyzer
-process.load('DQMServices.Examples.test.DQMExample_Step1_cfi')
-
-
 process.maxEvents = cms.untracked.PSet(
-    #input = cms.untracked.int32(200)
 	input = cms.untracked.int32(200)
 )
 
@@ -37,24 +33,29 @@ process.source = cms.Source("PoolSource",
         )
 )
 
+# my analyzer
+process.load('DQMServices.Examples.test.DQMExample_Step1_cfi')
 
-process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
-                                     fileName = cms.untracked.string("OUT_step1.root"))
-
-# Other statements
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  #for MC
-
+# my client and my Tests
+process.load('DQMServices.Examples.test.DQMExample_Step2DB_cfi')
+process.load('DQMServices.Examples.test.DQMExample_GenericClient_cfi')
+process.load('DQMServices.Examples.test.DQMExample_qTester_cfi')
+process.dqmmodules = cms.Sequence(process.dqmSaver)
 
 # Path and EndPath definitions
 process.dqmoffline_step = cms.Path(process.DQMExample_Step1)
-#process.dqmsave_step = cms.Path(process.DQMSaver)
-process.DQMoutput_step = cms.EndPath(process.DQMoutput)
-
+process.myHarvesting = cms.Path(process.DQMExample_Step2DB)
+process.myEff = cms.Path(process.DQMExample_GenericClient)
+process.myTest = cms.Path(process.DQMExample_qTester)
+process.dqmsave_step = cms.Path(process.dqmmodules)
 
 # Schedule definition
 process.schedule = cms.Schedule(
-    process.dqmoffline_step,
-    process.DQMoutput_step
-#    process.dqmsave_step
+								process.dqmoffline_step,
+								process.myEff,
+								process.myTest,
+								process.myHarvesting,
+								process.dqmsave_step
     )
+process.dqmSaver.workflow = '/TTbarLepton/myTest/DQM'
+

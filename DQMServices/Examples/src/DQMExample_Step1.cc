@@ -35,7 +35,6 @@ DQMExample_Step1::DQMExample_Step1(const edm::ParameterSet& ps)
   triggerFilter_           = ps.getParameter<edm::InputTag>("TriggerFilter");
   triggerPath_             = ps.getParameter<std::string>("TriggerPath");
 
-
   // cuts:
   ptThrL1_ = ps.getUntrackedParameter<double>("PtThrL1");
   ptThrL2_ = ps.getUntrackedParameter<double>("PtThrL2");
@@ -322,11 +321,10 @@ void DQMExample_Step1::endRun(edm::Run const& run, edm::EventSetup const& eSetup
 //
 void DQMExample_Step1::bookHistos(DQMStore::IBooker & ibooker_)
 {
+  //ibooker_.LSbasedMode_ = true;
   ibooker_.cd();
   ibooker_.setCurrentFolder("Physics/TopTest");
-
   h_vertex_number = ibooker_.book1D("Vertex_number", "Number of event vertices in collection", 40,-0.5,   39.5 );
-
   h_pfMet        = ibooker_.book1D("pfMet",        "Pf Missing E_{T}; GeV"          , 20,  0.0 , 100);
 
   h_eMultiplicity = ibooker_.book1D("NElectrons","# of electrons per event",10,0.,10.);

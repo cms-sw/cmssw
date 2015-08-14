@@ -1,0 +1,38 @@
+import FWCore.ParameterSet.Config as cms
+
+DQMExample_Step2DB = cms.EDAnalyzer("DQMExample_Step2DB",
+       numMonitorName = cms.string("Physics/TopTest/ElePt_leading_HLT_matched"),
+       denMonitorName = cms.string("Physics/TopTest/ElePt_leading"),   
+	   histogramsPath = cms.string("Physics/TopTest/"),
+	   histogramsPerLumi = cms.vstring(	"Vertex_number",
+										"Vertex_number",
+										#"pfMet",
+										#"NElectrons",
+										#"ElePt_leading_matched",
+										#"EleEta_leading_matched",
+										#"ElePhi_leading_matched",
+										"ElePt_leading",
+										#"EleEta_leading",
+										#"ElePhi_leading",
+										#"NJets",
+										#"JetPt_leading",
+										#"JetEta_leading",
+										#"JetPhi_leading",
+										#"NElectrons_HLT"
+										),
+	   histogramsPerRun = cms.vstring("ElePt_leading",
+									  "EleEta_leading",
+									  "ElePhi_leading"),
+	   
+       DBParameters = cms.PSet(
+       authenticationPath = cms.untracked.string(''),
+       messageLevel = cms.untracked.int32(3),
+       enableConnectionSharing = cms.untracked.bool(True),
+       connectionTimeOut = cms.untracked.int32(60),
+       enableReadOnlySessionOnUpdateConnection = cms.untracked.bool(False),
+       connectionRetrialTimeOut = cms.untracked.int32(60),
+       connectionRetrialPeriod = cms.untracked.int32(10),
+       enablePoolAutomaticCleanUp = cms.untracked.bool(False),
+       ),
+       connect = cms.string('sqlite_file:db1.db'),
+)

@@ -16,7 +16,7 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 # my client and my Tests
-process.load('DQMServices.Examples.test.DQMExample_Step2_cfi')
+process.load('DQMServices.Examples.test.DQMExample_Step2DB_cfi')
 process.load('DQMServices.Examples.test.DQMExample_GenericClient_cfi')
 process.load('DQMServices.Examples.test.DQMExample_qTester_cfi')
 
@@ -35,9 +35,8 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  #for MC
 
 
-
 # Path and EndPath definitions
-process.myHarvesting = cms.Path(process.DQMExample_Step2)
+process.myHarvesting = cms.Path(process.DQMExample_Step2DB)
 process.myEff = cms.Path(process.DQMExample_GenericClient)
 process.myTest = cms.Path(process.DQMExample_qTester)
 process.dqmsave_step = cms.Path(process.DQMSaver)
