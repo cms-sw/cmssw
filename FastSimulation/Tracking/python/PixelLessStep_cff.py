@@ -16,11 +16,6 @@ pixelLessStepMasks = _fastTrackingMaskProducer.clone(
 # trajectory seeds 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-       pTMin = 0,
-        maxD0 = -1,
-        maxZ0 = -1
-        ),
     minLayersCrossed = 3,
 layerList = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet,
