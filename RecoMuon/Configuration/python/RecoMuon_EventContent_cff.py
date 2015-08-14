@@ -60,10 +60,8 @@ RecoMuonAOD = cms.PSet(
 )
 # RECO content
 RecoMuonRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep *_MuonSeed_*_*',
-                                           'keep *_ancientMuonSeed_*_*',
+    outputCommands = cms.untracked.vstring('keep *_ancientMuonSeed_*_*',
                                            'keep *_displacedMuonSeeds_*_*',
-                                           'keep *_mergedStandAloneMuonSeeds_*_*',
                                            'keep TrackingRecHitsOwned_globalMuons_*_*', 
                                            'keep TrackingRecHitsOwned_tevMuons_*_*',
                                            'keep recoCaloMuons_calomuons_*_*',
@@ -81,8 +79,7 @@ RecoMuonRECO = cms.PSet(
                                            'keep TrackingRecHitsOwned_standAloneSETMuons_*_*',
                                            'keep recoTracks_globalSETMuons_*_*',
                                            'keep recoTrackExtras_globalSETMuons_*_*',
-                                           'keep TrackingRecHitsOwned_globalSETMuons_*_*',
-                                           'keep recoMuons_muonsWithSET_*_*')
+                                           'keep TrackingRecHitsOwned_globalSETMuons_*_*')
 )
 # Full Event content 
 RecoMuonFEVT = cms.PSet(
