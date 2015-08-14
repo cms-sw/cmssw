@@ -2002,6 +2002,17 @@ DQMStore::getAllContents(const std::string &path,
     }
     result.push_back(const_cast<MonitorElement *>(&*i));
   }
+
+  if (enableMultiThread_)
+    {
+      //save legacy modules when running MT
+      i = data_.begin();
+      for ( ; i != e && isSubdirectory(*cleaned, *i->data_.dirname); ++i) {
+        if (i->data_.run != 0 || i->data_.streamId != 0 || i->data_.moduleId != 0) break;
+        result.push_back(const_cast<MonitorElement *>(&*i));
+      }
+    }
+
   return result;
 }
 
