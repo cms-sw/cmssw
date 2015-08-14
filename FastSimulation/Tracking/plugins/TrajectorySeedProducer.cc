@@ -97,7 +97,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         _seedingTree.insert(trackingLayerList);
         seedingLayers.push_back(std::move(trackingLayerList));
     }
-    if(conf.exists("RegionFactoryPSet")){
       edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
       std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
       theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
@@ -105,7 +104,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
       const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
       std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
       seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
-    }
 }
 void
 TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) 
@@ -129,16 +127,47 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es)
 }
 
 bool
-  TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate& hit1, const TrajectorySeedHitCandidate& hit2) const
+TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
 {
   if(theRegionProducer){
-    return testWithRegions(hit1,hit2);
+  const DetLayer * innerLayer = 
+    measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+  const DetLayer * outerLayer = 
+    measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+  
+typedef PixelRecoRange<float> Range;
+
+  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+
+    auto const & gs = outerHit.hit()->globalState();
+    auto loc = gs.position-(*ir)->origin().basicVector();
+    const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
+                                                        loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
+
+    float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
+    float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
+    float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
+    constexpr float nSigmaRZ = 3.46410161514f;
+    Range allowed = checkRZ->range(u);
+    float vErr = nSigmaRZ * dv;
+    Range hitRZ(v-vErr, v+vErr);
+    Range crossRange = allowed.intersection(hitRZ);
+
+    if( ! crossRange.empty()){
+      std::cout << "init seed creator"<< std::endl;
+      std::cout << "ptmin: " << (**ir).ptMin() << std::endl;
+      std::cout << "" << std::endl;
+      seedCreator->init(**ir,*es_,0);
+      std::cout << "done" << std::endl;
+      return true;}
+
   }
-  else 
+  return false;
+  }
+  else
     {
-      std::cout<<"Either region producer, or the seed creator cfg is not available."<<std::endl;
+      edm::LogWarning("TrajectorySeedProducer") <<"Either region producer, or the seed creator cfg is not available.";
       return false;
-      //The above false is just a temporary solution.
     }
 }
 
@@ -340,7 +369,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
       }//end loop over simtracks
     e.put(output);
 }
-
+/*
 bool
   TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
   
@@ -375,3 +404,4 @@ bool
   }
   return false;
 }
+*/

@@ -4,15 +4,6 @@ from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
 from RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi import *
 
 trajectorySeedProducer = cms.EDProducer("TrajectorySeedProducer",
-                                        
-    simTrackSelection = cms.PSet(
-         # The smallest pT (in GeV) to create a track candidate 
-         pTMin = cms.double(-1),
-         # skip SimTracks processed in previous iterations
-         #skipSimTrackIds = cms.VInputTag(),
-         maxZ0 = cms.double(-1),
-         maxD0 = cms.double(-1),
-         ),
                                         SeedCreatorPSet = cms.PSet(SeedFromConsecutiveHitsCreator.clone(TTRHBuilder = cms.string("WithoutRefit"))),
                                         # minimum number of layer crossed (with hits on them) by the simtrack
                                         minLayersCrossed = cms.uint32(0),
