@@ -62,12 +62,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>();
     //Regions regions;
-    const edm::ParameterSet& simTrackSelectionConfig = conf.getParameter<edm::ParameterSet>("simTrackSelection");
-    // The smallest pT,dxy,dz for a simtrack
-    simTrack_pTMin = simTrackSelectionConfig.getParameter<double>("pTMin");
-    simTrack_maxD0 = simTrackSelectionConfig.getParameter<double>("maxD0");
-    simTrack_maxZ0 = simTrackSelectionConfig.getParameter<double>("maxZ0");
-
+    
 
     hitMasks_exists = conf.exists("hitMasks");
     if (hitMasks_exists){
