@@ -116,8 +116,8 @@ class JetCorrectorParametersCollection {
   enum Level_t { L1Offset=0,
 		 L1JPTOffset=7,
                  L1FastJet = 10,
-                 L1RC=38,
-                 L1Residual=39,
+                 L1RC=36,
+                 L1Residual=37,
 		 L2Relative=1,
 		 L3Absolute=2,
 		 L2L3Residual=8,
@@ -151,9 +151,7 @@ class JetCorrectorParametersCollection {
 		 UncertaintyPileUpJetRate=26,
 		 UncertaintyAux1=34,
 		 UncertaintyAux2=35,
-		 UncertaintyAux3=36,
-		 UncertaintyAux4=37,
-		 N_LEVELS=40
+		 N_LEVELS=38
   };
 
 
