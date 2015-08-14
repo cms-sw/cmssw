@@ -64,8 +64,8 @@ TrackerHitAssociator::Config::Config(const edm::ParameterSet& conf, edm::Consume
   doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ),
   assocHitbySimTrack_(conf.existsAs<bool>("associateHitbySimTrack") ? conf.getParameter<bool>("associateHitbySimTrack") : false) {
 
-  if(doStrip_) stripToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
-  if(doPixel_) pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+  if(doStrip_) stripToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(conf.getParameter<edm::InputTag>("stripSimLinkSrc"));
+  if(doPixel_) pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("pixelSimLinkSrc"));
   if(!doTrackAssoc_) {
     std::vector<std::string> trackerContainers(conf.getParameter<std::vector<std::string> >("ROUList"));
     cfTokens_.reserve(trackerContainers.size());

@@ -9,6 +9,8 @@ quickTrackAssociatorByHits = cms.EDProducer("QuickTrackAssociatorByHitsProducer"
 	ThreeHitTracksAreSpecial = cms.bool(True),
 	associatePixel = cms.bool(True),
 	associateStrip = cms.bool(True),
+        pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+        stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
         useClusterTPAssociation = cms.bool(True),
         cluster2TPSrc = cms.InputTag("tpClusterProducer")
 )
