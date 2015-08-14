@@ -29,7 +29,7 @@ RecoMuonIsolationFEVT = cms.PSet(
 RecoMuonIsolationRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_muIsoDepositTk_*_*', 
         'keep *_muIsoDepositCalByAssociatorTowers_*_*', 
-        'keep *_muIsoDepositCalByAssociatorHits_*_*', 
+        #'keep *_muIsoDepositCalByAssociatorHits_*_*', 
         'keep *_muIsoDepositJets_*_*', 
         'keep *_muGlobalIsoDepositCtfTk_*_*', 
         'keep *_muGlobalIsoDepositCalByAssociatorTowers_*_*', 
