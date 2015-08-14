@@ -9,15 +9,12 @@ from RecoHI.HiTracking.HiTracking_cff import *    # two additional steps
 # Egamma
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
 from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
-ecalDrivenElectronSeeds.SeedConfiguration.SCEtCut = cms.double(15.0)
-ecalDrivenGsfElectrons.minSCEtBarrel = cms.double(15.0)
-ecalDrivenGsfElectrons.minSCEtEndcaps = cms.double(15.0)
 
 # Jet Reconstruction
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 
 # Muon Reco
-from RecoHI.HiMuonAlgos.HiRecoMuon_cff import *
+from RecoHI.HiMuonAlgos.HiRecoMuon_cff import * 
 # keep regit seperate for the moment
 from RecoHI.HiMuonAlgos.HiRegionalRecoMuon_cff import *
 
@@ -33,12 +30,12 @@ from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
 hcalnoise.trackCollName = 'hiGeneralTracks'
 
 # Global + High-Level Reco Sequence
-globalRecoPbPb = cms.Sequence(hiTracking
+globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
                               * hiParticleFlowLocalReco
                               * hiEcalClusters
                               * hiRecoJets
                               * muonRecoPbPb
-                              * hiElectronSequence
+                              * hiElectronSequence 
                               * hiEgammaSequence
                               * hiParticleFlowReco
                               * hiCentrality
@@ -62,9 +59,10 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               )
 
 #--------------------------------------------------------------------------
-# Full sequence (LOCAL RECO + HIGH LEVEL RECO)
+# Full sequence (LOCAL RECO + HIGH LEVEL RECO) 
 # in Configuration.StandardSequences.ReconstructionHeavyIons_cff
 
 # Modify zero-suppression sequence here
 from RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi import *
 siStripZeroSuppression.storeCM = cms.bool(True)
+
