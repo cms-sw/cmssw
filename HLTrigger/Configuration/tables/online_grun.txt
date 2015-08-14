@@ -569,7 +569,7 @@ RPCMONOutput
 ALCAPHISYMOutput
 ALCAP0Output
 ALCALUMIPIXELSOutput
-ElectronStreamOutput						# JIRA: CMSHLT-366
+ALCAELECTRONOutput						# JIRA: CMSHLT-366, renamed
 #ExpressForCosmicsOutput					# only in 'GRun' and 'cosmics', not in 'online'
 ExpressOutput
 LookAreaOutput
