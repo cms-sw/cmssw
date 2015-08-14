@@ -108,7 +108,7 @@ def applySubstructure( process ) :
         genJetCollection = cms.InputTag('slimmedGenJetsAK8'), 
         getJetMCFlavour = False #
         )
-    process.selectedPatJetsCMSTopTagCHS.cut = cms.string("pt > 350")
+    process.selectedPatJetsCMSTopTagCHS.cut = cms.string("pt > 200")
 
     addJetCollection(
         process,
