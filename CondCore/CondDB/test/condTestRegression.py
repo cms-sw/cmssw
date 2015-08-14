@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os
+import sys, os
 import time
 import subprocess
 
@@ -141,12 +141,14 @@ class CondRegressionTester(object):
                   'CMSSW_7_4_9'      : [ 'slc6_amd64_gcc491', 'ref749-s6491.db'],
           }
 
+          # set up the devel areas for the various reference releases
           print '='*80
           print "going to set up areas ..."
           for rel, info in map.items():
              arch, dbName = info
              self.setup(rel, arch)
           
+          # write all DBs (including the one from this IB/devArea)
           print '='*80
           print "going to write DBs ..."
           self.runSelf('write')
@@ -154,7 +156,7 @@ class CondRegressionTester(object):
              arch, dbName = info
              self.run(rel, arch, 'write', dbName)
           
-
+          # now try to read back with all reference releases all the DBs written before ...
           print '='*80
           print "going to read back DBs ..."
           for rel, info in map.items():
@@ -165,6 +167,8 @@ class CondRegressionTester(object):
                     self.status['%s-%s-%s' % (rel,arch,item)] = True
                  except:
                     self.status['%s-%s-%s' % (rel,arch,item)] = False
+
+          # ... and also with this IB/devArea
           for item in self.dbNameList: # for any given rel/arch we check all written DBs
              try:
                 self.runSelf('read', item)
@@ -176,5 +180,12 @@ class CondRegressionTester(object):
 
 crt = CondRegressionTester()
 crt.runAll()
-print "\n==> overall status: ", crt.summary(verbose=True)
+status = crt.summary(verbose=True)
+print "\n==> overall status: ", status
+
+# return the overall result to the caller:
+if status: 
+   sys.exit(0)
+else:
+   sys.exit(-1)
 
