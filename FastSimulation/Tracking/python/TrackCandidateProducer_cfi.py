@@ -6,7 +6,7 @@ trackCandidateProducer = cms.EDProducer(
     # The smallest number of crossed layers to make a candidate
     MinNumberOfCrossedLayers = cms.uint32(5),
 
-    src = cms.InputTag("globalPixelSeeds"),
+    src = cms.InputTag("tobTecStepSeeds"),
 
     # Reject overlapping hits? (GroupedTracking from 170pre2 onwards)
     OverlapCleaning = cms.bool(False),
