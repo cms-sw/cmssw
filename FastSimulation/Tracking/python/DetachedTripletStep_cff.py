@@ -6,21 +6,20 @@ import RecoTracker.IterativeTracking.DetachedTripletStep_cff as _detachedTriplet
 # fast tracking mask producer
 import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
 detachedTripletStepMasks = FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
-    trackCollection = cms.InputTag("initialStepTracks"),
-    TrackQuality = _detachedTripletStep.detachedTripletStepClusters.TrackQuality,
+   # trackCollection = cms.InputTag("initialStepTracks"),
+   # TrackQuality = _detachedTripletStep.detachedTripletStepClusters.TrackQuality,
 #_detachedTripletStep.detachedTripletStepClusters.TrackQuality,
-    maxChi2 = _detachedTripletStep.detachedTripletStepClusters.maxChi2,
-    overrideTrkQuals =  cms.InputTag('initialStep')
+  #  maxChi2 = _detachedTripletStep.detachedTripletStepClusters.maxChi2,
+ #   overrideTrkQuals =  cms.InputTag('initialStep')
+# detachedTripletStepMasks = FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
+trackCollection = _detachedTripletStep.detachedTripletStepClusters.trajectories,
+TrackQuality = _detachedTripletStep.detachedTripletStepClusters.TrackQuality,
+overrideTrkQuals = cms.InputTag('initialStep',"QualityMasks")
 )
 
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        pTMin = 0,
-        maxD0 = -1,
-        maxZ0 = 1
-        ),
     minLayersCrossed = 3,
     layerList = _detachedTripletStep.detachedTripletStepSeedLayers.layerList.value(),
     RegionFactoryPSet = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet,

@@ -19,14 +19,6 @@ tobTecStepMasks = _fastTrackingMaskProducer.clone(
 #triplet seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-#        pTMin = 0.3,
- #       maxD0 = -1,
-  #      maxZ0 = -1
-        pTMin = 0,
-        maxD0 = -1,
-        maxZ0 = -1
-    ),
     minLayersCrossed = 4,
     layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersTripl.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsTripl.RegionFactoryPSet,
@@ -35,14 +27,6 @@ tobTecStepSeedsTripl = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajec
 #pair seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 tobTecStepSeedsPair = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-  #      pTMin = 0.3,
- #       maxD0 = 99.0,
-#        maxZ0 = 99
-        pTMin = 0,
-        maxD0 = -1,
-        maxZ0 = -1,
-    ),
     minLayersCrossed = 4,
     layerList = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedLayersPair.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeedsPair.RegionFactoryPSet,

@@ -97,6 +97,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         _seedingTree.insert(trackingLayerList);
         seedingLayers.push_back(std::move(trackingLayerList));
     }
+    if(conf.exists("RegionFactoryPSet")){
       edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
       std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
       theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
@@ -104,6 +105,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
       const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
       std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
       seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
+    }
 }
 void
 TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) 

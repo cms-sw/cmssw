@@ -16,11 +16,6 @@ mixedTripletStepMasks = _fastTrackingMaskProducer.clone(
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        pTMin = 0,
-        maxD0 = -1,
-        maxZ0 = -1
-        ),
     minLayersCrossed = 3,
 layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet,
@@ -30,11 +25,6 @@ layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepS
 ###
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        pTMin = 0.15,
-        maxD0 = 10.0,
-        maxZ0 = 30
-        ),
     minLayersCrossed = 3,
 layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet,
