@@ -10,11 +10,11 @@ from RecoHI.HiTracking.MergeTrackCollectionsHI_cff import *
 
 from RecoHI.HiMuonAlgos.hiMuonIterativeTk_cff import *
 
-hiJetsForCoreTracking.cut = cms.string("pt > 50 && abs(eta) < 2.4")
+hiJetsForCoreTracking.cut = cms.string("pt > 100 && abs(eta) < 2.4")
 hiJetCoreRegionalStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = cms.double( 10. )
 hiJetCoreRegionalStepTrajectoryFilter.minPt = 10.0
-siPixelClusters.ptMin = cms.double(50)
-siPixelClusters.deltaRmax = cms.double(0.2)
+siPixelClusters.ptMin = cms.double(100)
+siPixelClusters.deltaRmax = cms.double(0.1)
 
 hiTracking_noRegitMu = cms.Sequence(
     hiBasicTracking
