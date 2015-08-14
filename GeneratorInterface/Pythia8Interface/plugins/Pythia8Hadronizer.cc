@@ -26,6 +26,10 @@
 #include "Pythia8Plugins/PowhegHooks.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
+// EvtGen plugin
+//
+#include "Pythia8Plugins/EvtGen.h"
+
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -81,7 +85,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     /// Center-of-Mass energy
     double       comEnergy;
 
-    string LHEInputFileName;
+    std::string LHEInputFileName;
     std::auto_ptr<LHAupLesHouches>  lhaUP;
 
     enum { PP, PPbar, ElectronPositron };
@@ -136,7 +140,7 @@ const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::Sha
 Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   BaseHadronizer(params), Py8InterfaceBase(params),
   comEnergy(params.getParameter<double>("comEnergy")),
-  LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
+  LHEInputFileName(params.getUntrackedParameter<std::string>("LHEInputFileName","")),
   fInitialState(PP),
   fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fMergingHook(0),
@@ -182,7 +186,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   }
     
   if( params.exists( "SLHAFileForPythia8" ) ) {
-    std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
+    std::string slhafilenameshort = params.getParameter<std::string>("SLHAFileForPythia8");
     edm::FileInPath f1( slhafilenameshort );
     
     fMasterGen->settings.mode("SLHA:readFrom", 2);
@@ -197,7 +201,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
      }  
   }
   else if( params.exists( "SLHATableForPythia8" ) ) {
-    std::string slhatable = params.getParameter<string>("SLHATableForPythia8");
+    std::string slhatable = params.getParameter<std::string>("SLHATableForPythia8");
         
     char tempslhaname[] = "pythia8SLHAtableXXXXXX";
     int fd = mkstemp(tempslhaname);
@@ -374,6 +378,13 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   edm::LogInfo("Pythia8Interface") << "Initializing Decayer";
   status1 = fDecayer->init();
 
+  if (useEvtGen) {
+    edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
+
+    evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
+    evtgenDecays->readDecayFile("evtgen_userfile.dec");
+  }
+
   return (status&&status1);
 }
 
@@ -427,7 +438,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   }
   
   
-  if(LHEInputFileName != string()) {
+  if(LHEInputFileName != std::string()) {
 
     edm::LogInfo("Pythia8Interface") << "Initialize direct pythia8 reading from LHE file "
                                      << LHEInputFileName;
@@ -467,6 +478,14 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   edm::LogInfo("Pythia8Interface") << "Initializing Decayer";
   status1 = fDecayer->init();
 
+  if (useEvtGen) {
+    edm::LogInfo("Pythia8Interface") << "Creating and initializing pythia8 EvtGen plugin";
+
+    std::string evtgenpath(getenv("EVTGENDATA"));
+    evtgenDecays = new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str());
+    evtgenDecays->readDecayFile("evtgen_userfile.dec");
+  }
+
   return (status&&status1);
 }
 
@@ -495,6 +514,8 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
 
   if (!fMasterGen->next()) return false;
 
+  if (evtgenDecays) evtgenDecays->decay();
+
   event().reset(new HepMC::GenEvent);
   return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
 
@@ -506,7 +527,7 @@ bool Pythia8Hadronizer::hadronize()
   DJR.resize(0);
   nME = -1;
   nMEFiltered = -1;
-  if(LHEInputFileName == string()) lhaUP->loadEvent(lheEvent());
+  if(LHEInputFileName == std::string()) lhaUP->loadEvent(lheEvent());
 
   if ( fJetMatchingHook ) 
   {
@@ -546,6 +567,8 @@ bool Pythia8Hadronizer::hadronize()
   //
   lheEvent()->count( lhef::LHERunInfo::kAccepted, 1.0, mergeweight );
 
+  if (evtgenDecays) evtgenDecays->decay();
+
   event().reset(new HepMC::GenEvent);
   bool py8hepmc =  toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
   if (!py8hepmc) {
@@ -563,8 +586,7 @@ bool Pythia8Hadronizer::hadronize()
   }
 
   return true;
-  
-  
+
 }
 
 

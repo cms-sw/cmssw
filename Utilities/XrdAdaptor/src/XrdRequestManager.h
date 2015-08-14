@@ -169,6 +169,12 @@ private:
     void updateSiteInfo(std::string orig_site="");
 
     /**
+     * Update the StatisticsSenderService, if necessary, with the current server.
+     */
+    inline void updateCurrentServer();
+    void queueUpdateCurrentServer(const std::string &);
+
+    /**
      * Picks a single source for the next operation.
      */
     std::shared_ptr<Source> pickSingleSource();
@@ -189,6 +195,9 @@ private:
     std::set<std::string> m_disabledExcludeStrings;
     std::set<std::shared_ptr<Source> > m_disabledSources;
     std::string m_activeSites;
+    // StatisticsSenderService wants to know what our current server is;
+    // this holds last-successfully-opened server name
+    std::atomic<std::string*> m_serverToAdvertise;
 
     timespec m_lastSourceCheck;
     int m_timeout;

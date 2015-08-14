@@ -435,9 +435,9 @@ Realistic50ns13TeVCollisionZeroTeslaVtxSmearingParameters = cms.PSet(
     Alpha = cms.double(0.0),
     SigmaZ = cms.double(5.3),
     TimeOffset = cms.double(0.0),
-    X0 = cms.double(0.10482), # from fill 4008, absolute coordinates X0 =  0.07798 [cm]. BPix position, absolute coordinates -0.026837  [cm]. Final position  0.10482 [cm].
-    Y0 = cms.double(0.16867), # from fill 4008, absolute coordinates Y0 =  0.09714 [cm]. BPix position, absolute coordinates -0.0715252 [cm]. Final position  0.16867 [cm]. 
-    Z0 = cms.double(-1.0985)  # from fill 4008, absolute coordinates Z0 = -1.610   [cm]. BPix position, absolute coordinates -0.511453  [cm]. Final position -1.0985  [cm].
+    X0 = cms.double(0.08533),
+    Y0 = cms.double(0.16973),
+    Z0 = cms.double(-1.2230)
 )
 
 # From 2015B 3.8T data

@@ -49,7 +49,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   doSimPlots_(pset.getUntrackedParameter<bool>("doSimPlots")),
   doSimTrackPlots_(pset.getUntrackedParameter<bool>("doSimTrackPlots")),
   doRecoTrackPlots_(pset.getUntrackedParameter<bool>("doRecoTrackPlots")),
-  dodEdxPlots_(pset.getUntrackedParameter<bool>("dodEdxPlots"))
+  dodEdxPlots_(pset.getUntrackedParameter<bool>("dodEdxPlots")),
+  doPVAssociationPlots_(pset.getUntrackedParameter<bool>("doPVAssociationPlots"))
 {
   //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
 
@@ -65,7 +66,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
     m_dEdx2Tag = consumes<edm::ValueMap<reco::DeDxData> >(pset.getParameter< edm::InputTag >("dEdx2Tag"));
   }
 
-  if(doPlotsOnlyForTruePV_) {
+  if(doPlotsOnlyForTruePV_ || doPVAssociationPlots_) {
     label_tv = consumes<TrackingVertexCollection>(pset.getParameter< edm::InputTag >("label_tv"));
     recoVertexToken_ = consumes<edm::View<reco::Vertex> >(pset.getUntrackedParameter<edm::InputTag>("label_vertex"));
     vertexAssociatorToken_ = consumes<reco::VertexToTrackingVertexAssociator>(pset.getUntrackedParameter<edm::InputTag>("vertexAssociator"));
@@ -209,12 +210,14 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
 
       if(doSimTrackPlots_) {
         histoProducerAlgo_->bookSimTrackHistos(ibook);
+        if(doPVAssociationPlots_) histoProducerAlgo_->bookSimTrackPVAssociationHistos(ibook);
       }
 
       //Booking histograms concerning with reconstructed tracks
       if(doRecoTrackPlots_) {
         histoProducerAlgo_->bookRecoHistos(ibook);
         if (dodEdxPlots_) histoProducerAlgo_->bookRecodEdxHistos(ibook);
+        if (doPVAssociationPlots_) histoProducerAlgo_->bookRecoPVAssociationHistos(ibook);
       }
     }//end loop www
   }// end loop ww
@@ -250,7 +253,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     cosmictpSelector.initEvent(simHitsTPAssoc);
   }
 
-  if(doPlotsOnlyForTruePV_) {
+  const reco::Vertex::Point *thePVposition = nullptr;
+  const TrackingVertex::LorentzVector *theSimPVPosition = nullptr;
+  if(doPlotsOnlyForTruePV_ || doPVAssociationPlots_) {
     edm::Handle<TrackingVertexCollection> htv;
     event.getByToken(label_tv, htv);
 
@@ -262,10 +267,31 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
     auto v_r2s = hvassociator->associateRecoToSim(hvertex, htv);
     auto pvPtr = hvertex->refAt(0);
-    if(pvPtr->isFake() || pvPtr->ndof() < 0) // skip junk vertices
-      return;
-    auto pvFound = v_r2s.find(pvPtr);
-    if(pvFound == v_r2s.end())
+    if(!(pvPtr->isFake() || pvPtr->ndof() < 0)) { // skip junk vertices
+      auto pvFound = v_r2s.find(pvPtr);
+      if(pvFound != v_r2s.end()) {
+        int simPVindex = -1;
+        int i=0;
+        for(const auto& vertexRefQuality: pvFound->val) {
+          const TrackingVertex& tv = *(vertexRefQuality.first);
+          if(tv.eventId().event() == 0 && tv.eventId().bunchCrossing() == 0) {
+            simPVindex = i;
+          }
+          ++i;
+        }
+        if(simPVindex >= 0) {
+          if(doPVAssociationPlots_) {
+            thePVposition = &(pvPtr->position());
+            theSimPVPosition = &(pvFound->val[simPVindex].first->position());
+          }
+        }
+        else if(doPlotsOnlyForTruePV_)
+          return;
+      }
+      else if(doPlotsOnlyForTruePV_)
+        return;
+    }
+    else if(doPlotsOnlyForTruePV_)
       return;
   }
 
@@ -508,6 +534,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	double dxySim(0);
 	double dzSim(0);
+        double dxyPVSim = 0;
+        double dzPVSim = 0;
 	double dR=dR_tPCeff[iTP];
 
 	//---------- THIS PART HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
@@ -522,6 +550,12 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
 	    dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2())
 	      * momentum.z()/sqrt(momentum.perp2());
+
+            if(theSimPVPosition) {
+              // As in TrackBase::dxy(Point) and dz(Point)
+              dxyPVSim = -(vertex.x()-theSimPVPosition->x())*sin(momentum.phi()) + (vertex.y()-theSimPVPosition->y())*cos(momentum.phi());
+              dzPVSim = vertex.z()-theSimPVPosition->z() - ( (vertex.x()-theSimPVPosition->x()) + (vertex.y()-theSimPVPosition->y()) )/sqrt(momentum.perp2()) * momentum.z()/sqrt(momentum.perp2());
+            }
 	  }
 	//If the TrackingParticle is comics, get the momentum and vertex at PCA
 	else
@@ -531,6 +565,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    dxySim = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
 	    dzSim = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2())
 	      * momentumTP.z()/sqrt(momentumTP.perp2());
+
+            // Do dxy and dz vs. PV make any sense for cosmics? I guess not
 	  }
 	//---------- THE PART ABOVE HAS TO BE CLEANED UP. THE PARAMETER DEFINER WAS NOT MEANT TO BE USED IN THIS WAY ----------
 
@@ -578,7 +614,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         int nSimLayers = nLayers_tPCeff[tpr];
         int nSimPixelLayers = nPixelLayers_tPCeff[tpr];
         int nSimStripMonoAndStereoLayers = nStripMonoAndStereoLayers_tPCeff[tpr];
-        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
+        histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,tp,momentumTP,vertexTP,dxySim,dzSim,dxyPVSim,dzPVSim,nSimHits,nSimLayers,nSimPixelLayers,nSimStripMonoAndStereoLayers,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR, thePVposition);
           sts++;
           if(matchedTrackPointer)
             asts++;
@@ -677,7 +713,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 
 	double dR=dR_trk[i];
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction,dR);
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(), thePVposition, isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction, dR);
         h_reco_coll[ww]->Fill(www);
         if(isSimMatched) {
           h_assoc2_coll[ww]->Fill(www);

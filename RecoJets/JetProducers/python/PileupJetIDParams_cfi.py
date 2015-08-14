@@ -12,7 +12,7 @@ full_74x_chs = cms.PSet(
  tmvaWeights_jteta_3_5 = cms.string("RecoJets/JetProducers/data/TMVAClassificationCategory_BDTG.weights_jteta_3_5.xml.gz"),
  tmvaMethod  = cms.string("JetIDMVAHighPt"),
  version = cms.int32(-1),
- tmvaVariables = cms.vstring(
+ tmvaVariables_jteta_0_3 = cms.vstring(
     "DRweighted"     ,
     "rho"       ,
     "nTot"     ,
@@ -29,6 +29,20 @@ full_74x_chs = cms.PSet(
     "min(pull,0.1)"   ,
     "jetR"   ,
     "jetRchg"   ,
+    ),
+ tmvaVariables_jteta_3_5 = cms.vstring(
+    "DRweighted"     ,
+    "rho"       ,
+    "nTot"     ,
+    "axisMajor" ,
+    "axisMinor",
+    "fRing0"  ,
+    "fRing1"      ,
+    "fRing2"   ,
+    "fRing3"   ,
+    "ptD"   ,
+    "min(pull,0.1)"   ,
+    "jetR"   ,
     ),
  tmvaSpectators = cms.vstring(
     "p4.fCoordinates.fPt"   ,
