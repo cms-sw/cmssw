@@ -497,7 +497,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 	double tauMass = std::max(tauPtr->mass(), chargedPionMass);
 	double bendCorrMass2 = 0.;
 	const std::vector<RecoTauPiZero>& piZeros = tauPtr->signalPiZeroCandidates();
-	BOOST_FOREACH( const RecoTauPiZero& piZero, piZeros ) {
+	for (auto const& piZero : piZeros ) {
 	  double piZeroEn = piZero.energy();
 	  double piZeroPx = piZero.px();
 	  double piZeroPy = piZero.py();

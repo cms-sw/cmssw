@@ -106,6 +106,8 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(con
   minPixelHits_ = pset.getParameter<int>("minPixelHits");
   verbosity_ = pset.exists("verbosity") ?
     pset.getParameter<int>("verbosity") : 0;
+  
+
 }
 
 PFRecoTauDiscriminationByHPSSelection::~PFRecoTauDiscriminationByHPSSelection()
@@ -256,13 +258,13 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   }
   // Now check the pizeros
   BOOST_FOREACH(const reco::RecoTauPiZero& cand, tau->signalPiZeroCandidates()) {
-    double dEta = TMath::Max(0., fabs(cand.eta() - tauP4.eta()) - cand.bendCorrEta());
-    double dPhi = TMath::Max(0., fabs(cand.phi() - tauP4.phi()) - cand.bendCorrPhi());
-    double dR = sqrt(dEta*dEta + dPhi*dPhi);
+    double dEta = std::max(0., fabs(cand.eta() - tauP4.eta()) - cand.bendCorrEta());
+    double dPhi = std::max(0., reco::deltaPhi(cand.phi(), tauP4.phi()) - cand.bendCorrPhi());
+    double dR2 = dEta*dEta + dPhi*dPhi;
     if ( verbosity_ ) {
-      edm::LogPrint("PFTauByHPSSelect") << "dR(tau, signalPiZero) = " << dR ;
+      edm::LogPrint("PFTauByHPSSelect") << "dR2(tau, signalPiZero) = " << dR2 ;
     }
-    if ( dR > cone_size ) {
+    if ( dR2 > cone_size*cone_size ) {
       if ( verbosity_ ) {
 	edm::LogPrint("PFTauByHPSSelect") << " fails signal-cone cut for strip(s)." ;
       }
