@@ -44,7 +44,8 @@ from Geometry.EcalAlgo.EcalEndcapGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *
-from Geometry.HcalEventSetup.HcalTopology_cfi import *
+from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
+from Geometry.HcalEventSetup.hcalTopologyIdealSLHC_cfi import *
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *

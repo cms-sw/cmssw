@@ -465,7 +465,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
     ESHandle<CaloTPGTranscoder> decoder;
     iSetup.get<CaloTPGRecord>().get(decoder);
 
-    iSetup.get<IdealGeometryRecord>().get(htopo);
+    iSetup.get<HcalRecNumberingRecord>().get(htopo);
 
     //Get all handles
     edm::Handle<HcalTrigPrimDigiCollection> emulTPs;
