@@ -65,9 +65,9 @@ private:
     /// Centralized point of access to all collections used
     EVTColContainer * _collections;
 
-#if 1 // DEV
+    /// counting # of HLT passed events for debugging
     std::map<std::string,int> _triggerCounter;
-#endif
+
 };
 
 #endif
