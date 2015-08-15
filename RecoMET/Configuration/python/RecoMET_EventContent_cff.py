@@ -38,6 +38,7 @@ RecoMETRECO = cms.PSet(
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
                                            'keep recoHcalNoiseRBXs_hcalnoise_*_*',
                                            'keep HcalNoiseSummary_hcalnoise_*_*',
+                                           #'keep *HaloData_*_*_*',
                                            'keep recoCSCHaloData_CSCHaloData_*_*',
                                            'keep recoEcalHaloData_EcalHaloData_*_*',
                                            'keep recoGlobalHaloData_GlobalHaloData_*_*',
@@ -68,8 +69,8 @@ RecoMETAOD = cms.PSet(
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
                                            'drop recoHcalNoiseRBXs_*_*_*',
                                            'keep HcalNoiseSummary_hcalnoise_*_*',
+                                           #'keep *GlobalHaloData_*_*_*',
                                            'keep recoGlobalHaloData_GlobalHaloData_*_*',
-                                           'keep recoCSCHaloData_CSCHaloData_*_*',
                                            'keep recoBeamHaloSummary_BeamHaloSummary_*_*'
                                            )
     )
