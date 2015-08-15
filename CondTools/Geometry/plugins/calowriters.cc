@@ -7,6 +7,7 @@
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
 #include "Geometry/ForwardGeometry/interface/ZdcGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 template<>
 CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::PtrType
@@ -59,7 +60,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     //*********************************************************************************************
 
     edm::ESHandle<HcalTopology> hcalTopology;
-    iRecord.getRecord<IdealGeometryRecord>().get( hcalTopology );
+    iRecord.getRecord<HcalRecNumberingRecord>().get( hcalTopology );
 
     // We know that the numer of shapes chanes with changing depth
     // so, this check is temporary disabled. We need to implement
