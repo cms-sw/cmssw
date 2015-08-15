@@ -24,8 +24,8 @@ L1TriggerRAWDEBUG = cms.PSet(
 L1TriggerRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
-        #'keep *_l1GtRecord_*_*', 
-        #'keep *_l1GtTriggerMenuLite_*_*',
+        'keep *_l1GtRecord_*_*', 
+        'keep *_l1GtTriggerMenuLite_*_*',
         'keep *_conditionsInEdm_*_*',
         'keep *_l1extraParticles_*_*',
         #'keep *_l1L1GtObjectMap_*_*',
@@ -40,8 +40,8 @@ L1TriggerRECO = cms.PSet(
         'keep L1GctJetCounts*_gctDigis_*_*',
         'keep L1GctHFRingEtSums*_gctDigis_*_*',
         'keep L1GctHFBitCounts*_gctDigis_*_*'
-        #'keep LumiDetails_lumiProducer_*_*',
-        #'keep LumiSummary_lumiProducer_*_*'
+        'keep LumiDetails_lumiProducer_*_*',
+        'keep LumiSummary_lumiProducer_*_*'
         )
 )
 
@@ -50,13 +50,13 @@ L1TriggerRECO = cms.PSet(
 L1TriggerAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*', 
-        #'keep *_l1GtRecord_*_*', 
-        #'keep *_l1GtTriggerMenuLite_*_*',
+        'keep *_l1GtRecord_*_*', 
+        'keep *_l1GtTriggerMenuLite_*_*',
         'keep *_conditionsInEdm_*_*',
         'keep *_l1extraParticles_*_*',
         #'keep *_l1L1GtObjectMap_*_*',
         'keep L1GlobalTriggerObjectMaps_l1L1GtObjectMap_*_*'
-        #'keep LumiSummary_lumiProducer_*_*'
+        'keep LumiSummary_lumiProducer_*_*'
         )
 )
 
