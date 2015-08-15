@@ -151,8 +151,8 @@ class PFTau : public BaseTau {
     void setDecayMode(const hadronicDecayMode&);
 
     /// Effect of eta and phi correction of strip on mass of tau candidate
-    double bendCorrMass() const { return bendCorrMass_; }
-    void setBendCorrMass(double bendCorrMass) { bendCorrMass_ = bendCorrMass; }
+    float bendCorrMass() const { return bendCorrMass_; }
+    void setBendCorrMass(float bendCorrMass) { bendCorrMass_ = bendCorrMass; }
 
     /// Size of signal cone
     double signalConeSize() const { return signalConeSize_; }

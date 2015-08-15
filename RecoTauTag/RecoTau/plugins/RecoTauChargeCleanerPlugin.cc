@@ -39,10 +39,10 @@ double RecoTauChargeCleanerPlugin::operator()(const PFTauRef& cand) const
 {
 	int charge = 0;
 	unsigned nChargedPFCandidate(0), nTrack(0);
-	for(unsigned iSignalCand = 0; iSignalCand < cand->signalTauChargedHadronCandidates().size(); iSignalCand++){
-		charge += cand->signalTauChargedHadronCandidates().at(iSignalCand).charge();
-		if(cand->signalTauChargedHadronCandidates().at(iSignalCand).algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate)) nChargedPFCandidate++;
-		else if(cand->signalTauChargedHadronCandidates().at(iSignalCand).algoIs(reco::PFRecoTauChargedHadron::kTrack)) nTrack++;
+	for(auto const& tauCand : cand->signalTauChargedHadronCandidates()){
+		charge += tauCand.charge();
+		if(tauCand.algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate)) nChargedPFCandidate++;
+		else if(tauCand.algoIs(reco::PFRecoTauChargedHadron::kTrack)) nTrack++;
 	}
 
 	for(auto nprong : nprongs_){
