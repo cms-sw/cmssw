@@ -363,7 +363,7 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
  
   //set depth segmentation for HB/HE recalib - only happens once
 //  if((he_recalibration && !setHEdsegm) || (hb_recalibration && !setHBdsegm)){
-  if((he_recalibration && !setHEdsegm))){
+  if((he_recalibration && !setHEdsegm)) {
     std::vector<std::vector<int>> m_segmentation;
     m_segmentation.resize(30);
     for (int i = 0; i < 30; i++) {

@@ -19,9 +19,9 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
     fRawPedestals (0),
     fRawPedestalWidths (0),
     fValPedestals (0),
-    fValPedestalWidths (0)
+    fValPedestalWidths (0),
+    fTopology(0)
 {
-  fTopology=0;
   m_coder = 0;
   m_shape = 0;
   evt=0;
@@ -60,8 +60,6 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   m_startTS = ps.getUntrackedParameter<int>("firstTS", 0);
   if(m_startTS<0) m_startTS=0;
   m_endTS = ps.getUntrackedParameter<int>("lastTS", 9);
-
-  fTopology=new HcalTopology(HcalTopologyMode::LHC,2,3);
 
 //  m_logFile.open("HcalPedestalAnalysis.log");
 
