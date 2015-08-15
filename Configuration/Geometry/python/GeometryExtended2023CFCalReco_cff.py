@@ -45,4 +45,4 @@ from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
-from Geometry.HcalCommonData.hcalDDConstants_cff import *
+from Geometry.HcalCommonData.hcalRecNumberingInitialization_cfi import *

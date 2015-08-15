@@ -20,7 +20,6 @@ from Geometry.CaloEventSetup.AlignedCaloGeometryDBReader_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
-from Geometry.HcalCommonData.hcalDBConstants_cff import *
 
 #  Alignment
 from Geometry.TrackerGeometryBuilder.idealForDigiTrackerGeometryDB_cff import *
