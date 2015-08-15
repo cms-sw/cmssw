@@ -34,7 +34,7 @@ pfTrack.UseQuality = cms.bool(True)
 pfTrack.TrackQuality = cms.string('highPurity')
 pfTrack.TkColList = cms.VInputTag("hiGeneralTracks")
 pfTrack.PrimaryVertexLabel = cms.InputTag("hiSelectedVertex")
-pfTrack.MuColl = cms.InputTag("muons")
+pfTrack.MuColl = cms.InputTag("hiMuons1stStep")
 
 from RecoParticleFlow.PFTracking.pfTrackElec_cfi import *
 pfTrackElec.applyGsfTrackCleaning = cms.bool(True)
