@@ -3,9 +3,6 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
 
 def miniAOD_customizeCommon(process):
-    #slimmed pileup information
-    process.load('PhysicsTools.PatAlgos.slimming.slimmedAddPileupInfo_cfi')
-
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
     process.patTaus.isoDeposits = cms.PSet()
@@ -274,6 +271,9 @@ def miniAOD_customizeCommon(process):
 
 
 def miniAOD_customizeMC(process):
+    #slimmed pileup information
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedAddPileupInfo_cfi')
+    
     process.muonMatch.matched = "prunedGenParticles"
     process.electronMatch.matched = "prunedGenParticles"
     process.electronMatch.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
