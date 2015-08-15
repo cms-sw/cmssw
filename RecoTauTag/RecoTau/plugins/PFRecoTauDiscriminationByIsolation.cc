@@ -114,8 +114,8 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
 	    cfgFootprintCorrection != cfgFootprintCorrections.end(); ++cfgFootprintCorrection ) {
 	std::string selection = cfgFootprintCorrection->getParameter<std::string>("selection");
 	std::string offset = cfgFootprintCorrection->getParameter<std::string>("offset");
-	footprintCorrectionType* footprintCorrection = new footprintCorrectionType(selection, offset);
-	footprintCorrections_.push_back(footprintCorrection);
+	std::unique_ptr<FootprintCorrection> footprintCorrection(new FootprintCorrection(selection, offset));
+	footprintCorrections_.push_back(std::move(footprintCorrection));
       }
     }
 
@@ -186,10 +186,6 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
 
   ~PFRecoTauDiscriminationByIsolation()
   {
-    for ( std::vector<footprintCorrectionType*>::iterator it = footprintCorrections_.begin();
-	  it != footprintCorrections_.end(); ++it ) {
-      delete (*it);
-    }
   }
 
   void beginEvent(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
@@ -233,17 +229,17 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
   double maxRelPhotonSumPt_outsideSignalCone_;
 
   bool applyFootprintCorrection_;
-  struct footprintCorrectionType
+  struct FootprintCorrection
   {
-    footprintCorrectionType(const std::string& selection, const std::string& offset)
+    FootprintCorrection(const std::string& selection, const std::string& offset)
       : selection_(selection),
 	offset_(offset)
     {}
-    ~footprintCorrectionType() {}
+    ~FootprintCorrection() {}
     StringCutObjectSelector<PFTau> selection_;
     StringObjectFunction<PFTau> offset_;
   };
-  std::vector<footprintCorrectionType*> footprintCorrections_;
+  std::vector<std::unique_ptr<FootprintCorrection> > footprintCorrections_;
 
   // Options to store the raw value in the discriminator instead of boolean pass/fail flag
   bool storeRawOccupancy_;
@@ -502,7 +498,7 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
 
   double footprintCorrection_value = 0.;
   if ( applyFootprintCorrection_ || storeRawFootprintCorrection_ ) {
-    for ( std::vector<footprintCorrectionType*>::const_iterator footprintCorrection = footprintCorrections_.begin();
+    for ( std::vector<std::unique_ptr<FootprintCorrection> >::const_iterator footprintCorrection = footprintCorrections_.begin();
 	  footprintCorrection != footprintCorrections_.end(); ++footprintCorrection ) {
       if ( (*footprintCorrection)->selection_(*pfTau) ) {
 	footprintCorrection_value = (*footprintCorrection)->offset_(*pfTau);

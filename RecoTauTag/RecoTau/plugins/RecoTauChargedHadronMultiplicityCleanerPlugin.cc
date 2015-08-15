@@ -15,7 +15,6 @@ class RecoTauChargedHadronMultiplicityCleanerPlugin : public RecoTauCleanerPlugi
 {
  public:
   RecoTauChargedHadronMultiplicityCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector&& iC);
-  virtual ~RecoTauChargedHadronMultiplicityCleanerPlugin(){}
 
   // Get ranking value for a given tau Ref
   double operator()(const reco::PFTauRef&) const override;

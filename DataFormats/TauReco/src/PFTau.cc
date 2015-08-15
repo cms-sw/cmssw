@@ -24,6 +24,7 @@ PFTau::PFTau()
     muonDecision_ = NAN;
     decayMode_ = kNull;
     bendCorrMass_ = 0.;
+    signalConeSize_ = 0.;
 }
 
 PFTau::PFTau(Charge q, const LorentzVector& p4, const Point& vtx) 
@@ -48,6 +49,7 @@ PFTau::PFTau(Charge q, const LorentzVector& p4, const Point& vtx)
    muonDecision_ = NAN;
    decayMode_ = kNull;
    bendCorrMass_ = 0.;
+   signalConeSize_ = 0.;
 }
 
 PFTau* PFTau::clone() const { return new PFTau(*this); }

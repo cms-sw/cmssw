@@ -16,20 +16,16 @@ class RecoTauPiZero : public CompositePtrCandidate {
 
     RecoTauPiZero()
       : CompositePtrCandidate(),
-        algoName_(kUndefined)
+        algoName_(kUndefined), bendCorrEta_ (0.), bendCorrPhi_ (0.)
     {
       this->setPdgId(111); 
-      bendCorrEta_ = 0.;
-      bendCorrPhi_ = 0.;
     }
 
     RecoTauPiZero(PiZeroAlgorithm algoName)
       : CompositePtrCandidate(), 
-        algoName_(algoName) 
+        algoName_(algoName), bendCorrEta_ (0.), bendCorrPhi_ (0.)
     { 
       this->setPdgId(111); 
-      bendCorrEta_ = 0.;
-      bendCorrPhi_ = 0.;
     }
 
     /// constructor from values
@@ -38,10 +34,8 @@ class RecoTauPiZero : public CompositePtrCandidate {
                   int pdgId = 111, int status = 0, bool integerCharge = true,
                   PiZeroAlgorithm algoName = kUndefined)
       : CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge ),
-        algoName_(algoName) 
+        algoName_(algoName), bendCorrEta_ (0.), bendCorrPhi_ (0.)
     {
-      bendCorrEta_ = 0.;
-      bendCorrPhi_ = 0.;
     }
 
     /// constructor from values
@@ -50,20 +44,16 @@ class RecoTauPiZero : public CompositePtrCandidate {
                   int pdgId = 111, int status = 0, bool integerCharge = true,
                   PiZeroAlgorithm algoName=kUndefined)
       : CompositePtrCandidate(q, p4, vtx, pdgId, status, integerCharge ),
-        algoName_(algoName) 
+        algoName_(algoName), bendCorrEta_ (0.), bendCorrPhi_ (0.)
     {
-      bendCorrEta_ = 0.;
-      bendCorrPhi_ = 0.;
     }
 
     /// constructor from a Candidate
     explicit RecoTauPiZero(const Candidate& p, PiZeroAlgorithm algoName = kUndefined)
       : CompositePtrCandidate(p),
-        algoName_(algoName) 
+        algoName_(algoName), bendCorrEta_ (0.), bendCorrPhi_ (0.)
     { 
       this->setPdgId(111); 
-      bendCorrEta_ = 0.;
-      bendCorrPhi_ = 0.;
     }
 
     /// destructor

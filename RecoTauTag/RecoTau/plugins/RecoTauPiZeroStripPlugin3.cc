@@ -69,7 +69,7 @@ class RecoTauPiZeroStripPlugin3 : public RecoTauPiZeroBuilderPlugin
 
   RecoTauVertexAssociator vertexAssociator_;
 
-  RecoTauQualityCuts* qcuts_;
+  std::unique_ptr<RecoTauQualityCuts> qcuts_;
   bool applyElecTrackQcuts_;
   double minGammaEtStripSeed_;
   double minGammaEtStripAdd_;
@@ -77,8 +77,8 @@ class RecoTauPiZeroStripPlugin3 : public RecoTauPiZeroBuilderPlugin
   double minStripEt_;
 
   std::vector<int> inputPdgIds_;  // type of candidates to clusterize
-  TFormula* etaAssociationDistance_; // size of strip clustering window in eta direction
-  TFormula* phiAssociationDistance_; // size of strip clustering window in phi direction
+  std::unique_ptr<TFormula> etaAssociationDistance_; // size of strip clustering window in eta direction
+  std::unique_ptr<TFormula> phiAssociationDistance_; // size of strip clustering window in phi direction
 
   bool updateStripAfterEachDaughter_;
   int maxStripBuildIterations_;
@@ -95,11 +95,11 @@ class RecoTauPiZeroStripPlugin3 : public RecoTauPiZeroBuilderPlugin
 
 namespace
 {
-  TFormula* makeFunction(const std::string& functionName, const edm::ParameterSet& pset)
+  std::unique_ptr<TFormula> makeFunction(const std::string& functionName, const edm::ParameterSet& pset)
   {
     TString formula = pset.getParameter<std::string>("function");
     formula = formula.ReplaceAll("pT", "x");
-    TFormula* function = new TFormula(functionName.data(), formula.Data());
+    std::unique_ptr<TFormula> function(new TFormula(functionName.data(), formula.Data()));
     int numParameter = function->GetNpar();
     for ( int idxParameter = 0; idxParameter < numParameter; ++idxParameter ) {
       std::string parameterName = Form("par%i", idxParameter);
@@ -112,10 +112,7 @@ namespace
 
 RecoTauPiZeroStripPlugin3::RecoTauPiZeroStripPlugin3(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
   : RecoTauPiZeroBuilderPlugin(pset, std::move(iC)),
-    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)),
-    qcuts_(0),
-    etaAssociationDistance_(0),
-    phiAssociationDistance_(0)
+    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)), qcuts_(nullptr), etaAssociationDistance_(nullptr), phiAssociationDistance_(nullptr)
 {
   minGammaEtStripSeed_ = pset.getParameter<double>("minGammaEtStripSeed");
   minGammaEtStripAdd_ = pset.getParameter<double>("minGammaEtStripAdd");
@@ -138,7 +135,8 @@ RecoTauPiZeroStripPlugin3::RecoTauPiZeroStripPlugin3(const edm::ParameterSet& ps
   }
 //-------------------------------------------------------------------------------
   qcuts_pset.addParameter<double>("minGammaEt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
-  qcuts_ = new RecoTauQualityCuts(qcuts_pset);
+  //qcuts_ = new RecoTauQualityCuts(qcuts_pset);
+  std::unique_ptr<RecoTauQualityCuts> qcuts_(new RecoTauQualityCuts(qcuts_pset));
 
   inputPdgIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
   edm::ParameterSet stripSize_eta_pset = pset.getParameterSet("stripEtaAssociationDistance");
@@ -161,9 +159,6 @@ RecoTauPiZeroStripPlugin3::RecoTauPiZeroStripPlugin3(const edm::ParameterSet& ps
   
 RecoTauPiZeroStripPlugin3::~RecoTauPiZeroStripPlugin3()
 {
-  delete qcuts_;
-  delete etaAssociationDistance_;
-  delete phiAssociationDistance_;
 }
 
 // Update the primary vertex
@@ -185,7 +180,7 @@ void RecoTauPiZeroStripPlugin3::addCandsToStrip(RecoTauPiZero& strip, PFCandPtrs
       double etaAssociationDistance_value = etaAssociationDistance_->Eval(strip.pt()) + etaAssociationDistance_->Eval(cand->pt());
       double phiAssociationDistance_value = phiAssociationDistance_->Eval(strip.pt()) + phiAssociationDistance_->Eval(cand->pt());
       if ( fabs(strip.eta() - cand->eta()) < etaAssociationDistance_value && // check if cand is within eta-phi window centered on strip 
-	   fabs(strip.phi() - cand->phi()) < phiAssociationDistance_value ) {
+	   reco::deltaPhi(strip.phi(), cand->phi()) < phiAssociationDistance_value ) {
 	if ( verbosity_ >= 2 ) {
 	  edm::LogPrint("RecoTauPiZeroStripPlugin3") << "--> adding PFCand #" << candId << " (" << cand.id() << ":" << cand.key() << "): Et = " << cand->et() << ", eta = " << cand->eta() << ", phi = " << cand->phi() ;
 	}
@@ -347,12 +342,10 @@ RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(con
               111, 10001, true, RecoTauPiZero::kUndefined));
 
         // Now loop over the strip members
-        BOOST_FOREACH(const RecoTauPiZero::daughters::value_type& gamma,
-            first->daughterPtrVector()) {
+        for ( auto const& gamma : first->daughterPtrVector()) {
           combinedStrips->addDaughter(gamma);
         }
-        BOOST_FOREACH(const RecoTauPiZero::daughters::value_type& gamma,
-            second->daughterPtrVector()) {
+        for ( auto const& gamma : second->daughterPtrVector()) {
           combinedStrips->addDaughter(gamma);
         }
         // Update the vertex
