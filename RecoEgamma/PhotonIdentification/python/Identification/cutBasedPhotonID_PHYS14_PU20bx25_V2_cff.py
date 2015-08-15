@@ -5,11 +5,6 @@ from PhysicsTools.SelectorUtils.centralIDRegistry import central_id_registry
 from RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_tools import *
 
 #
-# !!!!! THE CUT VALUES HERE ARE SAME AS FOR V1, THIS FILE NEEDS UPDATING !!!!!
-#
-
-
-#
 # This is the first version of PHYS14 cuts, optimized on  PHYS14 samples. 
 #
 # The ID cuts below are optimized IDs for PHYS14 Scenario PU 20, bx 25ns
@@ -145,11 +140,11 @@ cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight  = configureVIDCutBasedPhoI
 #
 
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose.idName,
-                             '9f25ec6d5ddf7e695861cf52d104cd04')
+                             '72df1405d572c703f901ebe77dee167f')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_medium.idName,
-                             '131baefca9b0cefc35d6ffb703b3d7ef')
+                             'afca8dbe169ff9b35d1ec5378574561b')
 central_id_registry.register(cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_tight.idName,
-                             'f326baead97d851db741505c99357510')
+                             '844ae729760c1277343a345e912e5242')
 
 #for now until we have a database...
 cutBasedPhotonID_PHYS14_PU20bx25_V2_standalone_loose.isPOGApproved = cms.untracked.bool(True)

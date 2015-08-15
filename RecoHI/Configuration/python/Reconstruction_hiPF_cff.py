@@ -15,7 +15,8 @@ gedGsfElectronsTmp.minSCEtEndcaps = cms.double(15.0)
 gedPhotonsTmp.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
 gedPhotonsTmp.regressionConfig.vertexCollection = cms.InputTag("hiSelectedVertex")
 gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
-
+from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
+photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer=cms.InputTag("gedPhotonsTmp"))
 
 #These are set for consistency w/ HiElectronSequence, but these cuts need to be studied
 gedGsfElectronsTmp.maxHOverEBarrel = cms.double(0.25)
@@ -44,7 +45,7 @@ particleFlowBlock.elementImporters = cms.VPSet(
     # all secondary track importers
     cms.PSet( importerName = cms.string("GeneralTracksImporter"),
               source = cms.InputTag("pfTrack"),
-              muonSrc = cms.InputTag("muons"),
+              muonSrc = cms.InputTag("hiMuons1stStep"),
               useIterativeTracking = cms.bool(False),
               DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
                                                        1.0,1.0),
@@ -68,7 +69,7 @@ particleFlowBlock.elementImporters = cms.VPSet(
 particleFlowTmp.postMuonCleaning = cms.bool(False)
 particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
 particleFlowTmp.usePFElectrons = cms.bool(True)
-particleFlowTmp.muons = cms.InputTag("muons")
+particleFlowTmp.muons = cms.InputTag("hiMuons1stStep")
 particleFlowTmp.usePFConversions = cms.bool(False)
 
 
@@ -82,6 +83,7 @@ hiParticleFlowLocalReco = cms.Sequence(particleFlowCluster)
 hiParticleFlowReco = cms.Sequence( pfGsfElectronMVASelectionSequence
                                    * particleFlowBlock
                                    * particleFlowEGammaFull
+                                   * photonIsolationHIProducerGED
                                    * particleFlowTmp
                                    * hiRecoPFJets
                                    )
