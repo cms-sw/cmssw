@@ -30,11 +30,15 @@ RecoLocalCaloRECO = cms.PSet(
                                            'keep HBHERecHitsSorted_hbherecoMB_*_*',
                                            'keep HORecHitsSorted_horecoMB_*_*',
                                            'keep HFRecHitsSorted_hfrecoMB_*_*',
-                                           'keep ZDCDataFramesSorted_*Digis_*_*',
+                                           #'keep ZDCDataFramesSorted_*Digis_*_*',
+                                           'keep ZDCDataFramesSorted_hcalDigis_*_*',
                                            'keep ZDCRecHitsSorted_*_*_*',
                                            'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',
-                                           'keep HcalUnpackerReport_*_*_*'
+                                           #'keep HcalUnpackerReport_*_*_*'
+                                           'keep HcalUnpackerReport_castorDigis_*_*',
+                                           'keep HcalUnpackerReport_hcalDigiAlCaMB_*_*',
+                                           'keep HcalUnpackerReport_hcalDigis_*_*'
         )
 )
 #AOD content
@@ -42,7 +46,10 @@ RecoLocalCaloAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
     'keep *_castorreco_*_*',
     'keep *_reducedHcalRecHits_*_*',
-    'keep HcalUnpackerReport_*_*_*'
+    #'keep HcalUnpackerReport_*_*_*'
+    'keep HcalUnpackerReport_castorDigis_*_*',
+    'keep HcalUnpackerReport_hcalDigiAlCaMB_*_*',
+    'keep HcalUnpackerReport_hcalDigis_*_*'
     )
 )
 RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)
