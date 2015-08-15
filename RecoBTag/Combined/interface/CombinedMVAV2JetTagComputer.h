@@ -5,7 +5,6 @@
 #include <memory>
 #include <vector>
 #include <map>
-#include <mutex>
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,8 +24,16 @@ class CombinedMVAV2JetTagComputer : public JetTagComputer {
         std::vector<const JetTagComputer*> computers;
 
         const std::vector<std::string> inputComputerNames;
-        mutable std::mutex m_mutex;
-        [[cms::thread_guard("m_mutex")]] std::unique_ptr<TMVAEvaluator> mvaID;
+        const std::string mvaName; 
+        const std::vector<std::string> variables;
+        const std::vector<std::string> spectators;
+        const bool useCondDB;
+        const std::string gbrForestLabel;
+        const edm::FileInPath weightFile;
+        const bool useGBRForest;
+        const bool useAdaBoost;
+        
+        std::unique_ptr<TMVAEvaluator> mvaID;
 };
 
 #endif // RecoBTau_JetTagComputer_CombinedMVAV2JetTagComputer_h
