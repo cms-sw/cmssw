@@ -40,8 +40,8 @@ void HcalParametersESModule::fillDescriptions( edm::ConfigurationDescriptions & 
 
 HcalParametersESModule::ReturnType
 HcalParametersESModule::produce( const HcalParametersRcd& iRecord ) {
-  //edm::LogInfo("HcalParametersESModule")
-  std::cout <<  "HcalParametersESModule::produce(const HcalParametersRcd& iRecord)" << std::endl;
+  edm::LogInfo("HcalESModule")
+    <<  "HcalParametersESModule::produce(const HcalParametersRcd& iRecord)";
   edm::ESTransientHandle<DDCompactView> cpv;
   iRecord.getRecord<IdealGeometryRecord>().get( cpv );
   
