@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 
 import sys, os
+import glob
 import time
 import subprocess
 import shutil
+import re
+import json
 
 def check_output(*popenargs, **kwargs):
     '''Mimics subprocess.check_output() in Python 2.6
@@ -67,9 +70,27 @@ class CondRegressionTester(object):
           
           return
 
-      def summary(self, verbose=False):
+      def summary(self, verbose=False, jsonOut=False):
           if verbose: 
-              import json
+             radRe = re.compile('^(CMSSW_.*?)-(slc6_amd64_gcc\d\d\d)-(.*)$')
+             relArches = []
+             dbNames = []
+             for rad in self.status.keys():
+                 radMatch = radRe.match(rad)
+                 if not radMatch: print "NO match found for ", rad
+                 ra = radMatch.groups()[0]+'-'+radMatch.groups()[1] 
+                 if ra not in relArches: relArches.append( ra )
+                 if radMatch.groups()[2] not in dbNames : dbNames.append( radMatch.groups()[2] )
+
+             fmt =  ' %35s ' + '| %10s '*len(dbNames) + ' | '
+             print fmt % tuple([' rel ']+[x[:10] for x in dbNames])
+             for ra in sorted(relArches):
+                 res = []
+                 for db in dbNames:
+                    res.append( self.status[ra+'-'+db] )
+                 print fmt % tuple([ra.replace('slc6_amd64_', '')]+res)
+
+          if jsonOut:
               print json.dumps( self.status, sort_keys=True, indent=4 )
 
           overall = True
