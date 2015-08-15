@@ -64,6 +64,10 @@ private:
 
     /// Centralized point of access to all collections used
     EVTColContainer * _collections;
+
+#if 1 // DEV
+    std::map<std::string,int> _triggerCounter;
+#endif
 };
 
 #endif
