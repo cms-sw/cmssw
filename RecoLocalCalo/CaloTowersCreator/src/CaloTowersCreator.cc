@@ -134,8 +134,8 @@ void CaloTowersCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   edm::ESHandle<HcalTopology> htopo;
   edm::ESHandle<CaloTowerConstituentsMap> cttopo;
   c.get<CaloGeometryRecord>().get(pG);
-  c.get<IdealGeometryRecord>().get(htopo);
-  c.get<IdealGeometryRecord>().get(cttopo);
+  c.get<HcalRecNumberingRecord>().get(htopo);
+  c.get<HcalRecNumberingRecord>().get(cttopo);
  
   // ECAL channel status map ****************************************
   edm::ESHandle<EcalChannelStatus> ecalChStatus;

@@ -1,4 +1,5 @@
 <use   name="Geometry/HcalTowerAlgo"/>
+<use   name="Geometry/CaloTopology"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PythonParameterSet"/>

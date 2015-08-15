@@ -67,7 +67,7 @@ void ZdcHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es)
    myobject = new HcalLongRecoParams(*p.product());
 
    edm::ESHandle<HcalTopology> htopo;
-   es.get<IdealGeometryRecord>().get(htopo);
+   es.get<HcalRecNumberingRecord>().get(htopo);
    theTopology=new HcalTopology(*htopo);
    myobject->setTopo(theTopology);
 

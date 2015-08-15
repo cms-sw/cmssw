@@ -228,7 +228,7 @@ pat::PATMHTProducer::getElectrons(edm::Event& iEvent, const edm::EventSetup & iS
   double number_of_electrons_ = 0.0;
 
   // edm::ESHandle<CaloTowerConstituentsMap> cttopo;
-  // iSetup.get<IdealGeometryRecord>().get(cttopo);
+  // iSetup.get<HcalRecNumberingRecord>().get(cttopo);
   // const CaloTowerConstituentsMap* caloTowerMap = cttopo.product();
 
   edm::Handle<edm::View<pat::Electron> > electronHandle;

@@ -78,7 +78,7 @@ void HcalSimpleReconstructor::beginRun(edm::Run const&r, edm::EventSetup const &
     paramTS = new HcalRecoParams(*p.product());
 
     edm::ESHandle<HcalTopology> htopo;
-    es.get<IdealGeometryRecord>().get(htopo);
+    es.get<HcalRecNumberingRecord>().get(htopo);
     theTopology=new HcalTopology(*htopo);
     paramTS->setTopo(theTopology);
 

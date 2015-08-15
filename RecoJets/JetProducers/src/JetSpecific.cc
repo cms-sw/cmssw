@@ -51,7 +51,7 @@ void reco::writeSpecific(reco::CaloJet & jet,
     geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
 
   edm::ESHandle<HcalTopology> topology;
-  c.get<IdealGeometryRecord>().get(topology);
+  c.get<HcalRecNumberingRecord>().get(topology);
 
   // Make the specific
   reco::CaloJet::Specific specific;
