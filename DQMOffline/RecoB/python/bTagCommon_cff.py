@@ -102,6 +102,11 @@ bTagCommonBlock = cms.PSet(
             folder = cms.string("CSVv2")
         ),
         cms.PSet(
+            bTagGenericAnalysisBlock,
+            label = cms.InputTag("pfCombinedMVABJetTags"),
+            folder = cms.string("combMVA")
+        ),
+        cms.PSet(
             bTagSoftLeptonAnalysisBlock,
             label = cms.InputTag("softPFMuonBJetTags"),
             folder = cms.string("SMT")
