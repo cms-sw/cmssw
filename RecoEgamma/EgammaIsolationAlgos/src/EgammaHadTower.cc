@@ -8,7 +8,7 @@
 
 EgammaHadTower::EgammaHadTower(const edm::EventSetup &es,HoeMode mode):mode_(mode) {
   edm::ESHandle<CaloTowerConstituentsMap> ctmaph;
-  es.get<IdealGeometryRecord>().get(ctmaph);
+  es.get<HcalRecNumberingRecord>().get(ctmaph);
   towerMap_ = &(*ctmaph);
   NMaxClusters_ = 4;
 }
