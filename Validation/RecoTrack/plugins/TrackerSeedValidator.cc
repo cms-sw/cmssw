@@ -18,7 +18,6 @@
 #include "TrackingTools/TrajectoryState/interface/PerigeeConversions.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "Validation/RecoTrack/interface/MTVHistoProducerAlgoFactory.h"
 #include "SimGeneral/TrackingAnalysis/interface/TrackingParticleNumberOfLayers.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
@@ -36,13 +35,9 @@ using namespace edm;
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 
-TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset, consumesCollector(),true){
-  //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
-
-  ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
-  string histoProducerAlgoName = psetForHistoProducerAlgo.getParameter<string>("ComponentName");
-  histoProducerAlgo_ = MTVHistoProducerAlgoFactory::get()->create(histoProducerAlgoName ,psetForHistoProducerAlgo, consumesCollector());
-
+TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):
+  MultiTrackValidatorBase(pset, consumesCollector(),true),
+  histoProducerAlgo_(std::make_unique<MTVHistoProducerAlgoForTracker>(pset.getParameter<ParameterSet>("histoProducerAlgoBlock"), consumesCollector())) {
   dirName_ = pset.getParameter<std::string>("dirName");
 
   tpSelector = TrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
@@ -64,7 +59,7 @@ TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiT
   }
 }
 
-TrackerSeedValidator::~TrackerSeedValidator(){delete histoProducerAlgo_;}
+TrackerSeedValidator::~TrackerSeedValidator() {}
 
 void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::EventSetup const& setup) {
   {

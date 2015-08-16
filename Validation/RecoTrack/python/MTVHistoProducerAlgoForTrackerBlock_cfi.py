@@ -3,8 +3,6 @@ from Validation.RecoTrack.TrackingParticleSelectionsForEfficiency_cff import *
 from Validation.RecoTrack.GenParticleSelectionsForEfficiency_cff import *
 
 MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
-    ComponentName = cms.string('MTVHistoProducerAlgoForTracker'),
-
     ### tp selectors for efficiency
     generalTpSelector             = generalTpSelectorBlock,
     TpSelectorForEfficiencyVsEta  = TpSelectorForEfficiencyVsEtaBlock,

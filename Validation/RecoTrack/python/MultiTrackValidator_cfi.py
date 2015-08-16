@@ -66,6 +66,8 @@ multiTrackValidator = cms.EDAnalyzer(
     dirName = cms.string('Tracking/Track/'),
 
     ### for fake rate vs dR ###
+    # True=use collection below; False=use "label" collection itself
+    calculateDrSingleCollection = cms.untracked.bool(True),
     trackCollectionForDrCalculation = cms.InputTag("generalTracks"),
 
     ### Do plots only if first reco vertex is from hard scatter?
@@ -74,6 +76,7 @@ multiTrackValidator = cms.EDAnalyzer(
     vertexAssociator = cms.untracked.InputTag("VertexAssociatorByPositionAndTracks"),
 
     ### Allow switching off particular histograms
+    doSummaryPlots = cms.untracked.bool(True),
     doSimPlots = cms.untracked.bool(True),
     doSimTrackPlots = cms.untracked.bool(True),
     doRecoTrackPlots = cms.untracked.bool(True),
