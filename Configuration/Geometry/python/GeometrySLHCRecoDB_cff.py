@@ -20,6 +20,7 @@ from Geometry.CaloEventSetup.AlignedCaloGeometryDBReader_cfi import *
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
+from Geometry.HcalCommonData.hcalDDDSimConstants_cfi import *
 from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
 from Geometry.HcalEventSetup.hcalTopologyIdealSLHC_cfi import *
 
