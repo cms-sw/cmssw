@@ -27,6 +27,11 @@ hltTrackAssociatorByDeltaR.QCut               = cms.double(0.5)
 hltTrackAssociatorByDeltaR.ConsiderAllSimHits = cms.bool(True)
 
 
+# Note: the TrackAssociatorEDProducers defined below, and
+# tpToHLTtracksAssociationSequence sequence, are not currently needed
+# to run MTV for HLT, as it is configured to produce the
+# track-TrackingParticle association on the fly. The configuration
+# snippets below are, however, kept for reference.
 tpToHLTpixelTrackAssociation = cms.EDProducer("TrackAssociatorEDProducer",
     label_tr = cms.InputTag("hltPixelTracks"),
     label_tp = cms.InputTag("mix","MergedTrackTruth"),
