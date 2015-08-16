@@ -86,16 +86,19 @@ hiRegitMuPixelLessStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMu
     trackSelectors = cms.VPSet(  
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuPixelLessStepLoose',
+           min_nhits = cms.uint32(8)
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuPixelLessStepTight',
             preFilterName = 'hiRegitMuPixelLessStepLoose',
+            min_nhits = cms.uint32(8),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.2)
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuPixelLessStep',
             preFilterName = 'hiRegitMuPixelLessStepTight',
+            min_nhits = cms.uint32(8),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.09)
             ),

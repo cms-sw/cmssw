@@ -71,16 +71,19 @@ hiRegitMuInitialStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMult
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuInitialStepLoose',
+           min_nhits = cms.uint32(8)
             ), #end of pset
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuInitialStepTight',
             preFilterName = 'hiRegitMuInitialStepLoose',
+            min_nhits = cms.uint32(8),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.38)
             ),
         RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuInitialStep',
             preFilterName = 'hiRegitMuInitialStepTight',
+            min_nhits = cms.uint32(8),
             useMVA = cms.bool(True),
             minMVA = cms.double(-0.77)
             ),
