@@ -77,8 +77,8 @@ class RecoTauPiZeroStripPlugin3 : public RecoTauPiZeroBuilderPlugin
   double minStripEt_;
 
   std::vector<int> inputPdgIds_;  // type of candidates to clusterize
-  std::unique_ptr<TFormula> etaAssociationDistance_; // size of strip clustering window in eta direction
-  std::unique_ptr<TFormula> phiAssociationDistance_; // size of strip clustering window in phi direction
+  std::unique_ptr<const TFormula> etaAssociationDistance_; // size of strip clustering window in eta direction
+  std::unique_ptr<const TFormula> phiAssociationDistance_; // size of strip clustering window in phi direction
 
   bool updateStripAfterEachDaughter_;
   int maxStripBuildIterations_;
@@ -136,7 +136,9 @@ RecoTauPiZeroStripPlugin3::RecoTauPiZeroStripPlugin3(const edm::ParameterSet& ps
 //-------------------------------------------------------------------------------
   qcuts_pset.addParameter<double>("minGammaEt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
   //qcuts_ = new RecoTauQualityCuts(qcuts_pset);
-  std::unique_ptr<RecoTauQualityCuts> qcuts_(new RecoTauQualityCuts(qcuts_pset));
+  //std::unique_ptr<RecoTauQualityCuts> qcuts_(new RecoTauQualityCuts(qcuts_pset));
+
+  qcuts_.reset(new RecoTauQualityCuts(qcuts_pset));
 
   inputPdgIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
   edm::ParameterSet stripSize_eta_pset = pset.getParameterSet("stripEtaAssociationDistance");
@@ -156,10 +158,9 @@ RecoTauPiZeroStripPlugin3::RecoTauPiZeroStripPlugin3(const edm::ParameterSet& ps
   verbosity_ = ( pset.exists("verbosity") ) ?
     pset.getParameter<int>("verbosity") : 0;
 }
-  
 RecoTauPiZeroStripPlugin3::~RecoTauPiZeroStripPlugin3()
 {
-}
+} 
 
 // Update the primary vertex
 void RecoTauPiZeroStripPlugin3::beginEvent() 
