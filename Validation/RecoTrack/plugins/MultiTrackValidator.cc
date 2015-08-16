@@ -21,7 +21,6 @@
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "SimTracker/TrackAssociation/plugins/ParametersDefinerForTPESProducer.h"
 #include "SimTracker/TrackAssociation/plugins/CosmicParametersDefinerForTPESProducer.h"
-#include "Validation/RecoTrack/interface/MTVHistoProducerAlgoFactory.h"
 #include "SimGeneral/TrackingAnalysis/interface/TrackingParticleNumberOfLayers.h"
 
 #include "DataFormats/TrackReco/interface/DeDxData.h"
@@ -54,11 +53,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
   dodEdxPlots_(pset.getUntrackedParameter<bool>("dodEdxPlots")),
   doPVAssociationPlots_(pset.getUntrackedParameter<bool>("doPVAssociationPlots"))
 {
-  //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
-
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
-  string histoProducerAlgoName = psetForHistoProducerAlgo.getParameter<string>("ComponentName");
-  histoProducerAlgo_ = MTVHistoProducerAlgoFactory::get()->create(histoProducerAlgoName ,psetForHistoProducerAlgo, consumesCollector());
+  histoProducerAlgo_ = std::make_unique<MTVHistoProducerAlgoForTracker>(psetForHistoProducerAlgo, consumesCollector());
 
   dirName_ = pset.getParameter<std::string>("dirName");
   UseAssociators = pset.getParameter< bool >("UseAssociators");
@@ -142,7 +138,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):
 }
 
 
-MultiTrackValidator::~MultiTrackValidator(){delete histoProducerAlgo_;}
+MultiTrackValidator::~MultiTrackValidator() {}
 
 
 void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::EventSetup const& setup) {

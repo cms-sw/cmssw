@@ -13,8 +13,28 @@
 
 using namespace std;
 
+namespace {
+  void BinLogX(TH1 *h) {
+    TAxis *axis = h->GetXaxis();
+    int bins = axis->GetNbins();
+
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    std::vector<float> new_bins(bins+1, 0);
+
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+    axis->Set(bins, new_bins.data());
+  }
+
+  template<typename T> void fillPlotNoFlow(MonitorElement *h, T val) {
+    h->Fill(std::min(std::max(val,((T) h->getTH1()->GetXaxis()->GetXmin())),((T) h->getTH1()->GetXaxis()->GetXmax())));
+  }
+}
+
 MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector & iC):
-  MTVHistoProducerAlgo(pset, iC),
   h_ptSIM(nullptr), h_etaSIM(nullptr), h_tracksSIM(nullptr), h_vertposSIM(nullptr), h_bunchxSIM(nullptr)
 {
   //parameters for _vs_eta plots
@@ -125,35 +145,27 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 
   //--- tracking particle selectors for efficiency measurements
   using namespace edm;
-
-  ParameterSet generalTpSelectorPSet = pset.getParameter<ParameterSet>("generalTpSelector");
-  ParameterSet TpSelectorForEfficiencyVsEtaPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsEta");
-  ParameterSet TpSelectorForEfficiencyVsPhiPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPhi");
-  ParameterSet TpSelectorForEfficiencyVsPtPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPt");
-  ParameterSet TpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXR");
-  ParameterSet TpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXZ");
-
-  ParameterSet generalGpSelectorPSet = pset.getParameter<ParameterSet>("generalGpSelector");
-  ParameterSet GpSelectorForEfficiencyVsEtaPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsEta");
-  ParameterSet GpSelectorForEfficiencyVsPhiPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsPhi");
-  ParameterSet GpSelectorForEfficiencyVsPtPSet  = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsPt");
-  ParameterSet GpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXR");
-  ParameterSet GpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXZ");
-
   using namespace reco::modules;
-  generalTpSelector               = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet, iC));
-  TpSelectorForEfficiencyVsEta    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsEtaPSet, iC));
-  TpSelectorForEfficiencyVsPhi    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet, iC));
-  TpSelectorForEfficiencyVsPt     = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet, iC));
-  TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet, iC));
-  TpSelectorForEfficiencyVsVTXZ   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet, iC));
+  auto initTPselector = [&](auto& sel, auto& name) {
+    sel = std::make_unique<TrackingParticleSelector>(ParameterAdapter<TrackingParticleSelector>::make(pset.getParameter<ParameterSet>(name), iC));
+  };
+  auto initGPselector = [&](auto& sel, auto& name) {
+    sel = std::make_unique<GenParticleCustomSelector>(ParameterAdapter<GenParticleCustomSelector>::make(pset.getParameter<ParameterSet>(name), iC));
+  };
 
-  generalGpSelector               = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(generalGpSelectorPSet, iC));
-  GpSelectorForEfficiencyVsEta    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet, iC));
-  GpSelectorForEfficiencyVsPhi    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPhiPSet, iC));
-  GpSelectorForEfficiencyVsPt     = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPtPSet, iC));
-  GpSelectorForEfficiencyVsVTXR   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXRPSet, iC));
-  GpSelectorForEfficiencyVsVTXZ   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXZPSet, iC));
+  initTPselector(generalTpSelector,             "generalTpSelector");
+  initTPselector(TpSelectorForEfficiencyVsEta,  "TpSelectorForEfficiencyVsEta");
+  initTPselector(TpSelectorForEfficiencyVsPhi,  "TpSelectorForEfficiencyVsPhi");
+  initTPselector(TpSelectorForEfficiencyVsPt,   "TpSelectorForEfficiencyVsPt");
+  initTPselector(TpSelectorForEfficiencyVsVTXR, "TpSelectorForEfficiencyVsVTXR");
+  initTPselector(TpSelectorForEfficiencyVsVTXZ, "TpSelectorForEfficiencyVsVTXZ");
+
+  initGPselector(generalGpSelector,             "generalGpSelector");
+  initGPselector(GpSelectorForEfficiencyVsEta,  "GpSelectorForEfficiencyVsEta");
+  initGPselector(GpSelectorForEfficiencyVsPhi,  "GpSelectorForEfficiencyVsPhi");
+  initGPselector(GpSelectorForEfficiencyVsPt,   "GpSelectorForEfficiencyVsPt");
+  initGPselector(GpSelectorForEfficiencyVsVTXR, "GpSelectorForEfficiencyVsVTXR");
+  initGPselector(GpSelectorForEfficiencyVsVTXZ, "GpSelectorForEfficiencyVsVTXZ");
 
   // fix for the LogScale by Ryan
   if(useLogPt){
@@ -171,21 +183,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 
 }
 
-MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
-  delete generalTpSelector;
-  delete TpSelectorForEfficiencyVsEta;
-  delete TpSelectorForEfficiencyVsPhi;
-  delete TpSelectorForEfficiencyVsPt;
-  delete TpSelectorForEfficiencyVsVTXR;
-  delete TpSelectorForEfficiencyVsVTXZ;
-
-  delete generalGpSelector;
-  delete GpSelectorForEfficiencyVsEta;
-  delete GpSelectorForEfficiencyVsPhi;
-  delete GpSelectorForEfficiencyVsPt;
-  delete GpSelectorForEfficiencyVsVTXR;
-  delete GpSelectorForEfficiencyVsVTXZ;
-}
+MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker() {}
 
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
   if(h_ptSIM != nullptr)
@@ -593,26 +591,31 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 double dR,
 									 const math::XYZPoint *pvPosition){
   bool isMatched = track;
-  auto const nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
+  const auto eta = getEta(momentumTP.eta());
+  const auto phi = momentumTP.phi();
+  const auto pt = getPt(sqrt(momentumTP.perp2()));
+  const auto nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
+  const auto vertxy = sqrt(vertexTP.perp2());
+  const auto vertz = vertexTP.z();
 
   if((*TpSelectorForEfficiencyVsEta)(tp)){
     //effic vs eta
-    fillPlotNoFlow(h_simuleta[count],getEta(momentumTP.eta()));
-    if (isMatched) fillPlotNoFlow(h_assoceta[count],getEta(momentumTP.eta()));
+    fillPlotNoFlow(h_simuleta[count], eta);
+    if (isMatched) fillPlotNoFlow(h_assoceta[count], eta);
     //effic vs hits
-    fillPlotNoFlow(h_simulhit[count],(int)nSimHits);
+    fillPlotNoFlow(h_simulhit[count], nSimHits);
     fillPlotNoFlow(h_simullayer[count], nSimLayers);
     fillPlotNoFlow(h_simulpixellayer[count], nSimPixelLayers);
     fillPlotNoFlow(h_simul3Dlayer[count], nSim3DLayers);
     if(isMatched) {
-      fillPlotNoFlow(h_assochit[count],(int)nSimHits);
+      fillPlotNoFlow(h_assochit[count], nSimHits);
       fillPlotNoFlow(h_assoclayer[count], nSimLayers);
       fillPlotNoFlow(h_assocpixellayer[count], nSimPixelLayers);
       fillPlotNoFlow(h_assoc3Dlayer[count], nSim3DLayers);
       nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
     }
     //effic vs pu
-    fillPlotNoFlow(h_simulpu[count],(int)numVertices);
+    fillPlotNoFlow(h_simulpu[count], numVertices);
     if(isMatched) fillPlotNoFlow(h_assocpu[count],numVertices);
     //efficiency vs dR
     fillPlotNoFlow(h_simuldr[count],dR);
@@ -620,13 +623,13 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
   }
 
   if((*TpSelectorForEfficiencyVsPhi)(tp)){
-    fillPlotNoFlow(h_simulphi[count],momentumTP.phi());
-    if (isMatched) fillPlotNoFlow(h_assocphi[count],momentumTP.phi());
+    fillPlotNoFlow(h_simulphi[count], phi);
+    if (isMatched) fillPlotNoFlow(h_assocphi[count], phi);
   }
 
   if((*TpSelectorForEfficiencyVsPt)(tp)){
-    fillPlotNoFlow(h_simulpT[count],getPt(sqrt(momentumTP.perp2())));
-    if (isMatched) fillPlotNoFlow(h_assocpT[count],getPt(sqrt(momentumTP.perp2())));
+    fillPlotNoFlow(h_simulpT[count], pt);
+    if (isMatched) fillPlotNoFlow(h_assocpT[count], pt);
   }
 
   if((*TpSelectorForEfficiencyVsVTXR)(tp)){
@@ -637,8 +640,8 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
       if (isMatched) fillPlotNoFlow(h_assocdxypv[count], dxyPVSim);
     }
 
-    fillPlotNoFlow(h_simulvertpos[count],sqrt(vertexTP.perp2()));
-    if (isMatched) fillPlotNoFlow(h_assocvertpos[count],sqrt(vertexTP.perp2()));
+    fillPlotNoFlow(h_simulvertpos[count], vertxy);
+    if (isMatched) fillPlotNoFlow(h_assocvertpos[count], vertxy);
   }
 
 
@@ -646,29 +649,29 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     fillPlotNoFlow(h_simuldz[count],dzSim);
     if (isMatched) fillPlotNoFlow(h_assocdz[count],dzSim);
 
-    fillPlotNoFlow(h_simulzpos[count],vertexTP.z());
-    if (isMatched) fillPlotNoFlow(h_assoczpos[count],vertexTP.z());
+    fillPlotNoFlow(h_simulzpos[count], vertz);
+    if (isMatched) fillPlotNoFlow(h_assoczpos[count], vertz);
 
     if(pvPosition) {
       fillPlotNoFlow(h_simuldzpv[count], dzPVSim);
 
       h_simul_dzpvcut[count]->Fill(0);
       h_simul_dzpvsigcut[count]->Fill(0);
-      h_simul_dzpvcut_pt[count]->Fill(0, getPt(sqrt(momentumTP.perp2())));
-      h_simul_dzpvsigcut_pt[count]->Fill(0, getPt(sqrt(momentumTP.perp2())));
+      h_simul_dzpvcut_pt[count]->Fill(0, pt);
+      h_simul_dzpvsigcut_pt[count]->Fill(0, pt);
       if(isMatched) {
         fillPlotNoFlow(h_assocdzpv[count], dzPVSim);
 
         h_simul2_dzpvcut[count]->Fill(0);
         h_simul2_dzpvsigcut[count]->Fill(0);
-        h_simul2_dzpvcut_pt[count]->Fill(0, getPt(sqrt(momentumTP.perp2())));
-        h_simul2_dzpvsigcut_pt[count]->Fill(0, getPt(sqrt(momentumTP.perp2())));
+        h_simul2_dzpvcut_pt[count]->Fill(0, pt);
+        h_simul2_dzpvsigcut_pt[count]->Fill(0, pt);
         const double dzpvcut = std::abs(track->dz(*pvPosition));
         const double dzpvsigcut = dzpvcut / track->dzError();
         h_assoc_dzpvcut[count]->Fill(dzpvcut);
         h_assoc_dzpvsigcut[count]->Fill(dzpvsigcut);
-        h_assoc_dzpvcut_pt[count]->Fill(dzpvcut, getPt(sqrt(momentumTP.perp2())));
-        h_assoc_dzpvsigcut_pt[count]->Fill(dzpvsigcut, getPt(sqrt(momentumTP.perp2())));
+        h_assoc_dzpvcut_pt[count]->Fill(dzpvcut, pt);
+        h_assoc_dzpvsigcut_pt[count]->Fill(dzpvsigcut, pt);
       }
     }
   }
@@ -951,6 +954,7 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   double dxyPull=dxyRes/track.dxyError();
   double dzPull=dzRes/track.dzError();
 
+#ifdef EDM_ML_DEBUG
   double contrib_Qoverp = ((qoverpRec-qoverpSim)/qoverpErrorRec)*
     ((qoverpRec-qoverpSim)/qoverpErrorRec)/5;
   double contrib_dxy = ((dxyRec-dxySim)/track.dxyError())*((dxyRec-dxySim)/track.dxyError())/5;
@@ -979,6 +983,7 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
     << "contrib_theta=" << contrib_theta << "\n"<< "contrib_phi=" << contrib_phi << "\n"
     << "" << "\n"
     <<"chi2PULL="<<contrib_Qoverp+contrib_dxy+contrib_dz+contrib_theta+contrib_phi<<"\n";
+#endif
 
   h_pullQoverp[count]->Fill(qoverpPull);
   h_pullTheta[count]->Fill(thetaPull);

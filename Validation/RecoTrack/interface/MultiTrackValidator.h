@@ -9,7 +9,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "Validation/RecoTrack/interface/MultiTrackValidatorBase.h"
-#include "Validation/RecoTrack/interface/MTVHistoProducerAlgo.h"
+#include "Validation/RecoTrack/interface/MTVHistoProducerAlgoForTracker.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
 
 class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorBase {
@@ -39,7 +39,7 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   const bool doRecoTrackPlots_;
   const bool dodEdxPlots_;
   const bool doPVAssociationPlots_;
-  MTVHistoProducerAlgo* histoProducerAlgo_;
+  std::unique_ptr<MTVHistoProducerAlgoForTracker> histoProducerAlgo_;
 
  private:
   std::vector<edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator>> associatorTokens;
