@@ -7,7 +7,7 @@
 
 
 #include "DataFormats/DetId/interface/DetIdCollection.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 
 EgammaIsoHcalDetIdCollectionProducer::EgammaIsoHcalDetIdCollectionProducer(const edm::ParameterSet& iConfig) 
@@ -45,7 +45,7 @@ EgammaIsoHcalDetIdCollectionProducer::EgammaIsoHcalDetIdCollectionProducer(const
 
 void EgammaIsoHcalDetIdCollectionProducer::beginRun (edm::Run const& run, const edm::EventSetup & iSetup)  
 {
-   iSetup.get<IdealGeometryRecord>().get(towerMap_);
+   iSetup.get<HcalRecNumberingRecord>().get(towerMap_);
    //  std::cout <<" got geom "<<towerMap_.isValid()<<" "<<&(*towerMap_)<<std::endl;
 }
 
