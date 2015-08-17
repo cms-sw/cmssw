@@ -44,12 +44,12 @@ private:
   /// Utility functions 
 
   //  Build groups of rechits that are separated in x and y to save time on the segment finding
-  ProtoSegments clusterHits(const EnsembleHitContainer & rechits);
+  ProtoSegments clusterHits(const EnsembleHitContainer& rechits);
 
   // Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
-  ProtoSegments chainHits(const EnsembleHitContainer & rechits);
+  ProtoSegments chainHits(const EnsembleHitContainer& rechits);
 
-  bool isGoodToMerge(EnsembleHitContainer & newChain, EnsembleHitContainer & oldChain);
+  bool isGoodToMerge(EnsembleHitContainer& newChain, EnsembleHitContainer& oldChain);
 
   // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
   std::vector<ME0Segment> buildSegments(const EnsembleHitContainer& rechits);
