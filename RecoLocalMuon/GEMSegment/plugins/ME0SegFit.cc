@@ -1,9 +1,7 @@
 // ------------------------- //
-// --> ME0SegFit.cc 
+// ME0SegFit.cc 
 // Created:  11.05.2015
-// --> Based on CSCSegFit.cc
-// with last mod: 03.02.2015
-// as found in 750pre2 rel
+// Based on CSCSegFit.cc
 // ------------------------- //
 
 #include "RecoLocalMuon/GEMSegment/plugins/ME0SegFit.h"
@@ -450,7 +448,7 @@ AlgebraicSymMatrix ME0SegFit::flipErrors( const SMatrixSym4& a ) {
   // parameters in order (uz, vz, u0, v0) 
   // where uz, vz = slopes, u0, v0 = intercepts
     
-  //  LogTrace("ME0SegFit") << "[ME0SegFit::flipErrors] input: \n" << a;      
+  LogTrace("ME0SegFit") << "[ME0SegFit::flipErrors] input: \n" << a;      
 
   AlgebraicSymMatrix hold(4, 0. ); 
       
@@ -460,11 +458,11 @@ AlgebraicSymMatrix ME0SegFit::flipErrors( const SMatrixSym4& a ) {
     }
   }
 
-  //  LogTrace("ME0SegFit") << "[ME0SegFit::flipErrors] after copy:";
-  //  LogTrace("ME0SegFit") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
-  //  LogTrace("ME0SegFit") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
-  //  LogTrace("ME0SegFit") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
-  //  LogTrace("ME0SegFit") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
+  LogTrace("ME0SegFit") << "[ME0SegFit::flipErrors] after copy:";
+  LogTrace("ME0SegFit") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
+  LogTrace("ME0SegFit") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
+  LogTrace("ME0SegFit") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
+  LogTrace("ME0SegFit") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
 
   // errors on slopes into upper left 
   hold(1,1) = a(2,2); 
