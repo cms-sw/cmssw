@@ -30,10 +30,9 @@ process.source = cms.Source("PoolSource",
 )
 
 process.p = cms.EndPath(
-process.BTVHLTOfflineSource
+process.BTVHLTOfflineSource + process.dqmEnv+process.dqmSaver
 )
 
-process.pp = cms.Path(process.dqmEnv+process.dqmSaver)
 process.DQMStore.verbose = 0
 process.dqmSaver.dirName = '.'
 process.dqmSaver.producer = 'Playback'

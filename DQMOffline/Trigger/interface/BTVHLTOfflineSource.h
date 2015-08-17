@@ -54,22 +54,14 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   virtual void bookHistograms(DQMStore::IBooker &, edm::Run const & run, edm::EventSetup const & c) override;
   virtual void dqmBeginRun(edm::Run const& run, edm::EventSetup const& c) override;
 
-  //helper functions
-  //virtual bool   validPathHLT(std::string path);
-  //virtual bool   isHLTPathAccepted(std::string pathName);
-  //virtual bool   isTriggerObjectFound(std::string objectName);
-  
-  //
   bool verbose_;
   std::string dirname_;
   std::string processname_;
   std::string pathname_;
   std::string filtername_; 
   
-  // 
   std::vector<std::pair<std::string, std::string> > custompathnamepairs_;
   
-  //
   edm::InputTag triggerSummaryLabel_;
   edm::InputTag triggerResultsLabel_;
 
@@ -86,23 +78,16 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryToken;
   edm::EDGetTokenT <trigger::TriggerEvent> triggerSummaryFUToken;
   
-  //
   edm::EDGetTokenT<reco::JetTagCollection> csvCaloTagsToken_;
   edm::EDGetTokenT<reco::JetTagCollection> csvPfTagsToken_;
   edm::Handle<reco::JetTagCollection> csvCaloTags;
   edm::Handle<reco::JetTagCollection> csvPfTags;
   
-  //
   HLTConfigProvider hltConfig_;
   edm::Handle<edm::TriggerResults> triggerResults_;
-  edm::TriggerNames triggerNames_; // TriggerNames class
+  edm::TriggerNames triggerNames_;
   edm::Handle<trigger::TriggerEvent> triggerObj_;
   
-  
-  // ------------------------------------------------------------- //
-  // helper class to store the data path
-  // ------------------------------------------------------------- //
-
   class PathInfo {
     PathInfo():
       prescaleUsed_(-1),
@@ -197,11 +182,6 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       MonitorElement*  fastPVz_HLTMinusRECO_;
      
       };
-
-
-  // ------------------------------------------------------------- //
-  // simple collection
-  // ------------------------------------------------------------- //
  
   class PathInfoCollection: public std::vector<PathInfo> {
   public:

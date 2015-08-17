@@ -1,7 +1,3 @@
-/*
-  BTVHLTOffline DQM code
-*/
-
 #include "DQMOffline/Trigger/interface/BTVHLTOfflineSource.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -43,7 +39,6 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
 {
   LogDebug("BTVHLTOfflineSource") << "constructor....";
   
-  //
   dirname_                = iConfig.getUntrackedParameter("dirname",std::string("HLT/BTV/"));
   processname_            = iConfig.getParameter<std::string>("processname");
   verbose_                = iConfig.getUntrackedParameter< bool >("verbose", false);
@@ -62,40 +57,50 @@ BTVHLTOfflineSource::BTVHLTOfflineSource(const edm::ParameterSet& iConfig)
   hltCaloPVToken_         = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("hltCaloPVLabel"));
   offlinePVToken_         = consumes<std::vector<reco::Vertex> > (iConfig.getParameter<edm::InputTag>("offlinePVLabel"));
  
-  //
   std::vector<edm::ParameterSet> paths =  iConfig.getParameter<std::vector<edm::ParameterSet> >("pathPairs");
   for(std::vector<edm::ParameterSet>::iterator pathconf = paths.begin() ; pathconf != paths.end();  pathconf++) { 
     custompathnamepairs_.push_back(make_pair(
 					     pathconf->getParameter<std::string>("pathname"),
 					     pathconf->getParameter<std::string>("pathtype")
 					     ));}
-					     
-
 }
-//------------------------------------------------------------------------//
+
 BTVHLTOfflineSource::~BTVHLTOfflineSource()
 { 
-  //
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
 }
 
-//------------------------------------------------------------------------//
 void BTVHLTOfflineSource::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c)
 {
     bool changed(true);
     if (!hltConfig_.init(run, c, processname_, changed)) {
     LogDebug("BTVHLTOfflineSource") << "HLTConfigProvider failed to initialize.";
-}
+    }
+    
+  const unsigned int numberOfPaths(hltConfig_.size());
+  for(unsigned int i=0; i!=numberOfPaths; ++i){
+    pathname_      = hltConfig_.triggerName(i);
+    filtername_    = "dummy";
+    unsigned int usedPrescale = 1;
+    unsigned int objectType = 0;
+    std::string triggerType = "";
+    bool trigSelected = false;
+    
+    for (std::vector<std::pair<std::string, std::string> >::iterator custompathnamepair = custompathnamepairs_.begin(); 
+          custompathnamepair != custompathnamepairs_.end(); ++custompathnamepair){
+       if(pathname_.find(custompathnamepair->first)!=std::string::npos) { trigSelected = true; triggerType = custompathnamepair->second;}
+      }
+    
+    if (!trigSelected) continue;
+    
+    hltPathsAll_.push_back(PathInfo(usedPrescale, pathname_, "dummy", processname_, objectType, triggerType)); 
+   }
+  
 
 }
-//------------------------------------------------------------------------//
+
 void
 BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
- 
-  //---------- triggerResults ----------
-  
   iEvent.getByToken(triggerResultsToken, triggerResults_);
   if(!triggerResults_.isValid()) {
     iEvent.getByToken(triggerResultsFUToken,triggerResults_);
@@ -106,12 +111,7 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
   
-  //---------- triggerResults ----------
-  
   triggerNames_ = iEvent.triggerNames(*triggerResults_);
-  
-  
-  //---------- triggerSummary ----------
   
   iEvent.getByToken(triggerSummaryToken,triggerObj_);
   if(!triggerObj_.isValid()) {
@@ -123,15 +123,11 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   } 
   
-  //------------ Online Objects -------
-  
   iEvent.getByToken(csvCaloTagsToken_, csvCaloTags);
   iEvent.getByToken(csvPfTagsToken_, csvPfTags);
   
   Handle<reco::VertexCollection> VertexHandler;
   
-  //------------ Offline Objects ------
-   
   Handle<reco::JetTagCollection> offlineJetTagHandlerPF;
   iEvent.getByToken(offlineCSVTokenPF_, offlineJetTagHandlerPF);
   
@@ -140,30 +136,19 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   Handle<reco::VertexCollection> offlineVertexHandler;
   iEvent.getByToken(offlinePVToken_, offlineVertexHandler);
-    
-  
-  //---------- Event counting (DEBUG) ----------
   
   if(verbose_ && iEvent.id().event()%10000==0)
     cout<<"Run = "<<iEvent.id().run()<<", LS = "<<iEvent.luminosityBlock()<<", Event = "<<iEvent.id().event()<<endl;  
   
   if(!triggerResults_.isValid()) return;
-  
-  
-  //---------- Fill histograms ---------------
    
   for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
     unsigned index = triggerNames_.triggerIndex(v->getPath()); 
     if (index < triggerNames_.size() ){     
      float DR  = 9999.;
-     //
-//      std::cout<<"csvPfTags.isValid()="<<csvPfTags.isValid()<<std::endl;
-//      std::cout<<"v->getTriggerType() "<<(v->getTriggerType())<<std::endl;
      if (csvPfTags.isValid() && v->getTriggerType() == "PF")
      {
       auto iter = csvPfTags->begin();
-     
-      //std::cout <<"PF "<< iter->second <<" " << iter->first->pt() << std::endl;
       
       float CSV_online = iter->second;
       if (CSV_online<0) CSV_online = -0.05;
@@ -192,14 +177,9 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
       
-      
-     // code dupplication.. needs cleanup..
-     //
      if (csvCaloTags.isValid() && v->getTriggerType() == "Calo") 
      { 
       auto iter = csvCaloTags->begin();
-      
-      //std::cout <<"CALO "<< iter->second <<" " << iter->first->pt() << std::endl;
       
       float CSV_online = iter->second;
       if (CSV_online<0) CSV_online = -0.05;
@@ -244,45 +224,10 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
 }
 
-
-//------------------------------------------------------------------------//
 void 
 BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & run, edm::EventSetup const & c)
 {
-  //-------------------------------------------------
-  
   iBooker.setCurrentFolder(dirname_);
-    
-  //----------- Define hltPathsAll_ -----------------
-  
-  const unsigned int numberOfPaths(hltConfig_.size());
-  for(unsigned int i=0; i!=numberOfPaths; ++i){
-    //bool numFound = false;
-    pathname_      = hltConfig_.triggerName(i);
-    filtername_    = "dummy";
-    unsigned int usedPrescale = 1;
-    unsigned int objectType = 0;
-    std::string triggerType = "";
-    bool trigSelected = false;
-    
-    for (std::vector<std::pair<std::string, std::string> >::iterator custompathnamepair = custompathnamepairs_.begin(); 
-          custompathnamepair != custompathnamepairs_.end(); ++custompathnamepair){
-       // Checking if the trigger exist in HLT table or not
-       if(pathname_.find(custompathnamepair->first)!=std::string::npos) { trigSelected = true; triggerType = custompathnamepair->second;}
-      }
-    
-    if (!trigSelected) continue;
-    
-    hltPathsAll_.push_back(PathInfo(usedPrescale, pathname_, "dummy", processname_, objectType, triggerType)); 
-  
-   }//Loop over paths
-  
-
-  //------------ book histograns --------------
-  
-   //
-   //std::string dirName = dirname_ + "/MonitorAllTriggers/";
- 
    for(PathInfoCollection::iterator v = hltPathsAll_.begin(); v!= hltPathsAll_.end(); ++v ){
      //
      std::string trgPathName = HLTConfigProvider::removeVersion(v->getPath());
@@ -328,46 +273,4 @@ BTVHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
     
      v->setHistos(CSV,Pt,Eta,CSV_RECOvsHLT,PVz,fastPVz,PVz_HLTMinusRECO,fastPVz_HLTMinusRECO);  
    }
-         
 }
-
-
-/*
-//------------------------------------------------------------------------//
-bool BTVHLTOfflineSource::validPathHLT(std::string pathname){
-  // hltConfig_ has to be defined first before calling this method
-  bool output=false;
-  for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
-    if (hltConfig_.triggerName(j) == pathname )
-      output=true;
-  }
-  return output;
-}
-
-//------------------------------------------------------------------------//
-bool BTVHLTOfflineSource::isHLTPathAccepted(std::string pathName){
-  // triggerResults_, triggerNames_ has to be defined first before calling this method
-  bool output=false;
-  if(triggerResults_.isValid()) {
-    unsigned index = triggerNames_.triggerIndex(pathName);
-    if(index < triggerNames_.size() && triggerResults_->accept(index)) output = true;
-  }
-  return output;
-}
-
-//------------------------------------------------------------------------//
-bool BTVHLTOfflineSource::isTriggerObjectFound(std::string objectName){
-  // processname_, triggerObj_ has to be defined before calling this method
-  bool output=false;
-  edm::InputTag testTag(objectName,"",processname_);
-  const int index = triggerObj_->filterIndex(testTag);
-  if ( index >= triggerObj_->sizeFilters() ) {    
-    edm::LogInfo("BTVHLTOfflineSource") << "no index "<< index << " of that name ";
-  } else {       
-    const trigger::Keys & k = triggerObj_->filterKeys(index);
-    if (k.size()) output=true;
-  }
-  return output;
-}
-//------------------------------------------------------------------------//
-*/
