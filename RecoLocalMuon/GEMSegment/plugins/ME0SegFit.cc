@@ -193,10 +193,12 @@ void ME0SegFit::fitlsq(void) {
     LocalPoint  lp         = refme0etapart()->toLocal(gp); 
     
     // LogDebug
+    #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
     std::stringstream lpss; lpss<<lp; std::string lps = lpss.str();
     std::stringstream gpss; gpss<<gp; std::string gps = gpss.str();
     edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::fitlsq] - Tracking RecHit global position "<<std::setw(30)<<gps<<" and local position "<<std::setw(30)<<lps
 				     <<" wrt reference ME0 eta partition "<<refme0etapart()->id().rawId()<<" = "<<refme0etapart()->id();
+    #endif
 
     // Local position of hit w.r.t. chamber
     double u = lp.x();
