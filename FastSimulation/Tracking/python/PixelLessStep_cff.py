@@ -3,31 +3,25 @@ import FWCore.ParameterSet.Config as cms
 # import the full tracking equivalent of this file
 import RecoTracker.IterativeTracking.PixelLessStep_cff
 
-# fast tracking mask producer                                                                                                                                                                                                                                        
-from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer
-pixelLessStepMasks = _fastTrackingMaskProducer.clone(
-    trackCollection = cms.InputTag("mixedTripletStepTracks"),
-    TrackQuality = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('mixedTripletStep',"QualityMasks"),
-    oldHitCombinationMasks = cms.InputTag("mixedTripletStepMasks","hitCombinationMasks"),
-    oldHitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks")
-)
+# fast tracking mask producer
+import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
+pixelLessStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepClusters)
 
 # trajectory seeds 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 pixelLessStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
     minLayersCrossed = 3,
-layerList = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.layerList.value(),
+    layerList = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeedLayers.layerList.value(),
     RegionFactoryPSet = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepSeeds.RegionFactoryPSet,
-    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
+    hitMasks = cms.InputTag("pixelLessStepMasks"),
 )
 
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 pixelLessStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = cms.InputTag("pixelLessStepSeeds"),
-    MinNumberOfCrossedLayers = 6 # ?
-    #hitMasks = cms.InputTag("pixelLessStepMasks","hitMasks"),
+    MinNumberOfCrossedLayers = 6, # ?
+    hitMasks = cms.InputTag("pixelLessStepMasks"),
 )
 
 # tracks

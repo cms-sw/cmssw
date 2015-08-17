@@ -4,11 +4,10 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
-TrajectorySeedHitCandidate::TrajectorySeedHitCandidate(const SiTrackerGSMatchedRecHit2D* theHit, 
+TrajectorySeedHitCandidate::TrajectorySeedHitCandidate(const FastTrackerRecHit * hit, 
 			     const TrackerGeometry* theGeometry,
 			     const TrackerTopology* tTopo) :
-  theSplitHit(0),
-  theMatchedHit(theHit),
+  theHit(hit),
   theRingNumber(0),
   theCylinderNumber(0),
   theLocalError(0.),
@@ -16,20 +15,6 @@ TrajectorySeedHitCandidate::TrajectorySeedHitCandidate(const SiTrackerGSMatchedR
      
 { 
   init(theGeometry, tTopo);
-}
-
-TrajectorySeedHitCandidate::TrajectorySeedHitCandidate(const SiTrackerGSRecHit2D* theHit, 
-			     const TrackerGeometry* theGeometry,
-			     const TrackerTopology* tTopo ) :
-  theSplitHit(theHit),
-  theMatchedHit(0),
-  theRingNumber(0),
-  theCylinderNumber(0),
-  theLocalError(0.),
-  theLargerError(0.)
-     
-{ 
-  init(theGeometry,tTopo);
 }
 
 void

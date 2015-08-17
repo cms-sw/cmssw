@@ -4,18 +4,8 @@ import FWCore.ParameterSet.Config as cms
 import RecoTracker.IterativeTracking.DetachedTripletStep_cff as _detachedTripletStep
 
 # fast tracking mask producer
-import FastSimulation.Tracking.FastTrackingMaskProducer_cfi
-detachedTripletStepMasks = FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
-   # trackCollection = cms.InputTag("initialStepTracks"),
-   # TrackQuality = _detachedTripletStep.detachedTripletStepClusters.TrackQuality,
-#_detachedTripletStep.detachedTripletStepClusters.TrackQuality,
-  #  maxChi2 = _detachedTripletStep.detachedTripletStepClusters.maxChi2,
- #   overrideTrkQuals =  cms.InputTag('initialStep')
-# detachedTripletStepMasks = FastSimulation.Tracking.FastTrackingMaskProducer_cfi.fastTrackingMaskProducer.clone(
-trackCollection = _detachedTripletStep.detachedTripletStepClusters.trajectories,
-TrackQuality = _detachedTripletStep.detachedTripletStepClusters.TrackQuality,
-overrideTrkQuals = cms.InputTag('initialStep',"QualityMasks")
-)
+import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
+detachedTripletStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(_detachedTripletStep.detachedTripletStepClusters)
 
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
@@ -23,15 +13,15 @@ detachedTripletStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.tr
     minLayersCrossed = 3,
     layerList = _detachedTripletStep.detachedTripletStepSeedLayers.layerList.value(),
     RegionFactoryPSet = _detachedTripletStep.detachedTripletStepSeeds.RegionFactoryPSet,
-    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
+    hitMasks = cms.InputTag("detachedTripletStepMasks"),
     )
 
 # track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 detachedTripletStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
     src = cms.InputTag("detachedTripletStepSeeds"),
-    MinNumberOfCrossedLayers = 3
-    #hitMasks = cms.InputTag("detachedTripletStepMasks","hitMasks"),
+    MinNumberOfCrossedLayers = 3,
+    hitMasks = cms.InputTag("detachedTripletStepMasks"),
     )
 
 # tracks 
