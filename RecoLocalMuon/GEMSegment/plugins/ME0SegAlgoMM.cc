@@ -163,8 +163,8 @@ ME0SegAlgoMM::clusterHits(const EnsembleHitContainer& rechits) {
 	seeds[MMM].insert(seeds[MMM].end(),seeds[NNN].begin(),seeds[NNN].end());
 	    
 	// mark seed NNN as used (at the moment just set running mean to 999999.)
-	running_meanX[NNN] = 999999.;
-	running_meanY[NNN] = 999999.;
+	running_meanX[NNN] = running_max;
+	running_meanY[NNN] = running_max;
 	// we have merged a seed (NNN) to the highter seed (MMM) - need to contimue to 
 	// next seed (NNN+1)
 	break;
@@ -176,7 +176,7 @@ ME0SegAlgoMM::clusterHits(const EnsembleHitContainer& rechits) {
   // would be more elegant if we could do the above step with 
   // erasing the merged ones, rather than the 
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
-    if(running_meanX[NNN] == 999999.) continue; //skip seeds that have been marked as used up in merging
+    if(running_meanX[NNN] == running_max) continue; //skip seeds that have been marked as used up in merging
     rechits_clusters.push_back(seeds[NNN]);
   }
 
