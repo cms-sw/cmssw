@@ -8,8 +8,6 @@
  * Implementation notes: <BR>
  * For example, ME0SegmAlgoMM inherits from this class,
  *
- * $Date: 2014/02/04 15:41:46 $
- * $Revision: 1.1 $
  * \author Marcello Maggi
  *
  */
