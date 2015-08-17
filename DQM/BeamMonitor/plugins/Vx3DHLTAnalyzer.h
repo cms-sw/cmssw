@@ -19,7 +19,6 @@
 //
 // Package:    Vx3DHLTAnalyzer
 // Class:      Vx3DHLTAnalyzer
-// 
 
 
 #include <memory>
@@ -103,7 +102,8 @@ class Vx3DHLTAnalyzer : public EDAnalyzer {
       EDGetTokenT<VertexCollection> vertexCollection;
       EDGetTokenT<SiPixelRecHitCollection> pixelHitCollection;
       bool debugMode;
-      unsigned int nLumiReset;
+      unsigned int nLumiFit;
+      unsigned int maxLumiIntegration;
       bool dataFromFit;
       unsigned int minNentries;
       double xRange;
@@ -112,6 +112,8 @@ class Vx3DHLTAnalyzer : public EDAnalyzer {
       double yStep;
       double zRange;
       double zStep;
+      double minVxDoF;
+      double minVxWgt;
       string fileName;
 
 
@@ -159,16 +161,13 @@ class Vx3DHLTAnalyzer : public EDAnalyzer {
       unsigned int nBinsWholeHistory;
       unsigned int runNumber;
       unsigned int lumiCounter;
-      unsigned int lumiCounterHisto;
       unsigned int totalHits;
-      unsigned int maxLumiIntegration;
-      unsigned int prescaleHistory;
       unsigned int numberGoodFits;
       unsigned int numberFits;
       unsigned int beginLumiOfFit;
       unsigned int endLumiOfFit;
       unsigned int lastLumiOfFit;
-      double minVxDoF;
+      unsigned int nParams;
       bool internalDebug;
 };
 
