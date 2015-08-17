@@ -2,7 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 HTDisplacedJetsPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
+        "HLT_HT200_v",
         "HLT_HT275_v",
+        "HLT_HT325_v",
         "HLT_HT425_v",
         "HLT_HT575_v",
 
@@ -23,7 +25,12 @@ HTDisplacedJetsPSet = cms.PSet(
         "HLT_VBF_DisplacedJet40_VTightID_Hadronic_v",
         "HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v",
         "HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v",
-        "HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v"
+        "HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v",
+        # Loose Threshold paths.
+        "HLT_VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_v",
+        "HLT_HT400_DisplacedDijet40_Inclusive_v",
+        "HLT_HT250_DisplacedDijet40_DisplacedTrack_v",
+        "HLT_VBF_DisplacedJet40_Hadronic_2PromptTrack_v"
         ),
     recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),
     recPFJetLabel  = cms.InputTag("ak4PFJets"),

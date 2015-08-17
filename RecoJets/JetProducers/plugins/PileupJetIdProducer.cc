@@ -45,7 +45,7 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 	}
 	for(std::vector<edm::ParameterSet>::iterator it=algos.begin(); it!=algos.end(); ++it) {
 		std::string label = it->getParameter<std::string>("label");
-		algos_.push_back( std::make_pair(label,new PileupJetIdAlgo(*it)) );
+		algos_.push_back( std::make_pair(label,new PileupJetIdAlgo(*it, runMvas_)) );
 		if( runMvas_ ) {
 			produces<edm::ValueMap<float> > (label+"Discriminant");
 			produces<edm::ValueMap<int> > (label+"Id");
@@ -159,7 +159,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		PileupJetIdentifier puIdentifier;
 		if( produceJetIds_ ) {
 		        // Compute the input variables
-		        puIdentifier = ialgo->computeIdVariables(theJet, jec,  &(*vtx), vertexes, rho, runMvas_);
+		        puIdentifier = ialgo->computeIdVariables(theJet, jec,  &(*vtx), vertexes, rho);
 			ids.push_back( puIdentifier );
 		} else {
 		        // Or read it from the value map

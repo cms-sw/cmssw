@@ -88,7 +88,7 @@ bool DDCheckMaterials(std::ostream & os, std::vector<std::pair<std::string,DDNam
    bool result = false;
    std::vector<std::pair<std::string,DDName> > errors;
    
-   DDBase<DDName,DDI::Material*>::StoreT::value_type& mr = DDBase<DDName,DDI::Material*>::StoreT::instance();
+   auto& mr = DDBase<DDName,DDI::Material*>::StoreT::instance();
 
    for( const auto& i : mr ) {
 	std::pair<std::string,DDName> error("","");

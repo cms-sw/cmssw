@@ -84,7 +84,7 @@ initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.mul
             preFilterName = 'initialStepLoose',
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'initialStep',
+            name = 'QualityMasks',
             preFilterName = 'initialStepTight',
             ),
         ), #end of vpset

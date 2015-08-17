@@ -39,6 +39,10 @@ class dso_hidden TrackListMerger : public edm::stream::EDProducer<>
     virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
   private:
+
+     using MVACollection = std::vector<float>;
+     using QualityMaskCollection = std::vector<unsigned char>;
+
     std::auto_ptr<reco::TrackCollection> outputTrks;
     std::auto_ptr<reco::TrackExtraCollection> outputTrkExtras;
     std::auto_ptr< TrackingRecHitCollection>  outputTrkHits;
@@ -265,6 +269,7 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
       throw cms::Exception("Bad input") << "to use writeOnlyTrkQuals=True all input InputTags must be the same";
     }
     produces<edm::ValueMap<int> >();
+    produces<QualityMaskCollection>("QualityMasks");
   }
   else{
     produces<reco::TrackCollection>();
@@ -283,7 +288,8 @@ TrackListMerger::TrackListMerger(edm::ParameterSet const& conf) {
     produces< TrajTrackAssociationCollection >();
   }
   produces<edm::ValueMap<float> >("MVAVals");
-  
+  produces<MVACollection>("MVAValues");
+
   // Do all the consumes
   trackProducers_.resize(numTrkColl);
   for (unsigned int i = 0; i < numTrkColl; ++i) {
@@ -625,6 +631,9 @@ TrackListMerger::~TrackListMerger() { }
       filler.fill();
 
       e.put(vm);
+      for (auto & q : finalQuals) q=std::max(q,0);
+      auto quals = std::make_unique<QualityMaskCollection>(finalQuals.begin(),finalQuals.end());      
+      e.put(std::move(quals),"QualityMasks");
 
       std::vector<float> mvaVec(tSize,-99);
 
@@ -635,8 +644,11 @@ TrackListMerger::~TrackListMerger() { }
 
       fillerMVA.insert(trackHandles[0],mvaVec.begin(),mvaVec.end());
       fillerMVA.fill();
-      if ( copyMVA_) 
+      if ( copyMVA_) {
 	e.put(vmMVA,"MVAVals");
+        auto mvas = std::make_unique<MVACollection>(mvaVec.begin(),mvaVec.end());
+        e.put(std::move(mvas),"MVAValues");
+      }
       return;
     }
 
@@ -811,8 +823,11 @@ TrackListMerger::~TrackListMerger() { }
     fillerMVA.fill();
 
     e.put(outputTrks);
-    if ( copyMVA_ )
+    if ( copyMVA_ ) {
       e.put(vmMVA,"MVAVals");
+      auto mvas = std::make_unique<MVACollection>(mvaVec.begin(),mvaVec.end());
+      e.put(std::move(mvas),"MVAValues");
+    }
     if (copyExtras_) {
       e.put(outputTrkExtras);
       e.put(outputTrkHits);

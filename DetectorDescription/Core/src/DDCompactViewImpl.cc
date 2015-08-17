@@ -1,5 +1,5 @@
 #include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/graphwalker.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -54,7 +54,7 @@ double DDCompactViewImpl::weight(const DDLogicalPart & aPart) const
    // weigth = (parent.vol - children.vol)*parent.density + weight(children)
    double childrenVols=0;
    double childrenWeights=0;
-   walker_type walker(graph_,part);
+   WalkerType walker(graph_,part);
    if(walker.firstChild()) {
      bool doIt=true;
      while(doIt) {

@@ -36,10 +36,13 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx, do
 
   // Rechit-wide R45
   int rbxHitCount = rbx.numRecHits(minRBXRechitR45E);
+  r45Count_ = 0;
+  r45Fraction_ = 0;
+  r45EnergyFraction_ = 0;
   if(rbxHitCount > 0)
   {
      r45Count_ = rbx.numRecHitsFailR45(minRBXRechitR45E);
-     r45Fraction_ = r45Count_ / rbxHitCount;
+     r45Fraction_ = (double)(r45Count_) / (double)(rbxHitCount);
      r45EnergyFraction_ = rbx.recHitEnergyFailR45(minRBXRechitR45E) / rbx.recHitEnergy(minRBXRechitR45E);
   }
 

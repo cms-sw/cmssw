@@ -4,6 +4,10 @@
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8GunBase.h"
 
+// EvtGen plugin
+//
+#include "Pythia8Plugins/EvtGen.h"
+
 namespace gen {
 
 class Py8EGun : public Py8GunBase {
@@ -92,6 +96,8 @@ bool Py8EGun::generatePartonsAndHadronize()
    
    if ( !fMasterGen->next() ) return false;
    
+   if (evtgenDecays) evtgenDecays->decay();
+
    event().reset(new HepMC::GenEvent);
    return toHepMC.fill_next_event( fMasterGen->event, event().get() );
   

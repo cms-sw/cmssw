@@ -8,22 +8,43 @@ const unsigned int MuScleFitMuonSelector::motherPdgIdArray[] = {23, 100553, 1005
 
 const reco::Candidate* 
 MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
-  const reco::Candidate* tempStatus1Muon = status3Muon;
-  int status = tempStatus1Muon->status();
-  while(tempStatus1Muon == 0 || tempStatus1Muon->numberOfDaughters()!=0){
-    if (status == 1) break;
+  const reco::Candidate* tempMuon = status3Muon;
+  //  bool lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopy();                      //  isLastCopy() likely not enough robust
+  bool isPromptFinalState = ((reco::GenParticle*)tempMuon)->isPromptFinalState();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
+  while(tempMuon == 0 || tempMuon->numberOfDaughters()!=0){
+    if ( isPromptFinalState ) break;                                                     //  pre-CMSSW_74X code: if (status == 1) break;
     //std::vector<const reco::Candidate*> daughters;
-    for (unsigned int i=0; i<tempStatus1Muon->numberOfDaughters(); ++i){
-      if ( tempStatus1Muon->daughter(i)->pdgId()==tempStatus1Muon->pdgId() ){
-	tempStatus1Muon = tempStatus1Muon->daughter(i);
-	status = tempStatus1Muon->status();
+    for (unsigned int i=0; i<tempMuon->numberOfDaughters(); ++i){
+      if ( tempMuon->daughter(i)->pdgId()==tempMuon->pdgId() ){
+	tempMuon = tempMuon->daughter(i);
+	isPromptFinalState = ((reco::GenParticle*)tempMuon)->isPromptFinalState(); 	 //  pre-CMSSW_74X code: status = tempStatus1Muon->status();
 	break;
       }else continue;
     }//for loop
   }//while loop
   
-  return tempStatus1Muon;
+  return tempMuon;
 }
+
+const reco::Candidate* 
+MuScleFitMuonSelector::getStatus3Muon(const reco::Candidate* status3Muon){
+  const reco::Candidate* tempMuon = status3Muon;
+  bool lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopyBeforeFSR();        //  pre-CMSSW_74X code: int status = tempStatus1Muon->status();
+  while(tempMuon == 0 || tempMuon->numberOfDaughters()!=0){
+    if ( lastCopy ) break;                                                      //  pre-CMSSW_74X code: if (status == 3) break;
+    //std::vector<const reco::Candidate*> daughters;
+    for (unsigned int i=0; i<tempMuon->numberOfDaughters(); ++i){
+      if ( tempMuon->daughter(i)->pdgId()==tempMuon->pdgId() ){
+	tempMuon = tempMuon->daughter(i);
+	lastCopy = ((reco::GenParticle*)tempMuon)->isLastCopyBeforeFSR(); 	//  pre-CMSSW_74X code: status = tempStatus1Muon->status();
+	break;
+      }else continue;
+    }//for loop
+  }//while loop
+  
+  return tempMuon;
+}
+
 
 
 bool MuScleFitMuonSelector::selGlobalMuon(const pat::Muon* aMuon)
@@ -386,7 +407,7 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const edm::HepMCProduct* ev
 	  muFromRes.mu2 = (lorentzVector((*part)->momentum().px(),(*part)->momentum().py(),
 					 (*part)->momentum().pz(),(*part)->momentum().e()));
 	}
-	muFromRes.motherId = motherPdgId;
+	muFromRes.motherId = motherPdgId; 
       }
     }
   }
@@ -410,7 +431,14 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
 	std::cout << "Found a muon with mother: " << motherPdgId << std::endl;
       }
       for( int ires = 0; ires < 6; ++ires ) {
-	if( motherPdgId == motherPdgIdArray[ires] && resfind_[ires] ) fromRes = true;
+	// if( motherPdgId == motherPdgIdArray[ires] && resfind_[ires] ) fromRes = true; // changed by EM 2015.07.30
+	// begin of comment  
+	// the list of resonances motherPdgIdArray does not contain the photon (PdgId = 21) while ~1% of the 
+	// mu+mu- events in the range [50,120] GeV has a photon as the mother.
+	// It needs to be fixed without spoiling the logic of the selection of different resonances
+	// e.g. mixing up onia etc.
+	// end of comment
+	if( ( motherPdgId == motherPdgIdArray[ires] && resfind_[ires] ) || motherPdgId == 21 ) fromRes = true;
       }
       if(fromRes){
 	if (debug_>0) std::cout<<"fromRes = true, motherPdgId = "<<motherPdgId<<std::endl;
@@ -430,6 +458,7 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes( const reco::GenParticleColl
 	  // 	  muFromRes.second = (lorentzVector(status1Muon->p4().px(),status1Muon->p4().py(),
 	  // 					    status1Muon->p4().pz(),status1Muon->p4().e()));
 	}
+	muFromRes.motherId = motherPdgId; 
       }
     }
   }
@@ -455,7 +484,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitMuonSelector::findSimMuFromRes(
             bool fromRes = false;
             unsigned int motherPdgId = (*mother)->pdg_id();
             for( int ires = 0; ires < 6; ++ires ) {
-              if( motherPdgId == motherPdgIdArray[ires] && resfind_[ires] ) fromRes = true;
+              if( ( motherPdgId == motherPdgIdArray[ires] && resfind_[ires] ) || motherPdgId == 21 ) fromRes = true;
             }
             if( fromRes ) {
               if(gp->pdg_id() == 13)
