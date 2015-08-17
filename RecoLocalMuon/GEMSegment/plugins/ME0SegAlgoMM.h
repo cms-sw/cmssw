@@ -49,7 +49,7 @@ private:
   // Build groups of rechits that are separated in strip numbers and Z to save time on the segment finding
   ProtoSegments chainHits(const EnsembleHitContainer& rechits);
 
-  bool isGoodToMerge(EnsembleHitContainer& newChain, EnsembleHitContainer& oldChain);
+  bool isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain);
 
   // Build track segments in this chamber (this is where the actual segment-building algorithm hides.)
   std::vector<ME0Segment> buildSegments(const EnsembleHitContainer& rechits);
