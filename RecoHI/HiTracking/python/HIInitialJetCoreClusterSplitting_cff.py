@@ -36,6 +36,7 @@ hiInitialJetCoreClusterSplitting = cms.Sequence(
                                 * hiCaloTowerForTrkPreSplitting
                                 * hiAkPu4CaloJetsForTrkPreSplitting
 								* hiAkPu4CaloJetsCorrectedPreSplitting
+				* hiAkPu4CaloJetsSelectedPreSplitting
                                 * hiJetsForCoreTrackingPreSplitting
 				* siPixelClusters
                                 * siPixelRecHits
