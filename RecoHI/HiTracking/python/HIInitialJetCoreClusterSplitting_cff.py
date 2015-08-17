@@ -13,8 +13,10 @@ hiAkPu4CaloJetsForTrkPreSplitting = akPu4CaloJetsForTrk.clone(
     srcPVs = 'hiSelectedVertexPreSplitting')
 hiAkPu4CaloJetsCorrectedPreSplitting = akPu4CaloJetsCorrected.clone(
     src = 'hiAkPu4CaloJetsForTrkPreSplitting')
-hiJetsForCoreTrackingPreSplitting = hiJetsForCoreTracking.clone(
+hiAkPu4CaloJetsSelectedPreSplitting = akPu4CaloJetsSelected.clone(
     src = 'hiAkPu4CaloJetsCorrectedPreSplitting')
+hiJetsForCoreTrackingPreSplitting = hiJetsForCoreTracking.clone(
+    src = 'hiAkPu4CaloJetsSelectedPreSplitting')
 
 
 from RecoLocalTracker.SubCollectionProducers.jetCoreClusterSplitter_cfi import jetCoreClusterSplitter
