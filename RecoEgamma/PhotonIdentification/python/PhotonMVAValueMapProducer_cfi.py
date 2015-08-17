@@ -13,8 +13,8 @@ mvaConfigsForPhoProducer.append( mvaPhoID_Spring15_50ns_nonTrig_V1_producer_conf
 from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2_cff import *
 mvaConfigsForPhoProducer.append( mvaPhoID_Spring15_50ns_nonTrig_V2_producer_config )
 
-from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V0_cff import *
-mvaConfigsForPhoProducer.append( mvaPhoID_Spring15_25ns_nonTrig_V0_producer_config )
+from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2_cff import *
+mvaConfigsForPhoProducer.append( mvaPhoID_Spring15_25ns_nonTrig_V2_producer_config )
 
 photonMVAValueMapProducer = cms.EDProducer('PhotonMVAValueMapProducer',
                                            # The module automatically detects AOD vs miniAOD, so we configure both
