@@ -102,13 +102,7 @@ class ME0DetId :public DetId {
   static const int RollStartBit_ =  LayerStartBit_+LayerNumBits_;  
   static const unsigned int RollMask_     =  0X1F;
  
-  // original, to me looks more like a roll mask instead of a layer mask
-  // static const uint32_t chamberIdMask_ = ~(RollMask_<<RollStartBit_);
-  // maybe it should be more something like ... 
-  // although this way, when I print out the chamberId I get 
-  // - Layer = 0 (as desired)
-  // - EtaPartition = 1 (not desired, should be reset to 0)
-  static const uint32_t chamberIdMask_ = ~(LayerMask_<<LayerStartBit_);
+  static const uint32_t chamberIdMask_ = ~( (LayerMask_<<LayerStartBit_) | (RollMask_<<RollStartBit_));
   static const uint32_t layerIdMask_ = ~(RollMask_<<RollStartBit_);
 
  private:
