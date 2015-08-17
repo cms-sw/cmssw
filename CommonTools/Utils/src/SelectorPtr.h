@@ -10,12 +10,12 @@
  * \version $Revision: 1.2 $
  *
  */
-#include <boost/shared_ptr.hpp>
+#include <memory>
 
 namespace reco {
   namespace parser {
     class SelectorBase;
-    typedef boost::shared_ptr<SelectorBase> SelectorPtr;
+    typedef std::shared_ptr<const SelectorBase> SelectorPtr;
   }
 }
 
