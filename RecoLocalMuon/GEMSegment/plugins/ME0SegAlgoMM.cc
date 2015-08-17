@@ -253,7 +253,7 @@ ME0SegAlgoMM::chainHits(const EnsembleHitContainer& rechits) {
   return rechits_chains;
 }
 
-bool ME0SegAlgoMM::isGoodToMerge(EnsembleHitContainer& newChain, EnsembleHitContainer& oldChain) {
+bool ME0SegAlgoMM::isGoodToMerge(const EnsembleHitContainer& newChain, const EnsembleHitContainer& oldChain) {
 
   std::vector<float> phi_new, eta_new, phi_old, eta_old;
   std::vector<int> layer_new, layer_old;
