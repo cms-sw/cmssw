@@ -10,7 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -74,8 +74,8 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegi
       
       // Find the first hit of the Seed
       TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
-      const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = 
-	(const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
+      const FastTrackerRecHit * theFirstSeedingRecHit = 
+	(const FastTrackerRecHit*) (&(*(theSeedingRecHitRange.first)));
       
       // The SimTrack id associated to that recHit
       int simTrackId = theFirstSeedingRecHit->simTrackId(0);
