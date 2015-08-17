@@ -53,6 +53,7 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("DQM.L1TMonitor.L1TEmulatorMonitor_cff")    
 process.load("DQM.L1TMonitorClient.L1TEMUMonitorClient_cff")    
 process.load("L1Trigger.L1TCalorimeter.caloStage1Params_cfi")
+process.load("L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi")
 
 #-------------------------------------
 # paths & schedule for L1 emulator DQM
