@@ -36,7 +36,8 @@
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<GEMCSCSegment,edm::ClonePolicy<GEMCSCSegment> >,edm::ClonePolicy<GEMCSCSegment> > >" splitLevel="0"/>
   <class name="GEMCSCSegmentRef" splitLevel="0"/>
 
-  <class name="ME0Segment" ClassVersion="11">
+  <class name="ME0Segment" ClassVersion="12">
+  <version ClassVersion="12" checksum="759556370"/>
   <version ClassVersion="11" checksum="513208975"/>
   <version ClassVersion="10" checksum="2562385753"/>
   </class>
