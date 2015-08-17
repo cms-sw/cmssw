@@ -268,10 +268,11 @@ bool ME0SegAlgoMM::isGoodToMerge(EnsembleHitContainer& newChain, EnsembleHitCont
       // (not making the correction means that the conditions for
       // forming a cluster are different if we have missing layers -
       // this could affect events at the boundaries ) 
-      //to be chained, two hits need also to be "close" in phi and eta
-      bool layerRequirementOK = abs(layer_new-layer_old)<5;
+      // to be chained, two hits need also to be "close" in phi and eta
+      bool layerRequirementOK = abs(layer_new-layer_old)<(theEnsemble.first->nlayers()-1);
       bool phiRequirementOK = fabs(phi_old-phi_new) < dPhiChainBoxMax;
       bool etaRequirementOK = fabs(eta_old-eta_new) < dEtaChainBoxMax;
+
       
       if(layerRequirementOK && phiRequirementOK && etaRequirementOK){
         return true;
