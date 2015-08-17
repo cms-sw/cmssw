@@ -38,7 +38,7 @@ L1TriggerRECO = cms.PSet(
         'keep L1GctHtMiss*_gctDigis_*_*',
         'keep L1GctJetCounts*_gctDigis_*_*',
         'keep L1GctHFRingEtSums*_gctDigis_*_*',
-        'keep L1GctHFBitCounts*_gctDigis_*_*'
+        'keep L1GctHFBitCounts*_gctDigis_*_*',
         'keep LumiDetails_lumiProducer_*_*',
         'keep LumiSummary_lumiProducer_*_*')
 )
