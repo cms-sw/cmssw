@@ -45,6 +45,7 @@ ME0SegAlgoMM::~ME0SegAlgoMM() {
 std::vector<ME0Segment> ME0SegAlgoMM::run(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits) {
 
   theEnsemble = ensemble;
+  
   ME0DetId enId((theEnsemble.first)->id());
   edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::run] build segments in chamber " << enId;
   
@@ -312,8 +313,10 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsembleHitContainer& 
   }
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
-  sfit_ = std::unique_ptr<ME0SegFit>(new ME0SegFit(theME0EtaParts_, rechits));
+  // sfit_ = std::unique_ptr<ME0SegFit>(new ME0SegFit(theME0EtaParts_, rechits));
+  sfit_ = std::unique_ptr<ME0SegFit>(new ME0SegFit(theEnsemble.second, rechits));
   sfit_->fit();
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] ME0Segment fit done";
 
   // obtain all information necessary to make the segment:
   LocalPoint protoIntercept      = sfit_->intercept();
@@ -321,12 +324,25 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsembleHitContainer& 
   AlgebraicSymMatrix protoErrors = sfit_->covarianceMatrix(); 
   double protoChi2               = sfit_->chi2();
 
-  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] fit done, will now try to make GEMCSC Segment from collection of X ME0 RecHits";
+  // Calculate the central value and uncertainty of the segment time
+  float averageTime=0.;
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    averageTime += (*rh)->tof();                                          
+  }
+  if(rechits.size() != 0) averageTime=averageTime/(rechits.size());
+  float timeUncrt=0.;
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    timeUncrt += pow((*rh)->tof()-averageTime,2);
+  }
+  if(rechits.size() != 0) timeUncrt=timeUncrt/(rechits.size());
+  timeUncrt = sqrt(timeUncrt);
 
   // save all information inside GEMCSCSegment
-  ME0Segment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2);
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] will now try to make ME0Segment from collection of "<<rechits.size()<<" ME0 RecHits";
+  ME0Segment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
 
-  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] GEMCSC Segment made";
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] ME0Segment made";
+  edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] "<<tmp;
 
   me0segs.push_back(tmp);
   return me0segs;
