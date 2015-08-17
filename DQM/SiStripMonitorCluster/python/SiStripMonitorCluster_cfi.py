@@ -279,8 +279,8 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         ymin = cms.double(0.),
         ymax = cms.double(100.),
         globalswitchon = cms.bool(False),
-        subdetswitchon = cms.bool(True), 
-        layerswitchon  = cms.bool(True),
+        subdetswitchon = cms.bool(False), 
+        layerswitchon  = cms.bool(False),
         moduleswitchon = cms.bool(False)
         ),
 
