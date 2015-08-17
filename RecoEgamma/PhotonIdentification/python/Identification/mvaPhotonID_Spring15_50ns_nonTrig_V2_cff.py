@@ -12,7 +12,8 @@ import FWCore.ParameterSet.Config as cms
 # See more documentation in this presentation:
 #    https://indico.cern.ch/event/369237/contribution/2/attachments/1128009/1611753/egamma-July17-2015.pdf
 #    this also contains a minor update from email exchanges (thus move to V2)
-#
+#    Specific docs for V2 are in this final presentation:
+#    https://indico.cern.ch/event/369241/contribution/1/attachments/1140148/1632879/egamma-Aug14-2015.pdf
 
 # This MVA implementation class name
 mvaSpring15NonTrigClassName = "PhotonMVAEstimatorRun2Spring15NonTrig"
