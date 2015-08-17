@@ -33,7 +33,6 @@ ME0SegAlgoMM::ME0SegAlgoMM(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps
   dPhiChainBoxMax           = ps.getParameter<double>("dPhiChainBoxMax");
   dEtaChainBoxMax           = ps.getParameter<double>("dEtaChainBoxMax");
   maxRecHitsInCluster       = ps.getParameter<int>("maxRecHitsInCluster");
-  // sfit_ = std::unique_ptr<ME0SegFit>(new ME0SegFit());
 }
 
 /* Destructor
