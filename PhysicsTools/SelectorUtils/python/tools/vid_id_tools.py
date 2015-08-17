@@ -125,7 +125,14 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
     moduleName = "muoMuonIDs"
     if not hasattr(process, moduleName):
         raise Exception("VIDProducerNotAvailable", "%s producer not available in process!" % moduleName)
-    setupVIDSelection(getattr(process, moduleName), cutflow)
+    #touch cfg if the data format is MiniAOD
+    module = getattr(process, moduleName)
+    srcLabel = module.physicsObjectSrc.getModuleLabel()
+    if srcLabel == "slimmedMuons":
+        for p in cutflow.cutFlow:
+            if hasattr(p, 'vertexSrc'): p.vertexSrc = "offlineSlimmedPrimaryVertices"
+
+    setupVIDSelection(module, cutflow)
     #add to PAT electron producer if available or specified
     #if hasattr(process,'patMuons') or patProducer is not None:
     #    if patProducer is None:
