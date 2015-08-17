@@ -41,7 +41,7 @@ ME0SegAlgoMM::~ME0SegAlgoMM() {
 }
 
 
-std::vector<ME0Segment> ME0SegAlgoMM::run(ME0Ensemble& ensemble, const EnsembleHitContainer& rechits) {
+std::vector<ME0Segment> ME0SegAlgoMM::run(const ME0Ensemble& ensemble, const EnsembleHitContainer& rechits) {
 
   theEnsemble = ensemble;
   ME0DetId enId((theEnsemble.first)->id());
