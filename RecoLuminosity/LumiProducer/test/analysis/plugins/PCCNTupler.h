@@ -56,19 +56,6 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
 
 
   protected:
-    //void init();
-    //void fillEvent();
-    //void fillTracks();
-    //void fillRecHits();
-    //void fillVertex();
-    //void fillDigis();
-    //
-    //void bpixNames(const DetId &pID, int &DBlayer, int &DBladder, int &DBmodule);
-    //void fpixNames(const DetId &pID, int &DBdisk, int &DBblade, int &DBpanel, int &DBplaquette);
-    //
-    //void onlineRocColRow(const DetId &pID, int offlineRow, int offlineCol, int &roc, int &col, int &row);
-    //void isPixelTrack(const edm::Ref<std::vector<Trajectory> > &refTraj, bool &isBpixtrack, bool &isFpixtrack);
-
     void Reset();
     void SaveAndReset();
     void ComputeMeanAndMeanError();
@@ -78,30 +65,11 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     edm::EDGetTokenT<reco::VertexCollection> recoVtxToken;
     edm::EDGetTokenT<std::vector< PileupSummaryInfo> > pileUpToken;
     
-    int             fVerbose; 
-    //std::string     fRootFileName; 
-    //std::string     fGlobalTag, fType;
-    //int             fDumpAllEvents;
     edm::InputTag   fPrimaryVertexCollectionLabel;
     edm::InputTag   fPixelClusterLabel;
     edm::InputTag   fPileUpInfoLabel;
   
     static const int MAX_VERTICES=200;
-
-    //bool fAccessSimHitInfo;
-
-    //std::map<int, int>     fFEDID; 
-
-    // -- general stuff
-    //unsigned int fRun, fEvent, fLumiBlock; 
-    //int          fBX, fOrbit; 
-    //unsigned int fTimeLo, fTimeHi; 
- 
-
-    //// -- clusters
-    //static const int CLUSTERMAX = 100000; 
-    //static const int DGPERCLMAX = 100;  
-    //static const int TKPERCLMAX = 100;  
 
     // saving events per LS, LN or event
     std::string saveType = "LumiSect"; // LumiSect or LumiNib or Event
@@ -160,8 +128,6 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     UInt_t timeStamp_local;
     UInt_t timeStamp_end;
     std::map<int,int> BXNo;
-    //edm::InputTag vertexTags_; //used to select what vertices to read from configuration file 
-    //edm::InputTag vertexBSTags_; //used to select what vertices with BS correction 
 
 };
 

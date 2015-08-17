@@ -42,7 +42,6 @@ using namespace reco;
 
 // ----------------------------------------------------------------------
 PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig): 
-    fVerbose(iConfig.getUntrackedParameter<int>("verbose", 0)),
     fPrimaryVertexCollectionLabel(iConfig.getUntrackedParameter<InputTag>("vertexCollLabel", edm::InputTag("offlinePrimaryVertices"))), 
     fPixelClusterLabel(iConfig.getUntrackedParameter<InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters"))), 
     fPileUpInfoLabel(edm::InputTag("addPileupInfo")),
