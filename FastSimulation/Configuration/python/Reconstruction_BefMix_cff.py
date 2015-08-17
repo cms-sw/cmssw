@@ -14,6 +14,12 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import offlineBeamSpot
 
 # and of course it needs tracker hits
 from FastSimulation.TrackingRecHitProducer.SiTrackerGaussianSmearingRecHitConverter_cfi import siTrackerGaussianSmearingRecHits
+from FastSimulation.TrackingRecHitProducer.FastTrackerRecHitMatcher_cfi import fastMatchedTrackerRecHits
+import FastSimulation.Tracking.FastTrackerRecHitCombiner_cfi
+
+fastMatchedTrackerRecHitCombinations = FastSimulation.Tracking.FastTrackerRecHitCombiner_cfi.fastTrackerRecHitCombinations.clone(
+    simHit2RecHitMap = cms.InputTag("fastMatchedTrackerRecHits","simHit2RecHitMap")
+    )
 
 # FastSim stores the IdealMagneticFieldRecord and the TrackerInteractionGeometryRecord in a particular structure
 # This extra layer is probably more confusing than it is useful and we should consider to remove it
@@ -40,6 +46,8 @@ from TrackingTools.TrackFitters.TrackFitters_cff import *
 reconstruction_befmix = cms.Sequence(
     offlineBeamSpot
     * siTrackerGaussianSmearingRecHits
+    * fastMatchedTrackerRecHits
+    * fastMatchedTrackerRecHitCombinations
     * MeasurementTrackerEvent
     * iterTracking
     )
