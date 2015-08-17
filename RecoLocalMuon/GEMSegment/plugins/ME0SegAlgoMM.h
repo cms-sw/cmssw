@@ -75,7 +75,7 @@ private:
   ME0Ensemble theEnsemble;
 
   std::map<uint32_t, const ME0EtaPartition*> theME0EtaParts_;
-  const float running_max=999999.;
+  static constexpr float running_max=999999.;
   std::unique_ptr<ME0SegFit> sfit_;
 
 };
