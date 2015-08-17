@@ -4,20 +4,20 @@ config = Configuration()
 
 #name='Pt15to30'
 config.section_("General")
-config.General.requestName = 'PCC_ZeroBias_RAW_miniVdM_252116'
+config.General.requestName = 'PCC_AlCaLumiPixels_Run2015A_PIXONLY_LS'
 config.General.workArea = 'taskManagement'
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = 'RunFromRAW_AlwaysTrue_Data_Event.py'
+config.JobType.psetName = 'Run_Pix_LS.py'
 config.JobType.allowUndistributedCMSSW = True
 
 
 #config.JobType.inputFiles = ['dttf_config.db']
 
 config.section_("Data")
-config.Data.inputDataset = '/ZeroBias/Run2015B-v1/RAW'
-config.Data.lumiMask = 'json_252116_optScan.txt'
+config.Data.inputDataset = '/AlCaLumiPixels/Run2015A-LumiPixels-PromptReco-v1/ALCARECO'
+config.Data.lumiMask = ''
 
 config.Data.ignoreLocality = True
 #useParent = True
@@ -27,10 +27,11 @@ config.Data.inputDBS = 'global'
 config.Data.splitting = 'LumiBased'
 #config.Data.splitting = 'EventAwareLumiBased'
 config.Data.publication = False
-config.Data.unitsPerJob = 4
+config.Data.unitsPerJob = 50
 #config.Data.totalUnits = -1
 #config.Data.publishDbsUrl = 'test'
-config.Data.publishDataName = 'PCC_ZeroBias_RAW_miniVdM_252116'
+config.Data.publishDataName = 'PCC_AlCaLumiPixels_Run2015A_PIXONLY_LS'
+config.Data.outLFNDirBase = '/store/group/comm_luminosity/PCC/ForLumiComputation'
 
 config.section_("Site")
 config.Site.storageSite = 'T2_CH_CERN'
