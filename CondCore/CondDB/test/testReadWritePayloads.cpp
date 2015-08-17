@@ -247,9 +247,10 @@ int main (int argc, char** argv)
   std::cout <<"## Running with CondDBV2 format..."<<std::endl;
 
   if (argc < 3) {
-    std::cout << "Error: not enough arguments. " << std::endl;
-    std::cout << "expected: (write|read) <dbName> " << std::endl;
-    return -1;
+    std::cout << "Not enough arguments given, assuming automatic run in unit-tests. Will not do anything. " << std::endl;
+    std::cout << "If you did not expect this, please run it with the arguments as follows:" << std::endl;
+    std::cout << "testReadWritePayloads (write|read) <dbName> " << std::endl;
+    return 0;
   }
 
   std::string connectionString0("sqlite_file:cms_conditions_v2.db");
