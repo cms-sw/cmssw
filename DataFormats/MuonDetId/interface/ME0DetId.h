@@ -57,12 +57,11 @@ class ME0DetId :public DetId {
     return int((id_>>LayerStartBit_) & LayerMask_) + minLayerId;
   }
 
- /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
- /// several parts  (rolls) ME0 up to 10
+  /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
+  /// several parts  (rolls) ME0 up to 10
   int roll() const{
     return int((id_>>RollStartBit_) & RollMask_) + minRollId; // value 0 is used as wild card
   }
-
 
   /// Return the corresponding ChamberId (mask layers)
   ME0DetId chamberId() const {
@@ -73,17 +72,22 @@ class ME0DetId :public DetId {
     return ME0DetId(id_ & layerIdMask_);
   }
 
+  /// For future modifications (implement more layers)
+  int nlayers() const{
+    return int(maxLayerId);
+  }
+
   static const int minRegionId=     -1;
   static const int maxRegionId=      1;
  
   static const int minChamberId=     0;
-  static const int maxChamberId=     36;
+  static const int maxChamberId=     36; // ME0 ring consists of 36 chambers spanning 10 degrees
 
   static const int minLayerId=     0;
-  static const int maxLayerId=    31;
+  static const int maxLayerId=     6; // ME0 chamber consists of 6 layers for now, change here when changing ME0 Geometry
 
   static const int minRollId=	  0;
-  static const int maxRollId=	 31;
+  static const int maxRollId=	  1; // ME0 layer consits of 1 etapartition for now, change here when changing ME0 Geometry
 
  private:
   static const int RegionNumBits_  =  2;
