@@ -22,7 +22,7 @@
 /* Constructor
  *
  */
-ME0SegAlgoMM::ME0SegAlgoMM(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps), myName("ME0SegAlgoMM") , sfit_(0)
+ME0SegAlgoMM::ME0SegAlgoMM(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps), myName("ME0SegAlgoMM")
 {
   debug                     = ps.getUntrackedParameter<bool>("ME0Debug");
   minHitsPerSegment         = ps.getParameter<unsigned int>("minHitsPerSegment");
@@ -33,6 +33,7 @@ ME0SegAlgoMM::ME0SegAlgoMM(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps
   dPhiChainBoxMax           = ps.getParameter<double>("dPhiChainBoxMax");
   dEtaChainBoxMax           = ps.getParameter<double>("dEtaChainBoxMax");
   maxRecHitsInCluster       = ps.getParameter<int>("maxRecHitsInCluster");
+  // sfit_ = std::unique_ptr<ME0SegFit>(new ME0SegFit());
 }
 
 /* Destructor
@@ -312,8 +313,7 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsembleHitContainer& 
   }
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
-  delete sfit_;
-  sfit_ = new ME0SegFit(theME0EtaParts_, rechits);
+  sfit_ = std::unique_ptr<ME0SegFit>(new ME0SegFit(theME0EtaParts_, rechits));
   sfit_->fit();
 
   // obtain all information necessary to make the segment:
