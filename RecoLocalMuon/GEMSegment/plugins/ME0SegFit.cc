@@ -81,10 +81,10 @@ void ME0SegFit::fit2(void) {
   // 3) Now make straight line between the two points in local coords
   // ----------------------------------------------------------------
   float dz = h2pos.z()-h1pos.z();
-
-  uslope_ = ( h2pos.x() - h1pos.x() ) / dz ;
-  vslope_ = ( h2pos.y() - h1pos.y() ) / dz ;
-
+  if(dz != 0.0) {
+    uslope_ = ( h2pos.x() - h1pos.x() ) / dz ;
+    vslope_ = ( h2pos.y() - h1pos.y() ) / dz ;
+  }
   float uintercept = ( h1pos.x()*h2pos.z() - h2pos.x()*h1pos.z() ) / dz;
   float vintercept = ( h1pos.y()*h2pos.z() - h2pos.y()*h1pos.z() ) / dz;
   intercept_ = LocalPoint( uintercept, vintercept, 0.);
