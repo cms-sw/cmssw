@@ -80,6 +80,7 @@
 
 #include "Fireworks/Core/interface/FWEventItem.h"
 #include "Fireworks/Core/interface/FW3DViewBase.h"
+#include "Fireworks/Core/interface/FWExpressionException.h"
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -651,30 +652,37 @@ FWGUIManager::showEDIFrame(int iToShow)
 
 void
 FWGUIManager::open3DRegion()
-{
-   FWModelId id =  *(m_context->selectionManager()->selected().begin());
-   float eta =0, phi = 0;
-   {
+{    
+   try {
+      FWModelId id =  *(m_context->selectionManager()->selected().begin());
+      float eta =0, phi = 0;
+ 
       edm::TypeWithDict type = edm::TypeWithDict((TClass*)id.item()->modelType());
       using namespace boost::spirit::classic;
       reco::parser::ExpressionPtr tmpPtr;
       reco::parser::Grammar grammar(tmpPtr,type);
       edm::ObjectWithDict o(type, (void*)id.item()->modelData(id.index()));
-      try {
-         parse("theta()", grammar.use_parser<1>() >> end_p, space_p).full;
-         eta =  tmpPtr->value(o);
-         parse("phi()", grammar.use_parser<1>() >> end_p, space_p).full;
-         phi =  tmpPtr->value(o);
 
-         ViewMap_i it = createView( "3D Tower", m_viewSecPack->NewSlot());
-         FW3DViewBase* v = static_cast<FW3DViewBase*>(it->second);
-         v->setClip(eta, phi);
-         it->first->UndockWindow();
-      }
-      catch(const reco::parser::BaseException& e)
-      {
-         std::cout <<" FWModelFilter failed to base "<< e.what() << std::endl;
-      }
+      if (parse("theta()", grammar.use_parser<1>() >> end_p, space_p).full)
+        eta =  tmpPtr->value(o);
+      else
+	throw FWExpressionException("syntax error", -1);
+      
+      if (parse("phi()", grammar.use_parser<1>() >> end_p, space_p).full)
+         phi =  tmpPtr->value(o);
+      else
+	throw FWExpressionException("syntax error", -1);
+
+
+
+      ViewMap_i it = createView( "3D Tower", m_viewSecPack->NewSlot());
+      FW3DViewBase* v = static_cast<FW3DViewBase*>(it->second);
+      v->setClip(eta, phi);
+      it->first->UndockWindow();
+   }
+   catch(const reco::parser::BaseException& e)
+   {
+     fwLog(fwlog::kError) <<"FWGUIManager::open3DRegion()  failed to base "<< e.what() << std::endl;
    }
 }
 
