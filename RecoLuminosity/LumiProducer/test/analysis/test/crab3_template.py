@@ -31,6 +31,7 @@ config.Data.unitsPerJob = 400
 #config.Data.totalUnits = -1
 #config.Data.publishDbsUrl = 'test'
 config.Data.publishDataName = 'PCC_outputdirname'
+config.Data.outLFNDirBase = '/store/group/comm_luminosity/PCC/'
 
 config.section_("Site")
 config.Site.storageSite = 'T2_CH_CERN'
