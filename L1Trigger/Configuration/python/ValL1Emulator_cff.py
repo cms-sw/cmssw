@@ -71,6 +71,7 @@ valCaloStage1LegacyFormatDigis.bxMin = cms.int32(0)
 valCaloStage1LegacyFormatDigis.bxMax = cms.int32(0)
 
 from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
+from L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi import *
 
 # DT TP emulator
 from L1Trigger.DTTrigger.dtTriggerPrimitiveDigis_cfi import *
