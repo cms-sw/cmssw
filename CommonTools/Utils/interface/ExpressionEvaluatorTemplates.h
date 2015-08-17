@@ -17,6 +17,11 @@ namespace reco {
 
   template<typename Object>
   struct CutOnObject {
+    // to emulate cut parser syntax
+    static bool test_bit(unsigned bits, unsigned ibit) { 
+      return 0x1&(bits >> ibit); 
+    }
+
     virtual bool eval(Object const&) const = 0;
   };
 

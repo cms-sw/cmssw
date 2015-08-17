@@ -1,5 +1,7 @@
 <use   name="DataFormats/Candidate"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

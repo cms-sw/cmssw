@@ -14,3 +14,7 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"

@@ -1,4 +1,5 @@
-<bin   name="testCommonToolsUtil" file="testSelectors.cc,testSelectIterator.cc,testComparators.cc,testCutParser.cc,testExpressionParser.cc,testAssociationMapFilterValues.cc,testRunner.cpp">
+<!-- testSelectors.cc,testSelectIterator.cc,testComparators.cc,testExpressionParser.cc,testAssociationMapFilterValues.cc-->
+<bin   name="testCommonToolsUtil" file="testCutParser.cc,testRunner.cpp">
   <use   name="Geometry/CommonDetUnit"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/TrackerRecHit2D"/>

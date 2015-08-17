@@ -50,7 +50,6 @@ public:
   reco::Track trk;
   SiStripRecHit2D hitOk, hitThrow;
   edm::ObjectWithDict o;
-  reco::parser::SelectorPtr sel;
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testCutParser);
@@ -58,9 +57,9 @@ CPPUNIT_TEST_SUITE_REGISTRATION(testCutParser);
 void testCutParser::check(const std::string & cut, bool res) {
   for (int lazy = 0; lazy <= 1; ++lazy) {
   std::cerr << "parsing " << (lazy ? "lazy " : "") << "cut: \"" << cut << "\"" << std::endl;
-  sel.reset();
-  //CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>(cut, sel, lazy));
-  //CPPUNIT_ASSERT((*sel)(o) == res);
+  reco::exprEval::SelectorPtr<reco::Track> sel;
+  CPPUNIT_ASSERT(reco::exprEval::cutParser<reco::Track>(cut, sel, lazy));
+  CPPUNIT_ASSERT(sel->eval(trk) == res);
   StringCutObjectSelector<reco::Track> select(cut, lazy);
   CPPUNIT_ASSERT(select(trk) == res);
   }
@@ -71,9 +70,9 @@ void testCutParser::checkHit(const std::string & cut, bool res, const SiStripRec
   o = edm::ObjectWithDict(t, const_cast<void *>(static_cast<const void *>(&hit)));
   for (int lazy = 0; lazy <= 1; ++lazy) {
   std::cerr << "parsing " << (lazy ? "lazy " : "") << "cut: \"" << cut << "\"" << std::endl;
-  sel.reset();
-  //CPPUNIT_ASSERT(reco::parser::cutParser<SiStripRecHit2D>(cut, sel, lazy));
-  //CPPUNIT_ASSERT((*sel)(o) == res);
+  reco::exprEval::SelectorPtr<SiStripRecHit2D> sel;
+  CPPUNIT_ASSERT(reco::exprEval::cutParser<SiStripRecHit2D>(cut, sel, lazy));
+  CPPUNIT_ASSERT(sel->eval(hit) == res);
   StringCutObjectSelector<SiStripRecHit2D> select(cut, lazy);
   CPPUNIT_ASSERT(select(hit) == res);
   }
@@ -82,11 +81,11 @@ void testCutParser::checkHit(const std::string & cut, bool res, const SiStripRec
 void testCutParser::checkMuon(const std::string & cut, bool res, const reco::Muon &mu) {
   edm::TypeWithDict t(typeid(reco::Muon));
   o = edm::ObjectWithDict(t, const_cast<void *>(static_cast<const void *>(&mu)));
-  sel.reset();
   for (int lazy = 0; lazy <= 1; ++lazy) {
   std::cerr << "parsing " << (lazy ? "lazy " : "") << "cut: \"" << cut << "\"" << std::endl;
-  //CPPUNIT_ASSERT(reco::parser::cutParser<reco::Muon>(cut, sel, lazy));
-  //CPPUNIT_ASSERT((*sel)(o) == res);
+  reco::exprEval::SelectorPtr<reco::Muon> sel;
+  CPPUNIT_ASSERT(reco::exprEval::cutParser<reco::Muon>(cut, sel, lazy));
+  CPPUNIT_ASSERT(sel->eval(mu) == res);
   StringCutObjectSelector<reco::Muon> select(cut, lazy);
   CPPUNIT_ASSERT(select(mu) == res);
   }
@@ -158,15 +157,15 @@ void testCutParser::checkAll() {
   check( "26.9 < 3 * std::pow(cand.pt(),2.) < 27.1", true );
   check( "27.9 < 3 * std::pow(cand.pt(),2.) + 1 < 28.1", true );
   check( " 0.99 < std::sin( cand.phi() ) < 1.01", true );
-  check( " -0.01 < std::cos( cand.phi() ) < 0.01", true );
+  check( " ( -0.01 < std::cos( cand.phi() ) ) && ( std::cos( cand.phi() ) < 0.01 )", true );
   check( " 8.9 < std::pow( cand.pt(), 2 ) < 9.1", true );
-  check( "( 0.99 < std::sin( cand.phi() ) < 1.01 ) & ( -0.01 < std::cos( cand.phi() ) < 0.01 )", true );
+  check( "( ( 0.99 < std::sin( cand.phi() ) ) && ( std::sin(cand.phi()) < 1.01 ) ) && ( ( -0.01 < std::cos( cand.phi() ) ) && ( std::cos( cand.phi() )  < 0.01 ) )", true );
   check( "( 3.9 < cand.pt() + 1 < 4.1 ) | ( cand.pt() < 2 )", true );
-  check( " cand.pt() = 3 &  cand.pt() > 2 | cand.pt() < 2", true );
-  check( "( ( cand.pt() = 3 &  cand.pt() > 2 ) | cand.pt() < 2 ) & 26.9 < 3 * std::pow(cand.pt(),2.) < 27.1", true );
+  check( " cand.pt() == 3 &  cand.pt() > 2 | cand.pt() < 2", true );
+  check( "( ( cand.pt() == 3 &  cand.pt() > 2 ) | cand.pt() < 2 ) & 26.9 < 3 * std::pow(cand.pt(),2.) < 27.1", true );
   check( "! cand.pt() > 2", false );
   check( "! cand.pt() < 2", true );
-  check( "! (( 0.99 < std::sin( cand.phi() ) < 1.01 ) & ( -0.01 < std::cos( cand.phi() ) < 0.01 ))", false );
+  check( "! ( ( ( 0.99 < std::sin( cand.phi() ) ) && ( std::sin(cand.phi()) < 1.01 ) ) && ( ( -0.01 < std::cos( cand.phi() ) ) && ( std::cos( cand.phi() )  < 0.01 ) ) )", false );
   check( "cand.pt() && cand.pt() > 1",true);
   // check trailing space
   check( "cand.pt() > 2 ", true );
@@ -180,51 +179,53 @@ void testCutParser::checkAll() {
   check( "test_bit(4, 3)", false );
 
   // check quality
-  check("cand.quality('highPurity')", true );
-  check("cand.quality('loose')", false );
-  check("cand.quality('tight')", false );
-  check("cand.quality('confirmed')", false );
-  check("cand.quality('goodIterative')", true);
-  check("cand.quality('looseSetWithPV')", false);
-  check("cand.quality('highPuritySetWithPV')", false);
+  check("cand.quality(reco::TrackBase::highPurity)", true );
+  check("cand.quality(reco::TrackBase::loose)", false );
+  check("cand.quality(reco::TrackBase::tight)", false );
+  check("cand.quality(reco::TrackBase::confirmed)", false );
+  check("cand.quality(reco::TrackBase::goodIterative)", true);
+  check("cand.quality(reco::TrackBase::looseSetWithPV)", false);
+  check("cand.quality(reco::TrackBase::highPuritySetWithPV)", false);
 
   // check handling of errors 
   //   first those who are the same in lazy and non lazy parsing
+  reco::parser::SelectorPtr sel;
   for (int lazy = 0; lazy <= 1; ++lazy) {
-  sel.reset();
-  CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("1abc",sel, lazy));
-  sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("(pt < 1",sel, lazy), edm::Exception);
-  sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt < #",sel, lazy), edm::Exception);
-  sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt <> 5",sel, lazy), edm::Exception);
-  sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("cos( pt < .5",sel, lazy), edm::Exception);
-  sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>(" 2 * (pt + 1 < .5",sel, lazy), edm::Exception);
-  // These don't throw, but they return false.
-  sel.reset();
-  CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("pt() pt < .5",sel, lazy));
-  sel.reset();
-  CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("pt pt < .5",sel, lazy));
-  // This throws or return false depending on the parsing:
-  // without lazy parsing, it complains about non-existing method 'cos'
-  sel.reset();
-  if (lazy) CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("cos pt < .5",sel, lazy));
-  else      CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("cos pt < .5",sel, lazy), edm::Exception);
+    sel.reset();
+    CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("1abc",sel, lazy));
+    sel.reset();
+    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("(pt < 1",sel, lazy), edm::Exception);
+    sel.reset();
+    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt < #",sel, lazy), edm::Exception);
+    sel.reset();
+    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt <> 5",sel, lazy), edm::Exception);
+    sel.reset();
+    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("cos( pt < .5",sel, lazy), edm::Exception);
+    sel.reset();
+    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>(" 2 * (pt + 1 < .5",sel, lazy), edm::Exception);
+    // These don't throw, but they return false.
+    sel.reset();
+    CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("pt pt() < .5",sel, lazy));
+    sel.reset();
+    CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("pt() pt < .5",sel, lazy));
+    sel.reset();
+    // This throws or return false depending on the parsing:
+    // without lazy parsing, it complains about non-existing method 'cos'
+    if (lazy) CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("cos pt < .5",sel, lazy));
+    else      CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("cos pt < .5",sel, lazy), edm::Exception);
+    sel.reset();
   }
   // then those which are specific to non lazy parsing
   sel.reset();
   CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("doesNotExist < 1",sel), edm::Exception);
   sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt.pt < 1",sel), edm::Exception);
+  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt().pt < 1",sel), edm::Exception);
   // and afterwards check that in lazy parsing they throw at runtime
   sel.reset();
   CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>("doesNotExist < 1",sel,true)); // with lazy parsing this doesn't throw
   CPPUNIT_ASSERT_THROW((*sel)(o), reco::parser::Exception);                          // but it throws here!
   sel.reset();
-  CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>("pt.pt < 1",sel, true));  // same for this
+  CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>("pt.pt() < 1",sel, true));  // same for this
   CPPUNIT_ASSERT_THROW((*sel)(o), reco::parser::Exception);                     // it throws wen called
 
   sel.reset();
@@ -232,28 +233,28 @@ void testCutParser::checkAll() {
 
   // check hits (for re-implemented virtual functions and exception handling)
   CPPUNIT_ASSERT(hitOk.hasPositionAndError());
-  checkHit( "hasPositionAndError" , true, hitOk );
+  checkHit( "cand.hasPositionAndError()" , true, hitOk );
   CPPUNIT_ASSERT(!hitThrow.hasPositionAndError());
-  checkHit( "hasPositionAndError" , false, hitThrow );
+  checkHit( "cand.hasPositionAndError()" , false, hitThrow );
   CPPUNIT_ASSERT(hitOk.localPosition().x() == 1);
-  checkHit( ".99 < localPosition.x < 1.01", true, hitOk);
-  checkHit( ".99 < localPosition.x < 1.01", false, hitThrow);
+  checkHit( "( .99 < cand.localPosition().x() ) && ( cand.localPosition().x() < 1.01 )", true, hitOk);
+  checkHit( "( .99 < cand.localPosition().x() ) && ( cand.localPosition().x() < 1.01 )", false, hitThrow);
 
   // check underscores (would be better to build your own stub...)
-  checkHit("cluster.isNull()",true,hitOk);
-  checkHit("cluster_strip.isNull()",true,hitOk);
-  checkHit("cluster.isNonnull()",false,hitOk);  
-  checkHit("cluster_strip.isNonnull()",false,hitOk);
+  checkHit("cand.cluster().isNull()",true,hitOk);
+  checkHit("cand.cluster_strip().isNull()",true,hitOk);
+  checkHit("cand.cluster().isNonnull()",false,hitOk);  
+  checkHit("cand.cluster_strip().isNonnull()",false,hitOk);
 
 
   // check short cirtcuit logics
   CPPUNIT_ASSERT( hitOk.hasPositionAndError() && (hitOk.localPosition().x() == 1) );
   CPPUNIT_ASSERT( !( hitThrow.hasPositionAndError() && (hitThrow.localPosition().x() == 1) ) );
-  checkHit( "hasPositionAndError && (localPosition.x = 1)", true,  hitOk    );
-  checkHit( "hasPositionAndError && (localPosition.x = 1)", false, hitThrow );
+  checkHit( "cand.hasPositionAndError() && (cand.localPosition().x() == 1)", true,  hitOk    );
+  checkHit( "cand.hasPositionAndError() && (cand.localPosition().x() == 1)", false, hitThrow );
   CPPUNIT_ASSERT( (!hitOk.hasPositionAndError()   ) || (hitOk.localPosition().x()    == 1) );
   CPPUNIT_ASSERT( (!hitThrow.hasPositionAndError()) || (hitThrow.localPosition().x() == 1) );
-  checkHit( "!hasPositionAndError || (localPosition.x = 1)", true,  hitOk    );
-  checkHit( "!hasPositionAndError || (localPosition.x = 1)", true, hitThrow );
+  checkHit( "!cand.hasPositionAndError() || (cand.localPosition().x() == 1)", true,  hitOk    );
+  checkHit( "!cand.hasPositionAndError() || (cand.localPosition().x() == 1)", true, hitThrow );
 
 }
