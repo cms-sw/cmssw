@@ -19,12 +19,12 @@ namespace reco {
   }  
   template<typename T> class CutOnObject;
   namespace exprEval {
-  template<typename T>
-  struct do_not_delete{
-    void operator()(T* p) const { }
-  };
-  template<typename T> 
-    using SelectorPtr = std::unique_ptr<const reco::CutOnObject<T>, do_not_delete<const reco::CutOnObject<T> > >;
+    template<typename T>
+    struct do_not_delete{
+      void operator()(T* p) const { }
+    };
+    template<typename T> 
+    using SelectorPtr = std::unique_ptr<const reco::CutOnObject<T>, do_not_delete<const reco::CutOnObject<T> > >;  
   };
 }
 
