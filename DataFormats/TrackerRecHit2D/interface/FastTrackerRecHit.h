@@ -85,6 +85,8 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     virtual int32_t              simTrackId(size_t i)          const { return -1;}
     virtual int32_t              simTrackEventId(size_t i)     const { return -1;}
 
+    virtual int32_t              recHitCombinationIndex(size_t i) const { return recHitCombinationIndex_;}
+
     bool isPixel() const GCC11_OVERRIDE {return isPixel_;} ///< pixel or strip?
 
     /* setters */
