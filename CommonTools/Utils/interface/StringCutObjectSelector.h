@@ -26,7 +26,8 @@ template<typename T, bool DefaultLazyness=false>
 struct StringCutObjectSelector {
   typedef reco::CutOnObject<T> CutType;
   
-  StringCutObjectSelector(const std::string & cut, bool lazy=DefaultLazyness) {
+  StringCutObjectSelector(const std::string & cut, bool lazy=DefaultLazyness) :
+  type_(typeid(T)){
     if(! reco::exprEval::cutParser<T>(cut, expr_select_, lazy)) {
       throw edm::Exception(edm::errors::Configuration,
 			   "failed to parse \"" + cut + "\"");
@@ -35,7 +36,8 @@ struct StringCutObjectSelector {
   }
   
   StringCutObjectSelector(const reco::exprEval::SelectorPtr<T> & select) : 
-  expr_select_(select) {
+  expr_select_(select),
+  type_(typeid(T)) {
   }
 
   bool operator()(const T & t) const {
@@ -50,7 +52,7 @@ struct StringCutObjectSelector {
 private:
   reco::exprEval::SelectorPtr<T> expr_select_; // this is not owned by us!!!!
   //reco::parser::SelectorPtr select_;
-  //edm::TypeWithDict type_;
+  edm::TypeWithDict type_;
 };
 
 #endif
