@@ -76,7 +76,7 @@ private:
 
   std::map<uint32_t, const ME0EtaPartition*> theME0EtaParts_;
   const float running_max=999999.;
-  ME0SegFit* sfit_;
+  std::unique_ptr<ME0SegFit> sfit_;
 
 };
 
