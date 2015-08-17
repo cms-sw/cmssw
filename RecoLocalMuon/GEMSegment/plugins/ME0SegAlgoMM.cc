@@ -254,14 +254,26 @@ ME0SegAlgoMM::chainHits(const EnsembleHitContainer& rechits) {
 }
 
 bool ME0SegAlgoMM::isGoodToMerge(EnsembleHitContainer& newChain, EnsembleHitContainer& oldChain) {
-   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
-    int layer_new = newChain[iRH_new]->me0Id().layer();     
-    float phi_new = theEnsemble.first->toGlobal(newChain[iRH_new]->localPosition()).phi();
-    float eta_new = theEnsemble.first->toGlobal(newChain[iRH_new]->localPosition()).eta();
-    for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
-      int layer_old = oldChain[iRH_old]->me0Id().layer();
-      float phi_old = theEnsemble.first->toGlobal(oldChain[iRH_old]->localPosition()).phi();
-      float eta_old = theEnsemble.first->toGlobal(oldChain[iRH_old]->localPosition()).eta();
+
+  std::vector<float> phi_new, eta_new, phi_old, eta_old;
+  std::vector<int> layer_new, layer_old;
+
+  for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
+    GlobalPoint pos_new = theEnsemble.first->toGlobal(newChain[iRH_new]->localPosition());
+    layer_new.push_back(newChain[iRH_new]->me0Id().layer());
+    phi_new.push_back(pos_new.phi());
+    eta_new.push_back(pos_new.eta());
+  }  
+  for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
+    GlobalPoint pos_old = theEnsemble.first->toGlobal(oldChain[iRH_old]->localPosition());
+    layer_old.push_back(oldChain[iRH_old]->me0Id().layer());
+    phi_old.push_back(pos_old.phi());
+    eta_old.push_back(pos_old.eta());
+  }
+
+  for(size_t jRH_new = 0; jRH_new<phi_new.size(); ++jRH_new){
+    for(size_t jRH_old = 0; jRH_old<phi_old.size(); ++jRH_old){
+
       // to be chained, two hits need to be in neighbouring layers...
       // or better allow few missing layers (upto 3 to avoid inefficiencies);
       // however we'll not make an angle correction because it
@@ -270,16 +282,16 @@ bool ME0SegAlgoMM::isGoodToMerge(EnsembleHitContainer& newChain, EnsembleHitCont
       // forming a cluster are different if we have missing layers -
       // this could affect events at the boundaries ) 
       // to be chained, two hits need also to be "close" in phi and eta
-      bool layerRequirementOK = abs(layer_new-layer_old)<(theEnsemble.first->id().nlayers()-1);
-      bool phiRequirementOK = reco::deltaPhi(phi_old,phi_new) < dPhiChainBoxMax;
-      bool etaRequirementOK = fabs(eta_old-eta_new) < dEtaChainBoxMax;
+      bool phiRequirementOK = reco::deltaPhi(phi_new[jRH_new],phi_old[jRH_old]) < dPhiChainBoxMax;
+      bool etaRequirementOK = fabs(eta_new[jRH_new]-eta_old[jRH_old]) < dEtaChainBoxMax;
+      // and the difference in layer index should be < (nlayers-1)
+      bool layerRequirementOK = abs(layer_new[jRH_new]-layer_old[jRH_old]) < (theEnsemble.first->id().nlayers()-1);
 
-      
       if(layerRequirementOK && phiRequirementOK && etaRequirementOK){
         return true;
       }
     }
-  }
+  } 
   return false;
 }
 
