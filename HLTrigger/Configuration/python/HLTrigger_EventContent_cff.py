@@ -22,12 +22,9 @@ HLTriggerRAW  = cms.PSet(
 HLTriggerRECO = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        #'keep *_hltL1GtObjectMap_*_*',
-        'keep L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap_*_*',
-        #'keep edmTriggerResults_*_*_*',
-        'keep edmTriggerResults_TriggerResults_*_*',
-        #'keep triggerTriggerEvent_*_*_*'
-        'keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*'
+        'keep *_hltL1GtObjectMap_*_*',
+        'keep edmTriggerResults_*_*_*',
+        'keep triggerTriggerEvent_*_*_*'
     ) )
 )
 
@@ -36,10 +33,8 @@ HLTriggerAOD  = cms.PSet(
         'drop *_hlt*_*_*',
         'keep *_hltL1GtObjectMap_*_*',
         'drop L1GlobalTriggerObjectMapRecord_hltL1GtObjectMap_*_*',
-        #'keep edmTriggerResults_*_*_*',
-        'keep edmTriggerResults_TriggerResults_*_*',
-        #'keep triggerTriggerEvent_*_*_*'
-        'keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*'
+        'keep edmTriggerResults_*_*_*',
+        'keep triggerTriggerEvent_*_*_*'
     ) )
 )
 
