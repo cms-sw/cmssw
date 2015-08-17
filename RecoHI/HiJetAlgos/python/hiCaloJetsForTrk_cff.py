@@ -12,5 +12,10 @@ akPu4CaloJetsCorrected  = ak4CaloJetsL2L3.clone(
     src = cms.InputTag("akPu4CaloJetsForTrk")
 )
 
+akPu4CaloJetsSelected = cms.EDFilter( "LargestEtCaloJetSelector",
+    src = cms.InputTag( "akPu4CaloJetsCorrected" ),
+    filter = cms.bool( False ),
+    maxNumber = cms.uint32( 4 )
+)
 
-hiCaloJetsForTrk = cms.Sequence(hiCaloTowerForTrk*akPu4CaloJetsForTrk*akPu4CaloJetsCorrected)
+hiCaloJetsForTrk = cms.Sequence(hiCaloTowerForTrk*akPu4CaloJetsForTrk*akPu4CaloJetsCorrected*akPu4CaloJetsSelected)
