@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 #include <zlib.h>
 
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
@@ -100,6 +101,14 @@ namespace evf {
       throw cms::Exception("RecoEventOutputModuleForFU")
         << "Underscore character is reserved can not be used for stream names in FFF, but was detected in stream name -: " << stream_label_;
     }
+
+
+    std::string stream_label_lo = stream_label_;
+    boost::algorithm::to_lower(stream_label_lo);
+    auto streampos = stream_label_lo.rfind("stream");
+    if (streampos !=0 && streampos!=std::string::npos)
+      throw cms::Exception("RecoEventOutputModuleForFU")
+        << "stream (case-insensitive) sequence was found in stream suffix. This is reserved and can not be used for names in FFF based HLT, but was detected in stream name";
 
     fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
     
