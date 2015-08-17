@@ -121,54 +121,54 @@ void testCutParser::checkAll() {
   // note: pt = 3, charge = -1
   check( "", true );
   check( "  ", true );
-  check("cand.pt()", true);
-  check("cand.px()", false);
-  check( "cand.pt() > 2", true );
-  check( "cand.charge() < 0", true );
-  check( "cand.pt() < 2", false );
-  check( "cand.pt() >= 2", true );
-  check( "cand.pt() <= 2", false );
-  check( "cand.pt() == 3", true );
-  check( "cand.pt() == 3", true );
-  check( "cand.pt() != 3", false );
-  check( "! cand.pt() == 3", false );
-  check( "2.9 < cand.pt() < 3.1", true );
-  check( "cand.pt() > 2 & cand.charge() < 0", true );
-  check( "cand.pt() > 2 && cand.charge() < 0", true );
-  check( "cand.pt() < 2 & cand.charge() < 0", false );
-  check( "cand.pt() > 2 & cand.charge() > 0", false );
-  check( "cand.pt() < 2 & cand.charge() > 0", false );
-  check( "cand.pt() > 2 || cand.charge() > 0", true );
-  check( "cand.pt() > 2 | cand.charge() > 0", true );
-  check( "cand.pt() > 2 | cand.charge() < 0", true );
-  check( "cand.pt() < 2 | cand.charge() < 0", true );
-  check( "cand.pt() < 2 | cand.charge() > 0", false );
-  check( "cand.pt() > 2 | cand.charge() > 0 | cand.pt() < 2", true );
-  check( "cand.pt() > 2 | cand.charge() > 0 | (cand.pt() < 2 && cand.charge() < 0)", true );
-  check( "cand.pt() > 2 | cand.charge() < 0 | (cand.pt() < 2 && cand.charge() < 0)", true );
-  check( "cand.pt() > 2 | cand.charge() > 0 | (cand.pt() < 2 && cand.charge() > 0)", true );
-  check( "(cand.pt()) > 2", true );
-  check( "-cand.pt() < -2", true );
-  check( "3.9 < cand.pt() + 1 < 4.1", true );
-  check( "1.9 < cand.pt() - 1 < 2.1", true );
-  check( "5.9 < 2 * cand.pt() < 6.1", true );
-  check( "0.9 < cand.pt() / 3 < 1.1", true );
-  check( "8.9 < std::pow(cand.pt(),2.) < 9.1", true );
-  check( "26.9 < 3 * std::pow(cand.pt(),2.) < 27.1", true );
-  check( "27.9 < 3 * std::pow(cand.pt(),2.) + 1 < 28.1", true );
-  check( " 0.99 < std::sin( cand.phi() ) < 1.01", true );
-  check( " ( -0.01 < std::cos( cand.phi() ) ) && ( std::cos( cand.phi() ) < 0.01 )", true );
-  check( " 8.9 < std::pow( cand.pt(), 2 ) < 9.1", true );
-  check( "( ( 0.99 < std::sin( cand.phi() ) ) && ( std::sin(cand.phi()) < 1.01 ) ) && ( ( -0.01 < std::cos( cand.phi() ) ) && ( std::cos( cand.phi() )  < 0.01 ) )", true );
-  check( "( 3.9 < cand.pt() + 1 < 4.1 ) | ( cand.pt() < 2 )", true );
-  check( " cand.pt() == 3 &  cand.pt() > 2 | cand.pt() < 2", true );
-  check( "( ( cand.pt() == 3 &  cand.pt() > 2 ) | cand.pt() < 2 ) & 26.9 < 3 * std::pow(cand.pt(),2.) < 27.1", true );
-  check( "! cand.pt() > 2", false );
-  check( "! cand.pt() < 2", true );
-  check( "! ( ( ( 0.99 < std::sin( cand.phi() ) ) && ( std::sin(cand.phi()) < 1.01 ) ) && ( ( -0.01 < std::cos( cand.phi() ) ) && ( std::cos( cand.phi() )  < 0.01 ) ) )", false );
-  check( "cand.pt() && cand.pt() > 1",true);
+  check("obj.pt()", true);
+  check("obj.px()", false);
+  check( "obj.pt() > 2", true );
+  check( "obj.charge() < 0", true );
+  check( "obj.pt() < 2", false );
+  check( "obj.pt() >= 2", true );
+  check( "obj.pt() <= 2", false );
+  check( "obj.pt() == 3", true );
+  check( "obj.pt() == 3", true );
+  check( "obj.pt() != 3", false );
+  check( "! obj.pt() == 3", false );
+  check( "2.9 < obj.pt() < 3.1", true );
+  check( "obj.pt() > 2 & obj.charge() < 0", true );
+  check( "obj.pt() > 2 && obj.charge() < 0", true );
+  check( "obj.pt() < 2 & obj.charge() < 0", false );
+  check( "obj.pt() > 2 & obj.charge() > 0", false );
+  check( "obj.pt() < 2 & obj.charge() > 0", false );
+  check( "obj.pt() > 2 || obj.charge() > 0", true );
+  check( "obj.pt() > 2 | obj.charge() > 0", true );
+  check( "obj.pt() > 2 | obj.charge() < 0", true );
+  check( "obj.pt() < 2 | obj.charge() < 0", true );
+  check( "obj.pt() < 2 | obj.charge() > 0", false );
+  check( "obj.pt() > 2 | obj.charge() > 0 | obj.pt() < 2", true );
+  check( "obj.pt() > 2 | obj.charge() > 0 | (obj.pt() < 2 && obj.charge() < 0)", true );
+  check( "obj.pt() > 2 | obj.charge() < 0 | (obj.pt() < 2 && obj.charge() < 0)", true );
+  check( "obj.pt() > 2 | obj.charge() > 0 | (obj.pt() < 2 && obj.charge() > 0)", true );
+  check( "(obj.pt()) > 2", true );
+  check( "-obj.pt() < -2", true );
+  check( "3.9 < obj.pt() + 1 < 4.1", true );
+  check( "1.9 < obj.pt() - 1 < 2.1", true );
+  check( "5.9 < 2 * obj.pt() < 6.1", true );
+  check( "0.9 < obj.pt() / 3 < 1.1", true );
+  check( "8.9 < std::pow(obj.pt(),2.) < 9.1", true );
+  check( "26.9 < 3 * std::pow(obj.pt(),2.) < 27.1", true );
+  check( "27.9 < 3 * std::pow(obj.pt(),2.) + 1 < 28.1", true );
+  check( " 0.99 < std::sin( obj.phi() ) < 1.01", true );
+  check( " ( -0.01 < std::cos( obj.phi() ) ) && ( std::cos( obj.phi() ) < 0.01 )", true );
+  check( " 8.9 < std::pow( obj.pt(), 2 ) < 9.1", true );
+  check( "( ( 0.99 < std::sin( obj.phi() ) ) && ( std::sin(obj.phi()) < 1.01 ) ) && ( ( -0.01 < std::cos( obj.phi() ) ) && ( std::cos( obj.phi() )  < 0.01 ) )", true );
+  check( "( 3.9 < obj.pt() + 1 < 4.1 ) | ( obj.pt() < 2 )", true );
+  check( " obj.pt() == 3 &  obj.pt() > 2 | obj.pt() < 2", true );
+  check( "( ( obj.pt() == 3 &  obj.pt() > 2 ) | obj.pt() < 2 ) & 26.9 < 3 * std::pow(obj.pt(),2.) < 27.1", true );
+  check( "! obj.pt() > 2", false );
+  check( "! obj.pt() < 2", true );
+  check( "! ( ( ( 0.99 < std::sin( obj.phi() ) ) && ( std::sin(obj.phi()) < 1.01 ) ) && ( ( -0.01 < std::cos( obj.phi() ) ) && ( std::cos( obj.phi() )  < 0.01 ) ) )", false );
+  check( "obj.pt() && obj.pt() > 1",true);
   // check trailing space
-  check( "cand.pt() > 2 ", true );
+  check( "obj.pt() > 2 ", true );
 
   // check bit tests
   check( "test_bit(7, 0)", true  );
@@ -179,82 +179,82 @@ void testCutParser::checkAll() {
   check( "test_bit(4, 3)", false );
 
   // check quality
-  check("cand.quality(reco::TrackBase::highPurity)", true );
-  check("cand.quality(reco::TrackBase::loose)", false );
-  check("cand.quality(reco::TrackBase::tight)", false );
-  check("cand.quality(reco::TrackBase::confirmed)", false );
-  check("cand.quality(reco::TrackBase::goodIterative)", true);
-  check("cand.quality(reco::TrackBase::looseSetWithPV)", false);
-  check("cand.quality(reco::TrackBase::highPuritySetWithPV)", false);
+  check("obj.quality(reco::TrackBase::highPurity)", true );
+  check("obj.quality(reco::TrackBase::loose)", false );
+  check("obj.quality(reco::TrackBase::tight)", false );
+  check("obj.quality(reco::TrackBase::confirmed)", false );
+  check("obj.quality(reco::TrackBase::goodIterative)", true);
+  check("obj.quality(reco::TrackBase::looseSetWithPV)", false);
+  check("obj.quality(reco::TrackBase::highPuritySetWithPV)", false);
 
   // check handling of errors 
   //   first those who are the same in lazy and non lazy parsing
-  reco::parser::SelectorPtr sel;
+  reco::exprEval::SelectorPtr<reco::Track> sel;
   for (int lazy = 0; lazy <= 1; ++lazy) {
     sel.reset();
-    CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("1abc",sel, lazy));
+    CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("1abc",sel, lazy), edm::Exception);
     sel.reset();
-    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("(pt < 1",sel, lazy), edm::Exception);
+    CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("(obj.pt() < 1",sel, lazy), edm::Exception);
     sel.reset();
-    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt < #",sel, lazy), edm::Exception);
+    CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("obj.pt() < #",sel, lazy), edm::Exception);
     sel.reset();
-    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt <> 5",sel, lazy), edm::Exception);
+    CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("obj.pt() <> 5",sel, lazy), edm::Exception);
     sel.reset();
-    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("cos( pt < .5",sel, lazy), edm::Exception);
+    CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("std::cos( obj.pt() < .5",sel, lazy), edm::Exception);
     sel.reset();
-    CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>(" 2 * (pt + 1 < .5",sel, lazy), edm::Exception);
+    CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>(" 2 * (obj.pt() + 1 < .5",sel, lazy), edm::Exception);
     // These don't throw, but they return false.
     sel.reset();
-    CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("pt pt() < .5",sel, lazy));
+    CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("pt obj.pt() < .5",sel, lazy), edm::Exception);
     sel.reset();
-    CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("pt() pt < .5",sel, lazy));
+    CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("obj.pt() pt < .5",sel, lazy), edm::Exception);
     sel.reset();
     // This throws or return false depending on the parsing:
     // without lazy parsing, it complains about non-existing method 'cos'
-    if (lazy) CPPUNIT_ASSERT(!reco::parser::cutParser<reco::Track>("cos pt < .5",sel, lazy));
-    else      CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("cos pt < .5",sel, lazy), edm::Exception);
+    if (lazy) CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("std::cos obj.pt() < .5",sel, lazy), edm::Exception);
+    else      CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("std::cos obj.pt() < .5",sel, lazy), edm::Exception);
     sel.reset();
   }
   // then those which are specific to non lazy parsing
   sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("doesNotExist < 1",sel), edm::Exception);
+  CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("doesNotExist < 1",sel), edm::Exception);
   sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("pt().pt < 1",sel), edm::Exception);
+  CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("pt().pt < 1",sel), edm::Exception);
   // and afterwards check that in lazy parsing they throw at runtime
   sel.reset();
-  CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>("doesNotExist < 1",sel,true)); // with lazy parsing this doesn't throw
-  CPPUNIT_ASSERT_THROW((*sel)(o), reco::parser::Exception);                          // but it throws here!
+  CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("doesNotExist < 1",sel,true), edm::Exception); // with lazy parsing this doesn't throw
+  //CPPUNIT_ASSERT_THROW((*sel)(o), reco::exprEval::Exception);                          // but it throws here!
   sel.reset();
-  CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>("pt.pt() < 1",sel, true));  // same for this
-  CPPUNIT_ASSERT_THROW((*sel)(o), reco::parser::Exception);                     // it throws wen called
+  CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("obj.pt.pt() < 1",sel, true), edm::Exception);  // same for this
+  //CPPUNIT_ASSERT_THROW((*sel)(o), reco::exprEval::Exception);                     // it throws wen called
 
   sel.reset();
-  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("quality('notAnEnum')",sel, false), edm::Exception);
+  CPPUNIT_ASSERT_THROW(reco::exprEval::cutParser<reco::Track>("obj.quality('notAnEnum')",sel, false), edm::Exception);
 
   // check hits (for re-implemented virtual functions and exception handling)
   CPPUNIT_ASSERT(hitOk.hasPositionAndError());
-  checkHit( "cand.hasPositionAndError()" , true, hitOk );
+  checkHit( "obj.hasPositionAndError()" , true, hitOk );
   CPPUNIT_ASSERT(!hitThrow.hasPositionAndError());
-  checkHit( "cand.hasPositionAndError()" , false, hitThrow );
+  checkHit( "obj.hasPositionAndError()" , false, hitThrow );
   CPPUNIT_ASSERT(hitOk.localPosition().x() == 1);
-  checkHit( "( .99 < cand.localPosition().x() ) && ( cand.localPosition().x() < 1.01 )", true, hitOk);
-  checkHit( "( .99 < cand.localPosition().x() ) && ( cand.localPosition().x() < 1.01 )", false, hitThrow);
+  checkHit( "( .99 < obj.localPosition().x() ) && ( obj.localPosition().x() < 1.01 )", true, hitOk);
+  checkHit( "( .99 < obj.localPosition().x() ) && ( obj.localPosition().x() < 1.01 )", false, hitThrow);
 
   // check underscores (would be better to build your own stub...)
-  checkHit("cand.cluster().isNull()",true,hitOk);
-  checkHit("cand.cluster_strip().isNull()",true,hitOk);
-  checkHit("cand.cluster().isNonnull()",false,hitOk);  
-  checkHit("cand.cluster_strip().isNonnull()",false,hitOk);
+  checkHit("obj.cluster().isNull()",true,hitOk);
+  checkHit("obj.cluster_strip().isNull()",true,hitOk);
+  checkHit("obj.cluster().isNonnull()",false,hitOk);  
+  checkHit("obj.cluster_strip().isNonnull()",false,hitOk);
 
 
   // check short cirtcuit logics
   CPPUNIT_ASSERT( hitOk.hasPositionAndError() && (hitOk.localPosition().x() == 1) );
   CPPUNIT_ASSERT( !( hitThrow.hasPositionAndError() && (hitThrow.localPosition().x() == 1) ) );
-  checkHit( "cand.hasPositionAndError() && (cand.localPosition().x() == 1)", true,  hitOk    );
-  checkHit( "cand.hasPositionAndError() && (cand.localPosition().x() == 1)", false, hitThrow );
+  checkHit( "obj.hasPositionAndError() && (obj.localPosition().x() == 1)", true,  hitOk    );
+  checkHit( "obj.hasPositionAndError() && (obj.localPosition().x() == 1)", false, hitThrow );
   CPPUNIT_ASSERT( (!hitOk.hasPositionAndError()   ) || (hitOk.localPosition().x()    == 1) );
   CPPUNIT_ASSERT( (!hitThrow.hasPositionAndError()) || (hitThrow.localPosition().x() == 1) );
-  checkHit( "!cand.hasPositionAndError() || (cand.localPosition().x() == 1)", true,  hitOk    );
-  checkHit( "!cand.hasPositionAndError() || (cand.localPosition().x() == 1)", true, hitThrow );
+  checkHit( "!obj.hasPositionAndError() || (obj.localPosition().x() == 1)", true,  hitOk    );
+  checkHit( "!obj.hasPositionAndError() || (obj.localPosition().x() == 1)", true, hitThrow );
 
 }

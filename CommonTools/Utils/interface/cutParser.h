@@ -5,6 +5,7 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <string>
 
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "CommonTools/Utils/interface/ExpressionEvaluator.h"
 #include "CommonTools/Utils/interface/ExpressionEvaluatorTemplates.h"
@@ -41,21 +42,28 @@ namespace reco {
         }
       }
 
-      func << "bool eval(" << the_obj_type << " const& cand) const override final {\n";
+      func << "bool eval(" << the_obj_type << " const& obj) const override final {\n";
       func << " return ( " << (justBlanks ? "true" : cut ) << " );\n";
       func << "}\n";
 
       const std::string strexpr = func.str();
       
       //std::cout << strexpr << std::endl;
-      
-      reco::ExpressionEvaluator builder("CommonTools/CandUtils",the_cut_type.className().c_str(),strexpr.c_str());
+      sel.reset( nullptr );
+      try {
+        reco::ExpressionEvaluator builder("CommonTools/CandUtils",the_cut_type.className().c_str(),strexpr.c_str());
+        sel.reset( builder.expr<CutType>() );
+      } catch( cms::Exception& e) {
+        sel.reset( nullptr );
+        throw edm::Exception(edm::errors::Configuration)
+          <<"ExpressionEvaluator cut parser error: "<< e.what() << std::endl;
+      }
       //std::cout << "made the builder" << std::endl;
-      sel.reset( builder.expr<CutType>() );
+      
       //std::cout << "made the expression" << std::endl;
       //std::cout << "set set = " << sel.get() << std::endl;
       
-      return true;      
+      return sel != nullptr;      
     }
     
     template<typename T>
