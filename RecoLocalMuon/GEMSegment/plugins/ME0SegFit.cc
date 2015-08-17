@@ -258,8 +258,8 @@ void ME0SegFit::fitlsq(void) {
     p = M * B;
   }
 
-  //  LogTrace("ME0SegFit") << "[ME0SegFit::fit] p = " 
-  //        << p(0) << ", " << p(1) << ", " << p(2) << ", " << p(3);
+  LogTrace("ME0SegFit") << "[ME0SegFit::fit] p = " 
+        << p(0) << ", " << p(1) << ", " << p(2) << ", " << p(3);
   
   // fill member variables  (note origin has local z = 0)
   //  intercept_
