@@ -4,8 +4,6 @@
 /** \class ME0SegmentProducer derived by CSCSegmentProducer 
  * Produces a collection of ME0Segment's in endcap muon ME0s. 
  *
- * $Date: 2014/02/03 23:48:11 $
- * $Revision: 1.1 $
  * \author Marcello Maggi
  */
 
