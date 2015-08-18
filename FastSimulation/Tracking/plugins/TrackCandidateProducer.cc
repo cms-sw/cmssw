@@ -85,7 +85,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   edm::ESHandle<Propagator>             propagator;
   es.get<TrackingComponentsRecord>().get(propagatorLabel,propagator);
-  Propagator* thePropagator = propagator.product()->clone();
+  //  Propagator* thePropagator = propagator.product()->clone();
 
   // get products
   edm::Handle<edm::View<TrajectorySeed> > seeds;
@@ -182,8 +182,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     //---------------------------------------------------------------------------------------------------------
     //backPropagate seedState to front recHit and get a new initial TSOS at front recHit//---------------------
     const GeomDet* initialLayer = trackerGeometry->idToDet(trackRecHits.front().geographicalId());
-    thePropagator->setPropagationDirection(oppositeToMomentum);
-    const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(seedTSOS,initialLayer->surface()) ;
+    //thePropagator->setPropagationDirection(oppositeToMomentum);
+    const TrajectoryStateOnSurface initialTSOS = propagator->propagate(seedTSOS,initialLayer->surface()) ;
     //---------------------------------------------------------------------------------------------------------
     //Check if the TSOS is valid .
     if (!initialTSOS.isValid()) continue; 
