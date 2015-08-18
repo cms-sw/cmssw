@@ -90,6 +90,7 @@ class Vx3DHLTAnalyzer : public EDAnalyzer {
 				unsigned int BeginLumiOfFit,
 				unsigned int EndLumiOfFit,
 				int dataType);
+      virtual void printFitParams (const vector<double>& fitResults);
       virtual void beginLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup);
       virtual void endLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup);
       virtual void endJob ();
@@ -144,6 +145,9 @@ class Vx3DHLTAnalyzer : public EDAnalyzer {
 
       MonitorElement* hitCounter;
       MonitorElement* hitCountHistory;
+
+      MonitorElement* statusCounter;
+      MonitorElement* statusCountHistory;
 
       MonitorElement* reportSummary;
       MonitorElement* reportSummaryMap;

@@ -42,8 +42,8 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 #----------------------------
 # Define Sequences
 #----------------------------
-process.dqmmodules  = cms.Sequence(process.dqmEnv + process.dqmSaver)
-process.phystrigger = cms.Sequence(process.hltTriggerTypeFilter)
+process.dqmModules  = cms.Sequence(process.dqmEnv + process.dqmSaver)
+process.physTrigger = cms.Sequence(process.hltTriggerTypeFilter)
 
 
 #----------------------------
@@ -99,7 +99,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                             yRange             = cms.double(0.8),
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
-                                            zStep              = cms.double(0.05),
+                                            zStep              = cms.double(0.04),
                                             VxErrCorr          = cms.double(1.3), # Keep checking this with later release
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
@@ -115,6 +115,7 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     # Pixel-Tracks&Vertices Config
     #----------------------------
     process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+    process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
     process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
     from RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi import *
     process.PixelLayerTriplets.BPix.HitProducer = cms.string('siPixelRecHitsPreSplitting')
@@ -126,18 +127,18 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     #----------------------------
     # Pixel-Tracks&Vertices Reco
     #----------------------------
-    process.reconstruction_step  = cms.Sequence(process.siPixelDigis*
-                                                process.offlineBeamSpot*
-                                                process.siPixelClustersPreSplitting*
-                                                process.siPixelRecHitsPreSplitting*
-                                                process.siPixelClusterShapeCachePreSplitting*
-                                                process.recopixelvertexing)
+    process.reconstructionStep  = cms.Sequence(process.siPixelDigis*
+                                               process.offlineBeamSpot*
+                                               process.siPixelClustersPreSplitting*
+                                               process.siPixelRecHitsPreSplitting*
+                                               process.siPixelClusterShapeCachePreSplitting*
+                                               process.recopixelvertexing)
 
 
     #----------------------------
     # Define Path
     #----------------------------
-    process.p = cms.Path(process.scalersRawToDigi*process.phystrigger*process.dqmmodules*process.reconstruction_step*process.pixelVertexDQM)
+    process.p = cms.Path(process.scalersRawToDigi*process.physTrigger*process.reconstructionStep*process.pixelVertexDQM*process.dqmModules)
 
 
 
@@ -186,7 +187,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
                                             yRange             = cms.double(0.8),
                                             yStep              = cms.double(0.001),
                                             zRange             = cms.double(30.0),
-                                            zStep              = cms.double(0.05),
+                                            zStep              = cms.double(0.04),
                                             VxErrCorr          = cms.double(1.3), # Keep checking this with later release
                                             minVxDoF           = cms.double(10.0),
                                             minVxWgt           = cms.double(0.5),
@@ -201,15 +202,15 @@ if (process.runType.getRunType() == process.runType.hi_run):
     #----------------------------
     # Pixel-Tracks&Vertices Reco
     #----------------------------
-    process.reconstruction_step = cms.Sequence(process.siPixelDigis*
-                                               process.offlineBeamSpot*
-                                               process.siPixelClusters*
-                                               process.siPixelRecHits*
-                                               process.hiPixelVertices*
-                                               process.hiPixel3PrimTracks)
+    process.reconstructionStep = cms.Sequence(process.siPixelDigis*
+                                              process.offlineBeamSpot*
+                                              process.siPixelClusters*
+                                              process.siPixelRecHits*
+                                              process.hiPixelVertices*
+                                              process.hiPixel3PrimTracks)
 
 
     #----------------------------
     # Define Path
     #----------------------------
-    process.p = cms.Path(process.scalersRawToDigi*process.phystrigger*process.dqmmodules*process.reconstruction_step*process.pixelVertexDQM)
+    process.p = cms.Path(process.scalersRawToDigi*process.physTrigger*process.reconstructionStep*process.pixelVertexDQM*process.dqmModules)

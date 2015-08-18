@@ -1,16 +1,16 @@
 // -*- C++ -*-
-//
-// Package:    Vx3DHLTAnalyzer
-// Class:      Vx3DHLTAnalyzer
-// 
-/**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc plugins/Vx3DHLTAnalyzer.cc
+// Package: Vx3DHLTAnalyzer
+// Class:   Vx3DHLTAnalyzer
 
- Description:     beam-spot monitor entirely based on pixel detector information
- Implementation:  the monitoring is based on a 3D fit to the vertex cloud
+/* 
+   Class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc plugins/Vx3DHLTAnalyzer.cc
+
+   Description:    beam-spot monitor entirely based on pixel detector information
+   Implementation: the monitoring is based on a 3D fit to the vertex cloud
 */
-//
-// Original Author:  Mauro Dinardo, 28 S-012, +41-22-767-8302,
-//         Created:  Tue Feb 23 13:15:31 CET 2010
+
+// Original Author: Mauro Dinardo, 28 S-012, +41-22-767-8302,
+//         Created: Tue Feb 23 13:15:31 CET 2010
 
 
 #include "DQM/BeamMonitor/plugins/Vx3DHLTAnalyzer.h"
@@ -30,12 +30,12 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
   maxLumiIntegration = 15;    // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
   dataFromFit        = true;  // The Beam Spot data can be either taken from the histograms or from the fit results
   minNentries        = 20;    // Minimum number of good vertices to perform the fit
-  xRange             = 1.;    // [cm]
+  xRange             = 0.8;   // [cm]
   xStep              = 0.001; // [cm]
-  yRange             = 1.;    // [cm]
+  yRange             = 0.8;   // [cm]
   yStep              = 0.001; // [cm]
   zRange             = 30.;   // [cm]
-  zStep              = 0.05;  // [cm]
+  zStep              = 0.04;  // [cm]
   VxErrCorr          = 1.3;
   minVxDoF           = 10.;   // Good-vertex selection cut
   // For vertex fitter without track-weight: d.o.f. = 2*NTracks - 3
@@ -269,21 +269,24 @@ double Gauss3DFunc (const double* par)
 
 int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 {
-  // RETURN CODE:
-  //  0 == OK
-  // -2 == NO OK - not enough "minNentries"
-  // Any other number == NO OK
- 
+  // ##########################################
+  // # RETURN CODE:                           #
+  // #  0 == OK                               #
+  // # -1 == NO OK - not finite edm           #
+  // # -2 == NO OK - not enough "minNentries" #
+  // # -3 == NO OK - not finite errors        #
+  // # -4 == NO OK - negative determinant     #
+  // ##########################################
+
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
-      double nSigmaXY       = 100.;
-      double nSigmaZ        = 100.;
-      double varFactor      = 4./25.; // Take into account the difference between the RMS and sigma (RMS usually greater than sigma)
-      double parDistanceXY  = 0.005;  // Unit: [cm]
-      double parDistanceZ   = 0.5;    // Unit: [cm]
-      double parDistanceddZ = 1e-3;   // Unit: [rad]
-      double parDistanceCxy = 1e-5;   // Unit: [cm^2]
-      double bestEdm        = 1e-1;
+      double nSigmaXY       = 10.;
+      double nSigmaZ        = 10.;
+      double parDistanceXY  = 1e-3; // Unit: [cm]
+      double parDistanceZ   = 1e-2; // Unit: [cm]
+      double parDistanceddZ = 1e-3; // Unit: [rad]
+      double parDistanceCxy = 1e-5; // Unit: [cm^2]
+      double bestEdm;
 
       const unsigned int trials = 4;
       double largerDist[trials] = {0.1, 5., 10., 100.};
@@ -300,8 +303,6 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
       vector<double>::const_iterator it = vals->begin();
 
       ROOT::Math::Minimizer* Gauss3D = ROOT::Math::Factory::CreateMinimizer("Minuit2","Migrad");
-      Gauss3D->SetMaxFunctionCalls(1e4);
-      Gauss3D->SetTolerance(1e-9); // Tolerance on likelihood
       Gauss3D->SetErrorDef(1.0);
       if (internalDebug == true) Gauss3D->SetPrintLevel(3);
       else                       Gauss3D->SetPrintLevel(0);
@@ -315,14 +316,14 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
       bestEdm = 1.;
       for (int i = 0; i < 3; i++)
 	{
-	  deltaMean = (double(i)-1.)*std::sqrt((*(it+0))*varFactor);
+	  deltaMean = (double(i)-1.)*std::sqrt(*(it+0));
 	  if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tdeltaMean --> " << deltaMean << endl;
 
 	  Gauss3D->Clear();
 
-	  Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY);
-	  Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY);
-	  Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ);
+	  Gauss3D->SetVariable(0,"var x ", *(it+0), parDistanceXY * parDistanceXY);
+	  Gauss3D->SetVariable(1,"var y ", *(it+1), parDistanceXY * parDistanceXY);
+	  Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ  * parDistanceZ);
 	  Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy);
 	  Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ);
 	  Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ);
@@ -344,8 +345,14 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	  edm = Gauss3D->Edm();
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (isNotFinite(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+	  else if (isNotFinite(edm) == true) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl; }
+	  else for (unsigned int j = 0; j < nParams; j++)
+		 if (isNotFinite(Gauss3D->Errors()[j]) == true)
+		   {
+		     goodData = -3;
+		     if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+		     break;
+		   }
 	  if (goodData == 0)
 	    {
 	      covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -354,7 +361,7 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	      det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
 		Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
 		covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
-	      if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
+	      if (det < 0.) { goodData = -4; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
 	    }
 
 	  if ((goodData == 0) && (std::fabs(edm) < bestEdm)) { bestEdm = edm; bestMovementX = i; }
@@ -365,22 +372,22 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
       bestEdm = 1.;
       for (int i = 0; i < 3; i++)
 	{
-	  deltaMean = (double(i)-1.)*std::sqrt((*(it+1))*varFactor);
+	  deltaMean = (double(i)-1.)*std::sqrt(*(it+1));
 	  if (internalDebug == true)
 	    {
 	      cout << "[Vx3DHLTAnalyzer]::\tdeltaMean --> " << deltaMean << endl;
-	      cout << "[Vx3DHLTAnalyzer]::\tdeltaMean X --> " << (double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor) << endl;
+	      cout << "[Vx3DHLTAnalyzer]::\tdeltaMean X --> " << (double(bestMovementX)-1.)*std::sqrt(*(it+0)) << endl;
 	    }
 
 	  Gauss3D->Clear();
 
-	  Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY);
-	  Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY);
-	  Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ);
+	  Gauss3D->SetVariable(0,"var x ", *(it+0), parDistanceXY * parDistanceXY);
+	  Gauss3D->SetVariable(1,"var y ", *(it+1), parDistanceXY * parDistanceXY);
+	  Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ  * parDistanceZ);
 	  Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy);
 	  Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ);
 	  Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ);
-	  Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY);
+	  Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt(*(it+0)), parDistanceXY);
 	  Gauss3D->SetVariable(7,"mean y", *(it+7)+deltaMean, parDistanceXY);
 	  Gauss3D->SetVariable(8,"mean z", *(it+8), parDistanceZ);
 
@@ -398,8 +405,14 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	  edm = Gauss3D->Edm();
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (isNotFinite(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+	  else if (isNotFinite(edm) == true) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl; }
+	  else for (unsigned int j = 0; j < nParams; j++)
+		 if (isNotFinite(Gauss3D->Errors()[j]) == true)
+		   {
+		     goodData = -3;
+		     if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+		     break;
+		   }
 	  if (goodData == 0)
 	    {
 	      covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -408,7 +421,7 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	      det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
 		Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
 		covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
-	      if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
+	      if (det < 0.) { goodData = -4; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
 	    }
 	  
 	  if ((goodData == 0) && (std::fabs(edm) < bestEdm)) { bestEdm = edm; bestMovementY = i; }
@@ -423,20 +436,20 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	  if (internalDebug == true)
 	    {
 	      cout << "[Vx3DHLTAnalyzer]::\tdeltaMean --> " << deltaMean << endl;
-	      cout << "[Vx3DHLTAnalyzer]::\tdeltaMean X --> " << (double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor) << endl;
-	      cout << "[Vx3DHLTAnalyzer]::\tdeltaMean Y --> " << (double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor) << endl;
+	      cout << "[Vx3DHLTAnalyzer]::\tdeltaMean X --> " << (double(bestMovementX)-1.)*std::sqrt(*(it+0)) << endl;
+	      cout << "[Vx3DHLTAnalyzer]::\tdeltaMean Y --> " << (double(bestMovementY)-1.)*std::sqrt(*(it+1)) << endl;
 	    }
 
 	  Gauss3D->Clear();
 
-	  Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY);
-	  Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY);
-	  Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ);
+	  Gauss3D->SetVariable(0,"var x ", *(it+0), parDistanceXY * parDistanceXY);
+	  Gauss3D->SetVariable(1,"var y ", *(it+1), parDistanceXY * parDistanceXY);
+	  Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ  * parDistanceZ);
 	  Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy);
 	  Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ);
 	  Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ);
-	  Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY);
-	  Gauss3D->SetVariable(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor), parDistanceXY);
+	  Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt(*(it+0)), parDistanceXY);
+	  Gauss3D->SetVariable(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt(*(it+1)), parDistanceXY);
 	  Gauss3D->SetVariable(8,"mean z", *(it+8)+deltaMean, parDistanceZ);
 
 	  // Set the central positions of the centroid for vertex rejection
@@ -453,8 +466,14 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	  edm = Gauss3D->Edm();
 
 	  if (counterVx < minNentries) goodData = -2;
-	  else if (isNotFinite(edm) == true) goodData = -1;
-	  else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+	  else if (isNotFinite(edm) == true) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl; }
+	  else for (unsigned int j = 0; j < nParams; j++)
+		 if (isNotFinite(Gauss3D->Errors()[j]) == true)
+		   {
+		     goodData = -3;
+		     if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+		     break;
+		   }
 	  if (goodData == 0)
 	    {
 	      covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -463,7 +482,7 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	      det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
 		Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
 		covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
-	      if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
+	      if (det < 0.) { goodData = -4; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
 	    }
 	  
 	  if ((goodData == 0) && (std::fabs(edm) < bestEdm)) { bestEdm = edm; bestMovementZ = i; }
@@ -473,14 +492,14 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
       Gauss3D->Clear();
 
       // @@@ FINAL FIT @@@
-      Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY);
-      Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY);
-      Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ);
+      Gauss3D->SetVariable(0,"var x ", *(it+0), parDistanceXY * parDistanceXY);
+      Gauss3D->SetVariable(1,"var y ", *(it+1), parDistanceXY * parDistanceXY);
+      Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ  * parDistanceZ);
       Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy);
       Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ);
       Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ);
-      Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY);
-      Gauss3D->SetVariable(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor), parDistanceXY);
+      Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt(*(it+0)), parDistanceXY);
+      Gauss3D->SetVariable(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt(*(it+1)), parDistanceXY);
       Gauss3D->SetVariable(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*std::sqrt(*(it+2)), parDistanceZ);
 
       // Set the central positions of the centroid for vertex rejection
@@ -497,8 +516,14 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
       edm = Gauss3D->Edm();
       
       if (counterVx < minNentries) goodData = -2;
-      else if (isNotFinite(edm) == true) goodData = -1;
-      else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+      else if (isNotFinite(edm) == true) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl; }
+      else for (unsigned int j = 0; j < nParams; j++)
+	     if (isNotFinite(Gauss3D->Errors()[j]) == true)
+	       {
+		 goodData = -3;
+		 if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+		 break;
+	       }
       if (goodData == 0)
 	{
 	  covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -507,7 +532,7 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	  det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
 	    Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
 	    covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
-	  if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
+	  if (det < 0.) { goodData = -4; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
 	}
 
       // @@@ FIT WITH DIFFERENT PARAMETER DISTANCES @@@
@@ -519,15 +544,15 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	  
 	      if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tFIT WITH DIFFERENT PARAMETER DISTANCES - STEP " << i+1 << endl;      
 
-	      Gauss3D->SetVariable(0,"var x ", *(it+0)*varFactor, parDistanceXY*parDistanceXY * largerDist[i]);
-	      Gauss3D->SetVariable(1,"var y ", *(it+1)*varFactor, parDistanceXY*parDistanceXY * largerDist[i]);
-	      Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ*parDistanceZ * largerDist[i]);
+	      Gauss3D->SetVariable(0,"var x ", *(it+0), parDistanceXY * parDistanceXY * largerDist[i]);
+	      Gauss3D->SetVariable(1,"var y ", *(it+1), parDistanceXY * parDistanceXY * largerDist[i]);
+	      Gauss3D->SetVariable(2,"var z ", *(it+2), parDistanceZ  * parDistanceZ  * largerDist[i]);
 	      Gauss3D->SetVariable(3,"cov xy", *(it+3), parDistanceCxy * largerDist[i]);
 	      Gauss3D->SetVariable(4,"dydz  ", *(it+4), parDistanceddZ * largerDist[i]);
 	      Gauss3D->SetVariable(5,"dxdz  ", *(it+5), parDistanceddZ * largerDist[i]);
-	      Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt((*(it+0))*varFactor), parDistanceXY * largerDist[i]);
-	      Gauss3D->SetVariable(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt((*(it+1))*varFactor), parDistanceXY * largerDist[i]);
-	      Gauss3D->SetVariable(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*std::sqrt(*(it+2)), parDistanceZ * largerDist[i]);
+	      Gauss3D->SetVariable(6,"mean x", *(it+6)+(double(bestMovementX)-1.)*std::sqrt(*(it+0)), parDistanceXY * largerDist[i]);
+	      Gauss3D->SetVariable(7,"mean y", *(it+7)+(double(bestMovementY)-1.)*std::sqrt(*(it+1)), parDistanceXY * largerDist[i]);
+	      Gauss3D->SetVariable(8,"mean z", *(it+8)+(double(bestMovementZ)-1.)*std::sqrt(*(it+2)), parDistanceZ  * largerDist[i]);
 
 	      // Set the central positions of the centroid for vertex rejection
 	      xPos = Gauss3D->X()[6];
@@ -543,8 +568,14 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 	      edm = Gauss3D->Edm();
       
 	      if (counterVx < minNentries) goodData = -2;
-	      else if (isNotFinite(edm) == true) goodData = -1;
-	      else for (unsigned int j = 0; j < nParams; j++) if (isNotFinite(Gauss3D->Errors()[j]) == true) { goodData = -1; break; }
+	      else if (isNotFinite(edm) == true) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite edm !" << endl; }
+	      else for (unsigned int j = 0; j < nParams; j++)
+		     if (isNotFinite(Gauss3D->Errors()[j]) == true)
+		       {
+			 goodData = -3;
+			 if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNot finite errors !" << endl;
+			 break;
+		       }
 	      if (goodData == 0)
 		{
 		  covyz = Gauss3D->X()[4]*(std::fabs(Gauss3D->X()[2])-std::fabs(Gauss3D->X()[1])) - Gauss3D->X()[5]*Gauss3D->X()[3];
@@ -553,7 +584,7 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 		  det = std::fabs(Gauss3D->X()[0]) * (std::fabs(Gauss3D->X()[1])*std::fabs(Gauss3D->X()[2]) - covyz*covyz) -
 		    Gauss3D->X()[3] * (Gauss3D->X()[3]*std::fabs(Gauss3D->X()[2]) - covxz*covyz) +
 		    covxz * (Gauss3D->X()[3]*covyz - covxz*std::fabs(Gauss3D->X()[1]));
-		  if (det < 0.) { goodData = -1; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
+		  if (det < 0.) { goodData = -4; if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tNegative determinant !" << endl; }
 		}
 	    } else break;
 	}
@@ -605,6 +636,8 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       hitCountHistory->Reset();
       goodVxCounter->Reset();
       goodVxCountHistory->Reset();
+      statusCounter->Reset();
+      statusCountHistory->Reset();
       fitResults->Reset();
 
       reportSummary->Fill(-1);
@@ -626,7 +659,7 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       Vx_X->Reset();
       Vx_Y->Reset();
       Vx_Z->Reset();
-      
+
       Vx_ZX->Reset();
       Vx_ZY->Reset();
       Vx_XY->Reset();
@@ -784,6 +817,20 @@ void Vx3DHLTAnalyzer::writeToFile (vector<double>* vals,
 }
 
 
+void Vx3DHLTAnalyzer::printFitParams (const vector<double>& fitResults)
+{
+  cout << "var x -->  " << fitResults[0] << " +/- " << fitResults[0+nParams] << endl;
+  cout << "var y -->  " << fitResults[1] << " +/- " << fitResults[1+nParams] << endl;
+  cout << "var z -->  " << fitResults[2] << " +/- " << fitResults[2+nParams] << endl;
+  cout << "cov xy --> " << fitResults[3] << " +/- " << fitResults[3+nParams] << endl;
+  cout << "dydz   --> " << fitResults[4] << " +/- " << fitResults[4+nParams] << endl;
+  cout << "dxdz   --> " << fitResults[5] << " +/- " << fitResults[5+nParams] << endl;
+  cout << "mean x --> " << fitResults[6] << " +/- " << fitResults[6+nParams] << endl;
+  cout << "mean y --> " << fitResults[7] << " +/- " << fitResults[7+nParams] << endl;
+  cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8+nParams] << endl;	      
+}
+
+
 void Vx3DHLTAnalyzer::beginLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup)
 {
   if ((lumiCounter == 0) && (lumiBlock.luminosityBlock() > lastLumiOfFit))
@@ -829,22 +876,28 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 	  fitResults.push_back(Vx_Z->getTH1()->GetMean());
 	  for (unsigned int i = 0; i < nParams; i++) fitResults.push_back(0.0);
 	  
-	  goodData = MyFit(&fitResults);	  	      
+	  if (internalDebug == true) 
+	    {
+ 	      cout << "[Vx3DHLTAnalyzer]::\t@@@ Beam Spot parameters - prefit @@@" << endl;
+
+	      printFitParams(fitResults);
+
+	      cout << "Runnumber " << runNumber << endl;
+	      cout << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
+	      cout << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
+	      cout << "LumiRange " << beginLumiOfFit << " - " << endLumiOfFit << endl;
+	    }
+
+	  goodData = MyFit(&fitResults);
 
 	  if (internalDebug == true) 
 	    {
-	      cout << "[Vx3DHLTAnalyzer]::\t@@@ Beam Spot parameters @@@" << endl;
+ 	      cout << "[Vx3DHLTAnalyzer]::\t@@@ Beam Spot parameters - postfit @@@" << endl;
+
+	      printFitParams(fitResults);
+
 	      cout << "goodData --> " << goodData << endl;
 	      cout << "Used vertices --> " << counterVx << endl;
-	      cout << "var x -->  " << fitResults[0] << " +/- " << fitResults[0+nParams] << endl;
-	      cout << "var y -->  " << fitResults[1] << " +/- " << fitResults[1+nParams] << endl;
-	      cout << "var z -->  " << fitResults[2] << " +/- " << fitResults[2+nParams] << endl;
-	      cout << "cov xy --> " << fitResults[3] << " +/- " << fitResults[3+nParams] << endl;
-	      cout << "dydz   --> " << fitResults[4] << " +/- " << fitResults[4+nParams] << endl;
-	      cout << "dxdz   --> " << fitResults[5] << " +/- " << fitResults[5+nParams] << endl;
-	      cout << "mean x --> " << fitResults[6] << " +/- " << fitResults[6+nParams] << endl;
-	      cout << "mean y --> " << fitResults[7] << " +/- " << fitResults[7+nParams] << endl;
-	      cout << "mean z --> " << fitResults[8] << " +/- " << fitResults[8+nParams] << endl;
 	    }
 
 	  if (goodData == 0)
@@ -929,7 +982,12 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 
       numberFits++;
       writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
-      if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tUsed vertices: " << counterVx << endl;
+      if (internalDebug == true)  cout << "[Vx3DHLTAnalyzer]::\tUsed vertices: " << counterVx << endl;
+
+      statusCounter->ShiftFillLast((double)goodData, 1e-3, nLumiFit);
+
+      statusCountHistory->getTH1()->SetBinContent(lastLumiOfFit, (double)goodData);
+      statusCountHistory->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
 
       if (goodData == 0)
 	{
@@ -940,9 +998,9 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 	}
       else
 	{
-	  if (goodData == -2) histTitle << "Ongoing: not enough statistics (" << lumiCounter << " - " << maxLumiIntegration << " lumis)";
+	  if (goodData == -2) histTitle << "Ongoing: not enough evts (" << lumiCounter << " - " << maxLumiIntegration << " lumis)";
 	  else                histTitle << "Ongoing: temporary problems (" << lumiCounter << " - " << maxLumiIntegration << " lumis)";
-
+	  
 	  if (lumiCounter > maxLumiIntegration) reset("whole");
 	  else                                  reset("hitCounter");
 	}
@@ -951,7 +1009,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       reportSummaryMap->getTH1()->SetBinContent(1, 1, (numberFits != 0 ? ((double)numberGoodFits) / ((double)numberFits) : -1));
 
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
-      
+
       fitResults->setBinContent(1, 9, vals[0]);
       fitResults->setBinContent(1, 8, vals[1]);
       fitResults->setBinContent(1, 7, vals[2]);
@@ -976,7 +1034,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       TF1* myLinFit = new TF1("myLinFit", "[0] + [1]*x", mXlumi->getTH1()->GetXaxis()->GetXmin(), mXlumi->getTH1()->GetXaxis()->GetXmax());
       myLinFit->SetLineColor(2);
       myLinFit->SetLineWidth(2);
-      myLinFit->SetParName(0,"Intercept");
+      myLinFit->SetParName(0,"Inter.");
       myLinFit->SetParName(1,"Slope");
 
       mXlumi->ShiftFillLast(vals[0], std::sqrt(vals[8]), nLumiFit);
@@ -1019,7 +1077,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       myLinFit->SetParameter(1, 0.0);
       dydzlumi->getTH1()->Fit(myLinFit,"QR");
       
-      goodVxCounter->ShiftFillLast((double)counterVx, std::sqrt((double)counterVx), nLumiFit);      
+      goodVxCounter->ShiftFillLast((double)counterVx, std::sqrt((double)counterVx), nLumiFit);
       myLinFit->SetParameter(0, goodVxCounter->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       goodVxCounter->getTH1()->Fit(myLinFit,"QR");
@@ -1034,7 +1092,7 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       TF1* myExpFit = new TF1("myExpFit", "[0]*exp(-x/[1])", hitCountHistory->getTH1()->GetXaxis()->GetXmin(), hitCountHistory->getTH1()->GetXaxis()->GetXmax());
       myExpFit->SetLineColor(2);
       myExpFit->SetLineWidth(2);
-      myExpFit->SetParName(0,"Amplitude");
+      myExpFit->SetParName(0,"Ampli.");
       myExpFit->SetParName(1,"#tau");
 
       myExpFit->SetParameter(0, hitCountHistory->getTH1()->GetMaximum());
@@ -1049,12 +1107,11 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       goodVxCountHistory->getTH1()->Fit(myExpFit,"QR");
 
       delete myExpFit;
-
       vals.clear();
     }
   else if ((nLumiFit != 0) && (lumiCounter%nLumiFit != 0) && (beginTimeOfFit != 0) && (runNumber != 0))
     {
-      histTitle << "Ongoing: accumulating events (" << lumiCounter%nLumiFit << " - " << nLumiFit << " lumis)";
+      histTitle << "Ongoing: accumulating evts (" << lumiCounter%nLumiFit << " - " << nLumiFit << " in " << lumiCounter << " - " << maxLumiIntegration << " lumis)";
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
     }
   else if ((nLumiFit == 0) || (beginTimeOfFit == 0) || (runNumber == 0))
@@ -1149,9 +1206,9 @@ void Vx3DHLTAnalyzer::beginRun (const Run& iRun, const EventSetup& iSetup)
       dydzlumi->setAxisTitle("dY/dZ [rad]",2);
       dydzlumi->getTH1()->SetOption("E1");
 
-      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", int(rint(zRange/zStep/5.)), -zRange/2., zRange/2., int(rint(xRange/xStep/5.)), -xRange/2., xRange/2.);
-      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", int(rint(zRange/zStep/5.)), -zRange/2., zRange/2., int(rint(yRange/yStep/5.)), -yRange/2., yRange/2.);
-      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", int(rint(xRange/xStep/5.)), -xRange/2., xRange/2., int(rint(yRange/yStep/5.)), -yRange/2., yRange/2.);
+      Vx_ZX = dbe->book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+      Vx_ZY = dbe->book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+      Vx_XY = dbe->book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
       Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
       Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
       Vx_ZX->setAxisTitle("Entries [#]",3);
@@ -1182,19 +1239,29 @@ void Vx3DHLTAnalyzer::beginRun (const Run& iRun, const EventSetup& iSetup)
       goodVxCountHistory->setAxisTitle("Good vertices [#]",2);
       goodVxCountHistory->getTH1()->SetOption("E1");
 
-      fitResults = dbe->book2D("fit results","Results of Beam Spot Fit [cm]", 2, 0., 2., 9, 0., 9.);
-      fitResults->setAxisTitle("Ongoing: starting", 1);
-      fitResults->setBinLabel(9, "X", 2);
-      fitResults->setBinLabel(8, "Y", 2);
-      fitResults->setBinLabel(7, "Z", 2);
-      fitResults->setBinLabel(6, "#sigma_{Z}", 2);
+      statusCounter = dbe->book1D("app status vs lumi", "Status vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
+      statusCounter->setAxisTitle("Lumisection [#]",1);
+      statusCounter->setAxisTitle("App. status",2);
+      statusCounter->getTH1()->SetOption("E1");
+
+      statusCountHistory = dbe->book1D("hist app status vs lumi", "History: Status vs. Lumi", nBinsWholeHistory, 0.5, ((double)nBinsWholeHistory)+0.5);
+      statusCountHistory->setAxisTitle("Lumisection [#]",1);
+      statusCountHistory->setAxisTitle("App. status",2);
+      statusCountHistory->getTH1()->SetOption("E1");
+
+      fitResults = dbe->book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
+      fitResults->setAxisTitle("Ongoing: bootstrapping", 1);
+      fitResults->setBinLabel(9, "X[cm]", 2);
+      fitResults->setBinLabel(8, "Y[cm]", 2);
+      fitResults->setBinLabel(7, "Z[cm]", 2);
+      fitResults->setBinLabel(6, "#sigma_{Z}[cm]", 2);
       fitResults->setBinLabel(5, "#frac{dX}{dZ}[rad]", 2);
       fitResults->setBinLabel(4, "#frac{dY}{dZ}[rad]", 2);
-      fitResults->setBinLabel(3, "#sigma_{X}", 2);
-      fitResults->setBinLabel(2, "#sigma_{Y}", 2);
-      fitResults->setBinLabel(1, "Vtx [#]", 2);
+      fitResults->setBinLabel(3, "#sigma_{X}[cm]", 2);
+      fitResults->setBinLabel(2, "#sigma_{Y}[cm]", 2);
+      fitResults->setBinLabel(1, "Vtx[#]", 2);
       fitResults->setBinLabel(1, "Value", 1);
-      fitResults->setBinLabel(2, "Stat. Error", 1);
+      fitResults->setBinLabel(2, "Error (stat)", 1);
       fitResults->getTH1()->SetOption("text");
 
       dbe->setCurrentFolder("BeamPixel/EventInfo");
