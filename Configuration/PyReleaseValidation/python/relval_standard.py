@@ -61,7 +61,7 @@ workflows[4.32] = ['', ['RunPhoton2011B','HLTD','RECODreHLT','HARVESTDreHLT']]
 workflows[4.33] = ['', ['RunJet2011B','HLTD','RECODreHLT','HARVESTDreHLT']]
 
 workflows[4.34] = ['',['ValSkim2011B','HLTDSKIM','RECODreHLT','HARVESTDreHLT']]
-workflows[4.35] = ['',['WMuSkim2011B','HLTDSKIM','RECODreHLT','HARVESTDreHLT']]
+#workflows[4.35] = ['',['WMuSkim2011B','HLTDSKIM','RECODreHLT','HARVESTDreHLT']]
 workflows[4.36] = ['',['WElSkim2011B','HLTDSKIM','RECODreHLT','HARVESTDreHLT']]
 workflows[4.37] = ['',['ZMuSkim2011B','HLTDSKIM','RECODreHLT','HARVESTDreHLT']]
 workflows[4.38] = ['',['ZElSkim2011B','HLTDSKIM','RECODreHLT','HARVESTDreHLT']]
@@ -262,10 +262,10 @@ workflows[1351.1] = ['', ['BuMixing_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 ### HI test ###
 
 ###  Run I cond.
-workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI2011','RECOHI2011','HARVESTHI2011']]
+#workflows[140] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI2011','RECOHI2011','HARVESTHI2011']]
 workflows[140.1] = ['',['QCD_Pt_80_120_13_HI','DIGIHI','RECOHI','HARVESTHI']]
 workflows[140.2] = ['',['PhotonJets_Pt_10_13_HI','DIGIHI','RECOHI','HARVESTHI']]
-workflows[140.3] = ['',['ZMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
+#workflows[140.3] = ['',['ZMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
 workflows[140.4] = ['',['ZEEMM_13_HI','DIGIHI','RECOHI','HARVESTHI']]
 
 # legacy: 141 => B0; 143 => B3 ; 144 => B5 
