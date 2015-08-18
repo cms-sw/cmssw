@@ -78,7 +78,7 @@ class ConnectionHLTMenu(object):
     (db, name) = tokens
     # check if the menu should be automatically determined based on the run number
     if db == 'run':
-      self.version  = 'v1'
+      self.version  = 'v2'
       self.database = 'adg'
       self.run      = name
     # check for backward compatibility names
