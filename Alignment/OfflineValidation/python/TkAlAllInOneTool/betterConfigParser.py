@@ -147,10 +147,6 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
             "eosdir": "",
-            "publicationstatus":"",
-            "customtitle":"",
-            "era":"NONE",
-            "legendheader":"",
             }
         self.checkInput("general", knownSimpleOptions = defaults.keys())
         general = self.getResultingSection( "general", defaultDict = defaults )
@@ -163,27 +159,6 @@ class BetterConfigParser(ConfigParser.ConfigParser):
         general["workdir"] = self.get(internal_section, "workdir")
         for dir in "workdir", "datadir", "logdir", "eosdir":
             general[dir] = os.path.expandvars(general[dir])
-
-
-        general["publicationstatus"] = general["publicationstatus"].upper()
-        general["era"] = general["era"].upper()
-
-        if not general["publicationstatus"] and not general["customtitle"]:
-            general["publicationstatus"] = "INTERNAL"
-        if general["customtitle"] and not general["publicationstatus"]:
-            general["publicationstatus"] = "CUSTOM"
-
-        if general["publicationstatus"] != "CUSTOM" and general["customtitle"]:
-            raise AllInOneError("If you would like to use a custom title, please leave out the 'publicationstatus' parameter")
-        if general["publicationstatus"] == "CUSTOM" and not general["customtitle"]:
-            raise AllInOneError("If you want to use a custom title, you should provide it using 'customtitle' in the [general] section")
-
-        publicationstatusenum = ["INTERNAL", "INTERNAL_SIMULATION", "PRELIMINARY", "PUBLIC", "SIMULATION", "UNPUBLISHED", "CUSTOM"]
-        eraenum = ["NONE", "CRUZET15", "CRAFT15", "COLL0T15"]
-        if general["publicationstatus"] not in publicationstatusenum:
-            raise AllInOneError("Publication status must be one of " + ", ".join(publicationstatusenum) + "!")
-        if general["era"] not in eraenum:
-            raise AllInOneError("Era must be one of " + ", ".join(eraenum) + "!")
 
         return general
     

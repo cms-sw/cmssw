@@ -97,16 +97,22 @@ class PreexistingValidation(GenericValidation):
 class PreexistingOfflineValidation(PreexistingValidation):
     def __init__(self, valName, config,
                  addDefaults = {}, addMandatories=[]):
-        defaults = {
-            "DMRMethod":"median,rmsNorm",
-            "DMRMinimum":"30",
+        defaults = {}
+        deprecateddefaults = {
+            "DMRMethod":"",
+            "DMRMinimum":"",
             "DMROptions":"",
-            "OfflineTreeBaseDir":"TrackHitFilter",
-            "SurfaceShapes":"coarse",
+            "OfflineTreeBaseDir":"",
+            "SurfaceShapes":""
             }
+        defaults.update(deprecateddefaults)
         defaults.update(addDefaults)
         PreexistingValidation.__init__(self, valName, config, "offline",
                                        defaults, addMandatories)
+        for option in deprecateddefaults:
+            if self.general[option]:
+                raise AllInOneError("The '%s' option has been moved to the [plots:offline] section.  Please specify it there."%option)
+
     def appendToExtendedValidation( self, validationsSoFar = "" ):
         """
         if no argument or "" is passed a string with an instantiation is

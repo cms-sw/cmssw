@@ -32,6 +32,8 @@ from Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation \
     import ZMuMuValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.preexistingValidation \
     import *
+from Alignment.OfflineValidation.TkAlAllInOneTool.plottingOptions \
+    import PlottingOptions
 import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries \
     as globalDictionaries
 
@@ -242,8 +244,8 @@ def createOfflineParJobsMergeScript(offlineValidationList, outFilePath):
     theFile.close()
 
 def createExtendedValidationScript(offlineValidationList, outFilePath, resultPlotFile):
-    repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
-    repMap[ "CMSSW_BASE" ] = os.environ['CMSSW_BASE']
+    config = offlineValidationList[0].config
+    repMap = PlottingOptions(config, "offline")
     repMap[ "resultPlotFile" ] = resultPlotFile
     repMap[ "extendedInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
 
@@ -255,8 +257,8 @@ def createExtendedValidationScript(offlineValidationList, outFilePath, resultPlo
     theFile.close()
     
 def createTrackSplitPlotScript(trackSplittingValidationList, outFilePath):
-    repMap = trackSplittingValidationList[0].getRepMap() # bit ugly since some special features are filled
-    repMap[ "CMSSW_BASE" ] = os.environ['CMSSW_BASE']
+    config = trackSplittingValidationList[0].config
+    repMap = PlottingOptions(config, "split")
     repMap[ "trackSplitPlotInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
 
     for validation in trackSplittingValidationList:
