@@ -16,7 +16,7 @@
  */
 
 
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
@@ -29,7 +29,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 template < class T >
-class JetDeltaRValueMapProducer : public edm::global::EDProducer<> {
+class JetDeltaRValueMapProducer : public edm::stream::EDProducer<> {
 
 public:
 
@@ -70,11 +70,8 @@ public:
   virtual ~JetDeltaRValueMapProducer() {}
 
 private:
-
-  virtual void beginJob() override {}
-  virtual void endJob() override {}
-
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
+  
+  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
     edm::Handle< typename edm::View<T> > h_jets1;
     iEvent.getByToken( srcToken_, h_jets1 );
