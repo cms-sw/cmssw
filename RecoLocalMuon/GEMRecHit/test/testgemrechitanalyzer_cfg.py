@@ -8,8 +8,10 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 #  8 eta partitions :: command line option :: --geometry Geometry/GEMGeometry/cmsExtendedGeometryPostLS1plusGEMr08v01XML_cfi.py
 # 10 eta partitions :: command line option :: --geometry Geometry/GEMGeometry/cmsExtendedGeometryPostLS1plusGEMr10v01XML_cfi.py
 # process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
-process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr08v01XML_cfi')
+# process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr08v01XML_cfi')
 # process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMr10v01XML_cfi')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
 process.load("Geometry.GEMGeometry.gemGeometry_cfi")
 process.load("Geometry.RPCGeometry.rpcGeometry_cfi")
 process.load("Geometry.CSCGeometry.cscGeometry_cfi")
@@ -25,7 +27,8 @@ process.source = cms.Source("PoolSource",
         # 'file:/afs/cern.ch/user/p/piet/work/Analysis/CMSSW_6_0_1_PostLS1v1/src/cmsDriverCommands/SingleMuPt100_cfi_RECO.root'
         # 'file:/afs/cern.ch/user/p/piet/public/RPCRootFiles/SingleMuPt100_cfi_RECO_V12.root'
         # 'file:/afs/cern.ch/user/p/piet/public/RPCRootFiles/SingleMuPt100_cfi_RECO_V12_25evt.root'
-        'file:/afs/cern.ch/user/p/piet/work/Analysis/CMSSW_6_0_1_PostLS1v2_patch4/src/cmsRunConfigFiles/SingleMuPt40_RECHIT.root'
+        # 'file:/afs/cern.ch/user/p/piet/work/Analysis/CMSSW_6_0_1_PostLS1v2_patch4/src/cmsRunConfigFiles/SingleMuPt40_RECHIT.root'
+        'file:out_digi.root'
     )
 )
 
