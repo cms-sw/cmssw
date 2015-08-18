@@ -430,7 +430,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   assignValue(ptr, e_conf.tag_float_token_map.find(std::string("cryEta"))->second.second, ele_vmaps, cryEta);
 
   eval[8]  = eMax/sc->rawEnergy();
-  eval[9]  = e2nd/ele.full5x5_e5x5();
+  eval[9]  = e2nd/sc->rawEnergy();
   eval[10] = (eLeft+eRight!=0. ? (eLeft-eRight)/(eLeft+eRight) : 0.);
   eval[11] = (eTop+eBottom!=0. ? (eTop-eBottom)/(eTop+eBottom) : 0.);
   eval[12] = ele.full5x5_sigmaIetaIeta();
@@ -465,15 +465,15 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
 
   //magic numbers for MINUIT-like transformation of BDT output onto limited range
   //(These should be stored inside the conditions object in the future as well)
-  const double meanlimlow  = 0.2;
-  const double meanlimhigh = 2.0;
-  const double meanoffset  = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
-  const double meanscale   = 0.5*(meanlimhigh-meanlimlow);
+  constexpr double meanlimlow  = 0.2;
+  constexpr double meanlimhigh = 2.0;
+  constexpr double meanoffset  = meanlimlow + 0.5*(meanlimhigh-meanlimlow);
+  constexpr double meanscale   = 0.5*(meanlimhigh-meanlimlow);
   
-  const double sigmalimlow  = 0.0002;
-  const double sigmalimhigh = 0.5;
-  const double sigmaoffset  = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
-  const double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);  
+  constexpr double sigmalimlow  = 0.0002;
+  constexpr double sigmalimhigh = 0.5;
+  constexpr double sigmaoffset  = sigmalimlow + 0.5*(sigmalimhigh-sigmalimlow);
+  constexpr double sigmascale   = 0.5*(sigmalimhigh-sigmalimlow);  
   
   int coridx = 0;
   if (!iseb)
@@ -503,12 +503,14 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
 
   float ep = ele.trackMomentumAtVtx().R();
   float tot_energy = sc->rawEnergy()+sc->preshowerEnergy();
+  float momentumError = ele.trackMomentumError();
   float trkMomentumRelError = ele.trackMomentumError()/ep;
+  float eOverP = tot_energy*mean/ep;
   eval_ep[0] = tot_energy*mean;
   eval_ep[1] = sigma/mean;
   eval_ep[2] = ep; 
   eval_ep[3] = trkMomentumRelError;
-  eval_ep[4] = sigma/mean/ele.trackMomentumError();
+  eval_ep[4] = sigma/mean/trkMomentumRelError;
   eval_ep[5] = tot_energy*mean/ep;
   eval_ep[6] = tot_energy*mean/ep*sqrt(sigma/mean*sigma/mean+trkMomentumRelError*trkMomentumRelError);
   eval_ep[7] = ele.ecalDriven();
@@ -523,11 +525,16 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   ////sigma = sigmaoffset + sigmascale*vdt::fast_sin(rawsigma);
 
   // CODE FOR STANDARD BDT
-  double weight = ep_forestH_weight_->GetResponse(eval_ep);
-  if(weight>1.) 
-    weight = 1.;
-  else if(weight<0.) 
-    weight = 0.;
+  double weight = 0.;
+  if ( eOverP > 0.025 && 
+       std::abs(ep-ecor) < 15.*std::sqrt(momentumError*momentumError + sigmacor*sigmacor ) ) {
+    // protection against crazy track measurement
+    ep_forestH_weight_->GetResponse(eval_ep);
+    if(weight>1.) 
+      weight = 1.;
+    else if(weight<0.) 
+      weight = 0.;
+  }
 
   double combinedMomentum = weight*ele.trackMomentumAtVtx().R() + (1.-weight)*ecor;
   double combinedMomentumError = sqrt(weight*weight*ele.trackMomentumError()*ele.trackMomentumError() + (1.-weight)*(1.-weight)*sigmacor*sigmacor);
