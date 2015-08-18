@@ -651,7 +651,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
         }
       } else if ( stereolname.compare(tob) == 0 && (tTopo->tobIsStereo(detid)) ) {
 	substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
-	isStereo = true;i
+	isStereo = true;
       } else if ( stereolname.compare(tib) == 0 && (tTopo->tibIsStereo(detid)) ) {
 	substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
 	isStereo = true;
