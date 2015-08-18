@@ -30,7 +30,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 //
 // class declaration
@@ -47,7 +47,7 @@ class LHEGenericFilter : public edm::EDFilter {
   
   // ----------member data ---------------------------
   
-  edm::InputTag src_;              // input tag
+  edm::EDGetTokenT<LHEEventProduct> src_;
   int numRequired_;                // number of particles required to pass filter
   bool acceptMore_;                // if true (default), accept numRequired or more.
                                    // if false, accept events with exactly equal to numRequired.

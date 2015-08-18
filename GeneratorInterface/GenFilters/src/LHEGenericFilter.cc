@@ -1,15 +1,13 @@
 #include "GeneratorInterface/GenFilters/interface/LHEGenericFilter.h"
-#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 
 LHEGenericFilter::LHEGenericFilter(const edm::ParameterSet& iConfig) :
-  src_(iConfig.getParameter<edm::InputTag>("src")),
   numRequired_(iConfig.getParameter<int>("NumRequired")),
   acceptMore_(iConfig.getParameter<bool>("AcceptMore")),
   particleID_(iConfig.getParameter< std::vector<int> >("ParticleID")),
   totalEvents_(0), passedEvents_(0)
 {
   //here do whatever other initialization is needed
-
+  src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
 }
 
 LHEGenericFilter::~LHEGenericFilter()
@@ -25,7 +23,7 @@ LHEGenericFilter::~LHEGenericFilter()
 bool LHEGenericFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   edm::Handle< LHEEventProduct > EvtHandle ;
-  iEvent.getByLabel( src_ , EvtHandle ) ;
+  iEvent.getByToken( src_ , EvtHandle ) ;
   
   totalEvents_++;
   int nFound = 0;
