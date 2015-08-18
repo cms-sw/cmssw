@@ -203,7 +203,7 @@ class CondXmlProcessor(object):
 
         return importlib.import_module( 'pl2xmlComp' )
     
-    def payload2xml(self, session, payload):
+    def payload2xml(self, session, payload, convFuncName='payload2xml'):
     
         if not self._pl2xml_isPrepared:
 	   xmlConverter = self.prepPayload2xml(session, payload)
@@ -219,7 +219,14 @@ class CondXmlProcessor(object):
     
         sys.path.append('.')
 
-	func = getattr(xmlConverter, 'payload2xml')
+        # see if we have a compiled module with different names:
+	try:
+	   func = getattr(xmlConverter, convFuncName)
+        except Exception, e:
+           # default name of functino (payload2xml) not found, take one of the ones which exist 
+	   # NOTE: this may change with time and is not guaranteed to be reproducible
+           first = [x for x in dir(xmlConverter) if x.endswith('2xml')][0]
+           func = getattr(xmlConverter, first)
     	resultXML = func( str(data), str(plType) )
 
         print resultXML    
