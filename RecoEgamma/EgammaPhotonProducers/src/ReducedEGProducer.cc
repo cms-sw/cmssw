@@ -148,7 +148,7 @@ ReducedEGProducer::~ReducedEGProducer()
 
 
 
-void ReducedEGProducer::produce(edm::StreamID, edm::Event& theEvent, const edm::EventSetup& theEventSetup) const {
+void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
 
   //get input collections
   
