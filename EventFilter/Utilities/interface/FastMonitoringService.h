@@ -151,7 +151,14 @@ namespace evf{
       void startedLookingForFile();
       void stoppedLookingForFile(unsigned int lumi);
       void reportLockWait(unsigned int ls, double waitTime, unsigned int lockCount);
-      unsigned int getEventsProcessedForLumi(unsigned int lumi);
+      unsigned int getEventsProcessedForLumi(unsigned int lumi, bool * abortFlag=nullptr);
+      bool getAbortFlagForLumi(unsigned int lumi);
+      bool shouldWriteFiles(unsigned int lumi, unsigned int* proc=nullptr)
+      {
+        unsigned int processed = getEventsProcessedForLumi(lumi);
+        if (proc) *proc = processed;
+        return !getAbortFlagForLumi(lumi) && (processed || emptyLumisectionMode_);
+      }
       std::string getRunDirName() const { return runDirectory_.stem().string(); }
 
     private:
@@ -231,7 +238,7 @@ namespace evf{
       std::map<unsigned int, std::pair<double,unsigned int>> lockStatsDuringLumi_;
 
       //for output module
-      std::map<unsigned int, unsigned int> processedEventsPerLumi_;
+      std::map<unsigned int, std::pair<unsigned int,bool>> processedEventsPerLumi_;
 
       //flag used to block EOL until event count is picked up by caches (not certain that this is really an issue)
       //to disable this behavior, set #ATOMIC_LEVEL 0 or 1 in DataPoint.h
@@ -257,6 +264,7 @@ namespace evf{
       std::atomic<bool> monInit_;
       bool exception_detected_ = false;
       std::vector<unsigned int> exceptionInLS_;
+      bool emptyLumisectionMode_ = false;
     };
 
 }

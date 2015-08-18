@@ -34,9 +34,11 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps):
   rawJsonDef_.addLegendItem("NEvents","integer",DataPointDefinition::SUM);
 
   perFileEventCount_.setName("NEvents");
+  perFileSize_.setName("NBytes");
 
   fileMon_ = new FastMonitor(&rawJsonDef_,false);
   fileMon_->registerGlobalMonitorable(&perFileEventCount_,false,nullptr);
+  fileMon_->registerGlobalMonitorable(&perFileSize_,false,nullptr);
   fileMon_->commit(nullptr);
 
   //per-lumi JSD and FastMonitor
@@ -50,12 +52,14 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(edm::ParameterSet const& ps):
   perLumiFileCount_.setName("NFiles");
   perLumiTotalEventCount_.setName("TotalEvents");
   perLumiLostEventCount_.setName("NLostEvents");
+  perLumiSize_.setName("NBytes");
 
   lumiMon_ = new FastMonitor(&eolJsonDef_,false);
   lumiMon_->registerGlobalMonitorable(&perLumiEventCount_,false,nullptr);
   lumiMon_->registerGlobalMonitorable(&perLumiFileCount_,false,nullptr);
   lumiMon_->registerGlobalMonitorable(&perLumiTotalEventCount_,false,nullptr);
   lumiMon_->registerGlobalMonitorable(&perLumiLostEventCount_,false,nullptr);
+  lumiMon_->registerGlobalMonitorable(&perLumiSize_,false,nullptr);
   lumiMon_->commit(nullptr);
 
 
@@ -115,6 +119,7 @@ void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg)
   // throttle event output
   usleep(microSleep_);
   perFileEventCount_.value()++;
+  perFileSize_.value()+=msg.size();
 
   //  cms::Adler32((const char*) msg.startAddress(), msg.size(), adlera_, adlerb_);
 }
@@ -182,6 +187,7 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
   }
 
   perFileEventCount_.value() = 0;
+  perFileSize_.value() = 0;
 
 
   adlera_ = 1;
@@ -244,12 +250,14 @@ void RawEventFileWriterForBU::finishFileWrite(int ls)
     //there is a small chance that script gets interrupted while this isn't consistent (non-atomic)
     perLumiFileCount_.value()++;
     perLumiEventCount_.value()+=perFileEventCount_.value();
+    perLumiSize_.value()+=perFileSize_.value();
     perLumiTotalEventCount_.value()+=perFileEventCount_.value();
     //update open lumi value when first file is completed
     lumiOpen_ =  ls;
 
     edm::LogInfo("RawEventFileWriterForBU") << "Wrote JSON input file: " << path 
-					    << " with perFileEventCount = " << perFileEventCount_.value();
+					    << " with perFileEventCount = " << perFileEventCount_.value()
+                                            << " and size " << perFileSize_.value();
 
 }
 
@@ -279,6 +287,7 @@ void RawEventFileWriterForBU::endOfLS(int ls)
   perLumiEventCount_ = 0;
   perLumiFileCount_ = 0;
   perLumiTotalEventCount_ = 0;
+  perLumiSize_ = 0;
   lumiClosed_ =  ls;
 }
 
