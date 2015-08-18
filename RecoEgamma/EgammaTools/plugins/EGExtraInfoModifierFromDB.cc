@@ -389,8 +389,8 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   // SET INPUTS
   eval[0]  = nVtx_;  
   eval[1]  = sc->rawEnergy();
-  eval[2]  = sc->position().Eta();
-  eval[3]  = sc->position().Phi();
+  eval[2]  = sc->eta();
+  eval[3]  = sc->phi();
   eval[4]  = sc->etaWidth();
   eval[5]  = sc->phiWidth(); 
   eval[6]  = ele.full5x5_r9();

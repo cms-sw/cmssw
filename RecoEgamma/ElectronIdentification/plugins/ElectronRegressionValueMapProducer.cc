@@ -21,6 +21,33 @@
 #include <memory>
 #include <vector>
 
+namespace {
+  constexpr char eleFull5x5SigmaIEtaIPhi_[] = "eleFull5x5SigmaIEtaIPhi";
+  constexpr char eleFull5x5eMax_[] = "eMax";
+  constexpr char eleFull5x5e2nd_[] = "e2nd";
+  constexpr char eleFull5x5eTop_[] = "eTop";
+  constexpr char eleFull5x5eBottom_[] = "eBottom";
+  constexpr char eleFull5x5eLeft_[] = "eLeft";
+  constexpr char eleFull5x5eRight_[] = "eRight";
+  constexpr char clusterMaxDR_[] = "clusterMaxDR";
+  constexpr char clusterMaxDRDPhi_[] = "clusterMaxDRDPhi";
+  constexpr char clusterMaxDRDEta_[] = "clusterMaxDRDEta";
+  constexpr char clusterMaxDRRawEnergy_[] = "clusterMaxDRRawEnergy";
+  constexpr char clusterRawEnergy0_[] = "clusterRawEnergy0";
+  constexpr char clusterRawEnergy1_[] = "clusterRawEnergy1";
+  constexpr char clusterRawEnergy2_[] = "clusterRawEnergy2";
+  constexpr char clusterDPhiToSeed0_[] = "clusterDPhiToSeed0";
+  constexpr char clusterDPhiToSeed1_[] = "clusterDPhiToSeed1";
+  constexpr char clusterDPhiToSeed2_[] = "clusterDPhiToSeed2";
+  constexpr char clusterDEtaToSeed0_[] = "clusterDEtaToSeed0";
+  constexpr char clusterDEtaToSeed1_[] = "clusterDEtaToSeed1";
+  constexpr char clusterDEtaToSeed2_[] = "clusterDEtaToSeed2";
+  constexpr char eleIPhi_[]    = "iPhi";
+  constexpr char eleIEta_[]    = "iEta";
+  constexpr char eleCryPhi_[]  = "cryPhi";
+  constexpr char eleCryEta_[]  = "cryEta";
+}
+
 class ElectronRegressionValueMapProducer : public edm::stream::EDProducer<> {
 
   public:
@@ -57,57 +84,7 @@ class ElectronRegressionValueMapProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionMiniAOD_;
   edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollectionMiniAOD_;
   edm::EDGetToken srcMiniAOD_;
-
-  constexpr static char eleFull5x5SigmaIEtaIPhi_[] = "eleFull5x5SigmaIEtaIPhi";
-  constexpr static char eleFull5x5eMax_[] = "eMax";
-  constexpr static char eleFull5x5e2nd_[] = "e2nd";
-  constexpr static char eleFull5x5eTop_[] = "eTop";
-  constexpr static char eleFull5x5eBottom_[] = "eBottom";
-  constexpr static char eleFull5x5eLeft_[] = "eLeft";
-  constexpr static char eleFull5x5eRight_[] = "eRight";
-  constexpr static char  clusterMaxDR_[] = "clusterMaxDR";
-  constexpr static char  clusterMaxDRDPhi_[] = "clusterMaxDRDPhi";
-  constexpr static char  clusterMaxDRDEta_[] = "clusterMaxDRDEta";
-  constexpr static char  clusterMaxDRRawEnergy_[] = "clusterMaxDRRawEnergy";
-  constexpr static char  clusterRawEnergy0_[] = "clusterRawEnergy0";
-  constexpr static char  clusterRawEnergy1_[] = "clusterRawEnergy1";
-  constexpr static char  clusterRawEnergy2_[] = "clusterRawEnergy2";
-  constexpr static char  clusterDPhiToSeed0_[] = "clusterDPhiToSeed0";
-  constexpr static char  clusterDPhiToSeed1_[] = "clusterDPhiToSeed1";
-  constexpr static char  clusterDPhiToSeed2_[] = "clusterDPhiToSeed2";
-  constexpr static char  clusterDEtaToSeed0_[] = "clusterDEtaToSeed0";
-  constexpr static char  clusterDEtaToSeed1_[] = "clusterDEtaToSeed1";
-  constexpr static char  clusterDEtaToSeed2_[] = "clusterDEtaToSeed2";
-  constexpr static char eleIPhi_[]    = "iPhi";
-  constexpr static char eleIEta_[]    = "iEta";
-  constexpr static char eleCryPhi_[]  = "cryPhi";
-  constexpr static char eleCryEta_[]  = "cryEta";
 };
-
-constexpr char ElectronRegressionValueMapProducer::eleFull5x5SigmaIEtaIPhi_[];
-constexpr char ElectronRegressionValueMapProducer::eleFull5x5eMax_[];
-constexpr char ElectronRegressionValueMapProducer::eleFull5x5e2nd_[];
-constexpr char ElectronRegressionValueMapProducer::eleFull5x5eTop_[];
-constexpr char ElectronRegressionValueMapProducer::eleFull5x5eBottom_[];
-constexpr char ElectronRegressionValueMapProducer::eleFull5x5eLeft_[];
-constexpr char ElectronRegressionValueMapProducer::eleFull5x5eRight_[];
-constexpr char ElectronRegressionValueMapProducer::clusterMaxDR_[];
-constexpr char ElectronRegressionValueMapProducer::clusterMaxDRDPhi_[];
-constexpr char ElectronRegressionValueMapProducer::clusterMaxDRDEta_[];
-constexpr char ElectronRegressionValueMapProducer::clusterMaxDRRawEnergy_[];
-constexpr char ElectronRegressionValueMapProducer::clusterRawEnergy0_[]; 
-constexpr char ElectronRegressionValueMapProducer::clusterRawEnergy1_[]; 
-constexpr char ElectronRegressionValueMapProducer::clusterRawEnergy2_[]; 
-constexpr char ElectronRegressionValueMapProducer::clusterDPhiToSeed0_[];
-constexpr char ElectronRegressionValueMapProducer::clusterDPhiToSeed1_[];
-constexpr char ElectronRegressionValueMapProducer::clusterDPhiToSeed2_[];
-constexpr char ElectronRegressionValueMapProducer::clusterDEtaToSeed0_[];
-constexpr char ElectronRegressionValueMapProducer::clusterDEtaToSeed1_[];
-constexpr char ElectronRegressionValueMapProducer::clusterDEtaToSeed2_[];
-constexpr char ElectronRegressionValueMapProducer::eleIPhi_[];
-constexpr char ElectronRegressionValueMapProducer::eleIEta_[];
-constexpr char ElectronRegressionValueMapProducer::eleCryPhi_[];
-constexpr char ElectronRegressionValueMapProducer::eleCryEta_[];
 
 ElectronRegressionValueMapProducer::ElectronRegressionValueMapProducer(const edm::ParameterSet& iConfig) {
 
@@ -285,7 +262,7 @@ void ElectronRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::
       if(theseed == pclus ) 
 	continue;
       _clusterRawEnergy.push_back(pclus->energy());
-      _clusterDPhiToSeed.push_back(TVector2::Phi_mpi_pi(pclus->phi() - theseed->phi()));
+      _clusterDPhiToSeed.push_back(reco::deltaPhi(pclus->phi(),theseed->phi()));
       _clusterDEtaToSeed.push_back(pclus->eta() - theseed->eta());
 
       // find cluster with max dR

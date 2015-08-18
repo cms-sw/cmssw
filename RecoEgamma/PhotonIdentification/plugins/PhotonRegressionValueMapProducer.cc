@@ -19,6 +19,17 @@
 #include <memory>
 #include <vector>
 
+namespace {
+  // Cluster shapes
+  constexpr char phoFull5x5SigmaIPhiIPhi_[] = "phoFull5x5SigmaIPhiIPhi";
+  constexpr char phoFull5x5SigmaIEtaIPhi_[] = "phoFull5x5SigmaIEtaIPhi";
+  constexpr char phoFull5x5E2x5Max_[] = "phoFull5x5E2x5Max";
+  constexpr char phoFull5x5E2x5Left_[] = "phoFull5x5E2x5Left";
+  constexpr char phoFull5x5E2x5Right_[] = "phoFull5x5E2x5Right";
+  constexpr char phoFull5x5E2x5Top_[] = "phoFull5x5E2x5Top";
+  constexpr char phoFull5x5E2x5Bottom_[] = "phoFull5x5E2x5Bottom";
+}
+
 class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
 
   public:
@@ -51,25 +62,8 @@ class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<EcalRecHitCollection> eeReducedRecHitCollectionMiniAOD_;
   edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollectionMiniAOD_;
   edm::EDGetToken srcMiniAOD_;
-
-  // Cluster shapes
-  constexpr static char phoFull5x5SigmaIPhiIPhi_[] = "phoFull5x5SigmaIPhiIPhi";
-  constexpr static char phoFull5x5SigmaIEtaIPhi_[] = "phoFull5x5SigmaIEtaIPhi";
-  constexpr static char phoFull5x5E2x5Max_[] = "phoFull5x5E2x5Max";
-  constexpr static char phoFull5x5E2x5Left_[] = "phoFull5x5E2x5Left";
-  constexpr static char phoFull5x5E2x5Right_[] = "phoFull5x5E2x5Right";
-  constexpr static char phoFull5x5E2x5Top_[] = "phoFull5x5E2x5Top";
-  constexpr static char phoFull5x5E2x5Bottom_[] = "phoFull5x5E2x5Bottom";
+  
 };
-
-// Cluster shapes
-constexpr char PhotonRegressionValueMapProducer::phoFull5x5SigmaIPhiIPhi_[];
-constexpr char PhotonRegressionValueMapProducer::phoFull5x5SigmaIEtaIPhi_[];
-constexpr char PhotonRegressionValueMapProducer::phoFull5x5E2x5Max_[];
-constexpr char PhotonRegressionValueMapProducer::phoFull5x5E2x5Left_[];
-constexpr char PhotonRegressionValueMapProducer::phoFull5x5E2x5Right_[];
-constexpr char PhotonRegressionValueMapProducer::phoFull5x5E2x5Top_[];
-constexpr char PhotonRegressionValueMapProducer::phoFull5x5E2x5Bottom_[];
 
 PhotonRegressionValueMapProducer::PhotonRegressionValueMapProducer(const edm::ParameterSet& iConfig) {
 
