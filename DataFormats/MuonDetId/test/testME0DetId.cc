@@ -112,7 +112,7 @@ void testME0DetId::testFail(){
 
 
 void testME0DetId::testMemberOperators(){
-  ME0DetId unit1(1,5,3,5);
+  ME0DetId unit1(1,5,3,1);
   ME0DetId unit2=unit1;
   
   CPPUNIT_ASSERT(unit2==unit1);
