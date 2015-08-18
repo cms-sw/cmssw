@@ -44,14 +44,14 @@
 
 
 // ReducedEGProducer inherits from EDProducer, so it can be a module:
-class ReducedEGProducer : public edm::global::EDProducer<> {
+class ReducedEGProducer : public edm::stream::EDProducer<> {
 
  public:
 
   ReducedEGProducer (const edm::ParameterSet& ps);
   ~ReducedEGProducer();
 
-  virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup& es) const override final;
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override final;
 
  private: 
   

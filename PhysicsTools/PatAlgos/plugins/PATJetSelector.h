@@ -4,7 +4,7 @@
 #ifndef PhysicsTools_PatAlgos_PATJetSelector_h
 #define PhysicsTools_PatAlgos_PATJetSelector_h
 
-#include "FWCore/Framework/interface/global/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "DataFormats/Common/interface/RefVector.h"
 
@@ -21,7 +21,7 @@
 
 namespace pat {
 
-  class PATJetSelector : public edm::global::EDFilter<> {
+  class PATJetSelector : public edm::stream::EDFilter<> {
   public:
 
 
@@ -43,7 +43,7 @@ namespace pat {
     virtual void beginJob() {}
     virtual void endJob() {}
 
-    virtual bool filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
+    virtual bool filter(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
       std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() );
 

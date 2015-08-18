@@ -11,7 +11,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -22,12 +22,12 @@
 
 namespace pat {
 
-  class PATGenJetSlimmer : public edm::global::EDProducer<> {
+  class PATGenJetSlimmer : public edm::stream::EDProducer<> {
   public:
     explicit PATGenJetSlimmer(const edm::ParameterSet & iConfig);
     virtual ~PATGenJetSlimmer() { }
     
-    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const;
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
     
   private:
     const edm::EDGetTokenT<edm::View<reco::GenJet> > src_;
@@ -54,7 +54,7 @@ pat::PATGenJetSlimmer::PATGenJetSlimmer(const edm::ParameterSet & iConfig) :
 }
 
 void 
-pat::PATGenJetSlimmer::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
+pat::PATGenJetSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     using namespace edm;
     using namespace std;
 
