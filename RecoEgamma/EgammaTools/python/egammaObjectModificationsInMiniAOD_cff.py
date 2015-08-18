@@ -41,7 +41,7 @@ egamma_modifications = cms.VPSet(
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromIntValueMaps'),
               electron_config = cms.PSet( ),
               photon_config   = cms.PSet( )
-              ),
+              )
 )
 
 #setup the mva value maps to embed
