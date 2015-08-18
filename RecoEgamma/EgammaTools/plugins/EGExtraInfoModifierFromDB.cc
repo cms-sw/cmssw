@@ -492,7 +492,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   double ecor = mean*(eval[1]);
   if (!iseb)  
     ecor = mean*(eval[1]+sc->preshowerEnergy());
-  double sigmacor = sigma*ecor;
+  const double sigmacor = sigma*ecor;
   
   ele.setCorrectedEcalEnergy(ecor);
   ele.setCorrectedEcalEnergyError(sigmacor);
@@ -501,11 +501,11 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   //std::array<float, 11> eval_ep;
   float eval_ep[11];
 
-  float ep = ele.trackMomentumAtVtx().R();
-  float tot_energy = sc->rawEnergy()+sc->preshowerEnergy();
-  float momentumError = ele.trackMomentumError();
-  float trkMomentumRelError = ele.trackMomentumError()/ep;
-  float eOverP = tot_energy*mean/ep;
+  const float ep = ele.trackMomentumAtVtx().R();
+  const float tot_energy = sc->rawEnergy()+sc->preshowerEnergy();
+  const float momentumError = ele.trackMomentumError();
+  const float trkMomentumRelError = ele.trackMomentumError()/ep;
+  const float eOverP = tot_energy*mean/ep;
   eval_ep[0] = tot_energy*mean;
   eval_ep[1] = sigma/mean;
   eval_ep[2] = ep; 
@@ -527,9 +527,9 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   // CODE FOR STANDARD BDT
   double weight = 0.;
   if ( eOverP > 0.025 && 
-       std::abs(ep-ecor) < 15.*std::sqrt(momentumError*momentumError + sigmacor*sigmacor ) ) {
+       std::abs(ep-ecor) < 15.*std::sqrt( momentumError*momentumError + sigmacor*sigmacor ) ) {
     // protection against crazy track measurement
-    ep_forestH_weight_->GetResponse(eval_ep);
+    weight = ep_forestH_weight_->GetResponse(eval_ep);
     if(weight>1.) 
       weight = 1.;
     else if(weight<0.) 
