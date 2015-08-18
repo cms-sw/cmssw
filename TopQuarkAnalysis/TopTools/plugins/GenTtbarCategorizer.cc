@@ -403,7 +403,9 @@ GenTtbarCategorizer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventS
 // ------------ method returns a vector of jet indices from the given map, sorted by N hadrons in descending order  ------------
 std::vector<int> GenTtbarCategorizer::nHadronsOrderedJetIndices(const std::map<int, int>& m_jetIndex)
 {
+    const int nElements = m_jetIndex.size();
     std::vector<std::pair<int, int> > v_jetNhadIndexPair;
+    v_jetNhadIndexPair.reserve(nElements);
     for(std::map<int, int>::const_iterator it = m_jetIndex.begin(); it != m_jetIndex.end(); ++it) {
         const int jetIndex = it->first;
         const int nHadrons = it->second;
@@ -412,12 +414,13 @@ std::vector<int> GenTtbarCategorizer::nHadronsOrderedJetIndices(const std::map<i
     // Sorting the vector of pairs by their key value
     std::sort(v_jetNhadIndexPair.begin(), v_jetNhadIndexPair.end(), std::greater<std::pair<int, int> >());
     // Building the vector of indices in the proper order
-    std::vector<int> orderedJetIndices;
+    std::vector<int> v_orderedJetIndices;
+    v_orderedJetIndices.reserve(nElements);
     for(std::vector<std::pair<int, int> >::const_iterator it = v_jetNhadIndexPair.begin(); it != v_jetNhadIndexPair.end(); ++it) {
-        orderedJetIndices.push_back(it->second);
+        v_orderedJetIndices.push_back(it->second);
     }
     
-    return orderedJetIndices;
+    return v_orderedJetIndices;
 }
  
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
