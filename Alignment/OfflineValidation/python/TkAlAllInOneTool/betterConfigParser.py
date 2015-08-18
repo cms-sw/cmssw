@@ -147,10 +147,10 @@ class BetterConfigParser(ConfigParser.ConfigParser):
             "datadir":os.getcwd(),
             "logdir":os.getcwd(),
             "eosdir": "",
-            "email":"true",
             "publicationstatus":"",
             "customtitle":"",
             "era":"NONE",
+            "legendheader":"",
             }
         self.checkInput("general", knownSimpleOptions = defaults.keys())
         general = self.getResultingSection( "general", defaultDict = defaults )

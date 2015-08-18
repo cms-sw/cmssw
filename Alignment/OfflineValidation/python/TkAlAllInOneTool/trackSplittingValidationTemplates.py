@@ -244,6 +244,7 @@ phases must be filled in for sagitta, elliptical, and skew if values is;
 
 void TkAlTrackSplitPlot()
 {
+    TkAlStyle::legendheader = ".oO[legendheader]Oo.";
     TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.");
     //fillmatrix();                                                         //(C)
     subdetector = ".oO[subdetector]Oo.";
@@ -256,4 +257,3 @@ void TkAlTrackSplitPlot()
              );
 }
 """
-

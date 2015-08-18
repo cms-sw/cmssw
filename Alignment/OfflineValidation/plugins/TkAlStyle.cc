@@ -94,6 +94,7 @@ public:
   // with the current pad dimensions and displays the specified text txt.
   static TPaveText* customTitle(const TString& txt) { return title(txt); }
 
+  static TString legendheader;
   // Returns a TLegend object that fits into the top-right corner
   // of the current pad. Its width, relative to the pad size (without
   // margins), can be specified. Its height is optimized for nEntries
@@ -212,6 +213,7 @@ private:
 
 PublicationStatus TkAlStyle::publicationStatus_ = NO_STATUS;
 Era TkAlStyle::era_ = NONE;
+TString TkAlStyle::legendheader = "";
 TString TkAlStyle::customTitle_ = "";
 double TkAlStyle::lineHeight_ = 0.042;
 double TkAlStyle::margin_ = 0.04;
@@ -252,10 +254,11 @@ TLegend* TkAlStyle::legend(const int nEntries, const double relWidth, const bool
   double x1 = 0.;
   double y0 = 0.;
   double y1 = 0.;
-  if( left ) setXCoordinatesL(relWidth,x0,x1);
-  else       setXCoordinatesR(relWidth,x0,x1);
-  if( top  ) setYCoordinatesT(nEntries,y0,y1);
-  else       setYCoordinatesB(nEntries,y0,y1);
+  bool hasheader = (TkAlStyle::legendheader != "");
+  if( left ) setXCoordinatesL(relWidth,          x0,x1);
+  else       setXCoordinatesR(relWidth,          x0,x1);
+  if( top  ) setYCoordinatesT(nEntries+hasheader,y0,y1);
+  else       setYCoordinatesB(nEntries+hasheader,y0,y1);
 
   TLegend* leg = new TLegend(x0,y0,x1,y1);
   leg->SetBorderSize(0);
@@ -263,6 +266,7 @@ TLegend* TkAlStyle::legend(const int nEntries, const double relWidth, const bool
   leg->SetFillStyle(0);
   leg->SetTextFont(42);
   leg->SetTextSize(textSize_);
+  if (hasheader) leg->SetHeader(TkAlStyle::legendheader);
 
   return leg;
 }
