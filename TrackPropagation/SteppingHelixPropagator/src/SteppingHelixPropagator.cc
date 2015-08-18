@@ -217,7 +217,9 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   setIState(sStart,svBuf,nPoints);
   
   Point rPlane(pDest.position().x(), pDest.position().y(), pDest.position().z());
-  Vector nPlane(pDest.rotation().zx(), pDest.rotation().zy(), pDest.rotation().zz()); nPlane /= nPlane.mag();
+  Vector nPlane(pDest.rotation().zx(), pDest.rotation().zy(), pDest.rotation().zz());
+  if ( nPlane.mag() == 0 ) { out = invalidState_; return; }
+  nPlane /= nPlane.mag();
 
   double pars[6] = { rPlane.x(), rPlane.y(), rPlane.z(),
 		     nPlane.x(), nPlane.y(), nPlane.z() };
@@ -2002,7 +2004,9 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     if (cPlane != 0){
       Point rPlane(cPlane->position().x(),cPlane->position().y(),cPlane->position().z());
       // = cPlane->toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
-      Vector nPlane(cPlane->rotation().zx(), cPlane->rotation().zy(), cPlane->rotation().zz()); nPlane /= nPlane.mag();
+      Vector nPlane(cPlane->rotation().zx(), cPlane->rotation().zy(), cPlane->rotation().zz());
+      if ( nPlane.mag() == 0 ) continue;
+      nPlane /= nPlane.mag();
       
       pars[0] = rPlane.x(); pars[1] = rPlane.y(); pars[2] = rPlane.z();
       pars[3] = nPlane.x(); pars[4] = nPlane.y(); pars[5] = nPlane.z();
