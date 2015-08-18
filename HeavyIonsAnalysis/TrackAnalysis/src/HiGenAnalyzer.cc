@@ -117,15 +117,6 @@ private:
 
   // ----------member data ---------------------------
 
-  std::ofstream out_b;
-  std::string fBFileName;
-
-  std::ofstream out_n;
-  std::string fNFileName;
-
-  std::ofstream out_m;
-  std::string fMFileName;
-
   std::string g4Label;
 
   TTree* hydjetTree_;
@@ -133,11 +124,6 @@ private:
 
   TNtuple *nt;
 
-  std::string output;           // Output filename
-
-  Bool_t doAnalysis_;
-  Bool_t printLists_;
-  Bool_t doCF_;
   Bool_t doVertex_;
   Bool_t useHepMCProduct_;
   Bool_t doHI_;
@@ -171,13 +157,7 @@ private:
 HiGenAnalyzer::HiGenAnalyzer(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
-  fBFileName = iConfig.getUntrackedParameter<std::string>("output_b", "b_values.txt");
-  fNFileName = iConfig.getUntrackedParameter<std::string>("output_n", "n_values.txt");
-  fMFileName = iConfig.getUntrackedParameter<std::string>("output_m", "m_values.txt");
-  doAnalysis_ = iConfig.getUntrackedParameter<Bool_t>("doAnalysis", true);
   useHepMCProduct_ = iConfig.getUntrackedParameter<Bool_t>("useHepMCProduct", false);
-  printLists_ = iConfig.getUntrackedParameter<Bool_t>("printLists", false);
-  doCF_ = iConfig.getUntrackedParameter<Bool_t>("doMixed", false);
   doHI_ = iConfig.getUntrackedParameter<Bool_t>("doHI", true);
 
   doVertex_ = iConfig.getUntrackedParameter<Bool_t>("doVertex", false);
@@ -211,50 +191,54 @@ HiGenAnalyzer::~HiGenAnalyzer()
 
 vector<int> HiGenAnalyzer::getMotherIdx(edm::Handle<reco::GenParticleCollection> parts, const reco::GenParticle pin){
 
-    vector<int> motherArr;
+  vector<int> motherArr;
+  if(motherDaughterPDGsToSave_.size() != 0 ) {
     for(UInt_t i = 0; i < parts->size(); ++i){
-        const reco::GenParticle& p = (*parts)[i];
-        if (stableOnly_ && p.status()!=1) continue;
-        if (p.pt()<ptMin_) continue;
-        if (chargedOnly_&&p.charge()==0) continue;
-        bool saveFlag=false;
-        for(unsigned int ipdg=0; ipdg<motherDaughterPDGsToSave_.size(); ipdg++){
-            if(p.pdgId() == motherDaughterPDGsToSave_.at(ipdg)) saveFlag=true;
-        }
-        if(motherDaughterPDGsToSave_.size()>0 && saveFlag!=true) continue; //save all particles in vector unless vector is empty, then save all particles
-        if (p.status()==3) continue; //don't match to the initial collision particles
-        for (unsigned int idx=0; idx<p.numberOfDaughters(); idx++){
-            //if (p.daughter(idx)->pt()*p.daughter(idx)->eta()*p.daughter(idx)->phi() == pin.pt()*pin.eta()*pin.phi()) motherArr.push_back(i);
-            if(fabs(p.daughter(idx)->pt()-pin.pt())<0.001 && fabs(p.daughter(idx)->eta()-pin.eta())<0.001 && fabs(p.daughter(idx)->phi()-pin.phi())<0.001) motherArr.push_back(i);
-        }
+      const reco::GenParticle& p = (*parts)[i];
+      if (stableOnly_ && p.status()!=1) continue;
+      if (p.pt()<ptMin_) continue;
+      if (chargedOnly_&&p.charge()==0) continue;
+      bool saveFlag=false;
+      for(unsigned int ipdg=0; ipdg<motherDaughterPDGsToSave_.size(); ipdg++){
+	if(p.pdgId() == motherDaughterPDGsToSave_.at(ipdg)) saveFlag=true;
+      }
+      if(motherDaughterPDGsToSave_.size()>0 && saveFlag!=true) continue; //save all particles in vector unless vector is empty, then save all particles
+      if (p.status()==3) continue; //don't match to the initial collision particles
+      for (unsigned int idx=0; idx<p.numberOfDaughters(); idx++){
+	//if (p.daughter(idx)->pt()*p.daughter(idx)->eta()*p.daughter(idx)->phi() == pin.pt()*pin.eta()*pin.phi()) motherArr.push_back(i);
+	if(fabs(p.daughter(idx)->pt()-pin.pt())<0.001 && fabs(p.daughter(idx)->eta()-pin.eta())<0.001 && fabs(p.daughter(idx)->phi()-pin.phi())<0.001) motherArr.push_back(i);
+      }
     }
-    if(motherArr.size()==0) motherArr.push_back(-999);
-    return motherArr;
+  }
+  if(motherArr.size()==0) motherArr.push_back(-999);
+  return motherArr;
 }
 
 //----------------------------------------------------------
 
 vector<int> HiGenAnalyzer::getDaughterIdx(edm::Handle<reco::GenParticleCollection> parts, const reco::GenParticle pin){
 
-    vector<int> daughterArr;
+  vector<int> daughterArr;
+  if(motherDaughterPDGsToSave_.size() != 0 ) {
     for(UInt_t i = 0; i < parts->size(); ++i){
-        const reco::GenParticle& p = (*parts)[i];
-        if (stableOnly_ && p.status()!=1) continue;
-        if (p.pt()<ptMin_) continue;
-        if (chargedOnly_&&p.charge()==0) continue;
-        bool saveFlag=false;
-        for(unsigned int ipdg=0; ipdg<motherDaughterPDGsToSave_.size(); ipdg++){
-            if(p.pdgId() == motherDaughterPDGsToSave_.at(ipdg)) saveFlag=true;
-        }
-        if(motherDaughterPDGsToSave_.size()>0 && saveFlag!=true) continue; //save all particles in vector unless vector is empty, then save all particles
-        if (p.status()==3) continue; //don't match to the initial collision particles
-        for(unsigned int idx=0; idx<p.numberOfMothers(); idx++){
-            //if (p.mother(idx)->pt()*p.mother(idx)->eta()*p.mother(idx)->phi() == pin.pt()*pin.eta()*pin.phi()) daughterArr.push_back(i);
-            if(fabs(p.mother(idx)->pt()-pin.pt())<0.001 && fabs(p.mother(idx)->eta()-pin.eta())<0.001 && fabs(p.mother(idx)->phi()-pin.phi())<0.001) daughterArr.push_back(i);
-        }
+      const reco::GenParticle& p = (*parts)[i];
+      if (stableOnly_ && p.status()!=1) continue;
+      if (p.pt()<ptMin_) continue;
+      if (chargedOnly_&&p.charge()==0) continue;
+      bool saveFlag=false;
+      for(unsigned int ipdg=0; ipdg<motherDaughterPDGsToSave_.size(); ipdg++){
+	if(p.pdgId() == motherDaughterPDGsToSave_.at(ipdg)) saveFlag=true;
+      }
+      if(motherDaughterPDGsToSave_.size()>0 && saveFlag!=true) continue; //save all particles in vector unless vector is empty, then save all particles
+      if (p.status()==3) continue; //don't match to the initial collision particles
+      for(unsigned int idx=0; idx<p.numberOfMothers(); idx++){
+	//if (p.mother(idx)->pt()*p.mother(idx)->eta()*p.mother(idx)->phi() == pin.pt()*pin.eta()*pin.phi()) daughterArr.push_back(i);
+	if(fabs(p.mother(idx)->pt()-pin.pt())<0.001 && fabs(p.mother(idx)->eta()-pin.eta())<0.001 && fabs(p.mother(idx)->phi()-pin.phi())<0.001) daughterArr.push_back(i);
+      }
     }
-    if(daughterArr.size()==0) daughterArr.push_back(-999);
-    return daughterArr;
+  }
+  if(daughterArr.size()==0) daughterArr.push_back(-999);
+  return daughterArr;
 }
 
 // ------------ method called to for each event  ------------
@@ -289,121 +273,63 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Int_t src = -1;
 
   if(useHepMCProduct_){
-    if(doCF_){
-      Handle<CrossingFrame<HepMCProduct> > cf;
-      iEvent.getByLabel(InputTag("mix","source"),cf);
-      MixCollection<HepMCProduct> mix(cf.product());
-      nmix = mix.size();
+    Handle<HepMCProduct> mc;
+    iEvent.getByLabel(src_,mc);
+    evt = mc->GetEvent();
+    scale = evt->event_scale();
 
-      MixCollection<HepMCProduct>::iterator mbegin = mix.begin();
-      MixCollection<HepMCProduct>::iterator mend = mix.end();
+    const HeavyIon* hi = evt->heavy_ion();
+    if(hi){
+      b = hi->impact_parameter();
+      npart = hi->Npart_proj()+hi->Npart_targ();
+      ncoll = hi->Ncoll();
+      nhard = hi->Ncoll_hard();
+      phi0 = hi->event_plane_angle();
+    }
 
-      for(MixCollection<HepMCProduct>::iterator mixit = mbegin; mixit != mend; ++mixit){
-	const GenEvent* subevt = (*mixit).GetEvent();
-	Int_t all = subevt->particles_size();
-	np += all;
-	HepMC::GenEvent::particle_const_iterator begin = subevt->particles_begin();
-	HepMC::GenEvent::particle_const_iterator end = subevt->particles_end();
-        int nparticles=-1;
-	for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
-	  nparticles++;
-          if ((*it)->momentum().perp()<ptMin_) continue;
-	  //	  if((*it)->status() == 1){
-	  Int_t pdg_id = (*it)->pdg_id();
-	  Float_t eta = (*it)->momentum().eta();
-	  Float_t phi = (*it)->momentum().phi();
-	  Float_t pt = (*it)->momentum().perp();
-	  const ParticleData * part = pdt->particle(pdg_id );
-	  Int_t charge = static_cast<Int_t>(part->charge());
-	  if (chargedOnly_&&charge==0) continue;
+    src = evt->particles_size();
 
-	  hev_.pt[hev_.mult] = pt;
-	  hev_.eta[hev_.mult] = eta;
-	  hev_.phi[hev_.mult] = phi;
-	  hev_.pdg[hev_.mult] = pdg_id;
-	  hev_.chg[hev_.mult] = charge;
-	  hev_.sta[hev_.mult] = (*it)->status();
-	  hev_.matchingID[hev_.mult] = nparticles;
-          eta = fabs(eta);
-	  Int_t etabin = 0;
-	  if(eta > 0.5) etabin = 1;
-	  if(eta > 1.) etabin = 2;
-	  if(eta < 2.){
-	    hev_.ptav[etabin] += pt;
-	    ++(hev_.n[etabin]);
-	  }
-	  ++(hev_.mult);
-	  //	  }
-	}
+    HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
+    HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
+    int nparticles=-1;
+    for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
+      nparticles++;
+      if ((*it)->momentum().perp()<ptMin_) continue;
+      //	if((*it)->status() == 1){
+      Int_t pdg_id = (*it)->pdg_id();
+      Float_t eta = (*it)->momentum().eta();
+      Float_t phi = (*it)->momentum().phi();
+      Float_t pt = (*it)->momentum().perp();
+      const ParticleData * part = pdt->particle(pdg_id );
+      Int_t charge = static_cast<Int_t>(part->charge());
+      if (chargedOnly_&&charge==0) continue;
+
+      hev_.pt[hev_.mult] = pt;
+      hev_.eta[hev_.mult] = eta;
+      hev_.phi[hev_.mult] = phi;
+      hev_.pdg[hev_.mult] = pdg_id;
+      hev_.chg[hev_.mult] = charge;
+      hev_.sta[hev_.mult] = (*it)->status();
+      hev_.matchingID[hev_.mult] = nparticles;
+
+      eta = fabs(eta);
+      Int_t etabin = 0;
+      if(eta > 0.5) etabin = 1;
+      if(eta > 1.) etabin = 2;
+      if(eta < 2.){
+	hev_.ptav[etabin] += pt;
+	++(hev_.n[etabin]);
       }
-    }else{
-
-      Handle<HepMCProduct> mc;
-      iEvent.getByLabel(src_,mc);
-      evt = mc->GetEvent();
-      scale = evt->event_scale();
-
-      const HeavyIon* hi = evt->heavy_ion();
-      if(hi){
-	b = hi->impact_parameter();
-	npart = hi->Npart_proj()+hi->Npart_targ();
-	ncoll = hi->Ncoll();
-	nhard = hi->Ncoll_hard();
-	phi0 = hi->event_plane_angle();
-
-	if(printLists_){
-	  out_b<<b<<endl;
-	  out_n<<npart<<endl;
-	}
-      }
-
-      src = evt->particles_size();
-
-      HepMC::GenEvent::particle_const_iterator begin = evt->particles_begin();
-      HepMC::GenEvent::particle_const_iterator end = evt->particles_end();
-      int nparticles=-1;
-      for(HepMC::GenEvent::particle_const_iterator it = begin; it != end; ++it){
-	nparticles++;
-        if ((*it)->momentum().perp()<ptMin_) continue;
-	//	if((*it)->status() == 1){
-	Int_t pdg_id = (*it)->pdg_id();
-	Float_t eta = (*it)->momentum().eta();
-	Float_t phi = (*it)->momentum().phi();
-	Float_t pt = (*it)->momentum().perp();
-	const ParticleData * part = pdt->particle(pdg_id );
-	Int_t charge = static_cast<Int_t>(part->charge());
-	if (chargedOnly_&&charge==0) continue;
-
-	hev_.pt[hev_.mult] = pt;
-	hev_.eta[hev_.mult] = eta;
-	hev_.phi[hev_.mult] = phi;
-	hev_.pdg[hev_.mult] = pdg_id;
-	hev_.chg[hev_.mult] = charge;
-	hev_.sta[hev_.mult] = (*it)->status();
-        hev_.matchingID[hev_.mult] = nparticles;
-
-	eta = fabs(eta);
-	Int_t etabin = 0;
-	if(eta > 0.5) etabin = 1;
-	if(eta > 1.) etabin = 2;
-	if(eta < 2.){
-	  hev_.ptav[etabin] += pt;
-	  ++(hev_.n[etabin]);
-	}
-	++(hev_.mult);
-	if(hev_.mult >= MAXPARTICLES)
-	  edm::LogError("Number of genparticles exceeds array bounds.");
-      }
-      }
-    }else{
+      ++(hev_.mult);
+      if(hev_.mult >= MAXPARTICLES)
+	edm::LogError("Number of genparticles exceeds array bounds.");
+    }
+  }else{
     edm::Handle<reco::GenParticleCollection> parts;
     iEvent.getByLabel(genParticleSrc_,parts);
     for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
       if (stableOnly_ && p.status()!=1) continue;
-
-      //      if (p.numberOfDaughters() != 0) continue;
-
       if (p.pt()<ptMin_) continue;
       if (chargedOnly_&&p.charge()==0) continue;
       hev_.pt[hev_.mult] = p.pt();
@@ -417,12 +343,12 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hev_.nMothers[hev_.mult] = p.numberOfMothers();
       vector<int> tempMothers = getMotherIdx(parts, p);
       for(unsigned int imother=0; imother<tempMothers.size(); imother++){
-          hev_.motherIndex[hev_.mult][imother] = tempMothers.at(imother);
+	hev_.motherIndex[hev_.mult][imother] = tempMothers.at(imother);
       }
       hev_.nDaughters[hev_.mult] = p.numberOfDaughters();
       vector<int> tempDaughters = getDaughterIdx(parts, p);
       for(unsigned int idaughter=0; idaughter<tempDaughters.size(); idaughter++){
-          hev_.daughterIndex[hev_.mult][idaughter] = tempDaughters.at(idaughter);
+	hev_.daughterIndex[hev_.mult][idaughter] = tempDaughters.at(idaughter);
       }
       Double_t eta = fabs(p.eta());
 
@@ -502,58 +428,43 @@ void
 HiGenAnalyzer::beginJob()
 {
 
-  if(printLists_){
-    out_b.open(fBFileName.c_str());
-    if(out_b.good() == false)
-      throw cms::Exception("BadFile") << "Can\'t open file " << fBFileName;
-    out_n.open(fNFileName.c_str());
-    if(out_n.good() == false)
-      throw cms::Exception("BadFile") << "Can\'t open file " << fNFileName;
-    out_m.open(fMFileName.c_str());
-    if(out_m.good() == false)
-      throw cms::Exception("BadFile") << "Can\'t open file " << fMFileName;
-  }
+  nt = f->make<TNtuple>("nt","Mixing Analysis","mix:np:src:sig");
 
-  if(doAnalysis_){
-    nt = f->make<TNtuple>("nt","Mixing Analysis","mix:np:src:sig");
+  hydjetTree_ = f->make<TTree>("hi","Tree of Hi gen Event");
+  hydjetTree_->Branch("event",&hev_.event,"event/I");
+  hydjetTree_->Branch("b",&hev_.b,"b/F");
+  hydjetTree_->Branch("npart",&hev_.npart,"npart/F");
+  hydjetTree_->Branch("ncoll",&hev_.ncoll,"ncoll/F");
+  hydjetTree_->Branch("nhard",&hev_.nhard,"nhard/F");
+  hydjetTree_->Branch("phi0",&hev_.phi0,"phi0/F");
+  hydjetTree_->Branch("scale",&hev_.scale,"scale/F");
 
-    hydjetTree_ = f->make<TTree>("hi","Tree of Hi gen Event");
-    hydjetTree_->Branch("event",&hev_.event,"event/I");
-    hydjetTree_->Branch("b",&hev_.b,"b/F");
-    hydjetTree_->Branch("npart",&hev_.npart,"npart/F");
-    hydjetTree_->Branch("ncoll",&hev_.ncoll,"ncoll/F");
-    hydjetTree_->Branch("nhard",&hev_.nhard,"nhard/F");
-    hydjetTree_->Branch("phi0",&hev_.phi0,"phi0/F");
-    hydjetTree_->Branch("scale",&hev_.scale,"scale/F");
+  hydjetTree_->Branch("n",hev_.n,"n[3]/I");
+  hydjetTree_->Branch("ptav",hev_.ptav,"ptav[3]/F");
 
-    hydjetTree_->Branch("n",hev_.n,"n[3]/I");
-    hydjetTree_->Branch("ptav",hev_.ptav,"ptav[3]/F");
+  if(doParticles_){
 
-    if(doParticles_){
-
-      hydjetTree_->Branch("mult",&hev_.mult,"mult/I");
-      hydjetTree_->Branch("pt",hev_.pt,"pt[mult]/F");
-      hydjetTree_->Branch("eta",hev_.eta,"eta[mult]/F");
-      hydjetTree_->Branch("phi",hev_.phi,"phi[mult]/F");
-      hydjetTree_->Branch("pdg",hev_.pdg,"pdg[mult]/I");
-      hydjetTree_->Branch("chg",hev_.chg,"chg[mult]/I");
-      hydjetTree_->Branch("matchingID",hev_.matchingID,"matchingID[mult]/I");
-      hydjetTree_->Branch("nMothers",hev_.nMothers,"nMothers[mult]/I");
-      hydjetTree_->Branch("motherIdx",hev_.motherIndex,"motherIdx[mult][200]/I");
-      hydjetTree_->Branch("nDaughters",hev_.nDaughters,"nDaughters[mult]/I");
-      hydjetTree_->Branch("daughterIdx",hev_.daughterIndex,"daughterIdx[mult][200]/I");
-      if(!stableOnly_){
-	hydjetTree_->Branch("sta",hev_.sta,"sta[mult]/I");
-      }
-      hydjetTree_->Branch("sube",hev_.sube,"sube[mult]/I");
-
-      hydjetTree_->Branch("vx",&hev_.vx,"vx/F");
-      hydjetTree_->Branch("vy",&hev_.vy,"vy/F");
-      hydjetTree_->Branch("vz",&hev_.vz,"vz/F");
-      hydjetTree_->Branch("vr",&hev_.vr,"vr/F");
+    hydjetTree_->Branch("mult",&hev_.mult,"mult/I");
+    hydjetTree_->Branch("pt",hev_.pt,"pt[mult]/F");
+    hydjetTree_->Branch("eta",hev_.eta,"eta[mult]/F");
+    hydjetTree_->Branch("phi",hev_.phi,"phi[mult]/F");
+    hydjetTree_->Branch("pdg",hev_.pdg,"pdg[mult]/I");
+    hydjetTree_->Branch("chg",hev_.chg,"chg[mult]/I");
+    hydjetTree_->Branch("matchingID",hev_.matchingID,"matchingID[mult]/I");
+    hydjetTree_->Branch("nMothers",hev_.nMothers,"nMothers[mult]/I");
+    hydjetTree_->Branch("motherIdx",hev_.motherIndex,"motherIdx[mult][200]/I");
+    hydjetTree_->Branch("nDaughters",hev_.nDaughters,"nDaughters[mult]/I");
+    hydjetTree_->Branch("daughterIdx",hev_.daughterIndex,"daughterIdx[mult][200]/I");
+    if(!stableOnly_){
+      hydjetTree_->Branch("sta",hev_.sta,"sta[mult]/I");
     }
-  }
+    hydjetTree_->Branch("sube",hev_.sube,"sube[mult]/I");
 
+    hydjetTree_->Branch("vx",&hev_.vx,"vx/F");
+    hydjetTree_->Branch("vy",&hev_.vy,"vy/F");
+    hydjetTree_->Branch("vz",&hev_.vz,"vz/F");
+    hydjetTree_->Branch("vr",&hev_.vr,"vr/F");
+  }
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
