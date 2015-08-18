@@ -176,12 +176,11 @@ StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */
   std::unique_ptr<StorageAccount::Stamp> stats;
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
-    maker->setDebugLevel(m_debugLevel);
     if (m_accounting)
       stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "open")));
     try
     {
-      if (auto storage = maker->open (protocol, rest, mode))
+      if (auto storage = maker->open (protocol, rest, mode, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout)))
       {
 	if (dynamic_cast<LocalCacheFile *>(storage.get()))
 	  protocol = "local-cache";
@@ -220,7 +219,7 @@ StorageFactory::stagein (const std::string &url) const
       stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "stagein")));
     try
     {
-      maker->stagein (protocol, rest);
+      maker->stagein (protocol, rest,StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout));
       if (stats) stats->tick();
     }
     catch (cms::Exception &err)
@@ -246,7 +245,7 @@ StorageFactory::check (const std::string &url, IOOffset *size /* = 0 */) const
       stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "check")));
     try
     {
-      ret = maker->check (protocol, rest, size);
+      ret = maker->check (protocol, rest, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout), size);
       if (stats) stats->tick();
     }
     catch (cms::Exception &err)

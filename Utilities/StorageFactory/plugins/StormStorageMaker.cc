@@ -12,7 +12,7 @@
 class StormStorageMaker : public StorageMaker
 {
   /* getTURL: Executes a prepare to get script and extracts the physical file path */
-  std::string getTURL (const std::string &surl)
+  std::string getTURL (const std::string &surl) const
   {
     std::string client;
     if (char *p = getenv("CMS_STORM_PTG_CLIENT"))
@@ -56,7 +56,8 @@ class StormStorageMaker : public StorageMaker
 public:
   virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &surl,
-			 int mode) override
+			 int mode,
+       const AuxSettings&) const override
   {
     const StorageFactory *f = StorageFactory::get();
     StorageFactory::ReadHint readHint = f->readHint();
@@ -75,7 +76,8 @@ public:
 
   virtual bool check (const std::string &/*proto*/,
 		      const std::string &path,
-		      IOOffset *size = 0) override
+          const AuxSettings&,
+		      IOOffset *size = 0) const override
   {
     struct stat st;
     if (stat (getTURL(path).c_str(), &st) != 0)
