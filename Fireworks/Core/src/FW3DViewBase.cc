@@ -258,6 +258,62 @@ FW3DViewBase::setClip(float eta, float phi)
    m_clipEnable.set(true);
 }
 
+namespace {
+float getBBoxLineLength(TEveScene* scene, TEveVector in)
+{
+    if (!scene->NumChildren()) return 0;
+
+    scene->Repaint();
+    scene->GetGLScene()->CalcBoundingBox();
+    const TGLBoundingBox& bb = scene->GetGLScene()->BoundingBox();
+    if (bb.IsEmpty()) return 0;
+
+    TGLPlaneSet_t ps; bb.PlaneSet(ps);
+    TEveVector inn = in; inn.Normalize();
+    inn *= 10000;
+    TGLLine3 line(TGLVertex3(), TGLVertex3(inn.fX, inn.fY, inn.fZ));
+    std::vector<float> res;
+    for (TGLPlaneSet_i i = ps.begin(); i!= ps.end(); ++i)
+    {
+        std::pair<Bool_t, TGLVertex3> r = Intersection(*i, line, false);
+        if(r.first) {
+            TGLVector3 vr(r.second.X(), r.second.Y(), r.second.Z());
+            res.push_back(vr.Mag());
+        }
+    }
+    std::sort(res.begin(), res.end());
+    return res.front();
+}
+
+void setBBoxClipped(TGLBoundingBox& bbox, TEveVector dir, TEveVector b0, TEveVector b1, float fac)
+{
+    dir *= fac;
+    b0 *= fac;
+    b1 *= fac;
+
+    TEveVectorD bb[8];
+    bb[0] += b0; bb[0] += b1; 
+    bb[1] -= b0; bb[1] += b1;  
+    bb[2] -= b0; bb[2] -= b1;  
+    bb[3] += b0; bb[3] -= b1; 
+
+    for (int i = 4; i < 8; ++i)
+        bb[i] = dir;
+
+    bb[0+4] += b0; bb[0+4] += b1; 
+    bb[1+4] -= b0; bb[1+4] += b1;  
+    bb[2+4] -= b0; bb[2+4] -= b1;  
+    bb[3+4] += b0; bb[3+4] -= b1; 
+
+    TGLVertex3 bbv[8];
+    for (int i = 0; i < 8; ++i) {
+        bb[i].Dump();
+        bbv[i].Set(bb[i].fX, bb[i].fY, bb[i].fZ);
+    }
+    bbox.Set(bbv);
+}
+}
+
 void
 FW3DViewBase::updateClipPlanes()
 {
@@ -288,43 +344,35 @@ FW3DViewBase::updateClipPlanes()
       c[2] -= b0; c[2] -= b1;  
       c[3] += b0; c[3] -= b1; 
       for (int i = 0; i < 4; ++i)
-         c[i] += in;
+          c[i] += in;
 
       ((Clipsi*)m_glClip)->SetPlaneInfo(&c[0]);
 
-      /*
-      // debug
-      TEveStraightLineSet* ls = (TEveStraightLineSet*)eventScene()->FindChild(TString("Frust"));
-      if (!ls) {
-         ls = new TEveStraightLineSet("Frust");
-         eventScene()->AddElement(ls);
-         ls->SetMainColor(kWhite);
-      }
+      gEve->Redraw3D();
 
-      in *= 500;
-      ls->AddLine(0, 0, 0, in.fX, in.fY, in.fZ);
+      TGLBoundingBox bbox;
+      float es = getBBoxLineLength(eventScene(), in);
+      float gs = getBBoxLineLength(geoScene(), in);
+      setBBoxClipped(bbox, in, b0, b1, TMath::Max(es, gs));
+
+      /*
+    TEvePointSet* bmarker = new TEvePointSet(8);
+    bmarker->Reset(4);
+    bmarker->SetName("bbox");
+    bmarker->SetMarkerColor(kOrange);
+    bmarker->SetMarkerStyle(3);
+    bmarker->SetMarkerSize(0.2);
+    for (int i = 0; i < 8; ++i)
+        bmarker->SetPoint(i, bbox[i].X(), bbox[i].Y(), bbox[i].Z());
+    eventScene()->AddElement(bmarker); 
       */
 
 
-      TEvePointSet* psi = (TEvePointSet*)eventScene()->FindChild(TString("marker"));
-      TEvePointSet* marker = (TEvePointSet*)(psi);
-      if (!marker) {
-         marker = new TEvePointSet(8);
-         marker->Reset(4);
-         marker->SetName("marker");
-         marker->SetMarkerColor(kOrange);
-         marker->SetMarkerStyle(3);
-         marker->SetMarkerSize(0.2);
-      }
-      for (int i = 0; i < 4; ++i)
-         marker->SetPoint(i, c[i].fX, c[i].fY, c[i].fZ);
-      eventScene()->AddElement(marker);
+      TGLCamera& cam = viewerGL()->CurrentCamera();
+      cam.SetExternalCenter(true);
+      cam.SetCenterVec(bbox.Center().X(), bbox.Center().Y(), bbox.Center().Z());
+      cam.Setup(bbox, true);
    }
-   /*
-   else {
-      fwLog(fwlog::kError) << "Clipping is not enabled!\n"; 
-   }
-   */
 }
 
 //______________________________________________________________________________
