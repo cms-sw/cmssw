@@ -12,6 +12,12 @@ DEFINE_FWK_MODULE(HLTDisplacedmumuFilter);
 #include "HLTDisplacedmumuVtxProducer.h"
 DEFINE_FWK_MODULE(HLTDisplacedmumuVtxProducer);
 
+#include "HLTDisplacedtktkFilter.h"
+DEFINE_FWK_MODULE(HLTDisplacedtktkFilter);
+
+#include "HLTDisplacedtktkVtxProducer.h"
+DEFINE_FWK_MODULE(HLTDisplacedtktkVtxProducer);
+
 #include "HLTDisplacedmumumuFilter.h"
 DEFINE_FWK_MODULE(HLTDisplacedmumumuFilter);
 
