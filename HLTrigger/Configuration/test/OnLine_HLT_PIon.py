@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/PIon/V126 (CMSSW_7_4_8_patch1)
+# /dev/CMSSW_7_4_0/PIon/V128 (CMSSW_7_4_8_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V126')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V128')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -8509,7 +8509,7 @@ process.HLT_PFJet260_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1S
 process.HLT_Photon20_CaloIdVL_IsoL_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG10 + process.hltPrePhoton20CaloIdVLIsoL + process.HLTPhoton20CaloIdVLIsoLSequence + process.HLTEndSequence )
 process.HLT_Physics_v2 = cms.Path( process.HLTBeginSequence + process.hltPrePhysics + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtDigis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
-process.HLTAnalyzerEndpath = cms.EndPath( process.hltPreAnalyzerEndpath + process.hltGtDigis + process.hltL1GtTrigReport + process.hltTrigReport )
+process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtDigis + process.hltPreAnalyzerEndpath + process.hltL1GtTrigReport + process.hltTrigReport )
 process.PhysicsEGammaCommissioningOutput = cms.EndPath( process.hltGtDigis + process.hltPrePhysicsEGammaCommissioningOutput + process.hltOutputPhysicsEGammaCommissioning )
 process.PhysicsHadronsTausOutput = cms.EndPath( process.hltGtDigis + process.hltPrePhysicsHadronsTausOutput + process.hltOutputPhysicsHadronsTaus )
 process.PhysicsMuonsOutput = cms.EndPath( process.hltGtDigis + process.hltPrePhysicsMuonsOutput + process.hltOutputPhysicsMuons )
