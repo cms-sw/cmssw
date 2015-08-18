@@ -307,7 +307,6 @@ void setBBoxClipped(TGLBoundingBox& bbox, TEveVector dir, TEveVector b0, TEveVec
 
     TGLVertex3 bbv[8];
     for (int i = 0; i < 8; ++i) {
-        bb[i].Dump();
         bbv[i].Set(bb[i].fX, bb[i].fY, bb[i].fZ);
     }
     bbox.Set(bbv);
