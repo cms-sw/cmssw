@@ -291,16 +291,5 @@ StorageFactory::wrapNonLocalFile (std::unique_ptr<Storage> s,
   return s;
 }
 
-void
-StorageFactory::activateTimeout (const std::string &url)
-{
-  std::string protocol;
-  std::string rest;
-
-  if (StorageMaker *maker = getMaker (url, protocol, rest))
-  {
-    maker->setTimeout (m_timeout);
-  }
-}
 
 

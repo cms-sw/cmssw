@@ -61,7 +61,6 @@ public:
 	    	      int mode = IOFlags::OpenRead) const;
   bool		check (const std::string &url,
 	    	       IOOffset *size = 0) const;
-  void		activateTimeout (const std::string &url);
 
   std::unique_ptr<Storage>	wrapNonLocalFile (std::unique_ptr<Storage> s,
 				  const std::string &proto,
