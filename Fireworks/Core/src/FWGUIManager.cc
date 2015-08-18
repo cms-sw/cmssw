@@ -352,6 +352,18 @@ FWGUIManager::eventChangedCallback() {
          ev->GetGLViewer()->DeleteOverlayAnnotations();
    }
    
+   for (auto reg : m_regionViews)
+   {
+       for(ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); ++it)
+       {
+           if (it->second == reg) {
+               m_viewMap.erase(it);
+               reg->destroy();
+               break;
+           }
+       }
+   }
+
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
    m_detailViewManager->newEventCallback();
 }
@@ -664,25 +676,24 @@ FWGUIManager::open3DRegion()
       edm::ObjectWithDict o(type, (void*)id.item()->modelData(id.index()));
 
       if (parse("theta()", grammar.use_parser<1>() >> end_p, space_p).full)
-        eta =  tmpPtr->value(o);
+         eta =  tmpPtr->value(o);
       else
-	throw FWExpressionException("syntax error", -1);
+         throw FWExpressionException("syntax error", -1);
       
       if (parse("phi()", grammar.use_parser<1>() >> end_p, space_p).full)
          phi =  tmpPtr->value(o);
       else
-	throw FWExpressionException("syntax error", -1);
-
-
+         throw FWExpressionException("syntax error", -1);
 
       ViewMap_i it = createView( "3D Tower", m_viewSecPack->NewSlot());
       FW3DViewBase* v = static_cast<FW3DViewBase*>(it->second);
       v->setClip(eta, phi);
       it->first->UndockWindow();
+      m_regionViews.push_back(v);
    }
    catch(const reco::parser::BaseException& e)
    {
-     fwLog(fwlog::kError) <<"FWGUIManager::open3DRegion()  failed to base "<< e.what() << std::endl;
+      fwLog(fwlog::kError) <<"FWGUIManager::open3DRegion()  failed to base "<< e.what() << std::endl;
    }
 }
 
