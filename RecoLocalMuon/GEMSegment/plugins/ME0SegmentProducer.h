@@ -12,6 +12,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include <DataFormats/GEMRecHit/interface/ME0RecHitCollection.h>
 
 class ME0SegmentBuilder; 
 
@@ -26,8 +27,9 @@ public:
 
 private:
     int iev; // events through
-    edm::InputTag inputObjectsTag; // input tag labelling rechits for input
-    ME0SegmentBuilder* segmentBuilder_;
+    // edm::InputTag inputObjectsTag; // input tag labelling rechits for input
+    edm::EDGetTokenT<ME0RecHitCollection> theME0RecHitToken;
+    std::unique_ptr<ME0SegmentBuilder> segmentBuilder_;
 };
 
 #endif
