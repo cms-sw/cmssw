@@ -34,7 +34,7 @@ payload2xmlCodeTemplate = """
 
 namespace { // Avoid cluttering the global namespace.
 
-  std::string payload2xml( const std::string &payloadData, const std::string &payloadType ) { 
+  std::string %(plType)s2xml( const std::string &payloadData, const std::string &payloadType ) { 
 
       // now to convert
       std::unique_ptr< %(plType)s > payload;
@@ -62,7 +62,7 @@ namespace { // Avoid cluttering the global namespace.
 BOOST_PYTHON_MODULE(%(mdName)s)
 {
     using namespace boost::python;
-    def ("payload2xml", payload2xml);
+    def ("%(plType)s2xml", %(plType)s2xml);
 }
 
 """ 
@@ -203,7 +203,7 @@ class CondXmlProcessor(object):
 
         return importlib.import_module( 'pl2xmlComp' )
     
-    def payload2xml(self, session, payload, convFuncName='payload2xml'):
+    def payload2xml(self, session, payload):
     
         if not self._pl2xml_isPrepared:
 	   xmlConverter = self.prepPayload2xml(session, payload)
@@ -217,16 +217,9 @@ class CondXmlProcessor(object):
         result = session.query(self.conddb.Payload.data, self.conddb.Payload.object_type).filter(self.conddb.Payload.hash == payload).one()
         data, plType = result
     
+        convFuncName = plType+'2xml'
         sys.path.append('.')
-
-        # see if we have a compiled module with different names:
-	try:
-	   func = getattr(xmlConverter, convFuncName)
-        except Exception, e:
-           # default name of functino (payload2xml) not found, take one of the ones which exist 
-	   # NOTE: this may change with time and is not guaranteed to be reproducible
-           first = [x for x in dir(xmlConverter) if x.endswith('2xml')][0]
-           func = getattr(xmlConverter, first)
+	func = getattr(xmlConverter, convFuncName)
     	resultXML = func( str(data), str(plType) )
 
         print resultXML    
