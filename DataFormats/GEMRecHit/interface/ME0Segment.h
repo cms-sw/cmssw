@@ -84,6 +84,7 @@ public:
     double theChi2;                  // the Chi squared of the segment fit
     double theTimeValue;             // the best time estimate of the segment
     double theTimeUncrt;             // the uncertainty on the time estimation
+
 };
 
 std::ostream& operator<<(std::ostream& os, const ME0Segment& seg);

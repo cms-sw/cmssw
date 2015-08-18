@@ -17,17 +17,14 @@
 
 ME0SegmentProducer::ME0SegmentProducer(const edm::ParameterSet& ps) : iev(0) {
 	
-    // inputObjectsTag = pas.getParameter<edm::InputTag>("me0RecHitLabel");
     theME0RecHitToken = consumes<ME0RecHitCollection>(ps.getParameter<edm::InputTag>("me0RecHitLabel"));
     segmentBuilder_ = std::unique_ptr<ME0SegmentBuilder>(new ME0SegmentBuilder(ps)); // pass on the Parameter Set
 
-  	// register what this produces
+    // register what this produces
     produces<ME0SegmentCollection>();
 }
 
-ME0SegmentProducer::~ME0SegmentProducer() {
-
-}
+ME0SegmentProducer::~ME0SegmentProducer() {}
 
 void ME0SegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
@@ -42,7 +39,6 @@ void ME0SegmentProducer::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
     // get the collection of ME0RecHit
     edm::Handle<ME0RecHitCollection> me0RecHits;
-    // ev.getByLabel(inputObjectsTag, me0RecHits);  
     ev.getByToken(theME0RecHitToken,me0RecHits);
 
     // create empty collection of Segments

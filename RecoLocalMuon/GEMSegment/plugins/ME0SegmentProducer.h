@@ -27,7 +27,6 @@ public:
 
 private:
     int iev; // events through
-    // edm::InputTag inputObjectsTag; // input tag labelling rechits for input
     edm::EDGetTokenT<ME0RecHitCollection> theME0RecHitToken;
     std::unique_ptr<ME0SegmentBuilder> segmentBuilder_;
 };

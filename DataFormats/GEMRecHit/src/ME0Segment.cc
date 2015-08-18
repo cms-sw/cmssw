@@ -50,6 +50,7 @@ ME0Segment::ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, Local
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
   theTimeValue = time;
   theTimeUncrt = timeErr;
+
   for(unsigned int i=0; i<proto_segment.size(); ++i)
     theME0RecHits.push_back(*proto_segment[i]);
 }

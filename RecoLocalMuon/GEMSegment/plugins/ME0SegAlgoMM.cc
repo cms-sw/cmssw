@@ -282,6 +282,7 @@ bool ME0SegAlgoMM::isGoodToMerge(const EnsembleHitContainer& newChain, const Ens
       // (not making the correction means that the conditions for
       // forming a cluster are different if we have missing layers -
       // this could affect events at the boundaries ) 
+
       // to be chained, two hits need also to be "close" in phi and eta
       bool phiRequirementOK = reco::deltaPhi(phi_new[jRH_new],phi_old[jRH_old]) < dPhiChainBoxMax;
       bool etaRequirementOK = fabs(eta_new[jRH_new]-eta_old[jRH_old]) < dEtaChainBoxMax;
@@ -313,7 +314,6 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsembleHitContainer& 
   }
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
-  // sfit_ = std::unique_ptr<ME0SegFit>(new ME0SegFit(theME0EtaParts_, rechits));
   sfit_ = std::unique_ptr<ME0SegFit>(new ME0SegFit(theEnsemble.second, rechits));
   sfit_->fit();
   edm::LogVerbatim("ME0SegAlgoMM") << "[ME0SegAlgoMM::buildSegments] ME0Segment fit done";

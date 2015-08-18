@@ -9,3 +9,11 @@
   <use   name="rootgraphics"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<library   file="BeamSpotObjects_toXML.cc" name="BeamSpotObjects_toXML">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="boost_python"/>
+</library>
+

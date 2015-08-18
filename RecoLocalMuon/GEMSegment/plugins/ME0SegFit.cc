@@ -83,6 +83,7 @@ void ME0SegFit::fit2(void) {
     uslope_ = ( h2pos.x() - h1pos.x() ) / dz ;
     vslope_ = ( h2pos.y() - h1pos.y() ) / dz ;
   }
+
   float uintercept = ( h1pos.x()*h2pos.z() - h2pos.x()*h1pos.z() ) / dz;
   float vintercept = ( h1pos.y()*h2pos.z() - h2pos.y()*h1pos.z() ) / dz;
   intercept_ = LocalPoint( uintercept, vintercept, 0.);
@@ -300,7 +301,7 @@ void ME0SegFit::setChi2(void) {
     double du = intercept_.x() + uslope_ * z - u;
     double dv = intercept_.y() + vslope_ * z - v;
     
-    //    LogTrace("ME0SegFit") << "[ME0SegFit::setChi2] u, v, z = " << u << ", " << v << ", " << z;
+    edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::setChi2] u, v, z = " << u << ", " << v << ", " << z;
 
     SMatrixSym2 IC; // 2x2, init to 0
 
@@ -310,7 +311,7 @@ void ME0SegFit::setChi2(void) {
     IC(1,1) = hit.localPositionError().yy();
     //    IC(1,0) = IC(0,1);
 
-    //    LogTrace("ME0SegFit") << "[ME0SegFit::setChi2] IC before = \n" << IC;
+    edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::setChi2] IC before = \n" << IC;
 
     // Invert covariance matrix
     bool ok = IC.Invert();
@@ -318,7 +319,7 @@ void ME0SegFit::setChi2(void) {
       edm::LogVerbatim("ME0Segment|ME0SegFit") << "[ME0SegFit::setChi2] Failed to invert covariance matrix: \n" << IC;
       //      return ok;
     }
-    //    LogTrace("ME0SegFit") << "[ME0SegFit::setChi2] IC after = \n" << IC;
+    edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::setChi2] IC after = \n" << IC;
     chsq += du*du*IC(0,0) + 2.*du*dv*IC(0,1) + dv*dv*IC(1,1);
   }
   
@@ -326,7 +327,7 @@ void ME0SegFit::setChi2(void) {
   chi2_ = chsq;
   ndof_ = 2.*hits_.size() - 4;
 
-  //  LogTrace("ME0SegFit") << "[ME0SegFit::setChi2] chi2 = " << chi2_ << "/" << ndof_ << " dof";
+  edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::setChi2] chi2 = " << chi2_ << "/" << ndof_ << " dof";
 
 }
 
@@ -418,21 +419,21 @@ AlgebraicSymMatrix ME0SegFit::covarianceMatrix() {
   
   SMatrixSym12 weights = weightMatrix();
   SMatrix12by4 A = derivativeMatrix();
-  //  LogTrace("ME0SegFit") << "[ME0SegFit::covarianceMatrix] weights matrix W: \n" << weights;      
-  //  LogTrace("ME0SegFit") << "[ME0SegFit::covarianceMatrix] derivatives matrix A: \n" << A;      
+  edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::covarianceMatrix] weights matrix W: \n" << weights;      
+  edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::covarianceMatrix] derivatives matrix A: \n" << A;      
 
   // (AT W A)^-1
   // e.g. See http://www.phys.ufl.edu/~avery/fitting.html, part I
 
   bool ok;
   SMatrixSym4 result =  ROOT::Math::SimilarityT(A, weights);
-  //  LogTrace("ME0SegFit") << "[ME0SegFit::covarianceMatrix] (AT W A): \n" << result;      
+  edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::covarianceMatrix] (AT W A): \n" << result;      
   ok = result.Invert(); // inverts in place
   if ( !ok ) {
     edm::LogVerbatim("ME0Segment|ME0SegFit") << "[ME0SegFit::calculateError] Failed to invert matrix: \n" << result;      
     //    return ok;  //@@ SHOULD PASS THIS BACK TO CALLER?
   }
-  //  LogTrace("ME0SegFit") << "[ME0SegFit::covarianceMatrix] (AT W A)^-1: \n" << result;      
+  edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::covarianceMatrix] (AT W A)^-1: \n" << result;      
   
   // reorder components to match TrackingRecHit interface (ME0Segment isa TrackingRecHit)
   // i.e. slopes first, then positions 
@@ -448,7 +449,7 @@ AlgebraicSymMatrix ME0SegFit::flipErrors( const SMatrixSym4& a ) {
   // parameters in order (uz, vz, u0, v0) 
   // where uz, vz = slopes, u0, v0 = intercepts
     
-  LogTrace("ME0SegFit") << "[ME0SegFit::flipErrors] input: \n" << a;      
+  edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::flipErrors] input: \n" << a;      
 
   AlgebraicSymMatrix hold(4, 0. ); 
       
@@ -458,11 +459,11 @@ AlgebraicSymMatrix ME0SegFit::flipErrors( const SMatrixSym4& a ) {
     }
   }
 
-  LogTrace("ME0SegFit") << "[ME0SegFit::flipErrors] after copy:";
-  LogTrace("ME0SegFit") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
-  LogTrace("ME0SegFit") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
-  LogTrace("ME0SegFit") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
-  LogTrace("ME0SegFit") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
+  edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::flipErrors] after copy:";
+  edm::LogVerbatim("ME0SegFit") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
+  edm::LogVerbatim("ME0SegFit") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
+  edm::LogVerbatim("ME0SegFit") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
+  edm::LogVerbatim("ME0SegFit") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
 
   // errors on slopes into upper left 
   hold(1,1) = a(2,2); 
@@ -482,11 +483,11 @@ AlgebraicSymMatrix ME0SegFit::flipErrors( const SMatrixSym4& a ) {
   hold(2,3) = a(3,0); // = a(0,3)
   hold(1,4) = a(2,1); // = a(1,2)
 
-  //  LogTrace("ME0SegFit") << "[ME0SegFit::flipErrors] after flip:";
-  //  LogTrace("ME0SegFit") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
-  //  LogTrace("ME0SegFit") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
-  //  LogTrace("ME0SegFit") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
-  //  LogTrace("ME0SegFit") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
+  edm::LogVerbatim("ME0SegFit") << "[ME0SegFit::flipErrors] after flip:";
+  edm::LogVerbatim("ME0SegFit") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
+  edm::LogVerbatim("ME0SegFit") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
+  edm::LogVerbatim("ME0SegFit") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
+  edm::LogVerbatim("ME0SegFit") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
 
   return hold;
 }
