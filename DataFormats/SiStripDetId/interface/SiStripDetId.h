@@ -113,14 +113,14 @@ private:
 
 SiStripDetId::SubDetector SiStripDetId::subDetector() const {
   if ( det() == DetId::Tracker) {
-    if ( subdetId() == static_cast<int>(SiStripDetId::TIB) ) {
-      return SiStripDetId::TIB;
+    if ( subdetId() == static_cast<int>(SiStripDetId::TEC) ) {
+      return SiStripDetId::TEC;
     } else if ( subdetId() == static_cast<int>(SiStripDetId::TID) ) {
       return SiStripDetId::TID;
     } else if ( subdetId() == static_cast<int>(SiStripDetId::TOB) ) {
       return SiStripDetId::TOB;
-    } else if ( subdetId() == static_cast<int>(SiStripDetId::TEC) ) {
-      return SiStripDetId::TEC;
+    } else if ( subdetId() == static_cast<int>(SiStripDetId::TIB) ) {
+      return SiStripDetId::TIB;
     } else {
       return SiStripDetId::UNKNOWN;
     }
