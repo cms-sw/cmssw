@@ -224,7 +224,8 @@ void
 Tracer::preallocate(service::SystemBounds const& bounds) {
   LogAbsolute("Tracer") << TimeStamper(printTimestamps_) << indention_ << " preallocate: " << bounds.maxNumberOfConcurrentRuns() << " concurrent runs, "
                                                           << bounds.maxNumberOfConcurrentLuminosityBlocks() << " concurrent luminosity sections, " 
-                                                          << bounds.maxNumberOfStreams() << " streams";
+                                                          << bounds.maxNumberOfStreams() << " streams, "
+                                                          << bounds.maxNumberOfThreads() << " threads";
 }
 
 void 
