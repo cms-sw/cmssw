@@ -112,18 +112,18 @@ private:
 // ---------- inline methods ----------
 
 SiStripDetId::SubDetector SiStripDetId::subDetector() const {
-  if( det() == DetId::Tracker &&
-      subdetId() == static_cast<int>(SiStripDetId::TIB) ) {
-    return SiStripDetId::TIB;
-  } else if ( det() == DetId::Tracker &&
-	      subdetId() == static_cast<int>(SiStripDetId::TID) ) {
-    return SiStripDetId::TID;
-  } else if ( det() == DetId::Tracker &&
-	      subdetId() == static_cast<int>(SiStripDetId::TOB) ) {
-    return SiStripDetId::TOB;
-  } else if ( det() == DetId::Tracker &&
-	      subdetId() == static_cast<int>(SiStripDetId::TEC) ) {
-    return SiStripDetId::TEC;
+  if ( det() == DetId::Tracker) {
+    if ( subdetId() == static_cast<int>(SiStripDetId::TIB) ) {
+      return SiStripDetId::TIB;
+    } else if ( subdetId() == static_cast<int>(SiStripDetId::TID) ) {
+      return SiStripDetId::TID;
+    } else if ( subdetId() == static_cast<int>(SiStripDetId::TOB) ) {
+      return SiStripDetId::TOB;
+    } else if ( subdetId() == static_cast<int>(SiStripDetId::TEC) ) {
+      return SiStripDetId::TEC;
+    } else {
+      return SiStripDetId::UNKNOWN;
+    }
   } else {
     return SiStripDetId::UNKNOWN;
   }
@@ -161,14 +161,15 @@ uint32_t SiStripDetId::glued() const {
  
 uint32_t SiStripDetId::stereo() const {
   if ( ((id_>>sterStartBit_ ) & sterMask_ ) == 1 ) {
-    return ( (id_>>sterStartBit_) & sterMask_ );
+    return 1;
   } else { return 0; }
 }
  
 uint32_t SiStripDetId::partnerDetId() const {
-  if ( ((id_>>sterStartBit_) & sterMask_ ) == 1 ) {
+  uint32_t testId = (id_>>sterStartBit_) & sterMask_;
+  if ( testId == 1 ) {
     return ( id_ + 1 );
-  } else if ( ((id_>>sterStartBit_) & sterMask_ ) == 2 ) {
+  } else if ( testId == 2 ) {
     return ( id_ - 1 );
   } else { return 0; }
 }
