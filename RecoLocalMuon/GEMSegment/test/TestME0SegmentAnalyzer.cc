@@ -54,14 +54,7 @@ class TestME0SegmentAnalyzer : public edm::EDAnalyzer {
 
 
    private:
-      virtual void beginJob() ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
-      //virtual void endRun(edm::Run const&, edm::EventSetup const&);
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
       // ----------member data ---------------------------
   edm::ESHandle<ME0Geometry> me0Geom;
@@ -190,6 +183,8 @@ void
 TestME0SegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  iSetup.get<MuonGeometryRecord>().get(me0Geom);
+
   // ================
   // ME0 Segments
   // ================
@@ -276,25 +271,6 @@ TestME0SegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     std::cout<<"\n"<<std::endl;
   }
   std::cout<<"\n"<<std::endl;
-}
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TestME0SegmentAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TestME0SegmentAnalyzer::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-TestME0SegmentAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
-{
-  iSetup.get<MuonGeometryRecord>().get(me0Geom);
-
 }
 
 //define this as a plug-in
