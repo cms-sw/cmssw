@@ -351,6 +351,18 @@ FWGUIManager::eventChangedCallback() {
          ev->GetGLViewer()->DeleteOverlayAnnotations();
    }
    
+   for (auto reg : m_regionViews)
+   {
+       for(ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); ++it)
+       {
+           if (it->second == reg) {
+               m_viewMap.erase(it);
+               reg->destroy();
+               break;
+           }
+       }
+   }
+
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
    m_detailViewManager->newEventCallback();
 }
@@ -670,6 +682,7 @@ FWGUIManager::open3DRegion()
          FW3DViewBase* v = static_cast<FW3DViewBase*>(it->second);
          v->setClip(eta, phi);
          it->first->UndockWindow();
+         m_regionViews.push_back(v);
       }
       catch(const reco::parser::BaseException& e)
       {
