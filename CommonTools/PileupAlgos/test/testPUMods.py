@@ -5,7 +5,8 @@ process.load('Configuration/StandardSequences/Services_cff')
 process.load('FWCore/MessageService/MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
-process.GlobalTag.globaltag = 'START53_V7G::All'
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 process.load('CommonTools/PileupAlgos/Puppi_cff')
 process.load('CommonTools/PileupAlgos/softKiller_cfi')
@@ -13,8 +14,7 @@ process.load('CommonTools/PileupAlgos/softKiller_cfi')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 process.source = cms.Source("PoolSource",
 	fileNames  = cms.untracked.vstring(
-		# '/store/mc/RunIISpring15DR74/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/GEN-SIM-RECO/AsymptFlat0to50bx25Reco_MCRUN2_74_V9-v3/10000/0009D30B-0207-E511-B581-0026182FD753.root'
-		'file:/uscms_data/d2/ntran/physics/Jets/PUPPITuning2015/JMEValidatorWorkbench/cmssw748_pr_Aug3/src/25202.0_TTbar_13+TTbar_13+DIGIUP15_PU25+RECOUP15_PU25+HARVESTUP15_PU25--old/step3_inMINIAODSIM.root'
+		'/store/mc/RunIISpring15DR74/QCD_Pt-15to7000_TuneCUETP8M1_Flat_13TeV_pythia8/GEN-SIM-RECO/AsymptFlat0to50bx25Reco_MCRUN2_74_V9-v3/10000/0009D30B-0207-E511-B581-0026182FD753.root'
 		)
 )
 process.source.inputCommands = cms.untracked.vstring("keep *",

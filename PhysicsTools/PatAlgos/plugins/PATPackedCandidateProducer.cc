@@ -95,8 +95,10 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PVOrigs_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("originalVertices"))),
   TKOrigs_(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("originalTracks"))),
   PuppiWeight_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
+  PuppiWeightNoLep_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc"))),
   PuppiCandsMap_(consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   PuppiCands_(consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
+  PuppiCandsNoLep_(consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc"))),
   SVWhiteList_(consumes<edm::View< reco::CompositePtrCandidate > >(iConfig.getParameter<edm::InputTag>("secondaryVerticesForWhiteList"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {

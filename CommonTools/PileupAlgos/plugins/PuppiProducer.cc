@@ -174,10 +174,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     fRecoObjCollection.push_back(pReco);
       
-    //   //std::cout << "pVtxId = " << pVtxId << ", and charge = " << itPF->charge() << ", and closestVtx = " << closestVtx << ", and id = " << pReco.id << std::endl;
-    // std::cout << "charge = " << itPF->charge() << ", pDZ = " << pDZ << ", pVtxId = " << pVtxId << ", closestVtx = " << closestVtx << ", fromPV() = " << lPack->fromPV() << ", pReco.id = " << pReco.id << std::endl;
-
-    //   fRecoObjCollection.push_back(pReco);
   }
 
   fPuppiContainer->initialize(fRecoObjCollection);
