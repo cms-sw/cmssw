@@ -3,6 +3,7 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TkRadialStripTopology.h"
@@ -192,3 +193,5 @@ pass_frame_change_test(const TkRadialStripTopology* t, const float strip, const 
      << ( me.uv() ) << std::endl;
   return passp&passe;
 }
+
+DEFINE_FWK_MODULE(ValidateRadial);
