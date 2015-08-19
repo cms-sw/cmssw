@@ -184,7 +184,8 @@ struct TrackEvent{
   float trkVy[MAXTRACKS];
   float trkVz[MAXTRACKS];
   bool  trkFake[MAXTRACKS];
-  float trkAlgo[MAXTRACKS];
+  int trkAlgo[MAXTRACKS];
+  float trkMVA[MAXTRACKS];
   float dedx[MAXTRACKS];
   int trkCharge[MAXTRACKS];
   int trkNVtx[MAXTRACKS];
@@ -238,7 +239,7 @@ struct TrackEvent{
   float mtrkDzError2[MAXTRACKS];
   float mtrkDxy2[MAXTRACKS];
   float mtrkDxyError2[MAXTRACKS];
-  float mtrkAlgo[MAXTRACKS];
+  int mtrkAlgo[MAXTRACKS];
 
   // calo compatibility
   int mtrkPfType[MAXTRACKS];
@@ -568,6 +569,9 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
     iEvent.getByLabel(DeDxSrc_, DeDxMap);
   }
 
+  Handle<edm::ValueMap<float> > mvaoutput;
+  iEvent.getByLabel("hiGeneralTracks", "MVAVals", mvaoutput);
+    
   if(doSimTrack_) {
     // iEvent.getByLabel(tpFakeSrc_,TPCollectionHfake);
     // if(associateChi2_){
@@ -605,6 +609,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(doDeDx_){
       pev_.dedx[pev_.nTrk]=(*DeDxMap)[trackRef].dEdx();
     }
+    pev_.trkMVA[pev_.nTrk] = (*mvaoutput)[trackRef];
 
     trackingRecHit_iterator edh = etrk.recHitsEnd();
     int count1dhits=0;
@@ -1153,7 +1158,8 @@ TrackAnalyzer::beginJob()
   trackTree_->Branch("trkDz2",&pev_.trkDz2,"trkDz2[nTrk]/F");
   trackTree_->Branch("trkDxyError2",&pev_.trkDxyError2,"trkDxyError2[nTrk]/F");
   trackTree_->Branch("trkFake",&pev_.trkFake,"trkFake[nTrk]/O");
-  trackTree_->Branch("trkAlgo",&pev_.trkAlgo,"trkAlgo[nTrk]/F");
+  trackTree_->Branch("trkAlgo",&pev_.trkAlgo,"trkAlgo[nTrk]/I");
+  trackTree_->Branch("trkMVA",&pev_.trkMVA,"trkMVA[nTrk]/F");
 
   if (doDebug_) {
     trackTree_->Branch("trkNlayer3D",&pev_.trkNlayer3D,"trkNlayer3D[nTrk]/I");
@@ -1222,7 +1228,7 @@ TrackAnalyzer::beginJob()
       trackTree_->Branch("mtrkDzError2",&pev_.mtrkDzError2,"mtrkDzError2[nParticle]/F");
       trackTree_->Branch("mtrkDxy2",&pev_.mtrkDxy2,"mtrkDxy2[nParticle]/F");
       trackTree_->Branch("mtrkDxyError2",&pev_.mtrkDxyError2,"mtrkDxyError2[nParticle]/F");
-      trackTree_->Branch("mtrkAlgo",&pev_.mtrkAlgo,"mtrkAlgo[nParticle]/F");
+      trackTree_->Branch("mtrkAlgo",&pev_.mtrkAlgo,"mtrkAlgo[nParticle]/I");
 
       if (doPFMatching_) {
 	trackTree_->Branch("mtrkPfType",&pev_.mtrkPfType,"mtrkPfType[nParticle]/I");
