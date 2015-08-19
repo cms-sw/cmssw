@@ -9,32 +9,35 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Validation/RecoTrack/interface/MTVHistoProducerAlgo.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/CandAlgos/interface/GenParticleCustomSelector.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <TH1F.h>
-#include <TH2F.h>
+#include "DQMServices/Core/interface/DQMStore.h"
 
 
 
-class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
+class MTVHistoProducerAlgoForTracker {
  public:
   MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector && iC) :
     MTVHistoProducerAlgoForTracker(pset, iC) {}
   MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector & iC) ;
-  virtual ~MTVHistoProducerAlgoForTracker();
+  ~MTVHistoProducerAlgoForTracker();
 
-  void bookSimHistos(DQMStore::IBooker& ibook) override;
-  void bookSimTrackHistos(DQMStore::IBooker& ibook) override;
-  void bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook) override;
-  void bookRecoHistos(DQMStore::IBooker& ibook) override;
-  void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook) override;
-  void bookRecodEdxHistos(DQMStore::IBooker& ibook) override;
+  void bookSimHistos(DQMStore::IBooker& ibook);
+  void bookSimTrackHistos(DQMStore::IBooker& ibook);
+  void bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook);
+  void bookRecoHistos(DQMStore::IBooker& ibook);
+  void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook);
+  void bookRecodEdxHistos(DQMStore::IBooker& ibook);
 
 
   void fill_generic_simTrack_histos(const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx);
@@ -109,19 +112,19 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
 
   //private data members
-  TrackingParticleSelector* generalTpSelector;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsEta;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsPhi;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsPt;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsVTXR;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsVTXZ;
+  std::unique_ptr<TrackingParticleSelector> generalTpSelector;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsEta;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsPhi;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsPt;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsVTXR;
+  std::unique_ptr<TrackingParticleSelector> TpSelectorForEfficiencyVsVTXZ;
 
-  GenParticleCustomSelector* generalGpSelector;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsEta;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsPhi;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsPt;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsVTXR;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsVTXZ;
+  std::unique_ptr<GenParticleCustomSelector> generalGpSelector;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsEta;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsPhi;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsPt;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsVTXR;
+  std::unique_ptr<GenParticleCustomSelector> GpSelectorForEfficiencyVsVTXZ;
 
   double minEta, maxEta;  int nintEta;  bool useFabsEta;
   double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;

@@ -362,7 +362,7 @@ void EvtGenInterface::init(){
     m_PDGs.clear();
     bool goodinput=false;
     if(tmpPIDs.size()>0){ if(tmpPIDs.size()==1 && tmpPIDs[0]==0) goodinput=false;
-                          goodinput=true;
+                          else goodinput=true;
                         }
     else{goodinput=false;}
     if(goodinput) m_PDGs = tmpPIDs;
@@ -477,7 +477,9 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt ){
       EvtId idEvt = EvtPDL::evtIdFromStdHep(forcedparticles.at(i).at(j)->pdg_id());
       bool decayed = false;
       if ( idx==which ) {
-        idEvt = forced_id[i]; 
+        idEvt = forced_id[i];
+        edm::LogInfo("EvtGenInterface::decay ") << EvtPDL::getStdHep(idEvt) << " will force to decay " << idx+1
+             << " out of " << nisforced  << std::endl;        
         while(!decayed){decayed=addToHepMC(forcedparticles.at(i).at(j),idEvt,evt,false,false,false);} // mixing already done (false) 
       } else {
         while(!decayed){decayed=addToHepMC(forcedparticles.at(i).at(j),idEvt,evt,true,true,true);}
@@ -536,6 +538,7 @@ bool EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt,
 	  if (p->end_vertex()->particles_out_size()!=0){
 	     for (HepMC::GenVertex::particles_out_const_iterator d=p->end_vertex()->particles_out_const_begin(); d!=p->end_vertex()->particles_out_const_end();d++){
 	        if (abs((*d)->pdg_id())==abs(p->pdg_id())){
+                  parent->deleteTree();  // cleaning up
 		  return false;
 	        }
 	     }

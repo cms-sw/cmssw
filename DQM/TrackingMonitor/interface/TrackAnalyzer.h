@@ -271,6 +271,8 @@ class TrackAnalyzer
 	MonitorElement* dNdPt_HighPurity;
 	MonitorElement* NhitVsEta_HighPurity;
 	MonitorElement* NhitVsPhi_HighPurity;
+	MonitorElement* Ptdist_HighPurity;
+	MonitorElement* dNhitdPt_HighPurity;
 
 	// IP significance plots
 	MonitorElement *sipDxyToBS;
