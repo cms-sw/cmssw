@@ -14,8 +14,6 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 .oO[datasetDefinition]Oo.
 # process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
 
-#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CommonDetUnit.globalTrackingGeometryDB_cfi")
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
