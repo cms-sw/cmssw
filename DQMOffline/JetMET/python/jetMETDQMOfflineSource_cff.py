@@ -45,7 +45,13 @@ dqmAk4CaloL2L3ResidualCorrectorChain = cms.Sequence(
     dqmAk4CaloL2L3ResidualCorrector
 )
 
-from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3ResidualCorrectorChain,ak4PFL1FastL2L3ResidualCorrector,ak4PFResidualCorrector,ak4PFL3AbsoluteCorrector,ak4PFL2RelativeCorrector,ak4PFL1FastjetCorrector
+from JetMETCorrections.Configuration.JetCorrectors_cff import ak4PFL1FastL2L3ResidualCorrectorChain,ak4PFL1FastL2L3ResidualCorrector,ak4PFCHSL1FastL2L3Corrector,ak4PFResidualCorrector,ak4PFL3AbsoluteCorrector,ak4PFL2RelativeCorrector,ak4PFL1FastjetCorrector
+
+dqmAk4PFCHSL1FastL2L3Corrector = ak4PFCHSL1FastL2L3Corrector.clone()
+dqmAk4PFCHSL1FastL2L3CorrectorChain = cms.Sequence(
+    #ak4CaloL2RelativeCorrector*ak4CaloL3AbsoluteCorrector*ak4CaloResidualCorrector*
+    dqmAk4PFCHSL1FastL2L3Corrector
+)
 
 dqmAk4PFL1FastL2L3ResidualCorrector = ak4PFL1FastL2L3ResidualCorrector.clone()
 dqmAk4PFL1FastL2L3ResidualCorrectorChain = cms.Sequence(
