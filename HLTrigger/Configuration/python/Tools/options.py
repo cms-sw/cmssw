@@ -5,8 +5,6 @@ globalTag = {
   'GRun': 'auto:run2_mc_GRun',       # used as default
   '25ns14e33_v3': 'auto:run2_mc_25ns14e33_v3',
   '50ns_5e33_v3': 'auto:run2_mc_50ns_5e33_v3',
-  '25ns14e33_v2': 'auto:run2_mc_25ns14e33_v2',
-  '50ns_5e33_v2': 'auto:run2_mc_50ns_5e33_v2',
   '25ns14e33_v1': 'auto:run2_mc_25ns14e33_v1',
   '50ns_5e33_v1': 'auto:run2_mc_50ns_5e33_v1',
   '50nsGRun': 'auto:run2_mc_50nsGRun',
@@ -14,6 +12,7 @@ globalTag = {
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'LowPU': 'auto:run2_mc_LowPU',
+  '25nsLowPU': 'auto:run2_mc_25nsLowPU',
   'data' : 'auto:run1_hlt',
 }
 
