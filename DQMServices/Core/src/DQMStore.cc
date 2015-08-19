@@ -357,6 +357,7 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
   MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
   std::set<MonitorElement>::const_iterator e = data_.end();
   std::set<MonitorElement>::const_iterator i = data_.lower_bound(proto);
+
   while (i != e) {
     if (i->data_.run != run
         || i->data_.streamId != streamId
@@ -429,7 +430,9 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
     if (i->data_.run != run
         || i->data_.streamId != streamId
         || i->data_.moduleId != moduleId)
-      break;
+        {
+        break;
+      }
 
     // Handle LS-based histograms only.
     if (not (i->getLumiFlag() || LSbasedMode_)) {
@@ -444,6 +447,7 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
     // be locked.
     std::lock_guard<std::mutex> guard(book_mutex_);
     std::set<MonitorElement>::const_iterator me = data_.find(global_me);
+
     if (me != data_.end()) {
       if (verbose_ > 1)
 	      std::cout << "Found global Object, using it --> " << me->getFullname() << std::endl;

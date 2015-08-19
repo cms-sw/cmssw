@@ -7,6 +7,9 @@
 <use   name="classlib"/>
 <use   name="roothistmatrix"/>
 <use   name="protobuf"/>
+<use   name="CoralCommon"/>
+<use   name="CoralKernel"/>
+<use   name="RelationalAccess"/>
 <export>
   <lib   name="1"/>
 </export>

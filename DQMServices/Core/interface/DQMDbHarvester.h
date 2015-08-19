@@ -1,7 +1,6 @@
 #ifndef DQMDbHarvester_H
 #define DQMDbHarvester_H
 
-#include "DataFormats/FWLite/interface/LuminosityBlock.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -28,30 +27,11 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-// Electron
-#include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
-// PFMET
-#include "DataFormats/METReco/interface/PFMET.h"
-#include "DataFormats/METReco/interface/PFMETCollection.h"
-
-// Vertex utilities
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-// CaloJets
-#include "DataFormats/JetReco/interface/CaloJet.h"
-
-// Conversions
-#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-
-// Trigger
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "FWCore/Common/interface/TriggerNames.h"
+// // Trigger
+// #include "DataFormats/Common/interface/TriggerResults.h"
+// #include "DataFormats/HLTReco/interface/TriggerObject.h"
+// #include "DataFormats/HLTReco/interface/TriggerEvent.h"
+// #include "FWCore/Common/interface/TriggerNames.h"
  
 //CORAL includes
 #include "RelationalAccess/ConnectionService.h"
