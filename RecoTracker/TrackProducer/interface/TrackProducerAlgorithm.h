@@ -52,6 +52,7 @@ public:
   /// Constructor
   TrackProducerAlgorithm(const edm::ParameterSet& conf) : 
     algo_(reco::TrackBase::algoByName(conf.getParameter<std::string>("AlgorithmName"))),
+    originalAlgo_(reco::TrackBase::undefAlgorithm),
     reMatchSplitHits_(false),
     usePropagatorForPCA_(false)
       {
@@ -134,6 +135,8 @@ public:
 
  private:
   reco::TrackBase::TrackAlgorithm algo_;
+  reco::TrackBase::TrackAlgorithm originalAlgo_;
+  reco::TrackBase::AlgoMask algoMask_;
   bool reMatchSplitHits_;
   bool geometricInnerState_;
   bool usePropagatorForPCA_;
