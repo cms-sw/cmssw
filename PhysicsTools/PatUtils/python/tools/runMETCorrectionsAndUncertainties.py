@@ -1220,8 +1220,9 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             getattr(process,"patJets"+postfix).addGenJetMatch = False 
             getattr(process,"patJets"+postfix).addGenPartonMatch = False 
             getattr(process,"patJets"+postfix).addPartonJetMatch = False 
-            del getattr(process,"patJets"+postfix).JetFlavourInfoSource
-            del getattr(process,"patJets"+postfix).JetPartonMapSource
+            if self._parameters['onMiniAOD'].value:
+                del getattr(process,"patJets"+postfix).JetFlavourInfoSource
+                del getattr(process,"patJets"+postfix).JetPartonMapSource
             getattr(process,"patJets"+postfix).getJetMCFlavour = False
             
             getattr(process,"patJetCorrFactors"+postfix).src=cms.InputTag(jetColName)
