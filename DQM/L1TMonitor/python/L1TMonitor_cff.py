@@ -28,6 +28,7 @@ from DQM.L1TMonitor.BxTiming_cfi import *
 
 # RCT DQM module 
 from DQM.L1TMonitor.L1TRCT_cfi import *
+l1tRctRun1 = l1tRct.clone()
 l1tRct.rctSource = 'caloStage1Digis'
 l1tRct.gctSource = 'caloStage1Digis'
 
@@ -87,6 +88,9 @@ l1s.l1GtData = cms.InputTag("gtDigis")
 l1s.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM") 
 
 ############################################################
+# Stage1 Layer1 unpacker
+from EventFilter.RctRawToDigi.l1RctHwDigis_cfi import *
+
 # Stage1 unpacker
 from L1Trigger.L1TCommon.l1tRawToDigi_cfi import *
 
@@ -144,7 +148,7 @@ l1tMonitorOnline = cms.Sequence(
                           l1ExtraDqmSeq +
                           l1tBPTX +
                           l1tRate +
-                          l1tRctSeq +
+                          l1tRctRun1 +
                           l1tGctSeq
                           )
 
@@ -155,6 +159,7 @@ l1tMonitorStage1Online = cms.Sequence(
                           l1tRpctf +
                           l1tGmt +
                           l1tGt +
+                          rctDigis *
                           caloStage1Digis *
                           caloStage1LegacyFormatDigis*
                           l1ExtraStage1DqmSeq +

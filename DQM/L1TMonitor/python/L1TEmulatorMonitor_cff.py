@@ -38,6 +38,7 @@ from DQM.L1TMonitor.L1TdeGCT_cfi import *
 from DQM.L1TMonitor.L1TdeStage1Layer2_cfi import *
 
 from DQM.L1TMonitor.L1TdeRCT_cfi import *
+l1TdeRCTRun1 = l1TdeRCT.clone()
 l1TdeRCT.rctSourceData = 'caloStage1Digis'
 l1TdeRCT.gctSourceData = 'caloStage1Digis'
 l1TdeRCT.rctSourceEmul = 'valRctDigis'
@@ -54,6 +55,9 @@ from DQM.L1TMonitor.L1GtHwValidation_cff import *
 # the modules are independent, so uses "+"
 
 ############################################################
+# Stage1 Layer1 unpacker
+from EventFilter.RctRawToDigi.l1RctHwDigis_cfi import *
+
 # Stage1 unpacker
 
 from L1Trigger.L1TCommon.l1tRawToDigi_cfi import *
@@ -73,7 +77,7 @@ l1ExpertDataVsEmulator = cms.Sequence(
                                 l1TdeGCT + 
                                 l1TdeCSCTF + 
                                 l1GtHwValidation + 
-                                l1TdeRCTSeq                 
+                                l1TdeRCTRun1
                                 )
 
 
@@ -106,6 +110,7 @@ l1EmulatorMonitorStage1 = cms.Sequence(
     )
 
 l1Stage1HwValEmulatorMonitor = cms.Sequence(
+    rctDigis*
     caloStage1Digis*
     caloStage1LegacyFormatDigis*    
     L1HardwareValidationforStage1 +
