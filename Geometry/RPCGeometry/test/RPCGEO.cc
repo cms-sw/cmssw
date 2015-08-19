@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,63 +42,34 @@
 #include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
 #include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
 
+class RPCGEO : public edm::one::EDAnalyzer<>
+{
+public:
+  explicit RPCGEO(const edm::ParameterSet&);
+  ~RPCGEO();
 
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-//
-// class decleration
-//
-
-class RPCGEO : public edm::EDAnalyzer {
-   public:
-      explicit RPCGEO(const edm::ParameterSet&);
-      ~RPCGEO();
-
-
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      // ----------member data ---------------------------
-
+private:
   std::ofstream detidsstream;
   std::ofstream detailstream;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-RPCGEO::RPCGEO(const edm::ParameterSet& /*iConfig*/){
-   //now do what ever initialization is needed
-
+RPCGEO::RPCGEO(const edm::ParameterSet& /*iConfig*/)
+{
   detailstream.open("RPCGeometry.out"); 
   detidsstream.open("RPCDetIdLst.out");
   std::cout <<"Opening output files :: RPCGeometry.out and RPCDetIdLst.out"<< std::endl;
 }
 
-
 RPCGEO::~RPCGEO()
 {
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
   detailstream.close();
   detidsstream.close();
   std::cout <<"Closing output files :: RPCGeometry.out and RPCDetIdLst.out"<< std::endl;
 }
-
-
-//
-// member functions
-//
 
 // ------------ method called to for each event  ------------
 void
@@ -486,18 +457,6 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
    detailstream<<"Area Covered in Barrel = "<<areabarrel/10000<<"m^2"<<std::endl;
    detailstream<<"Area Covered in EndCap = "<<areaendcap/10000<<"m^2"<<std::endl;
 
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-RPCGEO::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-RPCGEO::endJob() {
 }
 
 //define this as a plug-in

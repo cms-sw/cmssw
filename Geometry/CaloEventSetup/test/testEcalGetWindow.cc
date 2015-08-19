@@ -18,7 +18,7 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,13 +48,15 @@
 // class decleration
 //
 
-class testEcalGetWindow : public edm::EDAnalyzer {
+class testEcalGetWindow : public edm::one::EDAnalyzer<> {
 public:
   explicit testEcalGetWindow( const edm::ParameterSet& );
   ~testEcalGetWindow();
   
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
   // ----------member data ---------------------------
   void build(const CaloGeometry& cg, const CaloTopology& etmap, DetId::Detector det, int subdetn, const char* name);
@@ -62,17 +64,6 @@ private:
   int pass_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 testEcalGetWindow::testEcalGetWindow( const edm::ParameterSet& /*iConfig*/ )
 {
    //now do what ever initialization is needed
@@ -84,16 +75,8 @@ testEcalGetWindow::testEcalGetWindow( const edm::ParameterSet& /*iConfig*/ )
 
 
 testEcalGetWindow::~testEcalGetWindow()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
+{}
 
-}
-
-//
-// member functions
-//
 void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct, DetId::Detector det, int subdetn, const char* name) 
 {
   if (det == DetId::Ecal && subdetn == EcalEndcap) 

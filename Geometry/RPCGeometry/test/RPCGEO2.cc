@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -51,46 +51,22 @@
 // class decleration
 //
 
-class RPCGEO2 : public edm::EDAnalyzer {
-   public:
-      explicit RPCGEO2(const edm::ParameterSet&);
-      ~RPCGEO2();
+class RPCGEO2 : public edm::one::EDAnalyzer<>
+{
+public:
+  explicit RPCGEO2(const edm::ParameterSet&);
+  ~RPCGEO2();
 
-
-   private:
-      virtual void beginJob() ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      // ----------member data ---------------------------
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 RPCGEO2::RPCGEO2(const edm::ParameterSet& /*iConfig*/){
-   //now do what ever initialization is needed
 }
-
 
 RPCGEO2::~RPCGEO2()
-{
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-}
-
-
-//
-// member functions
-//
+{}
 
 // ------------ method called to for each event  ------------
 void
@@ -107,16 +83,10 @@ RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
        const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
        std::vector< const RPCRoll*> roles = (ch->rolls());
        
-       //std::cout<<"RPC Chamber"<<ch->id()<<std::endl;
-       
        for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	 RPCDetId rpcId = (*r)->id();
-	 //int stripsinthisroll=(*r)->nstrips();
 	 RPCGeomServ rpcsrv(rpcId);
 	 if (rpcId.region()==0){ 
-	   //	   const RectangularStripTopology* top_= dynamic_cast<const RectangularStripTopology*> (&((*r)->topology()));
-	   //	   float stripl = top_->stripLength();
-	   //	   float stripw = top_->pitch();
 	   const BoundPlane & RPCSurface = (*r)->surface();
 	   GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	   std::cout<<rpcsrv.name()<<" "<<CenterPointRollGlobal.x()<<" "<<CenterPointRollGlobal.y()<<" "<<CenterPointRollGlobal.z()<<std::endl;
@@ -125,12 +95,7 @@ RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 	   std::cout<<" i "<<i.x()<<" "<<i.y()<<" "<<i.z()<<std::endl;
 	   std::cout<<" j "<<j.x()<<" "<<j.y()<<" "<<j.z()<<std::endl;
 
-	   
-
 	 }else{
-	   //	   const TrapezoidalStripTopology* top_= dynamic_cast<const TrapezoidalStripTopology*> (&((*r)->topology()));
-	   //	   float stripl = top_->stripLength();
-	   //float stripw = top_->pitch();
 	   const BoundPlane & RPCSurface = (*r)->surface();
 	   GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 	   std::cout<<rpcsrv.name()<<" "<<CenterPointRollGlobal.x()<<" "<<CenterPointRollGlobal.y()<<" "<<CenterPointRollGlobal.z()<<std::endl;
@@ -138,18 +103,6 @@ RPCGEO2::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
        }
      }
    }
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-RPCGEO2::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-RPCGEO2::endJob() {
 }
 
 //define this as a plug-in
