@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 electronRegressionValueMapProducer = cms.EDProducer('ElectronRegressionValueMapProducer',
+                                                    #presently the electron regressions use the "zero-suppressed" shower shapes
+                                                    useFull5x5 = cms.bool(False), 
                                                     # The module automatically detects AOD vs miniAOD, so we configure both
                                                     #
                                                     # AOD case

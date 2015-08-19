@@ -21,13 +21,13 @@
 
 namespace {
   // Cluster shapes
-  constexpr char phoFull5x5SigmaIPhiIPhi_[] = "phoFull5x5SigmaIPhiIPhi";
-  constexpr char phoFull5x5SigmaIEtaIPhi_[] = "phoFull5x5SigmaIEtaIPhi";
-  constexpr char phoFull5x5E2x5Max_[] = "phoFull5x5E2x5Max";
-  constexpr char phoFull5x5E2x5Left_[] = "phoFull5x5E2x5Left";
-  constexpr char phoFull5x5E2x5Right_[] = "phoFull5x5E2x5Right";
-  constexpr char phoFull5x5E2x5Top_[] = "phoFull5x5E2x5Top";
-  constexpr char phoFull5x5E2x5Bottom_[] = "phoFull5x5E2x5Bottom";
+  constexpr char sigmaIPhiIPhi_[] = "sigmaIPhiIPhi";
+  constexpr char sigmaIEtaIPhi_[] = "sigmaIEtaIPhi";
+  constexpr char e2x5Max_[] = "e2x5Max";
+  constexpr char e2x5Left_[] = "e2x5Left";
+  constexpr char e2x5Right_[] = "e2x5Right";
+  constexpr char e2x5Top_[] = "e2x5Top";
+  constexpr char e2x5Bottom_[] = "e2x5Bottom";
 }
 
 class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
@@ -49,7 +49,7 @@ class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
 		     const std::string    & label) const ;
   
   // The object that will compute 5x5 quantities  
-  std::unique_ptr<noZS::EcalClusterLazyTools> lazyToolnoZS;
+  std::unique_ptr<EcalClusterLazyToolsBase> lazyTools;
 
   // for AOD case
   edm::EDGetTokenT<EcalRecHitCollection> ebReducedRecHitCollection_;
@@ -63,9 +63,11 @@ class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<EcalRecHitCollection> esReducedRecHitCollectionMiniAOD_;
   edm::EDGetToken srcMiniAOD_;
   
+  const bool use_full5x5_;
 };
 
-PhotonRegressionValueMapProducer::PhotonRegressionValueMapProducer(const edm::ParameterSet& iConfig) {
+PhotonRegressionValueMapProducer::PhotonRegressionValueMapProducer(const edm::ParameterSet& iConfig) :
+  use_full5x5_(iConfig.getParameter<bool>("useFull5x5")) {
 
   //
   // Declare consummables, handle both AOD and miniAOD case
@@ -93,17 +95,42 @@ PhotonRegressionValueMapProducer::PhotonRegressionValueMapProducer(const edm::Pa
   // Declare producibles
   //
   // Cluster shapes
-  produces<edm::ValueMap<float> >(phoFull5x5SigmaIPhiIPhi_);  
-  produces<edm::ValueMap<float> >(phoFull5x5SigmaIEtaIPhi_);  
-  produces<edm::ValueMap<float> >(phoFull5x5E2x5Max_);  
-  produces<edm::ValueMap<float> >(phoFull5x5E2x5Left_);  
-  produces<edm::ValueMap<float> >(phoFull5x5E2x5Right_);  
-  produces<edm::ValueMap<float> >(phoFull5x5E2x5Top_);  
-  produces<edm::ValueMap<float> >(phoFull5x5E2x5Bottom_);  
+  produces<edm::ValueMap<float> >(sigmaIPhiIPhi_);  
+  produces<edm::ValueMap<float> >(sigmaIEtaIPhi_);  
+  produces<edm::ValueMap<float> >(e2x5Max_);  
+  produces<edm::ValueMap<float> >(e2x5Left_);  
+  produces<edm::ValueMap<float> >(e2x5Right_);  
+  produces<edm::ValueMap<float> >(e2x5Top_);  
+  produces<edm::ValueMap<float> >(e2x5Bottom_);  
 }
 
 PhotonRegressionValueMapProducer::~PhotonRegressionValueMapProducer() 
 {}
+
+template<typename LazyTools,typename SeedType>
+inline void calculateValues(EcalClusterLazyToolsBase* tools_tocast,
+                            const SeedType& the_seed,
+                            std::vector<float>& sigmaIPhiIPhi,
+                            std::vector<float>& sigmaIEtaIPhi,
+                            std::vector<float>& e2x5Max,
+                            std::vector<float>& e2x5Left,
+                            std::vector<float>& e2x5Right,
+                            std::vector<float>& e2x5Top,
+                            std::vector<float>& e2x5Bottom) {
+  LazyTools* tools = static_cast<LazyTools*>(tools_tocast);
+  
+  float spp = -999;
+  std::vector<float> vCov = tools->localCovariances( the_seed );
+  spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
+  float sep = vCov[1];
+  sigmaIPhiIPhi.push_back(spp);
+  sigmaIEtaIPhi.push_back(sep);
+  e2x5Max   .push_back(tools->e2x5Max(the_seed) );
+  e2x5Left  .push_back(tools->e2x5Left(the_seed) );
+  e2x5Right .push_back(tools->e2x5Right(the_seed) );
+  e2x5Top   .push_back(tools->e2x5Top(the_seed) );
+  e2x5Bottom.push_back(tools->e2x5Bottom(the_seed) );  
+}
 
 void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
@@ -123,18 +150,27 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
       << "DataFormat does not contain a photon source!";
   }
 
-  // Configure Lazy Tools
-  if( isAOD )
-    lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
-											      ebReducedRecHitCollection_,
-											      eeReducedRecHitCollection_,
-											      esReducedRecHitCollection_));
-  else
-    lazyToolnoZS = std::unique_ptr<noZS::EcalClusterLazyTools>(new noZS::EcalClusterLazyTools(iEvent, iSetup, 
-											      ebReducedRecHitCollectionMiniAOD_,
-											      eeReducedRecHitCollectionMiniAOD_,
-											      esReducedRecHitCollectionMiniAOD_)); 
+  // configure lazy tools
+  edm::EDGetTokenT<EcalRecHitCollection> ebrh, eerh, esrh;
 
+  if( isAOD ) {
+    ebrh = ebReducedRecHitCollection_;
+    eerh = eeReducedRecHitCollection_;
+    esrh = esReducedRecHitCollection_;
+  } else {
+    ebrh = ebReducedRecHitCollectionMiniAOD_;
+    eerh = eeReducedRecHitCollectionMiniAOD_;
+    esrh = esReducedRecHitCollectionMiniAOD_;
+  }
+  
+  if( use_full5x5_ ) {
+    lazyTools = std::make_unique<noZS::EcalClusterLazyTools>( iEvent, iSetup, 
+                                                              ebrh, eerh, esrh );
+  } else {
+    lazyTools = std::make_unique<EcalClusterLazyTools>( iEvent, iSetup, 
+                                                        ebrh, eerh, esrh );
+  }
+  
   if( !isAOD && src->size() ) {
     edm::Ptr<pat::Photon> test(src->ptrAt(0));
     if( test.isNull() || !test.isAvailable() ) {
@@ -144,13 +180,13 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
   }
   
   // Cluster shapes
-  std::vector<float> phoFull5x5SigmaIPhiIPhi;
-  std::vector<float> phoFull5x5SigmaIEtaIPhi;
-  std::vector<float> phoFull5x5E2x5Max;
-  std::vector<float> phoFull5x5E2x5Left;
-  std::vector<float> phoFull5x5E2x5Right;
-  std::vector<float> phoFull5x5E2x5Top;
-  std::vector<float> phoFull5x5E2x5Bottom;
+  std::vector<float> sigmaIPhiIPhi;
+  std::vector<float> sigmaIEtaIPhi;
+  std::vector<float> e2x5Max;
+  std::vector<float> e2x5Left;
+  std::vector<float> e2x5Right;
+  std::vector<float> e2x5Top;
+  std::vector<float> e2x5Bottom;
   
   // reco::Photon::superCluster() is virtual so we can exploit polymorphism
   for (unsigned idxpho = 0; idxpho < src->size(); ++idxpho) {
@@ -161,27 +197,39 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
     //
     const auto& theseed = *(iPho->superCluster()->seed());
     
-    float spp = -999;
-    std::vector<float> vCov = lazyToolnoZS->localCovariances( theseed );
-    spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
-    float sep = vCov[1];
-    phoFull5x5SigmaIPhiIPhi.push_back(spp);
-    phoFull5x5SigmaIEtaIPhi.push_back(sep);
-    phoFull5x5E2x5Max   .push_back(lazyToolnoZS-> e2x5Max(theseed) );
-    phoFull5x5E2x5Left  .push_back(lazyToolnoZS-> e2x5Left(theseed) );
-    phoFull5x5E2x5Right .push_back(lazyToolnoZS-> e2x5Right(theseed) );
-    phoFull5x5E2x5Top   .push_back(lazyToolnoZS-> e2x5Top(theseed) );
-    phoFull5x5E2x5Bottom.push_back(lazyToolnoZS-> e2x5Bottom(theseed) );
+    if( use_full5x5_ ) {
+      calculateValues<noZS::EcalClusterLazyTools>(lazyTools.get(),
+                                                  theseed,
+                                                  sigmaIPhiIPhi,
+                                                  sigmaIEtaIPhi,
+                                                  e2x5Max,
+                                                  e2x5Left,
+                                                  e2x5Right,
+                                                  e2x5Top,
+                                                  e2x5Bottom);
+    } else {
+      calculateValues<EcalClusterLazyTools>(lazyTools.get(),
+                                            theseed,
+                                            sigmaIPhiIPhi,
+                                            sigmaIEtaIPhi,
+                                            e2x5Max,
+                                            e2x5Left,
+                                            e2x5Right,
+                                            e2x5Top,
+                                            e2x5Bottom);
+    }   
   }
   
   // Cluster shapes
-  writeValueMap(iEvent, src, phoFull5x5SigmaIPhiIPhi, phoFull5x5SigmaIPhiIPhi_);  
-  writeValueMap(iEvent, src, phoFull5x5SigmaIEtaIPhi, phoFull5x5SigmaIEtaIPhi_);  
-  writeValueMap(iEvent, src, phoFull5x5E2x5Max, phoFull5x5E2x5Max_);  
-  writeValueMap(iEvent, src, phoFull5x5E2x5Left, phoFull5x5E2x5Left_);  
-  writeValueMap(iEvent, src, phoFull5x5E2x5Right, phoFull5x5E2x5Right_);  
-  writeValueMap(iEvent, src, phoFull5x5E2x5Top, phoFull5x5E2x5Top_);  
-  writeValueMap(iEvent, src, phoFull5x5E2x5Bottom, phoFull5x5E2x5Bottom_);  
+  writeValueMap(iEvent, src, sigmaIPhiIPhi, sigmaIPhiIPhi_);  
+  writeValueMap(iEvent, src, sigmaIEtaIPhi, sigmaIEtaIPhi_);  
+  writeValueMap(iEvent, src, e2x5Max, e2x5Max_);  
+  writeValueMap(iEvent, src, e2x5Left, e2x5Left_);  
+  writeValueMap(iEvent, src, e2x5Right, e2x5Right_);  
+  writeValueMap(iEvent, src, e2x5Top, e2x5Top_);  
+  writeValueMap(iEvent, src, e2x5Bottom, e2x5Bottom_);  
+
+  lazyTools.reset(nullptr);
 }
 
 void PhotonRegressionValueMapProducer::writeValueMap(edm::Event &iEvent,
