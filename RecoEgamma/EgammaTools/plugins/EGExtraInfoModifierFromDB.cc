@@ -582,7 +582,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   eval[6]  = rhoValue_;
   eval[7]  = nVtx_;  
   eval[8] = theseed->eta()-sc->position().Eta();
-  eval[9] = atan2(sin(theseed->phi()-sc->position().Phi()), cos(theseed->phi()-sc->position().Phi()));
+  eval[9] = reco::deltaPhi(theseed->phi(),sc->position().Phi());
   eval[10] = pho.seedEnergy()/sc->rawEnergy();
   eval[11] = pho.full5x5_e3x3()/pho.full5x5_e5x5();
   eval[12] = pho.full5x5_sigmaIetaIeta();
