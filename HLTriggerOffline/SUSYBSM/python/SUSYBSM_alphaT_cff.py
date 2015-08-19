@@ -204,7 +204,7 @@ SUSY_HLT_HT400_alphaT0p52 = cms.EDAnalyzer("SUSY_HLT_alphaT",
 
 SUSY_HLT_alphaT_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     subDirs        = cms.untracked.vstring(
-        "HLT/SUSYBSM/HLT_PFHT200_PFAlphaT0p51_v",
+        "HLT/SUSYBSM/HLT_PFHT200_DiPFJetAve90_PFAlphaT0p51_v"
         "HLT/SUSYBSM/HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_v",
         "HLT/SUSYBSM/HLT_PFHT250_DiPFJetAve90_PFAlphaT0p55_v",
         "HLT/SUSYBSM/HLT_PFHT300_DiPFJetAve90_PFAlphaT0p53_v",
@@ -222,7 +222,7 @@ SUSY_HLT_alphaT_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     efficiency     = cms.vstring(
        "pfHtTurnOn_eff 'Turn-on vs PF HT; HT (GeV); #epsilon' pfHtTurnOn_num pfHtTurnOn_den",
        "pfAlphaTTurnOn_eff 'Turn-on vs PF alpha T; AlphaT (GeV); #epsilon' pfAlphaTTurnOn_num pfAlphaTTurnOn_den",
-       "caloHtTurnOn_eff 'Turn-on vs Calo HT; HT (GeV); #epsilon' caloHtTurnOn_num caloHtTurnOn_den",
-       "caloAlphaTTurnOn_eff 'Turn-on vs Calo alpha T; AlphaT (GeV); #epsilon' caloAlphaTTurnOn_num caloAlphaTTurnOn_den",
+       # "caloHtTurnOn_eff 'Turn-on vs Calo HT; HT (GeV); #epsilon' caloHtTurnOn_num caloHtTurnOn_den",
+       # "caloAlphaTTurnOn_eff 'Turn-on vs Calo alpha T; AlphaT (GeV); #epsilon' caloAlphaTTurnOn_num caloAlphaTTurnOn_den",
     )
 )
