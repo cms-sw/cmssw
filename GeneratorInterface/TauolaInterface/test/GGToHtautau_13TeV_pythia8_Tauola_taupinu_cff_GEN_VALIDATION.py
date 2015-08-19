@@ -85,6 +85,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     comEnergy = cms.double(13000.0),
     crossSection = cms.untracked.double(6.44),
     UseExternalGenerators = cms.untracked.bool(True),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         processParameters = cms.vstring('Main:timesAllowErrors = 10000', 
             'ParticleDecays:limitTau0 = on', 

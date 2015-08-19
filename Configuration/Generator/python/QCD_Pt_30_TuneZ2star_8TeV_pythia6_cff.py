@@ -11,6 +11,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 	pythiaHepMCVerbosity = cms.untracked.bool(False),
 	pythiaPylistVerbosity = cms.untracked.int32(0),
 
+	VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 	PythiaParameters = cms.PSet(
 		pythiaUESettingsBlock,
 		processParameters = cms.vstring(

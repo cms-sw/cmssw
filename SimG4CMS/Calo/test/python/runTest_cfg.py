@@ -64,7 +64,6 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")
-
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent.root')
@@ -74,7 +73,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('MinBiasTestAnalysis.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(

@@ -20,6 +20,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                          crossSection = cms.untracked.double(-1),
                          maxEventsToPrint = cms.untracked.int32(0),
                          SLHAFileForPythia8 = cms.string('%s' % SLHA_FILE), 
+			 VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 			 PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,

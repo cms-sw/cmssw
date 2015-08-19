@@ -7,6 +7,7 @@ generator = cms.EDFilter("HydjetGeneratorFilter",
                          qgpParameters,
                          hydjetParameters,
                          hydjetMode = cms.string('kHydroQJets'),
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
                                                      # Quarkonia and Weak Bosons added back upon dilepton group's request.
                                                      parameterSets = cms.vstring('pythiaUESettings',

@@ -64,6 +64,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
 process.generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
     ReggeGribovPartonMCAdvancedParameters,
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     beamid = cms.int32(208),
     targetid = cms.int32(208),
     model = cms.int32(0),

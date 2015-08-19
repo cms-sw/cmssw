@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDFilter("AMPTGeneratorFilter",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     diquarky = cms.double(0.0),
     diquarkx = cms.double(0.0),
     diquarkpx = cms.double(7.0),

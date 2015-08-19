@@ -18,6 +18,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     comEnergy = cms.double(7000.),
 
    #Turning on pythia8 emission veto:
+#        VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 #    PythiaParameters = cms.PSet(
 #        pythia8_example07 = cms.vstring('POWHEG:nFinal = 2',
 #                                        'POWHEG:veto = 1',
@@ -43,6 +44,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     EV1_pTdefMode = cms.int32(1),
     EV1_MPIvetoOn = cms.bool(False),
 
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythia8_example07 = cms.vstring('SpaceShower:pTmaxMatch = 2',
                                         'TimeShower:pTmaxMatch  = 2'),

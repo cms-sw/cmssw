@@ -30,6 +30,7 @@ process.source = cms.Source("EmptySource")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(13),
         MinE   = cms.double(9.99),

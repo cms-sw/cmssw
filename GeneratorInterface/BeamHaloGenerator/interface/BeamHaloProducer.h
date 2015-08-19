@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "GeneratorInterface/Core/interface/EventVertexHelper.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -20,7 +21,7 @@ namespace CLHEP {
 
 namespace edm
 {
-  class BeamHaloProducer : public one::EDProducer<EndRunProducer, one::WatchLuminosityBlocks, one::SharedResources> {
+  class BeamHaloProducer : public one::EDProducer<EndRunProducer, one::WatchRuns, one::WatchLuminosityBlocks, one::SharedResources> {
   public:
 
     /// Constructor
@@ -41,9 +42,13 @@ namespace edm
     virtual void produce(Event & e, const EventSetup & es) override;
     virtual void endRunProduce(Run & r, const EventSetup & es) override;
     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override { }
+    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override {}
+    virtual void beginRun(edm::Run const& run, edm::EventSetup const&) override;
+    virtual void endRun(edm::Run const& run, edm::EventSetup const&) override {}
 
     void clear();
+
+    EventVertexHelper eventVertexHelper_;
 
     HepMC::GenEvent  *evt;
 
@@ -62,3 +67,4 @@ namespace edm
 }
 
 #endif
+

@@ -7,6 +7,7 @@
 #include "HepMC/GenEvent.h"
 #include "HepMC/SimpleVector.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/one/EDFilter.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -28,30 +29,34 @@
 #include "GeneratorInterface/LHEInterface/interface/JetMatching.h"
 #include "GeneratorInterface/LHEInterface/interface/JetMatchingMLM.h"
 #include "GeneratorInterface/LHEInterface/interface/BranchingRatios.h"
+#include "GeneratorInterface/Core/interface/EventVertexHelper.h"
 
 using namespace lhef;
 
 class LHEProducer : public edm::one::EDFilter<edm::EndRunProducer,
+                                              edm::one::WatchLuminosityBlocks,
                                               edm::one::WatchRuns> {
     public:
 	explicit LHEProducer(const edm::ParameterSet &params);
 	virtual ~LHEProducer();
 
-    protected:
+    private:
         virtual void beginJob() override;
 	virtual void endJob() override;
+	virtual void beginLuminosityBlock(edm::LuminosityBlock const& run, const edm::EventSetup &es) override;
+	virtual void endLuminosityBlock(edm::LuminosityBlock const&run, const edm::EventSetup &es) override;
 	virtual void beginRun(edm::Run const& run, const edm::EventSetup &es) override;
 	virtual void endRun(edm::Run const&run, const edm::EventSetup &es) override;
 	virtual void endRunProduce(edm::Run &run, const edm::EventSetup &es) override;
 	virtual bool filter(edm::Event &event, const edm::EventSetup &es) override;
 
-    private:
 	double matching(const HepMC::GenEvent *event, bool shower) const;
 
 	bool showeredEvent(const boost::shared_ptr<HepMC::GenEvent> &event);
 	void onInit();
 	void onBeforeHadronisation();
 
+	EventVertexHelper		eventVertexHelper_;
 	unsigned int			eventsToPrint;
 	std::vector<int>		removeResonances;
 	std::auto_ptr<Hadronisation>	hadronisation;
@@ -70,6 +75,7 @@ class LHEProducer : public edm::one::EDFilter<edm::EndRunProducer,
 };
 
 LHEProducer::LHEProducer(const edm::ParameterSet &params) :
+	eventVertexHelper_(params, consumesCollector()),
 	eventsToPrint(params.getUntrackedParameter<unsigned int>("eventsToPrint", 0)),
 	extCrossSect(params.getUntrackedParameter<double>("crossSection", -1.0)),
 	extFilterEff(params.getUntrackedParameter<double>("filterEfficiency", -1.0)),
@@ -139,6 +145,15 @@ void LHEProducer::endJob()
 	jetMatching.reset();
 }
 
+void LHEProducer::beginLuminosityBlock(edm::LuminosityBlock const& lumi, const edm::EventSetup &es)
+{
+	eventVertexHelper_.beginLuminosityBlock(lumi, es);
+}
+
+void LHEProducer::endLuminosityBlock(edm::LuminosityBlock const& run, const edm::EventSetup &es)
+{
+}
+
 void LHEProducer::beginRun(edm::Run const& run, const edm::EventSetup &es)
 {
 	edm::Handle<LHERunInfoProduct> product;
@@ -146,7 +161,9 @@ void LHEProducer::beginRun(edm::Run const& run, const edm::EventSetup &es)
 
 	runInfo.reset(new LHERunInfo(*product));
 	index = 0;
+	eventVertexHelper_.beginRun(run, es);
 }
+
 void LHEProducer::endRun(edm::Run const& run, const edm::EventSetup &es)
 {
 }
@@ -227,6 +244,9 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 	}
 
 	if (!hadronLevel.get()) {
+                // no need to smear vertexes because result is empty
+                // but we protect against future code changes
+		eventVertexHelper_.smearVertex(event, *result);
 		event.put(result);
 		std::auto_ptr<GenEventInfoProduct> info(
 						new GenEventInfoProduct);
@@ -246,6 +266,7 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 	std::auto_ptr<GenEventInfoProduct> info(
 				new GenEventInfoProduct(hadronLevel.get()));
 	result->addHepMCData(hadronLevel.release());
+	eventVertexHelper_.smearVertex(event, *result);
 	event.put(result);
 	event.put(info);
 

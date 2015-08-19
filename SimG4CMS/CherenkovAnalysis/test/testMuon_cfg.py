@@ -26,6 +26,7 @@ process.Timing = cms.Service("Timing")
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(13),
         MinEta = cms.double(0.0),
@@ -39,8 +40,8 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity = cms.untracked.int32(0)
 )
 
-process.VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
-    src   = cms.InputTag("generator"),
+process.generator.VertexSmearing = cms.PSet(
+    vertexGeneratorType = cms.string("GaussEvtVtxGenerator"),
     MeanX = cms.double(-12.0),
     MeanY = cms.double(0.0),
     MeanZ = cms.double(0.0),
@@ -85,14 +86,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.analyzer = cms.EDAnalyzer("XtalDedxAnalysis",
     caloHitSource = cms.InputTag("g4SimHits","HcalHits"),
     EnergyMax = cms.double(200.0)
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.analyzer)
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.analyzer)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'

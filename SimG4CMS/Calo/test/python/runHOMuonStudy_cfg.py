@@ -45,6 +45,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(13),
         MinEta = cms.double(-1.305),
@@ -57,7 +58,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
-
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('simHitStudy_150.root')
 )
@@ -70,5 +70,5 @@ process.hoSimHitStudy.ScaleEB   = 1.02
 process.hoSimHitStudy.ScaleHB   = 104.4
 process.hoSimHitStudy.ScaleHO   = 2.33
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hoSimHitStudy)
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.hoSimHitStudy)
 

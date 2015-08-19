@@ -41,9 +41,7 @@ process.p0 = cms.Path(process.generator)
 # if you want a more complete generation.
 
 #process.load("Configuration.StandardSequences.Generator_cff")
-#process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
-#process.VtxSmeared.src = 'generator'
 #process.genParticles.src = 'generator'
 #process.genParticleCandidates.src = 'generator'
 

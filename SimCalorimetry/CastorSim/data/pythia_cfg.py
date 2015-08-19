@@ -31,12 +31,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
-process.RandomNumberGeneratorService.theSource.initialSeed = 15298183
 process.RandomNumberGeneratorService.generator.initialSeed = 12503027
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 11120000
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 151
 process.RandomNumberGeneratorService.mix.initialSeed = 14575
-process.RandomNumberGeneratorService.simCastorDigis.initialSeed = 26
 
 
 
@@ -106,7 +103,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('castor.root')
 )
 
-process.p1 = cms.Path(process.generator*process.pgen*process.VtxSmeared*process.g4SimHits*process.mix*process.simCastorDigis*process.castorreco*process.CastorFullReco)
+process.p1 = cms.Path(process.generator*process.pgen*process.g4SimHits*process.mix*process.castorreco*process.CastorFullReco)
 process.outpath=cms.EndPath(process.o1)
 
 process.g4SimHits.UseMagneticField = False

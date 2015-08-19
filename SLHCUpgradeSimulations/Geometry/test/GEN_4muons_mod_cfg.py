@@ -63,6 +63,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 process.GlobalTag.globaltag = 'DESIGN42_V17::All'
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         MaxPt = cms.double(50.0),
         MinPt = cms.double(0.9),

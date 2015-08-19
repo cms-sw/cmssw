@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloTest")
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-
 #Magnetic Field 		
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -55,15 +55,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.Timing = cms.Service("Timing")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)
 )
@@ -71,6 +62,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(11),
         MinEta = cms.double(3.070),
@@ -84,6 +76,10 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity       = cms.untracked.int32(0),
     firstRun        = cms.untracked.uint32(1)
 )
+
+process.generator.VertexSmearing.SigmaX = 0.00001
+process.generator.VertexSmearing.SigmaY = 0.00001
+process.generator.VertexSmearing.SigmaZ = 0.00001
 
 process.USER = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('100_pi_bs.root')
@@ -101,11 +97,8 @@ process.DQM = cms.Service("DQM",
     collectorHost = cms.untracked.string('')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hcalHitValid)
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.hcalHitValid)
 process.outpath = cms.EndPath(process.USER)
-process.VtxSmeared.SigmaX = 0.00001
-process.VtxSmeared.SigmaY = 0.00001
-process.VtxSmeared.SigmaZ = 0.00001
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_EMV'
 process.g4SimHits.HCalSD.UseParametrize = True

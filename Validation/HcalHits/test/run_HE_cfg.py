@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("CaloTest")
-process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -40,23 +41,24 @@ process.source = cms.Source("PoolSource",
 
 process.Timing = cms.Service("Timing")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
-
 process.USER = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('simevent_HE.root')
 )
 
+process.VtxSmeared = cms.EDProducer("EventVertexProducer",
+    src = cms.InputTag("generator"),
+)
+
+from IOMC.EventVertexGenerators.VtxSmearedGauss_cfi import VertexSmearingParameters
+VertexSmearingParameters.SigmaX = 0.00001
+VertexSmearingParameters.SigmaY = 0.00001
+VertexSmearingParameters.SigmaZ = 0.00001
+process.VtxSmeared.VertexSmearing = cms.PSet(
+    VertexSmearingParameters
+)
+
 process.p1 = cms.Path(process.VtxSmeared*process.g4SimHits*process.hcalHitValid)
 process.outpath = cms.EndPath(process.USER)
-process.VtxSmeared.SigmaX = 0.00001
-process.VtxSmeared.SigmaY = 0.00001
-process.VtxSmeared.SigmaZ = 0.00001
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     SimG4HcalValidation = cms.PSet(
@@ -81,7 +83,6 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     ),
     type = cms.string('SimG4HcalValidation')
 ))
-process.DQM.collectorHost = ''
 process.hcalHitValid.outputFile = 'valid_HE.root'
 
 

@@ -14,7 +14,6 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
@@ -46,6 +45,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),    # 11 => el , 211 => pi
         MinEta = cms.double(-6.2),   # -6.2
@@ -59,7 +59,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity = cms.untracked.int32(0)
 
 )
-
 process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('/tmp/sim_pion_SL_1000evts_E45_eta-6.2--5.6_phi0-0.7854_370_NSH_FG_ppONtrkproj.root')
 )
@@ -69,7 +68,7 @@ process.common_maximum_timex = cms.PSet( # need to be localy redefined
    MaxTimeNames  = cms.vstring('ZDCRegion','QuadRegion','InterimRegion'), # need to be localy redefined
    MaxTrackTimes = cms.vdouble(2000.0,0.,0.)  # need to be localy redefined
 )
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 
 process.g4SimHits.UseMagneticField = False

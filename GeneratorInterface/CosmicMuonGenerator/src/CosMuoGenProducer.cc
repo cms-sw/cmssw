@@ -1,5 +1,6 @@
 
 #include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -9,6 +10,7 @@
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosMuoGenProducer.h"
 
 edm::CosMuoGenProducer::CosMuoGenProducer( const ParameterSet & pset ) :
+  eventVertexHelper_(pset, consumesCollector()),
   //RanS(pset.getParameter<int>("RanSeed", 123456)), //get seed now from Framework
   MinP(pset.getParameter<double>("MinP")),
   MinP_CMS(pset.getParameter<double>("MinP_CMS")),
@@ -103,13 +105,19 @@ edm::CosMuoGenProducer::~CosMuoGenProducer(){
   clear();
 }
 
-void edm::CosMuoGenProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&)
+void edm::CosMuoGenProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const& es)
 {
   if(!isInitialized_) {
     isInitialized_ = true;
     RandomEngineSentry<CosmicMuonGenerator> randomEngineSentry(CosMuoGen, lumi.index());
     CosMuoGen->initialize(randomEngineSentry.randomEngine());
   }
+  eventVertexHelper_.beginLuminosityBlock(lumi, es);
+}
+
+void edm::CosMuoGenProducer::beginRun(Run const& run, EventSetup const& es)
+{
+  eventVertexHelper_.beginRun(run, es);
 }
 
 void edm::CosMuoGenProducer::endRunProduce( Run &run, const EventSetup& es )
@@ -234,6 +242,7 @@ void edm::CosMuoGenProducer::produce(Event &e, const edm::EventSetup &es)
 
   std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
   CMProduct->addHepMCData( fEvt );
+  eventVertexHelper_.smearVertex(e, *CMProduct);
   e.put(CMProduct);
 
   std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct( fEvt ));

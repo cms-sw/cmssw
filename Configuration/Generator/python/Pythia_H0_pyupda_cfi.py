@@ -22,6 +22,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 #    crossSection = cms.untracked.double(55000000000.),
     UseExternalGenerators = cms.untracked.bool(False),
 #
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         pythiaMyParameters = cms.vstring(

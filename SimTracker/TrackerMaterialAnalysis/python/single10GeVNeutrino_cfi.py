@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # generate single nu_mu events
 generator = cms.EDProducer("FlatRandomPtGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         # you can request more than 1 particle
         PartID = cms.vint32(14),

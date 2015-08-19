@@ -62,7 +62,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.analyzer = cms.EDAnalyzer("CherenkovAnalysis",
     maxEnergy = cms.double(2.0),
@@ -70,7 +69,7 @@ process.analyzer = cms.EDAnalyzer("CherenkovAnalysis",
     nBinsEnergy = cms.uint32(50)
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.analyzer)
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.analyzer)
 process.generator.PGunParameters.MinE = 10.0
 process.generator.PGunParameters.MaxE = 10.0
 process.g4SimHits.UseMagneticField = False

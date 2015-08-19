@@ -13,6 +13,7 @@ generator = cms.EDFilter("Herwig6HadronizerFilter",
 	printCards = cms.untracked.bool(False),
 	useJimmy = cms.bool(True),
 
+	VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 	HerwigParameters = cms.PSet(
 		herwigUEsettings = cms.vstring(
 			'JMUEO     = 1       ! multiparton interaction model',

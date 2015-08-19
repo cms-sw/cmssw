@@ -35,6 +35,7 @@ process.generator = cms.EDFilter("Pythia6HadronizerFilter",
     maxEventsToPrint = cms.untracked.int32(0),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     comEnergy = cms.double(10000.0), # this will be disregarded in case of processing ME partons
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaUESettingsBlock,
         processParameters = cms.vstring

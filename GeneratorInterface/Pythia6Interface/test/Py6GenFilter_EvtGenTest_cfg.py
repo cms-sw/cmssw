@@ -83,6 +83,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 				   )
     ),
 
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
 
         pythiaGeneralSettings = cms.vstring(

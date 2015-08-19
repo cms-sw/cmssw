@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 generator = cms.EDFilter("Pythia8EGun",
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          PGunParameters = cms.PSet(
         ParticleID = cms.vint32(211),
         AddAntiParticle = cms.bool(True),

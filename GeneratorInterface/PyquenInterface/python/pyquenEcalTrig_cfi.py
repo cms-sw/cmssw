@@ -15,6 +15,7 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                          bFixed = cms.double(0.0), ## fixed impact param (fm); valid only if cflag_=0
                          angularSpectrumSelector = cms.int32(0), ## angular emitted gluon spectrum :
                          pythiaHepMCVerbosity = cms.untracked.bool(False),
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
                                                      parameterSets = cms.vstring('pythiaUESettings','ppJets','pythiaPromptPhotons','kinematics'),
                                                      kinematics = cms.vstring('CKIN(3) = 50','CKIN(4) = 80')

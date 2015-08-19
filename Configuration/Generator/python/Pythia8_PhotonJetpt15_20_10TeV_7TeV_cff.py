@@ -11,6 +11,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
     crossSectionNLO = cms.untracked.double(-1.),
     # doPDGConvert = cms.bool(False), # not sure if the option is valid in Py8
     comEnergy = cms.double(7000.0),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
     processParameters = cms.vstring('Main:timesAllowErrors    = 10000',
                                     'ParticleDecays:limitTau0 = on',     # Decay those unstable particles

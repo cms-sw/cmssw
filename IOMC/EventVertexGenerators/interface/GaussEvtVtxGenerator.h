@@ -1,5 +1,5 @@
-#ifndef IOMC_GaussEvtVtxGenerator_H
-#define IOMC_GaussEvtVtxGenerator_H
+#ifndef IOMC_EventVertexGenerators_GaussEvtVtxGenerator_h
+#define IOMC_EventVertexGenerators_GaussEvtVtxGenerator_h
 
 /**
  * Generate event vertices according to a Gauss distribution. 
@@ -7,27 +7,23 @@
  *
  */
 
-#include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
+#include <memory>
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
+#include "GeneratorInterface/Core/interface/BaseEvtVtxGenerator.h"
 
-class GaussEvtVtxGenerator : public BaseEvtVtxGenerator 
-{
+class GaussEvtVtxGenerator : public BaseEvtVtxGenerator {
 public:
-  GaussEvtVtxGenerator(const edm::ParameterSet & p);
+  GaussEvtVtxGenerator(edm::ParameterSet const& p, edm::ConsumesCollector& iC);
   virtual ~GaussEvtVtxGenerator();
 
-  /// return a new event vertex
-  //virtual CLHEP::Hep3Vector* newVertex();
-  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
+  GaussEvtVtxGenerator(GaussEvtVtxGenerator const&) = delete;
+  GaussEvtVtxGenerator& operator = (GaussEvtVtxGenerator const&) = delete;
 
-  virtual TMatrixD* GetInvLorentzBoost() {
-	  return 0;
-  }
+private:
+  virtual void generateNewVertex_(edm::HepMCProduct& product, CLHEP::HepRandomEngine& engine) override;
 
-   
+  HepMC::FourVector* newVertex(CLHEP::HepRandomEngine&) ;
+
   /// set resolution in X in cm
   void sigmaX(double s=1.0);
   /// set resolution in Y in cm
@@ -42,12 +38,7 @@ public:
   /// set mean in Z in cm
   void meanZ(double m=0) { fMeanZ=m; }
   
-private:
-  /** Copy constructor */
-  GaussEvtVtxGenerator(const GaussEvtVtxGenerator &p);
-  /** Copy assignment operator */
-  GaussEvtVtxGenerator&  operator = (const GaussEvtVtxGenerator & rhs );
-private:
+  std::unique_ptr<HepMC::FourVector> fVertex;
   double fSigmaX, fSigmaY, fSigmaZ;
   double fMeanX,  fMeanY,  fMeanZ;
   double fTimeOffset;

@@ -11,7 +11,8 @@ generator = cms.EDFilter("ThePEGGeneratorFilter",
 	herwigppPDFSettingsBlock,
 	herwigppEnergySettingsBlock,
 
-	configFiles = cms.vstring(),
+	VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
+        configFiles = cms.vstring(),
 	parameterSets = cms.vstring(
 		'hwpp_cm_8TeV',
 		'hwpp_pdf_MRST2001',

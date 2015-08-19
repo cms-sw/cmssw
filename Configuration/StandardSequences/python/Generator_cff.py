@@ -47,11 +47,10 @@ from RecoMET.Configuration.GenMETParticles_cff import *
 # }
 
 
-VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
 GeneInfo = cms.Sequence(genParticles)
 genJetMET = cms.Sequence(genJetParticles*recoGenJets+genMETParticles*recoGenMET)
 
-pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GeneInfo+genJetMET)
+pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+GeneInfo+genJetMET)
 
 # sequence for bare generator result only, without vertex smearing and analysis objects added
 

@@ -14,13 +14,6 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("Configuration.StandardSequences.Generator_cff")
 
 
-process.RandomNumberGeneratorService.theSource.initialSeed = RAND_sourceSeed
-process.RandomNumberGeneratorService.generator.initialSeed = RAND_generator
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = RAND_VtxSmeared
-process.RandomNumberGeneratorService.g4SimHits.initialSeed = RAND_g4SimHits
-process.RandomNumberGeneratorService.mix.initialSeed = RAND_mix
-
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(MAXEVENTS)
 )
@@ -29,6 +22,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MaxEta = cms.double(-5.9),
@@ -41,7 +35,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     AddAntiParticle = cms.bool(True),
     Verbosity = cms.untracked.int32(0)
 )
-
 process.CaloSD = cms.PSet(
     NeutronThreshold = cms.double(30.0),
     ProtonThreshold  = cms.double(30.0),
@@ -70,7 +63,7 @@ process.common_maximum_timex = cms.PSet( # need to be localy redefined
    MaxTimeNames  = cms.vstring(), # need to be localy redefined
    MaxTrackTimes = cms.vdouble()  # need to be localy redefined
 )
-process.p1 = cms.Path(process.generator*process.pgen*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.pgen*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP'
 process.g4SimHits.Generator.ApplyEtaCuts = False

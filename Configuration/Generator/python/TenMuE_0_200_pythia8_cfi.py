@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Modified from Configuration/Generator/python/SingleMuPt10_cfi.py
 generator = cms.EDFilter("Pythia8EGun",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         MaxE = cms.double(200.0),
         MinE = cms.double(0.0),

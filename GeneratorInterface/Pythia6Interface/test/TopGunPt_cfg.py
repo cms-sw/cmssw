@@ -40,6 +40,7 @@ process.generator = cms.EDProducer("Pythia6PartonPtGun",
     maxEventsToPrint = cms.untracked.int32(5),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     pythiaHepMCVerbosity = cms.untracked.bool(True),    
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartonID = cms.int32(21),
         MinPhi = cms.double(-3.14159265359),
@@ -49,6 +50,7 @@ process.generator = cms.EDProducer("Pythia6PartonPtGun",
         MinEta = cms.double(-1.0),
         MaxEta = cms.double(1.0)
     ),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaJets = cms.vstring(),
         pythiaUESettings = cms.vstring(

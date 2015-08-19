@@ -126,7 +126,8 @@ process.generator = cms.EDFilter("ThePEGGeneratorFilter",
         'insert NewModel:DecayParticles 4 /Herwig/Particles/~chi_10', 
         'insert NewModel:DecayParticles 5 /Herwig/Particles/~chi_20', 
         'insert NewModel:DecayParticles 6 /Herwig/Particles/~chi_2+'),
-    configFiles = cms.vstring(),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
+        configFiles = cms.vstring(),
     parameterSets = cms.vstring('cmsDefaults', 
         'validationQCD')
 )

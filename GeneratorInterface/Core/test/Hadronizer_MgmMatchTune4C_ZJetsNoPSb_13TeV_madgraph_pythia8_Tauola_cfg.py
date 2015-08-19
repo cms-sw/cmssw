@@ -109,6 +109,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
         ),
         parameterSets = cms.vstring('Tauola')
     ),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         parameterSets = cms.vstring('processParameters'),
         processParameters = cms.vstring('Main:timesAllowErrors    = 10000', 

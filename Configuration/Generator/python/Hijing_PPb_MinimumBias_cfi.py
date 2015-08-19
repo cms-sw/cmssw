@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 generator = cms.EDFilter("HijingGeneratorFilter",
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          rotateEventPlane = cms.bool(True),
                          frame = cms.string('CMS     '),
                          targ = cms.string('P       '),

@@ -33,6 +33,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 	list_forced_decays = cms.vstring('MyB+','MyB-')),
         parameterSets = cms.vstring('EvtGen')),
 			 
+			 VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 			 PythiaParameters = cms.PSet(
 	pythiaUESettingsBlock,
 	bbbarSettings = cms.vstring('MSEL = 1'),

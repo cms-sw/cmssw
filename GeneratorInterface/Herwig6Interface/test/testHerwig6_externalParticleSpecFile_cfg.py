@@ -27,6 +27,7 @@ process.generator = cms.EDFilter("Herwig6GeneratorFilter",
         ParticleSpectrumFileName = cms.untracked.string('GeneratorInterface/Herwig6Interface/test/softsusy317_isajet764_LM5_GUTlp211eq0.01.hw65'),              
         readParticleSpecFile     = cms.untracked.bool(True),
 
+        VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
         HerwigParameters = cms.PSet(
 		parameterSets = cms.vstring(
                         'jimmyCMSdefault7TeV',

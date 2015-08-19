@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("HFTEST")
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
@@ -21,18 +22,10 @@ process.maxEvents = cms.untracked.PSet(
 
 process.Timing = cms.Service("Timing")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
-
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(11, 211),
         MinEta = cms.double(3.02),
@@ -47,22 +40,22 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
 
-process.VtxSmeared = cms.EDProducer("GaussEvtVtxGenerator",
+process.generator.VertexSmearing = cms.PSet(
+    vertexGeneratorType = cms.string("GaussEvtVtxGenerator"),
     MeanX = cms.double(0.0),
     MeanY = cms.double(0.0),
     MeanZ = cms.double(0.0),
     SigmaY = cms.double(0.0001),
     SigmaX = cms.double(0.0001),
     SigmaZ = cms.double(0.0001),
-    TimeOffset = cms.double(0.0),
-    src = cms.InputTag("source")
+    TimeOffset = cms.double(0.0)
 )
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('HF_test_ecalplushcalonly_nofield.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.MessageLogger.cerr.default.limit = 100
 process.g4SimHits.UseMagneticField = False

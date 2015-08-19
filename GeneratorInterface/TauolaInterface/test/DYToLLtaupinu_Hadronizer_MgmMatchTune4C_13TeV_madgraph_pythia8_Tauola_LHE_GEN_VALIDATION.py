@@ -112,6 +112,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
         MEMAIN_maxjets = cms.int32(-1),
         mode = cms.string('auto')
     ),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         processParameters = cms.vstring('Main:timesAllowErrors = 10000', 
             'ParticleDecays:limitTau0 = on', 

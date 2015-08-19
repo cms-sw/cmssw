@@ -17,6 +17,7 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
     #LHEInputFileName = cms.untracked.string('ttbar.lhe'),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythia8_example03 = cms.vstring(''),
         parameterSets = cms.vstring('pythia8_example03')

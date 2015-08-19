@@ -29,12 +29,9 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
-process.RandomNumberGeneratorService.theSource.initialSeed = 15875319
 process.RandomNumberGeneratorService.generator.initialSeed = 9792301
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 2263014
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 124
 process.RandomNumberGeneratorService.mix.initialSeed = 22159
-process.RandomNumberGeneratorService.simCastorDigis.initialSeed = 210
 
 
 process.maxEvents = cms.untracked.PSet(
@@ -44,6 +41,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(13),
         MinEta = cms.double(5.2),
@@ -56,7 +54,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     AddAntiParticle = cms.bool(True),
     Verbosity = cms.untracked.int32(0)
 )
-
 
 process.es_pool = cms.ESSource( "PoolDBESSource",
      process.CondDBSetup,
@@ -121,7 +118,7 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('gen-sim-digi-reco_muon.root')
 )
 
-process.p1 = cms.Path(process.generator*process.pgen*process.VtxSmeared*process.g4SimHits*process.mix*process.simCastorDigis*process.castorreco)
+process.p1 = cms.Path(process.generator*process.pgen*process.g4SimHits*process.mix*process.castorreco)
 #*process.CastorFullReco)
 process.outpath=cms.EndPath(process.o1)
 

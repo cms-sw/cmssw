@@ -7,6 +7,7 @@ generator = cms.EDFilter(
     pythiaPylistVerbosity = cms.untracked.int32(1),
     pythiaHepMCVerbosity = cms.untracked.bool(True),
     
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         ParticleID = cms.vint32(5),
         AddAntiParticle = cms.bool(True),

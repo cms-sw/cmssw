@@ -40,6 +40,7 @@ process.generator = cms.EDProducer("Pythia6PtGun",
     maxEventsToPrint = cms.untracked.int32(5),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     pythiaHepMCVerbosity = cms.untracked.bool(True),    
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         ParticleID = cms.vint32(23),
         AddAntiParticle = cms.bool(False),
@@ -50,6 +51,7 @@ process.generator = cms.EDProducer("Pythia6PtGun",
         MinEta = cms.double(-2.4),
         MaxEta = cms.double(2.4)
     ),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythiaDefault = cms.vstring(
 	   'PMAS(5,1)=4.8 ! b quark mass', 

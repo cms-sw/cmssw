@@ -50,6 +50,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MinEta = cms.double(1.2615),
@@ -62,14 +63,13 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
-
 process.TFileService = cms.Service("TFileService",
     fileName = cms.string('runScale14_QGSP_BERT_EML.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy)
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.caloSimHitStudy)
 process.caloSimHitStudy.MaxEnergy = 60.0
-process.caloSimHitStudy.TimeCut   = 100.0
-process.caloSimHitStudy.MIPCut   = 0.75
+#process.caloSimHitStudy.TimeCut   = 100.0
+#process.caloSimHitStudy.MIPCut   = 0.75
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
 

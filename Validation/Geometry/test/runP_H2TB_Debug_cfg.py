@@ -15,7 +15,6 @@ process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
-process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
@@ -46,6 +45,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         process.common_beam_direction_parameters,
         PartID = cms.vint32(14),
@@ -57,9 +57,10 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
 )
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import *
-process.VtxSmeared = cms.EDProducer("BeamProfileVtxGenerator",
-    process.common_beam_direction_parameters,
+process.generator.VertexSmearing = cms.PSet(
     VtxSmearedCommon,
+    process.common_beam_direction_parameters,
+    vertexGeneratorType = cms.string("BeamProfileVtxGenerator"),
     BeamMeanX       = cms.double(0.0),
     BeamMeanY       = cms.double(0.0),
     BeamSigmaX      = cms.double(0.0001),
@@ -81,7 +82,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('matbdg_HCAL1.root')
 )
 
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'

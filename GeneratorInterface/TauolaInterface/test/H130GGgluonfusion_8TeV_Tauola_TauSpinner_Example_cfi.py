@@ -62,7 +62,6 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
 						   generator = cms.PSet(initialSeed = cms.untracked.uint32(12345)),
 						   TauSpinnerGen  = cms.PSet(initialSeed = cms.untracked.uint32(12345)),
 						   TauSpinnerZHFilter = cms.PSet(initialSeed = cms.untracked.uint32(429842)),
-						   VtxSmeared = cms.PSet(initialSeed = cms.untracked.uint32(275744))
 						   )
 
 
@@ -93,6 +92,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
 				 comEnergy = cms.double(13000.0),
 				 crossSection = cms.untracked.double(0.05),
 				 UseExternalGenerators = cms.untracked.bool(True),
+				 VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 				 PythiaParameters = cms.PSet(
         pythiaUESettings = cms.vstring('MSTU(21)=1     ! Check on possible errors during program execution', 
 				       'MSTJ(22)=2     ! Decay those unstable particles', 

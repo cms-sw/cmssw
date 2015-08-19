@@ -8,6 +8,7 @@ generator = cms.EDFilter("PyquenGeneratorFilter",
                         pyquenParameters,
                         doQuench = cms.bool(True),
                         bFixed = cms.double(0.0), ## fixed impact param (fm); valid only if cflag_=0
+                        VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                         PythiaParameters = cms.PSet(pyquenPythiaDefaultBlock,
                                                     parameterSets = cms.vstring('pythiaUESettings','ppJets','kinematics'),
                                                     kinematics = cms.vstring ("CKIN(3)=80",  #min pthat

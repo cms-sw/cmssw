@@ -29,6 +29,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
         parameterSets = cms.vstring('EvtGen130')
     ),
         
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         processParameters = cms.vstring('Top:gg2ttbar = on',
                                         'Top:qqbar2ttbar = on'

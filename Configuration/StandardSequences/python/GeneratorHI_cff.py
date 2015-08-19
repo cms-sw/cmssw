@@ -6,5 +6,5 @@ from Configuration.StandardSequences.Generator_cff import *
 genParticles.doSubEvent = cms.untracked.bool(True)
 
 hiGenJets = cms.Sequence(genParticlesForJets*hiRecoGenJets)
-pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+genParticles+hiGenJets)
+pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+genParticles+hiGenJets)
 

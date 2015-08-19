@@ -4,6 +4,7 @@ source = cms.Source("EmptySource")
 
 from Configuration.Generator.PythiaUESettings_cfi import *
 generator = cms.EDProducer("Pythia6PtGun",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
        ParticleID = cms.vint32(15),
        MinPhi = cms.double(0.0),

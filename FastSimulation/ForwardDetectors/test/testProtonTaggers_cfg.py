@@ -23,6 +23,7 @@ process.source = cms.Source("EmptySource")
 
 # ... just a gun to feed something to the ProtonTaggerFilter
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         # you can request more than 1 particle
         PartID = cms.vint32(2212),

@@ -19,26 +19,36 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 
+#include "GeneratorInterface/Core/interface/EventVertexHelper.h"
+
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
 namespace edm
 {
+  class Event;
+  class HepMCProduct;
   
   class BaseFlatGunProducer : public one::EDProducer<one::WatchRuns,
+                                                     one::WatchLuminosityBlocks,
                                                      EndRunProducer>
   {
   
   public:
     BaseFlatGunProducer(const ParameterSet &);
     virtual ~BaseFlatGunProducer();
-    void beginRun(const edm::Run & r, const edm::EventSetup&) override;
-    void endRun(edm::Run const& r, const edm::EventSetup&) override;
-    void endRunProduce(edm::Run& r, const edm::EventSetup&) override;
 
   private:
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) override;
+    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) override;
+    virtual void beginRun(edm::Run const& run, edm::EventSetup const&) override;
+    virtual void endRun(edm::Run const& run, edm::EventSetup const&) override;
+    virtual void endRunProduce(edm::Run& run, edm::EventSetup const&) override;
    
+    EventVertexHelper eventVertexHelper_;
+
   protected:
+    void smearVertex(edm::Event const&, edm::HepMCProduct&);
   
     // non-virtuals ! this and only way !
     //

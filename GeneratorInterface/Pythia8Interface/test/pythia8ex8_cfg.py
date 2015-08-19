@@ -12,6 +12,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(8000.),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythia8_example08 = cms.vstring('WeakBosonAndParton:qqbar2gmZg = on',
                                         'WeakBosonAndParton:qg2gmZq = on',

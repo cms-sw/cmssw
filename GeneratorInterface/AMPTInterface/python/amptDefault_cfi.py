@@ -5,6 +5,7 @@ source = cms.Source("EmptySource")
 from GeneratorInterface.AMPTInterface.amptDefaultParameters_cff import *
 generator = cms.EDFilter("AMPTGeneratorFilter",
                          amptDefaultParameters,
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          firstEvent = cms.untracked.uint32(1),
                          firstRun = cms.untracked.uint32(1),
 

@@ -51,6 +51,7 @@ process.load('Configuration.StandardSequences.Digi_cff')
 process.source = cms.Source("EmptySource")
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     firstRun = cms.untracked.uint32(1),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         # you can request more than 1 particle
         # PartID = cms.vint32(211,11,-13),

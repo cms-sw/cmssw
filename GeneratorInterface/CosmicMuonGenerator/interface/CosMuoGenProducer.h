@@ -14,10 +14,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
+#include "GeneratorInterface/Core/interface/EventVertexHelper.h"
 
 namespace edm
 {
-  class CosMuoGenProducer : public one::EDProducer<EndRunProducer, one::WatchLuminosityBlocks> {
+  class CosMuoGenProducer : public one::EDProducer<EndRunProducer, one::WatchRuns, one::WatchLuminosityBlocks> {
   public:
     CosMuoGenProducer(const ParameterSet& );
     virtual ~CosMuoGenProducer();
@@ -25,13 +26,18 @@ namespace edm
   private:
 
     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&) override;
-    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override { }
+    virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&) override {}
+    virtual void beginRun(Run const& run, EventSetup const&) override;
+    virtual void endRun(Run const& run, EventSetup const&) override {};
 
     virtual void produce(Event & e, const EventSetup& es) override;
 
     virtual void endRunProduce(Run & r, const EventSetup & es) override;
 
     void clear();
+
+    EventVertexHelper eventVertexHelper_;
+
     // define the configurable generator parameters
     int32_t      RanS; // seed of random number generator (from Framework)
     double       MinP; // min. P     [GeV]
@@ -91,3 +97,4 @@ namespace edm
 } 
 
 #endif
+

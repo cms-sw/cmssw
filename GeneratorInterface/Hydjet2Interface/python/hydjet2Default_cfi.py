@@ -7,6 +7,7 @@ generator = cms.EDFilter("Hydjet2GeneratorFilter",
 	qgpParameters,
 	hydjet2Parameters,
 	fNhsel 	= cms.int32(2), 	# Flag to include jet (J)/jet quenching (JQ) and hydro (H) state production, fNhsel (0 H on & J off, 1 H/J on & JQ off, 2 H/J/HQ on, 3 J on & H/JQ off, 4 H off & J/JQ on)
+	VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 	PythiaParameters = cms.PSet(PythiaDefaultBlock,
 		parameterSets = cms.vstring(
 			#'pythiaUESettings',

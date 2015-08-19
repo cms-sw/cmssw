@@ -59,6 +59,7 @@ RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
 #
 # single muons 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         MaxPt = cms.double(100.1),
         MinPt = cms.double(99.9),

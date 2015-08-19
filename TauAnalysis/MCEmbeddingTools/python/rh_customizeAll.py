@@ -65,15 +65,15 @@ def customise(process):
   except:
     pass
 
-  process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator", 
+  process.generator.VertexSmearing = cms.PSet(
+    vertexGeneratorType = cms.string("FlatEvtVtxGenerator"),
     MaxZ = cms.double(0.0),
     MaxX = cms.double(0.0),
     MaxY = cms.double(0.0),
     MinX = cms.double(0.0),
     MinY = cms.double(0.0),
     MinZ = cms.double(0.0),
-    TimeOffset = cms.double(0.0),
-    src = cms.InputTag("generator")
+    TimeOffset = cms.double(0.0)
   )
 
   import FWCore.ParameterSet.VarParsing as VarParsing

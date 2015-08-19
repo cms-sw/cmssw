@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 from IOMC.EventVertexGenerators.VtxSmearedParameters_cfi import Early7TeVCollisionVtxSmearingParameters,VtxSmearedCommon
-VtxSmeared = cms.EDProducer("BetafuncEvtVtxGenerator",
+VertexSmearingParameters = cms.PSet(
     Early7TeVCollisionVtxSmearingParameters,
     VtxSmearedCommon
 )

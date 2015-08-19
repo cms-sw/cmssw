@@ -1,10 +1,10 @@
 
-
 #include "IOMC/EventVertexGenerators/interface/BeamProfileVtxGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -16,9 +16,9 @@
 #include<fstream>
 #include<string>
 
-BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
-  BaseEvtVtxGenerator(p) {
-  
+BeamProfileVtxGenerator::BeamProfileVtxGenerator(edm::ParameterSet const& p, edm::ConsumesCollector&) :
+  BaseEvtVtxGenerator(), fVertex(new HepMC::FourVector()) {
+
   meanX(p.getParameter<double>("BeamMeanX")*cm);
   meanY(p.getParameter<double>("BeamMeanY")*cm);
   beamPos(p.getParameter<double>("BeamPosition")*cm);
@@ -35,7 +35,7 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
   nBiny = p.getParameter<int>("BinY");
   ffile = p.getParameter<bool>("UseFile");
   fTimeOffset = p.getParameter<double>("TimeOffset")*ns*c_light;
-  
+
   if (ffile) {
     std::string file = p.getParameter<std::string>("File");
     std::ifstream is(file.c_str(), std::ios::in);
@@ -60,36 +60,38 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
     } else {
       ffile = false;
     }
-  } 
+  }
   if (!ffile) {
     setType(p.getParameter<bool>("GaussianProfile"));
   }
 
   edm::LogInfo("VertexGenerator") << "BeamProfileVtxGenerator: with "
-				  << "beam along eta = " << fEta 
-				  << " (Theta = " << fTheta/deg 
-				  << ") phi = " << fPhi/deg 
-				  << ") psi = " << fPsi/deg 
-				  << " centred at (" << fMeanX << ", " 
+				  << "beam along eta = " << fEta
+				  << " (Theta = " << fTheta/deg
+				  << ") phi = " << fPhi/deg
+				  << ") psi = " << fPsi/deg
+				  << " centred at (" << fMeanX << ", "
 				  << fMeanY << ", "  << fMeanZ << ") "
 				  << "and spread (" << fSigmaX << ", "
 				  << fSigmaY << ") of type Gaussian = "
 				  << fType << " use file " << ffile;
-  if (ffile) 
+  if (ffile)
     edm::LogInfo("VertexGenerator") << "With " << nBinx << " bins "
-				    << " along X and " << nBiny 
+				    << " along X and " << nBiny
 				    << " bins along Y";
 }
 
 BeamProfileVtxGenerator::~BeamProfileVtxGenerator() {
 }
 
+void BeamProfileVtxGenerator::generateNewVertex_(edm::HepMCProduct& product, CLHEP::HepRandomEngine& engine) {
+   product.applyVtxGen(newVertex(engine));
+}
 
-//Hep3Vector * BeamProfileVtxGenerator::newVertex() {
-HepMC::FourVector* BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
+HepMC::FourVector* BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine& engine) {
   double aX, aY;
   if (ffile) {
-    double r1 = engine->flat();
+    double r1 = engine.flat();
     int ixy = 0, ix, iy;
     for (unsigned int i=0; i<fdistn.size(); i++) {
       if (r1 > fdistn[i]) ixy = i+1;
@@ -99,79 +101,72 @@ HepMC::FourVector* BeamProfileVtxGenerator::newVertex(CLHEP::HepRandomEngine* en
     } else {
       ix = ixy%nBinx; iy = (ixy-ix)/nBinx;
     }
-    aX = 0.5*(2*ix-nBinx+2*engine->flat())*fSigmaX + fMeanX ;
-    aY = 0.5*(2*iy-nBiny+2*engine->flat())*fSigmaY + fMeanY ;
+    aX = 0.5*(2*ix-nBinx+2*engine.flat())*fSigmaX + fMeanX;
+    aY = 0.5*(2*iy-nBiny+2*engine.flat())*fSigmaY + fMeanY;
   } else {
     if (fType) {
-      aX = fSigmaX*CLHEP::RandGaussQ::shoot(engine) + fMeanX;
-      aY = fSigmaY*CLHEP::RandGaussQ::shoot(engine) + fMeanY;
+      aX = fSigmaX*CLHEP::RandGaussQ::shoot(&engine) + fMeanX;
+      aY = fSigmaY*CLHEP::RandGaussQ::shoot(&engine) + fMeanY;
     } else {
-      aX = CLHEP::RandFlat::shoot(engine, -0.5*fSigmaX, 0.5*fSigmaX) + fMeanX ;
-      aY = CLHEP::RandFlat::shoot(engine, -0.5*fSigmaY, 0.5*fSigmaY) + fMeanY;
+      aX = CLHEP::RandFlat::shoot(&engine, -0.5*fSigmaX, 0.5*fSigmaX) + fMeanX;
+      aY = CLHEP::RandFlat::shoot(&engine, -0.5*fSigmaY, 0.5*fSigmaY) + fMeanY;
     }
   }
 
-  double xp, yp, zp ;
-  if( 2.*M_PI < fabs(fPsi) )
-  {
+  double xp, yp, zp;
+  if(2.*M_PI < fabs(fPsi)) {
      xp = -aX*cos(fTheta)*cos(fPhi) +aY*sin(fPhi) +fMeanZ*sin(fTheta)*cos(fPhi);
      yp = -aX*cos(fTheta)*sin(fPhi) -aY*cos(fPhi) +fMeanZ*sin(fTheta)*sin(fPhi);
      zp =  aX*sin(fTheta)                         +fMeanZ*cos(fTheta);
-  }
-  else // for endcap testbeam, use 3rd angle psi
-  {
-     const HepGeom::Vector3D<double>  av ( aX, aY, fMeanZ ) ;
+  } else { // for endcap testbeam, use 3rd angle psi
+     const HepGeom::Vector3D<double>  av (aX, aY, fMeanZ);
 
 /*
-     static const double kRadToDeg ( 180./M_PI ) ;
-     std::cout<<"theta = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<fTheta*kRadToDeg<<", phi="<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      << fPhi*kRadToDeg <<", PSI="<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<fPsi*kRadToDeg<<std::endl ;
+     static const double kRadToDeg (180./M_PI);
+     std::cout<<"theta = "<<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
+	      <<fTheta*kRadToDeg<<", phi="<<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
+	      << fPhi*kRadToDeg <<", PSI="<<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
+	      <<fPsi*kRadToDeg<<std::endl;
 */
-     const HepGeom::RotateZ3D R1 ( fPhi - M_PI ) ;
-     const HepGeom::Point3D<double>  xUnit ( 0,1,0 ) ;
-     const HepGeom::Point3D<double>  zUnit ( 0,0,1 ) ;
-     const HepGeom::Transform3D RXRZ ( HepGeom::Rotate3D( -fTheta, R1*xUnit )*R1 ) ;
-     const HepGeom::Transform3D TRF ( HepGeom::Rotate3D(fPsi,RXRZ*zUnit)*RXRZ ) ;
+     const HepGeom::RotateZ3D R1(fPhi - M_PI);
+     const HepGeom::Point3D<double> xUnit (0,1,0);
+     const HepGeom::Point3D<double> zUnit (0,0,1);
+     const HepGeom::Transform3D RXRZ (HepGeom::Rotate3D(-fTheta, R1*xUnit)*R1);
+     const HepGeom::Transform3D TRF (HepGeom::Rotate3D(fPsi,RXRZ*zUnit)*RXRZ);
 /*
      std::cout<<"\n\n$$$$$$$$$$$Transform="
-	      <<" thetaZ = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<" thetaZ = "<<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
 	      <<TRF.getRotation().thetaZ()*kRadToDeg
-	      <<", phiZ = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<", phiZ = "<<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
 	      <<TRF.getRotation().phiZ()*kRadToDeg
-	      <<", thetaY = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<", thetaY = "<<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
 	      <<TRF.getRotation().thetaY()*kRadToDeg
-	      <<", phiY = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<", phiY = "<<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
 	      <<TRF.getRotation().phiY()*kRadToDeg
-	      <<", thetaX = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<", thetaX = "<<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
 	      <<TRF.getRotation().thetaX()*kRadToDeg
-	      <<", phiX = "<<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
+	      <<", phiX = "<<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
 	      <<TRF.getRotation().phiX()*kRadToDeg
-	      <<std::setw(7) << std::setiosflags( std::ios::fixed ) << std::setprecision(5)
-	      <<TRF.getTranslation()<<std::endl ;
+	      <<std::setw(7) << std::setiosflags(std::ios::fixed) << std::setprecision(5)
+	      <<TRF.getTranslation()<<std::endl;
 */
-     const HepGeom::Vector3D<double>  pv ( TRF*av ) ;
+     const HepGeom::Vector3D<double>  pv (TRF*av);
 
-     xp = pv.x() ;
-     yp = pv.y() ;
-     zp = pv.z() ;
+     xp = pv.x();
+     yp = pv.y();
+     zp = pv.z();
   }
-  //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
-  //fVertex->set(xp, yp, zp);
-  if (fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set(xp, yp, zp, fTimeOffset );
+  fVertex->set(xp, yp, zp, fTimeOffset);
 
   LogDebug("VertexGenerator") << "BeamProfileVtxGenerator: Vertex created "
 			      << "at (" << xp << ", " << yp << ", "
 			      << zp << ", " << fTimeOffset << ")";
-  return fVertex;
+  return fVertex.get();
 }
 
-void BeamProfileVtxGenerator::sigmaX(double s) { 
-
+void BeamProfileVtxGenerator::sigmaX(double s) {
   if (s>=0) {
-    fSigmaX = s; 
+    fSigmaX = s;
   } else {
     edm::LogWarning("VertexGenerator") << "Warning BeamProfileVtxGenerator:"
 				       << " Illegal resolution in X " << s
@@ -180,10 +175,9 @@ void BeamProfileVtxGenerator::sigmaX(double s) {
   }
 }
 
-void BeamProfileVtxGenerator::sigmaY(double s) { 
-
+void BeamProfileVtxGenerator::sigmaY(double s) {
   if (s>=0) {
-    fSigmaY = s; 
+    fSigmaY = s;
   } else {
     edm::LogWarning("VertexGenerator") << "Warning BeamProfileVtxGenerator:"
 				       << " Illegal resolution in Y " << s
@@ -192,11 +186,11 @@ void BeamProfileVtxGenerator::sigmaY(double s) {
   }
 }
 
-void BeamProfileVtxGenerator::eta(double s) { 
-  fEta   = s; 
+void BeamProfileVtxGenerator::eta(double s) {
+  fEta   = s;
   fTheta = 2.0*atan(exp(-fEta));
 }
 
-void BeamProfileVtxGenerator::setType(bool s) { 
+void BeamProfileVtxGenerator::setType(bool s) {
   fType = s;
 }

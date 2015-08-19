@@ -4,7 +4,7 @@ process = cms.Process("PROD")
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryAPD2XML_cfi")
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryAPD2XML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
@@ -78,6 +78,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MinEta = cms.double(-3.0),
@@ -90,7 +91,6 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
-
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
     fileName = cms.untracked.string('simevent_QGSP_BERT_EML.root')
@@ -116,7 +116,7 @@ process.common_maximum_timex = cms.PSet(
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble()
 )
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy*process.hitParentTest)
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.caloSimHitStudy*process.hitParentTest)
 process.outpath = cms.EndPath(process.o1)
 process.caloSimHitStudy.MaxEnergy = 1000.0
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'

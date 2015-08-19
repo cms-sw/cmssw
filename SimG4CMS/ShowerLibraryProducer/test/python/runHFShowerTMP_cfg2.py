@@ -5,6 +5,8 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
+
 #process.load("Geometry.HcalCommonData.hcalforwardshowerLong_cfi")
 process.load("SimG4CMS.ShowerLibraryProducer.hcalforwardshower_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
@@ -47,15 +49,6 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(12341),
-        VtxSmeared = cms.untracked.uint32(39712),
-        generator = cms.untracked.uint32(23451)
-    ),
-    sourceSeed = cms.untracked.uint32(24124),
-)
-
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
@@ -65,6 +58,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID   = cms.vint32(11),
         #MinTheta = cms.double(-1.145762838),
@@ -80,7 +74,6 @@ process.generator = cms.EDProducer("FlatRandomEThetaGunProducer",
     AddAntiParticle = cms.bool(False),
     firstRun = cms.untracked.uint32(1)
 )
-
 process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('/tmp/myucel/simevent_50GeVElec.root')
 )
@@ -89,7 +82,7 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('/tmp/myucel/hfShowerLibSimu_extended2_50GeVElec_deneme.root')
 )
 
-process.p1 = cms.Path(cms.SequencePlaceholder("randomEngineStateProducer")+process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(cms.SequencePlaceholder("randomEngineStateProducer")+process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 
 process.g4SimHits.HCalSD.UseShowerLibrary = True

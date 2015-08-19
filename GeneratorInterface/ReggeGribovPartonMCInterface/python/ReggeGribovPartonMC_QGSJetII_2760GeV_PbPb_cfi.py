@@ -4,6 +4,7 @@ from GeneratorInterface.ReggeGribovPartonMCInterface.ReggeGribovPartonMC_Advance
 
 generator = cms.EDFilter("ReggeGribovPartonMCGeneratorFilter",
                     ReggeGribovPartonMCAdvancedParameters,
+                    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                     beammomentum = cms.double(1380),
                     targetmomentum = cms.double(-1380),
                     beamid = cms.int32(208),

@@ -823,6 +823,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
     crossSection = cms.untracked.double(CROSS_SECTION),
     maxEventsToPrint = cms.untracked.int32(0),
     SLHATableForPythia8 = cms.string('%s' % SLHA_TABLE),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythia8CommonSettingsBlock,
         pythia8CUEP8M1SettingsBlock,

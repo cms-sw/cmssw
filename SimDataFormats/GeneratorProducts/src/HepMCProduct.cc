@@ -42,7 +42,7 @@ void HepMCProduct::addHepMCData( HepMC::GenEvent  *evt){
   
 }
 
-void HepMCProduct::applyVtxGen( HepMC::FourVector* vtxShift ) const
+void HepMCProduct::applyVtxGen( HepMC::FourVector* vtxShift )
 {
 	//std::cout<< " applyVtxGen called " << isVtxGenApplied_ << endl;
 	//fTimeOffset = 0;
@@ -67,7 +67,7 @@ void HepMCProduct::applyVtxGen( HepMC::FourVector* vtxShift ) const
 
 } 
 
-void HepMCProduct::boostToLab( TMatrixD* lorentz, std::string type ) const {
+void HepMCProduct::boostToLab( TMatrixD* lorentz, std::string type ) {
 
 	//std::cout << "from boostToLab:" << std::endl;
 	

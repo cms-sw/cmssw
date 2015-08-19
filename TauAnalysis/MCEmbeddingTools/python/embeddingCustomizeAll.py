@@ -242,15 +242,15 @@ def customise(process):
   # CV: disable gen. vertex smearing
   #    (embed tau leptons exactly at Z->mumu event vertex)
   print "Disabling gen. vertex smearing"
-  process.VtxSmeared = cms.EDProducer("FlatEvtVtxGenerator", 
+  process.generator.VertexSmearing = cms.PSet(
+    vertexGeneratorType = cms.string("FlatEvtVtxGenerator"),
     MaxZ = cms.double(0.0),
     MaxX = cms.double(0.0),
     MaxY = cms.double(0.0),
     MinX = cms.double(0.0),
     MinY = cms.double(0.0),
     MinZ = cms.double(0.0),
-    TimeOffset = cms.double(0.0),
-    src = cms.InputTag("generator")
+    TimeOffset = cms.double(0.0)
   )  
 
   if process.customization_options.useJson.value():

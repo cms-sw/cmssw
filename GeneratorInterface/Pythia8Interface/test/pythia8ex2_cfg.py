@@ -31,6 +31,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     #   pTHatMin = cms.double(15.),
     #   pTHatMax = cms.double(3000.)
     #),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythia8_example02 = cms.vstring('HardQCD:all = on',
                                         'PhaseSpace:pTHatMin = 20.'),

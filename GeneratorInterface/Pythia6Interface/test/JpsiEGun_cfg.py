@@ -41,6 +41,7 @@ process.generator = cms.EDProducer("Pythia6EGun",
     maxEventsToPrint = cms.untracked.int32(5),
     pythiaPylistVerbosity = cms.untracked.int32(1),
     pythiaHepMCVerbosity = cms.untracked.bool(True),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
        ParticleID = cms.vint32(443,443),
        AddAntiParticle = cms.bool(False),
@@ -51,6 +52,7 @@ process.generator = cms.EDProducer("Pythia6EGun",
        MinEta = cms.double(0.0),
        MaxEta = cms.double(2.4)
     ),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         process.pythiaUESettingsBlock,
         pythiaJpsiDecays = cms.vstring('MDME(858,1)=1                 ! J/psi -> ee turned ON', 

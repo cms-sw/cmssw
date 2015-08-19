@@ -57,6 +57,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Other statements
 process.GlobalTag.globaltag = 'STARTHI71_V2::All'
 process.generator = cms.EDFilter("AMPTGeneratorFilter",
+                                 VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                                  diquarky = cms.double(0.0),
                                  diquarkx = cms.double(0.0),
                                  diquarkpx = cms.double(7.0),

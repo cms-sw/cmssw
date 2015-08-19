@@ -41,6 +41,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID = cms.vint32(211),
         MinEta = cms.double(-6.6),
@@ -54,7 +55,6 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     Verbosity = cms.untracked.int32(1)
 
 )
-
 process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('sim_pion.root')
 )
@@ -64,7 +64,7 @@ process.common_maximum_timex = cms.PSet( # need to be localy redefined
    MaxTimeNames  = cms.vstring(), # need to be localy redefined
    MaxTrackTimes = cms.vdouble()  # need to be localy redefined
 )
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 
 process.g4SimHits.UseMagneticField = False

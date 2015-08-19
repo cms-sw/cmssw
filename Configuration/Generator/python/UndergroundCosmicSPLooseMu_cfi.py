@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 from GeneratorInterface.GenFilters.CosmicGenFilterHelix_cff import * 
 
 generator = cms.EDProducer("CosMuoGenProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     ZCentrOfTarget = cms.double(0.0),
     MinP = cms.double(10.0),
     MinP_CMS = cms.double(-1.0), ##negative means MinP_CMS = MinP. Only change this if you know what you are doing!

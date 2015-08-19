@@ -19,6 +19,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
         parameterSets = cms.vstring( "Photos" )
     ),
     
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         py8SpecialSettings   = cms.vstring( 'HadronLevel:Hadronize = off', # mstp(111)=0
 				            'ParticleDecays:limitTau0 = on',  # mstj(22)=2 - decay unstable particles

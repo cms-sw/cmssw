@@ -4,6 +4,7 @@ from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 generator = cms.EDFilter("Pythia8PtGun",
                          pythia8CommonSettingsBlock,
                          pythia8CUEP8M1SettingsBlock,
+                         VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                          PGunParameters = cms.PSet(
         ParticleID = cms.vint32(-15),
         AddAntiParticle = cms.bool(False),

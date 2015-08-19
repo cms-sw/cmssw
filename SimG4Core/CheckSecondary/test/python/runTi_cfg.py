@@ -4,6 +4,7 @@ process = cms.Process("CaloTest")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 
 process.load("SimG4Core.CheckSecondary.TiTarget_cfi")
 
@@ -33,6 +34,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("EmptySource")
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         MinEta = cms.double(0.0),
         MaxEta = cms.double(0.0),
@@ -47,24 +49,16 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun        = cms.untracked.uint32(1)
 )
 
+process.generator.VertexSmearing.SigmaX = 0.00001
+process.generator.VertexSmearing.SigmaY = 0.00001
+process.generator.VertexSmearing.SigmaZ = 0.00001
+
 process.Timing = cms.Service("Timing")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
-
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
-process.VtxSmeared.SigmaX = 0.00001
-process.VtxSmeared.SigmaY = 0.00001
-process.VtxSmeared.SigmaZ = 0.00001
+process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.g4SimHits.UseMagneticField     = False
 process.g4SimHits.Physics.type         = 'SimG4Core/Physics/QGSP'
-process.g4SimHits.Physics.Model        = 'LEP'
+#process.g4SimHits.Physics.Model        = 'LEP'
 process.g4SimHits.Physics.EMPhysics    = False
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckSecondary = cms.PSet(

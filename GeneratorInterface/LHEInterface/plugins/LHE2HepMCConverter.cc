@@ -23,6 +23,7 @@
 #include <boost/shared_ptr.hpp>
 
 // user include files
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -37,6 +38,7 @@
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "GeneratorInterface/Core/interface/EventVertexHelper.h"
 
 //
 // class declaration
@@ -56,9 +58,11 @@ class LHE2HepMCConverter : public edm::EDProducer {
    private:
 
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
 
       // ----------member data ---------------------------
+      EventVertexHelper eventVertexHelper_;
       edm::InputTag _lheEventSrcTag;
       edm::InputTag _lheRunSrcTag;
       const LHERunInfoProduct* _lheRunSrc;
@@ -80,6 +84,7 @@ class LHE2HepMCConverter : public edm::EDProducer {
 // constructors and destructor
 //
 LHE2HepMCConverter::LHE2HepMCConverter(const edm::ParameterSet& iConfig):
+  eventVertexHelper_(iConfig, consumesCollector()),
 _lheRunSrc(0)
 {
    //register your products
@@ -141,13 +146,21 @@ LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    } 
 
    std::auto_ptr<HepMCProduct> pOut(new HepMCProduct(evt));
+   eventVertexHelper_.smearVertex(iEvent, *pOut);
    iEvent.put(pOut);
 
 }
 
+// ------------ method called when starting to processes a lumi block  ------------
+void
+LHE2HepMCConverter::beginLuminosityBlock(edm::LuminosityBlock const& iLuminosityBlock, edm::EventSetup const& es)
+{
+   eventVertexHelper_.beginLuminosityBlock(iLuminosityBlock, es);
+}
+
 // ------------ method called when starting to processes a run  ------------
 void
-LHE2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup const&)
+LHE2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup const& es)
 {
   
   edm::Handle<LHERunInfoProduct> lheRunSrcHandle;
@@ -167,7 +180,7 @@ LHE2HepMCConverter::beginRun(edm::Run const& iRun, edm::EventSetup const&)
     }
 
   }
-
+  eventVertexHelper_.beginRun(iRun, es);
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

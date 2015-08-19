@@ -14,6 +14,7 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PythiaParameters = cms.PSet(
         pythia8_example05 = cms.vstring('SoftQCD:nonDiffractive = on',
                                         'SoftQCD:singleDiffractive = on',

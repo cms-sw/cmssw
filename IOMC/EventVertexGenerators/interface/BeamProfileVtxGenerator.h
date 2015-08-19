@@ -1,5 +1,5 @@
-#ifndef IOMC_BeamProfileVtxGenerator_H
-#define IOMC_BeamProfileVtxGenerator_H
+#ifndef IOMC_EventVertexGenerator_BeamProfileVtxGenerator_h
+#define IOMC_EventVertexGenerator_BeamProfileVtxGenerator_h
 
 /**
  * Generate event vertices according to a Gaussian distribution transverse
@@ -9,28 +9,17 @@
  *
  */
 
-#include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
+#include "GeneratorInterface/Core/interface/BaseEvtVtxGenerator.h"
+#include <memory>
 #include <vector>
 
-namespace CLHEP {
-  class HepRandomEngine;
-}
-
-class BeamProfileVtxGenerator : public BaseEvtVtxGenerator
-{
+class BeamProfileVtxGenerator : public BaseEvtVtxGenerator {
 public:
-  BeamProfileVtxGenerator(const edm::ParameterSet & p);
+  BeamProfileVtxGenerator(edm::ParameterSet const& p, edm::ConsumesCollector& iC);
   virtual ~BeamProfileVtxGenerator();
+  BeamProfileVtxGenerator(BeamProfileVtxGenerator const&) = delete;
+  BeamProfileVtxGenerator& operator=(BeamProfileVtxGenerator const& rhs) = delete;
 
-  /// return a new event vertex
-  //virtual CLHEP::Hep3Vector * newVertex();
-  virtual HepMC::FourVector* newVertex(CLHEP::HepRandomEngine*) ;
-
-  virtual TMatrixD* GetInvLorentzBoost() {
-	  return 0;
-  }
-
-    
   /// set resolution in X in cm
   void sigmaX(double s=1.0);
   /// set resolution in Y in cm
@@ -53,11 +42,12 @@ public:
   void setType(bool m=true);
   
 private:
-  /** Copy constructor */
-  BeamProfileVtxGenerator(const BeamProfileVtxGenerator &p);
-  /** Copy assignment operator */
-  BeamProfileVtxGenerator& operator = (const BeamProfileVtxGenerator& rhs);
-private:
+  virtual void generateNewVertex_(edm::HepMCProduct& product, CLHEP::HepRandomEngine& engine) override;
+
+  /// return a new event vertex
+  HepMC::FourVector* newVertex(CLHEP::HepRandomEngine&);
+
+  std::unique_ptr<HepMC::FourVector> fVertex;
   double      fSigmaX, fSigmaY;
   double      fMeanX,  fMeanY, fMeanZ;
   double      fEta,    fPhi,   fTheta;

@@ -19,6 +19,7 @@ operates_on_particles = cms.vint32()
 ),
 parameterSets = cms.vstring('EvtGen130')
 ),
+VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 PythiaParameters = cms.PSet(
 pythia8CommonSettingsBlock,
 pythia8CUEP8M1SettingsBlock,

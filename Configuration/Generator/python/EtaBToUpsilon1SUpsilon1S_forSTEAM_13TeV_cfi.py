@@ -8,6 +8,7 @@ pythiaPylistVerbosity = cms.untracked.int32(1),
 displayPythiaCards = cms.untracked.bool(False),
 comEnergy = cms.double(13000.0),
 filterEfficiency = cms.untracked.double(0.66),
+VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
 PythiaParameters = cms.PSet(
 pythiaUESettingsBlock,
 pythiaEtab = cms.vstring(

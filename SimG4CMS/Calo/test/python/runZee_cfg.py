@@ -1,23 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("PROD")
+process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
-process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("Calibration.IsolatedParticles.electronStudy_cfi")
 process.load("FWCore.MessageService.MessageLogger_ReleaseValidation_cfi")
-
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
 
 process.Timing = cms.Service("Timing")
 
@@ -34,6 +26,13 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
                             fileNames =cms.untracked.vstring("file:zeer.root")
+)
+
+process.VtxSmeared = cms.EDProducer("EventVertexProducer")
+
+from IOMC.EventVertexGenerators.VtxSmearedGauss_cfi import VertexSmearingParameters
+process.VtxSmeared.VertexSmearing = cms.PSet(
+    VertexSmearingParameters
 )
 
 process.rndmStore = cms.EDProducer("RandomEngineStateProducer")

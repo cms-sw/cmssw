@@ -8,6 +8,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
                                                       pythiaHepMCVerbosity = cms.untracked.bool(False),
                                                       comEnergy = cms.double(13000.0),
                                                       maxEventsToPrint = cms.untracked.int32(0),
+                                                      VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
                                                       PythiaParameters = cms.PSet(
                 processParameters = cms.vstring(
                     'ExtraDimensionsG*:qqbar2KKgluon* = on',

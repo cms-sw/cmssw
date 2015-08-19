@@ -64,6 +64,7 @@ process.source = cms.Source("EmptySource",
 )
 
 process.generator = cms.EDProducer("FileRandomKEThetaGunProducer",
+    VertexSmearing = cms.PSet(refToPSet_ = cms.string("VertexSmearingParameters")),
     PGunParameters = cms.PSet(
         PartID   = cms.vint32(2112),
         MinTheta = cms.double(0.0),
@@ -76,6 +77,11 @@ process.generator = cms.EDProducer("FileRandomKEThetaGunProducer",
     Verbosity       = cms.untracked.int32(0),
     AddAntiParticle = cms.bool(False)
 )
+
+process.generator.VertexSmearing.MeanZ = -1.0
+process.generator.VertexSmearing.SigmaX = 0.00001
+process.generator.VertexSmearing.SigmaY = 0.00001
+process.generator.VertexSmearing.SigmaZ = 0.00001
 
 process.o1 = cms.OutputModule("PoolOutputModule",
     process.FEVTSIMEventContent,
@@ -91,11 +97,7 @@ process.common_maximum_timex = cms.PSet(
     MaxTimeNames  = cms.vstring(),
     MaxTrackTimes = cms.vdouble()
 )
-process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.caloSimHitStudy)
-process.VtxSmeared.MeanZ = -1.0
-process.VtxSmeared.SigmaX = 0.0
-process.VtxSmeared.SigmaY = 0.0
-process.VtxSmeared.SigmaZ = 0.0
+process.p1 = cms.Path(process.generator*process.g4SimHits*process.caloSimHitStudy)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.NonBeamEvent = True
 process.g4SimHits.UseMagneticField = False
