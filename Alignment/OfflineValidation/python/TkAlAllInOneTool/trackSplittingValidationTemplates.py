@@ -155,7 +155,7 @@ root -x -b -q TkAlTrackSplitPlot.C++
 ######################################################################
 
 trackSplitPlotTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/trackSplitPlot.C"
+#include "Alignment/OfflineValidation/macros/trackSplitPlot.C"
 
 /****************************************
 This can be run directly in root, or you
@@ -245,6 +245,7 @@ phases must be filled in for sagitta, elliptical, and skew if values is;
 void TkAlTrackSplitPlot()
 {
     TkAlStyle::legendheader = ".oO[legendheader]Oo.";
+    TkAlStyle::legendoptions = ".oO[legendoptions]Oo.";
     TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.");
     //fillmatrix();                                                         //(C)
     subdetector = ".oO[subdetector]Oo.";

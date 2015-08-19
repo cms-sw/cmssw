@@ -218,10 +218,13 @@ root -x -b -q -l TkAlExtendedOfflineValidation.C
 ######################################################################
 ######################################################################
 extendedValidationTemplate="""
-#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
+#include "Alignment/OfflineValidation/macros/PlotAlignmentValidation.C"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
+
 void TkAlExtendedOfflineValidation()
 {
   TkAlStyle::legendheader = ".oO[legendheader]Oo.";
+  TkAlStyle::legendoptions = ".oO[legendoptions]Oo.";
   TkAlStyle::set(.oO[publicationstatus]Oo., .oO[era]Oo., ".oO[customtitle]Oo.");
   gStyle->SetTitleH        ( 0.07 );
   gStyle->SetTitleW        ( 1.00 );

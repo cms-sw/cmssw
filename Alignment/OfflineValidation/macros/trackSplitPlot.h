@@ -52,6 +52,8 @@ Bool_t relativearray[ysize]    = {true, false, false, false, false, false, false
 TList *stufftodelete = new TList();
 
 TString subdetector = "PIXEL";
+double outliercut = 0.99;    //use the middle 99% of tracks to find the mean and RMS
+                             //(a few tracks are fit badly and skew them otherwise)
 
 /***********************************
 Table Of Contents

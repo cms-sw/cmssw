@@ -20,6 +20,7 @@ class BasePlottingOptions:
                     "customtitle" : "",
                     "era" : "NONE",
                     "legendheader" : "",
+                    "legendoptions":"all",
                    }
         defaults.update(addDefaults)
         mandatories = []
@@ -110,7 +111,7 @@ class PlottingOptionsOffline(BasePlottingOptions):
                     "DMRMinimum":"30",
                     "DMROptions":"",
                     "OfflineTreeBaseDir":"TrackHitFilter",
-                    "SurfaceShapes":"none"
+                    "SurfaceShapes":"coarse",
                    }
         defaults.update(addDefaults)
         mandatories = []

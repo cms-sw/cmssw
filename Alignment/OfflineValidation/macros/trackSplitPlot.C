@@ -285,11 +285,58 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
         meansrmss[i] = "";
         if (type == Histogram || type == OrgHistogram)
         {
-            cout << "Average = " << p[i]->GetMean() << endl;
-            cout << "RMS     = " << p[i]->GetRMS()  << endl;
             stringstream meanrms;
             meanrms.precision(3);
-            meanrms << "#mu=" << p[i]->GetMean() << ", #sigma=" << p[i]->GetRMS();
+            TString legendOptions = TkAlStyle::legendoptions;
+            legendOptions.ReplaceAll("all","meanerror,rmserror").ToLower();
+
+            double average = -1e99;
+            double rms = -1e99;
+
+            TString var = (type == Histogram ? yvar : xvar);
+            char axis = (type == Histogram ? 'y' : 'x');
+            TString varunits = "";
+            if (!relative && !pull)
+                varunits = units(var, axis);
+            if (legendOptions.Contains("mean"))
+            {
+                average = findAverage(files[i], var, axis, relative, pull);
+                cout << "Average = " << average;
+                meanrms << "#mu = " << average;
+                if (legendOptions.Contains("meanerror"))
+                {
+                    rms = findRMS(files[i], var, axis, relative, pull);
+                    meanrms << " #pm " << rms/TMath::Sqrt(lengths[i]*outliercut);
+                    cout << " +/- " << rms/TMath::Sqrt(lengths[i]*outliercut);
+                }
+                if (varunits != "")
+                {
+                    meanrms << " " << varunits;
+                    cout << " " << varunits;
+                }
+                cout << endl;
+                if (legendOptions.Contains("rms"))
+                    meanrms << ", ";
+            }
+            if (legendOptions.Contains("rms"))
+            {
+                if (rms<-1e98)
+                    rms = findRMS(files[i], var, axis, relative, pull);
+                cout << "RMS     = " << rms;
+                meanrms << "rms = " << rms;
+                if (legendOptions.Contains("rmserror"))
+                {
+                    //https://root.cern.ch/root/html/src/TH1.cxx.html#7076
+                    meanrms << " #pm " << rms/TMath::Sqrt(2*lengths[i]*outliercut);
+                    cout << " +/- " << rms/TMath::Sqrt(2*lengths[i]*outliercut);
+                }
+                if (varunits != "")
+                {
+                    meanrms << " " << varunits;
+                    cout << " " << varunits;
+                }
+                cout << endl;
+            }
             meansrmss[i] = meanrms.str();
         }
 
@@ -416,6 +463,7 @@ TCanvas *trackSplitPlot(Int_t nFiles,TString *files,TString *names,TString xvar,
     if (type == Histogram || type == OrgHistogram)
         width *= 2;
     TLegend *legend = TkAlStyle::legend(nEntries, width);
+    legend->SetTextSize(0);
     if (type == Histogram || type == OrgHistogram)
         legend->SetNColumns(2);
     stufftodelete->Add(legend);
@@ -1842,13 +1890,10 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
     }
 
     Double_t totallength = 0;
+    vector<double> xvect;
     Double_t result = 0;
     if (what == Minimum) result = 1e100;
     if (what == Maximum) result = -1e100;
-
-    Double_t average = 0;
-    if (what == RMS)
-        average = findStatistic(Average,nFiles,files,var,axis,relative,pull);
 
     stringstream sx,srel,ssigma1,ssigma2,ssigmaorg;
 
@@ -1948,10 +1993,7 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
                 result = x;
             if (what == Maximum && x > result)
                 result = x;
-            if (what == Average)
-                result += x;
-            if (what == RMS)
-                result += (x - average) * (x - average);
+            xvect.push_back(x);
             if (var.BeginsWith("nHits"))
             {
                 x = xint2;
@@ -1959,17 +2001,30 @@ Double_t findStatistic(Statistic what,Int_t nFiles,TString *files,TString var,Ch
                     result = x;
                 if (what == Maximum && x > result)
                     result = x;
-                if (what == Average)
-                    result += x;
-                if (what == RMS)
-                    result += (x - average) * (x - average);
+                xvect.push_back(x);
             }
         }
         delete f;         //automatically closes the file
     }
-    if (var.BeginsWith("nHits")) totallength *= 2;
-    if (what == Average) result /= totallength;
-    if (what == RMS)  result = sqrt(result / (totallength - 1));
+
+    if (what == Minimum || what == Maximum)
+        return result;
+
+    sort(xvect.begin(), xvect.end());
+
+    for (unsigned int i = (unsigned int)(xvect.size()*.005); i <= (unsigned int)(xvect.size() * .995); i++, totallength++)
+        result += xvect[i];
+
+    result /= totallength;
+
+    if (what == RMS)
+    {
+        double average = result;
+        result = 0;
+        for (unsigned int i = (unsigned int)(xvect.size()*(1-outliercut)/2); i <= (unsigned int)(xvect.size()*(1+outliercut)/2+.999); i++)
+            result += (x - average) * (x - average);
+        result = sqrt(result / (totallength - 1));
+    }
     return result;
 }
 

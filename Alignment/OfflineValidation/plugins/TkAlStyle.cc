@@ -100,6 +100,7 @@ public:
   static TPaveText* customRightTitle(const TString& txt) { return righttitle(txt); }
 
   static TString legendheader;
+  static TString legendoptions;
   // Returns a TLegend object that fits into the top-right corner
   // of the current pad. Its width, relative to the pad size (without
   // margins), can be specified. Its height is optimized for nEntries
@@ -222,6 +223,7 @@ private:
 PublicationStatus TkAlStyle::publicationStatus_ = NO_STATUS;
 Era TkAlStyle::era_ = NONE;
 TString TkAlStyle::legendheader = "";
+TString TkAlStyle::legendoptions = "all";
 TString TkAlStyle::customTitle_ = "";
 double TkAlStyle::lineHeight_ = 0.042;
 double TkAlStyle::margin_ = 0.04;

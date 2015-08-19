@@ -56,6 +56,9 @@ PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::stri
   // Make ROOT calculate histogram statistics using all data,
   // regardless of displayed range
   TH1::StatOverflows(kTRUE);
+
+  //show all information in the legend by default
+  legendOptions(TkAlStyle::legendoptions);
 }
 
 //------------------------------------------------------------------------------
@@ -84,6 +87,29 @@ void PlotAlignmentValidation::useFitForDMRplots(bool usefit)
 
   useFit_ = usefit;
   
+}
+
+//------------------------------------------------------------------------------
+void PlotAlignmentValidation::legendOptions(TString options)
+{
+
+  showMean_ = false;
+  showRMS_ = false;
+  showMeanError_ = false;
+  showRMSError_ = false;
+  showModules_ = false;
+  options.ReplaceAll(" ","").ToLower();
+  if (options.Contains("mean") || options.Contains("all"))
+    showMean_ = true;
+  if (options.Contains("meanerror") || options.Contains("all"))
+    showMeanError_ = true;
+  if (options.Contains("rms") || options.Contains("all"))
+    showRMS_ = true;
+  if (options.Contains("rmserror") || options.Contains("all"))
+    showRMSError_ = true;
+  if (options.Contains("modules") || options.Contains("all"))
+    showModules_ = true;
+
 }
 
 //------------------------------------------------------------------------------
@@ -375,6 +401,9 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
     return;
   }
 
+  int bkperrorx = gStyle->GetErrorX();
+  gStyle->SetErrorX(1);   //regardless of style settings, we want x error bars here
+
   int plotLayerN = 0;
   //  int plotRingN  = 0;
   //  bool plotPlain = false;
@@ -545,6 +574,7 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
       }
     }
   }
+  gStyle->SetErrorX(bkperrorx);
 
   return;
 }
@@ -662,10 +692,13 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
 
     // Sets dimension of legend according to the number of plots
 
+    bool hasheader = (TkAlStyle::legendheader != "");
+
     int nPlots = 1;
     if (plotinfo.plotSplits) { nPlots = 3; }
     if (plotinfo.plotLayers) { nPlots *= numberOfLayers[i-1]; }
     nPlots *= sourceList.size();
+    nPlots += hasheader;
 
     double legendY = 0.80;
     if (nPlots > 3) { legendY -= 0.01 * (nPlots - 3); }
@@ -679,6 +712,8 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
     plotinfo.subDetId = i;
     plotinfo.nLayers = numberOfLayers[i-1];
     plotinfo.legend = new TLegend(0.17, legendY, 0.85, 0.88);
+    plotinfo.legend->SetNColumns(2);
+    if (hasheader) plotinfo.legend->SetHeader(TkAlStyle::legendheader);
     plotinfo.hstack = &hstack;
     plotinfo.h = plotinfo.h1 = plotinfo.h2 = 0;
     plotinfo.firsthisto = true;
@@ -859,15 +894,18 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
 
   // Small adjustments: move the legend right and up so that it doesn't block
   // the exponent of the y-axis scale and doesn't cut the histogram border
+  bool hasheader = (TkAlStyle::legendheader != "");
   TLegend* l = (TLegend*)findObjectFromCanvas(normchi, "TLegend");
   if (l != 0) {
     l->SetX1NDC(0.25);
     l->SetY1NDC(0.86);
+    if (hasheader) l->SetHeader(TkAlStyle::legendheader);
   }
   l = (TLegend*)findObjectFromCanvas(chiprob, "TLegend");
   if (l != 0) {
     l->SetX1NDC(0.25);
     l->SetY1NDC(0.86);
+    if (hasheader) l->SetHeader(TkAlStyle::legendheader);
   }
 
   // Move stat boxes slightly right so that the border lines fit in
@@ -1137,41 +1175,38 @@ THStack* PlotAlignmentValidation::addHists(const TString& selection, const TStri
 }
 
 //------------------------------------------------------------------------------
-std::pair<float,float> 
+TF1 *
 PlotAlignmentValidation::fitGauss(TH1 *hist,int color) 
 {
   //1. fits a Gauss function to the inner range of abs(2 rms)
   //2. repeates the Gauss fit in a 2 sigma range around mean of first fit
   //returns mean and sigma from fit in micron
-  std::pair<float,float> fitResult(9999., 9999.);
-  if (!hist || hist->GetEntries() < 20) return fitResult;
+  if (!hist || hist->GetEntries() < 20) return 0;
 
   float mean  = hist->GetMean();
   float sigma = hist->GetRMS();
 
  
-  TF1 func("tmp", "gaus", mean - 2.*sigma, mean + 2.*sigma); 
+  TF1 *func = new TF1("tmp", "gaus", mean - 2.*sigma, mean + 2.*sigma); 
  
-  func.SetLineColor(color);
-  func.SetLineStyle(2);
-  if (0 == hist->Fit(&func,"QNR")) { // N: do not blow up file by storing fit!
-    mean  = func.GetParameter(1);
-    sigma = func.GetParameter(2);
+  func->SetLineColor(color);
+  func->SetLineStyle(2);
+  if (0 == hist->Fit(func,"QNR")) { // N: do not blow up file by storing fit!
+    mean  = func->GetParameter(1);
+    sigma = func->GetParameter(2);
     // second fit: three sigma of first fit around mean of first fit
-    func.SetRange(mean - 2.*sigma, mean + 2.*sigma);
+    func->SetRange(mean - 3.*sigma, mean + 3.*sigma);
     // I: integral gives more correct results if binning is too wide
     // L: Likelihood can treat empty bins correctly (if hist not weighted...)
-    if (0 == hist->Fit(&func, "Q0ILR")) {
-      if (hist->GetFunction(func.GetName())) { // Take care that it is later on drawn:
-	//hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
+    if (0 == hist->Fit(func, "Q0ILR")) {
+      if (hist->GetFunction(func->GetName())) { // Take care that it is later on drawn:
+	//hist->GetFunction(func->GetName())->ResetBit(TF1::kNotDraw);
       }
-      fitResult.first = func.GetParameter(1)*10000;//convert from cm to micron
-      fitResult.second = func.GetParameter(2)*10000;//convert from cm to micron
     }
   }
  
   
-  return fitResult;
+  return func;
 }
 
 
@@ -1268,19 +1303,32 @@ void  PlotAlignmentValidation::setHistStyle( TH1& hist,const char* titleX, const
   
   hist.GetXaxis()->SetTitle( (title_Xaxis.str()).c_str() );
 
+  double binning = (hist.GetXaxis()->GetXmax() - hist.GetXaxis()->GetXmin()) / hist.GetNbinsX();
+  title_Yaxis.precision(2);
+
   if /*( titleYAxis.Contains("meanX") )title_Yaxis<<"#LTx'_{pred}-x'_{hit}#GT[cm]";
   else if ( titleYAxis.Contains("rmsX") )title_Yaxis<<"RMS(x'_{pred}-x'_{hit})[cm]";
   else if( titleYAxis.Contains("meanNormX") )title_Yaxis<<"#LTx'_{pred}-x'_{hit}/#sigma#GT";
   else if( titleYAxis.Contains("rmsNormX") )title_Yaxis<<"RMS(x_'{pred}-x'_{hit}/#sigma)";
   else if( titleYAxis.Contains("meanLocalX") )title_Yaxis<<"#LTx_{pred}-x_{hit}#GT[cm]";
   else if( titleYAxis.Contains("rmsLocalX") )title_Yaxis<<"RMS(x_{pred}-x_{hit})[cm]";
-  else if*/ ( (titleYAxis.Contains("layer") && titleYAxis.Contains("subDetId"))
-	      || titleYAxis.Contains("#modules") )title_Yaxis<<"#modules";
-  else if ( (titleYAxis.Contains("ring") && titleYAxis.Contains("subDetId"))
-	    || titleYAxis.Contains("#modules") )title_Yaxis<<"#modules";
+  else if*/ ( ((titleYAxis.Contains("layer") || titleYAxis.Contains("ring")) 
+                    && titleYAxis.Contains("subDetId"))
+	      || titleYAxis.Contains("#modules")) {
+    title_Yaxis<<"number of modules";
+    if (TString(title_Xaxis.str()).Contains("[#mum]"))
+      title_Yaxis << " / " << binning << " #mum";
+    else if (TString(title_Xaxis.str()).Contains("[cm]"))
+      title_Yaxis << " / " << binning << " cm";
+    else
+      title_Yaxis << " / " << binning;
+  }
   else title_Yaxis<<titleY<<"[cm]";
 
   hist.GetYaxis()->SetTitle( (title_Yaxis.str()).c_str()  );
+
+  hist.GetXaxis()->SetTitleFont(42);
+  hist.GetYaxis()->SetTitleFont(42);
 }
 
 //------------------------------------------------------------------------------
@@ -1317,7 +1365,7 @@ getVariableForDMRPlot(const std::string& histoname, const std::string& variable,
 void PlotAlignmentValidation::
 setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo, int direction, int layer)
 {
-  std::pair<float,float> fitResults(9999., 9999.);
+  TF1 *fitResults = 0;
 
   h->SetDirectory(0);
 
@@ -1351,7 +1399,7 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   }
 	  
   //fit histogram for median and mean
-  if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX") {
+  if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX" || plotinfo.variable == "medianY" || plotinfo.variable == "meanY") {
     fitResults = fitGauss(h, linecolor );
   }
 	  
@@ -1362,10 +1410,10 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
   legend << fixed; // to always show 3 decimals
 
   // Legend: header part
-  if (direction == -1 && plotinfo.subDetId != 2) { legend << "rDirection < 0: "; }
-  else if (direction == 1 && plotinfo.subDetId != 2) { legend << "rDirection > 0: "; }
-  else if (direction == -1 && plotinfo.subDetId == 2) { legend << "zDirection < 0: "; }
-  else if (direction == 1 && plotinfo.subDetId == 2) { legend << "zDirection > 0: "; }
+  if (direction == -1 && plotinfo.subDetId != 2) { legend << "rDirection < 0"; }
+  else if (direction == 1 && plotinfo.subDetId != 2) { legend << "rDirection > 0"; }
+  else if (direction == -1 && plotinfo.subDetId == 2) { legend << "zDirection < 0"; }
+  else if (direction == 1 && plotinfo.subDetId == 2) { legend << "zDirection > 0"; }
   else {
     legend  << plotinfo.vars->getName();
     if (layer > 0) {
@@ -1376,22 +1424,73 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
         legend << ", layer ";
       legend << layer << "";
     }
-    legend << ":";
   }
+
+  plotinfo.legend->AddEntry(h, legend.str().c_str(), "l");
+  legend.str("");
 
   // Legend: Statistics
   if (plotinfo.variable == "medianX" || plotinfo.variable == "meanX" ||
-      plotinfo.variable == "medianY" || plotinfo.variable == "meanY") {
-    if (useFit_) {
-      legend << " #mu = " << fitResults.first << " #mum, #sigma = " << fitResults.second << " #mum";
+      plotinfo.variable == "medianY" || plotinfo.variable == "meanY" ||
+      plotinfo.variable == "rmsX"    || plotinfo.variable == "rmsY") {
+    if (useFit_ && fitResults) {
+      if (showMean_)
+      {
+        legend << " #mu = " << fitResults->GetParameter(1)*10000;
+        if (showMeanError_)
+          legend << " #pm " << fitResults->GetParError(1)*10000 << " #mum";
+        if (showRMS_ || showModules_)
+          legend << ", ";
+      }
+      if (showRMS_)
+      {
+        legend << " #sigma = " << fitResults->GetParameter(2)*10000;
+        if (showRMSError_)
+          legend << " #pm " << fitResults->GetParError(2)*10000 << " #mum";
+        if (showModules_)
+          legend << ", ";
+      }
+      delete fitResults;
     } else {
-      legend << " #mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #pm " << h->GetRMSError(1)*10000 << " #mum, " << (int) h->GetEntries() << " modules" ;
+      if (showMean_)
+      {
+        legend << " #mu = " << h->GetMean(1)*10000;
+        if (showMeanError_)
+          legend << " #pm " << h->GetMeanError(1)*10000 << " #mum";
+        if (showRMS_ || showModules_)
+          legend << ", ";
+      }
+      if (showRMS_)
+      {
+        legend << " rms = " << h->GetRMS(1)*10000;
+        if (showRMSError_)
+          legend << " #pm " << h->GetRMSError(1)*10000 << " #mum";
+        if (showModules_)
+          legend << ", ";
+      }
+      if (showModules_)
+        legend << (int) h->GetEntries() << " modules";
     }
-  } else if (plotinfo.variable == "rmsX" || plotinfo.variable == "rmsY") {
-    legend << " #mu = " << h->GetMean(1)*10000 << " #mum, rms = " << h->GetRMS(1)*10000 << " #mum";
   } else if (plotinfo.variable == "meanNormX" || plotinfo.variable == "meanNormY" ||
 	     plotinfo.variable == "rmsNormX" || plotinfo.variable == "rmsNormY") {
-    legend << " #mu = " << h->GetMean(1) << ", rms = " << h->GetRMS(1);
+    if (showMean_)
+    {
+      legend << " #mu = " << h->GetMean(1);
+      if (showMeanError_)
+        legend << " #pm " << h->GetMeanError(1);
+      if (showRMS_ || showModules_)
+        legend << ", ";
+    }
+    if (showRMS_)
+    {
+      legend << " #sigma = " << h->GetRMS(1);
+      if (showRMSError_)
+        legend << " #pm " << h->GetRMSError(1);
+      if (showModules_)
+        legend << ", ";
+    }
+    if (showModules_)
+      legend << (int) h->GetEntries() << " modules";
   }
 
   // Legend: Delta mu for split plots
@@ -1405,10 +1504,12 @@ setDMRHistStyleAndLegend(TH1F* h, PlotAlignmentValidation::DMRPlotInfo& plotinfo
       unit = "";
     }
     float deltamu = factor*(plotinfo.h2->GetMean(1) - plotinfo.h1->GetMean(1));
-    legend << ", #Delta#mu = " << deltamu << unit;
+    if (showMean_ || showRMS_ || showModules_)
+      legend << ", ";
+    legend << "#Delta#mu = " << deltamu << unit;
   }
 
-  plotinfo.legend->AddEntry(h, legend.str().c_str(), "l");
+  plotinfo.legend->AddEntry((TObject*)0, legend.str().c_str(), "");
 
   // Scale the x-axis (cm to um), if needed
   if (plotinfo.variable.find("Norm") == std::string::npos)
@@ -1440,8 +1541,12 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
   // Add mean-y-values to the legend and scale the histograms.
 
   Double_t legendY = 0.80;
-  if (hs->GetHists()->GetSize() > 3)
-    legendY -= 0.01 * (hs->GetHists()->GetSize() - 3);
+  bool hasheader = (TkAlStyle::legendheader != "");
+  if (hasheader) legend->SetHeader(TkAlStyle::legendheader);
+  int legendsize = hs->GetHists()->GetSize() + hasheader;
+
+  if (legendsize > 3)
+    legendY -= 0.01 * (legendsize - 3);
   if (legendY < 0.6) {
     std::cerr << "Warning: Huge legend!" << std::endl;
     legendY = 0.6;
@@ -1451,7 +1556,7 @@ void PlotAlignmentValidation::modifySSHistAndLegend(THStack* hs, TLegend* legend
   // Loop over all profiles
   TProfile* prof = 0;
   TIter next(hs->GetHists());
-  Int_t index = 0;
+  Int_t index = hasheader;  //if hasheader, first entry is the header itself
   while ((prof = (TProfile*)next())) {
     //Scaling: from cm to um
     Double_t scale = 10000;
