@@ -93,7 +93,6 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
     else
       throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm :")
 	<<"Not a pixel detector"<<endl;
-
   if ( thePixelResolutionFile2) {
     thePixelResolutionFile2->Close();
     delete thePixelResolutionFile2;
@@ -114,10 +113,9 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitC
     delete it->second;
   for ( it=theYHistos.begin(); it!=theYHistos.end(); ++it )
     delete it->second;
-
   theXHistos.clear();
   theYHistos.clear();
-
+  
 }
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
@@ -139,7 +137,6 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   float locx = localDir.x();
   float locy = localDir.y();
   float locz = localDir.z();
-
   // alpha: angle with respect to local x axis in local (x,z) plane
   float cotalpha = locx/locz;
   if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
@@ -154,8 +151,6 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
     if( cotbeta < 0 ) sign=-1.;
     cotbeta = sign*cotbeta;
   }
-
-
   //
 #ifdef FAMOS_DEBUG
   std::cout << " Local Direction " << simHit.localDirection()
@@ -163,7 +158,6 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	    << " cotbeta(y) = "  << cotbeta
 	    << std::endl;
 #endif
-
   const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
   const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(theSpecificTopology);
 
@@ -181,7 +175,6 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 #ifdef FAMOS_DEBUG
   cout<<"Struck pixel center at pitch units x: "<<pixelCenterX<<" y: "<<pixelCenterY<<endl;
 #endif
-
   const MeasurementPoint mpCenter(pixelCenterX, pixelCenterY);
   //Transform the center of the struck pixel back into local position
   const Local3DPoint lpCenter = rectPixelTopology->localPosition( mpCenter );
@@ -190,7 +183,6 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   cout<<"Struck pixel center at cm x: "<<lpCenter.x()<<" y: "<<lpCenter.y()<<endl;
   cout<<"The boundX is "<<boundX<<" boundY is "<<boundY<<endl;
 #endif
-
   //Get the relative position of struck point to the center of the struck pixel
   float xtrk = lp.x() - lpCenter.x();
   float ytrk = lp.y() - lpCenter.y();
@@ -440,18 +432,18 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	      theXHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
 	    else{
 	      theXHistN = cotbetaHistBin * 10 + cotalphaHistBin;
-	      //	   theXHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	      //theXHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
 	    }
 	  else{
 	    theXHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 +  (nqbin+1);
-	    // theXHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+	    //theXHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
 	  }
 	  if( singley )
 	    if( hitbigy )
 	      theYHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
 	    else{
 	      theYHistN = cotbetaHistBin * 10 + cotalphaHistBin;
-	      //  	   theYHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	      //theYHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
 	    }
 	  else{
 	    theYHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 + (nqbin+1);
