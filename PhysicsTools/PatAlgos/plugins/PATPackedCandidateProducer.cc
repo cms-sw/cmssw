@@ -246,10 +246,12 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
            if ( puppiWeightNoLep.isValid() ) {
              // Look for the pointer inside the "no lepton" candidate collection.
              auto foundNoLep = puppiCandsNoLep->end();
+             auto pkrefPtr = pkref->sourceCandidatePtr(0);
              for ( auto s = puppiCandsNoLep->begin(),  s_end = puppiCandsNoLep->end(); s != s_end; ++s ) {       
-               if ( s->sourceCandidatePtr(0) == pkref->sourceCandidatePtr(0) ) {
+               if ( s->sourceCandidatePtr(0) == pkrefPtr ) {
                 foundNoLep = s;
                 puppiWeightNoLepVal = s->pt()/cand.pt(); // a hack for now, should use the value map
+                break;
               }
             }
             if ( foundNoLep == puppiCandsNoLep->end() || puppiWeightNoLepVal > 1 ) {
