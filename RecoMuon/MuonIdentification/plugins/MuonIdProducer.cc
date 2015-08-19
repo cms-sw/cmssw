@@ -378,6 +378,9 @@ bool MuonIdProducer::isGoodTrack( const reco::Track& track )
       return false;
    }
 
+   // Track status
+   if ( track.innerMomentum().Rho() == 0 or track.outerMomentum().Rho() == 0 ) return false;
+
    // Eta requirement
    if ( fabs(track.eta()) > maxAbsEta_ ){
       LogTrace("MuonIdentification") << "Skipped track with large pseudo rapidity (Eta: " << track.eta() << " )";
