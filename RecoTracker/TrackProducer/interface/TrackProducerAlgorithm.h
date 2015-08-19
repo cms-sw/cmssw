@@ -51,18 +51,16 @@ public:
 
   /// Constructor
   TrackProducerAlgorithm(const edm::ParameterSet& conf) : 
-    conf_(conf),
-    algoName_(conf_.getParameter<std::string>( "AlgorithmName" )),
-    algo_(reco::TrackBase::algoByName(algoName_)),
+    algo_(reco::TrackBase::algoByName(conf.getParameter<std::string>("AlgorithmName"))),
     reMatchSplitHits_(false),
     usePropagatorForPCA_(false)
       {
-        geometricInnerState_ = (conf_.exists("GeometricInnerState") ?
-	  conf_.getParameter<bool>( "GeometricInnerState" ) : true);
-	if (conf_.exists("reMatchSplitHits"))
-	  reMatchSplitHits_=conf_.getParameter<bool>("reMatchSplitHits");
-        if (conf_.exists("usePropagatorForPCA"))
-          usePropagatorForPCA_ = conf_.getParameter<bool>("usePropagatorForPCA");
+        geometricInnerState_ = (conf.exists("GeometricInnerState") ?
+	  conf.getParameter<bool>( "GeometricInnerState" ) : true);
+	if (conf.exists("reMatchSplitHits"))
+	  reMatchSplitHits_=conf.getParameter<bool>("reMatchSplitHits");
+        if (conf.exists("usePropagatorForPCA"))
+          usePropagatorForPCA_ = conf.getParameter<bool>("usePropagatorForPCA");
       }
 
   /// Destructor
@@ -135,8 +133,6 @@ public:
 
 
  private:
-  edm::ParameterSet conf_;  
-  std::string algoName_;
   reco::TrackBase::TrackAlgorithm algo_;
   bool reMatchSplitHits_;
   bool geometricInnerState_;
