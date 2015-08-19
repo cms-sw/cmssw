@@ -1,6 +1,6 @@
 <config name="top" version="1">
  <config name="EventItems" version="1">
-  <config name="ECal" version="4">
+  <config name="ECal" version="6">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
    </config>
@@ -31,8 +31,10 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+   </config>
   </config>
-  <config name="HCal" version="4">
+  <config name="HCal" version="6">
    <config name="type" version="0">
      <string>edm::SortedCollection&lt;CaloTower,edm::StrictWeakOrdering&lt;CaloTower&gt; &gt;</string>
    </config>
@@ -63,13 +65,15 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+   </config>
   </config>
   <config name="Jets" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::PFJet&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>ak5PFJets</string>
+     <string>ak4PFJetsCHS</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
@@ -95,8 +99,21 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="Draw Labels in RhoPhi View" version="0">
+       <string>0</string>
+     </config>
+     <config name="Draw Labels in RhoZ View" version="0">
+       <string>0</string>
+     </config>
+     <config name="Label Offset" version="0">
+       <string>2.1</string>
+     </config>
+    </config>
+   </config>
   </config>
-  <config name="Tracks" version="4">
+  <config name="Tracks" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Track&gt;</string>
    </config>
@@ -127,8 +144,15 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="LineWidth" version="0">
+       <string>1</string>
+     </config>
+    </config>
+   </config>
   </config>
-  <config name="Muons" version="4">
+  <config name="Muons" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Muon&gt;</string>
    </config>
@@ -159,13 +183,20 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="LineWidth" version="0">
+       <string>1</string>
+     </config>
+    </config>
+   </config>
   </config>
-  <config name="Electrons" version="4">
+  <config name="Electrons" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::GsfElectron&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>gsfElectrons</string>
+     <string>gedGsfElectrons</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
@@ -191,8 +222,10 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+   </config>
   </config>
-  <config name="Vertices" version="4">
+  <config name="Vertices" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Vertex&gt;</string>
    </config>
@@ -223,8 +256,27 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="Draw Tracks" version="0">
+       <string>0</string>
+     </config>
+     <config name="Draw Pseudo Track" version="0">
+       <string>0</string>
+     </config>
+     <config name="Draw Ellipse" version="0">
+       <string>0</string>
+     </config>
+     <config name="Scale Ellipse" version="0">
+       <string>2</string>
+     </config>
+     <config name="Ellipse Color Index" version="0">
+       <string>6</string>
+     </config>
+    </config>
+   </config>
   </config>
-  <config name="BeamSpot" version="5">
+  <config name="BeamSpot" version="6">
    <config name="type" version="0">
      <string>reco::BeamSpot</string>
    </config>
@@ -255,8 +307,10 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+   </config>
   </config>
-  <config name="DT-segments" version="4">
+  <config name="DT-segments" version="6">
    <config name="type" version="0">
      <string>edm::RangeMap&lt;DTChamberId,edm::OwnVector&lt;DTRecSegment4D,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;,edm::ClonePolicy&lt;DTRecSegment4D&gt; &gt;</string>
    </config>
@@ -287,8 +341,10 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+   </config>
   </config>
-  <config name="CSC-segments" version="4">
+  <config name="CSC-segments" version="6">
    <config name="type" version="0">
      <string>edm::RangeMap&lt;CSCDetId,edm::OwnVector&lt;CSCSegment,edm::ClonePolicy&lt;CSCSegment&gt; &gt;,edm::ClonePolicy&lt;CSCSegment&gt; &gt;</string>
    </config>
@@ -319,13 +375,15 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+   </config>
   </config>
-  <config name="Photons" version="4">
+  <config name="Photons" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::Photon&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>photons</string>
+     <string>gedPhotons</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
@@ -351,13 +409,15 @@
    <config name="transparency" version="0">
      <string>0</string>
    </config>
+   <config name="PBConfig" version="1">
+   </config>
   </config>
-  <config name="MET" version="4">
+  <config name="MET" version="6">
    <config name="type" version="0">
-     <string>std::vector&lt;reco::MET&gt;</string>
+     <string>std::vector&lt;reco::PFMET&gt;</string>
    </config>
    <config name="moduleLabel" version="0">
-     <string>tcMet</string>
+     <string>pfMet</string>
    </config>
    <config name="productInstanceLabel" version="0">
      <string></string>
@@ -382,6 +442,8 @@
    </config>
    <config name="transparency" version="0">
      <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
    </config>
   </config>
   <config name="Conversions" version="6">
@@ -414,6 +476,8 @@
    </config>
    <config name="transparency" version="0">
      <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
    </config>
   </config>
  </config>

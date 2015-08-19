@@ -126,7 +126,7 @@ class MEtoEDM
        std::cout << "WARNING MEtoEDM::mergeProducts(): adding new histogram '" << name << "'" << std::endl;
 #endif
        MEtoEdmObject.push_back(newMEtoEDMObject[i]);
-     } else if (MEtoEdmObject[j].object.TestBit(TH1::kCanRebin) == true && newMEtoEDMObject[i].object.TestBit(TH1::kCanRebin) == true) {
+     } else if (MEtoEdmObject[j].object.CanExtendAllAxes() && newMEtoEDMObject[i].object.CanExtendAllAxes()) {
        TList list;
        list.Add((TObject*)&newMEtoEDMObject[i].object);
        if (MEtoEdmObject[j].object.Merge(&list) == -1) {

@@ -790,7 +790,7 @@ TrackListMerger::~TrackListMerger() { }
 	TrajTrackAssociationCollection::const_iterator match = hTTAss1->find(trajRef);
 	if (match != hTTAss1->end()) {
 	  const edm::Ref<reco::TrackCollection> &trkRef = match->val;
-	  short oldKey = trackCollFirsts[ti]+static_cast<short>(trkRef.key());
+	  uint32_t oldKey = trackCollFirsts[ti]+static_cast<uint32_t>(trkRef.key());
 	  if (trackRefs[oldKey].isNonnull()) {
 	    outputTrajs->push_back( *trajRef );
 	    //if making extras and the seeds at the same time, change the seed ref on the trajectory

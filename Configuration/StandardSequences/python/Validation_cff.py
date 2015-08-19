@@ -32,7 +32,7 @@ from Validation.RecoParticleFlow.miniAODValidation_cff import *
 prevalidation = cms.Sequence( globalPrevalidation * hltassociation * metPreValidSeq * jetPreValidSeq )
 prevalidationLiteTracking = cms.Sequence( prevalidation )
 prevalidationLiteTracking.replace(globalPrevalidation,globalPrevalidationLiteTracking)
-prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * JetValidationMiniAOD * type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD )
+prevalidationMiniAOD = cms.Sequence( genParticles1 * miniAODValidationSequence * JetValidationMiniAOD * type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD * METValidationMiniAOD )
 
 
 validation = cms.Sequence(cms.SequencePlaceholder("mix")

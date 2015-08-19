@@ -126,6 +126,7 @@ public:
    ///Allowed values are -1 or ones from FWDataCategories enum
    void showEDIFrame(int iInfoToShow=-1);
    
+   void open3DRegion();
    void showCommonPopup();
    
    void createModelPopup();

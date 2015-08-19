@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 
 
-# dump of the Stream A Datasets defined in the HLT table as Stream A Datasets
+# dump of the Stream PhysicsEGammaCommissioning Datasets defined in the HLT table as Stream A Datasets
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCastorJets_selector
 streamA_datasetCastorJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -159,22 +159,17 @@ streamA_datasetHighMultiplicity_selector.triggerConditions = cms.vstring('HLT_Pi
     'HLT_PixelTracks_Multiplicity60_v2', 
     'HLT_PixelTracks_Multiplicity85_v2')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetInitialPDForHI_selector
-streamA_datasetInitialPDForHI_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetInitialPDForHI_selector.l1tResults = cms.InputTag('')
-streamA_datasetInitialPDForHI_selector.throw      = cms.bool(False)
-streamA_datasetInitialPDForHI_selector.triggerConditions = cms.vstring('HLT_HIL1DoubleMu0_v1', 
-    'HLT_HIL2DoubleMu0_v2', 
-    'HLT_HIL2Mu3_v2', 
-    'HLT_HIL3Mu3_v2')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetL1MinimumBias_selector
 streamA_datasetL1MinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetL1MinimumBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetL1MinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetL1MinimumBias_selector.triggerConditions = cms.vstring('HLT_L1MinimumBiasHF1AND_v1', 
+streamA_datasetL1MinimumBias_selector.triggerConditions = cms.vstring('HLT_L1MinimumBiasHF1AND_NoBptxGate_v1', 
+    'HLT_L1MinimumBiasHF1AND_v1', 
+    'HLT_L1MinimumBiasHF1OR_NoBptxGate_v1', 
     'HLT_L1MinimumBiasHF1OR_v1', 
+    'HLT_L1MinimumBiasHF2AND_NoBptxGate_v1', 
     'HLT_L1MinimumBiasHF2AND_v1', 
+    'HLT_L1MinimumBiasHF2OR_NoBptxGate_v1', 
     'HLT_L1MinimumBiasHF2OR_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetNoBPTX_selector
@@ -186,19 +181,12 @@ streamA_datasetNoBPTX_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPT
     'HLT_JetE50_NoBPTX3BX_NoHalo_v2', 
     'HLT_JetE70_NoBPTX3BX_NoHalo_v2')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSingleMuon_selector
-streamA_datasetSingleMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetSingleMuon_selector.l1tResults = cms.InputTag('')
-streamA_datasetSingleMuon_selector.throw      = cms.bool(False)
-streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_L1SingleMuOpen_DT_v1', 
-    'HLT_L1SingleMuOpen_v1')
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_minBias_selector
 streamA_datasetTOTEM_minBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetTOTEM_minBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetTOTEM_minBias_selector.throw      = cms.bool(False)
 streamA_datasetTOTEM_minBias_selector.triggerConditions = cms.vstring('HLT_L1TOTEM1_MinBias_v1', 
-    'HLT_L1TOTEM3_ZeroBias_v1')
+    'HLT_L1TOTEM2_ZeroBias_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots_selector
 streamA_datasetTOTEM_romanPots_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

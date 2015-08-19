@@ -641,7 +641,7 @@ float y=predTrajState.globalPosition().y();
 	    ++nmissing;
 		
 	  if (pxd!=theSiPixelStructure.end() && passedFiducial && (isHitValid || isHitMissing))
-	    (*pxd).second->fill(ltp, isHitValid, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 	
+	    (*pxd).second->fill(pTT,ltp, isHitValid, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 	
 
 	  //}//end if (persistent hit exists and is pixel hit)
 	  

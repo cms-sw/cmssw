@@ -42,7 +42,8 @@ namespace {
   typedef std::list< reco::PFBlockRef >::iterator IBR;
 }
 
-PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig):
+PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig,
+                                   const pfEGHelpers::HeavyObjectCache*):
   primaryVertex_(reco::Vertex()),
   ebeeClustersCollection_("EBEEClusters"),
   esClustersCollection_("ESClusters") {
@@ -111,17 +112,11 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig):
 
   
   algo_config. mvaWeightFileEleID
-    = iConfig.getParameter<std::string>("pf_electronID_mvaWeightFile");
+    = iConfig.getParameter<edm::FileInPath>("pf_electronID_mvaWeightFile").fullPath();
 
   algo_config.applyCrackCorrections
     = iConfig.getParameter<bool>("pf_electronID_crackCorrection");
-  
-  std::string path_mvaWeightFileEleID;
-
-  algo_config.mvaWeightFileEleID = 
-    edm::FileInPath ( algo_config.mvaWeightFileEleID.c_str() ).fullPath();
-     
-
+    
   //PFPhoton Configuration
 
   std::string path_mvaWeightFileConvID;
@@ -132,10 +127,8 @@ PFEGammaProducer::PFEGammaProducer(const edm::ParameterSet& iConfig):
   std::string path_mvaWeightFileRes;
 
   algo_config.mvaweightfile =
-    iConfig.getParameter<std::string>("pf_convID_mvaWeightFile");
-  algo_config.mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");
-  algo_config.mvaweightfile = 
-    edm::FileInPath ( algo_config.mvaweightfile.c_str() ).fullPath();  
+    iConfig.getParameter<edm::FileInPath>("pf_convID_mvaWeightFile").fullPath();
+  algo_config.mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");  
   algo_config.sumPtTrackIsoForPhoton = 
     iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
   algo_config.sumPtTrackIsoSlopeForPhoton = 
@@ -207,7 +200,9 @@ PFEGammaProducer::beginRun(const edm::Run & run,
                      const edm::EventSetup & es) 
 {
 
+  /* // kept for historical reasons
   if(useRegressionFromDB_) {
+    
     edm::ESHandle<GBRForest> readerPFLCEB;
     edm::ESHandle<GBRForest> readerPFLCEE;    
     edm::ESHandle<GBRForest> readerPFGCEB;
@@ -227,11 +222,11 @@ PFEGammaProducer::beginRun(const edm::Run & run,
     es.get<GBRWrapperRcd>().get("PFEcalResolution",readerPFRes);
     ReaderEcalRes_=readerPFRes.product();
 
-    /*
+    
     LogDebug("PFEGammaProducer")<<"setting regressions from DB "<<std::endl;
-    */
+    
   } 
-
+  */
 
   //pfAlgo_->setPFPhotonRegWeights(ReaderLC_, ReaderGC_, ReaderRes_);
     
@@ -367,7 +362,7 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     // keep track of the elements which are still active.
     std::vector<bool> active( elements.size(), true );      
     
-    pfeg_->RunPFEG(blockref,active);
+    pfeg_->RunPFEG(globalCache(),blockref,active);
 
     if( pfeg_->getCandidates().size() ) {
       LOGDRESSED("PFEGammaProducer")

@@ -7,7 +7,7 @@ class TGLabel;
 class TGCheckButton;
 class TGComboBox;
 
-class FWEventSelector;
+struct FWEventSelector;
 class FWHLTValidator;
 class FWCustomIconsButton;
 class FWGUIValidatingTextEntry;

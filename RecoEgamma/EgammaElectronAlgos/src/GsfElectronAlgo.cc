@@ -87,8 +87,8 @@ struct GsfElectronAlgo::GeneralData
   ElectronHcalHelper * hcalHelper, * hcalHelperPflow ;
   EcalClusterFunctionBaseClass * superClusterErrorFunction ;
   EcalClusterFunctionBaseClass * crackCorrectionFunction ;
-  SoftElectronMVAEstimator *sElectronMVAEstimator;
-  ElectronMVAEstimator *iElectronMVAEstimator;
+  //SoftElectronMVAEstimator *sElectronMVAEstimator;
+  //ElectronMVAEstimator *iElectronMVAEstimator;
   const RegressionHelper::Configuration regCfg;
   RegressionHelper * regHelper;
  } ;
@@ -104,9 +104,8 @@ struct GsfElectronAlgo::GeneralData
    const EcalRecHitsConfiguration & recHitsConfig,
    EcalClusterFunctionBaseClass * superClusterErrorFunc,
    EcalClusterFunctionBaseClass * crackCorrectionFunc,
-   const SoftElectronMVAEstimator::Configuration & mva_NIso_Config,
-   const ElectronMVAEstimator::Configuration & mva_Iso_Config,
-
+   const SoftElectronMVAEstimator::Configuration & /*mva_NIso_Config*/,
+   const ElectronMVAEstimator::Configuration & /*mva_Iso_Config*/,
    const RegressionHelper::Configuration & regConfig
    )
  : inputCfg(inputConfig),
@@ -119,8 +118,8 @@ struct GsfElectronAlgo::GeneralData
    hcalHelperPflow(new ElectronHcalHelper(hcalConfigPflow)),
    superClusterErrorFunction(superClusterErrorFunc),
    crackCorrectionFunction(crackCorrectionFunc),
-   sElectronMVAEstimator(new SoftElectronMVAEstimator(mva_NIso_Config)),
-   iElectronMVAEstimator(new ElectronMVAEstimator(mva_Iso_Config)),
+   //sElectronMVAEstimator(new SoftElectronMVAEstimator(mva_NIso_Config)),
+   //iElectronMVAEstimator(new ElectronMVAEstimator(mva_Iso_Config)),
    regCfg(regConfig),
    regHelper(new RegressionHelper(regConfig))
   {}
@@ -129,8 +128,8 @@ GsfElectronAlgo::GeneralData::~GeneralData()
  {
   delete hcalHelper ;
   delete hcalHelperPflow ;
-  delete sElectronMVAEstimator;
-  delete iElectronMVAEstimator;
+  //delete sElectronMVAEstimator;
+  //delete iElectronMVAEstimator;
   delete regHelper;
  }
 
@@ -868,7 +867,7 @@ void GsfElectronAlgo::displayInternalElectrons( const std::string & title ) cons
   LogTrace("GsfElectronAlgo") << "=================================================";
  }
 
-void GsfElectronAlgo::completeElectrons()
+void GsfElectronAlgo::completeElectrons(const gsfAlgoHelpers::HeavyObjectCache* hoc)
  {
   if (electronData_!=0)
    { throw cms::Exception("GsfElectronAlgo|InternalError")<<"unexpected electron data" ; }
@@ -903,7 +902,7 @@ void GsfElectronAlgo::completeElectrons()
     // calculate and check Trajectory StatesOnSurface....
     if ( !electronData_->calculateTSOS( eventSetupData_->mtsTransform, eventSetupData_->constraintAtVtx ) ) continue ;
 
-    createElectron() ;
+    createElectron(hoc) ;
 
    } // loop over tracks
 
@@ -1181,7 +1180,8 @@ void GsfElectronAlgo::setMVAInputs(const std::map<reco::GsfTrackRef,reco::GsfEle
     }
 }
 
-void GsfElectronAlgo::setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs)
+void GsfElectronAlgo::setMVAOutputs(const gsfAlgoHelpers::HeavyObjectCache* hoc,
+                                    const std::map<reco::GsfTrackRef,reco::GsfElectron::MvaOutput> & mvaOutputs)
 {
   GsfElectronPtrCollection::iterator el ;
   for
@@ -1190,8 +1190,8 @@ void GsfElectronAlgo::setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfEl
       el++ )
     {
 	if(generalData_->strategyCfg.gedElectronMode==true){
-		float mva_NIso_Value=	generalData_->sElectronMVAEstimator->mva( *(*el),*(eventData_->event));
-		float mva_Iso_Value =   generalData_->iElectronMVAEstimator->mva( *(*el), eventData_->vertices->size() );
+                float mva_NIso_Value=	hoc->sElectronMVAEstimator->mva( *(*el), *(eventData_->vertices));
+		float mva_Iso_Value =   hoc->iElectronMVAEstimator->mva( *(*el), eventData_->vertices->size() );
 	        GsfElectron::MvaOutput mvaOutput ;
 	        mvaOutput.mva_e_pi = mva_NIso_Value ;
 		mvaOutput.mva_Isolated = mva_Iso_Value ;
@@ -1204,7 +1204,7 @@ void GsfElectronAlgo::setMVAOutputs(const std::map<reco::GsfTrackRef,reco::GsfEl
     }
 }
 
-void GsfElectronAlgo::createElectron()
+void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc)
  {
   // eventually check ctf track
   if (generalData_->strategyCfg.ctfTracksCheck)
@@ -1475,7 +1475,7 @@ void GsfElectronAlgo::createElectron()
   //this is for GedGsfElectrons, GsfElectrons (ie old pre 7X std reco) resets this later on
   //in the function "addPfInfo"
   //yes this is awful, we'll fix it once we work out how to...
-  float mvaValue=generalData_->sElectronMVAEstimator->mva( *(ele),*(eventData_->event));
+  float mvaValue = hoc->sElectronMVAEstimator->mva( *(ele),*(eventData_->vertices));
   ele->setPassMvaPreselection(mvaValue>generalData_->strategyCfg.PreSelectMVA);
 
   //====================================================

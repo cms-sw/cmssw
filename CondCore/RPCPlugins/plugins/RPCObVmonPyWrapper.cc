@@ -303,7 +303,7 @@ namespace cond {
     gStyle->SetPalette(1);
 
     TH1D *vDistr=new TH1D("vDistr","IOV-averaged HV Distribution;Average HV (V);Entries/0.2 #muA",100,5000.,10000.);
-    TH1D *rmsDistr=new TH1D("rmsDistr","RMS over IOV-HV Distribution;HV RMS (V);Entries/0.2 #muA",1000,0.,1000.);//rmsDistr->SetBit(TH1::kCanRebin);
+    TH1D *rmsDistr=new TH1D("rmsDistr","RMS over IOV-HV Distribution;HV RMS (V);Entries/0.2 #muA",1000,0.,1000.);//rmsDistr->SetCanExtend(TH1::kAllAxes);
 
     //BEGIN OF NEW DB-SESSION PART
     //hardcoded values

@@ -10,19 +10,19 @@ echo Start $0 $1 $2
 if ( $2 == "" ) then
   set tables = ( GRun 50nsGRun )
 else if ( $2 == ALL ) then
-  set tables = ( GRun 50nsGRun HIon PIon LowPU 25ns14e33_v1 50ns_5e33_v1 Fake )
+  set tables = ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
 else if ( $2 == IB ) then
-  set tables = ( GRun 50nsGRun HIon PIon LowPU )
+  set tables = ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU )
 else if ( $2 == DEV ) then
-  set tables = ( GRun 50nsGRun HIon PIon LowPU )
+  set tables = ( GRun 50nsGRun HIon PIon 25nsLowPU LowPU )
 else if ( $2 == LOWPU ) then
-  set tables = ( LowPU )
+  set tables = ( 25nsLowPU LowPU )
 else if ( $2 == FULL ) then
   set tables = ( FULL )
 else if ( $2 == FAKE ) then
   set tables = ( Fake )
 else if ( $2 == FROZEN ) then
-  set tables = ( 25ns14e33_v1 50ns_5e33_v1 Fake )
+  set tables = ( 25ns14e33_v3 50ns_5e33_v3 25ns14e33_v1 50ns_5e33_v1 Fake )
 else
   set tables = ( $2 )
 endif

@@ -37,10 +37,8 @@
 using namespace std;
 using namespace edm;
 using namespace reco;
-PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
-  conf_(iConfig),
-  pfTransformer_(0),
-  convBremFinder_(0)
+PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig, const convbremhelpers::HeavyObjectCache*):
+  conf_(iConfig)
 {
   
 
@@ -96,26 +94,11 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
   mvaConvBremFinderIDEndcapsLowPt_ = iConfig.getParameter<double>("pf_convBremFinderID_mvaCutEndcapsLowPt");
   mvaConvBremFinderIDEndcapsHighPt_ = iConfig.getParameter<double>("pf_convBremFinderID_mvaCutEndcapsHighPt");
   
-  string mvaWeightFileConvBremBarrelLowPt  = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFileBarrelLowPt");
-  string mvaWeightFileConvBremBarrelHighPt  = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFileBarrelHighPt");
-  string mvaWeightFileConvBremEndcapsLowPt  = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFileEndcapsLowPt");
-  string mvaWeightFileConvBremEndcapsHighPt = iConfig.getParameter<string>("pf_convBremFinderID_mvaWeightFileEndcapsHighPt");
-  
-  if(useConvBremFinder_) {
-    path_mvaWeightFileConvBremBarrelLowPt_ = edm::FileInPath ( mvaWeightFileConvBremBarrelLowPt.c_str() ).fullPath();
-    path_mvaWeightFileConvBremBarrelHighPt_ = edm::FileInPath ( mvaWeightFileConvBremBarrelHighPt.c_str() ).fullPath();
-    path_mvaWeightFileConvBremEndcapsLowPt_ = edm::FileInPath ( mvaWeightFileConvBremEndcapsLowPt.c_str() ).fullPath();
-    path_mvaWeightFileConvBremEndcapsHighPt_ = edm::FileInPath ( mvaWeightFileConvBremEndcapsHighPt.c_str() ).fullPath();
-  }
 }
 
 
 PFElecTkProducer::~PFElecTkProducer()
-{
- 
-  delete pfTransformer_;
-  delete convBremFinder_;
-}
+{ }
 
 
 //
@@ -156,16 +139,12 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //Primary Vertexes
   Handle<reco::VertexCollection> thePrimaryVertexColl;
   iEvent.getByToken(primVtxLabel_,thePrimaryVertexColl);
-
-
-
+  
   // Displaced Vertex
   Handle< reco::PFDisplacedTrackerVertexCollection > pfNuclears; 
   if( useNuclear_ ) 
     iEvent.getByToken(pfNuclear_, pfNuclears);
-    
-    
-
+  
   // Conversions 
   Handle< reco::PFConversionCollection > pfConversions;
   if( useConversions_ ) 
@@ -298,6 +277,7 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	// Find kf tracks from converted brem photons
 	if(convBremFinder_->foundConvBremPFRecTrack(thePfRecTrackCollection,thePrimaryVertexColl,
 						    pfNuclears,pfConversions,pfV0,
+                                                    globalCache(),
 						    useNuclear_,useConversions_,useV0_,
 						    theEcalClusters,selGsfPFRecTracks[ipfgsf])) {
 	  const vector<PFRecTrackRef>& convBremPFRecTracks(convBremFinder_->getConvBremPFRecTracks());
@@ -1162,47 +1142,19 @@ PFElecTkProducer::beginRun(const edm::Run& run,
   ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
+  mtsTransform_ = MultiTrajectoryStateTransform(tracker.product(),magneticField.product());  
 
-  mtsTransform_ = MultiTrajectoryStateTransform(tracker.product(),magneticField.product());
-  
-
-  pfTransformer_= new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0))));
-  
+  pfTransformer_.reset( new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0,0,0)))) );  
   
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   TransientTrackBuilder thebuilder = *(builder.product());
   
-
-  if(useConvBremFinder_) {
-    vector <TString> weightfiles; 
-    weightfiles.push_back(path_mvaWeightFileConvBremBarrelLowPt_.c_str()); 
-    weightfiles.push_back(path_mvaWeightFileConvBremBarrelHighPt_.c_str()); 
-    weightfiles.push_back(path_mvaWeightFileConvBremEndcapsLowPt_.c_str()); 
-    weightfiles.push_back(path_mvaWeightFileConvBremEndcapsHighPt_.c_str()); 
-    for(uint iter = 0;iter<weightfiles.size();iter++){
-      FILE * fileConvBremID = fopen(weightfiles[iter],"r"); 
-      if (fileConvBremID) {
-	fclose(fileConvBremID);
-      }
-      else {
-	string err = "PFElecTkProducer: cannot open weight file '";
-	err += weightfiles[iter];
-	err += "'";
-	throw invalid_argument( err );
-      }
-    }
-
-  }
-  convBremFinder_ = new ConvBremPFTrackFinder(thebuilder,
-					      mvaConvBremFinderIDBarrelLowPt_,
-					      mvaConvBremFinderIDBarrelHighPt_,
-					      mvaConvBremFinderIDEndcapsLowPt_, 
-					      mvaConvBremFinderIDEndcapsHighPt_,
-					      path_mvaWeightFileConvBremBarrelLowPt_,
-					      path_mvaWeightFileConvBremBarrelHighPt_,
-					      path_mvaWeightFileConvBremEndcapsLowPt_,
-					      path_mvaWeightFileConvBremEndcapsHighPt_);
+  convBremFinder_.reset( new ConvBremPFTrackFinder(thebuilder,
+                                                   mvaConvBremFinderIDBarrelLowPt_,
+                                                   mvaConvBremFinderIDBarrelHighPt_,
+                                                   mvaConvBremFinderIDEndcapsLowPt_, 
+                                                   mvaConvBremFinderIDEndcapsHighPt_) );
  
 }
 
@@ -1210,10 +1162,8 @@ PFElecTkProducer::beginRun(const edm::Run& run,
 void 
 PFElecTkProducer::endRun(const edm::Run& run,
 			 const EventSetup& iSetup) {
-  delete pfTransformer_;
-  pfTransformer_=nullptr;
-  delete convBremFinder_;
-  convBremFinder_=nullptr;
+  pfTransformer_.reset();
+  convBremFinder_.reset();
 }
 
 //define this as a plug-in
