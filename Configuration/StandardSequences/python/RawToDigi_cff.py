@@ -15,9 +15,6 @@ dttfDigis = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone()
 import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
 gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
 
-import EventFilter.RctRawToDigi.l1RctHwDigis_cfi
-rctDigis = EventFilter.RctRawToDigi.l1RctHwDigis_cfi.l1RctHwDigis.clone()
-
 import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
 
@@ -58,7 +55,6 @@ tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
 
 RawToDigi = cms.Sequence(csctfDigis
                          +dttfDigis
-                         +rctDigis
                          +gctDigis
                          +gtDigis
                          +gtEvmDigis
@@ -92,7 +88,6 @@ RawToDigi_noTk = cms.Sequence(csctfDigis
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 csctfDigis.producer = 'rawDataCollector'
 dttfDigis.DTTF_FED_Source = 'rawDataCollector'
-rctDigis.inputLabel = 'rawDataCollector'
 gctDigis.inputLabel = 'rawDataCollector'
 gtDigis.DaqGtInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
@@ -113,6 +108,7 @@ def _modifyRawToDigiForStage1Trigger( theProcess ) :
     """
     Modifies the RawToDigi sequence if using the Stage 1 L1 trigger
     """
+    theProcess.load("EventFilter.RctRawToDigi.l1RctHwDigis_cfi")
     theProcess.load("L1Trigger.L1TCommon.l1tRawToDigi_cfi")
     theProcess.load("L1Trigger.L1TCommon.caloStage1LegacyFormatDigis_cfi")
     # Note that this function is applied before the objects in this file are added
@@ -120,7 +116,7 @@ def _modifyRawToDigiForStage1Trigger( theProcess ) :
     # not with "theProcess." in front of them. caloStage1Digis and caloStage1LegacyFormatDigis
     # are an exception because they are not declared in this file but loaded into the
     # process in the "load" statements above.
-    L1RawToDigiSeq = cms.Sequence( gctDigis + theProcess.caloStage1Digis + theProcess.caloStage1LegacyFormatDigis)
+    L1RawToDigiSeq = cms.Sequence( gctDigis + theProcess.rctDigis + theProcess.caloStage1Digis + theProcess.caloStage1LegacyFormatDigis)
     RawToDigi.replace( gctDigis, L1RawToDigiSeq )
 
 # A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
