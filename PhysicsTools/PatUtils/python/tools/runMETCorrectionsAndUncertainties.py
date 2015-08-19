@@ -181,7 +181,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if repro74X is None :
             repro74X = self._defaultParameters['repro74X'].value
         if postfix is None :
-            postfix = self._defaultParameters['potsfix'].value
+            postfix = self._defaultParameters['postfix'].value
 
         self.setParameter('metType',metType),
         self.setParameter('correctionLevel',correctionLevel),
@@ -1199,8 +1199,8 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if not hasattr(process, jetColName):
             process.load("RecoJets.JetProducers.ak4PFJets_cfi")
             
-            if chs:
-                setattr(process, jetColName, getattr(process,"ak4PFJets").clone() )
+            #if chs:
+            setattr(process, jetColName, getattr(process,"ak4PFJets").clone() )
 
             getattr(process, jetColName).src = pfCandColl 
             getattr(process, jetColName).doAreaFastjet = True
