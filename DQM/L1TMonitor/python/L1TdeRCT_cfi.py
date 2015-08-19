@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 l1TdeRCT = cms.EDAnalyzer("L1TdeRCT",
-    rctSourceData = cms.InputTag("rctDigis"),
+    rctSourceData = cms.InputTag("gctDigis"),
     gctSourceData = cms.InputTag("gctDigis"),
     HistFolder = cms.untracked.string('L1TEMU/L1TdeRCT'),
     outputFile = cms.untracked.string(''),
