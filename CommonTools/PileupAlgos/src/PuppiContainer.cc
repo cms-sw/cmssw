@@ -12,6 +12,7 @@ using namespace std;
 using namespace fastjet;
 
 PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
+    fPuppiDiagnostics = iConfig.getParameter<bool>("puppiDiagnostics");
     fApplyCHS        = iConfig.getParameter<bool>("applyCHS");
     fInvert          = iConfig.getParameter<bool>("invertPuppi");    
     fUseExp          = iConfig.getParameter<bool>("useExp");
@@ -198,7 +199,7 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
     for(int i0 = 0; i0 < lNMaxAlgo; i0++) {
         getRMSAvg(i0,fPFParticles,fPFParticles,fChargedPV);
     }
-    getRawAlphas(0,fPFParticles,fPFParticles,fChargedPV);
+    if (fPuppiDiagnostics) getRawAlphas(0,fPFParticles,fPFParticles,fChargedPV);
 
     std::vector<double> pVals;
     for(int i0 = 0; i0 < lNParticles; i0++) {

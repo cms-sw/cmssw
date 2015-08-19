@@ -59,6 +59,7 @@ protected:
     int     getPuppiId   ( float iPt, float iEta);
     double  var_within_R (int iId, const std::vector<fastjet::PseudoJet> & particles, const fastjet::PseudoJet& centre, double R);  
     
+    bool      fPuppiDiagnostics;
     std::vector<RecoObj>   fRecoParticles;
     std::vector<fastjet::PseudoJet> fPFParticles;
     std::vector<fastjet::PseudoJet> fChargedPV;
