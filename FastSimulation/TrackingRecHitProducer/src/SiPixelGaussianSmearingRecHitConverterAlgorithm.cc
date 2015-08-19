@@ -38,9 +38,9 @@ const double microntocm = 0.0001;
 using namespace std;
 
 SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitConverterAlgorithm(
-  const edm::ParameterSet& pset,
-  GeomDetType::SubDetector pixelPart)
-:
+												 const edm::ParameterSet& pset,
+												 GeomDetType::SubDetector pixelPart)
+  :
   pset_(pset),
   thePixelPart(pixelPart)
 {
@@ -51,48 +51,48 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   thePixelResolutionFile2=0;
 
   if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
-     isForward = false;
-     thePixelResolutionFileName1 = pset_.getParameter<string>( "NewPixelBarrelResolutionFile1" );
-     thePixelResolutionFile1 = new
-       TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
-     thePixelResolutionFileName2 =  pset_.getParameter<string>( "NewPixelBarrelResolutionFile2" );
-     thePixelResolutionFile2 = new
-       TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
-     //ALICE
-     thePixelResolutionFileName3 = pset_.getParameter<string>( "NewPixelBarrelResolutionFile3" );
-     thePixelResolutionFile3 = new
-       TFile( edm::FileInPath( thePixelResolutionFileName3 ).fullPath().c_str()  ,"READ");
-     initializeBarrel();
-     tempId = pset_.getParameter<int> ( "templateIdBarrel" );
-     if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
-	 throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm:")
-	 	<<"SiPixel Barrel Template Not Loaded Correctly!"<<endl;
+    isForward = false;
+    thePixelResolutionFileName1 = pset_.getParameter<string>( "NewPixelBarrelResolutionFile1" );
+    thePixelResolutionFile1 = new
+      TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
+    thePixelResolutionFileName2 =  pset_.getParameter<string>( "NewPixelBarrelResolutionFile2" );
+    thePixelResolutionFile2 = new
+      TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
+    //ALICE
+    thePixelResolutionFileName3 = pset_.getParameter<string>( "NewPixelBarrelResolutionFile3" );
+    thePixelResolutionFile3 = new
+      TFile( edm::FileInPath( thePixelResolutionFileName3 ).fullPath().c_str()  ,"READ");
+    initializeBarrel();
+    tempId = pset_.getParameter<int> ( "templateIdBarrel" );
+    if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
+      throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm:")
+	<<"SiPixel Barrel Template Not Loaded Correctly!"<<endl;
 #ifdef  FAMOS_DEBUG
-     cout<<"The Barrel map size is "<<theXHistos.size()<<" and "<<theYHistos.size()<<endl;
+    cout<<"The Barrel map size is "<<theXHistos.size()<<" and "<<theYHistos.size()<<endl;
 #endif
   }
   else
-  if ( thePixelPart == GeomDetEnumerators::PixelEndcap ) {
-     isForward = true;
-     thePixelResolutionFileName1 = pset_.getParameter<string>( "NewPixelForwardResolutionFile" );
-     thePixelResolutionFile1 = new
-       TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
-     //ALICE
-     thePixelResolutionFileName2 = pset_.getParameter<string>( "NewPixelForwardResolutionFile2" );
-     thePixelResolutionFile2 = new
-       TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
-     initializeForward();
-     tempId = pset_.getParameter<int> ( "templateIdForward" );
-     if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
-	 throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm:")
-		<<"SiPixel Forward Template Not Loaded Correctly!"<<endl;
+    if ( thePixelPart == GeomDetEnumerators::PixelEndcap ) {
+      isForward = true;
+      thePixelResolutionFileName1 = pset_.getParameter<string>( "NewPixelForwardResolutionFile" );
+      thePixelResolutionFile1 = new
+	TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
+      //ALICE
+      thePixelResolutionFileName2 = pset_.getParameter<string>( "NewPixelForwardResolutionFile2" );
+      thePixelResolutionFile2 = new
+	TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
+      initializeForward();
+      tempId = pset_.getParameter<int> ( "templateIdForward" );
+      if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
+	throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm:")
+	  <<"SiPixel Forward Template Not Loaded Correctly!"<<endl;
 #ifdef  FAMOS_DEBUG
-     cout<<"The Forward map size is "<<theXHistos.size()<<" and "<<theYHistos.size()<<endl;
+      cout<<"The Forward map size is "<<theXHistos.size()<<" and "<<theYHistos.size()<<endl;
 #endif
-  }
-  else
-     throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm :")
-       <<"Not a pixel detector"<<endl;
+    }
+    else
+      throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm :")
+	<<"Not a pixel detector"<<endl;
 
   if ( thePixelResolutionFile2) {
     thePixelResolutionFile2->Close();
@@ -121,11 +121,11 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitC
 }
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
-  const PSimHit& simHit,
-  const PixelGeomDetUnit* detUnit,
-  const double boundX,
-  const double boundY,
-  RandomEngineAndDistribution const* random)
+							       const PSimHit& simHit,
+							       const PixelGeomDetUnit* detUnit,
+							       const double boundX,
+							       const double boundY,
+							       RandomEngineAndDistribution const* random)
 {
 
 #ifdef FAMOS_DEBUG
@@ -244,8 +244,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   // random multiplicity for alpha and beta
   double qbinProbability = random->flatShoot();
   for(int i = 0; i<4; ++i) {
-     nqbin = i;
-     if(qbinProbability < qbin_frac[i]) break;
+    nqbin = i;
+    if(qbinProbability < qbin_frac[i]) break;
   }
 
   //Store interpolated pixel cluster profile
@@ -256,12 +256,12 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 
   std::vector<double> ytemp(BYSIZE);
   for( int i=0; i<BYSIZE; ++i) {
-     ytemp[i]=(1.-yfrac)*ytempl[ybin][i]+yfrac*ytempl[ybin+1][i];
+    ytemp[i]=(1.-yfrac)*ytempl[ybin][i]+yfrac*ytempl[ybin+1][i];
   }
 
   std::vector<double> xtemp(BXSIZE);
   for(int i=0; i<BXSIZE; ++i) {
-     xtemp[i]=(1.-xfrac)*xtempl[xbin][i]+xfrac*xtempl[xbin+1][i];
+    xtemp[i]=(1.-xfrac)*xtempl[xbin][i]+xfrac*xtempl[xbin+1][i];
   }
 
   //Pixel readout threshold
@@ -274,21 +274,21 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   for( firstY = 0; firstY < BYSIZE; ++firstY ) {
     bool yCluster = ytemp[firstY] > qThreshold ;
     if( yCluster )
-    {
-      offsetY1 = BHY -firstY;
-      break;
-    }
+      {
+	offsetY1 = BHY -firstY;
+	break;
+      }
   }
   for( lastY = firstY; lastY < BYSIZE; ++lastY )
-  {
-    bool yCluster = ytemp[lastY] > qThreshold ;
-    if( !yCluster )
     {
-      lastY = lastY - 1;
-      offsetY2 = lastY - BHY;
-      break;
+      bool yCluster = ytemp[lastY] > qThreshold ;
+      if( !yCluster )
+	{
+	  lastY = lastY - 1;
+	  offsetY2 = lastY - BHY;
+	  break;
+	}
     }
-  }
 
   for( firstX = 0; firstX < BXSIZE; ++firstX )  {
     bool xCluster = xtemp[firstX] > qThreshold ;
@@ -347,10 +347,10 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
       theErrorY = 96.0*microntocm;
     }
     else
-    {
-      theErrorX = 31.0*microntocm;
-      theErrorY = 90.0*microntocm;
-    }
+      {
+	theErrorX = 31.0*microntocm;
+	theErrorY = 90.0*microntocm;
+      }
 
   }
   else {
@@ -392,73 +392,73 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   unsigned int theYHistN;
   //ALICE
   if( !isForward ) {
-     if(edge)
-     {
-       theXHistN = cotalphaHistBin * 1000 + cotbetaHistBin * 10	 +  (nqbin+1);
-       theYHistN = theXHistN;
-     }
-     else
-     {
-       if(singlex)
-       {
-	 if(hitbigx)  theXHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
-	 else   theXHistN = 1 * 10000 + cotbetaHistBin * 10 + cotalphaHistBin ;
-//else 	theXHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
-       }
-       else
-       {
-	 if(hasBigPixelInX)  theXHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
-	 else   theXHistN = 1 * 100000 + 1 * 10000 + cotbetaHistBin * 100 + cotalphaHistBin * 10 + (nqbin+1);
-	 //else 	theXHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
-       }
-       if(singley)
-       {
-	 if(hitbigy)  theYHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
-	 else   theYHistN = 1 * 10000 + cotbetaHistBin * 10 + cotalphaHistBin ;
-	 //	 else 	theYHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
-       }
-       else
-       {
-	 if(hasBigPixelInY)  theYHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
-	 // else 	theYHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
-	 else   theYHistN = 1 * 100000 + 1 * 10000 + cotbetaHistBin * 100 + cotalphaHistBin * 10 + (nqbin+1);
+    if(edge)
+      {
+	theXHistN = cotalphaHistBin * 1000 + cotbetaHistBin * 10	 +  (nqbin+1);
+	theYHistN = theXHistN;
+      }
+    else
+      {
+	if(singlex)
+	  {
+	    if(hitbigx)  theXHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	    else   theXHistN = 1 * 10000 + cotbetaHistBin * 10 + cotalphaHistBin ;
+	    //else 	theXHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	  }
+	else
+	  {
+	    if(hasBigPixelInX)  theXHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	    else   theXHistN = 1 * 100000 + 1 * 10000 + cotbetaHistBin * 100 + cotalphaHistBin * 10 + (nqbin+1);
+	    //else 	theXHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	  }
+	if(singley)
+	  {
+	    if(hitbigy)  theYHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	    else   theYHistN = 1 * 10000 + cotbetaHistBin * 10 + cotalphaHistBin ;
+	    //	 else 	theYHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	  }
+	else
+	  {
+	    if(hasBigPixelInY)  theYHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	    // else 	theYHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	    else   theYHistN = 1 * 100000 + 1 * 10000 + cotbetaHistBin * 100 + cotalphaHistBin * 10 + (nqbin+1);
 
-       }
-     }
+	  }
+      }
   }
   else
-  {
-     if(edge)
-     {
-       theXHistN = cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
-       theYHistN = theXHistN;
-     }
-     else
-     {
-       if( singlex )
-	 if( hitbigx )
-	   theXHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
-	 else{
-       	   theXHistN = cotbetaHistBin * 10 + cotalphaHistBin;
-       //	   theXHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
-	 }
-       else{
-	     theXHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 +  (nqbin+1);
-	     // theXHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
-       }
-       if( singley )
-	 if( hitbigy )
-	   theYHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
-	 else{
- 	   theYHistN = cotbetaHistBin * 10 + cotalphaHistBin;
-       //  	   theYHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
-	 }
-       else{
-			  theYHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 + (nqbin+1);
-			  //theYHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
-       }
-     }
-  }
+    {
+      if(edge)
+	{
+	  theXHistN = cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+	  theYHistN = theXHistN;
+	}
+      else
+	{
+	  if( singlex )
+	    if( hitbigx )
+	      theXHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	    else{
+	      theXHistN = cotbetaHistBin * 10 + cotalphaHistBin;
+	      //	   theXHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	    }
+	  else{
+	    theXHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 +  (nqbin+1);
+	    // theXHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+	  }
+	  if( singley )
+	    if( hitbigy )
+	      theYHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	    else{
+	      theYHistN = cotbetaHistBin * 10 + cotalphaHistBin;
+	      //  	   theYHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	    }
+	  else{
+	    theYHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 + (nqbin+1);
+	    //theYHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+	  }
+	}
+    }
   unsigned int counter = 0;
   do {
     //
@@ -532,63 +532,63 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeBarrel()
 
   // Initialize the barrel histos once and for all, and prepare the random generation
   for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin )
-     for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )  {
-	 unsigned int singleBigPixelHistN = 1 * 100000
-					+ cotalphaHistBin * 100
-					+ cotbetaHistBin ;
-	 theXHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
-	      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singleBigPixelHistN ) ) );
-	 theYHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
-	      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singleBigPixelHistN ) ) );
-	 /*         unsigned int singlePixelHistN = 1 * 100000 + 1 * 1000
-					+ cotalphaHistBin * 100
-					+ cotbetaHistBin ;
-	 theXHistos[singlePixelHistN] = new SimpleHistogramGenerator(
-	      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singlePixelHistN ) ) );
-	 theYHistos[singlePixelHistN] = new SimpleHistogramGenerator(
-	 (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singlePixelHistN ) ) );*/
-	 unsigned int singlePixelHistN = 1 * 10000
-				       + cotbetaHistBin * 10
-				       + cotalphaHistBin ;
-	 theXHistos[singlePixelHistN] = new SimpleHistogramGenerator(
-	  (TH1F*) thePixelResolutionFile3->Get(  Form( "hx%u" , singlePixelHistN ) ) );
-	 theYHistos[singlePixelHistN] = new SimpleHistogramGenerator(
-	  (TH1F*) thePixelResolutionFile3->Get(  Form( "hy%u" , singlePixelHistN ) ) );
+    for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )  {
+      unsigned int singleBigPixelHistN = 1 * 100000
+	+ cotalphaHistBin * 100
+	+ cotbetaHistBin ;
+      theXHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
+								     (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singleBigPixelHistN ) ) );
+      theYHistos[singleBigPixelHistN] = new SimpleHistogramGenerator(
+								     (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singleBigPixelHistN ) ) );
+      /*         unsigned int singlePixelHistN = 1 * 100000 + 1 * 1000
+		 + cotalphaHistBin * 100
+		 + cotbetaHistBin ;
+		 theXHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+		 (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , singlePixelHistN ) ) );
+		 theYHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+		 (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , singlePixelHistN ) ) );*/
+      unsigned int singlePixelHistN = 1 * 10000
+	+ cotbetaHistBin * 10
+	+ cotalphaHistBin ;
+      theXHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+								  (TH1F*) thePixelResolutionFile3->Get(  Form( "hx%u" , singlePixelHistN ) ) );
+      theYHistos[singlePixelHistN] = new SimpleHistogramGenerator(
+								  (TH1F*) thePixelResolutionFile3->Get(  Form( "hy%u" , singlePixelHistN ) ) );
 
-	 for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
-	     unsigned int edgePixelHistN = cotalphaHistBin * 1000
-					+  cotbetaHistBin * 10
-					+  qbinBin;
-	     theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-	      (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hx0%u" ,edgePixelHistN ) ) );
-	     theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-	      (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hy0%u" ,edgePixelHistN ) ) );
-	     unsigned int multiPixelBigHistN = 1 * 1000000 + 1 * 100000
-					   + cotalphaHistBin * 1000
-					   + cotbetaHistBin * 10
-					   + qbinBin;
-	     theXHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
-	      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" ,multiPixelBigHistN ) ) );
-	     theYHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
-	      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" ,multiPixelBigHistN ) ) );
-	     /*             unsigned int multiPixelHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000
-					   + cotalphaHistBin * 1000
-					   + cotbetaHistBin * 10
-					   + qbinBin;
-	     theXHistos[multiPixelHistN] = new SimpleHistogramGenerator(
-	     (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , multiPixelHistN ) ) );
-	     theYHistos[multiPixelHistN] = new SimpleHistogramGenerator(
-	     (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , multiPixelHistN ) ) );*/
-	     unsigned int multiPixelHistN = 1 * 100000 + 1 * 10000
-					 + cotbetaHistBin * 100
-					 + cotalphaHistBin * 10
-					 + qbinBin;
-	     theXHistos[multiPixelHistN] = new SimpleHistogramGenerator(
-	      (TH1F*) thePixelResolutionFile3->Get(  Form( "hx%u" , multiPixelHistN ) ) );
-	     theYHistos[multiPixelHistN] = new SimpleHistogramGenerator(
-	      (TH1F*) thePixelResolutionFile3->Get(  Form( "hy%u" , multiPixelHistN ) ) );
-	  } //end for qbinBin
-     }//end for cotalphaHistBin, cotbetaHistBin
+      for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
+	unsigned int edgePixelHistN = cotalphaHistBin * 1000
+	  +  cotbetaHistBin * 10
+	  +  qbinBin;
+	theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
+								  (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hx0%u" ,edgePixelHistN ) ) );
+	theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
+								  (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hy0%u" ,edgePixelHistN ) ) );
+	unsigned int multiPixelBigHistN = 1 * 1000000 + 1 * 100000
+	  + cotalphaHistBin * 1000
+	  + cotbetaHistBin * 10
+	  + qbinBin;
+	theXHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
+								      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" ,multiPixelBigHistN ) ) );
+	theYHistos[multiPixelBigHistN] = new SimpleHistogramGenerator(
+								      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" ,multiPixelBigHistN ) ) );
+	/*             unsigned int multiPixelHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000
+		       + cotalphaHistBin * 1000
+		       + cotbetaHistBin * 10
+		       + qbinBin;
+		       theXHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+		       (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hx%u" , multiPixelHistN ) ) );
+		       theYHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+		       (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustBPIX/hy%u" , multiPixelHistN ) ) );*/
+	unsigned int multiPixelHistN = 1 * 100000 + 1 * 10000
+	  + cotbetaHistBin * 100
+	  + cotalphaHistBin * 10
+	  + qbinBin;
+	theXHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+								   (TH1F*) thePixelResolutionFile3->Get(  Form( "hx%u" , multiPixelHistN ) ) );
+	theYHistos[multiPixelHistN] = new SimpleHistogramGenerator(
+								   (TH1F*) thePixelResolutionFile3->Get(  Form( "hy%u" , multiPixelHistN ) ) );
+      } //end for qbinBin
+    }//end for cotalphaHistBin, cotbetaHistBin
 }
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeForward()
@@ -606,44 +606,44 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeForward()
 
   // Initialize the forward histos once and for all, and prepare the random generation
   for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin )
-     for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )
-	 for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
-	    unsigned int edgePixelHistN = cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
-	    theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx0%u" ,edgePixelHistN ) ) );
-	    theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy0%u" ,edgePixelHistN ) ) );
-	    /*	    	    	     	    unsigned int PixelHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
-	    theXHistos[PixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,PixelHistN ) ) );
-	    theYHistos[PixelHistN] = new SimpleHistogramGenerator(
-	    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,PixelHistN ) ) );*/
-	     	    	    	    unsigned int PixelHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 +  qbinBin;
-	    theXHistos[PixelHistN] = new SimpleHistogramGenerator(
-	     (TH1F*) thePixelResolutionFile2->Get(  Form( "hx0%u" ,PixelHistN ) ) );
-	    theYHistos[PixelHistN] = new SimpleHistogramGenerator(
-	     (TH1F*) thePixelResolutionFile2->Get(  Form( "hy0%u" ,PixelHistN ) ) );
+    for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )
+      for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
+	unsigned int edgePixelHistN = cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
+	theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
+								  (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx0%u" ,edgePixelHistN ) ) );
+	theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(
+								  (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy0%u" ,edgePixelHistN ) ) );
+	/*	    	    	     	    unsigned int PixelHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  qbinBin;
+					    theXHistos[PixelHistN] = new SimpleHistogramGenerator(
+					    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,PixelHistN ) ) );
+					    theYHistos[PixelHistN] = new SimpleHistogramGenerator(
+					    (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,PixelHistN ) ) );*/
+	unsigned int PixelHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 +  qbinBin;
+	theXHistos[PixelHistN] = new SimpleHistogramGenerator(
+							      (TH1F*) thePixelResolutionFile2->Get(  Form( "hx0%u" ,PixelHistN ) ) );
+	theYHistos[PixelHistN] = new SimpleHistogramGenerator(
+							      (TH1F*) thePixelResolutionFile2->Get(  Form( "hy0%u" ,PixelHistN ) ) );
 
-	 }//end cotalphaHistBin, cotbetaHistBin, qbinBin
+      }//end cotalphaHistBin, cotbetaHistBin, qbinBin
 
   for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin )
     for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )
-    {
-      unsigned int SingleBigPixelHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
-      theXHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SingleBigPixelHistN ) ) );
-      theYHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SingleBigPixelHistN ) ) );
-      /*      unsigned int SinglePixelHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
-      theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SinglePixelHistN ) ) );
-      theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SinglePixelHistN ) ) );*/
-      unsigned int SinglePixelHistN = cotbetaHistBin * 10 + cotalphaHistBin;
-      theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
-								   (TH1F*) thePixelResolutionFile2->Get(  Form( "hx000%u" ,SinglePixelHistN ) ) );
-      theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
-      (TH1F*) thePixelResolutionFile2->Get(  Form( "hy000%u" ,SinglePixelHistN ) ) );
+      {
+	unsigned int SingleBigPixelHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	theXHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
+								       (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SingleBigPixelHistN ) ) );
+	theYHistos[SingleBigPixelHistN] = new SimpleHistogramGenerator(
+								       (TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SingleBigPixelHistN ) ) );
+	/*      unsigned int SinglePixelHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+		theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
+		(TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhx%u" ,SinglePixelHistN ) ) );
+		theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
+		(TH1F*) thePixelResolutionFile1->Get(  Form( "DQMData/clustFPIX/fhy%u" ,SinglePixelHistN ) ) );*/
+	unsigned int SinglePixelHistN = cotbetaHistBin * 10 + cotalphaHistBin;
+	theXHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
+								     (TH1F*) thePixelResolutionFile2->Get(  Form( "hx000%u" ,SinglePixelHistN ) ) );
+	theYHistos[SinglePixelHistN]  = new SimpleHistogramGenerator(
+								     (TH1F*) thePixelResolutionFile2->Get(  Form( "hy000%u" ,SinglePixelHistN ) ) );
 
-    }
+      }
 }
