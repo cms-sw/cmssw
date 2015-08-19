@@ -136,6 +136,7 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
         puppiCandsNoLepPtrs.push_back(pup.sourceCandidatePtr(0));
       }
     }
+    auto const& puppiCandsNoLepV = puppiCandsNoLep.product();
 
     edm::Handle<reco::VertexCollection> PVOrigs;
     iEvent.getByToken( PVOrigs_, PVOrigs );
@@ -253,11 +254,12 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
            if ( puppiWeightNoLep.isValid() ) {
              // Look for the pointer inside the "no lepton" candidate collection.
              auto pkrefPtr = pkref->sourceCandidatePtr(0);
+
              bool foundNoLep = false;
              for ( size_t ipcnl = 0; ipcnl < puppiCandsNoLepPtrs.size(); ipcnl++){
               if (puppiCandsNoLepPtrs[ipcnl] == pkrefPtr){
                 foundNoLep = true;
-                  puppiWeightNoLepVal = puppiCandsNoLepPtrs[ipcnl]->pt()/cand.pt(); // a hack for now, should use the value map
+                  puppiWeightNoLepVal = puppiCandsNoLepV->at(ipcnl).pt()/cand.pt(); // a hack for now, should use the value map
                   break;
                 }
               }
