@@ -18,13 +18,13 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PropagatorWithMaterial;
 
-namespace edm { 
+namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
 }
 
-namespace reco { 
+namespace reco {
   class Track;
 }
 
@@ -36,13 +36,13 @@ class TrackingRecHit;
 class TrackCandidateProducer : public edm::stream::EDProducer <>
 {
  public:
-  
+
   explicit TrackCandidateProducer(const edm::ParameterSet& conf);
-  
+
   virtual ~TrackCandidateProducer(){;}
-  
+
   virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
-  
+
  private:
 
   unsigned int minNumberOfCrossedLayers;
@@ -51,7 +51,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   bool rejectOverlaps;
   bool splitHits;
   bool hitMasks_exists;
- 
+
   edm::InputTag simTracks_;
 
   // tokens & labels
@@ -61,7 +61,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
   std::string propagatorLabel;
-  
+
 };
 
 #endif
