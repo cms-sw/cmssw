@@ -166,7 +166,7 @@ process.l1ExtraDQMStage1.DirName=cms.string("L1TStage1/L1ExtraStage1")
 
 #process.l1tMonitorStage1Online.remove(process.l1tRate)
 
-process.l1tMonitorStage1Online.remove(process.l1tRctSeq)
+#process.l1tMonitorStage1Online.remove(process.l1tRctSeq)
 
 #process.l1tMonitorOnline.remove(process.l1tGctSeq)
 
