@@ -183,6 +183,17 @@ def miniAOD_customizeCommon(process):
     process.ak4PFJetsPuppi.doAreaFastjet = True # even for standard ak4PFJets this is overwritten in RecoJets/Configuration/python/RecoPFJets_cff
     #process.puppi.candName = cms.InputTag('packedPFCandidates')
     #process.puppi.vertexName = cms.InputTag('offlineSlimmedPrimaryVertices')
+    # kind of ugly, is there a better way to do this?
+    process.pfNoLepPUPPI = cms.EDFilter("PdgIdCandViewSelector",
+        src = cms.InputTag("particleFlow"), 
+        pdgId = cms.vint32( 1,2,22,111,130,310,2112,211,-211,321,-321,999211,2212,-2212 )
+    )
+    process.pfLeptonsPUPPET = cms.EDFilter("PdgIdCandViewSelector",
+        src = cms.InputTag("particleFlow"),
+        pdgId = cms.vint32(-11,11,-13,13),
+    )
+    process.puppiNoLep = process.puppi.clone()
+    process.puppiNoLep.candName = cms.InputTag('pfNoLepPUPPI') 
     
     from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import j2tParametersVX
     process.ak4PFJetsPuppiTracksAssociatorAtVertex = cms.EDProducer("JetTracksAssociatorAtVertex",
@@ -214,8 +225,11 @@ def miniAOD_customizeCommon(process):
 
     ## puppi met
     process.load('RecoMET.METProducers.PFMET_cfi')
+    process.puppiForMET = cms.EDProducer("CandViewMerger",
+        src = cms.VInputTag( "pfLeptonsPUPPET", "puppiNoLep")
+    )     
     process.pfMetPuppi = process.pfMet.clone()
-    process.pfMetPuppi.src = cms.InputTag("puppi")
+    process.pfMetPuppi.src = cms.InputTag("puppiForMET")
     process.pfMetPuppi.alias = cms.string('pfMetPuppi')
     ## type1 correction, from puppi jets
     process.corrPfMetType1Puppi = process.corrPfMetType1.clone(
