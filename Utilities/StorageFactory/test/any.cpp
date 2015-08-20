@@ -29,7 +29,7 @@ int main (int argc, char **argv) try
   s->close();
   free (buf);
 
-  std::cerr << StorageAccount::summaryXML () << std::endl;
+  std::cerr << StorageAccount::summaryText(true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

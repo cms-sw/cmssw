@@ -15,7 +15,7 @@ int main (int, char **/*argv*/) try
 
   s->close();
 
-  std::cout << StorageAccount::summaryXML () << std::endl;
+  std::cout << StorageAccount::summaryText (true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;

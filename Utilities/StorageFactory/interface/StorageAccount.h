@@ -55,7 +55,6 @@ public:
 
   static StorageStatsSentry&& summaryLocked() {return std::move(StorageStatsSentry());}
   static const StorageStats& summary(void);
-  static std::string         summaryXML(void);
   static std::string         summaryText(bool banner=false);
   static void                fillSummary(std::map<std::string, std::string> &summary);
   static Counter&            counter (const std::string &storageClass,

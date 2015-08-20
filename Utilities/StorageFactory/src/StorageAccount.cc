@@ -40,24 +40,6 @@ StorageAccount::summaryText (bool banner /*=false*/) {
   return os.str ();
 }
 
-std::string
-StorageAccount::summaryXML (void) {
-  std::ostringstream os;
-  os << "<storage-timing-summary>\n";
-  for (StorageStats::iterator i = m_stats.begin (); i != m_stats.end(); ++i)
-    for (OperationStats::iterator j = i->second->begin (); j != i->second->end (); ++j)
-      os << " <counter-value subsystem='" << i->first
-         << "' counter-name='" << j->first
-         << "' num-operations='" << j->second.attempts
-         << "' num-successful-operations='" << j->second.successes
-         << "' total-megabytes='" << (static_cast<double>(j->second.amount) / 1024 / 1024)
-         << "' total-msecs='" << (static_cast<double>(j->second.timeTotal) / 1000 / 1000)
-         << "' min-msecs='" << (static_cast<double>(j->second.timeMin) / 1000 / 1000)
-         << "' max-msecs='" << (static_cast<double>(j->second.timeMax) / 1000 / 1000) << "'/>\n";
-  os << "</storage-timing-summary>";
-  return os.str ();
-}
-
 void
 StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
   int const oneM = 1000 * 1000;

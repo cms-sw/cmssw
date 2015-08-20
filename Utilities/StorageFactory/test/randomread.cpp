@@ -36,7 +36,7 @@ int main (int argc, char **argv) try
   if (sizes.empty())
     return EXIT_SUCCESS;
 
-  std::cout << "stats:\n" << StorageAccount::summaryXML () << std::endl;
+  std::cout << "stats:\n" << StorageAccount::summaryText (true) << std::endl;
 
   IOSize	n;
   char		buf [10000];
@@ -67,7 +67,7 @@ int main (int argc, char **argv) try
     storages[i]->close();
   }
 
-  std::cout << StorageAccount::summaryXML () << std::endl;
+  std::cout << StorageAccount::summaryText(true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;
