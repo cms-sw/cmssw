@@ -284,7 +284,7 @@ bool ME0SegAlgoMM::isGoodToMerge(const EnsembleHitContainer& newChain, const Ens
       // this could affect events at the boundaries ) 
 
       // to be chained, two hits need also to be "close" in phi and eta
-      bool phiRequirementOK = reco::deltaPhi(phi_new[jRH_new],phi_old[jRH_old]) < dPhiChainBoxMax;
+      bool phiRequirementOK = std::abs(reco::deltaPhi(phi_new[jRH_new],phi_old[jRH_old])) < dPhiChainBoxMax;
       bool etaRequirementOK = fabs(eta_new[jRH_new]-eta_old[jRH_old]) < dEtaChainBoxMax;
       // and the difference in layer index should be < (nlayers-1)
       bool layerRequirementOK = abs(layer_new[jRH_new]-layer_old[jRH_old]) < (theEnsemble.first->id().nlayers()-1);
