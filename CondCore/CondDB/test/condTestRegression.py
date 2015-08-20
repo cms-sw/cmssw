@@ -178,6 +178,8 @@ class CondRegressionTester(object):
                   'CMSSW_7_5_1'        : [ 'slc6_amd64_gcc491', 'ref751-s6491.db'],
                   'CMSSW_7_4_9'        : [ 'slc6_amd64_gcc491', 'ref749-s6491.db'],
                   'CMSSW_7_3_6_patch1' : [ 'slc6_amd64_gcc491', 'ref736p1-s6491.db'],
+		  'CMSSW_7_2_5'       : [ 'slc6_amd64_gcc481', 'ref729-s6481.db'],
+		  'CMSSW_7_1_19'       : [ 'slc6_amd64_gcc481', 'ref7119-s6481.db'],
           }
 
           # set up the devel areas for the various reference releases
