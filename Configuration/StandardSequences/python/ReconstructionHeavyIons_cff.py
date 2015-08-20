@@ -33,20 +33,25 @@ from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 #--------------------------------------------------------------------------
 
+from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
+    src = 'siPixelClustersPreSplitting'
+    )
+
 caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
 hbhereco = hbheprereco.clone()
 hcalLocalRecoSequence.replace(hbheprereco,hbhereco)
-muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEvent+siPixelClusterShapeCache+muonlocalreco)
+muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEventPreSplitting+siPixelClusterShapeCachePreSplitting+muonlocalreco)
 localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco*castorreco)
 
 #hbherecoMB = hbheprerecoMB.clone()
 #hcalLocalRecoSequenceNZS.replace(hbheprerecoMB,hbherecoMB)
+
 caloRecoNZS = cms.Sequence(caloReco+hcalLocalRecoSequenceNZS)
 localReco_HcalNZS = cms.Sequence(offlineBeamSpot*muonReco*caloRecoNZS)
 
 #--------------------------------------------------------------------------
 # Main Sequence
-
 reconstruct_PbPb = cms.Sequence(localReco*globalRecoPbPb*CastorFullReco)
 reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
 
