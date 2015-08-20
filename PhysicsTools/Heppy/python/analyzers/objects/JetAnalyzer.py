@@ -198,9 +198,9 @@ class JetAnalyzer( Analyzer ):
         for lep in leptons:
             jet = jlpairs[lep]
             if jet is None:
-                lep.jet = lep
+                setattr(lep,"jet"+self.cfg_ana.collectionPostFix,lep)
             else:
-                lep.jet = jet
+                setattr(lep,"jet"+self.cfg_ana.collectionPostFix,jet)
         ## Associate jets to taus 
         taus = getattr(event,'selectedTaus',[])
         jtaupairs = matchObjectCollection( taus, allJets, self.jetLepDR**2)
@@ -208,7 +208,7 @@ class JetAnalyzer( Analyzer ):
         for jet in allJets:
             jet.taus = [l for l in jtaupairs if jtaupairs[l] == jet ]
         for tau in taus:
-            tau.jet = jtaupairs[tau]
+            setattr(tau,"jet"+self.cfg_ana.collectionPostFix,jtaupairs[tau])
 
         #MC stuff
         if self.cfg_comp.isMC:
@@ -233,6 +233,7 @@ class JetAnalyzer( Analyzer ):
                     
             self.jetFlavour(event)
 
+        if hasattr(event,"jets"+self.cfg_ana.collectionPostFix): raise RuntimeError, "Event already contains a jet collection with the following postfix: "+self.cfg_ana.collectionPostFix
         setattr(event,"rho"                    +self.cfg_ana.collectionPostFix, self.rho                    ) 
         setattr(event,"deltaMetFromJEC"        +self.cfg_ana.collectionPostFix, self.deltaMetFromJEC        ) 
         setattr(event,"allJetsUsedForMET"      +self.cfg_ana.collectionPostFix, self.allJetsUsedForMET      ) 

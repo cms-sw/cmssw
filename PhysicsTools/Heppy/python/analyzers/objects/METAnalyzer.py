@@ -90,20 +90,20 @@ class METAnalyzer( Analyzer ):
           ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVTight])) , -1.*(sum([x.py() for x in chargedPVTight])), 0, math.hypot((sum([x.px() for x in chargedPVTight])),(sum([x.py() for x in chargedPVTight]))) ))
 ##        print 'tkmet',self.tkMet.pt(),'tkmetphi',self.tkMet.phi()
 
-        event.tkMet.sumEt = sum([x.pt() for x in charged])
-        event.tkMetPVchs.sumEt = sum([x.pt() for x in chargedchs])
-        event.tkMetPVLoose.sumEt = sum([x.pt() for x in chargedPVLoose])
-        event.tkMetPVTight.sumEt = sum([x.pt() for x in chargedPVTight])
+        getattr(event,"tkMet"+self.cfg_ana.collectionPostFix).sumEt = sum([x.pt() for x in charged])
+        getattr(event,"tkMetPVchs"+self.cfg_ana.collectionPostFix).sumEt = sum([x.pt() for x in chargedchs])
+        getattr(event,"tkMetPVLoose"+self.cfg_ana.collectionPostFix).sumEt = sum([x.pt() for x in chargedPVLoose])
+        getattr(event,"tkMetPVTight"+self.cfg_ana.collectionPostFix).sumEt = sum([x.pt() for x in chargedPVTight])
 
         if  hasattr(event,'zll_p4'):
-            self.adduParaPerp(event.tkMet, event.zll_p4,"_zll")
-            self.adduParaPerp(event.tkMetPVchs, event.zll_p4,"_zll")
-            self.adduParaPerp(event.tkMetPVLoose, event.zll_p4,"_zll")
-            self.adduParaPerp(event.tkMetPVTight, event.zll_p4,"_zll")
+            self.adduParaPerp(getattr(event,"tkMet"+self.cfg_ana.collectionPostFix), event.zll_p4,"_zll")
+            self.adduParaPerp(getattr(event,"tkMetPVchs"+self.cfg_ana.collectionPostFix), event.zll_p4,"_zll")
+            self.adduParaPerp(getattr(event,"tkMetPVLoose"+self.cfg_ana.collectionPostFix), event.zll_p4,"_zll")
+            self.adduParaPerp(getattr(event,"tkMetPVTight"+self.cfg_ana.collectionPostFix), event.zll_p4,"_zll")
 
     def makeGenTkMet(self, event):
         genCharged = [ x for x in self.mchandles['packedGen'].product() if x.charge() != 0 and abs(x.eta()) < 2.4 ]
-        event.tkGenMet = ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in genCharged])) , -1.*(sum([x.py() for x in genCharged])), 0, math.hypot((sum([x.px() for x in genCharged])),(sum([x.py() for x in genCharged]))) )
+        setattr(event,"tkGenMet"+self.cfg_ana.collectionPostFix, ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in genCharged])) , -1.*(sum([x.py() for x in genCharged])), 0, math.hypot((sum([x.px() for x in genCharged])),(sum([x.py() for x in genCharged]))) ))
 
     def makeMETNoMu(self, event):
         self.metNoMu = copy.deepcopy(self.met)
@@ -196,9 +196,9 @@ class METAnalyzer( Analyzer ):
             px,py=self.met.shiftedPx(self.met.NoShift, self.met.Raw),self.met.shiftedPy(self.met.NoShift, self.met.Raw)
             self.met_raw=ROOT.reco.Particle.LorentzVector(px,py,0,math.hypot(px,py))
             self.adduParaPerp(self.met_raw, event.zll_p4,"_zll")
-            event.met_raw=self.met_raw
-            event.met_raw.upara_zll=self.met_raw.upara_zll
-            event.met_raw.uperp_zll=self.met_raw.uperp_zll
+            setattr(event,"met_raw"+self.cfg_ana.collectionPostFix, self.met_raw)
+            setattr(event,"met_raw.upara_zll"+self.cfg_ana.collectionPostFix, self.met_raw.upara_zll)
+            setattr(event,"met_raw.uperp_zll"+self.cfg_ana.collectionPostFix, self.met_raw.uperp_zll)
 
         if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
           deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
@@ -213,6 +213,7 @@ class METAnalyzer( Analyzer ):
             self.applyDeltaMet(self.metNoPU, deltaMetJEC)
 #          print 'after JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
 
+        if hasattr(event,"met"+self.cfg_ana.collectionPostFix): raise RuntimeError, "Event already contains met with the following postfix: "+self.cfg_ana.collectionPostFix
         setattr(event, "met"+self.cfg_ana.collectionPostFix, self.met)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoPU"+self.cfg_ana.collectionPostFix, self.metNoPU)
         setattr(event, "met_sig"+self.cfg_ana.collectionPostFix, self.met_sig)
