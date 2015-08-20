@@ -46,7 +46,7 @@ void DDHGCalNoTaperEndcap::execute( DDCompactView& cpv ) {
   lastCopyNo = createQuarter( cpv,  1,  1, lastCopyNo );
   lastCopyNo = createQuarter( cpv, -1,  1, lastCopyNo );
   lastCopyNo = createQuarter( cpv, -1, -1, lastCopyNo );
-  lastCopyNo = createQuarter( cpv,  1, -1, lastCopyNo );
+  createQuarter( cpv,  1, -1, lastCopyNo );
 }
 
 int

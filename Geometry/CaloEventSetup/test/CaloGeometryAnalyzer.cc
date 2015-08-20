@@ -14,7 +14,7 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -52,7 +52,7 @@
 // class decleration
 
 
-class CaloGeometryAnalyzer : public edm::EDAnalyzer {
+class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<> {
   enum CenterOrCorner { kCenter , kCorner } ;
   enum XorYorZ { kX, kY, kZ } ;
 
@@ -61,7 +61,9 @@ public:
   explicit CaloGeometryAnalyzer( const edm::ParameterSet& );
   ~CaloGeometryAnalyzer();
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
   // ----------member data ---------------------------

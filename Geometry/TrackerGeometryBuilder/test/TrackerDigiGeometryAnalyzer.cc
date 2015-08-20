@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -51,52 +51,28 @@
 // class decleration
 //
 
-class TrackerDigiGeometryAnalyzer : public edm::EDAnalyzer {
-   public:
+class TrackerDigiGeometryAnalyzer : public edm::one::EDAnalyzer<>
+{
+public:
       explicit TrackerDigiGeometryAnalyzer( const edm::ParameterSet& );
       ~TrackerDigiGeometryAnalyzer();
 
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
+private:
   void analyseTrapezoidal( const GeomDetUnit& det);
   void checkRotation( const GeomDetUnit& det);
   void checkTopology( const GeomDetUnit& det);
   std::ostream& cylindrical( std::ostream& os, const GlobalPoint& gp) const;
-
-      // ----------member data ---------------------------
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 TrackerDigiGeometryAnalyzer::TrackerDigiGeometryAnalyzer( const edm::ParameterSet& iConfig )
-{
-   //now do what ever initialization is needed
-
-}
-
+{}
 
 TrackerDigiGeometryAnalyzer::~TrackerDigiGeometryAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-//
-// member functions
-//
+{}
 
 // ------------ method called to produce the data  ------------
 void
