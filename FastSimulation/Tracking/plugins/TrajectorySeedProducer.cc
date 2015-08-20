@@ -1,4 +1,3 @@
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -156,11 +155,11 @@ typedef PixelRecoRange<float> Range;
     Range crossRange = allowed.intersection(hitRZ);
 
     if( ! crossRange.empty()){
-      std::cout << "init seed creator"<< std::endl;
-      std::cout << "ptmin: " << (**ir).ptMin() << std::endl;
-      std::cout << "" << std::endl;
+      //std::cout << "init seed creator"<< std::endl;
+      //std::cout << "ptmin: " << (**ir).ptMin() << std::endl;
+      //std::cout << "" << std::endl;
       seedCreator->init(**ir,*es_,0);
-      std::cout << "done" << std::endl;
+      //std::cout << "done" << std::endl;
       return true;}
 
   }
