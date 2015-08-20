@@ -95,6 +95,10 @@ class CondRegressionTester(object):
 
           overall = True
           for k,v in self.status.items():
+              # do not take results from 7.1.X into the overall status as this release can not 
+	      # read more recent data until the corresponding boost 1.57 version is backported:
+              if 'CMSSW_7_1_' in k: continue
+
               if not v : overall = False
 
           return overall
@@ -224,7 +228,7 @@ class CondRegressionTester(object):
 crt = CondRegressionTester()
 crt.runAll()
 status = crt.summary(verbose=True)
-print "\n==> overall status: ", status
+print "\n==> overall status (ignoring results from 7.1.X): ", status
 
 # return the overall result to the caller:
 if status: 
