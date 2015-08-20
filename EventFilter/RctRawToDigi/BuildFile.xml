@@ -1,0 +1,12 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="DataFormats/FEDRawData"/>
+<use   name="DataFormats/L1CaloTrigger"/>
+<use   name="DataFormats/L1GlobalCaloTrigger"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="L1Trigger/TextToDigi"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<export>
+  <lib   name="1"/>
+</export>

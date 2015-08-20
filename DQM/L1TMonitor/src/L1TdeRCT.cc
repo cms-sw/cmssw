@@ -101,12 +101,15 @@ L1TdeRCT::L1TdeRCT(const ParameterSet & ps) :
    rctSourceEmul_emEmul_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSourceEmul") )),
    rctSourceData_rgnData_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSourceData") )),
    rctSourceData_emData_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSourceData") )),
+   gctSourceData_rgnData_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("gctSourceData") )),
+   gctSourceData_emData_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("gctSourceData") )),
    ecalTPGData_( consumes<EcalTrigPrimDigiCollection>(ps.getParameter< InputTag >("ecalTPGData") )),
    hcalTPGData_( consumes<HcalTrigPrimDigiCollection>(ps.getParameter< InputTag >("hcalTPGData") )),
    gtDigisLabel_( consumes<L1GlobalTriggerReadoutRecord>(ps.getParameter< InputTag >("gtDigisLabel") )),
    gtEGAlgoName_ ( ps.getParameter< std::string >("gtEGAlgoName") ),
    doubleThreshold_ ( ps.getParameter< int >("doubleThreshold") ),
-   filterTriggerType_ (ps.getParameter< int >("filterTriggerType") )
+   filterTriggerType_ (ps.getParameter< int >("filterTriggerType") ),
+   selectBX_ (ps.getUntrackedParameter< int >("selectBX",2))
 {
 
   singlechannelhistos_ = ps.getUntrackedParameter < bool > ("singlechannelhistos", false);
@@ -281,7 +284,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
 
   if(doEcal)
   {
-  for(EcalTrigPrimDigiCollection::const_iterator iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end(); iEcalTp++)
+  for(EcalTrigPrimDigiCollection::const_iterator iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end(); iEcalTp++){
     if(iEcalTp->compressedEt() > 0)
     {
 
@@ -300,6 +303,7 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
 
 if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << " eta " << iEcalTp->id().ieta() << " phi " << iEcalTp->id().iphi() << std::endl ;
     }
+   }
    }
 
   if (!hcalTpData.isValid()) {
@@ -356,6 +360,8 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
   e.getByToken(rctSourceData_rgnData_,rgnData);
   e.getByToken(rctSourceEmul_rgnEmul_,rgnEmul);
 
+  if(!rgnData.isValid() || rgnData->size()==0) {edm::LogInfo("L1TdeRCT")<<" using gctDigis"; e.getByToken(gctSourceData_rgnData_,rgnData); selectBX_=-1;}  
+
   if (!rgnData.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection";
     if (verbose_)std::cout << "Can not find rgnData!" << std::endl ;
@@ -369,9 +375,10 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
     if (verbose_)std::cout << "Can not find rgnEmul!" << std::endl ;
   }
 
-
   e.getByToken(rctSourceData_emData_,emData);
   e.getByToken(rctSourceEmul_emEmul_,emEmul);
+
+  if(!emData.isValid() || emData->size()==0) {edm::LogInfo("L1TdeRCT")<<" using gctDigis"; e.getByToken(gctSourceData_emData_,emData); selectBX_=-1;}
 
   if (!emData.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection";
@@ -478,10 +485,14 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
     }
   }
 
+
   for (L1CaloEmCollection::const_iterator iem = emData->begin();
        iem != emData->end();
        iem++)
   {
+
+    if(selectBX_!=-1 && selectBX_!=iem->bx()) continue;
+
     if(iem->rank() >= 1)
     {
       if (iem->isolated())
@@ -537,6 +548,7 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
       ireg != rgnEmul->end();
       ireg++)
   {
+
 //     std::cout << "Emul: " << nRegionEmul << " " << ireg->gctEta() << " " << ireg->gctPhi() << std::endl;
     if(ireg->overFlow())  rctBitEmulOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi());
     if(ireg->tauVeto())   rctBitEmulTauVeto2D_  ->Fill(ireg->gctEta(), ireg->gctPhi());
@@ -597,6 +609,10 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
       ireg != rgnData->end();
       ireg++)
   {
+
+    if(selectBX_!=-1 && selectBX_!=ireg->bx()) continue;
+
+
 //     std::cout << "Data: " << nRegionData << " " << ireg->gctEta() << " " << ireg->gctPhi() << std::endl;
     if(ireg->overFlow())  rctBitDataOverFlow2D_ ->Fill(ireg->gctEta(), ireg->gctPhi());
     if(ireg->tauVeto())   rctBitDataTauVeto2D_  ->Fill(ireg->gctEta(), ireg->gctPhi());
