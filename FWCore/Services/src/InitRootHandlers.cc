@@ -231,9 +231,9 @@ namespace {
         // handlers are *not* async-signal safe.  Hence, a deadlock is possible if we invoke
         // fork() from our signal handlers.  Accordingly, we use clone (not POSIX, but AS-safe)
         // as that is closer to the 'raw metal' syscall and avoids pthread_atfork handlers.
-      int pid = 
+      int pid =
 #ifdef __linux__
-        clone(edm::service::cmssw_stacktrace, child_stack_ptr, CLONE_VFORK|CLONE_VM|CLONE_FS|SIGCHLD, nullptr);
+        clone(edm::service::cmssw_stacktrace, child_stack_ptr, CLONE_VM|CLONE_FS|SIGCHLD, nullptr);
 #else
         fork();
       if (child_stack_ptr) {} // Suppress 'unused variable' warning on non-Linux
@@ -255,6 +255,14 @@ namespace {
       full_cerr_write("\nA fatal system signal has occurred: ");
       full_cerr_write(signalname);
       full_cerr_write("\n");
+
+      // For these three known cases, re-raise the signal so get the correct
+      // exit code.
+      if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS))
+      {
+        signal(sig, SIG_DFL);
+        raise(sig);
+      }
       ::abort();
     }
     
