@@ -582,9 +582,9 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
         int nps=(amc13->AMCId(iamc)>>12)&0xF;
 
         HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
-//        int nwords=uhtr.getRawLengthBytes()/2;
-//        for (int iw=0; iw<nwords; iw++) 
-//            printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
+        int nwords=uhtr.getRawLengthBytes()/2;
+        for (int iw=0; iw<nwords; iw++) 
+            printf("%04d %04x\n",iw,uhtr.getRawData16()[iw]);
 
         HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
         while (i!=iend) {
@@ -597,8 +597,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
             }
             ///////////////////////////////////////////////HE UNPACKER//////////////////////////////////////////////////////////////////////////////////////
             if (i.flavor() == 1 || i.flavor() == 0) {
-                int ifiber=((i.channelid()>>2)&0x1F);
-                int ichan=(i.channelid()&0x3);
+                int ifiber=((i.channelid()>>3)&0x1F);
+                int ichan=(i.channelid()&0x7);
                 HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
                 DetId did=emap.lookup(eid);
                 // Count from current position to next header, or equal to end
@@ -634,8 +634,8 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 
             //////////////////////////////////////////////////HF UNPACKER/////////////////////////////////////////////////////////////////////
             if (i.flavor() == 2) {
-                int ifiber=((i.channelid()>>2)&0x1F);
-                int ichan=(i.channelid()&0x3);
+                int ifiber=((i.channelid()>>3)&0x1F);
+                int ichan=(i.channelid()&0x7);
                 HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
                 DetId did=emap.lookup(eid);
 
