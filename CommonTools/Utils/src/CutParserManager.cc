@@ -1,49 +1,12 @@
 #include "CommonTools/Utils/interface/CutParserManager.h"
+#include "CommonTools/Utils/interface/ExpressionEvaluator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
-using namespace reco::exprEval;
+#include <sstream>
 
-namespace {
-  static const std::string colons("::");
-}
-
-ParsedCutManagerBase::FunctionMap ParsedCutManagerBase::functions_;
-
-void ParsedCutManagerBase::registerFunction(const edm::TypeID& type, 
-                                            const std::string& func) {
-}
-
-void ParsedCutManagerBase::registerFunction(const edm::TypeWithDict& twd, 
-                                            const std::string& func) {
-}
-
-void ParsedCutManagerBase::registerFunction(const edm::ObjectWithDict& owd, 
-                                            const std::string& func) {
-}
-
-template<typename T> 
-reco::CutOnObject<T> const* const 
-ParsedCutManagerBase::getFunction(const edm::TypeID& type, 
-                                  const std::string& func) {
-  return getFunction<T>(type.className(),func);
-}
-
-template<typename T> 
-reco::CutOnObject<T> const* const 
-    ParsedCutManagerBase::getFunction(const edm::TypeWithDict& twd, 
-                                      const std::string& func) {
-  return getFunction<T>(twd.typeInfo(),func);
-}
-
-template<typename T> 
-reco::CutOnObject<T> const* const 
-  ParsedCutManagerBase::getFunction(const edm::ObjectWithDict& owd, 
-                                    const std::string& func) {
-  return getFunction<T>(owd.dynamicType(),func);
-}
-      
-template<typename T> 
-reco::CutOnObject<T> const* const 
-  ParsedCutManagerBase::getFunction(const std::string& type,
-                                    const std::string& func) {
-  return nullptr;
+namespace reco {
+  namespace exprEval {     
+    ParsedCutManagerBase::ParsedCutManagerBase() {}
+  }
 }
