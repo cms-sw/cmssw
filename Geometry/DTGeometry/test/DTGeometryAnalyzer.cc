@@ -6,7 +6,7 @@
 #include <memory>
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 
@@ -23,22 +23,21 @@
 
 using namespace std;
 
-class DTGeometryAnalyzer : public edm::EDAnalyzer {
+class DTGeometryAnalyzer : public edm::one::EDAnalyzer<>
+{
+public: 
+  DTGeometryAnalyzer( const edm::ParameterSet& pset);
+  ~DTGeometryAnalyzer();
 
-  public: 
-    DTGeometryAnalyzer( const edm::ParameterSet& pset);
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-    ~DTGeometryAnalyzer();
-
-    virtual void analyze( const edm::Event&, const edm::EventSetup& );
-
-    const string& myName() { return myName_;}
-
-  private: 
-
-    const int dashedLineWidth_;
-    const string dashedLine_;
-    const string myName_;
+private: 
+  const string& myName() { return myName_;}
+  const int dashedLineWidth_;
+  const string dashedLine_;
+  const string myName_;
 };
 
 DTGeometryAnalyzer::DTGeometryAnalyzer( const edm::ParameterSet& iConfig ) : 

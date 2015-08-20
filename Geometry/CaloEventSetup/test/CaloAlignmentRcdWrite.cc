@@ -3,10 +3,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "Utilities/General/interface/ClassName.h"
-//#include "DataFormats/DetId/interface/DetId.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -18,7 +17,7 @@
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 
-class CaloAlignmentRcdWrite : public edm::EDAnalyzer
+class CaloAlignmentRcdWrite : public edm::one::EDAnalyzer<>
 {
 public:
 
@@ -29,7 +28,9 @@ public:
   template<typename T>
   void writeAlignments(const edm::EventSetup& evtSetup);
 
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup);
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
   
