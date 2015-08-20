@@ -368,42 +368,6 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
       std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
       if (seedHitNumbers.size()>0){seedCreator->makeSeed(*output,SeedingHitSet(trackerRecHits[seedHitNumbers[0]].hit(),trackerRecHits[seedHitNumbers[1]].hit(),seedHitNumbers.size()>=3?trackerRecHits[seedHitNumbers[2]].hit():nullptr,seedHitNumbers.size()>=4?trackerRecHits[seedHitNumbers[3]].hit():nullptr));}
-      }//end loop over simtracks
+      }
     e.put(output);
 }
-/*
-bool
-  TrajectorySeedProducer::testWithRegions(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const{
-  
-  const DetLayer * innerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
-  const DetLayer * outerLayer = measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
-  typedef PixelRecoRange<float> Range;
-  
-  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
-    
-    auto const & gs = outerHit.hit()->globalState();
-    auto loc = gs.position-(*ir)->origin().basicVector();
-    const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
-							loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
-    
-    float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
-    float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
-    float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
-    constexpr float nSigmaRZ = 3.46410161514f;
-    Range allowed = checkRZ->range(u);
-    float vErr = nSigmaRZ * dv;
-    Range hitRZ(v-vErr, v+vErr);
-    Range crossRange = allowed.intersection(hitRZ);
-    
-    if( ! crossRange.empty()){
-      std::cout << "init seed creator"<< std::endl;
-      std::cout << "ptmin: " << (**ir).ptMin() << std::endl;
-      std::cout << "" << std::endl;
-      seedCreator->init(**ir,*es_,0);
-      std::cout << "done" << std::endl;
-      return true;}
-    
-  }
-  return false;
-}
-*/
