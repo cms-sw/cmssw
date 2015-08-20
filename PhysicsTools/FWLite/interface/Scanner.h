@@ -237,7 +237,7 @@ namespace fwlite {
                 if (hist == 0) {
                     if (strcmp(hname, "htemp") == 0) htempDelete();
                     hist = new TH1F(hname, "", gEnv->GetValue("Hist.Binning.1D.x",100), 0, 0);
-                    hist->SetCanExtend(TH1::kAllAxes);
+                    hist->SetBit(TH1::kCanRebin);
                 }
                 hist->SetTitle((strlen(cut) ? TString(expr)+"{"+cut+"}" : TString(expr)));
                 hist->GetXaxis()->SetTitle(expr);
@@ -322,7 +322,7 @@ namespace fwlite {
                 if (hist == 0) {
                     if (strcmp(hname, "htemp") == 0) htempDelete();
                     hist = new TProfile(hname, "", gEnv->GetValue("Hist.Binning.1D.x",100), 0., 0.);
-                    hist->SetCanExtend(TH1::kAllAxes);
+                    hist->SetBit(TProfile::kCanRebin);
                 }
                 return drawProf(xexpr, yexpr, cut, drawopt, hist);
             }

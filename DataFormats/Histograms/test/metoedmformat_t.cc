@@ -312,7 +312,7 @@ namespace {
     const Axis* GetYaxis() const {return &Axis::dummy;}
     const Axis* GetZaxis() const {return &Axis::dummy;}
 
-    bool CanExtendAllAxes() const{return false;}
+    bool TestBit(unsigned int f) const{return false;}
     long long Merge(void *) {return -1;}
 
     int m_i;
