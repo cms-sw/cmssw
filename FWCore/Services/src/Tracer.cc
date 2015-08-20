@@ -21,6 +21,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "FWCore/Utilities/interface/thread_clock.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
@@ -38,6 +39,7 @@
 #include "DataFormats/Common/interface/HLTPathStatus.h"
 
 #include <iostream>
+#include <stack>
 #include <vector>
 
 using namespace edm::service;
@@ -718,6 +720,9 @@ Tracer::postModuleEndJob(ModuleDescription const& desc) {
   }
 }
 
+// FIXME use per-stream instead of thread_local stacks ?
+static thread_local std::stack<cms::chrono::thread_clock::time_point, std::vector<cms::chrono::thread_clock::time_point>> stackEventModuleTimer;
+
 void 
 Tracer::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc) {
   LogAbsolute out("Tracer");
@@ -731,10 +736,16 @@ Tracer::preModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc)
     out << "\n" << sc;
     out << mcc;
   }
+
+  if(true)  // monitor processing time
+    stackEventModuleTimer.push(cms::chrono::thread_clock::now());
 }
 
 void 
 Tracer::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc) {
+  if(true)  // monitor processing time
+    stackEventModuleTimer.push(cms::chrono::thread_clock::now());
+
   LogAbsolute out("Tracer");
   out << TimeStamper(printTimestamps_);
   unsigned int nIndents = mcc.depth() + 4;
@@ -745,6 +756,14 @@ Tracer::postModuleEvent(StreamContext const& sc, ModuleCallingContext const& mcc
   if(dumpContextForLabels_.find(mcc.moduleDescription()->moduleLabel()) != dumpContextForLabels_.end()) {
     out << "\n" << sc;
     out << mcc;
+  }
+  if(true) { // report processing time
+    auto after  = stackEventModuleTimer.top();
+    stackEventModuleTimer.pop();
+    auto before = stackEventModuleTimer.top();
+    stackEventModuleTimer.pop();
+    double duration = std::chrono::duration_cast<std::chrono::duration<double>>(after - before).count();
+    out << "\n\tprocessing time:    " << std::fixed << std::setw(8) << std::setfill(' ') << std::setprecision(2) << duration * 1000 << " ms";
   }
 }
 
