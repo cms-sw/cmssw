@@ -164,11 +164,11 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
   }
   
   if( use_full5x5_ ) {
-    lazyTools = std::make_unique<noZS::EcalClusterLazyTools>( iEvent, iSetup, 
-                                                              ebrh, eerh, esrh );
+    lazyTools.reset( new noZS::EcalClusterLazyTools(iEvent, iSetup, 
+                                                    ebrh, eerh, esrh ) );
   } else {
-    lazyTools = std::make_unique<EcalClusterLazyTools>( iEvent, iSetup, 
-                                                        ebrh, eerh, esrh );
+    lazyTools.reset( new EcalClusterLazyTools(iEvent, iSetup, 
+                                              ebrh, eerh, esrh ) );
   }
   
   if( !isAOD && src->size() ) {
