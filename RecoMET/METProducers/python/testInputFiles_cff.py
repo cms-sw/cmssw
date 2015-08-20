@@ -5,9 +5,9 @@ from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 recoMETtestInputFiles = pickRelValInputFiles(
     useDAS = True,
     cmsswVersion = 'CMSSW_7_6_0_pre3',
-    dataTier = 'GEN-SIM-RECO',
+    dataTier = 'GEN-SIM-DIGI-RECO',
     relVal = 'RelValTTbar_13',
-    globalTag = '75X_mcRun2_asymptotic_v1_FastSim',
+    globalTag = '75X_mcRun2_asymptotic_v2_FastSim',
     maxVersions = 2
     )
 

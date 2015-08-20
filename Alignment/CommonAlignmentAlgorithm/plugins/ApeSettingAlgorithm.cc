@@ -7,6 +7,8 @@
  *  (last update by $Author: innocent $)
  */
 /*
+ * The APE record and the ASCII file contain the covariance matrix elements
+ * in units of cm^2
  *# Parameters:
  *#    saveApeToASCII -- Do we write out an APE text file?
  *#    saveComposites -- Do we write APEs for composite detectors?
@@ -130,9 +132,9 @@ void ApeSettingAlgorithm::initialize(const edm::EventSetup &setup,
      }
    std::set<int> apeList; //To avoid duplicates
    while (!apeReadFile.eof())
-     { int apeId=0; double x11,x21,x22,x31,x32,x33;
+     { int apeId=0; double x11,x21,x22,x31,x32,x33,ignore;
      if (!readLocalNotGlobal_ || readFullLocalMatrix_) 
-       { apeReadFile>>apeId>>x11>>x21>>x22>>x31>>x32>>x33>>std::ws;}
+       { apeReadFile>>apeId>>x11>>x21>>x22>>x31>>x32>>x33>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>ignore>>std::ws;}
      else
        { apeReadFile>>apeId>>x11>>x22>>x33>>std::ws;}
      //idr What sanity checks do we need to put here?
@@ -207,7 +209,7 @@ void ApeSettingAlgorithm::terminate(const edm::EventSetup& iSetup)
 	  am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
 	  sm=sm.similarity(am); //symmetric matrix
 	  } //transform to local
-	for (int j=0; j < theSize; ++j)
+	for (int j=0; j < sm.num_row(); ++j)
 	  for (int k=0; k <= j; ++k)
 	    apeSaveFile<<"  "<<sm[j][k]; //always write full matrix
 	

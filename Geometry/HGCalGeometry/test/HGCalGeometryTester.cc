@@ -4,7 +4,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,17 +19,17 @@
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "CoralBase/Exception.h"
 
-class HGCalGeometryTester : public edm::EDAnalyzer {
+class HGCalGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalGeometryTester(const edm::ParameterSet& );
   ~HGCalGeometryTester();
 
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
-  void doTest(const HGCalGeometry& geom, ForwardSubdetector subdet);
-
 private:
-  // ----------member data ---------------------------
+  void doTest(const HGCalGeometry& geom, ForwardSubdetector subdet);
 };
 
 HGCalGeometryTester::HGCalGeometryTester(const edm::ParameterSet& ) {}
