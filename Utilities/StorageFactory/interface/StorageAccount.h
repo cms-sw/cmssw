@@ -35,7 +35,7 @@ public:
   };
 
   typedef std::map<std::string, Counter> OperationStats;
-  typedef std::map<std::string, boost::shared_ptr<OperationStats> > StorageStats;
+  typedef std::map<std::string, OperationStats > StorageStats;
 
   class StorageStatsSentry {
     friend class StorageAccount;

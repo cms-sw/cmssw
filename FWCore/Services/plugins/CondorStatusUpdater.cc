@@ -329,7 +329,7 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
         // be more accurate as various backends may alter the incoming read requests
         // (such as when lazy-download is used).
         if (storage.first == "tstoragefile") {continue;}
-        for (const auto & counter : *(storage.second))
+        for (const auto & counter : storage.second)
         {
             if (counter.first == "read")
             {

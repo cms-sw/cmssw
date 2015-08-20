@@ -61,7 +61,7 @@ StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
     if (i->first == "tstoragefile") {
       continue;
     }
-    for (StorageAccount::OperationStats::const_iterator j = i->second->begin(); j != i->second->end(); ++j) {
+    for (StorageAccount::OperationStats::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
       if (j->first == "readv") {
         read_vector_operations += j->second.attempts;
         read_vector_bytes += j->second.amount;

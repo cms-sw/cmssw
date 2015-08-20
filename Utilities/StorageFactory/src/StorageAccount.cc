@@ -26,7 +26,7 @@ StorageAccount::summaryText (bool banner /*=false*/) {
   if (banner)
     os << "stats: class/operation/attempts/successes/amount/time-total/time-min/time-max\n";
   for (StorageStats::iterator i = m_stats.begin (); i != m_stats.end(); ++i)
-    for (OperationStats::iterator j = i->second->begin (); j != i->second->end (); ++j, first = false)
+    for (OperationStats::iterator j = i->second.begin (); j != i->second.end (); ++j, first = false)
       os << (first ? "" : "; ")
          << i->first << '/'
          << j->first << '='
@@ -45,7 +45,7 @@ StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
   int const oneM = 1000 * 1000;
   int const oneMeg = 1024 * 1024;
   for (StorageStats::iterator i = m_stats.begin (); i != m_stats.end(); ++i) {
-    for (OperationStats::iterator j = i->second->begin(); j != i->second->end(); ++j) {
+    for (OperationStats::iterator j = i->second.begin(); j != i->second.end(); ++j) {
       std::ostringstream os;
       os << "Timing-" << i->first << "-" << j->first << "-";
       summary.insert(std::make_pair(os.str() + "numOperations", i2str(j->second.attempts)));
@@ -65,13 +65,12 @@ StorageAccount::summary (void)
 StorageAccount::Counter&
 StorageAccount::counter (const std::string &storageClass, const std::string &operation) {
   std::lock_guard<std::mutex> lock (m_mutex);
-  boost::shared_ptr<OperationStats> &opstats = m_stats [storageClass];
-  if (!opstats) opstats.reset(new OperationStats);
+  auto &opstats = m_stats [storageClass];
 
-  OperationStats::iterator pos = opstats->find (operation);
-  if (pos == opstats->end ()) {
+  OperationStats::iterator pos = opstats.find (operation);
+  if (pos == opstats.end ()) {
     Counter x = { 0, 0, 0, 0, 0, 0, 0 };
-    pos = opstats->insert (OperationStats::value_type (operation, x)).first;
+    pos = opstats.insert (OperationStats::value_type (operation, x)).first;
   }
 
   return pos->second;
