@@ -12,7 +12,9 @@ using namespace std;
 using namespace fastjet;
 
 PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
+    fPuppiDiagnostics = iConfig.getParameter<bool>("puppiDiagnostics");
     fApplyCHS        = iConfig.getParameter<bool>("applyCHS");
+    fInvert          = iConfig.getParameter<bool>("invertPuppi");    
     fUseExp          = iConfig.getParameter<bool>("useExp");
     fPuppiWeightCut  = iConfig.getParameter<double>("MinPuppiWeight");
     std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
@@ -60,7 +62,7 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
         //if((fRecoParticle.id == 0) && (inParticles[i].id == 2))  _genParticles.push_back( curPseudoJet);
         //if(fRecoParticle.id <= 2 && !(inParticles[i].pt < fNeutralMinE && fRecoParticle.id < 2)) _pfchsParticles.push_back(curPseudoJet);
         //if(fRecoParticle.id == 3) _chargedNoPV.push_back(curPseudoJet);
-        if(fNPV < fRecoParticle.vtxId) fNPV = fRecoParticle.vtxId;
+        // if(fNPV < fRecoParticle.vtxId) fNPV = fRecoParticle.vtxId;
     }
     if (fPVFrac != 0) fPVFrac = double(fChargedPV.size())/fPVFrac;
     else fPVFrac = 0;
@@ -197,7 +199,7 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
     for(int i0 = 0; i0 < lNMaxAlgo; i0++) {
         getRMSAvg(i0,fPFParticles,fPFParticles,fChargedPV);
     }
-    getRawAlphas(0,fPFParticles,fPFParticles,fChargedPV);
+    if (fPuppiDiagnostics) getRawAlphas(0,fPFParticles,fPFParticles,fChargedPV);
 
     std::vector<double> pVals;
     for(int i0 = 0; i0 < lNParticles; i0++) {
@@ -223,6 +225,7 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
         //Fill and compute the PuppiWeight
         int lNAlgos = fPuppiAlgo[pPupId].numAlgos();
         for(int i1 = 0; i1 < lNAlgos; i1++) pVals.push_back(fVals[lNParticles*i1+i0]);
+
         pWeight = fPuppiAlgo[pPupId].compute(pVals,pChi2);
         //Apply the CHS weights
         if(fRecoParticles[i0].id == 1 && fApplyCHS ) pWeight = 1;
@@ -235,14 +238,18 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
         //Basic Cuts
         if(pWeight                         < fPuppiWeightCut) pWeight = 0;  //==> Elminate the low Weight stuff
         if(pWeight*fPFParticles[i0].pt()   < fPuppiAlgo[pPupId].neutralPt(fNPV) && fRecoParticles[i0].id == 0 ) pWeight = 0;  //threshold cut on the neutral Pt
-        
+        if(fInvert) pWeight = 1.-pWeight;
         //std::cout << "fRecoParticles[i0].pt = " <<  fRecoParticles[i0].pt << ", fRecoParticles[i0].charge = " << fRecoParticles[i0].charge << ", fRecoParticles[i0].id = " << fRecoParticles[i0].id << ", weight = " << pWeight << std::endl;
 
         fWeights .push_back(pWeight);
         fAlphaMed.push_back(fPuppiAlgo[pPupId].median(0));
         fAlphaRMS.push_back(fPuppiAlgo[pPupId].rms(0));        
         //Now get rid of the thrown out weights for the particle collection
-        if(std::abs(pWeight) < std::numeric_limits<double>::denorm_min() ) continue;
+
+        // leave these lines in, in case want to move eventually to having no 1-to-1 correspondence between puppi and pf cands
+        // if( std::abs(pWeight) < std::numeric_limits<double>::denorm_min() ) continue; // this line seems not to work like it's supposed to...
+        // if(std::abs(pWeight) <= 0. ) continue; 
+        
         //Produce
         PseudoJet curjet( pWeight*fPFParticles[i0].px(), pWeight*fPFParticles[i0].py(), pWeight*fPFParticles[i0].pz(), pWeight*fPFParticles[i0].e());
         curjet.set_user_index(i0);
