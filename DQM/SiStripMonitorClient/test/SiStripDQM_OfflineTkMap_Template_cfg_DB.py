@@ -101,7 +101,6 @@ process.siStripOfflineAnalyser = cms.EDAnalyzer("SiStripOfflineDQM",
        PrintFaultyModuleList    = cms.untracked.bool(False),
 
       InputFileName            = cms.untracked.string(options.dqmFile),
-       OutputFileName           = cms.untracked.string("/tmp/testRunNum.root"), 
        CreateTkMap              = cms.untracked.bool(True),
        CreateTkInfoFile         = cms.untracked.bool(True),
        TkmapParameters          = cms.untracked.PSet(

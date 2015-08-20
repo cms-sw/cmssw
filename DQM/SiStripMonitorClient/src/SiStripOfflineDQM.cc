@@ -72,7 +72,6 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) : configPar_
   createSummary_           = configPar_.getUntrackedParameter<bool>("CreateSummary",false);
   createTkInfoFile_        = configPar_.getUntrackedParameter<bool>("CreateTkInfoFile",false);
   inputFileName_           = configPar_.getUntrackedParameter<std::string>("InputFileName","");
-  outputFileName_          = configPar_.getUntrackedParameter<std::string>("OutputFileName","");
   globalStatusFilling_     = configPar_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   printFaultyModuleList_   = configPar_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
   
@@ -242,9 +241,6 @@ void SiStripOfflineDQM::endJob() {
       actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
       std::cout << str_val.str() << std::endl;
     }  
-    // Save Output file
-    dqmStore_->cd();
-    dqmStore_->save(outputFileName_, "","","");
   }
 }
 /** 
