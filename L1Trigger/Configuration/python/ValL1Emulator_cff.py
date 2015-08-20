@@ -129,7 +129,7 @@ valGmtDigis.DTCandidates = cms.InputTag('l1GtUnpack','DT')
 valGmtDigis.CSCCandidates = cms.InputTag('l1GtUnpack','CSC')
 valGmtDigis.RPCbCandidates = cms.InputTag('l1GtUnpack','RPCb')
 valGmtDigis.RPCfCandidates = cms.InputTag('l1GtUnpack','RPCf')
-valGmtDigis.MipIsoData = 'gctDigis'
+valGmtDigis.MipIsoData = 'caloStage1Digis'
 
 # producers for technical triggers 
 #
