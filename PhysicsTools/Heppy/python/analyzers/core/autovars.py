@@ -89,6 +89,16 @@ class NTupleObjectType:
                 if b2 not in ret:
                     ret.append(b2)
         return ret
+    def addVariables(self,newvars):
+        currentnames = [v.name for v in self.allVars(True)] # require no conflict with all variables, including mcOnly ones
+        uniquenewvars = []
+        for var in newvars:
+            if var.name in uniquenewvars: raise RuntimeError, "Duplicate definition of variable %s while adding variables to object type %s" % (var.name,self.name)
+            uniquenewvars.append(var.name)
+            if var.name not in currentnames:
+                self.variables.append(var)
+            else:
+              raise RuntimeError, "Variable %s is already present in object type %s" % (var.name,self.name)
     def removeVariable(self,name):
         self.variables = [ v for v in self.variables if v.name != name]
     def __repr__(self):
