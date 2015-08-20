@@ -6,16 +6,17 @@ process = cms.Process("DQM")
 #### Event Source
 #----------------------------
 # for live online DQM in P5
-process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.config.inputsource_cfi")
 
 # for testing in lxplus
-#process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.config.fileinputsource_cfi")
 
 #----------------------------
 #### DQM Environment
 #----------------------------
-process.load("DQM.Integration.test.environment_cfi")
-process.dqmEnv.subSystemFolder = 'Scal'
+process.load("DQM.Integration.config.environment_cfi")
+process.dqmEnv.subSystemFolder = "Scal"
+process.dqmSaver.tag = "Scal"
 #-----------------------------
 process.load("DQMServices.Components.DQMScalInfo_cfi")
 
@@ -27,7 +28,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 # Global tag
 # Condition for P5 cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi")
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi")
 process.load("EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi")
@@ -52,7 +53,6 @@ process.load("EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi")
 ## Collision Reconstruction
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 #process.load("Configuration.StandardSequences.Reconstruction_cff")
-
 #-----------------------------
 #### Sub-system configuration follows
 process.dump = cms.EDAnalyzer('EventContentAnalyzer')
@@ -89,5 +89,5 @@ if (process.runType.getRunType() == process.runType.hi_run):
 
 
 ### process customizations included here
-from DQM.Integration.test.online_customizations_cfi import *
+from DQM.Integration.config.online_customizations_cfi import *
 process = customise(process)

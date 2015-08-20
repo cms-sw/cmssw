@@ -4,10 +4,10 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 recoMETtestInputFiles = pickRelValInputFiles(
     useDAS = True,
-    cmsswVersion = 'CMSSW_7_2_0_pre1',
-    dataTier = 'GEN-SIM-RECO',
+    cmsswVersion = 'CMSSW_7_5_0',
+    dataTier = 'GEN-SIM-DIGI-RECO',
     relVal = 'RelValTTbar_13',
-    globalTag = 'PU50ns_POSTLS172_V2',
+    globalTag = '75X_mcRun2_asymptotic_v1_FastSim',
     maxVersions = 2
     )
 

@@ -17,19 +17,22 @@ TauSkimPFTausSelected = cms.EDFilter("PFTauSelector",
   cms.PSet(  #discriminator=cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),      #53X AND 75X
              discriminator=cms.InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs"), #HTT 2015 TWIKI  
              selectionCut=cms.double(0.5)
-      ),
 
-  cms.PSet( #discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"), ## 53X
-            #discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseIsolation"),   #75X
-            discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"), #HTT 2015 TWIKI   
-            selectionCut=cms.double(0.5)
-      ),
+           ) ## COMMENT OUT IF USING THE PSET BELOW 
+#           ),
+
+  #cms.PSet(#discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"), ## 53X
+  #          #discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseIsolation"),   #75X
+  #          discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"), #HTT 2015 TWIKI   
+  #          selectionCut=cms.double(0.5)
+  #    ),
 
 
   ),
   #cut = cms.string('pt > 22. && abs(eta) < 2.3') #53X
   #cut = cms.string('et > 15. && abs(eta) < 2.5')  #75X
-  cut = cms.string('pt > 18. && abs(eta) < 2.3') #HTT 2015 TWIKI
+  #cut = cms.string('pt > 18. && abs(eta) < 2.3') #HTT 2015 TWIKI
+  cut = cms.string('pt > 18. && abs(eta) < 2.3 && hpsPFTauMVA3IsolationChargedIsoPtSum < 2') #MICHAL'S SUGGESTION
 )
 
 TauSkimPFTauSkimmedBy1 = cms.EDFilter("CandViewCountFilter",
@@ -63,13 +66,14 @@ TauSkimPFTausSelectedForMuTau.discriminators = cms.VPSet(
               discriminator=cms.InputTag("hpsPFTauDiscriminationByDecayModeFindingNewDMs"), #HTT 2015 TWIKI   
               selectionCut=cms.double(0.5)
               ),
-    cms.PSet( #discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"), #53X
-              #discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseIsolation"),   #75X
-              discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"), #HTT 2015 TWIKI 
-              selectionCut=cms.double(0.5)
-              ),
-    cms.PSet( #discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection"), #53X
-              discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"), #HTT 2015 TWIKI 
+
+#    cms.PSet( #discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"), #53X
+#              #discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseIsolation"),   #75X
+#              discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"), #HTT 2015 TWIKI 
+#              selectionCut=cms.double(0.5)
+#              ),
+
+    cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseMuonRejection3"), #HTT 2015 TWIKI 
               selectionCut=cms.double(0.5)
               ),
     #cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByElectronVLooseMVA5"), #HTT 2015 TWIKI (not working!)
