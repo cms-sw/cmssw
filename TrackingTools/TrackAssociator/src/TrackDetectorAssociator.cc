@@ -233,6 +233,7 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
      }
    }
 
+   if ( trackOrigin.momentum().mag() == 0 ) return info;
    if ( ! cachedTrajectory_.propagateAll(trackOrigin) ) return info;
    
    // get trajectory in calorimeters
