@@ -20,7 +20,6 @@
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
-#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -55,9 +54,7 @@ namespace edm {
     droppedBranchIDToKeptBranchID_(),
     branchIDLists_(new BranchIDLists),
     origBranchIDLists_(nullptr),
-    thinnedAssociationsHelper_(new ThinnedAssociationsHelper),
-    branchParents_(),
-    branchChildren_() {
+    thinnedAssociationsHelper_(new ThinnedAssociationsHelper) {
       
       hasNewlyDroppedBranch_.fill(false);
       
@@ -233,7 +230,6 @@ namespace edm {
           EventSignalsSentry sentry(act,mcc);
           write(ep, mcc);
         }
-        updateBranchParents(ep);
       }
       if(remainingEvents_ > 0) {
         --remainingEvents_;
@@ -319,10 +315,7 @@ namespace edm {
     
     void OutputModuleBase::doCloseFile() {
       if(isFileOpen()) {
-        fillDependencyGraph();
         reallyCloseFile();
-        branchParents_.clear();
-        branchChildren_.clear();
       }
     }
     
@@ -396,41 +389,5 @@ namespace edm {
                                                                 outputModulePathPositions,
                                                                 anyProductProduced);
     }
-    
-    void
-    OutputModuleBase::updateBranchParents(EventPrincipal const& ep) {
-      for(EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
-        if((*i) && (*i)->productProvenancePtr() != 0) {
-          BranchID const& bid = (*i)->branchDescription().branchID();
-          BranchParents::iterator it = branchParents_.find(bid);
-          if(it == branchParents_.end()) {
-            it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
-          }
-          it->second.insert((*i)->productProvenancePtr()->parentageID());
-          branchChildren_.insertEmpty(bid);
-        }
-      }
-    }
-    
-    void
-    OutputModuleBase::fillDependencyGraph() {
-      for(BranchParents::const_iterator i = branchParents_.begin(), iEnd = branchParents_.end();
-          i != iEnd; ++i) {
-        BranchID const& child = i->first;
-        std::set<ParentageID> const& eIds = i->second;
-        for(std::set<ParentageID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
-            it != itEnd; ++it) {
-          Parentage entryDesc;
-          ParentageRegistry::instance()->getMapped(*it, entryDesc);
-          std::vector<BranchID> const& parents = entryDesc.parents();
-          for(std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
-              j != jEnd; ++j) {
-            branchChildren_.insertChild(*j, child);
-          }
-        }
-      }
-    }
-    
-    
   }
 }

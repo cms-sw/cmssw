@@ -1,10 +1,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalTracker/SubCollectionProducers/interface/PixelClusterSelectorTopBottom.h"
 
-void PixelClusterSelectorTopBottom::produce( edm::Event& event, const edm::EventSetup& setup) {
+void PixelClusterSelectorTopBottom::produce( edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
 
   edm::Handle< SiPixelClusterCollectionNew > input;
-  event.getByLabel(label_, input);
+  event.getByToken(token_, input);
 
   edm::ESHandle<TrackerGeometry> geom;
   setup.get<TrackerDigiGeometryRecord>().get( geom );

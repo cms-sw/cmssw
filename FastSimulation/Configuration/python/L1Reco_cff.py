@@ -1,7 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 # the only thing FastSim runs from L1Reco is l1extraParticles
-from L1Trigger.Configuration.L1Reco_cff import l1extraParticles
+from L1Trigger.Configuration.L1Reco_cff import l1extraParticles, _customiseForStage1
+
+# These next few lines copy the L1 era changes to FastSim
+from Configuration.StandardSequences.Eras import eras
+# A unique name is required so I'll use "modify<python filename>ForStage1Trigger_"
+modifyFastSimulationConfigurationL1RecoForStage1Trigger_ = eras.stage1L1Trigger.makeProcessModifier( _customiseForStage1 )
 
 # some collections have different labels
 l1extraParticles.isolatedEmSource    = cms.InputTag("simGctDigis","isoEm")

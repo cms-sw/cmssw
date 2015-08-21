@@ -165,6 +165,7 @@ def _extendForStage1Trigger( theProcess ) :
     ProcessModifier that loads config fragments required for Run 2 into the process object.
     Also switches the GCT digis for the Stage1 digis in the SimL1Emulator sequence
     """
+    theProcess.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
     theProcess.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
     # Note that this function is applied before the objects in this file are added
     # to the process. So things declared in this file should be used "bare", i.e.

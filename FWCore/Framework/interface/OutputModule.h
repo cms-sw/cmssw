@@ -8,10 +8,8 @@ output stream.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
-#include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/SelectedProducts.h"
 
@@ -81,8 +79,6 @@ namespace edm {
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
     static const std::string& baseType();
     static void prevalidate(ConfigurationDescriptions& );
-
-    BranchChildren const& branchChildren() const {return branchChildren_;}
 
     bool wantAllEvents() const {return wantAllEvents_;}
 
@@ -173,11 +169,6 @@ namespace edm {
     std::unique_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
     std::map<BranchID, bool> keepAssociation_;
 
-    typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
-    BranchParents branchParents_;
-
-    BranchChildren branchChildren_;
-
     SharedResourcesAcquirer resourceAcquirer_;
     std::mutex mutex_;
 
@@ -241,9 +232,6 @@ namespace edm {
     void setModuleDescription(ModuleDescription const& md) {
       moduleDescription_ = md;
     }
-
-    void updateBranchParents(EventPrincipal const& ep);
-    void fillDependencyGraph();
 
     bool limitReached() const {return remainingEvents_ == 0;}
   };

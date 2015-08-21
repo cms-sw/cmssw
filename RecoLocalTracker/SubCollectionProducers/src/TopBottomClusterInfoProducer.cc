@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -29,11 +29,11 @@
 // class decleration
 //
 
-class TopBottomClusterInfoProducer : public edm::EDProducer {
+class TopBottomClusterInfoProducer : public edm::global::EDProducer<> {
 public:
   TopBottomClusterInfoProducer(const edm::ParameterSet& iConfig) ;
   ~TopBottomClusterInfoProducer() ;
-  void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override ;
+  void produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const override ;
   
 private:
   edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > pixelClustersOld_;
@@ -62,7 +62,7 @@ TopBottomClusterInfoProducer::~TopBottomClusterInfoProducer()
 }
 
 void
-TopBottomClusterInfoProducer::produce(Event& iEvent, const EventSetup& iSetup)
+TopBottomClusterInfoProducer::produce(edm::StreamID, Event& iEvent, const EventSetup& iSetup) const
 {
 
     Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClustersOld;

@@ -11,6 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
@@ -56,6 +57,8 @@ namespace edm {
     inputFileCount_(0),
     childIndex_(0U),
     numberOfDigitsInIndex_(0U),
+    branchParents_(),
+    branchChildren_(),
     overrideInputFileSplitLevels_(pset.getUntrackedParameter<bool>("overrideInputFileSplitLevels")),
     rootOutputFile_(),
     statusFileName_() {
@@ -238,6 +241,7 @@ namespace edm {
   }
 
   void PoolOutputModule::write(EventPrincipal const& e, ModuleCallingContext const* mcc) {
+    updateBranchParents(e);
     rootOutputFile_->writeOne(e, mcc);
       if (!statusFileName_.empty()) {
         std::ofstream statusFile(statusFileName_.c_str());
@@ -255,6 +259,9 @@ namespace edm {
   }
 
   void PoolOutputModule::reallyCloseFile() {
+    fillDependencyGraph();
+    branchParents_.clear();
+    branchChildren_.clear();
     startEndFile();
     writeFileFormatVersion();
     writeFileIdentifier();
@@ -327,6 +334,40 @@ namespace edm {
   void PoolOutputModule::reallyOpenFile() {
     auto names = physicalAndLogicalNameForNewFile();
     rootOutputFile_.reset( new RootOutputFile(this, names.first, names.second));
+  }
+
+  void
+  PoolOutputModule::updateBranchParents(EventPrincipal const& ep) {
+    for(EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
+      if((*i) && (*i)->productProvenancePtr() != 0) {
+        BranchID const& bid = (*i)->branchDescription().branchID();
+        BranchParents::iterator it = branchParents_.find(bid);
+        if(it == branchParents_.end()) {
+          it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
+        }
+        it->second.insert((*i)->productProvenancePtr()->parentageID());
+        branchChildren_.insertEmpty(bid);
+      }
+    }
+  }
+
+  void
+  PoolOutputModule::fillDependencyGraph() {
+    for(BranchParents::const_iterator i = branchParents_.begin(), iEnd = branchParents_.end();
+        i != iEnd; ++i) {
+      BranchID const& child = i->first;
+      std::set<ParentageID> const& eIds = i->second;
+      for(std::set<ParentageID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
+          it != itEnd; ++it) {
+        Parentage entryDesc;
+        ParentageRegistry::instance()->getMapped(*it, entryDesc);
+        std::vector<BranchID> const& parents = entryDesc.parents();
+        for(std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
+          j != jEnd; ++j) {
+          branchChildren_.insertChild(*j, child);
+        }
+      }
+    }
   }
 
   void

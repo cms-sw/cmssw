@@ -9,6 +9,10 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 
+namespace {
+  void print(std::ostringstream& str, const reco::NuclearInteraction& nucl, const NuclearVertexBuilder& builder);
+}
+
 
 NuclearInteractionEDProducer::NuclearInteractionEDProducer(const edm::ParameterSet& iConfig) : 
 conf_(iConfig)
@@ -43,8 +47,8 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     edm::ESHandle<TransientTrackBuilder> builder;
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",builder);
 
-    vertexBuilder = std::auto_ptr< NuclearVertexBuilder >(new NuclearVertexBuilder( magField.product(), builder.product(), conf_) );
-    likelihoodCalculator = std::auto_ptr< NuclearLikelihood >(new NuclearLikelihood);
+    vertexBuilder = std::make_unique< NuclearVertexBuilder >(magField.product(), builder.product(), conf_);
+    likelihoodCalculator = std::make_unique< NuclearLikelihood >();
   }
 
    /// Get the primary tracks
@@ -115,7 +119,7 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
          theNuclearInteractions->push_back( nuclInter );
 
          std::ostringstream  str;
-         print(str, nuclInter, vertexBuilder);
+         print(str, nuclInter, *vertexBuilder);
          edm::LogInfo("NuclearInteractionMaker") << str.str();
 
    }
@@ -125,14 +129,6 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
    iEvent.put(theNuclearInteractions);
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-NuclearInteractionEDProducer::beginJob()
-{
-}
-
-void  NuclearInteractionEDProducer::endJob() {}
-
 // ------ method used to check whether the seed of a track belong to the vector of seeds --
 bool NuclearInteractionEDProducer::isInside( const reco::TrackRef& track, const TrajectorySeedRefVector& seeds) {
     unsigned int seedKey = track->seedRef().key();
@@ -141,7 +137,7 @@ bool NuclearInteractionEDProducer::isInside( const reco::TrackRef& track, const 
 }
 
 void NuclearInteractionEDProducer::findAdditionalSecondaryTracks( reco::NuclearInteraction& nucl, 
-                                      const edm::Handle<reco::TrackCollection>& additionalSecTracks) {
+                                      const edm::Handle<reco::TrackCollection>& additionalSecTracks) const {
       
       LogDebug("NuclearInteractionMaker") << "Check if one of the " << additionalSecTracks->size() 
                                           << " additional secondary track is compatible";
@@ -160,7 +156,8 @@ void NuclearInteractionEDProducer::findAdditionalSecondaryTracks( reco::NuclearI
 }
 
 // -- print out
-void print(std::ostringstream& out, const reco::NuclearInteraction& nucl, const std::auto_ptr< NuclearVertexBuilder >& builder) {
+namespace {
+void print(std::ostringstream& out, const reco::NuclearInteraction& nucl, const NuclearVertexBuilder& builder) {
    out<<"Nuclear Interaction with vertex position : (";
    out<< nucl.vertex().position().x() << " , "
       << nucl.vertex().position().y() << " , "
@@ -174,7 +171,7 @@ void print(std::ostringstream& out, const reco::NuclearInteraction& nucl, const 
    int it=0;
    for( reco::NuclearInteraction::trackRef_iterator itr_=nucl.secondaryTracks_begin(); itr_ != nucl.secondaryTracks_end(); itr_++, it++) {
                 reco::TrackRef secTrack = (*itr_).castTo<reco::TrackRef>();
-                ClosestApproachInRPhi* theApproach = builder->closestApproach(primTrack, secTrack);
+                ClosestApproachInRPhi* theApproach = builder.closestApproach(primTrack, secTrack);
                 out << "\t\t Secondary track " << it << " : Pt = " << (*itr_)->pt() 
                     << " - Nhits = " << (*itr_)->numberOfValidHits()
                     << " - Dist = " << theApproach->distance()
@@ -182,4 +179,5 @@ void print(std::ostringstream& out, const reco::NuclearInteraction& nucl, const 
                 delete theApproach;
       }
    out << "----------------" << std::endl;
+}
 }

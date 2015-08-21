@@ -17,6 +17,8 @@
 #include "IOPool/Common/interface/RootServiceChecker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
+#include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/ParentageID.h"
 
 class TTree;
 namespace edm {
@@ -99,6 +101,8 @@ namespace edm {
 
     OutputItemListArray const& selectedOutputItemList() const {return selectedOutputItemList_;}
 
+    BranchChildren const& branchChildren() const {return branchChildren_;}
+
   protected:
     ///allow inheriting classes to override but still be able to call this method in the overridden version
     virtual bool shouldWeCloseFile() const override;
@@ -117,6 +121,10 @@ namespace edm {
     virtual void reallyOpenFile() override;
     virtual void reallyCloseFile() override;
     virtual void beginJob() override;
+
+    typedef std::map<BranchID, std::set<ParentageID> > BranchParents;
+    void updateBranchParents(EventPrincipal const& ep);
+    void fillDependencyGraph();
 
     void startEndFile();
     void writeFileFormatVersion();
@@ -156,6 +164,8 @@ namespace edm {
     int inputFileCount_;
     unsigned int childIndex_;
     unsigned int numberOfDigitsInIndex_;
+    BranchParents branchParents_;
+    BranchChildren branchChildren_;
     bool overrideInputFileSplitLevels_;
     std::unique_ptr<RootOutputFile> rootOutputFile_;
     std::string statusFileName_;
@@ -163,3 +173,4 @@ namespace edm {
 }
 
 #endif
+
