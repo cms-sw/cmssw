@@ -171,13 +171,13 @@ elif isMc:
     process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
     
     ##### To be used when running on Phys14MC with a CMSSW version > 72X
-    process.GlobalTag.toGet = cms.VPSet(
-		cms.PSet(
-			record = cms.string("BeamSpotObjectsRcd"),
-			tag = cms.string("Realistic8TeVCollisions_START50_V13_v1_mc"),
-			connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
-		)
-	)
+#    process.GlobalTag.toGet = cms.VPSet(
+#		cms.PSet(
+#			record = cms.string("BeamSpotObjectsRcd"),
+#			tag = cms.string("Realistic8TeVCollisions_START50_V13_v1_mc"),
+#			connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+#		)
+#	)
 
 
 elif isData:

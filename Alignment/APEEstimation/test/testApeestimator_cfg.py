@@ -113,7 +113,6 @@ elif isData2:
 elif isQcd:
     process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer11_qcd_ApeSkim_cff")
 elif isWlnu:
-    #~ process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer11_wlnu_ApeSkim_cff")
     process.load("Alignment.APEEstimation.samples.Mc_WJetsToLNu_74XTest_ApeSkim_cff")
 elif isZmumu10:
     process.load("Alignment.APEEstimation.samples.Mc_TkAlMuonIsolated_Summer11_zmumu10_ApeSkim_cff")
@@ -148,14 +147,14 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 
-
-process.GlobalTag.toGet = cms.VPSet(
-    cms.PSet(
-        record = cms.string("BeamSpotObjectsRcd"),
-        tag = cms.string("Realistic8TeVCollisions_START50_V13_v1_mc"),
-        connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS"),
-    )
-) 
+##### To be used when running on Phys14MC with a CMSSW version > 72X
+#process.GlobalTag.toGet = cms.VPSet(
+#    cms.PSet(
+#        record = cms.string("BeamSpotObjectsRcd"),
+#        tag = cms.string("Realistic8TeVCollisions_START50_V13_v1_mc"),
+#        connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS"),
+#    )
+#) 
 print "Using global tag "+process.GlobalTag.globaltag._value
 
 
@@ -167,7 +166,6 @@ process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(
         record = cms.string("SiPixelTemplateDBObjectRcd"),
         tag = cms.string("SiPixelTemplateDBObject_38T_v3_mc"),
-        #~ connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PIXEL"),
         connect = cms.untracked.string("frontier://FrontierProd/CMS_CONDITIONS"),
     )
 ) 
@@ -181,33 +179,19 @@ import CalibTracker.Configuration.Common.PoolDBESSource_cfi
 ## Choose Alignment (w/o touching APE)
 if isMc:
   process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    #~ connect = 'frontier://FrontierProd/CMS_COND_31X_ALIGNMENT', # or your sqlite file
     connect = 'frontier://FrontierProd/CMS_CONDITIONS', # or your sqlite file
     toGet = [
       cms.PSet(
         record = cms.string('TrackerAlignmentRcd'),
-        #~ tag = cms.string('TrackerAlignment_Ideal62X_mc') # 'TrackerAlignment_2009_v2_offline'
-        tag = cms.string('TrackerIdealGeometry210_mc') # 'TrackerAlignment_2009_v2_offline'
+        tag = cms.string('TrackerIdealGeometry210_mc')
       ),
     ],
   )
   process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
-#  process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-#    #connect = 'sqlite_file:/afs/cern.ch/user/h/hauk/scratch0/apeStudies/misalignments/AlignmentsTob20.db',
-#    connect = 'sqlite_file:/afs/cern.ch/user/h/hauk/scratch0/apeStudies/idealAlignedGeometry/alignments_MP.db',
-#    toGet = [
-#      cms.PSet(
-#        record = cms.string('TrackerAlignmentRcd'),
-#        #tag = cms.string('TrackerScenario'),
-#	tag = cms.string('Alignments'),
-#      )
-#    ],
-#  )
-process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource","myTrackerAlignment")
+
 if isData:
   # Recent geometry
   process.myTrackerAlignment = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-    #~ connect = 'frontier://FrontierProd/CMS_COND_31X_ALIGNMENT',
     connect = 'frontier://FrontierProd/CMS_CONDITIONS',
     toGet = [
       cms.PSet(
@@ -220,11 +204,9 @@ if isData:
   # Kinks and bows
   process.myTrackerAlignmentKinksAndBows = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
     connect = 'frontier://FrontierProd/CMS_CONDITIONS',
-    #~ connect = 'frontier://FrontierProd/CMS_COND_310X_ALIGN',
     toGet = [
       cms.PSet(
         record = cms.string('TrackerSurfaceDeformationRcd'),
-        #~ tag = cms.string('TrackerSurfaceDeformations_zero'),
         tag = cms.string('TrackerSurfaceDeformations_v1_offline'),
       ),
     ],
@@ -234,7 +216,6 @@ if isData:
 ## APE (set to zero)
 process.myTrackerAlignmentErr = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
     connect = 'frontier://FrontierProd/CMS_CONDITIONS',
-    #~ connect = 'frontier://FrontierProd/CMS_COND_ALIGN_000',
     toGet = [
       cms.PSet(
         record = cms.string('TrackerAlignmentErrorExtendedRcd'),
@@ -243,17 +224,6 @@ process.myTrackerAlignmentErr = CalibTracker.Configuration.Common.PoolDBESSource
     ],
 )
 process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
-### APE (as estimated with ApeEstimator)
-#process.myTrackerAlignmentErr = CalibTracker.Configuration.Common.PoolDBESSource_cfi.poolDBESSource.clone(
-#    connect = 'sqlite_file:/afs/cern.ch/user/h/hauk/scratch0/apeStudies/apeObjects/apeIter0.db',
-#    toGet = [
-#      cms.PSet(
-#        record = cms.string('TrackerAlignmentErrorRcd'),
-#        tag = cms.string('AlignmentErrors')
-#      )
-#    ],
-#)
-#process.es_prefer_trackerAlignmentErr = cms.ESPrefer("PoolDBESSource","myTrackerAlignmentErr")
 
 
 
@@ -269,21 +239,10 @@ process.load("Alignment.APEEstimation.TriggerSelection_cff")
 ##
 from Alignment.APEEstimation.ApeEstimator_cff import *
 process.ApeEstimator1 = ApeEstimator.clone(
-    #~ tjTkAssociationMapTag = "TrackRefitterHighPurityForApeEstimator",
     tjTkAssociationMapTag = "TrackRefitterForApeEstimator",
     maxTracksPerEvent = 0,
     applyTrackCuts = False,
     Sectors = RecentSectors,
-    #Sectors = TIDTEC,
-    #Sectors = TIBTOB,
-    #Sectors = TIBTOBQuarters,
-    #Sectors = TIBTOBPitchAnd2DSeparation,
-    #Sectors = TIBTOBLayerAndOrientationSeparation,
-    #Sectors = TIDTECSideAndRingSeparation,
-    #Sectors = TIDTECSideAndRingAndOrientationSeparation,
-    #Sectors = BPIXLayerAndOrientationSeparation,
-    #Sectors = FPIXSideAndLayerAndOrientationSeparation,
-    #Sectors = RecentSectors,
     analyzerMode = False,
     calculateApe = True
 )
@@ -308,7 +267,6 @@ process.ApeEstimator1.HitSelector.qBin = []
 
 
 process.ApeEstimator2 = process.ApeEstimator1.clone(
-    #Sectors = BPIXLayerAndOrientationSeparation + FPIXSideAndLayerSeparation,
     Sectors = ValidationSectors,
     analyzerMode = True,
     calculateApe = False,
@@ -340,7 +298,6 @@ process.TFileService = cms.Service("TFileService",
 ##
 process.p = cms.Path(
     process.TriggerSelectionSequence*
-    #~ process.HighPuritySelector*
     process.RefitterHighPuritySequence*
     (process.ApeEstimator1+
      process.ApeEstimator2+
