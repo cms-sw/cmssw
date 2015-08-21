@@ -22,6 +22,7 @@
 #include "Geometry/TrackerCommonData/plugins/DDTrackerLinearXY.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerPhiAltAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerPhiAlgo.h"
+#include "Geometry/TrackerCommonData/plugins/DDTrackerRingAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerZPosAlgo.h"
 #include "Geometry/TrackerCommonData/plugins/DDTrackerXYZPosAlgo.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
@@ -48,5 +49,6 @@ DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinear,     "track:DDTrackerLine
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerLinearXY,   "track:DDTrackerLinearXY");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAltAlgo, "track:DDTrackerPhiAltAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerPhiAlgo,    "track:DDTrackerPhiAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerRingAlgo,    "track:DDTrackerRingAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerZPosAlgo,   "track:DDTrackerZPosAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDTrackerXYZPosAlgo, "track:DDTrackerXYZPosAlgo");
