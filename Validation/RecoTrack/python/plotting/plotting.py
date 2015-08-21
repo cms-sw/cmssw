@@ -17,11 +17,25 @@ def _getObject(tdirectory, name):
 def _getYmaxWithError(th1):
     return max([th1.GetBinContent(i)+th1.GetBinError(i) for i in xrange(1, th1.GetNbinsX()+1)])
 
-def _findBounds(th1s, xmin=None, xmax=None, ymin=None, ymax=None):
+def _getYminIgnoreOutlier(th1):
+    yvals = filter(lambda n: n>0, [th1.GetBinContent(i) for i in xrange(1, th1.GetNbinsX()+1)])
+    yvals.sort()
+
+    # Define outlier as being x10 less than minimum of the 95 % of the non-zero largest values
+    ind_min = len(yvals) - int(len(yvals)*0.95)
+    min_val = yvals[ind_min]
+    for i in xrange(0, ind_min):
+        if yvals[i] > 0.1*min_val:
+            return yvals[i]
+
+    return min_val
+
+def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
     """Find x-y axis boundaries encompassing a list of TH1s if the bounds are not given in arguments.
 
     Arguments:
     th1s -- List of TH1s
+    ylog -- Boolean indicating if y axis is in log scale or not (affects the automatic ymax)
 
     Keyword arguments:
     xmin -- Minimum x value; if None, take the minimum of TH1s
@@ -29,7 +43,17 @@ def _findBounds(th1s, xmin=None, xmax=None, ymin=None, ymax=None):
     xmin -- Minimum y value; if None, take the minimum of TH1s
     xmax -- Maximum y value; if None, take the maximum of TH1s
     """
-    if xmin is None or xmax is None or ymin is None or ymax is None or isinstance(ymax, list):
+
+    def y_scale_max(y):
+        if ylog:
+            return 1.5*y
+        return 1.05*y
+
+    def y_scale_min(y):
+        # assuming log
+        return 0.9*y
+
+    if xmin is None or xmax is None or ymin is None or ymax is None or isinstance(ymin, list) or isinstance(ymax, list):
         xmins = []
         xmaxs = []
         ymins = []
@@ -38,7 +62,10 @@ def _findBounds(th1s, xmin=None, xmax=None, ymin=None, ymax=None):
             xaxis = th1.GetXaxis()
             xmins.append(xaxis.GetBinLowEdge(xaxis.GetFirst()))
             xmaxs.append(xaxis.GetBinUpEdge(xaxis.GetLast()))
-            ymins.append(th1.GetMinimum())
+            if ylog and isinstance(ymin, list):
+                ymins.append(_getYminIgnoreOutlier(th1))
+            else:
+                ymins.append(th1.GetMinimum())
             ymaxs.append(th1.GetMaximum())
 #            ymaxs.append(_getYmaxWithError(th1))
 
@@ -48,14 +75,30 @@ def _findBounds(th1s, xmin=None, xmax=None, ymin=None, ymax=None):
             xmax = max(xmaxs)
         if ymin is None:
             ymin = min(ymins)
+        elif isinstance(ymin, list):
+            ym_unscaled = min(ymins)
+            ym = y_scale_min(ym_unscaled)
+            ymins_below = filter(lambda y: y<=ym, ymin)
+            if len(ymins_below) == 0:
+                ymin = min(ymin)
+                if ym_unscaled < ymin:
+                    print "Histogram minimum y %f is below all given ymin values %s, using the smallest one" % (ym, str(ymin))
+            else:
+                ymin = max(ymins_below)
+
         if ymax is None:
-            ymax = 1.05*max(ymaxs)
+            ymax = y_scale_max(max(ymaxs))
         elif isinstance(ymax, list):
-            ym = max(ymaxs)
+            ym_unscaled = max(ymaxs)
+            ym = y_scale_max(ym_unscaled)
             ymaxs_above = filter(lambda y: y>ym, ymax)
             if len(ymaxs_above) == 0:
-                raise Exception("Histogram maximum y %f is above all given ymax values %s" % (ym, str(ymax)))
-            ymax = min(ymaxs_above)
+                ymax = max(ymax)
+                if ym_unscaled > ymax:
+                    print "Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax))
+            else:
+                ymax = min(ymaxs_above)
+
 
     for th1 in th1s:
         th1.GetXaxis().SetRangeUser(xmin, xmax)
@@ -669,7 +712,7 @@ class Plot:
             print "No histograms for plot {name}".format(name=self.getName())
             return
 
-        bounds = _findBounds(histos,
+        bounds = _findBounds(histos, self._ylog,
                              xmin=self._xmin, xmax=self._xmax,
                              ymin=self._ymin, ymax=self._ymax)
 

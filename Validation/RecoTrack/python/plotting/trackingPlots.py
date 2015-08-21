@@ -7,8 +7,11 @@ from html import PlotPurpose
 _maxEff = [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 _maxFake = [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 
+#_minMaxResol = [1e-5, 2e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2, 0.1, 0.2, 0.5, 1]
+_minMaxResol = [1e-5, 4e-5, 1e-4, 4e-4, 1e-3, 4e-3, 1e-2, 4e-2, 0.1, 0.4, 1]
+
 _effandfake1 = PlotGroup("effandfake1", [
-    Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True),
+    Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_pT", assoc="num_assoc(recoToSim)_pT", dup="num_duplicate_pT", reco="num_reco_pT", title="fake+duplicates vs p_{T}"),
          xtitle="track p_{T} (GeV)", ytitle="fake+duplicates rate vs p_{T}", ymax=_maxFake, xlog=True),
     Plot("effic", xtitle="TP #eta", ytitle="efficiency vs #eta", title="", ymax=_maxEff),
@@ -26,22 +29,22 @@ _effandfake2 = PlotGroup("effandfake2", [
     Plot("effic_vs_dz", xtitle="TP dz (cm)", ytitle="Efficiency vs dz", title="", ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_dz", assoc="num_assoc(recoToSim)_dz", dup="num_duplicate_dz", reco="num_reco_dz", title=""),
          xtitle="track dz (cm)", ytitle="fake+duplicates rate vs dz", ymax=_maxFake),
-    Plot("effic_vs_hit", xtitle="TP hits", ytitle="efficiency vs hits"),
+    Plot("effic_vs_hit", xtitle="TP hits", ytitle="efficiency vs hits", ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_hit", assoc="num_assoc(recoToSim)_hit", dup="num_duplicate_hit", reco="num_reco_hit", title="fake+duplicates vs hit"),
          xtitle="track hits", ytitle="fake+duplicates rate vs hits", ymax=_maxFake),
 ])
 _effandfake3 = PlotGroup("effandfake3", [
-    Plot("effic_vs_layer", xtitle="TP layers", ytitle="efficiency vs layers", xmax=25),
+    Plot("effic_vs_layer", xtitle="TP layers", ytitle="efficiency vs layers", xmax=25, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_layer", assoc="num_assoc(recoToSim)_layer", dup="num_duplicate_layer", reco="num_reco_layer", title="fake+duplicates vs layer"),
          xtitle="track layers", ytitle="fake+duplicates rate vs layers", ymax=_maxFake, xmax=25),
-    Plot("effic_vs_pixellayer", xtitle="TP pixel layers", ytitle="efficiency vs pixel layers", title="", xmax=6),
+    Plot("effic_vs_pixellayer", xtitle="TP pixel layers", ytitle="efficiency vs pixel layers", title="", xmax=6, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_pixellayer", assoc="num_assoc(recoToSim)_pixellayer", dup="num_duplicate_pixellayer", reco="num_reco_pixellayer", title=""),
          xtitle="track pixel layers", ytitle="fake+duplicates rate vs pixel layers", ymax=_maxFake, xmax=6),
-    Plot("effic_vs_3Dlayer", xtitle="TP 3D layers", ytitle="efficiency vs 3D layers", xmax=20),
+    Plot("effic_vs_3Dlayer", xtitle="TP 3D layers", ytitle="efficiency vs 3D layers", xmax=20, ymax=_maxEff),
     Plot(FakeDuplicate("fakeduprate_vs_3Dlayer", assoc="num_assoc(recoToSim)_3Dlayer", dup="num_duplicate_3Dlayer", reco="num_reco_3Dlayer", title="fake+duplicates vs 3D layer"),
          xtitle="track 3D layers", ytitle="fake+duplicates rate vs 3D layers", ymax=_maxFake, xmax=20),
 ])
-_common = {"ymin": 0, "ymax": 1.025}
+_common = {"ymin": 0, "ymax": _maxEff}
 _effvspos = PlotGroup("effvspos", [
     Plot("effic_vs_vertpos", xtitle="TP vert xy pos (cm)", ytitle="efficiency vs vert xy pos", **_common),
     Plot("effic_vs_zpos", xtitle="TP vert z pos (cm)", ytitle="efficiency vs vert z pos", **_common),
@@ -93,12 +96,12 @@ _dupandfake4 = PlotGroup("dupandfake4", [
 )
 
 # These don't exist in FastSim
-_common = {"stat": True, "drawStyle": "hist"}
+_common = {"normalizeToUnitArea": True, "stat": True, "drawStyle": "hist"}
 _dedx = PlotGroup("dedx", [
-    Plot("h_dedx_estim1", normalizeToUnitArea=True, xtitle="dE/dx, harm2", **_common),
-    Plot("h_dedx_estim2", normalizeToUnitArea=True, xtitle="dE/dx, trunc40", **_common),
-    Plot("h_dedx_nom1", **_common),
-    Plot("h_dedx_sat1", **_common),
+    Plot("h_dedx_estim1", xtitle="dE/dx, harm2", **_common),
+    Plot("h_dedx_estim2", xtitle="dE/dx, trunc40", **_common),
+    Plot("h_dedx_nom1", xtitle="dE/dx number of measurements", title="", **_common),
+    Plot("h_dedx_sat1", xtitle="dE/dx number of measurements with saturation", title="", **_common),
     ],
                   legendDy=-0.025
 )
@@ -111,17 +114,18 @@ _chargemisid = PlotGroup("chargemisid", [
     Plot("chargeMisIdRate_dxy", xtitle="dxy", ytitle="charge mis-id rate vs dxy", ymax=0.1),
     Plot("chargeMisIdRate_dz", xtitle="dz", ytitle="charge mis-id rate vs dz", ymax=0.1)
 ])
+_common = {"stat": True, "normalizeToUnitArea": True, "ylog": True, "ymin": 1e-6, "drawStyle": "hist"}
 _hitsAndPt = PlotGroup("hitsAndPt", [
-    Plot("missing_inner_layers", stat=True, normalizeToUnitArea=True, ylog=True, ymin=1e-6, ymax=1, drawStyle="hist"),
-    Plot("missing_outer_layers", stat=True, normalizeToUnitArea=True, ylog=True, ymin=1e-6, ymax=1, drawStyle="hist"),
+    Plot("missing_inner_layers", ymax=1, **_common),
+    Plot("missing_outer_layers", ymax=1, **_common),
     Plot("hits_eta", stat=True, statx=0.38, xtitle="track #eta", ytitle="<hits> vs #eta", ymin=8, ymax=24, statyadjust=[0,0,-0.15]),
     Plot("hits", stat=True, xtitle="track hits", xmin=0, xmax=40, drawStyle="hist"),
-    Plot("num_simul_pT", stat=True, normalizeToUnitArea=True, xtitle="TP p_{T}", xlog=True, drawStyle="hist"),
-    Plot("num_reco_pT", stat=True, normalizeToUnitArea=True, xtitle="track p_{T}", xlog=True, drawStyle="hist")
+    Plot("num_simul_pT", xtitle="TP p_{T}", xlog=True, ymax=[1e-1, 2e-1, 5e-1, 1], **_common),
+    Plot("num_reco_pT", xtitle="track p_{T}", xlog=True, ymax=[1e-1, 2e-1, 5e-1, 1], **_common)
 ])
 _tuning = PlotGroup("tuning", [
     Plot("chi2", stat=True, normalizeToUnitArea=True, ylog=True, ymin=1e-6, ymax=[0.1, 0.2, 0.5, 1.0001], drawStyle="hist", xtitle="#chi^{2}", ratioUncertainty=False),
-    Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})", ratioUncertainty=False),
+    Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})"),
     Plot("chi2mean", stat=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5),
     Plot("ptres_vs_eta_Mean", stat=True, scale=100, title="", xtitle="#eta", ytitle="< #delta p_{T} / p_{T} > [%]", ymin=-1.5, ymax=1.5)
 ])
@@ -136,21 +140,21 @@ _pulls = PlotGroup("pulls", [
 ],
                    legendDx=0.1, legendDw=-0.1, legendDh=-0.015
 )
-_common = {"title": "", "ylog": True, "xtitle": "#eta"}
+_common = {"title": "", "ylog": True, "xtitle": "#eta", "ymin": _minMaxResol, "ymax": _minMaxResol}
 _resolutionsEta = PlotGroup("resolutionsEta", [
-    Plot("phires_vs_eta_Sigma", ytitle="#sigma(#delta #phi) [rad]", ymin=0.000009, ymax=0.01, **_common),
-    Plot("cotThetares_vs_eta_Sigma", ytitle="#sigma(#delta cot(#theta))", ymin=0.00009, ymax=0.03, **_common),
-    Plot("dxyres_vs_eta_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", ymin=0.00009, ymax=0.05, **_common),
-    Plot("dzres_vs_eta_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", ymin=0.0009, ymax=0.1, **_common),
-    Plot("ptres_vs_eta_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", ymin=0.0059, ymax=0.08, **_common),
+    Plot("phires_vs_eta_Sigma", ytitle="#sigma(#delta #phi) [rad]", **_common),
+    Plot("cotThetares_vs_eta_Sigma", ytitle="#sigma(#delta cot(#theta))", **_common),
+    Plot("dxyres_vs_eta_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", **_common),
+    Plot("dzres_vs_eta_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", **_common),
+    Plot("ptres_vs_eta_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
 ])
-_common = {"title": "", "ylog": True, "xlog": True, "xtitle": "p_{T}", "xmin": 0.1, "xmax": 1000}
+_common = {"title": "", "ylog": True, "xlog": True, "xtitle": "p_{T}", "xmin": 0.1, "xmax": 1000, "ymin": _minMaxResol, "ymax": _minMaxResol}
 _resolutionsPt = PlotGroup("resolutionsPt", [
-    Plot("phires_vs_pt_Sigma", ytitle="#sigma(#delta #phi) [rad]", ymin=0.000009, ymax=0.01, **_common),
-    Plot("cotThetares_vs_pt_Sigma", ytitle="#sigma(#delta cot(#theta))", ymin=0.00009, ymax=0.03, **_common),
-    Plot("dxyres_vs_pt_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", ymin=0.00009, ymax=0.05, **_common),
-    Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", ymin=0.0009, ymax=0.1, **_common),
-    Plot("ptres_vs_pt_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", ymin=0.003, ymax=2.2, **_common),
+    Plot("phires_vs_pt_Sigma", ytitle="#sigma(#delta #phi) [rad]", **_common),
+    Plot("cotThetares_vs_pt_Sigma", ytitle="#sigma(#delta cot(#theta))", **_common),
+    Plot("dxyres_vs_pt_Sigma", ytitle="#sigma(#delta d_{0}) [cm]", **_common),
+    Plot("dzres_vs_pt_Sigma", ytitle="#sigma(#delta z_{0}) [cm]", **_common),
+    Plot("ptres_vs_pt_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
 ])
 
 
