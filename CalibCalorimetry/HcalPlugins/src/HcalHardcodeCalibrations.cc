@@ -365,9 +365,10 @@ std::auto_ptr<HcalRespCorrs> HcalHardcodeCalibrations::produceRespCorrs (const H
 //  if((he_recalibration && !setHEdsegm) || (hb_recalibration && !setHBdsegm)){
   if((he_recalibration && !setHEdsegm)) {
     std::vector<std::vector<int>> m_segmentation;
-    m_segmentation.resize(30);
-    for (int i = 0; i < 30; i++) {
-      if(i>0) topo->getDepthSegmentation(i,m_segmentation[i]);
+    int maxEta = topo->lastHERing();
+    m_segmentation.resize(maxEta);
+    for (int i = 0; i < maxEta; i++) {
+      topo->getDepthSegmentation(i+1,m_segmentation[i]);
     }
     if(he_recalibration && !setHEdsegm){
       he_recalibration->setDsegm(m_segmentation);
