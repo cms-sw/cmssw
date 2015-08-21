@@ -253,14 +253,18 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetDisplacedJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetDisplacedJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetDisplacedJet_selector.throw      = cms.bool(False)
-streamA_datasetDisplacedJet_selector.triggerConditions = cms.vstring('HLT_HT350_DisplacedDijet40_DisplacedTrack_v2', 
+streamA_datasetDisplacedJet_selector.triggerConditions = cms.vstring('HLT_HT250_DisplacedDijet40_DisplacedTrack_v2', 
+    'HLT_HT350_DisplacedDijet40_DisplacedTrack_v2', 
     'HLT_HT350_DisplacedDijet80_DisplacedTrack_v2', 
     'HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v2', 
+    'HLT_HT400_DisplacedDijet40_Inclusive_v2', 
     'HLT_HT500_DisplacedDijet40_Inclusive_v2', 
     'HLT_HT550_DisplacedDijet40_Inclusive_v2', 
     'HLT_HT650_DisplacedDijet80_Inclusive_v2', 
     'HLT_HT750_DisplacedDijet80_Inclusive_v2', 
+    'HLT_VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_v2', 
     'HLT_VBF_DisplacedJet40_DisplacedTrack_v2', 
+    'HLT_VBF_DisplacedJet40_Hadronic_2PromptTrack_v2', 
     'HLT_VBF_DisplacedJet40_Hadronic_v2', 
     'HLT_VBF_DisplacedJet40_TightID_DisplacedTrack_v2', 
     'HLT_VBF_DisplacedJet40_TightID_Hadronic_v2', 

@@ -437,10 +437,10 @@ HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v*			# JIRA: CMSHLT-318
 HLT_VBF_DisplacedJet40_VTightID_DisplacedTrack_v*		# JIRA: CMSHLT-318
 HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v*		# JIRA: CMSHLT-318
 
-#HLT_HT400_DisplacedDijet40_Inclusive_v*			# JIRA: CMSHLT-516
-#HLT_HT250_DisplacedDijet40_DisplacedTrack_v*			# JIRA: CMSHLT-516
-#HLT_VBF_DisplacedJet40_Hadronic_2PromptTrack_v*		# JIRA: CMSHLT-516
-#HLT_VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_v*	# JIRA: CMSHLT-516
+HLT_HT400_DisplacedDijet40_Inclusive_v*				# JIRA: CMSHLT-516
+HLT_HT250_DisplacedDijet40_DisplacedTrack_v*			# JIRA: CMSHLT-516
+HLT_VBF_DisplacedJet40_Hadronic_2PromptTrack_v*			# JIRA: CMSHLT-516
+HLT_VBF_DisplacedJet40_DisplacedTrack_2TrackIP2DSig5_v*		# JIRA: CMSHLT-516
 
 HLT_Ele22_eta2p1_WPTight_Gsf_v*					# JIRA: CMSHLT-330
 HLT_Ele27_eta2p1_WPTight_Gsf_v*					# JIRA: CMSHLT-330
@@ -489,6 +489,11 @@ HLT_L1Tech_DT_GlobalOR_v*					# JIRA: CMSHLT-261 (for commissioning)
 
 HLT_L1SingleMu16_v*						# JIRA: CMSHLT-500
 HLT_L2Mu10_v*							# JIRA: CMSHLT-500
+
+#HLT_HIL1DoubleMu0BPTX_v*					# JIRA: CMSHLT-496
+#HLT_HIL2Mu3BPTX_v*						# JIRA: CMSHLT-496
+#HLT_HIL2DoubleMu0BPTX_v*					# JIRA: CMSHLT-496
+#HLT_HIL3Mu3BPTX_v*						# JIRA: CMSHLT-496
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
@@ -558,7 +563,7 @@ PhysicsEGammaCommissioningOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
 DQMOutput							# online DQMFileSaver
-DQMOfflineOutput                                                # JIRA: CMSHLT-462
+#DQMOfflineOutput                                               # JIRA: CMSHLT-462, removed CMSHLT-481
 DQMEventDisplayOutput
 DQMCalibrationOutput
 HLTMonitorOutput                                                # JIRA: CMSHLT-462, CMSHLT-481
