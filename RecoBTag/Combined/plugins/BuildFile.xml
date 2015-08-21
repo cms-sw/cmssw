@@ -1,5 +1,5 @@
 <use   name="FWCore/Framework"/>
-<library   file="JetTagProducer.cc GenericMVAJetTagESProducer.cc" name="RecoBTauJetTagComputerPlugins">
+<library   file="CombinedMVAJetTagESProducer.cc CombinedMVAV2JetTagESProducer.cc" name="RecoBTagCombinedPlugins">
   <use   name="DataFormats/BTauReco"/>
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/TrackReco"/>
