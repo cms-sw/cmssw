@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from Validation.RecoTrack.plotting.validation import Sample, Validation
+import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 
 #########################################################
@@ -35,6 +36,10 @@ pileupstartupsamples = [
     Sample('RelValZMM', putype=putype("25ns"), midfix="13"),
     Sample('RelValZMM', putype=putype("50ns"), midfix="13")
 ]
+
+if "_pmx" in NewRelease:
+    if not NewRelease in validation._globalTags:
+        validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_pmx", "")]
 
 ### Vertex collections
 Collections = ["offlinePrimaryVertices", "selectedOfflinePrimaryVertices"]

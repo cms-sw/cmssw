@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from Validation.RecoTrack.plotting.validation import Sample, Validation
+import Validation.RecoTrack.plotting.validation as validation
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
 import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 
@@ -73,7 +74,8 @@ if "_pmx" in NewRelease:
     startupsamples = []
     fastsimstartupsamples = []
     doFastVsFull = False
-
+    if not NewRelease in validation._globalTags:
+        validation._globalTags[NewRelease] = validation._globalTags[NewRelease.replace("_pmx", "")]
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb', 'initialStep', 'lowPtTripletStep','pixelPairStep','detachedTripletStep','mixedTripletStep','pixelLessStep','tobTecStep','jetCoreRegionalStep','muonSeededStepInOut','muonSeededStepOutIn',
