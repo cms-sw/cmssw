@@ -117,7 +117,8 @@ private:
 
   // ----------member data ---------------------------
 
-  std::string g4Label;
+  //std::string g4Label;
+  edm::EDGetTokenT<edm::SimVertexContainer> g4Label;
 
   TTree* hydjetTree_;
   HydjetEvent hev_;
@@ -135,9 +136,13 @@ private:
   Bool_t chargedOnly_;
   Bool_t stableOnly_;
 
-  edm::InputTag src_;
-  edm::InputTag genParticleSrc_;
-  edm::InputTag genHIsrc_;
+  // edm::InputTag src_;
+  // edm::InputTag genParticleSrc_;
+  // edm::InputTag genHIsrc_;
+
+  edm::EDGetTokenT<edm::HepMCProduct> src_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticleSrc_;
+  edm::EDGetTokenT<edm::GenHIEvent> genHIsrc_;
 
   edm::ESHandle < ParticleDataTable > pdt;
   edm::Service<TFileService> f;
@@ -165,14 +170,21 @@ HiGenAnalyzer::HiGenAnalyzer(const edm::ParameterSet& iConfig)
   ptMin_ = iConfig.getUntrackedParameter<Double_t>("ptMin", 0);
   chargedOnly_ = iConfig.getUntrackedParameter<Bool_t>("chargedOnly", false);
   stableOnly_ = iConfig.getUntrackedParameter<Bool_t>("stableOnly", false);
-  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
-  genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genParticleSrc",edm::InputTag("hiGenParticles"));
-  genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genHiSrc",edm::InputTag("heavyIon"));
+  if(useHepMCProduct_){
+    src_ = consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator")));
+  } else {
+    genParticleSrc_ = consumes<reco::GenParticleCollection>(iConfig.getUntrackedParameter<edm::InputTag>("genParticleSrc",edm::InputTag("hiGenParticles")));
+  }
+  if(doHI_){
+    genHIsrc_ = consumes<edm::GenHIEvent>(iConfig.getUntrackedParameter<edm::InputTag>("genHiSrc",edm::InputTag("heavyIon")));
+  }
   doParticles_ = iConfig.getUntrackedParameter<Bool_t>("doParticles", true);
   vector<int> defaultPDGs;
   motherDaughterPDGsToSave_ = iConfig.getUntrackedParameter<std::vector<int> >("motherDaughterPDGsToSave",defaultPDGs);
 
-  g4Label = iConfig.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
+  if(doVertex_){
+    g4Label = consumes<edm::SimVertexContainer>(iConfig.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits"));
+  }
 
 }
 
@@ -273,8 +285,8 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   Int_t src = -1;
 
   if(useHepMCProduct_){
-    Handle<HepMCProduct> mc;
-    iEvent.getByLabel(src_,mc);
+    Handle<edm::HepMCProduct> mc;
+    iEvent.getByToken(src_,mc);
     evt = mc->GetEvent();
     scale = evt->event_scale();
 
@@ -326,7 +338,7 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }else{
     edm::Handle<reco::GenParticleCollection> parts;
-    iEvent.getByLabel(genParticleSrc_,parts);
+    iEvent.getByToken(genParticleSrc_,parts);
     for(UInt_t i = 0; i < parts->size(); ++i){
       const reco::GenParticle& p = (*parts)[i];
       if (stableOnly_ && p.status()!=1) continue;
@@ -364,8 +376,8 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	edm::LogError("Number of genparticles exceeds array bounds.");
     }
     if(doHI_){
-      edm::Handle<GenHIEvent> higen;
-      iEvent.getByLabel(genHIsrc_,higen);
+      edm::Handle<edm::GenHIEvent> higen;
+      iEvent.getByToken(genHIsrc_,higen);
 
       b = higen->b();
       npart = higen->Npart();
@@ -379,7 +391,7 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(doVertex_){
     edm::Handle<edm::SimVertexContainer> simVertices;
     // iEvent.getByType<edm::SimVertexContainer>(simVertices);
-    iEvent.getByLabel(g4Label,simVertices);
+    iEvent.getByToken(g4Label,simVertices);
 
     if (! simVertices.isValid() ) throw cms::Exception("FatalError") << "No vertices found\n";
     //Int_t inum = 0;
