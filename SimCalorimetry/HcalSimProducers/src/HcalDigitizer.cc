@@ -196,7 +196,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   //std::vector<int> hoSiPMCells(ps.getParameter<edm::ParameterSet>("ho").getParameter<std::vector<int> >("siPMCells"));
   // 0 means none, 1 means all, and 2 means use hardcoded
 
-//  std::cout << std::endl << " hbSiPMCells = " << hbSiPMCells[0] << std::endl;
+//  std::cout << std::endl << " hbSiPMCells = " << hbSiPMCells.size() << std::endl;
 
   bool doHBHEHPD = hbSiPMCells.empty() || (hbSiPMCells[0] != 1);
   bool doHOHPD = (theHOSiPMCode != 1);
@@ -432,6 +432,7 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
 }
 
 void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, edm::Handle<std::vector<PCaloHit> > const& zdcHandle, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
+
   // Step A: pass in inputs, and accumulate digirs
   if(isHCAL) {
     std::vector<PCaloHit> hcalHits = *hcalHandle.product();
@@ -451,7 +452,6 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
       if(theHBHEDigitizer) theHBHEDigitizer->add(hcalHits, bunchCrossing, engine);
       if(theHBHESiPMDigitizer) theHBHESiPMDigitizer->add(hcalHits, bunchCrossing, engine);
       if(theHBHEUpgradeDigitizer) {
-//	std::cout << "HcalDigitizer::accumulateCaloHits  theHBHEUpgradeDigitizer->add" << std::endl;     
         theHBHEUpgradeDigitizer->add(hcalHits, bunchCrossing, engine);
       }
     }
@@ -547,7 +547,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE upgrade digis : " << hbheupgradeResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HF upgrade digis : " << hfupgradeResult->size();
 
-  /*  
+  /*
   std::cout << std::endl;
   std::cout << "HCAL HBHE digis : " << hbheResult->size() << std::endl;
   std::cout << "HCAL HO   digis : " << hoResult->size() << std::endl;
@@ -567,7 +567,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   e.put(hbheupgradeResult,"HBHEUpgradeDigiCollection");
   e.put(hfupgradeResult, "HFUpgradeDigiCollection");
 
-//  std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
+  std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
 
   if(theHitCorrection) {
     theHitCorrection->clear();
@@ -618,7 +618,7 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   const std::vector<DetId>& zdcCells = theGeometry->getValidDetIds(DetId::Calo, HcalZDCDetId::SubdetectorId);
   //const std::vector<DetId>& hcalTrigCells = geometry->getValidDetIds(DetId::Hcal, HcalTriggerTower);
   //const std::vector<DetId>& hcalCalib = geometry->getValidDetIds(DetId::Calo, HcalCastorDetId::SubdetectorId);
-//  std::cout<<"HcalDigitizer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
+  std::cout<<"HcalDigitizer::CheckGeometry number of cells: "<<zdcCells.size()<<std::endl;
   if(zdcCells.empty()) zdcgeo = false;
   if(hbCells.empty() && heCells.empty()) hbhegeo = false;
   if(hoCells.empty()) hogeo = false;
@@ -637,7 +637,7 @@ void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup) {
   if(theHBHEUpgradeDigitizer) {
     theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds);
 
-//    std::cout << " HcalDigitizer::updateGeometry  theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds)"<< std::endl;   
+    std::cout << " HcalDigitizer::updateGeometry  theHBHEUpgradeDigitizer->setDetIds(theHBHEDetIds)"<< std::endl;   
   }
 
 }

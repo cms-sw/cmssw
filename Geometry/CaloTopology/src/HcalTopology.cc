@@ -753,6 +753,7 @@ int HcalTopology::etaRing(HcalSubdetector bc, double abseta) const {
         break;
       }
     }
+    if (abseta > etaTable[etaTable.size()-1]) etaring = lastHERing_;
   }
   return etaring;
 }
@@ -1007,7 +1008,7 @@ unsigned int HcalTopology::detId2denseIdCALIB(const DetId& id) const {
 	else index             = ((iphi+1)/6-1)  + 36*channel + 6*(ieta+2) + 348;
       }
     } else {
-      std::cout << "HCAL Det Id not valid!" << std::endl;
+      edm::LogWarning("CaloTopology") << "HCAL Det Id not valid!";
       index = 0;
     }
         
