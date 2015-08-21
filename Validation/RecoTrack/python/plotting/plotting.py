@@ -20,9 +20,13 @@ def _getYmaxWithError(th1):
 def _getYminIgnoreOutlier(th1):
     yvals = filter(lambda n: n>0, [th1.GetBinContent(i) for i in xrange(1, th1.GetNbinsX()+1)])
     yvals.sort()
+    if len(yvals) == 0:
+        return th1.GetMinimum()
+    if len(yvals) == 1:
+        return yvals[0]
 
     # Define outlier as being x10 less than minimum of the 95 % of the non-zero largest values
-    ind_min = len(yvals) - int(len(yvals)*0.95)
+    ind_min = len(yvals)-1 - int(len(yvals)*0.95)
     min_val = yvals[ind_min]
     for i in xrange(0, ind_min):
         if yvals[i] > 0.1*min_val:
@@ -294,7 +298,7 @@ class Frame:
         if nrows == 2:
             yoffsetFactor *= 2
             xoffsetFactor *= 2
-        elif nrows == 3:
+        elif nrows >= 3:
             yoffsetFactor *= 4
             xoffsetFactor *= 3
 
@@ -314,11 +318,23 @@ class Frame:
     def setGridy(self, grid):
         self._pad.SetGridy(grid)
 
+    def adjustMarginRight(self, adjust):
+        self._pad.SetRightMargin(self._pad.GetRightMargin()+adjust)
+        # Need to redraw frame after adjusting the margin
+        self._pad.cd()
+        self._frame.Draw("")
+
     def setTitle(self, title):
         self._frame.SetTitle(title)
 
     def setXTitle(self, title):
         self._frame.GetXaxis().SetTitle(title)
+
+    def setXTitleSize(self, size):
+        self._frame.GetXaxis().SetTitleSize(size)
+
+    def setXLabelSize(self, size):
+        self._frame.GetXaxis().SetLabelSize(size)
 
     def setYTitle(self, title):
         self._frame.GetYaxis().SetTitle(title)
@@ -358,6 +374,9 @@ class FrameRatio:
         elif nrows == 3:
             yoffsetFactor *= 4
             xoffsetFactor *= 2.3
+        elif nrows >= 4:
+            yoffsetFactor *= 5
+            xoffsetFactor *= 3
 
         self._frame.GetYaxis().SetTitleOffset(self._frameRatio.GetYaxis().GetTitleOffset()*yoffsetFactor)
         self._frameRatio.GetYaxis().SetLabelSize(int(self._frameRatio.GetYaxis().GetLabelSize()*0.8))
@@ -383,11 +402,26 @@ class FrameRatio:
         self._pad.SetGridy(grid)
         self._padRatio.SetGridy(grid)
 
+    def adjustMarginRight(self, adjust):
+        self._pad.SetRightMargin(self._pad.GetRightMargin()+adjust)
+        self._padRatio.SetRightMargin(self._padRatio.GetRightMargin()+adjust)
+        # Need to redraw frames after adjusting the margin
+        self._pad.cd()
+        self._frame.Draw("")
+        self._padRatio.cd()
+        self._frameRatio.Draw("")
+
     def setTitle(self, title):
         self._frame.SetTitle(title)
 
     def setXTitle(self, title):
         self._frameRatio.GetXaxis().SetTitle(title)
+
+    def setXTitleSize(self, size):
+        self._frameRatio.GetXaxis().SetTitleSize(size)
+
+    def setXLabelSize(self, size):
+        self._frameRatio.GetXaxis().SetLabelSize(size)
 
     def setYTitle(self, title):
         self._frame.GetYaxis().SetTitle(title)
@@ -444,6 +478,8 @@ class Plot:
         Keyword arguments:
         title        -- String for a title of the plot (default None)
         xtitle       -- String for x axis title (default None)
+        xtitlesize   -- Float for x axis title size (default None)
+        xlabelsize   -- Float for x axis label size (default None)
         ytitle       -- String for y axis title (default None)
         ytitlesize   -- Float for y axis title size (default None)
         ytitleoffset -- Float for y axis title offset (default None)
@@ -475,6 +511,7 @@ class Plot:
         legendDy     -- Float for moving TLegend in y direction for separate=True (default None)
         legendDw     -- Float for changing TLegend width for separate=True (default None)
         legendDh     -- Float for changing TLegend height for separate=True (default None)
+        adjustMarginRight  -- Float for adjusting right margin (default None)
         ratioYmin    -- Float for y axis minimum in ratio pad (default 0.9)
         ratioYmax    -- Float for y axis maximum in ratio pad (default 1.1)
         ratioUncertainty -- Plot uncertainties on ratio? (default True)
@@ -487,6 +524,8 @@ class Plot:
 
         _set("title", None)
         _set("xtitle", None)
+        _set("xtitlesize", None)
+        _set("xlabelsize", None)
         _set("ytitle", None)
         _set("ytitlesize", None)
         _set("ytitleoffset", None)
@@ -526,6 +565,8 @@ class Plot:
         _set("legendDy", None)
         _set("legendDw", None)
         _set("legendDh", None)
+
+        _set("adjustMarginRight", None)
 
         _set("ratioYmin", 0.9)
         _set("ratioYmax", 1.1)
@@ -749,12 +790,18 @@ class Plot:
         frame.setTitle(histos[0].GetTitle())
         if self._xtitle is not None:
             frame.setXTitle(self._xtitle)
+        if self._xtitlesize is not None:
+            frame.setXTitleSize(self._xtitlesize)
+        if self._xlabelsize is not None:
+            frame.setXLabelSize(self._xlabelsize)
         if self._ytitle is not None:
             frame.setYTitle(self._ytitle)
         if self._ytitlesize is not None:
             frame.setYTitleSize(self._ytitlesize)
         if self._ytitleoffset is not None:
             frame.setTitleOffset(self._ytitleoffset)
+        if self._adjustMarginRight is not None:
+            frame.adjustMarginRight(self._adjustMarginRight)
 
         if ratio:
             frame._pad.cd()

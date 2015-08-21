@@ -4,6 +4,12 @@ from plotting import FakeDuplicate, AggregateBins, Plot, PlotGroup, PlotFolder, 
 import validation
 from html import PlotPurpose
 
+########################################
+#
+# Per track collection plots
+#
+########################################
+
 _maxEff = [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 _maxFake = [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 
@@ -157,6 +163,11 @@ _resolutionsPt = PlotGroup("resolutionsPt", [
     Plot("ptres_vs_pt_Sigma", ytitle="#sigma(#delta p_{T}/p_{T})", **_common),
 ])
 
+########################################
+#
+# Summary plots
+#
+########################################
 
 _possibleTrackingColls = [
     'initialStep',
@@ -236,6 +247,63 @@ _summaryHp = PlotGroup("summaryHp", [
     Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
 ])
 
+########################################
+#
+# PackedCandidate plots
+#
+########################################
+
+_common = {"normalizeToUnitArea": True, "ylog": True, "ymin": [1e-6, 1e-5, 1e-4, 1e-3, 1e-2], "ymax": [1e-2, 1e-1, 1.1]}
+_packedCandidateFlow = PlotGroup("flow", [
+    Plot("selectionFlow", xbinlabelsize=10, xbinlabeloption="d", drawStyle="hist"),
+    Plot("diffCharge", xtitle="Charge", **_common),
+    Plot("diffIsHighPurity", xtitle="High purity status", **_common),
+    Plot("diffNdof", xtitle="ndof", **_common),
+    Plot("diffNormalizedChi2", xtitle="#chi^{2}/ndof", **_common),
+])
+_packedCandidateHits = PlotGroup("hits", [
+    Plot("diffHitPatternNumberOfValidHits", xtitle="Valid hits (via HitPattern)", **_common),
+    Plot("diffHitPatternNumberOfValidPixelHits", xtitle="Valid pixel hits (via HitPattern)", **_common),
+    Plot("diffHitPatternHasValidHitInFirstPixelBarrel", xtitle="Has valid hit in BPix1 layer (via HitPattern)", **_common),
+    Plot("diffHitPatternNumberOfLostPixelHits", xtitle="Lost pixel hits (via HitPattern)", **_common),
+    Plot("diffNumberOfHits", xtitle="Hits",  **_common),
+    Plot("diffNumberOfPixelHits", xtitle="Pixel hits", **_common),
+    Plot("diffLostInnerHits", xtitle="Lost inner hits", **_common),
+],
+                                 legendDy=0.09
+)
+
+_common["xlabelsize"] = 16
+_packedCandidateMomVert = PlotGroup("momentumVertex", [
+    Plot("diffPx", xtitle="p_{x}", **_common),
+    Plot("diffVx", xtitle="Reference point x", **_common),
+    Plot("diffPy", xtitle="p_{y}", **_common),
+    Plot("diffVy", xtitle="Reference point y", **_common),
+    Plot("diffPz", xtitle="p_{z}", **_common),
+    Plot("diffVz", xtitle="Reference point z", **_common),
+])
+
+_common["adjustMarginRight"] = 0.05
+_packedCandidateParam1 = PlotGroup("param1", [
+    Plot("diffPt", xtitle="p_{T}", **_common),
+    Plot("diffPtError", xtitle="p_{T} error", **_common),
+    Plot("diffEta", xtitle="#eta", **_common),
+    Plot("diffEtaError", xtitle="#eta error", **_common),
+    Plot("diffPhi", xtitle="#phi", **_common),
+    Plot("diffPhiError", xtitle="#phi error", **_common),
+])
+_packedCandidateParam2 = PlotGroup("param2", [
+    Plot("diffDxy", xtitle="d_{xy}", **_common),
+    Plot("diffDxyError", xtitle="d_{xy} error", **_common),
+    Plot("diffDz", xtitle="d_{z}", **_common),
+    Plot("diffDzError", xtitle="d_{z} error", **_common),
+    Plot("diffQoverp", xtitle="Q/p", **_common),
+    Plot("diffQoverpError", xtitle="Q/p error", **_common),
+    Plot("diffTheta", xtitle="#theta", **_common),
+    Plot("diffThetaError", xtitle="#theta error", **_common),
+],
+                                   legendDy=0.09
+)
 
 class TrackingPlotFolder(PlotFolder):
     def _init__(self, *args, **kwargs):
@@ -296,6 +364,13 @@ _summaryPlots = [
     _summary,
     _summaryHp,
 ]
+_packedCandidatePlots = [
+    _packedCandidateFlow,
+    _packedCandidateParam1,
+    _packedCandidateParam2,
+    _packedCandidateMomVert,
+    _packedCandidateHits,
+]
 plotter = Plotter()
 def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
     # to keep backward compatibility, this set of plots has empty name
@@ -312,6 +387,10 @@ _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPil
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots, onlyForPileup=True)
 
+# MiniAOD
+plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),
+               PlotFolder(*_packedCandidatePlots, loopSubFolders=False,
+                          purpose=PlotPurpose.MiniAOD, page="miniaod", section="PackedCandidate"))
 
 _iterModuleMap = collections.OrderedDict([
     ("initialStepPreSplitting", ["initialStepSeedLayersPreSplitting",

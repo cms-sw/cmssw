@@ -63,6 +63,7 @@ _trackAlgoOrder = [
 _pageNameMap = {
     "summary": "Summary",
     "vertex": "Vertex",
+    "miniaod": "MiniAOD"
 }
 
 _sectionNameMapOrder = collections.OrderedDict([
@@ -78,6 +79,7 @@ class PlotPurpose:
     class TrackingIteration: pass
     class TrackingSummary: pass
     class Vertexing: pass
+    class MiniAOD: pass
 
 class Page(object):
     def __init__(self, title, base, sampleName):
@@ -286,6 +288,7 @@ class IndexSection:
         self._summaryPage = PageSet(*params)
         self._iterationPages = TrackingPageSet(*params)
         self._vertexPage = PageSet(*params)
+        self._miniaodPage = PageSet(*params)
         self._otherPages = PageSet(*params)
 
     def addPlots(self, plotterFolder, dqmSubFolder, plotFiles):
@@ -298,6 +301,8 @@ class IndexSection:
             self._summaryPage.addPlotSet(*params)
         elif purpose is PlotPurpose.Vertexing:
             self._vertexPage.addPlotSet(*params)
+        elif purpose is PlotPurpose.MiniAOD:
+            self._miniaodPage.addPlotSet(*params)
         else:
             self._otherPages.addPlotSet(*params)
 
@@ -308,7 +313,7 @@ class IndexSection:
             "  <ul>",
             ]
 
-        for pages in [self._summaryPage, self._iterationPages, self._vertexPage, self._otherPages]:
+        for pages in [self._summaryPage, self._iterationPages, self._vertexPage, self._miniaodPage, self._otherPages]:
             labelFiles = pages.write(baseDir)
             for label, fname in labelFiles:
                 ret.append('   <li><a href="%s">%s</a></li>' % (fname, label))
