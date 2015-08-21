@@ -65,6 +65,17 @@ class LeptonAnalyzer( Analyzer ):
                 self.IsolationComputer = heppy.IsolationComputer(0.4)
             else:
                 self.IsolationComputer = heppy.IsolationComputer()
+
+        self.doIsoAnulus = getattr(cfg_ana, 'doIsoAnulus', False)
+        if self.doIsoAnulus:
+            self.isoAnPUCorr = self.cfg_ana.isoAnPUCorr
+            self.anDeltaR = self.cfg_ana.anDeltaR
+            if self.doMiniIsolation:
+                assert (self.miniIsolationPUCorr!="weights")
+                assert (self.miniIsolationVetoLeptons==None)
+            else:
+                self.IsolationComputer = heppy.IsolationComputer()
+            
         self.doIsolationScan = getattr(cfg_ana, 'doIsolationScan', False)
         if self.doIsolationScan:
             if self.doMiniIsolation:
@@ -151,6 +162,13 @@ class LeptonAnalyzer( Analyzer ):
                     self.IsolationComputer.addVeto(lep)
             for lep in event.inclusiveLeptons:
                 self.attachMiniIsolation(lep)
+        
+        if self.doIsoAnulus:
+            if self.miniIsolationVetoLeptons == "inclusive":
+                for lep in event.inclusiveLeptons:
+                    self.IsolationComputer.addVeto(lep)
+            for lep in event.inclusiveLeptons:
+                self.attachIsoAnulus(lep)
 
         if self.doIsolationScan:
             for lep in event.inclusiveLeptons:
@@ -428,6 +446,29 @@ class LeptonAnalyzer( Analyzer ):
         mu.miniRelIso = mu.miniAbsIso/mu.pt()
 
 
+    def attachIsoAnulus(self, mu):
+        mu.miniIsoR = 10.0/min(max(mu.pt(), 50),200)
+        mu.absIsoAnCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0);
+
+        if self.isoAnPUCorr == None: puCorr = 'deltaBeta'
+        else: puCorr = self.isoAnPUCorr
+        
+        mu.absIsoAnPho  = self.IsolationComputer.photonAbsIsoRaw( mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0) 
+        mu.absIsoAnNHad = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0) 
+        mu.absIsoAnNeutral = mu.absIsoAnPho + mu.absIsoAnNHad 
+
+        if puCorr == "rhoArea":
+            mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - mu.rho * mu.EffectiveArea03 * (self.cfg_ana.anDeltaR/0.3)**2)
+        elif puCorr == "deltaBeta":
+            mu.absIsoAnPU = self.IsolationComputer.puAbsIso(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0);
+            mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - 0.5*mu.absIsoAnPU)
+        elif puCorr != 'raw':
+            raise RuntimeError, "Unsupported miniIsolationCorr name '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw' are supported."
+
+        mu.absIsoAn = mu.absIsoAnCharged + mu.absIsoAnNeutral
+        mu.relIsoAn = mu.absIsoAn/mu.pt()
+
+
     def attachIsolationScan(self, mu):
 
         what = "mu" if (abs(mu.pdgId()) == 13) else ("eleB" if mu.isEB() else "eleE")
@@ -587,6 +628,11 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     miniIsolationPUCorr = 'rhoArea', # Allowed options: 'rhoArea' (EAs for 03 cone scaled by R^2), 'deltaBeta', 'raw' (uncorrected), 'weights' (delta beta weights; not validated)
                                      # Choose None to just use the individual object's PU correction
     miniIsolationVetoLeptons = None, # use 'inclusive' to veto inclusive leptons and their footprint in all isolation cones
+    # Activity Anulus
+    doIsoAnulus = False, # off by default since it requires access to all PFCandidates 
+    anDeltaR = 0.4,
+    isoAnPUCorr = 'deltaBeta', # Allowed options: 'rhoArea' (EAs for 03 cone scaled by R^2), 'deltaBeta', 'raw' (uncorrected), 'weights' (delta beta weights; not validated)
+                                     # Choose None to just use the individual object's PU correction
     # do MC matching 
     do_mc_match = True, # note: it will in any case try it only on MC, not on data
     match_inclusiveLeptons = False, # match to all inclusive leptons

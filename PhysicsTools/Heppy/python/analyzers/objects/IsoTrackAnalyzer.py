@@ -49,6 +49,14 @@ class IsoTrackAnalyzer( Analyzer ):
         super(IsoTrackAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         self.IsoTrackIsolationComputer = heppy.IsolationComputer(self.cfg_ana.isoDR)
 
+        self.doIsoAnulus = getattr(cfg_ana, 'doIsoAnulus', False)
+        if self.doIsoAnulus:
+            self.isoAnPUCorr = self.cfg_ana.isoAnPUCorr
+            self.anDeltaR = self.cfg_ana.anDeltaR
+            self.IsoTrackIsolationComputer = heppy.IsolationComputer()
+
+
+
     #----------------------------------------
     # DECLARATION OF HANDLES OF LEPTONS STUFF   
     #----------------------------------------
@@ -69,8 +77,6 @@ class IsoTrackAnalyzer( Analyzer ):
     # MAKE LIST
     #------------------
     def makeIsoTrack(self, event):
-
-
 
         event.selectedIsoTrack = []
         event.selectedIsoCleanTrack = []
@@ -104,13 +110,16 @@ class IsoTrackAnalyzer( Analyzer ):
 ## ===> compute the isolation and find the most isolated track
 
             isoSum = self.IsoTrackIsolationComputer.chargedAbsIso(track.physObj, self.cfg_ana.isoDR, 0., self.cfg_ana.ptPartMin)
-
+            
             if self.cfg_ana.doRelIsolation:
                 relIso = (isoSum-track.pt())/track.pt()
                 if ( (abs(track.pdgId())!=11) and (abs(track.pdgId())!=13) and (relIso > self.cfg_ana.MaxIsoSum) ): continue
                 elif((relIso > self.cfg_ana.MaxIsoSumEMU)): continue
             else:
                 if(isoSum > (self.cfg_ana.maxAbsIso + track.pt())): continue
+
+            if self.doIsoAnulus:
+                self.attachIsoAnulus(track)
 
 
             #if abs(track.pdgId())==211 :
@@ -224,11 +233,35 @@ class IsoTrackAnalyzer( Analyzer ):
         #if(len(event.preIsoTrack)): self.counters.counter('events').inc('has >=1 selected Track') 
         if(len(event.selectedIsoTrack)): self.counters.counter('events').inc('has >=1 selected Iso Track')
 
+    
+    def attachIsoAnulus(self, mu):
+
+        mu.absIsoAnCharged = self.IsoTrackIsolationComputer.chargedAbsIso(mu.physObj, self.cfg_ana.anDeltaR,  self.cfg_ana.isoDR, 0.0);
+
+        if self.isoAnPUCorr == None: puCorr = 'deltaBeta'
+        else: puCorr = self.isoAnPUCorr
+
+        mu.absIsoAnPho  = self.IsoTrackIsolationComputer.photonAbsIsoRaw( mu.physObj, self.cfg_ana.anDeltaR,  self.cfg_ana.isoDR, 0.0)
+        mu.absIsoAnNHad = self.IsoTrackIsolationComputer.neutralHadAbsIsoRaw(mu.physObj, self.cfg_ana.anDeltaR, self.cfg_ana.isoDR, 0.0)
+        mu.absIsoAnNeutral = mu.absIsoAnPho + mu.absIsoAnNHad
+        if puCorr == "rhoArea":
+            mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - mu.rho * mu.EffectiveArea03 * (self.cfg_ana.anDeltaR/0.3)**2)
+        elif puCorr == "deltaBeta":
+            mu.absIsoAnPU = self.IsoTrackIsolationComputer.puAbsIso(mu.physObj, self.cfg_ana.anDeltaR, self.cfg_ana.isoDR, 0.0);
+            mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - 0.5*mu.absIsoAnPU)
+        elif puCorr != 'raw':
+            raise RuntimeError, "Unsupported miniIsolationCorr name '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw' are supported."
+
+        mu.absIsoAn = mu.absIsoAnCharged + mu.absIsoAnNeutral
+        mu.relIsoAn = mu.absIsoAn/mu.pt()
+
+
     def matchIsoTrack(self, event):
         matchTau = matchObjectCollection3(event.selectedIsoTrack, event.gentaus + event.gentauleps + event.genleps, deltaRMax = 0.5)
         for lep in event.selectedIsoTrack:
             gen = matchTau[lep]
             lep.mcMatchId = 1 if gen else 0
+
 
     def printInfo(self, event):
         print 'event to Veto'
@@ -314,6 +347,10 @@ setattr(IsoTrackAnalyzer,"defaultConfig",cfg.Analyzer(
     MaxIsoSumEMU = 0.2, ### unused
     doSecondVeto = False,
     #####
+    doIsoAnulus = False,
+    anDeltaR = 0.4,
+    isoAnPUCorr = 'deltaBeta',
+    ###
     doPrune = True,
     do_mc_match = True, # note: it will in any case try it only on MC, not on data
   )
