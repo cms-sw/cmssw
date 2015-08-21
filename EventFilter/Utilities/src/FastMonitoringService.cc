@@ -111,6 +111,7 @@ namespace evf{
       throw cms::Exception("FastMonitoringService") << "EvFDaqDirector is not present";
     
     }
+    emptyLumisectionMode_ = edm::Service<evf::EvFDaqDirector>()->emptyLumisectionMode();
     boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->baseRunDir());
     workingDirectory_ = runDirectory_ = runDirectory;
     workingDirectory_ /= "mon";
@@ -264,7 +265,7 @@ namespace evf{
 
     //build a map of modules keyed by their module description address
     //here we need to treat output modules in a special way so they can be easily singled out
-    if(desc.moduleName() == "Stream" || desc.moduleName() == "ShmStreamConsumer" ||
+    if(desc.moduleName() == "Stream" || desc.moduleName() == "ShmStreamConsumer" || desc.moduleName() == "EvFOutputModule" ||
        desc.moduleName() == "EventStreamFileWriter" || desc.moduleName() == "PoolOutputModule")
       encModule_.updateReserved((void*)&desc);
     else
@@ -353,7 +354,7 @@ namespace evf{
 	  IntJ *lumiProcessedJptr = dynamic_cast<IntJ*>(fmt_.jsonMonitor_->getMergedIntJForLumi("Processed",lumi));
           if (!lumiProcessedJptr)
               throw cms::Exception("FastMonitoringService") << "Internal error: got null pointer from FastMonitor";
-	  processedEventsPerLumi_[lumi] = lumiProcessedJptr->value();
+	  processedEventsPerLumi_[lumi] = std::pair<unsigned int,bool>(lumiProcessedJptr->value(),false);
 
 	  {
 	    auto itr = sourceEventsReport_.find(lumi);
@@ -365,19 +366,20 @@ namespace evf{
 
               if (edm::shutdown_flag || exception_detected) {
                 edm::LogInfo("FastMonitoringService") << "Run interrupted. Skip writing EoL information -: "
-                                                      << processedEventsPerLumi_[lumi] << " events were processed in LUMI " << lumi;
+                                                      << processedEventsPerLumi_[lumi].first << " events were processed in LUMI " << lumi;
                 //this will prevent output modules from producing json file for possibly incomplete lumi
-                processedEventsPerLumi_[lumi]=0;
+                processedEventsPerLumi_[lumi].first=0;
+                processedEventsPerLumi_[lumi].second=true;
                 return;
               }
               //disable this exception, so service can be used standalone (will be thrown if output module asks for this information)
               //throw cms::Exception("FastMonitoringService") << "SOURCE did not send update for lumi block. LUMI -:" << lumi;
 	    }
 	    else {
-	      if (itr->second!=processedEventsPerLumi_[lumi]) {
+	      if (itr->second!=processedEventsPerLumi_[lumi].first) {
 		throw cms::Exception("FastMonitoringService") << "MISMATCH with SOURCE update. LUMI -: "
                                                               << lumi
-                                                              << ", events(processed):" << processedEventsPerLumi_[lumi]
+                                                              << ", events(processed):" << processedEventsPerLumi_[lumi].first
                                                               << " events(source):" << itr->second;
 	      }
 	      sourceEventsReport_.erase(itr);
@@ -597,12 +599,13 @@ namespace evf{
   }
 
   //for the output module
-  unsigned int FastMonitoringService::getEventsProcessedForLumi(unsigned int lumi) {
+  unsigned int FastMonitoringService::getEventsProcessedForLumi(unsigned int lumi, bool * abortFlag) {
     std::lock_guard<std::mutex> lock(fmt_.monlock_);
 
     auto it = processedEventsPerLumi_.find(lumi);
     if (it!=processedEventsPerLumi_.end()) {
-      unsigned int proc = it->second;
+      unsigned int proc = it->second.first;
+      if (abortFlag) *abortFlag=it->second.second;
       return proc;
     }
     else {
@@ -611,6 +614,20 @@ namespace evf{
     }
   }
 
+  //for the output module
+  bool FastMonitoringService::getAbortFlagForLumi(unsigned int lumi) {
+    std::lock_guard<std::mutex> lock(fmt_.monlock_);
+
+    auto it = processedEventsPerLumi_.find(lumi);
+    if (it!=processedEventsPerLumi_.end()) {
+      unsigned int abortFlag = it->second.second;
+      return abortFlag;
+    }
+    else {
+      throw cms::Exception("FastMonitoringService") << "output module wants already deleted (or never reported by SOURCE) lumisection status for LUMI -: "<<lumi;
+      return 0;
+    }
+  }
 
   void FastMonitoringService::doSnapshot(const unsigned int ls, const bool isGlobalEOL) {
     // update macrostate
