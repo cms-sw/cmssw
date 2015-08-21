@@ -56,11 +56,12 @@
 #include "TFile.h"
 #include "TNtuple.h"
 #include "TMath.h"
+#include <vector>
 
 using namespace std;
 
-static const Int_t MAXPARTICLES = 200000;
-static const Int_t MAXVTX = 1000;
+//static const Int_t MAXPARTICLES = 200000;
+//static const Int_t MAXVTX = 1000;
 static const Int_t ETABINS = 3; // Fix also in branch string
 
 //
@@ -81,18 +82,18 @@ struct HydjetEvent{
   Float_t ptav[ETABINS];
 
   Int_t mult;
-  Float_t pt[MAXPARTICLES];
-  Float_t eta[MAXPARTICLES];
-  Float_t phi[MAXPARTICLES];
-  Int_t pdg[MAXPARTICLES];
-  Int_t chg[MAXPARTICLES];
-  Int_t sube[MAXPARTICLES];
-  Int_t sta[MAXPARTICLES];
-  Int_t matchingID[MAXPARTICLES];
-  Int_t nMothers[MAXPARTICLES];
-  Int_t motherIndex[MAXPARTICLES][200];
-  Int_t nDaughters[MAXPARTICLES];
-  Int_t daughterIndex[MAXPARTICLES][200];
+  std::vector<Float_t> pt;
+  std::vector<Float_t> eta;
+  std::vector<Float_t> phi;
+  std::vector<Int_t> pdg;
+  std::vector<Int_t> chg;
+  std::vector<Int_t> sube;
+  std::vector<Int_t> sta;
+  std::vector<Int_t> matchingID;
+  std::vector<Int_t> nMothers;
+  std::vector<std::vector<Int_t> > motherIndex;
+  std::vector<Int_t> nDaughters;
+  std::vector<std::vector<Int_t> > daughterIndex;
 
   Float_t vx;
   Float_t vy;
@@ -260,6 +261,19 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace HepMC;
 
+  hev_.pt.clear();
+  hev_.eta.clear();
+  hev_.phi.clear();
+  hev_.pdg.clear();
+  hev_.chg.clear();
+  hev_.sube.clear();
+  hev_.sta.clear();
+  hev_.matchingID.clear();
+  hev_.nMothers.clear();
+  hev_.motherIndex.clear();
+  hev_.nDaughters.clear();
+  hev_.daughterIndex.clear();
+
   hev_.event = iEvent.id().event();
   for(Int_t ieta = 0; ieta < ETABINS; ++ieta){
     hev_.n[ieta] = 0;
@@ -316,13 +330,13 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       Int_t charge = static_cast<Int_t>(part->charge());
       if (chargedOnly_&&charge==0) continue;
 
-      hev_.pt[hev_.mult] = pt;
-      hev_.eta[hev_.mult] = eta;
-      hev_.phi[hev_.mult] = phi;
-      hev_.pdg[hev_.mult] = pdg_id;
-      hev_.chg[hev_.mult] = charge;
-      hev_.sta[hev_.mult] = (*it)->status();
-      hev_.matchingID[hev_.mult] = nparticles;
+      hev_.pt.push_back( pt);
+      hev_.eta.push_back( eta);
+      hev_.phi.push_back( phi);
+      hev_.pdg.push_back( pdg_id);
+      hev_.chg.push_back( charge);
+      hev_.sta.push_back( (*it)->status());
+      hev_.matchingID.push_back( nparticles);
 
       eta = fabs(eta);
       Int_t etabin = 0;
@@ -333,8 +347,8 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	++(hev_.n[etabin]);
       }
       ++(hev_.mult);
-      if(hev_.mult >= MAXPARTICLES)
-	edm::LogError("Number of genparticles exceeds array bounds.");
+      // if(hev_.mult >= MAXPARTICLES)
+      // 	edm::LogError("Number of genparticles exceeds array bounds.");
     }
   }else{
     edm::Handle<reco::GenParticleCollection> parts;
@@ -344,24 +358,26 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (stableOnly_ && p.status()!=1) continue;
       if (p.pt()<ptMin_) continue;
       if (chargedOnly_&&p.charge()==0) continue;
-      hev_.pt[hev_.mult] = p.pt();
-      hev_.eta[hev_.mult] = p.eta();
-      hev_.phi[hev_.mult] = p.phi();
-      hev_.pdg[hev_.mult] = p.pdgId();
-      hev_.chg[hev_.mult] = p.charge();
-      hev_.sube[hev_.mult] = p.collisionId();
-      hev_.sta[hev_.mult] = p.status();
-      hev_.matchingID[hev_.mult] = i;
-      hev_.nMothers[hev_.mult] = p.numberOfMothers();
+      hev_.pt.push_back( p.pt());
+      hev_.eta.push_back( p.eta());
+      hev_.phi.push_back( p.phi());
+      hev_.pdg.push_back( p.pdgId());
+      hev_.chg.push_back( p.charge());
+      hev_.sube.push_back( p.collisionId());
+      hev_.sta.push_back( p.status());
+      hev_.matchingID.push_back( i);
+      hev_.nMothers.push_back( p.numberOfMothers());
       vector<int> tempMothers = getMotherIdx(parts, p);
-      for(unsigned int imother=0; imother<tempMothers.size(); imother++){
-	hev_.motherIndex[hev_.mult][imother] = tempMothers.at(imother);
-      }
-      hev_.nDaughters[hev_.mult] = p.numberOfDaughters();
+      hev_.motherIndex.push_back(tempMothers);
+      // for(unsigned int imother=0; imother<tempMothers.size(); imother++){
+      // 	hev_.motherIndex[hev_.mult].push_back(tempMothers.at(imother));
+      // }
+      hev_.nDaughters.push_back( p.numberOfDaughters());
       vector<int> tempDaughters = getDaughterIdx(parts, p);
-      for(unsigned int idaughter=0; idaughter<tempDaughters.size(); idaughter++){
-	hev_.daughterIndex[hev_.mult][idaughter] = tempDaughters.at(idaughter);
-      }
+      hev_.daughterIndex.push_back(tempDaughters);
+      // for(unsigned int idaughter=0; idaughter<tempDaughters.size(); idaughter++){
+      // 	hev_.daughterIndex[hev_.mult].push_back(tempDaughters.at(idaughter));
+      // }
       Double_t eta = fabs(p.eta());
 
       Int_t etabin = 0;
@@ -372,8 +388,8 @@ HiGenAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	++(hev_.n[etabin]);
       }
       ++(hev_.mult);
-      if(hev_.mult >= MAXPARTICLES)
-	edm::LogError("Number of genparticles exceeds array bounds.");
+      // if(hev_.mult >= MAXPARTICLES)
+      // 	edm::LogError("Number of genparticles exceeds array bounds.");
     }
     if(doHI_){
       edm::Handle<edm::GenHIEvent> higen;
@@ -457,20 +473,20 @@ HiGenAnalyzer::beginJob()
   if(doParticles_){
 
     hydjetTree_->Branch("mult",&hev_.mult,"mult/I");
-    hydjetTree_->Branch("pt",hev_.pt,"pt[mult]/F");
-    hydjetTree_->Branch("eta",hev_.eta,"eta[mult]/F");
-    hydjetTree_->Branch("phi",hev_.phi,"phi[mult]/F");
-    hydjetTree_->Branch("pdg",hev_.pdg,"pdg[mult]/I");
-    hydjetTree_->Branch("chg",hev_.chg,"chg[mult]/I");
-    hydjetTree_->Branch("matchingID",hev_.matchingID,"matchingID[mult]/I");
-    hydjetTree_->Branch("nMothers",hev_.nMothers,"nMothers[mult]/I");
-    hydjetTree_->Branch("motherIdx",hev_.motherIndex,"motherIdx[mult][200]/I");
-    hydjetTree_->Branch("nDaughters",hev_.nDaughters,"nDaughters[mult]/I");
-    hydjetTree_->Branch("daughterIdx",hev_.daughterIndex,"daughterIdx[mult][200]/I");
+    hydjetTree_->Branch("pt",&hev_.pt);
+    hydjetTree_->Branch("eta",&hev_.eta);
+    hydjetTree_->Branch("phi",&hev_.phi);
+    hydjetTree_->Branch("pdg",&hev_.pdg);
+    hydjetTree_->Branch("chg",&hev_.chg);
+    hydjetTree_->Branch("matchingID",&hev_.matchingID);
+    hydjetTree_->Branch("nMothers",&hev_.nMothers);
+    hydjetTree_->Branch("motherIdx",&hev_.motherIndex);
+    hydjetTree_->Branch("nDaughters",&hev_.nDaughters);
+    hydjetTree_->Branch("daughterIdx",&hev_.daughterIndex);
     if(!stableOnly_){
-      hydjetTree_->Branch("sta",hev_.sta,"sta[mult]/I");
+      hydjetTree_->Branch("sta",&hev_.sta);
     }
-    hydjetTree_->Branch("sube",hev_.sube,"sube[mult]/I");
+    hydjetTree_->Branch("sube",&hev_.sube);
 
     hydjetTree_->Branch("vx",&hev_.vx,"vx/F");
     hydjetTree_->Branch("vy",&hev_.vy,"vy/F");
