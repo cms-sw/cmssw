@@ -28,7 +28,6 @@
 //#define mkdebug
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
-			     const HcalDDDSimConstants& hcons,
                              edm::ParameterSet const & p) : showerLibrary(0), 
                                                             fibre(0), gflash(0),
                                                             fillHisto(false) { 
@@ -81,16 +80,9 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   }
 #endif
   
-  //Special Geometry parameters
-  gpar      = hcons.getGparHF();
-  edm::LogInfo("HFShower") << "HFShowerParam: " << gpar.size() <<" gpar (cm)";
-  for (unsigned int ig=0; ig<gpar.size(); ig++)
-    edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
-                             << gpar[ig]/cm << " cm";
-  
-  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name,cpv,hcons,p);
+  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name,cpv,p);
   if (useGflash)        gflash        = new HFGflash(p);
-  fibre = new HFFibre(name, cpv, hcons, p);
+  fibre = new HFFibre(name, cpv, p);
   attLMeanInv = fibre->attLength(lambdaMean);
   edm::LogInfo("HFShower") << "att. length used for (lambda=" << lambdaMean
                            << ") = " << 1/(attLMeanInv*cm) << " cm";
@@ -102,7 +94,8 @@ HFShowerParam::~HFShowerParam() {
   if (showerLibrary) delete showerLibrary;
 }
 
-void HFShowerParam::initRun(G4ParticleTable * theParticleTable) {
+void HFShowerParam::initRun(G4ParticleTable * theParticleTable,
+			    HcalDDDSimConstants* hcons) {
   emPDG = theParticleTable->FindParticle("e-")->GetPDGEncoding();
   epPDG = theParticleTable->FindParticle("e+")->GetPDGEncoding();
   gammaPDG = theParticleTable->FindParticle("gamma")->GetPDGEncoding();
@@ -110,7 +103,15 @@ void HFShowerParam::initRun(G4ParticleTable * theParticleTable) {
   edm::LogInfo("HFShower") << "HFShowerParam: Particle code for e- = " << emPDG
                            << " for e+ = " << epPDG << " for gamma = " << gammaPDG;
 #endif
-  if (showerLibrary) showerLibrary->initRun(theParticleTable);
+  if (showerLibrary) showerLibrary->initRun(theParticleTable, hcons);
+  if (fibre)         fibre->initRun(hcons);
+
+  //Special Geometry parameters
+  gpar      = hcons->getGparHF();
+  edm::LogInfo("HFShower") << "HFShowerParam: " << gpar.size() <<" gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
+                             << gpar[ig]/cm << " cm";
 }
 
 std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep, 

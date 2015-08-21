@@ -22,10 +22,11 @@ class HFShowerPMT {
 public:    
 
   HFShowerPMT(std::string & name, const DDCompactView & cpv, 
-	      const HcalDDDSimConstants& hcons, edm::ParameterSet const & p);
+	      edm::ParameterSet const & p);
   virtual ~HFShowerPMT();
   double                getHits(G4Step * aStep);
   double                getRadius();
+  void                  initRun(G4ParticleTable *, HcalDDDSimConstants*);
 
 private:    
 

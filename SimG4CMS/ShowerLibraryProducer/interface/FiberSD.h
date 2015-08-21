@@ -2,6 +2,7 @@
 #define SimG4CMS_ShowerLibraryProducer_FiberSD_h
 
 #include "SimG4Core/Notification/interface/Observer.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "SimG4Core/Notification/interface/BeginOfRun.h"
 #include "SimG4Core/Notification/interface/BeginOfEvent.h"
 #include "SimG4Core/Notification/interface/EndOfEvent.h"
@@ -23,6 +24,7 @@ class G4Step;
 class G4HCofThisEvent;
 
 class FiberSD : public SensitiveCaloDetector,
+                public Observer<const BeginOfJob *>,
                 public Observer<const BeginOfRun *>,
 		public Observer<const BeginOfEvent*>,
 		public Observer<const EndOfEvent*> {
@@ -46,6 +48,7 @@ protected:
   virtual uint32_t setDetUnitId(G4Step*);
   virtual void     fillHits(edm::PCaloHitContainer&, std::string);
 
+  virtual void     update(const BeginOfJob *);
   virtual void     update(const BeginOfRun *);
   virtual void     update(const BeginOfEvent *);
   virtual void     update(const ::EndOfEvent *);

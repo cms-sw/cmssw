@@ -11,7 +11,10 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "Randomize.hh"
@@ -32,8 +35,7 @@
 //#define DebugLog
 
 FastHFShowerLibrary::FastHFShowerLibrary(edm::ParameterSet const & p) 
-  : fast(p)
-{
+  : fast(p) {
   edm::ParameterSet m_HS   = p.getParameter<edm::ParameterSet>("HFShowerLibrary");
   applyFidCut              = m_HS.getParameter<bool>("ApplyFiducialCut");
 }
@@ -45,9 +47,13 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   edm::ESTransientHandle<DDCompactView> cpv;
   iSetup.get<IdealGeometryRecord>().get(cpv);
 
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  iSetup.get<HcalSimNumberingRecord>().get(hdc);
+  HcalDDDSimConstants *hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
+
   std::string name = "HcalHits";
-  numberingFromDDD.reset(new HcalNumberingFromDDD(name, *cpv));  
-  hfshower.reset(new HFShowerLibrary(name,*cpv,numberingFromDDD->ddConstants(),fast));
+  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));  
+  hfshower.reset(new HFShowerLibrary(name,*cpv,fast));
   
   // Geant4 particles
   G4DecayPhysics decays;
@@ -55,7 +61,7 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   G4ParticleTable* partTable = G4ParticleTable::GetParticleTable();
   partTable->SetReadiness();
 
-  hfshower->initRun(partTable); // init particle code
+  hfshower->initRun(partTable, hcalConstants); // init particle code
 }
 
 void FastHFShowerLibrary::recoHFShowerLibrary(const FSimTrack& myTrack) {

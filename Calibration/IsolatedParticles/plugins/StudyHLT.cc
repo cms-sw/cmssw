@@ -212,7 +212,7 @@ if (verbosity > 0)
     const CaloTopology *caloTopology = theCaloTopology.product();
   
     edm::ESHandle<HcalTopology> htopo;
-    iSetup.get<IdealGeometryRecord>().get(htopo);
+    iSetup.get<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* theHBHETopology = htopo.product();
  
     edm::ESHandle<MagneticField> bFieldH;

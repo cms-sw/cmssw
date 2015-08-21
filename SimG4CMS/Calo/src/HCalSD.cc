@@ -13,8 +13,12 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -41,8 +45,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   CaloSD(name, cpv, clg, p, manager,
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<int>("TimeSliceUnit"),
          p.getParameter<edm::ParameterSet>("HCalSD").getParameter<bool>("IgnoreTrackID")), 
-  numberingFromDDD(0), numberingScheme(0), showerLibrary(0), hfshower(0), 
-  showerParam(0), showerPMT(0), showerBundle(0), m_HEDarkening(0),
+  hcalConstants(0), numberingFromDDD(0), numberingScheme(0), showerLibrary(0), 
+  hfshower(0), showerParam(0), showerPMT(0), showerBundle(0), m_HEDarkening(0),
   m_HFDarkening(0) {
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");
@@ -107,16 +111,12 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << " Flag (HF) " << ageingFlagHF << "\n"
 			  << "Application of Fiducial Cut " << applyFidCut;
 
-  numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
-  const HcalDDDSimConstants& hcons = numberingFromDDD->ddConstants();
   HcalNumberingScheme* scheme;
   if (testNumber || forTBH2) 
     scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(forTBH2));
   else 
     scheme = new HcalNumberingScheme();
   setNumberingScheme(scheme);
-  maxDepthHF = hcons.getMaxDepth(2);
-  edm::LogInfo("HcalSim") << "Maximum depth for HF " << maxDepthHF;
 
   const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
@@ -124,10 +124,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   std::string attribute, value;
   if (useHF) {
     if (useParam) {
-      showerParam = new HFShowerParam(name, cpv, hcons, p);
+      showerParam = new HFShowerParam(name, cpv, p);
     }  else {
-      if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, hcons, p);
-      hfshower  = new HFShower(name, cpv, hcons, p, 0);
+      if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
+      hfshower  = new HFShower(name, cpv, p, 0);
     }
 
     // HF volume names
@@ -208,7 +208,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
       edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << pmtNames[i]
                               << " LV " << pmtLV[i];
     }
-    if (pmtNames.size() > 0) showerPMT = new HFShowerPMT (name, cpv, hcons, p);
+    if (pmtNames.size() > 0) showerPMT = new HFShowerPMT (name, cpv, p);
   
     // HF Fibre bundles
     value     = "HFFibreBundleStraight";
@@ -258,21 +258,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                               << " LV " << fibre2LV[i];
     }
     if (fibre1LV.size() > 0 || fibre2LV.size() > 0) 
-      showerBundle = new HFShowerFibreBundle (name, cpv, hcons, p);
-
-    //Special Geometry parameters
-    gpar      = hcons.getGparHF();
-    edm::LogInfo("HcalSim") << "HFShowerParam: " << gpar.size()<< " gpar (cm)";
-    for (unsigned int ig=0; ig<gpar.size(); ig++)
-      edm::LogInfo("HcalSim") << "HFShowerParam: gpar[" << ig << "] = "
-			      << gpar[ig]/cm << " cm";
+      showerBundle = new HFShowerFibreBundle (name, cpv, p);
   }
-
-  //Layer0 Weight
-  layer0wt = hcons.getLayer0Wt();
-  edm::LogInfo("HcalSim") << "HCalSD: " << layer0wt.size() << " Layer0Wt";
-  for (unsigned int it=0; it<layer0wt.size(); ++it)
-    edm::LogInfo("HcalSim") << "HCalSD: [" << it << "] " << layer0wt[it];
 
   //Material list for HB/HE/HO sensitive detectors
   const G4MaterialTable * matTab = G4Material::GetMaterialTable();
@@ -322,6 +309,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                             << " pointer " << materials[i];
 
   mumPDG = mupPDG = 0;
+  maxDepthHF = 2;
   
   if (useLayerWt) readWeightFromFile(file);
 
@@ -603,6 +591,38 @@ void HCalSD::setNumberingScheme(HcalNumberingScheme * scheme) {
   }
 }
 
+void HCalSD::update(const BeginOfJob * job) {
+
+  const edm::EventSetup* es = (*job)();
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  es->get<HcalSimNumberingRecord>().get(hdc);
+  if (hdc.isValid()) {
+    hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
+  } else {
+    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
+    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant" << "\n";
+  }
+
+  numberingFromDDD = new HcalNumberingFromDDD(hcalConstants);
+
+  maxDepthHF = hcalConstants->getMaxDepth(2);
+  edm::LogInfo("HcalSim") << "Maximum depth for HF " << maxDepthHF;
+
+  //Special Geometry parameters
+  gpar      = hcalConstants->getGparHF();
+  edm::LogInfo("HcalSim") << "HCalSD: " << gpar.size()<< " gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HcalSim") << "HCalSD: gpar[" << ig << "] = "
+			    << gpar[ig]/cm << " cm";
+
+  //Layer0 Weight
+  layer0wt = hcalConstants->getLayer0Wt();
+  edm::LogInfo("HcalSim") << "HCalSD: " << layer0wt.size() << " Layer0Wt";
+  for (unsigned int it=0; it<layer0wt.size(); ++it)
+    edm::LogInfo("HcalSim") << "HCalSD: [" << it << "] " << layer0wt[it];
+
+}
+ 
 void HCalSD::initRun() {
   G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
   G4String          particleName;
@@ -610,11 +630,13 @@ void HCalSD::initRun() {
   mupPDG = theParticleTable->FindParticle(particleName="mu+")->GetPDGEncoding();
 #ifdef DebugLog
   LogDebug("HcalSim") << "HCalSD: Particle code for mu- = " << mumPDG
-                          << " for mu+ = " << mupPDG;
+		      << " for mu+ = " << mupPDG;
 #endif
-  if (showerLibrary) showerLibrary->initRun(theParticleTable);
-  if (showerParam)   showerParam->initRun(theParticleTable);
-  if (hfshower)      hfshower->initRun(theParticleTable);
+  if (showerLibrary) showerLibrary->initRun(theParticleTable,hcalConstants);
+  if (showerParam)   showerParam->initRun(theParticleTable,hcalConstants);
+  if (hfshower)      hfshower->initRun(theParticleTable,hcalConstants);
+  if (showerPMT)     showerPMT->initRun(theParticleTable,hcalConstants);
+  if (showerBundle)  showerBundle->initRun(theParticleTable,hcalConstants);
 }
 
 bool HCalSD::filterHit(CaloG4Hit* aHit, double time) {

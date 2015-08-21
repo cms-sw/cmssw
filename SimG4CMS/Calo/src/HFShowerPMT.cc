@@ -20,20 +20,12 @@
 //#define DebugLog
 
 HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
-			 const HcalDDDSimConstants& hcons,
 			 edm::ParameterSet const & p) : cherenkov(0) {
 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShowerPMT");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeVPMT");
   
   //Special Geometry parameters
-  rTable   = hcons.getRTableHF();
-  edm::LogInfo("HFShower") << "HFShowerPMT: " << rTable.size() 
-                           << " rTable (cm)";
-  for (unsigned int ig=0; ig<rTable.size(); ig++)
-    edm::LogInfo("HFShower") << "HFShowerPMT: rTable[" << ig << "] = "
-                             << rTable[ig]/cm << " cm";
-
   std::string attribute = "Volume";
   std::string value     = "HFPMT";
   DDSpecificsFilter filter1;
@@ -83,6 +75,17 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
 
 HFShowerPMT::~HFShowerPMT() {
   if (cherenkov) delete cherenkov;
+}
+
+void HFShowerPMT::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons) {
+
+  // Special Geometry parameters
+  rTable   = hcons->getRTableHF();
+  edm::LogInfo("HFShower") << "HFShowerPMT: " << rTable.size() 
+                           << " rTable (cm)";
+  for (unsigned int ig=0; ig<rTable.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerPMT: rTable[" << ig << "] = "
+                             << rTable[ig]/cm << " cm";
 }
 
 double HFShowerPMT::getHits(G4Step * aStep) {

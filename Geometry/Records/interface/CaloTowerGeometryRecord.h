@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/DependentRecordImplementation.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentErrorRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CaloTowerAlignmentErrorExtendedRcd.h"
@@ -26,6 +27,7 @@ class CaloTowerGeometryRecord :
    CaloTowerGeometryRecord,
 		boost::mpl::vector<
                 IdealGeometryRecord,
+                HcalRecNumberingRecord,
 		CaloTowerAlignmentRcd, 
 		CaloTowerAlignmentErrorRcd,
                 CaloTowerAlignmentErrorExtendedRcd,

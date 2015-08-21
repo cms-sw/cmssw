@@ -21,7 +21,6 @@
 
 HFShowerFibreBundle::HFShowerFibreBundle(std::string & name, 
 					 const DDCompactView & cpv,
-					 const HcalDDDSimConstants& hcons,
 					 edm::ParameterSet const & p) {
 
   edm::ParameterSet m_HF1 = p.getParameter<edm::ParameterSet>("HFShowerStraightBundle");
@@ -35,13 +34,6 @@ HFShowerFibreBundle::HFShowerFibreBundle(std::string & name,
 			   << facCone << " for the curved portion";
 
   //Special Geometry parameters
-  rTable   = hcons.getRTableHF();
-  edm::LogInfo("HFShower") << "HFShowerFibreBundle: " << rTable.size() 
-                           << " rTable (cm)";
-  for (unsigned int ig=0; ig<rTable.size(); ig++)
-    edm::LogInfo("HFShower") << "HFShowerFibreBundle: rTable[" << ig 
-                             << "] = " << rTable[ig]/cm << " cm";
-
   std::string attribute = "Volume";
   std::string value     = "HFPMT";
   DDSpecificsFilter filter1;
@@ -91,6 +83,17 @@ HFShowerFibreBundle::HFShowerFibreBundle(std::string & name,
 HFShowerFibreBundle::~HFShowerFibreBundle() {
   delete cherenkov1;
   delete cherenkov2;
+}
+
+void HFShowerFibreBundle::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons) {
+
+  // Special Geometry parameters
+  rTable   = hcons->getRTableHF();
+  edm::LogInfo("HFShower") << "HFShowerFibreBundle: " << rTable.size() 
+                           << " rTable (cm)";
+  for (unsigned int ig=0; ig<rTable.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerFibreBundle: rTable[" << ig << "] = "
+                             << rTable[ig]/cm << " cm";
 }
 
 double HFShowerFibreBundle::getHits(G4Step * aStep, bool type) {

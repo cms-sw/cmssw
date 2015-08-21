@@ -29,7 +29,7 @@ class HFShowerParam {
 public:    
 
   HFShowerParam(std::string & name, const DDCompactView & cpv, 
-		const HcalDDDSimConstants& hcons, edm::ParameterSet const & p);
+		edm::ParameterSet const & p);
   virtual ~HFShowerParam();
 
 public:    
@@ -42,7 +42,7 @@ public:
     double              edep;
   };
 
-  void                  initRun(G4ParticleTable *);
+  void                  initRun(G4ParticleTable *, HcalDDDSimConstants*);
   std::vector<Hit>      getHits(G4Step * aStep, double weight);
   
 private:    

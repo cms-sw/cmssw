@@ -23,9 +23,10 @@ public:
   
   //Constructor and Destructor
   HFFibre(std::string & name, const DDCompactView & cpv,
-	  const HcalDDDSimConstants& hcons, edm::ParameterSet const & p);
+	  edm::ParameterSet const & p);
   ~HFFibre();
 
+  void                initRun(HcalDDDSimConstants*);
   double              attLength(double lambda);
   double              tShift(const G4ThreeVector& point, int depth, 
 			     int fromEndAbs=0);

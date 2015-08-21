@@ -24,7 +24,6 @@
 #include<iostream>
 
 HFShower::HFShower(std::string & name, const DDCompactView & cpv, 
-                   const HcalDDDSimConstants& hcons,
 		   edm::ParameterSet const & p, int chk) : cherenkov(0),
                                                            fibre(0),
                                                            chkFibre(chk) {
@@ -36,14 +35,8 @@ HFShower::HFShower(std::string & name, const DDCompactView & cpv,
   edm::LogInfo("HFShower") << "HFShower:: Maximum probability cut off " 
                            << probMax << " Check flag " << chkFibre;
 
-  //Special Geometry parameters
-  gpar      = hcons.getGparHF();
-  edm::LogInfo("HFShower") << "HFShower: " << gpar.size() << " gpar (cm)";
-  for (unsigned int ig=0; ig<gpar.size(); ig++)
-    edm::LogInfo("HFShower") << "HFShower: gpar[" << ig << "] = "
-                             << gpar[ig]/cm << " cm";
   cherenkov = new HFCherenkov(m_HF);
-  fibre     = new HFFibre(name, cpv, hcons, p);
+  fibre     = new HFFibre(name, cpv, p);
 }
 
 HFShower::~HFShower() { 
@@ -458,5 +451,14 @@ std::vector<double> HFShower::getDDDArray(const std::string & str,
   }
 }
 
-void HFShower::initRun(G4ParticleTable *) {// Define PDG codes
+void HFShower::initRun(G4ParticleTable *, HcalDDDSimConstants* hcons) {
+
+  //Special Geometry parameters
+  gpar      = hcons->getGparHF();
+  edm::LogInfo("HFShower") << "HFShower: " << gpar.size() << " gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShower: gpar[" << ig << "] = "
+                             << gpar[ig]/cm << " cm";
+
+  if (fibre) fibre->initRun(hcons);
 }

@@ -1,7 +1,10 @@
 #include "SimG4CMS/ShowerLibraryProducer/interface/FiberSD.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"
@@ -31,8 +34,7 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
 		       << "*                                                 *"
 		       << "\n"
 		       << "***************************************************";
-  HcalNumberingFromDDD* numbering = new HcalNumberingFromDDD(name, cpv);
-  theShower = new HFShower(name, cpv, numbering->ddConstants(), p, 1);
+  theShower = new HFShower(name, cpv, p, 1);
 
   //
   // Now attach the right detectors (LogicalVolumes) to me
@@ -125,6 +127,21 @@ void FiberSD::clear() {}
 void FiberSD::DrawAll()  {}
 
 void FiberSD::PrintAll() {}
+
+void FiberSD::update(const BeginOfJob * job) {
+
+  const edm::EventSetup* es = (*job)();
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  es->get<HcalSimNumberingRecord>().get(hdc);
+  if (hdc.isValid()) {
+    HcalDDDSimConstants *hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
+    theShower->initRun(0, hcalConstants);
+  } else {
+    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
+    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant" << "\n";
+  }
+
+}
 
 void FiberSD::update(const BeginOfRun *) {}
 

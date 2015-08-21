@@ -5,9 +5,7 @@
 
 #include "CondFormats/GeometryObjects/interface/HcalParameters.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
-#include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 
-#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
@@ -16,18 +14,13 @@
 
 //#define DebugLog
 
-HcalNumberingFromDDD::HcalNumberingFromDDD(std::string & name,
-					   const DDCompactView & cpv) {
+HcalNumberingFromDDD::HcalNumberingFromDDD(HcalDDDSimConstants *hcons) :
+  hcalConstants(hcons) {
   edm::LogInfo("HCalGeom") << "Creating HcalNumberingFromDDD";
-  HcalParameters* ptp = new HcalParameters();
-  HcalParametersFromDD builder;
-  builder.build(&cpv, *ptp);
-  hcalConstants = new HcalDDDSimConstants(ptp);
 }
 
 HcalNumberingFromDDD::~HcalNumberingFromDDD() {
   edm::LogInfo("HCalGeom") << "Deleting HcalNumberingFromDDD";
-  delete hcalConstants;
 }
 
 HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,

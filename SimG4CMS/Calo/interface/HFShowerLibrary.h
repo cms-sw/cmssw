@@ -32,7 +32,7 @@ public:
   
   //Constructor and Destructor
   HFShowerLibrary(std::string & name, const DDCompactView & cpv,
-		  const HcalDDDSimConstants& hcons, edm::ParameterSet const & p);
+		  edm::ParameterSet const & p);
   ~HFShowerLibrary();
 
 public:
@@ -44,7 +44,7 @@ public:
     double                    time;
   };
 
-  void                initRun(G4ParticleTable * theParticleTable);
+  void                initRun(G4ParticleTable *, HcalDDDSimConstants*);
   std::vector<Hit>    getHits(G4Step * aStep, bool &ok, double weight, 
 			      bool onlyLong=false);
   std::vector<Hit>    fillHits(G4ThreeVector & p, G4ThreeVector & v,

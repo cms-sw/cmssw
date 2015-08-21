@@ -13,13 +13,11 @@
 #include <vector>
 #include <string>
 
-class DDCompactView;    
-
 class HcalNumberingFromDDD {
 
 public:
 
-  HcalNumberingFromDDD(std::string & name, const DDCompactView & cpv);
+  HcalNumberingFromDDD(HcalDDDSimConstants * hcons);
   ~HcalNumberingFromDDD();
 	 
   struct HcalID {
@@ -34,8 +32,6 @@ public:
 			int lay=-1) const;
   HcalID         unitID(int det, int zside, int depth, int etaR, int phi, 
 			int lay=-1) const;
-  const HcalDDDSimConstants& ddConstants() const {return *hcalConstants;}
-
 
 private:
 

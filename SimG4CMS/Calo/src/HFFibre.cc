@@ -17,7 +17,6 @@
 //#define DebugLog
 
 HFFibre::HFFibre(std::string & name, const DDCompactView & cpv, 
-		 const HcalDDDSimConstants& hcons,
 		 edm::ParameterSet const & p) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
@@ -74,23 +73,26 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
     throw cms::Exception("Unknown", "HFFibre")
       << "cannot match " << attribute << " to " << name <<"\n";
   }
+}
+
+HFFibre::~HFFibre() {}
+
+void HFFibre::initRun(HcalDDDSimConstants* hcons) {
 
   // Now geometry parameters
-  gpar      = hcons.getGparHF();
+  gpar      = hcons->getGparHF();
   edm::LogInfo("HFShower") << "HFFibre: " << gpar.size() <<" gpar (cm)";
   for (unsigned int i=0; i<gpar.size(); i++)
     edm::LogInfo("HFShower") << "HFFibre: gpar[" << i << "] = "
                              << gpar[i]/cm << " cm";
 
-  radius    = hcons.getRTableHF();
+  radius    = hcons->getRTableHF();
   nBinR     = (int)(radius.size());
   edm::LogInfo("HFShower") << "HFFibre: " << radius.size() <<" rTable (cm)";
   for (unsigned int i=0; i<radius.size(); i++)
     edm::LogInfo("HFShower") << "HFFibre: radius[" << i << "] = "
                              << radius[i]/cm << " cm";
 }
-
-HFFibre::~HFFibre() {}
 
 double HFFibre::attLength(double lambda) {
 

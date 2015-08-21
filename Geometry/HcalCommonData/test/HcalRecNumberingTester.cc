@@ -40,8 +40,7 @@
 
 #include "CoralBase/Exception.h"
 
-class HcalRecNumberingTester : public edm::one::EDAnalyzer<>
-{
+class HcalRecNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalRecNumberingTester( const edm::ParameterSet& );
   ~HcalRecNumberingTester();

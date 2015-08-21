@@ -47,77 +47,10 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
-class HcalDDDRecConstants {
-public:
-  HcalDDDRecConstants();
-  ~HcalDDDRecConstants();
-
-  struct HcalActiveLength {
-    int    ieta, depth;
-    double eta, thick;
-    HcalActiveLength(int ie=0, int d=0, double et=0, 
-                     double t=0) : ieta(ie), depth(d), eta(et), thick(t) {}
-  };
- 
-  std::vector<HcalActiveLength> getThickActive(const int type) const;
-
-private:
-  std::vector<HcalActiveLength> actHB, actHE;
-};
-
-HcalDDDRecConstants::HcalDDDRecConstants() {
-  int ietaHB[18]   = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
-		      11, 12, 13, 14, 15, 15, 16, 16};
-  int depthHB[18]  = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-		      1, 1, 1, 1, 1, 2, 1, 2};
-  double etaHB[18] = {0.0435, 0.1305, 0.2175, 0.3045, 0.3915, 0.4785,
-		      0.5655, 0.6525, 0.7395, 0.8265, 0.9135, 1.0005,
-		      1.0875, 1.1745, 1.2615, 1.2615, 1.3485, 1.3485};
-  double actLHB[18]= {7.35696, 7.41268, 7.52454, 7.69339, 7.92051, 8.20761,
-		      8.55688, 8.97096, 9.45298, 10.0066, 10.6360, 11.3460,
-		      12.1419, 13.0297, 10.1832, 3.83301, 2.61066, 5.32410};
-  actHB.clear();
-  for (int i=0; i<18; ++i) {
-    HcalDDDRecConstants::HcalActiveLength act(ietaHB[i],depthHB[i],etaHB[i],actLHB[i]);
-    actHB.push_back(act);
-  }
-  
-  int ietaHE[28]   = {16, 17, 18, 18, 19, 19, 20, 20, 21, 21,
-		      22, 22, 23, 23, 24, 24, 25, 25, 26, 26,
-		      27, 27, 27, 28, 28, 28, 29, 29};
-  int depthHE[28]  = {3, 1, 1, 2, 1, 2, 1, 2, 1, 2,
-		      1, 2, 1, 2, 1, 2, 1, 2, 1, 2,
-		      1, 2, 3, 1, 2, 3, 1, 2};
-  double etaHE[28] = {1.3485, 1.4355, 1.5225, 1.5225, 1.6095, 1.6095, 1.6965,
-		      1.6965, 1.7850, 1.7850, 1.8800, 1.8800, 1.9865, 1.9865,
-		      2.1075, 2.1075, 2.2470, 2.2470, 2.4110, 2.4110, 2.5750,
-		      2.5750, 2.5750, 2.7590, 2.7590, 2.8250, 2.9340, 2.9340};
-  double actLHE[28]= {4.23487, 8.05342, 2.21090, 5.69774, 2.57831, 5.21078,
-		      2.54554, 5.14455, 2.51790, 5.08871, 2.49347, 5.03933,
-		      2.47129, 4.99449, 2.45137, 4.95424, 2.43380, 4.91873,
-		      2.41863, 4.88808, 1.65913, 0.74863, 4.86612, 1.65322,
-		      0.74596, 4.84396, 1.64930, 0.744198};
-  actHE.clear();
-  for (int i=0; i<28; ++i) {
-    HcalDDDRecConstants::HcalActiveLength act(ietaHE[i],depthHE[i],etaHE[i],actLHE[i]);
-    actHE.push_back(act);
-  }
-}
-
-HcalDDDRecConstants::~HcalDDDRecConstants() {
-  std::cout << "HcalDDDRecConstants::destructed!!!" << std::endl;
-}
-
-std::vector<HcalDDDRecConstants::HcalActiveLength>
-HcalDDDRecConstants::getThickActive(const int type) const {
-
-  if (type == 0) return actHB;
-  else           return actHE;
-}
 
 class HcalRaddamMuon : public edm::EDAnalyzer {
 
@@ -317,7 +250,7 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const CaloTopology *caloTopology = theCaloTopology.product();
   
   edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<IdealGeometryRecord>().get(htopo);
+  iSetup.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();
 
   edm::Handle<reco::BeamSpot> bmspot;
@@ -663,12 +596,10 @@ void HcalRaddamMuon::endJob() {}
 
 // ------------ method called when starting to processes a run  ------------
 void HcalRaddamMuon::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
-  /*   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
-       iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
-       const HcalDDDRecConstants & hdc = (*pHRNDC);
-  */
-  
-  HcalDDDRecConstants hdc;
+
+  edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+  iSetup.get<HcalRecNumberingRecord>().get(pHRNDC);
+  const HcalDDDRecConstants & hdc = (*pHRNDC);
   actHB.clear();
   actHE.clear();
   actHB = hdc.getThickActive(0);
