@@ -1,0 +1,5 @@
+<library   file="CondDBPyWrappers.cc" name="CondDBV2PyInterface">
+  <use   name="CondCore/CondDB"/>
+  <use   name="boost_python"/>
+</library>
+

@@ -1,31 +1,24 @@
-<flags CXXFLAGS="-g -std=c++11"/>
+<flags   GENREFLEX_ARGS="--"/>
 
 <use   name="CondCore/CondDB"/>
 <use   name="CondFormats/Common"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Utilities"/>
-
-<library   name="testCondDBDict" file="*.cc">
+<library   name="testCondDBDict" file="">
 </library>
-
-<bin file="testReadWritePayloads.cpp" name="testReadWritePayloads">
-  <lib name="testCondDBDict"/>
+<bin   file="testConditionDatabase_0.cpp" name="testConditionDatabase_0">
+  <lib   name="testCondDBDict"/>
 </bin>
-
-<bin file="testConditionDatabase_0.cpp" name="testConditionDatabase_0">
-  <lib name="testCondDBDict"/>
+<bin   file="testConditionDatabase_1.cpp" name="testConditionDatabase_1">
 </bin>
-
-<bin file="testConditionDatabase_1.cpp" name="testConditionDatabase_1"></bin>
-<bin file="testConditionDatabase_2.cpp" name="testConditionDatabase_2"></bin>
-
-<bin file="testRootStreaming.cpp" name="testRootStreaming">
-  <lib name="testCondDBDict"/>
+<bin   file="testConditionDatabase_2.cpp" name="testConditionDatabase_2">
 </bin>
-
-<bin file="testPayloadProxy.cpp" name="testPayloadProxy">
-  <lib name="testCondDBDict"/>
+<bin   file="testRootStreaming.cpp" name="testRootStreaming">
+  <lib   name="testCondDBDict"/>
 </bin>
-
-<bin file="testFrontier.cpp" name="testFrontier"></bin>
+<bin   file="testPayloadProxy.cpp" name="testPayloadProxy">
+  <lib   name="testCondDBDict"/>
+</bin>
+<bin   file="testFrontier.cpp" name="testFrontier">
+</bin>
