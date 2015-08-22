@@ -17,4 +17,5 @@ DisplacedDimuonPSet = cms.PSet(
                                     0, 10, 20, 30, 40, 50,
                                     100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600
                                    ),
+    dropPt3 = cms.bool(True),
     )

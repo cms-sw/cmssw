@@ -13,4 +13,6 @@ HighPtElectronPSet = cms.PSet(
                                     300, 400, 500, 600, 700, 800, 900, 1000,
                                     1100, 1200, 1500
                                    ),
+    dropPt2 = cms.bool(True),
+    dropPt3 = cms.bool(True),
     )
