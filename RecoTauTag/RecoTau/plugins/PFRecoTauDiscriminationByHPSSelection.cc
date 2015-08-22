@@ -242,7 +242,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   // Check if tau passes cone cut
   double cone_size = tau->signalConeSize();
   // Check if any charged objects fail the signal cone cut
-  BOOST_FOREACH(const reco::PFRecoTauChargedHadron& cand, tau->signalTauChargedHadronCandidates()) {
+  for (auto const& cand : tau->signalTauChargedHadronCandidates()) {
     if ( verbosity_ ) {
       edm::LogPrint("PFTauByHPSSelect") << "dR(tau, signalPFChargedHadr) = " << deltaR(cand.p4(), tauP4) ;
     }
@@ -254,9 +254,9 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
     }
   }
   // Now check the pizeros
-  BOOST_FOREACH(const reco::RecoTauPiZero& cand, tau->signalPiZeroCandidates()) {
+  for (auto const& cand : tau->signalPiZeroCandidates()) {
     double dEta = std::max(0., fabs(cand.eta() - tauP4.eta()) - cand.bendCorrEta());
-    double dPhi = std::max(0., reco::deltaPhi(cand.phi(), tauP4.phi()) - cand.bendCorrPhi());
+    double dPhi = std::max(0., std::abs(reco::deltaPhi(cand.phi(), tauP4.phi())) - cand.bendCorrPhi());
     double dR2 = dEta*dEta + dPhi*dPhi;
     if ( verbosity_ ) {
       edm::LogPrint("PFTauByHPSSelect") << "dR2(tau, signalPiZero) = " << dR2 ;

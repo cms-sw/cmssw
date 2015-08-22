@@ -370,8 +370,7 @@ RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(con
     double bendCorrEta = 0.;
     double bendCorrPhi = 0.;
     double energySum   = 0.;
-    BOOST_FOREACH(const RecoTauPiZero::daughters::value_type& gamma,
-	strip->daughterPtrVector()) {
+    for (auto const& gamma : strip->daughterPtrVector()) {
       bendCorrEta += (gamma->energy()*etaAssociationDistance_->Eval(gamma->pt()));
       bendCorrPhi += (gamma->energy()*phiAssociationDistance_->Eval(gamma->pt()));
       energySum += gamma->energy();
