@@ -34,7 +34,7 @@ HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet& pset) :
     // Notice that the constructor takes the full parameter set,
     // the analysis name and the consumesCollector() separately.
     for (size_t i = 0; i < _analysisnames.size() ; ++i) {
-        HLTExoticaSubAnalysis analyzer(_pset, _analysisnames.at(i), consumesCollector());
+        HLTExoticaSubAnalysis analyzer(_pset, _analysisnames.at(i), consumesCollector(), _triggerCounter);
         _analyzers.push_back(analyzer);
     }
 
@@ -42,6 +42,18 @@ HLTExoticaValidator::HLTExoticaValidator(const edm::ParameterSet& pset) :
 
 HLTExoticaValidator::~HLTExoticaValidator()
 {
+    // Dump trigger results
+    std::cout << std::endl;
+    std::cout << "===========================================================================" << std::endl;
+    std::cout << "                             Trigger Results                               " << std::endl;
+    std::cout << "===========================================================================" << std::endl;
+    std::cout << std::setw(18) << "# of passed events : HLT path names"                        << std::endl;
+    std::cout << "-------------------:-------------------------------------------------------" << std::endl;
+    for (std::map<std::string,int>::iterator it = _triggerCounter.begin();
+         it != _triggerCounter.end(); ++it) {
+      std::cout << std::setw(18) << it->second <<  " : " << it->first << std::endl;
+    }
+
     if (_collections != 0) {
         delete _collections;
         _collections = 0;

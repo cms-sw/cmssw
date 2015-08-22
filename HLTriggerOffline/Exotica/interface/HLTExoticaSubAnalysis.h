@@ -72,7 +72,8 @@ public:
 
     HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
                           const std::string & analysisname,
-			  edm::ConsumesCollector && consCollector);
+			  edm::ConsumesCollector && consCollector,
+                          std::map<std::string,int> & triggerCounter);
     ~HLTExoticaSubAnalysis();
     void beginJob();
     void beginRun(const edm::Run & iRun, const edm::EventSetup & iEventSetup);
@@ -150,6 +151,10 @@ private:
     std::vector<double> _parametersTurnOnSumEt;
     std::vector<double> _parametersDxy;
 
+    // flag to switch off
+    bool _drop_pt2;
+    bool _drop_pt3;
+
     /// gen/rec objects cuts
     std::map<unsigned int, std::string> _genCut;
     std::map<unsigned int, std::string> _recCut;
@@ -177,6 +182,9 @@ private:
 
     /// The plotters: managers of each hlt path where the plots are done
     std::vector<HLTExoticaPlotter> _plotters;
+
+    /// counting HLT passed events  
+    std::map<std::string,int>* _triggerCounter;
 
     /// Interface to the HLT information
     HLTConfigProvider _hltConfig;
