@@ -25,44 +25,27 @@
 
 // user include files
 
-RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig)
+RPCPointProducer::RPCPointProducer(const edm::ParameterSet& iConfig) :
+  cscSegments(  consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("cscSegments")) ),
+  dt4DSegments( consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("dt4DSegments")) ),
+  tracks(       consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks")) ),
+  tracks_(      iConfig.getParameter<edm::InputTag>("tracks") ),
+  incldt(       iConfig.getUntrackedParameter<bool>("incldt", true) ),
+  inclcsc(      iConfig.getUntrackedParameter<bool>("inclcsc", true) ),
+  incltrack(    iConfig.getUntrackedParameter<bool>("incltrack", true) ), 
+  debug(        iConfig.getUntrackedParameter<bool>("debug", false) ),
+  MinCosAng(    iConfig.getUntrackedParameter<double>("MinCosAng", 0.95) ),
+  MaxD(         iConfig.getUntrackedParameter<double>("MaxD", 80.) ),
+  MaxDrb4(      iConfig.getUntrackedParameter<double>("MaxDrb4", 150.) ),
+  ExtrapolatedRegion( iConfig.getUntrackedParameter<double>("ExtrapolatedRegion", 0.5) ),
+  trackTransformerParam( iConfig.getParameter<edm::ParameterSet>("TrackTransformer") )
 {
-  cscSegments = consumes<CSCSegmentCollection>(iConfig.getParameter<edm::InputTag>("cscSegments"));
-  
-  dt4DSegments = consumes<DTRecSegment4DCollection>(iConfig.getParameter<edm::InputTag>("dt4DSegments"));
-  tracks = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("tracks"));
-  tracks_ = iConfig.getParameter<edm::InputTag>("tracks");
-
-  debug=iConfig.getUntrackedParameter<bool>("debug",false);
-  incldt=iConfig.getUntrackedParameter<bool>("incldt",true);
-  inclcsc=iConfig.getUntrackedParameter<bool>("inclcsc",true);
-  incltrack=iConfig.getUntrackedParameter<bool>("incltrack",true);
-  MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
-  MaxD=iConfig.getUntrackedParameter<double>("MaxD",80.);
-  MaxDrb4=iConfig.getUntrackedParameter<double>("MaxDrb4",150.);
-  ExtrapolatedRegion=iConfig.getUntrackedParameter<double>("ExtrapolatedRegion",0.5);
-
   produces<RPCRecHitCollection>("RPCDTExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCCSCExtrapolatedPoints");
   produces<RPCRecHitCollection>("RPCTrackExtrapolatedPoints");
-  trackTransformerParam = iConfig.getParameter<edm::ParameterSet>("TrackTransformer");  
 }
 
-
-RPCPointProducer::~RPCPointProducer(){
-
-}
-
-void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
-  /*
-  struct timespec start_time, stop_time;
-  time_t fs;
-  time_t fn;
-  time_t ls;
-  time_t ln;
-  clock_gettime(CLOCK_REALTIME, &start_time);  
-  */
-
+void RPCPointProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   if(incldt){
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByToken(dt4DSegments, all4DSegments);
@@ -99,16 +82,3 @@ void RPCPointProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
  
 }
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-RPCPointProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-RPCPointProducer::endJob() {
-}
-
-
