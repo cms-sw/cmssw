@@ -31,7 +31,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtBoard.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -52,7 +52,7 @@ class L1GtPrescaleFactors;
 class L1GtTriggerMask;
 
 // class declaration
-class L1GlobalTrigger : public edm::EDProducer
+class L1GlobalTrigger : public edm::stream::EDProducer<>
 {
 
 public:
@@ -164,39 +164,36 @@ private:
     std::vector<unsigned int> m_triggerMaskVetoAlgoTrig;
     std::vector<unsigned int> m_triggerMaskVetoTechTrig;
 
-private:
-
-
     L1GlobalTriggerPSB* m_gtPSB;
     L1GlobalTriggerGTL* m_gtGTL;
     L1GlobalTriggerFDL* m_gtFDL;
 
     /// input tag for muon collection from GMT
-    edm::InputTag m_muGmtInputTag;
+    const edm::InputTag m_muGmtInputTag;
 
     /// input tag for calorimeter collections from GCT
-    edm::InputTag m_caloGctInputTag;
+    const edm::InputTag m_caloGctInputTag;
 
     /// input tag for CASTOR record
-    edm::InputTag m_castorInputTag;
+    const edm::InputTag m_castorInputTag;
 
     /// input tag for technical triggers
-    std::vector<edm::InputTag> m_technicalTriggersInputTags;
+    const std::vector<edm::InputTag> m_technicalTriggersInputTags;
 
     /// logical flag to produce the L1 GT DAQ readout record
-    bool m_produceL1GtDaqRecord;
+    const bool m_produceL1GtDaqRecord;
 
     /// logical flag to produce the L1 GT EVM readout record
-    bool m_produceL1GtEvmRecord;
+    const bool m_produceL1GtEvmRecord;
 
     /// logical flag to produce the L1 GT object map record
-    bool m_produceL1GtObjectMapRecord;
+    const bool m_produceL1GtObjectMapRecord;
 
     /// logical flag to write the PSB content in the  L1 GT DAQ record
-    bool m_writePsbL1GtDaqRecord;
+    const bool m_writePsbL1GtDaqRecord;
 
     /// logical flag to read the technical trigger records
-    bool m_readTechnicalTriggerRecords;
+    const bool m_readTechnicalTriggerRecords;
 
     /// number of "bunch crossing in the event" (BxInEvent) to be emulated
     /// symmetric around L1Accept (BxInEvent = 0):
@@ -207,47 +204,44 @@ private:
     /// number of BXs in the event corresponding to alternative 0 and 1 in altNrBxBoard()
     /// EmulateBxInEvent >= max(RecordLength[0], RecordLength[1])
     /// negative values: take the numbers from event setup, from L1GtParameters
-    std::vector<int> m_recordLength;
+    const std::vector<int> m_recordLength;
 
     /// alternative for number of BX per active board in GT DAQ record: 0 or 1
     /// the position is identical with the active board bit
-    unsigned int m_alternativeNrBxBoardDaq;
+    const unsigned int m_alternativeNrBxBoardDaq;
 
     /// alternative for number of BX per active board in GT EVM record: 0 or 1
     /// the position is identical with the active board bit
-    unsigned int m_alternativeNrBxBoardEvm;
+    const unsigned int m_alternativeNrBxBoardEvm;
 
     /// length of BST record (in bytes) from parameter set
-    int m_psBstLengthBytes;
+    const int m_psBstLengthBytes;
 
     /// run algorithm triggers
     ///     if true, unprescaled (all prescale factors 1)
     ///     will overwrite the event setup
-    bool m_algorithmTriggersUnprescaled;
+    const bool m_algorithmTriggersUnprescaled;
 
     ///     if true, unmasked - all enabled (all trigger masks set to 0)
     ///     will overwrite the event setup
-    bool m_algorithmTriggersUnmasked;
+    const bool m_algorithmTriggersUnmasked;
 
     /// run technical triggers
     ///     if true, unprescaled (all prescale factors 1)
     ///     will overwrite the event setup
-    bool m_technicalTriggersUnprescaled;
+    const bool m_technicalTriggersUnprescaled;
 
     ///     if true, unmasked - all enabled (all trigger masks set to 0)
     ///     will overwrite the event setup
-    bool m_technicalTriggersUnmasked;
+    const bool m_technicalTriggersUnmasked;
 
     ///     if true, veto unmasked - all enabled (all trigger veto masks set to 0)
     ///     will overwrite the event setup
-    bool m_technicalTriggersVetoUnmasked;
-
-
-private:
+    const bool m_technicalTriggersVetoUnmasked;
 
     /// verbosity level
-    int m_verbosity;
-    bool m_isDebugEnabled;
+    const int m_verbosity;
+    const bool m_isDebugEnabled;
 
 };
 
