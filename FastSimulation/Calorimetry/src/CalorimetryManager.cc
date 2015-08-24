@@ -142,7 +142,7 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
     theMuonHcalEffects = new MaterialEffects(fastMuHCAL);
 
   if( fastCalo.exists("ECALResponseScaling") ) {
-    ecalCorrection = new KKCorrectionFactors( fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling") );
+    ecalCorrection = std::unique_ptr<KKCorrectionFactors>( new KKCorrectionFactors( fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling") ) );
   }
 
 }
@@ -167,7 +167,6 @@ CalorimetryManager::~CalorimetryManager()
   if ( theProfile ) delete theProfile;
 
   if ( theHFShowerLibrary ) delete theHFShowerLibrary;
-  if ( ecalCorrection ) delete ecalCorrection;
 }
 
 void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random)

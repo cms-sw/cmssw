@@ -189,7 +189,7 @@ class CalorimetryManager{
   bool useCorrectionSL;
   FastHFShowerLibrary *theHFShowerLibrary;
 
-  KKCorrectionFactors* ecalCorrection;
+  std::unique_ptr<KKCorrectionFactors> ecalCorrection;
 
 };
 #endif
