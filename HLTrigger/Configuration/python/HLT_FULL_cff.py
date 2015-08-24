@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V397 (CMSSW_7_4_10_patch1)
+# /dev/CMSSW_7_4_0/HLT/V400 (CMSSW_7_4_10_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V397')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V400')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -483,6 +483,11 @@ fragment.streams = cms.PSet(
   HLTMonitor = cms.vstring( 'HLTMonitor' ),
   LookArea = cms.vstring( 'LookAreaPD' ),
   NanoDST = cms.vstring( 'L1Accept' ),
+  ParkingHadrons = cms.vstring( 'ParkingHT1',
+    'ParkingHT2',
+    'ParkingHT3',
+    'ParkingHT4',
+    'ParkingHT5' ),
   PhysicsEGammaCommissioning = cms.vstring( 'CastorJets',
     'Commissioning',
     'DoubleEG',
@@ -522,6 +527,7 @@ fragment.streams = cms.PSet(
     'MuOnia',
     'MuonEG',
     'SingleMuon' ),
+  PhysicsParkingMonitor = cms.vstring( 'ParkingMonitor' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ReleaseValidation = cms.vstring(  ),
   TrackerCalibration = cms.vstring( 'TestEnablesTracker' )
@@ -1892,6 +1898,16 @@ fragment.datasets = cms.PSet(
     'HLT_VBF_DisplacedJet40_VVTightID_DisplacedTrack_v2',
     'HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v2',
     'HLT_ZeroBias_v2') ),
+  ParkingHT1 = cms.vstring( 'HLT_HT450to470_v1' ),
+  ParkingHT2 = cms.vstring( 'HLT_HT470to500_v1' ),
+  ParkingHT3 = cms.vstring( 'HLT_HT500to550_v1' ),
+  ParkingHT4 = cms.vstring( 'HLT_HT550to650_v1' ),
+  ParkingHT5 = cms.vstring( 'HLT_HT650_v1' ),
+  ParkingMonitor = cms.vstring( 'HLT_HT450to470_v1',
+    'HLT_HT470to500_v1',
+    'HLT_HT500to550_v1',
+    'HLT_HT550to650_v1',
+    'HLT_HT650_v1' ),
   RPCMonitor = cms.vstring( 'AlCa_RPCMuonNoHits_v2',
     'AlCa_RPCMuonNoTriggers_v2',
     'AlCa_RPCMuonNormalisation_v2' ),
