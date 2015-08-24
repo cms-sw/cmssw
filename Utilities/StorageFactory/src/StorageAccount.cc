@@ -4,6 +4,33 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+namespace {
+  char const * const kOperationNames[] = {
+    "check",
+    "close",
+    "construct",
+    "destruct",
+    "flush",
+    "open",
+    "position",
+    "prefetch",
+    "read",
+    "readActual",
+    "readAsync",
+    "readPrefetchToCache",
+    "readViaCache",
+    "readv",
+    "resize",
+    "seek",
+    "stagein",
+    "stat",
+    "write",
+    "writeActual",
+    "writeViaCache",
+    "writev"
+  };
+}
+
 StorageAccount::StorageStats StorageAccount::m_stats;
 
 static std::string i2str(int i) {
@@ -18,6 +45,10 @@ static std::string d2str(double d) {
   return t.str();
 }
 
+inline char const* StorageAccount::operationName(Operation operation) {
+  return kOperationNames[static_cast<int>(operation)];
+}
+
 std::string
 StorageAccount::summaryText (bool banner /*=false*/) {
   bool first = true;
@@ -27,8 +58,8 @@ StorageAccount::summaryText (bool banner /*=false*/) {
   for (StorageStats::iterator i = m_stats.begin (); i != m_stats.end(); ++i)
     for (OperationStats::iterator j = i->second.begin (); j != i->second.end (); ++j, first = false)
       os << (first ? "" : "; ")
-         << i->first << '/'
-         << j->first << '='
+         << (i->first) << '/'
+         << kOperationNames[j->first] << '='
          << j->second.attempts << '/'
          << j->second.successes << '/'
          << (static_cast<double>(j->second.amount) / 1024 / 1024) << "MB/"
@@ -46,7 +77,7 @@ StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
   for (StorageStats::iterator i = m_stats.begin (); i != m_stats.end(); ++i) {
     for (OperationStats::iterator j = i->second.begin(); j != i->second.end(); ++j) {
       std::ostringstream os;
-      os << "Timing-" << i->first << "-" << j->first << "-";
+      os << "Timing-" << i->first << "-" << kOperationNames[j->first] << "-";
       summary.insert(std::make_pair(os.str() + "numOperations", i2str(j->second.attempts)));
       summary.insert(std::make_pair(os.str() + "numSuccessfulOperations", i2str(j->second.successes)));
       summary.insert(std::make_pair(os.str() + "totalMegabytes", d2str(static_cast<double>(j->second.amount) / oneMeg)));
@@ -62,10 +93,10 @@ StorageAccount::summary (void)
 { return m_stats; }
 
 StorageAccount::Counter&
-StorageAccount::counter (const std::string &storageClass, const std::string &operation) {
+StorageAccount::counter (const std::string &storageClass, Operation operation) {
   auto &opstats = m_stats [storageClass];
 
-  return opstats[operation];
+  return opstats[static_cast<int>(operation)];
 }
 
 StorageAccount::Stamp::Stamp (Counter &counter)

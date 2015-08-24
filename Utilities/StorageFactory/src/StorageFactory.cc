@@ -177,7 +177,7 @@ StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
     if (m_accounting)
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "open")));
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, StorageAccount::Operation::open)));
     try
     {
       if (auto storage = maker->open (protocol, rest, mode, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout)))
@@ -216,7 +216,7 @@ StorageFactory::stagein (const std::string &url) const
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
     if (m_accounting) 
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "stagein")));
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, StorageAccount::Operation::stagein)));
     try
     {
       maker->stagein (protocol, rest,StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout));
@@ -242,7 +242,7 @@ StorageFactory::check (const std::string &url, IOOffset *size /* = 0 */) const
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
     if (m_accounting) 
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, "check")));
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, StorageAccount::Operation::check)));
     try
     {
       ret = maker->check (protocol, rest, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout), size);

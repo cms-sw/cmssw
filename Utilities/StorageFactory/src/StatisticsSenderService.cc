@@ -62,13 +62,13 @@ StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
       continue;
     }
     for (StorageAccount::OperationStats::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
-      if (j->first == "readv") {
+      if (j->first == static_cast<int>(StorageAccount::Operation::readv)) {
         read_vector_operations += j->second.attempts;
         read_vector_bytes += j->second.amount;
         read_vector_count_square += j->second.vector_square;
         read_vector_square += j->second.amount_square;
         read_vector_count_sum += j->second.vector_count;
-      } else if (j->first == "read") {
+      } else if (j->first == static_cast<int>(StorageAccount::Operation::read)) {
         read_single_operations += j->second.attempts;
         read_single_bytes += j->second.amount;
         read_single_square += j->second.amount_square;

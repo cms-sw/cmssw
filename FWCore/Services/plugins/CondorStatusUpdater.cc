@@ -331,21 +331,21 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
         if (storage.first == "tstoragefile") {continue;}
         for (const auto & counter : storage.second)
         {
-            if (counter.first == "read")
+            if (counter.first == static_cast<int>(StorageAccount::Operation::read))
             {
                 readOps += counter.second.successes;
                 readSegs++;
                 readBytes += counter.second.amount;
                 readTimeTotal += counter.second.timeTotal;
             }
-            else if (counter.first == "readv")
+            else if (counter.first == static_cast<int>(StorageAccount::Operation::readv))
             {
                 readVOps += counter.second.successes;
                 readSegs += counter.second.vector_count;
                 readBytes += counter.second.amount;
                 readTimeTotal += counter.second.timeTotal;
             }
-            else if ((counter.first == "write") || (counter.first == "writev"))
+            else if ((counter.first == static_cast<int>(StorageAccount::Operation::write)) || (counter.first == static_cast<int>(StorageAccount::Operation::writev)))
             {
                 writeBytes += counter.second.amount;
                 writeTimeTotal += counter.second.timeTotal;

@@ -11,6 +11,32 @@
 
 class StorageAccount {
 public:
+  
+  enum class Operation {
+    check,
+    close,
+    construct,
+    destruct,
+    flush,
+    open,
+    position,
+    prefetch,
+    read,
+    readActual,
+    readAsync,
+    readPrefetchToCache,
+    readViaCache,
+    readv,
+    resize,
+    seek,
+    stagein,
+    stat,
+    write,
+    writeActual,
+    writeViaCache,
+    writev
+  };
+  
   struct Counter {
     Counter():
     attempts{0},
@@ -77,14 +103,16 @@ public:
     std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
   };
 
-  typedef tbb::concurrent_unordered_map<std::string, Counter> OperationStats;
+  typedef tbb::concurrent_unordered_map<int, Counter> OperationStats;
   typedef tbb::concurrent_unordered_map<std::string, OperationStats > StorageStats;
 
+  static char const* operationName(Operation operation);
+  
   static const StorageStats& summary(void);
   static std::string         summaryText(bool banner=false);
   static void                fillSummary(std::map<std::string, std::string> &summary);
   static Counter&            counter (const std::string &storageClass,
-                                      const std::string &operation);
+                                      Operation operation);
 
 private:
   static StorageStats m_stats;
