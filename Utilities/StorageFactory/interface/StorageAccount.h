@@ -7,21 +7,48 @@
 # include <map>
 # include <mutex>
 # include <chrono>
+# include <atomic>
 
 class StorageAccount {
 public:
   struct Counter {
-    uint64_t attempts;
-    uint64_t successes;
-    uint64_t amount;
+    Counter(Counter const&) = delete;
+    Counter():
+    attempts{0},
+    successes{0},
+    amount{0},
+    amount_square{0.},
+    vector_count{0},
+    vector_square{0},
+    timeTotal{0.},
+    timeMin{0.},
+    timeMax{0.} {}
+    
+    //Use atomics to allow concurrent read/write for intermediate
+    // output of the statics while running. The values obtained
+    // won't be completely consistent but should be good enough for
+    // monitoring. The values obtained once the program is shutting
+    // down should be completely consistent.
+    
+    std::atomic<uint64_t> attempts;
+    std::atomic<uint64_t> successes;
+    std::atomic<uint64_t> amount;
     // NOTE: Significant risk exists for underflow in this value.
     // However, the use cases are marginal so I let it pass.
-    double   amount_square;
-    int64_t  vector_count;
-    int64_t  vector_square;
-    double   timeTotal;
-    double   timeMin;
-    double   timeMax;
+    std::atomic<double>   amount_square;
+    std::atomic<int64_t>  vector_count;
+    std::atomic<int64_t>  vector_square;
+    std::atomic<double>   timeTotal;
+    std::atomic<double>   timeMin;
+    std::atomic<double>   timeMax;
+    
+    static void addTo(std::atomic<double>& iAtomic, double iToAdd) {
+      double oldValue = iAtomic.load();
+      double newValue = oldValue + iToAdd;
+      while( not iAtomic.compare_exchange_weak(oldValue, newValue)) {
+        newValue = oldValue+iToAdd;
+      }
+    }
   };
 
   class Stamp {

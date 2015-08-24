@@ -67,27 +67,19 @@ StorageAccount::counter (const std::string &storageClass, const std::string &ope
   std::lock_guard<std::mutex> lock (m_mutex);
   auto &opstats = m_stats [storageClass];
 
-  OperationStats::iterator pos = opstats.find (operation);
-  if (pos == opstats.end ()) {
-    Counter x = { 0, 0, 0, 0, 0, 0, 0 };
-    pos = opstats.insert (OperationStats::value_type (operation, x)).first;
-  }
-
-  return pos->second;
+  return opstats[operation];
 }
 
 StorageAccount::Stamp::Stamp (Counter &counter)
   : m_counter (counter),
     m_start (std::chrono::high_resolution_clock::now())
 {
-  std::lock_guard<std::mutex> lock (m_mutex);
   m_counter.attempts++;
 }
 
 void
 StorageAccount::Stamp::tick (uint64_t amount, int64_t count) const
 {
-  std::lock_guard<std::mutex> lock (m_mutex);
   std::chrono::nanoseconds elapsed_ns = std::chrono::high_resolution_clock::now() - m_start;
   uint64_t elapsed = elapsed_ns.count();
   m_counter.successes++;
@@ -95,9 +87,9 @@ StorageAccount::Stamp::tick (uint64_t amount, int64_t count) const
   m_counter.vector_count += count;
   m_counter.vector_square += count*count;
   m_counter.amount += amount;
-  m_counter.amount_square += amount*amount;
+  Counter::addTo(m_counter.amount_square, amount*amount);
 
-  m_counter.timeTotal += elapsed;
+  Counter::addTo(m_counter.timeTotal, elapsed);
   if (elapsed < m_counter.timeMin || m_counter.successes == 1)
     m_counter.timeMin = elapsed;
   if (elapsed > m_counter.timeMax)
