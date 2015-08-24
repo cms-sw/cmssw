@@ -39,9 +39,11 @@ float KKCorrectionFactors::getScale( float genE, float genEta, float simE ) cons
   if( interpolate3D_
       // TH3::Interpolate can only interpolate inside the bondaries of the histogram
       && genE > h3_->GetXaxis()->GetXmin()
-      &&  genE < h3_->GetXaxis()->GetXmax()
+      && genE < h3_->GetXaxis()->GetXmax()
       && genEta > h3_->GetYaxis()->GetXmin()
-      &&  genEta < h3_->GetYaxis()->GetXmax() ) {
+      && genEta < h3_->GetYaxis()->GetXmax()
+      && r < h3_->GetZaxis()->GetXmax()
+      && r > h3_->GetZaxis()->GetXmax() ) {
 
     scale = h3_->Interpolate( genE, genEta, r );
 
@@ -50,7 +52,18 @@ float KKCorrectionFactors::getScale( float genE, float genEta, float simE ) cons
     int binE   = h3_->GetXaxis()->FindFixBin( genE );
     int binEta = h3_->GetYaxis()->FindFixBin( genEta );
 
-    scale = h3_->ProjectionZ( "proZ", binE, binE, binEta, binEta )->Interpolate( r );
+    // find the two bins which are closest to the actual value
+    auto binWidthR = h3_->GetZaxis()->GetBinWidth(0);
+    int binRup = h3_->GetZaxis()->FindFixBin( r + binWidthR/2. );
+    int binRdn = h3_->GetZaxis()->FindFixBin( r - binWidthR/2. );
+
+    auto scaleUp = h3_->GetBinContent( binE, binEta, binRup );
+    auto scaleDn = h3_->GetBinContent( binE, binEta, binRdn );
+
+    // make a linear extrapolation between neighbour bins if they are not zero
+    auto Rup = h3_->GetZaxis()->GetBinCenter( binRup );
+    auto Rdn = h3_->GetZaxis()->GetBinCenter( binRdn );
+    scale = scaleDn + (scaleUp-scaleDn) * ( r - Rdn ) / binWidthR;
 
   }
   return scale;
