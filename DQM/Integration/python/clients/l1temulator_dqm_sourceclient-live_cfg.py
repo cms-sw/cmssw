@@ -109,9 +109,9 @@ process.L1HardwareValidation.remove(process.deDt)
 # remove a L1 trigger system from the comparator integrated in hardware validation
 # cfi file: L1Trigger.HardwareValidation.L1Comparator_cfi
 #
-# process.l1compare.COMPARE_COLLS = [0, 0, 1, 1,  0, 1, 0, 0, 1, 0, 1, 0]
+process.l1compare.COMPARE_COLLS = [0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0]
 #
-
+process.l1demon.COMPARE_COLLS = [0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0]
 
 #
 # remove an expert module for L1 trigger system
