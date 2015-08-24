@@ -35,6 +35,7 @@
 #include "RecoMET/METAlgorithms/interface/HcalHaloAlgo.h"
 //Included Classes (semi-alphabetical)
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -97,9 +98,11 @@ namespace reco
     edm::InputTag IT_HBHERecHit;
     edm::InputTag IT_HORecHit;
     edm::InputTag IT_HFRecHit;
+    edm::InputTag IT_CaloTowers;
 
     edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
     edm::EDGetTokenT<HFRecHitCollection> hfrechit_token_;
+    edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
 
     float HBRecHitEnergyThreshold;
     float HERecHitEnergyThreshold;
