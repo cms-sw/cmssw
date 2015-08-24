@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 photonRegressionValueMapProducer = cms.EDProducer('PhotonRegressionValueMapProducer',
-                                                  #presently the photon regressions use the non-zero-supressed shower shapes
-                                                  useFull5x5 = cms.bool(True), 
+                                                  #presently the photon regressions use the fraction-ized (PF clustering) shower shapes
+                                                  useFull5x5 = cms.bool(False), 
                                                   # The module automatically detects AOD vs miniAOD, so we configure both
                                                   #
                                                   # AOD case
