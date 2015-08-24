@@ -50,10 +50,10 @@ float KKCorrectionFactors::getScale( float genE, float genEta, float simE ) cons
 
   if( interpolate_
       // TH3::Interpolate can only interpolate inside the bondaries of the histogram
-      && genE > h3_->GetXaxis()->GetBinLowEdge(1)
-      &&  genE < h3_->GetXaxis()->GetBinLowEdge( h3_->GetNbinsX()+1 )
-      && genEta > h3_->GetYaxis()->GetBinLowEdge(1)
-      &&  genEta < h3_->GetYaxis()->GetBinLowEdge( h3_->GetNbinsY()+1 ) ) {
+      && genE > h3_->GetXaxis()->GetXmin()
+      &&  genE < h3_->GetXaxis()->GetXmax()
+      && genEta > h3_->GetYaxis()->GetXmin()
+      &&  genEta < h3_->GetYaxis()->GetXmax() ) {
 
     scale = h3_->Interpolate( genE, genEta, r );
 
