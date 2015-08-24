@@ -30,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
 
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
@@ -38,7 +39,6 @@
 class L1GtStableParameters;
 class L1GtPrescaleFactors;
 class L1GtTriggerMask;
-class L1GtTriggerMenu;
 
 // class declaration
 class L1GtTriggerMenuTester: public edm::EDAnalyzer {
@@ -160,7 +160,7 @@ private:
     const std::vector<unsigned int>* m_triggerMaskVetoTechTrig;
 
     // trigger menu
-    const L1GtTriggerMenu* m_l1GtMenu;
+    std::unique_ptr<L1GtTriggerMenu> m_l1GtMenu;
 
     const AlgorithmMap* m_algorithmMap;
     const AlgorithmMap* m_algorithmAliasMap;
