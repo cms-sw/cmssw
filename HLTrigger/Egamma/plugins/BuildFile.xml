@@ -1,0 +1,7 @@
+<library   file="*.cc" name="HLTriggerEgammaPlugins">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/Scouting"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="PhysicsTools/UtilAlgos"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
