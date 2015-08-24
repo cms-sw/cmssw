@@ -10,12 +10,12 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStreamProducer.h"
 //#include "CommonTools/RecoAlgos/interface/TrackSelector.h"
 #include "CommonTools/RecoAlgos/interface/RecoTrackRefSelector.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 namespace reco {
-  typedef ObjectSelectorStream<RecoTrackRefSelector,reco::TrackRefVector> RecoTrackRefSelector;
+  typedef ObjectSelectorStreamProducer<RecoTrackRefSelector,reco::TrackRefVector> RecoTrackRefSelector;
   DEFINE_FWK_MODULE(RecoTrackRefSelector);
 }
