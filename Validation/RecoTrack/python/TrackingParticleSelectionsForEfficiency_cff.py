@@ -18,7 +18,6 @@ from Configuration.StandardSequences.Eras import eras
 if eras.fastSim.isChosen():
     generalTpSelectorBlock.stableOnly = True
 
-# TODO: clone all these guys from the first one
 TpSelectorForEfficiencyVsEtaBlock = generalTpSelectorBlock.clone()
 TpSelectorForEfficiencyVsPhiBlock = generalTpSelectorBlock.clone()
 TpSelectorForEfficiencyVsPtBlock = generalTpSelectorBlock.clone(ptMin = 0.050 )
