@@ -114,11 +114,11 @@ process.L1HardwareValidation.remove(process.deDt)
 #
 
 process.l1compareforstage1.COMPARE_COLLS = [
-        0,  0,  0,  1,   0,  0,  0,  0,  0,  0,  0, 0
+        0,  0,  1,  1,   0,  0,  0,  0,  0,  0,  0, 0
         ]
 
 process.l1demonstage1.COMPARE_COLLS = [
-        0,  0,  0,  1,   0,  0,  0,  0,  0,  0,  0, 0
+        0,  0,  1,  1,   0,  0,  0,  0,  0,  0,  0, 0
         ]
       #ETP,HTP,RCT,GCT, DTP,DTF,CTP,CTF,RPC,LTC,GMT,GT
 
@@ -134,7 +134,7 @@ process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeCSCTF)
 
 #process.l1ExpertDataVsEmulatorStage1.remove(process.l1TdeRCT)
 
-process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMU/Stage1Layer2')
+process.l1demonstage1.HistFolder = cms.untracked.string('L1TEMU/Stage1')
 
 process.l1TdeStage1Layer2.HistFolder = cms.untracked.string('L1TEMU/Stage1Layer2expert')
 
