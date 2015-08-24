@@ -16,7 +16,8 @@ EvtScalersRECO = cms.PSet(
        'keep Level1TriggerScalerss_scalersRawToDigi_*_*',
        'keep LumiScalerss_scalersRawToDigi_*_*',
        'keep BeamSpotOnlines_scalersRawToDigi_*_*',
-       'keep DcsStatuss_scalersRawToDigi_*_*'
+       'keep DcsStatuss_scalersRawToDigi_*_*',
+       'keep DcsStatuss_hltScalersRawToDigi_*_*'
        )
 )
 
