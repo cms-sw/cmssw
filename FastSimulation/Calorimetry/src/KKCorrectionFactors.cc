@@ -25,17 +25,6 @@ KKCorrectionFactors::KKCorrectionFactors( const edm::ParameterSet& pset )
   }
   h3_ = new TH3F( *((TH3F*)obj) );
 
-  // fill empty bins with 1.
-  for( int x=0; x<h3_->GetNbinsX()+2; x++ ) {
-    for( int y=0; y<h3_->GetNbinsY()+2; y++ ) {
-      for( int z=0; z<h3_->GetNbinsZ()+2; z++ ) {
-        if( h3_->GetBinContent(x,y,z) < 1e-5 ) {
-          h3_->SetBinContent(x,y,z,1.);
-        }
-      }
-    }
-  }
-
   delete myFile;
 
 }
@@ -64,10 +53,6 @@ float KKCorrectionFactors::getScale( float genE, float genEta, float simE ) cons
     scale = h3_->ProjectionZ( "proZ", binE, binE, binEta, binEta )->Interpolate( r );
 
   }
-
-  // if the scale is unreasonable small, e.g. zero, do not scale
-  if( scale < 1e-5 ) { scale = 1.; }
-
   return scale;
 
 }
