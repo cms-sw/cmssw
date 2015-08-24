@@ -1,0 +1,7 @@
+<library   file="*.cc" name="HLTriggerMuonPlugins">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/Scouting"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="DataFormats/TrackReco"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
