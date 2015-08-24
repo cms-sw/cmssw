@@ -18,6 +18,10 @@ class Eras (object):
         # "run2_common" over the whole python tree). In practice, I don't think it's worth
         # it, and this also gives the flexibilty to take it out easily.
         
+        # This era should not be set by the user with the "--era" command, it's
+        # activated automatically if the "--fast" command is used.
+        self.fastSim = cms.Modifier()
+        
         # These are the eras that the user should specify
         self.Run2_25ns = cms.ModifierChain( self.run2_common, self.run2_25ns_specific, self.stage1L1Trigger )
         self.Run2_50ns = cms.ModifierChain( self.run2_common, self.run2_50ns_specific, self.stage1L1Trigger )
@@ -29,6 +33,6 @@ class Eras (object):
         # message of available values when an invalid era is specified.
         self.internalUseEras = [self.run2_common, self.run2_25ns_specific,
                                 self.run2_50ns_specific, self.run2_HI_specific,
-                                self.stage1L1Trigger]
+                                self.stage1L1Trigger, self.fastSim ]
 
 eras=Eras()

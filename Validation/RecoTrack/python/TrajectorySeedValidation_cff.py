@@ -16,6 +16,10 @@ _seedProducerLabels = ["initialStepSeeds",
                        "jetCoreRegionalStepSeeds",
                        ]
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    _seedProducerLabels.remove("jetCoreRegionalStepSeeds")
+
 _moduleNames = []
 for _label in _seedProducerLabels:
     _lines = """

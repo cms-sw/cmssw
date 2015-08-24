@@ -12,3 +12,9 @@ quickTrackAssociatorByHits = cms.EDProducer("QuickTrackAssociatorByHitsProducer"
         useClusterTPAssociation = cms.bool(True),
         cluster2TPSrc = cms.InputTag("tpClusterProducer")
 )
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    quickTrackAssociatorByHits.associateStrip = False
+    quickTrackAssociatorByHits.associatePixel = False
+    quickTrackAssociatorByHits.useClusterTPAssociation = False

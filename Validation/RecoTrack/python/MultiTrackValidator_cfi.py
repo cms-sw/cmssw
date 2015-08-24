@@ -83,3 +83,8 @@ multiTrackValidator = cms.EDAnalyzer(
     dodEdxPlots = cms.untracked.bool(False),
     doPVAssociationPlots = cms.untracked.bool(False), # do plots that require true PV, if True, label_vertex and vertexAssociator are read
 )
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    multiTrackValidator.sim = [cms.InputTag('famosSimHits','TrackerHits')]
+    
