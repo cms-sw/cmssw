@@ -29,6 +29,10 @@ namespace {
     "writeViaCache",
     "writev"
   };
+  
+  //Storage class names to the value of the token to which they are assigned
+  tbb::concurrent_unordered_map<std::string, int> s_nameToToken;
+  std::atomic<int> s_nextTokenValue{0};
 }
 
 StorageAccount::StorageStats StorageAccount::m_stats;
@@ -49,14 +53,38 @@ inline char const* StorageAccount::operationName(Operation operation) {
   return kOperationNames[static_cast<int>(operation)];
 }
 
+StorageAccount::StorageClassToken StorageAccount::tokenForStorageClassName( std::string const & iName) {
+  auto itFound = s_nameToToken.find(iName);
+  if( itFound != s_nameToToken.end()) {
+    return StorageClassToken(itFound->second);
+  }
+  int value = s_nextTokenValue++;
+  
+  auto ret = s_nameToToken.emplace(iName, value);
+  
+  //don't use value since another thread may have beaten us to here
+  return StorageClassToken(ret.second);
+}
+
+const std::string& StorageAccount::nameForToken( StorageClassToken iToken) {
+  for( auto it = s_nameToToken.begin(), itEnd = s_nameToToken.end(); it != itEnd; ++it) {
+    if (it->second == iToken.value()) {
+      return it->first;
+    }
+  }
+  assert(false);
+}
+
+
 std::string
 StorageAccount::summaryText (bool banner /*=false*/) {
   bool first = true;
   std::ostringstream os;
   if (banner)
     os << "stats: class/operation/attempts/successes/amount/time-total/time-min/time-max\n";
-  for (StorageStats::iterator i = m_stats.begin (); i != m_stats.end(); ++i)
-    for (OperationStats::iterator j = i->second.begin (); j != i->second.end (); ++j, first = false)
+  for (auto i = s_nameToToken.begin (); i != s_nameToToken.end(); ++i) {
+    auto const& opStats = m_stats[i->second];
+    for (auto j = opStats.begin (); j != opStats.end (); ++j, first = false)
       os << (first ? "" : "; ")
          << (i->first) << '/'
          << kOperationNames[j->first] << '='
@@ -66,7 +94,7 @@ StorageAccount::summaryText (bool banner /*=false*/) {
          << (static_cast<double>(j->second.timeTotal) / 1000 / 1000) << "ms/"
          << (static_cast<double>(j->second.timeMin) / 1000 / 1000) << "ms/"
          << (static_cast<double>(j->second.timeMax) / 1000 / 1000) << "ms";
- 
+  }
   return os.str ();
 }
 
@@ -74,8 +102,9 @@ void
 StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
   int const oneM = 1000 * 1000;
   int const oneMeg = 1024 * 1024;
-  for (StorageStats::iterator i = m_stats.begin (); i != m_stats.end(); ++i) {
-    for (OperationStats::iterator j = i->second.begin(); j != i->second.end(); ++j) {
+  for (auto i = s_nameToToken.begin (); i != s_nameToToken.end(); ++i) {
+    auto const& opStats = m_stats[i->second];
+    for (auto j = opStats.begin(); j != opStats.end(); ++j) {
       std::ostringstream os;
       os << "Timing-" << i->first << "-" << kOperationNames[j->first] << "-";
       summary.insert(std::make_pair(os.str() + "numOperations", i2str(j->second.attempts)));
@@ -93,8 +122,8 @@ StorageAccount::summary (void)
 { return m_stats; }
 
 StorageAccount::Counter&
-StorageAccount::counter (const std::string &storageClass, Operation operation) {
-  auto &opstats = m_stats [storageClass];
+StorageAccount::counter (StorageClassToken token, Operation operation) {
+  auto &opstats = m_stats [token.value()];
 
   return opstats[static_cast<int>(operation)];
 }

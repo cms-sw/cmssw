@@ -2,22 +2,22 @@
 
 StorageAccountProxy::StorageAccountProxy (const std::string &storageClass,
                                           std::unique_ptr<Storage> baseStorage)
-  : m_storageClass (storageClass),
-    m_baseStorage (std::move(baseStorage)),
-    m_statsRead (StorageAccount::counter (m_storageClass, StorageAccount::Operation::read)),
-    m_statsReadV (StorageAccount::counter (m_storageClass, StorageAccount::Operation::readv)),
-    m_statsWrite (StorageAccount::counter (m_storageClass, StorageAccount::Operation::write)),
-    m_statsWriteV (StorageAccount::counter (m_storageClass, StorageAccount::Operation::writev)),
-    m_statsPosition (StorageAccount::counter (m_storageClass, StorageAccount::Operation::position)),
-    m_statsPrefetch (StorageAccount::counter (m_storageClass, StorageAccount::Operation::prefetch))
+  : m_baseStorage (std::move(baseStorage)),
+    m_token(StorageAccount::tokenForStorageClassName(storageClass)),
+    m_statsRead (StorageAccount::counter (m_token, StorageAccount::Operation::read)),
+    m_statsReadV (StorageAccount::counter (m_token, StorageAccount::Operation::readv)),
+    m_statsWrite (StorageAccount::counter (m_token, StorageAccount::Operation::write)),
+    m_statsWriteV (StorageAccount::counter (m_token, StorageAccount::Operation::writev)),
+    m_statsPosition (StorageAccount::counter (m_token, StorageAccount::Operation::position)),
+    m_statsPrefetch (StorageAccount::counter (m_token, StorageAccount::Operation::prefetch))
 {
-  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, StorageAccount::Operation::construct));
+  StorageAccount::Stamp stats (StorageAccount::counter (m_token, StorageAccount::Operation::construct));
   stats.tick ();
 }
 
 StorageAccountProxy::~StorageAccountProxy (void)
 {
-  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, StorageAccount::Operation::destruct));
+  StorageAccount::Stamp stats (StorageAccount::counter (m_token, StorageAccount::Operation::destruct));
   m_baseStorage.release();
   stats.tick ();
 }
@@ -106,7 +106,7 @@ StorageAccountProxy::position (IOOffset offset, Relative whence)
 void
 StorageAccountProxy::resize (IOOffset size)
 {
-  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, StorageAccount::Operation::resize));
+  StorageAccount::Stamp stats (StorageAccount::counter (m_token, StorageAccount::Operation::resize));
   m_baseStorage->resize (size);
   stats.tick ();
 }
@@ -114,7 +114,7 @@ StorageAccountProxy::resize (IOOffset size)
 void
 StorageAccountProxy::flush (void)
 {
-  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, StorageAccount::Operation::flush));
+  StorageAccount::Stamp stats (StorageAccount::counter (m_token, StorageAccount::Operation::flush));
   m_baseStorage->flush ();
   stats.tick ();
 }
@@ -122,7 +122,7 @@ StorageAccountProxy::flush (void)
 void
 StorageAccountProxy::close (void)
 {
-  StorageAccount::Stamp stats (StorageAccount::counter (m_storageClass, StorageAccount::Operation::close));
+  StorageAccount::Stamp stats (StorageAccount::counter (m_token, StorageAccount::Operation::close));
   m_baseStorage->close ();
   stats.tick ();
 }

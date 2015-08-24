@@ -322,13 +322,14 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     uint64_t readTimeTotal = 0;
     uint64_t writeBytes = 0;
     uint64_t writeTimeTotal = 0;
+    const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
     for (const auto & storage : stats)
     {
         // StorageAccount records statistics for both the TFile layer and the
         // StorageFactory layer.  However, the StorageFactory statistics tend to
         // be more accurate as various backends may alter the incoming read requests
         // (such as when lazy-download is used).
-        if (storage.first == "tstoragefile") {continue;}
+        if (storage.first == token.value()) {continue;}
         for (const auto & counter : storage.second)
         {
             if (counter.first == static_cast<int>(StorageAccount::Operation::read))

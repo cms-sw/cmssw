@@ -39,9 +39,9 @@ public:
   virtual void		close (void);
 
 protected:
-  std::string		m_storageClass;
   std::unique_ptr<Storage> m_baseStorage;
 
+  StorageAccount::StorageClassToken m_token;
   StorageAccount::Counter &m_statsRead;
   StorageAccount::Counter &m_statsReadV;
   StorageAccount::Counter &m_statsWrite;

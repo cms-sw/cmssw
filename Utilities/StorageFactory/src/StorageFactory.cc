@@ -176,8 +176,10 @@ StorageFactory::open (const std::string &url, int mode /* = IOFlags::OpenRead */
   std::unique_ptr<StorageAccount::Stamp> stats;
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
-    if (m_accounting)
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, StorageAccount::Operation::open)));
+    if (m_accounting) {
+        auto token = StorageAccount::tokenForStorageClassName(protocol);
+        stats.reset(new StorageAccount::Stamp(StorageAccount::counter (token, StorageAccount::Operation::open)));
+    }
     try
     {
       if (auto storage = maker->open (protocol, rest, mode, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout)))
@@ -215,8 +217,10 @@ StorageFactory::stagein (const std::string &url) const
   std::unique_ptr<StorageAccount::Stamp> stats;
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
-    if (m_accounting) 
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, StorageAccount::Operation::stagein)));
+    if (m_accounting) {
+      auto token = StorageAccount::tokenForStorageClassName(protocol);
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (token, StorageAccount::Operation::stagein)));
+    }
     try
     {
       maker->stagein (protocol, rest,StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout));
@@ -241,8 +245,10 @@ StorageFactory::check (const std::string &url, IOOffset *size /* = 0 */) const
   std::unique_ptr<StorageAccount::Stamp> stats;
   if (StorageMaker *maker = getMaker (url, protocol, rest))
   {
-    if (m_accounting) 
-      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (protocol, StorageAccount::Operation::check)));
+    if (m_accounting) {
+      auto token = StorageAccount::tokenForStorageClassName(protocol);
+      stats.reset(new StorageAccount::Stamp(StorageAccount::counter (token, StorageAccount::Operation::check)));
+    }
     try
     {
       ret = maker->check (protocol, rest, StorageMaker::AuxSettings{}.setDebugLevel(m_debugLevel).setTimeout(m_timeout), size);

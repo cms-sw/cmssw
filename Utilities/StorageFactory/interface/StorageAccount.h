@@ -103,15 +103,31 @@ public:
     std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
   };
 
+  class StorageClassToken {
+  public:
+    StorageClassToken(StorageClassToken const&) = default;
+    int value() const { return m_value;}
+
+    friend class StorageAccount;
+  private:
+    StorageClassToken() = delete;
+    explicit StorageClassToken(int iValue) : m_value{iValue} {}
+
+    int m_value;
+    
+  };
+  
   typedef tbb::concurrent_unordered_map<int, Counter> OperationStats;
-  typedef tbb::concurrent_unordered_map<std::string, OperationStats > StorageStats;
+  typedef tbb::concurrent_unordered_map<int, OperationStats > StorageStats;
 
   static char const* operationName(Operation operation);
+  static StorageClassToken tokenForStorageClassName( std::string const& iName);
+  static const std::string& nameForToken( StorageClassToken);
   
   static const StorageStats& summary(void);
   static std::string         summaryText(bool banner=false);
   static void                fillSummary(std::map<std::string, std::string> &summary);
-  static Counter&            counter (const std::string &storageClass,
+  static Counter&            counter (StorageClassToken token,
                                       Operation operation);
 
 private:

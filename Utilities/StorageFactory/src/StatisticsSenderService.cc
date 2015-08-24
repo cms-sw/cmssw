@@ -57,8 +57,9 @@ StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
   ssize_t read_vector_square = 0;
   ssize_t read_vector_count_sum = 0;
   ssize_t read_vector_count_square = 0;
+  auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
   for (StorageAccount::StorageStats::const_iterator i = stats.begin (); i != stats.end(); ++i) {
-    if (i->first == "tstoragefile") {
+    if (i->first == token.value()) {
       continue;
     }
     for (StorageAccount::OperationStats::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
