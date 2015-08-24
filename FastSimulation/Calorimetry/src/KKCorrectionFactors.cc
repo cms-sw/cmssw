@@ -36,7 +36,6 @@ KKCorrectionFactors::KKCorrectionFactors( const edm::ParameterSet& pset )
     }
   }
 
-  myFile->Close();
   delete myFile;
 
 }
