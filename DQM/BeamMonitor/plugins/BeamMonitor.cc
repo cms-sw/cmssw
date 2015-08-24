@@ -161,7 +161,7 @@ void BeamMonitor::beginJob() {
   h_nVtx_lumi->setAxisTitle("Num of Vtx for Fit",2);
   
   h_nVtx_lumi_all=dbe_->book1D("nVtx_lumi_all","Num. of selected Vtx vs lumi (Fit) all",20,0.5,20.5);
-  h_nVtx_lumi_all->getTH1()->SetCanExtend(TH1::kAllAxes);
+  h_nVtx_lumi_all->getTH1()->SetBit(TH1::kCanRebin);
   h_nVtx_lumi_all->setAxisTitle("Lumisection",1);
   h_nVtx_lumi_all->setAxisTitle("Num of Vtx for Fit",2);
 
