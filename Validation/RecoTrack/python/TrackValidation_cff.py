@@ -159,6 +159,10 @@ trackValidator.doPVAssociationPlots = True
 #trackValidator.maxpT = cms.double(3)
 #trackValidator.nintpT = cms.int32(40)
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    trackValidator.dodEdxPlots = False
+
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
 # signal tracks vs. signal TPs
 trackValidatorFromPV = trackValidator.clone(
@@ -295,16 +299,18 @@ tracksValidationTruth = cms.Sequence(
     trackingParticleRecoTrackAsssociation +
     VertexAssociatorByPositionAndTracks
 )
+
 tracksValidationTruthSignal = cms.Sequence(
     cms.ignore(trackingParticlesSignal) +
     tpClusterProducerSignal +
     quickTrackAssociatorByHitsSignal +
     trackingParticleRecoTrackAsssociationSignal
 )
-tracksValidationTruthFS = cms.Sequence(
-    quickTrackAssociatorByHits +
-    trackingParticleRecoTrackAsssociation
-)
+
+if eras.fastSim.isChosen():
+    tracksValidationTruth.remove(tpClusterProducer)
+    tracksValidationTruthSignal.remove(tpClusterProducerSignal)
+
 
 tracksPreValidation = cms.Sequence(
     tracksValidationSelectors +
@@ -316,10 +322,6 @@ tracksPreValidationStandalone = cms.Sequence(
     tracksPreValidation +
     tracksValidationSelectorsFromPVStandalone
 )
-tracksPreValidationFS = cms.Sequence(
-    tracksValidationSelectors +
-    tracksValidationTruthFS
-)
 
 # selectors go into separate "prevalidation" sequence
 tracksValidation = cms.Sequence(
@@ -328,7 +330,6 @@ tracksValidation = cms.Sequence(
     trackValidatorFromPVAllTP +
     trackValidatorAllTPEffic
 )
-tracksValidationFS = cms.Sequence( trackValidator )
 
 tracksValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain+
@@ -338,3 +339,4 @@ tracksValidationStandalone = cms.Sequence(
     trackValidatorFromPVAllTPStandalone +
     trackValidatorAllTPEfficStandalone
 )
+
