@@ -194,6 +194,12 @@ HLT_HT325_v*							# JIRA: CMSHLT-488
 HLT_HT425_v*							# JIRA: CMSHLT-488
 HLT_HT575_v*							# JIRA: CMSHLT-488
 
+HLT_HT450to470_v*						# JIRA: CMSHLT-487
+HLT_HT470to500_v*						# JIRA: CMSHLT-487
+HLT_HT500to550_v*						# JIRA: CMSHLT-487
+HLT_HT550to650_v*						# JIRA: CMSHLT-487
+HLT_HT650_v*							# JIRA: CMSHLT-487
+
 HLT_PFHT200_v*                                                  # JIRA: CMSHLT-355
 HLT_PFHT250_v*                                                  # JIRA: CMSHLT-355
 HLT_PFHT300_v*                                                  # JIRA: CMSHLT-355
@@ -562,6 +568,8 @@ RatesMonitoring 						# CMSHLT-344 only in 'online', not in 'GRun'
 PhysicsEGammaCommissioningOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
+PhysicsParkingMonitorOutput					# JIRA: CMSHLT-487
+ParkingHadronsOutput						# JIRA: CMSHLT-487
 DQMOutput							# online DQMFileSaver
 #DQMOfflineOutput                                               # JIRA: CMSHLT-462, removed CMSHLT-481
 DQMEventDisplayOutput
