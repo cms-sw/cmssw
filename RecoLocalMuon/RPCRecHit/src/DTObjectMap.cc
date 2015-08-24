@@ -10,21 +10,13 @@
 #include "RecoLocalMuon/RPCRecHit/src/DTObjectMap.h"
 #include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
 
-DTObjectMap* DTObjectMap::mapInstance = NULL;
-
-DTObjectMap* DTObjectMap::GetInstance(const edm::EventSetup& iSetup){
-  if (mapInstance == NULL){
-    mapInstance = new DTObjectMap(iSetup);
-  }
-  return mapInstance;
-}
-
-DTObjectMap::DTObjectMap(const edm::EventSetup& iSetup){
+DTObjectMap::DTObjectMap(MuonGeometryRecord const& record)
+{
   edm::ESHandle<RPCGeometry> rpcGeo;
+  record.get(rpcGeo);
+
   edm::ESHandle<DTGeometry> dtGeo;
-  
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  iSetup.get<MuonGeometryRecord>().get(dtGeo);
+  record.get(dtGeo);
   
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if(dynamic_cast<const RPCChamber* >( *it ) != 0 ){
@@ -39,11 +31,24 @@ DTObjectMap::DTObjectMap(const edm::EventSetup& iSetup){
 	  int station=rpcId.station();
 	  DTStationIndex ind(region,wheel,sector,station);
 	  std::set<RPCDetId> myrolls;
-	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
+	  if (rollstore.find(ind)!=rollstore.end()) myrolls=rollstore[ind];
 	  myrolls.insert(rpcId);
-	  rollstoreDT[ind]=myrolls;
+	  rollstore[ind]=myrolls;
 	}
       }
     }
   }
 }
+
+std::set<RPCDetId> const& DTObjectMap::getRolls(DTStationIndex index) const
+{
+  // FIXME
+  // the present inplementation allows for NOT finding the given index in the map;
+  // a muon expert should check that this is the intended behaviour.
+  static const std::set<RPCDetId> empty;
+  return (rollstore.find(index) == rollstore.end()) ? empty : rollstore.at(index);
+}
+
+// register the class with the typelookup system used by the EventSetup
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(DTObjectMap);
