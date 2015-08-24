@@ -11,7 +11,7 @@ KKCorrectionFactors::KKCorrectionFactors( const edm::ParameterSet& pset )
 
   // Read histo
   edm::FileInPath myDataFile( fileName ); // TODO: check if this is necessary
-  TFile * myFile = new TFile( myDataFile.fullPath().c_str(), "READ" );
+  TFile * myFile = TFile::Open( myDataFile.fullPath().c_str(), "READ" );
 
   gROOT->cd(); // create histogram in memory
   auto obj = myFile->Get( histogramName.c_str() );
