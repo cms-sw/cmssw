@@ -21,7 +21,7 @@ KKCorrectionFactors::KKCorrectionFactors( const edm::ParameterSet& pset )
     throw cms::Exception( "FileReadError" )
       << "Histogram \"" << histogramName
       << "\" not found in file \"" << fileName
-      << "\", used for correcting the response of the ECAL in FastSim.\n";
+      << "\".\n";
   }
   h3_ = new TH3F( *((TH3F*)obj) );
 
