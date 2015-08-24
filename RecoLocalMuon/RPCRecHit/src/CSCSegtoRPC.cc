@@ -17,9 +17,11 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
   
   edm::ESHandle<RPCGeometry> rpcGeo;
   edm::ESHandle<CSCGeometry> cscGeo;
+  edm::ESHandle<CSCObjectMap> cscMap;
   
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   iSetup.get<MuonGeometryRecord>().get(cscGeo);
+  iSetup.get<MuonGeometryRecord>().get(cscMap);
   
   MaxD=80.;
 
@@ -84,15 +86,10 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 	  float dy=segmentDirection.y();
 	  float dz=segmentDirection.z();
 
-	  if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-	  CSCObjectMap* TheObjectCSC = CSCObjectMap::GetInstance(iSetup);
 	  if(debug) std::cout<<"Creating the CSCIndex"<<std::endl;
 	  CSCStationIndex theindex(rpcRegion,rpcStation,rpcRing,rpcSegment);
 	  if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
-	
-	  std::set<RPCDetId> rollsForThisCSC = TheObjectCSC->GetInstance(iSetup)->GetRolls(theindex);
-		
-	   
+	  std::set<RPCDetId> rollsForThisCSC = cscMap->getRolls(theindex);
 	  if(debug) std::cout<<"CSC \t \t Getting chamber from Geometry"<<std::endl;
 	  const CSCChamber* TheChamber=cscGeo->chamber(CSCId); 
 	  if(debug) std::cout<<"CSC \t \t Getting ID from Chamber"<<std::endl;
