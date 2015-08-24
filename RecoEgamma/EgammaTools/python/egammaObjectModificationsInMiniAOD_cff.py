@@ -59,3 +59,11 @@ setup_mva(egamma_modifications[2].photon_config,
           egamma_modifications[3].photon_config,
           pho_mva_prod_name,
           pho_spring15_50_nt.mvaSpring15NonTrigClassName+pho_spring15_50_nt.mvaTag)
+
+#############################################################
+# REGRESSION MODIFIERS
+#############################################################
+
+from RecoEgamma.EgammaTools.regressionModifier_cfi import *
+
+egamma_modifications.append( regressionModifier )
