@@ -3,7 +3,7 @@
 KKCorrectionFactors::KKCorrectionFactors( const edm::ParameterSet& pset )
 {
 
-  interpolate_ = pset.exists("interpolate") && pset.getUntrackedParameter<bool>("interpolate");
+  interpolate3D_ = pset.exists("interpolate3D") && pset.getUntrackedParameter<bool>("interpolate3D");
 
   // Get the filename and histogram name
   std::string fileName = pset.getUntrackedParameter<std::string>("fileName");
@@ -47,7 +47,7 @@ float KKCorrectionFactors::getScale( float genE, float genEta, float simE ) cons
   float r = simE / genE;
   float scale = 1.;
 
-  if( interpolate_
+  if( interpolate3D_
       // TH3::Interpolate can only interpolate inside the bondaries of the histogram
       && genE > h3_->GetXaxis()->GetXmin()
       &&  genE < h3_->GetXaxis()->GetXmax()

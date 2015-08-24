@@ -38,7 +38,7 @@ class KKCorrectionFactors {
  private:
   // histogram which contains the scales
   TH3F* h3_;
-  bool interpolate_;
+  bool interpolate3D_;
 
 };
 
