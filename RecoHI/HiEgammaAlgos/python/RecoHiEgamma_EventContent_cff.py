@@ -61,7 +61,7 @@ RecoHiEgammaRECO = cms.PSet(
     'keep floatedmValueMap_hiLowPtTripletStepSelector_MVAVals_*', 
     'keep floatedmValueMap_hiPixelPairStepSelector_MVAVals_*',          
     'keep floatedmValueMap_hiRegitMuInitialStepSelector_MVAVals_*', 
-    'keep floatedmValueMap_hiRegitMuMixedTripletStepSelector_MVAVals
+    'keep floatedmValueMap_hiRegitMuMixedTripletStepSelector_MVAVals_*',
     'keep floatedmValueMap_hiRegitMuPixelLessStepSelector_MVAVals_*', 
     'keep floatedmValueMap_hiRegitMuPixelPairStepSelector_MVAVals_*', 
     #'keep recoPFCandidates_*_*_*',
