@@ -4,15 +4,14 @@
 # include <boost/shared_ptr.hpp>
 # include <stdint.h>
 # include <string>
-# include <map>
-# include <mutex>
 # include <chrono>
 # include <atomic>
+# include <map>
+# include "tbb/concurrent_unordered_map.h"
 
 class StorageAccount {
 public:
   struct Counter {
-    Counter(Counter const&) = delete;
     Counter():
     attempts{0},
     successes{0},
@@ -23,6 +22,23 @@ public:
     timeTotal{0.},
     timeMin{0.},
     timeMax{0.} {}
+
+    Counter(Counter&& ) = default;
+
+    //NOTE: This is needed by tbb::concurrent_unordered_map when it
+    // is constructing a new one. This would not give correct results
+    // if the object being passed were being updated, but that is not
+    // the case for operator[]
+    Counter( Counter const& iOther):
+    attempts{iOther.attempts.load()},
+    successes{iOther.successes.load()},
+    amount{iOther.amount.load()},
+    amount_square{iOther.amount_square.load()},
+    vector_count{iOther.vector_count.load()},
+    vector_square{iOther.vector_square.load()},
+    timeTotal{iOther.timeTotal.load()},
+    timeMin{iOther.timeMin.load()},
+    timeMax{iOther.timeMax.load()} {}
     
     //Use atomics to allow concurrent read/write for intermediate
     // output of the statics while running. The values obtained
@@ -61,26 +77,9 @@ public:
     std::chrono::time_point<std::chrono::high_resolution_clock> m_start;
   };
 
-  typedef std::map<std::string, Counter> OperationStats;
-  typedef std::map<std::string, OperationStats > StorageStats;
+  typedef tbb::concurrent_unordered_map<std::string, Counter> OperationStats;
+  typedef tbb::concurrent_unordered_map<std::string, OperationStats > StorageStats;
 
-  class StorageStatsSentry {
-    friend class StorageAccount;
-
-  public:
-    StorageStatsSentry(StorageStatsSentry const&) = delete;
-    StorageStatsSentry& operator=(StorageStatsSentry const&) = delete;
-    StorageStatsSentry(StorageStatsSentry &&) = default;
-
-    StorageStats* operator->() {return &m_stats;}
-    StorageStats& operator*() {return m_stats;}
-
-    ~StorageStatsSentry() {m_mutex.unlock();}
-  private:
-    StorageStatsSentry() {m_mutex.lock();}
-  };
-
-  static StorageStatsSentry&& summaryLocked() {return std::move(StorageStatsSentry());}
   static const StorageStats& summary(void);
   static std::string         summaryText(bool banner=false);
   static void                fillSummary(std::map<std::string, std::string> &summary);
@@ -88,7 +87,6 @@ public:
                                       const std::string &operation);
 
 private:
-  static std::mutex m_mutex;
   static StorageStats m_stats;
 
 };

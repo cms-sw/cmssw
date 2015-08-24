@@ -4,7 +4,6 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-std::mutex StorageAccount::m_mutex;
 StorageAccount::StorageStats StorageAccount::m_stats;
 
 static std::string i2str(int i) {
@@ -64,7 +63,6 @@ StorageAccount::summary (void)
 
 StorageAccount::Counter&
 StorageAccount::counter (const std::string &storageClass, const std::string &operation) {
-  std::lock_guard<std::mutex> lock (m_mutex);
   auto &opstats = m_stats [storageClass];
 
   return opstats[operation];

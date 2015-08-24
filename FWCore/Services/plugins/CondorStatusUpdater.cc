@@ -314,7 +314,7 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     }
 
     // Update storage account information
-    StorageAccount::StorageStatsSentry stats = StorageAccount::summaryLocked();
+    auto const& stats = StorageAccount::summary();
     uint64_t readOps = 0;
     uint64_t readVOps = 0;
     uint64_t readSegs = 0;
@@ -322,7 +322,7 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     uint64_t readTimeTotal = 0;
     uint64_t writeBytes = 0;
     uint64_t writeTimeTotal = 0;
-    for (const auto & storage : *stats)
+    for (const auto & storage : stats)
     {
         // StorageAccount records statistics for both the TFile layer and the
         // StorageFactory layer.  However, the StorageFactory statistics tend to
