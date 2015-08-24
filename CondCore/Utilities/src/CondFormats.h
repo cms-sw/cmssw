@@ -210,6 +210,8 @@
 #include "CondFormats/L1TObjects/interface/L1RPCBxOrConfig.h"
 #include "CondFormats/L1TObjects/interface/L1RPCConfig.h"
 #include "CondFormats/L1TObjects/interface/L1RPCHsbConfig.h"
+#include "CondFormats/L1TObjects/interface/CaloConfig.h"
+#include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKey.h"
 #include "CondFormats/L1TObjects/interface/L1TriggerKeyList.h"
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram3D.h"

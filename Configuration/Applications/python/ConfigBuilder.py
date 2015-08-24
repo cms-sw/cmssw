@@ -21,6 +21,7 @@ defaultOptions.isData=True
 defaultOptions.step=''
 defaultOptions.pileup='NoPileUp'
 defaultOptions.pileup_input = None
+defaultOptions.pileup_dasoption = ''
 defaultOptions.geometry = 'SimDB'
 defaultOptions.geometryExtendedOptions = ['ExtendedGFlash','Extended','NoCastor']
 defaultOptions.magField = ''
@@ -36,6 +37,7 @@ defaultOptions.name = "NO NAME GIVEN"
 defaultOptions.evt_type = ""
 defaultOptions.filein = ""
 defaultOptions.dasquery=""
+defaultOptions.dasoption=""
 defaultOptions.secondfilein = ""
 defaultOptions.customisation_file = []
 defaultOptions.customisation_file_unsch = []
@@ -122,7 +124,7 @@ def filesFromList(fileName,s=None):
 		print "found parent files:",sec
 	return (prim,sec)
 	
-def filesFromDASQuery(query,s=None):
+def filesFromDASQuery(query,option="",s=None):
 	import os,time
 	import FWCore.ParameterSet.Config as cms
 	prim=[]
@@ -134,11 +136,11 @@ def filesFromDASQuery(query,s=None):
 		if count!=0:
 			print 'Sleeping, then retrying DAS'
 			time.sleep(100)
-		p = Popen('das_client.py --query "%s"'%(query), stdout=PIPE,shell=True)
+		p = Popen('das_client.py %s --query "%s"'%(option,query), stdout=PIPE,shell=True)
+                pipe=p.stdout.read()
 		tupleP = os.waitpid(p.pid, 0)
 		eC=tupleP[1]
 		count=count+1
-		pipe=p.stdout.read()
 	if eC==0:
 		print "DAS succeeded after",count,"attempts",eC
 	else:
@@ -383,7 +385,7 @@ class ConfigBuilder(object):
 			if entry.startswith("filelist:"):
 				filesFromList(entry[9:],self.process.source)
 			elif entry.startswith("dbs:") or entry.startswith("das:"):
-				filesFromDASQuery('file dataset = %s'%(entry[4:]),self.process.source)
+				filesFromDASQuery('file dataset = %s'%(entry[4:]),self._options.dasoption,self.process.source)
 			else:
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
@@ -394,7 +396,7 @@ class ConfigBuilder(object):
 				if entry.startswith("filelist:"):
 					self.process.source.secondaryFileNames.extend((filesFromList(entry[9:]))[0])
 				elif entry.startswith("dbs:") or entry.startswith("das:"):
-					self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(entry[4:])))[0])
+					self.process.source.secondaryFileNames.extend((filesFromDASQuery('file dataset = %s'%(entry[4:]),self._options.dasoption))[0])
 				else:
 					self.process.source.secondaryFileNames.append(self._options.dirin+entry)
 
@@ -441,7 +443,7 @@ class ConfigBuilder(object):
 
 	if self._options.dasquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
-	       filesFromDASQuery(self._options.dasquery,self.process.source)
+	       filesFromDASQuery(self._options.dasquery,self._options.dasoption,self.process.source)
 
 	##drop LHEXMLStringProduct on input to save memory if appropriate
 	if 'GEN' in self.stepMap.keys():
@@ -705,7 +707,7 @@ class ConfigBuilder(object):
 		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
 			if self._options.pileup_input:
 				if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
-					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
+					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],),self._options.pileup_dasoption)[0]
 				else:
 					mixingDict['F']=self._options.pileup_input.split(',')
 			specialization=defineMixing(mixingDict)
@@ -1501,7 +1503,7 @@ class ConfigBuilder(object):
 	    if self._options.pileup_input:
 		    theFiles=''
 		    if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
-			    theFiles=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
+			    theFiles=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],),self._options.pileup_dasoption)[0]
 		    elif self._options.pileup_input.startswith("filelist:"):
 			    theFiles= (filesFromList(self._options.pileup_input[9:]))[0]
 		    else:

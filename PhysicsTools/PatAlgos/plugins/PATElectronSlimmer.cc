@@ -89,7 +89,6 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
 
 void 
 pat::PATElectronSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& iSetup) {
-  if( modifyElectron_ ) electronModifier_->setEventContent(iSetup);
 }
 
 void 
@@ -114,6 +113,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
     out->reserve(src->size());
 
     if( modifyElectron_ ) { electronModifier_->setEvent(iEvent); }
+    if( modifyElectron_ ) electronModifier_->setEventContent(iSetup);
 
     std::vector<unsigned int> keys;
     for (View<pat::Electron>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
