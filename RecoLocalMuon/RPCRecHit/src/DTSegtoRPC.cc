@@ -69,9 +69,11 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
   }else{ 
     edm::ESHandle<RPCGeometry> rpcGeo;
     edm::ESHandle<DTGeometry> dtGeo;
+    edm::ESHandle<DTObjectMap> dtMap;
   
     iSetup.get<MuonGeometryRecord>().get(rpcGeo);
     iSetup.get<MuonGeometryRecord>().get(dtGeo);
+    iSetup.get<MuonGeometryRecord>().get(dtMap);
 
     /*
       clock_gettime(CLOCK_REALTIME, &stop_time);
@@ -144,13 +146,10 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 	float dy=segmentDirection.y();
 	float dz=segmentDirection.z();
       
-	if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-	DTObjectMap* TheObject = DTObjectMap::GetInstance(iSetup);
 	if(debug) std::cout<<"Creating the DTIndex"<<std::endl;
 	DTStationIndex theindex(0,dtWheel,dtSector,dtStation);
 	if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
-      
-	std::set<RPCDetId> rollsForThisDT = TheObject->GetInstance(iSetup)->GetRolls(theindex);
+	std::set<RPCDetId> rollsForThisDT = dtMap->getRolls(theindex);
       
 	if(debug) std::cout<<"DT  \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
       
@@ -335,13 +334,10 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 		      dtSector=10;
 		    }
 		   
-		    if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-		    DTObjectMap* TheObject = DTObjectMap::GetInstance(iSetup);
 		    if(debug) std::cout<<"Creating the DTIndex"<<std::endl;
 		    DTStationIndex theindex(0,dtWheel,dtSector,dtStation);
 		    if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
-
-		    std::set<RPCDetId> rollsForThisDT = TheObject->GetInstance(iSetup)->GetRolls(theindex);
+		    std::set<RPCDetId> rollsForThisDT = dtMap->getRolls(theindex);
 
 		    if(debug) std::cout<<"MB4 \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
 		    

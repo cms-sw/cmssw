@@ -64,12 +64,16 @@ TracktoRPC::TracktoRPC(edm::Handle<reco::TrackCollection> alltracks, const edm::
 
  edm::ESHandle<RPCGeometry> rpcGeo;
  edm::ESHandle<DTGeometry> dtGeo;
+ edm::ESHandle<DTObjectMap> dtMap;
  edm::ESHandle<CSCGeometry> cscGeo;
+ edm::ESHandle<CSCObjectMap> cscMap;
  
  iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny",thePropagator); 
  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
  iSetup.get<MuonGeometryRecord>().get(dtGeo);
+ iSetup.get<MuonGeometryRecord>().get(dtMap);
  iSetup.get<MuonGeometryRecord>().get(cscGeo);
+ iSetup.get<MuonGeometryRecord>().get(cscMap);
 
 std::vector<uint32_t> rpcput;
 double MaxD=999.;
@@ -121,9 +125,8 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                 DTChamberId dtid(geomDet->geographicalId().rawId());
                 int dtW=dtid.wheel(), dtS=dtid.sector(), dtT=dtid.station();
                 if(dtS==13) dtS=4; if(dtS==14) dtS=10;
-                DTObjectMap* TheObject = DTObjectMap::GetInstance(iSetup);
                 DTStationIndex theindex(0,dtW,dtS,dtT);
-                std::set<RPCDetId> rollsForThisDT = TheObject->GetInstance(iSetup)->GetRolls(theindex);
+                std::set<RPCDetId> rollsForThisDT = dtMap->getRolls(theindex);
                 for(std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++)
                 {                                 
 	            const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
@@ -168,13 +171,12 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                 float dx = trajLP.x()-trackLP.x(), dy=trajLP.y()-trackLP.y();//, dz=trajLP.z()-trackLP.z();
                 if( dx>10. && dy>10.) continue;
 
-                CSCObjectMap* TheObjectCSC = CSCObjectMap::GetInstance(iSetup);
 	        int En = cscid.endcap(), St = cscid.station(), Ri = cscid.ring();
 	        int rpcSegment = cscid.chamber();
                 if(En==2) En= -1; if(Ri==4) Ri =1; 
 
                 CSCStationIndex theindex(En,St,Ri,rpcSegment);
-                std::set<RPCDetId> rollsForThisCSC = TheObjectCSC->GetInstance(iSetup)->GetRolls(theindex);
+                std::set<RPCDetId> rollsForThisCSC = cscMap->getRolls(theindex);
                 for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++)
                 {
 	            const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);

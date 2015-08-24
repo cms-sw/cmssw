@@ -3,20 +3,20 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "RecoLocalMuon/RPCRecHit/src/CSCStationIndex.h"
 
 #include <set>
 #include <map>
 
-class CSCObjectMap{
+class CSCObjectMap {
 public:
-  static CSCObjectMap* GetInstance(const edm::EventSetup& iSetup);
-  std::set<RPCDetId> GetRolls(CSCStationIndex cscstationindex){return mapInstance->rollstoreCSC[cscstationindex];}
-  std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
-  CSCObjectMap(const edm::EventSetup& iSetup);
+  CSCObjectMap(MuonGeometryRecord const& record);
+
+  std::set<RPCDetId> const& getRolls(CSCStationIndex index) const;
 
 private:
-  static CSCObjectMap* mapInstance;
+  std::map<CSCStationIndex,std::set<RPCDetId>> rollstore;
 }; 
 
 #endif // RecoLocalMuon_RPCRecHit_CSCObjectMap_h

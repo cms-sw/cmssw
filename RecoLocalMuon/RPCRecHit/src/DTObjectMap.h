@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
 
 #include <set>
@@ -10,13 +11,12 @@
 
 class DTObjectMap {
 public:
-  static DTObjectMap* GetInstance(const edm::EventSetup& iSetup);
-  std::set<RPCDetId> GetRolls(DTStationIndex dtstationindex){return mapInstance->rollstoreDT[dtstationindex];}
-  std::map<DTStationIndex,std::set<RPCDetId> > rollstoreDT;
-  DTObjectMap(const edm::EventSetup& iSetup);
+  DTObjectMap(MuonGeometryRecord const& record);
+
+  std::set<RPCDetId> const & getRolls(DTStationIndex index) const;
 
 private:
-  static DTObjectMap* mapInstance;
+  std::map<DTStationIndex, std::set<RPCDetId>> rollstore;
 }; 
 
 #endif // RecoLocalMuon_RPCRecHit_DTObjectMap_h

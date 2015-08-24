@@ -1,6 +1,5 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
@@ -10,21 +9,12 @@
 #include "RecoLocalMuon/RPCRecHit/src/CSCObjectMap.h"
 #include "RecoLocalMuon/RPCRecHit/src/CSCStationIndex.h"
 
-CSCObjectMap* CSCObjectMap::mapInstance = NULL;
-
-CSCObjectMap* CSCObjectMap::GetInstance(const edm::EventSetup& iSetup){
-  if (mapInstance == NULL){
-    mapInstance = new CSCObjectMap(iSetup);
-  }
-  return mapInstance;
-}
-
-CSCObjectMap::CSCObjectMap(const edm::EventSetup& iSetup){
+CSCObjectMap::CSCObjectMap(MuonGeometryRecord const& record){
   edm::ESHandle<RPCGeometry> rpcGeo;
+  record.get(rpcGeo);
+
   edm::ESHandle<CSCGeometry> cscGeo;
-  
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  iSetup.get<MuonGeometryRecord>().get(cscGeo);
+  record.get(cscGeo);
   
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
@@ -46,11 +36,24 @@ CSCObjectMap::CSCObjectMap(const edm::EventSetup& iSetup){
           }
 	  CSCStationIndex ind(region,cscstation,cscring,cscchamber);
           std::set<RPCDetId> myrolls;
-	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()) myrolls=rollstoreCSC[ind];
+	  if (rollstore.find(ind)!=rollstore.end()) myrolls=rollstore[ind];
 	  myrolls.insert(rpcId);
-          rollstoreCSC[ind]=myrolls;
+          rollstore[ind]=myrolls;
 	}
       }
     }
   }
 }
+
+std::set<RPCDetId> const& CSCObjectMap::getRolls(CSCStationIndex index) const
+{
+  // FIXME
+  // the present inplementation allows for NOT finding the given index in the map;
+  // a muon expert should check that this is the intended behaviour.
+  static const std::set<RPCDetId> empty;
+  return (rollstore.find(index) == rollstore.end()) ? empty : rollstore.at(index);
+}
+
+// register the class with the typelookup system used by the EventSetup
+#include "FWCore/Utilities/interface/typelookup.h"
+TYPELOOKUP_DATA_REG(CSCObjectMap);
