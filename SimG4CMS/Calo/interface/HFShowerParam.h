@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
@@ -41,7 +42,7 @@ public:
     double              edep;
   };
 
-  void                  initRun(G4ParticleTable *);
+  void                  initRun(G4ParticleTable *, HcalDDDSimConstants*);
   std::vector<Hit>      getHits(G4Step * aStep, double weight);
   
 private:    

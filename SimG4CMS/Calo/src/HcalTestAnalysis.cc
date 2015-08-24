@@ -12,8 +12,8 @@
 #include "DataFormats/Math/interface/Point3D.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "G4SDManager.hh"
@@ -151,11 +151,12 @@ std::vector<int> HcalTestAnalysis::towersToAdd(int centre, int nadd) {
 void HcalTestAnalysis::update(const BeginOfJob * job) {
 
   // Numbering From DDD
-  edm::ESTransientHandle<DDCompactView> pDD;
-  (*job)()->get<IdealGeometryRecord>().get(pDD);
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  (*job)()->get<HcalSimNumberingRecord>().get(hdc);
+  hcons = (HcalDDDSimConstants*)(&(*hdc));
   edm::LogInfo("HcalSim") << "HcalTestAnalysis:: Initialise "
 			  << "HcalNumberingFromDDD for " << names[0];
-  numberingFromDDD = new HcalNumberingFromDDD(names[0], (*pDD));
+  numberingFromDDD = new HcalNumberingFromDDD(hcons);
 
   // Ntuples
   tuplesManager.reset(new HcalTestHistoManager(fileName));
@@ -184,7 +185,7 @@ void HcalTestAnalysis::update(const BeginOfRun * run) {
   }
   int  idet = static_cast<int>(HcalBarrel);
   while (loop) {
-    HcalCellType::HcalCell tmp = numberingFromDDD->cell(idet,1,1,etac,phic);
+    HcalCellType::HcalCell tmp = hcons->cell(idet,1,1,etac,phic);
     if (tmp.ok) {
       if (eta) eta0 = tmp.eta;
       if (phi) phi0 = tmp.phi;
