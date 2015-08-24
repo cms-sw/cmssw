@@ -5,6 +5,7 @@
 <use   name="DataFormats/HLTReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/Scouting"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/TrackReco"/>
