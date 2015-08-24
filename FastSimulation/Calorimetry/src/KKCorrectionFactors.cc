@@ -10,8 +10,8 @@ KKCorrectionFactors::KKCorrectionFactors( const edm::ParameterSet& pset )
   std::string histogramName = pset.getUntrackedParameter<std::string>("histogramName");
 
   // Read histo
-  edm::FileInPath myDataFile( fileName ); // TODO: check if this is necessary
-  TFile * myFile = TFile::Open( myDataFile.fullPath().c_str(), "READ" );
+  edm::FileInPath myDataFile( fileName );
+  TFile * myFile = TFile::Open( myDataFile.fullPath().c_str() );
 
   gROOT->cd(); // create histogram in memory
   auto obj = myFile->Get( histogramName.c_str() );
