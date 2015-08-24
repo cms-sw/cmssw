@@ -204,8 +204,8 @@ struct TrackEvent{
   //matched PF Candidate Info
   int pfType[MAXTRACKS];
   float pfCandPt[MAXTRACKS];
-  float pfSumEcal[MAXTRACKS];
-  float pfSumHcal[MAXTRACKS];
+  float pfEcal[MAXTRACKS];
+  float pfHcal[MAXTRACKS];
 
   // -- sim tracks --
   int   nParticle;
@@ -244,8 +244,8 @@ struct TrackEvent{
   // calo compatibility
   int mtrkPfType[MAXTRACKS];
   float mtrkPfCandPt[MAXTRACKS];
-  float mtrkPfSumEcal[MAXTRACKS];
-  float mtrkPfSumHcal[MAXTRACKS];
+  float mtrkPfEcal[MAXTRACKS];
+  float mtrkPfHcal[MAXTRACKS];
 
   int matchedGenID[MAXTRACKS][MAXMATCH];
 };
@@ -759,8 +759,8 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
 					 // output to the following vars
 					 pev_.pfType[pev_.nTrk],
 					 pev_.pfCandPt[pev_.nTrk],
-					 pev_.pfSumEcal[pev_.nTrk],
-					 pev_.pfSumHcal[pev_.nTrk]);
+					 pev_.pfEcal[pev_.nTrk],
+					 pev_.pfHcal[pev_.nTrk]);
 
     pev_.nTrk++;
   }
@@ -889,8 +889,8 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
 			   // output to the following vars
 			   pev_.mtrkPfType[pev_.nParticle],
 			   pev_.mtrkPfCandPt[pev_.nParticle],
-			   pev_.mtrkPfSumEcal[pev_.nParticle],
-			   pev_.mtrkPfSumHcal[pev_.nParticle]);
+			   pev_.mtrkPfEcal[pev_.nParticle],
+			   pev_.mtrkPfHcal[pev_.nParticle]);
       }
     }
     // remove the association if the track hits the bed region in FPIX
@@ -920,12 +920,13 @@ TrackAnalyzer::matchPFCandToTrack(const edm::Event& iEvent, const edm::EventSetu
     return;  // if no PFCand in an event, skip it
   }
 
-  double sum_ecal=0.0, sum_hcal=0.0;
+  // double sum_ecal=0.0, sum_hcal=0.0;
+  double ecalEnergy=0.0, hcalEnergy=0.0;
 
 
   // loop over pfCandidates to find track
 
-  int cand_index = -999;
+  // int cand_index = -999;
   cand_pt = -999.0;
   cand_type =-1;
 
@@ -946,14 +947,17 @@ TrackAnalyzer::matchPFCandToTrack(const edm::Event& iEvent, const edm::EventSetu
     reco::TrackRef trackRef = cand.trackRef();
 
     if(it==trackRef.key()) {
-      cand_index = ic;
+      // cand_index = ic;
       cand_type = type;
       cand_pt = cand.pt();
+      ecalEnergy = cand.ecalEnergy();
+      hcalEnergy = cand.hcalEnergy();
       break;
 
     }
   }
 
+  /*
   if(cand_index>=0){
 
     const reco::PFCandidate& cand = (*pfCandidates)[cand_index];
@@ -994,13 +998,12 @@ TrackAnalyzer::matchPFCandToTrack(const edm::Event& iEvent, const edm::EventSetu
 
     } // end of elementsInBlocks()
   }  // end of if(cand_index >= 0)
-
-
+*/
 
   cand_type=cand_type;
   cand_pt=cand_pt;
-  mEcalSum=sum_ecal;
-  mHcalSum=sum_hcal;
+  mEcalSum=ecalEnergy;
+  mHcalSum=hcalEnergy;
 
   return;
 
@@ -1178,8 +1181,8 @@ TrackAnalyzer::beginJob()
   if (doPFMatching_) {
     trackTree_->Branch("pfType",&pev_.pfType,"pfType[nTrk]/I");
     trackTree_->Branch("pfCandPt",&pev_.pfCandPt,"pfCandPt[nTrk]/F");
-    trackTree_->Branch("pfSumEcal",&pev_.pfSumEcal,"pfSumEcal[nTrk]/F");
-    trackTree_->Branch("pfSumHcal",&pev_.pfSumHcal,"pfSumHcal[nTrk]/F");
+    trackTree_->Branch("pfEcal",&pev_.pfEcal,"pfEcal[nTrk]/F");
+    trackTree_->Branch("pfHcal",&pev_.pfHcal,"pfHcal[nTrk]/F");
   }
 
   // Track Extra
@@ -1233,8 +1236,8 @@ TrackAnalyzer::beginJob()
       if (doPFMatching_) {
 	trackTree_->Branch("mtrkPfType",&pev_.mtrkPfType,"mtrkPfType[nParticle]/I");
 	trackTree_->Branch("mtrkPfCandPt",&pev_.mtrkPfCandPt,"mtrkPfCandPt[nParticle]/F");
-	trackTree_->Branch("mtrkPfSumEcal",&pev_.mtrkPfSumEcal,"mtrkPfSumEcal[nParticle]/F");
-	trackTree_->Branch("mtrkPfSumHcal",&pev_.mtrkPfSumHcal,"mtrkPfSumHcal[nParticle]/F");
+	trackTree_->Branch("mtrkPfEcal",&pev_.mtrkPfEcal,"mtrkPfEcal[nParticle]/F");
+	trackTree_->Branch("mtrkPfHcal",&pev_.mtrkPfHcal,"mtrkPfHcal[nParticle]/F");
       }
     }
   }
