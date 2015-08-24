@@ -139,13 +139,6 @@ class Electron( Lepton ):
                 return False
         return True
 
-    def absEffAreaIso(self,rho,effectiveAreas):
-        '''MIKE, missing doc.
-        Should have the same name as the function in the mother class.
-        Can call the mother class function with super.
-        '''
-        return self.absIsoFromEA(rho,self.superCluster().eta(),effectiveAreas.eGamma)
-
     def mvaId( self ):
         return self.mvaNonTrigV0()
 

@@ -48,12 +48,6 @@ class Muon( Lepton ):
         '''For a transparent treatment of electrons and muons. Returns -99'''
         return -99
     
-   
-
-    def absEffAreaIso(self,rho,effectiveAreas):
-        return self.absIsoFromEA(rho,self.eta(),effectiveAreas.muon)
-
-
 
     def dxy(self, vertex=None):
         '''either pass the vertex, or set associatedVertex before calling the function.

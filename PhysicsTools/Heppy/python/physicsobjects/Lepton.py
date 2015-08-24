@@ -11,19 +11,14 @@ class Lepton( PhysicsObject):
         '''3D impact parameter significance.'''
         return abs(self.dB(self.PV3D) / self.edB(self.PV3D))
 
-    def absIsoFromEA(self,area = "04"):
-        '''
-        Calculate Isolation using the effective area approach. If fsrPhotons is set
-        the list of photons is subtracted from the isolation cone. It works with one or
-        two effective Areas in case one needs to do photon and neutral hadron separately
-        '''
+    def absIsoFromEA(self, area='04'):
+        '''Calculate Isolation using the effective area approach.'''
         photonIso = self.photonIso()
-        if hasattr(self,'fsrPhotons'):
-            for gamma in self.fsrPhotons:
-                photonIso=max(photonIso-gamma.pt(),0.0)                
-
         offset = self.rho*getattr(self,"EffectiveArea"+area)
         return self.chargedHadronIso()+max(0.,photonIso+self.neutralHadronIso()-offset)            
+
+    def relIsoFromEA(self, area='04'):
+        return self.absIsoFromEA(area)/self.pt()
 
     def relIso(self, dBetaFactor=0, allCharged=0):
         '''Relative isolation with default cone size of 0.4.'''
@@ -43,10 +38,6 @@ class Lepton( PhysicsObject):
 
     def relIsoR(self, R=0.4, dBetaFactor=0, allCharged=False):
         return self.absIsoR(R, dBetaFactor, allCharged)/self.pt()
-
-    def relEffAreaIso(self,rho):
-        '''MIKE, missing doc'''
-        return self.absEffAreaIso(rho)/self.pt()
 
     def lostInner(self):
         if hasattr(self.innerTrack(),"trackerExpectedHitsInner") :
