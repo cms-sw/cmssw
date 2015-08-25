@@ -144,7 +144,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if repro74X is None :
             repro74X = self._defaultParameters['repro74X'].value
         if postfix is None :
-            postfix = self._defaultParameters['potsfix'].value
+            postfix = self._defaultParameters['postfix'].value
 
         self.setParameter('metType',metType),
         self.setParameter('correctionLevel',correctionLevel),
