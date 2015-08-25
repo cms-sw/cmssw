@@ -62,9 +62,9 @@ class JetAnalyzer( Analyzer ):
         self.doJEC = self.recalibrateJets or (self.shiftJEC != 0) or self.addJECShifts
         if self.doJEC:
           if self.cfg_comp.isMC:
-            self.jetReCalibrator = JetReCalibrator(mcGT,self.cfg_ana.recalibrationType, False,cfg_ana.jecPath)
+            self.jetReCalibrator = JetReCalibrator(mcGT,self.cfg_ana.recalibrationType, False,cfg_ana.jecPath, calculateSeparateCorrections=getattr(cfg_ana,"calculateSeparateCorrections",False))
           else:
-            self.jetReCalibrator = JetReCalibrator(dataGT,self.cfg_ana.recalibrationType, True,cfg_ana.jecPath)
+            self.jetReCalibrator = JetReCalibrator(dataGT,self.cfg_ana.recalibrationType, True,cfg_ana.jecPath, calculateSeparateCorrections=getattr(cfg_ana,"calculateSeparateCorrections",False))
         self.doPuId = getattr(self.cfg_ana, 'doPuId', True)
         self.jetLepDR = getattr(self.cfg_ana, 'jetLepDR', 0.4)
         self.jetLepArbitration = getattr(self.cfg_ana, 'jetLepArbitration', lambda jet,lepton: lepton) 

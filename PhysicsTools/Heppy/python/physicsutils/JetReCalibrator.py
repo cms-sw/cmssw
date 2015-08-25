@@ -4,7 +4,7 @@ from math import *
 from PhysicsTools.HeppyCore.utils.deltar import *
 
 class JetReCalibrator:
-    def __init__(self,globalTag,jetFlavour,doResidualJECs,jecPath,upToLevel=3):
+    def __init__(self,globalTag,jetFlavour,doResidualJECs,jecPath,upToLevel=3,calculateSeparateCorrections=False):
         """Create a corrector object that reads the payloads from the text dumps of a global tag under
             CMGTools/RootTools/data/jec  (see the getJec.py there to make the dumps).
            It will apply the L1,L2,L3 and possibly the residual corrections to the jets."""
@@ -30,6 +30,23 @@ class JetReCalibrator:
         else:
             print 'Missing JEC uncertainty file "%s/%s_Uncertainty_%s.txt", so jet energy uncertainties will not be available' % (path,globalTag,jetFlavour)
             self.JetUncertainty = None
+        self.separateJetCorrectors = {}
+        if calculateSeparateCorrections:
+            self.vParL1 = ROOT.vector(ROOT.JetCorrectorParameters)()
+            self.vParL1.push_back(self.L1JetPar)
+            self.separateJetCorrectors["L1"] = ROOT.FactorizedJetCorrector(self.vParL1)
+            if upToLevel >= 2:
+                self.vParL2 = ROOT.vector(ROOT.JetCorrectorParameters)()
+                for i in [self.L1JetPar,self.L2JetPar]: self.vParL2.push_back(i)
+                self.separateJetCorrectors["L1L2"] = ROOT.FactorizedJetCorrector(self.vParL2)
+            if upToLevel >= 3:
+                self.vParL3 = ROOT.vector(ROOT.JetCorrectorParameters)()
+                for i in [self.L1JetPar,self.L2JetPar,self.L3JetPar]: self.vParL3.push_back(i)
+                self.separateJetCorrectors["L1L2L3"] = ROOT.FactorizedJetCorrector(self.vParL3)
+            if doResidualJECs:
+                self.vParL3Res = ROOT.vector(ROOT.JetCorrectorParameters)()
+                for i in [self.L1JetPar,self.L2JetPar,self.L3JetPar,self.ResJetPar]: self.vParL3Res.push_back(i)
+                self.separateJetCorrectors["L1L2L3Res"] = ROOT.FactorizedJetCorrector(self.vParL3Res)
     def correctAll(self,jets,rho,delta=0,metShift=[0,0]):
         """Applies 'correct' to all the jets, discard the ones that have bad corrections (corrected pt <= 0)"""
         badJets = []
@@ -40,15 +57,20 @@ class JetReCalibrator:
             print "Warning: %d out of %d jets flagged bad by JEC." % (len(badJets), len(jets))
         for bj in badJets:
             jets.remove(bj)
+        for j in jets:
+            for sepcorr in self.separateJetCorrectors.keys():
+                setattr(j,"CorrFactor_"+sepcorr,self.getCorrection(j,rho,0,[0,0],corrector=self.separateJetCorrectors[sepcorr]))
 
-    def getCorrection(self,jet,rho,delta=0,metShift=[0,0]):
+    def getCorrection(self,jet,rho,delta=0,metShift=[0,0],corrector=None):
         """Calculates the correction factor of a jet without modifying it
         """
-        self.JetCorrector.setJetEta(jet.eta())
-        self.JetCorrector.setJetPt(jet.pt() * jet.rawFactor())
-        self.JetCorrector.setJetA(jet.jetArea())
-        self.JetCorrector.setRho(rho)
-        corr = self.JetCorrector.getCorrection()
+        if not corrector: corrector = self.JetCorrector
+        if corrector!=self.JetCorrector and (delta!=0 or metShift!=[0,0]): raise RuntimeError, 'Configuration not supported'
+        corrector.setJetEta(jet.eta())
+        corrector.setJetPt(jet.pt() * jet.rawFactor())
+        corrector.setJetA(jet.jetArea())
+        corrector.setRho(rho)
+        corr = corrector.getCorrection()
         if delta != 0:
             if not self.JetUncertainty: raise RuntimeError, "Jet energy scale uncertainty shifts requested, but not available"
             self.JetUncertainty.setJetEta(jet.eta())
