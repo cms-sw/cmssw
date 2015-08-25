@@ -43,6 +43,7 @@ process.SiStripCalibFromAscii = cms.EDAnalyzer("SiStripGainFromAsciiFile",
     referenceValue      = cms.double(1.0),
 
     SinceAppendMode     = cms.bool(True),
+    TimeFromEndRun      = cms.untracked.bool(True),
     IOVMode             = cms.string('Job'),
     Record              = cms.string('SiStripApvGainRcd'),
     doStoreOnDB         = cms.bool(True)
