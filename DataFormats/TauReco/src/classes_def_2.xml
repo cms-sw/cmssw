@@ -1,6 +1,7 @@
 <lcgdict>
   
-  <class name="reco::PFTau" ClassVersion="18">
+  <class name="reco::PFTau" ClassVersion="19">
+   <version ClassVersion="19" checksum="4003955973"/>
    <version ClassVersion="18" checksum="1318776182"/>
    <version ClassVersion="17" checksum="1523260402"/>
     <version ClassVersion="16" checksum="2695990650"/>
@@ -265,7 +266,8 @@ isolationTauChargedHadronCandidates_.clear();
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTauDecayMode> > >"/>
   <class name="edm::Wrapper<edm::Association<std::vector<reco::PFTau> > >"/>
 
-  <class name="reco::RecoTauPiZero" ClassVersion="13">
+  <class name="reco::RecoTauPiZero" ClassVersion="14">
+   <version ClassVersion="14" checksum="3535311745"/>
    <version ClassVersion="13" checksum="3687187514"/>
    <version ClassVersion="12" checksum="453348937"/>
    <version ClassVersion="11" checksum="2458276705"/>
