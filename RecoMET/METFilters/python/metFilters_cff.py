@@ -59,7 +59,7 @@ metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
 #   HBHENoiseIsoFilter*
-   HcalStripHaloFilter *
+#   HcalStripHaloFilter *
    primaryVertexFilter*
    CSCTightHaloFilter *
 #   hcalLaserEventFilter *
