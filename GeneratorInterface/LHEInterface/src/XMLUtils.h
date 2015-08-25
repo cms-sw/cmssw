@@ -22,14 +22,14 @@ namespace lhef {
 
 class StorageWrap {
     public:
-	StorageWrap(Storage *storage);
+	StorageWrap(std::unique_ptr<Storage> storage);
 	~StorageWrap();
 
 	Storage *operator -> () { return storage.get(); }
 	const Storage *operator -> () const { return storage.get(); }
 
     private:
-	std::auto_ptr<Storage>	storage;
+	std::unique_ptr<Storage>	storage;
 };
 
 class XMLDocument {

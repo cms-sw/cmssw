@@ -51,7 +51,7 @@ class LHEReader::FileSource : public LHEReader::Source {
     public:
 	FileSource(const std::string &fileURL)
 	{
-		Storage *storage =
+		auto storage =
 			StorageFactory::get()->open(fileURL,
 			                            IOFlags::OpenRead);
 
@@ -61,7 +61,7 @@ class LHEReader::FileSource : public LHEReader::Source {
 				<< fileURL << "\" for reading"
 				<< std::endl;
 
-		fileStream.reset(new StorageWrap(storage));
+		fileStream.reset(new StorageWrap(std::move(storage)));
 	}
 
 	~FileSource() {}
