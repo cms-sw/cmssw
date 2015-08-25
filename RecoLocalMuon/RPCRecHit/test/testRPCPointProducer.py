@@ -13,7 +13,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "START53_V27::All"
 
 process.load("Configuration.StandardSequences.Services_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 
@@ -29,7 +29,7 @@ process.source = cms.Source("PoolSource",
 )
 
 
-process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cfi")
+process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cff")
 process.rpcPointProducer.tracks = cms.InputTag("cosmicMuons") # for cosmicMuons
 
 process.out = cms.OutputModule("PoolOutputModule",
