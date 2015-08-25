@@ -5,11 +5,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
+#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h"
 #include "RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h"
