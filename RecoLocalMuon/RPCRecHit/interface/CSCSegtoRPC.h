@@ -1,11 +1,11 @@
 #ifndef  CSCSEGTORPC_H
 #define  CSCSEGTORPC_H
 
-
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
-
 
 class CSCSegtoRPC {
 public:
