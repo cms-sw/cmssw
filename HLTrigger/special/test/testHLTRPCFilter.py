@@ -31,7 +31,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('/tmp/carrillo/afterfilter.root')
 )
 
-process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cfi")
+process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cff")
 process.load("HLTrigger.special.hltRPCFilter_cfi")
 
 process.selrpc = cms.Path(process.rpcPointProducer*process.hltRPCFilter)
