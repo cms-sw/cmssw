@@ -71,7 +71,7 @@ class PackedCandidateTrackValidator: public DQMEDAnalyzer{
 
 PackedCandidateTrackValidator::PackedCandidateTrackValidator(const edm::ParameterSet& iConfig):
   tracksToken_(consumes<edm::View<reco::Track>>(iConfig.getUntrackedParameter<edm::InputTag>("tracks"))),
-  trackToPackedCandidateToken_(consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getUntrackedParameter<edm::InputTag>("trackToPackedCandiadteAssociation"))),
+  trackToPackedCandidateToken_(consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getUntrackedParameter<edm::InputTag>("trackToPackedCandidateAssociation"))),
   rootFolder_(iConfig.getUntrackedParameter<std::string>("rootFolder"))
 {}
 
@@ -81,7 +81,7 @@ void PackedCandidateTrackValidator::fillDescriptions(edm::ConfigurationDescripti
   edm::ParameterSetDescription desc;
 
   desc.addUntracked<edm::InputTag>("tracks", edm::InputTag("generalTracks"));
-  desc.addUntracked<edm::InputTag>("trackToPackedCandiadteAssociation", edm::InputTag("packedPFCandidates"));
+  desc.addUntracked<edm::InputTag>("trackToPackedCandidateAssociation", edm::InputTag("packedPFCandidates"));
   desc.addUntracked<std::string>("rootFolder", "Tracking/PackedCandidate");
 
   descriptions.add("packedCandidateTrackValidator", desc);
