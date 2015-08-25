@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/PIon/V132 (CMSSW_7_4_10_patch1)
+# /dev/CMSSW_7_4_0/PIon/V133 (CMSSW_7_4_10_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V132')
+  tableName = cms.string('/dev/CMSSW_7_4_0/PIon/V133')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -506,19 +506,9 @@ fragment.datasets = cms.PSet(
     'HLT_Photon20_CaloIdVL_IsoL_v2' )
 )
 
-fragment.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
+fragment.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
-    firstValid = cms.vuint32( 1 )
-)
-fragment.hltESSEcalSeverityLevel = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "EcalSeverityLevelAlgoRcd" ),
-    firstValid = cms.vuint32( 1 )
-)
-fragment.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
-    iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "JetTagComputerRecord" ),
+    recordName = cms.string( "CSCChannelMapperRecord" ),
     firstValid = cms.vuint32( 1 )
 )
 fragment.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
@@ -526,19 +516,22 @@ fragment.CSCINdexerESSource = cms.ESSource( "EmptyESSource",
     recordName = cms.string( "CSCIndexerRecord" ),
     firstValid = cms.vuint32( 1 )
 )
-fragment.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
+fragment.hltESSBTagRecord = cms.ESSource( "EmptyESSource",
     iovIsRunNotTime = cms.bool( True ),
-    recordName = cms.string( "CSCChannelMapperRecord" ),
+    recordName = cms.string( "JetTagComputerRecord" ),
+    firstValid = cms.vuint32( 1 )
+)
+fragment.hltESSEcalSeverityLevel = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "EcalSeverityLevelAlgoRcd" ),
+    firstValid = cms.vuint32( 1 )
+)
+fragment.hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
+    iovIsRunNotTime = cms.bool( True ),
+    recordName = cms.string( "HcalSeverityLevelComputerRcd" ),
     firstValid = cms.vuint32( 1 )
 )
 
-fragment.hltESPChi2ChargeMeasurementEstimator2000 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
-  MaxChi2 = cms.double( 2000.0 ),
-  ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator2000" ),
-  pTChargeCutThreshold = cms.double( -1.0 ),
-  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
-  nSigma = cms.double( 3.0 )
-)
 fragment.AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
@@ -933,6 +926,13 @@ fragment.hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialES
 fragment.hltESPChi2ChargeMeasurementEstimator16 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
   MaxChi2 = cms.double( 16.0 ),
   ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator16" ),
+  pTChargeCutThreshold = cms.double( -1.0 ),
+  clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
+  nSigma = cms.double( 3.0 )
+)
+fragment.hltESPChi2ChargeMeasurementEstimator2000 = cms.ESProducer( "Chi2ChargeMeasurementEstimatorESProducer",
+  MaxChi2 = cms.double( 2000.0 ),
+  ComponentName = cms.string( "hltESPChi2ChargeMeasurementEstimator2000" ),
   pTChargeCutThreshold = cms.double( -1.0 ),
   clusterChargeCut = cms.PSet(  refToPSet_ = cms.string( "HLTSiStripClusterChargeCutLoose" ) ),
   nSigma = cms.double( 3.0 )
