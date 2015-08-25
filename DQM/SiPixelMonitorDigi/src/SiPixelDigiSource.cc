@@ -64,6 +64,7 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ),
   bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",1000) ), 
   isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) ),
+  isOffline( conf_.getUntrackedParameter<bool>("isOffline",false) ),
   noOfLayers(0),
   noOfDisks(0)
 {
@@ -183,7 +184,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::ESHandle<TrackerTopology> tTopoHandle;
   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
   const TrackerTopology *pTT = tTopoHandle.product();
-
+  
   eventNo++;
 
   // get input data
@@ -197,20 +198,20 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   int lumiSection = (int)iEvent.luminosityBlock();
   int nEventDigis = 0; int nActiveModules = 0;
   
-  if(modOn){
+  if(modOn && !isOffline){
     if(averageDigiOccupancy && lumiSection%8==0){
       averageDigiOccupancy->Reset();
       nBPIXDigis = 0; 
       nFPIXDigis = 0;
-      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
+      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;
     }
   }
-  if(!modOn){
+  if(!modOn && !isOffline){
     if(averageDigiOccupancy && lumiSection%1==0){
       averageDigiOccupancy->Reset();
       nBPIXDigis = 0; 
       nFPIXDigis = 0;
-      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
+      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;
     }
   }
   
@@ -537,20 +538,19 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   
   // Actual digi occupancy in a FED compared to average digi occupancy per FED
   if(averageDigiOccupancy){
-    int maxfed=0;
-    for(int i=0; i!=32; i++){
-      if(nDigisPerFed[i]>maxfed) maxfed=nDigisPerFed[i];
-    }
+
     for(int i=0; i!=40; i++){
       float averageOcc = 0.;
       if(i<32){
-        float averageBPIXFed = float(nBPIXDigis-maxfed)/31.;
+        float averageBPIXFed = float(nBPIXDigis)/32.;
+	
 	if(averageBPIXFed>0.) averageOcc = nDigisPerFed[i]/averageBPIXFed;
       }else{
         float averageFPIXFed = float(nFPIXDigis)/8.;
 	if(averageFPIXFed>0.) averageOcc = nDigisPerFed[i]/averageFPIXFed;
       }
       averageDigiOccupancy->setBinContent(i+1,averageOcc);
+      
       int lumiSections8 = int(lumiSection/8);
       if (modOn){
 	if (avgfedDigiOccvsLumi){
