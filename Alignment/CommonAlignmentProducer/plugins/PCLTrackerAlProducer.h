@@ -74,6 +74,9 @@
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorExtendedRcd.h"
 
+#include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
 /*** Forward declarations ***/
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -256,7 +259,12 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     /// ValueMap containing associtaion cluster-flag
     const edm::InputTag clusterValueMapTag_;
 
-
+    edm::EDGetTokenT<TrajTrackAssociationCollection> tjTkAssociationMapToken;
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
+    edm::EDGetTokenT<TkFittedLasBeamCollection> tkLasBeamToken;
+    edm::EDGetTokenT<TsosVectorCollection> tsosVectorToken;
+    edm::EDGetTokenT<AliClusterValueMap> clusterValueMapToken;
+ 
 
     /*** ESWatcher ***/
 
