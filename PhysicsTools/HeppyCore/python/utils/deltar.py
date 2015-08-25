@@ -149,14 +149,14 @@ def bestMatch( object, matchCollection):
     return bm, deltaR2Min
 
 
-def matchObjectCollection( objects, matchCollection, deltaR2Max):
+def matchObjectCollection( objects, matchCollection, deltaR2Max, filter = lambda x,y : True):
     pairs = {}
     if len(objects)==0:
         return pairs
     if len(matchCollection)==0:
         return dict( zip(objects, [None]*len(objects)) )
     for object in objects:
-        bm, dr2 = bestMatch( object, matchCollection )
+        bm, dr2 = bestMatch( object, [mob for mob in matchCollection if filter(object,mob)] )
         if dr2<deltaR2Max:
             pairs[object] = bm
         else:
