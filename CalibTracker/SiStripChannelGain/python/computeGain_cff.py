@@ -29,6 +29,7 @@ SiStripCalib = cms.EDAnalyzer("SiStripGainFromCalibTree",
     
 
     SinceAppendMode     = cms.bool(True),
+    TimeFromEndRun      = cms.untracked.bool(True),
     IOVMode             = cms.string('Job'),
     Record              = cms.string('SiStripApvGainRcd'),
     doStoreOnDB         = cms.bool(True)

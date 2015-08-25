@@ -19,7 +19,7 @@ def numberOfEvents(file):
 	return NEntries	
 
 
-PCLDATASET = '/StreamExpress/Run2015B-PromptCalibProdSiStripGains-Express-v1/ALCAPROMPT' #used if usePCL==True
+PCLDATASET = '/StreamExpress/Run2015C-PromptCalibProdSiStripGains-Express-v1/ALCAPROMPT' #used if usePCL==True
 CALIBTREEPATH = '/store/group/dpg_tracker_strip/comm_tracker/Strip/Calibration/calibrationtree/GR15' #used if usePCL==False
 #CALIBTREEPATH = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR12"
 #CALIBTREEPATH = "/castor/cern.ch/user/m/mgalanti/calibrationtree/GR11"
