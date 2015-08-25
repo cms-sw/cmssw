@@ -393,7 +393,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   eval[3]  = sc->phi();
   eval[4]  = sc->etaWidth();
   eval[5]  = sc->phiWidth(); 
-  eval[6]  = ele.full5x5_r9();
+  eval[6]  = ele.r9();
   eval[7]  = theseed->energy()/sc->rawEnergy();
   
   float sieip=0, cryPhi=0, cryEta=0; 
@@ -433,9 +433,9 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   eval[9]  = e2nd/sc->rawEnergy();
   eval[10] = (eLeft+eRight!=0. ? (eLeft-eRight)/(eLeft+eRight) : 0.);
   eval[11] = (eTop+eBottom!=0. ? (eTop-eBottom)/(eTop+eBottom) : 0.);
-  eval[12] = ele.full5x5_sigmaIetaIeta();
+  eval[12] = ele.sigmaIetaIeta();
   eval[13] = sieip;
-  eval[14] = ele.full5x5_sigmaIphiIphi();
+  eval[14] = ele.sigmaIphiIphi();
   const int N_ECAL = sc->clustersEnd() - sc->clustersBegin();
   eval[15] = std::max(0,N_ECAL - 1);
   eval[16] = clusterMaxDR;
@@ -573,7 +573,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   eval[0]  = sc->rawEnergy();
   //eval[1]  = sc->position().Eta();
   //eval[2]  = sc->position().Phi();
-  eval[1]  = pho.full5x5_r9();
+  eval[1]  = pho.r9();
   eval[2]  = sc->etaWidth();
   eval[3]  = sc->phiWidth(); 
   const int N_ECAL = sc->clustersEnd() - sc->clustersBegin();
@@ -584,8 +584,8 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   eval[8] = theseed->eta()-sc->position().Eta();
   eval[9] = reco::deltaPhi(theseed->phi(),sc->position().Phi());
   eval[10] = pho.seedEnergy()/sc->rawEnergy();
-  eval[11] = pho.full5x5_e3x3()/pho.full5x5_e5x5();
-  eval[12] = pho.full5x5_sigmaIetaIeta();
+  eval[11] = pho.e3x3()/pho.e5x5();
+  eval[12] = pho.sigmaIetaIeta();
 
   float sipip=0, sieip=0, e2x5Max=0, e2x5Left=0, e2x5Right=0, e2x5Top=0, e2x5Bottom=0;
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("sigmaIphiIphi"))->second.second, pho_vmaps, sipip);
@@ -597,23 +597,23 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   
   eval[13] = sipip;
   eval[14] = sieip;
-  eval[15] = pho.full5x5_maxEnergyXtal()/pho.full5x5_e5x5();
-  eval[16] = pho.e2nd()/pho.full5x5_e5x5();
-  eval[17] = pho.eTop()/pho.full5x5_e5x5();
-  eval[18] = pho.eBottom()/pho.full5x5_e5x5();
-  eval[19] = pho.eLeft()/pho.full5x5_e5x5();
-  eval[20] = pho.eRight()/pho.full5x5_e5x5();  
-  eval[21] = e2x5Max/pho.full5x5_e5x5();
-  eval[22] = e2x5Left/pho.full5x5_e5x5();
-  eval[23] = e2x5Right/pho.full5x5_e5x5();
-  eval[24] = e2x5Top/pho.full5x5_e5x5();
-  eval[25] = e2x5Bottom/pho.full5x5_e5x5();
+  eval[15] = pho.maxEnergyXtal()/pho.e5x5();
+  eval[16] = pho.e2nd()/pho.e5x5();
+  eval[17] = pho.eTop()/pho.e5x5();
+  eval[18] = pho.eBottom()/pho.e5x5();
+  eval[19] = pho.eLeft()/pho.e5x5();
+  eval[20] = pho.eRight()/pho.e5x5();  
+  eval[21] = e2x5Max/pho.e5x5();
+  eval[22] = e2x5Left/pho.e5x5();
+  eval[23] = e2x5Right/pho.e5x5();
+  eval[24] = e2x5Top/pho.e5x5();
+  eval[25] = e2x5Bottom/pho.e5x5();
 
   bool iseb = pho.isEB();
 
   if (iseb) {
     EBDetId ebseedid(theseed->seed());
-    eval[26] = pho.full5x5_e5x5()/pho.seedEnergy();
+    eval[26] = pho.e5x5()/pho.seedEnergy();
     eval[27] = ebseedid.ieta();
     eval[28] = ebseedid.iphi();
   } else {
