@@ -323,8 +323,8 @@ void WalkAST::VisitCXXConstCastExpr(clang::CXXConstCastExpr *CCE) {
      std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str()+".";
      writeLog(tolog);
      BugType * BT = new BugType(Checker,"const_cast used in const function ","Data Class Const Correctness");
-     BugReport * R = new BugReport(*BT,tolog,CELoc);
-     BR.emitReport(R);
+     std::unique_ptr<BugReport> R = llvm::make_unique <BugReport>(*BT,tolog,CELoc);
+     BR.emitReport(std::move(R));
      return;
 }
 
@@ -365,8 +365,8 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
           std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
           writeLog(tolog);
           BugType * BT = new BugType(Checker,"ClassChecker : non-const static local variable accessed","Data Class Const Correctness");
-          BugReport * R = new BugReport(*BT,os.str(),CELoc);
-          BR.emitReport(R);
+          std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
+          BR.emitReport(std::move(R));
           return;
      }
 
@@ -384,8 +384,8 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
           std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
           writeLog(tolog);
           BugType * BT = new BugType(Checker,"Non-const static member variable accessed","Data Class Const Correctness");
-          BugReport * R = new BugReport(*BT,os.str(),CELoc);
-          BR.emitReport(R);
+          std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
+          BR.emitReport(std::move(R));
          return;
      }
 
@@ -408,8 +408,8 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
           std::string tolog = "data class '"+pname+"' const function '" + mname + "' Warning: "+os.str();
           writeLog(tolog);
           BugType * BT = new BugType(Checker,"Non-const global static variable accessed","Data Class Const Correctness");
-          BugReport * R = new BugReport(*BT,os.str(),CELoc);
-          BR.emitReport(R);
+          std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
+          BR.emitReport(std::move(R));
          return;
      
      }
@@ -536,8 +536,8 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
   if ( support::isSafeClassName(support::getQualifiedName(*MD)) ) return;
   writeLog(tolog);
   BugType * BT = new BugType(Checker,"Non-const member function could modify member data object","Data Class Const Correctness");
-  BugReport * R = new BugReport(*BT,os.str(),CELoc);
-  BR.emitReport(R);
+  std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
+  BR.emitReport(std::move(R));
   
 
 }
@@ -564,8 +564,8 @@ void WalkAST::ReportCast(const clang::ExplicitCastExpr *CE) {
 
   writeLog(tolog);
   BugType * BT = new BugType(Checker,"Const cast away from member data in const function","Data Class Const Correctness");
-  BugReport * R = new BugReport(*BT,os.str(),CELoc);
-  BR.emitReport(R);
+  std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
+  BR.emitReport(std::move(R));
 
 
 }
@@ -629,16 +629,16 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   if ( (RTy->isPointerType() || RTy->isReferenceType() ) ) {
      if( !support::isConst(RTy) ) {
           BugType * BT = new BugType(Checker,"Const function returns pointer or reference to non-const member data object","Data Class Const Correctness");
-          BugReport * R = new BugReport(*BT,os.str(),CELoc);
-          BR.emitReport(R);
+          std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
+          BR.emitReport(std::move(R));
      }
   }
   std::string svname = "const class std::vector<";
   std::string rtname = RTy.getAsString();
   if (  (RTy->isReferenceType() || RTy ->isRecordType() ) && support::isConst(RTy) && rtname.substr(0,svname.length()) == svname ) {
      BugType * BT = new BugType(Checker,"Const function returns member data object of type const std::vector<*> or const std::vector<*>&","Data Class Const Correctness");
-     BugReport * R = new BugReport(*BT,os.str(),CELoc);
-     BR.emitReport(R);
+     std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
+     BR.emitReport(std::move(R));
   }
 
  
