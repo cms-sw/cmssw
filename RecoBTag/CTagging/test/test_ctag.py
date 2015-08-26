@@ -17,9 +17,9 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 ## modules[0] = modules[0].replace('cms.Sequence(','')
 ## modules = set(modules)
 ## print 'pfCTagging' in modules
-## print 'pfCombinedSecondaryVertexSoftLeptonCtagLJetTags' in modules
+## print 'pfCombinedSecondaryVertexSoftLeptonCvsLJetTags' in modules
 ## print 'charmTagsComputer' in modules
-## print 'pfCombinedTMVACtagLJetTags' in modules
+## print 'pfCombinedTMVACvsLJetTags' in modules
 
 ## Options and Output Report
 process.options   = cms.untracked.PSet(
@@ -30,9 +30,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      '/store/relval/CMSSW_7_5_0_pre5/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/383E39B7-BA0B-E511-A509-0025905B8582.root',
-      '/store/relval/CMSSW_7_5_0_pre5/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/4AE0AEB0-BA0B-E511-86F9-002618943857.root',
-      '/store/relval/CMSSW_7_5_0_pre5/RelValTTbar_13/GEN-SIM-RECO/MCRUN2_75_V5-v1/00000/F0BEEE9E-120B-E511-88DD-0025905A60C6.root'
+      '/store/relval/CMSSW_7_6_0_pre3/RelValTTbar_13/GEN-SIM-RECO/75X_mcRun2_asymptotic_v2-v1/00000/2E84FB77-FC41-E511-9B44-0025905A612C.root',
+      '/store/relval/CMSSW_7_6_0_pre3/RelValTTbar_13/GEN-SIM-RECO/75X_mcRun2_asymptotic_v2-v1/00000/3A7D247C-FC41-E511-BEE0-002618943981.root',
       ),
 )
 
