@@ -117,13 +117,6 @@ void FastTrackerRecHitMaskProducer::produce(edm::Event& iEvent, const edm::Event
 	
     }
 
-    int n = 0;
-    for(auto entry : *collectedHits)
-	if(entry)
-	    n++;
-
-    std::cout << "# masked = " << n << std::endl;
-
     iEvent.put(std::move(collectedHits));
     
 }

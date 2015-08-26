@@ -7,8 +7,8 @@ trajectorySeedProducer = cms.EDProducer(
     SeedCreatorPSet = RecoTracker.TkSeedGenerator.SeedFromConsecutiveHitsCreator_cfi.SeedFromConsecutiveHitsCreator.clone(
         TTRHBuilder = cms.string("WithoutRefit")),
     minLayersCrossed = cms.uint32(0),
+    recHitCombinations = cms.InputTag("fastMatchedTrackerRecHitCombinations"),
     layerList = cms.vstring(),
-    recHitCombinationss = cms.InputTag("fastMatchedTrackerRecHitCombinations"),
     MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
     )
 
