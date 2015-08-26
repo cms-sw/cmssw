@@ -14,7 +14,7 @@
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeed.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-
+#include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
 
 FastTSGFromIOHit::FastTSGFromIOHit(const edm::ParameterSet & iConfig,edm::ConsumesCollector& iC) : theConfig (iConfig)
 {
@@ -70,7 +70,7 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegi
     for (unsigned seednr = 0; seednr < nSeeds; ++seednr) {
       
       // The seed
-      const BasicTrajectorySeed* aSeed = &((*aSeedCollection)[seednr]);
+      const TrajectorySeed* aSeed = &((*aSeedCollection)[seednr]);
       
       // Find the first hit of the Seed
       TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
@@ -106,7 +106,7 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegi
 bool
 FastTSGFromIOHit::clean(reco::TrackRef muRef,
 			const RectangularEtaPhiTrackingRegion& region,
-			const BasicTrajectorySeed* aSeed,
+			const TrajectorySeed* aSeed,
 			const SimTrack& theSimTrack) 
 {
   //  return true; 

@@ -31,12 +31,14 @@ class FastTrackerRecHitCombiner : public edm::stream::EDProducer<> {
     // ----------member data ---------------------------
     edm::EDGetTokenT<edm::PSimHitContainer> simHitsToken; 
     edm::EDGetTokenT<FastTrackerRecHitRefCollection> simHit2RecHitMapToken;
+    unsigned int minNHits;
 };
 
 
 FastTrackerRecHitCombiner::FastTrackerRecHitCombiner(const edm::ParameterSet& iConfig)
-    : simHitsToken = consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHits"));
-    , simHit2RecHitMapToken = consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap"));
+    : simHitsToken(consumes<edm::PSimHitContainer>(iConfig.getParameter<edm::InputTag>("simHits")))
+    , simHit2RecHitMapToken(consumes<FastTrackerRecHitRefCollection>(iConfig.getParameter<edm::InputTag>("simHit2RecHitMap")))
+    , minNHits(iConfig.getParameter<unsigned int>("minNHits"))
 {
     produces<FastTrackerRecHitCombinationCollection>();
 }
@@ -56,25 +58,24 @@ void
     // output
     std::unique_ptr<FastTrackerRecHitCombinationCollection> output(new FastTrackerRecHitCombinationCollection);
     
-    unsigned int previousSimHitTrackId = 0;
+    FastTrackerRecHitCombination currentCombination;
     for(unsigned int simHitCounter = 0;simHitCounter < simHits->size();simHitCounter++){
 	
 	// get simHit and recHit
 	const PSimHit & simHit = (*simHits)[simHitCounter];
 	const FastTrackerRecHitRef & recHit = (*simHit2RecHitMap)[simHitCounter];
 
-	// skip simHits w/o recHit
-	if(recHit.isNull())
-	    continue;
-
-	// if simTrackId has changed, start new combination
-	if(simHitCounter == 0 || simHit.trackId() != previousSimHitTrackId){
-	    output->push_back(FastTrackerRecHitCombination());
-	}
-	
 	// add recHit to latest combination
-	output->back().push_back(recHit);
-	    
+	if(!recHit.isNull())
+	    currentCombination.push_back(recHit);
+
+	// if simTrackId is about to change, add combination
+	if(simHits->size()-simHitCounter == 1 || simHit.trackId() != (*simHits)[simHitCounter+1].trackId() ){
+	    // combination must have sufficient hits
+	    if(currentCombination.size() >= minNHits)
+		output->push_back(currentCombination);
+	    currentCombination.clear();
+	}
     }
 
     // put output in event

@@ -38,7 +38,7 @@ class TrackCandidateProducer : public edm::stream::EDProducer <>
 
   // tokens & labels
   edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken;
-  edm::EDGetTokenT<FastTrackerRecHitCombinations> recHitCombinationsToken;
+  edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
   edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
   edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
   edm::EDGetTokenT<std::vector<bool> > hitMasksToken;
