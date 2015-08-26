@@ -60,7 +60,7 @@ StorageAccount::StorageClassToken StorageAccount::tokenForStorageClassName( std:
   }
   int value = s_nextTokenValue++;
   
-  auto ret = s_nameToToken.emplace(iName, value);
+  auto ret = s_nameToToken.insert(std::make_pair(iName, value));
   
   //don't use value since another thread may have beaten us to here
   return StorageClassToken(ret.second);
