@@ -4,6 +4,8 @@
 #include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMCSCSegment.h"
 #include "DataFormats/GEMRecHit/interface/GEMCSCSegmentCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0Segment.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 namespace DataFormats_GEMRecHit {
@@ -29,6 +31,11 @@ namespace DataFormats_GEMRecHit {
     GEMCSCSegmentCollection gseg;
     edm::Wrapper<GEMCSCSegmentCollection> gdwc1;
     GEMCSCSegmentRef gref;
+
+    ME0Segment ms;
+    ME0SegmentCollection seg;
+    edm::Wrapper<ME0SegmentCollection> dwc1;
+    ME0SegmentRef ref;
   };
 }
 

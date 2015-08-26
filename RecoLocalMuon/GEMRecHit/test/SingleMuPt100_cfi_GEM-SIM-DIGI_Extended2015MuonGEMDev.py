@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: SingleMuPt100_cfi -s GEN,SIM,DIGI --conditions auto:run2_mc --magField 38T_PostLS1 --datatier GEN-SIM-DIGI --geometry Extended2015Muon,Extended2015MuonReco --eventcontent FEVTDEBUGHLT --era Run2_25ns --customise=SimMuon/GEMDigitizer/customizeGEMDigi.customize_digi_addGEM_muon_only,SLHCUpgradeSimulations/Configuration/fixMissingUpgradeGTPayloads.fixRPCConditions,SLHCUpgradeSimulations/Configuration/me0Customs.customize_Digi -n 100 --no_exec --fileout out_digi.root --python_filename SingleMuPt100_cfi_GEM-SIM-DIGI_Extended2015Muon_cfg.py
+# with command line options: SingleMuPt100_cfi -s GEN,SIM,DIGI --conditions auto:run2_mc --magField 38T_PostLS1 --datatier GEN-SIM-DIGI --geometry Extended2015MuonGEMDev,Extended2015MuonGEMDevReco --eventcontent FEVTDEBUGHLT --era Run2_25ns --customise=SimMuon/GEMDigitizer/customizeGEMDigi.customize_digi_addGEM_muon_only,SLHCUpgradeSimulations/Configuration/fixMissingUpgradeGTPayloads.fixRPCConditions,SLHCUpgradeSimulations/Configuration/me0Customs.customize_Digi -n 100 --no_exec --fileout out_digi.root --python_filename SingleMuPt100_cfi_GEM-SIM-DIGI_Extended2015MuonGEMDev_cfg.py
 import FWCore.ParameterSet.Config as cms
 
 from Configuration.StandardSequences.Eras import eras
@@ -15,8 +15,8 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2015MuonReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2015Muon_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi')
@@ -87,15 +87,16 @@ process.MessageLogger.cout = cms.untracked.PSet(
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     AddAntiParticle = cms.bool(True),
     PGunParameters = cms.PSet(
-        MaxEta = cms.double(2.5),
+        MaxEta = cms.double(3.0),
         MaxPhi = cms.double(3.14159265359),
         MaxPt = cms.double(100.01),
-        MinEta = cms.double(-2.5),
+        MinEta = cms.double(2.0),
         MinPhi = cms.double(-3.14159265359),
         MinPt = cms.double(99.99),
         PartID = cms.vint32(-13)
