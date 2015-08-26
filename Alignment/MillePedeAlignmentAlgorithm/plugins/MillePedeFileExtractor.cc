@@ -7,13 +7,15 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CondFormats/Common/interface/FileBlob.h"
-#include "CondFormats/Common/interface/FileBlobCollection.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h" 
 
 MillePedeFileExtractor::MillePedeFileExtractor(const edm::ParameterSet& iConfig)
     : theOutputDir(iConfig.getParameter<std::string>("fileDir")),
-      theOutputFileName(iConfig.getParameter<std::string>("outputBinaryFile")),
-      theFileBlobModule(iConfig.getParameter<std::string>("fileBlobModule")),
-      theFileBlobLabel(iConfig.getParameter<std::string>("fileBlobLabel")) {
+      theOutputFileName(iConfig.getParameter<std::string>("outputBinaryFile")) {
+
+  edm::InputTag fileBlobInputTag = iConfig.getParameter<edm::InputTag>("fileBlobInputTag");
+  theFileBlobToken = consumes<FileBlobCollection>(fileBlobInputTag);
   // nothing else in the constructor
 }
 
@@ -23,7 +25,7 @@ void MillePedeFileExtractor::endRun(const edm::Run& iRun,
                                     edm::EventSetup const&) {
   // Getting our hands on the vector of FileBlobs
   edm::Handle<FileBlobCollection> theFileBlobCollection;
-  iRun.getByLabel(theFileBlobModule, theFileBlobLabel, theFileBlobCollection);
+  iRun.getByToken(theFileBlobToken, theFileBlobCollection);
   if (theFileBlobCollection.isValid()) {
     // Logging the amount of FileBlobs in the vector
     int theVectorSize = theFileBlobCollection->size();
@@ -51,9 +53,7 @@ void MillePedeFileExtractor::endRun(const edm::Run& iRun,
     }
   } else {
     edm::LogError("MillePedeFileActions")
-        << "Error: The root file does not contain any vector of FileBlob "
-           "created by module \"" << theFileBlobModule << "\", with label \""
-        << theFileBlobLabel << "\".";
+        << "Error: The root file does not contain any vector of FileBlob.";
   }
 }
 
@@ -73,15 +73,11 @@ void MillePedeFileExtractor::fillDescriptions(
       "a placeholder for an index number in the standard C formatting "
       "style, like %04d.");
 
-  desc.add<std::string>("fileBlobModule", "millePedeFileConverter")->setComment(
+  desc.add<edm::InputTag>("fileBlobInputTag", edm::InputTag("millePedeFileConverter",""))->setComment(
       "Name of the module that should have generated the blob in the "
       "root file. Make sure you overwrite this, if you have changed "
       "this is the configuration of the MillePedeFileConverter.");
 
-  desc.add<std::string>("fileBlobLabel", "milleBinary.dat")->setComment(
-      "It's probably a good idea to keep the label the same as the "
-      "original filename(s). See configuration of "
-      "MillePedeFileConverter, it should be the same there.");
 
   descriptions.add("millePedeFileExtractor", desc);
   descriptions.setComment(

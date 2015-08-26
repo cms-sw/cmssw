@@ -2,8 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import copy
 
 SiPixelAliMilleFileExtractor = cms.EDAnalyzer("MillePedeFileExtractor",
-    fileBlobModule = cms.string("SiPixelAliMillePedeFileConverter"),
-    fileBlobLabel  = cms.string(''),
+    fileBlobInputTag = cms.InputTag("SiPixelAliMillePedeFileConverter",''),
     # File names the Extractor will use to write the fileblobs in the root
     # file as real binary files to disk, so that the pede step can read them.
     # This includes the formatting directive "%04d" which will be expanded to

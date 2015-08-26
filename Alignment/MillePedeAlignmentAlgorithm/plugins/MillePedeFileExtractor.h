@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CondFormats/Common/interface/FileBlobCollection.h"
 
 class MillePedeFileExtractor : public edm::EDAnalyzer {
  public:
@@ -39,8 +40,9 @@ class MillePedeFileExtractor : public edm::EDAnalyzer {
 
   std::string theOutputDir;
   std::string theOutputFileName;
-  std::string theFileBlobModule;
-  std::string theFileBlobLabel;
+
+  edm::EDGetTokenT<FileBlobCollection> theFileBlobToken;
+
 };
 
 // define this as a plug-in
