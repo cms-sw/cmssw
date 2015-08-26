@@ -42,7 +42,6 @@ StatisticsSenderService::FileStatistics::FileStatistics() :
   m_read_vector_square(0),
   m_read_vector_count_sum(0),
   m_read_vector_count_square(0),
-  m_read_bytes_at_close(0),
   m_start_time(time(NULL))
 {}
 

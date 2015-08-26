@@ -36,7 +36,6 @@ namespace edm {
             ssize_t m_read_vector_square;
             ssize_t m_read_vector_count_sum;
             ssize_t m_read_vector_count_square;
-            ssize_t m_read_bytes_at_close;
             time_t  m_start_time;
         };
 
