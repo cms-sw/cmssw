@@ -12,8 +12,6 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskTechTrigRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 #include "HLTrigger/HLTcore/interface/TriggerExpressionData.h"
 
 namespace triggerExpression {
@@ -61,8 +59,8 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
     if (m_l1tCacheID == l1tCacheID) {
       m_l1tUpdated = false;
     } else {
-      m_l1tMenu = get<L1GtTriggerMenuRcd, L1GtTriggerMenu>(setup);
-      (const_cast<L1GtTriggerMenu *>(m_l1tMenu))->buildGtConditionMap();
+      m_l1tMenu.reset(new L1GtTriggerMenu(* get<L1GtTriggerMenuRcd, L1GtTriggerMenu>(setup)));
+      m_l1tMenu->buildGtConditionMap();
       m_l1tCacheID = l1tCacheID;
       m_l1tUpdated = true;
     }
