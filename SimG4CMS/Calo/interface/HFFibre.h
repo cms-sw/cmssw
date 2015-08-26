@@ -8,6 +8,7 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4ThreeVector.hh"
 
@@ -25,6 +26,7 @@ public:
 	  edm::ParameterSet const & p);
   ~HFFibre();
 
+  void                initRun(HcalDDDSimConstants*);
   double              attLength(double lambda);
   double              tShift(const G4ThreeVector& point, int depth, 
 			     int fromEndAbs=0);
