@@ -2,8 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 fastTrackerRecHitMaskProducer = cms.EDProducer(
     "FastTrackerRecHitMaskProducer",
-    minNumberOfLayersWithMeasBeforeFiltering_ = cms.int(0),
-    trackQuality = cms.string("hightPurity")
+    minNumberOfLayersWithMeasBeforeFiltering_ = cms.int32(0),
+    trackQuality = cms.string("hightPurity"),
     trajectories = cms.InputTag("generalTracks"),
     recHits = cms.InputTag("siTrackerGaussianSmearingRecHits"),
     )

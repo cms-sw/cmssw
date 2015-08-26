@@ -40,6 +40,8 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
+#include "FastSimulation/Tracking/interface/FastTrackingHelper.h"
+
 using namespace std;
 
 FastTSGFromPropagation::FastTSGFromPropagation(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC) : FastTSGFromPropagation(iConfig, nullptr, iC) {
@@ -121,7 +123,8 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	   // Check SimTrack
 	   TrackingRecHit* aTrackingRecHit;
 	   FreeTrajectoryState simtrack_trackerstate;
-	   for( const auto & recHitCombination : *recHitCombinations ) {
+	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
+	       const auto & recHitCombination = (*recHitCombinations)[icomb];
 	       if(recHitCombination.size() ==0)
 	         continue;
 	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
@@ -158,9 +161,10 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
 			   edm::OwnVector<TrackingRecHit> container;
 			   container.push_back(recHit->hit()->clone());
+			   fastTrackingHelper::setRecHitCombinationIndex(container,icomb);
 			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
 			   // check direction
-			   const BasicTrajectorySeed* aSeed = &ts;
+			   const TrajectorySeed* aSeed = &ts;
 			   PTrajectoryStateOnDet PTSOD = aSeed->startingState();
 			   
 			   const GeomDet *g = theGeometry->idToDet(PTSOD.detId());
@@ -182,7 +186,9 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	   // Check SimTrack
 	   TrackingRecHit* aTrackingRecHit;
 	   FreeTrajectoryState simtrack_trackerstate;
-	   for( const auto & recHitCombination : *recHitCombinations ) {
+
+	   for( unsigned icomb = 0;icomb < recHitCombinations->size();++icomb){
+	       const auto & recHitCombination = (*recHitCombinations)[icomb];
 	       if(recHitCombination.size() ==0)
 	         continue;
 	       int32_t simTrackId = recHitCombination.back()->simTrackId(0);
@@ -219,9 +225,10 @@ void FastTSGFromPropagation::trackerSeeds(const TrackCand& staMuon, const Tracki
 	               if( updatedTSOS.isValid() && passSelection(updatedTSOS) ) {
 			   edm::OwnVector<TrackingRecHit> container;
 			   container.push_back(recHit->hit()->clone());
+			   fastTrackingHelper::setRecHitCombinationIndex(container,icomb);
 			   TrajectorySeed ts = createSeed(updatedTSOS, container, recHit->geographicalId());
 			   // check direction
-			   const BasicTrajectorySeed* aSeed = &ts;
+			   const TrajectorySeed* aSeed = &ts;
 			   PTrajectoryStateOnDet PTSOD = aSeed->startingState();
 			   
 			   const GeomDet *g = theGeometry->idToDet(PTSOD.detId());

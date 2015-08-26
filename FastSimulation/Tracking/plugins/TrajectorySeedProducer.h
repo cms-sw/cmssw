@@ -7,6 +7,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreator.h"
@@ -66,7 +67,6 @@ class TrajectorySeedProducer:
         bool testPrimaryVertexCompatibility;
         const reco::VertexCollection* primaryVertices;
         // tokens
-        edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
         edm::EDGetTokenT<FastTrackerRecHitCombinationCollection> recHitCombinationsToken;
 	edm::EDGetTokenT<std::vector<bool> > hitMasksToken;        
     public:
