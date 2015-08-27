@@ -411,19 +411,19 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
 
     float mindist = std::numeric_limits<float>::max();
     float dist = std::numeric_limits<float>::max();
-    PSimHit closest;
+    PSimHit* closest = NULL;
  
-    for(auto const &m : matched){
+    for(auto &m : matched){
       dist = fabs(rechitpro.x - m.localPosition().x());
       if(dist<mindist){
 	mindist = dist;
-	closest = m;
+	closest = &m;
       }
     }  
-    rechitpro.bunch = closest.eventId().bunchCrossing();
-    rechitpro.event = closest.eventId().event();
-    rechitpro.resx = rechitpro.x - closest.localPosition().x();
-    rechitpro.pullMF = (Mposition.x() - (topol.measurementPosition(closest.localPosition())).x())/sqrt(Merror.uu());
+    rechitpro.bunch = closest->eventId().bunchCrossing();
+    rechitpro.event = closest->eventId().event();
+    rechitpro.resx = rechitpro.x - closest->localPosition().x();
+    rechitpro.pullMF = (Mposition.x() - (topol.measurementPosition(closest->localPosition())).x())/sqrt(Merror.uu());
     
     //chi2test compare rechit errors with the simhit position ( using null matrix for the simhit). 
     //Can spot problems in the geometry better than a simple residual. (thanks to BorisM)
@@ -431,8 +431,8 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
     rhparameters[0] = position.x(); 
     rhparameters[1] = position.y();
     AlgebraicVector shparameters(2);
-    shparameters[0] = closest.localPosition().x();
-    shparameters[1] = closest.localPosition().y();
+    shparameters[0] = closest->localPosition().x();
+    shparameters[1] = closest->localPosition().y();
     AlgebraicVector r(rhparameters - shparameters);
     AlgebraicSymMatrix R(2);//  = rechit.parametersError();
     R[0][0] = error.xx();
@@ -480,13 +480,13 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
     float dist2 = std::numeric_limits<float>::max();
     float distx = std::numeric_limits<float>::max();
     float disty = std::numeric_limits<float>::max();
-    PSimHit closest;
+    PSimHit* closest = NULL;
     std::pair<LocalPoint,LocalVector> closestPair;
 
     const StripGeomDetUnit* partnerstripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
     std::pair<LocalPoint,LocalVector> hitPair;
 
-    for(auto const &m : matched){
+    for(auto &m : matched){
       SiStripDetId hitDetId(m.detUnitId());
       if (hitDetId.stereo()) {  // project from the stereo sensor
       //project simhit;
@@ -500,12 +500,12 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
 	if(dist<mindist){
 	  mindist = dist;
 	  closestPair = hitPair;
-	  closest = m;
+	  closest = &m;
 	}
       }
     }  
-    rechitpro.bunch = closest.eventId().bunchCrossing();
-    rechitpro.event = closest.eventId().event();
+    rechitpro.bunch = closest->eventId().bunchCrossing();
+    rechitpro.event = closest->eventId().event();
     rechitpro.resx = rechitpro.x - closestPair.first.x();
     rechitpro.resy = rechitpro.y - closestPair.first.y();
     //std::cout << " Closest position x = " << closestPair.first.x() 
