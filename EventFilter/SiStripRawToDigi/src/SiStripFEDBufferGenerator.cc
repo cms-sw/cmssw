@@ -272,28 +272,52 @@ namespace sistrip {
   {
     uint16_t clusterSize = 0;
     const uint16_t nSamples = data.size();
+    uint16_t size;
+    switch (mode) {
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+        size = 2; break;
+      default:
+        size = 1; break;
+    }
     for( uint16_t strip = 0; strip < nSamples; ++strip) {
-      const uint8_t adc = data.get8BitSample(strip,mode);
+      uint16_t adc;
+      switch (mode) {
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+          adc = data.get10BitSample(strip); break;
+        default:
+          adc = data.get8BitSample(strip,mode); break;
+      }
 
       if(adc) {
 	if( clusterSize==0 || strip == STRIPS_PER_APV ) { 
 	  if(clusterSize) { 
-	    *(channelBuffer->end() - clusterSize - 1) = clusterSize ; 
+	    *(channelBuffer->end() - size*clusterSize - 1) = clusterSize ; 
 	    clusterSize = 0; 
 	  }
 	  channelBuffer->push_back(strip); 
 	  channelBuffer->push_back(0); //clustersize	  
 	}
-	channelBuffer->push_back(adc);
+        switch (mode) {
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+          case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+	    channelBuffer->push_back(adc & 0xFF);
+            channelBuffer->push_back((adc & 0x0300) >> 8);
+            break;
+          default:
+            channelBuffer->push_back(adc & 0xFF);
+            break;
+        }
 	++clusterSize;
       }
 
       else if(clusterSize) { 
-	*(channelBuffer->end() - clusterSize - 1) = clusterSize ; 
+	*(channelBuffer->end() - size*clusterSize - 1) = clusterSize ; 
 	clusterSize = 0; 
       }
     }
-    if(clusterSize) *(channelBuffer->end() - clusterSize - 1) = clusterSize ;
+    if(clusterSize) *(channelBuffer->end() - size*clusterSize - 1) = clusterSize ;
   }
 
   void FEDBufferPayloadCreator::fillClusterDataPreMixMode(std::vector<uint8_t>* channelBuffer, const FEDStripData::ChannelData& data) const
