@@ -42,7 +42,6 @@ JetPlusTrackZSPCorJetAntiKt4.JetSplitMerge = cms.int32(2)
 
 JetPlusTrackCorrectionsAntiKt4 = cms.Sequence(
     JPTeidTight*
-    #trackExtrapolator*
     ak4JetTracksAssociatorAtVertexJPT*
     ak4JetTracksAssociatorAtCaloFace*
     ak4JetExtenderJPT*
