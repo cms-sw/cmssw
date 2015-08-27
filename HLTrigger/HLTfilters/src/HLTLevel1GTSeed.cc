@@ -74,7 +74,11 @@
 
 // constructors
 HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTStreamFilter(parSet),
-            //    seeding done via L1 trigger object maps, with objects that fired
+            // initialize the cache
+            m_l1GtMenu( nullptr ),
+            m_l1GtMenuCacheID( 0ULL ),
+
+            // seeding done via L1 trigger object maps, with objects that fired
             m_l1UseL1TriggerObjectMaps(parSet.getParameter<bool> (
                     "L1UseL1TriggerObjectMaps")),
 
@@ -180,10 +184,6 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) : HLTStreamFil
             << m_l1CollectionsTag << " \n"
             << "Input tag for L1 muon  collections:            "
             << m_l1MuonCollectionTag << " \n" << std::endl;
-
-    // initialize cache
-    m_l1GtMenu = nullptr;
-    m_l1GtMenuCacheID = 0ULL;
 }
 
 // destructor
@@ -348,10 +348,7 @@ bool HLTLevel1GTSeed::hltFilter(edm::Event& iEvent, const edm::EventSetup& evSet
 
         edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
         evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
-        // make a copy of the L1GtTriggerMenu in order to call buildGtConditionMap() (FIXME - is this really needed ?)
-        delete m_l1GtMenu;
-        m_l1GtMenu = new L1GtTriggerMenu(* l1GtMenu.product());
-        m_l1GtMenu->buildGtConditionMap();
+        m_l1GtMenu        = l1GtMenu.product();
         m_l1GtMenuCacheID = l1GtMenuCacheID;
 
         const AlgorithmMap& algorithmMap      = l1GtMenu->gtAlgorithmMap();
