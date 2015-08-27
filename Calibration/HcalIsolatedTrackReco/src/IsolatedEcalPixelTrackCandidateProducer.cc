@@ -34,24 +34,23 @@
 
 #include "Calibration/HcalIsolatedTrackReco/interface/IsolatedEcalPixelTrackCandidateProducer.h"
 
-IsolatedEcalPixelTrackCandidateProducer::IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet& conf) {
-
-  coneSizeEta0_    = conf.getParameter<double>("EcalConeSizeEta0");
-  coneSizeEta1_    = conf.getParameter<double>("EcalConeSizeEta1");
-  hitCountEthr_    = conf.getParameter<double>("ECHitCountEnergyThreshold");
-  hitEthr_         = conf.getParameter<double>("ECHitEnergyThreshold");
-  tok_trigcand = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("filterLabel"));
-  tok_eb = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBRecHitSource"));
-  tok_ee = consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EERecHitSource"));
-
-   //register your products
+IsolatedEcalPixelTrackCandidateProducer::IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet& conf) :
+  tok_ee(        consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EERecHitSource")) ),
+  tok_eb(        consumes<EcalRecHitCollection>(conf.getParameter<edm::InputTag>("EBRecHitSource")) ),
+  tok_trigcand(  consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("filterLabel")) ),
+  coneSizeEta0_( conf.getParameter<double>("EcalConeSizeEta0") ),
+  coneSizeEta1_( conf.getParameter<double>("EcalConeSizeEta1") ),
+  hitCountEthr_( conf.getParameter<double>("ECHitCountEnergyThreshold") ),
+  hitEthr_(      conf.getParameter<double>("ECHitEnergyThreshold") )
+{
+  // register the products
   produces< reco::IsolatedPixelTrackCandidateCollection >();
 }
 
 IsolatedEcalPixelTrackCandidateProducer::~IsolatedEcalPixelTrackCandidateProducer() { }
 
 // ------------ method called to produce the data  ------------
-void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 #ifdef DebugLog
   edm::LogInfo("HcalIsoTrack") << "==============Inside IsolatedEcalPixelTrackCandidateProducer";
 #endif
@@ -135,8 +134,3 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::Event& iEvent, const 
   std::auto_ptr<reco::IsolatedPixelTrackCandidateCollection> outCollection(iptcCollection);
   iEvent.put(outCollection);
 }
-// ------------ method called once each job just before starting event loop  ------------
-void IsolatedEcalPixelTrackCandidateProducer::beginJob() { }
-
-// ------------ method called once each job just after ending the event loop  ------------
-void IsolatedEcalPixelTrackCandidateProducer::endJob() { }

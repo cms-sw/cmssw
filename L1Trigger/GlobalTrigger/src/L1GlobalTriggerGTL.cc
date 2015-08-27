@@ -194,13 +194,12 @@ void L1GlobalTriggerGTL::run(
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
 
-        edm::ESHandle< L1GtTriggerMenu> l1GtMenu;
-        evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
-        m_l1GtMenu =  l1GtMenu.product();
-        (const_cast<L1GtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
+        edm::ESHandle<L1GtTriggerMenu> l1GtMenu;
+        evSetup.get<L1GtTriggerMenuRcd>().get(l1GtMenu);
+        m_l1GtMenu.reset(new L1GtTriggerMenu(*l1GtMenu));
+        m_l1GtMenu->buildGtConditionMap();
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
-
     }
 
     const std::vector<ConditionMap>& conditionMap = m_l1GtMenu->gtConditionMap();

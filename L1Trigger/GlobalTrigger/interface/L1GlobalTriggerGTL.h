@@ -25,19 +25,17 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
-
-
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
 // forward declarations
 class L1GlobalTriggerPSB;
-class L1GtTriggerMenu;
 class L1CaloGeometry;
 class L1MuTriggerScales;
 class L1GtEtaPhiConversions;
@@ -116,7 +114,7 @@ private:
     // cached stuff
 
     // trigger menu
-    const L1GtTriggerMenu* m_l1GtMenu;
+    std::unique_ptr<L1GtTriggerMenu> m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
     // L1 scales (phi, eta) for Mu, Calo and EnergySum objects

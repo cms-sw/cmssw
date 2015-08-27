@@ -8,15 +8,14 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMask.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
 namespace edm {
   class Event;
   class EventSetup;
   class TriggerNames;
 }
-
-class L1GtTriggerMenu;
-class L1GtTriggerMask;
 
 namespace triggerExpression {
 
@@ -34,15 +33,15 @@ public:
     m_l1techIgnorePrescales(false),
     m_throw(true),
     // l1 values and status
-    m_l1tResults(0),
-    m_l1tMenu(0),
-    m_l1tAlgoMask(0),
-    m_l1tTechMask(0),
+    m_l1tResults(nullptr),
+    m_l1tMenu(nullptr),
+    m_l1tAlgoMask(nullptr),
+    m_l1tTechMask(nullptr),
     m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
-    m_hltResults(0),
-    m_hltMenu(0),
+    m_hltResults(nullptr),
+    m_hltMenu(nullptr),
     m_hltCacheID(),
     m_hltUpdated(false),
     // event values
@@ -61,15 +60,15 @@ public:
     m_l1techIgnorePrescales(config.getParameter<bool>("l1techIgnorePrescales")),
     m_throw(config.getParameter<bool>("throw")),
     // l1 values and status
-    m_l1tResults(0),
-    m_l1tMenu(0),
-    m_l1tAlgoMask(0),
-    m_l1tTechMask(0),
+    m_l1tResults(nullptr),
+    m_l1tMenu(nullptr),
+    m_l1tAlgoMask(nullptr),
+    m_l1tTechMask(nullptr),
     m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
-    m_hltResults(0),
-    m_hltMenu(0),
+    m_hltResults(nullptr),
+    m_hltMenu(nullptr),
     m_hltCacheID(),
     m_hltUpdated(false),
     // event values
@@ -98,15 +97,15 @@ public:
     m_l1techIgnorePrescales(l1techIgnorePrescales),
     m_throw(doThrow),
     // l1 values and status
-    m_l1tResults(0),
-    m_l1tMenu(0),
-    m_l1tAlgoMask(0),
-    m_l1tTechMask(0),
+    m_l1tResults(nullptr),
+    m_l1tMenu(nullptr),
+    m_l1tAlgoMask(nullptr),
+    m_l1tTechMask(nullptr),
     m_l1tCacheID(),
     m_l1tUpdated(false),
     // hlt values and status
-    m_hltResults(0),
-    m_hltMenu(0),
+    m_hltResults(nullptr),
+    m_hltMenu(nullptr),
     m_hltCacheID(),
     m_hltUpdated(false),
     // event values
@@ -224,7 +223,7 @@ private:
 
   // l1 values and status
   const L1GlobalTriggerReadoutRecord  * m_l1tResults;
-  const L1GtTriggerMenu               * m_l1tMenu;
+  std::unique_ptr<L1GtTriggerMenu>      m_l1tMenu;
   const L1GtTriggerMask               * m_l1tAlgoMask;
   const L1GtTriggerMask               * m_l1tTechMask;
   unsigned long long                    m_l1tCacheID;
