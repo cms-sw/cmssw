@@ -71,7 +71,7 @@ class JetAnalyzer( Analyzer ):
         self.lepSelCut = getattr(self.cfg_ana, 'lepSelCut', lambda lep : True)
         self.jetGammaDR =  getattr(self.cfg_ana, 'jetGammaDR', 0.4)
         if(self.cfg_ana.doQG):
-            qgdefname="{CMSSW_BASE}/src/PhysicsTools/Heppy/data/pdfQG_AK4chs_antib_13TeV_v1.root"
+            qgdefname="{CMSSW_BASE}/src/PhysicsTools/Heppy/data/pdfQG_AK4chs_13TeV_v2b.root"
             self.qglcalc = QGLikelihoodCalculator(getattr(self.cfg_ana,"QGpath",qgdefname).format(CMSSW_BASE= os.environ['CMSSW_BASE']))
         if not hasattr(self.cfg_ana ,"collectionPostFix"):self.cfg_ana.collectionPostFix=""
 
