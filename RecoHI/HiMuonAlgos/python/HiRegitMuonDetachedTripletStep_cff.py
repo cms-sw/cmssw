@@ -20,8 +20,8 @@ from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
 
 # NEW CLUSTERS (remove previously used clusters)
 hiRegitMuDetachedTripletStepClusters = RecoTracker.IterativeTracking.DetachedTripletStep_cff.detachedTripletStepClusters.clone(
-    trajectories          = cms.InputTag("hiRegitMuInitialStepTracks"),
-    overrideTrkQuals      = cms.InputTag('hiRegitMuInitialStepSelector','hiRegitMuInitialStep'),
+    trajectories          = cms.InputTag("hiRegitMuPixelLessStepTracks"),
+    overrideTrkQuals      = cms.InputTag('hiRegitMuPixelLessStepSelector','hiRegitMuPixelLessStep'),
     trackClassifier       = cms.InputTag(''),
     TrackQuality          = cms.string('tight')
 )

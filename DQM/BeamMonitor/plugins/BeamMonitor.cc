@@ -1179,12 +1179,12 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       if (nthBSTrk_ >= 2*min_Ntrks_) {
 	double amp = std::sqrt(bs.x0()*bs.x0()+bs.y0()*bs.y0());
 	double alpha = std::atan2(bs.y0(),bs.x0());
-	TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.14,3.14);
+	std::unique_ptr<TF1> f1{ new TF1("f1","[0]*sin(x-[1])",-3.14,3.14) };
 	f1->SetParameters(amp,alpha);
 	f1->SetParLimits(0,amp-0.1,amp+0.1);
 	f1->SetParLimits(1,alpha-0.577,alpha+0.577);
 	f1->SetLineColor(4);
-	h_d0_phi0->getTProfile()->Fit("f1","QR");
+	h_d0_phi0->getTProfile()->Fit(f1.get(),"QR");
 
 	double mean = bs.z0();
 	double width = bs.sigmaZ();
