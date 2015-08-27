@@ -289,6 +289,8 @@ stripRecHitsValid = cms.EDAnalyzer("SiStripRecHitsValid",
     associateStrip = cms.bool(True),
     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHit"),
     RecHitProducer = cms.string('siStripMatchedRecHits'),
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
     verbose = cms.untracked.bool(False)
 )
 
