@@ -29,22 +29,22 @@ RecoMuonIsolationFEVT = cms.PSet(
 RecoMuonIsolationRECO = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_muIsoDepositTk_*_*', 
         'keep *_muIsoDepositCalByAssociatorTowers_*_*', 
-        #'keep *_muIsoDepositCalByAssociatorHits_*_*', 
+        'keep *_muIsoDepositCalByAssociatorHits_*_*', 
         'keep *_muIsoDepositJets_*_*', 
-        #'keep *_muGlobalIsoDepositCtfTk_*_*', 
-        #'keep *_muGlobalIsoDepositCalByAssociatorTowers_*_*', 
-        #'keep *_muGlobalIsoDepositCalByAssociatorHits_*_*', 
-        #'keep *_muGlobalIsoDepositJets_*_*'
+        'keep *_muGlobalIsoDepositCtfTk_*_*', 
+        'keep *_muGlobalIsoDepositCalByAssociatorTowers_*_*', 
+        'keep *_muGlobalIsoDepositCalByAssociatorHits_*_*', 
+        'keep *_muGlobalIsoDepositJets_*_*'
         )
 )
 #AOD part of the event
 #cleaned-up, includes only the objects produced in the standard reco "muIsolation" sequence
 RecoMuonIsolationAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
-#    'keep *_muIsoDepositTk_*_*', 
-#    'keep *_muIsoDepositCalByAssociatorTowers_*_*', 
-#    'keep *_muIsoDepositCalByAssociatorHits_*_*', 
-#    'keep *_muIsoDepositJets_*_*'
+    'keep *_muIsoDepositTk_*_*', 
+    'keep *_muIsoDepositCalByAssociatorTowers_*_*', 
+    'keep *_muIsoDepositCalByAssociatorHits_*_*', 
+    'keep *_muIsoDepositJets_*_*'
     )
 )
 #Full event
