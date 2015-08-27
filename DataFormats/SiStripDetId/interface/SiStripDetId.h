@@ -112,66 +112,66 @@ private:
 // ---------- inline methods ----------
 
 SiStripDetId::SubDetector SiStripDetId::subDetector() const {
+  SiStripDetId::SubDetector result;
   if ( det() == DetId::Tracker) {
     if ( subdetId() == static_cast<int>(SiStripDetId::TEC) ) {
-      return SiStripDetId::TEC;
+      result = SiStripDetId::TEC;
     } else if ( subdetId() == static_cast<int>(SiStripDetId::TID) ) {
-      return SiStripDetId::TID;
+      result = SiStripDetId::TID;
     } else if ( subdetId() == static_cast<int>(SiStripDetId::TOB) ) {
-      return SiStripDetId::TOB;
+      result = SiStripDetId::TOB;
     } else if ( subdetId() == static_cast<int>(SiStripDetId::TIB) ) {
-      return SiStripDetId::TIB;
+      result = SiStripDetId::TIB;
     } else {
-      return SiStripDetId::UNKNOWN;
+      result = SiStripDetId::UNKNOWN;
     }
   } else {
-    return SiStripDetId::UNKNOWN;
+    result = SiStripDetId::UNKNOWN;
   }
+  return result;
 }
 
 SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
+  SiStripDetId::ModuleGeometry geometry;
   switch(subDetector()) {
-  case TIB: return int((id_>>layerStartBit_) & layerMask_)<3? IB1 : IB2;
-  case TOB: return int((id_>>layerStartBit_) & layerMask_)<5? OB2 : OB1;
+  case TIB: geometry = int((id_>>layerStartBit_) & layerMask_)<3? IB1 : IB2;
+  case TOB: geometry = int((id_>>layerStartBit_) & layerMask_)<5? OB2 : OB1;
   case TID: switch ((id_>>ringStartBitTID_) & ringMaskTID_) {
-    case 1: return W1A;
-    case 2: return W2A;
-    case 3: return W3A;
+    case 1: geometry = W1A;
+    case 2: geometry = W2A;
+    case 3: geometry = W3A;
     }
   case TEC: switch ((id_>>ringStartBitTEC_) & ringMaskTEC_) {
-    case 1: return W1B;
-    case 2: return W2B;
-    case 3: return W3B;
-    case 4: return W4;
-    case 5: return W5;
-    case 6: return W6;
-    case 7: return W7;
+    case 1: geometry = W1B;
+    case 2: geometry = W2B;
+    case 3: geometry = W3B;
+    case 4: geometry = W4;
+    case 5: geometry = W5;
+    case 6: geometry = W6;
+    case 7: geometry = W7;
     }
-  case UNKNOWN: default: return UNKNOWNGEOMETRY;
+  case UNKNOWN: default: geometry = UNKNOWNGEOMETRY;
   }
+  return geometry;
 }
 
 uint32_t SiStripDetId::glued() const {
-  if ( ((id_>>sterStartBit_) & sterMask_ ) == 1 ) {
-    return ( id_ - 1 );
-  } else if ( ((id_>>sterStartBit_) & sterMask_ ) == 2 ) {
-    return ( id_ - 2 );
-  } else { return 0; }
+  uint32_t testId = (id_>>sterStartBit_) & sterMask_;
+  return ( testId == 1 || testId == 2 ) ? (id_ - testId) : 0;
 }
  
 uint32_t SiStripDetId::stereo() const {
-  if ( ((id_>>sterStartBit_ ) & sterMask_ ) == 1 ) {
-    return 1;
-  } else { return 0; }
+  return ( ((id_>>sterStartBit_) & sterMask_) == 1 ) ? 1 : 0;
 }
  
 uint32_t SiStripDetId::partnerDetId() const {
   uint32_t testId = (id_>>sterStartBit_) & sterMask_;
   if ( testId == 1 ) {
-    return ( id_ + 1 );
+    testId = id_ + 1;
   } else if ( testId == 2 ) {
-    return ( id_ - 1 );
-  } else { return 0; }
+    testId = id_ - 1;
+  } else { testId = 0; }
+  return testId;
 }
  
 double SiStripDetId::stripLength() const {
