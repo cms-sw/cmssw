@@ -186,8 +186,6 @@ void TriggerRatesMonitor::dqmBeginRun(edm::Run const & run, edm::EventSetup cons
 
   // cache the L1 trigger menu
   m_l1tMenu     = get<L1GtTriggerMenuRcd, L1GtTriggerMenu>(setup);
-  // FIXME - do we really need this ?
-  //(const_cast<L1GtTriggerMenu *>(m_l1tMenu))->buildGtConditionMap();
   m_l1tAlgoMask = get<L1GtTriggerMaskAlgoTrigRcd, L1GtTriggerMask>(setup);
   m_l1tTechMask = get<L1GtTriggerMaskTechTrigRcd, L1GtTriggerMask>(setup);
   if (m_l1tMenu and m_l1tAlgoMask and m_l1tTechMask) {

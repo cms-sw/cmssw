@@ -112,7 +112,7 @@ private:
     // cached stuff
 
     /// trigger menu
-    L1GtTriggerMenu * m_l1GtMenu;
+    const L1GtTriggerMenu * m_l1GtMenu;
     unsigned long long m_l1GtMenuCacheID;
 
     /// logic parser for m_l1SeedsLogicalExpression
