@@ -2,7 +2,7 @@
 #define Calibration_IsolatedEcalPixelTrackCandidateProducer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -17,24 +17,22 @@
 // class decleration
 //
 
-class IsolatedEcalPixelTrackCandidateProducer : public edm::EDProducer {
+class IsolatedEcalPixelTrackCandidateProducer : public edm::global::EDProducer<> {
 
 public:
   explicit IsolatedEcalPixelTrackCandidateProducer(const edm::ParameterSet&);
   ~IsolatedEcalPixelTrackCandidateProducer();
 
 private:
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
-
-  double coneSizeEta0_, coneSizeEta1_;
-  double hitCountEthr_;
-  double hitEthr_;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_ee;
-  edm::EDGetTokenT<EcalRecHitCollection> tok_eb;
-  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_trigcand;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_ee;
+  const edm::EDGetTokenT<EcalRecHitCollection> tok_eb;
+  const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tok_trigcand;
+  const double coneSizeEta0_;
+  const double coneSizeEta1_;
+  const double hitCountEthr_;
+  const double hitEthr_;
 };
 
 #endif
