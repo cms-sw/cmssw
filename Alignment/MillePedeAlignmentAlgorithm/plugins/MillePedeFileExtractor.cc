@@ -15,7 +15,7 @@ MillePedeFileExtractor::MillePedeFileExtractor(const edm::ParameterSet& iConfig)
       theOutputFileName(iConfig.getParameter<std::string>("outputBinaryFile")) {
 
   edm::InputTag fileBlobInputTag = iConfig.getParameter<edm::InputTag>("fileBlobInputTag");
-  theFileBlobToken = consumes<FileBlobCollection>(fileBlobInputTag);
+  theFileBlobToken = consumes<FileBlobCollection, edm::BranchType::InRun>(fileBlobInputTag);
   // nothing else in the constructor
 }
 
