@@ -6,9 +6,9 @@ PureMETPSet = cms.PSet(
         "HLT_PFMET170_HBHECleaned_v",
         "HLT_PFMET170_JetIdCleaned_v",
         "HLT_PFMET170_NoiseCleaned_v",  # Run2
-        #"HLT_CaloMET200_NoiseCleaned_v"
-        "HLT_MET200_JetIdCleaned_v"
-        #"HLT_MET120_HBHENoiseCleaned_v" # Run1
+        "HLT_MET200_JetIdCleaned_v",
+        "HLT_MET100_JetIdCleaned_v",    # 0T
+        "HLT_MET150_JetIdCleaned_v"     # 0T
         ),
     recPFMETLabel  = cms.InputTag("pfMet"),
     recCaloMETLabel = cms.InputTag("caloMet"),
