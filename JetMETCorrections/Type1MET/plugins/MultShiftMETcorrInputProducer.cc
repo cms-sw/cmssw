@@ -68,10 +68,9 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
 {
   //get primary vertices
   edm::Handle<edm::View<reco::Vertex> > hpv;
-  try {
-    evt.getByToken( vertices_, hpv );
-  } catch ( cms::Exception & e ) {
-    std::cout <<"[MultShiftMETcorrInputProducer] error: " << e.what() << std::endl;
+  evt.getByToken( vertices_, hpv );
+  if(!hpv.isValid()) {
+    edm::LogError("MultShiftMETcorrInputProducer::produce") << "could not find vertex collection ";
   }
   std::vector<reco::Vertex> goodVertices;
   for (unsigned i = 0; i < hpv->size(); i++) {
