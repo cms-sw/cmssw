@@ -6,7 +6,6 @@ import RecoTracker.IterativeTracking.TobTecStep_cff
 # fast tracking mask producer
 import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
 tobTecStepMasks = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.maskProducerFromClusterRemover(RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepClusters)
->>>>>>> migrate FastSimulation/Tracking
 
 # trajectory seeds 
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
@@ -32,7 +31,7 @@ tobTecStepSeeds = RecoTracker.IterativeTracking.TobTecStep_cff.tobTecStepSeeds.c
 # track candidate
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 tobTecStepTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
-    MinNumberOfCrossedLayers = 3
+    MinNumberOfCrossedLayers = 3,
     src = cms.InputTag("tobTecStepSeeds"),
     hitMasks = cms.InputTag("tobTecStepMasks"),
 )
