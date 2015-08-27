@@ -171,6 +171,12 @@ class FastTrackerRecHit : public BaseTrackerRecHit
     void load()  { pos_=myPos_; err_=myErr_;}   ///< helps making the hit postion and error persistent
     
     uint32_t recHitCombinationIndex_;
+
+    protected:
+
+    virtual FastTrackerRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
+	return this->clone();
+    }
   
 };
 

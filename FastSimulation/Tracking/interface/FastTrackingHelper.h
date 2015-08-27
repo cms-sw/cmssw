@@ -6,7 +6,7 @@
 
 namespace fastTrackingHelper {
     
-    inline void setRecHitCombinationIndex(edm::OwnVector<TrackingRecHit> & recHits,int32_t icomb){
+    template<class T> inline void setRecHitCombinationIndex(edm::OwnVector<T> & recHits,int32_t icomb){
 	for(auto & recHit : recHits){
 	    if(!trackerHitRTTI::isFast(recHit)){
 		edm::LogError("fastTrackingHelpers::setRecHitCombinationIndex") << " one of hits in OwnVector is non-fastsim" << std::endl;

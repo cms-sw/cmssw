@@ -54,11 +54,11 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     theRegionProducer(nullptr)
 {
 
-    // The name of the TrajectorySeed Collection
     produces<TrajectorySeedCollection>();
-    //Regions regions;
-    
 
+    // tokens
+    recHitCombinationsToken = consumes<FastTrackerRecHitCombinationCollection>(conf.getParameter<edm::InputTag>("recHitCombinations"));
+    measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
     hitMasks_exists = conf.exists("hitMasks");
     if (hitMasks_exists){
       edm::InputTag hitMasksTag = conf.getParameter<edm::InputTag>("hitMasks");   
@@ -67,11 +67,6 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
     
     // The smallest number of hits for a track candidate
     minLayersCrossed = conf.getParameter<unsigned int>("minLayersCrossed");
-
-    edm::InputTag beamSpotTag = conf.getParameter<edm::InputTag>("beamSpot");
-    
-    // The name of the hit producer
-    recHitCombinationsToken = consumes<FastTrackerRecHitCombinationCollection>(conf.getParameter<edm::InputTag>("recHitCombinations"));
 
     // read Layers
     std::vector<std::string> layerStringList = conf.getParameter<std::vector<std::string>>("layerList");
@@ -92,80 +87,53 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf):
         _seedingTree.insert(trackingLayerList);
         seedingLayers.push_back(std::move(trackingLayerList));
     }
+
+    // region producer
     if(conf.exists("RegionFactoryPSet")){
-      edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
-      std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
-      theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
-      measurementTrackerEventToken = consumes<MeasurementTrackerEvent>(conf.getParameter<edm::InputTag>("MeasurementTrackerEvent"));
-      const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
-      std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
-      seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
+	edm::ParameterSet regfactoryPSet = conf.getParameter<edm::ParameterSet>("RegionFactoryPSet");
+	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
+	theRegionProducer.reset(TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet, consumesCollector()));
+	
+	// seed creator
+	const edm::ParameterSet & seedCreatorPSet = conf.getParameter<edm::ParameterSet>("SeedCreatorPSet");
+	std::string seedCreatorName = seedCreatorPSet.getParameter<std::string>("ComponentName");
+	seedCreator.reset(SeedCreatorFactory::get()->create( seedCreatorName, seedCreatorPSet));
     }
-}
-void
-TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) 
-{
-    edm::ESHandle<MagneticField> magneticFieldHandle;
-    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
-    edm::ESHandle<MagneticFieldMap> magneticFieldMapHandle;
-    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
-
-    es.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
-    es.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
-    es.get<MagneticFieldMapRecord>().get(magneticFieldMapHandle);
-    es.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
-    
-    magneticField = &(*magneticFieldHandle);
-    trackerGeometry = &(*trackerGeometryHandle);
-    magneticFieldMap = &(*magneticFieldMapHandle);
-    trackerTopology = &(*trackerTopologyHandle);
-
-    thePropagator = std::make_shared<PropagatorWithMaterial>(alongMomentum,0.105,magneticField);
 }
 
 bool
 TrajectorySeedProducer::pass2HitsCuts(const TrajectorySeedHitCandidate & innerHit,const TrajectorySeedHitCandidate & outerHit) const
 {
-  if(theRegionProducer){
-  const DetLayer * innerLayer = 
-    measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
-  const DetLayer * outerLayer = 
-    measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
+
+    const DetLayer * innerLayer = 
+	measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(innerHit.hit()->det()->geographicalId());
+    const DetLayer * outerLayer = 
+	measurementTrackerEvent->measurementTracker().geometricSearchTracker()->detLayer(outerHit.hit()->det()->geographicalId());
   
-typedef PixelRecoRange<float> Range;
+    typedef PixelRecoRange<float> Range;
 
-  for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
+    for(Regions::const_iterator ir=regions.begin(); ir < regions.end(); ++ir){
 
-    auto const & gs = outerHit.hit()->globalState();
-    auto loc = gs.position-(*ir)->origin().basicVector();
-    const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
-                                                        loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
+	auto const & gs = outerHit.hit()->globalState();
+	auto loc = gs.position-(*ir)->origin().basicVector();
+	const HitRZCompatibility * checkRZ = (*ir)->checkRZ(innerLayer, outerHit.hit(), *es_, outerLayer,
+							    loc.perp(),gs.position.z(),gs.errorR,gs.errorZ);
 
-    float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
-    float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
-    float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
-    constexpr float nSigmaRZ = 3.46410161514f;
-    Range allowed = checkRZ->range(u);
-    float vErr = nSigmaRZ * dv;
-    Range hitRZ(v-vErr, v+vErr);
-    Range crossRange = allowed.intersection(hitRZ);
+	float u = innerLayer->isBarrel() ? loc.perp() : gs.position.z();
+	float v = innerLayer->isBarrel() ? gs.position.z() : loc.perp();
+	float dv = innerLayer->isBarrel() ? gs.errorZ : gs.errorR;
+	constexpr float nSigmaRZ = 3.46410161514f;
+	Range allowed = checkRZ->range(u);
+	float vErr = nSigmaRZ * dv;
+	Range hitRZ(v-vErr, v+vErr);
+	Range crossRange = allowed.intersection(hitRZ);
 
-    if( ! crossRange.empty()){
-      //std::cout << "init seed creator"<< std::endl;
-      //std::cout << "ptmin: " << (**ir).ptMin() << std::endl;
-      //std::cout << "" << std::endl;
-      seedCreator->init(**ir,*es_,0);
-      //std::cout << "done" << std::endl;
-      return true;}
+	if( ! crossRange.empty()){
+	    seedCreator->init(**ir,*es_,0);
+	    return true;}
 
-  }
-  return false;
-  }
-  else
-    {
-      edm::LogWarning("TrajectorySeedProducer") <<"Either region producer, or the seed creator cfg is not available.";
-      return false;
     }
+    return false;
 }
 
 const SeedingNode<TrackingLayer>* TrajectorySeedProducer::insertHit(
@@ -276,6 +244,24 @@ void
     TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) 
 {        
 
+    // services
+    edm::ESHandle<MagneticField> magneticFieldHandle;
+    edm::ESHandle<TrackerGeometry> trackerGeometryHandle;
+    edm::ESHandle<MagneticFieldMap> magneticFieldMapHandle;
+    edm::ESHandle<TrackerTopology> trackerTopologyHandle;
+
+    es.get<IdealMagneticFieldRecord>().get(magneticFieldHandle);
+    es.get<TrackerDigiGeometryRecord>().get(trackerGeometryHandle);
+    es.get<MagneticFieldMapRecord>().get(magneticFieldMapHandle);
+    es.get<TrackerTopologyRcd>().get(trackerTopologyHandle);
+    
+    magneticField = &(*magneticFieldHandle);
+    trackerGeometry = &(*trackerGeometryHandle);
+    magneticFieldMap = &(*magneticFieldMapHandle);
+    trackerTopology = &(*trackerTopologyHandle);
+
+    es_ = &es;
+
     // hit masks
     std::unique_ptr<HitMaskHelper> hitMaskHelper;
     if (hitMasks_exists){  
@@ -284,10 +270,27 @@ void
 	hitMaskHelper.reset(new HitMaskHelper(hitMasks.product()));
     }
     
+    // hit combinations
     edm::Handle<FastTrackerRecHitCombinationCollection> recHitCombinations;
     e.getByToken(recHitCombinationsToken, recHitCombinations);
 
+    // measurement tracker event (only used to access services)
+    edm::Handle<MeasurementTrackerEvent> measurementTrackerEventHandle;
+    e.getByToken(measurementTrackerEventToken,measurementTrackerEventHandle);
+    measurementTrackerEvent = measurementTrackerEventHandle.product();
+
+    // output
     std::unique_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());
+
+    // produce the regions;
+    if(!theRegionProducer){
+	edm::LogWarning("TrajectorySeedProducer") << " RegionFactory is not initialised properly, please check your configuration. Producing empty seed collection" << std::endl;
+	e.put(std::move(output));
+	return;
+    }
+    
+    regions = theRegionProducer->regions(e,es);
+    
     
     for ( unsigned icomb=0; icomb<recHitCombinations->size(); ++icomb)
 	{
@@ -329,7 +332,6 @@ void
 
 	    // set the combination index
       
-	    std::vector<int> hitIndicesInTree(_seedingTree.numberOfNodes(),-1);
 	    //A SeedingNode is associated by its index to this list. The list stores the indices of the hits in 'trackerRecHits'
 	    /* example
 	       SeedingNode                     | hit index                 | hit
@@ -343,116 +345,27 @@ void
 	       The implementation has been chosen such that the tree only needs to be build once upon construction.
 	    */
 
-      //Regions regions;
-      regions.clear();
-      if(theRegionProducer){
-	es_ = &es;
-	regions = theRegionProducer->regions(e,es);
-	edm::Handle<MeasurementTrackerEvent> measurementTrackerEventHandle;
-	e.getByToken(measurementTrackerEventToken,measurementTrackerEventHandle);
-	measurementTrackerEvent = measurementTrackerEventHandle.product();
-      }
-      
+	    // find the first combination of hits,
+	    // compatible with the seedinglayer,
+	    // and with one of the tracking regions
+	    std::vector<int> hitIndicesInTree(_seedingTree.numberOfNodes(),-1);
 	    std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
-      
-	    if (seedHitNumbers.size()>0)
-		{
-		    edm::OwnVector<TrackingRecHit> recHits;
-		    for ( unsigned ihit=0; ihit<seedHitNumbers.size(); ++ihit )
-			{
-			    TrackingRecHit* aTrackingRecHit = trackerRecHits[seedHitNumbers[ihit]].hit()->clone();
-			    recHits.push_back(aTrackingRecHit);
-			}
-		    GlobalPoint  position((*theSimVtx)[vertexIndex].position().x(),
-					  (*theSimVtx)[vertexIndex].position().y(),
-					  (*theSimVtx)[vertexIndex].position().z());
-	  
-		    GlobalVector momentum(theSimTrack.momentum().x(),theSimTrack.momentum().y(),theSimTrack.momentum().z());
-		    float charge = theSimTrack.charge();
-		    GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,magneticField);
-		    AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();
-		    //this line help the fit succeed in the case of pixelless tracks (4th and 5th iteration)
-		    //for the future: probably the best thing is to use the mini-kalmanFilter
-		    if(trackerRecHits[seedHitNumbers[0]].subDetId() !=1 ||trackerRecHits[seedHitNumbers[0]].subDetId() !=2)
-			{
-			    errorMatrix = errorMatrix * 0.0000001;
-			}
-		    CurvilinearTrajectoryError initialError(errorMatrix);
-		    FreeTrajectoryState initialFTS(initialParams, initialError);
-	  
-		    const GeomDet* initialLayer = trackerGeometry->idToDet( recHits.back().geographicalId() );
-		    const TrajectoryStateOnSurface initialTSOS = thePropagator->propagate(initialFTS,initialLayer->surface()) ;
-	  
-		    if (!initialTSOS.isValid())
-			{
-			    break;
-			}
-	  
-		    const AlgebraicSymMatrix55& m = initialTSOS.localError().matrix();
-		    int dim = 5; /// should check if corresponds to m
-		    float localErrors[15];
-		    int k = 0;
-		    for (int i=0; i<dim; ++i)
-			{
-			    for (int j=0; j<=i; ++j)
-				{
-				    localErrors[k++] = m(i,j);
-				}
-			}
-		    int surfaceSide = static_cast<int>(initialTSOS.surfaceSide());
-		    PTrajectoryStateOnDet initialState = PTrajectoryStateOnDet( initialTSOS.localParameters(),initialTSOS.globalMomentum().perp(),localErrors, recHits.back().geographicalId().rawId(), surfaceSide);
 
-		    fastTrackingHelper::setRecHitCombinationIndex(recHits,icomb);
+	    // create a seed from those hits
+	    if (seedHitNumbers.size()>1){
+		// temporary hit copies to allow setting the recHitCombinationIndex
+		edm::OwnVector<FastTrackerRecHit> seedHits;
+		for(unsigned iIndex = 0;iIndex < seedHitNumbers.size();++iIndex){
+		    seedHits.push_back(trackerRecHits[seedHitNumbers[iIndex]].hit()->clone());
+		}
+		fastTrackingHelper::setRecHitCombinationIndex(seedHits,icomb);
 
-		    output->push_back(TrajectorySeed(initialState, recHits, PropagationDirection::alongMomentum));
-
-		} //end loop over recHitCombinations
+		// the actual seed creation
+		seedCreator->makeSeed(*output,SeedingHitSet(&seedHits[0],&seedHits[1],
+							    seedHits.size() >=3 ? &seedHits[2] : nullptr,
+							    seedHits.size() >=4 ? &seedHits[3] : nullptr));
+	    }
 	}
     e.put(std::move(output));
-}
 
-
-bool
-TrajectorySeedProducer::compatibleWithBeamSpot(
-        const GlobalPoint& gpos1,
-        const GlobalPoint& gpos2,
-        double error,
-        bool forward
-    ) const
-{
-
-    // The hits 1 and 2 positions, in HepLorentzVector's
-    XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
-    XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
-
-    // create a particle with following properties
-    //  - charge = +1
-    //  - vertex at second rechit
-    //  - momentum direction: from first to second rechit
-    //  - magnitude of momentum: nonsense (distance between 1st and 2nd rechit)  
-    ParticlePropagator myPart(thePos2 - thePos1,thePos2,1.,magneticFieldMap);
-
-    /*
-    propagateToBeamCylinder does the following
-       - check there exists a track through the 2 hits and through a
-    cylinder with radius "originRadius" centered around the CMS axis
-       - if such tracks exists, pick the one with maximum pt
-       - track vertex z coordinate is z coordinate of closest approach of
-    track to (x,y) = (0,0)
-       - the particle gets the charge that allows the highest pt
-    */
-    if (originRadius>0)
-    {
-        bool intersect = myPart.propagateToBeamCylinder(thePos1,originRadius*1.);
-        if ( !intersect )
-        {
-            return false;
-        }
-    }
->>>>>>> migrate FastSimulation/Tracking
-
-      std::vector<unsigned int> seedHitNumbers = iterateHits(0,trackerRecHits,hitIndicesInTree,true);
-      if (seedHitNumbers.size()>0){seedCreator->makeSeed(*output,SeedingHitSet(trackerRecHits[seedHitNumbers[0]].hit(),trackerRecHits[seedHitNumbers[1]].hit(),seedHitNumbers.size()>=3?trackerRecHits[seedHitNumbers[2]].hit():nullptr,seedHitNumbers.size()>=4?trackerRecHits[seedHitNumbers[3]].hit():nullptr));}
-      }
-    e.put(output);
 }
