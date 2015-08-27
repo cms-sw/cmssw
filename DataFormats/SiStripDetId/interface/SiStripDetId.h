@@ -157,7 +157,7 @@ SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
 
 uint32_t SiStripDetId::glued() const {
   uint32_t testId = (id_>>sterStartBit_) & sterMask_;
-  return ( testId == 1 || testId == 2 ) ? (id_ - testId) : 0;
+  return ( testId == 0 ) ? 0 : (id_ - testId);
 }
  
 uint32_t SiStripDetId::stereo() const {

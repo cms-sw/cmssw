@@ -282,22 +282,22 @@ class TrackerTopology {
 
   uint32_t tibGlued(const DetId &id) const {
     uint32_t testId = (id.rawId()>>tibVals_.sterStartBit_) & tibVals_.sterMask_;
-    return ( testId == 1 || testId == 2) ? (id.rawId() - testId) : 0;
+    return ( testId == 0 ) ? 0 : (id.rawId() - testId);
   }
 
   uint32_t tecGlued(const DetId &id) const {
     uint32_t testId = (id.rawId()>>tecVals_.sterStartBit_) & tecVals_.sterMask_;
-    return ( testId == 1 || testId == 2) ? (id.rawId() - testId) : 0;
+    return ( testId == 0 ) ? 0 : (id.rawId() - testId);
   }
 
   uint32_t tobGlued(const DetId &id) const {
     uint32_t testId = (id.rawId()>>tobVals_.sterStartBit_) & tobVals_.sterMask_;
-    return ( testId == 1 || testId == 2) ? (id.rawId() - testId) : 0;
+    return ( testId == 0 ) ? 0 : (id.rawId() - testId);
   }
 
   uint32_t tidGlued(const DetId &id) const {
     uint32_t testId = (id.rawId()>>tidVals_.sterStartBit_) & tidVals_.sterMask_;
-    return ( testId == 1 || testId == 2) ? ( id.rawId() - testId ) : 0;
+    return ( testId == 0 ) ? 0 : (id.rawId() - testId);
   }
 
   bool tobIsRPhi(const DetId &id) const { return SiStripDetId(id).stereo()==0 && !tobIsDoubleSide(id);}
