@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "SimG4CMS/Calo/interface/HFFibre.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
@@ -43,7 +44,7 @@ public:
     double                    time;
   };
 
-  void                initRun(G4ParticleTable * theParticleTable);
+  void                initRun(G4ParticleTable *, HcalDDDSimConstants*);
   std::vector<Hit>    getHits(G4Step * aStep, bool &ok, double weight, 
 			      bool onlyLong=false);
   std::vector<Hit>    fillHits(G4ThreeVector & p, G4ThreeVector & v,
