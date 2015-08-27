@@ -16,8 +16,8 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoHI/HiJetAlgos/interface/UECalibration.h"
 
-class VoronoiAlgorithm {
-private:
+class GenericVoronoiAlgorithm {
+protected:
 	//
 	typedef CGAL::Delaunay_triangulation_2<
 	CGAL::Exact_predicates_inexact_constructions_kernel>
@@ -65,14 +65,12 @@ protected:
 	std::vector<double> _edge_pseudorapidity;
 	std::vector<double> _cms_hcal_edge_pseudorapidity;
 	std::vector<double> _cms_ecal_edge_pseudorapidity;
-	bool _remove_nonpositive;
 	std::pair<double, double> _equalization_threshold;
+	bool _remove_nonpositive;
+	event_t _event;
+	//
 	double _radial_distance_square_max;
 	double _positive_bound_scale;
-	bool _subtracted;
-	event_t _event;
-	boost::multi_array<double, 4> *_perp_fourier;
-	std::vector<double> _feature;
 	std::vector<bool> _active;
 	std::vector<std::pair<size_t, size_t> > _recombine;
 	std::vector<std::vector<size_t> > _recombine_index;
@@ -82,29 +80,30 @@ protected:
 	std::vector<size_t> _nblock_subtract;
 	void *_lp_environment;
 	void *_lp_problem;
-	// calibrations
-	const UECalibration *ue;
-private:
+	//
+	bool _subtracted;
+	boost::multi_array<double, 4> *_perp_fourier;
+	std::vector<double> _feature;
+protected:
 	void initialize_geometry(void);
 	void allocate(void);
 	void deallocate(void);
 	void event_fourier(void);
 	void feature_extract(void);
 	void voronoi_area_incident(void);
-	void subtract_momentum(void);
+	virtual void subtract_momentum(void) = 0;
 	void recombine_link(void);
 	void lp_populate(void *lp_problem);
 	void equalize(void);
 	void remove_nonpositive(void);
 	void subtract_if_necessary(void);
 public:
-	VoronoiAlgorithm(
-		const UECalibration *ue,
-		const double dr_max,
+	GenericVoronoiAlgorithm(
+		const double dr_max = 0.4,
 		const std::pair<double, double> equalization_threshold =
 		std::pair<double, double>(5.0, 35.0),
 		const bool remove_nonpositive = true);
-	~VoronoiAlgorithm(void);
+	~GenericVoronoiAlgorithm(void);
 	/**
 	 * Add a new unsubtracted particle to the current event
 	 *
@@ -136,17 +135,66 @@ public:
 	 * @return	vector of area
 	 */
 	std::vector<double> particle_area(void);
-	/**
-	 * Returns the incident particles in the Delaunay diagram
-	 * (particles that has a given particle as the nearest
-	 * neighbor)
-	 *
-	 * @return	vector of sets of incident particles
-	 * indices, using the original indexing
-	 */
 	std::vector<std::set<size_t> > particle_incident(void);
 	std::vector<double> perp_fourier(void);
 	size_t nedge_pseudorapidity(void) const;
 };
+
+class VoronoiAlgorithm : public GenericVoronoiAlgorithm {
+public:
+	static const size_t nreduced_particle_flow_id = 3;
+	static const size_t nfourier = 5;
+protected:
+	// calibrations
+	const UECalibration *ue;
+private:
+	void event_fourier(void);
+	void feature_extract(void);
+	void voronoi_area_incident(void);
+	void subtract_momentum(void);
+	void recombine_link(void);
+	void lp_populate(void *lp_problem);
+	void subtract_if_necessary(void);
+public:
+	VoronoiAlgorithm(
+		const UECalibration *ue,
+		const double dr_max,
+		const std::pair<double, double> equalization_threshold =
+		std::pair<double, double>(5.0, 35.0),
+		const bool remove_nonpositive = true);
+	~VoronoiAlgorithm(void);
+	size_t nedge_pseudorapidity(void) const;
+};
+
+class SelfSubtractVoronoiAlgorithm : public GenericVoronoiAlgorithm {
+protected:
+	double _self_subtract_antikt_distance;
+	double _self_subtract_exclusion_perp_min;
+	double _self_subtract_exclusion_radius;
+private:
+	void unsubtracted_momentum(void);
+	void self_subtract_momentum(
+		const std::vector<bool> &exclusion_density = std::vector<bool>(),
+		const std::vector<bool> &exclusion_flow = std::vector<bool>());
+	void self_subtract_exclusion(
+		std::vector<bool> &exclusion_density,
+		std::vector<bool> &exclusion_flow,
+		const bool fake_reject,
+		const double antikt_distance,
+		const double exclusion_perp_min,
+		const double exclusion_radius,
+		const bool exclusion_by_constituent = false);
+	void subtract_momentum(void);
+public:
+	SelfSubtractVoronoiAlgorithm(
+		const double self_subtract_antikt_distance = 0.2,
+		const double self_subtract_exclusion_perp_min = 25.0,
+		const double self_subtract_exclusion_radius = 0.4,
+		const std::pair<double, double> equalization_threshold =
+		std::pair<double, double>(5.0, 35.0),
+		const bool remove_nonpositive = true);
+	~SelfSubtractVoronoiAlgorithm(void);
+};
+
 
 #endif
