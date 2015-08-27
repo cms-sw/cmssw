@@ -992,6 +992,8 @@ StripTrackingRecHitsValid = cms.EDAnalyzer("SiStripTrackingRecHitsValid",
 			'g4SimHitsTrackerHitsTECHighTof'),
     associateRecoTracks = cms.bool(False),
     #	string trajectoryInput = "rsWithMaterialTracks"
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
     associateStrip = cms.bool(True)
 )
 
