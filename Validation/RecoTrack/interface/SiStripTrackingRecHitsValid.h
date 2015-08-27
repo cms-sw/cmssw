@@ -426,9 +426,9 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
   edm::ParameterSet Parameters;
 
   //const StripTopology* topol;
-  std::vector<RecHitProperties> rechitrphi;
-  std::vector<RecHitProperties> rechitstereo;
-  std::vector<RecHitProperties> rechitmatched;
+//  std::vector<RecHitProperties> rechitrphi;
+//  std::vector<RecHitProperties> rechitstereo;
+//  std::vector<RecHitProperties> rechitmatched;
   RecHitProperties rechitpro;
 
   void rechitanalysis(TrajectoryStateOnSurface tsos, const TransientTrackingRecHit::ConstRecHitPointer thit, const StripGeomDetUnit *stripdet, edm::ESHandle < StripClusterParameterEstimator > stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D);
