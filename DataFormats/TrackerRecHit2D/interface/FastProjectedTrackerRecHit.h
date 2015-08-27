@@ -41,7 +41,7 @@ class FastProjectedTrackerRecHit : public FastTrackerRecHit {
     }
     
     private:
-
+    
     FastSingleTrackerRecHit originalHit_;
     
 };

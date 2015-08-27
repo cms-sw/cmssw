@@ -21,7 +21,7 @@ class FastSingleTrackerRecHit : public FastTrackerRecHit {
     
     public:
 
-    virtual FastSingleTrackerRecHit * clone() const {FastSingleTrackerRecHit * p =  new FastSingleTrackerRecHit( * this); p->load(); return p;}
+    virtual FastSingleTrackerRecHit * clone() const GCC11_OVERRIDE  {FastSingleTrackerRecHit * p =  new FastSingleTrackerRecHit( * this); p->load(); return p;}
 
     size_t                       nIds()                    const { return 1;}
     int32_t                      id(size_t i =0)           const { return i == 0 ? id_ : -1;}

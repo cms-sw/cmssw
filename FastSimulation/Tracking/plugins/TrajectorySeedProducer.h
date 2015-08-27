@@ -16,8 +16,6 @@
 #include "FastSimulation/Tracking/interface/TrajectorySeedHitCandidate.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
 
 #include "FastSimulation/Tracking/interface/SeedingTree.h"
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
@@ -77,7 +75,6 @@ class TrajectorySeedProducer:
     {
     }
 
-    virtual void beginRun(edm::Run const& run, const edm::EventSetup & es);
     virtual void produce(edm::Event& e, const edm::EventSetup& es);
 
     //! method checks if a SimTrack fulfills the quality requirements.
