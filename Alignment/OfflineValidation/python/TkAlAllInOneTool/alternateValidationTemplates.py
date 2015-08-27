@@ -466,6 +466,7 @@ process.load("Alignment.OfflineValidation.TrackerOfflineValidation_.oO[offlineVa
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..Tracks = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..trajectoryInput = 'TrackRefitter2'
 process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelHistsTransient = cms.bool(.oO[offlineModuleLevelHistsTransient]Oo.)
+process.TrackerOfflineValidation.oO[offlineValidationMode]Oo..moduleLevelProfiles = cms.bool(.oO[offlineModuleLevelProfiles]Oo.)
 process.TFileService.fileName = '.oO[outputFile]Oo.'
 
  ##
