@@ -232,7 +232,7 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
     float resolxy; 
     float resolyy; 
     float resolxxMF; // in Measurement Frame
-    float phi;
+//    float phi;
     float resx;
     float resy;
     float resxMF;// in Measurement Frame
@@ -241,7 +241,7 @@ class SiStripTrackingRecHitsValid : public DQMEDAnalyzer
     float pullxMF;// in Measurement Frame
     float trackangle;
     float trackanglebeta;
-    float trackangle2;
+//    float trackangle2;
     float trackwidth;
     int   expectedwidth;
     int   category;
