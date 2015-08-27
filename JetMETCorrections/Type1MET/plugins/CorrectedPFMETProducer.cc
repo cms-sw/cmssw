@@ -18,7 +18,7 @@
 #include <vector>
 
 //____________________________________________________________________________||
-class CorrectedPFMETProducer : public edm::EDProducer
+class CorrectedPFMETProducer : public edm::stream::EDProducer<>
 {
 
 public:

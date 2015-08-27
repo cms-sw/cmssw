@@ -218,12 +218,9 @@
   <ioread sourceClass = "pat::Jet" version="[1-11]" targetClass="pat::Jet" source="int partonFlavour_" target="jetFlavourInfo_">
     <![CDATA[jetFlavourInfo_ = reco::JetFlavourInfo(0,onfile.partonFlavour_);]]>
   </ioread>
-  <class name="pat::MET"  ClassVersion="19">
-    <version ClassVersion="19" checksum="428901429"/>
+  <class name="pat::MET"  ClassVersion="15">
+    <version ClassVersion="15" checksum="428901429"/>
     <field name="corMap_" transient="true"/>
-   <version ClassVersion="17" checksum="428901429"/>
-   <version ClassVersion="16" checksum="3069597674"/>
-   <version ClassVersion="15" checksum="3561524418"/>
    <version ClassVersion="14" checksum="1795935545"/>
    <version ClassVersion="13" checksum="2368359386"/>
    <version ClassVersion="12" checksum="1474251442"/>
