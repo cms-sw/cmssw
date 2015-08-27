@@ -65,11 +65,12 @@ void VoronoiSubtractor::offsetCorrectJets()
 
 	reco::CandidateViewRef ref(candidates_,index);
 	const reco::VoronoiBackground& voronoi = (*backgrounds_)[ref];
+
 	fastjet::PseudoJet candidate(ref->px(),ref->py(),ref->pz(),ref->energy());
 	double orpt = candidate.perp();
 	unsubtracted += candidate;
 	if(addNegative_ || voronoi.pt() > 0){
-         candidate.reset_PtYPhiM(addNegative_ ? voronoi.pt_subtracted() : voronoi.pt(),ref->rapidity(),ref->phi(),ref->mass());
+	  candidate.reset_PtYPhiM(addNegative_ ? voronoi.pt_subtracted() : voronoi.pt(),ref->rapidity(),ref->phi(),ref->mass());
 	  LogDebug("VoronoiSubtractor")<<"candidate "<<index
 				       <<" --- original pt : "<<orpt
 				       <<" ---  voronoi pt : "<<voronoi.pt()
