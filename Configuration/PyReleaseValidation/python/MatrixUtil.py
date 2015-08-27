@@ -68,7 +68,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json):
             # print "run %s is there"%(run)
             runNumber = run
             for LSsegment in l_json[str(run)] :
-                print LSsegment
+                # print LSsegment
                 ls_count += (LSsegment[-1] - LSsegment[0] + 1)
                 if (ls_count > maxNum) & (maxNum != -1):
                     break
