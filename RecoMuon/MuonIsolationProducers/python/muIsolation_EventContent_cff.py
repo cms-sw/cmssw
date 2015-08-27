@@ -34,7 +34,7 @@ RecoMuonIsolationRECO = cms.PSet(
         'keep *_muGlobalIsoDepositCtfTk_*_*', 
         'keep *_muGlobalIsoDepositCalByAssociatorTowers_*_*', 
         'keep *_muGlobalIsoDepositCalByAssociatorHits_*_*', 
-        'keep *_muGlobalIsoDepositJets_*_*' )
+        'keep *_muGlobalIsoDepositJets_*_*')
         
 )
 #AOD part of the event
