@@ -132,7 +132,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
     double phiy = phix + 90.*CLHEP::deg;
     double phideg = phix/CLHEP::deg;  
     if (phideg != 0) {
-      std::string phiRotstr = rotstr + "Phi" + dbl_to_string(phideg);
+      std::string phiRotstr = rotstr + "Phi" + dbl_to_string(phideg*10.);
       phiRot = DDRotation(DDName(phiRotstr, idNameSpace));
       if (!phiRot) {
 	LogDebug("TrackerGeom") << "DDTrackerRingAlgo test: Creating a new rotation: " << phiRotstr

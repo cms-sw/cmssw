@@ -7,10 +7,12 @@
 
   (radius, Phi, Z) refers to the cylindrical coordinates in the global frame of reference.
   
-  A module's tilt angle is the absolute value of the following angle : 
-  (any plan parallel to the module's sensors, Z axis).
-  Example, in the outer tracker : For a straight barrel module, tiltAngle = 0°. 
+  A module's tilt angle is defined with respect to the global frame of reference's Z axis.
+  Example, in the outer tracker : For a straight barrel module, tiltAngle = 0°.
   For a module in the endcaps, tiltAngle = 90°.
+  tiltAngle ∈ [0, 90°].
+  Please note that parameter tiltAngle has to be set regardless of any sign consideration,
+  to the absolute value of the module's tilt angle.
 
   == Example of use : ==
 
@@ -61,7 +63,7 @@ private:
   double        radius;         //Radius
   std::vector<double> center;   //Phi values
   bool          isZPlus;        //Is Z positive ?
-  double        tiltAngle;      //Module's tilt angle
+  double        tiltAngle;      //Module's tilt angle (absolute value)
   bool          isFlipped;      //Is the module flipped ?
   double        delta;          //Increment in Phi
 
