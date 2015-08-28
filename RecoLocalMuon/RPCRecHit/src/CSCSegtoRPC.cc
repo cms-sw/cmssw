@@ -12,7 +12,7 @@
 #include "RecoLocalMuon/RPCRecHit/src/CSCStationIndex.h"
 #include "RecoLocalMuon/RPCRecHit/src/CSCObjectMap.h"
 
-CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const edm::EventSetup& iSetup,const edm::Event& iEvent, bool debug, double eyr){
+CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection * allCSCSegments, const edm::EventSetup& iSetup, bool debug, double eyr){
   
   edm::ESHandle<RPCGeometry> rpcGeo;
   edm::ESHandle<CSCGeometry> cscGeo;
@@ -26,7 +26,7 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 
   if(debug) std::cout<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size()<<std::endl;
 
-  _ThePoints = new RPCRecHitCollection();
+  _ThePoints.reset(new RPCRecHitCollection());
 
   if(allCSCSegments->size()==0){
     if(debug) std::cout<<"CSC 0 segments skiping event"<<std::endl;

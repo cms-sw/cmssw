@@ -31,7 +31,7 @@ int distwheel(int wheel1,int wheel2){
   return distance;
 }
 
-DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, const edm::EventSetup& iSetup,const edm::Event& iEvent,bool debug,double eyr){
+DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection * all4DSegments, const edm::EventSetup& iSetup, bool debug,double eyr){
 
   /*
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
@@ -61,7 +61,7 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
     clock_gettime(CLOCK_REALTIME, &start_time);
   */
 
-  _ThePoints = new RPCRecHitCollection();
+  _ThePoints.reset(new RPCRecHitCollection());
 
   if(all4DSegments->size()>8){
     if(debug) std::cout<<"Too many segments in this event we are not doing the extrapolation"<<std::endl;

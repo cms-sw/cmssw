@@ -50,9 +50,8 @@ void RPCPointProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
     edm::Handle<DTRecSegment4DCollection> all4DSegments;
     iEvent.getByToken(dt4DSegments, all4DSegments);
     if(all4DSegments.isValid()){
-      DTSegtoRPC DTClass(all4DSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
-      std::auto_ptr<RPCRecHitCollection> TheDTPoints(DTClass.thePoints());     
-      iEvent.put(TheDTPoints,"RPCDTExtrapolatedPoints"); 
+      DTSegtoRPC DTClass(all4DSegments.product(), iSetup, debug, ExtrapolatedRegion);
+      iEvent.put(DTClass.thePoints(), "RPCDTExtrapolatedPoints"); 
     }else{
       if(debug) std::cout<<"RPCHLT Invalid DTSegments collection"<<std::endl;
     }
@@ -62,9 +61,8 @@ void RPCPointProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     iEvent.getByToken(cscSegments, allCSCSegments);
     if(allCSCSegments.isValid()){
-      CSCSegtoRPC CSCClass(allCSCSegments,iSetup,iEvent,debug,ExtrapolatedRegion);
-      std::auto_ptr<RPCRecHitCollection> TheCSCPoints(CSCClass.thePoints());  
-      iEvent.put(TheCSCPoints,"RPCCSCExtrapolatedPoints"); 
+      CSCSegtoRPC CSCClass(allCSCSegments.product(), iSetup, debug, ExtrapolatedRegion);
+      iEvent.put(CSCClass.thePoints(), "RPCCSCExtrapolatedPoints"); 
     }else{
       if(debug) std::cout<<"RPCHLT Invalid CSCSegments collection"<<std::endl;
     }
@@ -73,11 +71,10 @@ void RPCPointProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
     edm::Handle<reco::TrackCollection> alltracks;
     iEvent.getByToken(tracks,alltracks);
     if(!(alltracks->empty())){
-      TracktoRPC TrackClass(alltracks,iSetup,iEvent,debug,trackTransformerParam,tracks_);
-      std::auto_ptr<RPCRecHitCollection> TheTrackPoints(TrackClass.thePoints());
-      iEvent.put(TheTrackPoints,"RPCTrackExtrapolatedPoints");
+      TracktoRPC TrackClass(alltracks.product(), iSetup, debug, trackTransformerParam, tracks_);
+      iEvent.put(TrackClass.thePoints(), "RPCTrackExtrapolatedPoints");
     }else{
-      std::cout<<"RPCHLT Invalid Tracks collection"<<std::endl;
+      if(debug) std::cout<<"RPCHLT Invalid Tracks collection"<<std::endl;
     }
   }
  
