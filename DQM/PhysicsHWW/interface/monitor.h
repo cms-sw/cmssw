@@ -8,14 +8,13 @@
 #include <DQMServices/Core/interface/MonitorElement.h>
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-using namespace HWWFunctions;
 
 
 class EventMonitor
 {
  public:
   EventMonitor(DQMStore::IBooker& iBooker);
-  void count(HypothesisType type, const char* name, double weight=1.0);
+  void count(HWWFunctions::HypothesisType type, const char* name, double weight=1.0);
 
   std::map<std::string, int> binMap_;
   MonitorElement *cutflowHist_[4];
