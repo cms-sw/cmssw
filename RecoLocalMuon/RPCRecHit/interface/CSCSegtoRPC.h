@@ -7,14 +7,16 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
+#include <memory>
+
 class CSCSegtoRPC {
 public:
-  explicit CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments,const edm::EventSetup& iSetup, const edm::Event& iEvent, bool debug, double eyr);
+  CSCSegtoRPC(CSCSegmentCollection const* allCSCSegments, edm::EventSetup const& iSetup, bool debug, double eyr);
   ~CSCSegtoRPC();
-  RPCRecHitCollection* thePoints(){return _ThePoints;}
+  std::unique_ptr<RPCRecHitCollection> && thePoints(){ return std::move(_ThePoints); }
    
 private:
-  RPCRecHitCollection* _ThePoints; 
+  std::unique_ptr<RPCRecHitCollection> _ThePoints; 
   edm::OwnVector<RPCRecHit> RPCPointVector;
   bool inclcsc;
   double MaxD;
