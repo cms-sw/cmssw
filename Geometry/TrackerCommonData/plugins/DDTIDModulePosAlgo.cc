@@ -279,7 +279,6 @@ void DDTIDModulePosAlgo::execute(DDCompactView& cpv) {
     // Wafer
     name = DDName(DDSplit(waferName[k]).first, DDSplit(waferName[k]).second);
     xpos=0; 
-    zpos=0; 
     ypos = waferZ[k];
     double zWafer;
     if (dlHybrid > dlTop) {

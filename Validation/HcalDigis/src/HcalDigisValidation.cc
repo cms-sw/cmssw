@@ -35,6 +35,8 @@ HcalDigisValidation::HcalDigisValidation(const edm::ParameterSet& iConfig) {
     tok_hbhe_ = consumes<edm::SortedCollection<HBHEDataFrame> >(inputTag_);
     tok_ho_ = consumes<edm::SortedCollection<HODataFrame> >(inputTag_);
     tok_hf_ = consumes<edm::SortedCollection<HFDataFrame> >(inputTag_);
+    tok_emulTPs_ = consumes<HcalTrigPrimDigiCollection>(edm::InputTag("emulDigis"));
+    tok_dataTPs_ = consumes<HcalTrigPrimDigiCollection>(edm::InputTag("simHcalTriggerPrimitiveDigis"));
 
     nevent1 = 0;
     nevent2 = 0;
@@ -467,12 +469,12 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 
     //Get all handles
     edm::Handle<HcalTrigPrimDigiCollection> emulTPs;
-    iEvent.getByLabel("emulDigis", emulTPs);
+    iEvent.getByToken(tok_emulTPs_, emulTPs);
 
     edm::Handle<HcalTrigPrimDigiCollection> dataTPs;
-    iEvent.getByLabel("simHcalTriggerPrimitiveDigis", dataTPs);
+    iEvent.getByToken(tok_dataTPs_, dataTPs);
     //iEvent.getByLabel("hcalDigis", dataTPs);
-   
+
     //~TP Code
 
     //  std::cout << " >>>>> HcalDigiTester::analyze  hcalselector = "

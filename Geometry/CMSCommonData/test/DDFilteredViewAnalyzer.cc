@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -7,13 +7,15 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
-class DDFilteredViewAnalyzer : public edm::EDAnalyzer {
+class DDFilteredViewAnalyzer : public edm::one::EDAnalyzer<> {
 public:
 
   explicit DDFilteredViewAnalyzer( const edm::ParameterSet& );
   ~DDFilteredViewAnalyzer( void ) {}
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
   std::string m_attribute;

@@ -15,6 +15,7 @@
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="SimDataFormats/Track"/>
 <use   name="SimDataFormats/Vertex"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="root"/>
 <use   name="clhep"/>
 <use   name="heppdt"/>

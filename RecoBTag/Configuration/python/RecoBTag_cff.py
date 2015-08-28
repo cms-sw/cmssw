@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoBTag.SoftLepton.softLepton_cff import *
 from RecoBTag.ImpactParameter.impactParameter_cff import *
 from RecoBTag.SecondaryVertex.secondaryVertex_cff import *
-from RecoBTau.JetTagComputer.combinedMVA_cff import *
+from RecoBTag.Combined.combinedMVA_cff import *
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 
 legacyBTagging = cms.Sequence(
@@ -38,6 +38,7 @@ legacyBTagging = cms.Sequence(
 
     # overall combined taggers
     * combinedMVABJetTags
+    + combinedMVAV2BJetTags
 )
 
 # new candidate-based fwk, with PF inputs
@@ -73,13 +74,14 @@ pfBTagging = cms.Sequence(
     # overall combined taggers
     ( #CSV + soft-lepton + jet probability discriminators combined
       pfCombinedMVABJetTags
+      + pfCombinedMVAV2BJetTags
 
       #CSV + soft-lepton variables combined (btagger)
-      + pfCombinedSecondaryVertexSoftLeptonBJetTags   
+      + pfCombinedSecondaryVertexSoftLeptonBJetTags
     )
 )
 
-# new candidate-based ctagging sequence, requires its own IVF vertices (relaxed IVF reconstruction cuts) 
+# new candidate-based ctagging sequence, requires its own IVF vertices (relaxed IVF reconstruction cuts)
 # but IP and soft-lepton taginfos from btagging sequence can be recycled
 pfCTagging = cms.Sequence(
     ( inclusiveCandidateVertexingCtagL *

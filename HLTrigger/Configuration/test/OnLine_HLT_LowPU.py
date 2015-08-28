@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/LowPU/V65 (CMSSW_7_4_6_patch3)
+# /dev/CMSSW_7_4_0/LowPU/V67 (CMSSW_7_4_8_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTLowPU" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V65')
+  tableName = cms.string('/dev/CMSSW_7_4_0/LowPU/V67')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 

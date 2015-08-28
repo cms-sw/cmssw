@@ -14,6 +14,7 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
@@ -112,6 +113,8 @@ private:
     edm::EDGetTokenT<edm::SortedCollection<HBHEDataFrame> > tok_hbhe_; 
     edm::EDGetTokenT<edm::SortedCollection<HODataFrame> > tok_ho_;
     edm::EDGetTokenT<edm::SortedCollection<HFDataFrame> > tok_hf_;
+    edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_emulTPs_;
+    edm::EDGetTokenT<HcalTrigPrimDigiCollection> tok_dataTPs_;
 
     edm::ESHandle<CaloGeometry> geometry;
     edm::ESHandle<HcalDbService> conditions;

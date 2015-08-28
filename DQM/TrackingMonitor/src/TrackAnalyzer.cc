@@ -344,6 +344,17 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
           NhitVsPhi_HighPurity = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,PhiBin,PhiMin,PhiMax,-0.5,39.5,"");
           NhitVsPhi_HighPurity->setAxisTitle("Track #phi",1);
           NhitVsPhi_HighPurity->setAxisTitle("Number of Valid RecHits in each Track",2);
+
+	  histname = "Ptdist_HighPurity_";
+          Ptdist_HighPurity = ibooker.book1D(histname+CategoryName,histname+CategoryName,150,0,50.);
+          Ptdist_HighPurity->setAxisTitle("p_{T} (GeV/c)",1);
+          Ptdist_HighPurity->setAxisTitle("Number of Tracks",2);
+
+          histname = "dNhitdPt_HighPurity_";
+          dNhitdPt_HighPurity = ibooker.bookProfile(histname+CategoryName,histname+CategoryName,150,0,25.,-0.5,39.5,"");
+          dNhitdPt_HighPurity->setAxisTitle("p_{T} (GeV/c)",1);
+          dNhitdPt_HighPurity->setAxisTitle("N_{hit}",2);
+	  
         }
 
 
@@ -780,6 +791,10 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
            if(xyerr2 > 0) transDCAsig = track.dxy(pv.position())/xyerr2;	   
 	   LongDCASig->Fill(longDCAsig);
 	   TransDCASig->Fill(transDCAsig);
+
+
+	   
+
 	   if(track.quality(reco::TrackBase::qualityByName(qualityString_)) ==1)
 	     {
 	       dNdEta_HighPurity->Fill(track.eta());
@@ -787,6 +802,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	       dNdPt_HighPurity->Fill(track.ptError()/track.pt());
 	       NhitVsEta_HighPurity->Fill(track.eta(),track.numberOfValidHits());
 	       NhitVsPhi_HighPurity->Fill(track.phi(),track.numberOfValidHits());
+	       dNhitdPt_HighPurity->Fill(track.pt(),track.numberOfValidHits());
+	       Ptdist_HighPurity->Fill(track.pt());
 	     }//end of high quality tracks requirement
         }
 

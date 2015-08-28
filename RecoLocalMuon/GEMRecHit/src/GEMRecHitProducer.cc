@@ -40,8 +40,8 @@ GEMRecHitProducer::GEMRecHitProducer(const ParameterSet& config){
 
   produces<GEMRecHitCollection>();
 
-  theGEMDigiLabel = config.getParameter<InputTag>("gemDigiLabel");
-  
+  theGEMDigiToken = consumes<GEMDigiCollection>(config.getParameter<edm::InputTag>("gemDigiLabel"));  
+
   // Get the concrete reconstruction algo from the factory
 
   string theAlgoName = config.getParameter<string>("recAlgo");
@@ -155,7 +155,7 @@ void GEMRecHitProducer::produce(Event& event, const EventSetup& setup) {
   // Get the digis from the event
 
   Handle<GEMDigiCollection> digis; 
-  event.getByLabel(theGEMDigiLabel,digis);
+  event.getByToken(theGEMDigiToken,digis);
 
   // Pass the EventSetup to the algo
 

@@ -61,8 +61,11 @@ class RawEventFileWriterForBU
   jsoncollector::IntJ perLumiFileCount_;
   jsoncollector::IntJ perLumiTotalEventCount_;
   jsoncollector::IntJ perLumiLostEventCount_;
+  jsoncollector::IntJ perLumiSize_;
+
 
   jsoncollector::IntJ perFileEventCount_;
+  jsoncollector::IntJ perFileSize_;
 
   jsoncollector::FastMonitor* fileMon_ = nullptr;
   jsoncollector::FastMonitor* lumiMon_ = nullptr;

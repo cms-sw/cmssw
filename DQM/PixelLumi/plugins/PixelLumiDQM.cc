@@ -42,6 +42,8 @@
 #include <time.h>
 #include <vector>
 
+const unsigned int PixelLumiDQM::lastBunchCrossing;
+
 // Constructors and destructor.
 PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet& iConfig):
   fPixelClusterLabel(consumes<edmNew::DetSetVector<SiPixelCluster> >(iConfig.getUntrackedParameter<edm::InputTag>("pixelClusterLabel",

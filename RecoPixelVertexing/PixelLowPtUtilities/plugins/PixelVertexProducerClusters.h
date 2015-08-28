@@ -1,27 +1,23 @@
 #ifndef PixelVertexProducerClusters_H
 #define PixelVertexProducerClusters_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 
 namespace edm { class Run; class Event; class EventSetup; }
 
 class TrackerGeometry;
-class VertexHit;
 
-class PixelVertexProducerClusters : public edm::EDProducer
+class PixelVertexProducerClusters : public edm::global::EDProducer<>
 {
 public:
   explicit PixelVertexProducerClusters(const edm::ParameterSet& ps);
   ~PixelVertexProducerClusters();
-  int getContainedHits(const std::vector<VertexHit>& hits, float z0, float & chi);
-  virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
- 
+  virtual void produce(edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const override;
+
 private:
-  void beginRun(edm::Run const & run, edm::EventSetup const & es) override;
-
-  edm::ParameterSet theConfig;
-
-  const TrackerGeometry* theTracker;
+  edm::EDGetTokenT<SiPixelRecHitCollection> pixelToken_;
 };
 #endif

@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# Tracking particle module
-#from FastSimulation.Validation.trackingParticlesFastSim_cfi import * # now deprecated
-
 # TrackingParticle-SimHit associator
 from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import * 
 simHitTPAssocProducer.simHitSrc = cms.VInputTag(cms.InputTag('famosSimHits','TrackerHits'),
@@ -13,8 +10,8 @@ simHitTPAssocProducer.simHitSrc = cms.VInputTag(cms.InputTag('famosSimHits','Tra
 from Validation.RecoMET.METRelValForDQM_cff import *
 
 from Validation.TrackingMCTruth.trackingTruthValidation_cfi import *
-from Validation.RecoTrack.TrackValidation_fastsim_cff import *
-from Validation.RecoTrack.TrajectorySeedValidation_fastsim_cff import *
+from Validation.RecoTrack.TrackValidation_cff import *
+from Validation.RecoTrack.TrajectorySeedValidation_cff import *
 from Validation.RecoJets.JetValidation_cff import *
 from Validation.RecoMuon.muonValidationFastSim_cff import *
 from Validation.MuonIsolation.MuIsoVal_cff import *
@@ -32,7 +29,7 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 globalPrevalidation = cms.Sequence( 
     simHitTPAssocProducer
-    *tracksPreValidationFS
+    *tracksPreValidation
     *recoMuonAssociationFastSim     # resides in other sequence in FullSim
     #photonPrevalidationSequence    # not used by FastSim
     *produceDenoms
@@ -40,7 +37,7 @@ globalPrevalidation = cms.Sequence(
      )
 
 globalValidation = cms.Sequence(trackingTruthValid
-                                +tracksValidationFS
+                                +tracksValidation
                                 +METRelValSequence
                                 +recoMuonValidationFastSim
                                 +muIsoVal_seq
@@ -53,7 +50,7 @@ globalValidation = cms.Sequence(trackingTruthValid
                                 )
 
 globalValidation_preprod = cms.Sequence(trackingTruthValid
-                                +tracksValidationFS
+                                +tracksValidation
                                 +METRelValSequence
                                 +recoMuonValidationFastSim
                                 +muIsoVal_seq

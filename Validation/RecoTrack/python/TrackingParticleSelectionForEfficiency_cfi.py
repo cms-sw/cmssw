@@ -13,3 +13,7 @@ TrackingParticleSelectionForEfficiency = cms.PSet(
     maxRapidityTP = cms.double(2.5),
     tipTP = cms.double(60)
 )
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    TrackingParticleSelectionForEfficiency.stableOnlyTP = True

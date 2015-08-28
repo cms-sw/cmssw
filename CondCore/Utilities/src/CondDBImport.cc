@@ -212,6 +212,8 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( L1RPCConfig )
       IMPORT_PAYLOAD_CASE( L1RPCHsbConfig ) 
       IMPORT_PAYLOAD_CASE( L1RPCHwConfig )
+      IMPORT_PAYLOAD_CASE( l1t::CaloParams )
+      IMPORT_PAYLOAD_CASE( l1t::CaloConfig )
       IMPORT_PAYLOAD_CASE( L1TriggerKey )
       IMPORT_PAYLOAD_CASE( MagFieldConfig )
       if( inputTypeName == "L1TriggerKeyList" ){ 

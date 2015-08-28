@@ -435,7 +435,7 @@ DDCoreToDDXMLOutput::specpar( const DDSpecifics& sp, std::ostream& xos )
 
 void DDCoreToDDXMLOutput::specpar( const std::pair<DDsvalues_type, std::set<const DDPartSelection*> >& pssv, std::ostream& xos ) 
 {
-   static std::string madeName("specparname");
+   static const std::string madeName("specparname");
    static int numspecpars(0);
    std::ostringstream ostr;
    ostr << numspecpars++;

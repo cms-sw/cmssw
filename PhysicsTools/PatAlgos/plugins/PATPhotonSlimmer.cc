@@ -83,7 +83,6 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
 
 void 
 pat::PATPhotonSlimmer::beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup& iSetup) {
-  if( modifyPhoton_ ) photonModifier_->setEventContent(iSetup);
 }
 
 void 
@@ -108,6 +107,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
     out->reserve(src->size());
 
     if( modifyPhoton_ ) { photonModifier_->setEvent(iEvent); }
+    if( modifyPhoton_ ) photonModifier_->setEventContent(iSetup);
 
     std::vector<unsigned int> keys;
     for (View<pat::Photon>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {

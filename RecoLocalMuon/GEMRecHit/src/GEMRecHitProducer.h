@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 
 // #include "CondFormats/GEMObjects/interface/GEMMaskedStrips.h"
 // #include "CondFormats/DataRecord/interface/GEMMaskedStripsRcd.h"
@@ -53,8 +54,8 @@ public:
 
 private:
 
-  // The label to be used to retrieve GEM digis from the event
-  edm::InputTag theGEMDigiLabel;
+  // The token to be used to retrieve GEM digis from the event
+  edm::EDGetTokenT<GEMDigiCollection> theGEMDigiToken;
 
   // The reconstruction algorithm
   GEMRecHitBaseAlgo *theAlgo;

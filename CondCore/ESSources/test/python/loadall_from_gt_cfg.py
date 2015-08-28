@@ -41,19 +41,12 @@ process.GlobalTag = cms.ESSource("PoolDBESSource",
 
 process.GlobalTag.globaltag = options.globalTag
 process.GlobalTag.DumpStat =  True
-# 'GR09_P_V6::All'
-#'CRAFT09_R_V9::All'
-#'MC_31X_V9::All'
-#'GR09_31X_V5P::All'
-#process.GlobalTag.pfnPrefix = "frontier://FrontierArc/"
-#process.GlobalTag.pfnPostfix = "_0911"
-#process.GlobalTag.toGet = cms.VPSet()
-#process.GlobalTag.toGet.append(
-#   cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
-#            tag = cms.string("firstcollisions"),
-#             connect = cms.untracked.string("frontier://PromptProd/CMS_COND_31X_BEAMSPOT")
-#           )
-#)
+process.GlobalTag.toGet = cms.VPSet()
+process.GlobalTag.toGet.append(
+   cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
+            snapshotTime = cms.string('2014-01-01 00:00:00.000'),
+           )
+)
 
 
 

@@ -13,8 +13,28 @@
 
 using namespace std;
 
+namespace {
+  void BinLogX(TH1 *h) {
+    TAxis *axis = h->GetXaxis();
+    int bins = axis->GetNbins();
+
+    float from = axis->GetXmin();
+    float to = axis->GetXmax();
+    float width = (to - from) / bins;
+    std::vector<float> new_bins(bins+1, 0);
+
+    for (int i = 0; i <= bins; i++) {
+      new_bins[i] = TMath::Power(10, from + i * width);
+    }
+    axis->Set(bins, new_bins.data());
+  }
+
+  template<typename T> void fillPlotNoFlow(MonitorElement *h, T val) {
+    h->Fill(std::min(std::max(val,((T) h->getTH1()->GetXaxis()->GetXmin())),((T) h->getTH1()->GetXaxis()->GetXmax())));
+  }
+}
+
 MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, edm::ConsumesCollector & iC):
-  MTVHistoProducerAlgo(pset, iC),
   h_ptSIM(nullptr), h_etaSIM(nullptr), h_tracksSIM(nullptr), h_vertposSIM(nullptr), h_bunchxSIM(nullptr)
 {
   //parameters for _vs_eta plots
@@ -117,37 +137,35 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   dzRes_nbin = pset.getParameter<int>("dzRes_nbin");
 
 
+  maxDzpvCum = pset.getParameter<double>("maxDzpvCumulative");
+  nintDzpvCum = pset.getParameter<int>("nintDzpvCumulative");
+
+  maxDzpvsigCum = pset.getParameter<double>("maxDzpvsigCumulative");
+  nintDzpvsigCum = pset.getParameter<int>("nintDzpvsigCumulative");
+
   //--- tracking particle selectors for efficiency measurements
   using namespace edm;
-
-  ParameterSet generalTpSelectorPSet = pset.getParameter<ParameterSet>("generalTpSelector");
-  ParameterSet TpSelectorForEfficiencyVsEtaPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsEta");
-  ParameterSet TpSelectorForEfficiencyVsPhiPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPhi");
-  ParameterSet TpSelectorForEfficiencyVsPtPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPt");
-  ParameterSet TpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXR");
-  ParameterSet TpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXZ");
-
-  ParameterSet generalGpSelectorPSet = pset.getParameter<ParameterSet>("generalGpSelector");
-  ParameterSet GpSelectorForEfficiencyVsEtaPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsEta");
-  ParameterSet GpSelectorForEfficiencyVsPhiPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsPhi");
-  ParameterSet GpSelectorForEfficiencyVsPtPSet  = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsPt");
-  ParameterSet GpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXR");
-  ParameterSet GpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXZ");
-
   using namespace reco::modules;
-  generalTpSelector               = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet, iC));
-  TpSelectorForEfficiencyVsEta    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsEtaPSet, iC));
-  TpSelectorForEfficiencyVsPhi    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet, iC));
-  TpSelectorForEfficiencyVsPt     = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet, iC));
-  TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet, iC));
-  TpSelectorForEfficiencyVsVTXZ   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet, iC));
+  auto initTPselector = [&](auto& sel, auto& name) {
+    sel = std::make_unique<TrackingParticleSelector>(ParameterAdapter<TrackingParticleSelector>::make(pset.getParameter<ParameterSet>(name), iC));
+  };
+  auto initGPselector = [&](auto& sel, auto& name) {
+    sel = std::make_unique<GenParticleCustomSelector>(ParameterAdapter<GenParticleCustomSelector>::make(pset.getParameter<ParameterSet>(name), iC));
+  };
 
-  generalGpSelector               = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(generalGpSelectorPSet, iC));
-  GpSelectorForEfficiencyVsEta    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet, iC));
-  GpSelectorForEfficiencyVsPhi    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPhiPSet, iC));
-  GpSelectorForEfficiencyVsPt     = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPtPSet, iC));
-  GpSelectorForEfficiencyVsVTXR   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXRPSet, iC));
-  GpSelectorForEfficiencyVsVTXZ   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXZPSet, iC));
+  initTPselector(generalTpSelector,             "generalTpSelector");
+  initTPselector(TpSelectorForEfficiencyVsEta,  "TpSelectorForEfficiencyVsEta");
+  initTPselector(TpSelectorForEfficiencyVsPhi,  "TpSelectorForEfficiencyVsPhi");
+  initTPselector(TpSelectorForEfficiencyVsPt,   "TpSelectorForEfficiencyVsPt");
+  initTPselector(TpSelectorForEfficiencyVsVTXR, "TpSelectorForEfficiencyVsVTXR");
+  initTPselector(TpSelectorForEfficiencyVsVTXZ, "TpSelectorForEfficiencyVsVTXZ");
+
+  initGPselector(generalGpSelector,             "generalGpSelector");
+  initGPselector(GpSelectorForEfficiencyVsEta,  "GpSelectorForEfficiencyVsEta");
+  initGPselector(GpSelectorForEfficiencyVsPhi,  "GpSelectorForEfficiencyVsPhi");
+  initGPselector(GpSelectorForEfficiencyVsPt,   "GpSelectorForEfficiencyVsPt");
+  initGPselector(GpSelectorForEfficiencyVsVTXR, "GpSelectorForEfficiencyVsVTXR");
+  initGPselector(GpSelectorForEfficiencyVsVTXZ, "GpSelectorForEfficiencyVsVTXZ");
 
   // fix for the LogScale by Ryan
   if(useLogPt){
@@ -165,21 +183,7 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 
 }
 
-MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
-  delete generalTpSelector;
-  delete TpSelectorForEfficiencyVsEta;
-  delete TpSelectorForEfficiencyVsPhi;
-  delete TpSelectorForEfficiencyVsPt;
-  delete TpSelectorForEfficiencyVsVTXR;
-  delete TpSelectorForEfficiencyVsVTXZ;
-
-  delete generalGpSelector;
-  delete GpSelectorForEfficiencyVsEta;
-  delete GpSelectorForEfficiencyVsPhi;
-  delete GpSelectorForEfficiencyVsPt;
-  delete GpSelectorForEfficiencyVsVTXR;
-  delete GpSelectorForEfficiencyVsVTXZ;
-}
+MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker() {}
 
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
   if(h_ptSIM != nullptr)
@@ -249,6 +253,36 @@ void MTVHistoProducerAlgoForTracker::bookSimTrackHistos(DQMStore::IBooker& ibook
     BinLogX(h_assocpT.back()->getTH1F());
     BinLogX(h_simulpT.back()->getTH1F());
   }
+}
+
+void MTVHistoProducerAlgoForTracker::bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook) {
+  h_assocdxypv.push_back( ibook.book1D("num_assoc(simToReco)_dxypv","N of associated tracks (simToReco) vs dxy(PV)",nintDxy,minDxy,maxDxy) );
+  h_simuldxypv.push_back( ibook.book1D("num_simul_dxypv","N of simulated tracks vs dxy(PV)",nintDxy,minDxy,maxDxy) );
+
+  h_assocdzpv.push_back( ibook.book1D("num_assoc(simToReco)_dzpv","N of associated tracks (simToReco) vs dz(PV)",nintDz,minDz,maxDz) );
+  h_simuldzpv.push_back( ibook.book1D("num_simul_dzpv","N of simulated tracks vs dz(PV)",nintDz,minDz,maxDz) );
+
+  h_assoc_dzpvcut.push_back( ibook.book1D("num_assoc(simToReco)_dzpvcut","N of associated tracks (simToReco) vs dz(PV)",nintDzpvCum,0,maxDzpvCum) );
+  h_simul_dzpvcut.push_back( ibook.book1D("num_simul_dzpvcut","N of simulated tracks from sim PV",nintDzpvCum,0,maxDzpvCum) );
+  h_simul2_dzpvcut.push_back( ibook.book1D("num_simul2_dzpvcut","N of simulated tracks (associated to any track) from sim PV",nintDzpvCum,0,maxDzpvCum) );
+
+  h_assoc_dzpvcut_pt.push_back( ibook.book1D("num_assoc(simToReco)_dzpvcut_pt","#sump_{T} of associated tracks (simToReco) vs dz(PV)",nintDzpvCum,0,maxDzpvCum) );
+  h_simul_dzpvcut_pt.push_back( ibook.book1D("num_simul_dzpvcut_pt","#sump_{T} of simulated tracks from sim PV",nintDzpvCum,0,maxDzpvCum) );
+  h_simul2_dzpvcut_pt.push_back( ibook.book1D("num_simul2_dzpvcut_pt","#sump_{T} of simulated tracks (associated to any track) from sim PV",nintDzpvCum,0,maxDzpvCum) );
+  h_assoc_dzpvcut_pt.back()->getTH1()->Sumw2();
+  h_simul_dzpvcut_pt.back()->getTH1()->Sumw2();
+  h_simul2_dzpvcut_pt.back()->getTH1()->Sumw2();
+
+  h_assoc_dzpvsigcut.push_back( ibook.book1D("num_assoc(simToReco)_dzpvsigcut","N of associated tracks (simToReco) vs dz(PV)/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_simul_dzpvsigcut.push_back( ibook.book1D("num_simul_dzpvsigcut","N of simulated tracks from sim PV/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_simul2_dzpvsigcut.push_back( ibook.book1D("num_simul2_dzpvsigcut","N of simulated tracks (associated to any track) from sim PV/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+
+  h_assoc_dzpvsigcut_pt.push_back( ibook.book1D("num_assoc(simToReco)_dzpvsigcut_pt","#sump_{T} of associated tracks (simToReco) vs dz(PV)/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_simul_dzpvsigcut_pt.push_back( ibook.book1D("num_simul_dzpvsigcut_pt","#sump_{T} of simulated tracks from sim PV/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_simul2_dzpvsigcut_pt.push_back( ibook.book1D("num_simul2_dzpvsigcut_pt","#sump_{T} of simulated tracks (associated to any track) from sim PV/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_assoc_dzpvsigcut_pt.back()->getTH1()->Sumw2();
+  h_simul_dzpvsigcut_pt.back()->getTH1()->Sumw2();
+  h_simul2_dzpvsigcut_pt.back()->getTH1()->Sumw2();
 }
 
 void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
@@ -478,6 +512,43 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   }
 }
 
+void MTVHistoProducerAlgoForTracker::bookRecoPVAssociationHistos(DQMStore::IBooker& ibook){
+  h_recodxypv.push_back( ibook.book1D("num_reco_dxypv","N of reco track vs dxy(PV)",nintDxy,minDxy,maxDxy) );
+  h_assoc2dxypv.push_back( ibook.book1D("num_assoc(recoToSim)_dxypv","N of associated (recoToSim) tracks vs dxy(PV)",nintDxy,minDxy,maxDxy) );
+  h_looperdxypv.push_back( ibook.book1D("num_duplicate_dxypv","N of associated (recoToSim) looper tracks vs dxy(PV)",nintDxy,minDxy,maxDxy) );
+  h_misiddxypv.push_back( ibook.book1D("num_chargemisid_dxypv","N of associated (recoToSim) charge misIDed tracks vs dxy(PV)",nintDxy,minDxy,maxDxy) );
+  h_pileupdxypv.push_back( ibook.book1D("num_pileup_dxypv","N of associated (recoToSim) pileup tracks vs dxy(PV)",nintDxy,minDxy,maxDxy) );
+
+  h_recodzpv.push_back( ibook.book1D("num_reco_dzpv","N of reco track vs dz(PV)",nintDz,minDz,maxDz) );
+  h_assoc2dzpv.push_back( ibook.book1D("num_assoc(recoToSim)_dzpv","N of associated (recoToSim) tracks vs dz(PV)",nintDz,minDz,maxDz) );
+  h_looperdzpv.push_back( ibook.book1D("num_duplicate_dzpv","N of associated (recoToSim) looper tracks vs dz(PV)",nintDz,minDz,maxDz) );
+  h_misiddzpv.push_back( ibook.book1D("num_chargemisid_versus_dzpv","N of associated (recoToSim) charge misIDed tracks vs dz(PV)",nintDz,minDz,maxDz) );
+  h_pileupdzpv.push_back( ibook.book1D("num_pileup_dzpv","N of associated (recoToSim) pileup tracks vs dz(PV)",nintDz,minDz,maxDz) );
+
+  h_reco_dzpvcut.push_back( ibook.book1D("num_reco_dzpvcut","N of reco track vs dz(PV)",nintDzpvCum,0,maxDzpvCum) );
+  h_assoc2_dzpvcut.push_back( ibook.book1D("num_assoc(recoToSim)_dzpvcut","N of associated (recoToSim) tracks vs dz(PV)",nintDzpvCum,0,maxDzpvCum) );
+  h_pileup_dzpvcut.push_back( ibook.book1D("num_pileup_dzpvcut", "N of associated (recoToSim) pileup tracks vs dz(PV)",nintDzpvCum,0,maxDzpvCum) );
+
+  h_reco_dzpvcut_pt.push_back( ibook.book1D("num_reco_dzpvcut_pt","#sump_{T} of reco track vs dz(PV)",nintDzpvCum,0,maxDzpvCum) );
+  h_assoc2_dzpvcut_pt.push_back( ibook.book1D("num_assoc(recoToSim)_dzpvcut_pt","#sump_{T} of associated (recoToSim) tracks vs dz(PV)",nintDzpvCum,0,maxDzpvCum) );
+  h_pileup_dzpvcut_pt.push_back( ibook.book1D("num_pileup_dzpvcut_pt", "#sump_{T} of associated (recoToSim) pileup tracks vs dz(PV)",nintDzpvCum,0,maxDzpvCum) );
+  h_reco_dzpvcut_pt.back()->getTH1()->Sumw2();
+  h_assoc2_dzpvcut_pt.back()->getTH1()->Sumw2();
+  h_pileup_dzpvcut_pt.back()->getTH1()->Sumw2();
+
+  h_reco_dzpvsigcut.push_back( ibook.book1D("num_reco_dzpvsigcut","N of reco track vs dz(PV)/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_assoc2_dzpvsigcut.push_back( ibook.book1D("num_assoc(recoToSim)_dzpvsigcut","N of associated (recoToSim) tracks vs dz(PV)/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_pileup_dzpvsigcut.push_back( ibook.book1D("num_pileup_dzpvsigcut","N of associated (recoToSim) pileup tracks vs dz(PV)/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+
+  h_reco_dzpvsigcut_pt.push_back( ibook.book1D("num_reco_dzpvsigcut_pt","#sump_{T} of reco track vs dz(PV)/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_assoc2_dzpvsigcut_pt.push_back( ibook.book1D("num_assoc(recoToSim)_dzpvsigcut_pt","#sump_{T} of associated (recoToSim) tracks vs dz(PV)/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_pileup_dzpvsigcut_pt.push_back( ibook.book1D("num_pileup_dzpvsigcut_pt","#sump_{T} of associated (recoToSim) pileup tracks vs dz(PV)/dzError",nintDzpvsigCum,0,maxDzpvsigCum) );
+  h_reco_dzpvsigcut_pt.back()->getTH1()->Sumw2();
+  h_assoc2_dzpvsigcut_pt.back()->getTH1()->Sumw2();
+  h_pileup_dzpvsigcut_pt.back()->getTH1()->Sumw2();
+
+}
+
 void MTVHistoProducerAlgoForTracker::bookRecodEdxHistos(DQMStore::IBooker& ibook) {
   // dE/dx stuff
   h_dedx_estim.emplace_back(std::initializer_list<MonitorElement*>{
@@ -511,32 +582,40 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 const TrackingParticle& tp,
 									 const TrackingParticle::Vector& momentumTP,
 									 const TrackingParticle::Point& vertexTP,
-									 double dxySim, double dzSim, int nSimHits,
+									 double dxySim, double dzSim,
+									 double dxyPVSim, double dzPVSim,
+                                                                         int nSimHits,
                                                                          int nSimLayers, int nSimPixelLayers, int nSimStripMonoAndStereoLayers,
 									 const reco::Track* track,
 									 int numVertices,
-									 double dR){
+									 double dR,
+									 const math::XYZPoint *pvPosition){
   bool isMatched = track;
-  auto const nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
+  const auto eta = getEta(momentumTP.eta());
+  const auto phi = momentumTP.phi();
+  const auto pt = getPt(sqrt(momentumTP.perp2()));
+  const auto nSim3DLayers = nSimPixelLayers + nSimStripMonoAndStereoLayers;
+  const auto vertxy = sqrt(vertexTP.perp2());
+  const auto vertz = vertexTP.z();
 
   if((*TpSelectorForEfficiencyVsEta)(tp)){
     //effic vs eta
-    fillPlotNoFlow(h_simuleta[count],getEta(momentumTP.eta()));
-    if (isMatched) fillPlotNoFlow(h_assoceta[count],getEta(momentumTP.eta()));
+    fillPlotNoFlow(h_simuleta[count], eta);
+    if (isMatched) fillPlotNoFlow(h_assoceta[count], eta);
     //effic vs hits
-    fillPlotNoFlow(h_simulhit[count],(int)nSimHits);
+    fillPlotNoFlow(h_simulhit[count], nSimHits);
     fillPlotNoFlow(h_simullayer[count], nSimLayers);
     fillPlotNoFlow(h_simulpixellayer[count], nSimPixelLayers);
     fillPlotNoFlow(h_simul3Dlayer[count], nSim3DLayers);
     if(isMatched) {
-      fillPlotNoFlow(h_assochit[count],(int)nSimHits);
+      fillPlotNoFlow(h_assochit[count], nSimHits);
       fillPlotNoFlow(h_assoclayer[count], nSimLayers);
       fillPlotNoFlow(h_assocpixellayer[count], nSimPixelLayers);
       fillPlotNoFlow(h_assoc3Dlayer[count], nSim3DLayers);
       nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
     }
     //effic vs pu
-    fillPlotNoFlow(h_simulpu[count],(int)numVertices);
+    fillPlotNoFlow(h_simulpu[count], numVertices);
     if(isMatched) fillPlotNoFlow(h_assocpu[count],numVertices);
     //efficiency vs dR
     fillPlotNoFlow(h_simuldr[count],dR);
@@ -544,21 +623,25 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
   }
 
   if((*TpSelectorForEfficiencyVsPhi)(tp)){
-    fillPlotNoFlow(h_simulphi[count],momentumTP.phi());
-    if (isMatched) fillPlotNoFlow(h_assocphi[count],momentumTP.phi());
+    fillPlotNoFlow(h_simulphi[count], phi);
+    if (isMatched) fillPlotNoFlow(h_assocphi[count], phi);
   }
 
   if((*TpSelectorForEfficiencyVsPt)(tp)){
-    fillPlotNoFlow(h_simulpT[count],getPt(sqrt(momentumTP.perp2())));
-    if (isMatched) fillPlotNoFlow(h_assocpT[count],getPt(sqrt(momentumTP.perp2())));
+    fillPlotNoFlow(h_simulpT[count], pt);
+    if (isMatched) fillPlotNoFlow(h_assocpT[count], pt);
   }
 
   if((*TpSelectorForEfficiencyVsVTXR)(tp)){
     fillPlotNoFlow(h_simuldxy[count],dxySim);
     if (isMatched) fillPlotNoFlow(h_assocdxy[count],dxySim);
+    if(pvPosition) {
+      fillPlotNoFlow(h_simuldxypv[count], dxyPVSim);
+      if (isMatched) fillPlotNoFlow(h_assocdxypv[count], dxyPVSim);
+    }
 
-    fillPlotNoFlow(h_simulvertpos[count],sqrt(vertexTP.perp2()));
-    if (isMatched) fillPlotNoFlow(h_assocvertpos[count],sqrt(vertexTP.perp2()));
+    fillPlotNoFlow(h_simulvertpos[count], vertxy);
+    if (isMatched) fillPlotNoFlow(h_assocvertpos[count], vertxy);
   }
 
 
@@ -566,8 +649,31 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     fillPlotNoFlow(h_simuldz[count],dzSim);
     if (isMatched) fillPlotNoFlow(h_assocdz[count],dzSim);
 
-    fillPlotNoFlow(h_simulzpos[count],vertexTP.z());
-    if (isMatched) fillPlotNoFlow(h_assoczpos[count],vertexTP.z());
+    fillPlotNoFlow(h_simulzpos[count], vertz);
+    if (isMatched) fillPlotNoFlow(h_assoczpos[count], vertz);
+
+    if(pvPosition) {
+      fillPlotNoFlow(h_simuldzpv[count], dzPVSim);
+
+      h_simul_dzpvcut[count]->Fill(0);
+      h_simul_dzpvsigcut[count]->Fill(0);
+      h_simul_dzpvcut_pt[count]->Fill(0, pt);
+      h_simul_dzpvsigcut_pt[count]->Fill(0, pt);
+      if(isMatched) {
+        fillPlotNoFlow(h_assocdzpv[count], dzPVSim);
+
+        h_simul2_dzpvcut[count]->Fill(0);
+        h_simul2_dzpvsigcut[count]->Fill(0);
+        h_simul2_dzpvcut_pt[count]->Fill(0, pt);
+        h_simul2_dzpvsigcut_pt[count]->Fill(0, pt);
+        const double dzpvcut = std::abs(track->dz(*pvPosition));
+        const double dzpvsigcut = dzpvcut / track->dzError();
+        h_assoc_dzpvcut[count]->Fill(dzpvcut);
+        h_assoc_dzpvsigcut[count]->Fill(dzpvsigcut);
+        h_assoc_dzpvcut_pt[count]->Fill(dzpvcut, pt);
+        h_assoc_dzpvsigcut_pt[count]->Fill(dzpvsigcut, pt);
+      }
+    }
   }
 
 }
@@ -591,6 +697,7 @@ void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(int count, const
 void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 								   const reco::Track& track,
 								   const math::XYZPoint& bsPosition,
+								   const math::XYZPoint *pvPosition,
 								   bool isMatched,
 								   bool isSigMatched,
 								   bool isChargeMatched,
@@ -610,6 +717,9 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   const auto pt = getPt(sqrt(track.momentum().perp2()));
   const auto dxy = track.dxy(bsPosition);
   const auto dz = track.dz(bsPosition);
+  const auto dxypv = pvPosition ? track.dxy(*pvPosition) : 0.0;
+  const auto dzpv = pvPosition ? track.dz(*pvPosition) : 0.0;
+  const auto dzpvsig = pvPosition ? dzpv / track.dzError() : 0.0;
   const auto nhits = track.found();
   const auto nlayers = track.hitPattern().trackerLayersWithMeasurement();
   const auto nPixelLayers = track.hitPattern().pixelLayersWithMeasurement();
@@ -629,6 +739,16 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   fillPlotNoFlow(h_recopu[count],numVertices);
   fillPlotNoFlow(h_recochi2[count], chi2);
   h_recodr[count]->Fill(deltar);
+  if(pvPosition) {
+    fillPlotNoFlow(h_recodxypv[count], dxypv);
+    fillPlotNoFlow(h_recodzpv[count], dzpv);
+
+    h_reco_dzpvcut[count]->Fill(std::abs(dzpv));
+    h_reco_dzpvsigcut[count]->Fill(std::abs(dzpvsig));
+    h_reco_dzpvcut_pt[count]->Fill(std::abs(dzpv), pt);
+    h_reco_dzpvsigcut_pt[count]->Fill(std::abs(dzpvsig), pt);
+  }
+
   if (isMatched) {
     fillPlotNoFlow(h_assoc2eta[count], eta);
     fillPlotNoFlow(h_assoc2phi[count], phi);
@@ -642,6 +762,15 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2pu[count],numVertices);
     fillPlotNoFlow(h_assoc2chi2[count], chi2);
     h_assoc2dr[count]->Fill(deltar);
+    if(pvPosition) {
+      fillPlotNoFlow(h_assoc2dxypv[count], dxypv);
+      fillPlotNoFlow(h_assoc2dzpv[count], dzpv);
+
+      h_assoc2_dzpvcut[count]->Fill(std::abs(dzpv));
+      h_assoc2_dzpvsigcut[count]->Fill(std::abs(dzpvsig));
+      h_assoc2_dzpvcut_pt[count]->Fill(std::abs(dzpv), pt);
+      h_assoc2_dzpvsigcut_pt[count]->Fill(std::abs(dzpvsig), pt);
+    }
 
     nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
     h_assocFraction[count]->Fill( sharedFraction);
@@ -659,6 +788,10 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_misid3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_misidpu[count], numVertices);
       fillPlotNoFlow(h_misidchi2[count], chi2);
+      if(pvPosition) {
+        fillPlotNoFlow(h_misiddxypv[count], dxypv);
+        fillPlotNoFlow(h_misiddzpv[count], dzpv);
+      }
     }
 
     if (numAssocRecoTracks>1) {
@@ -673,6 +806,10 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_looper3Dlayer[count], n3DLayers);
       fillPlotNoFlow(h_looperpu[count], numVertices);
       fillPlotNoFlow(h_looperchi2[count], chi2);
+      if(pvPosition) {
+        fillPlotNoFlow(h_looperdxypv[count], dxypv);
+        fillPlotNoFlow(h_looperdzpv[count], dzpv);
+      }
     }
     else if(!isSigMatched) {
       fillPlotNoFlow(h_pileupeta[count], eta);
@@ -687,6 +824,15 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
       fillPlotNoFlow(h_pileuppu[count], numVertices);
       fillPlotNoFlow(h_pileupchi2[count], chi2);
       h_pileupdr[count]->Fill(deltar);
+      if(pvPosition) {
+        fillPlotNoFlow(h_pileupdxypv[count], dxypv);
+        fillPlotNoFlow(h_pileupdzpv[count], dzpv);
+
+        h_pileup_dzpvcut[count]->Fill(std::abs(dzpv));
+        h_pileup_dzpvsigcut[count]->Fill(std::abs(dzpvsig));
+        h_pileup_dzpvcut_pt[count]->Fill(std::abs(dzpv), pt);
+        h_pileup_dzpvsigcut_pt[count]->Fill(std::abs(dzpvsig), pt);
+      }
     }
   }
 }
@@ -808,6 +954,7 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   double dxyPull=dxyRes/track.dxyError();
   double dzPull=dzRes/track.dzError();
 
+#ifdef EDM_ML_DEBUG
   double contrib_Qoverp = ((qoverpRec-qoverpSim)/qoverpErrorRec)*
     ((qoverpRec-qoverpSim)/qoverpErrorRec)/5;
   double contrib_dxy = ((dxyRec-dxySim)/track.dxyError())*((dxyRec-dxySim)/track.dxyError())/5;
@@ -836,6 +983,7 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
     << "contrib_theta=" << contrib_theta << "\n"<< "contrib_phi=" << contrib_phi << "\n"
     << "" << "\n"
     <<"chi2PULL="<<contrib_Qoverp+contrib_dxy+contrib_dz+contrib_theta+contrib_phi<<"\n";
+#endif
 
   h_pullQoverp[count]->Fill(qoverpPull);
   h_pullTheta[count]->Fill(thetaPull);

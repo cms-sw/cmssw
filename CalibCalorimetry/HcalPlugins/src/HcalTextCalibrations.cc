@@ -56,7 +56,7 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
       findingRecord <HcalQIEDataRcd> ();
     }
     else if (objectName == "ChannelQuality") {
-      setWhatProduced (this, &HcalTextCalibrations::produceChannelQuality);
+      setWhatProduced (this, &HcalTextCalibrations::produceChannelQuality, edm::es::Label("withTopo"));
       findingRecord <HcalChannelQualityRcd> ();
     }
     else if (objectName == "ZSThresholds") {

@@ -137,7 +137,6 @@ def customise_Validation_Trackingonly(process):
     return process
 
 def customise_harvesting(process):
-    process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
     process.dqmHarvesting.remove(process.dataCertificationJetMET)
     #######process.dqmHarvesting.remove(process.sipixelEDAClient)
     process.sipixelEDAClient.isUpgrade = cms.untracked.bool(True)
@@ -219,13 +218,15 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(process.electronSeedsSeq)
     process.reconstruction_fromRECO.remove(process.initialStepSeedLayers)
     process.reconstruction_fromRECO.remove(process.initialStepSeeds)
-    process.reconstruction_fromRECO.remove(process.initialStepSelector)
+    process.reconstruction_fromRECO.remove(process.initialStepClassifier1)
+    process.reconstruction_fromRECO.remove(process.initialStepClassifier2)
+    process.reconstruction_fromRECO.remove(process.initialStepClassifier3)
     process.reconstruction_fromRECO.remove(initialStepTrackCandidates)
     process.reconstruction_fromRECO.remove(initialStepTracks)
     process.reconstruction_fromRECO.remove(lowPtTripletStepClusters)
     process.reconstruction_fromRECO.remove(lowPtTripletStepSeedLayers)
     process.reconstruction_fromRECO.remove(lowPtTripletStepSeeds)
-    process.reconstruction_fromRECO.remove(lowPtTripletStepSelector)
+    process.reconstruction_fromRECO.remove(lowPtTripletStep)
     process.reconstruction_fromRECO.remove(lowPtTripletStepTrackCandidates)
     process.reconstruction_fromRECO.remove(lowPtTripletStepTracks)
 
@@ -236,21 +237,24 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(mixedTripletStepSeeds)
     process.reconstruction_fromRECO.remove(mixedTripletStepSeedsA)
     process.reconstruction_fromRECO.remove(mixedTripletStepSeedsB)
-    process.reconstruction_fromRECO.remove(mixedTripletStepSelector)
+    process.reconstruction_fromRECO.remove(mixedTripletStepClassifier1)
+    process.reconstruction_fromRECO.remove(mixedTripletStepClassifier2)
     process.reconstruction_fromRECO.remove(mixedTripletStepTrackCandidates)
     process.reconstruction_fromRECO.remove(mixedTripletStepTracks)
 
     process.reconstruction_fromRECO.remove(pixelPairStepClusters)
     process.reconstruction_fromRECO.remove(pixelPairStepSeeds)
     process.reconstruction_fromRECO.remove(pixelPairStepSeedLayers)
-    process.reconstruction_fromRECO.remove(pixelPairStepSelector)
+    process.reconstruction_fromRECO.remove(pixelPairStep)
     process.reconstruction_fromRECO.remove(pixelPairStepTrackCandidates)
     process.reconstruction_fromRECO.remove(pixelPairStepTracks)
     
     process.reconstruction_fromRECO.remove(tobTecStepClusters)
     process.reconstruction_fromRECO.remove(tobTecStepSeeds)
     #process.reconstruction_fromRECO.remove(tobTecStepSeedLayers)
-    process.reconstruction_fromRECO.remove(tobTecStepSelector)
+    process.reconstruction_fromRECO.remove(tobTecStepClassifier1)
+    process.reconstruction_fromRECO.remove(tobTecStepClassifier2)
+    process.reconstruction_fromRECO.remove(tobTecStep)
     process.reconstruction_fromRECO.remove(tobTecStepTrackCandidates)
     process.reconstruction_fromRECO.remove(tobTecStepTracks)
 
@@ -348,9 +352,9 @@ def customise_Reco(process,pileup):
     process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
     process.pixelPairStepSelector.vertices = "pixelVertices"
     process.tobTecStepSelector.vertices = "pixelVertices"
-    process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
-    process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
-    process.duplicateTrackSelector.vertices = "pixelVertices"
+    process.muonSeededTracksInOutClassifier.vertices = "pixelVertices"
+    process.muonSeededTracksOutInClassifier.vertices = "pixelVertices"
+    process.duplicateTrackClassifier.vertices = "pixelVertices"
     process.convStepSelector.vertices = "pixelVertices"
     process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
     

@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -64,57 +64,31 @@
 #include <cmath>
 #include <bitset>
 
-//
-//
-// class decleration
-//
-
-class ModuleInfo : public edm::EDAnalyzer {
+class ModuleInfo : public edm::one::EDAnalyzer<> {
 public:
   explicit ModuleInfo( const edm::ParameterSet& );
   ~ModuleInfo();
   
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
-  // ----------member data ---------------------------
+
   bool fromDDD_;
   bool printDDD_;
 };
 
-//
-// constants, enums and typedefs
-//
+static const double density_units = 6.24151e+18;
 
-//
-// static data member definitions
-//
-  static const double density_units = 6.24151e+18;
-
-//
-// constructors and destructor
-//
 ModuleInfo::ModuleInfo( const edm::ParameterSet& ps )
 {
   fromDDD_ = ps.getParameter<bool>("fromDDD");
   printDDD_ = ps.getUntrackedParameter<bool>("printDDD", true);
- //now do what ever initialization is needed
-  
 }
-
 
 ModuleInfo::~ModuleInfo()
-{
-  
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  
-}
-
-
-//
-// member functions
-//
+{}
 
 // ------------ method called to produce the data  ------------
 void

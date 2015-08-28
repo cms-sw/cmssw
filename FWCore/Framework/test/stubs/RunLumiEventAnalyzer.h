@@ -3,8 +3,13 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include <vector>
+
+namespace edm {
+  class TriggerResults;
+}
 
 namespace edmtest {
 
@@ -34,6 +39,7 @@ namespace edmtest {
     int expectedEndingIndex0_;
     int expectedEndingIndex1_;
     int expectedEndingIndex_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
   };
 }
 

@@ -12,6 +12,8 @@
 #include <Pythia8/Pythia.h>
 #include <Pythia8Plugins/HepMC2.h>
 
+class EvtGenDecays;
+
 namespace CLHEP {
   class HepRandomEngine;
 }
@@ -50,6 +52,13 @@ namespace gen {
          bool                           pythiaHepMCVerbosityParticles;
 	 unsigned int                   maxEventsToPrint;
          HepMC::IO_AsciiParticles*      ascii_io;
+
+         // EvtGen plugin
+         //
+         bool useEvtGen;
+         EvtGenDecays* evtgenDecays;
+         std::string evtgenDecFile;
+         std::string evtgenPdlFile;
 
       private:
 
