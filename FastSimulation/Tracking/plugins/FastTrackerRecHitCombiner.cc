@@ -72,8 +72,10 @@ void
 	// if simTrackId is about to change, add combination
 	if(simHits->size()-simHitCounter == 1 || simHit.trackId() != (*simHits)[simHitCounter+1].trackId() ){
 	    // combination must have sufficient hits
-	    if(currentCombination.size() >= minNHits)
+	    if(currentCombination.size() >= minNHits){
+		currentCombination.shrink_to_fit();
 		output->push_back(currentCombination);
+	    }
 	    currentCombination.clear();
 	}
     }
