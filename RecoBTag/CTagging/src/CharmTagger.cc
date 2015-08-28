@@ -25,7 +25,6 @@ CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
 	vpset vars_def = configuration.getParameter<vpset>("variables");
 	std::vector<std::string> variable_names;
 	variable_names.reserve(vars_def.size());
-	std::cout << "CFG provided " << vars_def.size() << " variables" << std::endl;
 
 	for(auto &var : vars_def) {
 		variable_names.push_back(
@@ -34,7 +33,6 @@ CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
 
 		MVAVar mva_var;
 		mva_var.name = var.getParameter<std::string>("name");
-		std::cout << "MVA Variable: " << mva_var.name << std::endl;
 		mva_var.id = reco::getTaggingVariableName(
 			var.getParameter<std::string>("taggingVarName")
 			);
@@ -46,7 +44,14 @@ CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
 	}
 	std::vector<std::string> spectators;
 	
-	mvaID_->initialize("Color:Silent:Error", "BDT", weight_file.fullPath(), variable_names, spectators);
+	mvaID_->initialize(
+		"Color:Silent:Error", 
+		"BDT", 
+		weight_file.fullPath(), 
+		variable_names, spectators,
+		true, //useGBRForest
+		false  //useAdaBoost (output normalized between 0 and 1)
+		);
 
   //DEBUG
 	debug_mode_ = configuration.existsAs<std::string>("debugFile");

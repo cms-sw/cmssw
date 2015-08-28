@@ -15,8 +15,8 @@ def get_path(file_in_path):
          return full_path
    raise RuntimeError('No suitable path found for %s' % file_in_path)
 
-def get_vars(xml_path):
-   full_path = get_path(xml_path)
+def get_vars(xml_path, useFileInPath=True):
+   full_path = get_path(xml_path) if useFileInPath else xml_path
    xml_tree = ET.parse(full_path)
    root = xml_tree.getroot()
    variables = None
