@@ -9,8 +9,7 @@ namespace fastTrackingHelper {
     template<class T> inline void setRecHitCombinationIndex(edm::OwnVector<T> & recHits,int32_t icomb){
 	for(auto & recHit : recHits){
 	    if(!trackerHitRTTI::isFast(recHit)){
-		edm::LogError("fastTrackingHelpers::setRecHitCombinationIndex") << " one of hits in OwnVector is non-fastsim" << std::endl;
-		exit(1);
+		throw cms::Exception("fastTrackingHelpers::setRecHitCombinationIndex: one of hits in OwnVector is non-fastsim");
 	    }
 	    static_cast<FastTrackerRecHit &>(recHit).setRecHitCombinationIndex(icomb);
 	}
@@ -26,8 +25,7 @@ namespace fastTrackingHelper {
 
 	const TrackingRecHit & recHit = *object.recHits().first;
 	if(!trackerHitRTTI::isFast(recHit)){
-	    edm::LogError("fastTrackingHelpers::getRecHitCombinationIndex") << "  one of hits in object is non-fastsim" << std::endl;
-	    exit(1);
+	    throw cms::Exception("fastTrackingHelpers::setRecHitCombinationIndex: one of hits in OwnVector is non-fastsim");
 	}
 	// cast and return combination index
 	return static_cast<const FastTrackerRecHit &>(recHit).recHitCombinationIndex();
