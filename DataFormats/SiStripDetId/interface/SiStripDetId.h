@@ -135,21 +135,35 @@ SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
   SiStripDetId::ModuleGeometry geometry;
   switch(subDetector()) {
   case TIB: geometry = int((id_>>layerStartBit_) & layerMask_)<3? IB1 : IB2;
+    break;
   case TOB: geometry = int((id_>>layerStartBit_) & layerMask_)<5? OB2 : OB1;
+    break;
   case TID: switch ((id_>>ringStartBitTID_) & ringMaskTID_) {
     case 1: geometry = W1A;
+      break;
     case 2: geometry = W2A;
+      break;
     case 3: geometry = W3A;
+      break;
     }
+    break;
   case TEC: switch ((id_>>ringStartBitTEC_) & ringMaskTEC_) {
     case 1: geometry = W1B;
+      break;
     case 2: geometry = W2B;
+      break;
     case 3: geometry = W3B;
+      break;
     case 4: geometry = W4;
+      break;
     case 5: geometry = W5;
+      break;
     case 6: geometry = W6;
+      break;
     case 7: geometry = W7;
+      break;
     }
+    break;
   case UNKNOWN: default: geometry = UNKNOWNGEOMETRY;
   }
   return geometry;
