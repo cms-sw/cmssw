@@ -132,7 +132,7 @@ SiStripDetId::SubDetector SiStripDetId::subDetector() const {
 }
 
 SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
-  SiStripDetId::ModuleGeometry geometry;
+  SiStripDetId::ModuleGeometry geometry = UNKNOWNGEOMETRY;
   switch(subDetector()) {
   case TIB: geometry = int((id_>>layerStartBit_) & layerMask_)<3? IB1 : IB2;
     break;
@@ -163,8 +163,7 @@ SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
     case 7: geometry = W7;
       break;
     }
-    break;
-  case UNKNOWN: default: geometry = UNKNOWNGEOMETRY;
+    case UNKNOWN: default:;  
   }
   return geometry;
 }
