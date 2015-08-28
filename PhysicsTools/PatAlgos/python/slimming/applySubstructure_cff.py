@@ -32,7 +32,7 @@ def applySubstructure( process ) :
     ## AK8 groomed masses
     from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSSoftDrop, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed 
     process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
-    process.ak8PFJetsCHSSoftDrop = ak8PFJetsCHSSoftDrop.clone()
+    #process.ak8PFJetsCHSSoftDrop = ak8PFJetsCHSSoftDrop.clone() # already in AOD
     process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
     process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
