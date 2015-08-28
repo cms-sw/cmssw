@@ -145,7 +145,7 @@ void DDTrackerRingAlgo::execute(DDCompactView& cpv) {
     }
 
     // globalRot def
-    std::string globalRotstr = rotstr + "Phi" + dbl_to_string(phideg) + "Tilt" + dbl_to_string(tiltAngle/CLHEP::deg);
+    std::string globalRotstr = rotstr + "Phi" + dbl_to_string(phideg*10.) + "Tilt" + dbl_to_string(tiltAngle/CLHEP::deg);
     if (isZPlus) {
       globalRotstr += "ZPlus";
       if (isFlipped) { globalRotstr += "Flip"; }
