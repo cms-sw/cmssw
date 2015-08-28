@@ -143,7 +143,7 @@ class IsoTrackAnalyzer( Analyzer ):
                                 nearestSelectedLeptons = makeNearestLeptons(myLeptons,track, event)
                                 if len(nearestSelectedLeptons) > 0:
                                     for lep in nearestSelectedLeptons:
-                                        if deltaR(lep.eta(), lep.phi(), track.eta(), track.phi()) > 0.1:
+                                        if deltaR(lep.eta(), lep.phi(), track.eta(), track.phi()) > 0.01:
                                             event.selectedIsoCleanTrack.append(track)
                                 else: 
                                     event.selectedIsoCleanTrack.append(track)
@@ -237,7 +237,6 @@ class IsoTrackAnalyzer( Analyzer ):
     def attachIsoAnulus(self, mu):
 
         mu.absIsoAnCharged = self.IsoTrackIsolationComputer.chargedAbsIso(mu.physObj, self.cfg_ana.anDeltaR,  self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone);
-        if( abs(mu.pdgId())==211) : mu.absIsoAnCharged - mu.pt(); #BM: Same ugly hack as above. FIXME
 
         if self.isoAnPUCorr == None: puCorr = 'deltaBeta'
         else: puCorr = self.isoAnPUCorr
