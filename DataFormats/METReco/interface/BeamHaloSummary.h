@@ -73,11 +73,8 @@ namespace reco {
     std::vector<int>& GetGlobaliPhiSuspects() { return GlobaliPhiSuspects ;}
     const std::vector<int>& GetGlobaliPhiSuspects() const { return GlobaliPhiSuspects ;}
 
-    std::vector<std::vector<std::pair<char, CaloTowerDetId> > >& GetProblematicStrips() { return ProblematicStrips ;}
-    const std::vector<std::vector<std::pair<char, CaloTowerDetId> > >& GetProblematicStrips() const { return ProblematicStrips ;}
-
-    const std::vector<float> & GetProblematicStripsHadEt() const {return ProblematicStripHadEt;}
-    std::vector<float> & GetProblematicStripsHadEt() {return ProblematicStripHadEt;}
+    std::vector<HaloTowerStrip>& getProblematicStrips() { return problematicStrips ;}
+    const std::vector<HaloTowerStrip>& getProblematicStrips() const { return problematicStrips ;}
 
   private: 
     std::vector<char>  HcalHaloReport;
@@ -89,8 +86,7 @@ namespace reco {
     std::vector<int>  EcaliPhiSuspects;
     std::vector<int>  GlobaliPhiSuspects;
 
-    std::vector<std::vector<std::pair<char, CaloTowerDetId> > > ProblematicStrips;
-    std::vector<float> ProblematicStripHadEt;
+    std::vector<HaloTowerStrip> problematicStrips;
 
   };
   

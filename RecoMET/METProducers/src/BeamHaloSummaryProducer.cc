@@ -47,7 +47,7 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
   T_HcalPhiWedgeToF = (float)iConfig.getParameter<double>("t_HcalPhiWedgeToF");
   T_HcalPhiWedgeConfidence = (float)iConfig.getParameter<double>("t_HcalPhiWedgeConfidence");
 
-  ProblematicStripMinLength = (int)iConfig.getParameter<int>("problematicStripMinLength");
+  problematicStripMinLength = (int)iConfig.getParameter<int>("problematicStripMinLength");
 
   cschalodata_token_ = consumes<CSCHaloData>(IT_CSCHaloData);
   ecalhalodata_token_ = consumes<EcalHaloData>(IT_EcalHaloData);
@@ -213,13 +213,11 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     TheBeamHaloSummary->GetHcalHaloReport()[1] = 1;
 
 
-  for( unsigned int i = 0 ; i < HcalData.GetProblematicStrips().size() ; i++ ) {
-    std::vector<std::pair<char, CaloTowerDetId> > ProblematicStrip = HcalData.GetProblematicStrips().at(i);
-    float ProblematicStripHadEt = HcalData.GetProblematicStripsHadEt().at(i);
-    if(ProblematicStrip.size() < (unsigned int)ProblematicStripMinLength) continue;
+  for( unsigned int i = 0 ; i < HcalData.getProblematicStrips().size() ; i++ ) {
+    auto const& problematicStrip = HcalData.getProblematicStrips()[i];
+    if(problematicStrip.cellTowerIds.size() < (unsigned int)problematicStripMinLength) continue;
 
-    TheBeamHaloSummary->GetProblematicStrips().push_back(ProblematicStrip);
-    TheBeamHaloSummary->GetProblematicStripsHadEt().push_back(ProblematicStripHadEt);
+    TheBeamHaloSummary->getProblematicStrips().push_back(problematicStrip);
   }
 
 

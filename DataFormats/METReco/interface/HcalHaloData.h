@@ -11,6 +11,11 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
+struct HaloTowerStrip {
+    std::vector<std::pair<char, CaloTowerDetId> > cellTowerIds;
+    float hadEt;
+};
+
 namespace reco {
   class HcalHaloData {
   public:
@@ -24,17 +29,12 @@ namespace reco {
     std::vector<PhiWedge>& GetPhiWedges()  {return PhiWedgeCollection;}
 
     // Return collection of problematic strips (pairs of # of problematic HCAL cells and CaloTowerDetId)
-    const std::vector<std::vector<std::pair<char, CaloTowerDetId> > >& GetProblematicStrips() const {return ProblematicStripCollection;}
-    std::vector<std::vector<std::pair<char, CaloTowerDetId> > >& GetProblematicStrips()  {return ProblematicStripCollection;}
-
-    // Total energies of problematic strips (HCAL)
-    const std::vector<float> & GetProblematicStripsHadEt() const {return ProblematicStripHadEt;}
-    std::vector<float> & GetProblematicStripsHadEt() {return ProblematicStripHadEt;}
+    const std::vector<HaloTowerStrip>& getProblematicStrips() const {return problematicStripCollection;}
+    std::vector<HaloTowerStrip>& getProblematicStrips()  {return problematicStripCollection;}
 
   private:
     std::vector<PhiWedge> PhiWedgeCollection;
-    std::vector<std::vector<std::pair<char, CaloTowerDetId> > > ProblematicStripCollection;
-    std::vector<float> ProblematicStripHadEt;
+    std::vector<HaloTowerStrip> problematicStripCollection;
     
   };
 }

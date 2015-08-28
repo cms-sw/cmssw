@@ -130,54 +130,52 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
   // Don't use HF.
   int maxAbsIEta = 29;
-  std::vector<const CaloTower*> SortedCaloTowers;
+  std::vector<const CaloTower*> sortedCaloTowers;
   for(CaloTowerCollection::const_iterator tower = TheCaloTowers->begin(); tower != TheCaloTowers->end(); tower++) {
     if(abs(tower->ieta()) <= maxAbsIEta && tower->numProblematicHcalCells() > 0)
-      SortedCaloTowers.push_back(&(*tower));
+      sortedCaloTowers.push_back(&(*tower));
   }
 
   // Sort towers such that lowest iphi and ieta are first, highest last, and towers
   // with same iphi value are consecutive. Then we can do everything else in one loop.
-  std::sort(SortedCaloTowers.begin(), SortedCaloTowers.end(), CompareTowers);
+  std::sort(sortedCaloTowers.begin(), sortedCaloTowers.end(), CompareTowers);
 
-  std::vector<std::pair<char, CaloTowerDetId> > problematicStrip;
-  float stripHadEt = 0.0;
+  HaloTowerStrip strip;
+  strip.hadEt = 0.0;
 
   int prevIEta = -99, prevIPhi = -99;
   float prevHadEt = 0.0;
   std::pair<char, CaloTowerDetId> prevPair, towerPair;
   bool wasContiguous = true;
   // Loop through and store a vector of pairs (problematicCells, DetId) for each contiguous strip we find
-  for(unsigned int i = 0; i < SortedCaloTowers.size(); i++) {
-    const CaloTower* tower = SortedCaloTowers.at(i);
-    int problematicCells = tower->numProblematicHcalCells();
+  for(unsigned int i = 0; i < sortedCaloTowers.size(); i++) {
+    const CaloTower* tower = sortedCaloTowers[i];
 
-    towerPair = std::make_pair((char)problematicCells, tower->id());
+    towerPair = std::make_pair((char)tower->numProblematicHcalCells(), tower->id());
 
-    bool newIPhi = (tower->iphi()-1 == prevIPhi) || (i == 0);
+    bool newIPhi = tower->iphi() != prevIPhi;
     bool isContiguous = tower->ieta() == 1 ? tower->ieta() - 2 == prevIEta : tower->ieta() - 1 == prevIEta;
 
     isContiguous = isContiguous || (tower->ieta() == -maxAbsIEta);
     if(newIPhi) isContiguous = false;
 
     if(!wasContiguous && isContiguous) {
-      problematicStrip.push_back(prevPair);
-      problematicStrip.push_back(towerPair);
-      stripHadEt += prevHadEt + tower->hadEt();
+      strip.cellTowerIds.push_back(prevPair);
+      strip.cellTowerIds.push_back(towerPair);
+      strip.hadEt += prevHadEt + tower->hadEt();
     }
 
     if(wasContiguous && isContiguous) {
-      problematicStrip.push_back(towerPair);
-      stripHadEt += tower->hadEt();
+      strip.cellTowerIds.push_back(towerPair);
+      strip.hadEt += tower->hadEt();
     }
 
-    if((wasContiguous && !isContiguous) || i == SortedCaloTowers.size()-1) { //ended the strip, so flush it
-      if(problematicStrip.size() > 2) {
-        TheHcalHaloData.GetProblematicStrips().push_back( problematicStrip );
-        TheHcalHaloData.GetProblematicStripsHadEt().push_back( stripHadEt );
+    if((wasContiguous && !isContiguous) || i == sortedCaloTowers.size()-1) { //ended the strip, so flush it
+      if(strip.cellTowerIds.size() > 2) {
+        TheHcalHaloData.getProblematicStrips().push_back( strip );
       }
-      problematicStrip.clear();
-      stripHadEt = 0.0;
+      strip.cellTowerIds.clear();
+      strip.hadEt = 0.0;
     }
 
     wasContiguous = isContiguous;

@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 ## We don't use "import *" because the cff contains some modules for which the C++ class doesn't exist
 ## and this triggers an error under unscheduled mode
-from RecoMET.METFilters.metFilters_cff import HBHENoiseFilterResultProducer, HBHENoiseFilter, HBHENoiseIsoFilter, CSCTightHaloFilter, HcalStripHaloFilter, hcalLaserEventFilter, EcalDeadCellTriggerPrimitiveFilter, eeBadScFilter, ecalLaserCorrFilter, EcalDeadCellBoundaryEnergyFilter, primaryVertexFilter 
+from RecoMET.METFilters.metFilters_cff import HBHENoiseFilterResultProducer, HBHENoiseFilter, HBHENoiseIsoFilter, hcalLaserEventFilter
+from RecoMET.METFilters.metFilters_cff import EcalDeadCellTriggerPrimitiveFilter, eeBadScFilter, ecalLaserCorrFilter, EcalDeadCellBoundaryEnergyFilter
+from RecoMET.METFilters.metFilters_cff import primaryVertexFilter, CSCTightHaloFilter, HcalStripHaloFilter
+
 from RecoMET.METFilters.metFilters_cff import goodVertices, trackingFailureFilter, trkPOGFilters, manystripclus53X, toomanystripclus53X, logErrorTooManyClusters
 from RecoMET.METFilters.metFilters_cff import metFilters
 

@@ -1,10 +1,11 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
+#include "DataFormats/METReco/interface/HcalHaloData.h"
 
-class HcalStripHaloFilter : public edm::EDFilter {
+class HcalStripHaloFilter : public edm::global::EDFilter<> {
 
   public:
 
@@ -13,7 +14,7 @@ class HcalStripHaloFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+    virtual bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     const bool taggingMode_;
     const int maxWeightedStripLength_;
@@ -28,19 +29,18 @@ HcalStripHaloFilter::HcalStripHaloFilter(const edm::ParameterSet & iConfig)
   produces<bool>();
 }
 
-bool HcalStripHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool HcalStripHaloFilter::filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
   edm::Handle<reco::BeamHaloSummary> beamHaloSummary;
   iEvent.getByToken(beamHaloSummaryToken_ , beamHaloSummary);
 
   bool pass = true;
-  std::vector<std::vector<std::pair<char, CaloTowerDetId> > > problematicStrips = beamHaloSummary->GetProblematicStrips();
-  // std::vector<float> problematicStripsHadEt = beamHaloSummary->GetProblematicStripsHadEt();
+  auto const& problematicStrips = beamHaloSummary->getProblematicStrips();
   for (unsigned int iStrip = 0; iStrip < problematicStrips.size(); iStrip++) {
     int numContiguousCells = 0;
-    std::vector<std::pair<char, CaloTowerDetId> > problematicStrip = problematicStrips.at(iStrip);
-    for (unsigned int iTower = 0; iTower < problematicStrip.size(); iTower++) {
-      numContiguousCells += (int)problematicStrip.at(iTower).first;
+    auto const& problematicStrip = problematicStrips[iStrip];
+    for (unsigned int iTower = 0; iTower < problematicStrip.cellTowerIds.size(); iTower++) {
+      numContiguousCells += (int)problematicStrip.cellTowerIds[iTower].first;
     }
     if(numContiguousCells > maxWeightedStripLength_) {
       pass = false;
