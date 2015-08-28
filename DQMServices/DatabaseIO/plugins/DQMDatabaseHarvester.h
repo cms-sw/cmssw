@@ -1,48 +1,42 @@
-#ifndef DQMExample_Step2DB_h
-#define DQMExample_Step2DB_h
+#ifndef DQMSERVICES_DATABASEIO_DQMDATABASEHARVESTER_H
+#define DQMSERVICES_DATABASEIO_DQMDATABASEHARVESTER_H
 
-//Framework
+// Framework
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-//DQM
-#include "DQMServices/Core/interface/DQMDbHarvester.h"
+// DQM
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class DQMExample_Step2DB: public DQMDbHarvester{
+#include "DQMDatabaseWriter.h"
 
-public:
+class DQMDatabaseHarvester : public DQMEDHarvester {
+ public:
+  DQMDatabaseHarvester(const edm::ParameterSet &ps);
+  virtual ~DQMDatabaseHarvester();
 
-  DQMExample_Step2DB(const edm::ParameterSet& ps);
-  virtual ~DQMExample_Step2DB();
-
-protected:
-
+ protected:
   void beginJob();
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  virtual void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &,
+                                     edm::LuminosityBlock const &,
+                                     edm::EventSetup const &) override;
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  virtual void endRun(edm::Run const &, edm::EventSetup const &) override;
 
-
-private:
-
-  //private variables
-
-  //variables from config file
-  std::string numMonitorName_;
-  std::string denMonitorName_;
+ private:
+  // variables from config file
 
   std::string s_histogramsPath;
-  std::vector <std::string> vs_histogramsPerLumi;
-  std::vector <std::string> vs_histogramsPerRun;
-  std::vector <MonitorElement *> histogramsPerLumi;
-  std::vector < std::pair <MonitorElement *, valuesOfHistogram> > histogramsPerRun;
-  // Histograms
-  MonitorElement* h_ptRatio;
-/**/
-};
+  std::vector<std::string> vs_histogramsPerLumi;
+  std::vector<std::string> vs_histogramsPerRun;
 
+  std::vector<MonitorElement *> histogramsPerLumi;
+  std::vector<std::pair<MonitorElement *, HistogramValues> > histogramsPerRun;
+
+  std::unique_ptr<DQMDatabaseWriter> dbw_;
+};
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef DQMDbHarvester_H
-#define DQMDbHarvester_H
+#ifndef DQMSERVICES_DATABASEIO_PLUGINS_DQMDATABASEWRITER_H
+#define DQMSERVICES_DATABASEIO_PLUGINS_DQMDATABASEWRITER_H
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -27,12 +27,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-// // Trigger
-// #include "DataFormats/Common/interface/TriggerResults.h"
-// #include "DataFormats/HLTReco/interface/TriggerObject.h"
-// #include "DataFormats/HLTReco/interface/TriggerEvent.h"
-// #include "FWCore/Common/interface/TriggerNames.h"
- 
+
 //CORAL includes
 #include "RelationalAccess/ConnectionService.h"
 
@@ -51,8 +46,7 @@
 #include <ctime>
 #include <cmath>
 
-//histogram's values per run
-struct valuesOfHistogram {
+struct HistogramValues {
   int test_run;
   int test_entries;
   double test_x_mean;
@@ -71,46 +65,36 @@ struct valuesOfHistogram {
   double test_z_rms_error;
 };
 
-class DQMDbHarvester: public DQMEDHarvester{
+
+
+class DQMDatabaseWriter {
 
 public:
 
-  DQMDbHarvester(const edm::ParameterSet& ps);
-  virtual ~DQMDbHarvester();
+  DQMDatabaseWriter(const edm::ParameterSet& ps);
+  virtual ~DQMDatabaseWriter();
   
-protected:
-
-  void beginJob();
-  void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
-  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void initDatabase();
 
   //Parse histograms that should be treated as run based
   //It is neccessary to gather data from every lumi, so it cannot be done in the endRun
-  void dqmDbRunInitialize(std::vector < std::pair <MonitorElement *, valuesOfHistogram> > & histograms);
-
-  //Gather data from lumisections
-  void dqmDbRunProcess(int run);
+  void dqmDbRunInitialize(std::vector < std::pair <MonitorElement *, HistogramValues> > & histograms);
 
   //Drop all the data from a run into the database
   void dqmDbRunDrop();
 
   void dqmDbLumiDrop(std::vector <MonitorElement *> & histograms, int luminosity, int run);
-  coral::ConnectionService m_connectionService;
 
+private:
+  // Gather data from lumisections for the run statistics
+  void processLumi(int run);
+
+protected:
+  coral::ConnectionService m_connectionService;
   std::unique_ptr<coral::ISessionProxy> m_session;
   std::string m_connectionString;
 
-private:
-  //variables from config file
-  std::string numMonitorName_;
-  std::string denMonitorName_;
-
-  // Histograms
-  MonitorElement* h_ptRatio;
-
-//  std::vector <MonitorElement *> histogramsPerLumi;
-  std::vector < std::pair <MonitorElement *, valuesOfHistogram> > histogramsPerRun;
+  std::vector < std::pair <MonitorElement *, HistogramValues> > histogramsPerRun;
 };
 
 

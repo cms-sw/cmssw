@@ -1,7 +1,8 @@
-#include "DQMServices/Core/interface/DQMDbHarvester.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+
+#include "DQMDatabaseWriter.h"
 
 // CORAL
 #include "CoralBase/AttributeList.h"
@@ -26,19 +27,9 @@
 //
 // -------------------------------------- Constructor --------------------------------------------
 //
-DQMDbHarvester::DQMDbHarvester(const edm::ParameterSet& ps) : m_connectionService(), m_session(), m_connectionString( "" )
+DQMDatabaseWriter::DQMDatabaseWriter(const edm::ParameterSet& ps) : m_connectionService(), m_session(), m_connectionString( "" )
 {
-  edm::LogInfo("DQMDbHarvester") <<  "Constructor  DQMDbHarvester::DQMDbHarvester " << std::endl;
-  std::cout << "\t###" << std::endl;
-  std::cout << "DQMDbHarvester" << std::endl;
-  std::cout << "\t###" << std::endl;
-  // Get parameters from configuration file
-  numMonitorName_      =  ps.getParameter<std::string>("numMonitorName");
-  denMonitorName_      =  ps.getParameter<std::string>("denMonitorName");
-
-
-  //DQMStore
-  //dbe_ = edm::Service<DQMStore>().operator->();
+  edm::LogInfo("DQMDatabaseWriter") <<  "Constructor  DQMDatabaseWriter::DQMDatabaseWriter " << std::endl;
 
   //Database connection configuration parameters
   edm::ParameterSet connectionParameters = ps.getParameter<edm::ParameterSet>("DBParameters");
@@ -96,26 +87,20 @@ DQMDbHarvester::DQMDbHarvester(const edm::ParameterSet& ps) : m_connectionServic
 //
 // -- Destructor
 //
-DQMDbHarvester::~DQMDbHarvester()
+DQMDatabaseWriter::~DQMDatabaseWriter()
 {
-  edm::LogInfo("DQMDbHarvester") <<  "Destructor DQMDbHarvester::~DQMDbHarvester " << std::endl;
+  edm::LogInfo("DQMDatabaseWriter") <<  "Destructor DQMDatabaseWriter::~DQMDatabaseWriter " << std::endl;
 }
 
 //
 // -------------------------------------- beginJob --------------------------------------------
 //
-void DQMDbHarvester::beginJob()
+void DQMDatabaseWriter::initDatabase()
 {
-  edm::LogInfo("DQMDbHarvester") <<  "DQMDbHarvester::beginJob " << std::endl;
-  std::cout << "\t###" << std::endl;
-  std::cout << "beginJob" << std::endl;
-  std::cout << "\t###" << std::endl;
+  edm::LogInfo("DQMDatabaseWriter") <<  "DQMDatabaseWriter::initDatabase " << std::endl;
 
-  //edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::beginRun" << std::endl;
-  //open the CORAL session at beginRun:
-  //connect to DB only if you have events to process!
   m_session.reset( m_connectionService.connect( m_connectionString, coral::Update ) );
-  //do not run in production!
+  //TODO: do not run in production!
   //create the relevant tables
   coral::ISchema& schema = m_session->nominalSchema();
   m_session->transaction().start( false );
@@ -143,7 +128,6 @@ void DQMDbHarvester::beginJob()
     table1.setPrimaryKey( columnsForPrimaryKey1 );
 
     schema.createTable( table1 );
-    std::cout << "Table1 created" << std::endl;
 
     // Create the second table
     coral::TableDescription table2;
@@ -187,7 +171,6 @@ void DQMDbHarvester::beginJob()
     table2.createForeignKey( "table2_FK", columnsForForeignKey2, "HISTOGRAM", columnsForPrimaryKey1 );
 
     schema.createTable( table2 );
-    std::cout << "Table2 created" << std::endl;
 
     // Create the third table
     coral::TableDescription table3;
@@ -255,7 +238,6 @@ void DQMDbHarvester::beginJob()
     table3.createForeignKey( "table2_FK", columnsForForeignKey3, "HISTOGRAM", columnsForPrimaryKey1 );
 
     schema.createTable( table3 );
-    std::cout << "Table3 created" << std::endl;
   }
   m_session->transaction().commit();
 
@@ -263,65 +245,16 @@ void DQMDbHarvester::beginJob()
   m_session->transaction().start(false);
 
 }
-//
-// -------------------------------------- get and book in the endJob --------------------------------------------
-//
-void DQMDbHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_)
-{
-  std::cout << "\t###" << std::endl;
-  std::cout << "dqmEndJob" << std::endl;
-  std::cout << "\t###" << std::endl;
-  // create and cd into new folder
-  ibooker_.setCurrentFolder("What_I_do_in_the_client/Ratio");
-
-  //get available histograms
-  MonitorElement* numerator = igetter_.get(numMonitorName_);
-  MonitorElement* denominator = igetter_.get(denMonitorName_);
-
-  if (!numerator || !denominator)
-    {
-      edm::LogError("DQMDbHarvester") <<  "MEs not found!" << std::endl;
-      return;
-    }
-
-  //book new histogram
-  h_ptRatio = ibooker_.book1D("ptRatio","pt ratio pf matched objects",50,0.,100.);
-  h_ptRatio->setAxisTitle("pt [GeV]");
-
-  for (int iBin=1; iBin<numerator->getNbinsX(); ++iBin)
-    {
-      if(denominator->getBinContent(iBin) == 0)
-	h_ptRatio->setBinContent(iBin, 0.);
-      else
-	h_ptRatio->setBinContent(iBin, numerator->getBinContent(iBin) / denominator->getBinContent(iBin));
-    }
-}
-
-//
-// -------------------------------------- get in the endLumi if needed --------------------------------------------
-//
-void DQMDbHarvester::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker_, DQMStore::IGetter & igetter_, edm::LuminosityBlock const & iLumi, edm::EventSetup const& iSetup)
-{
-  std::cout << "\t###" << std::endl;
-  std::cout << "dqmEndLuminosityBlock" << std::endl;
-  std::cout << "\t###" << std::endl;
-  edm::LogInfo("DQMDbHarvester") <<  "DQMDbHarvester::endLumi " << std::endl;
-}
 
 //
 // -------------------------------------- dqmDbLumiDrop --------------------------------------------
 //
-void DQMDbHarvester::dqmDbLumiDrop(std::vector <MonitorElement *> & histograms, int lumisection, int run)
+void DQMDatabaseWriter::dqmDbLumiDrop(std::vector <MonitorElement *> & histograms, int lumisection, int run)
 {
-  std::cout << "\t###" << std::endl;
-  std::cout << "dqmDbLumiDrop" << std::endl;
-  std::cout << "\t###" << std::endl;
-  edm::LogInfo("DQMDbHarvester") <<  "DQMDbHarvester::dqmDbLumiDrop " << std::endl;
+  edm::LogInfo("DQMDatabaseWriter") <<  "DQMDatabaseWriter::dqmDbLumiDrop " << std::endl;
 
   bool histogramPropsRecordExist;
   bool histogramValuesRecordExist;
-  std::cout << "lumi: " << lumisection << std::endl;
-  std::cout << "run: " << run << std::endl;
 
   coral::ISchema& schema = m_session->nominalSchema();
 
@@ -347,7 +280,6 @@ void DQMDbHarvester::dqmDbLumiDrop(std::vector <MonitorElement *> & histograms, 
       delete queryHistogramProps;
       if ( numberOfRows != 1 )
       {
-        std::cout << "Histogram already in the database" << std::endl;
         coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM" ).dataEditor();
         coral::AttributeList insertData;
         insertData.extend< std::string >( "NAME" );
@@ -367,7 +299,6 @@ void DQMDbHarvester::dqmDbLumiDrop(std::vector <MonitorElement *> & histograms, 
 
     histogramPropsRecordExist = false;
     {
-      std::cout << "dqmDbLumiDrop 3" << std::endl;
       coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery();
       queryHistogramProps->addToOutputList( "NAME" );
       queryHistogramProps->addToOutputList( "PATH" );
@@ -387,7 +318,6 @@ void DQMDbHarvester::dqmDbLumiDrop(std::vector <MonitorElement *> & histograms, 
       delete queryHistogramProps;
       if ( numberOfRows == 1 )
       {
-        std::cout << "Histogram PROP already in the database" << std::endl;
         histogramPropsRecordExist = true;
       }
       m_session->transaction().commit();
@@ -451,14 +381,12 @@ void DQMDbHarvester::dqmDbLumiDrop(std::vector <MonitorElement *> & histograms, 
       delete queryHistogramValues;
       if ( numberOfRows == 1 )
       {
-        std::cout << "Histogram VALUE already in the database" << std::endl;
         histogramValuesRecordExist = true;
       }
-      std::cout << "dqmDbLumiDrop 4" << std::endl;
-
       m_session->transaction().commit();
       m_session->transaction().start(false);
     }
+
     if(!histogramValuesRecordExist)
     {
       coral::ITableDataEditor& editor = m_session->nominalSchema().tableHandle( "HISTOGRAM_VALUES" ).dataEditor();
@@ -514,21 +442,26 @@ void DQMDbHarvester::dqmDbLumiDrop(std::vector <MonitorElement *> & histograms, 
       m_session->transaction().commit();
     }
   }
-  dqmDbRunProcess(run);
+
+  processLumi(run);
 }
 
-
-void DQMDbHarvester::dqmDbRunInitialize(std::vector < std::pair <MonitorElement *, valuesOfHistogram> > & histograms)
+//
+// -------------------------------------- dqmDbRunInitialize --------------------------------------------
+//
+void DQMDatabaseWriter::dqmDbRunInitialize(std::vector < std::pair <MonitorElement *, HistogramValues> > & histograms)
 {
   histogramsPerRun = histograms;
 }
 
-void DQMDbHarvester::dqmDbRunProcess(int run)
+//
+// -------------------------------------- processLumi --------------------------------------------
+//
+void DQMDatabaseWriter::processLumi(int run)
 {
-  bool histogramPropsRecordExist;
   coral::ISchema& schema = m_session->nominalSchema();
 
-  for (std::vector<std::pair <MonitorElement *, valuesOfHistogram> >::iterator it = histogramsPerRun.begin() ; it != histogramsPerRun.end(); ++it)
+  for (std::vector<std::pair <MonitorElement *, HistogramValues> >::iterator it = histogramsPerRun.begin() ; it != histogramsPerRun.end(); ++it)
   {
     if((*it).second.test_entries != 0)
     {
@@ -547,6 +480,20 @@ void DQMDbHarvester::dqmDbRunProcess(int run)
     }
     (*it).second.test_entries += (*it).first->getEntries();
 
+
+  }
+}
+
+//
+// -------------------------------------- dqmDbRunDrop --------------------------------------------
+//
+void DQMDatabaseWriter::dqmDbRunDrop()
+{
+  bool histogramValuesRecordExist;
+  static coral::ISchema& schema = m_session->nominalSchema();
+
+  for (std::vector<std::pair <MonitorElement *, HistogramValues> >::iterator it = histogramsPerRun.begin() ; it != histogramsPerRun.end(); ++it)
+  {
     {
       m_session->transaction().start( false );
       coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM" ).newQuery();
@@ -586,14 +533,14 @@ void DQMDbHarvester::dqmDbRunProcess(int run)
     }
 
 
-    histogramPropsRecordExist = false;
+    bool histogramPropsRecordExist = false;
     {
       coral::IQuery* queryHistogramProps = schema.tableHandle( "HISTOGRAM_PROPS" ).newQuery();
       queryHistogramProps->addToOutputList( "NAME" );
       queryHistogramProps->addToOutputList( "PATH" );
       queryHistogramProps->addToOutputList( "RUN_NUMBER" );
 
-      std::string condition = "NAME = \"" + (*it).first->getName() + "\" AND PATH = \"" + (*it).first->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(run) + "\"";
+      std::string condition = "NAME = \"" + (*it).first->getName() + "\" AND PATH = \"" + (*it).first->getPathname() + "\"" + " AND RUN_NUMBER = \"" + std::to_string(it->second.test_run) + "\"";
       coral::AttributeList conditionData2;
       queryHistogramProps->setCondition( condition, conditionData2 );
       queryHistogramProps->setMemoryCacheSize( 5 );
@@ -608,7 +555,6 @@ void DQMDbHarvester::dqmDbRunProcess(int run)
       delete queryHistogramProps;
       if ( numberOfRows == 1 )
       {
-        std::cout << "HistogramR PROP already in the database" << std::endl;
         histogramPropsRecordExist = true;
       }
       m_session->transaction().commit();
@@ -633,7 +579,7 @@ void DQMDbHarvester::dqmDbRunProcess(int run)
 
         insertData[ "NAME" ].data< std::string >() = (*it).first->getName();
         insertData[ "PATH" ].data< std::string >() = (*it).first->getPathname();
-        insertData[ "RUN_NUMBER" ].data< unsigned int >() = run;
+        insertData[ "RUN_NUMBER" ].data< unsigned int >() = it->second.test_run;
         insertData[ "X_BINS" ].data< int >() = (*it).first->getNbinsX(); //or histogram->getTH1()->GetNbinsX() ?
         insertData[ "X_LOW" ].data< double >() = (*it).first->getTH1()->GetXaxis()->GetXmin();
         insertData[ "X_UP" ].data< double >() = (*it).first->getTH1()->GetXaxis()->GetXmax();
@@ -646,35 +592,8 @@ void DQMDbHarvester::dqmDbRunProcess(int run)
         editor.insertRow( insertData );
     }
     m_session->transaction().commit();
-  }
-}
 
-//
-// -------------------------------------- endRun --------------------------------------------
-//
-void DQMDbHarvester::endRun(edm::Run const& run, edm::EventSetup const& eSetup)
-{
-  //edm::LogInfo("DQMExample_Step1") <<  "DQMExample_Step1::endRun" << std::endl;
-  std::cout << "\t###" << std::endl;
-  std::cout << "endRun" << std::endl;
-  std::cout << "\t###" << std::endl;
 
-  //dqmDbRunDrop(histogramsPerRun);
-}
-
-//
-// -------------------------------------- dqmDbRunDrop --------------------------------------------
-//
-void DQMDbHarvester::dqmDbRunDrop()
-{
-  std::cout << "\t###" << std::endl;
-  std::cout << "dqmDbRunDrop" << std::endl;
-  std::cout << "\t###" << std::endl;
-  bool histogramValuesRecordExist;
-  static coral::ISchema& schema = m_session->nominalSchema();
-
-  for (std::vector<std::pair <MonitorElement *, valuesOfHistogram> >::iterator it = histogramsPerRun.begin() ; it != histogramsPerRun.end(); ++it)
-  {
     histogramValuesRecordExist = false;
     {
       m_session->transaction().start(true);
@@ -696,10 +615,8 @@ void DQMDbHarvester::dqmDbRunDrop()
         ++numberOfRows;
       }
       delete queryHistogramValues;
-      std::cout << numberOfRows << std::endl;
       if ( numberOfRows == 1 )
       {
-        std::cout << "HistogramR VALUES already in the database" << std::endl;
         histogramValuesRecordExist = true;
       }
       m_session->transaction().commit();
@@ -773,4 +690,3 @@ void DQMDbHarvester::dqmDbRunDrop()
   }
   m_session.reset();
 }
-DEFINE_FWK_MODULE(DQMDbHarvester);
