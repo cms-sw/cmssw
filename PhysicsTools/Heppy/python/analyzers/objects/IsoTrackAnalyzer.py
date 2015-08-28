@@ -53,8 +53,7 @@ class IsoTrackAnalyzer( Analyzer ):
         if self.doIsoAnulus:
             self.isoAnPUCorr = self.cfg_ana.isoAnPUCorr
             self.anDeltaR = self.cfg_ana.anDeltaR
-            self.IsoTrackIsolationComputer = heppy.IsolationComputer()
-
+            self.IsoTrackIsolationComputer = heppy.IsolationComputer() #BM: Doesn't this line accidentally overwrite what done on l50 ? Is this ok ?
 
 
     #----------------------------------------
@@ -84,15 +83,17 @@ class IsoTrackAnalyzer( Analyzer ):
 
         patcands = self.handles['packedCandidates'].product()
 
-        charged = [ p for p in patcands if ( p.charge() != 0 and abs(p.dz())<=self.cfg_ana.dzMax ) ]
+        charged = [ p for p in patcands if ( p.charge() != 0 and p.fromPV() > 1 ) ]
 
-        self.IsoTrackIsolationComputer.setPackedCandidates(patcands, -1, self.cfg_ana.dzPartMax, 9999., True)
+        self.IsoTrackIsolationComputer.setPackedCandidates(patcands, 1, 9999, 9999.)
+
 
         alltrack = map( IsoTrack, charged )
 
 
         for track in alltrack:
 
+            if ( abs(track.dz()) > self.cfg_ana.dzMax ): continue
             if ( (abs(track.pdgId())!=11) and (abs(track.pdgId())!=13) and (track.pt() < self.cfg_ana.ptMin) ): continue
             if ( track.pt() < self.cfg_ana.ptMinEMU ): continue
 
@@ -110,20 +111,19 @@ class IsoTrackAnalyzer( Analyzer ):
 ## ===> compute the isolation and find the most isolated track
 
             isoSum = self.IsoTrackIsolationComputer.chargedAbsIso(track.physObj, self.cfg_ana.isoDR, 0., self.cfg_ana.ptPartMin)
-            
+            if( abs(track.pdgId())==211 ): isoSum = isoSum - track.pt() #BM: this is an ugly hack and it is error prone. It needs to be fixed using the addVeto method properly
+
             if self.cfg_ana.doRelIsolation:
-                relIso = (isoSum-track.pt())/track.pt()
+                relIso = (isoSum)/track.pt()
                 if ( (abs(track.pdgId())!=11) and (abs(track.pdgId())!=13) and (relIso > self.cfg_ana.MaxIsoSum) ): continue
                 elif((relIso > self.cfg_ana.MaxIsoSumEMU)): continue
             else:
-                if(isoSum > (self.cfg_ana.maxAbsIso + track.pt())): continue
+                if(isoSum > (self.cfg_ana.maxAbsIso)): continue
 
             if self.doIsoAnulus:
                 self.attachIsoAnulus(track)
 
-
-            #if abs(track.pdgId())==211 :
-            track.absIso = isoSum - track.pt() 
+            track.absIso = isoSum
 
             #### store a preIso track
             #event.preIsoTrack.append(track)
@@ -236,18 +236,19 @@ class IsoTrackAnalyzer( Analyzer ):
     
     def attachIsoAnulus(self, mu):
 
-        mu.absIsoAnCharged = self.IsoTrackIsolationComputer.chargedAbsIso(mu.physObj, self.cfg_ana.anDeltaR,  self.cfg_ana.isoDR, 0.0);
+        mu.absIsoAnCharged = self.IsoTrackIsolationComputer.chargedAbsIso(mu.physObj, self.cfg_ana.anDeltaR,  self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone);
+        if( abs(mu.pdgId())==211) : mu.absIsoAnCharged - mu.pt(); #BM: Same ugly hack as above. FIXME
 
         if self.isoAnPUCorr == None: puCorr = 'deltaBeta'
         else: puCorr = self.isoAnPUCorr
 
-        mu.absIsoAnPho  = self.IsoTrackIsolationComputer.photonAbsIsoRaw( mu.physObj, self.cfg_ana.anDeltaR,  self.cfg_ana.isoDR, 0.0)
-        mu.absIsoAnNHad = self.IsoTrackIsolationComputer.neutralHadAbsIsoRaw(mu.physObj, self.cfg_ana.anDeltaR, self.cfg_ana.isoDR, 0.0)
+        mu.absIsoAnPho  = self.IsoTrackIsolationComputer.photonAbsIsoRaw( mu.physObj, self.cfg_ana.anDeltaR,  self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
+        mu.absIsoAnNHad = self.IsoTrackIsolationComputer.neutralHadAbsIsoRaw(mu.physObj, self.cfg_ana.anDeltaR, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
         mu.absIsoAnNeutral = mu.absIsoAnPho + mu.absIsoAnNHad
         if puCorr == "rhoArea":
             mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - mu.rho * mu.EffectiveArea03 * (self.cfg_ana.anDeltaR/0.3)**2)
         elif puCorr == "deltaBeta":
-            mu.absIsoAnPU = self.IsoTrackIsolationComputer.puAbsIso(mu.physObj, self.cfg_ana.anDeltaR, self.cfg_ana.isoDR, 0.0);
+            mu.absIsoAnPU = self.IsoTrackIsolationComputer.puAbsIso(mu.physObj, self.cfg_ana.anDeltaR, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone);
             mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - 0.5*mu.absIsoAnPU)
         elif puCorr != 'raw':
             raise RuntimeError, "Unsupported miniIsolationCorr name '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw' are supported."
