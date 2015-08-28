@@ -19,6 +19,9 @@
 #include <signal.h>
 #include <boost/filesystem/fstream.hpp>
 
+using namespace jsoncollector;
+
+
 //TODO:get run directory information from DaqDirector
 
 RawEventFileWriterForBU* RawEventFileWriterForBU::instance = 0;

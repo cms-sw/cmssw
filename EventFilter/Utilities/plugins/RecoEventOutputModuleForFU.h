@@ -51,18 +51,18 @@ namespace evf {
     std::string stream_label_;
     boost::filesystem::path openDatFilePath_;
     boost::filesystem::path openDatChecksumFilePath_;
-    IntJ processed_;
-    mutable IntJ accepted_;
-    IntJ errorEvents_; 
-    IntJ retCodeMask_; 
-    StringJ filelist_;
-    IntJ filesize_; 
-    StringJ inputFiles_;
-    IntJ fileAdler32_; 
-    StringJ transferDestination_; 
-    boost::shared_ptr<FastMonitor> jsonMonitor_;
+    jsoncollector::IntJ processed_;
+    mutable jsoncollector::IntJ accepted_;
+    jsoncollector::IntJ errorEvents_; 
+    jsoncollector::IntJ retCodeMask_; 
+    jsoncollector::StringJ filelist_;
+    jsoncollector::IntJ filesize_; 
+    jsoncollector::StringJ inputFiles_;
+    jsoncollector::IntJ fileAdler32_; 
+    jsoncollector::StringJ transferDestination_; 
+    boost::shared_ptr<jsoncollector::FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
-    DataPointDefinition outJsonDef_;
+    jsoncollector::DataPointDefinition outJsonDef_;
     unsigned char* outBuf_=0;
     bool readAdler32Check_=false;
 
@@ -109,15 +109,15 @@ namespace evf {
     transferDestination_.setName("TransferDestination");
 
     outJsonDef_.setDefaultGroup("data");
-    outJsonDef_.addLegendItem("Processed","integer",DataPointDefinition::SUM);
-    outJsonDef_.addLegendItem("Accepted","integer",DataPointDefinition::SUM);
-    outJsonDef_.addLegendItem("ErrorEvents","integer",DataPointDefinition::SUM);
-    outJsonDef_.addLegendItem("ReturnCodeMask","integer",DataPointDefinition::BINARYOR);
-    outJsonDef_.addLegendItem("Filelist","string",DataPointDefinition::MERGE);
-    outJsonDef_.addLegendItem("Filesize","integer",DataPointDefinition::SUM);
-    outJsonDef_.addLegendItem("InputFiles","string",DataPointDefinition::CAT);
-    outJsonDef_.addLegendItem("FileAdler32","integer",DataPointDefinition::ADLER32);
-    outJsonDef_.addLegendItem("TransferDestination","string",DataPointDefinition::SAME);
+    outJsonDef_.addLegendItem("Processed","integer",jsoncollector::DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("Accepted","integer",jsoncollector::DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("ErrorEvents","integer",jsoncollector::DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("ReturnCodeMask","integer",jsoncollector::DataPointDefinition::BINARYOR);
+    outJsonDef_.addLegendItem("Filelist","string",jsoncollector::DataPointDefinition::MERGE);
+    outJsonDef_.addLegendItem("Filesize","integer",jsoncollector::DataPointDefinition::SUM);
+    outJsonDef_.addLegendItem("InputFiles","string",jsoncollector::DataPointDefinition::CAT);
+    outJsonDef_.addLegendItem("FileAdler32","integer",jsoncollector::DataPointDefinition::ADLER32);
+    outJsonDef_.addLegendItem("TransferDestination","string",jsoncollector::DataPointDefinition::SAME);
     std::stringstream tmpss,ss;
     tmpss << baseRunDir << "/open/" << "output_" << getpid() << ".jsd";
     ss << baseRunDir << "/" << "output_" << getpid() << ".jsd";
@@ -129,13 +129,13 @@ namespace evf {
     if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
       LogDebug("RecoEventOutputModuleForFU") << "writing output definition file -: " << outJsonDefName;
       std::string content;
-      JSONSerializer::serialize(&outJsonDef_,content);
-      FileIO::writeStringToFile(outTmpJsonDefName, content);
+      jsoncollector::JSONSerializer::serialize(&outJsonDef_,content);
+      jsoncollector::FileIO::writeStringToFile(outTmpJsonDefName, content);
       boost::filesystem::rename(outTmpJsonDefName,outJsonDefName);
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 
-    jsonMonitor_.reset(new FastMonitor(&outJsonDef_,true));
+    jsonMonitor_.reset(new jsoncollector::FastMonitor(&outJsonDef_,true));
     jsonMonitor_->setDefPath(outJsonDefName);
     jsonMonitor_->registerGlobalMonitorable(&processed_,false);
     jsonMonitor_->registerGlobalMonitorable(&accepted_,false);

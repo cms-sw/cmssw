@@ -17,6 +17,7 @@
 
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
+using namespace jsoncollector;
 
 constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
