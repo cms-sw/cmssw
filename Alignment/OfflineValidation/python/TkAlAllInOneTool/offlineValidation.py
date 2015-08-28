@@ -17,7 +17,8 @@ class OfflineValidation(GenericValidationData):
             "offlineModuleLevelHistsTransient":"False",
             "offlineModuleLevelProfiles":"False",
             "OfflineTreeBaseDir":"TrackHitFilter",
-            "SurfaceShapes":"none"
+            "SurfaceShapes":"none",
+            "stripYResiduals":"False",
             }
         mandatories = [ "trackcollection" ]
         defaults.update(addDefaults)
