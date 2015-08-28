@@ -49,8 +49,8 @@ PlotAlignmentValidation::PlotAlignmentValidation(const char *inputFile,std::stri
 
   // Force ROOT to use scientific notation even with smaller datasets
   TGaxis::SetMaxDigits(4);
-  // (This sets a static variable: correct in .eps-images but must be set
-  // again manually when viewing the .root-files)
+  // (This sets a static variable: correct in .eps images but must be set
+  // again manually when viewing the .root files)
 
   // Make ROOT calculate histogram statistics using all data,
   // regardless of displayed range
@@ -162,8 +162,13 @@ void PlotAlignmentValidation::plotSubDetResiduals(bool plotNormHisto,unsigned in
   }
   //hstack->Draw("nostack");
   char PlotName[1000];
+  sprintf( PlotName, "%s/%s.png", outputDir.c_str(), histoName.Data() );
+  c->Print(PlotName);
   sprintf( PlotName, "%s/%s.eps", outputDir.c_str(), histoName.Data() );
-  
+  c->Print(PlotName);
+  sprintf( PlotName, "%s/%s.pdf", outputDir.c_str(), histoName.Data() );
+  c->Print(PlotName);
+  sprintf( PlotName, "%s/%s.root", outputDir.c_str(), histoName.Data() );
   c->Print(PlotName);
   //delete c;
   //c=0;
@@ -195,8 +200,13 @@ void PlotAlignmentValidation::plotHitMaps()
   tree->Draw("entries:posR:posPhi","","COLZ2Prof");
   
   char PlotName[1000];
+  sprintf( PlotName, "%s/%s.png", outputDir.c_str(), histName_.c_str() );
+  c->Print(PlotName);
   sprintf( PlotName, "%s/%s.eps", outputDir.c_str(), histName_.c_str() );
-  
+  c->Print(PlotName);
+  sprintf( PlotName, "%s/%s.pdf", outputDir.c_str(), histName_.c_str() );
+  c->Print(PlotName);
+  sprintf( PlotName, "%s/%s.root", outputDir.c_str(), histName_.c_str() );
   c->Print(PlotName);
   //   //c->Update();
   c->Close();  
@@ -526,11 +536,13 @@ void PlotAlignmentValidation::plotSS( const std::string& options, const std::str
 	if (isTEC && iTEC>0)
 	  plotName << "_" << "R5-7";
 
-	// EPS-file
+	// PNG,EPS,PDF files
 	c.Update();
+	c.Print((plotName.str() + ".png").c_str());
 	c.Print((plotName.str() + ".eps").c_str());
+	c.Print((plotName.str() + ".pdf").c_str());
 
-	// ROOT-file
+	// ROOT file
 	TFile f((plotName.str() + ".root").c_str(), "recreate");
 	c.Write();
 	f.Close();
@@ -799,11 +811,13 @@ void PlotAlignmentValidation::plotDMR(const std::string& variable, Int_t minHits
       plotName << plotLayerN;
     }
 
-    // EPS-file
+    // PNG,EPS,PDF files
     c.Update(); 
+    c.Print((plotName.str() + ".png").c_str());
     c.Print((plotName.str() + ".eps").c_str());
+    c.Print((plotName.str() + ".pdf").c_str());
 
-    // ROOT-file
+    // ROOT file
     TFile f((plotName.str() + ".root").c_str(), "recreate");
     c.Write();
     f.Close();
@@ -887,11 +901,15 @@ void PlotAlignmentValidation::plotChi2(const char *inputFile)
   chiprob->Draw();
   normchi->Draw();
 
-  // EPS-files
+  // PNG,EPS,PDF files
+  normchi->Print((outputDir + "/h_normchi2.png").c_str());
+  chiprob->Print((outputDir + "/h_chi2Prob.png").c_str());
   normchi->Print((outputDir + "/h_normchi2.eps").c_str());
   chiprob->Print((outputDir + "/h_chi2Prob.eps").c_str());
+  normchi->Print((outputDir + "/h_normchi2.pdf").c_str());
+  chiprob->Print((outputDir + "/h_chi2Prob.pdf").c_str());
 
-  // ROOT-files
+  // ROOT files
   TFile fi2((outputDir + "/h_normchi2.root").c_str(), "recreate");
   normchi->Write();
   fi2.Close();
