@@ -12,9 +12,6 @@
 #include<iostream>
 #include<vector>
 
-using namespace std; 
-using namespace reco;
-
 namespace edm {
   class Event;
   class EventSetup;
