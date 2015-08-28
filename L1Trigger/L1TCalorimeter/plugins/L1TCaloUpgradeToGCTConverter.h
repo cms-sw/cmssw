@@ -42,35 +42,32 @@
 
 #include <vector>
 
-using namespace std;
-using namespace edm;
-
 
 //
 // class declaration
 //
 
-  class L1TCaloUpgradeToGCTConverter : public EDProducer {
+  class L1TCaloUpgradeToGCTConverter : public edm::EDProducer {
   public:
-    explicit L1TCaloUpgradeToGCTConverter(const ParameterSet&);
+    explicit L1TCaloUpgradeToGCTConverter(const edm::ParameterSet&);
     ~L1TCaloUpgradeToGCTConverter();
 
-    static void fillDescriptions(ConfigurationDescriptions& descriptions);
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   private:
-    virtual void produce(Event&, EventSetup const&) override;
+    virtual void produce(edm::Event&, edm::EventSetup const&) override;
     virtual void beginJob();
     virtual void endJob();
-    virtual void beginRun(Run const&iR, EventSetup const&iE);
-    virtual void endRun(Run const& iR, EventSetup const& iE);
+    virtual void beginRun(edm::Run const&iR, edm::EventSetup const&iE);
+    virtual void endRun(edm::Run const& iR, edm::EventSetup const& iE);
 
-    EDGetToken EGammaToken_;
-    EDGetToken RlxTauToken_;
-    EDGetToken IsoTauToken_;
-    EDGetToken JetToken_;
-    EDGetToken EtSumToken_;
-    EDGetToken HfSumsToken_;
-    EDGetToken HfCountsToken_;
+    edm::EDGetToken EGammaToken_;
+    edm::EDGetToken RlxTauToken_;
+    edm::EDGetToken IsoTauToken_;
+    edm::EDGetToken JetToken_;
+    edm::EDGetToken EtSumToken_;
+    edm::EDGetToken HfSumsToken_;
+    edm::EDGetToken HfCountsToken_;
 
     int bxMin_;
     int bxMax_;
