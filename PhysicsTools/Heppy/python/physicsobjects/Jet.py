@@ -68,10 +68,7 @@ class Jet(PhysicsObject):
             elif self.jetID("POG_PFID_Loose")  : return 1;
             else                               : return 0;
         
-        # jetID from here: https://twiki.cern.ch/twiki/bin/view/CMS/JetID#Recommendations_for_8_TeV_data_a
-#        if name == "POG_PFID_Loose":    return (npr>1 and phf<0.99 and nhf<0.99 and muf < 0.8) and (eta>2.4 or (elf<0.99 and chf>0 and chm>0));
-#        if name == "POG_PFID_Medium":   return (npr>1 and phf<0.95 and nhf<0.95 and muf < 0.8) and (eta>2.4 or (elf<0.99 and chf>0 and chm>0));
-#        if name == "POG_PFID_Tight":    return (npr>1 and phf<0.90 and nhf<0.90 and muf < 0.8) and (eta>2.4 or (elf<0.90 and chf>0 and chm>0));
+        # jetID from here: https://twiki.cern.ch/twiki/bin/viewauth/CMS/JetID#Recommendations_for_13_TeV_data
         if name == "POG_PFID_Loose":    return ((eta<3.0 and ((npr>1 and phf<0.99 and nhf<0.99) and (eta>2.4 or (elf<0.99 and chf>0 and chm>0)))) or (eta>3.0 and (phf<0.90 and npn>10)));
         if name == "POG_PFID_Medium":   return (npr>1 and phf<0.95 and nhf<0.95 and muf < 0.8) and (eta>2.4 or (elf<0.99 and chf>0 and chm>0));
         if name == "POG_PFID_Tight":    return ((eta<3.0 and ((npr>1 and phf<0.90 and nhf<0.90) and (eta>2.4 or (elf<0.99 and chf>0 and chm>0)))) or (eta>3.0 and (phf<0.90 and npn>10)));

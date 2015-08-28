@@ -448,26 +448,38 @@ class LeptonAnalyzer( Analyzer ):
 
     def attachIsoAnulus(self, mu):
         mu.miniIsoR = 10.0/min(max(mu.pt(), 50),200)
-        mu.absIsoAnCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0);
+        what = "mu" if (abs(mu.pdgId()) == 13) else ("eleB" if mu.isEB() else "eleE")
+        if what == "mu":
+            mu.absIsoAnCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0);
+        else:
+            mu.absIsoAnCharged = self.IsolationComputer.chargedAbsIso(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0,self.IsolationComputer.selfVetoNone);
 
         if self.isoAnPUCorr == None: puCorr = 'deltaBeta'
         else: puCorr = self.isoAnPUCorr
-        
-        mu.absIsoAnPho  = self.IsolationComputer.photonAbsIsoRaw( mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0) 
-        mu.absIsoAnNHad = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0) 
+
+        if what == "mu":
+            mu.absIsoAnPho  = self.IsolationComputer.photonAbsIsoRaw( mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0) 
+            mu.absIsoAnNHad = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0) 
+        else :
+            mu.absIsoAnPho  = self.IsolationComputer.photonAbsIsoRaw( mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0,self.IsolationComputer.selfVetoNone) 
+            mu.absIsoAnNHad = self.IsolationComputer.neutralHadAbsIsoRaw(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0,self.IsolationComputer.selfVetoNone) 
         mu.absIsoAnNeutral = mu.absIsoAnPho + mu.absIsoAnNHad 
 
+        
         if puCorr == "rhoArea":
             mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - mu.rho * mu.EffectiveArea03 * (self.cfg_ana.anDeltaR/0.3)**2)
         elif puCorr == "deltaBeta":
-            mu.absIsoAnPU = self.IsolationComputer.puAbsIso(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0);
+            if what == "mu":
+                mu.absIsoAnPU = self.IsolationComputer.puAbsIso(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0);
+            else :
+                mu.absIsoAnPU = self.IsolationComputer.puAbsIso(mu.physObj, self.cfg_ana.anDeltaR, mu.miniIsoR, 0.0,self.IsolationComputer.selfVetoNone);
             mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - 0.5*mu.absIsoAnPU)
         elif puCorr != 'raw':
             raise RuntimeError, "Unsupported miniIsolationCorr name '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw' are supported."
 
         mu.absIsoAn = mu.absIsoAnCharged + mu.absIsoAnNeutral
         mu.relIsoAn = mu.absIsoAn/mu.pt()
-
+        #print "absIso=%.5f, relIso=%.5f, absIsoAnPU=%.5f" % (mu.absIsoAn, mu.relIsoAn, mu.absIsoAnPU)
 
     def attachIsolationScan(self, mu):
 
