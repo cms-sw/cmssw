@@ -36,24 +36,29 @@ applyResiduals=True #application of residual corrections. Have to be set to True
 ### External JECs =====================================================================================================
 
 #from Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff import *
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+#from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+from Configuration.AlCa.autoCond import autoCond
+#GlobalTag = gtCustomise(GlobalTag, 'auto:run2_data', '')
 if runOnData:
-  process.GlobalTag.globaltag = '75X_dataRun1_v2' #'74X_dataRun2_Prompt_v1'
+  process.GlobalTag.globaltag = autoCond['run2_data']
+  #process.GlobalTag.globaltag = '75X_dataRun1_v2' #'74X_dataRun2_Prompt_v1'
 else:
-  process.GlobalTag.globaltag = 'MCRUN2_74_v9'
+  #process.GlobalTag.globaltag = 'MCRUN2_74_v9'
+  process.GlobalTag.globaltag = autoCond['run2_mc']
+ # process.GlobalTag = GlobaTag(GlobalTag, 'auto:run2_mc', '')
 
 if usePrivateSQlite:
     from CondCore.DBCommon.CondDBSetup_cfi import *
     import os
     if runOnData:
-      era="Summer15_50nsV4_DATA"
+      era="Summer15_50nsV5_DATA"
     else:
-      era="Summer15_50nsV4_MC"
-    dBFile = os.path.expandvars("$CMSSW_BASE/src/PhysicsTools/PatAlgos/test/"+era+".db")
+      era="Summer15_50nsV5_MC"
+      
     process.jec = cms.ESSource("PoolDBESSource",CondDBSetup,
-                               connect = cms.string( "sqlite_file://"+dBFile ),
+                               connect = cms.string( "frontier://FrontierPrep/CMS_COND_PHYSICSTOOLS"),
                                toGet =  cms.VPSet(
             cms.PSet(
                 record = cms.string("JetCorrectionsRecord"),
