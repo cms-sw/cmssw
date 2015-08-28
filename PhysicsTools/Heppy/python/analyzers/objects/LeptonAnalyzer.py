@@ -318,6 +318,7 @@ class LeptonAnalyzer( Analyzer ):
               elif aeta < 1.300: ele.EffectiveArea04 = 0.1734 
               elif aeta < 2.000: ele.EffectiveArea04 = 0.1077 
               elif aeta < 2.200: ele.EffectiveArea04 = 0.1565 
+              else:              ele.EffectiveArea04 = 0.2680
           elif self.eleEffectiveArea == "Spring15_50ns_v1":
               aeta = abs(ele.eta())
               ## ----- https://github.com/ikrav/cmssw/blob/egm_id_747_v2/RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_50ns.txt
@@ -326,6 +327,10 @@ class LeptonAnalyzer( Analyzer ):
               elif aeta < 2.000: ele.EffectiveArea03 = 0.0632
               elif aeta < 2.200: ele.EffectiveArea03 = 0.0727
               else:              ele.EffectiveArea03 = 0.1337
+              # warning: EAs not computed for cone DR=0.4 yet. Do not correct
+              ele.EffectiveArea04 = 0.0
+          elif self.eleEffectiveArea == "Spring15_25ns_v1":
+              aeta = abs(ele.eta())
               ## ----- https://github.com/ikrav/cmssw/blob/egm_id_747_v2/RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt
               if   aeta < 1.000: ele.EffectiveArea03 = 0.1752
               elif aeta < 1.479: ele.EffectiveArea03 = 0.1862
@@ -334,6 +339,8 @@ class LeptonAnalyzer( Analyzer ):
               elif aeta < 2.300: ele.EffectiveArea03 = 0.1903
               elif aeta < 2.400: ele.EffectiveArea03 = 0.2243
               else:              ele.EffectiveArea03 = 0.2687
+              # warning: EAs not computed for cone DR=0.4 yet. Do not correct
+              ele.EffectiveArea04 = 0.0
           else: raise RuntimeError,  "Unsupported value for ele_effectiveAreas: can only use Data2012 (rho: ?) and Phys14_v1 (rho: fixedGridRhoFastjetAll)"
 
         # Electron scale calibrations
@@ -570,7 +577,7 @@ setattr(LeptonAnalyzer,"defaultConfig",cfg.Analyzer(
     mu_tightId = "POG_ID_Tight" ,
     # electron isolation correction method (can be "rhoArea" or "deltaBeta")
     ele_isoCorr = "rhoArea" ,
-    el_effectiveAreas = "Spring15_25ns_v1" , #(can be 'Data2012' or 'Phys14_25ns_v1', or 'Spring15_50ns_v1' or 'Spring15_25ns_v1')
+    ele_effectiveAreas = "Spring15_25ns_v1" , #(can be 'Data2012' or 'Phys14_25ns_v1', or 'Spring15_50ns_v1' or 'Spring15_25ns_v1')
     ele_tightId = "Cuts_2012" ,
     # minimum deltaR between a loose electron and a loose muon (on overlaps, discard the electron)
     min_dr_electron_muon = 0.02,
