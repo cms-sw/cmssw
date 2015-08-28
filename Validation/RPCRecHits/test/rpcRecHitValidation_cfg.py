@@ -53,7 +53,7 @@ process.dqmSaver.workflow = '/RPC/MC/Validation'
 process.load("Validation.RPCRecHits.rpcRecHitValidation_cfi")
 
 #### RPCPorintProducer-Reco validation
-process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cfi")
+process.load("RecoLocalMuon.RPCRecHit.rpcPointProducer_cff")
 process.load("Validation.RPCRecHits.rpcPointValidation_cfi")
 
 process.rpcPointProducerPlusValidation_step = cms.Sequence(
