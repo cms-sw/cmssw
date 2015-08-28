@@ -28,6 +28,7 @@
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 
 #include "VoronoiAlgorithm.h"
+#include "SelfSubtractVoronoiAlgorithm.h"
 
 using namespace std;
 //
