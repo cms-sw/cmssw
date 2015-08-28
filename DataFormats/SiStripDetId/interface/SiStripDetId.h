@@ -163,7 +163,7 @@ SiStripDetId::ModuleGeometry SiStripDetId::moduleGeometry() const {
     case 7: geometry = W7;
       break;
     }
-    case UNKNOWN: default:;  
+  case UNKNOWN: default:;  
   }
   return geometry;
 }
