@@ -55,7 +55,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
 
         self.addParameter(self._defaultParameters, 'jetCorLabelUpToL3', cms.InputTag('ak4PFCHSL1FastL2L3Corrector'), "Use ak4PFL1FastL2L3Corrector (ak4PFCHSL1FastL2L3Corrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3Corrector for CaloJets", Type=cms.InputTag)
         self.addParameter(self._defaultParameters, 'jetCorLabelL3Res', cms.InputTag('ak4PFCHSL1FastL2L3ResidualCorrector'), "Use ak4PFL1FastL2L3ResidualCorrector (ak4PFCHSL1FastL2L3ResidualCorrector) for PFJets with (without) charged hadron subtraction, ak4CaloL1FastL2L3ResidualCorrector for CaloJets", Type=cms.InputTag)
-        self.addParameter(self._defaultParameters, 'jecUncertaintyFile', 'PhysicsTools/PatUtils/data/Summer15_50nsV4_DATA_UncertaintySources_AK4PFchs.txt',
+        self.addParameter(self._defaultParameters, 'jecUncertaintyFile', 'CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt',
                           "Extra JES uncertainty file", Type=str)
         self.addParameter(self._defaultParameters, 'jecUncertaintyTag', 'SubTotalMC',
                           "JES uncertainty Tag", Type=str)
@@ -1395,7 +1395,7 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                         tauColl="selectedPatTaus",
                                         pfCandColl = "particleFlow",
                                         jetCleaning="LepClean",
-                                        jecUnFile="PhysicsTools/PatUtils/data/Summer15_50nsV4_DATA_UncertaintySources_AK4PFchs.txt",
+                                        jecUnFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
                                         recomputeMET=False,
                                         postfix=""):
 
@@ -1476,7 +1476,7 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                jetConfig=False,
                                jetCorLabelL3=cms.InputTag('ak4PFCHSL1FastL2L3Corrector'),
                                jetCorLabelRes=cms.InputTag('ak4PFCHSL1FastL2L3ResidualCorrector'),
-                               jecUncFile="PhysicsTools/PatUtils/data/Summer15_50nsV4_DATA_UncertaintySources_AK4PFchs.txt",
+                               jecUncFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
                                postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()

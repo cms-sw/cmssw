@@ -85,8 +85,8 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     }
     jetCorrLabel_ = cfg.getParameter<edm::InputTag>("jetCorrLabel"); //for MC
     jetCorrLabelRes_ = cfg.getParameter<edm::InputTag>("jetCorrLabelRes"); //for data
-    jetCorrToken_ = consumes<reco::JetCorrector>(jetCorrLabel_);
-    jetCorrResToken_ = consumes<reco::JetCorrector>(jetCorrLabelRes_);
+    jetCorrToken_ = mayConsume<reco::JetCorrector>(jetCorrLabel_);
+    jetCorrResToken_ = mayConsume<reco::JetCorrector>(jetCorrLabelRes_);
 
     jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
       cfg.getParameter<double>("jetCorrEtaMax") : 9.9;

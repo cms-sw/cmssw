@@ -14,7 +14,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -25,14 +25,15 @@
 
 namespace pat {
 
-  class GenMETExtractor : public edm::EDProducer {
+  class GenMETExtractor : public edm::global::EDProducer<> {
 
     public:
 
     explicit GenMETExtractor(const edm::ParameterSet& iConfig);
     ~GenMETExtractor();
 
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    virtual void produce(edm::StreamID streamID, edm::Event & iEvent,
+			 const edm::EventSetup & iSetup) const;
 
   private:
 

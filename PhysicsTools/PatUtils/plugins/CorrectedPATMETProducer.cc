@@ -19,7 +19,7 @@
 #include <vector>
 
 //____________________________________________________________________________||
-class CorrectedPATMETProducer : public edm::EDProducer
+class CorrectedPATMETProducer : public edm::stream::EDProducer<>
 {
 
 public:

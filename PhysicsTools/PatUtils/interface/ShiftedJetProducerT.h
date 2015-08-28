@@ -73,7 +73,7 @@ template <typename T, typename Textractor>
       jetCorrLabelUpToL3_ = cfg.getParameter<edm::InputTag>("jetCorrLabelUpToL3");
       jetCorrTokenUpToL3_ = mayConsume<reco::JetCorrector>(jetCorrLabelUpToL3_);
   }
-    if ( cfg.exists("jetCorrLabelUpToL3Res") ) {
+    if ( cfg.exists("jetCorrLabelUpToL3Res") && addResidualJES_ ) {
       jetCorrLabelUpToL3Res_ = cfg.getParameter<edm::InputTag>("jetCorrLabelUpToL3Res");
       jetCorrTokenUpToL3Res_ = mayConsume<reco::JetCorrector>(jetCorrLabelUpToL3Res_);
     }
