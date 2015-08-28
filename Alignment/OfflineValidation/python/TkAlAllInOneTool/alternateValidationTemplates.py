@@ -7,22 +7,6 @@ schum schum
 
 ######################################################################
 ######################################################################
-zeroAPETemplate="""
-from CondCore.DBCommon.CondDBSetup_cfi import *
-process.APE = cms.ESSource("PoolDBESSource",CondDBSetup,
-                                        connect = cms.string('frontier://FrontierProd/CMS_COND_31X_FROM21X'),
-                                        timetype = cms.string("runnumber"),
-                                        toGet = cms.VPSet(
-                                                          cms.PSet(record = cms.string('TrackerAlignmentErrorExtendedRcd'),
-                                                                   tag = cms.string('TrackerIdealGeometryErrors210_mc')
-                                                                   ))
-                                        )
-process.es_prefer_APE = cms.ESPrefer("PoolDBESSource", "APE")
-"""
-
-
-######################################################################
-######################################################################
 CosmicsOfflineValidation="""
 import FWCore.ParameterSet.Config as cms
 
