@@ -300,7 +300,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetJetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetJetHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetJetHT_selector.throw      = cms.bool(False)
-streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p45_v2', 
+streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_AK8DiPFJet250_200_TrimMass30_BTagCSV0p45_v1', 
+    'HLT_AK8DiPFJet280_200_TrimMass30_BTagCSV0p45_v2', 
+    'HLT_AK8PFHT600_TrimR0p1PT0p03Mass50_BTagCSV0p45_v1', 
+    'HLT_AK8PFHT650_TrimR0p1PT0p03Mass50_v1', 
     'HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v2', 
     'HLT_AK8PFJet360_TrimMass30_v2', 
     'HLT_CaloJet500_NoJetID_v2', 
