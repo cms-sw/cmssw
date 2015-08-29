@@ -372,7 +372,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
 	zPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
 	
 	histname = "xPointOfClosestApproachToPV_";
-	xPointOfClosestApproachToPV = ibooker.book1D(histname+CategoryName, histname+CategoryName, VXBin, VXMin, VXMax);
+        xPointOfClosestApproachToPV = ibooker.book1D(histname+CategoryName, histname+CategoryName, VXBin, VXMin, VXMax);
 	xPointOfClosestApproachToPV->setAxisTitle("x component of Track PCA to pv (cm)",1);
 	xPointOfClosestApproachToPV->setAxisTitle("Number of Tracks",2);
 	
@@ -806,7 +806,9 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         }
 
 
-
+      xPointOfClosestApproachToPV->Fill(track.vx()-pv.position().x());
+      yPointOfClosestApproachToPV->Fill(track.vy()-pv.position().y());
+      zPointOfClosestApproachToPV->Fill(track.dz(pv.position()));
       DistanceOfClosestApproachToPV      -> Fill(track.dxy(pv.position()));
       DistanceOfClosestApproachToPVVsPhi -> Fill(track.phi(), track.dxy(pv.position()));
       xPointOfClosestApproachVsZ0wrtPV   -> Fill(track.dz(pv.position()),(track.vx()-pv.position().x()));
