@@ -489,20 +489,20 @@ HLT_PixelTracks_Multiplicity110ForEndOfFill_v*			# JIRA: CMSHLT-486
 HLT_PixelTracks_Multiplicity135ForEndOfFill_v*			# JIRA: CMSHLT-486
 HLT_PixelTracks_Multiplicity160ForEndOfFill_v*			# JIRA: CMSHLT-486
 
-#HLT_HISinglePhoton10ForEndOfFill_v*				# JIRA: CMSHLT-493
-#HLT_HISinglePhoton15ForEndOfFill_v*				# JIRA: CMSHLT-493
-#HLT_HISinglePhoton20ForEndOfFill_v*				# JIRA: CMSHLT-493
-#HLT_HISinglePhoton40_v*					# JIRA: CMSHLT-493
-#HLT_HISinglePhoton60_v*					# JIRA: CMSHLT-493
-#HLT_AK4CaloJet30_v*						# JIRA: CMSHLT-493
-#HLT_AK4CaloJet40_v*						# JIRA: CMSHLT-493
-#HLT_AK4CaloJet50_v*						# JIRA: CMSHLT-493
-#HLT_AK4CaloJet80_v*						# JIRA: CMSHLT-493
-#HLT_AK4CaloJet100_v*						# JIRA: CMSHLT-493
-#HLT_AK4PFJet30_v*						# JIRA: CMSHLT-493
-#HLT_AK4PFJet50_v*						# JIRA: CMSHLT-493
-#HLT_AK4PFJet80_v*						# JIRA: CMSHLT-493
-#HLT_AK4PFJet100_v*						# JIRA: CMSHLT-493
+HLT_HISinglePhoton10ForEndOfFill_v*				# JIRA: CMSHLT-493
+HLT_HISinglePhoton15ForEndOfFill_v*				# JIRA: CMSHLT-493
+HLT_HISinglePhoton20ForEndOfFill_v*				# JIRA: CMSHLT-493
+HLT_HISinglePhoton40_v*						# JIRA: CMSHLT-493
+HLT_HISinglePhoton60_v*						# JIRA: CMSHLT-493
+HLT_AK4CaloJet30_v*						# JIRA: CMSHLT-493
+HLT_AK4CaloJet40_v*						# JIRA: CMSHLT-493
+HLT_AK4CaloJet50_v*						# JIRA: CMSHLT-493
+HLT_AK4CaloJet80_v*						# JIRA: CMSHLT-493
+HLT_AK4CaloJet100_v*						# JIRA: CMSHLT-493
+HLT_AK4PFJet30_v*						# JIRA: CMSHLT-493
+HLT_AK4PFJet50_v*						# JIRA: CMSHLT-493
+HLT_AK4PFJet80_v*						# JIRA: CMSHLT-493
+HLT_AK4PFJet100_v*						# JIRA: CMSHLT-493
 
 HLT_L1SingleMuOpen_v*						# JIRA: CMSHLT-261 (for commissioning)
 HLT_L1SingleMuOpen_DT_v*					# JIRA: CMSHLT-261 (for commissioning)

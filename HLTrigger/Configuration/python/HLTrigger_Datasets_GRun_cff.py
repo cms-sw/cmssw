@@ -61,6 +61,35 @@ streamA_datasetFullTrack_selector.throw      = cms.bool(False)
 streamA_datasetFullTrack_selector.triggerConditions = cms.vstring('HLT_FullTrack12ForEndOfFill_v1', 
     'HLT_FullTrack50_v2')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHINCaloJets_selector
+streamA_datasetHINCaloJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHINCaloJets_selector.l1tResults = cms.InputTag('')
+streamA_datasetHINCaloJets_selector.throw      = cms.bool(False)
+streamA_datasetHINCaloJets_selector.triggerConditions = cms.vstring('HLT_AK4CaloJet100_v2', 
+    'HLT_AK4CaloJet30_v2', 
+    'HLT_AK4CaloJet40_v2', 
+    'HLT_AK4CaloJet50_v2', 
+    'HLT_AK4CaloJet80_v2')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHINPFJets_selector
+streamA_datasetHINPFJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHINPFJets_selector.l1tResults = cms.InputTag('')
+streamA_datasetHINPFJets_selector.throw      = cms.bool(False)
+streamA_datasetHINPFJets_selector.triggerConditions = cms.vstring('HLT_AK4PFJet100_v2', 
+    'HLT_AK4PFJet30_v2', 
+    'HLT_AK4PFJet50_v2', 
+    'HLT_AK4PFJet80_v2')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHINPhoton_selector
+streamA_datasetHINPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHINPhoton_selector.l1tResults = cms.InputTag('')
+streamA_datasetHINPhoton_selector.throw      = cms.bool(False)
+streamA_datasetHINPhoton_selector.triggerConditions = cms.vstring('HLT_HISinglePhoton10ForEndOfFill_v1', 
+    'HLT_HISinglePhoton15ForEndOfFill_v1', 
+    'HLT_HISinglePhoton20ForEndOfFill_v1', 
+    'HLT_HISinglePhoton40_v2', 
+    'HLT_HISinglePhoton60_v2')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHLTPhysics_selector
 streamA_datasetHLTPhysics_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHLTPhysics_selector.l1tResults = cms.InputTag('')
