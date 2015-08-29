@@ -57,71 +57,73 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig, edm::ConsumesColl
 
 void TrackAnalyzer::initHistos()
 {
-  Chi2 = NULL;
-  Chi2Prob = NULL;
-  Chi2ProbVsPhi = NULL;
-  Chi2ProbVsEta = NULL;
-  Chi2oNDF = NULL;
-  Chi2oNDFVsEta = NULL;
-  Chi2oNDFVsPhi = NULL;
-  Chi2oNDFVsTheta = NULL;
-  Chi2oNDFVsTheta = NULL;
-  Chi2oNDFVsPhi = NULL;
-  Chi2oNDFVsEta = NULL;
+  Chi2 = nullptr;
+  Chi2Prob = nullptr;
+  Chi2ProbVsPhi = nullptr;
+  Chi2ProbVsEta = nullptr;
+  Chi2oNDF = nullptr;
+  Chi2oNDFVsEta = nullptr;
+  Chi2oNDFVsPhi = nullptr;
+  Chi2oNDFVsTheta = nullptr;
+  Chi2oNDFVsTheta = nullptr;
+  Chi2oNDFVsPhi = nullptr;
+  Chi2oNDFVsEta = nullptr;
   	    
-  NumberOfRecHitsPerTrack = NULL;
-  NumberOfValidRecHitsPerTrack = NULL;
-  NumberOfLostRecHitsPerTrack = NULL;
+  NumberOfRecHitsPerTrack = nullptr;
+  NumberOfValidRecHitsPerTrack = nullptr;
+  NumberOfLostRecHitsPerTrack = nullptr;
 
-  NumberOfRecHitsPerTrackVsPhi = NULL;
-  NumberOfRecHitsPerTrackVsTheta = NULL;
-  NumberOfRecHitsPerTrackVsEta = NULL;
+  NumberOfRecHitsPerTrackVsPhi = nullptr;
+  NumberOfRecHitsPerTrackVsTheta = nullptr;
+  NumberOfRecHitsPerTrackVsEta = nullptr;
 
-  NumberOfRecHitVsPhiVsEtaPerTrack = NULL;
+  NumberOfRecHitVsPhiVsEtaPerTrack = nullptr;
 
-  NumberOfValidRecHitsPerTrackVsPhi = NULL;
-  NumberOfValidRecHitsPerTrackVsEta = NULL;
+  NumberOfValidRecHitsPerTrackVsPhi = nullptr;
+  NumberOfValidRecHitsPerTrackVsEta = nullptr;
 
-  NumberOfLayersPerTrack = NULL;
-  NumberOfLayersVsPhiVsEtaPerTrack = NULL;
+  NumberOfLayersPerTrack = nullptr;
+  NumberOfLayersVsPhiVsEtaPerTrack = nullptr;
 
-  DistanceOfClosestApproach = NULL;
-  DistanceOfClosestApproachToBS = NULL;
-  DistanceOfClosestApproachVsTheta = NULL;
-  DistanceOfClosestApproachVsPhi = NULL;
-  DistanceOfClosestApproachToBSVsPhi = NULL;
-  DistanceOfClosestApproachVsEta = NULL;
-  xPointOfClosestApproach = NULL;
-  xPointOfClosestApproachVsZ0wrt000 = NULL;
-  xPointOfClosestApproachVsZ0wrtBS = NULL;
-  yPointOfClosestApproach = NULL;
-  yPointOfClosestApproachVsZ0wrt000 = NULL;
-  yPointOfClosestApproachVsZ0wrtBS = NULL;
-  zPointOfClosestApproach = NULL;
-  zPointOfClosestApproachVsPhi = NULL;
-  algorithm = NULL;
+  DistanceOfClosestApproach = nullptr;
+  DistanceOfClosestApproachToBS = nullptr;
+  DistanceOfClosestApproachVsTheta = nullptr;
+  DistanceOfClosestApproachVsPhi = nullptr;
+  DistanceOfClosestApproachToBSVsPhi = nullptr;
+  DistanceOfClosestApproachVsEta = nullptr;
+  xPointOfClosestApproach = nullptr;
+  xPointOfClosestApproachVsZ0wrt000 = nullptr;
+  xPointOfClosestApproachVsZ0wrtBS = nullptr;
+  yPointOfClosestApproach = nullptr;
+  yPointOfClosestApproachVsZ0wrt000 = nullptr;
+  yPointOfClosestApproachVsZ0wrtBS = nullptr;
+  zPointOfClosestApproach = nullptr;
+  zPointOfClosestApproachVsPhi = nullptr;
+  algorithm = nullptr;
+  oriAlgo = nullptr;
+
     // TESTING
-  TESTDistanceOfClosestApproachToBS = NULL;
-  TESTDistanceOfClosestApproachToBSVsPhi = NULL;
+  TESTDistanceOfClosestApproachToBS = nullptr;
+  TESTDistanceOfClosestApproachToBSVsPhi = nullptr;
 
 // by Mia in order to deal w/ LS transitions
-  Chi2oNDF_lumiFlag = NULL;
-  NumberOfRecHitsPerTrack_lumiFlag = NULL;
+  Chi2oNDF_lumiFlag = nullptr;
+  NumberOfRecHitsPerTrack_lumiFlag = nullptr;
 
   ////////////////////////////////////////////////////////////                                                                                                                                             
   //special Plots for HI DQM  //SHOULD I ADD THE BOOL HERE??                                                                                                                                               
   ////////////////////////////////////////////////////////////                                                                                                                                             
-  LongDCASig = NULL;
-  TransDCASig = NULL;
+  LongDCASig = nullptr;
+  TransDCASig = nullptr;
 
 
   // IP significance
-  sipDxyToBS = NULL;
-  sipDzToBS = NULL;
-  sip3dToPV = NULL;
-  sip2dToPV = NULL;
-  sipDxyToPV = NULL;
-  sipDzToPV = NULL;
+  sipDxyToBS = nullptr;
+  sipDzToBS = nullptr;
+  sip3dToPV = nullptr;
+  sip2dToPV = nullptr;
+  sipDxyToPV = nullptr;
+  sipDzToPV = nullptr;
 
 }
 
@@ -359,8 +361,15 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       algorithm = ibooker.book1D(histname+CategoryName, histname+CategoryName, reco::TrackBase::algoSize, 0., double(reco::TrackBase::algoSize));
       algorithm->setAxisTitle("Tracking algorithm",1);
       algorithm->setAxisTitle("Number of Tracks",2);
-      for (size_t ibin=0; ibin<reco::TrackBase::algoSize-1; ibin++)
+      histname = "originalAlgorithm_";
+      oriAlgo = ibooker.book1D(histname+CategoryName, histname+CategoryName, reco::TrackBase::algoSize, 0., double(reco::TrackBase::algoSize));
+      oriAlgo->setAxisTitle("Tracking algorithm",1);
+      oriAlgo->setAxisTitle("Number of Tracks",2);
+
+      for (size_t ibin=0; ibin<reco::TrackBase::algoSize-1; ibin++) {
 	algorithm->setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
+        oriAlgo->setBinLabel(ibin+1,reco::TrackBase::algoNames[ibin]);
+      }
     }
 
 }
@@ -702,6 +711,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     // algorithm
     algorithm->Fill(static_cast<double>(track.algo()));
+    oriAlgo->Fill(static_cast<double>(track.originalAlgo()));
   }
 
   if ( doLumiAnalysis_ ) {
