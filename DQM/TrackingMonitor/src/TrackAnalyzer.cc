@@ -235,6 +235,17 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       NumberOfLostRecHitsPerTrack->setAxisTitle("Number of lost RecHits for each Track");
       NumberOfLostRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
+      histname = "NumberOfMissingInnerRecHitsPerTrack_";
+      NumberOfMIRecHitsPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, 10, -0.5, 9.5);
+      NumberOfMIRecHitsPerTrack->setAxisTitle("Number of missing-inner RecHits for each Track");
+      NumberOfMIRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
+
+      histname = "NumberOfMissingOuterRecHitsPerTrack_";
+      NumberOfMORecHitsPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, 10, -0.5, 9.5);
+      NumberOfMORecHitsPerTrack->setAxisTitle("Number of missing-outer RecHits for each Track");
+      NumberOfMORecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
+
+
       histname = "NumberOfLayersPerTrack_";
       NumberOfLayersPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKLayBin, TKLayMin, TKLayMax);
       NumberOfLayersPerTrack->setAxisTitle("Number of Layers of each Track", 1);
@@ -243,11 +254,32 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
 
       if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ){
 	
-	histname = "NumberOfRecHitVsPhiVsEtaPerTrack_";
-	NumberOfRecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
+	histname = "NumberOfValidRecHitVsPhiVsEtaPerTrack_";
+	NumberOfValidRecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
 								    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
-	NumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
-	NumberOfRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
+	NumberOfValidRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+	NumberOfValidRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
+
+        histname = "NumberOfLostRecHitVsPhiVsEtaPerTrack_";
+        NumberOfLostRecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
+                                                                    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 5., "");
+        NumberOfLostRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+        NumberOfLostRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
+
+
+        histname = "NumberMIRecHitVsPhiVsEtaPerTrack_";
+        NumberOfMIRecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
+                                                                    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 15., "");
+        NumberOfMIRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+        NumberOfMIRecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
+
+        histname = "NumberMORecHitVsPhiVsEtaPerTrack_";
+        NumberOfMORecHitVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName,
+                                                                    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 15., "");
+        NumberOfMORecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
+        NumberOfMORecHitVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
+
+
       }
 
       if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ ){
@@ -665,6 +697,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   int nRecHits      = track.hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS);
   int nValidRecHits = track.numberOfValidHits();
   int nLostRecHits  = track.numberOfLostHits();
+  int nLostIn =      track.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS);
+  int nLostOut =     track.hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS);
 
   double chi2     = track.chi2();
   double chi2prob = TMath::Prob(track.chi2(),(int)track.ndof());
@@ -675,11 +709,15 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     NumberOfRecHitsPerTrack     -> Fill(nRecHits);
     NumberOfValidRecHitsPerTrack-> Fill(nValidRecHits);
     NumberOfLostRecHitsPerTrack -> Fill(nLostRecHits);
+    NumberOfMIRecHitsPerTrack -> Fill(nLostIn);
+    NumberOfMORecHitsPerTrack -> Fill(nLostOut);
 
     // 2D plots    
-    if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ )
-      NumberOfRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nRecHits);
-    
+    if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ) {
+      NumberOfValidRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nValidRecHits);
+      NumberOfLostRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nLostRecHits);
+    }
+
     int nLayers = track.hitPattern().trackerLayersWithMeasurement();
     // layers
     NumberOfLayersPerTrack->Fill(nLayers);
