@@ -74,6 +74,11 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
 //   xPos = iBooker.book1D ("xPos","x Coordinate" ,100, -0.1, 0.1);
 
   nbvtx      = iBooker.book1D("vtxNbr","Reconstructed Vertices in Event",50,-0.5,49.5);
+  nbgvtx      = iBooker.book1D("goodvtxNbr","Reconstructed Good Vertices in Event",50,-0.5,49.5);
+
+  // to be configured each year...
+  auto vposx = conf_.getParameter<double>("Xpos");
+  auto vposy = conf_.getParameter<double>("Ypos");
 
   nbtksinvtx[0] = iBooker.book1D("otherVtxTrksNbr","Reconstructed Tracks in Vertex (other Vtx)",40,-0.5,99.5); 
   trksWeight[0] = iBooker.book1D("otherVtxTrksWeight","Total weight of Tracks in Vertex (other Vtx)",40,0,100.); 
@@ -89,21 +94,21 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   vtxprob[1]    = iBooker.book1D("tagVtxProb","#chi^{2} probability (tagged Vtx)",100,0.,1.);
   nans[1]       = iBooker.book1D("tagVtxNans","Illegal values for x,y,z,xx,xy,xz,yy,yz,zz (tagged Vtx)",9,0.5,9.5);
 
-  xrec[0]	 = iBooker.book1D("otherPosX","Position x Coordinate (other Vtx)",100,-0.1,0.1);
-  yrec[0]	 = iBooker.book1D("otherPosY","Position y Coordinate (other Vtx)",100,-0.1,0.1);
+  xrec[0]	 = iBooker.book1D("otherPosX","Position x Coordinate (other Vtx)",100,vposx-0.1,vposx+0.1);
+  yrec[0]	 = iBooker.book1D("otherPosY","Position y Coordinate (other Vtx)",100,vposy-0.1,vposy+0.1);
   zrec[0]        = iBooker.book1D("otherPosZ","Position z Coordinate (other Vtx)",100,-20.,20.);
   xDiff[0]	 = iBooker.book1D("otherDiffX","X distance from BeamSpot (other Vtx)",100,-500,500);
   yDiff[0]	 = iBooker.book1D("otherDiffY","Y distance from BeamSpot (other Vtx)",100,-500,500);
-  xerr[0]	 = iBooker.book1D("otherErrX","Uncertainty x Coordinate (other Vtx)",100,-0.1,0.1);
-  yerr[0]	 = iBooker.book1D("otherErrY","Uncertainty y Coordinate (other Vtx)",100,-0.1,0.1);
-  zerr[0]        = iBooker.book1D("otherErrZ","Uncertainty z Coordinate (other Vtx)",100,-20.,20.);
-  xerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightX","Uncertainty x Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
-  yerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightY","Uncertainty y Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
-  zerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightZ","Uncertainty z Coordinate vs. track weight (other Vtx)",100,0,100.,100,-0.1,0.1);
+  xerr[0]	 = iBooker.book1D("otherErrX","Uncertainty x Coordinate (other Vtx)",100,0.,100);
+  yerr[0]	 = iBooker.book1D("otherErrY","Uncertainty y Coordinate (other Vtx)",100,0.,100);
+  zerr[0]        = iBooker.book1D("otherErrZ","Uncertainty z Coordinate (other Vtx)",100,0.,100);
+  xerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightX","Uncertainty x Coordinate vs. track weight (other Vtx)",100,0,100.,100,0.,100);
+  yerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightY","Uncertainty y Coordinate vs. track weight (other Vtx)",100,0,100.,100,0.,100);
+  zerrVsTrks[0]	 = iBooker.book2D("otherErrVsWeightZ","Uncertainty z Coordinate vs. track weight (other Vtx)",100,0,100.,100,0.,100);
 
 
-  xrec[1]     = iBooker.book1D("tagPosX","Position x Coordinate (tagged Vtx)",100,-0.1,0.1);
-  yrec[1]     = iBooker.book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,-0.1,0.1);
+  xrec[1]     = iBooker.book1D("tagPosX","Position x Coordinate (tagged Vtx)",100,vposx-0.1,vposx+0.1);
+  yrec[1]     = iBooker.book1D("tagPosY","Position y Coordinate (tagged Vtx)",100,vposx-0.1,vposy+0.1);
   zrec[1]     = iBooker.book1D("tagPosZ","Position z Coordinate (tagged Vtx)",100,-20.,20.);
   xDiff[1]    = iBooker.book1D("tagDiffX","X distance from BeamSpot (tagged Vtx)",100,-500, 500);
   yDiff[1]    = iBooker.book1D("tagDiffY","Y distance from BeamSpot (tagged Vtx)",100,-500, 500);
@@ -167,7 +172,7 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   double EtaMax     = conf_.getParameter<double>("EtaMax");
   
       
-  ntracks = iBooker.book1D("ntracks","number of PV tracks (p_{T} > 1 GeV)", 3*TKNoBin, TKNoMin, (TKNoMax+0.5)*3.-0.5);
+  ntracks = iBooker.book1D("ntracks","number of PV tracks (p_{T} > 1 GeV)", TKNoBin, TKNoMin, TKNoMax);
   ntracks->setAxisTitle("Number of PV Tracks (p_{T} > 1 GeV) per Event", 1);
   ntracks->setAxisTitle("Number of Event", 2);
 
@@ -176,7 +181,7 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   weight->setAxisTitle("Number of Event", 2);
 
   sumpt    = iBooker.book1D("sumpt",   "#Sum p_{T} of PV tracks (p_{T} > 1 GeV)",       100,-0.5,199.5); 
-  chi2ndf  = iBooker.book1D("chi2ndf", "PV tracks (p_{T} > 1 GeV) #chi^{2}/ndof",       100, 0., 200. );
+  chi2ndf  = iBooker.book1D("chi2ndf", "PV tracks (p_{T} > 1 GeV) #chi^{2}/ndof",       100, 0., 20. );
   chi2prob = iBooker.book1D("chi2prob","PV tracks (p_{T} > 1 GeV) #chi^{2} probability",100, 0.,   1. );
   dxy      = iBooker.book1D("dxy",     "PV tracks (p_{T} > 1 GeV) d_{xy} (cm)",         DxyBin, DxyMin, DxyMax);
   dz       = iBooker.book1D("dz",      "PV tracks (p_{T} > 1 GeV) d_{z} (cm)",          DzBin,  DzMin,  DzMax );
@@ -241,6 +246,10 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
   BeamSpot beamSpot = *beamSpotHandle;
 
   nbvtx->Fill(recVtxs->size()*1.);
+  int ng=0;
+  for (auto const & vx : (*recVtxs) )
+    if (vx.isValid() && !vx.isFake()  && vx.ndof()>=4.) ++ng;
+  nbgvtx->Fill(ng*1.);
 
   vertexPlots(recVtxs->front(), beamSpot, 1);
 
