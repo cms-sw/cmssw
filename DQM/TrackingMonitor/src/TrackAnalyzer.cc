@@ -716,6 +716,8 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ) {
       NumberOfValidRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nValidRecHits);
       NumberOfLostRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nLostRecHits);
+      NumberOfMIRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nLostIn);
+      NumberOfMORecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nLostOut);
     }
 
     int nLayers = track.hitPattern().trackerLayersWithMeasurement();
