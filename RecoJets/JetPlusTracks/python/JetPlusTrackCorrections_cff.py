@@ -5,8 +5,6 @@ from RecoJets.JetAssociationProducers.ak4JTA_cff import *
 ak4JetTracksAssociatorAtVertexJPT = ak4JetTracksAssociatorAtVertex.clone()
 ak4JetTracksAssociatorAtVertexJPT.useAssigned = cms.bool(True)
 ak4JetTracksAssociatorAtVertexJPT.pvSrc = cms.InputTag("offlinePrimaryVertices")
-ak4JetExtenderJPT  = ak4JetExtender.clone()
-ak4JetExtenderJPT.jet2TracksAtVX = cms.InputTag("ak4JetTracksAssociatorAtVertexJPT")
 
 # ---------- Tight Electron ID
 
@@ -44,7 +42,6 @@ JetPlusTrackCorrectionsAntiKt4 = cms.Sequence(
     JPTeidTight*
     ak4JetTracksAssociatorAtVertexJPT*
     ak4JetTracksAssociatorAtCaloFace*
-    ak4JetExtenderJPT*
     JetPlusTrackZSPCorJetAntiKt4
     )
 
