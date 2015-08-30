@@ -18,7 +18,8 @@
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+using namespace edm;
+using namespace std;
 using namespace l1t;
 
 L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig):
