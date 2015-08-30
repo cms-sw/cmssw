@@ -538,7 +538,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	
 	if ( numSelection_(*track) ) {
 	  numberOfTracks_num++;
-          if (pv0 && std::abs(track->dz(pv0->position()))<1.5) ++numberOfTracks_pv0;
+          if (pv0 && std::abs(track->dz(pv0->position()))<0.15) ++numberOfTracks_pv0;
         } 
 
 	if ( doProfilesVsLS_ || doAllPlots)
@@ -698,7 +698,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    }
 	    
             NumberOfTracksVsGoodPVtx	   -> Fill( totalNumGoodPV, numberOfTracks	);
-	    if (totalNumGoodPV>1) NumberOfTracksVsGoodPVtx-> Fill( totalNumGoodPV-1, double(numberOfTracks-numberOfTracks_pv0)/double(totalNumGoodPV-1)      );
+	    if (totalNumGoodPV>1) NumberOfTracksVsPUPVtx-> Fill( totalNumGoodPV-1, double(numberOfTracks-numberOfTracks_pv0)/double(totalNumGoodPV-1)      );
 	  }
 
 	
