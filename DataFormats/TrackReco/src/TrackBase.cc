@@ -43,7 +43,16 @@ std::string const TrackBase::algoNames[] = {
     "hltIter2",
     "hltIter3",
     "hltIter4",
-    "hltIterX"
+    "hltIterX",
+    "hiRegitMuInitialStep",
+    "hiRegitMuLowPtTripletStep",
+    "hiRegitMuPixelPairStep",
+    "hiRegitMuDetachedTripletStep",
+    "hiRegitMuMixedTripletStep",
+    "hiRegitMuPixelLessStep",
+    "hiRegitMuTobTecStep",
+    "hiRegitMuMuonSeededStepInOut",
+    "hiRegitMuMuonSeededStepOutIn"
 };
 
 std::string const TrackBase::qualityNames[] = {

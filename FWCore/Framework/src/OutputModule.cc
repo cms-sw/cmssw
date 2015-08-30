@@ -215,8 +215,6 @@ namespace edm {
   bool OutputModule::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
     
     auto& s = selectors_[id.value()];
-    detail::TRBESSentry products_sentry(s);
-
     return wantAllEvents_ or s.wantEvent(ep,mcc);
   }
 

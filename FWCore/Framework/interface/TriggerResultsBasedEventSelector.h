@@ -18,91 +18,50 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-namespace edm
-{
+namespace edm {
   class ModuleCallingContext;
 
-  namespace detail
-  {
+  namespace detail {
     typedef edm::Handle<edm::TriggerResults> handle_t;
 
-    class NamedEventSelector
-    {
+    class NamedEventSelector {
     public:
       NamedEventSelector(std::string const& n, EventSelector const& s) :
-	inputTag_("TriggerResults", "", n), 
-	eventSelector_(s), 
-	product_() 
+	inputTag_("TriggerResults", "", n),
+	eventSelector_(s)
       { }
 
-      void fill(EventPrincipal const& e, ModuleCallingContext const* mcc);
-
-      bool match()
-      {
-	return eventSelector_.acceptEvent(*product_);
+      bool match(TriggerResults const& product) {
+	return eventSelector_.acceptEvent(product);
       }
 
-      handle_t product() const
-      {
-	return product_;
+      InputTag const& inputTag() const {
+        return inputTag_;
       }
 
-      void clear()
-      {
-	product_ = handle_t();
-      }
-      
     private:
       InputTag            inputTag_;
       EventSelector       eventSelector_;
-      handle_t            product_;
     };
 
-    class TriggerResultsBasedEventSelector
-    {
+    class TriggerResultsBasedEventSelector {
     public:
       TriggerResultsBasedEventSelector();
       typedef detail::handle_t                    handle_t;
       typedef std::vector<NamedEventSelector>     selectors_t;
-      typedef selectors_t::size_type              size_type;
       typedef std::pair<std::string, std::string> parsed_path_spec_t;
 
       void setupDefault(std::vector<std::string> const& triggernames);
-      
+
       void setup(std::vector<parsed_path_spec_t> const& path_specs,
 		 std::vector<std::string> const& triggernames,
                  const std::string& process_name);
 
       bool wantEvent(EventPrincipal const& e, ModuleCallingContext const*);
 
-      // Clear the cache
-      void clear();
-
     private:
-      typedef selectors_t::iterator iter;
-
-      // Get all TriggerResults objects for the process names we're
-      // interested in.
-      size_type fill(EventPrincipal const& ev, ModuleCallingContext const*);
-      
-      bool        fillDone_;
-      size_type   numberFound_;
       selectors_t selectors_;
     };
-    
-    class  TRBESSentry {
-    public:
-      TRBESSentry(detail::TriggerResultsBasedEventSelector& prods) : p(prods) {}
-      ~TRBESSentry() {
-        p.clear();
-      }
-    private:
-      detail::TriggerResultsBasedEventSelector& p;
-      
-      TRBESSentry(TRBESSentry const&) = delete;
-      TRBESSentry& operator=(TRBESSentry const&) = delete;
-    };
-
 
     /** Handles the final initialization of the TriggerResutsBasedEventSelector
      \return true if all events will be selected

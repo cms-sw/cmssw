@@ -202,30 +202,30 @@ public:
   double getVtxMax() const {return minvtx_+nvtxbins_*delvtx_;}
   int getNcent() const {return hbins_;}
 
-  double getX(int bin) const {return flatX_[bin];}
-  double getY(int bin) const {return flatY_[bin];}
-  double getXoff(int bin) const {return xoff_[bin];}
-  double getYoff(int bin) const {return yoff_[bin];}
-  double getXoffDB(int bin) const {return xoffDB_[bin];}
-  double getYoffDB(int bin) const {return yoffDB_[bin];}
-  double getXYoffcnt(int bin) const {return xyoffcnt_[bin];}
-  double getXYoffmult(int bin) const {return xyoffmult_[bin];}
-  double getPt(int bin) const {return pt_[bin];}
-  double getPt2(int bin) const {return pt2_[bin];}
-  double getPtDB(int bin) const {return ptDB_[bin];}
-  double getPt2DB(int bin) const {return pt2DB_[bin];}
-  double getPtcnt(int bin) const {return ptcnt_[bin];}
-  double getXDB(int bin)  const {return flatXDB_[bin];}
-  double getYDB(int bin)  const {return flatYDB_[bin];}
+  double getX(unsigned int bin) const {return flatX_[bin];}
+  double getY(unsigned int bin) const {return flatY_[bin];}
+  double getXoff(unsigned int bin) const {return xoff_[bin];}
+  double getYoff(unsigned int bin) const {return yoff_[bin];}
+  double getXoffDB(unsigned int bin) const {return xoffDB_[bin];}
+  double getYoffDB(unsigned int bin) const {return yoffDB_[bin];}
+  double getXYoffcnt(unsigned int bin) const {return xyoffcnt_[bin];}
+  double getXYoffmult(unsigned int bin) const {return xyoffmult_[bin];}
+  double getPt(unsigned int bin) const {return pt_[bin];}
+  double getPt2(unsigned int bin) const {return pt2_[bin];}
+  double getPtDB(unsigned int bin) const {if(bin<MAXCUTOFF) {return ptDB_[bin];} else {return 0.;}}
+  double getPt2DB(unsigned int bin) const {if(bin<MAXCUTOFF) {return pt2DB_[bin];} else {return 0.;}}
+  double getPtcnt(unsigned int bin) const {return ptcnt_[bin];}
+  double getXDB(unsigned int bin)  const {return flatXDB_[bin];}
+  double getYDB(unsigned int bin)  const {return flatYDB_[bin];}
 
 
-  double getCnt(int bin)  const {return flatCnt_[bin];}
-  void setXDB(int indx, double val) {flatXDB_[indx]=val;}
-  void setYDB(int indx, double val) {flatYDB_[indx]=val;}
-  void setXoffDB(int indx, double val) {xoffDB_[indx]=val;}
-  void setYoffDB(int indx, double val) {yoffDB_[indx]=val;}
-  void setPtDB(int indx, double val) {ptDB_[indx]=val;}
-  void setPt2DB(int indx, double val) {pt2DB_[indx]=val;}
+  double getCnt(unsigned int bin)  const {return flatCnt_[bin];}
+  void setXDB(unsigned int indx, double val) {flatXDB_[indx]=val;}
+  void setYDB(unsigned int indx, double val) {flatYDB_[indx]=val;}
+  void setXoffDB(unsigned int indx, double val) {xoffDB_[indx]=val;}
+  void setYoffDB(unsigned int indx, double val) {yoffDB_[indx]=val;}
+  void setPtDB(unsigned int indx, double val) {ptDB_[indx]=val;}
+  void setPt2DB(unsigned int indx, double val) {pt2DB_[indx]=val;}
   double bounds(double ang) const {
     if(ang<-M_PI) ang+=2.*M_PI;
     if(ang>M_PI)  ang-=2.*M_PI;
@@ -237,32 +237,32 @@ public:
     while(ang>range)  {ang-=2*range; }
     return ang;
   }
-  void setCentRes1(int bin, double res, double err){ if(bin<100 && bin>=0) {centRes1_[bin]=res; centResErr1_[bin]=err;}}
-  void setCentRes2(int bin, double res, double err){ if(bin<50 && bin>=0) {centRes2_[bin]=res; centResErr2_[bin]=err;}}
-  void setCentRes5(int bin, double res, double err){ if(bin<20 && bin>=0) {centRes5_[bin]=res; centResErr5_[bin]=err;}}
-  void setCentRes10(int bin, double res, double err){ if(bin<10 && bin>=0) {centRes10_[bin]=res; centResErr10_[bin]=err;}}
-  void setCentRes20(int bin, double res, double err){ if(bin<5 && bin>=0) {centRes20_[bin]=res; centResErr20_[bin]=err;}}
-  void setCentRes25(int bin, double res, double err){ if(bin<4 && bin>=0) {centRes25_[bin]=res; centResErr25_[bin]=err;}}
-  void setCentRes30(int bin, double res, double err){ if(bin<3 && bin>=0) {centRes30_[bin]=res; centResErr30_[bin]=err;}}
-  void setCentRes40(int bin, double res, double err){ if(bin<2 && bin>=0) {centRes40_[bin]=res; centResErr40_[bin]=err;}}
+  void setCentRes1(unsigned int bin, double res, double err){ if(bin<100) {centRes1_[bin]=res; centResErr1_[bin]=err;}}
+  void setCentRes2(unsigned int bin, double res, double err){ if(bin<50) {centRes2_[bin]=res; centResErr2_[bin]=err;}}
+  void setCentRes5(unsigned int bin, double res, double err){ if(bin<20) {centRes5_[bin]=res; centResErr5_[bin]=err;}}
+  void setCentRes10(unsigned int bin, double res, double err){ if(bin<10) {centRes10_[bin]=res; centResErr10_[bin]=err;}}
+  void setCentRes20(unsigned int bin, double res, double err){ if(bin<5) {centRes20_[bin]=res; centResErr20_[bin]=err;}}
+  void setCentRes25(unsigned int bin, double res, double err){ if(bin<4) {centRes25_[bin]=res; centResErr25_[bin]=err;}}
+  void setCentRes30(unsigned int bin, double res, double err){ if(bin<3) {centRes30_[bin]=res; centResErr30_[bin]=err;}}
+  void setCentRes40(unsigned int bin, double res, double err){ if(bin<2) {centRes40_[bin]=res; centResErr40_[bin]=err;}}
 
-  double getCentRes1(int bin) const { if(bin<100 && bin>=0) {return centRes1_[bin];} else {return 0.;}}
-  double getCentRes2(int bin) const { if(bin<50 && bin>=0)  {return centRes2_[bin];} else {return 0.;}}
-  double getCentRes5(int bin) const { if(bin<20 && bin>=0)  {return centRes5_[bin];} else {return 0.;}}
-  double getCentRes10(int bin) const { if(bin<10 && bin>=0) {return centRes10_[bin];} else {return 0.;}}
-  double getCentRes20(int bin) const { if(bin<5 && bin>=0)  {return centRes20_[bin];} else {return 0.;}}
-  double getCentRes25(int bin) const { if(bin<4 && bin>=0)  {return centRes25_[bin];} else {return 0.;}}
-  double getCentRes30(int bin) const { if(bin<3 && bin>=0)  {return centRes30_[bin];} else {return 0.;}}
-  double getCentRes40(int bin) const { if(bin<2 && bin>=0)  {return centRes40_[bin];} else {return 0.;}}
+  double getCentRes1(unsigned int bin) const { if(bin<100) {return centRes1_[bin];} else {return 0.;}}
+  double getCentRes2(unsigned int bin) const { if(bin<50)  {return centRes2_[bin];} else {return 0.;}}
+  double getCentRes5(unsigned int bin) const { if(bin<20 )  {return centRes5_[bin];} else {return 0.;}}
+  double getCentRes10(unsigned int bin) const { if(bin<10) {return centRes10_[bin];} else {return 0.;}}
+  double getCentRes20(unsigned int bin) const { if(bin<5)  {return centRes20_[bin];} else {return 0.;}}
+  double getCentRes25(unsigned int bin) const { if(bin<4)  {return centRes25_[bin];} else {return 0.;}}
+  double getCentRes30(unsigned int bin) const { if(bin<3)  {return centRes30_[bin];} else {return 0.;}}
+  double getCentRes40(unsigned int bin) const { if(bin<2 )  {return centRes40_[bin];} else {return 0.;}}
 
-  double getCentResErr1(int bin) const { if(bin<100 && bin>=0) {return centResErr1_[bin];} else {return 0.;}}
-  double getCentResErr2(int bin) const { if(bin<50 && bin>=0)  {return centResErr2_[bin];} else {return 0.;}}
-  double getCentResErr5(int bin) const { if(bin<20 && bin>=0)  {return centResErr5_[bin];} else {return 0.;}}
-  double getCentResErr10(int bin) const { if(bin<10 && bin>=0) {return centResErr10_[bin];} else {return 0.;}}
-  double getCentResErr20(int bin) const { if(bin<5 && bin>=0)  {return centResErr20_[bin];} else {return 0.;}}
-  double getCentResErr25(int bin) const { if(bin<4 && bin>=0)  {return centResErr25_[bin];} else {return 0.;}}
-  double getCentResErr30(int bin) const { if(bin<3 && bin>=0)  {return centResErr30_[bin];} else {return 0.;}}
-  double getCentResErr40(int bin) const { if(bin<2 && bin>=0)  {return centResErr40_[bin];} else {return 0.;}}
+  double getCentResErr1(unsigned int bin) const { if(bin<100) {return centResErr1_[bin];} else {return 0.;}}
+  double getCentResErr2(unsigned int bin) const { if(bin<50)  {return centResErr2_[bin];} else {return 0.;}}
+  double getCentResErr5(unsigned int bin) const { if(bin<20)  {return centResErr5_[bin];} else {return 0.;}}
+  double getCentResErr10(unsigned int bin) const { if(bin<10) {return centResErr10_[bin];} else {return 0.;}}
+  double getCentResErr20(unsigned int bin) const { if(bin<5)  {return centResErr20_[bin];} else {return 0.;}}
+  double getCentResErr25(unsigned int bin) const { if(bin<4)  {return centResErr25_[bin];} else {return 0.;}}
+  double getCentResErr30(unsigned int bin) const { if(bin<3)  {return centResErr30_[bin];} else {return 0.;}}
+  double getCentResErr40(unsigned int bin) const { if(bin<2)  {return centResErr40_[bin];} else {return 0.;}}
 
 private:
   static constexpr int nvtxbins_ = 10;

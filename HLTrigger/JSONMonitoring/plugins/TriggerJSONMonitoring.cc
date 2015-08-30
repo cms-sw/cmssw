@@ -20,6 +20,7 @@
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 
 #include <fstream>
+using namespace jsoncollector;
 
 TriggerJSONMonitoring::TriggerJSONMonitoring(const edm::ParameterSet& ps) :
   triggerResults_(ps.getParameter<edm::InputTag>("triggerResults")),

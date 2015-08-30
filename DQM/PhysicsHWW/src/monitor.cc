@@ -1,6 +1,8 @@
 #include "DQM/PhysicsHWW/interface/monitor.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+using namespace HWWFunctions;
+
 EventMonitor::EventMonitor(DQMStore::IBooker& iBooker)
 {
   auto addFunc = [&](std::string name) {

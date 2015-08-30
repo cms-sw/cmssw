@@ -47,9 +47,9 @@ namespace HWWFunctions {
 
     if(njets==0){
       monitor.count(type, "njets == 0", weight);
-      if(max(hww.hyp_ll_p4().at(i_hyp).pt(), hww.hyp_lt_p4().at(i_hyp).pt()) < 30) return; 
+      if(std::max(hww.hyp_ll_p4().at(i_hyp).pt(), hww.hyp_lt_p4().at(i_hyp).pt()) < 30) return; 
       monitor.count(type, "max(lep1.pt(),lep2.pt())>30", weight);
-      if(min(hww.hyp_ll_p4().at(i_hyp).pt(), hww.hyp_lt_p4().at(i_hyp).pt()) < 25) return; 
+      if(std::min(hww.hyp_ll_p4().at(i_hyp).pt(), hww.hyp_lt_p4().at(i_hyp).pt()) < 25) return; 
       monitor.count(type, "min(lep1.pt(),lep2.pt())>25", weight);
     }
     if(njets==1){
@@ -222,7 +222,7 @@ namespace HWWFunctions {
 
     double pmet      = projectedMet(hww, i_hyp, hww.evt_pfmet(), hww.evt_pfmetPhi());
     double pTrackMet = projectedMet(hww, i_hyp, hww.trk_met().at(i_hyp),   hww.trk_metPhi().at(i_hyp)  );
-    return(min(pmet,pTrackMet)>20);
+    return(std::min(pmet,pTrackMet)>20);
 
   }
 
@@ -234,7 +234,7 @@ namespace HWWFunctions {
     if(hww.hyp_type().at(i_hyp) == 2) return true;
     double pmet      = projectedMet(hww, i_hyp, hww.evt_pfmet(), hww.evt_pfmetPhi());
     double pTrackMet = projectedMet(hww, i_hyp, hww.trk_met().at(i_hyp),   hww.trk_metPhi().at(i_hyp)  );
-    return(min(pmet,pTrackMet)>40);
+    return(std::min(pmet,pTrackMet)>40);
 
   }
 
@@ -277,7 +277,7 @@ namespace HWWFunctions {
       std::vector<JetPair> jets;
       const double vetoCone = 0.3;
       // bug fix for mva jet id
-      vector <float> fixedpfjetmva_analobj; getGoodMVAs(hww, fixedpfjetmva_analobj, "mvavalue"); 
+      std::vector <float> fixedpfjetmva_analobj; getGoodMVAs(hww, fixedpfjetmva_analobj, "mvavalue"); 
 
               for ( unsigned int i=0; i < hww.pfjets_p4().size(); ++i) {
                   if (i >= hww.pfjets_JEC().size())
@@ -879,7 +879,7 @@ namespace HWWFunctions {
   {
       const double vetoCone    = 0.3;
       // bug fix for mva jet id
-      vector <float> fixedpfjetmva_analsel; getGoodMVAs(hww, fixedpfjetmva_analsel, "mvavalue"); 
+      std::vector <float> fixedpfjetmva_analsel; getGoodMVAs(hww, fixedpfjetmva_analsel, "mvavalue"); 
 
               for ( unsigned int i=0; i < hww.pfjets_p4().size(); ++i) {
                   if (i >= hww.pfjets_JEC().size())
