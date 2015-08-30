@@ -50,6 +50,7 @@
 #include "TrackingTools/TrackRefitter/interface/TrackTransformerBase.h"
 #include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
 
+#include <memory>
 
 using reco::MuonCollection;
 using reco::TrackCollection;
@@ -57,16 +58,14 @@ typedef std::vector<Trajectory> Trajectories;
 
 class TracktoRPC {
 public:
-
-
-  explicit TracktoRPC(edm::Handle<reco::TrackCollection> alltracks,const edm::EventSetup& iSetup, const edm::Event& iEvent,bool debug, const edm::ParameterSet& iConfig, const edm::InputTag & tracklabel);
-
+  TracktoRPC(reco::TrackCollection const* alltracks, edm::EventSetup const& iSetup, bool debug, const edm::ParameterSet& iConfig, const edm::InputTag & tracklabel);
   ~TracktoRPC();
-  RPCRecHitCollection* thePoints(){return _ThePoints;}
-  bool ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::EventSetup& iSetup);
+  std::unique_ptr<RPCRecHitCollection> && thePoints(){ return std::move(_ThePoints); }
 
 private:
-  RPCRecHitCollection* _ThePoints;
+  bool ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::EventSetup& iSetup);
+
+  std::unique_ptr<RPCRecHitCollection> _ThePoints;
   edm::OwnVector<RPCRecHit> RPCPointVector;
   double MaxD;
 
