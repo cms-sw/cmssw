@@ -261,13 +261,13 @@ class TrackAnalyzer
 
 
 	
-	MonitorElement* NumberOfLayersPerTrack;
+	MonitorElement* NumberOfLayersPerTrack[4] = {nullptr,nullptr,nullptr,nullptr};
 	
 	MonitorElement* NumberOfLayersPerTrackVsPhi;
 	MonitorElement* NumberOfLayersPerTrackVsTheta;
 	MonitorElement* NumberOfLayersPerTrackVsEta;
 
-	MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack;
+	MonitorElement* NumberOfLayersVsPhiVsEtaPerTrack[4]= {nullptr,nullptr,nullptr,nullptr};
 
 	MonitorElement* Chi2;
 	MonitorElement* Chi2Prob;

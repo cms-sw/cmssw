@@ -82,8 +82,6 @@ void TrackAnalyzer::initHistos()
   NumberOfValidRecHitsPerTrackVsPhi = nullptr;
   NumberOfValidRecHitsPerTrackVsEta = nullptr;
 
-  NumberOfLayersPerTrack = nullptr;
-  NumberOfLayersVsPhiVsEtaPerTrack = nullptr;
 
   DistanceOfClosestApproach = nullptr;
   DistanceOfClosestApproachToBS = nullptr;
@@ -246,12 +244,6 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
       NumberOfMORecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
 
-      histname = "NumberOfLayersPerTrack_";
-      NumberOfLayersPerTrack = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKLayBin, TKLayMin, TKLayMax);
-      NumberOfLayersPerTrack->setAxisTitle("Number of Layers of each Track", 1);
-      NumberOfLayersPerTrack->setAxisTitle("Number of Tracks", 2);
-      
-
       if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ){
 	
 	histname = "NumberOfValidRecHitVsPhiVsEtaPerTrack_";
@@ -282,13 +274,20 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
 
       }
 
-      if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ ){
-	
-	histname = "NumberOfLayersVsPhiVsEtaPerTrack_";
-	NumberOfLayersVsPhiVsEtaPerTrack = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
+      std::string layerTypeName[4] = {"","Off","3D","Missing"};
+      for (int i=0; i<4; ++i) {
+        histname = "NumberOf"+ layerTypeName[i] + "LayersPerTrack_";
+        NumberOfLayersPerTrack[i] = ibooker.book1D(histname+CategoryName, histname+CategoryName, TKLayBin, TKLayMin, TKLayMax);
+        NumberOfLayersPerTrack[i]->setAxisTitle("Number of " + layerTypeName[i] + " Layers of each Track", 1);
+        NumberOfLayersPerTrack[i]->setAxisTitle("Number of Tracks", 2);
+      }
+      if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ )
+	for (int i=0; i<4; ++i) {
+          histname = "NumberOf"+ layerTypeName[i] + "LayersVsPhiVsEtaPerTrack_";
+	  NumberOfLayersVsPhiVsEtaPerTrack[i] = ibooker.bookProfile2D(histname+CategoryName, histname+CategoryName, 
 								    EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax, 0, 40., "");
-	NumberOfLayersVsPhiVsEtaPerTrack->setAxisTitle("Track #eta ", 1);
-	NumberOfLayersVsPhiVsEtaPerTrack->setAxisTitle("Track #phi ", 2);
+	  NumberOfLayersVsPhiVsEtaPerTrack[i]->setAxisTitle("Track #eta ", 1);
+	  NumberOfLayersVsPhiVsEtaPerTrack[i]->setAxisTitle("Track #phi ", 2);
       }
     }
 
@@ -692,7 +691,11 @@ void TrackAnalyzer::bookHistosForBeamSpot(DQMStore::IBooker & ibooker) {
 void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track)
 {
   double phi   = track.phi();
-  double eta   = track.eta();
+  // double eta   = track.eta();
+  auto phiIn =  track.innerPosition().phi();
+  auto etaIn =  track.innerPosition().eta();
+  auto phiOut =  track.outerPosition().phi();
+  auto etaOut =  track.outerPosition().eta();
 
   int nRecHits      = track.hitPattern().numberOfHits(reco::HitPattern::TRACK_HITS);
   int nValidRecHits = track.numberOfValidHits();
@@ -714,19 +717,24 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     // 2D plots    
     if ( doRecHitVsPhiVsEtaPerTrack_ || doAllPlots_ ) {
-      NumberOfValidRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nValidRecHits);
-      NumberOfLostRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nLostRecHits);
-      NumberOfMIRecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nLostIn);
-      NumberOfMORecHitVsPhiVsEtaPerTrack->Fill(eta,phi,nLostOut);
+      NumberOfValidRecHitVsPhiVsEtaPerTrack->Fill(etaIn,phiIn,nValidRecHits);
+      NumberOfLostRecHitVsPhiVsEtaPerTrack->Fill(etaIn,phiIn,nLostRecHits);
+      NumberOfMIRecHitVsPhiVsEtaPerTrack->Fill(etaIn,phiIn,nLostIn);
+      NumberOfMORecHitVsPhiVsEtaPerTrack->Fill(etaOut,phiOut,nLostOut);
     }
 
-    int nLayers = track.hitPattern().trackerLayersWithMeasurement();
+    int nLayers[4]   = { track.hitPattern().trackerLayersWithMeasurement(),
+                         track.hitPattern().trackerLayersTotallyOffOrBad(),
+                         track.hitPattern().numberOfValidStripLayersWithMonoAndStereo() +  track.hitPattern().pixelLayersWithMeasurement(),
+                         track.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS)
+                       };
+
     // layers
-    NumberOfLayersPerTrack->Fill(nLayers);
+    for (int i=0;i<4;++i) NumberOfLayersPerTrack[i]->Fill(nLayers[i]);
 
     // 2D plots    
     if ( doLayersVsPhiVsEtaPerTrack_ || doAllPlots_ )
-      NumberOfLayersVsPhiVsEtaPerTrack->Fill(eta,phi,nLayers);
+      for (int i=0;i<4;++i) NumberOfLayersVsPhiVsEtaPerTrack[i]->Fill(etaIn,phiIn,nLayers[i]);
   }
   
   if (doGeneralPropertiesPlots_ || doAllPlots_){
