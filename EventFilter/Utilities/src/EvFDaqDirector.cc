@@ -23,6 +23,8 @@
 
 //#define DEBUG
 
+using namespace jsoncollector;
+
 namespace evf {
 
   namespace {
