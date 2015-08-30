@@ -513,10 +513,22 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       }
     }
       
+    edm::Handle< reco::VertexCollection > pvHandle;
+    iEvent.getByToken(pvSrcToken_, pvHandle );
+    reco::Vertex const * pv0 = nullptr;  
+    if (pvHandle.isValid()) pv0 = &pvHandle->front();
+    //--- pv fake (the pv collection should have size==1 and the pv==beam spot)
+    if (   pv0->isFake() || pv0->tracksSize()==0
+    // definition of goodOfflinePrimaryVertex
+        || pv0->ndof() < 4. || pv0->z() > 24.)  pv0 = nullptr;
+
+
+
     if (trackHandle.isValid()) {
       
       int numberOfTracks = trackHandle->size();
       int numberOfTracks_num = 0;
+      int numberOfTracks_pv0 = 0;
 
       reco::TrackCollection trackCollection = *trackHandle;
       // calculate the mean # rechits and layers
@@ -525,8 +537,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       for (reco::TrackCollection::const_iterator track = trackCollection.begin();
 	   track!=trackCollection.end(); ++track) {
 	
-	if ( numSelection_(*track) )
+	if ( numSelection_(*track) ) {
 	  numberOfTracks_num++;
+          if (pv0 && std::abs(track->dz(pv0->position()))<1.5) ++numberOfTracks_pv0;
+        } 
 
 	if ( doProfilesVsLS_ || doAllPlots)
 	  NumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->numberOfValidHits());
@@ -668,11 +682,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	for (size_t i=0; i<theVertexMonitor.size(); i++)
 	  theVertexMonitor[i]->analyze(iEvent, iSetup);
       }
-	if ( doPlotsVsGoodPVtx_ ) {
+      if ( doPlotsVsGoodPVtx_ ) {
 	  
 	  size_t totalNumGoodPV = 0;
-	  edm::Handle< reco::VertexCollection > pvHandle;
-	  iEvent.getByToken(pvSrcToken_, pvHandle );
 	  if (pvHandle.isValid()) {
 	    
 	    for (reco::VertexCollection::const_iterator pv = pvHandle->begin();
@@ -687,7 +699,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    }
 	    
             NumberOfTracksVsGoodPVtx	   -> Fill( totalNumGoodPV, numberOfTracks	);
-	    if (totalNumGoodPV>1) NumberOfTracksVsGoodPVtx-> Fill( totalNumGoodPV-1, double(numberOfTracks-(*pvHandle)[0].tracksSize())/double(totalNumGoodPV-1)      );
+	    if (totalNumGoodPV>1) NumberOfTracksVsGoodPVtx-> Fill( totalNumGoodPV-1, double(numberOfTracks-numberOfTracks_pv0)/double(totalNumGoodPV-1)      );
 	  }
 
 	
