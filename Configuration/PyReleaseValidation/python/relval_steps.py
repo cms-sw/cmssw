@@ -288,15 +288,9 @@ steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValUpsilon1SToM
 steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['JpsiMuMu_Pt-15INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMuMu_Pt-15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 
-#####
-steps['BuJpsiK_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuJpsiK_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-steps['BuToKstarMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-steps['BuToKstarPsi2S_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarPsi2S_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-# the following three are to be tested to replace the above three
 steps['PhiToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPhiToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['EtaBToJpsiJpsi_13INPUT']={'INPUT':InputInfo(dataSet='/RelValEtaBToJpsiJpsi_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['BuMixing_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuMixing_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-##
 
 
 steps['WE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWE_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -313,15 +307,9 @@ steps['PhotonJets_Pt_10_13_HIINPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJe
 steps['QQH1352T_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['ADDMonoJet_d3MD3_13INPUT']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_d3MD3_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['RSKKGluon_m3000GeV_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRSKKGluon_m3000GeV_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-########
-steps['BuJpsiK_13']=gen2015('Pythia8_BuJpsiK_13TeV_TuneCUETP8M1_cfi',Kby(36000,400000))
-steps['BuToKstarMuMu_13']=gen2015('BuToKstarMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(2250,25000))
-steps['BuToKstarPsi2S_13']=gen2015('BuToKstarPsi2S_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(16000,176000))
-# the following three are to be tested to replace the above three
 steps['PhiToMuMu_13']=gen2015('PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff',Kby(100,1100))
 steps['EtaBToJpsiJpsi_13']=gen2015('EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi',Kby(9,100))
 steps['BuMixing_13']=gen2015('BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(900,10000))
-####
 
 steps['Cosmics_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['CosmicsSPLoose_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValCosmicsSPLoose_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}

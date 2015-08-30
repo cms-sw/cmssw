@@ -238,26 +238,19 @@ workflows[1310] = ['', ['ADDMonoJet_d3MD3_13','DIGIUP15','RECOUP15','HARVESTUP15
 workflows[1312] = ['', ['ZpMM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1314] = ['', ['WpM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
+workflows[1340] = ['', ['PhiToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1341] = ['', ['RSKKGluon_m3000GeV_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 workflows[1343] = ['', ['ZpMM_2250_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1344] = ['', ['ZpEE_2250_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1345] = ['', ['ZpTT_1500_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1348] = ['', ['EtaBToJpsiJpsi_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
+workflows[1351] = ['', ['BuMixing_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1352] = ['', ['HSCPstop_M_200_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1353] = ['', ['RSGravitonToGaGa_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1354] = ['', ['WpToENu_M-2000_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1355] = ['', ['DisplacedSUSY_stopToBottom_M_300_1000mm_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-
-####################
-workflows[1340] = ['', ['BuJpsiK_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1348] = ['', ['BuToKstarMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1351] = ['', ['BuToKstarPsi2S_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-# the following three are to be tested to replace the above 3 [1340, 1348, 1351]
-workflows[1340.1] = ['', ['PhiToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1348.1] = ['', ['EtaBToJpsiJpsi_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1351.1] = ['', ['BuMixing_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-####
 
 
 ### HI test ###
