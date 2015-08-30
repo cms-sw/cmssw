@@ -114,6 +114,14 @@ workflows[134.75] = ['',['RunMET2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT'
 workflows[134.76] = ['',['RunMuonEG2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
 
 
+### run 2015C ###
+workflows[134.81] = ['',['RunHLTPhy2015C','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.82] = ['',['RunDoubleEG2015C','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.83] = ['',['RunDoubleMuon2015C','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.84] = ['',['RunJetHT2015C','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.85] = ['',['RunMET2015C','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+workflows[134.86] = ['',['RunMuonEG2015C','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
 workflows[5.2] = ['SingleMuPt10', ['SingleMuPt10FS','HARVESTFS']]
