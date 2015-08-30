@@ -33,6 +33,7 @@ PrimaryVertexMonitor::PrimaryVertexMonitor(const edm::ParameterSet& pSet)
   , chi2ndf(NULL)
   , chi2prob(NULL)
   , dxy(NULL)
+  , dxy2(NULL)
   , dz(NULL)
   , dxyErr(NULL)
   , dzErr(NULL)
@@ -180,12 +181,13 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
   weight->setAxisTitle("weight of PV Tracks (p_{T} > 1 GeV) per Event", 1);
   weight->setAxisTitle("Number of Event", 2);
 
-  sumpt    = iBooker.book1D("sumpt",   "#Sum p_{T} of PV tracks (p_{T} > 1 GeV)",       100,-0.5,199.5); 
+  sumpt    = iBooker.book1D("sumpt",   "#Sum p_{T} of PV tracks (p_{T} > 1 GeV)",       100,-0.5,249.5); 
   chi2ndf  = iBooker.book1D("chi2ndf", "PV tracks (p_{T} > 1 GeV) #chi^{2}/ndof",       100, 0., 20. );
   chi2prob = iBooker.book1D("chi2prob","PV tracks (p_{T} > 1 GeV) #chi^{2} probability",100, 0.,   1. );
   dxy      = iBooker.book1D("dxy",     "PV tracks (p_{T} > 1 GeV) d_{xy} (cm)",         DxyBin, DxyMin, DxyMax);
+  dxy2	   = iBooker.book1D("dxyzoom", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm)",         DxyBin, DxyMin/5., DxyMax/5.);
   dz       = iBooker.book1D("dz",      "PV tracks (p_{T} > 1 GeV) d_{z} (cm)",          DzBin,  DzMin,  DzMax );
-  dxyErr   = iBooker.book1D("dxyErr",  "PV tracks (p_{T} > 1 GeV) d_{xy} error (cm)",   100, 0.,   1. );
+  dxyErr   = iBooker.book1D("dxyErr",  "PV tracks (p_{T} > 1 GeV) d_{xy} error (cm)",   100, 0.,   0.2 );
   dzErr    = iBooker.book1D("dzErr",   "PV tracks (p_{T} > 1 GeV) d_{z} error(cm)",     100, 0.,   1. );
 
   dxyVsPhi_pt1 = iBooker.bookProfile("dxyVsPhi_pt1", "PV tracks (p_{T} > 1 GeV) d_{xy} (cm) VS track #phi",PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
@@ -318,6 +320,7 @@ PrimaryVertexMonitor::pvTracksPlots(const Vertex & v)
     chi2ndf  -> Fill (chi2NDF);
     chi2prob -> Fill (chi2Prob);
     dxy      -> Fill (Dxy);
+    dxy2     -> Fill (Dxy); 
     dz       -> Fill (Dz);
     dxyErr   -> Fill (DxyErr);
     dzErr    -> Fill (DzErr);
