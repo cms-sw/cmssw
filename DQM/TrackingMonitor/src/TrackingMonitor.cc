@@ -104,15 +104,14 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   Quality_  = conf_.getParameter<std::string>("Quality");
   AlgoName_ = conf_.getParameter<std::string>("AlgoName");
   
+  // get flag from the configuration
+  doPlotsVsBXlumi_   = conf_.getParameter<bool>("doPlotsVsBXlumi");   
+  if ( doPlotsVsBXlumi_ )
+      theLumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
+  doPlotsVsGoodPVtx_ = conf_.getParameter<bool>("doPlotsVsGoodPVtx");
+ 
 
   if ( doPUmonitoring_ ) {
-    
-    // get flag from the configuration
-    doPlotsVsBXlumi_   = conf_.getParameter<bool>("doPlotsVsBXlumi");
-    doPlotsVsGoodPVtx_ = conf_.getParameter<bool>("doPlotsVsGoodPVtx");
-    
-    if ( doPlotsVsBXlumi_ )
-      theLumiDetails_ = new GetLumi( iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), c );
     
     std::vector<edm::InputTag> primaryVertexInputTags    = conf_.getParameter<std::vector<edm::InputTag> >("primaryVertexInputTags");
     std::vector<edm::InputTag> selPrimaryVertexInputTags = conf_.getParameter<std::vector<edm::InputTag> >("selPrimaryVertexInputTags");
