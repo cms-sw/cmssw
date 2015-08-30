@@ -1,5 +1,8 @@
 #include "HLTriggerOffline/Btag/interface/HLTVertexPerformanceAnalyzer.h"
 
+using namespace edm;
+using namespace reco;
+
 HLTVertexPerformanceAnalyzer::HLTVertexPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
 	hlTriggerResults_   		= consumes<TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));

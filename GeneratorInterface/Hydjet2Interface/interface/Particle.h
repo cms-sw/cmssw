@@ -17,7 +17,6 @@ November. 2, 2005
 #include <TVector3.h>
 #include "ParticlePDG.h"
 #include <iostream>
-using namespace std;
 
 
 class Particle {
