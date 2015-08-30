@@ -56,6 +56,7 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
 				// ADD by Mia for PU monitoring
 				// vertex plots to be moved in ad hoc class
     , NumberOfTracksVsGoodPVtx(NULL)
+    , NumberOfTracksVsPUPVtx(NULL)
     , NumberOfTracksVsBXlumi(NULL)
 
     , NumberOfTracks_lumiFlag(NULL)
@@ -286,11 +287,11 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
   
      for (size_t i=0; i<theVertexMonitor.size(); i++)
        theVertexMonitor[i]->initHisto(ibooker);
-  
-     ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
+   }
   
      if ( doPlotsVsGoodPVtx_ ) {
-       // get binning from the configuration
+      ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
+      // get binning from the configuration
        int    GoodPVtxBin   = conf_.getParameter<int>("GoodPVtxBin");
        double GoodPVtxMin   = conf_.getParameter<double>("GoodPVtxMin");
        double GoodPVtxMax   = conf_.getParameter<double>("GoodPVtxMax");
@@ -300,10 +301,17 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfTracksVsGoodPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
        NumberOfTracksVsGoodPVtx->setAxisTitle("Number of PV",1);
        NumberOfTracksVsGoodPVtx->setAxisTitle("Mean number of Tracks per Event",2);
-    
+
+       histname = "NumberOfTracksVsPUPVtx";
+       NumberOfTracksVsPUPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 100.,"");
+       NumberOfTracksVsPUPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfTracksVsPUPVtx->setAxisTitle("Number of PU",1);
+       NumberOfTracksVsPUPVtx->setAxisTitle("Mean number of Tracks per PUvtx",2);
+
      }
   
      if ( doPlotsVsBXlumi_ ) {
+       ibooker.setCurrentFolder(MEFolderName+"/PUmonitoring");
        // get binning from the configuration
        edm::ParameterSet BXlumiParameters = conf_.getParameter<edm::ParameterSet>("BXlumiSetup");
        int    BXlumiBin   = BXlumiParameters.getParameter<int>("BXlumiBin");
@@ -317,7 +325,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
        NumberOfTracksVsBXlumi->setAxisTitle("Mean number of Tracks",2);
     
      }
-   }
+   
 
    theTrackAnalyzer->initHisto(ibooker);
 
@@ -659,7 +667,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	// do vertex monitoring
 	for (size_t i=0; i<theVertexMonitor.size(); i++)
 	  theVertexMonitor[i]->analyze(iEvent, iSetup);
-	
+      }
 	if ( doPlotsVsGoodPVtx_ ) {
 	  
 	  size_t totalNumGoodPV = 0;
@@ -678,9 +686,10 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      totalNumGoodPV++;
 	    }
 	    
-	    NumberOfTracksVsGoodPVtx       -> Fill( totalNumGoodPV, numberOfTracks      );
+            NumberOfTracksVsGoodPVtx	   -> Fill( totalNumGoodPV, numberOfTracks	);
+	    if (totalNumGoodPV>1) NumberOfTracksVsGoodPVtx-> Fill( totalNumGoodPV-1, double(numberOfTracks-(*pvHandle)[0].tracksSize())/double(totalNumGoodPV-1)      );
 	  }
-	}
+
 	
 	if ( doPlotsVsBXlumi_ ) {
 	  double bxlumi = theLumiDetails_->getValue(iEvent);
