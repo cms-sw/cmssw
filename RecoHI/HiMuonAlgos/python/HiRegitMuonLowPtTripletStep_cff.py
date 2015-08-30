@@ -76,29 +76,37 @@ hiRegitMuLowPtTripletStepTrackCandidates        =  RecoTracker.IterativeTracking
 
 # fitting: feed new-names
 hiRegitMuLowPtTripletStepTracks                 = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepTracks.clone(
-    AlgorithmName = cms.string('undefAlgorithm'),
+    AlgorithmName = cms.string('hiRegitMuLowPtTripletStep'),
     src                 = 'hiRegitMuLowPtTripletStepTrackCandidates'
 )
 
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-hiRegitMuLowPtTripletStepSelector               = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone( 
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+hiRegitMuLowPtTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 ='hiRegitMuLowPtTripletStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('HIMVASelectorIter5'),
+    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'relpterr', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuLowPtTripletStepLoose',
-           qualityBit = cms.string('loose'),
+           min_nhits = cms.uint32(8)
             ), #end of pset
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiLooseMTS.clone(
             name = 'hiRegitMuLowPtTripletStepTight',
             preFilterName = 'hiRegitMuLowPtTripletStepLoose',
-            qualityBit = cms.string('loose'),
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.58)
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuLowPtTripletStep',
             preFilterName = 'hiRegitMuLowPtTripletStepTight',
-            qualityBit = cms.string('tight'),
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(0.35)
             ),
         ) #end of vpset
 )

@@ -71,28 +71,36 @@ hiRegitMuPixelLessStepTrackCandidates        =  RecoTracker.IterativeTracking.Pi
 
 # fitting: feed new-names
 hiRegitMuPixelLessStepTracks                 = RecoTracker.IterativeTracking.PixelLessStep_cff.pixelLessStepTracks.clone(
-    AlgorithmName = cms.string('undefAlgorithm'),
+    AlgorithmName = cms.string('hiRegitMuPixelLessStep'),
     src                 = 'hiRegitMuPixelLessStepTrackCandidates'
 )
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-hiRegitMuPixelLessStepSelector               = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone( 
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+hiRegitMuPixelLessStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 ='hiRegitMuPixelLessStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('HIMVASelectorIter7'),
+    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
     trackSelectors = cms.VPSet(  
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuPixelLessStepLoose',
-           qualityBit = cms.string('loose'),
+           min_nhits = cms.uint32(8)
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuPixelLessStepTight',
             preFilterName = 'hiRegitMuPixelLessStepLoose',
-            qualityBit = cms.string('loose'),
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.2)
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuPixelLessStep',
             preFilterName = 'hiRegitMuPixelLessStepTight',
-            qualityBit = cms.string('tight'),
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.09)
             ),
         ) #end of vpset
 )
