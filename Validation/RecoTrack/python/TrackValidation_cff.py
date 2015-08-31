@@ -345,8 +345,7 @@ tracksValidationSelectorsSlim = tracksValidationSelectors.copyAndExclude([cutsRe
 
 tracksPreValidationSlim = cms.Sequence(
     tracksValidationSelectorsSlim +
-    tracksValidationTruth +
-    tracksValidationTruthSignal
+    tracksValidationTruth
 )
 
 trackValidatorSlim = trackValidator.clone(
