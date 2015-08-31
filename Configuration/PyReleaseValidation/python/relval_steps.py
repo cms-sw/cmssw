@@ -149,6 +149,10 @@ steps['RunMET2015C']={'INPUT':InputInfo(dataSet='/MET/Run2015C-v1/RAW',label='me
 steps['RunMuonEG2015C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015C-v1/RAW',label='muEG2015C',events=100000,location='STD', ls=Run2015C)}
 
 #### run2 2015C full list ####
+steps['RunAlCaElectron2015C']={'INPUT':InputInfo(dataSet='/AlCaElectron/Run2015C-v1/RAW',label='label_AlCaElectron2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunAlCaLumiPixels2015C']={'INPUT':InputInfo(dataSet='/AlCaLumiPixels/Run2015C-v1/RAW',label='label_AlCaLumiPixels2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunAlCaP02015C']={'INPUT':InputInfo(dataSet='/AlCaP0/Run2015C-v1/RAW',label='label_AlCaP02015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunAlCaPhiSym2015C']={'INPUT':InputInfo(dataSet='/AlCaPhiSym/Run2015C-v1/RAW',label='label_AlCaPhiSym2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunBTagCSV2015C']={'INPUT':InputInfo(dataSet='/BTagCSV/Run2015C-v1/RAW',label='label_BTagCSV2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunBTagMu2015C']={'INPUT':InputInfo(dataSet='/BTagMu/Run2015C-v1/RAW',label='label_BTagMu2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunCharmonium2015C']={'INPUT':InputInfo(dataSet='/Charmonium/Run2015C-v1/RAW',label='label_Charmonium2015C',events=100000,location='STD', ls=Run2015C)}
@@ -156,32 +160,22 @@ steps['RunCommissioning2015C']={'INPUT':InputInfo(dataSet='/Commissioning/Run201
 steps['RunDisplacedJet2015C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2015C-v1/RAW',label='label_DisplacedJet2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunDoubleMuonLowMass2015C']={'INPUT':InputInfo(dataSet='/DoubleMuonLowMass/Run2015C-v1/RAW',label='label_DoubleMuonLowMass2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunFullTrack2015C']={'INPUT':InputInfo(dataSet='/FullTrack/Run2015C-v1/RAW',label='label_FullTrack2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHINCaloJet1002015C']={'INPUT':InputInfo(dataSet='/HINCaloJet100/Run2015C-v1/RAW',label='label_HINCaloJet1002015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHINCaloJetsOther2015C']={'INPUT':InputInfo(dataSet='/HINCaloJetsOther/Run2015C-v1/RAW',label='label_HINCaloJetsOther2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHINMuon2015C']={'INPUT':InputInfo(dataSet='/HINMuon/Run2015C-v1/RAW',label='label_HINMuon2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHINPFJet1002015C']={'INPUT':InputInfo(dataSet='/HINPFJet100/Run2015C-v1/RAW',label='label_HINPFJet1002015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHINPFJetsOther2015C']={'INPUT':InputInfo(dataSet='/HINPFJetsOther/Run2015C-v1/RAW',label='label_HINPFJetsOther2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHINPhoton2015C']={'INPUT':InputInfo(dataSet='/HINPhoton/Run2015C-v1/RAW',label='label_HINPhoton2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunHTMHT2015C']={'INPUT':InputInfo(dataSet='/HTMHT/Run2015C-v1/RAW',label='label_HTMHT2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunHcalHPDNoise2015C']={'INPUT':InputInfo(dataSet='/HcalHPDNoise/Run2015C-v1/RAW',label='label_HcalHPDNoise2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHcalNZS2015C']={'INPUT':InputInfo(dataSet='/HcalNZS/Run2015C-v1/RAW',label='label_HcalNZS2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunHighMultiplicity2015C']={'INPUT':InputInfo(dataSet='/HighMultiplicity/Run2015C-v1/RAW',label='label_HighMultiplicity2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunHighMultiplicity852015C']={'INPUT':InputInfo(dataSet='/HighMultiplicity85/Run2015C-v1/RAW',label='label_HighMultiplicity852015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunL1Accept2015C']={'INPUT':InputInfo(dataSet='/L1Accept/Run2015C-v1/RAW',label='label_L1Accept2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunMuOnia2015C']={'INPUT':InputInfo(dataSet='/MuOnia/Run2015C-v1/RAW',label='label_MuOnia2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunNoBPTX2015C']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2015C-v1/RAW',label='label_NoBPTX2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunRPCMonitor2015C']={'INPUT':InputInfo(dataSet='/RPCMonitor/Run2015C-v1/RAW',label='label_RPCMonitor2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunSingleElectron2015C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2015C-v1/RAW',label='label_SingleElectron2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunSingleMuon2015C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015C-v1/RAW',label='label_SingleMuon2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunSinglePhoton2015C']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2015C-v1/RAW',label='label_SinglePhoton2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunTau2015C']={'INPUT':InputInfo(dataSet='/Tau/Run2015C-v1/RAW',label='label_Tau2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunTestEnablesEcalHcal2015C']={'INPUT':InputInfo(dataSet='/TestEnablesEcalHcal/Run2015C-v1/RAW',label='label_TestEnablesEcalHcal2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunZeroBias2015C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2015C-v1/RAW',label='label_ZeroBias2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias12015C']={'INPUT':InputInfo(dataSet='/ZeroBias1/Run2015C-v1/RAW',label='label_ZeroBias12015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias22015C']={'INPUT':InputInfo(dataSet='/ZeroBias2/Run2015C-v1/RAW',label='label_ZeroBias22015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias32015C']={'INPUT':InputInfo(dataSet='/ZeroBias3/Run2015C-v1/RAW',label='label_ZeroBias32015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias42015C']={'INPUT':InputInfo(dataSet='/ZeroBias4/Run2015C-v1/RAW',label='label_ZeroBias42015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias52015C']={'INPUT':InputInfo(dataSet='/ZeroBias5/Run2015C-v1/RAW',label='label_ZeroBias52015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias62015C']={'INPUT':InputInfo(dataSet='/ZeroBias6/Run2015C-v1/RAW',label='label_ZeroBias62015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias72015C']={'INPUT':InputInfo(dataSet='/ZeroBias7/Run2015C-v1/RAW',label='label_ZeroBias72015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias82015C']={'INPUT':InputInfo(dataSet='/ZeroBias8/Run2015C-v1/RAW',label='label_ZeroBias82015C',events=100000,location='STD', ls=Run2015C)}
+#
 
 def gen(fragment,howMuch):
     global step1Defaults
