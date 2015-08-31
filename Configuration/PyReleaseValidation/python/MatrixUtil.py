@@ -67,8 +67,9 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
         if str(run) in l_json.keys():
             # print "run %s is there"%(run)
             runNumber = run
+            # print "Doing lumi-section selection for run %s: "%(run)
             for LSsegment in l_json[str(run)] :
-                print LSsegment
+                # print LSsegment
                 ls_count += (LSsegment[-1] - LSsegment[0] + 1)
                 if (ls_count > maxNum) & (maxNum != -1):
                     break
@@ -80,7 +81,7 @@ def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
                 # print "total LS so far  %s    -   grow %s"%(ls_count,local_dict)
             #local_dict[runNumber] = [1,2,3]
         else:
-            print "run %s is NOT there\n\n"%(run)
+            print "run %s NOT present in json %s\n\n"%(run,l_json)
         # print "++    %s"%(local_dict)
 
     if ( len(local_dict.keys()) > 0 ) :
