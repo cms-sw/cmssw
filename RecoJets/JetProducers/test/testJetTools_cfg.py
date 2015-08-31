@@ -116,7 +116,7 @@ process.out.outputCommands += ['keep *_NjettinessAK8_*_*']
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #ECF
 
-process.load('RecoJets.JetProducers.ecfAdder_cfi')
+process.load('RecoJets.JetProducers.ECF_cfi')
 
 process.ECFCA8 = process.ECF.clone()
 process.ECFCA8.src = cms.InputTag("ca8PFJetsCHS")
