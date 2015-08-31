@@ -4,6 +4,8 @@
 #include "FitXslices.cc"
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
+#include "TH3F.h"
 #include "TROOT.h"
 
 /**
@@ -83,8 +85,8 @@ public:
     // std::cout<< "number of bins in z (and tempHisto) --> "<<zbins<<std::endl;
     std::map<unsigned int, TH2*> twoDprojection;
     for(unsigned int z=1;z<zbins;++z) {
-      histo3D->GetZaxis()->SetRange(z,z);
-      TH2*tempHisto= (TH2*)histo3D->Project3D("xy");
+      TAxis* ax_tmp = const_cast<TAxis*>(histo3D->GetZaxis());ax_tmp->SetRange(z, z);
+      TH2* tempHisto= (TH2*)histo3D->Project3D("xy");
       std::stringstream ss;
       ss << z;
       tempHisto->SetName(TString(tempHisto->GetName())+ss.str());
@@ -93,7 +95,7 @@ public:
       twoDprojection.insert(std::make_pair(z,tempHisto));
     }
     unsigned int xbins, ybins;
-    TH3* rebinned3D= new TH3(TString(histo3D->GetName())+"_rebinned",histo3D->GetTitle(),
+    TH3* rebinned3D = (TH3*) new TH3F(TString(histo3D->GetName())+"_rebinned",histo3D->GetTitle(),
 			    xbins,histo3D->GetXaxis()->GetXmin(),histo3D->GetXaxis()->GetXmax(),
 			    ybins,histo3D->GetYaxis()->GetXmin(),histo3D->GetYaxis()->GetXmax(),
 			    zbins,histo3D->GetZaxis()->GetXmin(),histo3D->GetZaxis()->GetXmax() );
