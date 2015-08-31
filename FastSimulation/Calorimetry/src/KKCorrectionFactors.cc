@@ -61,7 +61,6 @@ float KKCorrectionFactors::getScale( float genE, float genEta, float simE ) cons
     auto scaleDn = h3_->GetBinContent( binE, binEta, binRdn );
 
     // make a linear extrapolation between neighbour bins if they are not zero
-    auto Rup = h3_->GetZaxis()->GetBinCenter( binRup );
     auto Rdn = h3_->GetZaxis()->GetBinCenter( binRdn );
     scale = scaleDn + (scaleUp-scaleDn) * ( r - Rdn ) / binWidthR;
 
