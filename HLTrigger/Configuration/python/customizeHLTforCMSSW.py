@@ -1,5 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# Take care of geometry changes in HCAL
+from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
+
 # Update to replace old jet corrector mechanism
 from HLTrigger.Configuration.customizeHLTforNewJetCorrectors import customizeHLTforNewJetCorrectors
 
