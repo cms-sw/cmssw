@@ -345,14 +345,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
    }
 
-   if(vm.count(kExpertCommandOpt)) 
-   {
-      m_context->setHidePFBuilders(false);
-   }
-   else {
-      m_context->setHidePFBuilders(true);
-   }
-
    f=boost::bind(&CmsShowMain::setupDataHandling,this);
    startupTasks()->addTask(f);
   
