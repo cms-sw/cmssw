@@ -447,7 +447,7 @@ void SiStripTrackingRecHitsValid::beginJob(const edm::EventSetup& es){
   
 }
 
-inline void SiStripTrackingRecHitsValid::endJob() {
+void SiStripTrackingRecHitsValid::endJob() {
 
   //Only in standalone mode save local root file 
   if(runStandalone && outputMEsInRootFile){dbe_->save(outputFileName);}
