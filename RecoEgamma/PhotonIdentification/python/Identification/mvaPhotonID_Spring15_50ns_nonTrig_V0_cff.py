@@ -15,6 +15,10 @@ import FWCore.ParameterSet.Config as cms
 
 # This MVA implementation class name
 mvaSpring15NonTrigClassName = "PhotonMVAEstimatorRun2Spring15NonTrig"
+# The tag is an extra string attached to the names of the products
+# such as ValueMaps that needs to distinguish cases when the same MVA estimator
+# class is used with different tuning/weights
+mvaTag = "50nsV0"
 
 # There are 2 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
@@ -34,8 +38,8 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 # The names for the maps are "<module name>:<MVA class name>Values" 
 # and "<module name>:<MVA class name>Categories"
 mvaProducerModuleLabel = "photonMVAValueMapProducer"
-mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaSpring15NonTrigClassName + "Values"
-mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaSpring15NonTrigClassName + "Categories"
+mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaSpring15NonTrigClassName + mvaTag + "Values"
+mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaSpring15NonTrigClassName + mvaTag + "Categories"
 
 # The working point for this MVA that is expected to have about 90% signal
 # efficiency in each category for photons with pt>30 GeV (somewhat lower
@@ -56,6 +60,7 @@ MVA_WP90 = PhoMVA_2Categories_WP(
 # Create the PSet that will be fed to the MVA value map producer
 mvaPhoID_Spring15_50ns_nonTrig_V0_producer_config = cms.PSet( 
     mvaName            = cms.string(mvaSpring15NonTrigClassName),
+    mvaTag             = cms.string(mvaTag),
     weightFileNames    = mvaSpring15NonTrigWeightFiles_V0,
     #
     # All the event content needed for this MVA implementation follows
@@ -89,6 +94,6 @@ mvaPhoID_Spring15_50ns_nonTrig_V0_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
 #
 
 central_id_registry.register( mvaPhoID_Spring15_50ns_nonTrig_V0_wp90.idName,
-                              '70d691efd445926bdccda729bb3f8542')
+                              'f7632ecc85a3b775335fd9bf78f468df')
 
-mvaPhoID_Spring15_50ns_nonTrig_V0_wp90.isPOGApproved = cms.untracked.bool(True)
+mvaPhoID_Spring15_50ns_nonTrig_V0_wp90.isPOGApproved = cms.untracked.bool(False)
