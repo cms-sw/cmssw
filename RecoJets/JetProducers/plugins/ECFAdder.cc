@@ -13,7 +13,7 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig) :
     {
       std::ostringstream ecfN_str;
       ecfN_str << "ecf" << *n;
-
+      variables_.push_back(ecfN_str.str());
       produces<edm::ValueMap<float> >(ecfN_str.str().c_str());
       routine_.push_back(std::auto_ptr<fastjet::contrib::EnergyCorrelator> ( new fastjet::contrib::EnergyCorrelator( *n, beta_, fastjet::contrib::EnergyCorrelator::pt_R ) ));
     }  
@@ -24,11 +24,9 @@ void ECFAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
   edm::Handle<edm::View<reco::Jet> > jets;
   iEvent.getByToken(src_token_, jets);
   
+  unsigned i=0;
   for ( std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n )
     {
-      std::ostringstream ecfN_str;
-      ecfN_str << "ecf" << *n;
-
       // prepare room for output
       std::vector<float> ecfN;
       ecfN.reserve(jets->size());
@@ -37,7 +35,7 @@ void ECFAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
 
 	edm::Ptr<reco::Jet> jetPtr = jets->ptrAt(jetIt - jets->begin());
 
-	float t=getECF( *n, jetPtr );
+	float t=getECF( i, jetPtr );
 
 	ecfN.push_back(t);
       }
@@ -47,11 +45,12 @@ void ECFAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
       fillerT.insert(jets, ecfN.begin(), ecfN.end());
       fillerT.fill();
 
-      iEvent.put(outT,ecfN_str.str().c_str());
+      iEvent.put(outT,variables_[i].c_str());
+      ++i;
     }
 }
 
-float ECFAdder::getECF(unsigned num, const edm::Ptr<reco::Jet> & object) const
+float ECFAdder::getECF(unsigned index, const edm::Ptr<reco::Jet> & object) const
 {
   std::vector<fastjet::PseudoJet> FJparticles;
   for (unsigned k = 0; k < object->numberOfDaughters(); ++k)
@@ -66,7 +65,6 @@ float ECFAdder::getECF(unsigned num, const edm::Ptr<reco::Jet> & object) const
     fastjet::ClusterSequence thisClustering_basic(FJparticles, jetDef);
     std::vector<fastjet::PseudoJet> out_jets_basic = thisClustering_basic.inclusive_jets(0);
     if(out_jets_basic.size()!=1) return -1;
-    unsigned index=std::distance(Njets_.begin(), find(Njets_.begin(), Njets_.end(), num));
   return routine_[index]->result(out_jets_basic[0]); 
 }
 
