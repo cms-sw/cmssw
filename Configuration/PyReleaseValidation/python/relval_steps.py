@@ -871,14 +871,16 @@ menuR250ns = autoHLT[hltKey50ns]
 # no GT customization for HLT frozen50ns
 steps['HLTDR250ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
 
-hltKey25ns='frozen25ns'
-menuR225ns = autoHLT[hltKey25ns]
+hltKey25ns='25ns14e33_v3'
+# menuR225ns = autoHLT[hltKey25ns]
 # no GT customization for HLT frozen25ns
-steps['HLTDR225ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+steps['HLTDR225ns']=merge( [ {'-s':'L1REPACK,HLT:%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
 
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
-steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataReco])
+steps['RECODR250ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common',},dataReco])
+steps['RECODR225ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},dataReco])
+
 steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
 
 
@@ -977,7 +979,8 @@ steps['RECOUP15AlCaCalo']=merge([step3Up2015DefaultsAlCaCalo]) # todo: remove UP
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
 steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaCalo']])
 
-steps['RECODR2reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2']])
+steps['RECODR225nsreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR225ns']])
+steps['RECODR250nsreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR250ns']])
 steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2AlCaEle']])
 
 steps['RECO']=merge([step3Defaults])
