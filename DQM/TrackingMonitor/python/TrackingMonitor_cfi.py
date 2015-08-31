@@ -74,7 +74,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doTrackPxPyPlots                    = cms.bool(False),
     doPUmonitoring                      = cms.bool(False),
     doPlotsVsBXlumi                     = cms.bool(False),
-    doPlotsVsGoodPVtx                   = cms.bool(False),
+    doPlotsVsGoodPVtx                   = cms.bool(True),
     doHIPlots                           = cms.bool(False),                              
     qualityString = cms.string("highPurity"),                      
     #which seed plots to do
