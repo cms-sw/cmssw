@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
+
 from Configuration.Generator.Pythia8CommonSettings_cfi import *
 from Configuration.Generator.Pythia8CUEP8M1Settings_cfi import *
 from Configuration.Generator.Pythia8PowhegEmissionVetoSettings_cfi import *
