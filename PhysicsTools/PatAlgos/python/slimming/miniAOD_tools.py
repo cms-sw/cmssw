@@ -158,6 +158,8 @@ def miniAOD_customizeCommon(process):
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.electronMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
+    process.electronRegressionValueMapProducer.src = \
+        cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     for idmod in electron_ids:
         setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False)
 
@@ -170,6 +172,8 @@ def miniAOD_customizeCommon(process):
     process.egmPhotonIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.photonIDValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.photonRegressionValueMapProducer.src = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.photonIDValueMapProducer.particleBasedIsolation = \
         cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")
