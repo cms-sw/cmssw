@@ -258,6 +258,9 @@ def miniAOD_customizeCommon(process):
     process.slimmedMETsPuppi.type1Uncertainties = cms.InputTag("patPFMetT1")    # only central value for now
     del process.slimmedMETsPuppi.type1p2Uncertainties # not available
 
+    ## Force a re-run of the tau id during MiniAOD production stage
+    process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
+
 def miniAOD_customizeMC(process):
     #slimmed pileup information
     process.load('PhysicsTools.PatAlgos.slimming.slimmedAddPileupInfo_cfi')
