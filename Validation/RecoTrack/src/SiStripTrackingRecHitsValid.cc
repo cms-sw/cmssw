@@ -729,6 +729,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event & e, const edm::Event
 	    if( (min(rechitpro.clusiz, 4) - 1) == 3 ){fillME(iLayerME->second.meResolxMFRphiwclus3,sqrt(rechitpro.resolxxMF));}
 	    if( (min(rechitpro.clusiz, 4) - 1) == 4 ){fillME(iLayerME->second.meResolxMFRphiwclus4,sqrt(rechitpro.resolxxMF));}
 
+
 	    fillME(iLayerME->second.meResLFRphi,rechitpro.resx);
 	    fillME(iLayerME->second.meResMFRphi,rechitpro.resxMF);
 
