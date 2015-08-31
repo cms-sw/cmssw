@@ -57,5 +57,3 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
         "eleHcalPFClusIso",
   ),
 )
-
-
