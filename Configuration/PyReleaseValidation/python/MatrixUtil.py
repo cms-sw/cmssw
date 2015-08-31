@@ -47,18 +47,15 @@ def expandLsInterval(lumis):
     return range(lumis[0],(lumis[1]+1))
 
 from DPGAnalysis.Skims.golden_json_2015 import * 
-jsonFile2015B = findFileInPath("DPGAnalysis/Skims/data/Cert_246908-XXXXXX_13TeV_PromptReco_Collisions15_JSON.txt")
-jsonFile2015C = findFileInPath("DPGAnalysis/Skims/data/Cert_246908-254879_13TeV_PromptReco_Collisions15_JSON.txt")
+jsonFile2015 = findFileInPath("DPGAnalysis/Skims/data/Cert_246908-XXXXXX_13TeV_PromptReco_Collisions15_JSON.txt")
 
 import json
-with open(jsonFile2015B) as data_file:
-    data_json2015b = json.load(data_file)
-with open(jsonFile2015C) as data_file:
-    data_json2015c = json.load(data_file)
+with open(jsonFile2015) as data_file:
+    data_json2015 = json.load(data_file)
 
 # return a portion of the 2015 golden json
 # LS for a full run by default; otherwise a subset of which you determined the size
-def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015b):
+def selectedLS(list_runs=[],maxNum=-1,l_json=data_json2015):
     # print "maxNum is %s"%(maxNum)
     if type(list_runs[0]) !=int:
         print "ERROR: list_runs must be a list of intergers"
