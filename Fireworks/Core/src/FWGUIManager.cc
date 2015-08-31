@@ -135,21 +135,11 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
    TEveCompositeFrame::SetupFrameMarkup(foo, 20, 4, false);
 
    {
-      //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
-      // causing the program to go into full screen mode under default SL4 window manager
-      UInt_t width = gClient->GetDisplayWidth();
-      UInt_t height = static_cast<UInt_t>(gClient->GetDisplayHeight()*.8);
-      //try to deal with multiple horizontally placed monitors.  Since present monitors usually
-      // have less than 2000 pixels horizontally, when we see more it is a good indicator that
-      // we are dealing with more than one monitor.
-      while(width > 2000) {
-         width /= 2;
-      }
-      width = static_cast<UInt_t>(width*.8);
       m_cmsShowMainFrame = new CmsShowMainFrame(gClient->GetRoot(),
-                                                width,
-                                                height,
+                                                950,
+                                                750,
                                                 this);
+     
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
     
       /*
@@ -1537,4 +1527,20 @@ void
 FWGUIManager::resetWMOffsets()
 {
    m_WMOffsetX = m_WMOffsetY = m_WMDecorH = 0;
+}
+
+void
+FWGUIManager::initEmpty()
+{   
+   int x = 150 + m_WMOffsetX ;
+   int y = 50 +  m_WMOffsetY;
+   m_cmsShowMainFrame->Move(x, y);
+   m_cmsShowMainFrame->SetWMPosition(x, y < m_WMDecorH ? m_WMDecorH : y);
+  
+   createView("Rho Phi"); 
+   createView("Rho Z"); 
+
+   m_cmsShowMainFrame->MapSubwindows();
+   m_cmsShowMainFrame->Layout();
+   m_cmsShowMainFrame->MapRaised();
 }
