@@ -115,6 +115,7 @@ public:
    void addTo(FWConfiguration&) const;
    void setFrom(const FWConfiguration&);
    void setWindowInfoFrom(const FWConfiguration& iFrom, TGMainFrame* iFrame);
+   void initEmpty();
 
    TGVerticalFrame* createList(TGCompositeFrame *p);
    void createViews(TEveWindowSlot *slot);
