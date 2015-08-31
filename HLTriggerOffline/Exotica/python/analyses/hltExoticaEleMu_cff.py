@@ -19,4 +19,6 @@ EleMuPSet = cms.PSet(
                                     145, 150, 155, 160,
                                     165, 170, 175, 180,
                                     185, 190, 195, 200),
+    dropPt2 = cms.bool(True),
+    dropPt3 = cms.bool(True),
     )
