@@ -568,6 +568,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
   createTotalMEs(ibooker);
   // loop over detectors and book MEs
   edm::LogInfo("SiStripTkRecHits|SiStripRecHitsValid")<<"nr. of activeDets:  "<<activeDets.size();
+  const std::string& tec = "TEC", tid = "TID", tob = "TOB", tib = "TIB";        
   for(std::vector<uint32_t>::iterator detid_iterator=activeDets.begin(), detid_end=activeDets.end(); detid_iterator!=detid_end; ++detid_iterator){
     uint32_t detid = (*detid_iterator);
     // remove any eventual zero elements - there should be none, but just in case
@@ -587,9 +588,8 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
       // get detids for the layer
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
       int32_t lnumber = det_layer_pair.second;
-      std::string lname = det_layer_pair.first; 
+      const std::string& lname = det_layer_pair.first; 
       std::vector<uint32_t> layerDetIds;
-      std::string tec = "TEC", tid = "TID", tob = "TOB", tib = "TIB";        
       if (lname.compare(tec) == 0) {
         if (lnumber > 0) {
 	  substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
@@ -631,8 +631,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel 
       std::vector<uint32_t> stereoandmatchedDetIds;        
       int32_t stereolnumber = det_layer_pair.second;
-      std::string stereolname = det_layer_pair.first;
-      const std::string& tec = "TEC", tid = "TID", tob = "TOB", tib = "TIB"; 
+      const std::string& stereolname = det_layer_pair.first;
       if ( stereolname.compare(tec) == 0 && (tTopo->tecIsStereo(detid)) ) {
         if ( stereolnumber > 0 ) {
           substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
