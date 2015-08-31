@@ -14,8 +14,7 @@ pfJetsPtrForMetCorr = cms.EDProducer("PFJetFwdPtrProducer",
    src = cms.InputTag("ak4PFJets")
 )
 # this one is needed only if the input file doesn't have it
-# solved automatically with unscheduled execution
-from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
+#from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 # particleFlowPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
 #    src = cms.InputTag("particleFlow")
 # )
@@ -67,7 +66,7 @@ corrPfMetType2 = cms.EDProducer(
 ##____________________________________________________________________________||
 correctionTermsPfMetType1Type2 = cms.Sequence(
     pfJetsPtrForMetCorr +
-    particleFlowPtrs +
+    #particleFlowPtrs +
     pfCandsNotInJetsPtrForMetCorr +
     pfCandsNotInJetsForMetCorr +
     pfCandMETcorr +

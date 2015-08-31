@@ -229,11 +229,11 @@ def miniAOD_customizeCommon(process):
     process.slimmedJetsPuppi.packedPFCandidates = cms.InputTag("packedPFCandidates")
 
     ## puppi met
-    process.load('RecoMET.METProducers.PFMET_cfi')
     process.puppiForMET = cms.EDProducer("CandViewMerger",
         src = cms.VInputTag( "pfLeptonsPUPPET", "puppiNoLep")
     )     
-    process.pfMetPuppi = process.pfMet.clone()
+    import RecoMET.METProducers.PFMET_cfi
+    process.pfMetPuppi = RecoMET.METProducers.PFMET_cfi.pfMet.clone()
     process.pfMetPuppi.src = cms.InputTag("puppiForMET")
     process.pfMetPuppi.alias = cms.string('pfMetPuppi')
     ## type1 correction, from puppi jets
