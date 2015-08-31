@@ -3221,11 +3221,11 @@ DQMStore::removeElement(const std::string &dir, const std::string &name, bool wa
 {
   MonitorElement proto(&dir, name);
   MEMap::iterator pos = data_.find(proto);
-  if (pos == data_.end() && warning)
+  if (pos != data_.end())
+    data_.erase(pos);
+  else if (warning)
     std::cout << "DQMStore: WARNING: attempt to remove non-existent"
               << " monitor element '" << name << "' in '" << dir << "'\n";
-  else
-    data_.erase(pos);
 }
 
 //////////////////////////////////////////////////////////////////////
