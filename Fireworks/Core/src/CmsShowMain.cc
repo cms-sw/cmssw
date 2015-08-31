@@ -303,6 +303,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       m_context->setHidePFBuilders(true);
    }
 
+   if(vm.count(kExpertCommandOpt)) 
+   {
+      m_context->setHidePFBuilders(false);
+   }
+   else {
+      m_context->setHidePFBuilders(true);
+   }
+
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
    if (vm.count(kZeroWinOffsets))
@@ -330,8 +338,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
    startupTasks()->addTask(f);
 
-
-
    if(vm.count(kLiveCommandOpt))
    {
       f = boost::bind(&CmsShowMain::setLiveMode, this);
@@ -344,6 +350,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
    }
 
+<<<<<<< HEAD
    if ( m_inputFiles.empty()) {
       f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
       startupTasks()->addTask(f);
@@ -356,6 +363,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
       startupTasks()->addTask(f);
    }
+=======
+  
+   f=boost::bind(&CmsShowMain::setupDataHandling,this);
+   startupTasks()->addTask(f);
+>>>>>>> 1418f5c... Autodetect configuration after setup in case config file name is not give command line and file is loaded first stime,
   
    if (vm.count(kLoopOpt))
       setPlayLoop();
@@ -487,6 +499,10 @@ CmsShowMain::fileChangedSlot(const TFile *file)
    if (file)
       guiManager()->titleChanged(m_navigator->frameTitle());
 
+
+   if (context()->getField()->getSource() == FWMagField::kNone) {
+      context()->getField()->resetFieldEstimate();
+   }
    m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
@@ -518,7 +534,8 @@ void CmsShowMain::openData()
    guiManager()->updateStatus("loading file ...");
    if (fi.fFilename) {
       m_navigator->openFile(fi.fFilename);
-      m_loadedAnyInputFile = true;
+
+      setLoadedAnyInputFileAfterStartup();
       m_navigator->firstEvent();
       checkPosition();
       draw();
@@ -542,7 +559,7 @@ void CmsShowMain::appendData()
    guiManager()->updateStatus("loading file ...");
    if (fi.fFilename) {
       m_navigator->appendFile(fi.fFilename, false, false);
-      m_loadedAnyInputFile = true;
+      setLoadedAnyInputFileAfterStartup();
       checkPosition();
       draw();
       guiManager()->titleChanged(m_navigator->frameTitle());
@@ -564,7 +581,7 @@ CmsShowMain::openDataViaURL()
    if(!chosenFile.empty()) {
       guiManager()->updateStatus("loading file ...");
       if(m_navigator->openFile(chosenFile.c_str())) {
-         m_loadedAnyInputFile = true;
+         setLoadedAnyInputFileAfterStartup();
          m_navigator->firstEvent();
          checkPosition();
          draw();
@@ -653,7 +670,6 @@ CmsShowMain::setupDataHandling()
 {
    guiManager()->updateStatus("Setting up data handling...");
 
-
    // navigator filtering  ->
    m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
    m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, guiManager(), _1));
@@ -688,8 +704,7 @@ CmsShowMain::setupDataHandling()
       }
       else
       {
-         m_loadedAnyInputFile = true;
-
+         m_loadedAnyInputFile = true; 
       }
    }
 
@@ -698,15 +713,35 @@ CmsShowMain::setupDataHandling()
       m_navigator->firstEvent();
       checkPosition();
       draw();
+      setupConfiguration();
    }
-   else if (m_monitor.get() == 0 && (configurationManager()->getIgnore() == false) )
-   {
-      if (m_inputFiles.empty())
-         openDataViaURL();
-      else
-         openData();
+   else {
+      if (configFilename()[0] == '\0') {
+         guiManager()->initEmpty();
+      }
+      else {
+         setupConfiguration();
+      }
+
+      if (m_monitor.get() == 0 && (configurationManager()->getIgnore() == false)) {
+         if (m_inputFiles.empty())
+            openDataViaURL();
+         else
+            openData();
+      }
    }
 }
+
+void
+CmsShowMain::setLoadedAnyInputFileAfterStartup()
+{
+   if (m_loadedAnyInputFile == false) {
+      m_loadedAnyInputFile = true;
+      if ((configFilename()[0] == '\0') && (configurationManager()->getIgnore() == false))
+         setupConfiguration();
+   }
+}
+
 
 void
 CmsShowMain::setupSocket(unsigned int iSocket)
