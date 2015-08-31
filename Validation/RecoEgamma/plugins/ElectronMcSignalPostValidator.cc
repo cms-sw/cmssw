@@ -59,10 +59,11 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
     h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
   }/**/
 
+  
   // profiles from 2D histos
-  profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices","E/Etrue vs number of primary vertices","N_{primary vertices}","E/E_{true}");
-  profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices_barrel","E/Etrue vs number of primary vertices , barrel","N_{primary vertices}","E/E_{true}");
-  profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices_endcaps","E/Etrue vs number of primary vertices , endcaps","N_{primary vertices}","E/E_{true}");
+  profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices","E/Etrue vs number of primary vertices","N_{primary vertices}","E/E_{true}", 0.8);
+  profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices_barrel","E/Etrue vs number of primary vertices , barrel","N_{primary vertices}","E/E_{true}", 0.8);
+  profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices_endcaps","E/Etrue vs number of primary vertices , endcaps","N_{primary vertices}","E/E_{true}", 0.8);
 
   profileX(iBooker, iGetter, "PoPtrueVsEta","mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
   profileX(iBooker, iGetter, "PoPtrueVsPhi","mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");

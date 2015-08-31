@@ -280,6 +280,9 @@ namespace HWWFunctions {
       vector <float> fixedpfjetmva_analobj; getGoodMVAs(hww, fixedpfjetmva_analobj, "mvavalue"); 
 
               for ( unsigned int i=0; i < hww.pfjets_p4().size(); ++i) {
+                  if (i >= hww.pfjets_JEC().size())
+                    break;
+
                   double jec = hww.pfjets_JEC().at(i);
 
                   if ( (hww.pfjets_p4().at(i).pt() * jec) < etThreshold ) continue;
@@ -879,6 +882,8 @@ namespace HWWFunctions {
       vector <float> fixedpfjetmva_analsel; getGoodMVAs(hww, fixedpfjetmva_analsel, "mvavalue"); 
 
               for ( unsigned int i=0; i < hww.pfjets_p4().size(); ++i) {
+                  if (i >= hww.pfjets_JEC().size())
+                    break;
                   
                   if ( hww.pfjets_p4().at(i).pt() < minPt ) continue;
                   bool ignoreJet = false;
