@@ -113,7 +113,6 @@ workflows[134.74] = ['',['RunJetHT2015B','HLTDR250ns','RECODR250nsreHLT','HARVES
 workflows[134.75] = ['',['RunMET2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
 workflows[134.76] = ['',['RunMuonEG2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
 
-
 ### run 2015C 25ns ###
 workflows[134.81] = ['',['RunHLTPhy2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
 workflows[134.82] = ['',['RunDoubleEG2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
