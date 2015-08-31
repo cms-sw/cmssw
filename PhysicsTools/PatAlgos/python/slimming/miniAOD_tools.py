@@ -229,6 +229,9 @@ def miniAOD_customizeCommon(process):
     del process.slimmedMETsPuppi.type1p2Uncertainties # not available
 
 def miniAOD_customizeMC(process):
+    #slimmed pileup information
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedAddPileupInfo_cfi')
+    
     process.muonMatch.matched = "prunedGenParticles"
     process.electronMatch.matched = "prunedGenParticles"
     process.electronMatch.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
