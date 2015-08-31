@@ -90,12 +90,13 @@ void PackedCandidateTrackValidator::fillDescriptions(edm::ConfigurationDescripti
 void PackedCandidateTrackValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   iBooker.setCurrentFolder(rootFolder_);
 
-  h_selectionFlow = iBooker.book1D("selectionFlow", "Track selection flow", 5, 0, 5);
+  h_selectionFlow = iBooker.book1D("selectionFlow", "Track selection flow", 6, 0, 6);
   h_selectionFlow->setBinLabel(1, "All tracks");
   h_selectionFlow->setBinLabel(2, "Associated to PackedCandidate");
-  h_selectionFlow->setBinLabel(3, "PackedCandidate has track");
-  h_selectionFlow->setBinLabel(4, "PackedCandidate is not electron");
-  h_selectionFlow->setBinLabel(5, "PackedCandidate has hits");
+  h_selectionFlow->setBinLabel(3, "PC is charged"),
+  h_selectionFlow->setBinLabel(4, "PC has track");
+  h_selectionFlow->setBinLabel(5, "PC is not electron");
+  h_selectionFlow->setBinLabel(6, "PC has hits");
 
   constexpr int diffBins = 50;
   constexpr float diff = 1e-4;
@@ -168,24 +169,30 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     }
     h_selectionFlow->Fill(1.5);
 
+    // Filter out neutral PackedCandidates, some of them may have track associated, and for those the charge comparison fails
+    if(pcRef->charge() == 0) {
+      continue;
+    }
+    h_selectionFlow->Fill(2.5);
+
     const reco::Track *trackPcPtr = pcRef->bestTrack();
     if(!trackPcPtr) {
       continue;
     }
-    h_selectionFlow->Fill(2.5);
+    h_selectionFlow->Fill(3.5);
 
     // Filter out electrons to avoid comparisons to PackedCandidates with GsfTrack
     if(std::abs(pcRef->pdgId()) == 11) {
       continue;
     }
-    h_selectionFlow->Fill(3.5);
+    h_selectionFlow->Fill(4.5);
 
     // Filter out PackedCandidate-tracks with no hits, as they won't have their details filled
     const reco::Track& trackPc = *trackPcPtr;
     if(trackPc.hitPattern().numberOfValidHits() == 0) {
       continue;
     }
-    h_selectionFlow->Fill(4.5);
+    h_selectionFlow->Fill(5.5);
 
 
     fillNoFlow(h_diffPx, trackPc.px() - track.px());
