@@ -192,10 +192,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    // exportImages->createShortcut(kKey_P, "CTRL+SHIFT", GetId());
    quit->createShortcut(kKey_Q, "CTRL", GetId());
 
-   loadPartialConfig->createShortcut(kKey_W, "CTRL", GetId());
-   savePartialConfig->createShortcut(kKey_Y, "CTRL", GetId());
-   savePartialConfigAs->createShortcut(kKey_Y, "CTRL+SHIFT", GetId());
-
    TGPopupMenu *editMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
 
