@@ -23,9 +23,9 @@
  cmsprel->SetBorderSize(0);
  cmsprel->SetMargin(0.01);
  cmsprel->SetTextAlign(12); // align left
- TString text = "CMS Preliminary 2012";
+ TString text = "CMS Preliminary 2015";
  cmsprel->AddText(0.01,0.5,text);  
- TString text2 = "#sqrt{s} = 8 TeV  Run2012A TkAlZMuMu |#eta_{#mu}|<2.4";               
+ TString text2 = "#sqrt{s} = 13 TeV  Run2015B TkAlZMuMu |#eta_{#mu}|<2.4";               
  cmsprel->AddText(0.4, 0.6, text2);
 
  TFile *file1  = new TFile("./BiasCheck.root");
@@ -34,7 +34,7 @@
  bool switchONfit= false;
  bool switchONfitEta= false;
   
- gROOT->LoadMacro("MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/tdrstyle.C"); 
+ gROOT->LoadMacro("./tdrstyle.C"); 
  setTDRStyle();
 
  TCanvas* c0 = new TCanvas("c0", "c0",50, 20, 800,600);

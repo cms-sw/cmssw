@@ -188,6 +188,7 @@
        
        int bigEventSize;
        bool isUpgrade;
+       bool isOffline;
        bool firstRun;
        
        std::string I_name[1856];
