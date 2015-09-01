@@ -110,7 +110,7 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_selectable(this, "Enable Tooltips", false),
    m_cameraType(this, "Camera Type", 0l, 0l, 5l),
    m_clipEnable(this, "Enable Clip", false),
-   m_clipEta(this, "Clip Eta", 0.0, -5.0, 5.0),
+   m_clipTheta(this, "Clip Theta", 0.0, -5.0, 5.0),
    m_clipPhi(this, "Clip Phi", 0.0, -2.0, 2.0),
    m_clipDelta1(this, "Clip Delta1", 0.2, 0.01, 2),
    m_clipDelta2(this, "Clip Delta2", 0.2, 0.01, 2),
@@ -143,10 +143,10 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_cameraType.changed_.connect(boost::bind(&FW3DViewBase::setCameraType,this, _1));
 
    m_clipEnable.changed_.connect(boost::bind(&FW3DViewBase::enableSceneClip,this, _1));
-   m_clipEta.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
-   m_clipPhi.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
-   m_clipDelta1.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
-   m_clipDelta2.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
+   m_clipTheta.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
+   m_clipPhi.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
+   m_clipDelta1.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
+   m_clipDelta2.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
 
 
     m_ecalBarrel = new TEveBoxSet("ecalBarrel"); 
@@ -238,23 +238,21 @@ FW3DViewBase::enableSceneClip( bool x)
          ((TEveScene*)(*it))->GetGLScene()->SetClip(x ? m_glClip : 0);
    }
    eventScene()->GetGLScene()->SetClip(x ? m_glClip : 0);
-   updateClipPlanes();
+   updateClipPlanes(true);
    viewerGL()->RequestDraw();
 }
 
 void
-FW3DViewBase::setClip(float eta, float phi)
+FW3DViewBase::setClip(float theta, float phi)
 {
    // called from popup menu via FWGUIManager
-   /*
-   m_showMuonBarrel.set(1);
-   m_showMuonEndcap.set(true);
-   m_showPixelBarrel.set(true);
-   m_showPixelEndcap.set(true);
-   m_showTrackerBarrel.set(true);
-   */
-   m_clipEta.set(eta);
-   m_clipPhi.set(phi);
+   
+   // limit to 2 decimals, else TGNumber entry in the view controller shows only last 5 irrelevant digits
+   double base = 100.0;
+   int thetaInt = theta*base;
+   int phiInt = phi*base;
+   m_clipTheta.set(thetaInt/base);
+   m_clipPhi.set(phiInt/base);
    m_clipEnable.set(true);
 }
 
@@ -307,7 +305,6 @@ void setBBoxClipped(TGLBoundingBox& bbox, TEveVector dir, TEveVector b0, TEveVec
 
     TGLVertex3 bbv[8];
     for (int i = 0; i < 8; ++i) {
-       // bb[i].Dump();
         bbv[i].Set(bb[i].fX, bb[i].fY, bb[i].fZ);
     }
     bbox.Set(bbv);
@@ -315,16 +312,16 @@ void setBBoxClipped(TGLBoundingBox& bbox, TEveVector dir, TEveVector b0, TEveVec
 }
 
 void
-FW3DViewBase::updateClipPlanes()
+FW3DViewBase::updateClipPlanes(bool resetCamera)
 {
    //  TEveScene* gs = (TEveScene*)gEve->GetScenes()->FindChild(TString("TopGeoNodeScene"));
    //printf("node scene %p\n", gs);
    if (m_clipEnable.value())
    {
-      float eta = m_clipEta.value();
+      float theta = m_clipTheta.value();
       float phi   = m_clipPhi.value();
       using namespace TMath;
-      TEveVector in(Sin(eta)*Cos(phi), Sin(eta)*Sin(phi), Cos(eta));
+      TEveVector in(Sin(theta)*Cos(phi), Sin(theta)*Sin(phi), Cos(theta));
 
       // one side of cross section plane is paralel to XY plane
       TEveVector normXY(0., 1., 0);
@@ -348,8 +345,8 @@ FW3DViewBase::updateClipPlanes()
 
       ((Clipsi*)m_glClip)->SetPlaneInfo(&c[0]);
 
-      gEve->Redraw3D();
 
+      if (resetCamera) {
       TGLBoundingBox bbox;
       float es = getBBoxLineLength(eventScene(), in);
       float gs = getBBoxLineLength(geoScene(), in);
@@ -372,7 +369,14 @@ FW3DViewBase::updateClipPlanes()
       cam.SetExternalCenter(true);
       cam.SetCenterVec(bbox.Center().X(), bbox.Center().Y(), bbox.Center().Z());
       cam.Setup(bbox, true);
-   }
+      }
+      else {
+         eventScene()->Repaint();
+      }
+         }
+   
+   gEve->Redraw3D();
+
 }
 
 //______________________________________________________________________________
@@ -443,7 +447,7 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_selectable).
       separator().
       addParam(&m_clipEnable).
-      addParam(&m_clipEta).
+      addParam(&m_clipTheta).
       addParam(&m_clipPhi).
       addParam(&m_clipDelta1).
       addParam(&m_clipDelta2);
