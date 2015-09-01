@@ -53,6 +53,7 @@ RecoHiEgammaRECO = cms.PSet(
     'keep EcalRecHitsSorted_ecalRecHit_*_*',
     'keep EcalRecHitsSorted_ecalPreshowerRecHit_*_*',
     #'keep floatedmValueMap_*_*_*',  # isolation not created yet in RECO step, but in case it is later
+<<<<<<< HEAD
     'keep floatedmValueMap_hiDetachedTripletStepQual_MVAVals_*',        
     'keep floatedmValueMap_hiDetachedTripletStepSelector_MVAVals_*',    
     'keep floatedmValueMap_hiGeneralTracks_MVAVals_*',                  
@@ -64,6 +65,19 @@ RecoHiEgammaRECO = cms.PSet(
     'keep floatedmValueMap_hiRegitMuMixedTripletStepSelector_MVAVals
     'keep floatedmValueMap_hiRegitMuPixelLessStepSelector_MVAVals_*', 
     'keep floatedmValueMap_hiRegitMuPixelPairStepSelector_MVAVals_*', 
+=======
+    'keep floatedmValueMap_hiDetachedTripletStepQual_MVAVals_*',
+    'keep floatedmValueMap_hiDetachedTripletStepSelector_MVAVals_*',
+    'keep floatedmValueMap_hiGeneralTracks_MVAVals_*',
+    'keep floatedmValueMap_hiInitialStepSelector_MVAVals_*',
+    'keep floatedmValueMap_hiLowPtTripletStepQual_MVAVals_*',
+    'keep floatedmValueMap_hiLowPtTripletStepSelector_MVAVals_*',
+    'keep floatedmValueMap_hiPixelPairStepSelector_MVAVals_*',
+    'keep floatedmValueMap_hiRegitMuInitialStepSelector_MVAVals_*',
+    'keep floatedmValueMap_hiRegitMuMixedTripletStepSelector_MVAVals_*',
+    'keep floatedmValueMap_hiRegitMuPixelLessStepSelector_MVAVals_*',
+    'keep floatedmValueMap_hiRegitMuPixelPairStepSelector_MVAVals_*',
+>>>>>>> merge-attempt
     #'keep recoPFCandidates_*_*_*',
     'keep recoPFCandidates_particleFlowEGamma_*_*',
     'keep recoPFCandidates_particleFlowTmp_*_*',
