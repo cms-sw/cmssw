@@ -1,5 +1,4 @@
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerHardcodeGeometryLoader.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
@@ -7,9 +6,15 @@
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
-std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const HcalTopology *limits) {
-    m_limits = limits;
-    
+std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons) {
+
+  m_hcaltopo = hcaltopo;
+  m_hcons = hcons;
+
+  //get eta limits from hcal rec constants
+  theHFEtaBounds   = m_hcons->getEtaTableHF();
+  theHBHEEtaBounds = m_hcons->getEtaTable();
+
   CaloTowerGeometry* geom=new CaloTowerGeometry();
 
   if( 0 == geom->cornersMgr() ) geom->allocateCorners ( 
@@ -20,11 +25,11 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
 
   int nnn=0;
   // simple loop
-  for (int ieta=-m_limits->lastHFRing(); ieta<=m_limits->lastHFRing(); ieta++) {
+  for (int ieta=-m_hcaltopo->lastHFRing(); ieta<=m_hcaltopo->lastHFRing(); ieta++) {
     if (ieta==0) continue; // skip not existing eta=0 ring
     for (int iphi=1; iphi<=72; iphi++) {
-      if (abs(ieta)>=m_limits->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
-      if (abs(ieta)>=m_limits->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
+      if (abs(ieta)>=m_hcaltopo->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
+      if (abs(ieta)>=m_hcaltopo->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
       ++nnn;
     }
   }
@@ -33,11 +38,11 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
 
   int n=0;
   // simple loop
-  for (int ieta=-m_limits->lastHFRing(); ieta<=m_limits->lastHFRing(); ieta++) {
+  for (int ieta=-m_hcaltopo->lastHFRing(); ieta<=m_hcaltopo->lastHFRing(); ieta++) {
     if (ieta==0) continue; // skip not existing eta=0 ring
     for (int iphi=1; iphi<=72; iphi++) {
-      if (abs(ieta)>=m_limits->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
-      if (abs(ieta)>=m_limits->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
+      if (abs(ieta)>=m_hcaltopo->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
+      if (abs(ieta)>=m_hcaltopo->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
       makeCell(ieta,iphi, geom);
       n++;
     }
@@ -61,9 +66,9 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   int etaRing=abs(ieta);
   int sign=(ieta>0)?(1):(-1);
   double eta1, eta2;
-  if (etaRing>m_limits->lastHERing()) {
-    eta1 = theHFEtaBounds[etaRing-m_limits->firstHFRing()];
-    eta2 = theHFEtaBounds[etaRing-m_limits->firstHFRing()+1];
+  if (abs(ieta)>m_hcaltopo->lastHERing()) {
+    eta1 = theHFEtaBounds[etaRing-m_hcaltopo->firstHFRing()];
+    eta2 = theHFEtaBounds[etaRing-m_hcaltopo->firstHFRing()+1];
   } else {
     eta1 = theHBHEEtaBounds[etaRing-1];
     eta2 = theHBHEEtaBounds[etaRing];
@@ -72,21 +77,21 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   double deta = (eta2-eta1);  
 
   // in radians
-  double dphi_nominal = 2.0*M_PI / m_limits->nPhiBins(1); // always the same
-  double dphi_half = M_PI / m_limits->nPhiBins(etaRing); // half-width
+  double dphi_nominal = 2.0*M_PI / m_hcaltopo->nPhiBins(1); // always the same
+  double dphi_half = M_PI / m_hcaltopo->nPhiBins(etaRing); // half-width
   
   double phi_low = dphi_nominal*(iphi-1); // low-edge boundaries are constant...
   double phi = phi_low+dphi_half;
 
   double x,y,z,thickness;
   bool alongZ=true;
-  if (etaRing>m_limits->lastHERing()) { // forward
+  if (abs(ieta)>m_hcaltopo->lastHERing()) { // forward
     z=HFz;
     double r=z/sinh(eta);
     x=r * cos(phi);
     y=r * sin(phi);
     thickness=HFthick/tanh(eta);
-  } else if (etaRing>17) { // EE-containing
+  } else if (abs(ieta)>m_hcaltopo->firstHERing()+1) { // EE-containing
     z=EEz;
     double r=z/sinh(eta);
     x=r * cos(phi);
