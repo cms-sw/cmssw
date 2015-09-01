@@ -151,7 +151,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     meValidYLad_ = iBooker.book1D("validY_"+hisID,"# Valid hits in Y",nbinY,-4.,4.);
     meValidYLad_->setAxisTitle("# Valid hits in Y",1);
 
-    meValidModLad_ = iBooker.book1D("validMod_"+hisID,"# Valid hits on Module",20,1,21.);
+    meValidModLad_ = iBooker.book1D("validMod_"+hisID,"# Valid hits on Module",4,0.5,4.5);
     meValidModLad_->setAxisTitle("# Valid hits on Module",1);    
 
     meValidAlphaLad_ = iBooker.book1D("validAlpha_"+hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
@@ -170,7 +170,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
     meMissingYLad_ = iBooker.book1D("missingY_"+hisID,"# Missing hits in Y",nbinY,-4.,4.);
     meMissingYLad_->setAxisTitle("# Missing hits in Y",1);
     
-    meMissingModLad_ = iBooker.book1D("missingMod_"+hisID,"# Missing hits on Module",20,1,21.);
+    meMissingModLad_ = iBooker.book1D("missingMod_"+hisID,"# Missing hits on Module",4,0.5,4.5);
     meMissingModLad_->setAxisTitle("# Missing hits on Module",1);
 
     meMissingAlphaLad_ = iBooker.book1D("missingAlpha_"+hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
@@ -474,7 +474,7 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, edm::Eve
 }
 
 
-void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool isHitValid, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {  
+void SiPixelHitEfficiencyModule::fill(const TrackerTopology * pTT, const LocalTrajectoryParameters& ltp, bool isHitValid, bool modon, bool ladon, bool layon, bool phion, bool bladeon, bool diskon, bool ringon) {  
   
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
@@ -484,9 +484,10 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
   float prediction_beta = atan2(localDir.z(), localDir.y());
   float prediction_x = ltp.position().x();
   float prediction_y = ltp.position().y();
-  //CS - this will probably break with isUpgrade
-  int imod = PXBDetId(DetId(id_)).module();
-  
+
+  PixelBarrelName PBN= PixelBarrelName(DetId(id_), pTT);
+  int imod=PBN.moduleName(); 
+   
   if(isHitValid){
     if(modon){
       meValid_->Fill(0.5);
