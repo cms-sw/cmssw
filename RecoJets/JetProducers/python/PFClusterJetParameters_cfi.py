@@ -19,7 +19,7 @@ PFClusterJetParameters = cms.PSet(
     nSigmaPU = cms.double(1.0),
     radiusPU = cms.double(0.5),  
     # fastjet-style pileup 
-    doAreaFastjet       = cms.bool( True),
+    doAreaFastjet       = cms.bool( False),
     doRhoFastjet        = cms.bool( False),
     doAreaDiskApprox    = cms.bool( False),
     Active_Area_Repeats = cms.int32(    1),
