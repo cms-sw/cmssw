@@ -115,6 +115,10 @@ def customiseFor10234(process):
             delattr(process.hltCaloStage1Digis, 'FedId')
     return process
 
+def customiseFor10353(process):
+    setattr(process,'hcalDDDRecConstants', cms.ESProducer('HcalDDDRecConstantsESModule', appendToDataLabel = cms.string('')))
+    return process
+
 # upgrade RecoTrackSelector to allow selection on originalAlgo (PR #10418)
 def customiseFor10418(process):
     if hasattr(process,'hltBSoftMuonMu5L3') :
@@ -138,6 +142,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
 
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
+        process = customiseFor10353(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)
