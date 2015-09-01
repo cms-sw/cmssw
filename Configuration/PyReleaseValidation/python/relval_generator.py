@@ -28,6 +28,7 @@ workflows[512]=['DYTollJets_LO_Mad_13TeV_py8',['DYToll01234Jets_5f_LO_MLM_Madgra
 workflows[555]=['DYTollJets_NLO_Mad_13TeV_py8',['DYToll012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max0p_LHE_pythia8','HARVESTGEN2']]
 workflows[513]=['WTolNuJets_LO_Mad_13TeV_py8',['WTolNu01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_MLM_5f_max4j_LHE_pythia8','HARVESTGEN2']]
 workflows[551]=['TTbar012Jets_NLO_Mad_13TeV_py8',['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_aMCatNLO_FXFX_5f_max2j_max1p_LHE_pythia8','HARVESTGEN2']]
+workflows[556]=['TTbar_NLO_Pow_13TeV_py8',['TTbar_Pow_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto2p_pythia8','HARVESTGEN2']]
 workflows[514]=['GGToHgg_NLO_Pow_13TeV_py8',['GGToH_Pow_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_Hgg_powhegEmissionVeto_pythia8','HARVESTGEN2']]
 workflows[552]=['VHToHtt_NLO_Pow_13TeV_py8',['VHToH_Pow_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_Htt_powhegEmissionVeto_pythia8','HARVESTGEN2']]
 workflows[554]=['VBFToH4l_NLO_Pow_JHU_13TeV_py8',['VBFToH_Pow_JHU4l_LHE_13TeV','Hadronizer_TuneCUETP8M1_13TeV_powhegEmissionVeto_pythia8','HARVESTGEN2']]
