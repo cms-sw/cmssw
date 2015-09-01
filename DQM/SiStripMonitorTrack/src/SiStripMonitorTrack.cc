@@ -842,19 +842,17 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
       hitStudy(es,projhit,matchedhit,hit2D,hit1D,localMomentum);
     }
     
-//ngrenz: Begin_____________code seems meaningless now__________________
-
     // hit pattern of the track
-    const reco::HitPattern & hitsPattern = track->hitPattern();
+   // const reco::HitPattern & hitsPattern = track->hitPattern();
     // loop over the hits of the track
     //    for (int i=0; i<hitsPattern.numberOfHits(); i++) {
-    for (int i=0; i<hitsPattern.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
-      uint32_t hit = hitsPattern.getHitPattern(reco::HitPattern::TRACK_HITS,i);
+   // for (int i=0; i<hitsPattern.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+   //   uint32_t hit = hitsPattern.getHitPattern(reco::HitPattern::TRACK_HITS,i);
     
       // if the hit is valid and in pixel barrel, print out the layer
-      if (hitsPattern.validHitFilter(hit) && hitsPattern.pixelBarrelHitFilter(hit))
+   //   if (hitsPattern.validHitFilter(hit) && hitsPattern.pixelBarrelHitFilter(hit))
       
-      if (!hitsPattern.validHitFilter(hit)) continue;
+   //   if (!hitsPattern.validHitFilter(hit)) continue;
 //      if (hitsPattern.pixelHitFilter(hit))       std::cout << "pixel"        << std::endl;       // pixel
 //      if (hitsPattern.pixelBarrelHitFilter(hit)) std::cout << "pixel barrel" << std::endl; // pixel barrel
 //      if (hitsPattern.pixelEndcapHitFilter(hit)) std::cout << "pixel endcap" << std::endl; // pixel endcap
@@ -874,9 +872,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection 
 //        std::cout << bit;
 //      }
 //      std::cout << std::endl;
-    }
-//ngrenz: End_______________code seems meaningless now__________________
-
+   // }
   }
 }
 //------------------------------------------------------------------------
