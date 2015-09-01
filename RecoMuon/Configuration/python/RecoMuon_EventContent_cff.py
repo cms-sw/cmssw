@@ -23,7 +23,8 @@ from RecoMuon.MuonIsolationProducers.muIsolation_EventContent_cff import *
 # AOD content
 RecoMuonAOD = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_muons_*_*',
-                                           'keep *_*_muons_*',
+                                           #'keep *_*_muons_*',
+                                           'keep *_particleFlow_muons_*',
                                            'drop *_muons_muons1stStep2muonsMap_*',
                                            'drop recoIsoDepositedmValueMap_muons_*_*', #not really used
                                            'drop doubleedmValueMap_muons_muPFIso*_*', #already inside the muon
