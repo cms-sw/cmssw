@@ -110,5 +110,7 @@ class AlignmentMonitorBase
       std::map<std::vector<std::string>, TFileDirectory*> m_baseDirMap, m_iterDirMap;
 };
 
+/*** Global typedefs ***/
+typedef std::vector<AlignmentMonitorBase*> AlignmentMonitors;
 
 #endif
