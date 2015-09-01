@@ -13,7 +13,7 @@ class ScoutingParticle
 		 int pdgId, int vertex):
             pt_(pt), eta_(eta), phi_(phi), m_(m), pdgId_(pdgId), vertex_(vertex) {}
         //default constructor
-        ScoutingParticle():pt_(0), eta_(0), phi_(0), m_(0), pdgId_(0), vertex_(0) {}
+        ScoutingParticle():pt_(0), eta_(0), phi_(0), m_(0), pdgId_(0), vertex_(-1) {}
 
         //accessor functions
         float pt() const { return pt_; }
