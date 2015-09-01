@@ -9,8 +9,9 @@
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 // FastSim hits:
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastProjectedTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastMatchedTrackerRecHit.h"
 
 
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -45,8 +46,9 @@ namespace helper {
       ProjectedSiStripRecHit2D &phit = static_cast<ProjectedSiStripRecHit2D&>(newHit);
       stripClusterRecords_.push_back(StripClusterHitRecord(phit.originalHit(), hits, index));
     } else {
-      if (hit_type == typeid(SiTrackerGSMatchedRecHit2D)
- 	  || hit_type == typeid(SiTrackerGSRecHit2D)) {
+      if (hit_type == typeid(FastTrackerRecHit)
+ 	  || hit_type == typeid(FastProjectedTrackerRecHit)
+	  || hit_type == typeid(FastMatchedTrackerRecHit)) {
 	//std::cout << "|   It is a " << hit_type.name() << " hit !!" << std::endl;
 	// FastSim hits: Do nothing instead of caring about FastSim clusters, 
 	//               not even sure whether these really exist.
