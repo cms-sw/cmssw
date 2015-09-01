@@ -93,7 +93,7 @@ private:
    FWEnumParameter m_cameraType;
 
    FWBoolParameter m_clipEnable;
-   FWDoubleParameter m_clipEta;
+   FWDoubleParameter m_clipTheta;
    FWDoubleParameter m_clipPhi;
    FWDoubleParameter m_clipDelta1;
    FWDoubleParameter m_clipDelta2;
