@@ -34,7 +34,7 @@ payload2xmlCodeTemplate = """
 
 namespace { // Avoid cluttering the global namespace.
 
-  std::string payload2xml( const std::string &payloadData, const std::string &payloadType ) { 
+  std::string %(plType)s2xml( const std::string &payloadData, const std::string &payloadType ) { 
 
       // now to convert
       std::unique_ptr< %(plType)s > payload;
@@ -62,7 +62,7 @@ namespace { // Avoid cluttering the global namespace.
 BOOST_PYTHON_MODULE(%(mdName)s)
 {
     using namespace boost::python;
-    def ("payload2xml", payload2xml);
+    def ("%(plType)s2xml", %(plType)s2xml);
 }
 
 """ 
@@ -217,9 +217,9 @@ class CondXmlProcessor(object):
         result = session.query(self.conddb.Payload.data, self.conddb.Payload.object_type).filter(self.conddb.Payload.hash == payload).one()
         data, plType = result
     
+        convFuncName = plType+'2xml'
         sys.path.append('.')
-
-	func = getattr(xmlConverter, 'payload2xml')
+	func = getattr(xmlConverter, convFuncName)
     	resultXML = func( str(data), str(plType) )
 
         print resultXML    
