@@ -49,8 +49,8 @@ initialStepTrajectoryFilterPreSplitting = cms.PSet(
 )
 
 import RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi
-initialStepChi2Est = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
-    ComponentName = cms.string('initialStepChi2Est'),
+initialStepChi2EstPreSplitting = RecoTracker.MeasurementDet.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
+    ComponentName = cms.string('initialStepChi2EstPreSplitting'),
     nSigma = cms.double(3.0),
     MaxChi2 = cms.double(30.0),
     clusterChargeCut = cms.PSet(refToPSet_ = cms.string('SiStripClusterChargeCutLoose')),

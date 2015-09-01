@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
+from CondCore.ESSources.PoolDBESSource_cfi import GlobalTag
+
 options = VarParsing.VarParsing()
 options.register('runNumber',
                  4294967294, #default value
@@ -25,37 +27,17 @@ CondDBSetup = cms.PSet( DBParameters = cms.PSet(
                                                 )
                         )
 
-process.GlobalTag = cms.ESSource("PoolDBESSource",
-                                 CondDBSetup,
-                                 #connect = cms.string('oracle://cms_orcon_adg/CMS_CONDITIONS'),
-                                 connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS'),
-                                 #    connect = cms.string('sqlite_fip:CondCore/TagCollection/data/GlobalTag.db'), #For use during release integration
-                                 globaltag = cms.string(''),
-                                 snapshotTime = cms.string('2012-01-20 23:59:59.000'),
-                                 RefreshEachRun=cms.untracked.bool(False),
-                                 DumpStat=cms.untracked.bool(False),
-                                 pfnPrefix=cms.untracked.string(''),   
-                                 pfnPostfix=cms.untracked.string('')
-                                 )
-
-
-process.GlobalTag.globaltag = options.globalTag
-process.GlobalTag.DumpStat =  True
-# 'GR09_P_V6::All'
-#'CRAFT09_R_V9::All'
-#'MC_31X_V9::All'
-#'GR09_31X_V5P::All'
-#process.GlobalTag.pfnPrefix = "frontier://FrontierArc/"
-#process.GlobalTag.pfnPostfix = "_0911"
-#process.GlobalTag.toGet = cms.VPSet()
-#process.GlobalTag.toGet.append(
-#   cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
-#            tag = cms.string("firstcollisions"),
-#             connect = cms.untracked.string("frontier://PromptProd/CMS_COND_31X_BEAMSPOT")
-#           )
-#)
-
-
+GlobalTag.connect = cms.string('frontier://FrontierProd/CMS_CONDITIONS')
+GlobalTag.snapshotTime = cms.string('2012-01-20 23:59:59.000')
+GlobalTag.globaltag = options.globalTag
+GlobalTag.DumpStat = True
+GlobalTag.toGet = cms.VPSet()
+GlobalTag.toGet.append(
+    cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
+             tag = cms.string("firstcollisions"),
+             )
+    )
+process.GlobalTag = GlobalTag
 
 process.source = cms.Source("EmptyIOVSource",
                             lastValue = cms.uint64(options.runNumber+1),
