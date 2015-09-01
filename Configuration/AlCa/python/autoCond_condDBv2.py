@@ -20,7 +20,7 @@ autoCond = {
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   'GR_R_74_V14A',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   'GR_R_74_V15A',
+    'run2_data'         :   '74X_dataRun2_Prompt_v1',
     # GlobalTag for Run1 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
     'run1_hlt'          :   'GR_H_V57A,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
