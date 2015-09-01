@@ -25,7 +25,7 @@
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 
 using namespace std;
-
+XERCES_CPP_NAMESPACE_USE
 //
 //_____ following removed as a xalan-c component_____________________
 //
