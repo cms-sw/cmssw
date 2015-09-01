@@ -1,4 +1,4 @@
-#include "RecoMET/METPUSubtraction/plugins/GBRForestWriter.h"
+#include "CommonTools/Utils/plugins/GBRForestWriter.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -59,11 +59,11 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 	  dummyVariables.push_back(0.);
 	  mvaReader->AddSpectator(spectatorVariable->data(), &dummyVariables.back());
 	}
-	mvaReader->BookMVA((*category)->gbrForestName_.data(), (*category)->inputFileName_.data());
-	TMVA::MethodBDT* bdt = dynamic_cast<TMVA::MethodBDT*>(mvaReader->FindMVA((*category)->gbrForestName_.data()));
+	mvaReader->BookMVA((*category)->methodName_.data(), (*category)->inputFileName_.data());
+	TMVA::MethodBDT* bdt = dynamic_cast<TMVA::MethodBDT*>(mvaReader->FindMVA((*category)->methodName_.data()));
 	if ( !bdt )
 	  throw cms::Exception("GBRForestWriter") 
-	    << "Failed to load MVA = " << (*category)->gbrForestName_.data() << " from file = " << (*category)->inputFileName_ << " !!\n";
+	    << "Failed to load MVA = " << (*category)->methodName_.data() << " from file = " << (*category)->inputFileName_ << " !!\n";
 	gbrForest = new GBRForest(bdt);  
 	delete mvaReader;
 	TMVA::Tools::DestroyInstance();

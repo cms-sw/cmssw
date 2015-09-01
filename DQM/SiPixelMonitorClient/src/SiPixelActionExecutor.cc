@@ -1622,13 +1622,13 @@ void SiPixelActionExecutor::bookEfficiency(DQMStore::IBooker & iBooker, bool isU
   iBooker.setCurrentFolder("Pixel/Barrel");
   if (!isUpgrade) {
   if(Tier0Flag_){
-    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4,4,20,-10.,10.);
-    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4,4,32,-16.,16.);
-    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4,4,44,-22.,22.);
+    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",9,-4.5,4.5,21,-10.5,10.5);
+    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",9,-4.5,4.5,33,-16.5,16.5);
+    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",9,-4.5,4.5,45,-22.5,22.5);
   }else{
-    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4.,4.,20,-10.,10.);
-    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4.,4.,32,-16.,16.);
-    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4.,4.,44,-22.,22.);
+    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",9,-4.5,4.5,21,-10.5,10.5);
+    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",9,-4.5,4.5,33,-16.5,16.5);
+    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",9,-4.5,4.5,45,-22.5,22.5); 
   }
   }//endifNOTUpgrade
   else if (isUpgrade) {
@@ -1696,82 +1696,80 @@ void SiPixelActionExecutor::createEfficiency(DQMStore::IBooker & iBooker, DQMSto
 //=============================================================================================================
 
 void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool isbarrel, bool isUpgrade){
-  //cout<<"entering SiPixelActionExecutor::fillEfficiency..."<<std::endl;
+ 
   string currDir = iBooker.pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  //cout<<"currDir= "<<currDir<< " , dname= "<<dname<<std::endl;
+ 
   
   if(Tier0Flag_){ // Offline	
     if(isbarrel && dname.find("Ladder_")!=string::npos){ 
       if (!isUpgrade) {
-      vector<string> meVec = iGetter.getMEs();
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
-        string full_path = currDir + "/" + (*it);
+	vector<string> meVec = iGetter.getMEs();
+	for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+	  string full_path = currDir + "/" + (*it);
 
-	if(full_path.find("missingMod_")!=string::npos){ // If we have missing hits ME
+	  if(full_path.find("missingMod_")!=string::npos){ // If we have missing hits ME
 	  
-	  //Get the MEs that contain missing and valid hits
-	  MonitorElement * missing = iGetter.get(full_path);
-	  if (!missing) continue;
-	  string new_path = full_path.replace(full_path.find("missing"),7,"valid");
-	  MonitorElement * valid = iGetter.get(new_path);
-	  if (!valid) continue;
-	  //int binx = 0; 
-	  int biny = 0;
-	  //get the ladder number
-	  
-	  if(dname.find("01")!=string::npos){ biny = 1;}else if(dname.find("02")!=string::npos){ biny = 2;}
-	  else if(dname.find("03")!=string::npos){ biny = 3;}else if(dname.find("04")!=string::npos){ biny = 4;}
-	  else if(dname.find("05")!=string::npos){ biny = 5;}else if(dname.find("06")!=string::npos){ biny = 6;}
-	  else if(dname.find("07")!=string::npos){ biny = 7;}else if(dname.find("08")!=string::npos){ biny = 8;}
-	  else if(dname.find("09")!=string::npos){ biny = 9;}else if(dname.find("10")!=string::npos){ biny = 10;}
-	  else if(dname.find("11")!=string::npos){ biny = 11;}else if(dname.find("12")!=string::npos){ biny = 12;}
-	  else if(dname.find("13")!=string::npos){ biny = 13;}else if(dname.find("14")!=string::npos){ biny = 14;}
-	  else if(dname.find("15")!=string::npos){ biny = 15;}else if(dname.find("16")!=string::npos){ biny = 16;}
-	  else if(dname.find("17")!=string::npos){ biny = 17;}else if(dname.find("18")!=string::npos){ biny = 18;}
-	  else if(dname.find("19")!=string::npos){ biny = 19;}else if(dname.find("20")!=string::npos){ biny = 20;}
-	  else if(dname.find("21")!=string::npos){ biny = 21;}else if(dname.find("22")!=string::npos){ biny = 22;}
-	  
-	  if(currDir.find("Shell_mO")!=string::npos || currDir.find("Shell_pO")!=string::npos){
-	    if(currDir.find("Layer_1")!=string::npos){ biny = biny + 10;}
-	    else if(currDir.find("Layer_2")!=string::npos){ biny = biny + 16;}
+	    //Get the MEs that contain missing and valid hits
+	    MonitorElement * missing = iGetter.get(full_path);
 	    
-	    else if(currDir.find("Layer_3")!=string::npos){ biny = biny + 22;}
+	    if (!missing) continue;
+	    string new_path = full_path.replace(full_path.find("missing"),7,"valid");
+	    MonitorElement * valid = iGetter.get(new_path);
+	    if (!valid) continue;
+	    
+	    float biny = 0;
+	    
+	    if(dname.find("01")!=string::npos){ biny = 1;}else if(dname.find("02")!=string::npos){ biny = 2;}
+	    else if(dname.find("03")!=string::npos){ biny = 3;}else if(dname.find("04")!=string::npos){ biny = 4;}
+	    else if(dname.find("05")!=string::npos){ biny = 5;}else if(dname.find("06")!=string::npos){ biny = 6;}
+	    else if(dname.find("07")!=string::npos){ biny = 7;}else if(dname.find("08")!=string::npos){ biny = 8;}
+	    else if(dname.find("09")!=string::npos){ biny = 9;}else if(dname.find("10")!=string::npos){ biny = 10;}
+	    else if(dname.find("11")!=string::npos){ biny = 11;}else if(dname.find("12")!=string::npos){ biny = 12;}
+	    else if(dname.find("13")!=string::npos){ biny = 13;}else if(dname.find("14")!=string::npos){ biny = 14;}
+	    else if(dname.find("15")!=string::npos){ biny = 15;}else if(dname.find("16")!=string::npos){ biny = 16;}
+	    else if(dname.find("17")!=string::npos){ biny = 17;}else if(dname.find("18")!=string::npos){ biny = 18;}
+	    else if(dname.find("19")!=string::npos){ biny = 19;}else if(dname.find("20")!=string::npos){ biny = 20;}
+	    else if(dname.find("21")!=string::npos){ biny = 21;}else if(dname.find("22")!=string::npos){ biny = 22;}
+	    
+	    if(currDir.find("Shell_mO")!=string::npos || currDir.find("Shell_pO")!=string::npos){
+	      biny=-biny;
+	    }
+	    
+	    
+  	    for(int i=1; i<5;i++){
+	      float hitEfficiency = -1.0;
+	      float missingHits=0;
+	      float validHits=0;
+	      float binx=float(i);
+
+	      if(currDir.find("Shell_m")!=string::npos) binx=-binx;
+
+	      missingHits=missing->getBinContent(i);
+	      validHits=valid->getBinContent(i);
+	      
+	      if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
+	      
+	      if(currDir.find("Layer_1")!=string::npos){
+		HitEfficiency_L1 = iGetter.get("Pixel/Barrel/HitEfficiency_L1");
+		if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(HitEfficiency_L1->getTH2F()->FindBin(binx, biny),(float)hitEfficiency);
+	      }
+	      else if(currDir.find("Layer_2")!=string::npos){
+		HitEfficiency_L2 = iGetter.get("Pixel/Barrel/HitEfficiency_L2");
+		if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(HitEfficiency_L2->getTH2F()->FindBin(binx, biny),(float)hitEfficiency);
+	      }
+	      else if(currDir.find("Layer_3")!=string::npos){
+		HitEfficiency_L3 = iGetter.get("Pixel/Barrel/HitEfficiency_L3");		
+		if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(HitEfficiency_L3->getTH2F()->FindBin(binx, biny),(float)hitEfficiency);
+	      }     
+	      
+	    }
 	    
 	  }
-	  
-	  
-	  
-	  int start=1;
-	  //define start depending on p or m
-	  
-	  if(currDir.find("Shell_m")!=string::npos){ start = 1;}else{ start = 5;}
-	  for(int i=start; i<start+5;i++){
-	    float hitEfficiency = -1.0;
-	    float missingHits=0;
-	    float validHits=0;
-	    missingHits=missing->getBinContent(i);
-	    validHits=valid->getBinContent(i);
-	    if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
-	    if(currDir.find("Layer_1")!=string::npos){
-	      HitEfficiency_L1 = iGetter.get("Pixel/Barrel/HitEfficiency_L1");
-	      if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(i, biny,(float)hitEfficiency);
-	    }
-	    else if(currDir.find("Layer_2")!=string::npos){
-	      HitEfficiency_L2 = iGetter.get("Pixel/Barrel/HitEfficiency_L2");
-	      if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(i, biny,(float)hitEfficiency);
-	    }
-	    else if(currDir.find("Layer_3")!=string::npos){
-	      HitEfficiency_L3 = iGetter.get("Pixel/Barrel/HitEfficiency_L3");
-	      if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(i, biny,(float)hitEfficiency);
-	    }     
-	    
-	  }
-	  
 	}
-      }
       }//endifNOTUpgradeInBPix
-      else if (isUpgrade) {
+
+      else if (isUpgrade) { // This part will not work with Upgraded detector
         vector<string> meVec = iGetter.getMEs();
         for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
           string full_path = currDir + "/" + (*it);
@@ -1940,7 +1938,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore
 	    HitEfficiency_Dp3 = iGetter.get("Pixel/Endcap/HitEfficiency_Dp3");
 	    if(HitEfficiency_Dp3) HitEfficiency_Dp3->setBinContent(binx, biny, (float)hitEfficiency);
           }
-	  //std::cout<<"EFFI: "<<currDir<<" , x: "<<binx<<" , y: "<<biny<<std::endl;
+	  
 	}
       } 
     }else{  
