@@ -14,8 +14,6 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 5000
 .oO[datasetDefinition]Oo.
 # process.load("Alignment.OfflineValidation..oO[dataset]Oo._cff")
 
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CommonDetUnit.globalTrackingGeometry_cfi")
 process.load("RecoMuon.DetLayers.muonDetLayerGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
@@ -23,7 +21,7 @@ process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 ########### standard includes ##############################
 process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.Geometry.GeometryDB_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 
 ########### DATABASE conditions ############################
@@ -244,8 +242,8 @@ fi
 
 ls -lh . 
 
-source /afs/cern.ch/sw/lcg/external/gcc/4.8.1/x86_64-slc6/setup.sh
-source /afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.10/x86_64-slc6-gcc48-opt/root/bin/thisroot.sh
+#source /afs/cern.ch/sw/lcg/external/gcc/4.8.1/x86_64-slc6/setup.sh
+#source /afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.10/x86_64-slc6-gcc48-opt/root/bin/thisroot.sh
 
 # cd .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit
 # ln -fs .oO[workdir]Oo./0_zmumuHisto.root .
