@@ -42,6 +42,8 @@ public:
     edm::DataFrame::size_type i_;
   };
 
+  void copyContent(const QIE10DataFrame& src);
+
   /// Get the detector id
   DetId detid() const { return DetId(id()); }
   /// total number of samples in the digi

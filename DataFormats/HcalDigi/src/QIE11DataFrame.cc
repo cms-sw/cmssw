@@ -10,6 +10,12 @@ void QIE11DataFrame::setFlags(uint16_t v) {
   edm::DataFrame::operator[](size()-1)=v;
 }
 
+void QIE11DataFrame::copyContent(const QIE11DataFrame& digi) {
+  for (size_type i=0; i<size();i++)
+    edm::DataFrame::operator[](i)=digi.edm::DataFrame::operator[](i);
+}
+
+
 void QIE11DataFrame::setSample(edm::DataFrame::size_type isample, int adc, int tdc, bool soi) {
   if (isample>=size()) return;
   edm::DataFrame::operator[](isample+1)=(adc&Sample::MASK_ADC)|(soi?(Sample::MASK_SOI):(0))|((tdc&Sample::MASK_TDC)<<Sample::OFFSET_TDC);

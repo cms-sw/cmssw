@@ -11,6 +11,11 @@ void QIE10DataFrame::setFlags(uint16_t v) {
   edm::DataFrame::operator[](size()-1)=v;
 }
 
+void QIE10DataFrame::copyContent(const QIE10DataFrame& digi) {
+
+  for (size_type i=0; i<size() && i<digi.size();i++)
+    edm::DataFrame::operator[](i)=digi.edm::DataFrame::operator[](i);
+}
 
 std::ostream& operator<<(std::ostream& s, const QIE10DataFrame& digi) {
   if (digi.detid().det()==DetId::Hcal) {

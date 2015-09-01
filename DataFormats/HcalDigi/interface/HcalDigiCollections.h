@@ -41,12 +41,13 @@ public:
   HcalDataFrameContainer(int nsamples_per_digi) : edm::DataFrameContainer(nsamples_per_digi*Digi::WORDS_PER_SAMPLE+Digi::HEADER_WORDS+Digi::FLAG_WORDS) { }
 
   int size() const { return int(edm::DataFrameContainer::size()); }
-  Digi operator[](size_type i) const { return Digi(edm::DataFrameContainer::operator[](i));} 
+  Digi operator[](size_type i) const { return Digi(edm::DataFrameContainer::operator[](i));}
   Digi at(size_type i) const { return Digi(edm::DataFrameContainer::operator[](i));} 
   Digi back() const { return Digi(edm::DataFrameContainer::operator[](edm::DataFrameContainer::size()-1));} 
   Digi nextToBack() const { return Digi(edm::DataFrameContainer::operator[](edm::DataFrameContainer::size()-2));} 
   void addDataFrame(DetId detid, const uint16_t* data) { push_back(detid.rawId(),data); }
   void addDataFrame(DetId detid) { push_back(detid.rawId()); }
+  void addDataFrame(Digi digi) { push_back(digi.detid().rawId()); back().copyContent(digi); }
   int samples() const { return int((stride()-Digi::HEADER_WORDS-Digi::FLAG_WORDS)/Digi::WORDS_PER_SAMPLE); }
   void sort() { edm::DataFrameContainer::sort(); }
 };
