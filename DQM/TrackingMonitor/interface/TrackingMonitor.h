@@ -128,7 +128,7 @@ class TrackingMonitor : public DQMEDAnalyzer
 	MonitorElement* NumberOfRecHitsPerTrackVsLS;
 
 	// Monitoring PU
-	MonitorElement* NumberOfTracksVsGoodPVtx;
+	MonitorElement *NumberOfTracksVsGoodPVtx, *NumberOfTracksVsPUPVtx;
 	MonitorElement* NumberOfTracksVsBXlumi;
 
 	// add in order to deal with LS transitions
