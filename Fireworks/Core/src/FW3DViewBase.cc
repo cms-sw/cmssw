@@ -143,10 +143,10 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId, un
    m_cameraType.changed_.connect(boost::bind(&FW3DViewBase::setCameraType,this, _1));
 
    m_clipEnable.changed_.connect(boost::bind(&FW3DViewBase::enableSceneClip,this, _1));
-   m_clipEta.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
-   m_clipPhi.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
-   m_clipDelta1.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
-   m_clipDelta2.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this));
+   m_clipEta.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
+   m_clipPhi.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
+   m_clipDelta1.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
+   m_clipDelta2.changed_.connect(boost::bind(&FW3DViewBase::updateClipPlanes,this, false));
 
 
     m_ecalBarrel = new TEveBoxSet("ecalBarrel"); 
@@ -237,8 +237,8 @@ FW3DViewBase::enableSceneClip( bool x)
       if (strncmp((*it)->GetElementName(), "TopGeoNodeScene", 15) == 0)
          ((TEveScene*)(*it))->GetGLScene()->SetClip(x ? m_glClip : 0);
    }
-   eventScene()->GetGLScene()->SetClip(x ? m_glClip : 0);
-   updateClipPlanes();
+   if (x) eventScene()->GetGLScene()->SetClip(x ? m_glClip : 0);
+   updateClipPlanes(true);
    viewerGL()->RequestDraw();
 }
 
@@ -246,15 +246,13 @@ void
 FW3DViewBase::setClip(float eta, float phi)
 {
    // called from popup menu via FWGUIManager
-   /*
-   m_showMuonBarrel.set(1);
-   m_showMuonEndcap.set(true);
-   m_showPixelBarrel.set(true);
-   m_showPixelEndcap.set(true);
-   m_showTrackerBarrel.set(true);
-   */
-   m_clipEta.set(eta);
-   m_clipPhi.set(phi);
+   
+   // limit to 2 decimals, else TGNumber entry in the view controller shows only last 5 irrelevant digits
+   double base = 100.0;
+   int etaInt = eta*base;
+   int phiInt = phi*base;
+   m_clipEta.set(etaInt/base);
+   m_clipPhi.set(phiInt/base);
    m_clipEnable.set(true);
 }
 
@@ -314,7 +312,7 @@ void setBBoxClipped(TGLBoundingBox& bbox, TEveVector dir, TEveVector b0, TEveVec
 }
 
 void
-FW3DViewBase::updateClipPlanes()
+FW3DViewBase::updateClipPlanes(bool resetCamera)
 {
    //  TEveScene* gs = (TEveScene*)gEve->GetScenes()->FindChild(TString("TopGeoNodeScene"));
    //printf("node scene %p\n", gs);
@@ -347,8 +345,8 @@ FW3DViewBase::updateClipPlanes()
 
       ((Clipsi*)m_glClip)->SetPlaneInfo(&c[0]);
 
-      gEve->Redraw3D();
 
+      if (resetCamera) {
       TGLBoundingBox bbox;
       float es = getBBoxLineLength(eventScene(), in);
       float gs = getBBoxLineLength(geoScene(), in);
@@ -371,6 +369,12 @@ FW3DViewBase::updateClipPlanes()
       cam.SetExternalCenter(true);
       cam.SetCenterVec(bbox.Center().X(), bbox.Center().Y(), bbox.Center().Z());
       cam.Setup(bbox, true);
+      }
+      else {
+         eventScene()->Repaint();
+      }
+      
+      gEve->Redraw3D();
    }
 }
 

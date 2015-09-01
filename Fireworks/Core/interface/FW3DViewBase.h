@@ -105,7 +105,7 @@ private:
    void selectable( bool );
 
    void enableSceneClip( bool );
-   void updateClipPlanes();
+   void updateClipPlanes(bool resetCamera);
 
    void rnrStyle(long);
    void showMuonBarrel( long );
