@@ -13,6 +13,9 @@ from RecoMET.METFilters.hcalLaserEventFilter_cfi import *
 ## The ECAL dead cell trigger primitive filter _______________________________||
 from RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi import *
 
+## The ECAL dead cell trigger primitive filter _______________________________||
+from RecoMET.METFilters.EcalDeadCellBoundaryEnergyFilter_cfi import *
+
 ## The EE bad SuperCrystal filter ____________________________________________||
 from RecoMET.METFilters.eeBadScFilter_cfi import *
 
@@ -22,13 +25,19 @@ from RecoMET.METFilters.ecalLaserCorrFilter_cfi import *
 ## The Good vertices collection needed by the tracking failure filter ________||
 goodVertices = cms.EDFilter(
   "VertexSelector",
-  filter = cms.bool(False),
+  filter = cms.bool(True),
   src = cms.InputTag("offlinePrimaryVertices"),
   cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
 )
 
 ## The tracking failure filter _______________________________________________||
 from RecoMET.METFilters.trackingFailureFilter_cfi import *
+
+##noscraping (outdated)_______________________________________________________||
+from RecoMET.METFilters.scrapingFilter_cfi import *
+
+## The primary vertex filter__ _______________________________________________||
+from RecoMET.METFilters.primaryVertexFilter_cfi import *
 
 ## The tracking POG filters __________________________________________________||
 from RecoMET.METFilters.trackingPOGFilters_cff import *
@@ -46,11 +55,13 @@ from RecoMET.METFilters.trackingPOGFilters_cff import *
 metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
+   primaryVertexFilter*
+#   HBHENoiseIsoFilter*
    CSCTightHaloFilter *
-   hcalLaserEventFilter *
-   EcalDeadCellTriggerPrimitiveFilter *
-   goodVertices * trackingFailureFilter *
-   eeBadScFilter *
-   ecalLaserCorrFilter *
-   trkPOGFilters
+#   hcalLaserEventFilter *
+   EcalDeadCellTriggerPrimitiveFilter* 
+#   *goodVertices * trackingFailureFilter *
+   eeBadScFilter
+#   ecalLaserCorrFilter *
+#   trkPOGFilters
 )
