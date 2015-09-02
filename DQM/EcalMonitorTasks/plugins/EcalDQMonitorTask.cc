@@ -30,8 +30,6 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps) :
   schedule_(),
   allowMissingCollections_(_ps.getUntrackedParameter<bool>("allowMissingCollections")),
   processedEvents_(0),
-  evaluateTime_(_ps.getUntrackedParameter<bool>("evaluateTime")),
-  taskTimes_(),
   lastResetTime_(0),
   resetInterval_(_ps.getUntrackedParameter<double>("resetInterval"))
 {
@@ -51,8 +49,6 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps) :
                       }
 
                       task->setTokens(collector);
-
-                      taskTimes_[task] = 0.;
                     }, "initialization");
 
   edm::ParameterSet const& collectionTags(_ps.getUntrackedParameterSet("collectionTags"));
@@ -97,7 +93,6 @@ EcalDQMonitorTask::fillDescriptions(edm::ConfigurationDescriptions& _descs)
   desc.addUntracked("collectionTags", collectionTags);
 
   desc.addUntracked<bool>("allowMissingCollections", true);
-  desc.addUntracked<bool>("evaluateTime", false);
   desc.addUntracked<double>("resetInterval", 0.);
 
   _descs.addDefault(desc);
@@ -107,7 +102,10 @@ void
 EcalDQMonitorTask::bookHistograms(DQMStore::IBooker& _ibooker, edm::Run const&, edm::EventSetup const& _es)
 {
   ecaldqmGetSetupObjects(_es);
-  ecaldqmBookHistograms(_ibooker);
+
+  executeOnWorkers_([&_ibooker](ecaldqm::DQWorker* worker){
+      worker->bookMEs(_ibooker);
+    }, "bookMEs", "Booking MEs");
 }
 
 void
@@ -130,19 +128,9 @@ EcalDQMonitorTask::endRun(edm::Run const& _run, edm::EventSetup const& _es)
 
   ecaldqmEndRun(_run, _es);
 
-  ecaldqmReleaseHistograms();
-
-  if(evaluateTime_){
-    std::stringstream ss;
-
-    ss << "************** " << moduleName_ << " **************" << std::endl;
-    ss << "      Mean time consumption of the modules" << std::endl;
-    ss << "____________________________________" << std::endl;
-    executeOnWorkers_([&ss, this](ecaldqm::DQWorker* worker){
-                        ss << std::setw(20) << std::setfill(' ') << worker->getName() << "|   " << (this->taskTimes_[worker] / this->processedEvents_) << std::endl;
-                      }, "print time");
-    edm::LogInfo("EcalDQM") << ss.str();
-  }
+  executeOnWorkers_([](ecaldqm::DQWorker* worker){
+      worker->releaseMEs();
+    }, "releaseMEs", "releasing histograms");
 }
 
 void

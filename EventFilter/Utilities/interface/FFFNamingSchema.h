@@ -79,6 +79,15 @@ namespace fffnaming {
     return ss.str();
   }
 
+  inline std::string streamerDataChecksumFileNameWithInstance(const unsigned int run, const unsigned int ls, std::string const& stream, std::string const& instance) {
+    std::stringstream ss;
+    runLumiPrefixFill(ss,run,ls);
+    ss << "_" << stream
+       << "_" << instance
+       << ".checksum";
+    return ss.str();
+  }
+
   inline std::string streamerJsonFileNameWithPid(const unsigned int run, const unsigned int ls, std::string const& stream) {
     std::stringstream ss;
     runLumiPrefixFill(ss,run,ls);

@@ -23,13 +23,9 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   G4DataQuestionaire it(photon);
 
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
-  bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
-  bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool ssPhys  = p.getUntrackedParameter<bool>("ExoticaPhysicsSS",false);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QQGSP_FTFP_BERT_EML with Flags for EM Physics "
-			      << emPhys << " and for Hadronic Physics "
-			      << hadPhys << "\n";
+			      << "QGSP_FTFP_BERT_EML for regular particles";
 
   // EM Physics
   RegisterPhysics(new CMSEmStandardPhysics(ver));

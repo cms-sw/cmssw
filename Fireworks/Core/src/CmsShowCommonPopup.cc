@@ -288,16 +288,17 @@ CmsShowCommonPopup::colorSetChanged()
 
 void CmsShowCommonPopup::getColorSetColors (int& hci, int& sci)
 {
-   TGLColorSet& colorset =  m_common->colorManager()->isColorSetDark() ?  gEve->GetDefaultGLViewer()->RefDarkColorSet():
-   gEve->GetDefaultGLViewer()->RefLightColorSet();
+   TGLColorSet& colorset = m_common->colorManager()->isColorSetDark() ?
+      m_common->m_darkColorSet : m_common->m_lightColorSet;
    {
       TGLColor& glc = colorset.Selection(3);
       hci = TColor::GetColor(glc.GetRed(), glc.GetGreen(), glc.GetBlue());
-     // printf("getSHcolors HIGH %d %d %d , [%d]\n", glc.GetRed(), glc.GetGreen(), glc.GetBlue(), hci);
-   }{
+      // printf("getSHcolors HIGH %d %d %d , [%d]\n", glc.GetRed(), glc.GetGreen(), glc.GetBlue(), hci);
+   }
+   {
       TGLColor& glc = colorset.Selection(1);
       sci = TColor::GetColor(glc.GetRed(), glc.GetGreen(), glc.GetBlue());
-     // printf("getSHcolors SEL  %d %d %d , [%d]\n", glc.GetRed(), glc.GetGreen(), glc.GetBlue(), sci);
+      // printf("getSHcolors SEL  %d %d %d , [%d]\n", glc.GetRed(), glc.GetGreen(), glc.GetBlue(), sci);
    }
 }
 

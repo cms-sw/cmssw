@@ -5,7 +5,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 
 using namespace edm;
 

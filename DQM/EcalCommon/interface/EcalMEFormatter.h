@@ -1,12 +1,12 @@
 #ifndef EcalMEFormatter_H
 #define EcalMEFormatter_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "DQM/EcalCommon/interface/DQWorker.h"
 #include "DQM/EcalCommon/interface/MESet.h"
 
-class EcalMEFormatter : public edm::EDAnalyzer, public ecaldqm::DQWorker {
+class EcalMEFormatter : public DQMEDHarvester, public ecaldqm::DQWorker {
  public:
   EcalMEFormatter(edm::ParameterSet const&);
   ~EcalMEFormatter() {};
@@ -14,11 +14,10 @@ class EcalMEFormatter : public edm::EDAnalyzer, public ecaldqm::DQWorker {
   static void fillDescriptions(edm::ConfigurationDescriptions&);
 
  private:
-  void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  void endRun(edm::Run const&, edm::EventSetup const&) override;
-  void analyze(edm::Event const&, edm::EventSetup const&) override {}
+  void dqmEndLuminosityBlock(DQMStore::IBooker&, DQMStore::IGetter&, edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  void dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter&) override;
 
-  void format_(bool);
+  void format_(DQMStore::IGetter&, bool);
   void formatDet2D_(ecaldqm::MESet&);
 };
 

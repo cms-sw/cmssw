@@ -8,6 +8,7 @@
 <use name="clhep"/>
 <use name="hepmc"/>
 <use name="GeneratorInterface/Core"/>
+<use   name="GeneratorInterface/LHEInterface"/>
 <use name="GeneratorInterface/EvtGenInterface"/>
 <use name="GeneratorInterface/PhotosInterface"/>
 <use name="GeneratorInterface/TauolaInterface"/>

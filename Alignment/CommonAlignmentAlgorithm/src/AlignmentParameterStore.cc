@@ -36,6 +36,26 @@ AlignmentParameterStore::AlignmentParameterStore( const align::Alignables &alis,
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentParameterStore"
                             << "Created with " << theAlignables.size() << " alignables.";
+
+  // set hierarchy vs averaging constraints
+  theTypeOfConstraints = NONE;
+  const std::string cfgStrTypeOfConstraints(config.getParameter<std::string>("TypeOfConstraints"));
+  if( cfgStrTypeOfConstraints == "hierarchy" ) {
+    theTypeOfConstraints = HIERARCHY_CONSTRAINTS;
+    edm::LogWarning("Alignment") << "@SUB=AlignmentParameterStore"
+				 << "\n\n\n******* WARNING ******************************************\n"
+				 << "Using hierarchy constraints that have a not-understood bug.\n"
+				 << "It is strongly recommended to use averaging constraints for\n"
+				 << "the time being!\n\n\n";
+    
+  } else if( cfgStrTypeOfConstraints == "approximate_averaging" ) {
+    theTypeOfConstraints = APPROX_AVERAGING_CONSTRAINTS;
+    edm::LogWarning("Alignment") << "@SUB=AlignmentParameterStore"
+				 << "Using approximate implementation of averaging constraints";
+  } else {
+    edm::LogError("BadArgument") << "@SUB=AlignmentParameterStore"
+				 << "Unknown type of hierarchy constraints '" << cfgStrTypeOfConstraints << "'"; 
+  }
 }
 
 //__________________________________________________________________________________________________
@@ -682,7 +702,15 @@ bool AlignmentParameterStore
       }
       for (unsigned int iParComp = 0; iParComp < aliCompSel.size(); ++iParComp) {
 	if (aliCompSel[iParComp]) {
-	  const double factor = p2pDerivs(iParMast, iParComp);
+	  double factor = 0.;
+	  if( theTypeOfConstraints == HIERARCHY_CONSTRAINTS ) {
+	    // hierachy constraints
+	    factor = p2pDerivs(iParMast, iParComp);
+	  } else if( theTypeOfConstraints == APPROX_AVERAGING_CONSTRAINTS ) {
+	    // CHK poor mans averaging constraints
+	    factor = p2pDerivs(iParMast, iParComp);
+	    if (iParMast < 3 && (iParComp % 9) >= 3) factor = 0.;
+	  }
 	  if (fabs(factor) > epsilon) {
 	    paramIdsVecOut[iParMastUsed].push_back(ParameterId(*iComp, iParComp));
 	    factorsVecOut[iParMastUsed].push_back(factor);

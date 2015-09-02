@@ -1,7 +1,7 @@
 #ifndef gen_Py8toJetInput_h
 #define gen_Py8toJetInput_h
 
-#include "Pythia8/FastJet3.h" // Py8 overhead on top of FastJets package
+#include "Pythia8Plugins/FastJet3.h" // Py8 overhead on top of FastJets package
 #include "Pythia8/Event.h"
 
 namespace lhef {

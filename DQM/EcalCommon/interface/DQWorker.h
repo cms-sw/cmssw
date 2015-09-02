@@ -57,7 +57,6 @@ namespace ecaldqm{
     virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
     virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) {}
 
-    virtual void bookMEs(DQMStore&);
     virtual void bookMEs(DQMStore::IBooker&);
     virtual void releaseMEs();
 
@@ -74,6 +73,7 @@ namespace ecaldqm{
 
     std::string name_;
     MESetCollection MEs_;
+    bool booked_;
 
     Timestamp timestamp_;
     int verbosity_;

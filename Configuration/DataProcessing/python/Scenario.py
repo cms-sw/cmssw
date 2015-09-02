@@ -70,6 +70,28 @@ class Scenario(object):
         raise NotImplementedError, msg
 
 
+
+    def visualizationProcessing(self, globalTag, **options):
+        """
+        _expressProcessing_
+
+        Build a configuration for the visualization processing for this scenario.
+
+        Visualization processing runs unpacking, and reco on 
+        streamer files and it is equipped to run on the online cluster
+        and writes RECO or FEVT files,
+        
+        writeTiers is list of tiers to write out.
+        
+
+        """
+        msg = "Scenario Implementation %s\n" % self.__class__.__name__
+        msg += "Does not contain an implementation for visualizationProcessing"
+        raise NotImplementedError, msg
+
+
+
+
     def alcaSkim(self, skims, **options):
         """
         _alcaSkim_

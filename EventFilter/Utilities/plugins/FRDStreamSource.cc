@@ -8,6 +8,7 @@
 #include "EventFilter/FEDInterface/interface/GlobalEventNumber.h"
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
+#include "EventFilter/FEDInterface/interface/FED1024.h"
 
 #include "EventFilter/Utilities/plugins/FRDStreamSource.h"
 
@@ -87,7 +88,9 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
 
   uint32_t eventSize = frdEventMsg->eventSize();
   char* event = (char*)frdEventMsg->payload();
+  bool foundTCDSFED=false;
   bool foundGTPFED=false;
+
 
   while (eventSize > 0) {
     eventSize -= sizeof(fedt_t);
@@ -96,7 +99,18 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     eventSize -= (fedSize - sizeof(fedh_t));
     const fedh_t* fedHeader = (fedh_t *) (event + eventSize);
     const uint16_t fedId = FED_SOID_EXTRACT(fedHeader->sourceid);
-    if (fedId == FEDNumbering::MINTriggerGTPFEDID) {
+    if (fedId == FEDNumbering::MINTCDSuTCAFEDID) {
+      foundTCDSFED=true;
+      evf::evtn::TCDSRecord record((unsigned char *)(event + eventSize ));
+      id = edm::EventID(frdEventMsg->run(),record.getHeader().getData().header.lumiSection,
+			record.getHeader().getData().header.eventNumber);
+      //evf::evtn::evm_board_setformat(fedSize);
+      uint64_t gpsh = record.getBST().getBST().gpstimehigh;
+      uint32_t gpsl = record.getBST().getBST().gpstimelow;
+      theTime = static_cast<edm::TimeValue_t>((gpsh << 32) + gpsl);
+    }
+
+    if (fedId == FEDNumbering::MINTriggerGTPFEDID && !foundTCDSFED) {
       foundGTPFED=true;
       const bool GTPEvmBoardSense=evf::evtn::evm_board_sense((unsigned char*) fedHeader,fedSize);
       if (!useL1EventID_) {
@@ -110,8 +124,11 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
       const uint64_t gpsh = evf::evtn::getgpshigh((unsigned char*) fedHeader);
       theTime = static_cast<edm::TimeValue_t>((gpsh << 32) + gpsl);
     }
+
+
+
     //take event ID from GTPE FED
-    if (fedId == FEDNumbering::MINTriggerEGTPFEDID && !foundGTPFED && !useL1EventID_) {
+    if (fedId == FEDNumbering::MINTriggerEGTPFEDID && !foundGTPFED && !foundTCDSFED && !useL1EventID_) {
       if (evf::evtn::gtpe_board_sense((unsigned char*)fedHeader)) {
         id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), evf::evtn::gtpe_get((unsigned char*) fedHeader));
       }

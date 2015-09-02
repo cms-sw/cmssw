@@ -14,6 +14,7 @@ namespace ecaldqm
   DQWorker::DQWorker() :
     name_(""),
     MEs_(),
+    booked_(false),
     timestamp_(),
     verbosity_(0),
     onlineMode_(false),
@@ -77,26 +78,16 @@ namespace ecaldqm
   {
     for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr)
       mItr->second->clear();
-  }
-
-  void
-  DQWorker::bookMEs(DQMStore& _booker)
-  {
-    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
-      MESet* me(mItr->second);
-      if(me->isActive()) continue;
-      me->book(_booker);
-    }
+    booked_ = false;
   }
 
   void
   DQWorker::bookMEs(DQMStore::IBooker& _booker)
   {
-    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr){
-      MESet* me(mItr->second);
-      if(me->isActive()) continue;
-      me->book(_booker);
-    }
+    if(booked_) return;
+    for(MESetCollection::iterator mItr(MEs_.begin()); mItr != MEs_.end(); ++mItr)
+      mItr->second->book(_booker);
+    booked_ = true;
   }
 
   void

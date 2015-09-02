@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace edm
+namespace dqmservices
 {
 
   //compatibility constructor

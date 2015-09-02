@@ -1,5 +1,5 @@
 #include <iostream>
-#include "PhotosInterface.h"
+#include "GeneratorInterface/PhotosInterface/interface/PhotosInterface.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "GeneratorInterface/PhotosInterface/interface/PhotosFactory.h"

@@ -11,7 +11,6 @@
 #include "PhysicsTools/SelectorUtils/interface/PVSelector.h"
 #include "PhysicsTools/SelectorUtils/interface/RunLumiSelector.h"
 
-
 namespace PhysicsTools_SelectorUtils {
   struct dictionary {
 
@@ -19,7 +18,7 @@ namespace PhysicsTools_SelectorUtils {
     edm::Wrapper<pat::strbitset> wstrbitset;
     std::vector< pat::strbitset> vstrbitset;
     edm::Wrapper< std::vector< pat::strbitset> > wvstrbitset;
-    
+        
   };
 
 }

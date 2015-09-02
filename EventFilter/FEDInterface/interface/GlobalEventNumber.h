@@ -29,14 +29,18 @@ namespace evf{
       const unsigned int EVM_BOARDID_VALUE = 0x11;
 
       const unsigned int EVM_GTFE_BLOCK_V0000 = 6; //size in 64-bit words
-      const unsigned int EVM_GTFE_BLOCK_V0011 = 9; //size in 64-bit words, new format, not yet in effect
+      const unsigned int EVM_GTFE_BLOCK_V0011 = 9; //size in 64-bit words, new format
       const unsigned int EVM_GTFE_BSTGPS_OFFSET = 4; //offset in 32-bit words
 
+      const unsigned int EVM_TCS_BOARDID_VALUE = 0xcc07;
       const unsigned int EVM_TCS_BLOCK = 5; //size in 64-bit words
       const unsigned int EVM_TCS_TRIGNR_OFFSET  = 5; //offset in 32-bit words
       const unsigned int EVM_TCS_LSBLNR_OFFSET  = 0; //offset in 32-bit words
+      const unsigned int EVM_TCS_BOARDID_OFFSET  = 1; //offset in 32-bit words
       const unsigned int EVM_TCS_ORBTNR_OFFSET  = 6; //offset in 32-bit words
       const unsigned int EVM_TCS_LSBLNR_MASK    = 0x0000ffff; // 16 LSB
+      const unsigned int EVM_TCS_BOARDID_MASK   = 0xffff0000; // 16 MSB
+      const unsigned int EVM_TCS_BOARDID_SHIFT  = 16; // 16 MSB
       const unsigned int EVM_TCS_EVNTYP_MASK    = 0x00f00000; // 4 bits
       const unsigned int EVM_TCS_EVNTYP_SHIFT   = 20; 
       const unsigned int EVM_TCS_BCNRIN_MASK    = 0x00000fff; // 12 LSB
@@ -65,6 +69,7 @@ namespace evf{
 	  return (*(unsigned int*)(p + sizeof(fedh_t) + DAQ_BOARDID_OFFSET * SLINK_WORD_SIZE / 2) >> DAQ_BOARDID_SHIFT) == DAQ_BOARDID_VALUE;
 	}
       bool evm_board_sense(const unsigned char *p, size_t size);
+      bool evm_tcs_board_sense(const unsigned char *p);
       void evm_board_setformat(size_t size);
 
       inline bool gtpe_board_sense(const unsigned char *p)

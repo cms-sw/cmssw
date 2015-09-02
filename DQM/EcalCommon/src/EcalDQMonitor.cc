@@ -97,14 +97,6 @@ namespace ecaldqm
   }
 
   void
-  EcalDQMonitor::ecaldqmReleaseHistograms()
-  {
-    executeOnWorkers_([](DQWorker* worker){
-        worker->releaseMEs();
-      }, "releaseMEs", "releasing histograms");
-  }
-
-  void
   EcalDQMonitor::ecaldqmBeginRun(edm::Run const& _run, edm::EventSetup const& _es)
   {
     executeOnWorkers_([&_run, &_es](DQWorker* worker){

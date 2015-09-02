@@ -8,13 +8,15 @@
 
 #include <sstream>
 #include <iomanip>
-#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
+#include <zlib.h>
 
 #include "EventFilter/Utilities/interface/JsonMonitorable.h"
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
+#include "FWCore/Utilities/interface/Adler32Calculator.h"
 
 
 namespace evf {
@@ -47,6 +49,7 @@ namespace evf {
     std::auto_ptr<Consumer> c_;
     std::string stream_label_;
     boost::filesystem::path openDatFilePath_;
+    boost::filesystem::path openDatChecksumFilePath_;
     IntJ processed_;
     mutable IntJ accepted_;
     IntJ errorEvents_; 
@@ -54,10 +57,12 @@ namespace evf {
     StringJ filelist_;
     IntJ filesize_; 
     StringJ inputFiles_;
+    IntJ fileAdler32_; 
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
     DataPointDefinition outJsonDef_;
     unsigned char* outBuf_=0;
+    bool readAdler32Check_=false;
 
 
   }; //end-of-class-def
@@ -74,9 +79,11 @@ namespace evf {
     filelist_(),
     filesize_(0),
     inputFiles_(),
+    fileAdler32_(1),
     outBuf_(new unsigned char[1024*1024])
   {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
+    readAdler32Check_ =  edm::Service<evf::EvFDaqDirector>()->outputAdler32Recheck();
     LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: " << baseRunDir;
     // create open dir if not already there
     edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
@@ -95,6 +102,7 @@ namespace evf {
     filelist_.setName("Filelist");
     filesize_.setName("Filesize");
     inputFiles_.setName("InputFiles");
+    fileAdler32_.setName("FileAdler32");
 
     outJsonDef_.setDefaultGroup("data");
     outJsonDef_.addLegendItem("Processed","integer",DataPointDefinition::SUM);
@@ -104,6 +112,7 @@ namespace evf {
     outJsonDef_.addLegendItem("Filelist","string",DataPointDefinition::MERGE);
     outJsonDef_.addLegendItem("Filesize","integer",DataPointDefinition::SUM);
     outJsonDef_.addLegendItem("InputFiles","string",DataPointDefinition::CAT);
+    outJsonDef_.addLegendItem("FileAdler32","integer",DataPointDefinition::ADLER32);
     std::stringstream tmpss,ss;
     tmpss << baseRunDir << "/open/" << "output_" << getpid() << ".jsd";
     ss << baseRunDir << "/" << "output_" << getpid() << ".jsd";
@@ -130,6 +139,7 @@ namespace evf {
     jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
     jsonMonitor_->registerGlobalMonitorable(&filesize_,false);
     jsonMonitor_->registerGlobalMonitorable(&inputFiles_,false);
+    jsonMonitor_->registerGlobalMonitorable(&fileAdler32_,false);
     jsonMonitor_->commit(nullptr);
   }
   
@@ -182,6 +192,7 @@ namespace evf {
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "begin lumi";
     openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
+    openDatChecksumFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
     c_->setOutputFile(openDatFilePath_.string());
     filelist_ = openDatFilePath_.filename().string();
   }
@@ -191,22 +202,44 @@ namespace evf {
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "end lumi";
     long filesize=0;
+    fileAdler32_.value() = c_->get_adler32();
     c_->closeOutputFile();
     processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
-    if(processed_.value()!=0){
-      //int b;
-      // move dat file to one level up - this is VERRRRRY inefficient, come up with a smarter idea
 
+
+    if(processed_.value()!=0){
+
+      //lock
       FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
-      FILE *src = fopen(openDatFilePath_.string().c_str(),"r");
+
+      std::string deschecksum = edm::Service<evf::EvFDaqDirector>()->getMergedDatChecksumFilePath(ls.luminosityBlock(), stream_label_);
 
       struct stat istat;
+      FILE * cf = NULL;
+      uint32_t mergedAdler32=1;
+      //get adler32 accumulated checksum for the merged file
+      if (!stat(deschecksum.c_str(), &istat)) {
+          if (istat.st_size) {
+            cf = fopen(deschecksum.c_str(),"r");
+            if (!cf) throw cms::Exception("RecoEventOutputModuleForFU") << "Unable to open checksum file -: " << deschecksum.c_str();
+            fscanf(cf,"%u",&mergedAdler32);
+            fclose(cf);
+          }
+          else edm::LogWarning("RecoEventOutputModuleForFU") << "Checksum file size is empty -: "<< deschecksum.c_str();
+      }
+
+      FILE *src = fopen(openDatFilePath_.string().c_str(),"r");
+
       stat(openDatFilePath_.string().c_str(), &istat);
       off_t readInput=0;
+      uint32_t adlera=1;
+      uint32_t adlerb=0;
       while (readInput<istat.st_size) {
-          unsigned long toRead=  readInput+1024*1024 < istat.st_size ? 1024*1024 : istat.st_size-readInput;
+          size_t toRead=  readInput+1024*1024 < istat.st_size ? 1024*1024 : istat.st_size-readInput;
           fread(outBuf_,toRead,1,src);
           fwrite(outBuf_,toRead,1,des);
+          if (readAdler32Check_)
+            cms::Adler32((const char*)outBuf_,toRead,adlera,adlerb);
           readInput+=toRead;
           filesize+=toRead;
       }
@@ -218,8 +251,25 @@ namespace evf {
       //	}
       //}
 
+      //write new string representation of the checksum value
+      cf = fopen(deschecksum.c_str(),"w");
+      if (!cf) throw cms::Exception("RecoEventOutputModuleForFU") << "Unable to open or rewind checksum file for writing -:" << deschecksum.c_str();
+
+      //write adler32 combine to checksum file 
+      mergedAdler32 = adler32_combine(mergedAdler32,fileAdler32_.value(),filesize);
+
+      fprintf(cf,"%u",mergedAdler32);
+      fclose(cf);
+
       edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
       fclose(src);
+
+      if (readAdler32Check_ && ((adlerb << 16) | adlera) != fileAdler32_.value()) {
+
+        throw cms::Exception("RecoEventOutputModuleForFU") << "Adler32 checksum mismatch after reading file -: " 
+                                                           << openDatFilePath_.string() <<" in LS " << ls.luminosityBlock() << std::endl;
+      }
+
     }
     //remove file
     remove(openDatFilePath_.string().c_str());

@@ -23,9 +23,8 @@ namespace ecaldqm
 
     MESet* clone(std::string const& = "") const override;
 
-    void book(DQMStore&) override;
     void book(DQMStore::IBooker&) override;
-    bool retrieve(DQMStore const&, std::string* = 0) const override;
+    bool retrieve(DQMStore::IGetter&, std::string* = 0) const override;
 
     void fill(DetId const&, double = 1., double = 1., double = 1.) override;
     void fill(EcalElectronicsId const&, double = 1., double = 1., double = 1.) override;

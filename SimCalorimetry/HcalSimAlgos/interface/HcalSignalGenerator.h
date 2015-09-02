@@ -162,11 +162,6 @@ private:
       }
       result.setPresamples(digi.presamples());
     }
- 
-    // std::cout << " HcalSignalGenerator: noise input ADC " << digi << std::endl;
-    // std::cout << " HcalSignalGenerator: noise input in fC " << result << std::endl;
- 
-    // translation done in fC, convert to pe: 
     fC2pe(result);
 
     return result;

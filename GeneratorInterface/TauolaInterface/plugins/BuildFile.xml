@@ -8,6 +8,8 @@
   <use name="heppdt"/>
   <use name="clhep"/>
   <use name="hepmc"/>
+  <use name="root"/>
+  <use name="rootmath"/>
   <use name="tauolapp"/>
   <flags EDM_PLUGIN="1"/>
 </library>

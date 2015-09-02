@@ -25,8 +25,12 @@ class GenEventInfoProduct {
 
 	// getters
 
+	std::vector<double> &weights() { return weights_; }
 	const std::vector<double> &weights() const { return weights_; }
-	double weight() const;
+	
+	double weight() const { return weights_.empty() ? 1.0 : weights_[0]; }
+	
+	double weightProduct() const;
 
 	unsigned int signalProcessID() const { return signalProcessID_; }
 

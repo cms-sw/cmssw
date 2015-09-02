@@ -1,0 +1,50 @@
+#
+# This is the decay file for the decay BS0 -> PSI(-> MU+ MU-) PHI(-> K+ K-)
+#
+# EventType: 13144001
+#
+# Descriptor: [B_s0 -> (J/psi(1S) -> mu+ mu- {,gamma} {,gamma}) (phi(1020) -> K+ K-)]cc
+#
+# NickName: Bs_Jpsiphi,mm=CPV
+#
+# Physics: Includes radiative mode, CP violation, different lifetimes
+#
+# Tested: Yes
+# By: Gerhard Raven / Tristan du Pree
+# Date: 10 Oct 2006
+#
+Define Hp 0.481 #
+Define Hz 0.723 #
+Define Hm 0.496 #
+Define pHp 3.14 #
+Define pHz 0.0
+Define pHm 3.14 #
+# Upddate dgammas
+Define dms 17.69e12
+Define dgammas 10.0e10
+#yesIncoherentBsMixing dms dgammas
+#
+Alias MyB_s0 B_s0
+Alias Myanti-B_s0 anti-B_s0
+ChargeConj Myanti-B_s0 MyB_s0
+Alias MyJ/psi J/psi
+Alias MyPhi phi
+ChargeConj MyJ/psi MyJ/psi
+ChargeConj MyPhi MyPhi
+#
+Decay MyB_s0
+1.000 MyJ/psi MyPhi PVV_CPLH 0.02 1 Hp pHp Hz pHz Hm pHm;
+#
+Enddecay
+Decay Myanti-B_s0
+1.000 MyJ/psi MyPhi PVV_CPLH 0.02 1 Hp pHp Hz pHz Hm pHm;
+Enddecay
+#
+Decay MyJ/psi
+1.000 mu+ mu- PHOTOS VLL;
+Enddecay
+#
+Decay MyPhi
+1.000 K+ K- VSS;
+Enddecay
+End

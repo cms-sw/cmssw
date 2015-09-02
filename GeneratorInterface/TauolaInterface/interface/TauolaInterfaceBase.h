@@ -7,11 +7,19 @@
 #include <vector>
 #include "CLHEP/Random/RandomEngine.h"
 
+// LHE Run
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
+
+// LHE Event
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+
 namespace gen {
    class TauolaInterfaceBase {
    public:
      TauolaInterfaceBase(){};
-     TauolaInterfaceBase( const edm::ParameterSet&){};
+   TauolaInterfaceBase( const edm::ParameterSet&){};
      virtual ~TauolaInterfaceBase(){};
      
      virtual void SetDecayRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){};
@@ -22,10 +30,10 @@ namespace gen {
      virtual HepMC::GenEvent* decay( HepMC::GenEvent* evt){return evt;}
      virtual void statistics(){};
      virtual void setRandomEngine(CLHEP::HepRandomEngine* v)=0;
-     
+     virtual void SetLHE(lhef::LHEEvent *l){};
    protected: 
      std::vector<int> fPDGs;
-             
+
    };
 }
 

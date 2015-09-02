@@ -24,7 +24,7 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder = 'BeamMonitor'
 # uncomment for running local test
-process.dqmSaver.dirName     = '.'
+#process.dqmSaver.dirName     = '.'
 
 import DQMServices.Components.DQMEnvironment_cfi
 process.dqmEnvPixelLess = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
@@ -165,6 +165,8 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
     process.dqmBeamMonitor.hltResults = cms.InputTag("TriggerResults","","HLT")
 
     #pixel  track/vertices reco
+    process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+
     process.pixelVertices.TkFilterParameters.minPt = process.pixelTracks.RegionFactoryPSet.RegionPSet.ptMin
 
     process.offlinePrimaryVertices.TrackLabel = cms.InputTag("pixelTracks")
@@ -173,8 +175,9 @@ if (process.runType.getRunType() == process.runType.pp_run or process.runType.ge
                                                process.offlineBeamSpot*
                                                process.siPixelClusters*
                                                process.siPixelRecHits*
-                                               process.pixelTracks*
-                                               process.pixelVertices
+#                                               process.pixelTracks*
+#                                               process.pixelVertices
+                                               process.recopixelvertexing
                                            )
 
     #--pixel tracking ends here-----

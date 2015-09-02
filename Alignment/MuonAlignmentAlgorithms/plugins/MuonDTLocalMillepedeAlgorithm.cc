@@ -136,7 +136,7 @@ void MuonDTLocalMillepedeAlgorithm::run(const edm::EventSetup& setup, const Even
   //Only important in the production mode
   if(workingmode != 0) return;
  
-  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
+  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
   for( ConstTrajTrackPairCollection::const_iterator it=tracks.begin();
        it!=tracks.end();it++) {
 

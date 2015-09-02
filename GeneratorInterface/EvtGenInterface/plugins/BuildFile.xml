@@ -1,4 +1,4 @@
-<library file="*.cc,*.cpp,*.f" name="EventGenFactory">
+<library file="EvtGenLHC/*.cc,EvtGenLHC/*.cpp,EvtGenLHC/*.f,myEvtRandomEngine.cc" name="EvtGenLHCInterface">
   <use name="FWCore/Framework"/>
   <use name="FWCore/MessageLogger"/>
   <use name="FWCore/ParameterSet"/>
@@ -11,5 +11,33 @@
   <use name="hepmc"/>
   <use name="evtgenlhc"/>
   <use name="photos"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+
+<library file="EvtGenUserModels/*.cpp,EvtGen/*.cc,myEvtRandomEngine.cc" name="EvtGenInterface">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="GeneratorInterface/EvtGenInterface"/>
+  <use name="SimGeneral/HepPDTRecord"/>
+  <use name="heppdt"/>
+  <use name="clhep"/>
+  <use name="hepmc"/>
+  <use name="evtgen"/>
+  <use name="pythia8"/>
+  <use name="tauolapp"/>
+  <use name="photospp"/>
+  <use name="root"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+
+<library file="DataCardFileWriter.cc" name="GenDataCardFileWriter">
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/MessageLogger"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="FWCore/PluginManager"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

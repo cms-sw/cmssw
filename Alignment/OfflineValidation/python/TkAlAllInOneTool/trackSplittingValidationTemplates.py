@@ -131,7 +131,8 @@ process.load("RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff")
 process.HitFilteredTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterialP5_cff.ctfWithMaterialTracksCosmics.clone(
      src = 'cosmicTrackSplitter',
      TrajectoryInEvent = True,
-     TTRHBuilder = "WithTrackAngle"
+     TTRHBuilder = "WithTrackAngle",
+     NavigationSchool = ""
 )
 # second refit
 process.TrackRefitter2 = process.TrackRefitter1.clone(
@@ -157,5 +158,142 @@ process.TFileService = cms.Service("TFileService",
 )
 
 process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.AlignmentTrackSelector*process.cosmicTrackSplitter*process.HitFilteredTracks*process.TrackRefitter2*process.cosmicValidation)
+"""
+
+
+######################################################################
+######################################################################
+
+trackSplitPlotExecution="""
+#make track splitting plots
+if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+then
+    rfmkdir -p .oO[workdir]Oo./TrackSplittingPlots
+else
+    mkdir -p TrackSplittingPlots
+fi
+
+rfcp .oO[trackSplitPlotScriptPath]Oo. .
+root -x -b -q TkAlTrackSplitPlot.C++
+rfmkdir -p .oO[datadir]Oo./TrackSplittingPlots
+
+if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
+then
+    image_files=$(find .oO[workdir]Oo./TrackSplittingPlots/* -maxdepth 0)
+    echo ${image_files}
+    ls .oO[workdir]Oo./TrackSplittingPlots
+else
+    image_files=$(find TrackSplittingPlots/* -maxdepth 0)
+    echo ${image_files}
+    ls TrackSplittingPlots
+fi
+
+for image in ${image_files}
+do
+    cp -r ${image} .oO[datadir]Oo./TrackSplittingPlots
+done
+"""
+
+######################################################################
+######################################################################
+
+trackSplitPlotTemplate="""
+#include ".oO[CMSSW_BASE]Oo./src/Alignment/OfflineValidation/macros/trackSplitPlot.C"
+
+/****************************************
+This can be run directly in root, or you
+ can run ./TkAlMerge.sh in this directory
+It can be run as is, or adjusted to fit
+ for misalignments or to only make
+ certain plots
+****************************************/
+
+/********************************
+To make ALL plots (313 in total):
+  leave this file as is
+********************************/
+
+/**************************************************************************
+to make all plots involving a single x or y variable, or both:
+Uncomment the line marked (B), and fill in for xvar and yvar
+
+Examples:
+
+   xvar = "nHits", yvar = "ptrel" - makes plots of nHits vs Delta_pt/pt_org
+                                    (4 total - profile and resolution,
+                                     of Delta_pt/pt_org and its pull
+                                     distribution)
+   xvar = "all",   yvar = "pt"    - makes all plots involving Delta_pt
+                                    (not Delta_pt/pt_org)
+                                    (38 plots total:
+                                     histogram and pull distribution, and
+                                     their mean and width as a function
+                                     of the 9 x variables)
+   xvar = "",      yvar = "all"   - makes all histograms of all y variables
+                                    (including Delta_pt/pt_org)
+                                    (16 plots total - 8 y variables,
+                                     regular and pull histograms)
+**************************************************************************/
+
+/**************************************************************************************
+To make a custom selection of plots:
+Uncomment the lines marked (C) and this section, and fill in matrix however you want */
+
+/*
+Bool_t plotmatrix[xsize][ysize];
+void fillmatrix()
+{
+    for (int x = 0; x < xsize; x++)
+        for (int y = 0; y < ysize; y++)
+            plotmatrix[x][y] = (.............................);
+}
+*/
+
+/*
+The variables are defined in Alignment/OfflineValidation/macros/trackSplitPlot.h
+ as follows:
+TString xvariables[xsize]      = {"pt", "eta", "phi", "dz",  "dxy", "theta",
+                                  "qoverpt", "runNumber","nHits",""};
+
+TString yvariables[ysize]      = {"pt", "pt",  "eta", "phi", "dz",  "dxy", "theta",
+                                  "qoverpt", ""};
+Bool_t relativearray[ysize]    = {true, false, false, false, false, false, false,
+                                  false,     false};
+Use matrix[x][y] = true to make that plot, and false not to make it.
+**************************************************************************************/
+
+/*************************************************************************************
+To fit for a misalignment, which can be combined with any other option:
+Uncomment the line marked (A) and this section, and choose your misalignment        */
+
+/*
+TString misalignment = "choose one";
+double *values = 0;
+double *phases = 0;
+//or:
+//    double values[number of files] = {...};
+//    double phases[number of files] = {...};
+*/
+
+/*
+The options for misalignment are sagitta, elliptical, skew, telescope, or layerRot.
+If the magnitude and phase of the misalignment are known (i.e. Monte Carlo data using
+ a geometry produced by the systematic misalignment tool), make values and phases into
+ arrays, with one entry for each file, to make a plot of the result of the fit vs. the
+ misalignment value.
+phases must be filled in for sagitta, elliptical, and skew if values is;
+ for the others it has no effect
+*************************************************************************************/
+
+void TkAlTrackSplitPlot()
+{
+    //fillmatrix();                                                         //(C)
+    makePlots(".oO[trackSplitPlotInstantiation]Oo.",
+              //misalignment,values,phases,                                 //(A)
+              "TrackSplittingPlots"
+              //,"xvar","yvar"                                              //(B)
+              //,plotmatrix                                                 //(C)
+              );
+}
 """
 

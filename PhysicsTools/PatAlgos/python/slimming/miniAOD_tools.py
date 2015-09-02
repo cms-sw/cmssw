@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from PhysicsTools.SelectorUtils.tools.vid_id_tools import *
+
 def miniAOD_customizeCommon(process):
     process.patMuons.isoDeposits = cms.PSet()
     process.patElectrons.isoDeposits = cms.PSet()
@@ -128,6 +130,26 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userFunctionLabels = cms.vstring('vtxMass','vtxNtracks','vtx3DVal','vtx3DSig')
     process.patJets.tagInfoSources = cms.VInputTag(cms.InputTag("secondaryVertexTagInfos"))
     process.patJets.addTagInfos = cms.bool(True)
+
+    #VID Electron IDs
+    electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_50ns_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_CSA14_PU20bx25_V0_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV50_CSA14_25ns_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV50_CSA14_startup_cff']
+    switchOnVIDElectronIdProducer(process)
+    process.egmGsfElectronIDs.physicsObjectSrc = \
+        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronIDValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.electronIDValueMapProducer.ebReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEBRecHits")
+    process.electronIDValueMapProducer.eeReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedEERecHits") 
+    process.electronIDValueMapProducer.esReducedRecHitCollection = \
+        cms.InputTag("reducedEgamma","reducedESRecHits")
+    for idmod in electron_ids:
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+    
 
 
 def miniAOD_customizeMC(process):

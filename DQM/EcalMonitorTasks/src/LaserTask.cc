@@ -11,7 +11,8 @@ namespace ecaldqm
     wlToME_(),
     pnAmp_(),
     emptyLS_(0),
-    emptyLSLimit_(0)
+    emptyLSLimit_(0),
+    maxPedestal_(0)
   {
     std::fill_n(enable_, nDCC, false);
     std::fill_n(wavelength_, nDCC, 0);
@@ -35,6 +36,8 @@ namespace ecaldqm
       repl["wl"] = std::to_string(wl);
       wlToME_[wl] = amplitude.getIndex(repl);
     }
+
+    maxPedestal_ = _params.getUntrackedParameter<int>("maxPedestal");
   }
 
   void
@@ -111,17 +114,23 @@ namespace ecaldqm
     MESet& meShape(MEs_.at("Shape"));
     MESet& meSignalRate(MEs_.at("SignalRate"));
 
+    bool inData[nDCC];
     int nReadouts[nDCC];
     int maxpos[nDCC][EcalDataFrame::MAXSAMPLES];
+    bool largeAmplitude[nDCC];
     for(unsigned iDCC(0); iDCC < nDCC; ++iDCC){
+      inData[iDCC] = false;
       nReadouts[iDCC] = 0;
       for(int i(0); i < EcalDataFrame::MAXSAMPLES; i++) maxpos[iDCC][i] = 0;
+      largeAmplitude[iDCC] = false;
     }
 
     for(typename DigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
       const DetId& id(digiItr->id());
 
       unsigned iDCC(dccId(id) - 1);
+
+      inData[iDCC] = true;
 
       if(!enable_[iDCC]) continue;
       if(rtHalf(id) != rtHalf_[iDCC]) continue;
@@ -142,6 +151,7 @@ namespace ecaldqm
           iMax = i;
         }
         if(adc < min) min = adc;
+	if(adc > maxPedestal_) largeAmplitude[iDCC] = true;
       }
       if(iMax >= 0 && max - min > 3) // normal RMS of pedestal is ~2.5
         maxpos[iDCC][iMax] += 1;
@@ -154,6 +164,8 @@ namespace ecaldqm
     unsigned iME(-1);
 
     for(int iDCC(0); iDCC < nDCC; ++iDCC){
+      if(!inData[iDCC]) continue;
+
       if(nReadouts[iDCC] == 0){
         enable_[iDCC] = false;
         continue;
@@ -162,12 +174,18 @@ namespace ecaldqm
       int threshold(nReadouts[iDCC] / 3);
       if(laserOnExpected) enable_[iDCC] = false;
 
-      for(int i(0); i < EcalDataFrame::MAXSAMPLES; i++){
-        if(maxpos[iDCC][i] > threshold){
-          enable = true;
-          enable_[iDCC] = true;
-          break;
-        }
+      if(largeAmplitude[iDCC]){
+	enable = true;
+	enable_[iDCC] = true;
+      }
+      else{
+	for(int i(0); i < EcalDataFrame::MAXSAMPLES; i++){
+	  if(maxpos[iDCC][i] > threshold){
+	    enable = true;
+	    enable_[iDCC] = true;
+	    break;
+	  }
+	}
       }
 
       if(iME != wlToME_[wavelength_[iDCC]]){

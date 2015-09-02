@@ -704,7 +704,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
   theFile->cd();
 	
   // loop over tracks  
-  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
+  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
   for (ConstTrajTrackPairCollection::const_iterator it=tracks.begin();
        it!=tracks.end();
        ++it) {
@@ -778,7 +778,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	
 	//////////Hit prescaling part 	 
 	bool skiphit = false; 	 
-	if (eventInfo.clusterValueMap_) { 	 
+	if (eventInfo.clusterValueMap()) { 	 
 	  // check from the PrescalingMap if the hit was taken. 	 
 	  // If not skip to the next TM 	 
 	  // bool hitTaken=false; 	 
@@ -796,7 +796,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	      if (stripHit1D) { 	 
 		SiStripRecHit1D::ClusterRef stripclust(stripHit1D->cluster()); 	 
 		// myflag=PrescMap[stripclust]; 	 
-		myflag = (*eventInfo.clusterValueMap_)[stripclust]; 	 
+		myflag = (*eventInfo.clusterValueMap())[stripclust]; 	 
 	      } else { 	 
 		edm::LogError("HIPAlignmentAlgorithm") 
 		  << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
@@ -810,7 +810,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	      if (stripHit2D) { 	 
 		SiStripRecHit2D::ClusterRef stripclust(stripHit2D->cluster()); 	 
 		// myflag=PrescMap[stripclust]; 	 
-		myflag = (*eventInfo.clusterValueMap_)[stripclust]; 	 
+		myflag = (*eventInfo.clusterValueMap())[stripclust]; 	 
 	      } else { 	 
 		edm::LogError("HIPAlignmentAlgorithm") 
 		  << "ERROR in <HIPAlignmentAlgorithm::run>: Dynamic cast of Strip RecHit failed! "
@@ -824,7 +824,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	    if (pixelhit) { 	 
 	      SiPixelClusterRefNew  pixelclust(pixelhit->cluster()); 	 
 	      // myflag=PrescMap[pixelclust]; 	 
-	      myflag = (*eventInfo.clusterValueMap_)[pixelclust]; 	 
+	      myflag = (*eventInfo.clusterValueMap())[pixelclust]; 	 
 	    }
 	    else { 	 
 	      edm::LogError("HIPAlignmentAlgorithm")

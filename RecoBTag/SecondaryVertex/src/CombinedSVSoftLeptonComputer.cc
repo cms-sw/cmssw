@@ -190,9 +190,8 @@ CombinedSVSoftLeptonComputer::operator () (const TrackIPTagInfo &ipInfo,
 			
 		const Vertex &vertex = svInfo.secondaryVertex(i);
 		bool hasRefittedTracks = vertex.hasRefittedTracks();
-		TrackRefVector tracks = svInfo.vertexTracks(i);
-		for(TrackRefVector::const_iterator track = tracks.begin(); track != tracks.end(); track++) {
-			double w = svInfo.trackWeight(i, *track);
+		for(reco::Vertex::trackRef_iterator track = vertex.tracks_begin(); track != vertex.tracks_end(); track++) {
+			double w = vertex.trackWeight(*track);
 			if (w < minTrackWeight)
 				continue;
 			if (hasRefittedTracks) {

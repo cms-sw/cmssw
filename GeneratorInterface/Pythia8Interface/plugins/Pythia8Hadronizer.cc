@@ -9,7 +9,8 @@
 #include "HepMC/GenParticle.h"
 
 #include "Pythia8/Pythia.h"
-#include "Pythia8/Pythia8ToHepMC.h"
+#include "Pythia8Plugins/HepMC2.h"
+#include "GeneratorInterface/Pythia8Interface/plugins/HepMCA2.h"
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
 
@@ -18,12 +19,12 @@
 // PS matchning prototype
 //
 #include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
-#include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingPy8Internal.h"
-#include "GeneratorInterface/PartonShowerVeto/interface/SetNumberOfPartonsDynamically.h"
+#include "Pythia8Plugins/JetMatching.h"
+#include "Pythia8Plugins/aMCatNLOHooks.h"
 
 // Emission Veto Hooks
 //
-#include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook.h"
+#include "Pythia8Plugins/PowhegHooks.h"
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
@@ -99,14 +100,14 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     // PS matching prototype
     //
     JetMatchingHook* fJetMatchingHook;
-    JetMatchingMadgraph *fJetMatchingPy8InternalHook;
-    SetNumberOfPartonsDynamically *fSetNumberOfPartonsDynamicallyHook;
+    Pythia8::JetMatchingMadgraph *fJetMatchingPy8InternalHook;
+    Pythia8::amcnlo_unitarised_interface *fMergingHook;
     
     // Emission Veto Hooks
     //
-    EmissionVetoHook* fEmissionVetoHook;
+    PowhegHooks* fEmissionVetoHook;
     EmissionVetoHook1* fEmissionVetoHook1;
-
+    
     int  EV1_nFinal;
     bool EV1_vetoOn;
     int  EV1_maxVetoCount;
@@ -114,7 +115,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     int  EV1_pTempMode;
     int  EV1_emittedMode;
     int  EV1_pTdefMode;
-    bool EV1_MPIvetoOn;
+    bool EV1_MPIvetoOn;   
 
     static const std::vector<std::string> p8SharedResources;
     
@@ -123,6 +124,12 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     vector<float> DJR;
     int nME;
     int nMEFiltered;
+
+    int nISRveto;
+    int nFSRveto;
+
+    int NHooks;
+
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -133,8 +140,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
   fInitialState(PP),
   fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
-  fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fSetNumberOfPartonsDynamicallyHook(0),
-  fEmissionVetoHook(0),fEmissionVetoHook1(0), nME(-1), nMEFiltered(-1)
+  fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fMergingHook(0),
+  fEmissionVetoHook(0), fEmissionVetoHook1(0), nME(-1), nMEFiltered(-1), nISRveto(0), nFSRveto(0),
+  NHooks(0)
 {
 
   // J.Y.: the following 3 parameters are hacked "for a reason"
@@ -177,14 +185,36 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if( params.exists( "SLHAFileForPythia8" ) ) {
     std::string slhafilenameshort = params.getParameter<string>("SLHAFileForPythia8");
     edm::FileInPath f1( slhafilenameshort );
-    slhafile_ = f1.fullPath();
-    std::string pythiacommandslha = std::string("SLHA:file = ") + slhafile_;
-    fMasterGen->readString(pythiacommandslha);
+    
+    fMasterGen->settings.mode("SLHA:readFrom", 2);
+    fMasterGen->settings.word("SLHA:file", f1.fullPath());    
+    
     for ( ParameterCollector::const_iterator line = fParameters.begin();
           line != fParameters.end(); ++line ) {
       if (line->find("SLHA:file") != std::string::npos)
         throw cms::Exception("PythiaError") << "Attempted to set SLHA file name twice, "
         << "using Pythia8 card SLHA:file and Pythia8Interface card SLHAFileForPythia8"
+        << std::endl;
+     }  
+  }
+  else if( params.exists( "SLHATableForPythia8" ) ) {
+    std::string slhatable = params.getParameter<string>("SLHATableForPythia8");
+        
+    char tempslhaname[] = "pythia8SLHAtableXXXXXX";
+    int fd = mkstemp(tempslhaname);
+    write(fd,slhatable.c_str(),slhatable.size());
+    close(fd);
+    
+    slhafile_ = tempslhaname;
+    
+    fMasterGen->settings.mode("SLHA:readFrom", 2);
+    fMasterGen->settings.word("SLHA:file", slhafile_);    
+    
+    for ( ParameterCollector::const_iterator line = fParameters.begin();
+          line != fParameters.end(); ++line ) {
+      if (line->find("SLHA:file") != std::string::npos)
+        throw cms::Exception("PythiaError") << "Attempted to set SLHA file name twice, "
+        << "using Pythia8 card SLHA:file and Pythia8Interface card SLHATableForPythia8"
         << std::endl;
      }  
   }
@@ -237,21 +267,10 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
       {
          fJetMatchingHook = new JetMatchingHook( jmParams, &fMasterGen->info );
       }
-      else if (scheme == "MadgraphPy8Internal") {
-        fJetMatchingPy8InternalHook = new ::JetMatchingMadgraph;
-      }
-      else if (scheme == "CKKWPy8Internal") {
-        fSetNumberOfPartonsDynamicallyHook = new SetNumberOfPartonsDynamically;
-      }
   }
 
-  // Emission vetos
+  // Pythia8Interface emission veto
   //
-  if ( params.exists("emissionVeto") )
-  {   
-    fEmissionVetoHook = new EmissionVetoHook(0);
-  }
-
   if ( params.exists("emissionVeto1") )
   {
     EV1_nFinal = -1;
@@ -273,63 +292,63 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     if(params.exists("EV1_pTdefMode")) EV1_pTdefMode = params.getParameter<int>("EV1_pTdefMode");
     EV1_MPIvetoOn = false;
     if(params.exists("EV1_MPIvetoOn")) EV1_MPIvetoOn = params.getParameter<bool>("EV1_MPIvetoOn");
-    fEmissionVetoHook1 = new EmissionVetoHook1(EV1_nFinal, EV1_vetoOn, 
+    fEmissionVetoHook1 = new EmissionVetoHook1(EV1_nFinal, EV1_vetoOn,
                                EV1_maxVetoCount, EV1_pThardMode, EV1_pTempMode,
                                EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoOn, 0);
   }
 
-  int NHooks=0;
   if(fReweightUserHook) NHooks++;
   if(fReweightRapUserHook) NHooks++;
   if(fReweightPtHatRapUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
-  if(fJetMatchingPy8InternalHook) NHooks++;
-  if (fSetNumberOfPartonsDynamicallyHook) NHooks++;
-  if(fEmissionVetoHook) NHooks++;
   if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
-      <<" Too many User Hooks. \n Please choose one from: reweightGen, reweightGenRap, reweightGenPtHatRap, jetMatching, emissionVeto, emissionVeto1 \n";
+      <<" Too many User Hooks. \n Please choose one from: reweightGen, reweightGenRap, reweightGenPtHatRap, jetMatching, emissionVeto1 \n";
   if(fReweightUserHook) fMasterGen->setUserHooksPtr(fReweightUserHook);
   if(fReweightRapUserHook) fMasterGen->setUserHooksPtr(fReweightRapUserHook);
   if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
-  if(fJetMatchingPy8InternalHook) fMasterGen->setUserHooksPtr(fJetMatchingPy8InternalHook);
-  if (fSetNumberOfPartonsDynamicallyHook) fMasterGen->setUserHooksPtr(fSetNumberOfPartonsDynamicallyHook);
-  if(fEmissionVetoHook || fEmissionVetoHook1) {
-    std::cout << "Turning on Emission Veto Hook";
-    if(fEmissionVetoHook1) std::cout << " 1";
-    std::cout << std::endl;
-    if(fEmissionVetoHook) fMasterGen->setUserHooksPtr(fEmissionVetoHook);
-    if(fEmissionVetoHook1) fMasterGen->setUserHooksPtr(fEmissionVetoHook1);
+  if(fEmissionVetoHook1) { 
+    edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook 1 from CMSSW Pythia8Interface";
+    fMasterGen->setUserHooksPtr(fEmissionVetoHook1);
   }
+
 }
 
 
 Pythia8Hadronizer::~Pythia8Hadronizer()
 {
 // do we need to delete UserHooks/JetMatchingHook here ???
-
   if(fEmissionVetoHook) {delete fEmissionVetoHook; fEmissionVetoHook=0;}
   if(fEmissionVetoHook1) {delete fEmissionVetoHook1; fEmissionVetoHook1=0;}
+  
+  //clean up temp file
+  if (!slhafile_.empty()) {
+    std::remove(slhafile_.c_str());
+  }
+  
 }
 
 bool Pythia8Hadronizer::initializeForInternalPartons()
 {
-
-  // pythiaEvent = &pythia->event;
-
+  
+  bool status = false, status1 = false;
+  
   if ( fInitialState == PP ) // default
   {
-    fMasterGen->init(2212, 2212, comEnergy);
+    fMasterGen->settings.mode("Beams:idA", 2212);
+    fMasterGen->settings.mode("Beams:idB", 2212);
   }
   else if ( fInitialState == PPbar )
   {
-    fMasterGen->init(2212, -2212, comEnergy);
+    fMasterGen->settings.mode("Beams:idA", 2212);
+    fMasterGen->settings.mode("Beams:idB", -2212);
   }
   else if ( fInitialState == ElectronPositron )
   {
-    fMasterGen->init(11, -11, comEnergy);
+    fMasterGen->settings.mode("Beams:idA", 11);
+    fMasterGen->settings.mode("Beams:idB", -11);
   }    
   else 
   {
@@ -338,7 +357,9 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
       <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
   }
 
-  fMasterGen->settings.listChanged();
+  fMasterGen->settings.parm("Beams:eCM", comEnergy);
+  edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
+  status = fMasterGen->init();
 
   if ( pythiaPylistVerbosity > 10 )
   {
@@ -349,29 +370,77 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   }
 
   // init decayer
-  fDecayer->readString("ProcessLevel:all = off"); // trick
-  fDecayer->readString("ProcessLevel::resonanceDecays=on");
-  fDecayer->init();
+  fDecayer->settings.flag("ProcessLevel:all", false ); // trick
+  fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
+  edm::LogInfo("Pythia8Interface") << "Initializing Decayer";
+  status1 = fDecayer->init();
 
-  return true;
+  return (status&&status1);
 }
 
 
 bool Pythia8Hadronizer::initializeForExternalPartons()
 {
 
-  std::cout << "Initializing for external partons" << std::endl;
+  edm::LogInfo("Pythia8Interface") << "Initializing for external partons";
 
+  bool status = false, status1 = false;
+  
+  if((fMasterGen->settings.mode("POWHEG:veto") > 0 || fMasterGen->settings.mode("POWHEG:MPIveto") > 0) && !fEmissionVetoHook) {
+
+    if(fJetMatchingHook || fEmissionVetoHook1)
+      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Attempt to turn on PowhegHooks by pythia8 settings but there are incompatible hooks on \n Incompatible are : jetMatching, emissionVeto1 \n";
+
+    fEmissionVetoHook = new PowhegHooks();
+
+    edm::LogInfo("Pythia8Interface") << "Turning on Emission Veto Hook from pythia8 code";
+    fMasterGen->setUserHooksPtr(fEmissionVetoHook);
+
+  }
+
+  //adapted from main89.cc in pythia8 examples
+  bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
+  bool internalMerging = !(fMasterGen->settings.word("Merging:Process").compare("void")==0);
+  
+  if (internalMatching && internalMerging) {
+    throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+      <<" Only one jet matching/merging scheme can be used at a time. \n";
+  }
+  
+  if (internalMatching && !fJetMatchingPy8InternalHook) {
+    fJetMatchingPy8InternalHook = new Pythia8::JetMatchingMadgraph;
+    fMasterGen->setUserHooksPtr(fJetMatchingPy8InternalHook);
+  }
+  
+  if (internalMerging && !fMergingHook) {
+    int scheme = ( fMasterGen->settings.flag("Merging:doUMEPSTree")
+                || fMasterGen->settings.flag("Merging:doUMEPSSubt")) ?
+                1 :
+                 ( ( fMasterGen->settings.flag("Merging:doUNLOPSTree")
+                || fMasterGen->settings.flag("Merging:doUNLOPSSubt")
+                || fMasterGen->settings.flag("Merging:doUNLOPSLoop")
+                || fMasterGen->settings.flag("Merging:doUNLOPSSubtNLO")) ?
+                2 :
+                0 );
+    fMergingHook = new Pythia8::amcnlo_unitarised_interface(scheme);
+    fMasterGen->setUserHooksPtr(fMergingHook);
+  }
+  
+  
   if(LHEInputFileName != string()) {
 
-    std::cout << std::endl;
-    std::cout << "LHE Input File Name = " << LHEInputFileName << std::endl;
-    std::cout << std::endl;
-    fMasterGen->init(LHEInputFileName);
+    edm::LogInfo("Pythia8Interface") << "Initialize direct pythia8 reading from LHE file "
+                                     << LHEInputFileName;
+    edm::LogInfo("Pythia8Interface") << "Some LHE information can be not stored";
+    fMasterGen->settings.mode("Beams:frameType", 4);
+    fMasterGen->settings.word("Beams:LHEF", LHEInputFileName);
+    status = fMasterGen->init();
 
   } else {
 
     lhaUP.reset(new LHAupLesHouches());
+    lhaUP->setScalesFromLHEF(fMasterGen->settings.flag("Beams:setProductionScalesFromLHEF"));
     lhaUP->loadRunInfo(lheRunInfo());
     
     if ( fJetMatchingHook )
@@ -379,36 +448,10 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
        fJetMatchingHook->init ( lheRunInfo() );
     }
     
-    //pythia 8 doesn't currently support reading SLHA table from lhe header in memory
-    //so dump it to a temp file and set the appropriate pythia parameters to read it
-    std::vector<std::string> slha = lheRunInfo()->findHeader("slha");
-    const char *fname = std::tmpnam(NULL);
-    //read slha header from lhe only if header is present AND no slha header was specified
-    //for manual loading.
-    bool doslha = !slha.empty() && slhafile_.empty();
-    
-    if (doslha) {
-      std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
-      std::string block;
-      for(std::vector<std::string>::const_iterator iter = slha.begin();
-        iter != slha.end(); ++iter) {
-              file << *iter;
-      }
-      file.close();
-
-      std::string lhareadcmd = "SLHA:readFrom = 2";    
-      std::string lhafilecmd = std::string("SLHA:file = ") + std::string(fname);
-
-      fMasterGen->readString(lhareadcmd);    
-      fMasterGen->readString(lhafilecmd); 
-    }
-    
-    fMasterGen->init(lhaUP.get());
-    
-    if (doslha) {
-      std::remove( fname );
-    }
-
+    fMasterGen->settings.mode("Beams:frameType", 5);
+    fMasterGen->setLHAupPtr(lhaUP.get());
+    edm::LogInfo("Pythia8Interface") << "Initializing MasterGen";
+    status = fMasterGen->init();
   }
   
   if ( pythiaPylistVerbosity > 10 )
@@ -420,21 +463,31 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   }
 
   // init decayer
-  fDecayer->readString("ProcessLevel:all = off"); // trick
-  fDecayer->readString("ProcessLevel::resonanceDecays=on");
-  fDecayer->init();
+  fDecayer->settings.flag("ProcessLevel:all", false ); // trick
+  fDecayer->settings.flag("ProcessLevel:resonanceDecays", true );
+  edm::LogInfo("Pythia8Interface") << "Initializing Decayer";
+  status1 = fDecayer->init();
 
-  return true;
+  return (status&&status1);
 }
 
 
 void Pythia8Hadronizer::statistics()
 {
-  fMasterGen->statistics();
+  fMasterGen->stat();
+
+  if(fEmissionVetoHook) {
+    edm::LogPrint("Pythia8Interface") << "\n"
+      << "Number of ISR vetoed = " << nISRveto;
+    edm::LogPrint("Pythia8Interface")
+      << "Number of FSR vetoed = " << nFSRveto;
+  }
 
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
-  runInfo().setInternalXSec(xsec);
+  double err  = fMasterGen->info.sigmaErr(); // cross section err in mb
+  err  *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
+  runInfo().setInternalXSec(GenRunInfoProduct::XSec(xsec,err));
 }
 
 
@@ -464,12 +517,16 @@ bool Pythia8Hadronizer::hadronize()
 
   bool py8next = fMasterGen->next();
 
-  double mergeweight = fMasterGen.get()->info.mergingWeight();
+  double mergeweight = fMasterGen.get()->info.mergingWeightNLO();
+  if (fMergingHook) {
+    mergeweight *= fMergingHook->getNormFactor();
+  }
+  
   
   //protect against 0-weight from ckkw or similar
-  if (!py8next || mergeweight<=0.)
+  if (!py8next || std::abs(mergeweight)==0.)
   {
-    lheEvent()->count( lhef::LHERunInfo::kSelected );
+    lheEvent()->count( lhef::LHERunInfo::kSelected, 1.0, mergeweight );
     event().reset();
     return false;
   }
@@ -482,13 +539,13 @@ bool Pythia8Hadronizer::hadronize()
       DJR.push_back(djrmatch[idjr]);
     }
     
-    nME=fJetMatchingPy8InternalHook->nMEPartons()[0];
-    nMEFiltered=fJetMatchingPy8InternalHook->nMEPartons()[1];
+    nME=fJetMatchingPy8InternalHook->nMEpartons().first;
+    nMEFiltered=fJetMatchingPy8InternalHook->nMEpartons().second;
   }
   
   // update LHE matching statistics
   //
-  lheEvent()->count( lhef::LHERunInfo::kAccepted );
+  lheEvent()->count( lhef::LHERunInfo::kAccepted, 1.0, mergeweight );
 
   event().reset(new HepMC::GenEvent);
   bool py8hepmc =  toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
@@ -496,11 +553,16 @@ bool Pythia8Hadronizer::hadronize()
     return false;
   }
   
-  //add ckkw merging weight
+  //add ckkw/umeps/unlops merging weight
   if (mergeweight!=1.) {
-    event()->weights().push_back(mergeweight);
+    event()->weights()[0] *= mergeweight;
   }
   
+  if (fEmissionVetoHook) {
+    nISRveto += fEmissionVetoHook->getNISRveto();
+    nFSRveto += fEmissionVetoHook->getNFSRveto();  
+  }
+
   return true;
   
   
@@ -514,14 +576,18 @@ bool Pythia8Hadronizer::residualDecay()
 
   int NPartsBeforeDecays = pythiaEvent->size();
   int NPartsAfterDecays = event().get()->particles_size();
-  int NewBarcode = NPartsAfterDecays;
 
+  if(NPartsAfterDecays == NPartsBeforeDecays) return true;
+
+  HepMC::Pythia8ToHepMCA toHepMCA;
+  bool result = true;
+ 
   for ( int ipart=NPartsAfterDecays; ipart>NPartsBeforeDecays; ipart-- )
   {
 
     HepMC::GenParticle* part = event().get()->barcode_to_particle( ipart );
 
-    if ( part->status() == 1 )
+    if ( part->status() == 1 && (fDecayer->particleData).canDecay(part->pdg_id()) )
     {
       fDecayer->event.reset();
       Particle py8part(  part->pdg_id(), 93, 0, 0, 0, 0, 0, 0,
@@ -543,40 +609,12 @@ bool Pythia8Hadronizer::residualDecay()
 
       part->set_status(2);
 
-      Particle& py8daughter = fDecayer->event[nentries]; // the 1st daughter
-      HepMC::GenVertex* DecVtx = new HepMC::GenVertex( HepMC::FourVector(py8daughter.xProd(),
-                                                       py8daughter.yProd(),
-                                                       py8daughter.zProd(),
-                                                       py8daughter.tProd()) );
-
-      DecVtx->add_particle_in( part ); // this will cleanup end_vertex if exists, replace with the new one
-                                       // I presume (vtx) barcode will be given automatically
-
-      HepMC::FourVector pmom( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-
-      HepMC::GenParticle* daughter =
-                        new HepMC::GenParticle( pmom, py8daughter.id(), 1 );
-
-      NewBarcode++;
-      daughter->suggest_barcode( NewBarcode );
-      DecVtx->add_particle_out( daughter );
-
-      for ( int ipart1=nentries+1; ipart1<nentries1; ipart1++ )
-      {
-        py8daughter = fDecayer->event[ipart1];
-        HepMC::FourVector pmomN( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
-        HepMC::GenParticle* daughterN =
-                        new HepMC::GenParticle( pmomN, py8daughter.id(), 1 );
-        NewBarcode++;
-        daughterN->suggest_barcode( NewBarcode );
-        DecVtx->add_particle_out( daughterN );
-      }
-
-      event().get()->add_vertex( DecVtx );
+      result = toHepMCA.append_event( fDecayer->event, event().get(), part);
 
     }
- }
- return true;
+  }
+
+  return result;
 
 }
 
@@ -603,7 +641,8 @@ void Pythia8Hadronizer::finalizeEvent()
   //******** Verbosity ********
 
   if (maxEventsToPrint > 0 &&
-      (pythiaPylistVerbosity || pythiaHepMCVerbosity)) {
+      (pythiaPylistVerbosity || pythiaHepMCVerbosity ||
+                                pythiaHepMCVerbosityParticles) ) {
     maxEventsToPrint--;
     if (pythiaPylistVerbosity) {
       fMasterGen->info.list(std::cout); 
@@ -615,6 +654,12 @@ void Pythia8Hadronizer::finalizeEvent()
                 << fMasterGen->info.code() << "\n"
                 << "----------------------" << std::endl;
       event()->print();
+    }
+    if (pythiaHepMCVerbosityParticles) {
+      std::cout << "Event process = "
+                << fMasterGen->info.code() << "\n"
+                << "----------------------" << std::endl;
+      ascii_io->write_event(event().get());
     }
   }
 }

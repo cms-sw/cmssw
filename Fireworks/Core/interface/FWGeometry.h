@@ -11,6 +11,7 @@ class TEveGeoShape;
 class TGeoVolume;
 class TGeoShape;
 class TFile;
+class TObjArray;
 
 #include "TEveVSDStructs.h"
 #include "TGeoMatrix.h"
@@ -40,15 +41,12 @@ public:
 
    class VersionInfo {
    public:
-      VersionInfo() :m_haveRE4(false), m_haveGEM(false) {}
+      TNamed* productionTag;
+      TNamed* cmsswVersion;
+      TObjArray* extraDetectors;
 
-      bool haveRE4() const { return m_haveRE4; }
-      bool haveGEM() const { return m_haveGEM; }
-
-      void ProcessProductionTag(const char*);
-   private:
-      bool m_haveRE4;
-      bool m_haveGEM;
+      VersionInfo() : productionTag(0), cmsswVersion(0), extraDetectors(0) {}
+      bool haveExtraDet(const char*)const;
    };
 
    FWGeometry( void );

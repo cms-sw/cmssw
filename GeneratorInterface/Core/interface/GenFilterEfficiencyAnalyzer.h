@@ -38,9 +38,8 @@ private:
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   virtual void endJob() override;
 
-  int nTota_;
-  int nPass_;
   edm::InputTag genFilterInfoTag_;
+  GenFilterInfo totalGenFilterInfo_;
 
   // ----------member data ---------------------------
   

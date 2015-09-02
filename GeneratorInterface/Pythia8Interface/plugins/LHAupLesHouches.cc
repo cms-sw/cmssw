@@ -31,11 +31,26 @@ bool LHAupLesHouches::setInit()
   //hadronisation->onInit().emit();
 
   //runInfo.reset();
+    
+  //fill SLHA header information if available
+  std::vector<std::string> slha = runInfo->findHeader("slha");
+  if (!slha.empty()) {
+    std::string slhaheader;
+    for(std::vector<std::string>::const_iterator iter = slha.begin(); iter != slha.end(); ++iter) {
+      slhaheader.append(*iter);
+    }
+    infoPtr->setHeader("slha",slhaheader);
+  }  
+  
+  //work around missing initialization inside pythia8
+  infoPtr->eventAttributes = new std::map<std::string, std::string >;
+  
+  
   return true;
 }
 
 
-bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
+bool LHAupLesHouches::setEvent(int inProcId)
 {
   if (!event) return false;
 	
@@ -49,7 +64,7 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
              hepeup.AQEDUP, hepeup.AQCDUP);
 
   const std::vector<float> &scales = event->scales();
-  
+    
   unsigned int iscale = 0;
   for(int i = 0; i < hepeup.NUP; i++) {
     //retrieve scale corresponding to each particle
@@ -57,7 +72,7 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
     
     //handle clustering scales if present,
     //applies to outgoing partons only
-    if (scales.size()>0 && hepeup.ISTUP[i]==1) {
+    if (setScalesFromLHEF_ && scales.size()>0 && hepeup.ISTUP[i]==1) {
       if (iscale>=scales.size()) {
         edm::LogError("InvalidLHEInput") << "Pythia8 requires"
                                     << "cluster scales for all outgoing partons or for none" 
@@ -66,6 +81,7 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
       scalein = scales[iscale];
       ++iscale;
     }
+        
     addParticle(hepeup.IDUP[i], hepeup.ISTUP[i],
                 hepeup.MOTHUP[i].first, hepeup.MOTHUP[i].second,
                 hepeup.ICOLUP[i].first, hepeup.ICOLUP[i].second,
@@ -74,7 +90,26 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
                 hepeup.PUP[i][4], hepeup.VTIMUP[i],
                 hepeup.SPINUP[i],scalein);
   }
+  
+  infoPtr->eventAttributes->clear();
+  
+  //fill parton multiplicities if available
+  int npLO = event->npLO();
+  int npNLO = event->npNLO();
 
+  //default value of -99 indicates tags were not present in the original LHE file
+  //don't pass to pythia in this case to emulate pythia internal lhe reader behaviour
+  if (npLO!=-99) {
+    char buffer [100];
+    snprintf( buffer, 100, "%i",npLO);    
+    (*infoPtr->eventAttributes)["npLO"] = buffer;
+  }
+  if (npNLO!=-99) {
+    char buffer [100];
+    snprintf( buffer, 100, "%i",npNLO);    
+    (*infoPtr->eventAttributes)["npNLO"] = buffer;
+  }
+  
   const lhef::LHEEvent::PDF *pdf = event->getPDF();
   if (pdf) {
     this->setPdf(pdf->id.first, pdf->id.second,
@@ -88,10 +123,6 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
                  hepeup.PUP[1][3] / runInfo->getHEPRUP()->EBMUP.second,
                  0., 0., 0., false);
   }
-
-  //hadronisation->onBeforeHadronisation().emit();
-
-  //event.reset();
 
   event->attempted();
 

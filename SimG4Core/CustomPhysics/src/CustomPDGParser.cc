@@ -67,6 +67,12 @@ bool CustomPDGParser::s_isSbaryon(int pdg)
 
 }
 
+bool CustomPDGParser::s_isChargino( int pdg )
+{
+  int pdgAbs = abs(pdg);
+  return (pdgAbs == 1000024);  
+}
+
 
 double CustomPDGParser::s_charge(int pdg)
 {
@@ -82,6 +88,9 @@ double CustomPDGParser::s_charge(int pdg)
       	      return -sign;
 	}
 
+      if (s_isChargino(pdg)) {
+	return sign;
+      } 
       if(s_isRMeson(pdg))
       {
         std::vector<int> quarks = s_containedQuarks(pdg);
@@ -131,6 +140,12 @@ return 0;
 
 double CustomPDGParser::s_spin(int pdg)
 {
+  // The PDG numbering is described in the Review of Particle Physics: 
+  // "3. In composite quark systems (diquarks, mesons, and baryons) ...
+  // the rightmost digit nJ = 2J + 1 gives the system's spin."  
+  // Since this does not apply to SUSY / exotic particles, 
+  // if the spin is important for the simulation 
+  // it should be hard-coded based on PDG ID in this function.  
  int pdgAbs=abs(pdg);
  return pdgAbs % 10;    
 }

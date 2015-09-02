@@ -59,6 +59,8 @@ private:
 
 private:
 
+  bool verbose_;
+
   void checkTrackerFEDs(edm::Event const& e);
 
   DQMStore* dqmStore_;

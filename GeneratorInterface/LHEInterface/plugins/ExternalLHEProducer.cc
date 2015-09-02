@@ -22,6 +22,7 @@ Implementation:
 #include <memory>
 #include <vector>
 #include <string>
+#include <fstream>
 #include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
@@ -71,7 +72,6 @@ public:
 private:
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
   virtual void beginRunProduce(edm::Run& run, edm::EventSetup const& es) override;
   virtual void endRunProduce(edm::Run&, edm::EventSetup const&) override;
 
@@ -126,7 +126,7 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
   outputFile_(iConfig.getParameter<std::string>("outputFile")),
   args_(iConfig.getParameter<std::vector<std::string> >("args")),
   npars_(iConfig.getParameter<uint32_t>("numberOfParameters")),
-  nEvents_(iConfig.getParameter<uint32_t>("nEvents"))
+  nEvents_(iConfig.getUntrackedParameter<uint32_t>("nEvents"))
 {
   if (npars_ != args_.size())
     throw cms::Exception("ExternalLHEProducer") << "Problem with configuration: " << args_.size() << " script arguments given, expected " << npars_;
@@ -151,8 +151,11 @@ void
 ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   nextEvent();
-  if (!partonLevel)
-    return;
+  if (!partonLevel) {
+    throw cms::Exception("ExternalLHEProducer") << "No lhe event found in ExternalLHEProducer::produce().  "
+    << "The likely cause is that the lhe file contains fewer events than were requested, which is possible "
+    << "in case of phase space integration or uneweighting efficiency problems.";
+  }
 
   std::auto_ptr<LHEEventProduct> product(
 	       new LHEEventProduct(*partonLevel->getHEPEUP(),
@@ -202,13 +205,6 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   return; 
 }
 
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ExternalLHEProducer::endJob() {
-
-  reader_.reset();
-}
-
 // ------------ method called when starting to processes a run  ------------
 void 
 ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
@@ -239,15 +235,26 @@ ExternalLHEProducer::beginRunProduce(edm::Run& run, edm::EventSetup const& es)
   }
 
   executeScript();
-  std::auto_ptr<std::string> localContents = readOutput();
-  outputContents_ = *localContents;
-  std::auto_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct(*localContents));  
+  
+  //fill LHEXMLProduct (streaming read directly into compressed buffer to save memory)
+  std::auto_ptr<LHEXMLStringProduct> p(new LHEXMLStringProduct);  
+  std::ifstream instream(outputFile_);
+  if (!instream) {
+    throw cms::Exception("OutputOpenError") << "Unable to open script output file " << outputFile_ << ".";
+  }  
+  instream.seekg (0, instream.end);
+  int insize = instream.tellg();
+  instream.seekg (0, instream.beg);  
+  p->fillCompressedContent(instream, 0.25*insize);
+  instream.close();
   run.put(p, "LHEScriptOutput");
 
   // LHE C++ classes translation
+  // (read back uncompressed file from disk in streaming mode again to save memory)
 
+  std::vector<std::string> infiles(1, outputFile_);
   unsigned int skip = 0;
-  std::auto_ptr<lhef::LHEReader> thisRead( new lhef::LHEReader(outputContents_, skip ) );
+  std::auto_ptr<lhef::LHEReader> thisRead( new lhef::LHEReader(infiles, skip ) );
   reader_ = thisRead;
 
   nextEvent();
@@ -284,6 +291,19 @@ ExternalLHEProducer::endRunProduce(edm::Run& run, edm::EventSetup const& es)
     std::auto_ptr<LHERunInfoProduct> product(runInfoProducts.pop_front().release());
     run.put(product);
   }
+  
+  nextEvent();
+  if (partonLevel) {
+    throw cms::Exception("ExternalLHEProducer") << "Error in ExternalLHEProducer::endRunProduce().  "
+    << "Event loop is over, but there are still lhe events to process."
+    << "This could happen if lhe file contains more events than requested.  This is never expected to happen.";
+  }  
+  
+  reader_.reset();  
+  
+  if (unlink(outputFile_.c_str())) {
+    throw cms::Exception("OutputDeleteError") << "Unable to delete original script output file " << outputFile_ << " (errno=" << errno << ", " << strerror(errno) << ").";
+  }  
 
 }
 
@@ -452,7 +472,7 @@ ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::string>("outputFile", "myoutput");
   desc.add<std::vector<std::string> >("args");
   desc.add<uint32_t>("numberOfParameters");
-  desc.add<uint32_t>("nEvents");
+  desc.addUntracked<uint32_t>("nEvents");
 
   descriptions.addDefault(desc);
 }

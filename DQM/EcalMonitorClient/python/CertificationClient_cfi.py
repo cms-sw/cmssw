@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalMonitorTasks.TowerStatusTask_cfi import ecalTowerStatusTask
+from DQM.EcalMonitorClient.TowerStatusTask_cfi import ecalTowerStatusTask
 from DQM.EcalMonitorClient.SummaryClient_cfi import ecalSummaryClient
 
 ecalCertificationClient = cms.untracked.PSet(

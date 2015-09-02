@@ -16,6 +16,7 @@ public:
  static bool s_isMesonino(int pdg);
  static bool s_isSbaryon(int pdg);
  static bool s_isRGlueball(int pdg);
+ static bool s_isChargino(int pdg);
  static double s_charge(int pdg);
  static double s_spin(int pdg);
  static std::vector<int> s_containedQuarks(int pdg);

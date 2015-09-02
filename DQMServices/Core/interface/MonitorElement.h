@@ -90,6 +90,8 @@ public:
   MonitorElement &operator=(const MonitorElement &);
   ~MonitorElement(void);
 
+  void deleteObjects(void);
+
   /// Compare monitor elements, for ordering in sets.
   bool operator<(const MonitorElement &x) const
     {
@@ -285,6 +287,15 @@ private:
   /// whether ME contents should be accumulated over multiple monitoring periods; default: false
   bool isAccumulateEnabled(void) const
     { return data_.flags & DQMNet::DQM_PROP_ACCUMULATE; }
+
+  /// true if ME is marked for deletion
+  bool markedToDelete(void) const
+    { return data_.flags & DQMNet::DQM_PROP_MARKTODELETE; }
+
+  /// Mark the object for deletion.
+  /// NB: make sure that the following method is not called simultaneously for the same ME
+  void markToDelete(void)
+    { data_.flags |= DQMNet::DQM_PROP_MARKTODELETE; }
 
 private:
   /// reset "was updated" flag

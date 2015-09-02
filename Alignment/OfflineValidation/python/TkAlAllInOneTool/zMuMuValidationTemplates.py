@@ -36,6 +36,7 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.TrackRefitter.src = 'ALCARECOTkAlZMuMu'
 process.TrackRefitter.TrajectoryInEvent = True
 process.TrackRefitter.TTRHBuilder = "WithAngleAndTemplate"
+process.TrackRefitter.NavigationSchool = ""
 
 ###### MuSclFit SETTINGS  ##############################################
 
@@ -183,6 +184,8 @@ process.looper = cms.Looper(
     MaxMuonEtaFirstRange = cms.untracked.double(.oO[etamaxneg]Oo.),
     MinMuonEtaSecondRange = cms.untracked.double(.oO[etaminpos]Oo.),
     MaxMuonEtaSecondRange = cms.untracked.double(.oO[etamaxpos]Oo.),
+    PileUpSummaryInfo = cms.untracked.InputTag("addPileupInfo"),
+    PrimaryVertexCollection = cms.untracked.InputTag("offlinePrimaryVertices"),    
     
     # The following parameters can be used to filter events
     TriggerResultsLabel = cms.untracked.string("TriggerResults"),
@@ -240,8 +243,8 @@ fi
 
 ls -lh . 
 
-source /afs/cern.ch/sw/lcg/external/gcc/4.6.2/x86_64-slc5/setup.sh
-source /afs/cern.ch/sw/lcg/app/releases/ROOT/5.32.00/x86_64-slc5-gcc46-opt/root/bin/thisroot.sh
+source /afs/cern.ch/sw/lcg/external/gcc/4.8.1/x86_64-slc6/setup.sh
+source /afs/cern.ch/sw/lcg/app/releases/ROOT/5.34.10/x86_64-slc6-gcc48-opt/root/bin/thisroot.sh
 
 # cd .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit
 # ln -fs .oO[workdir]Oo./0_zmumuHisto.root .
@@ -251,6 +254,7 @@ cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooF
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitSlices.cc .
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitXslices.cc .
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitWithRooFit.cc .
+cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitMass1D.cc .
 
 root -q -b "CompareBiasZValidation.cc+(\\\"\\\")"
 
@@ -261,7 +265,7 @@ root -q -b "CompareBiasZValidation.cc+(\\\"\\\")"
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/tdrstyle.C .
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlap_.oO[resonance]Oo..C .
 # ln -fs /afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN2/TMP_EM/ZMuMu/data/MC/BiasCheck_DYToMuMu_Summer11_TkAlZMuMu_IDEAL.root  ./BiasCheck_Reference.root
-ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root
+if [[ .oO[zmumureference]Oo. == *store* ]]; then cmsStage -f .oO[zmumureference]Oo. BiasCheck_Reference.root; else ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root; fi
 root -q -b MultiHistoOverlap_.oO[resonance]Oo..C
 
 cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo.

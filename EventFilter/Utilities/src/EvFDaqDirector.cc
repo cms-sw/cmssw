@@ -8,7 +8,8 @@
 #include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/plugins/FedRawDataInputSource.h"
-
+#include "EventFilter/Utilities/interface/DataPointDefinition.h"
+#include "EventFilter/Utilities/interface/DataPoint.h"
 
 #include <iostream>
 #include <sstream>
@@ -16,6 +17,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/file.h>
+#include <boost/lexical_cast.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 //#define DEBUG
 
@@ -48,6 +51,7 @@ namespace evf {
 		pset.getUntrackedParameter<bool> ("directorIsBu", false)
 		),
     run_(pset.getUntrackedParameter<unsigned int> ("runNumber",0)),
+    outputAdler32Recheck_(pset.getUntrackedParameter<bool>("outputAdler32Recheck",false)),
     hostname_(""),
     bu_readlock_fd_(-1),
     bu_writelock_fd_(-1),
@@ -212,7 +216,7 @@ namespace evf {
     close(bu_readlock_fd_);
     close(bu_writelock_fd_);
     if (directorBu_) {
-      std::string filename = base_dir_ + "/bu.lock";
+      std::string filename = bu_run_dir_ + "/bu.lock";
       removeFile(filename);
     }
   }
@@ -304,7 +308,6 @@ namespace evf {
     return bu_run_dir_ + "/open/" + fffnaming::inputJsonFileName(run_,ls,index);
   }
 
-
   std::string EvFDaqDirector::getOpenDatFilePath(const unsigned int ls, std::string const& stream) const {
     return run_dir_ + "/open/" + fffnaming::streamerDataFileNameWithPid(run_,ls,stream);
   }
@@ -319,6 +322,10 @@ namespace evf {
 
   std::string EvFDaqDirector::getMergedDatFilePath(const unsigned int ls, std::string const& stream) const {
     return run_dir_ + "/" + fffnaming::streamerDataFileNameWithInstance(run_,ls,stream,hostname_);
+  }
+
+  std::string EvFDaqDirector::getMergedDatChecksumFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming::streamerDataChecksumFileNameWithInstance(run_,ls,stream,hostname_);
   }
 
   std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {
@@ -502,6 +509,66 @@ namespace evf {
     return fileStatus;
   }
 
+  int EvFDaqDirector::getNFilesFromEoLS(std::string BUEoLSFile) {
+
+    boost::filesystem::ifstream ij(BUEoLSFile);
+    Json::Value deserializeRoot;
+    Json::Reader reader;
+
+    if (!reader.parse(ij, deserializeRoot)) {
+      edm::LogError("EvFDaqDirector") << "Cannot deserialize input JSON file -:" << BUEoLSFile;
+      return -1;
+    }
+
+    std::string data;
+    DataPoint dp;
+    dp.deserialize(deserializeRoot);
+
+    //read definition 
+    if (readEolsDefinition_) {
+      //std::string def = boost::algorithm::trim(dp.getDefinition());
+      std::string def = dp.getDefinition();
+      if (!def.size()) readEolsDefinition_=false;
+      while (def.size()) {
+        std::string fullpath;
+        if (def.find('/')==0)
+          fullpath = def;
+        else
+          fullpath = bu_run_dir_+'/'+def; 
+        struct stat buf;
+        if (stat(fullpath.c_str(), &buf) == 0) {
+          DataPointDefinition eolsDpd;
+          std::string defLabel = "legend";
+          DataPointDefinition::getDataPointDefinitionFor(fullpath, &eolsDpd,&defLabel);
+          if (eolsDpd.getNames().size()==0) {
+             //try with "data" label if "legend" format is not used
+             eolsDpd = DataPointDefinition();
+             defLabel="data";
+             DataPointDefinition::getDataPointDefinitionFor(fullpath, &eolsDpd,&defLabel);
+          }
+          for (unsigned int i=0;i<eolsDpd.getNames().size();i++)
+            if (eolsDpd.getNames().at(i)=="NFiles")
+              eolsNFilesIndex_ = i;
+          readEolsDefinition_=false;
+          break;
+        }
+        //check if we can still find definition
+        if (def.size()<=1 || def.find('/')==std::string::npos) {
+          readEolsDefinition_=false;
+          break;
+        }
+        def = def.substr(def.find('/')+1);
+      }
+    }
+
+    if (dp.getData().size()>eolsNFilesIndex_)
+      data = dp.getData()[eolsNFilesIndex_];
+    else {
+      edm::LogError("EvFDaqDirector") << " error reading number of files from BU JSON -: " << BUEoLSFile;
+      return -1;
+    }
+    return boost::lexical_cast<int>(data);
+  }
 
   bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize) {
 
@@ -532,7 +599,8 @@ namespace evf {
     }
     // 2. No file -> lumi ended? (and how many?)
     else {
-      bool eolFound = (stat(getEoLSFilePathOnBU(ls).c_str(), &buf) == 0);
+      std::string BUEoLSFile = getEoLSFilePathOnBU(ls);
+      bool eolFound = (stat(BUEoLSFile.c_str(), &buf) == 0);
       unsigned int startingLumi = ls;
       while (eolFound) {
 
@@ -543,12 +611,25 @@ namespace evf {
           return true;
         }
 
+        int indexFilesInLS = getNFilesFromEoLS(BUEoLSFile);
+        if (indexFilesInLS < 0)
+          //parsing failed
+          return false;
+        else {
+          //check index
+          if ((int)index<indexFilesInLS) {
+            //we have 2 files, and check for 1 failed... retry (2 will never be here)
+            edm::LogError("EvFDaqDirector") << "Potential miss of index file in LS -: " << ls << ". Missing "
+                         << nextFile << " because " << indexFilesInLS-1 << " is the highest index expected. Will not update fu.lock file";
+            return false;
+          }
+        }
 	// this lumi ended, check for files
 	++ls;
+        index = 0;
 	nextFile = getInputJsonFilePath(ls,0);
 	if (stat(nextFile.c_str(), &buf) == 0) {
 	  // a new file was found at new lumisection, index 0
-	  index = 0;
 	  previousFileSize_ = buf.st_size;
           fsize = buf.st_size;
 
@@ -568,7 +649,8 @@ namespace evf {
 
 	  return true;
 	}
-	eolFound = (stat(getEoLSFilePathOnBU(ls).c_str(), &buf) == 0);
+        BUEoLSFile = getEoLSFilePathOnBU(ls);
+        eolFound = (stat(BUEoLSFile.c_str(), &buf) == 0);
       }
     }
     // no new file found

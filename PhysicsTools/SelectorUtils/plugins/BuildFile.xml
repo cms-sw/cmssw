@@ -1,0 +1,14 @@
+<export>
+</export>
+<library   name="PhysicsToolsSelectorUtils_plugins" file="*.cc">
+  <use   name="PhysicsTools/SelectorUtils"/>
+  <use   name="CommonTools/Utils"/>
+  <use   name="DataFormats/Candidate"/>
+  <use   name="DataFormats/TauReco"/>
+  <use   name="DataFormats/TrackReco"/>  
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

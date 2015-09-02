@@ -8,6 +8,9 @@ TrackMon_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
 TrackMon_cosmicTk.AlgoName      = 'CosmicTk'
 TrackMon_cosmicTk.FolderName    = 'Tracking/TrackParameters'
 TrackMon_cosmicTk.doSeedParameterHistos = True
+TrackMon_cosmicTk.TkSizeBin = cms.int32(4)
+TrackMon_cosmicTk.TkSizeMax = cms.double( 3.5)
+TrackMon_cosmicTk.TkSizeMin = cms.double(-0.5)
 
 # Clone for CKF Tracks
 import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi
@@ -16,6 +19,9 @@ TrackMon_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
 TrackMon_ckf.AlgoName           = 'CKFTk'
 TrackMon_ckf.FolderName         = 'Tracking/TrackParameters'
 TrackMon_ckf.doSeedParameterHistos = True
+TrackMon_ckf.TkSizeBin = cms.int32(4)
+TrackMon_ckf.TkSizeMax = cms.double( 3.5)
+TrackMon_ckf.TkSizeMin = cms.double(-0.5)
 
 # Clone for Road Search  Tracks
 #import DQM.TrackingMonitor.TrackerCosmicsTrackingMonitor_cfi

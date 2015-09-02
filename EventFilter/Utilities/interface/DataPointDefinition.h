@@ -67,6 +67,7 @@ public:
   static const std::string CAT;
   static const std::string MERGE;
   static const std::string BINARYOR;
+  static const std::string ADLER32;
 
   // JSON field names
   static const std::string LEGEND;

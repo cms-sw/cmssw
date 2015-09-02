@@ -14,9 +14,9 @@ sed -i {s/TagXX/${mytag}/g} *.txt
 sed -i {s/TagXX/${mytag}/g} splitDatabase.sh
 
 # First read in the little XML files and create the
-# large XML file for the Extended2015 scenario.
+# large XML file for the Extended scenario.
 # Input cff                    Output file
-# GeometryExtended2015_cff         geSingleBigFile.xml
+# GeometryExtended_cff         geSingleBigFile.xml
 cmsRun geometryxmlwriter.py
 
 # Now convert the content of the large XML file into
@@ -36,8 +36,11 @@ cmsRun geometrywriter.py
 # Input cff                    Output file
 # GeometryIdeal_cff            giSingleBigFile.xml
 #
-sed -i '{s/Extended2015/Ideal/g}' geometryxmlwriter.py
+sed -i '{s/Extended/Ideal/g}' geometryxmlwriter.py
 sed -i '{s/\/ge/\/gi/g}' geometryxmlwriter.py
+cmsRun geometryxmlwriter.py
+sed -i '{s/Ideal/ExtendedZeroMaterial/g}' geometryxmlwriter.py
+sed -i '{s/\/gi/\/gez/g}' geometryxmlwriter.py
 cmsRun geometryxmlwriter.py
 
 # Read the one big XML file and output a record to the
@@ -47,11 +50,14 @@ cmsRun geometryxmlwriter.py
 # tag
 #
 # Input file                Output tag
-# gegSingleBigFile.xml      XMLFILE_Geometry_${mytag}_Extended2015GFlash_mc
+# gegSingleBigFile.xml      XMLFILE_Geometry_${mytag}_ExtendedGFlash_mc
 # giSingleBigFile.xml       XMLFILE_Geometry_${mytag}_Ideal_mc
 #
-sed -i '{s/Extended2015/Ideal/g}' xmlgeometrywriter.py
+sed -i '{s/Extended/Ideal/g}' xmlgeometrywriter.py
 sed -i '{s/\/ge/\/gi/g}' xmlgeometrywriter.py
+cmsRun xmlgeometrywriter.py
+sed -i '{s/Ideal/ExtendedZeroMaterial/g}' xmlgeometrywriter.py
+sed -i '{s/\/gi/\/gez/g}' xmlgeometrywriter.py
 cmsRun xmlgeometrywriter.py
 
 # All the database objects were written into one database

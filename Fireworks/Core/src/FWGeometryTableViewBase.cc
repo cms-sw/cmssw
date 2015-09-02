@@ -522,10 +522,20 @@ void FWGeometryTableViewBase::chosenItem(int menuIdx)
             break;
             
          case FWGeoTopNode::kVisChldOn:
-            getTableManager()->setDaughtersSelfVisibility(selectedIdx,  true);
+            getTableManager()->setDaughtersSelfVisibility(selectedIdx, true);
             refreshTable3D();
             break;
-            
+
+         case FWGeoTopNode::kApplyChldCol:
+            getTableManager()->applyColorTranspToDaughters(selectedIdx, false);
+            refreshTable3D();
+            break;
+
+         case FWGeoTopNode::kApplyChldColRec:
+            getTableManager()->applyColorTranspToDaughters(selectedIdx, true);
+            refreshTable3D();
+            break;
+
          case FWGeoTopNode::kPrintMaterial:
             gv->InspectMaterial();
             break;

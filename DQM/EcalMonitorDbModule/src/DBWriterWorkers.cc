@@ -49,6 +49,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 namespace ecaldqm {
   enum Quality {
@@ -90,18 +91,16 @@ namespace ecaldqm {
   }
 
   void
-  DBWriterWorker::retrieveSource(DQMStore const& _store)
+  DBWriterWorker::retrieveSource(DQMStore::IGetter& _igetter)
   {
     std::string failedPath;
-    for(MESetCollection::iterator sItr(source_.begin()); sItr != source_.end(); ++sItr){
-      if(!sItr->second->retrieve(_store, &failedPath)){
+    for(MESetCollection::iterator sItr(this->source_.begin()); sItr != this->source_.end(); ++sItr){
+      if(!sItr->second->retrieve(_igetter, &failedPath)){
         edm::LogError("EcalDQM") << name_ << ": MESet " << sItr->first << "@" << failedPath << " not found";
-        active_ = false;
+        this->active_ = false;
         return;
       }
     }
-
-    active_ = true;
   }
  
   bool

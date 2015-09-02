@@ -101,15 +101,6 @@ namespace ecaldqm
   }
 
   void
-  MESetMulti::book(DQMStore& _booker)
-  {
-    for(unsigned iS(0); iS < sets_.size(); ++iS)
-      sets_[iS]->book(_booker);
-
-    active_ = true;
-  }
-
-  void
   MESetMulti::book(DQMStore::IBooker& _ibooker)
   {
     for(unsigned iS(0); iS < sets_.size(); ++iS)
@@ -119,10 +110,10 @@ namespace ecaldqm
   }
 
   bool
-  MESetMulti::retrieve(DQMStore const& _store, std::string* _failedPath/* = 0*/) const
+  MESetMulti::retrieve(DQMStore::IGetter& _igetter, std::string* _failedPath/* = 0*/) const
   {
     for(unsigned iS(0); iS < sets_.size(); ++iS)
-      if(!sets_[iS]->retrieve(_store, _failedPath)) return false;
+      if(!sets_[iS]->retrieve(_igetter, _failedPath)) return false;
 
     active_ = true;
     return true;

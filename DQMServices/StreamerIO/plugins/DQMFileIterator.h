@@ -7,34 +7,27 @@
 
 #include "boost/filesystem.hpp"
 
-#include <memory>
 #include <map>
-#include <string>
-#include <queue>
-#include <iterator>
+#include <unordered_set>
 #include <chrono>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
 
-namespace edm {
+#include "DQMMonitoringService.h"
+
+namespace dqmservices {
 
 class DQMFileIterator {
  public:
-  enum JsonType {
-    JS_PROTOBUF,
-    JS_DATA,
-  };
-
   struct LumiEntry {
-    bool loaded = false;
     std::string filename;
 
-    int ls;
+    unsigned int file_ls;
     std::size_t n_events;
-    std::string datafilename;
+    std::string datafn;
 
     static LumiEntry load_json(const std::string& filename, int lumiNumber,
-                               JsonType type);
+                               unsigned int datafn_position);
+
+    std::string state;
   };
 
   struct EorEntry {
@@ -43,7 +36,6 @@ class DQMFileIterator {
 
     std::size_t n_events;
     std::size_t n_lumi;
-    std::string datafilename;
 
     static EorEntry load_json(const std::string& filename);
   };
@@ -54,7 +46,7 @@ class DQMFileIterator {
     EOR = 2,
   };
 
-  DQMFileIterator(ParameterSet const& pset, JsonType t);
+  DQMFileIterator(edm::ParameterSet const& pset);
   ~DQMFileIterator();
   void initialise(int run, const std::string&, const std::string&);
 
@@ -62,15 +54,18 @@ class DQMFileIterator {
 
   /* methods to iterate the actual files */
 
-  /* currentLumi_ is the first unprocessed lumi number
-   * lumiReady() returns if it is loadable
+  /* nextLumiNumber_ is the first unprocessed lumi number
+   * lumiReady() returns if the next lumi is ready to be loaded
+   * open() opens a file and advances the pointer to the next lumi
+   *
    * front() a reference to the description (LumiEntry)
    * pop() advances to the next lumi
    */
   bool lumiReady();
-  const LumiEntry& front();
+  LumiEntry open();
+
   void pop();
-  std::string make_path_data(const LumiEntry& lumi);
+  std::string make_path(const std::string& fn);
 
   /* control */
   void reset();
@@ -79,31 +74,34 @@ class DQMFileIterator {
   /* misc helpers for input sources */
   void logFileAction(const std::string& msg,
                      const std::string& fileName = "") const;
+  void logLumiState(const LumiEntry& lumi, const std::string& msg);
+
   void delay();
-  void updateWatchdog();
+
   unsigned int runNumber();
-
   unsigned int lastLumiFound();
-  void advanceToLumi(unsigned int lumi);
+  void advanceToLumi(unsigned int lumi, std::string reason);
 
-  static void fillDescription(ParameterSetDescription& d);
+  static void fillDescription(edm::ParameterSetDescription& d);
 
  private:
-  JsonType type_;
-
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
   unsigned long delayMillis_;
   long nextLumiTimeoutMillis_;
+  long forceFileCheckTimeoutMillis_;
 
+  // file name position in the json file
+  unsigned int datafnPosition_;
   std::string runPath_;
 
   EorEntry eor_;
   State state_;
 
-  unsigned int currentLumi_;
+  unsigned int nextLumiNumber_;
   std::map<unsigned int, LumiEntry> lumiSeen_;
+  std::unordered_set<std::string> filesSeen_;
 
   /* this should be different,
    * since time between hosts might be not in sync */
@@ -114,7 +112,12 @@ class DQMFileIterator {
   std::chrono::high_resolution_clock::time_point lastLumiLoad_;
 
   void collect(bool ignoreTimers);
+  void monUpdateLumi(const LumiEntry& lumi); 
+
+  /* this is for monitoring */
+  edm::Service<DQMMonitoringService> mon_;
 };
 
 } /* end of namespace */
+
 #endif

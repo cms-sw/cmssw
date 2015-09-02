@@ -1,7 +1,7 @@
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
-static const int nprocesses = 47;
-static const std::string g4processes[nprocesses] = { 
+static const int nprocesses = 49;
+static const std::string g4processes[nprocesses] = { "Primary", 
   "Transportation",  "CoupleTrans",  "CoulombScat",  "Ionisation",  "Brems",
   "PairProdCharged",  "Annih",  "AnnihToMuMu",  "AnnihToHad",  "NuclearStopp",
   "Msc",  "Rayleigh",  "PhotoElectric",  "Compton",  "Conv",
@@ -10,9 +10,10 @@ static const std::string g4processes[nprocesses] = {
   "DNAElastic",  "DNAExcit",  "DNAIonisation",  "DNAVibExcit",  "DNAAttachment",
   "DNAChargeDec",  "DNAChargeInc",  "HadElastic",  "HadInelastic",  "HadCapture",
   "HadFission",  "HadAtRest",  "HadCEX",  "Decay",  "DecayWSpin",
-  "DecayPiWSpin",  "DecayRadio",  "DecayUnKnown",  "DecayExt",  "StepLimiter",
+  "DecayPiWSpin",  "DecayRadio",  "DecayUnKnown",  "DecayExt", "GFlash", "StepLimiter",
   "UsrSpecCuts", "NeutronKiller"}; 
 static const int g4subtype[nprocesses] = { 
+  0,   // Primary generator
   91,  // Transportation
   92,  // CoupleTrans
   1,   // CoulombScat
@@ -57,6 +58,7 @@ static const int g4subtype[nprocesses] = {
   210, // DecayRadio
   211, // DecayUnKnown
   231, // DecayExt
+  301, // GFlash
   401, // StepLimiter
   402,
   403  // NeutronKiller

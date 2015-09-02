@@ -1,10 +1,10 @@
-# /online/collisions/2012/8e33/v3.2/HLT/V46 (CMSSW_7_1_6)
+# /online/collisions/2012/8e33/v3.2/HLT/V50 (CMSSW_7_1_9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V46')
+  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V50')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 

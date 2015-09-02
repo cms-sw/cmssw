@@ -56,6 +56,7 @@ public:
 	virtual void deserialize(Json::Value& root);
 
 	std::vector<std::string>& getData() {return data_;}
+	std::string& getDefinition() {return definition_;}
 
 	/**
 	 * Functions specific to new monitoring implementation

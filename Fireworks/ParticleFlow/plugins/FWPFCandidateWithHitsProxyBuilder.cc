@@ -235,15 +235,14 @@ namespace {
 TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
 {
    void* ud = ds->GetUserData(idx);
-   if (ud);
+   if (ud)
    {
       reco::PFRecHit* hit = (reco::PFRecHit*) ud;
       // printf("idx %d %p hit data %p\n", idx, (void*)hit, ud);
       if (hit)
          return TString::Format("RecHit %d energy '%f'", idx,  hit->energy());
-      else
-         return "ERROR";
    }
+   return "ERROR";
 }
 }
 //______________________________________________________________________________

@@ -16,8 +16,14 @@
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
+<use   name="DataFormats/ParticleFlowCandidate"/>
+<use   name="DataFormats/PatCandidates"/>
 <export>
 </export>
 <library   file="*.cc" name="RecoEgammaEgammaIsolationAlgosPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   file="isolation_cones/*.cc" name="RecoEgammaEgammaIsolationAlgosPlugins_isolation_cones">
   <flags   EDM_PLUGIN="1"/>
 </library>

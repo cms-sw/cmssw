@@ -284,7 +284,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    // open any graphics or build dictionaries
    AutoLibraryLoader::enable();
 
-   TEveManager::Create(kFALSE, "FIV");
+   TEveManager::Create(kFALSE, eveMode ? "FIV" : "FI");
 
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 
