@@ -33,8 +33,10 @@ namespace edm {
 
   template<typename Consumer>
   StreamerOutputModule<Consumer>::StreamerOutputModule(ParameterSet const& ps) :
+    edm::one::OutputModuleBase::OutputModuleBase(ps),
     StreamerOutputModuleBase(ps),
-    c_(new Consumer(ps)) {
+    c_(new Consumer(ps))
+    {
   }
 
   template<typename Consumer>
