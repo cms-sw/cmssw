@@ -23,6 +23,8 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "TLorentzVector.h"
 
+//#include "Validation/EventGenerator/interface/WeightManager.h"
+
 class TauValidation : public DQMEDAnalyzer
 {
     public:
