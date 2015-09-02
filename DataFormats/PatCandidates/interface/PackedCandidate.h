@@ -346,8 +346,9 @@ namespace pat {
     virtual bool isJet() const { return false; }
 
     // puppiweight
-    void setPuppiWeight(float p);
-    float puppiWeight() const;
+    void setPuppiWeight(float p, float p_nolep = 0.0);  /// Set both weights at once (with option for only full PUPPI)
+    float puppiWeight() const;                          /// Weight from full PUPPI
+    float puppiWeightNoLep() const;                     /// Weight from PUPPI removing leptons
     
   protected:
     uint16_t packedPt_, packedEta_, packedPhi_, packedM_;
@@ -364,6 +365,7 @@ namespace pat {
     void unpackTrk() const ;
 
     int8_t packedPuppiweight_;
+    int8_t packedPuppiweightNoLepDiff_; // storing the DIFFERENCE of (all - "no lep") for compression optimization
     /// the four vector                                                 
     mutable PolarLorentzVector p4_;
     mutable LorentzVector p4c_;

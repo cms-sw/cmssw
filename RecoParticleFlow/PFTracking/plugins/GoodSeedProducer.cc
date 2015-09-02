@@ -33,12 +33,13 @@
 #include <string>
 #include "TMath.h"
 #include "Math/VectorUtil.h"
+#include "TMVA/MethodBDT.h"
 
 using namespace edm;
 using namespace std;
 using namespace reco;
 
-GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
+GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig, const goodseedhelpers::HeavyObjectCache*):
   pfTransformer_(nullptr),
   conf_(iConfig),
   resMapEtaECAL_(nullptr),
@@ -400,8 +401,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      eta=tketa;
 	      pt=tkpt;
 	      eP=EP;
-	  
-	      float Ytmva=reader[ipteta]->EvaluateMVA( method_ );
+              float vars[10] = { nhit, chikfred, dpt, eP, chiRatio, chired, trk_ecalDeta, trk_ecalDphi, pt, eta};
+              
+	      float Ytmva = globalCache()->gbr[ipteta]->GetClassifier( vars );
 	      
 	      float BDTcut=thr[ibin+5]; 
 	      if ( Ytmva>BDTcut) GoodTkId=true;
@@ -472,6 +474,47 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   // clear temporary maps
   refMap_.clear();
 }
+
+// intialize the cross-thread cache to hold gbr trees and resolution maps
+namespace goodseedhelpers {
+  HeavyObjectCache::HeavyObjectCache( const edm::ParameterSet& conf) {    
+    // mvas
+    const bool useTmva = conf.getUntrackedParameter<bool>("UseTMVA",false);
+    
+    if( useTmva ) {
+      const std::string method_ = conf.getParameter<string>("TMVAMethod");
+      std::array<edm::FileInPath,kMaxWeights> weights = {{ edm::FileInPath(conf.getParameter<string>("Weights1")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights2")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights3")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights4")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights5")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights6")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights7")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights8")),
+                                                           edm::FileInPath(conf.getParameter<string>("Weights9")) }};
+            
+      for(UInt_t j = 0; j < gbr.size(); ++j){
+        TMVA::Reader reader("!Color:Silent");
+                
+        reader.AddVariable("NHits", &nhit);
+        reader.AddVariable("NormChi", &chikfred);
+        reader.AddVariable("dPtGSF", &dpt);
+        reader.AddVariable("EoP", &eP);
+        reader.AddVariable("ChiRatio", &chiRatio);
+        reader.AddVariable("RedChi", &chired);
+        reader.AddVariable("EcalDEta", &trk_ecalDeta);
+        reader.AddVariable("EcalDPhi", &trk_ecalDphi);
+        reader.AddVariable("pt", &pt);
+        reader.AddVariable("eta", &eta);
+        
+        std::unique_ptr<TMVA::IMethod> temp( reader.BookMVA(method_, weights[j].fullPath().c_str()) );
+        
+        gbr[j].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( reader.FindMVA(method_) ) ) );
+      }    
+    }
+  }
+}
+
 // ------------ method called once each job just before starting event loop  ------------
 void 
 GoodSeedProducer::beginRun(const edm::Run & run,
@@ -486,48 +529,11 @@ GoodSeedProducer::beginRun(const edm::Run & run,
   pfTransformer_->OnlyProp();
   
   //Resolution maps
-  FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
-  FileInPath ecalPhiMap(conf_.getParameter<string>("PhiMap"));
-  resMapEtaECAL_.reset( new PFResolutionMap("ECAL_eta",ecalEtaMap.fullPath().c_str()) );
-  resMapPhiECAL_.reset( new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str()) );
+    FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
+    FileInPath ecalPhiMap(conf_.getParameter<string>("PhiMap"));
+    resMapEtaECAL_.reset( new PFResolutionMap("ECAL_eta",ecalEtaMap.fullPath().c_str()) );
+    resMapPhiECAL_.reset( new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str()) );
 
-  if(useTmva_){
-    method_ = conf_.getParameter<string>("TMVAMethod");
-    FileInPath Weigths1(conf_.getParameter<string>("Weights1"));
-    FileInPath Weigths2(conf_.getParameter<string>("Weights2"));
-    FileInPath Weigths3(conf_.getParameter<string>("Weights3"));
-    FileInPath Weigths4(conf_.getParameter<string>("Weights4"));
-    FileInPath Weigths5(conf_.getParameter<string>("Weights5"));
-    FileInPath Weigths6(conf_.getParameter<string>("Weights6"));
-    FileInPath Weigths7(conf_.getParameter<string>("Weights7"));
-    FileInPath Weigths8(conf_.getParameter<string>("Weights8"));
-    FileInPath Weigths9(conf_.getParameter<string>("Weights9"));
-
-    for(UInt_t j = 0; j < 9; ++j){
-      reader[j].reset( new TMVA::Reader("!Color:Silent"));
-      
-      reader[j]->AddVariable("NHits", &nhit);
-      reader[j]->AddVariable("NormChi", &chikfred);
-      reader[j]->AddVariable("dPtGSF", &dpt);
-      reader[j]->AddVariable("EoP", &eP);
-      reader[j]->AddVariable("ChiRatio", &chiRatio);
-      reader[j]->AddVariable("RedChi", &chired);
-      reader[j]->AddVariable("EcalDEta", &trk_ecalDeta);
-      reader[j]->AddVariable("EcalDPhi", &trk_ecalDphi);
-      reader[j]->AddVariable("pt", &pt);
-      reader[j]->AddVariable("eta", &eta);
-      
-      if(j==0) reader[j]->BookMVA(method_, Weigths1.fullPath().c_str());
-      if(j==1) reader[j]->BookMVA(method_, Weigths2.fullPath().c_str());
-      if(j==2) reader[j]->BookMVA(method_, Weigths3.fullPath().c_str());
-      if(j==3) reader[j]->BookMVA(method_, Weigths4.fullPath().c_str());
-      if(j==4) reader[j]->BookMVA(method_, Weigths5.fullPath().c_str());
-      if(j==5) reader[j]->BookMVA(method_, Weigths6.fullPath().c_str());
-      if(j==6) reader[j]->BookMVA(method_, Weigths7.fullPath().c_str());
-      if(j==7) reader[j]->BookMVA(method_, Weigths8.fullPath().c_str());
-      if(j==8) reader[j]->BookMVA(method_, Weigths9.fullPath().c_str());
-    }    
-  }
   //read threshold
   FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
   ifstream ifs(parFile.fullPath().c_str());
