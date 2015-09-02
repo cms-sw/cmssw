@@ -275,21 +275,13 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
               conf.getParameter<int>     ("pedestalSubtractionType"),
               conf.getParameter<double>  ("pedestalUpperLimit"),
               conf.getParameter<int>     ("timeSlewParsType"),
-              conf.getParameter<std::vector<double> >("timeSlewPars")
+              conf.getParameter<std::vector<double> >("timeSlewPars"),
+	      conf.getParameter<double>  ("respCorrM3")
               );
   }
 
 }
 
-void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.setAllowAnything();
-  desc.add<int>("pedestalSubtractionType", 1); 
-  desc.add<double>("pedestalUpperLimit", 2.7); 
-  desc.add<int>("timeSlewParsType",3);
-  desc.add<std::vector<double>>("timeSlewPars", {9.27638, -2.05585, 9.27638, -2.05585, 9.27638, -2.05585});
-  descriptions.add("hltHbhereco",desc);
-}
 
 HcalHitReconstructor::~HcalHitReconstructor() {
   delete hbheFlagSetter_;

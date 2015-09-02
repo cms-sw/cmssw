@@ -130,9 +130,10 @@ hbheprereco = cms.EDProducer(
     ts345chi2             = cms.double(100.), #chi2 (not used)
     chargeMax             = cms.double(6.),    #Charge cut (fC) for uncstrianed Fit 
     fitTimes              = cms.int32(1),       # -1 means no constraint on number of fits per channel
-    # add some of the Method 3 parameters here
+    # Configuration parameters for Method 3
     pedestalSubtractionType = cms.int32(1),
     pedestalUpperLimit      = cms.double(2.7),
-    timeSlewParsType        = cms.int32(3), # 0: TestStand, 1:Data, 2:MC, 3:InputPars. Parametrization function is par0 + par1*log(fC). Default value is par0 = 9.27638, par1 = -2.05585.
-    timeSlewPars            = cms.vdouble(9.27638, -2.05585, 9.27638, -2.05585, 9.27638, -2.05585)# HB par0, HB par1, BE par0, BE par1, HE par0, HEpar1
+    timeSlewParsType        = cms.int32(1), # 0: TestStand, 1:Data, 2:MC, 3:InputPars. Parametrization function is par0 + par1*log(fC+par2).
+    timeSlewPars            = cms.vdouble(15.5, -3.2, 32, 15.5, -3.2, 32, 15.5, -3.2, 32),# HB par0, HB par1, HB par2, BE par0, BE par1, BE par2, HE par0, HE par1, HE par2
+    respCorrM3              = cms.double(0.95)# This factor is used to align the the Method3 with the Method2 response
     )
