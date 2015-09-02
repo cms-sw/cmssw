@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-def customiseForPremixingInput(process):
+def customiseForPreMixingInput(process):
     from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 
     # Replace TrackingParticles and TrackingVertices globally
