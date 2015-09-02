@@ -7,7 +7,7 @@ from DQMOffline.JetMET.jetAnalyzer_cff   import *
 from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
 from DQMOffline.JetMET.goodOfflinePrimaryVerticesDQM_cfi import *
 
-from RecoJets.JetProducers.pileupjetidproducer_cfi  import *
+from RecoJets.JetProducers.PileupJetID_cfi  import *
 from RecoJets.JetProducers.QGTagger_cfi  import *
 
 pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
@@ -20,7 +20,6 @@ pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
 pileupJetIdEvaluatorDQM=pileupJetIdEvaluator.clone(
     jets = cms.InputTag("ak4PFJets"),
     jetids = cms.InputTag("pileupJetIdCalculatorDQM"),
-    algos = cms.VPSet(cms.VPSet(full_53x,cutbased)),
     jec = cms.string("AK4PF"),
     applyJec = cms.bool(True),
     inputIsCorrected = cms.bool(False)
@@ -33,7 +32,6 @@ pileupJetIdCalculatorCHSDQM=pileupJetIdCalculator.clone(
 
 pileupJetIdEvaluatorCHSDQM=pileupJetIdEvaluator.clone(
     jetids = cms.InputTag("pileupJetIdCalculatorCHSDQM"),
-    algos = cms.VPSet(cms.VPSet(full_53x_chs,cutbased)),
     applyJec = cms.bool(True),
     inputIsCorrected = cms.bool(False)
     )

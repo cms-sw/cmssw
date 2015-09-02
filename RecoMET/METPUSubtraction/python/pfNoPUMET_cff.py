@@ -10,9 +10,8 @@ calibratedAK4PFJetsForPFNoPUMEt = cms.EDProducer('PFJetCorrectionProducer',
 ak4PFJetSequenceForPFNoPUMEt = cms.Sequence(calibratedAK4PFJetsForPFNoPUMEt)
 pfNoPUMEtSequence += ak4PFJetSequenceForPFNoPUMEt
 
-from RecoJets.JetProducers.pileupjetidproducer_cfi import pileupJetIdEvaluator
-from RecoJets.JetProducers.puJetIDAlgo_cff import full_53x,cutbased,PhilV1
-puJetIdForPFNoPUMEt = pileupJetIdEvaluator.clone(
+from RecoJets.JetProducers.PileupJetID_cfi import *
+puJetIdForPFNoPUMEt = pileupJetId.clone(
     algos = cms.VPSet(
         full_53x,
         cutbased,
