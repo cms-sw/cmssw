@@ -164,7 +164,7 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     etaCorrE = 1. + aEtaBarrel(t) + 2.2*bEtaBarrel(t)*std::abs(eta)*std::abs(eta);
     etaCorrH = 1.;
     // etaCorr = 1.;
-    t = max(tt, thresh+etaCorrE*a*e+etaCorrH*b*h);
+    //t = max(tt, thresh+etaCorrE*a*e+etaCorrH*b*h);
 
     if ( e > 0. && thresh > 0. ) 
       e = h > 0. ? threshE-threshH + etaCorrE * a * e : threshE + etaCorrE * a * e;
@@ -196,7 +196,7 @@ PFEnergyCalibration::energyEmHad(double t, double& e, double&h, double eta, doub
     etaCorrE = 1. + aEtaEndcap(t) + 0.1*bEtaEndcap(t)*etaPow;
     etaCorrH = 1. + aEtaEndcap(t) + bEtaEndcap(t)*etaPow;
     
-    t = min(999.9,max(tt, thresh + etaCorrE*a*e + etaCorrH*b*h));
+    //t = min(999.9,max(tt, thresh + etaCorrE*a*e + etaCorrH*b*h));
 
     if ( e > 0. && thresh > 0. ) 
       e = h > 0. ? threshE-threshH + etaCorrE * a * e : threshE + etaCorrE * a * e;
@@ -385,7 +385,7 @@ double
 PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 			      std::vector<double> &EclustersPS1,
 			      std::vector<double> &EclustersPS2,
-			      bool crackCorrection ){
+			      bool crackCorrection ) const {
   double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.0));
   double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.0));
   return energyEm(clusterEcal, ePS1, ePS2, crackCorrection);
@@ -395,7 +395,7 @@ double
 PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 			      double ePS1,
 			      double ePS2,
-			      bool crackCorrection ){
+			      bool crackCorrection ) const {
   double eEcal = clusterEcal.energy();
   //temporaty ugly fix
   reco::PFCluster myPFCluster=clusterEcal;
@@ -412,7 +412,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 				     std::vector<double> &EclustersPS1,
 				     std::vector<double> &EclustersPS2,
 				     double& ps1,double& ps2,
-				     bool crackCorrection){
+				     bool crackCorrection) const {
   double ePS1(std::accumulate(EclustersPS1.begin(), EclustersPS1.end(), 0.0));
   double ePS2(std::accumulate(EclustersPS2.begin(), EclustersPS2.end(), 0.0));
   return energyEm(clusterEcal, ePS1, ePS2, ps1, ps2, crackCorrection);
@@ -420,7 +420,7 @@ double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 double PFEnergyCalibration::energyEm(const reco::PFCluster& clusterEcal,
 				     double ePS1, double ePS2,
 				     double& ps1,double& ps2,
-				     bool crackCorrection){
+				     bool crackCorrection) const {
   double eEcal = clusterEcal.energy();
   //temporaty ugly fix
   reco::PFCluster myPFCluster=clusterEcal;
@@ -514,7 +514,7 @@ std::ostream& operator<<(std::ostream& out,
 
 //useful to compute the signed distance to the closest crack in the barrel
 double
-PFEnergyCalibration::minimum(double a,double b){
+PFEnergyCalibration::minimum(double a,double b) const {
   if(TMath::Abs(b)<TMath::Abs(a)) a=b;
   return a;
 }
@@ -538,7 +538,7 @@ namespace {
 
 //compute the unsigned distance to the closest phi-crack in the barrel
 double
-PFEnergyCalibration::dCrackPhi(double phi, double eta){
+PFEnergyCalibration::dCrackPhi(double phi, double eta) const {
 
   
   //Shift of this location if eta<0
@@ -580,7 +580,7 @@ PFEnergyCalibration::dCrackPhi(double phi, double eta){
 
 // corrects the effect of phi-cracks
 double
-PFEnergyCalibration::CorrPhi(double phi, double eta) {
+PFEnergyCalibration::CorrPhi(double phi, double eta) const {
 
   // we use 3 gaussians to correct the phi-cracks effect
   constexpr double p1=   5.59379e-01;
@@ -606,7 +606,7 @@ PFEnergyCalibration::CorrPhi(double phi, double eta) {
 
 // corrects the effect of  |eta|-cracks
 double
-PFEnergyCalibration::CorrEta(double eta){
+PFEnergyCalibration::CorrEta(double eta) const {
   
   // we use a gaussian with a screwness for each of the 5 |eta|-cracks
   constexpr double a[] = {6.13349e-01, 5.08146e-01, 4.44480e-01, 3.3487e-01, 7.65627e-01}; // amplitude
@@ -624,7 +624,7 @@ PFEnergyCalibration::CorrEta(double eta){
 
 //corrects the global behaviour in the barrel
 double
-PFEnergyCalibration::CorrBarrel(double E, double eta) {
+PFEnergyCalibration::CorrBarrel(double E, double eta) const {
 
   //Energy dependency
   /*
@@ -670,7 +670,7 @@ PFEnergyCalibration::CorrBarrel(double E, double eta) {
 // Etot = Beta*eEcal + Gamma*(ePS1 + Alpha*ePS2) 
 
 double
-PFEnergyCalibration::Alpha(double eta) {
+PFEnergyCalibration::Alpha(double eta) const {
 
   //Energy dependency
   constexpr double p0 = 5.97621e-01;
@@ -688,7 +688,7 @@ PFEnergyCalibration::Alpha(double eta) {
 }
 
 double
-PFEnergyCalibration::Beta(double E, double eta) {
+PFEnergyCalibration::Beta(double E, double eta) const {
 
  //Energy dependency
   constexpr double p0 = 0.032;
@@ -709,7 +709,7 @@ PFEnergyCalibration::Beta(double E, double eta) {
 
 
 double
-PFEnergyCalibration::Gamma(double etaEcal) {
+PFEnergyCalibration::Gamma(double etaEcal) const {
 
  //Energy dependency
   constexpr double p0 = 2.49752e-02;
@@ -739,7 +739,7 @@ PFEnergyCalibration::Gamma(double etaEcal) {
 // Global Behaviour, phi and eta cracks are taken into account
 double
 PFEnergyCalibration::EcorrBarrel(double E, double eta, double phi,
-				 bool crackCorrection ){
+				 bool crackCorrection ) const {
 
   // double result = E*CorrBarrel(E,eta)*CorrEta(eta)*CorrPhi(phi,eta);
   double correction = crackCorrection ? std::max(CorrEta(eta),CorrPhi(phi,eta)) : 1.;
@@ -751,7 +751,7 @@ PFEnergyCalibration::EcorrBarrel(double E, double eta, double phi,
 
 // returns the corrected energy in the area between the barrel and the PS (1.48,1.65)
 double
-PFEnergyCalibration::EcorrZoneBeforePS(double E, double eta){
+PFEnergyCalibration::EcorrZoneBeforePS(double E, double eta) const {
 
  //Energy dependency
   constexpr double p0 =1; 
@@ -777,7 +777,7 @@ PFEnergyCalibration::EcorrZoneBeforePS(double E, double eta){
 // returns the corrected energy in the PS (1.65,2.6)
 // only when (ePS1>0)||(ePS2>0)
 double
-PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal) {
+PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal) const {
 
   // gives the good weights to each subdetector
   double E = Beta(1.0155*eEcal+0.025*(ePS1+0.5976*ePS2)/9e-5,etaEcal)*eEcal+Gamma(etaEcal)*(ePS1+Alpha(etaEcal)*ePS2)/9e-5 ;
@@ -797,7 +797,7 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
 // returns the corrected energy in the PS (1.65,2.6)
 // only when (ePS1>0)||(ePS2>0)
 double
-PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal,double & outputPS1, double & outputPS2) {
+PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal,double & outputPS1, double & outputPS2) const {
 
   // gives the good weights to each subdetector
   double gammaprime=Gamma(etaEcal)/9e-5;
@@ -824,7 +824,7 @@ PFEnergyCalibration::EcorrPS(double eEcal,double ePS1,double ePS2,double etaEcal
 // returns the corrected energy in the PS (1.65,2.6)
 // only when (ePS1=0)&&(ePS2=0)
 double 
-PFEnergyCalibration::EcorrPS_ePSNil(double eEcal,double eta){
+PFEnergyCalibration::EcorrPS_ePSNil(double eEcal,double eta) const {
 
   //Energy dependency
   constexpr double p0= 1.02;
@@ -847,7 +847,7 @@ PFEnergyCalibration::EcorrPS_ePSNil(double eEcal,double eta){
 
 // returns the corrected energy in the area between the end of the PS and the end of the endcap (2.6,2.98)
 double
-PFEnergyCalibration::EcorrZoneAfterPS(double E, double eta){
+PFEnergyCalibration::EcorrZoneAfterPS(double E, double eta) const {
 
   //Energy dependency
   constexpr double p0 =1; 
@@ -882,7 +882,7 @@ PFEnergyCalibration::EcorrZoneAfterPS(double E, double eta){
 double
 PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,
 			   double eta,double phi,
-			   bool crackCorrection ) {
+			   bool crackCorrection ) const {
 
   constexpr double endBarrel=1.48;
   constexpr double beginingPS=1.65;
@@ -910,7 +910,7 @@ PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,
 // returns the corrected energy everywhere
 // this work should be improved between 1.479 and 1.52 (junction barrel-endcap)
 double
-PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double& ps1,double&ps2,bool crackCorrection)  {
+PFEnergyCalibration::Ecorr(double eEcal,double ePS1,double ePS2,double eta,double phi,double& ps1,double&ps2,bool crackCorrection)  const {
 
   constexpr double endBarrel=1.48;
   constexpr double beginingPS=1.65;

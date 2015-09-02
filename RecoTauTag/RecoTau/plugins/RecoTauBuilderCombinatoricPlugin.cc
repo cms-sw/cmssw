@@ -7,12 +7,16 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauCrossCleaning.h"
 #include "RecoTauTag/RecoTau/interface/ConeTools.h"
 
+#include "CommonTools/Utils/interface/StringObjectFunction.h"
+
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauConstructor.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+
+#include <algorithm> 
 
 namespace reco { namespace tau {
 
@@ -47,13 +51,24 @@ class RecoTauBuilderCombinatoricPlugin : public RecoTauBuilderPlugin
   };
   std::vector<decayModeInfo> decayModesToBuild_;
 
+  StringObjectFunction<reco::PFTau> signalConeSize_;
+  double minAbsPhotonSumPt_insideSignalCone_;
+  double minRelPhotonSumPt_insideSignalCone_;
+  double minAbsPhotonSumPt_outsideSignalCone_;
+  double minRelPhotonSumPt_outsideSignalCone_;
+
   int verbosity_;
 };
 
 RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC)
   : RecoTauBuilderPlugin(pset, std::move(iC)),
     qcuts_(pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts")),
-    isolationConeSize_(pset.getParameter<double>("isolationConeSize")) 
+    isolationConeSize_(pset.getParameter<double>("isolationConeSize")),
+    signalConeSize_(pset.getParameter<std::string>("signalConeSize")),
+    minAbsPhotonSumPt_insideSignalCone_(pset.getParameter<double>("minAbsPhotonSumPt_insideSignalCone")),
+    minRelPhotonSumPt_insideSignalCone_(pset.getParameter<double>("minRelPhotonSumPt_insideSignalCone")),
+    minAbsPhotonSumPt_outsideSignalCone_(pset.getParameter<double>("minAbsPhotonSumPt_outsideSignalCone")),
+    minRelPhotonSumPt_outsideSignalCone_(pset.getParameter<double>("minRelPhotonSumPt_outsideSignalCone"))
 {
   typedef std::vector<edm::ParameterSet> VPSet;
   const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
@@ -66,7 +81,7 @@ RecoTauBuilderCombinatoricPlugin::RecoTauBuilderCombinatoricPlugin(const edm::Pa
     info.maxPiZeros_ = decayMode->getParameter<uint32_t>("maxPiZeros");
     decayModesToBuild_.push_back(info);
   }
-  
+
   verbosity_ = ( pset.exists("verbosity") ) ?
     pset.getParameter<int>("verbosity") : 0;
 }
@@ -144,17 +159,9 @@ namespace
     }  
   };
 
-  std::string getPFCandidateType(reco::PFCandidate::ParticleType pfCandidateType)
+  double square(double x)
   {
-    if      ( pfCandidateType == reco::PFCandidate::X         ) return "undefined";
-    else if ( pfCandidateType == reco::PFCandidate::h         ) return "PFChargedHadron";
-    else if ( pfCandidateType == reco::PFCandidate::e         ) return "PFElectron";
-    else if ( pfCandidateType == reco::PFCandidate::mu        ) return "PFMuon";
-    else if ( pfCandidateType == reco::PFCandidate::gamma     ) return "PFGamma";
-    else if ( pfCandidateType == reco::PFCandidate::h0        ) return "PFNeutralHadron";
-    else if ( pfCandidateType == reco::PFCandidate::h_HF      ) return "HF_had";
-    else if ( pfCandidateType == reco::PFCandidate::egamma_HF ) return "HF_em";
-    else assert(0);
+    return x*x;
   }
 }
 
@@ -195,20 +202,16 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     idx = 0;
     for ( PiZeroList::const_iterator piZero = piZeros.begin();
    	  piZero != piZeros.end(); ++piZero ) {
-      std::cout << "piZero #" << idx << ": Pt = " << piZero->pt() << ", eta = " << piZero->eta() << ", phi = " << piZero->phi() << std::endl;
-      size_t numDaughters = piZero->numberOfDaughters();
-      for ( size_t iDaughter = 0; iDaughter < numDaughters; ++iDaughter ) {
-	const reco::PFCandidate* daughter = dynamic_cast<const reco::PFCandidate*>(piZero->daughterPtr(iDaughter).get());
-	std::cout << " daughter #" << iDaughter << " (" << getPFCandidateType(daughter->particleId()) << "):"
-		  << " Pt = " << daughter->pt() << ", eta = " << daughter->eta() << ", phi = " << daughter->phi() << std::endl;
-      }
+      std::cout << "piZero #" << idx << ":" << std::endl;
+      piZero->print(std::cout);
       ++idx;
     }
   }
 
   PFCandPtrs pfchs = qcuts_.filterCandRefs(pfChargedCands(*jet));
   PFCandPtrs pfnhs = qcuts_.filterCandRefs(pfCandidates(*jet, reco::PFCandidate::h0));
-  
+  PFCandPtrs pfgammas = qcuts_.filterCandRefs(pfCandidates(*jet, reco::PFCandidate::gamma));
+
   /// Apply quality cuts to the regional junk around the jet.  Note that the
   /// particle contents of the junk is exclusive to the jet content.
   PFCandPtrs regionalJunk = qcuts_.filterCandRefs(regionalExtras);
@@ -222,8 +225,9 @@ RecoTauBuilderCombinatoricPlugin::operator()(
     size_t tracksToBuild = decayMode->nCharged_;
     if ( verbosity_ ) {
       std::cout << "piZerosToBuild = " << piZerosToBuild << std::endl;
+      std::cout << "#piZeros = " << piZeros.size() << std::endl;
       std::cout << "tracksToBuild = " << tracksToBuild << std::endl;
-      std::cout << "#chargedHadrons = " << chargedHadrons.size() << std::endl;
+      std::cout << "#chargedHadrons = " << chargedHadrons.size() << std::endl;      
     }
     
     // Skip decay mode if jet doesn't have the multiplicity to support it
@@ -271,7 +275,10 @@ RecoTauBuilderCombinatoricPlugin::operator()(
       for ( PiZeroCombo::iterator piZeroCombo = piZeroCombos.begin();
             piZeroCombo != piZeroCombos.end(); ++piZeroCombo ) {
         // Output tau
-        RecoTauConstructor tau(jet, getPFCands(), true);
+        RecoTauConstructor tau(
+          jet, getPFCands(), true, 
+	  &signalConeSize_, 
+	  minAbsPhotonSumPt_insideSignalCone_, minRelPhotonSumPt_insideSignalCone_, minAbsPhotonSumPt_outsideSignalCone_, minRelPhotonSumPt_outsideSignalCone_);
         // Reserve space in our collections
         tau.reserve(
 	    RecoTauConstructor::kSignal,
@@ -299,6 +306,16 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 	  // CV: piZero is signal piZero if at least one daughter overlaps
 	  if ( cleanDaughters.size() == precleanedPiZero.daughterPtrVector().size() ) {
 	    cleanIsolationPiZeros.push_back(precleanedPiZero);
+	  }
+	}
+	if ( verbosity_ ) {
+	  std::cout << "#cleanIsolationPiZeros = " << cleanIsolationPiZeros.size() << std::endl;
+	  int idx = 0;
+	  for ( PiZeroList::const_iterator piZero = cleanIsolationPiZeros.begin();
+		piZero != cleanIsolationPiZeros.end(); ++piZero ) {
+	    std::cout << "piZero #" << idx << ":" << std::endl;
+	    piZero->print(std::cout);
+	    ++idx;
 	  }
 	}
 
@@ -345,7 +362,7 @@ RecoTauBuilderCombinatoricPlugin::operator()(
         xclean::PredicateAND<PFCandPtrDRFilter, pfChargedHadronXCleanerType> pfCandFilter_comboChargedHadrons(isolationConeFilter, pfChargedHadronXCleaner_comboChargedHadrons);
 	//  2.) to select neutral PFCandidates within jet
 	xclean::CrossCleanPtrs<ChargedHadronList::const_iterator> pfChargedHadronXCleaner_allChargedHadrons(chargedHadrons.begin(), chargedHadrons.end());
-	xclean::CrossCleanPtrs<PiZeroList::const_iterator> piZeroXCleaner(cleanIsolationPiZeros.begin(), cleanIsolationPiZeros.end());
+	xclean::CrossCleanPtrs<PiZeroList::const_iterator> piZeroXCleaner(piZeros.begin(), piZeros.end());
 	typedef xclean::PredicateAND<xclean::CrossCleanPtrs<ChargedHadronList::const_iterator>, xclean::CrossCleanPtrs<PiZeroList::const_iterator> > pfCandXCleanerType;
         pfCandXCleanerType pfCandXCleaner_allChargedHadrons(pfChargedHadronXCleaner_allChargedHadrons, piZeroXCleaner);
         // And this cleaning filter predicate with our Iso cone filter
@@ -429,6 +446,18 @@ RecoTauBuilderCombinatoricPlugin::operator()(
             boost::make_filter_iterator(
                 pfChargedJunk, regionalJunk.end(), regionalJunk.end()));
 	
+	// Add all PFGamma constituents of the jet that are not part of a PiZero
+	if ( verbosity_ >= 2 ) {
+	  std::cout << "adding isolation PFGammas not considered in PiZeros:" << std::endl;
+	}
+        tau.addPFCands(
+	    RecoTauConstructor::kIsolation, RecoTauConstructor::kGamma,
+            boost::make_filter_iterator(
+                pfCandFilter_allChargedHadrons,
+		pfgammas.begin(), pfgammas.end()),
+            boost::make_filter_iterator(
+                pfCandFilter_allChargedHadrons,
+		pfgammas.end(), pfgammas.end()));
         // Add all gammas that are in the iso cone but weren't in the
         // orginal PFJet
         tau.addPFCands(
@@ -458,7 +487,30 @@ RecoTauBuilderCombinatoricPlugin::operator()(
 
         std::auto_ptr<reco::PFTau> tauPtr = tau.get(true);
 	
-	if ( primaryVertexRef.isNonnull() ) tauPtr->setVertex(primaryVertexRef->position());
+	if ( primaryVertexRef.isNonnull() ) {
+	  tauPtr->setVertex(primaryVertexRef->position());
+	}
+
+	double tauEn = tauPtr->energy();
+	double tauPz = tauPtr->pz();
+        const double chargedPionMass = 0.13957; // GeV
+	double tauMass = std::max(tauPtr->mass(), chargedPionMass);
+	double bendCorrMass2 = 0.;
+	const std::vector<RecoTauPiZero>& piZeros = tauPtr->signalPiZeroCandidates();
+	for (auto const& piZero : piZeros ) {
+	  double piZeroEn = piZero.energy();
+	  double piZeroPx = piZero.px();
+	  double piZeroPy = piZero.py();
+	  double piZeroPz = piZero.pz();	  
+	  double tau_wo_piZeroPx = tauPtr->px() - piZeroPx;
+	  double tau_wo_piZeroPy = tauPtr->py() - piZeroPy;
+	  // CV: Compute effect of varying strip four-vector by eta and phi correction on tau mass
+	  //    (derrivative of tau mass by strip eta, phi has been computed using Mathematica) 
+	  bendCorrMass2 += square(((piZeroPz*tauEn - piZeroEn*tauPz)/tauMass)*piZero.bendCorrEta());
+	  bendCorrMass2 += square(((piZeroPy*tau_wo_piZeroPx - piZeroPx*tau_wo_piZeroPy)/tauMass)*piZero.bendCorrPhi());
+	}
+	//edm::LogPrint("RecoTauBuilderCombinatoricPlugin") << "bendCorrMass2 = " << sqrt(bendCorrMass2) << std::endl;
+	tauPtr->setBendCorrMass(sqrt(bendCorrMass2));
 
         output.push_back(tauPtr);
       }

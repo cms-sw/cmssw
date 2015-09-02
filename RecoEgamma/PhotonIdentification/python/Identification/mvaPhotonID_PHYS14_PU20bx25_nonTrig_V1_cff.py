@@ -15,6 +15,10 @@ import FWCore.ParameterSet.Config as cms
 
 # This MVA implementation class name
 mvaPhys14NonTrigClassName = "PhotonMVAEstimatorRun2Phys14NonTrig"
+# The tag is an extra string attached to the names of the products
+# such as ValueMaps that needs to distinguish cases when the same MVA estimator
+# class is used with different tuning/weights
+mvaTag = "25nsV1"
 
 # There are 2 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
@@ -34,8 +38,8 @@ from RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_tools import *
 # The names for the maps are "<module name>:<MVA class name>Values" 
 # and "<module name>:<MVA class name>Categories"
 mvaProducerModuleLabel = "photonMVAValueMapProducer"
-mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + "Values"
-mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + "Categories"
+mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + mvaTag + "Values"
+mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + mvaTag + "Categories"
 
 # The working point for this MVA that is expected to have about 90% signal
 # efficiency in each category for photons with pt>30 GeV (somewhat lower
@@ -56,6 +60,7 @@ MVA_WP90 = PhoMVA_2Categories_WP(
 # Create the PSet that will be fed to the MVA value map producer
 mvaPhoID_PHYS14_PU20bx25_nonTrig_V1_producer_config = cms.PSet( 
     mvaName            = cms.string(mvaPhys14NonTrigClassName),
+    mvaTag             = cms.string(mvaTag),
     weightFileNames    = mvaPhys14NonTrigWeightFiles_V1,
     #
     # All the event content needed for this MVA implementation follows
@@ -89,6 +94,6 @@ mvaPhoID_PHYS14_PU20bx25_nonTrig_V1_wp90 = configureVIDMVAPhoID_V1( MVA_WP90 )
 #
 
 central_id_registry.register( mvaPhoID_PHYS14_PU20bx25_nonTrig_V1_wp90.idName,
-                              '6919edf9f82a78f675d9dec796fd5fab')
+                              'f3ff6ade4680f277c31deb921aa370e4')
 
 mvaPhoID_PHYS14_PU20bx25_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)

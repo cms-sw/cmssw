@@ -5,12 +5,16 @@
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
 #include <vector>
 #include <string>
+#include <memory>
 #include <TROOT.h>
 #include "TMVA/Factory.h"
 #include "TMVA/Tools.h"
 #include "TMVA/Reader.h"
+#include "TMVA/MethodBDT.h"
 
 class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   
@@ -18,7 +22,7 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
 
   // Define here the number and the meaning of the categories
   // for this specific MVA
-  const int nCategories = 6;
+  static constexpr int nCategories = 6;
   enum mvaCategories {
     UNDEFINED = -1,
     CAT_EB1_PT5to10  = 0,
@@ -31,34 +35,34 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
 
   // Define the struct that contains all necessary for MVA variables
   struct AllVariables {
-    float kfhits;
+    float kfhits; // 0
     // Pure ECAL -> shower shapes
-    float see;
-    float spp;
-    float OneMinusE1x5E5x5;
-    float R9;
-    float etawidth;
-    float phiwidth;
-    float HoE;
+    float see; // 1
+    float spp; // 2
+    float OneMinusE1x5E5x5; // 3
+    float R9; // 4
+    float etawidth; // 5
+    float phiwidth; // 6
+    float HoE; // 7
     // Endcap only variables
-    float PreShowerOverRaw;
+    float PreShowerOverRaw; // 8
     //Pure tracking variables
-    float kfchi2;
-    float gsfchi2;
+    float kfchi2; // 9 
+    float gsfchi2; // 10
     // Energy matching
-    float fbrem;
-    float EoP;
-    float eleEoPout;
-    float IoEmIoP;
+    float fbrem; // 11
+    float EoP; // 12
+    float eleEoPout; // 13
+    float IoEmIoP; // 14
     // Geometrical matchings
-    float deta;
-    float dphi;
-    float detacalo;
+    float deta; // 15
+    float dphi; // 16
+    float detacalo; // 17 
     // Spectator variables  
-    float pt;
-    float isBarrel;
-    float isEndcap;
-    float SCeta;
+    float pt; // 18
+    float isBarrel; // 19
+    float isEndcap; // 20
+    float SCeta; // 21
   };
   
   // Constructor and destructor
@@ -66,32 +70,37 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   ~ElectronMVAEstimatorRun2Phys14NonTrig();
 
   // Calculation of the MVA value
-  float mvaValue( const edm::Ptr<reco::Candidate>& particle);
+  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event& evt) const;
  
   // Utility functions
-  TMVA::Reader *createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
-
-  inline int getNCategories(){return nCategories;};
-  bool isEndcapCategory( int category );
-  const inline std::string getName(){return name_;};
-
+  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile) ;
+  
+  virtual int getNCategories() const override final { return nCategories; }
+  bool isEndcapCategory( int category ) const;
+  virtual const std::string& getName() const override final { return _name; } 
+  virtual const std::string& getTag() const override final { return _tag; }
+  
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
-  void fillMVAVariables(const edm::Ptr<reco::Candidate>& particle);
-  int findCategory( const edm::Ptr<reco::Candidate>& particle);
+  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
+  int findCategory(const edm::Ptr<reco::Candidate>& particle) const;
   // The function below ensures that the variables passed to MVA are 
   // within reasonable bounds
-  void constrainMVAVariables();
+  void constrainMVAVariables(AllVariables& vars) const;
   
  private:
 
   // MVA name. This is a unique name for this MVA implementation.
   // It will be used as part of ValueMap names.
   // For simplicity, keep it set to the class name.
-  const std::string name_ = "ElectronMVAEstimatorRun2Phys14NonTrig";
+  const std::string _name = "ElectronMVAEstimatorRun2Phys14NonTrig";
+  // MVA tag. This is an additional string variable to distinguish
+  // instances of the estimator of this class configured with different
+  // weight files.
+  std::string _tag;
 
   // Data members
-  std::vector< std::unique_ptr<TMVA::Reader> > _tmvaReaders;
+  std::vector< std::unique_ptr<const GBRForest> > _gbrForests;
 
   // All variables needed by this MVA
   std::string _MethodName;
