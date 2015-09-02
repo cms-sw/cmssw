@@ -354,7 +354,7 @@ void TrackAnalyzer::bookHistosForHitProperties(DQMStore::IBooker & ibooker) {
 
 
       
-      if (doDCAPlots_) {
+      if(doDCAPlots_ || doPVPlots_ || doSIPPlots_ || doAllPlots_)  {
 	histname = "xPointOfClosestApproach_";
 	xPointOfClosestApproach = ibooker.book1D(histname+CategoryName, histname+CategoryName, VXBin, VXMin, VXMax);
 	xPointOfClosestApproach->setAxisTitle("x component of Track PCA to beam line (cm)",1);
