@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 reducedEgamma = cms.EDProducer("ReducedEGProducer",
-  keepPhotons = cms.string("pt > 14 && hadTowOverEm()<0.15"), #keep in output
-  slimRelinkPhotons = cms.string("pt > 14 && hadTowOverEm()<0.15"), #keep only slimmed SuperCluster plus seed cluster
+  keepPhotons = cms.string("(pt > 14 && hadTowOverEm()<0.15) || (pt>10 && pt<=14 && hadTowOverEm()<0.15 && chargedHadronIso()<10)"), #keep in output
+  slimRelinkPhotons = cms.string("(pt > 14 && hadTowOverEm()<0.15) || (pt>10 && pt<=14 && hadTowOverEm()<0.15 && chargedHadronIso()<10)"), #keep only slimmed SuperCluster plus seed cluster
   relinkPhotons = cms.string("(r9()>0.8 || chargedHadronIso()<20 || chargedHadronIso()<0.3*pt())"), #keep all associated clusters/rechits/conversions
   keepGsfElectrons = cms.string(""), #keep in output
   slimRelinkGsfElectrons = cms.string(""), #keep only slimmed SuperCluster plus seed cluster
@@ -57,5 +57,3 @@ reducedEgamma = cms.EDProducer("ReducedEGProducer",
         "eleHcalPFClusIso",
   ),
 )
-
-

@@ -29,8 +29,14 @@
 
 // ------------------------------------------------------------------------------------------
 PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
+  fPuppiDiagnostics = iConfig.getParameter<bool>("puppiDiagnostics");
+  fPuppiForLeptons = iConfig.getParameter<bool>("puppiForLeptons");
   fUseDZ     = iConfig.getParameter<bool>("UseDeltaZCut");
   fDZCut     = iConfig.getParameter<double>("DeltaZCut");
+  fUseExistingWeights     = iConfig.getParameter<bool>("useExistingWeights");
+  fUseWeightsNoLep        = iConfig.getParameter<bool>("useWeightsNoLep");
+  fVtxNdofCut = iConfig.getParameter<int>("vtxNdofCut");
+  fVtxZCut = iConfig.getParameter<double>("vtxZCut");
   fPuppiContainer = std::unique_ptr<PuppiContainer> ( new PuppiContainer(iConfig) );
 
   tokenPFCandidates_
@@ -42,10 +48,16 @@ PuppiProducer::PuppiProducer(const edm::ParameterSet& iConfig) {
   produces<edm::ValueMap<float> > ();
   produces<edm::ValueMap<LorentzVector> > ();
   produces< edm::ValueMap<reco::CandidatePtr> >(); 
-
+  
   produces<PFOutputCollection>();
 
-
+  if (fPuppiDiagnostics){
+    produces<double> ("PuppiNAlgos");
+    produces<std::vector<double>> ("PuppiRawAlphas");
+    produces<std::vector<double>> ("PuppiAlphas");
+    produces<std::vector<double>> ("PuppiAlphasMed");
+    produces<std::vector<double>> ("PuppiAlphasRms");
+  }
 }
 // ------------------------------------------------------------------------------------------
 PuppiProducer::~PuppiProducer(){
@@ -63,14 +75,23 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tokenVertices_,hVertexProduct);
   const reco::VertexCollection *pvCol = hVertexProduct.product();
 
+   int npv = 0;
+   const reco::VertexCollection::const_iterator vtxEnd = pvCol->end();
+   for (reco::VertexCollection::const_iterator vtxIter = pvCol->begin(); vtxEnd != vtxIter; ++vtxIter) {
+      if (!vtxIter->isFake() && vtxIter->ndof()>=fVtxNdofCut && fabs(vtxIter->z())<=fVtxZCut)
+         npv++;
+   }
+
   //Fill the reco objects
   fRecoObjCollection.clear();
   for(CandidateView::const_iterator itPF = pfCol->begin(); itPF!=pfCol->end(); itPF++) {
+    // std::cout << "itPF->pdgId() = " << itPF->pdgId() << std::endl;
     RecoObj pReco;
     pReco.pt  = itPF->pt();
     pReco.eta = itPF->eta();
     pReco.phi = itPF->phi();
     pReco.m   = itPF->mass();
+    pReco.rapidity = itPF->rapidity();
     pReco.charge = itPF->charge(); 
     const reco::Vertex *closestVtx = 0;
     double pDZ    = -9999; 
@@ -78,61 +99,121 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     int    pVtxId = -9999; 
     bool lFirst = true;
     const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
-    if(lPack == 0 ) { 
+    if(lPack == 0 ) {
+
       const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
+      double curdz = 9999;
+      int closestVtxForUnassociateds = -9999;
       for(reco::VertexCollection::const_iterator iV = pvCol->begin(); iV!=pvCol->end(); ++iV) {
-	if(lFirst) { 
-	  if      ( pPF->trackRef().isNonnull()    ) pDZ = pPF->trackRef()   ->dz(iV->position());
-	  else if ( pPF->gsfTrackRef().isNonnull() ) pDZ = pPF->gsfTrackRef()->dz(iV->position());
-	  if      ( pPF->trackRef().isNonnull()    ) pD0 = pPF->trackRef()   ->d0();
-	  else if ( pPF->gsfTrackRef().isNonnull() ) pD0 = pPF->gsfTrackRef()->d0();
-	  lFirst = false;
-	  if(pDZ > -9999) pVtxId = 0; 
-	}
-	if(iV->trackWeight(pPF->trackRef())>0) {
-	  closestVtx  = &(*iV);
-	  break;
-	}
-	pVtxId++;
+        if(lFirst) {
+          if      ( pPF->trackRef().isNonnull()    ) pDZ = pPF->trackRef()   ->dz(iV->position());
+          else if ( pPF->gsfTrackRef().isNonnull() ) pDZ = pPF->gsfTrackRef()->dz(iV->position());
+          if      ( pPF->trackRef().isNonnull()    ) pD0 = pPF->trackRef()   ->d0();
+          else if ( pPF->gsfTrackRef().isNonnull() ) pD0 = pPF->gsfTrackRef()->d0();
+          lFirst = false;
+          if(pDZ > -9999) pVtxId = 0;
+        }
+        if(iV->trackWeight(pPF->trackRef())>0) {
+            closestVtx  = &(*iV);
+            break;
+          }        
+        // in case it's unassocciated, keep more info
+        double tmpdz = 99999;
+        if      ( pPF->trackRef().isNonnull()    ) tmpdz = pPF->trackRef()   ->dz(iV->position());
+        else if ( pPF->gsfTrackRef().isNonnull() ) tmpdz = pPF->gsfTrackRef()->dz(iV->position());
+        if (fabs(tmpdz) < curdz){
+          curdz = fabs(tmpdz);
+          closestVtxForUnassociateds = pVtxId;
+        }
+        pVtxId++;
+
       }
-    } else if(lPack->vertexRef().isNonnull() )  {
-      pDZ        = lPack->dz(); 
-      pD0        = lPack->dxy(); 
+      int tmpFromPV = 0;  
+      // mocking the miniAOD definitions
+      if (closestVtx != 0 && fabs(pReco.charge) > 0 && pVtxId > 0) tmpFromPV = 0;
+      if (closestVtx != 0 && fabs(pReco.charge) > 0 && pVtxId == 0) tmpFromPV = 3;
+      if (closestVtx == 0 && fabs(pReco.charge) > 0 && closestVtxForUnassociateds == 0) tmpFromPV = 2;
+      if (closestVtx == 0 && fabs(pReco.charge) > 0 && closestVtxForUnassociateds != 0) tmpFromPV = 1;
+      pReco.dZ      = pDZ;
+      pReco.d0      = pD0;
+      pReco.id = 0; 
+      if (fabs(pReco.charge) == 0){ pReco.id = 0; }
+      else{
+        if (tmpFromPV == 0){ pReco.id = 2; } // 0 is associated to PU vertex
+        if (tmpFromPV == 3){ pReco.id = 1; }
+        if (tmpFromPV == 1 || tmpFromPV == 2){ 
+          pReco.id = 0;
+          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) < fDZCut)) pReco.id = 1;
+          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) > fDZCut)) pReco.id = 2;
+          if (fPuppiForLeptons && tmpFromPV == 1) pReco.id = 2;
+          if (fPuppiForLeptons && tmpFromPV == 2) pReco.id = 1;
+        }
+      }
+    } 
+    else if(lPack->vertexRef().isNonnull() )  {
+      pDZ        = lPack->dz();
+      pD0        = lPack->dxy();
       closestVtx = &(*(lPack->vertexRef()));
-      pVtxId = (lPack->fromPV() != (pat::PackedCandidate::PVUsedInFit)); 
-      if( (lPack->fromPV() == pat::PackedCandidate::PVLoose) || 
-	  (lPack->fromPV() == pat::PackedCandidate::PVTight) ) 
-	closestVtx = 0; 
+      pReco.dZ      = pDZ;
+      pReco.d0      = pD0;
+  
+      pReco.id = 0; 
+      if (fabs(pReco.charge) == 0){ pReco.id = 0; }
+      if (fabs(pReco.charge) > 0){
+        if (lPack->fromPV() == 0){ pReco.id = 2; } // 0 is associated to PU vertex
+        if (lPack->fromPV() == (pat::PackedCandidate::PVUsedInFit)){ pReco.id = 1; }
+        if (lPack->fromPV() == (pat::PackedCandidate::PVTight) || lPack->fromPV() == (pat::PackedCandidate::PVLoose)){ 
+          pReco.id = 0;
+          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) < fDZCut)) pReco.id = 1;
+          if (!fPuppiForLeptons && fUseDZ && (fabs(pDZ) > fDZCut)) pReco.id = 2;
+          if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVLoose)) pReco.id = 2;
+          if (fPuppiForLeptons && lPack->fromPV() == (pat::PackedCandidate::PVTight)) pReco.id = 1;
+        }
+      }
     }
-    pReco.dZ      = pDZ;
-    pReco.d0      = pD0;
-
-    if(closestVtx == 0) pReco.vtxId = -1;
-    if(closestVtx != 0) pReco.vtxId = pVtxId;
-    //if(closestVtx != 0) pReco.vtxChi2 = closestVtx->trackWeight(itPF->trackRef());
-    //Set the id for Puppi Algo: 0 is neutral pfCandidate, id = 1 for particles coming from PV and id = 2 for charged particles from non-leading vertex
-    pReco.id       = 0; 
-
-    if(closestVtx != 0 && pVtxId == 0 && fabs(pReco.charge) > 0) pReco.id = 1;
-    if(closestVtx != 0 && pVtxId >  0 && fabs(pReco.charge) > 0) pReco.id = 2;
-    //Add a dZ cut if wanted (this helps)
-    if(fUseDZ && pDZ > -9999 && closestVtx == 0 && (fabs(pDZ) < fDZCut) && fabs(pReco.charge) > 0) pReco.id = 1; 
-    if(fUseDZ && pDZ > -9999 && closestVtx == 0 && (fabs(pDZ) > fDZCut) && fabs(pReco.charge) > 0) pReco.id = 2; 
-
-    //std::cout << "pVtxId = " << pVtxId << ", and charge = " << itPF->charge() << ", and closestVtx = " << closestVtx << ", and id = " << pReco.id << std::endl;
 
     fRecoObjCollection.push_back(pReco);
+      
   }
-  fPuppiContainer->initialize(fRecoObjCollection);
 
-  //Compute the weights
-  const std::vector<double> lWeights = fPuppiContainer->puppiWeights();
+  fPuppiContainer->initialize(fRecoObjCollection);
+  fPuppiContainer->setNPV( npv );
+
+  std::vector<double> lWeights;
+  std::vector<fastjet::PseudoJet> lCandidates;
+  if (!fUseExistingWeights){
+    //Compute the weights and get the particles
+    lWeights = fPuppiContainer->puppiWeights();
+    lCandidates = fPuppiContainer->puppiParticles();
+  }
+  else{
+    //Use the existing weights
+    int lPackCtr = 0;
+    for(CandidateView::const_iterator itPF = pfCol->begin(); itPF!=pfCol->end(); itPF++) {  
+      const pat::PackedCandidate *lPack = dynamic_cast<const pat::PackedCandidate*>(&(*itPF));
+      float curpupweight = -1.;
+      if(lPack == 0 ) { 
+        // throw error
+        throw edm::Exception(edm::errors::LogicError,"PuppiProducer: cannot get weights since inputs are not packedPFCandidates"); 
+      }
+      else{
+        // if (fUseWeightsNoLep){ curpupweight = itPF->puppiWeightNoLep(); }
+        // else{ curpupweight = itPF->puppiWeight();  }
+        curpupweight = lPack->puppiWeight();
+      }
+      lWeights.push_back(curpupweight);
+      fastjet::PseudoJet curjet( curpupweight*lPack->px(), curpupweight*lPack->py(), curpupweight*lPack->pz(), curpupweight*lPack->energy());
+      curjet.set_user_index(lPackCtr);
+      lCandidates.push_back(curjet);
+      lPackCtr++;
+    }
+  }
+
   //Fill it into the event
   std::auto_ptr<edm::ValueMap<float> > lPupOut(new edm::ValueMap<float>());
   edm::ValueMap<float>::Filler  lPupFiller(*lPupOut);
   lPupFiller.insert(hPFProduct,lWeights.begin(),lWeights.end());
   lPupFiller.fill();
-
 
   // This is a dummy to access the "translate" method which is a
   // non-static member function even though it doesn't need to be. 
@@ -143,7 +224,6 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Since the size of the ValueMap must be equal to the input collection, we need
   // to search the "puppi" particles to find a match for each input. If none is found,
   // the input is set to have a four-vector of 0,0,0,0
-  const std::vector<fastjet::PseudoJet> lCandidates = fPuppiContainer->puppiParticles();
   fPuppiCandidates.reset( new PFOutputCollection );
   std::auto_ptr<edm::ValueMap<LorentzVector> > p4PupOut(new edm::ValueMap<LorentzVector>());
   LorentzVectorCollection puppiP4s;
@@ -165,11 +245,14 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     auto puppiMatched = find_if( lCandidates.begin(), lCandidates.end(), [&val]( fastjet::PseudoJet const & i ){ return i.user_index() == val; } );
     if ( puppiMatched != lCandidates.end() ) {
       pVec.SetPxPyPzE(puppiMatched->px(),puppiMatched->py(),puppiMatched->pz(),puppiMatched->E());
+      // fPuppiCandidates->push_back(pCand);
     } else {
       pVec.SetPxPyPzE( 0, 0, 0, 0);
     }
     pCand.setP4(pVec);
     puppiP4s.push_back( pVec );
+
+    pCand.setSourceCandidatePtr( i0->sourceCandidatePtr(0) );
     fPuppiCandidates->push_back(pCand);
   }
 
@@ -191,6 +274,25 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   filler.insert(hPFProduct, values.begin(), values.end());
   filler.fill();
   iEvent.put(pfMap_p);
+
+
+  //////////////////////////////////////////////
+  if (fPuppiDiagnostics && !fUseExistingWeights){
+
+    // all the different alphas per particle
+    // THE alpha per particle
+    std::auto_ptr<std::vector<double> > theAlphas(new std::vector<double>(fPuppiContainer->puppiAlphas()));
+    std::auto_ptr<std::vector<double> > theAlphasMed(new std::vector<double>(fPuppiContainer->puppiAlphasMed()));
+    std::auto_ptr<std::vector<double> > theAlphasRms(new std::vector<double>(fPuppiContainer->puppiAlphasRMS()));
+    std::auto_ptr<std::vector<double> > alphas(new std::vector<double>(fPuppiContainer->puppiRawAlphas()));
+    std::auto_ptr<double> nalgos(new double(fPuppiContainer->puppiNAlgos()));
+    
+    iEvent.put(alphas,"PuppiRawAlphas");
+    iEvent.put(nalgos,"PuppiNAlgos");
+    iEvent.put(theAlphas,"PuppiAlphas");
+    iEvent.put(theAlphasMed,"PuppiAlphasMed");
+    iEvent.put(theAlphasRms,"PuppiAlphasRms");
+  }
   
 }
 

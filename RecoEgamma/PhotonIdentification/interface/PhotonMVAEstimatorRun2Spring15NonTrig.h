@@ -9,6 +9,8 @@
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+
 #include <vector>
 #include <string>
 #include <TROOT.h>
@@ -54,7 +56,6 @@ class PhotonMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
     // Spectators
     float varPt;
     float varEta;
-
   };
   
   // Constructor and destructor
@@ -62,29 +63,30 @@ class PhotonMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   ~PhotonMVAEstimatorRun2Spring15NonTrig();
 
   // Calculation of the MVA value
-  float mvaValue( const edm::Ptr<reco::Candidate>& particle);
+  float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
  
   // Utility functions
-  TMVA::Reader *createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
-
-  inline int getNCategories(){return nCategories;};
-  bool isEndcapCategory( int category );
-  const inline std::string getName(){return name_;};
-
+  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile);
+  
+  virtual int getNCategories() const { return nCategories; }
+  bool isEndcapCategory( int category ) const;
+  virtual const std::string& getName() const override final { return _name; }
+  virtual const std::string& getTag() const override final { return _tag; }
+  
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
-  void fillMVAVariables(const edm::Ptr<reco::Candidate>& particle);
-  int findCategory( const edm::Ptr<reco::Candidate>& particle);
+  std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event& iEvent) const override;
+  int findCategory( const edm::Ptr<reco::Candidate>& particle ) const override;
   // The function below ensures that the variables passed to MVA are 
   // within reasonable bounds
-  void constrainMVAVariables();
+  void constrainMVAVariables(AllVariables&) const;
 
   // Call this function once after the constructor to declare
   // the needed event content pieces to the framework
-  void setConsumes(edm::ConsumesCollector&&) override;
+  void setConsumes(edm::ConsumesCollector&&) const override;
   // Call this function once per event to retrieve all needed
   // event content pices
-  void getEventContent(const edm::Event& iEvent) override;
+  //void getEventContent(const edm::Event& iEvent) override;
 
   
  private:
@@ -92,13 +94,18 @@ class PhotonMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   // MVA name. This is a unique name for this MVA implementation.
   // It will be used as part of ValueMap names.
   // For simplicity, keep it set to the class name.
-  const std::string name_ = "PhotonMVAEstimatorRun2Spring15NonTrig";
+  const std::string _name = "PhotonMVAEstimatorRun2Spring15NonTrig";
+
+  // MVA tag. This is an additional string variable to distinguish
+  // instances of the estimator of this class configured with different
+  // weight files.
+  std::string _tag;
 
   // Data members
-  std::vector< std::unique_ptr<TMVA::Reader> > _tmvaReaders;
+  std::vector< std::unique_ptr<const GBRForest> > _gbrForests;
 
   // All variables needed by this MVA
-  std::string _MethodName;
+  const std::string _MethodName;
   AllVariables _allMVAVars;
   
   // This MVA implementation relies on several ValueMap objects
@@ -108,37 +115,18 @@ class PhotonMVAEstimatorRun2Spring15NonTrig : public AnyMVAEstimatorRun2Base{
   // Declare all tokens that will be needed to retrieve misc
   // data from the event content required by this MVA
   //
-  edm::EDGetTokenT<edm::ValueMap<float> > _full5x5SigmaIEtaIEtaMapToken; 
-  edm::EDGetTokenT<edm::ValueMap<float> > _full5x5SigmaIEtaIPhiMapToken; 
-  edm::EDGetTokenT<edm::ValueMap<float> > _full5x5E1x3MapToken; 
-  edm::EDGetTokenT<edm::ValueMap<float> > _full5x5E2x2MapToken; 
-  edm::EDGetTokenT<edm::ValueMap<float> > _full5x5E2x5MaxMapToken; 
-  edm::EDGetTokenT<edm::ValueMap<float> > _full5x5E5x5MapToken; 
-  edm::EDGetTokenT<edm::ValueMap<float> > _esEffSigmaRRMapToken; 
+  const edm::InputTag _full5x5SigmaIEtaIEtaMapLabel; 
+  const edm::InputTag _full5x5SigmaIEtaIPhiMapLabel; 
+  const edm::InputTag _full5x5E1x3MapLabel; 
+  const edm::InputTag _full5x5E2x2MapLabel; 
+  const edm::InputTag _full5x5E2x5MaxMapLabel; 
+  const edm::InputTag _full5x5E5x5MapLabel; 
+  const edm::InputTag _esEffSigmaRRMapLabel; 
   //
-  edm::EDGetTokenT<edm::ValueMap<float> > _phoChargedIsolationToken; 
-  edm::EDGetTokenT<edm::ValueMap<float> > _phoPhotonIsolationToken; 
-  edm::EDGetTokenT<edm::ValueMap<float> > _phoWorstChargedIsolationToken; 
-
-  // 
-  // Declare all value maps corresponding to the above tokens
-  //
-  edm::Handle<edm::ValueMap<float> > _full5x5SigmaIEtaIEtaMap;
-  edm::Handle<edm::ValueMap<float> > _full5x5SigmaIEtaIPhiMap;
-  edm::Handle<edm::ValueMap<float> > _full5x5E1x3Map;
-  edm::Handle<edm::ValueMap<float> > _full5x5E2x2Map;
-  edm::Handle<edm::ValueMap<float> > _full5x5E2x5MaxMap;
-  edm::Handle<edm::ValueMap<float> > _full5x5E5x5Map;
-  edm::Handle<edm::ValueMap<float> > _esEffSigmaRRMap;
-  //
-  edm::Handle<edm::ValueMap<float> > _phoChargedIsolationMap;
-  edm::Handle<edm::ValueMap<float> > _phoPhotonIsolationMap;
-  edm::Handle<edm::ValueMap<float> > _phoWorstChargedIsolationMap;
-
-  // Rho will be pulled from the event content
-  edm::EDGetTokenT<double> _rhoToken;
-  edm::Handle<double> _rho;
-
+  const edm::InputTag _phoChargedIsolationLabel; 
+  const edm::InputTag _phoPhotonIsolationLabel; 
+  const edm::InputTag _phoWorstChargedIsolationLabel; 
+  const edm::InputTag _rhoLabel;
 };
 
 DEFINE_EDM_PLUGIN(AnyMVAEstimatorRun2Factory,
