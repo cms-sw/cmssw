@@ -51,8 +51,8 @@ class HcalTopology;
       virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
-
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
     private:      
       typedef void (HcalSimpleRecAlgo::*SetCorrectionFcn)(boost::shared_ptr<AbsOOTPileupCorrection>);
 
