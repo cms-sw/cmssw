@@ -68,36 +68,37 @@ private:
   int vtxBin;
   double vtxMin;
   double vtxMax;
+  
+  std::string ID_;
 
   // efficiency histograms
-  MonitorElement* h_eff_pt_TightMu;
-  MonitorElement* h_eff_pt_EB_TightMu;
-  MonitorElement* h_eff_pt_EE_TightMu;
-  MonitorElement* h_eff_eta_TightMu;
-  MonitorElement* h_eff_hp_eta_TightMu;
-  MonitorElement* h_eff_phi_TightMu;
-  MonitorElement* h_eff_pt_detIsoTightMu;
-  MonitorElement* h_eff_pt_EB_detIsoTightMu;
-  MonitorElement* h_eff_pt_EE_detIsoTightMu;
-  MonitorElement* h_eff_pt_pfIsoTightMu;
-  MonitorElement* h_eff_pt_EB_pfIsoTightMu;
-  MonitorElement* h_eff_pt_EE_pfIsoTightMu;
+  MonitorElement* h_eff_pt_ID;
+  MonitorElement* h_eff_pt_EB_ID;
+  MonitorElement* h_eff_pt_EE_ID;
+  MonitorElement* h_eff_eta_ID;
+  MonitorElement* h_eff_hp_eta_ID;
+  MonitorElement* h_eff_phi_ID;
+  MonitorElement* h_eff_pt_detIsoID;
+  MonitorElement* h_eff_pt_EB_detIsoID;
+  MonitorElement* h_eff_pt_EE_detIsoID;
+  MonitorElement* h_eff_pt_pfIsoID;
+  MonitorElement* h_eff_pt_EB_pfIsoID;
+  MonitorElement* h_eff_pt_EE_pfIsoID;
 
-  MonitorElement* h_eff_vtx_detIsoTightMu;
-  MonitorElement* h_eff_vtx_pfIsoTightMu;
-  MonitorElement* h_eff_vtx_EB_detIsoTightMu;
-  MonitorElement* h_eff_vtx_EE_detIsoTightMu;
-  MonitorElement* h_eff_vtx_EB_pfIsoTightMu;
-  MonitorElement* h_eff_vtx_EE_pfIsoTightMu;
+  MonitorElement* h_eff_vtx_detIsoID;
+  MonitorElement* h_eff_vtx_pfIsoID;
+  MonitorElement* h_eff_vtx_EB_detIsoID;
+  MonitorElement* h_eff_vtx_EE_detIsoID;
+  MonitorElement* h_eff_vtx_EB_pfIsoID;
+  MonitorElement* h_eff_vtx_EE_pfIsoID;
 
-  MonitorElement* h_eff_pt_pfIsodBTightMu;
-  MonitorElement* h_eff_pt_EB_pfIsodBTightMu;
-  MonitorElement* h_eff_pt_EE_pfIsodBTightMu;
+  MonitorElement* h_eff_pt_pfIsodBID;
+  MonitorElement* h_eff_pt_EB_pfIsodBID;
+  MonitorElement* h_eff_pt_EE_pfIsodBID;
 
-  MonitorElement* h_eff_vtx_pfIsodBTightMu;
-  MonitorElement* h_eff_vtx_EB_pfIsodBTightMu;
-  MonitorElement* h_eff_vtx_EE_pfIsodBTightMu;
-
+  MonitorElement* h_eff_vtx_pfIsodBID;
+  MonitorElement* h_eff_vtx_EB_pfIsodBID;
+  MonitorElement* h_eff_vtx_EE_pfIsodBID;
 };
 
 #endif
