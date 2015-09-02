@@ -6,7 +6,7 @@
 #include <vector> //TEMP JHAUPT 4-27
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -24,7 +24,7 @@
 //
 
 
-class CosmicClusterProducer : public edm::EDProducer 
+class CosmicClusterProducer : public edm::stream::EDProducer<>
 {
   public:
 
