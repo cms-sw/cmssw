@@ -461,8 +461,8 @@ void FP420Test::update(const EndOfTrack * trk) {
   G4ThreeVector   vert_pos  = (*trk)()->GetVertexPosition(); // vertex ,where this track was created
   
 //    float eta = 0.5 * log( (1.+vert_mom.z()) / (1.-vert_mom.z()) );
-    float phi = atan2(vert_mom.y(),vert_mom.x());
-    if (phi < 0.) phi += twopi;
+//    float phi = atan2(vert_mom.y(),vert_mom.x());
+//    if (phi < 0.) phi += twopi;
 //    float phigrad = phi*180./pi;
 
 //      float XV = vert_pos.x(); // mm
@@ -1082,7 +1082,6 @@ void FP420Test::update(const EndOfEvent * evt) {
   //   Silicon Hit collection start
     //0) if particle goes into flat beam pipe below detector:
   int varia ;   // = 0 -all; =1 - MI; =2 - noMI
-    varia = 0;
     //                      Select MI or noMI over all 3 stations
     // 1)MI:
   //     if particle goes through window into detector:
@@ -1154,8 +1153,8 @@ void FP420Test::update(const EndOfEvent * evt) {
 
 //    double th_hit    = hitPoint.theta();
 //    double eta_hit = -log(tan(th_hit/2));
-    double phi_hit   = hitPoint.phi();
-    if (phi_hit < 0.) phi_hit += twopi;
+//    double phi_hit   = hitPoint.phi();
+//    if (phi_hit < 0.) phi_hit += twopi;
 //    double phigrad_hit = phi_hit*180./pi;
     //UserNtuples->fillg60(eta_hit,losenergy);
     //UserNtuples->fillg61(eta_hit,1.);

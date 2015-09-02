@@ -212,8 +212,8 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
       int lstrip=centralStrip;
 
       // Compute the cluster size
-      double w = CLHEP::RandFlat::shoot(engine);
-      if (w < 1.e-10) w=1.e-10;
+      // double w = CLHEP::RandFlat::shoot(engine);
+      //if (w < 1.e-10) w=1.e-10;
 //       int clsize = this->getClSize(posX, engine); // This is for one and the same cls for all the chambers
       int clsize = this->getClSize(rpcId.rawId(),posX, engine); // This is for cluster size chamber by chamber
       std::vector<int> cls;

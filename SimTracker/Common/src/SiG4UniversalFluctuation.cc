@@ -173,23 +173,8 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
     }
   }
 
-  // Glandz regime : initialisation
-  //
-//   if (material != lastMaterial) {
-//     f1Fluct      = material->GetIonisation()->GetF1fluct();
-//     f2Fluct      = material->GetIonisation()->GetF2fluct();
-//     e1Fluct      = material->GetIonisation()->GetEnergy1fluct();
-//     e2Fluct      = material->GetIonisation()->GetEnergy2fluct();
-//     e1LogFluct   = material->GetIonisation()->GetLogEnergy1fluct();
-//     e2LogFluct   = material->GetIonisation()->GetLogEnergy2fluct();
-//     rateFluct    = material->GetIonisation()->GetRateionexcfluct();
-//     ipotFluct    = material->GetIonisation()->GetMeanExcitationEnergy();
-//     ipotLogFluct = material->GetIonisation()->GetLogMeanExcEnergy();
-//     lastMaterial = material;
-//   }
-
-  double a1 = 0. , a2 = 0., a3 = 0. ;
-  double p1,p2,p3;
+  double a1 = 0., a2 = 0., a3 = 0.;
+  double p3;
   double rate = rateFluct ;
 
   double w1 = tmax/ipotFluct;
@@ -222,7 +207,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
   //
   if (suma > sumalim)
   {
-    p1 = 0., p2 = 0 ;
+    double p1, p2;
     if((a1+a2) > 0.)
     {
       // excitation type 1

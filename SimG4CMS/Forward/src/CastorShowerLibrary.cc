@@ -15,6 +15,7 @@
 #include "G4Track.hh"
 #include "G4ParticleTable.hh"
 #include "Randomize.hh"
+#include "G4PhysicalConstants.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define DebugLog
@@ -233,14 +234,14 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) 
   ok = true;
 
   double pin    = preStepPoint->GetTotalEnergy();
-  double etain  = momDir.getEta();
-  double phiin  = momDir.getPhi();
+  //  double etain  = momDir.getEta();
+  //double phiin  = momDir.getPhi();
   
   double zint = hitPoint.z();
   double R=sqrt(hitPoint.x()*hitPoint.x() + hitPoint.y()*hitPoint.y());
   double theta = atan2(R,std::abs(zint));
-  phiin = atan2(hitPoint.y(),hitPoint.x());
-  etain = -1*(std::log(std::tan((M_PI-theta)/2)));
+  double phiin = atan2(hitPoint.y(),hitPoint.x());
+  double etain = -std::log(std::tan((pi-theta)*0.5));
 
   // Replace "interpolation/extrapolation" by new method "select" that just randomly 
   // selects a record from the appropriate energy bin and fills its content to  

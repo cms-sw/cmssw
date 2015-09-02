@@ -370,7 +370,9 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
   G4LorentzVector p_g_cms = gluinoMomentum; //gluino in CMS BEFORE collision
   p_g_cms.boost(trafo_full_cms);
 
-  G4LorentzVector p4_new( cloud_p4_new.v() + gluinoMomentum.v(), outgoingRhadron->GetPDGMass() );
+  double e = cloud_p4_new.e() + gluinoMomentum.e();
+  if(outgoingRhadron) e += outgoingRhadron->GetPDGMass();
+  G4LorentzVector p4_new( cloud_p4_new.v() + gluinoMomentum.v(), e );
   //  G4cout<<"P4-diff: "<<(p4_new-cloud_p4_new-gluinoMomentum)/GeV<<", magnitude: "
   // <<(p4_new-cloud_p4_new-gluinoMomentum).m()/MeV<<" MeV" <<G4endl;
 
