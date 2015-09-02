@@ -181,11 +181,13 @@ EGExtraInfoModifierFromDB::EGExtraInfoModifierFromDB(const edm::ParameterSet& co
   }
 }
 
-template<typename T>
-inline void get_product(const edm::Event& evt,
-                        const edm::EDGetTokenT<edm::ValueMap<T> >& tok,
-                        std::unordered_map<unsigned, edm::Handle<edm::ValueMap<T> > >& map) {
-  evt.getByToken(tok,map[tok.index()]);
+namespace {
+  template<typename T>
+  inline void get_product(const edm::Event& evt,
+                          const edm::EDGetTokenT<edm::ValueMap<T> >& tok,
+                          std::unordered_map<unsigned, edm::Handle<edm::ValueMap<T> > >& map) {
+    evt.getByToken(tok,map[tok.index()]);
+  }
 }
 
 void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
@@ -307,16 +309,18 @@ void EGExtraInfoModifierFromDB::setEventContent(const edm::EventSetup& evs) {
   }
 }
 
-template<typename T, typename U, typename V>
-inline void make_consumes(T& tag,U& tok,V& sume) { 
-  if(!(empty_tag == tag)) 
-    tok = sume.template consumes<edm::ValueMap<float> >(tag); 
-}
+namespace {
+  template<typename T, typename U, typename V>
+  inline void make_consumes(T& tag,U& tok,V& sume) { 
+    if(!(empty_tag == tag)) 
+      tok = sume.template consumes<edm::ValueMap<float> >(tag); 
+  }
 
-template<typename T, typename U, typename V>
-inline void make_int_consumes(T& tag,U& tok,V& sume) { 
-  if(!(empty_tag == tag)) 
-    tok = sume.template consumes<edm::ValueMap<int> >(tag); 
+  template<typename T, typename U, typename V>
+  inline void make_int_consumes(T& tag,U& tok,V& sume) { 
+    if(!(empty_tag == tag)) 
+      tok = sume.template consumes<edm::ValueMap<int> >(tag); 
+  }
 }
 
 void EGExtraInfoModifierFromDB::setConsumes(edm::ConsumesCollector& sumes) {
@@ -360,9 +364,11 @@ void EGExtraInfoModifierFromDB::setConsumes(edm::ConsumesCollector& sumes) {
   }  
 }
 
-template<typename T, typename U, typename V, typename Z>
-inline void assignValue(const T& ptr, const U& tok, const V& map, Z& value) {
-  if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
+namespace {
+  template<typename T, typename U, typename V, typename Z>
+  inline void assignValue(const T& ptr, const U& tok, const V& map, Z& value) {
+    if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
+  }
 }
 
 void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
