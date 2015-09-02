@@ -1,8 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# Take care of geometry changes in HCAL
-from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
-
 # Update to replace old jet corrector mechanism
 from HLTrigger.Configuration.customizeHLTforNewJetCorrectors import customizeHLTforNewJetCorrectors
 
@@ -116,7 +113,11 @@ def customiseFor10234(process):
     return process
 
 def customiseFor10353(process):
-    setattr(process,'hcalDDDRecConstants', cms.ESProducer('HcalDDDRecConstantsESModule', appendToDataLabel = cms.string('')))
+    # Take care of geometry changes in HCAL
+    if not hasattr(process,'hcalDDDSimConstants'):
+        process.hcalDDDSimConstants = cms.ESProducer( 'HcalDDDSimConstantsESModule' )
+    if not hasattr(process,'hcalDDDRecConstants'):
+        process.hcalDDDRecConstants = cms.ESProducer( 'HcalDDDRecConstantsESModule' )
     return process
 
 # upgrade RecoTrackSelector to allow selection on originalAlgo (PR #10418)
