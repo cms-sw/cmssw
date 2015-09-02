@@ -963,7 +963,7 @@ void SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const Tra
           if (v_Edge_G[i].phi() > 0. ){
             if (v_Edge_G[i].eta() < clustgp.eta()){
               bot_left_G = v_Edge_G[i];
-            } else if (v_Edge_G[i].eta() > clustgp.eta()){
+            } else if (v_Edge_G[i].eta() != clustgp.eta()){
               bot_rightG = v_Edge_G[i];
             }
           } else if (v_Edge_G[i].phi() != 0. ){
