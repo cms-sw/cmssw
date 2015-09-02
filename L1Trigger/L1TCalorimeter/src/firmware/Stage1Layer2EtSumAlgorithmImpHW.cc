@@ -137,7 +137,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   delete preGtEtSums;
 
   // Emulator - HDL simulation comparison printout
-  const bool verbose = false;
+  const bool verbose = true;
   if(verbose)
   {
     for(std::vector<l1t::EtSum>::const_iterator itetsum = etsums->begin();

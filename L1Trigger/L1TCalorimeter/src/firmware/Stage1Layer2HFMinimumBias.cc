@@ -53,7 +53,7 @@ void l1t::Stage1Layer2HFMinimumBias::processEvent(const std::vector<l1t::CaloReg
     spare->SetRing(i, sumBits[i]);
   }
 
-  const bool verbose = false;
+  const bool verbose = true;
   if(verbose)
   {
     std::cout << "HF Bit Counts (HFMinimumBias)" << std::endl;

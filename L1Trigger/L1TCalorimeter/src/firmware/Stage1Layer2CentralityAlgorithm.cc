@@ -48,4 +48,12 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   // l1t::CaloSpare centrality (*&dummy,CaloSpare::CaloSpareType::Centrality,outputBits,0,0,0);
   // spares->push_back(centrality);
   spare->SetRing(0, outputBits);
+
+  const bool verbose = true;
+  if(verbose)
+  {
+    std::cout << "HF Ring Sums (Centrality)" << std::endl;
+    std::cout << bitset<12>(spare->hwPt()).to_string() << std::endl;
+  }
+
 }

@@ -13,6 +13,8 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
+#include "L1Trigger/L1TCalorimeter/interface/HardwareSortingMethods.h"
+
 
 l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsStage1* params) : params_(params) {}
 
@@ -39,6 +41,27 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 
   delete subRegions;
   delete preGtTaus;
+
+  isoTaus->resize(4);
+  taus->resize(4);
+
+  const bool verbose = true;
+  if(verbose)
+  {
+    std::cout << "Taus" << std::endl;
+    for(std::vector<l1t::Tau>::const_iterator iTau = taus->begin(); iTau != taus->end(); ++iTau)
+    {
+      unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
+      std::cout << bitset<15>(packed).to_string() << std::endl;
+    }
+    std::cout << "Isolated Taus" << std::endl;
+    for(std::vector<l1t::Tau>::const_iterator iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
+    {
+      unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
+      std::cout << bitset<15>(packed).to_string() << std::endl;
+    }
+  }
+
 }
 
 void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t)
