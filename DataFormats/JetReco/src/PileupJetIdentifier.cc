@@ -1,13 +1,11 @@
 #include "DataFormats/JetReco/interface/PileupJetIdentifier.h"
 
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-#include <limits>
+#include <cstring>
 
 // ------------------------------------------------------------------------------------------
 StoredPileupJetIdentifier::StoredPileupJetIdentifier() 
 {
+  memset(this, 0, sizeof(StoredPileupJetIdentifier));
 }
 
 // ------------------------------------------------------------------------------------------
@@ -23,4 +21,5 @@ PileupJetIdentifier::PileupJetIdentifier()
 // ------------------------------------------------------------------------------------------
 PileupJetIdentifier::~PileupJetIdentifier() 
 {
+  memset(this, 0, sizeof(PileupJetIdentifier));
 }
