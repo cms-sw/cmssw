@@ -246,7 +246,7 @@ class JetAnalyzer( Analyzer ):
                 self.cleanJetsAll.append(jet)
             else:
                 self.cleanJetsFailIdAll.append(jet)
-  
+        
         self.cleanJets = [j for j in self.cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.cleanJetsFailId = [j for j in self.cleanJetsFailIdAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.cleanJetsFwd = [j for j in self.cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
