@@ -20,6 +20,7 @@ class MVAJetIdMaker {
     edm::EDGetTokenT<reco::PFJetCollection>       PFJetCollection_;
     edm::EDGetTokenT<reco::VertexCollection>      thePVCollection_;
     std::string jetCorrector_;
+    edm::EDGetTokenT<double> theRhoCollection_;
     PileupJetIdAlgo  *fPUJetIdAlgo;
 
 };

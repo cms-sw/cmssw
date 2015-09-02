@@ -77,7 +77,7 @@ process.out.outputCommands += ['keep *_ak4PFJetsCHS_*_*',
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #pileupJetID
 
-process.load('RecoJets.JetProducers.pileupjetidproducer_cfi')
+process.load('RecoJets.JetProducers.PileupJetID_cfi')
 
 process.pileupJetIdCalculator.jets = cms.InputTag("ak4PFJetsCHS")
 process.pileupJetIdEvaluator.jets = cms.InputTag("ak4PFJetsCHS")
@@ -176,6 +176,8 @@ process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSMassAK8_*_*']
 ## ------------------------------------------------------
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 #                                         ##
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM
