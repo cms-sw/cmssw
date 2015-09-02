@@ -197,6 +197,8 @@ PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
   }
   if (packPrescales_) {
     produces< PackedTriggerPrescales >();
+    produces< PackedTriggerPrescales >("l1max");
+    produces< PackedTriggerPrescales >("l1min");
   }
   produces< TriggerObjectStandAloneCollection >();
 
@@ -316,7 +318,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
   std::auto_ptr< TriggerObjectCollection > triggerObjects( new TriggerObjectCollection() );
   std::auto_ptr< TriggerObjectStandAloneCollection > triggerObjectsStandAlone( new TriggerObjectStandAloneCollection() );
-  std::auto_ptr< PackedTriggerPrescales > packedPrescales;
+  std::auto_ptr< PackedTriggerPrescales > packedPrescales, packedPrescalesL1min, packedPrescalesL1max;
 
   // HLT
 
@@ -562,11 +564,32 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
 
     if (packPrescales_) {
         packedPrescales.reset(new PackedTriggerPrescales(handleTriggerResults)); 
+        packedPrescalesL1min.reset(new PackedTriggerPrescales(handleTriggerResults)); 
+        packedPrescalesL1max.reset(new PackedTriggerPrescales(handleTriggerResults)); 
         const edm::TriggerNames & names = iEvent.triggerNames(*handleTriggerResults);
+        //std::cout << "Run " << iEvent.id().run() << ", LS " << iEvent.id().luminosityBlock() << ": pset " << set << std::endl;
         for (unsigned int i = 0, n = names.size(); i < n; ++i) {
-            packedPrescales->addPrescaledTrigger(i, hltConfig_.prescaleValue(set, names.triggerName(i)));
+            auto pvdet = hltConfig_.prescaleValuesInDetail( iEvent, iSetup, names.triggerName(i) );
+            //int hltprescale = hltConfig_.prescaleValue(set, names.triggerName(i));
+            if (pvdet.first.empty()) {
+                packedPrescalesL1max->addPrescaledTrigger(i, 1);
+                packedPrescalesL1min->addPrescaledTrigger(i, 1);
+            } else {
+                int pmin = -1, pmax = -1;
+                for (const auto & p : pvdet.first) {
+                    pmax = std::max(pmax, p.second);
+                    if (p.second > 0 && (pmin == -1 || pmin > p.second)) pmin = p.second;
+                }
+                packedPrescalesL1max->addPrescaledTrigger(i, pmax);
+                packedPrescalesL1min->addPrescaledTrigger(i, pmin);
+                //std::cout << "\tTrigger " << names.triggerName(i) << ", L1 ps " << pmin << "-" << pmax << ", HLT ps " << hltprescale << std::endl;
+            }
+            packedPrescales->addPrescaledTrigger(i, pvdet.second);
+            //assert( hltprescale == pvdet.second );
         }
         iEvent.put( packedPrescales );
+        iEvent.put( packedPrescalesL1max, "l1max" );
+        iEvent.put( packedPrescalesL1min, "l1min" );
     }
 
   } // if ( goodHlt )

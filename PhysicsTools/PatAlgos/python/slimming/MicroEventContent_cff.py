@@ -40,6 +40,8 @@ MicroEventContent = cms.PSet(
 
         'keep *_selectedPatTrigger_*_*',
         'keep patPackedTriggerPrescales_patTrigger__*',
+        'keep patPackedTriggerPrescales_patTrigger_l1max_*',
+        'keep patPackedTriggerPrescales_patTrigger_l1min_*',
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_HLT',
@@ -57,8 +59,9 @@ MicroEventContentMC.outputCommands += [
         'keep patPackedGenParticles_packedGenParticles_*_*',
         'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_*_*_*',
-        'keep PileupSummaryInfos_*_*_*',
+        'keep PileupSummaryInfos_slimmedAddPileupInfo_*_*',
         'keep GenFilterInfo_*_*_*',
+        'keep GenLumiInfoProduct_*_*_*',
         'keep GenEventInfoProduct_generator_*_*',
         # RUN
         'keep LHERunInfoProduct_*_*_*',

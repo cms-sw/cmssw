@@ -273,7 +273,13 @@ bool pat::PackedCandidate::longLived() const {return false;}
 bool pat::PackedCandidate::massConstraint() const {return false;}
 
 // puppiweight
-void pat::PackedCandidate::setPuppiWeight(float p) { packedPuppiweight_ = pack8logClosed((p-0.5)*2,-2,0,64);}
+// puppiweight
+void pat::PackedCandidate::setPuppiWeight(float p, float p_nolep) {
+  // Set both weights at once to avoid misconfigured weights if called in the wrong order
+  packedPuppiweight_ = pack8logClosed((p-0.5)*2,-2,0,64);
+  packedPuppiweightNoLepDiff_ = pack8logClosed((p_nolep-0.5)*2,-2,0,64) - packedPuppiweight_;
+}
 
 float pat::PackedCandidate::puppiWeight() const { return unpack8logClosed(packedPuppiweight_,-2,0,64)/2. + 0.5;}
 
+float pat::PackedCandidate::puppiWeightNoLep() const { return unpack8logClosed(packedPuppiweightNoLepDiff_+packedPuppiweight_,-2,0,64)/2. + 0.5;}

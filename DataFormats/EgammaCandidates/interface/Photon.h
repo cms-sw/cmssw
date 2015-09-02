@@ -443,6 +443,9 @@ namespace reco {
     float sumPhotonEtHighThreshold() const {return pfIsolation_.sumPhotonEtHighThreshold;}
     float sumPUPt() const {return pfIsolation_.sumPUPt;}
 
+    /// Get Particle Flow Isolation variables block
+    const PflowIsolationVariables& getPflowIsolationVariables() const { return pfIsolation_; }
+
     /// Set Particle Flow Isolation variables
     void setPflowIsolationVariables ( const PflowIsolationVariables& pfisol ) {  pfIsolation_ = pfisol;} 
 
