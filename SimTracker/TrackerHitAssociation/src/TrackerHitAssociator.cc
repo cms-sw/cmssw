@@ -633,7 +633,7 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateFastRecHit(const FastTra
 {
   vector<SimHitIdpr> simtrackid;
   simtrackid.clear();
-  for(size_t index =0, indexEnd < rechit->nSimTrackIds() ;index<rechit->nSimTrackIds();++index){
+  for(size_t index =0, indexEnd = rechit->nSimTrackIds();index<indexEnd;++index){
       SimHitIdpr currentId(rechit->simTrackId(index), EncodedEventId(rechit->simTrackEventId(index)));
       simtrackid.push_back(currentId);
   }
