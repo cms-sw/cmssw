@@ -60,28 +60,27 @@ process.maxEvents = cms.untracked.PSet(
 
 ## Set input particle collections to be used by the tools
 genParticleCollection = ''
-genJetInputParticleCollection = ''
-genJetCollection = 'ak4GenJetsCustom'
+genJetCollection = ''
 if options.runOnAOD:
     genParticleCollection = 'genParticles'
-    genJetInputParticleCollection = 'genParticlesForJets'
+    genJetCollection = 'ak4GenJetsCustom'
     ## producing a subset of genParticles to be used for jet clustering in AOD
-    from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
-    process.genParticlesForJets = genParticlesForJets.clone()
+    from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJetsNoNu
+    process.genParticlesForJetsCustom = genParticlesForJetsNoNu.clone()
+    ## Produce own jets (re-clustering in miniAOD needed at present to avoid crash)
+    from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
+    process.ak4GenJetsCustom = ak4GenJets.clone(
+        src = 'genParticlesForJetsCustom',
+        rParam = cms.double(0.4),
+        jetAlgorithm = cms.string("AntiKt")
+    )
 else:
     genParticleCollection = 'prunedGenParticles'
-    genJetInputParticleCollection = 'packedGenParticles'
+    genJetCollection = 'slimmedGenJets'
 
 ## Supplies PDG ID to real name resolution of MC particles
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
-## Produce own jets (re-clustering in miniAOD needed at present to avoid crash)
-from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
-process.ak4GenJetsCustom = ak4GenJets.clone(
-    src = genJetInputParticleCollection,
-    rParam = cms.double(0.4),
-    jetAlgorithm = cms.string("AntiKt")
-)
 
 ## Ghost particle collection used for Hadron-Jet association 
 # MUST use proper input particle collection
