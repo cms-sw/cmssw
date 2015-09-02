@@ -30,9 +30,6 @@ def customiseForPremixingInput(process):
         if producer.type_() == "QuickTrackAssociatorByHitsProducer":
             replacePixelDigiSimLink(producer.pixelSimLinkSrc)
             replaceStripDigiSimLink(producer.stripSimLinkSrc)
-        if producer.type_() == "MuonToTrackingParticleAssociatorEDProducer":
-            replacePixelDigiSimLink(producer.pixelSimLinkSrc)
-            replaceStripDigiSimLink(producer.stripSimLinkSrc)
         if producer.type_() == "TrackAssociatorByHitsProducer":
             replacePixelDigiSimLink(producer.pixelSimLinkSrc)
             replaceStripDigiSimLink(producer.stripSimLinkSrc)
@@ -43,7 +40,13 @@ def customiseForPremixingInput(process):
             producer.RPCdigisimlinkTag = cms.InputTag("mixData","RPCDigiSimLink")
             replacePixelDigiSimLink(producer.pixelSimLinkSrc)
             replaceStripDigiSimLink(producer.stripSimLinkSrc)
-
+        if producer.type_() == "MuonToTrackingParticleAssociatorEDProducer":
+            producer.DTdigisimlinkTag = cms.InputTag("mixData","simMuonDTDigis")
+            producer.CSClinksTag = cms.InputTag("mixData","MuonCSCStripDigiSimLinks")
+            producer.CSCwireLinksTag = cms.InputTag("mixData","MuonCSCWireDigiSimLinks")
+            producer.RPCdigisimlinkTag = cms.InputTag("mixData","RPCDigiSimLink")
+            replacePixelDigiSimLink(producer.pixelSimLinkSrc)
+            replaceStripDigiSimLink(producer.stripSimLinkSrc)
 
     for label, analyzer in process.analyzers_().iteritems():
         if analyzer.type_() == "GlobalRecHitsAnalyzer":
