@@ -515,12 +515,13 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     edm::Handle< reco::VertexCollection > pvHandle;
     iEvent.getByToken(pvSrcToken_, pvHandle );
     reco::Vertex const * pv0 = nullptr;  
-    if (pvHandle.isValid()) pv0 = &pvHandle->front();
-    //--- pv fake (the pv collection should have size==1 and the pv==beam spot)
-    if (   pv0->isFake() || pv0->tracksSize()==0
-    // definition of goodOfflinePrimaryVertex
-        || pv0->ndof() < 4. || pv0->z() > 24.)  pv0 = nullptr;
-
+    if (pvHandle.isValid()) {
+      pv0 = &pvHandle->front();
+      //--- pv fake (the pv collection should have size==1 and the pv==beam spot)
+      if (pv0->isFake() || pv0->tracksSize()==0
+      // definition of goodOfflinePrimaryVertex
+          || pv0->ndof() < 4. || pv0->z() > 24.)  pv0 = nullptr;
+    }
 
 
     if (trackHandle.isValid()) {
