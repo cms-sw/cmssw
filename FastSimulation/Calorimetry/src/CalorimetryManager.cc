@@ -53,6 +53,7 @@
 //#include "DataFormats/EcalDetId/interface/EcalDetId.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 //ROOT headers
 #include "TROOT.h"
@@ -139,8 +140,11 @@ CalorimetryManager::CalorimetryManager(FSimEvent * aSimEvent,
        fastMuHCAL.getParameter<bool>("EnergyLoss") || 
        fastMuHCAL.getParameter<bool>("MultipleScattering") )
     theMuonHcalEffects = new MaterialEffects(fastMuHCAL);
-  
-  
+
+  if( fastCalo.exists("ECALResponseScaling") ) {
+    ecalCorrection = std::unique_ptr<KKCorrectionFactors>( new KKCorrectionFactors( fastCalo.getParameter<edm::ParameterSet>("ECALResponseScaling") ) );
+  }
+
 }
 
 void CalorimetryManager::clean()
@@ -458,10 +462,19 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   theShower.setHcal(&myHcalHitMaker);
   theShower.compute();
   //myHistos->fill("h502", myPart->eta(),myGrid.totalX0());
-  
+
+  // calculate the total simulated energy for this particle
+  float simE = 0;
+  for( const auto& mapIterator : myGrid.getHits() ) {
+    simE += mapIterator.second;
+  }
+
+  auto scale = ecalCorrection ? ecalCorrection->getScale( myTrack.ecalEntrance().e(),
+     std::abs( myTrack.ecalEntrance().eta() ), simE ) : 1.;
+
   // Save the hits !
-  updateECAL(myGrid.getHits(),onEcal,myTrack.id());
-  
+  updateECAL( myGrid.getHits(), onEcal,myTrack.id(), scale );
+
   // Now fill the HCAL hits
   updateHCAL(myHcalHitMaker.getHits(),myTrack.id());
   
@@ -473,8 +486,6 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack,
   }
   
 }
-
-
 
 void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack,
                                          RandomEngineAndDistribution const* random)

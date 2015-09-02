@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import FWCore.ParameterSet.VarParsing as VarParsing
+from CondCore.ESSources.PoolDBESSource_cfi import GlobalTag
+
 options = VarParsing.VarParsing()
 options.register('runNumber',
                  4294967294, #default value
