@@ -33,8 +33,8 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
   std::vector<l1t::Jet> *preGtEtaJets = new std::vector<l1t::Jet>();
 
   HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
-  TwoByTwoFinder(subRegions, unSortedJets);
-  //slidingWindowJetFinder(0, subRegions, unSortedJets);
+  //TwoByTwoFinder(subRegions, unSortedJets);
+  slidingWindowJetFinder(0, subRegions, unSortedJets);
   SortJets(unSortedJets, preGtEtaJets);
   JetToGtEtaScales(params_, preGtEtaJets, preGtJets);
   JetToGtPtScales(params_, preGtJets, jets);
