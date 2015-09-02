@@ -1,7 +1,6 @@
 #ifndef __RecoParticleFlow_PFTracking_convbremhelpersHeavyObjectCache_h__
 #define __RecoParticleFlow_PFTracking_convbremhelpersHeavyObjectCache_h__
 
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"

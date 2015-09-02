@@ -65,10 +65,6 @@
 #include <utility>
 #include <vector>
 
-using namespace reco;
-using namespace trigger;
-using namespace edm;
-using namespace std;
 
 //
 // helper class to manage GMT-Muon pariring
@@ -180,8 +176,8 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> m_MuonInputTag;
   edm::EDGetTokenT<L1MuGMTReadoutCollection> m_GmtInputTag;
 
-  edm::EDGetTokenT<VertexCollection> m_VtxInputTag;
-  edm::EDGetTokenT<BeamSpot> m_BsInputTag;
+  edm::EDGetTokenT<reco::VertexCollection> m_VtxInputTag;
+  edm::EDGetTokenT<reco::BeamSpot> m_BsInputTag;
 
   edm::EDGetTokenT<trigger::TriggerEvent> m_trigInputTag;
   std::string m_trigProcess;

@@ -2178,7 +2178,7 @@ bool L1GtTriggerMenuXmlParser::parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* nod
 
     // get countIndex value and fill into structure
     // they are expressed in  base 10  (values: 0 - m_numberL1JetCounts)
-    char* endPtr = const_cast<char*>(type.c_str());
+    char* endPtr = nullptr;
     long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
 
     if (*endPtr != 0) {
@@ -2426,7 +2426,7 @@ bool L1GtTriggerMenuXmlParser::parseHfBitCounts(XERCES_CPP_NAMESPACE::DOMNode* n
 
     // get countIndex value and fill into structure
     // they are expressed in  base 10
-    char* endPtr = const_cast<char*>(type.c_str());
+    char* endPtr = nullptr;
     long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
 
     if (*endPtr != 0) {
@@ -2558,7 +2558,7 @@ bool L1GtTriggerMenuXmlParser::parseHfRingEtSums(XERCES_CPP_NAMESPACE::DOMNode* 
 
     // get etSumIndex value and fill into structure
     // they are expressed in  base 10
-    char* endPtr = const_cast<char*>(type.c_str());
+    char* endPtr = nullptr;
     long int typeInt = strtol(type.c_str(), &endPtr, 10); // base = 10
 
     if (*endPtr != 0) {

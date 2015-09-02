@@ -22,7 +22,6 @@
 #ifndef STANDALONE
 #endif
 
-using namespace std;
 
 class MuonEffectiveArea{
  public:

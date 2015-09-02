@@ -18,22 +18,17 @@ from EventFilter.L1GlobalTriggerRawToDigi.l1GtRecord_cfi import *
 
 # L1GtTriggerMenuLite
 from EventFilter.L1GlobalTriggerRawToDigi.l1GtTriggerMenuLite_cfi import *
+
 #
-# If this is Run 2 then the trigger menu needs to be loaded from XML
-# instead of using l1GtTriggerMenuLite
+# If the Stage 1 trigger is running, there is also some different configuration than
+# the general Run 2 stuff.
 #
-def _loadMenuFromXML( processObject ) :
-    """
-    Imports the required producer to load the L1 menu from XML and creates an
-    ESPrefer to prefer that. The actual filename of the menu is specified in
-    era customisations within these imports.
-    """
-    processObject.load( 'L1TriggerConfig.L1GtConfigProducers.l1GtTriggerMenuXml_cfi' )
-    processObject.load( 'L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff' )
-    processObject.es_prefer_l1GtParameters = cms.ESPrefer( 'L1GtTriggerMenuXmlProducer', 'l1GtTriggerMenuXml' )
+def _customiseForStage1( processObject ) :
+    processObject.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
+    processObject.load('L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi')
+# A unique name is required so I'll use "modify<python filename>ForStage1Trigger_"
 from Configuration.StandardSequences.Eras import eras
-# A unique name is required for this object, so I'll call it "modify<python filename>ForRun2_"
-modifyL1TriggerConfigurationL1RecoForRun2_ = eras.run2_common.makeProcessModifier( _loadMenuFromXML )
+modifyL1TriggerConfigurationL1RecoForStage1Trigger_ = eras.stage1L1Trigger.makeProcessModifier( _customiseForStage1 )
 
 # conditions in edm
 import EventFilter.L1GlobalTriggerRawToDigi.conditionDumperInEdm_cfi

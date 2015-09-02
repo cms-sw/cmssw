@@ -85,7 +85,8 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
   edm::ESHandle<Propagator>             propagator;
   es.get<TrackingComponentsRecord>().get(propagatorLabel,propagator);
-    
+  //  Propagator* thePropagator = propagator.product()->clone();
+
   // get products
   edm::Handle<edm::View<TrajectorySeed> > seeds;
   e.getByToken(seedToken,seeds);
@@ -172,24 +173,19 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       std::reverse(recHitCandidates.begin(),recHitCandidates.end());
     }
     
-    // initial track candidate parameters parameters
-    int32_t simTrackId = recHitCombination.back().simTrackId(0);
-    int vertexIndex = simTracks->at(simTrackId).vertIndex();
-    GlobalPoint  position(simVertices->at(vertexIndex).position().x(),
-			  simVertices->at(vertexIndex).position().y(),
-			  simVertices->at(vertexIndex).position().z());
-    GlobalVector momentum( simTracks->at(simTrackId).momentum().x() , 
-			   simTracks->at(simTrackId).momentum().y() , 
-			   simTracks->at(simTrackId).momentum().z() );
-    float        charge   = simTracks->at(simTrackId).charge();
-    GlobalTrajectoryParameters initialParams(position,momentum,(int)charge,magneticField.product());
-    AlgebraicSymMatrix55 errorMatrix= AlgebraicMatrixID();    
-    CurvilinearTrajectoryError initialError(errorMatrix);
-    FreeTrajectoryState initialFTS(initialParams, initialError);      
-
     // create track candidate
+
+    //Get seedTSOS from seed PTSOD//---------------------------------------------------------------------------
+    DetId seedDetId(seed.startingState().detId());
+    const GeomDet* gdet = trackerGeometry->idToDet(seedDetId);
+    TrajectoryStateOnSurface seedTSOS = trajectoryStateTransform::transientState(seed.startingState(), &(gdet->surface()),magneticField.product());
+    //---------------------------------------------------------------------------------------------------------
+    //backPropagate seedState to front recHit and get a new initial TSOS at front recHit//---------------------
     const GeomDet* initialLayer = trackerGeometry->idToDet(trackRecHits.front().geographicalId());
-    const TrajectoryStateOnSurface initialTSOS = propagator->propagate(initialFTS,initialLayer->surface()) ;
+    //thePropagator->setPropagationDirection(oppositeToMomentum);
+    const TrajectoryStateOnSurface initialTSOS = propagator->propagate(seedTSOS,initialLayer->surface()) ;
+    //---------------------------------------------------------------------------------------------------------
+    //Check if the TSOS is valid .
     if (!initialTSOS.isValid()) continue; 
     PTrajectoryStateOnDet PTSOD = trajectoryStateTransform::persistentState(initialTSOS,trackRecHits.front().geographicalId().rawId()); 
     TrackCandidate newTrackCandidate(trackRecHits,seed,PTSOD,edm::RefToBase<TrajectorySeed>(seeds,seednr));

@@ -1,4 +1,5 @@
-<use   name="DetectorDescription/Base"/>
+<use   name="FWCore/Utilities"/>
+<use   name="boost"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>

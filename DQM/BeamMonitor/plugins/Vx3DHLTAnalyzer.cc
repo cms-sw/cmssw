@@ -22,6 +22,9 @@
 #include <Math/Factory.h>
 #include <Math/Functor.h>
 
+using namespace reco;
+using namespace edm;
+using namespace std;
 
 Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
 {

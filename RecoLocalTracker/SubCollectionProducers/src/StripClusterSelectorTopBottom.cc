@@ -1,10 +1,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoLocalTracker/SubCollectionProducers/interface/StripClusterSelectorTopBottom.h"
 
-void StripClusterSelectorTopBottom::produce( edm::Event& event, const edm::EventSetup& setup) {
+void StripClusterSelectorTopBottom::produce( edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const {
 
   edm::Handle< edmNew::DetSetVector<SiStripCluster> > input;
-  event.getByLabel(label_, input);
+  event.getByToken(token_, input);
 
   edm::ESHandle<TrackerGeometry> geom;
   setup.get<TrackerDigiGeometryRecord>().get( geom );

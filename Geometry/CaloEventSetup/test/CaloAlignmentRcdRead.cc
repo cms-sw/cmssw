@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,7 +13,7 @@
 #include "CondFormats/AlignmentRecord/interface/EEAlignmentRcd.h"
 #include "CondFormats/AlignmentRecord/interface/ESAlignmentRcd.h"
 
-class CaloAlignmentRcdRead : public edm::EDAnalyzer
+class CaloAlignmentRcdRead : public edm::one::EDAnalyzer<>
 {
 public:
 
@@ -24,7 +24,9 @@ public:
   template<typename T>
   void dumpAlignments(const edm::EventSetup& evtSetup);
 
-  virtual void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup); 
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
   
 private:
 

@@ -99,7 +99,6 @@
 
 #include "Alignment/ReferenceTrajectories/interface/GblTrajectory.h"
 
-using namespace gbl;
 
 class ReferenceTrajectoryBase : public ReferenceCounted
 {
@@ -146,7 +145,7 @@ public:
   
   /** Returns the GBL input
    */
-  std::vector<std::pair<std::vector<GblPoint>, TMatrixD> >& gblInput() { return theGblInput; }
+  std::vector<std::pair<std::vector<gbl::GblPoint>, TMatrixD> >& gblInput() { return theGblInput; }
 
   /** Returns the GBL external derivatives.
    */
@@ -230,7 +229,7 @@ protected:
 // CHK for TwoBodyD.  transformation local to trajectory parameter at refTsos
   AlgebraicMatrix     theInnerLocalToTrajectory;
 // CHK GBL input:     list of (list of points on trajectory and transformation at inner (first) point)
-  std::vector<std::pair<std::vector<GblPoint>, TMatrixD> > theGblInput;
+  std::vector<std::pair<std::vector<gbl::GblPoint>, TMatrixD> > theGblInput;
   int                           theNomField;
 // CHK GBL TBD:       virtual (mass) measurement
   TMatrixD            theGblExtDerivatives;

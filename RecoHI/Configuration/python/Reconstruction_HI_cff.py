@@ -9,6 +9,9 @@ from RecoHI.HiTracking.HiTracking_cff import *    # two additional steps
 # Egamma
 from RecoHI.HiEgammaAlgos.HiEgamma_cff import *
 from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
+ecalDrivenElectronSeeds.SeedConfiguration.SCEtCut = cms.double(15.0)
+ecalDrivenGsfElectrons.minSCEtBarrel = cms.double(15.0)
+ecalDrivenGsfElectrons.minSCEtEndcaps = cms.double(15.0)
 
 # Jet Reconstruction
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
@@ -30,7 +33,7 @@ from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
 hcalnoise.trackCollName = 'hiGeneralTracks'
 
 # Global + High-Level Reco Sequence
-globalRecoPbPb = cms.Sequence(hiTracking
+globalRecoPbPb = cms.Sequence(hiTracking_wSplitting
                               * hiParticleFlowLocalReco
                               * hiEcalClusters
                               * hiRecoJets
@@ -42,6 +45,7 @@ globalRecoPbPb = cms.Sequence(hiTracking
                               * hiClusterCompatibility
                               * hiEvtPlane
                               * hcalnoise
+                              * muonRecoHighLevelPbPb
                               )
 
 globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
@@ -56,6 +60,7 @@ globalRecoPbPb_wConformalPixel = cms.Sequence(hiTracking_wConformalPixel
                                               * hiClusterCompatibility
                                               * hiEvtPlane
                                               * hcalnoise
+                                              * muonRecoHighLevelPbPb
                                               )
 
 #--------------------------------------------------------------------------

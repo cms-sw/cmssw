@@ -45,6 +45,8 @@
 #include <forward_list>
 #include <unordered_map>
 
+#include "RecoParticleFlow/PFProducer/interface/PFEGammaHeavyObjectCache.h"
+
 class PFSCEnergyCalibration;
 class PFEnergyCalibration;
 
@@ -129,7 +131,7 @@ class PFEGammaAlgo {
   //constructor
   PFEGammaAlgo(const PFEGConfigInfo&);
   //destructor
-  ~PFEGammaAlgo(){delete tmvaReaderEle_; delete tmvaReader_;   };
+  ~PFEGammaAlgo(){ };
 
   void setEEtoPSAssociation(const edm::Handle<EEtoPSAssociation>& eetops) {
     eetops_ = eetops;
@@ -142,14 +144,16 @@ class PFEGammaAlgo {
     cfg_.primaryVtx = & primary;
   }
 
-  void RunPFEG(const reco::PFBlockRef&  blockRef,
-	       std::vector< bool >& active
-	       );
-
+  void RunPFEG(const pfEGHelpers::HeavyObjectCache* hoc,
+               const reco::PFBlockRef&  blockRef,
+               std::vector< bool >& active
+               );
+               
   //check candidate validity
-  bool isEGValidCandidate(const reco::PFBlockRef&  blockRef,
-			  std::vector< bool >&  active){
-    RunPFEG(blockRef,active);
+  bool isEGValidCandidate(const pfEGHelpers::HeavyObjectCache* hoc,
+                          const reco::PFBlockRef&  blockRef,
+                          std::vector< bool >&  active){
+    RunPFEG(hoc,blockRef,active);
     return (egCandidate_.size()>0);
   };
   
@@ -204,7 +208,8 @@ private:
 
   // functions:
   // this runs the functions below
-  void buildAndRefineEGObjects(const reco::PFBlockRef& block);
+  void buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
+                               const reco::PFBlockRef& block);
 
   // build proto eg object using all available unflagged resources in block.
   // this will be kind of like the old 'SetLinks' but with simplified and 
@@ -246,7 +251,8 @@ private:
   // refining steps doing the ECAL -> track piece
   // this is the factorization of the old PF photon algo stuff
   // which through arcane means I came to understand was conversion matching  
-  void linkRefinableObjectECALToSingleLegConv(ProtoEGObject&);
+  void linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
+                                              ProtoEGObject&);
 
   // wax off
 
@@ -261,14 +267,16 @@ private:
   
 
   // things for building the final candidate and refined SC collections    
-  void fillPFCandidates(const std::list<ProtoEGObject>&, 
+  void fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
+                        const std::list<ProtoEGObject>&, 
 			reco::PFCandidateCollection&,
 			reco::PFCandidateEGammaExtraCollection&);
   reco::SuperCluster buildRefinedSuperCluster(const ProtoEGObject&);
   
   // helper functions for that
 
-  float calculate_ele_mva(const ProtoEGObject&,
+  float calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
+                          const ProtoEGObject&,
 			  reco::PFCandidateEGammaExtra&);
   void fill_extra_info(const ProtoEGObject&,
 		       reco::PFCandidateEGammaExtra&);
@@ -290,8 +298,6 @@ private:
   std::vector< std::pair <unsigned int, unsigned int> > convGsfTrack_;
 
   PFEGConfigInfo cfg_;
-  
-  TMVA::Reader    *tmvaReaderEle_;
 
   const char  *mvaWeightFile_;
 
@@ -327,7 +333,7 @@ private:
                                               */ 
   //FOR SINGLE LEG MVA:					      
   const reco::Vertex  *  primaryVertex_;
-  TMVA::Reader *tmvaReader_;
+  //TMVA::Reader *tmvaReader_;
   const GBRForest *ReaderLC_;
   const GBRForest *ReaderGC_;
   const GBRForest *ReaderRes_;
@@ -383,9 +389,10 @@ private:
 //   std::vector<reco::SuperCluser> sCluster_;
   reco::PFCandidateEGammaExtraCollection egExtra_;  
 
-  float EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
-			    const reco::Vertex& primaryvtx, 
-			    unsigned int track_index);
+  float EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
+                             const reco::PFBlockRef& blockref, 
+                             const reco::Vertex& primaryvtx, 
+                             unsigned int track_index);
 };
 
 #endif

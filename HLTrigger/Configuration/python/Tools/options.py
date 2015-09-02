@@ -3,10 +3,9 @@ globalTag = {
   'Fake': 'auto:run1_mc_Fake',
   'FULL': 'auto:run2_mc_FULL',
   'GRun': 'auto:run2_mc_GRun',       # used as default
+  '25ns14e33_v4': 'auto:run2_mc_25ns14e33_v4',
   '25ns14e33_v3': 'auto:run2_mc_25ns14e33_v3',
   '50ns_5e33_v3': 'auto:run2_mc_50ns_5e33_v3',
-  '25ns14e33_v2': 'auto:run2_mc_25ns14e33_v2',
-  '50ns_5e33_v2': 'auto:run2_mc_50ns_5e33_v2',
   '25ns14e33_v1': 'auto:run2_mc_25ns14e33_v1',
   '50ns_5e33_v1': 'auto:run2_mc_50ns_5e33_v1',
   '50nsGRun': 'auto:run2_mc_50nsGRun',
@@ -14,6 +13,7 @@ globalTag = {
   'HIon' : 'auto:run2_mc_HIon',
   'PIon' : 'auto:run2_mc_PIon',
   'LowPU': 'auto:run2_mc_LowPU',
+  '25nsLowPU': 'auto:run2_mc_25nsLowPU',
   'data' : 'auto:run1_hlt',
 }
 
@@ -79,7 +79,7 @@ class ConnectionHLTMenu(object):
     (db, name) = tokens
     # check if the menu should be automatically determined based on the run number
     if db == 'run':
-      self.version  = 'v1'
+      self.version  = 'v2'
       self.database = 'adg'
       self.run      = name
     # check for backward compatibility names

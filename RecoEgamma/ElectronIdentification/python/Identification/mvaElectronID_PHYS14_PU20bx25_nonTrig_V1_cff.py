@@ -15,6 +15,10 @@ import FWCore.ParameterSet.Config as cms
 
 # This MVA implementation class name
 mvaPhys14NonTrigClassName = "ElectronMVAEstimatorRun2Phys14NonTrig"
+# The tag is an extra string attached to the names of the products
+# such as ValueMaps that needs to distinguish cases when the same MVA estimator
+# class is used with different tuning/weights
+mvaTag = "25nsV1"
 
 # There are 6 categories in this MVA. They have to be configured in this strict order
 # (cuts and weight files order):
@@ -42,8 +46,8 @@ from RecoEgamma.ElectronIdentification.Identification.mvaElectronID_tools import
 # The names for the maps are "<module name>:<MVA class name>Values" 
 # and "<module name>:<MVA class name>Categories"
 mvaProducerModuleLabel = "electronMVAValueMapProducer"
-mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + "Values"
-mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + "Categories"
+mvaValueMapName        = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + mvaTag + "Values"
+mvaCategoriesMapName   = mvaProducerModuleLabel + ":" + mvaPhys14NonTrigClassName + mvaTag + "Categories"
 
 # The working point for this MVA that is expected to have about 80% signal
 # efficiency on in each category
@@ -82,6 +86,7 @@ MVA_WP90 = EleMVA_6Categories_WP(
 # Create the PSet that will be fed to the MVA value map producer
 mvaEleID_PHYS14_PU20bx25_nonTrig_V1_producer_config = cms.PSet( 
     mvaName            = cms.string(mvaPhys14NonTrigClassName),
+    mvaTag             = cms.string(mvaTag),
     weightFileNames    = mvaPhys14NonTrigWeightFiles_V1
     )
 # Create the VPset's for VID cuts
@@ -96,9 +101,9 @@ mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90 = configureVIDMVAEleID_V1( MVA_WP90 )
 #
 
 central_id_registry.register( mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80.idName,
-                              '8b587a6315d6808df7af9d3471d22a20')
+                              '768465d41956da069c83bf245398d5e6')
 central_id_registry.register( mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90.idName,
-                              'a01428d36d3d0e6b1f89ab772aa606a1')
+                              '7d091368510c32f0ab29a53323cae95a')
 
-mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
-mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
+mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp80.isPOGApproved = cms.untracked.bool(False)
+mvaEleID_PHYS14_PU20bx25_nonTrig_V1_wp90.isPOGApproved = cms.untracked.bool(False)

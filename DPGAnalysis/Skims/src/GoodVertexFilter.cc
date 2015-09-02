@@ -23,39 +23,40 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 //
 // class declaration
 //
 
-class GoodVertexFilter : public edm::EDFilter {
+class GoodVertexFilter : public edm::global::EDFilter<> {
    public:
       explicit GoodVertexFilter(const edm::ParameterSet&);
       ~GoodVertexFilter();
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      edm::InputTag vertexSrc;        
-      unsigned int minNDOF;
-      double maxAbsZ;
-      double maxd0;
+      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+      const edm::EDGetTokenT<reco::VertexCollection> vertexSrc;        
+      const unsigned int minNDOF;
+      const double maxAbsZ;
+      const double maxd0;
       // ----------member data ---------------------------
 };
 
-GoodVertexFilter::GoodVertexFilter(const edm::ParameterSet& iConfig)
+GoodVertexFilter::GoodVertexFilter(const edm::ParameterSet& iConfig) :
+  vertexSrc{ consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexCollection")) },
+  minNDOF{ iConfig.getParameter<unsigned int>("minimumNDOF") },
+  maxAbsZ{ iConfig.getParameter<double>("maxAbsZ") },
+  maxd0 { iConfig.getParameter<double>("maxd0") }
 {
-  vertexSrc = iConfig.getParameter<edm::InputTag>("vertexCollection");
-  minNDOF = iConfig.getParameter<unsigned int>("minimumNDOF");
-  maxAbsZ = iConfig.getParameter<double>("maxAbsZ");
-  maxd0 = iConfig.getParameter<double>("maxd0");
 
 }
 
@@ -65,11 +66,11 @@ GoodVertexFilter::~GoodVertexFilter()
 }
 
 bool
-GoodVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+GoodVertexFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
  bool result = false; 
  edm::Handle<reco::VertexCollection> pvHandle; 
- iEvent.getByLabel(vertexSrc,pvHandle);
+ iEvent.getByToken(vertexSrc,pvHandle);
  const reco::VertexCollection & vertices = *pvHandle.product();
  for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
   {

@@ -12,7 +12,6 @@
 #include <DataFormats/METReco/interface/PFMET.h>
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
-using namespace std;
 /**
    \fn      accept TopDQMHelpers.h "DQM/Physics/interface/TopDQMHelpers.h"
 

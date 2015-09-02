@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,47 +42,22 @@
 
 #include "CoralBase/Exception.h"
 
-//
-// class decleration
-//
-
-class MuonNumberingTester : public edm::EDAnalyzer {
+class MuonNumberingTester : public edm::one::EDAnalyzer<>
+{
 public:
   explicit MuonNumberingTester( const edm::ParameterSet& );
   ~MuonNumberingTester();
 
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-private:
-  // ----------member data ---------------------------
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 MuonNumberingTester::MuonNumberingTester( const edm::ParameterSet& iConfig )
-{
-
-}
-
+{}
 
 MuonNumberingTester::~MuonNumberingTester()
-{
- 
-}
-
-
-//
-// member functions
-//
+{}
 
 // ------------ method called to produce the data  ------------
 void
@@ -120,9 +95,7 @@ MuonNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& i
    std::cout << "about to getValue( toFind )" << std::endl;
    int level = mdc.getValue( toFind );
    std::cout << "level = " <<  level << std::endl;
-
 }
-
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(MuonNumberingTester);

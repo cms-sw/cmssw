@@ -1,7 +1,7 @@
 #include <memory>
 #include <set>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -13,11 +13,11 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-class DoubleVertexFilter : public edm::EDProducer {
+class DoubleVertexFilter : public edm::global::EDProducer<> {
     public:
 	DoubleVertexFilter(const edm::ParameterSet &params);
 
-	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
+	virtual void produce(edm::StreamID, edm::Event &event, const edm::EventSetup &es) const override;
 
     private:
 	bool trackFilter(const reco::TrackRef &track) const;
@@ -57,7 +57,7 @@ static double computeSharedTracks(const reco::Vertex &pv,
 	return (double)count / (double)total;
 }
 
-void DoubleVertexFilter::produce(edm::Event &event, const edm::EventSetup &es)
+void DoubleVertexFilter::produce(edm::StreamID, edm::Event &event, const edm::EventSetup &es) const
 {
 	using namespace reco;
 

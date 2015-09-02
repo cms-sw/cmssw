@@ -199,6 +199,8 @@ namespace cond {
       FETCH_PAYLOAD_CASE( L1RPCConfig )
       FETCH_PAYLOAD_CASE( L1RPCHsbConfig ) 
       FETCH_PAYLOAD_CASE( L1RPCHwConfig )
+      FETCH_PAYLOAD_CASE( l1t::CaloParams )
+      FETCH_PAYLOAD_CASE( l1t::CaloConfig )
       FETCH_PAYLOAD_CASE( L1TriggerKey )
       FETCH_PAYLOAD_CASE( L1TriggerKeyList )
       FETCH_PAYLOAD_CASE( lumi::LumiSectionData )

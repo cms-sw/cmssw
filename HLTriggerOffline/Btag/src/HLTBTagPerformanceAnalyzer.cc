@@ -1,5 +1,8 @@
 #include "HLTriggerOffline/Btag/interface/HLTBTagPerformanceAnalyzer.h"
 
+using namespace edm;
+using namespace reco;
+
 // find the index of the object key of an association vector closest to a given jet, within a given distance
 template <typename T, typename V>
 int closestJet(const RefToBase<reco::Jet>   jet, const edm::AssociationVector<T, V> & association, double distance) {
@@ -18,7 +21,7 @@ int closestJet(const RefToBase<reco::Jet>   jet, const edm::AssociationVector<T,
 // constructors and destructor
 HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet& iConfig)
 {
-	hlTriggerResults_   		= consumes<TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
+	hlTriggerResults_   		= consumes<edm::TriggerResults>(iConfig.getParameter<InputTag> ("TriggerResults"));
 	JetTagCollection_ 			= edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "JetTag" ), [this](edm::InputTag const & tag){return mayConsume< reco::JetTagCollection>(tag);});
 	m_mcPartons 				= consumes<JetFlavourMatchingCollection>(iConfig.getParameter<InputTag> ("mcPartons") ); 
 	hltPathNames_        		= iConfig.getParameter< std::vector<std::string> > ("HLTPathNames");

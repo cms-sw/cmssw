@@ -33,7 +33,6 @@ photons.isolationSumsCalculatorSet.trackProducer = isolationInputParameters.trac
 from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
 hiPhotonSequence = cms.Sequence(photonSequence * photonIsolationHIProducer)
 
-
 # HI Ecal reconstruction
 hiEcalClusters = cms.Sequence(hiEcalClusteringSequence)
 hiEgammaSequence = cms.Sequence(hiPhotonSequence)

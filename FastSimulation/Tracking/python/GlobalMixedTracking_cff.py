@@ -17,4 +17,3 @@ globalMixedWithMaterialTracks.src = 'globalMixedTrackCandidates'
 globalMixedWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
 globalMixedWithMaterialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
 globalMixedWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
-

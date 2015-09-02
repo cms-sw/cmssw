@@ -10,7 +10,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "Validation/RecoTrack/interface/MultiTrackValidatorBase.h"
-#include "Validation/RecoTrack/interface/MTVHistoProducerAlgo.h"
+#include "Validation/RecoTrack/interface/MTVHistoProducerAlgoForTracker.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
@@ -40,7 +40,7 @@ class TrackerSeedValidator : public DQMEDAnalyzer, protected MultiTrackValidator
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
-  MTVHistoProducerAlgo* histoProducerAlgo_;
+  std::unique_ptr<MTVHistoProducerAlgoForTracker> histoProducerAlgo_;
 
 };
 

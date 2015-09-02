@@ -20,7 +20,7 @@
 #include <iomanip>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -40,19 +40,18 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 
-//
-// class decleration
-//
+class CrystalCenterDump : public edm::one::EDAnalyzer<>
+{
+public:
+  explicit CrystalCenterDump( const edm::ParameterSet& );
+  ~CrystalCenterDump();
 
-class CrystalCenterDump : public edm::EDAnalyzer {
-   public:
-      explicit CrystalCenterDump( const edm::ParameterSet& );
-      ~CrystalCenterDump();
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
+private:
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
-      // ----------member data ---------------------------
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn, const char* name);
   int pass_;
 
@@ -61,20 +60,8 @@ class CrystalCenterDump : public edm::EDAnalyzer {
   double beamEnergy_;
 
   double crystalDepth(){ return A_*(B_+log(beamEnergy_)); }
-
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 CrystalCenterDump::CrystalCenterDump( const edm::ParameterSet& iConfig )
 {
    //now do what ever initialization is needed

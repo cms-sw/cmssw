@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "Utilities/StorageFactory/interface/StorageAccount.h"
 
 #include <fcntl.h>
 #include <unistd.h>
@@ -39,6 +40,7 @@ namespace edm {
         private:
 
             bool isChirpSupported();
+            template<typename T> bool updateChirp(const std::string &key_suffix, const T &value);
             bool updateChirp(std::string const &key, std::string const &value);
             inline void update();
             void firstUpdate();
@@ -67,6 +69,7 @@ namespace edm {
             std::atomic<std::uint_least64_t> m_lumis;
             std::atomic<std::uint_least64_t> m_runs;
             std::atomic<std::uint_least64_t> m_files;
+            std::string m_tag;
             edm::ParameterSetID m_processParameterSetID;
 
             std::uint_least64_t m_lastEventCount = 0;
@@ -77,6 +80,9 @@ namespace edm {
 }
 
 using namespace edm::service;
+
+const unsigned int CondorStatusService::m_defaultUpdateInterval;
+constexpr float CondorStatusService::m_defaultEmaInterval;
 
 CondorStatusService::CondorStatusService(ParameterSet const& pset, edm::ActivityRegistry& ar)
   :
@@ -111,6 +117,10 @@ CondorStatusService::CondorStatusService(ParameterSet const& pset, edm::Activity
     if (pset.exists("EMAInterval"))
     {
         m_emaInterval = pset.getUntrackedParameter<double>("EMAInterval");
+    }
+    if (pset.exists("tag"))
+    {
+        m_tag = pset.getUntrackedParameter<std::string>("tag");
     }
 }
 
@@ -185,7 +195,7 @@ CondorStatusService::beginPost()
 
     std::vector<std::string> fileNames = pset.getUntrackedParameter<std::vector<std::string>>("fileNames", std::vector<std::string>());
     std::stringstream ss_max_files; ss_max_files << fileNames.size();
-    updateChirp("ChirpCMSSWMaxFiles", ss_max_files.str());
+    updateChirp("MaxFiles", ss_max_files.str());
 
     if (lumiCount > 0)
     {
@@ -198,12 +208,12 @@ CondorStatusService::beginPost()
     if (maxEvents > 0)
     {
         std::stringstream ss_max_events; ss_max_events << maxEvents;
-        updateChirp("ChirpCMSSWMaxEvents", ss_max_events.str());
+        updateChirp("MaxEvents", ss_max_events.str());
     }
     if (maxLumis > 0)
     {
         std::stringstream ss_max_lumis; ss_max_lumis << maxLumis;
-        updateChirp("ChirpCMSSWMaxLumis", ss_max_lumis.str());
+        updateChirp("MaxLumis", ss_max_lumis.str());
     }
 
     m_beginJob = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -223,7 +233,7 @@ CondorStatusService::isChirpSupported()
 {
     if (m_debug) {return true;}
 
-    return getenv("_CONDOR_CHIRP_CONFIG") && updateChirp("ChirpCMSSWElapsed", "0");
+    return getenv("_CONDOR_CHIRP_CONFIG") && updateChirp("Elapsed", "0");
 }
 
 
@@ -234,10 +244,10 @@ CondorStatusService::firstUpdate()
     // This allows us to overwrite the activities of a previous cmsRun process
     // within this HTCondor job.
     updateImpl(0);
-    updateChirp("ChirpCMSSWMaxFiles", "-1");
-    updateChirp("ChirpCMSSWMaxEvents", "-1");
-    updateChirp("ChirpCMSSWMaxLumis", "-1");
-    updateChirp("ChirpCMSSWDone", "false");
+    updateChirp("MaxFiles", "-1");
+    updateChirp("MaxEvents", "-1");
+    updateChirp("MaxLumis", "-1");
+    updateChirp("Done", "false");
 }
 
 
@@ -246,7 +256,7 @@ CondorStatusService::lastUpdate()
 {
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     updateImpl(now - m_lastUpdate);
-    updateChirp("ChirpCMSSWDone", "true");
+    updateChirp("Done", "true");
 }
 
 
@@ -281,40 +291,90 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     time_t jobTime = now-m_beginJob;
 
-    std::stringstream ss_now; ss_now << now;
-    updateChirp("ChirpCMSSWLastUpdate", ss_now.str());
+    updateChirp("LastUpdate", now);
 
-    if (m_events > m_lastEventCount)
+    if (!m_events || (m_events > m_lastEventCount))
     {
-        std::stringstream ss_events; ss_events << m_events;
-        updateChirp("ChirpCMSSWEvents", ss_events.str());
+        updateChirp("Events", m_events);
     }
 
-    std::stringstream ss_lumis; ss_lumis << m_lumis;
-    updateChirp("ChirpCMSSWLumis", ss_lumis.str());
+    updateChirp("Lumis", m_lumis);
 
-    std::stringstream ss_runs; ss_runs << m_runs;
-    updateChirp("ChirpCMSSWRuns", ss_runs.str());
+    updateChirp("Runs", m_runs);
 
-    std::stringstream ss_files; ss_files << m_files;
-    updateChirp("ChirpCMSSWFiles", ss_files.str());
+    updateChirp("Files", m_files);
 
-    float ema_coeff = 1 - std::exp(-static_cast<float>(sinceLastUpdate)/m_emaInterval);
+    float ema_coeff = 1 - std::exp(-static_cast<float>(sinceLastUpdate)/std::max(std::min(m_emaInterval, static_cast<float>(jobTime)), 1.0f));
     if (sinceLastUpdate > 0)
     {
-        std::stringstream ss_elapsed; ss_elapsed << jobTime;
-        updateChirp("ChirpCMSSWElapsed", ss_elapsed.str());
+        updateChirp("Elapsed", jobTime);
         m_rate = ema_coeff*static_cast<float>(m_events-m_lastEventCount)/static_cast<float>(sinceLastUpdate) + (1.0-ema_coeff)*m_rate;
         m_lastEventCount = m_events;
-        std::stringstream ss_rate; ss_rate << m_rate;
-        updateChirp("ChirpCMSSWEventRate", ss_rate.str());
+        updateChirp("EventRate", m_rate);
     }
+
+    // Update storage account information
+    StorageAccount::StorageStatsSentry stats = StorageAccount::summaryLocked();
+    uint64_t readOps = 0;
+    uint64_t readVOps = 0;
+    uint64_t readSegs = 0;
+    uint64_t readBytes = 0;
+    uint64_t readTimeTotal = 0;
+    uint64_t writeBytes = 0;
+    uint64_t writeTimeTotal = 0;
+    for (const auto & storage : *stats)
+    {
+        // StorageAccount records statistics for both the TFile layer and the
+        // StorageFactory layer.  However, the StorageFactory statistics tend to
+        // be more accurate as various backends may alter the incoming read requests
+        // (such as when lazy-download is used).
+        if (storage.first == "tstoragefile") {continue;}
+        for (const auto & counter : *(storage.second))
+        {
+            if (counter.first == "read")
+            {
+                readOps += counter.second.successes;
+                readSegs++;
+                readBytes += counter.second.amount;
+                readTimeTotal += counter.second.timeTotal;
+            }
+            else if (counter.first == "readv")
+            {
+                readVOps += counter.second.successes;
+                readSegs += counter.second.vector_count;
+                readBytes += counter.second.amount;
+                readTimeTotal += counter.second.timeTotal;
+            }
+            else if ((counter.first == "write") || (counter.first == "writev"))
+            {
+                writeBytes += counter.second.amount;
+                writeTimeTotal += counter.second.timeTotal;
+            }
+        }
+    }
+    updateChirp("ReadOps", readOps);
+    updateChirp("ReadVOps", readVOps);
+    updateChirp("ReadSegments", readSegs);
+    updateChirp("ReadBytes", readBytes);
+    updateChirp("ReadTimeMsecs", readTimeTotal/(1000*1000));
+    updateChirp("WriteBytes", writeBytes);
+    updateChirp("WriteTimeMsecs", writeTimeTotal/(1000*1000));
+}
+
+
+template<typename T> bool
+CondorStatusService::updateChirp(const std::string &key_suffix, const T &value)
+{
+    std::stringstream ss; ss << value;
+    return updateChirp(key_suffix, ss.str());
 }
 
 
 bool
-CondorStatusService::updateChirp(const std::string &key, const std::string &value)
+CondorStatusService::updateChirp(const std::string &key_suffix, const std::string &value)
 {
+    std::stringstream ss; ss << "ChirpCMSSW" << m_tag << key_suffix;
+    std::string key = ss.str();
     if (m_debug)
     {
         std::cout << "condor_chirp set_job_attr_delayed " << key << " " << value << std::endl;
@@ -357,6 +417,8 @@ CondorStatusService::fillDescriptions(ConfigurationDescriptions &descriptions)
       ->setComment("Enable debugging of this service");
     desc.addOptionalUntracked<double>("EMAInterval", m_defaultEmaInterval)
       ->setComment("Interval, in seconds, to calculate event rate over (using EMA)");
+    desc.addOptionalUntracked<std::string>("tag")
+      ->setComment("Identifier tag for this process (a value of 'Foo' results in ClassAd attributes of the form 'ChirpCMSSWFoo*')");
     descriptions.add("CondorStatusService", desc);
 }
 

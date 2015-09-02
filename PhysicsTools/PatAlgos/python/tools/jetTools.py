@@ -318,7 +318,8 @@ class AddJetCollection(ConfigToolBase):
                 _newPatJetFlavourAssociation.rParam=rParam
                 _newPatJetFlavourAssociation.bHadrons=cms.InputTag("patJetPartons"+postfix,"bHadrons")
                 _newPatJetFlavourAssociation.cHadrons=cms.InputTag("patJetPartons"+postfix,"cHadrons")
-                _newPatJetFlavourAssociation.partons=cms.InputTag("patJetPartons"+postfix,"partons")
+                _newPatJetFlavourAssociation.partons=cms.InputTag("patJetPartons"+postfix,"physicsPartons")
+                _newPatJetFlavourAssociation.leptons=cms.InputTag("patJetPartons"+postfix,"leptons")
             else :
                 setattr(process, 'patJetFlavourAssociation'+_labelName+postfix,
                         patJetFlavourAssociation.clone(
@@ -327,7 +328,8 @@ class AddJetCollection(ConfigToolBase):
                             rParam=rParam,
                             bHadrons = cms.InputTag("patJetPartons"+postfix,"bHadrons"),
                             cHadrons = cms.InputTag("patJetPartons"+postfix,"cHadrons"),
-                            partons = cms.InputTag("patJetPartons"+postfix,"partons")
+                            partons = cms.InputTag("patJetPartons"+postfix,"physicsPartons"),
+                            leptons = cms.InputTag("patJetPartons"+postfix,"leptons")
                         )
                 )
                 knownModules.append('patJetFlavourAssociation'+_labelName+postfix)
@@ -397,7 +399,7 @@ class AddJetCollection(ConfigToolBase):
                 process.load("RecoBTag.ImpactParameter.impactParameter_cff")
                 process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
                 process.load("RecoBTag.SoftLepton.softLepton_cff")
-                process.load("RecoBTau.JetTagComputer.combinedMVA_cff")
+                process.load("RecoBTag.Combined.combinedMVA_cff")
             #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
             import RecoJets.JetProducers.caTopTaggers_cff as toptag

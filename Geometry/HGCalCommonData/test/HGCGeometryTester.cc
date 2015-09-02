@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -41,40 +41,20 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "CoralBase/Exception.h"
-//
-// class decleration
-//
 
-class HGCGeometryTester : public edm::EDAnalyzer {
+class HGCGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCGeometryTester( const edm::ParameterSet& );
   ~HGCGeometryTester();
 
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-private:
-  // ----------member data ---------------------------
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-//
-// constructors and destructor
-//
 HGCGeometryTester::HGCGeometryTester(const edm::ParameterSet& ) {}
 
-
 HGCGeometryTester::~HGCGeometryTester() {}
-
-
-//
-// member functions
-//
 
 // ------------ method called to produce the data  ------------
 void HGCGeometryTester::analyze( const edm::Event& iEvent, 

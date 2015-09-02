@@ -1,12 +1,39 @@
-#include "Geometry/CommonTopologies/test/ValidateRadial.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/ProxyStripTopology.h"
+#include "Geometry/CommonTopologies/interface/TkRadialStripTopology.h"
 #include "boost/lexical_cast.hpp"
+#include "TFile.h"
 #include "TProfile.h"
+
+class ValidateRadial : public edm::one::EDAnalyzer<>
+{
+public:
+  ValidateRadial(const edm::ParameterSet&);
+  ~ValidateRadial();
+
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
+
+private:
+  std::vector<const TkRadialStripTopology*> get_list_of_radial_topologies(const edm::Event&, const edm::EventSetup&);
+  void test_topology(const TkRadialStripTopology* , unsigned);
+  bool pass_frame_change_test(const TkRadialStripTopology* t, const float strip, const float stripErr2, const bool);
+  bool EQUAL(const double a, const double b) {return fabs(a-b)<epsilon_;}
+  const double epsilon_;
+  TFile* file_;
+  const bool printOut_;
+  const bool posOnly_;
+
+  mutable float maxerrU=0.; 
+  mutable float maxerrUV=0.; 
+};
 
 ValidateRadial::ValidateRadial(const edm::ParameterSet& cfg) 
   : epsilon_(cfg.getParameter<double>("Epsilon")),
@@ -166,3 +193,5 @@ pass_frame_change_test(const TkRadialStripTopology* t, const float strip, const 
      << ( me.uv() ) << std::endl;
   return passp&passe;
 }
+
+DEFINE_FWK_MODULE(ValidateRadial);

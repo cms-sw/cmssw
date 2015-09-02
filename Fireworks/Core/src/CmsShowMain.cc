@@ -97,6 +97,7 @@ static const char* const kAdvancedRenderCommandOpt = "shine,s";
 static const char* const kHelpOpt        = "help";
 static const char* const kHelpCommandOpt = "help,h";
 static const char* const kSoftCommandOpt = "soft";
+static const char* const kExpertCommandOpt = "expert";
 static const char* const kPortCommandOpt = "port";
 static const char* const kPlainRootCommandOpt = "prompt";
 static const char* const kRootInteractiveCommandOpt = "root-interactive,r";
@@ -164,7 +165,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kSimGeomFileCommandOpt,po::value<std::string>(),   "Geometry file for browsing in table view. Default is CmsSimGeom-14.root. Can be simulation or reco geometry in TGeo format")
      (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
    (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
-   (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+     (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+   (kExpertCommandOpt,                                   "Enable PF user plugins.")
       (kHelpCommandOpt,                                   "Display help message");
 
  po::options_description livedesc("Live Event Display");
@@ -295,6 +297,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    FWLiteEnabler::enable();
 
    TEveManager::Create(kFALSE, eveMode ? "FIV" : "FI");
+ 
+   if(vm.count(kExpertCommandOpt)) 
+   {
+      m_context->setHidePFBuilders(false);
+   }
+   else {
+      m_context->setHidePFBuilders(true);
+   }
 
    setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
 

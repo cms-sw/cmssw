@@ -20,7 +20,7 @@ mixedTripletStepClusters = trackClusterRemover.clone(
     stripClusters                            = cms.InputTag("siStripClusters"),
 #    oldClusterRemovalInfo                    = cms.InputTag("pixelPairStepClusters"),
     oldClusterRemovalInfo                    = cms.InputTag("chargeCut2069Clusters"),
-    overrideTrkQuals                         = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
+    trackClassifier                          = cms.InputTag('pixelPairStep',"QualityMasks"),
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
 )
@@ -206,122 +206,23 @@ mixedTripletStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduc
 )
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='mixedTripletStepTracks',
-    useAnyMVA = cms.bool(True),
-    trackSelectors= cms.VPSet(
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'mixedTripletStepVtxLoose',
-            GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
-            mvaType = cms.string("Prompt"),
-            useMVA = cms.bool(True),
-            useMVAonly = cms.bool(True),
-            minMVA = cms.double(-0.2),
-            chi2n_par = 9999,
-            #chi2n_par = 1.0,
-            res_par = ( 0.003, 0.001 ),
-            #minNumberLayers = 3,
-            #maxNumberLostLayers = 1,
-            #minNumber3DLayers = 2,
-            d0_par1 = ( 1.2, 3.0 ),
-            dz_par1 = ( 1.2, 3.0 ),
-            d0_par2 = ( 1.3, 3.0 ),
-            dz_par2 = ( 1.3, 3.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'mixedTripletStepTrkLoose',
-            GBRForestLabel = cms.string('MVASelectorIter4_13TeV'),
-            useMVA = cms.bool(True),
-            useMVAonly = cms.bool(True),
-            minMVA = cms.double(-0.5),
-            chi2n_par = 9999,
-            #chi2n_par = 0.6,
-            res_par = ( 0.003, 0.001 ),
-            #minNumberLayers = 4,
-            #maxNumberLostLayers = 1,
-            #minNumber3DLayers = 3,
-            d0_par1 = ( 1.1, 4.0 ),
-            dz_par1 = ( 1.1, 4.0 ),
-            d0_par2 = ( 1.1, 4.0 ),
-            dz_par2 = ( 1.1, 4.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'mixedTripletStepVtxTight',
-            preFilterName = 'mixedTripletStepVtxLoose',
-            GBRForestLabel = cms.string('MVASelectorIter4_13TeV'),
-            chi2n_par = 0.6,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 3,
-            d0_par1 = ( 1.1, 3.0 ),
-            dz_par1 = ( 1.1, 3.0 ),
-            d0_par2 = ( 1.2, 3.0 ),
-            dz_par2 = ( 1.2, 3.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'mixedTripletStepTrkTight',
-            preFilterName = 'mixedTripletStepTrkLoose',
-            GBRForestLabel = cms.string('MVASelectorIter4_13TeV'),
-            chi2n_par = 0.4,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 4,
-            d0_par1 = ( 1.0, 4.0 ),
-            dz_par1 = ( 1.0, 4.0 ),
-            d0_par2 = ( 1.0, 4.0 ),
-            dz_par2 = ( 1.0, 4.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'mixedTripletStepVtx',
-            preFilterName = 'mixedTripletStepVtxLoose',
-            GBRForestLabel = cms.string('MVASelectorIter0_13TeV'),
-            chi2n_par = 9999,
-            useMVA = cms.bool(True),
-            useMVAonly = cms.bool(True),
-            minMVA = cms.double(-0.2),
-            mvaType = cms.string("Prompt"),
-            qualityBit = cms.string('highPurity'),
-            keepAllTracks = cms.bool(True),
-            res_par = ( 0.003, 0.001 ),
-            d0_par1 = ( 1.0, 3.0 ),
-            dz_par1 = ( 1.0, 3.0 ),
-            d0_par2 = ( 1.1, 3.0 ),
-            dz_par2 = ( 1.1, 3.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'mixedTripletStepTrk',
-            preFilterName = 'mixedTripletStepTrkLoose',
-            chi2n_par = 9999,
-            GBRForestLabel = cms.string('MVASelectorIter4_13TeV'),
-            useMVA = cms.bool(True),
-            useMVAonly = cms.bool(True),
-            minMVA = cms.double(0.5),
-            qualityBit = cms.string('highPurity'),
-            keepAllTracks = cms.bool(True),
-            res_par = ( 0.003, 0.001 ),
-            d0_par1 = ( 0.8, 4.0 ),
-            dz_par1 = ( 0.8, 4.0 ),
-            d0_par2 = ( 0.8, 4.0 ),
-            dz_par2 = ( 0.8, 4.0 )
-            )
-        ) #end of vpset
-    ) #end of clone
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
+mixedTripletStepClassifier1 = TrackMVAClassifierDetached.clone()
+mixedTripletStepClassifier1.src = 'mixedTripletStepTracks'
+mixedTripletStepClassifier1.GBRForestLabel = 'MVASelectorIter4_13TeV'
+mixedTripletStepClassifier1.qualityCuts = [-0.5,0.0,0.5]
+mixedTripletStepClassifier2 = TrackMVAClassifierPrompt.clone()
+mixedTripletStepClassifier2.src = 'mixedTripletStepTracks'
+mixedTripletStepClassifier2.GBRForestLabel = 'MVASelectorIter0_13TeV'
+mixedTripletStepClassifier2.qualityCuts = [-0.2,-0.2,-0.2]
 
-import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-mixedTripletStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = cms.VInputTag(cms.InputTag('mixedTripletStepTracks'),
-                                   cms.InputTag('mixedTripletStepTracks')),
-    hasSelector=cms.vint32(1,1),
-    shareFrac=cms.double(0.11),
-    indivShareFrac=cms.vdouble(0.11,0.11),
-    selectedTrackQuals = cms.VInputTag(cms.InputTag("mixedTripletStepSelector","mixedTripletStepVtx"),
-                                       cms.InputTag("mixedTripletStepSelector","mixedTripletStepTrk")),
-    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )),
-    writeOnlyTrkQuals=cms.bool(True)
-)                        
+from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
+mixedTripletStep = ClassifierMerger.clone()
+mixedTripletStep.inputClassifiers=['mixedTripletStepClassifier1','mixedTripletStepClassifier2']
+
+
+
 
 
 MixedTripletStep = cms.Sequence(chargeCut2069Clusters*mixedTripletStepClusters*
@@ -332,5 +233,5 @@ MixedTripletStep = cms.Sequence(chargeCut2069Clusters*mixedTripletStepClusters*
                                 mixedTripletStepSeeds*
                                 mixedTripletStepTrackCandidates*
                                 mixedTripletStepTracks*
-                                mixedTripletStepSelector*
+                                mixedTripletStepClassifier1*mixedTripletStepClassifier2*
                                 mixedTripletStep)

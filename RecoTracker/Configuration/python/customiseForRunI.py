@@ -56,31 +56,23 @@ def customiseForRunI(process):
     process.reconstruction_fromRECO.insert(tgrIndexFromReco, process.iterTracking)
 
     # Now get rid of spurious reference to JetCore step
-    process.earlyGeneralTracks.selectedTrackQuals = cms.VInputTag(
-        cms.InputTag("initialStepSelector", "initialStep")
-        , cms.InputTag("lowPtTripletStepSelector", "lowPtTripletStep")
-        , cms.InputTag("pixelPairStepSelector", "pixelPairStep")
-        , cms.InputTag("detachedTripletStep")
-        , cms.InputTag("mixedTripletStep")
-        , cms.InputTag("pixelLessStepSelector", "pixelLessStep")
-        , cms.InputTag("tobTecStepSelector", "tobTecStep")
-        )
-    process.earlyGeneralTracks.indivShareFrac = cms.vdouble(1.0, 0.16, 0.19, 0.13, 0.11, 0.11, 0.09)
-    process.earlyGeneralTracks.setsToMerge = cms.VPSet(cms.PSet(
-            pQual = cms.bool(True),
-            tLists = cms.vint32(0, 1, 2, 3, 4, 5, 6)))
+    process.earlyGeneralTracks.trackProducers = ['initialStepTracks',
+                                     'lowPtTripletStepTracks',
+                                     'pixelPairStepTracks',
+                                     'detachedTripletStepTracks',
+                                     'mixedTripletStepTracks',
+                                     'pixelLessStepTracks',
+                                     'tobTecStepTracks'
+                                     ]
 
-    process.earlyGeneralTracks.hasSelector = cms.vint32(1, 1, 1, 1, 1, 1, 1)
-
-    process.earlyGeneralTracks.TrackProducers = cms.VInputTag(
-        cms.InputTag("initialStepTracks")
-        , cms.InputTag("lowPtTripletStepTracks")
-        , cms.InputTag("pixelPairStepTracks")
-        , cms.InputTag("detachedTripletStepTracks")
-        , cms.InputTag("mixedTripletStepTracks")
-        , cms.InputTag("pixelLessStepTracks")
-        , cms.InputTag("tobTecStepTracks")
-        )
+    process.earlyGeneralTracks.inputClassifiers =["initialStepSelector",
+                                      "lowPtTripletStepSelector",
+                                      "pixelPairStepSelector",
+                                      "detachedTripletStep",
+                                      "mixedTripletStep",
+                                      "pixelLessStepSelector",
+                                      "tobTecStep"
+                                      ]
 
     # Now get rid of any pre-splitting business
     process.siPixelClusters = process.siPixelClustersPreSplitting.clone()
@@ -91,11 +83,11 @@ def customiseForRunI(process):
     process.globalreco.replace(process.siPixelClusterShapeCachePreSplitting, process.siPixelClusterShapeCache)
 
     # Now restore pixelVertices wherever was not possible with an ad-hoc RunI cfg
-    process.muonSeededTracksInOutSelector.vertices = 'pixelVertices'
-    process.muonSeededTracksOutInSelector.vertices = 'pixelVertices'
-    process.muonSeededTracksOutInDisplacedSelector.vertices = 'pixelVertices'
-    process.duplicateTrackSelector.vertices = 'pixelVertices'
-    process.duplicateDisplacedTrackSelector.vertices = 'pixelVertices'
+    process.muonSeededTracksInOutClassifier.vertices = 'pixelVertices'
+    process.muonSeededTracksOutInClassifier.vertices = 'pixelVertices'
+    process.muonSeededTracksOutInDisplacedClassifier.vertices = 'pixelVertices'
+    process.duplicateTrackClassifier.vertices = 'pixelVertices'
+    process.duplicateDisplacedTrackClassifier.vertices = 'pixelVertices'
     process.convStepSelector.vertices = 'pixelVertices'
     process.pixelPairElectronSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = 'pixelVertices'
     process.ak4CaloJetsForTrk.srcPVs = 'pixelVertices'
@@ -108,5 +100,17 @@ def customiseForRunI(process):
     # be useful mainly for conversions.
     process.SiStripClusterChargeCutTight.value = -1.
     process.SiStripClusterChargeCutLoose.value = -1.
+
+
+    if hasattr(process, 'TrackingDQMSourceTier0Common') and 'TrackSeedMonjetCoreRegionalStep' in process.TrackingDQMSourceTier0Common.moduleNames():
+          process.TrackingDQMSourceTier0Common.remove(process.TrackSeedMonjetCoreRegionalStep)
+
+    if hasattr(process, 'TrackingDQMSourceTier0') and 'TrackSeedMonjetCoreRegionalStep' in process.TrackingDQMSourceTier0.moduleNames():
+           process.TrackingDQMSourceTier0.remove(process.TrackSeedMonjetCoreRegionalStep)
+
+    if hasattr(process, 'TrackingDQMSourceTier0MinBias') and 'TrackSeedMonjetCoreRegionalStep' in process.TrackingDQMSourceTier0MinBias.moduleNames():
+          process.TrackingDQMSourceTier0MinBias.remove(process.TrackSeedMonjetCoreRegionalStep)
+
+
 
     return process

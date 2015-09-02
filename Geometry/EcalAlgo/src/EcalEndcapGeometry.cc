@@ -274,7 +274,6 @@ EcalEndcapGeometry::getClosestCell( const GlobalPoint& r ) const
 	 
 	    offset=0;
 	    // This will disappear when Andre has applied his fix
-	    zsign=1;
 	 
 	    if(z>0)
 	    {

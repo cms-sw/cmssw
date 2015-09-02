@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -35,10 +35,6 @@
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-
-// #include "FWCore/Utilities/interface/HRRealTime.h"
-
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/trackerHierarchy.h"
@@ -61,50 +57,29 @@ struct Print {
   
 };
 
-
-
-class GeoHierarchy : public edm::EDAnalyzer {
+class GeoHierarchy : public edm::one::EDAnalyzer<> {
 public:
   explicit GeoHierarchy( const edm::ParameterSet& );
   ~GeoHierarchy();
   
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
+
 private:
   // ----------member data ---------------------------
   bool fromDDD_;
   bool printDDD_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-
-//
-// constructors and destructor
-//
 GeoHierarchy::GeoHierarchy( const edm::ParameterSet& ps )
 {
   fromDDD_ = ps.getParameter<bool>("fromDDD");
   printDDD_ = ps.getUntrackedParameter<bool>("printDDD", true);
- //now do what ever initialization is needed
-  
 }
-
 
 GeoHierarchy::~GeoHierarchy()
-{
-  
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-  
-}
-
-
-//
-// member functions
-//
+{}
 
 template<typename Iter>
 void constructAndDumpTrie(Iter b, Iter e) {
@@ -146,8 +121,6 @@ void constructAndDumpTrie(Iter b, Iter e) {
       node_iterator eit;	
       node_iterator p(trie.node(s));
       layerSize[i] = std::distance(p,eit);
-      // layerSize[i]=0;
-      // for (;p!=e;++p) ++layerSize[i];
     }
 
     edm::LogInfo("TkDetLayers") 

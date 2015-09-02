@@ -45,29 +45,29 @@
 namespace hltJson {
   //Struct for storing variables that must be written and reset every lumi section 
   struct lumiVars {
-    HistoJ<unsigned int> *processed; // # of events processed
-    HistoJ<unsigned int> *hltWasRun; // # of events where HLT[i] was run 
-    HistoJ<unsigned int> *hltL1s;    // # of events after L1 seed
-    HistoJ<unsigned int> *hltPre;    // # of events after HLT prescale 
-    HistoJ<unsigned int> *hltAccept; // # of events accepted by HLT[i]
-    HistoJ<unsigned int> *hltReject; // # of events rejected by HLT[i] 
-    HistoJ<unsigned int> *hltErrors; // # of events with error in HLT[i]
-    HistoJ<unsigned int> *hltDatasets; // # of events accepted by each dataset 
+    jsoncollector::HistoJ<unsigned int> *processed; // # of events processed
+    jsoncollector::HistoJ<unsigned int> *hltWasRun; // # of events where HLT[i] was run 
+    jsoncollector::HistoJ<unsigned int> *hltL1s;    // # of events after L1 seed
+    jsoncollector::HistoJ<unsigned int> *hltPre;    // # of events after HLT prescale 
+    jsoncollector::HistoJ<unsigned int> *hltAccept; // # of events accepted by HLT[i]
+    jsoncollector::HistoJ<unsigned int> *hltReject; // # of events rejected by HLT[i] 
+    jsoncollector::HistoJ<unsigned int> *hltErrors; // # of events with error in HLT[i]
+    jsoncollector::HistoJ<unsigned int> *hltDatasets; // # of events accepted by each dataset 
 
     unsigned int prescaleIndex; // Prescale index for each lumi section
 
     std::string baseRunDir; //Base directory from EvFDaqDirector 
     std::string stHltJsd;   //Definition file name for JSON with rates  
 
-    HistoJ<unsigned int> *L1AlgoAccept;            // # of events accepted by L1T[i]  
-    HistoJ<unsigned int> *L1TechAccept;            // # of events accepted by L1 Technical Triggers[i]  
-    HistoJ<unsigned int> *L1AlgoAcceptPhysics;     // # of Physics events accepted by L1T[i]  
-    HistoJ<unsigned int> *L1TechAcceptPhysics;     // # of Physics events accepted by L1 Technical Triggers[i]  
-    HistoJ<unsigned int> *L1AlgoAcceptCalibration; // # of Calibration events accepted by L1T[i]  
-    HistoJ<unsigned int> *L1TechAcceptCalibration; // # of Calibration events accepted by L1 Technical Triggers[i]  
-    HistoJ<unsigned int> *L1AlgoAcceptRandom;      // # of Random events accepted by L1T[i]  
-    HistoJ<unsigned int> *L1TechAcceptRandom;      // # of Random events accepted by L1 Technical Triggers[i]  
-    HistoJ<unsigned int> *L1Global;                // Global # of Phyics, Cailibration and Random L1 triggers 
+    jsoncollector::HistoJ<unsigned int> *L1AlgoAccept;            // # of events accepted by L1T[i]  
+    jsoncollector::HistoJ<unsigned int> *L1TechAccept;            // # of events accepted by L1 Technical Triggers[i]  
+    jsoncollector::HistoJ<unsigned int> *L1AlgoAcceptPhysics;     // # of Physics events accepted by L1T[i]  
+    jsoncollector::HistoJ<unsigned int> *L1TechAcceptPhysics;     // # of Physics events accepted by L1 Technical Triggers[i]  
+    jsoncollector::HistoJ<unsigned int> *L1AlgoAcceptCalibration; // # of Calibration events accepted by L1T[i]  
+    jsoncollector::HistoJ<unsigned int> *L1TechAcceptCalibration; // # of Calibration events accepted by L1 Technical Triggers[i]  
+    jsoncollector::HistoJ<unsigned int> *L1AlgoAcceptRandom;      // # of Random events accepted by L1T[i]  
+    jsoncollector::HistoJ<unsigned int> *L1TechAcceptRandom;      // # of Random events accepted by L1 Technical Triggers[i]  
+    jsoncollector::HistoJ<unsigned int> *L1Global;                // Global # of Phyics, Cailibration and Random L1 triggers 
     
     std::string stL1Jsd;                 //Definition file name for JSON with L1 rates            
     std::string streamL1Destination;

@@ -8,7 +8,7 @@ from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMas
 mixedTripletStepMasks = _fastTrackingMaskProducer.clone(
     trackCollection = cms.InputTag("pixelPairStepTracks"),
     TrackQuality = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClusters.TrackQuality,
-    overrideTrkQuals = cms.InputTag('pixelPairStepSelector','pixelPairStep'),
+    overrideTrkQuals = cms.InputTag('pixelPairStep',"QualityMasks"),                        
     oldHitCombinationMasks = cms.InputTag("pixelPairStepMasks","hitCombinationMasks"),
     oldHitMasks = cms.InputTag("pixelPairStepMasks","hitMasks")
 )
@@ -16,35 +16,19 @@ mixedTripletStepMasks = _fastTrackingMaskProducer.clone(
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsA = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        pTMin = 0.15,
-        maxD0 = 10.0,
-        maxZ0 = 30
-        ),
     minLayersCrossed = 3,
-    #hitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks"),
-    hitCombinationMasks = cms.InputTag("mixedTripletStepMasks","hitCombinationMasks"),
-    ptMin =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.ptMin,
-    originRadius = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originRadius,
-    originHalfLength = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet.RegionPSet.originHalfLength,
-    layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.layerList.value()
+layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersA.layerList.value(),
+    RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsA.RegionFactoryPSet,
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent"),
 )
 
 ###
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 mixedTripletStepSeedsB = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        pTMin = 0.15,
-        maxD0 = 10.0,
-        maxZ0 = 30
-        ),
     minLayersCrossed = 3,
-    #hitMasks = cms.InputTag("mixedTripletStepMasks","hitMasks"),
-    hitCombinationMasks = cms.InputTag("mixedTripletStepMasks","hitCombinationMasks"),
-    ptMin =  RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.ptMin,
-    originRadius = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originRadius,
-    originHalfLength = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet.RegionPSet.originHalfLength,
-    layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.layerList.value()
+layerList = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedLayersB.layerList.value(),
+    RegionFactoryPSet = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeedsB.RegionFactoryPSet,
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
 )
 
 mixedTripletStepSeeds = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSeeds.clone()
@@ -65,8 +49,11 @@ mixedTripletStepTracks = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixe
 )
 
 # final selection
-mixedTripletStepSelector = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepSelector.clone()
-mixedTripletStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+mixedTripletStepClassifier1 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClassifier1.clone()
+mixedTripletStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+mixedTripletStepClassifier2 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepClassifier2.clone()
+mixedTripletStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
+
 mixedTripletStep = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStep.clone()
 
 # Final sequence 
@@ -76,6 +63,6 @@ MixedTripletStep =  cms.Sequence(mixedTripletStepMasks
                                  +mixedTripletStepSeeds
                                  +mixedTripletStepTrackCandidates
                                  +mixedTripletStepTracks
-                                 +mixedTripletStepSelector
+                                 +mixedTripletStepClassifier1*mixedTripletStepClassifier2
                                  +mixedTripletStep                                 
                              )

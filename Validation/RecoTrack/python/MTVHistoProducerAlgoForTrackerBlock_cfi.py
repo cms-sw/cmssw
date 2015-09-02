@@ -3,8 +3,6 @@ from Validation.RecoTrack.TrackingParticleSelectionsForEfficiency_cff import *
 from Validation.RecoTrack.GenParticleSelectionsForEfficiency_cff import *
 
 MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
-    ComponentName = cms.string('MTVHistoProducerAlgoForTracker'),
-
     ### tp selectors for efficiency
     generalTpSelector             = generalTpSelectorBlock,
     TpSelectorForEfficiencyVsEta  = TpSelectorForEfficiencyVsEtaBlock,
@@ -114,4 +112,10 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     dzRes_rangeMax = cms.double(+0.05),
     dzRes_nbin = cms.int32(150),                                   
 
+
+    maxDzpvCumulative = cms.double(0.6),
+    nintDzpvCumulative = cms.int32(240),
+
+    maxDzpvsigCumulative = cms.double(10),
+    nintDzpvsigCumulative = cms.int32(200),
 )
