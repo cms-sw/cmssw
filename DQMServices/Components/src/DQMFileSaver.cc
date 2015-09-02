@@ -735,7 +735,7 @@ DQMFileSaver::globalEndLuminosityBlock(const edm::LuminosityBlock & iLS, const e
     }
 
     // after saving per LS, delete the old LS global histograms.
-    dbe_->markForDeletion(enableMultiThread_ ? irun : 0, ilumi);
+    dbe_->deleteUnusedLumiHistograms(enableMultiThread_ ? irun : 0, ilumi);
   }
 }
 
