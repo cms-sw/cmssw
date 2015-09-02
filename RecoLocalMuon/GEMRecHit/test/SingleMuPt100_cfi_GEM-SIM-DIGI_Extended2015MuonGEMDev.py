@@ -93,10 +93,10 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     AddAntiParticle = cms.bool(True),
     PGunParameters = cms.PSet(
-        MaxEta = cms.double(3.0),
+        MaxEta = cms.double(2.45),
         MaxPhi = cms.double(3.14159265359),
         MaxPt = cms.double(100.01),
-        MinEta = cms.double(2.0),
+        MinEta = cms.double(1.65),
         MinPhi = cms.double(-3.14159265359),
         MinPt = cms.double(99.99),
         PartID = cms.vint32(-13)
@@ -140,6 +140,11 @@ from SLHCUpgradeSimulations.Configuration.me0Customs import customise_Digi
 
 #call to customisation function customise_Digi imported from SLHCUpgradeSimulations.Configuration.me0Customs
 process = customise_Digi(process)
+
+# Manual customization to switch off background hits
+process.simMuonGEMDigis.digitizeOnlyMuons = cms.bool(True)
+process.simMuonGEMDigis.doBkgNoise = cms.bool(False)
+process.simMuonGEMDigis.doNoiseCLS = cms.bool(False)
 
 # End of customisation functions
 
