@@ -44,8 +44,8 @@ namespace evf {
     virtual void doOutputEvent(EventMsgBuilder const& msg) const;
     //virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
     virtual void beginJob();
-    virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
-    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
+    virtual void doBeginLuminosityBlock_(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
+    virtual void doEndLuminosityBlock_(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
 
   private:
     std::auto_ptr<Consumer> c_;
@@ -72,6 +72,7 @@ namespace evf {
 
   template<typename Consumer>
   RecoEventOutputModuleForFU<Consumer>::RecoEventOutputModuleForFU(edm::ParameterSet const& ps) :
+    edm::one::OutputModuleBase::OutputModuleBase(ps),
     edm::StreamerOutputModuleBase(ps),
     c_(new Consumer(ps)),
     stream_label_(ps.getParameter<std::string>("@module_label")),
@@ -243,7 +244,7 @@ namespace evf {
 
 
   template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
+  void RecoEventOutputModuleForFU<Consumer>::doBeginLuminosityBlock_(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "begin lumi";
     openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
@@ -253,7 +254,7 @@ namespace evf {
   }
 
   template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
+  void RecoEventOutputModuleForFU<Consumer>::doEndLuminosityBlock_(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "end lumi";
     long filesize=0;
