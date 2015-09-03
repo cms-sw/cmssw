@@ -36,10 +36,10 @@ class DQMStreamerOutputModule : public edm::StreamerOutputModuleBase {
   virtual void doOutputEvent(EventMsgBuilder const& msg) const;
 
   virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&,
-                                    edm::ModuleCallingContext const*);
+                                    edm::ModuleCallingContext const*) override;
 
   virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&,
-                                  edm::ModuleCallingContext const*);
+                                  edm::ModuleCallingContext const*) override;
 
  private:
   std::string streamLabel_;
@@ -56,7 +56,8 @@ class DQMStreamerOutputModule : public edm::StreamerOutputModuleBase {
 };  //end-of-class-def
 
 DQMStreamerOutputModule::DQMStreamerOutputModule(edm::ParameterSet const& ps)
-    : edm::StreamerOutputModuleBase(ps),
+    : edm::one::OutputModuleBase::OutputModuleBase(ps),
+      edm::StreamerOutputModuleBase(ps),
       streamLabel_(ps.getUntrackedParameter<std::string>("streamLabel")),
       runInputDir_(ps.getUntrackedParameter<std::string>("runInputDir", "")),
       processed_(0),
