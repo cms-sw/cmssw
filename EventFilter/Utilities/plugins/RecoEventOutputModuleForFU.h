@@ -44,8 +44,8 @@ namespace evf {
     virtual void doOutputEvent(EventMsgBuilder const& msg) const;
     //virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
     virtual void beginJob();
-    virtual void doBeginLuminosityBlock_(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
-    virtual void doEndLuminosityBlock_(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
+    virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
+    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
 
   private:
     std::auto_ptr<Consumer> c_;
@@ -244,7 +244,7 @@ namespace evf {
 
 
   template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::doBeginLuminosityBlock_(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
+  void RecoEventOutputModuleForFU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "begin lumi";
     openDatFilePath_ = edm::Service<evf::EvFDaqDirector>()->getOpenDatFilePath(ls.luminosityBlock(),stream_label_);
@@ -254,7 +254,7 @@ namespace evf {
   }
 
   template<typename Consumer>
-  void RecoEventOutputModuleForFU<Consumer>::doEndLuminosityBlock_(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
+  void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "end lumi";
     long filesize=0;
