@@ -44,3 +44,16 @@ tracksAndTrajectorySeedsValidationStandalone = cms.Sequence(
     tracksValidationStandalone +
     trajectorySeedValidation
 )
+
+
+# 'slim' sequences that only depend on track, seed, and tracking particle collections
+trajectorySeedValidatorSlim = trajectorySeedValidator.clone(
+    doPVAssociationPlots = cms.untracked.bool(False),
+)
+trajectorySeedValidationSlim = trajectorySeedValidation.copy()
+trajectorySeedValidationSlim.replace(trajectorySeedValidator,trajectorySeedValidatorSlim)
+
+tracksAndTrajectorySeedsValidationSlim = cms.Sequence(
+    tracksValidationSlim +
+    trajectorySeedValidationSlim
+)
