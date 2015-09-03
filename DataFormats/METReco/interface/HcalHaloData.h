@@ -12,17 +12,29 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
 struct HaloTowerStrip {
-    std::vector<std::pair<char, CaloTowerDetId> > cellTowerIds;
+    std::vector<std::pair<uint8_t, CaloTowerDetId> > cellTowerIds;
     float hadEt;
+    HaloTowerStrip() {
+        hadEt = 0.0;
+        cellTowerIds.clear();
+    }
+    HaloTowerStrip(const HaloTowerStrip& strip) {
+        cellTowerIds = strip.cellTowerIds;
+        hadEt = strip.hadEt;
+    }
 };
 
 namespace reco {
+
   class HcalHaloData {
+
   public:
     //constructor
     HcalHaloData();
     //destructor
     ~HcalHaloData(){}
+
+
     
     // Return collection of 5-degree Phi Wedges built from Hcal RecHits
     const std::vector<PhiWedge>& GetPhiWedges() const {return PhiWedgeCollection;}

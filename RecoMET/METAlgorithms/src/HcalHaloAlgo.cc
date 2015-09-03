@@ -141,17 +141,16 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
   std::sort(sortedCaloTowers.begin(), sortedCaloTowers.end(), CompareTowers);
 
   HaloTowerStrip strip;
-  strip.hadEt = 0.0;
 
   int prevIEta = -99, prevIPhi = -99;
-  float prevHadEt = 0.0;
-  std::pair<char, CaloTowerDetId> prevPair, towerPair;
+  float prevHadEt = 0.;
+  std::pair<uint8_t, CaloTowerDetId> prevPair, towerPair;
   bool wasContiguous = true;
   // Loop through and store a vector of pairs (problematicCells, DetId) for each contiguous strip we find
   for(unsigned int i = 0; i < sortedCaloTowers.size(); i++) {
     const CaloTower* tower = sortedCaloTowers[i];
 
-    towerPair = std::make_pair((char)tower->numProblematicHcalCells(), tower->id());
+    towerPair = std::make_pair((uint8_t)tower->numProblematicHcalCells(), tower->id());
 
     bool newIPhi = tower->iphi() != prevIPhi;
     bool isContiguous = tower->ieta() == 1 ? tower->ieta() - 2 == prevIEta : tower->ieta() - 1 == prevIEta;
@@ -174,8 +173,7 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       if(strip.cellTowerIds.size() > 2) {
         TheHcalHaloData.getProblematicStrips().push_back( strip );
       }
-      strip.cellTowerIds.clear();
-      strip.hadEt = 0.0;
+      strip = HaloTowerStrip();
     }
 
     wasContiguous = isContiguous;
