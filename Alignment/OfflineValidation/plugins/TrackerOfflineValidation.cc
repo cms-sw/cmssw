@@ -212,8 +212,9 @@ private:
   void collateSummaryHists( DirectoryWrapper& tfd, const Alignable& ali, int i, 
 			    std::vector<TrackerOfflineValidation::SummaryContainer>& vLevelProfiles);
   
-  void fillTree(TTree& tree, const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_, 
-		TkOffTreeVariables& treeMem, const TrackerGeometry& tkgeom, const TrackerTopology* tTopo);
+  void setUpTreeMembers(const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_,
+		const TrackerGeometry& tkgeom, const TrackerTopology* tTopo);
+  void fillTree(TTree& tree, const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_);
   
   TrackerOfflineValidation::SummaryContainer bookSummaryHists(DirectoryWrapper& tfd, 
 							      const Alignable& ali, 
@@ -284,6 +285,8 @@ private:
   std::map<int,TrackerOfflineValidation::ModuleHistos> mTidResiduals_;
   std::map<int,TrackerOfflineValidation::ModuleHistos> mTobResiduals_;
   std::map<int,TrackerOfflineValidation::ModuleHistos> mTecResiduals_;
+
+  std::map<int,TkOffTreeVariables> mTreeMembers_;
 
   const edm::EventSetup* lastSetup_;
 
@@ -421,6 +424,13 @@ TrackerOfflineValidation::checkBookHists(const edm::EventSetup& es)
     // recursively book histogramms on lowest level
     DirectoryWrapper tfdw("",moduleDirectory_,dqmMode_);
     this->bookDirHists(tfdw, aliTracker, tTopo);
+
+    setUpTreeMembers(mPxbResiduals_, newBareTkGeomPtr, tTopo);
+    setUpTreeMembers(mPxeResiduals_, newBareTkGeomPtr, tTopo);
+    setUpTreeMembers(mTibResiduals_, newBareTkGeomPtr, tTopo);
+    setUpTreeMembers(mTidResiduals_, newBareTkGeomPtr, tTopo);
+    setUpTreeMembers(mTobResiduals_, newBareTkGeomPtr, tTopo);
+    setUpTreeMembers(mTecResiduals_, newBareTkGeomPtr, tTopo);
   }
   else { // histograms booked, but changed TrackerGeometry?
     edm::LogWarning("GeometryChange") << "@SUB=checkBookHists"
@@ -1246,12 +1256,12 @@ TrackerOfflineValidation::endJob()
   // (see src/classes_def.xml and src/classes.h):
   tree->Branch("TkOffTreeVariables", &treeMemPtr); // address of pointer!
  
-  this->fillTree(*tree, mPxbResiduals_, *treeMemPtr, *tkGeom_, tTopo);
-  this->fillTree(*tree, mPxeResiduals_, *treeMemPtr, *tkGeom_, tTopo);
-  this->fillTree(*tree, mTibResiduals_, *treeMemPtr, *tkGeom_, tTopo);
-  this->fillTree(*tree, mTidResiduals_, *treeMemPtr, *tkGeom_, tTopo);
-  this->fillTree(*tree, mTobResiduals_, *treeMemPtr, *tkGeom_, tTopo);
-  this->fillTree(*tree, mTecResiduals_, *treeMemPtr, *tkGeom_, tTopo);
+  this->fillTree(*tree, mPxbResiduals_);
+  this->fillTree(*tree, mPxeResiduals_);
+  this->fillTree(*tree, mTibResiduals_);
+  this->fillTree(*tree, mTidResiduals_);
+  this->fillTree(*tree, mTobResiduals_);
+  this->fillTree(*tree, mTecResiduals_);
 
   delete treeMemPtr; treeMemPtr = 0;
 }
@@ -1520,16 +1530,15 @@ TrackerOfflineValidation::Fwhm (const TH1* hist) const
 }
 
 
-void 
-TrackerOfflineValidation::fillTree(TTree& tree,
-				   const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_,
-				   TkOffTreeVariables &treeMem, const TrackerGeometry& tkgeom, const TrackerTopology* tTopo)
+void
+TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_,
+                                           const TrackerGeometry& tkgeom, const TrackerTopology* tTopo)
 {
- 
+
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(), 
 	itEnd= moduleHist_.end(); it != itEnd;++it ) { 
-    treeMem.clear(); // make empty/default
-    
+    TkOffTreeVariables &treeMem = mTreeMembers[it->first];
+
     //variables concerning the tracker components/hierarchy levels
     DetId detId_ = it->first;
     treeMem.moduleId = detId_;
@@ -1634,7 +1643,16 @@ TrackerOfflineValidation::fillTree(TTree& tree,
     if(dR>=0.)treeMem.rDirection = 1; else treeMem.rDirection = -1;
     if(dPhi>=0.)treeMem.phiDirection = 1; else treeMem.phiDirection = -1;
     if(dZ>=0.)treeMem.zDirection = 1; else treeMem.zDirection = -1;
-    
+}
+
+void
+TrackerOfflineValidation::fillTree(TTree& tree,
+				   const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_)
+{
+  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(),
+	itEnd= moduleHist_.end(); it != itEnd;++it ) {
+    TkOffTreeVariables &treeMem = mTreeMembers[it->first];
+
     //mean and RMS values (extracted from histograms(Xprime on module level)
     treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
     treeMem.meanX = it->second.ResXprimeHisto->GetMean();
