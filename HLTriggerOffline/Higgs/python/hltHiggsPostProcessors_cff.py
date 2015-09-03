@@ -320,8 +320,7 @@ hltHiggsPostWHToENuBB = hltHiggsPostProcessor.clone()
 hltHiggsPostWHToENuBB.subDirs = ['HLT/Higgs/WHToENuBB']
 hltHiggsPostWHToENuBB.efficiencyProfile = efficiency_strings_WHToENuBB
 
-+#Specific plots for MSSMHbb
-+#Jet plots#Specific plots for MSSMHbb
+#Specific plots for MSSMHbb
 #Jet plots
 NMinOneCuts = _config.MSSMHbb.NminOneCuts
 if NminOneCuts:
@@ -340,10 +339,6 @@ efficiency_strings = get_reco_strings(efficiency_strings)
 hltHiggsPostMSSMHbb = hltHiggsPostProcessor.clone()
 hltHiggsPostMSSMHbb.subDirs = ['HLT/Higgs/MSSMHbb']
 hltHiggsPostMSSMHbb.efficiencyProfile = efficiency_strings
-
-
-
-
 
 hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHWW+
