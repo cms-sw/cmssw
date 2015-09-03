@@ -153,8 +153,20 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 	  // First, check if the other guy (j) is in some merge group already
 	  if ( mergeGroupByHit[j] != 0 ) {
 	    // It is... use it.
-	    mergeGroupByHit[i] = mergeGroupByHit[j];          // use the same MG
-	    mergeGroupByHit[i]->push_back( simHits[i] );      // save i in there
+	    if (mergeGroupByHit[i] == 0 ) {
+	         mergeGroupByHit[i] = mergeGroupByHit[j];          // use the same MG
+	         mergeGroupByHit[i]->push_back( simHits[i] );      // save i in there}
+	    }
+	    else{
+	      // &&& @Petar this is supposed to be for the case where both i and j merge groups
+	      // &&& already have a merge group, so i is supposed to absorb the hits in j,
+	      // &&& pointers must be changed over so that anything that pointed to j now 
+	      // &&& points to i, and then j must be deleted. These two lines of code aim
+	      // &&& to do so, but I'm not sure the pointers have been reassigned properly.
+ 	         mergeGroupByHit[i] = mergeGroupByHit[j];
+		 mergeGroupByHit[j] = 0;
+		 std::cout << "TESTING" << std::endl;
+	    }
 	  }
 	  else { 
 	    // j is not merged.  Check if i is merged with another hit yet.
@@ -171,6 +183,9 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 	    }
 	    //--- Add hit j as well
 	    mergeGroupByHit[i]->push_back( simHits[j] );
+	    for( int k = 0 ; k < (int)(sizeof(mergeGroupByHit[i])); ++k ) {
+	      std::cout << "ALICE: mergeGroupByHit = " << *(mergeGroupByHit[i]->at(k))<<" " << k << std::endl;
+	    }
 	    //
 	    //--- Mark that hit j is a part of the same merge group.  This
 	    //    way, we can find the same merge group starting from
