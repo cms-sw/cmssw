@@ -67,6 +67,13 @@ combinatoricDecayModeConfigs = cms.PSet(
         nPiZeros = cms.uint32(0),
         maxTracks = cms.uint32(6),
         maxPiZeros = cms.uint32(0),
+    ),
+    config3prong1pi0 = cms.PSet( # suggestions made by CV
+        # Three prong one pizero mode
+        nCharged = cms.uint32(3),
+        nPiZeros = cms.uint32(1),
+        maxTracks = cms.uint32(6),
+        maxPiZeros = cms.uint32(3),
     )
 )
 
@@ -82,7 +89,8 @@ _combinatoricTauConfig = cms.PSet(
         combinatoricDecayModeConfigs.config1prong2pi0,
         combinatoricDecayModeConfigs.config2prong0pi0,
         combinatoricDecayModeConfigs.config2prong1pi0,
-        combinatoricDecayModeConfigs.config3prong0pi0
+        combinatoricDecayModeConfigs.config3prong0pi0,
+	combinatoricDecayModeConfigs.config3prong1pi0
     ),
     signalConeSize = cms.string("max(min(0.1, 3.0/pt()), 0.05)"),
     minAbsPhotonSumPt_insideSignalCone = cms.double(2.5),
