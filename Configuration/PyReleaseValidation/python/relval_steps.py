@@ -151,43 +151,6 @@ steps['RunDoubleMuon2015C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015C-v1/
 steps['RunJetHT2015C']={'INPUT':InputInfo(dataSet='/JetHT/Run2015C-v1/RAW',label='jetHT2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunMET2015C']={'INPUT':InputInfo(dataSet='/MET/Run2015C-v1/RAW',label='met2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunMuonEG2015C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015C-v1/RAW',label='muEG2015C',events=100000,location='STD', ls=Run2015C)}
-
-#### run2 2015C full list ####
-steps['RunBTagCSV2015C']={'INPUT':InputInfo(dataSet='/BTagCSV/Run2015C-v1/RAW',label='btagCSV2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunBTagMu2015C']={'INPUT':InputInfo(dataSet='/BTagMu/Run2015C-v1/RAW',label='btagMu2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunCharmonium2015C']={'INPUT':InputInfo(dataSet='/Charmonium/Run2015C-v1/RAW',label='charmonium2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunCommissioning2015C']={'INPUT':InputInfo(dataSet='/Commissioning/Run2015C-v1/RAW',label='commissioning2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunDisplacedJet2015C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2015C-v1/RAW',label='displacedJet2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunDoubleMuonLowMass2015C']={'INPUT':InputInfo(dataSet='/DoubleMuonLowMass/Run2015C-v1/RAW',label='doubleMuonLM2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunFullTrack2015C']={'INPUT':InputInfo(dataSet='/FullTrack/Run2015C-v1/RAW',label='fullTrack2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHTMHT2015C']={'INPUT':InputInfo(dataSet='/HTMHT/Run2015C-v1/RAW',label='htMHT2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHcalHPDNoise2015C']={'INPUT':InputInfo(dataSet='/HcalHPDNoise/Run2015C-v1/RAW',label='hcalHPDNoise2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHighMultiplicity2015C']={'INPUT':InputInfo(dataSet='/HighMultiplicity/Run2015C-v1/RAW',label='highMulti2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHighMultiplicity852015C']={'INPUT':InputInfo(dataSet='/HighMultiplicity85/Run2015C-v1/RAW',label='highMulti852015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunL1Accept2015C']={'INPUT':InputInfo(dataSet='/L1Accept/Run2015C-v1/RAW',label='l1Accept2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunMuOnia2015C']={'INPUT':InputInfo(dataSet='/MuOnia/Run2015C-v1/RAW',label='muOnia2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunNoBPTX2015C']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2015C-v1/RAW',label='noBPTX2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunSingleElectron2015C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2015C-v1/RAW',label='singleElectron2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunSingleMuon2015C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015C-v1/RAW',label='singleMuon2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunSinglePhoton2015C']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2015C-v1/RAW',label='singlePhoton2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunTau2015C']={'INPUT':InputInfo(dataSet='/Tau/Run2015C-v1/RAW',label='tau2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias2015C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2015C-v1/RAW',label='zeroBias2015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHLTPhysicspart02015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart0/Run2015C-v1/RAW',label='hltPhys02015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHLTPhysicspart12015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart1/Run2015C-v1/RAW',label='hltPhys12015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHLTPhysicspart22015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart2/Run2015C-v1/RAW',label='hltPhys22015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHLTPhysicspart32015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart3/Run2015C-v1/RAW',label='hltPhys32015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHLTPhysicspart42015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart4/Run2015C-v1/RAW',label='hltPhys42015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHLTPhysicspart52015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart5/Run2015C-v1/RAW',label='hltPhys52015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHLTPhysicspart62015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart6/Run2015C-v1/RAW',label='hltPhys62015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunHLTPhysicspart72015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart7/Run2015C-v1/RAW',label='hltPhys72015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias12015C']={'INPUT':InputInfo(dataSet='/ZeroBias1/Run2015C-v1/RAW',label='zeroBias12015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias22015C']={'INPUT':InputInfo(dataSet='/ZeroBias2/Run2015C-v1/RAW',label='zeroBias22015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias32015C']={'INPUT':InputInfo(dataSet='/ZeroBias3/Run2015C-v1/RAW',label='zeroBias32015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias42015C']={'INPUT':InputInfo(dataSet='/ZeroBias4/Run2015C-v1/RAW',label='zeroBias42015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias52015C']={'INPUT':InputInfo(dataSet='/ZeroBias5/Run2015C-v1/RAW',label='zeroBias52015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias62015C']={'INPUT':InputInfo(dataSet='/ZeroBias6/Run2015C-v1/RAW',label='zeroBias62015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias72015C']={'INPUT':InputInfo(dataSet='/ZeroBias7/Run2015C-v1/RAW',label='zeroBias72015C',events=100000,location='STD', ls=Run2015C)}
-steps['RunZeroBias82015C']={'INPUT':InputInfo(dataSet='/ZeroBias8/Run2015C-v1/RAW',label='zeroBias82015C',events=100000,location='STD', ls=Run2015C)}
 #
 
 
