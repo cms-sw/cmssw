@@ -9,12 +9,14 @@ def customise2023(process):
   return process
 def customise_digitization(process):
   from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
-  process = customize_digi_addGEM_muon_only(process)
+  if ( not hasattr(process,"simMuonGEMDigis")) :
+    process = customize_digi_addGEM_muon_only(process)
   if ( hasattr(process,"simMuonGEMDigis")) :
-    process.simMuonGEMDigis.mixLabel = cms.string("mix")
+    if ( not hasattr(process,"simMuonGEMDigis.mixLabel")) :
+      process.simMuonGEMDigis.mixLabel = cms.string("mix")
   if ( hasattr(process,"simMuonME0Digis")) :
-    process.simMuonME0Digis.mixLabel = cms.string("mix")
-  process.simMuonRPCDigis.digiModel = cms.string('RPCSimAverageNoiseEff')
+    if ( not hasattr(process,"simMuonME0Digis.mixLabel")) :
+      process.simMuonME0Digis.mixLabel = cms.string("mix")
   return process
 
 def customise_Validation(process):
