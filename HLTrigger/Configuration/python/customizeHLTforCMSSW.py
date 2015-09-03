@@ -128,6 +128,14 @@ def customiseFor10927(process):
             process.DTObjectMapESProducer = cms.ESProducer( 'DTObjectMapESProducer' )
     return process
 
+# update Method3 with new time slew parametrization and response correction for data and MC (PR #11091)
+def customizeFor11091(process):
+    if hasattr(process, 'hltHbhereco'):
+        process.hltHbhereco.timeSlewParsType = cms.int32( 3 )
+        process.hltHbhereco.timeSlewPars     = cms.vdouble( 15.5, -3.2, 32, 15.5, -3.2, 32, 15.5, -3.2, 32 )
+        process.hltHbhereco.respCorrM3       = cms.double( 0.95 )
+    return process
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -144,6 +152,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor7794(process)
         process = customiseFor10087(process)
         process = customizeHLTforNewJetCorrectors(process)
+        process = customizeFor11091(process)
     if cmsswVersion >= "CMSSW_7_4":
         process = customiseFor10234(process)
 

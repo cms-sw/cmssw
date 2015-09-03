@@ -18,6 +18,13 @@ def customizeHLTforMC(process,_fastSim=False):
     process.hltParticleFlowRecHitHCAL.ApplyPulseDPG      = cms.bool(False)
     process.hltParticleFlowRecHitHCAL.LongShortFibre_Cut = cms.double(1000000000.0)
 
+  # customise hltHbhereco to use the Method 3 parametrisation for Monte Carlo (see #11091)
+  if 'hltHbhereco' in process.__dict__:
+    process.hltHbhereco.timeSlewParsType = cms.int32( 3 )
+    process.hltHbhereco.timeSlewPars     = cms.vdouble( 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 )
+    process.hltHbhereco.respCorrM3       = cms.double( 0.95 )
+
+
   if _fastSim:
 
     fastsim = cms.ProcessFragment( process.name_() )
