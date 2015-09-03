@@ -167,8 +167,13 @@ void MultiHistoOverlapAll_Z(string files, string labels, bool switchONfitEta = f
   };
 
   for (int iP=0; iP<7; iP++){
-    double absMin=9e9;
+    double absMin = 9e9;
     double absMax = -9e9;
+    double rangeMaxReduction = 0.02;
+
+    double avgM = 0;
+    double sigmaM = 0;
+
     for (int f=0; f<nfiles; f++){
       histo[iP][f]=(TH1D*)file[f]->Get(histoName[iP]);
 
@@ -238,18 +243,32 @@ void MultiHistoOverlapAll_Z(string files, string labels, bool switchONfitEta = f
         histo[iP][f]->SetLineColor(kGreen+3);
         histo[iP][f]->SetMarkerColor(kGreen+3);
       }
+
+      if (iP==0) leg->AddEntry(histo[iP][f], (strValidation_label.at(f)).c_str(), "lp");
+
       for (int bin=1; bin<=histo[iP][f]->GetNbinsX(); bin++){
         double bincontent = histo[iP][f]->GetBinContent(bin);
         double binerror = histo[iP][f]->GetBinError(bin);
         if (binerror==0 && bincontent==0) continue;
         absMin = min(absMin, bincontent - binerror);
         absMax = max(absMax, bincontent + binerror);
+        avgM += bincontent/pow(binerror, 2);
+        sigmaM += 1./pow(binerror, 2);
       }
-
-      if (iP==0) leg->AddEntry(histo[iP][f], (strValidation_label.at(f)).c_str(), "lp");
     }
-    minmax_plot[iP][0] = absMin/1.1;
-    minmax_plot[iP][1] = absMax*1.1;
+    avgM /= sigmaM;
+    sigmaM = sqrt(1./sigmaM);
+    for (int f=0; f<nfiles; f++){
+      for (int bin=1; bin<=histo[iP][f]->GetNbinsX(); bin++){
+        double bincontent = histo[iP][f]->GetBinContent(bin);
+        double binerror = histo[iP][f]->GetBinError(bin);
+        if (binerror==0 && bincontent==0) continue;
+        if ((bincontent + binerror)>1.05*avgM) rangeMaxReduction = 0;
+      }
+    }
+
+    minmax_plot[iP][0] = absMin/1.01;
+    minmax_plot[iP][1] = absMax*(1.05-rangeMaxReduction);
     for (int f=0; f<2; f++) histo[iP][f]->GetYaxis()->SetRangeUser(minmax_plot[iP][0], minmax_plot[iP][1]);
   }
 
