@@ -57,7 +57,7 @@ namespace {
 namespace edm {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps) :
     one::OutputModuleBase::OutputModuleBase(ps),
-    one::OutputModule<>(ps),
+    one::OutputModule<one::outputmodule::RunWatcher, one::outputmodule::LuminosityBlockWatcher>(ps),
     selections_(&keptProducts()[InEvent]),
     maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
     useCompression_(ps.getUntrackedParameter<bool>("use_compression")),

@@ -16,15 +16,15 @@ namespace edm {
 
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
-  class StreamerOutputModuleBase : public one::OutputModule<> {
+  class StreamerOutputModuleBase : public one::OutputModule<one::outputmodule::RunWatcher, one::outputmodule::LuminosityBlockWatcher> {
   public:
     explicit StreamerOutputModuleBase(ParameterSet const& ps);
     virtual ~StreamerOutputModuleBase();
     static void fillDescription(ParameterSetDescription & desc);
 
   private:
-    virtual void doBeginRun_(RunPrincipal const&, ModuleCallingContext const*) override;
-    virtual void doEndRun_(RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void beginRun(RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void endRun(RunPrincipal const&, ModuleCallingContext const*) override;
     virtual void beginJob() override;
     virtual void endJob() override;
     virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) override;
