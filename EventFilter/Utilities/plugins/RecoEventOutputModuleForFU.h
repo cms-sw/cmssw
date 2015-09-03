@@ -43,7 +43,7 @@ namespace evf {
     virtual void doOutputHeader(InitMsgBuilder const& init_message) const;
     virtual void doOutputEvent(EventMsgBuilder const& msg) const;
     //virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
-    virtual void beginJob();
+    virtual void beginJob() override;
     virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
     virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
 
