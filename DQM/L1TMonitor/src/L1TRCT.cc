@@ -38,8 +38,6 @@ L1TRCT::L1TRCT(const ParameterSet & ps) :
    histFolder_ (ps.getUntrackedParameter<std::string>("HistFolder", "L1T/L1TRCT")),
    rctSource_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSource") )),
    rctSource_L1CEMCollection_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSource") )),
-   rctSource_GCT_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("gctSource") )),
-   rctSource_GCT_L1CEMCollection_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("gctSource") )),
    filterTriggerType_ (ps.getParameter< int >("filterTriggerType")),
    selectBX_ (ps.getUntrackedParameter< int >("selectBX",2))
 {
@@ -132,35 +130,6 @@ void L1TRCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Ev
   rctNotCentralNonIsoEmEtEtaPhi_ = ibooker.book2D("rctNotCentralEmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
   rctNotCentralNonIsoEmOccEtaPhi_ = ibooker.book2D("rctNotCentralEmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-
-  // GCT UNPACKER
-
-  // electrons
-  layer2IsoEmEtEtaPhi_ =   ibooker.book2D("Layer2EmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-  layer2IsoEmOccEtaPhi_ = ibooker.book2D("Layer2EmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-  layer2NonIsoEmEtEtaPhi_ = ibooker.book2D("Layer2EmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-  layer2NonIsoEmOccEtaPhi_ = ibooker.book2D("Layer2EmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-  // global regions
-  layer2RegionsEtEtaPhi_ = ibooker.book2D("Layer2RegionsEtEtaPhi", "REGION E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-  layer2RegionsOccEtaPhi_ = ibooker.book2D("Layer2RegionsOccEtaPhi", "REGION OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-  // bits
-  layer2OverFlowEtaPhi_ = ibooker.book2D("Layer2BitOverFlowEtaPhi", "OVER FLOW OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-  layer2TauVetoEtaPhi_ = ibooker.book2D("Layer2BitTauVetoEtaPhi", "TAU VETO OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-  layer2MipEtaPhi_ = ibooker.book2D("Layer2BitMipEtaPhi", "MIP OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-  layer2QuietEtaPhi_ = ibooker.book2D("Layer2BitQuietEtaPhi", "QUIET OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-  layer2HfPlusTauEtaPhi_ = ibooker.book2D("Layer2BitHfPlusTauEtaPhi", "HF plus Tau OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
-  // rank histos
-  layer2RegionRank_ = ibooker.book1D("Layer2RegionRank", "REGION RANK", R10BINS, R10MIN, R10MAX);
-  layer2IsoEmRank_ = ibooker.book1D("Layer2EmIsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
-  layer2NonIsoEmRank_ = ibooker.book1D("Layer2EmNonIsoEmRank", "NON-ISO EM RANK", R6BINS, R6MIN, R6MAX);
-
-  // bx histos
-  layer2RegionBx_ = ibooker.book1D("Layer2RegionBx", "Region BX", 10, -2.5, 7.5);
-  layer2EmBx_ = ibooker.book1D("Layer2EmBx", "EM BX", 10, -2.5, 7.5); 
-
 }
 
 void L1TRCT::analyze(const Event & e, const EventSetup & c)
@@ -215,17 +184,6 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   e.getByToken(rctSource_L1CRCollection_,rgn);
   e.getByToken(rctSource_L1CEMCollection_,em);
 
-  // Get the Layer2 digis
-  edm::Handle < L1CaloEmCollection > emLayer2;
-  edm::Handle < L1CaloRegionCollection > rgnLayer2;
-
-  bool doEmLayer2 = true;
-  bool doHdLayer2 = true;
-
-  e.getByToken(rctSource_GCT_L1CRCollection_,rgnLayer2);
-  e.getByToken(rctSource_GCT_L1CEMCollection_,emLayer2);
-
- 
   if (!rgn.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection - RCT";
     doHd = false;
@@ -235,18 +193,6 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection - Layer2 ";
     doEm = false;
   }
-
-  if (!rgnLayer2.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection - GCT";
-    doHdLayer2 = false;
-  }
-
-  if (!emLayer2.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection - Layer2";
-    doEmLayer2 = false;
-  }
-
-
 
 
   if ( doHd ) {
@@ -337,65 +283,5 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   }
 
 }
-
-  // Layer2 Histograms
-  
-  if ( doHdLayer2 ) {
-    // Fill the RCT histograms
-
-    for (L1CaloRegionCollection::const_iterator ireg = rgnLayer2->begin();
-       ireg != rgnLayer2->end(); ireg++) {
-
-      if(ireg->et()>0){
-
-      layer2RegionBx_->Fill(ireg->bx());
-
-      layer2RegionRank_->Fill(ireg->et());
-      if(ireg->et()>5){
-	layer2RegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
-      }
-      layer2RegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
-      }
-
-    if(ireg->overFlow())  layer2OverFlowEtaPhi_ ->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->tauVeto())   layer2TauVetoEtaPhi_  ->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->mip())       layer2MipEtaPhi_      ->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->quiet())     layer2QuietEtaPhi_    ->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->fineGrain()) layer2HfPlusTauEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi()); 
-    
-    }
-
- } 
-
-  if (doEmLayer2 ) {
-  // Isolated and non-isolated EM
-  for (L1CaloEmCollection::const_iterator iem = emLayer2->begin();
-       iem != emLayer2->end(); iem++) {
-
-      if(iem->rank()==0) continue;
-      layer2EmBx_->Fill(iem->bx());
-
-    if (iem->isolated()) {
-      layer2IsoEmRank_->Fill(iem->rank());
-      layer2IsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
-			      iem->regionId().iphi(), iem->rank());
-      if(iem->rank()>10){
-	layer2IsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
-				 iem->regionId().iphi());
-      }
-    }
-    else {
-      layer2NonIsoEmRank_->Fill(iem->rank());
-      layer2NonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
-				 iem->regionId().iphi(), iem->rank());
-      if(iem->rank()>10){
-	layer2NonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
-				    iem->regionId().iphi());
-      }
-    }
-
-  }
-
-  }
 
 }
