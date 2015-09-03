@@ -7,18 +7,10 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/PedestalSub.h"
 
-//#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
-//#include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
-//#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
-//#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
-//#include "DataFormats/HcalDigi/interface/HODataFrame.h"
-//#include "DataFormats/HcalDigi/interface/ZDCDataFrame.h"
-//#include "DataFormats/HcalDigi/interface/HcalCalibDataFrame.h"
-
 
 class HcalDeterministicFit {
  public:
