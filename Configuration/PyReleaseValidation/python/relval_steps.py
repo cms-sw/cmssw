@@ -128,7 +128,7 @@ steps['ZMuSkim2012D']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012D-ZMu-PromptS
 steps['WElSkim2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-WElectron-PromptSkim-v1/USER',label='wEl2012D',location='STD',run=Run2012Dsk)}
 steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElectron-PromptSkim-v1/RAW-RECO',label='zEl2012D',location='STD',run=Run2012Dsk)}
 
-#### run2 ####
+#### run2 2015B ####
 # Run2015B=[251642] #  251561 251638 251642
 Run2015B=selectedLS([251251])
 steps['RunHLTPhy2015B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015B-v1/RAW',label='hltPhy2015B',events=100000,location='STD', ls=Run2015B)}
@@ -137,6 +137,54 @@ steps['RunDoubleMuon2015B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015B-v1/
 steps['RunJetHT2015B']={'INPUT':InputInfo(dataSet='/JetHT/Run2015B-v1/RAW',label='jetHT2015B',events=100000,location='STD', ls=Run2015B)}
 steps['RunMET2015B']={'INPUT':InputInfo(dataSet='/MET/Run2015B-v1/RAW',label='met2015B',events=100000,location='STD', ls=Run2015B)}
 steps['RunMuonEG2015B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015B-v1/RAW',label='muEG2015B',events=100000,location='STD', ls=Run2015B)}
+
+#### run2 2015C ####
+# Run2015C, 25ns: 254790 (852 LS and 65 files), 254852 (126 LS and 5 files), 254879 (178 LS and 11 files)
+Run2015C=selectedLS([254790])
+steps['RunHLTPhy2015C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015C-v1/RAW',label='hltPhy2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleEG2015C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015C-v1/RAW',label='doubEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleMuon2015C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015C-v1/RAW',label='doubMu2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunJetHT2015C']={'INPUT':InputInfo(dataSet='/JetHT/Run2015C-v1/RAW',label='jetHT2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMET2015C']={'INPUT':InputInfo(dataSet='/MET/Run2015C-v1/RAW',label='met2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMuonEG2015C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015C-v1/RAW',label='muEG2015C',events=100000,location='STD', ls=Run2015C)}
+
+#### run2 2015C full list ####
+steps['RunBTagCSV2015C']={'INPUT':InputInfo(dataSet='/BTagCSV/Run2015C-v1/RAW',label='btagCSV2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunBTagMu2015C']={'INPUT':InputInfo(dataSet='/BTagMu/Run2015C-v1/RAW',label='btagMu2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunCharmonium2015C']={'INPUT':InputInfo(dataSet='/Charmonium/Run2015C-v1/RAW',label='charmonium2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunCommissioning2015C']={'INPUT':InputInfo(dataSet='/Commissioning/Run2015C-v1/RAW',label='commissioning2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDisplacedJet2015C']={'INPUT':InputInfo(dataSet='/DisplacedJet/Run2015C-v1/RAW',label='displacedJet2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleMuonLowMass2015C']={'INPUT':InputInfo(dataSet='/DoubleMuonLowMass/Run2015C-v1/RAW',label='doubleMuonLowMass2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunFullTrack2015C']={'INPUT':InputInfo(dataSet='/FullTrack/Run2015C-v1/RAW',label='fullTrack2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHTMHT2015C']={'INPUT':InputInfo(dataSet='/HTMHT/Run2015C-v1/RAW',label='htMHT2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHcalHPDNoise2015C']={'INPUT':InputInfo(dataSet='/HcalHPDNoise/Run2015C-v1/RAW',label='hcalHPDNoise2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHighMultiplicity2015C']={'INPUT':InputInfo(dataSet='/HighMultiplicity/Run2015C-v1/RAW',label='highMultiplicity2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHighMultiplicity852015C']={'INPUT':InputInfo(dataSet='/HighMultiplicity85/Run2015C-v1/RAW',label='highMultiplicity852015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunL1Accept2015C']={'INPUT':InputInfo(dataSet='/L1Accept/Run2015C-v1/RAW',label='l1Accept2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMuOnia2015C']={'INPUT':InputInfo(dataSet='/MuOnia/Run2015C-v1/RAW',label='muOnia2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunNoBPTX2015C']={'INPUT':InputInfo(dataSet='/NoBPTX/Run2015C-v1/RAW',label='noBPTX2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunSingleElectron2015C']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2015C-v1/RAW',label='singleElectron2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunSingleMuon2015C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015C-v1/RAW',label='singleMuon2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunSinglePhoton2015C']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2015C-v1/RAW',label='singlePhoton2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunTau2015C']={'INPUT':InputInfo(dataSet='/Tau/Run2015C-v1/RAW',label='tau2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias2015C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2015C-v1/RAW',label='zeroBias2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHLTPhysicspart02015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart0/Run2015C-v1/RAW',label='hltPhysicspart02015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHLTPhysicspart12015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart1/Run2015C-v1/RAW',label='hltPhysicspart12015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHLTPhysicspart22015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart2/Run2015C-v1/RAW',label='hltPhysicspart22015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHLTPhysicspart32015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart3/Run2015C-v1/RAW',label='hltPhysicspart32015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHLTPhysicspart42015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart4/Run2015C-v1/RAW',label='hltPhysicspart42015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHLTPhysicspart52015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart5/Run2015C-v1/RAW',label='hltPhysicspart52015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHLTPhysicspart62015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart6/Run2015C-v1/RAW',label='hltPhysicspart62015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunHLTPhysicspart72015C']={'INPUT':InputInfo(dataSet='/HLTPhysicspart7/Run2015C-v1/RAW',label='hltPhysicspart72015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias12015C']={'INPUT':InputInfo(dataSet='/ZeroBias1/Run2015C-v1/RAW',label='zeroBias12015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias22015C']={'INPUT':InputInfo(dataSet='/ZeroBias2/Run2015C-v1/RAW',label='zeroBias22015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias32015C']={'INPUT':InputInfo(dataSet='/ZeroBias3/Run2015C-v1/RAW',label='zeroBias32015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias42015C']={'INPUT':InputInfo(dataSet='/ZeroBias4/Run2015C-v1/RAW',label='zeroBias42015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias52015C']={'INPUT':InputInfo(dataSet='/ZeroBias5/Run2015C-v1/RAW',label='zeroBias52015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias62015C']={'INPUT':InputInfo(dataSet='/ZeroBias6/Run2015C-v1/RAW',label='zeroBias62015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias72015C']={'INPUT':InputInfo(dataSet='/ZeroBias7/Run2015C-v1/RAW',label='zeroBias72015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunZeroBias82015C']={'INPUT':InputInfo(dataSet='/ZeroBias8/Run2015C-v1/RAW',label='zeroBias82015C',events=100000,location='STD', ls=Run2015C)}
+#
 
 def gen(fragment,howMuch):
     global step1Defaults
@@ -818,13 +866,21 @@ steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps[
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODAlCaCalo']=merge([{'--scenario':'pp',},dataRecoAlCaCalo])
 
-hltKey='frozen50ns'
-menuR2 = autoHLT[hltKey]
+hltKey50ns='frozen50ns'
+menuR250ns = autoHLT[hltKey50ns]
 # no GT customization for HLT frozen50ns
-steps['HLTDR2']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+steps['HLTDR250ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+
+hltKey25ns='25ns14e33_v3'
+# menuR225ns = autoHLT[hltKey25ns]
+# no GT customization for HLT frozen25ns
+steps['HLTDR225ns']=merge( [ {'-s':'L1REPACK,HLT:%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
-steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataReco])
+steps['RECODR250ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common',},dataReco])
+steps['RECODR225ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},dataReco])
+
 steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
 
 
@@ -923,7 +979,8 @@ steps['RECOUP15AlCaCalo']=merge([step3Up2015DefaultsAlCaCalo]) # todo: remove UP
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
 steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaCalo']])
 
-steps['RECODR2reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2']])
+steps['RECODR225nsreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR225ns']])
+steps['RECODR250nsreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR250ns']])
 steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2AlCaEle']])
 
 steps['RECO']=merge([step3Defaults])
