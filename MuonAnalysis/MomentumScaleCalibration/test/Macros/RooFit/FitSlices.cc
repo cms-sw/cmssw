@@ -77,50 +77,50 @@ public:
   double sigma2, sigma2Min, sigma2Max;
   bool useChi2;
 
-  TH3* rebin3D(const TH3* histo3D)
-  {
-    unsigned int zbins=histo3D->GetNbinsZ();
-    // std::cout<< "number of bins in z (and tempHisto) --> "<<zbins<<std::endl;
-    std::map<unsigned int, TH2*> twoDprojection;
-    for(unsigned int z=1;z<zbins;++z) {
-      histo3D->GetZaxis()->SetRange(z,z);
-      TH2*tempHisto= (TH2*)histo3D->Project3D("xy");
-      std::stringstream ss;
-      ss << z;
-      tempHisto->SetName(TString(tempHisto->GetName())+ss.str());
-      tempHisto->RebinX(rebinX);
-      tempHisto->RebinY(rebinY);
-      twoDprojection.insert(std::make_pair(z,tempHisto));
-    }
-    unsigned int xbins, ybins;
-    TH3* rebinned3D= new TH3(TString(histo3D->GetName())+"_rebinned",histo3D->GetTitle(),
-			    xbins,histo3D->GetXaxis()->GetXmin(),histo3D->GetXaxis()->GetXmax(),
-			    ybins,histo3D->GetYaxis()->GetXmin(),histo3D->GetYaxis()->GetXmax(),
-			    zbins,histo3D->GetZaxis()->GetXmin(),histo3D->GetZaxis()->GetXmax() );
-    if(twoDprojection.size()!=0)
-      {
-	xbins=twoDprojection[1]->GetNbinsX();	
-	ybins=twoDprojection[1]->GetNbinsY();	
-	//std::cout<< "number of bins in x --> "<<xbins<<std::endl;
-	//std::cout<< "number of bins in y --> "<<ybins<<std::endl;
-	for(unsigned int z=1;z<zbins;++z)
-	  {
-	    for(unsigned int y=1;y<ybins;++y)
-	      {
-		for(unsigned int x=1;x<xbins;++x)
-		  {
-		    std::cout<< "x/y/z= "<<x<<"/"<<y<<"/"<<z <<std::endl;
-		    std::cout<< "number of bins in x --> "<<xbins<<std::endl;
-		    std::cout<< "number of bins in y --> "<<ybins<<std::endl;
-		    rebinned3D->Fill(x,y,twoDprojection[z]->GetBinContent(x,y));
-		  }
-		
-	      }
-
-	  }
-      }
-    return rebinned3D;
-  }
+  //~ TH3* rebin3D(TH3* histo3D)
+  //~ {
+    //~ unsigned int zbins=histo3D->GetNbinsZ();
+    //~ // std::cout<< "number of bins in z (and tempHisto) --> "<<zbins<<std::endl;
+    //~ std::map<unsigned int, TH2*> twoDprojection;
+    //~ for(unsigned int z=1;z<zbins;++z) {
+      //~ histo3D->GetZaxis()->SetRange(z,z);
+      //~ TH2*tempHisto= (TH2*)histo3D->Project3D("xy");
+      //~ std::stringstream ss;
+      //~ ss << z;
+      //~ tempHisto->SetName(TString(tempHisto->GetName())+ss.str());
+      //~ tempHisto->RebinX(rebinX);
+      //~ tempHisto->RebinY(rebinY);
+      //~ twoDprojection.insert(std::make_pair(z,tempHisto));
+    //~ }
+    //~ unsigned int xbins, ybins;
+    //~ TH3* rebinned3D= new TH3(TString(histo3D->GetName())+"_rebinned",histo3D->GetTitle(),
+			    //~ xbins,histo3D->GetXaxis()->GetXmin(),histo3D->GetXaxis()->GetXmax(),
+			    //~ ybins,histo3D->GetYaxis()->GetXmin(),histo3D->GetYaxis()->GetXmax(),
+			    //~ zbins,histo3D->GetZaxis()->GetXmin(),histo3D->GetZaxis()->GetXmax() );
+    //~ if(twoDprojection.size()!=0)
+      //~ {
+	//~ xbins=twoDprojection[1]->GetNbinsX();	
+	//~ ybins=twoDprojection[1]->GetNbinsY();	
+	//~ //std::cout<< "number of bins in x --> "<<xbins<<std::endl;
+	//~ //std::cout<< "number of bins in y --> "<<ybins<<std::endl;
+	//~ for(unsigned int z=1;z<zbins;++z)
+	  //~ {
+	    //~ for(unsigned int y=1;y<ybins;++y)
+	      //~ {
+		//~ for(unsigned int x=1;x<xbins;++x)
+		  //~ {
+		    //~ std::cout<< "x/y/z= "<<x<<"/"<<y<<"/"<<z <<std::endl;
+		    //~ std::cout<< "number of bins in x --> "<<xbins<<std::endl;
+		    //~ std::cout<< "number of bins in y --> "<<ybins<<std::endl;
+		    //~ rebinned3D->Fill(x,y,twoDprojection[z]->GetBinContent(x,y));
+		  //~ }
+		//~ 
+	      //~ }
+//~ 
+	  //~ }
+      //~ }
+    //~ return rebinned3D;
+  //~ }
 
 };
 

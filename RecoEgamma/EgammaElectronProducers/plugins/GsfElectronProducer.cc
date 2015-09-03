@@ -79,8 +79,8 @@ using namespace reco;
   descriptions.add("produceGsfElectrons",desc) ;
  }
  */
-GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet & cfg )
- : GsfElectronBaseProducer(cfg), pfTranslatorParametersChecked_(false)
+GsfElectronProducer::GsfElectronProducer( const edm::ParameterSet & cfg, const gsfAlgoHelpers::HeavyObjectCache* hoc )
+  : GsfElectronBaseProducer(cfg,hoc), pfTranslatorParametersChecked_(false)
  {}
 
 GsfElectronProducer::~GsfElectronProducer()
@@ -92,7 +92,7 @@ void GsfElectronProducer::produce( edm::Event & event, const edm::EventSetup & s
   algo_->clonePreviousElectrons() ;
   // don't add pflow only electrons if one so wish
   if (strategyCfg_.addPflowElectrons)
-   { algo_->completeElectrons() ; }
+    { algo_->completeElectrons(globalCache()) ; }
   algo_->addPflowInfo() ;
   fillEvent(event) ;
   endEvent() ;

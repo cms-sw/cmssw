@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <TMath.h>
+#include "TMVA/MethodBDT.h"
 
 // include combinations header (not yet included in boost)
 #include "combination.hpp"
@@ -706,43 +707,7 @@ PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) :
   nVtx_(0.0),
   x0inner_(0.0), x0middle_(0.0), x0outer_(0.0),
   excluded_(0.0), Mustache_EtRatio_(0.0), Mustache_Et_out_(0.0)
-{  
-  
-  // Set the tmva reader for electrons
-  tmvaReaderEle_ = new TMVA::Reader("!Color:Silent");
-  tmvaReaderEle_->AddVariable("lnPt_gsf",&lnPt_gsf);
-  tmvaReaderEle_->AddVariable("Eta_gsf",&Eta_gsf);
-  tmvaReaderEle_->AddVariable("dPtOverPt_gsf",&dPtOverPt_gsf);
-  tmvaReaderEle_->AddVariable("DPtOverPt_gsf",&DPtOverPt_gsf);
-  //tmvaReaderEle_->AddVariable("nhit_gsf",&nhit_gsf);
-  tmvaReaderEle_->AddVariable("chi2_gsf",&chi2_gsf);
-  //tmvaReaderEle_->AddVariable("DPtOverPt_kf",&DPtOverPt_kf);
-  tmvaReaderEle_->AddVariable("nhit_kf",&nhit_kf);
-  tmvaReaderEle_->AddVariable("chi2_kf",&chi2_kf);
-  tmvaReaderEle_->AddVariable("EtotPinMode",&EtotPinMode);
-  tmvaReaderEle_->AddVariable("EGsfPoutMode",&EGsfPoutMode);
-  tmvaReaderEle_->AddVariable("EtotBremPinPoutMode",&EtotBremPinPoutMode);
-  tmvaReaderEle_->AddVariable("DEtaGsfEcalClust",&DEtaGsfEcalClust);
-  tmvaReaderEle_->AddVariable("SigmaEtaEta",&SigmaEtaEta);
-  tmvaReaderEle_->AddVariable("HOverHE",&HOverHE);
-//   tmvaReaderEle_->AddVariable("HOverPin",&HOverPin);
-  tmvaReaderEle_->AddVariable("lateBrem",&lateBrem);
-  tmvaReaderEle_->AddVariable("firstBrem",&firstBrem);
-  tmvaReaderEle_->BookMVA("BDT",cfg_.mvaWeightFileEleID.c_str());
-  
-  
-  //Book MVA  
-  tmvaReader_ = new TMVA::Reader("!Color:Silent");  
-  tmvaReader_->AddVariable("del_phi",&del_phi);  
-  tmvaReader_->AddVariable("nlayers", &nlayers);  
-  tmvaReader_->AddVariable("chi2",&chi2);  
-  tmvaReader_->AddVariable("EoverPt",&EoverPt);  
-  tmvaReader_->AddVariable("HoverPt",&HoverPt);  
-  tmvaReader_->AddVariable("track_pt", &track_pt);  
-  tmvaReader_->AddVariable("STIP",&STIP);  
-  tmvaReader_->AddVariable("nlost", &nlost);  
-  tmvaReader_->BookMVA("BDT",cfg_.mvaweightfile.c_str());  
-
+{   
   //Material Map
   TFile *XO_File = new TFile(cfg_.X0_Map.c_str(),"READ");
   X0_sum    = (TH2D*)XO_File->Get("TrackerSum");
@@ -752,8 +717,9 @@ PFEGammaAlgo(const PFEGammaAlgo::PFEGConfigInfo& cfg) :
   
 }
 
-void PFEGammaAlgo::RunPFEG(const reco::PFBlockRef&  blockRef,
-			      std::vector<bool>& active) {  
+void PFEGammaAlgo::RunPFEG(const pfEGHelpers::HeavyObjectCache* hoc,
+                           const reco::PFBlockRef&  blockRef,
+                           std::vector<bool>& active) {  
 
   fifthStepKfTrack_.clear();
   convGsfTrack_.clear();
@@ -765,12 +731,14 @@ void PFEGammaAlgo::RunPFEG(const reco::PFBlockRef&  blockRef,
   // ... will be setable via CFG file parameter
   verbosityLevel_ = Chatty;          // Chatty mode.
   
-  buildAndRefineEGObjects(blockRef);
+  buildAndRefineEGObjects(hoc, blockRef);
 }
 
-float PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, 
-					const reco::Vertex& primaryvtx, 
-					unsigned int track_index) {  
+float PFEGammaAlgo::
+EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
+                     const reco::PFBlockRef& blockref, 
+                     const reco::Vertex& primaryvtx, 
+                     unsigned int track_index) {  
   const reco::PFBlock& block = *blockref;  
   const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();  
   //use this to store linkdata in the associatedElements function below  
@@ -814,7 +782,11 @@ float PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref,
   double vtx_phi=rvtx.phi();  
   //delta Phi between conversion vertex and track  
   del_phi=fabs(deltaPhi(vtx_phi, elements[track_index].trackRef()->innerMomentum().Phi()));  
-  mvaValue = tmvaReader_->EvaluateMVA("BDT");  
+  
+  float vars[] = { del_phi, nlayers, chi2, EoverPt,
+                   HoverPt, track_pt, STIP, nlost };
+
+  mvaValue = hoc->gbrSingleLeg_->GetAdaBoostClassifier(vars);
   
   return mvaValue;
 }
@@ -846,7 +818,8 @@ bool PFEGammaAlgo::isAMuon(const reco::PFBlockElement& pfbe) {
   return false;
 }
 
-void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
+void PFEGammaAlgo::buildAndRefineEGObjects(const pfEGHelpers::HeavyObjectCache* hoc,
+                                           const reco::PFBlockRef& block) {
   LOGVERB("PFEGammaAlgo") 
     << "Resetting PFEGammaAlgo for new block and running!" << std::endl;
   _splayedblock.clear();
@@ -929,7 +902,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   // and try to link those in...
   for( auto& RO : _refinableObjects ) {    
     // look for conversion legs
-    linkRefinableObjectECALToSingleLegConv(RO);
+    linkRefinableObjectECALToSingleLegConv(hoc,RO);
     dumpCurrentRefinableObjects();
     // look for tracks that complement conversion legs
     linkRefinableObjectConvSecondaryKFsToSecondaryKFs(RO);
@@ -971,7 +944,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
   dumpCurrentRefinableObjects();
 
   // fill the PF candidates and then build the refined SC
-  fillPFCandidates(_refinableObjects,outcands_,outcandsextra_);
+  fillPFCandidates(hoc,_refinableObjects,outcands_,outcandsextra_);
 
 }
 
@@ -1839,7 +1812,8 @@ linkRefinableObjectConvSecondaryKFsToSecondaryKFs(ProtoEGObject& RO) {
 }
 
 void PFEGammaAlgo::
-linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) { 
+linkRefinableObjectECALToSingleLegConv(const pfEGHelpers::HeavyObjectCache* hoc,
+                                       ProtoEGObject& RO) { 
   IsConversionTrack<reco::PFBlockElementTrack> isConvKf;
   auto KFbegin = _splayedblock[reco::PFBlockElement::TRACK].begin();
   auto KFend = _splayedblock[reco::PFBlockElement::TRACK].end();  
@@ -1861,8 +1835,9 @@ linkRefinableObjectECALToSingleLegConv(ProtoEGObject& RO) {
     }
     // go through non-conv-identified kfs and check MVA to add conversions
     for( auto kf = notconvkf; kf != notmatchedkf; ++kf ) {
-      float mvaval = EvaluateSingleLegMVA(_currentblock, *cfg_.primaryVtx, 
-                               kf->first->index());
+      float mvaval = EvaluateSingleLegMVA(hoc,_currentblock, 
+                                          *cfg_.primaryVtx, 
+                                          kf->first->index());
       if(mvaval > cfg_.mvaConvCut) {
 	const reco::PFBlockElementTrack* elemaskf =
 	  docast(const reco::PFBlockElementTrack*,kf->first);
@@ -1901,7 +1876,8 @@ linkRefinableObjectSecondaryKFsToECAL(ProtoEGObject& RO) {
 }
 
 void PFEGammaAlgo::
-fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
+fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
+                 const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
 		 reco::PFCandidateCollection& egcands,
 		 reco::PFCandidateEGammaExtraCollection& egxs) {
   // reset output collections
@@ -1974,8 +1950,11 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
         const auto &mvavalmapped = RO.singleLegConversionMvaMap.find(kf);
         //FIXME: Abuse single mva value to store both provenance and single leg mva score
         //by storing 3.0 + mvaval
-        float mvaval = mvavalmapped!=RO.singleLegConversionMvaMap.end() ? mvavalmapped->second : 3.0 + EvaluateSingleLegMVA(_currentblock, *cfg_.primaryVtx, 
-                                kf->index());
+        float mvaval = ( mvavalmapped != RO.singleLegConversionMvaMap.end() ? 
+                         mvavalmapped->second : 
+                         3.0 + EvaluateSingleLegMVA(hoc,_currentblock,
+                                                    *cfg_.primaryVtx, 
+                                                    kf->index()) );
         
         xtra.addSingleLegConvTrackRefMva(std::make_pair(kf->trackRef(),mvaval));
       }
@@ -2017,7 +1996,7 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
       cand.setP4(p4);   
       cand.setPositionAtECALEntrance(kf->positionAtECALEntrance());
     }    
-    const float ele_mva_value = calculate_ele_mva(RO,xtra);
+    const float ele_mva_value = calculate_ele_mva(hoc,RO,xtra);
     fill_extra_info(RO,xtra);
     //std::cout << "PFEG ele_mva: " << ele_mva_value << std::endl;
     xtra.setMVA(ele_mva_value);    
@@ -2028,7 +2007,8 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
 }
 
 float PFEGammaAlgo::
-calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
+calculate_ele_mva(const pfEGHelpers::HeavyObjectCache* hoc,
+                  const PFEGammaAlgo::ProtoEGObject& RO,
 		  reco::PFCandidateEGammaExtra& xtra) {
   if( !RO.primaryGSFs.size() ) return -2.0f;
   const PFGSFElement* gsfElement = RO.primaryGSFs.front().first;
@@ -2186,7 +2166,11 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
 		<< " firstBrem " << firstBrem << endl;
       */
       
-      return tmvaReaderEle_->EvaluateMVA("BDT");
+      float vars[] = { lnPt_gsf, Eta_gsf, dPtOverPt_gsf, DPtOverPt_gsf, chi2_gsf,
+                       nhit_kf, chi2_kf, EtotPinMode, EGsfPoutMode, EtotBremPinPoutMode,
+                       DEtaGsfEcalClust, SigmaEtaEta, HOverHE, lateBrem, firstBrem };
+
+      return hoc->gbrEle_->GetAdaBoostClassifier(vars);
     }
   }
   return -2.0f;

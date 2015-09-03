@@ -23,6 +23,7 @@ SiPixelDigiSource = cms.EDAnalyzer("SiPixelDigiSource",
     ringOn = cms.untracked.bool(False),
     bladeOn = cms.untracked.bool(False),
     diskOn = cms.untracked.bool(False),
+    isOffline = cms.untracked.bool(False),
     bigEventSize = cms.untracked.int32(1000)
 )
 

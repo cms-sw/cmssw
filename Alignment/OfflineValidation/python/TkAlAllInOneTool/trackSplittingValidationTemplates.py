@@ -98,7 +98,6 @@ process.AlignmentTrackSelector.etaMin  = -9999.
 process.AlignmentTrackSelector.etaMax  = 9999.
 process.AlignmentTrackSelector.nHitMin = 10
 process.AlignmentTrackSelector.nHitMin2D = 2
-process.AlignmentTrackSelector.minHitsPerSubDet.inBPIX=4 ##skip tracks not passing the pixel
 process.AlignmentTrackSelector.chi2nMax = 9999.
 process.AlignmentTrackSelector.applyMultiplicityFilter = True
 process.AlignmentTrackSelector.maxMultiplicity = 1
@@ -109,7 +108,7 @@ process.AlignmentTrackSelector.applyIsolationCut = False
 process.AlignmentTrackSelector.minHitIsolation = 0.8
 process.AlignmentTrackSelector.applyChargeCheck = False
 process.AlignmentTrackSelector.minHitChargeStrip = 50.
-process.AlignmentTrackSelector.minHitsPerSubDet.inBPIX = 2
+process.AlignmentTrackSelector.minHitsPerSubDet.in.oO[subdetector]Oo. = 2
 #process.AlignmentTrackSelector.trackQualities = ["highPurity"]
 #process.AlignmentTrackSelector.iterativeTrackingSteps = ["iter1","iter2"]
 process.KFFittingSmootherWithOutliersRejectionAndRK.EstimateCut=30.0
@@ -168,32 +167,10 @@ process.p = cms.Path(process.offlineBeamSpot*process.TrackRefitter1*process.Alig
 
 trackSplitPlotExecution="""
 #make track splitting plots
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
-then
-    rfmkdir -p .oO[workdir]Oo./TrackSplittingPlots
-else
-    mkdir -p TrackSplittingPlots
-fi
 
 rfcp .oO[trackSplitPlotScriptPath]Oo. .
 root -x -b -q TkAlTrackSplitPlot.C++
-rfmkdir -p .oO[datadir]Oo./TrackSplittingPlots
 
-if [[ $HOSTNAME = lxplus[0-9]*\.cern\.ch ]] # check for interactive mode
-then
-    image_files=$(find .oO[workdir]Oo./TrackSplittingPlots/* -maxdepth 0)
-    echo ${image_files}
-    ls .oO[workdir]Oo./TrackSplittingPlots
-else
-    image_files=$(find TrackSplittingPlots/* -maxdepth 0)
-    echo ${image_files}
-    ls TrackSplittingPlots
-fi
-
-for image in ${image_files}
-do
-    cp -r ${image} .oO[datadir]Oo./TrackSplittingPlots
-done
 """
 
 ######################################################################
@@ -254,8 +231,8 @@ void fillmatrix()
 /*
 The variables are defined in Alignment/OfflineValidation/macros/trackSplitPlot.h
  as follows:
-TString xvariables[xsize]      = {"pt", "eta", "phi", "dz",  "dxy", "theta",
-                                  "qoverpt", "runNumber","nHits",""};
+TString xvariables[xsize]      = {"", "pt", "eta", "phi", "dz",  "dxy", "theta",
+                                  "qoverpt", "runNumber", "nHits"};
 
 TString yvariables[ysize]      = {"pt", "pt",  "eta", "phi", "dz",  "dxy", "theta",
                                   "qoverpt", ""};
@@ -290,12 +267,13 @@ phases must be filled in for sagitta, elliptical, and skew if values is;
 void TkAlTrackSplitPlot()
 {
     //fillmatrix();                                                         //(C)
-    makePlots(".oO[trackSplitPlotInstantiation]Oo.",
+    makePlots(
+              ".oO[trackSplitPlotInstantiation]Oo.",
               //misalignment,values,phases,                                 //(A)
-              "TrackSplittingPlots"
+              ".oO[datadir]Oo./TrackSplittingPlots"
               //,"xvar","yvar"                                              //(B)
               //,plotmatrix                                                 //(C)
-              );
+             );
 }
 """
 

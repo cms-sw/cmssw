@@ -5,8 +5,9 @@
   <class name="ScoutingPFJet" ClassVersion="2">
       <version ClassVersion="2" checksum="2507658732"/>
   </class>
-  <class name="ScoutingParticle" ClassVersion="2">
+  <class name="ScoutingParticle" ClassVersion="3">
       <version ClassVersion="2" checksum="2803573918"/>
+      <version ClassVersion="3" checksum="3020184314"/>
   </class>
   <class name="ScoutingVertex" ClassVersion="2">
       <version ClassVersion="2" checksum="2969738609"/>
