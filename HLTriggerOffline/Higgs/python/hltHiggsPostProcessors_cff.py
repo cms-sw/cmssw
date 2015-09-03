@@ -339,7 +339,6 @@ efficiency_strings = get_reco_strings(efficiency_strings)
 hltHiggsPostMSSMHbb = hltHiggsPostProcessor.clone()
 hltHiggsPostMSSMHbb.subDirs = ['HLT/Higgs/MSSMHbb']
 hltHiggsPostMSSMHbb.efficiencyProfile = efficiency_strings
-
 hltHiggsPostProcessors = cms.Sequence(
         hltHiggsPostHWW+
         hltHiggsPostHZZ+
