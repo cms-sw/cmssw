@@ -183,37 +183,13 @@ void evSelTest (PathSpecifiers const & ps, TrigResults const & tr, bool ans)
     ++number_of_trigger_paths;
   }
 
-  TriggerResults results(bm,trigger_path_names);
-
-  bool a  = select_based_on_pset.acceptEvent(results);
-  bool b  = select_based_on_path_specifiers_and_names.acceptEvent(results);
-  bool c  = select_based_on_path_specifiers_only.acceptEvent(results);
-  bool ab = select_based_on_pset.acceptEvent(&(bitArray[0]), 
-  		number_of_trigger_paths);
-  bool bb = select_based_on_path_specifiers_and_names.acceptEvent
-  		(&(bitArray[0]), number_of_trigger_paths);
-  // select_based_on_path_specifiers_only.acceptEvent(&(bitArray[0]), 
-  //                                     number_of_trigger_paths);
-  // is not a valid way to use acceptEvent.
-
-  if (a  != ans || b  != ans || c != ans || 
-      ab != ans || bb != ans  )
-    {
-      std::cerr << "failed to compare path specifiers with trigger results: "
-	   << "correct=" << ans << " "
-	   << "results=" << a  << "  " << b  << "  " << c  << "  " 
-	                 << ab << "  " << bb <<  "\n"
-	   << "pathspecs = " << ps.path << "\n"
-	   << "trigger results = " << tr << "\n";
-      abort();
-    }
-
   // Repeat putting the list of trigger names in the pset
   // registry
 
   ParameterSet trigger_pset;
   trigger_pset.addParameter<Strings>("@trigger_paths", trigger_path_names);
   trigger_pset.registerIt();
+  select_based_on_path_specifiers_only.beginRun(trigger_pset.id());
 
   TriggerResults results_id(bm, trigger_pset.id());
 

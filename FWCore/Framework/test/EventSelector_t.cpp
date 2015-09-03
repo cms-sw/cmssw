@@ -90,40 +90,13 @@ void testone(const Strings& paths,
     bitArray[1] = (bitArray[1] & 0xfc) | edm::hlt::Exception;
   }
 
-  TriggerResults results(bm,paths);
-
-//        std::cerr << "pattern=" << pattern 
-//	 	  << "mask=" << mask << "\n";  // DBG
-
-//  	std:: cerr << "a \n";
-  bool a = select.acceptEvent(results);
-//  	std:: cerr << "a1 \n";
-  bool a1 = select1.acceptEvent(results);
-//  	std:: cerr << "a2 \n";
-  bool a2 = select2.acceptEvent(results);
-//  	std:: cerr << "b2 \n";
-  bool b2 = select2.acceptEvent(results);
-//  	std:: cerr << "c1 \n";
-  bool c1 = select1.acceptEvent(&(bitArray[0]), number_of_trigger_paths);
-
-  if (a!=answer || a1 != answer || a2 != answer || b2 != answer || c1 != answer)
-    {
-      std::cerr << "failed to compare pattern with mask: "
-	   << "correct=" << answer << " "
-	   << "results=" << a << "  " << a1 << "  " << a2 
-	   		      << "  " << b2 << "  " << c1 << "\n"
-	   << "pattern=" << pattern << "\n"
-	   << "mask=" << mask << "\n"
-           << "jmask = " << jmask << "\n"; 
-      abort();
-    }
-
   // Repeat putting the list of trigger names in the pset
   // registry
 
   ParameterSet trigger_pset;
   trigger_pset.addParameter<Strings>("@trigger_paths", paths);
   trigger_pset.registerIt();
+  select2.beginRun(trigger_pset.id());
 
   TriggerResults results_id(bm, trigger_pset.id());
 
@@ -143,7 +116,7 @@ void testone(const Strings& paths,
 	   << "results=" << a11 << "  " << a12 << "  " << a13 << "  " << a14 << "\n"
 	   << "pattern=" << pattern << "\n"
 	   << "mask=" << mask << "\n"
-           << "jmask = " << jmask << "\n"; 
+           << "jmask = " << jmask << "\n";
       abort();
     }
 }
@@ -171,7 +144,7 @@ try {
   std::array<char const*, numBits> cpaths = {{"a1","a2","a3","a4","a5"}};
   Strings paths(cpaths.begin(),cpaths.end());
 
-  // 
+  //
 
   std::array<char const*, 2> cw1 = {{ "a1","a2" }};
   std::array<char const*, 2> cw2 = {{ "!a1","!a2" }};
@@ -209,7 +182,7 @@ try {
   std::array<bool,numBits> t9 = {{ false, false, false, false, false }};  // for t9 only, above the
                                                                             // first is reset to ready
                                                                             // last is reset to exception
-                                                                              
+
 
   VBools testmasks(numMasks);
   testmasks[0].insert(testmasks[0].end(),t1.begin(),t1.end());
@@ -236,7 +209,7 @@ try {
   };
 
 
-  // We want to create the TriggerNamesService because it is used in 
+  // We want to create the TriggerNamesService because it is used in
   // the tests.  We do that here, but first we need to build a minimal
   // parameter set to pass to its constructor.  Then we build the
   // service and setup the service system.

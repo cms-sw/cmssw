@@ -3,8 +3,7 @@
 
 /*----------------------------------------------------------------------
 
-OutputModule: The base class of all "modules" that write Events to an
-output stream.
+OutputModule: The base class of all "modules" that write Events to an output stream.
 
 ----------------------------------------------------------------------*/
 
@@ -100,7 +99,7 @@ namespace edm {
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
 
-    void doPreallocate(PreallocationConfiguration const&);
+    void doPreallocate(PreallocationConfiguration const&) {}
 
     void doBeginJob();
     void doEndJob();
@@ -154,10 +153,9 @@ namespace edm {
     ModuleDescription moduleDescription_;
 
     bool wantAllEvents_;
-    std::vector<detail::TriggerResultsBasedEventSelector> selectors_;
+    detail::TriggerResultsBasedEventSelector selectors_;
     // ID of the ParameterSet that configured the event selector
     // subsystem.
-    ParameterSet selectEvents_;
     ParameterSetID selector_config_id_;
 
     // needed because of possible EDAliases.
@@ -201,8 +199,6 @@ namespace edm {
 
     void registerProductsAndCallbacks(OutputModule const*, ProductRegistry const*) {}
     
-    bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
-
     /// Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}
 

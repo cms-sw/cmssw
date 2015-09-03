@@ -2,7 +2,7 @@
 //
 // Package:     FWCore/Framework
 // Class  :     OutputModuleBase
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -27,7 +27,6 @@
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -55,43 +54,38 @@ namespace edm {
     branchIDLists_(new BranchIDLists),
     origBranchIDLists_(nullptr),
     thinnedAssociationsHelper_(new ThinnedAssociationsHelper) {
-      
+
       hasNewlyDroppedBranch_.fill(false);
-      
+
       Service<service::TriggerNamesService> tns;
       process_name_ = tns->getProcessName();
-      
-      selectEvents_ =
+
+      ParameterSet selectevents =
       pset.getUntrackedParameterSet("SelectEvents", ParameterSet());
-      
-      selectEvents_.registerIt(); // Just in case this PSet is not registered
-      
-      selector_config_id_ = selectEvents_.id();
-      
-      //need to set wantAllEvents_ in constructor
-      // we will make the remaining selectors once we know how many streams
-      selectors_.resize(1);
-      wantAllEvents_ = detail::configureEventSelector(selectEvents_,
+
+      selectevents.registerIt(); // Just in case this PSet is not registered
+
+      selector_config_id_ = selectevents.id();
+      wantAllEvents_ = detail::configureEventSelector(selectevents,
                                                       process_name_,
                                                       getAllTriggerNames(),
-                                                      selectors_[0]);
-
+                                                      selectors_);
     }
-    
+
     void OutputModuleBase::configure(OutputModuleDescription const& desc) {
       remainingEvents_ = maxEvents_ = desc.maxEvents_;
       origBranchIDLists_ = desc.branchIDLists_;
     }
-    
+
     void OutputModuleBase::selectProducts(ProductRegistry const& preg,
                                           ThinnedAssociationsHelper const& thinnedAssociationsHelper) {
       if(productSelector_.initialized()) return;
       productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
-      
+
       // TODO: See if we can collapse keptProducts_ and productSelector_ into a
       // single object. See the notes in the header for ProductSelector
       // for more information.
-      
+
       std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
       std::vector<BranchDescription const*> associationDescriptions;
       std::set<BranchID> keptProductsInEvent;
@@ -178,51 +172,34 @@ namespace edm {
     }
 
     OutputModuleBase::~OutputModuleBase() { }
-    
+
     SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
       return SharedResourcesAcquirer{};
-    }
-    
-    void OutputModuleBase::doPreallocate(PreallocationConfiguration const& iPC) {
-      auto nstreams = iPC.numberOfStreams();
-      selectors_.resize(nstreams);
-      
-      bool seenFirst = false;
-      for(auto& s : selectors_) {
-        if(seenFirst) {
-          detail::configureEventSelector(selectEvents_,
-                                         process_name_,
-                                         getAllTriggerNames(),
-                                         s);
-        } else {
-          seenFirst = true;
-        }
-      }
     }
 
     void OutputModuleBase::doBeginJob() {
       resourcesAcquirer_ = createAcquirer();
       this->beginJob();
     }
-    
+
     void OutputModuleBase::doEndJob() {
       endJob();
     }
-    
-    bool OutputModuleBase::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
-      
-      auto& s = selectors_[id.value()];
-      return wantAllEvents_ or s.wantEvent(ep,mcc);
-    }
-    
+
     bool
     OutputModuleBase::doEvent(EventPrincipal const& ep,
                               EventSetup const&,
                               ActivityRegistry* act,
                               ModuleCallingContext const* mcc) {
-      
+
       {
         std::lock_guard<std::mutex> guard(mutex_);
+        if(!wantAllEvents_) {
+          if(!selectors_.wantEvent(ep, mcc)) {
+            return true;
+          }
+        }
+
         {
           std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
           EventSignalsSentry sentry(act,mcc);
@@ -234,15 +211,16 @@ namespace edm {
       }
       return true;
     }
-    
+
     bool
     OutputModuleBase::doBeginRun(RunPrincipal const& rp,
                                  EventSetup const&,
                                  ModuleCallingContext const* mcc) {
       doBeginRun_(rp, mcc);
+      selectors_.beginRun(rp);
       return true;
     }
-    
+
     bool
     OutputModuleBase::doEndRun(RunPrincipal const& rp,
                                EventSetup const&,
@@ -250,13 +228,13 @@ namespace edm {
       doEndRun_(rp, mcc);
       return true;
     }
-    
+
     void
     OutputModuleBase::doWriteRun(RunPrincipal const& rp,
                                  ModuleCallingContext const* mcc) {
       writeRun(rp, mcc);
     }
-    
+
     bool
     OutputModuleBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                              EventSetup const&,
@@ -264,7 +242,7 @@ namespace edm {
       doBeginLuminosityBlock_(lbp, mcc);
       return true;
     }
-    
+
     bool
     OutputModuleBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                            EventSetup const&,
@@ -272,54 +250,54 @@ namespace edm {
       doEndLuminosityBlock_(lbp, mcc);
       return true;
     }
-    
+
     void OutputModuleBase::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                                   ModuleCallingContext const* mcc) {
       writeLuminosityBlock(lbp, mcc);
     }
-    
+
     void OutputModuleBase::doOpenFile(FileBlock const& fb) {
       openFile(fb);
     }
-    
+
     void OutputModuleBase::doRespondToOpenInputFile(FileBlock const& fb) {
       doRespondToOpenInputFile_(fb);
     }
-    
+
     void OutputModuleBase::doRespondToCloseInputFile(FileBlock const& fb) {
       doRespondToCloseInputFile_(fb);
     }
-    
+
     void
     OutputModuleBase::doPreForkReleaseResources() {
       preForkReleaseResources();
     }
-    
+
     void
     OutputModuleBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
       postForkReacquireResources(iChildIndex, iNumberOfChildren);
     }
-    
+
     void
     OutputModuleBase::preForkReleaseResources() {}
-    
+
     void
     OutputModuleBase::postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/) {}
 
-    
+
     void OutputModuleBase::maybeOpenFile() {
       if(!isFileOpen()) reallyOpenFile();
     }
-    
+
     void OutputModuleBase::doCloseFile() {
       if(isFileOpen()) {
         reallyCloseFile();
       }
     }
-    
+
     void OutputModuleBase::reallyCloseFile() {
     }
-    
+
     BranchIDLists const*
     OutputModuleBase::branchIDLists() const {
       if(!droppedBranchIDToKeptBranchID_.empty()) {
@@ -339,7 +317,7 @@ namespace edm {
       }
       return origBranchIDLists_;
     }
-    
+
     ThinnedAssociationsHelper const*
     OutputModuleBase::thinnedAssociationsHelper() const {
       return thinnedAssociationsHelper_.get();
@@ -349,36 +327,36 @@ namespace edm {
     OutputModuleBase::description() const {
       return moduleDescription_;
     }
-    
+
     bool
     OutputModuleBase::selected(BranchDescription const& desc) const {
       return productSelector_.selected(desc);
     }
-    
+
     void
     OutputModuleBase::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
       desc.setUnknown();
       descriptions.addDefault(desc);
     }
-    
+
     void
     OutputModuleBase::fillDescription(ParameterSetDescription& desc) {
       ProductSelectorRules::fillDescription(desc, "outputCommands");
       EventSelector::fillDescription(desc);
     }
-    
+
     void
     OutputModuleBase::prevalidate(ConfigurationDescriptions& ) {
     }
-    
-    
+
+
     static const std::string kBaseType("OutputModule");
     const std::string&
     OutputModuleBase::baseType() {
       return kBaseType;
     }
-    
+
     void
     OutputModuleBase::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                         bool anyProductProduced) {

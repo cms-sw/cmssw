@@ -50,20 +50,22 @@ namespace edm
     EventSelector(Strings const& pathspecs);
 
     EventSelector(edm::ParameterSet const& pset,
-		  Strings const& triggernames);
+		  Strings const& pathNames);
 
     bool wantAll() const { return accept_all_; }
-    bool acceptEvent(TriggerResults const&);
+    bool acceptEvent(TriggerResults const&) const;
     bool acceptEvent(unsigned char const*, int) const;
+    void beginRun(ParameterSetID const& psetID);
+    bool forCurrentProcess() const { return results_from_current_process_; }
 
     // 29-Jan-2008, KAB - added methods for testing and using
     // trigger selections (pathspecs).
     static bool selectionIsValid(Strings const& pathspec,
-                                 Strings const& fullTriggerList);
+                                 Strings const& fullPathList);
     static evtSel::OverlapResult
       testSelectionOverlap(Strings const& pathspec1,
                            Strings const& pathspec2,
-                           Strings const& fullTriggerList);
+                           Strings const& fullPathList);
     std::shared_ptr<TriggerResults>
       maskTriggerResults(TriggerResults const& inputResults);
     static std::vector<std::string>
@@ -73,8 +75,10 @@ namespace edm
 
   private:
 
-    void init(Strings const& paths,
-	      Strings const& triggernames);
+    void initPathSpecs();
+
+    void init(Strings const& pathspecs,
+	      Strings const& pathNames);
 
     struct BitInfo
     {
@@ -95,12 +99,11 @@ namespace edm
     std::vector<Bits> all_must_fail_noex_;			// change 3
 
     bool results_from_current_process_;
-    bool psetID_initialized_;
     ParameterSetID psetID_;
 
-    Strings paths_;
+    Strings pathspecs_;
 
-    int nTriggerNames_;
+    int nPathNames_;
     bool notStarPresent_;
 
     bool acceptTriggerPath(HLTPathStatus const&, BitInfo const&) const;

@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/OutputModule.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 
 class TTree;
