@@ -13,13 +13,16 @@
 #include <vector>
 #include <map>
 
-#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
+  class EventPrincipal;
   class ModuleCallingContext;
+  class ParameterSet;
+  class RunPrincipal;
+  class TriggerResults;
 
   namespace detail {
     typedef edm::Handle<edm::TriggerResults> handle_t;
@@ -31,13 +34,15 @@ namespace edm {
 	eventSelector_(s)
       { }
 
-      bool match(TriggerResults const& product) {
+      bool match(TriggerResults const& product) const {
 	return eventSelector_.acceptEvent(product);
       }
 
       InputTag const& inputTag() const {
         return inputTag_;
       }
+
+      void beginRun(ProcessHistory const& ph);
 
     private:
       InputTag            inputTag_;
@@ -51,13 +56,14 @@ namespace edm {
       typedef std::vector<NamedEventSelector>     selectors_t;
       typedef std::pair<std::string, std::string> parsed_path_spec_t;
 
-      void setupDefault(std::vector<std::string> const& triggernames);
+      void setupDefault(std::vector<std::string> const& pathNames);
 
-      void setup(std::vector<parsed_path_spec_t> const& path_specs,
-		 std::vector<std::string> const& triggernames,
-                 const std::string& process_name);
+      void setup(std::vector<parsed_path_spec_t> const& pathSpecs,
+		 std::vector<std::string> const& pathNames,
+                 const std::string& processName);
 
-      bool wantEvent(EventPrincipal const& e, ModuleCallingContext const*);
+      bool wantEvent(EventPrincipal const& e, ModuleCallingContext const*) const;
+      void beginRun(RunPrincipal const& rp);
 
     private:
       selectors_t selectors_;

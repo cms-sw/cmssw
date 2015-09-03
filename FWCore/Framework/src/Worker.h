@@ -136,9 +136,6 @@ namespace edm {
     virtual std::string workerType() const = 0;
     virtual bool implDo(EventPrincipal&, EventSetup const& c,
                         ModuleCallingContext const* mcc) = 0;
-    virtual bool implDoPrePrefetchSelection(StreamID id,
-                                            EventPrincipal& ep,
-                                            ModuleCallingContext const* mcc) = 0;
     virtual bool implDoBegin(RunPrincipal& rp, EventSetup const& c,
                              ModuleCallingContext const* mcc) = 0;
     virtual bool implDoStreamBegin(StreamID id, RunPrincipal& rp, EventSetup const& c,
@@ -288,11 +285,6 @@ namespace edm {
         //Signal sentry is handled by the module
         return iWorker->implDo(ep,es, mcc);
       }
-      static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
-                                       ModuleCallingContext const* mcc) {
-        return iWorker->implDoPrePrefetchSelection(id,ep,mcc);
-      }
     };
 
     template<>
@@ -307,11 +299,6 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoBegin(ep,es, mcc);
       }
-      static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
-                                       ModuleCallingContext const* mcc) {
-        return true;
-      }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>>{
@@ -324,11 +311,6 @@ namespace edm {
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamBegin(id,ep,es, mcc);
-      }
-      static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
-                                       ModuleCallingContext const* mcc) {
-        return true;
       }
     };
     template<>
@@ -343,11 +325,6 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoEnd(ep,es, mcc);
       }
-      static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
-                                       ModuleCallingContext const* mcc) {
-        return true;
-      }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>>{
@@ -360,11 +337,6 @@ namespace edm {
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamEnd(id,ep,es, mcc);
-      }
-      static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
-                                       ModuleCallingContext const* mcc) {
-        return true;
       }
     };
 
@@ -380,12 +352,6 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoBegin(ep,es, mcc);
       }
-
-      static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
-                                       ModuleCallingContext const* mcc) {
-        return true;
-      }
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>>{
@@ -399,13 +365,7 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamBegin(id,ep,es, mcc);
       }
-
-      static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
-                                       ModuleCallingContext const* mcc) {
-        return true;
-      }
-};
+    };
 
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>>{
@@ -419,12 +379,6 @@ namespace edm {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoEnd(ep,es, mcc);
       }
-      static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
-                                       ModuleCallingContext const* mcc) {
-        return true;
-      }
-
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>>{
@@ -437,12 +391,6 @@ namespace edm {
                        Arg::Context const* context) {
         ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamEnd(id,ep,es, mcc);
-      }
-      
-      static bool prePrefetchSelection(Worker* iWorker,StreamID id,
-                                       typename Arg::MyPrincipal & ep,
-                                       ModuleCallingContext const* mcc) {
-        return true;
       }
     };
   }
@@ -475,14 +423,7 @@ namespace edm {
 
         if (T::isEvent_) {
           ++timesRun_;
-          
-          //if have TriggerResults based selection we want to reject the event before doing prefetching
-          if( not workerhelper::CallImpl<T>::prePrefetchSelection(this,streamID,ep,&moduleCallingContext_) ) {
-            state_ = Pass;
-            ++timesPassed_;
-            rc = true;
-            return;
-          }
+
           // Prefetch products the module declares it consumes (not including the products it maybe consumes)
           std::vector<ProductHolderIndexAndSkipBit> const& items = itemsToGetFromEvent();
           for(auto const& item : items) {

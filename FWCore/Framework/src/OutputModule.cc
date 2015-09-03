@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/Framework/interface/PrincipalGetAdapter.h"
-#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -53,20 +52,16 @@ namespace edm {
     Service<service::TriggerNamesService> tns;
     process_name_ = tns->getProcessName();
 
-    selectEvents_ =
+    ParameterSet selectevents =
       pset.getUntrackedParameterSet("SelectEvents", ParameterSet());
 
-    selectEvents_.registerIt(); // Just in case this PSet is not registered
+    selectevents.registerIt(); // Just in case this PSet is not registered
 
-    selector_config_id_ = selectEvents_.id();
-    selectors_.resize(1);
-    //need to set wantAllEvents_ in constructor
-    // we will make the remaining selectors once we know how many streams
-    wantAllEvents_ = detail::configureEventSelector(selectEvents_,
-                                                          process_name_,
-                                                          getAllTriggerNames(),
-                                                          selectors_[0]);
-
+    selector_config_id_ = selectevents.id();
+    wantAllEvents_ = detail::configureEventSelector(selectevents,
+                                                    process_name_,
+                                                    getAllTriggerNames(),
+                                                    selectors_);
     SharedResourcesRegistry::instance()->registerSharedResource(
                                                                 SharedResourcesRegistry::kLegacyModuleResourceName);
 
@@ -173,23 +168,6 @@ namespace edm {
 
   OutputModule::~OutputModule() { }
 
-  void OutputModule::doPreallocate(PreallocationConfiguration const& iPC) {
-    auto nstreams = iPC.numberOfStreams();
-    selectors_.resize(nstreams);
-
-    bool seenFirst = false;
-    for(auto& s : selectors_) {
-      if(seenFirst) {
-        detail::configureEventSelector(selectEvents_,
-                                       process_name_,
-                                       getAllTriggerNames(),
-                                       s);
-      }
-      seenFirst = true;
-    }
-  }
-
-  
   void OutputModule::doBeginJob() {
     std::vector<std::string> res = {SharedResourcesRegistry::kLegacyModuleResourceName};
     resourceAcquirer_ = SharedResourcesRegistry::instance()->createAcquirer(res);
@@ -201,7 +179,6 @@ namespace edm {
     endJob();
   }
 
-
   Trig OutputModule::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
     //This cast is safe since we only call const functions of the EventPrincipal after this point
     PrincipalGetAdapter adapter(const_cast<EventPrincipal&>(ep), moduleDescription_);
@@ -210,12 +187,6 @@ namespace edm {
     auto bh = adapter.getByToken_(TypeID(typeid(TriggerResults)),PRODUCT_TYPE, token, mcc);
     convert_handle(std::move(bh), result);
     return result;
-  }
-  
-  bool OutputModule::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
-    
-    auto& s = selectors_[id.value()];
-    return wantAllEvents_ or s.wantEvent(ep,mcc);
   }
 
   bool
@@ -228,7 +199,13 @@ namespace edm {
 
     {
       std::lock_guard<std::mutex> guard(mutex_);
-      
+
+      if(!wantAllEvents_) {
+        if(!selectors_.wantEvent(ep, mcc)) {
+          return true;
+        }
+      }
+
       {
         std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
         EventSignalsSentry signals(act,mcc);
@@ -263,6 +240,7 @@ namespace edm {
                            ModuleCallingContext const* mcc) {
     FDEBUG(2) << "beginRun called\n";
     beginRun(rp, mcc);
+    selectors_.beginRun(rp);
     return true;
   }
 
@@ -382,24 +360,23 @@ namespace edm {
     desc.setUnknown();
     descriptions.addDefault(desc);
   }
-  
+
   void
   OutputModule::fillDescription(ParameterSetDescription& desc) {
     ProductSelectorRules::fillDescription(desc, "outputCommands");
     EventSelector::fillDescription(desc);
   }
-  
+
   void
   OutputModule::prevalidate(ConfigurationDescriptions& ) {
   }
-  
 
   static const std::string kBaseType("OutputModule");
   const std::string&
   OutputModule::baseType() {
     return kBaseType;
   }
-  
+
   void
   OutputModule::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
                                       bool anyProductProduced) {

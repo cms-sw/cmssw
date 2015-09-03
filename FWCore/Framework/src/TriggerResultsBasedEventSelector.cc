@@ -1,8 +1,12 @@
 #include <algorithm>
 
 #include "FWCore/Framework/interface/TriggerResultsBasedEventSelector.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 static const edm::TypeID s_TrigResultsType(typeid(edm::TriggerResults));
 
@@ -82,85 +86,110 @@ namespace edm
 
     bool configureEventSelector(edm::ParameterSet const& iPSet,
                                 std::string const& iProcessName,
-                                std::vector<std::string> const& iAllTriggerNames,
+                                std::vector<std::string> const& iAllPathNames,
                                 edm::detail::TriggerResultsBasedEventSelector& oSelector) {
-      // If selectevents is an emtpy ParameterSet, then we are to write
+      // If selectevents is an empty ParameterSet, then we are to write
       // all events, or one which contains a vstrig 'SelectEvents' that
       // is empty, we are to write all events. We have no need for any
       // EventSelectors.
       if(iPSet.empty()) {
-        oSelector.setupDefault(iAllTriggerNames);
+        oSelector.setupDefault(iAllPathNames);
         return true;
       }
 
-      std::vector<std::string> path_specs =
-      iPSet.getParameter<std::vector<std::string> >("SelectEvents");
+      std::vector<std::string> pathSpecs = iPSet.getParameter<std::vector<std::string> >("SelectEvents");
 
-      if(path_specs.empty()) {
-        oSelector.setupDefault(iAllTriggerNames);
+      if(pathSpecs.empty()) {
+        oSelector.setupDefault(iAllPathNames);
         return true;
       }
 
       // If we get here, we have the possibility of having to deal with
-      // path_specs that look at more than one process.
-      std::vector<parsed_path_spec_t> parsed_paths(path_specs.size());
-      for(size_t i = 0; i < path_specs.size(); ++i) {
-        parse_path_spec(path_specs[i], parsed_paths[i]);
+      // pathSpecs that look at more than one process.
+      std::vector<parsed_path_spec_t> parsedPathSpecs(pathSpecs.size());
+      for(size_t i = 0; i < pathSpecs.size(); ++i) {
+        parse_path_spec(pathSpecs[i], parsedPathSpecs[i]);
       }
-      oSelector.setup(parsed_paths, iAllTriggerNames, iProcessName);
+      oSelector.setup(parsedPathSpecs, iAllPathNames, iProcessName);
 
       return false;
     }
 
-    // typedef detail::NamedEventSelector NES;
+    // The path names for prior processes may be different in different runs.
+    // Check for this, and modify the selector accordingly if necessary.
+    void
+    NamedEventSelector::beginRun(ProcessHistory const& ph) {
+      if(!eventSelector_.forCurrentProcess()) {
+        ProcessConfiguration pc;
+        bool found = ph.getConfigurationForProcess(inputTag_.process(), pc);
+        if(!found) {
+          throw edm::Exception(errors::Configuration) <<
+            "Process name '" << inputTag_.process() <<
+            "' is specified in 'SelectEvents', but does not appear in the process history.\n";
+        }
+        ParameterSetID const& psetID  = pc.parameterSetID();
+        ParameterSet const* processParameterSet = pset::Registry::instance()->getMapped(psetID);
+        ParameterSet const& triggerPathsPSet = processParameterSet->getParameterSet("@trigger_paths");
+        ParameterSetID triggerPathsPSetID = triggerPathsPSet.id();
+        eventSelector_.beginRun(triggerPathsPSetID);
+      }
+    }
 
     TriggerResultsBasedEventSelector::TriggerResultsBasedEventSelector() :
       selectors_()
     { }
 
     void
-    TriggerResultsBasedEventSelector::setupDefault(std::vector<std::string> const& triggernames) {
-
+    TriggerResultsBasedEventSelector::setupDefault(std::vector<std::string> const& pathNames) {
       // Set up one NamedEventSelector, with default configuration
-      std::vector<std::string> paths;
-      EventSelector es(paths, triggernames);
+      std::vector<std::string> pathSpecs;
+      EventSelector es(pathSpecs, pathNames);
       selectors_.emplace_back("", es);
-      //selectors_.push_back(NES("", EventSelector("",triggernames)));
     }
 
     void
-    TriggerResultsBasedEventSelector::setup(std::vector<parsed_path_spec_t> const& path_specs,
-                          std::vector<std::string> const& triggernames,
-                          const std::string& process_name) {
-      // paths_for_process maps each PROCESS names to a sequence of
+    TriggerResultsBasedEventSelector::setup(std::vector<parsed_path_spec_t> const& pathSpecs,
+                          std::vector<std::string> const& pathNames,
+                          const std::string& processName) {
+      // pathsForProcess maps each PROCESS names to a sequence of
       // PATH names
-      std::map<std::string, std::vector<std::string> > paths_for_process;
-      for (auto const& path_spec : path_specs) {
+      std::map<std::string, std::vector<std::string> > pathsForProcess;
+      for (auto const& pathSpec : pathSpecs) {
         // Default to current process if none specified
-        if (path_spec.second == "") {
-          paths_for_process[process_name].push_back(path_spec.first);
+        if (pathSpec.second == "") {
+          pathsForProcess[processName].push_back(pathSpec.first);
         }
         else {
-          paths_for_process[path_spec.second].push_back(path_spec.first);
+          pathsForProcess[pathSpec.second].push_back(pathSpec.first);
         }
       }
       // Now go through all the PROCESS names, and create a
       // NamedEventSelector for each.
-      for (auto const& path : paths_for_process) {
+      for (auto const& pathForProcess : pathsForProcess) {
         // For the current process we know the trigger names
         // from the configuration file
-        if (path.first == process_name) {
-          selectors_.emplace_back(path.first, EventSelector(path.second, triggernames));
+        if (pathForProcess.first == processName) {
+          selectors_.emplace_back(pathForProcess.first, EventSelector(pathForProcess.second, pathNames));
         } else {
           // For previous processes we do not know the trigger
           // names yet.
-          selectors_.emplace_back(path.first, EventSelector(path.second));
+          selectors_.emplace_back(pathForProcess.first, EventSelector(pathForProcess.second));
         }
       }
     }
 
+    // The path names for prior processes may be different in different runs.
+    // Check for this, and modify each selectors accordingly when needed
+    void
+    TriggerResultsBasedEventSelector::beginRun(RunPrincipal const& rp) {
+      ProcessHistory const& ph = rp.processHistory();
+      for(auto& selector : selectors_) {
+        selector.beginRun(ph);
+      }
+    }
+
     bool
-    TriggerResultsBasedEventSelector::wantEvent(EventPrincipal const& ev, ModuleCallingContext const* mcc) {
+    TriggerResultsBasedEventSelector::wantEvent(EventPrincipal const& ev, ModuleCallingContext const* mcc) const {
       for(auto& selector : selectors_) {
         edm::BasicHandle h = ev.getByLabel(PRODUCT_TYPE,
                                           s_TrigResultsType,

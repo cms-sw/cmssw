@@ -100,38 +100,13 @@ void testone(const Strings& paths,
     bitArray[1] = (bitArray[1] & 0xfc) | edm::hlt::Exception;
   }
 
-  TriggerResults results(bm,paths);
-
-  bool a  = select_based_on_pset.acceptEvent(results);
-  bool b  = select_based_on_pattern_paths.acceptEvent(results);
-  bool c  = select_based_on_pattern.acceptEvent(results);
-  bool ab = select_based_on_pset.acceptEvent(&(bitArray[0]), 
-  		number_of_trigger_paths);
-  bool bb = select_based_on_pattern_paths.acceptEvent(&(bitArray[0]), 
-  		number_of_trigger_paths);
-  // select_based_on_pattern.acceptEvent(&(bitArray[0]), 
-  //                                     number_of_trigger_paths);
-  // is not a valid way to use acceptEvent.
-
-  if (a  != answer || b  != answer || c != answer || 
-      ab != answer || bb != answer  )
-    {
-      std::cerr << "failed to compare pattern with mask: "
-	   << "correct=" << answer << " "
-	   << "results=" << a  << "  " << b  << "  " << c  << "  " 
-	                 << ab << "  " << bb <<  "\n"
-	   << "pattern=" << pattern << "\n"
-	   << "mask=" << mask << "\n"
-           << "jmask = " << jmask << "\n"; 
-      abort();
-    }
-
   // Repeat putting the list of trigger names in the pset
   // registry
 
   ParameterSet trigger_pset;
   trigger_pset.addParameter<Strings>("@trigger_paths", paths);
   trigger_pset.registerIt();
+  select_based_on_pattern.beginRun(trigger_pset.id());
 
   TriggerResults results_id(bm, trigger_pset.id());
 

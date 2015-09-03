@@ -340,6 +340,7 @@ namespace edm {
   SubProcess::doBeginRun(RunPrincipal const& principal, IOVSyncValue const& ts) {
     ServiceRegistry::Operate operate(serviceToken_);
     beginRun(principal,ts);
+    selectors_.beginRun(principal);
   }
 
   void
