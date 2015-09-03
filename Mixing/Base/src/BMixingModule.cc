@@ -72,7 +72,7 @@ namespace
 		}
                 
 		// Check if the histogram is normalized
-		if (((h->Integral() - 1) > 1.0e-02) && ((h->Integral() - 1) < -1.0e-02)) throw cms::Exception("BadHistoDistribution") << "The histogram should be normalized!" << std::endl;
+		if (std::abs(h->Integral() - 1) > 1.0e-02) throw cms::Exception("BadHistoDistribution") << "The histogram should be normalized!" << std::endl;
 						
 		// Get the averageNumber from the histo 
 		averageNumber = h->GetMean();
@@ -126,7 +126,7 @@ namespace
 	   	}
 				
 		// Check if the histogram is normalized
-		if ( ((hprob->Integral() - 1) > 1.0e-02) && ((hprob->Integral() - 1) < -1.0e-02)){ 
+		if (std::abs(hprob->Integral() - 1) > 1.0e-02){ 
 		  throw cms::Exception("BadProbFunction") << "The probability function should be normalized!!! " << std::endl;
 		}
 		
