@@ -1,7 +1,8 @@
 #ifndef IOPool_Streamer_StreamerOutputModuleBase_h
 #define IOPool_Streamer_StreamerOutputModuleBase_h
 
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamSerializer.h"
 #include <memory>
@@ -13,15 +14,17 @@ namespace edm {
   class ModuleCallingContext;
   class ParameterSetDescription;
 
-  class StreamerOutputModuleBase : public OutputModule {
+  typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
+
+  class StreamerOutputModuleBase : public one::OutputModule<> {
   public:
-    explicit StreamerOutputModuleBase(ParameterSet const& ps);  
+    explicit StreamerOutputModuleBase(ParameterSet const& ps);
     virtual ~StreamerOutputModuleBase();
     static void fillDescription(ParameterSetDescription & desc);
 
   private:
-    virtual void beginRun(RunPrincipal const&, ModuleCallingContext const*) override;
-    virtual void endRun(RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void doBeginRun_(RunPrincipal const&, ModuleCallingContext const*) override;
+    virtual void doEndRun_(RunPrincipal const&, ModuleCallingContext const*) override;
     virtual void beginJob() override;
     virtual void endJob() override;
     virtual void writeRun(RunPrincipal const&, ModuleCallingContext const*) override;
@@ -35,6 +38,7 @@ namespace edm {
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
     std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e, ModuleCallingContext const* mcc); 
+    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const*) const;
     void setHltMask(EventPrincipal const& e, ModuleCallingContext const*);
     void setLumiSection();
 
@@ -61,6 +65,7 @@ namespace edm {
     uint32 origSize_;
     char host_name_[255];
 
+    edm::EDGetTokenT<edm::TriggerResults> trToken_;
     Strings hltTriggerSelections_;
     uint32 outputModuleId_;
   }; //end-of-class-def
