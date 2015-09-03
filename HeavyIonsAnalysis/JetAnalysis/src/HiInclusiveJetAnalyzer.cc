@@ -49,11 +49,16 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
 {
 
   doMatch_ = iConfig.getUntrackedParameter<bool>("matchJets",false);
-  jetTag_ = iConfig.getParameter<InputTag>("jetTag");
-  matchTag_ = iConfig.getUntrackedParameter<InputTag>("matchTag",jetTag_);
+  jetTagLabel_ = iConfig.getParameter<InputTag>("jetTag");
+  jetTag_ = consumes<reco::JetView> (jetTagLabel_);
+  jetTagPat_ = consumes<pat::JetCollection> (jetTagLabel_);
+  matchTag_ = consumes<reco::JetView> (iConfig.getUntrackedParameter<InputTag>("matchTag"));
+  matchTagPat_ = consumes<pat::JetCollection> (iConfig.getUntrackedParameter<InputTag>("matchTag"));
 
-  vtxTag_ = iConfig.getUntrackedParameter<edm::InputTag>("vtxTag",edm::InputTag("hiSelectedVertex"));
-  trackTag_ = iConfig.getParameter<InputTag>("trackTag");
+  // vtxTag_ = iConfig.getUntrackedParameter<edm::InputTag>("vtxTag",edm::InputTag("hiSelectedVertex"));
+  vtxTag_ = consumes<vector<reco::Vertex> >        (iConfig.getUntrackedParameter<edm::InputTag>("vtxTag",edm::InputTag("hiSelectedVertex")));  
+  // iConfig.getUntrackedParameter<edm::InputTag>("vtxTag",edm::InputTag("hiSelectedVertex"));
+  trackTag_ = consumes<reco::TrackCollection> (iConfig.getParameter<InputTag>("trackTag"));
   useQuality_ = iConfig.getUntrackedParameter<bool>("useQuality",1);
   trackQuality_ = iConfig.getUntrackedParameter<string>("trackQuality","highPurity");
 
@@ -69,8 +74,9 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   jetPtMin_ = iConfig.getUntrackedParameter<double>("jetPtMin",10);
 
   if(isMC_){
-    genjetTag_ = iConfig.getParameter<InputTag>("genjetTag");
-    eventInfoTag_ = iConfig.getParameter<InputTag>("eventInfoTag");
+    genjetTag_ = consumes<vector<reco::GenJet> > (iConfig.getParameter<InputTag>("genjetTag"));
+    eventInfoTag_ = consumes<HepMCProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
+    eventGenInfoTag_ = consumes<GenEventInfoProduct> (iConfig.getParameter<InputTag>("eventInfoTag"));
   }
   verbose_ = iConfig.getUntrackedParameter<bool>("verbose",false);
 
@@ -83,17 +89,17 @@ HiInclusiveJetAnalyzer::HiInclusiveJetAnalyzer(const edm::ParameterSet& iConfig)
   saveBfragments_  = iConfig.getUntrackedParameter<bool>("saveBfragments",false);
   skipCorrections_  = iConfig.getUntrackedParameter<bool>("skipCorrections",false);
 
-  pfCandidateLabel_ = iConfig.getUntrackedParameter<edm::InputTag>("pfCandidateLabel",edm::InputTag("particleFlowTmp"));
+  pfCandidateLabel_ = consumes<reco::PFCandidateCollection> (iConfig.getUntrackedParameter<edm::InputTag>("pfCandidateLabel",edm::InputTag("particleFlowTmp")));
 
   // EBSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EBRecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEB"));
   // EESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("EERecHitSrc",edm::InputTag("ecalRecHit","EcalRecHitsEE"));
   // HcalRecHitHFSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("hcalHFRecHitSrc",edm::InputTag("hfreco"));
   // HcalRecHitHBHESrc_ = iConfig.getUntrackedParameter<edm::InputTag>("hcalHBHERecHitSrc",edm::InputTag("hbhereco"));
 
-  genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("genParticles",edm::InputTag("hiGenParticles"));
+  genParticleSrc_ = consumes<reco::GenParticleCollection> (iConfig.getUntrackedParameter<edm::InputTag>("genParticles",edm::InputTag("hiGenParticles")));
 
   if(doTrigger_){
-    L1gtReadout_ = iConfig.getParameter<edm::InputTag>("L1gtReadout");
+    L1gtReadout_ = consumes< L1GlobalTriggerReadoutRecord > (iConfig.getParameter<edm::InputTag>("L1gtReadout"));
     hltResName_ = iConfig.getUntrackedParameter<string>("hltTrgResults","TriggerResults::HLT");
 
 
@@ -159,7 +165,7 @@ void
 HiInclusiveJetAnalyzer::beginJob() {
 
   //string jetTagName = jetTag_.label()+"_tree";
-  string jetTagTitle = jetTag_.label()+" Jet Analysis Tree";
+  string jetTagTitle = jetTagLabel_.label()+" Jet Analysis Tree";
   t = fs1->make<TTree>("t",jetTagTitle.c_str());
 
   //  TTree* t= new TTree("t","Jet Response Analyzer");
@@ -431,7 +437,7 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
   reco::Vertex::Point vtx(0,0,0);
   if (useVtx_) {
     edm::Handle<vector<reco::Vertex> >vertex;
-    iEvent.getByLabel(vtxTag_, vertex);
+    iEvent.getByToken(vtxTag_, vertex);
 
     if(vertex->size()>0) {
       jets_.vx=vertex->begin()->x();
@@ -442,22 +448,22 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
   }
 
   edm::Handle<pat::JetCollection> patjets;
-  if(usePat_)iEvent.getByLabel(jetTag_, patjets);
+  if(usePat_)iEvent.getByToken(jetTagPat_, patjets);
 
   edm::Handle<pat::JetCollection> patmatchedjets;
-  iEvent.getByLabel(matchTag_, patmatchedjets);
+  iEvent.getByToken(matchTagPat_, patmatchedjets);
 
   edm::Handle<reco::JetView> matchedjets;
-  iEvent.getByLabel(matchTag_, matchedjets);
+  iEvent.getByToken(matchTag_, matchedjets);
 
   edm::Handle<reco::JetView> jets;
-  iEvent.getByLabel(jetTag_, jets);
+  iEvent.getByToken(jetTag_, jets);
 
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
-  iEvent.getByLabel(pfCandidateLabel_,pfCandidates);
+  iEvent.getByToken(pfCandidateLabel_,pfCandidates);
 
   edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByLabel(trackTag_,tracks);
+  iEvent.getByToken(trackTag_,tracks);
 
   // edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > ebHits;
   // edm::Handle<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > > eeHits;
@@ -465,13 +471,9 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
   //edm::Handle<HFRecHitCollection> hfHits;
   //edm::Handle<HBHERecHitCollection> hbheHits;
 
-  //iEvent.getByLabel(HcalRecHitHBHESrc_,hbheHits);
-  //iEvent.getByLabel(HcalRecHitHFSrc_,hfHits);
-  // iEvent.getByLabel(EBSrc_,ebHits);
-  // iEvent.getByLabel(EESrc_,eeHits);
 
   edm::Handle<reco::GenParticleCollection> genparts;
-  iEvent.getByLabel(genParticleSrc_,genparts);
+  iEvent.getByToken(genParticleSrc_,genparts);
 
   //Get all the b-tagging handles
   // Track Counting Taggers
@@ -1081,7 +1083,7 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
   if(isMC_){
 
     edm::Handle<HepMCProduct> hepMCProduct;
-    iEvent.getByLabel(eventInfoTag_,hepMCProduct);
+    iEvent.getByToken(eventInfoTag_,hepMCProduct);
     const HepMC::GenEvent* MCEvt = hepMCProduct->GetEvent();
 
     std::pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles = MCEvt->beam_particles();
@@ -1089,14 +1091,14 @@ HiInclusiveJetAnalyzer::analyze(const Event& iEvent,
     if(beamParticles.second != 0)jets_.beamId2 = beamParticles.second->pdg_id();
 
     edm::Handle<GenEventInfoProduct> hEventInfo;
-    iEvent.getByLabel(eventInfoTag_,hEventInfo);
+    iEvent.getByToken(eventGenInfoTag_,hEventInfo);
     //jets_.pthat = hEventInfo->binningValues()[0];
 
     // binning values and qscale appear to be equivalent, but binning values not always present
     jets_.pthat = hEventInfo->qScale();
 
     edm::Handle<vector<reco::GenJet> >genjets;
-    iEvent.getByLabel(genjetTag_, genjets);
+    iEvent.getByToken(genjetTag_, genjets);
 
     jets_.ngen = 0;
     for(unsigned int igen = 0 ; igen < genjets->size(); ++igen){
@@ -1158,7 +1160,7 @@ void HiInclusiveJetAnalyzer::fillL1Bits(const edm::Event &iEvent)
 {
   edm::Handle< L1GlobalTriggerReadoutRecord >  L1GlobalTrigger;
 
-  iEvent.getByLabel(L1gtReadout_, L1GlobalTrigger);
+  iEvent.getByToken(L1gtReadout_, L1GlobalTrigger);
   const TechnicalTriggerWord&  technicalTriggerWordBeforeMask = L1GlobalTrigger->technicalTriggerWord();
 
   for (int i=0; i<64;i++)

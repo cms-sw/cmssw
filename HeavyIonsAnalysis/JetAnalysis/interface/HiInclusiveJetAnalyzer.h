@@ -23,6 +23,13 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
+
 //
 
 /**\class HiInclusiveJetAnalyzer
@@ -71,12 +78,25 @@ private:
   math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx = reco::Vertex::Point(0,0,0));
   int TaggedJet(reco::Jet calojet, edm::Handle<reco::JetTagCollection > jetTags );
 
-  edm::InputTag   jetTag_, vtxTag_, genjetTag_, eventInfoTag_, L1gtReadout_, pfCandidateLabel_, trackTag_, matchTag_;
+  // edm::InputTag   jetTag_, vtxTag_, genjetTag_, eventInfoTag_, L1gtReadout_, pfCandidateLabel_, trackTag_, matchTag_;
+  edm::InputTag   jetTagLabel_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> >         vtxTag_;
+  edm::EDGetTokenT<reco::JetView>              jetTag_;
+  edm::EDGetTokenT<pat::JetCollection>         jetTagPat_;
+  edm::EDGetTokenT<reco::JetView>              matchTag_;
+  edm::EDGetTokenT<pat::JetCollection>         matchTagPat_;
+  edm::EDGetTokenT<reco::PFCandidateCollection>         pfCandidateLabel_;
+  edm::EDGetTokenT<reco::TrackCollection>         trackTag_;
+  edm::EDGetTokenT<reco::GenParticleCollection>         genParticleSrc_;
+  edm::EDGetTokenT<std::vector<reco::GenJet> >         genjetTag_;
+  edm::EDGetTokenT<edm::HepMCProduct>         eventInfoTag_;
+  edm::EDGetTokenT<GenEventInfoProduct>  eventGenInfoTag_;
+  edm::EDGetTokenT< L1GlobalTriggerReadoutRecord >         L1gtReadout_;
   // edm::InputTag HcalRecHitHFSrc_;
   // edm::InputTag HcalRecHitHBHESrc_;
   // edm::InputTag EBSrc_;
   // edm::InputTag EESrc_;
-  edm::InputTag genParticleSrc_;
+  // edm::InputTag genParticleSrc_;
 
   std::vector<float> usedStringPts;
 
