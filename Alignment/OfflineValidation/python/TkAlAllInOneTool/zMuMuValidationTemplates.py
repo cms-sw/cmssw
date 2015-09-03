@@ -223,7 +223,7 @@ eval `scram runtime -sh`
 cd $cwd
 
 rfmkdir -p .oO[datadir]Oo.
-
+rfmkdir -p .oO[workingdir]Oo.
 rfmkdir -p .oO[logdir]Oo.
 rm -f .oO[logdir]Oo./*.stdout
 rm -f .oO[logdir]Oo./*.stderr
@@ -251,7 +251,7 @@ cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooF
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitWithRooFit.cc .
 cp .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/FitMass1D.cc .
 
-root -q -b -ls "CompareBiasZValidation.cc+(\\\"\\\")"
+root -q -b -l "CompareBiasZValidation.cc+(\\\"\\\")"
 
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/tdrstyle.C .
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlap_.oO[resonance]Oo..C .
@@ -263,6 +263,7 @@ cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo./plots/
 for RootOutputFile in $(ls *root )
 do
     cmsStage -f ${RootOutputFile}  /store/caf/user/$USER/.oO[eosdir]Oo./
+    rfcp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
 mkdir -p .oO[plotsdir]Oo.
