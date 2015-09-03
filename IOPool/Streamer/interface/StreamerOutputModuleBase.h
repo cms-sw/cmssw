@@ -16,7 +16,7 @@ namespace edm {
 
   typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
 
-  class StreamerOutputModuleBase : public one::OutputModule<one::outputmodule::RunWatcher, one::outputmodule::LuminosityBlockWatcher> {
+  class StreamerOutputModuleBase : public one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks> {
   public:
     explicit StreamerOutputModuleBase(ParameterSet const& ps);
     virtual ~StreamerOutputModuleBase();

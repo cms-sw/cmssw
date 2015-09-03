@@ -57,7 +57,7 @@ namespace {
 namespace edm {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps) :
     one::OutputModuleBase::OutputModuleBase(ps),
-    one::OutputModule<one::outputmodule::RunWatcher, one::outputmodule::LuminosityBlockWatcher>(ps),
+    one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
     selections_(&keptProducts()[InEvent]),
     maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
     useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
@@ -107,14 +107,14 @@ namespace edm {
   StreamerOutputModuleBase::~StreamerOutputModuleBase() {}
 
   void
-  StreamerOutputModuleBase::doBeginRun_(RunPrincipal const&, ModuleCallingContext const*) {
+  StreamerOutputModuleBase::beginRun(RunPrincipal const&, ModuleCallingContext const*) {
     start();
     std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry();
     doOutputHeader(*init_message);
   }
 
   void
-  StreamerOutputModuleBase::doEndRun_(RunPrincipal const&, ModuleCallingContext const*) {
+  StreamerOutputModuleBase::endRun(RunPrincipal const&, ModuleCallingContext const*) {
     stop();
   }
 
