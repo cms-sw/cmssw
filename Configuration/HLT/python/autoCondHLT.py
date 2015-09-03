@@ -2,8 +2,8 @@
 
 l1Menus= {
     'Fake'         : 'L1GtTriggerMenu_L1Menu_Collisions2012_v3_mc',
-    'FULL'         : 'L1Menu_Collisions2015_25nsStage1_v4',
-    'GRun'         : 'L1Menu_Collisions2015_25nsStage1_v4',
+    'FULL'         : 'L1Menu_Collisions2015_25nsStage1_v5_L1T_Scales_20141121',
+    'GRun'         : 'L1Menu_Collisions2015_25nsStage1_v5_L1T_Scales_20141121',
     '25ns14e33_v1' : 'L1Menu_Collisions2015_25ns_v2_L1T_Scales_20141121_Imp0_0x1030',
     '25ns14e33_v3' : 'L1Menu_Collisions2015_25nsStage1_v4',
     '25ns14e33_v4' : 'L1Menu_Collisions2015_25nsStage1_v5_L1T_Scales_20141121',
