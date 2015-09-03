@@ -56,11 +56,14 @@ class FitWithRooFit
 public:
 
   FitWithRooFit() :
-    useChi2_(false), mean_(0), mean2_(0),  mean3_(0), sigma_(0), sigma2_(0), sigma3_(0), gamma_(0), gaussFrac_(0), gaussFrac2_(0),
+    useChi2_(false),
+    mean_(0), mean2_(0), mean3_(0),
+    sigma_(0), sigma2_(0), sigma3_(0),
+    gamma_(0), gaussFrac_(0), gaussFrac2_(0),
     expCoeffa0_(0), expCoeffa1_(0), expCoeffa2_(0), fsig_(0),
-    a0_(0), a1_(0), a2_(0), a3_(0), a4_(0), a5_(0), a6_(0), alpha_(0), n_(0), fGCB_(0)
-  {
-  }
+    a0_(0), a1_(0), a2_(0), a3_(0), a4_(0), a5_(0), a6_(0),
+    alpha_(0), n_(0), fGCB_(0)
+  {}
 
   // Import TH1 histogram into a RooDataHist
   rooPair importTH1(TH1 * histo, const double & inputXmin, const double & inputXmax)
@@ -85,7 +88,7 @@ public:
     RooDataHist * dh = imported.second;
 
     // Make plot of binned dataset showing Poisson error bars (RooFit default)
-    RooPlot* frame = x.frame(RooFit::Title("Imported TH1 with Poisson error bars")) ;
+    RooPlot* frame = x.frame(RooFit::Title("Imported TH1 with Poisson error bars"));
     frame->SetName(TString(histo->GetName())+"_frame");
     dh->plotOn(frame);
 
@@ -97,13 +100,9 @@ public:
     // Fit the composite model
     // -----------------------
     // Fit with likelihood
-    if( !useChi2_ ) {
-      if( sumW2Error ) {
-	model->fitTo(*dh, RooFit::Save(), RooFit::SumW2Error(kTRUE));
-      }
-      else {
-	model->fitTo(*dh);
-      }
+    if (!useChi2_) {
+      if (sumW2Error) model->fitTo(*dh, RooFit::Save(), RooFit::SumW2Error(kTRUE));
+      else model->fitTo(*dh);
     }
     // Fit with chi^2
     else {
@@ -128,8 +127,8 @@ public:
     // If histogram has custom error (i.e. its contents is does not originate from a Poisson process
     // but e.g. is a sum of weighted events) you can data with symmetric 'sum-of-weights' error instead
     // (same error bars as shown by ROOT)
-    RooPlot* frame2 = x.frame(RooFit::Title("Imported TH1 with internal errors")) ;
-    dh->plotOn(frame2,RooFit::DataError(RooAbsData::SumW2)) ; 
+    RooPlot* frame2 = x.frame(RooFit::Title("Imported TH1 with internal errors"));
+    dh->plotOn(frame2, RooFit::DataError(RooAbsData::SumW2));
     model->plotOn(frame2);
     model->plotOn(frame2, RooFit::Components(backgroundType), RooFit::LineColor(kRed));
     model->paramOn(frame2, RooFit::Label("fit result"), RooFit::Format("NEU", RooFit::AutoPrecision(2)));
@@ -159,240 +158,262 @@ public:
   {
     if( mean_ != 0 ) delete mean_;
     mean_ = new RooRealVar(name, title, value, min, max);
+    initVal_mean = value;
   }
-
   void initMean2(const double & value, const double & min, const double & max, const TString & name = "mean2", const TString & title = "mean2")
   {
     if( mean2_ != 0 ) delete mean2_;
     mean2_ = new RooRealVar(name, title, value, min, max);
+    initVal_mean2 = value;
   }
-
   void initMean3(const double & value, const double & min, const double & max, const TString & name = "mean3", const TString & title = "mean3")
   {
     if( mean3_ != 0 ) delete mean3_;
     mean3_ = new RooRealVar(name, title, value, min, max);
+    initVal_mean3 = value;
   }
-
-
   void initSigma(const double & value, const double & min, const double & max, const TString & name = "sigma", const TString & title = "sigma")
   {
     if( sigma_ != 0 ) delete sigma_;
     sigma_ = new RooRealVar(name, title, value, min, max);
+    initVal_sigma = value;
   }
-
   void initSigma2(const double & value, const double & min, const double & max, const TString & name = "sigma2", const TString & title = "sigma2")
   {
     if( sigma2_ != 0 ) delete sigma2_;
     sigma2_ = new RooRealVar(name, title, value, min, max);
+    initVal_sigma2 = value;
   }
-
-
   void initSigma3(const double & value, const double & min, const double & max, const TString & name = "sigma3", const TString & title = "sigma3")
   {
     if( sigma3_ != 0 ) delete sigma3_;
     sigma3_ = new RooRealVar(name, title, value, min, max);
+    initVal_sigma3 = value;
   }
-
   void initGamma(const double & value, const double & min, const double & max, const TString & name = "gamma", const TString & title = "gamma")
   {
     if( gamma_ != 0 ) delete gamma_;
     gamma_ = new RooRealVar(name, title, value, min, max);
+    initVal_gamma = value;
   }
-
   void initGaussFrac(const double & value, const double & min, const double & max, const TString & name = "GaussFrac", const TString & title = "GaussFrac")
   {
     if( gaussFrac_ != 0 ) delete gaussFrac_;
     gaussFrac_ = new RooRealVar(name, title, value, min, max);
+    initVal_gaussFrac = value;
   }
-
   void initGaussFrac2(const double & value, const double & min, const double & max, const TString & name = "GaussFrac2", const TString & title = "GaussFrac2")
   {
     if( gaussFrac2_ != 0 ) delete gaussFrac2_;
     gaussFrac2_ = new RooRealVar(name, title, value, min, max);
+    initVal_gaussFrac2 = value;
   }
-
   void initExpCoeffA0(const double & value, const double & min, const double & max, const TString & name = "expCoeffa0", const TString & title = "expCoeffa0")
   {
     if( expCoeffa0_ != 0 ) delete expCoeffa0_;
     expCoeffa0_ = new RooRealVar(name, title, value, min, max);
+    initVal_expCoeffa0 = value;
   }
   void initExpCoeffA1(const double & value, const double & min, const double & max, const TString & name = "expCoeffa1", const TString & title = "expCoeffa1")
   {
     if( expCoeffa1_ != 0 ) delete expCoeffa1_;
     expCoeffa1_ = new RooRealVar(name, title, value, min, max);
+    initVal_expCoeffa1 = value;
   }
   void initExpCoeffA2(const double & value, const double & min, const double & max, const TString & name = "expCoeffa2", const TString & title = "expCoeffa2")
   {
     if( expCoeffa2_ != 0 ) delete expCoeffa2_;
     expCoeffa2_ = new RooRealVar(name, title, value, min, max);
+    initVal_expCoeffa2 = value;
   }
-
   void initFsig(const double & value, const double & min, const double & max, const TString & name = "fsig", const TString & title = "signal fraction")
   {
     if( fsig_ != 0 ) delete fsig_;
     fsig_ = new RooRealVar(name, title, value, min, max);
+    initVal_fsig = value;
   }
-
   void initA0(const double & value, const double & min, const double & max, const TString & name = "a0", const TString & title = "a0")
   {
     if( a0_ != 0 ) delete a0_;
     a0_ = new RooRealVar(name, title, value, min, max);
+    initVal_a0 = value;
   }
-
   void initA1(const double & value, const double & min, const double & max, const TString & name = "a1", const TString & title = "a1")
   {
     if( a1_ != 0 ) delete a1_;
     a1_ = new RooRealVar(name, title, value, min, max);
+    initVal_a1 = value;
   }
-
   void initA2(const double & value, const double & min, const double & max, const TString & name = "a2", const TString & title = "a2")
   {
     if( a2_ != 0 ) delete a2_;
     a2_ = new RooRealVar(name, title, value, min, max);
+    initVal_a2 = value;
   }
-
   void initA3(const double & value, const double & min, const double & max, const TString & name = "a3", const TString & title = "a3")
   {
     if( a3_ != 0 ) delete a3_;
     a3_ = new RooRealVar(name, title, value, min, max);
+    initVal_a3 = value;
   }
-
   void initA4(const double & value, const double & min, const double & max, const TString & name = "a4", const TString & title = "a4")
   {
     if( a4_ != 0 ) delete a4_;
     a4_ = new RooRealVar(name, title, value, min, max);
+    initVal_a4 = value;
   }
-
   void initA5(const double & value, const double & min, const double & max, const TString & name = "a5", const TString & title = "a5")
   {
     if( a5_ != 0 ) delete a5_;
     a5_ = new RooRealVar(name, title, value, min, max);
+    initVal_a5 = value;
   }
-
   void initA6(const double & value, const double & min, const double & max, const TString & name = "a6", const TString & title = "a6")
   {
     if( a6_ != 0 ) delete a6_;
     a6_ = new RooRealVar(name, title, value, min, max);
+    initVal_a6 = value;
   }
-
   void initAlpha(const double & value, const double & min, const double & max, const TString & name = "alpha", const TString & title = "alpha")
   {
     if( alpha_ != 0 ) delete alpha_;
     alpha_ = new RooRealVar(name, title, value, min, max);
+    initVal_alpha = value;
   }
-
   void initN(const double & value, const double & min, const double & max, const TString & name = "n", const TString & title = "n")
   {
     if( n_ != 0 ) delete n_;
     n_ = new RooRealVar(name, title, value, min, max);
+    initVal_n = value;
   }
-
   void initFGCB(const double & value, const double & min, const double & max, const TString & name = "fGCB", const TString & title = "fGCB")
   {
     if( fGCB_ != 0 ) delete fGCB_;
     fGCB_ = new RooRealVar(name, title, value, min, max);
+    initVal_fGCB = value;
   }
 
-  inline RooRealVar * mean()
+  void reinitializeParameters(){
+    if (mean_!=0) mean_->setVal(initVal_mean);
+    if (mean2_!=0) mean2_->setVal(initVal_mean2);
+    if (mean3_!=0) mean3_->setVal(initVal_mean3);
+    if (sigma_!=0) sigma_->setVal(initVal_sigma);
+    if (sigma2_!=0) sigma2_->setVal(initVal_sigma2);
+    if (sigma3_!=0) sigma3_->setVal(initVal_sigma3);
+    if (gamma_!=0) gamma_->setVal(initVal_gamma);
+    if (gaussFrac_!=0) gaussFrac_->setVal(initVal_gaussFrac);
+    if (gaussFrac2_!=0) gaussFrac2_->setVal(initVal_gaussFrac2);
+    if (expCoeffa0_!=0) expCoeffa0_->setVal(initVal_expCoeffa0);
+    if (expCoeffa1_!=0) expCoeffa1_->setVal(initVal_expCoeffa1);
+    if (expCoeffa2_!=0) expCoeffa2_->setVal(initVal_expCoeffa2);
+    if (fsig_!=0) fsig_->setVal(initVal_fsig);
+    if (a0_!=0) a0_->setVal(initVal_a0);
+    if (a1_!=0) a1_->setVal(initVal_a1);
+    if (a2_!=0) a2_->setVal(initVal_a2);
+    if (a3_!=0) a3_->setVal(initVal_a3);
+    if (a4_!=0) a4_->setVal(initVal_a4);
+    if (a5_!=0) a5_->setVal(initVal_a5);
+    if (a6_!=0) a6_->setVal(initVal_a6);
+    if (alpha_!=0) alpha_->setVal(initVal_alpha);
+    if (n_!=0) n_->setVal(initVal_n);
+    if (fGCB_!=0) fGCB_->setVal(initVal_fGCB);
+  }
+
+  inline RooRealVar* mean()
   {
     return mean_;
   }
-
-  inline RooRealVar * mean2()
+  inline RooRealVar* mean2()
   {
     return mean2_;
   }
-
-  inline RooRealVar * mean3()
+  inline RooRealVar* mean3()
   {
     return mean3_;
   }
-
-  inline RooRealVar * sigma()
+  inline RooRealVar* sigma()
   {
     return sigma_;
   }
-
-  inline RooRealVar * sigma2()
+  inline RooRealVar* sigma2()
   {
     return sigma2_;
   }
-
-  inline RooRealVar * gamma()
+  inline RooRealVar* sigma3()
+  {
+    return sigma3_;
+  }
+  inline RooRealVar* gamma()
   {
     return gamma_;
   }
-
-  inline RooRealVar * expCoeffa0()
+  inline RooRealVar* gaussFrac()
+  {
+    return gaussFrac_;
+  }
+  inline RooRealVar* gaussFrac2()
+  {
+    return gaussFrac2_;
+  }
+  inline RooRealVar* expCoeffa0()
   {
     return expCoeffa0_;
   }
-  inline RooRealVar * expCoeffa1()
+  inline RooRealVar* expCoeffa1()
   {
     return expCoeffa1_;
   }
-  inline RooRealVar * expCoeffa2()
+  inline RooRealVar* expCoeffa2()
   {
     return expCoeffa2_;
   }
-
-  inline RooRealVar * fsig()
+  inline RooRealVar* fsig()
   {
     return fsig_;
   }
-
-  inline RooRealVar * a0()
+  inline RooRealVar* a0()
   {
     return a0_;
   }
-
-  inline RooRealVar * a1()
+  inline RooRealVar* a1()
   {
     return a1_;
   }
-
-  inline RooRealVar * a2()
+  inline RooRealVar* a2()
   {
     return a2_;
   }
-
-  inline RooRealVar * a3()
+  inline RooRealVar* a3()
   {
     return a3_;
   }
-
-  inline RooRealVar * a4()
+  inline RooRealVar* a4()
   {
     return a4_;
   }
-
-  inline RooRealVar * a5()
+  inline RooRealVar* a5()
   {
     return a5_;
   }
-
-  inline RooRealVar * a6()
+  inline RooRealVar* a6()
   {
     return a6_;
   }
-
-  inline RooRealVar * alpha()
+  inline RooRealVar* alpha()
   {
     return alpha_;
   }
-
-  inline RooRealVar * n()
+  inline RooRealVar* n()
   {
     return n_;
   }
-
-  inline RooRealVar * fGCB()
+  inline RooRealVar* fGCB()
   {
     return fGCB_;
   }
 
   /// Build the model for the specified signal type
-  RooAbsPdf * buildSignalModel(RooRealVar * x, const TString & signalType)
+  RooAbsPdf * buildSignalModel(RooRealVar* x, const TString & signalType)
   {
     RooAbsPdf * signal = 0;
     if( signalType == "gaussian" ) {
@@ -517,7 +538,7 @@ public:
   }
 
   /// Build the model for the specified background type
-  RooAbsPdf * buildBackgroundModel(RooRealVar * x, const TString & backgroundType)
+  RooAbsPdf * buildBackgroundModel(RooRealVar* x, const TString & backgroundType)
   {
     RooAbsPdf * background = 0;
     if( backgroundType == "exponential" ) {
@@ -576,7 +597,7 @@ public:
   }
 
   /// Build the model to fit
-  RooAbsPdf * buildModel(RooRealVar * x, const TString & signalType, const TString & backgroundType)
+  RooAbsPdf * buildModel(RooRealVar* x, const TString & signalType, const TString & backgroundType)
   {
     RooAbsPdf * model = 0;
 
@@ -608,29 +629,55 @@ public:
 protected:
 
   // Declare all variables
-  RooRealVar * mean_;
-  RooRealVar * mean2_;
-  RooRealVar * mean3_;
-  RooRealVar * sigma_;
-  RooRealVar * sigma2_;
-  RooRealVar * sigma3_;
-  RooRealVar * gamma_;
-  RooRealVar * gaussFrac_;
-  RooRealVar * gaussFrac2_;
-  RooRealVar * expCoeffa0_;
-  RooRealVar * expCoeffa1_;
-  RooRealVar * expCoeffa2_;
-  RooRealVar * fsig_;
-  RooRealVar * a0_;
-  RooRealVar * a1_;
-  RooRealVar * a2_;
-  RooRealVar * a3_;
-  RooRealVar * a4_;
-  RooRealVar * a5_;
-  RooRealVar * a6_;
-  RooRealVar * alpha_;
-  RooRealVar * n_;
-  RooRealVar * fGCB_;
+  RooRealVar* mean_;
+  RooRealVar* mean2_;
+  RooRealVar* mean3_;
+  RooRealVar* sigma_;
+  RooRealVar* sigma2_;
+  RooRealVar* sigma3_;
+  RooRealVar* gamma_;
+  RooRealVar* gaussFrac_;
+  RooRealVar* gaussFrac2_;
+  RooRealVar* expCoeffa0_;
+  RooRealVar* expCoeffa1_;
+  RooRealVar* expCoeffa2_;
+  RooRealVar* fsig_;
+  RooRealVar* a0_;
+  RooRealVar* a1_;
+  RooRealVar* a2_;
+  RooRealVar* a3_;
+  RooRealVar* a4_;
+  RooRealVar* a5_;
+  RooRealVar* a6_;
+  RooRealVar* alpha_;
+  RooRealVar* n_;
+  RooRealVar* fGCB_;
+
+  // Initial values
+  double initVal_mean;
+  double initVal_mean2;
+  double initVal_mean3;
+  double initVal_sigma;
+  double initVal_sigma2;
+  double initVal_sigma3;
+  double initVal_gamma;
+  double initVal_gaussFrac;
+  double initVal_gaussFrac2;
+  double initVal_expCoeffa0;
+  double initVal_expCoeffa1;
+  double initVal_expCoeffa2;
+  double initVal_fsig;
+  double initVal_a0;
+  double initVal_a1;
+  double initVal_a2;
+  double initVal_a3;
+  double initVal_a4;
+  double initVal_a5;
+  double initVal_a6;
+  double initVal_alpha;
+  double initVal_n;
+  double initVal_fGCB;
+
 };
 
 #endif

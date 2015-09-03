@@ -51,6 +51,7 @@ class ZMuMuValidation(GenericValidationData):
                            ",genSimRecoPlots.root"
                            ",FitParameters.txt"),
             "eosdir": os.path.join(self.general["eosdir"], "%s/%s/%s" % (self.outputBaseName, self.name, alignment.name)),
+            "workingdir": ".oO[datadir]Oo./%s/%s/%s" % (self.outputBaseName, self.name, alignment.name),
             "plotsdir": ".oO[datadir]Oo./%s/%s/%s/plots" % (self.outputBaseName, self.name, alignment.name),
                 })
         return repMap
