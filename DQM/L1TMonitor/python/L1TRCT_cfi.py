@@ -5,7 +5,6 @@ l1tRct = cms.EDAnalyzer("L1TRCT",
     disableROOToutput = cms.untracked.bool(True),
     HistFolder = cms.untracked.string('L1T/L1TRCT'),
     rctSource = cms.InputTag("gctDigis"),
-    gctSource = cms.InputTag("gctDigis"),
     verbose = cms.untracked.bool(False),
     filterTriggerType = cms.int32(1),
     selectBX=cms.untracked.int32(0)

@@ -280,6 +280,8 @@ private:
   int filterTriggerType_;
   int selectBX_;
 
+  std::string dataInputTagName_;
+
 
   int trigCount,notrigCount;
 
