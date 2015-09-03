@@ -22,4 +22,6 @@ MonojetBackupPSet = cms.PSet(
                                     400, 410, 420, 430, 440, 450, 460, 470, 480, 490,
                                     500, 510, 520, 530, 540, 550, 560, 570, 580, 590, 600
                                   ),
+    dropPt2 = cms.bool(True),
+    dropPt3 = cms.bool(True),
     )
