@@ -775,15 +775,15 @@ steps['HLTD']=merge([{'--process':'reHLT',
 steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps['HLTD']])
 
 
-hltKey50ns='frozen50ns'
+hltKey50ns='relval50ns'
 menuR250ns = autoHLT[hltKey50ns]
 # no GT customization for HLT frozen50ns
 steps['HLTDR250ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
 
-hltKey25ns='25ns14e33_v3'
-# menuR225ns = autoHLT[hltKey25ns]
+hltKey25ns='relval25ns'
+menuR225ns = autoHLT[hltKey25ns]
 # no GT customization for HLT frozen25ns
-steps['HLTDR225ns']=merge( [ {'-s':'L1REPACK,HLT:%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+steps['HLTDR225ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
 
  
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
