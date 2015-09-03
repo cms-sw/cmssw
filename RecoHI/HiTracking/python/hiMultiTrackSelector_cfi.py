@@ -45,7 +45,10 @@ hiLooseMTS = cms.PSet(
 
     # parameters for cutting on pterror/pt and number of valid hits
     max_relpterr = cms.double(0.2),
-    min_nhits = cms.uint32(8)
+    min_nhits = cms.uint32(8),
+
+    useMVA = cms.bool(False),
+    minMVA = cms.double(-1)
     )
 
 hiTightMTS=hiLooseMTS.clone(
@@ -79,6 +82,9 @@ hiMultiTrackSelector = cms.EDProducer("HIMultiTrackSelector",
                                     useVertices = cms.bool(True),
                                     useVtxError = cms.bool(True),
                                     vertices    = cms.InputTag("hiSelectedVertex"),
+                                    useAnyMVA = cms.bool(False),
+                                    GBRForestLabel = cms.string(''),
+                                    GBRForestVars = cms.vstring(),
                                     trackSelectors = cms.VPSet( hiLooseMTS,
                                                                 hiTightMTS,
                                                                 hiHighpurityMTS)
