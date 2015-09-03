@@ -1,7 +1,10 @@
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/VecArray.h"
 
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -9,6 +12,125 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
+#include <iomanip>
+
+namespace {
+  class HitPatternPrinter {
+  public:
+    explicit HitPatternPrinter(const reco::Track& trk): track(trk) {}
+
+    void print(std::ostream& os) const {
+      const reco::HitPattern &p = track.hitPattern();
+
+      for (int i = 0; i < p.numberOfHits(reco::HitPattern::TRACK_HITS); ++i) {
+        uint32_t hit = p.getHitPattern(reco::HitPattern::TRACK_HITS, i);
+
+        detLayer(os, p, hit);
+        if(p.missingHitFilter(hit)) {
+          os << "(miss)";
+        }
+        else if(p.inactiveHitFilter(hit)) {
+          os << "(inact)";
+        }
+        else if(p.badHitFilter(hit)) {
+          os << "(bad)";
+        }
+        os << " ";
+      }
+
+      if(p.numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > 0) {
+        os << "lost inner ";
+
+        for (int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_INNER_HITS); ++i) {
+          uint32_t hit = p.getHitPattern(reco::HitPattern::MISSING_INNER_HITS, i);
+
+          if(p.missingHitFilter(hit)) {
+            detLayer(os, p, hit);
+            os << " ";
+          }
+        }
+      }
+      if(p.numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS) > 0) {
+        os << "lost outer ";
+
+        for (int i = 0; i < p.numberOfHits(reco::HitPattern::MISSING_OUTER_HITS); ++i) {
+          uint32_t hit = p.getHitPattern(reco::HitPattern::MISSING_OUTER_HITS, i);
+
+          if(p.missingHitFilter(hit)) {
+            detLayer(os, p, hit);
+            os << " ";
+          }
+        }
+      }
+    }
+
+  private:
+    static void detLayer(std::ostream& os, const reco::HitPattern& p, uint32_t hit) {
+      if(p.pixelBarrelHitFilter(hit)) {
+        os << "BPIX";
+      }
+      else if(p.pixelEndcapHitFilter(hit)) {
+        os << "FPIX";
+      }
+      else if(p.stripTIBHitFilter(hit)) {
+        os << "TIB";
+      }
+      else if(p.stripTIDHitFilter(hit)) {
+        os << "TID";
+      }
+      else if(p.stripTOBHitFilter(hit)) {
+        os << "TOB";
+      }
+      else if(p.stripTECHitFilter(hit)) {
+        os << "TEC";
+      }
+      os << p.getLayer(hit);
+    }
+
+    const reco::Track& track;
+  };
+
+  std::ostream& operator<<(std::ostream& os, const HitPatternPrinter& hpp) {
+    hpp.print(os);
+    return os;
+  }
+
+  class TrackAlgoPrinter {
+  public:
+    explicit TrackAlgoPrinter(const reco::Track& trk): track(trk) {}
+
+    void print(std::ostream& os) const {
+      edm::VecArray<reco::TrackBase::TrackAlgorithm, reco::TrackBase::algoSize> algos;
+      for(int ialgo=0; ialgo < reco::TrackBase::algoSize; ++ialgo) {
+        auto algo = static_cast<reco::TrackBase::TrackAlgorithm>(ialgo);
+        if(track.isAlgoInMask(algo)) {
+          algos.push_back(algo);
+        }
+      }
+
+      os << "algo " << reco::TrackBase::algoName(track.algo());
+      if(track.originalAlgo() != track.algo())
+        os << " originalAlgo " << reco::TrackBase::algoName(track.originalAlgo());
+      if(algos.size() > 1) {
+        os << " algoMask";
+        for(auto algo: algos) {
+          os << " " << reco::TrackBase::algoName(algo);
+        }
+      }
+    }
+
+  private:
+    const reco::Track& track;
+  };
+  std::ostream& operator<<(std::ostream& os, const TrackAlgoPrinter& tap) {
+    tap.print(os);
+    return os;
+  }
+}
 
 class PackedCandidateTrackValidator: public DQMEDAnalyzer{
  public:
@@ -203,11 +325,14 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     fillNoFlow(h_diffVy, trackPc.vy() - track.vy());
     fillNoFlow(h_diffVz, trackPc.vz() - track.vz());
 
-    fillNoFlow(h_diffNormalizedChi2, trackPc.normalizedChi2() - track.normalizedChi2());
+    auto diffNormalizedChi2 = trackPc.normalizedChi2() - track.normalizedChi2();
+    fillNoFlow(h_diffNormalizedChi2, diffNormalizedChi2);
     fillNoFlow(h_diffNdof, trackPc.ndof() - track.ndof());
 
-    fillNoFlow(h_diffCharge, trackPc.charge() - track.charge());
-    fillNoFlow(h_diffIsHighPurity, trackPc.quality(reco::TrackBase::highPurity) - track.quality(reco::TrackBase::highPurity));
+    auto diffCharge = trackPc.charge() - track.charge();
+    fillNoFlow(h_diffCharge, diffCharge);
+    int diffHP = static_cast<int>(trackPc.quality(reco::TrackBase::highPurity)) - static_cast<int>(track.quality(reco::TrackBase::highPurity));
+    fillNoFlow(h_diffIsHighPurity,  diffHP);
 
     fillNoFlow(h_diffQoverp, trackPc.qoverp() - track.qoverp());
     fillNoFlow(h_diffPt    , trackPc.pt()     - track.pt()    );
@@ -225,8 +350,10 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     fillNoFlow(h_diffDxyError   , trackPc.dxyError()    - track.dxyError()   );
     fillNoFlow(h_diffDzError    , trackPc.dzError()     - track.dzError()    );
 
-    fillNoFlow(h_diffNumberOfPixelHits, pcRef->numberOfPixelHits() - track.hitPattern().numberOfValidPixelHits());
-    fillNoFlow(h_diffNumberOfHits, pcRef->numberOfHits() - track.hitPattern().numberOfValidHits());
+    auto diffNumberOfPixelHits = pcRef->numberOfPixelHits() - track.hitPattern().numberOfValidPixelHits();
+    fillNoFlow(h_diffNumberOfPixelHits, diffNumberOfPixelHits);
+    auto diffNumberOfHits = pcRef->numberOfHits() - track.hitPattern().numberOfValidHits();
+    fillNoFlow(h_diffNumberOfHits, diffNumberOfHits);
 
     int diffLostInnerHits = 0;
     const auto trackLostInnerHits = track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
@@ -244,11 +371,43 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     }
     fillNoFlow(h_diffLostInnerHits, diffLostInnerHits);
 
-    fillNoFlow(h_diffHitPatternNumberOfValidPixelHits, trackPc.hitPattern().numberOfValidPixelHits() - track.hitPattern().numberOfValidPixelHits());
-    fillNoFlow(h_diffHitPatternNumberOfValidHits, trackPc.hitPattern().numberOfValidHits() - track.hitPattern().numberOfValidHits());
+    auto diffHitPatternNumberOfValidPixelHits = trackPc.hitPattern().numberOfValidPixelHits() - track.hitPattern().numberOfValidPixelHits();
+    fillNoFlow(h_diffHitPatternNumberOfValidPixelHits, diffHitPatternNumberOfValidPixelHits);
+    auto diffHitPatternNumberOfValidHits = trackPc.hitPattern().numberOfValidHits() - track.hitPattern().numberOfValidHits();
+    fillNoFlow(h_diffHitPatternNumberOfValidHits, diffHitPatternNumberOfValidHits);
     fillNoFlow(h_diffHitPatternNumberOfLostInnerHits, trackPc.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) - track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
 
-    fillNoFlow(h_diffHitPatternHasValidHitInFirstPixelBarrel, trackPc.hitPattern().hasValidHitInFirstPixelBarrel() - track.hitPattern().hasValidHitInFirstPixelBarrel());
+    int diffHitPatternHasValidHitInFirstPixelBarrel = static_cast<int>(trackPc.hitPattern().hasValidHitInFirstPixelBarrel()) - static_cast<int>(track.hitPattern().hasValidHitInFirstPixelBarrel());
+    fillNoFlow(h_diffHitPatternHasValidHitInFirstPixelBarrel, diffHitPatternHasValidHitInFirstPixelBarrel);
+
+    // Print warning if there are differences outside the expected range
+    if(diffNormalizedChi2 < -1 || diffNormalizedChi2 > 0 || diffCharge != 0 || diffHP != 0 ||
+       diffNumberOfPixelHits != 0 || diffNumberOfHits != 0 || diffLostInnerHits != 0 ||
+       diffHitPatternNumberOfValidPixelHits != 0 || diffHitPatternNumberOfValidHits != 0 || diffHitPatternHasValidHitInFirstPixelBarrel != 0) {
+
+      edm::LogWarning("PackedCandidateTrackValidator") << "Track " << i << " pt " << track.pt() << " eta " << track.eta() << " phi " << track.phi() << " chi2 " << track.chi2() << " ndof " << track.ndof()
+                                                       << "\n"
+                                                       << "  " << TrackAlgoPrinter(track)
+                                                       << " lost inner hits " << trackLostInnerHits
+                                                       << " lost outer hits " << track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS)
+                                                       << " hitpattern " << HitPatternPrinter(track)
+                                                       << " \n"
+                                                       << " PC " << pcRef.id() << ":" << pcRef.key() << " track pt " << trackPc.pt() << " eta " << trackPc.eta() << " phi " << trackPc.phi() << " chi2 " << trackPc.chi2() << " ndof " << trackPc.ndof() << " pdgId " << pcRef->pdgId() << " mass " << pcRef->mass()
+                                                       << "\n"
+                                                       << " (diff PackedCandidate track)"
+                                                       << " highPurity " << diffHP << " " << trackPc.quality(reco::TrackBase::highPurity) << " " << track.quality(reco::TrackBase::highPurity)
+                                                       << " charge " << diffCharge << " " << trackPc.charge() << " " << track.charge()
+                                                       << " normalizedChi2 " << diffNormalizedChi2 << " " << trackPc.normalizedChi2() << " " << track.normalizedChi2()
+                                                       << "\n "
+                                                       << " numberOfPixelHits " << diffNumberOfPixelHits << " " << pcRef->numberOfPixelHits() << " " << track.hitPattern().numberOfValidPixelHits()
+                                                       << " numberOfHits " << diffNumberOfHits << " " << pcRef->numberOfHits() << " " << track.hitPattern().numberOfValidHits()
+                                                       << "\n "
+                                                       << " hitPattern.numberOfValidPixelHits " << diffHitPatternNumberOfValidPixelHits << " " << trackPc.hitPattern().numberOfValidPixelHits() << " " << track.hitPattern().numberOfValidPixelHits()
+                                                       << " hitPattern.numberOfValidHits " << diffHitPatternNumberOfValidHits << " " << trackPc.hitPattern().numberOfValidHits() << " " << track.hitPattern().numberOfValidHits()
+                                                       << " hitPattern.hasValidHitInFirstPixelBarrel " << diffHitPatternHasValidHitInFirstPixelBarrel << " " << trackPc.hitPattern().hasValidHitInFirstPixelBarrel() << " " << track.hitPattern().hasValidHitInFirstPixelBarrel()
+                                                       << "\n "
+                                                       << " lostInnerHits  " << diffLostInnerHits << " " << pcRef->lostInnerHits() << " #";
+    }
   }
 }
 
