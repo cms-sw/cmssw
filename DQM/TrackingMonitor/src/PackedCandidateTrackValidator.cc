@@ -325,8 +325,16 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     fillNoFlow(h_diffVy, trackPc.vy() - track.vy());
     fillNoFlow(h_diffVz, trackPc.vz() - track.vz());
 
-    auto diffNormalizedChi2 = trackPc.normalizedChi2() - track.normalizedChi2();
-    fillNoFlow(h_diffNormalizedChi2, diffNormalizedChi2);
+    // PackedCandidate recalculates the ndof in unpacking as
+    // (nhits+npixelhits-5), but some strip hits may have dimension 2.
+    // If PackedCandidate has ndof=0, the resulting normalizedChi2
+    // will be 0 too. Hence, the comparison makes sense only for those
+    // PackedCandidates that have ndof != 0.
+    double diffNormalizedChi2 = 0;
+    if(trackPc.ndof() != 0) {
+      diffNormalizedChi2 = trackPc.normalizedChi2() - track.normalizedChi2();
+      fillNoFlow(h_diffNormalizedChi2, diffNormalizedChi2);
+    }
     fillNoFlow(h_diffNdof, trackPc.ndof() - track.ndof());
 
     auto diffCharge = trackPc.charge() - track.charge();
