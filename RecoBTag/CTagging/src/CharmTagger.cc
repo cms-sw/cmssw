@@ -1,8 +1,11 @@
+#include "RecoBTag/CTagging/interface/CharmTagger.h"
+
 #include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
-#include "RecoBTag/CTagging/interface/CharmTagger.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -12,21 +15,32 @@
 #include "TDirectory.h" //DEBUG
 
 CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
-	sl_computer_(configuration.getParameter<edm::ParameterSet>("slComputerCfg"))
+	sl_computer_(configuration.getParameter<edm::ParameterSet>("slComputerCfg")),
+	vars_definition_(configuration.getParameter<vpset>("variables")),
+  mva_name_( configuration.getParameter<std::string >("mvaName") ),
+  use_condDB_(configuration.existsAs<bool>("useCondDB") ? configuration.getParameter<bool>("useCondDB") : false),
+  gbrForest_label_(configuration.existsAs<std::string>("gbrForestLabel") ? configuration.getParameter<std::string>("gbrForestLabel") : ""),
+  weight_file_(configuration.existsAs<edm::FileInPath>("weightFile") ? configuration.getParameter<edm::FileInPath>("weightFile") : edm::FileInPath()),
+  use_GBRForest_(configuration.existsAs<bool>("useGBRForest") ? configuration.getParameter<bool>("useGBRForest") : true),
+  use_adaBoost_(configuration.existsAs<bool>("useAdaBoost") ? configuration.getParameter<bool>("useAdaBoost") : false),
+	debug_mode_(configuration.existsAs<std::string>("debugFile"))
 {
+	debug_file_ = debug_mode_ ? configuration.getParameter<std::string>("debugFile") : "";
+
 	uses(0, "pfImpactParameterTagInfos");
 	uses(1, "pfInclusiveSecondaryVertexFinderCtagLTagInfos");
 	uses(2, "softPFMuonsTagInfos");
 	uses(3, "softPFElectronsTagInfos");
+}
 
-	edm::FileInPath weight_file=configuration.getParameter<edm::FileInPath>("weightFile");
+void CharmTagger::initialize(const JetTagComputerRecord & record)
+{
 	mvaID_.reset(new TMVAEvaluator());
-	
-	vpset vars_def = configuration.getParameter<vpset>("variables");
-	std::vector<std::string> variable_names;
-	variable_names.reserve(vars_def.size());
 
-	for(auto &var : vars_def) {
+	std::vector<std::string> variable_names;
+	variable_names.reserve(vars_definition_.size());
+
+	for(auto &var : vars_definition_) {
 		variable_names.push_back(
 			var.getParameter<std::string>("name")
 			);
@@ -43,21 +57,30 @@ CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
 		variables_.push_back(mva_var);
 	}
 	std::vector<std::string> spectators;
-	
-	mvaID_->initialize(
-		"Color:Silent:Error", 
-		"BDT", 
-		weight_file.fullPath(), 
-		variable_names, spectators,
-		true, //useGBRForest
-		false  //useAdaBoost (output normalized between 0 and 1)
-		);
 
+  if(use_condDB_) {
+     const GBRWrapperRcd & gbrWrapperRecord = record.getRecord<GBRWrapperRcd>();
+
+     edm::ESHandle<GBRForest> gbrForestHandle;
+     gbrWrapperRecord.get(gbrForest_label_.c_str(), gbrForestHandle);
+
+     mvaID_->initializeGBRForest(
+			 gbrForestHandle.product(), variable_names, 
+			 spectators, use_adaBoost_
+			 );
+  }
+  else {
+    mvaID_->initialize(
+        "Color:Silent:Error", mva_name_.c_str(),
+        weight_file_.fullPath(), variable_names, 
+				spectators, use_GBRForest_, use_adaBoost_
+    );
+  }
+	
   //DEBUG
-	debug_mode_ = configuration.existsAs<std::string>("debugFile");
 	if(debug_mode_){
 		std::cout << "variable_names has " << variable_names.size() << " names" << std::endl;
-		ext_file_.reset(new TFile(configuration.getParameter<std::string>("debugFile").c_str(), "recreate")); //DEBUG
+		ext_file_.reset(new TFile(debug_file_.c_str(), "recreate")); //DEBUG
 		variable_names.push_back("jetPt" ); 
 		variable_names.push_back("jetEta"); 
 		variable_names.push_back("vertexCategory"); 

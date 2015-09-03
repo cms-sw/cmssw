@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVSoftLeptonComputer.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 
 //DEBUGGING
 #include "TFile.h"
@@ -26,6 +27,8 @@ public:
 	CharmTagger(const edm::ParameterSet & );
 	~CharmTagger();//{}
   virtual float discriminator(const TagInfoHelper & tagInfo) const override;
+	virtual void initialize(const JetTagComputerRecord & record) override;
+	
 	typedef std::vector<edm::ParameterSet> vpset;
 	
 	struct MVAVar {
@@ -40,10 +43,19 @@ private:
   mutable std::mutex mutex_;
 	[[cms::thread_guard("mutex_")]] std::unique_ptr<TMVAEvaluator> mvaID_;
 	CombinedSVSoftLeptonComputer sl_computer_;
+	vpset vars_definition_;
 	std::vector<MVAVar> variables_;
-	
+
+	std::string mva_name_;
+  bool use_condDB_;
+	std::string gbrForest_label_;
+	edm::FileInPath weight_file_;
+  bool use_GBRForest_;
+  bool use_adaBoost_;
+
 	//DEBUGGING! because there seems to be no easier way to do it -.-'
 	bool debug_mode_;
+	std::string debug_file_;
 	std::unique_ptr<TFile> ext_file_;
 	TNtuple *tree_;
 };

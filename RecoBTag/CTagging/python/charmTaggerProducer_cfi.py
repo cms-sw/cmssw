@@ -18,7 +18,8 @@ charmTagsComputerCvsL = cms.ESProducer(
       cms.InputTag('pfInclusiveSecondaryVertexFinderCtagLTagInfos'),
       cms.InputTag('softPFMuonsTagInfos'),
       cms.InputTag('softPFElectronsTagInfos'),
-      )
+      ),
+   mvaName = cms.string('BDT')
    )
 
 ## charmTagsComputerCvsL.variables = cms.VPSet( 
