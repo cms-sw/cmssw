@@ -17,18 +17,6 @@ def setup_mva(val_pset,cat_pset,prod_name,mva_name):
     setattr( cat_pset, '%sCategories'%mva_name, cms.InputTag(cat_name) )
 
 egamma_modifications = cms.VPSet(
-    cms.PSet( modifierName  = cms.string('EGFull5x5ShowerShapeModifierFromValueMaps'),
-              photon_config = cms.PSet( sigmaIetaIeta = cms.InputTag('photonIDValueMapProducer:phoFull5x5SigmaIEtaIEta'),
-                                        e5x5          = cms.InputTag('photonIDValueMapProducer:phoFull5x5E5x5')
-                                        ) 
-              ),
-    cms.PSet( modifierName    = cms.string('EGPfIsolationModifierFromValueMaps'),
-              photon_config   = cms.PSet( chargedHadronIso         = cms.InputTag('photonIDValueMapProducer:phoChargedIsolation'),
-                                          neutralHadronIsolation   = cms.InputTag('photonIDValueMapProducer:phoNeutralHadronIsolation'),
-                                          photonIso                = cms.InputTag('photonIDValueMapProducer:phoPhotonIsolation'),
-                                          chargedHadronIsoWrongVtx = cms.InputTag('photonIDValueMapProducer:phoWorstChargedIsolation')
-                                          )
-              ),
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
               electron_config = cms.PSet( ),
               photon_config   = cms.PSet( phoFull5x5SigmaIEtaIPhi = cms.InputTag('photonIDValueMapProducer:phoFull5x5SigmaIEtaIPhi'),
@@ -36,6 +24,10 @@ egamma_modifications = cms.VPSet(
                                           phoFull5x5E2x2          = cms.InputTag('photonIDValueMapProducer:phoFull5x5E2x2'),
                                           phoFull5x5E2x5Max       = cms.InputTag('photonIDValueMapProducer:phoFull5x5E2x5Max'),
                                           phoESEffSigmaRR         = cms.InputTag('photonIDValueMapProducer:phoESEffSigmaRR'),
+                                          chargedHadronIso         = cms.InputTag('photonIDValueMapProducer:phoChargedIsolation'),
+                                          neutralHadronIsolation   = cms.InputTag('photonIDValueMapProducer:phoNeutralHadronIsolation'),
+                                          photonIso                = cms.InputTag('photonIDValueMapProducer:phoPhotonIsolation'),
+                                          chargedHadronIsoWrongVtx = cms.InputTag('photonIDValueMapProducer:phoWorstChargedIsolation')
                                           )
               ),
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromIntValueMaps'),
@@ -45,18 +37,18 @@ egamma_modifications = cms.VPSet(
 )
 
 #setup the mva value maps to embed
-setup_mva(egamma_modifications[2].electron_config,
-          egamma_modifications[3].electron_config,
+setup_mva(egamma_modifications[0].electron_config,
+          egamma_modifications[1].electron_config,
           ele_mva_prod_name,
           ele_spring15_nt.mvaSpring15NonTrigClassName+ele_spring15_nt.mvaTag)
 
-setup_mva(egamma_modifications[2].photon_config,
-          egamma_modifications[3].photon_config,
+setup_mva(egamma_modifications[0].photon_config,
+          egamma_modifications[1].photon_config,
           pho_mva_prod_name,
           pho_spring15_25_nt.mvaSpring15NonTrigClassName+pho_spring15_25_nt.mvaTag)
 
-setup_mva(egamma_modifications[2].photon_config,
-          egamma_modifications[3].photon_config,
+setup_mva(egamma_modifications[0].photon_config,
+          egamma_modifications[1].photon_config,
           pho_mva_prod_name,
           pho_spring15_50_nt.mvaSpring15NonTrigClassName+pho_spring15_50_nt.mvaTag)
 
