@@ -9,5 +9,5 @@ ak5JetFlavourInfos = cms.EDProducer("JetFlavourClustering",
     jetAlgorithm             = cms.string("AntiKt"),
     rParam                   = cms.double(0.5),
     ghostRescaling           = cms.double(1e-18),
-    hadronFlavourHasPriority = cms.bool(True)
+    hadronFlavourHasPriority = cms.bool(False)
 )
