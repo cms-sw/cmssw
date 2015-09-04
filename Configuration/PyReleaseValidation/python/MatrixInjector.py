@@ -248,6 +248,8 @@ class MatrixInjector(object):
                                 # get the run numbers or #events
                                 if len(nextHasDSInput.run):
                                     chainDict['nowmTasklist'][-1]['RunWhitelist']=nextHasDSInput.run
+                                if len(nextHasDSInput.ls):
+                                    chainDict['nowmTasklist'][-1]['LumiList']=nextHasDSInput.ls
                                 #print "what is s",s[2][index]
                                 if '--data' in s[2][index] and nextHasDSInput.label:
                                     thisLabel+='_RelVal_%s'%nextHasDSInput.label
