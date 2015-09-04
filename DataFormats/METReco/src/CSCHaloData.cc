@@ -39,6 +39,19 @@ int CSCHaloData::NumberOfHaloTriggers(HaloData::Endcap z) const
     return nTriggers_MinusZ + nTriggers_PlusZ;
 }
 
+
+
+int CSCHaloData::NumberOfHaloTriggers_TrkMuUnVeto(HaloData::Endcap z) const
+{
+  if( z == HaloData::plus )
+    return nTriggers_PlusZ_TrkMuUnVeto;
+  else if( z == HaloData::minus )
+    return nTriggers_MinusZ_TrkMuUnVeto;
+  else
+    return nTriggers_MinusZ_TrkMuUnVeto + nTriggers_PlusZ_TrkMuUnVeto;
+}
+
+
 short int CSCHaloData::NumberOfOutOfTimeTriggers(HaloData::Endcap z ) const
 {
   if( z == HaloData::plus  ) 
