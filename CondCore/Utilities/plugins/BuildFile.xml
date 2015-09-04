@@ -9,3 +9,9 @@
   <use   name="CondCore/CondDB"/>
   <use   name="FWCore/Sources"/>
 </library>
+<library   file="BasicP_PayloadInspector.cc" name="BasicPayload_PayloadInspector">
+  <use   name="CondCore/Utilities"/>
+  <use   name="CondCore/CondDB"/>
+  <use   name="CondFormats/Common"/>
+  <use   name="boost_python"/>
+</library>
