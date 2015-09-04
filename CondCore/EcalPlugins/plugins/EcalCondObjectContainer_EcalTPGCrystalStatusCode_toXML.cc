@@ -2,8 +2,6 @@
 #include "CondCore/Utilities/interface/PayloadToXML.h"
 #include "CondCore/Utilities/src/CondFormats.h"
 
-#include "CondFormats/EcalObjects/interface/EcalCondObjectContainer.h"
-
 namespace { // Avoid cluttering the global namespace.
 
   // converter methods
