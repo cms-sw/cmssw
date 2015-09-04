@@ -586,8 +586,8 @@ using namespace CLHEP;
               ++backwardCount;
             }
           } else {                                                 // backward side
-           if( extraNucleonCount > 19 )   // commented out to duplicate ?bug? in GENXPT
-             x = 0.999;
+	    //if( extraNucleonCount > 19 )   // commented out to duplicate ?bug? in GENXPT
+            // x = 0.999;
            G4double xxx = 0.95+0.05*extraNucleonCount/20.0;
            if( (backwardKinetic+kineticEnergy) < xxx*backwardEnergy )
             {
@@ -697,11 +697,13 @@ using namespace CLHEP;
         if( --vecLen == 0 )return false;  // all the secondaries have been eliminated
         pseudoParticle[6] = pseudoParticle[4] + pseudoParticle[5];
         pseudoParticle[6].SetMomentum( 0.0 );                 // set z-momentum
+	/*
         phi = pseudoParticle[6].Angle( pseudoParticle[8] );
         if( pseudoParticle[6].GetMomentum().y()/MeV < 0.0 )phi = twopi - phi;
         phi += pi + normal() * pi / 12.0;
         if( phi > twopi )phi -= twopi;
         if( phi < 0.0 )phi = twopi - phi;
+	*/
       }
     }   // closes main for loop
 
@@ -792,7 +794,7 @@ using namespace CLHEP;
       et = pseudoParticle[1].GetTotalEnergy()/GeV;
       dndl[0] = 0.0;
       outerCounter = 0;
-      eliminateThisParticle = true;     // should never eliminate the target particle
+      //eliminateThisParticle = true;     // should never eliminate the target particle
       resetEnergies = true;
       while( ++outerCounter < 3 )     // start of outer iteration loop
       {
@@ -820,7 +822,7 @@ using namespace CLHEP;
           targetParticle.SetTotalEnergy( totalEnergy*GeV );
           if( targetParticle.GetSide() < 0 )
           {
-            if( extraNucleonCount > 19 )x=0.999;
+            //if( extraNucleonCount > 19 )x=0.999;
             G4double xxx = 0.95+0.05*extraNucleonCount/20.0;
             if( (backwardKinetic+totalEnergy-vecMass) < xxx*backwardEnergy )
             {
@@ -828,13 +830,15 @@ using namespace CLHEP;
               backwardKinetic += totalEnergy - vecMass;
               pseudoParticle[6] = pseudoParticle[4] + pseudoParticle[5];
               pseudoParticle[6].SetMomentum( 0.0 );                      // set z-momentum
+	      /*
               phi = pseudoParticle[6].Angle( pseudoParticle[8] );
               if( pseudoParticle[6].GetMomentum().y()/MeV < 0.0 )phi = twopi - phi;
               phi += pi + normal() * pi / 12.0;
               if( phi > twopi )phi -= twopi;
               if( phi < 0.0 )phi = twopi - phi;
+	      */
               outerCounter = 2;                    // leave outer loop
-              eliminateThisParticle = false;       // don't eliminate this particle
+              //eliminateThisParticle = false;       // don't eliminate this particle
               resetEnergies = false;
               break;                               // leave inner loop
             }
@@ -874,7 +878,7 @@ using namespace CLHEP;
 
             pseudoParticle[4] = pseudoParticle[4] + targetParticle;
             outerCounter = 2;                    // leave outer loop
-            eliminateThisParticle = false;       // don't eliminate this particle
+            //eliminateThisParticle = false;       // don't eliminate this particle
             resetEnergies = false;
             break;                               // leave inner loop
           }
@@ -1034,7 +1038,7 @@ using namespace CLHEP;
       // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
       if( tempLen >= 2 )
       {
-        wgt = GenerateNBodyEvent(
+        GenerateNBodyEvent(
          pseudoParticle[6].GetMass(), constantCrossSection, tempV, tempLen );
          // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
         if( targetParticle.GetSide() == -3 )
@@ -1516,7 +1520,7 @@ using namespace CLHEP;
       delete vec[vecLen-2];
       vecLen -= 2;
       currentMass = currentParticle.GetMass()/GeV;
-      targetMass = targetParticle.GetMass()/GeV;
+      //targetMass = targetParticle.GetMass()/GeV;
       incidentHasChanged = true;
       targetHasChanged = true;
       currentParticle.SetKineticEnergy( ek );
@@ -1911,7 +1915,7 @@ using namespace CLHEP;
       }
       if( tempLen >= 2 )
       {
-        wgt = GenerateNBodyEvent( pseudoParticle[3].GetMass()/MeV,
+        GenerateNBodyEvent( pseudoParticle[3].GetMass()/MeV,
                                   constantCrossSection, tempV, tempLen );
         if( currentParticle.GetSide() == 1 )
           currentParticle.Lorentz( currentParticle, pseudoParticle[5] );
@@ -1951,7 +1955,7 @@ using namespace CLHEP;
       }
       if( tempLen >= 2 )
       {
-        wgt = GenerateNBodyEvent( pseudoParticle[4].GetMass()/MeV,
+        GenerateNBodyEvent( pseudoParticle[4].GetMass()/MeV,
                                   constantCrossSection, tempV, tempLen );
         if( currentParticle.GetSide() == -1 )
           currentParticle.Lorentz( currentParticle, pseudoParticle[6] );
@@ -2067,8 +2071,8 @@ using namespace CLHEP;
           {
             rthnve = pi*G4UniformRand();
             phinve = twopi*G4UniformRand();
-            targetParticle.SetMomentum( pp*std::sin(rthnve)*std::cos(rthnve)*MeV,
-                                        pp*std::sin(rthnve)*std::sin(rthnve)*MeV,
+            targetParticle.SetMomentum( pp*std::sin(rthnve)*std::cos(phinve)*MeV,
+                                        pp*std::sin(rthnve)*std::sin(phinve)*MeV,
                                         pp*std::cos(rthnve)*MeV );
           }
           else
@@ -2087,8 +2091,8 @@ using namespace CLHEP;
           {
             rthnve = pi*G4UniformRand();
             phinve = twopi*G4UniformRand();
-            currentParticle.SetMomentum( pp*std::sin(rthnve)*std::cos(rthnve)*MeV,
-                                         pp*std::sin(rthnve)*std::sin(rthnve)*MeV,
+            currentParticle.SetMomentum( pp*std::sin(rthnve)*std::cos(phinve)*MeV,
+                                         pp*std::sin(rthnve)*std::sin(phinve)*MeV,
                                          pp*std::cos(rthnve)*MeV );
           }
           else
@@ -2139,7 +2143,7 @@ using namespace CLHEP;
       if( tempLen >= 2 )
       {
       // DEBUGGING --> DumpFrames::DumpFrame(vec, vecLen);
-        wgt = GenerateNBodyEvent(
+        GenerateNBodyEvent(
          pseudoParticle[4].GetTotalEnergy()/MeV+pseudoParticle[5].GetTotalEnergy()/MeV,
          constantCrossSection, tempV, tempLen );
         theoreticalKinetic = 0.0;
@@ -2320,9 +2324,7 @@ using namespace CLHEP;
 //    const G4double mOriginal = modifiedOriginal.GetMass()/GeV;
     const G4double pOriginal = modifiedOriginal.GetMomentum().mag()/GeV;
     G4double currentMass = currentParticle.GetMass()/GeV;
-    G4double targetMass = targetParticle.GetDefinition()->GetPDGMass()/GeV;
-
-    targetMass = targetParticle.GetMass()/GeV;
+    G4double targetMass = targetParticle.GetMass()/GeV;
     const G4double atomicWeight = targetNucleus.GetN_asInt();
     //    G4cout<<"Atomic weight is found to be: "<<atomicWeight<<G4endl;
     G4double etCurrent = currentParticle.GetTotalEnergy()/GeV;
@@ -2659,7 +2661,7 @@ using namespace CLHEP;
       //G4cerr << "*** Error in FullModelReactionDynamics::GenerateNBodyEvent" << G4endl;
       //G4cerr << "    total mass (" << totalMass*GeV << "MeV) > total energy ("
       //     << totalEnergy << "MeV)" << G4endl;
-      totalE = totalMass;
+      //totalE = totalMass;
       //delete [] mass;
       //delete [] energy;
       //for( i=0; i<3; ++i )delete [] pcm[i];
