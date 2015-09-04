@@ -10,10 +10,9 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 
-<library   file="BeamSpotObjects_toXML.cc" name="BeamSpotObjects_toXML">
+<library   file="BeamSpot_PayloadInspector.cc" name="BeamSpot_PayloadInspector">
   <use   name="CondCore/Utilities"/>
   <use   name="CondCore/CondDB"/>
   <use   name="CondFormats/Common"/>
   <use   name="boost_python"/>
 </library>
-
