@@ -15,7 +15,7 @@ import sys
 
 # number of events to be run (-1 for all)
 maxNumberEvents = 10
-#maxNumberEvents = -1
+maxNumberEvents = -1
 
 # useRelValSample: choose the type of sample used:
 #   True to use MC RelVal
@@ -30,40 +30,42 @@ useRelValSample = False
 
 if useRelValSample == False :
     
-    # choose the global tag type  
+    # choose the global tag type 
+    # WARNING: global mess in global tag management, 
+    #      must be chosen per sample
+    #      must be checked in the release
     #  
-    globalTag = 'auto:com10'        # GR_R_*
-    #globalTag = 'auto:hltonline'   # GR_H_*
+    globalTag = '75X_dataRun2_HLT_v2'
     
     # choose one sample identifier from the list of data samples 
     #
-    sampleIdentifier = '165633-CAFDQM'
+    sampleIdentifier = '251162'
+    #sampleIdentifier = '165633-CAFDQM'
     #sampleIdentifier = '191833_RAW'
     #sampleIdentifier = '205666.A.storageManager'
 
 else :
-
-    # choose the global tag type  
+    # choose the global tag type 
+    # WARNING: global mess in global tag management, 
+    #      must be chosen per sample
+    #      must be checked in the release
     #  
-    #globalTag = 'auto:mc'
-    globalTag = 'auto:startup'
-    #globalTag = 'auto:starthi'
+    globalTag = 'auto:run1_mc'
+    #globalTag = 'auto:MCRUN2_72_V3A'
+    #globalTag = 'auto:run1_mc_hi'
     
     # choose (pre)release used to produce the RelVal samples
-    #
-    sampleFromRelease = 'CMSSW_5_2_3'
+    sampleFromRelease = 'CMSSW_7_5_0'
 
-   # RelVals samples - add the "short name" of the dataset e.g. /RelValLM1_sfts/...
+    # RelVals samples - add the "short name" of the dataset e.g. /RelValLM1_sfts/...
     #
     #dataset = 'RelValMinBias'
-    #dataset = 'RelValTTbar'
-    #dataset = 'RelValQCD_Pt_80_120'
-    dataset = 'RelValLM1_sfts'
+    dataset = 'RelValTTbar'
     
     # data type
     #
-    #dataType = 'RAW'
-    dataType = 'RECO'
+    dataType = 'RAW'
+    #dataType = 'RECO'
         
 # change to True to use local files
 #     the type of file must be matched by hand
@@ -93,7 +95,6 @@ selectedLumis= cms.untracked.VLuminosityBlockRange()
 
 if (useRelValSample == True) and (useLocalFiles == False) :
     
-    # end of data samples 
     #            
 
     print "   Release:   ", sampleFromRelease
@@ -125,6 +126,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         else :
             gTag =''  
         
+        datasetName = ''
         for line in datasets.readlines() :
             if dataset in line :
               if sampleFromRelease in line :
@@ -137,6 +139,7 @@ if (useRelValSample == True) and (useLocalFiles == False) :
         # print datasetName
         
         if datasetName == '' :
+            print "\n   No dataset found."
             errorUserOptions = True 
 
         if not errorUserOptions :
@@ -180,6 +183,15 @@ elif (useRelValSample == False) and (useLocalFiles == False) :
                                     '191833:256674',
                                     '191833:588211'
                                     )
+        
+    elif sampleIdentifier == '251162' :
+        runNumber = '251162'
+        dataset = '/Run2015B/DoubleMuon/RAW'
+        dataType = 'RAW'
+        useDAS = False
+        readFiles.extend( [
+                '/store/data/Run2015B/DoubleMuon/RAW/v1/000/251/162/00000/9A6A3CB4-AD25-E511-84E5-02163E01264D.root'       
+                ] );
         
 
     elif sampleIdentifier == '191833_RECO' :
@@ -374,15 +386,16 @@ else :
             ])
 
     print 'Local file(s)', readFiles
-    
+
 if overrideGlobalTag == True :
     globalTag = myGlobalTag
   
 if globalTag.count('auto') :
-    from Configuration.AlCa.autoCond import autoCond
+    from Configuration.AlCa.autoCond_condDBv2 import autoCond
     useGlobalTag = autoCond[globalTag.replace('auto:', '')]
 else :
-    useGlobalTag = globalTag+'::All'    
+    useGlobalTag = globalTag   
     
 print "\n   Using global tag ", useGlobalTag, "\n"
+    
         
