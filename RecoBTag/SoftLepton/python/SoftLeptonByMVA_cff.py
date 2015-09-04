@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 softPFElectronCommon = cms.PSet(
     useCondDB = cms.bool(False),
-    gbrForestLabel = cms.string("btag_SoftPFElectron_TMVA420_BDT_74X_v1"),
+    gbrForestLabel = cms.string("btag_SoftPFElectron_BDT"),
     weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFElectron_BDT.weights.xml.gz'),
     useGBRForest = cms.bool(True),
     useAdaBoost = cms.bool(False)
@@ -10,7 +10,7 @@ softPFElectronCommon = cms.PSet(
 
 softPFMuonCommon = cms.PSet(
     useCondDB = cms.bool(False),
-    gbrForestLabel = cms.string("btag_SoftPFMuon_TMVA420_BDT_74X_v1"),
+    gbrForestLabel = cms.string("btag_SoftPFMuon_BDT"),
     weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml.gz'),
     useGBRForest = cms.bool(True),
     useAdaBoost = cms.bool(True)
