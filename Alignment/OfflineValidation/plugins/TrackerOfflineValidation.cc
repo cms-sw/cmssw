@@ -289,14 +289,13 @@ private:
   std::map<int,TkOffTreeVariables> mTreeMembers_;
 
   //There are two types of summary histograms.  The first contains, for each component, a bin per subcomponent.
-  //These are filled through summarizeBinInContainer().  The second type is just the sum of the lower level histograms.
+  //These are set up through summarizeBinInContainer().  The second type is just the sum of the lower level histograms.
   //Prepare the filling of both types at the beginning, when the tracker topology is available through the eventsetup.
   //They are not actually filled until the end, but at that time eventsetup is no longer accessible.
 
-  //To fill the summary hists, directly store the arguments of summarizeBinInContainer() (two forms of the function)
-  //At the end, call the function (LowestLevel first).
-  std::vector<std::tuple<int,SummaryContainer*,SummaryContainer*> > summaryHistStructure_;
-  std::vector<std::tuple<int,uint32_t,SummaryContainer*,ModuleHistos*> > summaryHistStructureLowestLevel_;
+  //To fill the summary hists, store the arguments of setSummaryBin()
+  //At the end, call the function
+  std::vector<std::tuple<int,TH1*,TH1*> > summaryBins_;
   //To fill the sum hists, just store pairs of TH1*.  At the end, first->Add(second).
   std::vector<std::pair<TH1*,TH1*> > sumHistStructure_;
   //sum hists are fit at the end using fitResiduals()
@@ -945,11 +944,11 @@ void
 TrackerOfflineValidation::summarizeBinInContainer( int bin, SummaryContainer& targetContainer, 
 						   SummaryContainer& sourceContainer)
 {
-  this->setSummaryBin(bin, targetContainer.summaryXResiduals_, sourceContainer.sumXResiduals_);
-  this->setSummaryBin(bin, targetContainer.summaryNormXResiduals_, sourceContainer.sumNormXResiduals_);
+  summaryBins_.emplace_back(bin, targetContainer.summaryXResiduals_, sourceContainer.sumXResiduals_);
+  summaryBins_.emplace_back(bin, targetContainer.summaryNormXResiduals_, sourceContainer.sumNormXResiduals_);
   // If no y-residual hists, just returns:
-  this->setSummaryBin(bin, targetContainer.summaryYResiduals_, sourceContainer.sumYResiduals_);
-  this->setSummaryBin(bin, targetContainer.summaryNormYResiduals_, sourceContainer.sumNormYResiduals_);
+  summaryBins_.emplace_back(bin, targetContainer.summaryYResiduals_, sourceContainer.sumYResiduals_);
+  summaryBins_.emplace_back(bin, targetContainer.summaryNormYResiduals_, sourceContainer.sumNormYResiduals_);
 }
 
 
@@ -959,11 +958,11 @@ TrackerOfflineValidation::summarizeBinInContainer( int bin, uint32_t subDetId,
 						   ModuleHistos& sourceContainer)
 {
   // takes two summary Containers and sets summaryBins for all histograms
-  this->setSummaryBin(bin, targetContainer.summaryXResiduals_, sourceContainer.ResXprimeHisto);
-  this->setSummaryBin(bin, targetContainer.summaryNormXResiduals_, sourceContainer.NormResXprimeHisto);
+  summaryBins_.emplace_back(bin, targetContainer.summaryXResiduals_, sourceContainer.ResXprimeHisto);
+  summaryBins_.emplace_back(bin, targetContainer.summaryNormXResiduals_, sourceContainer.NormResXprimeHisto);
   if( this->isPixel(subDetId) || stripYResiduals_ ) {
-    this->setSummaryBin(bin, targetContainer.summaryYResiduals_, sourceContainer.ResYprimeHisto);
-    this->setSummaryBin(bin, targetContainer.summaryNormYResiduals_, sourceContainer.NormResYprimeHisto);
+    summaryBins_.emplace_back(bin, targetContainer.summaryYResiduals_, sourceContainer.ResYprimeHisto);
+    summaryBins_.emplace_back(bin, targetContainer.summaryNormYResiduals_, sourceContainer.NormResYprimeHisto);
   }
 }
 
@@ -1236,7 +1235,6 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 void 
 TrackerOfflineValidation::endJob()
 {
-
   if (!tkGeom_.product()) return;
   
   static const int kappadiffindex = this->GetIndex(vTrackHistos_,"h_diff_curvature");
@@ -1303,7 +1301,7 @@ TrackerOfflineValidation::prepareSummaryHists( DirectoryWrapper& tfd, const Alig
       TH1 *pYX = vLevelProfiles[iComp].sumResYvsXProfile_;
       TH1 *pYY = vLevelProfiles[iComp].sumResYvsYProfile_;
       for(uint n = 0; n < vProfiles.size(); ++n) {
-        summaryHistStructure_.emplace_back(n+1, &vLevelProfiles[iComp], &vProfiles[n]);
+        this->summarizeBinInContainer(n+1, vLevelProfiles[iComp], vProfiles[n]);
 	            sumHistStructure_.emplace_back(hX,     vProfiles[n].sumXResiduals_);
 	            sumHistStructure_.emplace_back(hNormX, vProfiles[n].sumNormXResiduals_);
 	if (hY)     sumHistStructure_.emplace_back(hY,     vProfiles[n].sumYResiduals_);         // only if existing
@@ -1329,17 +1327,10 @@ TrackerOfflineValidation::prepareSummaryHists( DirectoryWrapper& tfd, const Alig
 void
 TrackerOfflineValidation::collateSummaryHists()
 {
-    for (std::vector<std::tuple<int,uint32_t,SummaryContainer*,ModuleHistos*> >::const_iterator it = summaryHistStructureLowestLevel_.begin();
-           it != summaryHistStructureLowestLevel_.end();
+    for (std::vector<std::tuple<int,TH1*,TH1*> >::const_iterator it = summaryBins_.begin();
+           it != summaryBins_.end();
            ++it)
-        //note that the last 2 arguments are dereferenced
-        summarizeBinInContainer(std::get<0>(*it), std::get<1>(*it), *std::get<2>(*it), *std::get<3>(*it));
-
-    for (std::vector<std::tuple<int,SummaryContainer*,SummaryContainer*> >::const_iterator it = summaryHistStructure_.begin();
-           it != summaryHistStructure_.end();
-           ++it)
-        //note that the last 2 arguments are dereferenced
-        summarizeBinInContainer(std::get<0>(*it), *std::get<1>(*it), *std::get<2>(*it));
+        setSummaryBin(std::get<0>(*it), std::get<1>(*it), std::get<2>(*it));
 
     for (std::vector<std::pair<TH1*,TH1*> >::const_iterator it = sumHistStructure_.begin();
            it != sumHistStructure_.end();
@@ -1487,7 +1478,7 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
     for(uint k = 0; k < aliSize; ++k) {
       DetId detid = ali.components()[k]->id();
       ModuleHistos &histStruct = this->getHistStructFromMap(detid);
-      summaryHistStructureLowestLevel_.emplace_back(k+1, detid.subdetId(), &sumContainer, &histStruct);
+      this->summarizeBinInContainer(k+1, detid.subdetId(), sumContainer, histStruct);
       sumHistStructure_.emplace_back(sumContainer.sumXResiduals_, histStruct.ResXprimeHisto);
       sumHistStructure_.emplace_back(sumContainer.sumNormXResiduals_, histStruct.NormResXprimeHisto);
       if ( moduleLevelProfiles_ ) {
@@ -1509,7 +1500,7 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
       for(uint j = 0; j < subcompSize; ++j) { // assumes all have same size (as binning does)
 	DetId detid = ali.components()[k]->components()[j]->id();
 	ModuleHistos &histStruct = this->getHistStructFromMap(detid);	
-	summaryHistStructureLowestLevel_.emplace_back(2*k+j+1, detid.subdetId(), &sumContainer, &histStruct );
+	this->summarizeBinInContainer(2*k+j+1, detid.subdetId(), sumContainer, histStruct );
 	sumHistStructure_.emplace_back(sumContainer.sumXResiduals_,  histStruct.ResXprimeHisto);
 	sumHistStructure_.emplace_back(sumContainer.sumNormXResiduals_,  histStruct.NormResXprimeHisto);
         if ( moduleLevelProfiles_ ) {
