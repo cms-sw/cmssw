@@ -46,6 +46,8 @@ SusyExoPostVal = cms.Sequence(SUSY_HLT_HT_MET_POSTPROCESSING +
                               SUSY_HLT_InclusiveHT_POSTPROCESSING +
                               SUSY_HLT_InclusiveMET_POSTPROCESSING +
                               SUSY_HLT_InclusiveMET_NoNoiseCleaning_POSTPROCESSING +
+                              SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING +
+                              SUSY_HLT_InclusiveMET_JetIdCleaned_POSTPROCESSING +
                               SUSY_HLT_MET_BTAG_POSTPROCESSING + 
                               SUSY_HLT_MET_MUON_POSTPROCESSING +
                               SUSY_HLT_InclusiveHT_aux200_POSTPROCESSING +
@@ -88,6 +90,9 @@ SusyExoPostVal_fastsim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_PhotonCaloHT_FASTSIM_POSTPROCESSING + 
                                       SUSY_HLT_InclusiveHT_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_InclusiveMET_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_InclusiveMET_NoNoiseCleaning_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_InclusiveMET_HBHECleaned_FASTSIM_POSTPROCESSING +
+                                      SUSY_HLT_InclusiveMET_JetIdCleaned_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_MET_BTAG_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_MET_MUON_FASTSIM_POSTPROCESSING +
                                       SUSY_HLT_Mu_HT_SingleLepton_FASTSIM_POSTPROCESSING +
