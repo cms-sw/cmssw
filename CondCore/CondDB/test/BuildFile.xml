@@ -6,8 +6,8 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Utilities"/>
 
-<library   name="testCondDBDict" file="*.cc">
-</library>
+# <library   name="testCondDBDict" file="*.cc">
+# </library>
 
 <bin file="testReadWritePayloads.cpp" name="testReadWritePayloads">
   <lib name="testCondDBDict"/>
