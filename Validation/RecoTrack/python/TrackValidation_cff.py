@@ -340,3 +340,22 @@ tracksValidationStandalone = cms.Sequence(
     trackValidatorAllTPEfficStandalone
 )
 
+# 'slim' sequences that only depend on track and tracking particle collections
+tracksValidationSelectorsSlim = tracksValidationSelectors.copyAndExclude([cutsRecoTracksBtvLike,ak4JetTracksAssociatorAtVertexPFAll,cutsRecoTracksAK4PFJets])
+
+tracksPreValidationSlim = cms.Sequence(
+    tracksValidationSelectorsSlim +
+    tracksValidationTruth
+)
+
+trackValidatorSlim = trackValidator.clone(
+    doPVAssociationPlots = cms.untracked.bool(False),
+    dodEdxPlots = False
+)
+for _label in [cms.InputTag("cutsRecoTracksBtvLike"),cms.InputTag("cutsRecoTracksAK4PFJets")]:
+    trackValidatorSlim.label.remove(_label)
+
+tracksValidationSlim = cms.Sequence(
+    tracksPreValidationSlim+
+    trackValidatorSlim
+)

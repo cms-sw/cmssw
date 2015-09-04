@@ -50,12 +50,6 @@
 #include <string>
 #include "TPRegexp.h"
 
-using namespace std;
-using namespace edm;
-using namespace reco;
-using namespace l1extra;
-using namespace trigger;
-
 namespace edm {
   class TriggerNames;
 }
@@ -75,11 +69,11 @@ class HLTJetMETValidation : public DQMEDAnalyzer {
                      const edm::TriggerNames & triggerNames);
 
   /// InputTag of TriggerEventWithRefs to analyze
-  edm::EDGetTokenT<TriggerEventWithRefs> triggerEventObject_;
-  edm::EDGetTokenT<PFJetCollection> PFJetAlgorithm;
-  edm::EDGetTokenT<GenJetCollection> GenJetAlgorithm;
-  edm::EDGetTokenT<CaloMETCollection> CaloMETColl;
-  edm::EDGetTokenT<GenMETCollection> GenMETColl;
+  edm::EDGetTokenT<trigger::TriggerEventWithRefs> triggerEventObject_;
+  edm::EDGetTokenT<reco::PFJetCollection> PFJetAlgorithm;
+  edm::EDGetTokenT<reco::GenJetCollection> GenJetAlgorithm;
+  edm::EDGetTokenT<reco::CaloMETCollection> CaloMETColl;
+  edm::EDGetTokenT<reco::GenMETCollection> GenMETColl;
   edm::EDGetTokenT<edm::TriggerResults> HLTriggerResults;
 
   //Just a tag for better file organization

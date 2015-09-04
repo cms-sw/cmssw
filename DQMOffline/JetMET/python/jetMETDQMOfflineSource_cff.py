@@ -19,7 +19,6 @@ pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
 pileupJetIdEvaluatorDQM=pileupJetIdEvaluator.clone(
     jets = cms.InputTag("ak4PFJets"),
     jetids = cms.InputTag("pileupJetIdCalculatorDQM"),
-    algos = cms.VPSet(cms.VPSet(full_53x,cutbased)),
     jec = cms.string("AK4PF"),
     applyJec = cms.bool(True),
     inputIsCorrected = cms.bool(False)
@@ -32,7 +31,6 @@ pileupJetIdCalculatorCHSDQM=pileupJetIdCalculator.clone(
 
 pileupJetIdEvaluatorCHSDQM=pileupJetIdEvaluator.clone(
     jetids = cms.InputTag("pileupJetIdCalculatorCHSDQM"),
-    algos = cms.VPSet(cms.VPSet(full_53x_chs,cutbased)),
     applyJec = cms.bool(True),
     inputIsCorrected = cms.bool(False)
     )

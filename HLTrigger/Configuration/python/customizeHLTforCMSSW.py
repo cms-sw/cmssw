@@ -128,6 +128,13 @@ def customiseFor10927(process):
             process.DTObjectMapESProducer = cms.ESProducer( 'DTObjectMapESProducer' )
     return process
 
+# change RecoTrackRefSelector to stream::EDProducer (PR #10911)
+def customiseFor10911(process):
+    if hasattr(process,'hltBSoftMuonMu5L3'):
+        # Switch module type from EDFilter to EDProducer
+        process.hltBSoftMuonMu5L3 = cms.EDProducer("RecoTrackRefSelector", **process.hltBSoftMuonMu5L3.parameters_())
+    return process
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -135,6 +142,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
 
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
+        process = customiseFor10911(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)

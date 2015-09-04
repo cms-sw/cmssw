@@ -38,8 +38,6 @@
  *  And it plots the 2D distribution of the b-tag discriminant for all,b,c,lights,g jets vs pT 
  */
  
-using namespace reco;
-using namespace edm;
 
 class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer { 
 		public:
@@ -61,7 +59,7 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		typedef std::map<edm::RefToBase<reco::Jet>, float, JetRefCompare> JetTagMap;
 
 		// variables from python configuration
-		edm::EDGetTokenT<TriggerResults> hlTriggerResults_;
+		edm::EDGetTokenT<edm::TriggerResults> hlTriggerResults_;
 		std::vector<std::string> hltPathNames_;
 		HLTConfigProvider hltConfigProvider_;
 		bool triggerConfChanged_;
@@ -75,7 +73,7 @@ class HLTBTagPerformanceAnalyzer : public DQMEDAnalyzer {
 		typedef unsigned int            flavour_t;
 		typedef std::vector<flavour_t>  flavours_t;
 
-		edm::EDGetTokenT<JetFlavourMatchingCollection>						m_mcPartons;        // MC truth match - jet association to partons
+		edm::EDGetTokenT<reco::JetFlavourMatchingCollection>						m_mcPartons;        // MC truth match - jet association to partons
 		std::vector<std::string>  											m_mcLabels;         // MC truth match - labels
 		std::vector<flavours_t>   											m_mcFlavours;       // MC truth match - flavours selection
 		double                    											m_mcRadius;         // MC truth match - deltaR association radius

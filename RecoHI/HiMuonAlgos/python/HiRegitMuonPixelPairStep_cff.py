@@ -75,30 +75,38 @@ hiRegitMuPixelPairStepTrackCandidates        =  RecoTracker.IterativeTracking.Pi
 
 # fitting: feed new-names
 hiRegitMuPixelPairStepTracks                 = RecoTracker.IterativeTracking.PixelPairStep_cff.pixelPairStepTracks.clone(
-    AlgorithmName = cms.string('undefAlgorithm'),
+    AlgorithmName = cms.string('hiRegitMuPixelPairStep'),
     src                 = 'hiRegitMuPixelPairStepTrackCandidates',
     clustersToSkip       = cms.InputTag('hiRegitMuPixelPairStepClusters'),
 )
 
 
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-hiRegitMuPixelPairStepSelector               = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone( 
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+hiRegitMuPixelPairStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 ='hiRegitMuPixelPairStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('HIMVASelectorIter6'),
+    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'dxyperdxyerror', 'dzperdzerror', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuPixelPairStepLoose',
-           qualityBit = cms.string('loose'),
+           min_nhits = cms.uint32(8)
             ), #end of pset
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuPixelPairStepTight',
             preFilterName = 'hiRegitMuPixelPairStepLoose',
-            qualityBit = cms.string('loose'),
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.58)
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuPixelPairStep',
             preFilterName = 'hiRegitMuPixelPairStepTight',
-            qualityBit = cms.string('tight'),
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(0.77)
             ),
         ) #end of vpset
 )

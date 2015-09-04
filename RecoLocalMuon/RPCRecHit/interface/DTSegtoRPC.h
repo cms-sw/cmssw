@@ -7,14 +7,16 @@
 #include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 
+#include <memory>
+
 class DTSegtoRPC {
 public:
-  explicit DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments,const edm::EventSetup& iSetup, const edm::Event& iEvent,bool debug, double eyr);
+  DTSegtoRPC(DTRecSegment4DCollection const* all4DSegments, edm::EventSetup const& iSetup, bool debug, double eyr);
   ~DTSegtoRPC();
-  RPCRecHitCollection* thePoints(){return _ThePoints;}
+  std::unique_ptr<RPCRecHitCollection> && thePoints(){ return std::move(_ThePoints); }
    
 private:
-  RPCRecHitCollection* _ThePoints; 
+  std::unique_ptr<RPCRecHitCollection> _ThePoints; 
   edm::OwnVector<RPCRecHit> RPCPointVector;
   bool incldt;
   bool incldtMB4;

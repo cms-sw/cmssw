@@ -64,6 +64,7 @@ private:
 
     /// Centralized point of access to all collections used
     EVTColContainer * _collections;
+
 };
 
 #endif

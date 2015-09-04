@@ -51,9 +51,9 @@ bool TracktoRPC::ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::E
    } else return false;
 }
 
-TracktoRPC::TracktoRPC(edm::Handle<reco::TrackCollection> alltracks, const edm::EventSetup& iSetup,const edm::Event& iEvent,bool debug,const edm::ParameterSet& iConfig, const edm::InputTag& tracklabel){ 
+TracktoRPC::TracktoRPC(const reco::TrackCollection * alltracks, const edm::EventSetup& iSetup, bool debug,const edm::ParameterSet& iConfig, const edm::InputTag& tracklabel){ 
 
- _ThePoints = new RPCRecHitCollection();
+ _ThePoints.reset(new RPCRecHitCollection());
 // if(alltracks->empty()) return;
 
  if(tracklabel.label().find("cosmic")==0) theTrackTransformer = new TrackTransformerForCosmicMuons(iConfig);

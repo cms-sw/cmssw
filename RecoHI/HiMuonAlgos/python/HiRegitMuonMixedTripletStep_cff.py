@@ -94,30 +94,38 @@ hiRegitMuMixedTripletStepTrackCandidates        =  RecoTracker.IterativeTracking
 
 # fitting: feed new-names
 hiRegitMuMixedTripletStepTracks                 = RecoTracker.IterativeTracking.MixedTripletStep_cff.mixedTripletStepTracks.clone(
-    AlgorithmName = cms.string('undefAlgorithm'),
+    AlgorithmName = cms.string('hiRegitMuMixedTripletStep'),
     src                 = 'hiRegitMuMixedTripletStepTrackCandidates',
 )
 
 
 # TRACK SELECTION AND QUALITY FLAG SETTING.
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-hiRegitMuMixedTripletStepSelector =  RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+import RecoHI.HiTracking.hiMultiTrackSelector_cfi
+hiRegitMuMixedTripletStepSelector = RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiMultiTrackSelector.clone(
     src                 = 'hiRegitMuMixedTripletStepTracks',
     vertices            = cms.InputTag("hiSelectedVertex"),
+    useAnyMVA = cms.bool(True),
+    GBRForestLabel = cms.string('HIMVASelectorIter7'),
+    GBRForestVars = cms.vstring(['chi2perdofperlayer', 'nhits', 'nlayers', 'eta']),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
            name = 'hiRegitMuMixedTripletStepLoose',
-           qualityBit = cms.string('loose'),
+           min_nhits = cms.uint32(8)
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiTightMTS.clone(
             name = 'hiRegitMuMixedTripletStepTight',
             preFilterName = 'hiRegitMuMixedTripletStepLoose',
-            qualityBit = cms.string('loose'),
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.2)
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoHI.HiTracking.hiMultiTrackSelector_cfi.hiHighpurityMTS.clone(
             name = 'hiRegitMuMixedTripletStep',
             preFilterName = 'hiRegitMuMixedTripletStepTight',
-            qualityBit = cms.string('tight'),
+            min_nhits = cms.uint32(8),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.09)
             )
         ) #end of vpset
     ) #end of clone

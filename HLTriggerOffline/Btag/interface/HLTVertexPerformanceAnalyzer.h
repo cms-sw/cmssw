@@ -29,8 +29,6 @@
  *  It plots the distribution of recoVertex.z() - simVertex.z() of the primary vertex.
  */
 
-using namespace reco;
-using namespace edm;
 
 class HLTVertexPerformanceAnalyzer : public DQMEDAnalyzer {
 	public:
@@ -43,7 +41,7 @@ class HLTVertexPerformanceAnalyzer : public DQMEDAnalyzer {
 		void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 		// variables from python configuration
-		edm::EDGetTokenT<TriggerResults> hlTriggerResults_;
+		edm::EDGetTokenT<edm::TriggerResults> hlTriggerResults_;
 		edm::EDGetTokenT<std::vector<SimVertex> > simVertexCollection_;
 		std::vector<std::string> hltPathNames_;
 		HLTConfigProvider hltConfigProvider_;

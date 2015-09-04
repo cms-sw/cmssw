@@ -44,6 +44,8 @@
 #include "Alignment/ReferenceTrajectories/interface/BeamSpotGeomDet.h"
 
 //__________________________________________________________________________________
+using namespace gbl;
+
 
 ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
 					 const TransientTrackingRecHit::ConstRecHitContainer

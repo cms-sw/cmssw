@@ -19,11 +19,21 @@
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+using namespace std;
+using namespace edm;
 using namespace l1t;
 
 L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& iConfig):
-    bxMin_(iConfig.getParameter<int>("bxMin")),
-    bxMax_(iConfig.getParameter<int>("bxMax"))
+    // register what you consume and keep token for later access:
+    EGammaToken_(   consumes<EGammaBxCollection>(iConfig.getParameter<InputTag>("InputCollection")) ),
+    RlxTauToken_(   consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputRlxTauCollection")) ),
+    IsoTauToken_(   consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputIsoTauCollection")) ),
+    JetToken_(      consumes<JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection")) ),
+    EtSumToken_(    consumes<EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection")) ),
+    HfSumsToken_(   consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFSumsCollection")) ),
+    HfCountsToken_( consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFCountsCollection")) ),
+    bxMin_(         iConfig.getParameter<int>("bxMin") ),
+    bxMax_(         iConfig.getParameter<int>("bxMax") )
 {
   produces<L1GctEmCandCollection>("isoEm");
   produces<L1GctEmCandCollection>("nonIsoEm");
@@ -40,28 +50,12 @@ L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterSet& i
   produces<L1GctInternHtMissCollection>();
   produces<L1GctHFBitCountsCollection>();
   produces<L1GctHFRingEtSumsCollection>();
-
-  // register what you consume and keep token for later access:
-  EGammaToken_ = consumes<EGammaBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  RlxTauToken_ = consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputRlxTauCollection"));
-  IsoTauToken_ = consumes<TauBxCollection>(iConfig.getParameter<InputTag>("InputIsoTauCollection"));
-  JetToken_ = consumes<JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  EtSumToken_ = consumes<EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
-  HfSumsToken_ = consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFSumsCollection"));
-  HfCountsToken_ = consumes<CaloSpareBxCollection>(iConfig.getParameter<edm::InputTag>("InputHFCountsCollection"));
 }
-
-
-L1TCaloUpgradeToGCTConverter::~L1TCaloUpgradeToGCTConverter()
-{
-}
-
-
 
 
 // ------------ method called to produce the data ------------
 void
-L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
+L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup& es) const
 {
   LogDebug("l1t|stage 1 Converter") << "L1TCaloUpgradeToGCTConverter::produce function called...\n";
 
@@ -310,6 +304,9 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   bxCounter = 0;
   for(int itBX=HfCounts->getFirstBX(); itBX<=HfCounts->getLastBX(); ++itBX){
 
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
+
     bxCounter++;
     L1GctHFBitCounts count = L1GctHFBitCounts::fromGctEmulator(itBX,
 							       0,
@@ -345,31 +342,6 @@ L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   e.put(internalEtSumResult);
   e.put(internalHtMissResult);
 }
-
-// ------------ method called once each job just before starting event loop ------------
-void
-L1TCaloUpgradeToGCTConverter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop ------------
-void
-L1TCaloUpgradeToGCTConverter::endJob() {
-}
-
-// ------------ method called when starting to processes a run ------------
-
-void
-L1TCaloUpgradeToGCTConverter::beginRun(Run const&iR, EventSetup const&iE){
-
-}
-
-// ------------ method called when ending the processing of a run ------------
-void
-L1TCaloUpgradeToGCTConverter::endRun(Run const& iR, EventSetup const& iE){
-
-}
-
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void

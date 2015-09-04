@@ -376,6 +376,8 @@ void HcalTB02Analysis::update(const EndOfEvent * evt) {
     std::cout << " Event " << iEvt << std::endl;
   else if ((iEvt < 10000) && (iEvt%1000 == 0)) 
     std::cout << " Event " << iEvt << std::endl;
+
+  delete org;
 }
 
 void HcalTB02Analysis::fillEvent(HcalTB02HistoClass& product) {

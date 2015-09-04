@@ -410,7 +410,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	  // if((thcher + DelFibPart ) > thFullReflRad && 
 	  //    thcher < (DelFibPart+thFullReflRad) ) 
 	  //      {
-	  d_qz = 0.; 
 #ifdef debugLog
 	  variant=3.;
 #endif
@@ -422,10 +421,7 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	  if(tan_arcos != 0.) arg_arcos =(r*r-a*a-d*d)/tan_arcos; 
 	  arg_arcos = fabs(arg_arcos);
 	  double th_arcos = acos(std::min(std::max(arg_arcos,double(-1.)),double(1.)));
-	  d_qz = th_arcos/pi/2.;
-	  d_qz = fabs(d_qz);
-	  
-	  
+	  d_qz = fabs(th_arcos/pi/2.);
 	  
 	  //	    }
 	  //             else
