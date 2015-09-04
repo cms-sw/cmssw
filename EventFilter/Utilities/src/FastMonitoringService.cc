@@ -20,6 +20,9 @@
 
 constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
+#define NRESERVEDMODULES 33
+#define NRESERVEDPATHS 1
+
 namespace evf{
 
   const std::string FastMonitoringService::macroStateNames[FastMonitoringThread::MCOUNT] = 
@@ -32,7 +35,7 @@ namespace evf{
   FastMonitoringService::FastMonitoringService(const edm::ParameterSet& iPS, 
 				       edm::ActivityRegistry& reg) : 
     MicroStateService(iPS,reg)
-    ,encModule_(33)
+    ,encModule_(NRESERVEDMODULES)
     ,nStreams_(0)//until initialized
     ,sleepTime_(iPS.getUntrackedParameter<int>("sleepTime", 1))
     ,fastMonIntervals_(iPS.getUntrackedParameter<unsigned int>("fastMonIntervals", 1))
@@ -80,25 +83,29 @@ namespace evf{
   }
 
 
-  std::string FastMonitoringService::makePathLegenda(){
-    //taken from first stream
-    std::ostringstream ost;
-    for(int i = 0;
-	i < encPath_[0].current_;
-	i++)
-      ost<<i<<"="<<*((std::string *)(encPath_[0].decode(i)))<<" ";
-    return ost.str();
+  std::string FastMonitoringService::makePathLegendaJson() {
+    Json::Value legendaVector(Json::arrayValue);
+    for(int i = 0; i < encPath_[0].current_; i++)
+      legendaVector.append(Json::Value(*((std::string *)(encPath_[0].decode(i)))));
+    Json::Value valReserved(NRESERVEDPATHS);
+    Json::Value pathLegend;
+    pathLegend["names"]=legendaVector;
+    pathLegend["reserved"]=valReserved;
+    Json::StyledWriter writer;
+    return writer.write(pathLegend);
   }
 
-
-  std::string FastMonitoringService::makeModuleLegenda()
-  {  
-    std::ostringstream ost;
+  std::string FastMonitoringService::makeModuleLegendaJson(){
+    Json::Value legendaVector(Json::arrayValue);
     for(int i = 0; i < encModule_.current_; i++)
-      ost<<i<<"="<<((const edm::ModuleDescription *)(encModule_.decode(i)))->moduleLabel()<<" ";
-    return ost.str();
+       legendaVector.append(Json::Value(((const edm::ModuleDescription *)(encModule_.decode(i)))->moduleLabel()));
+    Json::Value valReserved(NRESERVEDMODULES);
+    Json::Value moduleLegend;
+    moduleLegend["names"]=legendaVector;
+    moduleLegend["reserved"]=valReserved;
+    Json::StyledWriter writer;
+    return writer.write(moduleLegend);
   }
-
 
   void FastMonitoringService::preallocate(edm::service::SystemBounds const & bounds)
   {
@@ -132,12 +139,18 @@ namespace evf{
     fastPath_ = fast.string();
 
     std::ostringstream moduleLegFile;
+    std::ostringstream moduleLegFileJson;
     moduleLegFile << "microstatelegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
+    moduleLegFileJson << "microstatelegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
     moduleLegendFile_  = (workingDirectory_/moduleLegFile.str()).string();
+    moduleLegendFileJson_  = (workingDirectory_/moduleLegFileJson.str()).string();
 
     std::ostringstream pathLegFile;
+    std::ostringstream pathLegFileJson;
     pathLegFile << "pathlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
     pathLegendFile_  = (workingDirectory_/pathLegFile.str()).string();
+    pathLegFileJson << "pathlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
+    pathLegendFileJson_  = (workingDirectory_/pathLegFileJson.str()).string();
 
     LogDebug("FastMonitoringService") << "Initializing FastMonitor with microstate def path -: "
 			                  << microstateDefPath_;
@@ -274,8 +287,8 @@ namespace evf{
 
   void FastMonitoringService::postBeginJob()
   {
-    std::string && moduleLegStr = makeModuleLegenda();
-    FileIO::writeStringToFile(moduleLegendFile_, moduleLegStr);
+    std::string && moduleLegStrJson = makeModuleLegendaJson();
+    FileIO::writeStringToFile(moduleLegendFileJson_, moduleLegStrJson);
 
     macrostate_ = FastMonitoringThread::sJobReady;
 
@@ -464,8 +477,8 @@ namespace evf{
 	collectedPathList_[sc.streamID()]->store(true,std::memory_order_seq_cst);
 	fmt_.m_data.ministateBins_=encPath_[sc.streamID()].vecsize();
 	if (!pathLegendWritten_) {
-	  std::string pathLegendStr =  makePathLegenda();
-	  FileIO::writeStringToFile(pathLegendFile_, pathLegendStr);
+	  std::string pathLegendStrJson =  makePathLegendaJson();
+	  FileIO::writeStringToFile(pathLegendFileJson_, pathLegendStrJson);
 	  pathLegendWritten_=true;
 	}
       }
