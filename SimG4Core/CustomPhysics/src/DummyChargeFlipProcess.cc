@@ -62,7 +62,7 @@ G4VParticleChange *DummyChargeFlipProcess::PostStepDoIt(
   G4ParticleChange * pc = new G4ParticleChange();
   pc->Initialize(aTrack);
   const G4DynamicParticle* aParticle = aTrack.GetDynamicParticle();
-  G4ParticleDefinition* aParticleDef = aParticle->GetDefinition();
+  //G4ParticleDefinition* aParticleDef = aParticle->GetDefinition();
 
   G4double   ParentEnergy  = aParticle->GetTotalEnergy();
   G4ThreeVector ParentDirection(aParticle->GetMomentumDirection());
@@ -74,31 +74,31 @@ G4VParticleChange *DummyChargeFlipProcess::PostStepDoIt(
   pc->SetNumberOfSecondaries(numberOfSecondaries);
   const G4TouchableHandle thand = aTrack.GetTouchableHandle();
 
-     // get current position of the track
-     aTrack.GetPosition();
-     // create a new track object
-      G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-      float randomParticle = G4UniformRand();
-      G4ParticleDefinition * newType = aParticleDef;
-      if(randomParticle < 0.333)
-        newType=particleTable->FindParticle(1009213);
-      else if(randomParticle > 0.667)
-        newType=particleTable->FindParticle(-1009213);
-      else
-        newType=particleTable->FindParticle(1009113);
+  // get current position of the track
+  aTrack.GetPosition();
+  // create a new track object
+  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+  float randomParticle = G4UniformRand();
+  G4ParticleDefinition * newType;
+  if(randomParticle < 0.333)
+    newType=particleTable->FindParticle(1009213);
+  else if(randomParticle > 0.667)
+    newType=particleTable->FindParticle(-1009213);
+  else
+    newType=particleTable->FindParticle(1009113);
      
-      std::cout << "RHADRON: New charge = " << newType->GetPDGCharge() << std::endl;
+  G4cout << "RHADRON: New charge = " << newType->GetPDGCharge() << G4endl;
        
-     G4DynamicParticle * newP =  new G4DynamicParticle(newType,ParentDirection,ParentEnergy);
-     G4Track* secondary = new G4Track( newP ,
-				      finalGlobalTime ,
-				       aTrack.GetPosition()
-     );
-     // switch on good for tracking flag
-     secondary->SetGoodForTrackingFlag();
-     secondary->SetTouchableHandle(thand);
-     // add the secondary track in the List
-     pc->AddSecondary(secondary);
+  G4DynamicParticle * newP =  new G4DynamicParticle(newType,ParentDirection,ParentEnergy);
+  G4Track* secondary = new G4Track( newP ,
+				    finalGlobalTime ,
+				    aTrack.GetPosition()
+				    );
+  // switch on good for tracking flag
+  secondary->SetGoodForTrackingFlag();
+  secondary->SetTouchableHandle(thand);
+  // add the secondary track in the List
+  pc->AddSecondary(secondary);
 
   // Kill the parent particle
   pc->ProposeTrackStatus( fStopAndKill ) ;
@@ -107,9 +107,6 @@ G4VParticleChange *DummyChargeFlipProcess::PostStepDoIt(
   // Clear NumberOfInteractionLengthLeft
   ClearNumberOfInteractionLengthLeft();
 
-
-
-   return pc;
-
+  return pc;
 }
 

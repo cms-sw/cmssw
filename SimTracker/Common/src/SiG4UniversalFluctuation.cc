@@ -60,13 +60,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include <math.h>
 #include "vdt/log.h"
-//#include "G4UniversalFluctuation.hh"
-//#include "Randomize.hh"
-//#include "G4Poisson.hh"
-//#include "G4Step.hh"
-//#include "G4Material.hh"
-//#include "G4DynamicParticle.hh"
-//#include "G4ParticleDefinition.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -128,13 +121,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
   //
   if (meanLoss < minLoss) return meanLoss;
 
-  //if(!particle) InitialiseMe(dp->GetDefinition());
-  //G4double tau   = dp->GetKineticEnergy()/particleMass;
-  //G4double gam   = tau + 1.0;
-  //G4double gam2  = gam*gam;
-  //G4double beta2 = tau*(tau + 2.0)/gam2;
-
-  particleMass   = mass; // dp->GetMass();
+  particleMass   = mass; 
   double gam2   = (momentum*momentum)/(particleMass*particleMass) + 1.0;
   double beta2 = 1.0 - 1.0/gam2;
   double gam = sqrt(gam2);
@@ -173,23 +160,8 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
     }
   }
 
-  // Glandz regime : initialisation
-  //
-//   if (material != lastMaterial) {
-//     f1Fluct      = material->GetIonisation()->GetF1fluct();
-//     f2Fluct      = material->GetIonisation()->GetF2fluct();
-//     e1Fluct      = material->GetIonisation()->GetEnergy1fluct();
-//     e2Fluct      = material->GetIonisation()->GetEnergy2fluct();
-//     e1LogFluct   = material->GetIonisation()->GetLogEnergy1fluct();
-//     e2LogFluct   = material->GetIonisation()->GetLogEnergy2fluct();
-//     rateFluct    = material->GetIonisation()->GetRateionexcfluct();
-//     ipotFluct    = material->GetIonisation()->GetMeanExcitationEnergy();
-//     ipotLogFluct = material->GetIonisation()->GetLogMeanExcEnergy();
-//     lastMaterial = material;
-//   }
-
-  double a1 = 0. , a2 = 0., a3 = 0. ;
-  double p1,p2,p3;
+  double a1 = 0., a2 = 0., a3 = 0.;
+  double p3;
   double rate = rateFluct ;
 
   double w1 = tmax/ipotFluct;
@@ -222,9 +194,9 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
   //
   if (suma > sumalim)
   {
-    p1 = 0., p2 = 0 ;
     if((a1+a2) > 0.)
     {
+      double p1, p2;
       // excitation type 1
       if (a1>alim) {
         siga=sqrt(a1) ;
@@ -290,9 +262,6 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
   }
   
   // suma < sumalim;  very small energy loss;  
-  //
-  //double e0 = material->GetIonisation()->GetEnergy0fluct();
-
   a3 = meanLoss*(tmax-e0)/(tmax*e0*vdt::fast_log(tmax/e0));
   if (a3 > alim)
   {
@@ -319,24 +288,3 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
    return loss;
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-// G4double SiG4UniversalFluctuation::Dispersion(
-//                           const G4Material* material,
-//                           const G4DynamicParticle* dp,
-//  				G4double& tmax,
-// 			        G4double& length)
-// {
-//   if(!particle) InitialiseMe(dp->GetDefinition());
-
-//   electronDensity = material->GetElectronDensity();
-
-//   G4double gam   = (dp->GetKineticEnergy())/particleMass + 1.0;
-//   G4double beta2 = 1.0 - 1.0/(gam*gam);
-
-//   G4double siga  = (1.0/beta2 - 0.5) * twopi_mc2_rcl2 * tmax * length
-//                  * electronDensity * chargeSquare;
-
-//   return siga;
-// }
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

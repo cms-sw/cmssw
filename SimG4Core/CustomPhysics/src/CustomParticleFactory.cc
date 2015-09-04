@@ -85,8 +85,8 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
   /////////////////////// Check!!!!!!!!!!!!!
   G4String pType="custom";
   G4String pSubType="";
-  G4double spectatormass;
-  G4ParticleDefinition* spectator; 
+  G4double spectatormass = 0.0;
+  G4ParticleDefinition* spectator = nullptr; 
   //////////////////////
   if(CustomPDGParser::s_isRHadron(pdgCode)) pType = "rhadron";
   if(CustomPDGParser::s_isSLepton(pdgCode)) pType = "sLepton";
@@ -127,7 +127,7 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
   bool stable = true;
   double lifetime = -1;
  
-  G4DecayTable *decaytable = NULL;
+  G4DecayTable *decaytable = nullptr;
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
 
   CustomParticle *particle  = new CustomParticle(name, massGeV, width, charge, spin, 
@@ -170,11 +170,11 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
       if (CustomPDGParser::s_issbottomHadron(pdgCode)) {
 	spectator = theParticleTable->FindParticle(1000005*sign);
       } else {
-        spectator = 0;
+        spectator = nullptr;
         edm::LogError("SimG4CoreCustomPhysics")<< "CustomParticleFactory: Cannot find spectator parton";
       }
     }
-    spectatormass = spectator->GetPDGMass();
+    if(spectator) spectatormass = spectator->GetPDGMass();
     G4double cloudmass = mass-spectatormass/GeV;
     CustomParticle *tmpParticle  = new CustomParticle(
                                                       cloudname,           cloudmass * GeV ,        0.0*MeV,  0 ,
