@@ -2,11 +2,21 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 
-///
-/// Base class for the alignment algorithm
-///
-/// Any algorithm should derive from this class
-///
+/**
+ * @package   Alignment/CommonAlignmentAlgorithm
+ * @file      AlignmentAlgorithmBase.h
+ *
+ * @author    ???
+ *
+ * Last update:
+ * @author    Max Stark (max.stark@cern.ch)
+ * @date      2015/07/16
+ *
+ * @brief     Interface/Base class for alignment algorithms, each alignment
+ *            algorithm has to be derived from this class
+ */
+
+
 
 #include <vector>
 #include <utility>
@@ -32,11 +42,27 @@ class Trajectory;
 namespace edm { class EventSetup; class ParameterSet; }
 namespace reco { class Track; class BeamSpot; }
 
+/*** Global typedefs part I (see EOF for part II) ***/
+typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair;
+typedef std::vector< ConstTrajTrackPair >                ConstTrajTrackPairs;
+
+typedef std::vector<IntegratedCalibrationBase*> Calibrations;
+
+typedef cond::RealTimeType<cond::runnumber>::type RunNumber;
+typedef std::pair<RunNumber,RunNumber>            RunRange;
+typedef std::vector<RunRange>                     RunRanges;
+
+
+
 class AlignmentAlgorithmBase
 {
 
 public:
-
+  // TODO: DEPRECATED: For not breaking the interface, used in serveral files.
+  //                   If possible use the global typedefs above.
+  // With global typedefs one does not have to typedef again like
+  // 'typedef AlignmentAlgorithmBase::ConstTrajTrackPair ConstTrajTrackPair;'
+  // in other files.
   typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
   typedef std::vector< ConstTrajTrackPair >  ConstTrajTrackPairCollection;
   typedef cond::RealTimeType<cond::runnumber>::type RunNumber;
@@ -83,7 +109,7 @@ public:
   };
   
   /// Constructor
-  AlignmentAlgorithmBase(const edm::ParameterSet& cfg);
+  AlignmentAlgorithmBase(const edm::ParameterSet&) {};
   
   /// Destructor
   virtual ~AlignmentAlgorithmBase() {};
@@ -94,18 +120,27 @@ public:
                            AlignableMuon* muon,
                            AlignableExtras* extras,
                            AlignmentParameterStore* store ) = 0;
-  /// Pass integrated calibrations to algorithm, to be called after initialize(..).
-  /// (Calibrations' ownership is NOT passed to algorithm.)
-  /// Return whether feature is supported by algorithm, 
-  /// default implementation returns false.
-  virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals){return false;}
 
-   /// Call at start of loop
-   /// Default implementation is dummy for non-iterative algorithms
+  /// Returns whether calibrations is supported by algorithm,
+  /// default implementation returns false.
+  virtual bool supportsCalibrations() { return false; }
+  /// Pass integrated calibrations to algorithm, to be called after initialize()
+  /// Calibrations' ownership is NOT passed to algorithm
+  virtual bool addCalibrations(const Calibrations&) { return false; }
+
+  /// Returns whether algorithm proccesses events in current configuration
+  virtual bool processesEvents() { return true; }
+
+  // TODO: DEPRECATED: Actually, there are no iterative algorithms, use
+  //                   initialze() and terminate()
+  /// Called at start of loop, default implementation is dummy for
+  /// non-iterative algorithms
   virtual void startNewLoop() {}
 
   /// Call at end of each loop (must be implemented in derived class)
   virtual void terminate(const edm::EventSetup& iSetup) = 0;
+  /// Called at end of job (must be implemented in derived class)
+  virtual void terminate() {}
 
   /// Run the algorithm (must be implemented in derived class)
   virtual void run( const edm::EventSetup &setup, const EventInfo &eventInfo) = 0;
@@ -126,5 +161,9 @@ public:
   /// range in case the algorithm supports run range dependent alignment.
   virtual bool setParametersForRunRange(const RunRange& rr) { return false; };
 };
+
+/*** Global typedefs part II ***/
+typedef AlignmentAlgorithmBase::EventInfo  EventInfo;
+typedef AlignmentAlgorithmBase::EndRunInfo EndRunInfo;
 
 #endif
