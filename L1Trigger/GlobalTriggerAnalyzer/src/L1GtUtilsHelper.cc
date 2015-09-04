@@ -96,7 +96,7 @@ void L1GtUtilsHelper::operator()(
                             || (m_l1GtRecordInputTag.process()
                                     != branchDescription.processName()))) {
 
-                edm::LogWarning("L1GtUtils")
+                LogDebug("L1GtUtils")
                         << "\nWARNING: Found multiple preferred input tags for L1GlobalTriggerRecord product, "
                         << "\nwith different instaces or processes."
                         << "\nInput tag already found: "
@@ -121,7 +121,7 @@ void L1GtUtilsHelper::operator()(
                     m_foundPreferredRecord = true;
                     m_inputTagsL1GtRecord.push_back(tag);
 
-                    edm::LogWarning("L1GtUtils")
+                    LogDebug("L1GtUtils")
                             << "\nWARNING: Input tag for L1GlobalTriggerRecord product set to preferred input tag"
                             << (tag) << std::endl;
                     break;
@@ -136,7 +136,7 @@ void L1GtUtilsHelper::operator()(
 
             if (m_inputTagsL1GtRecord.size() > 1) {
 
-                edm::LogWarning("L1GtUtils")
+                LogDebug("L1GtUtils")
                         << "\nWARNING: Found multiple input tags for L1GlobalTriggerRecord product."
                         << "\nNone is in the preferred input tags - no safe choice."
                         << "\nInput tag already found: "
@@ -153,7 +153,7 @@ void L1GtUtilsHelper::operator()(
                     m_l1GtRecordToken = m_consumesCollector.consumes<
                             L1GlobalTriggerRecord>(tag);
 
-                    edm::LogWarning("L1GtUtils")
+                    LogDebug("L1GtUtils")
                             << "\nWARNING: No preferred input tag found for L1GlobalTriggerReadoutRecord product."
                             << "\nInput tag set to " << (tag) << std::endl;
                 }
@@ -187,7 +187,7 @@ void L1GtUtilsHelper::operator()(
                             || (m_l1GtReadoutRecordInputTag.process()
                                     != branchDescription.processName()))) {
 
-                edm::LogWarning("L1GtUtils")
+                LogDebug("L1GtUtils")
                         << "\nWARNING: Found multiple preferred input tags for L1GlobalTriggerReadoutRecord product, "
                         << "\nwith different instaces or processes."
                         << "\nInput tag already found: "
@@ -213,7 +213,7 @@ void L1GtUtilsHelper::operator()(
                     m_foundPreferredReadoutRecord = true;
                     m_inputTagsL1GtReadoutRecord.push_back(tag);
 
-                    edm::LogWarning("L1GtUtils")
+                    LogDebug("L1GtUtils")
                             << "\nWARNING: Input tag for L1GlobalTriggerReadoutRecord product set to preferred input tag"
                             << (tag) << std::endl;
                     break;
@@ -228,7 +228,7 @@ void L1GtUtilsHelper::operator()(
 
             if (m_inputTagsL1GtReadoutRecord.size() > 1) {
 
-                edm::LogWarning("L1GtUtils")
+                LogDebug("L1GtUtils")
                         << "\nWARNING: Found multiple input tags for L1GlobalTriggerReadoutRecord product."
                         << "\nNone is in the preferred input tags - no safe choice."
                         << "\nInput tag already found: "
@@ -246,7 +246,7 @@ void L1GtUtilsHelper::operator()(
                     m_l1GtReadoutRecordToken = m_consumesCollector.consumes<
                             L1GlobalTriggerReadoutRecord>(tag);
 
-                    edm::LogWarning("L1GtUtils")
+                    LogDebug("L1GtUtils")
                             << "\nWARNING: No preferred input tag found for L1GlobalTriggerReadoutRecord product."
                             << "\nInput tag set to " << (tag) << std::endl;
                 }
@@ -282,7 +282,7 @@ void L1GtUtilsHelper::operator()(
                             || (m_l1GtTriggerMenuLiteInputTag.process()
                                     != branchDescription.processName()))) {
 
-                edm::LogWarning("L1GtUtils")
+                LogDebug("L1GtUtils")
                         << "\nWARNING: Found multiple preferred input tags for L1GtTriggerMenuLite product, "
                         << "\nwith different instaces or processes."
                         << "\nInput tag already found: "
@@ -307,7 +307,7 @@ void L1GtUtilsHelper::operator()(
                     m_foundPreferredMenuLite = true;
                     m_inputTagsL1GtMenuLite.push_back(tag);
 
-                    edm::LogWarning("L1GtUtils")
+                    LogDebug("L1GtUtils")
                             << "\nWARNING: Input tag for L1GtTriggerMenuLite product set to preferred input tag"
                             << (tag) << std::endl;
                     break;
@@ -322,7 +322,7 @@ void L1GtUtilsHelper::operator()(
 
             if (m_inputTagsL1GtMenuLite.size() > 1) {
 
-                edm::LogWarning("L1GtUtils")
+                LogDebug("L1GtUtils")
                         << "\nWARNING: Found multiple input tags for L1GtTriggerMenuLite product."
                         << "\nNone is in the preferred input tags - no safe choice."
                         << "\nInput tag already found: "
@@ -339,7 +339,7 @@ void L1GtUtilsHelper::operator()(
                     m_l1GtTriggerMenuLiteToken = m_consumesCollector.consumes<
                             L1GtTriggerMenuLite>(tag);
 
-                    edm::LogWarning("L1GtUtils")
+                    LogDebug("L1GtUtils")
                             << "\nWARNING: No preferred input tag found for L1GtTriggerMenuLite product."
                             << "\nInput tag set to " << (tag) << std::endl;
                 }
