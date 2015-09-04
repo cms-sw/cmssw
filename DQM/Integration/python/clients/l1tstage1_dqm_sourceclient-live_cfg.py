@@ -75,10 +75,10 @@ process.RawToDigi.remove("castorDigis")
 # for GCT, unpack all five samples
 process.gctDigis.numberOfGctSamplesToUnpack = cms.uint32(5)
 
-if (process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
-else:
-    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
+#if (process.runType.getRunType() == process.runType.pp_run_stage1 or process.runType.getRunType() == process.runType.cosmic_run_stage1):
+process.gtDigis.DaqGtFedId = cms.untracked.int32(813)
+#else:
+#    process.gtDigis.DaqGtFedId = cms.untracked.int32(809)
 # 
 
 # separate L1TSync path due to the use of the HltHighLevel filter
@@ -140,30 +140,30 @@ process.l1tMonitorStage1Online.remove(process.l1tRpctf)
 process.l1tMonitorStage1Online.remove(process.l1tGmt)
 
 #process.l1tMonitorOnline.remove(process.l1tGt)
-process.l1tGt.HistFolder = cms.untracked.string("L1TStage1/L1TStage1GT") 
+process.l1tGt.HistFolder = cms.untracked.string("L1T/L1TStage1GT") 
 
 #process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
-process.l1ExtraDQMStage1.DirName=cms.string("L1TStage1/L1ExtraStage1")
+process.l1ExtraDQMStage1.DirName=cms.string("L1T/L1ExtraStage1")
 
 #process.l1tMonitorStage1Online.remove(process.l1tRate)
 
-process.l1tMonitorStage1Online.remove(process.l1tRctSeq)
+#process.l1tMonitorStage1Online.remove(process.l1tRctSeq)
 
 #process.l1tMonitorOnline.remove(process.l1tGctSeq)
-
+process.l1tStage1Layer2.monitorDir = cms.untracked.string("L1T/L1TStage1Layer2")
 
 # remove module(s) or system sequence from l1tMonitorEndPath
 #
 #process.l1tMonitorEndPathSeq.remove(process.l1s)
 
 process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
-process.l1s.dqmFolder = cms.untracked.string("L1TStage1/L1Stage1Scalers_SM") 
+process.l1s.dqmFolder = cms.untracked.string("L1T/L1Stage1Scalers_SM") 
 
 process.l1tMonitorStage1Client.remove(process.l1TriggerQualityTests)
 
-process.l1tStage1Layer2Client.monitorDir = cms.untracked.string('L1TStage1/L1TStage1Layer2')
+process.l1tStage1Layer2Client.monitorDir = cms.untracked.string('L1T/L1TStage1Layer2')
 
-process.l1tsClient.dqmFolder = cms.untracked.string("L1TStage1/L1Stage1Scalers_SM")
+process.l1tsClient.dqmFolder = cms.untracked.string("L1T/L1Stage1Scalers_SM")
 
 process.l1TriggerStage1Clients.remove(process.l1tEventInfoClient)
 #process.l1TriggerStage1Clients.remove(process.l1tsClient)
