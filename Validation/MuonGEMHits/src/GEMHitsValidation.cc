@@ -6,7 +6,7 @@
 GEMHitsValidation::GEMHitsValidation(const edm::ParameterSet& cfg):  GEMBaseValidation(cfg)
 {
   InputTagToken_ = consumes<edm::PSimHitContainer>(cfg.getParameter<edm::InputTag>("simInputLabel"));
-   detailPlot_ = cfg.getParameter<bool>("detailPlot");
+  detailPlot_ = cfg.getParameter<bool>("detailPlot");
 }
 
 

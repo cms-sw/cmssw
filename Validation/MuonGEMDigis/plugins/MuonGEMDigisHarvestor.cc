@@ -133,55 +133,28 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
 
 
   // simplePlots
+  /*
   for( int region = -1 ; region <= 1 ; region = region+2) {
     for ( int station = 0 ; station <2 ; station++) {
       if ( station ==1 ) station=2 ;
       TString dcEta_label = TString::Format("%s%s_r%d%s",dbe_path_.c_str(),dbe_hist_prefix_.c_str(), region, s_suffix[station].c_str());
       TString denum_dcEta_label = TString::Format("%s%s_r%d%s",compareable_dbe_path_.c_str(),compareable_dbe_hist_prefix_.c_str(), region, s_suffix[station].c_str());
 
-//      TString strip_dcEta_label = TString::Format("%s%s_r%d%s", dbe_path_.c_str(), dbe_strip_prefix_.c_str(), region, s_suffix[station].c_str());
-//      TString pad_dcEta_label = TString::Format("%s%s_r%d%s", dbe_path_.c_str(), dbe_pad_prefix_.c_str(), region, s_suffix[station].c_str());
-//      TString copad_dcEta_label = TString::Format("%s%s_r%d%s", dbe_path_.c_str(), dbe_copad_prefix_.c_str(), region, s_suffix[station].c_str());
  
-//      if ( ig.get( dcEta_label.Data()) != nullptr && ig.get( denum_dcEta_label.Data()) != nullptr && ig.get(strip_dcEta_label.Data()) != nullptr && ig.get(pad_dcEta_label.Data()) != nullptr && ig.get(copad_dcEta_label.Data()) != nullptr) {
         if ( ig.get( dcEta_label.Data()) != nullptr && ig.get( denum_dcEta_label.Data()) != nullptr) {
         TH2F* dcEta = (TH2F*)ig.get( dcEta_label.Data())->getTH2F()->Clone();
-//        TH2F* STRIP_dcEta = (TH2F*)ig.get(strip_dcEta_label.Data())->getTH2F()->Clone();
-//        TH2F* PAD_dcEta = (TH2F*)ig.get(pad_dcEta_label.Data())->getTH2F()->Clone();
-//        TH2F* COPAD_dcEta = (TH2F*)ig.get(copad_dcEta_label.Data())->getTH2F()->Clone();
         TH2F* denum_dcEta = (TH2F*)ig.get( denum_dcEta_label.Data())->getTH2F()->Clone();
         dcEta->Divide(denum_dcEta);
-//        STRIP_dcEta->Divide(denum_dcEta);
-//        PAD_dcEta->Divide(denum_dcEta);
-//        COPAD_dcEta->Divide(denum_dcEta);
         TH2F* eff_dcEta = (TH2F*)dcEta->Clone();
-//        TH2F* eff_strip_dcEta = (TH2F*)STRIP_dcEta->Clone();
-//        TH2F* eff_pad_dcEta = (TH2F*)PAD_dcEta->Clone();
-//        TH2F* eff_copad_dcEta = (TH2F*)COPAD_dcEta->Clone();
 
         TString eff_dcEta_title = TString::Format("Hits Efficiency on detector component at r%d%s",region,s_suffix[station].c_str());
         TString eff_dcEta_label = TString::Format("eff_DigiHit_r%d%s",region,s_suffix[station].c_str());
 
-//        TString eff_strip_dcEta_title = TString::Format("Strip Efficiency on detector component at r%d%s", region, s_suffix[station].c_str());
-//        TString eff_pad_dcEta_title = TString::Format("Pad Efficiency on detector component at r%d%s", region, s_suffix[station].c_str());
-//        TString eff_copad_dcEta_title = TString::Format("CoPad Efficiency on detector component at r%d%s", region, s_suffix[station].c_str());
-//        TString eff_strip_dcEta_label = TString::Format("eff_Strip_r%d%s", region, s_suffix[station].c_str());
-//        TString eff_pad_dcEta_label = TString::Format("eff_pad_r%d%s", region, s_suffix[station].c_str());
-//        TString eff_copad_dcEta_label = TString::Format("eff_copad_r%d%s", region, s_suffix[station].c_str());
      
         eff_dcEta->SetName( eff_dcEta_label.Data());
         eff_dcEta->SetTitle( eff_dcEta_title.Data());
-//        eff_strip_dcEta->SetName(eff_strip_dcEta_label.Data());
-//        eff_strip_dcEta->SetTitle(eff_strip_dcEta_title.Data());
-//        eff_pad_dcEta->SetName(eff_pad_dcEta_label.Data());
-//        eff_pad_dcEta->SetTitle(eff_pad_dcEta_title.Data());
-//        eff_copad_dcEta->SetName(eff_copad_dcEta_label.Data());
-//        eff_copad_dcEta->SetTitle(eff_copad_dcEta_title.Data());
 
         ibooker.book2D(eff_dcEta->GetName(), eff_dcEta);
-//        ibooker.book2D(eff_strip_dcEta->GetName(), eff_strip_dcEta);
-//        ibooker.book2D(eff_pad_dcEta->GetName(), eff_pad_dcEta);
-//        ibooker.book2D(eff_copad_dcEta->GetName(), eff_copad_dcEta);
       }
       else {
         std::cout<<"Failed to get histograms"<<std::endl;
@@ -190,7 +163,7 @@ MuonGEMDigisHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
       }
     }
   }
-
+  */
 
   // detailPlots
   for( int i = 0 ; i < 3 ; i++) {
