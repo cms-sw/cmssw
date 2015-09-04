@@ -39,6 +39,8 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_caloHT_caloMET0Tesla_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_caloHT0Tesla_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_SUSYBSM_PhotonCaloHT_cff import *
 
+
+
 HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_InclusiveHT +
                                 SUSY_HLT_caloHT +
@@ -47,6 +49,8 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_PhotonCaloHT +
                                 SUSY_HLT_InclusiveMET +
                                 SUSY_HLT_InclusiveMET_NoNoiseCleaning +
+                                SUSY_HLT_InclusiveMET_HBHECleaned +
+                                SUSY_HLT_InclusiveMET_JetIdCleaned + 
                                 SUSY_HLT_MET_BTAG +
                                 SUSY_HLT_MET_MUON +
                                 SUSY_HLT_InclusiveHT_aux200 + 
@@ -101,12 +105,13 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 )
 
 
+
 HLTSusyExoValSeq_FastSim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM + 
                                         SUSY_HLT_InclusiveHT_FASTSIM + 
                                         SUSY_HLT_caloHT_caloMET0Tesla_FASTSIM +
                                         SUSY_HLT_caloHT0Tesla_FASTSIM +
                                         SUSY_HLT_PhotonCaloHT_FASTSIM +
-                                        SUSY_HLT_InclusiveMET_FASTSIM + 
+                                        SUSY_HLT_InclusiveMET_FASTSIM +
                                         SUSY_HLT_MET_BTAG_FASTSIM +
                                         SUSY_HLT_MET_MUON_FASTSIM +
                                         SUSY_HLT_Mu_HT_SingleLepton_FASTSIM +
