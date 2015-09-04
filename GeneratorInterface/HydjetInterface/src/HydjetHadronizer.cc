@@ -1,5 +1,10 @@
 /*
- *
+
+ ######################## 
+ #  Hydjet1		#
+ #  version: 1.9 patch1 #
+ ########################
+
  * Interface to the HYDJET generator, produces HepMC events
  *
  * Original Author: Camelia Mironov
