@@ -117,6 +117,7 @@ namespace edm {
                                                     "",
                                                     "",
                                                     nullptr,
+                                                    nullptr,
                                                     nullptr);
     assert(bhandle.isValid());
     Handle<edmtest::UInt64Product> handle;
@@ -131,6 +132,7 @@ namespace edm {
                                                "Thing",
                                                "",
                                                "",
+                                               nullptr,
                                                nullptr,
                                                nullptr).wrapper();
     assert(ep != nullptr);

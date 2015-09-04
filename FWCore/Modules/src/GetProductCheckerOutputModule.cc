@@ -98,7 +98,7 @@ namespace edm {
             (*it)->branchDescription().moduleLabel(),
             (*it)->branchDescription().productInstanceName(),
             (*it)->branchDescription().processName(),
-                                          nullptr, mcc);
+                                          nullptr, nullptr, mcc);
             
             /*This doesn't appear to be an error, it just means the Product isn't available, which can be legitimate
             if(!bh.product()) {

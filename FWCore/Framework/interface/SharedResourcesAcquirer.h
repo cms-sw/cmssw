@@ -51,7 +51,8 @@ namespace edm {
     /// e.g. when a Event::getByLabel call launches a Producer via unscheduled processing
     template<typename FUNC>
     void temporaryUnlock(FUNC iFunc) {
-      std::shared_ptr<SharedResourcesAcquirer*> guard(this,[](SharedResourcesAcquirer* iThis) {iThis->lock();});
+      auto iThis = this;
+      std::shared_ptr<void> guard(nullptr,[iThis](void* ) {iThis->lock();});
       this->unlock();
       iFunc();
     }

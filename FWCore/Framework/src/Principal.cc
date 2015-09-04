@@ -471,9 +471,10 @@ namespace edm {
                         TypeID const& typeID,
                         InputTag const& inputTag,
                         EDConsumerBase const* consumer,
+                        SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const {
 
-    ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, mcc);
+    ProductData const* result = findProductByLabel(kindOfType, typeID, inputTag, consumer, sra, mcc);
     if(result == 0) {
       return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
         return makeNotFoundException("getByLabel", kindOfType, typeID, inputTag.label(), inputTag.instance(), inputTag.process());
@@ -489,9 +490,10 @@ namespace edm {
                         std::string const& instance,
                         std::string const& process,
                         EDConsumerBase const* consumer,
+                        SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const {
 
-    ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer, mcc);
+    ProductData const* result = findProductByLabel(kindOfType, typeID, label, instance, process,consumer, sra, mcc);
     if(result == 0) {
       return BasicHandle(makeHandleExceptionFactory([=]()->std::shared_ptr<cms::Exception> {
         return makeNotFoundException("getByLabel", kindOfType, typeID, label, instance, process);
@@ -506,12 +508,13 @@ namespace edm {
                         ProductHolderIndex index,
                         bool skipCurrentProcess,
                         bool& ambiguous,
+                        SharedResourcesAcquirer* sra,
                         ModuleCallingContext const* mcc) const {
     assert(index !=ProductHolderIndexInvalid);
     std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
     assert(0!=productHolder.get());
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, sra, mcc);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       ambiguous = true;
       return BasicHandle();
@@ -529,13 +532,14 @@ namespace edm {
     std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_.at(index);
     assert(0!=productHolder.get());
     ProductHolderBase::ResolveStatus resolveStatus;
-    productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
+    productHolder->resolveProduct(resolveStatus, skipCurrentProcess, nullptr, mcc);
   }
 
   void
   Principal::getManyByType(TypeID const& typeID,
                            BasicHandleVec& results,
                            EDConsumerBase const* consumer,
+                           SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const {
 
     assert(results.empty());
@@ -587,7 +591,7 @@ namespace edm {
       if(!matches.isFullyResolved(i)) {
         if(!holders.empty()) {
           // Process the ones with a particular module label and instance
-          findProducts(holders, typeID, results, mcc);
+          findProducts(holders, typeID, results, sra, mcc);
           holders.clear();
         }
       } else {
@@ -598,7 +602,7 @@ namespace edm {
     }
     // Do not miss the last subset of products
     if(!holders.empty()) {
-      findProducts(holders, typeID, results, mcc);
+      findProducts(holders, typeID, results, sra, mcc);
     }
     return;
   }
@@ -607,6 +611,7 @@ namespace edm {
   Principal::findProducts(std::vector<ProductHolderBase const*> const& holders,
                           TypeID const&,
                           BasicHandleVec& results,
+                          SharedResourcesAcquirer* sra,
                           ModuleCallingContext const* mcc) const {
 
     for (auto iter = processHistoryPtr_->rbegin(),
@@ -623,7 +628,7 @@ namespace edm {
           }
 
           ProductHolderBase::ResolveStatus resolveStatus;
-          ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, mcc);
+          ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, sra, mcc);
           if(productData) {
             // Skip product if not available.
             results.emplace_back(*productData);
@@ -638,6 +643,7 @@ namespace edm {
                                 TypeID const& typeID,
                                 InputTag const& inputTag,
                                 EDConsumerBase const* consumer,
+                                SharedResourcesAcquirer* sra,
                                 ModuleCallingContext const* mcc) const {
 
     bool skipCurrentProcess = inputTag.willSkipCurrentProcess();
@@ -678,7 +684,7 @@ namespace edm {
     std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, mcc);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, skipCurrentProcess, sra, mcc);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       throwAmbiguousException("findProductByLabel", typeID, inputTag.label(), inputTag.instance(), inputTag.process());
     }
@@ -692,6 +698,7 @@ namespace edm {
                                 std::string const& instance,
                                 std::string const& process,
                                 EDConsumerBase const* consumer,
+                                SharedResourcesAcquirer* sra,
                                 ModuleCallingContext const* mcc) const {
 
     ProductHolderIndex index = productLookup().index(kindOfType,
@@ -719,7 +726,7 @@ namespace edm {
     std::shared_ptr<ProductHolderBase> const& productHolder = productHolders_[index];
 
     ProductHolderBase::ResolveStatus resolveStatus;
-    ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, mcc);
+    ProductData const* productData = productHolder->resolveProduct(resolveStatus, false, sra, mcc);
     if(resolveStatus == ProductHolderBase::Ambiguous) {
       throwAmbiguousException("findProductByLabel", typeID, label, instance, process);
     }
@@ -732,6 +739,7 @@ namespace edm {
       findProductByLabel(PRODUCT_TYPE,
                          typeID,
                          tag,
+                         nullptr,
                          nullptr,
                          mcc);
     return productData;
@@ -752,7 +760,7 @@ namespace edm {
     }
     if(getProd) {
       ProductHolderBase::ResolveStatus status;
-      phb->resolveProduct(status,false,mcc);
+      phb->resolveProduct(status,false,nullptr, mcc);
     }
     if(!phb->provenance() || (!phb->product() && !phb->productProvenancePtr())) {
       return OutputHandle();
@@ -770,7 +778,7 @@ namespace edm {
 
     if(phb->onDemand()) {
       ProductHolderBase::ResolveStatus status;
-      if(not phb->resolveProduct(status,false,mcc) ) {
+      if(not phb->resolveProduct(status,false, nullptr, mcc) ) {
         throwProductNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
       }
     }

@@ -17,6 +17,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/interface/ProductDeletedException.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
@@ -290,7 +291,7 @@ namespace edm {
       }));
     }
     ProductHolderBase::ResolveStatus status;
-    phb->resolveProduct(status,false,nullptr);
+    phb->resolveProduct(status,false,nullptr,nullptr);
 
     return BasicHandle(phb->productData());
   }
@@ -443,7 +444,7 @@ namespace edm {
         << "This should never happen. Contact a Framework developer";
     }
     ProductHolderBase::ResolveStatus status;
-    ProductData const* productData = phb->resolveProduct(status,false,nullptr);
+    ProductData const* productData = phb->resolveProduct(status,false,nullptr,nullptr);
     if (productData == nullptr) {
       return nullptr;
     }
@@ -457,7 +458,8 @@ namespace edm {
   }
 
   bool
-  EventPrincipal::unscheduledFill(std::string const& moduleLabel, 
+  EventPrincipal::unscheduledFill(std::string const& moduleLabel,
+                                  SharedResourcesAcquirer* sra,
                                   ModuleCallingContext const* mcc) const {
 
     // If it is a module already currently running in unscheduled
@@ -492,7 +494,14 @@ namespace edm {
       std::shared_ptr<void> guard(nullptr,[this,mcc](const void*){
         postModuleDelayedGetSignal_.emit(*(mcc->getStreamContext()),*mcc);
       });
-      unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
+      auto handlerCall = [this,&moduleLabel,&mcc]() {
+        unscheduledHandler_->tryToFill(moduleLabel, *const_cast<EventPrincipal*>(this), mcc);
+      };
+      if (sra) {
+        sra->temporaryUnlock(handlerCall);
+      } else {
+        handlerCall();
+      }
     }
     return true;
   }

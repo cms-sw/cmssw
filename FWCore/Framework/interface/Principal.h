@@ -45,6 +45,7 @@ namespace edm {
   class ProcessHistoryRegistry;
   class ProductHolderIndexHelper;
   class EDConsumerBase;
+  class SharedResourcesAcquirer;
 
   struct FilledProductPtr {
     bool operator()(std::shared_ptr<ProductHolderBase> const& iObj) { return bool(iObj);}
@@ -108,6 +109,7 @@ namespace edm {
                             TypeID const& typeID,
                             InputTag const& inputTag,
                             EDConsumerBase const* consumes,
+                            SharedResourcesAcquirer* sra,
                             ModuleCallingContext const* mcc) const;
 
     BasicHandle  getByLabel(KindOfType kindOfType,
@@ -116,6 +118,7 @@ namespace edm {
                             std::string const& instance,
                             std::string const& process,
                             EDConsumerBase const* consumes,
+                            SharedResourcesAcquirer* sra,
                             ModuleCallingContext const* mcc) const;
     
     BasicHandle getByToken(KindOfType kindOfType,
@@ -123,6 +126,7 @@ namespace edm {
                            ProductHolderIndex index,
                            bool skipCurrentProcess,
                            bool& ambiguous,
+                           SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const;
 
     void prefetch(ProductHolderIndex index,
@@ -132,6 +136,7 @@ namespace edm {
     void getManyByType(TypeID const& typeID,
                        BasicHandleVec& results,
                        EDConsumerBase const* consumes,
+                       SharedResourcesAcquirer* sra,
                        ModuleCallingContext const* mcc) const;
 
     ProcessHistory const& processHistory() const {
@@ -184,6 +189,7 @@ namespace edm {
     }
 
     virtual bool unscheduledFill(std::string const& moduleLabel,
+                                 SharedResourcesAcquirer* sra,
                                  ModuleCallingContext const* mcc) const = 0;
 
     std::vector<unsigned int> const& lookupProcessOrder() const { return lookupProcessOrder_; }
@@ -220,12 +226,14 @@ namespace edm {
     void findProducts(std::vector<ProductHolderBase const*> const& holders,
                       TypeID const& typeID,
                       BasicHandleVec& results,
+                      SharedResourcesAcquirer* sra,
                       ModuleCallingContext const* mcc) const;
 
     ProductData const* findProductByLabel(KindOfType kindOfType,
                                           TypeID const& typeID,
                                           InputTag const& inputTag,
                                           EDConsumerBase const* consumer,
+                                          SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
     ProductData const* findProductByLabel(KindOfType kindOfType,
@@ -234,6 +242,7 @@ namespace edm {
                                           std::string const& instance,
                                           std::string const& process,
                                           EDConsumerBase const* consumer,
+                                          SharedResourcesAcquirer* sra,
                                           ModuleCallingContext const* mcc) const;
 
     virtual void readFromSource_(ProductHolderBase const& /* phb */, ModuleCallingContext const* /* mcc */) const {}
