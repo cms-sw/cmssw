@@ -110,7 +110,7 @@ patSmearedJets = cms.EDProducer("SmearedPATJetProducer",
                    #             even though jet energy got smeared by merely 1 GeV
                    #
                    skipJetSelection = cms.string(
-        'jecSetsAvailable & abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
+        'jecSetsAvailable && abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
         ),
             skipRawJetPtThreshold = cms.double(10.), # GeV
             skipCorrJetPtThreshold = cms.double(1.e-2),
