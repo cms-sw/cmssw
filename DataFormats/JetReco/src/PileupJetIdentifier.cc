@@ -16,10 +16,10 @@ StoredPileupJetIdentifier::~StoredPileupJetIdentifier()
 // ------------------------------------------------------------------------------------------
 PileupJetIdentifier::PileupJetIdentifier() 
 {
+  memset(this, 0, sizeof(PileupJetIdentifier));
 }
 
 // ------------------------------------------------------------------------------------------
 PileupJetIdentifier::~PileupJetIdentifier() 
 {
-  memset(this, 0, sizeof(PileupJetIdentifier));
 }
