@@ -34,7 +34,7 @@ payload2xmlCodeTemplate = """
 
 namespace { // Avoid cluttering the global namespace.
 
-  std::string %(plType)s2xml( const std::string &payloadData, const std::string &payloadType ) { 
+  std::string payload2xml( const std::string &payloadData, const std::string &payloadType ) { 
 
       // now to convert
       std::unique_ptr< %(plType)s > payload;
@@ -62,7 +62,7 @@ namespace { // Avoid cluttering the global namespace.
 BOOST_PYTHON_MODULE(%(mdName)s)
 {
     using namespace boost::python;
-    def ("%(plType)s2xml", %(plType)s2xml);
+    def ("%(plType)s2xml", payload2xml);
 }
 
 """ 
