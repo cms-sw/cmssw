@@ -40,6 +40,8 @@
 #include "HLTrigger/Egamma/interface/HLTElectronPFMTFilter.h"
 #include "HLTrigger/Egamma/src/HLTElectronPFMTFilter.cc"
 
+#include "HLTrigger/Egamma/interface/HLTScoutingEgammaProducer.h"
+
 DEFINE_FWK_MODULE(HLTEgammaGenericQuadraticFilter);
 DEFINE_FWK_MODULE(HLTEgammaGenericQuadraticEtaFilter);
 DEFINE_FWK_MODULE(HLTEgammaEtFilter);
@@ -75,3 +77,5 @@ DEFINE_FWK_MODULE(HLTEgammaAllCombMassFilter);
 DEFINE_FWK_MODULE(HLTDisplacedEgammaFilter);
 
 DEFINE_FWK_MODULE(HLTElectronMissingHitsFilter);
+
+DEFINE_FWK_MODULE(HLTScoutingEgammaProducer);
