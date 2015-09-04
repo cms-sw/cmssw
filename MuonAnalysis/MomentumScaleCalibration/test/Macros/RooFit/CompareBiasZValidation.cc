@@ -37,7 +37,7 @@ public:
 
     double Mmin(75), Mmax(105);
     fitter.fit(
-      inputFileName, outputFileName, "breitWignerTimesCB", "exponentialpol", 91, Mmin, Mmax, 2, 0.1, 10,
+      inputFileName, outputFileName, "breitWignerTimesCB", "exponential", 91, Mmin, Mmax, 2, 0.1, 10,
       rebinXphi, rebinXetadiff, rebinXeta, rebinXpt
       );
 
