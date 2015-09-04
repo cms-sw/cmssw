@@ -46,7 +46,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -76,7 +76,7 @@ typedef boost::shared_ptr<BasePartonSelector> PartonSelectorPtr;
 // class declaration
 //
 
-class HadronAndPartonSelector : public edm::EDProducer {
+class HadronAndPartonSelector : public edm::stream::EDProducer<> {
    public:
       explicit HadronAndPartonSelector(const edm::ParameterSet&);
       ~HadronAndPartonSelector();
@@ -84,15 +84,8 @@ class HadronAndPartonSelector : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
+  
       // ----------member data ---------------------------
       const edm::EDGetTokenT<GenEventInfoProduct>         srcToken_;        // To get handronizer module type
       const edm::EDGetTokenT<reco::GenParticleCollection> particlesToken_;  // Input GenParticle collection
@@ -266,41 +259,6 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.put( partons,  "algorithmicPartons" );
    iEvent.put( physicsPartons,  "physicsPartons" );
    iEvent.put( leptons,  "leptons" );
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-HadronAndPartonSelector::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-HadronAndPartonSelector::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-void
-HadronAndPartonSelector::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void
-HadronAndPartonSelector::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void
-HadronAndPartonSelector::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void
-HadronAndPartonSelector::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

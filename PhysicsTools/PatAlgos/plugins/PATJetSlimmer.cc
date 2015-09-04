@@ -11,7 +11,7 @@
 
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
@@ -23,7 +23,7 @@
 
 namespace pat {
 
-  class PATJetSlimmer : public edm::EDProducer {
+  class PATJetSlimmer : public edm::stream::EDProducer<> {
     public:
       explicit PATJetSlimmer(const edm::ParameterSet & iConfig);
       virtual ~PATJetSlimmer() { }
@@ -32,10 +32,10 @@ namespace pat {
       virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const  edm::EventSetup&) override final;
 
     private:
-      edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
-      edm::EDGetTokenT<edm::View<pat::Jet> >  jets_;
-      StringCutObjectSelector<pat::Jet> dropJetVars_,dropDaughters_,rekeyDaughters_,dropTrackRefs_,dropSpecific_,dropTagInfos_;
-      bool modifyJet_;
+      const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
+      const edm::EDGetTokenT<edm::View<pat::Jet> >  jets_;
+      const StringCutObjectSelector<pat::Jet> dropJetVars_,dropDaughters_,rekeyDaughters_,dropTrackRefs_,dropSpecific_,dropTagInfos_;
+      const bool modifyJet_;
       std::unique_ptr<pat::ObjectModifier<pat::Jet> > jetModifier_;
   };
 

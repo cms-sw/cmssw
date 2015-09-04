@@ -18,7 +18,7 @@
 */
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "DataFormats/Common/interface/RefVector.h"
@@ -30,23 +30,23 @@
 #include "PhysicsTools/PatUtils/interface/DuplicatedElectronRemover.h"
 
 namespace pat{
-  class DuplicatedElectronCleaner : public edm::EDProducer{
+  class DuplicatedElectronCleaner : public edm::global::EDProducer<> {
   public:
     explicit DuplicatedElectronCleaner(const edm::ParameterSet & iConfig);
     ~DuplicatedElectronCleaner();
 
-    virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-    virtual void endJob() override;
+    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override final;
 
   private:
-    edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronSrcToken_;
-    pat::DuplicatedElectronRemover duplicateRemover_;
-    uint64_t try_, pass_;
+    const edm::EDGetTokenT<edm::View<reco::GsfElectron> > electronSrcToken_;
+    const pat::DuplicatedElectronRemover duplicateRemover_;
+    mutable std::atomic<uint64_t> try_, pass_;
   };
 } // namespace
 
 pat::DuplicatedElectronCleaner::DuplicatedElectronCleaner(const edm::ParameterSet & iConfig):
   electronSrcToken_(consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>("electronSource"))),
+  duplicateRemover_(),
   try_(0), pass_(0)
 {
   //produces<edm::RefVector<reco::GsfElectronCollection> >();
@@ -59,7 +59,7 @@ pat::DuplicatedElectronCleaner::~DuplicatedElectronCleaner()
 }
 
 void
-pat::DuplicatedElectronCleaner::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
+pat::DuplicatedElectronCleaner::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const 
 {
   using namespace edm;
   Handle<View<reco::GsfElectron> > electrons;
@@ -81,11 +81,6 @@ pat::DuplicatedElectronCleaner::produce(edm::Event & iEvent, const edm::EventSet
   }
   pass_ += result->size();
   iEvent.put(result);
-}
-
-void
-pat::DuplicatedElectronCleaner::endJob()
-{
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
