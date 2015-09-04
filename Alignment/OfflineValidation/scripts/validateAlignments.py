@@ -109,22 +109,10 @@ class ValidationJob:
                 secondAlign = Alignment( secondAlignName, self.__config,
                                          secondRun )
                 secondAlignName = secondAlign.name
-            # check if alignment was already compared previously
-            try:
-                randomWorkdirPart = \
-                    globalDictionaries.alignRandDict[firstAlignName]
-            except KeyError:
-                randomWorkdirPart = None
                 
             validation = GeometryComparison( name, firstAlign, secondAlign,
                                              self.__config,
-                                             self.__commandLineOptions.getImages,
-                                             randomWorkdirPart )
-            globalDictionaries.alignRandDict[firstAlignName] = \
-                validation.randomWorkdirPart
-            if not secondAlignName == "IDEAL":
-                globalDictionaries.alignRandDict[secondAlignName] = \
-                    validation.randomWorkdirPart
+                                             self.__commandLineOptions.getImages)
         elif valType == "offline":
             validation = OfflineValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
@@ -506,11 +494,6 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
     config.set("general","logdir",os.path.join(general["logdir"],options.Name) )
     config.set("general","eosdir",os.path.join("AlignmentValidation", general["eosdir"], options.Name) )
 
-    # clean up of log directory to avoid cluttering with files with different
-    # random numbers for geometry comparison
-    if os.path.isdir( outPath ):
-        shutil.rmtree( outPath )
-    
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
     elif not os.path.isdir( outPath ):
