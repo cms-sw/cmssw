@@ -28,8 +28,8 @@ SUSY_HLT_caloHT0Tesla_FASTSIM = cms.EDAnalyzer("SUSY_HLT_InclusiveCaloHT",
 SUSY_HLT_caloHT0Tesla_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_HT575"),
   efficiency = cms.vstring(
-    "caloMetTurnOn_eff 'Efficiency vs CaloMET' pfMetTurnOn_num pfMetTurnOn_den",
-    "caloHTTurnOn_eff 'Efficiency vs CaloHT' pfHTTurnOn_num pfHTTurnOn_den"
+    "caloMetTurnOn_eff 'Efficiency vs CaloMET' caloMetTurnOn_num caloMetTurnOn_den",
+    "caloHTTurnOn_eff 'Efficiency vs CaloHT' caloHTTurnOn_num caloHTTurnOn_den"
     ),
   resolution = cms.vstring("")
 )
