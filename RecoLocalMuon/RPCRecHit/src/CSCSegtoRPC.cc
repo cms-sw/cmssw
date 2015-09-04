@@ -1,74 +1,32 @@
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
-#include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
-#include <DataFormats/RPCRecHit/interface/RPCRecHitCollection.h>
-#include <RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h>
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h"
+#include "RecoLocalMuon/RPCRecHit/src/CSCStationIndex.h"
+#include "RecoLocalMuon/RPCRecHit/src/CSCObjectMap.h"
 
-ObjectMapCSC* ObjectMapCSC::mapInstance = NULL;
-
-ObjectMapCSC* ObjectMapCSC::GetInstance(const edm::EventSetup& iSetup){
-  if (mapInstance == NULL){
-    mapInstance = new ObjectMapCSC(iSetup);
-  }
-  return mapInstance;
-}
-
-ObjectMapCSC::ObjectMapCSC(const edm::EventSetup& iSetup){
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  edm::ESHandle<CSCGeometry> cscGeo;
-  
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  iSetup.get<MuonGeometryRecord>().get(cscGeo);
-  
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
-      auto ch = dynamic_cast< const RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	int region=rpcId.region();
-	if(region!=0){
-	  int station=rpcId.station();
-          int ring=rpcId.ring();
-          int cscring=ring;
-          int cscstation=station;
-	  RPCGeomServ rpcsrv(rpcId);
-	  int rpcsegment = rpcsrv.segment();
-	  int cscchamber = rpcsegment; //FIX THIS ACCORDING TO RPCGeomServ::segment()Definition
-          if((station==2||station==3)&&ring==3){//Adding Ring 3 of RPC to the CSC Ring 2
-            cscring = 2;
-          }
-	  CSCStationIndex ind(region,cscstation,cscring,cscchamber);
-          std::set<RPCDetId> myrolls;
-	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()) myrolls=rollstoreCSC[ind];
-	  myrolls.insert(rpcId);
-          rollstoreCSC[ind]=myrolls;
-	}
-      }
-    }
-  }
-}
-  
-CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const edm::EventSetup& iSetup,const edm::Event& iEvent, bool debug, double eyr){
+CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection * allCSCSegments, const edm::EventSetup& iSetup, bool debug, double eyr){
   
   edm::ESHandle<RPCGeometry> rpcGeo;
   edm::ESHandle<CSCGeometry> cscGeo;
+  edm::ESHandle<CSCObjectMap> cscMap;
   
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   iSetup.get<MuonGeometryRecord>().get(cscGeo);
+  iSetup.get<MuonGeometryRecord>().get(cscMap);
   
   MaxD=80.;
 
   if(debug) std::cout<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size()<<std::endl;
 
-  _ThePoints = new RPCRecHitCollection();
+  _ThePoints.reset(new RPCRecHitCollection());
 
   if(allCSCSegments->size()==0){
     if(debug) std::cout<<"CSC 0 segments skiping event"<<std::endl;
@@ -127,15 +85,10 @@ CSCSegtoRPC::CSCSegtoRPC(edm::Handle<CSCSegmentCollection> allCSCSegments, const
 	  float dy=segmentDirection.y();
 	  float dz=segmentDirection.z();
 
-	  if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-	  ObjectMapCSC* TheObjectCSC = ObjectMapCSC::GetInstance(iSetup);
 	  if(debug) std::cout<<"Creating the CSCIndex"<<std::endl;
 	  CSCStationIndex theindex(rpcRegion,rpcStation,rpcRing,rpcSegment);
 	  if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
-	
-	  std::set<RPCDetId> rollsForThisCSC = TheObjectCSC->GetInstance(iSetup)->GetRolls(theindex);
-		
-	   
+	  std::set<RPCDetId> rollsForThisCSC = cscMap->getRolls(theindex);
 	  if(debug) std::cout<<"CSC \t \t Getting chamber from Geometry"<<std::endl;
 	  const CSCChamber* TheChamber=cscGeo->chamber(CSCId); 
 	  if(debug) std::cout<<"CSC \t \t Getting ID from Chamber"<<std::endl;
