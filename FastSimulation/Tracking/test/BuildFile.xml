@@ -1,20 +1,3 @@
-<library   file="testTrackingIterations.cc" name="testTrackingIterations">
-  <use   name="root"/>
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/PluginManager"/>
-  <use   name="Geometry/Records"/>
-  <use   name="Geometry/TrackerGeometryBuilder"/>
-  <use   name="SimDataFormats/Track"/>
-  <use   name="DataFormats/TrackReco"/>
-  <use   name="DataFormats/Provenance"/>
-  <use   name="FastSimulation/Event"/>
-  <use   name="FastSimulation/Particle"/>
-  <use   name="FastSimulation/Utilities"/>
-  <use   name="FastSimulation/Tracking"/>
-  <use   name="DQMServices/Core"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <library   file="testGeneralTracks.cc" name="testGeneralTracks">
   <use   name="root"/>
   <use   name="FWCore/Framework"/>
