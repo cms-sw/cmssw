@@ -166,10 +166,19 @@ void MultiHistoOverlapAll_Z(string files, string labels, bool switchONfitEta = f
     TMath::Pi()
   };
 
+  // Magic numbers
+  int nfileslimit = 4;
+  double rangeFactor[2]={ 1.01, 1.05 };
+  double dampingFactor = 0;
+  double deviationThreshold = 1.04;
+  if (nfiles>nfileslimit) dampingFactor = 0.07/nfileslimit*(nfiles-nfileslimit);
+
   for (int iP=0; iP<7; iP++){
     double absMin = 9e9;
     double absMax = -9e9;
     double rangeMaxReduction = 0.02;
+    if (nfiles>nfileslimit) rangeMaxReduction = rangeMaxReduction*nfileslimit/nfiles;
+    double dampingFactorEff = dampingFactor;
 
     double avgM = 0;
     double sigmaM = 0;
@@ -263,12 +272,13 @@ void MultiHistoOverlapAll_Z(string files, string labels, bool switchONfitEta = f
         double bincontent = histo[iP][f]->GetBinContent(bin);
         double binerror = histo[iP][f]->GetBinError(bin);
         if (binerror==0 && bincontent==0) continue;
-        if ((bincontent + binerror)>1.05*avgM) rangeMaxReduction = 0;
+        if ((bincontent + binerror)>deviationThreshold*avgM) rangeMaxReduction = 0;
       }
     }
+    if (nfiles>nfileslimit && rangeMaxReduction!=0) dampingFactorEff = dampingFactorEff*0.7;
 
-    minmax_plot[iP][0] = absMin/1.01;
-    minmax_plot[iP][1] = absMax*(1.05-rangeMaxReduction);
+    minmax_plot[iP][0] = absMin/rangeFactor[0];
+    minmax_plot[iP][1] = absMax*(rangeFactor[1]+dampingFactorEff-rangeMaxReduction);
     for (int f=0; f<2; f++) histo[iP][f]->GetYaxis()->SetRangeUser(minmax_plot[iP][0], minmax_plot[iP][1]);
   }
 
