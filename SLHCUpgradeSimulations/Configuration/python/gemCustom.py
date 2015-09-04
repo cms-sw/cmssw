@@ -18,7 +18,6 @@ def customise_digitization(process):
       process.simMuonME0Digis.mixLabel = cms.string("mix")
   return process
 
-### MuonGEM Validation module need dqm saver because it doesn't run all step.
 def customise_Validation(process):
   process.load('Validation.MuonGEMHits.gemSimValid_cff')
   process.load('Validation.MuonGEMDigis.MuonGEMDigis_cfi')
