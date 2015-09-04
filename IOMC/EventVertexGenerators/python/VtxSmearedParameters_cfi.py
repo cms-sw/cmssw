@@ -510,3 +510,17 @@ NominalHICollision2015VtxSmearingParameters = cms.PSet(
     Y0 = cms.double(0.),
     Z0 = cms.double(0.)
 )
+
+# Update based on latest beta* presented at the WGM
+# Beamspot centroid updated to according to the current pp conditions (Realistic50ns13TeVCollisionZeroTesla)
+UpdatedHICollision2015VtxSmearingParameters = cms.PSet(
+    Phi = cms.double(0.0),
+    BetaStar = cms.double(80.0),
+    Emittance = cms.double(1.70e-07),
+    Alpha = cms.double(0.0),
+    SigmaZ = cms.double(7.06),
+    TimeOffset = cms.double(0.0),
+    X0 = cms.double(0.08533),
+    Y0 = cms.double(0.16973),
+    Z0 = cms.double(-1.2230)
+)
