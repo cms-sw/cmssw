@@ -73,6 +73,7 @@ namespace gen
     HepMC::GenEvent   *evt;
     edm::ParameterSet  pset_;
     double             abeamtarget_;           // beam/target atomic mass number 
+    int 	       angularspecselector_;   // angular emitted gluon spectrum selection
     double             bfixed_;                // fixed impact param (fm); valid only if cflag_=0
     double             bmax_;                  // max impact param; 
                                                // units of nucl radius
