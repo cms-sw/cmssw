@@ -223,6 +223,7 @@ namespace gen
     edm::Service<TFileService> fs;
 
     int ev, sseed, Njet, Nbcol, Npart, Ntot, Npyt, Nhyd;
+    double psiforv3;
     float Bgen, Sigin, Sigjet;
     float Px[kMax];
     float Py[kMax];

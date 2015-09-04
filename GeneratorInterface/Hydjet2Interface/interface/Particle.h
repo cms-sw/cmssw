@@ -18,7 +18,6 @@ November. 2, 2005
 #include "ParticlePDG.h"
 #include <iostream>
 
-
 class Particle {
  protected:
   TLorentzVector   fPosition;
