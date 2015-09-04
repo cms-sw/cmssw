@@ -216,7 +216,7 @@ private:
   
   void setUpTreeMembers(const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_,
 		const TrackerGeometry& tkgeom, const TrackerTopology* tTopo);
-  void fillTree(TTree& tree, const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_);
+  void fillTree(TTree& tree, TkOffTreeVariables &treeMem, const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_);
   
   TrackerOfflineValidation::SummaryContainer bookSummaryHists(DirectoryWrapper& tfd, 
 							      const Alignable& ali, 
@@ -1261,12 +1261,12 @@ TrackerOfflineValidation::endJob()
   // (see src/classes_def.xml and src/classes.h):
   tree->Branch("TkOffTreeVariables", &treeMemPtr); // address of pointer!
 
-  this->fillTree(*tree, mPxbResiduals_);
-  this->fillTree(*tree, mPxeResiduals_);
-  this->fillTree(*tree, mTibResiduals_);
-  this->fillTree(*tree, mTidResiduals_);
-  this->fillTree(*tree, mTobResiduals_);
-  this->fillTree(*tree, mTecResiduals_);
+  this->fillTree(*tree, *treeMemPtr, mPxbResiduals_);
+  this->fillTree(*tree, *treeMemPtr, mPxeResiduals_);
+  this->fillTree(*tree, *treeMemPtr, mTibResiduals_);
+  this->fillTree(*tree, *treeMemPtr, mTidResiduals_);
+  this->fillTree(*tree, *treeMemPtr, mTobResiduals_);
+  this->fillTree(*tree, *treeMemPtr, mTecResiduals_);
 
   delete treeMemPtr; treeMemPtr = 0;
 }
@@ -1330,15 +1330,15 @@ TrackerOfflineValidation::prepareSummaryHists( DirectoryWrapper& tfd, const Alig
 void
 TrackerOfflineValidation::collateSummaryHists()
 {
-    for (std::vector<std::tuple<int,TH1*,TH1*> >::const_iterator it = summaryBins_.begin();
-           it != summaryBins_.end();
-           ++it)
-        setSummaryBin(std::get<0>(*it), std::get<1>(*it), std::get<2>(*it));
-
     for (std::vector<std::pair<TH1*,TH1*> >::const_iterator it = sumHistStructure_.begin();
            it != sumHistStructure_.end();
            ++it)
         it->first->Add(it->second);
+
+    for (std::vector<std::tuple<int,TH1*,TH1*> >::const_iterator it = summaryBins_.begin();
+           it != summaryBins_.end();
+           ++it)
+        setSummaryBin(std::get<0>(*it), std::get<1>(*it), std::get<2>(*it));
 
     for (std::vector<TH1*>::const_iterator it = toFit_.begin();
            it != toFit_.end();
@@ -1672,12 +1672,12 @@ TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineVal
 }
 
 void
-TrackerOfflineValidation::fillTree(TTree& tree,
+TrackerOfflineValidation::fillTree(TTree& tree, TkOffTreeVariables &treeMem,
 				   const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_)
 {
   for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(),
 	itEnd= moduleHist_.end(); it != itEnd;++it ) {
-    TkOffTreeVariables &treeMem = mTreeMembers_[it->first];
+    treeMem = mTreeMembers_[it->first];
 
     //mean and RMS values (extracted from histograms(Xprime on module level)
     treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
