@@ -144,7 +144,7 @@ void HydjetHadronizer::add_heavy_ion_rec(HepMC::GenEvent *evt)
     0,                                   // Nwounded_Nwounded_collisions
     hyfpar.bgen * nuclear_radius(),      // impact_parameter in [fm]
     phi0_,                                // event_plane_angle
-    hypsi3.psi3,                                   // eccentricity
+    0,//hypsi3.psi3,                                   // eccentricity
     hyjpar.sigin                         // sigma_inel_NN
   );
 
