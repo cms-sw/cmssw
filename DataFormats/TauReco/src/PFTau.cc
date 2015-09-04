@@ -109,6 +109,14 @@ namespace {
   }
 
   template<typename T>
+  T& makeCacheIfNeeded(edm::AtomicPtrCache<T>& oCache) {
+    if(not oCache.isSet()) {
+      oCache.set(std::move(std::make_unique<T>()));
+    }
+    return *oCache;
+  }
+
+  template<typename T>
   void copyToCache(T&& iFrom, edm::AtomicPtrCache<T>& oCache) {
     oCache.reset();
     oCache.set( std::make_unique<T>(std::move(iFrom)));
@@ -122,14 +130,32 @@ const std::vector<RecoTauPiZero>& PFTau::signalPiZeroCandidates() const {
   return *signalPiZeroCandidates_;
 }
 
+std::vector<RecoTauPiZero>& PFTau::signalPiZeroCandidatesRestricted() {
+  // Check if the signal pi zeros are already filled
+  return makeCacheIfNeeded(signalPiZeroCandidates_);
+}
+
 void PFTau::setsignalPiZeroCandidates(std::vector<RecoTauPiZero> cands) {
    copyToCache(std::move(cands), signalPiZeroCandidates_);
+}
+
+void PFTau::setSignalPiZeroCandidatesRefs(RecoTauPiZeroRefVector cands) {
+  signalPiZeroCandidatesRefs_ = std::move(cands);
 }
 
 const std::vector<RecoTauPiZero>& PFTau::isolationPiZeroCandidates() const {
   // Check if the signal pi zeros are already filled
   setCache(isolationPiZeroCandidatesRefs_, isolationPiZeroCandidates_);
   return *isolationPiZeroCandidates_;
+}
+
+std::vector<RecoTauPiZero>& PFTau::isolationPiZeroCandidatesRestricted() {
+  // Check if the signal pi zeros are already filled
+  return makeCacheIfNeeded(isolationPiZeroCandidates_);
+}
+
+void PFTau::setIsolationPiZeroCandidatesRefs(RecoTauPiZeroRefVector cands) {
+  isolationPiZeroCandidatesRefs_ = std::move(cands);
 }
 
 void PFTau::setisolationPiZeroCandidates(std::vector<RecoTauPiZero> cands) {
@@ -151,6 +177,11 @@ const std::vector<PFRecoTauChargedHadron>& PFTau::signalTauChargedHadronCandidat
   return *signalTauChargedHadronCandidates_;
 }
 
+std::vector<PFRecoTauChargedHadron>& PFTau::signalTauChargedHadronCandidatesRestricted() {
+  // Check if the signal tau charged hadrons are already filled
+  return makeCacheIfNeeded(signalTauChargedHadronCandidates_);
+}
+
 void PFTau::setSignalTauChargedHadronCandidates(std::vector<PFRecoTauChargedHadron> cands) {
   copyToCache(std::move(cands), signalTauChargedHadronCandidates_);
 }
@@ -163,6 +194,11 @@ const std::vector<PFRecoTauChargedHadron>& PFTau::isolationTauChargedHadronCandi
   // Check if the isolation tau charged hadrons are already filled
   setCache(isolationTauChargedHadronCandidatesRefs_, isolationTauChargedHadronCandidates_);
   return *isolationTauChargedHadronCandidates_;
+}
+
+std::vector<PFRecoTauChargedHadron>& PFTau::isolationTauChargedHadronCandidatesRestricted() {
+  // Check if the isolation tau charged hadrons are already filled
+  return makeCacheIfNeeded(isolationTauChargedHadronCandidates_);
 }
 
 void PFTau::setIsolationTauChargedHadronCandidates(std::vector<PFRecoTauChargedHadron> cands) {

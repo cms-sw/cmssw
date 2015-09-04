@@ -206,6 +206,12 @@ class PFTau : public BaseTau {
     friend class tau::RecoTauConstructor;
     friend class tau::PFRecoTauEnergyAlgorithmPlugin;
 
+    //These are used by the friends
+    std::vector<RecoTauPiZero>& signalPiZeroCandidatesRestricted();
+    std::vector<RecoTauPiZero>& isolationPiZeroCandidatesRestricted();
+    std::vector<PFRecoTauChargedHadron>& signalTauChargedHadronCandidatesRestricted();
+    std::vector<PFRecoTauChargedHadron>& isolationTauChargedHadronCandidatesRestricted();
+
     // check overlap with another candidate
     virtual bool overlap(const Candidate&) const;
 
