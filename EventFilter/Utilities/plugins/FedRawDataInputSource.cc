@@ -876,7 +876,7 @@ void FedRawDataInputSource::readSupervisor()
 
     //look for a new file
     std::string nextFile;
-    uint32_t ls;
+    uint32_t ls=0;
     uint32_t fileSize;
 
     uint32_t monLS=1;
@@ -895,6 +895,7 @@ void FedRawDataInputSource::readSupervisor()
      
       uint64_t thisLockWaitTimeUs=0.;
       status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
+      if (currentLumiSection!=ls && status==evf::EvFDaqDirector::runEnded) status=evf::EvFDaqDirector::noFile;
 
       //monitoring of lock wait time
       if (thisLockWaitTimeUs>0.)
@@ -913,6 +914,7 @@ void FedRawDataInputSource::readSupervisor()
         usleep(100000);
         //now all files should have appeared in ramdisk, check again if any raw files were left behind
         status = daqDirector_->updateFuLock(ls,nextFile,fileSize,thisLockWaitTimeUs);
+        if (currentLumiSection!=ls && status==evf::EvFDaqDirector::runEnded) status=evf::EvFDaqDirector::noFile;
       }
 
       if ( status == evf::EvFDaqDirector::runEnded) {
