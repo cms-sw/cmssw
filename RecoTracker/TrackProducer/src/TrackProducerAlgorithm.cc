@@ -211,6 +211,8 @@ std::cout << algo_ << ": " <<  hits.size() <<'|' <<theTraj->measurements().size(
 			     tscbl.trackStateAtPCA().curvilinearError(),
 			     algo_);
   
+  if(originalAlgo_ != reco::TrackBase::undefAlgorithm) theTrack->setOriginalAlgorithm(originalAlgo_);
+  if(algoMask_.any())                                  theTrack->setAlgoMask(algoMask_);
   theTrack->setQualityMask(qualityMask);
   theTrack->setNLoops(nLoops);
   
@@ -340,6 +342,8 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 				//			       theTraj->lostHits(),//FIXME to be fixed in Trajectory.h
 				pos, mom, tscbl.trackStateAtPCA().charge(), tscbl.trackStateAtPCA().curvilinearError());    
   theTrack->setAlgorithm(algo_);
+  if(originalAlgo_ != reco::TrackBase::undefAlgorithm) theTrack->setOriginalAlgorithm(originalAlgo_);
+  if(algoMask_.any())                                  theTrack->setAlgoMask(algoMask_);
   
   LogDebug("GsfTrackProducer") <<"track done\n";
   
