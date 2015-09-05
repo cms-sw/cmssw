@@ -126,4 +126,4 @@ HLTMonitoring = cms.Sequence( OfflineHLTMonitoring )
 DQMOfflineMiniAOD = cms.Sequence( miniAODDQMSequence * jetMETDQMOfflineSourceMiniAOD  )
 
 DQMOfflineNoHWW = cms.Sequence(DQMOffline)
-DQMOfflineNoHWW.remove(hwwAnalyzer)
+#DQMOfflineNoHWW.remove(hwwAnalyzer)
