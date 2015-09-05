@@ -199,6 +199,10 @@ class PackedCandidateTrackValidator: public DQMEDAnalyzer{
   MonitorElement *h_diffHitPatternNumberOfValidHits;
   MonitorElement *h_diffHitPatternNumberOfLostInnerHits;
   MonitorElement *h_diffHitPatternHasValidHitInFirstPixelBarrel;
+
+  MonitorElement *h_numberPixelHitsOverMax;
+  MonitorElement *h_numberStripHitsOverMax;
+  MonitorElement *h_numberHitsOverMax;
 };
 
 PackedCandidateTrackValidator::PackedCandidateTrackValidator(const edm::ParameterSet& iConfig):
@@ -275,6 +279,9 @@ void PackedCandidateTrackValidator::bookHistograms(DQMStore::IBooker& iBooker, e
   h_diffHitPatternNumberOfLostInnerHits  = iBooker.book1D("diffHitPatternNumberOfLostPixelHits",  "PackedCandidate::bestTrack() - reco::Track in hitPattern::numberOfLostHits(MISSING_INNER_HITS)", 13, -10.5, 2.5);
   h_diffHitPatternHasValidHitInFirstPixelBarrel = iBooker.book1D("diffHitPatternHasValidHitInFirstPixelBarrel", "PackedCandidate::bestTrack() - reco::Track in hitPattern::hasValidHitInFirstPixelBarrel", 3, -1.5, 1.5);
 
+  h_numberPixelHitsOverMax = iBooker.book1D("numberPixelHitsOverMax", "Number of pixel hits over the maximum of PackedCandidate", 10, 0, 10);
+  h_numberStripHitsOverMax = iBooker.book1D("numberStripHitsOverMax", "Number of strip hits over the maximum of PackedCandidate", 10, 0, 10);
+  h_numberHitsOverMax = iBooker.book1D("numberHitsOverMax", "Number of hits over the maximum of PackedCandidate", 20, 0, 20);
 }
 
 namespace {
@@ -371,9 +378,47 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     fillNoFlow(h_diffDxyError   , trackPc.dxyError()    - track.dxyError()   );
     fillNoFlow(h_diffDzError    , trackPc.dzError()     - track.dzError()    );
 
-    auto diffNumberOfPixelHits = pcRef->numberOfPixelHits() - track.hitPattern().numberOfValidPixelHits();
+    // For the non-HitPattern ones, take into account the PackedCandidate packing precision
+    const auto trackNumberOfHits = track.hitPattern().numberOfValidHits();
+    const auto trackNumberOfPixelHits = track.hitPattern().numberOfValidPixelHits();
+    const auto trackNumberOfStripHits = track.hitPattern().numberOfValidStripHits();
+    const auto pcNumberOfHits = pcRef->numberOfHits();
+    const auto pcNumberOfPixelHits = pcRef->numberOfPixelHits();
+    const auto pcNumberOfStripHits = pcNumberOfHits - pcNumberOfPixelHits;
+
+    const int pixelOverflow = trackNumberOfPixelHits > pat::PackedCandidate::trackPixelHitsMask ? trackNumberOfPixelHits - pat::PackedCandidate::trackPixelHitsMask : 0;
+    const int stripOverflow = trackNumberOfStripHits > pat::PackedCandidate::trackStripHitsMask ? trackNumberOfStripHits - pat::PackedCandidate::trackStripHitsMask : 0;
+    const int hitsOverflow = trackNumberOfHits > (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) ? trackNumberOfHits - (pat::PackedCandidate::trackPixelHitsMask+pat::PackedCandidate::trackStripHitsMask) : 0;
+    // PackedCandidate counts overflow pixel hits as strip
+    const int pixelInducedStripOverflow = (trackNumberOfStripHits+pixelOverflow) > pat::PackedCandidate::trackStripHitsMask ? (trackNumberOfStripHits+pixelOverflow-stripOverflow) - pat::PackedCandidate::trackStripHitsMask : 0;
+    h_numberPixelHitsOverMax->Fill(pixelOverflow);
+    h_numberStripHitsOverMax->Fill(stripOverflow);
+    h_numberHitsOverMax->Fill(hitsOverflow);
+
+    int diffNumberOfPixelHits = 0;
+    int diffNumberOfHits = 0;
+    if(pixelOverflow) {
+      diffNumberOfPixelHits = pcNumberOfPixelHits - pat::PackedCandidate::trackPixelHitsMask;
+    }
+    else {
+      diffNumberOfPixelHits = pcNumberOfPixelHits - trackNumberOfPixelHits;
+    }
+    if(stripOverflow || pixelInducedStripOverflow || pixelOverflow) {
+      int diffNumberOfStripHits = 0;
+      if(stripOverflow || pixelInducedStripOverflow) {
+        diffNumberOfStripHits = pcNumberOfStripHits - pat::PackedCandidate::trackStripHitsMask;
+      }
+      else if(pixelOverflow) {
+        diffNumberOfStripHits = (pcNumberOfStripHits - pixelOverflow) - trackNumberOfStripHits;
+      }
+
+      diffNumberOfHits = diffNumberOfPixelHits + diffNumberOfStripHits;
+    }
+    else {
+      diffNumberOfHits = pcNumberOfHits - trackNumberOfHits;
+    }
+
     fillNoFlow(h_diffNumberOfPixelHits, diffNumberOfPixelHits);
-    auto diffNumberOfHits = pcRef->numberOfHits() - track.hitPattern().numberOfValidHits();
     fillNoFlow(h_diffNumberOfHits, diffNumberOfHits);
 
     int diffLostInnerHits = 0;
@@ -392,9 +437,10 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     }
     fillNoFlow(h_diffLostInnerHits, diffLostInnerHits);
 
-    auto diffHitPatternNumberOfValidPixelHits = trackPc.hitPattern().numberOfValidPixelHits() - track.hitPattern().numberOfValidPixelHits();
+    // For HitPattern ones, calculate the full diff (i.e. some differences are expected)
+    auto diffHitPatternNumberOfValidPixelHits = trackPc.hitPattern().numberOfValidPixelHits() - trackNumberOfPixelHits;
     fillNoFlow(h_diffHitPatternNumberOfValidPixelHits, diffHitPatternNumberOfValidPixelHits);
-    auto diffHitPatternNumberOfValidHits = trackPc.hitPattern().numberOfValidHits() - track.hitPattern().numberOfValidHits();
+    auto diffHitPatternNumberOfValidHits = trackPc.hitPattern().numberOfValidHits() - trackNumberOfHits;
     fillNoFlow(h_diffHitPatternNumberOfValidHits, diffHitPatternNumberOfValidHits);
     fillNoFlow(h_diffHitPatternNumberOfLostInnerHits, trackPc.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) - track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS));
 
@@ -409,7 +455,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     // Print warning if there are differences outside the expected range
     if(diffNormalizedChi2 < -1 || diffNormalizedChi2 > 0 || diffCharge != 0 || diffHP != 0 ||
        diffNumberOfPixelHits != 0 || diffNumberOfHits != 0 || diffLostInnerHits != 0 ||
-       diffHitPatternNumberOfValidPixelHits != 0 || diffHitPatternNumberOfValidHits != 0 || diffHitPatternHasValidHitInFirstPixelBarrel != 0) {
+       diffHitPatternHasValidHitInFirstPixelBarrel != 0) {
 
       edm::LogWarning("PackedCandidateTrackValidator") << "Track " << i << " pt " << track.pt() << " eta " << track.eta() << " phi " << track.phi() << " chi2 " << track.chi2() << " ndof " << track.ndof()
                                                        << "\n"
@@ -425,8 +471,9 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
                                                        << " charge " << diffCharge << " " << trackPc.charge() << " " << track.charge()
                                                        << " normalizedChi2 " << diffNormalizedChi2 << " " << trackPc.normalizedChi2() << " " << track.normalizedChi2()
                                                        << "\n "
-                                                       << " numberOfPixelHits " << diffNumberOfPixelHits << " " << pcRef->numberOfPixelHits() << " " << track.hitPattern().numberOfValidPixelHits()
-                                                       << " numberOfHits " << diffNumberOfHits << " " << pcRef->numberOfHits() << " " << track.hitPattern().numberOfValidHits()
+                                                       << " numberOfHits " << diffNumberOfHits << " " << pcNumberOfHits << " " << trackNumberOfHits
+                                                       << " numberOfPixelHits " << diffNumberOfPixelHits << " " << pcNumberOfPixelHits << " " << trackNumberOfPixelHits
+                                                       << " numberOfStripHits # " << pcNumberOfStripHits << " " << trackNumberOfStripHits
                                                        << "\n "
                                                        << " hitPattern.numberOfValidPixelHits " << diffHitPatternNumberOfValidPixelHits << " " << trackPc.hitPattern().numberOfValidPixelHits() << " " << track.hitPattern().numberOfValidPixelHits()
                                                        << " hitPattern.numberOfValidHits " << diffHitPatternNumberOfValidHits << " " << trackPc.hitPattern().numberOfValidHits() << " " << track.hitPattern().numberOfValidHits()
