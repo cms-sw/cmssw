@@ -254,6 +254,7 @@ void WalkAST::CheckCXXOperatorCallExpr(const clang::CXXOperatorCallExpr *OCE,con
 
 void WalkAST::CheckExplicitCastExpr(const clang::ExplicitCastExpr * CE,const clang::MemberExpr *ME){
 
+     if (! ( clang::CStyleCastExpr::classof(CE) || clang::CXXConstCastExpr::classof(CE) )) return;
      const clang::Expr *E = CE->getSubExpr();
      clang::ASTContext &Ctx = AC->getASTContext();
      clang::QualType OrigTy = Ctx.getCanonicalType(E->getType());
