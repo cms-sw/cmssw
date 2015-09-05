@@ -48,7 +48,7 @@ public:
     if (regionPSet.exists("searchOpt")) m_searchOpt = regionPSet.getParameter<bool>("searchOpt");
     else                                m_searchOpt = false;
 
-    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips;
+    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever;
     if (regionPSet.exists("measurementTrackerName"))
     {
       // FIXME: when next time altering the configuration of this
