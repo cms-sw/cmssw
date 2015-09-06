@@ -32,7 +32,7 @@ RecoLocalCaloRECO = cms.PSet(
                                            'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
                                            'keep ZDCRecHitsSorted_*_*_*',
                                            #'keep HcalUnpackerReport_*_*_*'
-                                           'keep HcalUnpackerReport_castorDigis_*_*'
+                                           'keep HcalUnpackerReport_castorDigis_*_*',
                                            'keep HcalUnpackerReport_hcalDigis_*_*'
         )
 )
