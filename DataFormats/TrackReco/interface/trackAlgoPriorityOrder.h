@@ -58,7 +58,16 @@ namespace impl {
     reco::TrackBase::hltIter2,
     reco::TrackBase::hltIter3,
     reco::TrackBase::hltIter4,
-    reco::TrackBase::hltIterX
+    reco::TrackBase::hltIterX,
+    reco::TrackBase::hiRegitMuInitialStep,
+    reco::TrackBase::hiRegitMuPixelPairStep,
+    reco::TrackBase::hiRegitMuMixedTripletStep,
+    reco::TrackBase::hiRegitMuPixelLessStep,
+    reco::TrackBase::hiRegitMuDetachedTripletStep,
+    reco::TrackBase::hiRegitMuMuonSeededStepInOut,
+    reco::TrackBase::hiRegitMuMuonSeededStepOutIn,
+    reco::TrackBase::hiRegitMuLowPtTripletStep,
+    reco::TrackBase::hiRegitMuTobTecStep
   };
 
   static_assert(reco::TrackBase::algoSize == sizeof(algoPriorityOrder)/sizeof(unsigned int), "Please update me too after adding new enumerators to reco::TrackBase::TrackAlgorithm");

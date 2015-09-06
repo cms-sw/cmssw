@@ -87,10 +87,12 @@ EGExtraInfoModifierFromFloatValueMaps(const edm::ParameterSet& conf) :
   ele_idx = pho_idx = 0;
 }
 
-inline void get_product(const edm::Event& evt,
-                        const edm::EDGetTokenT<edm::ValueMap<float> >& tok,
-                        std::unordered_map<unsigned, edm::Handle<edm::ValueMap<float> > >& map) {
-  evt.getByToken(tok,map[tok.index()]);
+namespace {
+  inline void get_product(const edm::Event& evt,
+                          const edm::EDGetTokenT<edm::ValueMap<float> >& tok,
+                          std::unordered_map<unsigned, edm::Handle<edm::ValueMap<float> > >& map) {
+    evt.getByToken(tok,map[tok.index()]);
+  }
 }
 
 void EGExtraInfoModifierFromFloatValueMaps::
@@ -135,8 +137,10 @@ void EGExtraInfoModifierFromFloatValueMaps::
 setEventContent(const edm::EventSetup& evs) {
 }
 
-template<typename T, typename U, typename V>
-inline void make_consumes(T& tag,U& tok,V& sume) { if( !(empty_tag == tag) ) tok = sume.template consumes<edm::ValueMap<float> >(tag); }
+namespace {
+  template<typename T, typename U, typename V>
+  inline void make_consumes(T& tag,U& tok,V& sume) { if( !(empty_tag == tag) ) tok = sume.template consumes<edm::ValueMap<float> >(tag); }
+}
 
 void EGExtraInfoModifierFromFloatValueMaps::
 setConsumes(edm::ConsumesCollector& sumes) {
@@ -155,9 +159,11 @@ setConsumes(edm::ConsumesCollector& sumes) {
   }
 }
 
-template<typename T, typename U, typename V>
-inline void assignValue(const T& ptr, const U& tok, const V& map, float& value) {
-  if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
+namespace {
+  template<typename T, typename U, typename V>
+  inline void assignValue(const T& ptr, const U& tok, const V& map, float& value) {
+    if( !tok.isUninitialized() ) value = map.find(tok.index())->second->get(ptr.id(),ptr.key());
+  }
 }
 
 void EGExtraInfoModifierFromFloatValueMaps::

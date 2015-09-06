@@ -483,7 +483,7 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
     std::set<MonitorElement>::const_iterator i_lumi = data_.lower_bound(global_me);
     while (i_lumi->data_.lumi != lumi) {
       auto temp = i_lumi++;
-      if (i_lumi->getFullname() == i->getFullname() &&  i_lumi->markedToDelete())
+      if (i_lumi->getName() == i->getName() && i_lumi->getPathname() == i->getPathname() &&  i_lumi->markedToDelete())
 	{
 	  data_.erase(temp);
 	}
@@ -3221,11 +3221,11 @@ DQMStore::removeElement(const std::string &dir, const std::string &name, bool wa
 {
   MonitorElement proto(&dir, name);
   MEMap::iterator pos = data_.find(proto);
-  if (pos == data_.end() && warning)
+  if (pos != data_.end())
+    data_.erase(pos);
+  else if (warning)
     std::cout << "DQMStore: WARNING: attempt to remove non-existent"
               << " monitor element '" << name << "' in '" << dir << "'\n";
-  else
-    data_.erase(pos);
 }
 
 //////////////////////////////////////////////////////////////////////

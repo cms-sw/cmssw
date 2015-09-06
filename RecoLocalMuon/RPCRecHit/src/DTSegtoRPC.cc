@@ -1,54 +1,18 @@
-#include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
-#include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/CommonTopologies/interface/RectangularStripTopology.h>
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
+#include "Geometry/DTGeometry/interface/DTGeometry.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
-#include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
-#include <DataFormats/RPCRecHit/interface/RPCRecHitCollection.h>
-#include <RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h>
+#include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
+#include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h"
+#include "RecoLocalMuon/RPCRecHit/src/DTObjectMap.h"
+#include "RecoLocalMuon/RPCRecHit/src/DTStationIndex.h"
+
 #include <ctime>
-
-ObjectMap* ObjectMap::mapInstance = NULL;
-
-ObjectMap* ObjectMap::GetInstance(const edm::EventSetup& iSetup){
-  if (mapInstance == NULL){
-    mapInstance = new ObjectMap(iSetup);
-  }
-  return mapInstance;
-}
-
-ObjectMap::ObjectMap(const edm::EventSetup& iSetup){
-  edm::ESHandle<RPCGeometry> rpcGeo;
-  edm::ESHandle<DTGeometry> dtGeo;
-  
-  iSetup.get<MuonGeometryRecord>().get(rpcGeo);
-  iSetup.get<MuonGeometryRecord>().get(dtGeo);
-  
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast<const RPCChamber* >( *it ) != 0 ){
-      auto ch = dynamic_cast<const RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	int region=rpcId.region();
-	if(region==0){
-	  int wheel=rpcId.ring();
-	  int sector=rpcId.sector();
-	  int station=rpcId.station();
-	  DTStationIndex ind(region,wheel,sector,station);
-	  std::set<RPCDetId> myrolls;
-	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
-	  myrolls.insert(rpcId);
-	  rollstoreDT[ind]=myrolls;
-	}
-      }
-    }
-  }
-}
 
 int distsector(int sector1,int sector2){
   if(sector1==13) sector1=4;
@@ -67,7 +31,7 @@ int distwheel(int wheel1,int wheel2){
   return distance;
 }
 
-DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, const edm::EventSetup& iSetup,const edm::Event& iEvent,bool debug,double eyr){
+DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection * all4DSegments, const edm::EventSetup& iSetup, bool debug,double eyr){
 
   /*
   MinCosAng=iConfig.getUntrackedParameter<double>("MinCosAng",0.95);
@@ -97,16 +61,18 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
     clock_gettime(CLOCK_REALTIME, &start_time);
   */
 
-  _ThePoints = new RPCRecHitCollection();
+  _ThePoints.reset(new RPCRecHitCollection());
 
   if(all4DSegments->size()>8){
     if(debug) std::cout<<"Too many segments in this event we are not doing the extrapolation"<<std::endl;
   }else{ 
     edm::ESHandle<RPCGeometry> rpcGeo;
     edm::ESHandle<DTGeometry> dtGeo;
+    edm::ESHandle<DTObjectMap> dtMap;
   
     iSetup.get<MuonGeometryRecord>().get(rpcGeo);
     iSetup.get<MuonGeometryRecord>().get(dtGeo);
+    iSetup.get<MuonGeometryRecord>().get(dtMap);
 
     /*
       clock_gettime(CLOCK_REALTIME, &stop_time);
@@ -179,13 +145,10 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 	float dy=segmentDirection.y();
 	float dz=segmentDirection.z();
       
-	if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-	ObjectMap* TheObject = ObjectMap::GetInstance(iSetup);
 	if(debug) std::cout<<"Creating the DTIndex"<<std::endl;
 	DTStationIndex theindex(0,dtWheel,dtSector,dtStation);
 	if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
-      
-	std::set<RPCDetId> rollsForThisDT = TheObject->GetInstance(iSetup)->GetRolls(theindex);
+	std::set<RPCDetId> rollsForThisDT = dtMap->getRolls(theindex);
       
 	if(debug) std::cout<<"DT  \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
       
@@ -370,13 +333,10 @@ DTSegtoRPC::DTSegtoRPC(edm::Handle<DTRecSegment4DCollection> all4DSegments, cons
 		      dtSector=10;
 		    }
 		   
-		    if(debug)  std::cout<<"Calling to Object Map class"<<std::endl;
-		    ObjectMap* TheObject = ObjectMap::GetInstance(iSetup);
 		    if(debug) std::cout<<"Creating the DTIndex"<<std::endl;
 		    DTStationIndex theindex(0,dtWheel,dtSector,dtStation);
 		    if(debug) std::cout<<"Getting the Rolls for the given index"<<std::endl;
-
-		    std::set<RPCDetId> rollsForThisDT = TheObject->GetInstance(iSetup)->GetRolls(theindex);
+		    std::set<RPCDetId> rollsForThisDT = dtMap->getRolls(theindex);
 
 		    if(debug) std::cout<<"MB4 \t \t Number of rolls for this DT = "<<rollsForThisDT.size()<<std::endl;
 		    
