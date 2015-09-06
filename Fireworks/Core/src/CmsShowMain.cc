@@ -349,25 +349,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       m_context->getField()->setSource(FWMagField::kUser);
       m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
    }
-
-<<<<<<< HEAD
-   if ( m_inputFiles.empty()) {
-      f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
-      startupTasks()->addTask(f);
-      f=boost::bind(&CmsShowMain::setupDataHandling,this);
-      startupTasks()->addTask(f);
-   }
-   else {
-      f=boost::bind(&CmsShowMain::setupDataHandling,this);
-      startupTasks()->addTask(f);
-      f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
-      startupTasks()->addTask(f);
-   }
-=======
   
    f=boost::bind(&CmsShowMain::setupDataHandling,this);
    startupTasks()->addTask(f);
->>>>>>> 1418f5c... Autodetect configuration after setup in case config file name is not give command line and file is loaded first stime,
+
   
    if (vm.count(kLoopOpt))
       setPlayLoop();
