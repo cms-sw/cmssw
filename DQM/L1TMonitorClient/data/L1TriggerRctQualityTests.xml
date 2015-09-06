@@ -23,17 +23,17 @@
     </QTEST>
 
 
-    <LINK name="*RctEmIsoEmEtEtaPhi">
+    <LINK name="*L1TRCT/Layer2EmIsoEmEtEtaPhi">
         <TestName activate="true">HotChannels_RCT_2D</TestName>
         <TestName activate="true">DeadChannels_RCT_2D_loose</TestName>
     </LINK>
 
-    <LINK name="*RctEmNonIsoEmEtEtaPhi">
+    <LINK name="*L1TRCT/Layer2EmNonIsoEmEtEtaPhi">
         <TestName activate="true">HotChannels_RCT_2D</TestName>
         <TestName activate="true">DeadChannels_RCT_2D_loose</TestName>
     </LINK>
 
-    <LINK name="*RctRegionsEtEtaPhi">
+    <LINK name="*L1TRCT/Layer2RegionsEtEtaPhi">
         <TestName activate="true">HotChannels_RCT_2D</TestName>
         <TestName activate="true">DeadChannels_RCT_2D_tight</TestName>
     </LINK>

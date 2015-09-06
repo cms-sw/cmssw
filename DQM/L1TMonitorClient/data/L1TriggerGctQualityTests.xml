@@ -23,24 +23,24 @@
     </QTEST>
 
 
-    <LINK name="*IsoEmRankEtaPhi">
+    <LINK name="*L1TStage1Layer2/IsoEmRankEtaPhi">
         <TestName activate="true">HotChannels_GCT_2D</TestName>
-        <TestName activate="true">DeadChannels_GCT_2D_loose</TestName>
+        <TestName activate="false">DeadChannels_GCT_2D_loose</TestName>
     </LINK>
 
-    <LINK name="*NonIsoEmRankEtaPhi">
+    <LINK name="*L1TStage1Layer2/NonIsoEmRankEtaPhi">
         <TestName activate="true">HotChannels_GCT_2D</TestName>
-        <TestName activate="true">DeadChannels_GCT_2D_loose</TestName>
+        <TestName activate="false">DeadChannels_GCT_2D_loose</TestName>
     </LINK>
 
-    <LINK name="*AllJetsEtEtaPhi">
+    <LINK name="*L1TStage1Layer2/AllJetsEtEtaPhi">
         <TestName activate="true">HotChannels_GCT_2D</TestName>
-        <TestName activate="true">DeadChannels_GCT_2D_tight</TestName>
+        <TestName activate="false">DeadChannels_GCT_2D_tight</TestName>
     </LINK>
 
-    <LINK name="*TauJetsEtEtaPhi">
+    <LINK name="*L1TStage1Layer2/TauJetsEtEtaPhi">
         <TestName activate="true">HotChannels_GCT_2D</TestName>
-        <TestName activate="true">DeadChannels_GCT_2D_loose</TestName>
+        <TestName activate="false">DeadChannels_GCT_2D_loose</TestName>
     </LINK>
 
 

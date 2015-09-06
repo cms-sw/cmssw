@@ -28,7 +28,7 @@ process.load("DQM.Integration.config.inputsource_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 # for local test
 process.dqmEnv.subSystemFolder = 'L1TEMU'
-process.dqmSaver.tag = 'L1TEMU'
+#process.dqmSaver.tag = 'L1TEMU'
 #
 # no references needed
 # replace DQMStore.referenceFileName = "L1TEMU_reference.root"
@@ -92,7 +92,7 @@ process.valCsctfTrackDigis.SectorProcessor.gangedME1a = cms.untracked.bool(False
 #
 process.schedule = cms.Schedule(process.rawToDigiPath,
                                 process.l1HwValEmulatorMonitorPath,
-                                process.l1EmulatorMonitorClientPath,
+                                #process.l1EmulatorMonitorClientPath,
                                 process.l1EmulatorMonitorEndPath)
 
 #---------------------------------------------
@@ -103,7 +103,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 # remove a module from hardware validation
 # cff file: L1Trigger.HardwareValidation.L1HardwareValidation_cff
 #
-# process.L1HardwareValidation.remove(process.deCsctf)
+process.L1HardwareValidation.remove(process.deCsctf)
 #
 process.L1HardwareValidation.remove(process.deDt)
 
@@ -112,10 +112,17 @@ process.L1HardwareValidation.remove(process.l1TdeRCTRun1)
 # remove a L1 trigger system from the comparator integrated in hardware validation
 # cfi file: L1Trigger.HardwareValidation.L1Comparator_cfi
 #
-process.l1compare.COMPARE_COLLS = [0, 0, 0, 1,  0, 1, 0, 0, 1, 0, 1, 0]
+#process.l1compare.COMPARE_COLLS = [0, 0, 0, 1,  0, 1, 0, 0, 1, 0, 1, 0]
+process.l1compare.COMPARE_COLLS = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0] 
 #
-process.l1demon.COMPARE_COLLS = [0, 0, 0, 1,  0, 1, 0, 0, 1, 0, 1, 0]
+#process.l1demon.COMPARE_COLLS = [0, 0, 0, 1,  0, 0, 0, 0, 0, 0, 0, 0]
+process.l1demon.COMPARE_COLLS = [0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0]
 
+process.l1demon.HistFolder = cms.untracked.string('L1TEMU/Legacy')
+
+process.l1TdeGCT.HistFolder = cms.untracked.string('L1TEMU/Legacy/GCTexpert')
+
+process.l1GtHwValidation.DirName = cms.untracked.string("L1TEMU/Legacy/GTexpert")
 #
 # remove an expert module for L1 trigger system
 # cff file: DQM.L1TMonitor.L1TEmulatorMonitor_cff
