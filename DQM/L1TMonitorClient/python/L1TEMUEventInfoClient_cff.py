@@ -372,7 +372,7 @@ l1temuEventInfoClient.L1Systems = cms.VPSet(
                         QualityTests = cms.VPSet(
                             cms.PSet(
                                 QualityTestName = cms.string("L1EmulatorGTErrorFlagQT"),
-                                QualityTestHist = cms.string("L1TEMU/Stage1GTexpert/GTErrorFlag"),
+                                QualityTestHist = cms.string("L1TEMU/GTexpert/GTErrorFlag"),
                                 QualityTestSummaryEnabled = cms.uint32(1)
                                 )
                             )
