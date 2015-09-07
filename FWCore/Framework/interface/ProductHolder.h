@@ -24,6 +24,7 @@ namespace edm {
   class ProductProvenanceRetriever;
   class DelayedReader;
   class ModuleCallingContext;
+  class SharedResourcesAcquirer;
   class Principal;
 
   class ProductHolderBase {
@@ -45,9 +46,11 @@ namespace edm {
       return getProductData();
     }
 
-    ProductData const* resolveProduct(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+    ProductData const* resolveProduct(ResolveStatus& resolveStatus,
+                                      bool skipCurrentProcess,
+                                      SharedResourcesAcquirer* sra,
                                       ModuleCallingContext const* mcc) const {
-      return resolveProduct_(resolveStatus, skipCurrentProcess, mcc);
+      return resolveProduct_(resolveStatus, skipCurrentProcess, sra, mcc);
     }
 
     void resetStatus () {
@@ -171,7 +174,9 @@ namespace edm {
   private:
     virtual ProductData const& getProductData() const = 0;
     virtual ProductData& getProductData() = 0;
-    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+    virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                               bool skipCurrentProcess,
+                                               SharedResourcesAcquirer* sra,
                                                ModuleCallingContext const* mcc) const = 0;
     virtual void swap_(ProductHolderBase& rhs) = 0;
     virtual bool onDemand_() const = 0;
@@ -223,7 +228,9 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(productIsUnavailable_, other.productIsUnavailable_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 bool skipCurrentProcess,
+                                                 SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp, ProductProvenance const& productProvenance) override;
       virtual void putProduct_(std::unique_ptr<WrapperBase> edp) const override;
@@ -310,7 +317,9 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(theStatus_, other.theStatus_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 bool skipCurrentProcess,
+                                                 SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
       virtual void resetStatus_() override {theStatus_ = NotRun;}
       virtual bool onDemand_() const override {return false;}
@@ -338,7 +347,9 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(theStatus_, other.theStatus_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 bool skipCurrentProcess,
+                                                 SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
       virtual void resetStatus_() override {theStatus_ = UnscheduledNotRun;}
       virtual bool onDemand_() const override {return status() == UnscheduledNotRun;}
@@ -366,7 +377,9 @@ namespace edm {
         edm::swap(productData_, other.productData_);
         std::swap(theStatus_, other.theStatus_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 bool skipCurrentProcess,
+                                                 SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
       virtual void resetStatus_() override {theStatus_ = NotPut;}
       virtual bool onDemand_() const override {return false;}
@@ -390,8 +403,10 @@ namespace edm {
         realProduct_.swap(other.realProduct_);
         std::swap(bd_, other.bd_);
       }
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
-                                                 ModuleCallingContext const* mcc) const override {return realProduct_.resolveProduct(resolveStatus, skipCurrentProcess, mcc);}
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 bool skipCurrentProcess,
+                                                 SharedResourcesAcquirer* sra,
+                                                 ModuleCallingContext const* mcc) const override {return realProduct_.resolveProduct(resolveStatus, skipCurrentProcess, sra, mcc);}
       virtual bool onDemand_() const override {return realProduct_.onDemand();}
       virtual void resetStatus_() override {realProduct_.resetStatus();}
       virtual bool productUnavailable_() const override {return realProduct_.productUnavailable();}
@@ -439,7 +454,9 @@ namespace edm {
     private:
       virtual ProductData const& getProductData() const override;
       virtual ProductData& getProductData() override;
-      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus, bool skipCurrentProcess,
+      virtual ProductData const* resolveProduct_(ResolveStatus& resolveStatus,
+                                                 bool skipCurrentProcess,
+                                                 SharedResourcesAcquirer* sra,
                                                  ModuleCallingContext const* mcc) const override;
       virtual void swap_(ProductHolderBase& rhs) override;
       virtual bool onDemand_() const override;
