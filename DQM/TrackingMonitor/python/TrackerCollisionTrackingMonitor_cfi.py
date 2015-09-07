@@ -50,6 +50,7 @@ TrackerCollisionTrackMon.doGoodTrackLayersVsPhiVsEtaPerTrack = cms.bool(True)
 TrackerCollisionTrackMon.doPUmonitoring                      = cms.bool(False)
 TrackerCollisionTrackMon.doPlotsVsBXlumi                     = cms.bool(False)
 TrackerCollisionTrackMon.doPlotsVsGoodPVtx                   = cms.bool(True)
+TrackerCollisionTrackMon.doEffFromHitPattern                 = cms.bool(True)
 
 # LS analysis
 TrackerCollisionTrackMon.doLumiAnalysis       = cms.bool(True)     
