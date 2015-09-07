@@ -375,57 +375,39 @@ CmsShowMainBase::setupConfiguration()
 {
    m_guiManager->updateStatus("Setting up configuration...");
 
-   if(m_configurationManager->getIgnore()) {
-      fwLog(fwlog::kInfo) << "no configuration is loaded." << std::endl;
-      m_configFileName = "newconfig.fwc";
-   }
-   else {
-       try
-       { 
-           gEve->DisableRedraw();
-           if (m_configFileName.empty())
-           {
-               m_configFileName = m_configurationManager->guessAndReadFromFile(m_metadataManagerPtr);
-           }
-           else
-           {
-               char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
-               m_configFileName = whereConfig;
-               delete [] whereConfig;
-               m_configurationManager->readFromFile(m_configFileName);
-           }
-           gEve->EnableRedraw();
-       }
-      catch (SimpleSAXParser::ParserError &e)
+   try
+   { 
+      gEve->DisableRedraw();
+      if (m_configFileName.empty())
       {
-         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
-                              << m_configFileName 
-                              << "': " 
-                              << e.error()
-                              << std::endl;
-         exit(1);
+         m_configFileName = m_configurationManager->guessAndReadFromFile(m_metadataManagerPtr);
       }
-      catch (std::runtime_error &e)
+      else
       {
-         fwLog(fwlog::kError) <<"Unable to load configuration file '" 
-                              << m_configFileName 
-                              << "' which was specified on command line. Quitting." 
-                              << std::endl;
-         exit(1);
+         char* whereConfig = gSystem->Which(TROOT::GetMacroPath(), m_configFileName.c_str(), kReadPermission);
+         m_configFileName = whereConfig;
+         delete [] whereConfig;
+         m_configurationManager->readFromFile(m_configFileName);
       }
-
-       
+      gEve->EnableRedraw();
    }
-
-   // case configuration does not contain GUI Manager entry
-   if ( !m_guiManager->getMainFrame()->IsMapped()) {
-
-       m_guiManager->getMainFrame()->MapSubwindows();
-       m_guiManager->getMainFrame()->Layout();
-       m_guiManager->getMainFrame()->MapRaised();
-       m_guiManager->createView("Rho Phi"); 
-       m_guiManager->createView("Rho Z"); 
+   catch (SimpleSAXParser::ParserError &e)
+   {
+      fwLog(fwlog::kError) <<"Unable to load configuration file '" 
+                           << m_configFileName 
+                           << "': " 
+                           << e.error()
+                           << std::endl;
+      exit(1);
    }
+   catch (std::runtime_error &e)
+   {
+      fwLog(fwlog::kError) <<"Unable to load configuration file '" 
+                           << m_configFileName 
+                           << "' which was specified on command line. Quitting." 
+                           << std::endl;
+      exit(1);
+   }       
 }
 
 
