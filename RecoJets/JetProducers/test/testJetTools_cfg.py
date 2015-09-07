@@ -114,6 +114,24 @@ patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2'
 process.out.outputCommands += ['keep *_NjettinessAK8_*_*']
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#ECF
+
+process.load('RecoJets.JetProducers.ECF_cfi')
+
+process.ECFCA8 = process.ECF.clone()
+process.ECFCA8.src = cms.InputTag("ca8PFJetsCHS")
+process.ECFCA8.cone = cms.double(0.8)
+
+patJetsCA8.userData.userFloats.src += ['ECFCA8:ecf1','ECFCA8:ecf2','ECFCA8:ecf3']
+process.out.outputCommands += ['keep *_ECFCA8_*_*']
+
+process.ECFAK8 = process.ECFCA8.clone()
+process.ECFAK8.src = cms.InputTag("ak8PFJetsCHS")
+
+patJetsAK8.userData.userFloats.src += ['ECFAK8:ecf1','ECFAK8:ecf2','ECFAK8:ecf3']
+process.out.outputCommands += ['keep *_ECFAK8_*_*']
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #QJetsAdder
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
