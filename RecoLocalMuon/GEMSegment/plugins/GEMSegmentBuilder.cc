@@ -47,23 +47,32 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     // - Layer 1 = reference layer (effective layermask)
     // - Roll 0  = reference roll  (effective rollmask)
     // - GE2/1 Long & Short needs to be combined => station = 2,3 ==> 3
+    // - Station == 1 (GE1/1) or == 3 (GE2/1)
+    // this reference id serves to link all GEMEtaPartitions
+    // and will also be used to determine the GEMChamber 
+    // to which the GEMSegment is assigned (done inside GEMSegAlgoXX)
     int station = 0; 
     if(it2->gemId().station()==1) station=1;
     else if(it2->gemId().station()==2 || it2->gemId().station()==3) station=3;
     GEMDetId id(it2->gemId().region(),1,station,1,it2->gemId().chamber(),0);
     LogDebug("GEMSegmentBuilder") << "GEM Reference id :: "<<id<< " = " << id.rawId();
+
+    // retrieve vector of GEMRecHits associated to the reference id
     std::vector<GEMRecHit* > pp = ensembleRH[id.rawId()];
+    // save current GEMRecHit in vector
     pp.push_back(it2->clone());
+    // assign updated vector of GEMRecHits to reference id
     ensembleRH[id.rawId()]=pp;
   }
-  LogDebug("GEMSegmentBuilder") << "Waar loopt het mis?";
 
+  // Loop on the entire map <ref id, vector of GEMRecHits>
   for(auto enIt=ensembleRH.begin(); enIt != ensembleRH.end(); ++enIt) {
     
     std::vector<const GEMRecHit*> gemRecHits;
     std::map<uint32_t,const GEMEtaPartition* > ens;
 
-    // all detIds have been assigned to the according detId with layer 1, roll 0 which is not a GEMEtaPartition
+    // all detIds have been assigned to the according detId with layer 1, roll 0 
+    // which is not a GEMEtaPartition, the next line will crash therefore
     // const GEMEtaPartition* firstlayer = geom_->etaPartition(enIt->first); 
     // therefore just take the GEMEtaPartition of the first rechit in the map
     std::vector<GEMRecHit* > pp = enIt->second;
