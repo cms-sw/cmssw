@@ -326,7 +326,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
      }
    
 
-   theTrackAnalyzer->initHisto(ibooker);
+     theTrackAnalyzer->initHisto(ibooker, iSetup);
 
    // book the Seed Property histograms
    // ---------------------------------------------------------------------------------//
@@ -533,7 +533,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       reco::TrackCollection trackCollection = *trackHandle;
       // calculate the mean # rechits and layers
       int totalRecHits = 0, totalLayers = 0;
-      
+
+      theTrackAnalyzer->setNumberOfGoodVertices(iEvent);
       for (reco::TrackCollection::const_iterator track = trackCollection.begin();
 	   track!=trackCollection.end(); ++track) {
 	
