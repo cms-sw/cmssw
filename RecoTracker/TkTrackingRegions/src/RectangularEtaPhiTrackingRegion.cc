@@ -38,7 +38,9 @@
 #include <algorithm>
 #include <cctype>
 
+namespace {
 template <class T> T sqr( T t) {return t*t;}
+}
 
 
 using namespace PixelRecoUtilities;
