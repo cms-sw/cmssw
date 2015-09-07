@@ -218,6 +218,11 @@
   <use   name="DataFormats/WrappedStdDictionaries"/>
   <use   name="FWCore/Utilities"/>
 </bin>
+<bin   name="TestFWCoreFrameworkMayConsumesDeadlock" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_deadlock_test.sh"/>
+  <use   name="DataFormats/WrappedStdDictionaries"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
 <bin   name="TestFWCoreFrameworkReplace" file="TestDriver.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_replace_tests.sh"/>
   <use   name="FWCore/Utilities"/>

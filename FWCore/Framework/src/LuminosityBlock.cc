@@ -40,6 +40,13 @@ namespace edm {
       const_cast<Run*>(run_.get())->setConsumer(iConsumer);
     }
   }
+  
+  void
+  LuminosityBlock::setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer) {
+    provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
+    const_cast<Run*>(run_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
+  }
+
 
   LuminosityBlockPrincipal const&
   LuminosityBlock::luminosityBlockPrincipal() const {

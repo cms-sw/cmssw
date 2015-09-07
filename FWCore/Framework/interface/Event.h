@@ -54,6 +54,7 @@ namespace edm {
   class EDConsumerBase;
   class EDProductGetter;
   class ProducerBase;
+  class SharedResourcesAcquirer;
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
   }
@@ -66,6 +67,8 @@ namespace edm {
     
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer);
+    
+    void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
     
     // AUX functions are defined in EventBase
     EventAuxiliary const& eventAuxiliary() const {return aux_;}
