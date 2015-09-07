@@ -31,9 +31,8 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
   	
   LogDebug("GEMSegmentBuilder")<< "Total number of rechits in this event: " << recHits->size();
   
-  // Let's define the ensemble of GEM devices having the same region, chambers number (phi), and eta partition
-  // and layer run from 1 to number of layer. This is not the definition of one chamber... and indeed segments
-  // could in principle run in different way... The concept of the DetLayer would be more appropriate...
+  // Let's define the ensemble of GEM devices having the same region, chambers number (phi)
+  // different eta partitions and different layers are allowed
 
   std::map<uint32_t, std::vector<GEMRecHit*> > ensembleRH;
     
@@ -71,21 +70,18 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     std::vector<const GEMRecHit*> gemRecHits;
     std::map<uint32_t,const GEMEtaPartition* > ens;
 
-    // all detIds have been assigned to the according detId with layer 1, roll 0 
-    // which is not a GEMEtaPartition, the next line will crash therefore
-    // const GEMEtaPartition* firstlayer = geom_->etaPartition(enIt->first); 
-    // therefore just take the GEMEtaPartition of the first rechit in the map
     std::vector<GEMRecHit* > pp = enIt->second;
     std::vector<GEMRecHit*>::iterator ppit = pp.begin();
     GEMRecHit * pphit = (*ppit);
-    const GEMEtaPartition* firstlayer = geom_->etaPartition(pphit->gemId());
+    const GEMChamber* chamber = geom_->chamber(pphit->gemId().chamberId());
     for(auto rechit = enIt->second.begin(); rechit != enIt->second.end(); ++rechit) {
       gemRecHits.push_back(*rechit);
       ens[(*rechit)->gemId()]=geom_->etaPartition((*rechit)->gemId());
     }    
-    GEMSegmentAlgorithm::GEMEnsemble ensemble(std::pair<const GEMEtaPartition*, std::map<uint32_t,const GEMEtaPartition*> >(firstlayer,ens));
+
+    GEMSegmentAlgorithm::GEMEnsemble ensemble(std::pair<const GEMChamber*,      std::map<uint32_t,const GEMEtaPartition*> >(chamber,ens));
     
-    LogDebug("GEMSegmentBuilder") << "found " << gemRecHits.size() << " rechits in chamber " << firstlayer->id();
+    LogDebug("GEMSegmentBuilder") << "found " << gemRecHits.size() << " rechits in chamber " << chamber->id();
     LogDebug("GEMSegmentBuilder") << "run the segment reconstruction algorithm now";
     // given the chamber select the appropriate algo... and run it
     std::vector<GEMSegment> segv = algo->run(ensemble, gemRecHits);
