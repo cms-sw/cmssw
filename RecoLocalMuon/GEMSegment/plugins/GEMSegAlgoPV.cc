@@ -46,7 +46,7 @@ std::vector<GEMSegment> GEMSegAlgoPV::run(const GEMEnsemble& ensemble, const Ens
 
   theEnsemble = ensemble;
   
-  GEMDetId enId((theEnsemble.first)->id().chamberId());
+  GEMDetId enId((theEnsemble.first)->id()); 
   edm::LogVerbatim("GEMSegAlgoPV") << "[GEMSegAlgoPV::run] build segments in chamber " << enId;
   
   // pre-cluster rechits and loop over all sub clusters separately
@@ -286,8 +286,8 @@ bool GEMSegAlgoPV::isGoodToMerge(const EnsembleHitContainer& newChain, const Ens
       // to be chained, two hits need also to be "close" in phi and eta
       bool phiRequirementOK = std::abs(reco::deltaPhi(phi_new[jRH_new],phi_old[jRH_old])) < dPhiChainBoxMax;
       bool etaRequirementOK = fabs(eta_new[jRH_new]-eta_old[jRH_old]) < dEtaChainBoxMax;
-      // and the difference in layer index should be < (nlayers-1)
-      bool layerRequirementOK = abs(layer_new[jRH_new]-layer_old[jRH_old]) < 2;
+      // and the difference in layer index should be < (nlayers-1) // hardcoded here for GE2/1 with 2x2 layers
+      bool layerRequirementOK = abs(layer_new[jRH_new]-layer_old[jRH_old]) < 3;
 
       if(layerRequirementOK && phiRequirementOK && etaRequirementOK){
         return true;
@@ -313,8 +313,12 @@ std::vector<GEMSegment> GEMSegAlgoPV::buildSegments(const EnsembleHitContainer& 
     return gemsegs;
   }
 
+  edm::LogVerbatim("GEMSegAlgoPV") << "[GEMSegAlgoPV::buildSegments] will now try to fit a GEMSegment from collection of "<<rechits.size()<<" GEM RecHits";
+
+
+
   // The actual fit on all hits of the vector of the selected Tracking RecHits:
-  sfit_ = std::unique_ptr<GEMSegFit>(new GEMSegFit(theEnsemble.second, rechits));
+  sfit_ = std::unique_ptr<GEMSegFit>(new GEMSegFit(theEnsemble.first, theEnsemble.second, rechits));
   sfit_->fit();
   edm::LogVerbatim("GEMSegAlgoPV") << "[GEMSegAlgoPV::buildSegments] GEMSegment fit done";
 
@@ -349,7 +353,7 @@ std::vector<GEMSegment> GEMSegAlgoPV::buildSegments(const EnsembleHitContainer& 
   */
 
   // save all information inside GEMCSCSegment
-  edm::LogVerbatim("GEMSegAlgoPV") << "[GEMSegAlgoPV::buildSegments] will now try to make GEMSegment from collection of "<<rechits.size()<<" GEM RecHits";
+  edm::LogVerbatim("GEMSegAlgoPV") << "[GEMSegAlgoPV::buildSegments] will now wrap fit info in GEMSegment dataformat";
   // GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2, averageTime, timeUncrt);
   GEMSegment tmp(proto_segment, protoIntercept, protoDirection, protoErrors, protoChi2);
 
