@@ -135,6 +135,31 @@ def customiseFor10911(process):
         process.hltBSoftMuonMu5L3 = cms.EDProducer("RecoTrackRefSelector", **process.hltBSoftMuonMu5L3.parameters_())
     return process
 
+# Fix MeasurementTrackerEvent configuration in several TrackingRegionProducers (PR 11183)
+def customiseFor11183(process):
+    def replaceInPSet(pset, moduleLabel):
+        for paramName in pset.parameterNames_():
+            param = getattr(pset, paramName)
+            if isinstance(param, cms.PSet):
+                if hasattr(param, "ComponentName") and param.ComponentName.value() == "CandidateSeededTrackingRegionsProducer":
+                    if hasattr(param.RegionPSet, "measurementTrackerName"):
+                        param.RegionPSet.measurementTrackerName = cms.InputTag(param.RegionPSet.measurementTrackerName.value())
+                        if hasattr(param.RegionPSet, "whereToUseMeasurementTracker"):
+                            raise Exception("Assumption of CandidateSeededTrackingRegionsProducer not having 'whereToUseMeasurementTracker' parameter failed")
+                        param.RegionPSet.whereToUseMeasurementTracker = cms.string("ForSiStrips")
+                    else:
+                        param.RegionPSet.whereToUseMeasurementTracker = cms.string("Never")
+                else:
+                    replaceInPSet(param, moduleLabel)
+            elif isinstance(param, cms.VPSet):
+                for element in param:
+                    replaceInPSet(element, moduleLabel)
+
+    for label, module in process.producers_().iteritems():
+        replaceInPSet(module, label)
+
+    return process
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -143,6 +168,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     if cmsswVersion >= "CMSSW_7_6":
         process = customiseFor10418(process)
         process = customiseFor10911(process)
+        process = customiseFor11183(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)

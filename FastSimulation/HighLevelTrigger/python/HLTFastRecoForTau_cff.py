@@ -37,7 +37,8 @@ hltPixelTracksReg.RegionFactoryPSet.RegionPSet = cms.PSet(
         deltaPhi = cms.double( 0.5 ),
         nSigmaZVertex = cms.double( 3.0 ),
         zErrorVertex = cms.double( 0.2 ),
-        nSigmaZBeamSpot = cms.double( 4.0 )
+        nSigmaZBeamSpot = cms.double( 4.0 ),
+        whereToUseMeasurementTracker = cms.string("Never"),
 )
 
 
