@@ -126,7 +126,7 @@ std::ostream& operator<<(std::ostream& os, const GEMSegment& seg) {
     "0,)\n"<<
     "            chi2/ndf = " << ((seg.degreesOfFreedom() != 0.) ? seg.chi2()/double(seg.degreesOfFreedom()) :0 ) << 
     " #rechits = " << seg.specificRecHits().size()<<
-    " time = "<< seg.time() << " +/- " << seg.timeErr() << " ns ";
+    " time = "<< seg.time() << " +/- " << seg.timeErr() << " ns";
 
   return os;  
 }
