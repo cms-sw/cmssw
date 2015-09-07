@@ -72,8 +72,8 @@ void GEMSegFit::fit2(void) {
   // We want hit wrt first gem eta partition 
   // ( = reference m00 eta partition) 
   // (and local z will be != 0)
-  LocalPoint h1pos = refgemetapart()->toLocal(h1glopos);  
-  LocalPoint h2pos = refgemetapart()->toLocal(h2glopos);  
+  LocalPoint h1pos = gemchamber()->toLocal(h1glopos);  
+  LocalPoint h2pos = gemchamber()->toLocal(h2glopos);  
     
 
   // 3) Now make straight line between the two points in local coords
@@ -189,14 +189,14 @@ void GEMSegFit::fitlsq(void) {
     GEMDetId d = DetId(hit.rawId());
     const GEMEtaPartition* roll = gemetapartition(d);
     GlobalPoint gp         = roll->toGlobal(hit.localPosition());
-    LocalPoint  lp         = refgemetapart()->toLocal(gp); 
+    LocalPoint  lp         = gemchamber()->toLocal(gp); 
     
     // LogDebug
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
     std::stringstream lpss; lpss<<lp; std::string lps = lpss.str();
     std::stringstream gpss; gpss<<gp; std::string gps = gpss.str();
     edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::fitlsq] - Tracking RecHit global position "<<std::setw(30)<<gps<<" and local position "<<std::setw(30)<<lps
-				     <<" wrt reference GEM eta partition "<<refgemetapart()->id().rawId()<<" = "<<refgemetapart()->id();
+				  <<" wrt reference GEM chamber "<<gemchamber()->id().rawId()<<" = "<<gemchamber()->id();
     #endif
 
     // Local position of hit w.r.t. chamber
@@ -292,7 +292,7 @@ void GEMSegFit::setChi2(void) {
     GEMDetId d = GEMDetId(hit.rawId());
     const GEMEtaPartition* roll = gemetapartition(d);
     GlobalPoint gp         = roll->toGlobal(hit.localPosition());
-    LocalPoint lp          = refgemetapart()->toLocal(gp);
+    LocalPoint lp          = gemchamber()->toLocal(gp);
     
     double u = lp.x();
     double v = lp.y();
@@ -378,7 +378,7 @@ GEMSegFit::SMatrix12by4 GEMSegFit::derivativeMatrix() {
     GEMDetId d = GEMDetId(hit.rawId());
     const GEMEtaPartition* roll = gemetapartition(d);
     GlobalPoint gp = roll->toGlobal(hit.localPosition());
-    LocalPoint lp = refgemetapart()->toLocal(gp); 
+    LocalPoint lp = gemchamber()->toLocal(gp); 
     float z = lp.z();
 
     matrix(row, 0) = 1.;
@@ -407,8 +407,8 @@ void GEMSegFit::setOutFromIP() {
   // Examine its direction and origin in global z: to point outward
   // the localDir should always have same sign as global z...
   
-  double globalZpos    = ( refgemetapart()->toGlobal( intercept_ ) ).z();
-  double globalZdir    = ( refgemetapart()->toGlobal( localDir  ) ).z();
+  double globalZpos    = ( gemchamber()->toGlobal( intercept_ ) ).z();
+  double globalZdir    = ( gemchamber()->toGlobal( localDir  ) ).z();
   double directionSign = globalZpos * globalZdir;
   localdir_ = (directionSign * localDir ).unit();
 }
