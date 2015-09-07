@@ -67,7 +67,20 @@ public:
 
     int nRecHits() const { return theGEMRecHits.size(); }        
 
-    GEMDetId gemDetId() const { return  geographicalId(); }
+    GEMDetId gemDetId() const {
+      DetId detid = geographicalId(); // to be understood where this geographicalId is coming from ... the first rechit in the vector?
+      GEMDetId rollid = GEMDetId(detid);
+      GEMDetId chamid = rollid.chamberId();
+      // for GE1/1 this chamber id is fine
+      // for GE2/1 the station can be 2 or 3 and we want to fix it to 3
+      if(chamid.station()==1)      return chamid;
+      else if(chamid.station()==2) {
+	// GEMDetId:: Re Ri St La Ch Ro
+	return GEMDetId(chamid.region(),1,3,1,chamid.chamber(),0);
+      }
+      else if(chamid.station()==3) return chamid;
+      else return chamid;
+    }  
 
     float time() const    { return theTimeValue; }
     float timeErr() const { return theTimeUncrt; }
