@@ -25,6 +25,7 @@
 #include <DataFormats/MuonDetId/interface/GEMDetId.h>   
 #include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
 #include <Geometry/GEMGeometry/interface/GEMEtaPartition.h>
+#include <Geometry/GEMGeometry/interface/GEMChamber.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -62,8 +63,8 @@ public:
   // PUBLIC FUNCTIONS
 
   //@@ WANT OBJECT TO CACHE THE SET OF HITS SO CANNOT PASS BY REF
-  GEMSegFit( std::map<uint32_t, const GEMEtaPartition*> gemetapartmap, GEMSetOfHits hits) : 
-  gemetapartmap_( gemetapartmap ), hits_( hits ), scaleXError_( 1.0 ), refid_(gemetapartmap_.begin()->first ), fitdone_( false ) 
+  GEMSegFit(const GEMChamber* chamber, std::map<uint32_t, const GEMEtaPartition*> gemetapartmap, GEMSetOfHits hits) : 
+  gemetapartmap_( gemetapartmap ), hits_( hits ), scaleXError_( 1.0 ), gemchamber_(chamber), fitdone_( false ) 
     {
       // --- LogDebug info about reading of GEM Eta Partition map ------------------------------------------
       edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::ctor] cached the gemetapartmap";
@@ -109,7 +110,7 @@ public:
   LocalPoint intercept() const { return intercept_;}
   LocalVector localdir() const { return localdir_;}
   const GEMEtaPartition* gemetapartition(uint32_t id) const { return gemetapartmap_.find(id)->second; }
-  const GEMEtaPartition* refgemetapart() const { return gemetapartmap_.find(refid_)->second; }
+  const GEMChamber* gemchamber() const { return gemchamber_; }
   bool fitdone() const { return fitdone_; }
   
   private:  
@@ -137,16 +138,16 @@ public:
   // const GEMChamber* chamber_;  
   std::map<uint32_t, const GEMEtaPartition*> gemetapartmap_;
 
-  GEMSetOfHits hits_;     //@@ FKA protoSegment
-  float       uslope_;    //@@ FKA protoSlope_u
-  float       vslope_;    //@@ FKA protoSlope_v
-  LocalPoint  intercept_; //@@ FKA protoIntercept		
-  LocalVector localdir_;  //@@ FKA protoDirection
-  double      chi2_;      //@@ FKA protoChi2
-  int         ndof_;      //@@ FKA protoNDF, which was double!!
-  double      scaleXError_;
-  uint32_t    refid_;
-  bool        fitdone_;  
+  GEMSetOfHits      hits_;      //@@ FKA protoSegment
+  float             uslope_;    //@@ FKA protoSlope_u
+  float             vslope_;    //@@ FKA protoSlope_v
+  LocalPoint        intercept_; //@@ FKA protoIntercept		
+  LocalVector       localdir_;  //@@ FKA protoDirection
+  double            chi2_;      //@@ FKA protoChi2
+  int               ndof_;      //@@ FKA protoNDF, which was double!!
+  double            scaleXError_;
+  const GEMChamber* gemchamber_;
+  bool              fitdone_;  
 };
   
 #endif
