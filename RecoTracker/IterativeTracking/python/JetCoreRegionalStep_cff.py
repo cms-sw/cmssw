@@ -64,7 +64,7 @@ jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
 #       JetSrc = cms.InputTag( "ak5CaloJets" ),
         vertexSrc = cms.InputTag( "firstStepGoodPrimaryVertices" ),
         measurementTrackerName = cms.string( "MeasurementTrackerEvent" ),
-        howToUseMeasurementTracker = cms.double( -1.0 )
+        howToUseMeasurementTracker = cms.string( "Never" )
       )
 )
 jetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'jetCoreRegionalStepSeedLayers'

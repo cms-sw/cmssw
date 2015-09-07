@@ -137,18 +137,25 @@ def customiseFor10911(process):
 
 # Fix MeasurementTrackerEvent configuration in several TrackingRegionProducers (PR 11183)
 def customiseFor11183(process):
+    def useMTEName(componentName):
+        if componentName == "CandidateSeededTrackingRegionsProducer":
+            return "whereToUseMeasurementTracker"
+        return "howToUseMeasurementTracker"
+
     def replaceInPSet(pset, moduleLabel):
         for paramName in pset.parameterNames_():
             param = getattr(pset, paramName)
             if isinstance(param, cms.PSet):
-                if hasattr(param, "ComponentName") and param.ComponentName.value() == "CandidateSeededTrackingRegionsProducer":
+                if hasattr(param, "ComponentName") and param.ComponentName.value() in ["CandidateSeededTrackingRegionsProducer", "TauRegionalPixelSeedGenerator"]:
+                    useMTE = useMTEName(param.ComponentName.value())
+
                     if hasattr(param.RegionPSet, "measurementTrackerName"):
                         param.RegionPSet.measurementTrackerName = cms.InputTag(param.RegionPSet.measurementTrackerName.value())
-                        if hasattr(param.RegionPSet, "whereToUseMeasurementTracker"):
-                            raise Exception("Assumption of CandidateSeededTrackingRegionsProducer not having 'whereToUseMeasurementTracker' parameter failed")
-                        param.RegionPSet.whereToUseMeasurementTracker = cms.string("ForSiStrips")
+                        if hasattr(param.RegionPSet, useMTE):
+                            raise Exception("Assumption of CandidateSeededTrackingRegionsProducer not having '%s' parameter failed" % useMTE)
+                        setattr(param.RegionPSet, useMTE, cms.string("ForSiStrips"))
                     else:
-                        param.RegionPSet.whereToUseMeasurementTracker = cms.string("Never")
+                        setattr(param.RegionPSet, useMTE, cms.string("Never"))
                 else:
                     replaceInPSet(param, moduleLabel)
             elif isinstance(param, cms.VPSet):
