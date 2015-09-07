@@ -46,7 +46,7 @@ std::vector<GEMSegment> GEMSegAlgoPV::run(const GEMEnsemble& ensemble, const Ens
 
   theEnsemble = ensemble;
   
-  GEMDetId enId((theEnsemble.first)->id());
+  GEMDetId enId((theEnsemble.first)->id().chamberId());
   edm::LogVerbatim("GEMSegAlgoPV") << "[GEMSegAlgoPV::run] build segments in chamber " << enId;
   
   // pre-cluster rechits and loop over all sub clusters separately
