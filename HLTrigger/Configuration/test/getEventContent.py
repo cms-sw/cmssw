@@ -24,7 +24,7 @@ def extractBlock(config, blocks, target):
 def extractBlocks(config):
   outputA    = ( 'hltOutputA', 'hltOutputPhysicsEGammaCommissioning' )
   outputALCA = ( 'hltOutputALCAPHISYM', 'hltOutputALCAP0', 'hltOutputALCALUMIPIXELS' , 'hltOutputRPCMON' )
-  outputMON  = ( 'hltOutputA', 'hltOutputPhysicsEGammaCommissioning', 'hltOutputDQM', 'hltOutputDQMOffline', 'hltOutputLookArea', 'hltOutputReleaseValidation' )
+  outputMON  = ( 'hltOutputA', 'hltOutputPhysicsEGammaCommissioning', 'hltOutputDQM', 'hltOutputHLTMonitor', 'hltOutputLookArea', 'hltOutputReleaseValidation' )
   extractBlock(config, outputA,    'hltOutputA_cff.py')
   extractBlock(config, outputALCA, 'hltOutputALCA_cff.py')
   extractBlock(config, outputMON,  'hltOutputMON_cff.py')
@@ -78,8 +78,8 @@ if not hasattr(hltOutputMON_cff,'block_hltOutputA'):
   hltOutputMON_cff.block_hltOutputA = hltOutputMON_cff.block_hltOutputPhysicsEGammaCommissioning
 if not hasattr(hltOutputMON_cff,'block_hltOutputDQM'):
   hltOutputMON_cff.block_hltOutputDQM = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
-if not hasattr(hltOutputMON_cff,'block_hltOutputDQMOffline'):
-  hltOutputMON_cff.block_hltOutputDQMOffline = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*' ))
+if not hasattr(hltOutputMON_cff,'block_hltOutputHLTMonitor'):
+  hltOutputMON_cff.block_hltOutputHLTMonitor = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*' ))
 if not hasattr(hltOutputMON_cff,'block_hltOutputLookArea'):
   hltOutputMON_cff.block_hltOutputLookArea = cms.PSet(outputCommands = cms.untracked.vstring( 'drop *' ))
 if not hasattr(hltOutputMON_cff,'block_hltOutputReleaseValidation'):
@@ -89,7 +89,7 @@ hltDebugOutputBlocks = (
   # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputA.outputCommands,
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
-  hltOutputMON_cff.block_hltOutputDQMOffline.outputCommands,
+  hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
   hltOutputMON_cff.block_hltOutputLookArea.outputCommands,
   hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
 )
@@ -109,7 +109,7 @@ hltDebugWithAlCaOutputBlocks = (
   # the DQM, HLTDQM and HLTMON streams have the HLT debug outputs used online
   hltOutputMON_cff.block_hltOutputA.outputCommands,
   hltOutputMON_cff.block_hltOutputDQM.outputCommands,
-  hltOutputMON_cff.block_hltOutputDQMOffline.outputCommands,
+  hltOutputMON_cff.block_hltOutputHLTMonitor.outputCommands,
   hltOutputMON_cff.block_hltOutputLookArea.outputCommands,
   hltOutputMON_cff.block_hltOutputReleaseValidation.outputCommands,
   # the ALCA streams have the AlCa outputs
