@@ -138,7 +138,7 @@ def customiseFor10911(process):
 # Fix MeasurementTrackerEvent configuration in several TrackingRegionProducers (PR 11183)
 def customiseFor11183(process):
     def useMTEName(componentName):
-        if componentName == "CandidateSeededTrackingRegionsProducer":
+        if componentName in ["CandidateSeededTrackingRegionsProducer", "TrackingRegionsFromBeamSpotAndL2Tau"]:
             return "whereToUseMeasurementTracker"
         return "howToUseMeasurementTracker"
 
