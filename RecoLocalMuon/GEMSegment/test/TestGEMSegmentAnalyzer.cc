@@ -80,6 +80,12 @@ class TestGEMSegmentAnalyzer : public edm::EDAnalyzer {
   std::unique_ptr<TH1F> GE11_eta, GE11_phi, GE21_eta, GE21_phi;
   std::unique_ptr<TH1F> GE11_Delta_eta, GE11_Delta_phi;
   std::unique_ptr<TH1F> GE21_Delta_eta, GE21_Delta_phi;
+  std::unique_ptr<TH1F> GE11_LocPos_x, GE11_LocPos_y;
+  std::unique_ptr<TH1F> GE21_LocPos_x, GE21_LocPos_y;
+  std::unique_ptr<TH1F> GE11_GloPos_x, GE11_GloPos_y;
+  std::unique_ptr<TH1F> GE21_GloPos_x, GE21_GloPos_y;
+  std::unique_ptr<TH1F> GE11_GloPos_r, GE11_GloPos_p, GE11_GloPos_t;
+  std::unique_ptr<TH1F> GE21_GloPos_r, GE21_GloPos_p, GE21_GloPos_t;
 
   std::string rootFileName;
   std::unique_ptr<TFile> outputfile;
@@ -160,6 +166,23 @@ TestGEMSegmentAnalyzer::TestGEMSegmentAnalyzer(const edm::ParameterSet& iConfig)
   GE21_Delta_eta = std::unique_ptr<TH1F>(new TH1F("GE21_Delta_eta","GE21_Delta_eta",100,-0.5,0.5));
   GE21_Delta_phi = std::unique_ptr<TH1F>(new TH1F("GE21_Delta_phi","GE21_Delta_phi",100,-0.5,0.5));
 
+  GE11_LocPos_x = std::unique_ptr<TH1F>(new TH1F("GE11_LocPos_x","GE11_LocPos_x",100,-50,50));
+  GE11_LocPos_y = std::unique_ptr<TH1F>(new TH1F("GE11_LocPos_y","GE11_LocPos_y",100,-50,50));
+  GE11_GloPos_x = std::unique_ptr<TH1F>(new TH1F("GE11_GloPos_x","GE11_GloPos_x", 70, 0,350));
+  GE11_GloPos_y = std::unique_ptr<TH1F>(new TH1F("GE11_GloPos_y","GE11_GloPos_y", 70, 0,350));
+  GE11_GloPos_r = std::unique_ptr<TH1F>(new TH1F("GE11_GloPos_r","GE11_GloPos_r",100, 100,350));
+  GE11_GloPos_p = std::unique_ptr<TH1F>(new TH1F("GE11_GloPos_p","GE11_GloPos_p",144,-3.14,3.14));
+  GE11_GloPos_t = std::unique_ptr<TH1F>(new TH1F("GE11_GloPos_t","GE11_GloPos_t", 72, 0.00,3.14));
+
+  GE21_LocPos_x = std::unique_ptr<TH1F>(new TH1F("GE21_LocPos_x","GE21_LocPos_x",100,-50,50));
+  GE21_LocPos_y = std::unique_ptr<TH1F>(new TH1F("GE21_LocPos_y","GE21_LocPos_y",100,-50,50));
+  GE21_GloPos_x = std::unique_ptr<TH1F>(new TH1F("GE21_GloPos_x","GE21_GloPos_x", 70, 0,350));
+  GE21_GloPos_y = std::unique_ptr<TH1F>(new TH1F("GE21_GloPos_y","GE21_GloPos_y", 70, 0,350));
+  GE21_GloPos_r = std::unique_ptr<TH1F>(new TH1F("GE21_GloPos_r","GE21_GloPos_r",100, 100,350));
+  GE21_GloPos_p = std::unique_ptr<TH1F>(new TH1F("GE21_GloPos_p","GE21_GloPos_p",144,-3.14,3.14));
+  GE21_GloPos_t = std::unique_ptr<TH1F>(new TH1F("GE21_GloPos_t","GE21_GloPos_t", 72, 0.00,3.14));
+
+
   GE11_fitchi2 = std::unique_ptr<TH1F>(new TH1F("GE11_chi2","GE11_chi2",11,-0.5,10.5)); 
   GE11_fitndof = std::unique_ptr<TH1F>(new TH1F("GE11_ndf","GE11_ndf",11,-0.5,10.5)); 
   GE11_fitchi2ndof = std::unique_ptr<TH1F>(new TH1F("GE11_chi2Vsndf","GE11_chi2Vsndf",50,0.,5.)); 
@@ -220,6 +243,21 @@ TestGEMSegmentAnalyzer::~TestGEMSegmentAnalyzer()
   GE11_Delta_phi->Write();
   GE21_Delta_eta->Write();
   GE21_Delta_phi->Write();
+
+  GE11_LocPos_x->Write();
+  GE11_LocPos_y->Write();
+  GE11_GloPos_x->Write();
+  GE11_GloPos_y->Write();
+  GE11_GloPos_r->Write();
+  GE11_GloPos_p->Write();
+  GE11_GloPos_t->Write();
+  GE21_LocPos_x->Write();
+  GE21_LocPos_y->Write();
+  GE21_GloPos_x->Write();
+  GE21_GloPos_y->Write();
+  GE21_GloPos_r->Write();
+  GE21_GloPos_p->Write();
+  GE21_GloPos_t->Write();
 
   GE11_fitchi2->Write();
   GE11_fitndof->Write();
@@ -322,6 +360,9 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     // loop on rechits ... 
     // ===================
+    std::cout<<"      GEMRecHit :: "<<" | "<<std::setw(9)<<"ETA"<<" | "<<std::setw(9)<<"PHI";
+    std::cout<<" | "<<std::setw(9)<<"RH X"<<" | "<<std::setw(9)<<"RH Y"<<" | "<<std::setw(9)<<"EXTR X"<<" | "<<std::setw(9)<<"EXTR Y";
+    std::cout<<" | "<<std::setw(9)<<"Delta X"<<" | "<<std::setw(9)<<"Delta Y"<<" | "<<std::setw(9)<<"DetId"<<" | "<<std::setw(9)<<"DetId"<<std::endl;
     // take layer local position -> global -> ensemble local position same frame as segment
     for (auto rh = gemrhs.begin(); rh!= gemrhs.end(); rh++){
 
@@ -334,7 +375,7 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       auto erhLEP = rh->localPositionError();
       auto rhGP = rhr->toGlobal(rhLP); 
 
-      std::cout <<"      const GEMRecHit in DetId "<<gemid<<" with locl pos = "<<rhLP<<" and glob pos = "<<rhGP<<" eta = "<<rhGP.eta()<<" phi = "<<rhGP.phi()<<std::endl;
+      // std::cout <<"      const GEMRecHit in DetId "<<gemid<<" with locl pos = "<<rhLP<<" and glob pos = "<<rhGP<<" eta = "<<rhGP.eta()<<" phi = "<<rhGP.phi()<<std::endl;
 
 
       // GEM RecHit Local Position in GEM Segment Chamber Frame
@@ -346,11 +387,17 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       float ze = rhLPSegm.z();
       LocalPoint extrPoint(xe,ye,ze);                          // in segment rest frame
       auto extSegm = rhr->toLocal(chamb->toGlobal(extrPoint)); // in chamber restframe
+      /*
             std::cout <<"      GEM Layer Id "<<rh->gemId()<<"  error on the local point "<<  erhLEP
 		<<"\n-> Ensemble Rest Frame  RH local  position "<<rhLPSegm<<"  Segment extrapolation "<<extrPoint
 		<<"\n-> Layer Rest Frame  RH local  position "<<rhLP<<"  Segment extrapolation "<<extSegm
 		<<std::endl;
-      
+      */
+
+      std::cout<<"      GEMRecHit :: "<<" | "<<std::setw(9)<<rhGP.eta()<<" | "<<std::setw(9)<<rhGP.phi();
+      std::cout<<" | "<<std::setw(9)<<rhLPSegm.x()<<" | "<<std::setw(9)<<rhLPSegm.y()<<" | "<<std::setw(9)<<extrPoint.x()<<" | "<<std::setw(9)<<extrPoint.y();
+      std::cout<<" | "<<std::setw(9)<<extrPoint.x()-rhLPSegm.x()<<" | "<<std::setw(9)<<extrPoint.y()-rhLPSegm.y();
+      std::cout<<" | "<<std::setw(9)<<rh->gemId().rawId()<<" = "<<rh->gemId()<<std::endl;
 
       if(gemid.station()==1) {
 	GE11_fitchi2->Fill(gems->chi2());
@@ -586,6 +633,13 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     GE11_phi->Fill(segGP.phi()); 
     GE11_Delta_eta->Fill(SIM_eta_neg-segGP.eta());
     GE11_Delta_phi->Fill(reco::deltaPhi(SIM_phi_neg,segGP.phi()));
+    GE11_LocPos_x->Fill(segLP.x());
+    GE11_LocPos_y->Fill(segLP.y());
+    GE11_GloPos_x->Fill(segGP.x());
+    GE11_GloPos_y->Fill(segGP.y());
+    GE11_GloPos_r->Fill(segGP.transverse());  // transverse = perp = sqrt (x*x+y*y)
+    GE11_GloPos_p->Fill(segGP.phi().value()); // angle in radians, for angle in degrees take phi().degrees()
+    GE11_GloPos_t->Fill(segGP.theta());       // theta
 
     for (auto rh = gemrhs.begin(); rh!= gemrhs.end(); rh++){
       auto gemid = rh->gemId();
@@ -635,6 +689,13 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     GE21_phi->Fill(segGP.phi()); 
     GE21_Delta_eta->Fill(SIM_eta_neg-segGP.eta());
     GE21_Delta_phi->Fill(reco::deltaPhi(SIM_phi_neg,segGP.phi()));
+    GE21_LocPos_x->Fill(segLP.x());
+    GE21_LocPos_y->Fill(segLP.y());
+    GE21_GloPos_x->Fill(segGP.x());
+    GE21_GloPos_y->Fill(segGP.y());
+    GE21_GloPos_r->Fill(segGP.transverse()); // transverse = perp = sqrt (x*x+y*y)
+    GE21_GloPos_p->Fill(segGP.phi().value());       // ang2 = phi().value() // angle in radians, for angle in degrees take phi().degrees()
+    GE21_GloPos_t->Fill(segGP.theta());      // theta
 
     for (auto rh = gemrhs.begin(); rh!= gemrhs.end(); rh++){
       auto gemid = rh->gemId();
@@ -708,6 +769,13 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     GE11_phi->Fill(segGP.phi()); 
     GE11_Delta_eta->Fill(SIM_eta_pos-segGP.eta());
     GE11_Delta_phi->Fill(reco::deltaPhi(SIM_phi_pos,segGP.phi()));
+    GE11_LocPos_x->Fill(segLP.x());
+    GE11_LocPos_y->Fill(segLP.y());
+    GE11_GloPos_x->Fill(segGP.x());
+    GE11_GloPos_y->Fill(segGP.y());
+    GE11_GloPos_r->Fill(segGP.transverse()); // transverse = perp = sqrt (x*x+y*y)
+    GE11_GloPos_p->Fill(segGP.phi().value());       // ang2 = phi().value() // angle in radians, for angle in degrees take phi().degrees()
+    GE11_GloPos_t->Fill(segGP.theta());      // theta
 
     for (auto rh = gemrhs.begin(); rh!= gemrhs.end(); rh++){
       auto gemid = rh->gemId();
@@ -757,6 +825,14 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     GE21_phi->Fill(segGP.phi()); 
     GE21_Delta_eta->Fill(SIM_eta_pos-segGP.eta());
     GE21_Delta_phi->Fill(reco::deltaPhi(SIM_phi_pos,segGP.phi()));
+    GE21_LocPos_x->Fill(segLP.x());
+    GE21_LocPos_y->Fill(segLP.y());
+    GE21_GloPos_x->Fill(segGP.x());
+    GE21_GloPos_y->Fill(segGP.y());
+    GE21_GloPos_r->Fill(segGP.transverse());  // transverse = perp = sqrt (x*x+y*y)
+    GE21_GloPos_p->Fill(segGP.phi().value()); // angle in radians, for angle in degrees take phi().degrees()
+    GE21_GloPos_t->Fill(segGP.theta());       // theta
+
 
     for (auto rh = gemrhs.begin(); rh!= gemrhs.end(); rh++){
       auto gemid = rh->gemId();
