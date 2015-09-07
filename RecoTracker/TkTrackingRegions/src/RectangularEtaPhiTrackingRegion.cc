@@ -35,6 +35,8 @@
 
 
 #include<iostream>
+#include <algorithm>
+#include <cctype>
 
 template <class T> T sqr( T t) {return t*t;}
 
@@ -42,6 +44,18 @@ template <class T> T sqr( T t) {return t*t;}
 using namespace PixelRecoUtilities;
 using namespace std;
 using namespace ctfseeding; 
+
+RectangularEtaPhiTrackingRegion::UseMeasurementTracker RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(const std::string& name) {
+  std::string tmp = name;
+  std::transform(tmp.begin(), tmp.end(), tmp.begin(), ::tolower);
+  if(tmp == "never")
+    return UseMeasurementTracker::kNever;
+  if(tmp == "forsistrips")
+    return UseMeasurementTracker::kForSiStrips;
+  if(tmp == "always")
+    return UseMeasurementTracker::kAlways;
+  throw cms::Exception("Configuration") << "Got invalid string '" << name << "', valid values are 'Never', 'ForSiStrips', 'Always' (case insensitive)";
+}
 
 void RectangularEtaPhiTrackingRegion:: initEtaRange( const GlobalVector & dir, const Margin& margin) {
   float eta = dir.eta();
