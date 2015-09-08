@@ -141,12 +141,15 @@ steps['RunMuonEG2015B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015B-v1/RAW',lab
 #### run2 2015C ####
 # Run2015C, 25ns: 254790 (852 LS and 65 files), 254852 (126 LS and 5 files), 254879 (178 LS and 11 files)
 Run2015C=selectedLS([254790])
+Run2015C_full=selectedLS([254790, 254852, 254879])
 steps['RunHLTPhy2015C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015C-v1/RAW',label='hltPhy2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunDoubleEG2015C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015C-v1/RAW',label='doubEG2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunDoubleMuon2015C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015C-v1/RAW',label='doubMu2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunJetHT2015C']={'INPUT':InputInfo(dataSet='/JetHT/Run2015C-v1/RAW',label='jetHT2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunMET2015C']={'INPUT':InputInfo(dataSet='/MET/Run2015C-v1/RAW',label='met2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunMuonEG2015C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015C-v1/RAW',label='muEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleEGPrpt2015C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015C-ZElectron-PromptReco-v1/RAW-RECO',label='dbEGPrpt2015C',events=100000,location='STD', ls=Run2015C_full)}
+steps['RunSingleMuPrpt2015C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015C-ZMu-PromptReco-v1/RAW-RECO',label='sgMuPrpt2015C',events=100000,location='STD', ls=Run2015C_full)}
 
 
 def gen(fragment,howMuch):
