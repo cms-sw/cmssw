@@ -482,7 +482,7 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt ){
 
   // add code to ensure all particles have an end vertex and if they are undecayed with no end vertes set to status 1
   for (HepMC::GenEvent::particle_const_iterator p= evt->particles_begin(); p != evt->particles_end(); ++p){
-    if((*p)->end_vertex() && (*p)->status() == 1)(*p)->set_status(2);
+    if((*p)->end_vertex() && (*p)->status() == 1)edm::LogWarning("EvtGenInterface::decay error: incorrect status!"); //(*p)->set_status(2);
     if((*p)->end_vertex() && (*p)->end_vertex()->particles_out_size()==0) edm::LogWarning("EvtGenInterface::decay error: empty end vertex!");
   } 
   return evt;
@@ -494,6 +494,8 @@ bool EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt,
   //EvtVector4R pInit(EvtPDL::getMass(idEvt),partHep->momentum().px(),partHep->momentum().py(),partHep->momentum().pz());
   EvtVector4R pInit(partHep->momentum().e(),partHep->momentum().px(),partHep->momentum().py(),partHep->momentum().pz()); 
   EvtParticle* parent = EvtParticleFactory::particleFactory(idEvt, pInit);
+  HepMC::FourVector posHep = (partHep->production_vertex())->position();
+  EvtVector4R vInit(posHep.t(),posHep.x(),posHep.y(),posHep.z());
   // Reset polarization if requested....
   if(EvtPDL::getSpinType(idEvt) == EvtSpinType::DIRAC && polarizations.count(partHep->pdg_id())>0){
     HepMC::FourVector momHep = partHep->momentum();
@@ -521,7 +523,7 @@ bool EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt,
 
     // create HepMCTree
     EvtHepMCEvent evtHepMCEvent;
-    evtHepMCEvent.constructEvent(parent);
+    evtHepMCEvent.constructEvent(parent,vInit);
     HepMC::GenEvent* evtGenHepMCTree = evtHepMCEvent.getEvent();
     parent->deleteTree();
 
@@ -553,6 +555,7 @@ void EvtGenInterface::update_particles(HepMC::GenParticle* partHep,HepMC::GenEve
           partHep->end_vertex()->add_particle_out(daughter);
 	  if((*d)->end_vertex()) update_particles(daughter,theEvent,(*d)); // if daugthers add them as well
       }
+      partHep->set_status(p->status());
     }
   }
 }
@@ -609,12 +612,12 @@ void EvtGenInterface::go_through_daughters(EvtParticle* part) {
               if (idHep == forced_pdgids[j]) {
                  found = 1;
                  Daughter->deleteDaughters();
+                 break;
               }
           }
 	  if (!found) go_through_daughters(Daughter);
 	}
     }
 }
-
 
 DEFINE_EDM_PLUGIN(EvtGenFactory, gen::EvtGenInterface, "EvtGen130");
