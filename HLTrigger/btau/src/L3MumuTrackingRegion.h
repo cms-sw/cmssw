@@ -43,7 +43,7 @@ public:
     else{
       m_searchOpt = false;
     }
-    m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips;
+    m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever;
     if (regionPSet.exists("measurementTrackerName")){
       // FIXME: when next time altering the configuration of this
       // class, please change the types of the following parameters:
