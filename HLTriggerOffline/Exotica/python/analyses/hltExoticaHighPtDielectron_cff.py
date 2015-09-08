@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 HighPtDielectronPSet = cms.PSet(
     hltPathsToCheck = cms.vstring(
+        "HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_v", # 0T only
         "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v", # Run2
         "HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v"     # Run1 & Run2
         ),
