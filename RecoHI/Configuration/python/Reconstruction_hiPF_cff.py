@@ -19,6 +19,10 @@ gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneral
 gedGsfElectronsTmp.maxHOverEBarrel = cms.double(0.25)
 gedGsfElectronsTmp.maxHOverEEndcaps = cms.double(0.25)
 
+# Cut EoP for electron
+#gedGsfElectronsTmp.EoPCut = cms.bool(True)
+#gedGsfElectronsTmp.maxEoverPBarrel = cms.double(2.)
+#gedGsfElectronsTmp.maxEoverPEndcaps = cms.double(2.)
 
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 
