@@ -42,7 +42,7 @@ hcalSimBlock = cms.PSet(
     DelivLuminosity = cms.double(0),
     HEDarkening = cms.bool(False),
     HFDarkening = cms.bool(False),
-    minFCToDelay=-9999. # old TC model! set to 5 for the new one
+    minFCToDelay=cms.double(-9999.) # old TC model! set to 5 for the new one
 )
 
 #es_cholesky = cms.ESSource("PoolDBESSource",
