@@ -164,10 +164,14 @@
   </class>
   <class name="edm::Wrapper<reco::EcalHaloData>"/>
 
-  <class name="reco::HcalHaloData" ClassVersion="10">
+  <class name="reco::HcalHaloData" ClassVersion="11">
    <version ClassVersion="10" checksum="3928363167"/>
+   <version ClassVersion="11" checksum="3305429659"/>
   </class>
   <class name="edm::Wrapper<reco::HcalHaloData>"/>
+
+  <class name="std::vector<HaloTowerStrip>"/>
+  <class name="edm::Wrapper<std::vector<HaloTowerStrip> >"/>
 
   <class name="reco::CSCHaloData" ClassVersion="10">
    <version ClassVersion="10" checksum="3522217120"/>
@@ -179,8 +183,9 @@
   </class>
   <class name="edm::Wrapper<reco::GlobalHaloData>"/>
 
-  <class name="reco::BeamHaloSummary" ClassVersion="10">
+  <class name="reco::BeamHaloSummary" ClassVersion="11">
    <version ClassVersion="10" checksum="1514181401"/>
+   <version ClassVersion="11" checksum="146570384"/>
   </class>
   <class name="edm::Wrapper<reco::BeamHaloSummary>"/>
 
