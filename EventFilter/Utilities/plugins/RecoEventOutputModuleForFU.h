@@ -43,9 +43,9 @@ namespace evf {
     virtual void doOutputHeader(InitMsgBuilder const& init_message) const;
     virtual void doOutputEvent(EventMsgBuilder const& msg) const;
     //virtual void beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*);
-    virtual void beginJob();
-    virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
-    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
+    virtual void beginJob() override;
+    virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
+    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
 
   private:
     std::auto_ptr<Consumer> c_;
@@ -72,6 +72,7 @@ namespace evf {
 
   template<typename Consumer>
   RecoEventOutputModuleForFU<Consumer>::RecoEventOutputModuleForFU(edm::ParameterSet const& ps) :
+    edm::one::OutputModuleBase::OutputModuleBase(ps),
     edm::StreamerOutputModuleBase(ps),
     c_(new Consumer(ps)),
     stream_label_(ps.getParameter<std::string>("@module_label")),

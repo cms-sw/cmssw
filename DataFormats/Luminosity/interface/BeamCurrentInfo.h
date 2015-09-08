@@ -39,7 +39,6 @@ class BeamCurrentInfo {
     beam2IntensitiesUnpacked_.assign(LumiConstants::numBX, 0.0);
     beam1IntensitiesPacked_.assign(LumiConstants::numBX, 0);
     beam2IntensitiesPacked_.assign(LumiConstants::numBX, 0);
-    unpackedReady_ = true;
   } 
   
   /// constructor with fill
@@ -47,7 +46,6 @@ class BeamCurrentInfo {
                   const std::vector<float>& beam2Intensities) {
     beam1IntensitiesUnpacked_.assign(beam1Intensities.begin(), beam1Intensities.end());
     beam2IntensitiesUnpacked_.assign(beam2Intensities.begin(), beam2Intensities.end());
-    unpackedReady_ = true;
     packData();
   }
   
@@ -77,14 +75,17 @@ class BeamCurrentInfo {
   void fill(const std::vector<float>& beam1Intensities,
 	    const std::vector<float>& beam2Intensities);
   
+
+  // used by ROOT iorules
+  static void unpackData( const std::vector<uint16_t>& packed, std::vector<float>& unpacked);
+
  private:
   std::vector<uint16_t> beam1IntensitiesPacked_;
   std::vector<uint16_t> beam2IntensitiesPacked_;
-  mutable std::vector<float> beam1IntensitiesUnpacked_;
-  mutable std::vector<float> beam2IntensitiesUnpacked_;
-  void packData(void);
-  void unpackData(void) const;
-  mutable bool unpackedReady_;
+  std::vector<float> beam1IntensitiesUnpacked_;
+  std::vector<float> beam2IntensitiesUnpacked_;
+  void packData();
+  void unpackData();
 }; 
 
 std::ostream& operator<<(std::ostream& s, const BeamCurrentInfo& beamInfo);
