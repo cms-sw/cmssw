@@ -32,7 +32,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     
     # steering
     useGsfPfRecTracks = cms.bool(True),
-    applyPreselection = cms.bool(True),
+    applyPreselection = cms.bool(False),
     ecalDrivenEcalEnergyFromClassBasedParameterization = cms.bool(False),
     ecalDrivenEcalErrorFromClassBasedParameterization = cms.bool(False),
     pureTrackerDrivenEcalErrorFromSimpleParameterization = cms.bool(True),
@@ -44,14 +44,16 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     useCombinationRegression = cms.bool(True),                                    
     
     # preselection parameters (ecal driven electrons)
+   #EoP Cut flag
+    EoPCut = cms.bool(False),
     minSCEtBarrel = cms.double(4.0),
     minSCEtEndcaps = cms.double(4.0),
     minEOverPBarrel = cms.double(0.0),
-    maxEOverPBarrel = cms.double(999999999.),
+    maxEOverPBarrel = cms.double(999999.0),
     minEOverPEndcaps = cms.double(0.0),
-    maxEOverPEndcaps = cms.double(999999999.),
+    maxEOverPEndcaps = cms.double(9999999.0),
     maxDeltaEtaBarrel = cms.double(0.02),
-    maxDeltaEtaEndcaps = cms.double(0.02),
+    maxDeltaEtaEndcaps = cms.double(0.02), 
     maxDeltaPhiBarrel = cms.double(0.15),
     maxDeltaPhiEndcaps = cms.double(0.15),
     #useHcalTowers = cms.bool(True),
@@ -61,8 +63,8 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     #maxHOverEDepth1Barrel = cms.double(0.1),
     #maxHOverEDepth1Endcaps = cms.double(0.1),
     #maxHOverEDepth2 = cms.double(0.1),
-    maxHOverEBarrel = cms.double(0.15),
-    maxHOverEEndcaps = cms.double(0.15),
+    maxHOverEBarrel = cms.double(0.25),  #default 0.15
+    maxHOverEEndcaps = cms.double(0.25), #default 0.15
     maxHBarrel = cms.double(0.0),
     maxHEndcaps = cms.double(0.0),
     maxSigmaIetaIetaBarrel = cms.double(999999999.),
@@ -78,6 +80,8 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     minMvaByPassForIsolated = cms.double(-0.4),
 
     # preselection parameters (tracker driven only electrons)    
+   #EoP Cut flag
+    EoPCutPflow = cms.bool(False),
     minSCEtBarrelPflow = cms.double(0.0),
     minSCEtEndcapsPflow = cms.double(0.0),
     minEOverPBarrelPflow = cms.double(0.0),
