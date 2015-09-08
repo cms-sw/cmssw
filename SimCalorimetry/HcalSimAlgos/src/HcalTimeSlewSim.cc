@@ -10,8 +10,9 @@
 
 #include "CLHEP/Random/RandGaussQ.h"
 
-HcalTimeSlewSim::HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap)
-  : theParameterMap(parameterMap)
+HcalTimeSlewSim::HcalTimeSlewSim(const CaloVSimParameterMap * parameterMap, double minFCToDelay)
+  : theParameterMap(parameterMap),
+    minFCToDelay_(minFCToDelay)
 {
 }
 
@@ -57,7 +58,7 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
     double scale_factor = 0.6;  
     double scale        = cs[soi] / scale_factor;      
     double smearns      = 0.;
-    double cut          = 5.; // fC (above mean) for signal to be delayed
+    double cut          = minFCToDelay_; //5. fC (above mean) for signal to be delayed
 
     const HcalSimParameters& params =
       static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
@@ -74,48 +75,60 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
  
       double datai = cs[it];
       int    nts  = 0;
-      if ((datai > cut) && ( it == 0 || (datai > cs[it-1]))) {
-	// number of TS affected by current move depends on the signal shape:
-	// rising or peaking
-        nts = 2;  // rising
-	if(datai > cs[it+1]) nts = 3; // peaking
+      double tshift = smearns;
+      double totalCharge = datai/scale_factor;   
 
-	// until we get more precise/reliable QIE8 simulation...  
-	double totalCharge = datai/scale_factor;   
-
-	double tshift = smearns;
-	if(totalCharge <= 0.) totalCharge = eps; // protecion against negaive v.
-	tshift += HcalTimeSlew::delay(totalCharge, biasSetting);      
-	if(tshift <= 0.) tshift = eps;
-
-	// 1 or 2 TS to move from here, 
-	// 2d or 3d TS gets leftovers to preserve the sum
-        for (int j = it; j < it+nts && j < maxbin; ++j) {   
+      // until we get more precise/reliable QIE8 simulation...  
+      if(totalCharge <= 0.) totalCharge = eps; // protecion against negaive v.
+      tshift += HcalTimeSlew::delay(totalCharge, biasSetting);      
+      if(tshift <= 0.) tshift = eps;
+	  
+      if ( cut > -999. ) { //preserve compatibility
+	if ((datai > cut) && ( it == 0 || (datai > cs[it-1]))) {
+	  // number of TS affected by current move depends on the signal shape:
+	  // rising or peaking
+	  nts = 2;  // rising
+	  if(datai > cs[it+1]) nts = 3; // peaking
+	  
+	  // 1 or 2 TS to move from here, 
+	  // 2d or 3d TS gets leftovers to preserve the sum
+	  for (int j = it; j < it+nts && j < maxbin; ++j) {   
  
-	  // snippet borrowed from  CaloSamples::offsetTime(offset)
-	  // CalibFormats/CaloObjects/src/CaloSamples.cc
-	  double t = j*25. - tshift;
-	  int firstbin = floor(t/25.);
-	  double f = t/25. - firstbin;
-	  int nextbin = firstbin + 1;
-	  double v1 = (firstbin < 0 || firstbin >= maxbin) ? 0. : cs[firstbin];
-	  double v2 = (nextbin  < 0 || nextbin  >= maxbin) ? 0. : cs[nextbin];
-          
-	  // Keeping the overal sum intact
-	  if(nts == 2) {
-            if(j == it) data[j] = v2*f; 
-            else data[j] =  v1*(1.-f) + v2;
-	  }
-          else { // nts = 3
-	    if(j == it)       data[j] = v2*f;
-            if(j == it+1)     data[j] = v1*(1.-f) + v2*f;
-	    if(j == it+nts-1) data[j] = v1*(1.-f) + v2;
-	  }
+	    // snippet borrowed from  CaloSamples::offsetTime(offset)
+	    // CalibFormats/CaloObjects/src/CaloSamples.cc
+	    double t = j*25. - tshift;
+	    int firstbin = floor(t/25.);
+	    double f = t/25. - firstbin;
+	    int nextbin = firstbin + 1;
+	    double v1 = (firstbin < 0 || firstbin >= maxbin) ? 0. : cs[firstbin];
+	    double v2 = (nextbin  < 0 || nextbin  >= maxbin) ? 0. : cs[nextbin];
+	    
+	    // Keeping the overal sum intact
+	    if(nts == 2) {
+	      if(j == it) data[j] = v2*f; 
+	      else data[j] =  v1*(1.-f) + v2;
+	    }
+	    else { // nts = 3
+	      if(j == it)       data[j] = v2*f;
+	      if(j == it+1)     data[j] = v1*(1.-f) + v2*f;
+	      if(j == it+nts-1) data[j] = v1*(1.-f) + v2;
+	    }
 
-	} // end of local move of TS', now update...
-        cs = data;
+	  } // end of local move of TS', now update...
+	  cs = data;
 
-      } // end of rising edge or peak finding
+	} // end of rising edge or peak finding
+      }
+      else{
+	double t=it*25.- tshift;
+	int firstbin=floor(t/25.);
+	double f=t/25. - firstbin;
+	int nextbin = firstbin +1;
+	double v2= (nextbin<0 || nextbin >= maxbin) ? 0. : data[nextbin];
+	data[it]=v2*f;
+	data[it+1]+= (v2-data[it]);
+      }
+
       if(nts < 3) it++; 
       else it +=2;
     }

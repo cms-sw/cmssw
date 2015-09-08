@@ -157,6 +157,25 @@ def customise_Sim(process):
     process.g4SimHits.HFShowerLibrary.FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root'
     return process
 
+def customise_New_HCAL(process):
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers'):
+        if hasattr(process.mix.digitizers,'hcal'):
+            process.mix.digitizer.hcal.minFCToDelay=5.
+        if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
+            process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.67)
+        if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
+            process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.67)
+
+    if hasattr(process,'mixData'):
+        if hasattr(process.mix.digitizers,'hcal'):
+            process.mixData.digitizer.hcal.minFCToDelay=5.
+        if hasattr(process.mixData,'hf1'):
+            process.mixData.hf1.samplingFactor = cms.double(0.67)
+        if hasattr(process.mixData,'hf2'):
+            process.mixData.hf2.samplingFactor = cms.double(0.67)
+
+    return process
+        
 
 def customise_Digi_Common(process):
     process = digiEventContent(process)
@@ -167,9 +186,9 @@ def customise_Digi_Common(process):
             process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
             process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
-            process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.67)
+            process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
-            process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.67)
+            process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
     return process
 
 def customise_DataMix(process):
@@ -180,9 +199,9 @@ def customise_DataMix(process):
             process.mixData.ho.pixels = cms.int32(2500)
             process.mixData.ho.doSiPMSmearing = cms.bool(False)
         if hasattr(process.mixData,'hf1'):
-            process.mixData.hf1.samplingFactor = cms.double(0.67)
+            process.mixData.hf1.samplingFactor = cms.double(0.60)
         if hasattr(process.mixData,'hf2'):
-            process.mixData.hf2.samplingFactor = cms.double(0.67)
+            process.mixData.hf2.samplingFactor = cms.double(0.60)
     return process
 
 

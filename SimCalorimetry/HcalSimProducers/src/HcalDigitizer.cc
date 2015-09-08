@@ -153,7 +153,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   deliveredLumi     = ps.getParameter<double>("DelivLuminosity");
   bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
   bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
-
+  double minFCToDelay= ps.getParameter<double>("minFCToDelay");
 
   if(PreMix1 && PreMix2) {
      throw cms::Exception("Configuration")
@@ -256,7 +256,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theTimeSlewSim = 0;
   if(doTimeSlew) {
     // no time slewing for HF
-    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap);
+    theTimeSlewSim = new HcalTimeSlewSim(theParameterMap,minFCToDelay);
     theHBHEAmplifier->setTimeSlewSim(theTimeSlewSim);
     theHOAmplifier->setTimeSlewSim(theTimeSlewSim);
     theZDCAmplifier->setTimeSlewSim(theTimeSlewSim);
