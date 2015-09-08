@@ -148,6 +148,9 @@ class GsfElectronAlgo {
       bool isEndcaps ;
       bool isFiducial ;
 
+       //EoP cut
+       bool EoPCut;
+
       // BDT output (if available)
       double minMVA ;
       double minMvaByPassForIsolated ;
