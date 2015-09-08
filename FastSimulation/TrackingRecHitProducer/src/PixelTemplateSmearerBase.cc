@@ -158,14 +158,24 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 	         mergeGroupByHit[i]->push_back( simHits[i] );      // save i in there}
 	    }
 	    else{
-	      // &&& @Petar this is supposed to be for the case where both i and j merge groups
-	      // &&& already have a merge group, so i is supposed to absorb the hits in j,
-	      // &&& pointers must be changed over so that anything that pointed to j now 
-	      // &&& points to i, and then j must be deleted. These two lines of code aim
-	      // &&& to do so, but I'm not sure the pointers have been reassigned properly.
- 	         mergeGroupByHit[i] = mergeGroupByHit[j];
-		 mergeGroupByHit[j] = 0;
-		 std::cout << "TESTING" << std::endl;
+	      // Step 1: iterate over mgbh[j], append each hit to mgbh[i]                                                             
+              for ( int k = 0; k < (int)(sizeof(mergeGroupByHit[j])); ++k ) {
+		mergeGroupByHit[i]->push_back( mergeGroupByHit[j]->at(k) );  // copy simHit ptr from j to i
+              }
+
+              // Step 2: iterate over all hits, replace mgbh[j] by mgbh[i] (so that nobody points to i)                               
+              MergeGroup * mgbhj = mergeGroupByHit[j];  // save it                                                                   
+              for ( int k = 0; k < nHits; ++k ) {
+                if ( mgbhj == mergeGroupByHit[k] ) {
+                  // Hit k also uses the same merge group, tell them to switch to mgbh[i]                                             
+                  mergeGroupByHit[k] = mergeGroupByHit[i];
+                }
+              }
+
+              //  Step 3 would have been to delete mgbh[j]... however, we'll do that at the end anyway.                              
+              //  The key was to prevent mgbh[j] from being accessed further, and we have done that,                                 
+              //  since now no mergeGroupByHit[] points to mgbhj any more.  Note that the above loop                                
+              //  also set mergeGroupByHit[i] = mergeGroupByHit[j], too. 
 	    }
 	  }
 	  else { 
@@ -179,13 +189,15 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 	      //
 	      // Add hit i as the first to its own merge group
 	      // (simHits[i] is a const pointer to PSimHit).
+	      std::cout << "ALICE: simHits" << simHits[i] << std::endl;
 	      mergeGroupByHit[i]->push_back( simHits[i] );
 	    }
 	    //--- Add hit j as well
 	    mergeGroupByHit[i]->push_back( simHits[j] );
-	    for( int k = 0 ; k < (int)(sizeof(mergeGroupByHit[i])); ++k ) {
-	      std::cout << "ALICE: mergeGroupByHit = " << *(mergeGroupByHit[i]->at(k))<<" " << k << std::endl;
-	    }
+	    //	    for( int k = 0 ; k < (int)(sizeof(mergeGroupByHit[i])); ++k ) {
+	      std::cout << "ALICE: *mergeGroupByHit = " << *(mergeGroupByHit[i]->at(0))<<" " << std::endl;
+	      std::cout << "ALICE: mergeGroupByHit = " << mergeGroupByHit[i]->at(0)<<" " << std::endl;
+	      // }
 	    //
 	    //--- Mark that hit j is a part of the same merge group.  This
 	    //    way, we can find the same merge group starting from
