@@ -248,6 +248,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   cutsCfg_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolated") ;
   cutsCfg_.maxTIP = cfg.getParameter<double>("maxTIP") ;
   cutsCfg_.seedFromTEC = cfg.getParameter<bool>("seedFromTEC") ;
+  //add E/P cut flag for HI
+  cutsCfg_.EoPCut = cfg.getParameter<bool>("EoPCut") ;
 
   cutsCfgPflow_.minSCEtBarrel = cfg.getParameter<double>("minSCEtBarrelPflow") ;
   cutsCfgPflow_.minSCEtEndcaps = cfg.getParameter<double>("minSCEtEndcapsPflow") ;
@@ -281,6 +283,9 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg, 
   cutsCfgPflow_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolatedPflow") ;
   cutsCfgPflow_.maxTIP = cfg.getParameter<double>("maxTIPPflow") ;
   cutsCfgPflow_.seedFromTEC = true ; // not applied for pflow
+
+  // EoP flag for HI
+  cutsCfgPflow_.EoPCut = cfg.getParameter<bool>("EoPCutPflow") ;
 
   // hcal helpers
   hcalCfg_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
