@@ -44,13 +44,15 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     useCombinationRegression = cms.bool(False),    
 
     # preselection parameters (ecal driven electrons)
+    # EoP cut flag for HI
+    EoPCut = cms.bool(False),
     minSCEtBarrel = cms.double(4.0),
     minSCEtEndcaps = cms.double(4.0),
     minEOverPBarrel = cms.double(0.0),
     maxEOverPBarrel = cms.double(999999999.),
     minEOverPEndcaps = cms.double(0.0),
     maxEOverPEndcaps = cms.double(999999999.),
-    maxDeltaEtaBarrel = cms.double(0.02),
+    maxDeltaEtaBarrel = cms.double(0.02), 
     maxDeltaEtaEndcaps = cms.double(0.02),
     maxDeltaPhiBarrel = cms.double(0.15),
     maxDeltaPhiEndcaps = cms.double(0.15),
@@ -61,9 +63,9 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     #maxHOverEDepth1Barrel = cms.double(0.1),
     #maxHOverEDepth1Endcaps = cms.double(0.1),
     #maxHOverEDepth2 = cms.double(0.1),
-    maxHOverEBarrel = cms.double(0.15),
-    maxHOverEEndcaps = cms.double(0.15),
-    maxHBarrel = cms.double(0.0),
+    maxHOverEBarrel = cms.double(0.25), #default 0.15
+    maxHOverEEndcaps = cms.double(0.25), #default 0.15
+    maxHBarrel = cms.double(0.0), 
     maxHEndcaps = cms.double(0.0),
     maxSigmaIetaIetaBarrel = cms.double(999999999.),
     maxSigmaIetaIetaEndcaps = cms.double(999999999.),
@@ -78,6 +80,8 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     minMvaByPassForIsolated = cms.double(-0.4),
 
     # preselection parameters (tracker driven only electrons)    
+    #EoP cut flag for HI
+    EoPCutPflow = cms.bool(False),
     minSCEtBarrelPflow = cms.double(0.0),
     minSCEtEndcapsPflow = cms.double(0.0),
     minEOverPBarrelPflow = cms.double(0.0),
