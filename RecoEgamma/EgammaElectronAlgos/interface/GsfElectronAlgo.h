@@ -115,6 +115,7 @@ class GsfElectronAlgo {
       double minSCEtBarrel ;
       double minSCEtEndcaps ;
       // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state
+      bool EoPCut ;
       double maxEOverPBarrel ;
       double maxEOverPEndcaps ;
       // minimum E/p where E is the supercluster corrected energy and p the track momentum at innermost state
