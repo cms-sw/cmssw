@@ -30,6 +30,8 @@
 #include "DataFormats/PatCandidates/interface/UserData.h"
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "RecoMET/METAlgorithms/interface/METSignificance.h"
 
 namespace pat {
 
@@ -64,6 +66,14 @@ namespace pat {
       bool useUserData_;
       pat::PATUserDataHelper<pat::MET>      userDataHelper_;
 
+    //MET Significance
+    bool calculateMETSignificance_;
+    metsig::METSignificance* metSigAlgo_;
+    edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+    edm::EDGetTokenT<edm::View<reco::Candidate> > pfCandToken_;
+    std::vector< edm::EDGetTokenT<edm::View<reco::Candidate> > > lepTokens_;
+
+    const reco::METCovMatrix getMETCovMatrix(const edm::Event& event) const;
 
   };
 

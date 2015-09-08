@@ -86,29 +86,44 @@ def miniAOD_customizeCommon(process):
     switchOnTriggerStandAlone( process, outputModule = '' )
     process.patTrigger.packTriggerPathNames = cms.bool(True)
     #
-    # apply type I/type I + II PFMEt corrections to pat::MET object
+    # apply type I + other PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
-    # FIXME: are we 100% sure this should still be PF and not PFchs? 
-    from PhysicsTools.PatUtils.tools.runType1PFMEtUncertainties import runType1PFMEtUncertainties
-    addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK4PF', jetSource = cms.InputTag('ak4PFJets'), jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
-    process.patJetsAK4PFForMetUnc.getJetMCFlavour = False
-    runType1PFMEtUncertainties(process,
-                               addToPatDefaultSequence=False,
-                               jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
-                               jetCollection="selectedPatJetsAK4PFForMetUnc",
-                               electronCollection="selectedPatElectrons",
-                               muonCollection="selectedPatMuons",
-                               tauCollection="selectedPatTaus",
-                               makeType1p2corrPFMEt=True,
-                               doSmearJets=False,
-                               outputModule=None)
-
+    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncForMiniAODProduction
+    runMetCorAndUncForMiniAODProduction(process, metType="PF",
+                                        jetCollUnskimmed="patJets",
+                                        jetColl="selectedPatJets")
+    
+    #caloMET computation
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
     addMETCollection(process,
                      labelName = "patCaloMet",
                      metSource = "caloMetM"
                      )
-  
+
+    #noHF pfMET =========
+    process.noHFCands = cms.EDFilter("GenericPFCandidateSelector",
+                                     src=cms.InputTag("particleFlow"),
+                                     cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
+                                     )
+    runMetCorAndUncForMiniAODProduction(process,
+                                        pfCandColl=cms.InputTag("noHFCands"),
+                                        recomputeMET=True, #needed for HF removal
+                                        postfix="NoHF"
+                                        )
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
+    process.slimmedMETsNoHF = process.slimmedMETs.clone()
+    process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
+    process.slimmedMETsNoHF.rawVariation =  cms.InputTag("patPFMetNoHF")
+    process.slimmedMETsNoHF.t1Uncertainties = cms.InputTag("patPFMetT1%sNoHF") 
+    process.slimmedMETsNoHF.t01Variation = cms.InputTag("patPFMetT0pcT1NoHF")
+    process.slimmedMETsNoHF.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sNoHF")
+    process.slimmedMETsNoHF.tXYUncForRaw = cms.InputTag("patPFMetTxyNoHF")
+    process.slimmedMETsNoHF.tXYUncForT1 = cms.InputTag("patPFMetT1TxyNoHF")
+    process.slimmedMETsNoHF.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyNoHF")
+    process.slimmedMETsNoHF.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyNoHF")
+    process.slimmedMETsNoHF.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyNoHF")
+    del process.slimmedMETsNoHF.caloMET
+    # ================== NoHF pfMET
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
@@ -236,7 +251,7 @@ def miniAOD_customizeCommon(process):
     process.pfMetPuppi = RecoMET.METProducers.PFMET_cfi.pfMet.clone()
     process.pfMetPuppi.src = cms.InputTag("puppiForMET")
     process.pfMetPuppi.alias = cms.string('pfMetPuppi')
-    ## type1 correction, from puppi jets
+    # type1 correction, from puppi jets
     process.corrPfMetType1Puppi = process.corrPfMetType1.clone(
         src = 'ak4PFJetsPuppi',
         jetCorrLabel = 'ak4PFCHSL2L3Corrector',
@@ -254,9 +269,17 @@ def miniAOD_customizeCommon(process):
     process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
     process.slimmedMETsPuppi = process.slimmedMETs.clone()
     process.slimmedMETsPuppi.src = cms.InputTag("patMETPuppi")
-    process.slimmedMETsPuppi.rawUncertainties   = cms.InputTag("patPFMetPuppi") # only central value
-    process.slimmedMETsPuppi.type1Uncertainties = cms.InputTag("patPFMetT1")    # only central value for now
-    del process.slimmedMETsPuppi.type1p2Uncertainties # not available
+    process.slimmedMETsPuppi.rawVariation   = cms.InputTag("patPFMetPuppi") # only central value
+    # only central values for puppi met
+    del process.slimmedMETsPuppi.t01Variation
+    del process.slimmedMETsPuppi.t1SmearedVarsAndUncs
+    del process.slimmedMETsPuppi.tXYUncForRaw
+    del process.slimmedMETsPuppi.tXYUncForT1
+    del process.slimmedMETsPuppi.tXYUncForT01
+    del process.slimmedMETsPuppi.tXYUncForT1Smear
+    del process.slimmedMETsPuppi.tXYUncForT01Smear
+    del process.slimmedMETsPuppi.caloMET
+
 
     ## Force a re-run of the tau id during MiniAOD production stage
     process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
