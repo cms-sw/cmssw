@@ -24,9 +24,6 @@ public:
 
 private:
 
-  int particle_id;
-  int exclude_status_id;
-  int status_id;
 };
 
 

@@ -3,6 +3,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="GeneratorInterface/LHEInterface"/>
+<use   name="heppdt"/>
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="lhapdf"/>
