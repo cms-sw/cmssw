@@ -1,7 +1,7 @@
 #ifndef IOPool_Streamer_StreamerOutputModuleBase_h
 #define IOPool_Streamer_StreamerOutputModuleBase_h
 
-#include "FWCore/Framework/interface/OutputModule.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamSerializer.h"
@@ -14,9 +14,11 @@ namespace edm {
   class ModuleCallingContext;
   class ParameterSetDescription;
 
-  class StreamerOutputModuleBase : public OutputModule {
+  typedef detail::TriggerResultsBasedEventSelector::handle_t Trig;
+
+  class StreamerOutputModuleBase : public one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks> {
   public:
-    explicit StreamerOutputModuleBase(ParameterSet const& ps);  
+    explicit StreamerOutputModuleBase(ParameterSet const& ps);
     virtual ~StreamerOutputModuleBase();
     static void fillDescription(ParameterSetDescription & desc);
 
@@ -36,6 +38,7 @@ namespace edm {
 
     std::auto_ptr<InitMsgBuilder> serializeRegistry();
     std::auto_ptr<EventMsgBuilder> serializeEvent(EventPrincipal const& e, ModuleCallingContext const* mcc); 
+    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const*) const;
     void setHltMask(EventPrincipal const& e, ModuleCallingContext const*);
     void setLumiSection();
 
