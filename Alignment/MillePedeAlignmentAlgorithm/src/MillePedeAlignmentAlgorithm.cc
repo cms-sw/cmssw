@@ -526,7 +526,14 @@ void MillePedeAlignmentAlgorithm::endRun(const EventInfo &eventInfo, const EndRu
     // LAS beam treatment
     this->addLaserData(eventInfo, *(runInfo.tkLasBeams()), *(runInfo.tkLasBeamTsoses()));
   }
+  if(this->isMode(myMilleBit)) theMille->flushOutputFile();
 }
+
+// Implementation of endRun that DOES get called. (Because we need it.)
+void MillePedeAlignmentAlgorithm::endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {
+  if(this->isMode(myMilleBit)) theMille->flushOutputFile();
+}
+
 
 //____________________________________________________
 int MillePedeAlignmentAlgorithm::addMeasurementData(const edm::EventSetup &setup,

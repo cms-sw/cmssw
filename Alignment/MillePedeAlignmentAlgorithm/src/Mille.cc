@@ -126,6 +126,14 @@ void Mille::kill()
 
 //___________________________________________________________________________
 
+
+void Mille::flushOutputFile() {
+  // flush output file
+  myOutFile.flush();
+}
+
+//___________________________________________________________________________
+
 void Mille::end()
 {
   // write set of derivatives with same local parameters to file
