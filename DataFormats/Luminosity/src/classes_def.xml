@@ -21,10 +21,13 @@
    <version ClassVersion="10" checksum="706652033"/>
    <field name="beam1IntensitiesUnpacked_" transient="true"/>
    <field name="beam2IntensitiesUnpacked_" transient="true"/>
-   <field name="unpackedReady_" transient="true"/>
   </class>
-  <ioread sourceClass="BeamCurrentInfo" version="[1-]" targetClass="BeamCurrentInfo" source="" target="unpackedReady_">
-  <![CDATA[ unpackedReady_=false;
+  <ioread sourceClass="BeamCurrentInfo" version="[1-]" targetClass="BeamCurrentInfo" source="std::vector<uint16_t> beam1IntensitiesPacked_" target="beam1IntensitiesUnpacked_">
+  <![CDATA[ BeamCurrentInfo::unpackData(onfile.beam1IntensitiesPacked_,beam1IntensitiesUnpacked_);
+  ]]>
+  </ioread>
+  <ioread sourceClass="BeamCurrentInfo" version="[1-]" targetClass="BeamCurrentInfo" source="std::vector<uint16_t> beam2IntensitiesPacked_" target="beam2IntensitiesUnpacked_">
+  <![CDATA[ BeamCurrentInfo::unpackData(onfile.beam2IntensitiesPacked_,beam2IntensitiesUnpacked_);
   ]]>
   </ioread>
   <class name="LumiSummary::HLT" ClassVersion="11">
