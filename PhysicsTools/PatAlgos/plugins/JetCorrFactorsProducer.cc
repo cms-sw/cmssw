@@ -311,6 +311,7 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   levels.push_back(std::string("L1Offset"  ));
   levels.push_back(std::string("L2Relative"));
   levels.push_back(std::string("L3Absolute"));
+  levels.push_back(std::string("L2L3Residual"));
   levels.push_back(std::string("L5Flavor"  ));
   levels.push_back(std::string("L7Parton"  ));
   iDesc.add<std::vector<std::string> >("levels", levels);
