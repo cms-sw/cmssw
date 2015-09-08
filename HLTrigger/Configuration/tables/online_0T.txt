@@ -102,9 +102,9 @@ HLT_IsoMu20_v*						# JIRA: CMSHLT-541
 
 HLT_DiSC30_18_EIso_AND_HE_Mass70_v*			# JIRA: CMSHLT-533
 
-#HLT_DoublePhoton40_v*					# JIRA: CMSHLT-564 (for 0T menu)
-#HLT_DoublePhoton50_v*					# JIRA: CMSHLT-564 (for 0T menu)
-#HLT_Photon150_v*					# JIRA: CMSHLT-564 (for 0T menu)
+HLT_DoublePhoton40_v*					# JIRA: CMSHLT-564 (for 0T menu)
+HLT_DoublePhoton50_v*					# JIRA: CMSHLT-564 (for 0T menu)
+HLT_Photon150_v*					# JIRA: CMSHLT-564 (for 0T menu)
 
 #HLT_Photon90_CaloIdL_HT300_v*				# JIRA: CMSHLT-565 (for 0T menu)
 #HLT_HT250_CaloMET70_JetIdCleaned_v*			# JIRA: CMSHLT-565 (for 0T menu)
@@ -113,11 +113,11 @@ HLT_Photon125_v*					# JIRA: CMSHLT-540 (for 0T menu)
 HLT_MET100_JetIdCleaned_v* 				# JIRA: CMSHLT-540 (for 0T menu)
 HLT_MET150_JetIdCleaned_v*				# JIRA: CMSHLT-540 (for 0T menu)
 
-HLT_Rsq0p25_Calo_v*						# JIRA: CMSHLT-571 (for 0T menu)
-HLT_RsqMR240_Rsq0p09_MR200_Calo_v*				# JIRA: CMSHLT-571 (for 0T menu)
-HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_v*				# JIRA: CMSHLT-571 (for 0T menu)
+#HLT_Rsq0p25_Calo_v*					# JIRA: CMSHLT-571 (for 0T menu)
+#HLT_RsqMR240_Rsq0p09_MR200_Calo_v*			# JIRA: CMSHLT-571 (for 0T menu)
+#HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_v*			# JIRA: CMSHLT-571 (for 0T menu)
 
-HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_v*				# JIRA: CMSHLT-572 (for 0T menu)
+HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-572 (for 0T menu)
 
 HLTriggerFirstPath
 HLTriggerFinalPath
