@@ -227,11 +227,14 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   cutsCfg_.minEOverPBarrel = cfg.getParameter<double>("minEOverPBarrel") ;
   cutsCfg_.minEOverPEndcaps = cfg.getParameter<double>("minEOverPEndcaps") ;
 
+  //Printf("%f\n", cutsCfg_.maxEOverPBarrel);
   // H/E
   cutsCfg_.maxHOverEBarrel = cfg.getParameter<double>("maxHOverEBarrel") ;
   cutsCfg_.maxHOverEEndcaps = cfg.getParameter<double>("maxHOverEEndcaps") ;
   cutsCfg_.maxHBarrel = cfg.getParameter<double>("maxHBarrel") ;
   cutsCfg_.maxHEndcaps = cfg.getParameter<double>("maxHEndcaps") ;
+
+  //Printf("%f\n",cutsCfg_.maxHOverEBarrel);
 
   cutsCfg_.maxDeltaEtaBarrel = cfg.getParameter<double>("maxDeltaEtaBarrel") ;
   cutsCfg_.maxDeltaEtaEndcaps = cfg.getParameter<double>("maxDeltaEtaEndcaps") ;
@@ -248,6 +251,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   cutsCfg_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolated") ;
   cutsCfg_.maxTIP = cfg.getParameter<double>("maxTIP") ;
   cutsCfg_.seedFromTEC = cfg.getParameter<bool>("seedFromTEC") ;
+  // EoP cut flag for HI
+  cutsCfg_.EoPCut = cfg.getParameter<bool>("EoPCut") ;
 
   cutsCfgPflow_.minSCEtBarrel = cfg.getParameter<double>("minSCEtBarrelPflow") ;
   cutsCfgPflow_.minSCEtEndcaps = cfg.getParameter<double>("minSCEtEndcapsPflow") ;
@@ -281,6 +286,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   cutsCfgPflow_.minMvaByPassForIsolated = cfg.getParameter<double>("minMvaByPassForIsolatedPflow") ;
   cutsCfgPflow_.maxTIP = cfg.getParameter<double>("maxTIPPflow") ;
   cutsCfgPflow_.seedFromTEC = true ; // not applied for pflow
+  //EoP flag for HI
+  cutsCfgPflow_.EoPCut = cfg.getParameter<bool>("EoPCutPflow") ;
 
   // hcal helpers
   hcalCfg_.hOverEConeSize = cfg.getParameter<double>("hOverEConeSize") ;
@@ -421,6 +428,8 @@ void GsfElectronBaseProducer::fillEvent( edm::Event & event )
    {
     algo_->removeNotPreselectedElectrons() ;
     algo_->displayInternalElectrons("GsfElectronAlgo Info (after preselection)") ;
+
+    //Printf("%f\n", cutsCfg_.maxEOverPBarrel);
    }
   // ambiguity
   algo_->setAmbiguityData() ;
