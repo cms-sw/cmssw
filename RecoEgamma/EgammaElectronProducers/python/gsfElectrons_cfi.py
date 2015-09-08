@@ -44,6 +44,8 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     useCombinationRegression = cms.bool(False),    
 
     # preselection parameters (ecal driven electrons)
+    #EoP cut flag for HI
+    EoPCut = cms.bool(False),
     minSCEtBarrel = cms.double(4.0),
     minSCEtEndcaps = cms.double(4.0),
     minEOverPBarrel = cms.double(0.0),
@@ -78,6 +80,8 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
     minMvaByPassForIsolated = cms.double(-0.4),
 
     # preselection parameters (tracker driven only electrons)    
+    #EoP cut flag for HI
+    EoPCutPflow = cms.bool(False),
     minSCEtBarrelPflow = cms.double(0.0),
     minSCEtEndcapsPflow = cms.double(0.0),
     minEOverPBarrelPflow = cms.double(0.0),
