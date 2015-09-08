@@ -89,7 +89,7 @@ class PreexistingOfflineValidation(PreexistingValidation):
             "DMRMinimum":"30",
             "DMROptions":"",
             "OfflineTreeBaseDir":"TrackHitFilter",
-            "SurfaceShapes":"none"
+            "SurfaceShapes":"coarse",
             }
         defaults.update(addDefaults)
         PreexistingValidation.__init__(self, valName, config, "offline",
