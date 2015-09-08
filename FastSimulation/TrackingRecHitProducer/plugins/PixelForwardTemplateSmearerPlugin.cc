@@ -87,6 +87,12 @@ PixelForwardTemplateSmearerPlugin::PixelForwardTemplateSmearerPlugin(
   probfileName = pset_.getParameter<string>( "probfileforward" );
   probfile =new
     TFile( edm::FileInPath( probfileName ).fullPath().c_str()  ,"READ");
+  thePixelResolutionMergedXFileName = pset_.getParameter<string>( "pixelresxmergedforward" );
+  thePixelResolutionMergedXFile = new
+    TFile( edm::FileInPath( thePixelResolutionMergedXFileName ).fullPath().c_str()  ,"READ");
+  thePixelResolutionMergedYFileName = pset_.getParameter<string>( "pixelresymergedforward" );
+  thePixelResolutionMergedYFile = new
+    TFile( edm::FileInPath( thePixelResolutionMergedYFileName ).fullPath().c_str()  ,"READ");
   initializeForward();
   tempId = pset_.getParameter<int> ( "templateIdForward" );
   if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )

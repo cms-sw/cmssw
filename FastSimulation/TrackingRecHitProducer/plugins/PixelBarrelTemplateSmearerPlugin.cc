@@ -86,6 +86,12 @@ PixelBarrelTemplateSmearerPlugin::PixelBarrelTemplateSmearerPlugin(
   probfileName = pset_.getParameter<string>( "probfilebarrel" );
   probfile = new
     TFile( edm::FileInPath( probfileName ).fullPath().c_str()  ,"READ");
+  thePixelResolutionMergedXFileName = pset_.getParameter<string>( "pixelresxmergedbarrel" );
+  thePixelResolutionMergedXFile = new
+    TFile( edm::FileInPath( thePixelResolutionMergedXFileName ).fullPath().c_str()  ,"READ");
+  thePixelResolutionMergedYFileName = pset_.getParameter<string>( "pixelresymergedbarrel" );
+  thePixelResolutionMergedYFile = new
+    TFile( edm::FileInPath( thePixelResolutionMergedYFileName ).fullPath().c_str()  ,"READ");
   initializeBarrel();
   tempId = pset_.getParameter<int> ( "templateIdBarrel" );
   if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
@@ -127,7 +133,7 @@ void PixelBarrelTemplateSmearerPlugin::initializeBarrel()
   resqbin_binWidth = 1;
   resqbin_binN = 4;
 
-  // Initialize the barrel histos once and for all, and prepare the random generation
+   // Initialize the barrel histos once and for all, and prepare the random generation
   for ( unsigned cotalphaHistBin=1; cotalphaHistBin<=rescotAlpha_binN; ++cotalphaHistBin ) 
      for ( unsigned cotbetaHistBin=1; cotbetaHistBin<=rescotBeta_binN; ++cotbetaHistBin )  {
          unsigned int singleBigPixelHistN = 1 * 100000

@@ -75,6 +75,7 @@ PixelTemplateSmearerBase::~PixelTemplateSmearerBase()
 
   theXHistos.clear();
   theYHistos.clear();
+
   std::cout << "end P ~PixelTemplateSmearerBase"<< std::endl;
 }
 
@@ -757,12 +758,472 @@ smearMergeGroup( MergeGroup* mg,
 		 RandomEngineAndDistribution const * random
 		 ) const 
 {
+
+  //getting simhits out of merge group
+  //for ( int k = 0; k < (int)(sizeof(mergeGroupByHit[j])); ++k ){
+    const PSimHit simHit1 = *(mg->at(0));
+    const PSimHit simHit2 = *(mg->at(1));
+    //     }
+  //
+  // at the beginning the position is the Local Point in the local pixel module reference frame
+  // same code as in PixelCPEBase
+  LocalVector localDir1 = simHit1.momentumAtEntry().unit();
+  float locx1 = localDir1.x();
+  float locy1 = localDir1.y();
+  float locz1 = localDir1.z();
+
+  LocalVector localDir2 = simHit2.momentumAtEntry().unit();
+  float locx2 = localDir2.x();
+  float locy2 = localDir2.y();
+  float locz2 = localDir2.z();
+
+  float locx = 0.5*(locx1 + locx2);
+  float locy = 0.5*(locy1 + locy2);
+  float locz = 0.5*(locz1 + locz2);
+
+  // alpha: angle with respect to local x axis in local (x,z) plane
+  float cotalpha = locx/locz;
+  if ( isFlipped( detUnit ) ) { // &&& check for FPIX !!!
+    #ifdef FAMOS_DEBUG
+    std::cout << " isFlipped " << std::endl;
+    #endif
+  }
+  // beta: angle with respect to local y axis in local (y,z) plane
+  float cotbeta = locy/locz;
+  float sign=1.;
+  //ALICE TESTING AREA
+  /*  float loceta = fabs(-log((double)(-cotbeta+sqrt((double)(1.+cotbeta*cotbeta)))));
+  float locdis = sqrt(pow(locx, 2) + pow(locy, 2));
+  std::cout << "cotbeta local x local y local eta local distance" << std::endl;
+  std::cout << cotbeta << " " << locx << " " << locy << " " << loceta << " " << locdis << std::endl;
+  probfile = new TFile( "FastSimulation/TrackingRecHitProducer/data/mergeprob.root"  ,"READ");
+  TH2F * probhisto = (TH2F*)probfile->Get("h2bc");
+  float prob = probhisto->GetBinContent(probhisto->GetXaxis()->FindFixBin(locdis),probhisto->GetYaxis()->FindFixBin(loceta));
+  std::cout << "probability of merging: " << prob << std::endl;
+  float probability = ((double) rand() / (RAND_MAX));
+  std::cout << probability << std::endl;*/
+  if( isForward ) {
+    if( cotbeta < 0 ) sign=-1.;
+    cotbeta = sign*cotbeta;
+  }
+
+  
+  /*
+  #ifdef FAMOS_DEBUG
+  std::cout << " Local Direction " << simHit.localDirection()
+	    << " cotalpha(x) = " << cotalpha
+	    << " cotbeta(y) = "  << cotbeta
+	    << std::endl;
+  #endif
+   
+  const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
+  const RectangularPixelTopology *rectPixelTopology = static_cast<const RectangularPixelTopology*>(theSpecificTopology);
+
+  const int nrows = theSpecificTopology->nrows();
+  const int ncolumns = theSpecificTopology->ncolumns();
+  */
+  const Local3DPoint lpos1 = simHit1.localPosition();
+  const Local3DPoint lpos2 = simHit2.localPosition(); 
+  float lposy1 = lpos1.y();
+  float lposx1 = lpos1.x();
+  float lposy2 = lpos2.y();
+  float lposx2 = lpos2.x();
+  float lposz1 = lpos1.z();
+  float lposz2 = lpos2.z();
+  float lpx = 0.5*(lposx1 + lposx2);
+  float lpy = 0.5*(lposy1 + lposy2);
+  float lpz = 0.5*(lposz1 + lposz2);
+  /*//Transform local position to measurement position
+  const MeasurementPoint mp = rectPixelTopology->measurementPosition( lp );
+  float mpy = mp.y();
+  float mpx = mp.x();
+  //Get the center of the struck pixel in measurement position
+  float pixelCenterY = 0.5 + (int)mpy;
+  float pixelCenterX = 0.5 + (int)mpx;
+  #ifdef FAMOS_DEBUG
+  cout<<"Struck pixel center at pitch units x: "<<pixelCenterX<<" y: "<<pixelCenterY<<endl;
+  #endif
+
+  const MeasurementPoint mpCenter(pixelCenterX, pixelCenterY);
+  //Transform the center of the struck pixel back into local position
+  const Local3DPoint lpCenter = rectPixelTopology->localPosition( mpCenter );
+  #ifdef FAMOS_DEBUG
+  cout<<"Struck point at cm x: "<<lp.x()<<" y: "<<lp.y()<<endl;
+  cout<<"Struck pixel center at cm x: "<<lpCenter.x()<<" y: "<<lpCenter.y()<<endl;
+  cout<<"The boundX is "<<boundX<<" boundY is "<<boundY<<endl;
+  #endif
+  */
+  //Get the relative position of struck point to the center of the struck pixel
+  float xtrk = lpx;
+  float ytrk = lpy;
+  //Pixel Y, X pitch
+  const float ysize={0.015}, xsize={0.01};
+  //Variables for SiPixelTemplate input, see SiPixelTemplate reco
+  float yhit = 20. + 8.*(ytrk/ysize);
+  float xhit = 20. + 8.*(xtrk/xsize);
+  int   ybin = (int)yhit;
+  int	xbin = (int)xhit;
+  float yfrac= yhit - (float)ybin;
+  float xfrac= xhit - (float)xbin;
+  //Protect againt ybin, xbin being outside of range [0-39]
+  if( ybin < 0 )    ybin = 0;
+  if( ybin > 39 )   ybin = 39;
+  if( xbin < 0 )    xbin = 0;
+  if( xbin > 39 )   xbin = 39; 
+
+  //Variables for SiPixelTemplate output
+  //qBin -- normalized pixel charge deposition
+  float qbin_frac[4];
+  //Single pixel cluster projection possibility
+  float ny1_frac, ny2_frac, nx1_frac, nx2_frac;
+  bool singlex = false, singley = false;
+  SiPixelTemplate templ(thePixelTemp_);
+  templ.interpolate(tempId, cotalpha, cotbeta);
+  templ.qbin_dist(tempId, cotalpha, cotbeta, qbin_frac, ny1_frac, ny2_frac, nx1_frac, nx2_frac );
+  int  nqbin;
+
+  //  double xsizeProbability = random->flatShoot();
+  //double ysizeProbability = random->flatShoot();
+  bool hitbigx = false;
+  bool hitbigy = false;
+  /*
+  if( hitbigx ) 
+    if( xsizeProbability < nx2_frac )  singlex = true;
+    else singlex = false;
+  else
+    if( xsizeProbability < nx1_frac )  singlex = true;
+    else singlex = false;
+
+  if( hitbigy )
+    if( ysizeProbability < ny2_frac )  singley = true;
+    else singley = false;
+  else
+    if( ysizeProbability < ny1_frac )  singley = true;
+    else singley = false;
+  */
+
+
+  // random multiplicity for alpha and beta
+  double qbinProbability = random->flatShoot();
+  for(int i = 0; i<4; ++i) {
+     nqbin = i;
+     if(qbinProbability < qbin_frac[i]) break;
+  }
+
+  //Store interpolated pixel cluster profile
+  //BYSIZE, BXSIZE, const definition from SiPixelTemplate
+  float ytempl[41][BYSIZE] = {{0}}, xtempl[41][BXSIZE] = {{0}} ;
+  templ.ytemp(0, 40, ytempl);
+  templ.xtemp(0, 40, xtempl);
+
+  std::vector<double> ytemp(BYSIZE);
+  for( int i=0; i<BYSIZE; ++i) {
+     ytemp[i]=(1.-yfrac)*ytempl[ybin][i]+yfrac*ytempl[ybin+1][i];
+  }
+
+  std::vector<double> xtemp(BXSIZE);
+  for(int i=0; i<BXSIZE; ++i) {
+     xtemp[i]=(1.-xfrac)*xtempl[xbin][i]+xfrac*xtempl[xbin+1][i];
+  }
+
+  //Pixel readout threshold
+  const float qThreshold = templ.s50()*2.0;
+
+  //Cut away pixels below readout threshold
+  //For cluster lengths calculation
+  // &&& Petar: I've no idea what this code does.  Hopefully Morris will remember :)
+  int offsetX1=0, offsetX2=0, offsetY1=0, offsetY2=0;
+   int firstY, lastY, firstX, lastX;
+  for( firstY = 0; firstY < BYSIZE; ++firstY ) {
+    bool yCluster = ytemp[firstY] > qThreshold ;
+    if( yCluster )
+    {
+      offsetY1 = BHY -firstY;
+      break;
+    }
+  }
+  for( lastY = firstY; lastY < BYSIZE; ++lastY )
+  {
+    bool yCluster = ytemp[lastY] > qThreshold ;
+    if( !yCluster )
+    {
+      lastY = lastY - 1;
+      offsetY2 = lastY - BHY;
+      break;
+    }
+  }
+
+  for( firstX = 0; firstX < BXSIZE; ++firstX )  {
+    bool xCluster = xtemp[firstX] > qThreshold ;
+    if( xCluster ) {
+      offsetX1 = BHX - firstX;
+      break;
+    }
+  }
+  for( lastX = firstX; lastX < BXSIZE; ++ lastX ) {
+    bool xCluster = xtemp[lastX] > qThreshold ;
+    if( !xCluster ) {
+      lastX = lastX - 1;
+      offsetX2 = lastX - BHX;
+      break;
+    }
+  }
+  
+
+  //--- Prepare to return results
+  Local3DPoint thePosition;  
+  double       thePositionX; 
+  double       thePositionY; 
+  double       thePositionZ; 
+  LocalError   theError;     
+  double       theErrorX;    
+  double       theErrorY;    
+  //double       theErrorZ;    
+  unsigned int theClslenx;   
+  unsigned int theClsleny;   
+
+
+
+  //------------------------------
+  //  Check if the cluster is near an edge.  If it protrudes
+  //  outside the edge of the sensor, the truncate it and it will
+  //  get significantly messed up.
+  //------------------------------
+  bool edge = false;
+  bool edgex = false;
+  bool edgey = false;
+  //  bool bigx = False;
+  //bool bigy = False;
+   //  bool bigx, bigy;
+  unsigned int clslenx = offsetX1 + offsetX2 + 1;
+  unsigned int clsleny = offsetY1 + offsetY2 + 1;
+
+  theClslenx = clslenx;
+  theClsleny = clsleny;
+  /*
+  int firstPixelInX = (int)mpx - offsetX1 ;
+  int firstPixelInY = (int)mpy - offsetY1 ;
+  int lastPixelInX  = (int)mpx + offsetX2 ;
+  int lastPixelInY  = (int)mpy + offsetY2 ;
+  firstPixelInX = (firstPixelInX >= 0) ? firstPixelInX : 0 ;
+  firstPixelInY = (firstPixelInY >= 0) ? firstPixelInY : 0 ;
+  lastPixelInX  = (lastPixelInX < nrows ) ? lastPixelInX : nrows-1 ;
+  lastPixelInY  = (lastPixelInY < ncolumns ) ? lastPixelInY : ncolumns-1;
+
+  edgex = rectPixelTopology->isItEdgePixelInX( firstPixelInX ) || rectPixelTopology->isItEdgePixelInX( lastPixelInX );
+  edgey = rectPixelTopology->isItEdgePixelInY( firstPixelInY ) || rectPixelTopology->isItEdgePixelInY( lastPixelInY );
+  edge = edgex || edgey;
+  */
+  //  bigx = rectPixelTopology->isItBigPixelInX( firstPixelInX ) || rectPixelTopology->isItBigPixelInX( lastPixelInX );
+  //  bigy = rectPixelTopology->isItBigPixelInY( firstPixelInY ) || rectPixelTopology->isItBigPixelInY( lastPixelInY );
+  //bool hasBigPixelInX = False;
+  //bool hasBigPixelInY = False;
+  
+  //Variables for SiPixelTemplate pixel hit error output
+  float sigmay, sigmax, sy1, sy2, sx1, sx2;  
+  templ.temperrors(tempId, cotalpha, cotbeta, nqbin,          // inputs
+		   sigmay, sigmax, sy1, sy2, sx1, sx2 );      // outputs
+
+  // define private mebers --> Errors
+  if( edge ) {
+    if( edgex && !edgey ) {
+      theErrorX = 23.0*microntocm;
+      theErrorY = 39.0*microntocm;
+    }
+    else if( !edgex && edgey ) {
+      theErrorX = 24.0*microntocm;
+      theErrorY = 96.0*microntocm;
+    }
+    else
+    {
+      theErrorX = 31.0*microntocm;
+      theErrorY = 90.0*microntocm;
+    }
+    
+  }  
+  else {
+    if( singlex )
+      if ( hitbigx )
+        theErrorX = sx2*microntocm;
+      else
+        theErrorX = sx1*microntocm;
+    else  theErrorX = sigmax*microntocm;
+    if( singley )
+      if( hitbigy )
+        theErrorY = sy2*microntocm;
+      else
+        theErrorY = sy1*microntocm;
+    else  theErrorY = sigmay*microntocm;
+  }
+  // theErrorZ = 1e-8; // 1 um means zero  (not needed)
+  theError = LocalError( theErrorX*theErrorX, 0., theErrorY*theErrorY);
+  // Local Error is 2D: (xx,xy,yy), square of sigma in first an third position 
+  // as for resolution matrix
+  //
+  #ifdef FAMOS_DEBUG
+  std::cout << " Pixel Errors "
+	    << "\talpha(x) = " << theErrorX
+	    << "\tbeta(y) = "  << theErrorY
+	    << std::endl;	
+  #endif
+  // Generate position
+  /*  // get resolution histograms
+  int cotalphaHistBin = (int)( ( cotalpha - rescotAlpha_binMin ) / rescotAlpha_binWidth + 1 );
+  int cotbetaHistBin  = (int)( ( cotbeta  - rescotBeta_binMin )  / rescotBeta_binWidth + 1 );
+  // protection against out-of-range (undeflows and overflows)
+  if( cotalphaHistBin < 1 ) cotalphaHistBin = 1; 
+  if( cotbetaHistBin  < 1 ) cotbetaHistBin  = 1; 
+  if( cotalphaHistBin > (int)rescotAlpha_binN ) cotalphaHistBin = (int)rescotAlpha_binN; 
+  if( cotbetaHistBin  > (int)rescotBeta_binN  ) cotbetaHistBin  = (int)rescotBeta_binN; 
+  //
+  unsigned int theXHistN;
+  unsigned int theYHistN;
+  //ALICE: redid numbers associated with regular barrel and forward hits to match new histogram labeling
+  if( !isForward ) {
+     if(edge)
+     {
+       theXHistN = cotalphaHistBin * 1000 + cotbetaHistBin * 10	 +  (nqbin+1);
+       theYHistN = theXHistN;	      
+     }
+     else
+     {
+       if(singlex)
+       {
+	 if(hitbigx)  theXHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	 else 	theXHistN = 1 * 10000 + cotbetaHistBin * 10 + cotalphaHistBin ; 
+	 //else   theXHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+       }
+       else
+       {
+	 if(hasBigPixelInX)  theXHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	 else 	theXHistN = 1 * 100000 + 1 * 10000 + cotbetaHistBin * 100 + cotalphaHistBin * 10 + (nqbin+1);
+	 //else   theXHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+       }
+       if(singley)
+       {
+	 if(hitbigy)  theYHistN = 1 * 100000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+	 else 	theYHistN = 1 * 10000 + cotbetaHistBin * 10 + cotalphaHistBin ;
+	 //else   theYHistN = 1 * 100000 + 1 * 1000 + cotalphaHistBin * 100 + cotbetaHistBin ;
+       }
+       else
+       {
+	 if(hasBigPixelInY)  theYHistN = 1 * 1000000 + 1 * 100000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+	 else 	theYHistN = 1 * 100000 + 1 * 10000 + cotbetaHistBin * 100 + cotalphaHistBin * 10 + (nqbin+1);
+	 //else   theYHistN = 1 * 1000000 + 1 * 100000 + 1 * 10000 + cotalphaHistBin * 1000 + cotbetaHistBin * 10 + (nqbin+1);
+       }
+     }
+  }
+  else
+  {
+     if(edge)
+     {
+       theXHistN = cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+       theYHistN = theXHistN;
+     }
+     else
+     {
+       if( singlex )
+         if( hitbigx )
+	   theXHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	 else
+	   theXHistN = cotbetaHistBin * 10 + cotalphaHistBin;
+       //theXHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+       else
+         theXHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 +  (nqbin+1);
+       //theXHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+       if( singley )
+         if( hitbigy )
+	   theYHistN = 100000 + cotalphaHistBin * 100 + cotbetaHistBin;
+	 else
+	   theYHistN = cotbetaHistBin * 10 + cotalphaHistBin;
+       //theYHistN = 100000 + 1000 + cotalphaHistBin * 100 + cotbetaHistBin;
+       else
+         theYHistN = 10000 + cotbetaHistBin * 100 +  cotalphaHistBin * 10 + (nqbin+1);
+       //theYHistN = 100000 + 10000 + cotalphaHistBin * 1000 +  cotbetaHistBin * 10 +  (nqbin+1);
+     }
+     }*/
+  unsigned int counter = 0;
+  do {
+    //
+    // Smear the hit Position
+    /*    
+    TH1F * mergedXHisto = (TH1F*)thePixelResolutionMergedXFile->Get("th1x");
+    TH1F * mergedYHisto = (TH1F*)thePixelResolutionMergedYFile->Get("th1y");
+
+    
+
+    std::map<unsigned int, const SimpleHistogramGenerator*>::const_iterator xgenIt = theXHistos.find(theXHistN);
+    std::map<unsigned int, const SimpleHistogramGenerator*>::const_iterator ygenIt = theYHistos.find(theYHistN);
+    if (xgenIt==theXHistos.cend() || ygenIt==theYHistos.cend())
+    {
+        throw cms::Exception("FastSimulation/TrackingRecHitProducer") << "Histogram ("<<theXHistN<<","<<theYHistN<<") was not found for PixelTemplateSmearer. Check if the smearing template exists.";
+    }
+    
+    */
+
+    const SimpleHistogramGenerator* xgen = new SimpleHistogramGenerator( (TH1F*) thePixelResolutionMergedXFile-> Get("th1x")); 
+    const SimpleHistogramGenerator* ygen = new SimpleHistogramGenerator( (TH1F*) thePixelResolutionMergedYFile-> Get("th1y")); 
+    
+    thePositionX = xgen->generate(random);
+    thePositionY = ygen->generate(random);
+
+    // The old version:
+    //    thePositionX = theXHistos[theXHistN]->generate(random);
+    //    thePositionY = theYHistos[theYHistN]->generate(random);
+
+
+    if( isForward ) thePositionY *= sign;
+    thePositionZ = 0.0; // set at the centre of the active area
+    //protect from empty resolution histograms
+    //if( thePositionX > 0.0799 )  thePositionX = 0;
+    //if( thePositionY > 0.0799 )  thePositionY = 0;
+    thePosition = 
+		   Local3DPoint(lpx + thePositionX , 
+                   lpy + thePositionY , 
+                   lpz + thePositionZ );
+    #ifdef FAMOS_DEBUG
+    std::cout << " Detector bounds: "
+              << "\t\tx = " << boundX
+              << "\ty = " << boundY
+              << std::endl;
+    std::cout << " Generated local position "
+              << "\tx = " << thePosition.x()
+              << "\ty = " << thePosition.y()
+              << std::endl;       
+    #endif  
+    counter++;
+    if(counter > 20) {
+      // If we tried to generate thePosition, and it's out of the bounds
+      // for 20 times, then punt and return the simHit's location.
+      // &&& Petar: how often does this happen?
+      thePosition = Local3DPoint(lpx, 
+                                 lpy, 
+                                 lpz);
+      break;
+    }
+  } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
+  std::cout << "end P smearHit"<< std::endl;
+
+  //--- We now have everything to make a SiTrackerGSRecHit2D
+  //
+  SiTrackerGSRecHit2D recHit( thePosition, //const LocalPoint &   (LocalPoint is a typedef  Local3DPoint)
+			      theError,    //const LocalError &
+			      *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
+			      0,           //const int simhitId
+			      0,           //const int simtrackId
+			      0,           //const uint32_t eeId
+			      SiTrackerGSRecHit2D::ClusterRef(),   //ClusterRef const &cluster
+			      theClslenx,  //const int pixelMultiplicityX
+			      theClsleny   //const int pixelMultiplicityY
+			      );
+  return recHit;
+
   // &&& TOY EXAMPLE -- just to make the code compile, with the correct return value.  
   // &&& @ALICE: please implement.
   // &&& For each merge group, iterate over hits, find those with max y and min y
   // &&& and hits with max x and min x, and then take the average of the two,
   // &&& with appropriate errors.
-  LocalPoint position(-1,-1,-1);
+  /*  LocalPoint position(-1,-1,-1);
   LocalError error(-1,-1,-1);
 
   SiTrackerGSRecHit2D recHit( position, //const LocalPoint &     (LocalPoint is a typedef for Local3DPoint)
@@ -775,7 +1236,7 @@ smearMergeGroup( MergeGroup* mg,
 			      -1,  //const int pixelMultiplicityX
 			      -1   //const int pixelMultiplicityY
 			      );
-  return recHit;
+			      return recHit;*/
 }
 
 

@@ -122,6 +122,11 @@ protected:
   std::string thePixelResolutionFileName3;
   TFile* probfile;
   std::string probfileName;
+  TFile* thePixelResolutionMergedXFile;
+  std::string thePixelResolutionMergedXFileName;
+  TFile* thePixelResolutionMergedYFile;                                                                                          
+  std::string thePixelResolutionMergedYFileName;
+
 
   unsigned int theLayer;
 };
