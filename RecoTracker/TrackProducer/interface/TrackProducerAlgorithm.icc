@@ -171,6 +171,8 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 
 	//set the algo_ member in order to propagate the old alog name
 	algo_=theT->algo();	
+	originalAlgo_ = theT->originalAlgo();
+	algoMask_ = theT->algoMask();
 
 	//=====  the hits are in the same order as they were in the track::extra.
         FitterCloner fc(theFitter,builder);        

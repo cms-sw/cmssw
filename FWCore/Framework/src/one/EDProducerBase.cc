@@ -57,6 +57,7 @@ namespace edm {
         std::lock_guard<std::mutex> guard(mutex_);
         {
           std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
+          e.setSharedResourcesAcquirer(&resourcesAcquirer_);
           EventSignalsSentry sentry(act,mcc);
           this->produce(e, c);
         }

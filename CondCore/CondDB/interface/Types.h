@@ -45,6 +45,7 @@ namespace cond {
 
   // Basic element of the IOV sequence.
   struct Iov_t {
+    virtual ~Iov_t(){}
     virtual void clear();
     bool isValid() const;
     bool isValidFor( Time_t target ) const;

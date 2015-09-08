@@ -17,7 +17,7 @@ namespace edm {
   Event::Event(EventPrincipal& ep, ModuleDescription const& md, ModuleCallingContext const* moduleCallingContext) :
       provRecorder_(ep, md),
       aux_(ep.aux()),
-      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : 0),
+      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md, moduleCallingContext) : nullptr),
       gotBranchIDs_(),
       gotViews_(),
       streamID_(ep.streamID()),
@@ -38,6 +38,13 @@ namespace edm {
     provRecorder_.setConsumer(iConsumer);
     const_cast<LuminosityBlock*>(luminosityBlock_.get())->setConsumer(iConsumer);
   }
+  
+  void
+  Event::setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer) {
+    provRecorder_.setSharedResourcesAcquirer(iResourceAcquirer);
+    const_cast<LuminosityBlock*>(luminosityBlock_.get())->setSharedResourcesAcquirer(iResourceAcquirer);
+  }
+
 
   EventPrincipal&
   Event::eventPrincipal() {
