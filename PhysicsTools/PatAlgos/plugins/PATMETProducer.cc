@@ -42,6 +42,18 @@ PATMETProducer::PATMETProducer(const edm::ParameterSet & iConfig):
     userDataHelper_ = PATUserDataHelper<MET>(iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector());
   }
 
+  // MET Significance
+  calculateMETSignificance_ = iConfig.getParameter<bool>("computeMETSignificance");
+  if(calculateMETSignificance_)
+    {
+      metSigAlgo_ = new metsig::METSignificance(iConfig);
+      jetToken_ = mayConsume<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("srcJets"));
+      pfCandToken_ = mayConsume<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("srcPFCands"));
+      std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter< std::vector<edm::InputTag> >("srcLeptons");
+      for(std::vector<edm::InputTag>::const_iterator it=srcLeptonsTags.begin();it!=srcLeptonsTags.end();it++) {
+	lepTokens_.push_back( mayConsume<edm::View<reco::Candidate> >( *it ) );
+      }
+    }  
 
   // produces vector of mets
   produces<std::vector<MET> >();
@@ -78,6 +90,14 @@ void PATMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     MET amet(metsRef);
     // add the generated MET
     if (addGenMET_) amet.setGenMET((*genMETs)[idx]);
+
+    //add the MET significance
+    if(calculateMETSignificance_) {
+      const reco::METCovMatrix& sigcov = getMETCovMatrix(iEvent);
+      amet.setSignificanceMatrix(sigcov);
+      double metSig=metSigAlgo_->getSignificance(sigcov, amet);
+      amet.setMETSignificance(metSig);
+    }
 
     if (efficiencyLoader_.enabled()) {
         efficiencyLoader_.setEfficiencies( amet, metsRef );
@@ -138,6 +158,29 @@ void PATMETProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
   iDesc.add<edm::InputTag>("muonSource", edm::InputTag("muons"));
 
 }
+
+const reco::METCovMatrix 
+PATMETProducer::getMETCovMatrix(const edm::Event& event) const {
+  std::vector< edm::Handle<reco::CandidateView> > leptons;
+  for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = lepTokens_.begin();
+	srcLeptons_i != lepTokens_.end(); ++srcLeptons_i ) {
+    edm::Handle<reco::CandidateView> leptons_i;
+    event.getByToken(*srcLeptons_i, leptons_i);
+    leptons.push_back( leptons_i );
+  }
+  // jets
+  edm::Handle<edm::View<reco::Jet> > inputJets;
+  event.getByToken( jetToken_, inputJets );
+
+  //candidates
+  edm::Handle<edm::View<reco::Candidate> > inputCands;
+  event.getByToken( pfCandToken_, inputCands );
+
+  //Compute the covariance matrix and fill it
+  reco::METCovMatrix cov = metSigAlgo_->getCovariance( *inputJets, leptons, *inputCands);
+  return cov;
+}
+
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

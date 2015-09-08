@@ -37,11 +37,17 @@ pfMETcorrType0 = cms.EDProducer("Type0PFMETcorrInputProducer",
     srcPFCandidateToVertexAssociations = cms.InputTag('pfCandidateToVertexAssociation'),
     srcHardScatterVertex = cms.InputTag('selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0'),
     correction = cms.PSet(
-        formula = cms.string("-([0] + [1]*x)*(1.0 + TMath::Erf(-[2]*TMath::Power(x, [3])))"),
-        par0 = cms.double(0.),
-        par1 = cms.double(-0.703151),
-        par2 = cms.double(0.0303531),
-        par3 = cms.double(0.909209)          
+      # RunI correction
+      #  formula = cms.string("-([0] + [1]*x)*(1.0 + TMath::Erf(-[2]*TMath::Power(x, [3])))"),
+      #  par0 = cms.double(0.),
+      #  par1 = cms.double(-0.703151),
+      #  par2 = cms.double(0.0303531),
+      #  par3 = cms.double(0.909209)  
+        formula = cms.string("(x<35)?(-( [0]+x*[1]+pow(x, 2)*[2]+pow(x, 3)*[3] )):(-( [0]+35*[1]+pow(35, 2)*[2]+pow(35, 3)*[3] ))"),
+        par0 = cms.double(-1.81414e-01),
+        par1 = cms.double(-4.76934e-01),
+        par2 = cms.double(8.63564e-03),
+        par3 = cms.double(-4.94181e-05)      
     ),
     minDz = cms.double(0.2) # [cm], minimum distance required between pile-up vertices and "hard scatter" vertex
 )   
@@ -57,6 +63,14 @@ type0PFMEtCorrectionPFCandToVertexAssociation = cms.Sequence(
 type0PFMEtCorrectionPFCandToVertexAssociationForValidation = cms.Sequence(
     cms.ignore(selectedVerticesForPFMEtCorrType0)
    * cms.ignore(selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0)
+   * particleFlowDisplacedVertex
+   * pfCandidateToVertexAssociation
+)
+
+
+type0PFMEtCorrectionPFCandToVertexAssociationForValidationMiniAOD = cms.Sequence(
+    selectedVerticesForPFMEtCorrType0
+   * selectedPrimaryVertexHighestPtTrackSumForPFMEtCorrType0
    * particleFlowDisplacedVertex
    * pfCandidateToVertexAssociation
 )

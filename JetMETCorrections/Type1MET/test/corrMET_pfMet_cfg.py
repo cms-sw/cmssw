@@ -18,10 +18,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.load("JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff")
 process.load("JetMETCorrections.Type1MET.correctionTermsPfMetType0PFCandidate_cff")
 process.load("JetMETCorrections.Type1MET.correctionTermsPfMetType0RecoTrack_cff")
-process.load("JetMETCorrections.Type1MET.correctionTermsPfMetShiftXY_cff")
-
-# process.corrPfMetShiftXY.parameter = process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_data
-process.corrPfMetShiftXY.parameter = process.pfMEtSysShiftCorrParameters_2012runABCDvsNvtx_mc
+process.load("JetMETCorrections.Type1MET.correctionTermsPfMetMult_cff")
 
 ##____________________________________________________________________________||
 process.load("JetMETCorrections.Type1MET.correctedMet_cff")
@@ -54,11 +51,10 @@ process.p = cms.Path(
     process.correctionTermsPfMetType1Type2 +
     process.correctionTermsPfMetType0RecoTrack +
     process.correctionTermsPfMetType0PFCandidate +
-    process.correctionTermsPfMetShiftXY +
+    process.correctionTermsPfMetMult +
     process.pfMetT0rt +
     process.pfMetT0rtT1 +
     process.pfMetT0rtT1T2 +
-    process.pfMetT0rtT2 +
     process.pfMetT0pc +
     process.pfMetT0pcT1 +
     process.pfMetT1 +
@@ -66,7 +62,6 @@ process.p = cms.Path(
     process.pfMetT0rtTxy + 
     process.pfMetT0rtT1Txy + 
     process.pfMetT0rtT1T2Txy + 
-    process.pfMetT0rtT2Txy +
     process.pfMetT0pcTxy +
     process.pfMetT0pcT1Txy +
     process.pfMetT1Txy+ 
