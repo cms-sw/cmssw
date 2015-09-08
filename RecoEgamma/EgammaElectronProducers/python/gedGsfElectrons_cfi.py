@@ -46,6 +46,8 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     # preselection parameters (ecal driven electrons)
     minSCEtBarrel = cms.double(4.0),
     minSCEtEndcaps = cms.double(4.0),
+   #add EoP cut flag for HI
+    EoPCut = cms.bool(False),
     minEOverPBarrel = cms.double(0.0),
     maxEOverPBarrel = cms.double(999999999.),
     minEOverPEndcaps = cms.double(0.0),
@@ -80,6 +82,7 @@ gedGsfElectronsTmp = cms.EDProducer("GEDGsfElectronProducer",
     # preselection parameters (tracker driven only electrons)    
     minSCEtBarrelPflow = cms.double(0.0),
     minSCEtEndcapsPflow = cms.double(0.0),
+    EoPCutPflow = cms.bool(False),
     minEOverPBarrelPflow = cms.double(0.0),
     maxEOverPBarrelPflow = cms.double(999999999.),
     minEOverPEndcapsPflow = cms.double(0.0),
