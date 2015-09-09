@@ -182,9 +182,9 @@ namespace pat {
   
 template<typename T>
 void pat::PATElectronProducer::readIsolationLabels( const edm::ParameterSet & iConfig,
-																							 const char* psetName,
-																							 pat::PATElectronProducer::IsolationLabels& labels,
-																							 std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens) {
+						    const char* psetName,
+						    pat::PATElectronProducer::IsolationLabels& labels,
+						    std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens) {
     
     labels.clear();
     
