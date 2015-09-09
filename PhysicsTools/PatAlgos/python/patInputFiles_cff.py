@@ -50,7 +50,10 @@ filesRelValTTbarFastSimGENSIMDIGIRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_4_0_pre8/RelValTTbar_13/GEN-SIM-DIGI-RECO/MCRUN2_74_V7_FastSim-v1/00000/008BD645-1EBD-E411-B3D0-003048FFD740.root'
+    # temporary: produce fastsim sample on the fly
+    # can be restored as soon as relval samples are available with the new fastsim rechits
+    #'/store/relval/CMSSW_7_4_0_pre8/RelValTTbar_13/GEN-SIM-DIGI-RECO/MCRUN2_74_V7_FastSim-v1/00000/008BD645-1EBD-E411-B3D0-003048FFD740.root'
+    "file:ttbarForFastSimTest.root"
     )
 
 # /RelValTTbar_13/CMSSW_7_4_0_pre8-PU25ns_MCRUN2_74_V7-v1/GEN-SIM-RECO
