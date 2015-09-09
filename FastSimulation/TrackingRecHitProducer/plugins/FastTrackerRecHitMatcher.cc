@@ -66,8 +66,7 @@ class FastTrackerRecHitMatcher : public edm::stream::EDProducer<>  {
     
     inline const FastSingleTrackerRecHit * _cast2Single(const FastTrackerRecHit * recHit) const{
 	if(!recHit->isSingle()){
-	    edm::LogError("FastTrackerRecHitMatcher") << "all rechits in simHit2RecHitMap must be instances of FastSingleTrackerRecHit. recHit's rtti: " << recHit->rtti() << std::endl;
-	    exit(1);
+	    throw cms::Exception("FastTrackerRecHitMatcher") << "all rechits in simHit2RecHitMap must be instances of FastSingleTrackerRecHit. recHit's rtti: " << recHit->rtti() << std::endl;
 	}
 	return dynamic_cast<const FastSingleTrackerRecHit *>(recHit);
     }
