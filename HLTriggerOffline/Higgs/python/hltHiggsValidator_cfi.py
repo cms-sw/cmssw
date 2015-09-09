@@ -350,7 +350,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_Ele27_eta2p1_WPLoose_Gsf_v",
             "HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_v",
             
-            # frozen menu paths (already in dqm)
+            # frozen menu paths
             "HLT_Ele27_WP85_Gsf_v",
             "HLT_Ele27_eta2p1_WP85_Gsf_HT200_v"
             ),
@@ -382,6 +382,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     WHToENuBB  = cms.PSet( 
         hltPathsToCheck = cms.vstring(
             "HLT_Ele27_WPLoose_Gsf_WHbbBoost_v",
+            "HLT_Ele23_WPLoose_Gsf_WHbbBoost_v"
             ),
         recElecLabel   = cms.string("gedGsfElectrons"),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
