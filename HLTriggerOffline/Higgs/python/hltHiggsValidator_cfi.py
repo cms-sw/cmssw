@@ -212,16 +212,15 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
      Htaunu = cms.PSet(
         hltPathsToCheck = cms.vstring(
-            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v",
-            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v",
-            # monitoring triggers for efficiency measurement
-            "HLT_LooseIsoPFTau50_Trk30_eta2p1_v",
-            "HLT_IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1_v",
-            "HLT_IsoMu16_eta2p1_CaloMET30_v",
-            
-            # new menu, not updated?
             "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_JetIdCleaned_v",
-            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_JetIdCleaned_v"
+            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_JetIdCleaned_v",
+            "HLT_LooseIsoPFTau50_Trk30_eta2p1_v",
+            
+            # frozen menu paths
+            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET80_v",
+            "HLT_LooseIsoPFTau50_Trk30_eta2p1_MET120_v",            
+            "HLT_IsoMu16_eta2p1_CaloMET30_LooseIsoPFTau50_Trk30_eta2p1_v",
+            "HLT_IsoMu16_eta2p1_CaloMET30_v"
             ),
         recPFTauLabel   = cms.string("hpsPFTauProducer"),
         recCaloMETLabel = cms.string("caloMet"),
