@@ -103,7 +103,7 @@ EventFilter/ShmBuffer/.*                : xdaq
 EventFilter/ShmReader/.*                : xdaq
 
 #Reco and Track exceptions for DQM usage
-RecoEGamma/Examples/.*                  : DQM.*
+RecoEgamma/Examples/.*                  : DQM.*
 RecoLocalCalo/EcalRecProducers/test/.*  : DQM.*
 RecoParticleFlow/Benchmark/.*           : DQM.*         
 RecoParticleFlow/PFRootEvent/.*         : DQM.*
