@@ -23,11 +23,11 @@ def SwitchToCascade(process):
     # Make one TrackCand for each seeder
     import FastSimulation.Muons.TrackCandidateFromL2_cfi
     process.hltL3TrackCandidateFromL2OIS = FastSimulation.Muons.TrackCandidateFromL2_cfi.hltL3TrackCandidateFromL2.clone()
-    process.hltL3TrackCandidateFromL2OIS.SeedProducer = "hltL3TrajectorySeedOIS"
+    process.hltL3TrackCandidateFromL2OIS.src = "hltL3TrajectorySeedOIS"
     process.hltL3TrackCandidateFromL2OIHC = FastSimulation.Muons.TrackCandidateFromL2_cfi.hltL3TrackCandidateFromL2.clone()
-    process.hltL3TrackCandidateFromL2OIHC.SeedProducer = "hltL3TrajectorySeedOIHC"    
+    process.hltL3TrackCandidateFromL2OIHC.src = "hltL3TrajectorySeedOIHC"    
     process.hltL3TrackCandidateFromL2IOHC = FastSimulation.Muons.TrackCandidateFromL2_cfi.hltL3TrackCandidateFromL2.clone()
-    process.hltL3TrackCandidateFromL2IOHC.SeedProducer = "hltL3TrajectorySeedIOHC"
+    process.hltL3TrackCandidateFromL2IOHC.src = "hltL3TrajectorySeedIOHC"
 
     # Make one Track for each TrackCand
     process.hltL3TkTracksFromL2OIS = process.hltL3TkTracksFromL2.clone()
