@@ -303,8 +303,22 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsambleHitContainer& 
   this->doSlopesAndChi2();
   this->fillLocalDirection();
   AlgebraicSymMatrix protoErrors = this->calculateError();
-  this->flipErrors( protoErrors ); 
-  ME0Segment tmp(proto_segment,protoIntercept, protoDirection, protoErrors,protoChi2);
+  this->flipErrors( protoErrors );
+
+  // Calculate the central value and uncertainty of the segment time
+  float averageTime=0.;
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    averageTime += (*rh)->tof();                                          
+  }
+  if(rechits.size() != 0) averageTime=averageTime/(rechits.size());
+  float timeUncrt=0.;
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    timeUncrt += pow((*rh)->tof()-averageTime,2);
+  }
+  if(rechits.size() != 0) timeUncrt=timeUncrt/(rechits.size());
+  timeUncrt = sqrt(timeUncrt);
+
+  ME0Segment tmp(proto_segment,protoIntercept, protoDirection, protoErrors,protoChi2,averageTime,timeUncrt);
   me0segs.push_back(tmp);
   return me0segs;
 }
