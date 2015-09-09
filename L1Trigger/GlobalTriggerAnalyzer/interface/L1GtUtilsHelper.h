@@ -46,7 +46,7 @@ public:
   // Using this constructor will cause it to look for valid InputTags in
   // the following ways in the specified order until they are found.
   //   1. The configuration
-  //   2. Search all products from the RECO process for the required type
+  //   2. Search all products from the preferred input tags for the required type
   //   3. Search all products from any other process for the required type
   template <typename T>
   L1GtUtilsHelper(edm::ParameterSet const& pset,
@@ -58,7 +58,7 @@ public:
   // the following ways in the specified order until they are found.
   //   1. The constructor arguments
   //   2. The configuration
-  //   3. Search all products from the RECO process for the required type
+  //   3. Search all products from the preferred input tags for the required type
   //   4. Search all products from any other process for the required type
   template <typename T>
   L1GtUtilsHelper(edm::ParameterSet const& pset,
@@ -101,9 +101,19 @@ private:
   bool m_findReadoutRecord;
   bool m_findMenuLite;
 
-  bool m_foundRECORecord;
-  bool m_foundRECOReadoutRecord;
-  bool m_foundRECOMenuLite;
+  bool m_foundPreferredRecord;
+  bool m_foundPreferredReadoutRecord;
+  bool m_foundPreferredMenuLite;
+
+  bool m_foundMultipleL1GtRecord;
+  bool m_foundMultipleL1GtReadoutRecord;
+  bool m_foundMultipleL1GtMenuLite;
+
+  // use vector here, InputTag has no '<' operator to use std::set
+  std::vector<edm::InputTag> m_inputTagsL1GtRecord;
+  std::vector<edm::InputTag> m_inputTagsL1GtReadoutRecord;
+  std::vector<edm::InputTag> m_inputTagsL1GtMenuLite;
+
 };
 
 template <typename T>
@@ -133,9 +143,13 @@ L1GtUtilsHelper::L1GtUtilsHelper(edm::ParameterSet const& pset,
   m_findReadoutRecord(false),
   m_findMenuLite(false),
 
-  m_foundRECORecord(false),
-  m_foundRECOReadoutRecord(false),
-  m_foundRECOMenuLite(false) {
+  m_foundPreferredRecord(false),
+  m_foundPreferredReadoutRecord(false),
+  m_foundPreferredMenuLite(false),
+
+  m_foundMultipleL1GtRecord(false),
+  m_foundMultipleL1GtReadoutRecord(false),
+  m_foundMultipleL1GtMenuLite(false) {
 
   // If the InputTags are not set to valid values by the arguments, then
   // try to set them from the configuration.

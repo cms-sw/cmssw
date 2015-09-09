@@ -55,6 +55,11 @@ public:
 	DECLARE_VARIABLE(betaStarClassic   ,float);  
 	
 	DECLARE_VARIABLE(ptD        ,float);
+	DECLARE_VARIABLE(rho        ,float);
+	DECLARE_VARIABLE(jetR       ,float);
+	DECLARE_VARIABLE(jetRchg    ,float);
+	DECLARE_VARIABLE(dRMatch    ,float);
+	DECLARE_VARIABLE(nTrueInt   ,float);
 
 	DECLARE_VARIABLE(nvtx   ,float);  
 };
