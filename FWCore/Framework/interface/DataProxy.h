@@ -88,7 +88,7 @@ namespace edm {
          DataProxy const& operator=(DataProxy const&); // stop default
 
          // ---------- member data --------------------------------
-         mutable void const* cache_; //protected by a global mutex
+         [[cms::thread_safe]] mutable void const* cache_; //protected by a global mutex
          mutable std::atomic<bool> cacheIsValid_;
          mutable std::atomic<bool> nonTransientAccessRequested_;
          ComponentDescription const* description_;
