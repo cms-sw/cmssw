@@ -106,14 +106,6 @@ namespace DataFormats_TrackerRecHit2D {
     edm::Ref<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D> > refRangeMapDetIdOwnVectorSiStripRecHit1D;
     edm::RefVector<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D,edm::refhelper::FindUsingAdvance<edm::RangeMap<DetId,edm::OwnVector<SiStripRecHit1D,edm::ClonePolicy<SiStripRecHit1D> >,edm::ClonePolicy<SiStripRecHit1D> >,SiStripRecHit1D> > refVectorRangeMapDetIdOwnVectorSiStripRecHit1D;
 
-    std::vector<SiTrackerGSRecHit2D> siTrackerGSRecHitVector;
-    edmNew::DetSetVector<SiTrackerGSRecHit2D> siTrackerGSRecHitDetSet;
-    edm::Wrapper<edmNew::DetSetVector<SiTrackerGSRecHit2D> > siTrackerGSRecHitWrapper;
-
-    std::vector<SiTrackerGSMatchedRecHit2D> siTrackerGSMatchedRecHitVector;
-    edmNew::DetSetVector<SiTrackerGSMatchedRecHit2D> siTrackerGSMatchedRecHitDetSet;
-    edm::Wrapper<edmNew::DetSetVector<SiTrackerGSMatchedRecHit2D> > siTrackerGSMatchedRecHitWrapper;
-        
     edm::Wrapper<edmNew::DetSetVector<SiStripRecHit2D> > wdstvDummy1;
     edm::Wrapper<edmNew::DetSetVector<SiStripRecHit1D> > wdstvDummy11;
     edm::Wrapper<edmNew::DetSetVector<SiStripMatchedRecHit2D> > wdstvDummy2;
