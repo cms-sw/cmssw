@@ -28,6 +28,7 @@ streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Diphoton30
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v2', 
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v2', 
     'HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v2', 
+    'HLT_DoublePhoton60_v1', 
     'HLT_DoublePhoton85_v2', 
     'HLT_ECALHT800_v2', 
     'HLT_Ele10_CaloIdM_TrackIdM_CentralPFJet30_BTagCSV0p54PF_v2', 
@@ -180,15 +181,17 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele1
     'HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v1', 
     'HLT_Ele22_eta2p1_WPLoose_Gsf_v1', 
     'HLT_Ele22_eta2p1_WPTight_Gsf_v1', 
+    'HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCVS07_v1', 
+    'HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v1', 
     'HLT_Ele23_WPLoose_Gsf_v1', 
+    'HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v1', 
+    'HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v1', 
     'HLT_Ele27_WPLoose_Gsf_WHbbBoost_v1', 
-    'HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v1', 
+    'HLT_Ele27_WPLoose_Gsf_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_HT200_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v1', 
-    'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v1', 
-    'HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v1', 
     'HLT_Ele27_eta2p1_WPLoose_Gsf_v1', 
     'HLT_Ele27_eta2p1_WPTight_Gsf_v1', 
     'HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v1', 
@@ -309,6 +312,7 @@ streamA_datasetHTMHT_selector.triggerConditions = cms.vstring('HLT_DiCentralPFJe
     'HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_JetIdCleaned_v1', 
     'HLT_PFHT200_DiPFJetAve90_PFAlphaT0p57_v1', 
     'HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63_v1', 
+    'HLT_PFHT200_PFAlphaT0p51_v1', 
     'HLT_PFHT250_DiPFJetAve90_PFAlphaT0p55_v1', 
     'HLT_PFHT250_DiPFJetAve90_PFAlphaT0p58_v1', 
     'HLT_PFHT300_DiPFJetAve90_PFAlphaT0p53_v1', 
@@ -504,6 +508,15 @@ streamA_datasetDoubleMuonLowMass_selector.l1tResults = cms.InputTag('')
 streamA_datasetDoubleMuonLowMass_selector.throw      = cms.bool(False)
 streamA_datasetDoubleMuonLowMass_selector.triggerConditions = cms.vstring('HLT_DoubleMu4_LowMassNonResonantTrk_Displaced_v2')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHINMuon_selector
+streamA_datasetHINMuon_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHINMuon_selector.l1tResults = cms.InputTag('')
+streamA_datasetHINMuon_selector.throw      = cms.bool(False)
+streamA_datasetHINMuon_selector.triggerConditions = cms.vstring('HLT_HIL1DoubleMu0BPTX_v1', 
+    'HLT_HIL2DoubleMu0BPTX_v1', 
+    'HLT_HIL2Mu3BPTX_v1', 
+    'HLT_HIL3Mu3BPTX_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMuOnia_selector.l1tResults = cms.InputTag('')
@@ -556,16 +569,17 @@ streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIs
     'HLT_IsoMu17_eta2p1_MediumIsoPFTau35_Trk1_eta2p1_Reg_v1', 
     'HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v2', 
     'HLT_IsoMu17_eta2p1_v2', 
-    'HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v2', 
+    'HLT_IsoMu18_CentralPFJet30_BTagCSV07_v1', 
+    'HLT_IsoMu18_TriCentralPFJet50_40_30_v1', 
+    'HLT_IsoMu18_v1', 
     'HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v1', 
-    'HLT_IsoMu20_eta2p1_TriCentralPFJet30_v2', 
-    'HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v2', 
-    'HLT_IsoMu20_eta2p1_v2', 
     'HLT_IsoMu20_v2', 
+    'HLT_IsoMu22_CentralPFJet30_BTagCSV07_v1', 
+    'HLT_IsoMu22_TriCentralPFJet50_40_30_v1', 
+    'HLT_IsoMu22_v1', 
     'HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v2', 
     'HLT_IsoMu24_eta2p1_TriCentralPFJet30_v2', 
     'HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v2', 
-    'HLT_IsoMu24_eta2p1_v2', 
     'HLT_IsoMu27_v2', 
     'HLT_IsoTkMu20_eta2p1_v2', 
     'HLT_IsoTkMu20_v2', 
