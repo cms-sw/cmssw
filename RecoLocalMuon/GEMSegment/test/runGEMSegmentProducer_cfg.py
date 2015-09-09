@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GEMSegmentRECO")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet( 
+    input = cms.untracked.int32(-1), 
+    eventsToProcess = cms.untracked.VEventRange('1:1:23',) # debug evt 23 [run=1,ls=1,evt=23]
+    )
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.load('Configuration.StandardSequences.Services_cff')
@@ -65,13 +68,15 @@ process.MessageLogger.cout = cms.untracked.PSet(
 ##########################
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:out_local_reco.root'
+        # 'file:out_local_reco.root'
+        'file:out_local_reco_noise.root'
     )
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
-        'file:out_local_reco_gemsegment.root'
+        # 'file:out_local_reco_gemsegment.root'
+        'file:out_local_reco_noise_gemsegment.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',
