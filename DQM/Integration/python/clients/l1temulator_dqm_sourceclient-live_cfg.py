@@ -28,7 +28,7 @@ process.load("DQM.Integration.config.inputsource_cfi")
 process.load("DQM.Integration.config.environment_cfi")
 # for local test
 process.dqmEnv.subSystemFolder = 'L1TEMU'
-#process.dqmSaver.tag = 'L1TEMU'
+process.dqmSaver.tag = 'L1TEMU'
 #
 # no references needed
 # replace DQMStore.referenceFileName = "L1TEMU_reference.root"
