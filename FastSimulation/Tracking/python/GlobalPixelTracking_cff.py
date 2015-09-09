@@ -1,64 +1,84 @@
 import FWCore.ParameterSet.Config as cms
 
-# Global Pixel seeding
-from FastSimulation.Tracking.GlobalPixelSeedProducer_cff import *
-from FastSimulation.Tracking.GlobalPixelSeedProducerForElectrons_cff import *
+###################
+# pixel tracks
+# TOTO: where is this used, what fullsim products does it represent, is the cfg proper
+###################
 
-# TrackCandidates
+## seeds
+from FastSimulation.Tracking.GlobalPixelSeedProducer_cff import globalPixelSeeds
+
+## track candidates
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
-# reco::Tracks (possibly with invalid hits)
+globalPixelTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+    src = cms.InputTag("globalPixelSeeds")
+    )
+
+## tracks
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
+globalPixelWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
+    src = 'globalPixelTrackCandidates',
+    TTRHBuilder = 'WithoutRefit',
+    Fitter = 'KFFittingSmootherWithOutlierRejection',
+    Propagator = 'PropagatorWithMaterial',
+    TrajectoryInEvent = cms.bool(True),
+    )
 
 ###################
-globalPixelTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-globalPixelTrackCandidates.src = cms.InputTag("globalPixelSeeds")
+# pixel track candidates for electrons
+# TOTO: where is this used, what fullsim products does it represent, is the cfg proper
+###################
 
-globalPixelWithMaterialTracks = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-globalPixelWithMaterialTracks.src = 'globalPixelTrackCandidates'
-globalPixelWithMaterialTracks.TTRHBuilder = 'WithoutRefit'
-globalPixelWithMaterialTracks.Fitter = 'KFFittingSmootherWithOutlierRejection'
-globalPixelWithMaterialTracks.Propagator = 'PropagatorWithMaterial'
-globalPixelWithMaterialTracks.TrajectoryInEvent = cms.bool(True)
+# masks
+# introduction of this mask is based on review of GlobalPixelTracking_cff in CMSSW_7_2_2
+# it doesn't necessarily make sense...
+import FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi
+globalPixelMasksForElectrons = FastSimulation.Tracking.FastTrackerRecHitMaskProducer_cfi.fastTrackerRecHitMaskProducer.clone(
+    trajectories = cms.InputTag("globalPixelWithMaterialTracks")
+    )
 
-# simtrack id producer
-#globalPixelStepIds = cms.EDProducer("SimTrackIdProducer",
-#                                     trackCollection = cms.InputTag("globalPixelWithMaterialTracks"),
-#                                   )
+# seeds
+from FastSimulation.Tracking.GlobalPixelSeedProducerForElectrons_cff import globalPixelSeedsForElectrons
+globalPixelSeedsForElectrons.hitMasks = cms.InputTag("globalPixelMasksForElectrons")
 
-# fast tracking mask producer                                                                                                                                                                                                                                        
-from FastSimulation.Tracking.FastTrackingMaskProducer_cfi import fastTrackingMaskProducer as _fastTrackingMaskProducer
-globalPixelStepFastTrackingMasks = _fastTrackingMaskProducer.clone(
-    trackCollection = cms.InputTag("globalPixelWithMaterialTracks"),
-    #    TrackQuality = RecoTracker.IterativeTracking.LowPtTripletStep_cff.lowPtTripletStepClusters.TrackQuality,
-    #    overrideTrkQuals = cms.InputTag('detachedTripletStep') 
+# track candidates
+# TODO: need masks?
+globalPixelTrackCandidatesForElectrons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+    src = cms.InputTag("globalPixelSeedsForElectrons"),
+    hitMasks = cms.InputTag("globalPixelMasksForElectrons")
+    )
+
+# tracks    
+globalPixelWithMaterialTracksForElectrons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
+    src = 'globalPixelTrackCandidatesForElectrons',
+    TTRHBuilder = 'WithoutRefit',
+    Fitter = 'KFFittingSmootherWithOutlierRejection',
+    Propagator = 'PropagatorWithMaterial',
+    TrajectoryInEvent = cms.bool(True)
+    )
+
+###################
+# pixel track candidates for photons
+###################
+
+# seed
+from FastSimulation.Tracking.GlobalPixelSeedProducerForElectrons_cff import globalPixelSeedsForPhotons
+globalPixelSeedsForPhotons.hitMasks = cms.InputTag("globalPixelMasksForElectrons")
+
+# track candidate
+globalPixelTrackCandidatesForPhotons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone(
+    src = cms.InputTag("globalPixelSeedsForPhotons"),
+    hitMasks = cms.InputTag("globalPixelMasksForElectrons")
+    )
+
+# tracks
+globalPixelWithMaterialTracksForPhotons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone(
+    src = 'globalPixelTrackCandidatesForPhotons',
+    TTRHBuilder = 'WithoutRefit',
+    Fitter = 'KFFittingSmootherWithOutlierRejection',
+    Propagator = 'PropagatorWithMaterial',
+    TrajectoryInEvent = cms.bool(True)
 )
-
-###################
-
-
-globalPixelTrackCandidatesForElectrons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-globalPixelTrackCandidatesForElectrons.src = cms.InputTag("globalPixelSeedsForElectrons")
-#globalPixelTrackCandidatesForElectrons.TrackProducers = cms.vstring(['globalPixelWithMaterialTracks'])
-    
-globalPixelWithMaterialTracksForElectrons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-globalPixelWithMaterialTracksForElectrons.src = 'globalPixelTrackCandidatesForElectrons'
-globalPixelWithMaterialTracksForElectrons.TTRHBuilder = 'WithoutRefit'
-globalPixelWithMaterialTracksForElectrons.Fitter = 'KFFittingSmootherWithOutlierRejection'
-globalPixelWithMaterialTracksForElectrons.Propagator = 'PropagatorWithMaterial'
-globalPixelWithMaterialTracksForElectrons.TrajectoryInEvent = cms.bool(True)
-
-####################
-
-globalPixelTrackCandidatesForPhotons = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
-globalPixelTrackCandidatesForPhotons.src = cms.InputTag("globalPixelSeedsForPhotons")
-#globalPixelTrackCandidatesForPhotons.TrackProducers = cms.vstring(['globalPixelWithMaterialTracks'])
-
-globalPixelWithMaterialTracksForPhotons = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
-globalPixelWithMaterialTracksForPhotons.src = 'globalPixelTrackCandidatesForPhotons'
-globalPixelWithMaterialTracksForPhotons.TTRHBuilder = 'WithoutRefit'
-globalPixelWithMaterialTracksForPhotons.Fitter = 'KFFittingSmootherWithOutlierRejection'
-globalPixelWithMaterialTracksForPhotons.Propagator = 'PropagatorWithMaterial'
-globalPixelWithMaterialTracksForPhotons.TrajectoryInEvent = cms.bool(True)
 
 ####################
 
@@ -66,11 +86,10 @@ globalPixelWithMaterialTracksForPhotons.TrajectoryInEvent = cms.bool(True)
 globalPixelTracking = cms.Sequence(globalPixelSeeds*
                                    globalPixelTrackCandidates*
                                    globalPixelWithMaterialTracks*
-                                   #globalPixelStepIds*
-                                   globalPixelStepFastTrackingMasks*
-                                   globalPixelSeedsForPhotons*
-                                   globalPixelTrackCandidatesForPhotons*
-                                   globalPixelWithMaterialTracksForPhotons*
+                                   globalPixelMasksForElectrons*
                                    globalPixelSeedsForElectrons*
                                    globalPixelTrackCandidatesForElectrons*
-                                   globalPixelWithMaterialTracksForElectrons)
+                                   globalPixelWithMaterialTracksForElectrons*
+                                   globalPixelSeedsForPhotons*
+                                   globalPixelTrackCandidatesForPhotons*
+                                   globalPixelWithMaterialTracksForPhotons)
