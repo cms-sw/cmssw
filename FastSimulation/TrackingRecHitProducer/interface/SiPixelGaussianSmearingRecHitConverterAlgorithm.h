@@ -59,6 +59,7 @@ public:
   //
   void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, const double boundX, const double boundY,
                  RandomEngineAndDistribution const*);
+  bool hitsMerge(const PSimHit& simHit);
 
 private:
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
