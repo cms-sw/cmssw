@@ -42,8 +42,8 @@ process.content = cms.EDAnalyzer("EventContentAnalyzer")
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 ## switch to RECO input
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
-process.source.fileNames = filesRelValProdTTbarGENSIMRECO
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
+process.source.fileNames = filesRelValTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##

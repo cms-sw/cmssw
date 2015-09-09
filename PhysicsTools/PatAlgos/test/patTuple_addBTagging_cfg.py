@@ -160,8 +160,8 @@ process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
 ## switch to RECO input
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM
-#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
-#process.source.fileNames = filesRelValProdTTbarGENSIMRECO
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
+#process.source.fileNames = filesRelValTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##

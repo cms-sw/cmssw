@@ -14,8 +14,8 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarFastSimGENSIMDIGIRECO
-process.source.fileNames = filesRelValTTbarFastSimGENSIMDIGIRECO
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarPileUpFastSimGENSIMDIGIRECO
+process.source.fileNames = filesRelValTTbarPileUpFastSimGENSIMDIGIRECO
 #                                         ##
 process.maxEvents.input = 100
 #                                         ##
