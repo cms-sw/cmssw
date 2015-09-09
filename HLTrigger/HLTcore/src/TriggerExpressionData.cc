@@ -62,7 +62,6 @@ bool Data::setEvent(const edm::Event & event, const edm::EventSetup & setup) {
       m_l1tUpdated = false;
     } else {
       m_l1tMenu = get<L1GtTriggerMenuRcd, L1GtTriggerMenu>(setup);
-      (const_cast<L1GtTriggerMenu *>(m_l1tMenu))->buildGtConditionMap();
       m_l1tCacheID = l1tCacheID;
       m_l1tUpdated = true;
     }
