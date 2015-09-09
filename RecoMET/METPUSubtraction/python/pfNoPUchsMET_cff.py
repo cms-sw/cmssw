@@ -13,9 +13,8 @@ calibratedAK4PFchsJetsForPFNoPUchsMEt = cms.EDProducer('PFJetCorrectionProducer'
 ak4PFJetSequenceForPFNoPUchsMEt = cms.Sequence(calibratedAK4PFchsJetsForPFNoPUchsMEt)
 pfNoPUchsMEtSequence += ak4PFJetSequenceForPFNoPUchsMEt
 
-from RecoJets.JetProducers.pileupjetidproducer_cfi import pileupJetIdEvaluator
-from RecoJets.JetProducers.puJetIDAlgo_cff import full_53x_chs,cutbased
-puJetIdForPFNoPUchsMEt = pileupJetIdEvaluator.clone(
+from RecoJets.JetProducers.PileupJetID_cfi import *
+puJetIdForPFNoPUchsMEt = pileupJetId.clone(
     algos = cms.VPSet(
         full_53x_chs,
         cutbased
