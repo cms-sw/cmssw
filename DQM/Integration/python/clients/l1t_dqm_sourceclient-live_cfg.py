@@ -24,7 +24,7 @@ process.load("DQM.Integration.config.inputsource_cfi")
  
 process.load("DQM.Integration.config.environment_cfi")
 process.dqmEnv.subSystemFolder = 'L1T'
-#process.dqmSaver.tag = 'L1T'
+process.dqmSaver.tag = 'L1T'
 
 #
 # references needed
