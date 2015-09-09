@@ -127,6 +127,7 @@ void HcalTimeSlewSim::delay(CaloSamples & cs, CLHEP::HepRandomEngine* engine) co
 	double v2= (nextbin<0 || nextbin >= maxbin) ? 0. : data[nextbin];
 	data[it]=v2*f;
 	data[it+1]+= (v2-data[it]);
+	cs=data;
       }
 
       if(nts < 3) it++; 
