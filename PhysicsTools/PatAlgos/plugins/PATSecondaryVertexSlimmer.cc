@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -15,32 +15,32 @@
 #include "DataFormats/Common/interface/RefToPtr.h"
 
 namespace pat {
-    class PATSecondaryVertexSlimmer : public edm::EDProducer {
-        public:
-            explicit PATSecondaryVertexSlimmer(const edm::ParameterSet&);
-            ~PATSecondaryVertexSlimmer();
-
-            virtual void produce(edm::Event&, const edm::EventSetup&);
-        private:
-            edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection> src_;
-            edm::EDGetTokenT<std::vector<reco::Vertex> > srcLegacy_;
-            edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
-            edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map2_;
+  class PATSecondaryVertexSlimmer : public edm::global::EDProducer<> {
+  public:
+    explicit PATSecondaryVertexSlimmer(const edm::ParameterSet&);
+    ~PATSecondaryVertexSlimmer();
+    
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+  private:
+    const edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection> src_;
+    const edm::EDGetTokenT<std::vector<reco::Vertex> > srcLegacy_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map2_;
     };
 }
 
 pat::PATSecondaryVertexSlimmer::PATSecondaryVertexSlimmer(const edm::ParameterSet& iConfig) :
-    src_(mayConsume<reco::VertexCompositePtrCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
-    srcLegacy_(mayConsume<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("src"))),
-    map_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
-    map2_(mayConsume<edm::Association<pat::PackedCandidateCollection> >(iConfig.existsAs<edm::InputTag>("lostTracksCandidates") ? iConfig.getParameter<edm::InputTag>("lostTracksCandidates") : edm::InputTag("lostTracks") ))
+  src_(consumes<reco::VertexCompositePtrCandidateCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+  srcLegacy_(mayConsume<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("src"))),
+  map_(consumes<edm::Association<pat::PackedCandidateCollection> >(iConfig.getParameter<edm::InputTag>("packedPFCandidates"))),
+  map2_(mayConsume<edm::Association<pat::PackedCandidateCollection> >(iConfig.existsAs<edm::InputTag>("lostTracksCandidates") ? iConfig.getParameter<edm::InputTag>("lostTracksCandidates") : edm::InputTag("lostTracks") ))
 {
   produces< reco::VertexCompositePtrCandidateCollection >();
 }
 
 pat::PATSecondaryVertexSlimmer::~PATSecondaryVertexSlimmer() {}
 
-void pat::PATSecondaryVertexSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void pat::PATSecondaryVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
     std::auto_ptr<reco::VertexCompositePtrCandidateCollection> outPtr(new reco::VertexCompositePtrCandidateCollection);
  
@@ -93,7 +93,7 @@ void pat::PATSecondaryVertexSlimmer::produce(edm::Event& iEvent, const edm::Even
                                         if((*pf2pc2)[*it].isNonnull()) {
                                                 outPtr->back().addDaughter(reco::CandidatePtr(edm::refToPtr((*pf2pc2)[*it]) ));
                                         }	
-                                        else { std::cout << "HELPME" << std::endl;}	
+                                        else { edm::LogError("PATSecondaryVertexSlimmer") << "HELPME" << std::endl;}	
                                 }
                         }
                 }

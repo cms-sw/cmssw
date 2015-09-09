@@ -10,13 +10,13 @@ Original Author: John Paul Chou (Brown University)
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEIsolatedNoiseAlgos.h"
 
 
-class HBHEIsolatedNoiseReflagger : public edm::EDProducer {
+class HBHEIsolatedNoiseReflagger : public edm::stream::EDProducer<> {
  public:
   explicit HBHEIsolatedNoiseReflagger(const edm::ParameterSet&);
   ~HBHEIsolatedNoiseReflagger();

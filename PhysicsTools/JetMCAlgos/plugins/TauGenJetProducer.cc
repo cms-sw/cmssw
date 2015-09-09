@@ -16,26 +16,21 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig)
+TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig) :
+  inputTagGenParticles_(iConfig.getParameter<InputTag>("GenParticles")),
+  tokenGenParticles_(consumes<GenParticleCollection>(inputTagGenParticles_)),
+  includeNeutrinos_(iConfig.getParameter<bool>("includeNeutrinos")),
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false))
 {
-  inputTagGenParticles_
-    = iConfig.getParameter<InputTag>("GenParticles");
-  tokenGenParticles_
-    = consumes<GenParticleCollection>(inputTagGenParticles_);
-
-  includeNeutrinos_
-    = iConfig.getParameter<bool>("includeNeutrinos");
-
-  verbose_ =
-    iConfig.getUntrackedParameter<bool>("verbose",false);
+  
 
   produces<GenJetCollection>();
 }
 
 TauGenJetProducer::~TauGenJetProducer() { }
 
-void TauGenJetProducer::produce(Event& iEvent,
-				const EventSetup& iSetup) {
+void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
+				const EventSetup& iSetup) const {
 
   Handle<GenParticleCollection> genParticles;
 

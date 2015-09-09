@@ -45,7 +45,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -56,7 +56,7 @@
 
 namespace pat {
 
-  class JetCorrFactorsProducer : public edm::EDProducer {
+  class JetCorrFactorsProducer : public edm::stream::EDProducer<> {
   public:
     /// value map for JetCorrFactors (to be written into the event)
     typedef edm::ValueMap<pat::JetCorrFactors> JetCorrFactorsMap;
@@ -126,9 +126,9 @@ namespace pat {
     /// cache identifier for JetCorrectionsRecord
     unsigned long long cacheId_;
     /// cache container for jet corrections
-    std::map<JetCorrFactors::Flavor, std::shared_ptr<FactorizedJetCorrector> > correctors_;
+    std::map<JetCorrFactors::Flavor, std::unique_ptr<FactorizedJetCorrector> > correctors_;
     /// cache container for JPTOffset jet corrections
-    std::shared_ptr<FactorizedJetCorrector> extraJPTOffsetCorrector_;
+    std::unique_ptr<FactorizedJetCorrector> extraJPTOffsetCorrector_;
   };
 
   inline int
