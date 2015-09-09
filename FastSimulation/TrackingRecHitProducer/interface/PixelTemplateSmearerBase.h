@@ -71,16 +71,16 @@ public:
 
 
   //--- Process one umerged hit.  The core of the code :)
-  SiTrackerGSRecHit2D smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, 
-				const double boundX, const double boundY,
-				RandomEngineAndDistribution const*) const;
+  FastSingleTrackerRecHit smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, 
+				    const double boundX, const double boundY,
+				    RandomEngineAndDistribution const*) const;
 
   //--- Process one merge group.
-  SiTrackerGSRecHit2D smearMergeGroup( MergeGroup* mg,
-			const PixelGeomDetUnit * detUnit,
-			const double boundX, const double boundY,
-			RandomEngineAndDistribution const * random
-			) const ;
+  FastSingleTrackerRecHit smearMergeGroup( MergeGroup* mg,
+					   const PixelGeomDetUnit * detUnit,
+					   const double boundX, const double boundY,
+					   RandomEngineAndDistribution const * random
+					   ) const ;
 
   //--- Method to decide if the two hits on the same DetUnit are merged, or not.
   bool hitsMerge(const PSimHit& simHit1,const PSimHit& simHit2) const;

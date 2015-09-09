@@ -4,8 +4,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastSingleTrackerRecHit.h"
 
 #include <memory>
 #include <vector>
@@ -17,7 +16,7 @@ class TrackingRecHitProduct
         
         std::vector<const PSimHit*> _simHits;
         
-        std::vector<SiTrackerGSRecHit2D> _recHits;
+        std::vector<FastSingleTrackerRecHit> _recHits;
         std::unordered_map<unsigned int,std::vector<const PSimHit*>> _mapRecHitToSimHits;
         
     public:
@@ -37,7 +36,7 @@ class TrackingRecHitProduct
             return _simHits;
         }
         
-        virtual void addRecHit(SiTrackerGSRecHit2D& recHit, std::vector<const PSimHit*> simHits={})
+        virtual void addRecHit(FastSingleTrackerRecHit & recHit, std::vector<const PSimHit*> simHits={})
         {
             _mapRecHitToSimHits[_recHits.size()]=simHits;
             _recHits.push_back(recHit);
@@ -48,7 +47,7 @@ class TrackingRecHitProduct
             return _recHits.size();
         }
 
-        virtual const SiTrackerGSRecHit2D& getRecHit(unsigned int recHitIndex) const
+        virtual const FastSingleTrackerRecHit & getRecHit(unsigned int recHitIndex) const
         {
             return _recHits[recHitIndex];
         }

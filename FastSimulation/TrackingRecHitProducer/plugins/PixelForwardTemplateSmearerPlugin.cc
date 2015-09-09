@@ -72,29 +72,28 @@ PixelForwardTemplateSmearerPlugin::PixelForwardTemplateSmearerPlugin(
   PixelTemplateSmearerBase(name,config,consumesCollector)
 {
   setPixelPart(GeomDetEnumerators::PixelEndcap);
-  const edm::ParameterSet& pset = config;       
 
   std::cout << "PixelForwardTemplateSmearerPlugin" << std::endl;
 
   isForward = true;
-  thePixelResolutionFileName1 = pset_.getParameter<string>( "NewPixelForwardResolutionFile" );
+  thePixelResolutionFileName1 = config.getParameter<string>( "NewPixelForwardResolutionFile" );
   thePixelResolutionFile1 = new
     TFile( edm::FileInPath( thePixelResolutionFileName1 ).fullPath().c_str()  ,"READ");
   //ALICE: loading new pixel forward resolution file as defined in ../python/SiTrackerGaussianSmearingRecHitConverter_cfi.py
-  thePixelResolutionFileName2 = pset_.getParameter<string>( "NewPixelForwardResolutionFile2" );
+  thePixelResolutionFileName2 = config.getParameter<string>( "NewPixelForwardResolutionFile2" );
   thePixelResolutionFile2 = new
     TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
-  probfileName = pset_.getParameter<string>( "probfileforward" );
+  probfileName = config.getParameter<string>( "probfileforward" );
   probfile =new
     TFile( edm::FileInPath( probfileName ).fullPath().c_str()  ,"READ");
-  thePixelResolutionMergedXFileName = pset_.getParameter<string>( "pixelresxmergedforward" );
+  thePixelResolutionMergedXFileName = config.getParameter<string>( "pixelresxmergedforward" );
   thePixelResolutionMergedXFile = new
     TFile( edm::FileInPath( thePixelResolutionMergedXFileName ).fullPath().c_str()  ,"READ");
-  thePixelResolutionMergedYFileName = pset_.getParameter<string>( "pixelresymergedforward" );
+  thePixelResolutionMergedYFileName = config.getParameter<string>( "pixelresymergedforward" );
   thePixelResolutionMergedYFile = new
     TFile( edm::FileInPath( thePixelResolutionMergedYFileName ).fullPath().c_str()  ,"READ");
   initializeForward();
-  tempId = pset_.getParameter<int> ( "templateIdForward" );
+  tempId = config.getParameter<int> ( "templateIdForward" );
   if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
     throw cms::Exception("PixelForwardTemplateSmearerPlugin:")
       <<"SiPixel Forward Template Not Loaded Correctly!"<<endl;

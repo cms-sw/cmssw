@@ -4,7 +4,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastSingleTrackerRecHit.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -43,17 +43,12 @@ class TrackingRecHitNoSmearingPlugin:
                 const GeomDet* geomDet = getTrackerGeometry().idToDetUnit(product->getDetId());
 
                 //TODO: this is only a minimal example
-                SiTrackerGSRecHit2D recHit(
+                FastSingleTrackerRecHit recHit(
                     position,   //const LocalPoint &
                     error,      //const LocalError &
                     *geomDet,    //GeomDet const &idet
-                    0,          //const int simhitId
-                    0,          //const int simtrackId
-                    0,          //const uint32_t eeId
-                    SiTrackerGSRecHit2D::ClusterRef(),//ClusterRef const &cluster
-                    -1,         //const int pixelMultiplicityX
-                    -1          //const int pixelMultiplicityY
-                );
+		    fastTrackerRecHitType::siPixel // since this is a dummy class anyway: pretend all hits are pixel hits (only effect: hits are defined in 2D (?))
+		);
                 product->addRecHit(recHit,{simHit});
             }
             return product;

@@ -9,8 +9,7 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastSingleTrackerRecHit.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 

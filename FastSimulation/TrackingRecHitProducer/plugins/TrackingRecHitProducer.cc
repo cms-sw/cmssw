@@ -5,8 +5,8 @@
 
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackerDetIdSelector.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastSingleTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHitCollection.h"
 
 #include "DataFormats/Common/interface/RefVector.h"
 
@@ -39,7 +39,8 @@ TrackingRecHitProducer::TrackingRecHitProducer(const edm::ParameterSet& config)
     edm::InputTag simHitTag = config.getParameter<edm::InputTag>("simHits");
     _simHitToken = consumes<std::vector<PSimHit>>(simHitTag);
 
-    //produces<std::vector<SiTrackerGSRecHit2D>>("TrackerGSRecHits");
+    produces<FastTrackerRecHitCollection>();
+    produces<FastTrackerRecHitRefCollection>("simHit2RecHitMap");
 }
 
 void TrackingRecHitProducer::beginStream(edm::StreamID id)
@@ -99,6 +100,8 @@ void TrackingRecHitProducer::setupDetIdPipes(const edm::EventSetup& eventSetup)
 
 void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
+
+
     //resetup pipes if new iov
     setupDetIdPipes(eventSetup);
     //begin event
@@ -110,7 +113,26 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     //build DetId -> PSimHit map
     edm::Handle<std::vector<PSimHit>> simHits;
     event.getByToken(_simHitToken,simHits);
+
+    // note from lukas:
+    // a simple vector to store all tracker rechits
+    std::unique_ptr<FastTrackerRecHitCollection> output_recHits(new FastTrackerRecHitCollection);
+    output_recHits->reserve(simHits->size());
     
+    // note from lukas
+    // a vector or references to tracker rechits
+    // one entry per simhit
+    // each enty is to contain the reference to the rechit to the associated simhit
+    // (=> several simhits can point to the same rechit)
+    edm::RefProd<FastTrackerRecHitCollection> output_recHits_refProd = e.getRefBeforePut<FastTrackerRecHitCollection>();
+    std::unique_ptr<FastTrackerRecHitRefCollection> output_recHitRefs(new FastTrackerRecHitRefCollection(simHits->size(),FastTrackerRecHitRef()));
+
+    // note from lukas
+    // output_recHitRefs is partially initialised
+    // to make simHit i point to rechit j do
+    // (*output_recHitRefs)[j] = FastTrackerRecHitRef(output_recHits_refProd,output_recHits->size()-1)
+    // if you want a SimHit not to point to any RecHit, just leave the respective entry as it is, a null reference
+
     std::cout<<"TrackingRecHitProducer: N(SimHits input)="<<simHits->size()<<std::endl;
     
     std::map<unsigned int,std::vector<const PSimHit*>> hitsPerDetId;
@@ -120,10 +142,6 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
         hitsPerDetId[simHit->detUnitId()].push_back(simHit);
     }
 
-    //std::auto_ptr<std::vector<SiTrackerGSRecHit2D>> recHitOutputCollection(new std::vector<SiTrackerGSRecHit2D>());
-    //std::auto_ptr<edm::RefVector<std::vector<PSimHit>>> simHitRefOutputCollection(new edm::RefVector<std::vector<PSimHit>>());
-
-    //run pipes
     
     unsigned int nRecHits = 0;
     
@@ -155,8 +173,8 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
         algo->endEvent(event,eventSetup);
     }
 
-    //event.put(recHitOutputCollection,"TrackerGSRecHits");
-
+    event.put(std::move(output_recHits));
+    event.put(std::move(output_recHitRefs),"simHit2RecHitMap");
 
 }
 

@@ -21,8 +21,6 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
 
 #include "DataFormats/Common/interface/DetSetNew.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"

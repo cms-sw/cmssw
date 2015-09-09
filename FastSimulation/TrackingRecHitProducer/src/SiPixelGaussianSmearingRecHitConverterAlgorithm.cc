@@ -64,6 +64,8 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
      thePixelResolutionFileName3 = pset_.getParameter<string>( "NewPixelBarrelResolutionFile3" );
      thePixelResolutionFile3 = new
        TFile( edm::FileInPath( thePixelResolutionFileName3 ).fullPath().c_str()  ,"READ");
+     probfileName = pset_.getParameter<string>( "probfilebarrel" );
+     probfile = new TFile( edm::FileInPath( probfileName ).fullPath().c_str()  ,"READ");
      initializeBarrel();
      tempId = pset_.getParameter<int> ( "templateIdBarrel" );
      if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
@@ -82,6 +84,8 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
      thePixelResolutionFileName2 = pset_.getParameter<string>( "NewPixelForwardResolutionFile2" );
      thePixelResolutionFile2 = new
        TFile( edm::FileInPath( thePixelResolutionFileName2 ).fullPath().c_str()  ,"READ");
+     probfileName = pset_.getParameter<string>( "probfileforward" );
+     probfile =new TFile( edm::FileInPath( probfileName ).fullPath().c_str()  ,"READ");
      initializeForward();
      tempId = pset_.getParameter<int> ( "templateIdForward" );
      if( ! SiPixelTemplate::pushfile(tempId, thePixelTemp_) )
@@ -593,7 +597,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::initializeBarrel()
 
          for( unsigned qbinBin=1;  qbinBin<=resqbin_binN; ++qbinBin )  {
              unsigned int edgePixelHistN = cotalphaHistBin * 1000
-                                        +  cotbetaHistBin * 10
+		 +  cotbetaHistBin * 10 + qbinBin;
              theXHistos[edgePixelHistN] = new SimpleHistogramGenerator(
 								                     (TH1F*) thePixelResolutionFile2->Get(  Form( "DQMData/clustBPIX/hx0%u" ,edgePixelHistN ) ) );
 	     theYHistos[edgePixelHistN] = new SimpleHistogramGenerator(

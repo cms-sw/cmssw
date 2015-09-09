@@ -4,7 +4,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastSingleTrackerRecHit.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -44,7 +44,7 @@ class TrackingRecHitMonitorPlugin:
             for (unsigned int irechit = 0; irechit<product->numberOfRecHits(); ++irechit)
             {
                 
-                const SiTrackerGSRecHit2D& recHit = product->getRecHit(irechit);
+                const FastSingleTrackerRecHit & recHit = product->getRecHit(irechit);
                 const Local3DPoint& recHitPosition = recHit.localPosition();
                 const LocalError& recHitError = recHit.localPositionError();
                 double simHitXmean = 0;

@@ -97,6 +97,8 @@ private:
   std::string thePixelResolutionFileName2;
   TFile* thePixelResolutionFile3;
   std::string thePixelResolutionFileName3;
+  TFile* probfile;
+  std::string probfileName;
 
   unsigned int theLayer;
   // output

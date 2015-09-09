@@ -262,12 +262,12 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
 //   Smear one hit.  The main action is in here.
 // &&& @ALICE: this function may also need to be "const" :(
 //------------------------------------------------------------------------------
-SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
-  const PSimHit& simHit,
-  const PixelGeomDetUnit* detUnit,
-  const double boundX,
-  const double boundY,
-  RandomEngineAndDistribution const* random)  const
+FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(
+							   const PSimHit& simHit,
+							   const PixelGeomDetUnit* detUnit,
+							   const double boundX,
+							   const double boundY,
+							   RandomEngineAndDistribution const* random)  const
 {
   std::cout << "P smearHit"<< std::endl;
   #ifdef FAMOS_DEBUG
@@ -468,11 +468,6 @@ SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
   LocalError   theError;     
   double       theErrorX;    
   double       theErrorY;    
-  //double       theErrorZ;    
-  unsigned int theClslenx;   
-  unsigned int theClsleny;   
-
-
 
   //------------------------------
   //  Check if the cluster is near an edge.  If it protrudes
@@ -481,11 +476,6 @@ SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
   //------------------------------
   bool edge, edgex, edgey;
   //  bool bigx, bigy;
-  unsigned int clslenx = offsetX1 + offsetX2 + 1;
-  unsigned int clsleny = offsetY1 + offsetY2 + 1;
-
-  theClslenx = clslenx;
-  theClsleny = clsleny;
 
   int firstPixelInX = (int)mpx - offsetX1 ;
   int firstPixelInY = (int)mpy - offsetY1 ;
@@ -684,18 +674,13 @@ SiTrackerGSRecHit2D PixelTemplateSmearerBase::smearHit(
   } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
   std::cout << "end P smearHit"<< std::endl;
 
-  //--- We now have everything to make a SiTrackerGSRecHit2D
+  //--- We now have everything to make a FastSingleTrackerRecHit
   //
-  SiTrackerGSRecHit2D recHit( thePosition, //const LocalPoint &   (LocalPoint is a typedef  Local3DPoint)
-			      theError,    //const LocalError &
-			      *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
-			      0,           //const int simhitId
-			      0,           //const int simtrackId
-			      0,           //const uint32_t eeId
-			      SiTrackerGSRecHit2D::ClusterRef(),   //ClusterRef const &cluster
-			      theClslenx,  //const int pixelMultiplicityX
-			      theClsleny   //const int pixelMultiplicityY
-			      );
+  FastSingleTrackerRecHit recHit( thePosition, //const LocalPoint &   (LocalPoint is a typedef  Local3DPoint)
+				  theError,    //const LocalError &
+				  *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
+				  fastTrackerRecHitType::siPixel // this is a pixel hit
+				  );
   return recHit;
 }
 
@@ -716,7 +701,7 @@ processUnmergedHits( std::vector< const PSimHit* > & unmergedHits,
   //    dereferenced iterator. 
   //
   for (const PSimHit* simHit : unmergedHits) {
-    SiTrackerGSRecHit2D recHit = smearHit( *simHit, detUnit, boundX, boundY, random );
+    FastSingleTrackerRecHit recHit = smearHit( *simHit, detUnit, boundX, boundY, random );
     product->addRecHit( recHit ,{simHit});
   }
   return product;
@@ -741,7 +726,7 @@ processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
 	mg_it != mg_end;
 	++mg_it ) {
     //
-    SiTrackerGSRecHit2D recHit = smearMergeGroup( *mg_it, detUnit, boundX, boundY, random );
+    FastSingleTrackerRecHit recHit = smearMergeGroup( *mg_it, detUnit, boundX, boundY, random );
     product->addRecHit( recHit, **mg_it);
   }
   return product;
@@ -751,7 +736,7 @@ processMergeGroups( std::vector< MergeGroup* > & mergeGroups,
 //------------------------------------------------------------------------------
 //   Process all groups of merged hits.
 //------------------------------------------------------------------------------
-SiTrackerGSRecHit2D PixelTemplateSmearerBase::
+FastSingleTrackerRecHit PixelTemplateSmearerBase::
 smearMergeGroup( MergeGroup* mg,
 		 const PixelGeomDetUnit * detUnit,
 		 const double boundX, const double boundY,
@@ -926,50 +911,6 @@ smearMergeGroup( MergeGroup* mg,
      xtemp[i]=(1.-xfrac)*xtempl[xbin][i]+xfrac*xtempl[xbin+1][i];
   }
 
-  //Pixel readout threshold
-  const float qThreshold = templ.s50()*2.0;
-
-  //Cut away pixels below readout threshold
-  //For cluster lengths calculation
-  // &&& Petar: I've no idea what this code does.  Hopefully Morris will remember :)
-  int offsetX1=0, offsetX2=0, offsetY1=0, offsetY2=0;
-   int firstY, lastY, firstX, lastX;
-  for( firstY = 0; firstY < BYSIZE; ++firstY ) {
-    bool yCluster = ytemp[firstY] > qThreshold ;
-    if( yCluster )
-    {
-      offsetY1 = BHY -firstY;
-      break;
-    }
-  }
-  for( lastY = firstY; lastY < BYSIZE; ++lastY )
-  {
-    bool yCluster = ytemp[lastY] > qThreshold ;
-    if( !yCluster )
-    {
-      lastY = lastY - 1;
-      offsetY2 = lastY - BHY;
-      break;
-    }
-  }
-
-  for( firstX = 0; firstX < BXSIZE; ++firstX )  {
-    bool xCluster = xtemp[firstX] > qThreshold ;
-    if( xCluster ) {
-      offsetX1 = BHX - firstX;
-      break;
-    }
-  }
-  for( lastX = firstX; lastX < BXSIZE; ++ lastX ) {
-    bool xCluster = xtemp[lastX] > qThreshold ;
-    if( !xCluster ) {
-      lastX = lastX - 1;
-      offsetX2 = lastX - BHX;
-      break;
-    }
-  }
-  
-
   //--- Prepare to return results
   Local3DPoint thePosition;  
   double       thePositionX; 
@@ -979,8 +920,6 @@ smearMergeGroup( MergeGroup* mg,
   double       theErrorX;    
   double       theErrorY;    
   //double       theErrorZ;    
-  unsigned int theClslenx;   
-  unsigned int theClsleny;   
 
 
 
@@ -995,11 +934,7 @@ smearMergeGroup( MergeGroup* mg,
   //  bool bigx = False;
   //bool bigy = False;
    //  bool bigx, bigy;
-  unsigned int clslenx = offsetX1 + offsetX2 + 1;
-  unsigned int clsleny = offsetY1 + offsetY2 + 1;
 
-  theClslenx = clslenx;
-  theClsleny = clsleny;
   /*
   int firstPixelInX = (int)mpx - offsetX1 ;
   int firstPixelInY = (int)mpy - offsetY1 ;
@@ -1204,18 +1139,13 @@ smearMergeGroup( MergeGroup* mg,
   } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
   std::cout << "end P smearHit"<< std::endl;
 
-  //--- We now have everything to make a SiTrackerGSRecHit2D
+  //--- We now have everything to make a FastSingleTrackerRecHit
   //
-  SiTrackerGSRecHit2D recHit( thePosition, //const LocalPoint &   (LocalPoint is a typedef  Local3DPoint)
-			      theError,    //const LocalError &
-			      *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
-			      0,           //const int simhitId
-			      0,           //const int simtrackId
-			      0,           //const uint32_t eeId
-			      SiTrackerGSRecHit2D::ClusterRef(),   //ClusterRef const &cluster
-			      theClslenx,  //const int pixelMultiplicityX
-			      theClsleny   //const int pixelMultiplicityY
-			      );
+  FastSingleTrackerRecHit recHit( thePosition, //const LocalPoint &   (LocalPoint is a typedef  Local3DPoint)
+				  theError,    //const LocalError &
+				  *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
+				  fastTrackerRecHitType::siPixel // this is a pixel hit
+				  );
   return recHit;
 
   // &&& TOY EXAMPLE -- just to make the code compile, with the correct return value.  
@@ -1226,15 +1156,10 @@ smearMergeGroup( MergeGroup* mg,
   /*  LocalPoint position(-1,-1,-1);
   LocalError error(-1,-1,-1);
 
-  SiTrackerGSRecHit2D recHit( position, //const LocalPoint &     (LocalPoint is a typedef for Local3DPoint)
+  FastSingleTrackerRecHit recHit( position, //const LocalPoint &     (LocalPoint is a typedef for Local3DPoint)
 			      error,    //const LocalError &
 			      *detUnit,    //GeomDet const &idet    (PixelGeomDetUnit : ... : GeomDet)
-			      0,           //const int simhitId
-			      0,           //const int simtrackId
-			      0,           //const uint32_t eeId
-			      SiTrackerGSRecHit2D::ClusterRef(),   //ClusterRef const &cluster
-			      -1,  //const int pixelMultiplicityX
-			      -1   //const int pixelMultiplicityY
+			      fastTrackerRecHitType::siPixel
 			      );
 			      return recHit;*/
 }
