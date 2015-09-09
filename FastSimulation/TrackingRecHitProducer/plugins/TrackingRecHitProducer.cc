@@ -124,7 +124,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
     // one entry per simhit
     // each enty is to contain the reference to the rechit to the associated simhit
     // (=> several simhits can point to the same rechit)
-    edm::RefProd<FastTrackerRecHitCollection> output_recHits_refProd = e.getRefBeforePut<FastTrackerRecHitCollection>();
+    edm::RefProd<FastTrackerRecHitCollection> output_recHits_refProd = event.getRefBeforePut<FastTrackerRecHitCollection>();
     std::unique_ptr<FastTrackerRecHitRefCollection> output_recHitRefs(new FastTrackerRecHitRefCollection(simHits->size(),FastTrackerRecHitRef()));
 
     // note from lukas
