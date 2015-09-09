@@ -83,7 +83,8 @@ PCLTrackerAlProducer
   tjTkAssociationMapTag_   (config.getParameter<edm::InputTag>("tjTkAssociationMapTag")),
   beamSpotTag_             (config.getParameter<edm::InputTag>("beamSpotTag")),
   tkLasBeamTag_            (config.getParameter<edm::InputTag>("tkLasBeamTag")),
-  clusterValueMapTag_      (config.getParameter<edm::InputTag>("hitPrescaleMapTag"))
+  clusterValueMapTag_      (config.getParameter<edm::InputTag>("hitPrescaleMapTag")),
+  theFirstRun              (cond::timeTypeSpecs[cond::runnumber].endValue)
 {
   createAlignmentAlgorithm(config);
   createCalibrations      (config);
@@ -174,6 +175,11 @@ void PCLTrackerAlProducer
 
   if (setupChanged(setup)) {
     initAlignmentAlgorithm(setup);
+  }
+  
+  //store the first run analyzed to be used for setting the IOV
+  if(theFirstRun > (cond::Time_t) run.id().run()) {
+    theFirstRun = (cond::Time_t) run.id().run();
   }
 
 
@@ -1089,7 +1095,7 @@ RunRanges PCLTrackerAlProducer
     }
 
   } else {
-    uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>(beginValue, endValue));
+    uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>(theFirstRun, endValue));
   }
 
   return uniqueRunRanges;
