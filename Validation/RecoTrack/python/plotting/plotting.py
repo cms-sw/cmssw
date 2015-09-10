@@ -13,6 +13,35 @@ def _getObject(tdirectory, name):
         return None
     return obj
 
+def _getXmin(obj):
+    if isinstance(obj, ROOT.TH1):
+        xaxis = obj.GetXaxis()
+        return xaxis.GetBinLowEdge(xaxis.GetFirst())
+    elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
+        return min([obj.GetX()[i] for i in xrange(0, obj.GetN())])*0.9
+    raise Exception("Unsupported type %s" % str(obj))
+
+def _getXmax(obj):
+    if isinstance(obj, ROOT.TH1):
+        xaxis = obj.GetXaxis()
+        return xaxis.GetBinUpEdge(xaxis.GetLast())
+    elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
+        return max([obj.GetX()[i] for i in xrange(0, obj.GetN())])*1.02
+    raise Exception("Unsupported type %s" % str(obj))
+
+def _getYmin(obj):
+    if isinstance(obj, ROOT.TH1):
+        return obj.GetMinimum()
+    elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
+        return min([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+    raise Exception("Unsupported type %s" % str(obj))
+
+def _getYmax(obj):
+    if isinstance(obj, ROOT.TH1):
+        return obj.GetMaximum()
+    elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
+        return max([obj.GetY()[i] for i in xrange(0, obj.GetN())])
+    raise Exception("Unsupported type %s" % str(obj))
 
 def _getYmaxWithError(th1):
     return max([th1.GetBinContent(i)+th1.GetBinError(i) for i in xrange(1, th1.GetNbinsX()+1)])
@@ -63,14 +92,13 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
         ymins = []
         ymaxs = []
         for th1 in th1s:
-            xaxis = th1.GetXaxis()
-            xmins.append(xaxis.GetBinLowEdge(xaxis.GetFirst()))
-            xmaxs.append(xaxis.GetBinUpEdge(xaxis.GetLast()))
+            xmins.append(_getXmin(th1))
+            xmaxs.append(_getXmax(th1))
             if ylog and isinstance(ymin, list):
                 ymins.append(_getYminIgnoreOutlier(th1))
             else:
-                ymins.append(th1.GetMinimum())
-            ymaxs.append(th1.GetMaximum())
+                ymins.append(_getYmin(th1))
+            ymaxs.append(_getYmax(th1))
 #            ymaxs.append(_getYmaxWithError(th1))
 
         if xmin is None:
