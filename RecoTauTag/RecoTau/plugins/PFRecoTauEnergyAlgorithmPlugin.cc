@@ -139,7 +139,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
   unsigned numNonPFCandTracks = 0;
   double nonPFCandTracksSumP = 0.;
   double nonPFCandTracksSumPerr2 = 0.;
-  const std::vector<PFRecoTauChargedHadron>& chargedHadrons = tau.signalTauChargedHadronCandidates();
+  const std::vector<PFRecoTauChargedHadron>& chargedHadrons = tau.signalTauChargedHadronCandidatesRestricted();
   for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
 	chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
     if ( chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) ) {
@@ -221,7 +221,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	if ( chargedHadron.getNeutralPFCandidates().size() >= 1 ) {
 	  PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	  setChargedHadronP4(chargedHadron_modified, scaleFactor);
-	  tau.signalTauChargedHadronCandidates_[iChargedHadron] = chargedHadron_modified;
+	  tau.signalTauChargedHadronCandidatesRestricted()[iChargedHadron] = chargedHadron_modified;
 	  diffP4 += (chargedHadron.p4() - chargedHadron_modified.p4());
 	}
       }
@@ -272,7 +272,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	  double chargedHadronPz_modified = scaleFactor*chargedPFCand->pz();
 	  reco::Candidate::LorentzVector chargedHadronP4_modified = compChargedHadronP4fromPxPyPz(chargedHadronPx_modified, chargedHadronPy_modified, chargedHadronPz_modified);	  
 	  chargedHadron_modified.setP4(chargedHadronP4_modified);
-	  tau.signalTauChargedHadronCandidates_[iChargedHadron] = chargedHadron_modified;
+	  tau.signalTauChargedHadronCandidatesRestricted()[iChargedHadron] = chargedHadron_modified;
 	  diffP4 += (chargedHadron.p4() - chargedHadron_modified.p4());
 	}
       }
@@ -284,7 +284,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
     } else {
       double allTracksSumP = 0.;
       double allTracksSumPerr2 = 0.;
-      const std::vector<PFRecoTauChargedHadron> chargedHadrons = tau.signalTauChargedHadronCandidates();
+      const std::vector<PFRecoTauChargedHadron> chargedHadrons = tau.signalTauChargedHadronCandidatesRestricted();
       for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
 	    chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
 	if ( chargedHadron->algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) ) {
@@ -337,7 +337,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	    if ( verbosity_ ) {
 	      std::cout << "chargedHadron #" << iChargedHadron << ": changing En = " << chargedHadron.energy() << " to " << chargedHadron_modified.energy() << std::endl;
 	    }
-	    tau.signalTauChargedHadronCandidates_[iChargedHadron] = chargedHadron_modified;
+	    tau.signalTauChargedHadronCandidatesRestricted()[iChargedHadron] = chargedHadron_modified;
 	  } else if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) ) {
 	    PFRecoTauChargedHadron chargedHadron_modified = chargedHadron;
 	    chargedHadron_modified.neutralPFCandidates_.clear();
@@ -359,7 +359,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	    if ( verbosity_ ) {
 	      std::cout << "chargedHadron #" << iChargedHadron << ": changing En = " << chargedHadron.energy() << " to " << chargedHadron_modified.energy() << std::endl;
 	    }
-	    tau.signalTauChargedHadronCandidates_[iChargedHadron] = chargedHadron_modified;
+	    tau.signalTauChargedHadronCandidatesRestricted()[iChargedHadron] = chargedHadron_modified;
 	  }
 	}
 	double scaleFactor = allNeutralsSumEn/tau.energy();
@@ -420,7 +420,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	      if ( verbosity_ ) {
 		std::cout << "chargedHadron #" << iChargedHadron << ": changing En = " << chargedHadron.energy() << " to " << chargedHadron_modified.energy() << std::endl;
 	      }
-	      tau.signalTauChargedHadronCandidates_[iChargedHadron] = chargedHadron_modified;
+	      tau.signalTauChargedHadronCandidatesRestricted()[iChargedHadron] = chargedHadron_modified;
 	    }
 	  }
 	  double scaleFactor = allNeutralsSumEn/tau.energy();
