@@ -21,7 +21,8 @@ photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer=cm
 #These are set for consistency w/ HiElectronSequence, but these cuts need to be studied
 gedGsfElectronsTmp.maxHOverEBarrel = cms.double(0.25)
 gedGsfElectronsTmp.maxHOverEEndcaps = cms.double(0.25)
-
+gedGsfElectronsTmp.maxEOverPBarrel = cms.double(2.)
+gedGsfElectronsTmp.maxEOverPEndcaps = cms.double(2.)
 
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 
