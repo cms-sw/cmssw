@@ -826,7 +826,7 @@ class Plot:
         if ratio and len(histos) > 0:
             frame._padRatio.cd()
             self._ratios = self._calculateRatios(histos) # need to keep these in memory too ...
-            if self._ratioUncertainty:
+            if self._ratioUncertainty and self._ratios[0]._ratio is not None:
                 self._ratios[0]._ratio.SetFillStyle(1001)
                 self._ratios[0]._ratio.SetFillColor(ROOT.kGray)
                 self._ratios[0]._ratio.SetLineColor(ROOT.kGray)
@@ -909,11 +909,13 @@ class Plot:
             def divide(self, bin, scale, xcenter):
                 self._ratio.SetBinContent(bin, _divideOrZero(self._th1.GetBinContent(bin), scale))
                 self._ratio.SetBinError(bin, _divideOrZero(self._th1.GetBinError(bin), scale))
+            def makeRatio(self):
+                pass
 
         class WrapTGraph:
             def __init__(self, gr, uncertainty):
                 self._gr = gr
-                self._uncertainty
+                self._uncertainty = uncertainty
                 self._xvalues = []
                 self._xerrslow = []
                 self._xerrshigh = []
@@ -922,7 +924,7 @@ class Plot:
                 self._yerrslow = []
                 self._binOffset = 0
             def draw(self, style=None):
-                if len(self.xvalues) == 0:
+                if self._ratio is None:
                     return
                 st = style
                 if st is None:
@@ -930,9 +932,6 @@ class Plot:
                         st = "PZ"
                     else:
                         st = "PX"
-                self._ratio = ROOT.TGraphAsymmErrors(len(self.xvalues), array.array("d", self.xvalues), array.array("d", self.yvalues),
-                                                     array.array("d", self.xerrslow), array.array("d", self.xerrshigh), 
-                                                     array.array("d", self.yerrslow), array.array("d", self.yerrshigh))
                 self._ratio.Draw("same "+st)
             def begin(self):
                 return 0
@@ -952,32 +951,42 @@ class Plot:
                 if bin >= self._gr.GetN():
                     return
                 # denominator is missing an item
-                trueBin = bin + self.binOffset
-                xval = self._gr.GetX()[trueBin]
+                trueBin = bin + self._binOffset
+                xvals = self.xvalues(trueBin)
+                xval = xvals[0]
                 epsilon = 1e-3 * xval # to allow floating-point difference between TGraph and TH1
                 if xval+epsilon < xcenter:
-                    self.binOffset -= 1
+                    self._binOffset += 1
                     return
                 # numerator is missing an item
                 elif xval-epsilon > xcenter:
-                    self.binOffset += 1
+                    self._binOffset -= 1
                     return
 
-                self.xvalues.append(xval)
-                self.xerrslow.append(self._gr.GetErrorXlow(trueBin))
-                self.xerrshigh.append(self._gr.GetErrorXhigh(trueBin))
-                self.yvalues.append(self._gr.GetY()[trueBin] / scale)
+                self._xvalues.append(xval)
+                self._xerrslow.append(xvals[1])
+                self._xerrshigh.append(xvals[2])
+                yvals = self.yvalues(trueBin)
+                self._yvalues.append(yvals[0] / scale)
                 if self._uncertainty:
-                    self.yerrslow.append(self._gr.GetErrorYlow(trueBin) / scale)
-                    self.yerrshigh.append(self._gr.GetErrorYhigh(trueBin) / scale)
+                    self._yerrslow.append(yvals[1] / scale)
+                    self._yerrshigh.append(yvals[2] / scale)
                 else:
-                    self.yerrslow.append(0)
-                    self.yerrshigh.append(0)
+                    self._yerrslow.append(0)
+                    self._yerrshigh.append(0)
+            def makeRatio(self):
+                if len(self._xvalues) == 0:
+                    self._ratio = None
+                    return
+                self._ratio = ROOT.TGraphAsymmErrors(len(self._xvalues), array.array("d", self._xvalues), array.array("d", self._yvalues),
+                                                     array.array("d", self._xerrslow), array.array("d", self._xerrshigh), 
+                                                     array.array("d", self._yerrslow), array.array("d", self._yerrshigh))
+                _copyStyle(self._gr, self._ratio)
 
         def wrap(o):
             if isinstance(o, ROOT.TH1):
                 return WrapTH1(o, self._ratioUncertainty)
-            elif isinstance(o, ROOT.TGrapgh):
+            elif isinstance(o, ROOT.TGraph):
                 return WrapTGraph(o, self._ratioUncertainty)
 
         wrappers = [wrap(h) for h in histos]
@@ -988,6 +997,9 @@ class Plot:
             (xval, xlow, xhigh) = ref.xvalues(bin)
             for w in wrappers:
                 w.divide(bin, scale, xval)
+
+        for w in wrappers:
+            w.makeRatio()
 
         return wrappers
 
