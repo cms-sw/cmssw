@@ -76,12 +76,6 @@ namespace pat {
       // get the MET significance
       double metSignificance() const;
 
-
-      // ---- methods for uncorrected MET ----
-      float uncorrectedPt() const;
-      float uncorrectedPhi() const;
-      float uncorrectedSumEt() const;
-
       // ---- methods to know what the pat::MET was constructed from ----
       /// True if this pat::MET was made from a reco::CaloMET
       bool isCaloMET() const { return !caloMET_.empty(); }
