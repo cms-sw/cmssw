@@ -291,7 +291,7 @@ void MultiHistoOverlapAll_Z(string files, string labels, bool switchONfitEta = f
       c[pIndex]->cd();
       histo[pIndex][f]->GetXaxis()->SetTitle(xtitle[pIndex]);
       histo[pIndex][f]->GetXaxis()->SetRangeUser(-plot_xmax[pIndex], plot_xmax[pIndex]);
-      if (f==0) histo[pIndex][f]->Draw(); 
+      if (f==0) histo[pIndex][f]->Draw();
       else histo[pIndex][f]->Draw("same");
 
       hfit[pIndex][f] = new TF1(Form("fit_%i_%i", pIndex, f), fitFormula[pIndex], -plot_xmax[pIndex], plot_xmax[pIndex]);
