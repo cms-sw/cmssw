@@ -33,7 +33,33 @@ CSCHaloAlgo::CSCHaloAlgo()
   matching_dphi_threshold = 0.18; //radians
   matching_deta_threshold = 0.4;
   matching_dwire_threshold = 5.;
+
+
+  et_thresh_rh_hbhe=10; //GeV
+  et_thresh_rh_ee=10; 
+  et_thresh_rh_eb=10; 
+
+  dphi_thresh_segvsrh_hbhe=0.05; //radians
+  dphi_thresh_segvsrh_eb=0.05;
+  dphi_thresh_segvsrh_ee=0.05; 
+
+  dr_lowthresh_segvsrh_hbhe=-25; //cm
+  dr_lowthresh_segvsrh_eb=-25; 
+  dr_lowthresh_segvsrh_ee=-25;
+
+  dr_highthresh_segvsrh_hbhe=25; //cm
+  dr_highthresh_segvsrh_eb=25; 
+  dr_highthresh_segvsrh_ee=25;
+
+  dt_lowthresh_segvsrh_hbhe=0;//ns
+  dt_lowthresh_segvsrh_eb=0;
+  dt_lowthresh_segvsrh_ee=0;
+
+
   geo = 0;
+
+
+  
 }
 
 reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
@@ -97,14 +123,14 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	      const GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
 
 	      float z = TheGlobalPosition.z();
-	      if( TMath::Abs(z) < innermost_global_z )
+	      if( abs(z) < innermost_global_z )
 		{
-		  innermost_global_z = TMath::Abs(z);
+		  innermost_global_z = abs(z);
 		  InnerMostGlobalPosition = GlobalPoint( TheGlobalPosition);
 		}
-	      if( TMath::Abs(z) > outermost_global_z )
+	      if( abs(z) > outermost_global_z )
 		{
-		  outermost_global_z = TMath::Abs(z);
+		  outermost_global_z = abs(z);
 		  OuterMostGlobalPosition = GlobalPoint( TheGlobalPosition );
 		}
 	      nCSCHits ++;
@@ -126,14 +152,14 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	      const GlobalPoint TheGlobalPosition = TheCSCChamber->toGlobal(TheLocalPosition);
 	      float z = TheGlobalPosition.z();
 	      int TheEndcap = TheCSCDetId.endcap();
-	      if( TMath::Abs(z) < innermost_seg_z[TheEndcap-1] )
+	      if( abs(z) < innermost_seg_z[TheEndcap-1] )
 		{
-		  innermost_seg_z[TheEndcap-1] = TMath::Abs(z);
+		  innermost_seg_z[TheEndcap-1] = abs(z);
 		  InnerSegmentTime[TheEndcap-1] = (*segment)->time();
 		}
-	      if( TMath::Abs(z) > outermost_seg_z[TheEndcap-1] )
+	      if( abs(z) > outermost_seg_z[TheEndcap-1] )
 		{
-		  outermost_seg_z[TheEndcap-1] = TMath::Abs(z);
+		  outermost_seg_z[TheEndcap-1] = abs(z);
 		  OuterSegmentTime[TheEndcap-1] = (*segment)->time();
 		}
 	    }
@@ -160,8 +186,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	  //Its a CSC Track,store it if it passes halo selection 
 	  StoreTrack = true;	  
 
-	  float deta = TMath::Abs( OuterMostGlobalPosition.eta() - InnerMostGlobalPosition.eta() );
-	  float dphi = TMath::ACos( TMath::Cos( OuterMostGlobalPosition.phi() - InnerMostGlobalPosition.phi() ) ) ;
+	  float deta = abs( OuterMostGlobalPosition.eta() - InnerMostGlobalPosition.eta() );
+	  float dphi = abs(deltaPhi( OuterMostGlobalPosition.phi() , InnerMostGlobalPosition.phi() )) ;
 	  float theta = Track->outerMomentum().theta();
 	  float innermost_x = InnerMostGlobalPosition.x() ;
 	  float innermost_y = InnerMostGlobalPosition.y();
@@ -316,7 +342,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 				    {
 				      //make sure that this SA muon is not actually a halo-like muon
 				      float theta =  mu->outerTrack()->outerMomentum().theta();
-				      float deta = TMath::Abs(mu->outerTrack()->outerPosition().eta() - mu->outerTrack()->innerPosition().eta());
+				      float deta = abs(mu->outerTrack()->outerPosition().eta() - mu->outerTrack()->innerPosition().eta());
 				      if( theta < min_outer_theta || theta > max_outer_theta )  //halo-like
 					continue;
 				      else if ( deta > deta_threshold ) //halo-like
@@ -347,8 +373,8 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					  float phi_ = TheGlobalPosition.phi();
 					  float eta_ = TheGlobalPosition.eta();
 					  
-					  deta = deta < TMath::Abs( eta_ - haloeta ) ? deta : TMath::Abs( eta_ - haloeta );
-					  dphi = dphi < TMath::ACos(TMath::Cos(phi_ - halophi)) ? dphi : TMath::ACos(TMath::Cos(phi_ - halophi));
+					  deta = deta < abs( eta_ - haloeta ) ? deta : abs( eta_ - haloeta );
+					  dphi = dphi < abs(deltaPhi(phi_, halophi)) ? dphi : abs(deltaPhi(phi_, halophi));
 					}
 				    }
 				}
@@ -442,7 +468,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 				       if( iHit->cscDetId().ring() != digi_ring ) continue;
 				       if( iHit->cscDetId().chamber() != digi_chamber ) continue;
 				       int hit_wire = iHit->hitWire();
-				       dwire = dwire < TMath::Abs(hit_wire - digi_wire)? dwire : TMath::Abs(hit_wire - digi_wire );
+				       dwire = dwire < abs(hit_wire - digi_wire)? dwire : abs(hit_wire - digi_wire );
 				     }
 				 }
 			     }
@@ -596,54 +622,13 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
        float iR =  TMath::Sqrt(iGlobalPosition.x()*iGlobalPosition.x() + iGlobalPosition.y()*iGlobalPosition.y());
        float iZ = iGlobalPosition.z();
        float iT = iSegment->time();
-       //       if(fabs(iZ)<650&& TheEvent.id().run()< 251737) iT-= 25; 
+       //       if(abs(iZ)<650&& TheEvent.id().run()< 251737) iT-= 25; 
        //Calo matching:
-       reco::Vertex::Point vtx(0,0,0);
-       for(size_t ihit = 0; ihit<hbhehits->size(); ++ ihit){
-	 if(calomatched) break;
-	 const HBHERecHit & rechit = (*hbhehits)[ ihit ];
-	 math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
-	 double rhet = rechit.energy()/cosh(rhpos.eta()); 
-	 double dphi_rhseg = fabs(deltaPhi(rhpos.phi(),iGlobalPosition.phi()));
-	 double dr_rhseg = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y()) - iR;
-	 double dtcorr_rhseg = rechit.time()- fabs(rhpos.z()-iZ)/30- iT; // 
-	 if(rhet>10&& 
-	    dphi_rhseg <0.05 && 
-	    dr_rhseg< 25 && dr_rhseg> -25 && //careful: asymmetric cut might not be the most appropriate thing 
-	    dtcorr_rhseg>0    
-	    ) calomatched= true;
-       }
 
-       for(size_t ihit = 0; ihit<ecalebhits->size(); ++ ihit){
-	 if(calomatched) break;
-	 const EcalRecHit & rechit = (*ecalebhits)[ ihit ];
-	 math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
-	 double rhet = rechit.energy()/cosh(rhpos.eta()); 
-	 double dphi_rhseg = fabs(deltaPhi(rhpos.phi(),iGlobalPosition.phi()));
-	 double dr_rhseg = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y()) - iR;
-	 double dtcorr_rhseg = rechit.time()- fabs(rhpos.z()-iZ)/30- iT; // 
-	 if(rhet>10&& 
-	    dphi_rhseg <0.05 && 
-	    dr_rhseg< 25 && dr_rhseg> -25 && //careful: asymmetric cut might not be the most appropriate thing 
-	    dtcorr_rhseg>0    
-	    ) calomatched= true;
-       }
-       for(size_t ihit = 0; ihit<ecaleehits->size(); ++ ihit){
-         if(calomatched) break;
-         const EcalRecHit & rechit = (*ecaleehits)[ ihit ];
-	 math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
-         double rhet = rechit.energy()/cosh(rhpos.eta());
-         double dphi_rhseg = fabs(deltaPhi(rhpos.phi(),iGlobalPosition.phi()));
-         double dr_rhseg = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y()) - iR;
-         double dtcorr_rhseg = rechit.time()- fabs(rhpos.z()-iZ)/30- iT; //                                                                       
-         if(rhet>10&&
-            dphi_rhseg <0.05 &&
-            dr_rhseg< 25 && dr_rhseg> -25 && //careful: asymmetric cut might not be the most appropriate thing                                  
-	    dtcorr_rhseg>0
-            ) calomatched= true;
-     }
-
-
+       bool hbhematched = HCALSegmentMatching(hbhehits,et_thresh_rh_hbhe,dphi_thresh_segvsrh_hbhe,dr_lowthresh_segvsrh_hbhe,dr_highthresh_segvsrh_hbhe,dt_lowthresh_segvsrh_hbhe,iZ,iR,iT,iPhi);
+       bool ebmatched = ECALSegmentMatching(ecalebhits,et_thresh_rh_eb,dphi_thresh_segvsrh_eb,dr_lowthresh_segvsrh_eb,dr_highthresh_segvsrh_eb,dt_lowthresh_segvsrh_eb,iZ,iR,iT,iPhi);
+       bool eematched = ECALSegmentMatching(ecaleehits,et_thresh_rh_ee,dphi_thresh_segvsrh_ee,dr_lowthresh_segvsrh_ee,dr_highthresh_segvsrh_ee,dt_lowthresh_segvsrh_ee,iZ,iR,iT,iPhi); 
+       calomatched = calomatched? true: (hbhematched|| ebmatched|| eematched);
 
 
        short int nSegs = 0;
@@ -665,10 +650,10 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	 float jR =  TMath::Sqrt(jGlobalPosition.x()*jGlobalPosition.x() + jGlobalPosition.y()*jGlobalPosition.y());
 	 float jZ = jGlobalPosition.z() ;
 	 float jT = jSegment->time();
-	 //	 if(fabs(jZ)<650&& TheEvent.id().run() < 251737)jT-= 25;
+	 //	 if(abs(jZ)<650&& TheEvent.id().run() < 251737)jT-= 25;
 	 if (TMath::ACos(TMath::Cos(jPhi - iPhi)) <= 0.2//max_segment_phi_diff 
-	     //&& TMath::Abs(jR - iR) <= max_segment_r_diff 
-	     && (TMath::Abs(jR - iR) <= max_segment_r_diff || (TMath::Abs(jR - iR)/ TMath::Abs(jZ - iZ)< 0.03 &&  jZ*iZ<0) )
+	     //&& abs(jR - iR) <= max_segment_r_diff 
+	     && (abs(jR - iR) <= max_segment_r_diff || (abs(jR - iR)<0.03*abs(jZ - iZ) &&  jZ*iZ<0) )
 	     && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
 	   //// Check if Segment matches to a colision muon
 	   if( TheMuons.isValid() ) {
@@ -697,13 +682,13 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	     nSegs++;
 	     minus_endcap = iGlobalPosition.z() < 0 || jGlobalPosition.z() < 0;
 	     plus_endcap = iGlobalPosition.z() > 0 || jGlobalPosition.z() > 0;
-	     //	     if( fabs(jT-iT)/sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) )<0.05 && fabs(jT-iT)/sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) )>0.02 && minus_endcap&&plus_endcap ) both_endcaps_dtcut =true;
+	     //	     if( abs(jT-iT)/sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) )<0.05 && abs(jT-iT)/sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) )>0.02 && minus_endcap&&plus_endcap ) both_endcaps_dtcut =true;
 	   }
 	   if(Segment1IsGood_alt && Segment2IsGood_alt) {
              nSegs_alt++;
              minus_endcap = iGlobalPosition.z() < 0 || jGlobalPosition.z() < 0;
              plus_endcap = iGlobalPosition.z() > 0 || jGlobalPosition.z() > 0;
-             if( fabs(jT-iT)/sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) )<0.05 && fabs(jT-iT)/sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) )>0.02 && minus_endcap&&plus_endcap ) both_endcaps_loose_dtcut_alt =true;
+             if( abs(jT-iT)<0.05*sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) ) && abs(jT-iT)> 0.02*sqrt( (jR-iR)*(jR-iR)+(jZ-iZ)*(jZ-iZ) ) && minus_endcap&&plus_endcap ) both_endcaps_loose_dtcut_alt =true;
            }
 	   
 	 }
@@ -747,4 +732,41 @@ math::XYZPoint CSCHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx
   const GlobalPoint& pos=geo->getPosition(id);
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());
   return posV;
+}
+
+
+bool CSCHaloAlgo::HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh , float iZ, float iR, float iT, float iPhi){
+  reco::Vertex::Point vtx(0,0,0);
+  for(size_t ihit = 0; ihit< rechitcoll->size(); ++ ihit){
+    const HBHERecHit & rechit = (*rechitcoll)[ ihit ];
+    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
+    double rhet = rechit.energy()/cosh(rhpos.eta());
+    double dphi_rhseg = abs(deltaPhi(rhpos.phi(),iPhi));
+    double dr_rhseg = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y()) - iR;
+    double dtcorr_rhseg = rechit.time()- abs(rhpos.z()-iZ)/30- iT; 
+    if(rhet> et_thresh_rh&&
+       dphi_rhseg < dphi_thresh_segvsrh &&
+       dr_rhseg < dr_highthresh_segvsrh && dr_rhseg> dr_lowthresh_segvsrh && //careful: asymmetric cut might not be the most appropriate thing 
+       dtcorr_rhseg> dt_lowthresh_segvsrh
+      ) return true; 
+  }
+  return false;
+}
+
+bool CSCHaloAlgo::ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float iZ, float iR, float iT, float iPhi ){
+  reco::Vertex::Point vtx(0,0,0);
+  for(size_t ihit = 0; ihit<rechitcoll->size(); ++ ihit){
+    const EcalRecHit & rechit = (*rechitcoll)[ ihit ];
+    math::XYZPoint rhpos = getPosition(rechit.id(),vtx);
+    double rhet = rechit.energy()/cosh(rhpos.eta());
+    double dphi_rhseg = abs(deltaPhi(rhpos.phi(),iPhi));
+    double dr_rhseg = sqrt(rhpos.x()*rhpos.x()+rhpos.y()*rhpos.y()) - iR;
+    double dtcorr_rhseg = rechit.time()- abs(rhpos.z()-iZ)/30- iT; 
+    if(rhet> et_thresh_rh&&
+       dphi_rhseg < dphi_thresh_segvsrh &&
+       dr_rhseg < dr_highthresh_segvsrh && dr_rhseg> dr_lowthresh_segvsrh && //careful: asymmetric cut might not be the most appropriate thing 
+       dtcorr_rhseg> dt_lowthresh_segvsrh
+       ) return true; 
+  }
+  return false;
 }
