@@ -260,6 +260,51 @@ class AggregateHistos:
 
         return res
 
+class ROC:
+    def __init__(self, name, xhistoName, yhistoName, zaxis=False):
+        self._name = name
+        self._xhistoName = xhistoName
+        self._yhistoName = yhistoName
+        self._zaxis = zaxis
+
+    def __str__(self):
+        return self._name
+
+    def create(self, tdirectory):
+        xhisto = self._xhistoName.create(tdirectory) if hasattr(self._xhistoName, "create") else _getObject(tdirectory, self._xhistoName);
+        yhisto = self._yhistoName.create(tdirectory) if hasattr(self._yhistoName, "create") else _getObject(tdirectory, self._yhistoName);
+        if xhisto is None or yhisto is None:
+            return None
+
+        x = []
+        xerrup = []
+        xerrdown = []
+        y = []
+        yerrup = []
+        yerrdown = []
+        z = []
+
+        for i in xrange(1, xhisto.GetNbinsX()+1):
+            x.append(xhisto.GetBinContent(i))
+            xerrup.append(xhisto.GetBinError(i))
+            xerrdown.append(xhisto.GetBinError(i))
+
+            y.append(yhisto.GetBinContent(i))
+            yerrup.append(yhisto.GetBinError(i))
+            yerrdown.append(yhisto.GetBinError(i))
+
+            z.append(xhisto.GetXaxis().GetBinUpEdge(i))
+
+        arr = lambda v: array.array("d", v)
+        gr = None
+        if self._zaxis:
+            gr = ROOT.TGraph2D(len(x), arr(x), arr(y), arr(z))
+        else:
+            gr = ROOT.TGraphAsymmErrors(len(x), arr(x), arr(y), arr(xerrdown), arr(xerrup), arr(yerrdown), arr(yerrup))
+        gr.SetTitle("")
+        return gr
+
+
 # Plot styles
 _plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3]
 _plotStylesMarker = [21, 20, 22, 34, 33]
@@ -982,12 +1027,21 @@ class Plot:
                                                      array.array("d", self._xerrslow), array.array("d", self._xerrshigh), 
                                                      array.array("d", self._yerrslow), array.array("d", self._yerrshigh))
                 _copyStyle(self._gr, self._ratio)
+        class WrapTGraph2D(WrapTGraph):
+            def __init__(self, gr, uncertainty):
+                WrapTGraph.__init__(self, gr, uncertainty)
+            def xvalues(self, bin):
+                return (self._gr.GetX()[bin], self._gr.GetErrorX(bin), self._gr.GetErrorX(bin))
+            def yvalues(self, bin):
+                return (self._gr.GetY()[bin], self._gr.GetErrorY(bin), self._gr.GetErrorY(bin))
 
         def wrap(o):
             if isinstance(o, ROOT.TH1):
                 return WrapTH1(o, self._ratioUncertainty)
             elif isinstance(o, ROOT.TGraph):
                 return WrapTGraph(o, self._ratioUncertainty)
+            elif isinstance(o, ROOT.TGraph2D):
+                return WrapTGraph2D(o, self._ratioUncertainty)
 
         wrappers = [wrap(h) for h in histos]
         ref = wrappers[0]

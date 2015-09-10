@@ -1,6 +1,6 @@
 import collections
 
-from plotting import FakeDuplicate, AggregateBins, Plot, PlotGroup, PlotFolder, Plotter
+from plotting import FakeDuplicate, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
 import validation
 from html import PlotPurpose
 
@@ -126,16 +126,22 @@ _dupandfake4 = PlotGroup("dupandfake4", [
 ],
                          legendDy=-0.025
 )
-_pvassociation = PlotGroup("pvassociation", [
+_pvassociation1 = PlotGroup("pvassociation1", [
+    Plot(ROC("effic_vs_fakepileup",  "effic_vs_dzpvcut", FakeDuplicate("fakepileup_vs_dzpvcut", assoc="num_assoc(recoToSim)_dzpvcut", reco="num_reco_dzpvcut", dup="num_pileup_dzpvcut")),
+             xtitle="Efficiency vs. cut on dz(PV)", ytitle="Fake rate vs. cut on dz(PV)", ymax=_maxFake, drawStyle="EP"),
+    Plot(ROC("effic_vs_fakepileup2",  "effic_vs_dzpvcut", FakeDuplicate("fakepileup_vs_dzpvcut", assoc="num_assoc(recoToSim)_dzpvcut", reco="num_reco_dzpvcut", dup="num_pileup_dzpvcut"), zaxis=True),
+             xtitle="Efficiency vs. cut on dz(PV)", ytitle="Fake rate vs. cut on dz(PV)", ymax=_maxFake, drawStyle="pcolz"),
+])
+_pvassociation2 = PlotGroup("pvassociation2", [
     Plot("effic_vs_dzpvcut", xtitle="Cut on dz(PV) (cm)", ytitle="Efficiency vs. cut on dz(PV)", ymax=_maxEff),
     Plot("fakerate_vs_dzpvcut", xtitle="Cut on dz(PV) (cm)", ytitle="Fake rate vs. cut on dz(PV)", ymax=_maxFake),
     Plot("pileuprate_dzpvcut", xtitle="Cut on dz(PV) (cm)", ytitle="Pileup rate vs. cut on dz(PV)", ymax=_maxFake),
     #
-    Plot("effic_vs_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Efficiency vs. cut on dz(PV)/dzError", ymax=_maxEff),
-    Plot("fakerate_vs_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Fake rate vs. cut on dz(PV)/dzError", ymax=_maxFake),
-    Plot("pileuprate_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Pileup rate vs. cut on dz(PV)/dzError", ymax=_maxFake),
-],ncols=3,
-                         legendDy=-0.17
+#    Plot("effic_vs_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Efficiency vs. cut on dz(PV)/dzError", ymax=_maxEff),
+#    Plot("fakerate_vs_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Fake rate vs. cut on dz(PV)/dzError", ymax=_maxFake),
+#    Plot("pileuprate_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Pileup rate vs. cut on dz(PV)/dzError", ymax=_maxFake),
+],#ncols=3,
+#                         legendDy=-0.17
 )
 
 
@@ -390,7 +396,8 @@ _recoBasedPlots = [
     _dupandfake2,
     _dupandfake3,
     _dupandfake4,
-    _pvassociation,
+    _pvassociation1,
+    _pvassociation2,
     _dedx,
 #    _chargemisid,
     _hitsAndPt,
