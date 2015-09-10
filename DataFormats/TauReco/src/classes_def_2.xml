@@ -165,7 +165,7 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
 source = "" 
 target="signalPiZeroCandidates_">
 <![CDATA[
-signalPiZeroCandidates_.clear();
+signalPiZeroCandidates_.reset();
 ]]>
 </ioread>
               
@@ -174,7 +174,7 @@ signalPiZeroCandidates_.clear();
 source = "" 
 target="isolationPiZeroCandidates_">
 <![CDATA[
-isolationPiZeroCandidates_.clear();
+isolationPiZeroCandidates_.reset();
 ]]>
 </ioread>
 
@@ -183,7 +183,7 @@ isolationPiZeroCandidates_.clear();
  targetClass="reco::PFTau" 
 source = "" 
 target="signalTauChargedHadronCandidates_">
-<![CDATA[signalTauChargedHadronCandidates_.clear();
+<![CDATA[signalTauChargedHadronCandidates_.reset();
 ]]>                                    
 </ioread>
                                       
@@ -192,7 +192,7 @@ target="signalTauChargedHadronCandidates_">
 source = "" 
 target="isolationTauChargedHadronCandidates_">                                          
 <![CDATA[
-isolationTauChargedHadronCandidates_.clear();                                              
+isolationTauChargedHadronCandidates_.reset();                                              
 ]]>                                                
 </ioread>
 
