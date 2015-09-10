@@ -136,7 +136,7 @@ HcalNoiseAlgo::HcalNoiseAlgo(const edm::ParameterSet& iConfig)
      pMinRBXRechitR45Fraction_ = iConfig.getParameter<double>("pMinRBXRechitR45Fraction");
   else
      pMinRBXRechitR45Fraction_ = 0;
-  if(iConfig.existsAs<double>("pMinRechitR45EnergyFraction"))
+  if(iConfig.existsAs<double>("pMinRBXRechitR45EnergyFraction"))
      pMinRBXRechitR45EnergyFraction_ = iConfig.getParameter<double>("pMinRBXRechitR45EnergyFraction");
   else
      pMinRBXRechitR45EnergyFraction_ = 0;
