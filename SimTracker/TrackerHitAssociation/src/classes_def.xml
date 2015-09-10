@@ -2,7 +2,9 @@
  <class name="std::vector<OmniClusterRef>" persistent="true" /> 
  <class name="edm::RefProd<std::vector<OmniClusterRef> >" />
  <class name="edm::Wrapper<std::vector<OmniClusterRef> >" persistent="true" />
- <class name="edm::AssociationMap<edm::OneToMany<std::vector<SimTrack>, std::vector<OmniClusterRef>, unsigned int > >" persistent="true" /> 
+ <class name="edm::AssociationMap<edm::OneToMany<std::vector<SimTrack>, std::vector<OmniClusterRef>, unsigned int > >" persistent="true" > 
+   <field name="transientMap_" transient="true"/>
+ </class>
  <class name="edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<SimTrack>, std::vector<OmniClusterRef>, unsigned int > > >" persistent="true" /> 
  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<SimTrack> >,edm::RefProd<std::vector<OmniClusterRef> > >" />
  <class name="edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<SimTrack> >,edm::RefProd<std::vector<OmniClusterRef> > > >"  persistent="true" />
