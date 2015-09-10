@@ -124,8 +124,7 @@ TrackCandidateProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     // Get the combination of hits that produced the seed
     int32_t icomb = fastTrackingHelper::getRecHitCombinationIndex(seed);
     if(icomb < 0 || unsigned(icomb) >= recHitCombinations->size()){
-	edm::LogError("TrackCandidateProducer") << " found seed with recHitCombination out or range: " << icomb << std::endl;
-	exit(1);
+	throw cms::Exception("TrackCandidateProducer") << " found seed with recHitCombination out or range: " << icomb << std::endl;
     }
     const FastTrackerRecHitCombination & recHitCombination = (*recHitCombinations)[icomb];
 
