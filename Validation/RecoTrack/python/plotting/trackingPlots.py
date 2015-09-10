@@ -128,9 +128,9 @@ _dupandfake4 = PlotGroup("dupandfake4", [
 )
 _pvassociation1 = PlotGroup("pvassociation1", [
     Plot(ROC("effic_vs_fakepileup",  "effic_vs_dzpvcut", FakeDuplicate("fakepileup_vs_dzpvcut", assoc="num_assoc(recoToSim)_dzpvcut", reco="num_reco_dzpvcut", dup="num_pileup_dzpvcut")),
-             xtitle="Efficiency vs. cut on dz(PV)", ytitle="Fake rate vs. cut on dz(PV)", ymax=_maxFake, drawStyle="EP"),
+             xtitle="Efficiency", ytitle="Fake rate", ztitle="Cut on dz(PV)", ymax=_maxFake, drawStyle="EP"),
     Plot(ROC("effic_vs_fakepileup2",  "effic_vs_dzpvcut", FakeDuplicate("fakepileup_vs_dzpvcut", assoc="num_assoc(recoToSim)_dzpvcut", reco="num_reco_dzpvcut", dup="num_pileup_dzpvcut"), zaxis=True),
-             xtitle="Efficiency vs. cut on dz(PV)", ytitle="Fake rate vs. cut on dz(PV)", ymax=_maxFake, drawStyle="pcolz"),
+             xtitle="Efficiency", ytitle="Fake rate", ztitle="Cut on dz(PV)", ymax=_maxFake, drawStyle="pcolz"),
 ])
 _pvassociation2 = PlotGroup("pvassociation2", [
     Plot("effic_vs_dzpvcut", xtitle="Cut on dz(PV) (cm)", ytitle="Efficiency vs. cut on dz(PV)", ymax=_maxEff),

@@ -500,6 +500,16 @@ class FrameRatio:
         self._pad.cd()
         self._pad.Pop() # Move the first pad on top
 
+# Makes incorporating TGraph2D much easier...
+class FrameDummy:
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def __getattr__(self, *args, **kwargs):
+        def dummy(*args2, **kwargs2):
+            return
+        return dummy
+
 def _copyStyle(src, dst):
     properties = []
     if hasattr(src, "GetLineColor") and hasattr(dst, "SetLineColor"):
@@ -528,6 +538,7 @@ class Plot:
         ytitle       -- String for y axis title (default None)
         ytitlesize   -- Float for y axis title size (default None)
         ytitleoffset -- Float for y axis title offset (default None)
+        ztitle       -- String for z axis title (default None)
         xmin         -- Float for x axis minimum (default None, i.e. automatic)
         xmax         -- Float for x axis maximum (default None, i.e. automatic)
         ymin         -- Float for y axis minimum (default 0)
@@ -574,6 +585,7 @@ class Plot:
         _set("ytitle", None)
         _set("ytitlesize", None)
         _set("ytitleoffset", None)
+        _set("ztitle", None)
 
         _set("xmin", None)
         _set("xmax", None)
@@ -627,6 +639,12 @@ class Plot:
 
     def isEmpty(self):
         return self.getNumberOfHistograms() == 0
+
+    def isTGraph2D(self):
+        for h in self._histograms:
+            if isinstance(h, ROOT.TGraph2D):
+                return True
+        return False
 
     def getName(self):
         if isinstance(self._name, list):
@@ -759,6 +777,11 @@ class Plot:
 #            print "No histograms for plot {name}".format(name=self._name)
 #            return
 
+        isTGraph2D = self.isTGraph2D()
+        if isTGraph2D:
+            # Ratios for the TGraph2Ds is not that interesting
+            ratio = False
+
         if self._normalizeToUnitArea:
             self._normalize()
 
@@ -819,11 +842,20 @@ class Plot:
                     xbinlabels.append(histos[0].GetXaxis().GetBinLabel(i))
 
         # Create frame
-        if ratio:
-            ratioBounds = (bounds[0], self._ratioYmin, bounds[2], self._ratioYmax)
-            frame = FrameRatio(pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
+        if isTGraph2D:
+            view = ROOT.TView.CreateView()
+            view.SetRange(bounds[0], bounds[1], 0, bounds[2], bounds[3], 20) # 20 is from Harrison-Stetson, may need tuning?
+            view.Top()
+            view.ShowAxis()
+            if self._ztitle is not None:
+                histos[0].GetZaxis().SetTitle(self._ztitle)
+            frame = FrameDummy()
         else:
-            frame = Frame(pad, bounds, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
+            if ratio:
+                ratioBounds = (bounds[0], self._ratioYmin, bounds[2], self._ratioYmax)
+                frame = FrameRatio(pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
+            else:
+                frame = Frame(pad, bounds, nrows, xbinlabels, self._xbinlabelsize, self._xbinlabeloption)
 
         # Set log and grid
         frame.setLogx(self._xlog)
@@ -883,6 +915,18 @@ class Plot:
                 r.draw()
 
         frame.redrawAxis()
+        if isTGraph2D:
+            axis = ROOT.TAxis3D.GetPadAxis()
+            axis.SetLabelColor(ROOT.kBlack);
+            axis.SetAxisColor(ROOT.kBlack);
+
+            axis.GetXaxis().SetTitleOffset(1.8)
+            axis.GetYaxis().SetTitleOffset(2.3)
+
+            if self._xtitle is not None:
+                axis.GetXaxis().SetTitle(self._xtitle)
+            if self._ytitle is not None:
+                axis.GetYaxis().SetTitle(self._ytitle)
         self._frame = frame # keep the frame in memory for sure
 
     def addToLegend(self, legend, legendLabels, denomUncertainty):
