@@ -1145,6 +1145,7 @@ class PlotGroup:
         legendDw -- Float for changing TLegend width (default None)
         legendDh -- Float for changing TLegend height (default None)
         overrideLegendLabels -- List of strings for legend labels, if given, these are used instead of the ones coming from Plotter (default None)
+        onlyForPileup  -- Plots this group only for pileup samples
         """
         self._name = name
         self._plots = plots
@@ -1161,7 +1162,12 @@ class PlotGroup:
 
         _set("overrideLegendLabels", None)
 
+        _set("onlyForPileup", False)
+
         self._ratioFactor = 1.25
+
+    def onlyForPileup(self):
+        return self._onlyForPileup
 
     def create(self, tdirectories):
         """Create histograms from a list of TDirectories."""
@@ -1405,7 +1411,7 @@ class PlotFolder:
     def set(self, plotGroups):
         self._plotGroups = plotGroups
 
-    def create(self, files, labels, possibleDqmFolders, dqmSubFolder=None):
+    def create(self, files, labels, possibleDqmFolders, dqmSubFolder=None, isPileupSample=True):
         """Create histograms from a list of TFiles.
 
         Arguments:
@@ -1413,6 +1419,7 @@ class PlotFolder:
         labels -- List of strings for legend labels corresponding the files
         possibleDqmFolders -- List of strings for possible directories of histograms in TFiles
         dqmSubFolder -- Optional string for subdirectory inside the dqmFolder; if list of strings, then each corresponds to a TFile
+        isPileupSample -- Is sample pileup (some PlotGroups may limit themselves to pileup)
         """
 
         if len(files) != len(labels):
@@ -1431,6 +1438,8 @@ class PlotFolder:
         self._labels = labels
 
         for pg in self._plotGroups:
+            if pg.onlyForPileup() and not isPileupSample:
+                continue
             pg.create(dirs)
 
     def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
@@ -1537,15 +1546,17 @@ class PlotterFolder:
     def getSelectionName(self, dqmSubFolder):
         return self._plotFolder.getSelectionName(self._name, dqmSubFolder.translated if dqmSubFolder is not None else None)
 
-    def create(self, files, labels, dqmSubFolder):
+    def create(self, files, labels, dqmSubFolder, isPileupSample=True):
         """Create histograms from a list of TFiles.
         Arguments:
         files  -- List of TFiles
         labels -- List of strings for legend labels corresponding the files
+        dqmSubFolder -- ???
+        isPileupSample -- Is sample pileup (some PlotGroups may limit themselves to pileup)
         """
 
         # TODO: for cases of differently named subfolders, need to think something here
-        self._plotFolder.create(files, labels, self._possibleDqmFolders, dqmSubFolder.subfolder if dqmSubFolder is not None else None)
+        self._plotFolder.create(files, labels, self._possibleDqmFolders, dqmSubFolder.subfolder if dqmSubFolder is not None else None, isPileupSample)
 
     def draw(self, *args, **kwargs):
         """Draw and save all plots using settings of a given algorithm."""

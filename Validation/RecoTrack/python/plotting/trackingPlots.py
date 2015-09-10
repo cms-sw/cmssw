@@ -138,7 +138,7 @@ _pvassociation1 = PlotGroup("pvassociation1", [
              xtitle="Efficiency (p_{T} weighted) vs. cut on dz(PV)", ytitle="Fake+pileup rate", ymax=_maxFake, drawStyle="EP"),
     Plot(ROC("effic_vs_fakepileup_dzpvsigcut",  "effic_vs_dzpvsigcut", FakeDuplicate("fakepileup_vs_dzpvsigcut", assoc="num_assoc(recoToSim)_dzpvsigcut", reco="num_reco_dzpvsigcut", dup="num_pileup_dzpvcut")),
              xtitle="Efficiency (p_{T} weighted) vs. cut on dz(PV)/dzError", ytitle="Fake+pileup rate", ymax=_maxFake, drawStyle="EP"),
-],
+], onlyForPileup=True,
                          legendDy=-0.025
 )
 _pvassociation2 = PlotGroup("pvassociation2", [
@@ -151,7 +151,7 @@ _pvassociation2 = PlotGroup("pvassociation2", [
     Plot("effic_vs_dzpvsigcut2", xtitle="Cut on dz(PV)/dzError", ytitle="Efficiency (excl. trk eff)", ymax=_maxEff),
     Plot("fakerate_vs_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Fake rate vs. cut on dz(PV)/dzError", ymax=_maxFake),
     Plot("pileuprate_dzpvsigcut", xtitle="Cut on dz(PV)/dzError", ytitle="Pileup rate vs. cut on dz(PV)/dzError", ymax=_maxFake),
-],
+], onlyForPileup=True,
                          legendDy=0.09
 )
 _pvassociation3 = PlotGroup("pvassociation3", [
@@ -164,7 +164,7 @@ _pvassociation3 = PlotGroup("pvassociation3", [
     Plot("effic_vs_dzpvsigcut2_pt", xtitle="Cut on dz(PV)/dzError", ytitle="Efficiency (p_{T} weighted, excl. trk eff)", ymax=_maxEff),
     Plot("fakerate_vs_dzpvsigcut_pt", xtitle="Cut on dz(PV)/dzError", ytitle="Fake rate (p_{T} weighted)", ymax=_maxFake),
     Plot("pileuprate_dzpvsigcut_pt", xtitle="Cut on dz(PV)/dzError", ytitle="Pileup rate (p_{T} weighted)", ymax=_maxFake),
-],
+], onlyForPileup=True,
                          legendDy=0.09
 )
 

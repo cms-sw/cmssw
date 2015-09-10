@@ -556,7 +556,9 @@ class Validation:
             "%s, %s %s" % (sample.name(), _stripRelease(self._refRelease), refSelection),
             "%s, %s %s" % (sample.name(), _stripRelease(self._newRelease), newSelection)
         ],
-                               dqmSubFolder)
+                             dqmSubFolder,
+                             isPileupSample=sample.hasPileup()
+        )
         fileList.extend(plotterFolder.draw(**self._plotterDrawArgs))
         fileList.append(valname)
 
@@ -611,7 +613,9 @@ class Validation:
             "FullSim %s, %s %s" % (fullSample.name(), _stripRelease(self._newRelease), fullSelection),
             "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
         ],
-                             dqmSubFolder)
+                             dqmSubFolder,
+                             isPileupSample=fastSample.hasPileup()
+        )
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
 
         fullValFile.Close()
