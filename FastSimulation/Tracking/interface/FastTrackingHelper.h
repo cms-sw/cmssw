@@ -19,13 +19,12 @@ namespace fastTrackingHelper {
     template<class T> int32_t getRecHitCombinationIndex(const T & object){
 	// seed must have at least one hit
 	if(object.recHits().first == object.recHits().second){
-	    edm::LogError("fastTrackingHelpers::getRecHitCombinationIndex") << "  given object has 0 hits" << std::endl;
-	    exit(1);
+	    throw cms::Exception("fastTrackingHelpers::getRecHitCombinationIndex") << "  given object has 0 hits" << std::endl;
 	}
 
 	const TrackingRecHit & recHit = *object.recHits().first;
 	if(!trackerHitRTTI::isFast(recHit)){
-	    throw cms::Exception("fastTrackingHelpers::setRecHitCombinationIndex: one of hits in OwnVector is non-fastsim");
+	    throw cms::Exception("fastTrackingHelpers::setRecHitCombinationIndex") << "  one of hits in OwnVector is non-fastsim" << std::endl;
 	}
 	// cast and return combination index
 	return static_cast<const FastTrackerRecHit &>(recHit).recHitCombinationIndex();
