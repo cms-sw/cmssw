@@ -23,11 +23,11 @@ process.load("RecoMuon.TrackingTools.MuonServiceProxy_cff")
 ########### standard includes ##############################
 process.load("Configuration.StandardSequences..oO[magneticField]Oo._cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-process.load("Configuration.Geometry.GeometryDB_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 
 
 ########### DATABASE conditions ############################
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 process.GlobalTag.globaltag = ".oO[GlobalTag]Oo."
 
 .oO[condLoad]Oo.
@@ -114,10 +114,14 @@ process.looper = cms.Looper(
     parSmear = cms.vdouble(),
 
     ### taken from J/Psi #########################
-    ResolFitType = cms.int32(14), 
-    parResol = cms.vdouble(0.007,0.015, -0.00077, 0.0063, 0.0018, 0.0164),
-    parResolFix = cms.vint32(0, 0, 0,0, 0,0),
-    parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0),
+#    ResolFitType = cms.int32(14), 
+#    parResol = cms.vdouble(0.007,0.015, -0.00077, 0.0063, 0.0018, 0.0164),
+#    parResolFix = cms.vint32(0, 0, 0,0, 0,0),
+#    parResolOrder = cms.vint32(0, 0, 0, 0, 0, 0),
+    ResolFitType = cms.int32(0), 
+    parResol = cms.vdouble(0),
+    parResolFix = cms.vint32(0),
+    parResolOrder = cms.vint32(0),
 
 
     # -------------------- #
@@ -125,10 +129,14 @@ process.looper = cms.Looper(
     # -------------------- #
 
     # -----------------------------------------------------------------------------------
-    ScaleFitType = cms.int32(18),
-    parScaleOrder = cms.vint32(0, 0, 0, 0),
-    parScaleFix =   cms.vint32(0, 0, 0, 0),
-    parScale = cms.vdouble(1, 1, 1, 1),
+#    ScaleFitType = cms.int32(18),
+#    parScaleOrder = cms.vint32(0, 0, 0, 0),
+#    parScaleFix =   cms.vint32(0, 0, 0, 0),
+#    parScale = cms.vdouble(1, 1, 1, 1),
+    ScaleFitType = cms.int32(0),
+    parScaleOrder = cms.vint32(0),
+    parScaleFix =   cms.vint32(0),
+    parScale = cms.vdouble(0),
 
 
     
