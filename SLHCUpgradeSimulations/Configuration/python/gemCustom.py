@@ -9,10 +9,9 @@ def customise2023(process):
   return process
 def customise_digitization(process):
   from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_muon_only
-  if ( not hasattr(process,"simMuonGEMDigis")) :
-    process = customize_digi_addGEM_muon_only(process)
-  if ( not hasattr(process,"simMuonGEMDigis.mixLabel")) :
-    process.simMuonGEMDigis.mixLabel = cms.string("mix")
+  if (hasattr(process,"simMuonGEMDigis")) :
+    if ( not hasattr(process,"simMuonGEMDigis.mixLabel")) :
+      process.simMuonGEMDigis.mixLabel = cms.string("mix")
   if ( hasattr(process,"simMuonME0Digis")) :
     if ( not hasattr(process,"simMuonME0Digis.mixLabel")) :
       process.simMuonME0Digis.mixLabel = cms.string("mix")
