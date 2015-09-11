@@ -7,7 +7,7 @@ generator = cms.EDProducer("MCParticleReplacer",
     src                = cms.InputTag("selectedMuons"),
     beamSpotSrc        = cms.InputTag("dummy"),
     primaryVertexLabel = cms.InputTag("dummy"),
-    hepMcSrc           = cms.InputTag("generator"),
+    hepMcSrc           = cms.InputTag("generatorSmeared"),
 
     algorithm          = cms.string("ParticleGun"), # "ParticleGun", "Ztautau"
     pluginType         = cms.string("ParticleReplacerParticleGun"), # "ParticleReplacerParticleGun", "ParticleReplacerZtautau"                       

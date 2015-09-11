@@ -136,7 +136,7 @@ process.mix.mixObjects.mixCH.mixCaloHits = cms.PSet(
 )
 
 
-process.g4SimHits.Generator.HepMCProductLabel = 'generator'
+process.g4SimHits.Generator.HepMCProductLabel = 'VtxSmeared'
 process.p = cms.Path(
  process.VtxSmeared * process.g4SimHits * process.mix *
  process.ecalDigiSequence * process.hcalDigiSequence *

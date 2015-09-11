@@ -26,7 +26,7 @@ famosSimHits = cms.EDProducer("FamosProducer",
     # Kinematic cuts for the particle filter in the SimEvent
     ParticleFilterBlock,
     # The HepMCProduct source
-    SourceLabel = cms.InputTag("generator"),
+    SourceLabel = cms.InputTag("generatorSmeared"),
     # The genParticle source (in case there is no HepMCProduct)
     GenParticleLabel = cms.InputTag("genParticles"),
     # If false, no SimTrack collection for Muons is stored

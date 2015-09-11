@@ -148,7 +148,7 @@ PhotonValidator::PhotonValidator( const edm::ParameterSet& pset )
       edm::InputTag("famosSimHits"));
   famos_simVtx_Token_ = consumes<edm::SimVertexContainer>(
       edm::InputTag("famosSimHits"));
-  hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+  hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   genjets_Token_ = consumes<reco::GenJetCollection>(
       edm::InputTag("ak4GenJets"));
 

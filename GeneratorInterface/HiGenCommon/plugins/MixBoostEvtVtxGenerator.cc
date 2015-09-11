@@ -124,7 +124,7 @@ MixBoostEvtVtxGenerator::MixBoostEvtVtxGenerator(const edm::ParameterSet & pset 
   vtxOffset.resize(3);
   if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset"); 
 
-  produces<bool>("matchedVertex"); 
+  produces<edm::HepMCProduct>();
   
 }
 
@@ -301,27 +301,21 @@ HepMC::FourVector* MixBoostEvtVtxGenerator::getRecVertex( Event& evt){
 
 void MixBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
 {
+  Handle<HepMCProduct> HepUnsmearedMCEvt;
+  evt.getByLabel(signalLabel, HepUnsmearedMCEvt);
     
-    
-  Handle<HepMCProduct> HepMCEvt ;
-  
-  evt.getByLabel( signalLabel, HepMCEvt ) ;
-    
+  // Copy the HepMC::GenEvent
+  HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
+  std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
   // generate new vertex & apply the shift 
   //
- 
   HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
  
   //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
   //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
   
-  // OK, create a (pseudo)product and put in into edm::Event
-  //
-  auto_ptr<bool> NewProduct(new bool(true)) ;      
-  evt.put( NewProduct ,"matchedVertex") ;
-       
+  evt.put(std::move(HepMCEvt));
   return ;
-  
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

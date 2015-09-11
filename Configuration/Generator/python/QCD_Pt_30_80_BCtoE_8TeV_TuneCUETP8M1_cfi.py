@@ -27,7 +27,7 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
 
 genParticlesForFilter = cms.EDProducer("GenParticleProducer",
                                        saveBarCodes = cms.untracked.bool(True),
-                                       src = cms.InputTag("generator"),
+                                       src = cms.InputTag("generator", "unsmeared"),
                                        abortOnUnknownPDGCode = cms.untracked.bool(True)
                                        )
 

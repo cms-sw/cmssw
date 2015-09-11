@@ -14,7 +14,7 @@
 
 ElectronStudy::ElectronStudy(const edm::ParameterSet& ps) {
 
-  sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel","generator");
+  sourceLabel = ps.getUntrackedParameter<std::string>("SourceLabel","generatorSmeared");
   g4Label = ps.getUntrackedParameter<std::string>("ModuleLabel","g4SimHits");
   hitLabEB= ps.getUntrackedParameter<std::string>("EBCollection","EcalHitsEB");
   hitLabEE= ps.getUntrackedParameter<std::string>("EECollection","EcalHitsEE");

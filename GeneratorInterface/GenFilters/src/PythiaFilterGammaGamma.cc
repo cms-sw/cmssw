@@ -15,7 +15,7 @@ using namespace HepMC;
 
 
 PythiaFilterGammaGamma::PythiaFilterGammaGamma(const edm::ParameterSet& iConfig) :
-  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+  token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
   maxEvents(iConfig.getUntrackedParameter<int>("maxEvents", 100000)),
   ptSeedThr(iConfig.getUntrackedParameter<double>("PtSeedThr")),
   etaSeedThr(iConfig.getUntrackedParameter<double>("EtaSeedThr")),

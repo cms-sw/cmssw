@@ -250,7 +250,7 @@ def customise(process):
     MinY = cms.double(0.0),
     MinZ = cms.double(0.0),
     TimeOffset = cms.double(0.0),
-    src = cms.InputTag("generator")
+    src = cms.InputTag("generator","unsmeared")
   )  
 
   if process.customization_options.useJson.value():
@@ -454,7 +454,7 @@ def customise(process):
   except:
     pass
 
-  process.filterEmptyEv.src = cms.untracked.InputTag("generator", "", "EmbeddedRECO")
+  process.filterEmptyEv.src = cms.untracked.InputTag("generatorSmeared", "", "EmbeddedRECO")
 
   try:
     process.schedule.remove(process.DQM_FEDIntegrity_v3)

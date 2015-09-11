@@ -21,22 +21,22 @@ Usage.
 1) Add to prodFilterSequence two modules:
 
 process.genUE = cms.EDProducer("HepMCSplitter",
-    input = cms.InputTag("generator"),
+    input = cms.InputTag("generatorSmeared"),
     todo = cms.vstring("UE")
 )
 
 process.genZtautau = cms.EDProducer("HepMCSplitter",
-    input = cms.InputTag("generator"),
+    input = cms.InputTag("generatorSmeared"),
     todo = cms.vstring("Ztautau")
 )
 
 process.ProductionFilterSequence = cms.Sequence(process.generator+process.tfFilter + process.genUE + process.genZtautau)
 
-2) Replace "generator" with desired part, eg:
+2) Replace "generatorSmeared" with desired part, eg:
 
 process.mix.mixObjects.mixHepMC.input = cms.VInputTag(cms.InputTag("genZtautau"))
 process.g4SimHits.Generator.HepMCProductLabel = cms.string("genZtautau")
-process.mergedtruth.HepMCDataLabels.remove("generator")
+process.mergedtruth.HepMCDataLabels.remove("generatorSmeared")
 process.mergedtruth.HepMCDataLabels.extend(["genZtautau"])
 # Note - above was done for python wo vtx smearing
 

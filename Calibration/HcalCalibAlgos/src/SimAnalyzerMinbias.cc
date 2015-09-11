@@ -76,7 +76,7 @@ SimAnalyzerMinbias::SimAnalyzerMinbias(const edm::ParameterSet& iConfig) {
   timeCut         = iConfig.getUntrackedParameter<double>("TimeCut", 500);
     
   // get token names of modules, producing object collections
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   tok_hcal_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
 
 #ifdef debugLog
