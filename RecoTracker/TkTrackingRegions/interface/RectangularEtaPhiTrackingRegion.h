@@ -46,6 +46,8 @@ public:
     return UseMeasurementTracker::kNever;
   }
 
+  static UseMeasurementTracker stringToUseMeasurementTracker(const std::string& name);
+
   RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion const & rh) :
     TrackingRegion(rh),
     theEtaRange(rh.theEtaRange),

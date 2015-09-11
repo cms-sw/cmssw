@@ -14,7 +14,8 @@ hltRegionalPixelTracks.RegionFactoryPSet.RegionPSet = cms.PSet(
     deltaEtaRegion = cms.double( 0.5 ),
     deltaPhiRegion = cms.double( 0.5 ),
     TrkSrc = cms.InputTag( "hltL3Muons" ),
-    UseVtxTks = cms.bool( False )
+    UseVtxTks = cms.bool( False ),
+    howToUseMeasurementTracker = cms.string("Never"),
 )
 
 hltPixelTracksReg = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
@@ -36,7 +37,8 @@ hltPixelTracksReg.RegionFactoryPSet.RegionPSet = cms.PSet(
         deltaPhi = cms.double( 0.5 ),
         nSigmaZVertex = cms.double( 3.0 ),
         zErrorVertex = cms.double( 0.2 ),
-        nSigmaZBeamSpot = cms.double( 4.0 )
+        nSigmaZBeamSpot = cms.double( 4.0 ),
+        whereToUseMeasurementTracker = cms.string("Never"),
 )
 
 

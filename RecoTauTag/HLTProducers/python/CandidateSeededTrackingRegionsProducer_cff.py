@@ -21,7 +21,10 @@ SeededTrackingRegionsFromBeamSpotFixedZLength = cms.PSet(
         
         nSigmaZVertex = cms.double( 3. ),
         zErrorVetex = cms.double( 0.2 ),
-        nSigmaZBeamSpot = cms.double( 4. )
+        nSigmaZBeamSpot = cms.double( 4. ),
+
+        whereToUseMeasurementTracker = cms.string("ForSiStrips"),
+        measurementTrackerName = cms.InputTag( "REPLACE" ),
     )
 )
 
