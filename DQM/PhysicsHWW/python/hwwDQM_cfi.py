@@ -8,7 +8,7 @@ PFTrackCountingHighEffBJetTags.tagInfos = cms.VInputTag( cms.InputTag("PFImpactP
 
 SkipEvent = cms.untracked.vstring('ProductNotFound')
 
-hwwDQM = cms.Sequence(PFJetTracksAssociatorAtVertex*PFImpactParameterTagInfos*
+hwwDQM = cms.Sequence(PFImpactParameterTagInfos*
                       PFTrackCountingHighEffBJetTags*
                       hwwAnalyzer
                      )
