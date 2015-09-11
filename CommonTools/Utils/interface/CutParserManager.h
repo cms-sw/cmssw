@@ -18,6 +18,10 @@
 namespace reco {
   namespace exprEval {
 
+    namespace {
+      static const std::string colons("::");
+    };
+
     template<typename T, bool isLazy> class ParsedCutManager;
 
     class ParsedCutManagerImpl {   
@@ -31,28 +35,22 @@ namespace reco {
     private:      
       template<typename T> 
       reco::CutOnObject<T> const* const getFunction(const edm::TypeID& type, const std::string& func) const {
-        std::cout << type << std::endl;
         return getFunction<T>(type.className(),func);
       }
 
       template<typename T> 
       reco::CutOnObject<T> const* const getFunction(const edm::TypeWithDict& twd, const std::string& func) const {
-        std::cout <<  twd <<  std::endl;
         return getFunction<T>(edm::TypeID(twd.typeInfo()),func);
       }
 
       template<typename T> 
       reco::CutOnObject<T> const* const getFunction(const edm::ObjectWithDict& owd, const std::string& func) const {
-        std::cout << owd.dynamicType() << std::endl;
         return getFunction<T>(owd.dynamicType(),func);
       }
       
       template<typename T> 
       reco::CutOnObject<T> const* const getFunction(const std::string& type, const std::string& input) const {
-
-        std::cout << "got to innermost call of getFunction!" << std::endl;
-
-        static const std::string colons("::");
+        
         typedef reco::CutOnObject<T> CutType;
         edm::TypeID the_cut_type(typeid(CutType));
         edm::TypeID the_obj_type(typeid(T));
@@ -74,14 +72,15 @@ namespace reco {
           return static_cast<reco::CutOnObject<T> const*>(found->second);
         }
         
-        std::stringstream expr;        
+        std::stringstream expr;     
         
-        expr << "bool eval(" << obj_name << " const& input) const override final {\n";
         if( obj_name != type ) {
+          expr << "bool eval(" << obj_name << " const& input) const override final {\n";
           expr << " const " << type << "& obj = dynamic_cast<const " << type << "&>(input);\n";
         } else {
-          expr << " const " << obj_name<< "& obj = input;\n";
+          expr << "bool eval(" << obj_name << " const& obj) const override final {\n";
         }
+        
         expr << " return ( " << func << " );\n";
         expr << "}\n";
         const std::string strexpr = expr.str();
@@ -99,8 +98,6 @@ namespace reco {
         
         void const* to_add = static_cast<void const*>(the_func);
         auto insert_result = functions_.insert(std::make_pair(key,to_add) );
-        if( insert_result.second ) std::cout << "inserted a new function!" << std::endl;
-        else std::cout << "got a function already compiled!" << std::endl;
         return static_cast<reco::CutOnObject<T> const*>(insert_result.first->second);
       }
       

@@ -37,8 +37,7 @@ struct StringCutObjectSelector {
   type_(typeid(T)),
   cut_manager_( lazy_ ? nullptr : Parser::get() ),
   lazy_cut_manager_( lazy_ ? LazyParser::get() : nullptr ),
-  expr_select_( lazy_ ? nullptr : cut_manager_->getFunction(type_,cut_) )
-   {
+  expr_select_( lazy_ ? nullptr : cut_manager_->getFunction(type_,cut_) ) {
      /*
     if(! reco::exprEval::cutParser<T>(cut, expr_select_, lazy)) {
       throw edm::Exception(edm::errors::Configuration,
@@ -53,8 +52,7 @@ struct StringCutObjectSelector {
   type_(typeid(T)),
   cut_manager_( nullptr ),
   lazy_cut_manager_( nullptr ),
-  expr_select_(select)
-  {
+  expr_select_(select) {
   }
 
   bool operator()(const T & t) const {
