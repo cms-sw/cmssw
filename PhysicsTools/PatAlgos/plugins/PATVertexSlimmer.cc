@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
@@ -14,17 +14,17 @@
 #include "DataFormats/PatCandidates/interface/libminifloat.h"
 
 namespace pat {
-    class PATVertexSlimmer : public edm::EDProducer {
-        public:
-            explicit PATVertexSlimmer(const edm::ParameterSet&);
-            ~PATVertexSlimmer();
-
-            virtual void produce(edm::Event&, const edm::EventSetup&);
-        private:
-            edm::EDGetTokenT<std::vector<reco::Vertex> > src_;
-            edm::EDGetTokenT<edm::ValueMap<float> > score_;
-            bool rekeyScores_;
-    };
+  class PATVertexSlimmer : public edm::global::EDProducer<> {
+  public:
+    explicit PATVertexSlimmer(const edm::ParameterSet&);
+    ~PATVertexSlimmer();
+    
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const;
+  private:
+    const edm::EDGetTokenT<std::vector<reco::Vertex> > src_;
+    const edm::EDGetTokenT<edm::ValueMap<float> > score_;
+    const bool rekeyScores_;
+  };
 }
 
 pat::PATVertexSlimmer::PATVertexSlimmer(const edm::ParameterSet& iConfig) :
@@ -38,7 +38,7 @@ pat::PATVertexSlimmer::PATVertexSlimmer(const edm::ParameterSet& iConfig) :
 
 pat::PATVertexSlimmer::~PATVertexSlimmer() {}
 
-void pat::PATVertexSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void pat::PATVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
     edm::Handle<std::vector<reco::Vertex> > vertices;
     iEvent.getByToken(src_, vertices);
     std::auto_ptr<std::vector<reco::Vertex> > outPtr(new std::vector<reco::Vertex>());

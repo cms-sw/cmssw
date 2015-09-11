@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_IsolationAlgos_CITKIsolationSumProducer_H
 #define PhysicsTools_IsolationAlgos_CITKIsolationSumProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -29,7 +29,7 @@ namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
 namespace citk {
-  class PFIsolationSumProducer : public edm::EDProducer {
+  class PFIsolationSumProducer : public edm::stream::EDProducer<> {
     
   public:  
     PFIsolationSumProducer(const edm::ParameterSet&);

@@ -48,43 +48,51 @@ using namespace std;
 
 
 PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
-  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
-  useUserData_(iConfig.exists("userData"))
-{
   // general configurables
-  electronToken_ = consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>( "electronSource" ));
-  hConversionsToken_ = consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
-  embedGsfElectronCore_ = iConfig.getParameter<bool>( "embedGsfElectronCore" );
-  embedGsfTrack_ = iConfig.getParameter<bool>( "embedGsfTrack" );
-  embedSuperCluster_ = iConfig.getParameter<bool>         ( "embedSuperCluster"    );
-  embedPflowSuperCluster_ = iConfig.getParameter<bool>    ( "embedPflowSuperCluster"    );
-  embedSeedCluster_ = iConfig.getParameter<bool>( "embedSeedCluster" );
-  embedBasicClusters_ = iConfig.getParameter<bool>( "embedBasicClusters" );
-  embedPreshowerClusters_ = iConfig.getParameter<bool>( "embedPreshowerClusters" );
-  embedPflowBasicClusters_ = iConfig.getParameter<bool>( "embedPflowBasicClusters" );
-  embedPflowPreshowerClusters_ = iConfig.getParameter<bool>( "embedPflowPreshowerClusters" );
-  embedTrack_ = iConfig.getParameter<bool>( "embedTrack" );
-  embedRecHits_ = iConfig.getParameter<bool>( "embedRecHits" );
+  electronToken_(consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>( "electronSource" ))),
+  hConversionsToken_(consumes<reco::ConversionCollection>(edm::InputTag("allConversions"))),
+  embedGsfElectronCore_(iConfig.getParameter<bool>( "embedGsfElectronCore" )),
+  embedGsfTrack_(iConfig.getParameter<bool>( "embedGsfTrack" )),
+  embedSuperCluster_(iConfig.getParameter<bool>         ( "embedSuperCluster"    )),
+  embedPflowSuperCluster_(iConfig.getParameter<bool>    ( "embedPflowSuperCluster"    )),
+  embedSeedCluster_(iConfig.getParameter<bool>( "embedSeedCluster" )),
+  embedBasicClusters_(iConfig.getParameter<bool>( "embedBasicClusters" )),
+  embedPreshowerClusters_(iConfig.getParameter<bool>( "embedPreshowerClusters" )),
+  embedPflowBasicClusters_(iConfig.getParameter<bool>( "embedPflowBasicClusters" )),
+  embedPflowPreshowerClusters_(iConfig.getParameter<bool>( "embedPflowPreshowerClusters" )),
+  embedTrack_(iConfig.getParameter<bool>( "embedTrack" )),  
+  addGenMatch_(iConfig.getParameter<bool>( "addGenMatch" )),
+  embedGenMatch_(addGenMatch_ ? iConfig.getParameter<bool>( "embedGenMatch" ) : false),
+  embedRecHits_(iConfig.getParameter<bool>( "embedRecHits" )),
   // pflow configurables
-  pfElecToken_ = consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>( "pfElectronSource" ));
-  pfCandidateMapToken_ = mayConsume<edm::ValueMap<reco::PFCandidatePtr> >(iConfig.getParameter<edm::InputTag>( "pfCandidateMap" ));
-  useParticleFlow_ = iConfig.getParameter<bool>( "useParticleFlow" );
-  embedPFCandidate_ = iConfig.getParameter<bool>( "embedPFCandidate" );
+  useParticleFlow_(iConfig.getParameter<bool>( "useParticleFlow" )),
+  pfElecToken_(consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag>( "pfElectronSource" ))),
+  pfCandidateMapToken_(mayConsume<edm::ValueMap<reco::PFCandidatePtr> >(iConfig.getParameter<edm::InputTag>( "pfCandidateMap" ))),
+  embedPFCandidate_(iConfig.getParameter<bool>( "embedPFCandidate" )),
   // mva input variables
-  reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
-  reducedBarrelRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_);
-  reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
-  reducedEndcapRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_);
-
+  reducedBarrelRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection")),
+  reducedBarrelRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_)),
+  reducedEndcapRecHitCollection_(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")),
+  reducedEndcapRecHitCollectionToken_(mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_)),
   // PFCluster Isolation maps
-  addPFClusterIso_   = iConfig.getParameter<bool>("addPFClusterIso");
-  ecalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"));
-  hcalPFClusterIsoT_ = consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"));
-
+  addPFClusterIso_(iConfig.getParameter<bool>("addPFClusterIso")),
+  ecalPFClusterIsoT_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("ecalPFClusterIsoMap"))),
+  hcalPFClusterIsoT_(consumes<edm::ValueMap<float> >(iConfig.getParameter<edm::InputTag>("hcalPFClusterIsoMap"))),
+  // embed high level selection variables?
+  embedHighLevelSelection_(iConfig.getParameter<bool>("embedHighLevelSelection")),
+  beamLineToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"))),
+  pvToken_(mayConsume<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("pvSrc"))),  
+  addElecID_(iConfig.getParameter<bool>( "addElectronID" )),
+  pTComparator_(),
+  isolator_(iConfig.exists("userIsolation") ? iConfig.getParameter<edm::ParameterSet>("userIsolation") : edm::ParameterSet(), consumesCollector(), false) ,
+  addEfficiencies_(iConfig.getParameter<bool>("addEfficiencies")),
+  addResolutions_(iConfig.getParameter<bool>( "addResolutions" )),
+  useUserData_(iConfig.exists("userData"))
+  
+{ 
   // MC matching configurables (scheduled mode)
-  addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
+  
   if (addGenMatch_) {
-    embedGenMatch_ = iConfig.getParameter<bool>( "embedGenMatch" );
     if (iConfig.existsAs<edm::InputTag>("genParticleMatch")) {
       genMatchTokens_.push_back(consumes<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>( "genParticleMatch" )));
     }
@@ -93,12 +101,10 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
     }
   }
   // resolution configurables
-  addResolutions_ = iConfig.getParameter<bool>( "addResolutions" );
   if (addResolutions_) {
     resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
   // electron ID configurables
-  addElecID_ = iConfig.getParameter<bool>( "addElectronID" );
   if (addElecID_) {
     // it might be a single electron ID
     if (iConfig.existsAs<edm::InputTag>("electronIDSource")) {
@@ -156,7 +162,6 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   // read isolation value labels for non PF identified electron, for direct embedding
   readIsolationLabels(iConfig, "isolationValuesNoPFId", isolationValueLabelsNoPFId_, isolationValueNoPFIdTokens_);
   // Efficiency configurables
-  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
@@ -164,12 +169,7 @@ PATElectronProducer::PATElectronProducer(const edm::ParameterSet & iConfig) :
   if ( useUserData_ ) {
     userDataHelper_ = PATUserDataHelper<Electron>(iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector());
   }
-  // embed high level selection variables?
-  embedHighLevelSelection_ = iConfig.getParameter<bool>("embedHighLevelSelection");
-  beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
-  if ( embedHighLevelSelection_ ) {
-    pvToken_ = consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("pvSrc"));
-  }
+  
   // produces vector of muons
   produces<std::vector<Electron> >();
   }

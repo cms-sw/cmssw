@@ -66,8 +66,8 @@ hiJetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
         deltaEtaRegion = cms.double( 0.30 ), 
         JetSrc = cms.InputTag( "hiJetsForCoreTracking" ),
         vertexSrc = cms.InputTag( "hiFirstStepGoodPrimaryVertices" ),
-        measurementTrackerName = cms.string( "MeasurementTrackerEvent" ),
-        howToUseMeasurementTracker = cms.double( -1.0 )
+        measurementTrackerName = cms.InputTag( "MeasurementTrackerEvent" ),
+        howToUseMeasurementTracker = cms.string( "Never" )
       )
 )
 hiJetCoreRegionalStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiJetCoreRegionalStepSeedLayers'
