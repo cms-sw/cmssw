@@ -17,13 +17,18 @@
 
 namespace reco {
   namespace exprEval {
-    class ParsedCutManagerBase {   
+
+    template<typename T, bool isLazy> class ParsedCutManager;
+
+    class ParsedCutManagerImpl {   
       typedef tbb::concurrent_unordered_map<std::string,void const*> FunctionMap;      
       
     public:
-      ParsedCutManagerBase();
+      template<typename T, bool isLazy> friend class ParsedCutManager;
 
-    protected:      
+      ParsedCutManagerImpl();
+    
+    private:      
       template<typename T> 
       reco::CutOnObject<T> const* const getFunction(const edm::TypeID& type, const std::string& func) const {
         std::cout << type << std::endl;
@@ -38,7 +43,7 @@ namespace reco {
 
       template<typename T> 
       reco::CutOnObject<T> const* const getFunction(const edm::ObjectWithDict& owd, const std::string& func) const {
-        std::cout << owd << std::endl;
+        std::cout << owd.dynamicType() << std::endl;
         return getFunction<T>(owd.dynamicType(),func);
       }
       
@@ -99,44 +104,55 @@ namespace reco {
         return static_cast<reco::CutOnObject<T> const*>(insert_result.first->second);
       }
       
-    private:      
-      static FunctionMap functions_;      
+      mutable FunctionMap functions_;
     };
 
-    ParsedCutManagerBase::FunctionMap ParsedCutManagerBase::functions_ = ParsedCutManagerBase::FunctionMap();
-
     template<typename T, bool lazy>
-    class ParsedCutManager : public ParsedCutManagerBase {
+    class ParsedCutManager {
     public:
-    ParsedCutManager() : ParsedCutManagerBase() {}
+    ParsedCutManager() {}
 
       reco::CutOnObject<T> const* const getFunction(const edm::TypeID& type, const std::string& func) const {
-        return this->template ParsedCutManagerBase::getFunction<T>(type,func);
+        return impl_.template getFunction<T>(type,func);
       }
       
       reco::CutOnObject<T> const* const getFunction(const edm::TypeWithDict& type, const std::string& func) const {
-        return this->template ParsedCutManagerBase::getFunction<T>(type,func);
+        return impl_.template getFunction<T>(type,func);
       }
-      
+
+      static ParsedCutManager<T,lazy> const* const get() {
+        static ParsedCutManager<T,lazy> instance;
+        return &instance;
+      } 
+
+    private:
+      const ParsedCutManagerImpl impl_;
     };
 
     template<typename T>
-    class ParsedCutManager<T,true> : public ParsedCutManagerBase {
+    class ParsedCutManager<T,true> {
     public:
-    ParsedCutManager() : ParsedCutManagerBase() {}
+    ParsedCutManager() {}
 
       reco::CutOnObject<T> const* const getFunction(const edm::TypeID& type, const std::string& func) const {
-        return this->template ParsedCutManagerBase::getFunction<T>(type,func);
+        return impl_.template getFunction<T>(type,func);
       }
       
       reco::CutOnObject<T> const* const getFunction(const edm::TypeWithDict& type, const std::string& func) const {
-        return this->template ParsedCutManagerBase::getFunction<T>(type,func);
+        return impl_.template getFunction<T>(type,func);
       }
 
       reco::CutOnObject<T> const* const getFunction(const edm::ObjectWithDict& type, const std::string& func) const {
-        return this->template ParsedCutManagerBase::getFunction<T>(type,func);
+        return impl_.template getFunction<T>(type,func);
       }
-      
+
+      static ParsedCutManager<T,true> const* const get() {
+        static ParsedCutManager<T,true> instance;
+        return &instance;
+      } 
+
+    private:
+      const ParsedCutManagerImpl impl_;      
     };
     
   }

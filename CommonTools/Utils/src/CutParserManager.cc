@@ -7,6 +7,6 @@
 
 namespace reco {
   namespace exprEval {     
-    ParsedCutManagerBase::ParsedCutManagerBase() {}
+    ParsedCutManagerImpl::ParsedCutManagerImpl() {}
   }
 }
