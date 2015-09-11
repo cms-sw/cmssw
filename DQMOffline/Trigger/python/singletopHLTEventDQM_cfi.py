@@ -51,16 +51,16 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
       ## when omitted monitor histograms for b-tagging will not be filled 
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("jetProbabilityBJetTags" ),
+           label = cms.InputTag("pfJetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
          trackCountingPur = cms.PSet(
-           label = cms.InputTag("trackCountingHighPurBJetTags" ),
+           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
            workingPoint = cms.double(3.41)
          ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-           workingPoint = cms.double(0.679)
+           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+           workingPoint = cms.double(0.890)
          )
        ),
     ),
@@ -188,16 +188,16 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
       ## when omitted monitor histograms for b-tagging will not be filled  
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("jetProbabilityBJetTags" ),
+           label = cms.InputTag("pfJetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
          trackCountingPur = cms.PSet(
-           label = cms.InputTag("trackCountingHighPurBJetTags" ),
+           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
            workingPoint = cms.double(3.41)
          ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-           workingPoint = cms.double(0.679)
+           label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+           workingPoint = cms.double(0.890)
          )
        ),
     ),
