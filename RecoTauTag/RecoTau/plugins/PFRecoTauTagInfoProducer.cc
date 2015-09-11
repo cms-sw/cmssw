@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,13 +32,13 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-class PFRecoTauTagInfoProducer : public EDProducer {
+class PFRecoTauTagInfoProducer : public edm::global::EDProducer<> {
  public:
   explicit PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig);
   ~PFRecoTauTagInfoProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&) override;
+  virtual void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
  private:
-  PFRecoTauTagInfoAlgorithm* PFRecoTauTagInfoAlgo_;
+  std::unique_ptr<const PFRecoTauTagInfoAlgorithm> PFRecoTauTagInfoAlgo_;
   edm::InputTag PFCandidateProducer_;
   edm::InputTag PFJetTracksAssociatorProducer_;
   edm::InputTag PVProducer_;
@@ -59,17 +59,16 @@ PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iCon
   smearedPVsigmaX_                    = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_                    = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_                    = iConfig.getParameter<double>("smearedPVsigmaZ");	
-  PFRecoTauTagInfoAlgo_=new PFRecoTauTagInfoAlgorithm(iConfig);
+  PFRecoTauTagInfoAlgo_.reset( new PFRecoTauTagInfoAlgorithm(iConfig) );
   PFCandidate_token = consumes<PFCandidateCollection>(PFCandidateProducer_);
   PFJetTracksAssociator_token = consumes<JetTracksAssociationCollection>(PFJetTracksAssociatorProducer_);
   PV_token = consumes<VertexCollection>(PVProducer_);
   produces<PFTauTagInfoCollection>();      
 }
 PFRecoTauTagInfoProducer::~PFRecoTauTagInfoProducer(){
-  delete PFRecoTauTagInfoAlgo_;
 }
 
-void PFRecoTauTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<JetTracksAssociationCollection> thePFJetTracksAssociatorCollection;
   iEvent.getByToken(PFJetTracksAssociator_token,thePFJetTracksAssociatorCollection);
   // *** access the PFCandidateCollection in the event in order to retrieve the PFCandidateRefVector which constitutes each PFJet

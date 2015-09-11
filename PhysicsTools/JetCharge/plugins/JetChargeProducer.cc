@@ -6,7 +6,7 @@ algo_(cfg) {
     produces<JetChargeCollection>();
 }
 
-void JetChargeProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void JetChargeProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::EventSetup &iSetup) const {
     edm::Handle<reco::JetTracksAssociationCollection> hJTAs;
     iEvent.getByToken(srcToken_, hJTAs);
     typedef reco::JetTracksAssociationCollection::const_iterator IT;
