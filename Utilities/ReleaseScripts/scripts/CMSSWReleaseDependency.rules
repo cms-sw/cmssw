@@ -62,6 +62,7 @@ OnlineDB/SiStripESSources/.*            : oracle.*
 OnlineDB/SiStripConfigDb/.*             : oracle.*
 DQM/EcalBarrelMonitorClient/.*          : oracle.*
 DQM/EcalEndcapMonitorClient/.*          : oracle.*
+DQM/EcalMonitorDbModule/.*              : oracle.*
 DQM/SiStripCommissioningDbClients/.*    : oracle.*
 CalibTracker/SiStripDCS/.*              : oracle.*
 CalibCalorimetry/EcalPedestalOffsets/.* : oracle.*
