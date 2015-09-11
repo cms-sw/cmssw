@@ -16,6 +16,6 @@ candidateCombinedMVAV2Computer = cms.ESProducer("CombinedMVAV2JetTagESProducer",
 	useCondDB = cms.bool(False),
 	gbrForestLabel = cms.string("btag_CombinedMVAv2_BDT"),
 	useGBRForest = cms.bool(True),
-	useAdaBoost = cms.bool(True),
+	useAdaBoost = cms.bool(False),
 	weightFile = cms.FileInPath('RecoBTag/Combined/data/CombinedMVAV2_13_07_2015.weights.xml.gz')
 )
