@@ -1,0 +1,2 @@
+
+ALGO_RADIUS_HiGenJetsCleaned = heavyIonCleanedGenJets.clone( src = cms.InputTag('ALGO_RADIUS_HiGenJets') )
