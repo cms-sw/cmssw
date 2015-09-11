@@ -174,30 +174,30 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
 void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
 {
   // group sensitive detectors by their DetLayer
-  std::vector<int> group( track.m_detectors.size() );
-  for (unsigned int i = 0; i < track.m_detectors.size(); ++i)
-    group[i] = findLayer( track.m_detectors[i] );
+  std::vector<int> group( track.detectors().size() );
+  for (unsigned int i = 0; i < track.detectors().size(); ++i)
+    group[i] = findLayer( track.detectors()[i] );
 
-  unsigned int detectors = track.m_detectors.size();
+  unsigned int detectors = track.detectors().size();
   if (detectors == 0) {
     // the track doesn't cross any active detector:
     // keep al material as unassigned
     if (m_plotter)
-      for (unsigned int i = 1; i < track.m_steps.size(); ++i)
-        m_plotter->plotSegmentUnassigned( track.m_steps[i] );
+      for (unsigned int i = 1; i < track.steps().size(); ++i)
+        m_plotter->plotSegmentUnassigned( track.steps()[i] );
   } else {
     const double TOLERANCE = 0.0001;    // 1 um tolerance
     std::vector<double> limits(detectors + 2);
 
     // define the trivial limits
     if (m_skipBeforeFirstDetector)
-      limits[0] = track.m_detectors[0].m_curvilinearIn - TOLERANCE;
+      limits[0] = track.detectors()[0].m_curvilinearIn - TOLERANCE;
     else
       limits[0] = - TOLERANCE;
     if (m_skipAfterLastDetector)
-      limits[detectors] = track.m_detectors[detectors-1].m_curvilinearOut + TOLERANCE;
+      limits[detectors] = track.detectors()[detectors-1].m_curvilinearOut + TOLERANCE;
     else
-      limits[detectors] = track.m_total.length() + TOLERANCE;
+      limits[detectors] = track.summary().length() + TOLERANCE;
     limits[detectors+1] = INFINITY;     // this is probably no more needed, but doesn't harm...
 
     // pick the algorithm to define the non-trivial limits
@@ -206,21 +206,21 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
       // e.g. the material between pixel barrel 3 and TIB 1 will be split among the two
       case NEAREST_LAYER:
         for (unsigned int i = 1; i < detectors; ++i)
-          limits[i] = (track.m_detectors[i-1].m_curvilinearOut + track.m_detectors[i].m_curvilinearIn) / 2.;
+          limits[i] = (track.detectors()[i-1].m_curvilinearOut + track.detectors()[i].m_curvilinearIn) / 2.;
         break;
 
       // assign each segment to the the inner layer
       // e.g. all material between pixel barrel 3 and TIB 1 will go into the pixel barrel
       case INNER_LAYER:
         for (unsigned int i = 1; i < detectors; ++i)
-          limits[i] = track.m_detectors[i].m_curvilinearIn - TOLERANCE;
+          limits[i] = track.detectors()[i].m_curvilinearIn - TOLERANCE;
         break;
 
       // assign each segment to the the outer layer
       // e.g. all material between pixel barrel 3 and TIB 1 will go into the TIB
       case OUTER_LAYER:
         for (unsigned int i = 1; i < detectors; ++i)
-          limits[i] = track.m_detectors[i-1].m_curvilinearOut + TOLERANCE;
+          limits[i] = track.detectors()[i-1].m_curvilinearOut + TOLERANCE;
         break;
 
       case UNDEFINED:
@@ -239,7 +239,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     // skip the material before the first layer
     //std::cout << "before first layer, skipping" << std::endl;
     while (end < limits[0]) {
-      const MaterialAccountingStep & step = track.m_steps[i++];
+      const MaterialAccountingStep & step = track.steps()[i++];
       end = begin + step.length();
 
       // do not account material before the first layer
@@ -252,8 +252,8 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
     //std::cout << std::endl;
 
     unsigned int index = 0;     // which detector
-    while (i < track.m_steps.size()) {
-      const MaterialAccountingStep & step = track.m_steps[i++];
+    while (i < track.steps().size()) {
+      const MaterialAccountingStep & step = track.steps()[i++];
 
       end = begin + step.length();
 
@@ -278,7 +278,7 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
       //std::cout << '.';
       if (limits[index] <= begin and end <= limits[index+1]) {
         // step completely inside current detector range
-        track.m_detectors[index].account( step, begin, end );
+        track.detectors()[index].account( step, begin, end );
         if (m_plotter)
           m_plotter->plotSegmentInLayer( step, group[index] );
       } else {
@@ -300,14 +300,14 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
             m_plotter->plotSegmentUnassigned( parts.second );
         }
 
-        track.m_detectors[index].account( parts.first, begin, limits[index+1] );
+        track.detectors()[index].account( parts.first, begin, limits[index+1] );
         ++index;          // next layer
         //std::cout << '!' << std::endl;
         // std::cout << "next layer (" << index << "): "
         //           << " old det: " << group[index-1] << " new det: " << group[index]
         //           << " " << limits[index] << ".." << limits[index+1] << std::endl;
         if (index < detectors)
-          track.m_detectors[index].account( parts.second, limits[index+1], end );
+          track.detectors()[index].account( parts.second, limits[index+1], end );
       }
       begin = end;
     }
@@ -316,9 +316,9 @@ void TrackingMaterialAnalyser::split( MaterialAccountingTrack & track )
   //std::cout << std::endl;
 
   // add the material from each detector to its layer (if there is one and only one)
-  for (unsigned int i = 0; i < track.m_detectors.size(); ++i)
+  for (unsigned int i = 0; i < track.detectors().size(); ++i)
     if (group[i] != 0)
-      m_groups[group[i]-1]->addDetector( track.m_detectors[i] );
+      m_groups[group[i]-1]->addDetector( track.detectors()[i] );
 
   // end of track: commit internal buffers and reset the m_groups internal state for a new track
   for (unsigned int i = 0; i < m_groups.size(); ++i)
