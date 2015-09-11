@@ -41,18 +41,32 @@ void splitOptionRecursive(string rawoption, vector<string>& splitoptions, char d
   }
   if (remnant!="") splitoptions.push_back(remnant);
 }
-void MultiHistoOverlapAll_Z(string files, string labels, bool switchONfitEta = false, bool switchONfit = false){
+void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", string linestyles = "", bool switchONfit = false){
   gROOT->Reset();
   setTDRStyle();
 
   vector<string> strValidation_file;
   vector<string> strValidation_label;
+  vector<string> strValidation_color;
+  vector<string> strValidation_linestyle;
   splitOptionRecursive(files, strValidation_file, ',');
   splitOptionRecursive(labels, strValidation_label, ',');
+  splitOptionRecursive(colors, strValidation_color, ',');
+  splitOptionRecursive(linestyles, strValidation_linestyle, ',');
   int nfiles = strValidation_file.size();
   int nlabels = strValidation_label.size();
+  int ncolors = strValidation_color.size();
+  int nlinestyles = strValidation_linestyle.size();
   if (nlabels!=nfiles){
     cout << "nlabels!=nfiles" << endl;
+    return;
+  }
+  if (ncolors!=0 && ncolors!=nfiles){
+    cout << "ncolors!=nfiles" << endl;
+    return;
+  }
+  if (nlinestyles!=0 && nlinestyles!=nfiles){
+    cout << "nlinestyles!=nfiles" << endl;
     return;
   }
 
@@ -78,7 +92,7 @@ void MultiHistoOverlapAll_Z(string files, string labels, bool switchONfitEta = f
     hfit[c] = new TF1*[nfiles];
   }
 
-  for (int f=0; f<nfiles; f++) file[f] = new TFile((strValidation_file[f]).c_str(), "read");
+  for (int f=0; f<nfiles; f++) file[f] = TFile::Open((strValidation_file[f]).c_str(), "read");
 
   double minmax_plot[7][2]={ { 0 } };
   int pIndex;
@@ -208,7 +222,12 @@ void MultiHistoOverlapAll_Z(string files, string labels, bool switchONfitEta = f
       if (strValidation_label.at(f).find("reference")!=string::npos || strValidation_label.at(f).find("Reference")!=string::npos) histo[iP][f]->SetMarkerStyle(1);
       else histo[iP][f]->SetMarkerStyle(20);
 
-      if (f==0){
+      if (ncolors!=0){
+        int color = stoi(strValidation_color[f]);
+        histo[iP][f]->SetLineColor(color);
+        histo[iP][f]->SetMarkerColor(color);
+      }
+      else if (f==0){
         histo[iP][f]->SetLineColor(kBlack);
         histo[iP][f]->SetMarkerColor(kBlack);
       }
@@ -251,6 +270,11 @@ void MultiHistoOverlapAll_Z(string files, string labels, bool switchONfitEta = f
       else if (f==9){
         histo[iP][f]->SetLineColor(kGreen+3);
         histo[iP][f]->SetMarkerColor(kGreen+3);
+      }
+
+      if (nlinestyles!=0){
+        int linestyle = stoi(strValidation_linestyle[f]);
+        histo[iP][f]->SetLineStyle(linestyle);
       }
 
       if (iP==0) leg->AddEntry(histo[iP][f], (strValidation_label.at(f)).c_str(), "lp");
