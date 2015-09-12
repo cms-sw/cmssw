@@ -18,16 +18,71 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 namespace {
   // Cluster shapes
-  constexpr char sigmaIPhiIPhi_[] = "sigmaIPhiIPhi";
-  constexpr char sigmaIEtaIPhi_[] = "sigmaIEtaIPhi";
-  constexpr char e2x5Max_[] = "e2x5Max";
-  constexpr char e2x5Left_[] = "e2x5Left";
-  constexpr char e2x5Right_[] = "e2x5Right";
-  constexpr char e2x5Top_[] = "e2x5Top";
-  constexpr char e2x5Bottom_[] = "e2x5Bottom";
+  enum reg_float_vars { k_sigmaIPhiIPhi = 0,
+                        k_sigmaIEtaIPhi,
+                        k_e2x5Max,
+                        k_e2x5Left,
+                        k_e2x5Right,
+                        k_e2x5Top,
+                        k_e2x5Bottom,                        
+                        k_NFloatVars             };
+  
+  enum reg_int_vars { k_NIntVars = 0 };
+
+  static const std::vector<std::string> float_var_names( { "sigmaIPhiIPhi",
+                                                           "sigmaIEtaIPhi",
+                                                           "e2x5Max",
+                                                           "e2x5Left",
+                                                           "e2x5Right",
+                                                           "e2x5Top",
+                                                           "e2x5Bottom"      } );
+  
+  static const std::vector<std::string> integer_var_names( { } );
+
+  inline void set_map_val( const reg_float_vars index, const float value,
+                           std::unordered_map<std::string,float>& map) {
+    map[float_var_names[index]] = value;
+  }
+  inline void set_map_val( const reg_int_vars index, const int value,
+                           std::unordered_map<std::string,int>& map) {
+    map[integer_var_names[index]] = value;
+  }
+
+  template<typename T>
+  inline void check_map(const std::unordered_map<std::string,T>& map, unsigned exp_size) {
+    if( map.size() != exp_size ) {
+      throw cms::Exception("PhotonRegressionWeirdConfig")
+        << "variable map size: " << map.size() 
+        << " not equal to expected size: " << exp_size << " !"
+        << " The regression variable calculation code definitely has a bug, fix it!";
+    }
+  }
+
+  template<typename LazyTools,typename SeedType>
+  inline void calculateValues(EcalClusterLazyToolsBase* tools_tocast,
+                              const SeedType& the_seed,
+                              std::unordered_map<std::string,float>& float_vars,
+                              std::unordered_map<std::string,int>& /*int_vars*/ ) {
+    LazyTools* tools = static_cast<LazyTools*>(tools_tocast);
+    
+    float spp = -999;
+    std::vector<float> vCov = tools->localCovariances( the_seed );
+    spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
+    float sep = vCov[1];
+    
+    set_map_val(k_sigmaIPhiIPhi, spp, float_vars);
+    set_map_val(k_sigmaIEtaIPhi, sep, float_vars);
+    
+    set_map_val(k_e2x5Max,    tools->e2x5Max(the_seed),    float_vars);
+    set_map_val(k_e2x5Left,   tools->e2x5Left(the_seed),   float_vars);
+    set_map_val(k_e2x5Right,  tools->e2x5Right(the_seed),  float_vars);
+    set_map_val(k_e2x5Top,    tools->e2x5Top(the_seed),    float_vars);
+    set_map_val(k_e2x5Bottom, tools->e2x5Bottom(the_seed), float_vars);    
+  }
 }
 
 class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
@@ -43,9 +98,10 @@ class PhotonRegressionValueMapProducer : public edm::stream::EDProducer<> {
   
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
+  template<typename T>
   void writeValueMap(edm::Event &iEvent,
 		     const edm::Handle<edm::View<reco::Photon> > & handle,
-		     const std::vector<float> & values,
+		     const std::vector<T> & values,
 		     const std::string    & label) const ;
   
   // The object that will compute 5x5 quantities  
@@ -95,42 +151,17 @@ PhotonRegressionValueMapProducer::PhotonRegressionValueMapProducer(const edm::Pa
   // Declare producibles
   //
   // Cluster shapes
-  produces<edm::ValueMap<float> >(sigmaIPhiIPhi_);  
-  produces<edm::ValueMap<float> >(sigmaIEtaIPhi_);  
-  produces<edm::ValueMap<float> >(e2x5Max_);  
-  produces<edm::ValueMap<float> >(e2x5Left_);  
-  produces<edm::ValueMap<float> >(e2x5Right_);  
-  produces<edm::ValueMap<float> >(e2x5Top_);  
-  produces<edm::ValueMap<float> >(e2x5Bottom_);  
+  for( const std::string& name : float_var_names ) {
+    produces<edm::ValueMap<float> >(name);
+  }
+
+  for( const std::string& name : integer_var_names ) {
+    produces<edm::ValueMap<int> >(name);
+  }  
 }
 
 PhotonRegressionValueMapProducer::~PhotonRegressionValueMapProducer() 
 {}
-
-template<typename LazyTools,typename SeedType>
-inline void calculateValues(EcalClusterLazyToolsBase* tools_tocast,
-                            const SeedType& the_seed,
-                            std::vector<float>& sigmaIPhiIPhi,
-                            std::vector<float>& sigmaIEtaIPhi,
-                            std::vector<float>& e2x5Max,
-                            std::vector<float>& e2x5Left,
-                            std::vector<float>& e2x5Right,
-                            std::vector<float>& e2x5Top,
-                            std::vector<float>& e2x5Bottom) {
-  LazyTools* tools = static_cast<LazyTools*>(tools_tocast);
-  
-  float spp = -999;
-  std::vector<float> vCov = tools->localCovariances( the_seed );
-  spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
-  float sep = vCov[1];
-  sigmaIPhiIPhi.push_back(spp);
-  sigmaIEtaIPhi.push_back(sep);
-  e2x5Max   .push_back(tools->e2x5Max(the_seed) );
-  e2x5Left  .push_back(tools->e2x5Left(the_seed) );
-  e2x5Right .push_back(tools->e2x5Right(the_seed) );
-  e2x5Top   .push_back(tools->e2x5Top(the_seed) );
-  e2x5Bottom.push_back(tools->e2x5Bottom(the_seed) );  
-}
 
 void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
@@ -179,14 +210,11 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
     }
   }
   
-  // Cluster shapes
-  std::vector<float> sigmaIPhiIPhi;
-  std::vector<float> sigmaIEtaIPhi;
-  std::vector<float> e2x5Max;
-  std::vector<float> e2x5Left;
-  std::vector<float> e2x5Right;
-  std::vector<float> e2x5Top;
-  std::vector<float> e2x5Bottom;
+  std::vector<std::vector<float> > float_vars(k_NFloatVars);
+  std::vector<std::vector<int> > int_vars(k_NIntVars);
+  
+  std::unordered_map<std::string,float> float_vars_map;
+  std::unordered_map<std::string,int> int_vars_map;
   
   // reco::Photon::superCluster() is virtual so we can exploit polymorphism
   for (unsigned idxpho = 0; idxpho < src->size(); ++idxpho) {
@@ -200,47 +228,52 @@ void PhotonRegressionValueMapProducer::produce(edm::Event& iEvent, const edm::Ev
     if( use_full5x5_ ) {
       calculateValues<noZS::EcalClusterLazyTools>(lazyTools.get(),
                                                   theseed,
-                                                  sigmaIPhiIPhi,
-                                                  sigmaIEtaIPhi,
-                                                  e2x5Max,
-                                                  e2x5Left,
-                                                  e2x5Right,
-                                                  e2x5Top,
-                                                  e2x5Bottom);
+                                                  float_vars_map,
+                                                  int_vars_map);
     } else {
       calculateValues<EcalClusterLazyTools>(lazyTools.get(),
                                             theseed,
-                                            sigmaIPhiIPhi,
-                                            sigmaIEtaIPhi,
-                                            e2x5Max,
-                                            e2x5Left,
-                                            e2x5Right,
-                                            e2x5Top,
-                                            e2x5Bottom);
-    }   
+                                            float_vars_map,
+                                            int_vars_map);
+    }  
+    
+    check_map(float_vars_map, k_NFloatVars);
+    check_map(int_vars_map, k_NIntVars);
+    
+    for( unsigned i = 0; i < float_vars.size(); ++i ) {
+      float_vars[i].emplace_back(float_vars_map.at(float_var_names[i]));
+    }
+
+    
+    for( unsigned i = 0; i < int_vars.size(); ++i ) {
+      int_vars[i].emplace_back(int_vars_map.at(integer_var_names[i]));
+    }
+    
   }
   
-  // Cluster shapes
-  writeValueMap(iEvent, src, sigmaIPhiIPhi, sigmaIPhiIPhi_);  
-  writeValueMap(iEvent, src, sigmaIEtaIPhi, sigmaIEtaIPhi_);  
-  writeValueMap(iEvent, src, e2x5Max, e2x5Max_);  
-  writeValueMap(iEvent, src, e2x5Left, e2x5Left_);  
-  writeValueMap(iEvent, src, e2x5Right, e2x5Right_);  
-  writeValueMap(iEvent, src, e2x5Top, e2x5Top_);  
-  writeValueMap(iEvent, src, e2x5Bottom, e2x5Bottom_);  
-
+  for( unsigned i = 0; i < float_vars.size(); ++i ) {
+    writeValueMap(iEvent, src, float_vars[i], float_var_names[i]);
+  }  
+  
+  for( unsigned i = 0; i < int_vars.size(); ++i ) {
+    writeValueMap(iEvent, src, int_vars[i], integer_var_names[i]);
+  }
+  
   lazyTools.reset(nullptr);
 }
 
+template<typename T>
 void PhotonRegressionValueMapProducer::writeValueMap(edm::Event &iEvent,
 					     const edm::Handle<edm::View<reco::Photon> > & handle,
-					     const std::vector<float> & values,
+					     const std::vector<T> & values,
 					     const std::string    & label) const 
 {
   using namespace edm; 
   using namespace std;
-  auto_ptr<ValueMap<float> > valMap(new ValueMap<float>());
-  edm::ValueMap<float>::Filler filler(*valMap);
+  typedef ValueMap<T> TValueMap;
+  
+  auto_ptr<TValueMap> valMap(new TValueMap());
+  typename TValueMap::Filler filler(*valMap);
   filler.insert(handle, values.begin(), values.end());
   filler.fill();
   iEvent.put(valMap, label);
