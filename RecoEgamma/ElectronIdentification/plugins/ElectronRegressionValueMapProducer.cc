@@ -174,6 +174,9 @@ inline void calculateValues(EcalClusterLazyToolsBase* tools_tocast,
   const auto& the_sc  = iEle->superCluster();
   const auto& theseed = the_sc->seed();
   
+  const int numberOfClusters =  the_sc->clusters().size();
+  const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
+  
   std::vector<float> vCov = tools->localCovariances( *theseed );
   
   const float eMax = tools->eMax( *theseed );
@@ -215,11 +218,7 @@ inline void calculateValues(EcalClusterLazyToolsBase* tools_tocast,
   veleIEta.push_back(iEta);
   veleCryPhi.push_back(cryPhi);
   veleCryEta.push_back(cryEta);
-  
-    // loop over all clusters that aren't the seed
-  auto clusend = the_sc->clustersEnd();
-  int numberOfClusters =  the_sc->clusters().size();
-  
+    
   std::vector<float> _clusterRawEnergy;
   _clusterRawEnergy.resize(std::max(3, numberOfClusters), 0);
   std::vector<float> _clusterDEtaToSeed;
@@ -234,25 +233,28 @@ inline void calculateValues(EcalClusterLazyToolsBase* tools_tocast,
   size_t iclus = 0;
   float maxDR = 0;
   edm::Ptr<reco::CaloCluster> pclus;
-  for( auto clus = the_sc->clustersBegin(); clus != clusend; ++clus ) {
-    pclus = *clus;
-    
-    if(theseed == pclus ) 
-      continue;
-    _clusterRawEnergy.push_back(pclus->energy());
-    _clusterDPhiToSeed.push_back(reco::deltaPhi(pclus->phi(),theseed->phi()));
-    _clusterDEtaToSeed.push_back(pclus->eta() - theseed->eta());
-    
-    // find cluster with max dR
-    if(reco::deltaR(*pclus, *theseed) > maxDR) {
-      maxDR = reco::deltaR(*pclus, *theseed);
-      _clusterMaxDR = maxDR;
-      _clusterMaxDRDPhi = _clusterDPhiToSeed[iclus];
-      _clusterMaxDRDEta = _clusterDEtaToSeed[iclus];
-      _clusterMaxDRRawEnergy = _clusterRawEnergy[iclus];
+  if( !missing_clusters ) {
+    // loop over all clusters that aren't the seed  
+    auto clusend = the_sc->clustersEnd();
+    for( auto clus = the_sc->clustersBegin(); clus != clusend; ++clus ) {
+      pclus = *clus;
+      
+      if(theseed == pclus ) 
+        continue;
+      _clusterRawEnergy.push_back(pclus->energy());
+      _clusterDPhiToSeed.push_back(reco::deltaPhi(pclus->phi(),theseed->phi()));
+      _clusterDEtaToSeed.push_back(pclus->eta() - theseed->eta());
+      
+      // find cluster with max dR
+      if(reco::deltaR(*pclus, *theseed) > maxDR) {
+        maxDR = reco::deltaR(*pclus, *theseed);
+        _clusterMaxDR = maxDR;
+        _clusterMaxDRDPhi = _clusterDPhiToSeed[iclus];
+        _clusterMaxDRDEta = _clusterDEtaToSeed[iclus];
+        _clusterMaxDRRawEnergy = _clusterRawEnergy[iclus];
+      }      
+      ++iclus;
     }
-    
-    ++iclus;
   }
   
   vclusterMaxDR.push_back(_clusterMaxDR);
