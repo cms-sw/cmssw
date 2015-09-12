@@ -23,21 +23,19 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 inputFilesAOD = cms.untracked.vstring(
-    # AOD test files from /store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU25ns_76X_mcRun2_asymptotic_v1-v1
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/3ADB5D32-DD4F-E511-AC01-002618943811.root',
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/54B6CF34-DD4F-E511-9629-002590596490.root',
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/8043D96A-6C4F-E511-81E7-003048FFD736.root',
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/8E554BD2-6D4F-E511-BFD2-0025905A60DE.root',
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/98EB5C3F-6D4F-E511-910B-0025905A6056.root',
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/9C8CF66A-6C4F-E511-BD02-00259059391E.root',
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/D015FB85-6C4F-E511-88FE-002618943902.root',
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/GEN-SIM-RECO/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/D873CC62-6C4F-E511-ABBA-0025905B855E.root'
+    # AOD test files from /store/relval/CMSSW_7_5_2/RelValZEE_13/GEN-SIM-RECO/PU25ns_75X_mcRun2_asymptotic_v5-v1    
+    '/store/relval/CMSSW_7_5_2/RelValZEE_13/GEN-SIM-RECO/PU25ns_75X_mcRun2_asymptotic_v5-v1/00000/1A6B8B4F-9F50-E511-BF72-002354EF3BDC.root',
+    '/store/relval/CMSSW_7_5_2/RelValZEE_13/GEN-SIM-RECO/PU25ns_75X_mcRun2_asymptotic_v5-v1/00000/140FBD4D-9F50-E511-8E4E-0025905A613C.root',
+    '/store/relval/CMSSW_7_5_2/RelValZEE_13/GEN-SIM-RECO/PU25ns_75X_mcRun2_asymptotic_v5-v1/00000/428EF54E-9F50-E511-892C-0026189438E4.root',
+    '/store/relval/CMSSW_7_5_2/RelValZEE_13/GEN-SIM-RECO/PU25ns_75X_mcRun2_asymptotic_v5-v1/00000/7A12234C-9F50-E511-B160-002618943986.root',
+    '/store/relval/CMSSW_7_5_2/RelValZEE_13/GEN-SIM-RECO/PU25ns_75X_mcRun2_asymptotic_v5-v1/00000/9C439950-9F50-E511-93D8-00261894398B.root',
+    '/store/relval/CMSSW_7_5_2/RelValZEE_13/GEN-SIM-RECO/PU25ns_75X_mcRun2_asymptotic_v5-v1/00000/E4438E4F-9F50-E511-9800-002354EF3BDC.root'    
     )    
 
 inputFilesMiniAOD = cms.untracked.vstring(
-    # MiniAOD test files from /store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/MINIAODSIM/PU25ns_76X_mcRun2_asymptotic_v1-v1
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/MINIAODSIM/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/BE21962F-DD4F-E511-B681-002354EF3BDF.root',
-    '/store/relval/CMSSW_7_6_0_pre4/RelValZEE_13/MINIAODSIM/PU25ns_76X_mcRun2_asymptotic_v1-v1/00000/D2B5E032-DD4F-E511-96A4-0025905A610C.root'
+    # MiniAOD test files from /store/relval/CMSSW_7_5_2/RelValZEE_13/MINIAODSIM/PU25ns_75X_mcRun2_asymptotic_v5-v1
+    '/store/relval/CMSSW_7_5_2/RelValZEE_13/MINIAODSIM/PU25ns_75X_mcRun2_asymptotic_v5-v1/00000/5898DE4A-9F50-E511-8E2B-0026189438AF.root',
+    '/store/relval/CMSSW_7_5_2/RelValZEE_13/MINIAODSIM/PU25ns_75X_mcRun2_asymptotic_v5-v1/00000/6CCF8C4C-9F50-E511-A3AF-0025905A48D0.root'
     )
 
 # Set up input/output depending on the format
