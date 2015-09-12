@@ -70,7 +70,7 @@ RecoEgammaRECO = cms.PSet(
         'keep *_gedPhotonCore_*_*',
         'keep *_gedPhotons_*_*',
         'keep *_particleBasedIsolation_*_*',
-        'keep *_gedPhotonsTmp_*_*',        
+        #'keep *_gedPhotonsTmp_*_*',        
         'keep recoPhotons_mustachePhotons_*_*',
         'keep recoPhotonCores_mustachePhotonCore_*_*',
         'keep recoPhotons_photons_*_*',
