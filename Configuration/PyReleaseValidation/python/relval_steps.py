@@ -1,118 +1,4 @@
-class Matrix(dict):
-    def __setitem__(self,key,value):
-        if key in self:
-            print "ERROR in Matrix"
-            print "overwritting",key,"not allowed"
-        else:
-            self.update({float(key):WF(float(key),value)})
-
-    def addOverride(self,key,override):
-        self[key].addOverride(override)
-            
-#the class to collect all possible steps
-class Steps(dict):
-    def __setitem__(self,key,value):
-        if key in self:
-            print "ERROR in Step"
-            print "overwritting",key,"not allowed"
-            import sys
-            sys.exit(-9)
-        else:
-            self.update({key:value})
-            # make the python file named <step>.py
-            #if not '--python' in value:                self[key].update({'--python':'%s.py'%(key,)})
-
-    def overwrite(self,keypair):
-        value=self[keypair[1]]
-        self.update({keypair[0]:value})
-        
-class WF(list):
-    def __init__(self,n,l):
-        self.extend(l)
-        self.num=n
-        #the actual steps of this WF
-        self.steps=[]
-        self.overrides={}
-    def addOverride(self,overrides):
-        self.overrides=overrides
-        
-    def interpret(self,stepsDict):
-        for s in self:
-            print 'steps',s,stepsDict[s]
-            steps.append(stepsDict[s])
-
-    
-InputInfoNDefault=2000000    
-class InputInfo(object):
-    def __init__(self,dataSet,label='',run=[],files=1000,events=InputInfoNDefault,split=10,location='CAF',ib_blacklist=None,ib_block=None) :
-        self.run = run
-        self.files = files
-        self.events = events
-        self.location = location
-        self.label = label
-        self.dataSet = dataSet
-        self.split = split
-        self.ib_blacklist = ib_blacklist
-        self.ib_block = ib_block
-        
-    def das(self, das_options):
-        if len(self.run) is not 0:
-            command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()])
-            command = "({0})".format(command)
-        else:
-            command = "das_client.py %s --query '%s'" % (das_options, self.queries()[0])
-       
-        # Run filter on DAS output 
-        if self.ib_blacklist:
-            command += " | grep -E -v "
-            command += " ".join(["-e '{0}'".format(pattern) for pattern in self.ib_blacklist])
-        command += " | sort -u"
-        return command
-
-    def lumiRanges(self):
-        if len(self.run) != 0:
-            return "echo '{\n"+",".join(('"%d":[[1,268435455]]\n'%(x,) for x in self.run))+"}'"
-        return None
-
-    def queries(self):
-        query_by = "block" if self.ib_block else "dataset"
-        query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
-        if len(self.run) is not 0:
-            return ["file {0}={1} run={2} site=T2_CH_CERN".format(query_by, query_source, query_run) for query_run in self.run]
-        else:
-            return ["file {0}={1} site=T2_CH_CERN".format(query_by, query_source)]
-
-    def __str__(self):
-        if self.ib_block:
-            return "input from: {0} with run {1}#{2}".format(self.dataSet, self.ib_block, self.run)
-        return "input from: {0} with run {1}".format(self.dataSet, self.run)
-    
-# merge dictionaries, with prioty on the [0] index
-def merge(dictlist,TELL=False):
-    import copy
-    last=len(dictlist)-1
-    if TELL: print last,dictlist
-    if last==0:
-        # ONLY ONE ITEM LEFT
-        return copy.copy(dictlist[0])
-    else:
-        reducedlist=dictlist[0:max(0,last-1)]
-        if TELL: print reducedlist
-        # make a copy of the last item
-        d=copy.copy(dictlist[last])
-        # update with the last but one item
-        d.update(dictlist[last-1])
-        # and recursively do the rest
-        reducedlist.append(d)
-        return merge(reducedlist,TELL)
-
-def remove(d,key,TELL=False):
-    import copy
-    e = copy.deepcopy(d)
-    if TELL: print "original dict, BEF: %s"%d
-    del e[key]
-    if TELL: print "copy-removed dict, AFT: %s"%e
-    return e
+from MatrixUtil import *
 
 # step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
@@ -246,13 +132,28 @@ steps['ZMuSkim2012D']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012D-ZMu-PromptS
 steps['WElSkim2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-WElectron-PromptSkim-v1/USER',label='wEl2012D',location='STD',run=Run2012Dsk)}
 steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElectron-PromptSkim-v1/RAW-RECO',label='zEl2012D',location='STD',run=Run2012Dsk)}
 
-#### Standard release validation samples ####
+#### run2 2015B ####
+# Run2015B=[251642] #  251561 251638 251642
+Run2015B=selectedLS([251251])
+steps['RunHLTPhy2015B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015B-v1/RAW',label='hltPhy2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleEG2015B']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015B-v1/RAW',label='doubEG2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunDoubleMuon2015B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015B-v1/RAW',label='doubMu2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunJetHT2015B']={'INPUT':InputInfo(dataSet='/JetHT/Run2015B-v1/RAW',label='jetHT2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMET2015B']={'INPUT':InputInfo(dataSet='/MET/Run2015B-v1/RAW',label='met2015B',events=100000,location='STD', ls=Run2015B)}
+steps['RunMuonEG2015B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015B-v1/RAW',label='muEG2015B',events=100000,location='STD', ls=Run2015B)}
+ 
+#### run2 2015C ####
+# Run2015C, 25ns: 254790 (852 LS and 65 files), 254852 (126 LS and 5 files), 254879 (178 LS and 11 files)
+Run2015C=selectedLS([254790])
+steps['RunHLTPhy2015C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015C-v1/RAW',label='hltPhy2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleEG2015C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015C-v1/RAW',label='doubEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleMuon2015C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015C-v1/RAW',label='doubMu2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunJetHT2015C']={'INPUT':InputInfo(dataSet='/JetHT/Run2015C-v1/RAW',label='jetHT2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMET2015C']={'INPUT':InputInfo(dataSet='/MET/Run2015C-v1/RAW',label='met2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMuonEG2015C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015C-v1/RAW',label='muEG2015C',events=100000,location='STD', ls=Run2015C)}
+#
 
-stCond={'--conditions':'auto:run1_mc'}
-def Kby(N,s):
-    return {'--relval':'%s000,%s'%(N,s)}
-def Mby(N,s):
-    return {'--relval':'%s000000,%s'%(N,s)}
+
 
 def gen(fragment,howMuch):
     global step1Defaults
@@ -581,23 +482,6 @@ steps['ZMM_13_HI']=merge([hiDefaults,steps['ZMM_13']])
 steps['ZEEMM_13_HI']=merge([hiDefaults,steps['ZEEMM_13']])
 
 
-def changeRefRelease(steps,listOfPairs):
-    for s in steps:
-        if ('INPUT' in steps[s]):
-            oldD=steps[s]['INPUT'].dataSet
-            for (ref,newRef) in listOfPairs:
-                if  ref in oldD:
-                    steps[s]['INPUT'].dataSet=oldD.replace(ref,newRef)
-        if '--pileup_input' in steps[s]:
-            for (ref,newRef) in listOfPairs:
-                if ref in steps[s]['--pileup_input']:
-                    steps[s]['--pileup_input']=steps[s]['--pileup_input'].replace(ref,newRef)
-        
-def addForAll(steps,d):
-    for s in steps:
-        steps[s].update(d)
-
-
 
 #### fastsim section ####
 ##no forseen to do things in two steps GEN-SIM then FASTIM->end: maybe later
@@ -692,19 +576,6 @@ step1LHEDefaults=merge([{'-s':'LHE',
                          '--conditions':'auto:run2_mc_FULL'                         
                          },
                         step1Defaults])
-
-
-def genvalid(fragment,d,suffix='all',fi='',dataSet=''):
-    import copy
-    c=copy.copy(d)
-    if suffix:
-        c['-s']=c['-s'].replace('genvalid','genvalid_'+suffix)
-    if fi:
-        c['--filein']='lhe:%d'%(fi,)
-    if dataSet:
-        c['--filein']='das:%s'%(dataSet,)
-    c['cfg']=fragment
-    return c
 
 
 
@@ -903,6 +774,25 @@ steps['HLTD']=merge([{'--process':'reHLT',
                       },])
 steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps['HLTD']])
 
+
+hltKey50ns='relval50ns'
+menuR250ns = autoHLT[hltKey50ns]
+# no GT customization for HLT frozen50ns
+steps['HLTDR250ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+
+hltKey25ns='relval25ns'
+menuR225ns = autoHLT[hltKey25ns]
+# no GT customization for HLT frozen25ns
+steps['HLTDR225ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+
+ 
+# custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
+steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataReco])
+steps['RECODR250ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common',},dataReco])
+steps['RECODR225ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},dataReco])
+
+
+
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODAlCaEle']=merge([{'--scenario':'pp',},dataRecoAlCaEle])
 
@@ -1006,6 +896,10 @@ steps['RECOUP15AlCaEle']=merge([step3Up2015DefaultsAlCaEle]) # todo: remove UP f
 
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
 steps['RECODreHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaEle']])
+
+steps['RECODR225nsreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR225ns']])
+steps['RECODR250nsreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR250ns']])
+
 
 steps['RECO']=merge([step3Defaults])
 steps['RECOAlCaEle']=merge([step3DefaultsAlCaEle])
@@ -1170,6 +1064,7 @@ steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--scenario':'pp'}
 
 steps['HARVESTDreHLT'] = merge([ {'--conditions':'auto:run1_data_%s'%menu}, steps['HARVESTD'] ])
+steps['HARVESTDR2reHLT'] = merge([ {'--conditions':'auto:run2_data',}, steps['HARVESTD'] ])
 
 steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'},steps['HARVESTD']])
 
