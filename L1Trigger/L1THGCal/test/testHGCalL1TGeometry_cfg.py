@@ -64,6 +64,7 @@ process.TFileService = cms.Service(
     )
 
 
+
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -124,6 +125,6 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023HGCalM
 process = cust_2023HGCalMuon(process)
 
 # End of customisation functions
-
+process.ProfilerService = cms.Service("ProfilerService", firstEvent=cms.untracked.int32(0), lastEvent=cms.untracked.int32(2), paths=cms.untracked.vstring(["test_step"]))
 
 

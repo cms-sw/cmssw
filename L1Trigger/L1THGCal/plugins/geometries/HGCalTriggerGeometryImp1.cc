@@ -37,7 +37,6 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
     // FIXME: !!!Only for HGCEE for the moment!!!
     edm::LogWarning("HGCalTriggerGeometry") << "WARNING: This HGCal trigger geometry is incomplete.\n"\
                                             << "WARNING: Only the EE part is covered.\n"\
-                                            << "WARNING: The module mapping is only valid in the first layer.\n"\
                                             << "WARNING: There is no neighbor information.\n";
 
     //
@@ -71,14 +70,16 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
             }
         }
     }
+    if(!l1tCellsMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TCellsMapping'"<<layer<<" "<<cell<<" "<<triggercell<<" "<<subsector<<"' \n";
     l1tCellsMappingStream.close();
     //
     // read module mapping file
     std::ifstream l1tModulesMappingStream(l1tModulesMapping_.fullPath());
     if(!l1tModulesMappingStream.is_open()) edm::LogError("HGCalTriggerGeometry") << "Cannot open L1TModulesMapping file\n";
+    layer = 0;
     triggercell = 0;
     short module      = 0;
-    for(; l1tModulesMappingStream>>triggercell>>module; )
+    for(; l1tModulesMappingStream>>layer>>triggercell>>module; )
     {
         // Loop on all sectors, layers
         // FIXME:  Number of sectors in each zside should not be hardcoded
@@ -87,18 +88,16 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
             int zside = (z==0 ? -1 : 1);
             for(unsigned sector=1; sector<=18; sector++)
             {
-                for(unsigned layer=1; layer<=30; layer++)
-                {
-                    // FIXME: Use temporarily HGCEEDetId to compute trigger cell id
-                    HGCEEDetId triggerDetid(HGCEE, zside, layer, sector, 1, triggercell); // Dummy subsector
-                    // FIXME: Use temporarily HGCEEDetId to compute module
-                    HGCEEDetId moduleDetid(HGCEE, zside, layer, sector, 1, module); // Dummy subsector
-                    const auto& ret = trigger_cells_to_modules_.insert( std::make_pair(triggerDetid, moduleDetid) );
-                    if(!ret.second) edm::LogWarning("HGCalTriggerGeometry") << "Duplicate cell in L1TModulesMapping\n";
-                }
+                // FIXME: Use temporarily HGCEEDetId to compute trigger cell id
+                HGCEEDetId triggerDetid(HGCEE, zside, layer, sector, 1, triggercell); // Dummy subsector
+                // FIXME: Use temporarily HGCEEDetId to compute module
+                HGCEEDetId moduleDetid(HGCEE, zside, layer, sector, 1, module); // Dummy subsector
+                const auto& ret = trigger_cells_to_modules_.insert( std::make_pair(triggerDetid, moduleDetid) );
+                if(!ret.second) edm::LogWarning("HGCalTriggerGeometry") << "Duplicate cell "<<triggercell<<" in L1TModulesMapping\n";
             }
         }
     }
+    if(!l1tModulesMappingStream.eof()) edm::LogWarning("HGCalTriggerGeometry") << "Error reading L1TModulesMapping '"<<triggercell<<" "<<module<<"' \n";
     l1tModulesMappingStream.close();
     //
     // Build trigger cells and fill map

@@ -23,6 +23,8 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
+#include <stdlib.h> 
+
 namespace 
 {  
   template<typename T>
@@ -347,7 +349,7 @@ void HGCalTriggerGeomTester::analyze(const edm::Event& e,
 			      const edm::EventSetup& es) 
 /*****************************************************************/
 {
-    // dummy event loop
+
 }
 
 
