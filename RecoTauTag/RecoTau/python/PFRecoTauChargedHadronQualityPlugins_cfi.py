@@ -12,15 +12,15 @@ Author: Chriastian Veelken, LLR
 isChargedPFCandidate = cms.PSet(
     name = cms.string('ChargedPFCandidate'),
     plugin = cms.string('PFRecoTauChargedHadronStringQuality'),
-    selection = cms.string("algoIs('kChargedPFCandidate')"),
+    selection = cms.string("obj.algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate)"),
     selectionPassFunction = cms.string("-pt"), # CV: give preference to highest Pt candidate
     selectionFailValue = cms.double(1.e+3)
 )
 
 isTrack = isChargedPFCandidate.clone(
-    selection = cms.string("algoIs('kTrack')")
+    selection = cms.string("obj.algoIs(reco::PFRecoTauChargedHadron::kTrack)")
 )
 
 isPFNeutralHadron = isChargedPFCandidate.clone(
-    selection = cms.string("algoIs('kPFNeutralHadron')")
+    selection = cms.string("obj.algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron)")
 )

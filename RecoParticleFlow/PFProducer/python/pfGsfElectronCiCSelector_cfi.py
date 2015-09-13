@@ -4,7 +4,7 @@ from RecoEgamma.ElectronIdentification.cutsInCategoriesElectronIdentificationV06
 
 electronsWithPresel = cms.EDFilter("GsfElectronSelector",
                                    src = cms.InputTag("ecalDrivenGsfElectrons"),
-                                   cut = cms.string("pt > 10 && ecalDrivenSeed && passingCutBasedPreselection"),
+                                   cut = cms.string("obj.pt() > 10 && obj.ecalDrivenSeed() && obj.passingCutBasedPreselection()"),
                                    )
 
 electronsCiCLoose = cms.EDFilter("EleIdCutBased",

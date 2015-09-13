@@ -9,7 +9,7 @@ ak4PFJetsLegacyHPSPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     massHypothesis = cms.double(0.136),
-    outputSelection = cms.string('pt > 0'),
+    outputSelection = cms.string('obj.pt() > 0'),
     builders = cms.VPSet(
         #builders.strips
         #builders.modStrips
@@ -24,7 +24,7 @@ ak4PFJetsLegacyHPSPiZeros = cms.EDProducer(
 ak4PFJetsRecoTauGreedyPiZeros = ak4PFJetsLegacyHPSPiZeros.clone( 
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     massHypothesis = cms.double(0.136),
-    outputSelection = cms.string('pt > 1.5'),
+    outputSelection = cms.string('obj.pt() > 1.5'),
     builders = cms.VPSet(
         builders.comboStrips
     ),
@@ -36,7 +36,7 @@ ak4PFJetsRecoTauGreedyPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
 ak4PFJetsRecoTauPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     massHypothesis = cms.double(0.136),
-    outputSelection = cms.string('pt > 1.5'),
+    outputSelection = cms.string('obj.pt() > 1.5'),
     builders = cms.VPSet(
         builders.combinatoricPhotonPairs,
         #builders.strips
@@ -53,7 +53,7 @@ ak4PFJetsRecoTauPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
 ak4PFJetsLegacyTaNCPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
     massHypothesis = cms.double(0.136),
-    outputSelection = cms.string('pt > 1.5'),
+    outputSelection = cms.string('obj.pt() > 1.5'),
     builders = cms.VPSet(
         builders.allSinglePhotons,
         builders.combinatoricPhotonPairs

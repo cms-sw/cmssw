@@ -76,7 +76,7 @@ fixedGridRhoFastjetCentralNeutral = fixedGridRhoFastjetAll.clone(
 
 ak8PFJetsCHSConstituents = cms.EDFilter("PFJetConstituentSelector",
                                         src = cms.InputTag("ak8PFJetsCHS"),
-                                        cut = cms.string("pt > 100.0 && abs(rapidity()) < 2.4")
+                                        cut = cms.string("obj.pt() > 100.0 && std::abs(obj.rapidity()) < 2.4")
                                         )
 
 
