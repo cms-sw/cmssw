@@ -12,7 +12,9 @@ RecoHiEgammaFEVT = cms.PSet(
     "keep recoGsfElectrons_*_*_*",
     'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducer_*_*',
     'keep recoPhotons_gedPhotonsTmp_*_*',
-    'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerGED_*_*'
+    'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerGED_*_*',
+    'keep recoElectronSeeds_ecalDrivenElectronSeeds_*_*',
+    'keep recoTrackExtras_electronGsfTracks_*_*'
     )
     )
 
@@ -28,7 +30,9 @@ RecoHiEgammaRECO = cms.PSet(
     "keep recoGsfElectrons_*_*_*",
     'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducer_*_*',
     'keep recoPhotons_gedPhotonsTmp_*_*',
-    'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerGED_*_*'
+    'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerGED_*_*',
+    'keep recoElectronSeeds_ecalDrivenElectronSeeds_*_*',
+     'keep recoTrackExtras_electronGsfTracks_*_*'
     )
     )
 
@@ -40,6 +44,8 @@ RecoHiEgammaAOD = cms.PSet(
     'keep recoSuperClusters_correctedIslandEndcapSuperClusters_*_*',
     'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducer_*_*',
     'keep recoPhotons_gedPhotonsTmp_*_*',
-    'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerGED_*_*'
+    'keep recoHIPhotonIsolationedmValueMap_photonIsolationHIProducerGED_*_*',
+    'keep recoElectronSeeds_ecalDrivenElectronSeeds_*_*',
+    'keep recoTrackExtras_electronGsfTracks_*_*'
     )
     )

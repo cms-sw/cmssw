@@ -97,8 +97,8 @@ process.patJetsAK4Calo.useLegacyJetMCFlavour=True # Need to use legacy flavour s
 #                                         ##
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM
-#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
-#process.source.fileNames = filesRelValProdTTbarGENSIMRECO
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
+#process.source.fileNames = filesRelValTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##

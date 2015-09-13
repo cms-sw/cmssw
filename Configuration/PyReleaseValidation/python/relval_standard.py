@@ -106,13 +106,24 @@ workflows[140.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3','HARVESTDHI']]
 workflows[140.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11','HARVESTDHI']]
 workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
 
-### run2 ###
-workflows[134.71] = ['',['RunHLTPhy2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.72] = ['',['RunDoubleEG2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.73] = ['',['RunDoubleMuon2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.74] = ['',['RunJetHT2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.75] = ['',['RunMET2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.76] = ['',['RunMuonEG2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+### run2 2015B 50ns ###
+workflows[134.701] = ['',['RunHLTPhy2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.702] = ['',['RunDoubleEG2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.703] = ['',['RunDoubleMuon2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.704] = ['',['RunJetHT2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.705] = ['',['RunMET2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.706] = ['',['RunMuonEG2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+
+### run 2015C 25ns ###
+workflows[134.801] = ['',['RunHLTPhy2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.802] = ['',['RunDoubleEG2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.803] = ['',['RunDoubleMuon2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.804] = ['',['RunJetHT2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.805] = ['',['RunMET2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.806] = ['',['RunMuonEG2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.807] = ['',['RunDoubleEGPrpt2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.808] = ['',['RunSingleMuPrpt2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+
 
 
 ### fastsim ###
@@ -238,26 +249,19 @@ workflows[1310] = ['', ['ADDMonoJet_d3MD3_13','DIGIUP15','RECOUP15','HARVESTUP15
 workflows[1312] = ['', ['ZpMM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1314] = ['', ['WpM_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
+workflows[1340] = ['', ['PhiToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1341] = ['', ['RSKKGluon_m3000GeV_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
 workflows[1343] = ['', ['ZpMM_2250_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1344] = ['', ['ZpEE_2250_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1345] = ['', ['ZpTT_1500_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1348] = ['', ['EtaBToJpsiJpsi_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 
+workflows[1351] = ['', ['BuMixing_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1352] = ['', ['HSCPstop_M_200_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1353] = ['', ['RSGravitonToGaGa_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1354] = ['', ['WpToENu_M-2000_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1355] = ['', ['DisplacedSUSY_stopToBottom_M_300_1000mm_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-
-####################
-workflows[1340] = ['', ['BuJpsiK_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1348] = ['', ['BuToKstarMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1351] = ['', ['BuToKstarPsi2S_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-# the following three are to be tested to replace the above 3 [1340, 1348, 1351]
-workflows[1340.1] = ['', ['PhiToMuMu_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1348.1] = ['', ['EtaBToJpsiJpsi_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-workflows[1351.1] = ['', ['BuMixing_13','DIGIUP15','RECOUP15','HARVESTUP15']]
-####
 
 
 ### HI test ###
