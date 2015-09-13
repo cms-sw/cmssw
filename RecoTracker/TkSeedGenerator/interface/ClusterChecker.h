@@ -6,6 +6,7 @@
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
+#include "DataFormats/TrackerCommon/interface/ClusterTotals.h"
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 #include "FWCore/Framework/interface/ConsumesCollector.h"
@@ -16,16 +17,6 @@ namespace edm {
 #endif
 
 namespace edm { class Event; class ParameterSet; }
-
-namespace reco { namespace utils {
-    struct ClusterTotals {
-       ClusterTotals() : strip(0), pixel(0), stripdets(0), pixeldets(0) {}
-       int strip; /// number of strip clusters
-       int pixel; /// number of pixel clusters
-       int stripdets; /// number of strip detectors with at least one cluster
-       int pixeldets; /// number of pixel detectors with at least one cluster    
-    };
-} }
 
 class ClusterChecker {
  public: 
