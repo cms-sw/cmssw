@@ -323,6 +323,6 @@ void TkAlMergeZmumuPlots()
 
     .oO[mergeZmumuPlotsInstantiation]Oo.
 
-    MultiHistoOverlapAll_Z(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles), .oO[switchONfit]Oo.);
+    MultiHistoOverlapAll_Z(separatebycommas(filenames), separatebycommas(titles), separatebycommas(colors), separatebycommas(linestyles), .oO[switchONfit]Oo., ".oO[datadir]Oo./ZMuMuPlots");
 }
 """

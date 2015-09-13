@@ -1,19 +1,20 @@
-#include <vector>
 #include <string>
-#include "TROOT.h"
-#include "TH1F.h"
-#include "TH1D.h"
+#include <vector>
 #include "TF1.h"
-#include "TMath.h"
-#include "TNtuple.h"
-#include "TLegend.h"
+#include "TH1D.h"
+#include "TH1F.h"
+#include "TH2.h"
 #include "TCanvas.h"
 #include "TCutG.h"
 #include "TFile.h"
-#include "TString.h"
-#include "TH2.h"
+#include "TLegend.h"
+#include "TMath.h"
+#include "TNtuple.h"
 #include "TPad.h"
 #include "TPaveText.h"
+#include "TROOT.h"
+#include "TString.h"
+#include "TSystem.h"
 #include "tdrstyle.C"
 
 
@@ -41,7 +42,8 @@ void splitOptionRecursive(string rawoption, vector<string>& splitoptions, char d
   }
   if (remnant!="") splitoptions.push_back(remnant);
 }
-void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", string linestyles = "", bool switchONfit = false){
+void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", string linestyles = "", bool switchONfit = false, TString directory = "."){
+  gSystem->mkdir(directory, true);
   gROOT->Reset();
   setTDRStyle();
 
@@ -333,8 +335,8 @@ void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", str
     c[pIndex]->RedrawAxis();
     c[pIndex]->Modified();
     c[pIndex]->Update();
-    c[pIndex]->SaveAs(Form("%s%s", plotname[pIndex].Data(), ".png"));
-    c[pIndex]->SaveAs(Form("%s%s", plotname[pIndex].Data(), ".pdf"));
+    c[pIndex]->SaveAs(Form("%s/%s%s", directory.Data(), plotname[pIndex].Data(), ".png"));
+    c[pIndex]->SaveAs(Form("%s/%s%s", directory.Data(), plotname[pIndex].Data(), ".pdf"));
 
     for (int f=0; f<nfiles; f++) delete hfit[pIndex][f];
     c[pIndex]->Close();
