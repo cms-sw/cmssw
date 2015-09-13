@@ -6,7 +6,7 @@ for i in range(50) :
 
 energyThresholdEE = 3.
 energyThresholdEB = 1.
-timeWindow = 25.
+timeWindow = 12.5
 summaryTimeWindow = 7.
 
 ecalTimingTask = cms.untracked.PSet(
