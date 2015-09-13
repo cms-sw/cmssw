@@ -2,10 +2,10 @@ import ROOT
 import random
 
 ### PARAMETERS #####
-layer  = 25
+layer  = 27
 sector = 1
 zside  = 1
-inputFileName = "../test.root"
+inputFileName = "../test_layer26_27.root"
 outputFileName = "cellMaps.root"
 ####################
 
