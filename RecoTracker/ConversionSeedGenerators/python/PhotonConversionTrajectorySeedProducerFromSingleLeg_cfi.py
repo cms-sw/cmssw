@@ -26,7 +26,7 @@ photonConvTrajSeedFromSingleLeg  = cms.EDProducer("PhotonConversionTrajectorySee
                                                       doClusterCheck = cms.bool(True),
                                                       ClusterCollectionLabel = cms.InputTag("siStripClusters"),
                                                       MaxNumberOfPixelClusters = cms.uint32(40000),
-                                                      cut = cms.string("obj.strip() < 400000 && obj.pixel() < 40000 && (obj.strip() < 50000 + 10*obj.pixel()) && (obj.pixel() < 5000 + 0.1*obj.strip())"),
+                                                      cut = cms.string("obj.strip < 400000 && obj.pixel < 40000 && (obj.strip < 50000 + 10*obj.pixel) && (obj.pixel < 5000 + 0.1*obj.strip)"),
                                                       ),
                                                   RegionFactoryPSet = cms.PSet(
                                                       RegionPSet = cms.PSet( precise = cms.bool(True),
