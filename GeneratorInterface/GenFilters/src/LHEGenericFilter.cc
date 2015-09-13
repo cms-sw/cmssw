@@ -11,6 +11,12 @@ totalEvents_(0), passedEvents_(0)
 {
   //here do whatever other initialization is needed
   src_ = consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("src"));
+  
+  if(acceptLogic_.compare("LT")==0) whichlogic = LT;
+  else if(acceptLogic_.compare("GT")==0) whichlogic = GT;
+  else if(acceptLogic_.compare("EQ")==0) whichlogic = EQ;
+  else if(acceptLogic_.compare("NE")==0) whichlogic = NE;
+  
 }
 
 LHEGenericFilter::~LHEGenericFilter()
@@ -46,10 +52,10 @@ bool LHEGenericFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   // event accept/reject logic
   if (
-         (acceptLogic_.compare("LT")==0 && nFound < numRequired_)
-      || (acceptLogic_.compare("GT")==0 && nFound > numRequired_)
-      || (acceptLogic_.compare("EQ")==0 && nFound == numRequired_)
-      || (acceptLogic_.compare("NE")==0 && nFound != numRequired_)
+         (whichlogic==LT && nFound < numRequired_)
+      || (whichlogic==GT && nFound > numRequired_)
+      || (whichlogic==EQ && nFound == numRequired_)
+      || (whichlogic==NE && nFound != numRequired_)
       ) {
     passedEvents_++;
     return true;

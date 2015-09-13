@@ -56,5 +56,7 @@ class LHEGenericFilter : public edm::EDFilter {
   std::vector<int> particleID_;    // vector of particle IDs to look for
   int totalEvents_;                // counters
   int passedEvents_;
+  enum logic_ { LT, GT, EQ, NE};
+  logic_ whichlogic;
 };
 #endif
