@@ -82,18 +82,22 @@ if [ $? -ne 0 ]; then
 else
    echo 'job directory copy succeeded'
 fi"""
+
    if remoteDir=='':
       cpCmd=dirCopy
-   elif remoteDir.startswith("/pnfs/psi.ch"):
+   elif  remoteDir.startswith("root://eoscms.cern.ch//eos/cms/store/"):
        cpCmd="""echo 'sending root files to remote dir'
-export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH # Fabio's workaround to fix gfal-tools with CMSSW
-for f in Loop/mt2*.root
+export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH # 
+for f in Loop/tree*.root
 do
    ff=`basename $f | cut -d . -f 1`
-   #d=`echo $f | cut -d / -f 2`
-   gfal-mkdir {srm}
-   echo "gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root"
+   echo $f
+   echo $ff
+   export VO_CMS_SW_DIR=/cvmfs/cms.cern.ch
+   source $VO_CMS_SW_DIR/cmsset_default.sh
+   echo "gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root" 
    gfal-copy file://`pwd`/Loop/$ff.root {srm}/${{ff}}_{idx}.root
+   echo $idx 
    if [ $? -ne 0 ]; then
       echo "ERROR: remote copy failed for file $ff"
    else
@@ -102,10 +106,10 @@ do
    fi
 done
 #fi
-""".format(idx=jobDir[jobDir.find("_Chunk")+6:].strip("/"), srm='srm://t3se01.psi.ch'+remoteDir+jobDir[jobDir.rfind("/"):jobDir.find("_Chunk")]) + dirCopy
+""".format(idx=jobDir[jobDir.find("_Chunk")+6:].strip("/"),  srm=""+remoteDir+jobDir[jobDir.rfind("/"):jobDir.find("_Chunk")])
    else:
        print "chosen location not supported yet: ", remoteDir
-       print 'path must start with "/pnfs/psi.ch"'
+       print 'path must start with /store/'
        sys.exit(1)
 
    script = """#!/bin/bash
