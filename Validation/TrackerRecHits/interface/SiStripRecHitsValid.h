@@ -108,9 +108,9 @@ class SiStripRecHitsValid : public DQMEDAnalyzer {
   struct RecHitProperties{ 
     float x;
     float y;
-    float z;
+//    float z;
     float resolxx;
-    float resolxy;
+//    float resolxy;
     float resolyy;
     float resx;
     float resy;
