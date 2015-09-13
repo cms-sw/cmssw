@@ -174,9 +174,9 @@ namespace {
       
         if(theseed == pclus ) 
           continue;
-        _clusterRawEnergy.push_back(pclus->energy());
-        _clusterDPhiToSeed.push_back(reco::deltaPhi(pclus->phi(),theseed->phi()));
-        _clusterDEtaToSeed.push_back(pclus->eta() - theseed->eta());
+        _clusterRawEnergy[iclus]  = pclus->energy();
+        _clusterDPhiToSeed[iclus] = reco::deltaPhi(pclus->phi(),theseed->phi());
+        _clusterDEtaToSeed[iclus] = pclus->eta() - theseed->eta();
         
         // find cluster with max dR
         if(reco::deltaR(*pclus, *theseed) > maxDR) {
