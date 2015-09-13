@@ -10,7 +10,7 @@
 
 
   <class name="reco::Photon" ClassVersion="16">
-   <version ClassVersion="16" checksum="3459546220"/>
+   <version ClassVersion="16" checksum="3041629409"/>
    <version ClassVersion="15" checksum="577991108"/>
    <version ClassVersion="13" checksum="2963666409"/>
    <version ClassVersion="14" checksum="753726370"/>
@@ -57,6 +57,12 @@
   <class name="reco::Photon::EnergyCorrections"  ClassVersion="16">
    <version ClassVersion="16" checksum="1544393913"/>
    <version ClassVersion="15" checksum="2042715570"/>
+  </class>
+  <class name="reco::Photon::PreshowerShapes"  ClassVersion="2">
+   <version ClassVersion="2" checksum="2371199968"/>
+  </class>
+  <class name="reco::Photon::ExtraShowerShapes"  ClassVersion="2">
+   <version ClassVersion="2" checksum="503929491"/>
   </class>
 
 
@@ -219,7 +225,11 @@
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
-  <class name="reco::GsfElectron" ClassVersion="19">
+  <class name="reco::GsfElectron::ExtraShowerShapes" ClassVersion="2">
+    <version ClassVersion="2" checksum="728698942"/>
+  </class>
+  <class name="reco::GsfElectron" ClassVersion="20">
+   <version ClassVersion="20" checksum="1777471788" />
    <version ClassVersion="19" checksum="1682285704"/>
    <version ClassVersion="18" checksum="2072747263"/>
    <version ClassVersion="17" checksum="1861965703"/>

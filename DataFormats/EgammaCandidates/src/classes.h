@@ -88,6 +88,8 @@ namespace DataFormats_EgammaCandidates {
     reco::Photon::PflowIDVariables ppfid ;
     reco::Photon::MIPVariables pmv ;
     reco::Photon::EnergyCorrections pec ;
+    reco::Photon::PreshowerShapes pps ;
+    reco::Photon::ExtraShowerShapes pess ;
 
 
     reco::ElectronCollection v2;
@@ -132,6 +134,7 @@ namespace DataFormats_EgammaCandidates {
     reco::GsfElectron::MvaOutput gemo ;
     reco::GsfElectron::ClassificationVariables gecv ;
     reco::GsfElectron::PixelMatchVariables gepmv ;
+    reco::GsfElectron::ExtraShowerShapes geess ;
 
     edm::RefToBase<reco::GsfElectron> rtbg;
     edm::reftobase::IndirectHolder<reco::GsfElectron> ihg;

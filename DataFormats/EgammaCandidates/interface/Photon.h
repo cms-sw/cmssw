@@ -471,8 +471,53 @@ namespace reco {
     float pfMVA() const {return pfID_.mva;}
     // setters
     void setPflowIDVariables ( const PflowIDVariables& pfid ) {  pfID_ = pfid;}     
+    
+    struct PreshowerShapes { 
+      float effSigmaRR;
+    PreshowerShapes() : effSigmaRR(0.f) {}
+    };
 
+    void setPreshowerShapes( PreshowerShapes& shapes ) { preshower_shapes_ = shapes; }
+    const PreshowerShapes& preshowerShapes() const { return preshower_shapes_; }
 
+    struct ExtraShowerShapes {
+      float sigmaIetaIphi;
+      float sigmaIphiIphi;
+      float e2nd;
+      float eTop;
+      float eLeft;
+      float eRight;
+      float eBottom;
+      float e1x3;
+      float e2x2;
+      float e2x5Max;
+      float e2x5Left;
+      float e2x5Right;
+      float e2x5Top;
+      float e2x5Bottom;
+    ExtraShowerShapes():
+      sigmaIetaIphi(0.f),
+      sigmaIphiIphi(0.f),
+      e2nd(0.f),
+      eTop(0.f),
+      eLeft(0.f),
+      eRight(0.f),
+      eBottom(0.f),
+      e1x3(0.f),
+      e2x2(0.f),
+      e2x5Max(0.f),
+      e2x5Left(0.f),
+      e2x5Right(0.f),
+      e2x5Top(0.f),
+      e2x5Bottom(0.f) {}        
+    };
+
+    void setExtraShowerShapes( const ExtraShowerShapes& shapes ) { extra_sshapes_ = shapes; }
+    void full5x5_setExtraShowerShapes( const ExtraShowerShapes& shapes ) { extra_sshapes_full5x5_ = shapes; }
+
+    const ExtraShowerShapes& extraShowerShapes() const { return extra_sshapes_; }
+    const ExtraShowerShapes& full5x5_extraShowerShapes() const { return extra_sshapes_full5x5_; }
+    
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
@@ -492,10 +537,12 @@ namespace reco {
     MIPVariables        mipVariableBlock_; 
     PflowIsolationVariables pfIsolation_;
     PflowIDVariables pfID_;
-
+    PreshowerShapes preshower_shapes_;
+    ExtraShowerShapes extra_sshapes_;
+    ExtraShowerShapes extra_sshapes_full5x5_;
 
   };
-  
+
 }
 
 #endif
