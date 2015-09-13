@@ -322,7 +322,7 @@ hltHiggsPostWHToENuBB.efficiencyProfile = efficiency_strings_WHToENuBB
 
 #Specific plots for MSSMHbb
 #Jet plots
-NMinOneCuts = _config.MSSMHbb.NminOneCuts
+NminOneCuts = _config.MSSMHbb.NminOneCuts
 if NminOneCuts:
     for iCut in range(0,len(NminOneCuts)):
         if( NminOneCuts[iCut] and NminOneCutNames[iCut] ):
