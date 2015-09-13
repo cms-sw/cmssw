@@ -46,9 +46,18 @@ struct StringCutObjectSelector {
     */
   }
   
+  StringCutObjectSelector(const StringCutObjectSelector& other) : 
+  lazy_(other.lazy_),
+  cut_(other.cut_),
+  type_(other.type_),
+  cut_manager_( other.cut_manager_ ),
+  lazy_cut_manager_( other.lazy_cut_manager_ ),
+  expr_select_( other.expr_select_.get() ) {
+  }
+
   StringCutObjectSelector(reco::exprEval::SelectorPtr<T> select) : 
   lazy_(false),
-  cut_(false),
+  cut_(""),
   type_(typeid(T)),
   cut_manager_( nullptr ),
   lazy_cut_manager_( nullptr ),
