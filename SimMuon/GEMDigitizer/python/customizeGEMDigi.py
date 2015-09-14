@@ -191,6 +191,7 @@ def customize_mix_nocalo(process):
        ),
     )
     digi_aliases = filter(lambda n: 'Digi' in n, process.aliases.keys())
+    print("digi aliases before clean up: ")
     for a in digi_aliases: 
         print(a)
     if ('Strip' not in a) and ('Pixel' not in a): 
