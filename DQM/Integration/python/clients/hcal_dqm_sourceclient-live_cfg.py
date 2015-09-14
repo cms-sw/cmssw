@@ -18,8 +18,8 @@ cmssw			= os.getenv("CMSSW_VERSION").split("_")
 debugstr		= "### HcalDQM::cfg::DEBUG: "
 warnstr			= "### HcalDQM::cfg::WARN: "
 errorstr		= "### HcalDQM::cfg::ERROR:"
-useOfflineGT	= False
-useFileInput	= False
+useOfflineGT	= True
+useFileInput	= True
 useMap		= False
 
 #-------------------------------------
@@ -42,6 +42,7 @@ process.load('DQM.Integration.config.environment_cfi')
 #	Central DQM Customization
 #-------------------------------------
 process.dqmEnv.subSystemFolder = subsystem
+process.dqmSaver.tag = subsystem
 referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
