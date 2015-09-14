@@ -39,36 +39,51 @@ from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 # process.load("EventFilter.SiStripRawToDigi.SiStripDigis_cfi")
 # can be skipped use instead:
 # SLHCUpgradeSimulations/Geometry/python/recoFromSimDigis_cff.py
+# process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
+# process.siPixelClusters.src = 'simSiPixelDigis'
+# process.siPixelClusters.MissCalibrate = False
+# 
+# process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
+# process.siStripZeroSuppression.RawDigiProducersList = cms.VInputTag( cms.InputTag('simSiStripDigis','VirginRaw'),
+#                                                                      cms.InputTag('simSiStripDigis','ProcessedRaw'),
+#                                                                      cms.InputTag('simSiStripDigis','ScopeMode'))
+# 
+# process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
+# process.siStripClusters.DigiProducersList = cms.VInputTag(cms.InputTag('simSiStripDigis','ZeroSuppressed'),
+#                                                           cms.InputTag('siStripZeroSuppression','VirginRaw'),
+#                                                           cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
+#                                                           cms.InputTag('siStripZeroSuppression','ScopeMode'))
+# 
 process.load("RecoLocalTracker.SiPixelClusterizer.SiPixelClusterizer_cfi")
-process.siPixelClusters.src = 'simSiPixelDigis'
+process.siPixelClusters.src = 'mix'
 process.siPixelClusters.MissCalibrate = False
 
 process.load("RecoLocalTracker.SiStripZeroSuppression.SiStripZeroSuppression_cfi")
-process.siStripZeroSuppression.RawDigiProducersList = cms.VInputTag( cms.InputTag('simSiStripDigis','VirginRaw'),
-                                                                     cms.InputTag('simSiStripDigis','ProcessedRaw'),
-                                                                     cms.InputTag('simSiStripDigis','ScopeMode'))
+process.siStripZeroSuppression.RawDigiProducersList = cms.VInputTag( cms.InputTag('mix','VirginRaw'),
+                                                                     cms.InputTag('mix','ProcessedRaw'),
+                                                                     cms.InputTag('mix','ScopeMode'))
 
 process.load("RecoLocalTracker.SiStripClusterizer.SiStripClusterizer_cfi")
-process.siStripClusters.DigiProducersList = cms.VInputTag(cms.InputTag('simSiStripDigis','ZeroSuppressed'),
-                                                          cms.InputTag('siStripZeroSuppression','VirginRaw'),
-                                                          cms.InputTag('siStripZeroSuppression','ProcessedRaw'),
-                                                          cms.InputTag('siStripZeroSuppression','ScopeMode'))
+process.siStripClusters.DigiProducersList = cms.VInputTag(cms.InputTag('mix','ZeroSuppressed'),
+                                                          cms.InputTag('mix','VirginRaw'),
+                                                          cms.InputTag('mix','ProcessedRaw'),
+                                                          cms.InputTag('mix','ScopeMode'))
 
-from RecoTracker.Configuration.RecoTracker_cff import *
-from TrackingTools.Configuration.TrackingTools_cff import *
-from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
-from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
-siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
+process.load("RecoTracker.Configuration.RecoTracker_cff")
+process.load("TrackingTools.Configuration.TrackingTools_cff")
+process.load("RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi")
+process.load("RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi")
+process.siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
     src = 'siPixelClustersPreSplitting'
     )
-from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
+process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
 
 ### Can we do also Muon Global Reco? ###
 ########################################
-from RecoMuon.Configuration.RecoMuon_cff import *
-from RecoVertex.Configuration.RecoVertex_cff import *
-from RecoPixelVertexing.Configuration.RecoPixelVertexing_cff import *
-from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
+process.load("RecoMuon.Configuration.RecoMuon_cff")
+process.load("RecoVertex.Configuration.RecoVertex_cff")
+process.load("RecoPixelVertexing.Configuration.RecoPixelVertexing_cff")
+process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 
 #????
 #process.load('Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi')
@@ -139,16 +154,16 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ### Paths and Schedules
 #######################
-process.digi2raw_step = cms.Path(process.siPixelRawData+process.SiStripDigiToRaw)
-process.raw2digi_step = cms.Path(process.siPixelDigis+process.siStripDigis) 
+# process.digi2raw_step = cms.Path(process.siPixelRawData+process.SiStripDigiToRaw)
+# process.raw2digi_step = cms.Path(process.siPixelDigis+process.siStripDigis) 
 process.rechit_step   = cms.Path(process.muonlocalreco+process.gemRecHits+process.me0RecHits)#+process.trackerlocalreco)
 process.endjob_step   = cms.Path(process.endOfProcess)
 process.out_step      = cms.EndPath(process.output)
 
 
 process.schedule = cms.Schedule(
-    process.digi2raw_step,
-    process.raw2digi_step,
+    # process.digi2raw_step,
+    # process.raw2digi_step,
     process.rechit_step,
     process.endjob_step,
     process.out_step
