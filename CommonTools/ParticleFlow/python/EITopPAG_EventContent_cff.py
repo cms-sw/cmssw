@@ -10,8 +10,6 @@ EITopPAGEventContent = cms.PSet(
     # jets
     'keep recoPFJets_pfJetsEI_*_*',
     # btags
-    'keep *_pfImpactParameterTagInfosEI_*_*',
-    'keep *_pfInclusiveSecondaryVertexFinderTagInfosEI_*_*',
     'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTagsEI_*_*',
     # taus 
     'keep recoPFTaus_pfTausEI_*_*',
