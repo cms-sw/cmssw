@@ -38,8 +38,8 @@ SoftPFMuonTagInfoProducer::SoftPFMuonTagInfoProducer(const edm::ParameterSet& co
   muonToken   = consumes<edm::View<reco::Muon> >(conf.getParameter<edm::InputTag>("muons"));
   vertexToken = consumes<reco::VertexCollection>(conf.getParameter<edm::InputTag>("primaryVertex"));
   pTcut       = conf.getParameter<double>("muonPt");
-  SIPcut      = conf.getParameter<double>("muonSIP");
-  IPcut       = conf.getParameter<double>("filterIp");
+  SIPsigcut      = conf.getParameter<double>("muonSIPsig");
+  IPsigcut       = conf.getParameter<double>("filterIpsig");
   ratio1cut   = conf.getParameter<double>("filterRatio1");
   ratio2cut   = conf.getParameter<double>("filterRatio2");
   useFilter   = conf.getParameter<bool>("filterPromptMuons");
@@ -133,10 +133,10 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       properties.ratioRel = muon->p4().Dot(jetRef->p4()) / jetvect.Mag2();
       properties.p0Par    = boostedPPar(muon->momentum(), jetRef->momentum());
       
-      if(std::abs(properties.sip3dsig)>SIPcut) continue;
+      if(std::abs(properties.sip3dsig)>SIPsigcut) continue;
       
       // Filter leptons from W, Z decays
-      if(useFilter && ((std::abs(properties.sip3dsig)<IPcut && properties.ratio>ratio1cut) || properties.ratio>ratio2cut)) continue;
+      if(useFilter && ((std::abs(properties.sip3dsig)<IPsigcut && properties.ratio>ratio1cut) || properties.ratio>ratio2cut)) continue;
       
       // Insert lepton properties
       tagInfo.insert(lepPtr, properties);

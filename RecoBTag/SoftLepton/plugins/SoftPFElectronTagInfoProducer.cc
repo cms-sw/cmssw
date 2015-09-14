@@ -35,7 +35,7 @@ SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer (const edm::Paramet
 	token_BeamSpot      = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
 	token_allConversions= consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
 	DeltaRElectronJet   = conf.getParameter<double>("DeltaRElectronJet");
-	MaxSip3D            = conf.getParameter<double>("MaxSip3D");
+	MaxSip3Dsig            = conf.getParameter<double>("MaxSip3Dsig");
         produces<reco::CandSoftLeptonTagInfoCollection>();
 }
 
@@ -113,7 +113,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
   			properties.ratioRel = recoelectron->p4().Dot(jetRef->p4()) / pjet.Mag2();
   			properties.p0Par    = boostedPPar(recoelectron->momentum(), jetRef->momentum());
 			properties.elec_mva    = recoelectron->mva_e_pi();
-			 if(std::abs(properties.sip3dsig>MaxSip3D)) continue;
+			 if(std::abs(properties.sip3dsig>MaxSip3Dsig)) continue;
 			// Fill the TagInfos
 			tagInfo.insert(lepPtr, properties );
 		}
