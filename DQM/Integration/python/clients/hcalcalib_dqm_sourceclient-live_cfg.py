@@ -42,6 +42,7 @@ process.load('DQM.Integration.config.environment_cfi')
 #-------------------------------------
 process.source.streamLabel = cms.untracked.string("streamDQMCalibration")
 process.dqmEnv.subSystemFolder = subsystem
+process.dqmSaver.tag = subsystem
 referenceFileName = '/dqmdata/dqm/reference/hcal_reference.root'
 process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
