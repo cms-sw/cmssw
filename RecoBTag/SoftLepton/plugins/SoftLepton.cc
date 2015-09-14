@@ -288,10 +288,8 @@ reco::SoftLeptonTagInfo SoftLepton::tag (
     reco::SoftLeptonProperties properties;
 
     reco::TransientTrack transientTrack = m_transientTrackBuilder->build(*lepton->first);
-    properties.sip2dsig    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second.significance();
-    properties.sip3dsig    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second.significance();
-    properties.sip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second.value();
-    properties.sip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second.value();
+    properties.sip2d    = IPTools::signedTransverseImpactParameter( transientTrack, jetAxis, primaryVertex ).second.significance();
+    properties.sip3d    = IPTools::signedImpactParameter3D( transientTrack, jetAxis, primaryVertex ).second.significance();
     properties.deltaR   = deltaR;
     properties.ptRel    = Perp( lepton_momentum, axis );
     properties.p0Par    = boostedPPar( lepton_momentum, axis );
