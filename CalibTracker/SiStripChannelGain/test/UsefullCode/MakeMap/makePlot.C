@@ -17,7 +17,7 @@
 #include "TF1.h"
 #include "TPaveText.h"
 #include "TPaveStats.h"
-#include "tdrstyle.C"
+#include "../../CodeExample/Macro/tdrstyle.C"
 
 int Color [] = {2,4,1,8,6,7,3,9,5};
 int Marker[] = {21,22,23,20,29,3,2};

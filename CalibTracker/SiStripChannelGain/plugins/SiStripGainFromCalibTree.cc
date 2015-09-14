@@ -263,7 +263,7 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
    dbe->setCurrentFolder("AlCaReco/SiStripGains/");
-   if(AlgoMode != "PCL" or harvestingMode)dbe->setCurrentFolder("AlCaReco/SiStripGainsHarvesting/");
+   if(AlgoMode != "PCL" || harvestingMode)dbe->setCurrentFolder("AlCaReco/SiStripGainsHarvesting/");
 
    Charge_Vs_Index           = dbe->book2D("Charge_Vs_Index"          , "Charge_Vs_Index"          , 88625, 0   , 88624,2000,0,4000);
    Charge_Vs_Index_Absolute  = dbe->book2D("Charge_Vs_Index_Absolute" , "Charge_Vs_Index_Absolute" , 88625, 0   , 88624,1000,0,4000);
@@ -344,36 +344,37 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
            unsigned int         NROCCol  = Topo.ncolumns()/(52.);
 
            for(unsigned int j=0;j<NROCRow;j++){
-           for(unsigned int i=0;i<NROCCol;i++){
+	     for(unsigned int k=0;i<NROCCol;k++){
          
-              stAPVGain* APV = new stAPVGain;
-              APV->Index         = Index;
-              APV->Bin           = -1;
-              APV->DetId         = Detid.rawId();
-              APV->APVId         = (j<<3 | i);
-              APV->SubDet        = SubDet;
-              APV->FitMPV        = -1;
-              APV->FitMPVErr     = -1;
-              APV->FitWidth      = -1;
-              APV->FitWidthErr   = -1;
-              APV->FitChi2       = -1;
-              APV->Gain          = -1;
-              APV->PreviousGain  = 1;
-              APV->x             = DetUnit->position().basicVector().x();
-              APV->y             = DetUnit->position().basicVector().y();
-              APV->z             = DetUnit->position().basicVector().z();
-              APV->Eta           = DetUnit->position().basicVector().eta();
-              APV->Phi           = DetUnit->position().basicVector().phi();
-              APV->R             = DetUnit->position().basicVector().transverse();
-              APV->Thickness     = DetUnit->surface().bounds().thickness();
-              APV->isMasked      = false; //SiPixelQuality_->IsModuleBad(Detid.rawId());
-              APV->NEntries      = 0;
-
-              APVsCollOrdered.push_back(APV);
-              APVsColl[(APV->DetId<<4) | APV->APVId] = APV;
-              Index++;
-              NPixelDets++;
-           }}
+	       stAPVGain* APV = new stAPVGain;
+	       APV->Index         = Index;
+	       APV->Bin           = -1;
+	       APV->DetId         = Detid.rawId();
+	       APV->APVId         = (j<<3 | k);
+	       APV->SubDet        = SubDet;
+	       APV->FitMPV        = -1;
+	       APV->FitMPVErr     = -1;
+	       APV->FitWidth      = -1;
+	       APV->FitWidthErr   = -1;
+	       APV->FitChi2       = -1;
+	       APV->Gain          = -1;
+	       APV->PreviousGain  = 1;
+	       APV->x             = DetUnit->position().basicVector().x();
+	       APV->y             = DetUnit->position().basicVector().y();
+	       APV->z             = DetUnit->position().basicVector().z();
+	       APV->Eta           = DetUnit->position().basicVector().eta();
+	       APV->Phi           = DetUnit->position().basicVector().phi();
+	       APV->R             = DetUnit->position().basicVector().transverse();
+	       APV->Thickness     = DetUnit->surface().bounds().thickness();
+	       APV->isMasked      = false; //SiPixelQuality_->IsModuleBad(Detid.rawId());
+	       APV->NEntries      = 0;
+	       
+	       APVsCollOrdered.push_back(APV);
+	       APVsColl[(APV->DetId<<4) | APV->APVId] = APV;
+	       Index++;
+	       NPixelDets++;
+	     }
+	   }
       }
    }
 
@@ -409,11 +410,11 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 //      if(!FirstSetOfConstants){
          if(gainHandle->getNumberOfTags()!=2){edm::LogError("SiStripGainFromCalibTree")<< "NUMBER OF GAIN TAG IS EXPECTED TO BE 2\n";fflush(stdout);exit(0);};		   
          float newPreviousGain = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 1),1);
-         if(APV->PreviousGain!=1 and newPreviousGain!=APV->PreviousGain)edm::LogWarning("SiStripGainFromCalibTree")<< "WARNING: ParticleGain in the global tag changed\n";
+         if(APV->PreviousGain!=1 && newPreviousGain!=APV->PreviousGain)edm::LogWarning("SiStripGainFromCalibTree")<< "WARNING: ParticleGain in the global tag changed\n";
          APV->PreviousGain = newPreviousGain;
 
          float newPreviousGainTick = gainHandle->getApvGain(APV->APVId,gainHandle->getRange(APV->DetId, 0),1);
-         if(APV->PreviousGainTick!=1 and newPreviousGainTick!=APV->PreviousGainTick)edm::LogWarning("SiStripGainFromCalibTree")<< "WARNING: TickMarkGain in the global tag changed\n";
+         if(APV->PreviousGainTick!=1 && newPreviousGainTick!=APV->PreviousGainTick)edm::LogWarning("SiStripGainFromCalibTree")<< "WARNING: TickMarkGain in the global tag changed\n";
          APV->PreviousGainTick = newPreviousGainTick;
 
 
@@ -428,7 +429,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 void SiStripGainFromCalibTree::algoEndRun(const edm::Run& run, const edm::EventSetup& iSetup){
    if(AlgoMode == "PCL" && !harvestingMode)return;//nothing to do in that case
 
-   if(AlgoMode == "PCL" and harvestingMode){
+   if(AlgoMode == "PCL" && harvestingMode){
      // Load the 2D histograms from the DQM objects
      // When running in AlCaHarvesting mode the histos are already booked and should be just retrieved from
      // DQMStore so that they can be used in the fit
@@ -464,7 +465,7 @@ SiStripGainFromCalibTree::algoEndJob() {
    // Now that we have the full statistics we can extract the information of the 2D histograms
    algoComputeMPVandGain();
    
-   if(AlgoMode != "PCL" or saveSummary){
+   if(AlgoMode != "PCL" || saveSummary){
       //also save the 2D monitor elements to this file as TH2D tfs
       tfs = edm::Service<TFileService>().operator->();
       tfs->make<TH2F> (*Charge_Vs_Index->getTH2F());
@@ -856,7 +857,7 @@ void SiStripGainFromCalibTree::storeOnTree(TFileService* tfs)
 
 bool SiStripGainFromCalibTree::produceTagFilter(){
   
-   // The goal of this function is to check wether or not there is enough statistics to produce a meaningful tag for the DB or not 
+   // The goal of this function is to check wether or not there is enough statistics to produce a meaningful tag for the DB or nnot 
   if(Charge_Vs_Index->getTH2F()->Integral(0,NStripAPVs+1, 0, 99999 ) < tagCondition_NClusters) {
     edm::LogWarning("SiStripGainFromCalibTree")<< "produceTagFilter -> Return false: Statistics is too low : " << Charge_Vs_Index->getTH2F()->Integral() << endl;
     return false;
@@ -1031,12 +1032,7 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
                   if(Ampls[a] >=254)Saturation =true;
                }
 
-               if(FirstStrip==0                                  )Overlapping=true;
-               if(FirstStrip==128                                )Overlapping=true;
-               if(FirstStrip==256                                )Overlapping=true;
-               if(FirstStrip==384                                )Overlapping=true;
-               if(FirstStrip==512                                )Overlapping=true;
-               if(FirstStrip==640                                )Overlapping=true;
+	       if(FirstStrip%128==0) Overlapping=true; 
 
                if(FirstStrip<=127 && FirstStrip+Ampls.size()>127)Overlapping=true;
                if(FirstStrip<=255 && FirstStrip+Ampls.size()>255)Overlapping=true;
@@ -1044,12 +1040,7 @@ SiStripGainFromCalibTree::algoAnalyze(const edm::Event& iEvent, const edm::Event
                if(FirstStrip<=511 && FirstStrip+Ampls.size()>511)Overlapping=true;
                if(FirstStrip<=639 && FirstStrip+Ampls.size()>639)Overlapping=true;
 
-               if(FirstStrip+Ampls.size()==127                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==255                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==383                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==511                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==639                   )Overlapping=true;
-               if(FirstStrip+Ampls.size()==767                   )Overlapping=true;
+	       if((FirstStrip+Ampls.size()+1)%128==0) Overlapping=true;
 
                //cleaning on the cluster
                if(IsFarFromBorder(&trajState,DetId, &iSetup)  == false           )continue;
