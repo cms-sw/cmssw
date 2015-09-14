@@ -30,7 +30,7 @@ RecoTrackerRECO = cms.PSet(
         'keep recoTracks_generalTracks_*_*', 
         'keep recoTrackExtras_generalTracks_*_*',
         'keep TrackingRecHitsOwned_generalTracks_*_*',
-        #'keep *_generalTracks_MVAValues_*',
+        'keep *_generalTracks_MVAValues_*',
         'keep *_generalTracks_MVAVals_*',
         'keep TrackingRecHitsOwned_extraFromSeeds_*_*',
         'keep uints_extraFromSeeds_*_*',                                   
@@ -57,7 +57,7 @@ RecoTrackerAOD = cms.PSet(
         'keep *_dedxHarmonic2_*_*',
         'keep *_dedxHitInfo_*_*',
         'keep *_trackExtrapolator_*_*',
-        #'keep *_generalTracks_MVAValues_*',
+        'keep *_generalTracks_MVAValues_*',
         'keep *_generalTracks_MVAVals_*'
     )
 )
