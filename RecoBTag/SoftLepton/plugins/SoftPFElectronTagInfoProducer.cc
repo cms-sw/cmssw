@@ -98,8 +98,10 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 			math::XYZVector pel=recoelectron->p4().Vect();
   			math::XYZVector pjet=jetRef->p4().Vect();
   			reco::TransientTrack transientTrack=transientTrackBuilder->build(recoelectron->gsfTrack());
-  			properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
-  			properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
+  			properties.sip2dsig    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
+  			properties.sip3dsig    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
+			properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.value();
+  			properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.value();
   			properties.deltaR   = reco::deltaR((*jetRef), (*recoelectron));
   			properties.ptRel    = ( (pjet-pel).Cross(pel) ).R() / pjet.R();
   			float mag = pel.R()*pjet.R();
@@ -109,7 +111,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
   			properties.ratioRel = recoelectron->p4().Dot(jetRef->p4()) / pjet.Mag2();
   			properties.p0Par    = boostedPPar(recoelectron->momentum(), jetRef->momentum());
 			properties.elec_mva    = recoelectron->mva_e_pi();
-			 if(std::abs(properties.sip3d>MaxSip3D)) continue;
+			 if(std::abs(properties.sip3dsig>MaxSip3D)) continue;
 			// Fill the TagInfos
 			tagInfo.insert(lepPtr, properties );
 		}

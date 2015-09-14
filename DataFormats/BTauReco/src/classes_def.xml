@@ -96,9 +96,10 @@
   <class name="edm::Wrapper<reco::IsolatedTauTagInfoCollection>"/>
 
 
-  <class name="reco::SoftLeptonProperties" ClassVersion="11">
+  <class name="reco::SoftLeptonProperties" ClassVersion="12">
    <version ClassVersion="10" checksum="3825121604"/>
    <version ClassVersion="11" checksum="3267387532"/>
+   <version ClassVersion="12" checksum="2193794521"/>
   </class>
 
   <class name="std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>"/>

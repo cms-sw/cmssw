@@ -118,8 +118,10 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       reco::Candidate::Vector jetvect(jetRef->p4().Vect()), muonvect(muon->p4().Vect());
       // Calculate variables
       reco::SoftLeptonProperties properties;
-      properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
-      properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
+      properties.sip2dsig    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
+      properties.sip3dsig    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
+      properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.value();
+      properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.value();
       properties.deltaR   = reco::deltaR(*jetRef, *muon);
       properties.ptRel    = ( (jetvect-muonvect).Cross(muonvect) ).R() / jetvect.R(); // | (Pj-Pu) X Pu | / | Pj |
       float mag = muonvect.R()*jetvect.R();
@@ -129,10 +131,10 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       properties.ratioRel = muon->p4().Dot(jetRef->p4()) / jetvect.Mag2();
       properties.p0Par    = boostedPPar(muon->momentum(), jetRef->momentum());
       
-      if(std::abs(properties.sip3d)>SIPcut) continue;
+      if(std::abs(properties.sip3dsig)>SIPcut) continue;
       
       // Filter leptons from W, Z decays
-      if(useFilter && ((std::abs(properties.sip3d)<IPcut && properties.ratio>ratio1cut) || properties.ratio>ratio2cut)) continue;
+      if(useFilter && ((std::abs(properties.sip3dsig)<IPcut && properties.ratio>ratio1cut) || properties.ratio>ratio2cut)) continue;
       
       // Insert lepton properties
       tagInfo.insert(lepPtr, properties);
