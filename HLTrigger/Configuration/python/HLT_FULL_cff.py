@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V473 (CMSSW_7_4_10_patch1)
+# /dev/CMSSW_7_4_0/HLT/V476 (CMSSW_7_4_10_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V473')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V476')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -542,6 +542,7 @@ fragment.streams = cms.PSet(
     'MuonEG',
     'SingleMuon' ),
   PhysicsParkingMonitor = cms.vstring( 'ParkingMonitor' ),
+  PhysicsScoutingMonitor = cms.vstring( 'ScoutingMonitor' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ReleaseValidation = cms.vstring(  ),
   ScoutingCalo = cms.vstring( 'ScoutingCaloCommissioning',
@@ -2010,6 +2011,12 @@ fragment.datasets = cms.PSet(
   ScoutingCaloCommissioning = cms.vstring( 'DST_L1HT_CaloScouting_v1',
     'DST_ZeroBias_CaloScouting_v1' ),
   ScoutingCaloHT = cms.vstring( 'DST_HT250_CaloScouting_v1' ),
+  ScoutingMonitor = cms.vstring( 'DST_HT250_CaloScouting_v1',
+    'DST_HT450_PFScouting_v1',
+    'DST_L1HT_CaloScouting_v1',
+    'DST_L1HT_PFScouting_v1',
+    'DST_ZeroBias_CaloScouting_v1',
+    'DST_ZeroBias_PFScouting_v1' ),
   ScoutingPFCommissioning = cms.vstring( 'DST_L1HT_PFScouting_v1',
     'DST_ZeroBias_PFScouting_v1' ),
   ScoutingPFHT = cms.vstring( 'DST_HT450_PFScouting_v1' ),
