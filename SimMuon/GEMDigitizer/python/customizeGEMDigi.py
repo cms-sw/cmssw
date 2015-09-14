@@ -177,31 +177,41 @@ def customize_mix_muon_only(process):
     process.mix.mixObjects = mixObjects_dt_csc_rpc
     return process
 
-# Customize process.mix to be used for running muon (DT, CSC, RPC) digi only.
-#  - remove non-muon digitizers that are now run as part of mixing process
-#  - delete all the digitizers' aliases.
+# Customize process.mix to be used for running muon and tracker digi only.
+#  - remove calo digitizers that are now run as part of mixing process
+#  - delete all the digitizers' aliases apart of pixel and strip aliasses.
+#  - reset the simCastorDigis, simEcalUnsuppressedDigis 
+#          and simHcalUnsuppressedDigis
 #  - drop unnecessary mixObjects
 def customize_mix_nocalo(process):
     process.mix.digitizers = digitizers = cms.PSet(
-         pixel = cms.PSet(
-           pixelDigitizer
+          pixel = cms.PSet(
+          pixelDigitizer
        ),
        strip = cms.PSet(
            stripDigitizer
        ),
     )
+    process.mix.theDigitizersValid = cms.PSet(
+        pixel = cms.PSet(
+            pixelDigitizer
+            ),
+        strip = cms.PSet(
+            stripDigitizer
+            )
+    )
+    # delete some contents of SimGeneral/MixingModule/python/aliases_cfi.py
+    # i was not able to delete these processes in a different way
+    process.simCastorDigis = cms.EDAlias()
+    process.simEcalUnsuppressedDigis = cms.EDAlias()
+    process.simHcalUnsuppressedDigis = cms.EDAlias()
+    # delete all digitizer aliasses apart of pixel and strip aliases
     digi_aliases = filter(lambda n: 'Digi' in n, process.aliases.keys())
     print("digi aliases before clean up: ")
     for a in digi_aliases: 
         print(a)
     if ('Strip' not in a) and ('Pixel' not in a): 
             process.__delattr__(a)
-    # ecal_digi_aliases = filter(lambda n: 'Ecal' in n, process.aliases.keys())
-    # for a in ecal_digi_aliases: process.__delattr__(a)
-    # hcal_digi_aliases = filter(lambda n: 'Hcal' in n, process.aliases.keys())
-    # for b in hcal_digi_aliases: process.__delattr__(b)
-    # castor_digi_aliases = filter(lambda n: 'Castor' in n, process.aliases.keys())
-    # for c in castor_digi_aliases: process.__delattr__(c)
     process.mix.mixObjects = mixObjects_dt_csc_rpc_trk
     return process
 
@@ -255,6 +265,7 @@ def customize_digi_addGEM_nocalo(process):
         cms.SequencePlaceholder("mix")*
         process.muonDigi
     )
+    # process.pdigi.remove(simCastorDigis)
     process = append_GEMDigi_event(process)
     return process
 
@@ -437,7 +448,7 @@ def append_GEMDigi_event(process):
         b=a+'output'
         if hasattr(process,b):
             getattr(process,b).outputCommands.append('drop *')
-            getattr(process,b).outputCommands.append('keep *_mix_*_*')
+            # getattr(process,b).outputCommands.append('keep *_mix_*_*')
             getattr(process,b).outputCommands.append('keep *_g4SimHits__*')
             getattr(process,b).outputCommands.append('keep *_g4SimHits_Muon*_*')
             getattr(process,b).outputCommands.append('keep *_g4SimHits_Tracker*_*')
