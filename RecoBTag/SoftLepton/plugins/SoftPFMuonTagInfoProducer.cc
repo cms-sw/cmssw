@@ -118,10 +118,12 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
       reco::Candidate::Vector jetvect(jetRef->p4().Vect()), muonvect(muon->p4().Vect());
       // Calculate variables
       reco::SoftLeptonProperties properties;
-      properties.sip2dsig    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
-      properties.sip3dsig    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
-      properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.value();
-      properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.value();
+      Measurement1D ip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second;
+      Measurement1D ip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second;
+      properties.sip2dsig    = ip2d.significance();
+      properties.sip3dsig    = ip3d.significance();
+      properties.sip2d    = ip2d.value();
+      properties.sip3d    = ip3d.value();
       properties.deltaR   = reco::deltaR(*jetRef, *muon);
       properties.ptRel    = ( (jetvect-muonvect).Cross(muonvect) ).R() / jetvect.R(); // | (Pj-Pu) X Pu | / | Pj |
       float mag = muonvect.R()*jetvect.R();

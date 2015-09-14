@@ -98,10 +98,12 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 			math::XYZVector pel=recoelectron->p4().Vect();
   			math::XYZVector pjet=jetRef->p4().Vect();
   			reco::TransientTrack transientTrack=transientTrackBuilder->build(recoelectron->gsfTrack());
-  			properties.sip2dsig    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
-  			properties.sip3dsig    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
-			properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.value();
-  			properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.value();
+			Measurement1D ip2d = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second;
+			Measurement1D ip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second;
+  			properties.sip2dsig    = ip2d.significance();
+  			properties.sip3dsig    = ip3d.significance();
+			properties.sip2d    = ip2d.value();
+  			properties.sip3d    = ip3d.value();
   			properties.deltaR   = reco::deltaR((*jetRef), (*recoelectron));
   			properties.ptRel    = ( (pjet-pel).Cross(pel) ).R() / pjet.R();
   			float mag = pel.R()*pjet.R();
