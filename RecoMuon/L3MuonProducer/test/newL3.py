@@ -12,7 +12,6 @@ def addL3ToHLT(process):
 
 	if hasattr(process, 'hltPixelTracksForSeedsL3Muon'):
 		process.hltPixelTracksForSeedsL3Muon.RegionFactoryPSet.RegionPSet.input=cms.InputTag("hltBRSL3MuonCandidates")
-#		if hasattr(getattr(process, 'hltPixelTracksForSeedsL3Muon'), 'RegionFactoryPSet'):
 	if hasattr(process, 'hltIter1L3MuonPixelSeeds'):
 		process.hltIter1L3MuonPixelSeeds.RegionFactoryPSet.RegionPSet.input=cms.InputTag("hltBRSL3MuonCandidates")
 	if hasattr(process, 'hltIter2L3MuonPixelSeeds'):
@@ -151,9 +150,6 @@ def addL3ToHLT(process):
 	IterMasterMuonTrackingRegionBuilder = MasterMuonTrackingRegionBuilder
 	IterMasterMuonTrackingRegionBuilder.input = cms.InputTag( 'hltL2SelectorForL3OI')	#Switch off for IO Only
 	
-#	process.hltL3fL1sMu16orMu25L1f0L2f16QL3Filtered50Q.CandTag = cms.InputTag( "hltBRSL3MuonCandidates" )
-#	process.hltL3fL1sMu16orMu25L1f0L2f16QL3Filtered50Q.InputLinks = cms.InputTag( "hltBRSL3MuonsLinksCombination" )
-	
 	
 	########## OI Algorthim:
 	#Trajectory Filter
@@ -268,21 +264,6 @@ def addL3ToHLT(process):
 	    EstimateCut = cms.double(50.), ## was 20.
 	)
 
-##	Try verbose:
-#	process.muonSeededFittingSmootherWithOutliersRejectionAndRK = cms.ESProducer("KFFittingSmootherESProducer",
-#	    BreakTrajWith2ConsecutiveMissing = cms.bool(False),
-#	    ComponentName = cms.string('muonSeededFittingSmootherWithOutliersRejectionAndRK'),
-#	    EstimateCut = cms.double(50.0),
-#	    Fitter = cms.string('RKTrajectoryFitter'),
-#	    LogPixelProbabilityCut = cms.double(-14.0),
-#	    MinNumberOfHits = cms.int32(3),
-#	    NoInvalidHitsBeginEnd = cms.bool(True),
-#	    RejectTracks = cms.bool(True),
-#	    Smoother = cms.string('RKTrajectorySmoother')
-#	)
-
-	
-	
 	#OI Track Producer:
 	process.hltBRSMuonSeededTracksOutIn = cms.EDProducer("TrackProducer",
 	    useSimpleMF = cms.bool(False),
@@ -291,7 +272,6 @@ def addL3ToHLT(process):
 	    clusterRemovalInfo = cms.InputTag(""),
 	    beamSpot = cms.InputTag("hltOnlineBeamSpot"),       #Modified
 	    Fitter = cms.string('muonSeededFittingSmootherWithOutliersRejectionAndRK'),       #Modified
-	#    Fitter = cms.string(''),
 	    useHitsSplitting = cms.bool(False),
 	    alias = cms.untracked.string('ctfWithMaterialTracks'),
 	    TrajectoryInEvent = cms.bool(True),
@@ -555,32 +535,7 @@ def addL3ToHLT(process):
 	process.hltBRSIter0HighPtTkMuPixelTracks.RegionFactoryPSet.ComponentName = cms.string( "MuonTrackingRegionBuilder" )
 	process.hltBRSIter0HighPtTkMuPixelTracks.RegionFactoryPSet.DeltaR = cms.double( 0.2 )
 	
-#	process.hltBRSIter0HighPtTkMuPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
-#	    useEventsWithNoVertex = cms.bool( True ),
-#	    originHalfLength = cms.double( 0.3 ),
-#	    useProtoTrackKinematics = cms.bool( False ),
-#	    usePV = cms.bool( False ),
-#	    InputVertexCollection = cms.InputTag( "notUsed" ),
-#	    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-#	    InputCollection = cms.InputTag( "hltBRSIter0HighPtTkMuPixelTracks" ),
-#	    originRadius = cms.double( 0.1 )
-#	)
-	
-#	process.hltBRSIter0HighPtTkMuPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",	
-##	process.hltBRSIter0L3MuonPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
-#	    useEventsWithNoVertex = cms.bool( True ),
-#	    originHalfLength = cms.double( 0.2 ),
-#	    useProtoTrackKinematics = cms.bool( False ),
-#	    usePV = cms.bool( False ),
-#	    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromProtoTracks" ) ),
-#	    InputVertexCollection = cms.InputTag( "hltPixelVerticesL3Muon" ),
-#	    TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
-#	    InputCollection = cms.InputTag( "hltBRSIter0HighPtTkMuPixelTracks" ),
-#	    originRadius = cms.double( 0.1 )
-#	)
-
 	process.hltBRSIter0HighPtTkMuPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
-#	process.hltMuTrackSeeds = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
 	    useEventsWithNoVertex = cms.bool( True ),
 	    originHalfLength = cms.double( 1.0E9 ),
 	    useProtoTrackKinematics = cms.bool( False ),
@@ -750,10 +705,6 @@ def addL3ToHLT(process):
 	      ),
 	      SeedingLayers = cms.InputTag( "hltBRSIter2HighPtTkMuPixelLayerPairs" )
 	    ),
-#	    SeedCreatorPSet = cms.PSet(
-#	      ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
-#	      propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-#	    ),
 	    SeedCreatorPSet = cms.PSet(  refToPSet_ = cms.string( "HLTSeedFromConsecutiveHitsCreatorIT" ) ),
 	    TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 	)
@@ -835,21 +786,6 @@ def addL3ToHLT(process):
 	    res_par = cms.vdouble( 0.003, 0.001 ),
 	    minHitsToBypassChecks = cms.uint32( 20 )
 	)
-#	process.hltBRSIter2HighPtTkMuMerged = cms.EDProducer( "SimpleTrackListMerger",
-#	    ShareFrac = cms.double( 0.19 ),
-#	    promoteTrackQuality = cms.bool( True ),
-#	    MinPT = cms.double( 0.05 ),
-#	    copyExtras = cms.untracked.bool( True ),
-#	    Epsilon = cms.double( -0.001 ),
-#	    allowFirstHitShare = cms.bool( True ),
-#	    newQuality = cms.string( "confirmed" ),
-#	    MaxNormalizedChisq = cms.double( 1000.0 ),
-#	    TrackProducer1 = cms.string( "hltBRSIter0HighPtTkMuTrackSelectionHighPurity" ),
-#	    MinFound = cms.int32( 3 ),
-#	    TrackProducer2 = cms.string( "hltBRSIter2HighPtTkMuTrackSelectionHighPurity" ),
-#	    LostHitPenalty = cms.double( 20.0 ),
-#	    FoundHitBonus = cms.double( 5.0 )
-#	)
 	process.hltBRSIter2HighPtTkMuMerged = cms.EDProducer( "TrackListMerger",
 	    ShareFrac = cms.double( 0.19 ),
 	    writeOnlyTrkQuals = cms.bool( False ),
@@ -940,11 +876,9 @@ def addL3ToHLT(process):
 	        MeasurementTrackerName = cms.InputTag( "hltESPMeasurementTracker" ),
 	        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
 	        vertexCollection = cms.InputTag( "pixelVertices" ), #Warning: I am not generating colleciton. Vertex is off anyway
-#	        input = cms.InputTag( 'hltL2SelectorForL3OI')
-#		),
 	        input = cms.InputTag( 'hltL2Muons','UpdatedAtVtx' )
 	      ),
-#		MuonTrackingRegionBuilder = IterMasterMuonTrackingRegionBuilder,  #Using the master Muon ROI params - Although it is not used
+#	      MuonTrackingRegionBuilder = MasterMuonTrackingRegionBuilder,  #Using the master Muon ROI params - Although it is not used
 	      RefitRPCHits = cms.bool( True ),
 	      PCut = cms.double( 2.5 ),
 	      TrackTransformer = cms.PSet(
@@ -1026,9 +960,6 @@ def addL3ToHLT(process):
 #	process.hltBRSL3MuonCandidates.InputLinksObjects = cms.InputTag( "hltL3MuonsBRSOI" )
 #	process.hltBRSL3MuonCandidates.InputObjects = cms.InputTag( "hltL3MuonsBRSOI" )
 #        process.hltL3fL1sMu16orMu25L1f0L2f16QL3Filtered50Q.InputLinks = cms.InputTag( "hltL3MuonsBRSOI" )
-
-
-#	process.Seeds = cms.EDAnalyzer('SeedInfo')
 	#############################################################
 	
 	####################### NEW Combo:
@@ -1065,7 +996,6 @@ def addL3ToHLT(process):
 	 process.hltL2SelectorForL3OI + #OIEnd		#off for IO
 	 process.HLTBRSIterativeTrackingHighPtTkMu +	#off for OI
 	 process.BRSIterL3Muons 				#off for OI
-#	 process.Seeds
 	)
 	
 	process.HLTL3muonrecoNocandSequence = cms.Sequence(
@@ -1079,4 +1009,3 @@ def addL3ToHLT(process):
 	)
 
 	return process
-
