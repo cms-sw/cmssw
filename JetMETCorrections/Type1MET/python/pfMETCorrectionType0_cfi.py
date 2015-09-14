@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 selectedVerticesForPFMEtCorrType0 = cms.EDFilter("VertexSelector",
     src = cms.InputTag('offlinePrimaryVertices'),
-    cut = cms.string("isValid & ndof >= 4 & chi2 > 0 & tracksSize > 0 & abs(z) < 24 & abs(position.Rho) < 2."),
+    cut = cms.string("obj.isValid() && obj.ndof() >= 4 && obj.chi2() > 0 && obj.tracksSize() > 0 && std::abs(obj.z()) < 24 & std::abs(obj.position().Rho()) < 2."),
     filter = cms.bool(False)                                          
 )
 

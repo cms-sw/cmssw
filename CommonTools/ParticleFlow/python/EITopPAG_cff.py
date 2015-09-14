@@ -41,7 +41,7 @@ pfNoPileUpJMEEI = pfNoPileUpJME.clone( bottomCollection = cms.InputTag('particle
 pfAllMuonsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
     src = cms.InputTag("pfNoPileUpEI"),
-    cut = cms.string("abs(pdgId())==13"
+    cut = cms.string("std::abs(obj.pdgId())==13"
         ),
     makeClones = cms.bool(True)
 )
@@ -51,12 +51,12 @@ pfMuonsFromVertexEI = pfMuonsFromVertex.clone( src = cms.InputTag('pfAllMuonsEI'
 pfIsolatedMuonsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
     src = cms.InputTag("pfMuonsFromVertexEI"),
-    cut = cms.string('''abs(eta)<2.5 && pt>10. && muonRef.isAvailable() &&
-    (muonRef.pfIsolationR04().sumChargedHadronPt+
-    max(0.,muonRef.pfIsolationR04().sumNeutralHadronEt+
-    muonRef.pfIsolationR04().sumPhotonEt-
-    0.50*muonRef.pfIsolationR04().sumPUPt))/pt < 0.20 &&
-    (muonRef.isPFMuon && (muonRef.isGlobalMuon || muonRef.isTrackerMuon) )'''
+    cut = cms.string('''std::abs(obj.eta())<2.5 && obj.pt()>10. && obj.muonRef().isAvailable() &&
+    (obj.muonRef()->pfIsolationR04().sumChargedHadronPt+
+    std::max(0.,obj.muonRef()->pfIsolationR04().sumNeutralHadronEt+
+    obj.muonRef()->pfIsolationR04().sumPhotonEt-
+    0.50*obj.muonRef()->pfIsolationR04().sumPUPt))/obj.pt() < 0.20 &&
+    (obj.muonRef()->isPFMuon() && (obj.muonRef()->isGlobalMuon() || obj.muonRef()->isTrackerMuon()) )'''
     ),
     makeClones = cms.bool(True)
 )
@@ -77,7 +77,7 @@ pfNoMuonJME.bottomCollection = 'pfNoPileUpJMEEI'
 pfAllElectronsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
     src = cms.InputTag("pfNoMuon"),
-    cut = cms.string("abs(pdgId())==11"
+    cut = cms.string("std::abs(obj.pdgId())==11"
         ),
     makeClones = cms.bool(True)
 )
@@ -87,13 +87,13 @@ pfElectronsFromVertexEI = pfElectronsFromVertex.clone( src = cms.InputTag('pfAll
 pfIsolatedElectronsEI = cms.EDFilter(
     "PFCandidateFwdPtrCollectionStringFilter",
     src = cms.InputTag("pfElectronsFromVertexEI"),
-    cut = cms.string('''abs(eta)<2.5 && pt>20. &&
-    gsfTrackRef.isAvailable() &&
-    gsfTrackRef.hitPattern().numberOfLostHits('MISSING_INNER_HITS')<2 &&
-    (gsfElectronRef.pfIsolationVariables().sumChargedHadronPt+
-    max(0.,gsfElectronRef.pfIsolationVariables().sumNeutralHadronEt+
-    gsfElectronRef.pfIsolationVariables().sumPhotonEt-
-    0.5*gsfElectronRef.pfIsolationVariables().sumPUPt))/pt < 0.15
+    cut = cms.string('''std::abs(obj.eta())<2.5 && obj.pt()>20. &&
+    obj.gsfTrackRef().isAvailable() &&
+    obj.gsfTrackRef()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS)<2 &&
+    (obj.gsfElectronRef()->pfIsolationVariables().sumChargedHadronPt+
+    std::max(0.,obj.gsfElectronRef()->pfIsolationVariables().sumNeutralHadronEt+
+    obj.gsfElectronRef()->pfIsolationVariables().sumPhotonEt-
+    0.5*obj.gsfElectronRef()->pfIsolationVariables().sumPUPt))/obj.pt() < 0.15
     '''),
     makeClones = cms.bool(True)
 )

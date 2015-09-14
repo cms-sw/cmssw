@@ -58,7 +58,7 @@ def getZeroBias_SinglePixelTrackVPSet():
             partialFilterName  = cms.string("hltL1sETT"),
             dqmhistolabel  = cms.string("zb"),
             mainDQMDirname = cms.untracked.string(fsqdirname),
-            singleObjectsPreselection = cms.string("pt > 0.4 && abs(eta) < 2.4"), 
+            singleObjectsPreselection = cms.string("obj.pt() > 0.4 && std::abs(obj.eta()) < 2.4"), 
             singleObjectDrawables =  cms.VPSet(),
             combinedObjectSelection =  cms.string("1==1"),
             combinedObjectSortCriteria = cms.string('at(0).pt()'), # doesnt matter
@@ -104,7 +104,7 @@ def getHighMultVPSet():
                 #dqmhistolabel  = cms.string("hltPixelTracks"),
                 dqmhistolabel  = cms.string("recoTracks"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("pt > 0.4 && abs(eta) < 2.4"), 
+                singleObjectsPreselection = cms.string("obj.pt() > 0.4 && std::abs(obj.eta()) < 2.4"), 
                 singleObjectDrawables =  cms.VPSet(),
                 combinedObjectSelection =  cms.string("1==1"),
                 combinedObjectSortCriteria = cms.string('size()'),
@@ -146,7 +146,7 @@ def getHighMultVPSet():
         ret.append(hltPixelTracks)
 
         hltPixelTracksEta16to18 = hltPixelTracks.clone()
-        hltPixelTracksEta16to18.singleObjectsPreselection='abs(eta) > 1.6 && abs(eta) < 1.8'
+        hltPixelTracksEta16to18.singleObjectsPreselection='std::abs(obj.eta()) > 1.6 && std::abs(obj.eta()) < 1.8'
         hltPixelTracksEta16to18.dqmhistolabel  = cms.string("hltPixelTracksEta16to18")
         for i in hltPixelTracksEta16to18.singleObjectDrawables:
             if i.name == "eta":
@@ -183,11 +183,11 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
     # HLT_DiPFJetAve35_HFJEC_v1
     # HLT_DiPFJetAve15_Central_v1
     if flavour == "HFJEC":
-        probeEtaSelection = "abs(eta) > 2.7"
-        probeEtaSelectionCombined = "abs(at(1).eta) > 2.7"
+        probeEtaSelection = "std::abs(obj.eta()) > 2.7"
+        probeEtaSelectionCombined = "std::abs(obj.at(1).eta()) > 2.7"
     elif flavour == "Central":
-        probeEtaSelection = "abs(eta) < 2.7"
-        probeEtaSelectionCombined = "abs(at(1).eta) < 2.7"
+        probeEtaSelection = "std::abs(obj.eta()) < 2.7"
+        probeEtaSelectionCombined = "std::abs(obj.at(1).eta()) < 2.7"
     else:
         raise Exception("Flavour not known "+ flavour)
     ret=cms.VPSet()
@@ -208,7 +208,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
                     partialFilterName  = cms.string("ForHFJECBase"), # note: this matches to hltSingleCaloJetXXXForHFJECBase
                     dqmhistolabel  = cms.string("hltCaloJets"),
                     mainDQMDirname = cms.untracked.string(fsqdirname),
-                    singleObjectsPreselection = cms.string("abs(eta)<1.4 || " + probeEtaSelection),
+                    singleObjectsPreselection = cms.string("std::abs(obj.eta())<1.4 || " + probeEtaSelection),
                     singleObjectDrawables =  cms.VPSet(),
                     combinedObjectSelection =  cms.string("1==1"),
                     combinedObjectSortCriteria = cms.string("at(0).pt"),
@@ -247,7 +247,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
                 partialFilterName  = cms.string("hltDiPFJetAve"),
                 dqmhistolabel  = cms.string("hltpfsingle"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("abs(eta)<1.4 || abs(eta) > 2.7 "),
+                singleObjectsPreselection = cms.string("std::abs(obj.eta())<1.4 || std::abs(obj.eta()) > 2.7 "),
                 singleObjectDrawables =  cms.VPSet(),
                 combinedObjectSelection =  cms.string("1==1"),
                 combinedObjectSortCriteria = cms.string("at(0).pt"),
@@ -268,10 +268,10 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
                 partialFilterName  = cms.string("hltDiPFJetAve"),
                 dqmhistolabel  = cms.string("hltPFJetsTopology"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("abs(eta)<1.4 || " + probeEtaSelection),
+                singleObjectsPreselection = cms.string("std::abs(obj.eta())<1.4 || " + probeEtaSelection),
                 singleObjectDrawables =  cms.VPSet(),
-                combinedObjectSelection =  cms.string("abs(at(0).eta())< 1.4 && "+ probeEtaSelectionCombined +
-                                                      " && abs(deltaPhi(at(0).phi, at(1).phi)) > 2.5"),
+                combinedObjectSelection =  cms.string("std::abs(obj.at(0).eta())< 1.4 && "+ probeEtaSelectionCombined +
+                                                      " && std::abs(reco::deltaPhi(obj.at(0).phi(), obj.at(1).phi())) > 2.5"),
                 combinedObjectSortCriteria = cms.string("(at(0).pt+at(1).pt)/2"),
                 combinedObjectDimension = cms.int32(2),
                 combinedObjectDrawables =  cms.VPSet(
@@ -305,7 +305,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
                 partialFilterName  = cms.string("hltDiPFJetAve"),
                 dqmhistolabel  = cms.string("recoJet"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("pt > + "+str(recoThr) +" && (abs(eta)<1.3 || abs(eta) > 2.8) "),
+                singleObjectsPreselection = cms.string("obj.pt() > + "+str(recoThr) +" && (std::abs(obj.eta())<1.3 || std::abs(obj.eta()) > 2.8) "),
                 singleObjectDrawables =  cms.VPSet(),
                 combinedObjectSelection =  cms.string("1==1"),
                 combinedObjectSortCriteria = cms.string("at(0).pt"),
@@ -327,10 +327,10 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
                 partialFilterName  = cms.string("hltDiPFJetAve"),
                 dqmhistolabel  = cms.string("recoPFJetsTopology"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("pt > "+str(recoThr) +" && (abs(eta)<1.4 ||"+probeEtaSelection + ")" ),
+                singleObjectsPreselection = cms.string("obj.pt() > "+str(recoThr) +" && (std::abs(obj.eta())<1.4 ||"+probeEtaSelection + ")" ),
                 singleObjectDrawables =  cms.VPSet(),
-                combinedObjectSelection =  cms.string("abs(at(0).eta())< 1.3 && " + probeEtaSelectionCombined + 
-                                                      " && abs(deltaPhi(at(0).phi, at(1).phi)) > 2.5"),
+                combinedObjectSelection =  cms.string("std::abs(obj.at(0).eta())< 1.3 && " + probeEtaSelectionCombined + 
+                                                      " && std::abs(reco::deltaPhi(obj.at(0).phi(), obj.at(1).phi())) > 2.5"),
                 combinedObjectSortCriteria = cms.string("(at(0).pt+at(1).pt)/2"),
                 combinedObjectDimension = cms.int32(2),
                 combinedObjectDrawables =  cms.VPSet(
@@ -372,7 +372,7 @@ def getPTAveVPSet(thresholds = [30, 60, 80, 100, 160, 220, 300], flavour="HFJEC"
                 partialFilterName  = cms.string("hltDiPFJetAve"),
                 dqmhistolabel  = cms.string("recoPFJetsCnt"),
                 mainDQMDirname = cms.untracked.string(fsqdirname),
-                singleObjectsPreselection = cms.string("pt >  "+str(recoThr) +" && abs(eta)<1.4 || abs(eta) > 2.7 "),
+                singleObjectsPreselection = cms.string("obj.pt() >  "+str(recoThr) +" && std::abs(obj.eta())<1.4 || std::abs(obj.eta()) > 2.7 "),
                 singleObjectDrawables =  cms.VPSet(),
                 combinedObjectSelection =  cms.string("1==1"),
                 combinedObjectSortCriteria = cms.string('size()'),
@@ -430,7 +430,7 @@ def getSinglePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets", parti
             partialFilterName  = cms.string("hltSinglePFJet"),
             dqmhistolabel  = cms.string(label),
             mainDQMDirname = cms.untracked.string(fsqdirname),
-            singleObjectsPreselection = cms.string("abs(eta) < 5.5 && abs(eta) > " + str(etaMin) ),
+            singleObjectsPreselection = cms.string("std::abs(obj.eta()) < 5.5 && std::abs(obj.eta()) > " + str(etaMin) ),
             singleObjectDrawables =  cms.VPSet(),
             combinedObjectSelection =  cms.string("1==1"),
             combinedObjectSortCriteria = cms.string("at(0).pt"),
@@ -483,7 +483,7 @@ def getDoublePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets" ):
     combinedObjectSelection = "1 == 1"
     if flavour != None and "FB" in flavour :
         combinedObjectSortCriteria = "("+combinedObjectSortCriteria+")*(  ? at(0).eta*at(1).eta < 0 ? 1 : 0 )"
-        combinedObjectSelection = "at(0).eta*at(1).eta < 0"
+        combinedObjectSelection = "obj.at(0).eta()*obj.at(1).eta() < 0"
         
     if etaMin == None:
         etaMin = -1
@@ -509,8 +509,8 @@ def getDoublePFJet(thresholds, flavour=None, etaMin=-1, srcType="genJets" ):
             partialFilterName  = cms.string("hltDoublePFJet"),
             dqmhistolabel  = cms.string(label),
             mainDQMDirname = cms.untracked.string(fsqdirname),
-            singleObjectsPreselection = cms.string("abs(eta) < 5.5 && abs(eta) > " + str(etaMin) ),
-            #singleObjectsPreselection = cms.string("pt > 15 && abs(eta) < 5.5 && abs(eta) > " + str(etaMin) ),
+            singleObjectsPreselection = cms.string("std::abs(obj.eta()) < 5.5 && std::abs(obj.eta()) > " + str(etaMin) ),
+            #singleObjectsPreselection = cms.string("obj.pt() > 15 && std::abs(obj.eta()) < 5.5 && std::abs(obj.eta()) > " + str(etaMin) ),
             singleObjectDrawables =  cms.VPSet(),
             combinedObjectSelection =  cms.string(combinedObjectSelection),
             combinedObjectSortCriteria = cms.string(combinedObjectSortCriteria),

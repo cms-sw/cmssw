@@ -23,9 +23,14 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
+
+#include "DataFormats/HLTReco/interface/TriggerObject.h"

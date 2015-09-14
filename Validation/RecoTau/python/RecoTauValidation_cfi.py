@@ -16,7 +16,7 @@ import os
 
    DENOMINATOR 
      
-     Set common kinematic cuts (pt > 5 and eta < 2.5) on the denominator source.
+     Set common kinematic cuts (obj.pt() > 5 and obj.eta() < 2.5) on the denominator source.
      Note that the denominator depends on the type of test (signal/background/e etc)
 
      The denominator kinematic cutter requires that 
@@ -70,7 +70,7 @@ DENOMINATOR
 
 """
 
-kinematicSelectedTauValDenominatorCut = cms.string('pt > 5. && abs(eta) < 2.5')
+kinematicSelectedTauValDenominatorCut = cms.string('obj.pt() > 5. && std::abs(obj.eta()) < 2.5')
 denominator = cms.InputTag("kinematicSelectedTauValDenominator")
 
 """
@@ -95,8 +95,8 @@ StandardMatchingParameters = cms.PSet(
    #RefCollection                = cms.InputTag("TauGenJetProducer","selectedGenTauDecaysToHadronsPt5Cumulative"),
    RefCollection                = denominator,
    TauPtCut                     = cms.double(0.), #almost deprecated, since recoCuts provides more flexibility
-   recoCuts                     = cms.string(''), #filter reconstructed candidates. leave this empty to select all. or use sth like: pt > 20 & abs(eta) < 2.3
-   genCuts                      = cms.string(''), #filter generated candidates. leave this empty to select all. or use sth like: pt > 20 & abs(eta) < 2.3
+   recoCuts                     = cms.string(''), #filter reconstructed candidates. leave this empty to select all. or use sth like: obj.pt() > 20 & std::abs(obj.eta()) < 2.3
+   genCuts                      = cms.string(''), #filter generated candidates. leave this empty to select all. or use sth like: obj.pt() > 20 & std::abs(obj.eta()) < 2.3
    chainCuts                    = cms.bool(False) #Decide whether to chain discriminators or not
 )
 

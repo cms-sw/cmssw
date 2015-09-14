@@ -5,6 +5,7 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="DPGAnalysis/SiStripTools"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>
