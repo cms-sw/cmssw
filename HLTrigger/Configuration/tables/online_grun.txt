@@ -580,10 +580,10 @@ HLT_Random_v*							# JIRA: CMSHLT-244
 HLT_Physics_v*							# skim
 DST_Physics_v*							# skim
 
-#DST_ZeroBias_CaloScouting_v*					# JIRA: CMSHLT-548
+#DST_CaloJet40_CaloScouting_v*					# JIRA: CMSHLT-548
 #DST_L1HT_CaloScouting_v*					# JIRA: CMSHLT-548
 #DST_HT250_CaloScouting_v*					# JIRA: CMSHLT-548
-#DST_ZeroBias_PFScouting_v*					# JIRA: CMSHLT-548
+#DST_CaloJet40_PFScouting_v*					# JIRA: CMSHLT-548
 #DST_L1HT_PFScouting_v*						# JIRA: CMSHLT-548
 #DST_HT250_PFScouting_v*					# JIRA: CMSHLT-548
 
