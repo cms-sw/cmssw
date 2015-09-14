@@ -590,6 +590,7 @@ namespace edm {
       if (!helperThread_)
       {
         helperThread_.reset(new std::thread(stacktraceHelperThread));
+        helperThread_->detach();
       }
     }
 
