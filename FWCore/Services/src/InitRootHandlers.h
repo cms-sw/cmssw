@@ -4,6 +4,10 @@
 #include <memory>
 #include "FWCore/Utilities/interface/RootHandlers.h"
 
+namespace std {
+  class thread;
+}
+
 namespace edm {
   class ConfigurationDescriptions;
   class ParameterSet;
@@ -19,6 +23,7 @@ namespace edm {
       virtual ~InitRootHandlers();
 
       static void fillDescriptions(ConfigurationDescriptions& descriptions);
+      static void stacktraceFromThread();
 
     private:
       static char *const *getPstackArgv();
@@ -29,10 +34,14 @@ namespace edm {
 
       void cachePidInfoHandler(unsigned int, unsigned int) {cachePidInfo();}
       void cachePidInfo();
+      static void stacktraceHelperThread();
 
       static const int pidStringLength_ = 200;
       static char pidString_[pidStringLength_];
       static char * const pstackArgv_[];
+      static int parentToChild_[2];
+      static int childToParent_[2];
+      static std::unique_ptr<std::thread> helperThread_;
       bool unloadSigHandler_;
       bool resetErrHandler_;
       bool loadAllDictionaries_;
