@@ -126,9 +126,9 @@ steps['RunEl2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-v1/RAW'
 steps['RunJet2012D']={'INPUT':InputInfo(dataSet='/JetHT/Run2012D-v1/RAW',label='jet2012D',location='STD',run=Run2012D)}
 steps['ZMuSkim2012D']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012D-ZMu-PromptSkim-v1/RAW-RECO',label='zMu2012D',location='STD',run=Run2012Dsk)}
 steps['WElSkim2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-WElectron-PromptSkim-v1/USER',label='wEl2012D',location='STD',run=Run2012Dsk)}
-steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElectron-PromptSkim-v1/RAW-RECO',label='zEl2012D',location='STD',run=Run2012Dsk)}
+steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElectron-22Jan2013-v1/RAW-RECO',label='zEl2012D',location='STD',run=Run2012Dsk)}
 
-#### run2 ####
+#### run2 2015B ####
 # Run2015B=[251642] #  251561 251638 251642
 Run2015B=selectedLS([251251])
 steps['RunHLTPhy2015B']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015B-v1/RAW',label='hltPhy2015B',events=100000,location='STD', ls=Run2015B)}
@@ -137,6 +137,20 @@ steps['RunDoubleMuon2015B']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015B-v1/
 steps['RunJetHT2015B']={'INPUT':InputInfo(dataSet='/JetHT/Run2015B-v1/RAW',label='jetHT2015B',events=100000,location='STD', ls=Run2015B)}
 steps['RunMET2015B']={'INPUT':InputInfo(dataSet='/MET/Run2015B-v1/RAW',label='met2015B',events=100000,location='STD', ls=Run2015B)}
 steps['RunMuonEG2015B']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015B-v1/RAW',label='muEG2015B',events=100000,location='STD', ls=Run2015B)}
+
+#### run2 2015C ####
+# Run2015C, 25ns: 254790 (852 LS and 65 files), 254852 (126 LS and 5 files), 254879 (178 LS and 11 files)
+Run2015C=selectedLS([254790])
+Run2015C_full=selectedLS([254790, 254852, 254879])
+steps['RunHLTPhy2015C']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015C-v1/RAW',label='hltPhy2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleEG2015C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015C-v1/RAW',label='doubEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleMuon2015C']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015C-v1/RAW',label='doubMu2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunJetHT2015C']={'INPUT':InputInfo(dataSet='/JetHT/Run2015C-v1/RAW',label='jetHT2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMET2015C']={'INPUT':InputInfo(dataSet='/MET/Run2015C-v1/RAW',label='met2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunMuonEG2015C']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015C-v1/RAW',label='muEG2015C',events=100000,location='STD', ls=Run2015C)}
+steps['RunDoubleEGPrpt2015C']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015C-ZElectron-PromptReco-v1/RAW-RECO',label='dbEGPrpt2015C',events=100000,location='STD', ls=Run2015C_full)}
+steps['RunSingleMuPrpt2015C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015C-ZMu-PromptReco-v1/RAW-RECO',label='sgMuPrpt2015C',events=100000,location='STD', ls=Run2015C_full)}
+
 
 def gen(fragment,howMuch):
     global step1Defaults
@@ -226,10 +240,10 @@ baseDataSetRelease=[
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
     'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2-v1',         # 3 - 13 TeV samples with GEN-SIM from 750_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_6_0_pre3-PU25ns_75X_mcRun2_asymptotic_v2-v1',         # 5 - fullSim PU 25ns premix
-    'CMSSW_7_6_0_pre3-PU50ns_75X_mcRun2_startup_v2-v1',            # 6 - fullSim PU 50ns premix
-    'CMSSW_7_6_0_pre3-75X_mcRun2_asymptotic_v2_FastSim-v1',        # 7 - fastSim MinBias for mixing
-    'CMSSW_7_6_0_pre3-PU25ns_75X_mcRun2_asymptotic_v2_FastSim-v1', # 8 - fastSim premixed MinBias
+    'CMSSW_7_6_0_pre4-PU25ns_76X_mcRun2_asymptotic_v1-v1',         # 5 - fullSim PU 25ns premix
+    'CMSSW_7_6_0_pre4-PU50ns_76X_mcRun2_startup_v1-v1',            # 6 - fullSim PU 50ns premix
+    'CMSSW_7_6_0_pre4-76X_mcRun2_asymptotic_v1_FastSim-v1',        # 7 - fastSim MinBias for mixing
+    'CMSSW_7_6_0_pre4-PU25ns_76X_mcRun2_asymptotic_v1_FastSim-v1', # 8 - fastSim premixed MinBias
     'CMSSW_7_6_0_pre2-75X_mcRun2_HeavyIon_v2-v1' 	           # 9 - Run2 HI GEN-SIM
     ]
 
@@ -288,15 +302,9 @@ steps['Upsilon1SToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValUpsilon1SToM
 steps['BsToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBsToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['JpsiMuMu_Pt-15INPUT']={'INPUT':InputInfo(dataSet='/RelValJpsiMuMu_Pt-15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 
-#####
-steps['BuJpsiK_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuJpsiK_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-steps['BuToKstarMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-steps['BuToKstarPsi2S_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuToKstarPsi2S_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-# the following three are to be tested to replace the above three
 steps['PhiToMuMu_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPhiToMuMu_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['EtaBToJpsiJpsi_13INPUT']={'INPUT':InputInfo(dataSet='/RelValEtaBToJpsiJpsi_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['BuMixing_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBuMixing_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-##
 
 
 steps['WE_13INPUT']={'INPUT':InputInfo(dataSet='/RelValWE_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -313,15 +321,9 @@ steps['PhotonJets_Pt_10_13_HIINPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJe
 steps['QQH1352T_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['ADDMonoJet_d3MD3_13INPUT']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_d3MD3_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['RSKKGluon_m3000GeV_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRSKKGluon_m3000GeV_13/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
-########
-steps['BuJpsiK_13']=gen2015('Pythia8_BuJpsiK_13TeV_TuneCUETP8M1_cfi',Kby(36000,400000))
-steps['BuToKstarMuMu_13']=gen2015('BuToKstarMuMu_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(2250,25000))
-steps['BuToKstarPsi2S_13']=gen2015('BuToKstarPsi2S_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(16000,176000))
-# the following three are to be tested to replace the above three
 steps['PhiToMuMu_13']=gen2015('PYTHIA8_PhiToMuMu_TuneCUETP8M1_13TeV_cff',Kby(100,1100))
 steps['EtaBToJpsiJpsi_13']=gen2015('EtaBToJpsiJpsi_forSTEAM_TuneCUEP8M1_13TeV_cfi',Kby(9,100))
 steps['BuMixing_13']=gen2015('BuMixing_BMuonFilter_forSTEAM_13TeV_TuneCUETP8M1_cfi',Kby(900,10000))
-####
 
 steps['Cosmics_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
 steps['CosmicsSPLoose_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValCosmicsSPLoose_UP15/%s/GEN-SIM'%(baseDataSetRelease[3],),location='STD')}
@@ -835,13 +837,20 @@ steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps[
 steps['RECOD']=merge([{'--scenario':'pp',},dataReco])
 steps['RECODAlCaCalo']=merge([{'--scenario':'pp',},dataRecoAlCaCalo])
 
-hltKey='frozen50ns'
-menuR2 = autoHLT[hltKey]
-# no GT customization for HLT frozen50ns
-steps['HLTDR2']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+hltKey50ns='relval50ns'
+menuR250ns = autoHLT[hltKey50ns]
+steps['HLTDR250ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+
+hltKey25ns='relval25ns'
+menuR225ns = autoHLT[hltKey25ns]
+steps['HLTDR225ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
-steps['RECODR2']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataReco])
+steps['RECODR250ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common',},dataReco])
+steps['RECODR225ns']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customiseDataRun2Common_25ns',},dataReco])
+
+
 steps['RECODR2AlCaEle']=merge([{'--scenario':'pp','--conditions':'auto:run2_data','--customise':'Configuration/DataProcessing/RecoTLR.customisePromptRun2',},dataRecoAlCaCalo])
 
 steps['RECODSplit']=steps['RECOD'] # finer job splitting  
@@ -939,7 +948,8 @@ steps['RECOUP15AlCaCalo']=merge([step3Up2015DefaultsAlCaCalo]) # todo: remove UP
 steps['RECODreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECOD']])
 steps['RECODreHLTAlCaCalo']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run1_data_%s'%menu},steps['RECODAlCaCalo']])
 
-steps['RECODR2reHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2']])
+steps['RECODR225nsreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR225ns']])
+steps['RECODR250nsreHLT']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR250ns']])
 steps['RECODR2reHLTAlCaEle']=merge([{'--hltProcess':'reHLT','--conditions':'auto:run2_data'},steps['RECODR2AlCaEle']])
 
 steps['RECO']=merge([step3Defaults])
