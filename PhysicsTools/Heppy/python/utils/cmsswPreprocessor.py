@@ -89,8 +89,10 @@ class CmsswPreprocessor :
                                 print "WARNING: cmsswPreprocessor received options but can't pass on to cmsswConfig"
                 
 		cmsswConfig.process.source.fileNames = inputfiles
-		cmsswConfig.process.maxEvents.input = nEvents
-		cmsswConfig.process.source.skipEvents = cmsswConfig.cms.untracked.uint32(firstEvent)
+		# cmsRun will not create the output file if maxEvents==0, leading to crash of the analysis downstream.
+		# Thus, we set nEvents = 1 if the input file is empty (the output file will be empty as well).
+		cmsswConfig.process.maxEvents.input = 1 if (fineSplitFactor>1 and nEvents==0) else nEvents
+		cmsswConfig.process.source.skipEvents = cmsswConfig.cms.untracked.uint32(0 if (fineSplitFactor>1 and nEvents==0) else firstEvent)
 		#fixme: implement skipEvent / firstevent
 
 		outfilename=wd+"/cmsswPreProcessing.root"
