@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-looseMuonCut = "muonRef.isNonnull && (muonRef.isGlobalMuon || muonRef.isTrackerMuon) && muonRef.isPFMuon"
-looseIsoCut  = "(muonRef.pfIsolationR04.sumChargedHadronPt + max(0., muonRef.pfIsolationR04.sumNeutralHadronEt + muonRef.pfIsolationR04.sumPhotonEt - 0.5 * muonRef.pfIsolationR04.sumPUPt) ) / muonRef.pt < 0.2"
+looseMuonCut = "obj.muonRef().isNonnull() && (obj.muonRef()->isGlobalMuon() || obj.muonRef()->isTrackerMuon()) && obj.muonRef()->isPFMuon()"
+looseIsoCut  = "(obj.muonRef()->pfIsolationR04().sumChargedHadronPt + std::max(0., obj.muonRef()->pfIsolationR04().sumNeutralHadronEt + obj.muonRef()->pfIsolationR04().sumPhotonEt - 0.5 * obj.muonRef()->pfIsolationR04().sumPUPt) ) / obj.muonRef()->pt() < 0.2"
 
-tightMuonCut = "muonRef.isNonnull && muonRef.isGlobalMuon && muonRef.isPFMuon && muonRef.globalTrack.normalizedChi2 < 10. && muonRef.globalTrack.hitPattern.numberOfValidMuonHits > 0 && " + \
-               "muonRef.numberOfMatchedStations > 1 && muonRef.innerTrack.hitPattern.numberOfValidPixelHits > 0 && muonRef.innerTrack.hitPattern.trackerLayersWithMeasurement > 8"
+tightMuonCut = "obj.muonRef().isNonnull() && obj.muonRef()->isGlobalMuon() && obj.muonRef()->isPFMuon() && obj.muonRef()->globalTrack()->normalizedChi2() < 10. && obj.muonRef()->globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && " + \
+               "obj.muonRef()->numberOfMatchedStations() > 1 && obj.muonRef()->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && obj.muonRef()->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 8"
                # CB PV cut!
-tightIsoCut  = "(muonRef.pfIsolationR04.sumChargedHadronPt + max(0., muonRef.pfIsolationR04.sumNeutralHadronEt + muonRef.pfIsolationR04.sumPhotonEt - 0.5 * muonRef.pfIsolationR04.sumPUPt) ) / muonRef.pt < 0.12"
+tightIsoCut  = "(obj.muonRef()->pfIsolationR04().sumChargedHadronPt + std::max(0., obj.muonRef()->pfIsolationR04().sumNeutralHadronEt + obj.muonRef()->pfIsolationR04().sumPhotonEt - 0.5 * obj.muonRef()->pfIsolationR04().sumPUPt) ) / obj.muonRef()->pt() < 0.12"
 
-EletightIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.1"
-ElelooseIsoCut  = "(gsfElectronRef.pfIsolationVariables.sumChargedHadronPt + max(0., gsfElectronRef.pfIsolationVariables.sumNeutralHadronEt + gsfElectronRef.pfIsolationVariables.sumPhotonEt - 0.5 * gsfElectronRef.pfIsolationVariables.sumPUPt) ) / gsfElectronRef.pt < 0.15"
+EletightIsoCut  = "(obj.gsfElectronRef()->pfIsolationVariables().sumChargedHadronPt + std::max(0., obj.gsfElectronRef()->pfIsolationVariables().sumNeutralHadronEt + obj.gsfElectronRef()->pfIsolationVariables().sumPhotonEt - 0.5 * obj.gsfElectronRef()->pfIsolationVariables().sumPUPt) ) / obj.gsfElectronRef()->pt() < 0.1"
+ElelooseIsoCut  = "(obj.gsfElectronRef()->pfIsolationVariables().sumChargedHadronPt + std::max(0., obj.gsfElectronRef()->pfIsolationVariables().sumNeutralHadronEt + obj.gsfElectronRef()->pfIsolationVariables().sumPhotonEt - 0.5 * obj.gsfElectronRef()->pfIsolationVariables().sumPUPt) ) / obj.gsfElectronRef()->pt() < 0.15"
 
 topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   ## ------------------------------------------------------
@@ -40,7 +40,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     pvExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the primary vertex candidates                                                                                            
-      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake")
+      select = cms.string("std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()")
     ),
     ## [optional] : when omitted all monitoring plots for electrons
     ## will be filled w/o extras
@@ -49,7 +49,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ##electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.5) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates                                                                                            
-      select = cms.string("pt>15 & abs(eta)<2.5 & abs(gsfTrack.d0)<1 & abs(gsfTrack.dz)<20"),
+      select = cms.string("obj.pt()>15 && std::abs(obj.eta())<2.5 && std::abs(obj.gsfTrack()->d0())<1 && std::abs(obj.gsfTrack()->dz())<20"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot 
       isolation = cms.string(ElelooseIsoCut),
@@ -59,7 +59,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates                                                                                            
-      select = cms.string(looseMuonCut + " && pt>10 & abs(eta)<2.4"),
+      select = cms.string(looseMuonCut + " && obj.pt()>10 && std::abs(obj.eta())<2.4"),
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
       isolation = cms.string(looseIsoCut),
@@ -74,12 +74,12 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ## jetID                                                   
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
 #      ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass befor filling the event monitoring plots
@@ -113,7 +113,7 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
+      select = cms.string('std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()')
     )                                        
   ),  
   ## ------------------------------------------------------    
@@ -129,10 +129,10 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label  = cms.string("jets/pf:step0"),
       src    = cms.InputTag("ak4PFJetsCHS"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
  #     ),
       min = cms.int32(2),
     ),
@@ -166,14 +166,14 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     pvExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the primary vertex candidates                                                                                            
-      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake")
+      select = cms.string("std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()")
     ),
     ## [optional] : when omitted all monitoring plots for muons
     ## will be filled w/o extras                                           
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates                                                                                               
-      select = cms.string(looseMuonCut + " && pt > 10 & abs(eta)<2.4"),
+      select = cms.string(looseMuonCut + " && pt > 10 && std::abs(obj.eta())<2.4"),
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
       isolation = cms.string(looseIsoCut)                                               
@@ -188,12 +188,12 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ## jetID                                                                                                                     
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
   #    ),                                                    
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
-      select = cms.string("pt>30 & abs(eta)<2.5"),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5"),
       ## when omitted monitor histograms for b-tagging will not be filled 
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
@@ -248,7 +248,7 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
+      select = cms.string('std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()')
     )
   ),
   ## ------------------------------------------------------
@@ -263,18 +263,18 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label  = cms.string("muons:step0"),
       src    = cms.InputTag("pfIsolatedMuonsEI"),
-      select = cms.string(looseMuonCut + looseIsoCut + " && pt>10 & abs(eta)<2.4"), # CB what about iso? CD Added looseIso
+      select = cms.string(looseMuonCut + looseIsoCut + " && obj.pt()>10 && std::abs(obj.eta())<2.4"), # CB what about iso? CD Added looseIso
       min    = cms.int32(1),
     ),
     cms.PSet(
       label  = cms.string("jets/pf:step1"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      #select = cms.string("pt>30 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      #select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 && emEnergyFraction>0.01"),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
    #   ),
       min = cms.int32(1),                                               
     ), 
@@ -282,10 +282,10 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step2"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
     #  ),
       min = cms.int32(2),                                               
     ), 
@@ -293,10 +293,10 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step3"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
      # ),
       min = cms.int32(3),                                               
     ), 
@@ -304,10 +304,10 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step4"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
 #      ),
       min = cms.int32(4),                                               
     ), 
@@ -343,14 +343,14 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     pvExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the primary vertex candidates                                                                                            
-      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake")
+      select = cms.string("std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()")
     ),
     ## [optional] : when omitted all monitoring plots for muons
     ## will be filled w/o extras                                           
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates                                                
-      select    = cms.string(looseMuonCut + " && pt>20 & abs(eta)<2.1"),  
+      select    = cms.string(looseMuonCut + " && obj.pt()>20 && std::abs(obj.eta())<2.1"),  
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
       isolation = cms.string(looseIsoCut)
@@ -365,12 +365,12 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ## jetID                                                                                                   
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
  #     ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       ## when omitted monitor histograms for b-tagging will not be filled                                                                                                   
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
@@ -425,7 +425,7 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
+      select = cms.string('std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()')
     )
   ),
   ## ------------------------------------------------------
@@ -440,7 +440,7 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label  = cms.string("muons:step0"),
       src    = cms.InputTag("pfIsolatedMuonsEI"),
-      select = cms.string(tightMuonCut +"&&"+ tightIsoCut + " && pt>20 & abs(eta)<2.1"), # CB what about iso? CD Added tightIso      
+      select = cms.string(tightMuonCut +"&&"+ tightIsoCut + " && obj.pt()>20 && std::abs(obj.eta())<2.1"), # CB what about iso? CD Added tightIso      
       min    = cms.int32(1),
       max    = cms.int32(1),
     ),
@@ -450,11 +450,11 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       src    = cms.InputTag("ak4PFJetsCHS"),
 #      jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      #select = cms.string("pt>30 & abs(eta)<2.5 & emEnergyFraction>0.01"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      #select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 && emEnergyFraction>0.01"),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
   #    ),
       min = cms.int32(1),
     ), 
@@ -462,10 +462,10 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step2"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
    #   ),
       min = cms.int32(2),
     ), 
@@ -473,10 +473,10 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step3"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
  #     ),
       min = cms.int32(3),                                                
     ), 
@@ -484,10 +484,10 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step4"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
 #      ),
       min = cms.int32(4),                                                
     ),
@@ -524,7 +524,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     pvExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the primary vertex candidates                                                                                            
-      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake")
+      select = cms.string("std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()")
     ),
     ## [optional] : when omitted all monitoring plots for electrons
     ## will be filled w/o extras
@@ -533,7 +533,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.0) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates
-      select     = cms.string("pt>20 & abs(eta)<2.5"),
+      select     = cms.string("obj.pt()>20 && std::abs(obj.eta())<2.5"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot                                                    
       isolation  = cms.string(ElelooseIsoCut),                                                   
@@ -548,13 +548,13 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ## jetID                                                   
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
     #  ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-      #select = cms.string("pt>30 & abs(eta)<2.5 & emEnergyFraction>0.01"), 
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      #select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 && emEnergyFraction>0.01"), 
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       ## when omitted monitor histograms for b-tagging will not be filled                                                   
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
@@ -605,7 +605,7 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
+      select = cms.string('std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()')
     )
   ),
   ## ------------------------------------------------------
@@ -620,17 +620,17 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label  = cms.string("elecs:step0"),
       src    = cms.InputTag("pfIsolatedElectronsEI"),
-      select = cms.string("pt>20 & abs(eta)<2.5 && "+ElelooseIsoCut),
+      select = cms.string("obj.pt()>20 && std::abs(obj.eta())<2.5 && "+ElelooseIsoCut),
       min    = cms.int32(1),
     ),
     cms.PSet(
       label  = cms.string("jets/pf:step1"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
      # ),
       min = cms.int32(1),                                                   
     ), 
@@ -638,10 +638,10 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step2"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
 #      ),
       min = cms.int32(2),
     ), 
@@ -649,10 +649,10 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step3"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
  #     ),
       min = cms.int32(3),
     ), 
@@ -660,10 +660,10 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step4"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
   #    ),
       min = cms.int32(4),
     ),
@@ -700,7 +700,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     pvExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the primary vertex candidates                                                                                            
-      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake")
+      select = cms.string("std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()")
     ),
     ## [optional] : when omitted all monitoring plots for electrons
     ## will be filled w/o extras
@@ -709,7 +709,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), cutValue = cms.double(0.0) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates
-      select     = cms.string("pt>20 & abs(eta)<2.5"),
+      select     = cms.string("obj.pt()>20 && std::abs(obj.eta())<2.5"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot 
       isolation  = cms.string(ElelooseIsoCut),
@@ -724,12 +724,12 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ## jetID
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
    #   ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets 
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       ## when omitted monitor histograms for b-tagging will not be filled
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
@@ -780,7 +780,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
+      select = cms.string('std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()')
     )
   ),
   ## ------------------------------------------------------
@@ -795,7 +795,7 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     cms.PSet(
       label = cms.string("elecs:step0"),
       src   = cms.InputTag("pfIsolatedElectronsEI"),
-      select = cms.string("pt>30 & abs(eta)<2.5 & abs(gsfElectronRef.gsfTrack.d0)<0.02 & gsfElectronRef.gsfTrack.hitPattern().numberOfHits('MISSING_INNER_HITS') <= 0 & (abs(gsfElectronRef.superCluster.eta) <= 1.4442 || abs(gsfElectronRef.superCluster.eta) >= 1.5660) & " + EletightIsoCut),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 && std::abs(obj.gsfElectronRef()->gsfTrack()->d0())<0.02 && obj.gsfElectronRef()->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) <= 0 && (std::abs(obj.gsfElectronRef()->superCluster()->eta()) <= 1.4442 || std::abs(obj.gsfElectronRef()->superCluster()->eta()) >= 1.5660) && " + EletightIsoCut),
       min = cms.int32(1),
       max = cms.int32(1),
     ),
@@ -803,10 +803,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label = cms.string("jets/pf:step1"),
       src   = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
 #      ),
       min = cms.int32(1),
     ), 
@@ -814,10 +814,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step2"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
  #     ),
       min = cms.int32(2),
     ), 
@@ -825,10 +825,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step3"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
   #    ),
       min = cms.int32(3),
     ), 
@@ -836,10 +836,10 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       label  = cms.string("jets/pf:step4"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-      select = cms.string("pt>30 & abs(eta)<2.5 "),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 "),
       #jetID  = cms.PSet(
         #label  = cms.InputTag("ak5JetID"),
-        #select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+        #select = cms.string("fHPD < 0.98 && n90Hits>1 && restrictedEMF<1")
    #   ),
       min = cms.int32(4),
     ),

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 selectedOfflinePrimaryVertices = cms.EDFilter("VertexSelector",
                                                src = cms.InputTag('offlinePrimaryVertices'),
-                                               cut = cms.string("isValid & ndof > 4 & tracksSize > 0 & abs(z) <= 24 & abs(position.Rho) <= 2."),
+                                               cut = cms.string("obj.isValid() && obj.ndof() > 4 && obj.tracksSize() > 0 && std::abs(obj.z()) <= 24 && std::abs(obj.position().Rho()) <= 2."),
                                                filter = cms.bool(False)
 )
 

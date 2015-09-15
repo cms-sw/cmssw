@@ -34,3 +34,5 @@
 #include "DPGAnalysis/SiStripTools/interface/Multiplicities.h"
 
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"

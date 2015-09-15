@@ -26,17 +26,17 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     pvExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the primary vertex candidates                                                                                            
-      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake")
+      select = cms.string("std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()")
     ),
     ## [optional] : when omitted all monitoring plots for muons
     ## will be filled w/o extras                                           
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates                                                
-      select = cms.string("pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & globalTrack.normalizedChi2<10 & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & numberOfMatches>1"),
+      select = cms.string("obj.pt()>26 && std::abs(obj.eta())<2.1 && obj.isPFMuon() && obj.isGlobalMuon() && obj.globalTrack()->normalizedChi2()<10 && obj.innerTrack()->hitPattern().trackerLayersWithMeasurement()>5 && obj.innerTrack()->hitPattern().numberOfValidPixelHits()>0 && obj.numberOfMatches()>1"),
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
-      isolation = cms.string("(pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt<0.2"),
+      isolation = cms.string("(obj.pfIsolationR04().sumChargedHadronPt+obj.pfIsolationR04().sumPhotonEt+obj.pfIsolationR04().sumNeutralHadronEt)/obj.pt()<0.2"),
     ),
     ## [optional] : when omitted all monitoring plots for jets
     ## will be filled w/o extras
@@ -47,7 +47,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
-      select = cms.string("pt>40 & abs(eta)<5.0"),
+      select = cms.string("obj.pt()>40 && std::abs(obj.eta())<5.0"),
       ## when omitted monitor histograms for b-tagging will not be filled 
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
@@ -92,7 +92,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
+      select = cms.string('std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()')
     )                                       
   ), 
   ## ------------------------------------------------------
@@ -114,7 +114,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     cms.PSet(
       label  = cms.string("muons:step1"),
       src    = cms.InputTag("muons"),
-      select = cms.string("pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & globalTrack.normalizedChi2<10 & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & numberOfMatches>1 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt<0.12"),
+      select = cms.string("obj.pt()>26 && std::abs(obj.eta())<2.1 && obj.isPFMuon() && obj.isGlobalMuon() && obj.globalTrack()->normalizedChi2()<10 && obj.innerTrack()->hitPattern().trackerLayersWithMeasurement()>5 && obj.innerTrack()->hitPattern().numberOfValidPixelHits()>0 && obj.numberOfMatches()>1 && (obj.pfIsolationR04().sumChargedHadronPt+obj.pfIsolationR04().sumPhotonEt+obj.pfIsolationR04().sumNeutralHadronEt)/obj.pt()<0.12"),
       min    = cms.int32(1),
       max    = cms.int32(1),
     ),
@@ -122,14 +122,14 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     #  label  = cms.string("jets/pf:step2"),
     #  src    = cms.InputTag("ak4PFJetsCHS"),
     #  jetCorrector = cms.string("ak4PFCHSL2L3"),
-    #  select = cms.string("pt>40 & abs(eta)<5.0"),
+    #  select = cms.string("obj.pt()>40 && std::abs(obj.eta())<5.0"),
     #  min = cms.int32(1),
     #), 
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       #jetCorrector = cms.string("ak4PFCHSL2L3"),
-      select = cms.string("pt>40 & abs(eta)<5.0"),
+      select = cms.string("obj.pt()>40 && std::abs(obj.eta())<5.0"),
       min = cms.int32(2),
     ), 
   )
@@ -161,7 +161,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     pvExtras = cms.PSet(
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the primary vertex candidates                                                                                            
-      select = cms.string("abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake")
+      select = cms.string("std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()")
     ),
     ## [optional] : when omitted all monitoring plots for electrons
     ## will be filled w/o extras
@@ -170,10 +170,10 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
       #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), pattern = cms.int32(1) ),
       ## when omitted electron plots will be filled w/o additional pre-
       ## selection of the electron candidates
-      select = cms.string("pt>30 & abs(eta)<2.5"),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5"),
       ## when omitted isolated electron multiplicity plot will be equi-
       ## valent to inclusive electron multiplicity plot 
-      isolation = cms.string("(dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1"),
+      isolation = cms.string("(obj.dr03TkSumPt()+obj.dr04EcalRecHitSumEt()+obj.dr04HcalTowerSumEt())/obj.pt()<0.1"),
     ),
     ## [optional] : when omitted all monitoring plots for jets
     ## will be filled w/o extras
@@ -184,7 +184,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
-      select = cms.string("pt>40 & abs(eta)<5.0"),
+      select = cms.string("obj.pt()>40 && std::abs(obj.eta())<5.0"),
       ## when omitted monitor histograms for b-tagging will not be filled  
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
@@ -229,7 +229,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
-      select = cms.string('abs(x)<1. & abs(y)<1. & abs(z)<20. & tracksSize>3 & !isFake')
+      select = cms.string('std::abs(obj.x())<1. && std::abs(obj.y())<1. && std::abs(obj.z())<20. && obj.tracksSize()>3 && !obj.isFake()')
     )                                       
   ), 
   ## ------------------------------------------------------
@@ -252,7 +252,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
       label  = cms.string("elecs:step1"),
       src    = cms.InputTag("gedGsfElectrons"),
       #electronId = cms.PSet( src = cms.InputTag("mvaTrigV0"), pattern = cms.int32(1) ),
-      select = cms.string("pt>30 & abs(eta)<2.5 & (dr03TkSumPt+dr04EcalRecHitSumEt+dr04HcalTowerSumEt)/pt<0.1"),
+      select = cms.string("obj.pt()>30 && std::abs(obj.eta())<2.5 && (obj.dr03TkSumPt()+obj.dr04EcalRecHitSumEt()+obj.dr04HcalTowerSumEt())/obj.pt()<0.1"),
       min    = cms.int32(1),
       max    = cms.int32(1),
     ),
@@ -260,14 +260,14 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     #  label  = cms.string("jets/pf:step2"),
     #  src    = cms.InputTag("ak4PFJetsCHS"),
     #  jetCorrector = cms.string("ak4PFCHSL2L3"),
-    #  select = cms.string("pt>40 & abs(eta)<5.0"),
+    #  select = cms.string("obj.pt()>40 && std::abs(obj.eta())<5.0"),
     #  min = cms.int32(1),
     #), 
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       #jetCorrector = cms.string("ak4PFCHSL2L3"),
-      select = cms.string("pt>40 & abs(eta)<5.0"),
+      select = cms.string("obj.pt()>40 && std::abs(obj.eta())<5.0"),
       min = cms.int32(2),
     ), 
   )
