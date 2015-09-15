@@ -42,8 +42,18 @@ recoExoticaValidationMHTNoMu = cms.EDProducer(
     excludePFMuons = cms.bool( True )
     )   
 
+recoExoticaValidationCaloHT = cms.EDProducer(
+    "CaloMETProducer",
+    src = cms.InputTag("ak4CaloJets"),
+    noHF = cms.bool( True ),
+    alias = cms.string('CaloMHT'),
+    globalThreshold = cms.double(30.0),
+    calculateSignificance = cms.bool( False ),
+    jets = cms.InputTag("ak4CaloJets") # for significance calculation
+    )
+
 ExoticaValidationProdSeq = cms.Sequence(
-    recoExoticaValidationHT + recoExoticaValidationMETNoMu + recoExoticaValidationMHTNoMu
+    recoExoticaValidationHT + recoExoticaValidationMETNoMu + recoExoticaValidationMHTNoMu + recoExoticaValidationCaloHT
     )
 
 ExoticaValidationSequence = cms.Sequence(
