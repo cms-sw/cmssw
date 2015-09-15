@@ -10,11 +10,10 @@
 
 #include <iostream>
 
-
 //by default is not initialized, gets initialized at first call
-bool EcalRingCalibrationTools::isInitializedFromGeometry_ = false;
-const CaloGeometry* EcalRingCalibrationTools::caloGeometry_ = 0;
+std::atomic<bool> EcalRingCalibrationTools::isInitializedFromGeometry_(false);
 short EcalRingCalibrationTools::endcapRingIndex_[EEDetId::IX_MAX][EEDetId::IY_MAX];
+std::once_flag EcalRingCalibrationTools::once_;
 
 
 short EcalRingCalibrationTools::getRingIndex(DetId id) 
@@ -33,8 +32,9 @@ short EcalRingCalibrationTools::getRingIndex(DetId id)
   if (id.subdetId() == EcalEndcap)
     {
       //needed only for the EE, it can be replaced at some point with something smarter
-      if (!isInitializedFromGeometry_)
-	initializeFromGeometry();
+      if (not isInitializedFromGeometry_)
+        throw std::logic_error("EcalRingCalibrationTools::initializeFromGeometry Ecal Endcap geometry is not initialized");
+
       EEDetId eid(id);
       short endcapRingIndex = endcapRingIndex_[eid.ix()-1][eid.iy()-1] + N_RING_BARREL;
       if (eid.zside() == 1) endcapRingIndex += N_RING_ENDCAP/2;
@@ -71,7 +71,6 @@ short EcalRingCalibrationTools::getModuleIndex(DetId id)
 std::vector<DetId> EcalRingCalibrationTools::getDetIdsInRing(short etaIndex) 
 {
 
-
   std::vector<DetId> ringIds;
   if (etaIndex < 0)
     return ringIds;
@@ -94,8 +93,8 @@ std::vector<DetId> EcalRingCalibrationTools::getDetIdsInRing(short etaIndex)
   else if (etaIndex < N_RING_TOTAL)
     {
       //needed only for the EE, it can be replaced at some point maybe with something smarter
-      if (!isInitializedFromGeometry_)
-	initializeFromGeometry();
+      if (not isInitializedFromGeometry_)
+        throw std::logic_error("EcalRingCalibrationTools::initializeFromGeometry Ecal Endcap geometry is not initialized");
       
       int zside= (etaIndex < N_RING_BARREL + (N_RING_ENDCAP/2) ) ? -1 : 1;
       short eeEtaIndex = (etaIndex - N_RING_BARREL)%(N_RING_ENDCAP/2); 
@@ -112,7 +111,6 @@ std::vector<DetId> EcalRingCalibrationTools::getDetIdsInRing(short etaIndex)
 
 std::vector<DetId> EcalRingCalibrationTools::getDetIdsInECAL() 
 {
-  
   std::vector<DetId> ringIds;
   
   for(int ieta= - EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) 
@@ -121,8 +119,8 @@ std::vector<DetId> EcalRingCalibrationTools::getDetIdsInECAL()
 	ringIds.push_back(EBDetId(ieta,iphi));
   
   //needed only for the EE, it can be replaced at some point maybe with something smarter
-  if (!isInitializedFromGeometry_)
-    initializeFromGeometry();
+  if (not isInitializedFromGeometry_)
+    throw std::logic_error("EcalRingCalibrationTools::initializeFromGeometry Ecal Endcap geometry is not initialized");
   
   for (int ix=0;ix<EEDetId::IX_MAX;++ix)
     for (int iy=0;iy<EEDetId::IY_MAX;++iy)
@@ -200,36 +198,32 @@ std::vector<DetId> EcalRingCalibrationTools::getDetIdsInModule(short moduleIndex
   return ringIds;
 } 
 
-void EcalRingCalibrationTools::initializeFromGeometry()
+void EcalRingCalibrationTools::setCaloGeometry(const CaloGeometry* geometry)
+{ 
+  std::call_once(once_, EcalRingCalibrationTools::initializeFromGeometry, geometry);
+}
+
+void EcalRingCalibrationTools::initializeFromGeometry(CaloGeometry const* geometry)
 {
+  if (not geometry)
+    throw std::invalid_argument("EcalRingCalibrationTools::initializeFromGeometry called with a nullptr argument");
 
-  if (!caloGeometry_)
-    {
-      edm::LogError("EcalRingCalibrationTools") << "BIG ERROR::Initializing without geometry handle" ;
-      return;
-    }
-
-  float m_cellPosEta[EEDetId::IX_MAX][EEDetId::IY_MAX];
+  float cellPosEta[EEDetId::IX_MAX][EEDetId::IY_MAX];
   for (int ix=0; ix<EEDetId::IX_MAX; ++ix) 
-    for (int iy=0; iy<EEDetId::IY_MAX; ++iy) 
-      {
-	m_cellPosEta[ix][iy] = -1.;
-	endcapRingIndex_[ix][iy]=-9;
-      }
-  
-  
-  const CaloSubdetectorGeometry *endcapGeometry = caloGeometry_->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
-
-  if (!endcapGeometry)
+    for (int iy=0; iy<EEDetId::IY_MAX; ++iy)
     {
-      edm::LogError("EcalRingCalibrationTools") << "BIG ERROR::Ecal Endcap geometry not found" ;
-      return;
+      cellPosEta[ix][iy] = -1.;
+      endcapRingIndex_[ix][iy]=-9;
     }
+  
+  CaloSubdetectorGeometry const* endcapGeometry = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
+  if (not endcapGeometry)
+    throw std::logic_error("EcalRingCalibrationTools::initializeFromGeometry Ecal Endcap geometry not found");
 
-  const std::vector<DetId>& m_endcapCells= caloGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
+  std::vector<DetId> const& endcapCells = geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
 
-  for (std::vector<DetId>::const_iterator endcapIt = m_endcapCells.begin();
-       endcapIt!=m_endcapCells.end();
+  for (std::vector<DetId>::const_iterator endcapIt = endcapCells.begin();
+       endcapIt!=endcapCells.end();
        ++endcapIt)
     {
       EEDetId ee(*endcapIt);
@@ -237,15 +231,13 @@ void EcalRingCalibrationTools::initializeFromGeometry()
       const CaloCellGeometry *cellGeometry = endcapGeometry->getGeometry(*endcapIt) ;
       int ics=ee.ix() - 1 ;
       int ips=ee.iy() - 1 ;
-      m_cellPosEta[ics][ips] = fabs(cellGeometry->getPosition().eta());
-
+      cellPosEta[ics][ips] = fabs(cellGeometry->getPosition().eta());
       //std::cout<<"EE Xtal, |eta| is "<<fabs(cellGeometry->getPosition().eta())<<std::endl;
-
     }
   
   float eta_ring[N_RING_ENDCAP/2];
   for (int ring=0; ring<N_RING_ENDCAP/2; ++ring)
-    eta_ring[ring]=m_cellPosEta[ring][50];
+    eta_ring[ring]=cellPosEta[ring][50];
 
   double etaBoundary[N_RING_ENDCAP/2 + 1];
   etaBoundary[0]=1.47;
@@ -254,28 +246,25 @@ void EcalRingCalibrationTools::initializeFromGeometry()
   for (int ring=1; ring<N_RING_ENDCAP/2; ++ring)
     etaBoundary[ring]=(eta_ring[ring]+eta_ring[ring-1])/2.;
   
-  
-  
-  for (int ring=0; ring<N_RING_ENDCAP/2; ring++){
+  for (int ring=0; ring<N_RING_ENDCAP/2; ++ring){
     // std::cout<<"***********************EE ring: "<<ring<<" eta "<<(etaBoundary[ring] + etaBoundary[ring+1])/2.<<std::endl;
     for (int ix=0; ix<EEDetId::IX_MAX; ix++)
       for (int iy=0; iy<EEDetId::IY_MAX; iy++)
-	if (m_cellPosEta[ix][iy]>etaBoundary[ring] && m_cellPosEta[ix][iy]<etaBoundary[ring+1])
+	if (cellPosEta[ix][iy]>etaBoundary[ring] && cellPosEta[ix][iy]<etaBoundary[ring+1])
 	{
 	  endcapRingIndex_[ix][iy]=ring;
 	  //std::cout<<"endcapRing_["<<ix+1<<"]["<<iy+1<<"] = "<<ring<<";"<<std::endl;  
 	}
   }
 
-  const std::vector<DetId>& m_barrelCells= caloGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
+  std::vector<DetId> const& barrelCells = geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
 
-  for (std::vector<DetId>::const_iterator barrelIt = m_barrelCells.begin();
-       barrelIt!=m_barrelCells.end();
+  for (std::vector<DetId>::const_iterator barrelIt = barrelCells.begin();
+       barrelIt!=barrelCells.end();
        ++barrelIt)
     {
       EBDetId eb(*barrelIt);
     }
-
 
   //EB
 
