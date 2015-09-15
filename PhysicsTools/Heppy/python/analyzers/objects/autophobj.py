@@ -25,6 +25,12 @@ fourVectorType = NTupleObjectType("fourVector", variables = [
     NTupleVariable("p4",    lambda x : x, "TLorentzVector", default=ROOT.reco.Particle.LorentzVector(0.,0.,0.,0.), filler = lambda vector, obj: vector.SetPtEtaPhiM(obj.pt(), obj.eta(), obj.phi(), obj.mass())),
     #               ^^^^------- Note: p4 normally is not saved unless 'saveTLorentzVectors' is enabled in the tree producer
 ])
+tlorentzFourVectorType = NTupleObjectType("tlorentzFourVectorType", variables = [
+    NTupleVariable("pt",    lambda x : x.Pt()),
+    NTupleVariable("eta",   lambda x : x.Eta()),
+    NTupleVariable("phi",   lambda x : x.Phi()),
+    NTupleVariable("energy",  lambda x : x.E()),
+])
 particleType = NTupleObjectType("particle", baseObjectTypes = [ fourVectorType ], variables = [
     NTupleVariable("pdgId",   lambda x : x.pdgId(), int),
 ])
