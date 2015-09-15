@@ -14,8 +14,8 @@ selectElectrons = cms.EDProducer(
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
-    "keep++ pdgId = 11",
-    "keep++ pdgId = -11",
+    "keep++ obj.pdgId() == 11",
+    "keep++ obj.pdgId() == -11",
     )
 )
 

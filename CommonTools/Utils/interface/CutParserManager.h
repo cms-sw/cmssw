@@ -74,11 +74,11 @@ namespace reco {
         
         std::stringstream expr;     
         
-        if( obj_name != type ) {
+        if( justBlanks || obj_name == type ) {
+          expr << "bool eval(" << obj_name << " const& obj) const override final {\n";
+        } else {
           expr << "bool eval(" << obj_name << " const& input) const override final {\n";
           expr << " const " << type << "& obj = dynamic_cast<const " << type << "&>(input);\n";
-        } else {
-          expr << "bool eval(" << obj_name << " const& obj) const override final {\n";
         }
         
         expr << " return ( " << func << " );\n";

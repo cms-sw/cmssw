@@ -13,8 +13,8 @@ gensource = cms.EDProducer(
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop * ",
-    "keep pdgId = {e-}",
-    "keep pdgId = {e+}"
+    "keep obj.pdgId() == {e-}",
+    "keep obj.pdgId() == {e+}"
     )
 )
 

@@ -117,77 +117,77 @@ hltExoticaValidator = cms.EDAnalyzer(
     # Syntax in the strings: valid syntax of the StringCutObjectSelector class
 
     # --- Muons
-    Mu_genCut     = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && (isPromptFinalState || isDirectPromptTauDecayProductFinalState)"),
-    Mu_recCut     = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
+    Mu_genCut     = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4 && std::abs(obj.pdgId()) == 13 && (obj.isPromptFinalState() || obj.isDirectPromptTauDecayProductFinalState())"),
+    Mu_recCut     = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4 && obj.isPFMuon() && (obj.isTrackerMuon() || obj.isGlobalMuon())"), # Loose Muon
     
     # --- MuonTracks
-    #refittedStandAloneMuons_genCut  = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
-    refittedStandAloneMuons_genCut  = cms.string("pt > 10 && abs(eta) < 2.4"),
-    #refittedStandAloneMuons_recCut  = cms.string("pt > 10 && abs(eta) < 2.4 && isPFMuon && (isTrackerMuon || isGlobalMuon)"), # Loose Muon
-    refittedStandAloneMuons_recCut  = cms.string("pt > 10 && abs(eta) < 2.4"), 
+    #refittedStandAloneMuons_genCut  = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4 && std::abs(obj.pdgId()) == 13 && obj.status() == 1"),
+    refittedStandAloneMuons_genCut  = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4"),
+    #refittedStandAloneMuons_recCut  = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4 && obj.isPFMuon() && (obj.isTrackerMuon() || obj.isGlobalMuon())"), # Loose Muon
+    refittedStandAloneMuons_recCut  = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4"), 
 
     # --- Electrons
-    Ele_genCut      = cms.string("pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)<2.5 && abs(pdgId) == 11 && (isPromptFinalState||isDirectPromptTauDecayProductFinalState)"),
+    Ele_genCut      = cms.string("obj.pt() > 10 && (std::abs(obj.eta())<1.444 || std::abs(obj.eta())>1.566) && std::abs(obj.eta())<2.5 && std::abs(obj.pdgId()) == 11 && (obj.isPromptFinalState()||obj.isDirectPromptTauDecayProductFinalState())"),
     Ele_recCut      = cms.string(
-        "pt > 10 && (abs(eta)<1.444 || abs(eta)>1.566) && abs(eta)< 2.5 "+
-        " && hadronicOverEm < 0.05 "+ #&& eSuperClusterOverP > 0.5 && eSuperClusterOverP < 1.5 "+
-        " && abs(deltaEtaSuperClusterTrackAtVtx)<0.007 &&  abs(deltaPhiSuperClusterTrackAtVtx)<0.06 "+
-        " && sigmaIetaIeta<0.03 "+
-        " && (pfIsolationVariables.sumChargedParticlePt + pfIsolationVariables.sumNeutralHadronEtHighThreshold + pfIsolationVariables.sumPhotonEtHighThreshold )/pt < 0.10 "+
-        " && abs(1/energy - 1/p)<0.05"),
-        #" && abs(trackPositionAtVtx.z-vertexPosition.z)<"),
+        "obj.pt() > 10 && (std::abs(obj.eta())<1.444 || std::abs(obj.eta())>1.566) && std::abs(obj.eta())< 2.5 "+
+        " && obj.hadronicOverEm() < 0.05 "+ #&& obj.eSuperClusterOverP() > 0.5 && obj.eSuperClusterOverP() < 1.5 "+
+        " && std::abs(obj.deltaEtaSuperClusterTrackAtVtx())<0.007 && std::abs(obj.deltaPhiSuperClusterTrackAtVtx())<0.06 "+
+        " && obj.sigmaIetaIeta() < 0.03 "+
+        " && (obj.pfIsolationVariables().sumChargedParticlePt + obj.pfIsolationVariables().sumNeutralHadronEtHighThreshold + obj.pfIsolationVariables().sumPhotonEtHighThreshold )/obj.pt() < 0.10 "+
+        " && std::abs(1.0/obj.energy() - 1.0/obj.p())<0.05"),
+        #" && abs(obj.trackPositionAtVtx().z()-obj.vertexPosition().z())<"),
     #" && "), # Loose-like electron
 
     # --- Photons
-    Photon_genCut     = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 22 && isPromptFinalState"),
-    Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4"), # STILL MISSING THIS INFO
-    Photon_genCut_leading  = cms.string("pt > 150 "),
-    Photon_recCut_leading  = cms.string("pt > 150 "),
+    Photon_genCut     = cms.string("obj.pt() > 20 && std::abs(obj.eta()) < 2.4 && std::abs(obj.pdgId()) == 22 && obj.isPromptFinalState()"),
+    Photon_recCut     = cms.string("obj.pt() > 20 && std::abs(obj.eta()) < 2.4"), # STILL MISSING THIS INFO
+    Photon_genCut_leading  = cms.string("obj.pt() > 150 "),
+    Photon_recCut_leading  = cms.string("obj.pt() > 150 "),
    
     # --- Taus: 
-    PFTau_genCut      = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 15 && isPromptDecayed"),
-    PFTau_recCut      = cms.string("pt > 20 && abs(eta) < 2.4"),  # STILL MISSING THIS INFO
+    PFTau_genCut      = cms.string("obj.pt() > 20 && std::abs(obj.eta()) < 2.4 && std::abs(obj.pdgId()) == 15 && obj.isPromptDecayed()"),
+    PFTau_recCut      = cms.string("obj.pt() > 20 && std::abs(obj.eta()) < 2.4"),  # STILL MISSING THIS INFO
    
     # --- Jets: 
-    PFJet_genCut      = cms.string("pt > 30 && abs(eta) < 2.4"),
-    PFJet_recCut      = cms.string("pt > 30 && abs(eta) < 2.4 &&"+
-                                     "(neutralHadronEnergy + HFHadronEnergy)/energy < 0.99 &&"+
-                                     "neutralEmEnergyFraction < 0.99 &&"+
-                                     "numberOfDaughters > 1 &&"+
-                                     "chargedHadronEnergyFraction > 0 &&"+
-                                     "chargedMultiplicity > 0 && "+
-                                     "chargedEmEnergyFraction < 0.99"),  # Loose PFJet
+    PFJet_genCut      = cms.string("obj.pt() > 30 && std::abs(obj.eta()) < 2.4"),
+    PFJet_recCut      = cms.string("obj.pt() > 30 && std::abs(obj.eta()) < 2.4 &&"+
+                                     "(obj.neutralHadronEnergy() + obj.HFHadronEnergy())/obj.energy() < 0.99 &&"+
+                                     "obj.neutralEmEnergyFraction() < 0.99 &&"+
+                                     "obj.numberOfDaughters() > 1 &&"+
+                                     "obj.chargedHadronEnergyFraction() > 0 &&"+
+                                     "obj.chargedMultiplicity() > 0 && "+
+                                     "obj.chargedEmEnergyFraction() < 0.99"),  # Loose PFJet
 
-    CaloJet_genCut      = cms.string("pt > 30 && abs(eta) < 2.4"),
-    CaloJet_recCut      = cms.string("pt > 30 && abs(eta) < 2.4"), # find realistic cuts
+    CaloJet_genCut      = cms.string("obj.pt() > 30 && std::abs(obj.eta()) < 2.4"),
+    CaloJet_recCut      = cms.string("obj.pt() > 30 && std::abs(obj.eta()) < 2.4"), # find realistic cuts
    
     # --- MET 
-    MET_genCut      = cms.string("pt > 75"),
-    MET_recCut      = cms.string("pt > 75"),  
+    MET_genCut      = cms.string("obj.pt() > 75"),
+    MET_recCut      = cms.string("obj.pt() > 75"),  
    
-    PFMET_genCut    = cms.string("pt > 75"),
-    PFMET_recCut    = cms.string("pt > 75"),  
+    PFMET_genCut    = cms.string("obj.pt() > 75"),
+    PFMET_recCut    = cms.string("obj.pt() > 75"),  
 
-    PFMHT_genCut    = cms.string("pt > 75"),
-    PFMHT_recCut    = cms.string("pt > 75"),  
+    PFMHT_genCut    = cms.string("obj.pt() > 75"),
+    PFMHT_recCut    = cms.string("obj.pt() > 75"),  
    
-    GenMET_genCut   = cms.string("pt > 75"),
-    GenMET_recCut   = cms.string("pt > 75"),  
+    GenMET_genCut   = cms.string("obj.pt() > 75"),
+    GenMET_recCut   = cms.string("obj.pt() > 75"),  
    
-    Track_genCut      = cms.string("pt > 50"),
-    Track_recCut      = cms.string("pt > 50"),
+    Track_genCut      = cms.string("obj.pt() > 50"),
+    Track_recCut      = cms.string("obj.pt() > 50"),
     
-    CaloMET_genCut  = cms.string("pt > 75"),
-    CaloMET_recCut  = cms.string("pt > 75"),
-
-    CaloMHT_genCut  = cms.string("pt > 75"),
-    CaloMHT_recCut  = cms.string("pt > 75"),  
+    CaloMET_genCut  = cms.string("obj.pt() > 75"),
+    CaloMET_recCut  = cms.string("obj.pt() > 75"),
+    
+    CaloMHT_genCut  = cms.string("obj.pt() > 75"),
+    CaloMHT_recCut  = cms.string("obj.pt() > 75"),  
    
-    hltMET_genCut   = cms.string("pt > 75"),
-    hltMET_recCut   = cms.string("pt > 75"),  
+    hltMET_genCut   = cms.string("obj.pt() > 75"),
+    hltMET_recCut   = cms.string("obj.pt() > 75"),  
    
-    l1MET_genCut    = cms.string("pt > 75"),
-    l1MET_recCut    = cms.string("pt > 75"),  
+    l1MET_genCut    = cms.string("obj.pt() > 75"),
+    l1MET_recCut    = cms.string("obj.pt() > 75"),  
    
     # The specific parameters per analysis: the name of the parameter set has to be 
     # the same as the defined ones in the 'analysis' datamember. Each analysis is a PSet

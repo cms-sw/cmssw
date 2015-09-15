@@ -109,12 +109,12 @@ process.EDM = cms.OutputModule("PoolOutputModule",
 #                                   src = cms.InputTag("genParticles"),
 #                                   select = cms.vstring('drop *',
 #                                                        # for matching
-#                                                        #'keep+ pdgId = 23',
-#                                                        'keep pdgId = 11', 
-#                                                        'keep pdgId = -11' 
+#                                                        #'keep+ obj.pdgId() == 23',
+#                                                        'keep obj.pdgId() == 11', 
+#                                                        'keep obj.pdgId() == -11' 
 #                                                        ## for fake rate
-#                                                        #'keep pdgId = 211', # pi+
-#                                                        #'keep pdgId = -211' # pi-
+#                                                        #'keep obj.pdgId() == 211', # pi+
+#                                                        #'keep obj.pdgId() == -211' # pi-
 #                                                        )
 #                                   )
 # end code moved to python/PFElectronValidation.cff.py

@@ -5,7 +5,7 @@ genParticles1 = cms.EDProducer("GenParticlePruner",
                                    src = cms.InputTag("genParticles"),
                                    select = cms.vstring('drop *',
                                                         # for miniAOD matching
-                                                        'keep status == 1')
+                                                        'keep obj.status() == 1')
                                    )
 
 from DQMOffline.PFTau.PFElectronDQMAnalyzer_cfi import pfElectronDQMAnalyzer

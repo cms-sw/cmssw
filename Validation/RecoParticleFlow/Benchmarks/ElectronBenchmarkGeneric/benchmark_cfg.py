@@ -23,8 +23,8 @@ process.pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
 process.gensource = cms.EDProducer("GenParticlePruner",
     src = cms.InputTag("genParticles"),
     select = cms.vstring('drop *', 
-        'keep pdgId = 211', 
-        'keep pdgId = -211')
+        'keep obj.pdgId() == 211', 
+        'keep obj.pdgId() == -211')
 )
 
 

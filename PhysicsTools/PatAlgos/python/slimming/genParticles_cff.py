@@ -3,7 +3,7 @@ from PhysicsTools.PatAlgos.slimming.prunedGenParticles_cfi import *
 from PhysicsTools.PatAlgos.slimming.packedGenParticles_cfi import *
 
 prunedGenParticlesWithStatusOne = prunedGenParticles.clone()
-prunedGenParticlesWithStatusOne.select.append( "keep    status == 1")
+prunedGenParticlesWithStatusOne.select.append( "keep    obj.status() == 1")
 
 prunedGenParticles.src =  cms.InputTag("prunedGenParticlesWithStatusOne")
 

@@ -33,7 +33,7 @@ hltMuonValidator = cms.EDAnalyzer("HLTMuonValidator",
     useState = cms.string("atVertex"),
 
     # set cuts on generated and reconstructed muons
-    genMuonCut  = cms.string("abs(pdgId) == 13 && status == 1"),
-    recMuonCut  = cms.string("isGlobalMuon"),
+    genMuonCut  = cms.string("std::abs(obj.pdgId()) == 13 && obj.status() == 1"),
+    recMuonCut  = cms.string("obj.isGlobalMuon()"),
 
 )

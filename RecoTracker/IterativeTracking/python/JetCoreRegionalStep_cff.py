@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
 initialStepTrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
 from RecoJets.JetProducers.caloJetsForTrk_cff import *
-jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
+jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("obj.pt() > 100 && std::abs(obj.eta()) < 2.5"))
 
 # care only at tracks from main PV
 firstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",
