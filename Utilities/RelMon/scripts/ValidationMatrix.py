@@ -155,7 +155,7 @@ def guess_blacklists(samples,ver1,ver2,hlt):
     # HLT
     if hlt: #HLT
       blacklists[sample]+=",AlCaEcalPi0@2"
-      if not search("2010+|2011+|2012+",ver1):
+      if not search("2010+|2011+|2012+|2015+",ver1):
         print "We are treating MC files for the HLT"
         for pattern,blist in definitions.hlt_mc_pattern_blist_pairs:
           blacklists[sample]=add_to_blacklist(blacklists[sample],pattern,sample,blist)
