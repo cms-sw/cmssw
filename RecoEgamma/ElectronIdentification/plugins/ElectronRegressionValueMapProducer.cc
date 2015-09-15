@@ -23,58 +23,13 @@
 #include <unordered_map>
 
 namespace {
-  enum reg_float_vars { k_sigmaIEtaIPhi = 0,
-                        k_eMax,
-                        k_e2nd,
-                        k_eTop,
-                        k_eBottom,
-                        k_eLeft,
-                        k_eRight,
-                        k_clusterMaxDR,
-                        k_clusterMaxDRDPhi,
-                        k_clusterMaxDRDEta,
-                        k_clusterMaxDRRawEnergy,
-                        k_clusterRawEnergy0,
-                        k_clusterRawEnergy1,
-                        k_clusterRawEnergy2,
-                        k_clusterDPhiToSeed0,
-                        k_clusterDPhiToSeed1,
-                        k_clusterDPhiToSeed2,
-                        k_clusterDEtaToSeed0,
-                        k_clusterDEtaToSeed1,
-                        k_clusterDEtaToSeed2,
-                        k_cryPhi,
-                        k_cryEta,
-                        k_NFloatVars             };
+  enum reg_float_vars { k_NFloatVars = 0 };
   
-  enum reg_int_vars { k_iPhi = 0,
-                      k_iEta,
-                      k_NIntVars     };
+  enum reg_int_vars   { k_NIntVars   = 0 };
 
-  static const std::vector<std::string> float_var_names( { "sigmaIEtaIPhi",
-                                                            "eMax",
-                                                            "e2nd",
-                                                            "eTop",
-                                                            "eBottom",
-                                                            "eLeft",
-                                                            "eRight",
-                                                            "clusterMaxDR",
-                                                            "clusterMaxDRDPhi",
-                                                            "clusterMaxDRDEta",
-                                                            "clusterMaxDRRawEnergy",
-                                                            "clusterRawEnergy0",
-                                                            "clusterRawEnergy1",
-                                                            "clusterRawEnergy2",
-                                                            "clusterDPhiToSeed0",
-                                                            "clusterDPhiToSeed1",
-                                                            "clusterDPhiToSeed2",
-                                                            "clusterDEtaToSeed0",
-                                                            "clusterDEtaToSeed1",
-                                                            "clusterDEtaToSeed2",
-                                                            "cryPhi",
-                                                            "cryEta"                 } );
+  static const std::vector<std::string> float_var_names( { } );
   
-  static const std::vector<std::string> integer_var_names( { "iPhi", "iEta" } );  
+  static const std::vector<std::string> integer_var_names( { } );  
   
   inline void set_map_val( const reg_float_vars index, const float value,
                            std::unordered_map<std::string,float>& map) {
@@ -100,109 +55,7 @@ namespace {
                        const edm::Ptr<reco::GsfElectron>& iEle,
                        const edm::EventSetup& iSetup,
                        std::unordered_map<std::string,float>& float_vars,
-                       std::unordered_map<std::string,int>& int_vars ) {
-    LazyTools* tools = static_cast<LazyTools*>(tools_tocast);
-    
-    const auto& the_sc  = iEle->superCluster();
-    const auto& theseed = the_sc->seed();
-    
-    const int numberOfClusters =  the_sc->clusters().size();
-    const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
-    
-    std::vector<float> vCov = tools->localCovariances( *theseed );
-    
-    const float eMax = tools->eMax( *theseed );
-    const float e2nd = tools->e2nd( *theseed );
-    const float eTop = tools->eTop( *theseed );
-    const float eLeft = tools->eLeft( *theseed );
-    const float eRight = tools->eRight( *theseed );
-    const float eBottom = tools->eBottom( *theseed );
-    
-    float dummy;
-    int iPhi;
-    int iEta;
-    float cryPhi;
-    float cryEta;
-    EcalClusterLocal _ecalLocal;
-    if (iEle->isEB()) 
-      _ecalLocal.localCoordsEB(*theseed, iSetup, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
-    else 
-      _ecalLocal.localCoordsEE(*theseed, iSetup, cryEta, cryPhi, iEta, iPhi, dummy, dummy);
-    
-    double see = (isnan(vCov[0]) ? 0. : sqrt(vCov[0]));
-    double spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
-    double sep;    
-    if (see*spp > 0)
-      sep = vCov[1] / (see * spp);
-    else if (vCov[1] > 0)
-      sep = 1.0;
-    else
-      sep = -1.0;
-    
-    set_map_val(k_sigmaIEtaIPhi,sep,float_vars);
-    set_map_val(k_eMax,eMax,float_vars);
-    set_map_val(k_e2nd,e2nd,float_vars);
-    set_map_val(k_eTop,eTop,float_vars);
-    set_map_val(k_eBottom,eBottom,float_vars);
-    set_map_val(k_eLeft,eLeft,float_vars);
-    set_map_val(k_eRight,eRight,float_vars);
-    set_map_val(k_cryPhi,cryPhi,float_vars);
-    set_map_val(k_cryEta,cryEta,float_vars);
-
-    set_map_val(k_iPhi,iPhi,int_vars);
-    set_map_val(k_iEta,iEta,int_vars);
-    
-    std::vector<float> _clusterRawEnergy;
-    _clusterRawEnergy.resize(std::max(3, numberOfClusters), 0);
-    std::vector<float> _clusterDEtaToSeed;
-    _clusterDEtaToSeed.resize(std::max(3, numberOfClusters), 0);
-    std::vector<float> _clusterDPhiToSeed;
-    _clusterDPhiToSeed.resize(std::max(3, numberOfClusters), 0);
-    float _clusterMaxDR     = 999.;
-    float _clusterMaxDRDPhi = 999.;
-    float _clusterMaxDRDEta = 999.;
-    float _clusterMaxDRRawEnergy = 0.;
-    
-    size_t iclus = 0;
-    float maxDR = 0;
-    edm::Ptr<reco::CaloCluster> pclus;
-    if( !missing_clusters ) {
-      // loop over all clusters that aren't the seed  
-      auto clusend = the_sc->clustersEnd();
-      for( auto clus = the_sc->clustersBegin(); clus != clusend; ++clus ) {
-        pclus = *clus;
-      
-        if(theseed == pclus ) 
-          continue;
-        _clusterRawEnergy[iclus]  = pclus->energy();
-        _clusterDPhiToSeed[iclus] = reco::deltaPhi(pclus->phi(),theseed->phi());
-        _clusterDEtaToSeed[iclus] = pclus->eta() - theseed->eta();
-        
-        // find cluster with max dR
-        if(reco::deltaR(*pclus, *theseed) > maxDR) {
-          maxDR = reco::deltaR(*pclus, *theseed);
-          _clusterMaxDR = maxDR;
-          _clusterMaxDRDPhi = _clusterDPhiToSeed[iclus];
-          _clusterMaxDRDEta = _clusterDEtaToSeed[iclus];
-          _clusterMaxDRRawEnergy = _clusterRawEnergy[iclus];
-        }      
-        ++iclus;
-      }
-    }
-    
-    set_map_val(k_clusterMaxDR,_clusterMaxDR,float_vars);
-    set_map_val(k_clusterMaxDRDPhi,_clusterMaxDRDPhi,float_vars);
-    set_map_val(k_clusterMaxDRDEta,_clusterMaxDRDEta,float_vars);
-    set_map_val(k_clusterMaxDRRawEnergy,_clusterMaxDRRawEnergy,float_vars);
-    set_map_val(k_clusterRawEnergy0,_clusterRawEnergy[0],float_vars); 
-    set_map_val(k_clusterRawEnergy1,_clusterRawEnergy[1],float_vars); 
-    set_map_val(k_clusterRawEnergy2,_clusterRawEnergy[2],float_vars); 
-    set_map_val(k_clusterDPhiToSeed0,_clusterDPhiToSeed[0],float_vars);
-    set_map_val(k_clusterDPhiToSeed1,_clusterDPhiToSeed[1],float_vars);
-    set_map_val(k_clusterDPhiToSeed2,_clusterDPhiToSeed[2],float_vars);
-    set_map_val(k_clusterDEtaToSeed0,_clusterDEtaToSeed[0],float_vars);
-    set_map_val(k_clusterDEtaToSeed1,_clusterDEtaToSeed[1],float_vars);
-    set_map_val(k_clusterDEtaToSeed2,_clusterDEtaToSeed[2],float_vars);
+                       std::unordered_map<std::string,int>& int_vars ) {    
   }
 }
 
