@@ -6,7 +6,7 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Configuration.StandardSequences.MagneticField_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("SimG4CMS.Calo.CaloSimHitStudy_cfi")
 
@@ -75,6 +75,10 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     )
 )
+
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run1_mc', '')
 
 process.Timing = cms.Service("Timing")
 

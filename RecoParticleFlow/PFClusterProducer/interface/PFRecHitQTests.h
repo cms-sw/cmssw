@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitQTestBase.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 
 
@@ -110,7 +111,7 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
 
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
       edm::ESHandle<HcalTopology> topo;
-      iSetup.get<IdealGeometryRecord>().get(topo);
+      iSetup.get<HcalRecNumberingRecord>().get(topo);
       edm::ESHandle<HcalChannelQuality> hcalChStatus;    
       iSetup.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
       theHcalChStatus_ = hcalChStatus.product();

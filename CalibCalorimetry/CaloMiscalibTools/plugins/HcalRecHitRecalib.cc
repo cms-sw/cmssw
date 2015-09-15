@@ -1,7 +1,8 @@
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "CalibCalorimetry/CaloMiscalibTools/interface/HcalRecHitRecalib.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -53,7 +54,7 @@ void
 HcalRecHitRecalib::beginRun(const edm::Run&, const edm::EventSetup& iSetup)
 {
   edm::ESHandle<HcalTopology> topology;
-  iSetup.get<IdealGeometryRecord>().get( topology );
+  iSetup.get<HcalRecNumberingRecord>().get( topology );
   
   mapHcal_.prefillMap(*topology);
 

@@ -26,7 +26,7 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 
 namespace edm {
@@ -44,7 +44,7 @@ public:
 
   typedef std::auto_ptr<CaloTowerConstituentsMap> ReturnType;
 
-  ReturnType produce(const IdealGeometryRecord&);
+  ReturnType produce(const HcalRecNumberingRecord&);
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
