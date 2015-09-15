@@ -653,11 +653,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                              src = objectCollection,
                                              binning = cms.VPSet(
                     cms.PSet(
-                        binSelection = cms.string('isEB'),
+                        binSelection = cms.string('obj.isEB()'),
                         binUncertainty = cms.double(0.006)
                         ),
                     cms.PSet(
-                        binSelection = cms.string('!isEB'),
+                        binSelection = cms.string('!obj.isEB()'),
                         binUncertainty = cms.double(0.015)
                         ),
                     ),
@@ -669,11 +669,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                              src = objectCollection,
                                              binning = cms.VPSet(
                     cms.PSet(
-                        binSelection = cms.string('isEB'),
+                        binSelection = cms.string('obj.isEB()'),
                         binUncertainty = cms.double(0.01)
                         ),
                     cms.PSet(
-                        binSelection = cms.string('!isEB'),
+                        binSelection = cms.string('!obj.isEB()'),
                         binUncertainty = cms.double(0.025)
                         ),
                     ),
@@ -685,11 +685,11 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                              src = objectCollection,
                                              binning = cms.VPSet(
                     cms.PSet(
-                        binSelection = cms.string('pt < 100'),
+                        binSelection = cms.string('obj.pt() < 100'),
                         binUncertainty = cms.double(0.002)
                         ),
                     cms.PSet(
-                        binSelection = cms.string('pt >= 100'),
+                        binSelection = cms.string('obj.pt() >= 100'),
                         binUncertainty = cms.double(0.05)
                         ),
                     ),

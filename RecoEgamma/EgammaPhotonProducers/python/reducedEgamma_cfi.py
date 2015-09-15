@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 reducedEgamma = cms.EDProducer("ReducedEGProducer",
-  keepPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep in output
-  slimRelinkPhotons = cms.string("hadTowOverEm()<0.15 && pt>10 && (pt>14 || chargedHadronIso()<10)"), #keep only slimmed SuperCluster plus seed cluster
-  relinkPhotons = cms.string("(r9()>0.8 || chargedHadronIso()<20 || chargedHadronIso()<0.3*pt())"), #keep all associated clusters/rechits/conversions
+  keepPhotons = cms.string("obj.hadTowOverEm()<0.15 && obj.pt()>10 && (obj.pt()>14 || obj.chargedHadronIso()<10)"), #keep in output
+  slimRelinkPhotons = cms.string("obj.hadTowOverEm()<0.15 && obj.pt()>10 && (obj.pt()>14 || obj.chargedHadronIso()<10)"), #keep only slimmed SuperCluster plus seed cluster
+  relinkPhotons = cms.string("(obj.r9()>0.8 || obj.chargedHadronIso()<20 || obj.chargedHadronIso()<0.3*obj.pt())"), #keep all associated clusters/rechits/conversions
   keepGsfElectrons = cms.string(""), #keep in output
   slimRelinkGsfElectrons = cms.string(""), #keep only slimmed SuperCluster plus seed cluster
-  relinkGsfElectrons = cms.string("pt>5"), #keep all associated clusters/rechits/conversions
+  relinkGsfElectrons = cms.string("obj.pt()>5"), #keep all associated clusters/rechits/conversions
   photons = cms.InputTag("gedPhotons"),
   gsfElectrons = cms.InputTag("gedGsfElectrons"),
   conversions = cms.InputTag("allConversions"),
