@@ -7,6 +7,9 @@ from CommonTools.RecoAlgos.HBHENoiseFilter_cfi import *
 ## The CSC beam halo tight filter ____________________________________________||
 from RecoMET.METFilters.CSCTightHaloFilter_cfi import *
 
+## The hcal problematic strip halo filter ____________________________________________||
+from RecoMET.METFilters.HcalStripHaloFilter_cfi import *
+
 ## The HCAL laser filter _____________________________________________________||
 from RecoMET.METFilters.hcalLaserEventFilter_cfi import *
 
@@ -56,6 +59,7 @@ metFilters = cms.Sequence(
    HBHENoiseFilterResultProducer *
    HBHENoiseFilter *
 #   HBHENoiseIsoFilter*
+#   HcalStripHaloFilter *
    primaryVertexFilter*
    CSCTightHaloFilter *
 #   hcalLaserEventFilter *

@@ -9,6 +9,8 @@ HcalHaloData = cms.EDProducer("HcalHaloDataProducer",
                               HBHERecHitLabel = cms.InputTag("hbhereco"),
                               HORecHitLabel  = cms.InputTag("horeco"),
                               HFRecHitLabel = cms.InputTag("hfreco"),
+
+                              caloTowerCollName = cms.InputTag('towerMaker'),
                               
                               HcalMinMatchingRadiusParam = cms.double(110.),
                               HcalMaxMatchingRadiusParam = cms.double(490.),
