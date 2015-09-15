@@ -77,6 +77,10 @@ class VertexAnalyzer( Analyzer ):
             ('fixedGridRhoFastjetAll',''),
             'double' 
             )        
+        self.handles['rhoCN'] =  AutoHandle(
+            ('fixedGridRhoFastjetCentralNeutral',''),
+            'double' 
+            )        
         self.handles['sigma'] =  AutoHandle(
             ('fixedGridSigmaFastjetAll',''),
             'double',
@@ -95,6 +99,7 @@ class VertexAnalyzer( Analyzer ):
     def process(self,  event):
         self.readCollections(event.input )
         event.rho = self.handles['rho'].product()[0]
+        event.rhoCN = self.handles['rhoCN'].product()[0]
         event.sigma = self.handles['sigma'].product()[0] if self.handles['sigma'].isValid() else -999
         event.vertices = self.handles['vertices'].product()
         event.goodVertices = filter(self.testGoodVertex,event.vertices)
