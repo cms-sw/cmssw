@@ -147,8 +147,8 @@ class JetCorrectorParametersCollection {
 		 UncertaintyPileUpPtHF=33, 
 		 UncertaintyPileUpBias=25, 
 		 UncertaintyPileUpJetRate=26,
-		 UncertaintyAux1=34,
-		 UncertaintyAux2=35,
+		 L1RC=34,
+		 L1Residual=35,
 		 UncertaintyAux3=36,
 		 UncertaintyAux4=37,
 		 N_LEVELS=38
