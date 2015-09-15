@@ -15,7 +15,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetSingleElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetSingleElectron_selector.l1tResults = cms.InputTag('')
 streamA_datasetSingleElectron_selector.throw      = cms.bool(False)
-streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele27_eta2p1_WPLoose_Gsf_v1')
+streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele27_WPLoose_Gsf_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTemplates_selector
 streamA_datasetTemplates_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -31,7 +31,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetJetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetJetHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetJetHT_selector.throw      = cms.bool(False)
-streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_PFJet260_v2')
+streamA_datasetJetHT_selector.triggerConditions = cms.vstring('HLT_PFJet260_v3')
 
 
 # dump of the Stream PhysicsMuons Datasets defined in the HLT table as Stream A Datasets
