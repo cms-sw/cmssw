@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-#pfCombinedSecondaryVertexSoftLeptonCvsLJetTags 
 pfCombinedCvsLJetTags  = cms.EDProducer(
    "JetTagProducer",
    jetTagComputer = cms.string('charmTagsComputerCvsL'),

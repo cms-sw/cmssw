@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-#use import as to mask it to process.load() (hopefully)
+#use import as to mask it to process.load() 
 import RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexSoftLeptonComputer_cfi as sl_cfg 
-#from RecoBTag.CTagging.helpers import get_vars #Automatic configuration, turned off as the 
 from RecoBTag.CTagging.training_settings import c_vs_l_vars_vpset, c_vs_b_vars_vpset
 
 charmTagsComputerCvsL = cms.ESProducer(
@@ -19,22 +18,15 @@ charmTagsComputerCvsL = cms.ESProducer(
       cms.InputTag('softPFMuonsTagInfos'),
       cms.InputTag('softPFElectronsTagInfos'),
       ),
-   mvaName = cms.string('BDT')
+   mvaName = cms.string('BDT'),
+   useCondDB = cms.bool(False),
+   gbrForestLabel = cms.string(''),
+   useGBRForest = cms.bool(True),
+   useAdaBoost = cms.bool(False)
    )
-
-## charmTagsComputerCvsL.variables = cms.VPSet( 
-##    *get_vars(
-##       charmTagsComputerCvsL.weightFile.value()
-##       )
-##     )
 
 charmTagsComputerCvsB = charmTagsComputerCvsL.clone(
    weightFile = cms.FileInPath('RecoBTag/CTagging/data/c_vs_b.weight.xml'),   
    variables = c_vs_b_vars_vpset
    )
 
-## charmTagsComputerCvsB.variables = cms.VPSet( 
-##    *get_vars(
-##       charmTagsComputerCvsB.weightFile.value()
-##       )
-##     )

@@ -10,11 +10,7 @@
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 
-//DEBUGGING
-#include "TFile.h"
-#include "TNtuple.h"
 #include <memory>
-#include <map>
 
 /** \class CharmTagger
  *  \author M. Verzetti, U. Rochester, N.Y.
@@ -40,8 +36,7 @@ public:
 	};
 
 private:
-  mutable std::mutex mutex_;
-	[[cms::thread_guard("mutex_")]] std::unique_ptr<TMVAEvaluator> mvaID_;
+	std::unique_ptr<TMVAEvaluator> mvaID_;
 	CombinedSVSoftLeptonComputer sl_computer_;
 	vpset vars_definition_;
 	std::vector<MVAVar> variables_;
@@ -52,12 +47,6 @@ private:
 	edm::FileInPath weight_file_;
   bool use_GBRForest_;
   bool use_adaBoost_;
-
-	//DEBUGGING! because there seems to be no easier way to do it -.-'
-	bool debug_mode_;
-	std::string debug_file_;
-	std::unique_ptr<TFile> ext_file_;
-	TNtuple *tree_;
 };
 
 #endif

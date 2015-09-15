@@ -1,20 +1,16 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
 
+## switch to uncheduled mode
 process.options.allowUnscheduled = cms.untracked.bool(True)
-#process.Tracer = cms.Service("Tracer")
 
 ## load tau sequences up to selectedPatJets
 process.load("PhysicsTools.PatAlgos.producersLayer1.jetProducer_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi")
 
 process.load('RecoBTag/Configuration/RecoBTag_cff')
-## process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-## from Configuration.AlCa.GlobalTag import GlobalTag
-## process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 
 ## Events to process
-process.maxEvents.input = 1000
+process.maxEvents.input = 10
 
 ## Input files
 process.source = cms.Source("PoolSource",
@@ -26,9 +22,4 @@ process.source = cms.Source("PoolSource",
 
 ## Output file
 process.out.fileName = 'validate_ctag_pat.root'
-
-
-#process.p = cms.Path(
-#    process.pfCTagging
-#)
 

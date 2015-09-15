@@ -4,8 +4,6 @@ import sys
 from DataFormats.FWLite import Events, Handle
 ROOT.gROOT.SetBatch()
 
-#yeah, everything is pretty much hadrcoded, but this is
-#supposed to be a quick check 
 events = Events('validate_ctag_pat.root')
 jet_labels = ["selectedPatJets"]#, "selectedPatJetsAK4PF", "selectedPatJetsAK8PFCHSSoftDropSubjets"]
 tested_discriminators = ['pfCombinedCvsLJetTags', 'pfCombinedCvsBJetTags']

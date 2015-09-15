@@ -11,7 +11,6 @@ pfCTagging = cms.Sequence(
     )
 
     # CSV + soft-lepton variables combined (ctagger optimized for c vs dusg)
-    #* pfCombinedSecondaryVertexSoftLeptonCvsLJetTags
     * pfCombinedCvsLJetTags
     * pfCombinedCvsBJetTags
 )

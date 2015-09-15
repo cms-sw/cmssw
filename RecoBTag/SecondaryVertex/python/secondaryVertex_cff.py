@@ -61,7 +61,7 @@ from RecoBTag.SecondaryVertex.candidateSimpleSecondaryVertex3TrkComputer_cfi imp
 from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexComputer_cfi import *
 from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexV2Computer_cfi import *
 from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexSoftLeptonComputer_cfi import *
-from RecoBTag.SecondaryVertex.candidateCombinedSecondaryVertexSoftLeptonCtagLComputer_cfi import *
+from RecoBTag.CTagging.candidateCombinedSecondaryVertexSoftLeptonCvsLComputer_cfi import *
 from RecoBTag.SecondaryVertex.candidateBoostedDoubleSecondaryVertexAK8Computer_cfi import *
 from RecoBTag.SecondaryVertex.candidateBoostedDoubleSecondaryVertexCA15Computer_cfi import *
 

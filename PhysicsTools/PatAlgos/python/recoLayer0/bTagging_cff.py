@@ -26,13 +26,8 @@ supportedBtagInfos = [
   , 'softPFElectronsTagInfos'
   , 'softPFElectronsTagInfosAK8'
   , 'softPFElectronsTagInfosCA15'
-  #, 'pfInclusiveSecondaryVertexFinderCtagLTagInfos'
-  #C-Tagging tag infos
-  #, 'pfInclusiveSecondaryVertexFinderCtagLNegativeTagInfos'
-  # TopTagInfos (unrelated to b tagging)
   #C-Tagging tag infos
   , 'pfInclusiveSecondaryVertexFinderCvsLTagInfos'
-  #, 'pfInclusiveSecondaryVertexFinderCvsLNegativeTagInfos'
   # TopTagInfos (unrelated to b tagging)
   , 'caTopTagInfos'
   ]
@@ -133,18 +128,9 @@ supportedBtagDiscr = {
   , 'pfNegativeCombinedMVABJetTags'                         : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'pfCombinedSecondaryVertexSoftLeptonBJetTags'           : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'pfNegativeCombinedSecondaryVertexSoftLeptonBJetTags'   : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
-    #C-Tagging
-<<<<<<< HEAD
-  , 'pfCombinedTMVACtagLJetTags'                            : ["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCtagLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]
-  , 'pfCombinedTMVACtagBJetTags'                            : ["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCtagLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]
-  #, 'pfCombinedSecondaryVertexSoftLeptonCtagLJetTags'       : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderCtagLTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
-  #, 'pfNegativeCombinedSecondaryVertexSoftLeptonCtagLJetTags' : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderCtagLNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
   , 'pfBoostedDoubleSecondaryVertexAK8BJetTags'             : ['pfImpactParameterTagInfosAK8', 'pfInclusiveSecondaryVertexFinderTagInfosAK8', 'softPFMuonsTagInfosAK8', 'softPFElectronsTagInfosAK8']
   , 'pfBoostedDoubleSecondaryVertexCA15BJetTags'            : ['pfImpactParameterTagInfosCA15', 'pfInclusiveSecondaryVertexFinderTagInfosCA15', 'softPFMuonsTagInfosCA15', 'softPFElectronsTagInfosCA15']
-=======
+    #C-Tagging
   , 'pfCombinedCvsLJetTags'                            : ["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]
   , 'pfCombinedCvsBJetTags'                            : ["pfImpactParameterTagInfos", "pfInclusiveSecondaryVertexFinderCvsLTagInfos", "softPFMuonsTagInfos", "softPFElectronsTagInfos"]
-  #, 'pfCombinedSecondaryVertexSoftLeptonCvsLJetTags'       : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderCvsLTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
-  #, 'pfNegativeCombinedSecondaryVertexSoftLeptonCvsLJetTags' : ['pfImpactParameterTagInfos', 'pfInclusiveSecondaryVertexFinderCvsLNegativeTagInfos', 'softPFMuonsTagInfos', 'softPFElectronsTagInfos']
->>>>>>> 5184ef0... Final version of the charm tagging (with the TMVA reader)
   }

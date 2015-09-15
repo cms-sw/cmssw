@@ -23,7 +23,6 @@ RecoBTagFEVT = cms.PSet(
         'keep *_pfCombinedMVABJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexSoftLeptonBJetTags_*_*',
-        ##	'keep *_pfCombinedSecondaryVertexSoftLeptonCvsLJetTags_*_*',
         'keep *_inclusiveCandidateSecondaryVertices_*_*',
         #CTagging
         'keep *_pfInclusiveSecondaryVertexFinderCvsLTagInfos_*_*',
@@ -52,11 +51,10 @@ RecoBTagRECO = cms.PSet(
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
         'keep *_pfCombinedMVABJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
-##	'keep *_pfCombinedSecondaryVertexSoftLeptonCtagLJetTags_*_*',
         'keep *_pfCombinedSecondaryVertexSoftLeptonBJetTags_*_*',
-##	'keep *_pfCombinedSecondaryVertexSoftLeptonCvsLJetTags_*_*',	
-        'keep *_inclusiveCandidateSecondaryVertices_*_*'
+        'keep *_inclusiveCandidateSecondaryVertices_*_*',
         #CTaggning
+        'keep *_pfInclusiveSecondaryVertexFinderCvsLTagInfos_*_*',
         'keep *_pfCombinedCvsLJetTags_*_*',
         'keep *_pfCombinedCvsBJetTags_*_*'
     )
@@ -83,9 +81,8 @@ RecoBTagAOD = cms.PSet(
         'keep *_pfCombinedInclusiveSecondaryVertexV2BJetTags_*_*',
         'keep *_pfCombinedMVABJetTags_*_*',
         'keep *_pfCombinedMVAV2BJetTags_*_*',
-	'keep *_pfCombinedSecondaryVertexSoftLeptonBJetTags_*_*',
-##	'keep *_pfCombinedSecondaryVertexSoftLeptonCvsLJetTags_*_*',	
-        'keep *_inclusiveCandidateSecondaryVertices_*_*'
+        'keep *_pfCombinedSecondaryVertexSoftLeptonBJetTags_*_*',
+        'keep *_inclusiveCandidateSecondaryVertices_*_*',
         #CTaggning
         'keep *_pfCombinedCvsLJetTags_*_*',
         'keep *_pfCombinedCvsBJetTags_*_*'
