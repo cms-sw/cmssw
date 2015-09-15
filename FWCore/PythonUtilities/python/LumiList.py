@@ -107,8 +107,8 @@ class LumiList(object):
             newLumis = []
             for lumi in sorted(self.compactList[run]):
                 # If the next lumi starts inside or just after the last just change the endpoint of the first
-                if newLumis and lumi[0] >= newLumis[-1][0] and lumi[0] <= newLumis[-1][1] + 1:
-                    newLumis[-1][1] = lumi[1]
+                if newLumis and newLumis[-1][0] <= lumi[0] <= newLumis[-1][1] + 1:
+                    newLumis[-1][1] = max(newLumis[-1][1], lumi[1])
                 else:
                     newLumis.append(lumi)
             self.compactList[run] = newLumis
