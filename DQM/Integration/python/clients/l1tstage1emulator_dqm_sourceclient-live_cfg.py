@@ -52,13 +52,13 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 # L1 data - emulator sequences 
 process.load("DQM.L1TMonitor.L1TEmulatorMonitor_cff")    
 process.load("DQM.L1TMonitorClient.L1TEMUMonitorClient_cff")    
-#process.load("L1Trigger.L1TCalorimeter.caloStage1Params_cfi")
+
 process.GlobalTag.toGet = cms.VPSet(
   cms.PSet(
            record  = cms.string("L1TCaloParamsRcd"),
            tag     = cms.string("L1TCaloParams_CRAFT09_hlt"),
-  #         connect = cms.untracked.string("frontier://FrontierPrep/CMS_CONDITIONS")
-           connect = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierPrep)(serverurl=http://localhost:8000/FrontierPrep)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
+           connect = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-z
+iplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
           )
 )
 
