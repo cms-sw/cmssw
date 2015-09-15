@@ -31,7 +31,9 @@ namespace reco {
 
     // Number of HaloTriggers in +/- endcap
     int NumberOfHaloTriggers (HaloData::Endcap z= HaloData::both) const ;
+    int NumberOfHaloTriggers_TrkMuUnVeto (HaloData::Endcap z= HaloData::both) const ;
     int NHaloTriggers(HaloData::Endcap z = HaloData::both ) const { return NumberOfHaloTriggers(z);}
+
     // Number of Halo Tracks in +/-  endcap
     int NumberOfHaloTracks(HaloData::Endcap z= HaloData::both) const ;
     int NHaloTracks(HaloData::Endcap z = HaloData::both) const { return NumberOfHaloTracks(z) ;}
@@ -53,7 +55,12 @@ namespace reco {
     // MLR
     short int NFlatHaloSegments() const{ return nFlatHaloSegments; }
     bool GetSegmentsInBothEndcaps() const{ return segments_in_both_endcaps; }
+    bool GetSegmentIsCaloMatched() const{ return segmentiscalomatched; }
     // End MLR
+    short int NFlatHaloSegments_TrkMuUnVeto() const{ return nFlatHaloSegments_TrkMuUnVeto; }
+    bool GetSegmentsInBothEndcaps_Loose_TrkMuUnVeto() const{ return segments_in_both_endcaps_loose_TrkMuUnVeto;}
+    bool GetSegmentsInBothEndcaps_Loose_dTcut_TrkMuUnVeto() const{ return segments_in_both_endcaps_loose_dtcut_TrkMuUnVeto;}
+
 
     // Get Reference to the Tracks
     edm::RefVector<reco::TrackCollection>& GetTracks(){return TheTrackRefs;}
@@ -61,7 +68,7 @@ namespace reco {
     
     // Set Number of Halo Triggers
     void SetNumberOfHaloTriggers(int PlusZ,  int MinusZ ){ nTriggers_PlusZ =PlusZ; nTriggers_MinusZ = MinusZ ;}
-
+    void SetNumberOfHaloTriggers_TrkMuUnVeto(int PlusZ,  int MinusZ ){ nTriggers_PlusZ_TrkMuUnVeto =PlusZ; nTriggers_MinusZ_TrkMuUnVeto = MinusZ ;}
     // Set number of chamber-level triggers with non-collision timing
     void SetNOutOfTimeTriggers(short int PlusZ,short int MinusZ){ nOutOfTimeTriggers_PlusZ = PlusZ ; nOutOfTimeTriggers_MinusZ = MinusZ;}
     // Set number of CSCRecHits with non-collision timing
@@ -85,6 +92,11 @@ namespace reco {
     void SetNFlatHaloSegments(short int nSegments) {nFlatHaloSegments = nSegments;}
     void SetSegmentsBothEndcaps(bool b) { segments_in_both_endcaps = b; }
     // End MLR
+    void SetNFlatHaloSegments_TrkMuUnVeto(short int nSegments) {nFlatHaloSegments_TrkMuUnVeto = nSegments;}
+    void SetSegmentsBothEndcaps_Loose_TrkMuUnVeto(bool b) { segments_in_both_endcaps_loose_TrkMuUnVeto = b; }
+    void SetSegmentsBothEndcaps_Loose_dTcut_TrkMuUnVeto(bool b) { segments_in_both_endcaps_loose_dtcut_TrkMuUnVeto = b; }
+    void SetSegmentIsCaloMatched(bool b) { segmentiscalomatched = b; }
+
   private:
     edm::RefVector<reco::TrackCollection> TheTrackRefs;
 
@@ -92,7 +104,8 @@ namespace reco {
     std::vector<GlobalPoint> TheGlobalPositions;
     int nTriggers_PlusZ;
     int nTriggers_MinusZ;
-
+    int nTriggers_PlusZ_TrkMuUnVeto;
+    int nTriggers_MinusZ_TrkMuUnVeto;
     // CSC halo trigger reported by the HLT
     bool HLTAccept;
    
@@ -117,7 +130,10 @@ namespace reco {
     short int nFlatHaloSegments;
     bool segments_in_both_endcaps;
     // end MLR
-
+    short int nFlatHaloSegments_TrkMuUnVeto;
+    bool segments_in_both_endcaps_loose_TrkMuUnVeto;
+    bool segments_in_both_endcaps_loose_dtcut_TrkMuUnVeto;
+    bool segmentiscalomatched ;
   };
 
 
