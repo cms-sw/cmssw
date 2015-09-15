@@ -57,8 +57,7 @@ process.GlobalTag.toGet = cms.VPSet(
   cms.PSet(
            record  = cms.string("L1TCaloParamsRcd"),
            tag     = cms.string("L1TCaloParams_CRAFT09_hlt"),
-           connect = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-z
-iplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
+           connect = cms.untracked.string("frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)(failovertoserver=no)/CMS_CONDITIONS")
           )
 )
 
