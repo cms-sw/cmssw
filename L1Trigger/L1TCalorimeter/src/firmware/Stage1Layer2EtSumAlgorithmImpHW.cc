@@ -98,11 +98,6 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   int sumHT, MHT, iPhiHT;
   std::tie(sumHT, MHT, iPhiHT) = doSumAndMET(regionHtVect, ETSumType::kHadronicSum);
 
-  //MHT is replaced with MHT/HT
-  uint16_t MHToHT=MHToverHT(MHT,sumHT);
-  //iPhiHt is replaced by the dPhi between two most energetic jets
-  iPhiHT = DiJetPhi(jets);
-
   // Set quality (i.e. overflow) bits appropriately
   int METqual = 0;
   int MHTqual = 0;
@@ -116,6 +111,14 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
     ETTqual = 1;
   if(sumHT >= 0xfff)
     HTTqual = 1;
+
+  MHT &= 127; // limit MHT to 7 bits as the firmware does, but only after checking for overflow.
+  //MHT is replaced with MHT/HT
+  uint16_t MHToHT=MHToverHT(MHT,sumHT);
+  // std::cout << "MHT HT MHT/HT" << std::endl;
+  // std::cout << MHT << " " << sumHT << " " << MHToHT << std::endl;
+  //iPhiHt is replaced by the dPhi between two most energetic jets
+  iPhiHT = DiJetPhi(jets);
 
 
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);

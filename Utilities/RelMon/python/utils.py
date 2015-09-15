@@ -138,9 +138,8 @@ class StatisticalTest(object):
             # Conversation with JeanRoch and David 5 April
             return 1
           elif one_empty:
-            #return -103
-            # Conversation with JeanRoch and David 5 April
-            return 1
+            # Due conversation with Giovanni on 2015-09-10
+            return 0
 
           # if histos have different number of bins
           if Nbins1!=Nbins2:

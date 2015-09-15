@@ -300,7 +300,7 @@ bool PulseChiSqSNNLS::NNLS() {
   aTbvec = invcovp.transpose()*_covdecomp.matrixL().solve(_sampvec);  
   
   int iter = 0;
-  Index idxwmax;
+  Index idxwmax = 0;
   double wmax = 0.0;
   //work = PulseVector::zeros();
   while (true) {    
@@ -311,10 +311,12 @@ bool PulseChiSqSNNLS::NNLS() {
       const unsigned int nActive = npulse - _nP;
       
       updatework = aTbvec - aTamat*_ampvec;      
+      Index idxwmaxprev = idxwmax;
+      double wmaxprev = wmax;
       wmax = updatework.tail(nActive).maxCoeff(&idxwmax);
       
       //convergence
-      if (wmax<1e-11) break;
+      if (wmax<1e-11 || (idxwmax==idxwmaxprev && wmax==wmaxprev)) break;
       
       //unconstrain parameter
       Index idxp = _nP + idxwmax;
