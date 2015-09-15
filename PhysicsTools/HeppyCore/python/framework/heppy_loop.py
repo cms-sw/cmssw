@@ -189,4 +189,4 @@ def main( options, args ):
         # then, the exceptions are visible -> use only one sample for testing
         global loop
         loop = runLoop( comp, outDir, cfg.config, options )
-
+    return loop

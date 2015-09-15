@@ -1,4 +1,20 @@
 #!/usr/bin/env bash
 ln -sf $CMSSW_BASE/src/PhysicsTools/HeppyCore/scripts/heppy_loop.py tmp_heppy.py
-ipython --pdb -- tmp_heppy.py "$@" 
+
+# test the presence of the interactive flag
+interactive=false
+for var in "$@" 
+do
+    if [ $var == "-i" ]; then
+	echo 'interactive mode'
+	interactive=true
+    fi
+done
+
+if [ "$interactive" = true ]; then 
+    ipython -i -- tmp_heppy.py "$@"
+else
+    ipython -- tmp_heppy.py "$@"
+fi 
+
 rm tmp_heppy.py
