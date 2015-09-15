@@ -17,6 +17,9 @@
 #include "DataFormats/METReco/interface/HcalHaloData.h" 
 #include "DataFormats/METReco/interface/GlobalHaloData.h" 
 
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+
 namespace reco {
   class BeamHaloInfoProducer;
   
