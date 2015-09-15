@@ -267,6 +267,10 @@ def customise_csc_PostLS1(process):
     if hasattr(process, 'csc2DRecHits'):
         process = customise_csc_LocalReco(process)
 
+    # Muon reconstruction do not exclude bad chambers
+    if hasattr(process, 'muonDetIdAssociator'):
+        process.muonDetIdAssociator.includeBadChambers = cms.bool(True)
+
     # DQM 
     if hasattr(process, 'cscMonitor'):
         process = customise_csc_DQM(process)
