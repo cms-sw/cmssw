@@ -151,9 +151,10 @@ namespace pat {
       // ---- members for MET corrections ----
       enum METUncertainty {
 	JetResUp=0, JetResDown=1, JetEnUp=2, JetEnDown=3,
-        MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7, TauEnUp=8,TauEnDown=9,
-        UnclusteredEnUp=10,UnclusteredEnDown=11, NoShift=12, METUncertaintySize=13,
-	JetResUpSmear=14, JetResDownSmear=15, METFullUncertaintySize=16
+        MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7,
+	TauEnUp=8, TauEnDown=9, UnclusteredEnUp=10, UnclusteredEnDown=11,
+	PhotonEnUp=12, PhotonEnDown=13, NoShift=14, METUncertaintySize=15,
+	JetResUpSmear=16, JetResDownSmear=17, METFullUncertaintySize=18
       };
       enum METCorrectionLevel {
         Raw=0, Type1=1, Type01=2, TypeXY=3, Type1XY=4, Type01XY=5,

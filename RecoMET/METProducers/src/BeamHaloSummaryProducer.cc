@@ -47,6 +47,8 @@ BeamHaloSummaryProducer::BeamHaloSummaryProducer(const edm::ParameterSet& iConfi
   T_HcalPhiWedgeToF = (float)iConfig.getParameter<double>("t_HcalPhiWedgeToF");
   T_HcalPhiWedgeConfidence = (float)iConfig.getParameter<double>("t_HcalPhiWedgeConfidence");
 
+  problematicStripMinLength = (int)iConfig.getParameter<int>("problematicStripMinLength");
+
   cschalodata_token_ = consumes<CSCHaloData>(IT_CSCHaloData);
   ecalhalodata_token_ = consumes<EcalHaloData>(IT_EcalHaloData);
   hcalhalodata_token_ = consumes<HcalHaloData>(IT_HcalHaloData);
@@ -209,6 +211,15 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
     TheBeamHaloSummary->GetHcalHaloReport()[0] = 1;
   if( HcalTightId ) 
     TheBeamHaloSummary->GetHcalHaloReport()[1] = 1;
+
+
+  for( unsigned int i = 0 ; i < HcalData.getProblematicStrips().size() ; i++ ) {
+    auto const& problematicStrip = HcalData.getProblematicStrips()[i];
+    if(problematicStrip.cellTowerIds.size() < (unsigned int)problematicStripMinLength) continue;
+
+    TheBeamHaloSummary->getProblematicStrips().push_back(problematicStrip);
+  }
+
 
   // Global Halo Data
   Handle<GlobalHaloData> TheGlobalHaloData;
