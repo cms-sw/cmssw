@@ -22,24 +22,11 @@
 
 namespace {
   // Cluster shapes
-  enum reg_float_vars { k_sigmaIPhiIPhi = 0,
-                        k_sigmaIEtaIPhi,
-                        k_e2x5Max,
-                        k_e2x5Left,
-                        k_e2x5Right,
-                        k_e2x5Top,
-                        k_e2x5Bottom,                        
-                        k_NFloatVars             };
+  enum reg_float_vars { k_NFloatVars = 0 };
   
-  enum reg_int_vars { k_NIntVars = 0 };
+  enum reg_int_vars   { k_NIntVars   = 0 };
 
-  static const std::vector<std::string> float_var_names( { "sigmaIPhiIPhi",
-                                                           "sigmaIEtaIPhi",
-                                                           "e2x5Max",
-                                                           "e2x5Left",
-                                                           "e2x5Right",
-                                                           "e2x5Top",
-                                                           "e2x5Bottom"      } );
+  static const std::vector<std::string> float_var_names( { } );
   
   static const std::vector<std::string> integer_var_names( { } );
 
@@ -66,22 +53,7 @@ namespace {
   inline void calculateValues(EcalClusterLazyToolsBase* tools_tocast,
                               const SeedType& the_seed,
                               std::unordered_map<std::string,float>& float_vars,
-                              std::unordered_map<std::string,int>& /*int_vars*/ ) {
-    LazyTools* tools = static_cast<LazyTools*>(tools_tocast);
-    
-    float spp = -999;
-    std::vector<float> vCov = tools->localCovariances( the_seed );
-    spp = (isnan(vCov[2]) ? 0. : sqrt(vCov[2]));
-    float sep = vCov[1];
-    
-    set_map_val(k_sigmaIPhiIPhi, spp, float_vars);
-    set_map_val(k_sigmaIEtaIPhi, sep, float_vars);
-    
-    set_map_val(k_e2x5Max,    tools->e2x5Max(the_seed),    float_vars);
-    set_map_val(k_e2x5Left,   tools->e2x5Left(the_seed),   float_vars);
-    set_map_val(k_e2x5Right,  tools->e2x5Right(the_seed),  float_vars);
-    set_map_val(k_e2x5Top,    tools->e2x5Top(the_seed),    float_vars);
-    set_map_val(k_e2x5Bottom, tools->e2x5Bottom(the_seed), float_vars);    
+                              std::unordered_map<std::string,int>& int_vars ) {
   }
 }
 
