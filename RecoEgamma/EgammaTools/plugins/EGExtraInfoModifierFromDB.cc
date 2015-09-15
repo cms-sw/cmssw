@@ -66,8 +66,10 @@ public:
   void setConsumes(edm::ConsumesCollector&) override final;
   
   void modifyObject(reco::GsfElectron&) const override final;
+  void modifyObject(reco::Photon&) const override final;
   
-  void modifyObject(pat::Electron&) const override final; // just calls GsfElectron version
+  // just calls reco versions
+  void modifyObject(pat::Electron&) const override final; 
   void modifyObject(pat::Photon&) const override final;
 
 private:
@@ -383,7 +385,7 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   // regression calculation needs no additional valuemaps
 
   const reco::SuperClusterRef& the_sc = ele.superCluster();
-  edm::Ptr<reco::CaloCluster> theseed = the_sc->seed();
+  const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();
   const int numberOfClusters =  the_sc->clusters().size();
   const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
 
@@ -574,78 +576,62 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Electron& ele) const {
   modifyObject(static_cast<reco::GsfElectron&>(ele));
 }
 
-void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
-  // we encounter two cases here, either we are running AOD -> MINIAOD
-  // and the value maps are to the reducedEG object, can use original object ptr
-  // or we are running MINIAOD->MINIAOD and we need to fetch the pat objects to reference
-  edm::Ptr<reco::Candidate> ptr(pho.originalObjectRef());
-
-  if(!ph_conf.tok_photon_src.isUninitialized()) {
-    auto key = phos_by_oop.find(pho.originalObjectRef().key());
-    if( key != phos_by_oop.end() ) {
-      ptr = key->second;
-    } else {
-      throw cms::Exception("BadPhotonKey")
-        << "Original object pointer with key = " << pho.originalObjectRef().key() << " not found in cache!";
-    }
-  }
+void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
+  // regression calculation needs no additional valuemaps
   
   std::array<float, 31> eval;
-  reco::SuperClusterRef sc = pho.superCluster();
-  edm::Ptr<reco::CaloCluster> theseed = sc->seed();
+  const reco::SuperClusterRef& the_sc = pho.superCluster();
+  const edm::Ptr<reco::CaloCluster>& theseed = the_sc->seed();
   
+  const int numberOfClusters =  the_sc->clusters().size();
+  const bool missing_clusters = !the_sc->clusters()[numberOfClusters-1].isAvailable();
+
+  if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
+
+  const double raw_energy = the_sc->rawEnergy(); 
+  const auto& ess = pho.extraShowerShapes();
+
   // SET INPUTS
-  eval[0]  = sc->rawEnergy();
-  //eval[1]  = sc->position().Eta();
-  //eval[2]  = sc->position().Phi();
+  eval[0]  = raw_energy;
+  //eval[1]  = the_sc->position().Eta();
+  //eval[2]  = the_sc->position().Phi();
   eval[1]  = pho.r9();
-  eval[2]  = sc->etaWidth();
-  eval[3]  = sc->phiWidth(); 
-  const int N_ECAL = sc->clustersEnd() - sc->clustersBegin();
-  eval[4]  = std::max(0,N_ECAL - 1);
+  eval[2]  = the_sc->etaWidth();
+  eval[3]  = the_sc->phiWidth(); 
+  eval[4]  = std::max(0,numberOfClusters - 1);
   eval[5]  = pho.hadronicOverEm();
   eval[6]  = rhoValue_;
   eval[7]  = nVtx_;  
-  eval[8] = theseed->eta()-sc->position().Eta();
-  eval[9] = reco::deltaPhi(theseed->phi(),sc->position().Phi());
-  eval[10] = pho.seedEnergy()/sc->rawEnergy();
+  eval[8] = theseed->eta()-the_sc->position().Eta();
+  eval[9] = reco::deltaPhi(theseed->phi(),the_sc->position().Phi());
+  eval[10] = theseed->energy()/raw_energy;
   eval[11] = pho.e3x3()/pho.e5x5();
-  eval[12] = pho.sigmaIetaIeta();
-
-  float sipip=0, sieip=0, e2x5Max=0, e2x5Left=0, e2x5Right=0, e2x5Top=0, e2x5Bottom=0;
-  assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("sigmaIphiIphi"))->second.second, pho_vmaps, sipip);
-  assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Max"))->second.second, pho_vmaps, e2x5Max);
-  assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Left"))->second.second, pho_vmaps, e2x5Left);
-  assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Right"))->second.second, pho_vmaps, e2x5Right);
-  assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Top"))->second.second, pho_vmaps, e2x5Top);
-  assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Bottom"))->second.second, pho_vmaps, e2x5Bottom);
-  
-  eval[13] = sipip;
-  eval[14] = sieip;
+  eval[12] = pho.sigmaIetaIeta();  
+  eval[13] = ess.sigmaIphiIphi;
+  eval[14] = ess.sigmaIetaIphi;
   eval[15] = pho.maxEnergyXtal()/pho.e5x5();
-  eval[16] = pho.e2nd()/pho.e5x5();
-  eval[17] = pho.eTop()/pho.e5x5();
-  eval[18] = pho.eBottom()/pho.e5x5();
-  eval[19] = pho.eLeft()/pho.e5x5();
-  eval[20] = pho.eRight()/pho.e5x5();  
-  eval[21] = e2x5Max/pho.e5x5();
-  eval[22] = e2x5Left/pho.e5x5();
-  eval[23] = e2x5Right/pho.e5x5();
-  eval[24] = e2x5Top/pho.e5x5();
-  eval[25] = e2x5Bottom/pho.e5x5();
+  eval[16] = ess.e2nd/pho.e5x5();
+  eval[17] = ess.eTop/pho.e5x5();
+  eval[18] = ess.eBottom/pho.e5x5();
+  eval[19] = ess.eLeft/pho.e5x5();
+  eval[20] = ess.eRight/pho.e5x5();  
+  eval[21] = ess.e2x5Max/pho.e5x5();
+  eval[22] = ess.e2x5Left/pho.e5x5();
+  eval[23] = ess.e2x5Right/pho.e5x5();
+  eval[24] = ess.e2x5Top/pho.e5x5();
+  eval[25] = ess.e2x5Bottom/pho.e5x5();
 
-  bool iseb = pho.isEB();
-
+  const bool iseb = pho.isEB();
   if (iseb) {
     EBDetId ebseedid(theseed->seed());
-    eval[26] = pho.e5x5()/pho.seedEnergy();
+    eval[26] = pho.e5x5()/theseed->energy();
     eval[27] = ebseedid.ieta();
     eval[28] = ebseedid.iphi();
   } else {
     EEDetId eeseedid(theseed->seed());
-    eval[26] = sc->preshowerEnergy()/sc->rawEnergy();
-    eval[27] = sc->preshowerEnergyPlane1()/sc->rawEnergy();
-    eval[28] = sc->preshowerEnergyPlane2()/sc->rawEnergy();
+    eval[26] = the_sc->preshowerEnergy()/raw_energy;
+    eval[27] = the_sc->preshowerEnergyPlane1()/raw_energy;
+    eval[28] = the_sc->preshowerEnergyPlane2()/raw_energy;
     eval[29] = eeseedid.ix();
     eval[30] = eeseedid.iy();
   }
@@ -677,8 +663,12 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   //so corrected energy is ecor=exp(mean)*e, uncertainty is exp(mean)*eraw*sigma=ecor*sigma
   double ecor = mean*eval[0];
   if (!iseb) 
-    ecor = mean*(eval[0]+sc->preshowerEnergy());
+    ecor = mean*(eval[0]+the_sc->preshowerEnergy());
 
   double sigmacor = sigma*ecor;
   pho.setCorrectedEnergy(reco::Photon::P4type::regression2, ecor, sigmacor, true);     
+}
+
+void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
+  modifyObject(static_cast<reco::Photon&>(pho));
 }

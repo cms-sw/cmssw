@@ -17,15 +17,7 @@ regressionModifier = \
                                           combinationKey_50ns   = cms.string('gedelectron_p4combination_50ns'),
                                           ),
               
-              photon_config   = cms.PSet( sigmaIetaIphi = cms.InputTag('photonRegressionValueMapProducer:sigmaIEtaIPhi'),
-                                          sigmaIphiIphi = cms.InputTag('photonRegressionValueMapProducer:sigmaIPhiIPhi'),
-                                          e2x5Max       = cms.InputTag('photonRegressionValueMapProducer:e2x5Max'),
-                                          e2x5Left      = cms.InputTag('photonRegressionValueMapProducer:e2x5Left'),
-                                          e2x5Right     = cms.InputTag('photonRegressionValueMapProducer:e2x5Right'),
-                                          e2x5Top       = cms.InputTag('photonRegressionValueMapProducer:e2x5Top'),
-                                          e2x5Bottom    = cms.InputTag('photonRegressionValueMapProducer:e2x5Bottom'),
-                                          
-                                          # EB, EE
+              photon_config   = cms.PSet( # EB, EE
                                           regressionKey_25ns  = cms.vstring('gedphoton_EBCorrection_25ns', 'gedphoton_EECorrection_25ns'),
                                           uncertaintyKey_25ns = cms.vstring('gedphoton_EBUncertainty_25ns', 'gedphoton_EEUncertainty_25ns'),
                                           
