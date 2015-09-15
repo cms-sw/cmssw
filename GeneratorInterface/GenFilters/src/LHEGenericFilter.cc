@@ -16,6 +16,8 @@ totalEvents_(0), passedEvents_(0)
   else if(acceptLogic_.compare("GT")==0) whichlogic = GT;
   else if(acceptLogic_.compare("EQ")==0) whichlogic = EQ;
   else if(acceptLogic_.compare("NE")==0) whichlogic = NE;
+  else edm::LogError  ("cat_A")   << "wrong input for AcceptLogic string";
+
   
 }
 
