@@ -44,7 +44,7 @@ class Electron( Lepton ):
             showerShapes = "full5x5"
             wp = wp.replace("_full5x5","")
         elif showerShapes == "auto":
-            if "POG_CSA14_25ns_v1" in wp or "POG_CSA14_50ns_v1" in wp or "POG_PHYS14_25ns_v1" in wp or "POG_PHYS14_25ns_v1_ConvVeto" in wp or "POG_PHYS14_25ns_v1_ConvVetoDxyDz" in wp or "POG_PHYS14_25ns_v2" in wp or "POG_PHYS14_25ns_v2_ConvVeto" in wp or "POG_PHYS14_25ns_v2_ConvVetoDxyDz" in wp or "POG_SPRING15_25ns_v1" in wp or "POG_SPRING15_25ns_v1_ConvVeto" in wp or "POG_SPRING15_25ns_v1_ConvVetoDxyDz" in wp or "POG_SPRING15_50ns_v1" in wp or "POG_SPRING15_50ns_v1_ConvVeto" in wp or "POG_SPRING15_50ns_v1_ConvVetoDxyDz" in wp:
+            if "POG_CSA14_25ns_v1" in wp or "POG_CSA14_50ns_v1" in wp or "POG_PHYS14_25ns_v1" in wp or "POG_PHYS14_25ns_v1_ConvVeto" in wp or "POG_PHYS14_25ns_v1_ConvVetoDxyDz" in wp or "POG_PHYS14_25ns_v2" in wp or "POG_PHYS14_25ns_v2_ConvVeto" in wp or "POG_PHYS14_25ns_v2_ConvVetoDxyDz" in wp or "POG_SPRING15_25ns_v1" in wp or "POG_SPRING15_25ns_v1_ConvVeto" in wp or "POG_SPRING15_25ns_v1_ConvVetoDxyDz" in wp or "POG_SPRING15_50ns_v2" in wp or "POG_SPRING15_50ns_v2_ConvVeto" in wp or "POG_SPRING15_50ns_v2_ConvVetoDxyDz" in wp:
                 showerShapes = "full5x5"
         vars = {
             'dEtaIn' : abs(self.physObj.deltaEtaSuperClusterTrackAtVtx()),
@@ -86,10 +86,10 @@ class Electron( Lepton ):
             'POG_PHYS14_25ns_v2_Medium' :  [('dEtaIn', [0.008925, 0.007429]), ('dPhiIn', [0.035973, 0.067879]), ('sigmaIEtaIEta', [0.009996 , 0.030135]), ('H/E', [0.050537, 0.086782]), ('1/E-1/p', [0.091942, 0.100683])],
             'POG_PHYS14_25ns_v2_Tight'  :  [('dEtaIn', [0.006046, 0.007057]), ('dPhiIn', [0.028092, 0.030159]), ('sigmaIEtaIEta', [0.009947 , 0.028237]), ('H/E', [0.045772, 0.067778]), ('1/E-1/p', [0.020118, 0.098919])],
             ## ------- https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2?rev=24#Working_points_for_Spring15_MC_s
-            'POG_SPRING15_50ns_v1_Veto'   :  [('dEtaIn', [0.01260, 0.01090]), ('dPhiIn', [0.1070, 0.2190]), ('sigmaIEtaIEta', [0.0120, 0.0339]), ('H/E', [0.1860, 0.0962]), ('1/E-1/p', [0.2390, 0.141])],
-            'POG_SPRING15_50ns_v1_Loose'  :  [('dEtaIn', [0.00976, 0.00952]), ('dPhiIn', [0.0929, 0.1810]), ('sigmaIEtaIEta', [0.0105, 0.0318]), ('H/E', [0.0765, 0.0824]), ('1/E-1/p', [0.1840, 0.125])],
-            'POG_SPRING15_50ns_v1_Medium' :  [('dEtaIn', [0.00940, 0.00773]), ('dPhiIn', [0.0296, 0.1480]), ('sigmaIEtaIEta', [0.0101, 0.0287]), ('H/E', [0.0372, 0.0546]), ('1/E-1/p', [0.1180, 0.104])],
-            'POG_SPRING15_50ns_v1_Tight'  :  [('dEtaIn', [0.00950, 0.00762]), ('dPhiIn', [0.0291, 0.0439]), ('sigmaIEtaIEta', [0.0101, 0.0287]), ('H/E', [0.0372, 0.0544]), ('1/E-1/p', [0.0174, 0.010])],
+            'POG_SPRING15_50ns_v2_Veto'   :  [('dEtaIn', [0.01260, 0.01090]), ('dPhiIn', [0.1070, 0.2190]), ('sigmaIEtaIEta', [0.0120, 0.0339]), ('H/E', [0.1860, 0.0962]), ('1/E-1/p', [0.2390, 0.141])],
+            'POG_SPRING15_50ns_v2_Loose'  :  [('dEtaIn', [0.00976, 0.00952]), ('dPhiIn', [0.0929, 0.1810]), ('sigmaIEtaIEta', [0.0105, 0.0318]), ('H/E', [0.0765, 0.0824]), ('1/E-1/p', [0.1840, 0.125])],
+            'POG_SPRING15_50ns_v2_Medium' :  [('dEtaIn', [0.00940, 0.00773]), ('dPhiIn', [0.0296, 0.1480]), ('sigmaIEtaIEta', [0.0101, 0.0287]), ('H/E', [0.0372, 0.0546]), ('1/E-1/p', [0.1180, 0.104])],
+            'POG_SPRING15_50ns_v2_Tight'  :  [('dEtaIn', [0.00864, 0.00762]), ('dPhiIn', [0.0291, 0.0439]), ('sigmaIEtaIEta', [0.0101, 0.0287]), ('H/E', [0.0372, 0.0544]), ('1/E-1/p', [0.0116, 0.010])],
             'POG_SPRING15_25ns_v1_Veto'   :  [('dEtaIn', [0.01520, 0.01130]), ('dPhiIn', [0.2160, 0.2370]), ('sigmaIEtaIEta', [0.0114, 0.0352]), ('H/E', [0.1810, 0.1160]), ('1/E-1/p', [0.2070, 0.17400])],
             'POG_SPRING15_25ns_v1_Loose'  :  [('dEtaIn', [0.01050, 0.00814]), ('dPhiIn', [0.1150, 0.1820]), ('sigmaIEtaIEta', [0.0103, 0.0301]), ('H/E', [0.1040, 0.0897]), ('1/E-1/p', [0.1020, 0.12600])],
             'POG_SPRING15_25ns_v1_Medium' :  [('dEtaIn', [0.01030, 0.00733]), ('dPhiIn', [0.0336, 0.1140]), ('sigmaIEtaIEta', [0.0101, 0.0283]), ('H/E', [0.0876, 0.0678]), ('1/E-1/p', [0.0174, 0.08980])],
@@ -118,10 +118,10 @@ class Electron( Lepton ):
             'POG_PHYS14_25ns_v2_ConvVeto_Medium' :  WP['POG_PHYS14_25ns_v2_Medium']+[('conversionVeto', [True, True]), ('missingHits', [2, 2])],
             'POG_PHYS14_25ns_v2_ConvVeto_Tight'  :  WP['POG_PHYS14_25ns_v2_Tight' ]+[('conversionVeto', [True, True]), ('missingHits', [2, 2])],
             ## ------- https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2?rev=24#Working_points_for_Spring15_MC_s
-            'POG_SPRING15_50ns_v1_ConvVeto_Veto'   :  WP['POG_SPRING15_50ns_v1_Veto'  ]+[('conversionVeto', [True, True]), ('missingHits', [3, 4])],
-            'POG_SPRING15_50ns_v1_ConvVeto_Loose'  :  WP['POG_SPRING15_50ns_v1_Loose' ]+[('conversionVeto', [True, True]), ('missingHits', [3, 2])],
-            'POG_SPRING15_50ns_v1_ConvVeto_Medium' :  WP['POG_SPRING15_50ns_v1_Medium']+[('conversionVeto', [True, True]), ('missingHits', [3, 2])],
-            'POG_SPRING15_50ns_v1_ConvVeto_Tight'  :  WP['POG_SPRING15_50ns_v1_Tight' ]+[('conversionVeto', [True, True]), ('missingHits', [3, 2])],
+            'POG_SPRING15_50ns_v2_ConvVeto_Veto'   :  WP['POG_SPRING15_50ns_v2_Veto'  ]+[('conversionVeto', [True, True]), ('missingHits', [3, 4])],
+            'POG_SPRING15_50ns_v2_ConvVeto_Loose'  :  WP['POG_SPRING15_50ns_v2_Loose' ]+[('conversionVeto', [True, True]), ('missingHits', [3, 2])],
+            'POG_SPRING15_50ns_v2_ConvVeto_Medium' :  WP['POG_SPRING15_50ns_v2_Medium']+[('conversionVeto', [True, True]), ('missingHits', [3, 2])],
+            'POG_SPRING15_50ns_v2_ConvVeto_Tight'  :  WP['POG_SPRING15_50ns_v2_Tight' ]+[('conversionVeto', [True, True]), ('missingHits', [3, 2])],
             'POG_SPRING15_25ns_v1_ConvVeto_Veto'   :  WP['POG_SPRING15_25ns_v1_Veto'  ]+[('conversionVeto', [True, True]), ('missingHits', [3, 4])],
             'POG_SPRING15_25ns_v1_ConvVeto_Loose'  :  WP['POG_SPRING15_25ns_v1_Loose' ]+[('conversionVeto', [True, True]), ('missingHits', [3, 2])],
             'POG_SPRING15_25ns_v1_ConvVeto_Medium' :  WP['POG_SPRING15_25ns_v1_Medium']+[('conversionVeto', [True, True]), ('missingHits', [3, 2])],
@@ -142,10 +142,10 @@ class Electron( Lepton ):
             'POG_PHYS14_25ns_v2_ConvVetoDxyDz_Medium' :  WP['POG_PHYS14_25ns_v2_ConvVeto_Medium']+[('dxy',[0.012235, 0.036719]), ('dz',[0.042020, 0.138142])],
             'POG_PHYS14_25ns_v2_ConvVetoDxyDz_Tight'  :  WP['POG_PHYS14_25ns_v2_ConvVeto_Tight' ]+[('dxy',[0.008790, 0.027984]), ('dz',[0.021226, 0.133431])],
             ## ------- https://twiki.cern.ch/twiki/bin/view/CMS/CutBasedElectronIdentificationRun2?rev=24#Working_points_for_Spring15_MC_s
-            'POG_SPRING15_50ns_v1_ConvVetoDxyDz_Veto'   :  WP['POG_SPRING15_50ns_v1_ConvVeto_Veto'  ]+[('dxy',[0.0621, 0.2790]), ('dz',[0.613, 0.947])],
-            'POG_SPRING15_50ns_v1_ConvVetoDxyDz_Loose'  :  WP['POG_SPRING15_50ns_v1_ConvVeto_Loose' ]+[('dxy',[0.0227, 0.2420]), ('dz',[0.379, 0.921])],
-            'POG_SPRING15_50ns_v1_ConvVetoDxyDz_Medium' :  WP['POG_SPRING15_50ns_v1_ConvVeto_Medium']+[('dxy',[0.0151, 0.0535]), ('dz',[0.238, 0.572])],
-            'POG_SPRING15_50ns_v1_ConvVetoDxyDz_Tight'  :  WP['POG_SPRING15_50ns_v1_ConvVeto_Tight' ]+[('dxy',[0.0144, 0.0377]), ('dz',[0.323, 0.571])],
+            'POG_SPRING15_50ns_v2_ConvVetoDxyDz_Veto'   :  WP['POG_SPRING15_50ns_v2_ConvVeto_Veto'  ]+[('dxy',[0.0621, 0.2790]), ('dz',[0.613, 0.947])],
+            'POG_SPRING15_50ns_v2_ConvVetoDxyDz_Loose'  :  WP['POG_SPRING15_50ns_v2_ConvVeto_Loose' ]+[('dxy',[0.0227, 0.2420]), ('dz',[0.379, 0.921])],
+            'POG_SPRING15_50ns_v2_ConvVetoDxyDz_Medium' :  WP['POG_SPRING15_50ns_v2_ConvVeto_Medium']+[('dxy',[0.0151, 0.0535]), ('dz',[0.238, 0.572])],
+            'POG_SPRING15_50ns_v2_ConvVetoDxyDz_Tight'  :  WP['POG_SPRING15_50ns_v2_ConvVeto_Tight' ]+[('dxy',[0.0144, 0.0377]), ('dz',[0.170, 0.571])],
             'POG_SPRING15_25ns_v1_ConvVetoDxyDz_Veto'   :  WP['POG_SPRING15_25ns_v1_ConvVeto_Veto'  ]+[('dxy',[0.0564, 0.2220]), ('dz',[0.472, 0.921])],
             'POG_SPRING15_25ns_v1_ConvVetoDxyDz_Loose'  :  WP['POG_SPRING15_25ns_v1_ConvVeto_Loose' ]+[('dxy',[0.0261, 0.1180]), ('dz',[0.410, 0.822])],
             'POG_SPRING15_25ns_v1_ConvVetoDxyDz_Medium' :  WP['POG_SPRING15_25ns_v1_ConvVeto_Medium']+[('dxy',[0.0118, 0.0739]), ('dz',[0.373, 0.602])],
