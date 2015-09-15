@@ -78,9 +78,9 @@ namespace pat {
 
 
       // ---- methods for uncorrected MET ----
-      float uncorrectedPt() const;
-      float uncorrectedPhi() const;
-      float uncorrectedSumEt() const;
+      //float uncorrectedPt() const;
+      //float uncorrectedPhi() const;
+      //float uncorrectedSumEt() const;
 
       // ---- methods to know what the pat::MET was constructed from ----
       /// True if this pat::MET was made from a reco::CaloMET
