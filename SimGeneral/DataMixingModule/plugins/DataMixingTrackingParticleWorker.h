@@ -24,6 +24,12 @@
 //Data Formats
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
+#include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
+#include "DataFormats/Common/interface/DetSetVector.h"
+
 
 #include <map>
 #include <vector>
@@ -47,6 +53,8 @@ namespace edm
       /**Default destructor*/
       virtual ~DataMixingTrackingParticleWorker();
 
+      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c); // override?                            
+
       void putTrackingParticle(edm::Event &e) ;
       void addTrackingParticleSignals(const edm::Event &e); 
       void addTrackingParticlePileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,
@@ -60,15 +68,53 @@ namespace edm
       edm::InputTag TrackingParticlePileInputTag_ ;    // InputTag for pileup tracks
       std::string TrackingParticleCollectionDM_  ; // secondary name to be given to new TrackingParticle
 
+      edm::InputTag StripLinkPileInputTag_;
+      edm::InputTag PixelLinkPileInputTag_;
+      edm::InputTag DTLinkPileInputTag_;
+      edm::InputTag RPCLinkPileInputTag_;
+      edm::InputTag CSCWireLinkPileInputTag_;
+      edm::InputTag CSCStripLinkPileInputTag_;
+
+      std::string StripLinkCollectionDM_;
+      std::string PixelLinkCollectionDM_;
+      std::string DTLinkCollectionDM_;
+      std::string RPCLinkCollectionDM_;
+      std::string CSCWireLinkCollectionDM_;
+      std::string CSCStripLinkCollectionDM_;
+
       edm::EDGetTokenT<std::vector<TrackingParticle> >TrackSigToken_ ;  // Token to retrieve information  
       edm::EDGetTokenT<std::vector<TrackingParticle> >TrackPileToken_ ;  // Token to retrieve information  
       edm::EDGetTokenT<std::vector<TrackingVertex> >VtxSigToken_ ;  // Token to retrieve information  
       edm::EDGetTokenT<std::vector<TrackingVertex> >VtxPileToken_ ;  // Token to retrieve information  
 
+      edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > StripLinkSigToken_;
+      edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > StripLinkPileToken_;
+      edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > PixelLinkSigToken_;
+      edm::EDGetTokenT<edm::DetSetVector<PixelDigiSimLink> > PixelLinkPileToken_;
+      edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > CSCWireLinkSigToken_;
+      edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > CSCWireLinkPileToken_;
+      edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > CSCStripLinkSigToken_;
+      edm::EDGetTokenT<edm::DetSetVector<StripDigiSimLink> > CSCStripLinkPileToken_;
+      edm::EDGetTokenT< MuonDigiCollection<DTLayerId, DTDigiSimLink> > DTLinkSigToken_;
+      edm::EDGetTokenT< MuonDigiCollection<DTLayerId, DTDigiSimLink> > DTLinkPileToken_;
+      edm::EDGetTokenT<edm::DetSetVector<RPCDigiSimLink> > RPCLinkSigToken_;
+      edm::EDGetTokenT<edm::DetSetVector<RPCDigiSimLink> > RPCLinkPileToken_;
+
       // 
 
       std::auto_ptr<std::vector<TrackingParticle>> NewTrackList_;
       std::auto_ptr<std::vector<TrackingVertex>> NewVertexList_;
+      std::vector<TrackingVertex> TempVertexList_;
+
+      std::unique_ptr<edm::DetSetVector<StripDigiSimLink> >          NewStripLinkList_;
+      std::unique_ptr<edm::DetSetVector<PixelDigiSimLink> >          NewPixelLinkList_;
+      std::unique_ptr< MuonDigiCollection<DTLayerId,DTDigiSimLink> > NewDTLinkList_;
+      std::unique_ptr< edm::DetSetVector<RPCDigiSimLink> >           NewRPCLinkList_;
+      std::unique_ptr< edm::DetSetVector<StripDigiSimLink> >         NewCSCWireLinkList_;
+      std::unique_ptr< edm::DetSetVector<StripDigiSimLink> >         NewCSCStripLinkList_;
+
+      TrackingParticleRefProd TrackListRef_ ;
+      TrackingVertexRefProd VertexListRef_ ;
 
 
     };

@@ -237,6 +237,13 @@ namespace edm
     produces< std::vector<TrackingParticle> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
     produces< std::vector<TrackingVertex> >(ps.getParameter<std::string>("TrackingParticleCollectionDM"));
 
+    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("StripDigiSimLinkCollectionDM"));
+    produces< edm::DetSetVector<PixelDigiSimLink> >(ps.getParameter<std::string>("PixelDigiSimLinkCollectionDM"));
+    produces< MuonDigiCollection<DTLayerId,DTDigiSimLink> >(ps.getParameter<std::string>("DTDigiSimLinkDM"));
+    produces< edm::DetSetVector<RPCDigiSimLink> >(ps.getParameter<std::string>("RPCDigiSimLinkDM"));
+    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("CSCStripDigiSimLinkDM"));
+    produces< edm::DetSetVector<StripDigiSimLink> >(ps.getParameter<std::string>("CSCWireDigiSimLinkDM"));
+
     TrackingParticleWorker_ = new DataMixingTrackingParticleWorker(ps, consumesCollector());
 
   }
@@ -293,6 +300,9 @@ namespace edm
     if( addMCDigiNoise_ && MergeHcalDigisProd_) {
       HcalDigiWorkerProd_->initializeEvent( e, ES );
     }
+
+    TrackingParticleWorker_->initializeEvent( e, ES );
+
   }
   
 
