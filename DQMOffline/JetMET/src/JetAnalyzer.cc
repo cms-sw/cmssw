@@ -74,7 +74,9 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   jetType_ = pSet.getParameter<std::string>("JetType");
   m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
 
-  fill_jet_high_level_histo=pSet.getParameter<bool>("filljetHighLevel"),
+  fill_jet_high_level_histo=pSet.getParameter<bool>("filljetHighLevel");
+  filljetsubstruc_=pSet.getParameter<bool>("fillsubstructure");
+  pt_min_boosted_=pSet.getParameter<double>("ptMinBoosted");
   
   isCaloJet_ = (std::string("calo")==jetType_);
   //isJPTJet_  = (std::string("jpt") ==jetType_);
@@ -749,26 +751,28 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   }
   //
   if(isMiniAODJet_ || isPFJet_){
-    mMVAPUJIDDiscriminant_lowPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Barrel","MVAPUJIDDiscriminant_lowPt_Barrel",50, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_lowPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_EndCap","MVAPUJIDDiscriminant_lowPt_EndCap",50, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_lowPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Forward","MVAPUJIDDiscriminant_lowPt_Forward",50, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_mediumPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Barrel","MVAPUJIDDiscriminant_mediumPt_Barrel",50, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_mediumPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_EndCap","MVAPUJIDDiscriminant_mediumPt_EndCap",50, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_mediumPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Forward","MVAPUJIDDiscriminant_mediumPt_Forward",50, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_highPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Barrel","MVAPUJIDDiscriminant_highPt_Barrel",50, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_highPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_EndCap","MVAPUJIDDiscriminant_highPt_EndCap",50, -1.00, 1.00);
-    mMVAPUJIDDiscriminant_highPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Forward","MVAPUJIDDiscriminant_highPt_Forward",50, -1.00, 1.00);
-
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel",mMVAPUJIDDiscriminant_lowPt_Barrel));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap",mMVAPUJIDDiscriminant_lowPt_EndCap));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Forward",mMVAPUJIDDiscriminant_lowPt_Forward));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Barrel",mMVAPUJIDDiscriminant_mediumPt_Barrel));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap",mMVAPUJIDDiscriminant_mediumPt_EndCap));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Forward",mMVAPUJIDDiscriminant_mediumPt_Forward));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_highPt_Barrel",mMVAPUJIDDiscriminant_highPt_Barrel));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_highPt_EndCap",mMVAPUJIDDiscriminant_highPt_EndCap));
-    map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_highPt_Forward",mMVAPUJIDDiscriminant_highPt_Forward));
-
+    
+    if(!filljetsubstruc_){//not available for ak8 -> so just take out
+      mMVAPUJIDDiscriminant_lowPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Barrel","MVAPUJIDDiscriminant_lowPt_Barrel",50, -1.00, 1.00);
+      mMVAPUJIDDiscriminant_lowPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_EndCap","MVAPUJIDDiscriminant_lowPt_EndCap",50, -1.00, 1.00);
+      mMVAPUJIDDiscriminant_lowPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_lowPt_Forward","MVAPUJIDDiscriminant_lowPt_Forward",50, -1.00, 1.00);
+      mMVAPUJIDDiscriminant_mediumPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Barrel","MVAPUJIDDiscriminant_mediumPt_Barrel",50, -1.00, 1.00);
+      mMVAPUJIDDiscriminant_mediumPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_EndCap","MVAPUJIDDiscriminant_mediumPt_EndCap",50, -1.00, 1.00);
+      mMVAPUJIDDiscriminant_mediumPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_mediumPt_Forward","MVAPUJIDDiscriminant_mediumPt_Forward",50, -1.00, 1.00);
+      mMVAPUJIDDiscriminant_highPt_Barrel   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Barrel","MVAPUJIDDiscriminant_highPt_Barrel",50, -1.00, 1.00);
+      mMVAPUJIDDiscriminant_highPt_EndCap   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_EndCap","MVAPUJIDDiscriminant_highPt_EndCap",50, -1.00, 1.00);
+      mMVAPUJIDDiscriminant_highPt_Forward   = ibooker.book1D("MVAPUJIDDiscriminant_highPt_Forward","MVAPUJIDDiscriminant_highPt_Forward",50, -1.00, 1.00);
+      
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Barrel",mMVAPUJIDDiscriminant_lowPt_Barrel));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_EndCap",mMVAPUJIDDiscriminant_lowPt_EndCap));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_lowPt_Forward",mMVAPUJIDDiscriminant_lowPt_Forward));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Barrel",mMVAPUJIDDiscriminant_mediumPt_Barrel));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_EndCap",mMVAPUJIDDiscriminant_mediumPt_EndCap));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_mediumPt_Forward",mMVAPUJIDDiscriminant_mediumPt_Forward));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_highPt_Barrel",mMVAPUJIDDiscriminant_highPt_Barrel));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_highPt_EndCap",mMVAPUJIDDiscriminant_highPt_EndCap));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"MVAPUJIDDiscriminant_highPt_Forward",mMVAPUJIDDiscriminant_highPt_Forward));
+    }
     mCHFracVSpT_Barrel= ibooker.bookProfile("CHFracVSpT_Barrel","CHFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
     mNHFracVSpT_Barrel= ibooker.bookProfile("NHFracVSpT_Barrel","NHFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
     mPhFracVSpT_Barrel= ibooker.bookProfile("PhFracVSpT_Barrel","PhFracVSpT_Barrel",ptBin_, ptMin_, ptMax_,0.,1.2);
@@ -1110,6 +1114,173 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"NeutralConstituentsFraction" ,mNeutralFraction));
 
   }
+
+  //
+  if(isMiniAODJet_){
+    if(!filljetsubstruc_){
+      //done only for MINIAOD
+      mPt_CaloJet      = ibooker.book1D("Pt_CaloJet", "Pt_CaloJet",    ptBin_,  10,  ptMax_);
+      mEMF_CaloJet     = ibooker.book1D("EMF_CaloJet", "EMF_CaloJet",  52,   -0.02,    1.02);
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"Pt_CaloJet" ,mPt_CaloJet));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"EMF_CaloJet" ,mEMF_CaloJet));
+    }
+    if(filljetsubstruc_){
+      //miniaod specific variables, especially for substructure
+      mSoftDropMass = ibooker.book1D("SoftDropMass", "SoftDropMass", 50, 0, 250);
+      mPrunedMass = ibooker.book1D("PrunedMass", "PrunedMass", 50, 0, 250);
+      mTrimmedMass = ibooker.book1D("TrimmedMass", "TrimmedMass", 50, 0, 250);
+      mFilteredMass = ibooker.book1D("FilteredMass", "FilteredMass", 50, 0, 250);
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SoftDropMass" ,mSoftDropMass));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PrunedMass" ,mPrunedMass));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"TrimmedMass" ,mTrimmedMass));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"FilteredMass" ,mFilteredMass));
+
+      mtau2_over_tau1 = ibooker.book1D("tau2_over_tau1", "tau2_over_tau1", 50, 0, 1); 
+      mtau3_over_tau2 = ibooker.book1D("tau3_over_tau2", "tau3_over_tau2", 50, 0, 1); 
+      mCATopTag_topMass = ibooker.book1D("CATopTag_topMass", "CATopTag_topMass", 50, 50, 250);
+      mCATopTag_minMass = ibooker.book1D("CATopTag_minMass", "CATopTag_minMass", 50, 0, 250); 
+      mCATopTag_nSubJets = ibooker.book1D("nSubJets_CATopTag", "nSubJets_CATopTag", 10, 0, 10); 
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"tau2_over_tau1" ,mtau2_over_tau1));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"tau3_over_tau2" ,mtau3_over_tau2));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CATopTag_topMass" ,mCATopTag_topMass));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CATopTag_minMass" ,mCATopTag_minMass));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"nSubJets_CATopTag" ,mCATopTag_nSubJets));
+
+      mnSubJetsCMSTopTag = ibooker.book1D("nSubJets_CMSTopTag", "nSubJets_CMSTopTag", 10, 0, 10); 
+      mSubJet1_CMSTopTag_pt         = ibooker.book1D("SubJet1_CMSTopTag_pt",   "SubJet1_CMSTopTag_pt",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet1_CMSTopTag_eta        = ibooker.book1D("SubJet1_CMSTopTag_eta",  "SubJet1_CMSTopTag_eta",               etaBin_, etaMin_, etaMax_);
+      mSubJet1_CMSTopTag_phi        = ibooker.book1D("SubJet1_CMSTopTag_phi",  "SubJet1_CMSTopTag_phi",               phiBin_, phiMin_, phiMax_);
+      mSubJet1_CMSTopTag_mass       = ibooker.book1D("SubJet1_CMSTopTag_mass", "SubJet1_CMSTopTag_mass", 50, 0, 250); 
+      mSubJet2_CMSTopTag_pt         = ibooker.book1D("SubJet2_CMSTopTag_pt",   "SubJet2_CMSTopTag_pt",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet2_CMSTopTag_eta        = ibooker.book1D("SubJet2_CMSTopTag_eta",  "SubJet2_CMSTopTag_eta",               etaBin_, etaMin_, etaMax_);
+      mSubJet2_CMSTopTag_phi        = ibooker.book1D("SubJet2_CMSTopTag_phi",  "SubJet2_CMSTopTag_phi",               phiBin_, phiMin_, phiMax_);
+      mSubJet2_CMSTopTag_mass       = ibooker.book1D("SubJet2_CMSTopTag_mass", "SubJet2_CMSTopTag_mass", 50, 0, 250); 
+      mSubJet3_CMSTopTag_pt         = ibooker.book1D("SubJet3_CMSTopTag_pt",   "SubJet3_CMSTopTag_pt",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet3_CMSTopTag_eta        = ibooker.book1D("SubJet3_CMSTopTag_eta",  "SubJet3_CMSTopTag_eta",               etaBin_, etaMin_, etaMax_);
+      mSubJet3_CMSTopTag_phi        = ibooker.book1D("SubJet3_CMSTopTag_phi",  "SubJet3_CMSTopTag_phi",               phiBin_, phiMin_, phiMax_);
+      mSubJet3_CMSTopTag_mass       = ibooker.book1D("SubJet3_CMSTopTag_mass", "SubJet3_CMSTopTag_mass", 50, 0, 250); 
+      mSubJet4_CMSTopTag_pt         = ibooker.book1D("SubJet4_CMSTopTag_pt",   "SubJet4_CMSTopTag_pt",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet4_CMSTopTag_eta        = ibooker.book1D("SubJet4_CMSTopTag_eta",  "SubJet4_CMSTopTag_eta",               etaBin_, etaMin_, etaMax_);
+      mSubJet4_CMSTopTag_phi        = ibooker.book1D("SubJet4_CMSTopTag_phi",  "SubJet4_CMSTopTag_phi",               phiBin_, phiMin_, phiMax_);
+      mSubJet4_CMSTopTag_mass       = ibooker.book1D("SubJet4_CMSTopTag_mass", "SubJet4_CMSTopTag_mass", 50, 0, 250); 
+
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"nSubJets_CMSTopTag" ,mnSubJetsCMSTopTag));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_CMSTopTag_pt" ,mSubJet1_CMSTopTag_pt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_CMSTopTag_eta" ,mSubJet1_CMSTopTag_eta));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_CMSTopTag_phi" ,mSubJet1_CMSTopTag_phi));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_CMSTopTag_mass" ,mSubJet1_CMSTopTag_mass));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_CMSTopTag_pt" ,mSubJet2_CMSTopTag_pt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_CMSTopTag_eta" ,mSubJet2_CMSTopTag_eta));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_CMSTopTag_phi" ,mSubJet2_CMSTopTag_phi));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_CMSTopTag_mass" ,mSubJet2_CMSTopTag_mass));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet3_CMSTopTag_pt" ,mSubJet3_CMSTopTag_pt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet3_CMSTopTag_eta" ,mSubJet3_CMSTopTag_eta));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet3_CMSTopTag_phi" ,mSubJet3_CMSTopTag_phi));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet3_CMSTopTag_mass" ,mSubJet3_CMSTopTag_mass));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet4_CMSTopTag_pt" ,mSubJet4_CMSTopTag_pt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet4_CMSTopTag_eta" ,mSubJet4_CMSTopTag_eta));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet4_CMSTopTag_phi" ,mSubJet4_CMSTopTag_phi));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet4_CMSTopTag_mass" ,mSubJet4_CMSTopTag_mass));
+
+      mnSubJetsSoftDrop = ibooker.book1D("nSubJets_SoftDrop", "nSubJets_SoftDrop", 10, 0, 10); 
+      mSubJet1_SoftDrop_pt         = ibooker.book1D("SubJet1_SoftDrop_pt",   "SubJet1_SoftDrop_pt",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet1_SoftDrop_eta        = ibooker.book1D("SubJet1_SoftDrop_eta",  "SubJet1_SoftDrop_eta",               etaBin_, etaMin_, etaMax_);
+      mSubJet1_SoftDrop_phi        = ibooker.book1D("SubJet1_SoftDrop_phi",  "SubJet1_SoftDrop_phi",               phiBin_, phiMin_, phiMax_);
+      mSubJet1_SoftDrop_mass       = ibooker.book1D("SubJet1_SoftDrop_mass", "SubJet1_SoftDrop_mass", 50, 0, 250); 
+      mSubJet2_SoftDrop_pt         = ibooker.book1D("SubJet2_SoftDrop_pt",   "SubJet2_SoftDrop_pt",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet2_SoftDrop_eta        = ibooker.book1D("SubJet2_SoftDrop_eta",  "SubJet2_SoftDrop_eta",               etaBin_, etaMin_, etaMax_);
+      mSubJet2_SoftDrop_phi        = ibooker.book1D("SubJet2_SoftDrop_phi",  "SubJet2_SoftDrop_phi",               phiBin_, phiMin_, phiMax_);
+      mSubJet2_SoftDrop_mass       = ibooker.book1D("SubJet2_SoftDrop_mass", "SubJet2_SoftDrop_mass", 50, 0, 250); 
+
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"nSubJets_SoftDrop" ,mnSubJetsSoftDrop));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_SoftDrop_pt" ,mSubJet1_SoftDrop_pt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_SoftDrop_eta" ,mSubJet1_SoftDrop_eta));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_SoftDrop_phi" ,mSubJet1_SoftDrop_phi));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_SoftDrop_mass" ,mSubJet1_SoftDrop_mass));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_SoftDrop_pt" ,mSubJet2_SoftDrop_pt));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_SoftDrop_eta" ,mSubJet2_SoftDrop_eta));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_SoftDrop_phi" ,mSubJet2_SoftDrop_phi));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_SoftDrop_mass" ,mSubJet2_SoftDrop_mass));
+      //miniaod specific variables, especially for substructure for boosted stuff
+      mSoftDropMass_boosted = ibooker.book1D("SoftDropMass_boosted", "SoftDropMass_boosted", 50, 0, 250);
+      mPrunedMass_boosted = ibooker.book1D("PrunedMass_boosted", "PrunedMass_boosted", 50, 0, 250);
+      mTrimmedMass_boosted = ibooker.book1D("TrimmedMass_boosted", "TrimmedMass_boosted", 50, 0, 250);
+      mFilteredMass_boosted = ibooker.book1D("FilteredMass_boosted", "FilteredMass_boosted", 50, 0, 250);
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SoftDropMass_boosted" ,mSoftDropMass_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"PrunedMass_boosted" ,mPrunedMass_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"TrimmedMass_boosted" ,mTrimmedMass_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"FilteredMass_boosted" ,mFilteredMass_boosted));
+
+      mtau2_over_tau1_boosted = ibooker.book1D("tau2_over_tau1_boosted", "tau2_over_tau1_boosted", 50, 0, 1); 
+      mtau3_over_tau2_boosted = ibooker.book1D("tau3_over_tau2_boosted", "tau3_over_tau2_boosted", 50, 0, 1); 
+      mCATopTag_topMass_boosted = ibooker.book1D("CATopTag_topMass_boosted", "CATopTag_topMass_boosted", 50, 50, 250);
+      mCATopTag_minMass_boosted = ibooker.book1D("CATopTag_minMass_boosted", "CATopTag_minMass_boosted", 50, 0, 250); 
+      mCATopTag_nSubJets_boosted = ibooker.book1D("nSubJets_CATopTag_boosted", "nSubJets_CATopTag_boosted", 10, 0, 10); 
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"tau2_over_tau1_boosted" ,mtau2_over_tau1_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"tau3_over_tau2_boosted" ,mtau3_over_tau2_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CATopTag_topMass_boosted" ,mCATopTag_topMass_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"CATopTag_minMass_boosted" ,mCATopTag_minMass_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"nSubJets_CATopTag_boosted" ,mCATopTag_nSubJets_boosted));
+
+      mnSubJetsCMSTopTag_boosted = ibooker.book1D("nSubJets_CMSTopTag_boosted", "nSubJets_CMSTopTag_boosted", 10, 0, 10); 
+      mSubJet1_CMSTopTag_pt_boosted         = ibooker.book1D("SubJet1_CMSTopTag_pt_boosted",   "SubJet1_CMSTopTag_pt_boosted",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet1_CMSTopTag_eta_boosted        = ibooker.book1D("SubJet1_CMSTopTag_eta_boosted",  "SubJet1_CMSTopTag_eta_boosted",               etaBin_, etaMin_, etaMax_);
+      mSubJet1_CMSTopTag_phi_boosted        = ibooker.book1D("SubJet1_CMSTopTag_phi_boosted",  "SubJet1_CMSTopTag_phi_boosted",               phiBin_, phiMin_, phiMax_);
+      mSubJet1_CMSTopTag_mass_boosted       = ibooker.book1D("SubJet1_CMSTopTag_mass_boosted", "SubJet1_CMSTopTag_mass_boosted", 50, 0, 250); 
+      mSubJet2_CMSTopTag_pt_boosted         = ibooker.book1D("SubJet2_CMSTopTag_pt_boosted",   "SubJet2_CMSTopTag_pt_boosted",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet2_CMSTopTag_eta_boosted        = ibooker.book1D("SubJet2_CMSTopTag_eta_boosted",  "SubJet2_CMSTopTag_eta_boosted",               etaBin_, etaMin_, etaMax_);
+      mSubJet2_CMSTopTag_phi_boosted        = ibooker.book1D("SubJet2_CMSTopTag_phi_boosted",  "SubJet2_CMSTopTag_phi_boosted",               phiBin_, phiMin_, phiMax_);
+      mSubJet2_CMSTopTag_mass_boosted       = ibooker.book1D("SubJet2_CMSTopTag_mass_boosted", "SubJet2_CMSTopTag_mass_boosted", 50, 0, 250); 
+      mSubJet3_CMSTopTag_pt_boosted         = ibooker.book1D("SubJet3_CMSTopTag_pt_boosted",   "SubJet3_CMSTopTag_pt_boosted",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet3_CMSTopTag_eta_boosted        = ibooker.book1D("SubJet3_CMSTopTag_eta_boosted",  "SubJet3_CMSTopTag_eta_boosted",               etaBin_, etaMin_, etaMax_);
+      mSubJet3_CMSTopTag_phi_boosted        = ibooker.book1D("SubJet3_CMSTopTag_phi_boosted",  "SubJet3_CMSTopTag_phi_boosted",               phiBin_, phiMin_, phiMax_);
+      mSubJet3_CMSTopTag_mass_boosted       = ibooker.book1D("SubJet3_CMSTopTag_mass_boosted", "SubJet3_CMSTopTag_mass_boosted", 50, 0, 250); 
+      mSubJet4_CMSTopTag_pt_boosted         = ibooker.book1D("SubJet4_CMSTopTag_pt_boosted",   "SubJet4_CMSTopTag_pt_boosted",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet4_CMSTopTag_eta_boosted        = ibooker.book1D("SubJet4_CMSTopTag_eta_boosted",  "SubJet4_CMSTopTag_eta_boosted",               etaBin_, etaMin_, etaMax_);
+      mSubJet4_CMSTopTag_phi_boosted        = ibooker.book1D("SubJet4_CMSTopTag_phi_boosted",  "SubJet4_CMSTopTag_phi_boosted",               phiBin_, phiMin_, phiMax_);
+      mSubJet4_CMSTopTag_mass_boosted       = ibooker.book1D("SubJet4_CMSTopTag_mass_boosted", "SubJet4_CMSTopTag_mass_boosted", 50, 0, 250); 
+
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"nSubJets_CMSTopTag_boosted", mnSubJetsCMSTopTag_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_CMSTopTag_pt_boosted", mSubJet1_CMSTopTag_pt_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_CMSTopTag_eta_boosted", mSubJet1_CMSTopTag_eta_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_CMSTopTag_phi_boosted", mSubJet1_CMSTopTag_phi_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_CMSTopTag_mass_boosted", mSubJet1_CMSTopTag_mass_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_CMSTopTag_pt_boosted", mSubJet2_CMSTopTag_pt_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_CMSTopTag_eta_boosted", mSubJet2_CMSTopTag_eta_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_CMSTopTag_phi_boosted", mSubJet2_CMSTopTag_phi_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_CMSTopTag_mass_boosted", mSubJet2_CMSTopTag_mass_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet3_CMSTopTag_pt_boosted", mSubJet3_CMSTopTag_pt_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet3_CMSTopTag_eta_boosted", mSubJet3_CMSTopTag_eta_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet3_CMSTopTag_phi_boosted", mSubJet3_CMSTopTag_phi_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet3_CMSTopTag_mass_boosted", mSubJet3_CMSTopTag_mass_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet4_CMSTopTag_pt_boosted", mSubJet4_CMSTopTag_pt_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet4_CMSTopTag_eta_boosted", mSubJet4_CMSTopTag_eta_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet4_CMSTopTag_phi_boosted", mSubJet4_CMSTopTag_phi_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet4_CMSTopTag_mass_boosted", mSubJet4_CMSTopTag_mass_boosted));
+
+      mnSubJetsSoftDrop_boosted = ibooker.book1D("nSubJets_SoftDrop_boosted", "nSubJets_SoftDrop_boosted", 10, 0, 10); 
+      mSubJet1_SoftDrop_pt_boosted         = ibooker.book1D("SubJet1_SoftDrop_pt_boosted",   "SubJet1_SoftDrop_pt_boosted",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet1_SoftDrop_eta_boosted        = ibooker.book1D("SubJet1_SoftDrop_eta_boosted",  "SubJet1_SoftDrop_eta_boosted",               etaBin_, etaMin_, etaMax_);
+      mSubJet1_SoftDrop_phi_boosted        = ibooker.book1D("SubJet1_SoftDrop_phi_boosted",  "SubJet1_SoftDrop_phi_boosted",               phiBin_, phiMin_, phiMax_);
+      mSubJet1_SoftDrop_mass_boosted       = ibooker.book1D("SubJet1_SoftDrop_mass_boosted", "SubJet1_SoftDrop_mass_boosted", 50, 0, 250); 
+      mSubJet2_SoftDrop_pt_boosted         = ibooker.book1D("SubJet2_SoftDrop_pt_boosted",   "SubJet2_SoftDrop_pt_boosted",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet2_SoftDrop_eta_boosted        = ibooker.book1D("SubJet2_SoftDrop_eta_boosted",  "SubJet2_SoftDrop_eta_boosted",               etaBin_, etaMin_, etaMax_);
+      mSubJet2_SoftDrop_phi_boosted        = ibooker.book1D("SubJet2_SoftDrop_phi_boosted",  "SubJet2_SoftDrop_phi_boosted",               phiBin_, phiMin_, phiMax_);
+      mSubJet2_SoftDrop_mass_boosted       = ibooker.book1D("SubJet2_SoftDrop_mass_boosted", "SubJet2_SoftDrop_mass_boosted", 50, 0, 250); 
+
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"nSubJets_SoftDrop_boosted", mnSubJetsSoftDrop_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_SoftDrop_pt_boosted", mSubJet1_SoftDrop_pt_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_SoftDrop_eta_boosted", mSubJet1_SoftDrop_eta_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_SoftDrop_phi_boosted", mSubJet1_SoftDrop_phi_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet1_SoftDrop_mass_boosted", mSubJet1_SoftDrop_mass_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_SoftDrop_pt_boosted", mSubJet2_SoftDrop_pt_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_SoftDrop_eta_boosted", mSubJet2_SoftDrop_eta_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_SoftDrop_phi_boosted", mSubJet2_SoftDrop_phi_boosted));
+      map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet2_SoftDrop_mass_boosted", mSubJet2_SoftDrop_mass_boosted));
+
+    }
+  }
+
 
   if(jetCleaningFlag_){
     //so far we have only one additional selection -> implement to make it expandable
@@ -1910,6 +2081,12 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(isMiniAODJet_ && (*patJets)[ijet].isPFJet()){
       pat::strbitset stringbitset=pfjetIDFunctor.getBitTemplate();
       jetpassid = pfjetIDFunctor((*patJets)[ijet],stringbitset);
+      if(fabs ((*patJets)[ijet].eta()>3.0)){
+	jetpassid =false;
+	if((1.-(*patJets)[ijet].neutralHadronEnergyFraction())<0.90 && (*patJets)[ijet].neutralMultiplicity()>10){
+	  jetpassid =true;
+	}
+      }
       if(jetCleaningFlag_){
 	Thiscleaned = jetpassid;
 	JetIDWPU = jetpassid;
@@ -1974,12 +2151,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       puidmvaflag=(*puJetIdFlagMva)[pfjetref];
       puidcutflag=(*puJetIdFlag)[pfjetref];
       jetpassid = pfjetIDFunctor((*pfJets)[ijet]);
-      if((*pfJets)[ijet].muonEnergyFraction()>0.8){
+      if(fabs ((*pfJets)[ijet].eta()>3.0)){
 	jetpassid =false;
+	if((1.-(*pfJets)[ijet].neutralHadronEnergyFraction())<0.90 && (*pfJets)[ijet].neutralMultiplicity()>10){
+	  jetpassid =true;
+	}
       }
       if(jetCleaningFlag_){
 	Thiscleaned = jetpassid;
-	JetIDWPU= (jetpassid && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ));
+	//JetIDWPU= (jetpassid && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ));//until new tuning of PU JetID take that out
       }
       if(Thiscleaned && pass_uncorrected){
 	mPt_uncor = map_of_MEs[DirName+"/"+"Pt_uncor"]; if (mPt_uncor && mPt_uncor->getRootObject())  mPt_uncor->Fill ((*pfJets)[ijet].pt());
@@ -2433,6 +2613,124 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	mJetEnergyCorr = map_of_MEs[DirName+"/"+"JetEnergyCorr"]; if(mJetEnergyCorr && mJetEnergyCorr->getRootObject()) mJetEnergyCorr->Fill(1./(*patJets)[ijet].jecFactor("Uncorrected"));
 	mJetEnergyCorrVSEta = map_of_MEs[DirName+"/"+"JetEnergyCorrVSEta"]; if(mJetEnergyCorrVSEta && mJetEnergyCorrVSEta->getRootObject())mJetEnergyCorrVSEta->Fill(correctedJet.eta(),1./(*patJets)[ijet].jecFactor("Uncorrected"));
 	mJetEnergyCorrVSPt = map_of_MEs[DirName+"/"+"JetEnergyCorrVSPt"]; if(mJetEnergyCorrVSPt && mJetEnergyCorrVSPt->getRootObject()) mJetEnergyCorrVSPt->Fill(correctedJet.pt(),1./(*patJets)[ijet].jecFactor("Uncorrected"));
+	if(filljetsubstruc_){
+	  //miniaod specific variables, especially for substructure
+	  mSoftDropMass = map_of_MEs[DirName+"/"+"SoftDropMass"];if(mSoftDropMass && mSoftDropMass->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSSoftDropMass")) mSoftDropMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSSoftDropMass"));
+	  mPrunedMass = map_of_MEs[DirName+"/"+"PrunedMass"];if(mPrunedMass && mPrunedMass->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSPrunedMass")) mPrunedMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSPrunedMass"));
+	  mTrimmedMass = map_of_MEs[DirName+"/"+"TrimmedMass"];if(mTrimmedMass && mTrimmedMass->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSTrimmedMass")) mTrimmedMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSTrimmedMass"));
+	  mFilteredMass = map_of_MEs[DirName+"/"+"FilteredMass"];if(mFilteredMass && mFilteredMass->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSFilteredMass")) mFilteredMass->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSFilteredMass"));
+	  mtau2_over_tau1 = map_of_MEs[DirName+"/"+"tau2_over_tau1"]; if(mtau2_over_tau1 && mtau2_over_tau1->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8:tau1") && (*patJets)[ijet].hasUserFloat("NjettinessAK8:tau2")))mtau2_over_tau1->Fill((*patJets)[ijet].userFloat("NjettinessAK8:tau2")/(*patJets)[ijet].userFloat("NjettinessAK8:tau1"));
+	  mtau3_over_tau2 = map_of_MEs[DirName+"/"+"tau3_over_tau2"]; if(mtau3_over_tau2 && mtau3_over_tau2->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8:tau2") && (*patJets)[ijet].hasUserFloat("NjettinessAK8:tau3")))mtau3_over_tau2->Fill((*patJets)[ijet].userFloat("NjettinessAK8:tau3")/(*patJets)[ijet].userFloat("NjettinessAK8:tau2"));
+	  if((*patJets)[ijet].hasTagInfo("caTop")){
+	    reco::CATopJetTagInfo const * tagInfo=  dynamic_cast<reco::CATopJetTagInfo const *>((*patJets)[ijet].tagInfo("caTop"));
+	    if ( tagInfo != 0 ) {
+	      mCATopTag_topMass = map_of_MEs[DirName+"/"+"CATopTag_topMass"];if(mCATopTag_topMass && mCATopTag_topMass->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_topMass->Fill(tagInfo->properties().topMass);
+	      mCATopTag_minMass = map_of_MEs[DirName+"/"+"CATopTag_minMass"];if(mCATopTag_minMass && mCATopTag_minMass->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_minMass->Fill(tagInfo->properties().minMass);
+	      mCATopTag_nSubJets = map_of_MEs[DirName+"/"+"nSubJets_CATopTag"];if(mCATopTag_nSubJets && mCATopTag_nSubJets->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_nSubJets->Fill(tagInfo->properties().nSubJets);
+	    }
+	  }
+	  if((*patJets)[ijet].hasSubjets("CMSTopTag")){
+	    mnSubJetsCMSTopTag=map_of_MEs[DirName+"/"+"nSubJets_CMSTopTag"]; if(mnSubJetsCMSTopTag && mnSubJetsCMSTopTag->getRootObject()) mnSubJetsCMSTopTag->Fill((*patJets)[ijet].subjets("CMSTopTag").size());
+	  }
+	  if((*patJets)[ijet].hasSubjets("CMSTopTag") && (*patJets)[ijet].subjets("CMSTopTag").size()>0){
+	    mSubJet1_CMSTopTag_pt=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_pt"]; if(mSubJet1_CMSTopTag_pt && mSubJet1_CMSTopTag_pt->getRootObject()) mSubJet1_CMSTopTag_pt->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->pt());
+	    mSubJet1_CMSTopTag_eta=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_eta"]; if(mSubJet1_CMSTopTag_eta && mSubJet1_CMSTopTag_eta->getRootObject()) mSubJet1_CMSTopTag_eta->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->eta());
+	    mSubJet1_CMSTopTag_phi=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_phi"]; if(mSubJet1_CMSTopTag_phi && mSubJet1_CMSTopTag_phi->getRootObject()) mSubJet1_CMSTopTag_phi->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->phi());
+	    mSubJet1_CMSTopTag_mass=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_mass"]; if(mSubJet1_CMSTopTag_mass && mSubJet1_CMSTopTag_mass->getRootObject()) mSubJet1_CMSTopTag_mass->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->mass());
+	    if((*patJets)[ijet].subjets("CMSTopTag").size()>1){
+	      mSubJet2_CMSTopTag_pt=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_pt"]; if(mSubJet2_CMSTopTag_pt && mSubJet2_CMSTopTag_pt->getRootObject()) mSubJet2_CMSTopTag_pt->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->pt());
+	      mSubJet2_CMSTopTag_eta=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_eta"]; if(mSubJet2_CMSTopTag_eta && mSubJet2_CMSTopTag_eta->getRootObject()) mSubJet2_CMSTopTag_eta->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->eta());
+	      mSubJet2_CMSTopTag_phi=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_phi"]; if(mSubJet2_CMSTopTag_phi && mSubJet2_CMSTopTag_phi->getRootObject()) mSubJet2_CMSTopTag_phi->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->phi());
+	      mSubJet2_CMSTopTag_mass=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_mass"]; if(mSubJet2_CMSTopTag_mass && mSubJet2_CMSTopTag_mass->getRootObject()) mSubJet2_CMSTopTag_mass->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->mass());
+	      if((*patJets)[ijet].subjets("CMSTopTag").size()>2){
+		mSubJet3_CMSTopTag_pt=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_pt"]; if(mSubJet3_CMSTopTag_pt && mSubJet3_CMSTopTag_pt->getRootObject()) mSubJet3_CMSTopTag_pt->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->pt());
+		mSubJet3_CMSTopTag_eta=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_eta"]; if(mSubJet3_CMSTopTag_eta && mSubJet3_CMSTopTag_eta->getRootObject()) mSubJet3_CMSTopTag_eta->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->eta());
+		mSubJet3_CMSTopTag_phi=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_phi"]; if(mSubJet3_CMSTopTag_phi && mSubJet3_CMSTopTag_phi->getRootObject()) mSubJet3_CMSTopTag_phi->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->phi());
+		mSubJet3_CMSTopTag_mass=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_mass"]; if(mSubJet3_CMSTopTag_mass && mSubJet3_CMSTopTag_mass->getRootObject()) mSubJet3_CMSTopTag_mass->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->mass());
+		if((*patJets)[ijet].subjets("CMSTopTag").size()>3){
+		  mSubJet4_CMSTopTag_pt=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_pt"]; if(mSubJet4_CMSTopTag_pt && mSubJet4_CMSTopTag_pt->getRootObject()) mSubJet4_CMSTopTag_pt->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->pt());
+		  mSubJet4_CMSTopTag_eta=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_eta"]; if(mSubJet4_CMSTopTag_eta && mSubJet4_CMSTopTag_eta->getRootObject()) mSubJet4_CMSTopTag_eta->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->eta());
+		  mSubJet4_CMSTopTag_phi=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_phi"]; if(mSubJet4_CMSTopTag_phi && mSubJet4_CMSTopTag_phi->getRootObject()) mSubJet4_CMSTopTag_phi->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->phi());
+		  mSubJet4_CMSTopTag_mass=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_mass"]; if(mSubJet4_CMSTopTag_mass && mSubJet4_CMSTopTag_mass->getRootObject()) mSubJet4_CMSTopTag_mass->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->mass());
+		}
+	      }
+	    }
+	  }//CMS top tag filling
+	  if((*patJets)[ijet].hasSubjets("SoftDrop")){
+	    mnSubJetsSoftDrop=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop"]; if(mnSubJetsSoftDrop && mnSubJetsSoftDrop->getRootObject()) mnSubJetsSoftDrop->Fill((*patJets)[ijet].subjets("SoftDrop").size());
+	  }
+	  if((*patJets)[ijet].hasSubjets("SoftDrop") && (*patJets)[ijet].subjets("SoftDrop").size()>0){
+	    mSubJet1_SoftDrop_pt=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt"]; if(mSubJet1_SoftDrop_pt && mSubJet1_SoftDrop_pt->getRootObject()) mSubJet1_SoftDrop_pt->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->pt());
+	    mSubJet1_SoftDrop_eta=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta"]; if(mSubJet1_SoftDrop_eta && mSubJet1_SoftDrop_eta->getRootObject()) mSubJet1_SoftDrop_eta->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->eta());
+	    mSubJet1_SoftDrop_phi=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi"]; if(mSubJet1_SoftDrop_phi && mSubJet1_SoftDrop_phi->getRootObject()) mSubJet1_SoftDrop_phi->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->phi());
+	    mSubJet1_SoftDrop_mass=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_mass"]; if(mSubJet1_SoftDrop_mass && mSubJet1_SoftDrop_mass->getRootObject()) mSubJet1_SoftDrop_mass->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->mass());
+	    if((*patJets)[ijet].subjets("SoftDrop").size()>1){
+	      mSubJet2_SoftDrop_pt=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_pt"]; if(mSubJet2_SoftDrop_pt && mSubJet2_SoftDrop_pt->getRootObject()) mSubJet2_SoftDrop_pt->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->pt());
+	      mSubJet2_SoftDrop_eta=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_eta"]; if(mSubJet2_SoftDrop_eta && mSubJet2_SoftDrop_eta->getRootObject()) mSubJet2_SoftDrop_eta->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->eta());
+	      mSubJet2_SoftDrop_phi=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_phi"]; if(mSubJet2_SoftDrop_phi && mSubJet2_SoftDrop_phi->getRootObject()) mSubJet2_SoftDrop_phi->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->phi());
+	      mSubJet2_SoftDrop_mass=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_mass"]; if(mSubJet2_SoftDrop_mass && mSubJet2_SoftDrop_mass->getRootObject()) mSubJet2_SoftDrop_mass->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->mass());
+	    }
+	  }//soft drop jets
+	  if((*patJets)[ijet].pt()>pt_min_boosted_){
+	    //miniaod specific variables, especially for boosted substructure
+	    mSoftDropMass_boosted = map_of_MEs[DirName+"/"+"SoftDropMass_boosted"];if(mSoftDropMass_boosted && mSoftDropMass_boosted->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSSoftDropMass")) mSoftDropMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSSoftDropMass"));
+	    mPrunedMass_boosted = map_of_MEs[DirName+"/"+"PrunedMass_boosted"];if(mPrunedMass_boosted && mPrunedMass_boosted->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSPrunedMass")) mPrunedMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSPrunedMass"));
+	    mTrimmedMass_boosted = map_of_MEs[DirName+"/"+"TrimmedMass_boosted"];if(mTrimmedMass_boosted && mTrimmedMass_boosted->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSTrimmedMass")) mTrimmedMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSTrimmedMass"));
+	    mFilteredMass_boosted = map_of_MEs[DirName+"/"+"FilteredMass_boosted"];if(mFilteredMass_boosted && mFilteredMass_boosted->getRootObject() && (*patJets)[ijet].hasUserFloat("ak8PFJetsCHSFilteredMass")) mFilteredMass_boosted->Fill((*patJets)[ijet].userFloat("ak8PFJetsCHSFilteredMass"));
+	    mtau2_over_tau1_boosted = map_of_MEs[DirName+"/"+"tau2_over_tau1_boosted"]; if(mtau2_over_tau1_boosted && mtau2_over_tau1_boosted->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8:tau1") && (*patJets)[ijet].hasUserFloat("NjettinessAK8:tau2")))mtau2_over_tau1_boosted->Fill((*patJets)[ijet].userFloat("NjettinessAK8:tau2")/(*patJets)[ijet].userFloat("NjettinessAK8:tau1"));
+	    mtau3_over_tau2_boosted = map_of_MEs[DirName+"/"+"tau3_over_tau2_boosted"]; if(mtau3_over_tau2_boosted && mtau3_over_tau2_boosted->getRootObject() && ((*patJets)[ijet].hasUserFloat("NjettinessAK8:tau2") && (*patJets)[ijet].hasUserFloat("NjettinessAK8:tau3")))mtau3_over_tau2_boosted->Fill((*patJets)[ijet].userFloat("NjettinessAK8:tau3")/(*patJets)[ijet].userFloat("NjettinessAK8:tau2"));
+	    if((*patJets)[ijet].hasTagInfo("caTop")){
+	      reco::CATopJetTagInfo const * tagInfo_boosted =  dynamic_cast<reco::CATopJetTagInfo const *>((*patJets)[ijet].tagInfo("caTop"));
+	      if ( tagInfo_boosted  != 0 ) {
+		mCATopTag_topMass_boosted = map_of_MEs[DirName+"/"+"CATopTag_topMass_boosted"];if(mCATopTag_topMass_boosted && mCATopTag_topMass_boosted->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_topMass_boosted->Fill(tagInfo_boosted->properties().topMass);
+		mCATopTag_minMass_boosted = map_of_MEs[DirName+"/"+"CATopTag_minMass_boosted"];if(mCATopTag_minMass_boosted && mCATopTag_minMass_boosted->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_minMass_boosted->Fill(tagInfo_boosted->properties().minMass);
+		mCATopTag_nSubJets_boosted = map_of_MEs[DirName+"/"+"nSubJets_CATopTag_boosted"];if(mCATopTag_nSubJets_boosted && mCATopTag_nSubJets_boosted->getRootObject() && (*patJets)[ijet].hasTagInfo("caTop")) mCATopTag_nSubJets_boosted->Fill(tagInfo_boosted->properties().nSubJets);
+	      }
+	    }
+	    if((*patJets)[ijet].hasSubjets("CMSTopTag")){
+	      mnSubJetsCMSTopTag_boosted=map_of_MEs[DirName+"/"+"nSubJets_CMSTopTag_boosted"]; if(mnSubJetsCMSTopTag_boosted && mnSubJetsCMSTopTag_boosted->getRootObject()) mnSubJetsCMSTopTag_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag").size());
+	    }
+	    if((*patJets)[ijet].hasSubjets("CMSTopTag") && (*patJets)[ijet].subjets("CMSTopTag").size()>0){
+	      mSubJet1_CMSTopTag_pt_boosted=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_pt_boosted"]; if(mSubJet1_CMSTopTag_pt_boosted && mSubJet1_CMSTopTag_pt_boosted->getRootObject()) mSubJet1_CMSTopTag_pt_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->pt());
+	      mSubJet1_CMSTopTag_eta_boosted=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_eta_boosted"]; if(mSubJet1_CMSTopTag_eta_boosted && mSubJet1_CMSTopTag_eta_boosted->getRootObject()) mSubJet1_CMSTopTag_eta_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->eta());
+	      mSubJet1_CMSTopTag_phi_boosted=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_phi_boosted"]; if(mSubJet1_CMSTopTag_phi_boosted && mSubJet1_CMSTopTag_phi_boosted->getRootObject()) mSubJet1_CMSTopTag_phi_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->phi());
+	      mSubJet1_CMSTopTag_mass_boosted=map_of_MEs[DirName+"/"+"SubJet1_CMSTopTag_mass_boosted"]; if(mSubJet1_CMSTopTag_mass_boosted && mSubJet1_CMSTopTag_mass_boosted->getRootObject()) mSubJet1_CMSTopTag_mass_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[0]->mass());
+	      if((*patJets)[ijet].subjets("CMSTopTag").size()>1){
+		mSubJet2_CMSTopTag_pt_boosted=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_pt_boosted"]; if(mSubJet2_CMSTopTag_pt_boosted && mSubJet2_CMSTopTag_pt_boosted->getRootObject()) mSubJet2_CMSTopTag_pt_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->pt());
+		mSubJet2_CMSTopTag_eta_boosted=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_eta_boosted"]; if(mSubJet2_CMSTopTag_eta_boosted && mSubJet2_CMSTopTag_eta_boosted->getRootObject()) mSubJet2_CMSTopTag_eta_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->eta());
+		mSubJet2_CMSTopTag_phi_boosted=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_phi_boosted"]; if(mSubJet2_CMSTopTag_phi_boosted && mSubJet2_CMSTopTag_phi_boosted->getRootObject()) mSubJet2_CMSTopTag_phi_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->phi());
+		mSubJet2_CMSTopTag_mass_boosted=map_of_MEs[DirName+"/"+"SubJet2_CMSTopTag_mass_boosted"]; if(mSubJet2_CMSTopTag_mass_boosted && mSubJet2_CMSTopTag_mass_boosted->getRootObject()) mSubJet2_CMSTopTag_mass_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[1]->mass());
+		if((*patJets)[ijet].subjets("CMSTopTag").size()>2){
+		  mSubJet3_CMSTopTag_pt_boosted=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_pt_boosted"]; if(mSubJet3_CMSTopTag_pt_boosted && mSubJet3_CMSTopTag_pt_boosted->getRootObject()) mSubJet3_CMSTopTag_pt_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->pt());
+		  mSubJet3_CMSTopTag_eta_boosted=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_eta_boosted"]; if(mSubJet3_CMSTopTag_eta_boosted && mSubJet3_CMSTopTag_eta_boosted->getRootObject()) mSubJet3_CMSTopTag_eta_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->eta());
+		  mSubJet3_CMSTopTag_phi_boosted=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_phi_boosted"]; if(mSubJet3_CMSTopTag_phi_boosted && mSubJet3_CMSTopTag_phi_boosted->getRootObject()) mSubJet3_CMSTopTag_phi_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->phi());
+		  mSubJet3_CMSTopTag_mass_boosted=map_of_MEs[DirName+"/"+"SubJet3_CMSTopTag_mass_boosted"]; if(mSubJet3_CMSTopTag_mass_boosted && mSubJet3_CMSTopTag_mass_boosted->getRootObject()) mSubJet3_CMSTopTag_mass_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[2]->mass());
+		  if((*patJets)[ijet].subjets("CMSTopTag").size()>3){
+		    mSubJet4_CMSTopTag_pt_boosted=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_pt_boosted"]; if(mSubJet4_CMSTopTag_pt_boosted && mSubJet4_CMSTopTag_pt_boosted->getRootObject()) mSubJet4_CMSTopTag_pt_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->pt());
+		    mSubJet4_CMSTopTag_eta_boosted=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_eta_boosted"]; if(mSubJet4_CMSTopTag_eta_boosted && mSubJet4_CMSTopTag_eta_boosted->getRootObject()) mSubJet4_CMSTopTag_eta_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->eta());
+		    mSubJet4_CMSTopTag_phi_boosted=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_phi_boosted"]; if(mSubJet4_CMSTopTag_phi_boosted && mSubJet4_CMSTopTag_phi_boosted->getRootObject()) mSubJet4_CMSTopTag_phi_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->phi());
+		    mSubJet4_CMSTopTag_mass_boosted=map_of_MEs[DirName+"/"+"SubJet4_CMSTopTag_mass_boosted"]; if(mSubJet4_CMSTopTag_mass_boosted && mSubJet4_CMSTopTag_mass_boosted->getRootObject()) mSubJet4_CMSTopTag_mass_boosted->Fill((*patJets)[ijet].subjets("CMSTopTag")[3]->mass());
+		  }
+		}
+	      }
+	    }
+	    if((*patJets)[ijet].hasSubjets("SoftDrop")){
+	      mnSubJetsSoftDrop_boosted=map_of_MEs[DirName+"/"+"nSubJets_SoftDrop_boosted"]; if(mnSubJetsSoftDrop_boosted && mnSubJetsSoftDrop_boosted->getRootObject()) mnSubJetsSoftDrop_boosted->Fill((*patJets)[ijet].subjets("SoftDrop").size());
+	    }
+	    if((*patJets)[ijet].hasSubjets("SoftDrop") && (*patJets)[ijet].subjets("SoftDrop").size()>0){
+	      mSubJet1_SoftDrop_pt_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_pt_boosted"]; if(mSubJet1_SoftDrop_pt_boosted && mSubJet1_SoftDrop_pt_boosted->getRootObject()) mSubJet1_SoftDrop_pt_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->pt());
+	      mSubJet1_SoftDrop_eta_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_eta_boosted"]; if(mSubJet1_SoftDrop_eta_boosted && mSubJet1_SoftDrop_eta_boosted->getRootObject()) mSubJet1_SoftDrop_eta_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->eta());
+	      mSubJet1_SoftDrop_phi_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_phi_boosted"]; if(mSubJet1_SoftDrop_phi_boosted && mSubJet1_SoftDrop_phi_boosted->getRootObject()) mSubJet1_SoftDrop_phi_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->phi());
+	      mSubJet1_SoftDrop_mass_boosted=map_of_MEs[DirName+"/"+"SubJet1_SoftDrop_mass_boosted"]; if(mSubJet1_SoftDrop_mass_boosted && mSubJet1_SoftDrop_mass_boosted->getRootObject()) mSubJet1_SoftDrop_mass_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[0]->mass());
+	      if((*patJets)[ijet].subjets("SoftDrop").size()>1){
+		mSubJet2_SoftDrop_pt_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_pt_boosted"]; if(mSubJet2_SoftDrop_pt_boosted && mSubJet2_SoftDrop_pt_boosted->getRootObject()) mSubJet2_SoftDrop_pt_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->pt());
+		mSubJet2_SoftDrop_eta_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_eta_boosted"]; if(mSubJet2_SoftDrop_eta_boosted && mSubJet2_SoftDrop_eta_boosted->getRootObject()) mSubJet2_SoftDrop_eta_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->eta());
+		mSubJet2_SoftDrop_phi_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_phi_boosted"]; if(mSubJet2_SoftDrop_phi_boosted && mSubJet2_SoftDrop_phi_boosted->getRootObject()) mSubJet2_SoftDrop_phi_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->phi());
+		mSubJet2_SoftDrop_mass_boosted=map_of_MEs[DirName+"/"+"SubJet2_SoftDrop_mass_boosted"]; if(mSubJet2_SoftDrop_mass_boosted && mSubJet2_SoftDrop_mass_boosted->getRootObject()) mSubJet2_SoftDrop_mass_boosted->Fill((*patJets)[ijet].subjets("SoftDrop")[1]->mass());
+	      }
+	    }
+	  }//substructure filling for boosted
+	}//substructure filling	  
       }
       // --- Event passed the low pt jet trigger
       if (jetLoPass_ == 1) {	  

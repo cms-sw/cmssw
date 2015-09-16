@@ -11,6 +11,8 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
     muonsrc = cms.InputTag("muons"),
     l1algoname = cms.string("L1Tech_BPTX_plus_AND_minus.v0"),
     filljetHighLevel =cms.bool(False),
+    fillsubstructure =cms.bool(False),
+    ptMinBoosted = cms.double(400.),
     #
     #
     #
@@ -18,8 +20,7 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
         andOr         = cms.bool( False ),
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-        hltDBKey       = cms.string( 'jetmet_highptjet' ),
-        hltPaths       = cms.vstring( 'HLT_Jet300_v','HLT_Jet300_v6','HLT_Jet300_v7','HLT_Jet300_v8' ), 
+        hltPaths       = cms.vstring( 'HLT_PFJet450_v*'), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -27,8 +28,7 @@ jetDQMAnalyzerAk4CaloUncleaned = cms.EDAnalyzer("JetAnalyzer",
         andOr         = cms.bool( False ),
         dbLabel        = cms.string("JetMETDQMTrigger"),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-        hltDBKey       = cms.string( 'jetmet_lowptjet' ),
-        hltPaths       = cms.vstring( 'HLT_Jet60_v','HLT_Jet60_v6','HLT_Jet60_v7','HLT_Jet60_v8' ), 
+        hltPaths       = cms.vstring( 'HLT_PFJet80_v*'), 
         andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
@@ -89,7 +89,7 @@ jetDQMAnalyzerAk4CaloCleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     JetCleaningFlag   = cms.untracked.bool(True),
     filljetHighLevel  = cms.bool(False),
     CleaningParameters = cleaningParameters.clone(
-        bypassAllPVChecks = cms.bool(False),
+        bypassAllPVChecks = cms.bool(True),
     ),
     jetAnalysis=jetDQMParameters.clone(
         ptThreshold = cms.double(20.),
@@ -160,6 +160,11 @@ jetDQMAnalyzerAk4PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCleaned.clone(
         ),
     JetType = cms.string('miniaod'),#pf, calo or jpt
     jetsrc = cms.InputTag("slimmedJets"),
+)
+
+jetDQMAnalyzerAk8PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
+    jetsrc = cms.InputTag("slimmedJetsAK8"),
+    fillsubstructure =cms.bool(True),
 )
 
 jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
