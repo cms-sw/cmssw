@@ -492,6 +492,7 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       bge_rho_grid->set_particles(fjInputs_);
       subtractor = unique_ptr<fastjet::Subtractor>( new fastjet::Subtractor(  bge_rho_grid.get()) );
       subtractor->set_use_rho_m();
+      subtractor->use_common_bge_for_rho_and_rhom(true);
     }
 
 
