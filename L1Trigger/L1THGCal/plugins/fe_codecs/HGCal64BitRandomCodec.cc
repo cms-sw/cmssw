@@ -11,6 +11,7 @@ DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory,
 
 void HGCal64BitRandomCodec::
 setDataPayloadImpl(const Module& , 
+                   const HGCalTriggerGeometryBase& ,
                    const HGCEEDigiCollection&,
                    const HGCHEDigiCollection&,
                    const HGCHEDigiCollection& ) {
