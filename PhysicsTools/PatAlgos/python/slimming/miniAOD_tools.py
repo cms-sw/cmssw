@@ -103,7 +103,7 @@ def miniAOD_customizeCommon(process):
     #noHF pfMET =========
     process.noHFCands = cms.EDFilter("GenericPFCandidateSelector",
                                      src=cms.InputTag("particleFlow"),
-                                     cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
+                                     cut=cms.string("std::abs(obj.pdgId())!=1 && std::abs(obj.pdgId())!=2 && std::abs(obj.eta())<3.0")
                                      )
     runMetCorAndUncForMiniAODProduction(process,
                                         pfCandColl=cms.InputTag("noHFCands"),

@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 # Update to replace old jet corrector mechanism
 from HLTrigger.Configuration.customizeHLTforNewJetCorrectors import customizeHLTforNewJetCorrectors
 
+#get string cut object parser converter
+from HLTrigger.Configuration.customizeHLTforExprEvaluator import customizeHLTforExprEvaluator
+
 # Possibility to put different ring dependent cut on ADC (PR #9232)                                                              
 def customiseFor9232(process):
     if hasattr(process,'hltEcalPhiSymFilter'):
@@ -187,5 +190,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customizeHLTforNewJetCorrectors(process)
     if cmsswVersion >= "CMSSW_7_4":
         process = customiseFor10234(process)
+
+    process = customizeHLTforExprEvaluator(process)
 
     return process

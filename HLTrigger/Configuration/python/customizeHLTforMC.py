@@ -1,11 +1,14 @@
 import FWCore.ParameterSet.Config as cms
+from HLTrigger.Configuration.customizeHLTforExprEvaluator import customizeHLTforExprEvaluator
 
 def customizeHLTforFastSim(process,_fastSim=True):
   process=customizeHLTforMC(process,_fastSim)
+  process=customizeHLTforExprEvaluator(process)
   return process
 
 def customizeHLTforFullSim(process,_fastSim=False):
   process=customizeHLTforMC(process,_fastSim)
+  process=customizeHLTforExprEvaluator(process)
   return process
 
 def customizeHLTforMC(process,_fastSim=False):
