@@ -42,7 +42,7 @@ void splitOptionRecursive(string rawoption, vector<string>& splitoptions, char d
   }
   if (remnant!="") splitoptions.push_back(remnant);
 }
-void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", string linestyles = "", bool switchONfit = false, TString directory = "."){
+void MultiHistoOverlapAll_Z(string files, string labels, string colors = "", string linestyles = "", TString directory = ".", bool switchONfit = false){
   gSystem->mkdir(directory, true);
   gROOT->Reset();
   setTDRStyle();
