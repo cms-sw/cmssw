@@ -651,7 +651,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	 float jZ = jGlobalPosition.z() ;
 	 float jT = jSegment->time();
 	 //	 if(abs(jZ)<650&& TheEvent.id().run() < 251737)jT-= 25;
-	 if (TMath::ACos(TMath::Cos(jPhi - iPhi)) <= 0.2//max_segment_phi_diff 
+	 if ( abs(deltaPhi(jPhi , iPhi)) <= 0.2//max_segment_phi_diff 
 	     //&& abs(jR - iR) <= max_segment_r_diff 
 	     && (abs(jR - iR) <= max_segment_r_diff || (abs(jR - iR)<0.03*abs(jZ - iZ) &&  jZ*iZ<0) )
 	     && (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
