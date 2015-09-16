@@ -32,14 +32,24 @@ EOF
 }
 # end of publication methode
 
-if [ "$#" == '0' ]; then
-   cp Empty_Sqlite.db Gains_Sqlite.db
+if [ "$#" != '1' ]; then
+#   cp Empty_Sqlite.db Gains_Sqlite.db
    echo "Running: cmsRun Gains_Compute_cfg.py"
    cmsRun Gains_Compute_cfg.py
    root -l -b -q KeepOnlyGain.C+
-   echo "Running: cmsRun Validation_Compute_cfg.py"
-   cmsRun Validation_Compute_cfg.py
-   root -l -b -q PlotMacro.C+
+
+   #can not run validation from PCL inputs
+   if [[ $1 != *"PCL"* ]]; then
+      echo "Running: cmsRun Validation_Compute_cfg.py"
+      cmsRun Validation_Compute_cfg.py
+   fi
+
+   if [ "$#" == '0' ]; then
+      sh PlotMacro.sh
+   fi
+   if [ "$#" == '2' ]; then
+      sh PlotMacro.sh "\"$2\""
+   fi
 else
    WORKDIR=$PWD
    DIRPATH=/afs/cern.ch/cms/tracker/sistrvalidation/WWW/CalibrationValidation/ParticleGain/$1
@@ -53,6 +63,7 @@ else
    echo "Move results to the respective directories"
    cp Gains_Compute_cfg.py $DIRPATH/cfg/.
    cp Validation_Compute_cfg.py $DIRPATH/cfg/.
+   cp FileList_cfg.py $DIRPATH/cfg/.
    cp Gains_Sqlite.db $DIRPATH/sqlite/.
    cp Gains.root $DIRPATH/sqlite/.
    cp Gains_ASCII.txt $DIRPATH/log/.
