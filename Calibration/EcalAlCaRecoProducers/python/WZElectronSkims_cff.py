@@ -54,23 +54,23 @@ ZSCHltFilter = HLTrigger.HLTfilters.hltHighLevel_cfi.hltHighLevel.clone(
 ###MC check efficiency
 genEleFromZ = cms.EDFilter("CandViewSelector",
                               src = cms.InputTag("genParticles"),
-                              cut = cms.string("(pdgId == 11 || pdgId == -11) && eta <2.5 && eta>-2.5 && pt > 15 && mother(0).pdgId == 23"),
+                              cut = cms.string("(obj.pdgId() == 11 || obj.pdgId() == -11) && obj.eta() <2.5 && obj.eta() > -2.5 && obj.pt() > 15 && obj.mother(0)->pdgId() == 23"),
                               )
 
 genEleFromW = cms.EDFilter("CandViewSelector",
                               src = cms.InputTag("genParticles"),
-                              cut = cms.string("(pdgId == 11 || pdgId == -11) && eta <2.5 && eta>-2.5 && pt > 25 && (mother(0).pdgId == 24 || mother(0).pdgId == -24)"),
+                              cut = cms.string("(obj.pdgId() == 11 || obj.pdgId() == -11) && obj.eta() <2.5 && obj.eta() > -2.5 && obj.pt() > 25 && (obj.mother(0)->pdgId() == 24 || obj.mother(0)->pdgId() == -24)"),
                               )
 
 genNuFromW = cms.EDFilter("CandViewSelector",
                               src = cms.InputTag("genParticles"),
-                              cut = cms.string("(pdgId == 12 || pdgId == -12) && (mother(0).pdgId == 24 || mother(0).pdgId == -24)"),
+                              cut = cms.string("(obj.pdgId() == 12 || obj.pdgId() == -12) && (obj.mother(0)->pdgId() == 24 || obj.mother(0)->pdgId() == -24)"),
                               )
 
 combZ = cms.EDProducer("CandViewShallowCloneCombiner",
                                  decay = cms.string("genEleFromZ genEleFromZ"),
                                  checkCharge = cms.bool(False),
-                                 cut = cms.string("40 < mass < 140"),
+                                 cut = cms.string("40 < obj.mass() && obj.mass() < 140"),
                                  )
 
 combW = cms.EDProducer("CandViewShallowCloneCombiner",
@@ -101,7 +101,7 @@ WFilterMC = cms.EDFilter("CandViewCountFilter",
 selectedECALElectrons = cms.EDFilter("GsfElectronRefSelector",
                                  src = myEleCollection,
                                  cut = cms.string(
-    "(abs(superCluster.eta)<3) && (energy*sin(superClusterPosition.theta)> 15)")
+    "(std::abs(obj.superCluster()->eta())<3) && (obj.energy()*std::sin(obj.superClusterPosition().theta())> 15)")
                                          )
 
 selectedECALMuons = cms.EDFilter("MuonRefSelector",
@@ -112,7 +112,7 @@ selectedECALMuons = cms.EDFilter("MuonRefSelector",
 selectedECALPhotons = cms.EDFilter("PhotonRefSelector",
                                  src = cms.InputTag( 'gedPhotons' ),
                                  cut = cms.string(
-    "(abs(superCluster.eta)<3) && (pt > 10)")
+    "(std::abs(obj.superCluster()->eta)<3) && (obj.pt() > 10)")
                                          )
 
 
@@ -120,21 +120,21 @@ selectedECALPhotons = cms.EDFilter("PhotonRefSelector",
 PassingVetoId = selectedECALElectrons.clone(
     cut = cms.string(
     selectedECALElectrons.cut.value() +
-    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=2)"
-    " && ((isEB"
-    " && ( ((pfIsolationVariables().sumChargedHadronPt + max(0.0,pfIsolationVariables().sumNeutralHadronEt + pfIsolationVariables().sumPhotonEt - 0.5 * pfIsolationVariables().sumPUPt))/p4.pt)<0.164369)"
-    " && (full5x5_sigmaIetaIeta<0.011100)"
-    " && ( - 	0.252044<deltaPhiSuperClusterTrackAtVtx< 	0.252044 )"
-    " && ( -0.016315<deltaEtaSuperClusterTrackAtVtx<0.016315 )"
-    " && (hadronicOverEm<0.345843)"
+    " && (obj.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)<=2)"
+    " && ((obj.isEB()"
+    " && ( ((obj.pfIsolationVariables().sumChargedHadronPt + std::max(0.0,obj.pfIsolationVariables().sumNeutralHadronEt + obj.pfIsolationVariables().sumPhotonEt - 0.5 * obj.pfIsolationVariables().sumPUPt))/obj.p4().pt())<0.164369)"
+    " && (obj.full5x5_sigmaIetaIeta()<0.011100)"
+    " && ( std::abs(obj.deltaPhiSuperClusterTrackAtVtx())  < 	0.252044 )"
+    " && ( std::abs(obj.deltaEtaSuperClusterTrackAtVtx())  <  0.016315 )"
+    " && (obj.hadronicOverEm()<0.345843)"
     ")"
-    " || (isEE"
-    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=3)"
-    " && ( ((pfIsolationVariables().sumChargedHadronPt + max(0.0,pfIsolationVariables().sumNeutralHadronEt + pfIsolationVariables().sumPhotonEt - 0.5 * pfIsolationVariables().sumPUPt))/p4.pt)<0.212604 )"
-    " && (full5x5_sigmaIetaIeta<0.033987)"
-    " && ( -0.245263<deltaPhiSuperClusterTrackAtVtx<0.245263 )"
-    " && ( -0.010671<deltaEtaSuperClusterTrackAtVtx<0.010671 )"
-    " && (hadronicOverEm<0.134691) "
+    " || (obj.isEE()"
+    " && (obj.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)<=3)"
+    " && ( ((obj.pfIsolationVariables().sumChargedHadronPt + std::max(0.0,obj.pfIsolationVariables().sumNeutralHadronEt + obj.pfIsolationVariables().sumPhotonEt - 0.5 * obj.pfIsolationVariables().sumPUPt))/obj.p4().pt())<0.212604 )"
+    " && (obj.full5x5_sigmaIetaIeta()<0.033987)"
+    " && ( std::abs(obj.deltaPhiSuperClusterTrackAtVtx())<0.245263 )"
+    " && ( std::abs(obj.deltaEtaSuperClusterTrackAtVtx())<0.010671 )"
+    " && (obj.hadronicOverEm()<0.134691) "
     "))"
     )
     )
@@ -142,16 +142,16 @@ PassingVetoId = selectedECALElectrons.clone(
 PassingMuonVeryLooseId = selectedECALMuons.clone(
     cut = cms.string(
     selectedECALMuons.cut.value() +
-    "(isPFMuon) && (isGlobalMuon || isTrackerMuon)"
+    "(obj.isPFMuon()) && (obj.isGlobalMuon() || obj.isTrackerMuon())"
     )
     )
 
 PassingPhotonVeryLooseId = selectedECALPhotons.clone(
     cut = cms.string(
     selectedECALPhotons.cut.value() +
-    "&& ( (eta<1.479 && sigmaIetaIeta<0.02 && hadronicOverEm<0.06 )"
+    "&& ( (obj.eta()<1.479 && obj.sigmaIetaIeta()<0.02 && obj.hadronicOverEm()<0.06 )"
     "||"
-    "( eta>=1.479 && sigmaIetaIeta<0.04 && hadronicOverEm<0.06 ) )"
+    "( obj.eta()>=1.479 && obj.sigmaIetaIeta()<0.04 && obj.hadronicOverEm()<0.06 ) )"
     )
     )
 
@@ -168,7 +168,7 @@ PhoFilter = cms.EDFilter("CandViewCountFilter",
 #------------------------------ electronID producer
 SCselector = cms.EDFilter("SuperClusterSelector",
                           src = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
-                          cut = cms.string('(eta>2.4 || eta<-2.4) && (energy*sin(position.theta)> 15)')
+                          cut = cms.string('(obj.eta()>2.4 || obj.eta()<-2.4) && (obj.energy()*std::sin(obj.position().theta())> 15)')
                           )
 
 ### Build candidates from all the merged superclusters
@@ -201,12 +201,12 @@ muSelSeq = cms.Sequence( selectedECALMuons + selectedECALPhotons + PassingMuonVe
 ZeeSelector =  cms.EDProducer("CandViewShallowCloneCombiner",
                               decay = cms.string("PassingVetoId PassingVetoId"),
                               checkCharge = cms.bool(False),
-                              cut   = cms.string("40 < mass < 140")
+                              cut   = cms.string("40 < obj.mass() && obj.mass() < 140")
                               )
 
 
 #met, mt cuts for W selection
-MT="sqrt(2*daughter(0).pt*daughter(1).pt*(1 - cos(daughter(0).phi - daughter(1).phi)))"
+MT="std::sqrt(2*obj.daughter(0)->pt()*obj.daughter(1)->pt()*(1 - std::cos(obj.daughter(0)->phi() - obj.daughter(1)->phi())))"
 MET_CUT_MIN = 25.
 W_ELECTRON_ET_CUT_MIN = 30.0
 MT_CUT_MIN = 50.
@@ -214,14 +214,14 @@ MT_CUT_MIN = 50.
 WenuSelector = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("pfMet PassingVetoId"), # charge coniugate states are implied
     checkCharge = cms.bool(False),                           
-    cut   = cms.string(("daughter(0).pt > %f && daughter(1).pt > %f && "+MT+" > %f") % (MET_CUT_MIN, W_ELECTRON_ET_CUT_MIN, MT_CUT_MIN))
+    cut   = cms.string(("obj.daughter(0)->pt() > %f && obj.daughter(1)->pt() > %f && "+MT+" > %f") % (MET_CUT_MIN, W_ELECTRON_ET_CUT_MIN, MT_CUT_MIN))
 )
 
 
 EleSCSelector = cms.EDProducer("CandViewShallowCloneCombiner",
                                decay = cms.string("PassingVetoId eleSC"),
                                checkCharge = cms.bool(False), 
-                               cut = cms.string("40 < mass < 140")
+                               cut = cms.string("40 < obj.mass() && obj.mass() < 140")
                                )
 
 # for filtering events passing at least one of the filters

@@ -9,7 +9,7 @@ HLTProcessName = "HLT"
 ELECTRON_ET_CUT_MIN_TIGHT = 20.0
 ELECTRON_ET_CUT_MIN_LOOSE = 10.0
 ELECTRON_COLL = "gedGsfElectrons"
-ELECTRON_CUTS = "(abs(superCluster.eta)<2.5) && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN_LOOSE) + ")"
+ELECTRON_CUTS = "(std::abs(obj.superCluster()->eta())<2.5) && (obj.ecalEnergy()*std::sin(obj.superClusterPosition().theta())>" + str(ELECTRON_ET_CUT_MIN_LOOSE) + ")"
 
 MASS_CUT_MIN = 0.
 
@@ -54,7 +54,7 @@ ZEM_DiJetHltFilter = cms.EDFilter("HLTHighLevel",
 # Get muons of needed quality for Zs
 looseMuonsForTop = cms.EDFilter("MuonSelector",
                              src = cms.InputTag("muons"),
-                             cut = cms.string('pt > 20 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon = 1 && abs(innerTrack().dxy)<2.0'),
+                             cut = cms.string('obj.pt() > 20 && std::abs(obj.eta())<2.4 && obj.isGlobalMuon() == 1 && obj.isTrackerMuon() == 1 && std::abs(obj.innerTrack()->dxy())<2.0'),
                              filter = cms.bool(True)
 )
 
@@ -62,7 +62,7 @@ looseMuonsForTop = cms.EDFilter("MuonSelector",
 
 elecMuon = cms.EDProducer("CandViewShallowCloneCombiner",
                          checkCharge = cms.bool(False),
-                         cut = cms.string('mass > 0'),
+                         cut = cms.string('obj.mass() > 0'),
                          decay = cms.string("looseMuonsForTop ElectronPassingVeryLooseId")
                          )
 elecMuonFilter = cms.EDFilter("CandViewCountFilter",

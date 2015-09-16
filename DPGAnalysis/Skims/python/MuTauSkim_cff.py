@@ -49,7 +49,7 @@ TauSkimPFTauSkimmedBy2 = cms.EDFilter("CandViewCountFilter",
 TauSkimDiTauPairs = cms.EDProducer("CandViewShallowCloneCombiner",
                                    decay = cms.string("TauSkimPFTausSelected TauSkimPFTausSelected"),
                                    checkCharge = cms.bool(False),
-                                   cut = cms.string("sqrt((daughter(0).eta-daughter(1).eta)*(daughter(0).eta-daughter(1).eta)+ min( abs(daughter(0).phi-daughter(1).phi), 2*3.1415926 - abs(daughter(0).phi-daughter(1).phi) ) * min( abs(daughter(0).phi-daughter(1).phi), 2*3.1415926 - abs(daughter(0).phi-daughter(1).phi) ) )>0.5"),
+                                   cut = cms.string("std::sqrt((obj.daughter(0)->eta()-obj.daughter(1)->eta())*(obj.daughter(0)->eta()-obj.daughter(1)->eta())+ std::min( std::abs(obj.daughter(0)->phi()-obj.daughter(1)->phi()), 2*3.1415926 - std::abs(obj.daughter(0)->phi()-obj.daughter(1)->phi()) ) * std::min( std::abs(obj.daughter(0)->phi()-obj.daughter(1)->phi()), 2*3.1415926 - std::abs(obj.daughter(0)->phi()-obj.daughter(1)->phi()) ) )>0.5"),
                                    )
 
 ## MODULE IN 53X ONLY  
@@ -85,7 +85,7 @@ TauSkimPFTausSelectedForMuTau.discriminators = cms.VPSet(
 
 ## MODULE IN 53X ONLY  
 #TauSkimPFTausSelectedForMuTau.cut = cms.string('pt > 18. && abs(eta) < 2.3') #75X
-TauSkimPFTausSelectedForMuTau.cut = cms.string('pt > 18. && abs(eta) < 2.3') #HTT 2015 TWIKI   
+TauSkimPFTausSelectedForMuTau.cut = cms.string('obj.pt() > 18. && std::abs(obj.eta()) < 2.3') #HTT 2015 TWIKI   
 TauSkimPFTauSkimmedForMuTau = cms.EDFilter("CandViewCountFilter",
                                             src = cms.InputTag('TauSkimPFTausSelectedForMuTau'),
                                             minNumber = cms.uint32(1)
@@ -96,12 +96,12 @@ TauSkimPFTauSkimmedForMuTau = cms.EDFilter("CandViewCountFilter",
 ## MODULE IN 53X ONLY 
 TauSkimMuonSelected = cms.EDFilter("MuonRefSelector",
                                    src = cms.InputTag("muons"),
-                                   cut = cms.string("pt > 20 && " + "abs(eta) < 2.1 && " +
-                                                    "isGlobalMuon && isTrackerMuon" +
+                                   cut = cms.string("obj.pt() > 20 && " + "std::abs(obj.eta()) < 2.1 && " +
+                                                    "obj.isGlobalMuon() && obj.isTrackerMuon()" +
                                                     #" && globalTrack.isNonnull "+
                                                     #" && globalTrack.hitPattern.numberOfValidTrackerHits>=5"+
                                                     #" && globalTrack.normalizedChi2<20"+
-                                                    " && (pfIsolationR03.sumChargedHadronPt/pt) < 0.3"
+                                                    " && (obj.pfIsolationR03().sumChargedHadronPt/obj.pt()) < 0.3"
                                                     ),
                                      )
 
@@ -115,7 +115,7 @@ TauSkimMuonSkimmedBy1 = cms.EDFilter("CandViewCountFilter",
 TauSkimMuTauPairs = cms.EDProducer("CandViewShallowCloneCombiner",
                                     decay = cms.string("TauSkimMuonSelected TauSkimPFTausSelectedForMuTau"),
                                     checkCharge = cms.bool(False),
-                                    cut         = cms.string("sqrt((daughter(0).eta-daughter(1).eta)*(daughter(0).eta-daughter(1).eta)+ min( abs(daughter(0).phi-daughter(1).phi), 2*3.1415926 - abs(daughter(0).phi-daughter(1).phi) ) * min( abs(daughter(0).phi-daughter(1).phi), 2*3.1415926 - abs(daughter(0).phi-daughter(1).phi) ) )>0.3"), ## DR CUT LOOSENED FOLLOWING MICHAL'S SUGGESTIONS FROM 0.5 TO 0.3
+                                    cut         = cms.string("std::sqrt((obj.daughter(0)->eta()-obj.daughter(1)->eta())*(obj.daughter(0)->eta()-obj.daughter(1)->eta())+ std::min( std::abs(obj.daughter(0)->phi()-obj.daughter(1)->phi()), 2*3.1415926 - std::abs(obj.daughter(0)->phi()-obj.daughter(1)->phi()) ) * std::min( std::abs(obj.daughter(0)->phi()-obj.daughter(1)->phi), 2*3.1415926 - std::abs(obj.daughter(0)->phi-obj.daughter(1)->phi()) ) )>0.3"), ## DR CUT LOOSENED FOLLOWING MICHAL'S SUGGESTIONS FROM 0.5 TO 0.3
                                     )
 
 

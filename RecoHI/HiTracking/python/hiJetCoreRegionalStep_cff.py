@@ -9,7 +9,7 @@ hiInitialStepTrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('hiGlo
 #change this to import Bkg substracted Heavy Ion jets:
 from RecoHI.HiJetAlgos.hiCaloJetsForTrk_cff import *
 
-hiJetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("akPu4CaloJetsSelected"), cut = cms.string("pt > 30 && abs(eta) < 2.5"))
+hiJetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("akPu4CaloJetsSelected"), cut = cms.string("obj.pt() > 30 && std::abs(obj.eta()) < 2.5"))
 
 # care only at tracks from main PV
 hiFirstStepGoodPrimaryVertices = cms.EDFilter("PrimaryVertexObjectFilter",

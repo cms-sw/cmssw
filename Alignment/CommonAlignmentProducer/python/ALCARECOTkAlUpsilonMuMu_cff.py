@@ -25,7 +25,7 @@ import Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi
 ALCARECOTkAlUpsilonMuMuGoodMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlGoodIdMuonSelector.clone()
 ALCARECOTkAlUpsilonMuMuRelCombIsoMuons = Alignment.CommonAlignmentProducer.TkAlMuonSelectors_cfi.TkAlRelCombIsoMuonSelector.clone(
     src = 'ALCARECOTkAlUpsilonMuMuGoodMuons',
-    cut = '(isolationR03().sumPt + isolationR03().emEt + isolationR03().hadEt)/pt  < 0.3'
+    cut = '(obj.isolationR03().sumPt + obj.isolationR03().emEt + obj.isolationR03().hadEt)/obj.pt()  < 0.3'
 
 )
 

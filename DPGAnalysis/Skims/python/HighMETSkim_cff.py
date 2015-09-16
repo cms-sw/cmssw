@@ -5,7 +5,7 @@ import FWCore.ParameterSet.Config as cms
 pvFilterHighMETSkim = cms.EDFilter(
     "VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
-    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+    cut = cms.string("!obj.isFake() && obj.ndof() > 4 && std::abs(obj.z()) <= 24 && obj.position().Rho() <= 2"),
     filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
     )
 
@@ -19,7 +19,7 @@ pvFilterHighMETSkim = cms.EDFilter(
 pfMETSelectorHighMETSkim = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("pfMet"),
-    cut = cms.string( "pt()>200" )
+    cut = cms.string( "obj.pt()>200" )
     )
 
 pfMETCounterHighMETSkim = cms.EDFilter(
@@ -41,7 +41,7 @@ pfMETSelSeq = cms.Sequence(
 caloMETSelectorHighMETSkim = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("caloMetM"),
-    cut = cms.string( "pt()>200" )
+    cut = cms.string( "obj.pt()>200" )
     )
 
 caloMETCounterHighMETSkim = cms.EDFilter(
@@ -62,7 +62,7 @@ caloMETSelSeq = cms.Sequence(
 CondMETSelectorHighMETSkim = cms.EDProducer(
    "CandViewShallowCloneCombiner",
    decay = cms.string("pfMet caloMetM"),
-   cut = cms.string(" (daughter(0).pt > 200) || (daughter(0).pt/daughter(1).pt > 2 && daughter(1).pt > 150 ) || (daughter(1).pt/daughter(0).pt > 2 && daughter(0).pt > 150 )  " )
+   cut = cms.string(" (obj.daughter(0)->pt() > 200) || (obj.daughter(0)->pt()/obj.daughter(1)->pt() > 2 && obj.daughter(1)->pt() > 150 ) || (obj.daughter(1)->pt()/obj.daughter(0)->pt() > 2 && obj.daughter(0)->pt() > 150 )  " )
    )
 
 CondMETCounterHighMETSkim = cms.EDFilter(
@@ -84,7 +84,7 @@ CondMETSelSeq = cms.Sequence(
 miniMETSelectorHighMETSkim = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("slimmedMETs"),
-    cut = cms.string( "pt()>200" )
+    cut = cms.string( "obj.pt()>200" )
     )
 
 miniMETCounterHighMETSkim = cms.EDFilter(

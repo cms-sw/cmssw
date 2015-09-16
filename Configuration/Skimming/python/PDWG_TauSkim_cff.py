@@ -12,7 +12,7 @@ TauSkimPFTausSelected = cms.EDFilter("PFTauSelector",
 	),
 
    ),
-   cut = cms.string('et > 15. && abs(eta) < 2.5') 
+   cut = cms.string('obj.et() > 15. && std::abs(obj.eta()) < 2.5') 
 )
 
 TauSkimPFTauSkimmedBy1 = cms.EDFilter("CandViewCountFilter",

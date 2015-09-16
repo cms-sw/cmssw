@@ -12,20 +12,20 @@ ZMuHLTFilter.HLTPaths = ["HLT_Mu*","HLT_IsoMu*","HLT_DoubleMu*"]
 # Get muons of needed quality for Zs
 looseMuonsForZMuSkim = cms.EDFilter("MuonSelector",
                              src = cms.InputTag("muons"),
-                             cut = cms.string('pt > 10 && abs(eta)<2.4 && isGlobalMuon = 1 && isTrackerMuon = 1 && abs(innerTrack().dxy)<2.0'),
+                             cut = cms.string('obj.pt() > 10 && std::abs(obj.eta())<2.4 && obj.isGlobalMuon() == 1 && obj.isTrackerMuon() == 1 && std::abs(obj.innerTrack()->dxy())<2.0'),
                              filter = cms.bool(True)                                
                              )
 
 tightMuonsForZMuSkim = cms.EDFilter("MuonSelector",
                              src = cms.InputTag("looseMuonsForZMuSkim"),
-                             cut = cms.string('pt > 20'),
+                             cut = cms.string('obj.pt() > 20'),
                              filter = cms.bool(True)                                
                              )
 
 # build Z-> MuMu candidates
 dimuonsZMuSkim = cms.EDProducer("CandViewShallowCloneCombiner",
                          checkCharge = cms.bool(False),
-                         cut = cms.string('mass > 30'),
+                         cut = cms.string('obj.mass() > 30'),
                          decay = cms.string("tightMuonsForZMuSkim looseMuonsForZMuSkim")
                          )
 
