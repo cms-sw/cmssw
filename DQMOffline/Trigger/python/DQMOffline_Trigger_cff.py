@@ -49,7 +49,6 @@ offlineHLTSource = cms.Sequence(
     muonFullOfflineDQM *
     HLTTauDQMOffline *
     jetMETHLTOfflineAnalyzer * 
-    BTVHLTOfflineSource *
     fsqHLTOfflineSourceSequence *
     HILowLumiHLTOfflineSourceSequence *
     hltInclusiveVBFSource *
@@ -67,6 +66,7 @@ dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
 OfflineHLTMonitoring = cms.Sequence(
     dqmInfoHLTMon *
     sistripMonitorHLTsequence * 
+    BTVHLTOfflineSource *
     trackingMonitorHLT
     )
 
