@@ -160,7 +160,7 @@ def customise_Sim(process):
 def customise_New_HCAL(process):
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers'):
         if hasattr(process.mix.digitizers,'hcal'):
-            process.mix.digitizer.hcal.minFCToDelay=5.
+            process.mix.digitizers.hcal.minFCToDelay=5.
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
             process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.67)
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
@@ -168,11 +168,15 @@ def customise_New_HCAL(process):
 
     if hasattr(process,'mixData'):
         if hasattr(process.mix.digitizers,'hcal'):
-            process.mixData.digitizer.hcal.minFCToDelay=5.
+            process.mixData.digitizers.hcal.minFCToDelay=5.
         if hasattr(process.mixData,'hf1'):
             process.mixData.hf1.samplingFactor = cms.double(0.67)
         if hasattr(process.mixData,'hf2'):
             process.mixData.hf2.samplingFactor = cms.double(0.67)
+
+        if hasattr(process,'hltHbhereco'):
+            process.hltHbhereco.timeSlewPars = cms.vdouble( 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 )
+            process.hltHbhereco.respCorrM3   = cms.double( 0.95 )
 
     return process
         

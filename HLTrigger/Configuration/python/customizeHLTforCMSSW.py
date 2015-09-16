@@ -115,14 +115,6 @@ def customiseFor10927(process):
     return process
 
 
-
-# update Method3 with new time slew parametrization and response correction for data (PR #11091)
-def customizeFor11091(process):
-    # the parameters to be used for data are set in HcalHitReconstructor::fillDescriptions()
-    # the parameters to be used for MC are set in customizeHLTforMC.py 
-    return process
-
-
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -136,7 +128,6 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor7966(process)
         process = customiseFor7794(process)
         process = customizeHLTforNewJetCorrectors(process)
-        process = customizeFor11091(process)
     if cmsswVersion >= "CMSSW_7_4":
         process = customiseFor10234(process)
 

@@ -23,8 +23,12 @@ def customizeHLTforMC(process,_fastSim=False):
     process.hltHbhereco.pedestalSubtractionType = cms.int32( 1 )
     process.hltHbhereco.pedestalUpperLimit      = cms.double( 2.7 ) 
     process.hltHbhereco.timeSlewParsType        = cms.int32( 3 )
-    process.hltHbhereco.timeSlewPars            = cms.vdouble( 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 )
-    process.hltHbhereco.respCorrM3              = cms.double( 0.95 )
+    #old MC
+    process.hltHbhereco.timeSlewPars            = cms.vdouble( 9.27638, -2.05585, 0, 9.27638, -2.05585, 0, 9.27638, -2.05585, 0 ) 
+    process.hltHbhereco.respCorrM3              = cms.double( 1.0 )
+    #new MC once completely implemented
+#    process.hltHbhereco.timeSlewPars            = cms.vdouble( 12.2999, -2.19142, 0, 12.2999, -2.19142, 0, 12.2999, -2.19142, 0 )
+#    process.hltHbhereco.respCorrM3              = cms.double( 0.95 )
 
 
   if _fastSim:
