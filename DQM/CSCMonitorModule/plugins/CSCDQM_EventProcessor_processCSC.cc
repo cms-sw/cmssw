@@ -1288,7 +1288,7 @@ namespace cscdqm {
 //     CSCCFEBData * cfebData[N_CFEBs];
 //     CSCCFEBTimeSlice *  timeSlice[N_CFEBs][16];
 //     CSCCFEBDataWord * timeSample[N_CFEBs][16][6][16];
-    int Pedestal[N_CFEBs][6][16];
+    int Pedestal[N_CFEBs][6][16];    memset(Pedestal, 0, sizeof(Pedestal));
     #ifdef __clang__
     std::vector<std::array<std::array<std::pair<int,int>, 6>, 16>> CellPeak(N_CFEBs);
     std::fill(CellPeak.begin(), CellPeak.end(), std::array<std::array<std::pair<int,int>, 6>, 16>{});
