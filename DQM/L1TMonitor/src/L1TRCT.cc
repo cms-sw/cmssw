@@ -72,32 +72,20 @@ L1TRCT::~L1TRCT()
 
 
 void L1TRCT::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
-  //runId_->Fill(r.id().run());
-  //
 }
 
 void L1TRCT::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
-  //
-  //lumisecId_->Fill(l.id().luminosityBlock());
 }
 
 
 void L1TRCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&)
 {
   nev_ = 0;
-  
   ibooker.setCurrentFolder(histFolder_);
-
-  runId_=ibooker.bookInt("iRun");
-  runId_->Fill(-1);
-  lumisecId_=ibooker.bookInt("lumiSection");
-  lumisecId_->Fill(-1);
-  
 
   triggerType_ = ibooker.book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 
   // RCT UNPACKER
-  
   // electrons
   rctIsoEmEtEtaPhi_ =	ibooker.book2D("RctEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
   rctIsoEmOccEtaPhi_ = ibooker.book2D("RctEmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);

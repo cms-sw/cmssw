@@ -115,11 +115,6 @@ private:
   MonitorElement* layer2IsoEmRank_;
   MonitorElement* layer2NonIsoEmRank_;
 
-  // run/lumi
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
-
-
   int nev_; // Number of events processed
   std::string histFolder_;
   std::string outputFile_; //file name for ROOT ouput

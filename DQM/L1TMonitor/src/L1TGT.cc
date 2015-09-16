@@ -38,14 +38,6 @@ L1TGT::~L1TGT() {
 
 
 void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const& evSetup) {
-
-    runId_=ibooker.bookInt("iRun");
-    runId_->Fill(-1);
-    runStartTimeStamp_=ibooker.bookFloat("eventTimeStamp");
-
-    lumisecId_ = ibooker.bookInt("iLumiSection");
-    lumisecId_->Fill(-1);
-
     ibooker.setCurrentFolder(m_histFolder);
 
     // book histograms
@@ -312,15 +304,11 @@ void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Eve
 }
 
 void L1TGT::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup) {
-  //runId_->Fill(iRrun.id().run());
   m_nrEvRun = 0;
 }
 
 
 void L1TGT::beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& evSetup) {
-
-  //lumisecId_->Fill(iLumi.id().luminosityBlock());
-
 }
 
 //
