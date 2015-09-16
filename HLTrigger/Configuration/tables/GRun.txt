@@ -91,19 +91,19 @@ HLT_IsoMu18_CentralPFJet30_BTagCSV07_v*				# JIRA: CMSHLT-193, CMSHLT-272, CMSHL
 HLT_IsoMu22_v*							# JIRA: CMSHLT-566
 HLT_IsoMu22_TriCentralPFJet50_40_30_v*				# JIRA: CMSHLT-566
 HLT_IsoMu22_CentralPFJet30_BTagCSV07_v*				# JIRA: CMSHLT-566
-HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v*			# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, removed by CMSHLT-566
-HLT_IsoMu24_eta2p1_TriCentralPFJet30_v*				# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, removed by CMSHLT-566
-HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v*			# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, CMSHLT-405, removed by CMSHLT-566
+#HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v*			# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, removed by CMSHLT-566
+#HLT_IsoMu24_eta2p1_TriCentralPFJet30_v*			# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, removed by CMSHLT-566
+#HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v*			# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, CMSHLT-405, removed by CMSHLT-566
 HLT_Ele23_WPLoose_Gsf_v*                                        # JIRA: CMSHLT-512, CMSHLT-566
 HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v*		# JIRA: CMSHLT-566
 HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCVS07_v*		# JIRA: CMSHLT-566
 HLT_Ele27_WPLoose_Gsf_v*					# JIRA: CMSHLT-566
 HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v*		# JIRA: CMSHLT-193, CMSHLT-330, CMSHLT-566
 HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*		# JIRA: CMSHLT-193, CMSHLT-330, CMSHLT-405, CMSHLT-566
-HLT_Ele32_eta2p1_WPLoose_Gsf_v*					# JIRA: CMSHLT-193, CMSHLT-330, removed by CMSHLT-566
-HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v*		# JIRA: CMSHLT-193, CMSHLT-330, removed by CMSHLT-566
-HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v*		# JIRA: CMSHLT-193, CMSHLT-330, removed by CMSHLT-566
-HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*	# JIRA: CMSHLT-193, CMSHLT-330, CMSHLT-405, removed by CMSHLT-566
+#HLT_Ele32_eta2p1_WPLoose_Gsf_v*				# JIRA: CMSHLT-193, CMSHLT-330, removed by CMSHLT-566
+#HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v*		# JIRA: CMSHLT-193, CMSHLT-330, removed by CMSHLT-566
+#HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v*	# JIRA: CMSHLT-193, CMSHLT-330, removed by CMSHLT-566
+#HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*	# JIRA: CMSHLT-193, CMSHLT-330, CMSHLT-405, removed by CMSHLT-566
 
 HLT_Ele27_eta2p1_WPLoose_Gsf_v*					# JIRA: CMSHLT-193, CMSHLT-330
 
@@ -552,7 +552,7 @@ HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 HLT_Activity_Ecal_SC7_v*					# JIRA: CMSHLT-252
 HLT_EcalCalibration_v*						# JIRA: CMSHLT-281
 AlCa_EcalPhiSym_v*						# JIRA: CMSHLT-276
-AlCa_Ele27_WPVeryLoose_Gsf_v*					# JIRA: CMSHLT-366
+AlCa_Ele23_WPVeryLoose_Gsf_v*					# JIRA: CMSHLT-366, CMSHLT-556
 
 AlCa_EcalPi0EBonly_v*                                           # JIRA: CMSHLT-514
 AlCa_EcalPi0EEonly_v*                                           # JIRA: CMSHLT-514
