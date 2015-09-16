@@ -588,6 +588,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   eval[12] = pho.sigmaIetaIeta();
 
   float sipip=0, sieip=0, e2x5Max=0, e2x5Left=0, e2x5Right=0, e2x5Top=0, e2x5Bottom=0;
+  assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("sigmaIetaIphi"))->second.second, pho_vmaps, sieip);
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("sigmaIphiIphi"))->second.second, pho_vmaps, sipip);
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Max"))->second.second, pho_vmaps, e2x5Max);
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Left"))->second.second, pho_vmaps, e2x5Left);
