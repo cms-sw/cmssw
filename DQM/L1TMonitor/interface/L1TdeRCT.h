@@ -268,6 +268,8 @@ private:
   edm::EDGetTokenT<L1CaloEmCollection> rctSourceEmul_emEmul_;
   edm::EDGetTokenT<L1CaloRegionCollection> rctSourceData_rgnData_;
   edm::EDGetTokenT<L1CaloEmCollection> rctSourceData_emData_;
+  edm::EDGetTokenT<L1CaloRegionCollection> gctSourceData_rgnData_;
+  edm::EDGetTokenT<L1CaloEmCollection> gctSourceData_emData_;
   edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTPGData_;
   edm::EDGetTokenT<HcalTrigPrimDigiCollection> hcalTPGData_;
   edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> gtDigisLabel_;
@@ -276,6 +278,7 @@ private:
 
   /// filter TriggerType
   int filterTriggerType_;
+  int selectBX_;
 
 
   int trigCount,notrigCount;
