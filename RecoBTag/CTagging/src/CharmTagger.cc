@@ -23,7 +23,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
   use_adaBoost_(configuration.getParameter<bool>("useAdaBoost"))
 {
 	uses(0, "pfImpactParameterTagInfos");
-	uses(1, "pfInclusiveSecondaryVertexFinderCtagLTagInfos");
+	uses(1, "pfInclusiveSecondaryVertexFinderCvsLTagInfos");
 	uses(2, "softPFMuonsTagInfos");
 	uses(3, "softPFElectronsTagInfos");
 }

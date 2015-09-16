@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoBTag.SecondaryVertex.combinedSecondaryVertexCommon_cff import *
 
 candidateCombinedSecondaryVertexSoftLeptonCvsLComputer = cms.ESProducer(
-   "CandidateCombinedSecondaryVertexSoftLeptonCtagLESProducer",
+   "CandidateCombinedSecondaryVertexSoftLeptonCvsLESProducer",
    combinedSecondaryVertexCommon,
    useCategories = cms.bool(True),
    calibrationRecords = cms.vstring(

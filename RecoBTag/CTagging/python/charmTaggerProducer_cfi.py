@@ -14,7 +14,7 @@ charmTagsComputerCvsL = cms.ESProducer(
    computer = cms.ESInputTag('combinedSecondaryVertexSoftLeptonComputer'),
    tagInfos = cms.VInputTag(
       cms.InputTag('pfImpactParameterTagInfos'),
-      cms.InputTag('pfInclusiveSecondaryVertexFinderCtagLTagInfos'),
+      cms.InputTag('pfInclusiveSecondaryVertexFinderCvsLTagInfos'),
       cms.InputTag('softPFMuonsTagInfos'),
       cms.InputTag('softPFElectronsTagInfos'),
       ),
