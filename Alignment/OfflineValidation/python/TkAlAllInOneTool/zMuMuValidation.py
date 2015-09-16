@@ -14,6 +14,10 @@ class ZMuMuValidation(GenericValidationData):
             "zmumureference": ("/store/caf/user/emiglior/Alignment/TkAlDiMuonValidation/Reference/BiasCheck_DYToMuMu_Summer12_TkAlZMuMu_IDEAL.root"),
             "resonance": "Z",
             "switchONfit": "false",
+            "rebinphi": "4",
+            "rebinetadiff": "2",
+            "rebineta": "2",
+            "rebinpt": "8",
             }
         mandatories = ["etamaxneg", "etaminneg", "etamaxpos", "etaminpos"]
         self.configBaseName = configBaseName
