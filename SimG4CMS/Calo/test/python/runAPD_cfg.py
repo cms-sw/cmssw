@@ -8,6 +8,10 @@ process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 process.load("SimG4CMS.Calo.CaloSimHitStudy_cfi")
 
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run1_mc']
+
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('CaloSim', 'EcalGeom', 'EcalSim', 

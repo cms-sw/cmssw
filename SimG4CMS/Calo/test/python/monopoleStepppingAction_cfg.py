@@ -7,9 +7,15 @@ process.load('Configuration.StandardSequences.Generator_cff')
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.CMSCommonData.cmsSimIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Geometry.HcalCommonData.hcalParameters_cfi")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 process.load("Configuration.EventContent.EventContent_cff")
+
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['run1_mc']
 
 process.load("SimG4Core.Application.g4SimHits_cfi")
 

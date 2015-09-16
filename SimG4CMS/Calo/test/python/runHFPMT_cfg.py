@@ -8,13 +8,11 @@ process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 #process.load("SimG4CMS.Calo.testGeometryPMTXML_cfi")
 process.load("Geometry.CMSCommonData.cmsHFPMTAverageXML_cfi")
 #process.load("SimG4CMS.Calo.cmsHFPMTXML_cfi")
-
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-
+process.load("Geometry.HcalCommonData.hcalParameters_cfi")
+process.load("Geometry.HcalCommonData.hcalDDDSimConstants_cfi")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-
 process.load("Configuration.EventContent.EventContent_cff")
-
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
