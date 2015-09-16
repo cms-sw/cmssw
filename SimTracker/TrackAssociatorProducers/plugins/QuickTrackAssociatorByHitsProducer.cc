@@ -148,6 +148,10 @@ QuickTrackAssociatorByHitsProducer::makeHitAssociatorParameters(const edm::Param
   // I only want to use the hit associator methods that work on the hit IDs (i.e. the uint32_t trackId
   // and the EncodedEventId eventId) so I'm not interested in matching that to the PSimHit objects.
   hitAssociatorParameters.addParameter<bool>("associateRecoTracks",true);
+  // add these new ones to allow redirection of inputs:
+  hitAssociatorParameters.addParameter<edm::InputTag>( "pixelSimLinkSrc", iConfig.getParameter<edm::InputTag>("pixelSimLinkSrc") );
+  hitAssociatorParameters.addParameter<edm::InputTag>( "stripSimLinkSrc", iConfig.getParameter<edm::InputTag>("stripSimLinkSrc") );
+
   return hitAssociatorParameters;
 }
 

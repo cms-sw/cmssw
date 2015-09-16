@@ -9,6 +9,8 @@ pixRecHitsValid = cms.EDAnalyzer("SiPixelRecHitsValid",
         'g4SimHitsTrackerHitsPixelEndcapHighTof'),
     associateRecoTracks = cms.bool(False),
     associateStrip = cms.bool(False),
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
     verbose = cms.untracked.bool(False)
 )
 
