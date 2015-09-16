@@ -133,10 +133,9 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
 
   thePhotonEnergyCorrector_ = 
     new PhotonEnergyCorrector(conf_, consumesCollector());
-  if( config.existsAs<edm::ParameterSet>("regressionConfig") ) {
-    const edm::ParameterSet regr_conf = 
-      config.getParameterSet("regressionConfig");
-    thePhotonEnergyCorrector_->gedRegression()->varCalc()->setTokens(regr_conf,consumesCollector());
+  if( conf_.existsAs<edm::ParameterSet>("regressionConfig") ) {
+    auto sumes = consumesCollector();
+    thePhotonEnergyCorrector_->gedRegression()->setConsumes(sumes);
   }
 
   //AA
@@ -364,6 +363,13 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
   //  math::XYZPoint vtx(0.,0.,0.);
   //if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
+
+  // get the regression calculator ready
+  thePhotonEnergyCorrector_->init(theEventSetup);
+  if( thePhotonEnergyCorrector_->gedRegression() ) {
+    thePhotonEnergyCorrector_->gedRegression()->setEvent(theEvent);
+    thePhotonEnergyCorrector_->gedRegression()->setEventContent(theEventSetup);
+  }
 
 
   int iSC=0; // index in photon collection
@@ -733,6 +739,22 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     thePFBasedIsolationCalculator_->calculate (&newCandidate, pfCandidateHandle, vertexHandle, evt, es, pfIso );
     newCandidate.setPflowIsolationVariables(pfIso);
     newCandidate.setPflowIDVariables(pfID);
+
+    // do the regression
+    thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, *vertexHandle, es);
+    if ( candidateP4type_ == "fromEcalEnergy") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
+      newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+    } else if ( candidateP4type_ == "fromRegression1") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+      newCandidate.setCandidateP4type(reco::Photon::regression1);
+    } else if ( candidateP4type_ == "fromRegression2") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
+      newCandidate.setCandidateP4type(reco::Photon::regression2);
+    } else if ( candidateP4type_ == "fromRefinedSCRegression" ) {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+      newCandidate.setCandidateP4type(reco::Photon::regression1);
+    }
 
     //    std::cout << " GEDPhotonProducer  pf based isolation  chargedHadron " << newCandidate.chargedHadronIso() << " neutralHadron " <<  newCandidate.neutralHadronIso() << " Photon " <<  newCandidate.photonIso() << std::endl;
     //std::cout << " GEDPhotonProducer from candidate HoE with towers in a cone " << newCandidate.hadronicOverEm()  << "  " <<  newCandidate.hadronicDepth1OverEm()  << " " <<  newCandidate.hadronicDepth2OverEm()  << std::endl;
