@@ -28,6 +28,7 @@ public:
   }
 
   void setDataPayloadImpl(const Module& mod, 
+                          const HGCalTriggerGeometryBase& geom,
                           const HGCEEDigiCollection& ee,
                           const HGCHEDigiCollection& fh,
                           const HGCHEDigiCollection& bh );

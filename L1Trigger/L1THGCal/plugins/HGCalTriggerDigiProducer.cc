@@ -102,7 +102,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
   for( const auto& module : triggerGeometry_->modules() ) {    
     fe_output->push_back(l1t::HGCFETriggerDigi());
     l1t::HGCFETriggerDigi& digi = fe_output->back();
-    codec_->setDataPayload(*(module.second),ee_digis,fh_digis,bh_digis);
+    codec_->setDataPayload(*(module.second),*(triggerGeometry_),ee_digis,fh_digis,bh_digis);
     codec_->encode(digi);
     std::stringstream output;
     codec_->print(digi,output);

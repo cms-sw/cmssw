@@ -40,6 +40,7 @@ class HGCalTriggerFECodecBase {
   // give the FECodec a module + input digis and it sets itself
   // with the approprate data
   virtual void setDataPayload(const Module& cell, 
+                              const HGCalTriggerGeometryBase& geom,
                               const HGCEEDigiCollection&,
                               const HGCHEDigiCollection&,
                               const HGCHEDigiCollection& ) = 0;
@@ -91,6 +92,7 @@ namespace HGCalTriggerFE {
     }  
     
     virtual void setDataPayload(const Module& mod, 
+                                const HGCalTriggerGeometryBase& geom, 
                                 const HGCEEDigiCollection& ee, 
                                 const HGCHEDigiCollection& fh,
                                 const HGCHEDigiCollection& bh ) override final {
@@ -99,7 +101,7 @@ namespace HGCalTriggerFE {
           << "Data payload was already set for HGCTriggerFECodec: "
           << this->name() << " overwriting current data!";
       }
-      static_cast<Impl&>(*this).setDataPayloadImpl(mod,ee,fh,bh);
+      static_cast<Impl&>(*this).setDataPayloadImpl(mod,geom,ee,fh,bh);
       dataIsSet_ = true;
     }
 
