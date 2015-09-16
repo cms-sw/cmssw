@@ -22,9 +22,9 @@ HLT_Mu17_TkMu8_DZ_v*					# JIRA: CMSHLT-162
 HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v*			# JIRA: CMSHLT-162
 HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v*		# JIRA: CMSHLT-162
 
-HLT_IsoMu20_eta2p1_v*					# JIRA: CMSHLT-125, mod. CMSHLT-162, CMSHLT-272, CMSHLT-335
+#HLT_IsoMu20_eta2p1_v*					# JIRA: CMSHLT-125, mod. CMSHLT-162, CMSHLT-272, CMSHLT-335, removed by CMSHLT-566
 HLT_IsoTkMu20_eta2p1_v*					# JIRA: CMSHLT-125, mod. CMSHLT-162, CMSHLT-272, CMSHLT-335
-HLT_IsoMu24_eta2p1_v*					# JIRA: CMSHLT-125, mod. CMSHLT-162, CMSHLT-272, CMSHLT-335
+#HLT_IsoMu24_eta2p1_v*					# JIRA: CMSHLT-125, mod. CMSHLT-162, CMSHLT-272, CMSHLT-335, removed by CMSHLT-566
 HLT_IsoTkMu24_eta2p1_v*					# JIRA: CMSHLT-125, mod. CMSHLT-162, CMSHLT-272, CMSHLT-335
 
 HLT_Mu20_v*						# JIRA: CMSHLT-240
@@ -63,15 +63,15 @@ HLT_PFJet500_v*						# JIRA: CMSHLT-123, CMSHLT-543
 #HLT_IterativeTracking_v*				# JIRA: CMSHLT-68 -> TEMPLATE PATH, not for GRun
 MC_ReducedIterativeTracking_v*				# JIRA: CMSHLT-68, updated by CMSHLT-107 -> TEMPLATE PATH, in GRun but prescaled to 0
 
-HLT_IsoMu24_eta2p1_LooseIsoPFTau20_v*			  		   # JIRA: CMSHLT-160, mod. CMSHLT-272, CMSHLT-335
+HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v*			  		   # JIRA: CMSHLT-160, mod. CMSHLT-272, CMSHLT-335, CMSHLT-555
 HLT_IsoMu17_eta2p1_MediumIsoPFTau40_Trk1_eta2p1_Reg_v*			   # JIRA: CMSHLT-160, mod. CMSHLT-272, CMSHLT-335
 HLT_IsoMu17_eta2p1_v*							   # JIRA: CMSHLT-160, mod. CMSHLT-272, CMSHLT-335
 HLT_DoubleIsoMu17_eta2p1_v*						   # JIRA: CMSHLT-160, mod. CMSHLT-272, CMSHLT-335
 HLT_IsoMu16_eta2p1_MET30_JetIdCleaned_v*				   # JIRA: CMSHLT-160, mod. CMSHLT-272, CMSHLT-335, CMSHLT-482
 HLT_Mu16_eta2p1_MET30_JetIdCleaned_v*					   # JIRA: CMSHLT-160, CMSHLT-482
 HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v*				   # JIRA: CMSHLT-110, mod. CMSHLT-160, CMSHLT-232, CMSHLT-330
-HLT_Ele32_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v*	   # JIRA: CMSHLT-160, mod. CMSHLT-232, CMSHLT-330
-HLT_Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v* 			   # JIRA: CMSHLT-160, mod. CMSHLT-232, CMSHLT-330
+#HLT_Ele32_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v*	   # JIRA: CMSHLT-160, mod. CMSHLT-232, CMSHLT-330, removed by CMSHLT-555
+#HLT_Ele32_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v* 			   # JIRA: CMSHLT-160, mod. CMSHLT-232, CMSHLT-330, removed by CMSHLT-555
 HLT_Ele22_eta2p1_WPLoose_Gsf_v* 					   # JIRA: CMSHLT-160, mod. CMSHLT-232, CMSHLT-330
 HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v* 				   # JIRA: CMSHLT-160, mod. CMSHLT-232, CMSHLT-330
 HLT_LooseIsoPFTau50_Trk30_eta2p1_v* 					   # JIRA: CMSHLT-160  prescale to 1.5Hz
@@ -80,21 +80,32 @@ HLT_IsoMu17_eta2p1_LooseIsoPFTau20_SingleL1_v*				   # JIRA: CMSHLT-160, mod. CM
 HLT_Ele27_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v*	   # JIRA: CMSHLT-160, mod. CMSHLT-232, CMSHLT-330 (only for 7e33)
 HLT_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v*				   # JIRA: CMSHLT-160, mod. CMSHLT-232, CMSHLT-330 (only for 7e33)
 
-HLT_IsoMu20_eta2p1_TriCentralPFJet50_40_30_v*			# JIRA: CMSHLT-193, mod. CMSHLT-272, CMSHLT-335
-HLT_IsoMu20_eta2p1_TriCentralPFJet30_v*				# JIRA: CMSHLT-193, mod. CMSHLT-272, CMSHLT-335
-HLT_IsoMu20_eta2p1_CentralPFJet30_BTagCSV07_v*			# JIRA: CMSHLT-193, mod. CMSHLT-272, CMSHLT-335, CMSHLT-405
-HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v*			# JIRA: CMSHLT-193, mod. CMSHLT-272, CMSHLT-335
-HLT_IsoMu24_eta2p1_TriCentralPFJet30_v*				# JIRA: CMSHLT-193, mod. CMSHLT-272, CMSHLT-335
-HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v*			# JIRA: CMSHLT-193, mod. CMSHLT-272, CMSHLT-335, CMSHLT-405
-HLT_Ele23_WPLoose_Gsf_v*                                        # JIRA: CMSHLT-512
-HLT_Ele27_eta2p1_WPLoose_Gsf_v*					# JIRA: CMSHLT-193, mod. CMSHLT-330
-HLT_Ele32_eta2p1_WPLoose_Gsf_v*					# JIRA: CMSHLT-193, mod. CMSHLT-330
-HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v*		# JIRA: CMSHLT-193, mod. CMSHLT-330
-HLT_Ele27_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v*		# JIRA: CMSHLT-193, mod. CMSHLT-330
-HLT_Ele27_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*	# JIRA: CMSHLT-193, mod. CMSHLT-330, CMSHLT-405
-HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v*		# JIRA: CMSHLT-193, mod. CMSHLT-330
-HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v*		# JIRA: CMSHLT-193, mod. CMSHLT-330
-HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*	# JIRA: CMSHLT-193, mod. CMSHLT-330, CMSHLT-405
+HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v*				   # JIRA: CMSHLT-555
+HLT_IsoMu17_eta2p1_MediumIsoPFTau35_Trk1_eta2p1_Reg_v*			   # JIRA: CMSHLT-555
+HLT_Ele27_eta2p1_WPLoose_Gsf_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v*	   # JIRA: CMSHLT-555
+HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_SingleL1_v1		   # JIRA: CMSHLT-555
+
+HLT_IsoMu18_v*							# JIRA: CMSHLT-566
+HLT_IsoMu18_TriCentralPFJet50_40_30_v*				# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, CMSHLT-566
+HLT_IsoMu18_CentralPFJet30_BTagCSV07_v*				# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, CMSHLT-405, CMSHLT-566
+HLT_IsoMu22_v*							# JIRA: CMSHLT-566
+HLT_IsoMu22_TriCentralPFJet50_40_30_v*				# JIRA: CMSHLT-566
+HLT_IsoMu22_CentralPFJet30_BTagCSV07_v*				# JIRA: CMSHLT-566
+HLT_IsoMu24_eta2p1_TriCentralPFJet50_40_30_v*			# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, removed by CMSHLT-566
+HLT_IsoMu24_eta2p1_TriCentralPFJet30_v*				# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, removed by CMSHLT-566
+HLT_IsoMu24_eta2p1_CentralPFJet30_BTagCSV07_v*			# JIRA: CMSHLT-193, CMSHLT-272, CMSHLT-335, CMSHLT-405, removed by CMSHLT-566
+HLT_Ele23_WPLoose_Gsf_v*                                        # JIRA: CMSHLT-512, CMSHLT-566
+HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v*		# JIRA: CMSHLT-566
+HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCVS07_v*		# JIRA: CMSHLT-566
+HLT_Ele27_WPLoose_Gsf_v*					# JIRA: CMSHLT-566
+HLT_Ele27_WPLoose_Gsf_TriCentralPFJet50_40_30_v*		# JIRA: CMSHLT-193, CMSHLT-330, CMSHLT-566
+HLT_Ele27_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*		# JIRA: CMSHLT-193, CMSHLT-330, CMSHLT-405, CMSHLT-566
+HLT_Ele32_eta2p1_WPLoose_Gsf_v*					# JIRA: CMSHLT-193, CMSHLT-330, removed by CMSHLT-566
+HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet30_v*		# JIRA: CMSHLT-193, CMSHLT-330, removed by CMSHLT-566
+HLT_Ele32_eta2p1_WPLoose_Gsf_TriCentralPFJet50_40_30_v*		# JIRA: CMSHLT-193, CMSHLT-330, removed by CMSHLT-566
+HLT_Ele32_eta2p1_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v*	# JIRA: CMSHLT-193, CMSHLT-330, CMSHLT-405, removed by CMSHLT-566
+
+HLT_Ele27_eta2p1_WPLoose_Gsf_v*					# JIRA: CMSHLT-193, CMSHLT-330
 
 HLT_DoubleMu4_3_Bs_v*						# JIRA: CMSHLT-82
 HLT_DoubleMu4_3_Jpsi_Displaced_v*				# JIRA: CMSHLT-82
@@ -266,7 +277,7 @@ HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_JetIdCleaned_v*	# JIRA: CMSHLT-137, CMS
 
 HLT_Mu30_Ele30_CaloIdL_GsfTrkIdVL_v*				# JIRA: CMSHLT-139
 
-#HLT_PFHT200_PFAlphaT0p51_v*					# JIRA: CMSHLT-513
+HLT_PFHT200_PFAlphaT0p51_v*					# JIRA: CMSHLT-513
 HLT_PFHT200_DiPFJetAve90_PFAlphaT0p63_v*                        # JIRA: CMSHLT-143, mod. CMSHLT-207, mod CMSHLT-354
 HLT_PFHT250_DiPFJetAve90_PFAlphaT0p58_v*                        # JIRA: CMSHLT-143, mod. CMSHLT-207, mod CMSHLT-354
 HLT_PFHT300_DiPFJetAve90_PFAlphaT0p54_v*                        # JIRA: CMSHLT-143, mod. CMSHLT-207, mod CMSHLT-354
@@ -465,6 +476,7 @@ HLT_PFMET400_JetIdCleaned_v*                                    # JIRA: CMSHLT-3
 HLT_HT2000_v*                                                   # JIRA: CMSHLT-312
 HLT_HT2500_v*                                                   # JIRA: CMSHLT-312
 
+#HLT_Ele23_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-561
 HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-343
 
 HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_v*	# JIRA: CMSHLT-492
@@ -511,10 +523,29 @@ HLT_L1Tech_DT_GlobalOR_v*					# JIRA: CMSHLT-261 (for commissioning)
 HLT_L1SingleMu16_v*						# JIRA: CMSHLT-500
 HLT_L2Mu10_v*							# JIRA: CMSHLT-500
 
-#HLT_HIL1DoubleMu0BPTX_v*					# JIRA: CMSHLT-496
-#HLT_HIL2Mu3BPTX_v*						# JIRA: CMSHLT-496
-#HLT_HIL2DoubleMu0BPTX_v*					# JIRA: CMSHLT-496
-#HLT_HIL3Mu3BPTX_v*						# JIRA: CMSHLT-496
+HLT_HIL1DoubleMu0BPTX_v*					# JIRA: CMSHLT-496
+HLT_HIL2Mu3BPTX_v*						# JIRA: CMSHLT-496
+HLT_HIL2DoubleMu0BPTX_v*					# JIRA: CMSHLT-496
+HLT_HIL3Mu3BPTX_v*						# JIRA: CMSHLT-496
+
+HLT_DoublePhoton60_v*						# JIRA: CMSHLT-563
+
+#HLT_DoublePhoton40_v*						# JIRA: CMSHLT-564 (for 0T menu)
+#HLT_DoublePhoton50_v*						# JIRA: CMSHLT-564 (for 0T menu)
+#HLT_Photon150_v*						# JIRA: CMSHLT-564 (for 0T menu)
+
+#HLT_Photon90_CaloIdL_HT300_v*					# JIRA: CMSHLT-565 (for 0T menu)
+#HLT_HT250_CaloMET70_JetIdCleaned_v*				# JIRA: CMSHLT-565 (for 0T menu)
+
+#HLT_Photon125_v*						# JIRA: CMSHLT-540 (for 0T menu)
+#HLT_MET100_JetIdCleaned_v* 					# JIRA: CMSHLT-540 (for 0T menu)
+#HLT_MET150_JetIdCleaned_v*					# JIRA: CMSHLT-540 (for 0T menu)
+
+#HLT_Rsq0p25_Calo_v*						# JIRA: CMSHLT-571 (for 0T menu)
+#HLT_RsqMR240_Rsq0p09_MR200_Calo_v*				# JIRA: CMSHLT-571 (for 0T menu)
+#HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_v*			# JIRA: CMSHLT-571 (for 0T menu)
+
+#HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_v*				# JIRA: CMSHLT-572 (for 0T menu)
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
 
@@ -549,10 +580,10 @@ HLT_Random_v*							# JIRA: CMSHLT-244
 HLT_Physics_v*							# skim
 DST_Physics_v*							# skim
 
-#DST_ZeroBias_CaloScouting_v*					# JIRA: CMSHLT-548
+#DST_CaloJet40_CaloScouting_v*					# JIRA: CMSHLT-548
 #DST_L1HT_CaloScouting_v*					# JIRA: CMSHLT-548
 #DST_HT250_CaloScouting_v*					# JIRA: CMSHLT-548
-#DST_ZeroBias_PFScouting_v*					# JIRA: CMSHLT-548
+#DST_CaloJet40_PFScouting_v*					# JIRA: CMSHLT-548
 #DST_L1HT_PFScouting_v*						# JIRA: CMSHLT-548
 #DST_HT250_PFScouting_v*					# JIRA: CMSHLT-548
 
@@ -587,13 +618,15 @@ HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath						# only in 'GRun', not in 'online'
 #RatesMonitoring						# CMSHLT-344, only in 'online', not in 'GRun'
+PhysicsEndOfFillOutput
 PhysicsEGammaCommissioningOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
 PhysicsParkingMonitorOutput					# JIRA: CMSHLT-487
 ParkingHadronsOutput						# JIRA: CMSHLT-487
-ScoutingCaloOutput						# JIRA: CMSHLT-548
-ScoutingPFOutput						# JIRA: CMSHLT-548
+#PhysicsScoutingMonitorOutput					# JIRA: CMSHLT-548
+#ScoutingCaloOutput						# JIRA: CMSHLT-548
+#ScoutingPFOutput						# JIRA: CMSHLT-548
 DQMOutput							# online DQMFileSaver
 #DQMOfflineOutput                                               # JIRA: CMSHLT-462, removed CMSHLT-481
 DQMEventDisplayOutput
