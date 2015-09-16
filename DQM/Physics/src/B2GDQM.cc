@@ -123,6 +123,7 @@ B2GDQM::B2GDQM(const edm::ParameterSet& ps) {
           ps.getParameter<std::string>("muonSelect")));
 
   semiE_HadJetPtCut_ = ps.getParameter<double>("semiE_HadJetPtCut");
+  semiE_LepJetPtCut_ = ps.getParameter<double>("semiE_LepJetPtCut");
   semiE_dphiHadCut_ = ps.getParameter<double>("semiE_dphiHadCut");
   semiE_dRMin_ = ps.getParameter<double>("semiE_dRMin");
   semiE_ptRel_ = ps.getParameter<double>("semiE_ptRel");
