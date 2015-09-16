@@ -1475,7 +1475,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  // Skip muons
 	  if ( (*pfCandidates_)[tmpi[ic]].particleId() == reco::PFCandidate::mu ) continue; 
 
-	  double fraction = (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum;
+	  double fraction = trackMomentum > 0 ? (*pfCandidates_)[tmpi[ic]].trackRef()->p()/trackMomentum : 0;
 	  double ecalCal = bNeutralProduced ? 
 	    (calibEcal-neutralEnergy*slopeEcal)*fraction : calibEcal*fraction;
 	  double ecalRaw = totalEcal*fraction;
