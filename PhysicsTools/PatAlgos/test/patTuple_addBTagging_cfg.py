@@ -105,8 +105,8 @@ btagDiscriminators = [
     ,'pfPositiveCombinedMVABJetTags'
     ,'pfNegativeCombinedMVABJetTags'
     #CTagging
-    ,'pfCombinedTMVACvsLJetTags'
-    ,'pfCombinedTMVACvsBJetTags'
+    ,'pfCombinedCvsLJetTags'
+    ,'pfCombinedCvsBJetTags'
 ]
 
 # uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
