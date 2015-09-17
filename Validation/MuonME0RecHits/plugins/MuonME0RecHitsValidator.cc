@@ -6,8 +6,8 @@
 //
 //
 #include "Validation/MuonME0RecHits/interface/ME0RecHitsValidation.h"
-//#include "Validation/MuonME0RecHits/interface/ME0SegmentsValidation.h"
+#include "Validation/MuonME0RecHits/interface/ME0SegmentsValidation.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE (ME0RecHitsValidation) ;
-//DEFINE_FWK_MODULE (ME0SegmentsValidation) ;
+DEFINE_FWK_MODULE (ME0SegmentsValidation) ;

@@ -107,7 +107,7 @@ void ME0HitsValidation::analyze(const edm::Event& e,
       me0_sh_tofMu[(int)(region/2.+0.5)][layer-1]->Fill(timeOfFlightMuon);
       me0_sh_elossMu[(int)(region/2.+0.5)][layer-1]->Fill(energyLossMuon*1.e9);
  	
-      std::cout<<"Muons :   "<<timeOfFlightMuon<<"   EnergyLoss:  "<<energyLossMuon<<std::endl;
+     // std::cout<<"Muons :   "<<timeOfFlightMuon<<"   EnergyLoss:  "<<energyLossMuon<<std::endl;
     }
     
       // fill hist
