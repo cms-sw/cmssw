@@ -454,7 +454,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
     // CaloJet specific
     mHadEnergyInHO          = ibooker.book1D("HadEnergyInHO", "HadEnergyInHO", 50, 0, 20);
-    mHadEnergyInHB          = ibooker.book1D("HadEnergy5InHB", "HadEnergyInHB", 50, 0, 100);
+    mHadEnergyInHB          = ibooker.book1D("HadEnergyInHB", "HadEnergyInHB", 50, 0, 100);
     mHadEnergyInHF          = ibooker.book1D("HadEnergyInHF", "HadEnergyInHF", 50, 0, 100);
     mHadEnergyInHE          = ibooker.book1D("HadEnergyInHE", "HadEnergyInHE", 50, 0, 200);
     mEmEnergyInEB           = ibooker.book1D("EmEnergyInEB", "EmEnergyInEB", 50, 0, 100);
