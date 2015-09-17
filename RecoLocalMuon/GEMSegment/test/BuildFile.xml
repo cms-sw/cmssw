@@ -17,7 +17,6 @@
 <use   name="DataFormats/TrackCandidate"/>
 <use   name="DataFormats/TrajectorySeed"/>
 
-<use   name="DQMServices/Core"/>
 <use   name="EventFilter/RPCRawToDigi"/>
 
 <use   name="Geometry/CommonDetUnit"/>

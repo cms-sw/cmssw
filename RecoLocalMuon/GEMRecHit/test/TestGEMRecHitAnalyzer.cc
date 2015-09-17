@@ -64,10 +64,6 @@
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 #include <Geometry/DTGeometry/interface/DTGeometry.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
