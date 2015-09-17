@@ -22,7 +22,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     
     FolderName = cms.untracked.string("JetMET/MET/"),
 
-    fillMetHighLevel = cms.bool(True),
+    fillMetHighLevel = cms.bool(True),#fills lumi overview plots
 
     fillCandidateMaps = cms.bool(False),
 
@@ -171,7 +171,7 @@ pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
         ),
 )
 pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
-    fillMetHighLevel = cms.bool(False),
+    fillMetHighLevel = cms.bool(True),#fills only lumisec plots
     fillCandidateMaps = cms.bool(False),
     CleaningParameters = cleaningParameters.clone(
         vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
