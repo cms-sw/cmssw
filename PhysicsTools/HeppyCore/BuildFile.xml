@@ -1,6 +1,5 @@
 <use name="root"/>
 <use name="rootcore"/>
-<use name="rootinteractive"/>
 
 <use name="rootpy"/>
 <export>
