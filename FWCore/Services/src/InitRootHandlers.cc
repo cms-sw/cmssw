@@ -548,50 +548,36 @@ namespace edm {
         throw except;
       }
 
-        // Initialize read/write pipes for child thread.
-      int must_reload_child = parentToChild_[1];
-
-      int child_to_parent_pipe[2];
-      if (-1 == pipe2(child_to_parent_pipe, O_CLOEXEC))
-      {
-        std::ostringstream sstr;
-        sstr << "Failed to create child-to-parent pipes (errno=" << errno << "): " << strerror(errno);
-        edm::Exception except(edm::errors::OtherCMS, sstr.str());
-        throw except;
-      }
-
-      int parent_to_child_pipe[2];
-      if (-1 == pipe2(parent_to_child_pipe, O_CLOEXEC))
-      {
-        std::ostringstream sstr;
-        sstr << "Failed to create child-to-parent pipes (errno=" << errno << "): " << strerror(errno);
-        edm::Exception except(edm::errors::OtherCMS, sstr.str());
-        throw except;
-      }
-
+      // These are initialized to -1; harmless to close an invalid FD.
+      // If this is called post-fork, we don't want to be communicating on
+      // these FDs as they are used internally by the parent.
       close(childToParent_[0]);
-      childToParent_[0] = child_to_parent_pipe[0];
-      childToParent_[1] = child_to_parent_pipe[1];
-      parentToChild_[0] = parent_to_child_pipe[0];
-      parentToChild_[1] = parent_to_child_pipe[1];
-      if (must_reload_child >= 0)
-      {
-        int result = full_write(must_reload_child, "2");
-        if (result < 0)
-        {
-          std::ostringstream sstr;
-          sstr << "Failed to notify traceback thread to reload its file descriptors (errno=" << -result << "): " << strerror(-result);
-          edm::Exception except(edm::errors::OtherCMS, sstr.str());
-          throw except;
-        }
-      }
-      close(must_reload_child);
+      close(childToParent_[1]);
+      childToParent_[0] = -1; childToParent_[1] = -1;
+      close(parentToChild_[0]);
+      close(parentToChild_[1]);
+      parentToChild_[0] = -1; parentToChild_[1] = -1;
 
-      if (!helperThread_)
+      if (-1 == pipe2(childToParent_, O_CLOEXEC))
       {
-        helperThread_.reset(new std::thread(stacktraceHelperThread));
-        helperThread_->detach();
+        std::ostringstream sstr;
+        sstr << "Failed to create child-to-parent pipes (errno=" << errno << "): " << strerror(errno);
+        edm::Exception except(edm::errors::OtherCMS, sstr.str());
+        throw except;
       }
+
+      if (-1 == pipe2(parentToChild_, O_CLOEXEC))
+      {
+        close(childToParent_[0]); close(childToParent_[1]);
+        childToParent_[0] = -1; childToParent_[1] = -1;
+        std::ostringstream sstr;
+        sstr << "Failed to create child-to-parent pipes (errno=" << errno << "): " << strerror(errno);
+        edm::Exception except(edm::errors::OtherCMS, sstr.str());
+        throw except;
+      }
+
+      helperThread_.reset(new std::thread(stacktraceHelperThread));
+      helperThread_->detach();
     }
 
   }  // end of namespace service
