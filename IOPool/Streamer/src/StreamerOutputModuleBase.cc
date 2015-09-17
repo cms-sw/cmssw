@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+#include "FWCore/Framework/interface/PrincipalGetAdapter.h"
 //#include "FWCore/Utilities/interface/Digest.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -55,7 +56,8 @@ namespace {
 
 namespace edm {
   StreamerOutputModuleBase::StreamerOutputModuleBase(ParameterSet const& ps) :
-    OutputModule(ps),
+    one::OutputModuleBase::OutputModuleBase(ps),
+    one::OutputModule<one::WatchRuns, one::WatchLuminosityBlocks>(ps),
     selections_(&keptProducts()[InEvent]),
     maxEventSize_(ps.getUntrackedParameter<int>("max_event_size")),
     useCompression_(ps.getUntrackedParameter<bool>("use_compression")),
@@ -69,6 +71,7 @@ namespace edm {
     hltbits_(0),
     origSize_(0),
     host_name_(),
+    trToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults"))),
     hltTriggerSelections_(),
     outputModuleId_(0) {
     // no compression as default value - we need this!
@@ -193,12 +196,23 @@ namespace edm {
     return init_message;
   }
 
+  Trig
+  StreamerOutputModuleBase::getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const* mcc) const {
+    //This cast is safe since we only call const functions of the EventPrincipal after this point
+    PrincipalGetAdapter adapter(const_cast<EventPrincipal&>(ep), moduleDescription());
+    adapter.setConsumer(this);
+    Trig result;
+    auto bh = adapter.getByToken_(TypeID(typeid(TriggerResults)),PRODUCT_TYPE, token, mcc);
+    convert_handle(std::move(bh), result);
+    return result;
+  }
+
   void
   StreamerOutputModuleBase::setHltMask(EventPrincipal const& e, ModuleCallingContext const* mcc) {
 
     hltbits_.clear();  // If there was something left over from last event
 
-    Handle<TriggerResults> const& prod = getTriggerResults(e, mcc);
+    Handle<TriggerResults> const& prod = getTriggerResults(trToken_, e, mcc);
     //Trig const& prod = getTrigMask(e);
     std::vector<unsigned char> vHltState;
 
