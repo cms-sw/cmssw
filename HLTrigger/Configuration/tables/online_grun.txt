@@ -580,12 +580,12 @@ HLT_Random_v*							# JIRA: CMSHLT-244
 HLT_Physics_v*							# skim
 DST_Physics_v*							# skim
 
-#DST_CaloJet40_CaloScouting_v*					# JIRA: CMSHLT-548
-#DST_L1HT_CaloScouting_v*					# JIRA: CMSHLT-548
-#DST_HT250_CaloScouting_v*					# JIRA: CMSHLT-548
-#DST_CaloJet40_PFScouting_v*					# JIRA: CMSHLT-548
-#DST_L1HT_PFScouting_v*						# JIRA: CMSHLT-548
-#DST_HT250_PFScouting_v*					# JIRA: CMSHLT-548
+DST_CaloJet40_CaloScouting_v*					# JIRA: CMSHLT-548
+DST_L1HT_CaloScouting_v*					# JIRA: CMSHLT-548
+DST_HT250_CaloScouting_v*					# JIRA: CMSHLT-548
+DST_CaloJet40_PFScouting_v*					# JIRA: CMSHLT-548
+DST_L1HT_PFScouting_v*						# JIRA: CMSHLT-548
+DST_HT450_PFScouting_v*						# JIRA: CMSHLT-548
 
 #MC_PFMET_v*							# JIRA: CMSHLT-314 (template paths only for MC)
 #MC_AK4PFJets_v*						# JIRA: CMSHLT-314 (template paths only for MC)
@@ -624,9 +624,9 @@ PhysicsHadronsTausOutput
 PhysicsMuonsOutput
 PhysicsParkingMonitorOutput					# JIRA: CMSHLT-487
 ParkingHadronsOutput						# JIRA: CMSHLT-487
-#PhysicsScoutingMonitorOutput					# JIRA: CMSHLT-548
-#ScoutingCaloOutput						# JIRA: CMSHLT-548
-#ScoutingPFOutput						# JIRA: CMSHLT-548
+PhysicsScoutingMonitorOutput					# JIRA: CMSHLT-548
+ScoutingCaloOutput						# JIRA: CMSHLT-548
+ScoutingPFOutput						# JIRA: CMSHLT-548
 DQMOutput							# online DQMFileSaver
 #DQMOfflineOutput                                               # JIRA: CMSHLT-462, removed CMSHLT-481
 DQMEventDisplayOutput
