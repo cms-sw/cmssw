@@ -280,12 +280,14 @@ class PCLTrackerAlProducer : public edm::EDAnalyzer {
     edm::ESWatcher<CSCSurveyErrorExtendedRcd>     watchCSCSurveyErrExtRcd;
 
 
+    cond::Time_t theFirstRun; 
 
     /*** Survey stuff ***/
 
     size_t              theSurveyIndex;
     const Alignments*   theSurveyValues;
     const SurveyErrors* theSurveyErrors;
+
 };
 
 #endif
