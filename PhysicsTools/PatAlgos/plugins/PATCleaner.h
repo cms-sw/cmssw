@@ -14,7 +14,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -32,30 +32,29 @@
 #include "DataFormats/PatCandidates/interface/PFParticle.h"
 
 #include "PhysicsTools/PatAlgos/interface/OverlapTest.h"
-#include <boost/ptr_container/ptr_vector.hpp>
+#include <vector>
+#include <memory>
 
 namespace pat {
 
   template<class PATObjType>
-  class PATCleaner : public edm::EDProducer {
+  class PATCleaner : public edm::stream::EDProducer<> {
     public:
       explicit PATCleaner(const edm::ParameterSet & iConfig);
       virtual ~PATCleaner() {}
 
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
+      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override final;
 
     private:
       typedef StringCutObjectSelector<PATObjType> Selector;
 
-      edm::InputTag src_;
-      edm::EDGetTokenT<edm::View<PATObjType> > srcToken_;
-      bool doPreselection_, doFinalCut_;
-      Selector preselectionCut_;
-      Selector finalCut_;
+      const edm::InputTag src_;
+      const edm::EDGetTokenT<edm::View<PATObjType> > srcToken_;
+      const Selector preselectionCut_;
+      const Selector finalCut_;
 
       typedef pat::helper::OverlapTest OverlapTest;
-      // make a list of overlap tests (ptr_vector instead of std::vector because they're polymorphic)
-      boost::ptr_vector<OverlapTest> overlapTests_;
+      std::vector<std::unique_ptr<OverlapTest> > overlapTests_;
   };
 
 } // namespace
@@ -81,9 +80,9 @@ pat::PATCleaner<PATObjType>::PATCleaner(const edm::ParameterSet & iConfig) :
         std::string algorithm = cfg.getParameter<std::string>("algorithm");
         // create the appropriate OverlapTest
         if (algorithm == "byDeltaR") {
-            overlapTests_.push_back(new pat::helper::BasicOverlapTest(*itn, cfg, consumesCollector()));
+            overlapTests_.emplace_back(new pat::helper::BasicOverlapTest(*itn, cfg, consumesCollector()));
         } else if (algorithm == "bySuperClusterSeed") {
-            overlapTests_.push_back(new pat::helper::OverlapBySuperClusterSeed(*itn, cfg, consumesCollector()));
+            overlapTests_.emplace_back(new pat::helper::OverlapBySuperClusterSeed(*itn, cfg, consumesCollector()));
         } else {
             throw cms::Exception("Configuration") << "PATCleaner for " << src_ << ": unsupported algorithm '" << algorithm << "'\n";
         }
@@ -105,7 +104,7 @@ pat::PATCleaner<PATObjType>::produce(edm::Event & iEvent, const edm::EventSetup 
   std::auto_ptr< std::vector<PATObjType> > output(new std::vector<PATObjType>());
 
   // initialize the overlap tests
-  for (boost::ptr_vector<OverlapTest>::iterator itov = overlapTests_.begin(), edov = overlapTests_.end(); itov != edov; ++itov) {
+  for (auto& itov : overlapTests_) {
     itov->readInput(iEvent,iSetup);
   }
 
@@ -120,7 +119,7 @@ pat::PATCleaner<PATObjType>::produce(edm::Event & iEvent, const edm::EventSetup 
 
       // Look for overlaps
       bool badForOverlap = false;
-      for (boost::ptr_vector<OverlapTest>::iterator itov = overlapTests_.begin(), edov = overlapTests_.end(); itov != edov; ++itov) {
+      for (auto& itov : overlapTests_) {
         reco::CandidatePtrVector overlaps;
         bool hasOverlap = itov->fillOverlapsForItem(obj, overlaps);
         if (hasOverlap && itov->requireNoOverlaps()) {

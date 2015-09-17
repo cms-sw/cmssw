@@ -12,18 +12,20 @@
   \version  $Id: PATSingleVertexSelector.h,v 1.5 2011/06/15 11:47:25 friis Exp $
 */
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 namespace pat {
 
-  class PATSingleVertexSelector : public edm::EDFilter {
+  class PATSingleVertexSelector : public edm::stream::EDFilter<> {
 
     public:
 
@@ -37,7 +39,8 @@ namespace pat {
       typedef StringCutObjectSelector<reco::Vertex>    VtxSel;
       typedef StringCutObjectSelector<reco::Candidate> CandSel;
 
-      static Mode parseMode(const std::string &name) ;
+      Mode parseMode(const std::string &name) const;
+      
       std::auto_ptr<std::vector<reco::Vertex> >
         filter_(Mode mode, const edm::Event & iEvent, const edm::EventSetup & iSetup);
       bool hasMode_(Mode mode) const ;
@@ -45,12 +48,12 @@ namespace pat {
       std::vector<Mode> modes_; // mode + optional fallbacks
       edm::EDGetTokenT<std::vector<reco::Vertex> > verticesToken_;
       std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > candidatesToken_;
-      std::auto_ptr<VtxSel > vtxPreselection_;
-      std::auto_ptr<CandSel> candPreselection_;
+      const VtxSel vtxPreselection_;
+      const CandSel candPreselection_;
       edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
       // transient data. meaningful while 'filter()' is on the stack
-      std::vector<const reco::Vertex *> selVtxs_;
-      const reco::Candidate *           bestCand_;
+      std::vector<reco::VertexRef> selVtxs_;
+      reco::CandidatePtr           bestCand_;
 
       // flag to enable/disable EDFilter functionality:
       // if set to false, PATSingleVertexSelector selects the "one" event vertex,
