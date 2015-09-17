@@ -31,11 +31,11 @@ class HcalL1TriggerObjectsXml : public HcalChannelDataXml
   virtual ~HcalL1TriggerObjectsXml();
   
   // add dataset to the XML document
-  DOMNode * add_hcal_channel_dataset( int ieta, int iphi, int depth, std::string subdetector,
+  XERCES_CPP_NAMESPACE::DOMNode * add_hcal_channel_dataset( int ieta, int iphi, int depth, std::string subdetector,
                                       double ped, double gain, int flag);
   
   // add data tag inside a dataset tag
-  DOMElement * add_data( DOMNode * _dataset, double ped, double gain, int flag);
+  XERCES_CPP_NAMESPACE::DOMElement * add_data( XERCES_CPP_NAMESPACE::DOMNode * _dataset, double ped, double gain, int flag);
 };
 
 #endif
