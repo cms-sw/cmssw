@@ -1259,11 +1259,11 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
       map_of_MEs.insert(std::pair<std::string,MonitorElement*>(DirName+"/"+"SubJet4_CMSTopTag_mass_boosted", mSubJet4_CMSTopTag_mass_boosted));
 
       mnSubJetsSoftDrop_boosted = ibooker.book1D("nSubJets_SoftDrop_boosted", "nSubJets_SoftDrop_boosted", 10, 0, 10); 
-      mSubJet1_SoftDrop_pt_boosted         = ibooker.book1D("SubJet1_SoftDrop_pt_boosted",   "SubJet1_SoftDrop_pt_boosted",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet1_SoftDrop_pt_boosted         = ibooker.book1D("SubJet1_SoftDrop_pt_boosted",   "SubJet1_SoftDrop_pt_boosted",                ptBin_,  ptMin_,  2*ptMax_);
       mSubJet1_SoftDrop_eta_boosted        = ibooker.book1D("SubJet1_SoftDrop_eta_boosted",  "SubJet1_SoftDrop_eta_boosted",               etaBin_, etaMin_, etaMax_);
       mSubJet1_SoftDrop_phi_boosted        = ibooker.book1D("SubJet1_SoftDrop_phi_boosted",  "SubJet1_SoftDrop_phi_boosted",               phiBin_, phiMin_, phiMax_);
       mSubJet1_SoftDrop_mass_boosted       = ibooker.book1D("SubJet1_SoftDrop_mass_boosted", "SubJet1_SoftDrop_mass_boosted", 50, 0, 250); 
-      mSubJet2_SoftDrop_pt_boosted         = ibooker.book1D("SubJet2_SoftDrop_pt_boosted",   "SubJet2_SoftDrop_pt_boosted",                ptBin_,  ptMin_,  ptMax_);
+      mSubJet2_SoftDrop_pt_boosted         = ibooker.book1D("SubJet2_SoftDrop_pt_boosted",   "SubJet2_SoftDrop_pt_boosted",                ptBin_,  ptMin_,  2*ptMax_);
       mSubJet2_SoftDrop_eta_boosted        = ibooker.book1D("SubJet2_SoftDrop_eta_boosted",  "SubJet2_SoftDrop_eta_boosted",               etaBin_, etaMin_, etaMax_);
       mSubJet2_SoftDrop_phi_boosted        = ibooker.book1D("SubJet2_SoftDrop_phi_boosted",  "SubJet2_SoftDrop_phi_boosted",               phiBin_, phiMin_, phiMax_);
       mSubJet2_SoftDrop_mass_boosted       = ibooker.book1D("SubJet2_SoftDrop_mass_boosted", "SubJet2_SoftDrop_mass_boosted", 50, 0, 250); 
