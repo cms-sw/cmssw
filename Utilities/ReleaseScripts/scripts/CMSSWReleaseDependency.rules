@@ -50,7 +50,6 @@ OnlineDB/CSCCondDB/.*                   : oracle.*
 OnlineDB/EcalCondDB/.*                  : oracle.*
 OnlineDB/SiStripO2O/.*                  : oracle.*
 OnlineDB/Oracle/.*                  	: oracle.*
-OnlineDB/HcalCondDB/.*                  : oracle.*
 
 #oracleocci (indirect)
 CalibCalorimetry/EcalSRTools/.*         : oracle.*
