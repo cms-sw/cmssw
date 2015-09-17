@@ -272,7 +272,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_L1_TripleJet_VBF_v"
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
-        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(4), 
         NminOneCuts = cms.untracked.vdouble(2.5, 240, 2.1, 0, 0, 0, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
@@ -283,7 +283,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
-        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(4), 
         NminOneCuts = cms.untracked.vdouble(2.5, 240, 2.1, 0.8, 0.5, 0, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
@@ -294,7 +294,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
-        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(4), 
         NminOneCuts = cms.untracked.vdouble(5, 550, 1.0, 0.8, 0, 0, 0, 0, 0, 95, 85, 70, 40), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
@@ -318,7 +318,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             ),
         Jet_recCut   = cms.string("pt > 10 && abs(eta) < 2.6"),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
-        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
         recPFMETLabel = cms.string("pfMet"),  
         # -- Analysis specific cuts
         minCandidates = cms.uint32(1), 
@@ -338,7 +338,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_QuadJet45_DoubleCSV0p5_v"
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
-        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(4), 
         NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.5, 0.5 , 0.5, 0, 0, 0, 0, 90, 0, 45), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
@@ -354,7 +354,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             ),
         recElecLabel   = cms.string("gedGsfElectrons"),
         #recJetLabel  = cms.string("ak4PFJetsCHS"),
-        #jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        #jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
         ## -- Analysis specific cuts
         minCandidates = cms.uint32(1),
         HtJetPtMin = cms.untracked.double(30),
@@ -373,7 +373,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             ),
         #recElecLabel   = cms.string("gedGsfElectrons"),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
-        jetTagLabel  = cms.string("pfCombinedSecondaryVertexBJetTags"),
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"),
         ## -- Analysis specific cuts
         minCandidates = cms.uint32(6), 
         ),
@@ -395,7 +395,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             "HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
-        jetTagLabel  = cms.string("combinedInclusiveSecondaryVertexV2BJetTags"),
+        jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(3),
         NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.941, 0.941 , 0.00, 0, 0, 0, 100, 100, 0.0, 0.0),
