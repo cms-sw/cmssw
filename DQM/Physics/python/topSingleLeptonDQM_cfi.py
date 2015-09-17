@@ -197,21 +197,21 @@ topSingleMuonLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ## when omitted monitor histograms for b-tagging will not be filled 
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
           workingPoint = cms.double(1.25)
         ),
         trackCountingPur = cms.PSet(
-          label = cms.InputTag("trackCountingHighPurBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
           workingPoint = cms.double(3.00)
         ),
         secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
         ),
         cvsVertex = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-          workingPoint = cms.double(0.898) 
-          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_5
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+          workingPoint = cms.double(0.970) 
+          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
       ),
     ),
@@ -374,21 +374,21 @@ topSingleMuonMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ## when omitted monitor histograms for b-tagging will not be filled                                                                                                   
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
           workingPoint = cms.double(1.25)
         ),
         trackCountingPur = cms.PSet(
-          label = cms.InputTag("trackCountingHighPurBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
           workingPoint = cms.double(3.00)
         ),
         secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
         ),
         cvsVertex = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-          workingPoint = cms.double(0.898) 
-          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_5
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+          workingPoint = cms.double(0.970) 
+          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
       ),                                                
     ),
@@ -558,21 +558,21 @@ topSingleElectronLooseDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ## when omitted monitor histograms for b-tagging will not be filled                                                   
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
           workingPoint = cms.double(1.25)
         ),
         trackCountingPur = cms.PSet(
-          label = cms.InputTag("trackCountingHighPurBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
           workingPoint = cms.double(3.00)
         ),
         secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
         ),
         cvsVertex = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-          workingPoint = cms.double(0.898) 
-          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_5
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+          workingPoint = cms.double(0.970) 
+          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
       ),
     ),
@@ -733,21 +733,21 @@ topSingleElectronMediumDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
       ## when omitted monitor histograms for b-tagging will not be filled
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
           workingPoint = cms.double(1.25)
         ),
         trackCountingPur = cms.PSet(
-          label = cms.InputTag("trackCountingHighPurBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
           workingPoint = cms.double(3.00)
         ),
         secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
         ),
         cvsVertex = cms.PSet(
-          label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-          workingPoint = cms.double(0.898) 
-          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BTagPerformanceOP#B_tagging_Operating_Points_for_5
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+          workingPoint = cms.double(0.970) 
+          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
       ),
     ),

@@ -88,11 +88,6 @@ bTagCommonBlock = cms.PSet(
         ),
         cms.PSet(
             bTagGenericAnalysisBlock,
-            label = cms.InputTag("combinedSecondaryVertexBJetTags"),
-            folder = cms.string("CSV_tkOnly")
-        ),
-        cms.PSet(
-            bTagGenericAnalysisBlock,
             label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
             folder = cms.string("CSV")
         ),
