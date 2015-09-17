@@ -228,7 +228,7 @@ HcalLutSet HcalLutManager::getLutSetFromFile( std::string _filename, int _type )
     }
 
     bool first_lut_entry = true;
-    while ( getline( infile, buf ) > 0 ){
+    while (getline( infile, buf )) {
       buf_vec = HcalQIEManager::splitString( buf );
       for (unsigned int i = 0; i < buf_vec.size(); i++){
 	if (first_lut_entry){
