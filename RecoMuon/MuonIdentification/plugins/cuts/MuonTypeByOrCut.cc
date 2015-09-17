@@ -1,7 +1,6 @@
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-#include <boost/algorithm/string.hpp>
 
 class MuonTypeByOrCut : public CutApplicatorBase
 {
@@ -23,14 +22,15 @@ MuonTypeByOrCut::MuonTypeByOrCut(const edm::ParameterSet& c):
   type_(0)
 {
   const auto muonTypes = c.getParameter<std::vector<std::string> >("types");
-  for ( const auto& x : muonTypes )
+  for ( auto x : muonTypes )
   {
-    if      ( boost::iequals(x, "GlobalMuon")     ) type_ |= reco::Muon::GlobalMuon;
-    else if ( boost::iequals(x, "TrackerMuon")    ) type_ |= reco::Muon::TrackerMuon;
-    else if ( boost::iequals(x, "StandAloneMuon") ) type_ |= reco::Muon::StandAloneMuon;
-    else if ( boost::iequals(x, "CaloMuon")       ) type_ |= reco::Muon::CaloMuon;
-    else if ( boost::iequals(x, "PFMuon")         ) type_ |= reco::Muon::PFMuon;
-    else if ( boost::iequals(x, "RPCMuon")        ) type_ |= reco::Muon::RPCMuon;
+    std::transform(x.begin(), x.end(), x.begin(), ::tolower);
+    if      ( x == "globalmuon"     ) type_ |= reco::Muon::GlobalMuon;
+    else if ( x == "trackermuon"    ) type_ |= reco::Muon::TrackerMuon;
+    else if ( x == "standalonemuon" ) type_ |= reco::Muon::StandAloneMuon;
+    else if ( x == "calomuon"       ) type_ |= reco::Muon::CaloMuon;
+    else if ( x == "pfmuon"         ) type_ |= reco::Muon::PFMuon;
+    else if ( x == "rpcmuon"        ) type_ |= reco::Muon::RPCMuon;
   }
 }
 
