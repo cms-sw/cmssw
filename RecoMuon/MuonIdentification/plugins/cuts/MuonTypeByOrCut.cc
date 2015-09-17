@@ -28,7 +28,7 @@ MuonTypeByOrCut::MuonTypeByOrCut(const edm::ParameterSet& c):
     if      ( boost::iequals(x, "GlobalMuon")     ) type_ |= reco::Muon::GlobalMuon;
     else if ( boost::iequals(x, "TrackerMuon")    ) type_ |= reco::Muon::TrackerMuon;
     else if ( boost::iequals(x, "StandAloneMuon") ) type_ |= reco::Muon::StandAloneMuon;
-    else if ( boost::iequals(x, "CaloMmuon")      ) type_ |= reco::Muon::CaloMuon;
+    else if ( boost::iequals(x, "CaloMuon")       ) type_ |= reco::Muon::CaloMuon;
     else if ( boost::iequals(x, "PFMuon")         ) type_ |= reco::Muon::PFMuon;
     else if ( boost::iequals(x, "RPCMuon")        ) type_ |= reco::Muon::RPCMuon;
   }
