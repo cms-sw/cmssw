@@ -14,6 +14,7 @@ jetDQMAnalyzerAk4CaloUncleaned.filljetHighLevel =cms.bool(True)
 caloMetDQMAnalyzer.runcosmics = cms.untracked.bool(True)
 caloMetDQMAnalyzer.onlyCleaned = cms.untracked.bool(False)
 caloMetDQMAnalyzer.JetCorrections = cms.InputTag("")
+from RecoMET.METFilters.metFilters_cff  import *
 
 
-jetMETDQMOfflineSourceCosmic = cms.Sequence(HBHENoiseFilterResultProducer*AnalyzeSUSYDQM*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)
+jetMETDQMOfflineSourceCosmic = cms.Sequence(metFilters*HBHENoiseFilterResultProducer*AnalyzeSUSYDQM*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)

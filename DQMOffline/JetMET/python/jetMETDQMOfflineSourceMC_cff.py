@@ -9,6 +9,7 @@ from DQMOffline.JetMET.goodOfflinePrimaryVerticesDQM_cfi import *
 
 from RecoJets.JetProducers.PileupJetID_cfi  import *
 from RecoJets.JetProducers.QGTagger_cfi  import *
+from RecoMET.METFilters.metFilters_cff  import *
 
 pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
     jets = cms.InputTag("ak4PFJets"),
@@ -84,7 +85,7 @@ caloMetDQMAnalyzerMC=caloMetDQMAnalyzer.clone(JetCorrections    = cms.InputTag("
 pfMetDQMAnalyzerMC=pfMetDQMAnalyzer.clone(JetCorrections      = cms.InputTag("dqmAk4PFL1FastL2L3Corrector"))
 pfMetT1DQMAnalyzerMC=pfMetT1DQMAnalyzer.clone(JetCorrections    = cms.InputTag("dqmAk4PFCHSL1FastL2L3Corrector"))
 
-jetMETDQMOfflineSource = cms.Sequence(HBHENoiseFilterResultProducer*goodOfflinePrimaryVerticesDQM*AnalyzeSUSYDQM*QGTagger*
+jetMETDQMOfflineSource = cms.Sequence(metFilters*HBHENoiseFilterResultProducer*goodOfflinePrimaryVerticesDQM*AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorCHSDQM*pileupJetIdEvaluatorCHSDQM*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
                                       jetPreDQMSeq*
