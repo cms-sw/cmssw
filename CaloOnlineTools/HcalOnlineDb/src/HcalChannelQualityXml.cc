@@ -301,7 +301,7 @@ int HcalChannelQualityXml::readStatusWordFromStdin(std::string base){
   _cq.status  = 0;
   _cq.comment = "filled from an ASCII stream";
   geomid_cq.clear();
-  while ( getline( std::cin, _row ) > 0 ){
+  while (getline( std::cin, _row )) {
     //#(empty) eta phi dep det value DetId(optional)
     int _eta, _phi, _dep, _value;
     char _det[32];
