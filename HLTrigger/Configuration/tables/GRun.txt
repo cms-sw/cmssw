@@ -476,7 +476,7 @@ HLT_PFMET400_JetIdCleaned_v*                                    # JIRA: CMSHLT-3
 HLT_HT2000_v*                                                   # JIRA: CMSHLT-312
 HLT_HT2500_v*                                                   # JIRA: CMSHLT-312
 
-#HLT_Ele23_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-561
+HLT_Ele23_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-561
 HLT_Ele27_WPLoose_Gsf_WHbbBoost_v*				# JIRA: CMSHLT-343
 
 HLT_Photon42_R9Id85_OR_CaloId24b40e_Iso50T80L_Photon25_AND_HE10_R9Id65_Eta2_Mass15_v*	# JIRA: CMSHLT-492
