@@ -19,12 +19,7 @@ def setup_mva(val_pset,cat_pset,prod_name,mva_name):
 egamma_modifications = cms.VPSet(
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
               electron_config = cms.PSet( ),
-              photon_config   = cms.PSet( phoFull5x5SigmaIEtaIPhi = cms.InputTag('photonIDValueMapProducer:phoFull5x5SigmaIEtaIPhi'),
-                                          phoFull5x5E1x3          = cms.InputTag('photonIDValueMapProducer:phoFull5x5E1x3'),
-                                          phoFull5x5E2x2          = cms.InputTag('photonIDValueMapProducer:phoFull5x5E2x2'),
-                                          phoFull5x5E2x5Max       = cms.InputTag('photonIDValueMapProducer:phoFull5x5E2x5Max'),
-                                          phoESEffSigmaRR         = cms.InputTag('photonIDValueMapProducer:phoESEffSigmaRR'),
-                                          chargedHadronIso         = cms.InputTag('photonIDValueMapProducer:phoChargedIsolation'),
+              photon_config   = cms.PSet( chargedHadronIso         = cms.InputTag('photonIDValueMapProducer:phoChargedIsolation'),
                                           neutralHadronIsolation   = cms.InputTag('photonIDValueMapProducer:phoNeutralHadronIsolation'),
                                           photonIso                = cms.InputTag('photonIDValueMapProducer:phoPhotonIsolation'),
                                           chargedHadronIsoWrongVtx = cms.InputTag('photonIDValueMapProducer:phoWorstChargedIsolation')
@@ -56,6 +51,6 @@ setup_mva(egamma_modifications[0].photon_config,
 # REGRESSION MODIFIERS
 #############################################################
 
-from RecoEgamma.EgammaTools.regressionModifier_cfi import *
+#from RecoEgamma.EgammaTools.regressionModifier_cfi import *
 
-egamma_modifications.append( regressionModifier )
+#egamma_modifications.append( regressionModifier )

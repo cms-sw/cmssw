@@ -822,6 +822,36 @@ class GsfElectron : public RecoCandidate
   float pixelMatchDRz2 () const { return pixelMatchVariables_.dRz2  ; }
   private:
     PixelMatchVariables pixelMatchVariables_ ;
+
+  // extended shower shape information
+  public:
+    struct ExtraShowerShapes {
+      float sigmaIetaIphi;
+      float eMax;
+      float e2nd;
+      float eTop;
+      float eLeft;
+      float eRight;
+      float eBottom;
+    ExtraShowerShapes() :
+      sigmaIetaIphi(0.f),
+      eMax(0.f),
+      e2nd(0.f),
+      eTop(0.f),
+      eLeft(0.f),
+      eRight(0.f),
+      eBottom(0.f) {}
+    };
+    
+  void setExtraShowerShapes( const ExtraShowerShapes& shapes ) { extra_sshapes_ = shapes; }
+  void full5x5_setExtraShowerShapes( const ExtraShowerShapes& shapes ) { extra_sshapes_full5x5_ = shapes; }
+
+  const ExtraShowerShapes& extraShowerShapes() const { return extra_sshapes_; }
+  const ExtraShowerShapes& full5x5_extraShowerShapes() const { return extra_sshapes_full5x5_; }
+ private:
+  ExtraShowerShapes extra_sshapes_;
+  ExtraShowerShapes extra_sshapes_full5x5_;
+    
  } ;
 
  } // namespace reco

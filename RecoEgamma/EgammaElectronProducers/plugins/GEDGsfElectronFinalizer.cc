@@ -34,6 +34,18 @@ GEDGsfElectronFinalizer::GEDGsfElectronFinalizer( const edm::ParameterSet & cfg 
 
    nDeps_ =  tokenElectronIsoVals_.size();
 
+   if( cfg.existsAs<edm::ParameterSet>("regressionConfig") ) {
+     const edm::ParameterSet& iconf = cfg.getParameterSet("regressionConfig");
+     const std::string& mname = iconf.getParameter<std::string>("modifierName");
+     ModifyObjectValueBase* plugin = 
+       ModifyObjectValueFactory::get()->create(mname,iconf);
+     gedRegression_.reset(plugin);
+     edm::ConsumesCollector sumes = consumesCollector();
+     gedRegression_->setConsumes(sumes);
+   } else {
+     gedRegression_.reset(nullptr);
+   }
+
    produces<reco::GsfElectronCollection> (outputCollectionLabel_);
 }
 
@@ -47,6 +59,11 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
    // Output collection
    std::auto_ptr<reco::GsfElectronCollection> outputElectrons_p(new reco::GsfElectronCollection);
    
+   if( gedRegression_ ) {
+     gedRegression_->setEvent(event);
+     gedRegression_->setEventContent(setup);
+   }
+
    // read input collections
    // electrons
    edm::Handle<reco::GsfElectronCollection> gedElectronHandle;
@@ -103,6 +120,10 @@ void GEDGsfElectronFinalizer::produce( edm::Event & event, const edm::EventSetup
 	 newElectron.setPassPflowPreselection(false);//this is currently fully redundant with mvaOutput.stats so candidate for removal	 
        }
        newElectron.setMvaOutput(myMvaOutput);
+     }
+     
+     if( gedRegression_ ) {
+       gedRegression_->modifyObject(newElectron);
      }
      outputElectrons_p->push_back(newElectron);
    }

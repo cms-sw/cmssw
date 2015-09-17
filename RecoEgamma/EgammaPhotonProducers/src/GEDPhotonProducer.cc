@@ -79,6 +79,8 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
     consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("barrelEcalHits"));
   endcapEcalHits_   = 
     consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("endcapEcalHits"));
+  preshowerHits_   = 
+    consumes<EcalRecHitCollection>(conf_.getParameter<edm::InputTag>("preshowerHits"));
   vertexProducer_   = 
     consumes<reco::VertexCollection>(conf_.getParameter<edm::InputTag>("primaryVertexProducer"));
 
@@ -131,10 +133,9 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
 
   thePhotonEnergyCorrector_ = 
     new PhotonEnergyCorrector(conf_, consumesCollector());
-  if( config.existsAs<edm::ParameterSet>("regressionConfig") ) {
-    const edm::ParameterSet regr_conf = 
-      config.getParameterSet("regressionConfig");
-    thePhotonEnergyCorrector_->gedRegression()->varCalc()->setTokens(regr_conf,consumesCollector());
+  if( conf_.existsAs<edm::ParameterSet>("regressionConfig") ) {
+    auto sumes = consumesCollector();
+    thePhotonEnergyCorrector_->gedRegression()->setConsumes(sumes);
   }
 
   //AA
@@ -288,6 +289,17 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
   if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
 
+  bool validPreshowerRecHits=true;
+  Handle<EcalRecHitCollection> preshowerHitHandle;
+  theEvent.getByToken(preshowerHits_, preshowerHitHandle);
+  EcalRecHitCollection preshowerRecHits;
+  if (!preshowerHitHandle.isValid()) {
+    edm::LogError("GEDPhotonProducer") 
+      << "Error! Can't get the preshowerEcalHits";
+    validPreshowerRecHits=false; 
+  }
+  if( validPreshowerRecHits ) preshowerRecHits = *(preshowerHitHandle.product());
+
 
 
   Handle<reco::PFCandidateCollection> pfEGCandidateHandle;
@@ -352,6 +364,13 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   //  math::XYZPoint vtx(0.,0.,0.);
   //if (vertexCollection.size()>0) vtx = vertexCollection.begin()->position();
 
+  // get the regression calculator ready
+  thePhotonEnergyCorrector_->init(theEventSetup);
+  if( thePhotonEnergyCorrector_->gedRegression() ) {
+    thePhotonEnergyCorrector_->gedRegression()->setEvent(theEvent);
+    thePhotonEnergyCorrector_->gedRegression()->setEventContent(theEventSetup);
+  }
+
 
   int iSC=0; // index in photon collection
   // Loop over barrel and endcap SC collections and fill the  photon collection
@@ -362,6 +381,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
 			 topology,
 			 &barrelRecHits,
 			 &endcapRecHits,
+                         &preshowerRecHits,
 			 hcalTowersHandle,
 			 //vtx,
 			 vertexCollection,
@@ -428,6 +448,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					     const CaloTopology* topology,
 					     const EcalRecHitCollection* ecalBarrelHits,
 					     const EcalRecHitCollection* ecalEndcapHits,
+                                             const EcalRecHitCollection* preshowerHits,
 					     const edm::Handle<CaloTowerCollection> & hcalTowersHandle, 
 					     reco::VertexCollection & vertexCollection,
 					     reco::PhotonCollection & outputPhotonCollection, int& iSC) {
@@ -538,8 +559,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     thePhotonIsolationCalculator_-> calculate ( &newCandidate,evt,es,fiducialFlags,isolVarR04, isolVarR03);
     newCandidate.setFiducialVolumeFlags( fiducialFlags );
     newCandidate.setIsolationVariables(isolVarR04, isolVarR03 );
-
-    
+        
     /// fill shower shape block
     reco::Photon::ShowerShape  showerShape;
     showerShape.e1x5= e1x5;
@@ -556,6 +576,27 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalTowersBehindClusters =  TowersBehindClus;
     newCandidate.setShowerShapeVariables ( showerShape ); 
 
+    /// fill extra shower shapes
+    const float spp = (isnan(locCov[2]) ? 0. : sqrt(locCov[2]));
+    const float sep = locCov[1];
+
+    reco::Photon::ExtraShowerShapes  exShowerShape;
+    exShowerShape.sigmaIetaIphi = spp;
+    exShowerShape.sigmaIphiIphi = sep;
+    exShowerShape.e2nd          = EcalClusterTools::e2nd(*(scRef->seed()),&(*hits));
+    exShowerShape.eTop          = EcalClusterTools::eTop(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.eLeft         = EcalClusterTools::eLeft(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.eRight        = EcalClusterTools::eRight(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.eBottom       = EcalClusterTools::eBottom(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.e1x3          = EcalClusterTools::e1x3(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.e2x2          = EcalClusterTools::e2x2(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.e2x5Max       = EcalClusterTools::e2x5Max(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.e2x5Left      = EcalClusterTools::e2x5Left(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.e2x5Right     = EcalClusterTools::e2x5Right(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.e2x5Top       = EcalClusterTools::e2x5Top(*(scRef->seed()), &(*hits), &(*topology));
+    exShowerShape.e2x5Bottom    = EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology));
+    newCandidate.setExtraShowerShapes( exShowerShape );
+
     /// fill full5x5 shower shape block
     reco::Photon::ShowerShape  full5x5_showerShape;
     full5x5_showerShape.e1x5= full5x5_e1x5;
@@ -567,6 +608,33 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.sigmaIetaIeta =  full5x5_sigmaIetaIeta;
     newCandidate.full5x5_setShowerShapeVariables ( full5x5_showerShape );     
     
+    /// fill extra full5x5 shower shapes
+    const float full5x5_spp = (isnan(full5x5_locCov[2]) ? 0. : sqrt(full5x5_locCov[2]));
+    const float full5x5_sep = full5x5_locCov[1];
+    reco::Photon::ExtraShowerShapes  full5x5_exShowerShape;
+    full5x5_exShowerShape.sigmaIetaIphi = full5x5_spp;
+    full5x5_exShowerShape.sigmaIphiIphi = full5x5_sep;
+    full5x5_exShowerShape.e2nd          = noZS::EcalClusterTools::e2nd(*(scRef->seed()),&(*hits));
+    full5x5_exShowerShape.eTop          = noZS::EcalClusterTools::eTop(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.eLeft         = noZS::EcalClusterTools::eLeft(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.eRight        = noZS::EcalClusterTools::eRight(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.eBottom       = noZS::EcalClusterTools::eBottom(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.e1x3          = noZS::EcalClusterTools::e1x3(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.e2x2          = noZS::EcalClusterTools::e2x2(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.e2x5Max       = noZS::EcalClusterTools::e2x5Max(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.e2x5Left      = noZS::EcalClusterTools::e2x5Left(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.e2x5Right     = noZS::EcalClusterTools::e2x5Right(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.e2x5Top       = noZS::EcalClusterTools::e2x5Top(*(scRef->seed()), &(*hits), &(*topology));
+    full5x5_exShowerShape.e2x5Bottom    = noZS::EcalClusterTools::e2x5Bottom(*(scRef->seed()), &(*hits), &(*topology));
+    newCandidate.full5x5_setExtraShowerShapes(full5x5_exShowerShape);    
+
+    // fill preshower shapes
+    EcalClusterLazyTools toolsforES(evt, es, barrelEcalHits_, endcapEcalHits_, preshowerHits_);
+    reco::Photon::PreshowerShapes esShowerShape;
+    esShowerShape.effSigmaRR = toolsforES.eseffsirir( *scRef );
+
+    newCandidate.setPreshowerShapes(esShowerShape);
+
     /// get ecal photon specific corrected energy 
     /// plus values from regressions     and store them in the Photon
     // Photon candidate takes by default (set in photons_cfi.py) 
@@ -671,6 +739,22 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     thePFBasedIsolationCalculator_->calculate (&newCandidate, pfCandidateHandle, vertexHandle, evt, es, pfIso );
     newCandidate.setPflowIsolationVariables(pfIso);
     newCandidate.setPflowIDVariables(pfID);
+
+    // do the regression
+    thePhotonEnergyCorrector_->calculate(evt, newCandidate, subdet, *vertexHandle, es);
+    if ( candidateP4type_ == "fromEcalEnergy") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
+      newCandidate.setCandidateP4type(reco::Photon::ecal_photons);
+    } else if ( candidateP4type_ == "fromRegression1") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+      newCandidate.setCandidateP4type(reco::Photon::regression1);
+    } else if ( candidateP4type_ == "fromRegression2") {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
+      newCandidate.setCandidateP4type(reco::Photon::regression2);
+    } else if ( candidateP4type_ == "fromRefinedSCRegression" ) {
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+      newCandidate.setCandidateP4type(reco::Photon::regression1);
+    }
 
     //    std::cout << " GEDPhotonProducer  pf based isolation  chargedHadron " << newCandidate.chargedHadronIso() << " neutralHadron " <<  newCandidate.neutralHadronIso() << " Photon " <<  newCandidate.photonIso() << std::endl;
     //std::cout << " GEDPhotonProducer from candidate HoE with towers in a cone " << newCandidate.hadronicOverEm()  << "  " <<  newCandidate.hadronicDepth1OverEm()  << " " <<  newCandidate.hadronicDepth2OverEm()  << std::endl;
