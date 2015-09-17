@@ -202,15 +202,16 @@ class Dataset:
                             lumiSecExtend = jsoncontents
                             splitLumiList = [[""]]
 
-            if splitLumiList and splitLumiList[0] and splitLumiList[0][0]:
-                lumiSecStr = [ "',\n'".join( lumis ) \
-                               for lumis in splitLumiList ]
-                lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
-                               for lumis in lumiSecStr ]
-                lumiSecExtend = "\n".join( lumiSecStr )
-                runlist = self.__getRunList()
-                self.__firstusedrun = max(int(splitLumiList[0][0].split(":")[0]), int(self.__findInJson(runlist[0],"run_number")))
-                self.__lastusedrun = min(int(splitLumiList[-1][-1].split(":")[0]), int(self.__findInJson(runlist[-1],"run_number")))
+            if splitLumiList and splitLumiList[0]:
+                if splitLumiList[0][0]:
+                    lumiSecStr = [ "',\n'".join( lumis ) \
+                                   for lumis in splitLumiList ]
+                    lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
+                                   for lumis in lumiSecStr ]
+                    lumiSecExtend = "\n".join( lumiSecStr )
+                    runlist = self.__getRunList()
+                    self.__firstusedrun = max(int(splitLumiList[0][0].split(":")[0]), int(self.__findInJson(runlist[0],"run_number")))
+                    self.__lastusedrun = min(int(splitLumiList[-1][-1].split(":")[0]), int(self.__findInJson(runlist[-1],"run_number")))
             else:
                 msg = "You are trying to run a validation without any runs!  Check that:"
                 if firstRun or lastRun:
