@@ -417,8 +417,8 @@ void EcalSimRawData::genTccOut(string basename, int iEvent,
 	<< setfill(' ') << getExt();
       ofstream dccF(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
       
-      if(!dccF){
-	cout << "Warning: failed to create or open file " << s << ".\n";
+      if(dccF.fail()){
+	cout << "Warning: failed to create or open file " << s.str() << ".\n";
 	return;
       }
       
