@@ -11,7 +11,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
@@ -22,23 +22,23 @@
 
 namespace pat {
 
-  class PATGenJetSlimmer : public edm::EDProducer {
-    public:
-      explicit PATGenJetSlimmer(const edm::ParameterSet & iConfig);
-      virtual ~PATGenJetSlimmer() { }
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
-
-    private:
-      edm::EDGetTokenT<edm::View<reco::GenJet> > src_;
-      edm::EDGetTokenT<edm::Association<std::vector<pat::PackedGenParticle> > > gp2pgp_;
-
-      StringCutObjectSelector<reco::GenJet> cut_;
-      
-      /// reset daughters to an empty vector
-      bool clearDaughters_;
-      /// drop the specific
-      bool dropSpecific_;
+  class PATGenJetSlimmer : public edm::stream::EDProducer<> {
+  public:
+    explicit PATGenJetSlimmer(const edm::ParameterSet & iConfig);
+    virtual ~PATGenJetSlimmer() { }
+    
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+    
+  private:
+    const edm::EDGetTokenT<edm::View<reco::GenJet> > src_;
+    const edm::EDGetTokenT<edm::Association<std::vector<pat::PackedGenParticle> > > gp2pgp_;
+    
+    const StringCutObjectSelector<reco::GenJet> cut_;
+    
+    /// reset daughters to an empty vector
+    const bool clearDaughters_;
+    /// drop the specific
+    const bool dropSpecific_;
   };
 
 } // namespace

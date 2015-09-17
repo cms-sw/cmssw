@@ -6,7 +6,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -24,26 +24,26 @@
 
 
 namespace pat {
-
-  class PATTrackAndVertexUnpacker : public edm::EDProducer {
-
-
-    public:
-
-      explicit PATTrackAndVertexUnpacker(const edm::ParameterSet & iConfig);
-      ~PATTrackAndVertexUnpacker();
-
-      virtual void produce(edm::Event & iEvent, const edm::EventSetup& iSetup) override;
-
-    private:
-      typedef std::vector<edm::InputTag> VInputTag;
-      // configurables
-      edm::EDGetTokenT< std::vector<pat::PackedCandidate> >    Cands_;
-      edm::EDGetTokenT<reco::VertexCollection>         PVs_;
-      edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection>         SVs_;
-      edm::EDGetTokenT<std::vector<pat::PackedCandidate> >         AdditionalTracks_;
-//////    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > particlesTokens_;
-
+  
+  class PATTrackAndVertexUnpacker : public edm::global::EDProducer<> {
+    
+    
+  public:
+    
+    explicit PATTrackAndVertexUnpacker(const edm::ParameterSet & iConfig);
+    ~PATTrackAndVertexUnpacker();
+    
+    virtual void produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup& iSetup) const override;
+    
+  private:
+    typedef std::vector<edm::InputTag> VInputTag;
+    // configurables
+    const edm::EDGetTokenT<std::vector<pat::PackedCandidate> >    Cands_;
+    const edm::EDGetTokenT<reco::VertexCollection>         PVs_;
+    const edm::EDGetTokenT<reco::VertexCompositePtrCandidateCollection>         SVs_;
+    const edm::EDGetTokenT<std::vector<pat::PackedCandidate> >         AdditionalTracks_;
+    //////    std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > > particlesTokens_;
+    
   };
 
 }
@@ -66,7 +66,7 @@ PATTrackAndVertexUnpacker::~PATTrackAndVertexUnpacker() {
 }
 
 
-void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+void PATTrackAndVertexUnpacker::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 	using namespace edm; using namespace std; using namespace reco;
 	Handle<std::vector<pat::PackedCandidate> > cands;
 	iEvent.getByToken(Cands_, cands);
