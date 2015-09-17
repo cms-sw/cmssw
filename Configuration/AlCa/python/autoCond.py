@@ -2,21 +2,21 @@ autoCond = {
 
     ### NEW KEYS ###
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
-    'run1_design'       :   '76X_mcRun1_design_v3',
+    'run1_design'       :   '76X_mcRun1_design_v2',
     # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
-    'run1_mc'           :   '76X_mcRun1_realistic_v3',
+    'run1_mc'           :   '76X_mcRun1_realistic_v2',
     # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_hi'        :   '76X_mcRun1_HeavyIon_v3',
+    'run1_mc_hi'        :   '76X_mcRun1_HeavyIon_v2',
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
-    'run1_mc_pa'        :   '76X_mcRun1_pA_v3',
+    'run1_mc_pa'        :   '76X_mcRun1_pA_v2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   '76X_mcRun2_design_v3',
+    'run2_design'       :   '76X_mcRun2_design_v2',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   '76X_mcRun2_startup_v3',
+    'run2_mc_50ns'      :   '76X_mcRun2_startup_v2',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   '76X_mcRun2_asymptotic_v3',
+    'run2_mc'           :   '76X_mcRun2_asymptotic_v2',
     # GlobalTag for MC production (Heavy Ions collisions) with optimistic alignment and calibrations for Run2
-    'run2_mc_hi'        :   '76X_mcRun2_HeavyIon_v3',
+    'run2_mc_hi'        :   '76X_mcRun2_HeavyIon_v2',
     # GlobalTag for Run1 data reprocessing
     'run1_data'         :   '76X_dataRun1_v2',
     # GlobalTag for Run2 data reprocessing
