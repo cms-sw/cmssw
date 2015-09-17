@@ -16,7 +16,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -40,7 +40,7 @@ namespace pat {
 
   class LeptonLRCalc;
 
-  class PATPFParticleProducer : public edm::EDProducer {
+  class PATPFParticleProducer : public edm::stream::EDProducer<> {
 
     public:
 

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -43,7 +43,7 @@
 // class declaration
 //
 
-class HcalHitSelection : public edm::EDProducer {
+class HcalHitSelection : public edm::stream::EDProducer<> {
    public:
       explicit HcalHitSelection(const edm::ParameterSet&);
       ~HcalHitSelection();
@@ -63,12 +63,12 @@ class HcalHitSelection : public edm::EDProducer {
   edm::ESHandle<HcalChannelQuality> theHcalChStatus;
   edm::ESHandle<HcalSeverityLevelComputer> theHcalSevLvlComputer;
   std::set<DetId> toBeKept;
-  template <typename CollectionType> void skim( const edm::Handle<CollectionType> & input, std::auto_ptr<CollectionType> & output,int severityThreshold=0);
+  template <typename CollectionType> void skim( const edm::Handle<CollectionType> & input, std::auto_ptr<CollectionType> & output,int severityThreshold=0) const;
   
       // ----------member data ---------------------------
 };
 
-template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<CollectionType> & input, std::auto_ptr<CollectionType> & output,int severityThreshold){
+template <class CollectionType> void HcalHitSelection::skim( const edm::Handle<CollectionType> & input, std::auto_ptr<CollectionType> & output,int severityThreshold) const {
   output->reserve(input->size());
   typename CollectionType::const_iterator begin=input->begin();
   typename CollectionType::const_iterator end=input->end();
