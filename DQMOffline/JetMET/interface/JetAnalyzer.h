@@ -743,6 +743,10 @@ class JetAnalyzer : public DQMEDAnalyzer {
   //miniaod only variables
   MonitorElement* mPt_CaloJet;
   MonitorElement* mEMF_CaloJet;
+  MonitorElement* mMass_Barrel;
+  MonitorElement* mMass_EndCap;
+  MonitorElement* mMass_Forward;
+
 
   //now ZJets plots
   MonitorElement*  mDPhiZJet;

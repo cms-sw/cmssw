@@ -21,6 +21,24 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles)
 readFiles.extend( [
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/0C806DA1-A127-E511-B9B2-02163E012601.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/0C8D29B7-9A27-E511-A7F2-02163E013770.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/0E183999-9E27-E511-BB8F-02163E012183.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/0E3D3941-9A27-E511-809E-02163E012183.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/0ED47BB7-9A27-E511-BA69-02163E012704.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/10176B03-9D27-E511-9D8B-02163E012595.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/104F51D7-9B27-E511-A02A-02163E01387D.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/1246E41C-9827-E511-8CD1-02163E011836.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/126A46B1-9627-E511-9691-02163E012BD2.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/12EBF600-9D27-E511-AF26-02163E0143AA.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/140C43DE-A027-E511-AA82-02163E0133B5.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/149CC210-9627-E511-BD0F-02163E011D23.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/163CE7FB-9827-E511-8257-02163E0133F9.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/16579E06-9E27-E511-BB3D-02163E01267F.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/16718FEC-A227-E511-8696-02163E012A7F.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/183354BC-9A27-E511-AFF8-02163E0133AD.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/18B6E10D-9827-E511-9F24-02163E013901.root',
+       '/store/data/Run2015B/JetHT/RECO/PromptReco-v1/000/251/252/00000/18EFD43F-9E27-E511-8134-02163E013576.root'
        #'/store/data/Run2015C/JetHT/MINIAOD/PromptReco-v1/000/254/790/00000/06947E9F-204A-E511-B627-02163E0137BA.root',
        #'/store/data/Run2015C/JetHT/MINIAOD/PromptReco-v1/000/254/790/00000/18D18896-204A-E511-B82D-02163E01190D.root',
        #'/store/data/Run2015C/JetHT/MINIAOD/PromptReco-v1/000/254/790/00000/260A1195-204A-E511-8627-02163E014125.root',
@@ -34,44 +52,15 @@ readFiles.extend( [
        #'/store/data/Run2015C/JetHT/MINIAOD/PromptReco-v1/000/254/790/00000/C42C66A7-204A-E511-A53D-02163E01448C.root',
        #'/store/data/Run2015C/JetHT/MINIAOD/PromptReco-v1/000/254/790/00000/F2098695-204A-E511-85CE-02163E014657.root',
        #'/store/data/Run2015C/JetHT/MINIAOD/PromptReco-v1/000/254/790/00000/F60BE6A7-204A-E511-AF26-02163E0146B3.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/00088BD6-813C-E511-B574-0025905964BC.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/0253073D-7F3C-E511-BC5B-0026189438F7.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/04CACE3D-7F3C-E511-B0E8-002618943925.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/04E0F04B-7F3C-E511-A19D-002590593876.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/060DFA85-803C-E511-9E12-0025905A60F4.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/0862E1A9-823C-E511-AF36-0025905A6088.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/0AD74E86-803C-E511-A715-0025905B85AA.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/0C2164D3-813C-E511-8594-0025905A48F0.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/0C487CE9-813C-E511-9D45-0025905A610A.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/0E0CAFDB-7D3C-E511-B7A1-0025905B855C.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/0E657740-7F3C-E511-8F5E-003048FFD770.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/10288AE2-7D3C-E511-922D-0025905B85D6.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/10474781-853C-E511-9685-0025905A60F8.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/105B72DC-7C3C-E511-9C63-0026189438F3.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/12322589-803C-E511-9010-0025905A60F4.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/127639DA-813C-E511-BF5D-002618943874.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/144D2FEC-7D3C-E511-92C6-003048FFD720.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/160D4B46-7D3C-E511-89E8-0025905B860E.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/16467F99-803C-E511-9EA4-003048FFCC18.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/164A1983-803C-E511-B28F-0025905A6110.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/16717A4C-7F3C-E511-BCFB-003048FFD760.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/18641BAD-7E3C-E511-970C-0025905A609A.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/RECO/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/18798CEC-813C-E511-B01F-0025905A6138.root'
-       #'/store/relval/CMSSW_7_4_6_patch1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_unsch-v1/00000/28F53E5E-321D-E511-AEF1-0026189438F7.root',
-       #'/store/relval/CMSSW_7_4_6_patch1/RelValProdTTbar_13/MINIAODSIM/MCRUN2_74_V9_unsch-v1/00000/4236E25F-321D-E511-92B6-0026189438B0.root' 
-       #'/store/relval/CMSSW_7_4_8_patch1/RelValTTbar_13/MINIAODSIM/PU25ns_MCRUN2_74_V11_mulTrh-v1/00000/3E8E7CFC-503C-E511-B57E-0025905A60A6.root',
-       #'/store/relval/CMSSW_7_4_8_patch1/RelValTTbar_13/MINIAODSIM/PU25ns_MCRUN2_74_V11_mulTrh-v1/00000/DA8BC5FB-503C-E511-AD75-0025905A48D8.root' 
-       #'/store/relval/CMSSW_7_4_3_patch1/JetHT/RECO/GR_R_74_V12A_unsch_RelVal_jet2012D-v1/00000/00648F9F-9D06-E511-A11C-0026189438C9.root',
-       #'/store/relval/CMSSW_7_4_3_patch1/JetHT/RECO/GR_R_74_V12A_unsch_RelVal_jet2012D-v1/00000/026D63AD-A606-E511-B290-00261894386B.root',
-       '/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/5CEA33B7-873C-E511-BE51-0025905A60DA.root',
-       '/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/8226D0B8-873C-E511-ACD3-0025905B85AE.root',
-       '/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/924546B9-873C-E511-9B90-0025905B8576.root',
-       '/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/A2937EB9-873C-E511-BA25-0025905B8598.root',
-       '/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/AA4690B5-873C-E511-B398-0025905A60A8.root',
-       '/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/BA0637B7-873C-E511-AE94-0025905A60B2.root',
-       '/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/C6DC17B8-873C-E511-B34C-0025905A6084.root',
-       '/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/CA8E9CB9-873C-E511-A795-0025905B8598.root',
-       '/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/F44521B8-873C-E511-8C81-0025905B85F6.root' 
+       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/5CEA33B7-873C-E511-BE51-0025905A60DA.root',
+       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/8226D0B8-873C-E511-ACD3-0025905B85AE.root',
+       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/924546B9-873C-E511-9B90-0025905B8576.root',
+       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/A2937EB9-873C-E511-BA25-0025905B8598.root',
+       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/AA4690B5-873C-E511-B398-0025905A60A8.root',
+       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/BA0637B7-873C-E511-AE94-0025905A60B2.root',
+       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/C6DC17B8-873C-E511-B34C-0025905A6084.root',
+       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/CA8E9CB9-873C-E511-A795-0025905B8598.root',
+       #'/store/relval/CMSSW_7_4_8_patch1/JetHT/MINIAOD/GR_H_V57A_mulTrh_RelVal_jet2012D-v1/00000/F44521B8-873C-E511-8C81-0025905B85F6.root' 
        ] );
 
 
@@ -107,11 +96,11 @@ process.dqmSaver.workflow = Workflow
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 process.p = cms.Path(
-                     process.jetMETDQMOfflineSourceMiniAOD*
+                     #process.jetMETDQMOfflineSourceMiniAOD*
                      #for cosmic data and MC
                      #process.jetMETDQMOfflineSourceCosmic*
                      #for Data and MC pp and HI
-                     #process.jetMETDQMOfflineSource*
-#                     process.dump*
+                     #process.dump*
+                     process.jetMETDQMOfflineSource*
                      process.dqmSaver
                      )

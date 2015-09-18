@@ -1594,10 +1594,10 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }
 
-  bool HBHENoiseFilterResult=filter_decisions[0];//setup for RECO and MINIAOD
+  bool HBHENoiseFilterResultFlag=filter_decisions[0];//setup for RECO and MINIAOD
   // ==========================================================
   // HCAL Noise filter
-  bool bHBHENoiseFilter = HBHENoiseFilterResult;
+  bool bHBHENoiseFilter = HBHENoiseFilterResultFlag;
 
   // DCS Filter
   bool bDCSFilter = (bypassAllDCSChecks_ || DCSFilter_->filter(iEvent, iSetup));
@@ -1946,7 +1946,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	    if(c.eta()>(-3.0)&& c.eta()<(-1.479)){
 	      px_PhotonsEndcapMinus-=c.px();
 	      py_PhotonsEndcapMinus-=c.py();
-	      pt_sum_PhF_Endcap_plus+=c.et();
+	      pt_sum_PhF_Endcap_minus+=c.et();
 	    }else if(c.eta()>=(-1.479)&& c.eta()<=1.479){
 	      px_PhotonsBarrel-=c.px();
 	      py_PhotonsBarrel-=c.py();
@@ -1954,7 +1954,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	    }else if(c.eta()>1.479 && c.eta()<3.0){
 	      px_PhotonsEndcapPlus-=c.px();
 	      py_PhotonsEndcapPlus-=c.py();
-	      pt_sum_PhF_Endcap_minus+=c.et();
+	      pt_sum_PhF_Endcap_plus+=c.et();
 	    }
 	  }
 	  if(c.particleId()==6){//HFHadrons
@@ -2466,7 +2466,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
       if (meHFHadronEtFraction_profile      && meHFHadronEtFraction_profile     ->getRootObject()) meHFHadronEtFraction_profile     ->Fill(numPV_, patmet.Type6EtFraction());
       if (meHFEMEtFraction_profile          && meHFEMEtFraction_profile         ->getRootObject()) meHFEMEtFraction_profile         ->Fill(numPV_, patmet.Type7EtFraction());
 
-     mePhotonEt        = map_of_MEs[DirName + "/PfPhotonEt"];
+      mePhotonEt        = map_of_MEs[DirName + "/PfPhotonEt"];
       meNeutralHadronEt = map_of_MEs[DirName + "/PfNeutralHadronEt"];
       meChargedHadronEt = map_of_MEs[DirName + "/PfChargedHadronEt"];
       meHFHadronEt      = map_of_MEs[DirName + "/PfHFHadronEt"];
