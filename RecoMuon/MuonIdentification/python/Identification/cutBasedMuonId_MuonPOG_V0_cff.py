@@ -162,7 +162,7 @@ cutBasedMuonId_MuonPOG_V0_highpt = cms.PSet(
 
 central_id_registry.register(cutBasedMuonId_MuonPOG_V0_loose.idName , 'd19c494fb8227d7af3c8e29053b1934a')
 central_id_registry.register(cutBasedMuonId_MuonPOG_V0_medium.idName, '1f4bb781e8d98b4cb281de5c9b3fd193')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_tight.idName , '05691c223d78f320d2805d55a71c62ce')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_soft.idName  , 'ec809ccb207da626d05a1d4d6f9ea2f0')
-central_id_registry.register(cutBasedMuonId_MuonPOG_V0_highpt.idName, '4669f079a9aade472fbf8aad8496a723')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_tight.idName , '4c815640b5477c514210d7cdbde98fe0')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_soft.idName  , '12da9c6aae4d389980da3f463aac2afb')
+central_id_registry.register(cutBasedMuonId_MuonPOG_V0_highpt.idName, '3f6a009a63dc9eb6af3f2de17d53c9fd')
 
