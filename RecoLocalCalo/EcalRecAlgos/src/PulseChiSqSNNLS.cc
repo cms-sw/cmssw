@@ -302,6 +302,7 @@ bool PulseChiSqSNNLS::NNLS() {
   int iter = 0;
   Index idxwmax = 0;
   double wmax = 0.0;
+  double threshold = 1e-11;
   //work = PulseVector::zeros();
   while (true) {    
     //can only perform this step if solution is guaranteed viable
@@ -316,7 +317,12 @@ bool PulseChiSqSNNLS::NNLS() {
       wmax = updatework.tail(nActive).maxCoeff(&idxwmax);
       
       //convergence
-      if (wmax<1e-11 || (idxwmax==idxwmaxprev && wmax==wmaxprev)) break;
+      if (wmax<threshold || (idxwmax==idxwmaxprev && wmax==wmaxprev)) break;
+      
+      //worst case protection
+      if (iter>=500) {
+        edm::LogWarning("PulseChiSqSNNLS::NNLS()") << "Max Iterations reached at iter " << iter <<  std::endl;
+      }
       
       //unconstrain parameter
       Index idxp = _nP + idxwmax;
@@ -384,6 +390,12 @@ bool PulseChiSqSNNLS::NNLS() {
       --_nP;      
     }
     ++iter;
+    
+    //adaptive convergence threshold to avoid infinite loops but still
+    //ensure best value is used
+    if (iter%50==0) {
+      threshold *= 10.;
+    }
   }
   
   return true;
