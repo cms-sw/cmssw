@@ -250,9 +250,9 @@ class GsfElectronAlgo {
     void setPflowPreselectionFlag( reco::GsfElectron * ele ) ;
     bool isPreselected( reco::GsfElectron * ele ) ;
     void calculateShowerShape( const reco::SuperClusterRef &, bool pflow, 
-                               reco::GsfElectron::ShowerShape & , reco::GsfElectron::ExtraShowerShapes & ) ;
+                               reco::GsfElectron::ShowerShape & ) ;
     void calculateShowerShape_full5x5( const reco::SuperClusterRef &, bool pflow,
-                                       reco::GsfElectron::ShowerShape &, reco::GsfElectron::ExtraShowerShapes & ) ;
+                                       reco::GsfElectron::ShowerShape & ) ;
 
 
     // associations

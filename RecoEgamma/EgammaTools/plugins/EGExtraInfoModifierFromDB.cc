@@ -393,7 +393,7 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   
   std::array<float, 33> eval;  
   const double raw_energy = the_sc->rawEnergy(); 
-  const auto& ess = ele.extraShowerShapes();
+  const auto& ess = ele.showerShape();
 
   // SET INPUTS
   eval[0]  = nVtx_;  
@@ -402,15 +402,15 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
   eval[3]  = the_sc->phi();
   eval[4]  = the_sc->etaWidth();
   eval[5]  = the_sc->phiWidth(); 
-  eval[6]  = ele.r9();
+  eval[6]  = ess.r9;
   eval[7]  = theseed->energy()/raw_energy;
   eval[8]  = ess.eMax/raw_energy;
   eval[9]  = ess.e2nd/raw_energy;
   eval[10] = (ess.eLeft + ess.eRight != 0.f  ? (ess.eLeft-ess.eRight)/(ess.eLeft+ess.eRight) : 0.f);
   eval[11] = (ess.eTop  + ess.eBottom != 0.f ? (ess.eTop-ess.eBottom)/(ess.eTop+ess.eBottom) : 0.f);
-  eval[12] = ele.sigmaIetaIeta();
+  eval[12] = ess.sigmaIetaIeta;
   eval[13] = ess.sigmaIetaIphi;
-  eval[14] = ele.sigmaIphiIphi();
+  eval[14] = ess.sigmaIphiIphi;
   eval[15] = std::max(0,numberOfClusters-1);
   
   // calculate sub-cluster variables
@@ -590,7 +590,7 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   if( missing_clusters ) return ; // do not apply corrections in case of missing info (slimmed MiniAOD electrons)
 
   const double raw_energy = the_sc->rawEnergy(); 
-  const auto& ess = pho.extraShowerShapes();
+  const auto& ess = pho.showerShapeVariables();
 
   // SET INPUTS
   eval[0]  = raw_energy;
@@ -606,21 +606,21 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   eval[8] = theseed->eta()-the_sc->position().Eta();
   eval[9] = reco::deltaPhi(theseed->phi(),the_sc->position().Phi());
   eval[10] = theseed->energy()/raw_energy;
-  eval[11] = pho.e3x3()/pho.e5x5();
-  eval[12] = pho.sigmaIetaIeta();  
+  eval[11] = ess.e3x3/ess.e5x5;
+  eval[12] = ess.sigmaIetaIeta;  
   eval[13] = ess.sigmaIphiIphi;
   eval[14] = ess.sigmaIetaIphi;
-  eval[15] = pho.maxEnergyXtal()/pho.e5x5();
-  eval[16] = ess.e2nd/pho.e5x5();
-  eval[17] = ess.eTop/pho.e5x5();
-  eval[18] = ess.eBottom/pho.e5x5();
-  eval[19] = ess.eLeft/pho.e5x5();
-  eval[20] = ess.eRight/pho.e5x5();  
-  eval[21] = ess.e2x5Max/pho.e5x5();
-  eval[22] = ess.e2x5Left/pho.e5x5();
-  eval[23] = ess.e2x5Right/pho.e5x5();
-  eval[24] = ess.e2x5Top/pho.e5x5();
-  eval[25] = ess.e2x5Bottom/pho.e5x5();
+  eval[15] = ess.maxEnergyXtal/ess.e5x5;
+  eval[16] = ess.e2nd/ess.e5x5;
+  eval[17] = ess.eTop/ess.e5x5;
+  eval[18] = ess.eBottom/ess.e5x5;
+  eval[19] = ess.eLeft/ess.e5x5;
+  eval[20] = ess.eRight/ess.e5x5;  
+  eval[21] = ess.e2x5Max/ess.e5x5;
+  eval[22] = ess.e2x5Left/ess.e5x5;
+  eval[23] = ess.e2x5Right/ess.e5x5;
+  eval[24] = ess.e2x5Top/ess.e5x5;
+  eval[25] = ess.e2x5Bottom/ess.e5x5;
 
   const bool iseb = pho.isEB();
   if (iseb) {

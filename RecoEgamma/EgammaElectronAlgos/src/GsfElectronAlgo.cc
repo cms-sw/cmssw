@@ -538,7 +538,7 @@ Candidate::LorentzVector GsfElectronAlgo::ElectronData::calculateMomentum()
  }
 
 void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClus, bool pflow, 
-                                            reco::GsfElectron::ShowerShape & showerShape, reco::GsfElectron::ExtraShowerShapes & exShowerShape )
+                                            reco::GsfElectron::ShowerShape & showerShape )
  {
   const reco::CaloCluster & seedCluster = *(theClus->seed()) ;
   // temporary, till CaloCluster->seed() is made available
@@ -593,23 +593,22 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
   // extra shower shapes
   const float see_by_spp = showerShape.sigmaIetaIeta*showerShape.sigmaIphiIphi;
   if(  see_by_spp > 0 ) {
-    exShowerShape.sigmaIetaIphi = localCovariances[1] / see_by_spp;
+    showerShape.sigmaIetaIphi = localCovariances[1] / see_by_spp;
   } else if ( localCovariances[1] > 0 ) {
-    exShowerShape.sigmaIetaIphi = 1.f;
+    showerShape.sigmaIetaIphi = 1.f;
   } else {
-    exShowerShape.sigmaIetaIphi = -1.f;
+    showerShape.sigmaIetaIphi = -1.f;
   }
-  exShowerShape.eMax          = EcalClusterTools::eMax(seedCluster,recHits);
-  exShowerShape.e2nd          = EcalClusterTools::e2nd(seedCluster,recHits);
-  exShowerShape.eTop          = EcalClusterTools::eTop(seedCluster,recHits,topology);
-  exShowerShape.eLeft         = EcalClusterTools::eLeft(seedCluster,recHits,topology);
-  exShowerShape.eRight        = EcalClusterTools::eRight(seedCluster,recHits,topology);
-  exShowerShape.eBottom       = EcalClusterTools::eBottom(seedCluster,recHits,topology);
-
+  showerShape.eMax          = EcalClusterTools::eMax(seedCluster,recHits);
+  showerShape.e2nd          = EcalClusterTools::e2nd(seedCluster,recHits);
+  showerShape.eTop          = EcalClusterTools::eTop(seedCluster,recHits,topology);
+  showerShape.eLeft         = EcalClusterTools::eLeft(seedCluster,recHits,topology);
+  showerShape.eRight        = EcalClusterTools::eRight(seedCluster,recHits,topology);
+  showerShape.eBottom       = EcalClusterTools::eBottom(seedCluster,recHits,topology);
  }
 
 void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef & theClus, bool pflow, 
-                                                    reco::GsfElectron::ShowerShape & showerShape, reco::GsfElectron::ExtraShowerShapes & exShowerShape )
+                                                    reco::GsfElectron::ShowerShape & showerShape )
  {
   const reco::CaloCluster & seedCluster = *(theClus->seed()) ;
   // temporary, till CaloCluster->seed() is made available
@@ -664,19 +663,18 @@ void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef 
   // extra shower shapes
   const float see_by_spp = showerShape.sigmaIetaIeta*showerShape.sigmaIphiIphi;
   if(  see_by_spp > 0 ) {
-    exShowerShape.sigmaIetaIphi = localCovariances[1] / see_by_spp;
+    showerShape.sigmaIetaIphi = localCovariances[1] / see_by_spp;
   } else if ( localCovariances[1] > 0 ) {
-    exShowerShape.sigmaIetaIphi = 1.f;
+    showerShape.sigmaIetaIphi = 1.f;
   } else {
-    exShowerShape.sigmaIetaIphi = -1.f;
+    showerShape.sigmaIetaIphi = -1.f;
   }
-  exShowerShape.eMax          = noZS::EcalClusterTools::eMax(seedCluster,recHits);
-  exShowerShape.e2nd          = noZS::EcalClusterTools::e2nd(seedCluster,recHits);
-  exShowerShape.eTop          = noZS::EcalClusterTools::eTop(seedCluster,recHits,topology);
-  exShowerShape.eLeft         = noZS::EcalClusterTools::eLeft(seedCluster,recHits,topology);
-  exShowerShape.eRight        = noZS::EcalClusterTools::eRight(seedCluster,recHits,topology);
-  exShowerShape.eBottom       = noZS::EcalClusterTools::eBottom(seedCluster,recHits,topology);
-
+  showerShape.eMax          = noZS::EcalClusterTools::eMax(seedCluster,recHits);
+  showerShape.e2nd          = noZS::EcalClusterTools::e2nd(seedCluster,recHits);
+  showerShape.eTop          = noZS::EcalClusterTools::eTop(seedCluster,recHits,topology);
+  showerShape.eLeft         = noZS::EcalClusterTools::eLeft(seedCluster,recHits,topology);
+  showerShape.eRight        = noZS::EcalClusterTools::eRight(seedCluster,recHits,topology);
+  showerShape.eBottom       = noZS::EcalClusterTools::eBottom(seedCluster,recHits,topology);
  }
 
 
@@ -1362,12 +1360,10 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   //====================================================
 
   reco::GsfElectron::ShowerShape showerShape ;
-  reco::GsfElectron::ExtraShowerShapes exShowerShapes ;
-  calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape, exShowerShapes) ;
+  calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;
 
   reco::GsfElectron::ShowerShape full5x5_showerShape ;
-  reco::GsfElectron::ExtraShowerShapes full5x5_exShowerShapes ;
-  calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape, full5x5_exShowerShapes) ;
+  calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
 
   //====================================================
   // ConversionRejection
@@ -1413,11 +1409,7 @@ void GsfElectronAlgo::createElectron(const gsfAlgoHelpers::HeavyObjectCache* hoc
   // Will be overwritten later in the case of the regression
   ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ;
   ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,momentum,0,true) ;
-
-  // set the extra shower shapes
-  ele->setExtraShowerShapes(exShowerShapes);
-  ele->full5x5_setExtraShowerShapes(full5x5_exShowerShapes);
-
+  
   //====================================================
   // brems fractions
   //====================================================
