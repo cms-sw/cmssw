@@ -87,7 +87,7 @@ public:
   void setOutputDir( std::string dir );
   void setTreeBaseDir( std::string dir = "TrackerOfflineValidationStandalone");
   
-  THStack* addHists(const char *selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
+  THStack* addHists(const TString& selection, const TString &residType = "xPrime", TLegend **myLegend = 0, bool printModuleIds = false);//add hists fulfilling 'selection' on TTree; residType: xPrime,yPrime,xPrimeNorm,yPrimeNorm,x,y,xNorm; if (printModuleIds): cout DetIds
   
   // These are helpers for DMR plotting
 

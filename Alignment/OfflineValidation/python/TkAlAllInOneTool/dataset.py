@@ -202,15 +202,30 @@ class Dataset:
                             lumiSecExtend = jsoncontents
                             splitLumiList = [[""]]
 
-            if not len(splitLumiList[0][0]) == 0:
-                lumiSecStr = [ "',\n'".join( lumis ) \
-                               for lumis in splitLumiList ]
-                lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
-                               for lumis in lumiSecStr ]
-                lumiSecExtend = "\n".join( lumiSecStr )
-                runlist = self.__getRunList()
-                self.__firstusedrun = max(int(splitLumiList[0][0].split(":")[0]), int(self.__findInJson(runlist[0],"run_number")))
-                self.__lastusedrun = min(int(splitLumiList[-1][-1].split(":")[0]), int(self.__findInJson(runlist[-1],"run_number")))
+            if splitLumiList and splitLumiList[0]:
+                if splitLumiList[0][0]:
+                    lumiSecStr = [ "',\n'".join( lumis ) \
+                                   for lumis in splitLumiList ]
+                    lumiSecStr = [ "lumiSecs.extend( [\n'" + lumis + "'\n] )" \
+                                   for lumis in lumiSecStr ]
+                    lumiSecExtend = "\n".join( lumiSecStr )
+                    runlist = self.__getRunList()
+                    self.__firstusedrun = max(int(splitLumiList[0][0].split(":")[0]), int(self.__findInJson(runlist[0],"run_number")))
+                    self.__lastusedrun = min(int(splitLumiList[-1][-1].split(":")[0]), int(self.__findInJson(runlist[-1],"run_number")))
+            else:
+                msg = "You are trying to run a validation without any runs!  Check that:"
+                if firstRun or lastRun:
+                    msg += "\n - firstRun and lastRun are correct for this dataset, and there are runs in between containing data"
+                if jsonPath:
+                    msg += "\n - your JSON file is correct for this dataset, and the runs contain data"
+                if (firstRun or lastRun) and jsonPath:
+                    msg += "\n - firstRun and lastRun are consistent with your JSON file"
+                if begin:
+                    msg = msg.replace("firstRun", "begin")
+                if end:
+                    msg = msg.replace("lastRun", "end")
+                raise AllInOneError(msg)
+
         else:
             runlist = self.__getRunList()
             self.__firstusedrun = int(self.__findInJson(self.__getRunList()[0],"run_number"))

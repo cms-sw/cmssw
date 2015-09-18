@@ -12,11 +12,11 @@ float LeptonTaggerByIP::discriminator(const TagInfoHelper & tagInfo) const {
   // if there are multiple leptons, look for the one with the highest pT_rel
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties & properties = info.properties(i);
-    float sip = m_use3d ? properties.sip3d : properties.sip2d;
+    float sipsig = m_use3d ? properties.sip3dsig : properties.sip2dsig;
     if (m_selector.isNegative())
-      sip = -sip;
+      sipsig = -sipsig;
     if (m_selector(properties, m_use3d)) {
-      float tag = sip;
+      float tag = sipsig;
       if (tag > bestTag)
         bestTag = tag;
     }

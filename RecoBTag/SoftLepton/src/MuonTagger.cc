@@ -66,12 +66,12 @@ float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
       if(rndm<0.5) flip=true;
     }
     //for negative tagger, flip 50% of the negative signs to positive value
-    float sip3d = flip ? -properties.sip3d : properties.sip3d;
-    float sip2d = flip ? -properties.sip2d : properties.sip2d;
+    float sip3dsig = flip ? -properties.sip3dsig : properties.sip3dsig;
+    float sip2dsig = flip ? -properties.sip2dsig : properties.sip2dsig;
 
     std::map<std::string,float> inputs;
-    inputs["TagInfo1.sip3d"] = sip3d;
-    inputs["TagInfo1.sip2d"] = sip2d;
+    inputs["TagInfo1.sip3d"] = sip3dsig;
+    inputs["TagInfo1.sip2d"] = sip2dsig;
     inputs["TagInfo1.ptRel"] = properties.ptRel;
     inputs["TagInfo1.deltaR"] = properties.deltaR;
     inputs["TagInfo1.ratio"] = properties.ratio;

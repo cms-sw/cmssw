@@ -205,7 +205,7 @@ void EcalSimRawData::genFeData(string basename, int iEvent,
 	<< setfill(' ') << ext;
       ofstream f(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
 
-      if(!f) return;
+      if(f.fail()) return;
 
 
       if(writeMode_==ascii){
@@ -283,7 +283,7 @@ void EcalSimRawData::genSrData(string basename, int iEvent,
 	<< setfill(' ') << getExt();
       ofstream f(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
       
-      if(!f) throw cms::Exception(string("Cannot create/open file ")
+      if(f.fail()) throw cms::Exception(string("Cannot create/open file ")
 				  + s.str() + ".");
       
       int iWord = 0;
@@ -353,7 +353,7 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 	<< setfill(' ') << ext;
       ofstream fe2tcc(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
 
-      if(!fe2tcc) throw cms::Exception(string("Failed to create file ")
+      if(fe2tcc.fail()) throw cms::Exception(string("Failed to create file ")
 				       + s.str() + ".");
       
       int memPos = iEvent-1;
@@ -417,8 +417,8 @@ void EcalSimRawData::genTccOut(string basename, int iEvent,
 	<< setfill(' ') << getExt();
       ofstream dccF(s.str().c_str(), (iEvent==1?ios::ate:ios::app));
       
-      if(!dccF){
-	cout << "Warning: failed to create or open file " << s << ".\n";
+      if(dccF.fail()){
+	cout << "Warning: failed to create or open file " << s.str() << ".\n";
 	return;
       }
       
