@@ -27,7 +27,7 @@ MuonMomQualityCut::MuonMomQualityCut(const edm::ParameterSet& c):
 CutApplicatorBase::result_type MuonMomQualityCut::operator()(const reco::MuonPtr& cand) const
 {
   const auto trackRef = cand->muonBestTrack();
-  return trackRef.isNonnull() and trackRef->ptError()/trackRef->pt() <= maxRelPtErr_;
+  return trackRef.isNonnull() and trackRef->ptError() <= maxRelPtErr_*trackRef->pt();
 
   return true;
 }
@@ -36,7 +36,7 @@ double MuonMomQualityCut::value(const reco::CandidatePtr& cand) const
 {
   const reco::MuonPtr muon(cand);
   const auto trackRef = muon->muonBestTrack();
-  if ( trackRef.isNull() ) return -1;
+  if ( trackRef.isNull() or trackRef->pt() <= 0 ) return -1;
 
   return trackRef->ptError()/trackRef->pt();
 }
