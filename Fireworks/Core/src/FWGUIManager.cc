@@ -341,6 +341,18 @@ FWGUIManager::eventChangedCallback() {
          ev->GetGLViewer()->DeleteOverlayAnnotations();
    }
    
+   for (auto reg : m_regionViews)
+   {
+       for(ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); ++it)
+       {
+           if (it->second == reg) {
+               m_viewMap.erase(it);
+               reg->destroy();
+               break;
+           }
+       }
+   }
+
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
    m_detailViewManager->newEventCallback();
 }
@@ -643,7 +655,7 @@ void
 FWGUIManager::open3DRegion()
 {
    FWModelId id =  *(m_context->selectionManager()->selected().begin());
-   float eta =0, phi = 0;
+   float theta =0, phi = 0;
    {
       edm::TypeWithDict type = edm::TypeWithDict((TClass*)id.item()->modelType());
       using namespace boost::spirit::classic;
@@ -652,14 +664,15 @@ FWGUIManager::open3DRegion()
       edm::ObjectWithDict o(type, (void*)id.item()->modelData(id.index()));
       try {
          parse("theta()", grammar.use_parser<1>() >> end_p, space_p).full;
-         eta =  tmpPtr->value(o);
+         theta =  tmpPtr->value(o);
          parse("phi()", grammar.use_parser<1>() >> end_p, space_p).full;
          phi =  tmpPtr->value(o);
 
          ViewMap_i it = createView( "3D Tower", m_viewSecPack->NewSlot());
          FW3DViewBase* v = static_cast<FW3DViewBase*>(it->second);
-         v->setClip(eta, phi);
+         v->setClip(theta, phi);
          it->first->UndockWindow();
+         m_regionViews.push_back(v);
       }
       catch(const reco::parser::BaseException& e)
       {
