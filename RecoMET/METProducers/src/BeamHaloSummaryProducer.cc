@@ -96,6 +96,23 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
       (CSCData.NumberOfHaloTracks() && CSCData.NumberOfOutOfTimeTriggers() ) )
     TheBeamHaloSummary->GetCSCHaloReport()[3] = 1;
 
+  //CSCTight Id for 2015
+  if( (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() && CSCData.NumberOfHaloTracks()) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTriggers_TrkMuUnVeto() ) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTracks() ) ||
+      CSCData.GetSegmentsInBothEndcaps_Loose_TrkMuUnVeto() ||
+      (CSCData.NTracksSmalldT() && CSCData.NumberOfHaloTracks() ) ||
+      (CSCData.NFlatHaloSegments() > 3 && (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() || CSCData.NumberOfHaloTracks()) ))
+    TheBeamHaloSummary->GetCSCHaloReport()[4] = 1;
+
+  //Update
+  if(  (CSCData.NumberOfHaloTriggers_TrkMuUnVeto() && CSCData.NFlatHaloSegments_TrkMuUnVeto() ) ||
+       CSCData.GetSegmentsInBothEndcaps_Loose_dTcut_TrkMuUnVeto() ||
+       CSCData.GetSegmentIsCaloMatched()
+       )
+    TheBeamHaloSummary->GetCSCHaloReport()[5] = 1;
+
+
 
   //Ecal Specific Halo Data
   Handle<EcalHaloData> TheEcalHaloData;

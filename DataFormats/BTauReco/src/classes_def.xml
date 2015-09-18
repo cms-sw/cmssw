@@ -96,11 +96,24 @@
   <class name="edm::Wrapper<reco::IsolatedTauTagInfoCollection>"/>
 
 
-  <class name="reco::SoftLeptonProperties" ClassVersion="11">
+  <class name="reco::SoftLeptonProperties" ClassVersion="12">
    <version ClassVersion="10" checksum="3825121604"/>
    <version ClassVersion="11" checksum="3267387532"/>
+   <version ClassVersion="12" checksum="2193794521"/>
   </class>
-
+  <ioread sourceClass = "reco::SoftLeptonProperties" version="[-11]" targetClass="reco::SoftLeptonProperties" source="float sip2d" target="sip2dsig">
+    <![CDATA[sip2dsig = onfile.sip2d;]]>
+  </ioread>
+  <ioread sourceClass = "reco::SoftLeptonProperties" version="[-11]" targetClass="reco::SoftLeptonProperties" source="float sip3d" target="sip3dsig">
+    <![CDATA[sip3dsig = onfile.sip3d;]]>
+  </ioread>
+  <ioread sourceClass = "reco::SoftLeptonProperties" version="[-11]" targetClass="reco::SoftLeptonProperties" source = "" target="sip2d">
+    <![CDATA[sip2d = 0;]]>
+  </ioread>
+  <ioread sourceClass = "reco::SoftLeptonProperties" version="[-11]" targetClass="reco::SoftLeptonProperties" source = "" target="sip3d">
+    <![CDATA[sip3d = 0;]]>
+  </ioread>
+  
   <class name="std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>"/>
   <class name="reco::TemplatedSoftLeptonTagInfo<edm::RefToBase<reco::Track> >::LeptonMap"/>
   <class name="reco::SoftLeptonTagInfo" />

@@ -113,7 +113,7 @@ void CSCGasCollisions::readCollisionTable() {
 
   ifstream & fin = *f1();
 
-  if (fin == 0) {
+  if (fin.fail()) {
     string errorMessage = "Cannot open input file " + path + colliFile;
     edm::LogError("CSCGasCollisions") << errorMessage;
     throw cms::Exception(errorMessage);

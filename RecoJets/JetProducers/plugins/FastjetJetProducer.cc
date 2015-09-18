@@ -35,6 +35,8 @@
 #include "fastjet/tools/MassDropTagger.hh"
 #include "fastjet/contrib/SoftDrop.hh"
 #include "fastjet/tools/JetMedianBackgroundEstimator.hh"
+#include "fastjet/tools/GridMedianBackgroundEstimator.hh"
+#include "fastjet/tools/Subtractor.hh"
 #include "fastjet/contrib/ConstituentSubtractor.hh"
 #include "RecoJets/JetAlgorithms/interface/CMSBoostedTauSeedingAlgorithm.h"
 
@@ -65,6 +67,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     useKtPruning_(false),
     useConstituentSubtraction_(false),
     useSoftDrop_(false),
+    correctShape_(false),
     muCut_(-1.0),
     yCut_(-1.0),
     rFilt_(-1.0),
@@ -76,7 +79,9 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     csRho_EtaMax_(-1.0),
     csRParam_(-1.0),
     beta_(-1.0),
-    R0_(-1.0)
+    R0_(-1.0),
+    gridMaxRapidity_(-1.0), // For fixed-grid rho
+    gridSpacing_(-1.0)  // For fixed-grid rho
 {
 
   if ( iConfig.exists("UseOnlyVertexTracks") )
@@ -212,6 +217,13 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       R0_ = iConfig.getParameter<double>("R0");
     }
 
+  }
+
+  if ( iConfig.exists("correctShape") ) {
+    correctShape_ = iConfig.getParameter<bool>("correctShape");
+    gridMaxRapidity_ = iConfig.getParameter<double>("gridMaxRapidity");
+    gridSpacing_ = iConfig.getParameter<double>("gridSpacing");
+    useExplicitGhosts_ = true;
   }
 
   input_chrefcand_token_ = consumes<edm::View<reco::RecoChargedRefCandidate> >(src_);
@@ -473,6 +485,16 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
       transformers.push_back( transformer_ptr(sd) );
     }
 
+    unique_ptr<fastjet::Subtractor> subtractor;
+    unique_ptr<fastjet::GridMedianBackgroundEstimator> bge_rho_grid;
+    if ( correctShape_ ) {
+      bge_rho_grid = unique_ptr<fastjet::GridMedianBackgroundEstimator> (new  fastjet::GridMedianBackgroundEstimator(gridMaxRapidity_, gridSpacing_) );
+      bge_rho_grid->set_particles(fjInputs_);
+      subtractor = unique_ptr<fastjet::Subtractor>( new fastjet::Subtractor(  bge_rho_grid.get()) );
+      subtractor->set_use_rho_m();
+      //subtractor->use_common_bge_for_rho_and_rhom(true);
+    }
+
 
     for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
 	    ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet ) {
@@ -486,6 +508,10 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
 	} else {
 	  passed=false;
 	}
+      }
+
+      if ( correctShape_ ) {
+	transformedJet = (*subtractor)(transformedJet);
       }
 
       if ( passed ) {

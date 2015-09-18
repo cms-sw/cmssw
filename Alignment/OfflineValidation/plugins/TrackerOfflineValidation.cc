@@ -117,8 +117,10 @@ private:
   struct SummaryContainer{
     SummaryContainer() : sumXResiduals_(), summaryXResiduals_(), 
 			 sumNormXResiduals_(), summaryNormXResiduals_(),
-			 sumYResiduals_(), summaryYResiduals_() ,
-			 sumNormYResiduals_(), summaryNormYResiduals_() {}
+			 sumYResiduals_(), summaryYResiduals_(),
+			 sumNormYResiduals_(), summaryNormYResiduals_(),
+			 sumResXvsXProfile_(), sumResXvsYProfile_(),
+			 sumResYvsXProfile_(), sumResYvsYProfile_() {}
     
     TH1* sumXResiduals_;
     TH1* summaryXResiduals_;
@@ -128,6 +130,11 @@ private:
     TH1* summaryYResiduals_;
     TH1* sumNormYResiduals_;
     TH1* summaryNormYResiduals_;
+
+    TH1* sumResXvsXProfile_;
+    TH1* sumResXvsYProfile_;
+    TH1* sumResYvsXProfile_;
+    TH1* sumResYvsYProfile_;
   };
   
   
@@ -1281,6 +1288,15 @@ TrackerOfflineValidation::collateSummaryHists( DirectoryWrapper& tfd, const Alig
 	vLevelProfiles[iComp].sumNormXResiduals_->Add(vProfiles[n].sumNormXResiduals_);
 	if (hY)     hY->Add(vProfiles[n].sumYResiduals_);         // only if existing
 	if (hNormY) hNormY->Add(vProfiles[n].sumNormYResiduals_); // dito (pxl, stripYResiduals_)
+
+        TH1 *pXX = vLevelProfiles[iComp].sumResXvsXProfile_;
+        TH1 *pXY = vLevelProfiles[iComp].sumResXvsYProfile_;
+        TH1 *pYX = vLevelProfiles[iComp].sumResYvsXProfile_;
+        TH1 *pYY = vLevelProfiles[iComp].sumResYvsYProfile_;
+	if (pXX) pXX->Add(vProfiles[n].sumResXvsXProfile_);
+	if (pXY) pXY->Add(vProfiles[n].sumResXvsYProfile_);
+	if (pYX) pYX->Add(vProfiles[n].sumResYvsXProfile_);
+	if (pYY) pYY->Add(vProfiles[n].sumResYvsYProfile_);
       }
       if(dqmMode_)continue;  // No fits in dqmMode
       //add fit values to stat box
@@ -1386,6 +1402,21 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
   sumContainer.sumNormXResiduals_ = tfd.make<TH1F>(Form("h_NormXprime_%s_%d",aliTypeName,i), 
 						   sumTitle + xTitHists.NormResXprimeHisto->GetXaxis()->GetTitle(),
 						   nbins, xmin, xmax);
+
+  if ( moduleLevelProfiles_ ) {
+    this->getBinning(aliDetId.subdetId(), XResidualProfile, nbins, xmin, xmax);
+    sumContainer.sumResXvsXProfile_ = tfd.make<TProfile>(Form("p_resXX_%s_%d",aliTypeName,i), 
+							 sumTitle + xTitHists.ResXvsXProfile->GetXaxis()->GetTitle()
+                                                            + ";" + xTitHists.ResXvsXProfile->GetYaxis()->GetTitle(),
+							 nbins, xmin, xmax);
+    sumContainer.sumResXvsXProfile_->Sumw2();
+    sumContainer.sumResXvsYProfile_ = tfd.make<TProfile>(Form("p_resXY_%s_%d",aliTypeName,i), 
+							 sumTitle + xTitHists.ResXvsYProfile->GetXaxis()->GetTitle()
+                                                            + ";" + xTitHists.ResXvsYProfile->GetYaxis()->GetTitle(),
+							 nbins, xmin, xmax);
+    sumContainer.sumResXvsYProfile_->Sumw2();
+  }
+
   if (bookResidY) {
     this->getBinning(aliDetId.subdetId(), YprimeResidual, nbins, xmin, xmax);
     sumContainer.sumYResiduals_ = tfd.make<TH1F>(Form("h_Yprime_%s_%d",aliTypeName,i), 
@@ -1396,6 +1427,20 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
     sumContainer.sumNormYResiduals_ = tfd.make<TH1F>(Form("h_NormYprime_%s_%d",aliTypeName,i), 
 						     sumTitle + xTitHists.NormResYprimeHisto->GetXaxis()->GetTitle(),
 						     nbins, xmin, xmax);
+
+    if ( moduleLevelProfiles_ ) {
+      this->getBinning(aliDetId.subdetId(), YResidualProfile, nbins, xmin, xmax);
+      sumContainer.sumResYvsXProfile_ = tfd.make<TProfile>(Form("p_resYX_%s_%d",aliTypeName,i), 
+							   sumTitle + xTitHists.ResYvsXProfile->GetXaxis()->GetTitle()
+                                                              + ";" + xTitHists.ResYvsXProfile->GetYaxis()->GetTitle(),
+							   nbins, xmin, xmax);
+      sumContainer.sumResYvsXProfile_->Sumw2();
+      sumContainer.sumResYvsYProfile_ = tfd.make<TProfile>(Form("p_resYY_%s_%d",aliTypeName,i), 
+							   sumTitle + xTitHists.ResYvsYProfile->GetXaxis()->GetTitle()
+                                                              + ";" + xTitHists.ResYvsYProfile->GetYaxis()->GetTitle(),
+							   nbins, xmin, xmax);
+      sumContainer.sumResYvsYProfile_->Sumw2();
+    }
   }
   
   // If we are at the lowest level, we already sum up and fill the summary.
@@ -1408,9 +1453,17 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
       this->summarizeBinInContainer(k+1, detid.subdetId() ,sumContainer, histStruct );
       sumContainer.sumXResiduals_->Add(histStruct.ResXprimeHisto);
       sumContainer.sumNormXResiduals_->Add(histStruct.NormResXprimeHisto);
+      if ( moduleLevelProfiles_ ) {
+        sumContainer.sumResXvsXProfile_->Add(histStruct.ResXvsXProfile);
+        sumContainer.sumResXvsYProfile_->Add(histStruct.ResXvsYProfile);
+      }
       if( this->isPixel(detid.subdetId()) || stripYResiduals_ ) {
       	sumContainer.sumYResiduals_->Add(histStruct.ResYprimeHisto);
       	sumContainer.sumNormYResiduals_->Add(histStruct.NormResYprimeHisto);
+        if ( moduleLevelProfiles_ ) {
+          sumContainer.sumResYvsXProfile_->Add(histStruct.ResYvsXProfile);
+          sumContainer.sumResYvsYProfile_->Add(histStruct.ResYvsYProfile);
+        }
       }
     }
   } else if( subtype == align::AlignableDet && subcompSize > 1) { // fixed: was aliSize before
@@ -1422,9 +1475,17 @@ TrackerOfflineValidation::bookSummaryHists(DirectoryWrapper& tfd, const Alignabl
 	this->summarizeBinInContainer(2*k+j+1, detid.subdetId() ,sumContainer, histStruct );
 	sumContainer.sumXResiduals_->Add( histStruct.ResXprimeHisto);
 	sumContainer.sumNormXResiduals_->Add( histStruct.NormResXprimeHisto);
+        if ( moduleLevelProfiles_ ) {
+          sumContainer.sumResXvsXProfile_->Add(histStruct.ResXvsXProfile);
+          sumContainer.sumResXvsYProfile_->Add(histStruct.ResXvsYProfile);
+        }
 	if( this->isPixel(detid.subdetId()) || stripYResiduals_ ) {
 	  sumContainer.sumYResiduals_->Add( histStruct.ResYprimeHisto);
 	  sumContainer.sumNormYResiduals_->Add( histStruct.NormResYprimeHisto);
+          if ( moduleLevelProfiles_ ) {
+            sumContainer.sumResYvsXProfile_->Add(histStruct.ResYvsXProfile);
+            sumContainer.sumResYvsYProfile_->Add(histStruct.ResYvsYProfile);
+          }
 	}
       }
     }

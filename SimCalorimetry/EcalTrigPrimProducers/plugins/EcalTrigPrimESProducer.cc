@@ -41,14 +41,16 @@ struct GzInputStream
    }
   ~GzInputStream()
    { gzclose(gzf) ; }
-  operator void*()
-   { return ((eof==true)?((void*)0):iss) ; }
+  explicit operator bool() const
+  {
+    return ((eof == true) ? false : iss.fail());
+  }
  } ;
 
 template <typename T>
 GzInputStream & operator>>( GzInputStream & gis, T & var )
  {
-  while ((gis)&&(!(gis.iss>>var)))
+  while ((bool)gis && !(gis.iss >> var))
    { gis.readLine() ; }
   return gis ;
  }

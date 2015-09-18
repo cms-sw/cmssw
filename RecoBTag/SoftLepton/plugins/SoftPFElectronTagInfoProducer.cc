@@ -35,7 +35,7 @@ SoftPFElectronTagInfoProducer::SoftPFElectronTagInfoProducer (const edm::Paramet
 	token_BeamSpot      = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
 	token_allConversions= consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
 	DeltaRElectronJet   = conf.getParameter<double>("DeltaRElectronJet");
-	MaxSip3D            = conf.getParameter<double>("MaxSip3D");
+	MaxSip3Dsig            = conf.getParameter<double>("MaxSip3Dsig");
         produces<reco::CandSoftLeptonTagInfoCollection>();
 }
 
@@ -98,8 +98,12 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
 			math::XYZVector pel=recoelectron->p4().Vect();
   			math::XYZVector pjet=jetRef->p4().Vect();
   			reco::TransientTrack transientTrack=transientTrackBuilder->build(recoelectron->gsfTrack());
-  			properties.sip2d    = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
-  			properties.sip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second.significance();
+			Measurement1D ip2d = IPTools::signedTransverseImpactParameter(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second;
+			Measurement1D ip3d    = IPTools::signedImpactParameter3D(transientTrack, GlobalVector(jetRef->px(), jetRef->py(), jetRef->pz()), *vertex).second;
+  			properties.sip2dsig    = ip2d.significance();
+  			properties.sip3dsig    = ip3d.significance();
+			properties.sip2d    = ip2d.value();
+  			properties.sip3d    = ip3d.value();
   			properties.deltaR   = reco::deltaR((*jetRef), (*recoelectron));
   			properties.ptRel    = ( (pjet-pel).Cross(pel) ).R() / pjet.R();
   			float mag = pel.R()*pjet.R();
@@ -109,7 +113,7 @@ void SoftPFElectronTagInfoProducer::produce(edm::Event& iEvent, const edm::Event
   			properties.ratioRel = recoelectron->p4().Dot(jetRef->p4()) / pjet.Mag2();
   			properties.p0Par    = boostedPPar(recoelectron->momentum(), jetRef->momentum());
 			properties.elec_mva    = recoelectron->mva_e_pi();
-			 if(std::abs(properties.sip3d>MaxSip3D)) continue;
+			if(std::abs(properties.sip3dsig)>MaxSip3Dsig) continue;
 			// Fill the TagInfos
 			tagInfo.insert(lepPtr, properties );
 		}
