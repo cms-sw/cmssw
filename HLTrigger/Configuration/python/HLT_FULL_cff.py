@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V486 (CMSSW_7_4_10_patch1)
+# /dev/CMSSW_7_4_0/HLT/V487 (CMSSW_7_4_10_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V486')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V487')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -53136,7 +53136,7 @@ fragment.hltPreZeroBias = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 fragment.hltPreAK4CaloJet30 = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "L1_ZeroBias" ),
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
 fragment.hltSingleAK4CaloJet30 = cms.EDFilter( "HLT1CaloJet",
