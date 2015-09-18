@@ -200,6 +200,8 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         ),
      HiggsDalitz = cms.PSet(
         hltPathsToCheck = cms.vstring(
+            "HLT_Mu17_Photon22_CaloIdL_L1ISO_v",
+            "HLT_Mu17_Photon30_CaloIdL_L1ISO_v",
             "HLT_Mu12_Photon25_CaloIdL_v",
             "HLT_Mu12_Photon25_CaloIdL_L1ISO_v",
             "HLT_Mu12_Photon25_CaloIdL_L1OR_v"
