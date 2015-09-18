@@ -440,8 +440,9 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::GsfElectron& ele) const {
     clusterDEtaToSeed[iclus] = pclus->eta() - theseed->eta();
     
     // find cluster with max dR
-    if(reco::deltaR(*pclus, *theseed) > maxDR) {
-      maxDR = reco::deltaR(*pclus, *theseed);
+    const auto the_dr = reco::deltaR(*pclus, *theseed);
+    if(the_dr > maxDR) {
+      maxDR = the_dr;
       clusterMaxDR = maxDR;
       clusterMaxDRDPhi = clusterDPhiToSeed[iclus];
       clusterMaxDRDEta = clusterDEtaToSeed[iclus];
