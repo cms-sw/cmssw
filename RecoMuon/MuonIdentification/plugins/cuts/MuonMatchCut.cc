@@ -27,10 +27,7 @@ MuonMatchCut::MuonMatchCut(const edm::ParameterSet& c):
 // Functors for evaluation
 CutApplicatorBase::result_type MuonMatchCut::operator()(const reco::MuonPtr& muon) const
 {
-  if ( muon->numberOfMatchedStations() < minNumberOfMatchedStations_ ) return false;
-
-  return true;
-
+  return muon->numberOfMatchedStations() >= minNumberOfMatchedStations_;
 }
 
 double MuonMatchCut::value(const reco::CandidatePtr& cand) const
