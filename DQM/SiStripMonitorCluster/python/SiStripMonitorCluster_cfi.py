@@ -213,10 +213,10 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         ),
                                        
     MultiplicityRegions = cms.PSet(
-        k0 = cms.double(0.13),  # k from linear fit of the diagonal default 0.13
+        k0 = cms.double(0.097),  # k from linear fit of the diagonal default 0.13 for 2012 data, 0.097 for 2015
         q0 = cms.double(300),   # +/- variation of y axis intercept default 300
         dk0 = cms.double(40),   #+/- variation of k0 (in %) to contain the diagonal zone defoult 40
-        MaxClus = cms.double(20000), #Divide Region 2 and Region 3  default 20000
+        MaxClus = cms.double(26000), #Divide Region 2 and Region 3  default 20000 for 2012 data, 26000 for 2015
         MinPix = cms.double(50)  # minimum number of Pix clusters to flag events with zero Si clusters default 50
         ),
                                        
