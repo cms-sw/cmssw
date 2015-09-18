@@ -8,14 +8,14 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 kinematicSelectedPFJets = cms.EDFilter(
     "TauValPFJetSelector",
     src = cms.InputTag('ak4PFJets'),
-    cut = cms.string("pt > 15 & abs(eta) < 2.5"),
+    cut = cms.string("obj.pt() > 15 && std::abs(obj.eta()) < 2.5"),
     filter = cms.bool(False)
 	)
 
 PFJetsId = cms.EDFilter(
     "TauValPFJetSelector",
     src = cms.InputTag('kinematicSelectedPFJets'),
-    cut = cms.string("chargedHadronEnergyFraction > 0.0 & neutralHadronEnergyFraction < 0.99 & neutralHadronEnergyFraction < 0.99 & chargedEmEnergyFraction < 0.99 & chargedEmEnergyFraction < 0.99 & neutralEmEnergyFraction < 0.99 & chargedMultiplicity > 0 & nConstituents > 1"),
+    cut = cms.string("obj.chargedHadronEnergyFraction() > 0.0 && obj.neutralHadronEnergyFraction() < 0.99 && obj.neutralHadronEnergyFraction() < 0.99 && obj.chargedEmEnergyFraction() < 0.99 && obj.chargedEmEnergyFraction() < 0.99 && obj.neutralEmEnergyFraction() < 0.99 && obj.chargedMultiplicity() > 0 && obj.nConstituents() > 1"),
     filter = cms.bool(False)
 	)
 

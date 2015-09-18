@@ -115,13 +115,13 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
         if (pset.exists(genCutParam)) {
           _genCut_leading[it->first] = pset.getParameter<std::string>(genCutParam);
         } else {
-          _genCut_leading[it->first] = "pt>0"; // no cut
+          _genCut_leading[it->first] = "obj.pt()>0"; // no cut
         }
         auto const recCutParam = objStr + "_recCut_leading";
         if (pset.exists(recCutParam)) {
           _recCut_leading[it->first] = pset.getParameter<std::string>(recCutParam);
         } else {
-          _recCut_leading[it->first] = "pt>0"; // no cut
+          _recCut_leading[it->first] = "obj.pt()>0"; // no cut
         }
     }
 

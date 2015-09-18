@@ -34,14 +34,14 @@ B2GDQM = cms.EDAnalyzer(
     allHadRapidityCut = cms.double(1.0),
     allHadDeltaPhiCut = cms.double( pi / 2.0),
 
-    muonSelect = cms.string("pt > 45.0 & abs(eta)<2.1 & isGlobalMuon & abs(globalTrack.d0)<1 & abs(globalTrack.dz)<20"),
+    muonSelect = cms.string("obj.pt() > 45.0 && std::abs(obj.eta())<2.1 && obj.isGlobalMuon() && std::abs(obj.globalTrack()->d0())<1 && std::abs(obj.globalTrack()->dz())<20"),
     semiMu_HadJetPtCut = cms.double(400.0),
     semiMu_LepJetPtCut = cms.double(30.0),
     semiMu_dphiHadCut = cms.double( pi / 2.0),
     semiMu_dRMin = cms.double( 0.5 ),
     semiMu_ptRel = cms.double( 25.0 ),
 
-    elecSelect = cms.string("pt > 45.0 & abs(eta)<2.5 & abs(gsfTrack.d0)<1 & abs(gsfTrack.dz)<20"),
+    elecSelect = cms.string("obj.pt() > 45.0 && std::abs(obj.eta())<2.5 && std::abs(obj.gsfTrack()->d0())<1 && std::abs(obj.gsfTrack()->dz())<20"),
     semiE_HadJetPtCut = cms.double(400.0),
     semiE_LepJetPtCut = cms.double(30.0),
     semiE_dphiHadCut = cms.double( pi / 2.0),

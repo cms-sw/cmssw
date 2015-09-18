@@ -14,6 +14,6 @@ PFTauPrimaryVertexProducer = cms.EDProducer("PFTauPrimaryVertexProducer",
                                             RemoveElectronTracks = cms.bool(False),
                                             useSelectedTaus = cms.bool(False),
                                             discriminators = cms.VPSet(cms.PSet(discriminator = cms.InputTag('hpsPFTauDiscriminationByDecayModeFinding'),selectionCut = cms.double(0.5))),
-                                            cut = cms.string("pt > 18.0 & abs(eta)<2.3")
+                                            cut = cms.string("obj.pt() > 18.0 && std::abs(obj.eta())<2.3")
                                             )
 

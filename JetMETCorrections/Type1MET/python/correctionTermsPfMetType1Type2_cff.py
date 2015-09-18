@@ -42,7 +42,7 @@ corrPfMetType1 = cms.EDProducer(
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
-    skipMuonSelection = cms.string("isGlobalMuon | isStandAloneMuon")
+    skipMuonSelection = cms.string("obj.isGlobalMuon() || obj.isStandAloneMuon()")
 )
 
 ##____________________________________________________________________________||

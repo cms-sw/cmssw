@@ -46,51 +46,51 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # Objects recognized: Mu Ele Photon PFTau MET
     # Syntax in the strings: valid syntax of the StringCutObjectSelector class
     # --- Muons
-    Mu_genCut     = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
-    Mu_recCut     = cms.string("pt > 10 && abs(eta) < 2.4 && isGlobalMuon"),
+    Mu_genCut     = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4 && std::abs(obj.pdgId()) == 13 && obj.status() == 1"),
+    Mu_recCut     = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4 && obj.isGlobalMuon()"),
     Mu_cutMinPt   = cms.double(10),  # TO BE DEPRECATED
     Mu_cutMaxEta  = cms.double(2.4), # TO BE DEPRECATED
     
     # --- Electrons
-    Ele_genCut      = cms.string("pt > 10 && abs(eta) < 2.5 && abs(pdgId) == 11 && status == 1"),
-    Ele_recCut      = cms.string("pt > 10 && abs(eta) < 2.5 && hadronicOverEm < 0.05 && eSuperClusterOverP > 0.5 && eSuperClusterOverP < 2.5"),
+    Ele_genCut      = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.5 && std::abs(obj.pdgId()) == 11 && obj.status() == 1"),
+    Ele_recCut      = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.5 && obj.hadronicOverEm() < 0.05 && obj.eSuperClusterOverP() > 0.5 && obj.eSuperClusterOverP() < 2.5"),
     Ele_cutMinPt    = cms.double(10),  # TO BE DEPRECATED
     Ele_cutMaxEta   = cms.double(2.5), # TO BE DEPRECATED
 
     # --- Photons
-    Photon_genCut     = cms.string("abs(pdgId) == 22 && status == 1"),
-    Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4 && hadronicOverEm < 0.1 && "+\
-                                   " ( ( abs(eta) < 1.479 && r9 > 0.85 ) || "+\
-                                   "   ( abs(eta) > 1.479 && r9 > 0.90 ) || "+\
-                                   "   ( abs(eta) < 1.479 && r9 > 0.50 && sigmaIetaIeta < 0.014 && "+\
-                                   "     ecalRecHitSumEtConeDR03 < (6.0+0.012*et) && trkSumPtSolidConeDR03 < (6.0 + 0.002*et) ) || "+\
-                                   "   ( abs(eta) > 1.479 && r9 > 0.80 && sigmaIetaIeta < 0.035 && "+\
-                                   "     ecalRecHitSumEtConeDR03 < (6.0+0.012*et) && trkSumPtSolidConeDR03 < (6.0 + 0.002*et) ) ) "
+    Photon_genCut     = cms.string("std::abs(obj.pdgId()) == 22 && obj.status() == 1"),
+    Photon_recCut     = cms.string("obj.pt() > 20 && std::abs(obj.eta()) < 2.4 && obj.hadronicOverEm() < 0.1 && "+\
+                                   " ( ( std::abs(obj.eta()) < 1.479 && obj.r9() > 0.85 ) || "+\
+                                   "   ( std::abs(obj.eta()) > 1.479 && obj.r9() > 0.90 ) || "+\
+                                   "   ( std::abs(obj.eta()) < 1.479 && obj.r9() > 0.50 && obj.sigmaIetaIeta() < 0.014 && "+\
+                                   "     obj.ecalRecHitSumEtConeDR03() < (6.0+0.012*obj.et()) && obj.trkSumPtSolidConeDR03() < (6.0 + 0.002*obj.et()) ) || "+\
+                                   "   ( std::abs(obj.eta()) > 1.479 && obj.r9() > 0.80 && obj.sigmaIetaIeta() < 0.035 && "+\
+                                   "     obj.ecalRecHitSumEtConeDR03() < (6.0+0.012*obj.et()) && obj.trkSumPtSolidConeDR03() < (6.0 + 0.002*obj.et()) ) ) "
                                    ),
     Photon_cutMinPt   = cms.double(20), # TO BE DEPRECATED
     Photon_cutMaxEta  = cms.double(2.4),# TO BE DEPRECATED
 
     # --- Taus: 
-    PFTau_genCut      = cms.string("pt > 20 && abs(eta) < 2.4 && abs(pdgId) == 15 && status == 3"),
-    PFTau_recCut      = cms.string("pt > 20 && abs(eta) < 2.4"),  # STILL MISSING THIS INFO
+    PFTau_genCut      = cms.string("obj.pt() > 20 && std::abs(obj.eta()) < 2.4 && std::abs(obj.pdgId()) == 15 && obj.status() == 3"),
+    PFTau_recCut      = cms.string("obj.pt() > 20 && std::abs(obj.eta()) < 2.4"),  # STILL MISSING THIS INFO
     PFTau_cutMinPt    = cms.double(20), # TO BE DEPRECATED
     PFTau_cutMaxEta   = cms.double(2.5),# TO BE DEPRECATED
 
     # --- MET (calo)    
-    MET_genCut      = cms.string("(abs(pdgId) == 12 || abs(pdgId)==14 || abs(pdgId) == 16 ) && status == 1"),
-    MET_recCut      = cms.string("pt > 75."),  
+    MET_genCut      = cms.string("(std::abs(obj.pdgId()) == 12 || std::abs(obj.pdgId())==14 || std::abs(obj.pdgId()) == 16 ) && obj.status() == 1"),
+    MET_recCut      = cms.string("obj.pt() > 75."),  
     MET_cutMinPt    = cms.double(75), # TO BE DEPRECATED
     MET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
     
     # --- PFMET    
-    PFMET_genCut      = cms.string("(abs(pdgId) == 12 || abs(pdgId)==14 || abs(pdgId) == 16 ) && status == 1"),
-    PFMET_recCut      = cms.string("pt > 75."),  
+    PFMET_genCut      = cms.string("(std::abs(obj.pdgId()) == 12 || std::abs(obj.pdgId())==14 || std::abs(obj.pdgId()) == 16 ) && obj.status() == 1"),
+    PFMET_recCut      = cms.string("obj.pt() > 75."),  
     PFMET_cutMinPt    = cms.double(75), # TO BE DEPRECATED
     PFMET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
     
     # --- Jets: 
-    Jet_genCut      = cms.string("pt > 10"),
-    Jet_recCut      = cms.string("pt > 10"),  
+    Jet_genCut      = cms.string("obj.pt() > 10"),
+    Jet_recCut      = cms.string("obj.pt() > 10"),  
     Jet_cutMinPt    = cms.double(0), # TO BE DEPRECATED
     Jet_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
     

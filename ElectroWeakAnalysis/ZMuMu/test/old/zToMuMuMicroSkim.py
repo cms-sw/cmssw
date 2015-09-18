@@ -29,9 +29,9 @@ process.prunedGenParticles = cms.EDProducer(
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
-    "keep+ pdgId = {Z0}",
-    "keep+ pdgId = {W-}",
-    "keep++ pdgId = {mu-}"
+    "keep+  obj.pdgId() == {Z0}",
+    "keep+  obj.pdgId() == {W-}",
+    "keep++ obj.pdgId() == {mu-}"
     )
 )
 
@@ -49,8 +49,8 @@ process.muonMatch.matched = cms.InputTag("prunedGenParticles")
 process.trackMuMatch.matched = cms.InputTag("prunedGenParticles")
 
 zSelection = cms.PSet(
-    cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & "
-                     "abs(daughter(0).eta)<2 & abs(daughter(1).eta)<2 & mass > 20"),
+    cut = cms.string("obj.charge() = 0 && obj.daughter(0).pt() > 20 && obj.daughter(1).pt() > 20 && "
+                     "std::abs(obj.daughter(0).eta())<2 & std::abs(obj.daughter(1).eta())<2 & obj.mass() > 20"),
     isoCut = cms.double(100.0),
     isolationType = cms.string("track"),
 )
@@ -71,7 +71,7 @@ process.nonIsolatedZToMuMu = cms.EDFilter(
 
 process.zToMuGlobalMuOneTrack = cms.EDFilter(
     "CandViewRefSelector",
-    cut = cms.string("daughter(0).isGlobalMuon = 1"),
+    cut = cms.string("obj.daughter(0).isGlobalMuon() == 1"),
     src = cms.InputTag("dimuonsOneTrack"),
     filter = cms.bool(True)
 )

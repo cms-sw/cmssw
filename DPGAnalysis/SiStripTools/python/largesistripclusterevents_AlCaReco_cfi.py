@@ -7,6 +7,6 @@ LargeSiStripClusterEvents = cms.EDFilter('BySiStripClusterMultiplicityEventFilte
                                                                   useQuality = cms.untracked.bool(False),
                                                                   qualityLabel = cms.untracked.string("")
                                                                   ),
-                                             cut = cms.string("mult > 150000")
+                                             cut = cms.string("obj.mult() > 150000")
                                              )
 	

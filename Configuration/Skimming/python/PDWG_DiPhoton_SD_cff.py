@@ -42,19 +42,19 @@ hltDiPhotonCaloIdIsoObjectProducer = cms.EDProducer("CandidateTriggerObjectProdu
 TrailingPtCaloIdIsoPhotons = cms.EDFilter("CandViewRefSelector",
     filter = cms.bool(True),
     src = cms.InputTag("hltDiPhotonCaloIdIsoObjectProducer"),
-    cut = cms.string('pt > '+str(PHOTON_CALOIDISO_ET_LOW_CUT_MIN))
+    cut = cms.string('obj.pt() > '+str(PHOTON_CALOIDISO_ET_LOW_CUT_MIN))
 )
 
 LeadingPtCaloIdIsoPhotons = cms.EDFilter("CandViewRefSelector",
     filter = cms.bool(True),
     src = cms.InputTag("hltDiPhotonCaloIdIsoObjectProducer"),
-    cut = cms.string('pt > '+str(PHOTON_CALOIDISO_ET_HIGH_CUT_MIN))
+    cut = cms.string('obj.pt() > '+str(PHOTON_CALOIDISO_ET_HIGH_CUT_MIN))
 )
 
 CaloIdIsoPhotonPairs = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("LeadingPtCaloIdIsoPhotons TrailingPtCaloIdIsoPhotons"), # charge coniugate states are implied
     checkCharge = cms.bool(False),                           
-    cut   = cms.string("mass > " + str(MASS_DIPHOTON_CALOIDISO_CUT_MIN))
+    cut   = cms.string("obj.mass() > " + str(MASS_DIPHOTON_CALOIDISO_CUT_MIN))
 )
 
 CaloIdIsoPhotonPairsCounter = cms.EDFilter("CandViewCountFilter",
@@ -75,17 +75,17 @@ hltDiPhotonR9IdObjectProducer = hltDiPhotonCaloIdIsoObjectProducer.clone(
 
 TrailingPtR9IdPhotons = TrailingPtCaloIdIsoPhotons.clone(
     src = cms.InputTag("hltDiPhotonR9IdObjectProducer"),
-    cut = cms.string('pt > '+str(PHOTON_R9ID_ET_LOW_CUT_MIN))
+    cut = cms.string('obj.pt() > '+str(PHOTON_R9ID_ET_LOW_CUT_MIN))
 )
 
 LeadingPtR9IdPhotons = LeadingPtCaloIdIsoPhotons.clone(
     src = cms.InputTag("hltDiPhotonR9IdObjectProducer"),
-    cut = cms.string('pt > '+str(PHOTON_R9ID_ET_HIGH_CUT_MIN))
+    cut = cms.string('obj.pt() > '+str(PHOTON_R9ID_ET_HIGH_CUT_MIN))
 )
 
 R9IdPhotonPairs = CaloIdIsoPhotonPairs.clone( 
     decay = cms.string("LeadingPtR9IdPhotons TrailingPtR9IdPhotons"), # charge coniugate states are implied
-    cut   = cms.string("mass > " + str(MASS_DIPHOTON_R9ID_CUT_MIN))
+    cut   = cms.string("obj.mass() > " + str(MASS_DIPHOTON_R9ID_CUT_MIN))
 )
 
 R9IdPhotonPairsCounter = CaloIdIsoPhotonPairsCounter.clone(
@@ -106,17 +106,17 @@ hltDiPhotonMixedCaloR9IdObjectProducer = hltDiPhotonCaloIdIsoObjectProducer.clon
 
 TrailingPtMixedCaloR9IdPhotons = TrailingPtCaloIdIsoPhotons.clone(
    src = cms.InputTag("hltDiPhotonMixedCaloR9IdObjectProducer"),
-   cut = cms.string('pt > '+str(PHOTON_R9ID_ET_LOW_CUT_MIN))
+   cut = cms.string('obj.pt() > '+str(PHOTON_R9ID_ET_LOW_CUT_MIN))
 )
 
 LeadingPtMixedCaloR9IdPhotons = LeadingPtCaloIdIsoPhotons.clone(
     src = cms.InputTag("hltDiPhotonMixedCaloR9IdObjectProducer"),
-    cut = cms.string('pt > '+str(PHOTON_CALOIDISO_ET_HIGH_CUT_MIN))
+    cut = cms.string('obj.pt() > '+str(PHOTON_CALOIDISO_ET_HIGH_CUT_MIN))
 )
 
 MixedCaloR9IdPhotonPairs = CaloIdIsoPhotonPairs.clone( 
     decay = cms.string("LeadingPtMixedCaloR9IdPhotons TrailingPtMixedCaloR9IdPhotons"), # charge coniugate states are implied
-    cut   = cms.string("mass > " + str(MASS_DIPHOTON_MIXEDID_CUT_MIN))
+    cut   = cms.string("obj.mass() > " + str(MASS_DIPHOTON_MIXEDID_CUT_MIN))
 )
 
 MixedCaloR9IdPhotonPairsCounter = CaloIdIsoPhotonPairsCounter.clone(
@@ -136,17 +136,17 @@ hltDiPhotonMixedR9CaloIdObjectProducer = hltDiPhotonCaloIdIsoObjectProducer.clon
 
 TrailingPtMixedR9CaloIdPhotons = TrailingPtCaloIdIsoPhotons.clone(
     src = cms.InputTag("hltDiPhotonMixedR9CaloIdObjectProducer"),
-    cut = cms.string('pt > '+str(PHOTON_CALOIDISO_ET_LOW_CUT_MIN))
+    cut = cms.string('obj.pt() > '+str(PHOTON_CALOIDISO_ET_LOW_CUT_MIN))
 )
 
 LeadingPtMixedR9CaloIdPhotons = LeadingPtCaloIdIsoPhotons.clone(
     src = cms.InputTag("hltDiPhotonMixedR9CaloIdObjectProducer"),
-    cut = cms.string('pt > '+str(PHOTON_R9ID_ET_HIGH_CUT_MIN))
+    cut = cms.string('obj.pt() > '+str(PHOTON_R9ID_ET_HIGH_CUT_MIN))
 )
 
 MixedR9CaloIdPhotonPairs = CaloIdIsoPhotonPairs.clone( 
     decay = cms.string("LeadingPtMixedR9CaloIdPhotons TrailingPtMixedR9CaloIdPhotons"), # charge coniugate states are implied
-    cut   = cms.string("mass > " + str(MASS_DIPHOTON_MIXEDID_CUT_MIN))
+    cut   = cms.string("obj.mass() > " + str(MASS_DIPHOTON_MIXEDID_CUT_MIN))
 )
 
 MixedR9CaloIdPhotonPairsCounter = CaloIdIsoPhotonPairsCounter.clone(

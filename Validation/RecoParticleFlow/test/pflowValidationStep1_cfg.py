@@ -45,8 +45,8 @@ process.pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
 process.gensource = cms.EDProducer("GenParticlePruner",
               src = cms.InputTag("genParticles"),
               select = cms.vstring('drop *',
-                     'keep pdgId = 11',
-                     'keep pdgId = -11')
+                     'keep obj.pdgId() == 11',
+                     'keep obj.pdgId() = -11')
 )
 process.pfNoPileUp = cms.EDProducer("TPPileUpPFCandidatesOnPFCandidates",
                                         bottomCollection = cms.InputTag("particleFlow"),

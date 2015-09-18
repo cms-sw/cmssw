@@ -69,10 +69,10 @@ def miniAOD_customizeCommon(process):
     process.phPFIsoDepositGammaPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.phPFIsoDepositPUPAT.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     #
-    process.selectedPatJets.cut = cms.string("pt > 10")
-    process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))")
+    process.selectedPatJets.cut = cms.string("obj.pt() > 10")
+    process.selectedPatMuons.cut = cms.string('obj.pt() > 5 || obj.isPFMuon() || (obj.pt() > 3 && (obj.isGlobalMuon() || obj.isStandAloneMuon() || obj.numberOfMatches() > 0 || obj.muonID("RPCMuLoose")))')
     process.selectedPatElectrons.cut = cms.string("")
-    process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFindingNewDMs')> 0.5")
+    process.selectedPatTaus.cut = cms.string('obj.pt() > 18. && obj.tauID("decayModeFindingNewDMs")> 0.5')
     process.selectedPatPhotons.cut = cms.string("")
 
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
@@ -103,7 +103,7 @@ def miniAOD_customizeCommon(process):
     #noHF pfMET =========
     process.noHFCands = cms.EDFilter("GenericPFCandidateSelector",
                                      src=cms.InputTag("particleFlow"),
-                                     cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
+                                     cut=cms.string("std::abs(obj.pdgId())!=1 && std::abs(obj.pdgId())!=2 && std::abs(obj.eta())<3.0")
                                      )
     runMetCorAndUncForMiniAODProduction(process,
                                         pfCandColl=cms.InputTag("noHFCands"),
@@ -236,7 +236,7 @@ def miniAOD_customizeCommon(process):
     process.patJetsPuppi.userData.userFloats.src = cms.VInputTag(cms.InputTag(""))
     process.patJetsPuppi.jetChargeSource = cms.InputTag("patJetPuppiCharge")
 
-    process.selectedPatJetsPuppi.cut = cms.string("pt > 20")
+    process.selectedPatJetsPuppi.cut = cms.string("obj.pt() > 20")
 
     process.load('PhysicsTools.PatAlgos.slimming.slimmedJets_cfi')
     process.slimmedJetsPuppi = process.slimmedJets.clone()

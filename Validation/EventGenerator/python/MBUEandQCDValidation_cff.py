@@ -7,7 +7,7 @@ from RecoJets.Configuration.RecoGenJets_cff import *
 chargedParticles = cms.EDFilter("GenParticleSelector",
     filter = cms.bool(False),
     src    = cms.InputTag("genParticles"),
-    cut    = cms.string('charge != 0 & pt > 0.05 & status = 1 & eta < 2.5 & eta > -2.5')
+    cut    = cms.string('obj.charge() != 0 && obj.pt() > 0.05 && obj.status() == 1 && std::abs(obj.eta()) < 2.5')
 )
 
 chargedak4GenJets = ak4GenJets.clone( src = cms.InputTag("chargedParticles") )

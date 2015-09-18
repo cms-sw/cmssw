@@ -5,8 +5,8 @@ from DQM.TrackingMonitor.BXlumiParameters_cfi import BXlumiSetup
 TrackMon = cms.EDAnalyzer("TrackingMonitor",
     
     # input tags
-    numCut           = cms.string(" pt >= 1 & quality('highPurity') "),
-    denCut           = cms.string(" pt >= 1 "),
+    numCut           = cms.string(" obj.pt() >= 1 && obj.quality(reco::TrackBase::highPurity) "),
+    denCut           = cms.string(" obj.pt() >= 1 "),
     allTrackProducer = cms.InputTag("generalTracks"),
     TrackProducer    = cms.InputTag("generalTracks"),
     SeedProducer     = cms.InputTag("initialStepSeeds"),

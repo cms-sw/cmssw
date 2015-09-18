@@ -14,8 +14,8 @@ selectMuons = cms.EDProducer(
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop  *  ", # this is the default
-    "keep++ pdgId = 13",
-    "keep++ pdgId = -13",
+    "keep++ obj.pdgId() == 13",
+    "keep++ obj.pdgId() == -13",
     )
 )
 

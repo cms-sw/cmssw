@@ -1,4 +1,12 @@
 <use   name="DataFormats/Candidate"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/TauReco"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="DPGAnalysis/SiStripTools"/>
+<use   name="clhep"/>
 <export>
   <lib   name="1"/>
 </export>

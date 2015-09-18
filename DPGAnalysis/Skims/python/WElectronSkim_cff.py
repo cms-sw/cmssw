@@ -15,7 +15,7 @@ ELECTRON_ET_CUT_MIN = 10.0
 TAG_ELECTRON_ET_CUT_MIN = 20.0
 W_ELECTRON_ET_CUT_MIN = 27.0
 ELECTRON_COLL = "gedGsfElectrons"
-ELECTRON_CUTS = "(abs(superCluster.eta)<2.5) && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
+ELECTRON_CUTS = "(std::abs(obj.superCluster()->eta())<2.5) && (obj.ecalEnergy()*std::sin(obj.superClusterPosition().theta())>" + str(ELECTRON_ET_CUT_MIN) + ")"
 
 #met, mt cuts for W selection
 MET_CUT_MIN = 20.
@@ -49,21 +49,21 @@ GsfMatchedPhotonCands = cms.EDProducer("ElectronMatchedCandidateProducer",
 PassingWP90 = goodElectrons.clone(
 cut = cms.string(
     goodElectrons.cut.value() +
-    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')<=1 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits 
-    " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
-    " && ((isEB"
-    " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
-    " && (sigmaIetaIeta<0.01)"
-    " && ( -0.8<deltaPhiSuperClusterTrackAtVtx<0.8 )"
-    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
-    " && (hadronicOverEm<0.12)"
+    " && (obj.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)<=1 && !(std::abs(obj.convDist()) < 0.02 && std::abs(obj.convDcot())<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits 
+    " && (obj.ecalEnergy()*std::sin(obj.superClusterPosition().theta())>" + str(ELECTRON_ET_CUT_MIN) + ")"
+    " && ((obj.isEB()"
+    " && ( obj.dr03TkSumPt()/obj.p4().Pt() <0.12 && obj.dr03EcalRecHitSumEt()/obj.p4().Pt() < 0.09 && obj.dr03HcalTowerSumEt()/obj.p4().Pt()  < 0.1 )"
+    " && (obj.sigmaIetaIeta()<0.01)"
+    " && ( std::abs(obj.deltaPhiSuperClusterTrackAtVtx())<0.8 )"
+    " && ( std::abs(obj.deltaEtaSuperClusterTrackAtVtx())<0.007 )"
+    " && (obj.hadronicOverEm()<0.12)"
     ")"
-    " || (isEE"
-    " && ( dr03TkSumPt/p4.Pt <0.07 && dr03EcalRecHitSumEt/p4.Pt < 0.07 && dr03HcalTowerSumEt/p4.Pt  < 0.07 )"
-    " && (sigmaIetaIeta<0.03)"
-    " && ( -0.7<deltaPhiSuperClusterTrackAtVtx<0.7 )" 
-    " && ( -0.009<deltaEtaSuperClusterTrackAtVtx<0.009 )"
-    " && (hadronicOverEm<0.1) "
+    " || (obj.isEE()"
+    " && ( obj.dr03TkSumPt()/obj.p4().Pt() <0.07 && obj.dr03EcalRecHitSumEt()/obj.p4().P()t < 0.07 && obj.dr03HcalTowerSumEt()/obj.p4().Pt()  < 0.07 )"
+    " && (obj.sigmaIetaIeta()<0.03)"
+    " && ( std::abs(obj.deltaPhiSuperClusterTrackAtVtx())<0.7 )" 
+    " && ( std::abs(obj.deltaEtaSuperClusterTrackAtVtx())<0.009 )"
+    " && (obj.hadronicOverEm()<0.1) "
     "))"
     )
 )
@@ -71,21 +71,21 @@ cut = cms.string(
 PassingWP80 = goodElectrons.clone(
 cut = cms.string(
     goodElectrons.cut.value() +
-    " && (gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\')==0 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" 
-    " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
-    " && ((isEB"
-    " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )" #wrt std WP80 relaxing iso cuts to WP90 
-    " && (sigmaIetaIeta<0.01)"
-    " && ( -0.06<deltaPhiSuperClusterTrackAtVtx<0.06 )"
-    " && ( -0.004<deltaEtaSuperClusterTrackAtVtx<0.004 )"
-    " && (hadronicOverEm<0.12)"
+    " && (obj.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS)==0 && !(std::abs(obj.convDist())<0.02 && std::abs(obj.convDcot())<0.02))" 
+    " && (obj.ecalEnergy()*std::sin(obj.superClusterPosition().theta())>" + str(ELECTRON_ET_CUT_MIN) + ")"
+    " && ((obj.isEB()"
+    " && ( obj.dr03TkSumPt()/obj.p4().Pt() <0.12 && obj.dr03EcalRecHitSumEt()/obj.p4().Pt() < 0.09 && obj.dr03HcalTowerSumEt()/obj.p4().Pt()  < 0.1 )" #wrt std WP80 relaxing iso cuts to WP90 
+    " && (obj.sigmaIetaIeta()<0.01)"
+    " && ( std::abs(obj.deltaPhiSuperClusterTrackAtVtx())<0.06 )"
+    " && ( std::abs(obj.deltaEtaSuperClusterTrackAtVtx())<0.004 )"
+    " && (obj.hadronicOverEm()<0.12)"
     ")"
-    " || (isEE"
-    " && ( dr03TkSumPt/p4.Pt <0.05 && dr03EcalRecHitSumEt/p4.Pt < 0.06 && dr03HcalTowerSumEt/p4.Pt  < 0.03 )"
-    " && (sigmaIetaIeta<0.03)"
-    " && ( -0.03<deltaPhiSuperClusterTrackAtVtx<0.03 )" 
-    " && ( -0.007<deltaEtaSuperClusterTrackAtVtx<0.007 )"
-    " && (hadronicOverEm<0.10) "
+    " || (obj.isEE()"
+    " && ( obj.dr03TkSumPt()/obj.p4().Pt() <0.05 && obj.dr03EcalRecHitSumEt()/obj.p4().Pt() < 0.06 && obj.dr03HcalTowerSumEt()/obj.p4().Pt()  < 0.03 )"
+    " && (obj.sigmaIetaIeta()<0.03)"
+    " && ( std::abs(obj.deltaPhiSuperClusterTrackAtVtx())<0.03 )" 
+    " && ( std::abs(obj.deltaEtaSuperClusterTrackAtVtx())<0.007 )"
+    " && (obj.hadronicOverEm()<0.10) "
     "))"
     )
 ) 
@@ -132,11 +132,11 @@ ele_sequence = cms.Sequence(
 ##                                              
 ##   
 
-MT="sqrt(2*daughter(0).pt*daughter(1).pt*(1 - cos(daughter(0).phi - daughter(1).phi)))"
+MT="sqrt(2*obj.daughter(0)->pt()*obj.daughter(1)->pt()*(1 - std::cos(obj.daughter(0)->phi() - obj.daughter(1)->phi())))"
 elecMet = cms.EDProducer("CandViewShallowCloneCombiner",
     decay = cms.string("pfMet WElecTagHLT"), # charge coniugate states are implied
     checkCharge = cms.bool(False),                           
-    cut   = cms.string(("daughter(0).pt > %f && daughter(1).pt > %f && "+MT+" > %f") % (MET_CUT_MIN, W_ELECTRON_ET_CUT_MIN, MT_CUT_MIN))
+    cut   = cms.string(("obj.daughter(0)->pt() > %f && obj.daughter(1)->pt() > %f && "+MT+" > %f") % (MET_CUT_MIN, W_ELECTRON_ET_CUT_MIN, MT_CUT_MIN))
 )
 elecMetCounter = cms.EDFilter("CandViewCountFilter",
                                     src = cms.InputTag("elecMet"),

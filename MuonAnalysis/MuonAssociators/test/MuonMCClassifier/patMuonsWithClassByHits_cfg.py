@@ -27,7 +27,7 @@ process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
 process.oneGoodVertexFilter = cms.EDFilter("VertexSelector",
    src = cms.InputTag("offlinePrimaryVertices"),
-   cut = cms.string("!isFake && ndof >= 4 && abs(z) <= 15 && position.Rho <= 2"),
+   cut = cms.string("!obj.isFake() && obj.ndof() >= 4 && std::abs(obj.z()) <= 15 && obj.position().Rho() <= 2"),
    filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
 )
 process.noScraping = cms.EDFilter("FilterOutScraping",
@@ -42,15 +42,15 @@ process.preFilter = cms.Sequence(process.oneGoodVertexFilter * process.noScrapin
 process.mergedTruth = cms.EDProducer("GenPlusSimParticleProducer",
         src           = cms.InputTag("g4SimHits"), # use "famosSimHits" for FAMOS
         setStatus     = cms.int32(5),             # set status = 5 for GEANT GPs
-        filter        = cms.vstring("pt > 0.0"),  # just for testing (optional)
+        filter        = cms.vstring("obj.pt() > 0.0"),  # just for testing (optional)
         genParticles   = cms.InputTag("genParticles") # original genParticle list
 )
 process.genMuons = cms.EDProducer("GenParticlePruner",
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
         "drop  *  ",                     # this is the default
-        "++keep abs(pdgId) = 13",        # keep muons and their parents
-        "drop pdgId == 21 && status = 2" # remove intermediate qcd spam carrying no flavour info
+        "++keep std::abs(obj.pdgId()) == 13",        # keep muons and their parents
+        "drop obj.pdgId() == 21 && obj.status() == 2" # remove intermediate qcd spam carrying no flavour info
     )
 )
 process.load("PhysicsTools.PatAlgos.mcMatchLayer0.muonMatch_cfi")

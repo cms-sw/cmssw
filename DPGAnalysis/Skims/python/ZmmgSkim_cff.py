@@ -43,18 +43,18 @@ ZmmgHLTFilter.HLTPaths = ['HLT_Mu*','HLT_IsoMu*','HLT_DoubleMu*']
 ### Get muons of needed quality for Z -> mumugamma 
 ZmmgTrailingMuons = cms.EDFilter('MuonSelector',
     src = cms.InputTag('muons'),
-    cut = cms.string('''pt > 10 && 
-                        abs(eta) < 2.4 && 
-                        isGlobalMuon = 1 && 
-                        isTrackerMuon = 1 && 
-                        abs(innerTrack().dxy)<2.0'''),
+    cut = cms.string('''obj.pt() > 10 && 
+                        std::abs(obj.eta()) < 2.4 && 
+                        obj.isGlobalMuon() == 1 && 
+                        obj.isTrackerMuon() == 1 && 
+                        std::abs(obj.innerTrack()->dxy())<2.0'''),
     filter = cms.bool(True)                                
     )
 
 ### Require a harder pt cut on the leading leg
 ZmmgLeadingMuons = cms.EDFilter('MuonSelector',
     src = cms.InputTag('ZmmgTrailingMuons'),
-    cut = cms.string('pt > 20'),
+    cut = cms.string('obj.pt() > 20'),
     filter = cms.bool(True)                                
     )
 
@@ -62,7 +62,7 @@ ZmmgLeadingMuons = cms.EDFilter('MuonSelector',
 ZmmgDimuons = cms.EDProducer('CandViewShallowCloneCombiner',
     decay = cms.string('ZmmgLeadingMuons@+ ZmmgTrailingMuons@-'),
     checkCharge = cms.bool(True),
-    cut = cms.string('mass > 30'),
+    cut = cms.string('obj.mass() > 30'),
     )
 
 ### Require at least one dimuon candidate
@@ -102,7 +102,7 @@ ZmmgPhotonCandidates = cms.EDProducer('ConcreteEcalCandidateProducer',
 ### Select photon candidates with Et > 5 GeV
 ZmmgPhotons = cms.EDFilter('CandViewSelector',
     src = cms.InputTag('ZmmgPhotonCandidates'),
-    cut = cms.string('et > 5'),
+    cut = cms.string('obj.et() > 5'),
     filter = cms.bool(True)
     )
 
@@ -132,17 +132,17 @@ ZmmgCandidates = cms.EDProducer('CandViewShallowCloneCombiner',
     decay = cms.string('ZmmgDimuons ZmmgPhotons'),
     checkCharge = cms.bool(False),
     cut = cms.string('''
-        daughter(0).daughter(1).pt + daughter(1).pt > 20 &
-        min(deltaR(daughter(0).daughter(0).eta,
-                   daughter(0).daughter(0).phi,
-                   daughter(1).eta,
-                   daughter(1).phi),
-            deltaR(daughter(0).daughter(1).eta,
-                   daughter(0).daughter(1).phi,
-                   daughter(1).eta,
-                   daughter(1).phi)) < 1.5 &
-        mass + daughter(0).mass < 200 &
-        mass > 40
+        obj.daughter(0)->daughter(1)->pt() + obj.daughter(1)->pt() > 20 &&
+        std::min(reco::deltaR(obj.daughter(0)->daughter(0)->eta(),
+                              obj.daughter(0)->daughter(0)->phi(),
+                              obj.daughter(1)->eta(),
+                              obj.daughter(1)->phi()),
+                 reco::deltaR(obj.daughter(0)->daughter(1)->eta,
+                              obj.daughter(0)->daughter(1)->phi,
+                              obj.daughter(1)->eta(),
+                              obj.daughter(1)->phi())) < 1.5 &&
+        obj.mass() + obj.daughter(0)->mass() < 200 &&
+        obj.mass() > 40
         '''),
     )
     

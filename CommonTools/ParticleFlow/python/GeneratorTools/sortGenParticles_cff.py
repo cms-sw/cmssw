@@ -6,8 +6,8 @@ decaysFromZs = cms.EDProducer(
     src = cms.InputTag("genParticles"),
     select = cms.vstring(
     "drop *  ", # this is the default
-    "keep+ pdgId = {Z0}",
-    "drop pdgId = {Z0}"
+    "keep+ obj.pdgId() == {Z0}",
+    "drop  obj.pdgId() == {Z0}"
     )
 )
 

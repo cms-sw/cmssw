@@ -8,7 +8,7 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 MuPrimaryVertexFilter = cms.EDFilter(
     "VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
-    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+    cut = cms.string("!obj.isFake() && obj.ndof() > 4 && std::abs(obj.z()) <= 24 && obj.position().Rho() <= 2"),
     filter = cms.bool(False)
     )
 
@@ -20,14 +20,14 @@ MuBestPV = cms.EDProducer(
 selectedMuons = cms.EDFilter(
     "MuonSelector",
     src = cms.InputTag('muons'),
-    cut = cms.string("pt > 20.0 && abs(eta) < 2.1 && isGlobalMuon = 1 && isTrackerMuon = 1"),
+    cut = cms.string("obj.pt() > 20.0 && std::abs(obj.eta()) < 2.1 && obj.isGlobalMuon() == 1 && obj.isTrackerMuon() == 1"),
     filter = cms.bool(False)
 	)
 
 selectedMuonsIso = cms.EDFilter(
     "MuonSelector",
     src = cms.InputTag('selectedMuons'),
-    cut = cms.string('(isolationR03().emEt + isolationR03().hadEt + isolationR03().sumPt)/pt < 0.15'),
+    cut = cms.string('(obj.isolationR03().emEt + obj.isolationR03().hadEt + obj.isolationR03().sumPt)/obj.pt() < 0.15'),
     filter = cms.bool(False)
 	)    
 
@@ -43,7 +43,7 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 
 MuGoodTracks = cms.EDFilter("TrackSelector",
     src = cms.InputTag("generalTracks"), 
-    cut = cms.string("pt > 5 && abs(eta) < 2.5"),
+    cut = cms.string("obj.pt() > 5 && std::abs(obj.eta()) < 2.5"),
     filter = cms.bool(False)
 	)
 
@@ -71,7 +71,7 @@ MuTrackCands  = cms.EDProducer(
 ZmmCandMuonTrack = cms.EDProducer(
     "CandViewShallowCloneCombiner",
     decay = cms.string("MuonsFromPV@+ MuTrackCands@-"), # it takes opposite sign collection, no matter if +- or -+
-    cut   = cms.string("80 < mass < 100")
+    cut   = cms.string("80 < obj.mass() && obj.mass() < 100")
 	)
 
 BestZmm = cms.EDProducer("BestMassZArbitrationProducer", # returns the Z with mass closer to 91.18 GeV

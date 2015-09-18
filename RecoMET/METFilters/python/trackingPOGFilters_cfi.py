@@ -54,7 +54,7 @@ manystripclus53X = cms.EDFilter('ByClusterSummaryMultiplicityPairEventFilter',
                                                      varEnum = cms.int32(0)
                                                      ),
                                                      ),
-                                                     cut = cms.string("( mult2 > 20000+7*mult1)")
+                                                     cut = cms.string("( obj.mult2() > 20000+7*obj.mult1())")
                                                      )
 
 
@@ -71,7 +71,7 @@ toomanystripclus53X = cms.EDFilter('ByClusterSummaryMultiplicityPairEventFilter'
                                                         varEnum = cms.int32(0)
                                                         ),
                                                         ),
-                                                        cut = cms.string("(mult2>50000) && ( mult2 > 20000+7*mult1)")
+                                                        cut = cms.string("(obj.mult2()>50000) && ( obj.mult2() > 20000+7*obj.mult1())")
                                                         )
 
 

@@ -4,7 +4,7 @@ from RecoEgamma.ElectronIdentification.electronIdMVABased_cfi import *
 
 electronsWithPresel = cms.EDFilter("GsfElectronSelector",
                                    src = cms.InputTag("ecalDrivenGsfElectrons"),
-                                   cut = cms.string("pt > 5 && ecalDrivenSeed && passingCutBasedPreselection"),
+                                   cut = cms.string("obj.pt() > 5 && obj.ecalDrivenSeed() && obj.passingCutBasedPreselection()"),
                                    )
 
 mvaElectrons = cms.EDFilter("ElectronIdMVABased",

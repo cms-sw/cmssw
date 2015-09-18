@@ -30,7 +30,7 @@ goodVertices = cms.EDFilter(
   "VertexSelector",
   filter = cms.bool(True),
   src = cms.InputTag("offlinePrimaryVertices"),
-  cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
+  cut = cms.string("!obj.isFake() && obj.ndof() > 4 && std::abs(obj.z()) <= 24 && obj.position().rho() < 2")
 )
 
 ## The tracking failure filter _______________________________________________||

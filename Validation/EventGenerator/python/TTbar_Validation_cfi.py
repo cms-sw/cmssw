@@ -31,14 +31,14 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 genParticlesShortList = cms.EDProducer("GenParticlePruner",
                                        src = cms.InputTag("genParticles",""),
                                        select = cms.vstring("drop  *  ",
-                                                            "keep pdgId = {mu+}      & status = 1",
-                                                            "keep pdgId = {mu-}      & status = 1",
-                                                            "keep pdgId = {e+}       & status = 1",
-                                                            "keep pdgId = {e-}       & status = 1",
-                                                            "keep pdgId = {nu_e}     & status = 1",
-                                                            "keep pdgId = {nu_ebar}  & status = 1",
-                                                            "keep pdgId = {nu_mu}    & status = 1",
-                                                            "keep pdgId = {nu_mubar} & status = 1"
+                                                            "keep obj.pdgId() == {mu+}      && obj.status() == 1",
+                                                            "keep obj.pdgId() == {mu-}      && obj.status() == 1",
+                                                            "keep obj.pdgId() == {e+}       && obj.status() == 1",
+                                                            "keep obj.pdgId() == {e-}       && obj.status() == 1",
+                                                            "keep obj.pdgId() == {nu_e}     && obj.status() == 1",
+                                                            "keep obj.pdgId() == {nu_ebar}  && obj.status() == 1",
+                                                            "keep obj.pdgId() == {nu_mu}    && obj.status() == 1",
+                                                            "keep obj.pdgId() == {nu_mubar} && obj.status() == 1"
                                                             )
                                        )
 
@@ -46,8 +46,8 @@ genParticlesShortList = cms.EDProducer("GenParticlePruner",
 genParticlesMuons     = cms.EDProducer("GenParticlePruner",
                                        src = cms.InputTag("genParticlesShortList"),
                                        select = cms.vstring("drop  *  ",
-                                                            "keep pdgId = {mu+} & status = 1 & pt > 30 & abs(eta) < 2.5",
-                                                            "keep pdgId = {mu-} & status = 1 & pt > 30 & abs(eta) < 2.5"
+                                                            "keep obj.pdgId() == {mu+} && obj.status() == 1 && obj.pt() > 30 && std::abs(obj.eta()) < 2.5",
+                                                            "keep obj.pdgId() == {mu-} && obj.status() == 1 && obj.pt() > 30 && std::abs(obj.eta()) < 2.5"
                                                             )
                                        )
 
@@ -55,8 +55,8 @@ genParticlesMuons     = cms.EDProducer("GenParticlePruner",
 genParticlesElectrons = cms.EDProducer("GenParticlePruner",
                                        src = cms.InputTag("genParticlesShortList"),
                                        select = cms.vstring("drop  *  ",
-                                                            "keep pdgId = {e+} & status = 1 & pt > 30 & abs(eta) < 2.5",
-                                                            "keep pdgId = {e-} & status = 1 & pt > 30 & abs(eta) < 2.5"
+                                                            "keep obj.pdgId() == {e+} && obj.status() == 1 && obj.pt() > 30 && std::abs(obj.eta()) < 2.5",
+                                                            "keep obj.pdgId() == {e-} && obj.status() == 1 && obj.pt() > 30 && std::abs(obj.eta()) < 2.5"
                                                             )
                                        )
 
@@ -64,10 +64,10 @@ genParticlesElectrons = cms.EDProducer("GenParticlePruner",
 genParticlesNeutrinos = cms.EDProducer("GenParticlePruner",
                                        src = cms.InputTag("genParticlesShortList"),
                                        select = cms.vstring("drop  *  ",
-                                                            "keep pdgId = {nu_e}     & status = 1",
-                                                            "keep pdgId = {nu_ebar}  & status = 1",
-                                                            "keep pdgId = {nu_mu}    & status = 1",
-                                                            "keep pdgId = {nu_mubar} & status = 1"
+                                                            "keep obj.pdgId() == {nu_e}     && obj.status() == 1",
+                                                            "keep obj.pdgId() == {nu_ebar}  && obj.status() == 1",
+                                                            "keep obj.pdgId() == {nu_mu}    && obj.status() == 1",
+                                                            "keep obj.pdgId() == {nu_mubar} && obj.status() == 1"
                                                             )
                                        )
 

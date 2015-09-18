@@ -31,7 +31,7 @@ PFOverCaloRatioCut = 2 #cut on PF MET / Calo MET
 pvFilter = cms.EDFilter(
     "VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
-    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+    cut = cms.string("!obj.isFake() && obj.ndof() > 4 && std::abs(obj.z()) <= 24 && obj.position().Rho() <= 2"),
     filter = cms.bool(True),   # otherwise it won't filter the events, just produce an empty vertex collection.
 )
 
@@ -46,7 +46,7 @@ from RecoMET.METFilters.CSCTightHaloFilter_cfi import *
 singleMuonSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string( "isGlobalMuon() & pt() > "+str(singleMuonCut) )
+    cut = cms.string( "obj.isGlobalMuon() && obj.pt() > "+str(singleMuonCut) )
 )
 singleMuonFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -59,7 +59,7 @@ seqHotlineSkimSingleMuon = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHENois
 doubleMuonSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string( "pt() > "+str(doubleMuonCut) )
+    cut = cms.string( "obj.pt() > "+str(doubleMuonCut) )
 )
 doubleMuonFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -72,7 +72,7 @@ seqHotlineSkimDoubleMuon = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHENois
 tripleMuonSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("muons"),
-    cut = cms.string( "pt() > "+str(tripleMuonCut) )
+    cut = cms.string( "obj.pt() > "+str(tripleMuonCut) )
 )
 tripleMuonFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -85,7 +85,7 @@ seqHotlineSkimTripleMuon = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHENois
 singleElectronSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("gedGsfElectrons"),
-    cut = cms.string( "pt() > "+str(singleElectronCut) )
+    cut = cms.string( "obj.pt() > "+str(singleElectronCut) )
 )
 singleElectronFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -98,7 +98,7 @@ seqHotlineSkimSingleElectron = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHE
 doubleElectronSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("gedGsfElectrons"),
-    cut = cms.string( "pt() > "+str(doubleElectronCut) )
+    cut = cms.string( "obj.pt() > "+str(doubleElectronCut) )
 )
 doubleElectronFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -111,7 +111,7 @@ seqHotlineSkimDoubleElectron = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHE
 tripleElectronSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("gedGsfElectrons"),
-    cut = cms.string( "pt() > "+str(tripleElectronCut) )
+    cut = cms.string( "obj.pt() > "+str(tripleElectronCut) )
 )
 tripleElectronFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -124,7 +124,7 @@ seqHotlineSkimTripleElectron = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHE
 singlePhotonSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("gedPhotons"),
-    cut = cms.string( "pt() > "+str(singlePhotonCut) )
+    cut = cms.string( "obj.pt() > "+str(singlePhotonCut) )
 )
 singlePhotonFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -137,7 +137,7 @@ seqHotlineSkimSinglePhoton = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHENo
 doublePhotonSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("gedPhotons"),
-    cut = cms.string( "pt() > "+str(doublePhotonCut) )
+    cut = cms.string( "obj.pt() > "+str(doublePhotonCut) )
 )
 doublePhotonFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -150,7 +150,7 @@ seqHotlineSkimDoublePhoton = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHENo
 triplePhotonSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("gedPhotons"),
-    cut = cms.string( "pt() > "+str(triplePhotonCut) )
+    cut = cms.string( "obj.pt() > "+str(triplePhotonCut) )
 )
 triplePhotonFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -163,7 +163,7 @@ seqHotlineSkimTriplePhoton = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHENo
 singleJetSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("ak4PFJets"),
-    cut = cms.string( "pt() > "+str(singleJetCut) )
+    cut = cms.string( "obj.pt() > "+str(singleJetCut) )
 )
 singleJetFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -176,7 +176,7 @@ seqHotlineSkimSingleJet = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHENoise
 doubleJetSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("ak4PFJets"),
-    cut = cms.string( "pt() > "+str(doubleJetCut) )
+    cut = cms.string( "obj.pt() > "+str(doubleJetCut) )
 )
 doubleJetFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -189,7 +189,7 @@ seqHotlineSkimDoubleJet = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHENoise
 multiJetSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("ak4PFJets"),
-    cut = cms.string( "pt() > "+str(multiJetCut) )
+    cut = cms.string( "obj.pt() > "+str(multiJetCut) )
 )
 multiJetFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -214,7 +214,7 @@ htMht = cms.EDProducer( "HLTHtMhtProducer",
 htSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("htMht"),
-    cut = cms.string( "sumEt() > "+str(htCut) )
+    cut = cms.string( "obj.sumEt() > "+str(htCut) )
 )
 htFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -228,19 +228,19 @@ dimuons = cms.EDProducer(
     "CandViewShallowCloneCombiner",
     decay = cms.string("muons muons"),
     checkCharge = cms.bool(False),
-    cut = cms.string("daughter(0).pt>150 & daughter(1).pt>150 & mass > "+str(dimuonMassCut)),
+    cut = cms.string("obj.daughter(0)->pt()>150 && obj.daughter(1)->pt()>150 && obj.mass() > "+str(dimuonMassCut)),
 )
 dielectrons = cms.EDProducer(
     "CandViewShallowCloneCombiner",
     decay = cms.string("gedGsfElectrons gedGsfElectrons"),
     checkCharge = cms.bool(False),
-    cut = cms.string("daughter(0).pt>150 & daughter(1).pt>150 & mass > "+str(dielectronMassCut)),
+    cut = cms.string("obj.daughter(0)->pt()>150 && obj.daughter(1)->pt()>150 && obj.mass() > "+str(dielectronMassCut)),
 )
 diEMu = cms.EDProducer(
     "CandViewShallowCloneCombiner",
     decay = cms.string("muons gedGsfElectrons"),
     checkCharge = cms.bool(False),
-    cut = cms.string("daughter(0).pt>150 & daughter(1).pt>150 & mass > "+str(diEMuMassCut)),
+    cut = cms.string("obj.daughter(0)->pt()>150 && obj.daughter(1)->pt()>150 && obj.mass() > "+str(diEMuMassCut)),
 )
 dimuonMassFilter = cms.EDFilter(
     "CandViewCountFilter",
@@ -266,7 +266,7 @@ seqHotlineSkimMassiveEMu = cms.Sequence(pvFilter * CSCTightHaloFilter * HBHENois
 pfMETSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("pfMet"),
-    cut = cms.string( "pt()>"+str(pfMetCut) )
+    cut = cms.string( "obj.pt()>"+str(pfMetCut) )
 )
 
 pfMETCounter = cms.EDFilter(
@@ -288,7 +288,7 @@ seqHotlineSkimPFMET = cms.Sequence(
 caloMETSelector = cms.EDFilter(
     "CandViewSelector",
     src = cms.InputTag("caloMetM"),
-    cut = cms.string( "pt()>"+str(caloMetCut) )
+    cut = cms.string( "obj.pt()>"+str(caloMetCut) )
 )
 
 caloMETCounter = cms.EDFilter(
@@ -310,7 +310,7 @@ seqHotlineSkimCaloMET = cms.Sequence(
 CondMETSelector = cms.EDProducer(
    "CandViewShallowCloneCombiner",
    decay = cms.string("pfMet caloMetM"),
-   cut = cms.string("(daughter(0).pt/daughter(1).pt > "+str(PFOverCaloRatioCut)+" && daughter(1).pt > "+str(condCaloMetCut)+") || (daughter(1).pt/daughter(0).pt > "+str(caloOverPFRatioCut)+" && daughter(0).pt > "+str(condPFMetCut)+" )  " )
+   cut = cms.string("(obj.daughter(0)->pt()/obj.daughter(1)->pt() > "+str(PFOverCaloRatioCut)+" && obj.daughter(1)->pt() > "+str(condCaloMetCut)+") || (obj.daughter(1)->pt()/obj.daughter(0)->pt() > "+str(caloOverPFRatioCut)+" && obj.daughter(0)->pt() > "+str(condPFMetCut)+" )  " )
 )
 
 CondMETCounter = cms.EDFilter(

@@ -60,7 +60,7 @@ pvSrc = 'offlinePrimaryVertices'
 process.primaryVertexFilter = cms.EDFilter(
     "VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
-    cut = cms.string("!isFake & ndof > 4 & abs(z) <= 24 & position.Rho <= 2"),
+    cut = cms.string("!obj.isFake() & obj.ndof() > 4 & std::abs(obj.z()) <= 24 & obj.position().Rho() <= 2"),
     filter = cms.bool(True)
     )
 
@@ -85,30 +85,30 @@ process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
                                             src = cms.InputTag("genParticles"),
                                             select = cms.vstring(
                                                 "drop  *"
-                                                ,"keep status = 3" #keeps  particles from the hard matrix element
-                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
-                                                ,"keep (abs(pdgId)  = 15) & status = 3" #keeps taus
+                                                ,"keep obj.status() == 3" #keeps  particles from the hard matrix element
+                                                ,"keep (std::abs(obj.pdgId()) >= 11 && std::abs(obj.pdgId()) <= 16) && obj.status() == 1" #keeps e/mu and nus with status 1
+                                                ,"keep (std::abs(obj.pdgId())  == 15) && obj.status() = 3" #keeps taus
                                                 )
                                             )
 
 if options.usePythia8 :
     process.prunedGenParticles.select = cms.vstring(
                                                 "drop  *"
-                                                ,"keep status = 21" #keeps  particles from the hard matrix element
-                                                ,"keep status = 22" #keeps  particles from the hard matrix element
-                                                ,"keep status = 23" #keeps  particles from the hard matrix element
-                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
-                                                ,"keep (abs(pdgId)  = 15) & (status = 21 || status = 22 || status = 23) " #keeps taus
+                                                ,"keep obj.status() == 21" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() == 22" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() == 23" #keeps  particles from the hard matrix element
+                                                ,"keep (std::abs(obj.pdgId()) >= 11 && std::abs(obj.pdgId()) <= 16) & obj.status() == 1" #keeps e/mu and nus with status 1
+                                                ,"keep (std::abs(obj.pdgId())  == 15) && (obj.status() == 21 || obj.status() == 22 || obj.status() == 23) " #keeps taus
                                                 )
 if options.usePythia6andPythia8 :
     process.prunedGenParticles.select = cms.vstring(
                                                 "drop  *"
-                                                ,"keep status = 3" #keeps  particles from the hard matrix element
-                                                ,"keep status = 21" #keeps  particles from the hard matrix element
-                                                ,"keep status = 22" #keeps  particles from the hard matrix element
-                                                ,"keep status = 23" #keeps  particles from the hard matrix element
-                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
-                                                ,"keep (abs(pdgId)  = 15) & (status = 3 || status = 21 || status = 22 || status = 23)" #keeps taus
+                                                ,"keep obj.status() == 3" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() == 21" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() == 22" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() == 23" #keeps  particles from the hard matrix element
+                                                ,"keep (std::abs(obj.pdgId()) >= 11 && std::abs(obj.pdgId()) <= 16) && obj.status() = 1" #keeps e/mu and nus with status 1
+                                                ,"keep (std::abs(obj.pdgId())  = 15) && (obj.status() == 3 || obj.status() == 21 || obj.status() == 22 || obj.status() == 23)" #keeps taus
                                                 )                                      
 
 

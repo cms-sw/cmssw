@@ -22,13 +22,13 @@ patPFMet = patMETs.clone(
 
 selectedPatJetsForMetT1T2Corr = cms.EDFilter("PATJetSelector",
     src = cms.InputTag('patJets'),
-    cut = cms.string('abs(eta) < 9.9'),
+    cut = cms.string('std::abs(obj.eta()) < 9.9'),
     filter = cms.bool(False)
 )
 
 selectedPatJetsForMetT2Corr = cms.EDFilter("PATJetSelector",
     src = cms.InputTag('patJets'),
-    cut = cms.string('abs(eta) > 9.9'),
+    cut = cms.string('std::abs(obj.eta()) > 9.9'),
     filter = cms.bool(False)
 )
 #--------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ patPFMetT1T2Corr = cms.EDProducer("PATPFJetMETcorrInputProducer",
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
-    skipMuonSelection = cms.string("isGlobalMuon | isStandAloneMuon")
+    skipMuonSelection = cms.string("obj.isGlobalMuon() || obj.isStandAloneMuon()")
 )
 patPFMetT1T2CorrSequence = cms.Sequence(selectedPatJetsForMetT1T2Corr*
                                         patPFMetT1T2Corr)
@@ -124,7 +124,7 @@ patSmearedJets = cms.EDProducer("SmearedPATJetProducer",
                    #             even though jet energy got smeared by merely 1 GeV
                    #
                    skipJetSelection = cms.string(
-        'jecSetsAvailable && abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
+        'obj.jecSetsAvailable() && std::abs(obj.energy() - obj.correctedP4("Uncorrected").energy()) > (5.*std::min(obj.energy(), obj.correctedP4("Uncorrected").energy()))'
         ),
             skipRawJetPtThreshold = cms.double(10.), # GeV
             skipCorrJetPtThreshold = cms.double(1.e-2),
@@ -133,13 +133,13 @@ patSmearedJets = cms.EDProducer("SmearedPATJetProducer",
 
 selectedPatJetsForMetT1T2SmearCorr = cms.EDFilter("PATJetSelector",
     src = cms.InputTag('patSmearedJets'),
-    cut = cms.string('abs(eta) < 9.9'),
+    cut = cms.string('std::abs(obj.eta()) < 9.9'),
     filter = cms.bool(False)
 )
 
 selectedPatJetsForMetT2SmearCorr = cms.EDFilter("PATJetSelector",
     src = cms.InputTag('patSmearedJets'),
-    cut = cms.string('abs(eta) > 9.9'),
+    cut = cms.string('std::abs(obj.eta()) > 9.9'),
     filter = cms.bool(False)
 )
 

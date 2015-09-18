@@ -44,23 +44,23 @@ hltSMPValidator = cms.EDAnalyzer("HLTHiggsValidator",
     # Objects recognized: Mu Ele Photon PFTau MET
     # Syntax in the strings: valid syntax of the StringCutObjectSelector class
     # --- Muons
-    Mu_genCut     = cms.string("pt > 10 && abs(eta) < 2.4 && abs(pdgId) == 13 && status == 1"),
-    Mu_recCut     = cms.string("pt > 10 && abs(eta) < 2.4 && isGlobalMuon"),
+    Mu_genCut     = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4 && std::abs(obj.pdgId()) == 13 && obj.status() == 1"),
+    Mu_recCut     = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.4 && obj.isGlobalMuon()"),
     Mu_cutMinPt   = cms.double(10),  # TO BE DEPRECATED
     Mu_cutMaxEta  = cms.double(2.4), # TO BE DEPRECATED
     
     # --- Electrons
-    Ele_genCut      = cms.string("pt > 10 && abs(eta) < 2.5 && abs(pdgId) == 11 && status == 1"),
-    Ele_recCut      = cms.string("pt > 10 && abs(eta) < 2.5 && hadronicOverEm < 0.05 && eSuperClusterOverP > 0.5 && eSuperClusterOverP < 2.5"),
+    Ele_genCut      = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.5 && std::abs(obj.pdgId()) == 11 && obj.status() == 1"),
+    Ele_recCut      = cms.string("obj.pt() > 10 && std::abs(obj.eta()) < 2.5 && obj.hadronicOverEm() < 0.05 && obj.eSuperClusterOverP() > 0.5 && obj.eSuperClusterOverP() < 2.5"),
     Ele_cutMinPt    = cms.double(10),  # TO BE DEPRECATED
     Ele_cutMaxEta   = cms.double(2.5), # TO BE DEPRECATED
 
     # --- Photons
-    Photon_genCut     = cms.string("abs(pdgId) == 22 && status == 1"),
-    Photon_recCut     = cms.string("pt > 20 && abs(eta) < 2.4 && hadronicOverEm < 0.1 && ("+\
-		    "   abs(eta) < 1.479 && sigmaIetaIeta < 0.010  || "+\
-		    "   abs(eta) > 1.479 && sigmaIetaIeta < 0.027 ) && "+\
-		    " ecalRecHitSumEtConeDR03 < (5.0+0.012*et) && hcalTowerSumEtConeDR03 < (5.0+0.0005*et )  && trkSumPtSolidConeDR03 < (5.0 + 0.0002*et)" ),
+    Photon_genCut     = cms.string("std::abs(obj.pdgId()) == 22 && obj.status() == 1"),
+    Photon_recCut     = cms.string("obj.pt() > 20 && std::abs(obj.eta()) < 2.4 && obj.hadronicOverEm() < 0.1 && ("+\
+		    "   std::abs(obj.eta()) < 1.479 && obj.sigmaIetaIeta() < 0.010  || "+\
+		    "   std::abs(obj.eta()) > 1.479 && obj.sigmaIetaIeta() < 0.027 ) && "+\
+		    " obj.ecalRecHitSumEtConeDR03() < (5.0+0.012*obj.et()) && obj.hcalTowerSumEtConeDR03() < (5.0+0.0005*obj.et() )  && obj.trkSumPtSolidConeDR03() < (5.0 + 0.0002*obj.et())" ),
     Photon_cutMinPt   = cms.double(20), # TO BE DEPRECATED
     Photon_cutMaxEta  = cms.double(2.4),# TO BE DEPRECATED
 

@@ -199,7 +199,7 @@ process.goodVertices = cms.EDFilter(
   "VertexSelector",
   filter = cms.bool(False),
   src = cms.InputTag("offlinePrimaryVertices"),
-  cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
+  cut = cms.string("!obj.isFake() && obj.ndof() > 4 && std::abs(obj.z()) <= 24 && obj.position().rho() < 2")
 )
 
 ## The tracking failure filter _______________________________________________||
@@ -220,7 +220,7 @@ process.manystripclus53X = cms.EDFilter('ByClusterSummaryMultiplicityPairEventFi
                 subDetVariable = cms.string("cHits")
                 ),
             ),
-        cut = cms.string("( mult2 > 20000+7*mult1)")
+        cut = cms.string("( obj.mult2() > 20000+7*obj.mult1())")
 )
 
 process.toomanystripclus53X = cms.EDFilter('ByClusterSummaryMultiplicityPairEventFilter',
@@ -236,7 +236,7 @@ process.toomanystripclus53X = cms.EDFilter('ByClusterSummaryMultiplicityPairEven
                 subDetVariable = cms.string("cHits")
                 ),
             ),
-        cut = cms.string("(mult2>50000) && ( mult2 > 20000+7*mult1)")
+        cut = cms.string("(obj.mult2()>50000) && ( obj.mult2() > 20000+7*obj.mult1())")
         )
 
 # Tracking TOBTEC fakes filter ##
@@ -262,7 +262,7 @@ pvSrc = 'offlinePrimaryVertices'
 process.primaryVertexFilter = cms.EDFilter(
     "VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
-    cut = cms.string("!isFake & ndof > 4 & abs(z) <= 24 & position.Rho <= 2"),
+    cut = cms.string("!obj.isFake() & obj.ndof() > 4 & std::abs(obj.z()) <= 24 & obj.position().Rho() <= 2"),
     filter = cms.bool(True)
     )
 
@@ -304,30 +304,30 @@ process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
                                             src = cms.InputTag("genParticles"),
                                             select = cms.vstring(
                                                 "drop  *"
-                                                ,"keep status = 3" #keeps  particles from the hard matrix element
-                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
-                                                ,"keep (abs(pdgId)  = 15) & status = 3" #keeps taus
+                                                ,"keep obj.status() == 3" #keeps  particles from the hard matrix element
+                                                ,"keep (std::abs(obj.pdgId()) >= 11 && std::abs(obj.pdgId()) <= 16) && obj.status() == 1" #keeps e/mu and nus with status 1
+                                                ,"keep (std::abs(obj.pdgId())  == 15) && obj.status() == 3" #keeps taus
                                                 )
                                             )
 
 if options.usePythia8 :
     process.prunedGenParticles.select = cms.vstring(
                                                 "drop  *"
-                                                ,"keep status = 21" #keeps  particles from the hard matrix element
-                                                ,"keep status = 22" #keeps  particles from the hard matrix element
-                                                ,"keep status = 23" #keeps  particles from the hard matrix element
-                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
-                                                ,"keep (abs(pdgId)  = 15) & (status = 21 || status = 22 || status = 23) " #keeps taus
+                                                ,"keep obj.status() = 21" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() = 22" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() = 23" #keeps  particles from the hard matrix element
+                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & obj.status() == 1" #keeps e/mu and nus with status 1
+                                                ,"keep (abs(pdgId) == 15) & (obj.status() == 21 || obj.status() == 22 || obj.status() == 23) " #keeps taus
                                                 )
 if options.usePythia6andPythia8 :
     process.prunedGenParticles.select = cms.vstring(
                                                 "drop  *"
-                                                ,"keep status = 3" #keeps  particles from the hard matrix element
-                                                ,"keep status = 21" #keeps  particles from the hard matrix element
-                                                ,"keep status = 22" #keeps  particles from the hard matrix element
-                                                ,"keep status = 23" #keeps  particles from the hard matrix element
-                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
-                                                ,"keep (abs(pdgId)  = 15) & (status = 3 || status = 21 || status = 22 || status = 23)" #keeps taus
+                                                ,"keep obj.status() == 3" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() == 21" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() == 22" #keeps  particles from the hard matrix element
+                                                ,"keep obj.status() == 23" #keeps  particles from the hard matrix element
+                                                ,"keep (std::abs(obj.pdgId()) >= 11 && std::abs(obj.pdgId()) <= 16) && obj.status() == 1" #keeps e/mu and nus with status 1
+                                                ,"keep (std::abs(obj.pdgId()) == 15) && (obj.status() == 3 || obj.status() == 21 || obj.status() == 22 || obj.status() == 23)" #keeps taus
                                                 )                                      
 
 
@@ -1265,8 +1265,8 @@ if options.useExtraJetColls:
 ###############################
 
 # AK5 Jets
-process.selectedPatJetsPFlow.cut = cms.string("pt > 5")
-process.selectedPatJetsPFlowLoose.cut = cms.string("pt > 20")
+process.selectedPatJetsPFlow.cut = cms.string("obj.pt() > 5")
+process.selectedPatJetsPFlowLoose.cut = cms.string("obj.pt() > 20")
 process.patJetsPFlow.addTagInfos = True
 process.patJetsPFlow.tagInfoSources = cms.VInputTag(
     cms.InputTag("secondaryVertexTagInfosAODPFlow")
@@ -1276,25 +1276,25 @@ process.patJetsPFlow.userData.userFunctions = cms.vstring( "? hasTagInfo('second
 process.patJetsPFlow.userData.userFunctionLabels = cms.vstring('secvtxMass')
 
 # CA8 jets
-process.selectedPatJetsCA8PF.cut = cms.string("pt > 20")
+process.selectedPatJetsCA8PF.cut = cms.string("obj.pt() > 20")
 
 # CA8 Pruned jets
-process.selectedPatJetsCA8PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+process.selectedPatJetsCA8PrunedPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
 process.patJetsCA8PrunedSubjetsPF.addTagInfos = False
-#process.selectedPatJetsCA8PrunedSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+#process.selectedPatJetsCA8PrunedSubjetsPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
 
                                                     
 # CA8 TopJets
-process.selectedPatJetsCATopTagPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
-#process.selectedPatJetsCATopTagSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+process.selectedPatJetsCATopTagPF.cut = cms.string("obj.pt() > 150 && std::abs(obj.rapidity()) < 2.5")
+#process.selectedPatJetsCATopTagSubjetsPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
 process.patJetsCATopTagPF.addTagInfos = True
 process.patJetsCATopTagPF.tagInfoSources = cms.VInputTag(
     cms.InputTag('CATopTagInfosPFlow')
     )
 
 # CA1.5 HEPTopTagTopJets
-process.selectedPatJetsCAHEPTopTagPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
-#process.selectedPatJetsCAHEPTopTagSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+process.selectedPatJetsCAHEPTopTagPF.cut = cms.string("obj.pt() > 150 && std::abs(obj.rapidity()) < 2.5")
+#process.selectedPatJetsCAHEPTopTagSubjetsPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
 process.patJetsCAHEPTopTagPF.addTagInfos = True
 process.patJetsCAHEPTopTagPF.tagInfoSources = cms.VInputTag(
     cms.InputTag('CATopTagInfosHEPTopTagPFlow')
@@ -1302,50 +1302,50 @@ process.patJetsCAHEPTopTagPF.tagInfoSources = cms.VInputTag(
 
 
 # CA15 Filtered jets
-process.selectedPatJetsCA15FilteredPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
-process.selectedPatJetsCA15MassDropFilteredPF.cut = cms.string("pt > 150 & abs(rapidity) < 2.5")
-#process.selectedPatJetsCA15MassDropFilteredSubjetsPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+process.selectedPatJetsCA15FilteredPF.cut = cms.string("obj.pt() > 150 && std::abs(obj.rapidity()) < 2.5")
+process.selectedPatJetsCA15MassDropFilteredPF.cut = cms.string("obj.pt() > 150 && std::abs(obj.rapidity()) < 2.5")
+#process.selectedPatJetsCA15MassDropFilteredSubjetsPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
 
 if options.useExtraJetColls: 
 
 	# AK5 groomed jets
-	process.selectedPatJetsAK5PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK5TrimmedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK5FilteredPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	process.selectedPatJetsAK5PrunedPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
+	process.selectedPatJetsAK5TrimmedPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
+	process.selectedPatJetsAK5FilteredPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
 
 
 	# AK7 groomed jets
-	process.selectedPatJetsAK7PF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK7PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK7TrimmedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK7FilteredPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	process.selectedPatJetsAK7PF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
+	process.selectedPatJetsAK7PrunedPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
+	process.selectedPatJetsAK7TrimmedPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
+	process.selectedPatJetsAK7FilteredPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
 
 
 	# AK8 groomed jets
-	process.selectedPatJetsAK8PF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK8PrunedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK8TrimmedPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
-	process.selectedPatJetsAK8FilteredPF.cut = cms.string("pt > 20 & abs(rapidity) < 2.5")
+	process.selectedPatJetsAK8PF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
+	process.selectedPatJetsAK8PrunedPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
+	process.selectedPatJetsAK8TrimmedPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
+	process.selectedPatJetsAK8FilteredPF.cut = cms.string("obj.pt() > 20 && std::abs(obj.rapidity()) < 2.5")
 	
 
 
 # electrons
-process.selectedPatElectrons.cut = cms.string('pt > 10.0 & abs(eta) < 2.5')
+process.selectedPatElectrons.cut = cms.string('obj.pt() > 10.0 && std::abs(obj.eta()) < 2.5')
 process.patElectrons.embedTrack = cms.bool(True)
-process.selectedPatElectronsPFlow.cut = cms.string('pt > 10.0 & abs(eta) < 2.5')
+process.selectedPatElectronsPFlow.cut = cms.string('obj.pt() > 10.0 && std::abs(obj.eta()) < 2.5')
 process.patElectronsPFlow.embedTrack = cms.bool(True)
-process.selectedPatElectronsPFlowLoose.cut = cms.string('pt > 10.0 & abs(eta) < 2.5')
+process.selectedPatElectronsPFlowLoose.cut = cms.string('obj.pt() > 10.0 && std::abs(obj.eta()) < 2.5')
 process.patElectronsPFlowLoose.embedTrack = cms.bool(True)
 # muons
-process.selectedPatMuons.cut = cms.string('pt > 10.0 & abs(eta) < 2.5')
+process.selectedPatMuons.cut = cms.string('obj.pt() > 10.0 && std::abs(obj.eta()) < 2.5')
 process.patMuons.embedTrack = cms.bool(True)
-process.selectedPatMuonsPFlow.cut = cms.string("pt > 10.0 & abs(eta) < 2.5")
+process.selectedPatMuonsPFlow.cut = cms.string("obj.pt() > 10.0 && std::abs(obj.eta()) < 2.5")
 process.patMuonsPFlow.embedTrack = cms.bool(True)
-process.selectedPatMuonsPFlowLoose.cut = cms.string("pt > 10.0 & abs(eta) < 2.5")
+process.selectedPatMuonsPFlowLoose.cut = cms.string("obj.pt() > 10.0 && std::abs(obj.eta()) < 2.5")
 process.patMuonsPFlowLoose.embedTrack = cms.bool(True)
 # taus
-process.selectedPatTausPFlow.cut = cms.string("pt > 10.0 & abs(eta) < 3")
-process.selectedPatTaus.cut = cms.string("pt > 10.0 & abs(eta) < 3")
+process.selectedPatTausPFlow.cut = cms.string("obj.pt() > 10.0 && std::abs(obj.eta()) < 3")
+process.selectedPatTaus.cut = cms.string("obj.pt() > 10.0 && std::abs(obj.eta()) < 3")
 process.patTausPFlow.isoDeposits = cms.PSet()
 process.patTaus.isoDeposits = cms.PSet()
 # photons

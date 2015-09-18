@@ -8,7 +8,7 @@ import PhysicsTools.PatAlgos.tools.helpers as helpers
 ElPrimaryVertexFilter = cms.EDFilter(
     "VertexSelector",
     src = cms.InputTag("offlinePrimaryVertices"),
-    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+    cut = cms.string("!obj.isFake() && obj.ndof() > 4 && std::abs(obj.z()) <= 24 && obj.position().Rho() <= 2"),
     filter = cms.bool(False)
     )
 
@@ -20,7 +20,7 @@ ElBestPV = cms.EDProducer(
 selectedElectrons = cms.EDFilter(
     "TauValElectronSelector",
     src = cms.InputTag('gedGsfElectrons'),
-    cut = cms.string("pt > 25.0 && abs(eta) < 2.4 && isElectron"),
+    cut = cms.string("obj.pt() > 25.0 && std::abs(obj.eta()) < 2.4 && obj.isElectron()"),
     filter = cms.bool(False)
 	)
 
@@ -35,14 +35,14 @@ ElectronsFromPV = cms.EDProducer(
 idElectrons = cms.EDFilter(
     "TauValElectronSelector",
     src = cms.InputTag('ElectronsFromPV'),
-    cut = cms.string('ecalDrivenSeed & isGsfCtfScPixChargeConsistent & isGsfScPixChargeConsistent & isGsfCtfChargeConsistent & !isEBEEGap & (isEB & sigmaIetaIeta<0.01 & abs(deltaPhiSuperClusterTrackAtVtx)<0.06 & abs(deltaEtaSuperClusterTrackAtVtx)<0.006 & hadronicOverEm<0.04 | isEE & sigmaIetaIeta<0.03 & abs(deltaPhiSuperClusterTrackAtVtx)<0.04 & abs(deltaEtaSuperClusterTrackAtVtx)<0.007 & hadronicOverEm<0.025)'),
+    cut = cms.string('obj.ecalDrivenSeed() && obj.isGsfCtfScPixChargeConsistent() && obj.isGsfScPixChargeConsistent() && obj.isGsfCtfChargeConsistent() && !obj.isEBEEGap() && (obj.isEB() && obj.sigmaIetaIeta()<0.01 && std::abs(obj.deltaPhiSuperClusterTrackAtVtx())<0.06 && std::abs(obj.deltaEtaSuperClusterTrackAtVtx())<0.006 && obj.hadronicOverEm()<0.04 || obj.isEE() && obj.sigmaIetaIeta()<0.03 && std::abs(obj.deltaPhiSuperClusterTrackAtVtx())<0.04 && std::abs(obj.deltaEtaSuperClusterTrackAtVtx())<0.007 && obj.hadronicOverEm()<0.025)'),
     filter = cms.bool(False)
 )
 
 trackElectrons = cms.EDFilter(
     "TauValElectronSelector",
     src = cms.InputTag('idElectrons'),
-    cut = cms.string('gsfTrack.isNonnull  && 0.7 < eSuperClusterOverP < 1.5'),
+    cut = cms.string('obj.gsfTrack().isNonnull() && 0.7 < obj.eSuperClusterOverP() && obj.eSuperClusterOverP() < 1.5'),
 #    cut = cms.string('gsfTrack.isNonnull && gsfTrack.hitPattern().numberOfHits(\'MISSING_INNER_HITS\') = 0 && 0.7 < eSuperClusterOverP < 1.5'),
     filter = cms.bool(False)
 )
@@ -50,7 +50,7 @@ trackElectrons = cms.EDFilter(
 isolatedElectrons = cms.EDFilter(
     "TauValElectronSelector",
     src = cms.InputTag('trackElectrons'),
-    cut = cms.string("(isEB & (dr04TkSumPt/pt + max(0.,dr04EcalRecHitSumEt-2.)/pt + dr04HcalTowerSumEt/pt < 0.10)) | (isEE & (dr04TkSumPt/pt + dr04EcalRecHitSumEt/pt + dr04HcalTowerSumEt/pt < 0.09))"),
+    cut = cms.string("(obj.isEB() && ( (obj.dr04TkSumPt() + std::max(0.,obj.dr04EcalRecHitSumEt()-2.) + obj.dr04HcalTowerSumEt())/obj.pt() < 0.10)) || (obj.isEE() && ( (obj.dr04TkSumPt() + obj.dr04EcalRecHitSumEt() + obj.dr04HcalTowerSumEt())/obj.pt() < 0.09))"),
     filter = cms.bool(False)
 	)
 
@@ -59,7 +59,7 @@ from SimGeneral.HepPDTESSource.pythiapdt_cfi import *
 ElGoodTracks = cms.EDFilter(
     "TrackSelector",
     src = cms.InputTag("generalTracks"), 
-    cut = cms.string("pt > 5 && abs(eta) < 2.5"),
+    cut = cms.string("obj.pt() > 5 && std::abs(obj.eta()) < 2.5"),
     filter = cms.bool(False)
 	)
 
@@ -87,7 +87,7 @@ ElTrackCands  = cms.EDProducer(
 ZeeCandElectronTrack = cms.EDProducer(
     "CandViewShallowCloneCombiner",
     decay = cms.string("isolatedElectrons@+ ElTrackCands@-"), # it takes opposite sign collection, no matter if +- or -+
-    cut   = cms.string("80 < mass < 100")
+    cut   = cms.string("80 < obj.mass() && obj.mass() < 100")
 	)
 
 BestZee = cms.EDProducer(

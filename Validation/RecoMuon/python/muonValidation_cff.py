@@ -319,7 +319,7 @@ recoMuonVMuAssoc_trk.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_Trk'
 recoMuonVMuAssoc_trk.simLabel = 'mix:MergedTrackTruth'
 recoMuonVMuAssoc_trk.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperTrk'
 recoMuonVMuAssoc_trk.trackType = 'inner'
-recoMuonVMuAssoc_trk.selection = "isTrackerMuon"
+recoMuonVMuAssoc_trk.selection = "obj.isTrackerMuon()"
 
 #tracker and PF
 muonAssociatorByHitsNoSimHitsHelperTrkPF = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
@@ -331,7 +331,7 @@ recoMuonVMuAssoc_trkPF.usePFMuon = True
 recoMuonVMuAssoc_trkPF.simLabel = 'mix:MergedTrackTruth'
 recoMuonVMuAssoc_trkPF.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperTrkPF'
 recoMuonVMuAssoc_trkPF.trackType = 'inner'
-recoMuonVMuAssoc_trkPF.selection = "isTrackerMuon & isPFMuon"
+recoMuonVMuAssoc_trkPF.selection = "obj.isTrackerMuon() && obj.isPFMuon()"
 
 #standalone
 muonAssociatorByHitsNoSimHitsHelperStandalone = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
@@ -342,7 +342,7 @@ recoMuonVMuAssoc_sta.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta'
 recoMuonVMuAssoc_sta.simLabel = 'mix:MergedTrackTruth'
 recoMuonVMuAssoc_sta.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperStandalone'
 recoMuonVMuAssoc_sta.trackType = 'outer'
-recoMuonVMuAssoc_sta.selection = "isStandAloneMuon"
+recoMuonVMuAssoc_sta.selection = "obj.isStandAloneMuon()"
 
 #seed of StandAlone
 muonAssociatorByHitsNoSimHitsHelperSeedStandalone = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
@@ -365,7 +365,7 @@ recoMuonVMuAssoc_staPF.usePFMuon = True
 recoMuonVMuAssoc_staPF.simLabel = 'mix:MergedTrackTruth'
 recoMuonVMuAssoc_staPF.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperStandalonePF'
 recoMuonVMuAssoc_staPF.trackType = 'outer'
-recoMuonVMuAssoc_staPF.selection = "isStandAloneMuon & isPFMuon"
+recoMuonVMuAssoc_staPF.selection = "obj.isStandAloneMuon() && obj.isPFMuon()"
 
 #global
 muonAssociatorByHitsNoSimHitsHelperGlobal = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
@@ -376,7 +376,7 @@ recoMuonVMuAssoc_glb.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_Glb'
 recoMuonVMuAssoc_glb.simLabel = 'mix:MergedTrackTruth'
 recoMuonVMuAssoc_glb.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperGlobal'
 recoMuonVMuAssoc_glb.trackType = 'global'
-recoMuonVMuAssoc_glb.selection = "isGlobalMuon"
+recoMuonVMuAssoc_glb.selection = "obj.isGlobalMuon()"
 
 #global and PF
 muonAssociatorByHitsNoSimHitsHelperGlobalPF = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
@@ -388,7 +388,7 @@ recoMuonVMuAssoc_glbPF.usePFMuon = True
 recoMuonVMuAssoc_glbPF.simLabel = 'mix:MergedTrackTruth'
 recoMuonVMuAssoc_glbPF.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperGlobalPF'
 recoMuonVMuAssoc_glbPF.trackType = 'global'
-recoMuonVMuAssoc_glbPF.selection = "isGlobalMuon & isPFMuon"
+recoMuonVMuAssoc_glbPF.selection = "obj.isGlobalMuon() && obj.isPFMuon()"
 
 #tight
 muonAssociatorByHitsNoSimHitsHelperTight = SimMuon.MCTruth.muonAssociatorByHitsNoSimHitsHelper_cfi.muonAssociatorByHitsNoSimHitsHelper.clone()
@@ -399,7 +399,7 @@ recoMuonVMuAssoc_tgt.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt'
 recoMuonVMuAssoc_tgt.simLabel = 'mix:MergedTrackTruth'
 recoMuonVMuAssoc_tgt.muAssocLabel = 'muonAssociatorByHitsNoSimHitsHelperTight'
 recoMuonVMuAssoc_tgt.trackType = 'global'
-recoMuonVMuAssoc_tgt.selection = 'isGlobalMuon'
+recoMuonVMuAssoc_tgt.selection = 'obj.isGlobalMuon()'
 recoMuonVMuAssoc_tgt.wantTightMuon = True
 recoMuonVMuAssoc_tgt.beamSpot = 'offlineBeamSpot'
 recoMuonVMuAssoc_tgt.primaryVertex = 'offlinePrimaryVertices'
