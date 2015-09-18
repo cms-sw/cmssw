@@ -116,8 +116,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&, const reco::Candidate::PolarLorentzVector&, std::map<std::string,MonitorElement*>&,std::vector<bool>);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& , const reco::Candidate::PolarLorentzVector& ,std::map<std::string,MonitorElement*>&,bool,bool,std::vector<bool>);
+  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&, const reco::Candidate::PolarLorentzVector&, std::map<std::string,MonitorElement*>&,std::vector<bool>,std::vector<bool>);
+  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& , const reco::Candidate::PolarLorentzVector& ,std::map<std::string,MonitorElement*>&,bool,bool,std::vector<bool>,std::vector<bool>);
   void makeRatePlot(std::string, double);
 
 //  bool selectHighPtJetEvent(const edm::Event&);
@@ -143,7 +143,6 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::InputTag metCollectionLabel_;
   edm::InputTag hcalNoiseRBXCollectionTag_;
   edm::InputTag jetCollectionLabel_;
-  edm::InputTag hbheNoiseFilterResultTag_;
   edm::InputTag vertexTag_;
   edm::InputTag gtTag_;
 
@@ -154,7 +153,21 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::EDGetTokenT<pat::JetCollection>        patJetsToken_;
   edm::EDGetTokenT<reco::MuonCollection>         MuonsToken_;
 
+  edm::InputTag METFilterMiniAODLabel_;
+  edm::EDGetTokenT<edm::TriggerResults> METFilterMiniAODToken_;
+  edm::InputTag METFilterMiniAODLabel2_;//needed for RECO and reRECO differntiation
+  edm::EDGetTokenT<edm::TriggerResults> METFilterMiniAODToken2_;
+
+  std::vector<int> miniaodFilterIndex_;
+
+  edm::InputTag hbheNoiseFilterResultTag_;
   edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
+  edm::InputTag CSCHaloResultTag_;
+  edm::EDGetTokenT<bool>  CSCHaloResultToken_;
+  edm::InputTag EcalDeadCellTriggerTag_;
+  edm::EDGetTokenT<bool>  EcalDeadCellTriggerToken_;
+  edm::InputTag eeBadScFilterTag_;
+  edm::EDGetTokenT<bool>  eeBadScFilterToken_;
 
   edm::EDGetTokenT<pat::METCollection>           patMetToken_; 
   edm::EDGetTokenT<reco::PFMETCollection>         pfMetToken_;
@@ -173,6 +186,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   double ptThreshold_;
 
   HLTConfigProvider hltConfig_;
+  HLTConfigProvider FilterhltConfig_;
   edm::InputTag                         triggerResultsLabel_;
   edm::EDGetTokenT<edm::TriggerResults> triggerResultsToken_;
 
@@ -278,6 +292,17 @@ class METAnalyzer : public DQMEDAnalyzer{
   //MonitorElement* hEz;
   MonitorElement* hMETSig;
   MonitorElement* hMET;
+  MonitorElement* hMET_2;
+
+  MonitorElement* hMET_HBHENoiseFilter;
+  MonitorElement* hMET_2_HBHENoiseFilter;
+  MonitorElement* hMET_CSCTightHaloFilter;
+  MonitorElement* hMET_2_CSCTightHaloFilter;
+  MonitorElement* hMET_eeBadScFilter;
+  MonitorElement* hMET_2_eeBadScFilter;
+  MonitorElement* hMET_EcalDeadCellTriggerFilter;
+  MonitorElement* hMET_2_EcalDeadCellTriggerFilter;
+
   MonitorElement* hMETPhi;
   MonitorElement* hSumET;
 
