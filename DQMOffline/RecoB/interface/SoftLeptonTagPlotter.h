@@ -33,7 +33,8 @@ private:
   static const int s_leptons = 2;
   FlavourHistograms<double> * m_leptonId[s_leptons];   // lepton identification discriminant
   FlavourHistograms<double> * m_leptonPt[s_leptons];   // lepton transverse momentum
-  
+  FlavourHistograms<double> * m_sip2dsig[s_leptons];      // 2D signed inpact parameter significance
+  FlavourHistograms<double> * m_sip3dsig[s_leptons];      // 3D signed inpact parameter significance
   FlavourHistograms<double> * m_sip2d[s_leptons];      // 2D signed inpact parameter
   FlavourHistograms<double> * m_sip3d[s_leptons];      // 3D signed inpact parameter
   FlavourHistograms<double> * m_ptRel[s_leptons];      // transverse momentum wrt. jet axis
