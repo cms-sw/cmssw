@@ -44,11 +44,11 @@ process.source.streamLabel                   = cms.untracked.string('streamDQMEv
 
 m = re.search(r"\((\w+)\)", str(source.runNumber))
 runno = str(m.group(1))
-outDir= '/fff/BU0/output/EvD/run'+runno
+outDir= '/fff/BU0/output/EvD/run'+runno+'/streamEvDOutput2'
 
 #create output directory
 try:
-    os.mkdir(outDir)
+    os.makedirs(outDir)
 except:
     pass
 
