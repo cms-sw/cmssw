@@ -91,7 +91,7 @@ double MuonTrackCut::value(const reco::CandidatePtr& cand) const
   if ( doInnerTrack_ )
   {
     const reco::TrackRef t = muon->innerTrack();
-    if ( t.isNull() ) return false;
+    if ( t.isNull() ) return 0;
     const auto& h = t->hitPattern();
     if ( trackQuality_ != reco::Track::undefQuality and !t->quality(trackQuality_) ) return t->quality(trackQuality_);
     if ( h.trackerLayersWithMeasurement() < minTrackerLayersWithMeasurement_ ) return h.trackerLayersWithMeasurement();
@@ -104,7 +104,7 @@ double MuonTrackCut::value(const reco::CandidatePtr& cand) const
   if ( doGlobalTrack_ )
   {
     const reco::TrackRef t = muon->globalTrack();
-    if ( t.isNull() ) return false;
+    if ( t.isNull() ) return 0;
     const auto& h = t->hitPattern();
     if ( h.numberOfValidMuonHits() < minNumberOfValidMuonHits_ ) return h.numberOfValidMuonHits();
     // if ( t->normalizedChi2() > maxNormalizedChi2_ ) return false; Not used for 
