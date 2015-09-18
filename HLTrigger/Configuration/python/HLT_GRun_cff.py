@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V151 (CMSSW_7_4_10_patch1)
+# /dev/CMSSW_7_4_0/GRun/V152 (CMSSW_7_4_10_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V151')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V152')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -502,6 +502,7 @@ fragment.streams = cms.PSet(
     'ParkingHT3',
     'ParkingHT4',
     'ParkingHT5' ),
+  ParkingScoutingMonitor = cms.vstring( 'ParkingScoutingMonitor' ),
   PhysicsEGammaCommissioning = cms.vstring( 'Commissioning',
     'DoubleEG',
     'HLTPhysics',
@@ -532,8 +533,6 @@ fragment.streams = cms.PSet(
     'MuOnia',
     'MuonEG',
     'SingleMuon' ),
-  PhysicsParkingMonitor = cms.vstring( 'ParkingMonitor' ),
-  PhysicsScoutingMonitor = cms.vstring( 'ScoutingMonitor' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ScoutingCalo = cms.vstring( 'ScoutingCaloCommissioning',
     'ScoutingCaloHT' ),
@@ -1776,7 +1775,13 @@ fragment.datasets = cms.PSet(
   ParkingHT3 = cms.vstring( 'HLT_HT500to550_v1' ),
   ParkingHT4 = cms.vstring( 'HLT_HT550to650_v1' ),
   ParkingHT5 = cms.vstring( 'HLT_HT650_v2' ),
-  ParkingMonitor = cms.vstring( 'HLT_HT450to470_v1',
+  ParkingScoutingMonitor = cms.vstring( 'DST_CaloJet40_CaloScouting_v1',
+    'DST_CaloJet40_PFScouting_v1',
+    'DST_HT250_CaloScouting_v1',
+    'DST_HT450_PFScouting_v1',
+    'DST_L1HT_CaloScouting_v1',
+    'DST_L1HT_PFScouting_v1',
+    'HLT_HT450to470_v1',
     'HLT_HT470to500_v1',
     'HLT_HT500to550_v1',
     'HLT_HT550to650_v1',
@@ -1787,12 +1792,6 @@ fragment.datasets = cms.PSet(
   ScoutingCaloCommissioning = cms.vstring( 'DST_CaloJet40_CaloScouting_v1',
     'DST_L1HT_CaloScouting_v1' ),
   ScoutingCaloHT = cms.vstring( 'DST_HT250_CaloScouting_v1' ),
-  ScoutingMonitor = cms.vstring( 'DST_CaloJet40_CaloScouting_v1',
-    'DST_CaloJet40_PFScouting_v1',
-    'DST_HT250_CaloScouting_v1',
-    'DST_HT450_PFScouting_v1',
-    'DST_L1HT_CaloScouting_v1',
-    'DST_L1HT_PFScouting_v1' ),
   ScoutingPFCommissioning = cms.vstring( 'DST_CaloJet40_PFScouting_v1',
     'DST_L1HT_PFScouting_v1' ),
   ScoutingPFHT = cms.vstring( 'DST_HT450_PFScouting_v1' ),
