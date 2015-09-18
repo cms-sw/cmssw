@@ -3,10 +3,10 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
-class MuonIPCut : public CutApplicatorWithEventContentBase
+class MuonDzCut : public CutApplicatorWithEventContentBase
 {
 public:
-  MuonIPCut(const edm::ParameterSet& c);
+  MuonDzCut(const edm::ParameterSet& c);
 
   result_type operator()(const reco::MuonPtr&) const override final;
   CandidateType candidateType() const override final { return MUON; }
@@ -17,16 +17,15 @@ public:
 
 private:
   edm::Handle<reco::VertexCollection> vtxs_;
-  const double maxDxy_, maxDz_;
+  const double maxDz_;
   enum BestTrackType { INNERTRACK, MUONBESTTRACK, NONE } trackType_;
 };
 DEFINE_EDM_PLUGIN(CutApplicatorFactory,
-                  MuonIPCut, "MuonIPCut");
+                  MuonDzCut, "MuonDzCut");
 
 // Define constructors and initialization routines
-MuonIPCut::MuonIPCut(const edm::ParameterSet& c):
+MuonDzCut::MuonDzCut(const edm::ParameterSet& c):
   CutApplicatorWithEventContentBase(c),
-  maxDxy_(c.getParameter<double>("maxDxy")),
   maxDz_(c.getParameter<double>("maxDz"))
 {
   const std::string trackTypeName = c.getParameter<std::string>("trackType");
@@ -35,7 +34,7 @@ MuonIPCut::MuonIPCut(const edm::ParameterSet& c):
   else if ( trackTypeName == "innerTrack" ) trackType_ = INNERTRACK;
   else
   {
-    edm::LogError("MuonIPCut") << "Wrong cut id name, " << trackTypeName
+    edm::LogError("MuonDzCut") << "Wrong cut id name, " << trackTypeName
                                         << "Choose among \"muonBestTrack\", \"innerTrack\"";
     trackType_ = NONE;
   }
@@ -44,38 +43,31 @@ MuonIPCut::MuonIPCut(const edm::ParameterSet& c):
   contentTags_.emplace("verticesMiniAOD", c.getParameter<edm::InputTag>("vertexSrcMiniAOD"));
 }
 
-void MuonIPCut::setConsumes(edm::ConsumesCollector& cc)
+void MuonDzCut::setConsumes(edm::ConsumesCollector& cc)
 {
   contentTokens_.emplace("vertices", cc.consumes<reco::VertexCollection>(contentTags_["vertices"]));
   contentTokens_.emplace("verticesMiniAOD", cc.consumes<reco::VertexCollection>(contentTags_["verticesMiniAOD"]));
 }
 
-void MuonIPCut::getEventContent(const edm::EventBase& ev)
+void MuonDzCut::getEventContent(const edm::EventBase& ev)
 {
   ev.getByLabel(contentTags_["vertices"], vtxs_);
   if ( !vtxs_.isValid() ) ev.getByLabel(contentTags_["verticesMiniAOD"], vtxs_);
 }
 
 // Functors for evaluation
-CutApplicatorBase::result_type MuonIPCut::operator()(const reco::MuonPtr& cand) const
+CutApplicatorBase::result_type MuonDzCut::operator()(const reco::MuonPtr& cand) const
 {
   const auto& vtxPos = vtxs_->at(0).position();
 
   reco::TrackRef trackRef;
   if      ( trackType_ == INNERTRACK    ) trackRef = cand->innerTrack();
   else if ( trackType_ == MUONBESTTRACK ) trackRef = cand->muonBestTrack();
-  if ( trackRef.isNull() ) return false;
 
-  const double dxy = std::abs(trackRef->dxy(vtxPos));
-  if ( dxy > maxDxy_ ) return false;
-
-  const double dz = std::abs(trackRef->dz(vtxPos));
-  if ( dz > maxDz_ ) return false;
-
-  return true;
+  return trackRef.isNonnull() and std::abs(trackRef->dz(vtxPos)) <= maxDz_;
 }
 
-double MuonIPCut::value(const reco::CandidatePtr& cand) const
+double MuonDzCut::value(const reco::CandidatePtr& cand) const
 {
   const reco::MuonPtr muon(cand);
   reco::TrackRef trackRef;
@@ -84,11 +76,5 @@ double MuonIPCut::value(const reco::CandidatePtr& cand) const
   if ( trackRef.isNull() ) return -1;
 
   const auto& vtxPos = vtxs_->at(0).position();
-  double dxy = std::abs(trackRef->dxy(vtxPos));
-  if ( dxy > maxDxy_ ) return dxy;
-
-  const double dz = std::abs(trackRef->dz(vtxPos));
-  if ( dz > maxDz_ ) return dz;
-
-  return dz;
+  return std::abs(trackRef->dz(vtxPos));
 }
