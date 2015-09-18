@@ -29,8 +29,12 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 ### Try to do RecoLocalMuon on all muon detectors ###
 #####################################################
 process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
-process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
+#process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
+process.load('RecoLocalMuon.GEMRecHit.me0LocalReco_cff')
 process.load("RecoLocalMuon.Configuration.RecoLocalMuon_cff")
+
+### me0Muon reco now
+process.load('RecoMuon.MuonIdentification.me0MuonReco_cff')
 
 
 ### Try to add also Tracker local reco ###
@@ -260,14 +264,15 @@ process.output = cms.OutputModule("PoolOutputModule",
 #######################
 process.digi2raw_step   = cms.Path(process.siPixelRawData+process.SiStripDigiToRaw)
 process.raw2digi_step   = cms.Path(process.siPixelDigis+process.siStripDigis) 
-process.localreco_step  = cms.Path(process.muonlocalreco+process.gemRecHits+process.me0RecHits+process.trackerlocalreco)
+#process.localreco_step  = cms.Path(process.muonlocalreco+process.gemRecHits+process.me0RecHits+process.trackerlocalreco)
+process.localreco_step  = cms.Path(process.muonlocalreco+process.gemRecHits+process.me0LocalReco+process.trackerlocalreco)
 
 # Run-2 Global Reco Step:
 # process.globalreco_step = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEventPreSplitting*process.siPixelClusterShapeCachePreSplitting*
 #                                    process.standalonemuontracking*process.iterTracking)#process.trackingGlobalReco*process.vertexreco)#*process.muonGlobalReco)
 # Run-1 Global Reco Step: (no PreSplitting before iterTracking sequence)
 process.globalreco_step = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.PixelLayerTriplets*process.recopixelvertexing*
-                                   process.standalonemuontracking*process.trackingGlobalReco*process.vertexreco)#*process.muonGlobalReco)
+                                   process.standalonemuontracking*process.trackingGlobalReco*process.vertexreco*process.me0MuonReco)#*process.muonGlobalReco)
 
 process.endjob_step     = cms.Path(process.endOfProcess)
 process.out_step        = cms.EndPath(process.output)
