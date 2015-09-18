@@ -59,8 +59,8 @@ namespace reco {
   template<class T>
   void CorrectedJetProducer<T>::produce(edm::StreamID, edm::Event& fEvent, const edm::EventSetup& fSetup) const
   {
-    // cache - note that variable length arrays are a GCC extension
-    reco::JetCorrector const * correctors[mCorrectorTokens.size()];
+    // FIXME - use something more efficient instead of an std::vector
+    std::vector<reco::JetCorrector const *> correctors(mCorrectorTokens.size(), nullptr);
 
     // look for correctors
     for (unsigned i = 0; i < mCorrectorTokens.size(); i++)
