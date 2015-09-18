@@ -439,7 +439,7 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 					if(type==int(StripSubdetector::TIB)){++nhitinTIB2;}
 					if(type==int(StripSubdetector::TOB)){++nhitinTOB2;}
 					if(type==int(StripSubdetector::TID)){++nhitinTID2;}
-					//\\if(type==int(StripSubdetector::TEC)){++nhitinTEC2;}
+					if(type==int(StripSubdetector::TEC)){++nhitinTEC2;}
 					if(type==int(                kBPIX)){++nhitinBPIX2;}
 					if(type==int(                kFPIX)){++nhitinFPIX2;}
 					
@@ -486,7 +486,7 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 					if(type==int(StripSubdetector::TIB)){++nhitinTIBorg;}
 					if(type==int(StripSubdetector::TOB)){++nhitinTOBorg;}
 					if(type==int(StripSubdetector::TID)){++nhitinTIDorg;}
-					//\\if(type==int(StripSubdetector::TEC)){++nhitinTECorg;}
+					if(type==int(StripSubdetector::TEC)){++nhitinTECorg;}
 					if(type==int(                kBPIX)){++nhitinBPIXorg;}
 					if(type==int(                kFPIX)){++nhitinFPIXorg;}
 					
