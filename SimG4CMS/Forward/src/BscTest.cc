@@ -101,8 +101,7 @@ BscTest::~BscTest() {
   // Write histograms to file
   TheHistManager->WriteToFile(fOutputFile,fRecreateFile);
   if (verbosity > 0) {
-    std::cout << std::endl << "BscTest Destructor  -------->  End of BscTest : "
-	      << std::cout << std::endl; 
+    std::cout << std::endl << "BscTest Destructor  -------->  End of BscTest : " << std::endl;
   }
 
   std::cout<<"BscTest: End of process"<<std::endl;
