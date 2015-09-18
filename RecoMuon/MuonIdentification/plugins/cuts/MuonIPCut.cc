@@ -35,23 +35,25 @@ MuonIPCut::MuonIPCut(const edm::ParameterSet& c):
   else if ( trackTypeName == "innerTrack" ) trackType_ = INNERTRACK;
   else
   {
-    edm::LogError("MuonPOGStandardCut") << "Wrong cut id name, " << trackTypeName
+    edm::LogError("MuonIPCut") << "Wrong cut id name, " << trackTypeName
                                         << "Choose among \"muonBestTrack\", \"innerTrack\"";
     trackType_ = NONE;
   }
 
   contentTags_.emplace("vertices", c.getParameter<edm::InputTag>("vertexSrc"));
+  contentTags_.emplace("verticesMiniAOD", c.getParameter<edm::InputTag>("vertexSrcMiniAOD"));
 }
 
 void MuonIPCut::setConsumes(edm::ConsumesCollector& cc)
 {
-  auto vtcs = cc.consumes<reco::VertexCollection>(contentTags_["vertices"]);
-  contentTokens_.emplace("vertices", vtcs);
+  contentTokens_.emplace("vertices", cc.consumes<reco::VertexCollection>(contentTags_["vertices"]));
+  contentTokens_.emplace("verticesMiniAOD", cc.consumes<reco::VertexCollection>(contentTags_["verticesMiniAOD"]));
 }
 
 void MuonIPCut::getEventContent(const edm::EventBase& ev)
 {
   ev.getByLabel(contentTags_["vertices"], vtxs_);
+  if ( !vtxs_.isValid() ) ev.getByLabel(contentTags_["verticesMiniAOD"], vtxs_);
 }
 
 // Functors for evaluation
