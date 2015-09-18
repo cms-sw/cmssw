@@ -103,7 +103,7 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
     GenJet jet( sumVisMom, vertex, specific, constituents);
 
     if (charge != (*iTau)->charge() )
-      std::cout<<" charge of Tau: " << (*iTau) << " not equal to charge of sum of charge of all descendents. " << std::cout;
+      std::cout<<" charge of Tau: " << (*iTau) << " not equal to charge of sum of charge of all descendents. " << std::endl;
 
     jet.setCharge(charge);
     pOutVisTaus->push_back( jet );

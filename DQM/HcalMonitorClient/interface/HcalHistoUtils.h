@@ -229,15 +229,15 @@ myHist* getAnyHisto(myHist* hist,
   
   if (!me) 
     {
-      if (verb) std::cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title.str().c_str()<<"]"<<std::endl;
+      if (verb) std::cout <<"SORRY, COULD NOT FIND HISTOGRAM NAMED ["<< title.str()<<"]"<<std::endl;
       return NULL; // ME not found
     } // if (!me)
 
   if (verb) 
-    std::cout << "Found '" << title.str().c_str() << "'" << std::endl;
+    std::cout << "Found '" << title.str() << "'" << std::endl;
 
   if (clone)
-    clonehisto<<"ME "<<name.c_str(); // set clone histogram name
+    clonehisto<<"ME "<<name; // set clone histogram name
 
   /* As of 25 April 2008, there are 5 histogram types associated with 
      Monitor Elements (TH1F, TH2F, TH3F, TProfile, and TProfile2D).
@@ -298,7 +298,7 @@ myHist* getAnyHisto(myHist* hist,
     {
       if (verb) 
 	{
-	  std::cout <<"Don't know how to access histogram '"<<title;
+	  std::cout <<"Don't know how to access histogram '"<<title.str();
 	  std::cout<<"' of type '"<<histtype<<"'"<<std::endl;
 	}
       return NULL;
