@@ -29,8 +29,7 @@ class PhotonEnergyCorrector
   public:
 
    PhotonEnergyCorrector(const edm::ParameterSet& config, edm::ConsumesCollector && iC);
-   ~PhotonEnergyCorrector();
-
+   
    std::unique_ptr<ModifyObjectValueBase>& gedRegression() 
      { return gedRegression_; }
    

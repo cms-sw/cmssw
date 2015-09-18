@@ -69,12 +69,6 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, e
 
 }
 
-
-PhotonEnergyCorrector::~PhotonEnergyCorrector() {  
-}
-
-
-
 void PhotonEnergyCorrector::init (  const edm::EventSetup& theEventSetup ) {
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
 

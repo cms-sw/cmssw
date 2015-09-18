@@ -5,6 +5,7 @@
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
@@ -248,33 +249,28 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     if ( photonHandle.isValid()) {
       validPhotonHandle=true;  
     } else {
-      edm::LogError("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
+      throw cms::Exception("GEDPhotonProducer") << "Error! Can't get the product " <<   photonProducer_.label() << "\n";
     }
-
   } else {
     
     theEvent.getByToken(photonCoreProducerT_,photonCoreHandle);
     if (photonCoreHandle.isValid()) {
       validPhotonCoreHandle=true;
     } else {
-      edm::LogError("GEDPhotonProducer") 
+      throw cms::Exception("GEDPhotonProducer") 
 	<< "Error! Can't get the photonCoreProducer" <<  photonProducer_.label() << "\n";
-    }
-
-   
- 
+    } 
   }
 
-
- // Get EcalRecHits
+  // Get EcalRecHits
   bool validEcalRecHits=true;
   Handle<EcalRecHitCollection> barrelHitHandle;
   EcalRecHitCollection barrelRecHits;
   theEvent.getByToken(barrelEcalHits_, barrelHitHandle);
   if (!barrelHitHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") 
-      << "Error! Can't get the barrelEcalHits";
     validEcalRecHits=false; 
+    throw cms::Exception("GEDPhotonProducer") 
+      << "Error! Can't get the barrelEcalHits";
   }
   if (  validEcalRecHits)  barrelRecHits = *(barrelHitHandle.product());
 
@@ -283,9 +279,9 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   theEvent.getByToken(endcapEcalHits_, endcapHitHandle);
   EcalRecHitCollection endcapRecHits;
   if (!endcapHitHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") 
-      << "Error! Can't get the endcapEcalHits";
     validEcalRecHits=false; 
+    throw cms::Exception("GEDPhotonProducer") 
+      << "Error! Can't get the endcapEcalHits";
   }
   if( validEcalRecHits) endcapRecHits = *(endcapHitHandle.product());
 
@@ -294,9 +290,9 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   theEvent.getByToken(preshowerHits_, preshowerHitHandle);
   EcalRecHitCollection preshowerRecHits;
   if (!preshowerHitHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") 
-      << "Error! Can't get the preshowerEcalHits";
     validPreshowerRecHits=false; 
+    throw cms::Exception("GEDPhotonProducer") 
+      << "Error! Can't get the preshowerEcalHits";
   }
   if( validPreshowerRecHits ) preshowerRecHits = *(preshowerHitHandle.product());
 
@@ -306,7 +302,7 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   // Get the  PF refined cluster  collection
   theEvent.getByToken(pfEgammaCandidates_,pfEGCandidateHandle);
   if (!pfEGCandidateHandle.isValid()) {
-    edm::LogError("GEDPhotonProducer") 
+    throw cms::Exception("GEDPhotonProducer") 
       << "Error! Can't get the pfEgammaCandidates";
   }
   
@@ -316,14 +312,10 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
     // Get the  PF candidates collection
     theEvent.getByToken(pfCandidates_,pfCandidateHandle);
     if (!pfCandidateHandle.isValid()) {
-      edm::LogError("GEDPhotonProducer") 
+      throw cms::Exception("GEDPhotonProducer") 
 	<< "Error! Can't get the pfCandidates";
     }
-
   } 
-
-
-
 
   //AA
   //Get the severity level object
@@ -355,9 +347,9 @@ void GEDPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   if ( usePrimaryVertex_ ) {
     theEvent.getByToken(vertexProducer_, vertexHandle);
     if (!vertexHandle.isValid()) {
-      edm::LogWarning("GEDPhotonProducer") 
-	<< "Error! Can't get the product primary Vertex Collection";
       validVertex=false;
+      throw cms::Exception("GEDPhotonProducer") 
+	<< "Error! Can't get the product primary Vertex Collection";
     }
     if (validVertex) vertexCollection = *(vertexHandle.product());
   }
@@ -577,7 +569,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     newCandidate.setShowerShapeVariables ( showerShape ); 
 
     /// fill extra shower shapes
-    const float spp = (isnan(locCov[2]) ? 0. : sqrt(locCov[2]));
+    const float spp = (edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
     const float sep = locCov[1];
 
     reco::Photon::ExtraShowerShapes  exShowerShape;
@@ -609,7 +601,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     newCandidate.full5x5_setShowerShapeVariables ( full5x5_showerShape );     
     
     /// fill extra full5x5 shower shapes
-    const float full5x5_spp = (isnan(full5x5_locCov[2]) ? 0. : sqrt(full5x5_locCov[2]));
+    const float full5x5_spp = (edm::isFinite(full5x5_locCov[2]) ? 0. : sqrt(full5x5_locCov[2]));
     const float full5x5_sep = full5x5_locCov[1];
     reco::Photon::ExtraShowerShapes  full5x5_exShowerShape;
     full5x5_exShowerShape.sigmaIetaIphi = full5x5_spp;
