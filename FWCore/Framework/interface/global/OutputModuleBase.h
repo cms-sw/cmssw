@@ -1,21 +1,19 @@
-#ifndef FWCore_Framework_one_OutputModuleBase_h
-#define FWCore_Framework_one_OutputModuleBase_h
+#ifndef FWCore_Framework_global_OutputModuleBase_h
+#define FWCore_Framework_global_OutputModuleBase_h
 // -*- C++ -*-
 //
 // Package:     FWCore/Framework
 // Class  :     OutputModuleBase
 // 
-/**\class OutputModuleBase OutputModuleBase.h "FWCore/Framework/interface/one/OutputModuleBase.h"
+/**\class OutputModuleBase OutputModuleBase.h "FWCore/Framework/interface/global/OutputModuleBase.h"
 
- Description: Base class for all 'one' OutputModules
+ Description: Base class for all 'global' OutputModules
 
  Usage:
     <usage>
 
 */
 //
-// Original Author:  Chris Jones
-//         Created:  Wed, 31 Jul 2013 15:37:16 GMT
 //
 
 // system include files
@@ -39,7 +37,6 @@
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
-#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 // forward declarations
@@ -57,7 +54,7 @@ namespace edm {
     template<typename T> class ModuleHolderT;
   }
 
-  namespace one {
+  namespace global {
     
     class OutputModuleBase : public EDConsumerBase {
     public:
@@ -111,6 +108,26 @@ namespace edm {
 
       void doBeginJob();
       void doEndJob();
+
+      void doBeginStream(StreamID id);
+      void doEndStream(StreamID id);
+      void doStreamBeginRun(StreamID id,
+                            RunPrincipal& ep,
+                            EventSetup const& c,
+                            ModuleCallingContext const*);
+      void doStreamEndRun(StreamID id,
+                          RunPrincipal& ep,
+                          EventSetup const& c,
+                          ModuleCallingContext const*);
+      void doStreamBeginLuminosityBlock(StreamID id,
+                                        LuminosityBlockPrincipal& ep,
+                                        EventSetup const& c,
+                                        ModuleCallingContext const*);
+      void doStreamEndLuminosityBlock(StreamID id,
+                                      LuminosityBlockPrincipal& ep,
+                                      EventSetup const& c,
+                                      ModuleCallingContext const*);
+
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
                    ActivityRegistry*,
                    ModuleCallingContext const*);
@@ -176,14 +193,9 @@ namespace edm {
       std::unique_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper_;
       std::map<BranchID, bool> keepAssociation_;
 
-      SharedResourcesAcquirer resourcesAcquirer_;
-      std::mutex mutex_;
-
       //------------------------------------------------------------------
       // private member functions
       //------------------------------------------------------------------
-      
-      virtual SharedResourcesAcquirer createAcquirer();
       
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
@@ -195,7 +207,7 @@ namespace edm {
       void doRegisterThinnedAssociations(ProductRegistry const&,
                                          ThinnedAssociationsHelper&) { }
 
-      std::string workerType() const {return "WorkerT<edm::one::OutputModuleBase>";}
+      std::string workerType() const {return "WorkerT<edm::global::OutputModuleBase>";}
       
       /// Tell the OutputModule that is must end the current file.
       void doCloseFile();
@@ -228,10 +240,24 @@ namespace edm {
       virtual void preForkReleaseResources();
       virtual void postForkReacquireResources(unsigned int /*iChildIndex*/, unsigned int /*iNumberOfChildren*/);
 
+      virtual void preallocStreams(unsigned int){}
+      virtual void doBeginStream_(StreamID){}
+      virtual void doEndStream_(StreamID){}
+      virtual void doStreamBeginRun_(StreamID, Run const&, EventSetup const&){}
+      virtual void doStreamEndRun_(StreamID, Run const&, EventSetup const&){}
+      virtual void doStreamEndRunSummary_(StreamID, Run const&, EventSetup const&){}
+      virtual void doStreamBeginLuminosityBlock_(StreamID, LuminosityBlock const&, EventSetup const&){}
+      virtual void doStreamEndLuminosityBlock_(StreamID, LuminosityBlock const&, EventSetup const&){}
+      virtual void doStreamEndLuminosityBlockSummary_(StreamID, LuminosityBlock const&, EventSetup const&){}
+
       virtual void doBeginRun_(RunPrincipal const&, ModuleCallingContext const*){}
+      virtual void doBeginRunSummary_(Run const&, EventSetup const&){}
       virtual void doEndRun_(RunPrincipal const&, ModuleCallingContext const*){}
+      virtual void doEndRunSummary_(Run const&, EventSetup const&){}
       virtual void doBeginLuminosityBlock_(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
+      virtual void doBeginLuminosityBlockSummary_(LuminosityBlock const&, EventSetup const&){}
       virtual void doEndLuminosityBlock_(LuminosityBlockPrincipal const&, ModuleCallingContext const*){}
+      virtual void doEndLuminosityBlockSummary_(LuminosityBlock const&, EventSetup const&){}
       virtual void doRespondToOpenInputFile_(FileBlock const&) {}
       virtual void doRespondToCloseInputFile_(FileBlock const&) {}
       
