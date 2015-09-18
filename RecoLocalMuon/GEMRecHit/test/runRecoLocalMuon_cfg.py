@@ -147,10 +147,14 @@ process.load("RecoVertex.Configuration.RecoVertex_cff")
 process.load("RecoVertex.BeamSpotProducer.BeamSpot_cff")
 process.load("RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi")
 
+# redefine the process vertexreco
+# check modification in RecoVertex/Configuration/python/RecoVertex_cff.py 
+# the Run-II configuration has been commented out
+# process.vertexreco = cms.Sequence(process.offlinePrimaryVertices*process.offlinePrimaryVerticesWithBS*process.generalV0Candidates*process.inclusiveVertexing)
 
-process.vertexreco.remove(process.caloTowerForTrk)
-process.vertexreco.remove(process.ak4CaloJetsForTrk)
-process.sortedPrimaryVertices.jets = ""
+# process.vertexreco.remove(process.caloTowerForTrk)
+# process.vertexreco.remove(process.ak4CaloJetsForTrk)
+# process.sortedPrimaryVertices.jets = ""
 
 
 ### Can we do also Muon Global Reco? ###
@@ -263,7 +267,7 @@ process.localreco_step  = cms.Path(process.muonlocalreco+process.gemRecHits+proc
 #                                    process.standalonemuontracking*process.iterTracking)#process.trackingGlobalReco*process.vertexreco)#*process.muonGlobalReco)
 # Run-1 Global Reco Step: (no PreSplitting before iterTracking sequence)
 process.globalreco_step = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.PixelLayerTriplets*process.recopixelvertexing*
-                                   process.standalonemuontracking*process.trackingGlobalReco)#*process.vertexreco)#*process.muonGlobalReco)
+                                   process.standalonemuontracking*process.trackingGlobalReco*process.vertexreco)#*process.muonGlobalReco)
 
 process.endjob_step     = cms.Path(process.endOfProcess)
 process.out_step        = cms.EndPath(process.output)
