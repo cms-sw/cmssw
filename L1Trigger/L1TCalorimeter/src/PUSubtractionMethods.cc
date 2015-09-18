@@ -35,9 +35,11 @@ namespace l1t {
 
     for(unsigned i = 0; i < L1CaloRegionDetId::N_ETA; ++i)
     {
-      puLevelHI[i] = floor(((double)puLevelHI[i] / (double)L1CaloRegionDetId::N_PHI)+0.5);
+      //puLevelHI[i] = floor(((double)puLevelHI[i] / (double)L1CaloRegionDetId::N_PHI)+0.5);
+      puLevelHI[i] = (puLevelHI[i] + 9) * 455 / (1 << 13); // approx equals X/18 +0.5
     }
 
+    std::cout << "hwPt hwEta hwPhi subtractedValue hwPt_afterSub" << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region!= regions.end(); region++){
       int subPt = std::max(0, region->hwPt() - puLevelHI[region->hwEta()]);
       int subEta = region->hwEta();
@@ -52,6 +54,8 @@ namespace l1t {
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
+      std::cout << region->hwPt() << " " << subEta << " " << subPhi << " "
+		<< puLevelHI[region->hwEta()] << " " << subPt << std::endl;
       CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, region->hwQual(), region->hwEtEm(), region->hwEtHad());
       subRegions->push_back(newSubRegion);
     }
