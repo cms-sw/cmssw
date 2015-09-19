@@ -81,6 +81,9 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_HT_DoubleMuon +
                                 SUSY_HLT_HT_DoubleEle +
                                 SUSY_HLT_HT_MuEle +
+								SUSY_HLT_HT250_DoubleMuon +
+                                SUSY_HLT_HT250_DoubleEle +
+                                SUSY_HLT_HT250_MuEle +
                                 SUSY_HLT_Muon_BJet +
                                 SUSY_HLT_Electron_BJet +
                                 SUSY_HLT_HT200_alphaT0p63 +
