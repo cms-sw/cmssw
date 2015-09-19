@@ -567,7 +567,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
     showerShape.hcalTowersBehindClusters =  TowersBehindClus;
     /// fill extra shower shapes
-    const float spp = (edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
+    const float spp = (!edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
     const float sep = locCov[1];
     showerShape.sigmaIetaIphi = spp;
     showerShape.sigmaIphiIphi = sep;
@@ -599,7 +599,7 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     full5x5_showerShape.sigmaEtaEta =    full5x5_sigmaEtaEta;
     full5x5_showerShape.sigmaIetaIeta =  full5x5_sigmaIetaIeta;
     /// fill extra full5x5 shower shapes
-    const float full5x5_spp = (edm::isFinite(full5x5_locCov[2]) ? 0. : sqrt(full5x5_locCov[2]));
+    const float full5x5_spp = (!edm::isFinite(full5x5_locCov[2]) ? 0. : sqrt(full5x5_locCov[2]));
     const float full5x5_sep = full5x5_locCov[1];
     full5x5_showerShape.sigmaIetaIphi = full5x5_spp;
     full5x5_showerShape.sigmaIphiIphi = full5x5_sep;
