@@ -322,6 +322,7 @@ bool PulseChiSqSNNLS::NNLS() {
       //worst case protection
       if (iter>=500) {
         edm::LogWarning("PulseChiSqSNNLS::NNLS()") << "Max Iterations reached at iter " << iter <<  std::endl;
+        break;
       }
       
       //unconstrain parameter
