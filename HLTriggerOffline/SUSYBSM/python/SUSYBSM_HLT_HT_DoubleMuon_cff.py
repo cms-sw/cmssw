@@ -73,7 +73,7 @@ SUSY_HLT_HT_DoubleMuon_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
 )
 
 SUSY_HLT_HT250_DoubleMuon_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DoubleMu8_Mass8_PFHT2500"),
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DoubleMu8_Mass8_PFHT250"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),
     efficiency     = cms.vstring(
