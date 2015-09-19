@@ -25,7 +25,7 @@
 #else
 #include "CaloOnlineTools/HcalOnlineDb/interface/xdaq_compat.h"  // Replaces toolbox::toString
 #endif
-
+XERCES_CPP_NAMESPACE_USE 
 using namespace std;
 using namespace oracle::occi;
 

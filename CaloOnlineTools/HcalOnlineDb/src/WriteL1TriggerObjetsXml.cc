@@ -37,7 +37,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-
+XERCES_CPP_NAMESPACE_USE 
 //
 // class decleration
 //
