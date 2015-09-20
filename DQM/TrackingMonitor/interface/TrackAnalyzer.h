@@ -11,6 +11,7 @@ Monitoring source for general quantities related to tracks.
 
 #include <memory>
 #include <fstream>
+#include <unordered_map>
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -34,7 +35,7 @@ class TrackAnalyzer
         TrackAnalyzer(const edm::ParameterSet&);
 	TrackAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector& iC);
         virtual ~TrackAnalyzer();
-        virtual void initHisto(DQMStore::IBooker & ibooker);
+        virtual void initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup &);
 
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
 
@@ -42,6 +43,13 @@ class TrackAnalyzer
         void doReset      ();
         void undoSoftReset(DQMStore * dqmStore_);
         void setLumiFlag();
+        // Compute and locally store the number of Good vertices found
+        // in the event. This information is used as X-axis value in
+        // the hit-efficiency plots derived from the hit patter. This
+        // ugly design to avoid comuting this very same quantity for
+        // each and every track while in the analyze method. A
+        // redesign of the class is needed in the future.
+        void setNumberOfGoodVertices(const edm::Event &);
 
     private:
 	void initHistos();
@@ -51,6 +59,7 @@ class TrackAnalyzer
 	void bookHistosForLScertification(DQMStore::IBooker & ibooker);
 	void bookHistosForBeamSpot(DQMStore::IBooker & ibooker);
         void bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker);
+        void bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker, const edm::EventSetup & iSetup);
         void fillHistosForHitProperties(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
 	void fillHistosForLScertification(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
         void fillHistosForTrackerSpecific(const reco::Track & track);
@@ -98,6 +107,9 @@ class TrackAnalyzer
         // IP significance plots
         bool doSIPPlots_;
 
+        // Compute the hit-finding efficiency using the HitPattern of
+        // the reconstructed tracks
+        bool doEffFromHitPattern_;
 	std::string qualityString_;
 	
         struct TkParameterMEs {
@@ -345,7 +357,29 @@ class TrackAnalyzer
 	};
         std::map<std::string, TkRecHitsPerSubDetMEs> TkRecHitsPerSubDetMEMap;
 	
-	
+        struct Key {
+          int det;
+          int subdet;
+          explicit Key(int det, int subdet):det(det),subdet(subdet){};
+          bool operator==(const Key & other) const {
+            return (det == other.det && subdet == other.subdet);
+          }
+        };
+
+        // Trivial hasher function: warning, it only works if det has less than 99 subdets.
+        struct KeyHasher {
+          std::size_t operator()(const Key& k) const {
+            return k.det*100+k.subdet;
+          }
+        };
+
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_valid_;
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_missing_;
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_inactive_;
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_bad_;
+        std::unordered_map<Key, MonitorElement *, KeyHasher> hits_total_;
+        unsigned int good_vertices_;
+
 	
         std::string histname;  //for naming the histograms according to algorithm used
 };
