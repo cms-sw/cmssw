@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
+#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include <vector>
 #include <iostream>
@@ -63,8 +64,8 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
             for(unsigned sector=1; sector<=18; sector++)
             {
                 HGCEEDetId detid(HGCEE, zside, layer, sector, subsector, cell); 
-                // FIXME: Use temporarily HGCEEDetId to compute trigger cell id
-                HGCEEDetId triggerDetid(HGCEE, zside, layer, sector, 1, triggercell); // Dummy subsector
+                // 
+                HGCTriggerDetId triggerDetid(HGCTrigger, zside, layer, sector, 1, triggercell); // Dummy subsector
                 const auto& ret = cells_to_trigger_cells_.insert( std::make_pair(detid, triggerDetid) );
                 if(!ret.second) edm::LogWarning("HGCalTriggerGeometry") << "Duplicate cell in L1TCellsMapping\n";
             }
@@ -88,10 +89,10 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
             int zside = (z==0 ? -1 : 1);
             for(unsigned sector=1; sector<=18; sector++)
             {
-                // FIXME: Use temporarily HGCEEDetId to compute trigger cell id
-                HGCEEDetId triggerDetid(HGCEE, zside, layer, sector, 1, triggercell); // Dummy subsector
-                // FIXME: Use temporarily HGCEEDetId to compute module
-                HGCEEDetId moduleDetid(HGCEE, zside, layer, sector, 1, module); // Dummy subsector
+                // 
+                HGCTriggerDetId triggerDetid(HGCTrigger, zside, layer, sector, 1, triggercell); // Dummy subsector
+                // 
+                HGCTriggerDetId moduleDetid(HGCTrigger, zside, layer, sector, -1, module); // Dummy subsector, -1 for modules ? 
                 const auto& ret = trigger_cells_to_modules_.insert( std::make_pair(triggerDetid, moduleDetid) );
                 if(!ret.second) edm::LogWarning("HGCalTriggerGeometry") << "Duplicate cell "<<triggercell<<" in L1TModulesMapping\n";
             }
@@ -119,7 +120,7 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
         Basic3DVector<float> triggercellVector(0.,0.,0.);
         for(const auto& cell : cellIds)
         {
-            HGCEEDetId cellId(cell);
+            HGCTriggerDetId cellId(cell);
             triggercellVector += esInfo.geom_ee->getPosition(cellId).basicVector();
         }
         GlobalPoint triggercellPoint( triggercellVector/cellIds.size() );
