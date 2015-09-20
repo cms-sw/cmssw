@@ -91,7 +91,7 @@
     if (!(enabled_ = pset.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
-    StorageFactory* f = StorageFactory::get();
+    StorageFactory* f = StorageFactory::getToModify();
     doStats_ = pset.getUntrackedParameter<bool> ("stats", doStats_);
 
     // values set in the site local config or in SiteLocalConfigService override
