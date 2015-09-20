@@ -110,7 +110,7 @@ void Vx3DHLTAnalyzer::analyze (const Event& iEvent, const EventSetup& iSetup)
 	  outputDebugFile.close();
 	  outputDebugFile.open(debugFile.str().c_str(), ios::app);
 	}
-
+      
       beginLuminosityBlock(iEvent.getLuminosityBlock(),iSetup);
     }
   else if (beginTimeOfFit != 0)
@@ -292,6 +292,7 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
   // # -2 == NO OK - not enough "minNentries"   #
   // # -3 == NO OK - not finite errors          #
   // # -4 == NO OK - negative determinant       #
+  // # -5 == NO OK - maxLumiIntegration reached #
   // ############################################
 
   if ((vals != NULL) && (vals->size() == nParams*2))
@@ -622,6 +623,18 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 
 void Vx3DHLTAnalyzer::reset (string ResetType)
 {
+  if (outputFile.is_open() == true)
+    {
+      outputFile << "Runnumber " << runNumber << endl;
+      outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
+      outputFile << "BeginLumiRange " << beginLumiOfFit << endl;
+      outputFile << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
+      outputFile << "EndLumiRange " << endLumiOfFit << endl;
+      outputFile << "LumiCounter " << lumiCounter << endl;
+      outputFile << "LastLumiOfFit " << lastLumiOfFit << endl;
+    }
+
+
   if (ResetType.compare("scratch") == 0)
     {
       runNumber      = 0;
@@ -666,6 +679,7 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       endLumiOfFit   = 0;
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: scratch" << endl;
+      if (outputFile.is_open() == true) outputFile << "Reset -scratch- issued\n" << endl;
     }
   else if (ResetType.compare("whole") == 0)
     {
@@ -687,12 +701,14 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       endLumiOfFit   = 0;
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: whole" << endl;
+      if (outputFile.is_open() == true) outputFile << "Reset -whole- issued\n" << endl;
     }
   else if (ResetType.compare("hitCounter") == 0)
     {
       totalHits = 0;
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: hitCounter" << endl;
+      if (outputFile.is_open() == true) outputFile << "Reset -hitCounter- issued\n" << endl;
     }
 }
 
@@ -1006,8 +1022,13 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 	  if (goodData == -2) histTitle << "Ongoing: not enough evts (" << lumiCounter << " - " << maxLumiIntegration << " lumis)";
 	  else                histTitle << "Ongoing: temporary problems (" << lumiCounter << " - " << maxLumiIntegration << " lumis)";
 	  
-	  if (lumiCounter > maxLumiIntegration) reset("whole");
-	  else                                  reset("hitCounter");
+	  if (lumiCounter > maxLumiIntegration)
+	    {
+	      statusCounter->getTH1()->SetBinContent(lastLumiOfFit, -5);
+	      statusCounter->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
+	      reset("whole");
+	    }
+	  else reset("hitCounter");
 	}
 
       reportSummary->Fill((numberFits != 0 ? ((double)numberGoodFits) / ((double)numberFits) : -1));
@@ -1117,11 +1138,19 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
     {
       histTitle << "Ongoing: accumulating evts (" << lumiCounter%nLumiFit << " - " << nLumiFit << " in " << lumiCounter << " - " << maxLumiIntegration << " lumis)";
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
+      if (outputFile.is_open() == true)
+	{
+	  outputFile << "Runnumber " << runNumber << endl;
+	  outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
+	  outputFile << "BeginLumiRange " << beginLumiOfFit << endl;
+	  outputFile << histTitle.str().c_str() << "\n" << endl;
+	}
     }
   else if ((nLumiFit == 0) || (beginTimeOfFit == 0) || (runNumber == 0))
     {
       histTitle << "Ongoing: no ongoing fits";
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
+      if (outputFile.is_open() == true) outputFile << histTitle.str().c_str() << "\n" << endl;
 
       endLumiOfFit = lumiBlock.luminosityBlock();
 
