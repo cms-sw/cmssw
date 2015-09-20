@@ -54,9 +54,12 @@ namespace HepPDT {
  * (acting as the Geant4 master thread), and there should be exactly
  * one instance of it. 
  */
+class RunManagerMTWorker;
 
 class RunManagerMT 
 {
+  friend class RunManagerMTWorker;
+
 public:
   RunManagerMT(edm::ParameterSet const & p);
   ~RunManagerMT();

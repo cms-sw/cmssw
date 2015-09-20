@@ -53,6 +53,8 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     G4CheckOverlap = cms.PSet(
         Tolerance = cms.untracked.double(0.0),
         Resolution = cms.untracked.int32(10000),
+        RegionFlag = cms.untracked.bool(True),  # if true - selection by G4Region name
+        gdmlFlag = cms.untracked.bool(True),  # if true - dump gdml file
         NodeNames = cms.vstring('World')
     ),
     G4Commands = cms.vstring(),
