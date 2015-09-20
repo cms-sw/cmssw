@@ -84,11 +84,11 @@ bool Py8EGun::generatePartonsAndHadronize()
       {
          if ( (fMasterGen->particleData).isParticle( -particleID ) )
 	 {
-	    (fMasterGen->event).append( -particleID, 1, 0, 0, px, py, pz, ee, mass );
+	    (fMasterGen->event).append( -particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
 	 }
 	 else
 	 {
-	    (fMasterGen->event).append( particleID, 1, 0, 0, px, py, pz, ee, mass );
+	    (fMasterGen->event).append( particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
 	 }
       }
 

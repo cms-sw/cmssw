@@ -42,7 +42,6 @@ StatisticsSenderService::FileStatistics::FileStatistics() :
   m_read_vector_square(0),
   m_read_vector_count_sum(0),
   m_read_vector_count_square(0),
-  m_read_bytes_at_close(0),
   m_start_time(time(NULL))
 {}
 
@@ -57,18 +56,19 @@ StatisticsSenderService::FileStatistics::fillUDP(std::ostringstream &os) {
   ssize_t read_vector_square = 0;
   ssize_t read_vector_count_sum = 0;
   ssize_t read_vector_count_square = 0;
+  auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
   for (StorageAccount::StorageStats::const_iterator i = stats.begin (); i != stats.end(); ++i) {
-    if (i->first == "tstoragefile") {
+    if (i->first == token.value()) {
       continue;
     }
-    for (StorageAccount::OperationStats::const_iterator j = i->second->begin(); j != i->second->end(); ++j) {
-      if (j->first == "readv") {
+    for (StorageAccount::OperationStats::const_iterator j = i->second.begin(); j != i->second.end(); ++j) {
+      if (j->first == static_cast<int>(StorageAccount::Operation::readv)) {
         read_vector_operations += j->second.attempts;
         read_vector_bytes += j->second.amount;
         read_vector_count_square += j->second.vector_square;
         read_vector_square += j->second.amount_square;
         read_vector_count_sum += j->second.vector_count;
-      } else if (j->first == "read") {
+      } else if (j->first == static_cast<int>(StorageAccount::Operation::read)) {
         read_single_operations += j->second.attempts;
         read_single_bytes += j->second.amount;
         read_single_square += j->second.amount_square;

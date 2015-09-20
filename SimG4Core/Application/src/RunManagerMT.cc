@@ -71,7 +71,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_fieldBuilder(nullptr)
 {    
-  m_currentRun = 0;
+  m_currentRun = nullptr;
   G4RunManagerKernel *kernel = G4MTRunManagerKernel::GetRunManagerKernel();
   if(!kernel) m_kernel = new G4MTRunManagerKernel();
   else {
@@ -96,6 +96,9 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 			  const HepPDT::ParticleDataTable *fPDGTable)
 {
   if (m_managerInitialized) return;
+
+  edm::LogInfo("SimG4CoreApplication") 
+    << "RunManagerMT: start initialisation of geometry";
   
   // DDDWorld: get the DDCV from the ES and use it to build the World
   G4LogicalVolumeToDDLogicalPartMap map_;
@@ -103,6 +106,9 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
   m_registry.dddWorldSignal_(m_world.get());
 
   // setup the magnetic field
+  edm::LogInfo("SimG4CoreApplication") 
+    << "RunManagerMT: start initialisation of magnetic field";
+
   if (m_pUseMagneticField)
     {
       const GlobalPoint g(0.,0.,0.);
@@ -119,6 +125,9 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     }
 
   // Create physics list
+  edm::LogInfo("SimG4CoreApplication") 
+    << "RunManagerMT: create PhysicsList";
+
   std::unique_ptr<PhysicsListMakerBase>
     physicsMaker(PhysicsListFactory::get()->create(
       m_pPhysics.getParameter<std::string> ("type")));
@@ -161,15 +170,14 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
     throw SimG4Exception("G4RunManagerKernel initialization failed!"); 
   }
 
-  if (m_StorePhysicsTables)
-    {
-      std::ostringstream dir;
-      dir << m_PhysicsTablesDir << '\0';
-      std::string cmd = std::string("/control/shell mkdir -p ")+m_PhysicsTablesDir;
-      if (!std::ifstream(dir.str().c_str(), std::ios::in))
-        G4UImanager::GetUIpointer()->ApplyCommand(cmd);
-      m_physicsList->StorePhysicsTable(m_PhysicsTablesDir);
-    }
+  if (m_StorePhysicsTables) {
+    std::ostringstream dir;
+    dir << m_PhysicsTablesDir << '\0';
+    std::string cmd = std::string("/control/shell mkdir -p ")+m_PhysicsTablesDir;
+    if (!std::ifstream(dir.str().c_str(), std::ios::in))
+      G4UImanager::GetUIpointer()->ApplyCommand(cmd);
+    m_physicsList->StorePhysicsTable(m_PhysicsTablesDir);
+  }
 
   initializeUserActions();
 
@@ -183,7 +191,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   // geometry dump
   if("" != m_WriteFile) {
-    G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
+    G4GDMLParser gdml;
     gdml.Write(m_WriteFile, m_world->GetWorldVolume(), true);
   }
 
@@ -227,8 +235,6 @@ void RunManagerMT::terminateRun() {
   m_userRunAction->EndOfRunAction(m_currentRun);
   delete m_userRunAction;
   m_userRunAction = 0;
-  // delete m_currentRun;
-  //m_currentRun = 0;
   if(m_kernel && !m_runTerminated) {
     m_kernel->RunTermination();
     m_runTerminated = true;

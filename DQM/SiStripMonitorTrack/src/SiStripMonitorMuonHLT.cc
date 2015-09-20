@@ -78,7 +78,7 @@ SiStripMonitorMuonHLT::~SiStripMonitorMuonHLT ()
 
 float SiStripMonitorMuonHLT::GetEtaWeight(std::string label, GlobalPoint clustgp){
         float etaWeight = 1.;
-	for (unsigned int i = 0; i < m_BinEta[label].size() - 1; i++){                      
+	for (unsigned int i = 0, end = m_BinEta[label].size() - 1; i < end; ++i){                      
         	if (m_BinEta[label][i] < clustgp.eta() && clustgp.eta() < m_BinEta[label][i+1]){
                 	if (m_ModNormEta[label][i] > 0.1) etaWeight = 1./m_ModNormEta[label][i];
                 	else etaWeight = 1.;
@@ -89,7 +89,7 @@ float SiStripMonitorMuonHLT::GetEtaWeight(std::string label, GlobalPoint clustgp
 
 float SiStripMonitorMuonHLT::GetPhiWeight(std::string label, GlobalPoint clustgp){
         float phiWeight = 1.;
-	for (unsigned int i = 0; i < m_BinPhi[label].size() - 1; i++){                      
+	for (unsigned int i = 0, end = m_BinPhi[label].size() - 1; i < end; ++i){                      
         	if (m_BinPhi[label][i] < clustgp.phi() && clustgp.phi() < m_BinPhi[label][i+1]){
                 	if (m_ModNormPhi[label][i] > 0.1) phiWeight = 1./m_ModNormPhi[label][i];
                 	else phiWeight = 1.;
@@ -120,25 +120,25 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
   edm::Handle < reco::RecoChargedCandidateCollection > l3mucands;
   bool accessToL3Muons = true;
   iEvent.getByToken (l3collectionToken_, l3mucands);
-  reco::RecoChargedCandidateCollection::const_iterator cand;
+  reco::RecoChargedCandidateCollection::const_iterator cand, candEnd;
 
   //Access to clusters
   edm::Handle < edm::LazyGetter < SiStripCluster > >clusters;
   bool accessToClusters = true;
   iEvent.getByToken (clusterCollectionToken_, clusters);
-  edm::LazyGetter < SiStripCluster >::record_iterator clust;
+  edm::LazyGetter < SiStripCluster >::record_iterator clust, clustEnd;
  
   //Access to Tracks
   edm::Handle<reco::TrackCollection > trackCollection;
   bool accessToTracks = true;
   iEvent.getByToken (TrackCollectionToken_, trackCollection);
-  reco::TrackCollection::const_iterator track;
+  reco::TrackCollection::const_iterator track, trackEnd;
    /////////////////////////////////////////////////////
 
 
   if (runOnClusters_ && accessToClusters && !clusters.failedToGet () && clusters.isValid())
     {
-      for (clust = clusters->begin_record (); clust != clusters->end_record (); ++clust)
+      for (clust = clusters->begin_record (), clustEnd = clusters->end_record (); clust != clustEnd; ++clust)
 	{
 	  
 	  uint detID = 0; // zero since long time clust->geographicalId ();
@@ -167,7 +167,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 
   if (runOnMuonCandidates_ && accessToL3Muons && !l3mucands.failedToGet () && l3mucands.isValid())
     {
-      for (cand = l3mucands->begin (); cand != l3mucands->end (); ++cand)
+      for (cand = l3mucands->begin (), candEnd = l3mucands->end (); cand != candEnd; ++cand)
 	{
 	  //TrackRef l3tk = cand->get < TrackRef > ();
 	  const reco::Track* l3tk = cand->get < reco::TrackRef > ().get();
@@ -176,7 +176,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
     }				//if l3seed
  
   if (runOnTracks_ && accessToTracks && !trackCollection.failedToGet() && trackCollection.isValid()){
-	for (track = trackCollection->begin (); track != trackCollection->end() ; ++ track)
+	for (track = trackCollection->begin (), trackEnd = trackCollection->end(); track != trackEnd; ++track)
 	  {
 	    const reco::Track* tk =  &(*track);
 	    analyzeOnTrackClusters(tk, theTracker, false);	
@@ -187,7 +187,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 
 void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, const TrackerGeometry & theTracker,  bool isL3MuTrack ){
 
-	  for (size_t hit = 0; hit < l3tk->recHitsSize (); hit++)
+	  for (size_t hit = 0, end = l3tk->recHitsSize (); hit < end; ++hit)
 	    {
 	      //if hit is valid and in tracker say true
 	      if (l3tk->recHit (hit)->isValid () == true && l3tk->recHit (hit)->geographicalId ().det () == DetId::Tracker)
@@ -474,7 +474,8 @@ SiStripMonitorMuonHLT::createMEs (DQMStore::IBooker & ibooker , const edm::Event
       float * xbinsEta = new float[100];
 
       //TEC && TID && TOB && TIB
-      if (labelHisto_ID == "TEC" || labelHisto_ID == "TID" || labelHisto_ID == "TOB" || labelHisto_ID == "TIB"){
+       std::string tob = "TOB", tib = "TIB", tec = "TEC", tid = "TID";
+       if (labelHisto_ID == tec || labelHisto_ID == tid || labelHisto_ID == tob || labelHisto_ID == tib){
 
         // PHI BINNING
         //ADDING BORDERS
@@ -505,9 +506,9 @@ SiStripMonitorMuonHLT::createMEs (DQMStore::IBooker & ibooker , const edm::Event
         sort(v_BinEta_Prel.begin(),v_BinEta_Prel.end());
 
         //RECOMPUTE THE BINS BY TAKING THE HALF OF THE DISTANCE
-        for (unsigned int i = 0; i < v_BinEta_Prel.size(); i++){
-          if (i == 0) m_BinEta[labelHisto].push_back(v_BinEta_Prel[i] - 0.15);
-          if (i != 0) {
+        for (unsigned int i = 0, end = v_BinEta_Prel.size(); i < end; i++){
+          if (i == 0) { m_BinEta[labelHisto].push_back(v_BinEta_Prel[i] - 0.15);
+          } else {
             float shift = v_BinEta_Prel[i] - v_BinEta_Prel[i-1];
             m_BinEta[labelHisto].push_back(v_BinEta_Prel[i] - shift/2.);
           }
@@ -603,7 +604,7 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
 
   //Loop over DetIds
   //-----------------------------------------
-  for(std::vector<DetId>::const_iterator detid_iterator =  Dets.begin(); detid_iterator!=Dets.end(); ++detid_iterator){
+  for(std::vector<DetId>::const_iterator detid_iterator = Dets.begin(), end = Dets.end(); detid_iterator!=end; ++detid_iterator){
     uint32_t detid = (*detid_iterator)();
 
     if ( (*detid_iterator).null() == true) break;
@@ -659,17 +660,17 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
       }
 
       //TEC
-      if (detector == GeomDetEnumerators::TEC ){
-
-        
+      if (detector == GeomDetEnumerators::TEC ){ 
 
         //PHI BINNING
         //Select 7th ring
         if (tTopo->tecRing(detid) == 7){
-          //SELECT FP
-          if (tTopo->tecModule(detid) == 1 && tTopo->tecIsFrontPetal(detid) == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
-          //SELECT BP
-          if (tTopo->tecModule(detid) == 1 && tTopo->tecIsBackPetal(detid) == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+          if (tTopo->tecModule(detid) == 1) { 
+            //SELECT FP
+            if (tTopo->tecIsFrontPetal(detid) == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+            //SELECT BP
+            if (tTopo->tecIsBackPetal(detid) == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+          }
         }
 
         //ETA BINNING
@@ -682,17 +683,17 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
       } //END TEC
 
       //TID
-      if (detector == GeomDetEnumerators::TID ){
-
-        
+      else if (detector == GeomDetEnumerators::TID ){
 
         //PHI BINNING
         //Select 1st ring
         if (tTopo->tecRing(detid) == 1){
-          //SELECT MONO
-          if (tTopo->tecIsFrontPetal(detid) == true && tTopo->tecIsStereo(detid) == false) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
-          //SELECT STEREO
-          if (tTopo->tecIsFrontPetal(detid) == true && tTopo->tecIsStereo(detid) == true) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+	  if (tTopo->tecIsFrontPetal(detid) == true) {
+            //SELECT MONO
+            if (tTopo->tecIsStereo(detid) == false) m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+            //SELECT STEREO
+            else m_BinPhi[mylabelHisto].push_back(clustgp.phi());
+          }
         }
 
         //ETA BINNING
@@ -705,8 +706,7 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
       } //END TID
 
       //TOB
-      if (detector == GeomDetEnumerators::TOB ){
-
+      else if (detector == GeomDetEnumerators::TOB ){
         
         //PHI BINNING
         //Select arbitrary line in phi (detid)ta fixed)
@@ -723,8 +723,7 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
           if (tTopo->tobIsZMinusSide(detid) == true){
             m_PhiStripMod_Eta[mylabelHisto][tTopo->tobModule(detid)-1] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tobModule(detid)-1] + clustgp.eta();
             m_PhiStripMod_Nb[mylabelHisto][tTopo->tobModule(detid)-1]++;
-          }
-          if (tTopo->tobIsZMinusSide(detid) == false){
+          } else {
             m_PhiStripMod_Eta[mylabelHisto][tTopo->tobModule(detid)+5] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tobModule(detid)+5] + clustgp.eta();
             m_PhiStripMod_Nb[mylabelHisto][tTopo->tobModule(detid)+5]++;
           }
@@ -733,9 +732,7 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
       } //END TOB
 
       //TIB
-      if (detector == GeomDetEnumerators::TIB ){
-
-        
+      else if (detector == GeomDetEnumerators::TIB ){
 
         //PHI BINNING
         //Select arbitrary line in phi (eta fixed)
@@ -753,18 +750,15 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
             if (tTopo->tibIsInternalString(detid) == true){
               m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)-1] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)-1] + clustgp.eta();
               m_PhiStripMod_Nb[mylabelHisto][tTopo->tibModule(detid)-1]++;
-            }
-            if (tTopo->tibIsInternalString(detid) == false){
+            } else {
               m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+2] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+2] + clustgp.eta();
               m_PhiStripMod_Nb[mylabelHisto][tTopo->tibModule(detid)+2]++;
             }
-          }
-          if (tTopo->tibIsZMinusSide(detid) == false){
+          } else {
             if (tTopo->tibIsInternalString(detid) == true){
               m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+5] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+5] + clustgp.eta();
               m_PhiStripMod_Nb[mylabelHisto][tTopo->tibModule(detid)+5]++;
-            }
-            if (tTopo->tibIsInternalString(detid) == false){
+            } else {
               m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+8] = m_PhiStripMod_Eta[mylabelHisto][tTopo->tibModule(detid)+8] + clustgp.eta();
               m_PhiStripMod_Nb[mylabelHisto][tTopo->tibModule(detid)+8]++;
             }
@@ -780,15 +774,14 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
 
 
 
-void
-SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerGeometry & theTracker){
+void SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerGeometry & theTracker){
   
   
   std::vector<std::string> v_LabelHisto;
 
   //Loop over DetIds
   //-----------------------------------------
-  for(std::vector<DetId>::const_iterator detid_iterator =  Dets.begin(); detid_iterator!=Dets.end(); detid_iterator++){
+  for(std::vector<DetId>::const_iterator detid_iterator =  Dets.begin(), end = Dets.end(); detid_iterator!=end; ++detid_iterator){
     uint32_t detid = (*detid_iterator)();
     
     if ( (*detid_iterator).null() == true) break;
@@ -833,12 +826,12 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
 
         //INITIALIZE    
         // LOOPING ON ETA VECTOR
-        for (unsigned int i = 0; i < m_BinEta[mylabelHisto].size() -1; i++){
+        for (unsigned int i = 0, end = m_BinEta[mylabelHisto].size() -1; i < end; ++i){
           m_ModNormEta[mylabelHisto].push_back(0.);
         }
 
         // LOOPING ON PHI VECTOR
-        for (unsigned int i = 0; i < m_BinPhi[mylabelHisto].size() -1; i++){
+        for (unsigned int i = 0, end = m_BinPhi[mylabelHisto].size() -1; i < end; i++){
           m_ModNormPhi[mylabelHisto].push_back(0.);
         }
       }
@@ -871,7 +864,8 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
       float factor = 1.;
       
       //RECTANGULAR BOUNDS
-      if (labelHisto_ID == "TOB" || labelHisto_ID == "TIB"){
+      std::string tob = "TOB", tib = "TIB", tec = "TEC", tid = "TID";
+      if (labelHisto_ID == tob || labelHisto_ID == tib){
         const RectangularPlaneBounds *rectangularBound = dynamic_cast < const RectangularPlaneBounds * >(& bound);                                                  
         length = rectangularBound->length();
         width = rectangularBound->width();                                                                                                                        
@@ -879,14 +873,16 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
             
         //EDGES POINTS
         LocalPoint topleft(-width/2., length/2.);
-        LocalPoint topright(width/2., length/2.);                                                                                                                   LocalPoint botleft(-width/2., -length/2.);
+        LocalPoint topright(width/2., length/2.);
+        LocalPoint botleft(-width/2., -length/2.);
         LocalPoint botright(width/2., -length/2.);                                                                                                                                  
         v_Edge_G.push_back(theGeomDet->surface ().toGlobal (topleft));
         v_Edge_G.push_back(theGeomDet->surface ().toGlobal (topright));
-        v_Edge_G.push_back(theGeomDet->surface ().toGlobal (botleft));                                                                                              v_Edge_G.push_back(theGeomDet->surface ().toGlobal (botright));
+        v_Edge_G.push_back(theGeomDet->surface ().toGlobal (botleft));
+        v_Edge_G.push_back(theGeomDet->surface ().toGlobal (botright));
       }                                                                                                                                                            
       //TRAPEZOIDAL BOUNDS
-      if (labelHisto_ID == "TEC" || labelHisto_ID == "TID"){    
+      else if (labelHisto_ID == tec || labelHisto_ID == tid){    
         const TrapezoidalPlaneBounds *trapezoidalBound = dynamic_cast < const TrapezoidalPlaneBounds * >(& bound);
 
         length = trapezoidalBound->length();
@@ -918,23 +914,20 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
       v_Fill.push_back(false);
       v_Fill.push_back(false);
 
-      for (unsigned int i =0 ; i< v_Edge_G.size() ; i++){
+      for (unsigned int i =0, end = v_Edge_G.size(); i < end ; i++){
         if (v_Edge_G[i].eta() < clustgp.eta()){
           if (v_Edge_G[i].phi() < clustgp.phi()) {
             bot_left_G = v_Edge_G[i];
             v_Fill[0] = true;
-          }
-          if (v_Edge_G[i].phi() > clustgp.phi()){
+          } else if (v_Edge_G[i].phi() != clustgp.phi()){
             top_left_G = v_Edge_G[i];
             v_Fill[1] = true;
           }
-        }
-        if (v_Edge_G[i].eta() > clustgp.eta()){
+        } else if (v_Edge_G[i].eta() != clustgp.eta()){
           if (v_Edge_G[i].phi() < clustgp.phi()){
             bot_rightG = v_Edge_G[i];
             v_Fill[2] = true;
-          }
-          if (v_Edge_G[i].phi() > clustgp.phi()){
+          } else if (v_Edge_G[i].phi() != clustgp.phi()){
             top_rightG = v_Edge_G[i];
             v_Fill[3] = true;
           }
@@ -959,28 +952,24 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
         //WIDTH BETWEEN BL AND TL
         G_width = sqrt( (bot_left_G.x()-top_left_G.x())*(bot_left_G.x()-top_left_G.x()) + (bot_left_G.y()-top_left_G.y())*(bot_left_G.y()-top_left_G.y()) + (bot_left_G.z()-top_left_G.z())*(bot_left_G.z()-top_left_G.z()) );
 
-      }
-      else {
+      } else {
 
         // MODULE IN THE PHI BORDER (-PI,PI)
         flag_border = true;
 
         //SORT THE EDGES POINTS 
-        for (unsigned int i =0 ; i< v_Edge_G.size() ; i++){
+        for (unsigned int i =0, end = v_Edge_G.size(); i < end; ++i){
 
           if (v_Edge_G[i].phi() > 0. ){
             if (v_Edge_G[i].eta() < clustgp.eta()){
               bot_left_G = v_Edge_G[i];
-            }
-            if (v_Edge_G[i].eta() > clustgp.eta()){
+            } else if (v_Edge_G[i].eta() != clustgp.eta()){
               bot_rightG = v_Edge_G[i];
             }
-          }
-          if (v_Edge_G[i].phi() < 0. ){
+          } else if (v_Edge_G[i].phi() != 0. ){
             if (v_Edge_G[i].eta() < clustgp.eta()){
               top_left_G = v_Edge_G[i];
-            }
-            if (v_Edge_G[i].eta() > clustgp.eta()){
+            } else if (v_Edge_G[i].eta() != clustgp.eta()){
               top_rightG = v_Edge_G[i];
             }
           }
@@ -994,7 +983,7 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
 
       //ETA PLOTS
       //unsigned int LastBinEta = m_BinEta[mylabelHisto].size() - 2;
-      for (unsigned int i = 0; i < m_BinEta[mylabelHisto].size() - 1; i++){
+      for (unsigned int i = 0, end = m_BinEta[mylabelHisto].size() - 1; i < end; ++i){
         if (m_BinEta[mylabelHisto][i] <= clustgp.eta() && clustgp.eta() < m_BinEta[mylabelHisto][i+1]){
 
           // NO NEED TO DO CORRECTIONS FOR ETA
@@ -1005,7 +994,7 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
 
       //PHI PLOTS
       unsigned int LastBinPhi = m_BinPhi[mylabelHisto].size() - 2;
-      for (unsigned int i = 0; i < m_BinPhi[mylabelHisto].size() - 1; i++){
+      for (unsigned int i = 0, end = m_BinPhi[mylabelHisto].size() - 1; i < end; ++i){
         if (m_BinPhi[mylabelHisto][i] <= clustgp.phi() && clustgp.phi() < m_BinPhi[mylabelHisto][i+1]){
 
           // SCRIPT TO INTEGRATE THE SURFACE INTO PHI BIN
@@ -1055,9 +1044,7 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
             MidPoint_X_prev = (xStar1 + xStar2)/2.;
             MidPoint_Y_prev = (yStar1 + yStar2)/2.;
             MidPoint_Z_prev = (zStar1 + zStar2)/2.;
-          }
-
-          if (offlimit_prev == false){
+          } else {
             MidPoint_X_prev = (bot_left_G.x() + bot_rightG.x())/2.;
             MidPoint_Y_prev = (bot_left_G.y() + bot_rightG.y())/2.;
             MidPoint_Z_prev = (bot_left_G.z() + bot_rightG.z())/2.;
@@ -1089,9 +1076,7 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
             MidPoint_X_foll = (xStar1 + xStar2)/2.;
             MidPoint_Y_foll = (yStar1 + yStar2)/2.;
             MidPoint_Z_foll = (zStar1 + zStar2)/2.;
-          }
-
-          if (offlimit_foll == false){
+          } else {
             MidPoint_X_foll = (top_left_G.x() + top_rightG.x())/2.;
             MidPoint_Y_foll = (top_left_G.y() + top_rightG.y())/2.;
             MidPoint_Z_foll = (top_left_G.z() + top_rightG.z())/2.;
@@ -1117,10 +1102,10 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
             }
 
             // B) MODULE SPLITTED IN TWO
-            if (i == 0 || i == LastBinPhi){
+            else {
               float PhiBalance = 0.;
               if (clustgp.phi() > 0.) PhiBalance = clustgp.phi() - M_PI ;
-              if (clustgp.phi() < 0.) PhiBalance = clustgp.phi() + M_PI ;
+              else if (clustgp.phi() != 0.) PhiBalance = clustgp.phi() + M_PI ;
 
               // Average Phi width of a phi bin
               float Phi_Width = m_BinPhi[mylabelHisto][3] - m_BinPhi[mylabelHisto][2];
@@ -1131,18 +1116,14 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
               m_ModNormPhi[mylabelHisto][0] = m_ModNormPhi[mylabelHisto][0] + weight_FirstBin*(factor*G_length*G_width);
               m_ModNormPhi[mylabelHisto][LastBinPhi] = m_ModNormPhi[mylabelHisto][LastBinPhi] + weight_LastBin*(factor*G_length*G_width);
             }
-          }
-
-          if (flag_border == false){
-
+          } else {
             // A) SURFACE TOTALY CONTAINED IN THE BIN
             if (offlimit_prev == false && offlimit_foll == false){
               m_ModNormPhi[mylabelHisto][i] = m_ModNormPhi[mylabelHisto][i] + factor*G_length*G_width;
             }
 
             // B) SURFACE CONTAINED IN 2 BINS
-            if ((offlimit_prev == true && offlimit_foll == false)
-                ||(offlimit_prev == false && offlimit_foll == true) ){
+            else if (offlimit_prev != offlimit_foll) {
               float G_width_Out = fabs(G_width - G_width_Ins);
 
               //FILL INSIDE CELL            
@@ -1154,7 +1135,7 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
             }
 
             // C) SURFACE CONTAINED IN 3 BINS
-            if (offlimit_prev == true && offlimit_foll == true){
+            else {
 
               //COMPUTE OFF LIMITS LENGTHS
               float G_width_T =  sqrt( (MidPoint_X_foll-EdgePoint_X_T)*(MidPoint_X_foll-EdgePoint_X_T) + (MidPoint_Y_foll-EdgePoint_Y_T)*(MidPoint_Y_foll-EdgePoint_Y_T) + (MidPoint_Z_foll-EdgePoint_Z_T)*(MidPoint_Z_foll-EdgePoint_Z_T) );
@@ -1191,13 +1172,12 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
 
 
 
-void
-SiStripMonitorMuonHLT::PrintNormalization (const std::vector<std::string>& v_LabelHisto)
+void SiStripMonitorMuonHLT::PrintNormalization (const std::vector<std::string>& v_LabelHisto)
 {
   std::vector <TH1F *> h_ModNorm_Eta;
   std::vector <TH1F *> h_ModNorm_Phi;
 
-  for (unsigned int p = 0; p < v_LabelHisto.size(); p++){
+  for (unsigned int p = 0, end = v_LabelHisto.size(); p < end; ++p){
    
     std::string titleHistoEta = v_LabelHisto[p] + "_eta" ;    
     std::string titleHistoPhi = v_LabelHisto[p] + "_phi" ;  
@@ -1221,10 +1201,10 @@ SiStripMonitorMuonHLT::PrintNormalization (const std::vector<std::string>& v_Lab
     h_ModNorm_Eta.push_back(new TH1F (titleHistoEta.c_str(),titleHistoEta.c_str(),sizeEta - 1,xbinsEta));
     h_ModNorm_Phi.push_back(new TH1F (titleHistoPhi.c_str(),titleHistoPhi.c_str(),sizePhi - 1,xbinsPhi));
     
-    for (unsigned int i = 0; i < m_ModNormEta[labelHisto].size(); i++){
+    for (unsigned int i = 0, end = m_ModNormEta[labelHisto].size(); i < end; ++i){
       (*h_ModNorm_Eta[p]).SetBinContent(i+1,m_ModNormEta[labelHisto][i]);
     }
-    for (unsigned int i = 0; i < m_ModNormPhi[labelHisto].size(); i++){
+    for (unsigned int i = 0, end = m_ModNormPhi[labelHisto].size(); i < end; ++i){
       (*h_ModNorm_Phi[p]).SetBinContent(i+1,m_ModNormPhi[labelHisto][i]);
     }
 

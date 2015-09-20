@@ -314,7 +314,7 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     }
 
     // Update storage account information
-    StorageAccount::StorageStatsSentry stats = StorageAccount::summaryLocked();
+    auto const& stats = StorageAccount::summary();
     uint64_t readOps = 0;
     uint64_t readVOps = 0;
     uint64_t readSegs = 0;
@@ -322,30 +322,31 @@ CondorStatusService::updateImpl(time_t sinceLastUpdate)
     uint64_t readTimeTotal = 0;
     uint64_t writeBytes = 0;
     uint64_t writeTimeTotal = 0;
-    for (const auto & storage : *stats)
+    const auto token = StorageAccount::tokenForStorageClassName("tstoragefile");
+    for (const auto & storage : stats)
     {
         // StorageAccount records statistics for both the TFile layer and the
         // StorageFactory layer.  However, the StorageFactory statistics tend to
         // be more accurate as various backends may alter the incoming read requests
         // (such as when lazy-download is used).
-        if (storage.first == "tstoragefile") {continue;}
-        for (const auto & counter : *(storage.second))
+        if (storage.first == token.value()) {continue;}
+        for (const auto & counter : storage.second)
         {
-            if (counter.first == "read")
+            if (counter.first == static_cast<int>(StorageAccount::Operation::read))
             {
                 readOps += counter.second.successes;
                 readSegs++;
                 readBytes += counter.second.amount;
                 readTimeTotal += counter.second.timeTotal;
             }
-            else if (counter.first == "readv")
+            else if (counter.first == static_cast<int>(StorageAccount::Operation::readv))
             {
                 readVOps += counter.second.successes;
                 readSegs += counter.second.vector_count;
                 readBytes += counter.second.amount;
                 readTimeTotal += counter.second.timeTotal;
             }
-            else if ((counter.first == "write") || (counter.first == "writev"))
+            else if ((counter.first == static_cast<int>(StorageAccount::Operation::write)) || (counter.first == static_cast<int>(StorageAccount::Operation::writev)))
             {
                 writeBytes += counter.second.amount;
                 writeTimeTotal += counter.second.timeTotal;

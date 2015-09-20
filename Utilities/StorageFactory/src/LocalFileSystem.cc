@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <iostream>
+#include <atomic>
 
 #pragma GCC diagnostic ignored "-Wformat" // shut warning on '%z'
 
@@ -33,8 +34,8 @@ struct LocalFileSystem::FSInfo
   long		fstype;		//< file system id
   double	freespc;	//< free space in megabytes
   unsigned 	local : 1;	//< flag for local device
-  unsigned	checked : 1;	//< flag for valid dev, fstype
   unsigned	bind : 1;	//< flag for bind mounts
+  std::atomic<bool>	checked ;	//< flag for valid dev, fstype
 };
 
 /** Read /proc/filesystems to determine which filesystems are local,
@@ -261,7 +262,7 @@ LocalFileSystem::initFSList(void)
     This function can be called any number of times.  It only does the
     file system check the first time the function is called. */
 int
-LocalFileSystem::statFSInfo(FSInfo *i)
+LocalFileSystem::statFSInfo(FSInfo *i) const
 {
   int ret = 0;
   struct stat s;
@@ -269,9 +270,10 @@ LocalFileSystem::statFSInfo(FSInfo *i)
 
   if (! i->checked)
   {
-    i->checked = 1;
     if (lstat(i->dir, &s) < 0)
     {
+      i->checked = 1;
+
       int nerr = errno;
       if (nerr != ENOENT && nerr != EACCES)
         edm::LogWarning("LocalFileSystem::statFSInfo()")
@@ -282,6 +284,7 @@ LocalFileSystem::statFSInfo(FSInfo *i)
 
     if (statfs(i->dir, &sfs) < 0)
     {
+      i->checked = 1;
       int nerr = errno;
       edm::LogWarning("LocalFileSystem::statFSInfo()")
 	<< "Cannot statfs('" << i->dir << "'): "
@@ -297,6 +300,7 @@ LocalFileSystem::statFSInfo(FSInfo *i)
       i->freespc *= sfs.f_bsize;
       i->freespc /= 1024. * 1024. * 1024.;
     }
+    i->checked = 1;
   }
   else if (i->fstype == -1)
   {
@@ -321,7 +325,7 @@ LocalFileSystem::statFSInfo(FSInfo *i)
     system is unavailable or some other way dysfunctional, such as
     dead nfs mount or filesystem does not implement statfs().  */
 LocalFileSystem::FSInfo *
-LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s, std::vector<std::string> &prev_paths)
+LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s, std::vector<std::string> &prev_paths) const
 {
   for (const auto & old_path : prev_paths)
   {
@@ -416,7 +420,7 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
     reported as message logger warnings but the actual error is
     swallowed and the function simply returns @c false. */
 bool
-LocalFileSystem::isLocalPath(const std::string &path)
+LocalFileSystem::isLocalPath(const std::string &path) const
 {
   struct stat s;
   struct statfs sfs;
@@ -472,9 +476,9 @@ LocalFileSystem::isLocalPath(const std::string &path)
     are reported as message logger warnings but the actual error is
     swallowed and the directory concerned is skipped.  Non-existent
     and inaccessible directories are silently ignored without warning. */
-std::string
+std::pair<std::string, std::string>
 LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
-			       double minFreeSpace)
+			       double minFreeSpace) const
 {
   struct stat s;
   struct statfs sfs;
@@ -548,7 +552,7 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
     {
       std::string result(fullpath);
       free(fullpath);
-      return result;
+      return std::make_pair(result,std::string());
     }
     else if (m)
     {
@@ -574,18 +578,8 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
   {
     warning_str = warning_str.substr(0, warning_str.size()-2);
   }
-  unusable_dir_warnings_ = std::move(warning_str);
-    
-  return std::string();
-}
-
-void
-LocalFileSystem::issueWarning()
-{
-  if (unusable_dir_warnings_.size())
-  {
-    edm::LogWarning("LocalFileSystem::findCachePath()") << unusable_dir_warnings_;
-  }
+  
+  return std::make_pair(std::string(), std::move(warning_str));
 }
 
 /** Initialise local file system status.  */

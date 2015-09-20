@@ -22,8 +22,8 @@ XERCES_CPP_NAMESPACE_USE
 
 namespace lhef {
 
-StorageWrap::StorageWrap(Storage *storage) :
-	storage(storage)
+StorageWrap::StorageWrap(std::unique_ptr<Storage> storage) :
+	storage(std::move(storage))
 {
 }
 

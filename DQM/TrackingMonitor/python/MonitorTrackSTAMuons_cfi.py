@@ -21,9 +21,9 @@ MonitorTrackSTAMuons.BSFolderName        = cms.string('Muons/standAloneMuonsUpda
 
 # determines where to evaluate track parameters
 # options: 'default'      --> straight up track parametes
-#		   'ImpactPoint'  --> evalutate at impact point 
-#		   'InnerSurface' --> evalutate at innermost measurement state 
-#		   'OuterSurface' --> evalutate at outermost measurement state 
+#		   'ImpactPoint'  --> evalutate at impact point
+#		   'InnerSurface' --> evalutate at innermost measurement state
+#		   'OuterSurface' --> evalutate at outermost measurement state
 MonitorTrackSTAMuons.MeasurementState = cms.string('default')
 
 # which plots to do
@@ -34,12 +34,13 @@ MonitorTrackSTAMuons.doSeedParameterHistos      = cms.bool(False)
 MonitorTrackSTAMuons.doTrackCandHistos          = cms.bool(False)
 MonitorTrackSTAMuons.doDCAPlots                 = cms.bool(False)
 MonitorTrackSTAMuons.doGeneralPropertiesPlots   = cms.bool(True)
-MonitorTrackSTAMuons.doHitPropertiesPlots       = cms.bool(True)              
+MonitorTrackSTAMuons.doHitPropertiesPlots       = cms.bool(True)
+MonitorTrackSTAMuons.doEffFromHitPattern        = cms.bool(False)
 #MonitorTrackSTAMuons.doGoodTrackPlots           = cms.bool(False)
 MonitorTrackSTAMuons.doMeasurementStatePlots    = cms.bool(True)
 MonitorTrackSTAMuons.doProfilesVsLS             = cms.bool(False)
 MonitorTrackSTAMuons.doRecHitVsPhiVsEtaPerTrack = cms.bool(False)
-#MonitorTrackSTAMuons.doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(False)                          
+#MonitorTrackSTAMuons.doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(False)
 
 #which seed plots to do
 MonitorTrackSTAMuons.doSeedNumberHisto    = cms.bool(False)
@@ -58,7 +59,7 @@ MonitorTrackSTAMuons.doSeedNVsEtaProf     = cms.bool(False)
 
 
 # paramters of the Track
-# ============================================================ 
+# ============================================================
 
 # chi2
 MonitorTrackSTAMuons.Chi2Bin = cms.int32(250)
@@ -80,29 +81,29 @@ MonitorTrackSTAMuons.TkSizeBin = cms.int32(11)
 MonitorTrackSTAMuons.TkSizeMax = cms.double(10.5)
 MonitorTrackSTAMuons.TkSizeMin = cms.double(-0.5)
 
-# Number of seeds per Event                                    
+# Number of seeds per Event
 MonitorTrackSTAMuons.TkSeedSizeBin = cms.int32(20)
-MonitorTrackSTAMuons.TkSeedSizeMax = cms.double(19.5)                                    
+MonitorTrackSTAMuons.TkSeedSizeMax = cms.double(19.5)
 MonitorTrackSTAMuons.TkSeedSizeMin = cms.double(-0.5)
 
 # Number of Track Cadidates per Event
 MonitorTrackSTAMuons.TCSizeBin = cms.int32(150)
-MonitorTrackSTAMuons.TCSizeMax = cms.double(149.5)                                    
+MonitorTrackSTAMuons.TCSizeMax = cms.double(149.5)
 MonitorTrackSTAMuons.TCSizeMin = cms.double(-0.5)
 
-# num rec hits                                    
+# num rec hits
 MonitorTrackSTAMuons.TrackQBin = cms.int32(8)
-MonitorTrackSTAMuons.TrackQMax = cms.double(2.5)                                    
+MonitorTrackSTAMuons.TrackQMax = cms.double(2.5)
 MonitorTrackSTAMuons.TrackQMin = cms.double(-2.5)
 
-# num rec hits in seed                                    
+# num rec hits in seed
 MonitorTrackSTAMuons.SeedHitBin = cms.int32(6)
 MonitorTrackSTAMuons.SeedHitMax = cms.double(5.5)
 MonitorTrackSTAMuons.SeedHitMin = cms.double(-0.5)
 
 # num rec hits per track candidate
 MonitorTrackSTAMuons.TCHitBin = cms.int32(40)
-MonitorTrackSTAMuons.TCHitMax = cms.double(39.5)                                    
+MonitorTrackSTAMuons.TCHitMax = cms.double(39.5)
 MonitorTrackSTAMuons.TCHitMin = cms.double(-0.5)
 
 # num rec hits
@@ -112,7 +113,7 @@ MonitorTrackSTAMuons.RecHitMin = cms.double(0.0)
 
 # mean rec hits
 MonitorTrackSTAMuons.MeanHitBin = cms.int32(30)
-MonitorTrackSTAMuons.MeanHitMax = cms.double(29.5)                                    
+MonitorTrackSTAMuons.MeanHitMax = cms.double(29.5)
 MonitorTrackSTAMuons.MeanHitMin = cms.double(-0.5)
 
 # num TOB rec hits
@@ -147,7 +148,7 @@ MonitorTrackSTAMuons.PXFHitMax = cms.double(9.5)
 
 # num rec hits lost
 MonitorTrackSTAMuons.RecLostBin = cms.int32(120)
-MonitorTrackSTAMuons.RecLostMax = cms.double(20)                                    
+MonitorTrackSTAMuons.RecLostMax = cms.double(20)
 MonitorTrackSTAMuons.RecLostMin = cms.double(0.0)
 
 # num layers
@@ -155,44 +156,44 @@ MonitorTrackSTAMuons.RecLayBin = cms.int32(120)
 MonitorTrackSTAMuons.RecLayMax = cms.double(120.0)
 MonitorTrackSTAMuons.RecLayMin = cms.double(0.0)
 
-# mean layers 
+# mean layers
 MonitorTrackSTAMuons.MeanLayBin = cms.int32(20)
-MonitorTrackSTAMuons.MeanLayMax = cms.double(19.5)                                    
+MonitorTrackSTAMuons.MeanLayMax = cms.double(19.5)
 MonitorTrackSTAMuons.MeanLayMin = cms.double(-0.5)
 
 # num TOB layers
 MonitorTrackSTAMuons.TOBLayBin = cms.int32(10)
-MonitorTrackSTAMuons.TOBLayMax = cms.double(9.5)                                    
+MonitorTrackSTAMuons.TOBLayMax = cms.double(9.5)
 MonitorTrackSTAMuons.TOBLayMin = cms.double(-0.5)
 
 # num TIB layers
 MonitorTrackSTAMuons.TIBLayBin = cms.int32(6)
-MonitorTrackSTAMuons.TIBLayMax = cms.double(5.5)                                    
+MonitorTrackSTAMuons.TIBLayMax = cms.double(5.5)
 MonitorTrackSTAMuons.TIBLayMin = cms.double(-0.5)
 
 # num TID layers
 MonitorTrackSTAMuons.TIDLayBin = cms.int32(6)
-MonitorTrackSTAMuons.TIDLayMax = cms.double(5.5)                                    
+MonitorTrackSTAMuons.TIDLayMax = cms.double(5.5)
 MonitorTrackSTAMuons.TIDLayMin = cms.double(-0.5)
 
 # num TEC layers
 MonitorTrackSTAMuons.TECLayBin = cms.int32(15)
-MonitorTrackSTAMuons.TECLayMax = cms.double(14.5)                                    
+MonitorTrackSTAMuons.TECLayMax = cms.double(14.5)
 MonitorTrackSTAMuons.TECLayMin = cms.double(-0.5)
 
 # num PXB layers
 MonitorTrackSTAMuons.PXBLayBin = cms.int32(6)
-MonitorTrackSTAMuons.PXBLayMax = cms.double(5.5)                                    
+MonitorTrackSTAMuons.PXBLayMax = cms.double(5.5)
 MonitorTrackSTAMuons.PXBLayMin = cms.double(-0.5)
 
 # num PXF layers
 MonitorTrackSTAMuons.PXFLayBin = cms.int32(6)
-MonitorTrackSTAMuons.PXFLayMax = cms.double(5.5)                                    
+MonitorTrackSTAMuons.PXFLayMax = cms.double(5.5)
 MonitorTrackSTAMuons.PXFLayMin = cms.double(-0.5)
 
-# Track |p|	
+# Track |p|
 MonitorTrackSTAMuons.TrackPBin = cms.int32(1000)
-MonitorTrackSTAMuons.TrackPMax = cms.double(1000)                                    
+MonitorTrackSTAMuons.TrackPMax = cms.double(1000)
 MonitorTrackSTAMuons.TrackPMin = cms.double(0)
 
 # Track pT
@@ -200,7 +201,7 @@ MonitorTrackSTAMuons.TrackPtBin = cms.int32(1000)
 MonitorTrackSTAMuons.TrackPtMax = cms.double(1000)
 MonitorTrackSTAMuons.TrackPtMin = cms.double(0)
 
-# Track px 
+# Track px
 MonitorTrackSTAMuons.TrackPxBin = cms.int32(1000)
 MonitorTrackSTAMuons.TrackPxMax = cms.double(500.0)
 MonitorTrackSTAMuons.TrackPxMin = cms.double(-500.0)
@@ -261,7 +262,7 @@ MonitorTrackSTAMuons.etaErrMax = cms.double(0.5)
 MonitorTrackSTAMuons.etaErrMin = cms.double(0.0)
 
 # track phi Error
-MonitorTrackSTAMuons.phiErrBin = cms.int32(100)                                    
+MonitorTrackSTAMuons.phiErrBin = cms.int32(100)
 MonitorTrackSTAMuons.phiErrMax = cms.double(1.0)
 MonitorTrackSTAMuons.phiErrMin = cms.double(0.0)
 
@@ -270,7 +271,7 @@ MonitorTrackSTAMuons.VXBin = cms.int32(20)
 MonitorTrackSTAMuons.VXMax = cms.double(20.0)
 MonitorTrackSTAMuons.VXMin = cms.double(-20.0)
 
-# PCA y position   
+# PCA y position
 MonitorTrackSTAMuons.VYBin = cms.int32(20)
 MonitorTrackSTAMuons.VYMax = cms.double(20.0)
 MonitorTrackSTAMuons.VYMin = cms.double(-20.0)
@@ -282,12 +283,12 @@ MonitorTrackSTAMuons.VZMin = cms.double(-100.0)
 
 # PCA x position for 2D plot
 MonitorTrackSTAMuons.X0Bin = cms.int32(100)
-MonitorTrackSTAMuons.X0Max = cms.double(3.0)                                    
+MonitorTrackSTAMuons.X0Max = cms.double(3.0)
 MonitorTrackSTAMuons.X0Min = cms.double(-3.0)
 
 # PCA y position for 2D plot
 MonitorTrackSTAMuons.Y0Bin = cms.int32(100)
-MonitorTrackSTAMuons.Y0Max = cms.double(3.0)                                    
+MonitorTrackSTAMuons.Y0Max = cms.double(3.0)
 MonitorTrackSTAMuons.Y0Min = cms.double(-3.0)
 
 # PCA z position for 2D plot
@@ -297,53 +298,53 @@ MonitorTrackSTAMuons.Z0Min = cms.double(-30.0)
 
 # Track dxy (transverse impact parameter)
 MonitorTrackSTAMuons.DxyBin = cms.int32(100)
-MonitorTrackSTAMuons.DxyMax = cms.double(0.5)                                    
-MonitorTrackSTAMuons.DxyMin = cms.double(-0.5)                        
+MonitorTrackSTAMuons.DxyMax = cms.double(0.5)
+MonitorTrackSTAMuons.DxyMin = cms.double(-0.5)
 
 # Seed dxy (transverse impact parameter)
 MonitorTrackSTAMuons.SeedDxyBin = cms.int32(100)
 MonitorTrackSTAMuons.SeedDxyMax = cms.double(0.5)
-MonitorTrackSTAMuons.SeedDxyMin = cms.double(-0.5)                                    
+MonitorTrackSTAMuons.SeedDxyMin = cms.double(-0.5)
 
 # Seed dz (longitudinal impact parameter)
 MonitorTrackSTAMuons.SeedDzBin = cms.int32(200)
 MonitorTrackSTAMuons.SeedDzMax = cms.double(30.0)
-MonitorTrackSTAMuons.SeedDzMin = cms.double(-30.0)                                                            
+MonitorTrackSTAMuons.SeedDzMin = cms.double(-30.0)
 
 # Track Candidate dxy (transverse impact parameter)
 MonitorTrackSTAMuons.TCDxyBin = cms.int32(200)
 MonitorTrackSTAMuons.TCDxyMax = cms.double(100.0)
-MonitorTrackSTAMuons.TCDxyMin = cms.double(-100.0)                                                
+MonitorTrackSTAMuons.TCDxyMin = cms.double(-100.0)
 
 # Track Candidate dz (transverse impact parameter)
 MonitorTrackSTAMuons.TCDzBin = cms.int32(200)
 MonitorTrackSTAMuons.TCDzMax = cms.double(400.0)
-MonitorTrackSTAMuons.TCDzMin = cms.double(-400.0)                                                
+MonitorTrackSTAMuons.TCDzMin = cms.double(-400.0)
 
 # NCluster Pixel
 MonitorTrackSTAMuons.NClusPxBin = cms.int32(50)
-MonitorTrackSTAMuons.NClusPxMax = cms.double(1999.5)                      
+MonitorTrackSTAMuons.NClusPxMax = cms.double(1999.5)
 MonitorTrackSTAMuons.NClusPxMin = cms.double(-0.5)
 
 # NCluster Strip
 MonitorTrackSTAMuons.NClusStrBin = cms.int32(150)
-MonitorTrackSTAMuons.NClusStrMax = cms.double(14999.5)                      
+MonitorTrackSTAMuons.NClusStrMax = cms.double(14999.5)
 MonitorTrackSTAMuons.NClusStrMin = cms.double(-0.5)
 
 # NCluster 2D
 MonitorTrackSTAMuons.NClus2DPxBin  = cms.int32(20)
-MonitorTrackSTAMuons.NClus2DPxMax  = cms.double(1999.5)                      
+MonitorTrackSTAMuons.NClus2DPxMax  = cms.double(1999.5)
 MonitorTrackSTAMuons.NClus2DPxMin  = cms.double(-0.5)
 MonitorTrackSTAMuons.NClus2DStrBin = cms.int32(50)
-MonitorTrackSTAMuons.NClus2DStrMax = cms.double(14999.5)                      
+MonitorTrackSTAMuons.NClus2DStrMax = cms.double(14999.5)
 MonitorTrackSTAMuons.NClus2DStrMin = cms.double(-0.5)
 
 # NCluster Vs Tracks
 MonitorTrackSTAMuons.NClus2DTotBin = cms.int32(50)
-MonitorTrackSTAMuons.NClus2DTotMax = cms.double(14999.5)                      
+MonitorTrackSTAMuons.NClus2DTotMax = cms.double(14999.5)
 MonitorTrackSTAMuons.NClus2DTotMin = cms.double(-0.5)
 MonitorTrackSTAMuons.NTrk2DBin     = cms.int32(20)
-MonitorTrackSTAMuons.NTrk2DMax     = cms.double(199.5)                      
+MonitorTrackSTAMuons.NTrk2DMax     = cms.double(199.5)
 MonitorTrackSTAMuons.NTrk2DMin     = cms.double(-0.5)
 
 MonitorTrackSTAMuons.TTRHBuilder = cms.string('WithTrackAngle')
@@ -354,5 +355,5 @@ MonitorTrackSTAMuons.LSMin = cms.double(0)
 MonitorTrackSTAMuons.LSMax = cms.double(2000.)
 
 # Luminosity based analysis
-MonitorTrackSTAMuons.doLumiAnalysis = cms.bool(False)                       
+MonitorTrackSTAMuons.doLumiAnalysis = cms.bool(False)
 

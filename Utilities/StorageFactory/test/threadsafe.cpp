@@ -29,7 +29,7 @@ int main (int, char **) try
     threads.create_thread(&dump);
   threads.join_all();
 
-  std::cout << StorageAccount::summaryXML () << std::endl;
+  std::cout << StorageAccount::summaryText (true) << std::endl;
   return EXIT_SUCCESS;
 } catch(cms::Exception const& e) {
   std::cerr << e.explainSelf() << std::endl;
