@@ -65,7 +65,8 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
             {
                 HGCEEDetId detid(HGCEE, zside, layer, sector, subsector, cell); 
                 // 
-                HGCTriggerDetId triggerDetid(HGCTrigger, zside, layer, sector, 1, triggercell); // Dummy subsector
+		// dummy module ? 
+                HGCTriggerDetId triggerDetid(HGCTrigger, zside, layer, sector, 1, triggercell); // Dummy module FIXME, should be fixed in the map too
                 const auto& ret = cells_to_trigger_cells_.insert( std::make_pair(detid, triggerDetid) );
                 if(!ret.second) edm::LogWarning("HGCalTriggerGeometry") << "Duplicate cell in L1TCellsMapping\n";
             }
@@ -90,9 +91,9 @@ void HGCalTriggerGeometryImp1::initialize(const es_info& esInfo)
             for(unsigned sector=1; sector<=18; sector++)
             {
                 // 
-                HGCTriggerDetId triggerDetid(HGCTrigger, zside, layer, sector, 1, triggercell); // Dummy subsector
+                HGCTriggerDetId triggerDetid(HGCTrigger, zside, layer, sector, 1, triggercell); // Dummy module, FIXME, after fixed before
                 // 
-                HGCTriggerDetId moduleDetid(HGCTrigger, zside, layer, sector, -1, module); // Dummy subsector, -1 for modules ? 
+                HGCTriggerDetId moduleDetid(HGCTrigger, zside, layer, sector, module, HGCTriggerDetId::UndefinedCell() ); // Dummy subsector, -1 for modules ? 
                 const auto& ret = trigger_cells_to_modules_.insert( std::make_pair(triggerDetid, moduleDetid) );
                 if(!ret.second) edm::LogWarning("HGCalTriggerGeometry") << "Duplicate cell "<<triggercell<<" in L1TModulesMapping\n";
             }
