@@ -416,7 +416,7 @@ class Frame:
         self._frame.GetYaxis().SetTitleSize(size)
 
     def setYTitleOffset(self, offset):
-        self._frame.GetYaxis().SetTitleSize(offset)
+        self._frame.GetYaxis().SetTitleOffset(offset)
 
     def redrawAxis(self):
         self._pad.RedrawAxis()
@@ -507,8 +507,8 @@ class FrameRatio:
         self._frameRatio.GetYaxis().SetTitleSize(size)
 
     def setYTitleOffset(self, offset):
-        self._frame.GetYaxis().SetTitleSize(offset)
-        self._frameRatio.GetYaxis().SetTitleSize(offset)
+        self._frame.GetYaxis().SetTitleOffset(offset)
+        self._frameRatio.GetYaxis().SetTitleOffset(offset)
 
     def redrawAxis(self):
         self._padRatio.RedrawAxis()
@@ -904,7 +904,7 @@ class Plot:
         if self._ytitlesize is not None:
             frame.setYTitleSize(self._ytitlesize)
         if self._ytitleoffset is not None:
-            frame.setTitleOffset(self._ytitleoffset)
+            frame.setYTitleOffset(self._ytitleoffset)
         if self._adjustMarginRight is not None:
             frame.adjustMarginRight(self._adjustMarginRight)
 
