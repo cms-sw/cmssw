@@ -609,7 +609,7 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
   eval[11] = ess.e3x3/ess.e5x5;
   eval[12] = ess.sigmaIetaIeta;  
   eval[13] = ess.sigmaIphiIphi;
-  eval[14] = ess.sigmaIetaIphi;
+  eval[14] = ess.sigmaIetaIphi/(ess.sigmaIphiIphi*ess.sigmaIetaIeta);
   eval[15] = ess.maxEnergyXtal/ess.e5x5;
   eval[16] = ess.e2nd/ess.e5x5;
   eval[17] = ess.eTop/ess.e5x5;
