@@ -49,10 +49,14 @@ class LHEGenericFilter : public edm::EDFilter {
   
   edm::EDGetTokenT<LHEEventProduct> src_;
   int numRequired_;                // number of particles required to pass filter
-  bool acceptMore_;                // if true (default), accept numRequired or more.
-                                   // if false, accept events with exactly equal to numRequired.
+  std::string acceptLogic_;        // LT  meaning <
+                                   // GT          >
+                                   // EQ          =
+                                   // NE          !=
   std::vector<int> particleID_;    // vector of particle IDs to look for
   int totalEvents_;                // counters
   int passedEvents_;
+  enum logic_ { LT, GT, EQ, NE};
+  logic_ whichlogic;
 };
 #endif
