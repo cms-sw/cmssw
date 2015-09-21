@@ -569,8 +569,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     /// fill extra shower shapes
     const float spp = (!edm::isFinite(locCov[2]) ? 0. : sqrt(locCov[2]));
     const float sep = locCov[1];
-    showerShape.sigmaIetaIphi = spp;
-    showerShape.sigmaIphiIphi = sep;
+    showerShape.sigmaIetaIphi = sep;
+    showerShape.sigmaIphiIphi = spp;
     showerShape.e2nd          = EcalClusterTools::e2nd(*(scRef->seed()),&(*hits));
     showerShape.eTop          = EcalClusterTools::eTop(*(scRef->seed()), &(*hits), &(*topology));
     showerShape.eLeft         = EcalClusterTools::eLeft(*(scRef->seed()), &(*hits), &(*topology));
@@ -601,8 +601,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     /// fill extra full5x5 shower shapes
     const float full5x5_spp = (!edm::isFinite(full5x5_locCov[2]) ? 0. : sqrt(full5x5_locCov[2]));
     const float full5x5_sep = full5x5_locCov[1];
-    full5x5_showerShape.sigmaIetaIphi = full5x5_spp;
-    full5x5_showerShape.sigmaIphiIphi = full5x5_sep;
+    full5x5_showerShape.sigmaIetaIphi = full5x5_sep;
+    full5x5_showerShape.sigmaIphiIphi = full5x5_spp;
     full5x5_showerShape.e2nd          = noZS::EcalClusterTools::e2nd(*(scRef->seed()),&(*hits));
     full5x5_showerShape.eTop          = noZS::EcalClusterTools::eTop(*(scRef->seed()), &(*hits), &(*topology));
     full5x5_showerShape.eLeft         = noZS::EcalClusterTools::eLeft(*(scRef->seed()), &(*hits), &(*topology));
