@@ -4,8 +4,8 @@ import FWCore.ParameterSet.Config as cms
 import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff as ele_spring15_nt
 
 #photon mva ids
-import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2_cff as pho_spring15_25_nt
-import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2_cff as pho_spring15_50_nt
+import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2p1_cff as pho_spring15_25_nt
+import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2p1_cff as pho_spring15_50_nt
 
 ele_mva_prod_name = 'electronMVAValueMapProducer'
 pho_mva_prod_name = 'photonMVAValueMapProducer'

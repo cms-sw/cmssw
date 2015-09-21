@@ -116,6 +116,7 @@ class PhotonMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base {
   // Declare all tokens that will be needed to retrieve misc
   // data from the event content required by this MVA
   //
+  const bool _useValueMaps;
   const edm::InputTag _full5x5SigmaIEtaIEtaMapLabel; 
   const edm::InputTag _full5x5SigmaIEtaIPhiMapLabel; 
   const edm::InputTag _full5x5E1x3MapLabel; 
