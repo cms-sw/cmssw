@@ -215,10 +215,9 @@ class JetAnalyzer( Analyzer ):
             else:
                 photons = [ g for g in event.selectedPhotons ] 
 
-### First jet/photon cleaning, then Jet Id
-###        self.gamma_cleanJetsAll = cleanNearestJetOnly(self.cleanJetsAll, photons, self.jetGammaDR)
-###        self.gamma_cleanJets    = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
-###        self.gamma_cleanJetsFwd = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
+        self.gamma_cleanJetsAll = cleanNearestJetOnly(self.cleanJetsAll, photons, self.jetGammaDR)
+        self.gamma_cleanJets    = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
+        self.gamma_cleanJetsFwd = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
         self.gamma_noIdCleanJetsAll = cleanNearestJetOnly(self.noIdCleanJetsAll, photons, self.jetGammaDR)
         self.gamma_noIdCleanJets    = [j for j in self.gamma_noIdCleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.gamma_noIdCleanJetsFwd = [j for j in self.gamma_noIdCleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
@@ -233,42 +232,21 @@ class JetAnalyzer( Analyzer ):
             self.noIdCleanJetsAll = self.gamma_noIdCleanJetsAll
             self.noIdCleanJetsFwd = self.gamma_noIdCleanJetsFwd
 
-        ## Jet Id, after jet/lepton cleaning --> collections cleanJets* are overwritten, identical by construction (original cleaning left in place for case of lepton removal)                  
-        self.cleanJetsAll = []
+        ## Jet Id, after jet/lepton cleaning
         self.cleanJetsFailIdAll = []
         for jet in self.noIdCleanJetsAll:
-            if self.testJetID( jet ):
-                
-                if(self.cfg_ana.doQG):
-                    jet.qgl_calc =  self.qglcalc.computeQGLikelihood
-                    jet.qgl_rho =  rho
-                    
-                self.cleanJetsAll.append(jet)
-            else:
+            if not self.testJetID( jet ):
                 self.cleanJetsFailIdAll.append(jet)
         
-        self.cleanJets = [j for j in self.cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.cleanJetsFailId = [j for j in self.cleanJetsFailIdAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
-        self.cleanJetsFwd = [j for j in self.cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
-        self.discardedJets = [j for j in self.jets if j not in self.cleanJetsAll]
         
         ## Jet Id, after jet/photon cleaning
-        self.gamma_cleanJetsAll = []
         self.gamma_cleanJetsFailIdAll = []
         for jet in self.gamma_noIdCleanJetsAll:
-            if self.testJetID( jet ):
-                
-                if(self.cfg_ana.doQG):
-                    jet.qgl_calc =  self.qglcalc.computeQGLikelihood
-                    jet.qgl_rho =  rho
-                    
-                self.gamma_cleanJetsAll.append(jet)
-            else:
+            if not self.testJetID( jet ):
                 self.gamma_cleanJetsFailIdAll.append(jet)
 
-        self.gamma_cleanJets = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
         self.gamma_cleanJetsFailId = [j for j in self.gamma_cleanJetsFailIdAll if abs(j.eta()) <  self.cfg_ana.jetEtaCentral ]
-        self.gamma_cleanJetsFwd = [j for j in self.gamma_cleanJetsAll if abs(j.eta()) >= self.cfg_ana.jetEtaCentral ]
         
         ## Associate jets to leptons
         leptons = event.inclusiveLeptons if hasattr(event, 'inclusiveLeptons') else event.selectedLeptons
