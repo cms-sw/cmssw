@@ -18,6 +18,7 @@
   <version ClassVersion="10" checksum="3635152897"/>
  </class>
  <class name="edmtest::TransientIntProduct" ClassVersion="11">
+  <version ClassVersion="10" checksum="304339852"/>
   <version ClassVersion="11" checksum="639295444"/>
   <field name="dummy" transient="true"/>
  </class>
