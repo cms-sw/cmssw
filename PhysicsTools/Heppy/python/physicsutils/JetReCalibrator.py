@@ -47,11 +47,13 @@ class JetReCalibrator:
                 self.vParL3Res = ROOT.vector(ROOT.JetCorrectorParameters)()
                 for i in [self.L1JetPar,self.L2JetPar,self.L3JetPar,self.ResJetPar]: self.vParL3Res.push_back(i)
                 self.separateJetCorrectors["L1L2L3Res"] = ROOT.FactorizedJetCorrector(self.vParL3Res)
-    def correctAll(self,jets,rho,delta=0,metShift=[0,0]):
-        """Applies 'correct' to all the jets, discard the ones that have bad corrections (corrected pt <= 0)"""
+    def correctAll(self,jets,rho,delta=0,metShift=[0,0], addCorr=False, addShifts=False):
+        """Applies 'correct' to all the jets, discard the ones that have bad corrections (corrected pt <= 0).
+           If addCorr is True, save the correction in jet.corr; 
+           if addShifts, save also jet.corrJEC{Up,Down}"""
         badJets = []
         for j in jets:
-            ok = self.correct(j,rho,delta,metShift)
+            ok = self.correct(j,rho,delta,metShift,addCorr=addCorr,addShifts=addShifts)
             if not ok: badJets.append(j)
         if len(badJets) > 0:
             print "Warning: %d out of %d jets flagged bad by JEC." % (len(badJets), len(jets))
@@ -92,12 +94,19 @@ class JetReCalibrator:
         #print "   jet with raw pt %6.2f eta %+5.3f phi %+5.3f: previous corr %.4f, my corr %.4f " % (jet.pt()*jet.rawFactor(), jet.eta(), jet.phi(), 1./jet.rawFactor(), corr)
         return corr
 
-    def correct(self,jet,rho,delta=0,metShift=[0,0]):
+    def correct(self,jet,rho,delta=0,metShift=[0,0],addCorr=False,addShifts=False):
         """Corrects a jet energy (optionally shifting it also by delta times the JEC uncertainty)
            If a two-component list is passes as 'metShift', it will be modified adding to the first and second
            component the change to the MET along x and y due to the JEC, defined as the negative difference
-           between the new and old jet 4-vectors, for jets with corrected pt > 10."""
+           between the new and old jet 4-vectors, for jets with corrected pt > 10.
+           If addCorr, set jet.corr to the correction.
+           If addShifts, set also the +1 and -1 jet shifts """
         corr = self.getCorrection(jet,rho,delta,metShift)
+        if addCorr: jet.corr = corr
+        if addShifts:
+            for cdelta,shift in [(1.0, "JECUp"), (-1.0, "JECDown")]:
+                cshift = self.getCorrection(jet,rho,delta+cdelta)
+                setattr(j1, "corr"+shift, cshift)
         if corr <= 0:
             return False
         jet.setP4(jet.p4() * (corr * jet.rawFactor()))
