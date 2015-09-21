@@ -13,21 +13,19 @@ from RecoJets.JetProducers.TracksForJets_cff import *
 from CommonTools.RecoAlgos.sortedPrimaryVertices_cfi import *
 from RecoJets.JetProducers.caloJetsForTrk_cff import *
 
-# lines below are for Run-II, comment out to configure for Run-I
-# unsortedOfflinePrimaryVertices=offlinePrimaryVertices.clone()
-# offlinePrimaryVertices=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices", particles="trackRefsForJetsBeforeSorting")
-# offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(vertices=cms.InputTag("unsortedOfflinePrimaryVertices","WithBS"), particles="trackRefsForJetsBeforeSorting")
-# trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices")
-# trackWithVertexRefSelectorBeforeSorting.ptMax=9e99
-# trackWithVertexRefSelectorBeforeSorting.ptErrorCut=9e99
-# trackRefsForJetsBeforeSorting = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting")
+unsortedOfflinePrimaryVertices=offlinePrimaryVertices.clone()
+offlinePrimaryVertices=sortedPrimaryVertices.clone(vertices="unsortedOfflinePrimaryVertices", particles="trackRefsForJetsBeforeSorting")
+offlinePrimaryVerticesWithBS=sortedPrimaryVertices.clone(vertices=cms.InputTag("unsortedOfflinePrimaryVertices","WithBS"), particles="trackRefsForJetsBeforeSorting")
+trackWithVertexRefSelectorBeforeSorting = trackWithVertexRefSelector.clone(vertexTag="unsortedOfflinePrimaryVertices")
+trackWithVertexRefSelectorBeforeSorting.ptMax=9e99
+trackWithVertexRefSelectorBeforeSorting.ptErrorCut=9e99
+trackRefsForJetsBeforeSorting = trackRefsForJets.clone(src="trackWithVertexRefSelectorBeforeSorting")
 
 
-vertexreco = cms.Sequence(
-#         unsortedOfflinePrimaryVertices*
-#         trackWithVertexRefSelectorBeforeSorting*
-#         trackRefsForJetsBeforeSorting*
-#         caloJetsForTrk * 
+vertexreco = cms.Sequence(unsortedOfflinePrimaryVertices*
+        trackWithVertexRefSelectorBeforeSorting*
+        trackRefsForJetsBeforeSorting*
+        caloJetsForTrk * 
         offlinePrimaryVertices*
         offlinePrimaryVerticesWithBS*
         generalV0Candidates*
