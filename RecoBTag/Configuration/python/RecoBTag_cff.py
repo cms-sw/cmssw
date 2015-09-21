@@ -93,6 +93,5 @@ pfCTagging = cms.Sequence(
 )
 
 btagging = cms.Sequence(
-    legacyBTagging +
     pfBTagging #* pfCTagging
 )

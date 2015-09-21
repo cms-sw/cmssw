@@ -13,6 +13,8 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 # JetMET
 from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
 
+# BTV
+from DQMOffline.Trigger.BTVHLTOfflineSource_cfi import *
 
 from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import *
 from DQMOffline.Trigger.HILowLumiHLTOfflineSource_cfi import *
@@ -46,7 +48,7 @@ offlineHLTSource = cms.Sequence(
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *
-    jetMETHLTOfflineAnalyzer *
+    jetMETHLTOfflineAnalyzer * 
     fsqHLTOfflineSourceSequence *
     HILowLumiHLTOfflineSourceSequence *
     hltInclusiveVBFSource *
@@ -64,6 +66,7 @@ dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
 OfflineHLTMonitoring = cms.Sequence(
     dqmInfoHLTMon *
     sistripMonitorHLTsequence * 
+    BTVHLTOfflineSource *
     trackingMonitorHLT
     )
 

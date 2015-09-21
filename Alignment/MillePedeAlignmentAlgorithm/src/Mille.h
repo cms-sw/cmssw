@@ -33,6 +33,7 @@ class Mille
 	     const int *label, float rMeas, float sigma);
   void special(int nSpecial, const float *floatings, const int *integers);
   void kill();
+  void flushOutputFile(); 
   void end();
 
  private:

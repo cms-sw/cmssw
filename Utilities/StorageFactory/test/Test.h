@@ -16,7 +16,7 @@ static void initTest(void)
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
   // Enable storage accounting
-  StorageFactory::get ()->enableAccounting (true);
+  StorageFactory::getToModify ()->enableAccounting (true);
 
   // This interface sucks but does the job, which is to silence
   // the message logger chatter about "info" or "debug" messages,

@@ -113,9 +113,9 @@ HLT_Photon125_v*					# JIRA: CMSHLT-540 (for 0T menu)
 HLT_MET100_JetIdCleaned_v* 				# JIRA: CMSHLT-540 (for 0T menu)
 HLT_MET150_JetIdCleaned_v*				# JIRA: CMSHLT-540 (for 0T menu)
 
-#HLT_Rsq0p25_Calo_v*					# JIRA: CMSHLT-571 (for 0T menu)
-#HLT_RsqMR240_Rsq0p09_MR200_Calo_v*			# JIRA: CMSHLT-571 (for 0T menu)
-#HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_v*			# JIRA: CMSHLT-571 (for 0T menu)
+HLT_Rsq0p25_Calo_v*					# JIRA: CMSHLT-571 (for 0T menu)
+HLT_RsqMR240_Rsq0p09_MR200_Calo_v*			# JIRA: CMSHLT-571 (for 0T menu)
+HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_v*			# JIRA: CMSHLT-571 (for 0T menu)
 
 HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-572 (for 0T menu)
 
@@ -123,11 +123,12 @@ HLTriggerFirstPath
 HLTriggerFinalPath
 #HLTAnalyzerEndpath					# only in 'GRun', not in 'online'
 RatesMonitoring						# JIRA: CMSHLT-344, only in 'online', not in 'GRun'
+PhysicsEndOfFillOutput
 PhysicsEGammaCommissioningOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
-PhysicsParkingMonitorOutput				# JIRA: CMSHLT-487
-ParkingHadronsOutput					# JIRA: CMSHLT-487
+#PhysicsParkingMonitorOutput				# JIRA: CMSHLT-487
+#ParkingHadronsOutput					# JIRA: CMSHLT-487
 ScoutingCaloOutput					# JIRA: CMSHLT-548
 ScoutingPFOutput					# JIRA: CMSHLT-548
 DQMOutput						# online DQMFileSaver

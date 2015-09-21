@@ -50,15 +50,12 @@ namespace edm {
       enablePrefetching_ = pSLC->enablePrefetching();
     }
 
-    StorageFactory *factory = StorageFactory::get();
-
     // Prestage the files
     //NOTE: we do not want to stage in all secondary files since we can be given a list of
     // thousands of files and prestaging all those files can cause a site to fail.
     // So, we stage in the first secondary file only.
     setAtFirstFile();
-    factory->activateTimeout(fileName());
-    factory->stagein(fileName());
+    StorageFactory::get()->stagein(fileName());
 
     // Open the first file.
     for(setAtFirstFile(); !noMoreFiles(); setAtNextFile()) {

@@ -145,34 +145,34 @@ void TTbar_Kinematics::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 void TTbar_Kinematics::bookHistograms(DQMStore::IBooker &i, edm::Run const &r, edm::EventSetup const &e){
   DQMHelper dqm(&i); i.setCurrentFolder("Generator/TTbar");
 
-  nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.);
+  nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"bins","Number of Events");
 
-  hTopPt         = dqm.book1dHisto("TTbar_TopPt","t quark transverse momentum",1000,0.,1000.); hTopPt->setAxisTitle("t quark transverse momentum");
-  hTopY          = dqm.book1dHisto("TTbar_TopY","t quark rapidity",200,-5.,5.);                hTopY->setAxisTitle("t quark rapidity");
-  hTopMass       = dqm.book1dHisto("TTbar_TopMass","t quark mass",500,0.,500.);                hTopMass->setAxisTitle("t quark mass");
+  hTopPt         = dqm.book1dHisto("TTbar_TopPt","t quark transverse momentum",1000,0.,1000.,"P_{t}^{t quark} (GeV)","Number of Events");
+  hTopY          = dqm.book1dHisto("TTbar_TopY","t quark rapidity",200,-5.,5.,"Y_{t quark}","Number of Events");
+  hTopMass       = dqm.book1dHisto("TTbar_TopMass","t quark mass",500,0.,500.,"M_{t quark} (GeV)","Number of Events");
  
-  hTTbarPt       = dqm.book1dHisto("TTbar_TTbarPt","tt pair transverse momentum",1000,0.,1000.); hTTbarPt->setAxisTitle("tt pair transverse momentum");
-  hTTbarY        = dqm.book1dHisto("TTbar_TTbarY","tt pair rapidity",200,-5.,5.);                hTTbarY->setAxisTitle("tt pair rapidity");
-  hTTbarMass     = dqm.book1dHisto("TTbar_TTbarMass","tt pair mass",1000,0.,1000.);              hTTbarMass->setAxisTitle("tt pair mass");
+  hTTbarPt       = dqm.book1dHisto("TTbar_TTbarPt","tt pair transverse momentum",1000,0.,1000.,"P_{t}^{tt pair} (GeV)","Number of Events");
+  hTTbarY        = dqm.book1dHisto("TTbar_TTbarY","tt pair rapidity",200,-5.,5.,"Y_{tt pair}","Number of Events");
+  hTTbarMass     = dqm.book1dHisto("TTbar_TTbarMass","tt pair mass",1000,0.,1000.,"M_{tt pair} (GeV)","Number of Events");
 
-  hBottomPt      = dqm.book1dHisto("TTbar_BottomPt","b quark transverse momentum",1000,0.,1000.);     hBottomPt->setAxisTitle("b quark transverse momentum");
-  hBottomEta     = dqm.book1dHisto("TTbar_BottomEta","b quark pseudo-rapidity",200,-5.,5.);           hBottomEta->setAxisTitle("b quark pseudo-rapidity");
-  hBottomY       = dqm.book1dHisto("TTbar_BottomY","b quark rapidity",200,-5.,5.);                    hBottomY->setAxisTitle("b quark rapidity");
-  hBottomPz      = dqm.book1dHisto("TTbar_BottomPz","b quark longitudinal momentum",200,-100.,100.);  hBottomPz->setAxisTitle("b quark longitudinal momentum");
-  hBottomE       = dqm.book1dHisto("TTbar_BottomE","b quark energy",1000,0.,1000.);                   hBottomE->setAxisTitle("b quark energy");
-  hBottomMass    = dqm.book1dHisto("TTbar_BottomMass","b quark mass",50,0.,5.);                       hBottomMass->setAxisTitle("b quark mass");
+  hBottomPt      = dqm.book1dHisto("TTbar_BottomPt","b quark transverse momentum",1000,0.,1000.,"P_{t}^{b quark} (GeV)","Number of Events");
+  hBottomEta     = dqm.book1dHisto("TTbar_BottomEta","b quark pseudo-rapidity",200,-5.,5.,"#eta_{b quark} (GeV)","Number of Events");
+  hBottomY       = dqm.book1dHisto("TTbar_BottomY","b quark rapidity",200,-5.,5.,"M_{b quark} (GeV)","Number of Events");
+  hBottomPz      = dqm.book1dHisto("TTbar_BottomPz","b quark longitudinal momentum",200,-100.,100.,"P_{z}^{b quark} (GeV)","Number of Events");
+  hBottomE       = dqm.book1dHisto("TTbar_BottomE","b quark energy",1000,0.,1000.,"E_{b quark} (GeV)","Number of Events");
+  hBottomMass    = dqm.book1dHisto("TTbar_BottomMass","b quark mass",50,0.,5.,"M_{b quark} (GeV)","Number of Events");
   
-  hBottomPtPz    = dqm.book2dHisto("TTbar_BottomPtPz","b quark longitudinal vs transverse momentum",1000,0.,1000.,200,-100.,100.);     hBottomPtPz->setAxisTitle("P_{z} (GeV)",1);hBottomPtPz->setAxisTitle("P_{t} (GeV)",2);
-  hBottomEtaPz   = dqm.book2dHisto("TTbar_BottomEtaPz","b quark longitudinal momentum vs pseudorapidity",200,-5.,5.,200,-100.,100.);   hBottomEtaPz->setAxisTitle("#eta",1);hBottomEtaPz->setAxisTitle("P_{z} (GeV)",1);
-  hBottomEtaPt   = dqm.book2dHisto("TTbar_BottomEtaPt"," quark transveral   momentum vs pseudorapidity",200,-5.,5.,1000,0.,1000.);   hBottomEtaPt->setAxisTitle("#eta");hBottomEtaPt->setAxisTitle("P_{t} (GeV)");
-  hBottomYPz     = dqm.book2dHisto("TTbar_BottomYPz","b quark longitudinal momentum vs rapidity",200,-5.,5.,200,-100.,100.);           hBottomYPz->setAxisTitle("Y");hBottomYPz->setAxisTitle("P_{z} (GeV)");
-  hBottomMassPz  = dqm.book2dHisto("TTbar_BottomMassPz","b quark longitudinal momentum vs mass",50,0.,5.,200,-100.,100.);              hBottomMassPz->setAxisTitle("M (GeV)");hBottomMassPz->setAxisTitle("P_{z} (GeV)");
-  hBottomMassEta = dqm.book2dHisto("TTbar_BottomMassEta","b quark pseudorapidity vs mass",50,0.,5.,200,-5.,5.);                        hBottomMassEta->setAxisTitle("M (GeV)");hBottomMassEta->setAxisTitle("#eta");
-  hBottomMassY   = dqm.book2dHisto("TTbar_BottomMassY","b quark rapidity vs mass",50,0.,5.,200,-5.,5.);                                hBottomMassY->setAxisTitle("M (GeV)"); hBottomMassY->setAxisTitle("Y");
-  hBottomMassDeltaY = dqm.book2dHisto("TTbar_BottomMassDeltaY","b quark pseudorapidity - rapidity vs mass",50,0.,50.,2000,-5.,5.);     hBottomMassDeltaY->setAxisTitle("M (GeV)");hBottomMassDeltaY->setAxisTitle("Y");
+  hBottomPtPz    = dqm.book2dHisto("TTbar_BottomPtPz","b quark longitudinal vs transverse momentum",1000,0.,1000.,200,-100.,100.,"P_{z}^{b quark} (GeV)","P_{t}^{b quark} (GeV)");
+  hBottomEtaPz   = dqm.book2dHisto("TTbar_BottomEtaPz","b quark longitudinal momentum vs pseudorapidity",200,-5.,5.,200,-100.,100.,"#eta_{b quark}","P_{z}^{b quark} (GeV)");
+  hBottomEtaPt   = dqm.book2dHisto("TTbar_BottomEtaPt"," quark transveral   momentum vs pseudorapidity",200,-5.,5.,1000,0.,1000.,"#eta_{b quark}","P_{t}^{b quark} (GeV)");
+  hBottomYPz     = dqm.book2dHisto("TTbar_BottomYPz","b quark longitudinal momentum vs rapidity",200,-5.,5.,200,-100.,100.,"Y_{b quark}","P_{z}^{b quark} (GeV)");
+  hBottomMassPz  = dqm.book2dHisto("TTbar_BottomMassPz","b quark longitudinal momentum vs mass",50,0.,5.,200,-100.,100.,"M_{b quark} (GeV)","P_{z}^{b quark} (GeV)");
+  hBottomMassEta = dqm.book2dHisto("TTbar_BottomMassEta","b quark pseudorapidity vs mass",50,0.,5.,200,-5.,5.,"M_{b quark} (GeV)","#eta_{b quark}");
+  hBottomMassY   = dqm.book2dHisto("TTbar_BottomMassY","b quark rapidity vs mass",50,0.,5.,200,-5.,5.,"M_{b quark} (GeV)","Y_{b quark}");
+  hBottomMassDeltaY = dqm.book2dHisto("TTbar_BottomMassDeltaY","b quark pseudorapidity - rapidity vs mass",50,0.,50.,2000,-5.,5.,"M_{b quark} (GeV)","Y_{b quark}");
 
-  hWplusPz       = dqm.book1dHisto("TTbar_WplusPz","W+ boson longitudinal momentum",200,-100.,100.);  hWplusPz->setAxisTitle("W+ boson longitudinal momentum");
-  hWminPz        = dqm.book1dHisto("TTbar_WminPz","W- boson longitudinal momentum",200,-100.,100.);   hWminPz->setAxisTitle("W- boson longitudinal momentum");
+  hWplusPz       = dqm.book1dHisto("TTbar_WplusPz","W+ boson longitudinal momentum",200,-100.,100.,"P_{z}^{W+} (GeV)","Number of Events");
+  hWminPz        = dqm.book1dHisto("TTbar_WminPz","W- boson longitudinal momentum",200,-100.,100.,"P_{z}^{W-} (GeV)","Number of Events");
 
 }
 

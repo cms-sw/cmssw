@@ -12,3 +12,9 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="DQMServices/Core"/>
 <flags   EDM_PLUGIN="1"/>
+<!--
+     There is no way to avoid these in C++ until possibly GCC 6.1.0
+     Diagnostic pragmas would not work due to the way C++ pre-processor is implemented
+     RFC PATCH: https://gcc.gnu.org/ml/gcc-patches/2015-07/msg02414.html
+-->
+<flags REM_CXXFLAGS="-Werror=unused-variable"/>

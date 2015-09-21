@@ -39,29 +39,29 @@ void DrellYanValidation::bookHistograms(DQMStore::IBooker &i, edm::Run const &, 
     DQMHelper dqm(&i); i.setCurrentFolder(folderName.c_str());
     
     // Number of analyzed events
-    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.);
+    nEvt = dqm.book1dHisto("nEvt", "n analyzed Events", 1, 0., 1.,"bin","Number of Events");
     
     //Kinematics
-    Zmass = dqm.book1dHisto("Zmass","inv. Mass Z", 70 ,0,140);
-    ZmassPeak = dqm.book1dHisto("ZmassPeak","inv. Mass Z", 80 ,80 ,100);
-    Zpt = dqm.book1dHisto("Zpt","Z pt",100,0,200);
-    ZptLog = dqm.book1dHisto("ZptLog","log(Z pt)",100,0.,5.);
-    Zrap = dqm.book1dHisto("Zrap", "Z y", 100, -5, 5);
-    Zdaughters = dqm.book1dHisto("Zdaughters", "Z daughters", 60, -30, 30);
+    Zmass = dqm.book1dHisto("Zmass","inv. Mass Z", 70 ,0,140,"M_{Z} (GeV)","Number of Events");
+    ZmassPeak = dqm.book1dHisto("ZmassPeak","inv. Mass Z", 80 ,80 ,100,"M_{Z} (GeV)","Number of Events");
+    Zpt = dqm.book1dHisto("Zpt","Z pt",100,0,200,"P_{t}^{Z} (GeV)","Number of Events");
+    ZptLog = dqm.book1dHisto("ZptLog","log(Z pt)",100,0.,5.,"log_{10}(P_{t}^{Z}) (log_{10}(GeV))","Number of Events");
+    Zrap = dqm.book1dHisto("Zrap", "Z y", 100, -5, 5,"Y_{Z}","Number of Events");
+    Zdaughters = dqm.book1dHisto("Zdaughters", "Z daughters", 60, -30, 30,"Z daughters (PDG ID)","Number of Events");
 
-    dilep_mass = dqm.book1dHisto("dilep_mass","inv. Mass dilepton", 70 ,0,140);
-    dilep_massPeak = dqm.book1dHisto("dilep_massPeak","inv. Mass dilepton", 80 ,80 ,100);
-    dilep_pt = dqm.book1dHisto("dilep_pt","dilepton pt",100,0,200);
-    dilep_ptLog = dqm.book1dHisto("dilep_ptLog","log(dilepton pt)",100,0.,5.);
-    dilep_rap = dqm.book1dHisto("dilep_rap", "dilepton y", 100, -5, 5);
+    dilep_mass = dqm.book1dHisto("dilep_mass","inv. Mass dilepton", 70 ,0,140,"M_{ll} (GeV)","Number of Events");
+    dilep_massPeak = dqm.book1dHisto("dilep_massPeak","inv. Mass dilepton", 80 ,80 ,100,"M_{ll} (GeV)","Number of Events");
+    dilep_pt = dqm.book1dHisto("dilep_pt","dilepton pt",100,0,200,"P_{t}^{ll} (GeV)","Number of Events");
+    dilep_ptLog = dqm.book1dHisto("dilep_ptLog","log(dilepton pt)",100,0.,5.,"log_{10}(P_{t}^{ll}) (log_{10}(GeV))","Number of Events");
+    dilep_rap = dqm.book1dHisto("dilep_rap", "dilepton y", 100, -5, 5,"Y_{ll}","Number of Events");
 
-    gamma_energy = dqm.book1dHisto("gamma_energy", "photon energy in Z rest frame", 200, 0., 100.);
-    cos_theta_gamma_lepton = dqm.book1dHisto("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in Z rest frame",      200, -1, 1);
+    gamma_energy = dqm.book1dHisto("gamma_energy", "photon energy in Z rest frame", 200, 0., 100.,"E_{#gamma}^{Z rest-frame} (GeV)","Number of Events");
+    cos_theta_gamma_lepton = dqm.book1dHisto("cos_theta_gamma_lepton",      "cos_theta_gamma_lepton in Z rest frame",      200, -1, 1,"cos(#theta_{#gamma-lepton}^{Z rest-frame})","Number of Events");
 
-    leadpt = dqm.book1dHisto("leadpt","leading lepton pt", 200, 0., 200.);    
-    secpt  = dqm.book1dHisto("secpt","second lepton pt", 200, 0., 200.);    
-    leadeta = dqm.book1dHisto("leadeta","leading lepton eta", 100, -5., 5.);
-    seceta  = dqm.book1dHisto("seceta","second lepton eta", 100, -5., 5.);
+    leadpt = dqm.book1dHisto("leadpt","leading lepton pt", 200, 0., 200.,"P_{t}^{1st-lepton}","Number of Events");    
+    secpt  = dqm.book1dHisto("secpt","second lepton pt", 200, 0., 200.,"P_{t}^{2nd-lepton}","Number of Events");    
+    leadeta = dqm.book1dHisto("leadeta","leading lepton eta", 100, -5., 5.,"#eta^{1st-lepton}","Number of Events");
+    seceta  = dqm.book1dHisto("seceta","second lepton eta", 100, -5., 5.,"#eta^{2nd-lepton}","Number of Events");
 
   return;
 }

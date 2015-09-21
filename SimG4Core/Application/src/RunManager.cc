@@ -300,7 +300,7 @@ void RunManager::initG4(const edm::EventSetup & es)
   }
 
   if("" != m_WriteFile) {
-    G4GDMLParser gdml(new G4GDMLReadStructure(), new CMSGDMLWriteStructure());
+    G4GDMLParser gdml;
     gdml.Write(m_WriteFile, world->GetWorldVolume(), true);
   }
 

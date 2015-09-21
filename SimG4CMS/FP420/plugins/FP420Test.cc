@@ -148,8 +148,7 @@ FP420Test::~FP420Test() {
         // Write histograms to file
         TheHistManager->WriteToFile(fOutputFile,fRecreateFile);
   if (verbosity > 0) {
-    std::cout << std::endl << "FP420Test Destructor  -------->  End of FP420Test : "
-      << std::cout << std::endl; 
+    std::cout << std::endl << "FP420Test Destructor  -------->  End of FP420Test : " << std::endl;
   }
 
   std::cout<<"FP420Test: End of process"<<std::endl;

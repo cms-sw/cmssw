@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Test")
 
-from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
 process.source = cms.Source("PoolSource",
-  fileNames = filesRelValProdTTbarGENSIMRECO
+  fileNames = filesRelValTTbarGENSIMRECO
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 

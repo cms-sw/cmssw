@@ -6,12 +6,13 @@
 class HttpStorageMaker : public StorageMaker
 {
 public:
-  virtual Storage *open (const std::string &proto,
+  virtual std::unique_ptr<Storage> open (const std::string &proto,
 			 const std::string &path,
-			 int mode) override
+			 int mode,
+       const AuxSettings&) const override
   {
     std::string    temp;
-    StorageFactory *f = StorageFactory::get();
+    const StorageFactory *f = StorageFactory::get();
     int            localfd = RemoteFile::local (f->tempDir(), temp);
     std::string    newurl ((proto == "web" ? "http" : proto) + ":" + path);
     const char     *curlopts [] = {
