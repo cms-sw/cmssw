@@ -9,10 +9,10 @@ import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 ########### User Defined Variables (BEGIN) ##############
 
 ### Reference release
-RefRelease='CMSSW_7_5_0'
+RefRelease='CMSSW_7_6_0_pre4'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_7_6_0_pre1'
+NewRelease='CMSSW_7_6_0_pre5'
 
 ### This is the list of IDEAL-conditions relvals 
 startupsamples= [
