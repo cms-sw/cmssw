@@ -28,6 +28,7 @@
 //#define mkdebug
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
+			     const HcalDDDSimConstants& hcons,
                              edm::ParameterSet const & p) : showerLibrary(0), 
                                                             fibre(0), gflash(0),
                                                             fillHisto(false) { 
@@ -80,32 +81,16 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   }
 #endif
   
-  G4String attribute = "ReadOutName";
-  G4String value     = name;
-  DDSpecificsFilter filter;
-  DDValue           ddv(attribute,value,0);
-  filter.setCriteria(ddv,DDCompOp::equals);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-  if (dodet) {
-    DDsvalues_type sv(fv.mergedSpecifics());
-    //Special Geometry parameters
-    gpar      = getDDDArray("gparHF",sv);
-    edm::LogInfo("HFShower") << "HFShowerParam: " <<gpar.size() <<" gpar (cm)";
-    for (unsigned int ig=0; ig<gpar.size(); ig++)
-      edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
-                               << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerParam: cannot get filtered "
-                              << " view for " << attribute << " matching " << name;
-    throw cms::Exception("Unknown", "HFShowerParam") << "cannot match " << attribute
-                                                     << " to " << name <<"\n";
-  }
+  //Special Geometry parameters
+  gpar      = hcons.getGparHF();
+  edm::LogInfo("HFShower") << "HFShowerParam: " << gpar.size() <<" gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
+                             << gpar[ig]/cm << " cm";
   
-  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
+  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name,cpv,hcons,p);
   if (useGflash)        gflash        = new HFGflash(p);
-  fibre = new HFFibre(name, cpv, p);
+  fibre = new HFFibre(name, cpv, hcons, p);
   attLMeanInv = fibre->attLength(lambdaMean);
   edm::LogInfo("HFShower") << "att. length used for (lambda=" << lambdaMean
                            << ") = " << 1/(attLMeanInv*cm) << " cm";
