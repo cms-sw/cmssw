@@ -50,9 +50,9 @@ MVA_WP90 = EleMVA_3Categories_WP(
     idName = idName90,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 = 0.923654, # EB1 
-    cutCategory1 = 0.777484, # EB2 
-    cutCategory2 = 0.924466  # EE 
+    cutCategory0 = 0.953843, # EB1 
+    cutCategory1 = 0.849994, # EB2 
+    cutCategory2 = 0.514118  # EE 
     )
 
 idName80 = "mvaEleID-Spring15-50ns-Trig-V1-wp80"
@@ -60,9 +60,9 @@ MVA_WP80 = EleMVA_3Categories_WP(
     idName = idName80,
     mvaValueMapName = mvaValueMapName,           # map with MVA values for all particles
     mvaCategoriesMapName = mvaCategoriesMapName, # map with category index for all particles
-    cutCategory0 = 0.971645, # EB1 
-    cutCategory1 = 0.913198, # EB2 
-    cutCategory2 = 0.966658  # EE 
+    cutCategory0 = 0.981841, # EB1 
+    cutCategory1 = 0.946762, # EB2 
+    cutCategory2 = 0.79704  # EE 
     )
 
 #
@@ -92,9 +92,9 @@ mvaEleID_Spring15_50ns_Trig_V1_wp80 = configureVIDMVAEleID_V1( MVA_WP80 )
 #
 
 central_id_registry.register(mvaEleID_Spring15_50ns_Trig_V1_wp90.idName,
-                             '8a781409e526a974b260dfcd9c2035c2')
+                             'b2c90992b008ddca2daf74fe578e7e1b')
 central_id_registry.register(mvaEleID_Spring15_50ns_Trig_V1_wp80.idName,
-                             'efbd46fb1259325f5d2d49df5c4cd323')
+                             'e9127ba0788d88aa64abe68b13749519')
 
 mvaEleID_Spring15_50ns_Trig_V1_wp90.isPOGApproved = cms.untracked.bool(True)
 mvaEleID_Spring15_50ns_Trig_V1_wp80.isPOGApproved = cms.untracked.bool(True)
