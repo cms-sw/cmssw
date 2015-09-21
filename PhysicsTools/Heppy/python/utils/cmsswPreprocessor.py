@@ -103,6 +103,7 @@ class CmsswPreprocessor :
 		for module in cmsswConfig.process.endpaths.viewvalues():
 			for outName in module.moduleNames():
 				out = getattr(cmsswConfig.process,outName)
+			if not hasattr(out,"fileName"): continue
     			out.fileName = outfilename
 
 		if not hasattr(component,"options"):
