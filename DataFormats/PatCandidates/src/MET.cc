@@ -205,6 +205,10 @@ MET::findMETTotalShift(MET::METCorrectionLevel cor, MET::METUncertainty shift) c
   
 
   //find uncertainty shift =============================
+
+  if (uncertainties_.empty())
+      return totShift;
+
   if(shift>=MET::METUncertaintySize) throw cms::Exception("Unsupported", "MET uncertainty does not exist");
   if(isSmeared && shift<=MET::JetResDown) shift = (MET::METUncertainty)(MET::METUncertaintySize+shift+1);
 							  
