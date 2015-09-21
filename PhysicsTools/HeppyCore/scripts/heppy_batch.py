@@ -6,6 +6,7 @@ import copy
 import os
 import shutil
 import pickle
+import json
 import math
 from PhysicsTools.HeppyCore.utils.batchmanager import BatchManager
 
@@ -31,7 +32,7 @@ echo 'copying job dir to worker'
 eval `scram runtime -sh`
 ls
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck >& local.output
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json >& local.output
 exit $? 
 #echo
 #echo 'sending the job directory back'
@@ -64,7 +65,7 @@ eval `scramv1 runtime -sh`
 ls
 echo `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck >& local.output
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json >& local.output
 exit $? 
 #echo
 #echo 'sending the job directory back'
@@ -129,7 +130,7 @@ cp -rf $LS_SUBCWD .
 ls
 cd `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json
 echo
 {copy}
 """.format(copy=cpCmd)
@@ -213,8 +214,8 @@ cp -rf $SUBMISIONDIR .
 ls
 cd `find . -type d | grep /`
 echo 'running'
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json
 #python $CMSSW_BASE/src/CMGTools/RootTools/python/fwlite/looper.py config.pck
-python {cmssw}/src/CMGTools/RootTools/python/fwlite/looper.py pycfg.py config.pck
 echo
 {copy}
 ###########################################################################
@@ -241,7 +242,7 @@ cd {cmssw}/src
 eval `scramv1 ru -sh`
 cd -
 echo 'running'
-python {cmssw}/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck
+python {cmssw}/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json
 echo
 echo 'sending the job directory back'
 mv Loop/* ./ && rm -r Loop
@@ -253,7 +254,7 @@ def batchScriptLocal(  remoteDir, index ):
 
    script = """#!/bin/bash
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck                   
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json
 echo
 echo 'sending the job directory back'
 mv Loop/* ./
@@ -296,8 +297,11 @@ class MyBatchManager( BatchManager ):
        pickle.dump(  components[value] , cfgFile )
        # pickle.dump( cfo, cfgFile )
        cfgFile.close()
+       if hasattr(self,"heppyOptions_"):
+          optjsonfile = open(jobDir+'/options.json','w')
+          optjsonfile.write(json.dumps(self.heppyOptions_))
+          optjsonfile.close()
 
-      
 if __name__ == '__main__':
     batchManager = MyBatchManager()
     batchManager.parser_.usage="""
@@ -308,6 +312,15 @@ if __name__ == '__main__':
     """
 
     options, args = batchManager.ParseOptions()
+
+    from PhysicsTools.HeppyCore.framework.heppy_loop import _heppyGlobalOptions
+    for opt in options.extraOptions:
+        if "=" in opt:
+            (key,val) = opt.split("=",1)
+                _heppyGlobalOptions[key] = val
+        else:
+            _heppyGlobalOptions[opt] = True
+    batchManager.heppyOptions_=_heppyGlobalOptions
 
     cfgFileName = args[0]
 
