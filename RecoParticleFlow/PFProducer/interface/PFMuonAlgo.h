@@ -42,8 +42,6 @@ class PFMuonAlgo {
 
   static bool isIsolatedMuon( const reco::PFBlockElement& elt );
 
-  static bool hasValidTracks(const reco::MuonRef& );
-
   static bool isMuon( const reco::MuonRef& muonRef );  
 
   static bool isLooseMuon( const reco::MuonRef& muonRef );
@@ -51,6 +49,9 @@ class PFMuonAlgo {
   static bool isGlobalTightMuon( const reco::MuonRef& muonRef );
 
   static bool isGlobalLooseMuon( const reco::MuonRef& muonRef );
+
+
+
 
   static bool isTrackerTightMuon( const reco::MuonRef& muonRef );
   
@@ -66,6 +67,10 @@ class PFMuonAlgo {
 
 
   ////POST CLEANING AND MOMEMNTUM ASSIGNMENT
+  bool hasValidTrack(const reco::MuonRef& muonRef,bool loose =false);
+
+
+
 
   //Make a PF Muon : Basic method
   bool reconstructMuon(reco::PFCandidate&, const reco::MuonRef&,bool allowLoose = false);
