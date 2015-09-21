@@ -585,7 +585,8 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   eval[9] = reco::deltaPhi(theseed->phi(),sc->position().Phi());
   eval[10] = pho.seedEnergy()/sc->rawEnergy();
   eval[11] = pho.e3x3()/pho.e5x5();
-  eval[12] = pho.sigmaIetaIeta();
+  const float sieie = pho.sigmaIetaIeta();
+  eval[12] = sieie;
 
   float sipip=0, sieip=0, e2x5Max=0, e2x5Left=0, e2x5Right=0, e2x5Top=0, e2x5Bottom=0;
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("sigmaIphiIphi"))->second.second, pho_vmaps, sipip);
@@ -596,7 +597,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Bottom"))->second.second, pho_vmaps, e2x5Bottom);
   
   eval[13] = sipip;
-  eval[14] = sieip;
+  eval[14] = sieip/(sieie*sipip);
   eval[15] = pho.maxEnergyXtal()/pho.e5x5();
   eval[16] = pho.e2nd()/pho.e5x5();
   eval[17] = pho.eTop()/pho.e5x5();
