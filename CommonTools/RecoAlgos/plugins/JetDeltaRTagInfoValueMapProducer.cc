@@ -21,7 +21,7 @@
  */
 
 
-#include "FWCore/Framework/interface/global/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
@@ -34,7 +34,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 template < class T, class I >
-class JetDeltaRTagInfoValueMapProducer : public edm::global::EDProducer<> {
+class JetDeltaRTagInfoValueMapProducer : public edm::EDProducer {
 
 public:
 
@@ -57,7 +57,7 @@ private:
   virtual void beginJob() override {}
   virtual void endJob() override {}
 
-  virtual void produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const override {
+  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
 
     std::auto_ptr< TagInfosCollection > mappedTagInfos ( new TagInfosCollection() );
 
@@ -69,7 +69,7 @@ private:
     edm::Handle< typename edm::View<I> > h_tagInfos;
     iEvent.getByToken( matchedTagInfosToken_, h_tagInfos );
 
-    const double distMax2 = distMax_*distMax_;
+    double distMax2 = distMax_*distMax_;
 
     std::vector<bool> jets2_locks( h_jets2->size(), false );
 
@@ -126,10 +126,10 @@ private:
     iEvent.put(mappedTagInfos);
   }
 
-  const edm::EDGetTokenT< typename edm::View<T> >  srcToken_;
-  const edm::EDGetTokenT< typename edm::View<T> >  matchedToken_;
-  const edm::EDGetTokenT< typename edm::View<I> >  matchedTagInfosToken_;
-  const double                                     distMax_;
+  edm::EDGetTokenT< typename edm::View<T> >  srcToken_;
+  edm::EDGetTokenT< typename edm::View<T> >  matchedToken_;
+  edm::EDGetTokenT< typename edm::View<I> >  matchedTagInfosToken_;
+  double                                     distMax_;
 
 };
 
