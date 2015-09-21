@@ -391,6 +391,12 @@ class Frame:
     def setGridy(self, grid):
         self._pad.SetGridy(grid)
 
+    def adjustMarginLeft(self, adjust):
+        self._pad.SetLeftMargin(self._pad.GetLeftMargin()+adjust)
+        # Need to redraw frame after adjusting the margin
+        self._pad.cd()
+        self._frame.Draw("")
+
     def adjustMarginRight(self, adjust):
         self._pad.SetRightMargin(self._pad.GetRightMargin()+adjust)
         # Need to redraw frame after adjusting the margin
@@ -475,6 +481,15 @@ class FrameRatio:
         self._pad.SetGridy(grid)
         self._padRatio.SetGridy(grid)
 
+    def adjustMarginLeft(self, adjust):
+        self._pad.SetLeftMargin(self._pad.GetLeftMargin()+adjust)
+        self._padRatio.SetLeftMargin(self._padRatio.GetLeftMargin()+adjust)
+        # Need to redraw frame after adjusting the margin
+        self._pad.cd()
+        self._frame.Draw("")
+        self._padRatio.cd()
+        self._frameRatio.Draw("")
+
     def adjustMarginRight(self, adjust):
         self._pad.SetRightMargin(self._pad.GetRightMargin()+adjust)
         self._padRatio.SetRightMargin(self._padRatio.GetRightMargin()+adjust)
@@ -529,14 +544,108 @@ class FrameRatio:
         self._pad.Pop() # Move the first pad on top
 
 # Makes incorporating TGraph2D much easier...
-class FrameDummy:
-    def __init__(self, *args, **kwargs):
+class FrameTGraph2D:
+    def __init__(self, pad, bounds, histos, ratioOrig, ratioFactor):
+        self._pad = pad
+        if ratioOrig:
+            self._pad = pad.cd(1)
+
+            # adjust margins because of not having the ratio, we want
+            # the same bottom margin, so some algebra gives this
+            (xlow, ylow, width, height) = (self._pad.GetXlowNDC(), self._pad.GetYlowNDC(), self._pad.GetWNDC(), self._pad.GetHNDC())
+            xup = xlow+width
+            yup = ylow+height
+
+            bottomMargin = self._pad.GetBottomMargin()
+            bottomMarginNew = ROOT.gStyle.GetPadBottomMargin()
+
+            ylowNew = yup - (1-bottomMargin)/(1-bottomMarginNew) * (yup-ylow)
+            topMarginNew = self._pad.GetTopMargin() * (yup-ylow)/(yup-ylowNew)
+
+            self._pad.SetPad(xlow, ylowNew, xup, yup)
+            self._pad.SetTopMargin(topMarginNew)
+            self._pad.SetBottomMargin(bottomMarginNew)
+
+        self._view = ROOT.TView.CreateView()
+        self._view.SetRange(bounds[0], bounds[1], 0, bounds[2], bounds[3], 20) # 20 is from Harrison-Stetson, may need tuning?
+        self._view.Top()
+        self._view.ShowAxis()
+
+        self._xtitleoffset = 1.8
+        self._ytitleoffset = 2.3
+
+        self._firstHisto = histos[0]
+
+    def setLogx(self, log):
         pass
 
-    def __getattr__(self, *args, **kwargs):
-        def dummy(*args2, **kwargs2):
-            return
-        return dummy
+    def setLogy(self, log):
+        pass
+
+    def setGridx(self, grid):
+        pass
+
+    def setGridy(self, grid):
+        pass
+
+    def adjustMarginLeft(self, adjust):
+        self._pad.SetLeftMargin(self._pad.GetLeftMargin()+adjust)
+        self._pad.cd()
+
+    def adjustMarginRight(self, adjust):
+        self._pad.SetRightMargin(self._pad.GetRightMargin()+adjust)
+        self._pad.cd()
+
+    def setTitle(self, title):
+        pass
+
+    def setXTitle(self, title):
+        self._xtitle = title
+
+    def setXTitleSize(self, size):
+        self._xtitlesize = size
+
+    def setXLabelSize(self, size):
+        self._xlabelsize = size
+
+    def setYTitle(self, title):
+        self._ytitle = title
+
+    def setYTitleSize(self, size):
+        self._ytitlesize = size
+
+    def setYTitleOffset(self, offset):
+        self._ytitleoffset = offset
+
+    def setZTitle(self, title):
+        self._firstHisto.GetZaxis().SetTitle(title)
+
+    def setZTitleOffset(self, offset):
+        self._firstHisto.GetZaxis().SetTitleOffset(offset)
+
+    def redrawAxis(self):
+        # Disabling and enabled the 3D rulers somehow magically moves the axes to their proper places
+        ROOT.TAxis3D.ToggleRulers()
+        ROOT.TAxis3D.ToggleRulers()
+        axis = ROOT.TAxis3D.GetPadAxis()
+        axis.SetLabelColor(ROOT.kBlack);
+        axis.SetAxisColor(ROOT.kBlack);
+
+        axis.GetXaxis().SetTitleOffset(self._xtitleoffset)
+        axis.GetYaxis().SetTitleOffset(self._ytitleoffset)
+
+        if hasattr(self, "_xtitle"):
+            axis.GetXaxis().SetTitle(self._xtitle)
+        if hasattr(self, "_xtitlesize"):
+            axis.GetXaxis().SetTitleSize(self._xtitlesize)
+        if hasattr(self, "_xlabelsize"):
+            axis.GetXaxis().SetLabelSize(self._labelsize)
+        if hasattr(self, "_ytitle"):
+            axis.GetYaxis().SetTitle(self._ytitle)
+        if hasattr(self, "_ytitlesize"):
+            axis.GetYaxis().SetTitleSize(self._ytitlesize)
+        if hasattr(self, "_ytitleoffset"):
+            axis.GetYaxis().SetTitleOffset(self._ytitleoffset)
 
 def _copyStyle(src, dst):
     properties = []
@@ -567,6 +676,7 @@ class Plot:
         ytitlesize   -- Float for y axis title size (default None)
         ytitleoffset -- Float for y axis title offset (default None)
         ztitle       -- String for z axis title (default None)
+        ztitleoffset -- Float for z axis title offset (default None)
         xmin         -- Float for x axis minimum (default None, i.e. automatic)
         xmax         -- Float for x axis maximum (default None, i.e. automatic)
         ymin         -- Float for y axis minimum (default 0)
@@ -614,6 +724,7 @@ class Plot:
         _set("ytitlesize", None)
         _set("ytitleoffset", None)
         _set("ztitle", None)
+        _set("ztitleoffset", None)
 
         _set("xmin", None)
         _set("xmax", None)
@@ -808,6 +919,7 @@ class Plot:
         isTGraph2D = self.isTGraph2D()
         if isTGraph2D:
             # Ratios for the TGraph2Ds is not that interesting
+            ratioOrig = ratio
             ratio = False
 
         if self._normalizeToUnitArea:
@@ -871,13 +983,7 @@ class Plot:
 
         # Create frame
         if isTGraph2D:
-            view = ROOT.TView.CreateView()
-            view.SetRange(bounds[0], bounds[1], 0, bounds[2], bounds[3], 20) # 20 is from Harrison-Stetson, may need tuning?
-            view.Top()
-            view.ShowAxis()
-            if self._ztitle is not None:
-                histos[0].GetZaxis().SetTitle(self._ztitle)
-            frame = FrameDummy()
+            frame = FrameTGraph2D(pad, bounds, histos, ratioOrig, ratioFactor)
         else:
             if ratio:
                 ratioBounds = (bounds[0], self._ratioYmin, bounds[2], self._ratioYmax)
@@ -890,6 +996,16 @@ class Plot:
         frame.setLogy(self._ylog)
         frame.setGridx(self._xgrid)
         frame.setGridy(self._ygrid)
+
+        # Construct draw option string
+        opt = "sames" # s for statbox or something?
+        ds = ""
+        if self._drawStyle is not None:
+            ds = self._drawStyle
+        if self._drawCommand is not None:
+            ds = self._drawCommand
+        if len(ds) > 0:
+            opt += " "+ds
 
         # Set properties of frame
         frame.setTitle(histos[0].GetTitle())
@@ -905,22 +1021,17 @@ class Plot:
             frame.setYTitleSize(self._ytitlesize)
         if self._ytitleoffset is not None:
             frame.setYTitleOffset(self._ytitleoffset)
+        if self._ztitle is not None:
+            frame.setZTitle(self._ztitle)
+        if self._ztitleoffset is not None:
+            frame.setZTitleOffset(self._ztitleoffset)
         if self._adjustMarginRight is not None:
             frame.adjustMarginRight(self._adjustMarginRight)
-
-        if ratio:
-            frame._pad.cd()
+        elif "z" in opt:
+            frame.adjustMarginLeft(0.03)
+            frame.adjustMarginRight(0.08)
 
         # Draw histograms
-        opt = "sames" # s for statbox or something?
-        ds = ""
-        if self._drawStyle is not None:
-            ds = self._drawStyle
-        if self._drawCommand is not None:
-            ds = self._drawCommand
-        if len(ds) > 0:
-            opt += " "+ds
-
         if ratio:
             frame._pad.cd()
 
@@ -943,18 +1054,6 @@ class Plot:
                 r.draw()
 
         frame.redrawAxis()
-        if isTGraph2D:
-            axis = ROOT.TAxis3D.GetPadAxis()
-            axis.SetLabelColor(ROOT.kBlack);
-            axis.SetAxisColor(ROOT.kBlack);
-
-            axis.GetXaxis().SetTitleOffset(1.8)
-            axis.GetYaxis().SetTitleOffset(2.3)
-
-            if self._xtitle is not None:
-                axis.GetXaxis().SetTitle(self._xtitle)
-            if self._ytitle is not None:
-                axis.GetYaxis().SetTitle(self._ytitle)
         self._frame = frame # keep the frame in memory for sure
 
     def addToLegend(self, legend, legendLabels, denomUncertainty):
