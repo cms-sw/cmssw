@@ -1,4 +1,4 @@
-1;2401;0c<use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/Records"/>
