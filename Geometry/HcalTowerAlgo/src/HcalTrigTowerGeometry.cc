@@ -1,14 +1,12 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 
 #include <iostream>
 #include <cassert>
 
 HcalTrigTowerGeometry::HcalTrigTowerGeometry( const HcalTopology* topology )
-    : theTopology( topology ) 
-{
+    : theTopology( topology ) {
   useShortFibers_=true;
   useHFQuadPhiRings_=true;
   useUpgradeConfigurationHFTowers_=!true;
@@ -215,20 +213,12 @@ int HcalTrigTowerGeometry::firstHFRingInTower(int ietaTower) const {
 
 void HcalTrigTowerGeometry::towerEtaBounds(int ieta, double & eta1, double & eta2) const {
   int ietaAbs = abs(ieta);
-  if(ietaAbs < firstHFTower()) {
-    eta1 = theHBHEEtaBounds[ietaAbs-1];
-    eta2 = theHBHEEtaBounds[ietaAbs];
-    // the last tower is split, so get tower 29, too
-    if(ietaAbs == theTopology->lastHERing()-1) {
-      eta2 = theHBHEEtaBounds[ietaAbs+1];
-    } 
-  } else {
-    // count from 0
-    int hfIndex = firstHFRingInTower(ietaAbs) - theTopology->firstHFRing();
-    eta1 = theHFEtaBounds[hfIndex];
-    eta2 = theHFEtaBounds[hfIndex + hfTowerEtaSize(ieta)];
-  }
-
+  std::pair<double,double> etas = 
+    (ietaAbs < firstHFTower()) ? theTopology->etaRange(HcalBarrel,ietaAbs) : 
+    theTopology->etaRange(HcalForward,ietaAbs);
+  eta1 = etas.first;
+  eta2 = etas.second;
+  
   // get the signs and order right
   if(ieta < 0) {
     double tmp = eta1;

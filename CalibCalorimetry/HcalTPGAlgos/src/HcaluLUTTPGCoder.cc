@@ -3,7 +3,6 @@
 #include <cmath>
 #include <string>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcaluLUTTPGCoder.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
@@ -192,8 +191,12 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
    float nominalgain_ = metadata->getNominalGain();
 
    std::map<int, float> cosh_ieta;
-   for (int i = 0; i < 13; ++i)
-      cosh_ieta[i+29] = cosh((theHFEtaBounds[i+1] + theHFEtaBounds[i])/2.);
+   for (int i = metadata->topo()->firstHFRing(); i <= metadata->topo()->lastHFRing(); ++i){
+      std::pair<double,double> etas = metadata->topo()->etaRange(HcalForward,i);
+      double eta1 = etas.first;
+      double eta2 = etas.second;
+      cosh_ieta[i] = cosh((eta1 + eta2)/2.);
+   }
 
    HcalSubdetector subdets[] = {HcalBarrel, HcalEndcap, HcalForward};
    for (int isub = 0; isub < 3; ++isub){

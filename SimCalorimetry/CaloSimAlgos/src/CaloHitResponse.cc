@@ -108,7 +108,6 @@ void CaloHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
   if(theHitFilter == 0 || theHitFilter->accepts(hit)) {
     LogDebug("CaloHitResponse") << hit;
     CaloSamples signal( makeAnalogSignal( hit, engine ) ) ;
-
     bool keep ( keepBlank() ) ;  // here we  check for blank signal if not keeping them
     if( !keep )
     {
@@ -151,7 +150,6 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & hit, CLHEP::HepRa
 
   DetId detId(hit.id());
   const CaloSimParameters & parameters = theParameterMap->simParameters(detId);
-  
   double signal = analogSignalAmplitude(detId, hit.energy(), parameters, engine);
 
   double time = hit.time();
