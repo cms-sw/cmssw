@@ -96,7 +96,6 @@ class Page(object):
             '  '+sampleName,
             '  <br/>',
             '  <br/>',
-            '  <ul>',
         ])
 
         self._plotSets = {}
@@ -107,24 +106,48 @@ class Page(object):
     def write(self, fileName):
         sections = self._orderSets(self._plotSets.keys())
 
-        for section in sections:
-            files = self._plotSets[section]
+        self._content.extend([
+            '  <table>'
+            '   <tr>',
+        ])
+
+        fileTable = []
+
+        for isec, section in enumerate(sections):
             self._content.extend([
-                '   <li>%s' % self._mapSectionName(section),
-                '    <ul>',
+                '   <td>%s</td>' % self._mapSectionName(section),
             ])
-            for f in files:
-                self._content.append('     <li><a href="%s">%s</a></li>' % (f, os.path.basename(f)))
-            self._content.extend([
-                '    </ul>',
-                '   </li>',
-                '   <br/>',
-                '   <br/>',
-                '   <br/>',
-            ])
+            files = [(os.path.basename(f), f) for f in self._plotSets[section]]
+            for row in fileTable:
+                found = False
+                for i, (bsf, f) in enumerate(files):
+                    if bsf == row[0]:
+                        row.append(f)
+                        found = True
+                        del files[i]
+                        break
+                if not found:
+                    row.append(None)
+            for bsf, f in files:
+                fileTable.append( [bsf] + [None]*isec + [f] )
 
         self._content.extend([
-            '  </ul>',
+            '   </tr>',
+        ])
+
+        for row in fileTable:
+            self._content.append('   <tr>')
+            bs = row[0]
+            for elem in row[1:]:
+                if elem is not None:
+                    self._content.append('    <td><a href="%s">%s</a></td>' % (elem, bs))
+                else:
+                    self._content.append('    <td></td>')
+            self._content.append('   </tr>')
+
+
+        self._content.extend([
+            '  </table>',
             ' </body>',
             '</html>',
         ])
