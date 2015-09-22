@@ -44,29 +44,29 @@
 
 
 // ReducedEGProducer inherits from EDProducer, so it can be a module:
-class ReducedEGProducer : public edm::EDProducer {
+class ReducedEGProducer : public edm::stream::EDProducer<> {
 
  public:
 
   ReducedEGProducer (const edm::ParameterSet& ps);
   ~ReducedEGProducer();
 
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override final;
 
  private: 
   
  //tokens for input collections
- edm::EDGetTokenT<reco::PhotonCollection> photonT_;
- edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_; 
- edm::EDGetTokenT<reco::ConversionCollection> conversionT_;
- edm::EDGetTokenT<reco::ConversionCollection> singleConversionT_;
+ const edm::EDGetTokenT<reco::PhotonCollection> photonT_;
+ const edm::EDGetTokenT<reco::GsfElectronCollection> gsfElectronT_; 
+ const edm::EDGetTokenT<reco::ConversionCollection> conversionT_;
+ const edm::EDGetTokenT<reco::ConversionCollection> singleConversionT_;
  
- edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
- edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
- edm::EDGetTokenT<EcalRecHitCollection> preshowerEcalHits_;
+ const edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
+ const edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+ const edm::EDGetTokenT<EcalRecHitCollection> preshowerEcalHits_;
  
- edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > photonPfCandMapT_;
- edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > gsfElectronPfCandMapT_;
+ const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > photonPfCandMapT_;
+ const edm::EDGetTokenT<edm::ValueMap<std::vector<reco::PFCandidateRef> > > gsfElectronPfCandMapT_;
  
  std::vector<edm::EDGetTokenT<edm::ValueMap<bool> > > photonIdTs_;
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronIdTs_;
@@ -75,34 +75,31 @@ class ReducedEGProducer : public edm::EDProducer {
  std::vector<edm::EDGetTokenT<edm::ValueMap<float> > > gsfElectronPFClusterIsoTs_;
 
  //names for output collections
- std::string outPhotons_;
- std::string outPhotonCores_;
- std::string outGsfElectrons_;
- std::string outGsfElectronCores_;
- std::string outConversions_;
- std::string outSingleConversions_;
- std::string outSuperClusters_;
- std::string outEBEEClusters_;
- std::string outESClusters_;
- std::string outEBRecHits_;
- std::string outEERecHits_;
- std::string outESRecHits_;
- std::string outPhotonPfCandMap_;
- std::string outGsfElectronPfCandMap_;
- std::vector<std::string> outPhotonIds_;
- std::vector<std::string> outGsfElectronIds_;
- std::vector<std::string> outPhotonPFClusterIsos_;
- std::vector<std::string> outGsfElectronPFClusterIsos_;
+ const std::string outPhotons_;
+ const std::string outPhotonCores_;
+ const std::string outGsfElectrons_;
+ const std::string outGsfElectronCores_;
+ const std::string outConversions_;
+ const std::string outSingleConversions_;
+ const std::string outSuperClusters_;
+ const std::string outEBEEClusters_;
+ const std::string outESClusters_;
+ const std::string outEBRecHits_;
+ const std::string outEERecHits_;
+ const std::string outESRecHits_;
+ const std::string outPhotonPfCandMap_;
+ const std::string outGsfElectronPfCandMap_;
+ const std::vector<std::string> outPhotonIds_;
+ const std::vector<std::string> outGsfElectronIds_;
+ const std::vector<std::string> outPhotonPFClusterIsos_;
+ const std::vector<std::string> outGsfElectronPFClusterIsos_;
  
- StringCutObjectSelector<reco::Photon> keepPhotonSel_;
- StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_; 
- StringCutObjectSelector<reco::Photon> relinkPhotonSel_;
- StringCutObjectSelector<reco::GsfElectron> keepGsfElectronSel_;
- StringCutObjectSelector<reco::GsfElectron> slimRelinkGsfElectronSel_;
- StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_; 
- 
- 
-
+ const StringCutObjectSelector<reco::Photon> keepPhotonSel_;
+ const StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_; 
+ const StringCutObjectSelector<reco::Photon> relinkPhotonSel_;
+ const StringCutObjectSelector<reco::GsfElectron> keepGsfElectronSel_;
+ const StringCutObjectSelector<reco::GsfElectron> slimRelinkGsfElectronSel_;
+ const StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_; 
 };
 #endif
 

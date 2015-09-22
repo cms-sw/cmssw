@@ -4,7 +4,7 @@
 #ifndef PhysicsTools_PatAlgos_PATJetSelector_h
 #define PhysicsTools_PatAlgos_PATJetSelector_h
 
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "DataFormats/Common/interface/RefVector.h"
 
@@ -21,15 +21,14 @@
 
 namespace pat {
 
-  class PATJetSelector : public edm::EDFilter {
+  class PATJetSelector : public edm::stream::EDFilter<> {
   public:
 
 
   PATJetSelector( edm::ParameterSet const & params ) :
-    edm::EDFilter( ),
       srcToken_(consumes<edm::View<pat::Jet> >( params.getParameter<edm::InputTag>("src") )),
       cut_( params.getParameter<std::string>("cut") ),
-      filter_(false),
+      filter_( params.exists("filter") ? params.getParameter<bool>("filter") : false ),
       selector_( cut_ )
       {
 	produces< std::vector<pat::Jet> >();
@@ -37,10 +36,6 @@ namespace pat {
 	produces<std::vector<CaloTower>  > ("caloTowers");
 	produces<reco::PFCandidateCollection > ("pfCandidates");
 	produces<edm::OwnVector<reco::BaseTagInfo> > ("tagInfos");
-
-	if ( params.exists("filter") ) {
-	  filter_ = params.getParameter<bool>("filter");
-	}
       }
 
     virtual ~PATJetSelector() {}
@@ -196,10 +191,10 @@ namespace pat {
     }
 
   protected:
-    edm::EDGetTokenT<edm::View<pat::Jet> > srcToken_;
-    std::string                    cut_;
-    bool                           filter_;
-    StringCutObjectSelector<Jet>   selector_;
+    const edm::EDGetTokenT<edm::View<pat::Jet> > srcToken_;
+    const std::string                    cut_;
+    const bool                           filter_;
+    const StringCutObjectSelector<Jet>   selector_;
   };
 
 }

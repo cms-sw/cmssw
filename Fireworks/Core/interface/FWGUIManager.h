@@ -282,7 +282,7 @@ private:
    sigc::connection   m_modelChangeConn;
 
    std::auto_ptr<CmsShowTaskExecutor> m_tasks;
-
+    std::vector<FWViewBase*> m_regionViews;
    int m_WMOffsetX, m_WMOffsetY, m_WMDecorH;
 };
 
