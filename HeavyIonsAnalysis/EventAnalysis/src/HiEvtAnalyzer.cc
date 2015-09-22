@@ -59,6 +59,8 @@ private:
   bool doMC_;
   bool doVertex_;
 
+  int evtPlaneLevel_;
+
   edm::Service<TFileService> fs_;
 
   TTree * thi_;
@@ -116,7 +118,8 @@ HiEvtAnalyzer::HiEvtAnalyzer(const edm::ParameterSet& iConfig) :
   doEvtPlaneFlat_(iConfig.getParameter<bool> ("doEvtPlaneFlat")),
   doCentrality_(iConfig.getParameter<bool> ("doCentrality")),
   doMC_(iConfig.getParameter<bool> ("doMC")),
-  doVertex_(iConfig.getParameter<bool>("doVertex"))
+  doVertex_(iConfig.getParameter<bool>("doVertex")),
+  evtPlaneLevel_(iConfig.getParameter<int>("evtPlaneLevel"))
 {
 
 }
@@ -210,7 +213,7 @@ HiEvtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if(evtPlanes.isValid()){
       nEvtPlanes += evtPlanes->size();
       for(unsigned int i = 0; i < evtPlanes->size(); ++i){
-	hiEvtPlane[i] = (*evtPlanes)[i].angle();
+        hiEvtPlane[i] = (*evtPlanes)[i].angle(evtPlaneLevel_);
       }
     }
   }
