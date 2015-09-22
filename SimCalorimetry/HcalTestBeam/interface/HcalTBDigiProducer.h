@@ -1,7 +1,7 @@
 #ifndef SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 #define SimCalorimetry_HcalTestBeam_HcalTBDigiProducer_h
 
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +35,7 @@ namespace CLHEP {
 class HcalTBDigiProducer : public DigiAccumulatorMixMod {
 public:
 
-  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  explicit HcalTBDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
   virtual ~HcalTBDigiProducer();
 
   virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;

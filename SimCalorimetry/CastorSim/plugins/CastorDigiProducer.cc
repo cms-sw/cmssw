@@ -19,7 +19,7 @@
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 
-CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) 
+CastorDigiProducer::CastorDigiProducer(const edm::ParameterSet& ps, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) 
 : theParameterMap(new CastorSimParameterMap(ps)),
   theCastorShape(new CastorShape()),
   theCastorIntegratedShape(new CaloShapeIntegrator(theCastorShape)),

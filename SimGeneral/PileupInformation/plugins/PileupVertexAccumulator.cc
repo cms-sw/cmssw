@@ -67,7 +67,7 @@
 
 namespace cms
 {
-  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC)
+  PileupVertexAccumulator::PileupVertexAccumulator(const edm::ParameterSet& iConfig, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC)
   {
     edm::LogInfo ("PixelDigitizer ") <<"Enter the Pixel Digitizer";
     

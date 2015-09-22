@@ -9,7 +9,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace one {
+  namespace stream {
     class EDProducerBase;
   }
   class Event;
@@ -23,7 +23,7 @@ class EcalTBDigiProducer : public EcalDigiProducer
 {
    public:
 
-      EcalTBDigiProducer( const edm::ParameterSet& params, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC) ;
+      EcalTBDigiProducer( const edm::ParameterSet& params, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC) ;
       virtual ~EcalTBDigiProducer() ;
 
 

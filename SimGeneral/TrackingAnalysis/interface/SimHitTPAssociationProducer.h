@@ -2,7 +2,7 @@
 #define SimGeneral_TrackingAnalysis_SimHitTPAssociationProducer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -12,7 +12,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-class SimHitTPAssociationProducer : public edm::EDProducer 
+class SimHitTPAssociationProducer : public edm::stream::EDProducer<>
 {
 public:
 

@@ -8,7 +8,7 @@
 
 namespace edm {
   class ConsumesCollector;
-  namespace one {
+  namespace stream {
     class EDProducerBase;
   }
   class ParameterSet;
@@ -21,7 +21,7 @@ namespace CLHEP {
 
 class HcalDigiProducer : public DigiAccumulatorMixMod {
 public:
-  HcalDigiProducer(edm::ParameterSet const& pset, edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
+  HcalDigiProducer(edm::ParameterSet const& pset, edm::stream::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
 
   HcalDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC);
 
