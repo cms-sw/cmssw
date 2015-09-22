@@ -412,6 +412,9 @@ class Frame:
     def setXTitleSize(self, size):
         self._frame.GetXaxis().SetTitleSize(size)
 
+    def setXTitleOffset(self, offset):
+        self._frame.GetXaxis().SetTitleOffset(offset)
+
     def setXLabelSize(self, size):
         self._frame.GetXaxis().SetLabelSize(size)
 
@@ -507,6 +510,9 @@ class FrameRatio:
 
     def setXTitleSize(self, size):
         self._frameRatio.GetXaxis().SetTitleSize(size)
+
+    def setYTitleOffset(self, offset):
+        self._frameRatio.GetXaxis().SetTitleOffset(offset)
 
     def setXLabelSize(self, size):
         self._frameRatio.GetXaxis().SetLabelSize(size)
@@ -605,6 +611,9 @@ class FrameTGraph2D:
     def setXTitleSize(self, size):
         self._xtitlesize = size
 
+    def setXTitleOffset(self, size):
+        self._xtitleoffset = size
+
     def setXLabelSize(self, size):
         self._xlabelsize = size
 
@@ -671,6 +680,7 @@ class Plot:
         title        -- String for a title of the plot (default None)
         xtitle       -- String for x axis title (default None)
         xtitlesize   -- Float for x axis title size (default None)
+        xtitleoffset -- Float for x axis title offset (default None)
         xlabelsize   -- Float for x axis label size (default None)
         ytitle       -- String for y axis title (default None)
         ytitlesize   -- Float for y axis title size (default None)
@@ -719,6 +729,7 @@ class Plot:
         _set("title", None)
         _set("xtitle", None)
         _set("xtitlesize", None)
+        _set("xtitleoffset", None)
         _set("xlabelsize", None)
         _set("ytitle", None)
         _set("ytitlesize", None)
@@ -1013,6 +1024,8 @@ class Plot:
             frame.setXTitle(self._xtitle)
         if self._xtitlesize is not None:
             frame.setXTitleSize(self._xtitlesize)
+        if self._xtitleoffset is not None:
+            frame.setXTitleOffset(self._xtitleoffset)
         if self._xlabelsize is not None:
             frame.setXLabelSize(self._xlabelsize)
         if self._ytitle is not None:

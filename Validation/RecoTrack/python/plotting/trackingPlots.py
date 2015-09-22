@@ -126,20 +126,40 @@ _dupandfake4 = PlotGroup("dupandfake4", [
 ],
                          legendDy=-0.025
 )
+_common = {
+    "ytitle": "Fake+pileup rate",
+    "ymax": _maxFake,
+    "drawStyle": "EP",
+}
+_common2 = {}
+_common2.update(_common)
+_common2["drawStyle"] = "pcolz"
+_common2["ztitleoffset"] = 1.5
+_common2["xtitleoffset"] = 7
+_common2["ytitleoffset"] = 10
+_common2["ztitleoffset"] = 6
 _pvassociation1 = PlotGroup("pvassociation1", [
-    Plot(ROC("effic_vs_fakepileup_dzpvcut",  "effic_vs_dzpvcut", FakeDuplicate("fakepileup_vs_dzpvcut", assoc="num_assoc(recoToSim)_dzpvcut", reco="num_reco_dzpvcut", dup="num_pileup_dzpvcut")),
-             xtitle="Efficiency vs. cut on dz(PV)", ytitle="Fake+pileup rate", ymax=_maxFake, drawStyle="EP"),
-#    Plot(ROC("effic_vs_fakepileup2",  "effic_vs_dzpvcut", FakeDuplicate("fakepileup_vs_dzpvcut", assoc="num_assoc(recoToSim)_dzpvcut", reco="num_reco_dzpvcut", dup="num_pileup_dzpvcut"), zaxis=True),
-#             xtitle="Efficiency", ytitle="Fake rate", ztitle="Cut on dz(PV)", ymax=_maxFake, drawStyle="pcolz"),
-    Plot(ROC("effic_vs_fakepileup_dzpvsigcut",  "effic_vs_dzpvsigcut", FakeDuplicate("fakepileup_vs_dzpvsigcut", assoc="num_assoc(recoToSim)_dzpvsigcut", reco="num_reco_dzpvsigcut", dup="num_pileup_dzpvcut")),
-             xtitle="Efficiency vs. cut on dz(PV)/dzError", ytitle="Fake+pileup rate", ymax=_maxFake, drawStyle="EP"),
+    Plot(ROC("effic_vs_fakepileup_dzpvcut", "effic_vs_dzpvcut", FakeDuplicate("fakepileup_vs_dzpvcut", assoc="num_assoc(recoToSim)_dzpvcut", reco="num_reco_dzpvcut", dup="num_pileup_dzpvcut")),
+             xtitle="Efficiency vs. cut on dz(PV)", **_common),
+    Plot(ROC("effic_vs_fakepileup2_dzpvcut", "effic_vs_dzpvcut", FakeDuplicate("fakepileup_vs_dzpvcut", assoc="num_assoc(recoToSim)_dzpvcut", reco="num_reco_dzpvcut", dup="num_pileup_dzpvcut"), zaxis=True),
+             xtitle="Efficiency", ztitle="Cut on dz(PV)", **_common2),
     #
-    Plot(ROC("effic_vs_fakepileup_dzpvcut_pt",  "effic_vs_dzpvcut_pt", FakeDuplicate("fakepileup_vs_dzpvcut_pt", assoc="num_assoc(recoToSim)_dzpvcut_pt", reco="num_reco_dzpvcut_pt", dup="num_pileup_dzpvcut_pt")),
-             xtitle="Efficiency (p_{T} weighted) vs. cut on dz(PV)", ytitle="Fake+pileup rate", ymax=_maxFake, drawStyle="EP"),
     Plot(ROC("effic_vs_fakepileup_dzpvsigcut",  "effic_vs_dzpvsigcut", FakeDuplicate("fakepileup_vs_dzpvsigcut", assoc="num_assoc(recoToSim)_dzpvsigcut", reco="num_reco_dzpvsigcut", dup="num_pileup_dzpvcut")),
-             xtitle="Efficiency (p_{T} weighted) vs. cut on dz(PV)/dzError", ytitle="Fake+pileup rate", ymax=_maxFake, drawStyle="EP"),
+             xtitle="Efficiency vs. cut on dz(PV)/dzError", **_common),
+    Plot(ROC("effic_vs_fakepileup_dzpvsigcut",  "effic_vs_dzpvsigcut", FakeDuplicate("fakepileup_vs_dzpvsigcut", assoc="num_assoc(recoToSim)_dzpvsigcut", reco="num_reco_dzpvsigcut", dup="num_pileup_dzpvcut"), zaxis=True),
+             xtitle="Efficiency", ztitle="Cut on dz(PV)/dzError", **_common2),
+    ##
+    Plot(ROC("effic_vs_fakepileup_dzpvcut_pt",  "effic_vs_dzpvcut_pt", FakeDuplicate("fakepileup_vs_dzpvcut_pt", assoc="num_assoc(recoToSim)_dzpvcut_pt", reco="num_reco_dzpvcut_pt", dup="num_pileup_dzpvcut_pt")),
+             xtitle="Efficiency (p_{T} weighted) vs. cut on dz(PV)", **_common),
+    Plot(ROC("effic_vs_fakepileup_dzpvcut_pt",  "effic_vs_dzpvcut_pt", FakeDuplicate("fakepileup_vs_dzpvcut_pt", assoc="num_assoc(recoToSim)_dzpvcut_pt", reco="num_reco_dzpvcut_pt", dup="num_pileup_dzpvcut_pt"), zaxis=True),
+             xtitle="Efficiency (p_{T} weighted)", ztitle="Cut on dz(PV)", **_common2),
+    #
+    Plot(ROC("effic_vs_fakepileup_dzpvsigcut",  "effic_vs_dzpvsigcut", FakeDuplicate("fakepileup_vs_dzpvsigcut", assoc="num_assoc(recoToSim)_dzpvsigcut", reco="num_reco_dzpvsigcut", dup="num_pileup_dzpvcut")),
+             xtitle="Efficiency (p_{T} weighted) vs. cut on dz(PV)/dzError", **_common),
+    Plot(ROC("effic_vs_fakepileup_dzpvsigcut",  "effic_vs_dzpvsigcut", FakeDuplicate("fakepileup_vs_dzpvsigcut", assoc="num_assoc(recoToSim)_dzpvsigcut", reco="num_reco_dzpvsigcut", dup="num_pileup_dzpvcut"), zaxis=True),
+             xtitle="Efficiency (p_{T} weighted)", ztitle="Cut on dz(PV)/dzError", **_common2),
 ], onlyForPileup=True,
-                         legendDy=-0.025
+                         legendDy=0.09
 )
 _pvassociation2 = PlotGroup("pvassociation2", [
     Plot("effic_vs_dzpvcut", xtitle="Cut on dz(PV) (cm)", ytitle="Efficiency vs. cut on dz(PV)", ymax=_maxEff),
