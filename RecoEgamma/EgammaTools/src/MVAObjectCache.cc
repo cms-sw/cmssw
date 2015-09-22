@@ -19,7 +19,8 @@ MVAObjectCache::MVAObjectCache(const edm::ParameterSet& conf) {
       // Declare all event content, such as ValueMaps produced upstream or other,
       // original event data pieces, that is needed (if any is implemented in the specific
       // MVA classes)
-      auto diditwork = mvas_.emplace(estimator->getName(), MVAPtr(estimator) );
+      const std::string full_name = estimator->getName() + estimator->getTag();
+      auto diditwork = mvas_.emplace( full_name, MVAPtr(estimator) );
       if( !diditwork.second ) {
         throw cms::Exception("MVA configured twice: ")
           <<  "Tried already to make an mva of name: " << estimator->getName()

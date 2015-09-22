@@ -195,7 +195,6 @@ namespace ecaldqm
             quality = doMask ? kMGood : kGood;
         }
       }
-
       qsItr->setBinContent(quality);
     }
   }

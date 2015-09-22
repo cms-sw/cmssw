@@ -40,6 +40,8 @@ MicroEventContent = cms.PSet(
 
         'keep *_selectedPatTrigger_*_*',
         'keep patPackedTriggerPrescales_patTrigger__*',
+        'keep patPackedTriggerPrescales_patTrigger_l1max_*',
+        'keep patPackedTriggerPrescales_patTrigger_l1min_*',
         'keep *_l1extraParticles_*_*',
         'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
         'keep *_TriggerResults_*_HLT',

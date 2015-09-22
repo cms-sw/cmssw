@@ -381,7 +381,7 @@ void StripClusterFinder::printClusters(void)
  std::cout << "======================================================================" << std::endl;	
    return;
 }
-bool  StripClusterFinder::Sort::operator()(StripClusterFitData a , StripClusterFitData b) const
+bool  StripClusterFinder::Sort::operator()(const StripClusterFitData& a , const StripClusterFitData& b) const
 {return  a.channel_ < b.channel_;}
 
 }

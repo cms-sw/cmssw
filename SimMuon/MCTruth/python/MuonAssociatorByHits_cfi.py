@@ -64,6 +64,8 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     #
     associatePixel = cms.bool(True),
     associateStrip = cms.bool(True),
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
     associateRecoTracks = cms.bool(True),
     #                                
     ROUList = cms.vstring('TrackerHitsTIBLowTof', 

@@ -32,25 +32,21 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_HT_MuEle_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Muon_BJet_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Electron_BJet_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_alphaT_cff import *
-from HLTriggerOffline.SUSYBSM.SUSYBSM_DiJet_MET_cff import *
-from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_VBF_Mu_cff import *
+
 
 HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_InclusiveHT +
                                 SUSY_HLT_InclusiveMET +
-                                SUSY_HLT_InclusiveMET_NoNoiseCleaning +
-                                SUSY_HLT_InclusiveMET_HBHECleaned +
-                                SUSY_HLT_InclusiveMET_JetIdCleaned +
                                 SUSY_HLT_MET_BTAG +
                                 SUSY_HLT_MET_MUON +
                                 SUSY_HLT_InclusiveHT_aux200 + 
-                                SUSY_HLT_InclusiveHT_aux250 + 
+                                SUSY_HLT_InclusiveHT_aux250 +
                                 SUSY_HLT_InclusiveHT_aux300 + 
                                 SUSY_HLT_InclusiveHT_aux350 + 
-                                SUSY_HLT_InclusiveHT_aux400 + 
+                                SUSY_HLT_InclusiveHT_aux400 +
                                 SUSY_HLT_InclusiveHT_aux475 + 
                                 SUSY_HLT_InclusiveHT_aux600 +
-                                SUSY_HLT_InclusiveHT_aux800 +
+                                SUSY_HLT_InclusiveHT_aux800 + 
                                 SUSY_HLT_Mu_HT_SingleLepton +
                                 SUSY_HLT_Mu_HT_MET_SingleLepton +
                                 SUSY_HLT_Mu_HT_BTag_SingleLepton +
@@ -85,13 +81,17 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_HT_MuEle +
                                 SUSY_HLT_Muon_BJet +
                                 SUSY_HLT_Electron_BJet +
+                                SUSY_HLT_HT200_alphaT0p51 +
+                                SUSY_HLT_HT200_alphaT0p57 +
+                                SUSY_HLT_HT250_alphaT0p55 +
+                                SUSY_HLT_HT300_alphaT0p53 +
+                                SUSY_HLT_HT350_alphaT0p52 +
+                                SUSY_HLT_HT400_alphaT0p51 +
                                 SUSY_HLT_HT200_alphaT0p63 +
                                 SUSY_HLT_HT250_alphaT0p58 +
                                 SUSY_HLT_HT300_alphaT0p54 +
                                 SUSY_HLT_HT350_alphaT0p53 +
-                                SUSY_HLT_HT400_alphaT0p52 + 
-                                SUSY_HLT_DiJet_MET +
-                                SUSY_HLT_Mu_VBF
+                                SUSY_HLT_HT400_alphaT0p52 
                                 )
 
 
@@ -141,6 +141,5 @@ HLTSusyExoValSeq_FastSim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM +
                                         SUSY_HLT_HT_DoubleEle_FASTSIM +
                                         SUSY_HLT_HT_MuEle_FASTSIM +
                                         SUSY_HLT_Muon_BJet_FASTSIM +
-                                        SUSY_HLT_Electron_BJet_FASTSIM + 
-                                        SUSY_HLT_Mu_VBF_FASTSIM )
+                                        SUSY_HLT_Electron_BJet_FASTSIM)
 

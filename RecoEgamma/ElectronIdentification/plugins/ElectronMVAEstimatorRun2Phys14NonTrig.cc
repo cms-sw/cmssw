@@ -10,6 +10,8 @@
 ElectronMVAEstimatorRun2Phys14NonTrig::ElectronMVAEstimatorRun2Phys14NonTrig(const edm::ParameterSet& conf):
   AnyMVAEstimatorRun2Base(conf) {
 
+  _tag = conf.getParameter<std::string>("mvaTag");
+  
   const std::vector <std::string> weightFileNames
     = conf.getParameter<std::vector<std::string> >("weightFileNames");
 
@@ -245,8 +247,9 @@ ElectronMVAEstimatorRun2Phys14NonTrig::fillMVAVariables(const edm::Ptr<reco::Can
   // Spectator variables  
   allMVAVars.pt              = eleRecoPtr->pt();
   const float scEta = superCluster->eta();
-  allMVAVars.isBarrel        = ( std::abs(scEta) < 1.479 );
-  allMVAVars.isEndcap        = ( std::abs(scEta) >= 1.479);
+  constexpr float ebeeSplit = 1.479;
+  allMVAVars.isBarrel        = ( std::abs(scEta) < ebeeSplit );
+  allMVAVars.isEndcap        = ( std::abs(scEta) >= ebeeSplit );
   allMVAVars.SCeta           = scEta;
 
   constrainMVAVariables(allMVAVars);

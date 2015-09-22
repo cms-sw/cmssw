@@ -122,6 +122,33 @@ namespace edm{
   template<typename T>
   inline
   bool
+  WorkerT<T>::implDoPrePrefetchSelection(StreamID id,
+                                          EventPrincipal& ep,
+                                         ModuleCallingContext const* mcc) {
+    return true;
+  }
+
+  template<>
+  inline
+  bool
+  WorkerT<OutputModule>::implDoPrePrefetchSelection(StreamID id,
+                                         EventPrincipal& ep,
+                                         ModuleCallingContext const* mcc) {
+    return module_->prePrefetchSelection(id,ep,mcc);
+  }
+
+  template<>
+  inline
+  bool
+  WorkerT<edm::one::OutputModuleBase>::implDoPrePrefetchSelection(StreamID id,
+                                                    EventPrincipal& ep,
+                                                    ModuleCallingContext const* mcc) {
+    return module_->prePrefetchSelection(id,ep,mcc);
+  }
+  
+  template<typename T>
+  inline
+  bool
   WorkerT<T>::implDoBegin(RunPrincipal& rp, EventSetup const& c, ModuleCallingContext const* mcc) {
     module_->doBeginRun(rp, c, mcc);
     return true;

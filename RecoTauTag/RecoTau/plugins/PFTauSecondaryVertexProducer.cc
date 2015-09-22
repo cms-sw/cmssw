@@ -88,7 +88,7 @@ void PFTauSecondaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSe
     for(reco::PFTauCollection::size_type iPFTau = 0; iPFTau < Tau->size(); iPFTau++) {
       reco::PFTauRef RefPFTau(Tau, iPFTau);
       std::vector<reco::VertexRef> SV;
-      if(RefPFTau->decayMode()==10){
+      if(RefPFTau->decayMode()>=5){
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Get tracks form PFTau daugthers
 	std::vector<reco::TransientTrack> transTrk;

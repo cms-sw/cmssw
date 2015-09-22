@@ -764,7 +764,7 @@ steps['DIGIHIMIX']=merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:HIon,RAW2DIGI,
 # PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
 premixUp2015Defaults = {
     '--evt_type'    : 'SingleNuE10_cfi',
-    '-s'            : 'GEN,SIM,DIGIPREMIX,L1,DIGI2RAW',
+    '-s'            : 'GEN,SIM,DIGIPREMIX:pdigi_valid,L1,DIGI2RAW',
     '-n'            : '10',
     '--conditions'  : 'auto:run2_mc', # 25ns GT; dedicated dict for 50ns
     '--datatier'    : 'GEN-SIM-DIGI-RAW',
@@ -969,10 +969,10 @@ steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
 
 # for premixing: no --pileup_input for replay; GEN-SIM only available for in-time event, from FEVTDEBUGHLT previous step
 steps['RECOPRMXUP15_PU25']=merge([
-        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput'}, # temporary replacement for premix; to be brought back to customisePostLS1; DataMixer customize for rerouting inputs to mixed data.
         step3Up2015Defaults])
 steps['RECOPRMXUP15_PU50']=merge([
-        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns,SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput'},
         step3Up2015Defaults50ns])
 
 recoPremixUp15prod = merge([
@@ -1023,7 +1023,7 @@ steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--conditions':'auto:run1_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
-steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains',
+steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiPixelAli',
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
@@ -1079,6 +1079,11 @@ steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains',
                     '--data':'',
                     '--filein':'file:PromptCalibProdSiStripGains.root'}
 
+steps['ALCAHARVD4']={'-s':'ALCAHARVEST:SiPixelAli',
+                    '--conditions':'auto:run1_data',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--filein':'file:PromptCalibProdSiPixelAli.root'}
 
 steps['RECOHISt4']=steps['RECOHI']
 steps['RECOHIMIX']=merge([steps['RECOHI'],{'--pileup':'HiMix','--pileup_input':'das:/RelValHydjetQ_MinBias_5020GeV/%s/GEN-SIM'%(baseDataSetRelease[9])}])

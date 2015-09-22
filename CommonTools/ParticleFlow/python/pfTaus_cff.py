@@ -125,7 +125,6 @@ pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
 pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
-
 pfTausPreSequence = cms.Sequence(
     pfJetTracksAssociatorAtVertex +
     pfTauPFJets08Region +

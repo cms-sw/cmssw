@@ -75,8 +75,6 @@ namespace edm
 
       bool wantEvent(EventPrincipal const& e, ModuleCallingContext const*);
 
-      handle_t getOneTriggerResults(EventPrincipal const& e, ModuleCallingContext const*);
-
       // Clear the cache
       void clear();
 
@@ -87,10 +85,6 @@ namespace edm
       // interested in.
       size_type fill(EventPrincipal const& ev, ModuleCallingContext const*);
       
-      // If we have only one handle cached, return it; otherwise throw.
-      handle_t returnOneHandleOrThrow();
-
-
       bool        fillDone_;
       size_type   numberFound_;
       selectors_t selectors_;

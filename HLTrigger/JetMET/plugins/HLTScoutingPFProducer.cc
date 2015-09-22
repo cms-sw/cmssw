@@ -150,13 +150,27 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
     if(doCandidates){
         for(auto &cand : *pfCandidateCollection){
             if(cand.pt() > pfCandidatePtCut){
+		int vertex_index = -1;
+		int index_counter = 0;
+		double dr2 = 0.0001;
+		for (auto &vtx: *outVertices) {
+		    double tmp_dr2 = pow(vtx.x() - cand.vx(), 2) + pow(vtx.y() - cand.vy(), 2)
+			+ pow(vtx.z() - cand.vz(), 2);
+		    if (tmp_dr2 < dr2) {
+			dr2 = tmp_dr2;
+			vertex_index = index_counter;
+		    }
+		    if (dr2 == 0.0)
+			break;
+		    ++index_counter;
+		}
                 outPFCandidates->emplace_back(
-                        cand.pt(), cand.eta(), cand.phi(), cand.mass(), cand.pdgId()
+		        cand.pt(), cand.eta(), cand.phi(), cand.mass(), cand.pdgId(), vertex_index
                         );
             }
         }
     }
-    
+
     //produce PF jets
     std::auto_ptr<ScoutingPFJetCollection> outPFJets(new ScoutingPFJetCollection());
     for(auto &jet : *pfJetCollection){

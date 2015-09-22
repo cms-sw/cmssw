@@ -25,6 +25,8 @@ output stream.
 
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
+#include "FWCore/Utilities/interface/EDGetToken.h"
+
 #include <array>
 #include <memory>
 #include <string>
@@ -94,7 +96,7 @@ namespace edm {
     // need to clean up the use of Event and EventPrincipal, to avoid
     // creation of multiple Event objects when handling a single
     // event.
-    Trig getTriggerResults(EventPrincipal const& ep, ModuleCallingContext const*) const;
+    Trig getTriggerResults(EDGetTokenT<TriggerResults> const& token, EventPrincipal const& ep, ModuleCallingContext const*) const;
 
     ModuleDescription const& description() const;
     ModuleDescription const& moduleDescription() const { return moduleDescription_;
@@ -102,7 +104,7 @@ namespace edm {
 
     ParameterSetID selectorConfig() const { return selector_config_id_; }
 
-    void doPreallocate(PreallocationConfiguration const&) {}
+    void doPreallocate(PreallocationConfiguration const&);
 
     void doBeginJob();
     void doEndJob();
@@ -156,9 +158,10 @@ namespace edm {
     ModuleDescription moduleDescription_;
 
     bool wantAllEvents_;
-    mutable detail::TriggerResultsBasedEventSelector selectors_;
+    std::vector<detail::TriggerResultsBasedEventSelector> selectors_;
     // ID of the ParameterSet that configured the event selector
     // subsystem.
+    ParameterSet selectEvents_;
     ParameterSetID selector_config_id_;
 
     // needed because of possible EDAliases.
@@ -206,6 +209,8 @@ namespace edm {
     virtual void reallyCloseFile();
 
     void registerProductsAndCallbacks(OutputModule const*, ProductRegistry const*) {}
+    
+    bool prePrefetchSelection(StreamID id, EventPrincipal const&, ModuleCallingContext const*);
 
     /// Ask the OutputModule if we should end the current file.
     virtual bool shouldWeCloseFile() const {return false;}

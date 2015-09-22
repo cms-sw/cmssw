@@ -80,7 +80,7 @@ HLTEcalPhiSymFilter::filter(edm::StreamID, edm::Event & event, const edm::EventS
   //Get iRing-geometry 
   edm::ESHandle<CaloGeometry> geoHandle;
   setup.get<CaloGeometryRecord>().get(geoHandle);
-  EcalRingCalibrationTools::setCaloGeometry(&(*geoHandle)); 
+  EcalRingCalibrationTools::setCaloGeometry(geoHandle.product()); 
   EcalRingCalibrationTools CalibRing;
 
   static const short N_RING_BARREL = EcalRingCalibrationTools::N_RING_BARREL;

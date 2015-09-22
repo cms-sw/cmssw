@@ -28,6 +28,7 @@
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -63,16 +64,21 @@ namespace edm {
       Service<service::TriggerNamesService> tns;
       process_name_ = tns->getProcessName();
       
-      ParameterSet selectevents =
+      selectEvents_ =
       pset.getUntrackedParameterSet("SelectEvents", ParameterSet());
       
-      selectevents.registerIt(); // Just in case this PSet is not registered
+      selectEvents_.registerIt(); // Just in case this PSet is not registered
       
-      selector_config_id_ = selectevents.id();
-      wantAllEvents_ = detail::configureEventSelector(selectevents,
+      selector_config_id_ = selectEvents_.id();
+      
+      //need to set wantAllEvents_ in constructor
+      // we will make the remaining selectors once we know how many streams
+      selectors_.resize(1);
+      wantAllEvents_ = detail::configureEventSelector(selectEvents_,
                                                       process_name_,
                                                       getAllTriggerNames(),
-                                                      selectors_);
+                                                      selectors_[0]);
+
     }
     
     void OutputModuleBase::configure(OutputModuleDescription const& desc) {
@@ -180,6 +186,23 @@ namespace edm {
       return SharedResourcesAcquirer{};
     }
     
+    void OutputModuleBase::doPreallocate(PreallocationConfiguration const& iPC) {
+      auto nstreams = iPC.numberOfStreams();
+      selectors_.resize(nstreams);
+      
+      bool seenFirst = false;
+      for(auto& s : selectors_) {
+        if(seenFirst) {
+          detail::configureEventSelector(selectEvents_,
+                                         process_name_,
+                                         getAllTriggerNames(),
+                                         s);
+        } else {
+          seenFirst = true;
+        }
+      }
+    }
+
     void OutputModuleBase::doBeginJob() {
       resourcesAcquirer_ = createAcquirer();
       this->beginJob();
@@ -189,10 +212,13 @@ namespace edm {
       endJob();
     }
     
-    
-    Trig OutputModuleBase::getTriggerResults(EventPrincipal const& ep,
-                                             ModuleCallingContext const* mcc) const {
-      return selectors_.getOneTriggerResults(ep, mcc);  }
+    bool OutputModuleBase::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
+      
+      auto& s = selectors_[id.value()];
+      detail::TRBESSentry products_sentry(s);
+      
+      return wantAllEvents_ or s.wantEvent(ep,mcc);
+    }
     
     bool
     OutputModuleBase::doEvent(EventPrincipal const& ep,
@@ -202,12 +228,6 @@ namespace edm {
       
       {
         std::lock_guard<std::mutex> guard(mutex_);
-        detail::TRBESSentry products_sentry(selectors_);
-        if(!wantAllEvents_) {
-          if(!selectors_.wantEvent(ep, mcc)) {
-            return true;
-          }
-        }
         {
           std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
           EventSignalsSentry sentry(act,mcc);

@@ -26,6 +26,8 @@ namespace edm {
     virtual void stop() const;
     virtual void doOutputHeader(InitMsgBuilder const& init_message) const;
     virtual void doOutputEvent(EventMsgBuilder const& msg) const;
+    virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
+    virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
 
   private:
     std::auto_ptr<Consumer> c_;
@@ -33,8 +35,10 @@ namespace edm {
 
   template<typename Consumer>
   StreamerOutputModule<Consumer>::StreamerOutputModule(ParameterSet const& ps) :
+    edm::one::OutputModuleBase::OutputModuleBase(ps),
     StreamerOutputModuleBase(ps),
-    c_(new Consumer(ps)) {
+    c_(new Consumer(ps))
+    {
   }
 
   template<typename Consumer>
@@ -64,6 +68,14 @@ namespace edm {
   StreamerOutputModule<Consumer>::doOutputEvent(EventMsgBuilder const& msg) const {
     c_->doOutputEvent(msg); // You can't use msg in StreamerOutputModule after this point
   }
+
+  template<typename Consumer>
+  void
+  StreamerOutputModule<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) {}
+
+  template<typename Consumer>
+  void
+  StreamerOutputModule<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) {}
 
   template<typename Consumer>
   void

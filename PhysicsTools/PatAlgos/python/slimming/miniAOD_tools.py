@@ -86,53 +86,44 @@ def miniAOD_customizeCommon(process):
     switchOnTriggerStandAlone( process, outputModule = '' )
     process.patTrigger.packTriggerPathNames = cms.bool(True)
     #
-    # apply type I/type I + II PFMEt corrections to pat::MET object
+    # apply type I + other PFMEt corrections to pat::MET object
     # and estimate systematic uncertainties on MET
-    # FIXME: are we 100% sure this should still be PF and not PFchs? -> MM: Yes for <=75X
-    addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK4PF', jetSource = cms.InputTag('ak4PFJets'), jetCorrections = ('AK4PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
-    process.patJetsAK4PFForMetUnc.getJetMCFlavour = False
-
-    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMETCorrectionsAndUncertainties
+    from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncForMiniAODProduction
+    runMetCorAndUncForMiniAODProduction(process, metType="PF",
+                                        jetCollUnskimmed="patJets",
+                                        jetColl="selectedPatJets")
     
-    #MET flavors
-    runMETCorrectionsAndUncertainties(process, metType="PF",
-                                      correctionLevel=["T0","T1","T2","Smear","Txy"],
-                                      computeUncertainties=False,
-                                      produceIntermediateCorrections=True,
-                                      addToPatDefaultSequence=False,
-                                      jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
-                                      jetCollection="selectedPatJetsAK4PFForMetUnc",
-                                      postfix="",
-                                      )
-    
-    #MET T1 uncertainties
-    runMETCorrectionsAndUncertainties(process, metType="PF",
-                                      correctionLevel=["T1"],
-                                      computeUncertainties=True,
-                                      produceIntermediateCorrections=False,
-                                      addToPatDefaultSequence=False,
-                                      jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
-                                      jetCollection="selectedPatJetsAK4PFForMetUnc",
-                                      postfix="",
-                                      )
-    
-    #MET T1 Smeared JER uncertainties
-    runMETCorrectionsAndUncertainties(process, metType="PF",
-                                      correctionLevel=["T1","Smear"],
-                                      computeUncertainties=True,
-                                      produceIntermediateCorrections=False,
-                                      addToPatDefaultSequence=False,
-                                      jetCollectionUnskimmed="patJetsAK4PFForMetUnc",
-                                      jetCollection="selectedPatJetsAK4PFForMetUnc",
-                                      postfix="",
-                                      )
-    
+    #caloMET computation
     from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
     addMETCollection(process,
                      labelName = "patCaloMet",
                      metSource = "caloMetM"
                      )
-  
+
+    #noHF pfMET =========
+    process.noHFCands = cms.EDFilter("GenericPFCandidateSelector",
+                                     src=cms.InputTag("particleFlow"),
+                                     cut=cms.string("abs(pdgId)!=1 && abs(pdgId)!=2 && abs(eta)<3.0")
+                                     )
+    runMetCorAndUncForMiniAODProduction(process,
+                                        pfCandColl=cms.InputTag("noHFCands"),
+                                        recomputeMET=True, #needed for HF removal
+                                        postfix="NoHF"
+                                        )
+    process.load('PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi')
+    process.slimmedMETsNoHF = process.slimmedMETs.clone()
+    process.slimmedMETsNoHF.src = cms.InputTag("patMETsNoHF")
+    process.slimmedMETsNoHF.rawVariation =  cms.InputTag("patPFMetNoHF")
+    process.slimmedMETsNoHF.t1Uncertainties = cms.InputTag("patPFMetT1%sNoHF") 
+    process.slimmedMETsNoHF.t01Variation = cms.InputTag("patPFMetT0pcT1NoHF")
+    process.slimmedMETsNoHF.t1SmearedVarsAndUncs = cms.InputTag("patPFMetT1Smear%sNoHF")
+    process.slimmedMETsNoHF.tXYUncForRaw = cms.InputTag("patPFMetTxyNoHF")
+    process.slimmedMETsNoHF.tXYUncForT1 = cms.InputTag("patPFMetT1TxyNoHF")
+    process.slimmedMETsNoHF.tXYUncForT01 = cms.InputTag("patPFMetT0pcT1TxyNoHF")
+    process.slimmedMETsNoHF.tXYUncForT1Smear = cms.InputTag("patPFMetT1SmearTxyNoHF")
+    process.slimmedMETsNoHF.tXYUncForT01Smear = cms.InputTag("patPFMetT0pcT1SmearTxyNoHF")
+    del process.slimmedMETsNoHF.caloMET
+    # ================== NoHF pfMET
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
     #Some useful BTAG vars
@@ -153,7 +144,7 @@ def miniAOD_customizeCommon(process):
     process.patJets.addTagInfos = cms.bool(True)
     #
     ## PU JetID
-    process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
+    process.load("RecoJets.JetProducers.PileupJetID_cfi")
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
 
     ## CaloJets
@@ -173,33 +164,39 @@ def miniAOD_customizeCommon(process):
 
     #VID Electron IDs
     electron_ids = ['RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_PHYS14_PU20bx25_V2_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV51_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_25ns_V1_cff',
+                    'RecoEgamma.ElectronIdentification.Identification.cutBasedElectronID_Spring15_50ns_V1_cff',
                     'RecoEgamma.ElectronIdentification.Identification.heepElectronID_HEEPV60_cff',
-                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_PHYS14_PU20bx25_nonTrig_V1_cff']
+                    'RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff']
     switchOnVIDElectronIdProducer(process,DataFormat.MiniAOD)
     process.egmGsfElectronIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.electronMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
+    process.electronRegressionValueMapProducer.src = \
+        cms.InputTag('reducedEgamma','reducedGedGsfElectrons')
     for idmod in electron_ids:
-        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection)
+        setupAllVIDIdsInModule(process,idmod,setupVIDElectronSelection,None,False)
 
     #VID Photon IDs
     photon_ids = ['RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_PHYS14_PU20bx25_V2_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_PHYS14_PU20bx25_nonTrig_V1_cff',
-                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V0_cff']
+                  'RecoEgamma.PhotonIdentification.Identification.cutBasedPhotonID_Spring15_50ns_V1_cff',
+                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2_cff',
+                  'RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_50ns_nonTrig_V2_cff']
     switchOnVIDPhotonIdProducer(process,DataFormat.MiniAOD) 
     process.egmPhotonIDs.physicsObjectSrc = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.photonIDValueMapProducer.src = \
+        cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.photonRegressionValueMapProducer.src = \
         cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.photonIDValueMapProducer.particleBasedIsolation = \
         cms.InputTag("reducedEgamma","reducedPhotonPfCandMap")
     process.photonMVAValueMapProducer.src = \
         cms.InputTag('reducedEgamma','reducedGedPhotons')
     for idmod in photon_ids:
-        setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection)
-
+        setupAllVIDIdsInModule(process,idmod,setupVIDPhotonSelection,None,False)
+    
     # Adding puppi jets
     process.load('CommonTools.PileupAlgos.Puppi_cff')
     process.load('RecoJets.JetProducers.ak4PFJetsPuppi_cfi')
@@ -295,6 +292,7 @@ def miniAOD_customizeMC(process):
     process.photonMatch.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.tauMatch.matched = "prunedGenParticles"
     process.tauGenJets.GenParticles = "prunedGenParticles"
+    process.patJetPartons.particles = "prunedGenParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.mcStatus = [ 3, 23 ]
     process.patJetGenJetMatch.matched = "slimmedGenJets"
@@ -304,7 +302,7 @@ def miniAOD_customizeMC(process):
     process.patPhotons.embedGenMatch = False
     process.patTaus.embedGenMatch = False
     process.patJets.embedGenPartonMatch = False
-    #also jet flavour must be switched to ak4
+    #also jet flavour must be switched
     process.patJetFlavourAssociation.rParam = 0.4
 
 def miniAOD_customizeOutput(out):

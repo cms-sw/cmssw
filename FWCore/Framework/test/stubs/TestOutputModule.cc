@@ -74,6 +74,7 @@ namespace edmtest
     int bitMask_;
     std::vector<unsigned char> hltbits_;
     bool expectTriggerResults_;
+    edm::EDGetTokenT<edm::TriggerResults> resultsToken_;
   };
 
   // -----------------------------------------------------------------
@@ -83,7 +84,8 @@ namespace edmtest
     name_(ps.getParameter<std::string>("name")),
     bitMask_(ps.getParameter<int>("bitMask")),
     hltbits_(0),
-    expectTriggerResults_(ps.getUntrackedParameter<bool>("expectTriggerResults",true))
+    expectTriggerResults_(ps.getUntrackedParameter<bool>("expectTriggerResults",true)),
+  resultsToken_(consumes<edm::TriggerResults>(edm::InputTag("TriggerResults")))
   {
   }
     
@@ -114,7 +116,7 @@ namespace edmtest
     if (!expectTriggerResults_) {
 
       try {
-        prod = getTriggerResults(e, mcc);
+        prod = getTriggerResults(resultsToken_, e, mcc);
         //throw doesn't happen until we dereference
         *prod;
       }
@@ -131,7 +133,7 @@ namespace edmtest
     // Now deal with the other case where we expect the object
     // to be present.
 
-    prod = getTriggerResults(e, mcc);
+    prod = getTriggerResults(resultsToken_, e, mcc);
 
     std::vector<unsigned char> vHltState;
 

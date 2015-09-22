@@ -77,7 +77,7 @@ process.out.outputCommands += ['keep *_ak4PFJetsCHS_*_*',
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #pileupJetID
 
-process.load('RecoJets.JetProducers.pileupjetidproducer_cfi')
+process.load('RecoJets.JetProducers.PileupJetID_cfi')
 
 process.pileupJetIdCalculator.jets = cms.InputTag("ak4PFJetsCHS")
 process.pileupJetIdEvaluator.jets = cms.InputTag("ak4PFJetsCHS")
@@ -112,6 +112,24 @@ process.NjettinessAK8.src = cms.InputTag("ak8PFJetsCHS")
 
 patJetsAK8.userData.userFloats.src += ['NjettinessAK8:tau1','NjettinessAK8:tau2','NjettinessAK8:tau3']
 process.out.outputCommands += ['keep *_NjettinessAK8_*_*']
+
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#ECF
+
+process.load('RecoJets.JetProducers.ECF_cfi')
+
+process.ECFCA8 = process.ECF.clone()
+process.ECFCA8.src = cms.InputTag("ca8PFJetsCHS")
+process.ECFCA8.cone = cms.double(0.8)
+
+patJetsCA8.userData.userFloats.src += ['ECFCA8:ecf1','ECFCA8:ecf2','ECFCA8:ecf3']
+process.out.outputCommands += ['keep *_ECFCA8_*_*']
+
+process.ECFAK8 = process.ECFCA8.clone()
+process.ECFAK8.src = cms.InputTag("ak8PFJetsCHS")
+
+patJetsAK8.userData.userFloats.src += ['ECFAK8:ecf1','ECFAK8:ecf2','ECFAK8:ecf3']
+process.out.outputCommands += ['keep *_ECFAK8_*_*']
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #QJetsAdder
@@ -176,6 +194,8 @@ process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSMassAK8_*_*']
 ## ------------------------------------------------------
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
+#from Configuration.AlCa.GlobalTag import GlobalTag
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 #                                         ##
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM

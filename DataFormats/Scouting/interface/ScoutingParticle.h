@@ -10,10 +10,10 @@ class ScoutingParticle
     public:
         //constructor with values for all data fields
         ScoutingParticle(float pt, float eta, float phi, float m, 
-                int pdgId):
-            pt_(pt), eta_(eta), phi_(phi), m_(m), pdgId_(pdgId) {}
+		 int pdgId, int vertex):
+            pt_(pt), eta_(eta), phi_(phi), m_(m), pdgId_(pdgId), vertex_(vertex) {}
         //default constructor
-        ScoutingParticle():pt_(0), eta_(0), phi_(0), m_(0), pdgId_(0) {}
+        ScoutingParticle():pt_(0), eta_(0), phi_(0), m_(0), pdgId_(0), vertex_(-1) {}
 
         //accessor functions
         float pt() const { return pt_; }
@@ -21,6 +21,7 @@ class ScoutingParticle
         float phi() const { return phi_; }
         float m() const { return m_; }
         int pdgId() const { return pdgId_; }
+	int vertex() const { return vertex_; }
 
     private:
         float pt_;
@@ -28,6 +29,7 @@ class ScoutingParticle
         float phi_;
         float m_;
         int pdgId_;
+	int vertex_;
 };
 
 typedef std::vector<ScoutingParticle> ScoutingParticleCollection;

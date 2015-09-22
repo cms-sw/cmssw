@@ -148,8 +148,15 @@ class PFTau : public BaseTau {
     /// Retrieve the identified hadronic decay mode according to the number of
     /// charged and piZero candidates in the signal cone
     hadronicDecayMode decayMode() const;
-    hadronicDecayMode calculateDecayMode() const;
     void setDecayMode(const hadronicDecayMode&);
+
+    /// Effect of eta and phi correction of strip on mass of tau candidate
+    float bendCorrMass() const { return bendCorrMass_; }
+    void setBendCorrMass(float bendCorrMass) { bendCorrMass_ = bendCorrMass; }
+
+    /// Size of signal cone
+    double signalConeSize() const { return signalConeSize_; }
+    void setSignalConeSize(double signalConeSize) { signalConeSize_ = signalConeSize; }  
 
     //Electron rejection
     float emFraction() const; // Ecal/Hcal Cluster Energy
@@ -192,7 +199,7 @@ class PFTau : public BaseTau {
     CandidatePtr sourceCandidatePtr( size_type i ) const;
 
     /// prints information on this PFTau
-    void dump(std::ostream& out=std::cout) const;
+    void dump(std::ostream& out = std::cout) const;
 
   private:
     friend class tau::RecoTauConstructor;
@@ -225,6 +232,10 @@ class PFTau : public BaseTau {
     float segComp_;
 
     hadronicDecayMode decayMode_;
+
+    float bendCorrMass_;
+
+    float signalConeSize_; 
 
     reco::PFJetRef jetRef_;
     PFTauTagInfoRef PFTauTagInfoRef_;

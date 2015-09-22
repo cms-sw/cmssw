@@ -274,7 +274,7 @@ StorageFactory::wrapNonLocalFile (Storage *s,
       {
         m_lfs.issueWarning();
       }
-      else if (path.empty() || m_lfs.isLocalPath(path))
+      else if ( (not path.empty()) and m_lfs.isLocalPath(path))
       {
         // For now, issue no warning - otherwise, we'd always warn on local input files.
       }

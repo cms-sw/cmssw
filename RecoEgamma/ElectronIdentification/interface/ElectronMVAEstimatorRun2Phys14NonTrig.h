@@ -74,11 +74,12 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
  
   // Utility functions
   std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, const edm::FileInPath &weightFile) ;
-
+  
   virtual int getNCategories() const override final { return nCategories; }
   bool isEndcapCategory( int category ) const;
-  const std::string& getName() const override { return name_; }
-
+  virtual const std::string& getName() const override final { return _name; } 
+  virtual const std::string& getTag() const override final { return _tag; }
+  
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
   std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const;
@@ -92,7 +93,11 @@ class ElectronMVAEstimatorRun2Phys14NonTrig : public AnyMVAEstimatorRun2Base{
   // MVA name. This is a unique name for this MVA implementation.
   // It will be used as part of ValueMap names.
   // For simplicity, keep it set to the class name.
-  const std::string name_ = "ElectronMVAEstimatorRun2Phys14NonTrig";
+  const std::string _name = "ElectronMVAEstimatorRun2Phys14NonTrig";
+  // MVA tag. This is an additional string variable to distinguish
+  // instances of the estimator of this class configured with different
+  // weight files.
+  std::string _tag;
 
   // Data members
   std::vector< std::unique_ptr<const GBRForest> > _gbrForests;

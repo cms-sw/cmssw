@@ -83,7 +83,12 @@ _combinatoricTauConfig = cms.PSet(
         combinatoricDecayModeConfigs.config2prong0pi0,
         combinatoricDecayModeConfigs.config2prong1pi0,
         combinatoricDecayModeConfigs.config3prong0pi0
-    )
+    ),
+    signalConeSize = cms.string("max(min(0.1, 3.0/pt()), 0.05)"),
+    minAbsPhotonSumPt_insideSignalCone = cms.double(2.5),
+    minRelPhotonSumPt_insideSignalCone = cms.double(0.10),
+    minAbsPhotonSumPt_outsideSignalCone = cms.double(1.e+9), # CV: always require at least some photon energy inside signal cone 
+    minRelPhotonSumPt_outsideSignalCone = cms.double(1.e+9)  #     for a tau to be reconstructed in a decay mode with pi0s
 )
 
 combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
