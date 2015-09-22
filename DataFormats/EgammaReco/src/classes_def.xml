@@ -118,12 +118,12 @@
   <class name="edm::RefVector<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> > >" splitLevel="0"/>
 
-  <class name="edm::AssociationMap<edm::OneToOne<vector<reco::BasicCluster>,vector<reco::ClusterShape>,unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::BasicCluster> >, edm::RefProd<std::vector<reco::ClusterShape> > >"/>
 
-  <class name="edm::AssociationMap<edm::OneToOne<vector<reco::SuperCluster>,vector<reco::HFEMClusterShape>,unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::SuperCluster>,std::vector<reco::HFEMClusterShape>,unsigned int> >">
     <field name="transientMap_" transient="true" />
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SuperCluster> >, edm::RefProd<std::vector<reco::HFEMClusterShape> > >"/>
