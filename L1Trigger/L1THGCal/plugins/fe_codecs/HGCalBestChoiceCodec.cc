@@ -77,22 +77,22 @@ std::vector<bool> HGCalBestChoiceCodec::encodeImpl(const HGCalBestChoiceCodec::d
             idata++;
         }
     }
-    unsigned nb = 0;
-    for(unsigned i=0;i<64;i++)
-    {
-        if(result[i]) nb++;
-    }
-    if(nb>6)
-    {
-        for(unsigned i=0;i<nCells;i++) std::cout<<result[i];
-        std::cout<<"|";
-        for(unsigned itc=0;itc<nData;itc++)
-        {
-            for(unsigned i=nCells+itc*dataLength;i<nCells+(itc+1)*dataLength;i++) std::cout<<result[i];
-            std::cout<<"|";
-        }
-        std::cout<<"\n";
-    }
+    //unsigned nb = 0;
+    //for(unsigned i=0;i<64;i++)
+    //{
+        //if(result[i]) nb++;
+    //}
+    //if(nb>6)
+    //{
+        //for(unsigned i=0;i<nCells;i++) std::cout<<result[i];
+        //std::cout<<"|";
+        //for(unsigned itc=0;itc<nData;itc++)
+        //{
+            //for(unsigned i=nCells+itc*dataLength;i<nCells+(itc+1)*dataLength;i++) std::cout<<result[i];
+            //std::cout<<"|";
+        //}
+        //std::cout<<"\n";
+    //}
     return result;
 }
 
@@ -140,6 +140,19 @@ void HGCalBestChoiceCodec::triggerCellSums(const HGCalTriggerGeometryBase& geom,
             }
         }
     }
+    unsigned nCells = 0;
+    for(const auto& value_id : data_.payload)
+    {
+        if(value_id.first>0) nCells++;
+    }
+    //if(nCells>6)
+    //{
+        //std::cout<<"Trigger cells in module before selection \n";//<<HGCEEDetId(mod.moduleId())<<" : "<<data_.payload.size()<<"\n";
+        //for(const auto& value_id : data_.payload)
+        //{
+            //std::cout<<"  "<<value_id.second.cell()<<" -> "<<value_id.first<<"\n";//<<(value_id.second==HGCEEDetId(0) ? "not valid" : "valid")<<"\n";
+        //}
+    //}
     //if(data_.payload.size()>0) std::cout<<data_.payload.size()<<" Trigger cells before selection:\n";
     //for(const auto& id_value : data_.payload)
     //{
@@ -183,19 +196,19 @@ void HGCalBestChoiceCodec::bestChoiceSelect()
         }
     }
     //data_.payload.resize(std::min(data_.payload.size(),size_t(12)));
-    unsigned nCells = 0;
-    for(const auto& value_id : data_.payload)
-    {
-        if(value_id.first>0) nCells++;
-    }
-    if(nCells>6)
-    {
-        std::cout<<"Trigger cells in module \n";//<<HGCEEDetId(mod.moduleId())<<" : "<<data_.payload.size()<<"\n";
-        for(const auto& value_id : data_.payload)
-        {
-            std::cout<<"  "<<value_id.second<<" -> "<<value_id.first<<" "<<(value_id.second==HGCEEDetId(0) ? "not valid" : "valid")<<"\n";
-        }
-    }
+    //unsigned nCells = 0;
+    //for(const auto& value_id : data_.payload)
+    //{
+        //if(value_id.first>0) nCells++;
+    //}
+    //if(nCells>6)
+    //{
+        //std::cout<<"Trigger cells in module \n";//<<HGCEEDetId(mod.moduleId())<<" : "<<data_.payload.size()<<"\n";
+        //for(const auto& value_id : data_.payload)
+        //{
+            //std::cout<<"  "<<value_id.second.cell()<<" -> "<<value_id.first<<"\n";//<<(value_id.second==HGCEEDetId(0) ? "not valid" : "valid")<<"\n";
+        //}
+    //}
     // refill the data payload
     //data_.reset();
     //for(const auto& value_id : sortedtriggercells)
