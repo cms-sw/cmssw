@@ -636,8 +636,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
       newCandidate.setCandidateP4type(reco::Photon::regression2);
     } else if ( candidateP4type_ == "fromRefinedSCRegression" ) {
-      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
-      newCandidate.setCandidateP4type(reco::Photon::regression1);
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
+      newCandidate.setCandidateP4type(reco::Photon::regression2);
     }
 
     //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
@@ -738,8 +738,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
       newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
       newCandidate.setCandidateP4type(reco::Photon::regression2);
     } else if ( candidateP4type_ == "fromRefinedSCRegression" ) {
-      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
-      newCandidate.setCandidateP4type(reco::Photon::regression1);
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression2) );
+      newCandidate.setCandidateP4type(reco::Photon::regression2);
     }
 
     //    std::cout << " GEDPhotonProducer  pf based isolation  chargedHadron " << newCandidate.chargedHadronIso() << " neutralHadron " <<  newCandidate.neutralHadronIso() << " Photon " <<  newCandidate.photonIso() << std::endl;
