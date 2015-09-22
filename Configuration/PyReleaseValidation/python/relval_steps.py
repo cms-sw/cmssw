@@ -240,10 +240,10 @@ baseDataSetRelease=[
                                                             # THIS ABOVE IS NOT USED, AT THE MOMENT
     'CMSSW_7_6_0_pre2-75X_mcRun2_asymptotic_v2-v1',         # 3 - 13 TeV samples with GEN-SIM from 750_p4; also GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
     'CMSSW_7_3_0_pre1-PRE_LS172_V15_FastSim-v1',                   # 4 - fast sim GEN-SIM-DIGI-RAW-HLTDEBUG for id tests
-    'CMSSW_7_6_0_pre4-PU25ns_76X_mcRun2_asymptotic_v1-v1',         # 5 - fullSim PU 25ns premix
-    'CMSSW_7_6_0_pre4-PU50ns_76X_mcRun2_startup_v1-v1',            # 6 - fullSim PU 50ns premix
-    'CMSSW_7_6_0_pre4-76X_mcRun2_asymptotic_v1_FastSim-v1',        # 7 - fastSim MinBias for mixing
-    'CMSSW_7_6_0_pre4-PU25ns_76X_mcRun2_asymptotic_v1_FastSim-v1', # 8 - fastSim premixed MinBias
+    'CMSSW_7_6_0_pre5-PU25ns_76X_mcRun2_asymptotic_v1-v1',         # 5 - fullSim PU 25ns premix
+    'CMSSW_7_6_0_pre5-PU50ns_76X_mcRun2_startup_v1-v1',            # 6 - fullSim PU 50ns premix
+    'CMSSW_7_6_0_pre5-76X_mcRun2_asymptotic_v1_FastSim-v1',        # 7 - fastSim MinBias for mixing
+    'CMSSW_7_6_0_pre5-PU25ns_76X_mcRun2_asymptotic_v1_FastSim-v1', # 8 - fastSim premixed MinBias
     'CMSSW_7_6_0_pre2-75X_mcRun2_HeavyIon_v2-v1' 	           # 9 - Run2 HI GEN-SIM
     ]
 
@@ -843,7 +843,7 @@ steps['HLTDR250ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey50ns,},{'--condition
 
 hltKey25ns='relval25ns'
 menuR225ns = autoHLT[hltKey25ns]
-steps['HLTDR225ns']=merge( [ {'-s':'L1REPACK,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
+steps['HLTDR225ns']=merge( [ {'-s':'L1REPACK:GT2,HLT:@%s'%hltKey25ns,},{'--conditions':'auto:run2_hlt',},{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'},steps['HLTD'] ] )
 
 
 # custom function to be put back once the CSC tracked/untracked will have been fixed.. :-)
