@@ -232,13 +232,13 @@ HLT_AK8PFHT700_TrimR0p1PT0p03Mass50_v*				# JIRA: CMSHLT-121, mod. CMSHLT-179, C
 
 HLT_Mu8_TrkIsoVVL_v*						# JIRA: CMSHLT-129, CMSHLT-534
 HLT_Mu17_TrkIsoVVL_v*						# JIRA: CMSHLT-129
-HLT_Mu24_TrkIsoVVL_v*						# JIRA: CMSHLT-129
-HLT_Mu34_TrkIsoVVL_v*						# JIRA: CMSHLT-129
+#HLT_Mu24_TrkIsoVVL_v*						# JIRA: CMSHLT-129, removed by CMSHLT-592
+#HLT_Mu34_TrkIsoVVL_v*						# JIRA: CMSHLT-129, removed by CMSHLT-592
 
-HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, mod CMSHLT-331
-HLT_Ele18_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, mod CMSHLT-331
-HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, mod CMSHLT-331  
-HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, mod CMSHLT-331 
+HLT_Ele12_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, CMSHLT-331
+#HLT_Ele18_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, CMSHLT-331, removed by CMSHLT-592
+HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, CMSHLT-331  
+HLT_Ele33_CaloIdL_TrackIdL_IsoVL_PFJet30_v*	   	   	# JIRA: CMSHLT-189, CMSHLT-331 
 
 HLT_MET60_IsoTrk35_Loose_v*					# JIRA: CMSHLT-394
 HLT_MET75_IsoTrk50_v*						# JIRA: CMSHLT-130
@@ -427,11 +427,11 @@ HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*		# JIRA: CMSHLT-213 (only for
 
 HLT_Mu8_v*							# JIRA: CMSHLT-293, CMSHLT-534
 HLT_Mu17_v*							# JIRA: CMSHLT-293
-HLT_Mu24_v*							# JIRA: CMSHLT-293
-HLT_Mu34_v*							# JIRA: CMSHLT-293
+#HLT_Mu24_v*							# JIRA: CMSHLT-293, removed by CMSHLT-592
+#HLT_Mu34_v*							# JIRA: CMSHLT-293, removed by CMSHLT-592
 HLT_Ele8_CaloIdM_TrackIdM_PFJet30_v*				# JIRA: CMSHLT-293
 HLT_Ele12_CaloIdM_TrackIdM_PFJet30_v*				# JIRA: CMSHLT-293
-HLT_Ele18_CaloIdM_TrackIdM_PFJet30_v*				# JIRA: CMSHLT-293
+#HLT_Ele18_CaloIdM_TrackIdM_PFJet30_v*				# JIRA: CMSHLT-293, removed by CMSHLT-592
 HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v*				# JIRA: CMSHLT-293
 HLT_Ele33_CaloIdM_TrackIdM_PFJet30_v*				# JIRA: CMSHLT-293
 
