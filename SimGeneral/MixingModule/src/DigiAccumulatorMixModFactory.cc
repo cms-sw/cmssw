@@ -30,7 +30,7 @@ namespace edm {
   }
 
   std::auto_ptr<DigiAccumulatorMixMod>
-  DigiAccumulatorMixModFactory::makeDigiAccumulator(ParameterSet const& conf, one::EDProducerBase& mixMod, ConsumesCollector& iC) const {
+  DigiAccumulatorMixModFactory::makeDigiAccumulator(ParameterSet const& conf, stream::EDProducerBase& mixMod, ConsumesCollector& iC) const {
     std::string accumulatorType = conf.getParameter<std::string>("accumulatorType");
     FDEBUG(1) << "DigiAccumulatorMixModFactory: digi_accumulator_type = " << accumulatorType << std::endl;
     std::auto_ptr<DigiAccumulatorMixMod> wm;

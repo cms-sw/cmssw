@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ProcessContext.h"
 #include "FWCore/Sources/interface/VectorInputSourceDescription.h"
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -77,6 +78,7 @@ namespace edm {
     input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, VectorInputSourceDescription(
                                                                    productRegistry_, edm::PreallocationConfiguration())).release()),
     processConfiguration_(new ProcessConfiguration(std::string("@MIXING"), getReleaseVersion(), getPassID())),
+    processContext_(new ProcessContext()),
     eventPrincipal_(),
     lumiPrincipal_(),
     runPrincipal_(),
@@ -89,6 +91,7 @@ namespace edm {
 
     // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
     processConfiguration_->setParameterSetID(ParameterSet::emptyParameterSetID());
+    processContext_->setProcessConfiguration(processConfiguration_.get());
 
     if(pset.existsAs<std::vector<ParameterSet> >("producers", true)) {
       std::vector<ParameterSet> producers = pset.getParameter<std::vector<ParameterSet> >("producers");
@@ -180,20 +183,17 @@ namespace edm {
 
   } // end of constructor
 
-
-
-
-
-  void PileUp::beginJob () {
+  void PileUp::beginStream (edm::StreamID iID) {
+    streamContext_.reset(new StreamContext(iID, processContext_.get()));
     input_->doBeginJob();
     if (provider_.get() != nullptr) {
-      provider_->beginJob(*productRegistry_);
+      provider_->beginStream(iID, *streamContext_);
     }
   }
 
-  void PileUp::endJob () {
+  void PileUp::endStream () {
     if (provider_.get() != nullptr) {
-      provider_->endJob();
+      provider_->endStream(streamContext_->streamID(), *streamContext_);
     }
     input_->doEndJob();
   }

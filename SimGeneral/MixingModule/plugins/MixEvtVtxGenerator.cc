@@ -5,7 +5,7 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,7 +32,7 @@ namespace HepMC {
 }
 
 
-class MixEvtVtxGenerator : public edm::EDProducer
+class MixEvtVtxGenerator : public edm::stream::EDProducer<>
 {
    public:
   

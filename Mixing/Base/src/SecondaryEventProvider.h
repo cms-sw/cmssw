@@ -25,8 +25,8 @@ namespace edm {
 
     void setupPileUpEvent(EventPrincipal& ep, const EventSetup& setup);
 
-    void beginJob(ProductRegistry const& iRegistry) {workerManager_.beginJob(iRegistry);}
-    void endJob() {workerManager_.endJob();}
+    void beginStream(edm::StreamID iID, StreamContext& sContext) {workerManager_.beginStream(iID, sContext);}
+    void endStream(edm::StreamID iID, StreamContext& sContext) {workerManager_.endStream(iID, sContext);}
 
   private:
     std::unique_ptr<ExceptionToActionTable> exceptionToActionTable_;

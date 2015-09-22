@@ -163,7 +163,7 @@ namespace
 namespace edm {
 
   // Constructor 
-  BMixingModule::BMixingModule(const edm::ParameterSet& pset) :
+  BMixingModule::BMixingModule(const edm::ParameterSet& pset, PileUpConfigVec const*) :
     bunchSpace_(pset.getParameter<int>("bunchspace")),
     vertexOffset_(0),
     minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
@@ -197,6 +197,8 @@ namespace edm {
 
   // Virtual destructor needed.
   BMixingModule::~BMixingModule() {;}
+
+  std::unique_ptr<PileUpConfigVec> BMixingModule::initializeGlobalCache(edm::ParameterSet const&) { return nullptr; }
 
   // update method call at begin run/lumi to reload the mixing configuration
   void BMixingModule::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup){
@@ -271,15 +273,15 @@ namespace edm {
     }
   }
 
-  void BMixingModule::beginJob() {
+  void BMixingModule::beginStream(edm::StreamID iID) {
     for (size_t endIdx=0; endIdx<maxNbSources_; ++endIdx) {
-      if(inputSources_[endIdx]) inputSources_[endIdx]->beginJob();
+      if(inputSources_[endIdx]) inputSources_[endIdx]->beginStream(iID);
     }
   }
 
-  void BMixingModule::endJob() {
+  void BMixingModule::endStream() {
     for (size_t endIdx=0; endIdx<maxNbSources_; ++endIdx) {
-      if(inputSources_[endIdx]) inputSources_[endIdx]->endJob();
+      if(inputSources_[endIdx]) inputSources_[endIdx]->endStream();
     }
   }
 

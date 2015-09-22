@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -150,15 +150,15 @@ void HiMixingWorker<HepMCProduct>::addSignals(edm::Event &e){
    }
 }
 
-class HiMixingModule : public edm::EDProducer {
+class HiMixingModule : public edm::stream::EDProducer<> {
    public:
       explicit HiMixingModule(const edm::ParameterSet&);
       ~HiMixingModule();
 
    private:
-  virtual void beginJob() override ;
+      //virtual void beginJob() override {}
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      //virtual void endJob() override {}
       bool verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label);      
       // ----------member data ---------------------------
 
@@ -264,17 +264,6 @@ HiMixingModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr< PileupMixingContent > PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent());
    iEvent.put(PileupMixing_);
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-HiMixingModule::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-HiMixingModule::endJob() {
 }
 
 bool HiMixingModule::verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label) {

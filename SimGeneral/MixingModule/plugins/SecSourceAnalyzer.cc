@@ -180,7 +180,7 @@ SecSourceAnalyzer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SecSourceAnalyzer::endJob() {
-  if (input_) input_->endJob();
+  if (input_) input_->endStream();
 }
 
 }//edm

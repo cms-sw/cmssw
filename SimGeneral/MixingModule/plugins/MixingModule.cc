@@ -38,7 +38,7 @@
 namespace edm {
 
   // Constructor
-  MixingModule::MixingModule(const edm::ParameterSet& ps_mix) :
+  MixingModule::MixingModule(const edm::ParameterSet& ps_mix, PileUpConfigVec const*) :
   BMixingModule(ps_mix),
   inputTagPlayback_(),
   mixProdStep2_(ps_mix.getParameter<bool>("mixProdStep2")),

@@ -53,7 +53,7 @@ namespace edm {
     public:
 
       /** standard constructor*/
-      explicit DataMixingModule(const edm::ParameterSet& ps);
+      explicit DataMixingModule(const edm::ParameterSet& ps, PileUpConfigVec const* t = nullptr);
 
       /**Default destructor*/
       virtual ~DataMixingModule();

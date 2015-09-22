@@ -18,18 +18,20 @@
 #include <vector>
 #include <memory>
 
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Mixing/Base/interface/PileUp.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/MixingRcd.h"
 
+class PileUpConfig{};
+typedef std::vector<PileUpConfig> PileUpConfigVec;
 
 namespace edm {
-  class BMixingModule : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
+  class BMixingModule : public edm::stream::EDProducer<edm::GlobalCache<PileUpConfigVec>> {
     public:
       /** standard constructor*/
-      explicit BMixingModule(const edm::ParameterSet& ps);
+      explicit BMixingModule(const edm::ParameterSet& ps, PileUpConfigVec const* t = nullptr);
 
       /**Default destructor*/
       virtual ~BMixingModule();
@@ -47,6 +49,9 @@ namespace edm {
 
       virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
       virtual void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override;
+
+      static std::unique_ptr<PileUpConfigVec> initializeGlobalCache(edm::ParameterSet const&);
+      static void globalEndJob(PileUpConfigVec*) {}
 
       // to be overloaded by dependent class
       virtual void reload(const edm::EventSetup & setup){};
@@ -70,8 +75,8 @@ namespace edm {
   protected:
       void setupPileUpEvent(const edm::EventSetup& setup);
       void dropUnwantedBranches(std::vector<std::string> const& wantedBranches);
-      virtual void beginJob() override;
-      virtual void endJob() override;
+      virtual void beginStream(edm::StreamID) override;
+      virtual void endStream() override;
       //      std::string type_;
       int bunchSpace_;
       int vertexOffset_;

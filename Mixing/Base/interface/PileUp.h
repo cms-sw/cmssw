@@ -26,6 +26,7 @@ namespace CLHEP {
 namespace edm {
   class SecondaryEventProvider;
   class StreamID;
+  class ProcessContext;
 
   class PileUp {
   public:
@@ -54,8 +55,8 @@ namespace edm {
     void dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
       input_->dropUnwantedBranches(wantedBranches);
     }
-    void beginJob();
-    void endJob();
+    void beginStream(edm::StreamID);
+    void endStream();
 
     void beginRun(const edm::Run& run, const edm::EventSetup& setup);
     void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup);
@@ -111,6 +112,8 @@ namespace edm {
     std::shared_ptr<ProductRegistry> productRegistry_;
     std::unique_ptr<VectorInputSource> const input_;
     std::shared_ptr<ProcessConfiguration> processConfiguration_;
+    std::shared_ptr<ProcessContext> processContext_;
+    std::shared_ptr<StreamContext> streamContext_;
     std::unique_ptr<EventPrincipal> eventPrincipal_;
     std::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     std::shared_ptr<RunPrincipal> runPrincipal_;
