@@ -6,7 +6,6 @@
  * this class reads the constant section of
  * the hcal-sim-numbering xml-file
  *  
- *  $Date: 2013/12/25 00:06:50 $
  * \author Sunanda Banerjee, SINP <sunanda.banerjee@cern.ch>
  *
  */
@@ -37,11 +36,14 @@ public:
   double                    getEtaHO(double& etaR, double& x, double& y, 
 				     double& z) const;
   std::pair<int,int>        getiEtaRange(const int i) const {return std::pair<int,int>(hpar->etaMin[i],hpar->etaMax[i]);}
+  const std::vector<double> &  getEtaTableHF() const {return hpar->etaTableHF;}
   unsigned int              findLayer(int layer, const std::vector<HcalParameters::LayerItem>& layerGroup) const;
   const std::vector<double> &  getGparHF() const {return hpar->gparHF;}
   const std::vector<double> &  getLayer0Wt() const {return hpar->Layer0Wt;}
   std::pair<int,int>        getModHalfHBHE(const int type) const;
   std::pair<double,double>  getPhiCons(int det, int ieta);
+  const std::vector<double> &  getPhiTableHF() const {return hpar->phitable;}
+  const std::vector<double> &  getRTableHF()   const {return hpar->rTable;}
   std::vector<HcalCellType> HcalCellTypes() const;
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
 					  int depth=-1) const;
