@@ -343,7 +343,7 @@ _summaryHp = PlotGroup("summaryHp", [
 
 _common = {"normalizeToUnitArea": True, "ylog": True, "ymin": [1e-6, 1e-5, 1e-4, 1e-3, 1e-2], "ymax": [1e-2, 1e-1, 1.1]}
 _packedCandidateFlow = PlotGroup("flow", [
-    Plot("selectionFlow", xbinlabelsize=10, xbinlabeloption="d", drawStyle="hist"),
+    Plot("selectionFlow", xbinlabelsize=10, xbinlabeloption="d", drawStyle="hist", ylog=True, ymin=[0.9, 9, 9e1, 9e2, 9e3, 9e4, 9e5, 9e6, 9e7]),
     Plot("diffCharge", xtitle="Charge", **_common),
     Plot("diffIsHighPurity", xtitle="High purity status", **_common),
     Plot("diffNdof", xtitle="ndof", **_common),
@@ -482,6 +482,9 @@ _appendTrackingPlots("TrackFromPVAllTP", "fromPVAllTP", _recoBasedPlots, onlyFor
 plotter.append("packedCandidate", _trackingFolders("PackedCandidate"),
                PlotFolder(*_packedCandidatePlots, loopSubFolders=False,
                           purpose=PlotPurpose.MiniAOD, page="miniaod", section="PackedCandidate"))
+plotter.append("packedCandidateLostTracks", _trackingFolders("PackedCandidate/lostTracks"),
+               PlotFolder(*_packedCandidatePlots, loopSubFolders=False,
+                          purpose=PlotPurpose.MiniAOD, page="miniaod", section="PackedCandidate (lostTracks)"))
 
 _iterModuleMap = collections.OrderedDict([
     ("initialStepPreSplitting", ["initialStepSeedLayersPreSplitting",
