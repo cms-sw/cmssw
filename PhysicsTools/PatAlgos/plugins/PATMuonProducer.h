@@ -18,7 +18,7 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +39,7 @@ namespace pat {
   class CaloIsolationEnergy;
 
   /// class definition
-  class PATMuonProducer : public edm::EDProducer {
+  class PATMuonProducer : public edm::stream::EDProducer<> {
 
   public:
     /// default constructir
@@ -157,51 +157,46 @@ namespace pat {
     pat::PATUserDataHelper<pat::Muon> userDataHelper_;
   };
 
-}
-
-
-using namespace pat;
-
-
-template<typename T>
-void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens)
-{
-  labels.clear();
-
-  if (iConfig.exists( psetName )) {
-    edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>(psetName);
-
-    if (depconf.exists("tracker")) labels.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
-    if (depconf.exists("ecal"))    labels.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
-    if (depconf.exists("hcal"))    labels.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
-    if (depconf.exists("pfAllParticles"))  {
-      labels.push_back(std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
-    }
-    if (depconf.exists("pfChargedHadrons"))  {
-      labels.push_back(std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
-    }
-    if (depconf.exists("pfChargedAll"))  {
-      labels.push_back(std::make_pair(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll")));
-    }
-    if (depconf.exists("pfPUChargedHadrons"))  {
-      labels.push_back(std::make_pair(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons")));
-    }
-    if (depconf.exists("pfNeutralHadrons"))  {
-      labels.push_back(std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
-    }
-    if (depconf.exists("pfPhotons")) {
-      labels.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
-    }
-    if (depconf.exists("user")) {
-      std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
-      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
-      int key = UserBaseIso;
-      for ( ; it != ed; ++it, ++key) {
-       labels.push_back(std::make_pair(IsolationKeys(key), *it));
+  template<typename T>
+  void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, const char* psetName, IsolationLabels& labels, std::vector<edm::EDGetTokenT<edm::ValueMap<T> > > & tokens)
+    {
+      labels.clear();
+      
+      if (iConfig.exists( psetName )) {
+        edm::ParameterSet depconf = iConfig.getParameter<edm::ParameterSet>(psetName);
+        
+        if (depconf.exists("tracker")) labels.push_back(std::make_pair(pat::TrackIso, depconf.getParameter<edm::InputTag>("tracker")));
+        if (depconf.exists("ecal"))    labels.push_back(std::make_pair(pat::EcalIso, depconf.getParameter<edm::InputTag>("ecal")));
+        if (depconf.exists("hcal"))    labels.push_back(std::make_pair(pat::HcalIso, depconf.getParameter<edm::InputTag>("hcal")));
+        if (depconf.exists("pfAllParticles"))  {
+          labels.push_back(std::make_pair(pat::PfAllParticleIso, depconf.getParameter<edm::InputTag>("pfAllParticles")));
+        }
+        if (depconf.exists("pfChargedHadrons"))  {
+          labels.push_back(std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
+        }
+        if (depconf.exists("pfChargedAll"))  {
+          labels.push_back(std::make_pair(pat::PfChargedAllIso, depconf.getParameter<edm::InputTag>("pfChargedAll")));
+        }
+        if (depconf.exists("pfPUChargedHadrons"))  {
+          labels.push_back(std::make_pair(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons")));
+        }
+        if (depconf.exists("pfNeutralHadrons"))  {
+          labels.push_back(std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));
+        }
+        if (depconf.exists("pfPhotons")) {
+          labels.push_back(std::make_pair(pat::PfGammaIso, depconf.getParameter<edm::InputTag>("pfPhotons")));
+        }
+        if (depconf.exists("user")) {
+          std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag> >("user");
+          std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+          int key = UserBaseIso;
+          for ( ; it != ed; ++it, ++key) {
+            labels.push_back(std::make_pair(IsolationKeys(key), *it));
+          }
+        }
       }
+      tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
     }
-  }
-  tokens = edm::vector_transform(labels, [this](IsolationLabel const & label){return consumes<edm::ValueMap<T> >(label.second);});
 }
 
 #endif
