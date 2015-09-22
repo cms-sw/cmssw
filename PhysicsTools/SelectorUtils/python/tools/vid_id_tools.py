@@ -125,7 +125,9 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
     moduleName = "muoMuonIDs"
     if not hasattr(process, moduleName):
         raise Exception("VIDProducerNotAvailable", "%s producer not available in process!" % moduleName)
-    setupVIDSelection(getattr(process, moduleName), cutflow)
+    module = getattr(process, moduleName)
+
+    setupVIDSelection(module, cutflow)
     #add to PAT electron producer if available or specified
     #if hasattr(process,'patMuons') or patProducer is not None:
     #    if patProducer is None:

@@ -102,7 +102,7 @@ double MuonPOGStandardCut::value(const reco::CandidatePtr& cand) const {
     return muon::isHighPtMuon(*mu, vtxs_->at(0));
     break;
   case NONE:
-    return false;
+    return 0.0;
     break;
   }
   return 1.0;
