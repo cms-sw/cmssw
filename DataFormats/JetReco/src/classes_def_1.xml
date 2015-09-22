@@ -25,11 +25,11 @@
   <class name="edm::Wrapper<reco::CaloJetRefVector>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::CaloJet> >"/>
-  <class name="edm::AssociationMap<edm::OneToMany<reco::CaloJetCollection, std::vector<reco::Track>, unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToMany<vector<reco::CaloJet>,vector<reco::Track>,unsigned int> >">
       <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::helpers::Key<edm::RefProd<reco::CaloJetCollection > >"/>
-  <class name="edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
+  <class name="edm::helpers::Key<edm::RefProd<vector<reco::CaloJet> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::CaloJet>>,edm::RefProd<vector<reco::Track> > >"/>
   <class name="edm::FwdRef<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
   <class name="reco::CaloJetFwdRefVector"/>
   <class name="edm::Wrapper<reco::CaloJetFwdRefVector>"/>
@@ -55,10 +55,10 @@
   <class name="edm::Wrapper<reco::JPTJetRefVector>"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::JPTJet>,reco::JPTJet,edm::refhelper::FindUsingAdvance<std::vector<reco::JPTJet>,reco::JPTJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::JPTJet> >"/>
-  <class name="edm::AssociationMap<edm::OneToMany<reco::JPTJetCollection, std::vector<reco::Track>, unsigned int> >">
+  <class name="edm::AssociationMap<edm::OneToMany<vector<reco::JPTJet>, std::vector<reco::Track>, unsigned int> >">
       <field name="transientMap_" transient="true"/>
   </class>
-  <class name="edm::helpers::KeyVal<edm::RefProd<reco::JPTJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<vector<reco::JPTJet>>,edm::RefProd<std::vector<reco::Track> > >"/>
 
   <class name="reco::PFJet" ClassVersion="12">
    <version ClassVersion="12" checksum="2496789869"/>
