@@ -617,7 +617,8 @@ class Validation:
             "FastSim %s, %s %s" % (fastSample.name(), _stripRelease(self._newRelease), fastSelection),
         ],
                              dqmSubFolder,
-                             isPileupSample=fastSample.hasPileup()
+                             isPileupSample=fastSample.hasPileup(),
+                             requireAllHistograms=True
         )
         fileList = plotterFolder.draw(**self._plotterDrawArgs)
 

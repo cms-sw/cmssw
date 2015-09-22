@@ -829,7 +829,7 @@ class Plot:
 
         return th1
 
-    def create(self, tdirs):
+    def create(self, tdirs, requireAllHistograms=False):
         """Create histograms from list of TDirectories"""
         self._histograms = [self._createOne(i, tdir) for i, tdir in enumerate(tdirs)]
 
@@ -866,7 +866,8 @@ class Plot:
             return th1
 
         self._histograms = map(_modifyHisto, self._histograms)
-
+        if requireAllHistograms and None in self._histograms:
+            self._histograms = [None]*len(self._histograms)
 
     def _setStats(self, startingX, startingY):
         """Set stats box."""
@@ -1281,10 +1282,15 @@ class PlotGroup:
     def onlyForPileup(self):
         return self._onlyForPileup
 
-    def create(self, tdirectories):
-        """Create histograms from a list of TDirectories."""
+    def create(self, tdirectories, requireAllHistograms=False):
+        """Create histograms from a list of TDirectories.
+
+        Arguments:
+        tdirectories         -- List of TDirectory objects
+        requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
+        """
         for plot in self._plots:
-            plot.create(tdirectories)
+            plot.create(tdirectories, requireAllHistograms)
 
     def draw(self, legendLabels, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
         """Draw the histograms using values for a given algorithm.
@@ -1523,7 +1529,7 @@ class PlotFolder:
     def set(self, plotGroups):
         self._plotGroups = plotGroups
 
-    def create(self, files, labels, possibleDqmFolders, dqmSubFolder=None, isPileupSample=True):
+    def create(self, files, labels, possibleDqmFolders, dqmSubFolder=None, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.
 
         Arguments:
@@ -1532,6 +1538,7 @@ class PlotFolder:
         possibleDqmFolders -- List of strings for possible directories of histograms in TFiles
         dqmSubFolder -- Optional string for subdirectory inside the dqmFolder; if list of strings, then each corresponds to a TFile
         isPileupSample -- Is sample pileup (some PlotGroups may limit themselves to pileup)
+        requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
 
         if len(files) != len(labels):
@@ -1552,7 +1559,7 @@ class PlotFolder:
         for pg in self._plotGroups:
             if pg.onlyForPileup() and not isPileupSample:
                 continue
-            pg.create(dirs)
+            pg.create(dirs, requireAllHistograms)
 
     def draw(self, prefix=None, separate=False, saveFormat=".pdf", ratio=False):
         """Draw and save all plots using settings of a given algorithm.
@@ -1658,17 +1665,18 @@ class PlotterFolder:
     def getSelectionName(self, dqmSubFolder):
         return self._plotFolder.getSelectionName(self._name, dqmSubFolder.translated if dqmSubFolder is not None else None)
 
-    def create(self, files, labels, dqmSubFolder, isPileupSample=True):
+    def create(self, files, labels, dqmSubFolder, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.
         Arguments:
         files  -- List of TFiles
         labels -- List of strings for legend labels corresponding the files
         dqmSubFolder -- ???
         isPileupSample -- Is sample pileup (some PlotGroups may limit themselves to pileup)
+        requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
 
         # TODO: for cases of differently named subfolders, need to think something here
-        self._plotFolder.create(files, labels, self._possibleDqmFolders, dqmSubFolder.subfolder if dqmSubFolder is not None else None, isPileupSample)
+        self._plotFolder.create(files, labels, self._possibleDqmFolders, dqmSubFolder.subfolder if dqmSubFolder is not None else None, isPileupSample, requireAllHistograms)
 
     def draw(self, *args, **kwargs):
         """Draw and save all plots using settings of a given algorithm."""
