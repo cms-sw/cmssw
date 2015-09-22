@@ -194,6 +194,7 @@ class TrackAnalyzer
 	  
 	  MonitorElement* TrackPhi;
 	  MonitorElement* TrackEta;
+          MonitorElement* TrackEtaPhi=nullptr;
 	  MonitorElement* TrackTheta;
 	  
 	  MonitorElement* TrackPhiErr;
@@ -273,6 +274,8 @@ class TrackAnalyzer
           MonitorElement* NumberOfMORecHitsPerTrackVsEta = nullptr;
           MonitorElement* NumberOfMORecHitVsPhiVsEtaPerTrack = nullptr;
 
+          MonitorElement* ValidFractionPerTrack = nullptr;
+          MonitorElement* ValidFractionVsPhiVsEtaPerTrack = nullptr;
 
 	
 	MonitorElement* NumberOfLayersPerTrack[4] = {nullptr,nullptr,nullptr,nullptr};

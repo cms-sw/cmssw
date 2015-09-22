@@ -296,9 +296,9 @@ void TrackBuildingAnalyzer::analyze
   GlobalPoint  v(v0.x()-bs.x0(),v0.y()-bs.y0(),v0.z()-bs.z0());
   
   double pt           = sqrt(state.globalMomentum().perp2());
-  double eta          = state.globalMomentum().eta();
-  double phi          = state.globalMomentum().phi();
-  double theta        = state.globalMomentum().theta();
+  double eta          = state.globalPosition().eta();
+  double phi          = state.globalPosition().phi();
+  double theta        = state.globalPosition().theta();
   //double pm           = sqrt(state.globalMomentum().mag2());
   //double pz           = state.globalMomentum().z();
   //double qoverp       = tsAtClosestApproachSeed.trackStateAtPCA().charge()/p.mag();
@@ -350,9 +350,9 @@ void TrackBuildingAnalyzer::analyze
   GlobalPoint  v(v0.x()-bs.x0(),v0.y()-bs.y0(),v0.z()-bs.z0());
   
   double pt           = sqrt(state.globalMomentum().perp2());
-  double eta          = state.globalMomentum().eta();
-  double phi          = state.globalMomentum().phi();
-  double theta        = state.globalMomentum().theta();
+  double eta          = state.globalPosition().eta();
+  double phi          = state.globalPosition().phi();
+  double theta        = state.globalPosition().theta();
   //double pm           = sqrt(state.globalMomentum().mag2());
   //double pz           = state.globalMomentum().z();
   //double qoverp       = tsAtClosestApproachTrackCand.trackStateAtPCA().charge()/p.mag();
