@@ -106,6 +106,12 @@ namespace edm {
 
     bool DB=type_=="readDB";
 
+    if (pset.exists("nbPileupEvents")) {
+       if (0 != pset.getParameter<edm::ParameterSet>("nbPileupEvents").getUntrackedParameter<int>("seed",0)) {
+         edm::LogWarning("MixingModule") << "Parameter nbPileupEvents.seed is not supported";
+       }
+    }
+
     edm::Service<edm::RandomNumberGenerator> rng;
     if (!rng.isAvailable()) {
       throw cms::Exception("Configuration")
