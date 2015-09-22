@@ -134,13 +134,8 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   MonitorElement* Vx_XY;
   
   MonitorElement* goodVxCounter;
-  MonitorElement* goodVxCountHistory;
-  
   MonitorElement* hitCounter;
-  MonitorElement* hitCountHistory;
-  
   MonitorElement* statusCounter;
-  MonitorElement* statusCountHistory;
   
   MonitorElement* reportSummary;
   MonitorElement* reportSummaryMap;
@@ -155,8 +150,7 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   std::ofstream outputDebugFile;
   edm::TimeValue_t beginTimeOfFit;
   edm::TimeValue_t endTimeOfFit;
-  unsigned int nBinsHistoricalPlot;
-  unsigned int nBinsWholeHistory;
+  unsigned int nBins;
   unsigned int runNumber;
   unsigned int lumiCounter;
   unsigned int totalHits;
