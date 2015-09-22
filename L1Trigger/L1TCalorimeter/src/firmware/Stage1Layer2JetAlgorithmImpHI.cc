@@ -44,45 +44,58 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
   delete preGtEtaJets;
 
   const bool verbose = true;
-  const bool hex = false;
+  const bool hex = true;
   if(verbose)
   {
-    int cJets = 0;
-    int fJets = 0;
-    printf("Jets Central\n");
-    //printf("pt\teta\tphi\n");
-    for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
-	itJet != jets->end(); ++itJet){
-      if((itJet->hwQual() & 2) == 2) continue;
-      cJets++;
-      if(!hex)
-      {
+    if(!hex)
+    {
+      int cJets = 0;
+      int fJets = 0;
+      printf("Jets Central\n");
+      //printf("pt\teta\tphi\n");
+      for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
+	  itJet != jets->end(); ++itJet){
+	if((itJet->hwQual() & 2) == 2) continue;
+	cJets++;
 	unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
 	cout << bitset<15>(packed).to_string() << endl;
-      } else {
-	uint32_t output = itJet->hwPt() + (itJet->hwEta() << 6) + (itJet->hwPhi() << 10);
-	std::cout << std::hex << std::setw(4) << std::setfill('0') << output << std::endl;
+	if(cJets == 4) break;
       }
-      if(cJets == 4) break;
-    }
 
-    printf("Jets Forward\n");
-    //printf("pt\teta\tphi\n");
-    for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
-	itJet != jets->end(); ++itJet){
-      if((itJet->hwQual() & 2) != 2) continue;
-      fJets++;
-      if(!hex)
-      {
+      printf("Jets Forward\n");
+      //printf("pt\teta\tphi\n");
+      for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
+	  itJet != jets->end(); ++itJet){
+	if((itJet->hwQual() & 2) != 2) continue;
+	fJets++;
 	unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
 	cout << bitset<15>(packed).to_string() << endl;
-      } else {
-	uint32_t output = itJet->hwPt() + (itJet->hwEta() << 6) + (itJet->hwPhi() << 10);
-	std::cout << std::hex << std::setw(4) << std::setfill('0') << output << std::endl;
-      }
 
-      if(fJets == 4) break;
+	if(fJets == 4) break;
+      }
+    } else {
+      l1t::Jet ajets[8];
+      for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
+	  itJet != jets->end(); ++itJet){
+	ajets[itJet - jets->begin()] = *itJet;
+      }
+      std::cout << "Jets (hex)" << std::endl;
+      std::cout << std::hex << pack15bits(ajets[0].hwPt(), ajets[0].hwEta(), ajets[0].hwPhi());
+      std::cout << " ";
+      std::cout << std::hex << pack15bits(ajets[1].hwPt(), ajets[1].hwEta(), ajets[1].hwPhi());
+      std::cout << " ";
+      std::cout << std::hex << pack15bits(ajets[4].hwPt(), ajets[4].hwEta(), ajets[4].hwPhi());
+      std::cout << " ";
+      std::cout << std::hex << pack15bits(ajets[5].hwPt(), ajets[5].hwEta(), ajets[5].hwPhi());
+      std::cout << std::endl;
+      std::cout << std::hex << pack15bits(ajets[2].hwPt(), ajets[2].hwEta(), ajets[2].hwPhi());
+      std::cout << " ";
+      std::cout << std::hex << pack15bits(ajets[3].hwPt(), ajets[3].hwEta(), ajets[3].hwPhi());
+      std::cout << " ";
+      std::cout << std::hex << pack15bits(ajets[6].hwPt(), ajets[6].hwEta(), ajets[6].hwPhi());
+      std::cout << " ";
+      std::cout << std::hex << pack15bits(ajets[7].hwPt(), ajets[7].hwEta(), ajets[7].hwPhi());
+      std::cout << std::endl;
     }
   }
-
 }
