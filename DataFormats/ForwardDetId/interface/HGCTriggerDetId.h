@@ -8,32 +8,18 @@
 
 
 class HGCTriggerDetId : public DetId {
-  // |   DetId           | HGCTriggerDetId 
-  // | 1111     | 111    | 1     | 11111 | 1      | 111111 | 111111111111
-  // | detector | subdet | zside | layer | subsec | sector | cell
-  // | 15       | 7      | 2     | 31    | 2      |  63    | 4096   
-  // const static uint32_t cell_shift = 0;
-  // const static uint32_t cell_mask = 0xFFF;
-  // const static uint32_t sector_shift = 12;
-  // const static uint32_t sector_mask = 0x3F;
-  // const static uint32_t subsector_shift = 18;
-  // const static uint32_t subsector_mask = 0x1;
-  // const static uint32_t layer_shift = 19;
-  // const static uint32_t layer_mask = 0x1F;
-  // const static uint32_t zside_shift = 24;
-  // const static uint32_t zside_mask = 0x1;
   
   // |   DetId           | HGCTriggerDetId 
-  // | 1111     | 111    | 1     | 11111 | 1111111 | 111111 | 111111
-  // | detector | subdet | zside | layer | sector  | mod    | cell
-  // | 15       | 7      | 2     | 31    |  127    | 64     | 64
+  // | 1111     | 111    | 1     | 11111 | 111111 | 111111 | 1111111
+  // | detector | subdet | zside | layer | sector | mod    | cell
+  // | 15       | 7      | 2     | 31    |  64    | 64     | 127
 
   const static uint32_t cell_shift = 0;
-  const static uint32_t cell_mask = 0x3F;
+  const static uint32_t cell_mask = 0x7F;
   const static uint32_t module_mask = 0x3F; 
-  const static uint32_t module_shift = 6;
-  const static uint32_t sector_shift = 12;
-  const static uint32_t sector_mask = 0x7F;
+  const static uint32_t module_shift = 7;
+  const static uint32_t sector_shift = 13;
+  const static uint32_t sector_mask = 0x3F;
   const static uint32_t layer_shift = 19;
   const static uint32_t layer_mask = 0x1F;
   const static uint32_t zside_shift = 24;
@@ -41,6 +27,7 @@ class HGCTriggerDetId : public DetId {
 
   const inline int getMaskedId(const uint32_t &shift, const uint32_t &mask) const  { return (id_ >> shift) & mask ; }
   inline void setMaskedId( const uint32_t value, const uint32_t &shift, const uint32_t &mask ){ id_|= ((value & mask ) <<shift ); }
+
 public:
   // undefined cell, for module det id
   const static uint32_t UndefinedCell() { return cell_mask ; }
