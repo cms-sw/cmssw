@@ -2,18 +2,61 @@
 #include <string>
 #include <vector>
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "CoralBase/Exception.h"
 
-int main(int /*argc*/, char** /*argv*/) {
+class HcalTopologyTester : public edm::EDAnalyzer {
+public:
+  explicit HcalTopologyTester(const edm::ParameterSet& );
+  ~HcalTopologyTester();
 
-  // FIXME: for SLHC
-  HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
-  int maxDepthHB = 2;
-  int maxDepthHE = 3;
   
-  HcalTopology topology(mode, maxDepthHB, maxDepthHE);
+  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void doTest(const HcalTopology& topology);
+
+private:
+  // ----------member data ---------------------------
+};
+
+HcalTopologyTester::HcalTopologyTester(const edm::ParameterSet& ) {}
+
+
+HcalTopologyTester::~HcalTopologyTester() {}
+
+void HcalTopologyTester::analyze(const edm::Event& , 
+				 const edm::EventSetup& iSetup ) {
+
+
+  edm::ESTransientHandle<DDCompactView> pDD;
+  iSetup.get<IdealGeometryRecord>().get( pDD );
+  std::cout << "Gets Compact View\n";
+  edm::ESHandle<HcalDDDRecConstants> pHSNDC;
+  iSetup.get<HcalRecNumberingRecord>().get( pHSNDC );
+  std::cout << "Gets RecNumbering Record\n";
+  edm::ESHandle<HcalTopology> topo;
+  iSetup.get<HcalRecNumberingRecord>().get(topo);
+  if (topo.isValid()) doTest(*topo);
+  else                std::cout << "Cannot get a valid HcalTopology Object\n";
+}
+
+void HcalTopologyTester::doTest(const HcalTopology& topology) {
+  
   for (int idet=0; idet<4; idet++) {
     HcalSubdetector subdet = HcalBarrel;
     if (idet == 1)      subdet = HcalOuter;
@@ -55,5 +98,8 @@ int main(int /*argc*/, char** /*argv*/) {
       }
     }
   }
-  return 0;
+
 }
+
+//define this as a plug-in
+DEFINE_FWK_MODULE(HcalTopologyTester);
