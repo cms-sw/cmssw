@@ -1,6 +1,9 @@
 import os
 import collections
 
+def _lowerFirst(s):
+    return s[0].lower()+s[1:]
+
 _sampleName = {
     "RelValMinBias": "Min Bias",
     "RelValTTbar": "TTbar",
@@ -29,17 +32,20 @@ _sampleFileName = {
     "RelValSingleMuPt100": "mu100",
 }
 
+_allTPEfficName = "All tracks (all TPs)"
+_fromPVName = "Tracks from PV"
+_fromPVAllTPName = "Tracks from PV (all TPs)"
 _trackQualityNameOrder = collections.OrderedDict([
     ("", "All tracks"),
     ("highPurity", "High purity tracks"),
-    ("btvLike", "BTV-like selected tracks"),
-    ("ak4PFJets", "Tracks from AK4 PF jets (corrected pT &gt; 10 GeV)"),
-    ("allTPEffic_", "All tracks, efficiency denominator contains all TrackingParticles"),
-    ("allTPEffic_highPurity", "High purity tracks, efficiency denominator contains all TrackingParticles"),
-    ("fromPV_", "Tracks from reco PV vs. TrackingParticles from gen PV (fakes include pileup)"),
-    ("fromPV_highPurity", "High purity tracks from reco PV vs. TrackingParticles from gen PV (fakes include pileup)"),
-    ("fromPVAllTP_", "Tracks from reco PV, fake rate numerator contains all TrackingParticles"),
-    ("fromPVAllTP_highPurity", "High purity tracks from reco PV, fake rate numerator contains all TrackingParticles"),
+    ("btvLike", "BTV-like"),
+    ("ak4PFJets", "AK4 PF jets"),
+    ("allTPEffic_", _allTPEfficName),
+    ("allTPEffic_highPurity", _allTPEfficName.replace("All", "High purity")),
+    ("fromPV_", _fromPVName),
+    ("fromPV_highPurity", "High purity "+_lowerFirst(_fromPVName)),
+    ("fromPVAllTP_", _fromPVAllTPName),
+    ("fromPVAllTP_highPurity", "High purity "+_lowerFirst(_fromPVAllTPName)),
 ])
 
 _trackAlgoName = {
@@ -67,13 +73,31 @@ _pageNameMap = {
 }
 
 _sectionNameMapOrder = collections.OrderedDict([
+    # These are for the summary page
     ("", "All tracks"),
-    ("allTPEffic", "All tracks, efficiency denominator contains all TrackingParticles"),
-    ("fromPV", "Tracks from reco PV vs. TrackingParticles from gen PV (fake includes pileup)"),
-    ("fromPVAllTP", "Tracks from reco PV, fake rate numerator contains all TrackingParticles"),
+    ("allTPEffic", _allTPEfficName),
+    ("fromPV", _fromPVName),
+    ("fromPVAllTP", _fromPVAllTPName),
+    # These are for vertices
     ("offlinePrimaryVertices", "All vertices (offlinePrimaryVertices)"),
     ("selectedOfflinePrimaryVertices", "Selected vertices (selectedOfflinePrimaryVertices)"),
 ])
+_allTPEfficLegend = "All tracks, efficiency denominator contains all TrackingParticles"
+_fromPVLegend = "Tracks from reco PV vs. TrackingParticles from gen PV (fake rate includes pileup tracks)"
+_fromPVAllTPLegend = "Tracks from reco PV, fake rate numerator contains all TrackingParticles (separates fake tracks from pileup tracks)"
+_sectionNameLegend = {
+    "btvLike": "BTV-like selected tracks",
+    "ak4PFJets": "Tracks from AK4 PF jets (jet corrected pT &gt; 10 GeV)",
+    "allTPEffic": _allTPEfficLegend,
+    "allTPEffic_": _allTPEfficLegend,
+    "allTPEffic_highPurity": _allTPEfficLegend.replace("All", "High purity"),
+    "fromPV": _fromPVLegend,
+    "fromPV_": _fromPVLegend,
+    "fromPV_highPurity": "High purity "+_lowerFirst(_fromPVLegend),
+    "fromPVAllTP": _fromPVAllTPLegend,
+    "fromPVAllTP_": _fromPVAllTPLegend,
+    "fromPVAllTP_highPurity": "High purity "+_lowerFirst(_fromPVAllTPLegend),
+}
 
 class PlotPurpose:
     class TrackingIteration: pass
@@ -112,10 +136,18 @@ class Page(object):
         ])
 
         fileTable = []
+        legends = []
 
         for isec, section in enumerate(sections):
+            leg = ""
+            if section in _sectionNameLegend:
+                legnum = len(legends)+1
+                leg = "<sup>%d</sup>" % legnum
+                leg2 = "<sup>%d</sup>" % legnum
+                legends.append("%s %s" % (leg2, _sectionNameLegend[section]))
+
             self._content.extend([
-                '   <td>%s</td>' % self._mapSectionName(section),
+                '   <td>%s%s</td>' % (self._mapSectionName(section), leg),
             ])
             files = [(os.path.basename(f), f) for f in self._plotSets[section]]
             for row in fileTable:
@@ -148,6 +180,16 @@ class Page(object):
 
         self._content.extend([
             '  </table>',
+        ])
+        if len(legends) > 0:
+            self._content.extend([
+                '  <br/>'
+                '  Details:</br>',
+            ])
+            for leg in legends:
+                self._content.append('  %s<br/>' % leg)
+
+        self._content.extend([
             ' </body>',
             '</html>',
         ])
