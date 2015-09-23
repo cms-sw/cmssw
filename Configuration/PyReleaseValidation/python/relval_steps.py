@@ -733,10 +733,10 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval25ns,
                  '--conditions'  :'auto:run2_mc',
                  '--datatier'    :'GEN-SIM-DIGI-RAW-HLTDEBUG',
                  '--eventcontent':'FEVTDEBUGHLT',
-                 '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                 '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL',
                  '-n'            :'10'
                   }
-step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns,RAW2DIGI,L1Reco','--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},step2Upg2015Defaults])
+step2Upg2015Defaults50ns = merge([{'-s':'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval50ns,RAW2DIGI,L1Reco','--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL'},step2Upg2015Defaults])
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
 steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval25ns,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
@@ -914,10 +914,10 @@ step3Up2015Defaults = {
     '-n':'10',
     '--datatier':'GEN-SIM-RECO,MINIAODSIM,DQMIO',
     '--eventcontent':'RECOSIM,MINIAODSIM,DQM',
-    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL'
     }
 
-step3Up2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},step3Up2015Defaults])
+step3Up2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL'},step3Up2015Defaults])
 
 step3Up2015DefaultsAlCaCalo = merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:EcalCalZElectron+EcalCalWElectron+EcalUncalZElectron+EcalUncalWElectron+HcalCalIsoTrk,VALIDATION,DQM'},step3Up2015Defaults])
 step3Up2015DefaultsAlCaCalo50ns = merge([{'--conditions':'auto:run2_mc_50ns','--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},step3Up2015DefaultsAlCaCalo])
@@ -927,7 +927,7 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--datatier'     :'GEN-SIM-RECO,DQMIO',
                   '--eventcontent':'RECOSIM,DQM',
                   '-n'            :'10',
-                 '--customise'    :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+                 '--customise'    :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL'
                  }
 
 # mask away - to be removed once we'll migrate the matrix to be fully unscheduled for RECO step
@@ -1043,7 +1043,7 @@ step4Up2015Defaults = {
                         '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlOverlaps',
                         '-n'            : 1000,
                         '--conditions'  : 'auto:run2_mc',
-                        '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                        '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL',
                         '--datatier'    : 'ALCARECO',
                         '--eventcontent': 'ALCARECO',
                   }
@@ -1149,7 +1149,7 @@ steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--scenario'    :'cosmics',
                      '--filein':'file:step3_inDQM.root', # unnnecessary
                      '--filetype':'DQM',
-                     '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                     '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL',
                      }
 steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
                    '--conditions':'auto:run1_mc',
@@ -1169,14 +1169,14 @@ steps['HARVESTUP15']={
     '-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM', # todo: remove UP from label
     '--conditions':'auto:run2_mc', 
     '--mc':'',
-    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL',
     '--filetype':'DQM',
     }
 
 
 steps['HARVESTUP15_PU25']=steps['HARVESTUP15']
 
-steps['HARVESTUP15_PU50']=merge([{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns'},steps['HARVESTUP15']])
+steps['HARVESTUP15_PU50']=merge([{'--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL'},steps['HARVESTUP15']])
 
 # unSchHarvestOverrides={'-s':'HARVESTING:@standardValidation+@standardDQM+@miniAODValidation+@miniAODDQM'}
 # steps['HARVESTmAODUP15']=merge([unSchHarvestOverrides,steps['HARVESTUP15']])
