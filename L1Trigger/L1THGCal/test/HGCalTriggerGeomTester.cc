@@ -20,6 +20,7 @@
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 
@@ -77,6 +78,7 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         int   triggerCellSide_   ;
         int   triggerCellLayer_  ;
         int   triggerCellSector_ ;
+        int   triggerCellModule_ ;
         int   triggerCell_       ;
         float triggerCellX_      ;
         float triggerCellY_      ;
@@ -153,6 +155,7 @@ HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf)
     treeTriggerCells_->Branch("zside"          , &triggerCellSide_          , "zside/I");
     treeTriggerCells_->Branch("layer"          , &triggerCellLayer_         , "layer/I");
     treeTriggerCells_->Branch("sector"         , &triggerCellSector_        , "sector/I");
+    treeTriggerCells_->Branch("module"         , &triggerCellModule_        , "module/I");
     treeTriggerCells_->Branch("triggercell"    , &triggerCell_              , "triggercell/I");
     treeTriggerCells_->Branch("x"              , &triggerCellX_             , "x/F");
     treeTriggerCells_->Branch("y"              , &triggerCellY_             , "y/F");
@@ -232,13 +235,13 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
     std::cout<<"Filling modules tree\n";
     for( const auto& id_module : triggerGeometry_->modules() )
     {
-        HGCEEDetId id(id_module.first);
+        HGCTriggerDetId id(id_module.first);
         const auto& modulePtr = id_module.second;
         moduleId_     = id.rawId();
         moduleSide_   = id.zside();
         moduleLayer_  = id.layer();
         moduleSector_ = id.sector();
-        module_       = id.cell();
+        module_       = id.module();
         moduleX_      = modulePtr->position().x();
         moduleY_      = modulePtr->position().y();
         moduleZ_      = modulePtr->position().z();
@@ -248,7 +251,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
         size_t itc = 0;
         for(const auto& tc : modulePtr->components())
         {
-            HGCEEDetId tcId(tc);
+            HGCTriggerDetId tcId(tc);
             const auto& triggerCell = triggerGeometry_->triggerCells().at(tc);
             moduleTC_id_    .get()[itc] = tc;
             moduleTC_zside_ .get()[itc] = tcId.zside();
@@ -267,12 +270,13 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
     std::cout<<"Filling trigger cells tree\n";
     for( const auto& id_triggercell : triggerGeometry_->triggerCells() )
     {
-        HGCEEDetId id(id_triggercell.first);
+        HGCTriggerDetId id(id_triggercell.first);
         const auto& triggerCellPtr = id_triggercell.second;
         triggerCellId_     = id.rawId();
         triggerCellSide_   = id.zside();
         triggerCellLayer_  = id.layer();
         triggerCellSector_ = id.sector();
+        triggerCellModule_ = id.module();
         triggerCell_       = id.cell();
         triggerCellX_      = triggerCellPtr->position().x();
         triggerCellY_      = triggerCellPtr->position().y();
