@@ -240,8 +240,16 @@ def _check_same_object(args):
 
 
 def _connect(db, init, verbose, read_only, force):
-    logging.debug('Connecting to %s ...', db)
-    connection = conddb.connect(db, init=init, verbose=0 if verbose is None else verbose - 1)
+    url = conddb.make_url( db )
+    pretty_url = url
+    if url.drivername == 'oracle+frontier':
+        ws = url.host.rsplit('%2F')
+        if ws is not None:
+            pretty_url = 'frontier://%s/%s' %(ws[-1],url.database)
+    connTo = '%s [%s]' %(db,pretty_url)
+    logging.info('Connecting to %s', connTo)
+    logging.debug('DB url: %s',url)
+    connection = conddb.connect(url, init=init, verbose=0 if verbose is None else verbose - 1)
 
     if not read_only:
         if connection.is_read_only:
@@ -252,29 +260,32 @@ def _connect(db, init, verbose, read_only, force):
                 logging.warning('You are going to edit an official database. If you are not one of the Offline DB experts but have access to the password for other reasons, please stop now.')
             else:
                 raise Exception('Editing official databases is forbidden. Use the official DropBox to upload conditions. If you need a special intervention on the database, see the contact help: %s' % conddb.contact_help)
+    # for sqlite we trigger the implicit schema creation
+    if init and url.drivername == 'sqlite':
+        connection.init()
+    if not connection.is_valid():
+        raise Exception('No valid schema found in the database: %s' %url)
 
     return connection
 
 
 def connect(args, init=False, read_only=True):
     args.force = args.force if 'force' in dir(args) else False
+
     if 'destdb' in args:
-        if args.destdb is None or args.db == args.destdb:
+        if args.destdb is None:
             args.destdb = args.db
-            connection = _connect(args.db, init, args.verbose, read_only, args.force)
-            return connection, connection
+        if args.db == args.destdb:
+            conn1 = _connect(args.destdb, init, args.verbose, read_only, args.force)
+            return conn1, conn1
+        conn1 = _connect( args.db, init, args.verbose, True, args.force)
+        conn2url = conddb.make_url(args.destdb)
+        if conn2url.drivername == 'sqlite' and not os.path.exists(args.destdb): 
+            init = True
+        conn2 = _connect(conn2url, init, args.verbose, False, args.force)
+        return conn1, conn2
 
-        # read_only refers to the destination database only
-        # (the source is always read_only) -- see copy() command
-	if os.path.exists(args.destdb): 
-           return _connect(args.db, init, args.verbose, True, args.force), _connect(args.destdb, init, args.verbose, read_only, args.force)
-	else: # dest DB not yet there, needs init ... 
-	   conn1 = _connect(args.db, init, args.verbose, True, args.force)
-	   conn2 = _connect(args.destdb, True, args.verbose, False, args.force)
-	   conn2.init()
-	   return conn1, conn2
-
-    return _connect(args.db, init, args.verbose, read_only, args.force)
+    return _connect( args.db, init, args.verbose, read_only, args.force)
 
 
 def str_db_object(db, name):
@@ -901,10 +912,11 @@ def _copy_tag(args, session1, session2, first, second, fromIOV=None, toIOV=None,
     # Copy the tag
     tag = _rawdict(session1.query(conddb.Tag).get(first))
     tag['name'] = second
-    tag['end_of_validity'] = 0 # XXX: SQLite does not work with long ints...
+    tag['end_of_validity'] = -1
 
-    if not timeMap and not fromIOV and not toIOV:
-       raise Exception("_copy_tag> One of timeMap, fromIOV, toIOV needs to be given ...")
+    if fromIOV is None:
+        fromIOV = 1
+    
 
     if timeMap and not fromIOV and not toIOV:
        fromIOV = timeMap['start'][ tag['time_type'].lower().strip() ]
@@ -967,7 +979,7 @@ def _copy_tag(args, session1, session2, first, second, fromIOV=None, toIOV=None,
         # Note that we need to replace it for every insertion time (since
         # the primary key is (since, insertion_time).
         if prev_iov is not None and iov['since'] == prev_iov:
-            iov['since'] = getattr(args, 'from')
+            iov['since'] = fromIOV
             first_iov = False
 
         session2.add(conddb.IOV(**iov))
