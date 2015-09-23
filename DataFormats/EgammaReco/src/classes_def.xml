@@ -6,16 +6,16 @@
 
   <class name="edm::reftobase::Holder<reco::CaloCluster, edm::Ref<std::vector<reco::SuperCluster>, reco::SuperCluster, edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > >"/>
   <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::SuperCluster>, reco::SuperCluster, edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > >"/>
-  <class name="edm::reftobase::Holder<reco::CaloCluster, edm::Ref<std::vector<reco::BasicCluster>, reco::BasicCluster, edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
-  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::BasicCluster>, reco::BasicCluster, edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
+  <class name="edm::reftobase::Holder<reco::CaloCluster, edm::Ref<std::vector<reco::CaloCluster>, reco::CaloCluster, edm::refhelper::FindUsingAdvance<std::vector<reco::CaloCluster>,reco::CaloCluster> > >"/>
+  <class name="edm::reftobase::RefHolder<edm::Ref<std::vector<reco::CaloCluster>, reco::CaloCluster, edm::refhelper::FindUsingAdvance<std::vector<reco::CaloCluster>,reco::CaloCluster> > >"/>
 
-  <class name="std::vector<reco::BasicCluster>"/>
-  <class name="edm::Wrapper<std::vector<reco::BasicCluster> >"/>
-  <class name="edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >"/>
-  <class name="edm::RefProd<std::vector<reco::BasicCluster> >"/>
-  <class name="edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >"/>
-  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
-  <class name="std::vector<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> > >"/>
+  <class name="std::vector<reco::CaloCluster>"/>
+  <class name="edm::Wrapper<std::vector<reco::CaloCluster> >"/>
+  <class name="edm::Ref<std::vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloCluster>,reco::CaloCluster> >"/>
+  <class name="edm::RefProd<std::vector<reco::CaloCluster> >"/>
+  <class name="edm::RefVector<std::vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloCluster>,reco::CaloCluster> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloCluster>,reco::CaloCluster> > >"/>
+  <class name="std::vector<edm::Ref<std::vector<reco::CaloCluster>,reco::CaloCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloCluster>,reco::CaloCluster> > >"/>
 
   <class name="reco::SuperCluster" ClassVersion="15">
    <version ClassVersion="15" checksum="705520405"/>
@@ -118,10 +118,10 @@
   <class name="edm::RefVector<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PreshowerCluster>,reco::PreshowerCluster> > >" splitLevel="0"/>
 
-  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>, std::vector<reco::ClusterShape>, unsigned int > >">
+  <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::CaloCluster>, std::vector<reco::ClusterShape>, unsigned int > >">
     <field name="transientMap_" transient="true" />
   </class>
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::BasicCluster> >, edm::RefProd<std::vector<reco::ClusterShape> > >"/>
+  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CaloCluster> >, edm::RefProd<std::vector<reco::ClusterShape> > >"/>
 
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<reco::SuperCluster>, std::vector<reco::HFEMClusterShape>, unsigned int > >">
     <field name="transientMap_" transient="true" />

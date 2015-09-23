@@ -57,7 +57,7 @@ class XmlParser(object):
 def checkTrans(tempname,name):
     c = ROOT.TClass.GetClass(name)
     if not c:
-        raise RuntimeError("failed to load dictionary for class '"+name+"'")
+        raise RuntimeError("failed to load dictionary for class '"+name+"'. Check for typedefs in the name.")
     print "Checking "+name
     for trans in classtransients[tempname]:
       tdm = c.GetDataMember(trans)
@@ -80,7 +80,6 @@ import ROOT
 #Keep ROOT from trying to use X11
 ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine(".autodict")
-#ROOT.gDebug=True
 if options.library is None:
     print "Transient member check requires a specific library"
 else:
