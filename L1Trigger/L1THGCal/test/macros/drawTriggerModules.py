@@ -2,10 +2,10 @@ import ROOT
 import random
 
 ### PARAMETERS #####
-layer  = 30
+layer  = 27
 sector = 1
 zside  = 1
-inputFileName = "../test_alllayers.root"
+inputFileName = "../test_alllayers_150923.root"
 outputFileName = "cellMaps.root"
 ####################
 
@@ -49,6 +49,7 @@ class TriggerCell:
         self.zside = 0
         self.layer = 0
         self.sector = 0
+        self.module = 0
         self.triggercell = 0
         self.center = Position()
         self.cells = []
@@ -144,6 +145,7 @@ for ie in xrange(nentry):
     triggercell.zside    = treeTriggerCells.zside
     triggercell.layer    = treeTriggerCells.layer
     triggercell.sector   = treeTriggerCells.sector
+    triggercell.module   = treeTriggerCells.module
     triggercell.triggercell = treeTriggerCells.triggercell
     triggercell.center.x = treeTriggerCells.x
     triggercell.center.y = treeTriggerCells.y
