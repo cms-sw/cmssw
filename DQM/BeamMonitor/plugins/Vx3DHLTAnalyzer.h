@@ -99,6 +99,7 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   bool dataFromFit;
   unsigned int nLumiFit;
   unsigned int maxLumiIntegration;
+  unsigned int nLumiXaxisRange;
   unsigned int minNentries;
   double xRange;
   double xStep;
@@ -150,7 +151,6 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   std::ofstream outputDebugFile;
   edm::TimeValue_t beginTimeOfFit;
   edm::TimeValue_t endTimeOfFit;
-  unsigned int nBins;
   unsigned int runNumber;
   unsigned int lumiCounter;
   unsigned int totalHits;

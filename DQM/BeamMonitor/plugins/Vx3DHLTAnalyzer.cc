@@ -34,6 +34,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
   debugMode          = true;
   nLumiFit           = 2;     // Number of integrated lumis to perform the fit
   maxLumiIntegration = 15;    // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
+  nLumiXaxisRange    = 3000;  // Correspond to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
   dataFromFit        = true;  // The Beam Spot data can be either taken from the histograms or from the fit results
   minNentries        = 20;    // Minimum number of good vertices to perform the fit
   xRange             = 0.8;   // [cm]
@@ -55,6 +56,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
   debugMode          = iConfig.getParameter<bool>("debugMode");
   nLumiFit           = iConfig.getParameter<unsigned int>("nLumiFit");
   maxLumiIntegration = iConfig.getParameter<unsigned int>("maxLumiIntegration");
+  nLumiXaxisRange    = iConfig.getParameter<unsigned int>("nLumiXaxisRange");
   dataFromFit        = iConfig.getParameter<bool>("dataFromFit");
   minNentries        = iConfig.getParameter<unsigned int>("minNentries");
   xRange             = iConfig.getParameter<double>("xRange");
@@ -623,15 +625,15 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 
 void Vx3DHLTAnalyzer::reset (string ResetType)
 {
-  if (outputFile.is_open() == true)
+  if ((debugMode == true) && (outputDebugFile.is_open() == true))
     {
-      outputFile << "Runnumber " << runNumber << endl;
-      outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
-      outputFile << "BeginLumiRange " << beginLumiOfFit << endl;
-      outputFile << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
-      outputFile << "EndLumiRange " << endLumiOfFit << endl;
-      outputFile << "LumiCounter " << lumiCounter << endl;
-      outputFile << "LastLumiOfFit " << lastLumiOfFit << endl;
+      outputDebugFile << "Runnumber " << runNumber << endl;
+      outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
+      outputDebugFile << "BeginLumiRange " << beginLumiOfFit << endl;
+      outputDebugFile << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
+      outputDebugFile << "EndLumiRange " << endLumiOfFit << endl;
+      outputDebugFile << "LumiCounter " << lumiCounter << endl;
+      outputDebugFile << "LastLumiOfFit " << lastLumiOfFit << endl;
     }
 
 
@@ -679,7 +681,7 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       endLumiOfFit   = 0;
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: scratch" << endl;
-      if (outputFile.is_open() == true) outputFile << "Reset -scratch- issued\n" << endl;
+      if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -scratch- issued\n" << endl;
     }
   else if (ResetType.compare("whole") == 0)
     {
@@ -701,14 +703,14 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       endLumiOfFit   = 0;
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: whole" << endl;
-      if (outputFile.is_open() == true) outputFile << "Reset -whole- issued\n" << endl;
+      if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -whole- issued\n" << endl;
     }
   else if (ResetType.compare("hitCounter") == 0)
     {
       totalHits = 0;
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: hitCounter" << endl;
-      if (outputFile.is_open() == true) outputFile << "Reset -hitCounter- issued\n" << endl;
+      if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -hitCounter- issued\n" << endl;
     }
 }
 
@@ -869,7 +871,7 @@ void Vx3DHLTAnalyzer::beginLuminosityBlock (const LuminosityBlock& lumiBlock, co
       beginLumiOfFit = lumiBlock.luminosityBlock();
       lumiCounter++;
     }
-  else if ((lumiCounter != 0) && (lumiBlock.luminosityBlock() == (beginLumiOfFit+lumiCounter))) lumiCounter++;
+  else if ((lumiCounter != 0) && (lumiBlock.luminosityBlock() >= (beginLumiOfFit+lumiCounter))) lumiCounter++;
   else reset("scratch");
 }
 
@@ -1121,14 +1123,14 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       myExpFit->SetParName(1,"#tau");
 
       myExpFit->SetParameter(0, hitCounter->getTH1()->GetMaximum());
-      myExpFit->SetParameter(1, nBins/2);
+      myExpFit->SetParameter(1, nLumiXaxisRange/2);
       hitCounter->getTH1()->Fit(myExpFit,"QR");
 
       goodVxCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)counterVx);
       goodVxCounter->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)counterVx));
       
       myExpFit->SetParameter(0, goodVxCounter->getTH1()->GetMaximum());
-      myExpFit->SetParameter(1, nBins/2);
+      myExpFit->SetParameter(1, nLumiXaxisRange/2);
       goodVxCounter->getTH1()->Fit(myExpFit,"QR");
 
       delete myExpFit;
@@ -1138,19 +1140,19 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
     {
       histTitle << "Ongoing: accumulating evts (" << lumiCounter%nLumiFit << " - " << nLumiFit << " in " << lumiCounter << " - " << maxLumiIntegration << " lumis)";
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
-      if (outputFile.is_open() == true)
+      if ((debugMode == true) && (outputDebugFile.is_open() == true))
 	{
-	  outputFile << "Runnumber " << runNumber << endl;
-	  outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
-	  outputFile << "BeginLumiRange " << beginLumiOfFit << endl;
-	  outputFile << histTitle.str().c_str() << "\n" << endl;
+	  outputDebugFile << "Runnumber " << runNumber << endl;
+	  outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
+	  outputDebugFile << "BeginLumiRange " << beginLumiOfFit << endl;
+	  outputDebugFile << histTitle.str().c_str() << "\n" << endl;
 	}
     }
   else if ((nLumiFit == 0) || (beginTimeOfFit == 0) || (runNumber == 0))
     {
       histTitle << "Ongoing: no ongoing fits";
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
-      if (outputFile.is_open() == true) outputFile << histTitle.str().c_str() << "\n" << endl;
+      if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << histTitle.str().c_str() << "\n" << endl;
 
       endLumiOfFit = lumiBlock.luminosityBlock();
 
@@ -1166,11 +1168,6 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 
 void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iRun, EventSetup const & /* iSetup */)
 {
-  // ### Set internal variable ###
-  nBins = 3000; // Correspond to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
-  // #############################
-
-
   ibooker.setCurrentFolder("BeamPixel");
 
   Vx_X = ibooker.book1D("F - vertex x", "Primary Vertex X Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
@@ -1183,9 +1180,9 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
   Vx_Z->setAxisTitle("Entries [#]",2);
 
-  mXlumi = ibooker.book1D("B - muX vs lumi", "#mu_{x} vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
-  mYlumi = ibooker.book1D("B - muY vs lumi", "#mu_{y} vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
-  mZlumi = ibooker.book1D("B - muZ vs lumi", "#mu_{z} vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
+  mXlumi = ibooker.book1D("B - muX vs lumi", "#mu_{x} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  mYlumi = ibooker.book1D("B - muY vs lumi", "#mu_{y} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  mZlumi = ibooker.book1D("B - muZ vs lumi", "#mu_{z} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   mXlumi->setAxisTitle("Lumisection [#]",1);
   mXlumi->setAxisTitle("#mu_{x} [cm]",2);
   mXlumi->getTH1()->SetOption("E1");
@@ -1196,9 +1193,9 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   mZlumi->setAxisTitle("#mu_{z} [cm]",2);
   mZlumi->getTH1()->SetOption("E1");
 
-  sXlumi = ibooker.book1D("C - sigmaX vs lumi", "#sigma_{x} vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
-  sYlumi = ibooker.book1D("C - sigmaY vs lumi", "#sigma_{y} vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
-  sZlumi = ibooker.book1D("C - sigmaZ vs lumi", "#sigma_{z} vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
+  sXlumi = ibooker.book1D("C - sigmaX vs lumi", "#sigma_{x} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  sYlumi = ibooker.book1D("C - sigmaY vs lumi", "#sigma_{y} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  sZlumi = ibooker.book1D("C - sigmaZ vs lumi", "#sigma_{z} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   sXlumi->setAxisTitle("Lumisection [#]",1);
   sXlumi->setAxisTitle("#sigma_{x} [cm]",2);
   sXlumi->getTH1()->SetOption("E1");
@@ -1209,8 +1206,8 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   sZlumi->setAxisTitle("#sigma_{z} [cm]",2);
   sZlumi->getTH1()->SetOption("E1");
 
-  dxdzlumi = ibooker.book1D("D - dxdz vs lumi", "dX/dZ vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
-  dydzlumi = ibooker.book1D("D - dydz vs lumi", "dY/dZ vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
+  dxdzlumi = ibooker.book1D("D - dxdz vs lumi", "dX/dZ vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  dydzlumi = ibooker.book1D("D - dydz vs lumi", "dY/dZ vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   dxdzlumi->setAxisTitle("Lumisection [#]",1);
   dxdzlumi->setAxisTitle("dX/dZ [rad]",2);
   dxdzlumi->getTH1()->SetOption("E1");
@@ -1231,17 +1228,17 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
   Vx_XY->setAxisTitle("Entries [#]",3);
 
-  hitCounter = ibooker.book1D("H - pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
+  hitCounter = ibooker.book1D("H - pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   hitCounter->setAxisTitle("Lumisection [#]",1);
   hitCounter->setAxisTitle("Pixel-Hits [#]",2);
   hitCounter->getTH1()->SetOption("E1");
 
-  goodVxCounter = ibooker.book1D("G - good vertices vs lumi", "# Good vertices vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
+  goodVxCounter = ibooker.book1D("G - good vertices vs lumi", "# Good vertices vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   goodVxCounter->setAxisTitle("Lumisection [#]",1);
   goodVxCounter->setAxisTitle("Good vertices [#]",2);
   goodVxCounter->getTH1()->SetOption("E1");
       
-  statusCounter = ibooker.book1D("I - app status vs lumi", "Status vs. Lumisection", nBins, 0.5, ((double)nBins)+0.5);
+  statusCounter = ibooker.book1D("I - app status vs lumi", "Status vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   statusCounter->setAxisTitle("Lumisection [#]",1);
   statusCounter->setAxisTitle("App. status [0 = OK]",2);
   statusCounter->getTH1()->SetOption("E1");
