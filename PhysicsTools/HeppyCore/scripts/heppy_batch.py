@@ -317,7 +317,7 @@ if __name__ == '__main__':
     for opt in options.extraOptions:
         if "=" in opt:
             (key,val) = opt.split("=",1)
-                _heppyGlobalOptions[key] = val
+            _heppyGlobalOptions[key] = val
         else:
             _heppyGlobalOptions[opt] = True
     batchManager.heppyOptions_=_heppyGlobalOptions
