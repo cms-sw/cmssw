@@ -1,0 +1,66 @@
+Please follow the steps as below:
+
+(1) cmsrel CMSSW_7_6_0_pre4 (for instance)
+
+(2) cd CMSSW_7_6_0_pre4/src
+
+(3) cmsenv
+
+(4) git cms-addpkg Validation/CaloTowers
+
+(5) scram b 
+
+(6) mkdir scan
+
+(7) cd Validation/CaloTowers/CaloScan
+
+(8) ./make_configs.csh
+
+(9) ./submit_batch.csh
+
+NB: it uses batch submission (batch.csh) to lxbatch at CERN 
+with input file 
+/afs/cern.ch/cms/data/CMSSW/Validation/HcalHits/data/620/mc_pi50_eta05.root
+Each of 25 job uses 2K out of total 50K input.
+
+In 1-1.5 hour (in the submission directory, /Validation/CaloTowers/CaloScan 
+in this case) the results of 25 batch jobs will be arriving. 
+Once all 25 jobs finished and 25 *.root files appeared locally, 
+
+(10) cmsRun  merging_cfg.py
+(to produce final DQMxxx.root file)
+
+(11) clean up the directory
+rm -r pi50_*.py *.log LSFJOB_* pi50_*.root
+
+(12) move this DQMxxx.root to Validation/CaloTowers/test/macros
+renaming it into something like here:
+
+pi50scan760pre4_postLS1_fullGeom_ECALHCAL_CaloTowers.root
+
+NB: there is naming convention  pi50scan<...>_ECALHCAL_CaloTowers.root
+where <...> can be any meaningful string (to appear in the legend of histos)
+
+(13) to compare two sets of histos, for instance if you have in 
+Validation/CaloTowers/test/macros 
+pi50scan760pre4_postLS1_ECALHCAL_CaloTowers.root    and
+pi50scan760pre3_postLS1_ECALHCAL_CaloTowers.root
+
+(here "760pre4_postLS1" and "760pre3_postLS1" are mentioned <...> strings) - 
+
+./RunPions.csh 760pre4_postLS1 760pre3_postLS1
+
+
+(14) the result appear as the local directory 
+760pre4_postLS1_vs_760pre3_postLS1_SinglePi
+  
+which can be 
+(i) viewed with web browser locally, e.g.
+firefox 760pre4_postLS1_vs_760pre3_postLS1_SinglePi/index.html
+
+(ii) uploaded to some web server and viewed from anywhere:
+
+https://cms-cpt-software.web.cern.ch/cms-cpt-software/General/Validation/SVSuite/HCAL/calo_scan_single_pi/760pre4_postLS1_vs_760pre3_postLS1_SinglePi/
+
+(in this case, the results from the two releases are just identical)
+NB:  hitso labels correspond to aforementioned <...> strings, here 760pre4_postLS1/760pre3_postLS1
