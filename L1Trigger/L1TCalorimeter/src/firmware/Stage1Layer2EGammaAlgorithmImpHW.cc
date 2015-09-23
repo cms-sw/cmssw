@@ -147,6 +147,8 @@ unsigned l1t::Stage1Layer2EGammaAlgorithmImpHW::isoLutIndex(unsigned int egPt,un
   const unsigned int nbitsEG=6;  // number of bits used for EG bins in LUT file (needed for left shift operation)
   //  const unsigned int nbitsJet=9; // not used but here for info  number of bits used for Jet bins in LUT file
 
+  //jetPt &= 511; // Take only the LSB 9 bits to match firmware.
+  if(jetPt > 511) jetPt = 511;
   unsigned int address= (jetPt << nbitsEG) + egPt;
   // std::cout << address << "\t## " << egPt << " " << jetPt << std::endl;
   return address;
