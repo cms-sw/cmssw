@@ -20,7 +20,7 @@ public:
     _cleanBadConvBrems(conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
     _debug(conf.getUntrackedParameter<bool>("debug",false)) {
     
-    pfmu_ = new PFMuonAlgo();
+    pfmu_ = std::unique_ptr<PFMuonAlgo>(new PFMuonAlgo());
     pfmu_->setParameters(conf);
     
   }
@@ -39,7 +39,7 @@ private:
   const std::vector<unsigned> _NHitCut;
   const bool _useIterTracking,_cleanBadConvBrems,_debug;
 
-  PFMuonAlgo *pfmu_;
+  std::unique_ptr<PFMuonAlgo> pfmu_;
 
 };
 
