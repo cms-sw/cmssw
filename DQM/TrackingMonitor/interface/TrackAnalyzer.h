@@ -195,6 +195,9 @@ class TrackAnalyzer
 	  MonitorElement* TrackPhi;
 	  MonitorElement* TrackEta;
           MonitorElement* TrackEtaPhi=nullptr;
+          MonitorElement* TrackEtaPhiInner=nullptr;
+          MonitorElement* TrackEtaPhiOuter=nullptr;
+
 	  MonitorElement* TrackTheta;
 	  
 	  MonitorElement* TrackPhiErr;

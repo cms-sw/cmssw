@@ -1247,6 +1247,17 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
     tkmes.TrackEtaPhi->setAxisTitle("Track #eta", 1);
     tkmes.TrackEtaPhi->setAxisTitle("Track #phi", 2);
 
+    histname = "TrackEtaPhiInner_" + histTag;
+    tkmes.TrackEtaPhiInner = ibooker.book2D(histname, histname, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiInner->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaPhiInner->setAxisTitle("Track #phi", 2);
+
+    histname = "TrackEtaPhiOuter_" + histTag;
+    tkmes.TrackEtaPhiOuter = ibooker.book2D(histname, histname, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+    tkmes.TrackEtaPhiOuter->setAxisTitle("Track #eta", 1);
+    tkmes.TrackEtaPhiOuter->setAxisTitle("Track #phi", 2);
+
+
 
     if (doThetaPlots_) {  
       histname = "TrackTheta_" + histTag;
@@ -1388,6 +1399,12 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
     double p, px, py, pz, pt, theta, phi, eta, q;
     double pxerror, pyerror, pzerror, pterror, perror, phierror, etaerror;
 
+    auto phiIn =  track.innerPosition().phi();
+    auto etaIn =  track.innerPosition().eta();
+    auto phiOut =  track.outerPosition().phi();
+    auto etaOut =  track.outerPosition().eta();
+
+
     if (sname == "default") {
 
       p     = track.p();
@@ -1461,6 +1478,8 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
       tkmes.TrackPhi->Fill(phi);
       tkmes.TrackEta->Fill(eta);
       tkmes.TrackEtaPhi->Fill(eta,phi);
+      tkmes.TrackEtaPhiInner->Fill(etaIn,phiIn);
+      tkmes.TrackEtaPhiOuter->Fill(etaOut,phiOut);
 
       if (doThetaPlots_) {
 	tkmes.TrackTheta->Fill(theta);
