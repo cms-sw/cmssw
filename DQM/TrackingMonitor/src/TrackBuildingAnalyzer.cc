@@ -5,6 +5,7 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -284,8 +285,9 @@ void TrackBuildingAnalyzer::analyze
   TSCBLBuilderNoMaterial tscblBuilder;
   
   //get parameters and errors from the candidate state
-  TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(candidate.recHits().second-1));
-  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candidate.startingState(), recHit->surface(), theMF.product());
+  auto const & theG = ((TkTransientTrackingRecHitBuilder const *)(theTTRHBuilder.product()))->geometry();
+  auto const & candSS = candidate.startingState();
+  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candSS, &(theG->idToDet(candSS.detId())->surface()), theMF.product());
   TrajectoryStateClosestToBeamLine tsAtClosestApproachSeed = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
   if(!(tsAtClosestApproachSeed.isValid())) {
     edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
@@ -338,8 +340,9 @@ void TrackBuildingAnalyzer::analyze
   TSCBLBuilderNoMaterial tscblBuilder;
   
   //get parameters and errors from the candidate state
-  TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&*(candidate.recHits().second-1));
-  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candidate.trajectoryStateOnDet(), recHit->surface(), theMF.product());
+  auto const & theG = ((TkTransientTrackingRecHitBuilder const *)(theTTRHBuilder.product()))->geometry();
+  auto const & candSS = candidate.trajectoryStateOnDet();
+  TrajectoryStateOnSurface state = trajectoryStateTransform::transientState( candSS, &(theG->idToDet(candSS.detId())->surface()), theMF.product());
   TrajectoryStateClosestToBeamLine tsAtClosestApproachTrackCand = tscblBuilder(*state.freeState(),bs);//as in TrackProducerAlgorithm
   if(!(tsAtClosestApproachTrackCand.isValid())) {
     edm::LogVerbatim("TrackBuilding") << "TrajectoryStateClosestToBeamLine not valid";
