@@ -5,7 +5,6 @@
 <use name="CommonTools/Utils"/>
 <use name="roottmva"/>
 <use name="FWCore/Utilities"/>
-<use name="DataFormats/BTauReco"/>
 <use name="RecoBTag/SecondaryVertex"/>
 <use name="CondFormats/DataRecord"/>
 <export>
