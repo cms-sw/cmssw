@@ -792,9 +792,9 @@ hcalDigiTask = cms.EDAnalyzer(
 				ZSCutStr),
             xaxis   = cms.untracked.PSet(
             edges   = cms.untracked.bool(False),
-            nbins   = cms.untracked.int32(1000),
+            nbins   = cms.untracked.int32(3000),
 				min     = cms.untracked.double(0),
-                max     = cms.untracked.double(1000),
+                max     = cms.untracked.double(3000),
                 title   = cms.untracked.string("LS")
 			),
             yaxis   = cms.untracked.PSet(
@@ -812,9 +812,9 @@ hcalDigiTask = cms.EDAnalyzer(
 				ZSCutStr),
             xaxis   = cms.untracked.PSet(
             edges   = cms.untracked.bool(False),
-            nbins   = cms.untracked.int32(1000),
+            nbins   = cms.untracked.int32(3000),
 				min     = cms.untracked.double(0),
-                max     = cms.untracked.double(1000),
+                max     = cms.untracked.double(3000),
                 title   = cms.untracked.string("LS")
 			),
             yaxis   = cms.untracked.PSet(
@@ -832,9 +832,9 @@ hcalDigiTask = cms.EDAnalyzer(
 				ZSCutStr),
             xaxis   = cms.untracked.PSet(
             edges   = cms.untracked.bool(False),
-            nbins   = cms.untracked.int32(1000),
+            nbins   = cms.untracked.int32(3000),
 				min     = cms.untracked.double(0),
-                max     = cms.untracked.double(1000),
+                max     = cms.untracked.double(3000),
                 title   = cms.untracked.string("LS")
 			),
             yaxis   = cms.untracked.PSet(
@@ -852,9 +852,9 @@ hcalDigiTask = cms.EDAnalyzer(
 				ZSCutStr),
             xaxis   = cms.untracked.PSet(
             edges   = cms.untracked.bool(False),
-            nbins   = cms.untracked.int32(1000),
+            nbins   = cms.untracked.int32(3000),
 				min     = cms.untracked.double(0),
-                max     = cms.untracked.double(1000),
+                max     = cms.untracked.double(3000),
                 title   = cms.untracked.string("LS")
 			),
             yaxis   = cms.untracked.PSet(
@@ -872,9 +872,9 @@ hcalDigiTask = cms.EDAnalyzer(
 				noCutsStr),
             xaxis   = cms.untracked.PSet(
             edges   = cms.untracked.bool(False),
-            nbins   = cms.untracked.int32(1000),
+            nbins   = cms.untracked.int32(3000),
 				min     = cms.untracked.double(0),
-                max     = cms.untracked.double(1000),
+                max     = cms.untracked.double(3000),
                 title   = cms.untracked.string("LS")
 			),
             yaxis   = cms.untracked.PSet(
@@ -892,9 +892,9 @@ hcalDigiTask = cms.EDAnalyzer(
 				noCutsStr),
             xaxis   = cms.untracked.PSet(
             edges   = cms.untracked.bool(False),
-            nbins   = cms.untracked.int32(1000),
+            nbins   = cms.untracked.int32(3000),
 				min     = cms.untracked.double(0),
-                max     = cms.untracked.double(1000),
+                max     = cms.untracked.double(3000),
                 title   = cms.untracked.string("LS")
 			),
             yaxis   = cms.untracked.PSet(
@@ -912,9 +912,9 @@ hcalDigiTask = cms.EDAnalyzer(
 				noCutsStr),
             xaxis   = cms.untracked.PSet(
             edges   = cms.untracked.bool(False),
-            nbins   = cms.untracked.int32(1000),
+            nbins   = cms.untracked.int32(3000),
 				min     = cms.untracked.double(0),
-                max     = cms.untracked.double(1000),
+                max     = cms.untracked.double(3000),
                 title   = cms.untracked.string("LS")
 			),
             yaxis   = cms.untracked.PSet(
@@ -932,9 +932,9 @@ hcalDigiTask = cms.EDAnalyzer(
 				noCutsStr),
             xaxis   = cms.untracked.PSet(
             edges   = cms.untracked.bool(False),
-            nbins   = cms.untracked.int32(1000),
+            nbins   = cms.untracked.int32(3000),
 				min     = cms.untracked.double(0),
-                max     = cms.untracked.double(1000),
+                max     = cms.untracked.double(3000),
                 title   = cms.untracked.string("LS")
 			),
             yaxis   = cms.untracked.PSet(

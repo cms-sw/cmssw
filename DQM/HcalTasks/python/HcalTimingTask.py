@@ -156,9 +156,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFP Timing (Nominal fC-weighted time average). After the Cut vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -176,9 +176,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFM Timing (Nominal fC-weighted time average). After the Cut vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -196,9 +196,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFP Timing (Nominal fC-weighted time average). After the Cut vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -216,9 +216,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFM Timing (Nominal fC-weighted time average). After the Cut vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -300,9 +300,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFP Ratio Q(TS=2)/sum(Q(TS=1-2)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -320,9 +320,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFM Ratio Q(TS=2)/sum(Q(TS=1-2)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -340,9 +340,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFP Ratio Q(TS=2)/sum(Q(TS=2-3)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -360,9 +360,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFM Ratio Q(TS=2)/sum(Q(TS=2-3)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -380,9 +380,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFM iphi43 Ratio Q(TS=2)/sum(Q(TS=2-3)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -400,9 +400,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFM iphi43 Ratio Q(TS=2)/sum(Q(TS=1-2)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -420,9 +420,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFP Ratio Q(TS=2)/sum(Q(TS=1-2)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -440,9 +440,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFM Ratio Q(TS=2)/sum(Q(TS=1-2)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -460,9 +460,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFP Ratio Q(TS=2)/sum(Q(TS=2-3)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -480,9 +480,9 @@ hcalTimingTask = cms.EDAnalyzer(
 				"HFM Ratio Q(TS=2)/sum(Q(TS=2-3)), SumQ > 20 linADC vs LS"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(1000),
+				nbins	= cms.untracked.int32(3000),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -499,9 +499,9 @@ hcalTimingTask = cms.EDAnalyzer(
 			desc	= cms.untracked.string(	"HFM Occupancy [ieta vs LS]"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(100),
+				nbins	= cms.untracked.int32(300),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -518,9 +518,9 @@ hcalTimingTask = cms.EDAnalyzer(
 			desc	= cms.untracked.string(	"HFP Occupancy [ieta vs LS]"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(100),
+				nbins	= cms.untracked.int32(300),
 				min		= cms.untracked.double(0),
-				max		= cms.untracked.double(1000),
+				max		= cms.untracked.double(3000),
 				title	= cms.untracked.string("LS")
 			),
 			yaxis	= cms.untracked.PSet(
@@ -587,6 +587,139 @@ hcalTimingTask = cms.EDAnalyzer(
 				min		= cms.untracked.double(0),
 				max		= cms.untracked.double(1.05),
 				title	= cms.untracked.string("# Hits")
+			)
+		),
+
+		#	50/50 channels plots. ieta+/-41 iphi 3 d2
+		HFMiphi3ieta41D2_Shape		= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFM iphi3 ieta41 D2 Signal Shape. Nominal fC are on the Y-axis"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(5),
+				min		= cms.untracked.double(-0.5),
+				max		= cms.untracked.double(4.5),
+				title	= cms.untracked.string('TS')
+			)
+		),
+		HFMiphi3ieta41D2_Shape_3TSQg20		= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFM iphi3 ieta41 D2 Signal Shape (Using Sum NomfC of 3TS>%d). Nominal fC are on the Y-axis"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(5),
+				min		= cms.untracked.double(-0.5),
+				max		= cms.untracked.double(4.5),
+				title	= cms.untracked.string('TS')
+			)
+		),
+		HFMiphi3ieta41D2_Timing				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFM iphi3 ieta41 D2 Timing (Nominal fC-weighted time average). After the Cut"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(200),
+				min		= cms.untracked.double(0),
+				max		= cms.untracked.double(5),
+				title	= cms.untracked.string("TS(ns-like)")
+			)
+		),
+		HFMiphi3ieta41D2_QTS2QTS12				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFM iphi3 ieta41 D2  Ratio Q(TS=2)/sum(Q(TS=1-2)), SumQ > 20 linADC"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(200),
+				min		= cms.untracked.double(0),
+				max		= cms.untracked.double(1.05),
+				title	= cms.untracked.string("Q(TS=2)/sum(Q(TS=1-2))")
+			)
+		),
+		HFMiphi3ieta41D2_QTS2QTS23				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFM iphi3 ieta41 D2 Ratio Q(TS=2)/sum(Q(TS=2-3)), SumQ > 20 linADC"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(200),
+				min		= cms.untracked.double(0),
+				max		= cms.untracked.double(1.05),
+				title	= cms.untracked.string("Q(TS=2)/sum(Q(TS=1-2))")
+			)
+		),
+
+		HFPiphi3ieta41D2_Shape		= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFP iphi3 ieta41 D2 Signal Shape. Nominal fC are on the Y-axis"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(5),
+				min		= cms.untracked.double(-0.5),
+				max		= cms.untracked.double(4.5),
+				title	= cms.untracked.string('TS')
+			)
+		),
+		HFPiphi3ieta41D2_Shape_3TSQg20		= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFP iphi3 ieta41 D2 Signal Shape (Using Sum NomfC of 3TS>%d). Nominal fC are on the Y-axis"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(5),
+				min		= cms.untracked.double(-0.5),
+				max		= cms.untracked.double(4.5),
+				title	= cms.untracked.string('TS')
+			)
+		),
+		HFPiphi3ieta41D2_Timing				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFP iphi3 ieta41 D2 Timing (Nominal fC-weighted time average). After the Cut"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(200),
+				min		= cms.untracked.double(0),
+				max		= cms.untracked.double(5),
+				title	= cms.untracked.string("TS(ns-like)")
+			)
+		),
+		HFPiphi3ieta41D2_QTS2QTS12				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFP iphi3 ieta41 D2  Ratio Q(TS=2)/sum(Q(TS=1-2)), SumQ > 20 linADC"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(200),
+				min		= cms.untracked.double(0),
+				max		= cms.untracked.double(1.05),
+				title	= cms.untracked.string("Q(TS=2)/sum(Q(TS=1-2))")
+			)
+		),
+		HFPiphi3ieta41D2_QTS2QTS23				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFP iphi3 ieta41 D2 Ratio Q(TS=2)/sum(Q(TS=2-3)), SumQ > 20 linADC"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(200),
+				min		= cms.untracked.double(0),
+				max		= cms.untracked.double(1.05),
+				title	= cms.untracked.string("Q(TS=2)/sum(Q(TS=1-2))")
 			)
 		),
 

@@ -126,20 +126,40 @@ void HcalTimingTask::hf(HIT const& digi)
 			_mes["HFM_Shape"].Fill(i, 
 					digi.sample(i).nominal_fC()-
 					hcaldqm::constants::STD_HF_PED);
+			if (iphi==3 && ieta==-41 && depth==2)
+				_mes["HFMiphi3ieta41D2_Shape"].Fill(i,
+					digi.sample(i).nominal_fC()-
+					hcaldqm::constants::STD_HF_PED);
 			if (sumQ_3TS>=hcaldqm::constants::STD_HF_DIGI_CUT_3TSQg20)
+			{
 				_mes["HFM_Shape_3TSQg20"].Fill(i,
 						digi.sample(i).nominal_fC()-
 						hcaldqm::constants::STD_HF_PED);
+				if (iphi==3 && ieta==-41 && depth==2)
+					_mes["HFMiphi3ieta41D2_Shape_3TSQg20"].Fill(i,
+						digi.sample(i).nominal_fC()-
+						hcaldqm::constants::STD_HF_PED);
+			}
 		}
 		else
 		{
 			_mes["HFP_Shape"].Fill(i,
 					digi.sample(i).nominal_fC()-
 					hcaldqm::constants::STD_HF_PED);
+			if (iphi==3 && ieta==41 && depth==2)
+				_mes["HFPiphi3ieta41D2_Shape"].Fill(i,
+					digi.sample(i).nominal_fC()-
+					hcaldqm::constants::STD_HF_PED);
 			if (sumQ_3TS>=hcaldqm::constants::STD_HF_DIGI_CUT_3TSQg20)
+			{
 				_mes["HFP_Shape_3TSQg20"].Fill(i,
 						digi.sample(i).nominal_fC()-
 						hcaldqm::constants::STD_HF_PED);
+				if (iphi==3 && ieta==41 && depth==2)
+					_mes["HFPiphi3ieta41D2_Shape_3TSQg20"].Fill(i,
+						digi.sample(i).nominal_fC()-
+						hcaldqm::constants::STD_HF_PED);
+			}
 		}
 	}
 
@@ -168,6 +188,12 @@ void HcalTimingTask::hf(HIT const& digi)
 			_mes["HFMiphi43_QTS2QTS12vsLS"].Fill(_mi.currentLS, qTS2QTS12);
 			_mes["HFMiphi43_QTS2QTS23vsLS"].Fill(_mi.currentLS, qTS2QTS23);
 		}
+		if (iphi==3 && ieta==-41 && depth==2)
+		{
+			_mes["HFMiphi3ieta41D2_Timing"].Fill(aveT);
+			_mes["HFMiphi3ieta41D2_QTS2QTS12"].Fill(qTS2QTS12);
+			_mes["HFMiphi3ieta41D2_QTS2QTS23"].Fill(qTS2QTS23);
+		}
 	}
 	else 
 	{
@@ -183,6 +209,13 @@ void HcalTimingTask::hf(HIT const& digi)
 		_mes["HFP_QTS2QTS23"].Fill(qTS2QTS23);
 		_mes["HFP_QTS2QTS23vsLS"].Fill(_mi.currentLS, qTS2QTS23);
 		_mes["HFP_QTS2QTS23vsLS2D"].Fill(_mi.currentLS, qTS2QTS23);
+
+		if (iphi==3 && ieta==41 && depth==2)
+		{
+			_mes["HFPiphi3ieta41D2_Timing"].Fill(aveT);
+			_mes["HFPiphi3ieta41D2_QTS2QTS12"].Fill(qTS2QTS12);
+			_mes["HFPiphi3ieta41D2_QTS2QTS23"].Fill(qTS2QTS23);
+		}
 	}
 	_mes["HF_TimingVSieta"].Fill(ieta, aveT);
 	_mes["HF_OccupancyD" + boost::lexical_cast<std::string>(depth)].Fill(

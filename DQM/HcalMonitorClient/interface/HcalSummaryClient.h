@@ -70,14 +70,17 @@ class HcalSummaryClient : public HcalBaseDQClient {
 
 	// 
 	//	Updated by Viktor Khristenko
-	//	07/08/2015
+	//	23/09/2015
 	//
 	void check_HBHETiming_Digi(DQMStore::IBooker &ib, 
 		DQMStore::IGetter &ig, int LS);
 	void check_HBHETiming_RecHit(DQMStore::IBooker &ib, 
 		DQMStore::IGetter &ig, int LS);
+	double check_HFChannels(DQMStore::IBooker &ib,
+		DQMStore::IGetter &ig, int LS);
 	bool triggered_Shift_Digi;
 	bool triggered_Shift_RecHit;
+	bool triggered_DropChannels;
 };
 
 #endif

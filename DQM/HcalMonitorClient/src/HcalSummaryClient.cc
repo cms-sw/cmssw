@@ -14,6 +14,12 @@
 #include <cmath>
 
 /*
+ *	Updated on 23.09.2015
+ *	by Viktor Khristenko
+ */
+#include "DQM/HcalCommon/interface/HcalDQMConstants.h"
+
+/*
  * \file HcalSummaryClient.cc
  * 
  * \author J. Temple
@@ -509,14 +515,20 @@ void HcalSummaryClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig, in
 	//
 	triggered_Shift_Digi = false;
 	triggered_Shift_RecHit = false;
+	triggered_DropChannels = false;
+	double tmp_status_HF = 0;
 	check_HBHETiming_Digi(ib, ig, LS);
 	check_HBHETiming_RecHit(ib, ig, LS);
+	tmp_status_HF = check_HFChannels(ib, ig, LS);
 	if (triggered_Shift_Digi || triggered_Shift_RecHit)
 	{
 		status_HB_ = 0.1;
 		status_HE_ = 0.1;
 	}
- 
+    if (triggered_DropChannels)
+	{
+		status_HF_ = tmp_status_HF;
+	}
 
   // Fill certification map here
 
@@ -1115,6 +1127,43 @@ void HcalSummaryClient::check_HBHETiming_Digi(DQMStore::IBooker &ib,
 		triggered_Shift_Digi = true;
 }
 
+//
+//	Check if there is a significant drop in the number of channels in HF 
+//
+double HcalSummaryClient::check_HFChannels(DQMStore::IBooker &ib,
+	DQMStore::IGetter &ig, int LS)
+{
+	//	Do Some defs
+	std::string dir_prefix = "Hcal/HcalDigiTask/HF/";
+	std::string mename_hfocc = "HF_OccupancyVSls_NoZSCut";
+
+	//	Get the MEs
+	MonitorElement *me_hfocc = ig.get(dir_prefix+mename_hfocc);
+
+	//	Extract the info you need
+	//	use LS as ibin, as the ibin starts with 1 in any case
+	double numChs = me_hfocc->getTProfile()->GetBinContent(LS);
+
+	//	set up the conditions
+	//	10 = 3(fibers)*3
+	if ((hcaldqm::constants::STD_HF_NUMCHS - numChs)>=48)
+	{
+		triggered_DropChannels = true;
+		return 0.5;
+	}
+	else if ((hcaldqm::constants::STD_HF_NUMCHS - numChs)>=24)
+	{
+		triggered_DropChannels = true;
+		return 0.75;
+	}
+	else if ((hcaldqm::constants::STD_HF_NUMCHS - numChs)>=10)
+	{
+		triggered_DropChannels = true;
+		return 0.85;
+	}
+
+	return -1;
+}
 
 
 

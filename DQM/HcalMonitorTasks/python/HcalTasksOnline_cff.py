@@ -80,7 +80,7 @@ hcalDeadCellMonitor.makeDiagnostics   = True
 hcalRecHitMonitor.makeDiagnostics     = True
 
 # Require at least 2000 events for the dead cell monitor to process at end of lumi block
-hcalDeadCellMonitor.minDeadEventCount = 2000
+hcalDeadCellMonitor.minDeadEventCount = 250
 
 # Require at least 200 event in a lumi block when looking for persistent hot cells
 hcalHotCellMonitor.minEvents = 200
