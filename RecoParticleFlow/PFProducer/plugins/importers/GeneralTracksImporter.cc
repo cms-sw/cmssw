@@ -205,15 +205,12 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   // Protection against 0 momentum tracks
   if ( P < 0.05 ) return false;
 
-  // Temporary : Reject all tracking iteration beyond 5th step. 
-//  if ( Algo > 4 ) return false;
  
   if (_debug) std::cout << " PFBlockAlgo: PFrecTrack->Track Pt= "
 		   << Pt << " DPt = " << DPt << std::endl;
   if ( ( _DPtovPtCut[Algo] > 0. && 
 	 DPt/Pt > _DPtovPtCut[Algo]*sigmaHad ) || 
        NHit < _NHitCut[Algo] ) { 
-    // (Algo >= 3 && LostHits != 0) ) {
     if (_debug) std::cout << " PFBlockAlgo: skip badly measured track"
 		     << ", P = " << P 
 		     << ", Pt = " << Pt 
@@ -223,27 +220,9 @@ goodPtResolution( const reco::TrackRef& trackref) const {
 		     << std::endl;
     if (_debug) std::cout << " cut is DPt/Pt < " << _DPtovPtCut[Algo] * sigmaHad << std::endl;
     if (_debug) std::cout << " cut is NHit >= " << _NHitCut[Algo] << std::endl;
-    /*
-    std::cout << "Track REJECTED : ";
-    std::cout << ", P = " << P 
-	      << ", Pt = " << Pt 
-	      << " DPt = " << DPt 
-	      << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-	      << ", Algo = " << Algo
-	      << std::std::endl;
-    */
     return false;
   }
 
-  /*
-  std::cout << "Track Accepted : ";
-  std::cout << ", P = " << P 
-       << ", Pt = " << Pt 
-       << " DPt = " << DPt 
-       << ", N(hits) = " << NHit << " (Lost : " << LostHits << "/" << NLostHit << ")"
-       << ", Algo = " << Algo
-       << std::std::endl;
-  */
   return true;
 }
 
