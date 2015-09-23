@@ -12,12 +12,13 @@ class TriggerBitAnalyzer( Analyzer ):
         self.fallbackName = getattr(self.cfg_ana,"fallbackProcessName",None)
         self.outprefix   = getattr(self.cfg_ana,"outprefix",  self.processName)
         self.unrollbits = ( hasattr(self.cfg_ana,"unrollbits") and self.cfg_ana.unrollbits )
- 
+        self.saveIsUnprescaled = getattr(self.cfg_ana,"saveIsUnprescaled",False)
 
     def declareHandles(self):
         super(TriggerBitAnalyzer, self).declareHandles()
         fallback = ('TriggerResults','',self.fallbackName) if self.fallbackName else None
         self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','',self.processName), 'edm::TriggerResults', fallbackLabel=fallback )
+        if self.saveIsUnprescaled: self.handles["TriggerPrescales"] = AutoHandle( ('TriggerPrescales','',self.processName), 'pat::PackedTriggerPrescales', fallbackLabel=fallback )
 
     def beginLoop(self, setup):
         super(TriggerBitAnalyzer,self).beginLoop(setup)
@@ -41,27 +42,32 @@ class TriggerBitAnalyzer( Analyzer ):
                             if outname[-1] == '*' :
                                 outname=outname[0:-1]
                             setup.globalVariables.append( NTupleVariable(outname, eval("lambda ev: ev.%s" % outname), help="Trigger bit  %s"%TP) )
+                            if self.saveIsUnprescaled: setup.globalVariables.append( NTupleVariable(outname+'_isUnprescaled', eval("lambda ev: ev.%s_isUnprescaled" % outname), help="Trigger bit  %s isUnprescaled flag"%TP) )
                             self.triggerBitCheckersSingleBits.append( (TP, ROOT.heppy.TriggerBitChecker(trigVecBit)) )
 
                 outname="%s_%s"%(self.outprefix,T)  
                 if not hasattr(setup ,"globalVariables") :
                         setup.globalVariables = []
                 setup.globalVariables.append( NTupleVariable(outname, eval("lambda ev: ev.%s" % outname), help="OR of %s"%TL) )
+                if self.saveIsUnprescaled: setup.globalVariables.append( NTupleVariable(outname+'_isUnprescaled', eval("lambda ev: ev.%s_isUnprescaled" % outname), help="OR of %s is Unprescaled flag"%TL) )
                 self.triggerBitCheckers.append( (T, ROOT.heppy.TriggerBitChecker(trigVec)) )
                 
 
     def process(self, event):
         self.readCollections( event.input )
         triggerResults = self.handles['TriggerResults'].product()
+        if self.saveIsUnprescaled: triggerPrescales = self.handles["TriggerPrescales"].product()
         for T,TC in self.triggerBitCheckers:
             outname="%s_%s"%(self.outprefix,T)
             setattr(event,outname, TC.check(event.input.object(), triggerResults))
+            if self.saveIsUnprescaled: setattr(event,outname+'_isUnprescaled', TC.check_unprescaled(event.input.object(), triggerResults, triggerPrescales))
         if self.unrollbits :
             for TP,TC in self.triggerBitCheckersSingleBits:
                outname="%s_BIT_%s"%(self.outprefix,TP)
                if outname[-1] == '*' :
                   outname=outname[0:-1]
                setattr(event,outname, TC.check(event.input.object(), triggerResults))
+               if self.saveIsUnprescaled: setattr(event,outname+'_isUnprescaled', TC.check_unprescaled(event.input.object(), triggerResults, triggerPrescales))
 
 
         return True

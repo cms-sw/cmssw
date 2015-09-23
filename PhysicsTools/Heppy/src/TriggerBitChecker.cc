@@ -29,6 +29,15 @@ bool TriggerBitChecker::check(const edm::EventBase &event, const edm::TriggerRes
     return false;
 }
 
+bool TriggerBitChecker::check_unprescaled(const edm::EventBase &event, const edm::TriggerResults &result_tr, const pat::PackedTriggerPrescales &result) const {
+    if (event.id().run() != lastRun_) { syncIndices(event, result_tr); lastRun_ = event.id().run(); }
+    bool outcome = true;
+    for (std::vector<unsigned int>::const_iterator it = indices_.begin(), ed = indices_.end(); it != ed; ++it) {
+        if (result.getPrescaleForIndex(*it)!=1) {outcome = false; break;}
+    }
+    return outcome; // true only if all paths are unprescaled
+}
+
 void TriggerBitChecker::syncIndices(const edm::EventBase &event, const edm::TriggerResults &result) const {
     indices_.clear();
     const edm::TriggerNames &names = event.triggerNames(result);

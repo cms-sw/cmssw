@@ -2,6 +2,7 @@
 #define PhysicsTools_Heppy_TriggerBitChecker_h
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "FWCore/Common/interface/EventBase.h"
 #include <vector>
 #include <string>
@@ -23,6 +24,7 @@ class TriggerBitChecker {
         ~TriggerBitChecker() {}
 
         bool check(const edm::EventBase &event, const edm::TriggerResults &result) const ;
+        bool check_unprescaled(const edm::EventBase &event, const edm::TriggerResults &result_tr, const pat::PackedTriggerPrescales &result) const ;
         
     private:
         // list of path name prefixes
