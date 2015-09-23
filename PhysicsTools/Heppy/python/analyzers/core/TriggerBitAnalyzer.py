@@ -17,8 +17,8 @@ class TriggerBitAnalyzer( Analyzer ):
     def declareHandles(self):
         super(TriggerBitAnalyzer, self).declareHandles()
         fallback = ('TriggerResults','',self.fallbackName) if self.fallbackName else None
-        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','',self.processName), 'edm::TriggerResults', fallbackLabel=fallback )
-        if self.saveIsUnprescaled: self.handles["TriggerPrescales"] = AutoHandle( ('TriggerPrescales','',self.processName), 'pat::PackedTriggerPrescales', fallbackLabel=fallback )
+        self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','',self.processName), 'edm::TriggerResults', fallbackLabel=(('TriggerResults','',self.fallbackName) if self.fallbackName else None) )
+        if self.saveIsUnprescaled: self.handles["TriggerPrescales"] = AutoHandle( ('patTrigger','',self.processName), 'pat::PackedTriggerPrescales', fallbackLabel=(('patTrigger','',self.fallbackName) if self.fallbackName else None) )
 
     def beginLoop(self, setup):
         super(TriggerBitAnalyzer,self).beginLoop(setup)
