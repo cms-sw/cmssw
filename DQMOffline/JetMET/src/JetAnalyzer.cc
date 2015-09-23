@@ -151,8 +151,7 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   if(isPFJet_ || isMiniAODJet_){
     if(JetIDVersion_== "FIRSTDATA"){
       pfjetidversion = PFJetIDSelectionFunctor::FIRSTDATA;
-    }
-   if(JetIDVersion_== "RUNIISTARTUP"){
+    }else if(JetIDVersion_== "RUNIISTARTUP"){
       pfjetidversion = PFJetIDSelectionFunctor::RUNIISTARTUP;
     }else{
       if (verbose_) std::cout<<"no valid PF JetID version given"<<std::endl;
