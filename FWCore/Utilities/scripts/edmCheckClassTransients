@@ -11,8 +11,8 @@ classtransients['edm::AssociationVector'].append('transientVector_')
 
 
 
-class XmlParser(object):
-    """Parses a classes_def.xml file looking for class declarations of edm template classes
+class RMParser(object):
+    """Parses the  ${PackageName}_xr.rootmap file looking for class declarations of edm template classes
     which contain member which must be labeled transient="true" in classes_def.xml
     """
     
@@ -20,46 +20,25 @@ class XmlParser(object):
         self._file = filename
         self.cnames = collections.defaultdict(list)
         self._presentClass = None
-        self.readClassesDefXML()
-    def readClassesDefXML(self):
-        import xml.parsers.expat
-        p = xml.parsers.expat.ParserCreate()
-        p.StartElementHandler = self.start_element
+        self.readRootMap()
+    def readRootMap(self):
         f = open(self._file)
-        # Replace any occurence of <>& in the attribute values by the xml parameter
-        rxml, nxml = f.read(), ''
-        q1,q2 = 0,0
-        for c in rxml :
-            if   (q1 or q2) and c == '<' : nxml += '&lt;'
-            elif (q1 or q2) and c == '>' : nxml += '&gt;'
-            # elif (q1 or q2) and c == '&' : nxml += '&amp;'
-            else                         : nxml += c
-            if c == '"' : q1 = not q1
-            if c == "'" : q2 = not q2
-        try : p.Parse(nxml)
-        except xml.parsers.expat.ExpatError, e :
-            print '--->> edmCheckClassTransients: ERROR: parsing selection file ',self._file
-            print '--->> edmCheckClassTransients: ERROR: Error is:', e
-            raise
+        for line in f:
+            cname=""
+            if re.search("^class",line): cname = re.sub("class ","",line)
+            if re.search("^struct",line): cname = re.sub("struct ","",line)
+            for key in classtransients.keys():
+               if re.search(r'^%s<' % key, cname):
+                   n_name = string.join(line.split())
+                   self.cnames[key].append(n_name)
         f.close()
-    def start_element(self,name,attrs):
-        if name in ('class','struct'):
-            if 'name' in attrs:
-                cname=attrs['name']
-                for key in classtransients.keys():
-                    if re.search(r'^%s<' % key, cname):
-                        n_name = string.join(cname.split())
-                        n_name = n_name.replace('std::','')
-			self.cnames[key].append(n_name)
-                            
-        pass
 
-def checkTrans(tempname,name):
+def checkTrans(templname,name):
     c = ROOT.TClass.GetClass(name)
     if not c:
         raise RuntimeError("failed to load dictionary for class '"+name+"'. Check for typedefs in the name.")
     print "Checking "+name
-    for trans in classtransients[tempname]:
+    for trans in classtransients[templname]:
       tdm = c.GetDataMember(trans)
       retval = False
       if tdm : retval = tdm.IsPersistent()
@@ -71,8 +50,8 @@ from optparse import OptionParser
 oparser = OptionParser()
 oparser.add_option("-l","--lib", dest="library",
                    help="specify the library to load. If not set classes are found using the PluginManager")
-oparser.add_option("-x","--xml_file", dest="xmlfile",default="./classes_def.xml",
-                   help="the classes_def.xml file to read")
+oparser.add_option("-f","--rootmap", dest="rmfile",default="./_xr.rootmap",
+                   help="the _xr.rootmap file to read")
 
 (options,args)=oparser.parse_args()
 
@@ -86,9 +65,7 @@ else:
     if 0 != ROOT.gSystem.Load(options.library):
         raise RuntimeError("failed to load library '"+options.library+"'")
 
-p = XmlParser(options.xmlfile)
-
-transError=0
+p = RMParser(options.rmfile)
 
 for key in p.cnames.keys():
     for value in p.cnames[key]:
