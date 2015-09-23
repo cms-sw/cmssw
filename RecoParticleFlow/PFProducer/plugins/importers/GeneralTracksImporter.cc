@@ -18,7 +18,12 @@ public:
     _NHitCut(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
     _useIterTracking(conf.getParameter<bool>("useIterativeTracking")),
     _cleanBadConvBrems(conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
-    _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
+    _debug(conf.getUntrackedParameter<bool>("debug",false)) {
+    
+    pfmu_ = new PFMuonAlgo();
+    pfmu_->setParameters(conf);
+    
+  }
   
   void importToBlock( const edm::Event& ,
 		      ElementList& ) const override;
@@ -33,6 +38,9 @@ private:
   const std::vector<double> _DPtovPtCut;
   const std::vector<unsigned> _NHitCut;
   const bool _useIterTracking,_cleanBadConvBrems,_debug;
+
+  PFMuonAlgo *pfmu_;
+
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
@@ -120,8 +128,8 @@ importToBlock( const edm::Event& e,
     bool thisIsAPotentialMuon = false;
     if( muId != -1 ) {
       muonref= reco::MuonRef( muons, muId );
-      thisIsAPotentialMuon = ( PFMuonAlgo::isLooseMuon(muonref) || 
-			       PFMuonAlgo::isMuon(muonref)         );
+      thisIsAPotentialMuon = ( (pfmu_->hasValidTrack(muonref,true)&&PFMuonAlgo::isLooseMuon(muonref)) || 
+			       (pfmu_->hasValidTrack(muonref,false)&&PFMuonAlgo::isMuon(muonref)));
     }
     if(thisIsAPotentialMuon || goodPtResolution( pftrackref->trackRef() ) ) {
       trkElem = new reco::PFBlockElementTrack( pftrackref );
@@ -157,8 +165,6 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   case reco::TrackBase::lowPtTripletStep:
   case reco::TrackBase::pixelPairStep:
   case reco::TrackBase::jetCoreRegionalStep:
-  case reco::TrackBase::muonSeededStepInOut:
-  case reco::TrackBase::muonSeededStepOutIn:
     Algo = 0;
     break;
   case reco::TrackBase::detachedTripletStep:
@@ -172,6 +178,10 @@ goodPtResolution( const reco::TrackRef& trackref) const {
     break;
   case reco::TrackBase::tobTecStep:
     Algo = 4;
+    break;
+  case reco::TrackBase::muonSeededStepInOut:
+  case reco::TrackBase::muonSeededStepOutIn:
+    Algo = 5;
     break;
   case reco::TrackBase::hltIter0:
   case reco::TrackBase::hltIter1:
@@ -188,7 +198,7 @@ goodPtResolution( const reco::TrackRef& trackref) const {
     Algo = _useIterTracking ? 0 : 0;
     break;
   default:
-    Algo = _useIterTracking ? 5 : 0;
+    Algo = _useIterTracking ? 6 : 0;
     break;
   }
 

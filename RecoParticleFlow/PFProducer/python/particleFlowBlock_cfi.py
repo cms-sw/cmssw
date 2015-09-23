@@ -38,7 +38,7 @@ particleFlowBlock = cms.EDProducer(
                   source = cms.InputTag("pfDisplacedTrackerVertex") ),
         #for best timing GeneralTracksImporter should come after
         # all secondary track importers
-        cms.PSet( importerName = cms.string("ImprovedTracksImporter"),
+        cms.PSet( importerName = cms.string("GeneralTracksImporter"),
                   source = cms.InputTag("pfTrack"),
                   muonSrc = cms.InputTag("muons1stStep"),
                   cleanBadConvertedBrems = cms.bool(True),
