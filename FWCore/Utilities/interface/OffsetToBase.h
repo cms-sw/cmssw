@@ -10,16 +10,17 @@
  * A specialization would look something like this
  * (in YourClass.h"
  *
- * #include "FWCore/Utilities/interface/OffsetToBase.h 
+ * #include "FWCore/Utilities/interface/OffsetToBase.h"
  * namespace edm {
  *   template<>
  *   class OffsetToBase<YourClass> {
  *     public OffsetToBase() {}
  *     size_t offsetToBase(std::type_info const& baseTypeInfo) const {
- *       YourClass object;
- *       void const* objectPtr = &object;
+ *       int const dummy = 0;
+ *       YourClass const* object = reinterpret_cast<YourClass const*>(&dummy);
+ *       void const* objectPtr = object;
  *       if(baseTypeInfo == typeid(BaseClass1)) {
- *          BaseClass1 const* base = &object;
+ *          BaseClass1 const* base = object;
  *          void const* basePtr = base;
  *          return static_cast<char const*>(basePtr) - static_cast<char const*>(objectPtr);
  *       }

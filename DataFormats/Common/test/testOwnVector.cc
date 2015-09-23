@@ -1,8 +1,8 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include <algorithm>
+#include <cstring>
 #include <iterator>
 #include <iostream>
-#include <string.h>
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
