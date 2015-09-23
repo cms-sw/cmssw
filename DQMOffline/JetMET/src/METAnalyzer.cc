@@ -132,6 +132,7 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   hbheNoiseFilterResultToken_=consumes<bool>(hbheNoiseFilterResultTag_);
   CSCHaloResultTag_= parameters.getParameter<edm::InputTag>("CSCHaloResultLabel");
   CSCHaloResultToken_=consumes<bool>(CSCHaloResultTag_);
+  BeamHaloSummaryToken_=consumes<reco::BeamHaloSummary>(parameters.getParameter<edm::InputTag>("BeamHaloSummaryLabel"));
   EcalDeadCellTriggerTag_= parameters.getParameter<edm::InputTag>("EcalDeadCellTriggerLabel");
   EcalDeadCellTriggerToken_=consumes<bool>(EcalDeadCellTriggerTag_);
   eeBadScFilterTag_= parameters.getParameter<edm::InputTag>("eeBadScFilterLabel");
@@ -1375,6 +1376,12 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if(pt_jet> ptThreshold_){
 	pat::strbitset stringbitset=pfjetIDFunctorLoose.getBitTemplate();
 	iscleaned = pfjetIDFunctorLoose((*patJets)[ijet],stringbitset);
+	if(fabs ((*patJets)[ijet].eta())>3.0){
+	  iscleaned =false;
+	  if((1.-(*patJets)[ijet].neutralHadronEnergyFraction())<0.90 && (*patJets)[ijet].neutralMultiplicity()>10){
+	    iscleaned =true;
+	  }
+      }
       }
     }
     if(iscleaned){
@@ -1537,13 +1544,19 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (verbose_) std::cout << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
     }
     filter_decisions[0]= *HBHENoiseFilterResultHandle;
-    edm::Handle<bool> CSCTightHaloFilterResultHandle;
-    iEvent.getByToken(CSCHaloResultToken_, CSCTightHaloFilterResultHandle);
-    if (!CSCTightHaloFilterResultHandle.isValid()) {
-      LogDebug("") << "METAnalyzer: Could not find CSCTightHaloFilterResultHandle" << std::endl;
-      if (verbose_) std::cout << "METAnalyzer: CSCTightHaloFilterResultHandle" << std::endl;
+    //edm::Handle<bool> CSCTightHaloFilterResultHandle;
+    //iEvent.getByToken(CSCHaloResultToken_, CSCTightHaloFilterResultHandle);
+    //if (!CSCTightHaloFilterResultHandle.isValid()) {
+    //LogDebug("") << "METAnalyzer: Could not find CSCTightHaloFilterResultHandle" << std::endl;
+    //if (verbose_) std::cout << "METAnalyzer: CSCTightHaloFilterResultHandle" << std::endl;
+    //}
+    edm::Handle<reco::BeamHaloSummary> BeamHaloSummaryHandle;
+    iEvent.getByToken(BeamHaloSummaryToken_,BeamHaloSummaryHandle);
+    if (!BeamHaloSummaryHandle.isValid()) {
+      LogDebug("") << "METAnalyzer: Could not find BeamHaloSummaryHandle" << std::endl;
+      if (verbose_) std::cout << "METAnalyzer: BeamHaloSummaryHandle" << std::endl;
     }
-    filter_decisions[1]= *CSCTightHaloFilterResultHandle;
+    filter_decisions[1]= (!BeamHaloSummaryHandle->CSCTightHaloId());
     edm::Handle<bool> eeBadScFilterResultHandle;
     iEvent.getByToken(eeBadScFilterToken_, eeBadScFilterResultHandle);
     if (!eeBadScFilterResultHandle.isValid()) {
@@ -1558,6 +1571,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (verbose_) std::cout << "METAnalyzer: EcalDeadCellTriggerFilterResultHandle" << std::endl;
     }
     filter_decisions[3]= *EcalDeadCellTriggerFilterResultHandle;
+    if(filter_decisions[0]==false){
+      std::cout<<"HBHENoiseFilter failed "<<filter_decisions[0]<<"/"<<*HBHENoiseFilterResultHandle<<"/"<<(!BeamHaloSummaryHandle->CSCTightHaloId())<<"/"<<*eeBadScFilterResultHandle<<"/"<<*EcalDeadCellTriggerFilterResultHandle<<std::endl;
+    }
   }else{
     edm::Handle<edm::TriggerResults> metFilterResults;
     iEvent.getByToken(METFilterMiniAODToken_, metFilterResults);

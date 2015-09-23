@@ -151,6 +151,9 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet)
   if(isPFJet_ || isMiniAODJet_){
     if(JetIDVersion_== "FIRSTDATA"){
       pfjetidversion = PFJetIDSelectionFunctor::FIRSTDATA;
+    }
+   if(JetIDVersion_== "RUNIISTARTUP"){
+      pfjetidversion = PFJetIDSelectionFunctor::RUNIISTARTUP;
     }else{
       if (verbose_) std::cout<<"no valid PF JetID version given"<<std::endl;
     }
@@ -2084,12 +2087,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(isMiniAODJet_ && (*patJets)[ijet].isPFJet()){
       pat::strbitset stringbitset=pfjetIDFunctor.getBitTemplate();
       jetpassid = pfjetIDFunctor((*patJets)[ijet],stringbitset);
-      if(fabs ((*patJets)[ijet].eta()>3.0)){
-	jetpassid =false;
-	if((1.-(*patJets)[ijet].neutralHadronEnergyFraction())<0.90 && (*patJets)[ijet].neutralMultiplicity()>10){
-	  jetpassid =true;
-	}
-      }
       if(jetCleaningFlag_){
 	Thiscleaned = jetpassid;
 	JetIDWPU = jetpassid;
@@ -2159,12 +2156,6 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       puidmvaflag=(*puJetIdFlagMva)[pfjetref];
       puidcutflag=(*puJetIdFlag)[pfjetref];
       jetpassid = pfjetIDFunctor((*pfJets)[ijet]);
-      if(fabs ((*pfJets)[ijet].eta()>3.0)){
-	jetpassid =false;
-	if((1.-(*pfJets)[ijet].neutralHadronEnergyFraction())<0.90 && (*pfJets)[ijet].neutralMultiplicity()>10){
-	  jetpassid =true;
-	}
-      }
       if(jetCleaningFlag_){
 	Thiscleaned = jetpassid;
 	//JetIDWPU= (jetpassid && PileupJetIdentifier::passJetId( puidmvaflag, PileupJetIdentifier::kLoose ));//until new tuning of PU JetID take that out

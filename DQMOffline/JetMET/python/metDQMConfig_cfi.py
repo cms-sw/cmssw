@@ -27,7 +27,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     fillCandidateMaps = cms.bool(False),
 
     CleaningParameters = cleaningParameters.clone(
-        bypassAllPVChecks = cms.bool(True),#needed for 0T running),
+        bypassAllPVChecks = cms.bool(True),#needed for 0T running
         ),
     METDiagonisticsParameters = multPhiCorr_METDiagnostics,
 
@@ -101,10 +101,10 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     ) 
     ),
     
-    HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"),
-    #HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResultRun2Loose"),  
+    HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"),                                    
     HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),  
     CSCHaloResultLabel = cms.InputTag("CSCTightHaloFilter"),  
+    BeamHaloSummaryLabel = cms.InputTag("BeamHaloSummary"),
     EcalDeadCellTriggerLabel = cms.InputTag("EcalDeadCellTriggerPrimitiveFilter"), 
     eeBadScFilterLabel = cms.InputTag("eeBadScFilter"), 
 

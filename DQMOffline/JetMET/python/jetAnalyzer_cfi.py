@@ -105,8 +105,8 @@ jetDQMAnalyzerAk4PFUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     #for PFJets: LOOSE,TIGHT
     JetIDQuality               = cms.string("LOOSE"),
     #options for Calo and JPT: PURE09,DQM09,CRAFT08
-    #for PFJets: FIRSTDATA
-    JetIDVersion               = cms.string("FIRSTDATA"),
+    #for PFJets: FIRSTDATA or RUNIISTARTUP (suitable for RECO beyond 7_2_X)
+    JetIDVersion               = cms.string("RUNIISTARTUP"),
     JetType = cms.string('pf'),#pf, calo or jpt
     JetCorrections = cms.InputTag("dqmAk4PFL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJets"),
@@ -136,7 +136,6 @@ jetDQMAnalyzerAk4PFCHSCleaned=jetDQMAnalyzerAk4PFCleaned.clone(
     JetCorrections = cms.InputTag("dqmAk4PFCHSL1FastL2L3ResidualCorrector"),
     jetsrc = cms.InputTag("ak4PFJetsCHS"),
     METCollectionLabel     = cms.InputTag("pfMETT1"),
-    #actually done only for PFJets at the moment
     InputMVAPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","fullDiscriminant"),
     InputCutPUIDDiscriminant = cms.InputTag("pileupJetIdEvaluatorCHSDQM","cutbasedDiscriminant"),
     InputMVAPUIDValue = cms.InputTag("pileupJetIdEvaluatorCHSDQM","fullId"),

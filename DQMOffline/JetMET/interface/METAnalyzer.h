@@ -164,7 +164,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::InputTag hbheNoiseFilterResultTag_;
   edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
   edm::InputTag CSCHaloResultTag_;
-  edm::EDGetTokenT<bool>  CSCHaloResultToken_;
+  edm::EDGetTokenT<bool>  CSCHaloResultToken_;//leads to problems running later
+  edm::EDGetTokenT<reco::BeamHaloSummary> BeamHaloSummaryToken_;
   edm::InputTag EcalDeadCellTriggerTag_;
   edm::EDGetTokenT<bool>  EcalDeadCellTriggerToken_;
   edm::InputTag eeBadScFilterTag_;

@@ -17,4 +17,6 @@ caloMetDQMAnalyzer.JetCorrections = cms.InputTag("")
 from RecoMET.METFilters.metFilters_cff  import *
 
 
-jetMETDQMOfflineSourceCosmic = cms.Sequence(metFilters*HBHENoiseFilterResultProducer*AnalyzeSUSYDQM*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)
+jetMETDQMOfflineSourceCosmic = cms.Sequence(HBHENoiseFilterResultProducer*HBHENoiseFilter*primaryVertexFilter*
+                                      EcalDeadCellTriggerPrimitiveFilter*eeBadScFilter*
+                                      AnalyzeSUSYDQM*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)
