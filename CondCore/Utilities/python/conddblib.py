@@ -363,16 +363,16 @@ def connect(database='pro', init=False, verbose=0):
         'pro':           lambda: _getCMSFrontierSQLAlchemyConnectionString('PromptProd'),
         'arc':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc'),
         'int':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt'),
-        'dev':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep'),
+        'dev':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_conditions_002'),
         'boost':         lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierProd', 'cms_conditions'),
-        'boostprep':     lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_conditions'),
+        'boostprep':     lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_conditions_002'),
 
         'orapro':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg'),
         'oraarc':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb'),
         'oraint':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int'),
-        'oradev':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep'),
+        'oradev':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_conditions_002'),
         'oraboost':      lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg'  , 'cms_conditions'),
-        'oraboostprep':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_conditions'),
+        'oraboostprep':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_conditions_002'),
 
         'onlineorapro':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod'),
         'onlineoraint':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb'),
@@ -397,3 +397,71 @@ def connect(database='pro', init=False, verbose=0):
 
     return Connection(url, init=init)
 
+
+def _exists(session, primary_key, value):
+    ret = None
+    try: 
+        ret = session.query(primary_key).\
+    	    filter(primary_key == value).\
+            count() != 0
+    except sqlalchemy.exc.OperationalError:
+        pass
+
+    return ret
+
+def _inserted_before(timestamp):
+    '''To be used inside filter().
+    '''
+
+    if timestamp is None:
+        # XXX: Returning None does not get optimized (skipped) by SQLAlchemy,
+        #      and returning True does not work in Oracle (generates "and 1"
+        #      which breaks Oracle but not SQLite). For the moment just use
+        #      this dummy condition.
+        return sqlalchemy.literal(True) == sqlalchemy.literal(True)
+
+    return conddb.IOV.insertion_time <= _parse_timestamp(timestamp)
+
+def listObject(session, name, snapshot=None):
+
+    is_tag = _exists(session, Tag.name, name)
+    result = {}
+    if is_tag:
+        result['type'] = 'Tag'
+        result['name'] = session.query(Tag).get(name).name
+	result['timeType'] = session.query(Tag.time_type).\
+				     filter(Tag.name == name).\
+            			     scalar()
+    
+        result['iovs'] = session.query(IOV.since, IOV.insertion_time, IOV.payload_hash, Payload.object_type).\
+                join(IOV.payload).\
+                filter(
+                    IOV.tag_name == name,
+                    _inserted_before(snapshot),
+                ).\
+                order_by(IOV.since.desc(), IOV.insertion_time.desc()).\
+                from_self().\
+                order_by(IOV.since, IOV.insertion_time).\
+                all()
+
+    try:
+        is_global_tag = _exists(session, GlobalTag.name, name)
+        if is_global_tag:
+            result['type'] = 'GlobalTag'
+	    result['name'] = session.query(GlobalTag).get(name)
+            result['tags'] = session.query(GlobalTagMap.record, GlobalTagMap.label, GlobalTagMap.tag_name).\
+                                     filter(GlobalTagMap.global_tag_name == name).\
+                    		     order_by(GlobalTagMap.record, GlobalTagMap.label).\
+                    		     all()
+    except sqlalchemy.exc.OperationalError:
+        sys.stderr.write("No table for GlobalTags found in DB.\n\n")
+
+    if not is_tag and not is_global_tag:
+        raise Exception('There is no tag or global tag named %s in the database.' % name)
+
+    return result
+
+def getPayload(session, hash):
+    # get payload from DB:
+    data, payloadType = session.query(Payload.data, Payload.object_type).filter(Payload.hash == hash).one()
+    return data
