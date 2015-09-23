@@ -4,10 +4,11 @@
 
 #include "DataFormats/Common/interface/RefHolderBase.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/OffsetToBase.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #include <memory>
+#include <typeinfo>
 
 namespace edm {
   namespace reftobase {
@@ -44,7 +45,7 @@ namespace edm {
       //Needed for ROOT storage
       CMS_CLASS_VERSION(10)
     private:
-      virtual void const* pointerToType(TypeWithDict const& iToType) const GCC11_OVERRIDE;
+      virtual void const* pointerToType(std::type_info const& iToType) const GCC11_OVERRIDE;
       REF ref_;
     };
 
@@ -133,12 +134,12 @@ namespace edm {
 
     template <class REF>
     void const* 
-    RefHolder<REF>::pointerToType(TypeWithDict const& iToType) const 
-    {
+    RefHolder<REF>::pointerToType(std::type_info const& iToType) const {
       typedef typename REF::value_type contained_type;
-      static TypeWithDict const s_type(typeid(contained_type));
-    
-      return iToType.pointerToBaseType(ref_.get(), s_type);
+      if(iToType == typeid(contained_type)) {
+        return ref_.get();
+      }
+      return pointerToBase(iToType, ref_.get());
     }
   } // namespace reftobase
 }

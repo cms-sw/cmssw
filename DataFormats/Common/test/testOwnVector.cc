@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
+#include <string.h>
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
