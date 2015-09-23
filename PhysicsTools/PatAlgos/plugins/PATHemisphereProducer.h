@@ -37,52 +37,39 @@
 // class decleration
 //
 
-class PATHemisphereProducer : public edm::EDProducer {
-   public:
-      explicit PATHemisphereProducer(const edm::ParameterSet&);
-      ~PATHemisphereProducer();
-
-   private:
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
-
-      // ----------member data ---------------------------
-      /// Input: All PAT objects that are to cross-clean  or needed for that
-      edm::EDGetTokenT<reco::CandidateView> _patJetsToken;
-//       edm::EDGetTokenT<reco::CandidateView> _patMetsToken;
-      edm::EDGetTokenT<reco::CandidateView> _patMuonsToken;
-      edm::EDGetTokenT<reco::CandidateView> _patElectronsToken;
-      edm::EDGetTokenT<reco::CandidateView> _patPhotonsToken;
-      edm::EDGetTokenT<reco::CandidateView> _patTausToken;
-
-  float _minJetEt;
-  float _minMuonEt;
-  float _minElectronEt;
-  float _minTauEt;
-  float _minPhotonEt;
-
-  float _maxJetEta;
-  float _maxMuonEta;
-  float _maxElectronEta;
-  float _maxTauEta;
-  float _maxPhotonEta;
-
-      int _seedMethod;
-      int _combinationMethod;
-
-      HemisphereAlgo* myHemi;
-
-      std::vector<float> vPx, vPy, vPz, vE;
-      std::vector<float> vA1, vA2;
-      std::vector<int> vgroups;
-  std::vector<reco::CandidatePtr> componentPtrs_;
-
-
+class PATHemisphereProducer : public edm::global::EDProducer<> {
+public:
+  explicit PATHemisphereProducer(const edm::ParameterSet&);
+  ~PATHemisphereProducer();
+  
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  
+private:  
+  // ----------member data ---------------------------
+  /// Input: All PAT objects that are to cross-clean  or needed for that
+  const edm::EDGetTokenT<reco::CandidateView> _patJetsToken;
+  //       edm::EDGetTokenT<reco::CandidateView> _patMetsToken;
+  const edm::EDGetTokenT<reco::CandidateView> _patMuonsToken;
+  const edm::EDGetTokenT<reco::CandidateView> _patElectronsToken;
+  const edm::EDGetTokenT<reco::CandidateView> _patPhotonsToken;
+  const edm::EDGetTokenT<reco::CandidateView> _patTausToken;
+  
+  const float _minJetEt;
+  const float _minMuonEt;
+  const float _minElectronEt;
+  const float _minTauEt;
+  const float _minPhotonEt;
+  
+  const float _maxJetEta;
+  const float _maxMuonEta;
+  const float _maxElectronEta;
+  const float _maxTauEta;
+  const float _maxPhotonEta;
+  
+  const int _seedMethod;
+  const int _combinationMethod;
+  
   typedef std::vector<float> HemiAxis;
-
-
-
-
 };
 
 #endif

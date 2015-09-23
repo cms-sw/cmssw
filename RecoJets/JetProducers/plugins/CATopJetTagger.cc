@@ -21,12 +21,10 @@ CATopJetTagger::CATopJetTagger(const edm::ParameterSet& iConfig):
   src_(iConfig.getParameter<InputTag>("src") ),
   TopMass_(iConfig.getParameter<double>("TopMass") ),
   WMass_(iConfig.getParameter<double>("WMass") ),
-  verbose_(iConfig.getParameter<bool>("verbose") )
+  verbose_(iConfig.getParameter<bool>("verbose") ),
+  input_jet_token_(consumes<edm::View<reco::Jet> >(src_))
 {
   produces<CATopJetTagInfoCollection>();
-  
-  input_jet_token_ = consumes<edm::View<reco::Jet> >(src_);
-
 }
 
 
@@ -41,7 +39,7 @@ CATopJetTagger::~CATopJetTagger()
 
 // ------------ method called to for each event  ------------
 void
-CATopJetTagger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
+CATopJetTagger::produce( edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
   // Set up output list
@@ -62,7 +60,7 @@ CATopJetTagger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
   size_t iihardJet = 0;
   for ( ; ihardJet != ihardJetEnd; ++ihardJet, ++iihardJet ) {
 
-    if ( verbose_ ) cout << "Processing ihardJet with pt = " << ihardJet->pt() << endl;
+    if ( verbose_ ) edm::LogInfo("CATopJetTagger") << "Processing ihardJet with pt = " << ihardJet->pt() << endl;
 
     // Initialize output variables
     // Get a ref to the hard jet
@@ -78,19 +76,6 @@ CATopJetTagger::produce( edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put( tagInfos );
  
   return;   
-}
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CATopJetTagger::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-CATopJetTagger::endJob() {
-
 }
 
 //define this as a plug-in
