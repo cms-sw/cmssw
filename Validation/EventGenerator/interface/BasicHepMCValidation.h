@@ -85,7 +85,6 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
 	  if(isFirst(p)){
 	    p_init->Fill(log10(p->momentum().rho()),weight);
 	    eta_init->Fill(p->momentum().eta(),weight);
-	    std::cout << "Hi, I am here" << std::endl;  
             const HepMC::GenParticle* pf=GetFinal(p); // inlcude mixing
             p_final->Fill(log10(pf->momentum().rho()),weight);
 	    // compute lifetime...
