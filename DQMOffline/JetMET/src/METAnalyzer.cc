@@ -45,6 +45,8 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
   m_l1algoname_ = pSet.getParameter<std::string>("l1algoname");
   m_bitAlgTechTrig_=-1;
 
+  miniaodfilterdec=-1;
+
   LSBegin_     = pSet.getParameter<int>("LSBegin");
   LSEnd_       = pSet.getParameter<int>("LSEnd");
  // Smallest track pt
@@ -993,7 +995,8 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   }
   if(isMiniAODMet_){
     bool changed_filter=true;
-    if (FilterhltConfig_.init(iRun,iSetup,METFilterMiniAODLabel_.process(),changed_filter)){	
+    if (FilterhltConfig_.init(iRun,iSetup,METFilterMiniAODLabel_.process(),changed_filter)){
+      miniaodfilterdec=0;
       std::vector<int>initializeFilter(4,-1);
       miniaodFilterIndex_=initializeFilter; 
       for(unsigned int i=0;i<FilterhltConfig_.size();i++){
@@ -1016,6 +1019,7 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 	}
       }
     }else if(FilterhltConfig_.init(iRun,iSetup,METFilterMiniAODLabel2_.process(),changed_filter)){
+      miniaodfilterdec=1;
       std::vector<int>initializeFilter(4,-1);
       miniaodFilterIndex_=initializeFilter; 
       for(unsigned int i=0;i<FilterhltConfig_.size();i++){
@@ -1576,22 +1580,24 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
   }else{
     edm::Handle<edm::TriggerResults> metFilterResults;
-    iEvent.getByToken(METFilterMiniAODToken_, metFilterResults);
-
-    if(metFilterResults.isValid()){
-      if(miniaodFilterIndex_[0]!=-1){
-	filter_decisions[0] = metFilterResults->accept(miniaodFilterIndex_[0]);
+    if(miniaodfilterdec==0){
+      iEvent.getByToken(METFilterMiniAODToken_, metFilterResults);
+      
+      if(metFilterResults.isValid()){
+	if(miniaodFilterIndex_[0]!=-1){
+	  filter_decisions[0] = metFilterResults->accept(miniaodFilterIndex_[0]);
+	}
+	if(miniaodFilterIndex_[1]!=-1){
+	  filter_decisions[1] = metFilterResults->accept(miniaodFilterIndex_[1]);
+	}
+	if(miniaodFilterIndex_[2]!=-1){
+	  filter_decisions[2] = metFilterResults->accept(miniaodFilterIndex_[2]);
+	}
+	if(miniaodFilterIndex_[3]!=-1){
+	  filter_decisions[3] = metFilterResults->accept(miniaodFilterIndex_[3]);
+	}
       }
-      if(miniaodFilterIndex_[1]!=-1){
-	filter_decisions[1] = metFilterResults->accept(miniaodFilterIndex_[1]);
-      }
-      if(miniaodFilterIndex_[2]!=-1){
-	filter_decisions[2] = metFilterResults->accept(miniaodFilterIndex_[2]);
-      }
-      if(miniaodFilterIndex_[3]!=-1){
-	filter_decisions[3] = metFilterResults->accept(miniaodFilterIndex_[3]);
-      }
-    }else{
+    }else if (miniaodfilterdec==1){
       iEvent.getByToken(METFilterMiniAODToken2_, metFilterResults);
       if(metFilterResults.isValid()){
 	if(miniaodFilterIndex_[0]!=-1){

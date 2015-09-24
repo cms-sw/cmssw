@@ -160,6 +160,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   edm::EDGetTokenT<edm::TriggerResults> METFilterMiniAODToken2_;
 
   std::vector<int> miniaodFilterIndex_;
+  int miniaodfilterdec;//if RECO set to 0, if reRECO set to 1, else to -1
 
   edm::InputTag hbheNoiseFilterResultTag_;
   edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
