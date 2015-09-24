@@ -13,7 +13,7 @@ CaloHTPSet = cms.PSet(
         "HLT_HT550to650_v",        # HT Parking
         "DST_HT250_CaloScouting_v", # scouting
         "DST_CaloJet40_CaloScouting_v",
-        "DST_L1HT_CaloScouting_v"
+        "DST_L1HTT125ORHTT150ORHTT175_CaloScouting_v"
         ),
     recCaloMHTLabel  = cms.InputTag("recoExoticaValidationCaloHT"),
     recCaloJetLabel  = cms.InputTag("ak4CaloJets"),
