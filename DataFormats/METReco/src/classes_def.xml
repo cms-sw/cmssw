@@ -170,7 +170,9 @@
   </class>
   <class name="edm::Wrapper<reco::HcalHaloData>"/>
   
-  <class name="HaloTowerStrip"/>
+  <class name="HaloTowerStrip" ClassVersion="2">
+   <version ClassVersion="2" checksum="665188928"/>
+  </class>
   <class name="std::vector<HaloTowerStrip>"/>
   <class name="edm::Wrapper<std::vector<HaloTowerStrip> >"/>
 
