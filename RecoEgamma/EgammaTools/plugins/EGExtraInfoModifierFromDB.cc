@@ -79,7 +79,7 @@ private:
   bool autoDetectBunchSpacing_;
   int bunchspacing_;
   edm::InputTag bunchspacingTag_;
-  edm::EDGetTokenT<int> bunchSpacingToken_;
+  edm::EDGetTokenT<unsigned int> bunchSpacingToken_;
   float rhoValue_;
   edm::InputTag rhoTag_;
   edm::EDGetTokenT<double> rhoToken_;
@@ -244,29 +244,9 @@ void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
   }
   
   if (autoDetectBunchSpacing_) {
-    if (evt.isRealData()) {
-      edm::RunNumber_t run = evt.run();
-      if (run == 178003 ||
-          run == 178004 ||
-          run == 209089 ||
-          run == 209106 ||
-          run == 209109 ||
-          run == 209146 ||
-          run == 209148 ||
-          run == 209151) {
-        bunchspacing_ = 25;
-      }
-      else if (run < 253000) {
-        bunchspacing_ = 50;
-      } 
-      else {
-	bunchspacing_ = 25;
-      }
-    } else {
-      edm::Handle<int> bunchSpacingH;
+      edm::Handle<unsigned int> bunchSpacingH;
       evt.getByToken(bunchSpacingToken_,bunchSpacingH);
       bunchspacing_ = *bunchSpacingH;
-    }
   }
 
   edm::Handle<double> rhoH;
@@ -329,7 +309,7 @@ void EGExtraInfoModifierFromDB::setConsumes(edm::ConsumesCollector& sumes) {
   vtxToken_ = sumes.consumes<reco::VertexCollection>(vtxTag_);
 
   if (autoDetectBunchSpacing_)
-    bunchSpacingToken_ = sumes.consumes<int>(bunchspacingTag_);
+    bunchSpacingToken_ = sumes.consumes<unsigned int>(bunchspacingTag_);
 
   //setup electrons
   if(!(empty_tag == e_conf.electron_src))
