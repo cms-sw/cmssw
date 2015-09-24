@@ -27,6 +27,7 @@ streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Diphoton30
     'HLT_DoubleEle24_22_eta2p1_WPLoose_Gsf_v2', 
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_MW_v3', 
     'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v3', 
+    'HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_v1', 
     'HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT300_v3', 
     'HLT_DoublePhoton60_v1', 
     'HLT_DoublePhoton85_v2', 
@@ -39,8 +40,6 @@ streamA_datasetDoubleEG_selector.triggerConditions = cms.vstring('HLT_Diphoton30
     'HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v2', 
     'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v3', 
     'HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_v3', 
-    'HLT_Ele18_CaloIdL_TrackIdL_IsoVL_PFJet30_v3', 
-    'HLT_Ele18_CaloIdM_TrackIdM_PFJet30_v3', 
     'HLT_Ele23_CaloIdL_TrackIdL_IsoVL_PFJet30_v3', 
     'HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v3', 
     'HLT_Ele23_CaloIdM_TrackIdM_PFJet30_v3', 
@@ -145,6 +144,7 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele1
     'HLT_Ele27_eta2p1_WPLoose_Gsf_v2', 
     'HLT_Ele27_eta2p1_WPTight_Gsf_v2', 
     'HLT_Ele32_eta2p1_WPTight_Gsf_v2', 
+    'HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_v1', 
     'HLT_Ele45_CaloIdVT_GsfTrkIdT_PFJet200_PFJet50_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSinglePhoton_selector
@@ -193,6 +193,7 @@ streamA_datasetZeroBias_selector.hltResults = cms.InputTag('TriggerResults', '',
 streamA_datasetZeroBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetZeroBias_selector.throw      = cms.bool(False)
 streamA_datasetZeroBias_selector.triggerConditions = cms.vstring('HLT_Random_v1', 
+    'HLT_ZeroBias_IsolatedBunches_v1', 
     'HLT_ZeroBias_v2')
 
 
@@ -417,6 +418,7 @@ streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu
     'HLT_DoubleMu28NoFiltersNoVtxDisplaced_v2', 
     'HLT_DoubleMu33NoFiltersNoVtx_v2', 
     'HLT_DoubleMu38NoFiltersNoVtx_v2', 
+    'HLT_DoubleMu8_Mass8_PFHT250_v1', 
     'HLT_DoubleMu8_Mass8_PFHT300_v3', 
     'HLT_L2DoubleMu23_NoVertex_v2', 
     'HLT_L2DoubleMu28_NoVertex_2Cha_Angle2p5_Mass10_v2', 
@@ -435,12 +437,8 @@ streamA_datasetDoubleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleMu
     'HLT_Mu20_Mu10_DZ_v1', 
     'HLT_Mu20_Mu10_SameSign_DZ_v1', 
     'HLT_Mu20_Mu10_v1', 
-    'HLT_Mu24_TrkIsoVVL_v2', 
-    'HLT_Mu24_v2', 
     'HLT_Mu27_TkMu8_v2', 
     'HLT_Mu30_TkMu11_v2', 
-    'HLT_Mu34_TrkIsoVVL_v2', 
-    'HLT_Mu34_v2', 
     'HLT_Mu40_TkMu11_v2', 
     'HLT_Mu8_TrkIsoVVL_v3', 
     'HLT_Mu8_v3', 
@@ -479,6 +477,7 @@ streamA_datasetMuonEG_selector.triggerConditions = cms.vstring('HLT_DiMu9_Ele9_C
     'HLT_Mu12_Photon25_CaloIdL_L1ISO_v2', 
     'HLT_Mu12_Photon25_CaloIdL_L1OR_v2', 
     'HLT_Mu12_Photon25_CaloIdL_v2', 
+    'HLT_Mu17_Photon22_CaloIdL_L1ISO_v1', 
     'HLT_Mu17_Photon30_CaloIdL_L1ISO_v2', 
     'HLT_Mu17_Photon35_CaloIdL_L1ISO_v2', 
     'HLT_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v3', 
@@ -490,6 +489,7 @@ streamA_datasetMuonEG_selector.triggerConditions = cms.vstring('HLT_DiMu9_Ele9_C
     'HLT_Mu38NoFiltersNoVtx_Photon38_CaloIdL_v2', 
     'HLT_Mu42NoFiltersNoVtx_Photon42_CaloIdL_v2', 
     'HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v3', 
+    'HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_v1', 
     'HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT300_v3', 
     'HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v3', 
     'HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v3')
@@ -534,6 +534,7 @@ streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIs
     'HLT_Mu28NoFiltersNoVtx_CentralCaloJet40_v2', 
     'HLT_Mu28NoFiltersNoVtx_DisplacedJet40_Loose_v2', 
     'HLT_Mu300_v1', 
+    'HLT_Mu30_eta2p1_PFJet150_PFJet50_v1', 
     'HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Loose_v2', 
     'HLT_Mu33NoFiltersNoVtxDisplaced_DisplacedJet50_Tight_v2', 
     'HLT_Mu350_v1', 
@@ -544,6 +545,8 @@ streamA_datasetSingleMuon_selector.triggerConditions = cms.vstring('HLT_DoubleIs
     'HLT_Mu45_eta2p1_v2', 
     'HLT_Mu50_v2', 
     'HLT_Mu55_v1', 
+    'HLT_OldIsoMu18_v1', 
+    'HLT_OldIsoTkMu18_v1', 
     'HLT_TkMu20_v2', 
     'HLT_TkMu24_eta2p1_v2', 
     'HLT_TkMu27_v2')
