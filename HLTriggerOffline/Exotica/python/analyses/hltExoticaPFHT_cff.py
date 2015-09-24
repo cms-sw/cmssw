@@ -10,9 +10,9 @@ PFHTPSet = cms.PSet(
         "HLT_PFHT550_4Jet_v", # Run2
         "HLT_PFHT800_v",
         "HLT_PFHT650_v",
-        "DST_HT450_PFReco_PFBTagCSVReco_PFScouting_v",
-        "DST_L1HTT125ORHTT150ORHTT175_PFReco_PFBTagCSVReco_PFScouting_v",
-        "DST_CaloJet40_PFReco_PFBTagCSVReco_PFScouting_v"
+        "DST_HT450_PFScouting_v",
+        "DST_L1HT_PFScouting_v",
+        "DST_CaloJet40_PFScouting_v"_v"
         ),
     recPFMHTLabel  = cms.InputTag("recoExoticaValidationHT"),
     recPFJetLabel  = cms.InputTag("ak4PFJets"),
