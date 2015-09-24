@@ -74,7 +74,7 @@ namespace pat {
             const edm::EDGetTokenT<edm::ValueMap<reco::CandidatePtr> >    PuppiCandsMap_;
             const edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCands_;
             const edm::EDGetTokenT<std::vector< reco::PFCandidate >  >    PuppiCandsNoLep_;
-            const edm::EDGetTokenT<edm::View<reco::CompositePtrCandidate> > SVWhiteList_;
+			      std::vector< edm::EDGetTokenT<edm::View<reco::CompositePtrCandidate> > > SVWhiteLists_;
 
             const double minPtForTrackProperties_;
             // for debugging
@@ -99,9 +99,15 @@ pat::PATPackedCandidateProducer::PATPackedCandidateProducer(const edm::Parameter
   PuppiCandsMap_(consumes<edm::ValueMap<reco::CandidatePtr> >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   PuppiCands_(consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiSrc"))),
   PuppiCandsNoLep_(consumes<std::vector< reco::PFCandidate > >(iConfig.getParameter<edm::InputTag>("PuppiNoLepSrc"))),
-  SVWhiteList_(consumes<edm::View< reco::CompositePtrCandidate > >(iConfig.getParameter<edm::InputTag>("secondaryVerticesForWhiteList"))),
   minPtForTrackProperties_(iConfig.getParameter<double>("minPtForTrackProperties"))
 {
+	std::vector<edm::InputTag> sv_tags = iConfig.getParameter<std::vector<edm::InputTag> >("secondaryVerticesForWhiteList");
+	for(auto itag : sv_tags){
+		SVWhiteLists_.push_back(
+			consumes<edm::View< reco::CompositePtrCandidate > >(itag)
+			);
+	}
+
   produces< std::vector<pat::PackedCandidate> > ();
   produces< edm::Association<pat::PackedCandidateCollection> > ();
   produces< edm::Association<reco::PFCandidateCollection> > ();
@@ -148,17 +154,20 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
     const edm::Association<reco::VertexCollection> &  associatedPV=*(assoHandle.product());
     const edm::ValueMap<int>  &  associationQuality=*(assoQualityHandle.product());
            
-    edm::Handle<edm::View<reco::CompositePtrCandidate > > svWhiteListHandle;
-    iEvent.getByToken(SVWhiteList_,svWhiteListHandle);
-    const edm::View<reco::CompositePtrCandidate > &  svWhiteList=*(svWhiteListHandle.product());
+
     std::set<unsigned int> whiteList;
-    for(unsigned int i=0; i<svWhiteList.size();i++)
-    {
-      for(unsigned int j=0; j< svWhiteList[i].numberOfSourceCandidatePtrs(); j++) {
+		for(auto itoken : SVWhiteLists_) {
+			edm::Handle<edm::View<reco::CompositePtrCandidate > > svWhiteListHandle;
+			iEvent.getByToken(itoken, svWhiteListHandle);
+			const edm::View<reco::CompositePtrCandidate > &  svWhiteList=*(svWhiteListHandle.product());
+			for(unsigned int i=0; i<svWhiteList.size();i++)
+			{
+				for(unsigned int j=0; j< svWhiteList[i].numberOfSourceCandidatePtrs(); j++) {
           const edm::Ptr<reco::Candidate> & c = svWhiteList[i].sourceCandidatePtr(j);
           if(c.id() == cands.id()) whiteList.insert(c.key());
-      }
-    }
+				}
+			}
+		}
  
 
     edm::Handle<reco::VertexCollection> PVs;
