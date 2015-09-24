@@ -266,7 +266,7 @@ HLT_Mu12_Photon25_CaloIdL_L1OR_v*				# JIRA: CMSHLT-134
 HLT_Mu12_Photon25_CaloIdL_v*					# JIRA: CMSHLT-182
 HLT_Mu17_Photon30_CaloIdL_L1ISO_v*				# JIRA: CMSHLT-182
 HLT_Mu17_Photon35_CaloIdL_L1ISO_v*				# JIRA: CMSHLT-182
-#HLT_Mu17_Photon22_CaloIdL_L1ISO_v*				# JIRA: CMSHLT-590
+HLT_Mu17_Photon22_CaloIdL_L1ISO_v*				# JIRA: CMSHLT-590
 
 HLT_CaloJet500_NoJetID_v*					# JIRA: CMSHLT-141
 
@@ -494,18 +494,18 @@ HLT_DoubleJetsC100_DoubleBTagCSV0p9_DoublePFJetsC100MaxDeta1p6_v*	# JIRA: CMSHLT
 HLT_DoubleJetsC112_DoubleBTagCSV0p85_DoublePFJetsC172_v*	# JIRA: CMSHLT-470
 HLT_DoubleJetsC112_DoubleBTagCSV0p9_DoublePFJetsC112MaxDeta1p6_v*	# JIRA: CMSHLT-470
 
-#HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_v*		# JIRA: CMSHLT-589
-#HLT_Mu30_eta2p1_PFJet150_PFJet50_v*				# JIRA: CMSHLT-589
+HLT_Ele35_CaloIdVT_GsfTrkIdT_PFJet150_PFJet50_v*		# JIRA: CMSHLT-589
+HLT_Mu30_eta2p1_PFJet150_PFJet50_v*				# JIRA: CMSHLT-589
 
-#HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_v*			# JIRA: CMSHLT-587
-#HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_v*		# JIRA: CMSHLT-587
-#HLT_DoubleMu8_Mass8_PFHT250_v*					# JIRA: CMSHLT-587
+HLT_Mu8_Ele8_CaloIdM_TrackIdM_Mass8_PFHT250_v*			# JIRA: CMSHLT-587
+HLT_DoubleEle8_CaloIdM_TrackIdM_Mass8_PFHT250_v*		# JIRA: CMSHLT-587
+HLT_DoubleMu8_Mass8_PFHT250_v*					# JIRA: CMSHLT-587
 
 HLT_IsoTkMu18_v*						# JIRA: CMSHLT-588
 HLT_IsoTkMu22_v*						# JIRA: CMSHLT-588
 
-#HLT_OldIsoMu18_v*						# JIRA: CMSHLT-591
-#HLT_OldIsoTkMu18_v*						# JIRA: CMSHLT-591
+HLT_OldIsoMu18_v*						# JIRA: CMSHLT-591
+HLT_OldIsoTkMu18_v*						# JIRA: CMSHLT-591
 
 HLT_FullTrack12ForEndOfFill_v*					# JIRA: CMSHLT-486
 HLT_FullTrack50_v*						# JIRA: CMSHLT-486
@@ -562,6 +562,8 @@ HLT_DoublePhoton60_v*						# JIRA: CMSHLT-563
 #HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_v*				# JIRA: CMSHLT-572 (for 0T menu)
 
 HLT_ZeroBias_v*							# JIRA: CMSHLT-117
+
+HLT_ZeroBias_IsolatedBunches_v*					# JIRA: CMSHLT-595
 
 HLT_Activity_Ecal_SC7_v*					# JIRA: CMSHLT-252
 HLT_EcalCalibration_v*						# JIRA: CMSHLT-281
