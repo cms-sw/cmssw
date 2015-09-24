@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/HLT/V503 (CMSSW_7_4_10_patch1)
+# /dev/CMSSW_7_4_0/HLT/V505 (CMSSW_7_4_10_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V503')
+  tableName = cms.string('/dev/CMSSW_7_4_0/HLT/V505')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -497,11 +497,11 @@ process.streams = cms.PSet(
   HLTMonitor = cms.vstring( 'HLTMonitor' ),
   LookArea = cms.vstring( 'LookAreaPD' ),
   NanoDST = cms.vstring( 'L1Accept' ),
-  ParkingHadrons = cms.vstring( 'ParkingHT1',
-    'ParkingHT2',
-    'ParkingHT3',
-    'ParkingHT4',
-    'ParkingHT5' ),
+  ParkingHadrons = cms.vstring( 'ParkingHT450to470',
+    'ParkingHT470to500',
+    'ParkingHT500to550',
+    'ParkingHT550to650',
+    'ParkingHT650' ),
   ParkingScoutingMonitor = cms.vstring( 'ParkingScoutingMonitor' ),
   PhysicsEGammaCommissioning = cms.vstring( 'CastorJets',
     'Commissioning',
@@ -2050,11 +2050,11 @@ process.datasets = cms.PSet(
     'HLT_VBF_DisplacedJet40_VVTightID_Hadronic_v2',
     'HLT_ZeroBias_IsolatedBunches_v1',
     'HLT_ZeroBias_v2') ),
-  ParkingHT1 = cms.vstring( 'HLT_HT450to470_v1' ),
-  ParkingHT2 = cms.vstring( 'HLT_HT470to500_v1' ),
-  ParkingHT3 = cms.vstring( 'HLT_HT500to550_v1' ),
-  ParkingHT4 = cms.vstring( 'HLT_HT550to650_v1' ),
-  ParkingHT5 = cms.vstring( 'HLT_HT650_v2' ),
+  ParkingHT450to470 = cms.vstring( 'HLT_HT450to470_v1' ),
+  ParkingHT470to500 = cms.vstring( 'HLT_HT470to500_v1' ),
+  ParkingHT500to550 = cms.vstring( 'HLT_HT500to550_v1' ),
+  ParkingHT550to650 = cms.vstring( 'HLT_HT550to650_v1' ),
+  ParkingHT650 = cms.vstring( 'HLT_HT650_v2' ),
   ParkingScoutingMonitor = cms.vstring( 'DST_CaloJet40_CaloScouting_v1',
     'DST_CaloJet40_PFReco_PFBTagCSVReco_PFScouting_v1',
     'DST_HT250_CaloScouting_v1',
