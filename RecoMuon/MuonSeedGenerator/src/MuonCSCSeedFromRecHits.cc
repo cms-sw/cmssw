@@ -1,7 +1,6 @@
 #include "RecoMuon/MuonSeedGenerator/src/MuonCSCSeedFromRecHits.h"
 #include "RecoMuon/MuonSeedGenerator/src/MuonSeedPtExtractor.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
@@ -9,6 +8,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
+#include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include <iomanip>
 
 
@@ -164,8 +164,13 @@ int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer  segment) cons
   float dPhiGloDir = fabs ( deltaPhi(segment->globalPosition().phi(), segment->globalDirection().phi()) );
 
   if ( dPhiGloDir > .2 ) ++quality;
-  // add a penalty for being ME1A
-  if(segment->isCSC() && CSCDetId(segment->geographicalId()).ring() == 4) ++quality;
+  // add a penalty for being ME1A if the chamber is ganged
+  if ( segment->isCSC() and CSCDetId(segment->geographicalId()).ring() == 4 )
+  {
+    const auto chamber = dynamic_cast<const CSCChamber*>(segment->det());
+    if ( chamber->specs()->gangedStrips() ) ++quality;
+  }
+
   return quality;
 }
 
