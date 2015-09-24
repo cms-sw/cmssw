@@ -80,7 +80,7 @@ SiPixelHitEfficiencySource::SiPixelHitEfficiencySource(const edm::ParameterSet& 
   diskOn( pSet.getUntrackedParameter<bool>("diskOn",false) ), 
   isUpgrade( pSet.getUntrackedParameter<bool>("isUpgrade",false) )
   //updateEfficiencies( pSet.getUntrackedParameter<bool>("updateEfficiencies",false) )
- { 
+{ 
    pSet_ = pSet; 
    debug_ = pSet_.getUntrackedParameter<bool>("debug", false); 
    applyEdgeCut_ = pSet_.getUntrackedParameter<bool>("applyEdgeCut");
@@ -116,12 +116,12 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
   LogInfo("PixelDQM") << "SiPixelHitEfficiencySource beginRun()" << endl;
   
   if(firstRun){
-  // retrieve TrackerGeometry for pixel dets
+    // retrieve TrackerGeometry for pixel dets
   
-  nvalid=0;
-  nmissing=0;
+    nvalid=0;
+    nmissing=0;
   
-  firstRun = false;
+    firstRun = false;
   }
 
   edm::ESHandle<TrackerGeometry> TG;
@@ -144,7 +144,7 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
     }
   }
   LogInfo("PixelDQM") << "SiPixelStructure size is " << theSiPixelStructure.size() << endl;
-
+  
 }
 
 void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & iSetup){
@@ -183,8 +183,6 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Ring Folder Creation Failed! "; 
     }
   }
-
-
 }
 
 void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -368,61 +366,59 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	    continue;
 	  }
 
- TrajectoryStateOnSurface predTrajState=expTrajMeasurements[iexp].updatedState();
-  float x=predTrajState.globalPosition().x();
-float y=predTrajState.globalPosition().y();
- float z=predTrajState.globalPosition().z();
-  float dxyz=sqrt((chkx-x)*(chkx-x)+(chky-y)*(chky-y)+(chkz-z)*(chkz-z));
+	  TrajectoryStateOnSurface predTrajState=expTrajMeasurements[iexp].updatedState();
+	  float x=predTrajState.globalPosition().x();
+	  float y=predTrajState.globalPosition().y();
+	  float z=predTrajState.globalPosition().z();
+	  float dxyz=sqrt((chkx-x)*(chkx-x)+(chky-y)*(chky-y)+(chkz-z)*(chkz-z));
 
-  if (dxyz<=glmatch) {
-      glmatch=dxyz;
-     imatch=iexp;
-    imatches.push_back(int(imatch));
-   }
+	  if (dxyz<=glmatch) {
+	    glmatch=dxyz;
+	    imatch=iexp;
+	    imatches.push_back(int(imatch));
+	  }
 
-  } // found the propagated traj best matching the hit in data
+	} // found the propagated traj best matching the hit in data
 
-  float lxmatch = 9999.0;
-  float lymatch = 9999.0;
-  if(!expTrajMeasurements.empty()){
-    if (glmatch<9999.) { // if there is any propagated trajectory for this hit
-      const DetId & matchhit_detId = expTrajMeasurements[imatch].recHit()->geographicalId();
+	float lxmatch = 9999.0;
+	float lymatch = 9999.0;
+	if(!expTrajMeasurements.empty()){
+	  if (glmatch<9999.) { // if there is any propagated trajectory for this hit
+	    const DetId & matchhit_detId = expTrajMeasurements[imatch].recHit()->geographicalId();
       
-      int matchhit_ladder = PXBDetId(matchhit_detId).ladder();
-      int dladder = abs(matchhit_ladder-hit_ladder);
-      if (dladder > 10) dladder = 20 - dladder;
-      LocalPoint lp = expTrajMeasurements[imatch].updatedState().localPosition();
-      lxmatch=fabs(lp.x() - chklp.x());
-      lymatch=fabs(lp.y() - chklp.y());
-    }
-    if (lxmatch < maxlxmatch_ && lymatch < maxlymatch_) {
+	    int matchhit_ladder = PXBDetId(matchhit_detId).ladder();
+	    int dladder = abs(matchhit_ladder-hit_ladder);
+	    if (dladder > 10) dladder = 20 - dladder;
+	    LocalPoint lp = expTrajMeasurements[imatch].updatedState().localPosition();
+	    lxmatch=fabs(lp.x() - chklp.x());
+	    lymatch=fabs(lp.y() - chklp.y());
+	  }
+	  if (lxmatch < maxlxmatch_ && lymatch < maxlymatch_) {
       
-      if (testhit->getType()!=TrackingRecHit::missing || keepOriginalMissingHit_) {
-	expTrajMeasurements.erase(expTrajMeasurements.begin()+imatch);
+	    if (testhit->getType()!=TrackingRecHit::missing || keepOriginalMissingHit_) {
+	      expTrajMeasurements.erase(expTrajMeasurements.begin()+imatch);
+	    }
+	    
+	  }
+	  
+	} //expected trajectory measurment not empty
       }
-      
-    }
-    
-  } //expected trajectory measurment not empty
- }
     }//loop on trajectory measurments tmeasColl
     
     //if an extrapolated hit was found but not matched to an exisitng L1 hit then push the hit back into the collection
-  //now keep the first one that is left
-  if(!expTrajMeasurements.empty()){
-  for (size_t f=0; f<expTrajMeasurements.size(); f++) {
-    TrajectoryMeasurement AddHit=expTrajMeasurements[f];
-    if (AddHit.recHit()->getType()==TrackingRecHit::missing){
-      tmeasColl.push_back(AddHit);
-      isBpixtrack = true;
+    //now keep the first one that is left
+    if(!expTrajMeasurements.empty()){
+      for (size_t f=0; f<expTrajMeasurements.size(); f++) {
+	TrajectoryMeasurement AddHit=expTrajMeasurements[f];
+	if (AddHit.recHit()->getType()==TrackingRecHit::missing){
+	  tmeasColl.push_back(AddHit);
+	  isBpixtrack = true;
 
-    }
+	}
     
-  }
-
-
-
+      }
     }
+
     if(isBpixtrack || isFpixtrack){
       if(trackref->pt()<0.6 ||
          nStripHits<11 ||
@@ -443,7 +439,7 @@ float y=predTrajState.globalPosition().y();
 	  continue; 
 	else {
 	  
-// 	  //residual
+	  // 	  //residual
       	  const DetId & hit_detId = hit->geographicalId();
 	  //uint IntRawDetID = (hit_detId.rawId());
 	  uint IntSubDetID = (hit_detId.subdetId());
@@ -465,36 +461,43 @@ float y=predTrajState.globalPosition().y();
 	    module = PixelEndcapName(hit_detId,pTT,isUpgrade).plaquetteName();
           }
           
+	  
 	  if(layer==1){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.01 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
-	    if(!(L2hits>0&&L3hits>0&&L4hits>0) && !(L2hits>0&&D1hits>0&&D2hits) && !(D1hits>0&&D2hits>0&&D3hits>0)) continue;
+	    if(!(L2hits>0&&L3hits>0) && !(L2hits>0&&D1hits>0) && !(D1hits>0&&D2hits>0)) continue;
+	    //if(!(L2hits>0&&L3hits>0&&L4hits>0) && !(L2hits>0&&D1hits>0&&D2hits) && !(D1hits>0&&D2hits>0&&D3hits>0)) continue;
 	  }else if(layer==2){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
-	    if(!(L1hits>0&&L3hits>0&&L4hits>0) && !(L1hits>0&&L3hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D2hits>0)) continue;
+	    if(!(L1hits>0&&L3hits>0) && !(L1hits>0&&D1hits>0)) continue;
+	    //if(!(L1hits>0&&L3hits>0&&L4hits>0) && !(L1hits>0&&L3hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D2hits>0)) continue;
 	  }else if(layer==3){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
-	    if(!(L1hits>0&&L2hits>0&&L4hits>0) && !(L1hits>0&&L2hits>0&&D1hits>0)) continue;
+	    if(!(L1hits>0&&L2hits>0)) continue;
+	    //if(!(L1hits>0&&L2hits>0&&L4hits>0) && !(L1hits>0&&L2hits>0&&D1hits>0)) continue;
 	  }else if(layer==4){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
-	    if(!(L1hits>0&&L2hits>0&&L3hits>0)) continue; 
+	    //if(!(L1hits>0&&L2hits>0&&L3hits>0)) continue; 
 	  }else if(disk==1){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
-	    if(!(L1hits>0&&L2hits>0&&D2hits>0) && !(L1hits>0&&D2hits>0&&D3hits>0) && !(L2hits>0&&D2hits>0&&D3hits>0)) continue;
+	    if(!(L1hits>0&&D2hits>0) && !(L2hits>0&&D2hits>0)) continue;
+	    //if(!(L1hits>0&&L2hits>0&&D2hits>0) && !(L1hits>0&&D2hits>0&&D3hits>0) && !(L2hits>0&&D2hits>0&&D3hits>0)) continue;
 	  }else if(disk==2){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
-	    if(!(L1hits>0&&L2hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D3hits>0) && !(L2hits>0&&D1hits>0&&D3hits>0)) continue;
+	    if(!(L1hits>0&&D1hits>0)) continue;
+	    //if(!(L1hits>0&&L2hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D3hits>0) && !(L2hits>0&&D1hits>0&&D3hits>0)) continue;
 	  }else if(disk==3){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
-	    if(!(L1hits>0&&D1hits>0&&D2hits>0) && !(L2hits>0&&D1hits>0&&D2hits>0)) continue;
+	    //if(!(L1hits>0&&D1hits>0&&D2hits>0) && !(L2hits>0&&D1hits>0&&D2hits>0)) continue;
 	  }
 	  
+
 	  //check whether hit is valid or missing using track algo flag
           bool isHitValid   =hit->hit()->getType()==TrackingRecHit::valid;
           bool isHitMissing =hit->hit()->getType()==TrackingRecHit::missing;
@@ -514,6 +517,7 @@ float y=predTrajState.globalPosition().y();
 	  if(fabs(lx)>0.55 || fabs(ly)>3.0) continue;
 
 	  bool passedFiducial=true;
+
 	  // Module fiducials:
 	  if(IntSubDetID==PixelSubdetector::PixelBarrel && fabs(ly)>=3.1) passedFiducial=false;
 	  if(IntSubDetID==PixelSubdetector::PixelEndcap &&
@@ -623,8 +627,7 @@ float y=predTrajState.globalPosition().y();
 	  float d_cl[2]; d_cl[0]=d_cl[1]=-9999.;
 	  if(dx_cl[0]!=-9999. && dy_cl[0]!=-9999.) d_cl[0]=sqrt(dx_cl[0]*dx_cl[0]+dy_cl[0]*dy_cl[0]);
 	  if(dx_cl[1]!=-9999. && dy_cl[1]!=-9999.) d_cl[1]=sqrt(dx_cl[1]*dx_cl[1]+dy_cl[1]*dy_cl[1]);
-	  if(isHitMissing && (d_cl[0]<0.05 || d_cl[1]<0.05)){ isHitMissing=0; isHitValid=1; }
-	      
+	  if(isHitMissing && (d_cl[0]<0.05 || d_cl[1]<0.05)){ isHitMissing=0; isHitValid=1; }	      
 	      
 	  if(debug_){
 	    std::cout << "Ready to add hit in histogram:\n";
@@ -632,8 +635,7 @@ float y=predTrajState.globalPosition().y();
 	    std::cout << "isHitValid: "<<isHitValid<<std::endl;
 	    std::cout << "isHitMissing: "<<isHitMissing<<std::endl;
 	    //std::cout << "passedEdgeCut: "<<passedFiducial<<std::endl;		
-	  }
-	      
+	  }    
 	      
 	  if(pxd!=theSiPixelStructure.end() && isHitValid && passedFiducial)
 	    ++nvalid;
