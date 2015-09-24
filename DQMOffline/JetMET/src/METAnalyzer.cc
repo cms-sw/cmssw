@@ -1575,9 +1575,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       if (verbose_) std::cout << "METAnalyzer: EcalDeadCellTriggerFilterResultHandle" << std::endl;
     }
     filter_decisions[3]= *EcalDeadCellTriggerFilterResultHandle;
-    if(filter_decisions[0]==false){
-      std::cout<<"HBHENoiseFilter failed "<<filter_decisions[0]<<"/"<<*HBHENoiseFilterResultHandle<<"/"<<(!BeamHaloSummaryHandle->CSCTightHaloId())<<"/"<<*eeBadScFilterResultHandle<<"/"<<*EcalDeadCellTriggerFilterResultHandle<<std::endl;
-    }
   }else{
     edm::Handle<edm::TriggerResults> metFilterResults;
     if(miniaodfilterdec==0){
