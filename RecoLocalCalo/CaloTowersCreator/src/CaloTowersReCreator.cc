@@ -65,7 +65,7 @@ void CaloTowersReCreator::produce(edm::Event& e, const edm::EventSetup& c) {
   c.get<CaloGeometryRecord>().get(pG);
   c.get<HcalRecNumberingRecord>().get(htopo);
   c.get<HcalRecNumberingRecord>().get(cttopo);
-  c.get<HcalRecNumberingRecord>().get(ctmap);
+  c.get<CaloGeometryRecord>().get(ctmap);
 
   algo_.setEBEScale(EBEScale);
   algo_.setEEEScale(EEEScale);
