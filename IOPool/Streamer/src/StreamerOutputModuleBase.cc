@@ -111,6 +111,8 @@ namespace edm {
     start();
     std::auto_ptr<InitMsgBuilder>  init_message = serializeRegistry();
     doOutputHeader(*init_message);
+    serializeDataBuffer_.header_buf_.clear();
+    serializeDataBuffer_.header_buf_.shrink_to_fit();
   }
 
   void
