@@ -64,7 +64,9 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   addPartonJetMatch_ = iConfig.getParameter<bool>( "addPartonJetMatch" );
 //   partonJetToken_ = mayConsume<reco::SomePartonJetType>(iConfig.getParameter<edm::InputTag>( "partonJetSource" ));
   addJetCorrFactors_ = iConfig.getParameter<bool>( "addJetCorrFactors" );
-  jetCorrFactorsTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" ), [this](edm::InputTag const & tag){return mayConsume<edm::ValueMap<JetCorrFactors> >(tag);});
+  if( addJetCorrFactors_ ) {
+    jetCorrFactorsTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" ), [this](edm::InputTag const & tag){return consumes<edm::ValueMap<JetCorrFactors> >(tag);});
+  }
   addBTagInfo_ = iConfig.getParameter<bool>( "addBTagInfo" );
   addDiscriminators_ = iConfig.getParameter<bool>( "addDiscriminators" );
   discriminatorTags_ = iConfig.getParameter<std::vector<edm::InputTag> >( "discriminatorSources" );
