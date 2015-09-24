@@ -74,7 +74,7 @@ prepareTrack( const reco::Track& track,
               TEveTrackPropagator* propagator,
               const std::vector<TEveVector>& extraRefPoints )
 {
-   // To make use of all available information, we have to order states
+   // To make use of all available ation, we have to order states
    // properly first. Propagator should take care of y=0 transition.
 
    std::vector<State> refStates;
