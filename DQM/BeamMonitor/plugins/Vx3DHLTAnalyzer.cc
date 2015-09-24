@@ -34,6 +34,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
   debugMode          = true;
   nLumiFit           = 2;     // Number of integrated lumis to perform the fit
   maxLumiIntegration = 15;    // If failing fits, this is the maximum number of integrated lumis after which a reset is issued
+  nLumiXaxisRange    = 3000;  // Correspond to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
   dataFromFit        = true;  // The Beam Spot data can be either taken from the histograms or from the fit results
   minNentries        = 20;    // Minimum number of good vertices to perform the fit
   xRange             = 0.8;   // [cm]
@@ -55,6 +56,7 @@ Vx3DHLTAnalyzer::Vx3DHLTAnalyzer (const ParameterSet& iConfig)
   debugMode          = iConfig.getParameter<bool>("debugMode");
   nLumiFit           = iConfig.getParameter<unsigned int>("nLumiFit");
   maxLumiIntegration = iConfig.getParameter<unsigned int>("maxLumiIntegration");
+  nLumiXaxisRange    = iConfig.getParameter<unsigned int>("nLumiXaxisRange");
   dataFromFit        = iConfig.getParameter<bool>("dataFromFit");
   minNentries        = iConfig.getParameter<unsigned int>("minNentries");
   xRange             = iConfig.getParameter<double>("xRange");
@@ -110,7 +112,7 @@ void Vx3DHLTAnalyzer::analyze (const Event& iEvent, const EventSetup& iSetup)
 	  outputDebugFile.close();
 	  outputDebugFile.open(debugFile.str().c_str(), ios::app);
 	}
-
+      
       beginLuminosityBlock(iEvent.getLuminosityBlock(),iSetup);
     }
   else if (beginTimeOfFit != 0)
@@ -284,14 +286,16 @@ double Gauss3DFunc (const double* par)
 
 int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 {
-  // ##########################################
-  // # RETURN CODE:                           #
-  // #  0 == OK                               #
-  // # -1 == NO OK - not finite edm           #
-  // # -2 == NO OK - not enough "minNentries" #
-  // # -3 == NO OK - not finite errors        #
-  // # -4 == NO OK - negative determinant     #
-  // ##########################################
+  // ############################################
+  // # RETURN CODE:                             #
+  // # >0 == NO OK - fit status (MINUIT manual) #
+  // #  0 == OK                                 #
+  // # -1 == NO OK - not finite edm             #
+  // # -2 == NO OK - not enough "minNentries"   #
+  // # -3 == NO OK - not finite errors          #
+  // # -4 == NO OK - negative determinant       #
+  // # -5 == NO OK - maxLumiIntegration reached #
+  // ############################################
 
   if ((vals != NULL) && (vals->size() == nParams*2))
     {
@@ -621,6 +625,18 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 
 void Vx3DHLTAnalyzer::reset (string ResetType)
 {
+  if ((debugMode == true) && (outputDebugFile.is_open() == true))
+    {
+      outputDebugFile << "Runnumber " << runNumber << endl;
+      outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
+      outputDebugFile << "BeginLumiRange " << beginLumiOfFit << endl;
+      outputDebugFile << "EndTimeOfFit " << formatTime(endTimeOfFit >> 32) << " " << (endTimeOfFit >> 32) << endl;
+      outputDebugFile << "EndLumiRange " << endLumiOfFit << endl;
+      outputDebugFile << "LumiCounter " << lumiCounter << endl;
+      outputDebugFile << "LastLumiOfFit " << lastLumiOfFit << endl;
+    }
+
+
   if (ResetType.compare("scratch") == 0)
     {
       runNumber      = 0;
@@ -648,11 +664,8 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       dydzlumi->Reset();
 
       hitCounter->Reset();
-      hitCountHistory->Reset();
       goodVxCounter->Reset();
-      goodVxCountHistory->Reset();
       statusCounter->Reset();
-      statusCountHistory->Reset();
       fitResults->Reset();
 
       reportSummary->Fill(-1);
@@ -668,6 +681,7 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       endLumiOfFit   = 0;
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: scratch" << endl;
+      if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -scratch- issued\n" << endl;
     }
   else if (ResetType.compare("whole") == 0)
     {
@@ -689,12 +703,14 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       endLumiOfFit   = 0;
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: whole" << endl;
+      if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -whole- issued\n" << endl;
     }
   else if (ResetType.compare("hitCounter") == 0)
     {
       totalHits = 0;
 
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: hitCounter" << endl;
+      if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -hitCounter- issued\n" << endl;
     }
 }
 
@@ -848,14 +864,14 @@ void Vx3DHLTAnalyzer::printFitParams (const vector<double>& fitResults)
 
 void Vx3DHLTAnalyzer::beginLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup)
 {
-  // If statement to avoid problems with non-sequential lumisections
+  // @@@ If statement to avoid problems with non-sequential lumisections @@@
   if ((lumiCounter == 0) && (lumiBlock.luminosityBlock() > lastLumiOfFit))
     {
       beginTimeOfFit = lumiBlock.beginTime().value();
       beginLumiOfFit = lumiBlock.luminosityBlock();
       lumiCounter++;
     }
-  else if ((lumiCounter != 0) && (lumiBlock.luminosityBlock() == (beginLumiOfFit+lumiCounter))) lumiCounter++;
+  else if ((lumiCounter != 0) && (lumiBlock.luminosityBlock() >= (beginLumiOfFit+lumiCounter))) lumiCounter++;
   else reset("scratch");
 }
 
@@ -872,10 +888,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       lastLumiOfFit = endLumiOfFit;
       vector<double> vals;
 
-      hitCounter->ShiftFillLast((double)totalHits, std::sqrt((double)totalHits), nLumiFit);
-
-      hitCountHistory->getTH1()->SetBinContent(lastLumiOfFit, (double)totalHits);
-      hitCountHistory->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)totalHits));
+      hitCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)totalHits);
+      hitCounter->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)totalHits));
 
       if (dataFromFit == true)
 	{
@@ -995,10 +1009,8 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       writeToFile(&vals, beginTimeOfFit, endTimeOfFit, beginLumiOfFit, endLumiOfFit, 3);
       if (internalDebug == true)  cout << "[Vx3DHLTAnalyzer]::\tUsed vertices: " << counterVx << endl;
 
-      statusCounter->ShiftFillLast((double)goodData, 1e-3, nLumiFit);
-
-      statusCountHistory->getTH1()->SetBinContent(lastLumiOfFit, (double)goodData);
-      statusCountHistory->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
+      statusCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)goodData);
+      statusCounter->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
 
       if (goodData == 0)
 	{
@@ -1012,8 +1024,13 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 	  if (goodData == -2) histTitle << "Ongoing: not enough evts (" << lumiCounter << " - " << maxLumiIntegration << " lumis)";
 	  else                histTitle << "Ongoing: temporary problems (" << lumiCounter << " - " << maxLumiIntegration << " lumis)";
 	  
-	  if (lumiCounter > maxLumiIntegration) reset("whole");
-	  else                                  reset("hitCounter");
+	  if (lumiCounter > maxLumiIntegration)
+	    {
+	      statusCounter->getTH1()->SetBinContent(lastLumiOfFit, -5);
+	      statusCounter->getTH1()->SetBinError(lastLumiOfFit, 1e-3);
+	      reset("whole");
+	    }
+	  else reset("hitCounter");
 	}
 
       reportSummary->Fill((numberFits != 0 ? ((double)numberGoodFits) / ((double)numberFits) : -1));
@@ -1048,74 +1065,73 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
       myLinFit->SetParName(0,"Inter.");
       myLinFit->SetParName(1,"Slope");
 
-      mXlumi->ShiftFillLast(vals[0], std::sqrt(vals[8]), nLumiFit);
+      mXlumi->getTH1()->SetBinContent(lastLumiOfFit, vals[0]);
+      mXlumi->getTH1()->SetBinError(lastLumiOfFit, std::sqrt(vals[8]));
       myLinFit->SetParameter(0, mXlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       mXlumi->getTH1()->Fit(myLinFit,"QR");
 
-      mYlumi->ShiftFillLast(vals[1], std::sqrt(vals[9]), nLumiFit);
+      mYlumi->getTH1()->SetBinContent(lastLumiOfFit, vals[1]);
+      mYlumi->getTH1()->SetBinError(lastLumiOfFit, std::sqrt(vals[9]));
       myLinFit->SetParameter(0, mYlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       mYlumi->getTH1()->Fit(myLinFit,"QR");
 
-      mZlumi->ShiftFillLast(vals[2], std::sqrt(vals[10]), nLumiFit);
+      mZlumi->getTH1()->SetBinContent(lastLumiOfFit, vals[2]);
+      mZlumi->getTH1()->SetBinError(lastLumiOfFit, std::sqrt(vals[10]));
       myLinFit->SetParameter(0, mZlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       mZlumi->getTH1()->Fit(myLinFit,"QR");
 
-      sXlumi->ShiftFillLast(vals[6], std::sqrt(vals[14]), nLumiFit);
+      sXlumi->getTH1()->SetBinContent(lastLumiOfFit, vals[6]);
+      sXlumi->getTH1()->SetBinError(lastLumiOfFit, std::sqrt(vals[14]));
       myLinFit->SetParameter(0, sXlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       sXlumi->getTH1()->Fit(myLinFit,"QR");
 
-      sYlumi->ShiftFillLast(vals[7], std::sqrt(vals[15]), nLumiFit);
+      sYlumi->getTH1()->SetBinContent(lastLumiOfFit, vals[7]);
+      sYlumi->getTH1()->SetBinError(lastLumiOfFit, std::sqrt(vals[15]));
       myLinFit->SetParameter(0, sYlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       sYlumi->getTH1()->Fit(myLinFit,"QR");
 
-      sZlumi->ShiftFillLast(vals[3], std::sqrt(vals[11]), nLumiFit);
+      sZlumi->getTH1()->SetBinContent(lastLumiOfFit, vals[3]);
+      sZlumi->getTH1()->SetBinError(lastLumiOfFit, std::sqrt(vals[11]));
       myLinFit->SetParameter(0, sZlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       sZlumi->getTH1()->Fit(myLinFit,"QR");
 
-      dxdzlumi->ShiftFillLast(vals[4], std::sqrt(vals[12]), nLumiFit);
+      dxdzlumi->getTH1()->SetBinContent(lastLumiOfFit, vals[4]);
+      dxdzlumi->getTH1()->SetBinError(lastLumiOfFit, std::sqrt(vals[12]));
       myLinFit->SetParameter(0, dxdzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       dxdzlumi->getTH1()->Fit(myLinFit,"QR");
 
-      dydzlumi->ShiftFillLast(vals[5], std::sqrt(vals[13]), nLumiFit);
+      dydzlumi->getTH1()->SetBinContent(lastLumiOfFit, vals[5]);
+      dydzlumi->getTH1()->SetBinError(lastLumiOfFit, std::sqrt(vals[13]));
       myLinFit->SetParameter(0, dydzlumi->getTH1()->GetMean(2));
       myLinFit->SetParameter(1, 0.0);
       dydzlumi->getTH1()->Fit(myLinFit,"QR");
       
-      goodVxCounter->ShiftFillLast((double)counterVx, std::sqrt((double)counterVx), nLumiFit);
-      myLinFit->SetParameter(0, goodVxCounter->getTH1()->GetMean(2));
-      myLinFit->SetParameter(1, 0.0);
-      goodVxCounter->getTH1()->Fit(myLinFit,"QR");
-
-      myLinFit->SetParameter(0, hitCounter->getTH1()->GetMean(2));
-      myLinFit->SetParameter(1, 0.0);
-      hitCounter->getTH1()->Fit(myLinFit,"QR");
-
       delete myLinFit;
 
       // Exponential fit to the historical plot
-      TF1* myExpFit = new TF1("myExpFit", "[0]*exp(-x/[1])", hitCountHistory->getTH1()->GetXaxis()->GetXmin(), hitCountHistory->getTH1()->GetXaxis()->GetXmax());
+      TF1* myExpFit = new TF1("myExpFit", "[0]*exp(-x/[1])", hitCounter->getTH1()->GetXaxis()->GetXmin(), hitCounter->getTH1()->GetXaxis()->GetXmax());
       myExpFit->SetLineColor(2);
       myExpFit->SetLineWidth(2);
       myExpFit->SetParName(0,"Ampli.");
       myExpFit->SetParName(1,"#tau");
 
-      myExpFit->SetParameter(0, hitCountHistory->getTH1()->GetMaximum());
-      myExpFit->SetParameter(1, nBinsWholeHistory/2);
-      hitCountHistory->getTH1()->Fit(myExpFit,"QR");
+      myExpFit->SetParameter(0, hitCounter->getTH1()->GetMaximum());
+      myExpFit->SetParameter(1, nLumiXaxisRange/2);
+      hitCounter->getTH1()->Fit(myExpFit,"QR");
 
-      goodVxCountHistory->getTH1()->SetBinContent(lastLumiOfFit, (double)counterVx);
-      goodVxCountHistory->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)counterVx));
+      goodVxCounter->getTH1()->SetBinContent(lastLumiOfFit, (double)counterVx);
+      goodVxCounter->getTH1()->SetBinError(lastLumiOfFit, std::sqrt((double)counterVx));
       
-      myExpFit->SetParameter(0, goodVxCountHistory->getTH1()->GetMaximum());
-      myExpFit->SetParameter(1, nBinsWholeHistory/2);
-      goodVxCountHistory->getTH1()->Fit(myExpFit,"QR");
+      myExpFit->SetParameter(0, goodVxCounter->getTH1()->GetMaximum());
+      myExpFit->SetParameter(1, nLumiXaxisRange/2);
+      goodVxCounter->getTH1()->Fit(myExpFit,"QR");
 
       delete myExpFit;
       vals.clear();
@@ -1124,18 +1140,24 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
     {
       histTitle << "Ongoing: accumulating evts (" << lumiCounter%nLumiFit << " - " << nLumiFit << " in " << lumiCounter << " - " << maxLumiIntegration << " lumis)";
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
+      if ((debugMode == true) && (outputDebugFile.is_open() == true))
+	{
+	  outputDebugFile << "Runnumber " << runNumber << endl;
+	  outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
+	  outputDebugFile << "BeginLumiRange " << beginLumiOfFit << endl;
+	  outputDebugFile << histTitle.str().c_str() << "\n" << endl;
+	}
     }
   else if ((nLumiFit == 0) || (beginTimeOfFit == 0) || (runNumber == 0))
     {
       histTitle << "Ongoing: no ongoing fits";
       fitResults->setAxisTitle(histTitle.str().c_str(), 1);
+      if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << histTitle.str().c_str() << "\n" << endl;
 
       endLumiOfFit = lumiBlock.luminosityBlock();
 
-      hitCounter->ShiftFillLast((double)totalHits, std::sqrt((double)totalHits), endLumiOfFit-beginLumiOfFit);
-
-      hitCountHistory->getTH1()->SetBinContent(endLumiOfFit, (double)totalHits);
-      hitCountHistory->getTH1()->SetBinError(endLumiOfFit, std::sqrt((double)totalHits));
+      hitCounter->getTH1()->SetBinContent(endLumiOfFit, (double)totalHits);
+      hitCounter->getTH1()->SetBinError(endLumiOfFit, std::sqrt((double)totalHits));
 
       reset("whole");
     }
@@ -1146,27 +1168,21 @@ void Vx3DHLTAnalyzer::endLuminosityBlock (const LuminosityBlock& lumiBlock, cons
 
 void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iRun, EventSetup const & /* iSetup */)
 {
-  // ### Set internal variables ###
-  nBinsHistoricalPlot = 80;
-  nBinsWholeHistory   = 3000; // Correspond to about 20h of data taking: 20h * 60min * 60s / 23s per lumi-block = 3130
-  // ##############################
-
-
   ibooker.setCurrentFolder("BeamPixel");
-  
-  Vx_X = ibooker.book1D("vertex x", "Primary Vertex X Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
-  Vx_Y = ibooker.book1D("vertex y", "Primary Vertex Y Coordinate Distribution", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
-  Vx_Z = ibooker.book1D("vertex z", "Primary Vertex Z Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
+
+  Vx_X = ibooker.book1D("F - vertex x", "Primary Vertex X Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_Y = ibooker.book1D("F - vertex y", "Primary Vertex Y Coordinate Distribution", int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_Z = ibooker.book1D("F - vertex z", "Primary Vertex Z Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2.);
   Vx_X->setAxisTitle("Primary Vertices X [cm]",1);
   Vx_X->setAxisTitle("Entries [#]",2);
   Vx_Y->setAxisTitle("Primary Vertices Y [cm]",1);
   Vx_Y->setAxisTitle("Entries [#]",2);
   Vx_Z->setAxisTitle("Primary Vertices Z [cm]",1);
   Vx_Z->setAxisTitle("Entries [#]",2);
- 
-  mXlumi = ibooker.book1D("muX vs lumi", "#mu_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
-  mYlumi = ibooker.book1D("muY vs lumi", "#mu_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
-  mZlumi = ibooker.book1D("muZ vs lumi", "#mu_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
+
+  mXlumi = ibooker.book1D("B - muX vs lumi", "#mu_{x} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  mYlumi = ibooker.book1D("B - muY vs lumi", "#mu_{y} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  mZlumi = ibooker.book1D("B - muZ vs lumi", "#mu_{z} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   mXlumi->setAxisTitle("Lumisection [#]",1);
   mXlumi->setAxisTitle("#mu_{x} [cm]",2);
   mXlumi->getTH1()->SetOption("E1");
@@ -1177,9 +1193,9 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   mZlumi->setAxisTitle("#mu_{z} [cm]",2);
   mZlumi->getTH1()->SetOption("E1");
 
-  sXlumi = ibooker.book1D("sigmaX vs lumi", "#sigma_{x} vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
-  sYlumi = ibooker.book1D("sigmaY vs lumi", "#sigma_{y} vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
-  sZlumi = ibooker.book1D("sigmaZ vs lumi", "#sigma_{z} vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
+  sXlumi = ibooker.book1D("C - sigmaX vs lumi", "#sigma_{x} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  sYlumi = ibooker.book1D("C - sigmaY vs lumi", "#sigma_{y} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  sZlumi = ibooker.book1D("C - sigmaZ vs lumi", "#sigma_{z} vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   sXlumi->setAxisTitle("Lumisection [#]",1);
   sXlumi->setAxisTitle("#sigma_{x} [cm]",2);
   sXlumi->getTH1()->SetOption("E1");
@@ -1190,8 +1206,8 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   sZlumi->setAxisTitle("#sigma_{z} [cm]",2);
   sZlumi->getTH1()->SetOption("E1");
 
-  dxdzlumi = ibooker.book1D("dxdz vs lumi", "dX/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
-  dydzlumi = ibooker.book1D("dydz vs lumi", "dY/dZ vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
+  dxdzlumi = ibooker.book1D("D - dxdz vs lumi", "dX/dZ vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
+  dydzlumi = ibooker.book1D("D - dydz vs lumi", "dY/dZ vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   dxdzlumi->setAxisTitle("Lumisection [#]",1);
   dxdzlumi->setAxisTitle("dX/dZ [rad]",2);
   dxdzlumi->getTH1()->SetOption("E1");
@@ -1199,9 +1215,9 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   dydzlumi->setAxisTitle("dY/dZ [rad]",2);
   dydzlumi->getTH1()->SetOption("E1");
 
-  Vx_ZX = ibooker.book2D("vertex zx", "Primary Vertex ZX Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(xRange/xStep)), -xRange/2., xRange/2.);
-  Vx_ZY = ibooker.book2D("vertex zy", "Primary Vertex ZY Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
-  Vx_XY = ibooker.book2D("vertex xy", "Primary Vertex XY Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_ZX = ibooker.book2D("E - vertex zx", "Primary Vertex ZX Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(xRange/xStep)), -xRange/2., xRange/2.);
+  Vx_ZY = ibooker.book2D("E - vertex zy", "Primary Vertex ZY Coordinate Distribution", int(rint(zRange/zStep)), -zRange/2., zRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
+  Vx_XY = ibooker.book2D("E - vertex xy", "Primary Vertex XY Coordinate Distribution", int(rint(xRange/xStep)), -xRange/2., xRange/2., int(rint(yRange/yStep)), -yRange/2., yRange/2.);
   Vx_ZX->setAxisTitle("Primary Vertices Z [cm]",1);
   Vx_ZX->setAxisTitle("Primary Vertices X [cm]",2);
   Vx_ZX->setAxisTitle("Entries [#]",3);
@@ -1212,37 +1228,22 @@ void Vx3DHLTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, Run const & iR
   Vx_XY->setAxisTitle("Primary Vertices Y [cm]",2);
   Vx_XY->setAxisTitle("Entries [#]",3);
 
-  hitCounter = ibooker.book1D("pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
+  hitCounter = ibooker.book1D("H - pixelHits vs lumi", "# Pixel-Hits vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   hitCounter->setAxisTitle("Lumisection [#]",1);
   hitCounter->setAxisTitle("Pixel-Hits [#]",2);
   hitCounter->getTH1()->SetOption("E1");
 
-  hitCountHistory = ibooker.book1D("pixelHits vs lumi hist", "History: # Pixel-Hits vs. Lumi", nBinsWholeHistory, 0.5, ((double)nBinsWholeHistory)+0.5);
-  hitCountHistory->setAxisTitle("Lumisection [#]",1);
-  hitCountHistory->setAxisTitle("Pixel-Hits [#]",2);
-  hitCountHistory->getTH1()->SetOption("E1");
-
-  goodVxCounter = ibooker.book1D("good vertices vs lumi", "# Good vertices vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
+  goodVxCounter = ibooker.book1D("G - good vertices vs lumi", "# Good vertices vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   goodVxCounter->setAxisTitle("Lumisection [#]",1);
   goodVxCounter->setAxisTitle("Good vertices [#]",2);
   goodVxCounter->getTH1()->SetOption("E1");
       
-  goodVxCountHistory = ibooker.book1D("good vx vs lumi hist", "History: # Good vx vs. Lumi", nBinsWholeHistory, 0.5, ((double)nBinsWholeHistory)+0.5);
-  goodVxCountHistory->setAxisTitle("Lumisection [#]",1);
-  goodVxCountHistory->setAxisTitle("Good vertices [#]",2);
-  goodVxCountHistory->getTH1()->SetOption("E1");
-
-  statusCounter = ibooker.book1D("app status vs lumi", "Status vs. Lumisection", nBinsHistoricalPlot, 0.5, ((double)nBinsHistoricalPlot)+0.5);
+  statusCounter = ibooker.book1D("I - app status vs lumi", "Status vs. Lumisection", nLumiXaxisRange, 0.5, ((double)nLumiXaxisRange)+0.5);
   statusCounter->setAxisTitle("Lumisection [#]",1);
   statusCounter->setAxisTitle("App. status [0 = OK]",2);
   statusCounter->getTH1()->SetOption("E1");
 
-  statusCountHistory = ibooker.book1D("app status vs lumi hist", "History: Status vs. Lumi", nBinsWholeHistory, 0.5, ((double)nBinsWholeHistory)+0.5);
-  statusCountHistory->setAxisTitle("Lumisection [#]",1);
-  statusCountHistory->setAxisTitle("App. status [0 = OK]",2);
-  statusCountHistory->getTH1()->SetOption("E1");
-
-  fitResults = ibooker.book2D("fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
+  fitResults = ibooker.book2D("A - fit results","Results of Beam Spot Fit", 2, 0., 2., 9, 0., 9.);
   fitResults->setAxisTitle("Ongoing: bootstrapping", 1);
   fitResults->setBinLabel(9, "X[cm]", 2);
   fitResults->setBinLabel(8, "Y[cm]", 2);
