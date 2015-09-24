@@ -16,6 +16,7 @@
 
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include <cmath>
 #include <iostream>
@@ -28,7 +29,7 @@
 
 class HcalDeadCellMonitor: public HcalBaseDQMonitor {
 
- public:
+public:
   HcalDeadCellMonitor(const edm::ParameterSet& ps);
 
   ~HcalDeadCellMonitor();
@@ -50,13 +51,14 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
                     const HFDigiCollection& hfdigi
 		    );
 
- private:
+private:
   void zeroCounters(bool resetpresent=false);
 
   void processEvent_HBHEdigi(HBHEDataFrame digi);
   template<class T> void process_Digi(T& digi);
   template<class T> void process_RecHit(T& rechit);
 
+  const HcalTopology* topo_;
   bool deadmon_makeDiagnostics_;
   int minDeadEventCount_;
 
