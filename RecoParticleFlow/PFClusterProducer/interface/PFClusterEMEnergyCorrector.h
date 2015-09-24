@@ -29,7 +29,7 @@ class PFClusterEMEnergyCorrector {
   bool autoDetectBunchSpacing_;
   int bunchSpacingManual_;
   
-  edm::EDGetTokenT<int> bunchSpacing_; 
+  edm::EDGetTokenT<unsigned int> bunchSpacing_; 
   
   edm::EDGetTokenT<EcalRecHitCollection> _recHitsEB;
   edm::EDGetTokenT<EcalRecHitCollection> _recHitsEE;  
