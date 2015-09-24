@@ -25,7 +25,7 @@ void ME0RecHitsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run 
 
 
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
-      me0_rh_zr[region_num] = BookHistZR(ibooker,"me0_strip_dg_tot","Digi",region_num);
+      me0_rh_zr[region_num] = BookHistZR(ibooker,"me0_rh_tot","Digi",region_num);
       for( unsigned int layer_num = 0 ; layer_num < 6 ; layer_num++) {
           //me0_strip_dg_zr[region_num][layer_num] = BookHistZR(ibooker,"me0_strip_dg","SimHit",region_num,layer_num);
           me0_rh_xy[region_num][layer_num] = BookHistXY(ibooker,"me0_rh","RecHit",region_num,layer_num);

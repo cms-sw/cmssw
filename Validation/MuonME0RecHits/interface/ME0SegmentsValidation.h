@@ -24,6 +24,7 @@ public:
   MonitorElement* me0_specRH_zr[2];
   
   MonitorElement* me0_segment_chi2;
+  MonitorElement *me0_segment_time, *me0_segment_timeErr;
   MonitorElement* me0_segment_numRH;
   MonitorElement *me0_segment_EtaRH,*me0_segment_PhiRH;
   

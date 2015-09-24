@@ -15,7 +15,7 @@ void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
    //const ME0Geometry* ME0Geometry_ =( &*hGeom);
 
   LogDebug("MuonME0SegmentsValidation")<<"Info : Loading Geometry information\n";
-  ibooker.setCurrentFolder("MuonME0RecHitsV/ME0RecHitsTask");
+  ibooker.setCurrentFolder("MuonME0RecHitsV/ME0SegmentsTask");
 
   unsigned int nregion  = 2;
 
@@ -23,17 +23,18 @@ void ME0SegmentsValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
 
   LogDebug("MuonME0SegmentsValidation")<<"+++ Info : finish to get geometry information from ES.\n";
 
-  me0_segment_chi2  = ibooker.book1D("segReducedChi2","#chi^{2}/ndof; #chi^{2}/ndof; # Segments",100,0,5);
-  me0_segment_numRH = ibooker.book1D("segNumberRH","Number of fitted RecHits; # RecHits; entries",11,-0.5,10.5);
-  me0_segment_EtaRH = ibooker.book1D("globalEtaSpecRH","Fitted RecHits Eta Distribution; #eta; entries",200,-4.0,4.0);
-  me0_segment_PhiRH = ibooker.book1D("globalPhiSpecRH","Fitted RecHits Phi Distribution; #eta; entries",18,-3.14,3.14);
-
+  me0_segment_chi2    = ibooker.book1D("me0_seg_ReducedChi2","#chi^{2}/ndof; #chi^{2}/ndof; # Segments",100,0,5);
+  me0_segment_numRH   = ibooker.book1D("me0_seg_NumberRH","Number of fitted RecHits; # RecHits; entries",11,-0.5,10.5);
+  //me0_segment_EtaRH   = ibooker.book1D("me0_specRH_globalEta","Fitted RecHits Eta Distribution; #eta; entries",200,-4.0,4.0);
+  //me0_segment_PhiRH   = ibooker.book1D("me0_specRH_globalPhi","Fitted RecHits Phi Distribution; #eta; entries",18,-3.14,3.14);
+  me0_segment_time    = ibooker.book1D("me0_seg_time","Segment Timing; ns; entries",40,15,25);
+  me0_segment_timeErr = ibooker.book1D("me0_seg_timErr","Segment Timing Error; ns; entries",50,0,0.5);
 
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
-      me0_specRH_zr[region_num] = BookHistZR(ibooker,"me0_strip_dg_tot","Digi",region_num);
+      me0_specRH_zr[region_num] = BookHistZR(ibooker,"me0_specRH_tot","Segment RecHits",region_num);
       for( unsigned int layer_num = 0 ; layer_num < 6 ; layer_num++) {
           //me0_strip_dg_zr[region_num][layer_num] = BookHistZR(ibooker,"me0_strip_dg","SimHit",region_num,layer_num);
-          me0_specRH_xy[region_num][layer_num] = BookHistXY(ibooker,"me0_rh","RecHit",region_num,layer_num);
+          me0_specRH_xy[region_num][layer_num] = BookHistXY(ibooker,"me0_specRH","Segment RecHits",region_num,layer_num);
           //me0_rh_xy_Muon[region_num][layer_num] = BookHistXY(ibooker,"me0_rh","RecHit Muon",region_num,layer_num);
 
           std::string histo_name_DeltaX = std::string("me0_specRH_DeltaX_r")+regionLabel[region_num]+"_l"+layerLabel[layer_num];
@@ -103,12 +104,15 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
    Short_t numberRH = me0rhs.size();
    Float_t chi2 = (Float_t) me0s->chi2();
    Float_t ndof = me0s->degreesOfFreedom();
+   Double_t time = me0s->time();   
+   Double_t timeErr = me0s->timeErr();   
 
    Float_t reducedChi2 = chi2/ndof;
 
    me0_segment_chi2->Fill(reducedChi2);
    me0_segment_numRH->Fill(numberRH);
-
+   me0_segment_time->Fill(time);
+   me0_segment_timeErr->Fill(timeErr);
 
    for (auto rh = me0rhs.begin(); rh!= me0rhs.end(); rh++)
    {

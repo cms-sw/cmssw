@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: harvest --conditions auto:run2_design -n 1000 --eventcontent FEVTDEBUGHLT -s HARVESTING:genHarvesting --customise=Validation/MuonME0Hits/me0Custom.customise2023 --datatier GEN-SIM-DIGI --geometry Extended2015MuonGEMDev,Extended2015MuonGEMDevReco --no_exec --filein file:out_valid.root --python_filename=me0_harvest_cfg.py
+# with command line options: harvest --conditions auto:run2_design -n 1000 --eventcontent FEVTDEBUGHLT -s HARVESTING:genHarvesting --customise=Validation/MuonME0Hits/me0Custom.customise2023,SLHCUpgradeSimulations/Configuration/fixMissingUpgradeGTPayloads.fixCSCAlignmentConditions --datatier GEN-SIM-DIGI --geometry Extended2015MuonGEMDev,Extended2015MuonGEMDevReco --no_exec --filein file:out_valid.root --python_filename=me0_harvest_cfg.py
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('HARVESTING')
@@ -15,7 +15,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_cff')
-process.load('Configuration.StandardSequences.EDMtoMEAtRunEnd_cff')
+process.load('Configuration.StandardSequences.DQMSaverAtRunEnd_cff')
 process.load('Configuration.StandardSequences.Harvesting_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
@@ -51,7 +51,6 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
 
 # Path and EndPath definitions
-process.edmtome_step = cms.Path(process.EDMtoME)
 process.validationprodHarvesting = cms.Path(process.hltpostvalidation_prod+process.postValidation_gen)
 process.validationHarvesting = cms.Path(process.postValidation+process.hltpostvalidation+process.postValidation_gen)
 process.dqmHarvestingPOGMC = cms.Path(process.DQMOffline_SecondStep_PrePOGMC)
@@ -65,7 +64,7 @@ process.dqmHarvesting = cms.Path(process.DQMOffline_SecondStep+process.DQMOfflin
 process.dqmsave_step = cms.Path(process.DQMSaver)
 
 # Schedule definition
-process.schedule = cms.Schedule(process.edmtome_step,process.genHarvesting,process.dqmsave_step)
+process.schedule = cms.Schedule(process.genHarvesting,process.dqmsave_step)
 
 # customisation of the process.
 
@@ -74,6 +73,12 @@ from Validation.MuonME0Hits.me0Custom import customise2023
 
 #call to customisation function customise2023 imported from Validation.MuonME0Hits.me0Custom
 process = customise2023(process)
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions 
+
+#call to customisation function fixCSCAlignmentConditions imported from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads
+process = fixCSCAlignmentConditions(process)
 
 # End of customisation functions
 

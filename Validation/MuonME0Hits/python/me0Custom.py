@@ -26,6 +26,8 @@ def customise_harvesting(process):
   #process.load('Validation.MuonGEMHits.MuonGEMHits_cfi')
   #process.load('Validation.MuonME0Hits.me0PostValidation_cff')
   #process.genHarvesting += process.me0PostValidation
+  process.load('DQMServices.Components.EDMtoMEConverter_cff')
+  process.genHarvesting += process.EDMtoMEConverter
   return process
 
 

@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: validation --conditions auto:run2_design -n 1000 --eventcontent FEVTDEBUGHLT -s VALIDATION:genvalid_all --customise=Validation/MuonME0Hits/me0Custom.customise2023 --datatier GEN-SIM-DIGI --geometry Extended2015MuonGEMDev,Extended2015MuonGEMDevReco --no_exec --filein file:out_digi.root --fileout file:out_valid.root --python_filename=me0_valid_cfg.py
+# with command line options: validation --conditions auto:run2_design -n 1000 --eventcontent FEVTDEBUGHLT -s VALIDATION:genvalid_all --customise=Validation/MuonME0Hits/me0Custom.customise2023,SLHCUpgradeSimulations/Configuration/fixMissingUpgradeGTPayloads.fixCSCAlignmentConditions --datatier GEN-SIM-DIGI --geometry Extended2015MuonGEMDev,Extended2015MuonGEMDevReco --no_exec --filein file:out_local_reco_me0segment.root --fileout file:out_valid.root --python_filename=me0_valid_cfg.py
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('VALIDATION')
@@ -25,7 +25,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:out_digi.root'),
+    fileNames = cms.untracked.vstring('file:out_local_reco_me0segment.root'),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -77,6 +77,12 @@ from Validation.MuonME0Hits.me0Custom import customise2023
 
 #call to customisation function customise2023 imported from Validation.MuonME0Hits.me0Custom
 process = customise2023(process)
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions 
+
+#call to customisation function fixCSCAlignmentConditions imported from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads
+process = fixCSCAlignmentConditions(process)
 
 # Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff
 from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn 
