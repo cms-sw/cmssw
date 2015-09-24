@@ -597,11 +597,11 @@ HLT_Physics_v*							# skim
 DST_Physics_v*							# skim
 
 DST_CaloJet40_CaloScouting_v*					# JIRA: CMSHLT-548
-DST_L1HT_CaloScouting_v*					# JIRA: CMSHLT-548
+DST_L1HTT125ORHTT150ORHTT175_CaloScouting_v*			# JIRA: CMSHLT-548
 DST_HT250_CaloScouting_v*					# JIRA: CMSHLT-548
-DST_CaloJet40_PFScouting_v*					# JIRA: CMSHLT-548
-DST_L1HT_PFScouting_v*						# JIRA: CMSHLT-548
-DST_HT450_PFScouting_v*						# JIRA: CMSHLT-548
+DST_CaloJet40_PFReco_PFBTagCSVReco_PFScouting_v*		# JIRA: CMSHLT-548
+DST_L1HTT125ORHTT150ORHTT175_PFReco_PFBTagCSVReco_PFScouting_v*	# JIRA: CMSHLT-548
+DST_HT450_PFReco_PFBTagCSVReco_PFScouting_v*			# JIRA: CMSHLT-548
 
 MC_PFMET_v*							# JIRA: CMSHLT-314 (template paths only for MC)
 MC_AK4PFJets_v*							# JIRA: CMSHLT-314 (template paths only for MC)
