@@ -346,8 +346,8 @@ def _getCMSOracleSQLAlchemyConnectionString(database, schema = 'cms_conditions')
 
 
 # Entry point
-def connect(database='pro', init=False, verbose=0):
-    '''Returns a Connection instance to the CMS Condition DB.
+def connect(database='pro', init=False, verbose=0, schema='cms_conditions'):
+    '''Returns a Connection instance to the CMS Condition DB, optionally for a given schema.
 
     See database_help for the description of the database parameter.
 
@@ -358,28 +358,27 @@ def connect(database='pro', init=False, verbose=0):
         2 = In addition, results of the queries (all rows and the column headers).
     '''
 
+
     # Lazy in order to avoid calls to cmsGetFnConnect
     mapping = {
-        'pro':           lambda: _getCMSFrontierSQLAlchemyConnectionString('PromptProd'),
-        'arc':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc'),
-        'int':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt'),
-        'dev':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_conditions_002'),
-        'boost':         lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierProd', 'cms_conditions'),
-        'boostprep':     lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_conditions_002'),
+        'pro':           lambda: _getCMSFrontierSQLAlchemyConnectionString('PromptProd', schema),
+        'arc':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc', schema),
+        'int':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt', schema),
+        'dev':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', schema),
 
-        'orapro':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg'),
-        'oraarc':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb'),
-        'oraint':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int'),
-        'oradev':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_conditions_002'),
-        'oraboost':      lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg'  , 'cms_conditions'),
-        'oraboostprep':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_conditions_002'),
+        'orapro':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg', schema),
+        'oraarc':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb', schema),
+        'oraint':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int', schema),
+        'oradev':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', schema),
 
-        'onlineorapro':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod'),
-        'onlineoraint':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb'),
+        'onlineorapro':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod', schema),
+        'onlineoraint':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb', schema),
     }
 
     if database in mapping:
         database = mapping[database]()
+
+    logging.debug('connection string set to "%s"' % database)
 
     try:
         url = sqlalchemy.engine.url.make_url(database)
