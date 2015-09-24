@@ -10,7 +10,7 @@ SUSY_HLT_Mu_VBF = cms.EDAnalyzer("SUSY_HLT_VBF_Mu",
                                  caloMETCollection = cms.InputTag("caloMet"), 
                                  TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
                                  HLTProcess = cms.string('HLT'),
-                                 TriggerPath = cms.string('HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v'),
+                                 TriggerPath = cms.string('HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_JetIdCleaned_v'),
                                  TriggerFilterMuon  = cms.InputTag('hltMuon10RelTrkIsoVVLFiltered0p4','','HLT'),
                                  TriggerFilterMJJ  = cms.InputTag('hltDiPFJet40MJJ750DEta3p5','','HLT'),
                                  TriggerFilterHT = cms.InputTag('hltPFHT350','','HLT'),
@@ -39,7 +39,7 @@ SUSY_HLT_Mu_VBF_FASTSIM = cms.EDAnalyzer("SUSY_HLT_VBF_Mu",
                                          caloMETCollection = cms.InputTag("caloMet"),
                                          TriggerResults = cms.InputTag('TriggerResults','','HLT'), #to use with test sample
                                          HLTProcess = cms.string('HLT'),
-                                         TriggerPath = cms.string('HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_v'),
+                                         TriggerPath = cms.string('HLT_Mu10_TrkIsoVVL_DiPFJet40_DEta3p5_MJJ750_HTT350_PFMETNoMu60_JetIdCleaned_v'),
                                          TriggerFilterMuon  = cms.InputTag('hltMuon10RelTrkIsoVVLFiltered0p4','','HLT'),
                                          TriggerFilterMJJ  = cms.InputTag('hltDiPFJet40MJJ750DEta3p5','','HLT'),
                                          TriggerFilterHT = cms.InputTag('hltPFHT350','','HLT'),
@@ -60,7 +60,7 @@ SUSY_HLT_Mu_VBF_FASTSIM = cms.EDAnalyzer("SUSY_HLT_VBF_Mu",
 
 
 SUSY_HLT_Mu_VBF_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-                                                subDirs        = cms.untracked.vstring("HLT/SUSYBSM/SUSY_HLT_VBF_Mu"),
+                                                subDirs        = cms.untracked.vstring("HLT/SUSYBSM/SUSY_HLT_VBF_Mu_JetIdCleaned"),
                                                 verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
                                                 resolution     = cms.vstring(""),
                                                 efficiency     = cms.vstring(
@@ -73,7 +73,7 @@ SUSY_HLT_Mu_VBF_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
 
 
 SUSY_HLT_Mu_VBF_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
-                                                        subDirs        = cms.untracked.vstring("HLT/SUSYBSM/SUSY_HLT_VBF_Mu"),
+                                                        subDirs        = cms.untracked.vstring("HLT/SUSYBSM/SUSY_HLT_VBF_Mu_JetIdCleaned"),
                                                         verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
                                                         resolution     = cms.vstring(""),
                                                         efficiency     = cms.vstring(
