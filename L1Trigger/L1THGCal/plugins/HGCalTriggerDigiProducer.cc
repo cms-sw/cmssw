@@ -7,6 +7,7 @@
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigi.h"
 #include "DataFormats/L1THGCal/interface/HGCFETriggerDigiFwd.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "DataFormats/ForwardDetId/interface/HGCTriggerDetId.h"
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
@@ -104,6 +105,7 @@ void HGCalTriggerDigiProducer::produce(edm::Event& e, const edm::EventSetup& es)
     l1t::HGCFETriggerDigi& digi = fe_output->back();
     codec_->setDataPayload(*(module.second),*(triggerGeometry_),ee_digis,fh_digis,bh_digis);
     codec_->encode(digi);
+    digi.setDetId( HGCTriggerDetId(module.first) );
     std::stringstream output;
     codec_->print(digi,output);
     edm::LogInfo("HGCalTriggerDigiProducer")

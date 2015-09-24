@@ -18,15 +18,14 @@
 
 struct HGCalBestChoiceDataPayload
 {
-    typedef std::array< std::pair<uint32_t, HGCEEDetId>, 64 > trigger_cell_list; // list of (data, ID) pairs
+    typedef std::array<uint32_t, 64 > trigger_cell_list; // list of data in 64 trigger cells
     trigger_cell_list payload;
 
     void reset() 
     { 
-        for(auto& value_id : payload)
+        for(auto& value : payload)
         {
-            value_id.first = 0;
-            value_id.second = HGCEEDetId(0);
+            value = 0;
         }
     }
 };
@@ -34,11 +33,11 @@ struct HGCalBestChoiceDataPayload
 
 inline std::ostream& operator<<(std::ostream& o, const HGCalBestChoiceDataPayload& data) 
 { 
-    for(const auto& dat_id : data.payload)
+    for(const auto& dat : data.payload)
     {
-        o <<  dat_id.second << " -> DATA=" << dat_id.first;
-        o << "\n";
+        o <<  dat << " ";
     }
+    o << "\n";
     return o;
 }
 
