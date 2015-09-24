@@ -119,6 +119,16 @@ HLT_RsqMR240_Rsq0p09_MR200_4jet_Calo_v*			# JIRA: CMSHLT-571 (for 0T menu)
 
 HLT_DoubleEle25_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-572 (for 0T menu)
 
+#HLT_DiCaloJetAve40_v*					# JIRA: CMSHLT-585 (for 0T menu)
+#HLT_DiCaloJetAve60_v*					# JIRA: CMSHLT-585 (for 0T menu)
+#HLT_DiCaloJetAve80_v*					# JIRA: CMSHLT-585 (for 0T menu)
+#HLT_DiCaloJetAve140_v*					# JIRA: CMSHLT-585 (for 0T menu)
+#HLT_DiCaloJetAve200_v*					# JIRA: CMSHLT-585 (for 0T menu)
+#HLT_DiCaloJetAve260_v*					# JIRA: CMSHLT-585 (for 0T menu)
+#HLT_DiCaloJetAve320_v*					# JIRA: CMSHLT-585 (for 0T menu)
+#HLT_DiCaloJetAve400_v*					# JIRA: CMSHLT-585 (for 0T menu)
+#HLT_DiCaloJetAve500_v*					# JIRA: CMSHLT-585 (for 0T menu)
+
 HLTriggerFirstPath
 HLTriggerFinalPath
 #HLTAnalyzerEndpath					# only in 'GRun', not in 'online'
