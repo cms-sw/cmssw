@@ -51,23 +51,10 @@ void FullModuleSumAlgo::run(const l1t::HGCFETriggerDigiCollection& coll,
 
         // Sum of trigger cells inside the module
         uint32_t moduleSum = 0;
-        //unsigned nCells = 0;
         for(const auto& value : data.payload)
         {
-            //if(value>0) nCells++;
             moduleSum += value;
         }
-        //if(nCells>6)
-        //{
-            //std::cout<<"Module Sum = "<<moduleSum<<"\n";
-            //for(const auto& value : data.payload)
-            //{
-                //if(value>0) std::cout<<value<<"+";
-            //}
-            //std::cout<<"\n";
-        //}
-
-
         // dummy cluster without position
         // moduleId filled in place of hardware eta
         l1t::HGCalCluster cluster( reco::LeafCandidate::LorentzVector(), 

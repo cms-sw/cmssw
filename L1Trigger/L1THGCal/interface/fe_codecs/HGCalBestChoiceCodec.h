@@ -7,15 +7,6 @@
 #include "TRandom3.h"
 
 
-//struct HGCalBestChoiceDataPayload 
-//{ 
-    //std::vector<HGCEEDataFrame> payload;
-    //void reset() 
-    //{ 
-        //payload.clear();
-    //}
-//};
-
 struct HGCalBestChoiceDataPayload
 {
     typedef std::array<uint32_t, 64 > trigger_cell_list; // list of data in 64 trigger cells
