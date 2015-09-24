@@ -38,7 +38,6 @@ public:
 private:
 	std::unique_ptr<TMVAEvaluator> mvaID_;
 	CombinedSVSoftLeptonComputer sl_computer_;
-	vpset vars_definition_;
 	std::vector<MVAVar> variables_;
 
 	std::string mva_name_;

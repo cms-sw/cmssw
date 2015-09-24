@@ -14,7 +14,6 @@
 
 CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
 	sl_computer_(configuration.getParameter<edm::ParameterSet>("slComputerCfg")),
-	vars_definition_(configuration.getParameter<vpset>("variables")),
   mva_name_( configuration.getParameter<std::string >("mvaName") ),
   use_condDB_(configuration.getParameter<bool>("useCondDB")),
   gbrForest_label_(configuration.getParameter<std::string>("gbrForestLabel")),
@@ -22,6 +21,20 @@ CharmTagger::CharmTagger(const edm::ParameterSet & configuration):
   use_GBRForest_(configuration.getParameter<bool>("useGBRForest")),
   use_adaBoost_(configuration.getParameter<bool>("useAdaBoost"))
 {
+	vpset vars_definition = configuration.getParameter<vpset>("variables");
+	for(auto &var : vars_definition) {
+		MVAVar mva_var;
+		mva_var.name = var.getParameter<std::string>("name");
+		mva_var.id = reco::getTaggingVariableName(
+			var.getParameter<std::string>("taggingVarName")
+			);
+		mva_var.has_index = var.existsAs<int>("idx") ;
+		mva_var.index = mva_var.has_index ? var.getParameter<int>("idx") : 0;
+		mva_var.default_value = var.getParameter<double>("default");
+
+		variables_.push_back(mva_var);
+	}
+
 	uses(0, "pfImpactParameterTagInfos");
 	uses(1, "pfInclusiveSecondaryVertexFinderCvsLTagInfos");
 	uses(2, "softPFMuonsTagInfos");
@@ -33,23 +46,10 @@ void CharmTagger::initialize(const JetTagComputerRecord & record)
 	mvaID_.reset(new TMVAEvaluator());
 
 	std::vector<std::string> variable_names;
-	variable_names.reserve(vars_definition_.size());
+	variable_names.reserve(variables_.size());
 
-	for(auto &var : vars_definition_) {
-		variable_names.push_back(
-			var.getParameter<std::string>("name")
-			);
-
-		MVAVar mva_var;
-		mva_var.name = var.getParameter<std::string>("name");
-		mva_var.id = reco::getTaggingVariableName(
-			var.getParameter<std::string>("taggingVarName")
-			);
-		mva_var.has_index = var.existsAs<int>("idx") ;
-		mva_var.index = mva_var.has_index ? var.getParameter<int>("idx") : 0;
-		mva_var.default_value = var.getParameter<double>("default");
-
-		variables_.push_back(mva_var);
+	for(auto &var : variables_) {
+		variable_names.push_back(var.name);
 	}
 	std::vector<std::string> spectators;
 
