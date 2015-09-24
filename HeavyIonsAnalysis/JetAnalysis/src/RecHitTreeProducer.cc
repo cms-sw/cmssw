@@ -434,7 +434,7 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
     }
   }
 
-  if(0 && !cbins_) cbins_ = getCentralityBinsFromDB(iSetup);
+  //if(0 && !cbins_) cbins_ = getCentralityBinsFromDB(iSetup);
 
   if(!geo){
     edm::ESHandle<CaloGeometry> pGeo;
