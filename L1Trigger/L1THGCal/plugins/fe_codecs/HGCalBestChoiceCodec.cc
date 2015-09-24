@@ -87,6 +87,44 @@ HGCalBestChoiceCodec::data_type HGCalBestChoiceCodec::decodeImpl(const std::vect
 {
     data_type result;
     result.reset();
+    // FIXME: the number of best cells and value bits should be given in parameters
+    if(data.size()!=64+8*12)
+    {
+        edm::LogWarning("HGCalBestChoiceCodec") 
+            << "decode: data length ("<<data.size()<<") inconsistent with codec parameters:\n"\
+            << "      : Map size = 64\n"\
+            << "      : Number of energy values = 12\n"\
+            << "      : Energy value length = 8\n";
+        return result;
+    }
+    size_t c = 0;
+    for(size_t b=0; b<64; b++)
+    {
+        if(data[b])
+        {
+            uint32_t value = 0;
+            for(size_t i=0;i<8;i++)
+            {
+                size_t index = 64+c*8+i; 
+                if(data[index]) value |= (0x1<<i);
+            }
+            c++;
+            result.payload[b] = value;
+        }
+    }
+    //unsigned nCells = 0;
+    //for(const auto& value : data_.payload)
+    //{
+        //if(value>0) nCells++;
+    //}
+    //if(nCells>6)
+    //{
+        //std::cout<<"Data after decoding\n";
+        //for(size_t i=0; i<data_.payload.size(); i++)
+        //{
+            //std::cout<<"  "<<i+1<<" -> "<<data_.payload.at(i)<<"\n";
+        //}
+    //}
     return result;
 }
 
