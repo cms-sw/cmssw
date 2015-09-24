@@ -103,9 +103,9 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
 HLTSusyExoValSeq_FastSim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM + 
                                         SUSY_HLT_InclusiveHT_FASTSIM + 
                                         SUSY_HLT_InclusiveMET_FASTSIM + 
-										SUSY_HLT_InclusiveMET_NoNoiseCleaning_FASTSIM_POSTPROCESSING +
-                             		  	SUSY_HLT_InclusiveMET_HBHECleaned_FASTSIM_POSTPROCESSING +
-                              		  	SUSY_HLT_InclusiveMET_JetIdCleaned_FASTSIM_POSTPROCESSING +
+										SUSY_HLT_InclusiveMET_NoNoiseCleaning_FASTSIM +
+                             		  	SUSY_HLT_InclusiveMET_HBHECleaned_FASTSIM +
+                              		  	SUSY_HLT_InclusiveMET_JetIdCleaned_FASTSIM +
                                         SUSY_HLT_MET_BTAG_FASTSIM +
                                         SUSY_HLT_MET_MUON_FASTSIM +
                                         SUSY_HLT_Mu_HT_SingleLepton_FASTSIM +
