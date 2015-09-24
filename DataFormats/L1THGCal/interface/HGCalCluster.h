@@ -8,6 +8,7 @@ namespace l1t {
   
   class HGCalCluster : public L1Candidate {
     public:
+        // FIXME: remnants of Stage-2 calo trigger to be removed
       enum ClusterFlag{
         INCLUDE_SEED        = 0,
         INCLUDE_NW          = 1,
