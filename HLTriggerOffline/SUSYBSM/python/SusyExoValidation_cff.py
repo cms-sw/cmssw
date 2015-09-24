@@ -94,7 +94,7 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                                 SUSY_HLT_HT250_alphaT0p58 +
                                 SUSY_HLT_HT300_alphaT0p54 +
                                 SUSY_HLT_HT350_alphaT0p53 +
-                                SUSY_HLT_HT400_alphaT0p52 
+                                SUSY_HLT_HT400_alphaT0p52 + 
                                 SUSY_HLT_caloHT_caloMET0Tesla +
                                 SUSY_HLT_PhotonCaloHT)
 
@@ -145,7 +145,7 @@ HLTSusyExoValSeq_FastSim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM +
                                         SUSY_HLT_HT_DoubleEle_FASTSIM +
                                         SUSY_HLT_HT_MuEle_FASTSIM +
                                         SUSY_HLT_Muon_BJet_FASTSIM +
-                                        SUSY_HLT_Electron_BJet_FASTSIM
+                                        SUSY_HLT_Electron_BJet_FASTSIM +
                                         SUSY_HLT_caloHT_caloMET0Tesla_FASTSIM +
                                         SUSY_HLT_PhotonCaloHT_FASTSIM)
 

@@ -164,7 +164,6 @@ void SUSY_HLT_InclusiveCaloHT::bookHistos(DQMStore::IBooker & ibooker_)
 
   //offline quantities
   h_caloMet = ibooker_.book1D("caloMet", "Calo Missing E_{T}; GeV", 20, 0.0, 300.0 );
-  h_caloMetPhi = ibooker_.book1D("caloMetPhi", "Calo MET Phi", 20, -3.5, 3.5 );
   h_caloHT = ibooker_.book1D("caloHT", "Calo H_{T}; GeV", 30, 0.0, 1000.0);
   h_caloJetPt = ibooker_.book1D("caloJetPt", "CaloJet P_{T}; GeV", 20, 0.0, 300.0 );
   h_caloJetEta = ibooker_.book1D("caloJetEta", "CaloJet Eta", 20, -3.0, 3.0 );
