@@ -315,7 +315,7 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsambleHitContainer& 
   for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
     timeUncrt += pow((*rh)->tof()-averageTime,2);
   }
-  if(rechits.size() != 0) timeUncrt=timeUncrt/(rechits.size());
+  if(rechits.size() != 0) timeUncrt=timeUncrt/(rechits.size()-1);
   timeUncrt = sqrt(timeUncrt);
 
   ME0Segment tmp(proto_segment,protoIntercept, protoDirection, protoErrors,protoChi2,averageTime,timeUncrt);
