@@ -46,9 +46,7 @@ class HGCalBestChoiceCodec : public HGCalTriggerFE::Codec<HGCalBestChoiceCodec,H
     public:
         typedef HGCalBestChoiceDataPayload data_type;
 
-        HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Codec(conf)
-        {
-        }
+        HGCalBestChoiceCodec(const edm::ParameterSet& conf);
 
         void setDataPayloadImpl(const Module& mod, 
                 const HGCalTriggerGeometryBase& geom,
@@ -62,6 +60,10 @@ class HGCalBestChoiceCodec : public HGCalTriggerFE::Codec<HGCalBestChoiceCodec,H
     private:
         void triggerCellSums(const HGCalTriggerGeometryBase& , const std::vector<HGCEEDataFrame>&);
         void bestChoiceSelect();
+
+        size_t nData_;
+        size_t dataLength_;
+        size_t nCellsInModule_;
 
 };
 

@@ -1,7 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
 fe_codec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
-                     CodecIndex = cms.uint32(1) )
+                     CodecIndex = cms.uint32(1),
+                     NData = cms.uint32(12),
+                     DataLength = cms.uint32(8)
+                   )
 
 random_cluster_algo =  cms.PSet( AlgorithmName = cms.string('RandomClusterAlgo'),
                                  FECodec = fe_codec )
