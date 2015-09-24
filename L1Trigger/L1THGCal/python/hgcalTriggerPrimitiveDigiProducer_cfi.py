@@ -14,7 +14,6 @@ hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
     TriggerGeometry = cms.PSet(
         TriggerGeometryName = cms.string('HGCalTriggerGeometryImp1'),
         L1TCellsMapping = cms.FileInPath("L1Trigger/L1THGCal/data/cellsToTriggerCellsMap.txt"),
-        L1TModulesMapping = cms.FileInPath("L1Trigger/L1THGCal/data/triggerCellsToModulesMap.txt"),
         eeSDName = cms.string('HGCalEESensitive'),
         fhSDName = cms.string('HGCalHESiliconSensitive'),
         bhSDName = cms.string('HGCalHEScintillatorSensitive'),

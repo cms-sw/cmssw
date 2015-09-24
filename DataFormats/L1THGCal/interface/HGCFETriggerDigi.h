@@ -51,7 +51,7 @@ namespace l1t {
     template<typename IDTYPE>
     IDTYPE getDetId() const { return IDTYPE(detid_); }
     template<typename IDTYPE>
-    void   setDetId(const IDTYPE& id) { detid_ = id.uint32_t(); }
+    void   setDetId(const IDTYPE& id) { detid_ = id(); }
 
     // encoding and decoding
     unsigned char getWhichCodec() const { return codec_; }
