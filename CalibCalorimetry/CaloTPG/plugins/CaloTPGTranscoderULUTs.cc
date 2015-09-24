@@ -35,7 +35,7 @@
 #include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
-
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 //
 // class decleration
@@ -151,7 +151,7 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
    iRecord.getRecord<CaloGeometryRecord>().get(theTrigTowerGeometry);
 
    edm::ESHandle<HcalTopology> htopo;
-   iRecord.getRecord<HcalLutMetadataRcd>().getRecord<IdealGeometryRecord>().get(htopo);
+   iRecord.getRecord<HcalLutMetadataRcd>().getRecord<HcalRecNumberingRecord>().get(htopo);
 
    HcalLutMetadata fullLut{ *lutMetadata };
    fullLut.setTopo(htopo.product());

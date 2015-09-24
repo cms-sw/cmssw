@@ -16,6 +16,7 @@
 #include <string>
 #include <vector>
 
+#include "EvtGenBase/EvtParticle.hh"
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -47,11 +48,12 @@ namespace gen {
     static double flat();
     
   private:
-    bool addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt, HepMC::GenEvent* theEvent,bool allowMixing=true,bool mixforce=false,bool noforced=false);
-    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p,bool allowMixing=true,bool mixforce=false,bool noforced=false);
+    bool addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt, HepMC::GenEvent* theEvent, bool del_daug); 
+    void update_particles(HepMC::GenParticle* partHep,HepMC::GenEvent* theEvent,HepMC::GenParticle* p);
     void SetDefault_m_PDGs();
     bool findLastinChain(HepMC::GenParticle* &p);    
     bool hasnoDaughter(HepMC::GenParticle* p);
+    void go_through_daughters(EvtParticle* part);
 
     EvtGen *m_EvtGen;                // EvtGen main  object
 

@@ -6,8 +6,7 @@
 #include "Geometry/Records/interface/HcalParametersRcd.h"
 #include <iostream>
 
-class HcalParametersAnalyzer : public edm::one::EDAnalyzer<>
-{
+class HcalParametersAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalParametersAnalyzer( const edm::ParameterSet& );
   ~HcalParametersAnalyzer( void );

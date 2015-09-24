@@ -1,6 +1,5 @@
-#ifndef GEOMETRY_HCALEVENTSETUP_HCALHARDCODEGEOMETRYEP_H
-#define GEOMETRY_HCALEVENTSETUP_HCALHARDCODEGEOMETRYEP_H 1
-
+#ifndef Geometry_HcalEventSetup_HcalHardcodeGeometryEP_H
+#define Geometry_HcalEventSetup_HcalHardcodeGeometryEP_H 1
 
 // system include files
 #include <memory>
@@ -12,9 +11,8 @@
 
 // class declarations
 class CaloSubdetectorGeometry;
-class IdealGeometryRecord;
+class HcalRecNumberingRecord;
 class HcalGeometryRecord;
-
 
 class HcalHardcodeGeometryEP : public edm::ESProducer {
 
@@ -24,15 +22,13 @@ public:
 
   typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
 
-  ReturnType produceIdeal(   const IdealGeometryRecord&);
-  ReturnType produceAligned( const HcalGeometryRecord& );
+  ReturnType produceIdeal(const HcalRecNumberingRecord&);
+  ReturnType produceAligned(const HcalGeometryRecord& );
 
-  void       idealRecordCallBack( const IdealGeometryRecord& );
+  void       idealRecordCallBack(const HcalRecNumberingRecord&) {}
 
 private:
   edm::ParameterSet ps0;
+  bool              useOld_;
 };
-
-
-
 #endif

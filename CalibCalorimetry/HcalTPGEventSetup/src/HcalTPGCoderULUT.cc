@@ -128,7 +128,7 @@ HcalTPGCoderULUT::produce(const HcalTPGRecord& iRecord)
 {
   if (theCoder_==0) {
     edm::ESHandle<HcalTopology> htopo;
-    iRecord.getRecord<IdealGeometryRecord>().get(htopo);
+    iRecord.getRecord<HcalRecNumberingRecord>().get(htopo);
     const HcalTopology* topo=&(*htopo);
     buildCoder(topo);
   }

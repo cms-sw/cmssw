@@ -18,11 +18,11 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4SDManager.hh"
 #include "G4Step.hh"
@@ -153,11 +153,12 @@ void SimG4HcalValidation::init() {
 void SimG4HcalValidation::update(const BeginOfJob * job) {
 
   // Numbering From DDD
-  edm::ESTransientHandle<DDCompactView> pDD;
-  (*job)()->get<IdealGeometryRecord>().get(pDD);
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  (*job)()->get<HcalSimNumberingRecord>().get(hdc);
+  HcalDDDSimConstants *hcons = (HcalDDDSimConstants*)(&(*hdc));
   edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialise "
-			    << "HcalNumberingFromDDD for " << names[0];
-  numberingFromDDD = new HcalNumberingFromDDD(names[0], (*pDD));
+			    << "HcalNumberingFromDDD";
+  numberingFromDDD = new HcalNumberingFromDDD(hcons);
 
   // Numbering scheme
   org              = new HcalTestNumberingScheme(false);

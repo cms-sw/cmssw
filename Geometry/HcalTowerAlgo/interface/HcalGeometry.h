@@ -119,8 +119,7 @@ private:
 
   /// helper methods for getClosestCell
   int etaRing(HcalSubdetector bc, double abseta) const;
-  int phiBin(double phi, int etaring) const;
-
+  int phiBin(HcalSubdetector bc, int etaring, double phi) const;
 
   const HcalTopology& theTopology;
   

@@ -17,7 +17,9 @@
 #include "DataFormats/HcalCalibObjects/interface/HEDarkening.h"
 #include "SimG4CMS/Calo/interface/HFDarkening.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
 #include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4String.hh"
 #include <map>
@@ -30,7 +32,7 @@ class G4LogicalVolume;
 class G4Material;
 class G4Step;
 
-class HCalSD : public CaloSD {
+class HCalSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
@@ -44,6 +46,7 @@ public:
 
 protected:
 
+  virtual void                  update(const BeginOfJob *);
   virtual void                  initRun();
   virtual bool                  filterHit(CaloG4Hit*, double);
 
@@ -73,7 +76,9 @@ private:
   void                          plotProfile(G4Step* step, const G4ThreeVector& pos, 
                                             double edep, double time, int id);
   void                          plotHF(G4ThreeVector& pos, bool emType);
+  void                          modifyDepth(HcalNumberingFromDDD::HcalID& id);
 
+  HcalDDDSimConstants*          hcalConstants;
   HcalNumberingFromDDD*         numberingFromDDD;
   HcalNumberingScheme*          numberingScheme;
   HFShowerLibrary *             showerLibrary;
@@ -88,7 +93,7 @@ private:
   bool                          useHF, useShowerLibrary, useParam, applyFidCut;
   double                        eminHitHB, eminHitHE, eminHitHO, eminHitHF;
   double                        deliveredLumi;
-  G4int                         mumPDG, mupPDG; 
+  G4int                         mumPDG, mupPDG, maxDepthHF; 
   std::vector<double>           layer0wt, gpar;
   std::vector<int>              hfLevels;
   std::vector<G4String>         hfNames, fibreNames, matNames;

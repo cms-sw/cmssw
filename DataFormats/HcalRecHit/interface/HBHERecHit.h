@@ -25,12 +25,16 @@ public:
   inline void setRawEnergy(const float en) {rawEnergy_ = en;}
   inline float eraw() const {return rawEnergy_;}
 
+  inline void setAuxEnergy(const float en) {auxEnergy_ = en;}
+  inline float eaux() const {return auxEnergy_;}
+
   inline void setAuxHBHE(const uint32_t aux) { auxHBHE_ = aux;}
   inline uint32_t auxHBHE() const {return auxHBHE_;}
 
 private:
   float timeFalling_;
   float rawEnergy_;
+  float auxEnergy_;
   uint32_t auxHBHE_;
 };
 

@@ -44,6 +44,7 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
                                        "HLT_PFJet",
                                        "HLT_PFNoPUJet",
                                        "HLT_DiPFJetAve",
+                                       "HLT_DiCaloJetAve",
                                        "HLT_PFMET",
                                        "HLT_PFchMET",
                                        "HLT_MET",
