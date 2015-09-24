@@ -31,13 +31,11 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
     // loop over EE digis and fill digis belonging to that module
     for(const auto& eedata : ee)
     {
-        //std::cout<<" Cell "<<eedata.id()<<" Module "<<geom.getModuleFromCell(eedata.id())->moduleId()<<"\n";
         if(geom.getModuleFromCell(eedata.id())->moduleId()==mod.moduleId())
         {
             dataframes.push_back(eedata);
         }
     }
-
     // sum energy in trigger cells
     triggerCellSums(geom, dataframes);
     // choose best trigger cells in the module
@@ -50,6 +48,9 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
 std::vector<bool> HGCalBestChoiceCodec::encodeImpl(const HGCalBestChoiceCodec::data_type& data) const 
 /*****************************************************************/
 {
+    // First nCellsInModule_ bits are encoding the map of selected trigger cells
+    // Followed by nData_ words of dataLength_ bits, corresponding to energy/transverse energy of
+    // the selected trigger cells
     std::vector<bool> result(nCellsInModule_ + dataLength_*nData_);
     size_t idata = 0;
     for(size_t itc=0; itc<nCellsInModule_; itc++)
@@ -69,22 +70,6 @@ std::vector<bool> HGCalBestChoiceCodec::encodeImpl(const HGCalBestChoiceCodec::d
             idata++;
         }
     }
-    //unsigned nb = 0;
-    //for(unsigned i=0;i<64;i++)
-    //{
-        //if(result[i]) nb++;
-    //}
-    //if(nb>6)
-    //{
-        //for(unsigned i=0;i<nCells;i++) std::cout<<result[i];
-        //std::cout<<"|";
-        //for(unsigned itc=0;itc<nData;itc++)
-        //{
-            //for(unsigned i=nCells+itc*dataLength;i<nCells+(itc+1)*dataLength;i++) std::cout<<result[i];
-            //std::cout<<"|";
-        //}
-        //std::cout<<"\n";
-    //}
     return result;
 }
 
@@ -118,19 +103,6 @@ HGCalBestChoiceCodec::data_type HGCalBestChoiceCodec::decodeImpl(const std::vect
             result.payload[b] = value;
         }
     }
-    //unsigned nCells = 0;
-    //for(const auto& value : data_.payload)
-    //{
-        //if(value>0) nCells++;
-    //}
-    //if(nCells>6)
-    //{
-        //std::cout<<"Data after decoding\n";
-        //for(size_t i=0; i<data_.payload.size(); i++)
-        //{
-            //std::cout<<"  "<<i+1<<" -> "<<data_.payload.at(i)<<"\n";
-        //}
-    //}
     return result;
 }
 
@@ -139,11 +111,6 @@ HGCalBestChoiceCodec::data_type HGCalBestChoiceCodec::decodeImpl(const std::vect
 void HGCalBestChoiceCodec::triggerCellSums(const HGCalTriggerGeometryBase& geom, const std::vector<HGCEEDataFrame>& dataframes)
 /*****************************************************************/
 {
-    //if(dataframes.size()>0)
-    //{
-        //std::cout<<">>>>\n";
-        //std::cout<<dataframes.size()<<" Cells:\n";
-    //}
     std::map<HGCTriggerDetId, uint32_t> payload;
     // sum energies in trigger cells
     for(const auto& frame : dataframes)
@@ -154,7 +121,6 @@ void HGCalBestChoiceCodec::triggerCellSums(const HGCalTriggerGeometryBase& geom,
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         // FIXME: need to transform ADC and TDC to the same linear scale on 12 bits
         uint32_t data = frame[2].data(); // 'data' has to be a 12 bit word
-        //std::cout<<" "<<cellid<<" ("<<triggercellid<<") = "<<data<<"\n";
         payload[triggercellid] += data; // 32 bits integer should be largely enough (maximum 7 12-bits sums are done)
 
     }
@@ -170,24 +136,6 @@ void HGCalBestChoiceCodec::triggerCellSums(const HGCalTriggerGeometryBase& geom,
         }
         data_.payload.at(id-1) = id_value.second;
     }
-    //unsigned nCells = 0;
-    //for(const auto& value : data_.payload)
-    //{
-        //if(value>0) nCells++;
-    //}
-    //if(nCells>6)
-    //{
-        //std::cout<<"Data before best choice\n";
-        //for(size_t i=0; i<data_.payload.size(); i++)
-        //{
-            //std::cout<<"  "<<i+1<<" -> "<<data_.payload.at(i)<<"\n";
-        //}
-    //}
-    //if(data_.payload.size()>0) std::cout<<data_.payload.size()<<" Trigger cells before selection:\n";
-    //for(const auto& id_value : data_.payload)
-    //{
-        //std::cout<<"  "<<id_value.first<<" = "<<id_value.second<<"\n";
-    //}
 }
 
 
@@ -200,7 +148,7 @@ void HGCalBestChoiceCodec::bestChoiceSelect()
     // Probably not the most efficient way.
     // Should check in the firmware how cells with the same energy are sorted
 
-    //HGCalBestChoiceDataPayload::trigger_cell_list sortedtriggercells(data_.payload); // copy for sorting
+    // copy for sorting
     std::vector< std::pair<uint32_t, uint32_t> > sortedtriggercells; // value, ID
     sortedtriggercells.reserve(nCellsInModule_);
     for(size_t i=0; i<nCellsInModule_; i++)
@@ -229,19 +177,6 @@ void HGCalBestChoiceCodec::bestChoiceSelect()
         }
         data_.payload.at(value_id.second) = value_id.first;
     }
-    //unsigned nCells = 0;
-    //for(const auto& value : data_.payload)
-    //{
-        //if(value>0) nCells++;
-    //}
-    //if(nCells>6)
-    //{
-        //std::cout<<"Data after best choice\n";
-        //for(size_t i=0; i<data_.payload.size(); i++)
-        //{
-            //std::cout<<"  "<<i+1<<" -> "<<data_.payload.at(i)<<"\n";
-        //}
-    //}
 }
 
 
