@@ -9,6 +9,16 @@ DEFINE_EDM_PLUGIN(HGCalTriggerFECodecFactory,
         "HGCalBestChoiceCodec");
 
 /*****************************************************************/
+HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Codec(conf),
+    nData_(conf.getParameter<uint32_t>("NData")),
+    dataLength_(conf.getParameter<uint32_t>("DataLength")),
+    nCellsInModule_(data_.payload.size())
+/*****************************************************************/
+{
+}
+
+
+/*****************************************************************/
 void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod, 
         const HGCalTriggerGeometryBase& geom,
         const HGCEEDigiCollection& ee,
@@ -40,24 +50,21 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
 std::vector<bool> HGCalBestChoiceCodec::encodeImpl(const HGCalBestChoiceCodec::data_type& data) const 
 /*****************************************************************/
 {
-    unsigned dataLength = 8;
-    unsigned nData = 12;
-    unsigned nCells = data.payload.size();
-    std::vector<bool> result(nCells + dataLength*nData);
-    unsigned idata = 0;
-    for(unsigned itc=0; itc<nCells; itc++)
+    std::vector<bool> result(nCellsInModule_ + dataLength_*nData_);
+    size_t idata = 0;
+    for(size_t itc=0; itc<nCellsInModule_; itc++)
     {
         uint32_t value = data.payload.at(itc);
         result[itc] = (value>0 ? 1 : 0);
         if(value>0)
         {
             // FIXME: a proper coding is needed here. Needs studies.
-            // truncate to 8 bits by keeping bits 10----3. 
+            // For the moment truncate to 8 bits by keeping bits 10----3. 
             // Values > 0x3FF are saturated to 0x3FF
             if(value>0x3FF) value=0x3FF; // 10 bit saturation
-            for(unsigned i=0; i<dataLength; i++)
+            for(size_t i=0; i<dataLength_; i++)
             {
-                result[nCells + idata*dataLength + i] = static_cast<bool>(value & (0x1<<(i+2)));// remove the two lowest bits
+                result[nCellsInModule_ + idata*dataLength_ + i] = static_cast<bool>(value & (0x1<<(i+2)));// remove the two lowest bits
             }
             idata++;
         }
@@ -88,24 +95,24 @@ HGCalBestChoiceCodec::data_type HGCalBestChoiceCodec::decodeImpl(const std::vect
     data_type result;
     result.reset();
     // FIXME: the number of best cells and value bits should be given in parameters
-    if(data.size()!=64+8*12)
+    if(data.size()!=nCellsInModule_+dataLength_*nData_)
     {
         edm::LogWarning("HGCalBestChoiceCodec") 
             << "decode: data length ("<<data.size()<<") inconsistent with codec parameters:\n"\
-            << "      : Map size = 64\n"\
-            << "      : Number of energy values = 12\n"\
-            << "      : Energy value length = 8\n";
+            << "      : Map size = "<<nCellsInModule_<<"\n"\
+            << "      : Number of energy values = "<<nData_<<"\n"\
+            << "      : Energy value length = "<<dataLength_<<"\n";
         return result;
     }
     size_t c = 0;
-    for(size_t b=0; b<64; b++)
+    for(size_t b=0; b<nCellsInModule_; b++)
     {
         if(data[b])
         {
             uint32_t value = 0;
-            for(size_t i=0;i<8;i++)
+            for(size_t i=0;i<dataLength_;i++)
             {
-                size_t index = 64+c*8+i; 
+                size_t index = nCellsInModule_+c*dataLength_+i; 
                 if(data[index]) value |= (0x1<<i);
             }
             c++;
@@ -156,7 +163,7 @@ void HGCalBestChoiceCodec::triggerCellSums(const HGCalTriggerGeometryBase& geom,
     for(const auto& id_value : payload)
     {
         uint32_t id = id_value.first.cell();
-        if(static_cast<unsigned>(id>data_.payload.size())) // cell number starts at 1
+        if(id>nCellsInModule_) // cell number starts at 1
         {
             edm::LogWarning("HGCalBestChoiceCodec") 
                 << "Number of trigger cells in module too large for available data payload\n";
@@ -196,8 +203,8 @@ void HGCalBestChoiceCodec::bestChoiceSelect()
 
     //HGCalBestChoiceDataPayload::trigger_cell_list sortedtriggercells(data_.payload); // copy for sorting
     std::vector< std::pair<uint32_t, uint32_t> > sortedtriggercells; // value, ID
-    sortedtriggercells.reserve(data_.payload.size());
-    for(size_t i=0; i<data_.payload.size(); i++)
+    sortedtriggercells.reserve(nCellsInModule_);
+    for(size_t i=0; i<nCellsInModule_; i++)
     {
         sortedtriggercells.push_back(std::make_pair(data_.payload[i], i));
     }
@@ -211,13 +218,13 @@ void HGCalBestChoiceCodec::bestChoiceSelect()
             );
     // keep only the 12 first trigger cells
     // FIXME: the number of best cells should be given in parameters
-    for(size_t i=12; i<sortedtriggercells.size(); i++)
+    for(size_t i=nData_; i<nCellsInModule_; i++)
     {
         sortedtriggercells.at(i).first = 0;
     }
     for(const auto& value_id : sortedtriggercells)
     {
-        if(static_cast<unsigned>(value_id.second>data_.payload.size())) // cell number starts at 1
+        if(value_id.second>nCellsInModule_) // cell number starts at 1
         {
             edm::LogWarning("HGCalBestChoiceCodec") 
                 << "Number of trigger cells in module too large for available data payload\n";
