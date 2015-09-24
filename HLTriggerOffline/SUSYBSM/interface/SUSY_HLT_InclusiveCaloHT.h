@@ -56,7 +56,6 @@ class SUSY_HLT_InclusiveCaloHT: public DQMEDAnalyzer{
   
   // Histograms
   MonitorElement* h_caloMet;
-  MonitorElement* h_caloMetPhi;
   MonitorElement* h_caloHT;
   MonitorElement* h_caloJetPt;
   MonitorElement* h_caloJetEta;

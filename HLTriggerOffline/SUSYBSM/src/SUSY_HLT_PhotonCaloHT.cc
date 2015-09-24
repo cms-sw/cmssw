@@ -135,7 +135,7 @@ void SUSY_HLT_PhotonCaloHT::analyze(edm::Event const& e, edm::EventSetup const& 
       if( CaloJetCollection->size() && recoPhotonPt >= ptThrOffline_ ) h_htTurnOn_num -> Fill( recoHt );
     }
     if( photonCollection->size() && recoHt >= htThrOffline_ ) h_photonTurnOn_den -> Fill( recoPhotonPt );
-    if( CaloJetCollection->size() && recoPhotonPt >= ptThrOffline_ ) h_htTurnOn_den -> Fill( recoPhotonPt );
+    if( CaloJetCollection->size() && recoPhotonPt >= ptThrOffline_ ) h_htTurnOn_den -> Fill( recoHt );
   }
 
 }
@@ -159,8 +159,8 @@ void SUSY_HLT_PhotonCaloHT::bookHistos(DQMStore::IBooker & ibooker_)
   //offline quantities
   h_photonPt = ibooker_.book1D("photonPt", "Photon transverse momentum; p_{T} (GeV)", 50, 0, 800 );
   h_ht = ibooker_.book1D("ht", "Hadronic activity;H_{T} (GeV)", 20, 0, 2000 );
-  h_htTurnOn_num = ibooker_.book1D("HtTurnOn_num", "Calo HT Turn On Numerator",   20, 300, 800 );
-  h_htTurnOn_den = ibooker_.book1D("HtTurnOn_den", "Calo HT Turn On Denominator", 20, 300, 800 );
+  h_htTurnOn_num = ibooker_.book1D("HtTurnOn_num", "Calo HT Turn On Numerator",   20, 0, 800 );
+  h_htTurnOn_den = ibooker_.book1D("HtTurnOn_den", "Calo HT Turn On Denominator", 20, 0, 800 );
   h_photonTurnOn_num = ibooker_.book1D("photonTurnOn_num", "Photon Turn On Numerator",   20, 0, 800 );
   h_photonTurnOn_den = ibooker_.book1D("photonTurnOn_den", "Photon Turn On Denominator", 20, 0, 800 );
 
