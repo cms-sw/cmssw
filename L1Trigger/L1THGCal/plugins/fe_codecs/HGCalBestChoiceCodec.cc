@@ -94,7 +94,6 @@ HGCalBestChoiceCodec::data_type HGCalBestChoiceCodec::decodeImpl(const std::vect
 {
     data_type result;
     result.reset();
-    // FIXME: the number of best cells and value bits should be given in parameters
     if(data.size()!=nCellsInModule_+dataLength_*nData_)
     {
         edm::LogWarning("HGCalBestChoiceCodec") 
@@ -217,7 +216,6 @@ void HGCalBestChoiceCodec::bestChoiceSelect()
             } 
             );
     // keep only the 12 first trigger cells
-    // FIXME: the number of best cells should be given in parameters
     for(size_t i=nData_; i<nCellsInModule_; i++)
     {
         sortedtriggercells.at(i).first = 0;

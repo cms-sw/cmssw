@@ -6,7 +6,7 @@ fe_codec = cms.PSet( CodecName  = cms.string('HGCalBestChoiceCodec'),
                      DataLength = cms.uint32(8)
                    )
 
-random_cluster_algo =  cms.PSet( AlgorithmName = cms.string('RandomClusterAlgo'),
+cluster_algo =  cms.PSet( AlgorithmName = cms.string('FullModuleSumAlgo'),
                                  FECodec = fe_codec )
 
 hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
@@ -23,6 +23,6 @@ hgcalTriggerPrimitiveDigiProducer = cms.EDProducer(
         ),
     FECodec = fe_codec,
     BEConfiguration = cms.PSet( 
-        algorithms = cms.VPSet( random_cluster_algo )
+        algorithms = cms.VPSet( cluster_algo )
         )
     )
