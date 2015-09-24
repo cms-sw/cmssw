@@ -21,10 +21,10 @@ const unsigned int edm::BMixingModule::maxNbSources_ =4;
 
 namespace
 {
-  std::shared_ptr<edm::PileUp>
-  maybeMakePileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb, const bool playback)
+  std::shared_ptr<edm::PileUpConfig>
+  maybeConfigPileUp(edm::ParameterSet const& ps,std::string sourceName, const int minb, const int maxb, const bool playback)
   { 
-    std::shared_ptr<edm::PileUp> pileup; // value to be returned
+    std::shared_ptr<edm::PileUpConfig> pileupconfig; // value to be returned
     // Make sure we have a parameter named 'sourceName'
     if (ps.exists(sourceName))
       {
@@ -33,7 +33,7 @@ namespace
 	double averageNumber;
         std::string histoFileName=" ";
 	std::string histoName =" ";
-	TH1F * h = new TH1F("h","h",10,0,10);
+	std::unique_ptr<TH1F> h(new TH1F("h","h",10,0,10));
 	std::vector<int> dataProbFunctionVar;
 	std::vector<double> dataProb;
 	
@@ -43,8 +43,9 @@ namespace
 	if (ps.exists("readDB") && ps.getParameter<bool>("readDB")){
 	  //in case of DB access, do not try to load anything from the PSet, but wait for beginRun.
  	  edm::LogError("BMixingModule")<<"Will read from DB: reset to a dummy PileUp object.";
-	  pileup.reset(new edm::PileUp(psin,sourceName,0,0,playback));
-	  return pileup;
+    std::unique_ptr<TH1F> h;
+	  pileupconfig.reset(new edm::PileUpConfig(sourceName,0.0,h,playback));
+	  return pileupconfig;
 	}
 	if (type_!="none"){
 	  if (psin.exists("nbPileupEvents")) {
@@ -52,15 +53,15 @@ namespace
 	    if (psin_average.exists("averageNumber"))
 	      {
 		averageNumber=psin_average.getParameter<double>("averageNumber");
-		pileup.reset(new edm::PileUp(psin,sourceName,averageNumber,h,playback));
+		pileupconfig.reset(new edm::PileUpConfig(sourceName,averageNumber,h,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 	      }
 	    else if (psin_average.exists("fileName") && psin_average.exists("histoName")) {
 		std::string histoFileName = psin_average.getUntrackedParameter<std::string>("fileName");
 		std::string histoName = psin_average.getUntrackedParameter<std::string>("histoName");
 						
-		TFile *infile = new TFile(histoFileName.c_str());
-   	 	TH1F *h = (TH1F*)infile->Get(histoName.c_str());
+		std::unique_ptr<TFile> infile(new TFile(histoFileName.c_str()));
+   	 	std::unique_ptr<TH1F> h((TH1F*)infile->Get(histoName.c_str()));
                 
 		// Check if the histogram exists           
       		if (!h) {
@@ -77,7 +78,7 @@ namespace
 		// Get the averageNumber from the histo 
 		averageNumber = h->GetMean();
 		
-		pileup.reset(new edm::PileUp(psin,sourceName,averageNumber,h,playback));
+		pileupconfig.reset(new edm::PileUpConfig(sourceName,averageNumber,h,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 	      
 	      }
@@ -116,7 +117,7 @@ namespace
 		
 		edm::LogInfo("MixingModule") << "An histogram will be created with " << numBins << " bins in the range ("<< xmin << "," << xmax << ")." << std::endl;
 				
-		TH1F *hprob = new TH1F("h","Histo from the user's probability function",numBins,xmin,xmax); 
+		std::unique_ptr<TH1F> hprob(new TH1F("h","Histo from the user's probability function",numBins,xmin,xmax));
 		
 		LogDebug("MixingModule") << "Filling histogram with the following data:" << std::endl;
 		
@@ -141,64 +142,83 @@ namespace
 		outfile->Close();
 		outfile->Delete();		
 		
-		pileup.reset(new edm::PileUp(psin,sourceName,averageNumber,hprob,playback));
+		pileupconfig.reset(new edm::PileUpConfig(sourceName,averageNumber,hprob,playback));
 		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 		
 	      } 
 	    //special for pileup input
 	    else if (sourceName=="input" && psin_average.exists("Lumi") && psin_average.exists("sigmaInel")) {
 	      averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;  //FIXME
-	      pileup.reset(new
-			   edm::PileUp(psin,sourceName,averageNumber,h,playback));
+	      pileupconfig.reset(new edm::PileUpConfig(sourceName,averageNumber,h,playback));
 	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	      edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
 	    }
 	  }
 	}
       }
-    return pileup;
+    return pileupconfig;
   }
 }
 
 namespace edm {
 
   // Constructor 
-  BMixingModule::BMixingModule(const edm::ParameterSet& pset, PileUpConfigVec const*) :
-    bunchSpace_(pset.getParameter<int>("bunchspace")),
+  BMixingModule::BMixingModule(const edm::ParameterSet& pset, MixingCache::Config const* globalConf) :
+    bunchSpace_(globalConf->bunchSpace_),
     vertexOffset_(0),
-    minBunch_((pset.getParameter<int>("minBunch")*25)/pset.getParameter<int>("bunchspace")),
-    maxBunch_((pset.getParameter<int>("maxBunch")*25)/pset.getParameter<int>("bunchspace")),
+    minBunch_(globalConf->minBunch_),
+    maxBunch_(globalConf->maxBunch_),
     mixProdStep1_(pset.getParameter<bool>("mixProdStep1")),
     mixProdStep2_(pset.getParameter<bool>("mixProdStep2")),
-    readDB_(false)
+    readDB_(false),
+    playback_(globalConf->playback_)
   {
     if (pset.exists("readDB"))      readDB_=pset.getParameter<bool>("readDB");
 
-    playback_=pset.getUntrackedParameter<bool>("playback",false);
-
-    if (playback_) {
-      //this could be explicitely checked
-      LogInfo("MixingModule") <<" ATTENTION:Mixing will be done in playback mode! \n"
-                              <<" ATTENTION:Mixing Configuration must be the same as for the original mixing!";
-    }
-
-    // Just for debugging print out.
-    sourceNames_.push_back("input");
-    sourceNames_.push_back("cosmics");
-    sourceNames_.push_back("beamhalo_plus");
-    sourceNames_.push_back("beamhalo_minus");
-
     for (size_t makeIdx = 0; makeIdx < maxNbSources_; makeIdx++ ) {
-      inputSources_.push_back(maybeMakePileUp(pset,sourceNames_[makeIdx],
-                                              minBunch_,maxBunch_,playback_));
-      if (inputSources_.back()) inputSources_.back()->input(makeIdx);
+      if (globalConf->inputConfigs_[makeIdx]) {
+      	const edm::ParameterSet & psin=pset.getParameter<edm::ParameterSet>(globalConf->inputConfigs_[makeIdx]->sourcename_);
+        std::shared_ptr<PileUp> p(new PileUp(psin, globalConf->inputConfigs_[makeIdx]));
+        inputSources_.push_back(p);
+        inputSources_.back()->input(makeIdx);
+      } else {
+        inputSources_.push_back(nullptr);
+      }
     }
   }
 
   // Virtual destructor needed.
   BMixingModule::~BMixingModule() {;}
 
-  std::unique_ptr<PileUpConfigVec> BMixingModule::initializeGlobalCache(edm::ParameterSet const&) { return nullptr; }
+  namespace MixingCache {
+    Config::Config(edm::ParameterSet const& pset, unsigned int maxNbSources) :
+      bunchSpace_(pset.getParameter<int>("bunchspace")),
+      minBunch_((pset.getParameter<int>("minBunch")*25)/bunchSpace_),
+      maxBunch_((pset.getParameter<int>("maxBunch")*25)/bunchSpace_),
+      playback_(pset.getUntrackedParameter<bool>("playback",false))
+    {
+      if (playback_) {
+        //this could be explicitly checked
+        LogInfo("MixingModule") <<" ATTENTION:Mixing will be done in playback mode! \n"
+                                <<" ATTENTION:Mixing Configuration must be the same as for the original mixing!";
+      }
+
+      // Just for debugging print out.
+      sourceNames_.push_back("input");
+      sourceNames_.push_back("cosmics");
+      sourceNames_.push_back("beamhalo_plus");
+      sourceNames_.push_back("beamhalo_minus");
+      
+      for (size_t makeIdx = 0; makeIdx < maxNbSources; makeIdx++ ) {
+        inputConfigs_.push_back(maybeConfigPileUp(pset,sourceNames_[makeIdx],
+                                                  minBunch_,maxBunch_,playback_));
+      }
+    }
+  }
+
+  std::unique_ptr<MixingCache::Config> BMixingModule::initializeGlobalCache(edm::ParameterSet const& pset){
+    return std::unique_ptr<MixingCache::Config>(new MixingCache::Config(pset, maxNbSources_));
+  }
 
   // update method call at begin run/lumi to reload the mixing configuration
   void BMixingModule::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup){
@@ -285,14 +305,24 @@ namespace edm {
     }
   }
 
-  void BMixingModule::createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
+  void BMixingModule::createnewEDProduct() {
+    edm::LogWarning("MixingModule") << "BMixingModule::createnewEDProduct must be overwritten!";
+  }
 
-  void BMixingModule::checkSignal(const edm::Event &e) {std::cout << "BMixingModule::checkSignal must be overwritten!" << std::endl;}
+  void BMixingModule::checkSignal(const edm::Event &e) {
+    edm::LogWarning("MixingModule") << "BMixingModule::checkSignal must be overwritten!";
+  }
 
-  void BMixingModule::setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
+  void BMixingModule::setBcrOffset () {
+    edm::LogWarning("MixingModule") << "BMixingModule::setBcrOffset must be overwritten!";
+  }
 
-  void BMixingModule::setSourceOffset (const unsigned int s) {std::cout << "BMixingModule::setSourceOffset must be overwritten!" << std::endl;}
+  void BMixingModule::setSourceOffset (const unsigned int s) {
+    edm::LogWarning("MixingModule") << "BMixingModule::setSourceOffset must be overwritten!";
+  }
 
-  void BMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& c) {std::cout << "BMixingModule::doPileUp must be overwritten!" << std::endl;}
+  void BMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& c) {
+    edm::LogWarning("MixingModule") << "BMixingModule::doPileUp must be overwritten!";
+  }
 
 } //edm

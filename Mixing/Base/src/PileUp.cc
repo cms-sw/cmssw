@@ -60,14 +60,13 @@ static Double_t GetRandom(TH1* th1, CLHEP::HepRandomEngine* rng)
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-
 namespace edm {
-  PileUp::PileUp(ParameterSet const& pset, std::string sourcename, double averageNumber, TH1F * const histo, const bool playback) :
+  PileUp::PileUp(ParameterSet const& pset, const std::shared_ptr<PileUpConfig>& config) :
     type_(pset.getParameter<std::string>("type")),
-    Source_type_(sourcename),
-    averageNumber_(averageNumber),
-    intAverage_(static_cast<int>(averageNumber)),
-    histo_(histo),
+    Source_type_(config->sourcename_),
+    averageNumber_(config->averageNumber_),
+    intAverage_(static_cast<int>(averageNumber_)),
+    histo_(config->histo_),
     histoDistribution_(type_ == "histo"),
     probFunctionDistribution_(type_ == "probFunction"),
     poisson_(type_ == "poisson"),
@@ -83,10 +82,10 @@ namespace edm {
     lumiPrincipal_(),
     runPrincipal_(),
     provider_(),
-    vPoissonDistribution_(),
-    vPoissonDistr_OOT_(),
-    randomEngines_(),
-    playback_(playback),
+    PoissonDistribution_(),
+    PoissonDistr_OOT_(),
+    randomEngine_(),
+    playback_(config->playback_),
     sequential_(pset.getUntrackedParameter<bool>("sequential", false)) {
 
     // Use the empty parameter set for the parameter set ID of our "@MIXING" process.
@@ -258,10 +257,8 @@ namespace edm {
     else if (poisson_)
       {
 	averageNumber_=config.averageNumber();
-        for(auto & distribution : vPoissonDistribution_) {
-          if(distribution) {
-            distribution.reset(new CLHEP::RandPoissonQ(distribution->engine(), averageNumber_));
-          }
+        if(PoissonDistribution_) {
+          PoissonDistribution_.reset(new CLHEP::RandPoissonQ(PoissonDistribution_->engine(), averageNumber_));
         }
       }
     else if (probFunctionDistribution_)
@@ -294,8 +291,7 @@ namespace edm {
 	
 	edm::LogInfo("MixingModule") << "An histogram will be created with " << numBins << " bins in the range ("<< xmin << "," << xmax << ")." << std::endl;
 
-	if (histo_) delete histo_;
-	histo_ = new TH1F("h","Histo from the user's probability function",numBins,xmin,xmax); 
+	histo_.reset(new TH1F("h","Histo from the user's probability function",numBins,xmin,xmax));
 	
 	LogDebug("MixingModule") << "Filling histogram with the following data:" << std::endl;
 	
@@ -333,49 +329,27 @@ namespace edm {
   }
 
   std::unique_ptr<CLHEP::RandPoissonQ> const& PileUp::poissonDistribution(StreamID const& streamID) {
-    unsigned int index = streamID.value();
-    if(index >= vPoissonDistribution_.size()) {
-      // This resizing is not thread safe and only works because
-      // this is used by a "one" type module
-      vPoissonDistribution_.resize(index + 1);
-    }
-    std::unique_ptr<CLHEP::RandPoissonQ>& ptr = vPoissonDistribution_[index];
-    if(!ptr) {
+    if(!PoissonDistribution_) {
       CLHEP::HepRandomEngine& engine = *randomEngine(streamID);
-      ptr.reset(new CLHEP::RandPoissonQ(engine, averageNumber_));
+      PoissonDistribution_.reset(new CLHEP::RandPoissonQ(engine, averageNumber_));
     }
-    return ptr;
+    return PoissonDistribution_;
   }
 
   std::unique_ptr<CLHEP::RandPoisson> const& PileUp::poissonDistr_OOT(StreamID const& streamID) {
-    unsigned int index = streamID.value();
-    if(index >= vPoissonDistr_OOT_.size()) {
-      // This resizing is not thread safe and only works because
-      // this is used by a "one" type module
-      vPoissonDistr_OOT_.resize(index + 1);
-    }
-    std::unique_ptr<CLHEP::RandPoisson>& ptr = vPoissonDistr_OOT_[index];
-    if(!ptr) {
+    if(!PoissonDistr_OOT_) {
       CLHEP::HepRandomEngine& engine = *randomEngine(streamID);
-      ptr.reset(new CLHEP::RandPoisson(engine));
+      PoissonDistr_OOT_.reset(new CLHEP::RandPoisson(engine));
     }
-    return ptr;
+    return PoissonDistr_OOT_;
   }
 
   CLHEP::HepRandomEngine* PileUp::randomEngine(StreamID const& streamID) {
-    unsigned int index = streamID.value();
-    if(index >= randomEngines_.size()) {
-      // This resizing is not thread safe and only works because
-      // this is used by a "one" type module
-      randomEngines_.resize(index + 1, nullptr);
-    }
-    CLHEP::HepRandomEngine* ptr = randomEngines_[index];
-    if(!ptr) {
+    if(!randomEngine_) {
       Service<RandomNumberGenerator> rng;
-      ptr = &rng->getEngine(streamID);
-      randomEngines_[index] = ptr;
+      randomEngine_ = &rng->getEngine(streamID);
     }
-    return ptr;
+    return randomEngine_;
   }
 
   void PileUp::CalculatePileup(int MinBunch, int MaxBunch, std::vector<int>& PileupSelection, std::vector<float>& TrueNumInteractions, StreamID const& streamID) {
@@ -401,7 +375,7 @@ namespace edm {
         // it is a one module and declares a shared resource and all
         // other modules using it also declare the same shared resource.
         // This also breaks replay.
-	double d = GetRandom(histo_, randomEngine(streamID));
+	double d = GetRandom(histo_.get(), randomEngine(streamID));
 	//n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
 	Fnzero_crossing =  d;
 	nzero_crossing = int(d);
@@ -450,7 +424,7 @@ namespace edm {
           // it is a one module and declares a shared resource and all
           // other modules using it also declare the same shared resource.
           // This also breaks replay.
-	  double d = GetRandom(histo_, randomEngine(streamID));
+	  double d = GetRandom(histo_.get(), randomEngine(streamID));
 	  PileupSelection.push_back(int(d));
 	  TrueNumInteractions.push_back( d );
 	}

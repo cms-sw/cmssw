@@ -51,7 +51,7 @@ namespace edm {
       typedef std::vector<DigiAccumulatorMixMod*> Accumulators;
 
       /** standard constructor*/
-      explicit MixingModule(const edm::ParameterSet& ps, PileUpConfigVec const* t = nullptr);
+      explicit MixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf);
 
       /**Default destructor*/
       virtual ~MixingModule();

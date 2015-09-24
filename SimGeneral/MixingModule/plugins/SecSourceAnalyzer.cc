@@ -61,11 +61,11 @@ SecSourceAnalyzer::SecSourceAnalyzer(const edm::ParameterSet& iConfig)
 //    int maxb = maxBunch_;
    int averageNumber = 1;
    std::string histoFileName = " ";
-   TH1F * histoName = new TH1F("h","",10,0,10); 
+   std::unique_ptr<TH1F> histoName(new TH1F("h","",10,0,10));
    bool playback = false;
    
-   input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"),"input",
-                                averageNumber,histoName,playback));
+   std::shared_ptr<PileUpConfig> conf(new PileUpConfig("input",averageNumber,histoName,playback));
+   input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"),conf));
       
    dataStep2_ = iConfig.getParameter<bool>("dataStep2");
    

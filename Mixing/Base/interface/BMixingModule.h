@@ -24,14 +24,23 @@
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/MixingRcd.h"
 
-class PileUpConfig{};
-typedef std::vector<PileUpConfig> PileUpConfigVec;
-
 namespace edm {
-  class BMixingModule : public edm::stream::EDProducer<edm::GlobalCache<PileUpConfigVec>> {
+  namespace MixingCache {
+    struct Config {
+      Config(edm::ParameterSet const& pset, unsigned int maxNbSources);
+      int bunchSpace_;
+      int minBunch_;
+      int maxBunch_;
+      bool playback_;
+      std::vector<std::string> sourceNames_;
+      std::vector<std::shared_ptr<PileUpConfig>> inputConfigs_;
+    };
+  }
+
+  class BMixingModule : public stream::EDProducer<GlobalCache<MixingCache::Config>> {
     public:
       /** standard constructor*/
-      explicit BMixingModule(const edm::ParameterSet& ps, PileUpConfigVec const* t = nullptr);
+      explicit BMixingModule(const edm::ParameterSet& ps, MixingCache::Config const* globalConf);
 
       /**Default destructor*/
       virtual ~BMixingModule();
@@ -50,8 +59,8 @@ namespace edm {
       virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
       virtual void endLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& setup) override;
 
-      static std::unique_ptr<PileUpConfigVec> initializeGlobalCache(edm::ParameterSet const&);
-      static void globalEndJob(PileUpConfigVec*) {}
+      static std::unique_ptr<MixingCache::Config> initializeGlobalCache(edm::ParameterSet const&);
+      static void globalEndJob(MixingCache::Config*) {}
 
       // to be overloaded by dependent class
       virtual void reload(const edm::EventSetup & setup){};
@@ -89,14 +98,13 @@ namespace edm {
       bool readDB_;
       bool playback_;
       const static unsigned int maxNbSources_;
-      std::vector<std::string> sourceNames_;
       bool doit_[4];//FIXME
       std::vector< float > TrueNumInteractions_;
 
       unsigned int eventId_;
 
       // input, cosmics, beamhalo_plus, beamhalo_minus
-      std::vector<std::shared_ptr<PileUp> > inputSources_;
+      std::vector<std::shared_ptr<PileUp>> inputSources_;
 
       void update(edm::EventSetup const&);
       edm::ESWatcher<MixingRcd> parameterWatcher_;
