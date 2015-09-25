@@ -973,10 +973,10 @@ steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
 
 # for premixing: no --pileup_input for replay; GEN-SIM only available for in-time event, from FEVTDEBUGHLT previous step
 steps['RECOPRMXUP15_PU25']=merge([
-        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput'}, # temporary replacement for premix; to be brought back to customisePostLS1; DataMixer customize for rerouting inputs to mixed data.
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL'}, # temporary replacement for premix; to be brought back to customisePostLS1; DataMixer customize for rerouting inputs to mixed data.
         step3Up2015Defaults])
 steps['RECOPRMXUP15_PU50']=merge([
-        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns,SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput'},
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1_50ns,SimGeneral/DataMixingModule/customiseForPremixingInput.customiseForPreMixingInput,SLHCUpgradeSimulations/Configuration/postLS1Customs.customise_New_HCAL'},
         step3Up2015Defaults50ns])
 
 recoPremixUp15prod = merge([
