@@ -169,6 +169,18 @@ uint32_t HcalDetId::otherForm() const {
   return rawId;
 }
 
+uint32_t HcalDetId::newForm() const {
+  if (oldFormat()) {
+    uint32_t rawId = (id_&kHcalIdMask);
+    rawId |= (kHcalIdFormat2) | ((hfdepth()&kHcalDepthMask2)<<kHcalDepthOffset2) |
+      ((ieta()>0)?(kHcalZsideMask2|(ieta()<<kHcalEtaOffset2)):((-ieta())<<kHcalEtaOffset2)) |
+      (iphi()&kHcalPhiMask2);
+    return rawId;
+  } else {
+    return id_;
+  }
+}
+
 int HcalDetId::crystal_iphi_low() const { 
   int simple_iphi=((iphi()-1)*5)+1; 
   simple_iphi+=10;

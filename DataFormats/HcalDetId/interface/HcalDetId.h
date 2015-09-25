@@ -62,8 +62,9 @@ public:
   int hfdepth() const;
   /// get the tower depth
   uint32_t maskDepth() const;
-  /// reverse format
+  /// change format
   uint32_t otherForm() const;
+  uint32_t newForm() const;
 
   /// get the smallest crystal_ieta of the crystal in front of this tower (HB and HE tower 17 only)
   int crystal_ieta_low() const { return ((ieta()-zside())*5)+zside(); }

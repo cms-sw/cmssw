@@ -37,6 +37,8 @@
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+//#define DebugLog
+
 namespace HcalDigitizerImpl {
 
   template<typename SIPMDIGITIZER>
@@ -444,6 +446,16 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
       // Relabel PCaloHits
       edm::LogInfo("HcalDigitizer") << "Calling Relabeller";
       theRelabeller->process(hcalHits);
+    } else {
+      for (unsigned int ii=0; ii<hcalHits.size(); ++ii) {
+	if (HcalDetId(hcalHits[ii].id()).oldFormat()) {
+	  DetId newid = DetId(HcalDetId(hcalHits[ii].id()).newForm());
+#ifdef DebugLog
+	  std::cout << "Hit " << ii << " out of " << hcalHits.size() << " " << std::hex << hcalHits[ii].id() << " --> " << newid.rawId() << std::dec << " " << HcalDetId(newid.rawId()) << '\n';
+#endif
+	  hcalHits[ii].setID(newid.rawId());
+	}
+      }
     }
     if(theHitCorrection != 0) {
       theHitCorrection->fillChargeSums(hcalHits);
@@ -524,8 +536,9 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
     if(theHBHESiPMDigitizer)    theHBHESiPMDigitizer->run(*hbheResult, engine);
     if(theHBHEUpgradeDigitizer) {
       theHBHEUpgradeDigitizer->run(*hbheupgradeResult, engine);
-
-//      std::cout << "HcalDigitizer::finalizeEvent  theHBHEUpgradeDigitizer->run" << std::endl;     
+#ifdef DebugLog
+      std::cout << "HcalDigitizer::finalizeEvent  theHBHEUpgradeDigitizer->run" << std::endl; 
+#endif
     }
   }
   if(isHCAL&&hogeo) {
@@ -547,7 +560,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   edm::LogInfo("HcalDigitizer") << "HCAL HBHE upgrade digis : " << hbheupgradeResult->size();
   edm::LogInfo("HcalDigitizer") << "HCAL HF upgrade digis : " << hfupgradeResult->size();
 
-  /*
+#ifdef DebugLog
   std::cout << std::endl;
   std::cout << "HCAL HBHE digis : " << hbheResult->size() << std::endl;
   std::cout << "HCAL HO   digis : " << hoResult->size() << std::endl;
@@ -557,7 +570,7 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 	    << std::endl;
   std::cout << "HCAL HF   upgrade digis : " << hfupgradeResult->size()
 	    << std::endl;
-  */
+#endif
 
   // Step D: Put outputs into event
   e.put(hbheResult);
@@ -566,9 +579,9 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
   e.put(zdcResult);
   e.put(hbheupgradeResult,"HBHEUpgradeDigiCollection");
   e.put(hfupgradeResult, "HFUpgradeDigiCollection");
-
-//  std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
-
+#ifdef DebugLog
+  std::cout << std::endl << "========>  HcalDigitizer e.put " << std::endl <<  std::endl;
+#endif
   if(theHitCorrection) {
     theHitCorrection->clear();
   }
@@ -698,26 +711,26 @@ void HcalDigitizer::darkening(std::vector<PCaloHit>& hcalHits){
     int det, z, depth, ieta, phi, lay;
     HcalTestNumbering::unpackHcalIndex(tmpId,det,z,depth,ieta,phi,lay);
 	
-	bool darkened = false;
-	float dweight = 1.;
+    bool darkened = false;
+    float dweight = 1.;
 	
-	//HE darkening
-	if(det==int(HcalEndcap) && m_HEDarkening){
-	  dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
-	  darkened = true;
+    if(det==int(HcalEndcap) && m_HEDarkening){
+      //HE darkening
+      dweight = m_HEDarkening->degradation(deliveredLumi,ieta,lay-2);//NB:diff. layer count
+      darkened = true;
     }
 	
-	//HF darkening - approximate: invert recalibration factor
-	else if(det==int(HcalForward) && m_HFRecalibration){
-	  dweight = 1.0/m_HFRecalibration->getCorr(ieta,depth,deliveredLumi);
-	  darkened = true;
+    else if(det==int(HcalForward) && m_HFRecalibration){
+      //HF darkening - approximate: invert recalibration factor
+      dweight = 1.0/m_HFRecalibration->getCorr(ieta,depth,deliveredLumi);
+      darkened = true;
     }
 	
     //create new hit with darkened energy
-	//if(darkened) hcalHits[ii] = PCaloHit(hcalHits[ii].energyEM()*dweight,hcalHits[ii].energyHad()*dweight,hcalHits[ii].time(),hcalHits[ii].geantTrackId(),hcalHits[ii].id());
+    //if(darkened) hcalHits[ii] = PCaloHit(hcalHits[ii].energyEM()*dweight,hcalHits[ii].energyHad()*dweight,hcalHits[ii].time(),hcalHits[ii].geantTrackId(),hcalHits[ii].id());
 	
-	//reset hit energy
-	if(darkened) hcalHits[ii].setEnergy(hcalHits[ii].energy()*dweight);	
+    //reset hit energy
+    if(darkened) hcalHits[ii].setEnergy(hcalHits[ii].energy()*dweight);	
   }
   
 }
