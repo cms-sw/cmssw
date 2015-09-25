@@ -33,6 +33,7 @@ from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Muon_BJet_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_Electron_BJet_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_alphaT_cff import *
 from HLTriggerOffline.SUSYBSM.SUSYBSM_HLT_VBF_Mu_cff import *
+from HLTriggerOffline.SUSYBSM.SUSYBSM_DiJet_MET_cff import *
 
 
 HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
@@ -43,6 +44,7 @@ HLTSusyExoValSeq = cms.Sequence(SUSY_HLT_HT_MET +
                               	SUSY_HLT_InclusiveMET_JetIdCleaned +
                                 SUSY_HLT_MET_BTAG +
                                 SUSY_HLT_MET_MUON +
+								SUSY_HLT_DiJet_MET +
                                 SUSY_HLT_InclusiveHT_aux200 + 
                                 SUSY_HLT_InclusiveHT_aux250 +
                                 SUSY_HLT_InclusiveHT_aux300 + 
@@ -108,6 +110,7 @@ HLTSusyExoValSeq_FastSim = cms.Sequence(SUSY_HLT_HT_MET_FASTSIM +
                               			SUSY_HLT_InclusiveMET_JetIdCleaned_FASTSIM +
                                         SUSY_HLT_MET_BTAG_FASTSIM +
                                         SUSY_HLT_MET_MUON_FASTSIM +
+										SUSY_HLT_DiJet_MET_FASTSIM +
                                         SUSY_HLT_Mu_HT_SingleLepton_FASTSIM +
                                         SUSY_HLT_Mu_HT_MET_SingleLepton_FASTSIM +
                                         SUSY_HLT_Mu_HT_BTag_SingleLepton_FASTSIM +
