@@ -67,25 +67,21 @@ SiStripMonitorTrack_cosmicTk.TrackProducer = 'cosmictrackfinderP5'
 SiStripMonitorTrack_cosmicTk.Mod_On        = False
 
 # Clone for CKF Tracks
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_ckf = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_ckf.TrackProducer      = 'ctfWithMaterialTracksP5'
 SiStripMonitorTrack_ckf.Mod_On             = False
 
 # Clone fir Road Search  Tracks
-#import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 #SiStripMonitorTrack_rs = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 #SiStripMonitorTrack_rs.TrackProducer       = 'rsWithMaterialTracksP5'
 #SiStripMonitorTrack_rs.Mod_On              = True
 
 # Clone for General Tracks (for Collision)
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_gentk = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_gentk.TrackProducer    = 'generalTracks'
 SiStripMonitorTrack_gentk.Mod_On           = False
 
 # Clone for Heavy Ion Tracks (for HI Collisions)
-import DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi
 SiStripMonitorTrack_hi = DQM.SiStripMonitorTrack.SiStripMonitorTrack_cfi.SiStripMonitorTrack.clone()
 SiStripMonitorTrack_hi.TrackProducer    = 'hiGeneralTracks'
 SiStripMonitorTrack_hi.Mod_On           = True
