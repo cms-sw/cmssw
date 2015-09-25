@@ -19,9 +19,11 @@ public:
       
       HGCalTriggerGeometry::Module::list_type mod_empty;
       HGCalTriggerGeometry::Module::list_type mod_comps = { i };
+      HGCalTriggerGeometry::Module::tc_map_type map_empty;
       modules_[i].reset( new HGCalTriggerGeometry::Module(i,GlobalPoint(),
                                                           mod_empty,
-                                                          mod_comps) );
+                                                          mod_comps,
+                                                          map_empty) );
     }
   }
 };

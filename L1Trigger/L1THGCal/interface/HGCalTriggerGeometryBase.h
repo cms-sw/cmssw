@@ -77,32 +77,45 @@ namespace HGCalTriggerGeometry {
   class Module {
   public:
     typedef std::unordered_set<unsigned> list_type;
+    typedef std::unordered_multimap<unsigned,unsigned> tc_map_type;
     
     Module(unsigned mod_id, const GlobalPoint& pos,
-           const list_type& neighbs, const list_type& comps):
+           const list_type& neighbs, const list_type& comps,
+           const tc_map_type& tc_comps):
       module_id_(mod_id),
       position_(pos),
       neighbours_(neighbs),
-      components_(comps)
+      components_(comps),
+      tc_components_(tc_comps)  
       {}
     ~Module() {}
     
     unsigned moduleId()      const { return module_id_; }
 
-    bool containsTriggerCell(const unsigned cell) const {
-      return ( components_.find(cell) != components_.end() );
+    bool containsTriggerCell(const unsigned trig_cell) const {
+      return ( components_.find(trig_cell) != components_.end() );
+    }
+
+    bool containsCell(const unsigned cell) const {
+      for( const auto& value : tc_components_ ) {
+        if( value.second == cell ) return true;
+      }
+      return false;
     }
 
     const GlobalPoint& position() const { return position_; }
 
-    const std::unordered_set<unsigned>& neighbours() const { return neighbours_; }
-    const std::unordered_set<unsigned>& components() const { return components_; }
+    const list_type& neighbours() const { return neighbours_; }
+    const list_type& components() const { return components_; }
+
+    const tc_map_type& triggerCellComponents() const { return tc_components_; }
 
   private:    
     unsigned module_id_; // module this TC belongs to
     GlobalPoint position_;
     list_type neighbours_; // neighbouring Modules
     list_type components_; // contained HGC trigger cells
+    tc_map_type tc_components_; // cells contained by trigger cells
   };
 }  
 
