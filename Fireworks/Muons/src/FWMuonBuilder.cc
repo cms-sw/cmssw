@@ -200,7 +200,6 @@ TEveTrack* prepareMuonTrackWithExtraPoints(const reco::Track& track,
          trk->AddPathMark( TEvePathMark( TEvePathMark::kDaughter, extraPoints[i] ) );
    }
    trk->AddPathMark( TEvePathMark( TEvePathMark::kDecay, extraPoints.back() ) );
-   trk->PrintPathMarks();
    return trk;
 }
 
@@ -312,7 +311,6 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
          trk = prepareMuonTrackWithExtraPoints(*( muon->globalTrack()),pb->context().getMuonTrackPropagator(), extraPoints); 
 
       trk->MakeTrack();
-      trk->Print("all");
       trk->SetLineWidth(m_lineWidth);
       pb->setupAddElement( trk, tList );
       return;
