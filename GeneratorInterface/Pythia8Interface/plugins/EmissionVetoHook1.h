@@ -1,5 +1,7 @@
 #include "Pythia8/Pythia.h"
 
+using namespace Pythia8;
+
 class EmissionVetoHook1 : public Pythia8::UserHooks {
 
 public:  

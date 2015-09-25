@@ -46,4 +46,5 @@ class LHAupLesHouches : public Pythia8::LHAup {
     // Flag to set particle production scales or not.
     bool setScalesFromLHEF_;
 
+    std::map<std::string, std::string> * fEvAttributes;
 };
