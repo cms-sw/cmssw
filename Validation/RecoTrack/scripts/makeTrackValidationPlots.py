@@ -5,6 +5,7 @@ import argparse
 
 from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSample
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
+import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 
 def main(opts):
     files = opts.files
@@ -25,6 +26,7 @@ def main(opts):
         htmlReport.beginSample(SimpleSample(opts.html_prefix, opts.html_sample))
         kwargs["htmlReport"] = htmlReport
     val.doPlots(trackingPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
+    val.doPlots(vertexPlots.plotter, subdirprefix=opts.subdirprefix, plotterDrawArgs=drawArgs, **kwargs)
     print
     if opts.html:
         htmlReport.write()

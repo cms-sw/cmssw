@@ -5,6 +5,7 @@
 
 from Validation.RecoTrack.plotting.validation import SimpleValidation, SimpleSample
 import Validation.RecoTrack.plotting.trackingPlots as trackingPlots
+import Validation.RecoVertex.plotting.vertexPlots as vertexPlots
 
 
 # Example of file - label pairs
@@ -17,12 +18,16 @@ outputDir = "plots"
 subdirprefix = "sample"
 
 
-# To auto-generate HTML pages, uncomment the commented ilnes below
+# To auto-generate HTML pages, uncomment the commented lines below
 val = SimpleValidation([x[0] for x in filesLabels], [x[1] for x in filesLabels], outputDir)
 #report = val.createHtmlReport("INSERT_YOUR_BASE_URL_HERE", validationName="Short description of your comparison")
-#report.beginSample(SimpleSample("prefix", "Sample name")
+#report.beginSample(SimpleSample("prefix", "Sample name"))
 val.doPlots(trackingPlots.plotter, subdirprefix=subdirprefix, plotterDrawArgs={"ratio": True},
 #            htmlReport=report
 )
+## Uncomment this to include also vertex plots
+##val.doPlots(vertexPlots.plotter, subdirprefix=subdirprefix, plotterDrawArgs={"ratio": True},
+##            htmlReport=report
+##)
 #report.write()
 
