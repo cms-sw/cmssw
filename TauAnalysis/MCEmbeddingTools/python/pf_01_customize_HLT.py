@@ -79,7 +79,7 @@ def customise(process):
     MinY = cms.double(0.0),
     MinZ = cms.double(0.0),
     TimeOffset = cms.double(0.0),
-    src = cms.InputTag("generator")
+    src = cms.InputTag("generator","unsmeared")
   )
 
   import FWCore.ParameterSet.VarParsing as VarParsing

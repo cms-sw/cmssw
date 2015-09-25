@@ -50,7 +50,7 @@ Pythia6Gun::Pythia6Gun( const ParameterSet& pset ) :
             <<" pythia did not accept MSTU(12)=12345";
    }
 
-   produces<HepMCProduct>();
+   produces<HepMCProduct>("unsmeared");
 
 }
 
@@ -234,7 +234,7 @@ void Pythia6Gun::loadEvent( edm::Event& evt )
    
    if(fEvt)  bare_product->addHepMCData( fEvt );
 
-   evt.put(bare_product);
+   evt.put(bare_product, "unsmeared");
 
    
    return;

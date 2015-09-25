@@ -29,7 +29,7 @@ FlatRandomPtThetaGunProducer::FlatRandomPtThetaGunProducer(const edm::ParameterS
   fMinPt = pgun_params.getParameter<double>("MinPt");
   fMaxPt = pgun_params.getParameter<double>("MaxPt");
   
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 //  edm::LogInfo("FlatThetaGun") << "Internal FlatRandomPtThetaGun is initialzed"
 //			       << "\nIt is going to generate " 
@@ -109,7 +109,7 @@ void FlatRandomPtThetaGunProducer::produce(edm::Event &e, const EventSetup& es) 
 
   std::auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
   BProduct->addHepMCData( fEvt );
-  e.put(BProduct);
+  e.put(BProduct, "unsmeared");
 
   std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
   e.put(genEventInfo);

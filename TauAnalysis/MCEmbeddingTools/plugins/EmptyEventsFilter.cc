@@ -73,7 +73,7 @@ class EmptyEventsFilter : public edm::EDFilter {
 EmptyEventsFilter::EmptyEventsFilter(const edm::ParameterSet& iConfig)
 {
    //now do what ever initialization is needed
-   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
+   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generatorSmeared"));
    target_ = iConfig.getUntrackedParameter<int>("target",0);
    evTotal_ = 0;
    evSelected_ = 0;

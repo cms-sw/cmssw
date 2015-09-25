@@ -134,7 +134,7 @@ Hydjet2Analyzer::Hydjet2Analyzer(const edm::ParameterSet& iConfig)
   }
   etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2.);
   ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
+  src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("VtxSmeared"));
   genParticleSrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("hiGenParticles"));
   genHIsrc_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("heavyIon"));
   doParticles_ = iConfig.getUntrackedParameter<bool>("doParticles", true);

@@ -20,7 +20,7 @@ generator.Ztautau.minVisibleTransverseMomentum = cms.untracked.string("")
 
 filterEmptyEv = cms.EDFilter("EmptyEventsFilter",
   target = cms.untracked.int32(1),
-  src = cms.untracked.InputTag("generator", "", "HLT2")
+  src = cms.untracked.InputTag("generatorSmeared", "", "HLT2")
 )
 
 cleanedGeneralTracks = cms.EDProducer("MuonTrackCleaner",

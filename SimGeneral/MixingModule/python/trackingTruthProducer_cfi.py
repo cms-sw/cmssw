@@ -34,5 +34,5 @@ trackingParticles = cms.PSet(
 	vertexDistanceCut = cms.double(0.003),
 	ignoreTracksOutsideVolume = cms.bool(False),
 	allowDifferentSimHitProcesses = cms.bool(False), # should be True for FastSim, False for FullSim
-	HepMCProductLabel = cms.InputTag('generator')
+	HepMCProductLabel = cms.InputTag('generatorSmeared')
 )

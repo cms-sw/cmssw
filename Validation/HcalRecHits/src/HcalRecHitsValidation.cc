@@ -28,7 +28,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   tok_ho_   = consumes<HORecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HORecHitCollectionLabel"));
 
   // register for data access
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   tok_EB_ = consumes<EBRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
   tok_EE_ = consumes<EERecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
   tok_hh_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));

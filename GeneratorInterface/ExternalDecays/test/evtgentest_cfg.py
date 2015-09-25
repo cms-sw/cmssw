@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 
 process.Test = cms.EDAnalyzer("EvtGenTestAnalyzer",
     HistOutFile = cms.untracked.string('Test.root'),
-    theSrc = cms.untracked.string('generator')
+    theSrc = cms.untracked.string('VtxSmeared')
 )
 
 process.p1 = cms.Path(process.Test)

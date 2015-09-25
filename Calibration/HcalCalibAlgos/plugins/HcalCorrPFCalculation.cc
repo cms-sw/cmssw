@@ -125,7 +125,7 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
   tok_EE_ = consumes<EcalRecHitCollection>( edm::InputTag("ecalRecHit","EcalRecHitsEE") );
   tok_EB_ = consumes<EcalRecHitCollection>( edm::InputTag("ecalRecHit","EcalRecHitsEB") );
   tok_tracks_ = consumes<reco::TrackCollection>( edm::InputTag("generalTracks") );
-  tok_gen_ = consumes<edm::HepMCProduct>( edm::InputTag("generator") ); 
+  tok_gen_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared")); 
 
   //  outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
   
@@ -262,7 +262,7 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
    
     
   edm::Handle<edm::HepMCProduct> evtMC;
-  //  ev.getByLabel("VtxSmeared",evtMC);
+  //  ev.getByLabel("generatorSmeared",evtMC);
   ev.getByToken(tok_gen_,evtMC);
   if (!evtMC.isValid()) 
     {
