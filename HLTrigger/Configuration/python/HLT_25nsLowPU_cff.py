@@ -2087,8 +2087,7 @@ fragment.hltStoppedHSCPTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 fragment.hltStoppedHSCPIterativeCone4CaloJets = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -2752,8 +2751,7 @@ fragment.hltTowerMakerForPF = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 fragment.hltAK4CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -6778,8 +6776,7 @@ fragment.hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 fragment.hltFixedGridRhoFastjetAllCaloForMuons = cms.EDProducer( "FixedGridRhoProducerFastjet",
     gridSpacing = cms.double( 0.55 ),

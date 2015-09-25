@@ -4848,8 +4848,7 @@ hltTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 hltAntiKT5CaloJets = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -5084,8 +5083,7 @@ hltTowerMakerForJets = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 hltAntiKT5CaloJetsRegional = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -5554,8 +5552,7 @@ hltTowerMakerForPF = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 hltAntiKT5CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -10569,8 +10566,7 @@ hltStoppedHSCPTowerMakerForAll = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
     Active_Area_Repeats = cms.int32( 5 ),
@@ -13980,8 +13976,7 @@ hltTowerMakerForMuons = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 hltL2MuonIsolations = cms.EDProducer( "L2MuonIsolationProducer",
     WriteIsolatorFloat = cms.bool( False ),
@@ -20879,8 +20874,7 @@ hltTowerMakerForHcal = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 hltHcalTowerFilter = cms.EDFilter( "HLTHcalTowerFilter",
     saveTags = cms.bool( False ),
@@ -38415,8 +38409,7 @@ hltTowerMakerForHf = cms.EDProducer( "CaloTowersCreator",
     MomEBDepth = cms.double( 0.3 ),
     HBWeight = cms.double( 1.0 ),
     HOGrid = cms.vdouble(  ),
-    EBGrid = cms.vdouble(  ),
-    HcalPhase = cms.int32(0)
+    EBGrid = cms.vdouble(  )
 )
 hltMetForHf = cms.EDProducer( "CaloMETProducer",
     alias = cms.string( "RawCaloMET" ),
