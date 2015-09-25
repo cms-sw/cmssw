@@ -27,49 +27,52 @@ void HcalSimHitStudy::bookHistograms(DQMStore::IBooker &ib, edm::Run const & run
 
     //Histograms for Hits
     if (checkHit_) {
-      meAllNHit_  = ib.book1D("Hit01","Number of Hits in HCal",1000,0.,1000.);
+      meAllNHit_  = ib.book1D("Hit01","Number of Hits in HCal",20000,0.,20000.);
       meBadDetHit_= ib.book1D("Hit02","Hits with wrong Det",   100,0.,100.);
       meBadSubHit_= ib.book1D("Hit03","Hits with wrong Subdet",100,0.,100.);
       meBadIdHit_ = ib.book1D("Hit04","Hits with wrong ID",    100,0.,100.);
-      meHBNHit_   = ib.book1D("Hit05","Number of Hits in HB",1000,0.,1000.);
-      meHENHit_   = ib.book1D("Hit06","Number of Hits in HE",1000,0.,1000.);
-      meHONHit_   = ib.book1D("Hit07","Number of Hits in HO",1000,0.,1000.);
-      meHFNHit_   = ib.book1D("Hit08","Number of Hits in HF",1000,0.,1000.);
+      meHBNHit_   = ib.book1D("Hit05","Number of Hits in HB",20000,0.,20000.);
+      meHENHit_   = ib.book1D("Hit06","Number of Hits in HE",10000,0.,10000.);
+      meHONHit_   = ib.book1D("Hit07","Number of Hits in HO",10000,0.,10000.);
+      meHFNHit_   = ib.book1D("Hit08","Number of Hits in HF",10000,0.,10000.);
       meDetectHit_= ib.book1D("Hit09","Detector ID",           50,0.,50.);
       meSubdetHit_= ib.book1D("Hit10","Subdetectors in HCal",  50,0.,50.);
       meDepthHit_ = ib.book1D("Hit11","Depths in HCal",        20,0.,20.);
-      meEtaHit_   = ib.book1D("Hit12","Eta in HCal",          100,-50.,50.);
-      mePhiHit_   = ib.book1D("Hit13","Phi in HCal",          100,0.,100.);
-      meEnergyHit_= ib.book1D("Hit14","Energy in HCal",       100,0.,1.);
-      meTimeHit_  = ib.book1D("Hit15","Time in HCal",         100,0.,400.);
-      meTimeWHit_ = ib.book1D("Hit16","Time in HCal (E wtd)", 100,0.,400.);
+      meEtaHit_   = ib.book1D("Hit12","Eta in HCal",          101,-50.5,50.5);
+      //KC: There are different phi segmentation schemes, this plot uses wider bins to represent the most sparse segmentation
+      mePhiHit_   = ib.book1D("Hit13","Phi in HCal (HB,HO)",  72,0.5,72.5);
+      mePhiHitb_  = ib.book1D("Hit13b","Phi in HCal (HE,HF)", 72,0.5,72.5);
+      meEnergyHit_= ib.book1D("Hit14","Energy in HCal",       2000,0.,20.);
+      meTimeHit_  = ib.book1D("Hit15","Time in HCal",         528,0.,528.);
+      meTimeWHit_ = ib.book1D("Hit16","Time in HCal (E wtd)", 528,0.,528.);
       meHBDepHit_ = ib.book1D("Hit17","Depths in HB",          20,0.,20.);
       meHEDepHit_ = ib.book1D("Hit18","Depths in HE",          20,0.,20.);
       meHODepHit_ = ib.book1D("Hit19","Depths in HO",          20,0.,20.);
       meHFDepHit_ = ib.book1D("Hit20","Depths in HF",          20,0.,20.);
-      meHBEtaHit_ = ib.book1D("Hit21","Eta in HB",            100,-50.,50.);
-      meHEEtaHit_ = ib.book1D("Hit22","Eta in HE",            100,-50.,50.);
-      meHOEtaHit_ = ib.book1D("Hit23","Eta in HO",            100,-50.,50.);
-      meHFEtaHit_ = ib.book1D("Hit24","Eta in HF",            100,-50.,50.);
-      meHBPhiHit_ = ib.book1D("Hit25","Phi in HB",            100,0.,100.);
-      meHEPhiHit_ = ib.book1D("Hit26","Phi in HE",            100,0.,100.);
-      meHOPhiHit_ = ib.book1D("Hit27","Phi in HO",            100,0.,100.);
-      meHFPhiHit_ = ib.book1D("Hit28","Phi in HF",            100,0.,100.);
-      meHBEneHit_ = ib.book1D("Hit29","Energy in HB",         100,0.,1.);
-      meHEEneHit_ = ib.book1D("Hit30","Energy in HE",         100,0.,1.);
-      meHOEneHit_ = ib.book1D("Hit31","Energy in HO",         100,0.,1.);
-      meHFEneHit_ = ib.book1D("Hit32","Energy in HF",         100,0.,100.);
-      meHBTimHit_ = ib.book1D("Hit33","Time in HB",           100,0.,400.);
-      meHETimHit_ = ib.book1D("Hit34","Time in HE",           100,0.,400.);
-      meHOTimHit_ = ib.book1D("Hit35","Time in HO",           100,0.,400.);
-      meHFTimHit_ = ib.book1D("Hit36","Time in HF",           100,0.,400.);
+      meHBEtaHit_ = ib.book1D("Hit21","Eta in HB",            101,-50.5,50.5);
+      meHEEtaHit_ = ib.book1D("Hit22","Eta in HE",            101,-50.5,50.5);
+      meHOEtaHit_ = ib.book1D("Hit23","Eta in HO",            101,-50.5,50.5);
+      meHFEtaHit_ = ib.book1D("Hit24","Eta in HF",            101,-50.5,50.5);
+      meHBPhiHit_ = ib.book1D("Hit25","Phi in HB",            72,0.5,72.5);
+      meHEPhiHit_ = ib.book1D("Hit26","Phi in HE",            72,0.5,72.5); 
+      meHOPhiHit_ = ib.book1D("Hit27","Phi in HO",            72,0.5,72.5); 
+      meHFPhiHit_ = ib.book1D("Hit28","Phi in HF",            72,0.5,72.5); 
+      meHBEneHit_ = ib.book1D("Hit29","Energy in HB",         2000,0.,20.);
+      meHEEneHit_ = ib.book1D("Hit30","Energy in HE",         500,0.,5.);
+      meHOEneHit_ = ib.book1D("Hit31","Energy in HO",         500,0.,5.);
+      meHFEneHit_ = ib.book1D("Hit32","Energy in HF",         1000,0.5,1000.5);
+      meHBTimHit_ = ib.book1D("Hit33","Time in HB",           528,0.,528.);
+      meHETimHit_ = ib.book1D("Hit34","Time in HE",           528,0.,528.);
+      meHOTimHit_ = ib.book1D("Hit35","Time in HO",           528,0.,528.);
+      meHFTimHit_ = ib.book1D("Hit36","Time in HF",           528,0.,528.);
+      //These are the zoomed in energy ranges
       meHBEneHit2_ = ib.book1D("Hit37","Energy in HB 2",         100,0.,0.0001);
       meHEEneHit2_ = ib.book1D("Hit38","Energy in HE 2",         100,0.,0.0001);
       meHOEneHit2_ = ib.book1D("Hit39","Energy in HO 2",         100,0.,0.0001);
-      meHFEneHit2_ = ib.book1D("Hit40","Energy in HF 2",         100,0.,0.0001);
+      meHFEneHit2_ = ib.book1D("Hit40","Energy in HF 2",         100,0.5,100.5);
       meHBL10Ene_ = ib.book1D("Hit41","Log10Energy in HB", 140, -10., 4. );
       meHEL10Ene_ = ib.book1D("Hit42","Log10Energy in HE", 140, -10., 4. );
-      meHFL10Ene_ = ib.book1D("Hit43","Log10Energy in HF", 140, -10., 4. );
+      meHFL10Ene_ = ib.book1D("Hit43","Log10Energy in HF", 50, -1., 4. );
       meHOL10Ene_ = ib.book1D("Hit44","Log10Energy in HO", 140, -10., 4. );
       meHBL10EneP_ = ib.bookProfile("Hit45","Log10Energy in HB vs Hit contribution", 140, -10., 4., 100, 0., 1. );
       meHEL10EneP_ = ib.bookProfile("Hit46","Log10Energy in HE vs Hit contribution", 140, -10., 4., 100, 0., 1. );
@@ -148,10 +151,23 @@ void HcalSimHitStudy::analyzeHits (std::vector<PCaloHit>& hits) {
 	meSubdetHit_->Fill(double(subdet));
 	meDepthHit_->Fill(double(depth));
 	meEtaHit_->Fill(double(eta));
-	mePhiHit_->Fill(double(phi));
-	meEnergyHit_->Fill(energy);
+
+	//We will group the phi plots by HB,HO and HE,HF since these groups share similar segmentation schemes
+	if      (subdet == static_cast<int>(HcalBarrel))  mePhiHit_->Fill(double(phi));
+	else if (subdet == static_cast<int>(HcalEndcap))  mePhiHitb_->Fill(double(phi));
+	else if (subdet == static_cast<int>(HcalOuter))   mePhiHit_->Fill(double(phi));
+	else if (subdet == static_cast<int>(HcalForward)) mePhiHitb_->Fill(double(phi));	
+	
+
+	//KC: HF energy is in photoelectrons rather than eV, so it will not be included in total HCal energy
+	if (subdet != static_cast<int>(HcalForward)){
+		meEnergyHit_->Fill(energy);
+
+		//Since the HF energy is a different scale it does not make sense to include it in the Energy Weighted Plot
+		meTimeWHit_->Fill(double(time),energy);
+	}
 	meTimeHit_->Fill(time);
-	meTimeWHit_->Fill(double(time),energy);
+	
 	if      (subdet == static_cast<int>(HcalBarrel)) {
 	  meHBDepHit_->Fill(double(depth));
 	  meHBEtaHit_->Fill(double(eta));
