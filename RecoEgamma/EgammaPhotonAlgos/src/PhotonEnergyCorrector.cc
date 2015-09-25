@@ -159,7 +159,12 @@ void PhotonEnergyCorrector::calculate(edm::Event& evt, reco::Photon & thePhoton,
   } 
 
   if( gedRegression_ ) {
-    gedRegression_->modifyObject(thePhoton);    
+    gedRegression_->modifyObject(thePhoton); // uses regression2 slot
+    // force regresions1 and 2 to be the same (no reason to be different)
+    thePhoton.setCorrectedEnergy( reco::Photon::regression1, 
+                                  thePhoton.getCorrectedEnergy(reco::Photon::regression2),
+                                  thePhoton.getCorrectedEnergyError(reco::Photon::regression2),
+                                  false );
   }
 
   /*

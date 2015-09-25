@@ -121,6 +121,10 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	reco::GsfElectronRef electronRef(gsfElectrons,itcheck-gsfElectrons->begin());
 	cand.setGsfElectronRef(electronRef);
 	cand.setSuperClusterRef(electronRef->superCluster());
+        // update energy information since now it is done post-particleFlowTmp
+        cand.setEcalEnergy(electronRef->superCluster()->rawEnergy(),electronRef->ecalEnergy());
+        cand.setDeltaP(electronRef->p4Error(reco::GsfElectron::P4_COMBINATION));
+        cand.setP4(electronRef->p4(reco::GsfElectron::P4_COMBINATION));
 	electronCandidateMap[electronRef] = candPtr;
       }  
       
@@ -138,6 +142,11 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	reco::PhotonRef photonRef(photons,itcheck-photons->begin());
 	cand.setPhotonRef(photonRef);
 	cand.setSuperClusterRef(photonRef->superCluster());
+        // update energy information since now it is done post-particleFlowTmp 
+        cand.setEcalEnergy(photonRef->superCluster()->rawEnergy(),
+                           photonRef->getCorrectedEnergy(reco::Photon::regression2));
+        cand.setDeltaP(photonRef->getCorrectedEnergyError(reco::Photon::regression2));
+        cand.setP4(photonRef->p4(reco::Photon::regression2));
 	photonCandidateMap[photonRef] = candPtr;
       }      
 
