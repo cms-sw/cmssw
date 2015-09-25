@@ -755,6 +755,10 @@ def customise_Reco(process):
         process.particleFlowClusterHO.pfClusterBuilder.positionCalc.logWeightDenominator = cms.double(0.05)
         process.particleFlowClusterHO.pfClusterBuilder.allCellsPositionCalc.logWeightDenominator = cms.double(0.05)
 
+    # Muon reconstruction do not exclude bad chambers
+    if hasattr(process, 'muonDetIdAssociator'):
+        process.muonDetIdAssociator.includeBadChambers = cms.bool(True)
+
     return process
 
 
