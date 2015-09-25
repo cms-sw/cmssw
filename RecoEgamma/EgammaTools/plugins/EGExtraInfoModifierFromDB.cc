@@ -594,8 +594,6 @@ void EGExtraInfoModifierFromDB::modifyObject(reco::Photon& pho) const {
 
   // SET INPUTS
   eval[0]  = raw_energy;
-  //eval[1]  = the_sc->position().Eta();
-  //eval[2]  = the_sc->position().Phi();
   eval[1]  = pho.r9();
   eval[2]  = the_sc->etaWidth();
   eval[3]  = the_sc->phiWidth(); 
