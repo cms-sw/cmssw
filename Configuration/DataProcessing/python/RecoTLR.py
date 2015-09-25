@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
-import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
 from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
@@ -62,8 +60,9 @@ def customiseDataRun2Common(process):
 def customiseDataRun2Common_25ns(process):
     process = customiseDataRun2Common(process)
 
-    HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HFDigiTime",8)
-    HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHEFlatNoise",8)
+    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
 
     from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
     process=customiseL1RecoForStage1(process)
