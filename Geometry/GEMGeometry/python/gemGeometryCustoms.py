@@ -39,15 +39,15 @@ def custom_GE11_8and8partitions_v2(process):
 
 ### GE2/2 in 2023 scenario
 def custom_GE21_v7(process) :
-    geomReplace( 'gem11.xml','Geometry/MuonCommonData/data/v7/gem11.xml')
-    geomReplace( 'gem21.xml','Geometry/MuonCommonData/data/v7/gem21.xml')
-    geomReplace( 'GEMSpecs.xml','Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml')
+    geomReplace( process, 'gem11.xml','Geometry/MuonCommonData/data/v7/gem11.xml')
+    geomReplace( process, 'gem21.xml','Geometry/MuonCommonData/data/v7/gem21.xml')
+    geomReplace( process, 'GEMSpecs.xml','Geometry/GEMGeometryBuilder/data/v7/GEMSpecs.xml')
     return process
 
 def custom_GE21_v7_10deg(process) :
-    geomReplace( 'gem11.xml','Geometry/MuonCommonData/data/v7/gem11.xml')
-    geomReplace( 'gem21.xml','Geometry/MuonCommonData/data/v7_10deg/gem21.xml')
-    geomReplace( 'GEMSpecs.xml','Geometry/GEMGeometryBuilder/data/v7_10deg/GEMSpecs.xml')
+    geomReplace( process, 'gem11.xml','Geometry/MuonCommonData/data/v7/gem11.xml')
+    geomReplace( process, 'gem21.xml','Geometry/MuonCommonData/data/v7_10deg/gem21.xml')
+    geomReplace( process, 'GEMSpecs.xml','Geometry/GEMGeometryBuilder/data/v7_10deg/GEMSpecs.xml')
     return process
 
 def geomReplace(process, key, targetXML) :
