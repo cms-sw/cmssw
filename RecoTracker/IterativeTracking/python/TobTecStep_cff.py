@@ -21,7 +21,7 @@ from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TOB
-    'TOB1+TOB2+MTOB3',
+    'TOB1+TOB2+MTOB3','TOB1+TOB2+MTOB4',
     #TOB+MTEC
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
     ),
