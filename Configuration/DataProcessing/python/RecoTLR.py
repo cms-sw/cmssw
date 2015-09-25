@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from Configuration.StandardSequences.Reconstruction_cff import *
+import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
 from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
@@ -60,7 +62,6 @@ def customiseDataRun2Common(process):
 def customiseDataRun2Common_25ns(process):
     process = customiseDataRun2Common(process)
 
-    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
     HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HFDigiTime",8)
     HcalRemoveAddSevLevel.AddFlag(hcalRecAlgos,"HBHEFlatNoise",8)
 
