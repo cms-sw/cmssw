@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from Configuration.StandardSequences.Reconstruction_cff import *
+from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
 import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
 from RecoTracker.Configuration.customiseForRunI import customiseForRunI
 #gone with the fact that there is no difference between production and development sequence
