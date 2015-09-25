@@ -223,10 +223,10 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         if recoMetFromPFCs: 
             self.setParameter('reclusterJets',True)
         
-        #miniAOD
-        #if onMiniAOD:
-           # self.setParameter('reclusterJets',True)
-           # self.setParameter('recoMetFromPFCs',True)
+        #jet collection overloading for automatic jet reclustering
+        if reclusterJets:
+            self.setParameter('jetCollection',cms.InputTag('selectedPatJets'))
+            self.setParameter('jetCollectionUnSkimmed',cms.InputTag('patJets'))
             
         self.apply(process)
         
@@ -296,7 +296,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                       )        
 
         #jet ES configuration and jet cleaning
-        #self.jetConfiguration()
         self.jetCleaning(process, autoJetCleaning, postfix)
         
 
@@ -1431,7 +1430,7 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                         pfCandColl = "particleFlow",
                                         jetCleaning="LepClean",
                                         jecUnFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
-                                        recomputeMET=False,
+                                        recoMetFromPFCs=False,
                                         postfix=""):
 
     runMETCorrectionsAndUncertainties = RunMETCorrectionsAndUncertainties()
@@ -1451,7 +1450,7 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                       pfCandCollection =pfCandColl,
                                       autoJetCleaning=jetCleaning,
                                       jecUncertaintyFile=jecUnFile,
-                                      recoMetFromPFCs=recomputeMET,
+                                      recoMetFromPFCs=recoMetFromPFCs,
                                       postfix=postfix
                                       )
     
@@ -1470,7 +1469,7 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                       pfCandCollection =pfCandColl,
                                       autoJetCleaning=jetCleaning,
                                       jecUncertaintyFile=jecUnFile,
-                                      recoMetFromPFCs=recomputeMET,
+                                      recoMetFromPFCs=recoMetFromPFCs,
                                       postfix=postfix
                                       )
     
@@ -1489,7 +1488,7 @@ def runMetCorAndUncForMiniAODProduction(process, metType="PF",
                                       pfCandCollection =pfCandColl,
                                       autoJetCleaning=jetCleaning,
                                       jecUncertaintyFile=jecUnFile,
-                                      recoMetFromPFCs=recomputeMET,
+                                      recoMetFromPFCs=recoMetFromPFCs,
                                       postfix=postfix,
                                       )
 
@@ -1509,6 +1508,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                jetCleaning="LepClean",
                                isData=False,
                                jetConfig=False,
+                               reclusterJets=False,
+                               recoMetFromPFCs=False,
                                jetCorLabelL3=cms.InputTag('ak4PFCHSL1FastL2L3Corrector'),
                                jetCorLabelRes=cms.InputTag('ak4PFCHSL1FastL2L3ResidualCorrector'),
                                jecUncFile="CondFormats/JetMETObjects/data/Summer15_50nsV5_DATA_UncertaintySources_AK4PFchs.txt",
@@ -1531,6 +1532,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       pfCandCollection =pfCandColl,
                                       runOnData=isData,
                                       onMiniAOD=True,
+                                      reclusterJets=reclusterJets,
+                                      recoMetFromPFCs=recoMetFromPFCs,
                                       autoJetCleaning=jetCleaning,
                                       manualJetConfig=jetConfig,
                                       jetFlavor=jetFlav,
@@ -1555,6 +1558,8 @@ def runMetCorAndUncFromMiniAOD(process, metType="PF",
                                       pfCandCollection =pfCandColl,
                                       runOnData=isData,
                                       onMiniAOD=True,
+                                      reclusterJets=reclusterJets,
+                                      recoMetFromPFCs=recoMetFromPFCs,
                                       autoJetCleaning=jetCleaning,
                                       manualJetConfig=jetConfig,
                                       jetFlavor=jetFlav,
