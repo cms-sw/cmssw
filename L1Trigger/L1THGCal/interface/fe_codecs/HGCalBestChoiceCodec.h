@@ -14,10 +14,7 @@ struct HGCalBestChoiceDataPayload
 
     void reset() 
     { 
-        for(auto& value : payload)
-        {
-            value = 0;
-        }
+        payload.fill(0);
     }
 };
 
