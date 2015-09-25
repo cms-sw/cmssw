@@ -749,29 +749,8 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
     //std::cout << " type " <<newCandidate.getCandidateP4type() <<  " standard p4 after " << newCandidate.p4() << " energy " << newCandidate.energy() << std::endl;
     //std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
 
-
-
-    /// Pre-selection loose  isolation cuts
-    bool isLooseEM=true;
-    if ( newCandidate.pt() < highEt_) { 
-      if ( newCandidate.hadronicOverEm()                   >= preselCutValues[1] )                                            isLooseEM=false;
-      if ( newCandidate.ecalRecHitSumEtConeDR04()          > preselCutValues[2]+ preselCutValues[3]*newCandidate.pt() )       isLooseEM=false;
-      if ( newCandidate.hcalTowerSumEtConeDR04()           > preselCutValues[4]+ preselCutValues[5]*newCandidate.pt() )       isLooseEM=false;
-      if ( newCandidate.nTrkSolidConeDR04()                > int(preselCutValues[6]) )                                        isLooseEM=false;
-      if ( newCandidate.nTrkHollowConeDR04()               > int(preselCutValues[7]) )                                        isLooseEM=false;
-      if ( newCandidate.trkSumPtSolidConeDR04()            > preselCutValues[8] )                                             isLooseEM=false;
-      if ( newCandidate.trkSumPtHollowConeDR04()           > preselCutValues[9] )                                             isLooseEM=false;
-      if ( newCandidate.sigmaIetaIeta()                    > preselCutValues[10] )                                            isLooseEM=false;
-    } 
+    outputPhotonCollection.push_back(newCandidate);        
     
-
-        
-    if ( isLooseEM)  
-      outputPhotonCollection.push_back(newCandidate);
-      
-        
   }
-
-
 
 }
