@@ -468,31 +468,36 @@ float y=predTrajState.globalPosition().y();
 	  if(layer==1){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.01 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
-	    if(!(L2hits>0&&L3hits>0&&L4hits>0) && !(L2hits>0&&D1hits>0&&D2hits) && !(D1hits>0&&D2hits>0&&D3hits>0)) continue;
+	    if(!(L2hits>0&&L3hits>0) && !(L2hits>0&&D1hits>0) && !(D1hits>0&&D2hits>0)) continue;
+	    //if(!(L2hits>0&&L3hits>0&&L4hits>0) && !(L2hits>0&&D1hits>0&&D2hits) && !(D1hits>0&&D2hits>0&&D3hits>0)) continue;
 	  }else if(layer==2){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
-	    if(!(L1hits>0&&L3hits>0&&L4hits>0) && !(L1hits>0&&L3hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D2hits>0)) continue;
+	    if(!(L1hits>0&&L3hits>0) && !(L1hits>0&&D1hits>0)) continue;
+	    //if(!(L1hits>0&&L3hits>0&&L4hits>0) && !(L1hits>0&&L3hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D2hits>0)) continue;
 	  }else if(layer==3){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
-	    if(!(L1hits>0&&L2hits>0&&L4hits>0) && !(L1hits>0&&L2hits>0&&D1hits>0)) continue;
+	    if(!(L1hits>0&&L2hits>0)) continue;
+	    //if(!(L1hits>0&&L2hits>0&&L4hits>0) && !(L1hits>0&&L2hits>0&&D1hits>0)) continue;
 	  }else if(layer==4){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
-	    if(!(L1hits>0&&L2hits>0&&L3hits>0)) continue; 
+	    //if(!(L1hits>0&&L2hits>0&&L3hits>0)) continue; 
 	  }else if(disk==1){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
-	    if(!(L1hits>0&&L2hits>0&&D2hits>0) && !(L1hits>0&&D2hits>0&&D3hits>0) && !(L2hits>0&&D2hits>0&&D3hits>0)) continue;
+	    if(!(L1hits>0&&D2hits>0) && !(L2hits>0&&D2hits>0)) continue;
+	    //if(!(L1hits>0&&L2hits>0&&D2hits>0) && !(L1hits>0&&D2hits>0&&D3hits>0) && !(L2hits>0&&D2hits>0&&D3hits>0)) continue;
 	  }else if(disk==2){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
-	    if(!(L1hits>0&&L2hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D3hits>0) && !(L2hits>0&&D1hits>0&&D3hits>0)) continue;
+	    if(!(L1hits>0&&D1hits>0)) continue;
+	    //if(!(L1hits>0&&L2hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D3hits>0) && !(L2hits>0&&D1hits>0&&D3hits>0)) continue;
 	  }else if(disk==3){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
-	    if(!(L1hits>0&&D1hits>0&&D2hits>0) && !(L2hits>0&&D1hits>0&&D2hits>0)) continue;
+	    //if(!(L1hits>0&&D1hits>0&&D2hits>0) && !(L2hits>0&&D1hits>0&&D2hits>0)) continue;
 	  }
 	  
 	  //check whether hit is valid or missing using track algo flag
