@@ -67,7 +67,7 @@ MixEvtVtxGenerator::MixEvtVtxGenerator( const ParameterSet& pset )
 	  useRecVertex(pset.exists("useRecVertex")?pset.getParameter<bool>("useRecVertex"):false)
 	  
 {   
-   produces<bool>("matchedVertex"); 
+   produces<edm::HepMCProduct>(); 
    vtxOffset.resize(3);
    if(pset.exists("vtxOffset")) vtxOffset=pset.getParameter< std::vector<double> >("vtxOffset");
 
@@ -163,26 +163,26 @@ HepMC::FourVector* MixEvtVtxGenerator::getRecVertex( Event& evt){
 
 void MixEvtVtxGenerator::produce( Event& evt, const EventSetup& )
 {
+   Handle<HepMCProduct> HepUnsmearedMCEvt ;
    
-   
-   Handle<HepMCProduct> HepMCEvt ;
-   
-   evt.getByToken( signalLabel, HepMCEvt ) ;
+   evt.getByToken( signalLabel, HepUnsmearedMCEvt ) ;
    
    // generate new vertex & apply the shift 
    //
-   if(HepMCEvt->isVtxGenApplied()) throw cms::Exception("MatchVtx")
+   if(HepUnsmearedMCEvt->isVtxGenApplied()) throw cms::Exception("MatchVtx")
 				      <<"Signal HepMCProduct is not compatible for embedding - it's vertex is already smeared."
 				      <<std::endl;
+   // Copy the HepMC::GenEvent
+   HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
+   std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+   // generate new vertex & apply the shift 
+   //
    HepMCEvt->applyVtxGen( useRecVertex ? getRecVertex(evt) : getVertex(evt) ) ;
 
    //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
    //   HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
    
-   // OK, create a (pseudo)product and put in into edm::Event
-   //
-   auto_ptr<bool> NewProduct(new bool(true)) ;      
-   evt.put( NewProduct ,"matchedVertex") ;
+   evt.put(std::move(HepMCEvt)) ;
       
    return ;
 

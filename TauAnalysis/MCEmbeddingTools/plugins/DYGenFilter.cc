@@ -100,7 +100,7 @@ DYGenFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
 
   Handle< HepMCProduct > genh;
-  iEvent.getByLabel("generator", genh);
+  iEvent.getByLabel("generatorSmeared", genh);
 
 
 

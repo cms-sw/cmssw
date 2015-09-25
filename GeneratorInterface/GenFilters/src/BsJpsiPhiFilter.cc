@@ -8,7 +8,7 @@ using namespace HepMC;
 
 BsJpsiPhiFilter::BsJpsiPhiFilter(const edm::ParameterSet& iConfig)
 {
-  token_ = consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")));
+  token_ = consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"));
   hadronCuts.type = iConfig.getParameter< int >("hadronType");
   hadronCuts.etaMin = iConfig.getParameter<double>("hadronEtaMin");
   hadronCuts.etaMax = iConfig.getParameter<double>("hadronEtaMax");

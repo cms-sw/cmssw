@@ -69,7 +69,7 @@ class FourLepFilter : public edm::EDFilter {
 // constructors and destructor
 //
 FourLepFilter::FourLepFilter(const edm::ParameterSet& iConfig):
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 minPt(iConfig.getUntrackedParameter("MinPt", 0.)),
 maxEta(iConfig.getUntrackedParameter("MaxEta", 10.)),
 maxPt(iConfig.getUntrackedParameter("MaxPt", 1000.)),

@@ -113,7 +113,7 @@ def customise(process):
     MinY = cms.double(0.0),
     MinZ = cms.double(0.0),
     TimeOffset = cms.double(0.0),
-    src = cms.InputTag("generator")
+    src = cms.InputTag("generator","unsmeared")
   )
 
   import FWCore.ParameterSet.VarParsing as VarParsing
@@ -331,7 +331,7 @@ def customise(process):
           # TODO: photons???
   )
 
-  process.filterEmptyEv.src = cms.untracked.InputTag("generator","","EmbeddedRECO")
+  process.filterEmptyEv.src = cms.untracked.InputTag("generatorSmeared","","EmbeddedRECO")
 
   from FWCore.ParameterSet.Types import InputTag
   for p in process.paths:

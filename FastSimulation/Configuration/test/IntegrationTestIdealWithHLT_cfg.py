@@ -73,7 +73,7 @@ process.reconstruction = cms.Path(process.reconstructionWithFamos)
 process.schedule.append(process.reconstruction)
 
 process.dummy = cms.EDAnalyzer("DummyHepMCAnalyzer",
-                               src = cms.InputTag("generator"),
+                               src = cms.InputTag("VtxSmeared"),
                                dumpHepMC = cms.untracked.bool(True)
                                )
 

@@ -12,7 +12,7 @@ lheCOMWeightProducer.NewECMS = cms.double(8000)
 ## get lorentzvectors
 analyzeTopKinematics = cms.EDAnalyzer('TTbar_Kinematics',
                                       SaveTree = cms.untracked.bool(False),
-                                      hepmcCollection = cms.InputTag("generator",""),
+                                      hepmcCollection = cms.InputTag("generatorSmeared"),
                                       genEventInfoProductTag = cms.InputTag("generator")
                                       )
 
