@@ -77,8 +77,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                           "Switch for data/MC processing", Type=bool)
         self.addParameter(self._defaultParameters, 'onMiniAOD', False,
                           "Switch on miniAOD configuration", Type=bool)
-        self.addParameter(self._defaultParameters, 'repro74X', False,
-                          "option for 74X miniAOD re-processing", Type=bool)          
         self.addParameter(self._defaultParameters, 'postfix', '',
                           "Technical parameter to identify the resulting sequence and its modules (allows multiple calls in a job)", Type=str)
         self._parameters = copy.deepcopy(self._defaultParameters)
@@ -115,7 +113,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                  CHS                     =None,
                  runOnData               =None,
                  onMiniAOD               =None,
-                 repro74X                =None,
                  postfix                 =None):
         electronCollection = self.initializeInputTag(electronCollection, 'electronCollection')
         photonCollection = self.initializeInputTag(photonCollection, 'photonCollection')
@@ -178,8 +175,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             runOnData = self._defaultParameters['runOnData'].value
         if onMiniAOD is None :
             onMiniAOD = self._defaultParameters['onMiniAOD'].value
-        if repro74X is None :
-            repro74X = self._defaultParameters['repro74X'].value
         if postfix is None :
             postfix = self._defaultParameters['postfix'].value
 
@@ -208,7 +203,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         self.setParameter('recoMetFromPFCs',recoMetFromPFCs),
         self.setParameter('runOnData',runOnData),
         self.setParameter('onMiniAOD',onMiniAOD),
-        self.setParameter('repro74X',repro74X),
         self.setParameter('postfix',postfix),
 
         #if mva MET, autoswitch to std jets
@@ -261,7 +255,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         recoMetFromPFCs         = self._parameters['recoMetFromPFCs'].value
         reclusterJets           = self._parameters['reclusterJets'].value
         onMiniAOD               = self._parameters['onMiniAOD'].value
-        repro74X                = self._parameters['repro74X'].value
         postfix                 = self._parameters['postfix'].value
         
         #prepare jet configuration
@@ -299,7 +292,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
                                       pfCandCollection,
                                       jetCollectionUnskimmed,
                                       patMetModuleSequence,
-                                      repro74X,
                                       postfix
                                       )        
 
@@ -1268,7 +1260,7 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
         return cms.InputTag("selectedPatJets"+postfix)
         
 
-    def miniAODConfiguration(self, process, pfCandCollection, jetCollection, patMetModuleSequence, repro74X, postfix ):
+    def miniAODConfiguration(self, process, pfCandCollection, jetCollection, patMetModuleSequence, postfix ):
         
         if self._parameters["metType"].value == "PF": # not hasattr(process, "pfMet"+postfix)
             
@@ -1335,9 +1327,6 @@ class RunMETCorrectionsAndUncertainties(ConfigToolBase):
             del getattr(process,"slimmedMETs"+postfix).tXYUncForT1Smear
             del getattr(process,"slimmedMETs"+postfix).tXYUncForT01Smear
             #del getattr(process,"slimmedMETs"+postfix).caloMET
-
-            if repro74X:
-                del getattr(process,"slimmedMETs"+postfix).t01Variation
 
 
     def jetConfiguration(self):
