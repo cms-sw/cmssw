@@ -81,7 +81,7 @@ HGCalBestChoiceCodec::data_type HGCalBestChoiceCodec::decodeImpl(const std::vect
     result.reset();
     if(data.size()!=nCellsInModule_+dataLength_*nData_)
     {
-        edm::LogWarning("HGCalBestChoiceCodec") 
+        throw cms::Exception("BadData") 
             << "decode: data length ("<<data.size()<<") inconsistent with codec parameters:\n"\
             << "      : Map size = "<<nCellsInModule_<<"\n"\
             << "      : Number of energy values = "<<nData_<<"\n"\
@@ -130,7 +130,7 @@ void HGCalBestChoiceCodec::triggerCellSums(const HGCalTriggerGeometryBase& geom,
         uint32_t id = id_value.first.cell();
         if(id>nCellsInModule_) // cell number starts at 1
         {
-            edm::LogWarning("HGCalBestChoiceCodec") 
+            throw cms::Exception("BadGeometry")
                 << "Number of trigger cells in module too large for available data payload\n";
             continue;
         }
@@ -172,7 +172,7 @@ void HGCalBestChoiceCodec::bestChoiceSelect()
     {
         if(value_id.second>nCellsInModule_) // cell number starts at 1
         {
-            edm::LogWarning("HGCalBestChoiceCodec") 
+            throw cms::Exception("BadGeometry")
                 << "Number of trigger cells in module too large for available data payload\n";
         }
         data_.payload.at(value_id.second) = value_id.first;
