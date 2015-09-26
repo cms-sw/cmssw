@@ -108,9 +108,9 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 			PathDiagnosticLocation CELoc = 
 				PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
 			BugType * BT = new BugType(Checker,"edm::getByLabel or edm::getManyByType called","optional") ;
-			BugReport * R = new BugReport(*BT,os.str(),CELoc);
+			std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
 			R->addRange(CE->getSourceRange());
-			BR.emitReport(R);
+			BR.emitReport(std::move(R));
 	} 
 	else {
 		for (auto I=CE->arg_begin(), E=CE->arg_end(); I != E; ++I) {
@@ -133,9 +133,9 @@ void Walker::VisitCXXMemberCallExpr( CXXMemberCallExpr *CE ) {
 				PathDiagnosticLocation CELoc = 
 					PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
  				BugType * BT = new BugType(Checker,"function call with argument of type edm::Event","optional");
-				BugReport * R = new BugReport(*BT,os.str(),CELoc);
+				std::unique_ptr<BugReport> R = llvm::make_unique<BugReport>(*BT,os.str(),CELoc);
 				R->addRange(CE->getSourceRange());
-				BR.emitReport(R);
+				BR.emitReport(std::move(R));
 				}
 		}
 	}
