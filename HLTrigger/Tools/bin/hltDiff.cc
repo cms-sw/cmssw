@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 #include <iostream>
 #include <iomanip>
 #include <memory>
@@ -25,11 +26,12 @@
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 
+
 void usage(std::ostream & out) {
   out << "\
 usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-label LABEL[:INSTANCE[:PROCESS]]]\n\
                -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-label LABEL[:INSTANCE[:PROCESS]]]\n\
-               [-m|--max-events MAXEVENTS] [-v|--verbose] [-h|--help]\n\
+               [-m|--max-events MAXEVENTS] [-p|--prescales] [-v|--verbose] [-h|--help]\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the old (reference) trigger results.\n\
@@ -50,6 +52,9 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-label LABEL[
   -m|--max-events MAXEVENTS\n\
       compare only the first MAXEVENTS events;\n\
       the default is to compare all the events in the original (reference) files.\n\
+\n\
+  -p|--prescales\n\
+      do not ignore differences caused by HLTPrescaler modules.\n\
 \n\
   -v|--verbose\n\
       be verbose: print event-by-event comparison results.\n\
@@ -72,13 +77,83 @@ void error(std::ostream & out, const std::string & message) {
   error(out);
 }
 
-const char * decode_path_status(int status) {
-  static const char * message[] = { "not run", "accepted", "rejected", "error" };
 
-  if (status > 0 and status < 4)
-    return message[status];
+class HLTConfigDataEx : public HLTConfigData {
+public:
+  explicit HLTConfigDataEx(HLTConfigData const & data) :
+    HLTConfigData(data),
+    moduleTypes_(size()),
+    prescalers_(size())
+  {
+    for (unsigned int t = 0; t < size(); ++t) {
+      moduleTypes_[t].resize(size(t));
+      prescalers_[t].resize(size(t));
+      for (unsigned int m = 0; m < size(t); ++m) {
+        moduleTypes_[t][m] = data.moduleType(moduleLabel(t, m));
+        if (moduleTypes_[t][m] == "HLTPrescaler")
+          prescalers_[t][m] = true;
+      }
+    }
+  }
+
+  std::vector<std::string> const & moduleTypes(unsigned int trigger) const {
+    return moduleTypes_.at(trigger);
+  }
+
+
+  std::string const & moduleType(unsigned int trigger, unsigned int module) const {
+    return moduleTypes_.at(trigger).at(module);
+  }
+
+  using HLTConfigData::moduleType;
+
+  bool prescaler(unsigned int trigger, unsigned int module) const {
+    return prescalers_.at(trigger).at(module);
+  }
+
+private:
+  std::vector<std::vector<std::string>> moduleTypes_;
+  std::vector<std::vector<bool>>        prescalers_;
+};
+
+
+enum State {
+  Ready     = edm::hlt::Ready,
+  Pass      = edm::hlt::Pass,
+  Fail      = edm::hlt::Fail,
+  Exception = edm::hlt::Exception,
+  Prescaled,
+  Invalid
+};
+
+const char * path_state(State state) {
+  static const char * message[] = { "not run", "accepted", "rejected", "exception", "prescaled", "invalid" };
+
+  if (state > 0 and state < Invalid)
+    return message[state];
   else
-    return "invalid";
+    return message[Invalid];
+}
+
+inline
+State prescaled_state(int state, int path, int module, HLTConfigDataEx const & config) {
+  if (state == Fail and config.prescaler(path, module))
+    return Prescaled;
+  return (State) state;
+}
+
+std::string detailed_path_state(State state, int path, int module, HLTConfigDataEx const & config) {
+  auto const & label = config.moduleLabel(path, module);
+  auto const & type  = config.moduleType(path, module);
+
+  std::stringstream out;
+  out << "'" << path_state(state) << "'";
+  if (state == Fail)
+    out << " by module '" << module << " " << label << "' [" << type << "]";
+  else if (state == Exception)
+    out << " at module '" << module << " " << label << "' [" << type << "]";
+
+  return out.str();
 }
 
 
@@ -88,7 +163,7 @@ std::string getProcessNameFromBranch(std::string const & branch) {
   return boost::copy_range<std::string>(tokens[3]);
 }
 
-std::unique_ptr<HLTConfigData> getHLTConfigData(fwlite::EventBase const & event, edm::InputTag inputtag) {
+std::unique_ptr<HLTConfigDataEx> getHLTConfigData(fwlite::EventBase const & event, edm::InputTag inputtag) {
   auto const & history = event.processHistory();
   auto const & branch  = event.getBranchNameFor( edm::Wrapper<edm::TriggerResults>::typeInfo(), inputtag.label().c_str(), inputtag.instance().c_str(), inputtag.process().c_str() );
   auto const & process = getProcessNameFromBranch( branch );
@@ -103,16 +178,17 @@ std::unique_ptr<HLTConfigData> getHLTConfigData(fwlite::EventBase const & event,
     std::cerr << "error: the configuration for the process " << process << " is not available in the Provenance" << std::endl;
     exit(1);
   }
-  return std::unique_ptr<HLTConfigData>(new HLTConfigData(pset));
+  return std::unique_ptr<HLTConfigDataEx>(new HLTConfigDataEx(HLTConfigData(pset)));
 }
 
 
 struct TriggerDiff {
-  TriggerDiff() : count(0), gained(0), lost(0) { }
+  TriggerDiff() : count(0), gained(0), lost(0), internal(0) { }
     
   unsigned int count;
   unsigned int gained;
   unsigned int lost;
+  unsigned int internal;
 
   static
   std::string format(unsigned int value, char sign = '+') {
@@ -137,61 +213,54 @@ struct TriggerDiff {
 std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
   out << std::setw(12) << diff.count
       << std::setw(12) << TriggerDiff::format(diff.gained, '+')
-      << std::setw(12) << TriggerDiff::format(diff.lost, '-');
+      << std::setw(12) << TriggerDiff::format(diff.lost, '-')
+      << std::setw(12) << TriggerDiff::format(diff.internal, '~');
   return out;
 }
 
 
-
 void compare(std::vector<std::string> const & old_files, edm::InputTag const & old_label, 
              std::vector<std::string> const & new_files, edm::InputTag const & new_label,
-             unsigned int max_events, bool verbose) {
+             unsigned int max_events, bool ignore_prescales, bool verbose) {
 
-  std::shared_ptr<fwlite::ChainEvent> old_events_p = std::make_shared<fwlite::ChainEvent>(old_files);
-  std::shared_ptr<fwlite::ChainEvent> new_events_p;
-  bool same_files;
+  std::shared_ptr<fwlite::ChainEvent> old_events = std::make_shared<fwlite::ChainEvent>(old_files);
+  std::shared_ptr<fwlite::ChainEvent> new_events;
 
-  if (new_files.size() == 1 and new_files[0] == "-") {
-    new_events_p = old_events_p;
-    same_files = true;
-  } else {
-    new_events_p = std::make_shared<fwlite::ChainEvent>(new_files);
-    same_files = false;
-  }
+  if (new_files.size() == 1 and new_files[0] == "-")
+    new_events = old_events;
+  else
+    new_events = std::make_shared<fwlite::ChainEvent>(new_files);
 
-  fwlite::ChainEvent & old_events = * old_events_p;
-  fwlite::ChainEvent & new_events = * new_events_p;
-
-  std::unique_ptr<HLTConfigData> old_config;
-  std::unique_ptr<HLTConfigData> new_config;
+  std::unique_ptr<HLTConfigDataEx> old_config;
+  std::unique_ptr<HLTConfigDataEx> new_config;
 
   unsigned int counter = 0;
   bool new_run = true;
   std::vector<TriggerDiff> differences;
 
   // loop over the reference events
-  for (old_events.toBegin(); not old_events.atEnd(); ++old_events) {
-    edm::EventID const& id = old_events.id();
-    if (not same_files and not new_events.to(id)) {
+  for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
+    edm::EventID const& id = old_events->id();
+    if (new_events != old_events and not new_events->to(id)) {
       std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": not found in the 'new' files, skipping." << std::endl;
       continue;
     }
 
     fwlite::Handle<edm::TriggerResults> old_handle;
-    old_handle.getByLabel<fwlite::Event>(* old_events.event(), old_label.label().c_str(), old_label.instance().c_str(), old_label.process().c_str());
+    old_handle.getByLabel<fwlite::Event>(* old_events->event(), old_label.label().c_str(), old_label.instance().c_str(), old_label.process().c_str());
     auto const & old_results = * old_handle;
 
     fwlite::Handle<edm::TriggerResults> new_handle;
-    new_handle.getByLabel<fwlite::Event>(* new_events.event(), new_label.label().c_str(), new_label.instance().c_str(), new_label.process().c_str());
+    new_handle.getByLabel<fwlite::Event>(* new_events->event(), new_label.label().c_str(), new_label.instance().c_str(), new_label.process().c_str());
     auto const & new_results = * new_handle;
 
     if (new_run) {
       new_run = false;
-      old_events.fillParameterSetRegistry();
-      new_events.fillParameterSetRegistry();
+      old_events->fillParameterSetRegistry();
+      new_events->fillParameterSetRegistry();
 
-      old_config = getHLTConfigData(* old_events.event(), old_label);
-      new_config = getHLTConfigData(* new_events.event(), new_label);
+      old_config = getHLTConfigData(* old_events->event(), old_label);
+      new_config = getHLTConfigData(* new_events->event(), new_label);
       if (new_config->triggerNames() != old_config->triggerNames()) {
         std::cerr << "Error: inconsistent HLT menus" << std::endl;
         exit(1);
@@ -203,30 +272,35 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
 
     bool needs_header = true;
     for (unsigned int p = 0; p < old_config->size(); ++p) {
-      if (old_results.state(p) == edm::hlt::Pass)
-        ++differences[p].count;
-      if (old_results.state(p) == edm::hlt::Pass and new_results.state(p) != edm::hlt::Pass)
-        ++differences[p].lost;
-      else if (old_results.state(p) != edm::hlt::Pass and new_results.state(p) == edm::hlt::Pass)
-        ++differences[p].gained;
+      State old_state = prescaled_state(old_results.state(p), p, old_results.index(p), * old_config);
+      State new_state = prescaled_state(new_results.state(p), p, new_results.index(p), * new_config);
 
-      if (verbose) {
-        if (old_results.state(p) != new_results.state(p) or old_results.index(p) != new_results.index(p)) {
-          if (needs_header) {
-            needs_header = false;
-            std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": old result is '" << old_results.accept() << "', new result is '" << new_results.accept() << "'" << std::endl;
-          }
-          std::cout << "  Path " << old_config->triggerName(p) << ": ";
-          if (old_results.state(p) == edm::hlt::Pass)
-            std::cout << "old state is '" << decode_path_status(old_results.state(p)) << "', ";
-          else
-            std::cout << "old state is '" << decode_path_status(old_results.state(p)) << "' due to module '" << old_results.index(p) << "', ";
-          if (new_results.state(p) == edm::hlt::Pass)
-            std::cout << "new state is '" << decode_path_status(new_results.state(p)) << "', ";
-          else
-            std::cout << "new state is '" << decode_path_status(new_results.state(p)) << "' due to module '" << new_results.index(p) << "', ";
-          std::cout << std::endl;
+      if (old_state == Pass)
+        ++differences[p].count;
+
+      bool flag = false;
+      if (not ignore_prescales or (old_state != Prescaled and new_state != Prescaled)) {
+        if (old_state == Pass and new_state != Pass) {
+          ++differences[p].lost;
+          flag = true;
+        } else if (old_state != Pass and new_state == Pass) {
+          ++differences[p].gained;
+          flag = true;
+        } else if (old_results.index(p) != new_results.index(p)) {
+          ++differences[p].internal;
+          flag = true;
         }
+      }
+
+      if (verbose and flag) {
+        if (needs_header) {
+          needs_header = false;
+          std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": old result is '" << old_results.accept() << "', new result is '" << new_results.accept() << "'" << std::endl;
+        }
+        std::cout << "  Path " << old_config->triggerName(p) << ": "
+                  << "old state is " << detailed_path_state(old_state, p, old_results.index(p), * old_config) << ", "
+                  << "new state is " << detailed_path_state(new_state, p, new_results.index(p), * new_config)
+                  << std::endl;
       }
     }
     if (verbose and not needs_header)
@@ -237,7 +311,7 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
       break;
   }
 
-  std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << "  " << "Trigger" << std::endl;
+  std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
   for (unsigned int p = 0; p < old_config->size(); ++p)
     std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
 }
@@ -245,13 +319,14 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
 
 int main(int argc, char ** argv) {
   // options
-  const char optstring[] = "o:O:n:N:m:vh";
+  const char optstring[] = "o:O:n:N:m:pvh";
   const option longopts[] = {
     option{ "old-files",    required_argument,  nullptr, 'o' },
     option{ "old-label",    required_argument,  nullptr, 'O' },
     option{ "new-files",    required_argument,  nullptr, 'n' },
     option{ "new-label",    required_argument,  nullptr, 'N' },
     option{ "max-events",   required_argument,  nullptr, 'm' },
+    option{ "prescales",    no_argument,        nullptr, 'p' },
     option{ "verbose",      no_argument,        nullptr, 'v' },
     option{ "help",         no_argument,        nullptr, 'h' },
   };
@@ -262,6 +337,7 @@ int main(int argc, char ** argv) {
   std::vector<std::string>  new_files;
   edm::InputTag             new_label("TriggerResults");
   unsigned int              max_events = 0;
+  bool                      ignore_prescales = true;
   bool                      verbose = false;
 
   // parse the command line options
@@ -300,6 +376,10 @@ int main(int argc, char ** argv) {
         max_events = atoi(optarg);
         break;
 
+      case 'p':
+        ignore_prescales = false;
+        break;
+
       case 'v':
         verbose = true;
         break;
@@ -316,12 +396,16 @@ int main(int argc, char ** argv) {
     }
   }
 
-  if (old_files.empty() or new_files.empty()) {
-    error(std::cerr, "hltDiff: missing file operand");
+  if (old_files.empty()) {
+    error(std::cerr, "hltDiff: please specify the 'old' file(s)");
+    exit(1);
+  }
+  if (new_files.empty()) {
+    error(std::cerr, "hltDiff: please specify the 'new' file(s)");
     exit(1);
   }
 
-  compare(old_files, old_label, new_files, new_label, max_events, verbose);
+  compare(old_files, old_label, new_files, new_label, max_events, ignore_prescales, verbose);
 
   return 0;
 }
