@@ -19,7 +19,6 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "CoralBase/Exception.h"
 
 class HcalTopologyTester : public edm::EDAnalyzer {
 public:
