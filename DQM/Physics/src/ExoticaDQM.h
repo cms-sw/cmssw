@@ -81,6 +81,9 @@
 
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
+// MC truth                                                                                                                                                                          
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -110,6 +113,14 @@ protected:
   virtual void analyzeMonoMuons(edm::Event const& e);
   virtual void analyzeMonoElectrons(edm::Event const& e);
   virtual void analyzeMonoPhotons(edm::Event const& e);
+
+  // Displaced Fermion Searches
+  virtual void analyzeDisplacedLeptons(edm::Event const& e, const edm::EventSetup& s);
+  virtual void analyzeDisplacedJets(edm::Event const& e, const edm::EventSetup& s);
+
+  // Estimate the momentum vector that a GenParticle would have at its trajectory's point of closest
+  // approach to the beam-line.
+  virtual GlobalVector getGenParticleTrajectoryAtBeamline( const edm::EventSetup& iSetup, const  reco::GenParticle* gen );
 
 private:
 
@@ -169,6 +180,20 @@ private:
   edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
 
   edm::EDGetTokenT<reco::JetCorrector> correctorToken_;
+
+  // Tracks
+  edm::EDGetTokenT<reco::TrackCollection> TrackToken_;
+  edm::Handle<reco::TrackCollection> TrackCollection_;
+
+  // Special collections for highly displaced particles
+  edm::EDGetTokenT<reco::TrackCollection> MuonDispToken_;
+  edm::Handle<reco::TrackCollection> MuonDispCollection_;
+  edm::EDGetTokenT<reco::TrackCollection> MuonDispSAToken_;
+  edm::Handle<reco::TrackCollection> MuonDispSACollection_;
+
+  // MC truth
+  edm::EDGetTokenT<reco::GenParticleCollection> GenParticleToken_;
+  edm::Handle<reco::GenParticleCollection> GenCollection_;
 
   ///////////////////////////
   // Parameters
@@ -394,6 +419,21 @@ private:
   double monophoton_Photon_pt_cut_;
   double monophoton_Photon_met_cut_;
   int    monophoton_countPhoton_;
+
+
+  ///////////////////////////////////
+  // Histograms - Displaced Leptons or Jets
+  //
+  MonitorElement* dispElec_track_effi_lxy;
+  MonitorElement* dispElec_elec_effi_lxy;
+  MonitorElement* dispMuon_track_effi_lxy;
+  MonitorElement* dispMuon_muon_effi_lxy;
+  MonitorElement* dispMuon_muonDisp_effi_lxy;
+  MonitorElement* dispMuon_muonDispSA_effi_lxy;
+  MonitorElement* dispJet_track_effi_lxy;
+
+  double dispFermion_eta_cut_;
+  double dispFermion_pt_cut_;
 
   // Histograms - MultiJets Trigger
   //

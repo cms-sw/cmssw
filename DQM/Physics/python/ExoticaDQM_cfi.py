@@ -24,6 +24,13 @@ ExoticaDQM = cms.EDAnalyzer(
     caloMETCollection        = cms.InputTag("caloMetM","","RECO"),
     pfMETCollection          = cms.InputTag("pfMet","","RECO"),
 
+    # Special collections used for highly displaced particles.
+    displacedMuonCollection  = cms.InputTag("displacedGlobalMuons","","RECO"),
+    displacedSAMuonCollection  = cms.InputTag("displacedStandAloneMuons","","RECO"),
+
+    # MC truth                                                                                                                                                                      
+    genParticleCollection    = cms.InputTag("genParticles"),
+
     #Cuts
     # DiJet
     dijet_PFJet1_pt_cut       = cms.double(30.0),
@@ -49,7 +56,10 @@ ExoticaDQM = cms.EDAnalyzer(
     # MonoPhoton
     monophoton_Photon_pt_cut  = cms.double(80.0),
     monophoton_Photon_met_cut = cms.double(100.0),
-
+    
+    # Displaced lepton or jet                                                                                                                                                   
+    dispFermion_eta_cut = cms.double(2.4),
+    dispFermion_pt_cut  = cms.double(1.0),
     
     JetIDParams  = cms.PSet(
         useRecHits      = cms.bool(True),
