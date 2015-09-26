@@ -6,15 +6,13 @@
 // Implementation:
 //     [Notes on implementation]
 //
-// Original Author:  Chris Jones
-//         Created:  Wed, 31 Jul 2013 15:59:19 GMT
 //
 
 // system include files
 #include <cassert>
 
 // user include files
-#include "FWCore/Framework/interface/one/OutputModuleBase.h"
+#include "FWCore/Framework/interface/global/OutputModuleBase.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/ThinnedAssociation.h"
@@ -36,7 +34,7 @@
 
 
 namespace edm {
-  namespace one {
+  namespace global {
 
     // -------------------------------------------------------
     OutputModuleBase::OutputModuleBase(ParameterSet const& pset) :
@@ -179,10 +177,6 @@ namespace edm {
 
     OutputModuleBase::~OutputModuleBase() { }
     
-    SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
-      return SharedResourcesAcquirer{};
-    }
-    
     void OutputModuleBase::doPreallocate(PreallocationConfiguration const& iPC) {
       auto nstreams = iPC.numberOfStreams();
       selectors_.resize(nstreams);
@@ -201,7 +195,6 @@ namespace edm {
     }
 
     void OutputModuleBase::doBeginJob() {
-      resourcesAcquirer_ = createAcquirer();
       this->beginJob();
     }
     
@@ -222,19 +215,24 @@ namespace edm {
                               ModuleCallingContext const* mcc) {
       
       {
-        std::lock_guard<std::mutex> guard(mutex_);
-        {
-          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
           EventSignalsSentry sentry(act,mcc);
           write(ep, mcc);
-        }
       }
-      if(remainingEvents_ > 0) {
-        --remainingEvents_;
+
+      auto remainingEvents = remainingEvents_.load();
+      bool keepTrying = remainingEvents > 0;
+      while(keepTrying) {
+        auto newValue = remainingEvents - 1;
+        keepTrying = !remainingEvents_.compare_exchange_strong(remainingEvents, newValue);
+        if(keepTrying) { 
+          // the exchange failed because the value was changed by another thread.
+          // remainingEvents was changed to be the new value of remainingEvents_;
+          keepTrying = remainingEvents > 0;
+        }
       }
       return true;
     }
-    
+
     bool
     OutputModuleBase::doBeginRun(RunPrincipal const& rp,
                                  EventSetup const&,

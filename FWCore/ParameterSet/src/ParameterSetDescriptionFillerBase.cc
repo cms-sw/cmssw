@@ -37,6 +37,7 @@ const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForStream
 const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForGlobalEDAnalyzer("global::EDAnalyzer");
 const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForGlobalEDProducer("global::EDProducer");
 const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForGlobalEDFilter("global::EDFilter");
+const std::string edm::ParameterSetDescriptionFillerBase::kExtendedBaseForGlobalOutputModule("global::OutputModule");
 
 //
 // static data member definitions
