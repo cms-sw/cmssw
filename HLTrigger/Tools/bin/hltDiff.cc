@@ -14,12 +14,16 @@
 #include <unistd.h>
 #include <getopt.h>
 
+#include <boost/algorithm/string.hpp>
+
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigData.h"
 
 void usage(std::ostream & out) {
   out << "\
@@ -76,12 +80,32 @@ const char * decode_path_status(int status) {
   else
     return "invalid";
 }
+
+
+std::string getProcessNameFromBranch(std::string const & branch) {
+  std::vector<boost::iterator_range<std::string::const_iterator>> tokens;
+  boost::split(tokens, branch, boost::is_any_of("_."), boost::token_compress_off);
+  return boost::copy_range<std::string>(tokens[3]);
+}
+
+std::unique_ptr<HLTConfigData> getHLTConfigData(fwlite::EventBase const & event, edm::InputTag inputtag) {
+  auto const & history = event.processHistory();
+  auto const & branch  = event.getBranchNameFor( edm::Wrapper<edm::TriggerResults>::typeInfo(), inputtag.label().c_str(), inputtag.instance().c_str(), inputtag.process().c_str() );
+  auto const & process = getProcessNameFromBranch( branch );
   
-/*
-def build_menu(event, results):
-    tn = event.triggerNames(results)
-    names   = [ tn.triggerName(i) for i in range(results.size()) ]
-*/
+  edm::ProcessConfiguration config;
+  if (not history.getConfigurationForProcess(process, config)) {
+    std::cerr << "error: the process " << process << " is not in the Process History" << std::endl;
+    exit(1);
+  }
+  const edm::ParameterSet* pset = edm::pset::Registry::instance()->getMapped(config.parameterSetID());
+  if (pset == nullptr) {
+    std::cerr << "error: the configuration for the process " << process << " is not available in the Provenance" << std::endl;
+    exit(1);
+  }
+  return std::unique_ptr<HLTConfigData>(new HLTConfigData(pset));
+}
+
 
 struct TriggerDiff {
   TriggerDiff() : count(0), gained(0), lost(0) { }
@@ -138,9 +162,11 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
   fwlite::ChainEvent & old_events = * old_events_p;
   fwlite::ChainEvent & new_events = * new_events_p;
 
+  std::unique_ptr<HLTConfigData> old_config;
+  std::unique_ptr<HLTConfigData> new_config;
+
   unsigned int counter = 0;
   bool new_run = true;
-  std::vector<std::string> const * trigger_names = nullptr;
   std::vector<TriggerDiff> differences;
 
   // loop over the reference events
@@ -161,17 +187,22 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
 
     if (new_run) {
       new_run = false;
-      trigger_names = & old_events.triggerNames(old_results).triggerNames();
-      if (new_events.triggerNames(new_results).triggerNames() != * trigger_names) {
+      old_events.fillParameterSetRegistry();
+      new_events.fillParameterSetRegistry();
+
+      old_config = getHLTConfigData(* old_events.event(), old_label);
+      new_config = getHLTConfigData(* new_events.event(), new_label);
+      if (new_config->triggerNames() != old_config->triggerNames()) {
         std::cerr << "Error: inconsistent HLT menus" << std::endl;
-        return;
+        exit(1);
       }
+
       differences.clear();
-      differences.resize(trigger_names->size());
+      differences.resize(old_config->size());
     }
 
     bool needs_header = true;
-    for (unsigned int p = 0; p < trigger_names->size(); ++p) {
+    for (unsigned int p = 0; p < old_config->size(); ++p) {
       if (old_results.state(p) == edm::hlt::Pass)
         ++differences[p].count;
       if (old_results.state(p) == edm::hlt::Pass and new_results.state(p) != edm::hlt::Pass)
@@ -183,16 +214,22 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
         if (old_results.state(p) != new_results.state(p) or old_results.index(p) != new_results.index(p)) {
           if (needs_header) {
             needs_header = false;
-            std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": old result " << old_results.accept() << " , new result " << new_results.accept() << std::endl;
+            std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": old result is '" << old_results.accept() << "', new result is '" << new_results.accept() << "'" << std::endl;
           }
-          std::cout << "  Path " << (*trigger_names)[p] << ": "
-                    << "  old state is '" << decode_path_status(old_results.state(p)) << "' due to module " << old_results.index(p)
-                    << "  new state is '" << decode_path_status(new_results.state(p)) << "' due to module " << new_results.index(p)
-                    << std::endl;
+          std::cout << "  Path " << old_config->triggerName(p) << ": ";
+          if (old_results.state(p) == edm::hlt::Pass)
+            std::cout << "old state is '" << decode_path_status(old_results.state(p)) << "', ";
+          else
+            std::cout << "old state is '" << decode_path_status(old_results.state(p)) << "' due to module '" << old_results.index(p) << "', ";
+          if (new_results.state(p) == edm::hlt::Pass)
+            std::cout << "new state is '" << decode_path_status(new_results.state(p)) << "', ";
+          else
+            std::cout << "new state is '" << decode_path_status(new_results.state(p)) << "' due to module '" << new_results.index(p) << "', ";
+          std::cout << std::endl;
         }
       }
     }
-    if (not needs_header)
+    if (verbose and not needs_header)
       std::cout << std::endl;
 
     ++counter;
@@ -201,8 +238,8 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
   }
 
   std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << "  " << "Trigger" << std::endl;
-  for (unsigned int p = 0; p < trigger_names->size(); ++p)
-    std::cout << std::setw(12) << counter << differences[p] << "  " << (*trigger_names)[p] << std::endl;
+  for (unsigned int p = 0; p < old_config->size(); ++p)
+    std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
 }
 
 
