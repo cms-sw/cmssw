@@ -1,33 +1,7 @@
-/*
- * usage: hltDiff -o oldfile1.root [oldfile2.root ...] [-O old_label[:old_instance[:old_process]]]
- *                -n newfile1.root [newfile2.root ...] [-N new_label[:new_instance[:new_process]]] 
- *                -m max_events -v
+/*      hltDiff: compare TriggerResults event by event
  *
- *  -o oldfile1.root [oldfile2.root ...]
- *      input file(s) with the original (reference) trigger results.
- *
- *  -O old_label[:old_instance[:old_process]]
- *      collection with the original (reference) trigger results;
- *      the default is "TriggerResults" (without any instance or process name).
- *
- *  -n newfile1.root [newfile2.root ...]
- *      input file(s) with the trigger results to be compared with the reference;
- *      to read the trigger results from a different collection in the ame files as
- *      the reference, use '-n -' and specify the collection with -N (see below).
- *
- *  -N new_label[:new_instance[:new_process]]
- *      collection with the trigger results to be compared with the reference;
- *      the default is "TriggerResults" (without any instance or process name).
- *
- *  -m max_events
- *      compare only the first max_events events;
- *      the default is to compare all the events in the original (reference) files.
- *
- *  -v
- *      be verbose: print event-by-event comparison results.
- *
- *  -h
- *      print this help message, and exit.
+ *      Compare two TriggerResults collections event by event.
+ *      These can come from two collections in the same file(s), or from two different sets of files.
  */
 
 #include <vector>
@@ -38,6 +12,7 @@
 
 #include <cstring>
 #include <unistd.h>
+#include <getopt.h>
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -46,39 +21,52 @@
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
 
-void usage(void) {
-  std::cout << "\
-usage: hltDiff -o oldfile1.root [oldfile2.root ...] [-O old_label[:old_instance[:old_process]]]\n\
-               -n newfile1.root [newfile2.root ...] [-N new_label[:new_instance[:new_process]]] \n\
-               -m max_events -v\n\
+void usage(std::ostream & out) {
+  out << "\
+usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-label LABEL[:INSTANCE[:PROCESS]]]\n\
+               -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-label LABEL[:INSTANCE[:PROCESS]]]\n\
+               [-m|--max-events MAXEVENTS] [-v|--verbose] [-h|--help]\n\
 \n\
-  -o oldfile1.root [oldfile2.root ...]\n\
-      input file(s) with the original (reference) trigger results.\n\
+  -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
+      input file(s) with the old (reference) trigger results.\n\
 \n\
-  -O old_label[:old_instance[:old_process]]\n\
-      collection with the original (reference) trigger results;\n\
+  -O|--old-label LABEL[:INSTANCE[:PROCESS]]\n\
+      collection with the old (reference) trigger results;\n\
       the default is 'TriggerResults' (without any instance or process name).\n\
 \n\
-  -n newfile1.root [newfile2.root ...]\n\
-      input file(s) with the trigger results to be compared with the reference;\n\
-      to read the trigger results from a different collection in the ame files as\n\
+  -n|--new-files FILE1.ROOT [FILE2.ROOT ...]\n\
+      input file(s) with the new trigger results to be compared with the reference;\n\
+      to read these from a different collection in the same files as\n\
       the reference, use '-n -' and specify the collection with -N (see below).\n\
 \n\
-  -N new_label[:new_instance[:new_process]]\n\
-      collection with the trigger results to be compared with the reference;\n\
+  -N|--new-label LABEL[:INSTANCE[:PROCESS]]\n\
+      collection with the new trigger results to be compared with the reference;\n\
       the default is 'TriggerResults' (without any instance or process name).\n\
 \n\
-  -m max_events\n\
-      compare only the first max_events events;\n\
+  -m|--max-events MAXEVENTS\n\
+      compare only the first MAXEVENTS events;\n\
       the default is to compare all the events in the original (reference) files.\n\
 \n\
-  -v\n\
+  -v|--verbose\n\
       be verbose: print event-by-event comparison results.\n\
 \n\
-  -h\n\
+  -h|--help\n\
       print this help message, and exit." << std::endl;
 }
 
+void error(std::ostream & out) {
+    out << "Try 'hltDiff --help' for more information." << std::endl;
+}
+
+void error(std::ostream & out, const char * message) {
+  out << message << std::endl;
+  error(out);
+}
+
+void error(std::ostream & out, const std::string & message) {
+  out << message << std::endl;
+  error(out);
+}
 
 const char * decode_path_status(int status) {
   static const char * message[] = { "not run", "accepted", "rejected", "error" };
@@ -219,6 +207,18 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
 
 
 int main(int argc, char ** argv) {
+  // options
+  const char optstring[] = "o:O:n:N:m:vh";
+  const option longopts[] = {
+    option{ "old-files",    required_argument,  nullptr, 'o' },
+    option{ "old-label",    required_argument,  nullptr, 'O' },
+    option{ "new-files",    required_argument,  nullptr, 'n' },
+    option{ "new-label",    required_argument,  nullptr, 'N' },
+    option{ "max-events",   required_argument,  nullptr, 'm' },
+    option{ "verbose",      no_argument,        nullptr, 'v' },
+    option{ "help",         no_argument,        nullptr, 'h' },
+  };
+
   // default values
   std::vector<std::string>  old_files;
   edm::InputTag             old_label("TriggerResults");
@@ -229,7 +229,7 @@ int main(int argc, char ** argv) {
 
   // parse the command line options
   int c = -1;
-  while ((c = getopt(argc, argv, "o:O:n:N:m:vh")) != -1) {
+  while ((c = getopt_long(argc, argv, optstring, longopts, nullptr)) != -1) {
     switch (c) {
       case 'o':
         old_files.push_back(std::string(optarg));
@@ -268,19 +268,19 @@ int main(int argc, char ** argv) {
         break;
 
       case 'h':
-        usage();
+        usage(std::cerr);
         exit(0);
         break;
 
       default:
-        std::cerr << "Try 'hltDiff -h' for more information." << std::endl;
+        error(std::cerr);
         exit(1);
         break;
     }
   }
 
   if (old_files.empty() or new_files.empty()) {
-    std::cerr << "hltDiff: missing file operand\nTry 'hltDiff -h' for more information." << std::endl;
+    error(std::cerr, "hltDiff: missing file operand");
     exit(1);
   }
 
