@@ -38,7 +38,6 @@ public:
 
 private:
   // ----------member data ---------------------------
-  const edm::ParameterSet m_pSet;
 
 };
 #endif

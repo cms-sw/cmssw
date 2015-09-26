@@ -18,7 +18,6 @@
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "CoralBase/Exception.h"
 
 class CaloTowerTopologyTester : public edm::EDAnalyzer {
 public:

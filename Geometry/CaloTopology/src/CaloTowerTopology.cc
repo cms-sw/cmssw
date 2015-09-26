@@ -5,21 +5,21 @@
 CaloTowerTopology::CaloTowerTopology(const HcalTopology * topology) : hcaltopo(topology) {
 
   //get number of towers in each hcal subdet from hcaltopo
-  int nEtaHB_, nEtaHE_, nEtaHO_, nEtaHF_;
-  nEtaHB_ = hcaltopo->lastHBRing() - hcaltopo->firstHBRing() + 1;
-  nEtaHE_ = hcaltopo->lastHERing() - hcaltopo->firstHERing() + 1;
-  nEtaHO_ = hcaltopo->lastHORing() - hcaltopo->firstHORing() + 1;
-  nEtaHF_ = hcaltopo->lastHFRing() - hcaltopo->firstHFRing() + 1;
+  int nEtaHB, nEtaHE, nEtaHO, nEtaHF;
+  nEtaHB = hcaltopo->lastHBRing() - hcaltopo->firstHBRing() + 1;
+  nEtaHE = hcaltopo->lastHERing() - hcaltopo->firstHERing() + 1;
+  nEtaHO = hcaltopo->lastHORing() - hcaltopo->firstHORing() + 1;
+  nEtaHF = hcaltopo->lastHFRing() - hcaltopo->firstHFRing() + 1;
 
   //setup continuous ieta  
   firstHBRing_ = 1;
-  lastHBRing_ = firstHBRing_ + nEtaHB_ - 1;
+  lastHBRing_ = firstHBRing_ + nEtaHB - 1;
   firstHERing_ = lastHBRing_; //crossover
-  lastHERing_ = firstHERing_ + nEtaHE_ - 1;
+  lastHERing_ = firstHERing_ + nEtaHE - 1;
   firstHFRing_ = lastHERing_ + 1; //no crossover for CaloTowers; HF crossover cells go in the subsequent non-crossover HF tower
-  lastHFRing_ = firstHFRing_ + (nEtaHF_ - 1) - 1; //nEtaHF - 1 to account for no crossover
+  lastHFRing_ = firstHFRing_ + (nEtaHF - 1) - 1; //nEtaHF - 1 to account for no crossover
   firstHORing_ = 1;
-  lastHORing_ = firstHORing_ + nEtaHO_ - 1;
+  lastHORing_ = firstHORing_ + nEtaHO - 1;
   
   //translate phi segmentation boundaries into continuous ieta
   if(hcaltopo->firstHEDoublePhiRing()==999) firstHEDoublePhiRing_ = firstHFRing_;

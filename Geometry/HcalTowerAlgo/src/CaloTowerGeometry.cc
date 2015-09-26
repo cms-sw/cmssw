@@ -28,8 +28,6 @@ CaloTowerGeometry::alignmentTransformIndexLocal( const DetId& id ) {
   const unsigned int ip ( ( cid.iphi() - 1 )/4 ) ;
   const int izoff ( ( cid.zside() + 1 )/2 ) ;
   const unsigned int offset ( izoff*3*18) ;
-  
-  assert(0);
 
   return ( offset + ip + 
 	   ( cttopo->firstHFQuadPhiRing() <= iea ? 36 :

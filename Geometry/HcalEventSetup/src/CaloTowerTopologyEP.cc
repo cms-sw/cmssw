@@ -10,11 +10,6 @@
  Implementation:
      <Notes on implementation>
 */
-//
-// Original Author:  Jeremiah Mans
-//         Created:  Mon Oct  3 11:35:27 CDT 2005
-//
-//
 
 #include "Geometry/HcalEventSetup/interface/CaloTowerTopologyEP.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -34,8 +29,7 @@
 // constructors and destructor
 //
 CaloTowerTopologyEP::CaloTowerTopologyEP(const edm::ParameterSet& conf)
-  : m_pSet( conf ) {
- // std::cout << "CaloTowerTopologyEP::CaloTowerTopologyEP" << std::endl;
+{
   edm::LogInfo("HCAL") << "CaloTowerTopologyEP::CaloTowerTopologyEP";
   setWhatProduced(this);
 }
@@ -59,7 +53,6 @@ CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord) {
   edm::ESHandle<HcalTopology> hcaltopo;
   iRecord.get(hcaltopo);
 
-//  std::cout << "CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord)" << std::endl;
   edm::LogInfo("HCAL") << "CaloTowerTopologyEP::produce(const HcalRecNumberingRecord& iRecord)";
   
   ReturnType myTopo(new CaloTowerTopology(&*hcaltopo));
