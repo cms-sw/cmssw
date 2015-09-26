@@ -8,6 +8,7 @@
 
 
 #include <iostream>
+#include <unordered_set>
 
 template<typename P>
 class MCTruthHelper {
