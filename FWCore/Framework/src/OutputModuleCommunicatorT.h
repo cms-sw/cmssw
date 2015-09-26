@@ -13,10 +13,14 @@ namespace edm {
   namespace one {
     class OutputModuleBase;
   }
+  namespace global {
+    class OutputModuleBase;
+  }
   namespace impl {
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(void *);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::OutputModule *);
     std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::one::OutputModuleBase *);
+    std::unique_ptr<edm::OutputModuleCommunicator> createCommunicatorIfNeeded(::edm::global::OutputModuleBase *);
   }
   
   template <typename T>
