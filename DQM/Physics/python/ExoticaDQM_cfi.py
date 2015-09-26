@@ -24,6 +24,8 @@ ExoticaDQM = cms.EDAnalyzer(
     caloMETCollection        = cms.InputTag("caloMetM","","RECO"),
     pfMETCollection          = cms.InputTag("pfMet","","RECO"),
 
+    trackCollection          = cms.InputTag("generalTracks"),
+
     # Special collections used for highly displaced particles.
     displacedMuonCollection  = cms.InputTag("displacedGlobalMuons","","RECO"),
     displacedSAMuonCollection  = cms.InputTag("displacedStandAloneMuons","","RECO"),
