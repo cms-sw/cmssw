@@ -2189,7 +2189,7 @@ void EcalSelectiveReadoutValidation::selectFedsForLog(){
   buf <<  "\nOnly DCCs from this list will be considered for error logging\n";
   srpAlgoErrorLog_ << buf.str();
   srApplicationErrorLog_<<  buf.str();
-  LogInfo("EcalSrValid") << buf;
+  LogInfo("EcalSrValid") << buf.str();
 }
 
 
