@@ -973,7 +973,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(doDCAPlots_ || doPVPlots_ || doSIPPlots_ || doAllPlots_) {
     edm::Handle<reco::VertexCollection> recoPrimaryVerticesHandle;
     iEvent.getByToken(pvToken_,recoPrimaryVerticesHandle);
-    if (recoPrimaryVerticesHandle->size() > 0) {
+    if (recoPrimaryVerticesHandle.isValid() && recoPrimaryVerticesHandle->size() > 0) {
       const reco::Vertex& pv = (*recoPrimaryVerticesHandle)[0];
     
 
