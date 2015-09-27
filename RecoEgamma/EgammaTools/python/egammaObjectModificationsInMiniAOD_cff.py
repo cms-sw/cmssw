@@ -19,10 +19,10 @@ def setup_mva(val_pset,cat_pset,prod_name,mva_name):
 egamma_modifications = cms.VPSet(
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromFloatValueMaps'),
               electron_config = cms.PSet( ),
-              photon_config   = cms.PSet( chargedHadronIso         = cms.InputTag('photonIDValueMapProducer:phoChargedIsolation'),
-                                          neutralHadronIsolation   = cms.InputTag('photonIDValueMapProducer:phoNeutralHadronIsolation'),
-                                          photonIso                = cms.InputTag('photonIDValueMapProducer:phoPhotonIsolation'),
-                                          chargedHadronIsoWrongVtx = cms.InputTag('photonIDValueMapProducer:phoWorstChargedIsolation')
+              photon_config   = cms.PSet( phoChargedIsolation         = cms.InputTag('photonIDValueMapProducer:phoChargedIsolation'),
+                                          phoNeutralHadronIsolation   = cms.InputTag('photonIDValueMapProducer:phoNeutralHadronIsolation'),
+                                          phoPhotonIsolation          = cms.InputTag('photonIDValueMapProducer:phoPhotonIsolation'),
+                                          phoWorstChargedIsolation    = cms.InputTag('photonIDValueMapProducer:phoWorstChargedIsolation')
                                           )
               ),
     cms.PSet( modifierName    = cms.string('EGExtraInfoModifierFromIntValueMaps'),
