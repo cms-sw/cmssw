@@ -75,6 +75,7 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
   vector<const ForwardDetRing*> frontRings, backRings;
 
 
+//  for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end();ring++){ 
   for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end()-2;ring++){ 
 
     for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); roll++) {    
@@ -127,11 +128,11 @@ MuonGEMDetLayerGeometryBuilder::buildLayer(int endcap,vector<int>& rings, int st
   if(backRings.size()!=0 && frontRings.size()!=0) result = new MuRingForwardDoubleLayer(frontRings, backRings);
     else result = 0;
   if(result != 0){
-  LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
-                    << " and " << backRings.size()
-                    << " rings, at Z " << result->position().z()
-                    << " R1: " << result->specificSurface().innerRadius()
-                    << " R2: " << result->specificSurface().outerRadius();
+    LogTrace(metname) << "New MuRingForwardLayer with " << frontRings.size()
+		      << " and " << backRings.size()
+		      << " rings, at Z " << result->position().z()
+		      << " R1: " << result->specificSurface().innerRadius()
+		      << " R2: " << result->specificSurface().outerRadius();
   }
   return result;
 

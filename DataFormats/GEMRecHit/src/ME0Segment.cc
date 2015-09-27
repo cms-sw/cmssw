@@ -108,7 +108,6 @@ AlgebraicMatrix ME0Segment::projectionMatrix() const {
 //
 void ME0Segment::print() const {
   LogDebug("ME0Segment") << *this;
-
 }
 
 std::ostream& operator<<(std::ostream& os, const ME0Segment& seg) {
@@ -121,7 +120,6 @@ std::ostream& operator<<(std::ostream& os, const ME0Segment& seg) {
     "            chi2/ndf = " << ((seg.degreesOfFreedom() != 0.) ? seg.chi2()/double(seg.degreesOfFreedom()) :0 ) << 
     " #rechits = " << seg.specificRecHits().size()<<
     " time = "<< seg.time() << " +/- " << seg.timeErr() << " ns ";
-
   return os;  
 }
 

@@ -10,8 +10,10 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
+#include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 
 #include<bitset>
 
@@ -847,9 +849,11 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
         } else if (muonRPCHitFilter(pattern)) {
             stream << "\trpc " << (getRPCregion(pattern) ? "endcaps" : "barrel")
                    << ", layer " << getRPCLayer(pattern);
-       } else if (muonGEMHitFilter(pattern)) {
+        } else if (muonGEMHitFilter(pattern)) {
             stream << "\tgem " << (getGEMLayer(pattern) ? "layer1" : "layer2") 
                    << ", station " << getGEMStation(pattern);
+	} else if (muonME0HitFilter(pattern)) {
+	   stream << "\tme0 " << getME0Layer(pattern);
         } else {
             stream << "(UNKNOWN Muon SubStructure!) \tsubsubstructure "
                    << getSubStructure(pattern);

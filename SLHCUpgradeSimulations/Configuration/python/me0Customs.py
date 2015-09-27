@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 def customise(process):
+    process=customise_hack_ecal(process)
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'L1simulation_step'):
@@ -9,16 +10,36 @@ def customise(process):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
         process=customise_RawToDigi(process)
+    #if hasattr(process,'reconstruction'):
+    #    process=customise_RecoFull(process)
     if hasattr(process,'reconstruction'):
-        process=customise_RecoFull(process)
-    if hasattr(process,'famosWithEverything'):
-        process=customise_RecoFast(process)
+        process=customise_Reco(process)
+    #if hasattr(process,'famosWithEverything'):
+    #    process=customise_RecoFast(process)
     if hasattr(process,'dqmoffline_step'):
         process=customise_DQM(process)
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
-    if hasattr(process,'validation_step'):
-        process=customise_Validation(process)
+    #if hasattr(process,'validation_step'):
+    #    process=customise_Validation(process)
+    return process
+
+
+def customise_hack_ecal(process):
+    process.load("Geometry.CaloEventSetup.CaloGeometryBuilder_cfi")
+    process.CaloGeometryBuilder.SelectedCalos = cms.vstring('HCAL',
+                                                            'ZDC',
+                                                            'EcalBarrel',
+                                                            'EcalEndcap',
+                                                            #'EcalPreshower',
+                                                            'TOWER')
+    #process.load("RecoEcal.EgammaClusterProducers.reducedRecHitsSequence_cff")
+    #process.load("Configuration.StandardSequences.Reconstruction_cff")
+    #process.reducedRecHits = cms.Sequence ( reducedEcalRecHitsSequenceEcalOnly * reducedHcalRecHitsSequence )
+    #Might not be needed...
+    #process.load("RecoEcal.EgammaClusterProducers.particleFlowSuperClusterECAL_cfi")
+    #process.particleFlowSuperClusterECALBox.use_preshower=cms.bool(False)
+    #process.particleFlowSuperClusterECALMustache.use_preshower=cms.bool(False)
     return process
 
 def customise_Digi(process):
@@ -31,8 +52,18 @@ def customise_Digi(process):
     process.mix.mixObjects.mixSH.subdets.append('MuonME0Hits')
     process.load('SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi')
     process.muonDigi += process.simMuonME0Digis
-    process=outputCustoms(process)
+
+    #from SimMuon.GEMDigitizer.customizeGEMDigi import customize_digi_addGEM_addME0_muon_only
+    #process = customize_digi_addGEM_addME0_muon_only(process)
+    #process.simMuonGEMDigis.mixLabel = cms.string("mix")
+    #process.simMuonME0Digis.mixLabel = cms.string("mix")
+    #process.digitisation_step.remove(process.simMuonRPCDigis)
+    # process.simMuonRPCDigis.digiModel = cms.string('RPCSimParam')
+    #process.simMuonRPCDigis.digiModel = cms.string('RPCSimAverageNoiseEff')
+    #process=outputCustoms(process)
+
     return process
+
 
 def customise_L1Emulator(process):
     return process
@@ -76,6 +107,18 @@ def customise_RecoFast(process):
 def customise_RecoFull(process):
     process=customise_LocalReco(process)
     process=customise_GlobalRecoFull(process)
+    process=outputCustoms(process)
+    return process
+
+
+def customise_Reco(process):
+    #process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
+    process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
+    process.muonlocalreco += process.me0RecHits
+    process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+    process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+    process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+    process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
     process=outputCustoms(process)
     return process
 

@@ -26,10 +26,7 @@ public:
 	
     /// Constructor
     ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, LocalPoint origin, 
-	       LocalVector direction, AlgebraicSymMatrix errors, double chi2);
-
-   ME0Segment(const std::vector<const ME0RecHit*>& proto_segment, LocalPoint origin, 
-	      LocalVector direction, AlgebraicSymMatrix errors, double chi2, double time, double timeErr);
+        	LocalVector direction, AlgebraicSymMatrix errors, double chi2);
   
     /// Destructor
     virtual ~ME0Segment();
@@ -72,7 +69,7 @@ public:
 
     float time() const    { return theTimeValue; }
     float timeErr() const { return theTimeUncrt; }
-    
+
     void print() const;		
     
  private:

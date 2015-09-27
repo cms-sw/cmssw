@@ -29,6 +29,11 @@ class ME0RecHitStandardAlgo : public ME0RecHitBaseAlgo {
                        LocalError& error) const;
 
 
+  virtual bool compute(const ME0DigiPreReco& digi,
+                       const float& angle,
+                       const GlobalPoint& globPos, 
+                       LocalPoint& point,
+                       LocalError& error) const;
 };
 #endif
 
