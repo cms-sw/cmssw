@@ -3,7 +3,7 @@
 HLT_CaloJet260_v*
 HLT_PFJet260_v*
 HLT_Photon20_CaloIdVL_IsoL_v*
-HLT_Ele27_eta2p1_WPLoose_Gsf_v*
+HLT_Ele27_WPLoose_Gsf_v*
 HLT_Mu50_v*
 HLT_Physics_v*
 
