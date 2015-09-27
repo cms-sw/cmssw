@@ -18,15 +18,10 @@
 // user include files
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#define private public
 #include "Fireworks/Core/interface/FWEventItem.h"
-#undef private
-
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"
-
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
-
 #include "Fireworks/Core/interface/FWModelFilter.h"
 
 //

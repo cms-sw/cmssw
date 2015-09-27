@@ -14,9 +14,7 @@
 
 // user include files
 // MT -- to get auxBranch
-#define private public
 #include "DataFormats/FWLite/interface/Event.h"
-#undef private
 #include "Fireworks/Core/interface/FWEventSelector.h"
 #include "Fireworks/Core/interface/FWTEventList.h"
 #include "Fireworks/Core/interface/FWConfigurable.h"
