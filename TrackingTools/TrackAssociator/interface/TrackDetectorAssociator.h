@@ -160,7 +160,7 @@ class TrackDetectorAssociator {
    void getTAMuonChamberMatches(std::vector<TAMuonChamberMatch>& matches,
 			      const AssociatorParameters& parameters) dso_internal;
   
-   void           init( const edm::EventSetup&) dso_internal;
+   void           init( const edm::EventSetup&, const AssociatorParameters&) dso_internal;
    
    math::XYZPoint getPoint( const GlobalPoint& point)  dso_internal
      {
