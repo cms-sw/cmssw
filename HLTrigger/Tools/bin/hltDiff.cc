@@ -238,6 +238,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
   std::unique_ptr<HLTConfigDataEx> new_config;
 
   unsigned int counter = 0;
+  unsigned int affected = 0;
   bool new_run = true;
   std::vector<TriggerDiff> differences;
 
@@ -274,6 +275,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     }
 
     bool needs_header = true;
+    bool affected_event = false;
     for (unsigned int p = 0; p < old_config->size(); ++p) {
       State old_state = prescaled_state(old_results.state(p), p, old_results.index(p), * old_config);
       State new_state = prescaled_state(new_results.state(p), p, new_results.index(p), * new_config);
@@ -295,6 +297,9 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
         }
       }
 
+      if (flag)
+        affected_event = true;
+
       if (verbose and flag) {
         if (needs_header) {
           needs_header = false;
@@ -309,6 +314,9 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
                   << std::endl;
       }
     }
+    if (affected_event)
+      ++affected;
+
     if (verbose and not needs_header)
       std::cout << std::endl;
 
@@ -317,6 +325,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       break;
   }
 
+  std::cout << "Found " << affected << " events out of " << counter << " with differences:\n" << std::endl;
   std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
   for (unsigned int p = 0; p < old_config->size(); ++p)
     std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
