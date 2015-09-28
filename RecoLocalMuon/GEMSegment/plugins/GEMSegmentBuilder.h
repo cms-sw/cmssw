@@ -41,7 +41,11 @@ public:
     void setGeometry(const GEMGeometry* g);
 
 private:
+
+    std::string algoName;
+    edm::ParameterSet segAlgoPSet;
     GEMSegmentAlgorithm* algo;
+    bool useGE21Short;
     const GEMGeometry* geom_; 
 };
 
