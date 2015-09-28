@@ -6,6 +6,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 /** \class HcalCoarsePedestalMonitor
   *  
@@ -47,6 +48,7 @@ private:  ///Methods, variables accessible only within class code
   void fill_Nevents();
   void zeroCounters();
 
+  const HcalTopology* topo_;
   // Store sum of pedestal values over all events
   EtaPhiHists CoarsePedestalsSumByDepth;
   EtaPhiHists CoarsePedestalsOccByDepth;

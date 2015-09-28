@@ -15,6 +15,7 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #define DIGI_BQ_FRAC_NBINS 101
 #define DIGI_NUM 9072
@@ -96,6 +97,7 @@ public:
   void reset();
 
 private:  ///Methods, variables accessible only within class code
+  const HcalTopology* topo_;
   bool passedMinBiasHLT_;
   bool excludeHORing2_;
   bool excludeHO1P02_;
