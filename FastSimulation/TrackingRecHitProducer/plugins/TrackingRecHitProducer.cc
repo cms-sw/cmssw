@@ -173,6 +173,12 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
         algo->endEvent(event,eventSetup);
     }
 
+    // note from lukas:
+    // all rechits need a unique id numbers
+    for(unsigned recHitIndex = 0,nRecHits = output_recHits->size();recHitIndex < nRecHits;nRecHits++){
+	((FastSingleTrackerRecHit*)&(*output_recHits)[recHitIndex])->setId(recHitIndex);
+    }
+
     event.put(std::move(output_recHits));
     event.put(std::move(output_recHitRefs),"simHit2RecHitMap");
 
