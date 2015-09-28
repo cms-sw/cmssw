@@ -12,8 +12,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-void GEMSegFit::fit(void) {
-  if ( fitdone() ) return; // don't redo fit unnecessarily
+bool GEMSegFit::fit(void) {
+  if ( fitdone() ) return fitdone_; // don't redo fit unnecessarily
   short n = nhits();
   switch ( n ) {
   case 1:
@@ -29,8 +29,9 @@ void GEMSegFit::fit(void) {
     fitlsq();
     break;
   default:
-    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::fit] - cannot fit more than 6 hits!!";
+    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::fit] - cannot fit more than 6 hits!!"; // should make this :: "cannot fit more than 4 hits!!"
   }  
+  return fitdone_;
 }
 
 void GEMSegFit::fit2(void) {
@@ -40,7 +41,13 @@ void GEMSegFit::fit2(void) {
   //       y = mx + c
   // with m = (y2-y1)/(x2-x1)
   // and  c = (y1*x2-x2*y1)/(x2-x1)
+  //
+  // Now we will make two straight lines
+  // one in xz-plane, another in yz-plane
+  //       x = uz + c1 
+  //       y = vz + c2
 
+  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit:fit2]-------------------------------------";
 
   // 1) Check whether hits are on the same layer
   // -------------------------------------------
@@ -54,7 +61,8 @@ void GEMSegFit::fit2(void) {
   int il2     = d2.layer();
   const GEMRecHit& h2 = (**ih);
     
-  // Skip if on same layer, but should be impossible :)
+  // Skip if on same layer, but should have been avoided earlier on 
+  // (in SegAlgo.cc where clustering has been performed)
   if (il1 == il2) {
     edm::LogVerbatim("GEMSegFit") << "[GEMSegFit:fit2] - 2 hits on same layer!!";
     return;
@@ -86,8 +94,11 @@ void GEMSegFit::fit2(void) {
 
   float uintercept = ( h1pos.x()*h2pos.z() - h2pos.x()*h1pos.z() ) / dz;
   float vintercept = ( h1pos.y()*h2pos.z() - h2pos.y()*h1pos.z() ) / dz;
+
+  // calculate local position (variable: intercept_)
   intercept_ = LocalPoint( uintercept, vintercept, 0.);
 
+  // calculate the local direction (variable: localdir_)
   setOutFromIP();
 
   //@@ NOT SURE WHAT IS SENSIBLE FOR THESE...
@@ -95,11 +106,14 @@ void GEMSegFit::fit2(void) {
   ndof_ = 0;
 
   fitdone_ = true;
+  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit:fit2]-------------------------------------";
+  edm::LogVerbatim("GEMSegFit") << "\n\n";
 }
 
 
 void GEMSegFit::fitlsq(void) {
-  
+
+  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit:fitlsq]-----------------------------------";  
   // Linear least-squares fit to up to 6 GEM rechits, one per layer in a GEM chamber.
   // Comments adapted from Tim Cox' comments in the original  GEMSegAlgoSK algorithm.
   
@@ -174,6 +188,8 @@ void GEMSegFit::fitlsq(void) {
   GEMSetOfHits::const_iterator ih = hits_.begin();
   
   // LogDebug :: Loop over the TrackingRecHits and print the GEM Hits  
+  // We don't need this ...
+  /*
   for (ih = hits_.begin(); ih != hits_.end(); ++ih) 
     {
       edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::fitlsq] - looping over GEMRecHits";
@@ -182,6 +198,7 @@ void GEMSegFit::fitlsq(void) {
       edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::fitlsq] - Tracking RecHit in detid ("<<d.rawId()<<")";
       edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::fitlsq] - GEMDetId ("<<GEMDetId(d.rawId())<<")";
     }
+  */
 
   // Loop over the GEMRecHits and make small (2x2) matrices used to fill the blockdiagonal covariance matrix E^-1
   for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
@@ -195,8 +212,8 @@ void GEMSegFit::fitlsq(void) {
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
     std::stringstream lpss; lpss<<lp; std::string lps = lpss.str();
     std::stringstream gpss; gpss<<gp; std::string gps = gpss.str();
-    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::fitlsq] - Tracking RecHit global position "<<std::setw(30)<<gps<<" and local position "<<std::setw(30)<<lps
-				  <<" wrt reference GEM chamber "<<gemchamber()->id().rawId()<<" = "<<gemchamber()->id();
+    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::fitlsq] - Tracking RH glob pos "<<std::setw(35)<<gps<<" and loc pos "<<std::setw(35)<<lps
+				  <<" wrt ref GEM chamber "<<gemchamber()->id().rawId()<<" = "<<gemchamber()->id();
     #endif
 
     // Local position of hit w.r.t. chamber
@@ -214,12 +231,12 @@ void GEMSegFit::fitlsq(void) {
     IC(1,0) = hit.localPositionError().xy();
     // IC(0,1) = IC(1,0);
     
-    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::fit] 2x2 covariance matrix for this GEMRecHit :: [[" << IC(0,0) <<", "<< IC(0,1) <<"]["<< IC(1,0) <<","<<IC(1,1)<<"]]";
+    edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::fit] 2x2 covariance matrix for this GEMRecHit :: [[" << IC(0,0) <<", "<< IC(0,1) <<"]["<< IC(1,0) <<","<<IC(1,1)<<"]]";
 
     // Invert covariance matrix (and trap if it fails!)
     bool ok = IC.Invert();
     if ( !ok ) {
-      edm::LogVerbatim("GEMSegment|GEMSegFit") << "[GEMSegFit::fit] Failed to invert covariance matrix: \n" << IC;      
+      edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::fit] Failed to invert covariance matrix: \n" << IC;      
       //      return ok;  //@@ SHOULD PASS THIS BACK TO CALLER?
     }
 
@@ -252,14 +269,14 @@ void GEMSegFit::fitlsq(void) {
   SVector4 p;
   bool ok = M.Invert();
   if (!ok ){
-    edm::LogVerbatim("GEMSegment|GEMSegFit") << "[GEMSegFit::fit] Failed to invert matrix: \n" << M;
+    edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::fit] Failed to invert matrix: \n" << M;
     //    return ok; //@@ SHOULD PASS THIS BACK TO CALLER?
   }
   else {
     p = M * B;
   }
 
-  LogTrace("GEMSegFit") << "[GEMSegFit::fit] p = " 
+  LogTrace("GEMSegFitMatrixDetails") << "[GEMSegFit::fit] p = " 
         << p(0) << ", " << p(1) << ", " << p(2) << ", " << p(3);
   
   // fill member variables  (note origin has local z = 0)
@@ -276,7 +293,8 @@ void GEMSegFit::fitlsq(void) {
 
   // flag fit has been done
   fitdone_ = true;
-
+  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit:fitlsq]-----------------------------------";  
+  edm::LogVerbatim("GEMSegFit") << "\n\n";  
 }
 
 
@@ -286,6 +304,19 @@ void GEMSegFit::setChi2(void) {
   double chsq = 0.;
 
   GEMSetOfHits::const_iterator ih;
+
+  // LogDebug
+  for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
+    const GEMRecHit& hit = (**ih);
+    GEMDetId d = GEMDetId(hit.rawId());
+    const GEMEtaPartition* roll = gemetapartition(d);
+    GlobalPoint gp         = roll->toGlobal(hit.localPosition());
+    LocalPoint lp          = gemchamber()->toLocal(gp);    
+    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setChi2] Local Point in GEMSuperChamber :: x, y, z = " << std::setw(12)<< lp.x() << ", " << std::setw(12)<< lp.y() << ", " << std::setw(12)<< lp.z() 
+				  <<" [GEM RecHit in St "<<d.station()<<" La "<<d.layer()<<"]";
+  }
+  edm::LogVerbatim("GEMSegFit") << "-----------------------------------------------------";  
+
   for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
 
     const GEMRecHit& hit = (**ih);
@@ -301,7 +332,8 @@ void GEMSegFit::setChi2(void) {
     double du = intercept_.x() + uslope_ * z - u;
     double dv = intercept_.y() + vslope_ * z - v;
     
-    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setChi2] u, v, z = " << u << ", " << v << ", " << z;
+    edm::LogVerbatim("GEMSegFit") << "[GEM RecHit in St "<<d.station()<<" La "<<d.layer()<<"] du = "<<intercept_.x()<<" + "<<uslope_<<" * "<<z<<" - "<<u<<" = "<<du;
+    edm::LogVerbatim("GEMSegFit") << "[GEM RecHit in St "<<d.station()<<" La "<<d.layer()<<"] dv = "<<intercept_.y()<<" + "<<vslope_<<" * "<<z<<" - "<<v<<" = "<<dv;
 
     SMatrixSym2 IC; // 2x2, init to 0
 
@@ -311,23 +343,57 @@ void GEMSegFit::setChi2(void) {
     IC(1,1) = hit.localPositionError().yy();
     //    IC(1,0) = IC(0,1);
 
-    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setChi2] IC before = \n" << IC;
+    edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::setChi2] IC before = \n" << IC;
 
     // Invert covariance matrix
     bool ok = IC.Invert();
     if (!ok ){
-      edm::LogVerbatim("GEMSegment|GEMSegFit") << "[GEMSegFit::setChi2] Failed to invert covariance matrix: \n" << IC;
+      edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::setChi2] Failed to invert covariance matrix: \n" << IC;
       //      return ok;
     }
-    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setChi2] IC after = \n" << IC;
+    edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::setChi2] IC after = \n" << IC;
     chsq += du*du*IC(0,0) + 2.*du*dv*IC(0,1) + dv*dv*IC(1,1);
+    edm::LogVerbatim("GEMSegFit") << "[GEM RecHit in St "<<d.station()<<" La "<<d.layer()<<"] Contribution to Chi^2 of this hit :: du^2*Cov(0,0) + 2*du*dv*Cov(0,1) + dv^2*IC(1,1) = "
+				  <<du*du<<"*"<<IC(0,0)<<" + 2.*"<<du<<"*"<<dv<<"*"<<IC(0,1)<<" + "<<dv*dv<<"*"<<IC(1,1)<<" = "<<chsq;
   }
   
   // fill member variables
   chi2_ = chsq;
   ndof_ = 2.*hits_.size() - 4;
 
-  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setChi2] chi2 = " << chi2_ << "/" << ndof_ << " dof";
+  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setChi2] chi2/ndof = " << chi2_ << "/" << ndof_ ;
+  edm::LogVerbatim("GEMSegFit") << "-----------------------------------------------------";  
+
+  // check fit quality ... maybe write a separate function later on
+  // that is there only for debugging issues
+
+
+  edm::LogVerbatim("GEMSegFit") << "[GEM Segment with Local Direction = "<<localdir_<<" and Local Position "<<intercept_<<"] can be written as:";
+  edm::LogVerbatim("GEMSegFit") << "[ x ] = "<<localdir_.x()<<" * t + "<<intercept_.x();
+  edm::LogVerbatim("GEMSegFit") << "[ y ] = "<<localdir_.y()<<" * t + "<<intercept_.y();
+  edm::LogVerbatim("GEMSegFit") << "[ z ] = "<<localdir_.z()<<" * t + "<<intercept_.z();
+  edm::LogVerbatim("GEMSegFit") << "Now extrapolate to each of the GEMRecHits XY plane (so constant z = RH LP.z()) to obtain [x1,y1]";
+
+  for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
+
+    const GEMRecHit& hit = (**ih);
+    GEMDetId d = GEMDetId(hit.rawId());
+    const GEMEtaPartition* roll = gemetapartition(d);
+    GlobalPoint gp         = roll->toGlobal(hit.localPosition());
+    LocalPoint lp          = gemchamber()->toLocal(gp);
+
+    edm::LogVerbatim("GEMSegFit") << "[GEM RecHit in St "<<d.station()<<" La "<<d.layer()<<"] :: x, y, z = " << std::setw(12)<< lp.x() << ", " << std::setw(12)<< lp.y() << ", " << std::setw(12)<< lp.z();
+    edm::LogVerbatim("GEMSegFit") << "[GEM RecHit in St "<<d.station()<<" La "<<d.layer()<<"] :: extrapolate the segment to xy-plane with z = "<<lp.z()<<" ==> param t = "<<(lp.z() - intercept_.z())/localdir_.z();
+    double xtrap_z = lp.z();
+    double xtrap_x = localdir_.x()*lp.z()/localdir_.z()+intercept_.x();
+    double xtrap_y = localdir_.y()*lp.z()/localdir_.z()+intercept_.y();
+    edm::LogVerbatim("GEMSegFit") << "[GEM RecHit in St "<<d.station()<<" La "<<d.layer()<<"] :: a, b, c = "<<std::setw(12)<<xtrap_x<<", "<<std::setw(12)<<xtrap_y<<", "<<std::setw(12)<<xtrap_z;
+    edm::LogVerbatim("GEMSegFit") << "[GEM RecHit in St "<<d.station()<<" La "<<d.layer()<<"] :: delta x = "<<std::setw(12)<<(xtrap_x-lp.x())<<" delta y = "<<std::setw(12)<<(xtrap_y-lp.y());
+    edm::LogVerbatim("GEMSegFit") << "" ;
+  }
+
+
+
 
 }
 
@@ -346,7 +412,7 @@ GEMSegFit::SMatrixSym12 GEMSegFit::weightMatrix() {
     
     const GEMRecHit& hit = (**it);
 
-// Note scaleXError allows rescaling the x error if necessary
+    // Note scaleXError allows rescaling the x error if necessary
 
     matrix(row, row)   = scaleXError()*hit.localPositionError().xx();
     matrix(row, row+1) = hit.localPositionError().xy();
@@ -358,7 +424,7 @@ GEMSegFit::SMatrixSym12 GEMSegFit::weightMatrix() {
 
   ok = matrix.Invert(); // invert in place
   if ( !ok ) {
-    edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::weightMatrix] Failed to invert matrix: \n" << matrix;      
+    edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::weightMatrix] Failed to invert matrix: \n" << matrix;      
     //    return ok; //@@ SHOULD PASS THIS BACK TO CALLER?
   }
   return matrix;
@@ -419,21 +485,21 @@ AlgebraicSymMatrix GEMSegFit::covarianceMatrix() {
   
   SMatrixSym12 weights = weightMatrix();
   SMatrix12by4 A = derivativeMatrix();
-  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::covarianceMatrix] weights matrix W: \n" << weights;      
-  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::covarianceMatrix] derivatives matrix A: \n" << A;      
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::covarianceMatrix] weights matrix W: \n" << weights;      
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::covarianceMatrix] derivatives matrix A: \n" << A;      
 
   // (AT W A)^-1
   // e.g. See http://www.phys.ufl.edu/~avery/fitting.html, part I
 
   bool ok;
   SMatrixSym4 result =  ROOT::Math::SimilarityT(A, weights);
-  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::covarianceMatrix] (AT W A): \n" << result;      
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::covarianceMatrix] (AT W A): \n" << result;      
   ok = result.Invert(); // inverts in place
   if ( !ok ) {
-    edm::LogVerbatim("GEMSegment|GEMSegFit") << "[GEMSegFit::calculateError] Failed to invert matrix: \n" << result;      
+    edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::calculateError] Failed to invert matrix: \n" << result;      
     //    return ok;  //@@ SHOULD PASS THIS BACK TO CALLER?
   }
-  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::covarianceMatrix] (AT W A)^-1: \n" << result;      
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::covarianceMatrix] (AT W A)^-1: \n" << result;      
   
   // reorder components to match TrackingRecHit interface (GEMSegment isa TrackingRecHit)
   // i.e. slopes first, then positions 
@@ -449,7 +515,7 @@ AlgebraicSymMatrix GEMSegFit::flipErrors( const SMatrixSym4& a ) {
   // parameters in order (uz, vz, u0, v0) 
   // where uz, vz = slopes, u0, v0 = intercepts
     
-  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::flipErrors] input: \n" << a;      
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::flipErrors] input: \n" << a;      
 
   AlgebraicSymMatrix hold(4, 0. ); 
       
@@ -459,11 +525,11 @@ AlgebraicSymMatrix GEMSegFit::flipErrors( const SMatrixSym4& a ) {
     }
   }
 
-  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::flipErrors] after copy:";
-  edm::LogVerbatim("GEMSegFit") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
-  edm::LogVerbatim("GEMSegFit") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
-  edm::LogVerbatim("GEMSegFit") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
-  edm::LogVerbatim("GEMSegFit") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::flipErrors] after copy:";
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
 
   // errors on slopes into upper left 
   hold(1,1) = a(2,2); 
@@ -483,11 +549,11 @@ AlgebraicSymMatrix GEMSegFit::flipErrors( const SMatrixSym4& a ) {
   hold(2,3) = a(3,0); // = a(0,3)
   hold(1,4) = a(2,1); // = a(1,2)
 
-  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::flipErrors] after flip:";
-  edm::LogVerbatim("GEMSegFit") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
-  edm::LogVerbatim("GEMSegFit") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
-  edm::LogVerbatim("GEMSegFit") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
-  edm::LogVerbatim("GEMSegFit") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << "[GEMSegFit::flipErrors] after flip:";
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << "(" << hold(1,1) << "  " << hold(1,2) << "  " << hold(1,3) << "  " << hold(1,4);
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << " " << hold(2,1) << "  " << hold(2,2) << "  " << hold(2,3) << "  " << hold(2,4);
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << " " << hold(3,1) << "  " << hold(3,2) << "  " << hold(3,3) << "  " << hold(3,4);
+  edm::LogVerbatim("GEMSegFitMatrixDetails") << " " << hold(4,1) << "  " << hold(4,2) << "  " << hold(4,3) << "  " << hold(4,4) << ")";
 
   return hold;
 }
