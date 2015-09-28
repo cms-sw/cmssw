@@ -1,9 +1,9 @@
 #include "DQM/HcalMonitorTasks/interface/HcalDeadCellMonitor.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
-HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps)
-{
+HcalDeadCellMonitor::HcalDeadCellMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps), topo_(0) {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
@@ -605,6 +605,11 @@ void HcalDeadCellMonitor::endJob()
 void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 {
   HcalBaseDQMonitor::analyze(e,s);
+
+  edm::ESHandle<HcalTopology> topo;
+  s.get<HcalRecNumberingRecord>().get(topo);
+  topo_ = &(*topo);
+
   if (!IsAllowedCalibType()) return;
   endLumiProcessed_=false;
 
@@ -1046,7 +1051,7 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
 		  {
 		    ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1);
 		    if (ieta==-9999) continue;
-		    if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		    if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 		      continue;
 		    // now check which dead cell tests failed; increment counter if any failed
 		    HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
@@ -1081,7 +1086,7 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
 		{
 		  iphi=phi+1;
 		  
-		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		  if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 		    continue;
 		  
 		  // Ignore subdetectors that weren't in run?
@@ -1163,7 +1168,7 @@ void HcalDeadCellMonitor::fillNevents_recentrechits()
 		  {
 		    ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1);
 		    if (ieta==-9999) continue;
-		    if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		    if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 		      continue;
 		    // now check which dead cell tests failed; increment counter if any failed
 		    HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
@@ -1197,7 +1202,7 @@ void HcalDeadCellMonitor::fillNevents_recentrechits()
 	      for (int phi=0;phi<phibins;++phi)
 		{
 		  iphi=phi+1;
-		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		  if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 		    continue;
 		  
 		  if (recentoccupancy_rechit[eta][phi][depth]>0) continue; // cell exceeded energy at least once, so it's not dead
@@ -1368,7 +1373,7 @@ void HcalDeadCellMonitor::fillNevents_problemCells()
 		{
 		  ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1);
 		  if (ieta==-9999) continue;
-		  if (!validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1))
+		  if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 		    continue;
 		  // Ignore subdetectors that weren't in run?
 		  /*

@@ -9,7 +9,7 @@
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cmath>
 
@@ -696,8 +696,7 @@ void HcalRecHitMonitor::endJob()
 
 /* -------------------------------- */
 
-void HcalRecHitMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
-{
+void HcalRecHitMonitor::analyze(edm::Event const&e, edm::EventSetup const&s) {
   getLogicalMap(s);
   if (debug_>0)  std::cout <<"HcalRecHitMonitor::analyze; debug = "<<debug_<<std::endl;
 
@@ -710,28 +709,29 @@ void HcalRecHitMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<HORecHitCollection> ho_rechit;
   edm::Handle<HFRecHitCollection> hf_rechit;
 
-  if (!(e.getByToken(tok_hbhe_,hbhe_rechit)))
-    {
-      edm::LogWarning("HcalHotCellMonitor")<< hbheRechitLabel_<<" hbhe_rechit not available";
-      return;
-    }
+  if (!(e.getByToken(tok_hbhe_,hbhe_rechit))) {
+    edm::LogWarning("HcalHotCellMonitor")<< hbheRechitLabel_<<" hbhe_rechit not available";
+    return;
+  }
 
-  if (!(e.getByToken(tok_hf_,hf_rechit)))
-    {
-      edm::LogWarning("HcalHotCellMonitor")<< hfRechitLabel_<<" hf_rechit not available";
-      return;
-    }
+  if (!(e.getByToken(tok_hf_,hf_rechit))) {
+    edm::LogWarning("HcalHotCellMonitor")<< hfRechitLabel_<<" hf_rechit not available";
+    return;
+  }
   
-  if (!(e.getByToken(tok_ho_,ho_rechit)))
-    {
-      edm::LogWarning("HcalHotCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
-      return;
-    }
+  if (!(e.getByToken(tok_ho_,ho_rechit))) {
+    edm::LogWarning("HcalHotCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
+    return;
+  }
 
 
   h_LumiPlot_LS_allevents->Fill(currentLS);
   h_LumiPlot_BX_allevents->Fill(e.bunchCrossing());
-  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, e.bunchCrossing(), e);
+
+  edm::ESHandle<HcalTopology> topo;
+  s.get<HcalRecNumberingRecord>().get(topo);
+
+  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, e.bunchCrossing(), e, *topo);
 
 //  HcalBaseDQMonitor::analyze(e,s);
 } // void HcalRecHitMonitor::analyze()
@@ -741,9 +741,8 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 				     const HORecHitCollection& hoHits,
 				     const HFRecHitCollection& hfHits,
 				     int BCN,
-				     const edm::Event & iEvent
-				     )
-{
+				     const edm::Event & iEvent,
+				     const HcalTopology& topology) {
 
   
   if (debug_>1) std::cout <<"<HcalRecHitMonitor::processEvent> Processing event..."<<std::endl;
@@ -753,38 +752,30 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   bool passedMinBiasHLT=false;
 
   edm::Handle<edm::TriggerResults> hltRes;
-  if (!(iEvent.getByToken(tok_trigger_,hltRes)))
-    {
-      if (debug_>0) edm::LogWarning("HcalRecHitMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
-    }
-  else
-    {
-      const edm::TriggerNames & triggerNames = iEvent.triggerNames(*hltRes);
-      const unsigned int nTrig(triggerNames.size());
-      for (unsigned int i=0;i<nTrig;++i)
-	{
-	  // trigger decision is based on 'OR' of any specified trigger names
-	  for (unsigned int k=0;k<HcalHLTBits_.size();++k)
-	    {
-	      // if (triggerNames.triggerName(i)==HcalHLTBits_[k] && hltRes->accept(i))
-	      if (triggerNames.triggerName(i).find(HcalHLTBits_[k])!=std::string::npos && hltRes->accept(i))
-		{ 
-		  passedHcalHLT=true;
-		  break;
-		}
-	    }
-	  // repeat for minbias triggers
-	  for (unsigned int k=0;k<MinBiasHLTBits_.size();++k)
-	    {
-	      // if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))		
-	      if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i))
-		{ 
-		  passedMinBiasHLT=true;
-		  break;
-		}
-	    }
+  if (!(iEvent.getByToken(tok_trigger_,hltRes))) {
+    if (debug_>0) edm::LogWarning("HcalRecHitMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
+  } else {
+    const edm::TriggerNames & triggerNames = iEvent.triggerNames(*hltRes);
+    const unsigned int nTrig(triggerNames.size());
+    for (unsigned int i=0;i<nTrig;++i) {
+      // trigger decision is based on 'OR' of any specified trigger names
+      for (unsigned int k=0;k<HcalHLTBits_.size();++k) {
+	// if (triggerNames.triggerName(i)==HcalHLTBits_[k] && hltRes->accept(i))
+	if (triggerNames.triggerName(i).find(HcalHLTBits_[k])!=std::string::npos && hltRes->accept(i)) { 
+	  passedHcalHLT=true;
+	  break;
 	}
-    } //else
+      }
+      // repeat for minbias triggers
+      for (unsigned int k=0;k<MinBiasHLTBits_.size();++k) {
+	// if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))		
+	if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i)) { 
+	  passedMinBiasHLT=true;
+	  break;
+	}
+      }
+    }
+  } //else
 
   if (debug_>2 && passedHcalHLT)  std::cout <<"\t<HcalRecHitMonitor::processEvent>  Passed Hcal HLT trigger  "<<std::endl;
   if (debug_>2 && passedMinBiasHLT)  std::cout <<"\t<HcalRecHitMonitor::processEvent>  Passed MinBias HLT trigger  "<<std::endl;
@@ -792,7 +783,7 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
   h_TriggeredEvents->Fill(0); // all events
   if (passedMinBiasHLT) h_TriggeredEvents->Fill(1); // Minbias;
   if (passedHcalHLT)    h_TriggeredEvents->Fill(2); // hcal HLT
-  processEvent_rechit(hbHits, hoHits, hfHits,passedHcalHLT,passedMinBiasHLT,BCN);
+  processEvent_rechit(hbHits, hoHits, hfHits,passedHcalHLT,passedMinBiasHLT,BCN,topology);
 
   return;
 } // void HcalRecHitMonitor::processEvent(...)
@@ -801,13 +792,13 @@ void HcalRecHitMonitor::processEvent(const HBHERecHitCollection& hbHits,
 /* --------------------------------------- */
 
 
-void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHits,
-					     const HORecHitCollection& hoHits,
-					     const HFRecHitCollection& hfHits,
-					     bool passedHcalHLT,
-					     bool passedMinBiasHLT,
-					     int BCN)
-{
+void HcalRecHitMonitor::processEvent_rechit(const HBHERecHitCollection& hbheHits,
+					    const HORecHitCollection& hoHits,
+					    const HFRecHitCollection& hfHits,
+					    bool passedHcalHLT,
+					    bool passedMinBiasHLT,
+					    int BCN,
+					    const HcalTopology& topology) {
   // Gather rechit info
   
   //const float area[]={0.111,0.175,0.175,0.175,0.175,0.175,0.174,0.178,0.172,0.175,0.178,0.346,0.604};
@@ -831,14 +822,13 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
 
   int hbpocc=0, hbmocc=0, hepocc=0, hemocc=0, hfpocc=0, hfmocc=0;
 
-  for (unsigned int i=0;i<4;++i)
-    {
-      OccupancyByDepth.depth[i]->update();
-      OccupancyThreshByDepth.depth[i]->update();
-      SumEnergyByDepth.depth[i]->update();
-      SqrtSumEnergy2ByDepth.depth[i]->update();
-      SumTimeByDepth.depth[i]->update();
-    }
+  for (unsigned int i=0;i<4;++i) {
+    OccupancyByDepth.depth[i]->update();
+    OccupancyThreshByDepth.depth[i]->update();
+    SumEnergyByDepth.depth[i]->update();
+    SqrtSumEnergy2ByDepth.depth[i]->update();
+    SumTimeByDepth.depth[i]->update();
+  }
     
   h_HBflagcounter->update();
   h_HEflagcounter->update();
@@ -846,40 +836,36 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
   h_HOflagcounter->update();
   
   
-  for (HBHERecHitCollection::const_iterator HBHEiter=hbheHits.begin(); HBHEiter!=hbheHits.end(); ++HBHEiter) 
-    { // loop over all hits
-      float en = HBHEiter->energy();
-      float ti = HBHEiter->time();
-      HcalDetId id(HBHEiter->detid().rawId());
-      int ieta = id.ieta();
-      int iphi = id.iphi();
-      int depth = id.depth();
+  for (HBHERecHitCollection::const_iterator HBHEiter=hbheHits.begin(); HBHEiter!=hbheHits.end(); ++HBHEiter) { // loop over all hits
+    float en = HBHEiter->energy();
+    float ti = HBHEiter->time();
+    HcalDetId id(HBHEiter->detid().rawId());
+    int ieta = id.ieta();
+    int iphi = id.iphi();
+    int depth = id.depth();
 
-      if (en>0.5)
-        {
-          h_rechitieta_05->Fill(ieta);
-          h_rechitiphi_05->Fill(iphi);
-          if (en>1.)
-            {
-              h_rechitieta_10->Fill(ieta);
-              h_rechitiphi_10->Fill(iphi);
-              if (en>2.5)
-                {
-                  h_rechitieta_25->Fill(ieta);
-                  h_rechitiphi_25->Fill(iphi);
-                  if (en>10.)
-                    {
-                      h_rechitieta_100->Fill(ieta);
-                      h_rechitiphi_100->Fill(iphi);
-                    }
-                }
-            }
-        }
+      if (en>0.5) {
+	h_rechitieta_05->Fill(ieta);
+	h_rechitiphi_05->Fill(iphi);
+	if (en>1.) {
+	  h_rechitieta_10->Fill(ieta);
+	  h_rechitiphi_10->Fill(iphi);
+	  if (en>2.5) {
+	    h_rechitieta_25->Fill(ieta);
+	    h_rechitiphi_25->Fill(iphi);
+	    if (en>10.) {
+	      h_rechitieta_100->Fill(ieta);
+	      h_rechitiphi_100->Fill(iphi);
+	    }
+	  }
+	}
+      }
 
 
 
       HcalSubdetector subdet = id.subdet();
-      double fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
+      std::pair<double,double> etas = topology.etaRange(subdet,abs(ieta));
+      double fEta=fabs(0.5*(etas.first+etas.second));
 
       int calcEta = CalcEtaBin(subdet,ieta,depth);
       int rbxindex=logicalMap_->getHcalFrontEndId(HBHEiter->detid()).rbxIndex();
@@ -889,16 +875,14 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       h_HBHE_FlagCorr->Fill(HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape),
 			    HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity)); 
 
-      if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity))
-	{
-	  h_FlagMap_HPDMULT->Fill(rbxindex,rm);
-	  h_HBHEHPDMult_vs_LS->Fill(currentLS,1);
-	}
-      if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape))
-	{
-	  h_FlagMap_PULSESHAPE->Fill(rbxindex,rm);
-	  h_HBHEPulseShape_vs_LS->Fill(currentLS,1);
-	}
+      if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEHpdHitMultiplicity)) {
+	h_FlagMap_HPDMULT->Fill(rbxindex,rm);
+	h_HBHEHPDMult_vs_LS->Fill(currentLS,1);
+      }
+      if (HBHEiter->flagField(HcalCaloFlagLabels::HBHEPulseShape)) {
+	h_FlagMap_PULSESHAPE->Fill(rbxindex,rm);
+	h_HBHEPulseShape_vs_LS->Fill(currentLS,1);
+      }
       if (HBHEiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
 	h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
       else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
@@ -906,126 +890,107 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
       else if (HBHEiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
 	h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 
-      if (subdet==HcalBarrel)
-	{
-	  if (en>HBenergyThreshold_)
-	    h_HBTimeVsEnergy->Fill(en,ti);
-	  //Looping over HB searching for flags --- cris
-	  for (int f=0;f<32;f++)
-	    {
-	      // Let's display HSCP just to see if these bits are set
-	      /*
-	       if (f == HcalCaloFlagLabels::HSCP_R1R2)         continue;
-               if (f == HcalCaloFlagLabels::HSCP_FracLeader)   continue;
-               if (f == HcalCaloFlagLabels::HSCP_OuterEnergy)  continue;
-               if (f == HcalCaloFlagLabels::HSCP_ExpFit)       continue;
-	      */
-	      if (HBHEiter->flagField(f))
-		++HBflagcounter_[f];
-	    }
-	  ++occupancy_[calcEta][iphi-1][depth-1];
-	  energy_[calcEta][iphi-1][depth-1]+=en;
-          energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
-	  time_[calcEta][iphi-1][depth-1]+=ti;
-	  if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
-	    h_HBTime->Fill(ti);
-	  else
-	    ++HBtime_[int(ti-RECHITMON_TIME_MIN)];
-	  ++hbocc; 
+      if (subdet==HcalBarrel) {
+	if (en>HBenergyThreshold_)
+	  h_HBTimeVsEnergy->Fill(en,ti);
+	//Looping over HB searching for flags --- cris
+	for (int f=0;f<32;f++) {
+	  // Let's display HSCP just to see if these bits are set
+	  /*
+	    if (f == HcalCaloFlagLabels::HSCP_R1R2)         continue;
+	    if (f == HcalCaloFlagLabels::HSCP_FracLeader)   continue;
+	    if (f == HcalCaloFlagLabels::HSCP_OuterEnergy)  continue;
+	    if (f == HcalCaloFlagLabels::HSCP_ExpFit)       continue;
+	  */
+	  if (HBHEiter->flagField(f))
+	    ++HBflagcounter_[f];
+	}
+	++occupancy_[calcEta][iphi-1][depth-1];
+	energy_[calcEta][iphi-1][depth-1]+=en;
+	energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
+	time_[calcEta][iphi-1][depth-1]+=ti;
+	if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
+	  h_HBTime->Fill(ti);
+	else
+	  ++HBtime_[int(ti-RECHITMON_TIME_MIN)];
+	++hbocc; 
 
-	  // Threshold plots;  require E> threshold and minbias trigger
-	  if (
-	      en>=HBenergyThreshold_ && 
-	      en/cosh(fEta)>=HBETThreshold_ 
-	      ) 
-	    {
-	      if (passedMinBiasHLT==true)
-		{
-		  ++occupancy_thresh_[calcEta][iphi-1][depth-1];
-		  energy_thresh_[calcEta][iphi-1][depth-1]+=en;
-		  energy2_thresh_[calcEta][iphi-1][depth-1]+=pow(en,2);
-		  time_thresh_[calcEta][iphi-1][depth-1]+=ti;
+	// Threshold plots;  require E> threshold and minbias trigger
+	if (en>=HBenergyThreshold_ && en/cosh(fEta)>=HBETThreshold_ ) {
+	  if (passedMinBiasHLT==true) {
+	    ++occupancy_thresh_[calcEta][iphi-1][depth-1];
+	    energy_thresh_[calcEta][iphi-1][depth-1]+=en;
+	    energy2_thresh_[calcEta][iphi-1][depth-1]+=pow(en,2);
+	    time_thresh_[calcEta][iphi-1][depth-1]+=ti;
 		  
-		  ++hboccthresh;
-		  if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
-		    h_HBThreshTime->Fill(ti);
-		  else
-		    ++HBtime_thresh_[int(ti-RECHITMON_TIME_MIN)];
-		}
+	    ++hboccthresh;
+	    if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
+	      h_HBThreshTime->Fill(ti);
+	    else
+	      ++HBtime_thresh_[int(ti-RECHITMON_TIME_MIN)];
+	  }
 
-	      if (ieta>0)
-		{
-		  HBePlus+=en;
-		  HBtPlus+=ti*en;
-		  hbpocc++;
-		}
-	      else
-		{
-		  HBeMinus+=en;
-		  HBtMinus+=ti*en;
-		  hbmocc++;
-		}
-	    } // if (HB  en>thresh, ET>thresh)
-	} // if (id.subdet()==HcalBarrel)
+	  if (ieta>0) {
+	    HBePlus+=en;
+	    HBtPlus+=ti*en;
+	    hbpocc++;
+	  } else {
+	    HBeMinus+=en;
+	    HBtMinus+=ti*en;
+	    hbmocc++;
+	  }
+	} // if (HB  en>thresh, ET>thresh)
+      } // if (id.subdet()==HcalBarrel)
 
-      else if (subdet==HcalEndcap)
-	{
-	  if (en>HEenergyThreshold_)
-	    h_HETimeVsEnergy->Fill(en,ti);
-	  //Looping over HE searching for flags --- cris
-	  for (int f=0;f<32;f++)
-            {
-              if (HBHEiter->flagField(f))
-                ++HEflagcounter_[f];
-            }
+      else if (subdet==HcalEndcap) {
+	if (en>HEenergyThreshold_)
+	  h_HETimeVsEnergy->Fill(en,ti);
+	//Looping over HE searching for flags --- cris
+	for (int f=0;f<32;f++) {
+	  if (HBHEiter->flagField(f))
+	    ++HEflagcounter_[f];
+	}
 
-	  ++occupancy_[calcEta][iphi-1][depth-1];
-	  energy_[calcEta][iphi-1][depth-1]+=en;
-          energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
-	  time_[calcEta][iphi-1][depth-1]+=ti;
+	++occupancy_[calcEta][iphi-1][depth-1];
+	energy_[calcEta][iphi-1][depth-1]+=en;
+	energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
+	time_[calcEta][iphi-1][depth-1]+=ti;
 
-	  ++heocc;
-	  if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
-	    h_HETime->Fill(ti);
-	  else
-	    ++HEtime_[int(ti-RECHITMON_TIME_MIN)];
+	++heocc;
+	if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
+	  h_HETime->Fill(ti);
+	else
+	  ++HEtime_[int(ti-RECHITMON_TIME_MIN)];
 
-	  // Threshold plots require e>E_thresh, ET>ET_thresh
-	  if (en>=HEenergyThreshold_
-	      && en/cosh(fEta)>=HEETThreshold_
-	      )
-	    {
-	      // occupancy plots also require passedMinBiasHLT
-	      if (passedMinBiasHLT==true)
-		{
-		  ++occupancy_thresh_[calcEta][iphi-1][depth-1];
-		  energy_thresh_[calcEta][iphi-1][depth-1]+=en;
-		  energy2_thresh_[calcEta][iphi-1][depth-1]+=pow(en,2);
-		  time_thresh_[calcEta][iphi-1][depth-1]+=ti;
-		  ++heoccthresh;
-		  if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
-		      h_HEThreshTime->Fill(ti);
-		  else
-		    ++HEtime_thresh_[int(ti-RECHITMON_TIME_MIN)];
-		}
-	      // ePlus, tPlus calculated regardless of trigger
-	      if (ieta>0)
-		{
-		  HEePlus+=en;
-		  HEtPlus+=ti*en;
-		  hepocc++;
-		}
-	      else
-		{
-		  HEeMinus+=en;
-		  HEtMinus+=ti*en;
-		  hemocc++;
-		}
-	    } // if (en>=HEenergyThreshold_ && ET>threshold)
-
-	} // else if (id.subdet()==HcalEndcap)
+	// Threshold plots require e>E_thresh, ET>ET_thresh
+	if (en>=HEenergyThreshold_ && en/cosh(fEta)>=HEETThreshold_ ) {
+	  // occupancy plots also require passedMinBiasHLT
+	  if (passedMinBiasHLT==true) {
+	    ++occupancy_thresh_[calcEta][iphi-1][depth-1];
+	    energy_thresh_[calcEta][iphi-1][depth-1]+=en;
+	    energy2_thresh_[calcEta][iphi-1][depth-1]+=pow(en,2);
+	    time_thresh_[calcEta][iphi-1][depth-1]+=ti;
+	    ++heoccthresh;
+	    if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
+	      h_HEThreshTime->Fill(ti);
+	    else
+	      ++HEtime_thresh_[int(ti-RECHITMON_TIME_MIN)];
+	  }
+	  // ePlus, tPlus calculated regardless of trigger
+	  if (ieta>0) {
+	    HEePlus+=en;
+	    HEtPlus+=ti*en;
+	    hepocc++;
+	  } else {
+	    HEeMinus+=en;
+	    HEtMinus+=ti*en;
+	    hemocc++;
+	  }
+	} // if (en>=HEenergyThreshold_ && ET>threshold)
+	
+      } // else if (id.subdet()==HcalEndcap)
      
-    } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
+  } //for (HBHERecHitCollection::const_iterator HBHEiter=...)
   
   // Calculate normalized time
   HEePlus>0  ?  HEtPlus/=HEePlus   :  HEtPlus=10000;
@@ -1045,92 +1010,83 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
   h_HOsizeVsLS->Fill(currentLS,hoHits.size());
   int hoocc=0;
   int hooccthresh=0;
-  for (HORecHitCollection::const_iterator HOiter=hoHits.begin(); HOiter!=hoHits.end(); ++HOiter) 
-    { // loop over all hits
-      float en = HOiter->energy();
-      float ti = HOiter->time();
-      if (en>HOenergyThreshold_)
-	h_HOTimeVsEnergy->Fill(en,ti);
+  for (HORecHitCollection::const_iterator HOiter=hoHits.begin(); HOiter!=hoHits.end(); ++HOiter) { // loop over all hits
+    float en = HOiter->energy();
+    float ti = HOiter->time();
+    if (en>HOenergyThreshold_)
+      h_HOTimeVsEnergy->Fill(en,ti);
 
-      HcalDetId id(HOiter->detid().rawId());
-      int ieta = id.ieta();
-      int iphi = id.iphi();
-      int depth = id.depth();
+    HcalDetId id(HOiter->detid().rawId());
+    int ieta = id.ieta();
+    int iphi = id.iphi();
+    int depth = id.depth();
 
-      if (en>0.5)
-        {
-          h_rechitieta_05->Fill(ieta);
-          h_rechitiphi_05->Fill(iphi);
-          if (en>1.)
-            {
-              h_rechitieta_10->Fill(ieta);
-              h_rechitiphi_10->Fill(iphi);
-              if (en>2.5)
-                {
-                  h_rechitieta_25->Fill(ieta);
-                  h_rechitiphi_25->Fill(iphi);
-                  if (en>10.)
-                    {
-                      h_rechitieta_100->Fill(ieta);
-                      h_rechitiphi_100->Fill(iphi);
-                    }
-                }
-            }
-        }
-
-
-
-      int calcEta = CalcEtaBin(HcalOuter,ieta,depth);
-      double fEta=fabs(0.5*(theHBHEEtaBounds[abs(ieta)-1]+theHBHEEtaBounds[abs(ieta)]));
-      
-      int rbxindex=logicalMap_->getHcalFrontEndId(HOiter->detid()).rbxIndex();
-      int rm= logicalMap_->getHcalFrontEndId(HOiter->detid()).rm();
-      
-      if (HOiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
-	h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
-      else if (HOiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
-	h_FlagMap_TIMEADD->Fill(rbxindex,rm);
-      else if (HOiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
-	h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
-      
-      
-      //Looping over HO searching for flags --- cris
-      for (int f=0;f<32;f++)
-	{
-	  if (HOiter->flagField(f))
-	    HOflagcounter_[f]++;
+    if (en>0.5) {
+      h_rechitieta_05->Fill(ieta);
+      h_rechitiphi_05->Fill(iphi);
+      if (en>1.) {
+	h_rechitieta_10->Fill(ieta);
+	h_rechitiphi_10->Fill(iphi);
+	if (en>2.5) {
+	  h_rechitieta_25->Fill(ieta);
+	  h_rechitiphi_25->Fill(iphi);
+	  if (en>10.) {
+	    h_rechitieta_100->Fill(ieta);
+	    h_rechitiphi_100->Fill(iphi);
+	  }
 	}
+      }
+    }
+
+
+
+    int calcEta = CalcEtaBin(HcalOuter,ieta,depth);
+    std::pair<double,double> etas = topology.etaRange(HcalOuter,abs(ieta));
+    double fEta=fabs(0.5*(etas.first+etas.second));
       
-      ++occupancy_[calcEta][iphi-1][depth-1];
-      energy_[calcEta][iphi-1][depth-1]+=en;
-      energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
-      time_[calcEta][iphi-1][depth-1]+=ti;
-      ++hoocc;
+    int rbxindex=logicalMap_->getHcalFrontEndId(HOiter->detid()).rbxIndex();
+    int rm= logicalMap_->getHcalFrontEndId(HOiter->detid()).rm();
+      
+    if (HOiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
+      h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
+    else if (HOiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
+      h_FlagMap_TIMEADD->Fill(rbxindex,rm);
+    else if (HOiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
+      h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
+      
+      
+    //Looping over HO searching for flags --- cris
+    for (int f=0;f<32;f++) {
+      if (HOiter->flagField(f))
+	HOflagcounter_[f]++;
+    }
+      
+    ++occupancy_[calcEta][iphi-1][depth-1];
+    energy_[calcEta][iphi-1][depth-1]+=en;
+    energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
+    time_[calcEta][iphi-1][depth-1]+=ti;
+    ++hoocc;
+    if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
+      h_HOTime->Fill(ti);
+    else
+      ++HOtime_[int(ti-RECHITMON_TIME_MIN)];
+
+    // We don't calculate HOplus/HOminus values (independent of trigger), so require min bias trigger 
+    // along with E, ET thresholds directly in this HO loop:
+
+    if (en>=HOenergyThreshold_  && en/cosh(fEta)>=HOETThreshold_ && passedMinBiasHLT==true) {
+      ++occupancy_thresh_[calcEta][iphi-1][depth-1];
+      energy_thresh_[calcEta][iphi-1][depth-1]+=en;
+      energy2_thresh_[calcEta][iphi-1][depth-1]+=pow(en,2);
+      time_thresh_[calcEta][iphi-1][depth-1]+=ti;
+
+      ++hooccthresh;
       if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
-	h_HOTime->Fill(ti);
+	h_HOThreshTime->Fill(ti);
       else
-	++HOtime_[int(ti-RECHITMON_TIME_MIN)];
-
-      // We don't calculate HOplus/HOminus values (independent of trigger), so require min bias trigger 
-      // along with E, ET thresholds directly in this HO loop:
-
-      if (en>=HOenergyThreshold_  
-	  && en/cosh(fEta)>=HOETThreshold_
-	  && passedMinBiasHLT==true   
-	  )
-	{
-	  ++occupancy_thresh_[calcEta][iphi-1][depth-1];
-	  energy_thresh_[calcEta][iphi-1][depth-1]+=en;
-	  energy2_thresh_[calcEta][iphi-1][depth-1]+=pow(en,2);
-	  time_thresh_[calcEta][iphi-1][depth-1]+=ti;
-
-	  ++hooccthresh;
-	  if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
-	    h_HOThreshTime->Fill(ti);
-	  else
-	    ++HOtime_thresh_[int(ti-RECHITMON_TIME_MIN)];
-	} 
-    } // loop over all HO hits
+	++HOtime_thresh_[int(ti-RECHITMON_TIME_MIN)];
+    } 
+  } // loop over all HO hits
 
   ++HO_occupancy_[hoocc/10];
   ++HO_occupancy_thresh_[hooccthresh/10];
@@ -1142,116 +1098,102 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
   
   int hfocc=0;
   int hfoccthresh=0;
-  for (HFRecHitCollection::const_iterator HFiter=hfHits.begin(); HFiter!=hfHits.end(); ++HFiter) 
-    { // loop over all hits
-      float en = HFiter->energy();
-      float ti = HFiter->time();
-      if (en> HFenergyThreshold_)
-	h_HFTimeVsEnergy->Fill(en,ti);
+  for (HFRecHitCollection::const_iterator HFiter=hfHits.begin(); HFiter!=hfHits.end(); ++HFiter) { // loop over all hits
+    float en = HFiter->energy();
+    float ti = HFiter->time();
+    if (en> HFenergyThreshold_)
+      h_HFTimeVsEnergy->Fill(en,ti);
 
-      HcalDetId id(HFiter->detid().rawId());
-      int ieta = id.ieta();
-      int iphi = id.iphi();
-      int depth = id.depth();
+    HcalDetId id(HFiter->detid().rawId());
+    int ieta = id.ieta();
+    int iphi = id.iphi();
+    int depth = id.depth();
 
-      if (en>0.5)
-	{
-	  h_rechitieta_05->Fill(ieta);
-	  h_rechitiphi_05->Fill(iphi);
-	  if (en>1.)
-	    {
-	      h_rechitieta_10->Fill(ieta);
-	      h_rechitiphi_10->Fill(iphi);
-	      if (en>2.5)
-		{
-		  h_rechitieta_25->Fill(ieta);
-		  h_rechitiphi_25->Fill(iphi);
-		  if (en>10.)
-		    {
-		      h_rechitieta_100->Fill(ieta);
-		      h_rechitiphi_100->Fill(iphi);
-		    }
-		}
-	    }
+    if (en>0.5)	{
+      h_rechitieta_05->Fill(ieta);
+      h_rechitiphi_05->Fill(iphi);
+      if (en>1.) {
+	h_rechitieta_10->Fill(ieta);
+	h_rechitiphi_10->Fill(iphi);
+	if (en>2.5) {
+	  h_rechitieta_25->Fill(ieta);
+	  h_rechitiphi_25->Fill(iphi);
+	  if (en>10.) {
+	    h_rechitieta_100->Fill(ieta);
+	    h_rechitiphi_100->Fill(iphi);
+	  }
 	}
+      }
+    }
 
-      double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-29]+theHFEtaBounds[abs(ieta)-28]));
-      int calcEta = CalcEtaBin(HcalForward,ieta,depth);
+    std::pair<double,double> etas = topology.etaRange(HcalForward,abs(ieta));
+    double fEta=fabs(0.5*(etas.first+etas.second));
+    int calcEta = CalcEtaBin(HcalForward,ieta,depth);
 
-      int rbxindex=logicalMap_->getHcalFrontEndId(HFiter->detid()).rbxIndex();
-      int rm= logicalMap_->getHcalFrontEndId(HFiter->detid()).rm(); 
+    int rbxindex=logicalMap_->getHcalFrontEndId(HFiter->detid()).rbxIndex();
+    int rm= logicalMap_->getHcalFrontEndId(HFiter->detid()).rm(); 
 	 
-      h_HF_FlagCorr->Fill(HFiter->flagField(HcalCaloFlagLabels::HFDigiTime),HFiter->flagField(HcalCaloFlagLabels::HFLongShort)); 
-      if (HFiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
-	h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
-      else if (HFiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
-	h_FlagMap_TIMEADD->Fill(rbxindex,rm);
-      else if (HFiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
-	h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
+    h_HF_FlagCorr->Fill(HFiter->flagField(HcalCaloFlagLabels::HFDigiTime),HFiter->flagField(HcalCaloFlagLabels::HFLongShort)); 
+    if (HFiter->flagField(HcalCaloFlagLabels::TimingSubtractedBit))
+      h_FlagMap_TIMESUBTRACT->Fill(rbxindex,rm);
+    else if (HFiter->flagField(HcalCaloFlagLabels::TimingAddedBit))
+      h_FlagMap_TIMEADD->Fill(rbxindex,rm);
+    else if (HFiter->flagField(HcalCaloFlagLabels::TimingErrorBit))
+      h_FlagMap_TIMEERROR->Fill(rbxindex,rm);
 
-      if (HFiter->flagField(HcalCaloFlagLabels::HFDigiTime))
-	{
-	  h_FlagMap_DIGITIME->Fill(rbxindex,rm);
-	  h_HFDigiTime_vs_LS->Fill(currentLS,1);
-	}
-      if (HFiter->flagField(HcalCaloFlagLabels::HFLongShort))
-	{
-	  h_FlagMap_LONGSHORT->Fill(rbxindex,rm);
-	  h_HFLongShort_vs_LS->Fill(currentLS,1);
-	}
-      //Looping over HF searching for flags --- cris
-      for (int f=0;f<32;f++)
-	{
-	  if (HFiter->flagField(f))
-	    HFflagcounter_[f]++;
-	}
+    if (HFiter->flagField(HcalCaloFlagLabels::HFDigiTime)) {
+      h_FlagMap_DIGITIME->Fill(rbxindex,rm);
+      h_HFDigiTime_vs_LS->Fill(currentLS,1);
+    }
+    if (HFiter->flagField(HcalCaloFlagLabels::HFLongShort)) {
+      h_FlagMap_LONGSHORT->Fill(rbxindex,rm);
+      h_HFLongShort_vs_LS->Fill(currentLS,1);
+    }
+    //Looping over HF searching for flags --- cris
+    for (int f=0;f<32;f++) {
+      if (HFiter->flagField(f))
+	HFflagcounter_[f]++;
+    }
 
-      // Occupancy plots, without threshold
-      ++occupancy_[calcEta][iphi-1][depth-1];
-      energy_[calcEta][iphi-1][depth-1]+=en;
-      energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
-      time_[calcEta][iphi-1][depth-1]+=ti;
-      ++hfocc;
-      if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
-	h_HFTime->Fill(ti);
-      else
-	++HFtime_[int(ti-RECHITMON_TIME_MIN)];
+    // Occupancy plots, without threshold
+    ++occupancy_[calcEta][iphi-1][depth-1];
+    energy_[calcEta][iphi-1][depth-1]+=en;
+    energy2_[calcEta][iphi-1][depth-1]+=pow(en,2);
+    time_[calcEta][iphi-1][depth-1]+=ti;
+    ++hfocc;
+    if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
+      h_HFTime->Fill(ti);
+    else
+      ++HFtime_[int(ti-RECHITMON_TIME_MIN)];
 
-      ieta>0 ?  HtPlus+=en/cosh(fEta)  : HtMinus+=en/cosh(fEta);  // add energy from all cells, or only those > threshold?
+    ieta>0 ?  HtPlus+=en/cosh(fEta)  : HtMinus+=en/cosh(fEta);  // add energy from all cells, or only those > threshold?
 
-      if (en>=HFenergyThreshold_ && 
-	  en/cosh(fEta)>=HFETThreshold_ 
-	  )
-	{
-	  // Occupancy plots require min bias trigger, along with thresholds exceeded
-	  if (passedMinBiasHLT)
-	    {
-	      ++occupancy_thresh_[calcEta][iphi-1][depth-1];
-	      energy_thresh_[calcEta][iphi-1][depth-1]+=en;
-	      energy2_thresh_[calcEta][iphi-1][depth-1]+=pow(en,2);
-	      time_thresh_[calcEta][iphi-1][depth-1]+=ti;
+    if (en>=HFenergyThreshold_ && en/cosh(fEta)>=HFETThreshold_ ) {
+      // Occupancy plots require min bias trigger, along with thresholds exceeded
+      if (passedMinBiasHLT) {
+	++occupancy_thresh_[calcEta][iphi-1][depth-1];
+	energy_thresh_[calcEta][iphi-1][depth-1]+=en;
+	energy2_thresh_[calcEta][iphi-1][depth-1]+=pow(en,2);
+	time_thresh_[calcEta][iphi-1][depth-1]+=ti;
 	      
-	      ++hfoccthresh;
-	      if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
-		h_HFThreshTime->Fill(ti);
-	      else
-		++HFtime_thresh_[int(ti-RECHITMON_TIME_MIN)];
-	    }
+	++hfoccthresh;
+	if (ti<RECHITMON_TIME_MIN || ti>RECHITMON_TIME_MAX)
+	  h_HFThreshTime->Fill(ti);
+	else
+	  ++HFtime_thresh_[int(ti-RECHITMON_TIME_MIN)];
+      }
 
-	  if (ieta>0)
-	    {
-	      HFtPlus+=en*ti;
-	      HFePlus+=en;
-	      hfpocc++;
-	    }
-	  else if (ieta<0)
-	    {
-	      HFtMinus+=en*ti;
-	      HFeMinus+=en;
-	      hfmocc++;
-	    }
-	} // if (en>thresh, ET>thresh)
-    } // loop over all HF hits
+      if (ieta>0) {
+	HFtPlus+=en*ti;
+	HFePlus+=en;
+	hfpocc++;
+      } else if (ieta<0) {
+	HFtMinus+=en*ti;
+	HFeMinus+=en;
+	hfmocc++;
+      }
+    } // if (en>thresh, ET>thresh)
+  } // loop over all HF hits
      
   ++HF_occupancy_[hfocc/10];
   ++HF_occupancy_thresh_[hfoccthresh/10];
@@ -1273,75 +1215,66 @@ void HcalRecHitMonitor::processEvent_rechit( const HBHERecHitCollection& hbheHit
   h_LumiPlot_timeHT_HFM->Fill(HtMinus,HFtMinus);
   h_LumiPlot_timeHT_HFP->Fill(HtPlus,HFtPlus);
 
-  if (passedMinBiasHLT==true)
-    {
-      h_LumiPlot_SumHT_HFPlus_vs_HFMinus->Fill(HtMinus,HtPlus);
-      // HtMinus, HtPlus require no energy cuts for their contributing cells
-      // HFeMinus, HFePlus require that cells be > threshold cut
+  if (passedMinBiasHLT==true) {
+    h_LumiPlot_SumHT_HFPlus_vs_HFMinus->Fill(HtMinus,HtPlus);
+    // HtMinus, HtPlus require no energy cuts for their contributing cells
+    // HFeMinus, HFePlus require that cells be > threshold cut
       
-      if (HtMinus>1 && HtPlus > 1) // is this the condition we want, or do we want hfmocc>0 && hfpocc >0?
-      	{
-	  h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus->Fill(HFeMinus,HFePlus);
-	  h_LumiPlot_timeHFPlus_vs_timeHFMinus->Fill(HFtMinus,HFtPlus);
+    if (HtMinus>1 && HtPlus > 1) { // is this the condition we want, or do we want hfmocc>0 && hfpocc >0?
+      h_LumiPlot_SumEnergy_HFPlus_vs_HFMinus->Fill(HFeMinus,HFePlus);
+      h_LumiPlot_timeHFPlus_vs_timeHFMinus->Fill(HFtMinus,HFtPlus);
+      
+      h_HFP_weightedTime->Fill(HFtPlus);
+      h_HFM_weightedTime->Fill(HFtMinus);
+      h_HBP_weightedTime->Fill(HBtPlus);
+      h_HBM_weightedTime->Fill(HBtMinus);
+      
+      h_HEP_weightedTime->Fill(HEtPlus);
+      h_HEM_weightedTime->Fill(HEtMinus);
 
-	  h_HFP_weightedTime->Fill(HFtPlus);
-	  h_HFM_weightedTime->Fill(HFtMinus);
-	  h_HBP_weightedTime->Fill(HBtPlus);
-	  h_HBM_weightedTime->Fill(HBtMinus);
+      if (hepocc>0 && hemocc>0) {
+	h_HEtimedifference->Fill(HEtPlus-HEtMinus);
+	if (HEePlus-HEeMinus!=0) h_HEenergydifference->Fill((HEePlus-HEeMinus)/(HEePlus+HEeMinus));
+      }
+      if (hfpocc>0 && hfmocc>0) { // which condition do we want?
+	h_HFtimedifference->Fill((HFtPlus)-(HFtMinus));
+	if (HFePlus+HFeMinus!=0) h_HFenergydifference->Fill((HFePlus-HFeMinus)/(HFePlus+HFeMinus));
+      }
+
+      h_LumiPlot_LS_MinBiasEvents_notimecut->Fill(currentLS);
+      h_LumiPlot_BX_MinBiasEvents_notimecut->Fill(BCN);
+      if (fabs(HFtPlus-HFtMinus)<timediffThresh_) {
+	h_LumiPlot_LS_MinBiasEvents->Fill(currentLS);
+	h_LumiPlot_BX_MinBiasEvents->Fill(BCN);
+      }
 	  
-	  h_HEP_weightedTime->Fill(HEtPlus);
-	  h_HEM_weightedTime->Fill(HEtMinus);
-
-	  if (hepocc>0 && hemocc>0)
-	    {
-	      h_HEtimedifference->Fill(HEtPlus-HEtMinus);
-	      if (HEePlus-HEeMinus!=0) h_HEenergydifference->Fill((HEePlus-HEeMinus)/(HEePlus+HEeMinus));
-	    }
-	  if (hfpocc>0 && hfmocc>0)  // which condition do we want?
-	    {
-	      h_HFtimedifference->Fill((HFtPlus)-(HFtMinus));
-	      if (HFePlus+HFeMinus!=0) h_HFenergydifference->Fill((HFePlus-HFeMinus)/(HFePlus+HFeMinus));
-	    }
-
-	  h_LumiPlot_LS_MinBiasEvents_notimecut->Fill(currentLS);
-	  h_LumiPlot_BX_MinBiasEvents_notimecut->Fill(BCN);
-	  if (fabs(HFtPlus-HFtMinus)<timediffThresh_)
-	    {
-	      h_LumiPlot_LS_MinBiasEvents->Fill(currentLS);
-	      h_LumiPlot_BX_MinBiasEvents->Fill(BCN);
-	    }
-	  
-	  HFP_HFM_Energy->Fill(HFeMinus/1000., HFePlus/1000.);
-	}
+      HFP_HFM_Energy->Fill(HFeMinus/1000., HFePlus/1000.);
+    }
  
-      if (debug_>1) std::cout <<"\t<HcalRecHitMonitor:: HF averages>  TPLUS = "<<HFtPlus<<"  EPLUS = "<<HFePlus<<"  TMINUS = "<<HFtMinus<<"  EMINUS = "<<HFeMinus<<"  Weighted Time Diff = "<<((HFtPlus)-(HFtMinus))<<std::endl;
+    if (debug_>1) std::cout <<"\t<HcalRecHitMonitor:: HF averages>  TPLUS = "<<HFtPlus<<"  EPLUS = "<<HFePlus<<"  TMINUS = "<<HFtMinus<<"  EMINUS = "<<HFeMinus<<"  Weighted Time Diff = "<<((HFtPlus)-(HFtMinus))<<std::endl;
       
+    
+  } // if (passedMinBiasHLT)
 
-    } // if (passedMinBiasHLT)
+  if (passedHcalHLT && HtMinus>1 && HtPlus> 1 ) {
+    if (hfpocc>0 && hfmocc>0)	{
+      h_HF_HcalHLT_weightedtimedifference->Fill(HFtPlus-HFtMinus);
+      if (HFePlus+HFeMinus!=0) h_HF_HcalHLT_energydifference->Fill((HFePlus-HFeMinus)/(HFePlus+HFeMinus));
+    }
+    if  (hepocc>0 && hemocc>0){
+      h_HE_HcalHLT_weightedtimedifference->Fill(HEtPlus-HEtMinus);
+      if (HEePlus-HEeMinus!=0) h_HE_HcalHLT_energydifference->Fill((HEePlus-HEeMinus)/(HEePlus+HEeMinus));
+    }
 
-  if (passedHcalHLT && HtMinus>1 && HtPlus> 1 )
-    {
-      if (hfpocc>0 && hfmocc>0)
-	{
-	  h_HF_HcalHLT_weightedtimedifference->Fill(HFtPlus-HFtMinus);
-	  if (HFePlus+HFeMinus!=0) h_HF_HcalHLT_energydifference->Fill((HFePlus-HFeMinus)/(HFePlus+HFeMinus));
-	}
-      if  (hepocc>0 && hemocc>0)
-	{
-	  h_HE_HcalHLT_weightedtimedifference->Fill(HEtPlus-HEtMinus);
-	  if (HEePlus-HEeMinus!=0) h_HE_HcalHLT_energydifference->Fill((HEePlus-HEeMinus)/(HEePlus+HEeMinus));
-	}
-
-      h_LumiPlot_LS_HcalHLTEvents_notimecut->Fill(currentLS);
-      h_LumiPlot_BX_HcalHLTEvents_notimecut->Fill(BCN);
-      if (fabs(HFtPlus-HFtMinus)<timediffThresh_)
-	{
-	  h_LumiPlot_LS_HcalHLTEvents->Fill(currentLS);
-	  h_LumiPlot_BX_HcalHLTEvents->Fill(BCN);
-	}
-     } // passsed Hcal HLT
+    h_LumiPlot_LS_HcalHLTEvents_notimecut->Fill(currentLS);
+    h_LumiPlot_BX_HcalHLTEvents_notimecut->Fill(BCN);
+    if (fabs(HFtPlus-HFtMinus)<timediffThresh_)	{
+      h_LumiPlot_LS_HcalHLTEvents->Fill(currentLS);
+      h_LumiPlot_BX_HcalHLTEvents->Fill(BCN);
+    }
+  } // passsed Hcal HLT
    
- return;
+  return;
 } // void HcalRecHitMonitor::processEvent_rechitenergy
 
 /* --------------------------------------- */

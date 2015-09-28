@@ -6,13 +6,13 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
 // constructor
-HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps) : HcalBaseDQMonitor(ps)
-{
+HcalCoarsePedestalMonitor::HcalCoarsePedestalMonitor(const edm::ParameterSet& ps) : HcalBaseDQMonitor(ps), topo_(0) {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
@@ -101,9 +101,13 @@ void HcalCoarsePedestalMonitor::bookHistograms(DQMStore::IBooker &ib, const edm:
 } // void HcalCoarsePedestalMonitor::bookHistograms()
 
 
-void HcalCoarsePedestalMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
-{
+void HcalCoarsePedestalMonitor::analyze(edm::Event const&e, edm::EventSetup const&s) {
   HcalBaseDQMonitor::analyze(e,s);
+
+  edm::ESHandle<HcalTopology> topo;
+  s.get<HcalRecNumberingRecord>().get(topo);
+  topo_ = &(*topo);
+
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -304,25 +308,25 @@ void HcalCoarsePedestalMonitor::fill_Nevents()
 	  for (int eta=0;eta<83;++eta)
 	    {
 	      ieta=eta-41; // actual ieta value;
-	      if (validDetId(HcalBarrel, ieta, iphi, idepth))
+	      if (topo_->validDetId(HcalBarrel, ieta, iphi, idepth))
 		{
 		  calcEta = CalcEtaBin(HcalBarrel,ieta,idepth);
 		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
 		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
 		}
-	      if (validDetId(HcalEndcap, ieta, iphi, idepth))
+	      if (topo_->validDetId(HcalEndcap, ieta, iphi, idepth))
 		{
 		  calcEta = CalcEtaBin(HcalEndcap,ieta,idepth);
 		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
 		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
 		}
-	      if (validDetId(HcalOuter, ieta, iphi, idepth))
+	      if (topo_->validDetId(HcalOuter, ieta, iphi, idepth))
 		{
 		  calcEta = CalcEtaBin(HcalOuter,ieta,idepth);
 		  CoarsePedestalsSumByDepth.depth[d]->Fill(ieta,iphi,pedestalsum_[calcEta][phi][d]);
 		  CoarsePedestalsOccByDepth.depth[d]->Fill(ieta,iphi,pedestalocc_[calcEta][phi][d]);
 		}
-	      if (validDetId(HcalForward, ieta, iphi, idepth))
+	      if (topo_->validDetId(HcalForward, ieta, iphi, idepth))
 		{
 		  calcEta = CalcEtaBin(HcalBarrel,ieta,idepth);
 		  int zside=ieta/abs(ieta);
