@@ -40,7 +40,7 @@ ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
 	       const SensitiveDetectorCatalog & clg,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager, 
-	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<int>("TimeSliceUnit"),
+	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<double>("TimeSliceUnit"),
 	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<bool>("IgnoreTrackID")), 
   numberingScheme(0){
 

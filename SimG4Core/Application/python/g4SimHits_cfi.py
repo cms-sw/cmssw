@@ -385,7 +385,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
     ),
     HGCSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),
-        TimeSliceUnit    = cms.int32(1),
+        TimeSliceUnit    = cms.double(1),
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
         CheckID          = cms.untracked.bool(True),
