@@ -11,6 +11,8 @@ import RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi
 
 gedPhotonsTmp = RecoEgamma.EgammaPhotonProducers.gedPhotons_cfi.gedPhotons.clone()
 gedPhotonsTmp.photonProducer = cms.InputTag("gedPhotonCore")
+gedPhotonsTmp.candidateP4type = cms.string("fromEcalEnergy")
+del gedPhotonsTmp.regressionConfig
 gedPhotonsTmp.outputPhotonCollection = cms.string("")
 gedPhotonsTmp.reconstructionStep = cms.string("tmp")
 gedPhotonSequenceTmp = cms.Sequence(gedPhotonCore+gedPhotonsTmp)

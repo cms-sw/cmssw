@@ -70,6 +70,7 @@ mvaPhoID_Spring15_50ns_nonTrig_V2_producer_config = cms.PSet(
     # All the value maps: these are expected to be produced by the
     # PhotonIDValueMapProducer running upstream
     #
+    useValueMaps = cms.bool(True),
     full5x5SigmaIEtaIEtaMap   = cms.InputTag("photonIDValueMapProducer:phoFull5x5SigmaIEtaIEta"),
     full5x5SigmaIEtaIPhiMap   = cms.InputTag("photonIDValueMapProducer:phoFull5x5SigmaIEtaIPhi"),
     full5x5E1x3Map      = cms.InputTag("photonIDValueMapProducer:phoFull5x5E1x3"),

@@ -386,6 +386,13 @@ class GsfElectron : public RecoCandidate
       std::vector<CaloTowerDetId> hcalTowersBehindClusters ; //
       float hcalDepth1OverEcalBc ; // hcal over ecal seed cluster energy using 1st hcal depth (using hcal towers behind clusters)
       float hcalDepth2OverEcalBc ; // hcal over ecal seed cluster energy using 2nd hcal depth (using hcal towers behind clusters)
+      float sigmaIetaIphi;
+      float eMax;
+      float e2nd;
+      float eTop;
+      float eLeft;
+      float eRight;
+      float eBottom; 
       ShowerShape()
        : sigmaEtaEta(std::numeric_limits<float>::max()),
        sigmaIetaIeta(std::numeric_limits<float>::max()),
@@ -393,7 +400,14 @@ class GsfElectron : public RecoCandidate
 	     e1x5(0.), e2x5Max(0.), e5x5(0.),
 	     r9(-std::numeric_limits<float>::max()),
        hcalDepth1OverEcal(0.), hcalDepth2OverEcal(0.),
-       hcalDepth1OverEcalBc(0.), hcalDepth2OverEcalBc(0.)
+       hcalDepth1OverEcalBc(0.), hcalDepth2OverEcalBc(0.),
+       sigmaIetaIphi(0.f),
+       eMax(0.f),
+       e2nd(0.f),
+       eTop(0.f),
+       eLeft(0.f),
+       eRight(0.f),
+       eBottom(0.f)
        {}
      } ;
 
@@ -821,7 +835,7 @@ class GsfElectron : public RecoCandidate
   float pixelMatchDRz1 () const { return pixelMatchVariables_.dRz1  ; }
   float pixelMatchDRz2 () const { return pixelMatchVariables_.dRz2  ; }
   private:
-    PixelMatchVariables pixelMatchVariables_ ;
+    PixelMatchVariables pixelMatchVariables_ ;    
  } ;
 
  } // namespace reco
