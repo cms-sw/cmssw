@@ -27,7 +27,6 @@ const char* const TaggingVariableDescription[] = {
   /* [trackPtRatio]                             = */ "track transverse momentum, relative to the jet axis, normalized to its energy",
   /* [trackPParRatio]                           = */ "track parallel momentum, along the jet axis, normalized to its energy",
 
-  /* [trackIp2dVal]                             = */ "track 2D impact parameter",
   /* [trackSip2dVal]                            = */ "track 2D signed impact parameter",
   /* [trackSip2dSig]                            = */ "track 2D signed impact parameter significance",
   /* [trackSip3dVal]                            = */ "track 3D signed impact parameter",
@@ -127,7 +126,6 @@ const char* const TaggingVariableTokens[] = {
   /* [trackPtRatio]                             = */ "trackPtRatio",
   /* [trackPParRatio]                           = */ "trackPParRatio",
 
-  /* [trackIp2dVal]                             = */ "trackIp2dVal",
   /* [trackSip2dVal]                            = */ "trackSip2dVal",
   /* [trackSip2dSig]                            = */ "trackSip2dSig",
   /* [trackSip3dVal]                            = */ "trackSip3dVal",

@@ -8,6 +8,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalEtaPhiHists.h"
 #include "DQM/HcalMonitorClient/interface/HcalHistoUtils.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 class HcalLogicalMap;
 
@@ -54,6 +55,10 @@ class HcalBaseDQClient
   inline void setEventSetup(const edm::EventSetup& es) 
     { c = &(es);  }
   const edm::EventSetup *c;
+
+  inline void setTopo(const HcalTopology* topo) { topo_ = topo;}
+  const HcalTopology* topo_;
+
   std::string name(){return name_;};
   // make these private, with public accessors, at some point?
   std::string name_;

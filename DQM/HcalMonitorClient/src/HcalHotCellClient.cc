@@ -338,8 +338,7 @@ void HcalHotCellClient::updateChannelStatus(std::map<HcalDetId, unsigned int>& m
 	      
 	      HcalDetId myid((HcalSubdetector)(subdet), ieta, iphi, d+1);
 	      // Need this to keep from flagging non-existent HE/HF cells
-	      if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))
-		continue;
+	      if (!(topo_->validDetId((HcalSubdetector)(subdet), ieta, iphi, d+1))) continue;
 	      
 	      int hotcell=0;
 	      if (binval>minerrorrate_)

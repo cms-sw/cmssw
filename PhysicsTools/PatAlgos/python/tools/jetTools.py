@@ -400,6 +400,7 @@ class AddJetCollection(ConfigToolBase):
                 process.load("RecoBTag.SecondaryVertex.secondaryVertex_cff")
                 process.load("RecoBTag.SoftLepton.softLepton_cff")
                 process.load("RecoBTag.Combined.combinedMVA_cff")
+                process.load("RecoBTag.CTagging.cTagging_cff")
             #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
             import RecoJets.JetProducers.caTopTaggers_cff as toptag
@@ -437,6 +438,26 @@ class AddJetCollection(ConfigToolBase):
                             setupSVClustering(getattr(process, btagInfo+_labelName+postfix), _algo, rParam, fatJets, groomedFatJets)
                     if btagInfo == 'pfInclusiveSecondaryVertexFinderTagInfosCA15':
                         setattr(process, btagInfo+_labelName+postfix, btag.pfInclusiveSecondaryVertexFinderTagInfosCA15.clone(trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfosCA15'+_labelName+postfix), extSVCollection=svSource))
+                    if btagInfo == 'pfInclusiveSecondaryVertexFinderCvsLTagInfos':
+                        setattr(
+                            process, 
+                            btagInfo+_labelName+postfix, 
+                            btag.pfInclusiveSecondaryVertexFinderCvsLTagInfos.clone(
+                                trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix), 
+                                extSVCollection=svSource
+                                )
+                            )
+                        if svClustering:
+                            setupSVClustering(getattr(process, btagInfo+_labelName+postfix), _algo, rParam, fatJets, groomedFatJets)
+                    if btagInfo == 'pfInclusiveSecondaryVertexFinderCvsBTagInfos':
+                        setattr(
+                            process, 
+                            btagInfo+_labelName+postfix, 
+                            btag.pfInclusiveSecondaryVertexFinderCvsBTagInfos.clone(
+                                trackIPTagInfos = cms.InputTag('pfImpactParameterTagInfos'+_labelName+postfix), 
+                                extSVCollection=svSource
+                                )
+                            )
                         if svClustering:
                             setupSVClustering(getattr(process, btagInfo+_labelName+postfix), _algo, rParam, fatJets, groomedFatJets)
                     if btagInfo == 'pfSecondaryVertexNegativeTagInfos':
