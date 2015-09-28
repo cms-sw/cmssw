@@ -39,7 +39,7 @@ GEMDigiProducer::GEMDigiProducer(const edm::ParameterSet& ps)
       << "Add the service in the configuration file or remove the modules that require it.";
   }
   gemDigiModel_ = GEMDigiModelFactory::get()->create("GEM" + digiModelString_ + "Model", ps);
-  LogDebug("GEMDigiProducer") << "Using GEM" + digiModelString_ + "Model";
+  edm::LogVerbatim("GEMDigiProducer") << "Using GEM" + digiModelString_ + "Model";
   
   std::string mix_(ps.getParameter<std::string>("mixLabel"));
   std::string collection_(ps.getParameter<std::string>("inputCollection"));
@@ -91,11 +91,12 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     const uint32_t rawId(detId.rawId());
     const auto & simHits(hitMap[rawId]);
     
-    LogDebug("GEMDigiProducer") 
-      << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
-    
+    edm::LogVerbatim("GEMDigiProducer") << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition " << rawId;    
+    edm::LogVerbatim("GEMDigiProducer") << "GEMDigiProducer: GEMDigiModel->SimulateSignal()";    
     gemDigiModel_->simulateSignal(roll, simHits, engine);
+    edm::LogVerbatim("GEMDigiProducer") << "GEMDigiProducer: GEMDigiModel->SimulateNoise()";    
     gemDigiModel_->simulateNoise(roll, engine);
+    edm::LogVerbatim("GEMDigiProducer") << "GEMDigiProducer: GEMDigiModel->FillDigis()()";    
     gemDigiModel_->fillDigis(rawId, *digis);
     (*stripDigiSimLinks).insert(gemDigiModel_->stripDigiSimLinks());
   }
