@@ -38,14 +38,15 @@ def checkTrans(templname,name):
     if not c:
         print "Info: Could no load dictionary for class '"+name+"' because of typedef(s) in the name."
         return 0
+    nerrs=0
     for trans in classtransients[templname]:
       tdm = c.GetDataMember(trans)
       retval = False
       if tdm : retval = tdm.IsPersistent()
       if retval == True : 
           print "Error: field='"+trans+"' must be labeled transient=\"true\" in classes_def.xml for "+name+" or the equivalent class name with typedefs."
-          return 1
-    return 0
+          nerrs+=1
+    return nerrs
 
 #Setup the options
 from optparse import OptionParser
