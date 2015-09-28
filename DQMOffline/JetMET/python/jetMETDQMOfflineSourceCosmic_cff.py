@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
-
 from DQMOffline.JetMET.metDQMConfig_cff     import *
 from DQMOffline.JetMET.jetAnalyzer_cff   import *
 from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
@@ -17,4 +15,4 @@ caloMetDQMAnalyzer.onlyCleaned = cms.untracked.bool(False)
 caloMetDQMAnalyzer.JetCorrections = cms.InputTag("")
 
 
-jetMETDQMOfflineSourceCosmic = cms.Sequence(metFilters*HBHENoiseFilterResultProducer*AnalyzeSUSYDQM*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)
+jetMETDQMOfflineSourceCosmic = cms.Sequence(metFilters*AnalyzeSUSYDQM*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)
