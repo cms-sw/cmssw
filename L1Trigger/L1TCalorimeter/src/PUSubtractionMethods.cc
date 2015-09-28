@@ -21,6 +21,15 @@ namespace l1t {
 			     std::vector<double> regionPUSParams,
 			     std::string regionPUSType)
   {
+    unsigned int etaMask = 0;
+    for(int i = 0; i < 22; i++)
+    {
+      //std::cout << regionPUSParams.at(i) << std::endl;
+      int bitValue = (regionPUSParams.at(i) > 0);
+      etaMask |= (bitValue<<i);
+    }
+    //std::cout << etaMask << std::endl;
+
     const bool verbose = false;
     int puLevelHI[L1CaloRegionDetId::N_ETA];
 
@@ -51,10 +60,7 @@ namespace l1t {
       int subEta = region->hwEta();
       int subPhi = region->hwPhi();
 
-      if((regionPUSType == "zeroWall") && (subEta == 4 || subEta == 17)) {
-	subPt = 0;
-      } else if ((regionPUSType == "zeroWideWall") &&
-		 (subEta == 4 || subEta == 17 || subEta == 5 || subEta == 16)) {
+      if(((etaMask & (1<<subEta)>>subEta))) {
 	subPt = 0;
       }
 
