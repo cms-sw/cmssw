@@ -15,7 +15,6 @@
 //         Created:  Wed Sep 26 08:27:23 EDT 2007
 //
 //
-#define private public // workaround for bug in 5.34.18
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TColor.h"

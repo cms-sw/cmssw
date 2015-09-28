@@ -1,10 +1,7 @@
-#define private public
 #include "RecoPixelVertexing/PixelTriplets/plugins/ThirdHitPredictionFromInvParabola.cc"
-#undef private
 
 #include<iostream>
 #include<string>
-
 
 int main(int n, const char **) {
   if (n<2) return 0; // protect testing

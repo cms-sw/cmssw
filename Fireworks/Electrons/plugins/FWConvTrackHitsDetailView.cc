@@ -1,8 +1,5 @@
-
-#define protected public
 #include "TGLViewer.h" // access to over-all bounding box
 #include "TEveCalo.h" // workaround for TEveCalo3D bounding box
-#undef protected
 #include "TGLFontManager.h"
 #include "TEveScene.h"
 #include "TEveManager.h"

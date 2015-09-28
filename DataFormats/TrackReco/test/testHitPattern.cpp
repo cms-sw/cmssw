@@ -1,6 +1,4 @@
-#define private public
 #include "DataFormats/TrackReco/interface/HitPattern.h"
-#undef private
 
 #include <random>
 #include <algorithm>

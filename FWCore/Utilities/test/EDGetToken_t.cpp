@@ -1,8 +1,4 @@
-// have to do this evil in order to access constructors.
-// This is acceptable only for white box tests like this.
-#define private public
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#undef private
 
 #include <iostream>
 

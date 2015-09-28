@@ -10,7 +10,6 @@
 
 #include <string>
 
-#define private public
 #include <SimG4Core/Geometry/interface/DDG4SolidConverter.h>
 
 class testTruncTubs : public CppUnit::TestFixture

@@ -6,11 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-//NOTE: I need to open a 'back door' so I can test ServiceManager 'inheritance'
-#define private public
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#undef private
 
 #include <cstdlib>
 #include <vector>

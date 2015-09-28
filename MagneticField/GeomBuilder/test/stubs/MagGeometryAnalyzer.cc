@@ -12,14 +12,9 @@
 #include "MagneticField/GeomBuilder/test/stubs/MagGeometryExerciser.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "MagneticField/Layers/interface/MagVerbosity.h"
-
-//dirty hack
-#define private public
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
-#undef public
 
 #include <iostream>
 #include <vector>
