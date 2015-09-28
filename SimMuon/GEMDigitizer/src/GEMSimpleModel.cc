@@ -1,11 +1,16 @@
-#include "SimMuon/GEMDigitizer/interface/GEMSimpleModel.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
-#include "FWCore/Utilities/interface/Exception.h"
+
+#include "SimMuon/GEMDigitizer/interface/GEMSimpleModel.h"
+
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
+
 #include <cmath>
 #include <utility>
 #include <map>
@@ -81,6 +86,7 @@ void GEMSimpleModel::setup()
 
 void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSimHitContainer& simHits, CLHEP::HepRandomEngine* engine)
 {
+
   stripDigiSimLinks_.clear();
   detectorHitMap_.clear();
   stripDigiSimLinks_ = StripDigiSimLinks(roll->id().rawId());
@@ -88,6 +94,7 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
   bool digiElec = false;
   for (edm::PSimHitContainer::const_iterator hit = simHits.begin(); hit != simHits.end(); ++hit)
   {
+    // edm::LogVerbatim("GEMSimpleModel") << "GEMSimpleModel::simulateSignal() :: simhit from particle type = "<<hit->particleType()<<" in GEMDetId = "<<roll->id()<<" = "<<roll->id().rawId();
     if (std::abs(hit->particleType()) != 13 && digitizeOnlyMuons_)
       continue;
     double elecEff = 0.;
@@ -108,6 +115,8 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
       if (checkElecEff < elecEff)
         digiElec = true;
     }
+    edm::LogVerbatim("GEMSimpleModel") << "GEMSimpleModel::simulateSignal() :: SimHit with type = "<<hit->particleType()<<" in GEMDetId "<<roll->id()<<" = "<<roll->id().rawId()
+				       << " will be digitized? [Muon: "<<checkMuonEff<<" < "<<averageEfficiency_<<"] [Elec: "<<checkElecEff<<" < "<<elecEff<<"]";
    if (!(digiMuon || digiElec))
       continue;
     const int bx(getSimHitBx(&(*hit), engine));
@@ -129,7 +138,10 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   float randomJitterTime = CLHEP::RandGaussQ::shoot(engine, 0., timeJitter_);
   const GEMDetId id(simhit->detUnitId());
   const GEMEtaPartition* roll(geometry_->etaPartition(id));
-  if (!roll)
+ 
+  edm::LogVerbatim("GEMSimpleModel") << "GEMSimpleModel::getSimHitBx() :: SimHit with tof = "<<tof<<" with type = "<<simhit->particleType()<<" in GEMDetId "<<id<<" = "<<id.rawId();
+
+ if (!roll)
   {
     throw cms::Exception("Geometry")<< "GEMSimpleModel::getSimHitBx() - GEM simhit id does not match any GEM roll id: " << id << "\n";
     return 999;
@@ -165,6 +177,10 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   bx = static_cast<int> (std::round((timeDifference) / bxwidth_));
 
   // check time
+  edm::LogVerbatim("GEMSimpleModel") << "GEMSimpleModel::getSimHitBx() :: check time calculation";
+  edm::LogVerbatim("GEMSimpleModel") << "GEMSimpleModel::getSimHitBx() :: randomResolutionTime = "<<randomResolutionTime;
+  edm::LogVerbatim("GEMSimpleModel") << "GEMSimpleModel::getSimHitBx() :: BX = " << bx << "\tdeltaT = (simT - refT) = " << timeDifference << " \tsimT =  " << simhitTime << "\trefT =  " << referenceTime;
+
   const bool debug(false);
   if (debug)
   {
@@ -180,6 +196,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 {
   if (!doBkgNoise_)
     return;
+  // edm::LogVerbatim("GEMSimpleModel") << "GEMSimpleModel::simulateNoise()";
   const GEMDetId gemId(roll->id());
   const int nstrips(roll->nstrips());
   double trArea(0.0);
@@ -299,6 +316,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEtaPartition* roll,
     const PSimHit* simHit, const int bx, CLHEP::HepRandomEngine* engine)
 {
+  edm::LogVerbatim("GEMSimpleModel") << "GEMSimpleModel::simulateClustering()";
   const StripTopology& topology = roll->specificTopology(); // const LocalPoint& entry(simHit->entryPoint());
   const LocalPoint& hit_position(simHit->localPosition());
   const int nstrips(roll->nstrips());
