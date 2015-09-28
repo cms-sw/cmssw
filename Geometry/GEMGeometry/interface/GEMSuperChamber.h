@@ -6,7 +6,7 @@
  *  Model of a GEM super chamber.
  *   
  *  The super chamber is composed of 2 chambers.
- *  It's detId is the same as ch1 detId
+ *  It's detId has layer = 0
  *
  *  \author S. Dildick
  */
