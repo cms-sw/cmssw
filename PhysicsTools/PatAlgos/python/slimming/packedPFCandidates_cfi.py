@@ -8,6 +8,9 @@ packedPFCandidates = cms.EDProducer("PATPackedCandidateProducer",
     vertexAssociator = cms.InputTag("primaryVertexAssociation","original"),
     PuppiSrc = cms.InputTag("puppi"),
     PuppiNoLepSrc = cms.InputTag("puppiNoLep"),    
-    secondaryVerticesForWhiteList = cms.InputTag("inclusiveCandidateSecondaryVertices"),
+    secondaryVerticesForWhiteList = cms.VInputTag(
+      cms.InputTag("inclusiveCandidateSecondaryVertices"),
+      cms.InputTag("inclusiveCandidateSecondaryVerticesCvsL"),
+      ),      
     minPtForTrackProperties = cms.double(0.95)
 )
