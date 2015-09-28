@@ -1,4 +1,4 @@
-B1;3409;0cimport FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.Config as cms
 
 ## The iso-based HBHE noise filter ___________________________________________||
 from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
@@ -12,6 +12,9 @@ from RecoMET.METFilters.CSCTightHaloTrkMuUnvetoFilter_cfi import *
 
 ## The CSC beam halo tight filter ____________________________________________||
 from RecoMET.METFilters.CSCTightHalo2015Filter_cfi import *
+
+## The hcal problematic strip halo filter ____________________________________________||
+from RecoMET.METFilters.HcalStripHaloFilter_cfi import *
 
 ## The HCAL laser filter _____________________________________________________||
 from RecoMET.METFilters.hcalLaserEventFilter_cfi import *
@@ -63,6 +66,7 @@ metFilters = cms.Sequence(
    HBHENoiseFilter *
    primaryVertexFilter*
 #   HBHENoiseIsoFilter*
+#   HcalStripHaloFilter *
    CSCTightHaloFilter *
 #   hcalLaserEventFilter *
 #  CSCTightHaloTrkMuUnvetoFilter *
