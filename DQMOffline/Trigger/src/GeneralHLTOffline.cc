@@ -166,7 +166,7 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
   }
 
   if (streamA_found_) {
-    const std::vector<std::string> &datasetNames =  hlt_config_.streamContent("A");
+    const std::vector<std::string> &datasetNames =  DataSetNames;
     // Loop over PDs
     for (unsigned int iPD = 0; iPD < datasetNames.size(); iPD++) {
       // Loop over Paths in each PD
@@ -174,12 +174,12 @@ GeneralHLTOffline::analyze(const edm::Event& iEvent,
            iPath < PDsVectorPathsVector[iPD].size(); iPath++) {
         std::string &pathName = PDsVectorPathsVector[iPD][iPath];
         unsigned int index = hlt_config_.triggerIndex(pathName);
-        if (debugPrint) {
+	if (debugPrint) {
           std::cout << "Looking at path " << pathName << std::endl;
           std::cout << "Index = " << index
                     << " triggerResults->size() = " << triggerResults->size()
                     << std::endl;
-        }
+	}
 
         // fill the histos with empty weights......
         const std::string &label = datasetNames[iPD];
@@ -257,23 +257,33 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
   const std::vector<std::string> &nameStreams = hlt_config_.streamNames();
   std::vector<std::string>::const_iterator si = nameStreams.begin();
   std::vector<std::string>::const_iterator se = nameStreams.end();
+  std::vector<std::string> datasetNames;
+
   for ( ; si != se; ++si) {
-    if ((*si) == "A") {
+    if (debugPrint) std::cout << "This is stream " << *si << std::endl;
+
+    if ( ((*si).find("Physics") != std::string::npos) ||((*si).find("Scouting") != std::string::npos) ||((*si).find("Parking") != std::string::npos) || (*si) == "A") {
       streamA_found_ = true;
-      break;
+
+      std::vector<std::string> datasetperStream = hlt_config_.streamContent(*si);
+      
+      for (auto const & di: datasetperStream) {
+	datasetNames.push_back(di);
+      }
     }
   }
 
+  if (debugPrint) std::cout << "Number of total  datasets " << datasetNames.size() << std::endl;
 
 
   if (streamA_found_) {
-    const std::vector<std::string> &datasetNames =  hlt_config_.streamContent("A");
+   
     DataSetNames = datasetNames;
-
+    
     if (debugPrint)
-      std::cout << "Number of Stream A datasets "
+      std::cout << "Number of datasets to be monitored "
                 << datasetNames.size() << std::endl;
-
+    
     for (unsigned int i = 0; i < datasetNames.size(); i++) {
       const std::vector<std::string> &datasetPaths = hlt_config_.datasetContent(datasetNames[i]);
       if (debugPrint) {
@@ -281,10 +291,11 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
                   << "datasetPaths.size() = " << datasetPaths.size() << std::endl;
         for (unsigned int iPath = 0;
              iPath < datasetPaths.size(); iPath++) {
-          std::cout << "Before setupHltMatrix -  MET dataset "
+          std::cout << "Paths in begin job "
                     << datasetPaths[iPath] << std::endl;
         }
       }
+      
       // Check if dataset has been added - if not add it
       // need to loop through AddedDatasets and compare
       bool foundDataset = false;
@@ -299,7 +310,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
           break;
         }
       }
-
+      
       if (!foundDataset) {
         if (debugPrint)
           std::cout << " Fill trigger paths for dataset "
@@ -319,7 +330,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
                     << "trigger paths per dataset " << std::endl;
         // Loop over correct path of PDsVectorPathsVector
         bool found = false;
-
+	
         // Loop over triggers in the path
         for (unsigned int iTrig = 0; iTrig < datasetPaths.size(); iTrig++) {
           if (debugPrint)
@@ -334,7 +345,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
                         <<  "  " << PDsVectorPathsVector[datasetNum][od] << std::endl;
             // Compare, see if match is found
             if (hlt_config_.removeVersion(datasetPaths[iTrig]).compare(
-                    hlt_config_.removeVersion(PDsVectorPathsVector[datasetNum][od])) == 0) {
+								       hlt_config_.removeVersion(PDsVectorPathsVector[datasetNum][od])) == 0) {
               found = true;
               if (debugPrint)
                 std::cout << " FOUND " << datasetPaths[iTrig] << std::endl;
@@ -402,7 +413,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       PathModules[pathName] = good_module_names;
     } // loop over paths
 
-  }  // if stream A found
+  }  // if stream A or Physics streams found
 
 
 }
@@ -428,7 +439,7 @@ void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
     for (unsigned int iPD = 0; iPD < DataSetNames.size(); iPD++)
       setupHltMatrix(iBooker, DataSetNames[iPD], iPD);
 
-  }  // if stream A found
+  }  // if stream A or Physics streams are found
 }  // end of bookHistograms
 
 
