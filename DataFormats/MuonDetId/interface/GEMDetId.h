@@ -66,6 +66,7 @@ class GEMDetId :public DetId {
   }
 
   /// Layer id: each station have two layers of chambers: layer 1 is the inner chamber and layer 2 is the outer chamber (when present)  
+  ///           superchamber has layer = 0
   int layer() const{
     return int((id_>>LayerStartBit_) & LayerMask_) + minLayerId;
   }
@@ -75,8 +76,8 @@ class GEMDetId :public DetId {
     return int((id_>>ChamberStartBit_) & ChamberMask_) + (minChamberId+1);
   }
 
- /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
- /// several parts  (rolls) GEM up to 10
+  /// Roll id  (also known as eta partition): each chamber is divided along the strip direction in  
+  /// several parts  (rolls) GEM up to 10
   int roll() const{
     return int((id_>>RollStartBit_) & RollMask_); // value 0 is used as wild card
   }
@@ -85,6 +86,10 @@ class GEMDetId :public DetId {
   /// Return the corresponding ChamberId
   GEMDetId chamberId() const {
     return GEMDetId(id_ & chamberIdMask_);
+  }
+  /// Return the corresponding SuperChamberId
+  GEMDetId superChamberId() const {
+    return GEMDetId(id_ & superChamberIdMask_);
   }
 
   static const int minRegionId=     -1;
@@ -99,39 +104,40 @@ class GEMDetId :public DetId {
   static const int minChamberId=     0;
   static const int maxChamberId=     36;
 
-  static const int minLayerId=     1;
+  static const int minLayerId=     0;
   static const int maxLayerId=     2;
 
   static const int minRollId=	  0;
   static const int maxRollId=	 15;
 
  private:
-  static const int RegionNumBits_  =  2;
-  static const int RegionStartBit_ =  0;  
-  static const int RegionMask_     =  0X3;
+  static const int RegionNumBits_           =  2;   // this we can decrease, because GEMs only in + & - endcap
+  static const int RegionStartBit_          =  0;  
+  static const int RegionMask_              =  0X3; // decimal value : 3
 
-  static const int RingNumBits_  =  3;
-  static const int RingStartBit_ =  RegionStartBit_+RegionNumBits_;  
-  static const unsigned int RingMask_     =  0X7;
+  static const int RingNumBits_             =  3;   // this we can decrease
+  static const int RingStartBit_            =  RegionStartBit_+RegionNumBits_;  
+  static const unsigned int RingMask_       =  0X7; // decimal value : 7
 
-  static const int StationNumBits_  =  3;
-  static const int StationStartBit_ =  RingStartBit_+RingNumBits_;  
-  static const unsigned int StationMask_     =  0X7;
+  static const int StationNumBits_          =  3;   // this we can decrease
+  static const int StationStartBit_         =  RingStartBit_+RingNumBits_;  
+  static const unsigned int StationMask_    =  0X7; // decimal value : 7
 
 
-  static const int ChamberNumBits_  =  6;
-  static const int ChamberStartBit_ =  StationStartBit_+StationNumBits_;  
-  static const unsigned int ChamberMask_     =  0X3F;
+  static const int ChamberNumBits_          =  6;    // necessary, because up to 36 chambers in a station/ring
+  static const int ChamberStartBit_         =  StationStartBit_+StationNumBits_;  
+  static const unsigned int ChamberMask_    =  0X3F; // decimal value : 63
 
-  static const int LayerNumBits_  =  1;
-  static const int LayerStartBit_ =  ChamberStartBit_+ChamberNumBits_;  
-  static const unsigned int LayerMask_     =  0X1;
+  static const int LayerNumBits_            =  2;    // originally : 1
+  static const int LayerStartBit_           =  ChamberStartBit_+ChamberNumBits_;  
+  static const unsigned int LayerMask_      =  0X3;  // originally: 0X1 = 1
 
-  static const int RollNumBits_  =  5;
-  static const int RollStartBit_ =  LayerStartBit_+LayerNumBits_;  
-  static const unsigned int RollMask_     =  0X1F;
+  static const int RollNumBits_             =  5;    // this we can decrease, because no more than 12 rolls in a chamber
+  static const int RollStartBit_            =  LayerStartBit_+LayerNumBits_;  
+  static const unsigned int RollMask_       =  0X1F; // decimal value: 31
  
-  static const uint32_t chamberIdMask_ = ~(RollMask_<<RollStartBit_);
+  static const uint32_t chamberIdMask_      = ~(RollMask_<<RollStartBit_);
+  static const uint32_t superChamberIdMask_ = ~((LayerMask_<<LayerStartBit_) | (RollMask_<<RollStartBit_));
 
  private:
   void init(int region, 
