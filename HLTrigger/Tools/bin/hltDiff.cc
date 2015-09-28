@@ -29,25 +29,25 @@
 
 void usage(std::ostream & out) {
   out << "\
-usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-label LABEL[:INSTANCE[:PROCESS]]]\n\
-               -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-label LABEL[:INSTANCE[:PROCESS]]]\n\
+usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABEL[:INSTANCE[:PROCESS]]]\n\
+               -n|--new-files FILE1.ROOT [FILE2.ROOT ...] [-N|--new-process LABEL[:INSTANCE[:PROCESS]]]\n\
                [-m|--max-events MAXEVENTS] [-p|--prescales] [-v|--verbose] [-h|--help]\n\
 \n\
   -o|--old-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the old (reference) trigger results.\n\
 \n\
-  -O|--old-label LABEL[:INSTANCE[:PROCESS]]\n\
-      collection with the old (reference) trigger results;\n\
-      the default is 'TriggerResults' (without any instance or process name).\n\
+  -O|--old-process PROCESS\n\
+      process name of the collection with the old (reference) trigger results;\n\
+      the default is to take the 'TriggerResults' from the last process.\n\
 \n\
   -n|--new-files FILE1.ROOT [FILE2.ROOT ...]\n\
       input file(s) with the new trigger results to be compared with the reference;\n\
       to read these from a different collection in the same files as\n\
       the reference, use '-n -' and specify the collection with -N (see below).\n\
 \n\
-  -N|--new-label LABEL[:INSTANCE[:PROCESS]]\n\
-      collection with the new trigger results to be compared with the reference;\n\
-      the default is 'TriggerResults' (without any instance or process name).\n\
+  -N|--new-process PROCESS\n\
+      process name of the collection with the new (reference) trigger results;\n\
+      the default is to take the 'TriggerResults' from the last process.\n\
 \n\
   -m|--max-events MAXEVENTS\n\
       compare only the first MAXEVENTS events;\n\
@@ -163,10 +163,13 @@ std::string getProcessNameFromBranch(std::string const & branch) {
   return boost::copy_range<std::string>(tokens[3]);
 }
 
-std::unique_ptr<HLTConfigDataEx> getHLTConfigData(fwlite::EventBase const & event, edm::InputTag inputtag) {
+std::unique_ptr<HLTConfigDataEx> getHLTConfigData(fwlite::EventBase const & event, std::string process) {
   auto const & history = event.processHistory();
-  auto const & branch  = event.getBranchNameFor( edm::Wrapper<edm::TriggerResults>::typeInfo(), inputtag.label().c_str(), inputtag.instance().c_str(), inputtag.process().c_str() );
-  auto const & process = getProcessNameFromBranch( branch );
+  if (process.empty()) {
+    // determine the process name from the most recent "TriggerResults" object
+    auto const & branch  = event.getBranchNameFor( edm::Wrapper<edm::TriggerResults>::typeInfo(), "TriggerResults", "", process.c_str() );
+    process = getProcessNameFromBranch( branch );
+  }
   
   edm::ProcessConfiguration config;
   if (not history.getConfigurationForProcess(process, config)) {
@@ -219,8 +222,8 @@ std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
 }
 
 
-void compare(std::vector<std::string> const & old_files, edm::InputTag const & old_label, 
-             std::vector<std::string> const & new_files, edm::InputTag const & new_label,
+void compare(std::vector<std::string> const & old_files, std::string const & old_process,
+             std::vector<std::string> const & new_files, std::string const & new_process,
              unsigned int max_events, bool ignore_prescales, bool verbose) {
 
   std::shared_ptr<fwlite::ChainEvent> old_events = std::make_shared<fwlite::ChainEvent>(old_files);
@@ -247,11 +250,11 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
     }
 
     fwlite::Handle<edm::TriggerResults> old_handle;
-    old_handle.getByLabel<fwlite::Event>(* old_events->event(), old_label.label().c_str(), old_label.instance().c_str(), old_label.process().c_str());
+    old_handle.getByLabel<fwlite::Event>(* old_events->event(), "TriggerResults", "", old_process.c_str());
     auto const & old_results = * old_handle;
 
     fwlite::Handle<edm::TriggerResults> new_handle;
-    new_handle.getByLabel<fwlite::Event>(* new_events->event(), new_label.label().c_str(), new_label.instance().c_str(), new_label.process().c_str());
+    new_handle.getByLabel<fwlite::Event>(* new_events->event(), "TriggerResults", "", new_process.c_str());
     auto const & new_results = * new_handle;
 
     if (new_run) {
@@ -259,8 +262,8 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
       old_events->fillParameterSetRegistry();
       new_events->fillParameterSetRegistry();
 
-      old_config = getHLTConfigData(* old_events->event(), old_label);
-      new_config = getHLTConfigData(* new_events->event(), new_label);
+      old_config = getHLTConfigData(* old_events->event(), old_process);
+      new_config = getHLTConfigData(* new_events->event(), new_process);
       if (new_config->triggerNames() != old_config->triggerNames()) {
         std::cerr << "Error: inconsistent HLT menus" << std::endl;
         exit(1);
@@ -325,9 +328,9 @@ int main(int argc, char ** argv) {
   const char optstring[] = "o:O:n:N:m:pvh";
   const option longopts[] = {
     option{ "old-files",    required_argument,  nullptr, 'o' },
-    option{ "old-label",    required_argument,  nullptr, 'O' },
+    option{ "old-process",  required_argument,  nullptr, 'O' },
     option{ "new-files",    required_argument,  nullptr, 'n' },
-    option{ "new-label",    required_argument,  nullptr, 'N' },
+    option{ "new-process",  required_argument,  nullptr, 'N' },
     option{ "max-events",   required_argument,  nullptr, 'm' },
     option{ "prescales",    no_argument,        nullptr, 'p' },
     option{ "verbose",      no_argument,        nullptr, 'v' },
@@ -336,9 +339,9 @@ int main(int argc, char ** argv) {
 
   // default values
   std::vector<std::string>  old_files;
-  edm::InputTag             old_label("TriggerResults");
+  std::string               old_process("");
   std::vector<std::string>  new_files;
-  edm::InputTag             new_label("TriggerResults");
+  std::string               new_process("");
   unsigned int              max_events = 0;
   bool                      ignore_prescales = true;
   bool                      verbose = false;
@@ -348,31 +351,31 @@ int main(int argc, char ** argv) {
   while ((c = getopt_long(argc, argv, optstring, longopts, nullptr)) != -1) {
     switch (c) {
       case 'o':
-        old_files.push_back(std::string(optarg));
+        old_files.emplace_back(optarg);
         while (optind < argc) {
           if (argv[optind][0] == '-')
             break;
-          old_files.push_back(std::string(argv[optind]));
+          old_files.emplace_back(argv[optind]);
           ++optind;
         }
         break;
 
       case 'O':
-        old_label = edm::InputTag(optarg);
+        old_process = optarg;
         break;
 
       case 'n':
-        new_files.push_back(std::string(optarg));
+        new_files.emplace_back(optarg);
         while (optind < argc) {
           if (argv[optind][0] == '-')
             break;
-          new_files.push_back(std::string(argv[optind]));
+          new_files.emplace_back(argv[optind]);
           ++optind;
         }
         break;
 
       case 'N':
-        new_label = edm::InputTag(optarg);
+        new_process = optarg;
         break;
 
       case 'm':
@@ -408,7 +411,7 @@ int main(int argc, char ** argv) {
     exit(1);
   }
 
-  compare(old_files, old_label, new_files, new_label, max_events, ignore_prescales, verbose);
+  compare(old_files, old_process, new_files, new_process, max_events, ignore_prescales, verbose);
 
   return 0;
 }
