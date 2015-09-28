@@ -48,7 +48,10 @@ class CFG(object):
     
 class Analyzer( CFG ):
     '''Base analyzer configuration, see constructor'''
-    def __init__(self, class_object, instance_label='1', 
+
+    num_instance = 0
+    
+    def __init__(self, class_object, instance_label=None, 
                  verbose=False, **kwargs):
         '''
         One could for example define the analyzer configuration for a
@@ -74,6 +77,9 @@ class Analyzer( CFG ):
         '''
 
         self.class_object = class_object
+        self.__class__.num_instance += 1 
+        if instance_label is None:
+            instance_label = str(self.__class__.num_instance)
         self.instance_label = instance_label
         self.verbose = verbose
         super(Analyzer, self).__init__(**kwargs)
@@ -94,10 +100,16 @@ class Analyzer( CFG ):
     
 class Service( CFG ):
     
-    def __init__(self, class_object, instance_label='1', 
+    num_instance = 0
+
+    def __init__(self, class_object, instance_label=None, 
                  verbose=False, **kwargs):
         self.class_object = class_object
+        self.__class__.num_instance += 1 
+        if instance_label is None:
+            instance_label = str(self.__class__.num_instance)
         self.instance_label = instance_label
+        self.__class__.num_instance += 1 
         self.name = self.build_name()
         self.verbose = verbose
         super(Service, self).__init__(**kwargs)
