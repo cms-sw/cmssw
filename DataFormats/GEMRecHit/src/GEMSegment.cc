@@ -7,16 +7,16 @@
 #include <iostream>
 
 namespace {
-  // define a Super Layer Id from the first layer of the first rechit, and put to first layer
+  // create reference GEM Chamber ID for segment
   inline
   DetId buildDetId(GEMDetId id) {
     // GE1/1 => station 1
     // GE2/1 => station 2 & 3 => combine Short & Long to mimick future technology that can have 4+ layers
     int station, layer;
     if (id.station()==1) station = 1;
-    else if (id.station()==2 || id.station()==3) station = 2;
+    else if (id.station()==2 || id.station()==3) station = 3;
     else station = 0; 
-    layer = 1;
+    layer = 0;
     return GEMDetId(id.region(),id.ring(),station,layer,id.chamber(),id.roll());
   }
 }
@@ -39,12 +39,25 @@ public:
 
 
 GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
-	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
+	LocalVector direction, AlgebraicSymMatrix errors, double chi2) :
+  RecSegment(buildDetId(proto_segment.front()->gemId())), 
+  theOrigin(origin), 
+  theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
+  theTimeValue = 0.0;
+  theTimeUncrt = 0.0;
+  theBX = -10.0;
+  for(unsigned int i=0; i<proto_segment.size(); ++i)
+    theGEMRecHits.push_back(*proto_segment[i]);
+}
+
+GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
+		       LocalVector direction, AlgebraicSymMatrix errors, double chi2, float bx) : 
   RecSegment(buildDetId(proto_segment.front()->gemId())),
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
   theTimeValue = 0.0;
   theTimeUncrt = 0.0;
+  theBX = bx;
   for(unsigned int i=0; i<proto_segment.size(); ++i)
     theGEMRecHits.push_back(*proto_segment[i]);
 }
@@ -56,7 +69,7 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, Local
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2){
   theTimeValue = time;
   theTimeUncrt = timeErr;
-
+  theBX = -10.0;
   for(unsigned int i=0; i<proto_segment.size(); ++i)
     theGEMRecHits.push_back(*proto_segment[i]);
 }
@@ -126,6 +139,7 @@ std::ostream& operator<<(std::ostream& os, const GEMSegment& seg) {
     "0,)\n"<<
     "            chi2/ndf = " << ((seg.degreesOfFreedom() != 0.) ? seg.chi2()/double(seg.degreesOfFreedom()) :0 ) << 
     " #rechits = " << seg.specificRecHits().size()<<
+    " bx = "<< seg.BunchX() <<
     " time = "<< seg.time() << " +/- " << seg.timeErr() << " ns";
 
   return os;  
