@@ -1,3 +1,7 @@
+#include "Pythia8/Pythia.h"
+
+using namespace Pythia8;
+
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"

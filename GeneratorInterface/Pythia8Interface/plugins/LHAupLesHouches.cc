@@ -43,7 +43,11 @@ bool LHAupLesHouches::setInit()
   }  
   
   //will be used to work around missing initialization inside pythia8
-  fEvAttributes = new std::map<std::string, std::string >;
+  if(!fEvAttributes) {
+    fEvAttributes = new std::map<std::string, std::string >;
+  } else {
+    fEvAttributes->clear();
+  }
 
   return true;
 }
