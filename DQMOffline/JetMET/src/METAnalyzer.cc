@@ -1541,7 +1541,6 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     edm::Handle<bool> HBHENoiseFilterResultHandle;
     iEvent.getByToken(hbheNoiseFilterResultToken_, HBHENoiseFilterResultHandle);
     if (!HBHENoiseFilterResultHandle.isValid()) {
-     std::cout<<"wrong1"<<std::endl;
       LogDebug("") << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
       if (verbose_) std::cout << "METAnalyzer: Could not find HBHENoiseFilterResult" << std::endl;
     }
@@ -1549,38 +1548,24 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     edm::Handle<bool> CSCTightHaloFilterResultHandle;
     iEvent.getByToken(CSCHaloResultToken_, CSCTightHaloFilterResultHandle);
     if (!CSCTightHaloFilterResultHandle.isValid()) {
-     std::cout<<"wrong2"<<std::endl;
       LogDebug("") << "METAnalyzer: Could not find CSCTightHaloFilterResultHandle" << std::endl;
       if (verbose_) std::cout << "METAnalyzer: CSCTightHaloFilterResultHandle" << std::endl;
-    }
-    if(*CSCTightHaloFilterResultHandle==false){
-      std::cout<<"filter is false CSC"<<std::endl;
-    }else{
-      //std::cout<<"filter is passed CSC"<<(*CSCTightHaloFilterResultHandle)<<std::endl;
     }
     filter_decisions[1]= *CSCTightHaloFilterResultHandle;
     edm::Handle<bool> eeBadScFilterResultHandle;
     iEvent.getByToken(eeBadScFilterToken_, eeBadScFilterResultHandle);
     if (!eeBadScFilterResultHandle.isValid()) {
-     std::cout<<"wrong3"<<std::endl;
       LogDebug("") << "METAnalyzer: Could not find eeBadScFilterResultHandle" << std::endl;
       if (verbose_) std::cout << "METAnalyzer: eeBadScFilterResultHandle" << std::endl;
     }
     filter_decisions[2]= *eeBadScFilterResultHandle;
-    if(*eeBadScFilterResultHandle==false){
-      std::cout<<"filter is false eebadsc"<<std::endl;
-    }
     edm::Handle<bool> EcalDeadCellTriggerFilterResultHandle;
     iEvent.getByToken(EcalDeadCellTriggerToken_, EcalDeadCellTriggerFilterResultHandle);
     if (!EcalDeadCellTriggerFilterResultHandle.isValid()) {
-      std::cout<<"wrong4"<<std::endl;
       LogDebug("") << "METAnalyzer: Could not find EcalDeadCellTriggerFilterResultHandle" << std::endl;
       if (verbose_) std::cout << "METAnalyzer: EcalDeadCellTriggerFilterResultHandle" << std::endl;
     }
     filter_decisions[3]= *EcalDeadCellTriggerFilterResultHandle;
-    if(*EcalDeadCellTriggerFilterResultHandle==false){
-      std::cout<<"filter is false ecalD"<<std::endl;
-    }
   }else{
     edm::Handle<edm::TriggerResults> metFilterResults;
     iEvent.getByToken(METFilterMiniAODToken_, metFilterResults);
