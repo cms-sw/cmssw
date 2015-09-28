@@ -11,8 +11,8 @@ classtransients['edm::AssociationVector'].append('transientVector_')
 
 
 class RMParser(object):
-    """Parses the  ${PackageName}_x*r.rootmap file(s) looking for class declarations of edm template classes
-    which contain member which must be labeled transient="true" in classes_def.xml
+    """Parses the rootmap file(s) for a package looking for class declarations of edm template classes
+    which contain member(s) which must be labeled transient="true" in classes_def.xml
     """
     
     def __init__(self,filelist):
@@ -37,22 +37,24 @@ def checkTrans(templname,name):
     print "Checking "+name
     c = ROOT.TClass.GetClass(name)
     if not c:
-        print "failed to load dictionary for class '"+name+"'. Check for typedefs in the name."
-        return
+        print "Info: Could no load dictionary for class '"+name+"' because of typedef(s) in the name."
+        return 0
     for trans in classtransients[templname]:
       tdm = c.GetDataMember(trans)
       retval = False
       if tdm : retval = tdm.IsPersistent()
-      if retval == True : raise RuntimeError("Error: field '"+trans+"' must be labeled transient=\"true\" in classes_def.xml for '"+name+"'")
-
+      if retval == True : 
+          print "Error: field='"+trans+"' must be labeled transient=\"true\" in classes_def.xml for class='"+name+"' or class=\"name with typedefs\"."
+          return 1
+    return 0
 
 #Setup the options
 from optparse import OptionParser
 oparser = OptionParser()
 oparser.add_option("-l","--lib", dest="library",
-                   help="specify the library to load. If not set classes are found using the PluginManager")
+                   help="specify the library to load")
 oparser.add_option("-f","--rootmap", dest="rmfiles", action="append", default=[],
-                   help="the _xr.rootmap(s) file to read")
+                   help="specify the rootmap file(s) to read")
 
 (options,args)=oparser.parse_args()
 
@@ -68,6 +70,12 @@ else:
 
 p = RMParser(options.rmfiles)
 
+nerrs = 0
 for key in p.cnames.keys():
     for value in p.cnames[key]:
-        checkTrans(key,value)
+        nerrs += checkTrans(key,value)
+
+if nerrs > 0 : 
+    print "Error: edm template class member must be labeled transient=\"true\" in classes_def.xml. Check log for specific template and member name."
+    import sys
+    sys.exit(1)
