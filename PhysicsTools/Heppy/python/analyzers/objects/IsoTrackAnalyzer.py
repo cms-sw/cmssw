@@ -47,13 +47,9 @@ class IsoTrackAnalyzer( Analyzer ):
 
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(IsoTrackAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
-        self.IsoTrackIsolationComputer = heppy.IsolationComputer(self.cfg_ana.isoDR)
+        self.IsoTrackIsolationComputer = heppy.IsolationComputer()
 
-        self.doIsoAnulus = getattr(cfg_ana, 'doIsoAnulus', False)
-        if self.doIsoAnulus:
-            self.isoAnPUCorr = self.cfg_ana.isoAnPUCorr
-            self.anDeltaR = self.cfg_ana.anDeltaR
-            self.IsoTrackIsolationComputer = heppy.IsolationComputer() #BM: Doesn't this line accidentally overwrite what done on l50 ? Is this ok ?
+        self.doIsoAnnulus = getattr(cfg_ana, 'doIsoAnnulus', False)
 
 
     #----------------------------------------
@@ -120,8 +116,8 @@ class IsoTrackAnalyzer( Analyzer ):
             else:
                 if(isoSum > (self.cfg_ana.maxAbsIso)): continue
 
-            if self.doIsoAnulus:
-                self.attachIsoAnulus(track)
+            if self.doIsoAnnulus:
+                self.attachIsoAnnulus04(track)
 
             track.absIso = isoSum
 
@@ -234,26 +230,15 @@ class IsoTrackAnalyzer( Analyzer ):
         if(len(event.selectedIsoTrack)): self.counters.counter('events').inc('has >=1 selected Iso Track')
 
     
-    def attachIsoAnulus(self, mu):
+    def attachIsoAnnulus04(self, mu):
+        mu.absIsoAnCharged = self.IsoTrackIsolationComputer.chargedAbsIso      (mu.physObj, 0.4, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
+        mu.absIsoAnPho     = self.IsoTrackIsolationComputer.photonAbsIsoRaw    (mu.physObj, 0.4, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
+        mu.absIsoAnNHad    = self.IsoTrackIsolationComputer.neutralHadAbsIsoRaw(mu.physObj, 0.4, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
+        mu.absIsoAnPU      = self.IsoTrackIsolationComputer.puAbsIso           (mu.physObj, 0.4, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
+        mu.absIsoAnNeutral = max(0.0, mu.absIsoAnPho + mu.absIsoAnNHad - 0.5*mu.absIsoAnPU)
 
-        mu.absIsoAnCharged = self.IsoTrackIsolationComputer.chargedAbsIso(mu.physObj, self.cfg_ana.anDeltaR,  self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone);
-
-        if self.isoAnPUCorr == None: puCorr = 'deltaBeta'
-        else: puCorr = self.isoAnPUCorr
-
-        mu.absIsoAnPho  = self.IsoTrackIsolationComputer.photonAbsIsoRaw( mu.physObj, self.cfg_ana.anDeltaR,  self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
-        mu.absIsoAnNHad = self.IsoTrackIsolationComputer.neutralHadAbsIsoRaw(mu.physObj, self.cfg_ana.anDeltaR, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone)
-        mu.absIsoAnNeutral = mu.absIsoAnPho + mu.absIsoAnNHad
-        if puCorr == "rhoArea":
-            mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - mu.rho * mu.EffectiveArea03 * (self.cfg_ana.anDeltaR/0.3)**2)
-        elif puCorr == "deltaBeta":
-            mu.absIsoAnPU = self.IsoTrackIsolationComputer.puAbsIso(mu.physObj, self.cfg_ana.anDeltaR, self.cfg_ana.isoDR, 0.0,self.IsoTrackIsolationComputer.selfVetoNone);
-            mu.absIsoAnNeutral = max(0.0, mu.absIsoAnNeutral - 0.5*mu.absIsoAnPU)
-        elif puCorr != 'raw':
-            raise RuntimeError, "Unsupported miniIsolationCorr name '" + puCorr +  "'! For now only 'rhoArea', 'deltaBeta', 'raw' are supported."
-
-        mu.absIsoAn = mu.absIsoAnCharged + mu.absIsoAnNeutral
-        mu.relIsoAn = mu.absIsoAn/mu.pt()
+        mu.absIsoAn04 = mu.absIsoAnCharged + mu.absIsoAnNeutral
+        mu.relIsoAn04 = mu.absIsoAn04/mu.pt()
 
 
     def matchIsoTrack(self, event):
@@ -347,9 +332,7 @@ setattr(IsoTrackAnalyzer,"defaultConfig",cfg.Analyzer(
     MaxIsoSumEMU = 0.2, ### unused
     doSecondVeto = False,
     #####
-    doIsoAnulus = False,
-    anDeltaR = 0.4,
-    isoAnPUCorr = 'deltaBeta',
+    doIsoAnnulus= False,
     ###
     doPrune = True,
     do_mc_match = True, # note: it will in any case try it only on MC, not on data
