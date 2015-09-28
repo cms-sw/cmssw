@@ -1,7 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
-
 from DQMOffline.JetMET.metDQMConfig_cff     import *
 from DQMOffline.JetMET.jetAnalyzer_cff   import *
 from DQMOffline.JetMET.SUSYDQMAnalyzer_cfi  import *
@@ -9,13 +7,6 @@ from DQMOffline.JetMET.goodOfflinePrimaryVerticesDQM_cfi import *
 from RecoJets.JetProducers.PileupJetID_cfi  import *
 from RecoJets.JetProducers.QGTagger_cfi  import *
 from RecoMET.METFilters.metFilters_cff  import *
-
-
-#from RecoMET.METFilters.CSCTightHaloFilter_cfi import *
-#from RecoMET.METFilters.eeBadScFilter_cfi import *
-#from RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi import *
-#from CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi import *
-#from RecoMET.METFilters.primaryVertexFilter_cfi import *
 
 pileupJetIdCalculatorDQM=pileupJetIdCalculator.clone(
     jets = cms.InputTag("ak4PFJets"),
@@ -95,9 +86,7 @@ pfMETT1=pfMetT1.clone(srcCorrections = cms.VInputTag(
         cms.InputTag('dqmCorrPfMetType1', 'type1')
         ))
 
-jetMETDQMOfflineSource = cms.Sequence(#HBHENoiseFilterResultProducerDQM*primaryVertexFilter*
-                                      #CSCTightHaloFilter*EcalDeadCellTriggerPrimitiveFilter*eeBadScFilter* 
-                                      metFilters*
+jetMETDQMOfflineSource = cms.Sequence(metFilters*
                                       goodOfflinePrimaryVerticesDQM*AnalyzeSUSYDQM*QGTagger*
                                       pileupJetIdCalculatorCHSDQM*pileupJetIdEvaluatorCHSDQM*
                                       pileupJetIdCalculatorDQM*pileupJetIdEvaluatorDQM*
