@@ -22,6 +22,7 @@ using namespace jsoncollector;
 constexpr double throughputFactor() {return (1000000)/double(1024*1024);}
 
 #define NRESERVEDMODULES 33
+#define NSPECIALMODULES 7
 #define NRESERVEDPATHS 1
 
 namespace evf{
@@ -101,9 +102,13 @@ namespace evf{
     for(int i = 0; i < encModule_.current_; i++)
        legendaVector.append(Json::Value(((const edm::ModuleDescription *)(encModule_.decode(i)))->moduleLabel()));
     Json::Value valReserved(NRESERVEDMODULES);
+    Json::Value valSpecial(NSPECIALMODULES);
+    Json::Value valOutputModules(nOutputModules_);
     Json::Value moduleLegend;
     moduleLegend["names"]=legendaVector;
     moduleLegend["reserved"]=valReserved;
+    moduleLegend["special"]=valSpecial;
+    moduleLegend["output"]=valOutputModules;
     Json::StyledWriter writer;
     return writer.write(moduleLegend);
   }
@@ -280,8 +285,10 @@ namespace evf{
     //build a map of modules keyed by their module description address
     //here we need to treat output modules in a special way so they can be easily singled out
     if(desc.moduleName() == "Stream" || desc.moduleName() == "ShmStreamConsumer" || desc.moduleName() == "EvFOutputModule" ||
-       desc.moduleName() == "EventStreamFileWriter" || desc.moduleName() == "PoolOutputModule")
+       desc.moduleName() == "EventStreamFileWriter" || desc.moduleName() == "PoolOutputModule") {
       encModule_.updateReserved((void*)&desc);
+      nOutputModules_++;
+    }
     else
       encModule_.update((void*)&desc);
   }

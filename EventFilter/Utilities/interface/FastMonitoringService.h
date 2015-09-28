@@ -262,6 +262,7 @@ namespace evf{
       std::string pathLegendFile_;
       std::string pathLegendFileJson_;
       bool pathLegendWritten_ = false;
+      unsigned int nOutputModules_ =0;
 
       std::atomic<bool> monInit_;
       bool exception_detected_ = false;
