@@ -27,7 +27,10 @@ public:
     GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
 	       LocalVector direction, AlgebraicSymMatrix errors, double chi2);
 
-   GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
+	       LocalVector direction, AlgebraicSymMatrix errors, double chi2, float bx);
+
+    GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, LocalPoint origin, 
 	      LocalVector direction, AlgebraicSymMatrix errors, double chi2, double time, double timeErr);
   
     /// Destructor
@@ -68,7 +71,18 @@ public:
     int nRecHits() const { return theGEMRecHits.size(); }        
 
     GEMDetId gemDetId() const {
-      DetId detid = geographicalId(); // to be understood where this geographicalId is coming from ... the first rechit in the vector?
+      DetId detid = geographicalId();
+      GEMDetId rollid = GEMDetId(detid);
+      GEMDetId chamid = rollid.chamberId();
+	return chamid;
+    }
+
+    /*
+    GEMDetId gemDetId() const {
+    // this geographical id comes from the RecSegment. 
+    // in .cc we have defined to choose always ST3 for GE2/1
+    // and always choose Layer 1 in general
+      DetId detid = geographicalId(); 
       GEMDetId rollid = GEMDetId(detid);
       GEMDetId chamid = rollid.chamberId();
       // for GE1/1 this chamber id is fine
@@ -81,22 +95,23 @@ public:
       else if(chamid.station()==3) return chamid;
       else return chamid;
     }  
+    */
 
-    float time() const    { return theTimeValue; }
+    float time()    const { return theTimeValue; }
     float timeErr() const { return theTimeUncrt; }
-    
-    void print() const;		
+    float BunchX()  const { return theBX; }
+    void  print()   const;		
     
  private:
     
     std::vector<GEMRecHit> theGEMRecHits;
-    LocalPoint theOrigin;            // in chamber frame - the GeomDet local coordinate system
+    LocalPoint  theOrigin;           // in chamber frame - the GeomDet local coordinate system
     LocalVector theLocalDirection;   // in chamber frame - the GeomDet local coordinate system
     AlgebraicSymMatrix theCovMatrix; // the covariance matrix
     double theChi2;                  // the Chi squared of the segment fit
     double theTimeValue;             // the best time estimate of the segment
     double theTimeUncrt;             // the uncertainty on the time estimation
-
+    float  theBX;                    // the bunch crossing
 };
 
 std::ostream& operator<<(std::ostream& os, const GEMSegment& seg);
