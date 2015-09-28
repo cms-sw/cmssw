@@ -240,6 +240,9 @@ def _check_same_object(args):
 
 
 def _connect(db, init, verbose, read_only, force):
+
+    logging.debug('Connecting to %s ...', db)
+
     url = conddb.make_url( db )
     pretty_url = url
     if url.drivername == 'oracle+frontier':
@@ -250,6 +253,7 @@ def _connect(db, init, verbose, read_only, force):
     logging.info('Connecting to %s', connTo)
     logging.debug('DB url: %s',url)
     connection = conddb.connect(url, init=init, verbose=0 if verbose is None else verbose - 1)
+
 
     if not read_only:
         if connection.is_read_only:
@@ -269,7 +273,7 @@ def _connect(db, init, verbose, read_only, force):
     return connection
 
 
-def connect(args, init=False, read_only=True):
+def connect(args, init=False, read_only=True, schema='cms_conditions'):
     args.force = args.force if 'force' in dir(args) else False
 
     if 'destdb' in args:
