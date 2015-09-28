@@ -86,23 +86,18 @@ public:
     prescalers_(size())
   {
     for (unsigned int t = 0; t < size(); ++t) {
-      moduleTypes_[t].resize(size(t));
       prescalers_[t].resize(size(t));
+      moduleTypes_[t].resize(size(t));
       for (unsigned int m = 0; m < size(t); ++m) {
-        moduleTypes_[t][m] = data.moduleType(moduleLabel(t, m));
-        if (moduleTypes_[t][m] == "HLTPrescaler")
-          prescalers_[t][m] = true;
+        std::string type = data.moduleType(moduleLabel(t, m));
+        prescalers_[t][m] = (type == "HLTPrescaler");
+        moduleTypes_[t][m] = &* moduleTypeSet_.insert(std::move(type)).first;
       }
     }
   }
 
-  std::vector<std::string> const & moduleTypes(unsigned int trigger) const {
-    return moduleTypes_.at(trigger);
-  }
-
-
   std::string const & moduleType(unsigned int trigger, unsigned int module) const {
-    return moduleTypes_.at(trigger).at(module);
+    return * moduleTypes_.at(trigger).at(module);
   }
 
   using HLTConfigData::moduleType;
@@ -112,10 +107,15 @@ public:
   }
 
 private:
-  std::vector<std::vector<std::string>> moduleTypes_;
-  std::vector<std::vector<bool>>        prescalers_;
+  std::set<std::string>                         moduleTypeSet_;
+  std::vector<std::vector<std::string const*>>  moduleTypes_;
+  std::vector<std::vector<bool>>                prescalers_;
 };
 
+
+const char * event_state(bool state) {
+  return state ? "accepted" : "rejected";
+}
 
 enum State {
   Ready     = edm::hlt::Ready,
@@ -149,9 +149,9 @@ std::string detailed_path_state(State state, int path, int module, HLTConfigData
   std::stringstream out;
   out << "'" << path_state(state) << "'";
   if (state == Fail)
-    out << " by module '" << module << " " << label << "' [" << type << "]";
+    out << " by module " << module << " '" << label << "' [" << type << "]";
   else if (state == Exception)
-    out << " at module '" << module << " " << label << "' [" << type << "]";
+    out << " at module " << module << " '" << label << "' [" << type << "]";
 
   return out.str();
 }
@@ -295,11 +295,14 @@ void compare(std::vector<std::string> const & old_files, edm::InputTag const & o
       if (verbose and flag) {
         if (needs_header) {
           needs_header = false;
-          std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": old result is '" << old_results.accept() << "', new result is '" << new_results.accept() << "'" << std::endl;
+          std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": "
+                    << "old result is '" << event_state(old_results.accept()) << "', "
+                    << "new result is '" << event_state(new_results.accept()) << "'"
+                    << std::endl;
         }
-        std::cout << "  Path " << old_config->triggerName(p) << ": "
-                  << "old state is " << detailed_path_state(old_state, p, old_results.index(p), * old_config) << ", "
-                  << "new state is " << detailed_path_state(new_state, p, new_results.index(p), * new_config)
+        std::cout << "    Path " << old_config->triggerName(p) << ":\n"
+                  << "        old state is " << detailed_path_state(old_state, p, old_results.index(p), * old_config) << ",\n"
+                  << "        new state is " << detailed_path_state(new_state, p, new_results.index(p), * new_config)
                   << std::endl;
       }
     }
