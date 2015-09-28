@@ -11,7 +11,7 @@ classtransients['edm::AssociationVector'].append('transientVector_')
 
 
 class RMParser(object):
-    """Parses the  ${PackageName}_xr.rootmap file looking for class declarations of edm template classes
+    """Parses the  ${PackageName}_x*r.rootmap file(s) looking for class declarations of edm template classes
     which contain member which must be labeled transient="true" in classes_def.xml
     """
     
@@ -34,15 +34,16 @@ class RMParser(object):
           f.close()
 
 def checkTrans(templname,name):
+    print "Checking "+name
     c = ROOT.TClass.GetClass(name)
     if not c:
-        raise RuntimeError("failed to load dictionary for class '"+name+"'. Check for typedefs in the name.")
-    print "Checking "+name
+        print "failed to load dictionary for class '"+name+"'. Check for typedefs in the name."
+        return
     for trans in classtransients[templname]:
       tdm = c.GetDataMember(trans)
       retval = False
       if tdm : retval = tdm.IsPersistent()
-      if retval == True : print "Error: field '"+trans+"' must be labeled transient=\"true\" in classes_def.xml for '"+name+"'"
+      if retval == True : raise RuntimeError("Error: field '"+trans+"' must be labeled transient=\"true\" in classes_def.xml for '"+name+"'")
 
 
 #Setup the options
