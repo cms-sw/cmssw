@@ -34,7 +34,7 @@ GEMGeometryBuilderFromDDD::~GEMGeometryBuilderFromDDD()
 
 GEMGeometry* GEMGeometryBuilderFromDDD::build(const DDCompactView* cview, const MuonDDDConstants& muonConstants)
 {
-  std::string attribute = "ReadOutName"; // could come from .orcarc
+  std::string attribute = "ReadOutName";    // could come from .orcarc
   std::string value     = "MuonGEMHits";    // could come from .orcarc
   DDValue val(attribute, value, 0.0);
 
@@ -54,7 +54,6 @@ GEMGeometry* GEMGeometryBuilderFromDDD::build(const DDCompactView* cview, const 
 
 GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants)
 {
-  std::cout << "Building the geometry service" << std::endl;
   LogDebug("GEMGeometryBuilderFromDDD") <<"Building the geometry service";
   GEMGeometry* geometry = new GEMGeometry();
 
@@ -208,12 +207,13 @@ GEMGeometry* GEMGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     if (detIdL1.layer()==2) continue;
     GEMDetId detIdL2(detIdL1.region(),detIdL1.ring(),detIdL1.station(),2,detIdL1.chamber(),0);
     auto ch2 = geometry->chamber(detIdL2);
+    GEMDetId detIdSL(detIdL1.region(),detIdL1.ring(),detIdL1.station(),0,detIdL1.chamber(),0);
 
     LogDebug("GEMGeometryBuilderFromDDD") << "First chamber for super chamber: " << detIdL1 << std::endl;
     LogDebug("GEMGeometryBuilderFromDDD") << "Second chamber for super chamber: " << detIdL2 << std::endl;
+    LogDebug("GEMGeometryBuilderFromDDD") << "Creating new GEM super chamber:" << detIdSL << std::endl;
 
-    LogDebug("GEMGeometryBuilderFromDDD") << "Creating new GEM super chamber out of chambers." << std::endl;
-    GEMSuperChamber* sch = new GEMSuperChamber(detIdL1, surf); 
+    GEMSuperChamber* sch = new GEMSuperChamber(detIdSL, surf); 
     sch->add(const_cast<GEMChamber*>(chambers.at(i)));
     sch->add(const_cast<GEMChamber*>(ch2));
 
