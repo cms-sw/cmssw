@@ -63,7 +63,7 @@ GEMDetId::init(int region,int ring,int station,
          ( ringInBits      & RingMask_)      << RingStartBit_      |
          ( stationInBits   & StationMask_)   << StationStartBit_   |
          ( layerInBits     & LayerMask_)     << LayerStartBit_     |
-         ( chamberInBits   & ChamberMask_)    << ChamberStartBit_  |
+         ( chamberInBits   & ChamberMask_)   << ChamberStartBit_   |
          ( rollInBits      & RollMask_)      << RollStartBit_        ;
    
 }
