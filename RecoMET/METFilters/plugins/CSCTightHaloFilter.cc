@@ -1,10 +1,10 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/METReco/interface/BeamHaloSummary.h"
 
-class CSCTightHaloFilter : public edm::EDFilter {
+class CSCTightHaloFilter : public edm::global::EDFilter<> {
 
   public:
 
@@ -13,7 +13,7 @@ class CSCTightHaloFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  virtual bool filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
     const bool taggingMode_;
     edm::EDGetTokenT<reco::BeamHaloSummary> beamHaloSummaryToken_;
@@ -27,7 +27,7 @@ CSCTightHaloFilter::CSCTightHaloFilter(const edm::ParameterSet & iConfig)
   produces<bool>();
 }
 
-bool CSCTightHaloFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool CSCTightHaloFilter::filter(edm::StreamID iID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
   edm::Handle<reco::BeamHaloSummary> beamHaloSummary;
   iEvent.getByToken(beamHaloSummaryToken_ , beamHaloSummary);
