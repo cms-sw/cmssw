@@ -163,12 +163,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     produces<HBHERecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HO")) {
     subdet_=HcalOuter;
-    setPileupCorrection_ = &HcalSimpleRecAlgo::setHOPileupCorrection;
+    // setPileupCorrection_ = &HcalSimpleRecAlgo::setHOPileupCorrection;
     setPileupCorrection_ = 0;
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
-    setPileupCorrection_ = &HcalSimpleRecAlgo::setHFPileupCorrection;
+    // setPileupCorrection_ = &HcalSimpleRecAlgo::setHFPileupCorrection;
     setPileupCorrection_ = 0;
     digiTimeFromDB_=conf.getParameter<bool>("digiTimeFromDB");
 

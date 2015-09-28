@@ -112,9 +112,6 @@ private:
 
   // S.Brandt Feb19 : Add a pointer to the HLT algo
   std::auto_ptr<HcalDeterministicFit> hltOOTpuCorr_;
-
-  // Speed up the code a little bit by not allocating a vector every time
-  mutable std::vector<double> vectorBuffer_;
 };
 
 #endif
