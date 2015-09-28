@@ -16,7 +16,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <RecoLocalMuon/GEMSegment/plugins/GEMSegmentAlgorithm.h>
 #include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
-
+#include "FWCore/Utilities/interface/Exception.h"
 #include <deque>
 #include <vector>
 
@@ -70,10 +70,13 @@ private:
   double  dPhiChainBoxMax;
   double  dEtaChainBoxMax;
   int     maxRecHitsInCluster;
+  bool    clusterOnlySameBXRecHits;
+  // bool    useGE21Short;
   
  private:
   EnsembleHitContainer proto_segment;
   GEMEnsemble theEnsemble;
+  GEMDetId    theChamberId;
 
   static constexpr float running_max=999999.;
   std::unique_ptr<GEMSegFit> sfit_;
