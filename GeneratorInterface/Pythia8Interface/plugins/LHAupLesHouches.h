@@ -33,6 +33,8 @@ class LHAupLesHouches : public Pythia8::LHAup {
       
     void setScalesFromLHEF(bool b) { setScalesFromLHEF_ = b; }
 
+    ~LHAupLesHouches() {if(fEvAttributes) delete fEvAttributes;}
+
   private:
 
     bool setInit();
