@@ -2,10 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 ## We don't use "import *" because the cff contains some modules for which the C++ class doesn't exist
 ## and this triggers an error under unscheduled mode
-from RecoMET.METFilters.metFilters_cff import HBHENoiseFilterResultProducer, HBHENoiseFilter, HBHENoiseIsoFilter, hcalLaserEventFilter
-from RecoMET.METFilters.metFilters_cff import EcalDeadCellTriggerPrimitiveFilter, eeBadScFilter, ecalLaserCorrFilter, EcalDeadCellBoundaryEnergyFilter
-from RecoMET.METFilters.metFilters_cff import primaryVertexFilter, CSCTightHaloFilter, HcalStripHaloFilter
-
+from RecoMET.METFilters.metFilters_cff import HBHENoiseFilterResultProducer, HBHENoiseFilter, HBHENoiseIsoFilter, CSCTightHaloFilter, CSCTightHaloTrkMuUnvetoFilter,CSCTightHalo2015Filter,hcalLaserEventFilter, EcalDeadCellTriggerPrimitiveFilter, eeBadScFilter, ecalLaserCorrFilter, EcalDeadCellBoundaryEnergyFilter, primaryVertexFilter 
 from RecoMET.METFilters.metFilters_cff import goodVertices, trackingFailureFilter, trkPOGFilters, manystripclus53X, toomanystripclus53X, logErrorTooManyClusters
 from RecoMET.METFilters.metFilters_cff import metFilters
 
@@ -13,7 +10,8 @@ from RecoMET.METFilters.metFilters_cff import metFilters
 Flag_HBHENoiseFilter = cms.Path(HBHENoiseFilterResultProducer * HBHENoiseFilter)
 Flag_HBHENoiseIsoFilter = cms.Path(HBHENoiseFilterResultProducer * HBHENoiseIsoFilter)
 Flag_CSCTightHaloFilter = cms.Path(CSCTightHaloFilter)
-Flag_HcalStripHaloFilter = cms.Path(HcalStripHaloFilter)
+Flag_CSCTightHaloTrkMuUnvetoFilter = cms.Path(CSCTightHaloTrkMuUnvetoFilter)
+Flag_CSCTightHalo2015Filter = cms.Path(CSCTightHalo2015Filter)
 Flag_hcalLaserEventFilter = cms.Path(hcalLaserEventFilter)
 Flag_EcalDeadCellTriggerPrimitiveFilter = cms.Path(EcalDeadCellTriggerPrimitiveFilter)
 Flag_EcalDeadCellBoundaryEnergyFilter = cms.Path(EcalDeadCellBoundaryEnergyFilter)
@@ -32,13 +30,13 @@ Flag_trkPOG_logErrorTooManyClusters = cms.Path(~logErrorTooManyClusters)
 Flag_METFilters = cms.Path(metFilters)
 
 #add your new path here!!
-allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','HcalStripHaloFilter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','goodVertices','eeBadScFilter',
+allMetFilterPaths=['HBHENoiseFilter','HBHENoiseIsoFilter','CSCTightHaloFilter','CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','hcalLaserEventFilter','EcalDeadCellTriggerPrimitiveFilter','EcalDeadCellBoundaryEnergyFilter','goodVertices','eeBadScFilter',
                    'ecalLaserCorrFilter','trkPOGFilters','trkPOG_manystripclus53X','trkPOG_toomanystripclus53X','trkPOG_logErrorTooManyClusters','METFilters']
 
        
 def miniAOD_customizeMETFiltersFastSim(process):
     """Replace some MET filters that don't work in FastSim with trivial bools"""
-    for X in 'CSCTightHaloFilter', 'HBHENoiseFilter', 'HBHENoiseIsoFilter', 'HBHENoiseFilterResultProducer', 'HcalStripHaloFilter':
+    for X in 'CSCTightHaloFilter', 'CSCTightHaloTrkMuUnvetoFilter','CSCTightHalo2015Filter','HBHENoiseFilter', 'HBHENoiseIsoFilter', 'HBHENoiseFilterResultProducer':
         process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(True)))
     for X in 'manystripclus53X', 'toomanystripclus53X', 'logErrorTooManyClusters':
         process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(False)))
