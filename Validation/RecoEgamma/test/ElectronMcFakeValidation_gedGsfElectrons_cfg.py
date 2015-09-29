@@ -30,6 +30,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']#+'::All'
+#process.GlobalTag.globaltag = 'MCRUN2_74_V9::All'
 
 # FOR DATA REDONE FROM RAW, ONE MUST HIDE IsoFromDeps
 # CONFIGURATION
