@@ -1,0 +1,43 @@
+
+Collections sizes
+
+ElectronMcMiniAODSignalValidator/h_recEleNum                       1 1 1 0
+ElectronMcMiniAODSignalValidator/h_recEleNum                       1 1 1 1
+
+Basic electron quantities
+
+ElectronMcMiniAODSignalValidator/h_ele_vertexPt                    1 1 1 0
+ElectronMcMiniAODSignalValidator/h_ele_vertexEta                   1 1 1 0
+ElectronMcMiniAODSignalValidator/h_ele_vertexPt_nocut              1 1 1 1
+
+Comparison with MC truth (residuals)
+
+ElectronMcMiniAODSignalValidator/h_ele_PoPtrueVsEta_pfx            0 1 1 1
+
+Electron Cluster shapes
+
+ElectronMcMiniAODSignalValidator/h_ele_HoE_mAOD                         1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_HoE_mAOD_barrel                  1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_HoE_mAOD_endcaps                 1 1 1 0
+ElectronMcMiniAODSignalValidator/h_ele_sigmaIetaIetaVsPt_pfx            1 1 1 0
+ElectronMcMiniAODSignalValidator/h_scl_sigietaieta_mAOD                  1 1 0 0
+ElectronMcMiniAODSignalValidator/h_scl_SigIEtaIEta_mAOD_barrel          1 1 0 0
+ElectronMcMiniAODSignalValidator/h_scl_SigIEtaIEta_mAOD_endcaps         1 1 1 1
+
+Brem fraction and related distributions
+
+ElectronMcMiniAODSignalValidator/h_ele_fbrem_mAOD                       1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_fbrem_barrel_mAOD                1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_fbrem_endcaps_mAOD               1 1 1 1
+
+pflow variables
+
+ElectronMcMiniAODSignalValidator/h_ele_chargedHadronRelativeIso_mAOD           1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_chargedHadronRelativeIso_barrel_mAOD    1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_chargedHadronRelativeIso_endcaps_mAOD   1 1 1 0
+ElectronMcMiniAODSignalValidator/h_ele_neutralHadronRelativeIso_mAOD           1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_neutralHadronRelativeIso_barrel_mAOD    1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_neutralHadronRelativeIso_endcaps_mAOD   1 1 1 0
+ElectronMcMiniAODSignalValidator/h_ele_photonRelativeIso_mAOD           1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_photonRelativeIso_barrel_mAOD    1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_photonRelativeIso_endcaps_mAOD   1 1 1 0
