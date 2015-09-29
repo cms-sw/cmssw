@@ -58,7 +58,6 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
      { xOverX0 = -log(p1_ele_fbremVsEta_mean->getBinContent(ibin)) ; }
     h1_ele_xOverX0VsEta->setBinContent(ibin,xOverX0) ;
   }/**/
-
   
   // profiles from 2D histos
   profileX(iBooker, iGetter, "scl_EoEtrueVsrecOfflineVertices","E/Etrue vs number of primary vertices","N_{primary vertices}","E/E_{true}", 0.8);
@@ -67,6 +66,7 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
 
   profileX(iBooker, iGetter, "PoPtrueVsEta","mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
   profileX(iBooker, iGetter, "PoPtrueVsPhi","mean ele momentum / gen momentum vs phi","#phi (rad)","<P/P_{gen}>");
+  profileX(iBooker, iGetter, "sigmaIetaIetaVsPt","SigmaIetaIeta vs pt","p_{T} (GeV/c)","SigmaIetaIeta");
   profileX(iBooker, iGetter, "EoEtruePfVsEg","mean pflow sc energy / true energy vs e/g sc energy","E/E_{gen} (e/g)","<E/E_{gen}> (pflow)") ;
   profileY(iBooker, iGetter, "EoEtruePfVsEg","mean e/g sc energy / true energy vs pflow sc energy","E/E_{gen} (pflow)","<E/E_{gen}> (eg)") ;
   profileX(iBooker, iGetter, "EtaMnEtaTrueVsEta","mean ele eta - gen eta vs eta","#eta","<#eta_{rec} - #eta_{gen}>");
