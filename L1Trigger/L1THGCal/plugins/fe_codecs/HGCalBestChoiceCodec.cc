@@ -20,7 +20,6 @@ HGCalBestChoiceCodec::HGCalBestChoiceCodec(const edm::ParameterSet& conf) : Code
 
 /*****************************************************************/
 void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod, 
-        const HGCalTriggerGeometryBase& geom,
         const HGCEEDigiCollection& ee,
         const HGCHEDigiCollection&,
         const HGCHEDigiCollection& ) 
@@ -31,13 +30,13 @@ void HGCalBestChoiceCodec::setDataPayloadImpl(const Module& mod,
     // loop over EE digis and fill digis belonging to that module
     for(const auto& eedata : ee)
     {
-        if(geom.getModuleFromCell(eedata.id())->moduleId()==mod.moduleId())
+        if(mod.containsCell(eedata.id()))
         {
             dataframes.push_back(eedata);
         }
     }
     // sum energy in trigger cells
-    triggerCellSums(geom, dataframes);
+    triggerCellSums(mod, dataframes);
     // choose best trigger cells in the module
     bestChoiceSelect();
 
@@ -108,7 +107,7 @@ HGCalBestChoiceCodec::data_type HGCalBestChoiceCodec::decodeImpl(const std::vect
 
 
 /*****************************************************************/
-void HGCalBestChoiceCodec::triggerCellSums(const HGCalTriggerGeometryBase& geom, const std::vector<HGCEEDataFrame>& dataframes)
+void HGCalBestChoiceCodec::triggerCellSums(const Module& mod, const std::vector<HGCEEDataFrame>& dataframes)
 /*****************************************************************/
 {
     std::map<HGCTriggerDetId, uint32_t> payload;
@@ -117,7 +116,23 @@ void HGCalBestChoiceCodec::triggerCellSums(const HGCalTriggerGeometryBase& geom,
     {
         // FIXME: only EE
         HGCEEDetId cellid(frame.id());
-        HGCTriggerDetId triggercellid( geom.getTriggerCellFromCell(cellid)->triggerCellId() );
+        // find trigger cell associated to cell
+        uint32_t tcid(0);
+        for(const auto& tc_c : mod.triggerCellComponents())
+        {
+            if(tc_c.second==cellid)
+            {
+                tcid = tc_c.first;
+                break;
+            }
+        }
+        if(!tcid)
+        {
+            throw cms::Exception("BadGeometry")
+                << "Cannot find trigger cell corresponding to HGC cell "<<cellid<<"\n";
+            continue;
+        }
+        HGCTriggerDetId triggercellid( tcid );
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         // FIXME: need to transform ADC and TDC to the same linear scale on 12 bits
         uint32_t data = frame[2].data(); // 'data' has to be a 12 bit word
