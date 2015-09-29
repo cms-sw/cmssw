@@ -469,6 +469,8 @@ void GEMSegFit::setOutFromIP() {
   double dy   = dz*dydz;
   LocalVector localDir(dx,dy,dz);
 
+  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] :: dxdz = uslope_ = "<<std::setw(9)<<uslope_<<" dydz = vslope_ = "<<std::setw(9)<<vslope_<<" local dir = "<<localDir;
+
   // localDir sometimes needs a sign flip 
   // Examine its direction and origin in global z: to point outward
   // the localDir should always have same sign as global z...
@@ -477,6 +479,9 @@ void GEMSegFit::setOutFromIP() {
   double globalZdir    = ( gemchamber()->toGlobal( localDir  ) ).z();
   double directionSign = globalZpos * globalZdir;
   localdir_ = (directionSign * localDir ).unit();
+
+  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] :: globalZpos = "<<globalZpos<<" globalZdir = "<<globalZdir<<" [sign should be the same]";
+  edm::LogVerbatim("GEMSegFit") << "[GEMSegFit::setOutFromIP] :: directionSign = "<<directionSign<<" ==> local dir = "<<localdir_;
 }
 
 
