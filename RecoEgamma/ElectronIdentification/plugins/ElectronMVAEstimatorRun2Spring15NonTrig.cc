@@ -288,7 +288,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
   // Energy matching
   allMVAVars.fbrem           = eleRecoPtr->fbrem();
 
-  allMVAVars.gsfhits         = eleRecoPtr->gsfTrack()->found();
+  allMVAVars.gsfhits         = eleRecoPtr->gsfTrack()->hitPattern().trackerLayersWithMeasurement();
   allMVAVars.expectedMissingInnerHits = eleRecoPtr->gsfTrack()
     ->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
 
@@ -305,7 +305,8 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
 
   allMVAVars.EoP             = eleRecoPtr->eSuperClusterOverP();
   allMVAVars.eleEoPout       = eleRecoPtr->eEleClusterOverPout();
-  allMVAVars.IoEmIoP         = (1.0/eleRecoPtr->ecalEnergy()) - (1.0 / eleRecoPtr->p());
+  float pAtVertex            = eleRecoPtr->trackMomentumAtVtx().R();
+  allMVAVars.IoEmIoP         = (1.0/eleRecoPtr->ecalEnergy()) - (1.0 / pAtVertex );
 
   // Geometrical matchings
   allMVAVars.deta            = eleRecoPtr->deltaEtaSuperClusterTrackAtVtx();
