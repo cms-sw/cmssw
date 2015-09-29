@@ -2,18 +2,18 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="gem21.xml" eval="true">
-  <Constant name="dzS01L"       value="10.8770*cm"/>
-  <Constant name="dzS02L"       value="10.8770*cm"/>
-  <Constant name="dzS03L"       value="9.2490*cm"/>
-  <Constant name="dzS04L"       value="9.2490*cm"/>
-  <Constant name="dzS05L"       value="7.9150*cm"/>
-  <Constant name="dzS06L"       value="7.9150*cm"/>
-  <Constant name="dzS07L"       value="6.8030*cm"/>
-  <Constant name="dzS08L"       value="6.8030*cm"/>
-  <Constant name="dzS09L"       value="5.8665*cm"/>
-  <Constant name="dzS10L"       value="5.8665*cm"/>
-  <Constant name="dzS11L"       value="5.0770*cm"/>
-  <Constant name="dzS12L"       value="5.0770*cm"/>
+  <Constant name="dzS01L"       value="10.3890*cm"/>
+  <Constant name="dzS02L"       value="10.3890*cm"/>
+  <Constant name="dzS03L"       value="8.8750*cm"/>
+  <Constant name="dzS04L"       value="8.8750*cm"/>
+  <Constant name="dzS05L"       value="7.6265*cm"/>
+  <Constant name="dzS06L"       value="7.6265*cm"/>
+  <Constant name="dzS07L"       value="6.5805*cm"/>
+  <Constant name="dzS08L"       value="6.5805*cm"/>
+  <Constant name="dzS09L"       value="5.6950*cm"/>
+  <Constant name="dzS10L"       value="5.6950*cm"/>
+  <Constant name="dzS11L"       value="4.9465*cm"/>
+  <Constant name="dzS12L"       value="4.9465*cm"/>
   <Constant name="dzGap"        value="0.2500*mm"/>
   <Constant name="dzInL"        value="([dzS01L]+[dzS02L]+[dzS03L]+[dzS04L]+[dzS05L]+[dzS06L]+[dzS07L]+[dzS08L]+[dzS09L]+[dzS10L]+[dzS11L]+[dzS12L]+11*[dzGap])"/>
   <Constant name="z010L"        value="([dzInL]-[dzS01L])"/> 
@@ -29,9 +29,9 @@
   <Constant name="z110L"        value="([z100L]-[dzS10L]-2*[dzGap]-[dzS11L])"/> 
   <Constant name="z120L"        value="([z110L]-[dzS11L]-2*[dzGap]-[dzS12L])"/>
   <Constant name="rMinL"	value="133.00*cm"/>
-  <Constant name="rMax"	        value="330.15*cm"/>
-  <Constant name="dxTop"        value="58.945*cm"/>
-  <Constant name="Angle"	value="10.4375*deg"/>
+  <Constant name="rMax"	        value="318.95*cm"/>
+  <Constant name="dxTop"        value="28.000*cm"/>
+  <Constant name="Angle"	value="5.1065*deg"/>
   <Constant name="slope"	value="tan([Angle])"/>
   <Constant name="dx011L"       value="([dxTop]-[slope]*([dzInL]-[z010L]+[dzS01L]))"/>
   <Constant name="dx012L"       value="([dxTop]-[slope]*([dzInL]-[z010L]-[dzS01L]))"/>
@@ -60,15 +60,15 @@
   <Constant name="zFront"       value="7928*mm"/>
   <Constant name="thickness"    value="72.8*mm"/>
   <Constant name="hthick"	value="[thickness]/2."/>
-  <Constant name="Angle0"	value="10.0*deg"/>
+  <Constant name="Angle0"	value="5.0*deg"/>
   <Constant name="slope0"	value="tan([Angle0])"/>
-  <Constant name="dzGB21L"	value="95.55*cm"/>
+  <Constant name="dzGB21L"	value="92.20*cm"/>
   <Constant name="dyGB21"	value="8.100*mm"/>
-  <Constant name="dxTopGB21L"   value="62.55*cm"/>
+  <Constant name="dxTopGB21L"   value="31.205*cm"/>
   <Constant name="dxBotGB21L"   value="([dxTopGB21L]-2*[slope0]*[dzGB21L])"/>
   <Constant name="dyGA21"       value="9.250*mm"/>
   <Constant name="dzGA21L"      value="([dzGB21L]-0.40*cm)"/>
-  <Constant name="dxTopGA21L"   value="49.335*cm"/>
+  <Constant name="dxTopGA21L"   value="18.350*cm"/>
   <Constant name="dxBotGA21L"   value="([dxTopGA21L]-2*[slope0]*[dzGA21L])"/>
   <Constant name="rPosL"        value="([rMinL] +[dzGB21L])"/>
   <Constant name="dxFrame"      value="10.0*mm"/>
@@ -100,9 +100,9 @@
   <Constant name="yGap4"        value="([yFoil3]+[dyGap4]+[dyFoil])"/>
   <Constant name="dyReadOut"    value="1.5*mm"/>
   <Constant name="yReadOut"     value="(-[dyGBI21]+7.0*mm+[dyReadOut])"/>
-  <Constant name="dzCardL"      value="935.5*mm"/>
+  <Constant name="dzCardL"      value="902.0*mm"/>
   <Constant name="zCardL"       value="(16.0*mm-[dzGB21L]+[dzCardL])"/>
-  <Constant name="dxTopCardL"   value="609.72*mm"/>
+  <Constant name="dxTopCardL"   value="298.552*mm"/>
   <Constant name="dxBotCardL"   value="([dxTopCardL]-2*[slope]*[dzCardL])"/>
   <Constant name="dzFoilL"      value="[dzInL]"/>
   <Constant name="zFoilL"       value="(33.0*mm-[dzGB21L]+[dzFoilL])"/>
@@ -124,15 +124,15 @@
   <Constant name="zTubeMidL"    value="([zTubeTopL]-[TubeTopL]/2+[TubeRMax])"/>
   <Constant name="zTubeSlantL"  value="([zTubeMidL]+[TubeRMax]-([TubeSlantLL]*cos([Tilt])/2))"/>
   <Constant name="zTubeBotL"    value="([zTubeSlantL]+[TubeRMax]-([TubeSlantLL]*cos([Tilt])/2))"/>
-  <Constant name="dxStrip0"     value="42.11*cm"/>
-  <Constant name="dxStrip1"     value="([dxStrip0]-2.83*cm)"/>
-  <Constant name="dxStrip2"     value="([dxStrip1]-2.83*cm)"/>
-  <Constant name="dxStrip3"     value="([dxStrip2]-2.83*cm)"/>
-  <Constant name="dxStrip4"     value="([dxStrip3]-2.83*cm)"/>
-  <Constant name="dxStrip5"     value="([dxStrip4]-2.83*cm)"/>
-  <Constant name="dxStrip6"     value="([dxStrip5]-2.83*cm)"/>
-  <Constant name="dxStrip7"     value="([dxStrip6]-2.83*cm)"/>
-  <Constant name="dxStrip8"     value="([dxStrip7]-2.83*cm)"/>
+  <Constant name="dxStrip0"     value="16.00*cm"/>
+  <Constant name="dxStrip1"     value="([dxStrip0]-0.60*cm)"/>
+  <Constant name="dxStrip2"     value="([dxStrip1]-0.60*cm)"/>
+  <Constant name="dxStrip3"     value="([dxStrip2]-0.60*cm)"/>
+  <Constant name="dxStrip4"     value="([dxStrip3]-0.60*cm)"/>
+  <Constant name="dxStrip5"     value="([dxStrip4]-0.60*cm)"/>
+  <Constant name="dxStrip6"     value="([dxStrip5]-0.60*cm)"/>
+  <Constant name="dxStrip7"     value="([dxStrip6]-0.60*cm)"/>
+  <Constant name="dxStrip8"     value="([dxStrip7]-0.60*cm)"/>
   <Constant name="dyStrip"      value="0.5*mm"/>
   <Constant name="dzStrip"      value="17.0*mm"/>
   <Constant name="dzStripX"     value="7.0*mm"/>
@@ -157,18 +157,18 @@
   <Constant name="zStrip8"      value="([zStrip7]-[Gap78])"/>
   <Constant name="zStrip9"      value="([zStrip8]-[Gap89])"/>
   <Constant name="zTubeBot"     value="([zStrip9]-62.50*mm)"/>
-  <Constant name="dzHybrid"     value="22.0*mm"/>
+  <Constant name="dzHybrid"     value="20.0*mm"/>
   <Constant name="dyHybrid"     value="0.5*mm"/>
-  <Constant name="dxHybrid"     value="25.0*mm"/>
-  <Constant name="xHybrid0"     value="167.97*mm"/>
-  <Constant name="xHybrid1"     value="([xHybrid0] - 11.*mm)"/>
-  <Constant name="xHybrid2"     value="([xHybrid1] - 11.*mm)"/>
-  <Constant name="xHybrid3"     value="([xHybrid2] - 11.*mm)"/>
-  <Constant name="xHybrid4"     value="([xHybrid3] - 11.*mm)"/>
-  <Constant name="xHybrid5"     value="([xHybrid4] - 11.*mm)"/>
-  <Constant name="xHybrid6"     value="([xHybrid5] - 11.*mm)"/>
-  <Constant name="xHybrid7"     value="([xHybrid6] - 11.*mm)"/>
-  <Constant name="xHybrid8"     value="([xHybrid7] - 11.*mm)"/>
+  <Constant name="dxHybrid"     value="20.0*mm"/>
+  <Constant name="xHybrid0"     value="79.79*mm"/>
+  <Constant name="xHybrid1"     value="([xHybrid0] - 5.50*mm)"/>
+  <Constant name="xHybrid2"     value="([xHybrid1] - 5.50*mm)"/>
+  <Constant name="xHybrid3"     value="([xHybrid2] - 5.50*mm)"/>
+  <Constant name="xHybrid4"     value="([xHybrid3] - 5.50*mm)"/>
+  <Constant name="xHybrid5"     value="([xHybrid4] - 5.50*mm)"/>
+  <Constant name="xHybrid6"     value="([xHybrid5] - 5.50*mm)"/>
+  <Constant name="xHybrid7"     value="([xHybrid6] - 5.50*mm)"/>
+  <Constant name="xHybrid8"     value="([xHybrid7] - 5.50*mm)"/>
   <Constant name="yHybrid"      value="([yStrip]+[dyStrip]+[dyHybrid])"/>
   <Constant name="yTube"        value="([yHybrid]+[dyHybrid]+[TubeRMax])"/>
 </ConstantsSection>
@@ -1206,12 +1206,12 @@
     <rParent name="GEMDisk21LP"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
-    <Numeric name="n" value="9"/>
+    <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="2"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
-    <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="5*deg"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value="+28.30*mm"/>
   </Algorithm>
@@ -1219,12 +1219,12 @@
     <rParent name="GEMDisk21LP"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
-    <Numeric name="n" value="9"/>
+    <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="1"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
-    <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="5*deg"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value=" -9.10*mm"/>
   </Algorithm>
@@ -1232,12 +1232,12 @@
     <rParent name="GEMDisk21LP"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
-    <Numeric name="n" value="9"/>
+    <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="53"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
-    <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="25*deg"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value=" +9.10*mm"/>
   </Algorithm>
@@ -1245,12 +1245,12 @@
     <rParent name="GEMDisk21LP"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
-    <Numeric name="n" value="9"/>
+    <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="52"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
-    <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="25*deg"/>
+    <Numeric name="stepAngle"   value="20*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value="-28.30*mm"/>
   </Algorithm>
@@ -1259,12 +1259,12 @@
     <rParent name="GEMDisk21LN"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
-    <Numeric name="n" value="9"/>
+    <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="2"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
-    <Numeric name="stepAngle"   value="-40*deg"/>
-    <Numeric name="startAngle"  value="175*deg"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value="+28.30*mm"/>
   </Algorithm>
@@ -1272,12 +1272,12 @@
     <rParent name="GEMDisk21LN"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
-    <Numeric name="n" value="9"/>
+    <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="1"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
-    <Numeric name="stepAngle"   value="-40*deg"/>
-    <Numeric name="startAngle"  value="175*deg"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value=" -9.10*mm"/>
   </Algorithm>
@@ -1285,12 +1285,12 @@
     <rParent name="GEMDisk21LN"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
-    <Numeric name="n" value="9"/>
+    <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="53"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
-    <Numeric name="stepAngle"   value="-40*deg"/>
-    <Numeric name="startAngle"  value="155*deg"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value=" +9.10*mm"/>
   </Algorithm>
@@ -1298,12 +1298,12 @@
     <rParent name="GEMDisk21LN"/>
     <String name="ChildName" value="GEMBox21L"/>
     <String name="RotNameSpace" value="gem21"/>
-    <Numeric name="n" value="9"/>
+    <Numeric name="n" value="18"/>
     <Numeric name="startCopyNo" value="52"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
-    <Numeric name="stepAngle"   value="-40*deg"/>
-    <Numeric name="startAngle"  value="155*deg"/>
+    <Numeric name="stepAngle"   value="-20*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value="-28.30*mm"/>
   </Algorithm>
