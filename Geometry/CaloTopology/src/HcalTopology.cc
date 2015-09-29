@@ -1052,6 +1052,9 @@ unsigned int HcalTopology::detId2denseId(const DetId& id) const {
       return 0xFFFFFFFu;
     }
   }
+#ifdef DebugLog
+  std::cout << "DetId2Dense " << topoVersion_ << " ID " << HcalDetId(id) << " : " << std::hex << retval << std::dec << std::endl;
+#endif
   return retval;
 }
 
@@ -1150,11 +1153,14 @@ DetId HcalTopology::denseId2detId(unsigned int denseid) const {
 	ip  = (in - dp + 1)%(maxDepthHB_*72);
 	ip  = (ip/maxDepthHB_) + 1;
 	ie  = (in - dp + 1 - maxDepthHB_*(ip-1))/(72*maxDepthHB_);
-        if (ie >= nEtaHB_) {ie  = lastHBRing()+nEtaHB_ - ie; iz = -1;}
-        else               {ie = firstHERing() + ie;         iz =  1;}
+        if (ie >= nEtaHB_) {ie = lastHBRing()+nEtaHB_ - ie; iz = -1;}
+        else               {ie = firstHBRing() + ie;        iz =  1;}
       }	
     }
   }
+#ifdef DebugLog
+  std::cout << "Dens2Det " << topoVersion_ << " i/p " << std::hex << denseid << std::dec << " : " << HcalDetId(sd,iz*int(ie),ip,dp) << std::endl;
+#endif
   return HcalDetId( sd, iz*int(ie), ip, dp );
 }
 
