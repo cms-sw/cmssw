@@ -76,7 +76,7 @@ private:
   std::map<int,TH1D*> h_br;
   std::map<int,TH1D*> h_br_ref;
 
-  std::map<int,std::vector<string> > knownDecayModes;
+  std::map<int,std::vector<std::string> > knownDecayModes;
 
   Pythia8::Pythia * pythia;
   std::string outputFile;
@@ -182,7 +182,7 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig)
     h_br[pid]->SetCanExtend(TH1::kAllAxes);
     h_br_ref[pid] = (TH1D*)(h_br[pid]->Clone(strstr.str().c_str()));
     h_br_ref[pid]->SetTitle(h_br_ref[pid]->GetName());
-    knownDecayModes[pid] = vector<string>();
+    knownDecayModes[pid] = std::vector<std::string>();
     for(int d = 0;d<pd->sizeChannels();++d){
       Pythia8::DecayChannel & channel = pd->channel(d);
       std::vector<int> prod;
@@ -334,7 +334,7 @@ TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      size_t parentIndex = it->first;
      const SimTrack & parent = simtracks->at(parentIndex);
      int pid = abs(parent.type());
-     vector<size_t> & childIndices = it->second;
+     std::vector<size_t> & childIndices = it->second;
      if(childIndices.size() == 0)
        continue;
 
