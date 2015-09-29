@@ -12,27 +12,17 @@
 void CmsTrackerOTRingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
 
   CmsDetConstruction theCmsDetConstruction;
-  switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s,&fv))){
-  case GeometricDet::DetUnit:
-           theCmsDetConstruction.buildComponent(fv,g,s);
-    break;
-  default:
-    edm::LogError("CmsTrackerOTRingBuilder")<<" ERROR - I was expecting a Plaq, I got a "<<ExtractStringFromDDD::getString(s,&fv);
-    ;
-  }  
+  theCmsDetConstruction.buildComponent(fv,g,s);
+
 }
 
 void CmsTrackerOTRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
- GeometricDet::GeometricDetContainer & comp = det->components();
+  GeometricDet::GeometricDetContainer & comp = det->components();
 
- if (comp.front()->type()==GeometricDet::DetUnit){ 
-
-   TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
-   stable_sort(comp.begin(), comp.end() ,PhiSortNP());
-   
- }
- else
-   edm::LogError("CmsTrackerOTRingBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
+  //FIXME::ERICA: not so sure
+  TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
+  stable_sort(comp.begin(), comp.end() ,PhiSortNP());
+  //For glued module is used: TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModuleMirror());
 
   for(uint32_t i=0; i<comp.size();i++){
     comp[i]->setGeographicalID(i+1);
