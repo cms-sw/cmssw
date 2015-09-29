@@ -55,9 +55,9 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         Resolution = cms.untracked.int32(10000),
         RegionFlag = cms.untracked.bool(True),  # if true - selection by G4Region name
         gdmlFlag = cms.untracked.bool(True),  # if true - dump gdml file
-        PVname = cms.vstring(''),
-        LVname = cms.vstring(''),
-        NodeNames = cms.vstring('World')
+        PVname = cms.string('MUON'),
+        LVname = cms.string('MUON'),
+        NodeNames = cms.vstring('MUON')
     ),
     G4Commands = cms.vstring(),
     FileNameField = cms.untracked.string(''),
