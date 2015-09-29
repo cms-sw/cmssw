@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <map>
+#include <math.h>
 #include <string>
 #include <vector>
 #include <utility>
@@ -111,6 +112,41 @@ SiPixelHitEfficiencySource::~SiPixelHitEfficiencySource() {
   }
 }
 
+void SiPixelHitEfficiencySource::fillClusterProbability(int layer, int disk, bool plus, double probability){
+ 
+  //barrel
+  if (layer!=0){
+    if (layer==1){
+      if (plus)  meClusterProbabilityL1_Plus_->Fill(probability);
+      else  meClusterProbabilityL1_Minus_->Fill(probability);
+    }
+
+    else if (layer==2){
+      if (plus)  meClusterProbabilityL2_Plus_->Fill(probability);
+      else  meClusterProbabilityL2_Minus_->Fill(probability);
+    }
+
+    else if (layer==3){
+      if (plus)  meClusterProbabilityL3_Plus_->Fill(probability);
+      else  meClusterProbabilityL3_Minus_->Fill(probability);
+    }
+  }
+  //Endcap
+  if (disk!=0){
+    if (disk==1){
+      if (plus)  meClusterProbabilityD1_Plus_->Fill(probability);
+      else  meClusterProbabilityD1_Minus_->Fill(probability);
+    }
+    if (disk==2){
+      if (plus)  meClusterProbabilityD2_Plus_->Fill(probability);
+      else  meClusterProbabilityD2_Minus_->Fill(probability);
+    }      
+  }    
+}
+
+
+
+
 
 void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup) {
   LogInfo("PixelDQM") << "SiPixelHitEfficiencySource beginRun()" << endl;
@@ -183,6 +219,42 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Ring Folder Creation Failed! "; 
     }
   }
+
+  //book cluster probability histos for Barrel and Endcap
+  iBooker.setCurrentFolder("Pixel/Barrel");
+
+  meClusterProbabilityL1_Plus_  = iBooker.book1D("ClusterProbabilityXY_Layer1_Plus","ClusterProbabilityXY_Layer1_Plus",250,-5,0.1);
+  meClusterProbabilityL1_Plus_->setAxisTitle("Log(ClusterProbability)",1);
+
+  meClusterProbabilityL1_Minus_ = iBooker.book1D("ClusterProbabilityXY_Layer1_Minus","ClusterProbabilityXY_Layer1_Minus",250,-5,0.1);
+  meClusterProbabilityL1_Minus_->setAxisTitle("Log(ClusterProbability)",1);
+
+  meClusterProbabilityL2_Plus_  = iBooker.book1D("ClusterProbabilityXY_Layer2_Plus","ClusterProbabilityXY_Layer2_Plus",250,-5,0.1);
+  meClusterProbabilityL2_Plus_ ->setAxisTitle("Log(ClusterProbability)",1);
+
+  meClusterProbabilityL2_Minus_ = iBooker.book1D("ClusterProbabilityXY_Layer2_Minus","ClusterProbabilityXY_Layer2_Minus",250,-5,0.1);
+  meClusterProbabilityL2_Minus_ ->setAxisTitle("Log(ClusterProbability)",1);
+
+  meClusterProbabilityL3_Plus_  = iBooker.book1D("ClusterProbabilityXY_Layer3_Plus","ClusterProbabilityXY_Layer3_Plus",250,-5,0.1);
+  meClusterProbabilityL3_Plus_->setAxisTitle("Log(ClusterProbability)",1);
+ 
+  meClusterProbabilityL3_Minus_ = iBooker.book1D("ClusterProbabilityXY_Layer3_Minus","ClusterProbabilityXY_Layer3_Minus",250,-5,0.1);
+  meClusterProbabilityL3_Minus_->setAxisTitle("Log(ClusterProbability)",1);
+
+  iBooker.setCurrentFolder("Pixel/Endcap");
+
+  meClusterProbabilityD1_Plus_  = iBooker.book1D("ClusterProbabilityXY_Disk1_Plus","ClusterProbabilityXY_Disk1_Plus",250,-5,0.1);
+  meClusterProbabilityD1_Plus_ ->setAxisTitle("Log(ClusterProbability)",1);
+
+  meClusterProbabilityD1_Minus_ = iBooker.book1D("ClusterProbabilityXY_Disk1_Minus","ClusterProbabilityXY_Disk1_Minus",250,-5,0.1);
+  meClusterProbabilityD1_Minus_->setAxisTitle("Log(ClusterProbability)",1);
+
+  meClusterProbabilityD2_Plus_  = iBooker.book1D("ClusterProbabilityXY_Disk2_Plus","ClusterProbabilityXY_Disk2_Plus",250,-5,0.1);
+  meClusterProbabilityD2_Plus_ ->setAxisTitle("Log(ClusterProbability)",1);
+
+  meClusterProbabilityD2_Minus_ = iBooker.book1D("ClusterProbabilityXY_Disk2_Minus","ClusterProbabilityXY_Disk2_Minus",250,-5,0.1);
+  meClusterProbabilityD2_Minus_->setAxisTitle("Log(ClusterProbability)",1);
+
 }
 
 void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -421,7 +493,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 
     if(isBpixtrack || isFpixtrack){
       if(trackref->pt()<0.6 ||
-         nStripHits<11 ||
+         nStripHits<8 ||
 	 fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	 fabs(trackref->dz(bestVtx->position()))>0.5) continue;
     
@@ -452,52 +524,61 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	    continue;
 	  
 	  int disk=0; int layer=0; int panel=0; int module=0; bool isHalfModule=false;
+
+	  const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit->hit());
+
 	  if(IntSubDetID==PixelSubdetector::PixelBarrel){ // it's a BPIX hit
 	    layer = PixelBarrelName(hit_detId,pTT,isUpgrade).layerName();
 	    isHalfModule = PixelBarrelName(hit_detId,pTT,isUpgrade).isHalfModule();
+
+	    if (hit->isValid()){ //fill the cluster probability in barrel
+	      bool plus=true;
+	      if ((PixelBarrelName(hit_detId,pTT,isUpgrade).shell()== PixelBarrelName::Shell::mO) || (PixelBarrelName(hit_detId,pTT,isUpgrade).shell()==PixelBarrelName::Shell::mI)) plus=false;	   
+	      double clusterProbability= pixhit->clusterProbability(0);	     
+	      if (clusterProbability!=0) fillClusterProbability(layer,0,plus,log10(clusterProbability));	      
+	    }
+
 	  }else if(IntSubDetID==PixelSubdetector::PixelEndcap){ // it's an FPIX hit
 	    disk = PixelEndcapName(hit_detId,pTT,isUpgrade).diskName();
 	    panel = PixelEndcapName(hit_detId,pTT,isUpgrade).pannelName();
 	    module = PixelEndcapName(hit_detId,pTT,isUpgrade).plaquetteName();
+
+	    if (hit->isValid()){
+	      bool plus=true;
+	      if ((PixelEndcapName(hit_detId,pTT,isUpgrade).halfCylinder()== PixelEndcapName::HalfCylinder::mO) || (PixelEndcapName(hit_detId,pTT,isUpgrade).halfCylinder()==PixelEndcapName::HalfCylinder::mI)) plus=false;
+	      double clusterProbability= pixhit->clusterProbability(0);
+	      if (clusterProbability!=0) fillClusterProbability(0,disk,plus,log10(clusterProbability));
+	    }
           }
-          
-	  
+          	  
 	  if(layer==1){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.01 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
 	    if(!(L2hits>0&&L3hits>0) && !(L2hits>0&&D1hits>0) && !(D1hits>0&&D2hits>0)) continue;
-	    //if(!(L2hits>0&&L3hits>0&&L4hits>0) && !(L2hits>0&&D1hits>0&&D2hits) && !(D1hits>0&&D2hits>0&&D3hits>0)) continue;
 	  }else if(layer==2){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
 	    if(!(L1hits>0&&L3hits>0) && !(L1hits>0&&D1hits>0)) continue;
-	    //if(!(L1hits>0&&L3hits>0&&L4hits>0) && !(L1hits>0&&L3hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D2hits>0)) continue;
 	  }else if(layer==3){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
 	    if(!(L1hits>0&&L2hits>0)) continue;
-	    //if(!(L1hits>0&&L2hits>0&&L4hits>0) && !(L1hits>0&&L2hits>0&&D1hits>0)) continue;
 	  }else if(layer==4){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.02 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.1) continue;
-	    //if(!(L1hits>0&&L2hits>0&&L3hits>0)) continue; 
 	  }else if(disk==1){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
 	    if(!(L1hits>0&&D2hits>0) && !(L2hits>0&&D2hits>0)) continue;
-	    //if(!(L1hits>0&&L2hits>0&&D2hits>0) && !(L1hits>0&&D2hits>0&&D3hits>0) && !(L2hits>0&&D2hits>0&&D3hits>0)) continue;
 	  }else if(disk==2){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
 	    if(!(L1hits>0&&D1hits>0)) continue;
-	    //if(!(L1hits>0&&L2hits>0&&D1hits>0) && !(L1hits>0&&D1hits>0&&D3hits>0) && !(L2hits>0&&D1hits>0&&D3hits>0)) continue;
 	  }else if(disk==3){
 	    if(fabs(trackref->dxy(bestVtx->position()))>0.05 ||
 	       fabs(trackref->dz(bestVtx->position()))>0.5) continue;
-	    //if(!(L1hits>0&&D1hits>0&&D2hits>0) && !(L2hits>0&&D1hits>0&&D2hits>0)) continue;
 	  }
 	  
-
 	  //check whether hit is valid or missing using track algo flag
           bool isHitValid   =hit->hit()->getType()==TrackingRecHit::valid;
           bool isHitMissing =hit->hit()->getType()==TrackingRecHit::missing;
@@ -636,7 +717,9 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	    std::cout << "isHitMissing: "<<isHitMissing<<std::endl;
 	    //std::cout << "passedEdgeCut: "<<passedFiducial<<std::endl;		
 	  }    
-	      
+	  
+	  if (nStripHits<11) continue; //Efficiency plots are filled with hits on tracks that have at least 11 Strip hits 
+    
 	  if(pxd!=theSiPixelStructure.end() && isHitValid && passedFiducial)
 	    ++nvalid;
 	  if(pxd!=theSiPixelStructure.end() && isHitMissing && passedFiducial)
