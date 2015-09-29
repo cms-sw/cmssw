@@ -25,6 +25,7 @@
 #include "TFile.h"
 #include "TDirectoryFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TApplication.h"
 
 // user include files
@@ -76,7 +77,7 @@ class TestGEMSegmentAnalyzer : public edm::EDAnalyzer {
   edm::EDGetTokenT<reco::GenParticleCollection> GENParticle_Token;
   edm::EDGetTokenT<edm::HepMCProduct>           HEPMCCol_Token;
   edm::EDGetTokenT<edm::SimTrackContainer>      SIMTrack_Token;
-  // edm::EDGetTokenT<edm::PSimHitContainer>       SIMHit_Token;
+  // edm::EDGetTokenT<edm::PSimHitContainer>    SIMHit_Token;
   edm::EDGetTokenT<CSCSegmentCollection>        CSCSegment_Token;
   edm::EDGetTokenT<GEMSegmentCollection>        GEMSegment_Token;
 
@@ -86,134 +87,55 @@ class TestGEMSegmentAnalyzer : public edm::EDAnalyzer {
   bool printSegmntInfo, printResidlInfo, printSimHitInfo, printEventOrder;
 
 
-  std::unique_ptr<TDirectoryFile> GEMSegment_GE11_Pos_and_Dir;
-  std::unique_ptr<TDirectoryFile> GEMSegment_GE21_Pos_and_Dir;
-  std::unique_ptr<TDirectoryFile> GEMSegment_GE11;
-  std::unique_ptr<TDirectoryFile> GEMSegment_GE21;
-  std::unique_ptr<TDirectoryFile> GEMSegment_GE21_2hits;
-  std::unique_ptr<TDirectoryFile> GEMSegment_GE21_4hits;
+  std::unique_ptr<TDirectoryFile> GEMSegment_GE11_Pos_and_Dir, GEMSegment_GE21_Pos_and_Dir;
+  std::unique_ptr<TDirectoryFile> GEMSegment_GE11, GEMSegment_GE21;
+  std::unique_ptr<TDirectoryFile> GEMSegment_GE21_2hits, GEMSegment_GE21_4hits;
   std::unique_ptr<TDirectoryFile> GEMSegment_SimHitPlots;
 
   std::unique_ptr<TH1F> GEN_eta, GEN_phi, SIM_eta, SIM_phi;
 
-  std::unique_ptr<TH1F> GE11_Pos_eta, GE11_Pos_phi, GE11_Dir_eta, GE11_Dir_phi;
-  std::unique_ptr<TH1F> GE21_Pos_eta, GE21_Pos_phi, GE21_Dir_eta, GE21_Dir_phi;
-  std::unique_ptr<TH1F> ME11_Pos_eta, ME11_Pos_phi, ME11_Dir_eta, ME11_Dir_phi;
-  std::unique_ptr<TH1F> ME21_Pos_eta, ME21_Pos_phi, ME21_Dir_eta, ME21_Dir_phi;
+  std::unique_ptr<TH1F> GE11_Pos_eta, GE11_Pos_phi, GE11_Dir_eta, GE11_Dir_phi, GE21_Pos_eta, GE21_Pos_phi, GE21_Dir_eta, GE21_Dir_phi;
+  std::unique_ptr<TH1F> ME11_Pos_eta, ME11_Pos_phi, ME11_Dir_eta, ME11_Dir_phi, ME21_Pos_eta, ME21_Pos_phi, ME21_Dir_eta, ME21_Dir_phi;
+  std::unique_ptr<TH1F> GE11_LocPos_x, GE11_LocPos_y, GE11_GloPos_x, GE11_GloPos_y, GE11_GloPos_r, GE11_GloPos_p, GE11_GloPos_t;
+  std::unique_ptr<TH1F> GE21_LocPos_x, GE21_LocPos_y, GE21_GloPos_x, GE21_GloPos_y, GE21_GloPos_r, GE21_GloPos_p, GE21_GloPos_t;
 
-  std::unique_ptr<TH1F> GE11_LocPos_x, GE11_LocPos_y, GE11_GloPos_x, GE11_GloPos_y;
-  std::unique_ptr<TH1F> GE21_LocPos_x, GE21_LocPos_y, GE21_GloPos_x, GE21_GloPos_y;
-  std::unique_ptr<TH1F> GE11_GloPos_r, GE11_GloPos_p, GE11_GloPos_t;
-  std::unique_ptr<TH1F> GE21_GloPos_r, GE21_GloPos_p, GE21_GloPos_t;
+  std::unique_ptr<TH1F> Delta_Pos_SIM_GE11_eta, Delta_Pos_SIM_GE11_phi, Delta_Pos_SIM_GE11_BX;
+  std::unique_ptr<TH1F> Delta_Pos_SIM_GE21_eta, Delta_Pos_SIM_GE21_phi, Delta_Pos_SIM_GE21_BX;
 
-  std::unique_ptr<TH1F> Delta_Pos_SIM_GE11_eta, Delta_Pos_SIM_GE11_phi;
-  std::unique_ptr<TH1F> Delta_Pos_SIM_GE21_eta, Delta_Pos_SIM_GE21_phi;
-
-  std::unique_ptr<TH1F> Delta_Pos_SIM_GE11_BX;
-  std::unique_ptr<TH1F> Delta_Pos_SIM_GE21_BX;
-
-  std::unique_ptr<TH1F> Delta_Pos_ME11_GE11_eta, Delta_Pos_ME11_GE11_phi;
-  std::unique_ptr<TH1F> Delta_Pos_ME21_GE21_eta, Delta_Pos_ME21_GE21_phi;
-  std::unique_ptr<TH1F> Delta_Dir_ME11_GE11_eta, Delta_Dir_ME11_GE11_phi;
-  std::unique_ptr<TH1F> Delta_Dir_ME21_GE21_eta, Delta_Dir_ME21_GE21_phi;
-
-  std::unique_ptr<TH1F> Delta_Dir_ME21_GE21_eta_2hits, Delta_Dir_ME21_GE21_phi_2hits;
-  std::unique_ptr<TH1F> Delta_Dir_ME21_GE21_eta_4hits, Delta_Dir_ME21_GE21_phi_4hits;
-
+  std::unique_ptr<TH1F> Delta_Pos_ME11_GE11_eta, Delta_Pos_ME11_GE11_phi, Delta_Dir_ME11_GE11_eta, Delta_Dir_ME11_GE11_phi, Delta_Dir_ME21_GE21_eta_2hits, Delta_Dir_ME21_GE21_phi_2hits;
+  std::unique_ptr<TH1F> Delta_Pos_ME21_GE21_eta, Delta_Pos_ME21_GE21_phi, Delta_Dir_ME21_GE21_eta, Delta_Dir_ME21_GE21_phi, Delta_Dir_ME21_GE21_eta_4hits, Delta_Dir_ME21_GE21_phi_4hits;
 
   std::unique_ptr<TH1F> GE11_Dir_eta_2hits, GE11_Dir_phi_2hits;
-  std::unique_ptr<TH1F> GE21_Pos_eta_2hits, GE21_Pos_phi_2hits;
-  std::unique_ptr<TH1F> GE21_Dir_eta_2hits, GE21_Dir_phi_2hits;
-  std::unique_ptr<TH1F> GE21_Pos_eta_4hits, GE21_Pos_phi_4hits;
-  std::unique_ptr<TH1F> GE21_Dir_eta_4hits, GE21_Dir_phi_4hits;
+  std::unique_ptr<TH1F> GE21_Pos_eta_2hits, GE21_Pos_phi_2hits, GE21_Dir_eta_2hits, GE21_Dir_phi_2hits;
+  std::unique_ptr<TH1F> GE21_Pos_eta_4hits, GE21_Pos_phi_4hits, GE21_Dir_eta_4hits, GE21_Dir_phi_4hits;
 
   std::unique_ptr<TH1F> NumSegs_GE11_pos, NumSegs_GE11_neg, NumSegs_GE21_pos, NumSegs_GE21_neg;
   std::unique_ptr<TH1F> NumSegs_ME11_pos, NumSegs_ME11_neg, NumSegs_ME21_pos, NumSegs_ME21_neg;
 
-  std::unique_ptr<TH1F> GE11_numhits;
-  std::unique_ptr<TH1F> GE21_numhits;
-  std::unique_ptr<TH1F> GE11_BX;
-  std::unique_ptr<TH1F> GE21_BX;
+  std::unique_ptr<TH1F> GE11_numhits, GE21_numhits, GE11_BX, GE21_BX;
 
-  std::unique_ptr<TH1F> GE11_fitchi2;
-  std::unique_ptr<TH1F> GE11_fitndof;
-  std::unique_ptr<TH1F> GE11_fitchi2ndof;
-  std::unique_ptr<TH1F> GE11_Residuals_x;
-  std::unique_ptr<TH1F> GE11_Residuals_l1_x;
-  std::unique_ptr<TH1F> GE11_Residuals_l2_x;
-  std::unique_ptr<TH1F> GE11_Pull_x;
-  std::unique_ptr<TH1F> GE11_Pull_l1_x;
-  std::unique_ptr<TH1F> GE11_Pull_l2_x;
-  std::unique_ptr<TH1F> GE11_Residuals_y;
-  std::unique_ptr<TH1F> GE11_Residuals_l1_y;
-  std::unique_ptr<TH1F> GE11_Residuals_l2_y;
-  std::unique_ptr<TH1F> GE11_Pull_y;
-  std::unique_ptr<TH1F> GE11_Pull_l1_y;
-  std::unique_ptr<TH1F> GE11_Pull_l2_y;
+  std::unique_ptr<TH1F> GE11_fitchi2, GE11_fitndof, GE11_fitchi2ndof;
+  std::unique_ptr<TH1F> GE11_Residuals_x, GE11_Residuals_l1_x, GE11_Residuals_l2_x, GE11_Pull_x, GE11_Pull_l1_x, GE11_Pull_l2_x;
+  std::unique_ptr<TH1F> GE11_Residuals_y, GE11_Residuals_l1_y, GE11_Residuals_l2_y, GE11_Pull_y, GE11_Pull_l1_y, GE11_Pull_l2_y;
 
-  std::unique_ptr<TH1F> GE21_fitchi2;
-  std::unique_ptr<TH1F> GE21_fitndof;
-  std::unique_ptr<TH1F> GE21_fitchi2ndof;
-  std::unique_ptr<TH1F> GE21_Residuals_x;
-  std::unique_ptr<TH1F> GE21_Residuals_l1_x;
-  std::unique_ptr<TH1F> GE21_Residuals_l2_x;
-  std::unique_ptr<TH1F> GE21_Residuals_l3_x;
-  std::unique_ptr<TH1F> GE21_Residuals_l4_x;
-  std::unique_ptr<TH1F> GE21_Pull_x;
-  std::unique_ptr<TH1F> GE21_Pull_l1_x;
-  std::unique_ptr<TH1F> GE21_Pull_l2_x;
-  std::unique_ptr<TH1F> GE21_Pull_l3_x;
-  std::unique_ptr<TH1F> GE21_Pull_l4_x;
-  std::unique_ptr<TH1F> GE21_Residuals_y;
-  std::unique_ptr<TH1F> GE21_Residuals_l1_y;
-  std::unique_ptr<TH1F> GE21_Residuals_l2_y;
-  std::unique_ptr<TH1F> GE21_Residuals_l3_y;
-  std::unique_ptr<TH1F> GE21_Residuals_l4_y;
-  std::unique_ptr<TH1F> GE21_Pull_y;
-  std::unique_ptr<TH1F> GE21_Pull_l1_y;
-  std::unique_ptr<TH1F> GE21_Pull_l2_y;
-  std::unique_ptr<TH1F> GE21_Pull_l3_y;
-  std::unique_ptr<TH1F> GE21_Pull_l4_y;
+  std::unique_ptr<TH1F> GE21_fitchi2, GE21_fitndof, GE21_fitchi2ndof;
+  std::unique_ptr<TH1F> GE21_Residuals_x, GE21_Residuals_l1_x, GE21_Residuals_l2_x, GE21_Residuals_l3_x, GE21_Residuals_l4_x;
+  std::unique_ptr<TH1F> GE21_Pull_x, GE21_Pull_l1_x, GE21_Pull_l2_x, GE21_Pull_l3_x, GE21_Pull_l4_x;
+  std::unique_ptr<TH1F> GE21_Residuals_y, GE21_Residuals_l1_y, GE21_Residuals_l2_y, GE21_Residuals_l3_y, GE21_Residuals_l4_y;
+  std::unique_ptr<TH1F> GE21_Pull_y, GE21_Pull_l1_y, GE21_Pull_l2_y, GE21_Pull_l3_y, GE21_Pull_l4_y;
 
-  std::unique_ptr<TH1F> GE21_2hits_fitchi2;
-  std::unique_ptr<TH1F> GE21_2hits_fitndof;
-  std::unique_ptr<TH1F> GE21_2hits_fitchi2ndof;
-  std::unique_ptr<TH1F> GE21_2hits_Residuals_x;
-  std::unique_ptr<TH1F> GE21_2hits_Residuals_l1_x;
-  std::unique_ptr<TH1F> GE21_2hits_Residuals_l2_x;
-  std::unique_ptr<TH1F> GE21_2hits_Pull_x;
-  std::unique_ptr<TH1F> GE21_2hits_Pull_l1_x;
-  std::unique_ptr<TH1F> GE21_2hits_Pull_l2_x;
-  std::unique_ptr<TH1F> GE21_2hits_Residuals_y;
-  std::unique_ptr<TH1F> GE21_2hits_Residuals_l1_y;
-  std::unique_ptr<TH1F> GE21_2hits_Residuals_l2_y;
-  std::unique_ptr<TH1F> GE21_2hits_Pull_y;
-  std::unique_ptr<TH1F> GE21_2hits_Pull_l1_y;
-  std::unique_ptr<TH1F> GE21_2hits_Pull_l2_y;
+  std::unique_ptr<TH1F> GE21_2hits_fitchi2, GE21_2hits_fitndof, GE21_2hits_fitchi2ndof;
+  std::unique_ptr<TH1F> GE21_2hits_Residuals_x, GE21_2hits_Residuals_l1_x, GE21_2hits_Residuals_l2_x, GE21_2hits_Pull_x, GE21_2hits_Pull_l1_x, GE21_2hits_Pull_l2_x;
+  std::unique_ptr<TH1F> GE21_2hits_Residuals_y, GE21_2hits_Residuals_l1_y, GE21_2hits_Residuals_l2_y, GE21_2hits_Pull_y, GE21_2hits_Pull_l1_y, GE21_2hits_Pull_l2_y;
 
-  std::unique_ptr<TH1F> GE21_4hits_fitchi2;
-  std::unique_ptr<TH1F> GE21_4hits_fitndof;
-  std::unique_ptr<TH1F> GE21_4hits_fitchi2ndof;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_x;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_l1_x;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_l2_x;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_l3_x;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_l4_x;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_x;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_l1_x;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_l2_x;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_l3_x;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_l4_x;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_y;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_l1_y;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_l2_y;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_l3_y;
-  std::unique_ptr<TH1F> GE21_4hits_Residuals_l4_y;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_y;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_l1_y;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_l2_y;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_l3_y;
-  std::unique_ptr<TH1F> GE21_4hits_Pull_l4_y;
+  std::unique_ptr<TH1F> GE21_4hits_fitchi2, GE21_4hits_fitndof, GE21_4hits_fitchi2ndof;
+  std::unique_ptr<TH1F> GE21_4hits_Residuals_x, GE21_4hits_Residuals_l1_x, GE21_4hits_Residuals_l2_x, GE21_4hits_Residuals_l3_x, GE21_4hits_Residuals_l4_x;
+  std::unique_ptr<TH1F> GE21_4hits_Pull_x, GE21_4hits_Pull_l1_x, GE21_4hits_Pull_l2_x, GE21_4hits_Pull_l3_x, GE21_4hits_Pull_l4_x;
+  std::unique_ptr<TH1F> GE21_4hits_Residuals_y, GE21_4hits_Residuals_l1_y, GE21_4hits_Residuals_l2_y, GE21_4hits_Residuals_l3_y, GE21_4hits_Residuals_l4_y;
+  std::unique_ptr<TH1F> GE21_4hits_Pull_y, GE21_4hits_Pull_l1_y, GE21_4hits_Pull_l2_y, GE21_4hits_Pull_l3_y, GE21_4hits_Pull_l4_y;
+
+  std::unique_ptr<TH2F> GE11_Pos_Dir_eta, GE11_Pos_Dir_phi, GE21_Pos_Dir_eta, GE21_Pos_Dir_phi, GE21_Pos_Dir_eta_2hits, GE21_Pos_Dir_phi_2hits, GE21_Pos_Dir_eta_4hits, GE21_Pos_Dir_phi_4hits;
+  std::unique_ptr<TH2F> ME11_Pos_Dir_eta, ME11_Pos_Dir_phi, ME21_Pos_Dir_eta, ME21_Pos_Dir_phi;
 
   /*
   // Aim: prove that construction of a segment reduces the background level in GEM system
@@ -323,14 +245,14 @@ TestGEMSegmentAnalyzer::TestGEMSegmentAnalyzer(const edm::ParameterSet& iConfig)
   Delta_Pos_ME21_GE21_phi = std::unique_ptr<TH1F>(new TH1F("Delta_Pos_ME21_GE21_phi","Delta_Pos_ME21_GE21_phi",100,-0.5,0.5));
 
   Delta_Dir_ME11_GE11_eta = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME11_GE11_eta","Delta_Dir_ME11_GE11_eta",100,-0.5,0.5));
-  Delta_Dir_ME11_GE11_phi = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME11_GE11_phi","Delta_Dir_ME11_GE11_phi",100,-0.5,0.5));
+  Delta_Dir_ME11_GE11_phi = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME11_GE11_phi","Delta_Dir_ME11_GE11_phi",100,-3.5,3.5));
   Delta_Dir_ME21_GE21_eta = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_eta","Delta_Dir_ME21_GE21_eta",100,-0.5,0.5));
-  Delta_Dir_ME21_GE21_phi = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_phi","Delta_Dir_ME21_GE21_phi",100,-0.5,0.5));
+  Delta_Dir_ME21_GE21_phi = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_phi","Delta_Dir_ME21_GE21_phi",100,-3.5,3.5));
 
   Delta_Dir_ME21_GE21_eta_2hits = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_eta_2hits","Delta_Dir_ME21_GE21_eta_2hits",100,-50,50));
-  Delta_Dir_ME21_GE21_phi_2hits = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_phi_2hits","Delta_Dir_ME21_GE21_phi_2hits",100,-0.5,0.5));
-  Delta_Dir_ME21_GE21_eta_4hits = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_eta_4hits","Delta_Dir_ME21_GE21_eta_2hits",100,-0.5,0.5));
-  Delta_Dir_ME21_GE21_phi_4hits = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_phi_4hits","Delta_Dir_ME21_GE21_phi_2hits",100,-0.5,0.5));
+  Delta_Dir_ME21_GE21_phi_2hits = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_phi_2hits","Delta_Dir_ME21_GE21_phi_2hits",100,-3.5,3.5));
+  Delta_Dir_ME21_GE21_eta_4hits = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_eta_4hits","Delta_Dir_ME21_GE21_eta_4hits",100,-0.5,0.5));
+  Delta_Dir_ME21_GE21_phi_4hits = std::unique_ptr<TH1F>(new TH1F("Delta_Dir_ME21_GE21_phi_4hits","Delta_Dir_ME21_GE21_phi_4hits",100,-3.5,3.5));
 
   Delta_Pos_SIM_GE11_BX = std::unique_ptr<TH1F>(new TH1F("Delta_Pos_SIM_GE11_BX","Delta_Pos_SIM_GE11_BX",11,-5.5,5.5));
   Delta_Pos_SIM_GE21_BX = std::unique_ptr<TH1F>(new TH1F("Delta_Pos_SIM_GE21_BX","Delta_Pos_SIM_GE21_BX",11,-5.5,5.5));
@@ -354,7 +276,7 @@ TestGEMSegmentAnalyzer::TestGEMSegmentAnalyzer(const edm::ParameterSet& iConfig)
   GE11_GloPos_t = std::unique_ptr<TH1F>(new TH1F("GE11_GloPos_t","GE11_GloPos_t", 72, 0.00,3.14));
 
   GE21_LocPos_x = std::unique_ptr<TH1F>(new TH1F("GE21_LocPos_x","GE21_LocPos_x",100,-50,50));
-  GE21_LocPos_y = std::unique_ptr<TH1F>(new TH1F("GE21_LocPos_y","GE21_LocPos_y",100,-50,50));
+  GE21_LocPos_y = std::unique_ptr<TH1F>(new TH1F("GE21_LocPos_y","GE21_LocPos_y",100,-200,200));
   GE21_GloPos_x = std::unique_ptr<TH1F>(new TH1F("GE21_GloPos_x","GE21_GloPos_x", 70, 0,350));
   GE21_GloPos_y = std::unique_ptr<TH1F>(new TH1F("GE21_GloPos_y","GE21_GloPos_y", 70, 0,350));
   GE21_GloPos_r = std::unique_ptr<TH1F>(new TH1F("GE21_GloPos_r","GE21_GloPos_r",100, 100,350));
@@ -450,6 +372,23 @@ TestGEMSegmentAnalyzer::TestGEMSegmentAnalyzer(const edm::ParameterSet& iConfig)
   GE21_SimHitEta =  std::unique_ptr<TH1F>(new TH1F("GE21_SimHitEta","GE21_SimHitEta",100,1.50,2.50));
   GE11_SimHitEta_1D =  std::unique_ptr<TH1F>(new TH1F("GE11_SimHitEta_1D","GE11_SimHitEta_1D",100,1.50,2.50));
   GE21_SimHitEta_1D =  std::unique_ptr<TH1F>(new TH1F("GE21_SimHitEta_1D","GE21_SimHitEta_1D",100,1.50,2.50));
+
+  GE11_Pos_Dir_eta = std::unique_ptr<TH2F>(new TH2F("GE11_Pos_Dir_eta","GE11_Pos_Dir_eta",100,-2.5,2.5,100,-2.5,2.5));
+  GE21_Pos_Dir_eta = std::unique_ptr<TH2F>(new TH2F("GE21_Pos_Dir_eta","GE21_Pos_Dir_eta",100,-2.5,2.5,100,-2.5,2.5));
+  ME11_Pos_Dir_eta = std::unique_ptr<TH2F>(new TH2F("ME11_Pos_Dir_eta","ME11_Pos_Dir_eta",100,-2.5,2.5,100,-2.5,2.5));
+  ME21_Pos_Dir_eta = std::unique_ptr<TH2F>(new TH2F("ME21_Pos_Dir_eta","ME21_Pos_Dir_eta",100,-2.5,2.5,100,-2.5,2.5));
+
+  GE11_Pos_Dir_phi = std::unique_ptr<TH2F>(new TH2F("GE11_Pos_Dir_phi","GE11_Pos_Dir_phi",144,-3.14,3.14,144,-3.14,3.14));
+  GE21_Pos_Dir_phi = std::unique_ptr<TH2F>(new TH2F("GE21_Pos_Dir_phi","GE21_Pos_Dir_phi",144,-3.14,3.14,144,-3.14,3.14));
+  ME11_Pos_Dir_phi = std::unique_ptr<TH2F>(new TH2F("ME11_Pos_Dir_phi","ME11_Pos_Dir_phi",144,-3.14,3.14,144,-3.14,3.14));
+  ME21_Pos_Dir_phi = std::unique_ptr<TH2F>(new TH2F("ME21_Pos_Dir_phi","ME21_Pos_Dir_phi",144,-3.14,3.14,144,-3.14,3.14));
+
+  GE21_Pos_Dir_eta_2hits = std::unique_ptr<TH2F>(new TH2F("GE21_Pos_Dir_eta_2hits","GE21_Pos_Dir_eta_2hits",100,-2.5,2.5,100,-2.5,2.5));
+  GE21_Pos_Dir_eta_4hits = std::unique_ptr<TH2F>(new TH2F("GE21_Pos_Dir_eta_4hits","GE21_Pos_Dir_eta_4hits",100,-2.5,2.5,100,-2.5,2.5));
+
+  GE21_Pos_Dir_phi_2hits = std::unique_ptr<TH2F>(new TH2F("GE21_Pos_Dir_phi_2hits","GE21_Pos_Dir_phi_2hits",144,-3.14,3.14,144,-3.14,3.14));
+  GE21_Pos_Dir_phi_4hits = std::unique_ptr<TH2F>(new TH2F("GE21_Pos_Dir_phi_4hits","GE21_Pos_Dir_phi_4hits",144,-3.14,3.14,144,-3.14,3.14));
+
 }
 
 
@@ -500,13 +439,12 @@ TestGEMSegmentAnalyzer::~TestGEMSegmentAnalyzer()
   Delta_Dir_ME11_GE11_eta->Write();
   Delta_Dir_ME11_GE11_phi->Write();
 
-  GE11_LocPos_x->Write();
-  GE11_LocPos_y->Write();
-  GE11_GloPos_x->Write();
-  GE11_GloPos_y->Write();
-  GE11_GloPos_r->Write();
-  GE11_GloPos_p->Write();
-  GE11_GloPos_t->Write();
+  GE11_LocPos_x->Write(); GE11_LocPos_y->Write(); GE11_GloPos_x->Write(); GE11_GloPos_y->Write(); GE11_GloPos_r->Write(); GE11_GloPos_p->Write(); GE11_GloPos_t->Write();
+  GE11_Pos_Dir_eta->Write(); ME11_Pos_Dir_eta->Write(); GE11_Pos_Dir_phi->Write(); ME11_Pos_Dir_phi->Write(); 
+
+  std::cout<<"GE11 Phi Correlation Factor = "<<GE11_Pos_Dir_phi->GetCorrelationFactor(1,2)<<" Covariance = "<<GE11_Pos_Dir_phi->GetCovariance(1,2)<<std::endl;
+  std::cout<<"ME11 Phi Correlation Factor = "<<ME11_Pos_Dir_phi->GetCorrelationFactor(1,2)<<" Covariance = "<<ME11_Pos_Dir_phi->GetCovariance(1,2)<<std::endl;
+
   outputfile->cd();
 
   // Position and Direction GE21
@@ -541,18 +479,14 @@ TestGEMSegmentAnalyzer::~TestGEMSegmentAnalyzer()
   Delta_Dir_ME21_GE21_eta->Write();
   Delta_Dir_ME21_GE21_phi->Write();
 
-  Delta_Dir_ME21_GE21_eta_2hits->Write();
-  Delta_Dir_ME21_GE21_phi_2hits->Write();
-  Delta_Dir_ME21_GE21_eta_4hits->Write();
-  Delta_Dir_ME21_GE21_phi_4hits->Write();
+  Delta_Dir_ME21_GE21_eta_2hits->Write(); Delta_Dir_ME21_GE21_phi_2hits->Write(); Delta_Dir_ME21_GE21_eta_4hits->Write(); Delta_Dir_ME21_GE21_phi_4hits->Write();
+  GE21_LocPos_x->Write(); GE21_LocPos_y->Write(); GE21_GloPos_x->Write(); GE21_GloPos_y->Write(); GE21_GloPos_r->Write(); GE21_GloPos_p->Write(); GE21_GloPos_t->Write();
+  GE21_Pos_Dir_eta->Write(); ME21_Pos_Dir_eta->Write(); GE21_Pos_Dir_phi->Write(); ME21_Pos_Dir_phi->Write(); 
+  GE21_Pos_Dir_eta_2hits->Write(); GE21_Pos_Dir_phi_2hits->Write(); GE21_Pos_Dir_eta_4hits->Write(); GE21_Pos_Dir_phi_4hits->Write(); 
 
-  GE21_LocPos_x->Write();
-  GE21_LocPos_y->Write();
-  GE21_GloPos_x->Write();
-  GE21_GloPos_y->Write();
-  GE21_GloPos_r->Write();
-  GE21_GloPos_p->Write();
-  GE21_GloPos_t->Write();
+  std::cout<<"GE21 Phi Correlation Factor = "<<GE21_Pos_Dir_phi->GetCorrelationFactor(1,2)<<" Covariance = "<<GE21_Pos_Dir_phi->GetCovariance(1,2)<<std::endl;
+  std::cout<<"ME21 Phi Correlation Factor = "<<ME21_Pos_Dir_phi->GetCorrelationFactor(1,2)<<" Covariance = "<<ME21_Pos_Dir_phi->GetCovariance(1,2)<<std::endl;
+
   outputfile->cd();
 
   // All GE11 Segments
@@ -723,7 +657,7 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // GEM Segments
   // ================
 
-  std::cout <<"Number of GEM Segments in this event: "<<gemSegmentCollection->size()<<"\n"<<std::endl;
+  if(printSegmntInfo) std::cout <<"Number of GEM Segments in this event: "<<gemSegmentCollection->size()<<"\n"<<std::endl;
 
   // Loop over GEM Segments
   // ======================
@@ -1252,13 +1186,13 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     if(deltaR_new < deltaR_old) {
       GE11_Pos_eta_neg = segGP.eta();  GE11_Pos_phi_neg = segGP.phi(); 
-      GE11_Dir_eta_neg = segGP.eta();  GE11_Dir_phi_neg = segGD.phi();
+      GE11_Dir_eta_neg = segGD.eta();  GE11_Dir_phi_neg = segGD.phi();
       GE11_BX_neg = (*it)->BunchX();
     }
 
     GE11_Pos_eta->Fill(segGP.eta()); GE11_Pos_phi->Fill(segGP.phi()); 
     /* GE11_Dir_eta->Fill(segGD.eta()); */ GE11_Dir_phi->Fill(segGD.phi()); 
-    if(GE11_Dir_eta_neg < -2.50) GE11_Dir_eta->Fill(-2.50);
+    if(GE11_Dir_eta_neg < -2.50) GE11_Dir_eta->Fill(-2.495);
     else GE11_Dir_eta->Fill(GE11_Dir_eta_neg);
     GE11_Dir_eta_2hits->Fill(segGD.eta()); GE11_Dir_phi_2hits->Fill(segGD.phi());
 
@@ -1282,12 +1216,17 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
   for(std::vector< std::unique_ptr<CSCSegment> >::const_iterator it = ME11_segs_neg.begin(); it!=ME11_segs_neg.end(); ++it) {
     CSCDetId id = (*it)->cscDetId();
+    // Special ... skip CSC if segment is not in chamber with same number (so same phi)
+    if(id.chamber() != GE11_chamber_neg) continue;
+
     auto chamb = cscGeom->chamber(id); 
     auto segLP = (*it)->localPosition();
     auto segLD = (*it)->localDirection();
     auto segGP = chamb->toGlobal(segLP);
     auto segGD = chamb->toGlobal(segLD);
     auto cscrhs = (*it)->specificRecHits();
+
+    ++ME11_NumSegs_neg; ME11_chamber_neg = id.chamber();
 
     if(printEventOrder) {
       std::cout <<"ME1/1 Segment:"<<std::endl;
@@ -1296,7 +1235,7 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       std::cout <<"                chi2  "<<(*it)->chi2()<<" ndof = "<<(*it)->degreesOfFreedom()<<" ==> chi2/ndof = "<<(*it)->chi2()*1.0/(*it)->degreesOfFreedom();
       std::cout << "   Number of RecHits "<<cscrhs.size()<<std::endl;
     }
-    ++ME11_NumSegs_neg; ME11_chamber_neg = id.chamber();
+
 
     double deltaR_old = sqrt(pow(SIM_Pos_eta_neg-ME11_Pos_eta_neg,2)+pow(SIM_Pos_phi_neg-ME11_Pos_phi_neg,2));
     double deltaR_new = sqrt(pow(SIM_Pos_eta_neg-segGP.eta(),2)+pow(SIM_Pos_phi_neg-segGP.phi(),2));
@@ -1341,21 +1280,29 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     if(deltaR_new < deltaR_old){
       GE21_Pos_eta_neg = segGP.eta();  GE21_Pos_phi_neg = segGP.phi(); 
-      GE21_Dir_eta_neg = segGP.eta();  GE21_Dir_phi_neg = segGD.phi(); 
+      GE21_Dir_eta_neg = segGD.eta();  GE21_Dir_phi_neg = segGD.phi(); 
       GE21_nhits_neg = gemrhs.size();
       GE21_BX_neg = (*it)->BunchX();
     }
 
     GE21_Pos_eta->Fill(segGP.eta()); GE21_Pos_phi->Fill(segGP.phi()); 
+    GE21_Pos_eta_neg = segGP.eta();  GE21_Pos_phi_neg = segGP.phi();  
     /*GE21_Dir_eta->Fill(segGD.eta());*/ GE21_Dir_phi->Fill(segGD.phi()); 
-    if(GE21_Dir_eta_neg < -2.50) GE21_Dir_eta->Fill(-2.50);
+    if(GE21_Dir_eta_neg < -2.50) GE21_Dir_eta->Fill(-2.495);
     else GE21_Dir_eta->Fill(GE21_Dir_eta_neg);
-    if(gemrhs.size()==2)     {    GE21_Dir_eta_2hits->Fill(segGD.eta()); GE21_Dir_phi_2hits->Fill(segGD.phi());  GE21_Pos_eta_neg = segGP.eta();  GE21_Pos_phi_neg = segGP.phi();  }
-    else if(gemrhs.size()>2) {    GE21_Dir_eta_4hits->Fill(segGD.eta()); GE21_Dir_phi_4hits->Fill(segGD.phi());  GE21_Pos_eta_neg = segGP.eta();  GE21_Pos_phi_neg = segGP.phi();  }
+
+    if(gemrhs.size()==2)     {    
+      GE21_Dir_eta_2hits->Fill(segGD.eta()); GE21_Dir_phi_2hits->Fill(segGD.phi());  
+      GE21_Pos_eta_2hits->Fill(segGP.eta()); GE21_Pos_phi_2hits->Fill(segGP.phi());
+    }
+    else if(gemrhs.size()>2) {    
+      GE21_Dir_eta_4hits->Fill(segGD.eta()); GE21_Dir_phi_4hits->Fill(segGD.phi());
+      GE21_Pos_eta_4hits->Fill(segGP.eta()); GE21_Pos_phi_4hits->Fill(segGP.phi());
+    }
     else {}
 
     GE21_LocPos_x->Fill(segLP.x());
-    GE21_LocPos_y->Fill(segLP.y());
+    GE21_LocPos_y->Fill(segLP.y());  // std::cout<<"GE21 Segment Local Position y = "<<segLP.y()<<std::endl;
     GE21_GloPos_x->Fill(segGP.x());
     GE21_GloPos_y->Fill(segGP.y());
     GE21_GloPos_r->Fill(segGP.transverse());    // transverse = perp = sqrt (x*x+y*y)
@@ -1374,6 +1321,9 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
   for(std::vector< std::unique_ptr<CSCSegment> >::const_iterator it = ME21_segs_neg.begin(); it!=ME21_segs_neg.end(); ++it) {
     CSCDetId id = (*it)->cscDetId();
+    // Special ... skip CSC if segment is not in chamber with same number (so same phi)
+    if(id.chamber() != GE21_chamber_neg) continue;
+
     auto chamb = cscGeom->chamber(id); 
     auto segLP = (*it)->localPosition();
     auto segLD = (*it)->localDirection();
@@ -1416,13 +1366,23 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(fabs(SIM_Pos_eta_neg)<2.46 && fabs(SIM_Pos_eta_neg)>1.63) {NumSegs_GE21_neg->Fill(GE21_NumSegs_neg);}
   if(fabs(SIM_Pos_eta_neg)<2.40 && fabs(SIM_Pos_eta_neg)>1.63) {NumSegs_ME21_neg->Fill(ME21_NumSegs_neg);}
 
-  if(GE11_NumSegs_neg > 0) {
+  if(GE11_NumSegs_neg == 1) {
     Delta_Pos_SIM_GE11_eta->Fill(fabs(SIM_Pos_eta_neg)-fabs(GE11_Pos_eta_neg));
     Delta_Pos_SIM_GE11_phi->Fill(reco::deltaPhi(SIM_Pos_phi_neg,GE11_Pos_phi_neg));
     // For SIM Matched segments fill BX distribution
     Delta_Pos_SIM_GE11_BX->Fill(GE11_BX_neg);
+    // 2D scatter plot Pos vs Dir
+    if(GE11_Dir_eta_neg < -2.50)      GE11_Pos_Dir_eta->Fill(GE11_Pos_eta_neg, -2.495);
+    else if(GE11_Dir_eta_neg > +2.50) GE11_Pos_Dir_eta->Fill(GE11_Pos_eta_neg, +2.495);
+    else                              GE11_Pos_Dir_eta->Fill(GE11_Pos_eta_neg, GE11_Dir_eta_neg);
+    GE11_Pos_Dir_phi->Fill(GE11_Pos_phi_neg, GE11_Dir_phi_neg);
   }
-  if(GE11_NumSegs_neg > 0 && ME11_chamber_neg == GE11_chamber_neg) {
+  if(ME11_NumSegs_neg == 1) {
+    // 2D scatter plot Pos vs Dir
+    ME11_Pos_Dir_eta->Fill(ME11_Pos_eta_neg, ME11_Dir_eta_neg);
+    ME11_Pos_Dir_phi->Fill(ME11_Pos_phi_neg, ME11_Dir_phi_neg);
+  }
+  if(GE11_NumSegs_neg == 1 && ME11_NumSegs_neg == 1 && ME11_chamber_neg == GE11_chamber_neg) {
     Delta_Pos_ME11_GE11_eta->Fill(fabs(ME11_Pos_eta_neg)-fabs(GE11_Pos_eta_neg));
     Delta_Pos_ME11_GE11_phi->Fill(reco::deltaPhi(ME11_Pos_phi_neg,GE11_Pos_phi_neg));
     double delta = ME11_Dir_eta_neg-GE11_Dir_eta_neg;
@@ -1432,15 +1392,39 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     else {}
     Delta_Dir_ME11_GE11_phi->Fill(reco::deltaPhi(ME11_Dir_phi_neg,GE11_Dir_phi_neg));
     if(printEventOrder) {
-      std::cout<<"COMPARING GE11 and ME11 directions :: GE11.Dir.eta = "<<GE11_Dir_eta_neg<<" ME11.Dir.eta = "<<ME11_Dir_eta_neg<<" ME11-GE11 = "<<fabs(ME11_Dir_eta_neg)-fabs(GE11_Dir_eta_neg)<<std::endl;
+      std::cout<<"COMPARING GE11 and ME11 directions :: GE11.Dir.eta = "<<GE11_Dir_eta_neg<<" ME11.Dir.eta = "<<ME11_Dir_eta_neg<<" ME11-GE11 = "<<ME11_Dir_eta_neg-GE11_Dir_eta_neg<<std::endl;
+      std::cout<<"COMPARING GE11 and ME11 directions :: GE11.Dir.phi = "<<GE11_Dir_phi_neg<<" ME11.Dir.phi = "<<ME11_Dir_phi_neg<<" ME11-GE11 = "<<reco::deltaPhi(ME11_Dir_phi_neg,GE11_Dir_phi_neg)<<std::endl;
     }
   }
-  if(GE21_NumSegs_neg > 0) {
+  if(GE21_NumSegs_neg == 1) {
     Delta_Pos_SIM_GE21_eta->Fill(fabs(SIM_Pos_eta_neg)-fabs(GE21_Pos_eta_neg));
     Delta_Pos_SIM_GE21_phi->Fill(reco::deltaPhi(SIM_Pos_phi_neg,GE11_Pos_phi_neg));
     Delta_Pos_SIM_GE21_BX->Fill(GE21_BX_neg);
+    // 2D scatter plot Pos vs Dir
+    if(GE21_Dir_eta_neg < -2.50)      GE21_Pos_Dir_eta->Fill(GE21_Pos_eta_neg, -2.495);
+    else if(GE21_Dir_eta_neg > +2.50) GE21_Pos_Dir_eta->Fill(GE21_Pos_eta_neg, +2.495);
+    else                              GE21_Pos_Dir_eta->Fill(GE21_Pos_eta_neg, GE21_Dir_eta_neg);
+    GE21_Pos_Dir_phi->Fill(GE21_Pos_phi_neg, GE21_Dir_phi_neg);
+    if(GE21_nhits_neg==2) {
+      if(GE21_Dir_eta_neg < -2.50)      GE21_Pos_Dir_eta_2hits->Fill(GE21_Pos_eta_neg, -2.495);
+      else if(GE21_Dir_eta_neg > +2.50) GE21_Pos_Dir_eta_2hits->Fill(GE21_Pos_eta_neg, +2.495);
+      else                              GE21_Pos_Dir_eta_2hits->Fill(GE21_Pos_eta_neg, GE21_Dir_eta_neg);
+      GE21_Pos_Dir_phi_2hits->Fill(GE21_Pos_phi_neg, GE21_Dir_phi_neg);
+    }
+    else if(GE21_nhits_neg > 2) {
+      if(GE21_Dir_eta_neg < -2.50)      GE21_Pos_Dir_eta_4hits->Fill(GE21_Pos_eta_neg, -2.495);
+      else if(GE21_Dir_eta_neg > +2.50) GE21_Pos_Dir_eta_4hits->Fill(GE21_Pos_eta_neg, +2.495);
+      else                              GE21_Pos_Dir_eta_4hits->Fill(GE21_Pos_eta_neg, GE21_Dir_eta_neg);
+      GE21_Pos_Dir_phi_4hits->Fill(GE21_Pos_phi_neg, GE21_Dir_phi_neg);
+    }
+    else {}
   }
-  if(GE21_NumSegs_neg > 0 && ME21_chamber_neg == GE21_chamber_neg) {
+  if(ME21_NumSegs_neg == 1) {
+    // 2D scatter plot Pos vs Dir
+    ME21_Pos_Dir_eta->Fill(ME21_Pos_eta_neg, ME21_Dir_eta_neg);
+    ME21_Pos_Dir_phi->Fill(ME21_Pos_phi_neg, ME21_Dir_phi_neg);
+  }
+  if(GE21_NumSegs_neg == 1 && ME21_NumSegs_neg == 1 && ME21_chamber_neg == GE21_chamber_neg) {
     Delta_Pos_ME21_GE21_eta->Fill(fabs(ME21_Pos_eta_neg)-fabs(GE21_Pos_eta_neg));
     Delta_Pos_ME21_GE21_phi->Fill(reco::deltaPhi(ME21_Pos_phi_neg,GE21_Pos_phi_neg));
     double delta = ME21_Dir_eta_neg-GE21_Dir_eta_neg;
@@ -1448,11 +1432,10 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     else if (delta > 0.5) Delta_Dir_ME21_GE21_eta->Fill(0.5);
     else if (delta < -0.5) Delta_Dir_ME21_GE21_eta->Fill(-0.5);
     else {}
-    Delta_Dir_ME21_GE21_eta->Fill(fabs(ME21_Dir_eta_neg)-fabs(GE21_Dir_eta_neg));
     Delta_Dir_ME21_GE21_phi->Fill(reco::deltaPhi(ME21_Dir_phi_neg,GE21_Dir_phi_neg));
     if(GE21_nhits_neg==2) {
-      Delta_Dir_ME21_GE21_eta_4hits->Fill(fabs(ME21_Dir_eta_neg)-fabs(GE21_Dir_eta_neg));
-      Delta_Dir_ME21_GE21_phi_4hits->Fill(reco::deltaPhi(ME21_Dir_phi_neg,GE21_Dir_phi_neg));
+      Delta_Dir_ME21_GE21_eta_2hits->Fill(fabs(ME21_Dir_eta_neg)-fabs(GE21_Dir_eta_neg));
+      Delta_Dir_ME21_GE21_phi_2hits->Fill(reco::deltaPhi(ME21_Dir_phi_neg,GE21_Dir_phi_neg));
     }
     else if(GE21_nhits_neg > 2) {
       Delta_Dir_ME21_GE21_eta_4hits->Fill(fabs(ME21_Dir_eta_neg)-fabs(GE21_Dir_eta_neg));
@@ -1460,7 +1443,8 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
     else{}
     if(printEventOrder) {
-      std::cout<<"COMPARING GE21 and ME21 directions :: GE21.Dir.eta = "<<GE21_Dir_eta_neg<<" ME21.Dir.eta = "<<ME21_Dir_eta_neg<<" ME21-GE21 = "<<fabs(ME21_Dir_eta_neg)-fabs(GE21_Dir_eta_neg)<<std::endl;
+      std::cout<<"COMPARING GE21 and ME21 directions :: GE21.Dir.eta = "<<GE21_Dir_eta_neg<<" ME21.Dir.eta = "<<ME21_Dir_eta_neg<<" ME21-GE21 = "<<ME21_Dir_eta_neg-GE21_Dir_eta_neg<<std::endl;
+      std::cout<<"COMPARING GE21 and ME21 directions :: GE21.Dir.phi = "<<GE21_Dir_phi_neg<<" ME21.Dir.phi = "<<ME21_Dir_phi_neg<<" ME21-GE21 = "<<reco::deltaPhi(ME21_Dir_phi_neg,GE21_Dir_phi_neg)<<std::endl;
     }
   }
   if(printEventOrder) { std::cout<<"\n"<<std::endl; }
@@ -1527,7 +1511,7 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
     GE11_Pos_eta->Fill(segGP.eta()); GE11_Pos_phi->Fill(segGP.phi()); 
     /* GE11_Dir_eta->Fill(segGD.eta()); */ GE11_Dir_phi->Fill(segGD.phi()); 
-    if(GE11_Dir_eta_pos > 2.50) GE11_Dir_eta->Fill(2.50);
+    if(GE11_Dir_eta_pos > 2.50) GE11_Dir_eta->Fill(2.495);
     else GE11_Dir_eta->Fill(GE11_Dir_eta_pos);
     if(gemrhs.size()==2) {    GE11_Dir_eta_2hits->Fill(segGD.eta()); GE11_Dir_phi_2hits->Fill(segGD.phi());  }
 
@@ -1551,6 +1535,9 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
   for(std::vector< std::unique_ptr<CSCSegment> >::const_iterator it = ME11_segs_pos.begin(); it!=ME11_segs_pos.end(); ++it) {
     CSCDetId id = (*it)->cscDetId();
+    // Special ... skip CSC if segment is not in chamber with same number (so same phi)
+    if(id.chamber() != GE11_chamber_pos) continue;
+
     auto chamb = cscGeom->chamber(id); 
     auto segLP = (*it)->localPosition();
     auto segLD = (*it)->localDirection();
@@ -1572,6 +1559,7 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if(deltaR_new < deltaR_old){
       // if(ME11_chamber_pos == GE11_chamber_pos) {
       ME11_Pos_eta_pos = segGP.eta();  ME11_Pos_phi_pos = segGP.phi();
+      ME11_Dir_eta_pos = segGD.eta();  ME11_Dir_phi_pos = segGD.phi();
     }
     ME11_Pos_eta->Fill(segGP.eta()); ME11_Pos_phi->Fill(segGP.phi()); 
     ME11_Dir_eta->Fill(segGD.eta()); ME11_Dir_phi->Fill(segGD.phi()); 
@@ -1603,8 +1591,8 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
     ++GE21_NumSegs_pos; GE21_chamber_pos = id.chamber();
 
-    double deltaR_old = sqrt(pow(SIM_Pos_eta_neg-GE21_Pos_eta_neg,2)+pow(SIM_Pos_phi_neg-GE21_Pos_phi_neg,2));
-    double deltaR_new = sqrt(pow(SIM_Pos_eta_neg-segGP.eta(),2)+pow(SIM_Pos_phi_neg-segGP.phi(),2));
+    double deltaR_old = sqrt(pow(SIM_Pos_eta_pos-GE21_Pos_eta_pos,2)+pow(SIM_Pos_phi_pos-GE21_Pos_phi_pos,2));
+    double deltaR_new = sqrt(pow(SIM_Pos_eta_pos-segGP.eta(),2)+pow(SIM_Pos_phi_pos-segGP.phi(),2));
 
     if(deltaR_new < deltaR_old){
       GE21_Pos_eta_pos = segGP.eta();  GE21_Pos_phi_pos = segGP.phi(); 
@@ -1612,16 +1600,25 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       GE21_nhits_pos = gemrhs.size();
       GE21_BX_pos = (*it)->BunchX();
     }
-    GE21_Pos_eta->Fill(segGP.eta()); GE21_Pos_phi->Fill(segGP.phi()); 
+
+    GE21_Pos_eta->Fill(segGP.eta()); GE21_Pos_phi->Fill(segGP.phi());
+    GE21_Pos_eta_pos = segGP.eta();  GE21_Pos_phi_pos = segGP.phi();
     /* GE21_Dir_eta->Fill(segGD.eta()); */ GE21_Dir_phi->Fill(segGD.phi()); 
-    if(GE21_Dir_eta_pos > 2.50) GE21_Dir_eta->Fill(2.50);
+    if(GE21_Dir_eta_pos > 2.50) GE21_Dir_eta->Fill(2.495);
     else GE21_Dir_eta->Fill(GE21_Dir_eta_pos);
-    if(gemrhs.size()==2)     {    GE21_Dir_eta_2hits->Fill(segGD.eta()); GE21_Dir_phi_2hits->Fill(segGD.phi());  GE21_Pos_eta_pos = segGP.eta();  GE21_Pos_phi_pos = segGP.phi();  }
-    else if(gemrhs.size()>2) {    GE21_Dir_eta_4hits->Fill(segGD.eta()); GE21_Dir_phi_4hits->Fill(segGD.phi());  GE21_Pos_eta_pos = segGP.eta();  GE21_Pos_phi_pos = segGP.phi();  }
+ 
+    if(gemrhs.size()==2)     {    
+      GE21_Pos_eta_2hits->Fill(segGP.eta()); GE21_Pos_phi_2hits->Fill(segGP.phi()); 
+      GE21_Dir_eta_2hits->Fill(segGD.eta()); GE21_Dir_phi_2hits->Fill(segGD.phi());
+    } 
+    else if(gemrhs.size()>2) {
+      GE21_Pos_eta_4hits->Fill(segGP.eta());  GE21_Pos_phi_4hits->Fill(segGP.phi());
+      GE21_Dir_eta_4hits->Fill(segGD.eta()); GE21_Dir_phi_4hits->Fill(segGD.phi());  
+    }
     else {}
 
     GE21_LocPos_x->Fill(segLP.x());
-    GE21_LocPos_y->Fill(segLP.y());
+    GE21_LocPos_y->Fill(segLP.y()); // std::cout<<"GE21 Segment Local Position y = "<<segLP.y()<<std::endl;
     GE21_GloPos_x->Fill(segGP.x());
     GE21_GloPos_y->Fill(segGP.y());
     GE21_GloPos_r->Fill(segGP.transverse());  // transverse = perp = sqrt (x*x+y*y)
@@ -1640,6 +1637,9 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
   for(std::vector< std::unique_ptr<CSCSegment> >::const_iterator it = ME21_segs_pos.begin(); it!=ME21_segs_pos.end(); ++it) {
     CSCDetId id = (*it)->cscDetId();
+    // Special ... skip CSC if segment is not in chamber with same number (so same phi)
+    if(id.chamber() != GE21_chamber_pos) continue;
+
     auto chamb = cscGeom->chamber(id); 
     auto segLP = (*it)->localPosition();
     auto segLD = (*it)->localDirection();
@@ -1682,12 +1682,22 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(fabs(SIM_Pos_eta_pos)<2.46 && fabs(SIM_Pos_eta_pos)>1.63) {NumSegs_GE21_pos->Fill(GE21_NumSegs_pos);}
   if(fabs(SIM_Pos_eta_pos)<2.40 && fabs(SIM_Pos_eta_pos)>1.63) {NumSegs_ME21_pos->Fill(ME21_NumSegs_pos);}
 
-  if(GE11_NumSegs_pos >0) {
+  if(GE11_NumSegs_pos ==1) {
     Delta_Pos_SIM_GE11_eta->Fill(SIM_Pos_eta_pos-GE11_Pos_eta_pos);
     Delta_Pos_SIM_GE11_phi->Fill(reco::deltaPhi(SIM_Pos_phi_pos,GE11_Pos_phi_pos));
     Delta_Pos_SIM_GE11_BX->Fill(GE11_BX_pos);
+    // 2D scatter plot Pos vs Dir
+    if(GE11_Dir_eta_pos < -2.50)      GE11_Pos_Dir_eta->Fill(GE11_Pos_eta_pos, -2.495);
+    else if(GE11_Dir_eta_pos > +2.495) GE11_Pos_Dir_eta->Fill(GE11_Pos_eta_pos, +2.495); 
+    else                              GE11_Pos_Dir_eta->Fill(GE11_Pos_eta_pos, GE11_Dir_eta_pos);
+    GE11_Pos_Dir_phi->Fill(GE11_Pos_phi_pos, GE11_Dir_phi_pos);
   }
-  if(GE11_NumSegs_pos >0 && ME11_chamber_pos == GE11_chamber_pos) {
+  if(ME11_NumSegs_pos ==1) {
+    // 2D scatter plot Pos vs Dir
+    ME11_Pos_Dir_eta->Fill(ME11_Pos_eta_pos, ME11_Dir_eta_pos);
+    ME11_Pos_Dir_phi->Fill(ME11_Pos_phi_pos, ME11_Dir_phi_pos);
+  }
+  if(GE11_NumSegs_pos ==1 && ME11_NumSegs_pos ==1 && ME11_chamber_pos == GE11_chamber_pos) {
     Delta_Pos_ME11_GE11_eta->Fill(ME11_Pos_eta_pos-GE11_Pos_eta_pos);
     Delta_Pos_ME11_GE11_phi->Fill(reco::deltaPhi(ME11_Pos_phi_pos,GE11_Pos_phi_pos));
     double delta = ME11_Dir_eta_pos-GE11_Dir_eta_pos;
@@ -1699,14 +1709,38 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     Delta_Dir_ME11_GE11_phi->Fill(reco::deltaPhi(ME11_Dir_phi_pos,GE11_Dir_phi_pos));
     if(printEventOrder) {
       std::cout<<"COMPARING GE11 and ME11 directions :: GE11.Dir.eta = "<<GE11_Dir_eta_pos<<" ME11.Dir.eta = "<<ME11_Dir_eta_pos<<" ME11-GE11 = "<<ME11_Dir_eta_pos-GE11_Dir_eta_pos<<std::endl;
+      std::cout<<"COMPARING GE11 and ME11 directions :: GE11.Dir.phi = "<<GE11_Dir_phi_pos<<" ME11.Dir.phi = "<<ME11_Dir_phi_pos<<" ME11-GE11 = "<<reco::deltaPhi(ME11_Dir_phi_pos,GE11_Dir_phi_pos)<<std::endl;
     }
   }
-  if(GE21_NumSegs_pos >0) {
+  if(GE21_NumSegs_pos ==1) {
     Delta_Pos_SIM_GE21_eta->Fill(SIM_Pos_eta_pos-GE21_Pos_eta_pos);
     Delta_Pos_SIM_GE21_phi->Fill(reco::deltaPhi(SIM_Pos_phi_pos,GE11_Pos_phi_pos));
     Delta_Pos_SIM_GE21_BX->Fill(GE21_BX_pos);
+    // 2D scatter plot Pos vs Dir
+    if(GE21_Dir_eta_pos < -2.50)      GE21_Pos_Dir_eta->Fill(GE21_Pos_eta_pos, -2.495);
+    else if(GE21_Dir_eta_pos > +2.50) GE21_Pos_Dir_eta->Fill(GE21_Pos_eta_pos, +2.495);
+    else                              GE21_Pos_Dir_eta->Fill(GE21_Pos_eta_pos, GE21_Dir_eta_pos);
+    GE21_Pos_Dir_phi->Fill(GE21_Pos_phi_pos, GE21_Dir_phi_pos);
+    if(GE21_nhits_pos==2) {
+      if(GE21_Dir_eta_pos < -2.50)      GE21_Pos_Dir_eta_2hits->Fill(GE21_Pos_eta_pos, -2.495);
+      else if(GE21_Dir_eta_pos > +2.50) GE21_Pos_Dir_eta_2hits->Fill(GE21_Pos_eta_pos, +2.495);
+      else                              GE21_Pos_Dir_eta_2hits->Fill(GE21_Pos_eta_pos, GE21_Dir_eta_pos);
+      GE21_Pos_Dir_phi_2hits->Fill(GE21_Pos_phi_pos, GE21_Dir_phi_pos);
+    }
+    else if(GE21_nhits_pos > 2) {
+      if(GE21_Dir_eta_pos < -2.50)      GE21_Pos_Dir_eta_4hits->Fill(GE21_Pos_eta_pos, -2.495);
+      else if(GE21_Dir_eta_pos > +2.50) GE21_Pos_Dir_eta_4hits->Fill(GE21_Pos_eta_pos, +2.495);
+      else                              GE21_Pos_Dir_eta_4hits->Fill(GE21_Pos_eta_pos, GE21_Dir_eta_pos);
+      GE21_Pos_Dir_phi_4hits->Fill(GE21_Pos_phi_pos, GE21_Dir_phi_pos);
+    }
+    else {}
   }
-  if(GE21_NumSegs_pos >0 && ME21_chamber_pos == GE21_chamber_pos) {
+  if(ME21_NumSegs_pos ==1) {
+    // 2D scatter plot Pos vs Dir
+    ME21_Pos_Dir_eta->Fill(ME21_Pos_eta_pos, ME21_Dir_eta_pos);
+    ME21_Pos_Dir_phi->Fill(ME21_Pos_phi_pos, ME21_Dir_phi_pos);
+  }
+  if(GE21_NumSegs_pos ==1 && GE21_NumSegs_pos ==1 && ME21_chamber_pos == GE21_chamber_pos) {
     Delta_Pos_ME21_GE21_eta->Fill(ME21_Pos_eta_pos-GE21_Pos_eta_pos);
     Delta_Pos_ME21_GE21_phi->Fill(reco::deltaPhi(ME21_Pos_phi_pos,GE21_Pos_phi_pos));
     double delta = ME21_Dir_eta_pos-GE21_Dir_eta_pos;
@@ -1714,11 +1748,10 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     else if (delta > 0.5) Delta_Dir_ME21_GE21_eta->Fill(0.5);
     else if (delta < -0.5) Delta_Dir_ME21_GE21_eta->Fill(-0.5);
     else {}
-    Delta_Dir_ME21_GE21_eta->Fill(ME21_Dir_eta_pos-GE21_Dir_eta_pos);
     Delta_Dir_ME21_GE21_phi->Fill(reco::deltaPhi(ME21_Dir_phi_pos,GE21_Dir_phi_pos));
     if(GE21_nhits_pos==2) {
-      Delta_Dir_ME21_GE21_eta_4hits->Fill(fabs(ME21_Dir_eta_pos)-fabs(GE21_Dir_eta_pos));
-      Delta_Dir_ME21_GE21_phi_4hits->Fill(reco::deltaPhi(ME21_Dir_phi_pos,GE21_Dir_phi_pos));
+      Delta_Dir_ME21_GE21_eta_2hits->Fill(fabs(ME21_Dir_eta_pos)-fabs(GE21_Dir_eta_pos));
+      Delta_Dir_ME21_GE21_phi_2hits->Fill(reco::deltaPhi(ME21_Dir_phi_pos,GE21_Dir_phi_pos));
     }
     else if(GE21_nhits_pos > 2) {
       Delta_Dir_ME21_GE21_eta_4hits->Fill(fabs(ME21_Dir_eta_pos)-fabs(GE21_Dir_eta_pos));
@@ -1727,6 +1760,7 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     else{}
     if(printEventOrder) {
       std::cout<<"COMPARING GE21 and ME21 directions :: GE21.Dir.eta = "<<GE21_Dir_eta_pos<<" ME21.Dir.eta = "<<ME21_Dir_eta_pos<<" ME21-GE21 = "<<ME21_Dir_eta_pos-GE21_Dir_eta_pos<<std::endl;
+      std::cout<<"COMPARING GE21 and ME21 directions :: GE21.Dir.phi = "<<GE21_Dir_phi_pos<<" ME21.Dir.phi = "<<ME21_Dir_phi_pos<<" ME21-GE21 = "<<reco::deltaPhi(ME21_Dir_phi_pos,GE21_Dir_phi_pos)<<std::endl;
     }
   }
   if(printEventOrder) { std::cout<<"\n"<<std::endl; }
