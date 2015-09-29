@@ -78,35 +78,70 @@ void error(std::ostream & out, const std::string & message) {
 }
 
 
-class HLTConfigDataEx : public HLTConfigData {
+class HLTConfigInterface {
 public:
-  explicit HLTConfigDataEx(HLTConfigData const & data) :
-    HLTConfigData(data),
+  virtual unsigned int size() const = 0;
+  virtual unsigned int size(unsigned int trigger) const = 0;
+  virtual std::string const & triggerName(unsigned int trigger) const = 0;
+  virtual unsigned int triggerIndex(unsigned int trigger) const = 0;
+  virtual std::string const & moduleLabel(unsigned int trigger, unsigned int module) const = 0;
+  virtual std::string const & moduleType(unsigned int trigger, unsigned int module) const = 0;
+  virtual bool prescaler(unsigned int trigger, unsigned int module) const = 0;
+};
+
+
+class HLTConfigDataEx : public HLTConfigInterface {
+public:
+  explicit HLTConfigDataEx(HLTConfigData data) :
+    data_(data),
     moduleTypes_(size()),
     prescalers_(size())
   {
-    for (unsigned int t = 0; t < size(); ++t) {
+    for (unsigned int t = 0; t < data_.size(); ++t) {
       prescalers_[t].resize(size(t));
       moduleTypes_[t].resize(size(t));
-      for (unsigned int m = 0; m < size(t); ++m) {
-        std::string type = data.moduleType(moduleLabel(t, m));
+      for (unsigned int m = 0; m < data_.size(t); ++m) {
+        std::string type = data_.moduleType(moduleLabel(t, m));
         prescalers_[t][m] = (type == "HLTPrescaler");
         moduleTypes_[t][m] = &* moduleTypeSet_.insert(std::move(type)).first;
       }
     }
   }
 
-  std::string const & moduleType(unsigned int trigger, unsigned int module) const {
+  unsigned int size() const override {
+    return data_.size();
+  }
+
+  unsigned int size(unsigned int trigger) const override {
+    return data_.size(trigger);
+  }
+
+  std::vector<std::string> const & triggerNames() const {
+    return data_.triggerNames();
+  }
+
+  std::string const & triggerName(unsigned int trigger) const override {
+    return data_.triggerName(trigger);
+  }
+
+  unsigned int triggerIndex(unsigned int trigger) const override {
+    return trigger;
+  }
+
+  std::string const & moduleLabel(unsigned int trigger, unsigned int module) const override {
+    return data_.moduleLabel(trigger, module);
+  }
+
+  std::string const & moduleType(unsigned int trigger, unsigned int module) const override {
     return * moduleTypes_.at(trigger).at(module);
   }
 
-  using HLTConfigData::moduleType;
-
-  bool prescaler(unsigned int trigger, unsigned int module) const {
+  bool prescaler(unsigned int trigger, unsigned int module) const override {
     return prescalers_.at(trigger).at(module);
   }
 
 private:
+  HLTConfigData                                 data_;
   std::set<std::string>                         moduleTypeSet_;
   std::vector<std::vector<std::string const*>>  moduleTypes_;
   std::vector<std::vector<bool>>                prescalers_;
@@ -116,6 +151,142 @@ private:
 const char * event_state(bool state) {
   return state ? "accepted" : "rejected";
 }
+
+
+class HLTCommonConfig {
+public:
+  enum class Index {
+    First = 0,
+    Second = 1
+  };
+
+  class View : public HLTConfigInterface {
+  public:
+    View(HLTCommonConfig const & config, HLTCommonConfig::Index index) :
+      config_(config),
+      index_(index)
+    { }
+
+    virtual unsigned int size() const override;
+    virtual unsigned int size(unsigned int trigger) const override;
+    virtual std::string const & triggerName(unsigned int trigger) const override;
+    virtual unsigned int triggerIndex(unsigned int trigger) const override;
+    virtual std::string const & moduleLabel(unsigned int trigger, unsigned int module) const override;
+    virtual std::string const & moduleType(unsigned int trigger, unsigned int module) const override;
+    virtual bool prescaler(unsigned int trigger, unsigned int module) const override;
+
+  private:
+    HLTCommonConfig const & config_;
+    Index index_;
+  };
+
+
+  HLTCommonConfig(HLTConfigDataEx const & first, HLTConfigDataEx const & second) :
+    first_(first),
+    second_(second),
+    firstView_(*this, Index::First),
+    secondView_(*this, Index::Second)
+  {
+    for (unsigned int f = 0; f < first.size(); ++f)
+      for (unsigned int s = 0; s < second.size(); ++s)
+        if (first.triggerName(f) == second.triggerName(s)) {
+          triggerIndices_.push_back(std::make_pair(f, s));
+          break;
+        }
+  }
+
+  View const & getView(Index index) const {
+    if (index == Index::First)
+      return firstView_;
+    else
+      return secondView_;
+  }
+
+  unsigned int size(Index index) const {
+    return triggerIndices_.size();
+  }
+
+  unsigned int size(Index index, unsigned int trigger) const {
+    if (index == Index::First)
+      return first_.size(trigger);
+    else
+      return second_.size(trigger);
+  }
+
+  std::string const & triggerName(Index index, unsigned int trigger) const {
+    if (index == Index::First)
+      return first_.triggerName(triggerIndices_.at(trigger).first);
+    else
+      return second_.triggerName(triggerIndices_.at(trigger).second);
+  }
+
+  unsigned int triggerIndex(Index index, unsigned int trigger) const {
+    if (index == Index::First)
+      return triggerIndices_.at(trigger).first;
+    else
+      return triggerIndices_.at(trigger).second;
+  }
+
+  std::string const & moduleLabel(Index index, unsigned int trigger, unsigned int module) const {
+    if (index == Index::First)
+      return first_.moduleLabel(triggerIndices_.at(trigger).first, module);
+    else
+      return second_.moduleLabel(triggerIndices_.at(trigger).second, module);
+  }
+
+  std::string const & moduleType(Index index, unsigned int trigger, unsigned int module) const {
+    if (index == Index::First)
+      return first_.moduleType(triggerIndices_.at(trigger).first, module);
+    else
+      return second_.moduleType(triggerIndices_.at(trigger).second, module);
+  }
+
+  bool prescaler(Index index, unsigned int trigger, unsigned int module) const {
+    if (index == Index::First)
+      return first_.prescaler(triggerIndices_.at(trigger).first, module);
+    else
+      return second_.prescaler(triggerIndices_.at(trigger).second, module);
+  }
+
+private:
+  HLTConfigDataEx const & first_;
+  HLTConfigDataEx const & second_;
+
+  View firstView_;
+  View secondView_;
+
+  std::vector<std::pair<unsigned int, unsigned int>> triggerIndices_;
+};
+
+
+unsigned int HLTCommonConfig::View::size() const {
+  return config_.size(index_);
+}
+
+unsigned int HLTCommonConfig::View::size(unsigned int trigger) const {
+  return config_.size(index_, trigger);
+}
+
+std::string const & HLTCommonConfig::View::triggerName(unsigned int trigger) const {
+  return config_.triggerName(index_, trigger);
+}
+
+unsigned int HLTCommonConfig::View::triggerIndex(unsigned int trigger) const {
+  return config_.triggerIndex(index_, trigger);
+}
+
+std::string const & HLTCommonConfig::View::moduleLabel(unsigned int trigger, unsigned int module) const {
+  return config_.moduleLabel(index_, trigger, module);
+}
+
+std::string const & HLTCommonConfig::View::moduleType(unsigned int trigger, unsigned int module) const {
+  return config_.moduleType(index_, trigger, module);
+}
+
+bool HLTCommonConfig::View::prescaler(unsigned int trigger, unsigned int module) const {
+  return config_.prescaler(index_, trigger, module);
+}
+
 
 enum State {
   Ready     = edm::hlt::Ready,
@@ -136,13 +307,13 @@ const char * path_state(State state) {
 }
 
 inline
-State prescaled_state(int state, int path, int module, HLTConfigDataEx const & config) {
+State prescaled_state(int state, int path, int module, HLTConfigInterface const & config) {
   if (state == Fail and config.prescaler(path, module))
     return Prescaled;
   return (State) state;
 }
 
-std::string detailed_path_state(State state, int path, int module, HLTConfigDataEx const & config) {
+std::string detailed_path_state(State state, int path, int module, HLTConfigInterface const & config) {
   auto const & label = config.moduleLabel(path, module);
   auto const & type  = config.moduleType(path, module);
 
@@ -170,7 +341,7 @@ std::unique_ptr<HLTConfigDataEx> getHLTConfigData(fwlite::EventBase const & even
     auto const & branch  = event.getBranchNameFor( edm::Wrapper<edm::TriggerResults>::typeInfo(), "TriggerResults", "", process.c_str() );
     process = getProcessNameFromBranch( branch );
   }
-  
+
   edm::ProcessConfiguration config;
   if (not history.getConfigurationForProcess(process, config)) {
     std::cerr << "error: the process " << process << " is not in the Process History" << std::endl;
@@ -187,7 +358,7 @@ std::unique_ptr<HLTConfigDataEx> getHLTConfigData(fwlite::EventBase const & even
 
 struct TriggerDiff {
   TriggerDiff() : count(0), gained(0), lost(0), internal(0) { }
-    
+
   unsigned int count;
   unsigned int gained;
   unsigned int lost;
@@ -234,8 +405,11 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
   else
     new_events = std::make_shared<fwlite::ChainEvent>(new_files);
 
-  std::unique_ptr<HLTConfigDataEx> old_config;
-  std::unique_ptr<HLTConfigDataEx> new_config;
+  std::unique_ptr<HLTConfigDataEx> old_config_data;
+  std::unique_ptr<HLTConfigDataEx> new_config_data;
+  std::unique_ptr<HLTCommonConfig> common_config;
+  HLTConfigInterface const * old_config = nullptr;
+  HLTConfigInterface const * new_config = nullptr;
 
   unsigned int counter = 0;
   unsigned int affected = 0;
@@ -263,11 +437,19 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       old_events->fillParameterSetRegistry();
       new_events->fillParameterSetRegistry();
 
-      old_config = getHLTConfigData(* old_events->event(), old_process);
-      new_config = getHLTConfigData(* new_events->event(), new_process);
-      if (new_config->triggerNames() != old_config->triggerNames()) {
-        std::cerr << "Error: inconsistent HLT menus" << std::endl;
-        exit(1);
+      old_config_data = getHLTConfigData(* old_events->event(), old_process);
+      new_config_data = getHLTConfigData(* new_events->event(), new_process);
+      if (new_config_data->triggerNames() == old_config_data->triggerNames()) {
+        old_config = old_config_data.get();
+        new_config = new_config_data.get();
+      } else {
+        common_config = std::unique_ptr<HLTCommonConfig>(new HLTCommonConfig(*old_config_data, *new_config_data));
+        old_config = & common_config->getView(HLTCommonConfig::Index::First);
+        new_config = & common_config->getView(HLTCommonConfig::Index::Second);
+        std::cerr << "Warning: old and new TriggerResults come from different HLT menus. Only the common triggers will be compared:" << std::endl;
+        for (unsigned int i = 0; i < old_config->size(); ++i)
+          std::cerr << "    " << old_config->triggerName(i) << std::endl;
+        std::cerr << std::endl;
       }
 
       differences.clear();
@@ -277,8 +459,11 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     bool needs_header = true;
     bool affected_event = false;
     for (unsigned int p = 0; p < old_config->size(); ++p) {
-      State old_state = prescaled_state(old_results.state(p), p, old_results.index(p), * old_config);
-      State new_state = prescaled_state(new_results.state(p), p, new_results.index(p), * new_config);
+      // FIXME explicitly converting the indices is a hack, it should be properly encapsulated instead
+      unsigned int old_index = old_config->triggerIndex(p);
+      unsigned int new_index = new_config->triggerIndex(p);
+      State old_state = prescaled_state(old_results.state(old_index), p, old_results.index(old_index), * old_config);
+      State new_state = prescaled_state(new_results.state(new_index), p, new_results.index(new_index), * new_config);
 
       if (old_state == Pass)
         ++differences[p].count;
@@ -291,7 +476,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
         } else if (old_state != Pass and new_state == Pass) {
           ++differences[p].gained;
           flag = true;
-        } else if (old_results.index(p) != new_results.index(p)) {
+        } else if (old_results.index(old_index) != new_results.index(new_index)) {
           ++differences[p].internal;
           flag = true;
         }
@@ -309,8 +494,8 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
                     << std::endl;
         }
         std::cout << "    Path " << old_config->triggerName(p) << ":\n"
-                  << "        old state is " << detailed_path_state(old_state, p, old_results.index(p), * old_config) << ",\n"
-                  << "        new state is " << detailed_path_state(new_state, p, new_results.index(p), * new_config)
+                  << "        old state is " << detailed_path_state(old_state, p, old_results.index(old_index), * old_config) << ",\n"
+                  << "        new state is " << detailed_path_state(new_state, p, new_results.index(new_index), * new_config)
                   << std::endl;
       }
     }
