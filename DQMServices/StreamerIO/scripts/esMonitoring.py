@@ -19,15 +19,12 @@ def dt2time(dt):
 class JsonEncoder(json.JSONEncoder):
         def default(self, obj):
             if hasattr(obj, 'to_json'):
-                x = obj.to_json()
-                return json.JSONEncoder.encode(self, x)
+                return obj.to_json()
 
             return json.JSONEncoder.default(self, obj)
 
 class ElasticReport(object):
     def __init__(self, args):
-        self.s_path = "/tmp/dqm_monitoring/"
-
         self.last_make_report = None
         self.make_report_timer = 30
         self.seq = 0
@@ -125,7 +122,11 @@ class ElasticReport(object):
         self.doc["report_timestamp"] = time.time()
         self.make_id()
 
-        if not os.path.isdir(self.s_path):
+        m_path = self.args.path
+
+        if not os.path.isdir(m_path):
+            if self.args.debug:
+                log("File not written, because report directory does not exist: %s." % m_path)
             # don't make a report if the directory is not available
             return
 
@@ -134,8 +135,8 @@ class ElasticReport(object):
 
         fn_id = self.doc["_id"] + ".jsn"
 
-        fn = os.path.join(self.s_path, fn_id) 
-        fn_tmp = os.path.join(self.s_path, fn_id + ".tmp") 
+        fn = os.path.join(m_path, fn_id) 
+        fn_tmp = os.path.join(m_path, fn_id + ".tmp") 
 
         with open(fn_tmp, "w") as f:
             json.dump(self.doc, f, indent=True, cls=JsonEncoder)
@@ -291,18 +292,22 @@ class FDJsonHandler(AsyncLineReaderMixin, asyncore.dispatcher):
         return False
 
 class FDJsonServer(asyncore.file_dispatcher):
-    def __init__(self, es):
+    def __init__(self, es, args):
         asyncore.dispatcher.__init__(self)
 
         self.fn = None
         self.es = es
+        self.args = args
 
         prefix = "/tmp"
-        if os.path.isdir("/tmp/dqm_monitoring"):
-            prefix = "/tmp/dqm_monitoring"
+        if os.path.isdir(self.args.path):
+            prefix = self.args.path
 
         base = ".es_monitoring_pid%08d" % os.getpid()
         self.fn = os.path.join(prefix, base)
+
+        if self.args.debug:
+            log("Socket path: %s" % self.fn)
 
         if os.path.exists(self.fn):
             os.unlink(self.fn)
@@ -382,7 +387,7 @@ CURRENT_PROC = []
 def launch_monitoring(args):
     es = ElasticReport(args=args)
 
-    json_handler = FDJsonServer(es=es)
+    json_handler = FDJsonServer(es=es, args=args)
     env = os.environ.copy()
     env["DQM2_SOCKET"] = json_handler.fn 
 
@@ -416,6 +421,8 @@ def launch_monitoring(args):
             log("Failed to setup zlog file: " + str(e))
 
     es.update_doc({ "pid": p.pid })
+    es.update_doc({ "monitoring_pid": os.getpid() })
+    es.update_doc({ "monitoring_socket": json_handler.fn })
     es.defaults()
     es.make_report()
 
@@ -450,6 +457,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Monitor a child process and produce es documents.")
     parser.add_argument('--debug', '-d', action='store_true', help="Debug mode")
     parser.add_argument('--zlog', '-z', type=str, default=None, help="Don't output anything, zip the log file (uses ztee.py).")
+    parser.add_argument('--path', '-p', type=str, default="/tmp/dqm_monitoring/", help="Path for the monitoring output.")
     parser.add_argument('pargs', nargs=argparse.REMAINDER)
     args = parser.parse_args()
 
