@@ -3,7 +3,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
-#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -31,18 +30,15 @@ namespace {
     ~ClusterShapeLazyGetter() {}
 
     void fill(const SiPixelClusterShapeCache::ClusterRef& cluster, const PixelGeomDetUnit *pixDet, const SiPixelClusterShapeCache& constCache) const override {
-      taskQueue_.pushAndWait([this, &cluster, pixDet, &constCache]{
-          if(constCache.isFilled(cluster))
-            return;
-          SiPixelClusterShapeCache& cache = const_cast<SiPixelClusterShapeCache&>(constCache);
-          this->data_.size.clear();
-          this->clusterShape_.determineShape(*pixDet, *cluster, this->data_);
-          cache.insert(cluster, this->data_);
-        });
+      if(constCache.isFilled(cluster))
+        return;
+      SiPixelClusterShapeCache& cache = const_cast<SiPixelClusterShapeCache&>(constCache);
+      this->data_.size.clear();
+      this->clusterShape_.determineShape(*pixDet, *cluster, this->data_);
+      cache.insert(cluster, this->data_);
     }
 
   private:
-    mutable edm::SerialTaskQueue taskQueue_; // not sure if this is the best synchronization mechanism
     mutable ClusterData data_; // reused
     mutable ClusterShape clusterShape_;
   };
