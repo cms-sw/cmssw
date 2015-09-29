@@ -166,7 +166,8 @@ process.load("RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi")
 ### Trying out removing calomuons and EcalDetIds
 ########################################
 process.load("RecoMuon.Configuration.RecoMuon_cff")
-#Remove calomuons and EcalDetIds from muonIdProducerSequence
+#Remove calomuons and EcalDetIds from muonIdProducerSequence:
+#  muonIdProducerSequence = cms.Sequence(glbTrackQual*muons1stStep*calomuons*muonEcalDetIds*muonShowerInformation)
 process.muonIdProducerSequence = cms.Sequence(process.glbTrackQual*process.muons1stStep*process.muonShowerInformation)
 
 
