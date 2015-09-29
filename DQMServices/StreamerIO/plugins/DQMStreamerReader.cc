@@ -324,13 +324,15 @@ bool DQMStreamerReader::matchTriggerSel(Strings const& tnames) {
     std::string hltPath(*i);
     boost::erase_all(hltPath, " \t");
     std::vector<Strings::const_iterator> matches = edm::regexMatch(tnames, hltPath);
-    if (matches.empty()){
-      edm::LogWarning("Trigger selection does not match any trigger path!!!") << std::endl; 
-      matchTriggerSel_ = false;
-    }else{
+    if (!matches.empty()) {
       matchTriggerSel_ = true;
     }
   }
+
+  if (!matchTriggerSel_) {
+    edm::LogWarning("Trigger selection does not match any trigger path!!!") << std::endl;
+  }
+
   return matchTriggerSel_;
 }
 
