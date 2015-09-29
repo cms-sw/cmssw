@@ -2,24 +2,18 @@
 #define Vx3DHLTAnalyzer_H
 
 // -*- C++ -*-
-//
-// Package:    Vx3DHLTAnalyzer
-// Class:      Vx3DHLTAnalyzer
-// 
-/**\class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc interface/Vx3DHLTAnalyzer.h
+// Package: Vx3DHLTAnalyzer
+// Class:   Vx3DHLTAnalyzer
 
- Description:     beam-spot monitor entirely based on pixel detector information
- Implementation:  the monitoring is based on a 3D fit to the vertex cloud
+/* 
+   Class Vx3DHLTAnalyzer Vx3DHLTAnalyzer.cc plugins/Vx3DHLTAnalyzer.cc
+
+   Description:    beam-spot monitor entirely based on pixel detector information
+   Implementation: the monitoring is based on a 3D fit to the vertex cloud
 */
-//
-// Original Author:  Mauro Dinardo, 28 S-012, +41-22-767-8302,
-//         Created:  Tue Feb 23 13:15:31 CET 2010
 
-// -*- C++ -*-
-//
-// Package:    Vx3DHLTAnalyzer
-// Class:      Vx3DHLTAnalyzer
-// 
+// Original Author: Mauro Dinardo, 28 S-012, +41-22-767-8302
+//         Created: Tue Feb 23 13:15:31 CET 2010
 
 
 #include <memory>
@@ -30,6 +24,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -40,11 +35,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
-
-using namespace std;
-using namespace reco;
-using namespace edm;
 
 
 // #################
@@ -59,7 +49,7 @@ typedef struct
   double z;
   double Covariance[DIM][DIM];
 } VertexType;
-vector<VertexType> Vertices;
+std::vector<VertexType> Vertices;
 bool considerVxCovariance;
 unsigned int counterVx; // Counts the number of vertices taken into account for the fit
 double maxTransRadius;  // Max transverse radius in which the vertices must be [cm]
@@ -72,104 +62,105 @@ double pi;
 double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 
 
-class Vx3DHLTAnalyzer : public EDAnalyzer {
-   public:
-      explicit Vx3DHLTAnalyzer (const ParameterSet&);
-      ~Vx3DHLTAnalyzer();
+class Vx3DHLTAnalyzer : public DQMEDAnalyzer
+{
 
 
-   private:
-      virtual void beginJob ();
-      virtual void analyze (const Event&, const EventSetup&);
-      virtual unsigned int HitCounter (const Event& iEvent);
-      virtual string formatTime (const time_t& t);
-      virtual int MyFit (vector<double>* vals);
-      virtual void reset (string ResetType);
-      virtual void writeToFile (vector<double>* vals,
-				TimeValue_t BeginTimeOfFit,
-				TimeValue_t EndTimeOfFit,
-				unsigned int BeginLumiOfFit,
-				unsigned int EndLumiOfFit,
-				int dataType);
-      virtual void beginLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup);
-      virtual void endLuminosityBlock (const LuminosityBlock& lumiBlock, const EventSetup& iSetup);
-      virtual void endJob ();
-      virtual void beginRun (const Run& iRun, const EventSetup& iSetup);
+ public:
+  Vx3DHLTAnalyzer  (const edm::ParameterSet&);
+  ~Vx3DHLTAnalyzer ();
 
 
-      // #######################
-      // # cfg file parameters #
-      // #######################
-      EDGetTokenT<VertexCollection> vertexCollection;
-      EDGetTokenT<SiPixelRecHitCollection> pixelHitCollection;
-      bool debugMode;
-      unsigned int nLumiReset;
-      bool dataFromFit;
-      unsigned int minNentries;
-      double xRange;
-      double xStep;
-      double yRange;
-      double yStep;
-      double zRange;
-      double zStep;
-      string fileName;
+ private:
+  void analyze              (const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  void beginLuminosityBlock (const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup);
+  void endLuminosityBlock   (const edm::LuminosityBlock& lumiBlock, const edm::EventSetup& iSetup);
+  void bookHistograms       (DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
+  unsigned int HitCounter (const edm::Event& iEvent);
+  std::string formatTime (const time_t& t);
+  int MyFit (std::vector<double>* vals);
+  void reset (std::string ResetType);
+  void writeToFile (std::vector<double>* vals,
+		    edm::TimeValue_t BeginTimeOfFit,
+		    edm::TimeValue_t EndTimeOfFit,
+		    unsigned int BeginLumiOfFit,
+		    unsigned int EndLumiOfFit,
+		    int dataType);
+  void printFitParams (const std::vector<double>& fitResults);
 
 
-      // ##############
-      // # Histograms #
-      // ##############
-      MonitorElement* mXlumi;
-      MonitorElement* mYlumi;
-      MonitorElement* mZlumi;
-      
-      MonitorElement* sXlumi;
-      MonitorElement* sYlumi;
-      MonitorElement* sZlumi;
-      
-      MonitorElement* dxdzlumi;
-      MonitorElement* dydzlumi;
-
-      MonitorElement* Vx_X;
-      MonitorElement* Vx_Y;
-      MonitorElement* Vx_Z;
-      
-      MonitorElement* Vx_ZX;
-      MonitorElement* Vx_ZY;
-      MonitorElement* Vx_XY;
-      
-      MonitorElement* goodVxCounter;
-      MonitorElement* goodVxCountHistory;
-
-      MonitorElement* hitCounter;
-      MonitorElement* hitCountHistory;
-
-      MonitorElement* reportSummary;
-      MonitorElement* reportSummaryMap;
-      
-      MonitorElement* fitResults;
-
-      // ######################
-      // # Internal variables #
-      // ######################
-      ofstream outputFile;
-      ofstream outputDebugFile;
-      TimeValue_t beginTimeOfFit;
-      TimeValue_t endTimeOfFit;
-      unsigned int nBinsHistoricalPlot;
-      unsigned int nBinsWholeHistory;
-      unsigned int runNumber;
-      unsigned int lumiCounter;
-      unsigned int lumiCounterHisto;
-      unsigned int totalHits;
-      unsigned int maxLumiIntegration;
-      unsigned int prescaleHistory;
-      unsigned int numberGoodFits;
-      unsigned int numberFits;
-      unsigned int beginLumiOfFit;
-      unsigned int endLumiOfFit;
-      unsigned int lastLumiOfFit;
-      double minVxDoF;
-      bool internalDebug;
+  // #######################
+  // # cfg file parameters #
+  // #######################
+  edm::EDGetTokenT<reco::VertexCollection> vertexCollection;
+  edm::EDGetTokenT<SiPixelRecHitCollection> pixelHitCollection;
+  bool debugMode;
+  bool dataFromFit;
+  unsigned int nLumiFit;
+  unsigned int maxLumiIntegration;
+  unsigned int nLumiXaxisRange;
+  unsigned int minNentries;
+  double xRange;
+  double xStep;
+  double yRange;
+  double yStep;
+  double zRange;
+  double zStep;
+  double minVxDoF;
+  double minVxWgt;
+  std::string fileName;
+  
+  
+  // ##############
+  // # Histograms #
+  // ##############
+  MonitorElement* mXlumi;
+  MonitorElement* mYlumi;
+  MonitorElement* mZlumi;
+  
+  MonitorElement* sXlumi;
+  MonitorElement* sYlumi;
+  MonitorElement* sZlumi;
+  
+  MonitorElement* dxdzlumi;
+  MonitorElement* dydzlumi;
+  
+  MonitorElement* Vx_X;
+  MonitorElement* Vx_Y;
+  MonitorElement* Vx_Z;
+  
+  MonitorElement* Vx_ZX;
+  MonitorElement* Vx_ZY;
+  MonitorElement* Vx_XY;
+  
+  MonitorElement* goodVxCounter;
+  MonitorElement* hitCounter;
+  MonitorElement* statusCounter;
+  
+  MonitorElement* reportSummary;
+  MonitorElement* reportSummaryMap;
+  
+  MonitorElement* fitResults;
+  
+  
+  // ######################
+  // # Internal variables #
+  // ######################
+  std::ofstream outputFile;
+  std::ofstream outputDebugFile;
+  edm::TimeValue_t beginTimeOfFit;
+  edm::TimeValue_t endTimeOfFit;
+  unsigned int runNumber;
+  unsigned int lumiCounter;
+  unsigned int totalHits;
+  unsigned int numberGoodFits;
+  unsigned int numberFits;
+  unsigned int beginLumiOfFit;
+  unsigned int endLumiOfFit;
+  unsigned int lastLumiOfFit;
+  unsigned int nParams;
+  bool internalDebug;
 };
 
 #endif
