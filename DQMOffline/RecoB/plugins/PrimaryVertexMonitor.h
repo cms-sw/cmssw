@@ -53,6 +53,7 @@ class PrimaryVertexMonitor : public DQMEDAnalyzer {
   MonitorElement *tt[2];
   MonitorElement *xrec[2] , *yrec[2], *zrec[2], *xDiff[2] , *yDiff[2], *xerr[2] , *yerr[2], *zerr[2] ;
   MonitorElement *xerrVsTrks[2] , *yerrVsTrks[2], *zerrVsTrks[2] ;
+  MonitorElement * ntracksVsZ[2];
   MonitorElement *vtxchi2[2] , *vtxndf[2], *vtxprob[2] , *nans[2];
   MonitorElement *type[2];
   MonitorElement *bsX, *bsY, *bsZ, *bsSigmaZ, *bsDxdz, *bsDydz, *bsBeamWidthX, *bsBeamWidthY, *bsType;
