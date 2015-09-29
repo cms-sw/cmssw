@@ -26,6 +26,7 @@ print psetForOutRec
 
 process = cms.Process("TEST")
 process.load("CondCore.CondDB.CondDB_cfi")
+process.CondDB.DBParameters.messageLevel = cms.untracked.int32( 3 )
 process.CondDB.connect = 'sqlite:%s' %popcon2dropbox.dbFileForDropBox
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

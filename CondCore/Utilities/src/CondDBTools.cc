@@ -274,6 +274,7 @@ namespace cond {
       if( (*p.begin()).since > begin ) begin = (*p.begin()).since;
       if( end < begin ) {
 	if( log ) std::cout <<"    No Iov in the selected range."<<std::endl; 
+	return 0;
       }
       persistency::IOVEditor editor;
       persistency::TransactionScope dsc( destSession.transaction() );
