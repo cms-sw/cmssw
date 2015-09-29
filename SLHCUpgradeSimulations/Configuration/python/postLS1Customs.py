@@ -167,8 +167,8 @@ def customise_New_HCAL(process):
             process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.67)
 
     if hasattr(process,'mixData'):
-        if hasattr(process.mixData.digitizers,'hcal'):
-            process.mixData.digitizers.hcal.minFCToDelay=5.
+#        if hasattr(process.mixData.digitizers,'hcal'):
+#            process.mixData.digitizers.hcal.minFCToDelay=5.
         if hasattr(process.mixData,'hf1'):
             process.mixData.hf1.samplingFactor = cms.double(0.67)
         if hasattr(process.mixData,'hf2'):
