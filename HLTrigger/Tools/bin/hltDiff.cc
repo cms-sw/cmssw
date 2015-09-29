@@ -21,6 +21,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/FWLite/interface/Handle.h"
 #include "DataFormats/FWLite/interface/Event.h"
 #include "DataFormats/FWLite/interface/ChainEvent.h"
@@ -57,7 +59,8 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
       do not ignore differences caused by HLTPrescaler modules.\n\
 \n\
   -v|--verbose\n\
-      be verbose: print event-by-event comparison results.\n\
+      be verbose: print event-by-event comparison results;\n\
+      use this option twice to print the trigger candidates of the affected filters.\n\
 \n\
   -h|--help\n\
       print this help message, and exit." << std::endl;
@@ -80,6 +83,7 @@ void error(std::ostream & out, const std::string & message) {
 
 class HLTConfigInterface {
 public:
+  virtual std::string const & processName() const = 0;
   virtual unsigned int size() const = 0;
   virtual unsigned int size(unsigned int trigger) const = 0;
   virtual std::string const & triggerName(unsigned int trigger) const = 0;
@@ -108,35 +112,39 @@ public:
     }
   }
 
-  unsigned int size() const override {
+  virtual std::string const & processName() const override {
+    return data_.processName();
+  }
+
+  virtual unsigned int size() const override {
     return data_.size();
   }
 
-  unsigned int size(unsigned int trigger) const override {
+  virtual unsigned int size(unsigned int trigger) const override {
     return data_.size(trigger);
   }
 
-  std::vector<std::string> const & triggerNames() const {
+  virtual std::vector<std::string> const & triggerNames() const {
     return data_.triggerNames();
   }
 
-  std::string const & triggerName(unsigned int trigger) const override {
+  virtual std::string const & triggerName(unsigned int trigger) const override {
     return data_.triggerName(trigger);
   }
 
-  unsigned int triggerIndex(unsigned int trigger) const override {
+  virtual unsigned int triggerIndex(unsigned int trigger) const override {
     return trigger;
   }
 
-  std::string const & moduleLabel(unsigned int trigger, unsigned int module) const override {
+  virtual std::string const & moduleLabel(unsigned int trigger, unsigned int module) const override {
     return data_.moduleLabel(trigger, module);
   }
 
-  std::string const & moduleType(unsigned int trigger, unsigned int module) const override {
+  virtual std::string const & moduleType(unsigned int trigger, unsigned int module) const override {
     return * moduleTypes_.at(trigger).at(module);
   }
 
-  bool prescaler(unsigned int trigger, unsigned int module) const override {
+  virtual bool prescaler(unsigned int trigger, unsigned int module) const override {
     return prescalers_.at(trigger).at(module);
   }
 
@@ -167,6 +175,7 @@ public:
       index_(index)
     { }
 
+    virtual std::string const & processName() const override;
     virtual unsigned int size() const override;
     virtual unsigned int size(unsigned int trigger) const override;
     virtual std::string const & triggerName(unsigned int trigger) const override;
@@ -200,6 +209,13 @@ public:
       return firstView_;
     else
       return secondView_;
+  }
+
+  std::string const & processName(Index index) const {
+    if (index == Index::First)
+      return first_.processName();
+    else
+      return second_.processName();
   }
 
   unsigned int size(Index index) const {
@@ -259,6 +275,10 @@ private:
 };
 
 
+std::string const & HLTCommonConfig::View::processName() const {
+  return config_.processName(index_);
+}
+
 unsigned int HLTCommonConfig::View::size() const {
   return config_.size(index_);
 }
@@ -313,18 +333,45 @@ State prescaled_state(int state, int path, int module, HLTConfigInterface const 
   return (State) state;
 }
 
-std::string detailed_path_state(State state, int path, int module, HLTConfigInterface const & config) {
+void print_detailed_path_state(std::ostream & out, State state, int path, int module, HLTConfigInterface const & config) {
   auto const & label = config.moduleLabel(path, module);
   auto const & type  = config.moduleType(path, module);
 
-  std::stringstream out;
   out << "'" << path_state(state) << "'";
   if (state == Fail)
     out << " by module " << module << " '" << label << "' [" << type << "]";
   else if (state == Exception)
     out << " at module " << module << " '" << label << "' [" << type << "]";
+}
 
-  return out.str();
+void print_trigger_candidates(std::ostream & out, trigger::TriggerEvent const & summary, edm::InputTag const & filter) {
+  // find the index of the collection of trigger candidates corresponding to the filter
+  unsigned int index = summary.filterIndex(filter);
+  
+  if (index >= summary.sizeFilters()) {
+    // the collection of trigger candidates corresponding to the filter could not be found
+    out << "            not found\n";
+    return;
+  }
+
+  if (summary.filterKeys(index).empty()) {
+    // the collection of trigger candidates corresponding to the filter is empty
+    out << "            none\n";
+    return;
+  }
+
+  for (unsigned int i = 0; i < summary.filterKeys(index).size(); ++i) {
+    auto key = summary.filterKeys(index)[i];
+    auto id  = summary.filterIds(index)[i];
+    trigger::TriggerObject const & candidate = summary.getObjects().at(key);
+    out << "            " 
+        << "filter id: " << id               << ", "
+        << "object id: " << candidate.id()   << ", "
+        << "pT: "        << candidate.pt()   << ", "
+        << "eta: "       << candidate.eta()  << ", "
+        << "phi: "       << candidate.phi()  << ", "
+        << "mass: "      << candidate.mass() << "\n";
+  }
 }
 
 
@@ -395,7 +442,7 @@ std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
 
 void compare(std::vector<std::string> const & old_files, std::string const & old_process,
              std::vector<std::string> const & new_files, std::string const & new_process,
-             unsigned int max_events, bool ignore_prescales, bool verbose) {
+             unsigned int max_events, bool ignore_prescales, int verbose) {
 
   std::shared_ptr<fwlite::ChainEvent> old_events = std::make_shared<fwlite::ChainEvent>(old_files);
   std::shared_ptr<fwlite::ChainEvent> new_events;
@@ -424,13 +471,21 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       continue;
     }
 
-    fwlite::Handle<edm::TriggerResults> old_handle;
-    old_handle.getByLabel<fwlite::Event>(* old_events->event(), "TriggerResults", "", old_process.c_str());
-    auto const & old_results = * old_handle;
+    fwlite::Handle<edm::TriggerResults> old_results_h;
+    old_results_h.getByLabel<fwlite::Event>(* old_events->event(), "TriggerResults", "", old_process.c_str());
+    auto const & old_results = * old_results_h;
+
+    fwlite::Handle<trigger::TriggerEvent> old_summary_h;
+    old_summary_h.getByLabel<fwlite::Event>(* old_events->event(), "hltTriggerSummaryAOD", "", old_process.c_str());
+    auto const & old_summary = * old_summary_h;
 
     fwlite::Handle<edm::TriggerResults> new_handle;
     new_handle.getByLabel<fwlite::Event>(* new_events->event(), "TriggerResults", "", new_process.c_str());
     auto const & new_results = * new_handle;
+
+    fwlite::Handle<trigger::TriggerEvent> new_summary_h;
+    new_summary_h.getByLabel<fwlite::Event>(* new_events->event(), "hltTriggerSummaryAOD", "", new_process.c_str());
+    auto const & new_summary = * new_summary_h;
 
     if (new_run) {
       new_run = false;
@@ -482,27 +537,42 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
         }
       }
 
-      if (flag)
+      if (flag) {
         affected_event = true;
 
-      if (verbose and flag) {
-        if (needs_header) {
-          needs_header = false;
-          std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": "
-                    << "old result is '" << event_state(old_results.accept()) << "', "
-                    << "new result is '" << event_state(new_results.accept()) << "'"
-                    << std::endl;
+        if (verbose > 0) {
+          if (needs_header) {
+            needs_header = false;
+            std::cout << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": "
+                      << "old result is '" << event_state(old_results.accept()) << "', "
+                      << "new result is '" << event_state(new_results.accept()) << "'"
+                      << std::endl;
+          }
+          // print the Trigger path and filter responsible for the discrepancy
+          std::cout << "    Path " << old_config->triggerName(p) << ":\n"
+                    << "        old state is ";
+          print_detailed_path_state(std::cout, old_state, p, old_results.index(old_index), * old_config);
+          std::cout << ",\n"
+                    << "        new state is ";
+          print_detailed_path_state(std::cout, new_state, p, new_results.index(new_index), * new_config);
+          std::cout << std::endl;
         }
-        std::cout << "    Path " << old_config->triggerName(p) << ":\n"
-                  << "        old state is " << detailed_path_state(old_state, p, old_results.index(old_index), * old_config) << ",\n"
-                  << "        new state is " << detailed_path_state(new_state, p, new_results.index(new_index), * new_config)
-                  << std::endl;
+        if (verbose > 1) {
+          // print TriggerObjects for the filter responsible for the discrepancy
+          unsigned int module = std::min(old_results.index(old_index), new_results.index(new_index));
+          std::cout << "    Filter " << old_config->moduleLabel(p, module) << ":\n";
+          std::cout << "        old trigger candidates:\n";
+          print_trigger_candidates(std::cout, old_summary, edm::InputTag(old_config->moduleLabel(p, module), "", old_config->processName()));
+          std::cout << "        new trigger candidates:\n";
+          print_trigger_candidates(std::cout, new_summary, edm::InputTag(new_config->moduleLabel(p, module), "", new_config->processName()));
+          std::cout << std::endl;
+        }
       }
     }
     if (affected_event)
       ++affected;
 
-    if (verbose and not needs_header)
+    if (verbose > 0 and not needs_header)
       std::cout << std::endl;
 
     ++counter;
@@ -538,7 +608,7 @@ int main(int argc, char ** argv) {
   std::string               new_process("");
   unsigned int              max_events = 0;
   bool                      ignore_prescales = true;
-  bool                      verbose = false;
+  unsigned int              verbose = 0;
 
   // parse the command line options
   int c = -1;
@@ -581,7 +651,7 @@ int main(int argc, char ** argv) {
         break;
 
       case 'v':
-        verbose = true;
+        ++verbose;
         break;
 
       case 'h':
