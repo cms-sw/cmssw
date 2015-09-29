@@ -85,7 +85,7 @@ mixedTripletStepSeedsA.SeedComparitorPSet = cms.PSet(
 
 # SEEDING LAYERS
 mixedTripletStepSeedLayersB = cms.EDProducer("SeedingLayersEDProducer",
-    layerList = cms.vstring('BPix2+BPix3+TIB1'),
+    layerList = cms.vstring('BPix2+BPix3+TIB1', 'BPix1+BPix3+TIB1'),
     BPix = cms.PSet(
         TTRHBuilder = cms.string('WithTrackAngle'),
         HitProducer = cms.string('siPixelRecHits'),
