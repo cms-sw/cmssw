@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include <iostream>
 
 namespace edm {
   class EventSetup;
@@ -29,6 +30,8 @@ public:
 private:
   
   edm::EDGetTokenT<int> bunchSpacing_;
+  unsigned int bunchSpacingOverride_;
+  bool overRide_;
 };
 
 //
@@ -42,6 +45,15 @@ BunchSpacingProducer::BunchSpacingProducer(const edm::ParameterSet& iConfig)
   // register your products
   produces<unsigned int>();
   bunchSpacing_ = consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
+  overRide_=false;
+  if ( iConfig.exists("overrideBunchSpacing") ) {
+    std::cout << "ok parameter eixsts\n";
+    overRide_= iConfig.getParameter<bool>("overrideBunchSpacing");
+    if ( overRide_) {
+      std::cout << "and its true\n";
+      bunchSpacingOverride_=iConfig.getParameter<unsigned int>("bunchSpacingOverride");
+    }
+  }
 }
 
 BunchSpacingProducer::~BunchSpacingProducer(){ 
@@ -52,6 +64,14 @@ BunchSpacingProducer::~BunchSpacingProducer(){
 //
 void BunchSpacingProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 { 
+  if ( overRide_ ) {
+    std::auto_ptr<unsigned int> pOut1(new unsigned int);
+    *pOut1=bunchSpacingOverride_;
+    e.put(pOut1);
+    std::cout << "Derived from override " << bunchSpacingOverride_ << std::endl;
+    return;
+  }
+
   unsigned int bunchSpacing=50;
   unsigned int run=e.run();
 
@@ -74,16 +94,19 @@ void BunchSpacingProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     bunchSpacing = *bunchSpacingH;
   }
 
+  std::cout << "Derived from run number " << bunchSpacing << std::endl;
   std::auto_ptr<unsigned int> pOut1(new unsigned int);
   *pOut1=bunchSpacing;
   e.put(pOut1);
-
+  return;
 }
 
 void BunchSpacingProducer::fillDescriptions( edm::ConfigurationDescriptions & descriptions )
 {
   edm::ParameterSetDescription desc ;
-
+  desc.add<bool>("overrideBunchSpacing",false); // true for prompt reco
+  desc.add<unsigned int>("bunchSpacingOverride_",25); // override value
+  
   descriptions.add("bunchSpacingProducer",desc) ;
 }
 
