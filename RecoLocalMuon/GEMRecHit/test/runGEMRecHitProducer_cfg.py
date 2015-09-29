@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("GEMLocalRECO")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+
 #process.Timing = cms.Service("Timing")
 process.options = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
 
@@ -63,23 +64,16 @@ process.localreco = cms.Sequence(muonlocalreco)
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_design', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+# process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Fix DT and CSC Alignment #
 ############################
-#from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
-#process = fixDTAlignmentConditions(process)
-#from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
-#process = fixCSCAlignmentConditions(process)
-
-# Explicit configuration of CSC for postls1 = run2 #
-####################################################
-process.load("CalibMuon.CSCCalibration.CSCChannelMapper_cfi")
-process.load("CalibMuon.CSCCalibration.CSCIndexer_cfi")
-process.CSCIndexerESProducer.AlgoName = cms.string("CSCIndexerPostls1")
-process.CSCChannelMapperESProducer.AlgoName = cms.string("CSCChannelMapperPostls1")
-process.CSCGeometryESModule.useGangedStripsInME1a = False
-
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixDTAlignmentConditions
+process = fixDTAlignmentConditions(process)
+from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
+process = fixCSCAlignmentConditions(process)
 
 # Skip Digi2Raw and Raw2Digi steps for Al Muon detectors #
 ##########################################################

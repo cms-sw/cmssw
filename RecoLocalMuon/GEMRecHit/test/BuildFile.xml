@@ -17,7 +17,6 @@
 <use   name="DataFormats/TrackCandidate"/>
 <use   name="DataFormats/TrajectorySeed"/>
 
-<use   name="DQMServices/Core"/>
 <use   name="EventFilter/RPCRawToDigi"/>
 
 <use   name="Geometry/CommonDetUnit"/>
@@ -52,8 +51,6 @@
 <flags   EDM_PLUGIN="1"/>
 
 <library   file="TestGEMRecHitAnalyzer.cc" name="testGEMRecHittestGEMRecHitAnalyzer">
-</library>
-<library   file="TestME0SegmentAnalyzer.cc" name="testME0SegmenttestME0SegmentAnalyzer">
 </library>
 
 <export>
