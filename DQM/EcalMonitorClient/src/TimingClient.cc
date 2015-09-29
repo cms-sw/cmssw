@@ -195,7 +195,6 @@ namespace ecaldqm
             quality = doMask ? kMGood : kGood;
         }
       }
-      if (tId.subdetId() == EcalEndcap) quality = doMask ? kMGood : kGood; // disable red flags
       qsItr->setBinContent(quality);
     }
   }
