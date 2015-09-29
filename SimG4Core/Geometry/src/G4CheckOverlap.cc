@@ -4,6 +4,7 @@
 
 #include "G4RegionStore.hh"
 #include "G4Region.hh"
+#include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
 #include "G4VPhysicalVolume.hh"
 #include "G4LogicalVolume.hh"
@@ -18,6 +19,8 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
 
   std::vector<std::string> nodeNames 
     = p.getParameter<std::vector<std::string> >("NodeNames");
+  std::string PVname = p.getParameter<std::string>("PVname");
+  std::string LVname = p.getParameter<std::string>("LVname");
   double tolerance 
     = p.getUntrackedParameter<double>("Tolerance", 0.0)*CLHEP::mm;
   int nPoints = p.getUntrackedParameter<int>("Resolution", 10000);
@@ -38,7 +41,9 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
   G4cout << "G4OverlapCheck is initialised with " 
 	 << nodeNames.size() << " nodes; " << " nPoints= " << nPoints
 	 << "; tolerance= " << tolerance/mm << " mm; verbose: " 
-	 << verbose << " RegionFlag: " << regionFlag << G4endl;
+	 << verbose << "\n"
+	 << "               RegionFlag: " << regionFlag
+	 << "  PVname: " << PVname << "  LVname: " << LVname << G4endl;
 
   if(0 < nn) { 
     for (unsigned int ii=0; ii<nn; ++ii) {
@@ -94,6 +99,41 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
       }
     }
   }
+  if("" != PVname) {
+    G4cout << "----------- List of PhysVolumes by name -----------------" << G4endl;
+    for (unsigned int i=0; i<numPV; ++i) {
+      if(PVname == ((*pvs)[i])->GetName()) {
+	G4cout << " ##### PhysVolume " << PVname << " [" << ((*pvs)[i])->GetCopyNo() 
+	       << "]  LV: " <<  ((*pvs)[i])->GetLogicalVolume()->GetName() 
+	       << " Mother LV: " <<  ((*pvs)[i])->GetMotherLogical()->GetName() << G4endl;
+	G4cout << "       Translation: " << ((*pvs)[i])->GetObjectTranslation() << G4endl;
+	G4cout << "       Rotation:    " << ((*pvs)[i])->GetObjectRotationValue() << G4endl;
+      }
+    }
+  }
+  if("" != LVname) {
+    G4cout << "---------- List of Logical Volumes by name ------------------" << G4endl;
+    const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
+    unsigned int numLV = lvs->size();
+    for (unsigned int i=0; i<numLV; ++i) {
+      if(LVname == ((*lvs)[i])->GetName()) {
+	G4int np = ((*lvs)[i])->GetNoDaughters();
+	G4cout << " ##### LogVolume " << LVname << "  " << np << " daughters" << G4endl;
+	for (G4int j=0; j<np; ++j) {
+	  G4VPhysicalVolume* pv = ((*lvs)[i])->GetDaughter(j);
+	  if(pv) {
+	    G4cout << "   PV: " << pv->GetName() << " [" << pv->GetCopyNo() << "]"
+		   << " type: " << pv->VolumeType() << "  multiplicity: " 
+		   << pv->GetMultiplicity() << " LV: " 
+		   << pv->GetLogicalVolume()->GetName() << G4endl;
+	    G4cout << "       Translation: " << pv->GetObjectTranslation() << G4endl;
+	    G4cout << "       Rotation:    " << pv->GetObjectRotationValue() << G4endl;
+	  }
+	}
+      }
+    }
+  }
+  G4cout << "---------------- End of overlap checks ---------------------" << G4endl;
 }
 
 G4CheckOverlap::~G4CheckOverlap() {}
