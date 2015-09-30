@@ -13,6 +13,11 @@ def _getObject(tdirectory, name):
         return None
     return obj
 
+def _getOrCreateObject(tdirectory, nameOrCreator):
+    if hasattr(nameOrCreator, "create"):
+        return nameOrCreator.create(tdirectory)
+    return _getObject(tdirectory, nameOrCreator)
+
 def _getXmin(obj):
     if isinstance(obj, ROOT.TH1):
         xaxis = obj.GetXaxis()
@@ -299,8 +304,8 @@ class ROC:
         return self._name
 
     def create(self, tdirectory):
-        xhisto = self._xhistoName.create(tdirectory) if hasattr(self._xhistoName, "create") else _getObject(tdirectory, self._xhistoName);
-        yhisto = self._yhistoName.create(tdirectory) if hasattr(self._yhistoName, "create") else _getObject(tdirectory, self._yhistoName);
+        xhisto = _getOrCreateObject(tdirectory, self._xhistoName)
+        yhisto = _getOrCreateObject(tdirectory, self._yhistoName);
         if xhisto is None or yhisto is None:
             return None
 
@@ -816,18 +821,7 @@ class Plot:
         else:
             name = self._name
 
-        # If name is Efficiency instead of string, call its create()
-        if hasattr(name, "create"):
-            th1 = name.create(tdir)
-        else:
-            th1 = tdir.Get(name)
-
-        # Check the histogram exists
-        if th1 == None:
-            print "Did not find {histo} from {dir}".format(histo=name, dir=tdir.GetPath())
-            return None
-
-        return th1
+        return _getOrCreateObject(tdir, name)
 
     def create(self, tdirs, requireAllHistograms=False):
         """Create histograms from list of TDirectories"""
