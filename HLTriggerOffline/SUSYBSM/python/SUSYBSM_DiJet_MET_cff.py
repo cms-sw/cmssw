@@ -38,6 +38,16 @@ SUSY_HLT_DiJet_MET_FASTSIM = cms.EDAnalyzer("SUSY_HLT_DiJet_MET",
   OfflineMetCut = cms.untracked.double(250.0),
 )
 
+SUSY_HLT_DiJet_MET_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DiCentralPFJet55_PFMET110_JetIdCleaned"),
+    verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
+    resolution     = cms.vstring(""),
+    efficiency     = cms.vstring(
+       "pfMetTurnOn_eff 'Turn-on vs MET; PFMET (GeV); #epsilon' pfMetTurnOn_num pfMetTurnOn_den",
+       "pfJet2PtTurnOn_eff 'Efficiency vs Jet2 p_{T}, NCentralPFJets >= 2, PFMET > 250 GeV; Second leading jet pT (GeV); #epsilon' pfJet2PtTurnOn_num pfJet2PtTurnOn_den",
+    )
+)
+
 SUSY_HLT_DiJet_MET_FASTSIM_POSTPROCESSING = cms.EDAnalyzer("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_DiCentralPFJet55_PFMET110_JetIdCleaned"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages

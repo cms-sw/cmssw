@@ -9,7 +9,7 @@ SUSY_HLT_Ele_HT_BTag_SingleLepton = cms.EDAnalyzer('SUSY_HLT_SingleLepton',
                                                    jetTagCollection = cms.InputTag('pfCombinedSecondaryVertexBJetTags'),
 
                                                    vertexCollection = cms.InputTag('goodOfflinePrimaryVertices'),
-                                                   conversionCollection = cms.InputTag('conversions'),
+                                                   conversionCollection = cms.InputTag(''),
                                                    beamSpot = cms.InputTag('offlineBeamSpot'),
 
                                                    leptonFilter = cms.InputTag('hltEle15VVVLGsfTrackIsoFilter','','HLT'),
