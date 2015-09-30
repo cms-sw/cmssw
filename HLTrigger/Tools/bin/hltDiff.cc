@@ -59,8 +59,10 @@ usage: hltDiff -o|--old-files FILE1.ROOT [FILE2.ROOT ...] [-O|--old-process LABE
       do not ignore differences caused by HLTPrescaler modules.\n\
 \n\
   -v|--verbose\n\
-      be verbose: print event-by-event comparison results;\n\
-      use this option twice to print the trigger candidates of the affected filters.\n\
+      be (more) verbose:\n\
+      use once to print event-by-event comparison results;\n\
+      use twice to print the trigger candidates of the affected filters;\n\
+      use three times to print all the trigger candidates for the affected events.\n\
 \n\
   -h|--help\n\
       print this help message, and exit." << std::endl;
@@ -374,6 +376,35 @@ void print_trigger_candidates(std::ostream & out, trigger::TriggerEvent const & 
   }
 }
 
+void print_trigger_collection(std::ostream & out, trigger::TriggerEvent const & summary, std::string const & tag) {
+  auto iterator = std::find(summary.collectionTags().begin(), summary.collectionTags().end(), tag);
+  if (iterator == summary.collectionTags().end()) {
+    // the collection of trigger candidates could not be found
+    out << "            not found\n";
+    return;
+  }
+
+  unsigned int index = iterator - summary.collectionTags().begin();
+  unsigned int begin = (index == 0) ? 0 : summary.collectionKey(index - 1);
+  unsigned int end   = summary.collectionKey(index);
+
+  if (end == begin) {
+    // the collection of trigger candidates is empty
+    out << "            none\n";
+    return;
+  }
+
+  for (unsigned int key = begin; key < end; ++key) {
+    trigger::TriggerObject const & candidate = summary.getObjects().at(key);
+    out << "            " 
+        << "object id: " << candidate.id()   << ", "
+        << "pT: "        << candidate.pt()   << ", "
+        << "eta: "       << candidate.eta()  << ", "
+        << "phi: "       << candidate.phi()  << ", "
+        << "mass: "      << candidate.mass() << "\n";
+  }
+}
+
 
 std::string getProcessNameFromBranch(std::string const & branch) {
   std::vector<boost::iterator_range<std::string::const_iterator>> tokens;
@@ -465,12 +496,15 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
 
   // loop over the reference events
   for (old_events->toBegin(); not old_events->atEnd(); ++(*old_events)) {
+
+    // seek the same event in the "new" files
     edm::EventID const& id = old_events->id();
     if (new_events != old_events and not new_events->to(id)) {
       std::cerr << "run " << id.run() << ", lumi " << id.luminosityBlock() << ", event " << id.event() << ": not found in the 'new' files, skipping." << std::endl;
       continue;
     }
 
+    // read the TriggerResults and TriggerEvent
     fwlite::Handle<edm::TriggerResults> old_results_h;
     old_results_h.getByLabel<fwlite::Event>(* old_events->event(), "TriggerResults", "", old_process.c_str());
     auto const & old_results = * old_results_h;
@@ -487,6 +521,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
     new_summary_h.getByLabel<fwlite::Event>(* new_events->event(), "hltTriggerSummaryAOD", "", new_process.c_str());
     auto const & new_summary = * new_summary_h;
 
+    // initialise the trigger configuration
     if (new_run) {
       new_run = false;
       old_events->fillParameterSetRegistry();
@@ -511,6 +546,7 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       differences.resize(old_config->size());
     }
 
+    // compare the TriggerResults
     bool needs_header = true;
     bool affected_event = false;
     for (unsigned int p = 0; p < old_config->size(); ++p) {
@@ -565,15 +601,28 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
           print_trigger_candidates(std::cout, old_summary, edm::InputTag(old_config->moduleLabel(p, module), "", old_config->processName()));
           std::cout << "        new trigger candidates:\n";
           print_trigger_candidates(std::cout, new_summary, edm::InputTag(new_config->moduleLabel(p, module), "", new_config->processName()));
-          std::cout << std::endl;
         }
+        if (verbose > 0)
+          std::cout << std::endl;
       }
     }
     if (affected_event)
       ++affected;
 
-    if (verbose > 0 and not needs_header)
-      std::cout << std::endl;
+    // compare the TriggerEvent
+    if (affected_event and verbose > 2) {
+      std::set<std::string> names;
+      names.insert(old_summary.collectionTags().begin(), old_summary.collectionTags().end());
+      names.insert(new_summary.collectionTags().begin(), new_summary.collectionTags().end());
+      for (auto const & collection: names) {
+        std::cout << "    Collection " << collection << ":\n";
+        std::cout << "        old trigger candidates:\n";
+        print_trigger_collection(std::cout, old_summary, collection);
+        std::cout << "        new trigger candidates:\n";
+        print_trigger_collection(std::cout, new_summary, collection);
+        std::cout << std::endl;
+      }
+    }
 
     ++counter;
     if (max_events and counter >= max_events)
