@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/GRun/V163 (CMSSW_7_4_13)
+# /dev/CMSSW_7_4_0/GRun/V164 (CMSSW_7_4_13)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V163')
+  tableName = cms.string('/dev/CMSSW_7_4_0/GRun/V164')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -502,7 +502,6 @@ fragment.streams = cms.PSet(
     'ParkingHT500to550',
     'ParkingHT550to650',
     'ParkingHT650' ),
-  ParkingScoutingMonitor = cms.vstring( 'ParkingScoutingMonitor' ),
   PhysicsEGammaCommissioning = cms.vstring( 'Commissioning',
     'DoubleEG',
     'HLTPhysics',
@@ -533,6 +532,7 @@ fragment.streams = cms.PSet(
     'MuOnia',
     'MuonEG',
     'SingleMuon' ),
+  PhysicsParkingScoutingMonitor = cms.vstring( 'ParkingScoutingMonitor' ),
   RPCMON = cms.vstring( 'RPCMonitor' ),
   ScoutingCalo = cms.vstring( 'ScoutingCaloCommissioning',
     'ScoutingCaloHT' ),
