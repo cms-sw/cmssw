@@ -1,11 +1,12 @@
 from DataFormats.FWLite import Events as FWLiteEvents
 
-from ROOT import gSystem, AutoLibraryLoader
+from ROOT import gROOT, gSystem, AutoLibraryLoader
 
-print "Loading FW Lite setup."
+print "Loading FW Lite"
 gSystem.Load("libFWCoreFWLite");
-AutoLibraryLoader.enable();
-gSystem.Load("libDataFormatsFWLite");
+gROOT.ProcessLine('FWLiteEnabler::enable();')
+
+gSystem.Load("libFWCoreFWLite");
 gSystem.Load("libDataFormatsPatCandidates");
 
 from ROOT import gInterpreter

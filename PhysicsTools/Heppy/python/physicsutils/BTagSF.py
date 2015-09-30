@@ -1,5 +1,3 @@
-from PhysicsTools.Heppy import loadlibs
-
 # importing the python binding to the C++ class from ROOT 
 from ROOT import heppy
 
