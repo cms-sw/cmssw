@@ -143,25 +143,54 @@ namespace reco {
       float e2x5 ;
       float e3x3 ;
       float e5x5 ;
-      float maxEnergyXtal ; 
+      float maxEnergyXtal ;       
       float hcalDepth1OverEcal ; // hcal over ecal energy using first hcal depth
       float hcalDepth2OverEcal ; // hcal over ecal energy using 2nd hcal depth
       float hcalDepth1OverEcalBc;
       float hcalDepth2OverEcalBc;
       std::vector<CaloTowerDetId> hcalTowersBehindClusters;
+      float effSigmaRR;
+      float sigmaIetaIphi;
+      float sigmaIphiIphi;
+      float e2nd;
+      float eTop;
+      float eLeft;
+      float eRight;
+      float eBottom;
+      float e1x3;
+      float e2x2;
+      float e2x5Max;
+      float e2x5Left;
+      float e2x5Right;
+      float e2x5Top;
+      float e2x5Bottom;
       ShowerShape()
 	: sigmaEtaEta(std::numeric_limits<float>::max()),
 	   sigmaIetaIeta(std::numeric_limits<float>::max()),
-	   e1x5(0), 
-	   e2x5(0), 
-	   e3x3(0), 
-	   e5x5(0), 
-	   maxEnergyXtal(0),
+	   e1x5(0.f), 
+	   e2x5(0.f), 
+	   e3x3(0.f), 
+	   e5x5(0.f), 
+	   maxEnergyXtal(0.f),           
 	  hcalDepth1OverEcal(0),
 	  hcalDepth2OverEcal(0),
 	  hcalDepth1OverEcalBc(0),
-	  hcalDepth2OverEcalBc(0)
-	   
+          hcalDepth2OverEcalBc(0),
+          effSigmaRR(std::numeric_limits<float>::max()),
+          sigmaIetaIphi(std::numeric_limits<float>::max()),
+          sigmaIphiIphi(std::numeric_limits<float>::max()),
+          e2nd(0.f),
+          eTop(0.f),
+          eLeft(0.f),
+          eRight(0.f),
+          eBottom(0.f),
+          e1x3(0.f),
+          e2x2(0.f),
+          e2x5Max(0.f),
+          e2x5Left(0.f),
+          e2x5Right(0.f),
+          e2x5Top(0.f),
+          e2x5Bottom(0.f)	   
       {}
     } ;
     const ShowerShape& showerShapeVariables() const { return showerShapeBlock_; }
@@ -470,9 +499,8 @@ namespace reco {
     float etOutsideMustache() const {return pfID_.etOutsideMustache;}
     float pfMVA() const {return pfID_.mva;}
     // setters
-    void setPflowIDVariables ( const PflowIDVariables& pfid ) {  pfID_ = pfid;}     
-
-
+    void setPflowIDVariables ( const PflowIDVariables& pfid ) {  pfID_ = pfid;}         
+    
   private:
     /// check overlap with another candidate
     virtual bool overlap( const Candidate & ) const;
@@ -491,11 +519,9 @@ namespace reco {
     EnergyCorrections eCorrections_; 
     MIPVariables        mipVariableBlock_; 
     PflowIsolationVariables pfIsolation_;
-    PflowIDVariables pfID_;
-
-
+    PflowIDVariables pfID_;    
   };
-  
+
 }
 
 #endif
