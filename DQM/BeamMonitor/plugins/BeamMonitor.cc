@@ -494,11 +494,12 @@ if(nthlumi > nextlumi_){
      map<int, std::time_t>::iterator itbstime=mapBeginBSTime.begin();
      map<int, std::time_t>::iterator itpvtime=mapBeginPVTime.begin();
 
+    if(processed_){// otherwise if false then LS range of fit get messed up because we don't remove trk/pvs but we remove LS begin value . This prevent it as it happened if LS is there but no event are processed for some reason
      mapBeginBSLS.erase(itbs);
      mapBeginPVLS.erase(itpv);
      mapBeginBSTime.erase(itbstime);
      mapBeginPVTime.erase(itpvtime);
-
+     } 
             /*//not sure if want this or not ??
             map<int, int>::iterator itgapb=mapBeginBSLS.begin();
             map<int, int>::iterator itgape=mapBeginBSLS.end(); itgape--;
