@@ -105,7 +105,7 @@ void BunchSpacingProducer::fillDescriptions( edm::ConfigurationDescriptions & de
 {
   edm::ParameterSetDescription desc ;
   desc.add<bool>("overrideBunchSpacing",false); // true for prompt reco
-  desc.add<unsigned int>("bunchSpacingOverride_",25); // override value
+  desc.add<unsigned int>("bunchSpacingOverride",25); // override value
   
   descriptions.add("bunchSpacingProducer",desc) ;
 }
