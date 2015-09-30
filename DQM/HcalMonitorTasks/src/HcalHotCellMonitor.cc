@@ -104,8 +104,8 @@ HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps):HcalBaseDQMo
   setupDone_=false;
 } //constructor
 
-HcalHotCellMonitor::~HcalHotCellMonitor()
-{
+HcalHotCellMonitor::~HcalHotCellMonitor() {
+  if (topo_) delete topo_;
 } //destructor
 
 
@@ -327,7 +327,11 @@ void HcalHotCellMonitor::reset()
     }
 }  
 
-
+void HcalHotCellMonitor::beginRun(const edm::EventSetup& c) {
+  edm::ESHandle<HcalTopology> htopo;
+  c.get<HcalRecNumberingRecord>().get(htopo);
+  topo_  = new HcalTopology(*htopo);
+}
 
 void HcalHotCellMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					      const edm::EventSetup& c)
@@ -401,14 +405,11 @@ void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
     }
 
   // Good event found; increment counter (via base class analyze method)
-  edm::ESHandle<HcalTopology> topo;
-  s.get<HcalRecNumberingRecord>().get(topo);
-  topo_ = &(*topo);
 
   //  HcalBaseDQMonitor::analyze(e,s);
   if (debug_>1) std::cout <<"\t<HcalHotCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
 
-  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *topo);
+  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *topo_);
 
 } // void HcalHotCellMonitor::analyze(...)
 
@@ -708,7 +709,7 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void) {
 	  for (int subdet=1;subdet<=4;++subdet) {
 	    ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
 	    if (ieta==-9999) continue;
-	    if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
+	    if (!(validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 	      continue;
 	    if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
 	      ieta<0 ? ieta-- : ieta++;
@@ -748,7 +749,7 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void) {
 	  for (int subdet=1;subdet<=4;++subdet) {
 	    ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
 	    if (ieta==-9999) continue;
-	    if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
+	    if (!(validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 	      continue;
 	    if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
 	      ieta<0 ? ieta-- : ieta++;
@@ -818,7 +819,7 @@ void HcalHotCellMonitor::fillNevents_energy(void) {
 	for (int subdet=1;subdet<=4;++subdet) {
 	  ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
 	  if (ieta==-9999) continue;
-	  if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
+	  if (!(validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 	    continue;
 	  if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
 	    ieta<0 ? ieta-- : ieta++;
@@ -883,7 +884,7 @@ void HcalHotCellMonitor::fillNevents_neighbor(void) {
 	for (int subdet=1;subdet<=4;++subdet) {
 	  ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
 	  if (ieta==-9999) continue;
-	  if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
+	  if (!(validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 	    continue;
 	  if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
 	    ieta<0 ? ieta-- : ieta++;

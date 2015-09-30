@@ -498,7 +498,7 @@ inline bool isSiPM(int ieta, int iphi, int depth)
 
 
 // Checks whether (subdet, ieta, iphi, depth) value is a valid Hcal cell
-/*
+
 inline bool validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 {
   // inputs are (subdetector, ieta, iphi, depth)
@@ -549,7 +549,7 @@ inline bool validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 
 
 } // bool validDetId(HcalSubdetector sd, int ies, int ip, int dp)
-*/
+
 
 // Sets eta, phi labels for 'summary' eta-phi plots (identical to Depth 1 Eta-Phi labelling)
 

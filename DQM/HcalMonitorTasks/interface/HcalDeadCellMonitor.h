@@ -37,6 +37,8 @@ public:
   void setup(DQMStore::IBooker &);
   void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void analyze(edm::Event const&e, edm::EventSetup const&s);
+
+  void beginRun(edm::EventSetup const & c);
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			  const edm::EventSetup& c);
   void endRun(const edm::Run& run, const edm::EventSetup& c);

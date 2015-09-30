@@ -99,7 +99,9 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(
 }
 
 // destructor
-HcalDigiMonitor::~HcalDigiMonitor() {}
+HcalDigiMonitor::~HcalDigiMonitor() {
+  if (topo_) delete topo_;
+}
 
 // Checks capid rotation; returns false if no problems with rotation
 static bool bitUpset(int last, int now){
@@ -454,10 +456,6 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 
   // Get HLT trigger information for HF timing study
   passedMinBiasHLT_=false;
-
-  edm::ESHandle<HcalTopology> topo;
-  s.get<HcalRecNumberingRecord>().get(topo);
-  topo_ = &(*topo);
 
   /////////////////////////////////////////////////////////////////
   // check if detectors whether they were ON
@@ -1159,9 +1157,14 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   return err;
 } // template <class DIGI> int HcalDigiMonitor::process_Digi
 
+void HcalDigiMonitor::beginRun(const edm::EventSetup& c) {
+  edm::ESHandle<HcalTopology> htopo;
+  c.get<HcalRecNumberingRecord>().get(htopo);
+  topo_  = new HcalTopology(*htopo);
+}
+
 void HcalDigiMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-					     const edm::EventSetup& c) 
-{
+					     const edm::EventSetup& c) {
   HcalBaseDQMonitor::beginLuminosityBlock(lumiSeg,c);
   ProblemsCurrentLB->Reset();
 }
@@ -1367,144 +1370,129 @@ void HcalDigiMonitor::fill_Nevents()
     } // for (int sub=0;sub<4;++sub)
 
   // Loop over eta, phi, depth
-  for (int d=0;d<4;++d)
-    {
-      iDepth=d+1;
-      DigiErrorsByDepth.depth[d]->setBinContent(0,0,ievt_); // underflow bin contains event counter
-      DigiOccupancyByDepth.depth[d]->setBinContent(0,0,ievt_);
-      DigiErrorsBadDigiSize.depth[d]->setBinContent(0,0,ievt_);
-      DigiErrorsUnpacker.depth[d]->setBinContent(0,0,ievt_);
-      DigiErrorsBadFibBCNOff.depth[d]->setBinContent(0,0,ievt_);
+  for (int d=0;d<4;++d) {
+    iDepth=d+1;
+    DigiErrorsByDepth.depth[d]->setBinContent(0,0,ievt_); // underflow bin contains event counter
+    DigiOccupancyByDepth.depth[d]->setBinContent(0,0,ievt_);
+    DigiErrorsBadDigiSize.depth[d]->setBinContent(0,0,ievt_);
+    DigiErrorsUnpacker.depth[d]->setBinContent(0,0,ievt_);
+    DigiErrorsBadFibBCNOff.depth[d]->setBinContent(0,0,ievt_);
 
-      for (int phi=0;phi<72;++phi)
-	{
-	  iPhi=phi+1;
-	  DigiOccupancyPhi->Fill(iPhi,occupancyPhi[phi]);
-	  for (int eta=0;eta<83;++eta)
-	    {
-	      // DigiOccupanyEta uses 'true' ieta (included the overlap at +/- 29)
-	      iEta=eta-41;
-	      if (phi==0)
-		DigiOccupancyEta->Fill(iEta,occupancyEta[eta]);
-	      //	      valid=false;
+    for (int phi=0;phi<72;++phi) {
+      iPhi=phi+1;
+      DigiOccupancyPhi->Fill(iPhi,occupancyPhi[phi]);
+      for (int eta=0;eta<83;++eta) {
+	// DigiOccupanyEta uses 'true' ieta (included the overlap at +/- 29)
+	iEta=eta-41;
+	if (phi==0)
+	  DigiOccupancyEta->Fill(iEta,occupancyEta[eta]);
+	//	      valid=false;
 	
-	      // HB
-	      if (topo_->validDetId(HcalBarrel, iEta, iPhi, iDepth))
-		{
-		  //		  valid=true;
-		  if (HBpresent_)
-		    {
-                      int calcEta = CalcEtaBin(HcalBarrel,iEta,iDepth);
+	// HB
+	if (validDetId(HcalBarrel, iEta, iPhi, iDepth)) {
+	  //		  valid=true;
+	  if (HBpresent_) {
+	    int calcEta = CalcEtaBin(HcalBarrel,iEta,iDepth);
 
-		      DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
-						    occupancyEtaPhi[calcEta][phi][d]);
+	    DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
+						occupancyEtaPhi[calcEta][phi][d]);
 		      
-		      if (makeDiagnostics_)
-			{
-			  DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
-							    badcapID[calcEta][phi][d]);
-			  DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
-							 digierrorsdverr[calcEta][phi][d]);
-			}
-		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
-							   baddigisize[calcEta][phi][d]);
-		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
-							    badFibBCNOff[calcEta][phi][d]);
-		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
-							badunpackerreport[calcEta][phi][d]);
-		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
-						       baddigis[calcEta][phi][d]);
-		      // Use this for testing purposes only
-		      //DigiErrorsByDepth[d]->Fill(iEta, iPhi, ievt_);
-		    } // if (HBpresent_)
-		} // validDetId(HB)
-	      // HE
-	      if (topo_->validDetId(HcalEndcap, iEta, iPhi, iDepth))
-		{
-		  //		  valid=true;
-		  if (HEpresent_)
-		    {
-                      int calcEta = CalcEtaBin(HcalEndcap,iEta,iDepth);
+	    if (makeDiagnostics_) {
+	      DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
+						badcapID[calcEta][phi][d]);
+	      DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
+					     digierrorsdverr[calcEta][phi][d]);
+	    }
+	    DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
+						 baddigisize[calcEta][phi][d]);
+	    DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
+						  badFibBCNOff[calcEta][phi][d]);
+	    DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+					      badunpackerreport[calcEta][phi][d]);
+	    DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
+					     baddigis[calcEta][phi][d]);
+	    // Use this for testing purposes only
+	    //DigiErrorsByDepth[d]->Fill(iEta, iPhi, ievt_);
+	  } // if (HBpresent_)
+	} // validDetId(HB)
+	// HE
+	if (validDetId(HcalEndcap, iEta, iPhi, iDepth)) {
+	  //		  valid=true;
+	  if (HEpresent_) {
+	    int calcEta = CalcEtaBin(HcalEndcap,iEta,iDepth);
 
-		      DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
-						    occupancyEtaPhi[calcEta][phi][d]);
+	    DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
+						occupancyEtaPhi[calcEta][phi][d]);
+	    
+	    if (makeDiagnostics_) {
+	      DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
+						badcapID[calcEta][phi][d]);
+	      DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
+					     digierrorsdverr[calcEta][phi][d]);
+	    }
+	    DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
+						 baddigisize[calcEta][phi][d]);
+	    DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
+						  badFibBCNOff[calcEta][phi][d]);
+	    DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+					      badunpackerreport[calcEta][phi][d]);
+	    DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
+					     baddigis[calcEta][phi][d]);
+	  } // if (HEpresent_)
+	} // valid HE found
+	// HO
+	if (validDetId(HcalOuter,iEta,iPhi,iDepth)) {
+	  //		  valid=true;
+	  if (HOpresent_) {
+	    int calcEta = CalcEtaBin(HcalOuter,iEta,iDepth);
+	    DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
+						occupancyEtaPhi[calcEta][phi][d]);
+	    if (makeDiagnostics_) {
+	      DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
+						badcapID[calcEta][phi][d]);
+	      DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
+					     digierrorsdverr[calcEta][phi][d]);
+	    }
+	    DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
+						 baddigisize[calcEta][phi][d]);
+	    DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
+						  badFibBCNOff[calcEta][phi][d]);
+	    DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
+					      badunpackerreport[calcEta][phi][d]);
 		      
-		      if (makeDiagnostics_)
-			{
-			  DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
-							    badcapID[calcEta][phi][d]);
-			  DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
-							 digierrorsdverr[calcEta][phi][d]);
-			}
-		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
-							   baddigisize[calcEta][phi][d]);
-		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
-							    badFibBCNOff[calcEta][phi][d]);
-		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
-							badunpackerreport[calcEta][phi][d]);
-		      DigiErrorsByDepth.depth[d]->Fill(iEta, iPhi,
-						       baddigis[calcEta][phi][d]);
-		    } // if (HEpresent_)
-		} // valid HE found
-	      // HO
-	      if (topo_->validDetId(HcalOuter,iEta,iPhi,iDepth))
-		{
-		  //		  valid=true;
-		  if (HOpresent_)
-		    {
-                      int calcEta = CalcEtaBin(HcalOuter,iEta,iDepth);
-		      DigiOccupancyByDepth.depth[d]->Fill(iEta, iPhi,
-							  occupancyEtaPhi[calcEta][phi][d]);
-		      if (makeDiagnostics_)
-			{
-			  DigiErrorsBadCapID.depth[d]->Fill(iEta, iPhi,
-							    badcapID[calcEta][phi][d]);
-			  DigiErrorsDVErr.depth[d]->Fill(iEta, iPhi,
-							 digierrorsdverr[calcEta][phi][d]);
-			}
-		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta, iPhi,
-							   baddigisize[calcEta][phi][d]);
-		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta, iPhi,
-							    badFibBCNOff[calcEta][phi][d]);
-		      DigiErrorsUnpacker.depth[d]->Fill(iEta, iPhi,
-							badunpackerreport[calcEta][phi][d]);
-		      
-		      DigiErrorsByDepth.depth[d]->Fill(iEta,iPhi,
-						       baddigis[calcEta][phi][d]);
-		    } // if (HOpresent_)
-		}//validDetId(HO)
-	      // HF
-	      if (topo_->validDetId(HcalForward,iEta,iPhi,iDepth))
-		{
-		  //		  valid=true;
-		  if (HFpresent_)
-		    {
-                      int calcEta = CalcEtaBin(HcalForward,iEta,iDepth);
-                      int zside = iEta/abs(iEta);
-		      DigiOccupancyByDepth.depth[d]->Fill(iEta+zside, iPhi,
-						    occupancyEtaPhi[calcEta][phi][d]);
-		      
-		      if (makeDiagnostics_)
-			{
-			  DigiErrorsBadCapID.depth[d]->Fill(iEta+zside, iPhi,
-							    badcapID[calcEta][phi][d]);
-			  DigiErrorsDVErr.depth[d]->Fill(iEta+zside, iPhi,
-							 digierrorsdverr[calcEta][phi][d]);
-			}
-		      DigiErrorsBadDigiSize.depth[d]->Fill(iEta+zside, iPhi,
-						     baddigisize[calcEta][phi][d]);
-		      DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta+zside, iPhi,
-							 badFibBCNOff[calcEta][phi][d]);
-		      DigiErrorsUnpacker.depth[d]->Fill(iEta+zside, iPhi,
-							badunpackerreport[calcEta][phi][d]);
-		      DigiErrorsByDepth.depth[d]->Fill(iEta+zside, iPhi,
-						       baddigis[calcEta][phi][d]);
-		      
-		    } // if (HFpresent_)
-		}
-	    } // for (int eta=0;...)
-	} // for (int phi=0;...)
-    } // for (int d=0;...)
+	    DigiErrorsByDepth.depth[d]->Fill(iEta,iPhi,
+					     baddigis[calcEta][phi][d]);
+	  } // if (HOpresent_)
+	}//validDetId(HO)
+	// HF
+	if (validDetId(HcalForward,iEta,iPhi,iDepth)) {
+	  //		  valid=true;
+	  if (HFpresent_) {
+	    int calcEta = CalcEtaBin(HcalForward,iEta,iDepth);
+	    int zside = iEta/abs(iEta);
+	    DigiOccupancyByDepth.depth[d]->Fill(iEta+zside, iPhi,
+						occupancyEtaPhi[calcEta][phi][d]);
+	    
+	    if (makeDiagnostics_) {
+	      DigiErrorsBadCapID.depth[d]->Fill(iEta+zside, iPhi,
+						badcapID[calcEta][phi][d]);
+	      DigiErrorsDVErr.depth[d]->Fill(iEta+zside, iPhi,
+					     digierrorsdverr[calcEta][phi][d]);
+	    }
+	    DigiErrorsBadDigiSize.depth[d]->Fill(iEta+zside, iPhi,
+						 baddigisize[calcEta][phi][d]);
+	    DigiErrorsBadFibBCNOff.depth[d]->Fill(iEta+zside, iPhi,
+						  badFibBCNOff[calcEta][phi][d]);
+	    DigiErrorsUnpacker.depth[d]->Fill(iEta+zside, iPhi,
+					      badunpackerreport[calcEta][phi][d]);
+	    DigiErrorsByDepth.depth[d]->Fill(iEta+zside, iPhi,
+					     baddigis[calcEta][phi][d]);
+	    
+	  } // if (HFpresent_)
+	}
+      } // for (int eta=0;...)
+    } // for (int phi=0;...)
+  } // for (int d=0;...)
 
   // Now fill all the unphysical cell values
   FillUnphysicalHEHFBins(DigiErrorsByDepth);

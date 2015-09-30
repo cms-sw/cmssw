@@ -30,6 +30,8 @@ public:
 		    const HcalUnpackerReport& report);
 
 
+  void beginRun(edm::EventSetup const & c);
+
   // Begin LumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                             const edm::EventSetup& c) ;

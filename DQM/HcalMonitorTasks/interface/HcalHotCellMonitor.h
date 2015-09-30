@@ -44,6 +44,8 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
   // analyze function
   void analyze(edm::Event const&e, edm::EventSetup const&s);
 
+  void beginRun(edm::EventSetup const & c);
+
   // Begin LumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                             const edm::EventSetup& c) ;
