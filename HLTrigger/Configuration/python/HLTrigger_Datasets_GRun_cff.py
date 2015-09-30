@@ -129,7 +129,7 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele1
     'HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v2', 
     'HLT_Ele22_eta2p1_WPLoose_Gsf_v2', 
     'HLT_Ele22_eta2p1_WPTight_Gsf_v2', 
-    'HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCVS07_v1', 
+    'HLT_Ele23_WPLoose_Gsf_CentralPFJet30_BTagCSV07_v1', 
     'HLT_Ele23_WPLoose_Gsf_TriCentralPFJet50_40_30_v1', 
     'HLT_Ele23_WPLoose_Gsf_WHbbBoost_v1', 
     'HLT_Ele23_WPLoose_Gsf_v2', 

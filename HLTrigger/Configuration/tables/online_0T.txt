@@ -90,7 +90,7 @@ AlCa_EcalEtaEEonly_v*					# JIRA: CMSHLT-541
 AlCa_EcalPhiSym_v*					# JIRA: CMSHLT-541
 AlCa_EcalPi0EBonly_v*					# JIRA: CMSHLT-541
 AlCa_EcalPi0EEonly_v*					# JIRA: CMSHLT-541
-AlCa_Ele27_WPVeryLoose_Gsf_v*				# JIRA: CMSHLT-541
+AlCa_Ele23_WPVeryLoose_Gsf_v*				# JIRA: CMSHLT-541, CMSHLT-566
 AlCa_LumiPixels_Random_v*				# JIRA: CMSHLT-541
 AlCa_LumiPixels_ZeroBias_v*				# JIRA: CMSHLT-541
 AlCa_RPCMuonNoHits_v*					# JIRA: CMSHLT-541
@@ -108,8 +108,8 @@ HLT_DoublePhoton40_v*					# JIRA: CMSHLT-564 (for 0T menu)
 HLT_DoublePhoton50_v*					# JIRA: CMSHLT-564 (for 0T menu)
 HLT_Photon150_v*					# JIRA: CMSHLT-564 (for 0T menu)
 
-#HLT_Photon90_CaloIdL_HT300_v*				# JIRA: CMSHLT-565 (for 0T menu)
-#HLT_HT250_CaloMET70_JetIdCleaned_v*			# JIRA: CMSHLT-565 (for 0T menu)
+HLT_Photon90_CaloIdL_HT300_v*				# JIRA: CMSHLT-565 (for 0T menu)
+HLT_HT250_CaloMET70_JetIdCleaned_v*			# JIRA: CMSHLT-565 (for 0T menu)
 
 HLT_Photon125_v*					# JIRA: CMSHLT-540 (for 0T menu)
 HLT_MET100_JetIdCleaned_v* 				# JIRA: CMSHLT-540 (for 0T menu)
