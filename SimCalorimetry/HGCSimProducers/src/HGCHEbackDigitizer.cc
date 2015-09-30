@@ -3,15 +3,13 @@
 //
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
 {
-  try{
-    edm::ParameterSet caliceSpec =  ps.getParameter<edm::ParameterSet>("digiCfg").getParameter<edm::ParameterSet>("caliceSpecific");
-    nPEperMIP_ = caliceSpec.getParameter<double>("nPEperMIP");
-    nTotalPE_  = caliceSpec.getParameter<double>("nTotalPE");
-    xTalk_     = caliceSpec.getParameter<double>("xTalk");
-    sdPixels_  = caliceSpec.getParameter<double>("sdPixels");
-  }catch(std::exception &e){
-    //no need to propagate
-  }
+  edm::ParameterSet cfg = ps.getParameter<edm::ParameterSet>("digiCfg");
+  keV2MIP_   = cfg.getParameter<double>("keV2MIP");
+  noise_MIP_ = cfg.getParameter<double>("noise_MIP");
+  nPEperMIP_ = cfg.getParameter<double>("nPEperMIP");
+  nTotalPE_  = cfg.getParameter<double>("nTotalPE");
+  xTalk_     = cfg.getParameter<double>("xTalk");
+  sdPixels_  = cfg.getParameter<double>("sdPixels");
 }
 
 //
@@ -25,35 +23,26 @@ void HGCHEbackDigitizer::setRandomNumberEngine(CLHEP::HepRandomEngine& engine)
 //
 void HGCHEbackDigitizer::runDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType)
 {
-  switch(digitizationType)
-    {
-    case 1: 
-      {
-	runCaliceLikeDigitizer(digiColl,simData);
-	break;
-      }
-    }
+  runCaliceLikeDigitizer(digiColl,simData);
 }
   
 //
 void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData)
 {
  
+  //switch to true if you want to print some details
+  bool debug(false);
+
   for(HGCSimHitDataAccumulator::iterator it=simData.begin();
       it!=simData.end();
       it++)
     {
-      //init a new data frame
-      HGCHEDataFrame newDataFrame( it->first );
-
-      for(size_t i=0; i<it->second.size(); i++)
+      std::vector<float> chargeColl(it->second[0].size(),0);
+      for(size_t i=0; i<it->second[0].size(); i++)
 	{
-	  //convert total energy GeV->keV->ADC counts
-	  float totalEn( (it->second)[i]*1e6 );
-	  
-	  //convert energy to MIP
-	  float totalIniMIPs = totalEn/mipInKeV_;
-	  
+	  //convert total energy GeV->keV->MIP
+	  float totalIniMIPs( (it->second)[0][i]*1e6*keV2MIP_ );
+	  	  
 	  //generate random number of photon electrons
 	  uint32_t npe = (uint32_t)peGen_->fire(totalIniMIPs*nPEperMIP_);
 	  
@@ -73,21 +62,14 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	    totalMIPs = 0;
 	  
 	  //add noise (in MIPs)
-	  double noiseMIPs=simpleNoiseGen_->fire(0.,1./mip2noise_);
-	  totalMIPs=std::max(float(totalMIPs+noiseMIPs),float(0.));
-	  
-	  //round to integer (sample will saturate the value according to available bits)
-	  uint16_t totalEnInt = floor( totalMIPs / lsbInMIP_ );
-	 	  
-	  //0 gain for the moment
-	  HGCSample singleSample;
-	  singleSample.set(0, totalEnInt );
-	  newDataFrame.setSample(i, singleSample);
-
+	  chargeColl[i]=totalMIPs+max(simpleNoiseGen_->fire(0.,noise_MIP_),0.);
+	  if(debug && (it->second)[0][i]>0) 
+	    std::cout << "[runCaliceLikeDigitizer] En=" << (it->second)[0][i]*1e6 << " keV = " << totalIniMIPs << " MIPs -> " << chargeColl[i] << " MIPs" << std::endl;
 	}	
       
-      //run shaper
-      runShaper(newDataFrame);
+      //init a new data frame and run shaper
+      HGCHEDataFrame newDataFrame( it->first );
+      myFEelectronics_->runTrivialShaper(newDataFrame,chargeColl);
 
       //prepare the output
       updateOutput(digiColl,newDataFrame);

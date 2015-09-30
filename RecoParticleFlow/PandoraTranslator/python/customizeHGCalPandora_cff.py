@@ -349,5 +349,66 @@ def cust_2023HGCalNoExtPix_ee18_fh9(process):
     process = customise_me0(process)
     if hasattr(process,'reconstruction_step'):
         process = propagate_layerdropping(process,layer_mask)
-    
+    return process
+
+def cust_hgcalTime_common(process):
+    if hasattr(process,'g4SimHits'):
+        process.g4SimHits.HGCSD.TimeSliceUnit = cms.double(1e-3) # 1ps in ns
+    return process
+
+def cust_hgcalPerfectTime(process):
+    cust_hgcalTime_common(process)
+    if hasattr(process,'digitisation_step'):
+        process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.tdcResolutionInPs = cms.double( 0.001 )
+        process.mix.digitizers.hgchefrontDigitizer.digiCfg.feCfg.tdcResolutionInPs = cms.double( 0.001 )
+    return process
+
+#default of 50ps time resolution
+def cust_hgcalTime(process):
+    cust_hgcalTime_common(process)
+    if hasattr(process,'digitisation_step'):
+        process.mix.digitizers.hgceeDigitizer.digiCfg.feCfg.tdcResolutionInPs = cms.double( 50.0 )
+        process.mix.digitizers.hgchefrontDigitizer.digiCfg.feCfg.tdcResolutionInPs = cms.double( 50.0 )
+    return process
+
+def cust_2023HGCalPandoraMuonFastTime(process):
+    process = cust_2023HGCalPandora_common(process)
+    process = cust_ecalTime(process)
+    process = cust_hgcalTime(process)
+    if hasattr(process,'RECOSIMEventContent'):
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+    if hasattr(process,'FEVTDEBUGEventContent'):
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+    if hasattr(process,'FEVTDEBUGHLTEventContent'):
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+    if hasattr(process,'digitisation_step'):
+        process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
+    if hasattr(process,'reconstruction_step'):
+        process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
+    # This next part limits the pileup to be in time only, as
+    # requested by the fast timing group
+    if hasattr(process,'mix'):
+        process.mix.minBunch = 0
+        process.mix.maxBunch = 0
+    return process
+
+def cust_2023HGCalPandoraMuonPerfectFastTime(process):
+    process = cust_2023HGCalPandora_common(process)
+    process = cust_ecalTime(process)
+    process = cust_hgcalPerfectTime(process)
+    if hasattr(process,'RECOSIMEventContent'):
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+    if hasattr(process,'FEVTDEBUGEventContent'):
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+    if hasattr(process,'FEVTDEBUGHLTEventContent'):
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+    if hasattr(process,'digitisation_step'):
+        process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
+    if hasattr(process,'reconstruction_step'):
+        process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
+    # This next part limits the pileup to be in time only, as
+    # requested by the fast timing group
+    if hasattr(process,'mix'):
+        process.mix.minBunch = 0
+        process.mix.maxBunch = 0
     return process
