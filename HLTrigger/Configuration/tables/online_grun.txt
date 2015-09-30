@@ -639,7 +639,7 @@ PhysicsEGammaCommissioningOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
 ParkingHadronsOutput						# JIRA: CMSHLT-487
-ParkingScoutingMonitorOutput					# JIRA: CMSHLT-487, CMSHLT-548
+PhysicsParkingScoutingMonitorOutput				# JIRA: CMSHLT-487, CMSHLT-548, CMSHLT-599
 ScoutingCaloOutput						# JIRA: CMSHLT-548
 ScoutingPFOutput						# JIRA: CMSHLT-548
 DQMOutput							# online DQMFileSaver
