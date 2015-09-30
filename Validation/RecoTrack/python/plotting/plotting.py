@@ -213,7 +213,7 @@ class FakeDuplicate:
         return self._name
 
     def create(self, tdirectory):
-        """Create and return the efficiency histogram from a TDirectory"""
+        """Create and return the fake+duplicate histogram from a TDirectory"""
         # Get the numerator/denominator histograms
         hassoc = _getObject(tdirectory, self._assoc)
         hdup = _getObject(tdirectory, self._dup)
@@ -239,7 +239,30 @@ class FakeDuplicate:
         return hfakedup
 
 class AggregateBins:
+    """Class to create a histogram by aggregating bins of another histogram to a bin of the resulting histogram."""
     def __init__(self, name, histoName, mapping, normalizeTo=None, scale=None, renameBin=None):
+        """Constructor.
+
+        Arguments:
+        name      -- String for the name of the resulting histogram
+        histoName -- String for the name of the source histogram
+        mapping   -- Dictionary or list for mapping the bins (see below)
+
+        Keyword arguments:
+        normalizeTo -- Optional string of a bin label in the source histogram. If given, all bins of the resulting histogram are divided by the value of this bin.
+        scale       -- Optional number for scaling the histogram (passed to ROOT.TH1.Scale())
+        renameBin   -- Optional function (string -> string) to rename the bins of the input histogram
+
+        Mapping structure (mapping):
+
+        Dictionary (you probably want to use collections.OrderedDict)
+        should be a mapping from the destination bin label to a list
+        of source bin labels ("dst -> [src]").
+
+        If the mapping is a list, it should only contain the source
+        bin labels. In this case, the resulting histogram contains a
+        subset of the bins of the source histogram.
+        """
         self._name = name
         self._histoName = histoName
         self._mapping = mapping
@@ -248,9 +271,11 @@ class AggregateBins:
         self._renameBin = renameBin
 
     def __str__(self):
+        """String representation, returns the name"""
         return self._name
 
     def create(self, tdirectory):
+        """Create and return the histogram from a TDirectory"""
         th1 = _getOrCreateObject(tdirectory, self._histoName)
         if th1 is None:
             return None
@@ -302,15 +327,27 @@ class AggregateBins:
         return result
 
 class AggregateHistos:
+    """Class to create a histogram by aggregaging integrals of another histoggrams."""
     def __init__(self, name, mapping, normalizeTo=None):
+        """Constructor.
+
+        Arguments:
+        name    -- String for the name of the resulting histogram
+        mapping -- Dictionary for mapping the bin label to a histogram name
+
+        Keyword arguments:
+        normalizeTo -- Optional string for a histogram. If given, all bins of the resulting histograqm are divided by the integral of this histogram.
+        """
         self._name = name
         self._mapping = mapping
         self._normalizeTo = normalizeTo
 
     def __str__(self):
+        """String representation, returns the name"""
         return self._name
 
     def create(self, tdirectory):
+        """Create and return the histogram from a TDirectory"""
         result = []
         for key, histoName in self._mapping.iteritems():
             th1 = _getObject(tdirectory, histoName)
@@ -336,16 +373,29 @@ class AggregateHistos:
         return res
 
 class ROC:
+    """Class to construct a ROC curve (e.g. efficiency vs. fake rate) from two histograms"""
     def __init__(self, name, xhistoName, yhistoName, zaxis=False):
+        """Constructor.
+
+        Arguments:
+        name       -- String for the name of the resulting histogram
+        xhistoName -- String for the name of the x-axis histogram (or another "creator" object)
+        yhistoName -- String for the name of the y-axis histogram (or another "creator" object)
+
+        Keyword arguments:
+        zaxis -- If set to True (default False), create a TGraph2D with z axis showing the cut value (recommended drawStyle 'pcolz')
+        """
         self._name = name
         self._xhistoName = xhistoName
         self._yhistoName = yhistoName
         self._zaxis = zaxis
 
     def __str__(self):
+        """String representation, returns the name"""
         return self._name
 
     def create(self, tdirectory):
+        """Create and return the histogram from a TDirectory"""
         xhisto = _getOrCreateObject(tdirectory, self._xhistoName)
         yhisto = _getOrCreateObject(tdirectory, self._yhistoName);
         if xhisto is None or yhisto is None:
@@ -385,6 +435,18 @@ _plotStylesColor = [4, 2, ROOT.kBlack, ROOT.kOrange+7, ROOT.kMagenta-3]
 _plotStylesMarker = [21, 20, 22, 34, 33]
 
 def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None, suffix=""):
+    """Function to draw a frame
+
+    Arguments:
+    pad    -- TPad to where the frame is drawn
+    bounds -- List or 4-tuple for (xmin, ymin, xmax, ymax)
+
+    Keyword arguments:
+    xbinlabels      -- Optional list of strings for x axis bin labels
+    xbinlabelsize   -- Optional number for the x axis bin label size
+    xbinlabeloption -- Optional string for the x axis bin options (passed to ROOT.TH1.LabelsOption())
+    suffix          -- Optional string for a postfix of the frame name
+    """
     if xbinlabels is None:
         frame = pad.DrawFrame(*bounds)
     else:
@@ -409,6 +471,7 @@ def _drawFrame(pad, bounds, xbinlabels=None, xbinlabelsize=None, xbinlabeloption
     return frame
 
 class Frame:
+    """Class for creating and managing a frame for a simple, one-pad plot"""
     def __init__(self, pad, bounds, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None):
         self._pad = pad
         self._frame = _drawFrame(pad, bounds, xbinlabels, xbinlabelsize, xbinlabeloption)
@@ -478,6 +541,7 @@ class Frame:
         self._pad.RedrawAxis()
 
 class FrameRatio:
+    """Class for creating and managing a frame for a ratio plot with two subpads"""
     def __init__(self, pad, bounds, ratioBounds, ratioFactor, nrows, xbinlabels=None, xbinlabelsize=None, xbinlabeloption=None):
         self._parentPad = pad
         self._pad = pad.cd(1)
@@ -596,8 +660,8 @@ class FrameRatio:
         self._pad.cd()
         self._pad.Pop() # Move the first pad on top
 
-# Makes incorporating TGraph2D much easier...
 class FrameTGraph2D:
+    """Class for creating and managing a frame for a plot from TGraph2D"""
     def __init__(self, pad, bounds, histos, ratioOrig, ratioFactor):
         self._pad = pad
         if ratioOrig:
@@ -835,6 +899,7 @@ class Plot:
         return len(filter(lambda h: h is not None, self._histograms))
 
     def isEmpty(self):
+        """Return true if there are no histograms created for the plot"""
         return self.getNumberOfHistograms() == 0
 
     def isTGraph2D(self):
@@ -850,6 +915,7 @@ class Plot:
             return str(self._name)
 
     def drawRatioUncertainty(self):
+        """Return true if the ratio uncertainty should be drawn"""
         return self._ratioUncertainty
 
     def _createOne(self, index, tdir):
@@ -1128,10 +1194,15 @@ class Plot:
                 legend.AddEntry(h, label, "LP")
 
     def _calculateRatios(self, histos):
+        """Calculate the ratios for a list of histograms"""
+
         def _divideOrZero(numerator, denominator):
             if denominator == 0:
                 return 0
             return numerator/denominator
+
+        # Define wrappers for TH1/TGraph/TGraph2D to have uniform interface
+        # TODO: having more global wrappers would make some things simpler also elsewhere in the code
         class WrapTH1:
             def __init__(self, th1, uncertainty):
                 self._th1 = th1
@@ -1316,6 +1387,7 @@ class PlotGroup:
         self._ratioFactor = 1.25
 
     def onlyForPileup(self):
+        """Return True if the PlotGroup is intended only for pileup samples"""
         return self._onlyForPileup
 
     def create(self, tdirectories, requireAllHistograms=False):
@@ -1405,6 +1477,7 @@ class PlotGroup:
         return self._save(canvas, saveFormat, prefix=prefix)
 
     def _drawSeparate(self, legendLabels, prefix, saveFormat, ratio):
+        """Internal method to do the drawing to separate files per Plot instead of a file per PlotGroup"""
         width = 500
         height = 500
         if ratio:
@@ -1462,6 +1535,7 @@ class PlotGroup:
         return ret
 
     def _modifyPadForRatio(self, pad):
+        """Internal method to set divide a pad to two for ratio plots"""
         pad.Divide(1, 2)
 
         divisionPoint = 1-1/self._ratioFactor
@@ -1545,9 +1619,11 @@ class PlotFolder:
             raise Exception("Got unexpected keyword arguments: "+ ",".join(kwargs.keys()))
 
     def loopSubFolders(self):
+        """Return True if the PlotGroups of this folder should be applied to the all subfolders"""
         return self._loopSubFolders
 
     def onlyForPileup(self):
+        """Return True if the folder is intended only for pileup samples"""
         return self._onlyForPileup
 
     def getPurpose(self):
@@ -1635,9 +1711,17 @@ class PlotFolder:
 
     # These are to be overridden by derived classes for customisation
     def translateSubFolder(self, dqmSubFolderName):
+        """Method called to (possibly) translate a subfolder name to more 'readable' form
+
+        The implementation in this (base) class just returns the
+        argument. The idea is that a deriving class might want to do
+        something more complex (like trackingPlots.TrackingPlotFolder
+        does)
+        """
         return dqmSubFolderName
 
     def getSelectionName(self, plotFolderName, translatedDqmSubFolder):
+        """Get selection name (used in output directory name and legend) from the name of PlotterFolder, and a return value of translateSubFolder"""
         ret = ""
         if plotFolderName != "":
             ret += "_"+plotFolderName
@@ -1646,19 +1730,42 @@ class PlotFolder:
         return ret
 
     def limitSubFolder(self, limitOnlyTo, translatedDqmSubFolder):
+        """Return True if this subfolder should be processed
+
+        Arguments:
+        limitOnlyTo            -- List/set/similar containing the translatedDqmSubFolder 
+        translatedDqmSubFolder -- Return value of translateSubFolder
+        """
         return translatedDqmSubFolder in limitOnlyTo
 
 class DQMSubFolder:
+    """Class to hold the original name and a 'translated' name of a subfolder in the DQM ROOT file"""
     def __init__(self, subfolder, translated):
         self.subfolder = subfolder
         self.translated = translated
 
     def equalTo(self, other):
+        """Equality is defined by the 'translated' name"""
         return self.translated == other.translated
 
 class PlotterFolder:
-    """Plotter for one DQM folder."""
+    """Plotter for one DQM folder.
+
+    This class is supposed to be instantiated by the Plotter class (or
+    PlotterItem, to be more specific), and not used directly by the
+    user.
+    """
     def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder, fallbackNames):
+        """
+        Constructor
+
+        Arguments:
+        name               -- Name of the folder (is used in the output directory naming)
+        possibleDqmFolders -- List of strings for possible directories of histograms in TFiles
+        dqmSubFolders      -- List of lists of strings for list of subfolders per input file, or None if no subfolders
+        plotFolder         -- PlotFolder object
+        fallbackNames      -- List of names for backward compatibility (can be empty). These are used only by validation.Validation (class responsible of the release validation workflow) in case the reference file pointed by 'name' does not exist.
+        """
         self._name = name
         self._possibleDqmFolders = possibleDqmFolders
         self._plotFolder = plotFolder
@@ -1692,6 +1799,12 @@ class PlotterFolder:
         return self._possibleDqmFolders
 
     def getDQMSubFolders(self, limitOnlyTo=None):
+        """Get list of subfolders, possibly limiting to some of them.
+
+        Keyword arguments:
+        limitOnlyTo -- Object depending on the PlotFolder type for limiting the set of subfolders to be processed
+        """
+
         if self._dqmSubFolders is None:
             return [None]
 
@@ -1701,6 +1814,7 @@ class PlotterFolder:
         return filter(lambda s: self._plotFolder.limitSubFolder(limitOnlyTo, s.translated), self._dqmSubFolders)
 
     def getSelectionNameIterator(self, dqmSubFolder):
+        """Get a generator for the 'selection name', looping over the name and fallbackNames"""
         for name in [self._name]+self._fallbackNames:
             yield self._plotFolder.getSelectionName(name, dqmSubFolder.translated if dqmSubFolder is not None else None)
 
@@ -1712,7 +1826,7 @@ class PlotterFolder:
         Arguments:
         files  -- List of TFiles
         labels -- List of strings for legend labels corresponding the files
-        dqmSubFolder -- ???
+        dqmSubFolder -- DQMSubFolder object for a subfolder (or None for no subfolder)
         isPileupSample -- Is sample pileup (some PlotGroups may limit themselves to pileup)
         requireAllHistograms -- If True, a plot is produced if histograms from all files are present (default: False)
         """
@@ -1757,7 +1871,18 @@ class PlotterItem:
         self._fallbackNames = fallbackNames
 
     def readDirs(self, files):
-        # Find out which of the "possibleDirs" exist in which file
+        """Read available subfolders from the files
+
+        Arguments:
+        files -- List of strings for paths to files, or list of TFiles
+
+        For each file, loop over 'possibleDirs', and read the
+        subfolders of first one that exists.
+
+        Returns a PlotterFolder if at least one file for which one of
+        'possibleDirs' exists. Otherwise, return None to signal that
+        there is nothing available for this PlotFolder.
+        """
         subFolders = None
         if self._plotFolder.loopSubFolders():
             subFolders = []
@@ -1789,7 +1914,7 @@ class PlotterItem:
         return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder, self._fallbackNames)
 
 class Plotter:
-    """Combines PlotFolder to possible directories."""
+    """Contains PlotFolders, i.e. the information what plots to do, and creates a helper object to actually produce the plots."""
     def __init__(self):
         self._plots = []
 
@@ -1828,4 +1953,5 @@ class Plotter:
         self._plots.append(PlotterItem(*args, **kwargs))
 
     def readDirs(self, *files):
+        """Returns PlotterInstance object, which knows how exactly to produce the plots for these files"""
         return PlotterInstance([plotterItem.readDirs(files) for plotterItem in self._plots])

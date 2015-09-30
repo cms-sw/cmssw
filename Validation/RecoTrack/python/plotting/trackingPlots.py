@@ -435,6 +435,12 @@ class TrackingPlotFolder(PlotFolder):
         return ret
 
     def limitSubFolder(self, limitOnlyTo, translatedDqmSubFolder):
+        """Return True if this subfolder should be processed
+
+        Arguments:
+        limitOnlyTo            -- Function '(algo, quality) -> bool'
+        translatedDqmSubFolder -- Return value of translateSubFolder
+        """
         (algo, quality) = translatedDqmSubFolder
         return limitOnlyTo(algo, quality)
 
