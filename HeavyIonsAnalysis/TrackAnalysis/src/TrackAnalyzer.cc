@@ -185,6 +185,7 @@ struct TrackEvent{
   float trkVz[MAXTRACKS];
   bool  trkFake[MAXTRACKS];
   int trkAlgo[MAXTRACKS];
+  int trkOriginalAlgo[MAXTRACKS];
   float trkMVA[MAXTRACKS];
   float dedx[MAXTRACKS];
   int trkCharge[MAXTRACKS];
@@ -240,6 +241,8 @@ struct TrackEvent{
   float mtrkDxy2[MAXTRACKS];
   float mtrkDxyError2[MAXTRACKS];
   int mtrkAlgo[MAXTRACKS];
+  int mtrkOriginalAlgo[MAXTRACKS];
+  float mtrkMVA[MAXTRACKS];
 
   // calo compatibility
   int mtrkPfType[MAXTRACKS];
@@ -573,18 +576,6 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel("hiGeneralTracks", "MVAVals", mvaoutput);
     
   if(doSimTrack_) {
-    // iEvent.getByLabel(tpFakeSrc_,TPCollectionHfake);
-    // if(associateChi2_){
-      // const TrackAssociatorByChi2 *theAssociatorByChi2;
-      // iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociator);
-      // theAssociatorByChi2 = (const TrackAssociatorByChi2*) theAssociator.product();
-      // recSimColl= theAssociatorByChi2->associateRecoToSim(trackCollection,TPCollectionHfake,&iEvent);
-    // }else{
-      // const TrackAssociatorByHits *theAssociatorByHits;
-      // iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theAssociator);
-      // theAssociatorByHits = (const TrackAssociatorByHits*) theAssociator.product();
-      // recSimColl= theAssociatorByHits->associateRecoToSim(trackCollection,TPCollectionHfake,&iEvent);
-    // }
    iEvent.getByLabel(associatorMap_,recotosimCollectionH);
    recSimColl= *(recotosimCollectionH.product());
   }
@@ -656,6 +647,7 @@ TrackAnalyzer::fillTracks(const edm::Event& iEvent, const edm::EventSetup& iSetu
     pev_.trkNlayer3D[pev_.nTrk] = etrk.hitPattern().pixelLayersWithMeasurement() + etrk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
 
     pev_.trkAlgo[pev_.nTrk] = etrk.algo();
+    pev_.trkOriginalAlgo[pev_.nTrk] = etrk.originalAlgo();
 
     // multiplicity variable
     if (pev_.trkQual[0][pev_.nTrk]&&
@@ -787,23 +779,19 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::SimToRecoCollection > simtorecoCollectionH;
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff;
   edm::Handle<edm::View<reco::Track> >  trackCollection;
+  edm::Handle<vector<reco::Track> > etracks;
 
   iEvent.getByLabel(tpEffSrc_,TPCollectionHeff);
   iEvent.getByLabel(trackSrc_,trackCollection);
   reco::SimToRecoCollection simRecColl;
 
+  iEvent.getByLabel(trackSrc_,etracks);
+  Handle<edm::ValueMap<float> > mvaoutput;
+  iEvent.getByLabel("hiGeneralTracks", "MVAVals", mvaoutput);
+  
   iEvent.getByLabel(associatorMap_,simtorecoCollectionH);
   simRecColl= *(simtorecoCollectionH.product());
-  // Make simtrk-to-rectrk association
-  // if(associateChi2_){
-    // iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByChi2",theAssociator);
-    // const TrackAssociatorByChi2 * theAssociatorByChi2 = (const TrackAssociatorByChi2*) theAssociator.product();
-    // simRecColl = theAssociatorByChi2->associateSimToReco(trackCollection,TPCollectionHeff,&iEvent);
-  // }else{
-    // iSetup.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theAssociator);
-    // const TrackAssociatorByHits * theAssociatorByHits = (const TrackAssociatorByHits*) theAssociator.product();
-    // simRecColl = theAssociatorByHits->associateSimToReco(trackCollection,TPCollectionHeff,&iEvent);
-  // }
+
 
   // Loop through sim tracks
   pev_.nParticle = 0;
@@ -881,7 +869,15 @@ TrackAnalyzer::fillSimTracks(const edm::Event& iEvent, const edm::EventSetup& iS
       pev_.mtrkDxy2[pev_.nParticle] = mtrk->dxy(v2);
       pev_.mtrkDxyError2[pev_.nParticle] = sqrt(mtrk->dxyError()*mtrk->dxyError()+pev_.xVtxErr[pev_.maxMultVtx]*pev_.yVtxErr[pev_.maxMultVtx]);
       pev_.mtrkAlgo[pev_.nParticle] = mtrk->algo();
-
+      pev_.mtrkOriginalAlgo[pev_.nParticle] = mtrk->originalAlgo();
+      
+      pev_.mtrkMVA[pev_.nParticle] = -99;
+	  if (pev_.mtrkPt[pev_.nParticle]>0) {
+        unsigned ind = mtrk - &((*etracks)[0]);                                                                   
+        reco::TrackRef trackRef=reco::TrackRef(etracks,ind);                                                                                    
+        pev_.mtrkMVA[pev_.nParticle] = (*mvaoutput)[trackRef];
+      }
+      
       // calo matching info for the matched track
       if(doPFMatching_) {
 	size_t mtrkkey = rt.begin()->first.key();
@@ -1162,6 +1158,7 @@ TrackAnalyzer::beginJob()
   trackTree_->Branch("trkDxyError2",&pev_.trkDxyError2,"trkDxyError2[nTrk]/F");
   trackTree_->Branch("trkFake",&pev_.trkFake,"trkFake[nTrk]/O");
   trackTree_->Branch("trkAlgo",&pev_.trkAlgo,"trkAlgo[nTrk]/I");
+  trackTree_->Branch("trkOriginalAlgo",&pev_.trkOriginalAlgo,"trkOriginalAlgo[nTrk]/I");
   trackTree_->Branch("trkMVA",&pev_.trkMVA,"trkMVA[nTrk]/F");
 
   if (doDebug_) {
@@ -1232,6 +1229,8 @@ TrackAnalyzer::beginJob()
       trackTree_->Branch("mtrkDxy2",&pev_.mtrkDxy2,"mtrkDxy2[nParticle]/F");
       trackTree_->Branch("mtrkDxyError2",&pev_.mtrkDxyError2,"mtrkDxyError2[nParticle]/F");
       trackTree_->Branch("mtrkAlgo",&pev_.mtrkAlgo,"mtrkAlgo[nParticle]/I");
+      trackTree_->Branch("mtrkOriginalAlgo",&pev_.mtrkOriginalAlgo,"mtrkOriginalAlgo[nParticle]/I");
+      trackTree_->Branch("mtrkMVA",&pev_.mtrkMVA,"mtrkMVA[nParticle]/F");
 
       if (doPFMatching_) {
 	trackTree_->Branch("mtrkPfType",&pev_.mtrkPfType,"mtrkPfType[nParticle]/I");
