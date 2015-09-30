@@ -506,29 +506,49 @@ class Validation:
         newGlobalTag = _getGlobalTag(sample, self._newRelease)
 
         # Construct selection string
-        tmp = ""
+        selectionNameBase = ""
         if sample.hasScenario():
-            tmp += "_"+sample.scenario()
-        tmp += "_"+sample.pileup()
-        tmp += plotterFolder.getSelectionName(dqmSubFolder)
-        refSelection = refGlobalTag+tmp
-        newSelection = newGlobalTag+tmp
+            selectionNameBase += "_"+sample.scenario()
+        selectionNameBase += "_"+sample.pileup()
+        newSelection = newGlobalTag+selectionNameBase+plotterFolder.getSelectionName(dqmSubFolder)
         if sample.hasPileup():
-            refPu = sample.pileupType(self._refRelease)
-            if refPu != "":
-                refSelection += "_"+refPu
             newPu = sample.pileupType(self._newRelease)
             if newPu != "":
                 newSelection += "_"+newPu
+        def _createRefSelection(selectionName):
+            sel = refGlobalTag+selectionNameBase+selectionName
+            if sample.hasPileup():
+                refPu = sample.pileupType(self._refRelease)
+                if refPu != "":
+                    sel += "_"+refPu
+            return sel
+        refSelection = _createRefSelection(plotterFolder.getSelectionName(dqmSubFolder))
 
         valname = "val.{sample}.root".format(sample=sample.name())
 
-        # Construct reference directory name
+        # Construct reference directory name, and open reference file it it exists
+        refValFile = None
+        triedRefValFiles = []
         tmp = [self._refRepository, self._refRelease]
         if sample.fastsim():
             tmp.extend(["fastsim", self._refRelease])
-        tmp.extend([refSelection, sample.name()])
-        refdir = os.path.join(*tmp)
+        for selName in plotterFolder.getSelectionNameIterator(dqmSubFolder):
+            refSel = _createRefSelection(selName)
+            refdir = os.path.join(*(tmp+[refSel, sample.name()]))
+
+            # Open reference file if it exists
+            refValFilePath = os.path.join(refdir, valname)
+            if os.path.exists(refValFilePath):
+                refSelection = refSel
+                refValFile = ROOT.TFile.Open(refValFilePath)
+                break
+            else:
+                triedRefValFiles.append(refValFilePath)
+        if refValFile is None:
+            if len(triedRefValFiles) == 1:
+                print "Reference file %s not found" % triedRefValFiles[0]
+            else:
+                print "None of the possible reference files %s not found" % ",".join(triedRefValFiles)
 
         # Construct new directory name
         tmp = []
@@ -537,14 +557,6 @@ class Validation:
         tmp.extend([newSelection, sample.name()])
         newsubdir = os.path.join(*tmp)
         newdir = os.path.join(self._newBaseDir, newsubdir)
-
-        # Open reference file if it exists
-        refValFilePath = os.path.join(refdir, valname)
-        if not os.path.exists(refValFilePath):
-            print "Reference file %s not found" % refValFilePath
-            refValFile = None
-        else:
-            refValFile = ROOT.TFile.Open(refValFilePath)
 
         # Copy the relevant histograms to a new validation root file
         # TODO: treat the case where dqmSubFolder is empty

@@ -75,9 +75,13 @@ _pageNameMap = {
 _sectionNameMapOrder = collections.OrderedDict([
     # These are for the summary page
     ("", "All tracks"),
+    ("highPurity", "High purity tracks"),
     ("allTPEffic", _allTPEfficName),
+    ("allTPEffic_highPurity", _allTPEfficName.replace("All", "High purity")),
     ("fromPV", _fromPVName),
+    ("fromPV_highPurity", "High purity "+_lowerFirst(_fromPVName)),
     ("fromPVAllTP", _fromPVAllTPName),
+    ("fromPVAllTP_highPurity", "High purity "+_lowerFirst(_fromPVAllTPName)),
     # These are for vertices
     ("offlinePrimaryVertices", "All vertices (offlinePrimaryVertices)"),
     ("selectedOfflinePrimaryVertices", "Selected vertices (selectedOfflinePrimaryVertices)"),

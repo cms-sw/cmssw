@@ -1658,7 +1658,7 @@ class DQMSubFolder:
 
 class PlotterFolder:
     """Plotter for one DQM folder."""
-    def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder):
+    def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder, fallbackNames):
         self._name = name
         self._possibleDqmFolders = possibleDqmFolders
         self._plotFolder = plotFolder
@@ -1668,6 +1668,8 @@ class PlotterFolder:
         else:
             self._dqmSubFolders = map(lambda sf: DQMSubFolder(sf, self._plotFolder.translateSubFolder(sf)), dqmSubFolders[0])
             self._dqmSubFolders = filter(lambda sf: sf.translated is not None, self._dqmSubFolders)
+
+        self._fallbackNames = fallbackNames
 
         # TODO: matchmaking of dqmsubfolders in case of differences between files
 
@@ -1698,8 +1700,12 @@ class PlotterFolder:
 
         return filter(lambda s: self._plotFolder.limitSubFolder(limitOnlyTo, s.translated), self._dqmSubFolders)
 
+    def getSelectionNameIterator(self, dqmSubFolder):
+        for name in [self._name]+self._fallbackNames:
+            yield self._plotFolder.getSelectionName(name, dqmSubFolder.translated if dqmSubFolder is not None else None)
+
     def getSelectionName(self, dqmSubFolder):
-        return self._plotFolder.getSelectionName(self._name, dqmSubFolder.translated if dqmSubFolder is not None else None)
+        return self.getSelectionNameIterator(dqmSubFolder).next()
 
     def create(self, files, labels, dqmSubFolder, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.
@@ -1734,14 +1740,27 @@ class PlotterInstance:
 
 # Helper for Plotter
 class PlotterItem:
-    def __init__(self, name, possibleDirs, plotFolder):
+    def __init__(self, name, possibleDirs, plotFolder, fallbackNames=[]):
+        """ Constructor
+
+        Arguments:
+        name          -- Name of the folder (is used in the output directory naming)
+        possibleDirs  -- List of strings for possible directories of histograms in TFiles
+        plotFolder    -- PlotFolder object
+
+        Keyword arguments
+        fallbackNames -- Optional list of names for backward compatibility. These are used only by validation.Validation (class responsible of the release validation workflow) in case the reference file pointed by 'name' does not exist.
+        """
         self._name = name
         self._possibleDirs = possibleDirs
         self._plotFolder = plotFolder
+        self._fallbackNames = fallbackNames
 
     def readDirs(self, files):
         # Find out which of the "possibleDirs" exist in which file
-        subFolders = []
+        subFolders = None
+        if self._plotFolder.loopSubFolders():
+            subFolders = []
         possibleDirFound = False
         for fname in files:
             isOpenFile = isinstance(fname, ROOT.TFile)
@@ -1753,7 +1772,7 @@ class PlotterItem:
                 d = tfile.Get(pd)
                 if d:
                     possibleDirFound = True
-                    if self._plotFolder.loopSubFolders():
+                    if subFolders is not None:
                         subf = []
                         for key in d.GetListOfKeys():
                             if isinstance(key.ReadObj(), ROOT.TDirectory):
@@ -1767,10 +1786,7 @@ class PlotterItem:
         if not possibleDirFound:
             return None
 
-        if not self._plotFolder.loopSubFolders():
-            return PlotterFolder(self._name, self._possibleDirs, None, self._plotFolder)
-
-        return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder)
+        return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder, self._fallbackNames)
 
 class Plotter:
     """Combines PlotFolder to possible directories."""
@@ -1804,15 +1820,12 @@ class Plotter:
 
         ROOT.TH1.AddDirectory(False)
 
-    def append(self, name, possibleDirs, plotFolder):
+    def append(self, *args, **kwargs):
         """Append a plot folder to the plotter.
 
-        Arguments:
-        name         -- Name of the folder (is used in the output directory naming)
-        possibleDirs -- List of strings for possible directories of histograms in TFiles
-        plotFolder   -- PlotFolder object
+        All arguments are forwarded to the constructor of PlotterItem.
         """
-        self._plots.append(PlotterItem(name, possibleDirs, plotFolder))
+        self._plots.append(PlotterItem(*args, **kwargs))
 
     def readDirs(self, *files):
         return PlotterInstance([plotterItem.readDirs(files) for plotterItem in self._plots])

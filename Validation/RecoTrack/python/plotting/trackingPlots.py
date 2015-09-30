@@ -335,7 +335,7 @@ _summaryN = PlotGroup("summary_ntracks", [
 ])
 _commonAB = {"mapping": _collLabelMapHp,
              "renameBin": lambda bl: _summaryBinRename(bl, True)}
-_summaryHp = PlotGroup("summaryHp", [
+_summaryHp = PlotGroup("summary", [
     Plot(AggregateBins("efficiency", "effic_vs_coll", **_commonAB),
          title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
     Plot(AggregateBins("efficiencyefficiencyAllPt", "effic_vs_coll", **_commonAB),
@@ -344,7 +344,7 @@ _summaryHp = PlotGroup("summaryHp", [
     Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", **_commonAB), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
     Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
 ])
-_summaryNHp = PlotGroup("summaryHp_ntracks", [
+_summaryNHp = PlotGroup("summary_ntracks", [
     Plot(AggregateBins("num_reco_coll", "num_reco_coll", **_commonAB), ytitle="Tracks", title="Number of tracks vs collection", **_commonN),
     Plot(AggregateBins("num_signal_coll", "num_assoc(recoToSim)_coll", **_commonAB), ytitle="Signal tracks", title="Number of signal tracks vs collection", **_commonN),
     Plot(AggregateBins("num_fake_coll", Subtract("num_fake_coll_orig", "num_reco_coll", "num_assoc(recoToSim)_coll"), **_commonAB), ytitle="Fake tracks", title="Number of fake tracks vs collection", **_commonN),
@@ -470,8 +470,10 @@ _recoBasedPlots = [
 ]
 _summaryPlots = [
     _summary,
-    _summaryHp,
     _summaryN,
+]
+_summaryPlotsHp = [
+    _summaryHp,
     _summaryNHp,
 ]
 _packedCandidatePlots = [
@@ -492,6 +494,11 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
     plotter.append(summaryName, _trackingFolders(lastDirName),
                    PlotFolder(*_summaryPlots, loopSubFolders=False, onlyForPileup=onlyForPileup,
                               purpose=PlotPurpose.TrackingSummary, page="summary", section=name))
+    plotter.append(summaryName+"_highPurity", _trackingFolders(lastDirName),
+                   PlotFolder(*_summaryPlotsHp, loopSubFolders=False, onlyForPileup=onlyForPileup,
+                              purpose=PlotPurpose.TrackingSummary, page="summary",
+                              section=name+"_highPurity" if name != "" else "highPurity"),
+                   fallbackNames=[summaryName]) # backward compatibility for release validation, the HP plots used to be in the same directory with all-track plots
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
