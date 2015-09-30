@@ -29,8 +29,9 @@
 #include "Geometry/DTGeometry/interface/DTChamber.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
-#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMSuperChamber.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -736,6 +737,7 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
       TGeoVolume* tv =  GetTopHolder("Muon", kMuonRPC);
       TGeoVolume *assembly = GetDaughter(tv, "GEM", kMuonGEM);
 
+      // Loop over EtaPartitions
       for( auto it = gemGeom->etaPartitions().begin(),
               end = gemGeom->etaPartitions().end(); 
            it != end; ++it )
@@ -759,6 +761,33 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
             AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
          }
       }
+
+      // Loop over SuperChambers
+      for( auto it = gemGeom->superChambers().begin(),
+              end = gemGeom->superChambers().end(); 
+           it != end; ++it )
+      {
+         const GEMSuperChamber* supcha = (*it);
+         if( supcha )
+         {
+            GEMDetId detid = supcha->geographicalId();
+            std::stringstream s;
+            s << detid;
+            std::string name = s.str();
+      
+            TGeoVolume* child = createVolume( name, supcha, kMuonGEM );
+
+            TGeoVolume* holder  = GetDaughter(assembly, "SUPERCHAMBER Region", kMuonGEM , detid.region());
+            holder = GetDaughter(holder, "Ring", kMuonGEM , detid.ring());
+            holder = GetDaughter(holder, "Station", kMuonGEM , detid.station()); 
+            holder = GetDaughter(holder, "Layer", kMuonGEM , detid.layer()); 
+            holder = GetDaughter(holder, "Chamber", kMuonGEM , detid.chamber()); 
+
+            AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+         }
+      }
+
+
    }catch (cms::Exception &exception) {
     edm::LogInfo("FWRecoGeometry") << "failed to produce GEM geometry " << exception.what() << std::endl;
 
