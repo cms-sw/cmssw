@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -22,6 +21,7 @@
 #include "FWCore/Framework/interface/DataKeyTags.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include <DataFormats/EgammaCandidates/interface/GsfElectron.h>
@@ -78,8 +78,6 @@
 //
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
-#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 #include <iostream>
 #include <fstream>
@@ -168,14 +166,13 @@ private:
   edm::EDGetTokenT<EBRecHitCollection> ecalBarrelRecHitToken_; // reducedEcalRecHitsEB
   edm::EDGetTokenT<EERecHitCollection> ecalEndcapRecHitToken_; // reducedEcalRecHitsEE
 
-  edm::EDGetTokenT<reco::JetCorrector> correctorToken_;
-
   ///////////////////////////
   // Parameters
   ///////////////////////////
   // Cuts - MultiJets
   // inputs
-
+  std::string CaloJetCorService_;
+  std::string PFJetCorService_;
   reco::helper::JetIDHelper *jetID;
 
   //Varibles Used
@@ -237,7 +234,6 @@ private:
   std::vector<MonitorElement*> dijet_deltaEtaPFJet1PFJet2;
   std::vector<MonitorElement*> dijet_deltaRPFJet1PFJet2;
   std::vector<MonitorElement*> dijet_invMassPFJet1PFJet2;
-  std::vector<MonitorElement*> dijet_invMassPFJet1PFJet2_Tail;
   std::vector<MonitorElement*> dijet_PFchef;
   std::vector<MonitorElement*> dijet_PFnhef;
   std::vector<MonitorElement*> dijet_PFcemf;
@@ -343,8 +339,6 @@ private:
   MonitorElement* monomuon_MuonPtOverPFMet;
   MonitorElement* monomuon_deltaPhiMuonPFMet;
   MonitorElement* monomuon_TransverseMass;
-  MonitorElement* monomuon_TransverseMassBarrel;
-  MonitorElement* monomuon_TransverseMassEndcap;
   MonitorElement* monomuon_MuonMulti;
   //
   double monomuon_Muon_pt_cut_;
@@ -363,8 +357,6 @@ private:
   MonitorElement* monoelectron_PFMet_phi;
   MonitorElement* monoelectron_deltaPhiElectronPFMet;
   MonitorElement* monoelectron_TransverseMass;
-  MonitorElement* monoelectron_TransverseMassBarrel;
-  MonitorElement* monoelectron_TransverseMassEndcap;
   MonitorElement* monoelectron_ElectronMulti;
   //
   double monoelectron_Electron_pt_cut_;
