@@ -12,10 +12,10 @@ void CmsDetConstruction::buildComponent(DDFilteredView& fv,
   LogTrace("DetConstruction") << " CmsDetConstruction::buildComponent ";
 
   GeometricDet * det  = new GeometricDet(&fv,theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
+  //Phase1 possibility: the GeometricDet can be a mergedDet
   if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) ==  GeometricDet::mergedDet){
-    //
+
     // I have to go one step lower ...
-    //
     bool dodets = fv.firstChild(); // descend to the first Layer
     while (dodets) {
       buildSmallDetsforGlued(fv,det,attribute);
@@ -25,21 +25,23 @@ void CmsDetConstruction::buildComponent(DDFilteredView& fv,
 	*/
     }
     fv.parent();
-  } else if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) ==  GeometricDet::OTPhase2Stack){
+  }
+  //Phase2 possibility: the GeometricDet can be a stackDet - same procedure
+  else if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) ==  GeometricDet::OTPhase2Stack){
   
     LogTrace("DetConstruction") << " a stack ";
 
-    bool dodets = fv.firstChild(); // descend to the first Layer
+    bool dodets = fv.firstChild(); 
     while (dodets) {
       LogTrace("DetConstruction") << " new child! ";
       buildSmallDetsforStack(fv,det,attribute);
-      dodets = fv.nextSibling(); // go to next layer
+      dodets = fv.nextSibling(); 
     }
     fv.parent();
   }
-
   
   mother->addComponent(det);
+
 }
 
 void CmsDetConstruction::buildSmallDetsforGlued(DDFilteredView& fv, 
@@ -67,20 +69,19 @@ void CmsDetConstruction::buildSmallDetsforStack(DDFilteredView& fv,
 
   LogTrace("DetConstruction") << " CmsPhase2OTDetConstruction::buildSmallDetsforStacks ";
   GeometricDet * det  = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
-  static const std::string isInner = "TrackerInnerDetectors";
-  static const std::string isOuter = "TrackerOuterDetectors";
-/*
-  if (ExtractStringFromDDD::getString(isInner,&fv) == "true"){
-    LogTrace("DetConstruction") << " inner ";
+  static const std::string isLower = "TrackerLowerDetectors";
+  static const std::string isUpper = "TrackerUpperDetectors";
+
+  if (ExtractStringFromDDD::getString(isLower,&fv) == "true"){
+    LogTrace("DetConstruction") << " lower ";
     uint32_t temp = 1;
     det->setGeographicalID(DetId(temp));
-  } else if (ExtractStringFromDDD::getString(isOuter,&fv) == "true"){
-    LogTrace("DetConstruction") << " outer ";
+  } else if (ExtractStringFromDDD::getString(isUpper,&fv) == "true"){
+    LogTrace("DetConstruction") << " upper ";
     uint32_t temp = 2;
     det->setGeographicalID(DetId(temp));
   } else {
-    edm::LogError("DetConstruction") << " module defined as a Stack but not inner either outer!? ";
+    edm::LogError("DetConstruction") << " module defined in a Stack but not upper either lower!? ";
   }
-*/
   mother->addComponent(det);
 }
