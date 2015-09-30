@@ -30,7 +30,7 @@ class TriggerBitChecker {
         // list of path name prefixes
         std::vector<pathStruct> paths_;
     
-        mutable unsigned int lastRun_;
+        mutable edm::ParameterSetID lastID_;
         mutable std::vector<unsigned int> indices_;
 
         /// sync indices with path names
