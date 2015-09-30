@@ -17,7 +17,7 @@ ExoticaDQM = cms.EDAnalyzer(
     photonCollection         = cms.InputTag("gedPhotons"),
 
     pfJetCollection          = cms.InputTag('ak4PFJetsCHS'),
-    corrector                = cms.InputTag('ak4PFCHSL1FastjetCorrector'),
+    PFJetCorService          = cms.string("ak4PFL1FastL2L3"),
 
     DiJetPFJetCollection     = cms.VInputTag('ak4PFJetsCHS','ak8PFJetsCHS'),
 
