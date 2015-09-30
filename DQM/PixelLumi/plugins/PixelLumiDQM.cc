@@ -666,6 +666,12 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   strftime(datestring, sizeof(datestring),"%Y.%m.%d %T GMT %s",ts);
   logFile_ << "RunNumber "<< fRunNo << std::endl;
   logFile_ << "EndTimeOfFit " << datestring << std::endl;
+  logFile_ << "LumiRange "<< ls << "-" << ls << std::endl;
+  logFile_ << "Fill "<< -99 << std::endl;
+  logFile_ << "ActiveBunchCrossings "<< filledAndUnmaskedBunches << std::endl;
+  logFile_ << "PixelLumi "<< fHistTotalRecordedLumiByLS->getBinContent(ls) * 0.98 << std::endl;
+  logFile_ << "HFLumi "<< -99 << std::endl;
+  logFile_ << "Ratio " << -99 << std::endl;
   logFile_.close();
 }
 
