@@ -1,6 +1,6 @@
 import collections
 
-from plotting import FakeDuplicate, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
+from plotting import Subtract, FakeDuplicate, AggregateBins, ROC, Plot, PlotGroup, PlotFolder, Plotter
 import validation
 from html import PlotPurpose
 
@@ -15,6 +15,7 @@ _maxFake = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025]
 
 #_minMaxResol = [1e-5, 2e-5, 5e-5, 1e-4, 2e-4, 5e-4, 1e-3, 2e-3, 5e-3, 1e-2, 2e-2, 5e-2, 0.1, 0.2, 0.5, 1]
 _minMaxResol = [1e-5, 4e-5, 1e-4, 4e-4, 1e-3, 4e-3, 1e-2, 4e-2, 0.1, 0.4, 1]
+_minMaxN = [5e-1, 5, 5e1, 5e2, 5e3, 5e4, 5e5, 5e6, 5e7, 5e8, 5e9]
 
 _effandfake1 = PlotGroup("effandfake1", [
     Plot("efficPt", title="Efficiency vs p_{T}", xtitle="TP p_{T} (GeV)", ytitle="efficiency vs p_{T}", xlog=True, ymax=_maxEff),
@@ -313,6 +314,8 @@ def _summaryBinRename(binLabel, highPurity):
 _common = {"drawStyle": "EP", "xbinlabelsize": 10, "xbinlabeloption": "d"}
 _commonAB = {"mapping": _collLabelMap,
              "renameBin": lambda bl: _summaryBinRename(bl, False)}
+_commonN = {"ylog": True, "ymin": _minMaxN, "ymax": _minMaxN}
+_commonN.update(_common)
 _summary = PlotGroup("summary", [
     Plot(AggregateBins("efficiency", "effic_vs_coll", **_commonAB),
          title="Efficiency vs collection", ytitle="Efficiency", ymin=1e-3, ymax=1, ylog=True, **_common),
@@ -322,6 +325,13 @@ _summary = PlotGroup("summary", [
     Plot(AggregateBins("fakerate", "fakerate_vs_coll", **_commonAB), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
     Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", **_commonAB), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
     Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
+])
+_summaryN = PlotGroup("summary_ntracks", [
+    Plot(AggregateBins("num_reco_coll", "num_reco_coll", **_commonAB), ytitle="Tracks", title="Number of tracks vs collection", **_commonN),
+    Plot(AggregateBins("num_signal_coll", "num_assoc(recoToSim)_coll", **_commonAB), ytitle="Signal tracks", title="Number of signal tracks vs collection", **_commonN),
+    Plot(AggregateBins("num_fake_coll", Subtract("num_fake_coll_orig", "num_reco_coll", "num_assoc(recoToSim)_coll"), **_commonAB), ytitle="Fake tracks", title="Number of fake tracks vs collection", **_commonN),
+    Plot(AggregateBins("num_pileup_coll", "num_pileup_coll", **_commonAB), ytitle="Pileup tracks", title="Number of pileup tracks vs collection", **_commonN),
+    Plot(AggregateBins("num_duplicate_coll", "num_duplicate_coll", **_commonAB), ytitle="Duplicate tracks", title="Number of duplicate tracks vs collection", **_commonN),
 ])
 _commonAB = {"mapping": _collLabelMapHp,
              "renameBin": lambda bl: _summaryBinRename(bl, True)}
@@ -333,6 +343,13 @@ _summaryHp = PlotGroup("summaryHp", [
     Plot(AggregateBins("fakerate", "fakerate_vs_coll", **_commonAB), title="Fakerate vs collection", ytitle="Fake rate", ymax=_maxFake, **_common),
     Plot(AggregateBins("duplicatesRate", "duplicatesRate_coll", **_commonAB), title="Duplicates rate vs collection", ytitle="Duplicates rate", ymax=_maxFake, **_common),
     Plot(AggregateBins("pileuprate", "pileuprate_coll", **_commonAB), title="Pileup rate vs collection", ytitle="Pileup rate", ymax=_maxFake, **_common),
+])
+_summaryNHp = PlotGroup("summaryHp_ntracks", [
+    Plot(AggregateBins("num_reco_coll", "num_reco_coll", **_commonAB), ytitle="Tracks", title="Number of tracks vs collection", **_commonN),
+    Plot(AggregateBins("num_signal_coll", "num_assoc(recoToSim)_coll", **_commonAB), ytitle="Signal tracks", title="Number of signal tracks vs collection", **_commonN),
+    Plot(AggregateBins("num_fake_coll", Subtract("num_fake_coll_orig", "num_reco_coll", "num_assoc(recoToSim)_coll"), **_commonAB), ytitle="Fake tracks", title="Number of fake tracks vs collection", **_commonN),
+    Plot(AggregateBins("num_pileup_coll", "num_pileup_coll", **_commonAB), ytitle="Pileup tracks", title="Number of pileup tracks vs collection", **_commonN),
+    Plot(AggregateBins("num_duplicate_coll", "num_duplicate_coll", **_commonAB), ytitle="Duplicate tracks", title="Number of duplicate tracks vs collection", **_commonN),
 ])
 
 ########################################
@@ -454,6 +471,8 @@ _recoBasedPlots = [
 _summaryPlots = [
     _summary,
     _summaryHp,
+    _summaryN,
+    _summaryNHp,
 ]
 _packedCandidatePlots = [
     _packedCandidateFlow,

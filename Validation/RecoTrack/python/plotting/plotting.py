@@ -143,6 +143,48 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
 
     return (xmin, ymin, xmax, ymax)
 
+class Subtract:
+    """Class for subtracting two histograms"""
+    def __init__(self, name, nameA, nameB, title=""):
+        """Constructor
+
+        Arguments:
+        name  -- String for name of the resulting histogram (A-B)
+        nameA -- String for A histogram
+        nameB -- String for B histogram
+
+        Keyword arguments:
+        title -- String for a title of the resulting histogram (default "")
+
+        Uncertainties are calculated with the assumption that B is a
+        subset of A, and the histograms contain event counts.
+        """
+        self._name = name
+        self._nameA = nameA
+        self._nameB = nameB
+        self._title = title
+
+    def __str__(self):
+        """String representation, returns the name"""
+        return self._name
+
+    def create(self, tdirectory):
+        """Create and return the fake+duplicate histogram from a TDirectory"""
+        histoA = _getObject(tdirectory, self._nameA)
+        histoB = _getObject(tdirectory, self._nameB)
+
+        if not histoA or not histoB:
+            return None
+
+        ret = histoA.Clone(self._name)
+        ret.SetTitle(self._title)
+
+        for i in xrange(1, histoA.GetNbinsX()+1):
+            val = histoA.GetBinContent(i)-histoB.GetBinContent(i)
+            ret.SetBinContent(i, val)
+            ret.SetBinError(i, math.sqrt(val))
+
+        return ret
 
 class FakeDuplicate:
     """Class to calculate the fake+duplicate rate"""
@@ -209,7 +251,7 @@ class AggregateBins:
         return self._name
 
     def create(self, tdirectory):
-        th1 = _getObject(tdirectory, self._histoName)
+        th1 = _getOrCreateObject(tdirectory, self._histoName)
         if th1 is None:
             return None
 
