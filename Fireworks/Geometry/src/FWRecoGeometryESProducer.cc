@@ -255,27 +255,40 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   try 
   {
     const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+
+    // Loop over EtaPartitions
     for(auto roll : gemGeom->etaPartitions())
     { 
       if( roll )
-      {
-	unsigned int rawid = roll->geographicalId().rawId();
-	unsigned int current = insert_id( rawid );
-	fillShapeAndPlacement( current, roll );
-
-	const StripTopology& topo = roll->specificTopology();
-	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
-
-	float height = topo.stripLength()/2;
-	LocalPoint  lTop( 0., height, 0.);
-	LocalPoint  lBottom( 0., -height, 0.);
-	m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
-	m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
-	m_fwGeometry->idToName[current].topology[5] = roll->npads();
-      }
+	{
+	  unsigned int rawid = roll->geographicalId().rawId();
+	  unsigned int current = insert_id( rawid );
+	  fillShapeAndPlacement( current, roll );
+	  
+	  const StripTopology& topo = roll->specificTopology();
+	  m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	  m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	  m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+	  
+	  float height = topo.stripLength()/2;
+	  LocalPoint  lTop( 0., height, 0.);
+	  LocalPoint  lBottom( 0., -height, 0.);
+	  m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+	  m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+	  m_fwGeometry->idToName[current].topology[5] = roll->npads();
+	}
     }
+
+    // Loop over SuperChambers
+    for( auto supcha : gemGeom->superChambers())
+      {
+	if( supcha )
+	  {
+	    unsigned int rawid = supcha->geographicalId().rawId();
+	    unsigned int current = insert_id( rawid );
+	    fillShapeAndPlacement( current, supcha );
+	  }
+      }
 
     m_fwGeometry->extraDet.Add(new TNamed("GEM", "GEM muon detector"));
     try {
