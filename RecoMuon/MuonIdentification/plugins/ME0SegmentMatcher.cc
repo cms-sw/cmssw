@@ -39,6 +39,84 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 
+#ifndef ME0Segment_ME0SegmentMatcher_h
+#define ME0Segment_ME0SegmentMatcher_h
+
+/** \class ME0SegmentMatcher 
+ *
+ * \author David Nash
+ */
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
+#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include <Geometry/GEMGeometry/interface/ME0EtaPartition.h>
+#include <Geometry/Records/interface/MuonGeometryRecord.h>
+#include <DataFormats/MuonDetId/interface/ME0DetId.h>
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include <DataFormats/GEMRecHit/interface/ME0SegmentCollection.h>
+#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
+
+
+
+class FreeTrajectoryState;
+class MagneticField;
+class ME0SegmentMatcher : public edm::stream::EDProducer<> {
+public:
+  /// Constructor
+  explicit ME0SegmentMatcher(const edm::ParameterSet&);
+  /// Destructor
+  ~ME0SegmentMatcher();
+  /// Produce the ME0Segment collection
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+
+    
+  virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+
+
+
+  FreeTrajectoryState getFTS(const GlobalVector& , const GlobalVector& , 
+			     int , const AlgebraicSymMatrix66& ,
+			     const MagneticField* );
+
+  FreeTrajectoryState getFTS(const GlobalVector& , const GlobalVector& , 
+			     int , const AlgebraicSymMatrix55& ,
+			     const MagneticField* );
+
+  void getFromFTS(const FreeTrajectoryState& ,
+		  GlobalVector& , GlobalVector& , 
+		  int& , AlgebraicSymMatrix66& );
+
+private:
+
+
+
+  double theX_RESIDUAL_CUT, theX_PULL_CUT, theY_RESIDUAL_CUT, theY_PULL_CUT, thePHIDIR_RESIDUAL_CUT;
+  edm::InputTag OurSegmentsTag, generalTracksTag;
+  edm::EDGetTokenT<ME0SegmentCollection> OurSegmentsToken_;
+  edm::EDGetTokenT<reco::TrackCollection> generalTracksToken_;
+
+  
+};
+
+#endif
+
 ME0SegmentMatcher::ME0SegmentMatcher(const edm::ParameterSet& pas) {
   produces<std::vector<reco::ME0Muon> >();  
   theX_PULL_CUT   = pas.getParameter<double>("maxPullX");
@@ -61,12 +139,12 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
     //Getting the objects we'll need
     using namespace edm;
 
+    ESHandle<ME0Geometry> me0Geom;
+    setup.get<MuonGeometryRecord>().get(me0Geom);
     ESHandle<MagneticField> bField;
     setup.get<IdealMagneticFieldRecord>().get(bField);
-    //ESHandle<Propagator> shProp;
-    //setup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", shProp);
-    const SteppingHelixPropagator* ThisshProp;
-    ThisshProp = new SteppingHelixPropagator(&*bField,alongMomentum);
+    ESHandle<Propagator> ThisshProp;
+    setup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAlong", ThisshProp);
 
     using namespace reco;
 
@@ -194,7 +272,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	 if ( (std::abs(thisPosition.x()-r3FinalReco.x()) < (theX_PULL_CUT * sigmax)) || (std::abs(thisPosition.x()-r3FinalReco.x()) < theX_RESIDUAL_CUT ) ) X_MatchFound = true;
 	 if ( (std::abs(thisPosition.y()-r3FinalReco.y()) < (theY_PULL_CUT * sigmay)) || (std::abs(thisPosition.y()-r3FinalReco.y()) < theY_RESIDUAL_CUT ) ) Y_MatchFound = true;
 
-	 if (reco::deltaPhi(p3FinalReco_glob.phi(),roll->toGlobal(thisSegment->localDirection()).phi()) < thePHIDIR_RESIDUAL_CUT) Dir_MatchFound = true;
+	 if ( std::abs(reco::deltaPhi(p3FinalReco_glob.phi(),roll->toGlobal(thisSegment->localDirection()).phi())) < thePHIDIR_RESIDUAL_CUT) Dir_MatchFound = true;
 
 	 //Check for a Match, and if there is a match, check the delR from the segment, keeping only the closest in MuonCandidate
 	 if (X_MatchFound && Y_MatchFound && Dir_MatchFound) {
@@ -279,7 +357,7 @@ void ME0SegmentMatcher::getFromFTS(const FreeTrajectoryState& fts,
 
 void ME0SegmentMatcher::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 {
-  iSetup.get<MuonGeometryRecord>().get(me0Geom);
+
 }
 
 

@@ -75,15 +75,15 @@ bool muon::isGoodMuon(const reco::ME0Muon& me0muon, double MaxPullX, double MaxD
   LocalPoint thisPosition(thisSegment.localPosition());
 
   
-  Double_t sigmax = sqrt(C[3][3]+thisSegment.localPositionError().xx() );      
-  Double_t sigmay = sqrt(C[4][4]+thisSegment.localPositionError().yy() );
+  double sigmax = sqrt(C[3][3]+thisSegment.localPositionError().xx() );      
+  double sigmay = sqrt(C[4][4]+thisSegment.localPositionError().yy() );
 
   bool X_MatchFound = false, Y_MatchFound = false, Dir_MatchFound = false;
   
   
   if ( ( (std::abs(thisPosition.x()-r3FinalReco.x())/sigmax ) < MaxPullX ) || (std::abs(thisPosition.x()-r3FinalReco.x()) < MaxDiffX ) ) X_MatchFound = true;
   if ( ( (std::abs(thisPosition.y()-r3FinalReco.y())/sigmay ) < MaxPullY ) || (std::abs(thisPosition.y()-r3FinalReco.y()) < MaxDiffY ) ) Y_MatchFound = true;
-  if ( reco::deltaPhi(me0muon.localTrackMomAtSurface().phi(),thisSegment.localDirection().phi()) < MaxDiffPhiDir) Dir_MatchFound = true;
+  if ( std::abs(reco::deltaPhi(me0muon.localTrackMomAtSurface().phi(),thisSegment.localDirection().phi())) < MaxDiffPhiDir) Dir_MatchFound = true;
 
   return (X_MatchFound && Y_MatchFound && Dir_MatchFound);
 
