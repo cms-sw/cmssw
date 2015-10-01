@@ -180,8 +180,7 @@
   <selection>
     <class name="std::vector<EmulatedME0Segment>"/>
     <class name="EmulatedME0Segment" ClassVersion="12">
-      <version ClassVersion="12" checksum="1065224607"/>
-      <version ClassVersion="11" checksum="2771665507"/>
+      <version ClassVersion="2" checksum="1065224607"/>
     </class>
     <class name="edm::Wrapper<std::vector<EmulatedME0Segment> >"/>
     

@@ -50,13 +50,13 @@ namespace reco {
     const AlgebraicSymMatrix66& globalTrackCov() const { return globalTrackCov_; }
     const AlgebraicSymMatrix55& localTrackCov() const { return localTrackCov_; }
 
-    void setGlobalTrackPosAtSurface(const GlobalPoint globalTrackPosAtSurface) { globalTrackPosAtSurface_ = globalTrackPosAtSurface; }
-    void setGlobalTrackMomAtSurface(const GlobalVector globalTrackMomAtSurface) { globalTrackMomAtSurface_ = globalTrackMomAtSurface; }
-    void setLocalTrackPosAtSurface(const LocalPoint localTrackPosAtSurface) { localTrackPosAtSurface_ = localTrackPosAtSurface; }
-    void setLocalTrackMomAtSurface(const LocalVector localTrackMomAtSurface) { localTrackMomAtSurface_ = localTrackMomAtSurface; }
-    void setTrackCharge(const int trackCharge) { trackCharge_ = trackCharge; }
-    void setGlobalTrackCov(const AlgebraicSymMatrix66 trackCov) { globalTrackCov_ = trackCov; }
-    void setLocalTrackCov(const AlgebraicSymMatrix55 trackCov) { localTrackCov_ = trackCov; }
+    void setGlobalTrackPosAtSurface(const GlobalPoint& globalTrackPosAtSurface) { globalTrackPosAtSurface_ = globalTrackPosAtSurface; }
+    void setGlobalTrackMomAtSurface(const GlobalVector& globalTrackMomAtSurface) { globalTrackMomAtSurface_ = globalTrackMomAtSurface; }
+    void setLocalTrackPosAtSurface(const LocalPoint& localTrackPosAtSurface) { localTrackPosAtSurface_ = localTrackPosAtSurface; }
+    void setLocalTrackMomAtSurface(const LocalVector& localTrackMomAtSurface) { localTrackMomAtSurface_ = localTrackMomAtSurface; }
+    void setTrackCharge(const int& trackCharge) { trackCharge_ = trackCharge; }
+    void setGlobalTrackCov(const AlgebraicSymMatrix66& trackCov) { globalTrackCov_ = trackCov; }
+    void setLocalTrackCov(const AlgebraicSymMatrix55& trackCov) { localTrackCov_ = trackCov; }
      
   private:
     /// check overlap with another candidate
