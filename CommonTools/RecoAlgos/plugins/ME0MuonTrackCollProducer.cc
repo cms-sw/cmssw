@@ -6,22 +6,54 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
-//#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "RecoMuon/MuonIdentification/plugins/ME0MuonSelector.cc"
-#include <FWCore/Framework/interface/ESHandle.h>
+#include "FWCore/Framework/interface/ESHandle.h"
 
+#include "sstream"
 
-// #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
-// #include <Geometry/GEMGeometry/interface/ME0EtaPartition.h>
-// #include <Geometry/Records/interface/MuonGeometryRecord.h>
-// #include <DataFormats/MuonDetId/interface/ME0DetId.h>
+#ifndef CommonTools_RecoAlgos_ME0MuonTrackCollProducer_h
+#define CommonTools_RecoAlgos_ME0MuonTrackCollProducer_h
 
-#include <sstream>
+#include <memory>
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/ME0Muon.h"
+#include "DataFormats/MuonReco/interface/ME0MuonCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
+class ME0MuonTrackCollProducer : public edm::stream::EDProducer<> {
+public:
+  explicit ME0MuonTrackCollProducer(const edm::ParameterSet&);
+  //std::vector<double> findSimVtx(edm::Event& iEvent);
+  ~ME0MuonTrackCollProducer();
+
+private:
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
+  edm::Handle <std::vector<reco::ME0Muon> > OurMuons;
+  //edm::Handle<reco::ME0MuonCollection> muonCollectionH;
+  edm::InputTag OurMuonsTag;
+  std::vector<std::string> selectionTags;
+  const edm::ParameterSet parset_;
+  edm::EDGetTokenT<ME0MuonCollection> OurMuonsToken_;
+};
+
+#endif
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "CommonTools/RecoAlgos/plugins/ME0MuonTrackCollProducer.h"
+
+DEFINE_FWK_MODULE(ME0MuonTrackCollProducer);
+
 
 ME0MuonTrackCollProducer::ME0MuonTrackCollProducer(const edm::ParameterSet& parset) :
   OurMuonsTag(parset.getParameter<edm::InputTag>("me0MuonTag")),
@@ -29,7 +61,6 @@ ME0MuonTrackCollProducer::ME0MuonTrackCollProducer(const edm::ParameterSet& pars
   parset_(parset)
 {
   produces<reco::TrackCollection>();
-  //edm::InputTag OurMuonsTag ("me0SegmentMatching");
   OurMuonsToken_ = consumes<ME0MuonCollection>(OurMuonsTag);
 }
 
@@ -42,9 +73,6 @@ void ME0MuonTrackCollProducer::produce(edm::Event& iEvent, const edm::EventSetup
   using namespace edm;
   Handle <ME0MuonCollection> OurMuons;
   iEvent.getByToken(OurMuonsToken_,OurMuons);
-
-  // edm::ESHandle<ME0Geometry> me0Geom;
-  // iSetup.get<MuonGeometryRecord>().get(me0Geom);
 
   
   std::auto_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
