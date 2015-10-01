@@ -85,6 +85,8 @@ class HLTEventAnalyzerRAW : public edm::stream::EDAnalyzer< > {
   trigger::VRpfjet     pfjetRefs_;
   trigger::Vids        pftauIds_;
   trigger::VRpftau     pftauRefs_;
+  trigger::Vids        pfmetIds_;
+  trigger::VRpfmet     pfmetRefs_;
 
 };
 #endif

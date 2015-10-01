@@ -52,17 +52,18 @@ namespace trigger
       size_type l1hfrings_;
       size_type pfjets_;
       size_type pftaus_;
+      size_type pfmets_;
 
       /// constructor
       TriggerFilterObject() :
 	filterTag_(),
-	photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), basemets_(0), calomets_(0), pixtracks_(0), l1em_(0), l1muon_(0), l1jet_(0), l1etmiss_(0), l1hfrings_(0), pfjets_(0), pftaus_(0) {
+        photons_(0), electrons_(0), muons_(0), jets_(0), composites_(0), basemets_(0), calomets_(0), pixtracks_(0), l1em_(0), l1muon_(0), l1jet_(0), l1etmiss_(0), l1hfrings_(0), pfjets_(0), pftaus_(0), pfmets_(0) {
       filterTag_=edm::InputTag().encode();
       }
       TriggerFilterObject(const edm::InputTag& filterTag,
-			  size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nB, size_type nC, size_type nt, size_type l1em, size_type l1muon, size_type l1jet, size_type l1etmiss, size_type l1hfrings, size_type pfjets, size_type pftaus) :
+			  size_type np, size_type ne, size_type nm, size_type nj, size_type nc, size_type nB, size_type nC, size_type nt, size_type l1em, size_type l1muon, size_type l1jet, size_type l1etmiss, size_type l1hfrings, size_type pfjets, size_type pftaus, size_type pfmets) :
 	filterTag_(filterTag.encode()),
-	photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), basemets_(nB), calomets_(nC), pixtracks_(nt), l1em_(l1em), l1muon_(l1muon), l1jet_(l1jet), l1etmiss_(l1etmiss), l1hfrings_(l1hfrings), pfjets_(pfjets), pftaus_(pftaus) { }
+	  photons_(np), electrons_(ne), muons_(nm), jets_(nj), composites_(nc), basemets_(nB), calomets_(nC), pixtracks_(nt), l1em_(l1em), l1muon_(l1muon), l1jet_(l1jet), l1etmiss_(l1etmiss), l1hfrings_(l1hfrings), pfjets_(pfjets), pftaus_(pftaus), pfmets_(pfmets) { }
     };
 
   /// data members
@@ -102,7 +103,8 @@ namespace trigger
 			    addObjects(tfowr.l1etmissIds(),tfowr.l1etmissRefs()),
 			    addObjects(tfowr.l1hfringsIds(),tfowr.l1hfringsRefs()),
 			    addObjects(tfowr.pfjetIds(),tfowr.pfjetRefs()),
-			    addObjects(tfowr.pftauIds(),tfowr.pftauRefs())
+			    addObjects(tfowr.pftauIds(),tfowr.pftauRefs()),
+			    addObjects(tfowr.pfmetIds(),tfowr.pfmetRefs())
 			   )
 	);
     }
@@ -217,6 +219,12 @@ namespace trigger
     std::pair<size_type,size_type> pftauSlice(size_type filter) const {
       const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).pftaus_);
       const size_type end(filterObjects_.at(filter).pftaus_);
+      return std::pair<size_type,size_type>(begin,end);
+    }
+
+    std::pair<size_type,size_type> pfmetSlice(size_type filter) const {
+      const size_type begin(filter==0? 0 : filterObjects_.at(filter-1).pfmets_);
+      const size_type end(filterObjects_.at(filter).pfmets_);
       return std::pair<size_type,size_type>(begin,end);
     }
 
@@ -386,6 +394,17 @@ namespace trigger
       const size_type begin(pftauSlice(filter).first);
       const size_type   end(pftauSlice(filter).second);
       TriggerRefsCollections::getObjects(id,pftaus,begin,end);
+    }
+
+    void getObjects(size_type filter, Vids& ids, VRpfmet& pfmets) const {
+      const size_type begin(pfmetSlice(filter).first);
+      const size_type   end(pfmetSlice(filter).second);
+      TriggerRefsCollections::getObjects(ids,pfmets,begin,end);
+    }
+    void getObjects(size_type filter, int id, VRpfmet& pfmets) const {
+      const size_type begin(pfmetSlice(filter).first);
+      const size_type   end(pfmetSlice(filter).second);
+      TriggerRefsCollections::getObjects(id,pfmets,begin,end);
     }
 
   };

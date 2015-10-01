@@ -18,6 +18,8 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
 #include "DataFormats/METReco/interface/MET.h"
@@ -46,6 +48,7 @@ typedef HLTSinglet<Electron            > HLT1Electron ;
 typedef HLTSinglet<RecoChargedCandidate> HLT1Muon     ;
 typedef HLTSinglet<CaloJet             > HLT1CaloJet  ;
 typedef HLTSinglet<CompositeCandidate  > HLT1Composite;
+typedef HLTSinglet<PFMET               > HLT1PFMET    ;
 typedef HLTSinglet<CaloMET             > HLT1CaloMET  ;
 typedef HLTSinglet<MET                 > HLT1MET      ;
 //typedef HLTSinglet<RecoChargedCandidate> HLT1Track    ;
@@ -138,6 +141,7 @@ DEFINE_FWK_MODULE(HLT1Photon);
 DEFINE_FWK_MODULE(HLT1Muon);
 DEFINE_FWK_MODULE(HLT1CaloJet);
 DEFINE_FWK_MODULE(HLT1Composite);
+DEFINE_FWK_MODULE(HLT1PFJet);
 DEFINE_FWK_MODULE(HLT1CaloMET);
 DEFINE_FWK_MODULE(HLT1MET);
 DEFINE_FWK_MODULE(HLT1PFTau);
