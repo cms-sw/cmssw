@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-from SLHCUpgradeSimulations.Configuration.postLS1Customs   import customisePostLS1
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
-from SLHCUpgradeSimulations.Configuration.phase1TkCustoms  import customise as customisePhase1Tk
-from SLHCUpgradeSimulations.Configuration.HCalCustoms      import customise_HcalPhase1, customise_HcalPhase0
+from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
+from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0
 
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2019 as customise_gem2019
 from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2023 as customise_gem2023
@@ -30,31 +30,24 @@ def cust_2019WithGem(process):
     process=customise_gem2019(process)
     return process
 
-def cust_2023(process):
-    # process=customisePostLS1(process)      # causes Preshower induced crash
-    # process=customisePhase1Tk(process)     # for now pretend Phase 1 TRK
-    # process=customise_HcalPhase1(process)  # for now pretend Phase 1 HCAL
-    # process=customiseBE5D(process)
-    # process=customise_HcalPhase2(process)
-    # process=customise_ev_BE5D(process)
+def cust_2023MuonOnly(process):
     process=customise_gem2023(process)
     process=customise_rpc(process)
     process=fixRPCConditions(process)
-    # process=jetCustoms.customise_jets(process)
     return process
 
-def cust_2023Muon(process):
-    # process=customisePostLS1(process)      # causes Preshower induced crash
-    # process=customisePhase1Tk(process)     # for now pretend Phase 1 TRK
-    # process=customise_HcalPhase1(process)  # for now pretend Phase 1 HCAL
-    # process=customiseBE5DPixel10D(process)
-    # process=customise_HcalPhase2(process)
-    # process=customise_ev_BE5DPixel10D(process)
-    process=customise_gem2023(process)
-    # process=customise_rpc(process)
-    process=customise_me0(process)
-    # process=jetCustoms.customise_jets(process)
-    return process
+# def cust_2023Muon(process):
+#     # process=customisePostLS1(process)      # causes Preshower induced crash
+#     # process=customisePhase1Tk(process)     # for now pretend Phase 1 TRK
+#     # process=customise_HcalPhase1(process)  # for now pretend Phase 1 HCAL
+#     # process=customiseBE5DPixel10D(process)
+#     # process=customise_HcalPhase2(process)
+#     # process=customise_ev_BE5DPixel10D(process)
+#     process=customise_gem2023(process)
+#     # process=customise_rpc(process)
+#     process=customise_me0(process)
+#     # process=jetCustoms.customise_jets(process)
+#     return process
 
 
 
