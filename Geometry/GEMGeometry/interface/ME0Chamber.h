@@ -15,6 +15,7 @@
  */
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
+#include "Geometry/GEMGeometry/interface/ME0Layer.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
 
 class ME0Layer;
