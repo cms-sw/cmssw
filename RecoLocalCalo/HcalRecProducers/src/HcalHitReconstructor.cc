@@ -47,7 +47,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   mcOOTCorrectionCategory_("MC"),
   setPileupCorrection_(0),
   paramTS(0),
-  puCorrMethod_(conf.existsAs<int>("puCorrMethod") ? conf.getParameter<int>("puCorrMethod") : 0),
+  puCorrMethod_(conf.getParameter<int>("puCorrMethod")),
   cntprtCorrMethod_(0),
   first_(true)
 
@@ -163,12 +163,12 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     produces<HBHERecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HO")) {
     subdet_=HcalOuter;
-    setPileupCorrection_ = &HcalSimpleRecAlgo::setHOPileupCorrection;
+    // setPileupCorrection_ = &HcalSimpleRecAlgo::setHOPileupCorrection;
     setPileupCorrection_ = 0;
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
-    setPileupCorrection_ = &HcalSimpleRecAlgo::setHFPileupCorrection;
+    // setPileupCorrection_ = &HcalSimpleRecAlgo::setHFPileupCorrection;
     setPileupCorrection_ = 0;
     digiTimeFromDB_=conf.getParameter<bool>("digiTimeFromDB");
 
@@ -270,16 +270,13 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
                           conf.getParameter<int>   ("fitTimes")
 			  );
   }
-  if(puCorrMethod_ == 3) {
-    reco_.setMeth3Params(
-              conf.getParameter<int>     ("pedestalSubtractionType"),
-              conf.getParameter<double>  ("pedestalUpperLimit"),
-              conf.getParameter<int>     ("timeSlewParsType"),
-              conf.getParameter<std::vector<double> >("timeSlewPars"),
-              conf.getParameter<double>  ("respCorrM3")
-              );
-  }
-
+  reco_.setMeth3Params(
+            conf.getParameter<int>     ("pedestalSubtractionType"),
+            conf.getParameter<double>  ("pedestalUpperLimit"),
+            conf.getParameter<int>     ("timeSlewParsType"),
+            conf.getParameter<std::vector<double> >("timeSlewPars"),
+            conf.getParameter<double>  ("respCorrM3")
+            );
 }
 
 void HcalHitReconstructor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -13,7 +13,8 @@
 <use   name="cgal"/>
 <use   name="f77compiler"/>
 
-<Flags CXXFLAGS="-frounding-math -Wno-unknown-pragmas"/>
+<flags CXXFLAGS="-frounding-math -Wno-unknown-pragmas"/>
+<flags REM_CXXFLAGS="-Werror=unused-variable"/>
 <flags   EDM_PLUGIN="1"/>
 <library   file="*.cc,*.f" name="HiJetAlgosPlugins">
 </library>

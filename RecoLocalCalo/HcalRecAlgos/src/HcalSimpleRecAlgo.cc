@@ -19,17 +19,10 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPul
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
   phaseNS_(phaseNS), runnum_(0), setLeakCorrection_(false), puCorrMethod_(0)
-{ 
-  
-  pulseCorr_ = std::auto_ptr<HcalPulseContainmentManager>(
-							  new HcalPulseContainmentManager(MaximumFractionalError)
-							  );
-}
-  
-
-HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
-  correctForTimeslew_(false), runnum_(0), puCorrMethod_(0)
-{ 
+{  
+  pulseCorr_ = std::auto_ptr<HcalPulseContainmentManager>(new HcalPulseContainmentManager(MaximumFractionalError));
+  pedSubFxn_ = std::auto_ptr<PedestalSub>(new PedestalSub());
+  hltOOTpuCorr_ = std::auto_ptr<HcalDeterministicFit>(new HcalDeterministicFit());
 }
 
 
@@ -326,7 +319,7 @@ namespace HcalSimpleRecAlgoImpl {
                      const AbsOOTPileupCorrection* pileupCorrection,
                      const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr, HcalDeterministicFit * hltOOTpuCorr, PedestalSub * hltPedSub /* whatever don't know what to do with the pointer...*/)// const on end
   {
-    double fc_ampl =0, ampl =0, uncorr_ampl =0, maxA = -1.e300;
+    double fc_ampl =0, ampl =0, uncorr_ampl =0, m3_ampl =0, maxA = -1.e300;
     int nRead = 0, maxI = -1;
     bool leakCorrApplied = false;
     float t0 =0, t2 =0;
@@ -361,11 +354,11 @@ namespace HcalSimpleRecAlgoImpl {
 
     // Note that uncorr_ampl is always set from outside of method 2!
     if( puCorrMethod == 2 ){
-       std::vector<double> correctedOutput;
+      std::vector<double> correctedOutput;
 
-       CaloSamples cs;
-       coder.adc2fC(digi,cs);
-       std::vector<int> capidvec;
+      CaloSamples cs;
+      coder.adc2fC(digi,cs);
+      std::vector<int> capidvec;
       for(int ip=0; ip<cs.size(); ip++){
         const int capid = digi[ip].capid();
         capidvec.push_back(capid);
@@ -377,10 +370,10 @@ namespace HcalSimpleRecAlgoImpl {
     }
     
     // S. Brandt - Feb 19th : Adding Section for HLT
-    // Turn on HLT here with puCorrMethod = 3
-    if ( puCorrMethod == 3){
+    // Run "Method 3" all the time.
+    {
       std::vector<double> hltCorrOutput;
-      
+
       CaloSamples cs;
       coder.adc2fC(digi,cs);
       std::vector<int> capidvec;
@@ -390,7 +383,10 @@ namespace HcalSimpleRecAlgoImpl {
       }
       hltOOTpuCorr->apply(cs, capidvec, calibs, digi, hltCorrOutput);
       if( hltCorrOutput.size() > 1 ){
-	time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
+        m3_ampl = hltCorrOutput[0];
+        if (puCorrMethod == 3) {
+	  time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
+        }
       }
     }
 
@@ -400,23 +396,26 @@ namespace HcalSimpleRecAlgoImpl {
       if (cell.subdet() == HcalBarrel) {
         const int ieta = cell.ieta();
         const int iphi = cell.iphi();
-        ampl *= eCorr(ieta, iphi, ampl, runnum);
         uncorr_ampl *= eCorr(ieta, iphi, uncorr_ampl, runnum);
+        ampl *= eCorr(ieta, iphi, ampl, runnum);
+        m3_ampl *= eCorr(ieta, iphi, m3_ampl, runnum);
       }
     }
 
     // Correction for a leak to pre-sample
     if(useLeak && !leakCorrApplied) {
-      ampl *= leakCorr(ampl); 
-      uncorr_ampl *= leakCorr(uncorr_ampl); 
+      uncorr_ampl *= leakCorr(uncorr_ampl);
+      if (puCorrMethod < 2)
+        ampl *= leakCorr(ampl); 
     }
 
     RecHit rh(digi.id(),ampl,time);
     setRawEnergy(rh, static_cast<float>(uncorr_ampl));
+    setAuxEnergy(rh, static_cast<float>(m3_ampl));
     return rh;
   }
 
-template<class Digi, class RecHit>
+  template<class Digi, class RecHit>
   inline RecHit recoHBHE(const Digi& digi, const HcalCoder& coder,
 			 const HcalCalibrations& calibs, 
 			 const int ifirst, const int n, const bool slewCorrect,
@@ -424,9 +423,9 @@ template<class Digi, class RecHit>
 			 const HcalTimeSlew::BiasSetting slewFlavor,
 			 const int runnum, const bool useLeak,
 			 const AbsOOTPileupCorrection* pileupCorrection,
-			 const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr, HcalDeterministicFit * hltOOTpuCorr, PedestalSub * hltPedSub )// const on end
+			 const BunchXParameter* bxInfo, const unsigned lenInfo, const int puCorrMethod, const PulseShapeFitOOTPileupCorrection * psFitOOTpuCorr, HcalDeterministicFit * hltOOTpuCorr, PedestalSub * hltPedSub)// const on end
   {
-    double fc_ampl =0, ampl =0, uncorr_ampl =0, maxA = -1.e300;
+    double fc_ampl =0, ampl =0, uncorr_ampl =0, m3_ampl =0, maxA = -1.e300;
     int nRead = 0, maxI = -1;
     bool leakCorrApplied = false;
     float t0 =0, t2 =0;
@@ -463,7 +462,7 @@ template<class Digi, class RecHit>
     // Note that uncorr_ampl is always set from outside of method 2!
     if( puCorrMethod == 2 ){
       std::vector<double> correctedOutput;
-      
+
       CaloSamples cs;
       coder.adc2fC(digi,cs);
       std::vector<int> capidvec;
@@ -479,10 +478,10 @@ template<class Digi, class RecHit>
     }
     
     // S. Brandt - Feb 19th : Adding Section for HLT
-    // Turn on HLT here with puCorrMethod = 3
-    if ( puCorrMethod == 3){
+    // Run "Method 3" all the time.
+    {
       std::vector<double> hltCorrOutput;
-      
+
       CaloSamples cs;
       coder.adc2fC(digi,cs);
       std::vector<int> capidvec;
@@ -491,34 +490,40 @@ template<class Digi, class RecHit>
 	capidvec.push_back(capid);
       }
       hltOOTpuCorr->apply(cs, capidvec, calibs, digi, hltCorrOutput);
-      if( hltCorrOutput.size() > 1 ){
-	time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
+      if (hltCorrOutput.size() > 1) {
+        m3_ampl = hltCorrOutput[0];
+        if (puCorrMethod == 3) {
+	  time = hltCorrOutput[1]; ampl = hltCorrOutput[0];
+        }
       }
     }
-    
+
     // Temporary hack to apply energy-dependent corrections to some HB- cells
     if (runnum > 0) {
       const HcalDetId& cell = digi.id();
       if (cell.subdet() == HcalBarrel) {
 	const int ieta = cell.ieta();
 	const int iphi = cell.iphi();
-	ampl *= eCorr(ieta, iphi, ampl, runnum);
 	uncorr_ampl *= eCorr(ieta, iphi, uncorr_ampl, runnum);
+        ampl *= eCorr(ieta, iphi, ampl, runnum);
+        m3_ampl *= eCorr(ieta, iphi, m3_ampl, runnum);
       }
     }
-    
+
     // Correction for a leak to pre-sample
     if(useLeak && !leakCorrApplied) {
-      ampl *= leakCorr(ampl); 
       uncorr_ampl *= leakCorr(uncorr_ampl); 
+      if (puCorrMethod < 2)
+        ampl *= leakCorr(ampl); 
     }
-    
+
     HBHERecHit rh(digi.id(),ampl,time);
     if(useTriple)
       {
 	rh.setFlagField(1, HcalCaloFlagLabels::HBHEPulseFitBit);
       }
     setRawEnergy(rh, static_cast<float>(uncorr_ampl));
+    setAuxEnergy(rh, static_cast<float>(m3_ampl));
     return rh;
   }
 }
