@@ -1,7 +1,7 @@
 #ifndef HIPixelMedianVtxProducer_H
 #define HIPixelMedianVtxProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -9,12 +9,12 @@
 
 namespace edm { class Event; class EventSetup; }
 
-class HIPixelMedianVtxProducer : public edm::EDProducer
+class HIPixelMedianVtxProducer : public edm::stream::EDProducer<>
 {
 public:
 	explicit HIPixelMedianVtxProducer(const edm::ParameterSet& ps);
 	~HIPixelMedianVtxProducer(){};
-	virtual void produce(edm::Event& ev, const edm::EventSetup& es);
+	virtual void produce(edm::Event& ev, const edm::EventSetup& es) override;
 	
 private:
 	void beginJob(){};
