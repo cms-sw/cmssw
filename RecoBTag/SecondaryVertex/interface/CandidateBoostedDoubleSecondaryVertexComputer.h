@@ -36,7 +36,7 @@ class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
 
     const double maxSVDeltaRToJet_;
 
-    edm::FileInPath weightFile_;
+    const edm::FileInPath weightFile_;
     mutable std::mutex m_mutex;
     [[cms::thread_guard("m_mutex")]] std::unique_ptr<TMVAEvaluator> mvaID;
 };
