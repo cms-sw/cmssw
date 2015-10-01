@@ -117,6 +117,10 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
 				handle->pftauSlice(iFO).first);
        if (nPFTaus>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " PFTaus: " << nPFTaus;
 
+       const unsigned int nPFMETs(handle->pfmetSlice(iFO).second-
+				  handle->pfmetSlice(iFO).first);
+       if (nPFMETs>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " PFMETs: " << nPFMETs;
+
        LogVerbatim("TriggerSummaryAnalyzerRAW") << endl;
      }
      LogVerbatim("TriggerSummaryAnalyzerRAW") << "Elements in linearised collections of Refs: " << endl;
@@ -135,6 +139,7 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
      LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1HfRings:  " << handle->l1hfringsSize() << endl;
      LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFJets:     " << handle->pfjetSize()     << endl;
      LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFTaus:     " << handle->pftauSize()     << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFMETs:     " << handle->pfmetSize()     << endl;
    } else {
      LogVerbatim("TriggerSummaryAnalyzerRAW") << "Handle invalid! Check InputTag provided." << endl;
    }

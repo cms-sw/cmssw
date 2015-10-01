@@ -29,6 +29,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 
 #include "DataFormats/L1Trigger/interface/L1HFRingsFwd.h"
@@ -65,6 +66,7 @@ namespace trigger
 
   typedef std::vector<reco::PFJetRef>                       VRpfjet;
   typedef std::vector<reco::PFTauRef>                       VRpftau;
+  typedef std::vector<reco::PFMETRef>                       VRpfmet;
 
   class TriggerRefsCollections {
 
@@ -103,6 +105,8 @@ namespace trigger
     VRpfjet     pfjetRefs_;
     Vids        pftauIds_;
     VRpftau     pftauRefs_;
+    Vids        pfmetIds_;
+    VRpfmet     pfmetRefs_;
     
   /// methods
   public:
@@ -124,7 +128,8 @@ namespace trigger
       l1hfringsIds_(), l1hfringsRefs_(),
 
       pfjetIds_(), pfjetRefs_(),
-      pftauIds_(), pftauRefs_()
+      pftauIds_(), pftauRefs_(),
+      pfmetIds_(), pfmetRefs_()
       { }
 
     /// utility
@@ -161,6 +166,8 @@ namespace trigger
       std::swap(pfjetRefs_,     other.pfjetRefs_);
       std::swap(pftauIds_,      other.pftauIds_);
       std::swap(pftauRefs_,     other.pftauRefs_);
+      std::swap(pfmetIds_,      other.pfmetIds_);
+      std::swap(pfmetRefs_,     other.pfmetRefs_);
     }
 
     /// setters for L3 collections: (id=physics type, and Ref<C>)
@@ -225,6 +232,10 @@ namespace trigger
     void addObject(int id, const reco::PFTauRef& ref) {
       pftauIds_.push_back(id);
       pftauRefs_.push_back(ref);
+    }
+    void addObject(int id, const reco::PFMETRef& ref) {
+      pfmetIds_.push_back(id);
+      pfmetRefs_.push_back(ref);
     }
 
     /// 
@@ -319,6 +330,12 @@ namespace trigger
       pftauIds_.insert(pftauIds_.end(),ids.begin(),ids.end());
       pftauRefs_.insert(pftauRefs_.end(),refs.begin(),refs.end());
       return pftauIds_.size();
+    }
+    size_type addObjects (const Vids& ids, const VRpfmet& refs) {
+      assert(ids.size()==refs.size());
+      pfmetIds_.insert(pfmetIds_.end(),ids.begin(),ids.end());
+      pfmetRefs_.insert(pfmetRefs_.end(),refs.begin(),refs.end());
+      return pfmetIds_.size();
     }
 
     /// various physics-level getters:
@@ -802,6 +819,38 @@ namespace trigger
       return;
     }
 
+    void getObjects(Vids& ids, VRpfmet& refs) const {
+      getObjects(ids,refs,0,pfmetIds_.size());
+    }
+    void getObjects(Vids& ids, VRpfmet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pfmetIds_.size());
+      const size_type n(end-begin);
+      ids.resize(n);
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	ids[j]=pfmetIds_[i];
+	refs[j]=pfmetRefs_[i];
+	++j;
+      }
+    }
+    void getObjects(int id, VRpfmet& refs) const {
+      getObjects(id,refs,0,pfmetIds_.size());
+    } 
+    void getObjects(int id, VRpfmet& refs, size_type begin, size_type end) const {
+      assert (begin<=end);
+      assert (end<=pfmetIds_.size());
+      size_type n(0);
+      for (size_type i=begin; i!=end; ++i) {if (id==pfmetIds_[i]) {++n;}}
+      refs.resize(n);
+      size_type j(0);
+      for (size_type i=begin; i!=end; ++i) {
+	if (id==pfmetIds_[i]) {refs[j]=pfmetRefs_[i]; ++j;}
+      }
+      return;
+    }
+
     /// low-level getters for data members
     size_type          photonSize()    const {return photonIds_.size();}
     const Vids&        photonIds()     const {return photonIds_;}
@@ -862,6 +911,10 @@ namespace trigger
     size_type          pftauSize()     const {return pftauIds_.size();}
     const Vids&        pftauIds()      const {return pftauIds_;}
     const VRpftau&     pftauRefs()     const {return pftauRefs_;}
+
+    size_type          pfmetSize()     const {return pfmetIds_.size();}
+    const Vids&        pfmetIds()      const {return pfmetIds_;}
+    const VRpfmet&     pfmetRefs()     const {return pfmetRefs_;}
 
   };
 
