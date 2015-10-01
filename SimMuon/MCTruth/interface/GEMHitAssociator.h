@@ -46,7 +46,7 @@ class GEMHitAssociator {
    // Destructor
    ~GEMHitAssociator(){}
 
-   std::vector<SimHitIdpr> associateRecHit(const TrackingRecHit & hit);
+   std::vector<SimHitIdpr> associateRecHit(const TrackingRecHit & hit) const;
 
  private:
     

@@ -77,7 +77,7 @@ void GEMHitAssociator::initEvent(const edm::Event& e, const edm::EventSetup& eve
 }
 // end of constructor
 
-std::vector<GEMHitAssociator::SimHitIdpr> GEMHitAssociator::associateRecHit(const TrackingRecHit & hit) {
+std::vector<GEMHitAssociator::SimHitIdpr> GEMHitAssociator::associateRecHit(const TrackingRecHit & hit) const {
   
   std::vector<SimHitIdpr> matched;
 
