@@ -60,6 +60,12 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     RPCsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonRPCHits"),
     RPCdigisimlinkTag = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
     #
+    # for GEM Hit associator
+    useGEMs = cms.bool(False),
+    GEMsimhitsTag = cms.InputTag("g4SimHits","MuonGEMHits"),
+    GEMsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonGEMHits"),
+    GEMdigisimlinkTag = cms.InputTag("simMuonGEMDigis","GEM"),
+    #
     # for Tracker Hit associator
     #
     associatePixel = cms.bool(True),
