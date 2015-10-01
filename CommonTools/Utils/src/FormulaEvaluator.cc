@@ -122,7 +122,7 @@ namespace {
         
         
         info.nextParseIndex = endIndex+2;
-        info.maxNumParameters = value;
+        info.maxNumParameters = value+1;
         info.evaluator = std::unique_ptr<reco::formula::EvaluatorBase>( new reco::formula::ParameterEvaluator(value));
       } catch ( std::invalid_argument ) {}
       
@@ -256,7 +256,7 @@ namespace {
         }
         //need to account for closing parenthesis
         ++leftEvaluatorInfo.nextParseIndex;
-        leftEvaluatorInfo.evaluator->setPrecidenceToParenthesis();
+        leftEvaluatorInfo.evaluator->setPrecedenceToParenthesis();
         if( iBegin+leftEvaluatorInfo.nextParseIndex == iEnd) {
           return leftEvaluatorInfo;
         }
@@ -304,7 +304,7 @@ namespace {
 
   template<typename Op>
   EvaluatorInfo createBinaryOperatorEvaluatorT(int iSymbolLength,
-                                               reco::formula::EvaluatorBase::Precidence iPrec,
+                                               reco::formula::EvaluatorBase::Precedence iPrec,
                                                ExpressionFinder const& iEF,
                                                std::unique_ptr<reco::formula::EvaluatorBase> iLHS,
                                                std::string::const_iterator iBegin,
@@ -316,7 +316,7 @@ namespace {
       return evalInfo;
     }
 
-    if( static_cast<unsigned int>(iPrec) >= evalInfo.evaluator->precidence() ) {
+    if( static_cast<unsigned int>(iPrec) >= evalInfo.evaluator->precedence() ) {
       auto b = dynamic_cast<reco::formula::BinaryOperatorEvaluatorBase*>( evalInfo.evaluator.get() );
       assert(b != nullptr);
       std::unique_ptr<reco::formula::EvaluatorBase> temp;
@@ -350,7 +350,7 @@ namespace {
 
     if(*iBegin == '+') {
       return createBinaryOperatorEvaluatorT<std::plus<double>>(1,
-                                                               reco::formula::EvaluatorBase::Precidence::kPlusMinus,
+                                                               reco::formula::EvaluatorBase::Precedence::kPlusMinus,
                                                                iEF,
                                                                std::move(iLHS),
                                                                iBegin,
@@ -359,7 +359,7 @@ namespace {
 
     else if(*iBegin == '-') {
       return createBinaryOperatorEvaluatorT<std::minus<double>>(1,
-                                                                reco::formula::EvaluatorBase::Precidence::kPlusMinus,
+                                                                reco::formula::EvaluatorBase::Precedence::kPlusMinus,
                                                                 iEF,
                                                                 std::move(iLHS),
                                                                 iBegin,
@@ -367,7 +367,7 @@ namespace {
     }
     else if(*iBegin == '*') {
       return createBinaryOperatorEvaluatorT<std::multiplies<double>>(1,
-                                                                     reco::formula::EvaluatorBase::Precidence::kMultDiv,
+                                                                     reco::formula::EvaluatorBase::Precedence::kMultDiv,
                                                                      iEF,
                                                                      std::move(iLHS),
                                                                      iBegin,
@@ -375,7 +375,7 @@ namespace {
     }
     else if(*iBegin == '/') {
       return createBinaryOperatorEvaluatorT<std::divides<double>>(1,
-                                                                  reco::formula::EvaluatorBase::Precidence::kMultDiv,
+                                                                  reco::formula::EvaluatorBase::Precedence::kMultDiv,
                                                                   iEF,
                                                                   std::move(iLHS),
                                                                   iBegin,
@@ -384,13 +384,66 @@ namespace {
 
     else if(*iBegin == '^') {
       return createBinaryOperatorEvaluatorT<power>(1,
-                                                                  reco::formula::EvaluatorBase::Precidence::kMultDiv,
+                                                                  reco::formula::EvaluatorBase::Precedence::kMultDiv,
                                                                   iEF,
                                                                   std::move(iLHS),
                                                                   iBegin,
                                                                   iEnd);
     }
+    else if (*iBegin =='<' and iBegin+1 != iEnd and *(iBegin+1) == '=') {
+      return createBinaryOperatorEvaluatorT<std::less_equal<double>>(2,
+                                                                  reco::formula::EvaluatorBase::Precedence::kComparison,
+                                                                  iEF,
+                                                                  std::move(iLHS),
+                                                                  iBegin,
+                                                                  iEnd);
 
+    }
+    else if (*iBegin =='>' and iBegin+1 != iEnd and *(iBegin+1) == '=') {
+      return createBinaryOperatorEvaluatorT<std::greater_equal<double>>(2,
+                                                                  reco::formula::EvaluatorBase::Precedence::kComparison,
+                                                                  iEF,
+                                                                  std::move(iLHS),
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
+    else if (*iBegin =='<' ) {
+      return createBinaryOperatorEvaluatorT<std::less<double>>(1,
+                                                                  reco::formula::EvaluatorBase::Precedence::kComparison,
+                                                                  iEF,
+                                                                  std::move(iLHS),
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
+    else if (*iBegin =='>' ) {
+      return createBinaryOperatorEvaluatorT<std::greater<double>>(1,
+                                                                  reco::formula::EvaluatorBase::Precedence::kComparison,
+                                                                  iEF,
+                                                                  std::move(iLHS),
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
+    else if (*iBegin =='=' and iBegin+1 != iEnd and *(iBegin+1) == '=' ) {
+      return createBinaryOperatorEvaluatorT<std::equal_to<double>>(2,
+                                                                  reco::formula::EvaluatorBase::Precedence::kIdentity,
+                                                                  iEF,
+                                                                  std::move(iLHS),
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
+    else if (*iBegin =='!' and iBegin+1 != iEnd and *(iBegin+1) == '=' ) {
+      return createBinaryOperatorEvaluatorT<std::not_equal_to<double>>(2,
+                                                                  reco::formula::EvaluatorBase::Precedence::kIdentity,
+                                                                  iEF,
+                                                                  std::move(iLHS),
+                                                                  iBegin,
+                                                                  iEnd);
+
+    }
     return evalInfo;
   }
 
