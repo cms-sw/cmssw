@@ -27,6 +27,9 @@ namespace {
     
     static void  fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
+      desc.add<std::string>("ComponentName","KFFittingSmoother");
+      desc.add<std::string>("Fitter","KFFitter");
+      desc.add<std::string>("F","KFSmoother");
       KFFittingSmoother::fillDescriptions(desc);
       descriptions.add("KFFittingSmootherESProducer", desc);
     }
@@ -44,14 +47,10 @@ namespace {
       iRecord.get(pset_.getParameter<std::string>("Fitter"), fit);
       iRecord.get(pset_.getParameter<std::string>("Smoother"), smooth);
       
-      _fitter  = boost::shared_ptr<TrajectoryFitter>(new KFFittingSmoother(*fit.product(), *smooth.product(),
-									   pset_)
-						     );
-      return _fitter;
+     return boost::shared_ptr<TrajectoryFitter>(new KFFittingSmoother(*fit.product(), *smooth.product(),pset_));
     }
 
   private:
-    boost::shared_ptr<TrajectoryFitter> _fitter;
     edm::ParameterSet pset_;
   };
 }
