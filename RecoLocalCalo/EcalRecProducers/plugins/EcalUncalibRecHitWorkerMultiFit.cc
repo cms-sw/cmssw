@@ -42,7 +42,7 @@ EcalUncalibRecHitWorkerMultiFit::EcalUncalibRecHitWorkerMultiFit(const edm::Para
   useLumiInfoRunHeader_ = ps.getParameter<bool>("useLumiInfoRunHeader");
   
   if (useLumiInfoRunHeader_) {
-    bunchSpacing_ = c.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
+    bunchSpacing_ = c.consumes<unsigned int>(edm::InputTag("bunchSpacingProducer"));
     bunchSpacingManual_ = 0;
   } else {
     bunchSpacingManual_ = ps.getParameter<int>("bunchSpacing");
@@ -130,35 +130,13 @@ void
 EcalUncalibRecHitWorkerMultiFit::set(const edm::Event& evt)
 {
 
-  int bunchspacing = 450;
+  unsigned int bunchspacing = 450;
 
   if (useLumiInfoRunHeader_) {
 
-    if (evt.isRealData()) {
-      edm::RunNumber_t run = evt.run();
-      if (run == 178003 ||
-          run == 178004 ||
-          run == 209089 ||
-          run == 209106 ||
-          run == 209109 ||
-          run == 209146 ||
-          run == 209148 ||
-          run == 209151) {
-        bunchspacing = 25;
-      }
-      else if (run < 253000) {
-        bunchspacing = 50;
-      }
-      else {
-	bunchspacing = 25;
-      }
-    }
-    else {
-      edm::Handle<int> bunchSpacingH;
+      edm::Handle<unsigned int> bunchSpacingH;
       evt.getByToken(bunchSpacing_,bunchSpacingH);
       bunchspacing = *bunchSpacingH;
-    }
-    
   }
   else {
     bunchspacing = bunchSpacingManual_;
