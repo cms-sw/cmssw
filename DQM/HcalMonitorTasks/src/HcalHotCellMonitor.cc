@@ -405,11 +405,13 @@ void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
     }
 
   // Good event found; increment counter (via base class analyze method)
+  edm::ESHandle<HcalTopology> topo;
+  s.get<HcalRecNumberingRecord>().get(topo);
 
   //  HcalBaseDQMonitor::analyze(e,s);
   if (debug_>1) std::cout <<"\t<HcalHotCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
 
-  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *topo_);
+  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *topo);
 
 } // void HcalHotCellMonitor::analyze(...)
 

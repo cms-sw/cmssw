@@ -496,6 +496,9 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       }
     }
   } //else
+
+  edm::ESHandle<HcalTopology> topo;
+  s.get<HcalRecNumberingRecord>().get(topo);
   
   // Now get collections we need
   HT_HFP_=0;
@@ -508,7 +511,7 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       float en=HF->energy();
       int ieta=HF->id().ieta();
       // ieta for HF starts at 29, so subtract away 29 when computing fEta
-      std::pair<double,double> etas = topo_->etaRange(HF->id().subdet(),abs(ieta));
+      std::pair<double,double> etas = topo->etaRange(HF->id().subdet(),abs(ieta));
       double fEta=fabs(0.5*(etas.first+etas.second));
       ieta>0 ?  HT_HFP_+=en/cosh(fEta) : HT_HFM_+=en/cosh(fEta);
     }
