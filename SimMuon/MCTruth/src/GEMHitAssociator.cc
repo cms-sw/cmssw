@@ -8,6 +8,7 @@ GEMHitAssociator::GEMHitAssociator( const edm::ParameterSet& conf,
   GEMdigisimlinkTag(conf.getParameter<edm::InputTag>("GEMdigisimlinkTag")),
   // CrossingFrame used or not ?
   crossingframe(conf.getParameter<bool>("crossingframe")),
+  useGEMs_(conf.getParameter<bool>("useGEMs")),
   GEMsimhitsTag(conf.getParameter<edm::InputTag>("GEMsimhitsTag")),
   GEMsimhitsXFTag(conf.getParameter<edm::InputTag>("GEMsimhitsXFTag"))
 {
@@ -21,9 +22,10 @@ GEMHitAssociator::GEMHitAssociator( const edm::ParameterSet& conf,
 }
 
 GEMHitAssociator::GEMHitAssociator(const edm::Event& e, const edm::EventSetup& eventSetup, const edm::ParameterSet& conf ):
-  GEMdigisimlinkTag(conf.getParameter<edm::InputTag>("RPCdigisimlinkTag")),
+  GEMdigisimlinkTag(conf.getParameter<edm::InputTag>("GEMdigisimlinkTag")),
   // CrossingFrame used or not ?
   crossingframe(conf.getParameter<bool>("crossingframe")),
+  useGEMs_(conf.getParameter<bool>("useGEMs")),
   GEMsimhitsTag(conf.getParameter<edm::InputTag>("GEMsimhitsTag")),
   GEMsimhitsXFTag(conf.getParameter<edm::InputTag>("GEMsimhitsXFTag"))
 {
