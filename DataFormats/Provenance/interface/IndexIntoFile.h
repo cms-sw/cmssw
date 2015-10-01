@@ -176,6 +176,13 @@ The interface is too complex for general use.
 #include <set>
 #include <vector>
 
+class TestIndexIntoFile;
+class TestIndexIntoFile1;
+class TestIndexIntoFile2;
+class TestIndexIntoFile3;
+class TestIndexIntoFile4;
+class TestIndexIntoFile5;
+
 namespace edm {
 
   class ProcessHistoryRegistry;
@@ -336,6 +343,7 @@ namespace edm {
         }
 
       private:
+
         // All Runs, Lumis, and Events associated with the same
         // ProcessHistory and Run in the same input file are processed
         // contiguously.  This parameter establishes the default order
@@ -757,7 +765,12 @@ namespace edm {
         void copyPosition(IndexIntoFileItr const& position);
 
       private:
-
+        //for testing
+        friend class ::TestIndexIntoFile;
+        friend class ::TestIndexIntoFile3;
+        friend class ::TestIndexIntoFile4;
+        friend class ::TestIndexIntoFile5;
+        
         // The rest of these are intended to be used only by code which tests
         // this class.
         IndexIntoFile const* indexIntoFile() const { return impl_->indexIntoFile(); }
@@ -1015,6 +1028,14 @@ namespace edm {
       };
 
     private:
+
+      //for testing
+      friend class ::TestIndexIntoFile;
+      friend class ::TestIndexIntoFile1;
+      friend class ::TestIndexIntoFile2;
+      friend class ::TestIndexIntoFile3;
+      friend class ::TestIndexIntoFile4;
+      friend class ::TestIndexIntoFile5;
 
       /// This function will automatically get called when needed.
       /// It depends only on the fact that the persistent data has been filled already.

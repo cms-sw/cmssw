@@ -1,6 +1,7 @@
 #ifndef DataFormats_Common_DataFrame_h
 #define DataFormats_Common_DataFrame_h
 
+class TestDataFrame;
 namespace edm {
 
   class DataFrameContainer;
@@ -63,6 +64,9 @@ namespace edm {
     size_type size() const { return m_size; }
     
   private:
+    //for testing
+    friend class ::TestDataFrame;
+
     data_type * data() {
       return const_cast<data_type *>(m_data);
     }
