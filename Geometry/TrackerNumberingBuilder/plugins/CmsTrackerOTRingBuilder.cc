@@ -17,12 +17,12 @@ void CmsTrackerOTRingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g
 }
 
 void CmsTrackerOTRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
+
   GeometricDet::GeometricDetContainer & comp = det->components();
 
-  //FIXME::ERICA: not so sure
-  TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
+  //increasing phi and modules in the same pt module are sorted by increasing abs(z)
+  TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModule());
   stable_sort(comp.begin(), comp.end() ,PhiSortNP());
-  //For glued module is used: TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModuleMirror());
 
   for(uint32_t i=0; i<comp.size();i++){
     comp[i]->setGeographicalID(i+1);
