@@ -769,6 +769,12 @@ namespace pat {
       return userFloats_[std::distance(userFloatLabels_.cbegin(),it)];
     }
     // cuts based on non-existing keys should always fail, so use NaN, not zero
+    cms::Exception ex("UnknownUserFloat");
+    ex << "Requested UserFloat " << key << " is not available! Possible UserFloats are: " << std::endl;
+    for( const auto& name : userFloatLabels_ ) {
+      ex << name << ' ';
+    }
+    throw ex;
     return std::numeric_limits<float>::quiet_NaN(); 
   }
 
@@ -787,7 +793,7 @@ namespace pat {
     } else {
       edm::LogWarning("addUserFloat") 
         << "Attempting to add userFloat: " 
-        << label << " = " << data << " failed!";
+        << label << " = " << data << " failed, value exists already!";
     }
   }
 
@@ -799,6 +805,12 @@ namespace pat {
     if ( it != userIntLabels_.cend() && *it == key ) {
       return userInts_[std::distance(userIntLabels_.cbegin(),it)];
     }
+    cms::Exception ex("UnknownUserInt");
+    ex << "Requested UserInt " << key << " is not available! Possible UserInts are: " << std::endl;
+    for( const auto& name : userIntLabels_ ) {
+      ex << name << ' ';
+    }
+    throw ex;
     // better to give a super weird value if there is no key...
     return std::numeric_limits<int>::max();
   }
