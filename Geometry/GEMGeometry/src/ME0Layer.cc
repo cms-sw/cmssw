@@ -5,7 +5,6 @@
  */
 
 #include "Geometry/GEMGeometry/interface/ME0Layer.h"
-#include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
 #include <iostream>
 
 ME0Layer::ME0Layer(ME0DetId id, const ReferenceCountingPointer<BoundPlane> & plane) :
