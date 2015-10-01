@@ -106,7 +106,7 @@ FullSim
   
     <var name="TEST_GLOBAL_TAG" value="${TAG_STARTUP}">
     <var name="TEST_GLOBAL_AUTOCOND" value="startup">       
-    <var name="DD_COND" value="${TEST_GLOBAL_TAG}-${DATA_VERSION}">    
+    <var name="DD_COND" value="${TEST_GLOBAL_TAG}_${TAG_EXTENSION}-${DATA_VERSION}">    
     
     <environment name="ValFullTTbarStartup_13_gedGsfE">
       <var name="DD_SAMPLE" value="RelValTTbar_13">
