@@ -80,6 +80,7 @@ class CaloTowerGeometry : public CaloSubdetectorGeometry
       int k_NumberOfCellsForCorners;
 	  int k_NumberOfShapes;
       CellVec m_cellVec ;
+	  CaloSubdetectorGeometry::IVec m_dins;
 };
 
 #endif

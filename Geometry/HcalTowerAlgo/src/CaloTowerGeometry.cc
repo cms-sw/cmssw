@@ -63,6 +63,7 @@ CaloTowerGeometry::newCell( const GlobalPoint& f1 ,
 
    m_cellVec[ di ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
    addValidID( detId ) ;
+   m_dins.push_back( di );
 }
 
 const CaloCellGeometry* 
