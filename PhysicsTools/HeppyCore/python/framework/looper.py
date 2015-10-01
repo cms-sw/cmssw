@@ -272,23 +272,15 @@ if __name__ == '__main__':
     parser.add_option('--options',dest='options',default='',help='options json file')
     (options,args) = parser.parse_args()
 
-    if options.options!='' and len(args)==2:
+    if options.options!='':
         jsonfilename = options.options
         jfile = open (jsonfilename, 'r')
         opts=json.loads(jfile.readline())
         for k,v in opts.iteritems():
             _heppyGlobalOptions[k]=v
         jfile.close()
-        print _heppyGlobalOptions
-        cfgFileName = args[0]
-        file = open( cfgFileName, 'r' )
-        cfg = imp.load_source( 'cfg', cfgFileName, file)
-        compFileName = args[1]
-        pckfile = open( compFileName, 'r' )
-        comp = pickle.load( pckfile )
-        cfg.config.components=[comp]
-        events_class = cfg.config.events_class
-    elif len(args) == 1 :
+
+    if len(args) == 1 :
         cfgFileName = args[0]
         pckfile = open( cfgFileName, 'r' )
         config = pickle.load( pckfile )
