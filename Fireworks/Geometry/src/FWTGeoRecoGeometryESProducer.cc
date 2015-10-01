@@ -33,6 +33,7 @@
 #include "Geometry/GEMGeometry/interface/GEMSuperChamber.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
 #include "Geometry/GEMGeometry/interface/ME0EtaPartition.h"
+// #include "Geometry/GEMGeometry/interface/ME0Chamber.h"
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -780,7 +781,7 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
             TGeoVolume* holder  = GetDaughter(assembly, "SUPERCHAMBER Region", kMuonGEM , detid.region());
             holder = GetDaughter(holder, "Ring", kMuonGEM , detid.ring());
             holder = GetDaughter(holder, "Station", kMuonGEM , detid.station()); 
-            holder = GetDaughter(holder, "Layer", kMuonGEM , detid.layer()); 
+            // holder = GetDaughter(holder, "Layer", kMuonGEM , detid.layer()); // not necessary
             holder = GetDaughter(holder, "Chamber", kMuonGEM , detid.chamber()); 
 
             AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
@@ -861,6 +862,26 @@ FWTGeoRecoGeometryESProducer::addME0Geometry( )
 	      AddLeafNode(holder, child, name.c_str(),  createPlacement(roll));
 
 
+	    }
+	}
+      
+      for(auto cham : me0Geom->chambers())
+	{ 
+	  if( cham )
+	    {
+	      unsigned int rawid = cham->geographicalId().rawId();
+	      //std::cout << "AMT FWTTTTRecoGeometryES\n" << rawid ;
+                        
+	      ME0DetId detid(rawid);
+	      std::stringstream s;
+	      s << detid;
+	      std::string name = s.str();
+	      TGeoVolume* child = createVolume( name, cham, kMuonME0 );
+
+	      TGeoVolume* holder  = GetDaughter(assembly, "Region", kMuonME0, detid.region());
+	      // holder = GetDaughter(holder, "Layer", kMuonME0, detid.layer()); // not necessary
+	      holder = GetDaughter(holder, "Chamber", kMuonME0, detid.chamber()); 
+	      AddLeafNode(holder, child, name.c_str(),  createPlacement(cham));
 	    }
 	}
     }
