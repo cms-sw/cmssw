@@ -1,9 +1,9 @@
 #### This file must be moved to "Validation/Configuration/"
 import FWCore.ParameterSet.Config as cms
 
-from Validation.MuonGEMHits.MuonGEMHits_cfi import *
-from Validation.MuonGEMDigis.MuonGEMDigis_cfi import *
-from Validation.MuonGEMRecHits.MuonGEMRecHits_cfi import *
+from Validation.MuonGEMHits.MuonGEMHits_cff import *
+from Validation.MuonGEMDigis.MuonGEMDigis_cff import *
+from Validation.MuonGEMRecHits.MuonGEMRecHits_cff import *
 
 
 try :
