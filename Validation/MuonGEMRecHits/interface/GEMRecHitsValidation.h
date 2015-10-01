@@ -29,12 +29,14 @@ private:
 
   //Simple Plots
   MonitorElement* gem_cls_tot;
-  std::map< UInt_t , MonitorElement* > recHits_dcEta;
-  std::map< UInt_t , MonitorElement* > recHits_simple_zr;
+  std::unordered_map< UInt_t , MonitorElement* > recHits_dcEta;
+  std::unordered_map< UInt_t , MonitorElement* > recHits_simple_zr;
   MonitorElement* gem_region_pullX[2];
   MonitorElement* gem_region_pullY[2];
 
-  edm::EDGetToken InputTagToken_RH;  
+  edm::EDGetToken InputTagToken_, InputTagToken_RH;
+  int nBinXY_;
+  bool detailPlot_;
 
 };
 

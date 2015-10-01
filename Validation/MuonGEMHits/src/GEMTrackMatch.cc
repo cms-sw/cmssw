@@ -10,7 +10,6 @@ GEMTrackMatch::GEMTrackMatch(const edm::ParameterSet& ps)
   minPt_  = ps.getUntrackedParameter<double>("gemMinPt",5.0);
   minEta_ = ps.getUntrackedParameter<double>("gemMinEta",1.55);
   maxEta_ = ps.getUntrackedParameter<double>("gemMaxEta",2.45);
-  detailPlot_ = ps.getParameter<bool>("detailPlot");
 }
 
 

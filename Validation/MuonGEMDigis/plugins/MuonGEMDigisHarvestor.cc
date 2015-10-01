@@ -51,9 +51,6 @@ MuonGEMDigisHarvestor::MuonGEMDigisHarvestor(const edm::ParameterSet& ps)
 {
   dbe_path_ = ps.getParameter<std::string>("dbePath");
   dbe_hist_prefix_ = ps.getParameter<std::string>("dbeHistPrefix");
-//  dbe_strip_prefix_ = ps.getParameter<std::string>("dbeStripPrefix");
-//  dbe_pad_prefix_ = ps.getParameter<std::string>("dbePadPrefix");
-// dbe_copad_prefix_ = ps.getParameter<std::string>("dbeCopadPrefix");
   compareable_dbe_path_ = ps.getParameter<std::string>("compareDBEPath");
   compareable_dbe_hist_prefix_ = ps.getParameter<std::string>("compareDBEHistPrefix");
 

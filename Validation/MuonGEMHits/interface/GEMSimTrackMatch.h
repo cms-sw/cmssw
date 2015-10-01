@@ -20,6 +20,7 @@ private:
   // Local X, Local Y plots are not ready
   //MonitorElement* gem_lx[3][2];
   //MonitorElement* gem_ly[3][2];
+  bool detailPlot_;
 };
 
 #endif

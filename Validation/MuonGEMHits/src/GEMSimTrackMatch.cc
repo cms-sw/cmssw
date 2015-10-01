@@ -16,6 +16,7 @@ GEMSimTrackMatch::GEMSimTrackMatch(const edm::ParameterSet& ps) : GEMTrackMatch(
   simHitsToken_ = consumes<edm::PSimHitContainer>(edm::InputTag(simInputLabel_,"MuonGEMHits"));
   simTracksToken_ = consumes< edm::SimTrackContainer >(ps.getParameter<edm::InputTag>("simTrackCollection"));
   simVerticesToken_ = consumes< edm::SimVertexContainer >(ps.getParameter<edm::InputTag>("simVertexCollection"));
+  detailPlot_ = ps.getParameter<bool>("detailPlot");
 
   cfg_ = ps;
 }

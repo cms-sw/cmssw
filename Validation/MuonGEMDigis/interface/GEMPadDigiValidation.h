@@ -20,11 +20,15 @@ public:
   MonitorElement* theCSCPad[2][3][2];
   MonitorElement* theCSCPad_bx[2][3][2];
   MonitorElement* theCSCPad_zr[2][3][2];
-	std::map< UInt_t , MonitorElement* > theCSCPad_xy_ch;
+	std::unordered_map< UInt_t , MonitorElement* > theCSCPad_xy_ch;
 
   // Simple plots
-  std::map< UInt_t , MonitorElement* > thePad_dcEta;
-  std::map< UInt_t , MonitorElement* > thePad_simple_zr;
+  std::unordered_map< UInt_t , MonitorElement* > thePad_dcEta;
+  std::unordered_map< UInt_t , MonitorElement* > thePad_simple_zr;
+
+  edm::EDGetToken InputTagToken_;
+  int nBinXY_;
+  bool detailPlot_;
 };
 
 #endif

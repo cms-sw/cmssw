@@ -7,25 +7,13 @@ GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& cfg): GE
 }
 
 void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & Run, edm::EventSetup const & iSetup ) {
-  const GEMGeometry* GEMGeometry_ ;
-
-  try {
-    edm::ESHandle<GEMGeometry> hGeom;
-    iSetup.get<MuonGeometryRecord>().get(hGeom);
-    GEMGeometry_ = &*hGeom;
-  }
-  catch( edm::eventsetup::NoProxyException<GEMGeometry>& e) {
-    edm::LogError("MuonGEMStripDigis") << "+++ Error : GEM geometry is unavailable on event loop. +++\n";
-    return;
-  }
-
+  const GEMGeometry* GEMGeometry_  = initGeometry( iSetup) ;
+  if ( GEMGeometry_ == nullptr) return ;
   LogDebug("GEMStripDIGIValidation")<<"Geometry is acquired from MuonGeometryRecord\n";
   ibooker.setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
   LogDebug("GEMStripDIGIValidation")<<"ibooker set current folder\n";
 
-  int nregions = GEMGeometry_->regions().size();
   LogDebug("GEMStripDIGIValidation")<<"nregions set.\n";
-  int nstations = GEMGeometry_->regions()[0]->stations().size(); 
   LogDebug("GEMStripDIGIValidation")<<"nstations set.\n";
   int nstripsGE11 = 384;
   int nstripsGE21 = 768;
@@ -37,53 +25,47 @@ void GEMStripDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
 
 
   for( auto& region : GEMGeometry_->regions()  ){
-    int region_num = region->region();
-    TString title_suffix = TString::Format(" at Region%d",region_num);
-    TString histname_suffix = TString::Format("_r%d",region_num);
+    int re = region->region();
+    TString title_suffix = getSuffixTitle( re );
+    TString histname_suffix = getSuffixName( re) ;
     TString simpleZR_title    = TString::Format("ZR Occupancy%s; |Z|(cm) ; R(cm)",title_suffix.Data());
     TString simpleZR_histname = TString::Format("strip_simple_zr%s",histname_suffix.Data());
-    TH2F* simpleZR = getSimpleZR();
-    simpleZR->SetName( simpleZR_histname);
-    simpleZR->SetTitle( simpleZR_title);
-    theStrip_simple_zr[simpleZR_histname.Hash() ] = ibooker.book2D(simpleZR_histname, simpleZR);
+
+    auto* simpleZR = getSimpleZR(ibooker, simpleZR_title, simpleZR_histname);
+    if ( simpleZR != nullptr) {
+      theStrip_simple_zr[simpleZR_histname.Hash() ] = simpleZR;
+    }
 
     for( auto& station : region->stations()) {
-      if ( station->station()==2) continue;
-      int station_num = (station->station()==1) ? 1 : 2;   // 1 = station 1, 3 = station2l. Should be 2.
-      TString title_suffix2 = title_suffix + TString::Format("  Station%d", station_num);
-      TString histname_suffix2 = histname_suffix + TString::Format("_st%d", station_num);
+      int st = station->station();
+      TString title_suffix2 = getSuffixTitle( re, st ) ;
+      TString histname_suffix2 = getSuffixName( re, st) ;
 
       TString dcEta_title    = TString::Format("Occupancy for detector component %s;;#eta-partition",title_suffix2.Data());
       TString dcEta_histname = TString::Format("strip_dcEta%s",histname_suffix2.Data());
-      int nXbins = station->rings()[0]->nSuperChambers()* 2 ;
 
-      int nRoll1 = station->rings()[0]->superChambers()[0]->chambers()[0]->etaPartitions().size();
-      int nRoll2 = station->rings()[0]->superChambers()[0]->chambers()[1]->etaPartitions().size();
-      int nYbins = ( nRoll1 > nRoll2 ) ? nRoll1 : nRoll2 ;
-
-      theStrip_dcEta[ dcEta_histname.Hash() ] = ibooker.book2D(dcEta_histname, dcEta_title, nXbins, 0, nXbins, nYbins, 1, nYbins+1);
-      int idx = 0 ;
-      for(unsigned int sCh = 1 ; sCh <= station->superChambers().size() ; sCh++ ) {
-        for( unsigned int Ch =1 ; Ch<=2 ; Ch++) {
-          idx++;
-          TString label = TString::Format("ch%d_la%d",sCh, Ch);
-          theStrip_dcEta[ dcEta_histname.Hash() ]->setBinLabel(idx, label.Data());
-        }
+      auto* dcEta = getDCEta(ibooker, station, dcEta_title, dcEta_histname);
+      if ( dcEta != nullptr) {
+        theStrip_dcEta[ dcEta_histname.Hash() ] = dcEta; 
       }
-
     }
   }
 
   // Booking detail plot.
   if ( detailPlot_ ) {
-    for( int region_num = 0 ; region_num <nregions ; region_num++ ) {
-      for( int layer_num = 0 ; layer_num < 2 ; layer_num++) {
-        for( int station_num = 0 ; station_num < nstations ; station_num++) {
-          if ( station_num == 0 ) nstrips = nstripsGE11;
+    for( auto& region : GEMGeometry_->regions() ) {
+    for( auto& station : region->stations()) {
+      for( int la = 1 ; la <= 2 ; la++) {
+          int re = region->region();
+          int st = station->station();
+          int region_num = (re+1)/2;
+          int station_num = st-1;
+          int layer_num = la-1;
+
+          if ( st ==1 ) nstrips = nstripsGE11;
           else nstrips = nstripsGE21;
-          if (station_num == 1 ) continue;
-          std::string name_prefix = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num] + "_l"+layerLabel[layer_num];
-          std::string label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num] +" layer "+layerLabel[layer_num];
+          std::string name_prefix = getSuffixName( re, st, la);
+          std::string label_prefix = getSuffixTitle( re, st, la) ;
           theStrip_phistrip[region_num][station_num][layer_num] = ibooker.book2D( ("strip_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad];strip number").c_str(), 280, -TMath::Pi(), TMath::Pi(), nstrips/2,0,nstrips);
           theStrip[region_num][station_num][layer_num] = ibooker.book1D( ("strip_dg"+name_prefix).c_str(), ("Digi occupancy per stip number: "+label_prefix+";strip number; entries").c_str(), nstrips,0.5,nstrips+0.5);
           theStrip_bx[region_num][station_num][layer_num] = ibooker.book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
@@ -137,9 +119,9 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
     const BoundPlane & surface = gdet->surface();
     const GEMEtaPartition * roll = GEMGeometry_->etaPartition(id);
 
-    Short_t region = (Short_t) id.region();
-    Short_t layer = (Short_t) id.layer();
-    Short_t station = (Short_t) id.station();
+    int re = id.region();
+    int la = id.layer();
+    int st = id.station();
     Short_t chamber = (Short_t) id.chamber();
     Short_t nroll = (Short_t) id.roll();
 
@@ -160,23 +142,20 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
       Float_t g_z = (Float_t) gp.z();
 
 
-      int region_num=0 ;
-      if ( region ==-1 ) region_num = 0 ;
-      else if ( region==1) region_num = 1; 
-      int layer_num = layer-1;
+      int region_num = (re+1)/2;
+      int station_num = st-1;
+      int layer_num = la-1;
+
       int binX = (chamber-1)*2+layer_num;
       int binY = nroll;
-      int station_num = station -1; 
-      if ( station ==2 ) continue; 
-      if ( station== 3 ) station=2;
 
       // Fill normal plots.
-      TString histname_suffix = TString::Format("_r%d",region);
+      TString histname_suffix = getSuffixName( re) ;
       TString simple_zr_histname = TString::Format("strip_simple_zr%s",histname_suffix.Data());
       theStrip_simple_zr[simple_zr_histname.Hash()]->Fill( fabs(g_z), g_r);
 
 
-      histname_suffix = TString::Format("_r%d_st%d",region, station);
+      histname_suffix = getSuffixName( re, st) ;
       TString dcEta_histname = TString::Format("strip_dcEta%s",histname_suffix.Data());
       theStrip_dcEta[dcEta_histname.Hash()]->Fill( binX, binY); 
 
@@ -189,7 +168,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
           theStrip_bx[region_num][station_num][layer_num]->Fill(bx);
           theStrip_zr[region_num][station_num][layer_num]->Fill(g_z,g_r);
 
-          std::string name_prefix = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num] + "_l"+layerLabel[layer_num];
+          std::string name_prefix = getSuffixName( re, st, la) ;
           TString hname;
           if ( chamber %2 == 0 ) { hname = TString::Format("strip_dg_xy%s_even",name_prefix.c_str()); }
           else { hname = TString::Format("strip_dg_xy%s_odd",name_prefix.c_str()); }

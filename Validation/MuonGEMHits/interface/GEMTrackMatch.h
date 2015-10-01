@@ -77,10 +77,9 @@ public:
   float maxEta_;
   float radiusCenter_, chamberHeight_;
   int useRoll_;
-  unsigned int nstation;
   const GEMGeometry* gem_geom_;
+  unsigned int nstation;
   bool detailPlot_;
-
 };
 
 #endif

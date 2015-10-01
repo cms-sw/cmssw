@@ -17,22 +17,24 @@ public:
 
   // Detail plots
   MonitorElement* gem_sh_xy[2][3][2];
-  std::map< std::string, MonitorElement* > gem_sh_xy_st_ch;
   MonitorElement* gem_sh_zr[2][3][2];
   MonitorElement* gem_sh_tof[2][3][2];
   MonitorElement* gem_sh_tofMu[2][3][2];
   MonitorElement* gem_sh_eloss[2][3][2];
   MonitorElement* gem_sh_elossMu[2][3][2];
 
+  std::unordered_map< UInt_t , MonitorElement* > gem_sh_xy_st_ch;
+
   // Simple plots
-  std::map< UInt_t , MonitorElement* > Hit_dcEta;
-  std::map< UInt_t , MonitorElement* > Hit_simple_zr;
-  std::map< UInt_t,  MonitorElement* > gem_sh_simple_tofMu;
-  std::map< UInt_t,  MonitorElement* > gem_sh_simple_elossMu;
+  std::unordered_map< UInt_t , MonitorElement* > Hit_dcEta;
+  std::unordered_map< UInt_t , MonitorElement* > Hit_simple_zr;
+  std::unordered_map< UInt_t , MonitorElement* > gem_sh_simple_tofMu;
+  std::unordered_map< UInt_t , MonitorElement* > gem_sh_simple_elossMu;
 
-  Int_t npart;
-  
 
+  edm::EDGetToken InputTagToken_;
+  int nBinXY_;
+  bool detailPlot_;
 };
 
 #endif

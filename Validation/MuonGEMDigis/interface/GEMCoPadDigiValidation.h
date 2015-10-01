@@ -21,13 +21,16 @@ public:
   MonitorElement* theCSCCoPad[2][3];
   MonitorElement* theCSCCoPad_bx[2][3];
   MonitorElement* theCSCCoPad_zr[2][3];
-	std::map< UInt_t , MonitorElement* > theCSCCoPad_xy_ch;
+	std::unordered_map< UInt_t , MonitorElement* > theCSCCoPad_xy_ch;
 
 
   // Simple plots
-  std::map< UInt_t , MonitorElement* > theCoPad_dcEta;
-  std::map< UInt_t , MonitorElement* > theCoPad_simple_zr;
+  std::unordered_map< UInt_t , MonitorElement* > theCoPad_dcEta;
+  std::unordered_map< UInt_t , MonitorElement* > theCoPad_simple_zr;
   int minBXGEM_, maxBXGEM_;
+  edm::EDGetToken InputTagToken_;
+  int nBinXY_;
+  bool detailPlot_;
 };
 
 #endif

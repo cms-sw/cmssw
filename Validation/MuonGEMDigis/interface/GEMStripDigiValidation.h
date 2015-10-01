@@ -25,12 +25,15 @@ public:
   MonitorElement* theStrip[2][3][2];
   MonitorElement* theStrip_bx[2][3][2];
   MonitorElement* theStrip_zr[2][3][2];
-  std::map< UInt_t , MonitorElement* > theStrip_xy_ch;
+  std::unordered_map< UInt_t , MonitorElement* > theStrip_xy_ch;
 
   // Simple plots
-  std::map< UInt_t , MonitorElement* > theStrip_dcEta;
-  std::map< UInt_t , MonitorElement* > theStrip_simple_zr;
+  std::unordered_map< UInt_t , MonitorElement* > theStrip_dcEta;
+  std::unordered_map< UInt_t , MonitorElement* > theStrip_simple_zr;
   
+  edm::EDGetToken InputTagToken_;
+  int nBinXY_;
+  bool detailPlot_;
 };
 
 #endif
