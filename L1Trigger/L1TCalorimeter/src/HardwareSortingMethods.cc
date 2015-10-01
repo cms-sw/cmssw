@@ -20,6 +20,11 @@ namespace l1t{
   {
     return( ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
   }
+
+  unsigned int pack16bits(int pt, int eta, int phi)
+  {
+    return( 0x8000 + ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
+  }
 }
 
 void print2DVector(std::vector<std::vector<l1t::L1Candidate> > myVector){

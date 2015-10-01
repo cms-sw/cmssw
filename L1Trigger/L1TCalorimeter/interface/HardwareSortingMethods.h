@@ -25,6 +25,7 @@ namespace l1t {
                 std::vector<l1t::Tau> * output);
 
   unsigned int pack15bits(int pt, int eta, int phi);
+  unsigned int pack16bits(int pt, int eta, int phi);
 }
 
 #endif

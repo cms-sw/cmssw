@@ -20,11 +20,6 @@ Stage1Layer2JetAlgorithmImpHI::Stage1Layer2JetAlgorithmImpHI(CaloParamsStage1* p
 
 Stage1Layer2JetAlgorithmImpHI::~Stage1Layer2JetAlgorithmImpHI(){};
 
-unsigned int pack16bits(int pt, int eta, int phi)
-{
-  return( ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
-}
-
 void verboseDumpJets(const std::vector<l1t::Jet> &jets);
 
 void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion> & regions,
@@ -44,7 +39,7 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
   TwoByTwoFinder(subRegions, preRankJets);
   //slidingWindowJetFinder(0, subRegions, unSortedJets);
   JetToGtPtScales(params_, preRankJets, unSortedJets);
-  verboseDumpJets(*unSortedJets);
+  //verboseDumpJets(*unSortedJets);
   SortJets(unSortedJets, preGtEtaJets);
   JetToGtEtaScales(params_, preGtEtaJets, preGtJets);
   JetToGtEtaScales(params_, preGtEtaJets, jets);
@@ -55,7 +50,7 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
   delete preGtEtaJets;
 
   const bool verbose = false;
-  const bool hex = false;
+  const bool hex = true;
   if(verbose)
   {
     if(!hex)
@@ -90,7 +85,7 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
 	  itJet != jets->end(); ++itJet){
 	ajets[itJet - jets->begin()] = *itJet;
       }
-      std::cout << "Jets (hex)" << std::endl;
+      //std::cout << "Jets (hex)" << std::endl;
       std::cout << std::hex << pack16bits(ajets[0].hwPt(), ajets[0].hwEta(), ajets[0].hwPhi());
       std::cout << " ";
       std::cout << std::hex << pack16bits(ajets[1].hwPt(), ajets[1].hwEta(), ajets[1].hwPhi());
@@ -156,13 +151,15 @@ void verboseDumpJets(const std::vector<l1t::Jet> &jets)
     		   3};
 
 
-  std::cout << "pt eta phi" << std::endl;
+  std::cout << "pt eta phi sign" << std::endl;
   for(std::vector<l1t::Jet>::const_iterator itJet = jets.begin();
 	  itJet != jets.end(); ++itJet){
 
     std::cout << itJet->hwPt() << " ";
     std::cout << fwEta[itJet->hwEta()] << " " ;
-    std::cout << fwPhi[itJet->hwPhi()] << std::endl;
+    std::cout << fwPhi[itJet->hwPhi()] << " ";
+    bool sign = (itJet->hwEta() < 11);
+    std::cout << sign << std::endl;
 
   }
 }
