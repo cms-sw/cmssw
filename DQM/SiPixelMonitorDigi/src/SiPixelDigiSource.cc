@@ -100,7 +100,6 @@ SiPixelDigiSource::~SiPixelDigiSource()
 void 
 SiPixelDigiSource::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  //std::cout << "New luminosity block!!" << std::endl;
 
  if(modOn && nLumiSecs%10==0){
     if(averageDigiOccupancy){
@@ -137,16 +136,13 @@ SiPixelDigiSource::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSet
 	}else{
 	  if(averageFPIXFed>0.) averageOcc = nDigisPerFed[i]/averageFPIXFed;
 	}
-	std::cout << averageOcc << std::endl;
 	if (!modOn){
-	  float entry=(averageDigiOccupancy->getBinContent(i+1) * (nLumiSecs-1) + averageOcc)/nLumiSecs; //this is the mean of the actual value + the bin entry already present in the histo, that is what we want in Offline GUI
-	  averageDigiOccupancy->setBinContent(i+1,entry);
+	  averageDigiOccupancy->Fill(i+1,averageOcc);
 	}        
-
 	if (modOn && nLumiSecs%10==0){
-	  averageDigiOccupancy->setBinContent(i+1,averageOcc); // "modOn" basically mean Online DQM, in this case fill histos with actual value of digi fraction per fed for each ten lumisections
+	  averageDigiOccupancy->Fill(i+1,averageOcc); // "modOn" basically mean Online DQM, in this case fill histos with actual value of digi fraction per fed for each ten lumisections
 	  if (avgfedDigiOccvsLumi){
-	  avgfedDigiOccvsLumi->setBinContent(int(nLumiSecs/10), i+1, averageOcc); //fill with the mean over ten the 10 lumisections, previous code was filling this histo only with last event of each 10th lumisection
+	  avgfedDigiOccvsLumi->setBinContent(int(nLumiSecs/10), i+1, averageOcc); //fill with the mean over 10 lumisections, previous code was filling this histo only with last event of each 10th lumisection
 	}//endif meX5
       }//endif modOn
     }
@@ -254,25 +250,6 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   int lumiSection = (int)iEvent.luminosityBlock();
   int nEventDigis = 0; int nActiveModules = 0;
-  
-  /*
-  if(modOn){
-    if(averageDigiOccupancy && lumiSection%8==0){
-      averageDigiOccupancy->Reset();
-      nBPIXDigis = 0; 
-      nFPIXDigis = 0;
-      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;
-    }
-  }
-  if(!modOn){
-    if(averageDigiOccupancy && lumiSection%1==0){
-      averageDigiOccupancy->Reset();
-      nBPIXDigis = 0; 
-      nFPIXDigis = 0;
-      for(int i=0; i!=40; i++) nDigisPerFed[i]=0;
-    }
-  }
-  */
 
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
   for(int i=0; i!=192; i++) numberOfDigis[i]=0;
@@ -597,32 +574,6 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if(pixEventRate) pixEventRate->Fill(lumiSection, 1./23.);
   }
   
-  // Actual digi occupancy in a FED compared to average digi occupancy per FED
-  /*
-  if(averageDigiOccupancy){
-
-    for(int i=0; i!=40; i++){
-      float averageOcc = 0.;
-      if(i<32){
-        float averageBPIXFed = float(nBPIXDigis)/32.;
-	
-	if(averageBPIXFed>0.) averageOcc = nDigisPerFed[i]/averageBPIXFed;
-      }else{
-        float averageFPIXFed = float(nFPIXDigis)/8.;
-	if(averageFPIXFed>0.) averageOcc = nDigisPerFed[i]/averageFPIXFed;
-      }
-      averageDigiOccupancy->setBinContent(i+1,averageOcc);
-      
-      int lumiSections8 = int(lumiSection/8);
-      if (modOn){
-	if (avgfedDigiOccvsLumi){
-	  avgfedDigiOccvsLumi->setBinContent(1+lumiSections8, i+1, averageOcc);
-	}//endif meX5
-      }//endif modOn
-    }
-  }
-  */
-  // slow down...
   if(slowDown) usleep(10000);
   
 }
@@ -747,11 +698,11 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker, const edm::EventSet
   char title6[80];  sprintf(title6, "Number of Low-Efficiency Endcap ROCs;LumiSection;N_{LO EFF} Endcap ROCs");
   loOccROCsEndcap = iBooker.book1D("loOccROCsEndcap",title6,500,0.,5000.);
   char title7[80];  sprintf(title7, "Average digi occupancy per FED;FED;NDigis/<NDigis>");
-  averageDigiOccupancy = iBooker.book1D("averageDigiOccupancy",title7,40,-0.5,39.5);
+  averageDigiOccupancy = iBooker.bookProfile("averageDigiOccupancy",title7,40,0.5,40.5,0.,3.);
   averageDigiOccupancy->setLumiFlag();
   if(modOn){
     char title4[80]; sprintf(title4, "FED Digi Occupancy (NDigis/<NDigis>) vs LumiSections;Lumi Section;FED");
-    avgfedDigiOccvsLumi = iBooker.book2D ("avgfedDigiOccvsLumi", title4, 320,0., 3200., 40, -0.5, 39.5);
+    avgfedDigiOccvsLumi = iBooker.book2D ("avgfedDigiOccvsLumi", title4, 320,0., 3200., 40, 0.5, 40.5);
   }  
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  
