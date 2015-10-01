@@ -9,9 +9,9 @@ class TriggerBitAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TriggerBitAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         self.processName = getattr(self.cfg_ana,"processName","HLT")
-        self.processPrescaleName = getattr(self.cfg_ana,"processPrescaleName","RECO")
+        self.prescaleProcessName = getattr(self.cfg_ana,"prescaleProcessName","RECO")
         self.fallbackName = getattr(self.cfg_ana,"fallbackProcessName",None)
-        self.fallbackPrescaleName = getattr(self.cfg_ana,"fallbackPrescaleProcessName",None)
+        self.prescaleFallbackName = getattr(self.cfg_ana,"prescaleFallbackProcessName",None)
         self.outprefix   = getattr(self.cfg_ana,"outprefix",  self.processName)
         self.unrollbits = ( hasattr(self.cfg_ana,"unrollbits") and self.cfg_ana.unrollbits )
         self.saveIsUnprescaled = getattr(self.cfg_ana,"saveIsUnprescaled",False)
@@ -26,13 +26,13 @@ class TriggerBitAnalyzer( Analyzer ):
     def declareHandles(self):
         super(TriggerBitAnalyzer, self).declareHandles()
         fallback = ('TriggerResults','',self.fallbackName) if self.fallbackName else None
-        fallbackPrescale = ('patTrigger','',self.fallbackPrescaleName) if self.fallbackPrescaleName else None
+        prescaleFallback = ('patTrigger','',self.prescaleFallbackName) if self.prescaleFallbackName else None
         self.handles['TriggerResults'] = AutoHandle( ('TriggerResults','',self.processName), 'edm::TriggerResults', fallbackLabel=fallback )
         if self.saveIsUnprescaled:
-            self.handles["TriggerPrescales"] = AutoHandle( ('patTrigger','',self.processPrescaleName), 'pat::PackedTriggerPrescales', fallbackLabel=fallbackPrescale )
+            self.handles["TriggerPrescales"] = AutoHandle( ('patTrigger','',self.prescaleProcessName), 'pat::PackedTriggerPrescales', fallbackLabel=prescaleFallback )
             if self.checkL1prescale:
-                self.handles["TriggerPrescales_l1min"] = AutoHandle( ('patTrigger','l1min',self.processPrescaleName), 'pat::PackedTriggerPrescales', fallbackLabel=(('patTrigger','l1min',self.fallbackPrescaleName) if self.fallbackPrescaleName else None) )
-                self.handles["TriggerPrescales_l1max"] = AutoHandle( ('patTrigger','l1max',self.processPrescaleName), 'pat::PackedTriggerPrescales', fallbackLabel=(('patTrigger','l1max',self.fallbackPrescaleName) if self.fallbackPrescaleName else None) )
+                self.handles["TriggerPrescales_l1min"] = AutoHandle( ('patTrigger','l1min',self.prescaleProcessName), 'pat::PackedTriggerPrescales', fallbackLabel=(('patTrigger','l1min',self.prescaleFallbackName) if self.prescaleFallbackName else None) )
+                self.handles["TriggerPrescales_l1max"] = AutoHandle( ('patTrigger','l1max',self.prescaleProcessName), 'pat::PackedTriggerPrescales', fallbackLabel=(('patTrigger','l1max',self.prescaleFallbackName) if self.prescaleFallbackName else None) )
 
     def beginLoop(self, setup):
         super(TriggerBitAnalyzer,self).beginLoop(setup)
