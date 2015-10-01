@@ -84,10 +84,10 @@ class ME0DetId :public DetId {
   static const int maxChamberId=     36; // ME0 ring consists of 36 chambers spanning 10 degrees
 
   static const int minLayerId=     0;
-  static const int maxLayerId=     6; // ME0 chamber consists of 6 layers for now, change here when changing ME0 Geometry
+  static const int maxLayerId=     6;    // ME0 chamber consists of 6 layers for now, change here when changing ME0 Geometry
 
   static const int minRollId=	  0;
-  static const int maxRollId=	  1; // ME0 layer consits of 1 etapartition for now, change here when changing ME0 Geometry
+  static const int maxRollId=	  1;     // ME0 layer consists of 1 etapartition for now, change here when changing ME0 Geometry
 
  private:
   static const int RegionNumBits_  =  2;
