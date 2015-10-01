@@ -32,7 +32,7 @@ echo 'copying job dir to worker'
 eval `scram runtime -sh`
 ls
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json >& local.output
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json >& local.output
 exit $? 
 #echo
 #echo 'sending the job directory back'
@@ -65,7 +65,7 @@ eval `scramv1 runtime -sh`
 ls
 echo `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json >& local.output
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json >& local.output
 exit $? 
 #echo
 #echo 'sending the job directory back'
@@ -130,7 +130,7 @@ cp -rf $LS_SUBCWD .
 ls
 cd `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
 echo
 {copy}
 """.format(copy=cpCmd)
@@ -214,7 +214,7 @@ cp -rf $SUBMISIONDIR .
 ls
 cd `find . -type d | grep /`
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
 #python $CMSSW_BASE/src/CMGTools/RootTools/python/fwlite/looper.py config.pck
 echo
 {copy}
@@ -242,7 +242,7 @@ cd {cmssw}/src
 eval `scramv1 ru -sh`
 cd -
 echo 'running'
-python {cmssw}/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json
+python {cmssw}/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
 echo
 echo 'sending the job directory back'
 mv Loop/* ./ && rm -r Loop
@@ -254,7 +254,7 @@ def batchScriptLocal(  remoteDir, index ):
 
    script = """#!/bin/bash
 echo 'running'
-python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck options.json
+python $CMSSW_BASE/src/PhysicsTools/HeppyCore/python/framework/looper.py pycfg.py config.pck --options=options.json
 echo
 echo 'sending the job directory back'
 mv Loop/* ./

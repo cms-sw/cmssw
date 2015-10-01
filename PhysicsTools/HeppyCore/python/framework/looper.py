@@ -267,33 +267,38 @@ if __name__ == '__main__':
     import sys
     import os
     from PhysicsTools.HeppyCore.framework.heppy_loop import _heppyGlobalOptions
-    if len(sys.argv) == 2 :
-        cfgFileName = sys.argv[1]
-        pckfile = open( cfgFileName, 'r' )
-        config = pickle.load( pckfile )
-        comp = config.components[0]
-        events_class = config.events_class
-    elif len(sys.argv) == 3 :
-        cfgFileName = sys.argv[1]
-        file = open( cfgFileName, 'r' )
-        cfg = imp.load_source( 'cfg', cfgFileName, file)
-        compFileName = sys.argv[2]
-        pckfile = open( compFileName, 'r' )
-        comp = pickle.load( pckfile )
-        cfg.config.components=[comp]
-        events_class = cfg.config.events_class
-    elif len(sys.argv) == 4 :
-        jsonfilename = sys.argv[3]
+    from optparse import OptionParser
+    parser = OptionParser(usage='%prog cfgFileName compFileName [--options=optFile.json]')
+    parser.add_option('--options',dest='options',default='',help='options json file')
+    (options,args) = parser.parse_args()
+
+    if options.options!='' and len(args)==2:
+        jsonfilename = options.options
         jfile = open (jsonfilename, 'r')
         opts=json.loads(jfile.readline())
         for k,v in opts.iteritems():
             _heppyGlobalOptions[k]=v
         jfile.close()
         print _heppyGlobalOptions
-        cfgFileName = sys.argv[1]
+        cfgFileName = args[0]
         file = open( cfgFileName, 'r' )
         cfg = imp.load_source( 'cfg', cfgFileName, file)
-        compFileName = sys.argv[2]
+        compFileName = args[1]
+        pckfile = open( compFileName, 'r' )
+        comp = pickle.load( pckfile )
+        cfg.config.components=[comp]
+        events_class = cfg.config.events_class
+    elif len(args) == 1 :
+        cfgFileName = args[0]
+        pckfile = open( cfgFileName, 'r' )
+        config = pickle.load( pckfile )
+        comp = config.components[0]
+        events_class = config.events_class
+    elif len(args) == 2 :
+        cfgFileName = args[0]
+        file = open( cfgFileName, 'r' )
+        cfg = imp.load_source( 'cfg', cfgFileName, file)
+        compFileName = args[1]
         pckfile = open( compFileName, 'r' )
         comp = pickle.load( pckfile )
         cfg.config.components=[comp]
