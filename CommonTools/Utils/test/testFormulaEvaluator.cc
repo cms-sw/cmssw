@@ -26,7 +26,7 @@ public:
 
 namespace {
   bool compare(double iLHS, double iRHS) {
-    return std::abs(iLHS-iRHS)< 1E-6*iLHS;
+    return std::abs(iLHS-iRHS)< 1E-6*std::abs(iLHS);
   }
 }
 
@@ -61,7 +61,7 @@ void testFormulaEvaluator::checkEvaluators() {
     auto cl = std::unique_ptr<ConstantEvaluator>( new ConstantEvaluator(4) );
     auto cr = std::unique_ptr<ConstantEvaluator>( new ConstantEvaluator(3) );
 
-    BinaryOperatorEvaluator<std::minus<double>> be( std::move(cl), std::move(cr), EvaluatorBase::Precidence::kPlusMinus);
+    BinaryOperatorEvaluator<std::minus<double>> be( std::move(cl), std::move(cr), EvaluatorBase::Precedence::kPlusMinus);
 
     CPPUNIT_ASSERT( be.evaluate(nullptr,nullptr) == 1. );
   }
@@ -144,6 +144,124 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 9. );
   }
 
+  {
+    reco::FormulaEvaluator f("3<=2");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 0. );
+  }
+  {
+    reco::FormulaEvaluator f("2<=3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1. );
+  }
+  {
+    reco::FormulaEvaluator f("3<=3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1. );
+  }
+
+  {
+    reco::FormulaEvaluator f("3>=2");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1. );
+  }
+  {
+    reco::FormulaEvaluator f("2>=3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 0. );
+  }
+  {
+    reco::FormulaEvaluator f("3>=3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1. );
+  }
+
+
+  {
+    reco::FormulaEvaluator f("3>2");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1. );
+  }
+  {
+    reco::FormulaEvaluator f("2>3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 0. );
+  }
+  {
+    reco::FormulaEvaluator f("3>3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 0. );
+  }
+
+  {
+    reco::FormulaEvaluator f("3<2");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 0. );
+  }
+  {
+    reco::FormulaEvaluator f("2<3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1. );
+  }
+  {
+    reco::FormulaEvaluator f("3<3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 0. );
+  }
+
+  {
+    reco::FormulaEvaluator f("2==3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 0. );
+  }
+  {
+    reco::FormulaEvaluator f("3==3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1. );
+  }
+
+  {
+    reco::FormulaEvaluator f("2!=3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 1. );
+  }
+  {
+    reco::FormulaEvaluator f("3!=3");
+    
+    std::vector<double> emptyV;
+
+    CPPUNIT_ASSERT( f.evaluate(emptyV,emptyV) == 0. );
+  }
 
   {
     reco::FormulaEvaluator f("1+2*3");
@@ -301,7 +419,7 @@ testFormulaEvaluator::checkFormulaEvaluator() {
 
     std::vector<double> x ={1.};
 
-    std::vector<double> v = {1.,4.,2.,0.5,2.};
+    std::vector<double> v = {1.,4.,2.,0.5,2.,1.};
 
     std::vector<double> xValues = {1., 10., 100.};
 
@@ -364,6 +482,26 @@ testFormulaEvaluator::checkFormulaEvaluator() {
     for(auto const xv: xValues) {
       v[0] = xv;
       CPPUNIT_ASSERT(compare(f.evaluate(v, p),func(v[0],v[1],v[2])) );
+    }
+  }
+
+  {
+    //From SimpleJetCorrector
+    reco::FormulaEvaluator f("((x>=[6])*(([0]+([1]/((log10(x)^2)+[2])))+([3]*exp(-([4]*((log10(x)-[5])*(log10(x)-[5])))))))+((x<[6])*[7])");
+
+    std::vector<double> x ={1.};
+
+    std::vector<double> v = {1.,4.,2.,0.5,2.,1.,1., -1.};
+
+
+    std::vector<double> xValues = {.1, 1., 10., 100.};
+
+    auto func = [&v](double x) { return ((x>=v[6])*((v[0]+(v[1]/(( (std::log(x)/std::log(10))*(std::log(x)/std::log(10)) ) +v[2])))+(v[3]*std::exp(-1.*(v[4]*((std::log(x)/std::log(10.)-v[5])*(std::log(x)/std::log(10.)-v[5])))))))+((x<v[6])*v[7]); };
+
+
+    for(auto const xv: xValues) {
+      x[0] = xv;
+      CPPUNIT_ASSERT(compare(f.evaluate(x, v),func(x[0])) );
     }
   }
 
