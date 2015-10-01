@@ -337,6 +337,18 @@ FWRecoGeometryESProducer::addME0Geometry( void )
 	m_fwGeometry->idToName[current].topology[5] = roll->npads();
       }
     }
+
+    for( auto cham : me0Geom->chambers())
+      {
+
+	if( cham )
+	  {
+	    unsigned int rawid = cham->geographicalId().rawId();
+	    unsigned int current = insert_id( rawid );
+	    fillShapeAndPlacement( current, cham );
+	  }
+      }
+
     m_fwGeometry->extraDet.Add(new TNamed("ME0", "ME0 muon detector"));
   }
   catch( cms::Exception &exception )
