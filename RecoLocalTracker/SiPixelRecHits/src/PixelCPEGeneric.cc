@@ -694,8 +694,9 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
     // This are the simple errors, hardcoded in the code 
     //cout << "Track angles are not known " << endl; 
     //cout << "Default angle estimation which assumes track from PV (0,0,0) does not work." << endl;
-      
-    if ( theDetParam.thePart == GeomDetEnumerators::PixelBarrel || theDetParam.thePart == GeomDetEnumerators::P1PXB )  {
+
+    if ( GeomDetEnumerators::isTrackerPixel(theDetParam.thePart) ) {
+     if(GeomDetEnumerators::isBarrel(theDetParam.thePart)) {
 
       DetId id = (theDetParam.theDet->geographicalId());
       int layer=ttopo_.layer(id);
@@ -721,9 +722,7 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
 	}
       }
 
-    } else if ( theDetParam.thePart == GeomDetEnumerators::PixelEndcap || 
-		theDetParam.thePart == GeomDetEnumerators::P1PXEC  ||
-		theDetParam.thePart == GeomDetEnumerators::P2PXEC )  { // EndCap
+     } else { // EndCap
 
       if ( !edgex ) {
 	if ( sizex<=xerr_endcap_.size() ) xerr=xerr_endcap_[sizex-1];
@@ -734,7 +733,8 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
 	if ( sizey<=yerr_endcap_.size() ) yerr=yerr_endcap_[sizey-1];
 	else yerr=yerr_endcap_def_;
       }
-    } // end endcap
+     } // end endcap
+    }
 
     if(inflate_errors) {
       int n_bigx = 0;
