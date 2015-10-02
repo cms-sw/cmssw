@@ -69,6 +69,11 @@ class CaloTowerGeometry : public CaloSubdetectorGeometry
           return cellGeomPtr( cttopo->denseIndex(id) ) ;
       }
 
+  virtual void getSummary( CaloSubdetectorGeometry::TrVec&  trVector,
+			   CaloSubdetectorGeometry::IVec&   iVector,
+			   CaloSubdetectorGeometry::DimVec& dimVector,
+			   CaloSubdetectorGeometry::IVec& dinsVector ) const ;
+
    protected:
 
       virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;

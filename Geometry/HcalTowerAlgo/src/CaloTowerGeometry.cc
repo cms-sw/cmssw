@@ -1,9 +1,13 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
 
+#include <Math/Transform3D.h>
+#include <Math/EulerAngles.h>
+
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
+typedef CaloCellGeometry::Tr3D Tr3D ;
 
 CaloTowerGeometry::CaloTowerGeometry(const CaloTowerTopology *cttopo_) :
   cttopo(cttopo_), 
@@ -71,4 +75,74 @@ CaloTowerGeometry::cellGeomPtr( uint32_t index ) const {
   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
   return  ( m_cellVec.size() < index ||
 	    0 == cell->param() ? 0 : cell ) ;
+}
+
+void
+CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
+                              CaloSubdetectorGeometry::IVec&   iVec,
+                              CaloSubdetectorGeometry::DimVec& dVec,
+                              CaloSubdetectorGeometry::IVec& dinsVec ) const {
+  tVec.reserve( numberOfCellsForCorners()*numberOfTransformParms() ) ;
+  iVec.reserve( numberOfShapes()==1 ? 1 : numberOfCellsForCorners() ) ;
+  dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
+  dinsVec.reserve(numberOfCellsForCorners());
+   
+  for (ParVecVec::const_iterator ivv (parVecVec().begin()) ; 
+       ivv != parVecVec().end() ; ++ivv) {
+    const ParVec& pv ( *ivv ) ;
+    for (ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv) {
+      dVec.push_back( *iv ) ;
+    }
+  }
+   
+  for (unsigned int i ( 0 ) ; i < numberOfCellsForCorners() ; ++i) {
+    Tr3D tr ;
+    const CaloCellGeometry* ptr ( cellGeomPtr( i ) ) ;
+       
+    if (0 != ptr) {
+      dinsVec.push_back( i );
+
+      ptr->getTransform( tr, ( Pt3DVec* ) 0 ) ;
+
+      if( Tr3D() == tr ) { // for preshower there is no rotation
+         const GlobalPoint& gp ( ptr->getPosition() ) ; 
+         tr = HepGeom::Translate3D( gp.x(), gp.y(), gp.z() ) ;
+      }
+
+      const CLHEP::Hep3Vector  tt ( tr.getTranslation() ) ;
+      tVec.push_back( tt.x() ) ;
+      tVec.push_back( tt.y() ) ;
+      tVec.push_back( tt.z() ) ;
+      if (6 == numberOfTransformParms()) {
+         const CLHEP::HepRotation rr ( tr.getRotation() ) ;
+         const ROOT::Math::Transform3D rtr (rr.xx(), rr.xy(), rr.xz(), tt.x(),
+                                            rr.yx(), rr.yy(), rr.yz(), tt.y(),
+                                            rr.zx(), rr.zy(), rr.zz(), tt.z());
+         ROOT::Math::EulerAngles ea ;
+         rtr.GetRotation( ea ) ;
+         tVec.push_back( ea.Phi() ) ;
+         tVec.push_back( ea.Theta() ) ;
+         tVec.push_back( ea.Psi() ) ;
+      }
+
+      const CCGFloat* par ( ptr->param() ) ;
+
+      unsigned int ishape ( 9999 ) ;
+      for( unsigned int ivv ( 0 ) ; ivv != parVecVec().size() ; ++ivv ) {
+         bool ok ( true ) ;
+         const CCGFloat* pv ( &(*parVecVec()[ivv].begin() ) ) ;
+         for( unsigned int k ( 0 ) ; k != numberOfParametersPerShape() ; ++k ) {
+            ok = ok && ( fabs( par[k] - pv[k] ) < 1.e-6 ) ;
+         }
+         if( ok ) {
+            ishape = ivv ;
+            break ;
+         }
+      }
+      assert( 9999 != ishape ) ;
+      
+      const unsigned int nn (( numberOfShapes()==1) ? (unsigned int)1 : m_dins.size() ) ; 
+      if( iVec.size() < nn ) iVec.push_back( ishape ) ;
+    }
+  }
 }
