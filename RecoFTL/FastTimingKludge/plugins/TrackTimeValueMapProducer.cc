@@ -11,6 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/View.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -35,8 +36,8 @@ public:
   
 private:
   // inputs
-  edm::EDGetTokenT<reco::TrackCollection> _tracks;
-  edm::EDGetTokenT<reco::GsfTrackCollection> _gsfTracks;
+  edm::EDGetTokenT<edm::View<reco::Track> > _tracks;
+  edm::EDGetTokenT<edm::View<reco::GsfTrack> > _gsfTracks;
   edm::EDGetTokenT<TrackingParticleCollection> _trackingParticles;
   edm::EDGetTokenT<TrackingVertexCollection> _trackingVertices;
   // options
@@ -48,9 +49,26 @@ namespace {
   static const std::string generalTracksName("generalTracks");
   static const std::string gsfTracksName("gsfTracks");
   static const std::string resolution("Resolution");
+
+  template<typename ParticleType, typename T>
+  void writeValueMap(edm::Event &iEvent,
+                     const edm::Handle<edm::View<ParticleType> > & handle,
+                     const std::vector<T> & values,
+                     const std::string    & label) {
+    std::auto_ptr<edm::ValueMap<T> > valMap(new edm::ValueMap<T>());
+    typename edm::ValueMap<T>::Filler filler(*valMap);
+    filler.insert(handle, values.begin(), values.end());
+    filler.fill();
+    iEvent.put(valMap, label);
+  }
 }
 
-TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& conf) {
+TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& conf) :
+  _tracks(consumes<edm::View<reco::Track> >( conf.getParameter<edm::InputTag>("trackSrc") ) ),
+  _gsfTracks(consumes<edm::View<reco::GsfTrack> >( conf.getParameter<edm::InputTag>("gsfTrackSrc") ) ),
+  _trackingParticles(consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>("trackingParticleSrc") ) ),
+  _trackingVertices(consumes<TrackingVertexCollection>( conf.getParameter<edm::InputTag>("trackingVertexSrc") ) )
+{
   // times and time resolutions for general tracks
   produces<edm::ValueMap<float> >(generalTracksName);
   produces<edm::ValueMap<float> >(generalTracksName+resolution);
@@ -61,16 +79,32 @@ TrackTimeValueMapProducer::TrackTimeValueMapProducer(const edm::ParameterSet& co
 }
 
 void TrackTimeValueMapProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
-  std::auto_ptr<edm::ValueMap<float> > generalTrackTimes, generalTrackResolutions;
-  std::auto_ptr<edm::ValueMap<float> > gsfTrackTimes, gsfTrackResolutions;
+  std::vector<float> generalTrackTimes, generalTrackResolutions;
+  std::vector<float> gsfTrackTimes, gsfTrackResolutions;
+  
+  edm::Handle<edm::View<reco::Track> > TrackCollectionH;
+  evt.getByToken(_tracks, TrackCollectionH);
+  const edm::View<reco::Track>& TrackCollection = *TrackCollectionH;
 
-  generalTrackTimes.reset( new edm::ValueMap<float>() );
-  generalTrackResolutions.reset( new edm::ValueMap<float>() );
-  gsfTrackTimes.reset( new edm::ValueMap<float>() );
-  gsfTrackResolutions.reset( new edm::ValueMap<float>() );
+  edm::Handle<edm::View<reco::GsfTrack> > GsfTrackCollectionH;
+  evt.getByToken(_gsfTracks, GsfTrackCollectionH);
+  const edm::View<reco::GsfTrack>& GsfTrackCollection = *GsfTrackCollectionH;
 
-  evt.put( generalTrackTimes, generalTracksName );
-  evt.put( generalTrackResolutions, generalTracksName+resolution );
-  evt.put( gsfTrackTimes, gsfTracksName );
-  evt.put( gsfTrackResolutions, gsfTracksName+resolution );
+  edm::Handle<TrackingParticleCollection>  TPCollectionH;
+  evt.getByToken(_trackingParticles, TPCollectionH);
+  const TrackingParticleCollection&  TPCollection = *TPCollectionH;
+
+  edm::Handle<TrackingVertexCollection>  TVCollectionH;
+  evt.getByToken(_trackingVertices, TVCollectionH);
+  const TrackingVertexCollection&  TVCollection= *TVCollectionH;
+
+  std::cout << "Track size            = " << TrackCollection.size() << std::endl;
+  std::cout << "GsfTrack size         = " << GsfTrackCollection.size() << std::endl;
+  std::cout << "TrackingParticle size = " << TPCollection.size() << std::endl;
+  std::cout << "TrackingVertex size   = " << TVCollection.size() << std::endl;
+
+  writeValueMap( evt, TrackCollectionH, generalTrackTimes, generalTracksName );
+  writeValueMap( evt, TrackCollectionH, generalTrackResolutions, generalTracksName+resolution );
+  writeValueMap( evt, GsfTrackCollectionH, gsfTrackTimes, gsfTracksName );
+  writeValueMap( evt, GsfTrackCollectionH, gsfTrackResolutions, gsfTracksName+resolution );
 }
