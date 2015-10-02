@@ -6,6 +6,7 @@
 
 #include "XrdCl/XrdClFile.hh"
 #include "XrdCl/XrdClDefaultEnv.hh"
+#include "XrdCl/XrdClFileSystem.hh"
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -96,7 +97,8 @@ SendMonitoringInfo(XrdCl::File &file)
     file.GetProperty("LastURL", lastUrl);
     if (jobId && lastUrl.size())
     {
-        XrdCl::FileSystem fs = XrdCl::FileSystem(XrdCl::URL(lastUrl));
+        XrdCl::URL url(lastUrl);
+        XrdCl::FileSystem fs(url);
         fs.SendInfo(jobId, &nullHandler, 30);
         edm::LogInfo("XrdAdaptorInternal") << "Set monitoring ID to " << jobId << ".";
     }
