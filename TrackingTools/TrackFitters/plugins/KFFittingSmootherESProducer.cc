@@ -29,7 +29,7 @@ namespace {
       edm::ParameterSetDescription desc;
       desc.add<std::string>("ComponentName","KFFittingSmoother");
       desc.add<std::string>("Fitter","KFFitter");
-      desc.add<std::string>("F","KFSmoother");
+      desc.add<std::string>("Smoother","KFSmoother");
       KFFittingSmoother::fillDescriptions(desc);
       descriptions.add("KFFittingSmootherESProducer", desc);
     }
