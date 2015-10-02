@@ -208,16 +208,31 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
   ESDCCHeader.setOptoRX1(optoRX1_ + dccCRC2_);
   ESDCCHeader.setOptoRX2(optoRX2_ + dccCRC3_);
   ESDCCHeader.setFEChannelStatus(FEch_status);
+  int enableOptoRX[3] = {-1, -1, -1};
+  int NenableOptoRX = 0; 
+  if (optoRX0_ == 128) {
+    enableOptoRX[NenableOptoRX] = 0;
+    NenableOptoRX++;
+  }
+  if (optoRX1_ == 128) {
+    enableOptoRX[NenableOptoRX] = 1;
+    NenableOptoRX++;
+  }
+  if (optoRX2_ == 128) {
+    enableOptoRX[NenableOptoRX] = 2;
+    NenableOptoRX++;
+  }
 
   // Event data
-  int opto = 0;
+  int iopto = 0;
+  int opto = -1;
   for (const Word64* word=(header+dccWords+1); word!=trailer; ++word) {
     if (debug_) std::cout<<"Event : "<<print(*word)<<std::endl;
 
     head = (*word >> 60) & m4;
 
     if (head == 12) {
-      if ((opto==1 && ESDCCHeader.getOptoRX0()==129) || (opto==2 && ESDCCHeader.getOptoRX1()==129) || (opto==3 && ESDCCHeader.getOptoRX2()==129)) 
+      if ((opto==0 && ESDCCHeader.getOptoRX0()==129) || (opto==1 && ESDCCHeader.getOptoRX1()==129) || (opto==2 && ESDCCHeader.getOptoRX2()==129)) 
 	word2digi(kid, kPACE, *word, digis);
     } else if (head == 9) {
       kid      = (*word >> 2) & 0x07ff;
@@ -242,10 +257,12 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     } else if (head == 6) {
       optoBC = (*word >> 32) & m16;
       optoEC = (*word >> 48) & m8;      
+
+      opto = enableOptoRX[iopto];
       if (opto==0) ESDCCHeader.setOptoBC0(optoBC);
       else if (opto==1) ESDCCHeader.setOptoBC1(optoBC);
       else if (opto==2) ESDCCHeader.setOptoBC2(optoBC);
-      opto++;
+      iopto++;
     }
   }
 
