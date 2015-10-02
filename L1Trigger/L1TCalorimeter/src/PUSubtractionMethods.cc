@@ -124,6 +124,8 @@ namespace l1t {
 	//std::cout << "eta: " << regionEta << " pusub: " << puSub << std::endl;
 
 	int regionEtCorr = std::max(0, regionET - puSub);
+	if(regionET == 1023)
+	  regionEtCorr = 1023; // do not subtract overflow regions
 
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentz(0,0,0,0);
 	CaloRegion newSubRegion(*&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, notCorrectedRegion->hwQual(), notCorrectedRegion->hwEtEm(), notCorrectedRegion->hwEtHad());
