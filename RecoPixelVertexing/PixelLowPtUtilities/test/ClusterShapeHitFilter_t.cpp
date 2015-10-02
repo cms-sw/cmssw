@@ -1,7 +1,5 @@
 // ClusterShapeHitFilter test
-#define private public
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
-#undef private
 
 #include <iostream>
 #include <cassert>

@@ -24,11 +24,7 @@
 #include "TEveProjectionAxes.h"
 #include "TGLabel.h"
 #include "TEveProjectionManager.h"
-
-//!!! FIXME add get/sets for TEveCalo2D for CellIDs
-#define protected public  
 #include "TEveCalo.h"
-#undef protected
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZView.h"

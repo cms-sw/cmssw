@@ -18,12 +18,7 @@
 // user include files
 
 // For optimized redraw of Eve views
-#define protected public
-#define private   public
 #include "TEveManager.h"
-#undef private
-#undef protected
-
 #include "TEveSelection.h"
 #include "TEveScene.h"
 #include "TEveViewer.h"

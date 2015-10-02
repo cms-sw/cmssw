@@ -1,10 +1,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 
-//#include "boost/intrusive_ptr.hpp"
-
-#define private public
 #include "CondFormats/Common/interface/UpdateStamp.h"
-#undef private
 #include "CondFormats/Common/interface/TimeConversions.h"
 
 namespace {

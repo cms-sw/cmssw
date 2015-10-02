@@ -1,6 +1,4 @@
-#define private public
 #include "FWCore/Utilities/interface/RunningAverage.h"
-#undef private
 
 namespace {
 

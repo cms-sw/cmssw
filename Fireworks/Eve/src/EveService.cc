@@ -19,7 +19,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
-#define private public
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TColor.h"

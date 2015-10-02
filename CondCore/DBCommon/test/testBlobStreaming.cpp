@@ -1,9 +1,7 @@
 //
 // unit test, include files as they exists only in the plugin...
 //
-#define private public
 #include "CondCore/DBCommon/plugins/BlobStreamingService.cc"
-#undef private
 #include "CondCore/DBCommon/plugins/TBufferBlobStreamingService.cc"
 
 

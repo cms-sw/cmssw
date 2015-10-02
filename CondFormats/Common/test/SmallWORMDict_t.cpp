@@ -1,7 +1,4 @@
-#define private public
 #include "CondFormats/Common/interface/SmallWORMDict.h"
-#undef private
-
 
 #include <iostream>
 

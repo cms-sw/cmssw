@@ -1,17 +1,8 @@
-#define private public
 #include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistanceHelixHelix.h"
-#undef private
-
-// #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
-
-// #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
-
-
 #include "TrackingTools/PatternTools/src/ClosestApproachInRPhi.cc"
-
 
 #include <iostream>
 

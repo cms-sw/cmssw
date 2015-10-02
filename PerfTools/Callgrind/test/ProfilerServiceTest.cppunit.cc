@@ -1,7 +1,4 @@
-#define private public
 #include "PerfTools/Callgrind/interface/ProfilerService.h"
-#undef private
-
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"

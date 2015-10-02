@@ -1,9 +1,6 @@
 #include "Fireworks/Vertices/interface/TEveEllipsoidGL.h"
 
-#define protected public  
 #include "TEveProjections.h" // AMT missing getter for projection center / beam-spot
-#undef protected
-
 #include "Fireworks/Vertices/interface/TEveEllipsoidGL.h"
 #include "Fireworks/Vertices/interface/TEveEllipsoid.h"
 #include "TEveProjectionManager.h"
