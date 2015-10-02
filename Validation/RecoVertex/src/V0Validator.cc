@@ -293,6 +293,8 @@ void V0Validator::analyze(const edm::Event& iEvent,
   double numK0sFound = 0.;
   double mass = 0.;
   std::vector<double> radDist;
+  unsigned int K0sPiEff[2] = {0, 0};
+  unsigned int LamPiEff[2] = {0, 0};
   if (k0sCollection->size() > 0) {
     for (reco::VertexCompositeCandidateCollection::const_iterator iK0s =
              k0sCollection->begin();
@@ -312,10 +314,6 @@ void V0Validator::analyze(const edm::Event& iEvent,
         (*(dynamic_cast<const reco::RecoChargedCandidate*>(
             iK0s->daughter(1)))).track()} };
 
-      for (int itrack = 0; itrack < 2; itrack++) {
-        K0sPiCandStatus[itrack] = 0;
-      }
-
       std::vector<std::pair<TrackingParticleRef, double> > tp;
       TrackingParticleRef tpref;
       TrackingParticleRef firstDauTP;
@@ -330,13 +328,8 @@ void V0Validator::analyze(const edm::Event& iEvent,
         if (recotosimCollectionH->find(track) != recotosimCollectionH->end()) {
           tp = (*recotosimCollectionH)[track];
           if (tp.size() != 0) {
-            K0sPiCandStatus[i] = 1;
             tpref = tp.begin()->first;
 
-            if (simtorecoCollectionH->find(tpref) ==
-                simtorecoCollectionH->end()) {
-              K0sPiCandStatus[i] = 3;
-            }
             TrackingVertexRef parentVertex = tpref->parentVertex();
             if (parentVertex.isNonnull())
               radDist.push_back(parentVertex->position().R());
@@ -389,7 +382,6 @@ void V0Validator::analyze(const edm::Event& iEvent,
             }  // parent vertex is null
           }  // tp size zero
         } else {
-          K0sPiCandStatus[i] = 2;
           noTPforK0sCand++;
           K0sCandStatus = 5;
         }
@@ -440,10 +432,6 @@ void V0Validator::analyze(const edm::Event& iEvent,
           (*(dynamic_cast<const reco::RecoChargedCandidate*>(
               iLam->daughter(1)))).track() } };
 
-      for (int itrack = 0; itrack < 2; itrack++) {
-        LamPiCandStatus[itrack] = 0;
-      }
-
       std::vector<std::pair<TrackingParticleRef, double> > tp;
       TrackingParticleRef tpref;
       TrackingParticleRef firstDauTP;
@@ -457,12 +445,7 @@ void V0Validator::analyze(const edm::Event& iEvent,
         if (recotosimCollectionH->find(track) != recotosimCollectionH->end()) {
           tp = (*recotosimCollectionH)[track];
           if (tp.size() != 0) {
-            LamPiCandStatus[i] = 1;
             tpref = tp.begin()->first;
-            if (simtorecoCollectionH->find(tpref) ==
-                simtorecoCollectionH->end()) {
-              LamPiCandStatus[i] = 3;
-            }
             TrackingVertexRef parentVertex = tpref->parentVertex();
             if (parentVertex.isNonnull())
               radDist.push_back(parentVertex->position().R());
@@ -515,7 +498,6 @@ void V0Validator::analyze(const edm::Event& iEvent,
             }  // parent vertex is null
           }  // tp size zero
         } else {
-          LamPiCandStatus[i] = 2;
           noTPforLamCand++;
           LamCandStatus = 5;
         }

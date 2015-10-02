@@ -94,7 +94,6 @@ private:
   float LamGenX, LamGenY, LamGenZ, KsGenX, KsGenY, KsGenZ;
   float K0sCandEta, LamCandEta, K0sCandpT, LamCandpT, K0sCandR, LamCandR;
   unsigned int K0sGenStatus, LamGenStatus, K0sCandStatus, LamCandStatus;
-  unsigned int K0sPiCandStatus[2], LamPiCandStatus[2], K0sPiEff[2], LamPiEff[2];
 
   //Bookkeeping quantities
   int genLam, genK0s, realLamFound, realK0sFound, realLamFoundEff, realK0sFoundEff;
