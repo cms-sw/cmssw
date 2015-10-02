@@ -292,9 +292,9 @@ void V0Validator::analyze(const edm::Event& iEvent,
   // Kshorts
   double numK0sFound = 0.;
   double mass = 0.;
-  std::vector<double> radDist;
   unsigned int K0sPiEff[2] = {0, 0};
   unsigned int LamPiEff[2] = {0, 0};
+  const unsigned int NUM_DAUGHTERS = 2;
   if (k0sCollection->size() > 0) {
     for (reco::VertexCompositeCandidateCollection::const_iterator iK0s =
              k0sCollection->begin();
@@ -308,7 +308,7 @@ void V0Validator::analyze(const edm::Event& iEvent,
       K0sCandStatus = 0;
       mass = iK0s->mass();
 
-      std::array<reco::TrackRef, 2> theDaughterTracks = { {
+      std::array<reco::TrackRef, NUM_DAUGHTERS> theDaughterTracks = { {
         (*(dynamic_cast<const reco::RecoChargedCandidate*>(
             iK0s->daughter(0)))).track(),
         (*(dynamic_cast<const reco::RecoChargedCandidate*>(
@@ -319,9 +319,11 @@ void V0Validator::analyze(const edm::Event& iEvent,
       TrackingParticleRef firstDauTP;
       TrackingVertexRef k0sVtx;
 
+      std::array<double, NUM_DAUGHTERS> radDist;
       // Loop through K0s candidate daugher tracks
       for (View<reco::Track>::size_type i = 0; i < theDaughterTracks.size();
            ++i) {
+        radDist = {{-1., -1.}};
         // Found track from theDaughterTracks
         RefToBase<reco::Track> track(theDaughterTracks.at(i));
 
@@ -331,10 +333,8 @@ void V0Validator::analyze(const edm::Event& iEvent,
             tpref = tp.begin()->first;
 
             TrackingVertexRef parentVertex = tpref->parentVertex();
-            if (parentVertex.isNonnull())
-              radDist.push_back(parentVertex->position().R());
-
             if (parentVertex.isNonnull()) {
+              radDist[i] = parentVertex->position().R();
               if (k0sVtx.isNonnull()) {
                 if (k0sVtx->position() == parentVertex->position()) {
                   if (parentVertex->nDaughterTracks() == 2) {
@@ -380,12 +380,13 @@ void V0Validator::analyze(const edm::Event& iEvent,
                 firstDauTP = tpref;
               }
             }  // parent vertex is null
-          }  // tp size zero
+          }  // check on associated tp size zero
         } else {
           noTPforK0sCand++;
           K0sCandStatus = 5;
         }
-      }
+      } // Loop on K0s daughter tracks
+
       // fill the fake rate histograms
       if (K0sCandStatus > 1) {
         ksFakeVsR_num->Fill(K0sCandR);
@@ -393,8 +394,9 @@ void V0Validator::analyze(const edm::Event& iEvent,
         ksFakeVsPt_num->Fill(K0sCandpT);
         ksCandStatus->Fill((float)K0sCandStatus);
         fakeKsMass->Fill(mass);
-        for (unsigned int ndx = 0; ndx < radDist.size(); ndx++) {
-          ksFakeDauRadDist->Fill(radDist[ndx]);
+        for (auto distance : radDist) {
+          if (distance > 0)
+            ksFakeDauRadDist->Fill(distance);
         }
       }
       if (K0sCandStatus == 5) {
@@ -405,14 +407,15 @@ void V0Validator::analyze(const edm::Event& iEvent,
       ksFakeVsR_denom->Fill(K0sCandR);
       ksFakeVsEta_denom->Fill(K0sCandEta);
       ksFakeVsPt_denom->Fill(K0sCandpT);
-    }
-  }
+    } // Loop on K0s candidates
+  } // check on presence of K0s collection in the event
+
   nKs->Fill((float)numK0sFound);
 
   double numLamFound = 0.;
-  radDist.clear();
   // Lambdas
   if (lambdaCollection->size() > 0) {
+    std::array<double, NUM_DAUGHTERS> radDist;
     for (reco::VertexCompositeCandidateCollection::const_iterator iLam =
              lambdaCollection->begin();
          iLam != lambdaCollection->end(); iLam++) {
@@ -439,6 +442,8 @@ void V0Validator::analyze(const edm::Event& iEvent,
       // Loop through Lambda candidate daughter tracks
       for (View<reco::Track>::size_type i = 0; i < theDaughterTracks.size();
            ++i) {
+
+        radDist = {{-1, -1}};
         // Found track from theDaughterTracks
         RefToBase<reco::Track> track(theDaughterTracks.at(i));
 
@@ -448,7 +453,7 @@ void V0Validator::analyze(const edm::Event& iEvent,
             tpref = tp.begin()->first;
             TrackingVertexRef parentVertex = tpref->parentVertex();
             if (parentVertex.isNonnull())
-              radDist.push_back(parentVertex->position().R());
+              radDist[i] = parentVertex->position().R();
 
             if (parentVertex.isNonnull()) {
               if (LamVtx.isNonnull()) {
@@ -509,8 +514,9 @@ void V0Validator::analyze(const edm::Event& iEvent,
         lamFakeVsPt_num->Fill(LamCandpT);
         lamCandStatus->Fill((float)LamCandStatus);
         fakeLamMass->Fill(mass);
-        for (unsigned int ndx = 0; ndx < radDist.size(); ndx++) {
-          lamFakeDauRadDist->Fill(radDist[ndx]);
+        for (auto distance : radDist) {
+          if (distance > 0.)
+            lamFakeDauRadDist->Fill(distance);
         }
       }
       if (K0sCandStatus == 5) {
