@@ -258,12 +258,31 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(tobTecStepTrackCandidates)
     process.reconstruction_fromRECO.remove(tobTecStepTracks)
 
+    # Yes, needs to be done twice for InOut...
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsOutIn)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesOutIn)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksOutIn)
+    # Why are these modules in this sequence (isn't iterTracking enough)?
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededSeedsInOut)
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededTrackCandidatesInOut)
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededTracksInOut)
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededSeedsOutIn)
+    process.muonSeededStepExtraDisplaced.remove(process.muonSeededTracksInOutClassifier)
+
     process.reconstruction_fromRECO.remove(process.convClusters)
     process.reconstruction_fromRECO.remove(process.convLayerPairs)
     process.reconstruction_fromRECO.remove(process.convStepSelector)
     process.reconstruction_fromRECO.remove(process.convTrackCandidates)
     process.reconstruction_fromRECO.remove(process.convStepTracks)
     process.reconstruction_fromRECO.remove(process.photonConvTrajSeedFromSingleLeg)
+
+    process.reconstruction_fromRECO.remove(process.preDuplicateMergingGeneralTracks)
 
     # Needed to make the loading of recoFromSimDigis_cff below to work
     process.InitialStepPreSplitting.remove(siPixelClusters)
@@ -283,6 +302,10 @@ def customise_Reco(process,pileup):
     del process.PixelLessStep
     del process.TobTecStep
     del process.earlyGeneralTracks
+    del process.muonSeededStep
+    del process.muonSeededStepCore
+    del process.muonSeededStepDebug
+    del process.muonSeededStepDebugDisplaced
     del process.ConvStep
     # add the correct tracking back in
     process.load("RecoTracker.Configuration.RecoTrackerPhase1PU"+str(nPU)+"_cff")
@@ -352,12 +375,14 @@ def customise_Reco(process,pileup):
     process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.VertexCollection = "pixelVertices"
     process.pixelPairStepSelector.vertices = "pixelVertices"
     process.tobTecStepSelector.vertices = "pixelVertices"
-    process.muonSeededTracksInOutClassifier.vertices = "pixelVertices"
-    process.muonSeededTracksOutInClassifier.vertices = "pixelVertices"
+    process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
+    process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
     process.duplicateTrackClassifier.vertices = "pixelVertices"
     process.convStepSelector.vertices = "pixelVertices"
     process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
-    
+    process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
+    process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
+
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
         layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
@@ -371,5 +396,11 @@ def customise_Reco(process,pileup):
     process.templates.DoLorentz=False
     process.templates.LoadTemplatesFromDB = cms.bool(False)
     process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
+
+    # This probably breaks badly the "displaced muon" reconstruction,
+    # but let's do it for now, until the upgrade tracking sequences
+    # are modernized
+    process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
+    process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
 
     return process
