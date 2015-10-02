@@ -101,18 +101,6 @@ private:
   int lamTracksFound, k0sTracksFound, lamCandFound, k0sCandFound, noTPforK0sCand, noTPforLamCand;
 
   // MonitorElements for final histograms
-  MonitorElement* ksEffVsR;
-  MonitorElement* ksEffVsEta;
-  MonitorElement* ksEffVsPt;
-  MonitorElement* ksTkEffVsR;
-  MonitorElement* ksTkEffVsEta;
-  MonitorElement* ksTkEffVsPt;
-  MonitorElement* ksFakeVsR;
-  MonitorElement* ksFakeVsEta;
-  MonitorElement* ksFakeVsPt;
-  MonitorElement* ksTkFakeVsR;
-  MonitorElement* ksTkFakeVsEta;
-  MonitorElement* ksTkFakeVsPt;
 
   MonitorElement* ksEffVsR_num;
   MonitorElement* ksEffVsEta_num;
@@ -140,19 +128,6 @@ private:
   MonitorElement* lamEffVsR_denom;
   MonitorElement* lamEffVsEta_denom;
   MonitorElement* lamEffVsPt_denom;
-
-  MonitorElement* lamEffVsR;
-  MonitorElement* lamEffVsEta;
-  MonitorElement* lamEffVsPt;
-  MonitorElement* lamTkEffVsR;
-  MonitorElement* lamTkEffVsEta;
-  MonitorElement* lamTkEffVsPt;
-  MonitorElement* lamFakeVsR;
-  MonitorElement* lamFakeVsEta;
-  MonitorElement* lamFakeVsPt;
-  MonitorElement* lamTkFakeVsR;
-  MonitorElement* lamTkFakeVsEta;
-  MonitorElement* lamTkFakeVsPt;
 
   MonitorElement* lamEffVsR_num;
   MonitorElement* lamEffVsEta_num;
