@@ -60,6 +60,8 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   std::string subDirName = V0Validator::dirName + "/EffFakes";
   ibooker.setCurrentFolder(subDirName.c_str());
 
+  // Ks Plots follow
+
   ksEffVsR_num = ibooker.book1D("K0sEffVsR_num", "K^{0}_{S} Efficiency vs #rho",
                                 40, 0., 40.);
   ksEffVsEta_num = ibooker.book1D(
@@ -82,6 +84,30 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
       "K0sEffVsEta_denom", "K^{0}_{S} Efficiency vs #eta", 40, -2.5, 2.5);
   ksEffVsPt_denom = ibooker.book1D(
       "K0sEffVsPt_denom", "K^{0}_{S} Efficiency vs p_{T}", 70, 0., 20.);
+
+  ksFakeVsR_num = ibooker.book1D("K0sFakeVsR_num",
+                                 "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
+  ksFakeVsEta_num = ibooker.book1D(
+      "K0sFakeVsEta_num", "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
+  ksFakeVsPt_num = ibooker.book1D("K0sFakeVsPt_num",
+                                  "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
+  ksTkFakeVsR_num = ibooker.book1D(
+      "K0sTkFakeVsR_num", "K^{0}_{S} Tracking Fake Rate vs #rho", 40, 0., 40.);
+  ksTkFakeVsEta_num =
+      ibooker.book1D("K0sTkFakeVsEta_num",
+                     "K^{0}_{S} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
+  ksTkFakeVsPt_num =
+      ibooker.book1D("K0sTkFakeVsPt_num",
+                     "K^{0}_{S} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
+
+  ksFakeVsR_denom = ibooker.book1D("K0sFakeVsR_denom",
+                                   "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
+  ksFakeVsEta_denom = ibooker.book1D(
+      "K0sFakeVsEta_denom", "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
+  ksFakeVsPt_denom = ibooker.book1D(
+      "K0sFakeVsPt_denom", "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
+
+  // Lambda Plots follow
 
   lamEffVsR_num = ibooker.book1D("LamEffVsR_num",
                                  "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
@@ -106,27 +132,6 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   lamEffVsPt_denom = ibooker.book1D(
       "LamEffVsPt_denom", "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
 
-  ksFakeVsR_num = ibooker.book1D("K0sFakeVsR_num",
-                                 "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
-  ksFakeVsEta_num = ibooker.book1D(
-      "K0sFakeVsEta_num", "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksFakeVsPt_num = ibooker.book1D("K0sFakeVsPt_num",
-                                  "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
-  ksTkFakeVsR_num = ibooker.book1D(
-      "K0sTkFakeVsR_num", "K^{0}_{S} Tracking Fake Rate vs #rho", 40, 0., 40.);
-  ksTkFakeVsEta_num =
-      ibooker.book1D("K0sTkFakeVsEta_num",
-                     "K^{0}_{S} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksTkFakeVsPt_num =
-      ibooker.book1D("K0sTkFakeVsPt_num",
-                     "K^{0}_{S} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
-
-  ksFakeVsR_denom = ibooker.book1D("K0sFakeVsR_denom",
-                                   "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
-  ksFakeVsEta_denom = ibooker.book1D(
-      "K0sFakeVsEta_denom", "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksFakeVsPt_denom = ibooker.book1D(
-      "K0sFakeVsPt_denom", "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
 
   lamFakeVsR_num = ibooker.book1D("LamFakeVsR_num",
                                   "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
