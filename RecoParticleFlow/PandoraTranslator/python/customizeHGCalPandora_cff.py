@@ -376,11 +376,11 @@ def cust_2023HGCalPandoraMuonFastTime(process):
     process = cust_ecalTime(process)
     process = cust_hgcalTime(process)
     if hasattr(process,'RECOSIMEventContent'):
-        process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
     if hasattr(process,'FEVTDEBUGEventContent'):
-        process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
-        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
     if hasattr(process,'digitisation_step'):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
@@ -390,6 +390,11 @@ def cust_2023HGCalPandoraMuonFastTime(process):
     if hasattr(process,'mix'):
         process.mix.minBunch = 0
         process.mix.maxBunch = 0
+        if hasattr(process.mix.digitizers,'mergedtruth'):
+            process.mix.digitizers.mergedtruth.select.signalOnlyTP = cms.bool(False)
+            process.mix.digitizers.mergedtruth.maximumPreviousBunchCrossing = cms.uint32(5)
+            process.mix.digitizers.mergedtruth.maximumSubsequentBunchCrossing = cms.uint32(9999)
+            process.mix.digitizers.mergedtruth.createInitialVertexCollection = cms.bool(True)
     return process
 
 def cust_2023HGCalPandoraMuonPerfectFastTime(process):
@@ -397,11 +402,11 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
     process = cust_ecalTime(process)
     process = cust_hgcalPerfectTime(process)
     if hasattr(process,'RECOSIMEventContent'):
-        process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
     if hasattr(process,'FEVTDEBUGEventContent'):
-        process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
-        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
     if hasattr(process,'digitisation_step'):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
@@ -411,4 +416,9 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
     if hasattr(process,'mix'):
         process.mix.minBunch = 0
         process.mix.maxBunch = 0
+        if hasattr(process.mix.digitizers,'mergedtruth'):
+            process.mix.digitizers.mergedtruth.select.signalOnlyTP = cms.bool(False)
+            process.mix.digitizers.mergedtruth.maximumPreviousBunchCrossing = cms.uint32(5)
+            process.mix.digitizers.mergedtruth.maximumSubsequentBunchCrossing = cms.uint32(9999)
+            process.mix.digitizers.mergedtruth.createInitialVertexCollection = cms.bool(True)
     return process

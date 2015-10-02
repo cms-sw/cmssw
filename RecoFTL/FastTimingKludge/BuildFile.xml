@@ -1,0 +1,12 @@
+<use name="FWCore/Utilities"/>
+<use name="DataFormats/TrackReco"/>
+<use name="DataFormats/VertexReco"/>
+<use name="DataFormats/Common"/>
+
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/Vertex"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+
+<export>
+  <lib   name="1"/>
+</export>
