@@ -294,7 +294,6 @@ void V0Validator::analyze(const edm::Event& iEvent,
   double mass = 0.;
   std::vector<double> radDist;
   if (k0sCollection->size() > 0) {
-    vector<reco::TrackRef> theDaughterTracks;
     for (reco::VertexCompositeCandidateCollection::const_iterator iK0s =
              k0sCollection->begin();
          iK0s != k0sCollection->end(); iK0s++) {
@@ -307,12 +306,11 @@ void V0Validator::analyze(const edm::Event& iEvent,
       K0sCandStatus = 0;
       mass = iK0s->mass();
 
-      theDaughterTracks.push_back(
-          (*(dynamic_cast<const reco::RecoChargedCandidate*>(
-               iK0s->daughter(0)))).track());
-      theDaughterTracks.push_back(
-          (*(dynamic_cast<const reco::RecoChargedCandidate*>(
-               iK0s->daughter(1)))).track());
+      std::array<reco::TrackRef, 2> theDaughterTracks = { {
+        (*(dynamic_cast<const reco::RecoChargedCandidate*>(
+            iK0s->daughter(0)))).track(),
+        (*(dynamic_cast<const reco::RecoChargedCandidate*>(
+            iK0s->daughter(1)))).track()} };
 
       for (int itrack = 0; itrack < 2; itrack++) {
         K0sPiCandStatus[itrack] = 0;
@@ -394,10 +392,8 @@ void V0Validator::analyze(const edm::Event& iEvent,
           K0sPiCandStatus[i] = 2;
           noTPforK0sCand++;
           K0sCandStatus = 5;
-          theDaughterTracks.clear();
         }
       }
-      theDaughterTracks.clear();
       // fill the fake rate histograms
       if (K0sCandStatus > 1) {
         ksFakeVsR_num->Fill(K0sCandR);
@@ -425,7 +421,6 @@ void V0Validator::analyze(const edm::Event& iEvent,
   radDist.clear();
   // Lambdas
   if (lambdaCollection->size() > 0) {
-    vector<reco::TrackRef> theDaughterTracks;
     for (reco::VertexCompositeCandidateCollection::const_iterator iLam =
              lambdaCollection->begin();
          iLam != lambdaCollection->end(); iLam++) {
@@ -439,12 +434,11 @@ void V0Validator::analyze(const edm::Event& iEvent,
       mass = iLam->mass();
 
       // cout << "Lam daughter tracks" << endl;
-      theDaughterTracks.push_back(
+      std::array<reco::TrackRef, 2> theDaughterTracks = { {
           (*(dynamic_cast<const reco::RecoChargedCandidate*>(
-               iLam->daughter(0)))).track());
-      theDaughterTracks.push_back(
+              iLam->daughter(0)))).track(),
           (*(dynamic_cast<const reco::RecoChargedCandidate*>(
-               iLam->daughter(1)))).track());
+              iLam->daughter(1)))).track() } };
 
       for (int itrack = 0; itrack < 2; itrack++) {
         LamPiCandStatus[itrack] = 0;
@@ -524,10 +518,8 @@ void V0Validator::analyze(const edm::Event& iEvent,
           LamPiCandStatus[i] = 2;
           noTPforLamCand++;
           LamCandStatus = 5;
-          theDaughterTracks.clear();
         }
       }
-      theDaughterTracks.clear();
       // fill the fake rate histograms
       if (LamCandStatus > 1) {
         lamFakeVsR_num->Fill(LamCandR);
