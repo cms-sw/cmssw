@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/25nsLowPU/V22 (CMSSW_7_4_10_patch1)
+# /dev/CMSSW_7_4_0/25nsLowPU/V23 (CMSSW_7_4_13)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT25nsLowPU" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/25nsLowPU/V22')
+  tableName = cms.string('/dev/CMSSW_7_4_0/25nsLowPU/V23')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -1220,11 +1220,11 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
 process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  categoryVariableName = cms.string( "vertexCategory" ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackSelection = cms.PSet( 
     totalHitsMin = cms.uint32( 0 ),
     jetDeltaRMax = cms.double( 0.3 ),
@@ -1246,7 +1246,7 @@ process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESP
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
@@ -1274,11 +1274,11 @@ process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESP
   trackFlip = cms.bool( False )
 )
 process.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  categoryVariableName = cms.string( "vertexCategory" ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackSelection = cms.PSet( 
     b_pT = cms.double( 0.3684 ),
     max_pT = cms.double( 500.0 ),
@@ -1310,7 +1310,7 @@ process.hltCombinedSecondaryVertexV2 = cms.ESProducer( "CombinedSecondaryVertexE
   calibrationRecords = cms.vstring( 'CombinedSVIVFV2RecoVertex',
     'CombinedSVIVFV2PseudoVertex',
     'CombinedSVIVFV2NoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
