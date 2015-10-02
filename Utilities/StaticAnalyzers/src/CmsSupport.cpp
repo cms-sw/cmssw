@@ -126,6 +126,8 @@ bool support::isSafeClassName(const std::string &cname) {
     "class boost::thread_specific_ptr",
     "tbb::",
     "class tbb::",
+    "concurrent_unordered_map",
+    "class concurrent_unordered_map",
     "edm::AtomicPtrCache",
     "class edm::AtomicPtrCache",
     "edm::InputTag",
