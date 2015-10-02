@@ -57,8 +57,8 @@ valGctDigis.postSamples = cms.uint32(0)
 
 # Stage1Layer2 emulator
 from L1Trigger.L1TCalorimeter.simRctUpgradeFormatDigis_cfi import *
-simRctUpgradeFormatDigis.regionTag = cms.InputTag("caloStage1Digis")
-simRctUpgradeFormatDigis.emTag = cms.InputTag("caloStage1Digis")
+simRctUpgradeFormatDigis.regionTag = cms.InputTag("gctDigis")
+simRctUpgradeFormatDigis.emTag = cms.InputTag("gctDigis")
 from L1Trigger.L1TCalorimeter.simCaloStage1Digis_cfi import *
 from L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi import *
 valCaloStage1LegacyFormatDigis = L1Trigger.L1TCalorimeter.simCaloStage1LegacyFormatDigis_cfi.simCaloStage1LegacyFormatDigis.clone()
