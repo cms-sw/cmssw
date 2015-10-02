@@ -164,6 +164,24 @@ steps['RunSingleMu2015C']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015C-v1/RA
 steps['RunSinglePh2015C']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2015C-v1/RAW',label='sigPh2015C',events=100000,location='STD', ls=Run2015C)}
 steps['RunZeroBias2015C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2015C-v1/RAW',label='zb2015C',events=100000,location='STD', ls=Run2015C)}
 
+
+#### run2 2015D ####
+# Run2015D, 25ns: 256677 
+Run2015D=selectedLS([256677])
+steps['RunHLTPhy2015D']={'INPUT':InputInfo(dataSet='/HLTPhysics/Run2015D-v1/RAW',label='hltPhy2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleEG2015D']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015D-v1/RAW',label='doubEG2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleMuon2015D']={'INPUT':InputInfo(dataSet='/DoubleMuon/Run2015D-v1/RAW',label='doubMu2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunJetHT2015D']={'INPUT':InputInfo(dataSet='/JetHT/Run2015D-v1/RAW',label='jetHT2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunMET2015D']={'INPUT':InputInfo(dataSet='/MET/Run2015D-v1/RAW',label='met2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunMuonEG2015D']={'INPUT':InputInfo(dataSet='/MuonEG/Run2015D-v1/RAW',label='muEG2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunDoubleEGPrpt2015D']={'INPUT':InputInfo(dataSet='/DoubleEG/Run2015D-ZElectron-PromptReco-v3/RAW-RECO',label='dbEGPrpt2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleMuPrpt2015D']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015D-ZMu-PromptReco-v3/RAW-RECO',label='sgMuPrpt2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleEl2015D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2015D-v1/RAW',label='sigEl2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSingleMu2015D']={'INPUT':InputInfo(dataSet='/SingleMuon/Run2015D-v1/RAW',label='sigMu2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunSinglePh2015D']={'INPUT':InputInfo(dataSet='/SinglePhoton/Run2015D-v1/RAW',label='sigPh2015D',events=100000,location='STD', ls=Run2015D)}
+steps['RunZeroBias2015D']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2015D-v1/RAW',label='zb2015D',events=100000,location='STD',ib_block='38d4cab6-5d5f-11e5-824b-001e67ac06a0',ls=Run2015D)}
+
+
 def gen(fragment,howMuch):
     global step1Defaults
     return merge([{'cfg':fragment},howMuch,step1Defaults])
