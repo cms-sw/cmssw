@@ -13,9 +13,6 @@
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/contrib/Njettiness.hh"
 
-#include <mutex>
-
-
 class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
 
   public:
@@ -37,8 +34,7 @@ class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
     const double maxSVDeltaRToJet_;
 
     const edm::FileInPath weightFile_;
-    mutable std::mutex m_mutex;
-    [[cms::thread_guard("m_mutex")]] std::unique_ptr<TMVAEvaluator> mvaID;
+    std::unique_ptr<TMVAEvaluator> mvaID;
 };
 
 #endif // RecoBTag_SecondaryVertex_CandidateBoostedDoubleSecondaryVertexComputer_h

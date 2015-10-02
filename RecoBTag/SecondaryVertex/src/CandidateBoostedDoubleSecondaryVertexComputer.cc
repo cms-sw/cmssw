@@ -158,10 +158,7 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
   inputs["PFLepton_IP2D"] = PFLepton_IP2D;
   inputs["nSL"] = nSL;
   inputs["tau2/tau1"] = tau21;
-
-  // TMVAEvaluator is not thread safe
-  std::lock_guard<std::mutex> lock(m_mutex);
-
+  
   // evaluate the MVA
   value = mvaID->evaluate(inputs);
 
