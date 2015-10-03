@@ -36,21 +36,6 @@ def cust_2023MuonOnly(process):
     process=fixRPCConditions(process)
     return process
 
-# def cust_2023Muon(process):
-#     # process=customisePostLS1(process)      # causes Preshower induced crash
-#     # process=customisePhase1Tk(process)     # for now pretend Phase 1 TRK
-#     # process=customise_HcalPhase1(process)  # for now pretend Phase 1 HCAL
-#     # process=customiseBE5DPixel10D(process)
-#     # process=customise_HcalPhase2(process)
-#     # process=customise_ev_BE5DPixel10D(process)
-#     process=customise_gem2023(process)
-#     # process=customise_rpc(process)
-#     process=customise_me0(process)
-#     # process=jetCustoms.customise_jets(process)
-#     return process
-
-
-
 def noCrossing(process):
     process=customise_NoCrossing(process)
     return process

@@ -27,17 +27,10 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
-
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/GEMGeometry"/>
 <use   name="Geometry/Records"/>
-<!--
-<use   name="SimDataFormats/Track"/>
-<use   name="SimDataFormats/TrackingHit"/>
-<use   name="SimDataFormats/Associations"/>
-<use   name="SimDataFormats/TrackingAnalysis"/>
--->
 <use   name="SimTracker/Records"/>
 <use   name="SimMuon/MCTruth"/>
 <use   name="SimTracker/TrackAssociation"/>
