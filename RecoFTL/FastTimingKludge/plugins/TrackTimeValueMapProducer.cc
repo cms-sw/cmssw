@@ -52,7 +52,8 @@ private:
   void calculateTrackTimes( const edm::View<reco::Track>&, 
                             const reco::RecoToSimCollection&,
                             std::vector<float>&,
-                            std::vector<float>& );
+                            std::vector<float>& ) const;
+  std::pair<float,float> extractTrackVertexTime(const std::vector<std::pair<TrackingParticleRef, double> >&) const;
 };
 
 DEFINE_FWK_MODULE(TrackTimeValueMapProducer);
@@ -146,9 +147,26 @@ void TrackTimeValueMapProducer::produce(edm::Event& evt, const edm::EventSetup& 
 void TrackTimeValueMapProducer::calculateTrackTimes( const edm::View<reco::Track>& tkcoll,
                                                      const reco::RecoToSimCollection& assoc,
                                                      std::vector<float>& tvals,
-                                                     std::vector<float>& tresos ) {
+                                                     std::vector<float>& tresos ) const {
+  constexpr float flt_max = std::numeric_limits<float>::max();
+  
   for( unsigned itk = 0; itk < tkcoll.size(); ++itk ) {
-    const auto tkptr = tkcoll.ptrAt(itk);
-    std::cout << tkptr.get() << std::endl;
+    const auto tkref = tkcoll.refAt(itk);
+    auto track_tps = assoc.find(tkref);
+    if( track_tps != assoc.end() ) {
+      if( !track_tps->val.size() ) {
+        tvals.push_back(flt_max);
+        tresos.push_back(flt_max);
+      } else {
+        std::pair<float,float> time_info = extractTrackVertexTime(track_tps->val);
+        tvals.push_back(time_info.first);
+        tresos.push_back(time_info.second);
+      }
+    }
   } 
+}
+
+std::pair<float,float> TrackTimeValueMapProducer::
+extractTrackVertexTime( const std::vector<std::pair<TrackingParticleRef, double> >& tp_list ) const {
+  return std::pair<float,float>();
 }
