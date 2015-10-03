@@ -3,7 +3,6 @@
  * \author David Nash
  */
 
-#include <RecoMuon/MuonIdentification/plugins/ME0SegmentMatcher.h>
 
 #include <FWCore/PluginManager/interface/ModuleDef.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
@@ -191,8 +190,9 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
       getFromFTS(initrecostate, p3reco, r3reco, chargeReco, covReco);
 
       //Now we propagate and get the propagated variables from the propagated state
-      SteppingHelixStateInfo startrecostate(initrecostate);
-      SteppingHelixStateInfo lastrecostate;
+      //SteppingHelixStateInfo startrecostate(initrecostate);
+      //SteppingHelixStateInfo lastrecostate;
+      TrajectoryStateOnSurface lastrecostate;
 
       //const SteppingHelixPropagator* ThisshProp = 
       //dynamic_cast<const SteppingHelixPropagator*>(&*shProp);
@@ -201,10 +201,12 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 	
       //lastrecostate = ThisshProp->propagate(startrecostate, *plane);
       //lastrecostate = ThisshProp->propagateWithPath(startrecostate, *plane);
-      ThisshProp->propagate(startrecostate, *plane,lastrecostate);
+      //ThisshProp->propagate(startrecostate, *plane,lastrecostate);
+      lastrecostate = ThisshProp->propagate(initrecostate,*plane);
 	
-      FreeTrajectoryState finalrecostate;
-      lastrecostate.getFreeState(finalrecostate);
+      FreeTrajectoryState finalrecostate(*lastrecostate.freeTrajectoryState());
+      //lastrecostate.getFreeState(finalrecostate);
+      //finalrecostate = lastrecostate.freeTrajectoryState();
 
       AlgebraicSymMatrix66 covFinalReco;
       GlobalVector p3FinalReco_glob, r3FinalReco_globv;

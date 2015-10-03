@@ -42,8 +42,8 @@ public:
     /// Covariance matrix of parameters()
     virtual AlgebraicSymMatrix parametersError() const { return theCovMatrix; }
 
-    /// The projection matrix relates the trajectory state parameters to the segment parameters().
-    virtual AlgebraicMatrix projectionMatrix() const;
+    /// The projection matrix relates the trajectory state parameters to the segment parameters(). 
+    AlgebraicMatrix projectionMatrix() const;
 
     virtual std::vector<const TrackingRecHit*> recHits() const {return std::vector<const TrackingRecHit*> (); };
 

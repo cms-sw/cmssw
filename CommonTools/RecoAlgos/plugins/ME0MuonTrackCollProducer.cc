@@ -1,5 +1,4 @@
 
-#include "CommonTools/RecoAlgos/plugins/ME0MuonTrackCollProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -50,7 +49,6 @@ private:
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/RecoAlgos/plugins/ME0MuonTrackCollProducer.h"
 
 DEFINE_FWK_MODULE(ME0MuonTrackCollProducer);
 

@@ -7,7 +7,7 @@
 #include <DataFormats/MuonReco/interface/EmulatedME0Segment.h>
 #include <iostream>
 
-EmulatedME0Segment::EmulatedME0Segment(LocalPoint origin,  	LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
+EmulatedME0Segment::EmulatedME0Segment(const LocalPoint& origin,  	const LocalVector& direction, const AlgebraicSymMatrix& errors, const double& chi2) : 
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2) {
 }
@@ -48,13 +48,14 @@ namespace{
   }
 };
 
-static const AlgebraicMatrix theProjectionMatrix = createStaticMatrix();
-
 namespace{
-  AlgebraicMatrix projectionMatrix() const {
-    return theProjectionMatrix;
-  }
+  static const AlgebraicMatrix theProjectionMatrix = createStaticMatrix();
+};
+
+AlgebraicMatrix EmulatedME0Segment::projectionMatrix() const {
+  return theProjectionMatrix;
 }
+
 
 
 //

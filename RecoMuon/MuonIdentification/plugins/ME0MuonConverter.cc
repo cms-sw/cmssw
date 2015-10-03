@@ -3,7 +3,6 @@
  * \author David Nash
  */
 
-#include <RecoMuon/MuonIdentification/plugins/ME0MuonConverter.h>
 
 #include <FWCore/PluginManager/interface/ModuleDef.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
