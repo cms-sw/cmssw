@@ -99,119 +99,110 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
 {
     using namespace edm;
 
-    //get PF jets
-    Handle<reco::PFJetCollection> pfJetCollection;
-    if(!iEvent.getByToken(pfJetCollection_, pfJetCollection)){
-        edm::LogError ("HLTScoutingPFProducer") << "invalid collection: pfJetCollection" << "\n";
-        return;
-    }
-    //get PF jet tags
-    Handle<reco::JetTagCollection> pfJetTagCollection;
-    if(doJetTags && !iEvent.getByToken(pfJetTagCollection_, pfJetTagCollection)){
-        edm::LogError ("HLTScoutingPFProducer") << "invalid collection: pfJetTagCollection" << "\n";
-        return;
-    }
-    //get PF candidates
-    Handle<reco::PFCandidateCollection> pfCandidateCollection;
-    if(doCandidates && !iEvent.getByToken(pfCandidateCollection_, pfCandidateCollection)){
-        edm::LogError ("HLTScoutingPFProducer") << "invalid collection: pfCandidateCollection" << "\n";
-        return;
-    }
     //get vertices
     Handle<reco::VertexCollection> vertexCollection;
-    if(!iEvent.getByToken(vertexCollection_, vertexCollection)){
-        edm::LogError ("HLTScoutingPFProducer") << "invalid collection: vertexCollection" << "\n";
-        return;
+    std::auto_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
+    if(iEvent.getByToken(vertexCollection_, vertexCollection)){
+        for(auto &vtx : *vertexCollection){
+            outVertices->emplace_back(
+                    vtx.x(), vtx.y(), vtx.z(), vtx.zError()
+                    );
+        }
     }
+
     //get rho
     Handle<double> rho;
-    if(!iEvent.getByToken(rho_, rho)){
-        edm::LogError ("HLTScoutingPFProducer") << "invalid collection: rho" << "\n";
-        return;
+    std::auto_ptr<double> outRho(new double(-999));
+    if(iEvent.getByToken(rho_, rho)){
+        outRho.reset(new double(*rho));
     }
-    std::auto_ptr<double> outRho(new double(*rho));
+
     //get MET
     Handle<reco::METCollection> metCollection;
-    if(doMet && !iEvent.getByToken(metCollection_, metCollection)){
-        edm::LogError ("HLTScoutingPFProducer") << "invalid collection: metCollection" << "\n";
-        return;
+    std::auto_ptr<double> outMetPt(new double(-999));
+    std::auto_ptr<double> outMetPhi(new double(-999));
+    if(doMet && iEvent.getByToken(metCollection_, metCollection)){
+        outMetPt.reset(new double(metCollection->front().pt()));
+        outMetPhi.reset(new double(metCollection->front().phi()));
     }
 
-    //produce vertices
-    std::auto_ptr<ScoutingVertexCollection> outVertices(new ScoutingVertexCollection());
-    for(auto &vtx : *vertexCollection){
-        outVertices->emplace_back(
-                vtx.x(), vtx.y(), vtx.z(), vtx.zError()
-                );
-    }
-
-    //produce PF candidates
+    //get PF candidates
+    Handle<reco::PFCandidateCollection> pfCandidateCollection;
     std::auto_ptr<ScoutingParticleCollection> outPFCandidates(new ScoutingParticleCollection());
-    if(doCandidates){
+    if(doCandidates && iEvent.getByToken(pfCandidateCollection_, pfCandidateCollection)){
         for(auto &cand : *pfCandidateCollection){
             if(cand.pt() > pfCandidatePtCut){
-		int vertex_index = -1;
-		int index_counter = 0;
-		double dr2 = 0.0001;
-		for (auto &vtx: *outVertices) {
-		    double tmp_dr2 = pow(vtx.x() - cand.vx(), 2) + pow(vtx.y() - cand.vy(), 2)
-			+ pow(vtx.z() - cand.vz(), 2);
-		    if (tmp_dr2 < dr2) {
-			dr2 = tmp_dr2;
-			vertex_index = index_counter;
-		    }
-		    if (dr2 == 0.0)
-			break;
-		    ++index_counter;
-		}
+                int vertex_index = -1;
+                int index_counter = 0;
+                double dr2 = 0.0001;
+                for (auto &vtx: *outVertices) {
+                    double tmp_dr2 = pow(vtx.x() - cand.vx(), 2) + pow(vtx.y() - cand.vy(), 2)
+                        + pow(vtx.z() - cand.vz(), 2);
+                    if (tmp_dr2 < dr2) {
+                        dr2 = tmp_dr2;
+                        vertex_index = index_counter;
+                    }
+                    if (dr2 == 0.0)
+                        break;
+                    ++index_counter;
+                }
                 outPFCandidates->emplace_back(
-		        cand.pt(), cand.eta(), cand.phi(), cand.mass(), cand.pdgId(), vertex_index
+                        cand.pt(), cand.eta(), cand.phi(), cand.mass(), cand.pdgId(), vertex_index
                         );
             }
         }
     }
 
-    //produce PF jets
+    //get PF jets
+    Handle<reco::PFJetCollection> pfJetCollection;
     std::auto_ptr<ScoutingPFJetCollection> outPFJets(new ScoutingPFJetCollection());
-    for(auto &jet : *pfJetCollection){
-        if(jet.pt() < pfJetPtCut || fabs(jet.eta()) > pfJetEtaCut) continue;
-        //find the jet tag corresponding to the jet
-        float tagValue = -20;
-        float minDR2 = 0.01;
-        if(doJetTags){
-            for(auto &tag : *pfJetTagCollection){
-                float dR2 = reco::deltaR2(jet, *(tag.first));
-                if(dR2 < minDR2){
-                    minDR2 = dR2;
-                    tagValue = tag.second;
-                }
-            }
+    if(iEvent.getByToken(pfJetCollection_, pfJetCollection)){
+        //get PF jet tags
+        Handle<reco::JetTagCollection> pfJetTagCollection;
+        bool haveJetTags = false;
+        if(doJetTags && iEvent.getByToken(pfJetTagCollection_, pfJetTagCollection)){
+            haveJetTags = true;
         }
-        //get the PF constituents of the jet
-        std::vector<int> candIndices;
-        if(doCandidates){
-            for(auto &cand : jet.getPFConstituents()){
-                if(cand->pt() > pfCandidatePtCut){
-                    //search for the candidate in the collection
-                    float minDR2 = 0.0001;
-                    int matchIndex = -1;
-                    int outIndex = 0;
-                    for(auto &outCand : *outPFCandidates){
-                        float dR2 = pow(cand->eta() - outCand.eta(), 2) + pow(cand->phi() - outCand.phi(), 2);
-                        if(dR2 < minDR2){
-                            minDR2 = dR2;
-                            matchIndex = outIndex;
-                        }
-                        if(minDR2 == 0){
-                            break;
-                        }
-                        outIndex++;
+
+        for(auto &jet : *pfJetCollection){
+            if(jet.pt() < pfJetPtCut || fabs(jet.eta()) > pfJetEtaCut) continue;
+            //find the jet tag corresponding to the jet
+            float tagValue = -20;
+            float minDR2 = 0.01;
+            if(haveJetTags){
+                for(auto &tag : *pfJetTagCollection){
+                    float dR2 = reco::deltaR2(jet, *(tag.first));
+                    if(dR2 < minDR2){
+                        minDR2 = dR2;
+                        tagValue = tag.second;
                     }
-                    candIndices.push_back(matchIndex);
                 }
             }
-        }
-        outPFJets->emplace_back(
+            //get the PF constituents of the jet
+            std::vector<int> candIndices;
+            if(doCandidates){
+                for(auto &cand : jet.getPFConstituents()){
+                    if(cand->pt() > pfCandidatePtCut){
+                        //search for the candidate in the collection
+                        float minDR2 = 0.0001;
+                        int matchIndex = -1;
+                        int outIndex = 0;
+                        for(auto &outCand : *outPFCandidates){
+                            float dR2 = pow(cand->eta() - outCand.eta(), 2) + pow(cand->phi() - outCand.phi(), 2);
+                            if(dR2 < minDR2){
+                                minDR2 = dR2;
+                                matchIndex = outIndex;
+                            }
+                            if(minDR2 == 0){
+                                break;
+                            }
+                            outIndex++;
+                        }
+                        candIndices.push_back(matchIndex);
+                    }
+                }
+            }
+            outPFJets->emplace_back(
                     jet.pt(), jet.eta(), jet.phi(), jet.mass(), jet.jetArea(),
                     jet.chargedHadronEnergy(), jet.neutralHadronEnergy(), jet.photonEnergy(),
                     jet.electronEnergy(), jet.muonEnergy(), jet.HFHadronEnergy(), jet.HFEMEnergy(),
@@ -220,17 +211,8 @@ void HLTScoutingPFProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm:
                     jet.HFHadronMultiplicity(), jet.HFEMMultiplicity(), 
                     jet.hoEnergy(), tagValue, 0.0, candIndices
                     );
+        }
     }
-
-    double metPt = -999;
-    double metPhi = -999;
-    if(doMet){
-        metPt = metCollection->front().pt();
-        metPhi = metCollection->front().phi();
-    }
-    std::auto_ptr<double> outMetPt(new double(metPt));
-    std::auto_ptr<double> outMetPhi(new double(metPhi));
-
 
     //put output
     iEvent.put(outVertices);
