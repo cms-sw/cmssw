@@ -34,6 +34,8 @@
 
 #include "DataFormats/PatCandidates/interface/CandKinResolution.h"
 
+#include "DataFormats/PatCandidates/interface/throwMissingLabel.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace pat {
@@ -768,14 +770,7 @@ namespace pat {
     if( it != userFloatLabels_.cend() && *it == key ) {
       return userFloats_[std::distance(userFloatLabels_.cbegin(),it)];
     }
-    // cuts based on non-existing keys should always fail, so use NaN, not zero
-    cms::Exception ex("UnknownUserFloat");
-    ex << "Requested UserFloat " << key << " is not available! Possible UserFloats are: " << std::endl;
-    for( const auto& name : userFloatLabels_ ) {
-      ex << name << ' ';
-    }
-    throw ex;
-    return std::numeric_limits<float>::quiet_NaN(); 
+    throwMissingLabel("UserFloat",key,userFloatLabels_);
   }
 
   template <class ObjectType>
@@ -805,14 +800,7 @@ namespace pat {
     if ( it != userIntLabels_.cend() && *it == key ) {
       return userInts_[std::distance(userIntLabels_.cbegin(),it)];
     }
-    cms::Exception ex("UnknownUserInt");
-    ex << "Requested UserInt " << key << " is not available! Possible UserInts are: " << std::endl;
-    for( const auto& name : userIntLabels_ ) {
-      ex << name << ' ';
-    }
-    throw ex;
-    // better to give a super weird value if there is no key...
-    return std::numeric_limits<int>::max();
+    throwMissingLabel("UserInt",key,userIntLabels_);
   }
 
   template <class ObjectType>
