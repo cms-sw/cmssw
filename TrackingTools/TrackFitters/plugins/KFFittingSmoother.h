@@ -282,7 +282,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     }
 
 
-    // always add last valid hit
+    // always add last valid hit  as outlier candidate
     bad[nbad++]=lastValid;
     
     // if ( (smoothed.ndof()<theMinDof) |  ) break;
