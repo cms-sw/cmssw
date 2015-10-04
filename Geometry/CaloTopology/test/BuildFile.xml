@@ -1,4 +1,5 @@
 <use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/Records"/>
@@ -6,4 +7,4 @@
 
 <flags   EDM_PLUGIN="1"/>
 <library   file="HcalTopologyTester.cc" name="testGeometryHcalTopology"> </library>
-
+<library   file="HGCalTopologyTester.cc" name="testGeometryHCCalTopology"> </library>
