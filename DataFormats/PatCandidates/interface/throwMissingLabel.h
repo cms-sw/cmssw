@@ -5,8 +5,8 @@
 #include <vector>
 
 namespace pat {
-  inline void throwMissingLabel(const std::string& what, const std::string& bad_label, 
-                                const std::vector<std::string>& available);
+  void throwMissingLabel(const std::string& what, const std::string& bad_label, 
+                         const std::vector<std::string>& available);
 }
 
 #endif
