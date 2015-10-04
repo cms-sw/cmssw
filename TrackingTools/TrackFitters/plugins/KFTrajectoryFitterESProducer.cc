@@ -35,7 +35,7 @@ namespace {
       desc.add<std::string>("Estimator","Chi2");
       desc.add<std::string>("RecoGeometry","GlobalDetLayerGeometry");
       desc.add<int>("minHits",3);
-      descriptions.add("KFTrajectoryFitterESProducer", desc);
+      descriptions.add("KFTrajectoryFitter", desc);
     }
 
     

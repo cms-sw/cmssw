@@ -115,7 +115,19 @@ namespace {
     
     
     
-    Trajectory smoothingStep(Trajectory const & fitted) const {return theSmoother->trajectory(fitted);}
+    Trajectory smoothingStep(Trajectory && fitted) const {
+      if (theEstimateCut>0) {
+	// remove "outlier" at the end of Traj
+	while (!fitted.empty() &&
+	       ( !fitted.lastMeasurement().recHitR().isValid()
+		 || ( fitted.lastMeasurement().recHitR().det()!=nullptr && fitted.lastMeasurement().estimate()>theEstimateCut)
+		 )
+	       )
+	  fitted.pop();
+	if (fitted.foundHits() < theMinNumberOfHits ) return Trajectory();
+      }
+      return theSmoother->trajectory(fitted);
+    }
     
   private:
     
@@ -202,11 +214,12 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     if ( !smoothed.isValid() || (hasNaN = !checkForNans(smoothed)) || ( smoothed.foundHits() < theMinNumberOfHits ) )  {
       if(hasNaN) edm::LogWarning("TrackNaN")<<"Track has NaN";
       if ( smoothed.foundHits() < theMinNumberOfHits ) LogTrace("TrackFitters") << "smoothed.foundHits()<theMinNumberOfHits";
-      if ( rejectTracksFlag) {
-	DPRINT("TrackFitters") << "smoothed invalid => trajectory rejected with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
+      DPRINT("TrackFitters") << "smoothed invalid => trajectory rejected with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
+      if (rejectTracksFlag) {
+        return Trajectory();
       } else {
-	DPRINT("TrackFitters") << "smoothed invalid => returning orignal trajectory with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
 	std::swap(smoothed, tmp_first); // if first attempt, tmp_first would be invalid anyway
+	DPRINT("TrackFitters") << "smoothed invalid => returning orignal trajectory with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
       }
       break;
     }
@@ -220,7 +233,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     //}
 
 
-    if (myHits.size() !=smoothed.measurements().size())
+    if (myHits.size() !=smoothed.measurements().size()) 
       DPRINT("TrackFitters") << "lost hits. before/after: " << myHits.size() <<'/' << smoothed.foundHits()<< "\n";
     
     if ( theEstimateCut <= 0) break;
@@ -252,11 +265,12 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 	 int(nbad)>theMaxNumberOfOutliers ||
 	 float(nbad) > theMaxFractionOutliers*float(smoothed.foundHits())
 	 ) {
-      if ( rejectTracksFlag && (smoothed.chiSquared() > theEstimateCut*smoothed.ndof())  )
+      if ( rejectTracksFlag ) {
+	   // && (smoothed.chiSquared() > theEstimateCut*smoothed.ndof())  ) {
 	DPRINT("TrackFitters") << "smoothed low quality => trajectory rejected with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
-      else {
+        return Trajectory();
+      } else {
 	DPRINT("TrackFitters") << "smoothed low quality => return original trajectory with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
-	std::swap(smoothed, tmp_first); // if first attempt, tmp_first would be invalid anyway
       }
       break;
     }
@@ -299,8 +313,9 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
       for (auto const & tm : smoothedCand[loc].measurements() )
 	PRINT << tm.recHitR().geographicalId() << '/' << tm.estimate();
       PRINT << "\n";
-      
-      break;
+
+      return Trajectory();
+      // break;
     }
     
     std::swap(smoothed,tmp_first);

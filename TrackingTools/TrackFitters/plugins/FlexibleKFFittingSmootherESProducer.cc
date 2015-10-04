@@ -81,7 +81,7 @@ namespace {
       desc.add<std::string>("ComponentName","FlexibleKFFittingSmoother");
       desc.add<std::string>("standardFitter","KFFittingSmootherWithOutliersRejectionAndRK");
       desc.add<std::string>("looperFitter","LooperFittingSmoother");
-      descriptions.add("FlexibleKFFittingSmootherESProducer", desc);
+      descriptions.add("FlexibleKFFittingSmoother", desc);
     }
     
     boost::shared_ptr<TrajectoryFitter> 

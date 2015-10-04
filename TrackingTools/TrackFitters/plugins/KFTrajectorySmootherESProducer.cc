@@ -36,7 +36,7 @@ namespace {
        desc.add<std::string>("RecoGeometry","GlobalDetLayerGeometry");
        desc.add<double>("errorRescaling",100);
        desc.add<int>("minHits",3);
-       descriptions.add("KFTrajectorySmootherESProducer", desc);
+       descriptions.add("KFTrajectorySmoother", desc);
     }
  
     

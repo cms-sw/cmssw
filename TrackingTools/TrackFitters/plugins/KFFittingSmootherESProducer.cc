@@ -31,7 +31,7 @@ namespace {
       desc.add<std::string>("Fitter","KFFitter");
       desc.add<std::string>("Smoother","KFSmoother");
       KFFittingSmoother::fillDescriptions(desc);
-      descriptions.add("KFFittingSmootherESProducer", desc);
+      descriptions.add("KFFittingSmoother", desc);
     }
     
     
