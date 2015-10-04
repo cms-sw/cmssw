@@ -134,8 +134,10 @@ void TrackTimeValueMapProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
   std::cout << "Track association sizes: " << generalRecSimColl.size() << ' ' 
             << gsfRecSimColl.size() << std::endl;
-  
+
+  std::cout << "tracksSrc" << std::endl;
   calculateTrackTimes(TrackCollection, generalRecSimColl, generalTrackTimes, generalTrackResolutions);
+  std::cout << "gsfTracksSrc" << std::endl;
   calculateTrackTimes(GsfTrackCollection, gsfRecSimColl, gsfTrackTimes, gsfTrackResolutions);
 
   writeValueMap( evt, TrackCollectionH, generalTrackTimes, generalTracksName );

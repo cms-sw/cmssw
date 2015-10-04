@@ -376,16 +376,23 @@ def cust_2023HGCalPandoraMuonFastTime(process):
     process = cust_ecalTime(process)
     process = cust_hgcalTime(process)
     if hasattr(process,'RECOSIMEventContent'):
-        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
     if hasattr(process,'FEVTDEBUGEventContent'):
-        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
-        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
     if hasattr(process,'digitisation_step'):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoFTL.FastTimingKludge.trackTimeValueMapProducer_cfi")
+        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.particleFlowReco)
         process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
     # This next part limits the pileup to be in time only, as
     # requested by the fast timing group
@@ -404,16 +411,23 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
     process = cust_ecalTime(process)
     process = cust_hgcalPerfectTime(process)
     if hasattr(process,'RECOSIMEventContent'):
-        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
     if hasattr(process,'FEVTDEBUGEventContent'):
-        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
-        process.RECOSIMEventContent.outputCommands.append('keep *_mix_*_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
     if hasattr(process,'digitisation_step'):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoFTL.FastTimingKludge.trackTimeValueMapProducer_cfi")
+        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.particleFlowReco)        
         process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
     # This next part limits the pileup to be in time only, as
     # requested by the fast timing group
