@@ -168,5 +168,14 @@ void TrackTimeValueMapProducer::calculateTrackTimes( const edm::View<reco::Track
 
 std::pair<float,float> TrackTimeValueMapProducer::
 extractTrackVertexTime( const std::vector<std::pair<TrackingParticleRef, double> >& tp_list ) const {
-  return std::pair<float,float>();
+  std::pair<float,float> result;
+  for( const auto& tpref : tp_list ) {
+    const auto& tvertex = tpref.first->parentVertex();
+    const float time = tvertex->position().T();
+    std::cout << "Tracking particle with pT: " << tpref.first->pt() 
+              << " has parent vertex time: " << tvertex->position().T() << std::endl;
+    result.first = time;
+    result.second = 0.f;
+  }
+  return result;
 }
