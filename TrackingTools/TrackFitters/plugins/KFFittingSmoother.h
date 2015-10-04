@@ -260,16 +260,16 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 
 
     
-    // do not perform outliers rejection if track is already low quality
     if (
-	 (smoothed.foundHits() == theMinNumberOfHits)  ||
+	//	 (smoothed.foundHits() == theMinNumberOfHits)  ||
 	 int(nbad)>theMaxNumberOfOutliers ||
 	 float(nbad) > theMaxFractionOutliers*float(smoothed.foundHits())
 	 ) {
       DPRINT("TrackFitters") << "smoothed low quality => trajectory with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
       PRINT << "try to remove " << lastValid << std::endl;
-      nbad = 1; bad[0]=lastValid; // try to short the traj...
+      nbad = 0; // try to short the traj...  (below lastValid will be added)
       
+      // do not perform outliers rejection if track is already low quality
       /*
       if ( rejectTracksFlag  && (smoothed.chiSquared() > theEstimateCut*smoothed.ndof())  ) {
 	DPRINT("TrackFitters") << "smoothed low quality => trajectory rejected with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
@@ -281,6 +281,9 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
       */
     }
 
+
+    // always add last valid hit
+    bad[nbad++]=lastValid;
     
     // if ( (smoothed.ndof()<theMinDof) |  ) break;
 
