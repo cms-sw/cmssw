@@ -9,6 +9,8 @@
 #include<vector>
 #include<algorithm>
 
+class TestDataFrame;
+
 namespace edm {
 
   /** an optitimized container that linearized a "vector of vector".
@@ -183,6 +185,9 @@ namespace edm {
     // DataContainer const & data() const { return  m_data;}
     
   private:
+    //for testing
+    friend class ::TestDataFrame;
+    
     // subdetector id (as returned by  DetId::subdetId())
     int m_subdetId;
 

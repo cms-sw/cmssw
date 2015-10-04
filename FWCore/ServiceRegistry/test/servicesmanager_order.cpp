@@ -7,15 +7,19 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-//NOTE: I need to open a 'back door' so I can test ServiceManager 'inheritance'
-#define private public
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
-#undef private
 
 #include <cstdlib>
 #include <vector>
 #include <memory>
 #include <iostream>
+
+class TestServicesManagerOrder {
+public:
+  static edm::ServiceToken makeToken(std::shared_ptr<edm::serviceregistry::ServicesManager> iManager) {
+    return edm::ServiceToken(iManager);
+  }
+};
 
 int main() try {
   using namespace edm::serviceregistry;
@@ -47,7 +51,7 @@ int main() try {
   auto wrapper = std::make_shared<ServiceWrapper<Service0> >(s0);
   legacy->put(wrapper);
   legacy->copySlotsFrom(ar);
-  edm::ServiceToken legacyToken(legacy);
+  edm::ServiceToken legacyToken = TestServicesManagerOrder::makeToken(legacy);
 
   std::vector<edm::ParameterSet> vps1;
 
@@ -72,7 +76,7 @@ int main() try {
   vps1.push_back(ps2);
 
   auto legacy2 = std::make_shared<ServicesManager>(legacyToken, kTokenOverrides, vps1);
-  edm::ServiceToken legacyToken2(legacy2);
+  edm::ServiceToken legacyToken2 = TestServicesManagerOrder::makeToken(legacy2);
 
 
   ServicesManager sm(legacyToken2, kOverlapIsError, vps);
