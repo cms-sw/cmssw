@@ -149,6 +149,13 @@ bool MuonTransientTrackingRecHit::isGEM() const{
   return  (geographicalId().subdetId() == MuonSubdetId::GEM);
 }
 
+bool MuonTransientTrackingRecHit::isME0() const{
+  std::cout<<"Checking if is ME0"<<std::endl;
+  if (geographicalId().subdetId() == MuonSubdetId::ME0){std::cout<<"IsME0"<<std::endl;}
+  return  (geographicalId().subdetId() == MuonSubdetId::ME0);
+  
+}
+
 bool MuonTransientTrackingRecHit::isRPC() const{
   return  (geographicalId().subdetId() == MuonSubdetId::RPC);
 }

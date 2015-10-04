@@ -22,15 +22,14 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(-1)
 )
 
 # Input source
 process.source = cms.Source("PoolSource",
     dropDescendantsOfDroppedBranches = cms.untracked.bool(False),
-    fileNames = cms.untracked.vstring('file:out_sim.root'),
+    fileNames = cms.untracked.vstring('file:/tmp/dnash/out_sim.root'),
     inputCommands = cms.untracked.vstring('keep *', 
-        'drop *_genParticles_*_*', 
         'drop *_genParticlesForJets_*_*', 
         'drop *_kt4GenJets_*_*', 
         'drop *_kt6GenJets_*_*', 
@@ -68,7 +67,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
-    fileName = cms.untracked.string('out_digi.root'),
+    fileName = cms.untracked.string('/tmp/dnash/out_digi.root'),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )

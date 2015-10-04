@@ -74,11 +74,11 @@ MuonDetLayerGeometryESProducer::produce(const MuonRecoGeometryRecord & record) {
     
   // Build ME0 layers
   edm::ESHandle<ME0Geometry> me0;
+  record.getRecord<MuonGeometryRecord>().get(me0);
   if (me0.isValid()) {
-    //LogInfo(metname) << "Geometry = "<<*me0;
     muonDetLayerGeometry->addME0Layers(MuonME0DetLayerGeometryBuilder::buildEndcapLayers(*me0));
   } else {
-    LogInfo(metname) << "No ME0 geometry is available.";
+    LogDebug(metname) << "No ME0 geometry is available.";
   }
 
   // Build RPC layers

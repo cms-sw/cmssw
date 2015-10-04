@@ -68,17 +68,21 @@ void MuonDetLayerGeometry::addGEMLayers(const pair<vector<DetLayer*>, vector<Det
 
 void MuonDetLayerGeometry::addME0Layers(pair<vector<DetLayer*>, vector<DetLayer*> > me0layers) {
 
+  LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding ME0layers "<<std::endl;
+
   for(auto const it : me0layers.first) {
     me0Layers_fw.push_back(it);
     allForward.push_back(it);
 
     detLayersMap[ makeDetLayerId(it) ] = it;
+  LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding ME0forward "<<std::endl;
   }
   for(auto const it : me0layers.second) {
     me0Layers_bk.push_back(it);
     allBackward.push_back(it);
 
     detLayersMap[ makeDetLayerId(it) ] = it;
+    LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding ME0backward "<<std::endl;
   }
 }
 
@@ -148,8 +152,14 @@ DetId MuonDetLayerGeometry::makeDetLayerId(const DetLayer* detLayer) const{
     return GEMDetId(id.region(),1,id.station(),id.layer(),0,0);
   }
   else if( detLayer->subDetector()== GeomDetEnumerators::ME0){
+    LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Have ME0 det id "<<std::endl;
     ME0DetId id( detLayer->basicComponents().front()->geographicalId().rawId());
-    return ME0DetId(id.region(),id.layer(),0,0);
+    DetId id_test(id);
+    if (id_test.subdetId() == MuonSubdetId::ME0){
+      LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Checked "<<std::endl;
+    }
+    //return ME0DetId(id.region(),id.layer(),0,0);
+    return ME0DetId(id.region(),0,0,0);
   }
   else throw cms::Exception("InvalidModuleIdentification"); // << detLayer->module();
 }
@@ -352,6 +362,9 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(const DetId &detId) const{
   else if (detId.subdetId() == MuonSubdetId::ME0){
     ME0DetId me0Id(detId.rawId() );
     id = ME0DetId(me0Id.region(),me0Id.layer(),0,0);
+    LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << " Found an ME0DetId:  " << me0Id.rawId()
+						   <<",id: "<< id.rawId()<<std::endl;
+
   }
   else throw cms::Exception("InvalidSubdetId")<< detId.subdetId();
 
