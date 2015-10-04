@@ -143,7 +143,7 @@ namespace {
   };
 
 
-// #define VI_DEBUG
+  // #define VI_DEBUG
   
 #ifdef VI_DEBUG
 #define DPRINT(x) std::cout << x << ": "
@@ -188,12 +188,11 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
   bool hasoutliers=false;
 
   RecHitContainer myHits = hits;
-  Trajectory smoothed;
   Trajectory tmp_first;
   // bool firstTry=true;
 
   //call the fitter
-  smoothed  = smoothingStep(theFitter->fitOne(aSeed, myHits, firstPredTsos));
+  Trajectory smoothed  = smoothingStep(theFitter->fitOne(aSeed, myHits, firstPredTsos));
 
   
   do {
@@ -234,7 +233,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 
 
     if (myHits.size() !=smoothed.measurements().size()) 
-      DPRINT("TrackFitters") << "lost hits. before/after: " << myHits.size() <<'/' << smoothed.foundHits()<< "\n";
+      DPRINT("TrackFitters") << "lost hits. before/after: " << myHits.size() <<'/' << smoothed.measurements().size()<< "\n";
     
     if ( theEstimateCut <= 0) break;
 
@@ -244,10 +243,12 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     unsigned int bad[smoothed.measurements().size()];
     unsigned int nbad=0;
     unsigned int ind=0;
+    unsigned int lastValid=smoothed.measurements().size();
     for (auto const & tm : smoothed.measurements() ) {
       if (tm.estimate()>theEstimateCut
-	  && tm.recHit()->det()!=nullptr // do not consider outliers constraints and other special "hits"
+	  && tm.recHitR().det()!=nullptr // do not consider outliers constraints and other special "hits"
 	  ) bad[nbad++]=ind;
+      if (ind<lastValid && tm.recHitR().det()!=nullptr && tm.recHitR().isValid()) lastValid=ind;
       ++ind;
     }
     
@@ -260,19 +261,24 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 
     
     // do not perform outliers rejection if track is already low quality
-    if ( myHits.size() !=smoothed.measurements().size() ||
+    if (
 	 (smoothed.foundHits() == theMinNumberOfHits)  ||
 	 int(nbad)>theMaxNumberOfOutliers ||
 	 float(nbad) > theMaxFractionOutliers*float(smoothed.foundHits())
 	 ) {
-      if ( rejectTracksFlag ) {
-	   // && (smoothed.chiSquared() > theEstimateCut*smoothed.ndof())  ) {
+      DPRINT("TrackFitters") << "smoothed low quality => trajectory with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
+      PRINT << "try to remove " << lastValid << std::endl;
+      nbad = 1; bad[0]=lastValid; // try to short the traj...
+      
+      /*
+      if ( rejectTracksFlag  && (smoothed.chiSquared() > theEstimateCut*smoothed.ndof())  ) {
 	DPRINT("TrackFitters") << "smoothed low quality => trajectory rejected with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
         return Trajectory();
       } else {
 	DPRINT("TrackFitters") << "smoothed low quality => return original trajectory with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
       }
       break;
+      */
     }
 
     
@@ -280,10 +286,15 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 
 
  
-    assert( myHits.size() == smoothed.measurements().size());
+    assert(smoothed.measurements().size() <= myHits.size());
 
+    myHits.resize(smoothed.measurements().size());  // hits are only removed from the back...
+    
+    assert(smoothed.measurements().size() == myHits.size());
+    
     declareDynArray(Trajectory,nbad,smoothedCand);
     // declareDynArray(TrackingRecHit::ConstRecHitPointer, nbad, removedHit);
+
     
     auto NHits = myHits.size();
     float minChi2 = std::numeric_limits<float>::max();
@@ -302,19 +313,24 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
       }
     }
 
+    if (loc == nbad) {
+       DPRINT("TrackFitters") <<"New trajectories all invalid"<< "\n";
+      return Trajectory();
+    }
+      
     DPRINT("TrackFitters") << "outlier removed " << bad[loc] << '/' << minChi2 << " was " <<  smoothed.chiSquared()<< "\n";
     
     if (minChi2>smoothed.chiSquared()) {
 
       DPRINT("TrackFitters") << "removing outlier makes chi2 worse " << minChi2 << '/' <<  smoothed.chiSquared() << "\nOri: ";
       for (auto const & tm : smoothed.measurements() )
-	PRINT << tm.recHitR().geographicalId() << '/' << tm.estimate();
+	PRINT << tm.recHitR().geographicalId() << '/' << tm.estimate() <<' ';
       PRINT << "\nNew: ";
       for (auto const & tm : smoothedCand[loc].measurements() )
-	PRINT << tm.recHitR().geographicalId() << '/' << tm.estimate();
+	PRINT << tm.recHitR().geographicalId() << '/' << tm.estimate() <<' ';
       PRINT << "\n";
 
-      return Trajectory();
+      // return Trajectory();
       // break;
     }
     
@@ -329,7 +345,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     
     
     
-    // Look if there are two consecutive invalid hits
+    // Look if there are two consecutive invalid hits  FIXME:  take into account split matched hits!!!
     if ( breakTrajWith2ConsecutiveMissing ) {
       unsigned int firstinvalid = myHits.size();
       for ( unsigned int j=0; j<myHits.size()-1; ++j )
