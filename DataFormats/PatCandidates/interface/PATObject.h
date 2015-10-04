@@ -771,6 +771,7 @@ namespace pat {
       return userFloats_[std::distance(userFloatLabels_.cbegin(),it)];
     }
     throwMissingLabel("UserFloat",key,userFloatLabels_);
+    return std::numeric_limits<float>::quiet_NaN();
   }
 
   template <class ObjectType>
@@ -801,6 +802,7 @@ namespace pat {
       return userInts_[std::distance(userIntLabels_.cbegin(),it)];
     }
     throwMissingLabel("UserInt",key,userIntLabels_);
+    return std::numeric_limits<int>::max();
   }
 
   template <class ObjectType>
