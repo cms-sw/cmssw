@@ -21,7 +21,7 @@ from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TOB
-    'TOB1+TOB2+MTOB3',
+    'TOB1+TOB2+MTOB3','TOB1+TOB2+MTOB4',
     #TOB+MTEC
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
     ),
@@ -147,7 +147,7 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 
 tobTecStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 0,
-    minimumNumberOfHits = 6,
+    minimumNumberOfHits = 5,
     minPt = 0.1,
     minHitsMinPt = 3
     )
@@ -211,7 +211,7 @@ import TrackingTools.TrackFitters.RungeKuttaFitters_cff
 tobTecStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
     ComponentName = 'tobTecStepFitterSmoother',
     EstimateCut = 30,
-    MinNumberOfHits = 8,
+    MinNumberOfHits = 7,
     Fitter = cms.string('tobTecStepRKFitter'),
     Smoother = cms.string('tobTecStepRKSmoother')
     )
@@ -225,7 +225,7 @@ tobTecStepFitterSmootherForLoopers = tobTecStepFitterSmoother.clone(
 # Also necessary to specify minimum number of hits after final track fit
 tobTecStepRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectoryFitter.clone(
     ComponentName = cms.string('tobTecStepRKFitter'),
-    minHits = 8
+    minHits = 7
 )
 tobTecStepRKTrajectoryFitterForLoopers = tobTecStepRKTrajectoryFitter.clone(
     ComponentName = cms.string('tobTecStepRKFitterForLoopers'),
@@ -235,7 +235,7 @@ tobTecStepRKTrajectoryFitterForLoopers = tobTecStepRKTrajectoryFitter.clone(
 tobTecStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
     ComponentName = cms.string('tobTecStepRKSmoother'),
     errorRescaling = 10.0,
-    minHits = 8
+    minHits = 7
 )
 tobTecStepRKTrajectorySmootherForLoopers = tobTecStepRKTrajectorySmoother.clone(
     ComponentName = cms.string('tobTecStepRKSmootherForLoopers'),

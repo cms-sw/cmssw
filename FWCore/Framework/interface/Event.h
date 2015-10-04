@@ -44,6 +44,8 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include <typeinfo>
 #include <vector>
 
+class testEventGetRefBeforePut;
+
 namespace edm {
 
   class BranchDescription;
@@ -229,6 +231,8 @@ namespace edm {
     productGetter() const;
 
   private:
+    //for testing
+    friend class ::testEventGetRefBeforePut;
 
     EventPrincipal const&
     eventPrincipal() const;
