@@ -36,9 +36,11 @@ void
 ME0DetId::init(int region,int layer,int chamber,int roll)
 {
   if ( region     < minRegionId    || region    > maxRegionId ||
-       layer      < minLayerId     || layer     > maxLayerId ||
+       //layer      < minLayerId     || layer     > maxLayerId ||
+       layer      < 0     || layer     > maxLayerId ||
        chamber    < minChamberId   || chamber   > maxChamberId ||
-       roll       < minRollId      || roll      > maxRollId) {
+       //roll       < minRollId      || roll      > maxRollId) {
+       roll       < 0      || roll      > maxRollId) {
     throw cms::Exception("InvalidDetId") << "ME0DetId ctor:" 
 					 << " Invalid parameters: " 
 					 << " region "<<region

@@ -54,7 +54,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
-    fileName = cms.untracked.string('out_sim.root'),
+    fileName = cms.untracked.string('/tmp/dnash/out_sim.root'),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -72,7 +72,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
         MaxEta = cms.double(2.5),
         MaxPhi = cms.double(3.14159265359),
         MaxPt = cms.double(100.01),
-        MinEta = cms.double(-2.5),
+        MinEta = cms.double(2.0),
         MinPhi = cms.double(-3.14159265359),
         MinPt = cms.double(99.99),
         PartID = cms.vint32(-13)

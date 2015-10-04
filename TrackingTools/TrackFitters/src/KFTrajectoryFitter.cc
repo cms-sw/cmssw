@@ -89,12 +89,12 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
        LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
-   //if (hit.det() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId() ;
-   //if (hit.isValid() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId();
+   // if (hit.det() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId() ;
+   // if (hit.isValid() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId();
 
 #ifdef EDM_ML_DEBUG
     if (hit.isValid()) {
-      LogTrace("TrackFitters")<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
+      LogDebug("TrackFitters")<< " ----------------- HIT #" << hitcounter << " (VALID)-----------------------\n"
 	<< "  HIT IS AT R   " << hit.globalPosition().perp() << "\n"
 	<< "  HIT IS AT Z   " << hit.globalPosition().z() << "\n"
 	<< "  HIT IS AT Phi " << hit.globalPosition().phi() << "\n"
@@ -109,44 +109,44 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 
       DetId hitId = hit.geographicalId();
 
-      LogTrace("TrackFitters") << " hit det=" << hitId.rawId();
+      LogDebug("TrackFitters") << " hit det=" << hitId.rawId();
 
       if(hitId.det() == DetId::Tracker) {
 	if (hitId.subdetId() == StripSubdetector::TIB )
-	  LogTrace("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
+	  LogDebug("TrackFitters") << " I am TIB " << TIBDetId(hitId).layer();
 	else if (hitId.subdetId() == StripSubdetector::TOB )
-	  LogTrace("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
+	  LogDebug("TrackFitters") << " I am TOB " << TOBDetId(hitId).layer();
 	else if (hitId.subdetId() == StripSubdetector::TEC )
-	  LogTrace("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
+	  LogDebug("TrackFitters") << " I am TEC " << TECDetId(hitId).wheel();
 	else if (hitId.subdetId() == StripSubdetector::TID )
-	  LogTrace("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
+	  LogDebug("TrackFitters") << " I am TID " << TIDDetId(hitId).wheel();
 	else if (hitId.subdetId() == (int) PixelSubdetector::PixelBarrel )
-	  LogTrace("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
+	  LogDebug("TrackFitters") << " I am PixBar " << PXBDetId(hitId).layer();
 	else if (hitId.subdetId() == (int) PixelSubdetector::PixelEndcap )
-	  LogTrace("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
+	  LogDebug("TrackFitters") << " I am PixFwd " << PXFDetId(hitId).disk();
 	else
-	  LogTrace("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
+	  LogDebug("TrackFitters") << " UNKNOWN TRACKER HIT TYPE ";
       }
       else if(hitId.det() == DetId::Muon) {
 	if(hitId.subdetId() == MuonSubdetId::DT)
-	  LogTrace("TrackFitters") << " I am DT " << DTWireId(hitId);
+	  LogDebug("TrackFitters") << " I am DT " << DTWireId(hitId);
 	else if (hitId.subdetId() == MuonSubdetId::CSC )
-	  LogTrace("TrackFitters") << " I am CSC " << CSCDetId(hitId);
+	  LogDebug("TrackFitters") << " I am CSC " << CSCDetId(hitId);
 	else if (hitId.subdetId() == MuonSubdetId::RPC )
-	  LogTrace("TrackFitters") << " I am RPC " << RPCDetId(hitId);
+	  LogDebug("TrackFitters") << " I am RPC " << RPCDetId(hitId);
 	else if (hitId.subdetId() == MuonSubdetId::GEM )
-	  LogTrace("TrackFitters") << " I am GEM " << GEMDetId(hitId);
+	  LogDebug("TrackFitters") << " I am GEM " << GEMDetId(hitId);
 
 	else if (hitId.subdetId() == MuonSubdetId::ME0 )
-	  LogTrace("TrackFitters") << " I am ME0 " << ME0DetId(hitId);
+	  LogDebug("TrackFitters") << " I am ME0 " << ME0DetId(hitId);
 	else 
-	  LogTrace("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
+	  LogDebug("TrackFitters") << " UNKNOWN MUON HIT TYPE ";
       }
       else
-	LogTrace("TrackFitters") << " UNKNOWN HIT TYPE ";
+	LogDebug("TrackFitters") << " UNKNOWN HIT TYPE ";
 
     } else {
-      LogTrace("TrackFitters")
+      LogDebug("TrackFitters")
 	<< " ----------------- INVALID HIT #" << hitcounter << " -----------------------";
     }
 #endif

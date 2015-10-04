@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 def customise(process):
-    process=customise_hack_ecal(process)
+    #process=customise_hack_ecal(process)
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'L1simulation_step'):
@@ -13,6 +13,8 @@ def customise(process):
     #if hasattr(process,'reconstruction'):
     #    process=customise_RecoFull(process)
     if hasattr(process,'reconstruction'):
+        process=customise_Reco(process)
+    if hasattr(process,'globalreco_step'):
         process=customise_Reco(process)
     #if hasattr(process,'famosWithEverything'):
     #    process=customise_RecoFast(process)
@@ -115,10 +117,11 @@ def customise_Reco(process):
     #process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
     process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
     process.muonlocalreco += process.me0RecHits
-    process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(False)
-    process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(False)
-    process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(False)
-    process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(False)
+    #process.load("RecoMuon.StandAloneMuonProducer.standAloneMuons_cff")
+    process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+    process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+    process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+    process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
     process=outputCustoms(process)
     return process
 

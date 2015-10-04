@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("MyMuonRECO")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
 
 # Process options :: 
 # - wantSummary helps to understand which module crashes
@@ -168,7 +168,7 @@ process.load("RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi")
 process.load("RecoMuon.Configuration.RecoMuon_cff")
 #Remove calomuons and EcalDetIds from muonIdProducerSequence:
 #  muonIdProducerSequence = cms.Sequence(glbTrackQual*muons1stStep*calomuons*muonEcalDetIds*muonShowerInformation)
-process.muonIdProducerSequence = cms.Sequence(process.glbTrackQual*process.muons1stStep*process.muonShowerInformation)
+#process.muonIdProducerSequence = cms.Sequence(process.glbTrackQual*process.muons1stStep*process.muonShowerInformation)
 
 
 # process.load("RecoVertex.Configuration.RecoVertex_cff")
@@ -186,6 +186,12 @@ from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fix
 process = fixDTAlignmentConditions(process)
 from SLHCUpgradeSimulations.Configuration.fixMissingUpgradeGTPayloads import fixCSCAlignmentConditions
 process = fixCSCAlignmentConditions(process)
+
+
+
+####Customize process with me0Customs file to get ME0Segments in the full reco:
+#from SLHCUpgradeSimulations.Configuration.me0Customs import customise
+#process = customise(process)
 
 
 # Skip Digi2Raw and Raw2Digi steps for Al Muon detectors #
@@ -226,13 +232,13 @@ process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
 ##########################
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:out_digi.root'
+        'file:/tmp/dnash/out_digi.root'
     )
 )
 
 process.output = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string( 
-        'file:out_local_reco.root'
+        'file:/tmp/dnash/out_local_reco.root'
     ),
     outputCommands = cms.untracked.vstring(
         'keep  *_*_*_*',
@@ -266,6 +272,37 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 
 
+process.MessageLogger = cms.Service("MessageLogger",
+                    destinations       =  cms.untracked.vstring('debugmessages'),
+                    #categories         = cms.untracked.vstring("TrackFitters"),
+                    #categories         = cms.untracked.vstring('MuonDetLayerGeometryESProducer'),
+                    #categories         = cms.untracked.vstring('MuonDetLayerMeasurements'),
+                    #categories         = cms.untracked.vstring('RecoMuon','TrackFitters','ME0','ME0GeometryBuilderFromDDD','CSCGeometryBuilder'),
+                    categories         = cms.untracked.vstring('RecoMuon','TrackFitters','ME0','CSCSegment','TrackProducer','MuonME0DetLayerGeometryBuilder'),
+                                    debugModules  = cms.untracked.vstring('*'),
+                                    
+                                    debugmessages          = cms.untracked.PSet(
+                                               threshold =  cms.untracked.string('DEBUG'),
+                                               INFO       =  cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               DEBUG   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               WARNING   = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               ERROR  = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               #WARNING = cms.untracked.PSet(limit = cms.untracked.int32(0)),
+                                               #TrackFitters = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               MuonME0DetLayerGeometryBuilder = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               #MuonDetLayerGeometryESProducer = cms.untracked.PSet(limit = cms.untracked.int32(10000000))
+                                               #MuonDetLayerMeasurements = cms.untracked.PSet(limit = cms.untracked.int32(10000000))
+                                               TrackFitters = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               RecoMuon = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               ME0 = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               CSCSegment = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               TrackProducer = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               #ME0GeometryBuilderFromDDD = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                               #CSCGeometryBuilder = cms.untracked.PSet(limit = cms.untracked.int32(10000000)),
+                                                   )
+)
+
+
 
 ### Paths and Schedules
 #######################
@@ -282,7 +319,25 @@ process.localreco_step  = cms.Path(process.muonlocalreco+process.gemRecHits+proc
 # Run-1 Global Reco Step: (no PreSplitting before iterTracking sequence)
 
 #process.globalreco_step = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.PixelLayerTriplets*process.recopixelvertexing*process.standalonemuontracking*process.trackingGlobalReco*process.vertexreco*process.me0MuonReco)#*process.muonGlobalReco)
-process.globalreco_step = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.PixelLayerTriplets*process.recopixelvertexing*process.standalonemuontracking*process.trackingGlobalReco*process.vertexreco*process.muonGlobalReco)
+
+
+############# Customization for stanalone muons to include me0
+process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
+process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)
+
+process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
+process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+process.refittedStandAloneMuons.STATrajBuilderParameters.FilterParameters.EnableGEMMeasurement = cms.bool(True)
+process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+
+
+### Bare minimum for global muons, globalMuons, from RecoMuon/Configuration/python/RecoMuonPPonly_cff.py
+process.globalreco_step = cms.Path(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.PixelLayerTriplets*process.recopixelvertexing*process.standalonemuontracking*process.trackingGlobalReco*process.vertexreco*process.globalMuons)
+
+
+
 
 process.endjob_step     = cms.Path(process.endOfProcess)
 process.out_step        = cms.EndPath(process.output)

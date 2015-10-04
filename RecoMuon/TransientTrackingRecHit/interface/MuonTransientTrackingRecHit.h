@@ -63,6 +63,9 @@ public:
   /// if this rec hit is a GEM rec hit 
   bool isGEM() const; 
 
+  /// if this rec hit is a ME0 rec hit 
+  bool isME0() const; 
+
   /// if this rec hit is a RPC rec hit
   bool isRPC() const;
 

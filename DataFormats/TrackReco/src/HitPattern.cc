@@ -123,7 +123,16 @@ namespace {
               layer = ((gemid.station()-1)<<2);
               layer |= abs(gemid.layer()-1);
             }
-            break;
+	    break;
+	    case MuonSubdetId::ME0:
+	      {
+		ME0DetId me0id(id.rawId());
+		//layer = ((me0id.roll()-1)<<1) + abs(me0id.layer()-1);
+		//layer = ((me0id.roll()-1)<<1) + abs(me0id.layer());
+		//Only layer information that is meaningful is in the roll/etapartition
+		layer = (me0id.roll());
+	      }
+	      break;
             }
         }
         return layer;

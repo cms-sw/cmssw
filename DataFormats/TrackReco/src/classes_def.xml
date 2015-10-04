@@ -26,7 +26,7 @@
       targetClass="reco::HitPattern"
       target="hitPattern"
       version="[-11]"
-      include="utility,DataFormats/SiPixelDetId/interface/PXBDetId.h,DataFormats/SiPixelDetId/interface/PXFDetId.h,DataFormats/SiStripDetId/interface/TIBDetId.h,DataFormats/SiStripDetId/interface/TIDDetId.h,DataFormats/SiStripDetId/interface/TOBDetId.h,DataFormats/SiStripDetId/interface/TECDetId.h,DataFormats/MuonDetId/interface/DTLayerId.h,DataFormats/MuonDetId/interface/CSCDetId.h,DataFormats/MuonDetId/interface/RPCDetId.h"
+      include="utility,DataFormats/SiPixelDetId/interface/PXBDetId.h,DataFormats/SiPixelDetId/interface/PXFDetId.h,DataFormats/SiStripDetId/interface/TIBDetId.h,DataFormats/SiStripDetId/interface/TIDDetId.h,DataFormats/SiStripDetId/interface/TOBDetId.h,DataFormats/SiStripDetId/interface/TECDetId.h,DataFormats/MuonDetId/interface/DTLayerId.h,DataFormats/MuonDetId/interface/CSCDetId.h,DataFormats/MuonDetId/interface/RPCDetId.h,DataFormats/MuonDetId/interface/ME0DetId.h"
       >
       <![CDATA[
             using namespace reco;
@@ -127,6 +127,11 @@
                         uint32_t region  = layer & 0x1;
                         uint32_t layer_muon = 1 + ((station <= 2) ? ((layer >> 1) & 0x1) : 0);
                         detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
+                    }
+                    break;
+                    case MuonSubdetId::ME0: {
+                        uint32_t roll =  1;
+                        detId = ME0DetId(DONT_CARE, DONT_CARE, DONT_CARE,roll);
                     }
                     break;
                     }
@@ -252,6 +257,12 @@
                         detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
                     }
                     break;
+                    case MuonSubdetId::ME0: {
+                        uint16_t roll =  1;
+                        detId = ME0DetId(DONT_CARE, DONT_CARE, DONT_CARE,roll);
+                    }
+                    break;
+
                     }
                     return newObj->appendMuonHitPattern(detId, hitType);
                 }

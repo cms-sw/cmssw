@@ -29,7 +29,9 @@ MuonME0DetLayerGeometryBuilder::buildEndcapLayers(const ME0Geometry& geo) {
   vector<DetLayer*> result[2];
   const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|MuonME0DetLayerGeometryBuilder";
   LogTrace(metname) << "Starting endcaplayers ";
-
+  std::cout<<"=================="<<endl;
+  std::cout<<"Starting endcap layers"<<endl;
+  std::cout<<"=================="<<endl;
   for (int endcap = -1; endcap<=1; endcap+=2) {
     int iendcap = (endcap==1) ? 0 : 1; // +1: forward, -1: backward
 
@@ -62,7 +64,10 @@ MuonME0DetLayerGeometryBuilder::buildEndcapLayers(const ME0Geometry& geo) {
 	  //<< "Layer =  " << layer
 			  << "Chambers =  " << chambers.size()
 			  << "Rolls =  " << rolls.size();
-
+	std::cout<<"=================="<<endl;
+	std::cout<<"Chambers = "<<chambers.size()<<endl;
+	std::cout<<"=================="<<endl;
+	
 
 	//MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, chambers, rolls, geo);          
 	//MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, layer, chambers, rolls, geo);          
@@ -112,12 +117,19 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
 
   LogTrace(metname) << "Starting to Build Layer ";
 //  for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end();ring++){ 
+  std::cout<<"=================="<<endl;
+  std::cout<<"Starting to Build layer"<<endl;
+  std::cout<<"=================="<<endl;
 
   //No rings defined in ME0
   //for (std::vector<int>::iterator ring=rings.begin(); ring!=rings.end()-2;ring++){ 
 
     for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); roll++) {    
       LogTrace(metname) << "On a roll ";
+      std::cout<<"=================="<<endl;
+      std::cout<<"On a roll"<<endl;
+      std::cout<<"=================="<<endl;
+      
       vector<const GeomDet*> frontDets, backDets;
 
       for(std::vector<int>::iterator chamber=chambers.begin(); chamber<chambers.end(); chamber++) {
@@ -137,28 +149,28 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
 	//ME0DetId me0Id(endcap,1,(*chamber), (*roll));
 	ME0DetId me0Id(endcap,1,(*chamber), 0);
 
-      LogTrace(metname) << "Have an me0Id :"
+      std::cout << "Have an me0Id :"
 			<<me0Id;
 
 
  	  const GeomDet* geomDet = geo.idToDet(me0Id);
-	  LogTrace(metname) << "Got Geometry with id: "
+	  std::cout << "Got Geometry with id: "
 			    <<geomDet;
 	  
 	  if (geomDet !=0) {
-	  LogTrace(metname) << "In Geo step";
+	  std::cout << "In Geo step";
 	    bool isInFront = isFront(me0Id);
-	  LogTrace(metname) << "Getting bool";
+	  std::cout << "Getting bool";
 	    if(isInFront)
             {
               frontDets.push_back(geomDet);
-	  LogTrace(metname) << "Is in front";
+	  std::cout << "Is in front";
             }
             else 
             {
               backDets.push_back(geomDet);
             }
-	    LogTrace(metname) << "get ME0 Endcap roll "
+	    std::cout << "get ME0 Endcap roll "
 			      << me0Id
                               << (isInFront ? "front" : "back ")
 			      << " at R=" << geomDet->position().perp()
