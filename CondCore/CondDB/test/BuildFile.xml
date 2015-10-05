@@ -6,8 +6,9 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/Utilities"/>
 
+<library file="" name="testCondDBDict"/>
+
 <bin file="testReadWritePayloads.cpp" name="testReadWritePayloads">
-  <lib name="testCondDBDict"/>
 </bin>
 
 <bin   file="testConditionDatabase_1.cpp" name="testConditionDatabase_1">
@@ -17,11 +18,9 @@
 </bin>
 
 <bin   file="testRootStreaming.cpp" name="testRootStreaming">
-  <lib   name="testCondDBDict"/>
 </bin>
 
 <bin   file="testPayloadProxy.cpp" name="testPayloadProxy">
-  <lib   name="testCondDBDict"/>
 </bin>
 
 <bin   file="testFrontier.cpp" name="testFrontier">
