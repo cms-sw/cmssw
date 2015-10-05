@@ -25,7 +25,9 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
     'keep *_pfMet_*_*', # met for Wenu selection
     'keep *_kt6PFJetsForRhoCorrection_rho_*', #rho for effective area subtraction
     'keep *_kt6PFJets_rho_*', #rho for effective area subtraction
-    'keep recoVertexs_offlinePrimaryVertices*_*_*',
+    #'keep recoVertexs_offlinePrimaryVertices*_*_*',
+    'keep recoVertexs_offlinePrimaryVertices_*_*',
+    'keep recoVertexs_offlinePrimaryVerticesWithBS_*_*',
     'keep *BeamSpot_offlineBeamSpot_*_*',
     'keep *_allConversions_*_*',
     'keep *_conversions_*_*',
