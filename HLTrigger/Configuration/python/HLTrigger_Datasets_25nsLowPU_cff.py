@@ -104,7 +104,8 @@ streamA_datasetHINMuon_selector.throw      = cms.bool(False)
 streamA_datasetHINMuon_selector.triggerConditions = cms.vstring('HLT_HIL1DoubleMu0_v1', 
     'HLT_HIL2DoubleMu0_v2', 
     'HLT_HIL2Mu3_v2', 
-    'HLT_HIL3Mu3_v2')
+    'HLT_HIL3Mu3_v2', 
+    'HLT_L1Muon_NotMinimumBiasHF2AND_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHINPFJetsOther_selector
 streamA_datasetHINPFJetsOther_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -194,7 +195,11 @@ streamA_datasetTOTEM_romanPots_selector.l1tResults = cms.InputTag('')
 streamA_datasetTOTEM_romanPots_selector.throw      = cms.bool(False)
 streamA_datasetTOTEM_romanPots_selector.triggerConditions = cms.vstring('HLT_L1RomanPots_SinglePixelTrack02_v2', 
     'HLT_L1RomanPots_SinglePixelTrack04_v2', 
-    'HLT_L1TOTEM0_RomanPotsAND_v1')
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters3_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_v1', 
+    'HLT_L1TOTEM3_RomanPotsTTBB_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetToTOTEM_selector
 streamA_datasetToTOTEM_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
