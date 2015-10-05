@@ -1097,7 +1097,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
 
 
   LogDebug("CkfPattern")<<"Obtained bwdFitted trajectory with measurement size " << bwdFitted.measurements().size();
-  TempTrajectory fitted(fwdTraj.direction(),fwdTraj.seedNHits());
+  TempTrajectory fitted(fwdTraj.direction(),nSeed);
   fitted.setNLoops(fwdTraj.nLoops());
   vector<TM> const & tmsbf = bwdFitted.measurements();
   int iDetLayer=0;

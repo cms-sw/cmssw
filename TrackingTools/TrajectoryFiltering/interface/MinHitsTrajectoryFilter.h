@@ -28,7 +28,11 @@ public:
 protected:
 
   template<class T> bool QF(const T & traj) const{
-    return (traj.foundHits() >= theMinHits);
+    int seedPenalty = (2==traj.seedNHits()) ? 1: 0;  // increase by one if seed-doublet...
+    assert(seedPenalty>=0);
+    assert(seedPenalty<2);
+
+    return (traj.foundHits() >= theMinHits + seedPenalty);
   }
 
   int theMinHits;
