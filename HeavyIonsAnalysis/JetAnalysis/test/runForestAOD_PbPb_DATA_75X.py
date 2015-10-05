@@ -23,7 +23,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-                            fileNames = cms.untracked.vstring("file:140.53_RunHI2011+RunHI2011+RECOHID11+HARVESTDHI/step2_AOD.root")
+                            fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/e5eb8894c0d6aaac6d5717b56f4e5b3e/step2_RAW2DIGI_L1Reco_RECO_10_1_ntO.root")
                         )
 
 
@@ -61,8 +61,8 @@ label = cms.untracked.string("HFtowersHydjetDrum5")
  ),
 ])
 
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideGT_PbPb2760
-overrideGT_PbPb2760(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb2760
+overrideJEC_PbPb2760(process)
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
@@ -148,46 +148,33 @@ process.pixelTrack.doPFMatching = False
 # photons
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 process.ggHiNtuplizer.doGenParticles = False
-process.ggHiNtuplizer.gsfElectronLabel = cms.InputTag("gedGsfElectronsTmp") # this is not correct...
-
-#####################
-
-# muons
-######################
-process.load("HeavyIonsAnalysis.MuonAnalysis.hltMuTree_cfi")
-process.hltMuTree.doGen = cms.untracked.bool(True)
-process.load("RecoHI.HiMuonAlgos.HiRecoMuon_cff")
-process.muons.JetExtractorPSet.JetCollectionLabel = cms.InputTag("akVs3PFJets")
-process.globalMuons.TrackerCollectionLabel = "hiGeneralTracks"
-process.muons.TrackExtractorPSet.inputTrackCollection = "hiGeneralTracks"
-process.muons.inputCollectionLabels = ["hiGeneralTracks", "globalMuons", "standAloneMuons:UpdatedAtVtx", "tevMuons:firstHit", "tevMuons:picky", "tevMuons:dyt"]
-
-process.hltMuTree.doGen = False
+process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag('gedPhotonsTmp'),
+                                                       recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerGED')
+                                                       )
 
 ###############################################################
 
-process.ana_step = cms.Path(#process.heavyIon*
-                            process.hltanalysis *
+process.ana_step = cms.Path(process.hltanalysis *
 #temp                            process.hltobject *
                             process.centralityBin *
                             process.hiEvtAnalyzer*
                             process.jetSequences +
                             process.ggHiNtuplizer +
+                            process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
-#temp                            process.hltMuTree +
-                            process.HiForest
-                            #process.anaTrack +
+                            process.HiForest +
+                            process.anaTrack
                             #process.pixelTrack
                             )
 
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
 process.phltJetHI = cms.Path( process.hltJetHI )
 process.pcollisionEventSelection = cms.Path(process.collisionEventSelectionAOD)
-#process.pcollisionEventSelection = cms.Path(process.collisionEventSelection)
-# process.pHBHENoiseFilter = cms.Path( process.HBHENoiseFilter ) #should be put back in later
+process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
+process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
 # process.phfCoincFilter = cms.Path(process.hfCoincFilter )
 # process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
-# process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
+process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
 # process.phltPixelClusterShapeFilter = cms.Path(process.siPixelRecHits*process.hltPixelClusterShapeFilter )
 # process.phiEcalRecHitSpikeFilter = cms.Path(process.hiEcalRecHitSpikeFilter )
 

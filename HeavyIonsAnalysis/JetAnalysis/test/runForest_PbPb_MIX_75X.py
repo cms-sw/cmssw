@@ -24,7 +24,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-        "/store/relval/CMSSW_7_5_0_pre5/RelValPhotonJets_Pt_10_13_HI/GEN-SIM-RECO/MCHI2_75_V2-v2/00000/BAA0D4EC-AF0B-E511-95A6-02163E011865.root"
+        "file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/e5eb8894c0d6aaac6d5717b56f4e5b3e/step2_RAW2DIGI_L1Reco_RECO_10_1_ntO.root"
 
     ))
 
@@ -51,7 +51,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 # PbPb 53X MC
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'MCHI2_75_V2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
 
 process.GlobalTag.toGet.extend([
  cms.PSet(record = cms.string("HeavyIonRcd"),
@@ -61,8 +61,8 @@ label = cms.untracked.string("HFtowersHydjetDrum5")
  ),
 ])
 
-from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import *
-overrideGT_PbPb2760(process)
+from HeavyIonsAnalysis.Configuration.CommonFunctions_cff import overrideJEC_PbPb2760
+overrideJEC_PbPb2760(process)
 
 process.load("RecoHI.HiCentralityAlgos.CentralityBin_cfi")
 process.centralityBin.Centrality = cms.InputTag("hiCentrality")
@@ -163,29 +163,23 @@ process.quickTrackAssociatorByHits.ComponentName = cms.string('quickTrackAssocia
 
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
 process.ggHiNtuplizer.genParticleSrc = cms.InputTag("genParticles")
+process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag('gedPhotonsTmp'),
+                                                       recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerGED')
+                                                       )
 
 #####################
-# muons
-######################
-process.load("HeavyIonsAnalysis.MuonAnalysis.hltMuTree_cfi")
-process.hltMuTree.doGen = cms.untracked.bool(True)
-process.load("RecoHI.HiMuonAlgos.HiRecoMuon_cff")
-process.muons.JetExtractorPSet.JetCollectionLabel = cms.InputTag("akVs3PFJets")
-process.globalMuons.TrackerCollectionLabel = "hiGeneralTracks"
-process.muons.TrackExtractorPSet.inputTrackCollection = "hiGeneralTracks"
-process.muons.inputCollectionLabels = ["hiGeneralTracks", "globalMuons", "standAloneMuons:UpdatedAtVtx", "tevMuons:firstHit", "tevMuons:picky", "tevMuons:dyt"]
 
 # HYDJET RECO file didn't have ak2GenJets and ak6GenJets as input, so removed them
 # and ran our own hiGenJets sequence
-from RecoHI.HiJetAlgos.HiGenJets_cff import ak3HiGenJets, ak4HiGenJets
-from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
-genParticlesForJets.ignoreParticleIDs += cms.vuint32( 12,14,16)
+# from RecoHI.HiJetAlgos.HiGenJets_cff import ak3HiGenJets, ak4HiGenJets
+# from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
+# genParticlesForJets.ignoreParticleIDs += cms.vuint32( 12,14,16)
 
-process.hiSelectGenJets = cms.Sequence(
-    genParticlesForJets +
-    ak3HiGenJets +
-    ak4HiGenJets
-)
+# process.hiSelectGenJets = cms.Sequence(
+#     genParticlesForJets +
+#     ak3HiGenJets +
+#     ak4HiGenJets
+# )
 
 process.anaTrack.doSimTrack = cms.untracked.bool(False)
 
@@ -203,12 +197,12 @@ process.ana_step = cms.Path(process.heavyIon*
                             #process.hiGenJetsCleaned*
                             process.quickTrackAssociatorByHits*
                             #process.tpRecoAssocGeneralTracks + #used in HiPFJetAnalyzer
-                            process.hiSelectGenJets +
+                            #process.hiSelectGenJets +
                             process.jetSequences +
                             process.ggHiNtuplizer +
+                            process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.rechitAna +
-#temp                            process.hltMuTree +
                             process.HiForest +
                             # process.cutsTPForFak +
                             # process.cutsTPForEff +
@@ -219,8 +213,8 @@ process.ana_step = cms.Path(process.heavyIon*
 process.load('HeavyIonsAnalysis.JetAnalysis.EventSelection_cff')
 process.phltJetHI = cms.Path( process.hltJetHI )
 process.pcollisionEventSelection = cms.Path(process.collisionEventSelection)
-# process.pHBHENoiseFilter = cms.Path( process.HBHENoiseFilter ) #should be put back in later
-#process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
+process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
+process.pHBHENoiseFilterResultProducer = cms.Path( process.HBHENoiseFilterResultProducer )
 process.phfCoincFilter = cms.Path(process.hfCoincFilter )
 process.phfCoincFilter3 = cms.Path(process.hfCoincFilter3 )
 process.pprimaryVertexFilter = cms.Path(process.primaryVertexFilter )
