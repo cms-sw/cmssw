@@ -105,14 +105,22 @@ workflows[140.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3','HARVESTDHI']]
 workflows[140.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11','HARVESTDHI']]
 workflows[140.53] = ['',['RunHI2011','RECOHID11','HARVESTDHI']]
 
-### run2 ###
-workflows[134.71] = ['',['RunHLTPhy2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.72] = ['',['RunDoubleEG2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.73] = ['',['RunDoubleMuon2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.74] = ['',['RunJetHT2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.75] = ['',['RunMET2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
-workflows[134.76] = ['',['RunMuonEG2015B','HLTDR2','RECODR2reHLT','HARVESTDR2reHLT']]
+### run2 2015B 50ns ###
+workflows[134.701] = ['',['RunHLTPhy2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.702] = ['',['RunDoubleEG2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.703] = ['',['RunDoubleMuon2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.704] = ['',['RunJetHT2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.705] = ['',['RunMET2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
+workflows[134.706] = ['',['RunMuonEG2015B','HLTDR250ns','RECODR250nsreHLT','HARVESTDR2reHLT']]
 
+### run 2015C 25ns ###
+workflows[134.801] = ['',['RunHLTPhy2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.802] = ['',['RunDoubleEG2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.803] = ['',['RunDoubleMuon2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.804] = ['',['RunJetHT2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.805] = ['',['RunMET2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+workflows[134.806] = ['',['RunMuonEG2015C','HLTDR225ns','RECODR225nsreHLT','HARVESTDR2reHLT']]
+##
 
 ### fastsim ###
 workflows[5.1] = ['TTbar', ['TTbarFS','HARVESTFS']]
