@@ -393,6 +393,9 @@ def cust_2023HGCalPandoraMuonFastTime(process):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoFTL.FastTimingKludge.trackTimeValueMapProducer_cfi")
         process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.particleFlowReco)
+        process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
+            initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
+            )
         process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
     # This next part limits the pileup to be in time only, as
     # requested by the fast timing group
@@ -428,6 +431,9 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoFTL.FastTimingKludge.trackTimeValueMapProducer_cfi")
         process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.particleFlowReco)        
+        process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
+            initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
+            )
         process.ecalDetailedTimeRecHit.correctForVertexZPosition=False
     # This next part limits the pileup to be in time only, as
     # requested by the fast timing group
