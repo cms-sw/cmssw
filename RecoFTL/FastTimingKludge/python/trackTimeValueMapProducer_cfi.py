@@ -6,5 +6,6 @@ trackTimeValueMapProducer = cms.EDProducer(
     gsfTrackSrc = cms.InputTag('electronGsfTracks'),
     trackingParticleSrc = cms.InputTag('mix:MergedTrackTruth'),
     trackingVertexSrc = cms.InputTag('mix:MergedTrackTruth'),
-    tpAssociator = cms.string('quickTrackAssociatorByHits')
+    tpAssociator = cms.string('quickTrackAssociatorByHits'),
+    resolutionModels = cms.VPSet( cms.PSet( modelName = cms.string('PerfectResolutionModel') ) )
     )
