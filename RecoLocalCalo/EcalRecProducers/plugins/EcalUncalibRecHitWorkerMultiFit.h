@@ -83,7 +83,7 @@ class EcalUncalibRecHitWorkerMultiFit : public EcalUncalibRecHitWorkerBaseClass 
                 EcalUncalibRecHitMultiFitAlgo multiFitMethod_;
                 
 		int bunchSpacingManual_;
-                edm::EDGetTokenT<int> bunchSpacing_; 
+                edm::EDGetTokenT<unsigned int> bunchSpacing_; 
 
                 // determine which of the samples must actually be used by ECAL local reco
                 edm::ESHandle<EcalSampleMask> sampleMaskHand_;                
