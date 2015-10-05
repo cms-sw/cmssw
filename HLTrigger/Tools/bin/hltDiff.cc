@@ -668,10 +668,14 @@ void compare(std::vector<std::string> const & old_files, std::string const & old
       break;
   }
 
-  std::cout << "Found " << affected << " events out of " << counter << " with differences:\n" << std::endl;
-  std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
-  for (unsigned int p = 0; p < old_config->size(); ++p)
-    std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
+  if (not counter) {
+    std::cout << "There are no common events between the old and new files." << std::endl;
+  } else {
+    std::cout << "Found " << affected << " events out of " << counter << " with differences:\n" << std::endl;
+    std::cout << std::setw(12) << "Events" << std::setw(12) << "Accepted" << std::setw(12) << "Gained" << std::setw(12) << "Lost" << std::setw(12) << "Other" << "  " << "Trigger" << std::endl;
+    for (unsigned int p = 0; p < old_config->size(); ++p)
+      std::cout << std::setw(12) << counter << differences[p] << "  " << old_config->triggerName(p) << std::endl;
+  }
 }
 
 
