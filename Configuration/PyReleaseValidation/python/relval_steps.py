@@ -647,7 +647,9 @@ step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
                          },
                         step1Defaults])
 
-step1HadronizerDefaults=merge([{'--datatier':'GEN-SIM,DQMIO'},step1GenDefaults])
+step1HadronizerDefaults=merge([{'--datatier':'GEN-SIM,DQMIO',
+                           '--relval':'200000,5000'
+                            },step1GenDefaults])
 
 step1LHEDefaults=merge([{'-s':'LHE',
                          '--relval':'200000,5000',
@@ -656,6 +658,7 @@ step1LHEDefaults=merge([{'-s':'LHE',
                          '--conditions':'auto:run2_mc_FULL'                         
                          },
                         step1Defaults])
+
 
 steps['DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/DYToll01234Jets_5f_LO_MLM_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
 steps['TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV']=genvalid('Configuration/Generator/python/TTbar012Jets_5f_NLO_FXFX_Madgraph_LHE_13TeV_cff.py',step1LHEDefaults)
