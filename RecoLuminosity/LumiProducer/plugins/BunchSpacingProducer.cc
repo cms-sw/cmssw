@@ -47,10 +47,8 @@ BunchSpacingProducer::BunchSpacingProducer(const edm::ParameterSet& iConfig)
   bunchSpacing_ = consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
   overRide_=false;
   if ( iConfig.exists("overrideBunchSpacing") ) {
-    std::cout << "ok parameter eixsts\n";
     overRide_= iConfig.getParameter<bool>("overrideBunchSpacing");
     if ( overRide_) {
-      std::cout << "and its true\n";
       bunchSpacingOverride_=iConfig.getParameter<unsigned int>("bunchSpacingOverride");
     }
   }
@@ -68,7 +66,6 @@ void BunchSpacingProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     std::auto_ptr<unsigned int> pOut1(new unsigned int);
     *pOut1=bunchSpacingOverride_;
     e.put(pOut1);
-    std::cout << "Derived from override " << bunchSpacingOverride_ << std::endl;
     return;
   }
 
@@ -94,7 +91,6 @@ void BunchSpacingProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
     bunchSpacing = *bunchSpacingH;
   }
 
-  std::cout << "Derived from run number " << bunchSpacing << std::endl;
   std::auto_ptr<unsigned int> pOut1(new unsigned int);
   *pOut1=bunchSpacing;
   e.put(pOut1);
