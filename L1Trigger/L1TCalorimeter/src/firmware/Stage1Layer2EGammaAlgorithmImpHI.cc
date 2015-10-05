@@ -49,12 +49,12 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
     int isoFlag = 0;
     bool isinBarrel = (eg_eta>=6 && eg_eta<=15);
 
-    isoFlag = !isinBarrel;
+    isoFlag = isinBarrel;
     l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, index, isoFlag);
     preSortEGammas->push_back(theEG);
   }
 
-  //EGammaToGtScales(params_, preSortEGammas, dumpEGammas);
+  EGammaToGtScales(params_, preSortEGammas, dumpEGammas);
   //verboseDumpEGammas(*dumpEGammas);
 
   SortEGammas(preSortEGammas, preGtEGammas);
@@ -168,13 +168,15 @@ void verboseDumpEGammas(const std::vector<l1t::EGamma> &jets)
   for(std::vector<l1t::EGamma>::const_iterator itEGamma = jets.begin();
 	  itEGamma != jets.end(); ++itEGamma){
 
-    std::cout << itEGamma->hwPt() << " ";
+    //std::cout << itEGamma->hwPt() << " ";
     //std::cout << fwEta[itEGamma->hwEta()] << " " ;
     //std::cout << fwPhi[itEGamma->hwPhi()] << " ";
-    std::cout << itEGamma->hwEta() << " " ;
-    std::cout << itEGamma->hwPhi() << std::endl;
+    //std::cout << itEGamma->hwEta() << " " ;
+    //std::cout << itEGamma->hwPhi() << std::endl;
     //bool sign = (itEGamma->hwEta() < 11);
     //std::cout << sign << std::endl;
+    std::cout << std::hex << pack16bitsEgammaSpecial(itEGamma->hwPt(), itEGamma->hwEta(), itEGamma->hwPhi()) << std::endl;
+
 
   }
 }
