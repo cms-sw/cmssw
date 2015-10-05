@@ -354,7 +354,9 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
       for ( unsigned int j=0; j<myHits.size()-1; ++j )
 	{
 	  if ( ((myHits[j  ]->type() == TrackingRecHit::missing) && (myHits[j  ]->geographicalId().rawId() != 0)) &&
-	       ((myHits[j+1]->type() == TrackingRecHit::missing) && (myHits[j+1]->geographicalId().rawId() != 0)) )
+	       ((myHits[j+1]->type() == TrackingRecHit::missing) && (myHits[j+1]->geographicalId().rawId() != 0))
+	       && ( (myHits[j  ]->geographicalId().rawId()&(~3)) !=  (myHits[j+1]->geographicalId().rawId()&(~3) ) ) // same gluedDet
+	       )
 	    {
 	      firstinvalid = j;
 	      DPRINT("TrackFitters") << "Found two consecutive missing hits. First invalid: " << firstinvalid << "\n";
