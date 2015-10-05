@@ -293,10 +293,12 @@ bool GEMSegAlgoPV::isGoodToMerge(const EnsembleHitContainer& newChain, const Ens
 
 
   // Do not allow to Merge if number of hits of Merged vector > 6
+  /*
   if(newChain.size() + oldChain.size() > 6) {
     edm::LogVerbatim("GEMSegAlgoPV") << "Merging those two vectors will lead to vector with more than 6 rechits :: n_vec1 = "<<newChain.size()<<" n_vec2 = "<<oldChain.size()<<" => Merging not allowed";
     return false;
   }
+  */
 
   // edm::LogVerbatim("GEMSegAlgoPV") << "[GEMSegAlgoPV::isGoodToMerge] :: newChain ::";
   for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
@@ -376,15 +378,22 @@ bool GEMSegAlgoPV::isGoodToMerge(const EnsembleHitContainer& newChain, const Ens
 	  if(bx_new[jRH_new]==bx_old[jRH_old]) bxRequirementOK = true; // only true if both rechits have same BX
 	}
       }
+
+      if(layerRequirementOK && phiRequirementOK && etaRequirementOK && bxRequirementOK){
+	edm::LogVerbatim("GEMSegAlgoPV") << "[GoodToMerge:: true]";
+	return true; // problem is that return is already given before the second element of the vector old_chain or new_chain is tested ... this logic needs to be changed	
+      } 
     }
   }
 
   // Now take decision whether to merge or not to merge
+  /*
   if(layerRequirementOK && phiRequirementOK && etaRequirementOK && bxRequirementOK){
     edm::LogVerbatim("GEMSegAlgoPV") << "[GoodToMerge:: true]";
     return true; // problem is that return is already given before the second element of the vector old_chain or new_chain is tested ... this logic needs to be changed
 
   } 
+  */
   edm::LogVerbatim("GEMSegAlgoPV") << "[GoodToMerge:: false]";
   return false;
 }
