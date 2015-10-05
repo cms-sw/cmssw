@@ -13,6 +13,9 @@
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalUncalibRecHitRecAbsAlgo.h"
 #include "Math/SVector.h"
 #include <vector>
+#include <cmath>
+
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 template<class C> class HGCalUncalibRecHitRecWeightsAlgo 
 {
@@ -20,26 +23,62 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
   // destructor
   virtual ~HGCalUncalibRecHitRecWeightsAlgo<C>() { };
 
+  virtual void set_isSiFESim(const bool isSiFE) { isSiFESim_ = isSiFE; }
+
+  virtual void set_ADCLSB(const double adclsb) { adcLSB_ = adclsb; }
+  virtual void set_TDCLSB(const double tdclsb) { tdcLSB_ = tdclsb; }
+
+  virtual void set_toaLSBToNS(const double lsb2ns) { toaLSBToNS_ = lsb2ns; }
+
+  virtual void set_tdcOnsetfC(const double tdcOnset) { tdcOnsetfC_ = tdcOnset; }
+
   /// Compute parameters
-   virtual HGCUncalibratedRecHit makeRecHit(
-					      const C& dataFrame 
-    ) {
+  virtual HGCUncalibratedRecHit makeRecHit( const C& dataFrame ) {
+     
     double amplitude_(-1.),  pedestal_(-1.), jitter_(-1.), chi2_(-1.);
     uint32_t flag = 0;
-    double energy = 0;
-
-    //    static const int MAXSAMPLES = 10;
-    //    ROOT::Math::SVector<double,MAXSAMPLES> frame;
-
-    for (int iSample = 0 ; iSample < dataFrame.size(); ++iSample)
-	    {
-	      //	      frame(iSample) = double(dataFrame.sample(iSample).adc());
-	      energy += double(dataFrame.sample(iSample).adc());
-	    }
-
-    amplitude_ = energy; // fast-track simhits propagation
     
+    int iSample=2; //only in-time sample
+    const auto& sample = dataFrame.sample(iSample);
+      
+    bool debug(false);
+
+    // are we using the SiFE Simulation?
+    if( isSiFESim_ ) {
+      // mode == true means TDC readout was activated
+      if( sample.mode() ) {
+	flag       = !sample.threshold();  //raise flag if busy cell
+        // LG (23/06/2015): 
+        //to get a continuous energy spectrum we must add here the maximum value in fC ever
+        //reported by the ADC. Namely: floor(tdcOnset/adcLSB_) * adcLSB_
+        // need to increment by one so TDC doesn't overlap with ADC last bin
+	amplitude_ = ( std::floor(tdcOnsetfC_/adcLSB_) + 1.0 )* adcLSB_ + double(sample.data()) * tdcLSB_;
+	jitter_    = double(sample.toa()) * toaLSBToNS_;
+	if(debug) 
+	  std::cout << "TDC+: set the energy to: " << amplitude_ << ' ' << sample.data() 
+		    << ' ' << tdcLSB_ << std::endl
+		    << "TDC+: set the jitter to: " << jitter_ << ' ' 
+		    << sample.toa() << ' ' << toaLSBToNS_ << ' '
+		    << " flag=" << flag << std::endl;
+      } 
+      else {
+	amplitude_ = double(sample.data()) * adcLSB_;
+	if(debug) std::cout << "ADC+: set the energy to: " << amplitude_ << ' ' << sample.data() 
+			    << ' ' << adcLSB_ << ' ' << std::endl;
+      }
+    }
+    else {
+      amplitude_ = double(sample.data()) * adcLSB_;
+      if(debug) std::cout << "ADC+: set the energy to: " << amplitude_ << ' ' << sample.data() 
+			  << ' ' << adcLSB_ << ' ' << std::endl;
+    }
+    
+    if(debug) std::cout << "Final uncalibrated amplitude : " << amplitude_ << std::endl;
     return HGCUncalibratedRecHit( dataFrame.id(), amplitude_, pedestal_, jitter_, chi2_, flag);
    }
+  
+ private:
+   bool   isSiFESim_;
+   double adcLSB_, tdcLSB_, fCToMIP_, toaLSBToNS_, tdcOnsetfC_;
 };
 #endif

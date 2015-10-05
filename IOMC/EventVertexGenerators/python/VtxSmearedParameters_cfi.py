@@ -436,13 +436,13 @@ HLLHCVtxSmearingParameters14TeV = cms.PSet(
 )
 
 # Paramters for HL-LHC operation
-HLLHCCrabKissingVtxSmearingParameters = cms.PSet(
-    MeanXInmm = cms.double(0.),
-    MeanYInmm = cms.double(0.),
-    MeanZInmm = cms.double(0.),
+HLLHCCrabKissingVtxSmearingParameters = cms.PSet(    
+    MeanXIncm = cms.double(0.),
+    MeanYIncm = cms.double(0.),
+    MeanZIncm = cms.double(0.),
     TimeOffsetInns = cms.double(0.0),
-    EprotoninGeV = cms.double(6500.0),
-    HalfCrossingAngleinurad = cms.double(200.0),
+    EprotonInGeV = cms.double(6500.0),
+    HalfCrossingAngleInurad = cms.double(200.0),
     CrabAngleCrossingPlaneInurad = cms.double(200.0),
     CrabFrequencyCrossingPlaneInMHz = cms.double(400.0),
     NormalizedEmittanceCrossingPlaneInum = cms.double(2.5),
