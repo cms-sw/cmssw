@@ -16,6 +16,7 @@
 #include <getopt.h>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -471,17 +472,55 @@ std::ostream & operator<<(std::ostream & out, TriggerDiff diff) {
 }
 
 
+bool check_file(std::string const & file) {
+  boost::filesystem::path p(file);
+
+  // check if the file exists
+  if (not boost::filesystem::exists(p))
+    return false;
+
+  // resolve the file name to canonical form
+  p = boost::filesystem::canonical(p);
+  if (not boost::filesystem::exists(p))
+    return false;
+
+  // check for a regular file
+  if (not boost::filesystem::is_regular_file(p))
+    return false;
+
+  return true;
+}
+
+
+bool check_files(std::vector<std::string> const & files) {
+  bool flag = true;
+  for (auto const & file: files)
+    if (not check_file(file)) {
+      flag = false;
+      std::cerr << "hltDiff: error: file " << file << " does not exist, or is not a regular file." << std::endl;
+    }
+  return flag;
+}
+
+
 void compare(std::vector<std::string> const & old_files, std::string const & old_process,
              std::vector<std::string> const & new_files, std::string const & new_process,
              unsigned int max_events, bool ignore_prescales, int verbose) {
 
-  std::shared_ptr<fwlite::ChainEvent> old_events = std::make_shared<fwlite::ChainEvent>(old_files);
+  std::shared_ptr<fwlite::ChainEvent> old_events;
   std::shared_ptr<fwlite::ChainEvent> new_events;
+
+  if (check_files(old_files))
+    old_events = std::make_shared<fwlite::ChainEvent>(old_files);
+  else
+    return;
 
   if (new_files.size() == 1 and new_files[0] == "-")
     new_events = old_events;
-  else
+  else if (check_files(new_files))
     new_events = std::make_shared<fwlite::ChainEvent>(new_files);
+  else
+    return;
 
   std::unique_ptr<HLTConfigDataEx> old_config_data;
   std::unique_ptr<HLTConfigDataEx> new_config_data;
