@@ -33,60 +33,90 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Tau> *preGtEtaTaus = new std::vector<l1t::Tau>();
   std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
+  std::vector<l1t::Tau> *unsortedTaus = new std::vector<l1t::Tau>();
+
 
   HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
-  findRegions(subRegions, preGtEtaTaus);
-  TauToGtEtaScales(params_, preGtEtaTaus, preGtTaus);
-  TauToGtPtScales(params_, preGtTaus, taus);
+  findRegions(subRegions, preGtTaus);
+  TauToGtPtScales(params_, preGtTaus, unsortedTaus);
+  SortTaus(unsortedTaus, preGtEtaTaus);
+  TauToGtEtaScales(params_, preGtEtaTaus, taus);
 
   delete subRegions;
   delete preGtTaus;
 
   isoTaus->resize(4);
-  taus->resize(4);
+  //taus->resize(4);
 
-  const bool verbose = false;
+  const bool verbose = true;
+  const bool hex = true;
   if(verbose)
   {
-    std::cout << "Taus" << std::endl;
-    for(std::vector<l1t::Tau>::const_iterator iTau = taus->begin(); iTau != taus->end(); ++iTau)
+    if(hex)
     {
-      unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
-      std::cout << bitset<15>(packed).to_string() << std::endl;
-    }
-    std::cout << "Isolated Taus" << std::endl;
-    for(std::vector<l1t::Tau>::const_iterator iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
-    {
-      unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
-      std::cout << bitset<15>(packed).to_string() << std::endl;
+      l1t::Tau ataus[8];
+      for(std::vector<l1t::Tau>::const_iterator itTau = taus->begin();
+	  itTau != taus->end(); ++itTau){
+	ataus[itTau - taus->begin()] = *itTau;
+      }
+      //std::cout << "Taus (hex)" << std::endl;
+      std::cout << std::hex << pack16bits(ataus[0].hwPt(), ataus[0].hwEta(), ataus[0].hwPhi());
+      std::cout << " ";
+      std::cout << std::hex << pack16bits(ataus[1].hwPt(), ataus[1].hwEta(), ataus[1].hwPhi());
+      // std::cout << " ";
+      // std::cout << std::hex << pack16bits(ataus[4].hwPt(), ataus[4].hwEta(), ataus[4].hwPhi());
+      // std::cout << " ";
+      // std::cout << std::hex << pack16bits(ataus[5].hwPt(), ataus[5].hwEta(), ataus[5].hwPhi());
+      std::cout << std::endl;
+      std::cout << std::hex << pack16bits(ataus[2].hwPt(), ataus[2].hwEta(), ataus[2].hwPhi());
+      std::cout << " ";
+      std::cout << std::hex << pack16bits(ataus[3].hwPt(), ataus[3].hwEta(), ataus[3].hwPhi());
+      // std::cout << " ";
+      // std::cout << std::hex << pack16bits(ataus[6].hwPt(), ataus[6].hwEta(), ataus[6].hwPhi());
+      // std::cout << " ";
+      // std::cout << std::hex << pack16bits(ataus[7].hwPt(), ataus[7].hwEta(), ataus[7].hwPhi());
+      std::cout << std::endl;
+    } else {
+      std::cout << "Taus" << std::endl;
+      for(std::vector<l1t::Tau>::const_iterator iTau = taus->begin(); iTau != taus->end(); ++iTau)
+      {
+	unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
+	std::cout << bitset<15>(packed).to_string() << std::endl;
+      }
+      std::cout << "Isolated Taus" << std::endl;
+      for(std::vector<l1t::Tau>::const_iterator iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
+      {
+	unsigned int packed = pack15bits(iTau->hwPt(), iTau->hwEta(), iTau->hwPhi());
+	std::cout << bitset<15>(packed).to_string() << std::endl;
+      }
     }
   }
-
 }
 
 void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t)
 {
-  int regionETMax = 0;
-  int regionETMaxEta = -1;
-  int regionETMaxPhi = -1;
+  //int regionETMax = 0;
+  //int regionETMaxEta = -1;
+  //int regionETMaxPhi = -1;
 
   for(std::vector<l1t::CaloRegion>::const_iterator region = sr->begin(); region != sr->end(); region++)
   {
-    int regionET = region->hwPt();
+    //int regionET = region->hwPt();
     if((region->hwEta() < 8) || (region->hwEta() > 13)) continue;
-    if (regionET > regionETMax)
-    {
-      regionETMax = regionET;
-      regionETMaxEta = region->hwEta();
-      regionETMaxPhi = region->hwPhi();
-    }
-  }
+    // if (regionET > regionETMax)
+    // {
+    //   regionETMax = regionET;
+    //   regionETMaxEta = region->hwEta();
+    //   regionETMaxPhi = region->hwPhi();
+    // }
+    //}
 
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > TauLorentz(0,0,0,0);
-  l1t::Tau taucand(*&TauLorentz,regionETMax,regionETMaxEta,regionETMaxPhi);
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > TauLorentz(0,0,0,0);
+    //l1t::Tau taucand(*&TauLorentz,regionETMax,regionETMaxEta,regionETMaxPhi);
+    l1t::Tau taucand(*&TauLorentz,region->hwPt(),region->hwEta(),region->hwPhi());
 
-  //don't push a taucand we didn't actually find
-  if(taucand.hwPt() > 0)
+    //don't push a taucand we didn't actually find
+    //if(taucand.hwPt() > 0)
     t->push_back(taucand);
-
+  }
 }
