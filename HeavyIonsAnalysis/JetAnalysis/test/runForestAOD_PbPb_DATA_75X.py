@@ -23,8 +23,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
-                            fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/e5eb8894c0d6aaac6d5717b56f4e5b3e/step2_RAW2DIGI_L1Reco_RECO_10_1_ntO.root")
-                        )
+                            fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/fd44351629dd155a25de2b4c109c824c/RECO_100_1_Uk0.root")                        )
 
 
 # Number of events we want to process, -1 = all events
