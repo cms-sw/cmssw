@@ -978,7 +978,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
     //
     // save & count result
     nrOfTrajectories++;
-    result.emplace_back(seed.direction());
+    result.emplace_back(seed.direction(),seed.nHits());
     TempTrajectory & reversedTrajectory = result.back();
     reversedTrajectory.setNLoops(it->nLoops());
     for (TempTrajectory::DataContainer::const_iterator im=newMeasurements.rbegin(), ed = newMeasurements.rend();
@@ -1097,7 +1097,7 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
 
 
   LogDebug("CkfPattern")<<"Obtained bwdFitted trajectory with measurement size " << bwdFitted.measurements().size();
-  TempTrajectory fitted(fwdTraj.direction());
+  TempTrajectory fitted(fwdTraj.direction(),fwdTraj.seedNHits());
   fitted.setNLoops(fwdTraj.nLoops());
   vector<TM> const & tmsbf = bwdFitted.measurements();
   int iDetLayer=0;
