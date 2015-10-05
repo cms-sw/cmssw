@@ -80,6 +80,7 @@ class APVShotsFilter : public edm::EDFilter {
 
   bool _selectAPVshots;
 
+  std::vector<uint32_t> detlist;
   bool _zs;
   int _nevents;
 
@@ -177,6 +178,18 @@ APVShotsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      //get the fedid from the detid
      uint32_t det=shot->detId();
+
+     if (detlist.size()==0) detlist.push_back(det);
+     else {
+       for (uint k=0; k!=detlist.size(); k++){
+	 if (det==detlist[k]) break;
+	 else detlist.push_back(det);
+       }
+     }
+
+     std::cout << "detId with shots " << det << std::endl;
+
+
      if (_useCabling){
        
        int apvPair = shot->apvNumber()/2;
@@ -249,7 +262,11 @@ void
 APVShotsFilter::endJob() {
 
   edm::LogInfo("APVShotsFilter") << _nevents << " analyzed events";
-
+  std::cout << "Dets with shots: " << std::endl;
+   for (uint k=0; k!=detlist.size(); k++){
+     std::cout << detlist[k] << " " ;
+   }
+   std::cout << std::endl;
 }
 
 // ------------ method called when starting to processes a run  ------------
