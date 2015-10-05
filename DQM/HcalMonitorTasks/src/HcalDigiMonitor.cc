@@ -9,7 +9,7 @@
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 
 // constructor
-HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps), topo_(0) {
+HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps) {
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
   enableCleanup_         = ps.getUntrackedParameter<bool>("enableCleanup",false);
@@ -99,9 +99,7 @@ HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(
 }
 
 // destructor
-HcalDigiMonitor::~HcalDigiMonitor() {
-  if (topo_) delete topo_;
-}
+HcalDigiMonitor::~HcalDigiMonitor() { }
 
 // Checks capid rotation; returns false if no problems with rotation
 static bool bitUpset(int last, int now){
@@ -1160,12 +1158,6 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   return err;
 } // template <class DIGI> int HcalDigiMonitor::process_Digi
 
-void HcalDigiMonitor::beginRun(const edm::EventSetup& c) {
-  edm::ESHandle<HcalTopology> htopo;
-  c.get<HcalRecNumberingRecord>().get(htopo);
-  topo_  = new HcalTopology(*htopo);
-}
-
 void HcalDigiMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					     const edm::EventSetup& c) {
   HcalBaseDQMonitor::beginLuminosityBlock(lumiSeg,c);
@@ -1189,15 +1181,17 @@ void HcalDigiMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   else 
     alarmer_counter_ = 0;
 
-  fill_Nevents();
+  edm::ESHandle<HcalTopology> topo;
+  c.get<HcalRecNumberingRecord>().get(topo);
+
+  fill_Nevents(*topo);
 
   zeroCounters(); // reset counters of good/bad digis
  
   return;
 }
 
-void HcalDigiMonitor::fill_Nevents()
-{
+void HcalDigiMonitor::fill_Nevents(const HcalTopology& topology) {
   if (debug_>0)
     std::cout <<"<HcalDigiMonitor> Calling fill_Nevents for event  "<<tevt_<< " (processed events = "<<ievt_<<")"<<std::endl;
   int iPhi, iEta, iDepth;
@@ -1392,7 +1386,7 @@ void HcalDigiMonitor::fill_Nevents()
 	//	      valid=false;
 	
 	// HB
-	if (validDetId(HcalBarrel, iEta, iPhi, iDepth)) {
+	if (topology.validDetId(HcalBarrel, iEta, iPhi, iDepth)) {
 	  //		  valid=true;
 	  if (HBpresent_) {
 	    int calcEta = CalcEtaBin(HcalBarrel,iEta,iDepth);
@@ -1419,7 +1413,7 @@ void HcalDigiMonitor::fill_Nevents()
 	  } // if (HBpresent_)
 	} // validDetId(HB)
 	// HE
-	if (validDetId(HcalEndcap, iEta, iPhi, iDepth)) {
+	if (topology.validDetId(HcalEndcap, iEta, iPhi, iDepth)) {
 	  //		  valid=true;
 	  if (HEpresent_) {
 	    int calcEta = CalcEtaBin(HcalEndcap,iEta,iDepth);
@@ -1444,7 +1438,7 @@ void HcalDigiMonitor::fill_Nevents()
 	  } // if (HEpresent_)
 	} // valid HE found
 	// HO
-	if (validDetId(HcalOuter,iEta,iPhi,iDepth)) {
+	if (topology.validDetId(HcalOuter,iEta,iPhi,iDepth)) {
 	  //		  valid=true;
 	  if (HOpresent_) {
 	    int calcEta = CalcEtaBin(HcalOuter,iEta,iDepth);
@@ -1468,7 +1462,7 @@ void HcalDigiMonitor::fill_Nevents()
 	  } // if (HOpresent_)
 	}//validDetId(HO)
 	// HF
-	if (validDetId(HcalForward,iEta,iPhi,iDepth)) {
+	if (topology.validDetId(HcalForward,iEta,iPhi,iDepth)) {
 	  //		  valid=true;
 	  if (HFpresent_) {
 	    int calcEta = CalcEtaBin(HcalForward,iEta,iDepth);
@@ -1512,7 +1506,7 @@ void HcalDigiMonitor::fill_Nevents()
   //  zeroCounters(); // reset counters of good/bad digis
  
   return;
-} // void HcalDigiMonitor::fill_Nevents()
+} // void HcalDigiMonitor::fill_Nevents(const HcalTopology&)
 
 
 void HcalDigiMonitor::zeroCounters()

@@ -44,8 +44,6 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
   // analyze function
   void analyze(edm::Event const&e, edm::EventSetup const&s);
 
-  void beginRun(edm::EventSetup const & c);
-
   // Begin LumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                             const edm::EventSetup& c) ;
@@ -73,14 +71,13 @@ class HcalHotCellMonitor: public HcalBaseDQMonitor {
 
 
 private:
-  void fillNevents_neighbor();
-  void fillNevents_energy();
-  void fillNevents_persistentenergy();
+  void fillNevents_neighbor(const HcalTopology&);
+  void fillNevents_energy(const HcalTopology&);
+  void fillNevents_persistentenergy(const HcalTopology&);
   
-  void fillNevents_problemCells();
+  void fillNevents_problemCells(const HcalTopology&);
   void zeroCounters();
 
-  const HcalTopology* topo_;
   int minEvents_; // minimum # of events in a lumi block before persistent test will be checked
   // Booleans to control which of the three hot cell checking routines are used
   bool test_neighbor_;
