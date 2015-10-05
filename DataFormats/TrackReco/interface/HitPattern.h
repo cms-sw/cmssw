@@ -132,6 +132,12 @@
 
 class TrackerTopology;
 
+namespace test {
+  namespace TestHitPattern {
+    int test();
+  }
+}
+
 namespace reco
 {
 
@@ -459,6 +465,11 @@ private:
     uint8_t endInner;
     uint8_t beginOuter;
     uint8_t endOuter;
+
+  friend int test::TestHitPattern::test();
+
+  template<int N>
+  friend struct PatternSet;
 };
 
 inline std::pair<uint8_t, uint8_t> HitPattern::getCategoryIndexRange(HitCategory category) const
