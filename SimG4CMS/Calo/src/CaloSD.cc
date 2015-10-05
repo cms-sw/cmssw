@@ -24,7 +24,7 @@
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
         const SensitiveDetectorCatalog & clg,
         edm::ParameterSet const & p, const SimTrackManager* manager,
-        double timeSliceUnit, bool ignoreTkID) : 
+        float timeSliceUnit, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
   G4VGFlashSensitiveDetector(), theTrack(0), preStepPoint(0), eminHit(0), 
   eminHitD(0), m_trackManager(manager), currentHit(0), runInit(false),
