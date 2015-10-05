@@ -34,7 +34,7 @@ namespace reco {
       
     public:
       explicit UnaryMinusEvaluator(std::unique_ptr<EvaluatorBase> iArg):
-      EvaluatorBase(Precidence::kUnaryMinusOperator ),
+      EvaluatorBase(Precedence::kUnaryMinusOperator ),
       m_arg(std::move(iArg)) {}
        
       // ---------- const member functions ---------------------
