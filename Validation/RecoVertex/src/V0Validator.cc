@@ -33,10 +33,10 @@ V0Validator::V0Validator(const edm::ParameterSet& iConfig)
           iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
       recoSimToRecoCollectionToken_(consumes<reco::SimToRecoCollection>(
           iConfig.getUntrackedParameter<edm::InputTag>("trackAssociatorMap"))),
-      trackingParticleCollection_Eff_Token_(
-          consumes<TrackingParticleCollection>(
+      trackingVertexCollection_Token_(
+          consumes<TrackingVertexCollection>(
               iConfig.getUntrackedParameter<edm::InputTag>(
-                  "trackingParticleCollectionEff"))),
+                  "trackingVertexCollection"))),
       vec_recoVertex_Token_(consumes<std::vector<reco::Vertex> >(
           iConfig.getUntrackedParameter<edm::InputTag>("vertexCollection"))),
       recoVertexCompositeCandidateCollection_k0s_Token_(
@@ -47,9 +47,6 @@ V0Validator::V0Validator(const edm::ParameterSet& iConfig)
           consumes<reco::VertexCompositeCandidateCollection>(
               iConfig.getUntrackedParameter<edm::InputTag>(
                   "lambdaCollection"))) {
-  genLam = genK0s = realLamFoundEff = realK0sFoundEff = lamCandFound =
-      k0sCandFound = noTPforK0sCand = noTPforLamCand = realK0sFound =
-          realLamFound = 0;
 }
 
 V0Validator::~V0Validator() {}
@@ -60,110 +57,108 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   std::string subDirName = V0Validator::dirName + "/EffFakes";
   ibooker.setCurrentFolder(subDirName.c_str());
 
-  // Ks Plots follow
-
-  ksEffVsR_num = ibooker.book1D("K0sEffVsR_num", "K^{0}_{S} Efficiency vs #rho",
+  candidateEffVsR_num_[V0Validator::KSHORT] = ibooker.book1D("K0sEffVsR_num", "K^{0}_{S} Efficiency vs #rho",
                                 40, 0., 40.);
-  ksEffVsEta_num = ibooker.book1D(
+  candidateEffVsEta_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sEffVsEta_num", "K^{0}_{S} Efficiency vs #eta", 40, -2.5, 2.5);
-  ksEffVsPt_num = ibooker.book1D("K0sEffVsPt_num",
+  candidateEffVsPt_num_[V0Validator::KSHORT] = ibooker.book1D("K0sEffVsPt_num",
                                  "K^{0}_{S} Efficiency vs p_{T}", 70, 0., 20.);
 
-  ksTkEffVsR_num = ibooker.book1D(
+  candidateTkEffVsR_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sTkEffVsR_num", "K^{0}_{S} Tracking Efficiency vs #rho", 40, 0., 40.);
-  ksTkEffVsEta_num =
+  candidateTkEffVsEta_num_[V0Validator::KSHORT] =
       ibooker.book1D("K0sTkEffVsEta_num",
                      "K^{0}_{S} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
-  ksTkEffVsPt_num =
+  candidateTkEffVsPt_num_[V0Validator::KSHORT] =
       ibooker.book1D("K0sTkEffVsPt_num",
                      "K^{0}_{S} Tracking Efficiency vs p_{T}", 70, 0., 20.);
 
-  ksEffVsR_denom = ibooker.book1D("K0sEffVsR_denom",
+  candidateEffVsR_denom_[V0Validator::KSHORT] = ibooker.book1D("K0sEffVsR_denom",
                                   "K^{0}_{S} Efficiency vs #rho", 40, 0., 40.);
-  ksEffVsEta_denom = ibooker.book1D(
+  candidateEffVsEta_denom_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sEffVsEta_denom", "K^{0}_{S} Efficiency vs #eta", 40, -2.5, 2.5);
-  ksEffVsPt_denom = ibooker.book1D(
+  candidateEffVsPt_denom_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sEffVsPt_denom", "K^{0}_{S} Efficiency vs p_{T}", 70, 0., 20.);
 
-  ksFakeVsR_num = ibooker.book1D("K0sFakeVsR_num",
+  candidateFakeVsR_num_[V0Validator::KSHORT] = ibooker.book1D("K0sFakeVsR_num",
                                  "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
-  ksFakeVsEta_num = ibooker.book1D(
+  candidateFakeVsEta_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sFakeVsEta_num", "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksFakeVsPt_num = ibooker.book1D("K0sFakeVsPt_num",
+  candidateFakeVsPt_num_[V0Validator::KSHORT] = ibooker.book1D("K0sFakeVsPt_num",
                                   "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
-  ksTkFakeVsR_num = ibooker.book1D(
+  candidateTkFakeVsR_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sTkFakeVsR_num", "K^{0}_{S} Tracking Fake Rate vs #rho", 40, 0., 40.);
-  ksTkFakeVsEta_num =
+  candidateTkFakeVsEta_num_[V0Validator::KSHORT] =
       ibooker.book1D("K0sTkFakeVsEta_num",
                      "K^{0}_{S} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksTkFakeVsPt_num =
+  candidateTkFakeVsPt_num_[V0Validator::KSHORT] =
       ibooker.book1D("K0sTkFakeVsPt_num",
                      "K^{0}_{S} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
-  ksFakeVsR_denom = ibooker.book1D("K0sFakeVsR_denom",
+  candidateFakeVsR_denom_[V0Validator::KSHORT] = ibooker.book1D("K0sFakeVsR_denom",
                                    "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
-  ksFakeVsEta_denom = ibooker.book1D(
+  candidateFakeVsEta_denom_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sFakeVsEta_denom", "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
-  ksFakeVsPt_denom = ibooker.book1D(
+  candidateFakeVsPt_denom_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sFakeVsPt_denom", "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
 
   // Lambda Plots follow
 
-  lamEffVsR_num = ibooker.book1D("LamEffVsR_num",
+  candidateEffVsR_num_[V0Validator::LAMBDA] = ibooker.book1D("LamEffVsR_num",
                                  "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
-  lamEffVsEta_num = ibooker.book1D(
+  candidateEffVsEta_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsEta_num", "#Lambda^{0} Efficiency vs #eta", 40, -2.5, 2.5);
-  lamEffVsPt_num = ibooker.book1D(
+  candidateEffVsPt_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsPt_num", "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
 
-  lamTkEffVsR_num = ibooker.book1D(
+  candidateTkEffVsR_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamTkEffVsR_num", "#Lambda^{0} TrackingEfficiency vs #rho", 40, 0., 40.);
-  lamTkEffVsEta_num =
+  candidateTkEffVsEta_num_[V0Validator::LAMBDA] =
       ibooker.book1D("LamTkEffVsEta_num",
                      "#Lambda^{0} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
-  lamTkEffVsPt_num =
+  candidateTkEffVsPt_num_[V0Validator::LAMBDA] =
       ibooker.book1D("LamTkEffVsPt_num",
                      "#Lambda^{0} Tracking Efficiency vs p_{T}", 70, 0., 20.);
 
-  lamEffVsR_denom = ibooker.book1D(
+  candidateEffVsR_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsR_denom", "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
-  lamEffVsEta_denom = ibooker.book1D(
+  candidateEffVsEta_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsEta_denom", "#Lambda^{0} Efficiency vs #eta", 40, -2.5, 2.5);
-  lamEffVsPt_denom = ibooker.book1D(
+  candidateEffVsPt_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsPt_denom", "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
 
 
-  lamFakeVsR_num = ibooker.book1D("LamFakeVsR_num",
+  candidateFakeVsR_num_[V0Validator::LAMBDA] = ibooker.book1D("LamFakeVsR_num",
                                   "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
-  lamFakeVsEta_num = ibooker.book1D(
+  candidateFakeVsEta_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamFakeVsEta_num", "#Lambda^{0} Fake Rate vs #eta", 40, -2.5, 2.5);
-  lamFakeVsPt_num = ibooker.book1D(
+  candidateFakeVsPt_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamFakeVsPt_num", "#Lambda^{0} Fake Rate vs p_{T}", 70, 0., 20.);
-  lamTkFakeVsR_num =
+  candidateTkFakeVsR_num_[V0Validator::LAMBDA] =
       ibooker.book1D("LamTkFakeVsR_num",
                      "#Lambda^{0} Tracking Fake Rate vs #rho", 40, 0., 40.);
-  lamTkFakeVsEta_num =
+  candidateTkFakeVsEta_num_[V0Validator::LAMBDA] =
       ibooker.book1D("LamTkFakeVsEta_num",
                      "#Lambda^{0} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
-  lamTkFakeVsPt_num =
+  candidateTkFakeVsPt_num_[V0Validator::LAMBDA] =
       ibooker.book1D("LamTkFakeVsPt_num",
                      "#Lambda^{0} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
-  lamFakeVsR_denom = ibooker.book1D(
+  candidateFakeVsR_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamFakeVsR_denom", "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
-  lamFakeVsEta_denom = ibooker.book1D(
+  candidateFakeVsEta_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamFakeVsEta_denom", "#Lambda^{0} Fake Rate vs #eta", 40, -2.5, 2.5);
-  lamFakeVsPt_denom = ibooker.book1D(
+  candidateFakeVsPt_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamFakeVsPt_denom", "#Lambda^{0} Fake Rate vs p_{T}", 70, 0., 20.);
 
   ibooker.cd();
   subDirName = dirName + "/Other";
   ibooker.setCurrentFolder(subDirName.c_str());
 
-  nKs = ibooker.book1D("nK0s", "Number of K^{0}_{S} found per event", 60, 0.,
-                       60.);
-  nLam = ibooker.book1D("nLam", "Number of #Lambda^{0} found per event", 60, 0.,
-                        60.);
+  nCandidates_[V0Validator::KSHORT] = ibooker.book1D("nK0s", "Number of K^{0}_{S} found per event", 60, 0.,
+                                   60.);
+  nCandidates_[V0Validator::LAMBDA] = ibooker.book1D("nLam", "Number of #Lambda^{0} found per event", 60, 0.,
+                                   60.);
 
   ksXResolution =
       ibooker.book1D("ksXResolution",
@@ -192,9 +187,9 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
       "Resolution of absolute distance from primary vertex to V0 vertex", 100,
       0., 50.);
 
-  ksCandStatus =
+  candidateStatus_[V0Validator::KSHORT] =
       ibooker.book1D("ksCandStatus", "Fake type by cand status", 10, 0., 10.);
-  lamCandStatus =
+  candidateStatus_[V0Validator::LAMBDA] =
       ibooker.book1D("ksCandStatus", "Fake type by cand status", 10, 0., 10.);
 
   double minKsMass = 0.49767 - 0.07;
@@ -208,12 +203,12 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   double lamMassXmin = minLamMass;
   double lamMassXmax = maxLamMass;
 
-  fakeKsMass = ibooker.book1D("ksMassFake", "Mass of fake K0S", ksMassNbins,
-                              minKsMass, maxKsMass);
+  fakeCandidateMass_[V0Validator::KSHORT] = ibooker.book1D("ksMassFake", "Mass of fake K0S", ksMassNbins,
+                                                      minKsMass, maxKsMass);
+  fakeCandidateMass_[V0Validator::LAMBDA] = ibooker.book1D("lamMassFake", "Mass of fake Lambda",
+                                                      lamMassNbins, minLamMass, maxLamMass);
   goodKsMass = ibooker.book1D("ksMassGood", "Mass of good reco K0S",
                               ksMassNbins, minKsMass, maxKsMass);
-  fakeLamMass = ibooker.book1D("lamMassFake", "Mass of fake Lambda",
-                               lamMassNbins, minLamMass, maxLamMass);
   goodLamMass = ibooker.book1D("lamMassGood", "Mass of good Lambda",
                                lamMassNbins, minLamMass, maxLamMass);
 
@@ -222,12 +217,235 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   lamMassAll = ibooker.book1D("lamMassAll", "Invariant mass of all #Lambda^{0}",
                               lamMassNbins, lamMassXmin, lamMassXmax);
 
-  ksFakeDauRadDist = ibooker.book1D(
+  candidateFakeDauRadDist_[V0Validator::KSHORT] = ibooker.book1D(
       "radDistFakeKs", "Production radius of daughter particle of Ks fake", 100,
       0., 15.);
-  lamFakeDauRadDist = ibooker.book1D(
+  candidateFakeDauRadDist_[V0Validator::LAMBDA] = ibooker.book1D(
       "radDistFakeLam", "Production radius of daughter particle of Lam fake",
       100, 0., 15.);
+}
+
+void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection & collection,
+                              const reco::RecoToSimCollection & recotosimCollection,
+                              V0Type v0_type,
+                              int particle_pdgid,
+                              int misreconstructed_particle_pdgid) {
+  using namespace edm;
+
+  int numCandidateFound = 0;
+  int realCandidateFound = 0;
+  double mass = 0.;
+  float CandidatepT = 0.;
+  float CandidateEta = 0.;
+  float CandidateR = 0.;
+  int CandidateStatus = 0;
+  const unsigned int NUM_DAUGHTERS = 2;
+  if (collection.size() > 0) {
+    for (reco::VertexCompositeCandidateCollection::const_iterator iCandidate =
+             collection.begin();
+         iCandidate != collection.end(); iCandidate++) {
+      // Fill mass of all Candidates
+      ksMassAll->Fill(iCandidate->mass());
+      // Fill values to be histogrammed
+      CandidatepT = (sqrt(iCandidate->momentum().perp2()));
+      CandidateEta = iCandidate->momentum().eta();
+      CandidateR = (sqrt(iCandidate->vertex().perp2()));
+      CandidateStatus = 0;
+      mass = iCandidate->mass();
+
+      std::array<reco::TrackRef, NUM_DAUGHTERS> theDaughterTracks = { {
+        (*(dynamic_cast<const reco::RecoChargedCandidate*>(
+            iCandidate->daughter(0)))).track(),
+        (*(dynamic_cast<const reco::RecoChargedCandidate*>(
+            iCandidate->daughter(1)))).track()} };
+
+      std::vector<std::pair<TrackingParticleRef, double> > tp;
+      TrackingParticleRef tpref;
+      TrackingParticleRef firstDauTP;
+      TrackingVertexRef candidateVtx;
+
+      std::array<double, NUM_DAUGHTERS> radDist;
+      // Loop through candidate's daugher tracks
+      for (View<reco::Track>::size_type i = 0; i < theDaughterTracks.size();
+           ++i) {
+        radDist = {{-1., -1.}};
+        // Found track from theDaughterTracks
+        RefToBase<reco::Track> track(theDaughterTracks.at(i));
+
+        if (recotosimCollection.find(track) != recotosimCollection.end()) {
+          tp = recotosimCollection[track];
+          if (tp.size() != 0) {
+            tpref = tp.begin()->first;
+
+            TrackingVertexRef parentVertex = tpref->parentVertex();
+            if (parentVertex.isNonnull()) {
+              radDist[i] = parentVertex->position().R();
+              if (candidateVtx.isNonnull()) {
+                if (candidateVtx->position() == parentVertex->position()) {
+                  if (parentVertex->nDaughterTracks() == 2) {
+                    if (parentVertex->nSourceTracks() == 0) {
+                      // No source tracks found for candidate's vertex; shouldn't
+                      // happen, but does for evtGen events
+                      CandidateStatus = 6;
+                    }
+
+                    for (TrackingVertex::tp_iterator iTP =
+                             parentVertex->sourceTracks_begin();
+                         iTP != parentVertex->sourceTracks_end(); iTP++) {
+                      if ((*iTP)->pdgId() == particle_pdgid) {
+                        CandidateStatus = 1;
+                        realCandidateFound++;
+                        numCandidateFound += 1.;
+                        // std::pair<TrackingParticleRef, TrackingParticleRef>
+                        //     pair(firstDauTP, tpref);
+                        // // Pushing back a good V0
+                        // trueCandidates.push_back(pair);
+                        // trueCandidateMasses.push_back(mass);
+                      } else {
+                        CandidateStatus = 2;
+                        if ((*iTP)->pdgId() == misreconstructed_particle_pdgid) {
+                          CandidateStatus = 7;
+                        }
+                      }
+                    }
+                  } else {
+                    // Found a bad match because the mother has too many
+                    // daughters
+                    CandidateStatus = 3;
+                  }
+                } else {
+                  // Found a bad match because the parent vertices from the two
+                  // tracks are different
+                  CandidateStatus = 4;
+                }
+              } else {
+                // if candidateVtx is null, fill it with parentVertex to compare to
+                // the parentVertex from the second track
+                candidateVtx = parentVertex;
+                firstDauTP = tpref;
+              }
+            }  // parent vertex is null
+          }  // check on associated tp size zero
+        } else {
+          CandidateStatus = 5;
+        }
+      } // Loop on K0s daughter tracks
+
+      // fill the fake rate histograms
+      if (CandidateStatus > 1) {
+        candidateFakeVsR_num_[v0_type]->Fill(CandidateR);
+        candidateFakeVsEta_num_[v0_type]->Fill(CandidateEta);
+        candidateFakeVsPt_num_[v0_type]->Fill(CandidatepT);
+        candidateStatus_[v0_type]->Fill((float)CandidateStatus);
+        fakeCandidateMass_[v0_type]->Fill(mass);
+        for (auto distance : radDist) {
+          if (distance > 0)
+            candidateFakeDauRadDist_[v0_type]->Fill(distance);
+        }
+      }
+      if (CandidateStatus == 5) {
+        candidateTkFakeVsR_num_[v0_type]->Fill(CandidateR);
+        candidateTkFakeVsEta_num_[v0_type]->Fill(CandidateEta);
+        candidateTkFakeVsPt_num_[v0_type]->Fill(CandidatepT);
+      }
+      candidateFakeVsR_denom_[v0_type]->Fill(CandidateR);
+      candidateFakeVsEta_denom_[v0_type]->Fill(CandidateEta);
+      candidateFakeVsPt_denom_[v0_type]->Fill(CandidatepT);
+    } // Loop on K0s candidates
+  } // check on presence of K0s collection in the event
+  nCandidates_[v0_type]->Fill((float)numCandidateFound);
+}
+
+void V0Validator::doEfficiencies(const TrackingVertexCollection & gen_vertices,
+                                 V0Type v0_type,
+                                 int parent_particle_id,
+                                 int first_daughter_id, /* give only positive charge */
+                                 int second_daughter_id, /* give only positive charge */
+                                 const reco::VertexCompositeCandidateCollection & collection,
+                                 const reco::SimToRecoCollection & simtorecoCollection) {
+  /* We store the TrackRef of the tracks that have been used to
+   * produce the V0 under consideration here. This is used later to
+   * check if a specific V0 has been really reconstructed or not. The
+   * ordering is based on the key_index of the reference, since it
+   * indeed does not matter that much. */
+
+  std::set<V0Couple> reconstructed_V0_couples;
+  if (collection.size() > 0) {
+    for (reco::VertexCompositeCandidateCollection::const_iterator iCandidate =
+             collection.begin();
+         iCandidate != collection.end(); iCandidate++) {
+      reconstructed_V0_couples.insert(V0Couple(
+          (dynamic_cast<const reco::RecoChargedCandidate*>(
+              iCandidate->daughter(0)))->track(),
+              (dynamic_cast<const reco::RecoChargedCandidate*>(
+                  iCandidate->daughter(1)))->track()));
+    }
+  }
+
+  /* PSEUDO CODE
+     for v in gen_vertices
+       if v.eventId().BX() !=0 continue
+       if v.nDaughterTracks != 2 continue
+       for source in v.sourceTracks_begin
+         if source is parent_particle_id
+          for daughter in v.daughterTracks_begin
+           if daughter in region_and_kine_cuts
+             decay_found
+   */
+  unsigned int candidateEff[2] = {0, 0};
+  for (auto const & gen_vertex : gen_vertices) {
+    if (gen_vertex.eventId().bunchCrossing() != 0) continue;  // Consider only in-time events
+    if (gen_vertex.nDaughterTracks() != 2) continue;  // Keep only V0 vertices
+    for (TrackingVertex::tp_iterator source = gen_vertex.sourceTracks_begin();
+         source != gen_vertex.sourceTracks_end(); ++source) {
+      if (std::abs((*source)->pdgId()) == parent_particle_id) {
+        if ( (std::abs((gen_vertex.daughterTracks().at(0))->pdgId()) == first_daughter_id &&
+              std::abs((gen_vertex.daughterTracks().at(1))->pdgId()) == second_daughter_id) ||
+             (std::abs((gen_vertex.daughterTracks().at(0))->pdgId()) == second_daughter_id &&
+              std::abs((gen_vertex.daughterTracks().at(1))->pdgId()) == first_daughter_id) ) {
+          if ( (std::abs((gen_vertex.daughterTracks().at(0))->momentum().eta()) < 2.4 &&
+                gen_vertex.daughterTracks().at(0)->pt() > 0.9) &&
+               (std::abs((gen_vertex.daughterTracks().at(1))->momentum().eta()) < 2.4 &&
+                gen_vertex.daughterTracks().at(1)->pt() > 0.9) ) {
+            // found desired generated Candidate
+            float candidateGenpT = sqrt((*source)->momentum().perp2());
+            float candidateGenEta = (*source)->momentum().eta();
+            float candidateGenR = sqrt((*source)->vertex().perp2());
+            candidateEffVsPt_denom_[v0_type]->Fill(candidateGenpT);
+            candidateEffVsEta_denom_[v0_type]->Fill(candidateGenEta);
+            candidateEffVsR_denom_[v0_type]->Fill(candidateGenR);
+
+            std::array<reco::TrackRef, 2> reco_daughter;
+
+            for (unsigned int daughter = 0; daughter < 2; ++daughter) {
+              if (simtorecoCollection.find(gen_vertex.daughterTracks()[daughter]) !=
+                  simtorecoCollection.end()) {
+                // rt = (std::vector<
+                //       std::pair<edm::RefToBase<reco::Track>,
+                //       double> >)simtorecoCollection[gen_vertex.daughterTracks()[daughter]];
+                if (simtorecoCollection[gen_vertex.daughterTracks()[daughter]].size() != 0) {
+                  candidateEff[daughter] = 1;  // Found a daughter track
+                  reco_daughter[daughter] =
+                      simtorecoCollection[gen_vertex.daughterTracks()[daughter]].begin()
+                      ->first.castTo<reco::TrackRef>();
+                }
+              } else {
+                candidateEff[daughter] = 2;  // First daughter not found
+              }
+            }
+            if ( (candidateEff[0] == 1 && candidateEff[1] == 1)
+                 && (
+                     reconstructed_V0_couples.find(V0Couple(reco_daughter[0], reco_daughter[1]))
+                     != reconstructed_V0_couples.end())) {
+              candidateEffVsPt_num_[v0_type]->Fill(candidateGenpT);
+              candidateEffVsEta_num_[v0_type]->Fill(candidateGenEta);
+              candidateEffVsR_num_[v0_type]->Fill(candidateGenR);
+            }
+          }  // Check that daughters are inside the desired kinematic region
+        }  // Check decay products of the current generatex vertex
+      }  // Check pdgId of the source of the current generated vertex
+    }  // Loop over all sources of the current generated vertex
+  }  // Loop over all generated vertices
 }
 
 void V0Validator::analyze(const edm::Event& iEvent,
@@ -250,9 +468,9 @@ void V0Validator::analyze(const edm::Event& iEvent,
   Handle<reco::SimToRecoCollection> simtorecoCollectionH;
   iEvent.getByToken(recoSimToRecoCollectionToken_, simtorecoCollectionH);
 
-  edm::Handle<TrackingParticleCollection> TPCollectionEff;
-  iEvent.getByToken(trackingParticleCollection_Eff_Token_, TPCollectionEff);
-  const TrackingParticleCollection& tPCeff = *(TPCollectionEff.product());
+  // Get Monte Carlo information
+  edm::Handle<TrackingVertexCollection> TVCollectionH;
+  iEvent.getByToken(trackingVertexCollection_Token_, TVCollectionH);
 
   // Select the primary vertex, create a new reco::Vertex to hold it
   edm::Handle<std::vector<reco::Vertex> > primaryVtxCollectionH;
@@ -279,567 +497,21 @@ void V0Validator::analyze(const edm::Event& iEvent,
   iEvent.getByToken(recoVertexCompositeCandidateCollection_lambda_Token_,
                     lambdaCollection);
 
-  // make vector of pair of trackingParticles to hold good V0 candidates
-  std::vector<pair<TrackingParticleRef, TrackingParticleRef> > trueK0s;
-  std::vector<pair<TrackingParticleRef, TrackingParticleRef> > trueLams;
-  std::vector<double> trueKsMasses;
-  std::vector<double> trueLamMasses;
+  // Do fake rate and efficiency calculation
 
-  //////////////////////////////
-  // Do fake rate calculation //
-  //////////////////////////////
 
-  // Kshorts
-  double numK0sFound = 0.;
-  double mass = 0.;
-  unsigned int K0sPiEff[2] = {0, 0};
-  unsigned int LamPiEff[2] = {0, 0};
-  const unsigned int NUM_DAUGHTERS = 2;
-  if (k0sCollection->size() > 0) {
-    for (reco::VertexCompositeCandidateCollection::const_iterator iK0s =
-             k0sCollection->begin();
-         iK0s != k0sCollection->end(); iK0s++) {
-      // Fill mass of all K0S
-      ksMassAll->Fill(iK0s->mass());
-      // Fill values to be histogrammed
-      K0sCandpT = (sqrt(iK0s->momentum().perp2()));
-      K0sCandEta = iK0s->momentum().eta();
-      K0sCandR = (sqrt(iK0s->vertex().perp2()));
-      K0sCandStatus = 0;
-      mass = iK0s->mass();
-
-      std::array<reco::TrackRef, NUM_DAUGHTERS> theDaughterTracks = { {
-        (*(dynamic_cast<const reco::RecoChargedCandidate*>(
-            iK0s->daughter(0)))).track(),
-        (*(dynamic_cast<const reco::RecoChargedCandidate*>(
-            iK0s->daughter(1)))).track()} };
-
-      std::vector<std::pair<TrackingParticleRef, double> > tp;
-      TrackingParticleRef tpref;
-      TrackingParticleRef firstDauTP;
-      TrackingVertexRef k0sVtx;
-
-      std::array<double, NUM_DAUGHTERS> radDist;
-      // Loop through K0s candidate daugher tracks
-      for (View<reco::Track>::size_type i = 0; i < theDaughterTracks.size();
-           ++i) {
-        radDist = {{-1., -1.}};
-        // Found track from theDaughterTracks
-        RefToBase<reco::Track> track(theDaughterTracks.at(i));
-
-        if (recotosimCollectionH->find(track) != recotosimCollectionH->end()) {
-          tp = (*recotosimCollectionH)[track];
-          if (tp.size() != 0) {
-            tpref = tp.begin()->first;
-
-            TrackingVertexRef parentVertex = tpref->parentVertex();
-            if (parentVertex.isNonnull()) {
-              radDist[i] = parentVertex->position().R();
-              if (k0sVtx.isNonnull()) {
-                if (k0sVtx->position() == parentVertex->position()) {
-                  if (parentVertex->nDaughterTracks() == 2) {
-                    if (parentVertex->nSourceTracks() == 0) {
-                      // No source tracks found for K0s vertex; shouldn't
-                      // happen, but does for evtGen events
-                      K0sCandStatus = 6;
-                    }
-
-                    for (TrackingVertex::tp_iterator iTP =
-                             parentVertex->sourceTracks_begin();
-                         iTP != parentVertex->sourceTracks_end(); iTP++) {
-                      if ((*iTP)->pdgId() == 310) {
-                        K0sCandStatus = 1;
-                        realK0sFound++;
-                        numK0sFound += 1.;
-                        std::pair<TrackingParticleRef, TrackingParticleRef>
-                            pair(firstDauTP, tpref);
-                        // Pushing back a good V0
-                        trueK0s.push_back(pair);
-                        trueKsMasses.push_back(mass);
-                      } else {
-                        K0sCandStatus = 2;
-                        if ((*iTP)->pdgId() == 3122) {
-                          K0sCandStatus = 7;
-                        }
-                      }
-                    }
-                  } else {
-                    // Found a bad match because the mother has too many
-                    // daughters
-                    K0sCandStatus = 3;
-                  }
-                } else {
-                  // Found a bad match because the parent vertices from the two
-                  // tracks are different
-                  K0sCandStatus = 4;
-                }
-              } else {
-                // if k0sVtx is null, fill it with parentVertex to compare to
-                // the parentVertex from the second track
-                k0sVtx = parentVertex;
-                firstDauTP = tpref;
-              }
-            }  // parent vertex is null
-          }  // check on associated tp size zero
-        } else {
-          noTPforK0sCand++;
-          K0sCandStatus = 5;
-        }
-      } // Loop on K0s daughter tracks
-
-      // fill the fake rate histograms
-      if (K0sCandStatus > 1) {
-        ksFakeVsR_num->Fill(K0sCandR);
-        ksFakeVsEta_num->Fill(K0sCandEta);
-        ksFakeVsPt_num->Fill(K0sCandpT);
-        ksCandStatus->Fill((float)K0sCandStatus);
-        fakeKsMass->Fill(mass);
-        for (auto distance : radDist) {
-          if (distance > 0)
-            ksFakeDauRadDist->Fill(distance);
-        }
-      }
-      if (K0sCandStatus == 5) {
-        ksTkFakeVsR_num->Fill(K0sCandR);
-        ksTkFakeVsEta_num->Fill(K0sCandEta);
-        ksTkFakeVsPt_num->Fill(K0sCandpT);
-      }
-      ksFakeVsR_denom->Fill(K0sCandR);
-      ksFakeVsEta_denom->Fill(K0sCandEta);
-      ksFakeVsPt_denom->Fill(K0sCandpT);
-    } // Loop on K0s candidates
-  } // check on presence of K0s collection in the event
-
-  nKs->Fill((float)numK0sFound);
-
-  double numLamFound = 0.;
-  // Lambdas
-  if (lambdaCollection->size() > 0) {
-    std::array<double, NUM_DAUGHTERS> radDist;
-    for (reco::VertexCompositeCandidateCollection::const_iterator iLam =
-             lambdaCollection->begin();
-         iLam != lambdaCollection->end(); iLam++) {
-      // Fill mass plot with ALL lambdas
-      lamMassAll->Fill(iLam->mass());
-      // Fill values to be histogrammed
-      LamCandpT = (sqrt(iLam->momentum().perp2()));
-      LamCandEta = iLam->momentum().eta();
-      LamCandR = (sqrt(iLam->vertex().perp2()));
-      LamCandStatus = 0;
-      mass = iLam->mass();
-
-      // cout << "Lam daughter tracks" << endl;
-      std::array<reco::TrackRef, 2> theDaughterTracks = { {
-          (*(dynamic_cast<const reco::RecoChargedCandidate*>(
-              iLam->daughter(0)))).track(),
-          (*(dynamic_cast<const reco::RecoChargedCandidate*>(
-              iLam->daughter(1)))).track() } };
-
-      std::vector<std::pair<TrackingParticleRef, double> > tp;
-      TrackingParticleRef tpref;
-      TrackingParticleRef firstDauTP;
-      TrackingVertexRef LamVtx;
-      // Loop through Lambda candidate daughter tracks
-      for (View<reco::Track>::size_type i = 0; i < theDaughterTracks.size();
-           ++i) {
-
-        radDist = {{-1, -1}};
-        // Found track from theDaughterTracks
-        RefToBase<reco::Track> track(theDaughterTracks.at(i));
-
-        if (recotosimCollectionH->find(track) != recotosimCollectionH->end()) {
-          tp = (*recotosimCollectionH)[track];
-          if (tp.size() != 0) {
-            tpref = tp.begin()->first;
-            TrackingVertexRef parentVertex = tpref->parentVertex();
-            if (parentVertex.isNonnull())
-              radDist[i] = parentVertex->position().R();
-
-            if (parentVertex.isNonnull()) {
-              if (LamVtx.isNonnull()) {
-                if (LamVtx->position() == parentVertex->position()) {
-                  if (parentVertex->nDaughterTracks() == 2) {
-                    if (parentVertex->nSourceTracks() == 0) {
-                      // No source tracks found for K0s vertex; shouldn't
-                      // happen, but does for evtGen events
-                      LamCandStatus = 6;
-                    }
-
-                    for (TrackingVertex::tp_iterator iTP =
-                             parentVertex->sourceTracks_begin();
-                         iTP != parentVertex->sourceTracks_end(); ++iTP) {
-                      if (abs((*iTP)->pdgId()) == 3122) {
-                        LamCandStatus = 1;
-                        realLamFound++;
-                        numLamFound += 1.;
-                        std::pair<TrackingParticleRef, TrackingParticleRef>
-                            pair(firstDauTP, tpref);
-                        // Pushing back a good V0
-                        trueLams.push_back(pair);
-                        trueLamMasses.push_back(mass);
-                      } else {
-                        LamCandStatus = 2;
-                        if (abs((*iTP)->pdgId()) == 310) {
-                          LamCandStatus = 7;
-                        }
-                      }
-                    }
-                  } else {
-                    // Found a bad match because the mother has too many
-                    // daughters
-                    LamCandStatus = 3;
-                  }
-                } else {
-                  // Found a bad match because the parent vertices from the two
-                  // tracks are different
-                  LamCandStatus = 4;
-                }
-              } else {
-                // if lamVtx is null, fill it with parentVertex to compare to
-                // the parentVertex from the second track
-                LamVtx = parentVertex;
-                firstDauTP = tpref;
-              }
-            }  // parent vertex is null
-          }  // tp size zero
-        } else {
-          noTPforLamCand++;
-          LamCandStatus = 5;
-        }
-      }
-      // fill the fake rate histograms
-      if (LamCandStatus > 1) {
-        lamFakeVsR_num->Fill(LamCandR);
-        lamFakeVsEta_num->Fill(LamCandEta);
-        lamFakeVsPt_num->Fill(LamCandpT);
-        lamCandStatus->Fill((float)LamCandStatus);
-        fakeLamMass->Fill(mass);
-        for (auto distance : radDist) {
-          if (distance > 0.)
-            lamFakeDauRadDist->Fill(distance);
-        }
-      }
-      if (K0sCandStatus == 5) {
-        lamTkFakeVsR_num->Fill(LamCandR);
-        lamTkFakeVsEta_num->Fill(LamCandEta);
-        lamTkFakeVsPt_num->Fill(LamCandpT);
-      }
-      lamFakeVsR_denom->Fill(LamCandR);
-      lamFakeVsEta_denom->Fill(LamCandEta);
-      lamFakeVsPt_denom->Fill(LamCandpT);
-    }
+  // Get gen vertex collection out of the event, as done in the Vertex validation package!!!
+  if (k0sCollection.isValid()) {
+    doFakeRates(*k0sCollection.product(),
+                *recotosimCollectionH.product(), V0Type::KSHORT, 310, 3122);
+    doEfficiencies(*TVCollectionH.product(), V0Type::KSHORT,
+                   310, 211, 211, *k0sCollection.product(), *simtorecoCollectionH.product());
   }
-  nLam->Fill((double)numLamFound);
-
-  ///////////////////////////////
-  // Do efficiency calculation //
-  ///////////////////////////////
-  // Lambdas
-  for (TrackingParticleCollection::size_type i = 0; i < tPCeff.size(); i++) {
-    TrackingParticleRef tpr1(TPCollectionEff, i);
-    const TrackingParticle* itp1 = tpr1.get();
-    if ((itp1->pdgId() == 211 || itp1->pdgId() == 2212) &&
-        itp1->parentVertex().isNonnull() && abs(itp1->momentum().eta()) < 2.4 &&
-        sqrt(itp1->momentum().perp2()) > 0.9) {
-      bool isLambda = false;
-      if (itp1->pdgId() == 2212) isLambda = true;
-      if (itp1->parentVertex()->nDaughterTracks() == 2) {
-        TrackingVertexRef piCand1Vertex = itp1->parentVertex();
-        for (TrackingVertex::tp_iterator iTP1 =
-                 piCand1Vertex->sourceTracks_begin();
-             iTP1 != piCand1Vertex->sourceTracks_end(); iTP1++) {
-          if (abs((*iTP1)->pdgId()) == 3122) {
-            //	     ----->>>>>>Keep going here
-            for (TrackingParticleCollection::size_type j = 0; j < tPCeff.size();
-                 j++) {
-              TrackingParticleRef tpr2(TPCollectionEff, j);
-              const TrackingParticle* itp2 = tpr2.get();
-              int particle2pdgId;
-              if (isLambda)
-                particle2pdgId = -211;
-              else
-                particle2pdgId = -2212;
-              if (itp2->pdgId() == particle2pdgId &&
-                  itp2->parentVertex().isNonnull() &&
-                  abs(itp2->momentum().eta()) < 2.4 &&
-                  sqrt(itp2->momentum().perp2()) > 0.9) {
-                if (itp2->parentVertex() == itp1->parentVertex()) {
-                  // Found a good pair of Lambda daughters
-                  TrackingVertexRef piCand2Vertex = itp2->parentVertex();
-                  for (TrackingVertex::tp_iterator iTP2 =
-                           piCand2Vertex->sourceTracks_begin();
-                       iTP2 != piCand2Vertex->sourceTracks_end(); ++iTP2) {
-                    LamGenEta = LamGenpT = LamGenR = 0.;
-                    LamGenStatus = 0;
-                    for (int ifill = 0; ifill < 2; ifill++) {
-                      // do nothing?
-                    }
-                    if (abs((*iTP2)->pdgId()) == 3122) {
-                      // found generated Lambda
-                      LamGenpT = sqrt((*iTP2)->momentum().perp2());
-                      LamGenEta = (*iTP2)->momentum().eta();
-                      LamGenR = sqrt(itp2->vertex().perp2());
-                      genLam++;
-                      if (trueLams.size() > 0) {
-                        int loop_1 = 0;
-                        for (std::vector<pair<TrackingParticleRef,
-                                              TrackingParticleRef> >::
-                                 const_iterator iEffCheck = trueLams.begin();
-                             iEffCheck != trueLams.end(); iEffCheck++) {
-                          if (itp1->parentVertex() ==
-                                  iEffCheck->first->parentVertex() &&
-                              itp2->parentVertex() ==
-                                  iEffCheck->second->parentVertex()) {
-                            realLamFoundEff++;
-                            // V0Producer found the generated Lambda
-                            LamGenStatus = 1;
-                            goodLamMass->Fill(trueLamMasses[loop_1]);
-                            break;
-                          } else {
-                            // V0Producer didn't find the generated Lambda
-                            LamGenStatus = 2;
-                          }
-                          loop_1++;
-                        }
-                      } else {
-                        // No V0 cand found, so V0Producer didn't find the
-                        // generated Lambda
-                        LamGenStatus = 2;
-                      }
-                      std::vector<std::pair<RefToBase<reco::Track>, double> >
-                          rt1;
-                      std::vector<std::pair<RefToBase<reco::Track>, double> >
-                          rt2;
-
-                      if (simtorecoCollectionH->find(tpr1) !=
-                          simtorecoCollectionH->end()) {
-                        rt1 = (std::vector<
-                            std::pair<RefToBase<reco::Track>,
-                                      double> >)(*simtorecoCollectionH)[tpr1];
-                        if (rt1.size() != 0) {
-                          LamPiEff[0] = 1;  // Found the first daughter track
-                          edm::RefToBase<reco::Track> t1 = rt1.begin()->first;
-                        }
-                      } else {
-                        LamPiEff[0] = 2;  // First daughter not found
-                      }
-                      if ((simtorecoCollectionH->find(tpr2) !=
-                           simtorecoCollectionH->end())) {
-                        rt2 = (std::vector<
-                            std::pair<RefToBase<reco::Track>,
-                                      double> >)(*simtorecoCollectionH)[tpr2];
-                        if (rt2.size() != 0) {
-                          LamPiEff[1] = 1;  // Found the second daughter track
-                          edm::RefToBase<reco::Track> t2 = rt2.begin()->first;
-                        }
-                      } else {
-                        LamPiEff[1] = 2;  // Second daughter not found
-                      }
-
-                      if (LamGenStatus == 1 &&
-                          (LamPiEff[0] == 2 || LamPiEff[1] == 2)) {
-                        // Good Lambda found, but
-                        // recoTrack->trackingParticle->recoTrack didn't work
-                        LamGenStatus = 4;
-                        realLamFoundEff--;
-                      }
-                      if (LamGenStatus == 2 &&
-                          (LamPiEff[0] == 2 || LamPiEff[1] == 2)) {
-                        // Lambda not found because we didn't find a daughter
-                        // track
-                        LamGenStatus = 3;
-                      }
-                      // Fill histograms
-                      if (LamGenR > 0.) {
-                        if (LamGenStatus == 1) {
-                          lamEffVsR_num->Fill(LamGenR);
-                        }
-                        if ((double)LamGenStatus < 2.5) {
-                          lamTkEffVsR_num->Fill(LamGenR);
-                        }
-                        lamEffVsR_denom->Fill(LamGenR);
-                      }
-                      if (abs(LamGenEta) > 0.) {
-                        if (LamGenStatus == 1) {
-                          lamEffVsEta_num->Fill(LamGenEta);
-                        }
-                        if ((double)LamGenStatus < 2.5) {
-                          lamTkEffVsEta_num->Fill(LamGenEta);
-                        }
-                        lamEffVsEta_denom->Fill(LamGenEta);
-                      }
-                      if (LamGenpT > 0.) {
-                        if (LamGenStatus == 1) {
-                          lamEffVsPt_num->Fill(LamGenpT);
-                        }
-                        if ((double)LamGenStatus < 2.5) {
-                          lamTkEffVsPt_num->Fill(LamGenpT);
-                        }
-                        lamEffVsPt_denom->Fill(LamGenpT);
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Kshorts
-
-  for (TrackingParticleCollection::size_type i = 0; i < tPCeff.size(); i++) {
-    TrackingParticleRef tpr1(TPCollectionEff, i);
-    const TrackingParticle* itp1 = tpr1.get();
-    // only count the efficiency for pions with |eta|<2.4 and pT>0.9 GeV. First
-    // search for a suitable pi+
-    if (itp1->pdgId() == 211 && itp1->parentVertex().isNonnull() &&
-        abs(itp1->momentum().eta()) < 2.4 &&
-        sqrt(itp1->momentum().perp2()) > 0.9) {
-      if (itp1->parentVertex()->nDaughterTracks() == 2) {
-        TrackingVertexRef piCand1Vertex = itp1->parentVertex();
-        // check trackingParticle pion for a Ks mother
-        for (TrackingVertex::tp_iterator iTP1 =
-                 piCand1Vertex->sourceTracks_begin();
-             iTP1 != piCand1Vertex->sourceTracks_end(); ++iTP1) {
-          // iTP1 is a TrackingParticle
-          if ((*iTP1)->pdgId() == 310) {
-            // with a Ks mother found for the pi+, loop through
-            // trackingParticles again to find a pi-
-            for (TrackingParticleCollection::size_type j = 0; j < tPCeff.size();
-                 j++) {
-              TrackingParticleRef tpr2(TPCollectionEff, j);
-              const TrackingParticle* itp2 = tpr2.get();
-
-              if (itp2->pdgId() == -211 && itp2->parentVertex().isNonnull() &&
-                  abs(itp2->momentum().eta()) < 2.4 &&
-                  sqrt(itp2->momentum().perp2()) > 0.9) {
-                // check the pi+ and pi- have the same vertex
-                if (itp2->parentVertex() == itp1->parentVertex()) {
-                  TrackingVertexRef piCand2Vertex = itp2->parentVertex();
-                  for (TrackingVertex::tp_iterator iTP2 =
-                           piCand2Vertex->sourceTracks_begin();
-                       iTP2 != piCand2Vertex->sourceTracks_end(); ++iTP2) {
-                    // iTP2 is a TrackingParticle
-                    K0sGenEta = K0sGenpT = K0sGenR = 0.;
-                    K0sGenStatus = 0;
-                    if ((*iTP2)->pdgId() == 310) {
-                      K0sGenpT = sqrt((*iTP2)->momentum().perp2());
-                      K0sGenEta = (*iTP2)->momentum().eta();
-                      K0sGenR = sqrt(itp2->vertex().perp2());
-                      genK0s++;
-                      int loop_2 = 0;
-                      if (trueK0s.size() > 0) {
-                        for (std::vector<pair<TrackingParticleRef,
-                                              TrackingParticleRef> >::
-                                 const_iterator iEffCheck = trueK0s.begin();
-                             iEffCheck != trueK0s.end(); iEffCheck++) {
-                          // if the parent vertices for the tracks are the same,
-                          // then the generated Ks was found
-                          if (itp1->parentVertex() ==
-                                  iEffCheck->first->parentVertex() &&
-                              itp2->parentVertex() ==
-                                  iEffCheck->second->parentVertex()) {
-                            realK0sFoundEff++;
-                            K0sGenStatus = 1;
-                            goodKsMass->Fill(trueKsMasses[loop_2]);
-                            break;
-                          } else {
-                            K0sGenStatus = 2;
-                          }
-                        }
-                      } else {
-                        K0sGenStatus = 2;
-                      }
-
-                      // Check if the generated Ks tracks were found or not
-                      // by searching the recoTracks list for a match to the
-                      // trackingParticles
-
-                      std::vector<std::pair<RefToBase<reco::Track>, double> >
-                          rt1;
-                      std::vector<std::pair<RefToBase<reco::Track>, double> >
-                          rt2;
-
-                      if (simtorecoCollectionH->find(tpr1) !=
-                          simtorecoCollectionH->end()) {
-                        rt1 = (std::vector<
-                            std::pair<RefToBase<reco::Track>,
-                                      double> >)(*simtorecoCollectionH)[tpr1];
-                        if (rt1.size() != 0) {
-                          // First pion found
-                          K0sPiEff[0] = 1;
-                          edm::RefToBase<reco::Track> t1 = rt1.begin()->first;
-                        }
-                      } else {
-                        // First pion not found
-                        K0sPiEff[0] = 2;
-                      }
-
-                      if (simtorecoCollectionH->find(tpr2) !=
-                          simtorecoCollectionH->end()) {
-                        rt2 = (std::vector<
-                            std::pair<RefToBase<reco::Track>,
-                                      double> >)(*simtorecoCollectionH)[tpr2];
-                        if (rt2.size() != 0) {
-                          // Second pion found
-                          K0sPiEff[1] = 1;
-                          edm::RefToBase<reco::Track> t2 = rt2.begin()->first;
-                        }
-                      } else {
-                        K0sPiEff[1] = 2;
-                      }
-                      if (K0sGenStatus == 1 &&
-                          (K0sPiEff[0] == 2 || K0sPiEff[1] == 2)) {
-                        K0sGenStatus = 4;
-                        realK0sFoundEff--;
-                      }
-                      if (K0sGenStatus == 2 &&
-                          (K0sPiEff[0] == 2 || K0sPiEff[1] == 2)) {
-                        K0sGenStatus = 3;
-                      }
-                      if (K0sPiEff[0] == 1 && K0sPiEff[1] == 1) {
-                        k0sTracksFound++;
-                      }
-                      // Fill Histograms
-                      if (K0sGenR > 0.) {
-                        if (K0sGenStatus == 1) {
-                          ksEffVsR_num->Fill(K0sGenR);
-                        }
-                        if ((double)K0sGenStatus < 2.5) {
-                          ksTkEffVsR_num->Fill(K0sGenR);
-                        }
-                        ksEffVsR_denom->Fill(K0sGenR);
-                      }
-                      if (abs(K0sGenEta) > 0.) {
-                        if (K0sGenStatus == 1) {
-                          ksEffVsEta_num->Fill(K0sGenEta);
-                        }
-                        if ((double)K0sGenStatus < 2.5) {
-                          ksTkEffVsEta_num->Fill(K0sGenEta);
-                        }
-                        ksEffVsEta_denom->Fill(K0sGenEta);
-                      }
-                      if (K0sGenpT > 0.) {
-                        if (K0sGenStatus == 1) {
-                          ksEffVsPt_num->Fill(K0sGenpT);
-                        }
-                        if ((double)K0sGenStatus < 2.5) {
-                          ksTkEffVsPt_num->Fill(K0sGenpT);
-                        }
-                        ksEffVsPt_denom->Fill(K0sGenpT);
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+  if (lambdaCollection.isValid()) {
+    doFakeRates(*lambdaCollection.product(),
+                *recotosimCollectionH.product(), V0Type::LAMBDA, 3122, 310);
+    doEfficiencies(*TVCollectionH.product(), V0Type::LAMBDA,
+                   3122, 211, 2212, *lambdaCollection.product(), *simtorecoCollectionH.product());
   }
 }
 
