@@ -213,6 +213,7 @@ class Looper(object):
             warning("%9s   %9s    %9s   %9s   %s" % ("---------","--------","---------", "---------", "-------------"))
             warning("%9d   %9d   %10.2f  %10.2f %5.1f%%   %s" % ( passev, allev, 1000*totPerProcEv, 1000*totPerAllEv, 100.0, "TOTAL"))
             warning("")
+        if hasattr(self.events, 'endLoop'): self.events.endLoop()
         if hasattr(self.config,"preprocessor") and self.config.preprocessor is not None:
               if hasattr(self.config.preprocessor,"endLoop"):
                   self.config.preprocessor.endLoop(self.cfg_comp)
