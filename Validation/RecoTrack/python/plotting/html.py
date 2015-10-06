@@ -104,6 +104,53 @@ _sectionNameLegend = {
     "fromPVAllTP_highPurity": "High purity "+_lowerFirst(_fromPVAllTPLegend),
 }
 
+class Table:
+    # table [column][row]
+    def __init__(self, columnHeaders, rowHeaders, table, purpose, page, section):
+        if len(columnHeaders) != len(table):
+            raise Exception("Got %d columnHeaders for table with %d columns for page %s, section %s" % (len(columnHeaders), len(table), page, section))
+        lenRow = len(table[0])
+        for icol, column in enumerate(table):
+            if len(column) != lenRow:
+                raise Exception("Got non-square table, first column has %d rows, column %d has %d rows" % (lenRow, icol, len(column)))
+        if len(rowHeaders) != lenRow:
+            raise Exception("Got %d rowHeaders for table with %d rows" % (len(rowHeaders), lenRow))
+
+        self._columnHeaders = columnHeaders
+        self._rowHeaders = rowHeaders
+        self._table = table
+
+        self._purpose = purpose
+        self._page = page
+        self._section = section
+
+    def getPurpose(self):
+        return self._purpose
+
+    def getPage(self):
+        return self._page
+
+    def getSection(self):
+        return self._section
+
+    def ncolumns(self):
+        return len(self._table)
+
+    def nrows(self):
+        return len(self._table[0])
+
+    def columnHeaders(self):
+        return self._columnHeaders
+
+    def rowHeaders(self):
+        return self._rowHeaders
+
+    def tableAsColumnRow(self):
+        return self._table
+
+    def tableAsRowColumn(self):
+        return map(list, zip(*self._table))
+
 class PlotPurpose:
     class TrackingIteration: pass
     class TrackingSummary: pass
@@ -128,28 +175,59 @@ class Page(object):
         ])
 
         self._plotSets = {}
+        self._tables = {}
 
     def addPlotSet(self, section, plotSet):
         self._plotSets[section] = plotSet
 
-    def write(self, fileName):
-        sections = self._orderSets(self._plotSets.keys())
+    def addTable(self, section, table):
+        self._tables[section] = table
 
+    def write(self, fileName):
         self._content.extend([
             '  <table>'
             '   <tr>',
         ])
 
-        fileTable = []
-        legends = []
+        self._legends = []
+        self._sectionLegendIndex = {}
+        self._columnHeaders = []
+        self._columnHeadersIndex = {}
+        self._formatPlotSets()
+        self._formatTables()
+        self._formatLegend()
 
-        for isec, section in enumerate(sections):
-            leg = ""
-            if section in _sectionNameLegend:
-                legnum = len(legends)+1
+        self._content.extend([
+            ' </body>',
+            '</html>',
+        ])
+
+        #print "Writing HTML report page", fileName
+        f = open(fileName, "w")
+        for line in self._content:
+            f.write(line)
+            f.write("\n")
+        f.close()
+
+    def _appendLegend(self, section):
+        leg = ""
+        if section in _sectionNameLegend:
+            if section in self._sectionLegendIndex:
+                leg = self._sectionLegendIndex[section]
+            else:
+                legnum = len(self._legends)+1
                 leg = "<sup>%d</sup>" % legnum
-                leg2 = "<sup>%d</sup>" % legnum
-                legends.append("%s %s" % (leg2, _sectionNameLegend[section]))
+                leg2 = "<sup>%d)</sup>" % legnum
+                self._legends.append("%s %s" % (leg2, _sectionNameLegend[section]))
+                self._sectionLegendIndex[section] = leg
+        return leg
+
+    def _formatPlotSets(self):
+        fileTable = []
+
+        sections = self._orderSets(self._plotSets.keys())
+        for isec, section in enumerate(sections):
+            leg = self._appendLegend(section)
 
             self._content.extend([
                 '   <td>%s%s</td>' % (self._mapSectionName(section), leg),
@@ -186,25 +264,80 @@ class Page(object):
         self._content.extend([
             '  </table>',
         ])
-        if len(legends) > 0:
+
+    def _appendColumnHeader(self, header):
+        leg = ""
+        if header in self._columnHeadersIndex:
+            leg = self._columnHeadersIndex[header]
+        else:
+            leg = str(chr(ord('A')+len(self._columnHeaders)))
+            self._columnHeaders.append("%s: %s" % (leg, header))
+            self._columnHeadersIndex[header] = leg
+        return leg
+
+    def _formatTables(self):
+        def _allNone(row):
+            for item in row:
+                if item is not None:
+                    return False
+            return True
+
+        sections = self._orderSets(self._tables.keys())
+        for isec, section in enumerate(sections):
+            leg = self._appendLegend(section)
+
+            table = self._tables[section]
+            self._content.extend([
+                '  <br/>',
+                '  %s%s' % (self._mapSectionName(section), leg),
+                '  <table border="1">'
+            ])
+
+            # table is stored in column-row, need to transpose
+            data = table.tableAsRowColumn()
+
+            self._content.extend([
+                '   <tr>'
+                '   <td></td>'
+            ])
+            heads = table.columnHeaders()
+            if max(map(lambda h: len(h), heads)) > 20:
+                heads = [self._appendColumnHeader(h) for h in heads]
+            for head in heads:
+                self._content.append('    <td>%s</td>' % head)
+            self._content.append('   </tr>')
+
+            for irow, row in enumerate(data):
+                # Skip row if all values are non-existent
+                if _allNone(row):
+                    continue
+
+                self._content.extend([
+                    '   <tr>'
+                    '    <td>%s</td>' % table.rowHeaders()[irow]
+                ])
+                # align the number columns to right
+                for icol, item in enumerate(row):
+                    formatted = str(item) if item is not None else ""
+                    self._content.append('    <td align="right">%s</td>' % formatted)
+                self._content.append('   </tr>')
+
+            self._content.append('  </table>')
+
+            for shortenedColumnHeader in self._columnHeaders:
+                self._content.append('  %s<br/>' % shortenedColumnHeader)
+            self._columnHeaders = []
+            self._columnHeadersIndex = {}
+
+    def _formatLegend(self):
+        if len(self._legends) > 0:
             self._content.extend([
                 '  <br/>'
                 '  Details:</br>',
             ])
-            for leg in legends:
+            for leg in self._legends:
                 self._content.append('  %s<br/>' % leg)
 
-        self._content.extend([
-            ' </body>',
-            '</html>',
-        ])
-
-        #print "Writing HTML report page", fileName
-        f = open(fileName, "w")
-        for line in self._content:
-            f.write(line)
-            f.write("\n")
-        f.close()
 
     def _mapSectionName(self, section):
         return _sectionNameMapOrder.get(section, section)
@@ -239,6 +372,14 @@ class PageSet(object):
 
         self._prefix += _sampleFileName.get(sample.label(), sample.label())+"_"
 
+    def _getPage(self, key, pageClass):
+        if key not in self._pages:
+            page = pageClass(self._title, self._base, self._sampleName)
+            self._pages[key] = page
+        else:
+            page = self._pages[key]
+        return page
+
     def addPlotSet(self, plotterFolder, dqmSubFolder, plotFiles):
         pageKey = plotterFolder.getPage()
         if pageKey is None:
@@ -247,11 +388,7 @@ class PageSet(object):
             else:
                 pageKey = plotterFolder.getName()
 
-        if pageKey not in self._pages:
-            page = Page(self._title, self._base, self._sampleName)
-            self._pages[pageKey] = page
-        else:
-            page = self._pages[pageKey]
+        page = self._getPage(pageKey, Page)
         sectionName = plotterFolder.getSection()
         if sectionName is None:
             if plotterFolder.getPage() is not None and dqmSubFolder is not None:
@@ -260,6 +397,13 @@ class PageSet(object):
                 sectionName = ""
 
         page.addPlotSet(sectionName, plotFiles)
+
+    def addTable(self, table):
+        if table is None:
+            return
+
+        page = self._getPage(table.getPage(), Page)
+        page.addTable(table.getSection(), table)
 
     def write(self, baseDir):
         #print "TrackingPageSet.write"
@@ -319,11 +463,7 @@ class TrackingPageSet(PageSet):
         if folderName != "":
             sectionName = folderName+"_"+sectionName
 
-        if pageName not in self._pages:
-            page = TrackingIterPage(self._title, self._base, self._sampleName)
-            self._pages[pageName] = page
-        else:
-            page = self._pages[pageName]
+        page = self._getPage(pageName, TrackingIterPage)
         page.addPlotSet(sectionName, plotFiles)
 
     def _mapPagesName(self, algo): # algo = pageName
@@ -364,20 +504,24 @@ class IndexSection:
         self._miniaodPage = PageSet(*params)
         self._otherPages = PageSet(*params)
 
-    def addPlots(self, plotterFolder, dqmSubFolder, plotFiles):
-        params = [plotterFolder, dqmSubFolder, plotFiles]
+        self._purposePageMap = {
+            PlotPurpose.TrackingIteration: self._iterationPages,
+            PlotPurpose.TrackingSummary: self._summaryPage,
+            PlotPurpose.Vertexing: self._vertexPage,
+            PlotPurpose.MiniAOD: self._miniaodPage,
+        }
 
-        purpose = plotterFolder.getPurpose()
-        if purpose is PlotPurpose.TrackingIteration:
-            self._iterationPages.addPlotSet(*params)
-        elif purpose is PlotPurpose.TrackingSummary:
-            self._summaryPage.addPlotSet(*params)
-        elif purpose is PlotPurpose.Vertexing:
-            self._vertexPage.addPlotSet(*params)
-        elif purpose is PlotPurpose.MiniAOD:
-            self._miniaodPage.addPlotSet(*params)
-        else:
-            self._otherPages.addPlotSet(*params)
+    def addPlots(self, plotterFolder, dqmSubFolder, plotFiles):
+        page = self._purposePageMap.get(plotterFolder.getPurpose(), self._otherPages)
+        page.addPlotSet(plotterFolder, dqmSubFolder, plotFiles)
+
+    def addTable(self, table):
+        if table is None:
+            return
+
+        page = self._purposePageMap.get(table.getPurpose(), self._otherPages)
+        page.addTable(table)
+        params = []
 
     def write(self, baseDir):
         ret = [
@@ -429,6 +573,9 @@ class HtmlReport:
     def addPlots(self, *args, **kwargs):
         self._currentSection.addPlots(*args, **kwargs)
 
+    def addTable(self, *args, **kwargs):
+        self._currentSection.addTable(*args, **kwargs)
+
     def write(self):
         # Reorder sections such that Fast vs. Full becomes just after the corresponding Fast
         keys = self._sections.iterkeys()
@@ -464,4 +611,7 @@ class HtmlReportDummy:
         pass
 
     def addPlots(self, *args, **kwargs):
+        pass
+
+    def addTable(self, *args, **kwargs):
         pass

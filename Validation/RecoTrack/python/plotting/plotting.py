@@ -6,6 +6,8 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
+import html
+
 def _getObject(tdirectory, name):
     obj = tdirectory.Get(name)
     if not obj:
@@ -17,6 +19,27 @@ def _getOrCreateObject(tdirectory, nameOrCreator):
     if hasattr(nameOrCreator, "create"):
         return nameOrCreator.create(tdirectory)
     return _getObject(tdirectory, nameOrCreator)
+
+def _getDirectory(tfile, possibleDirs, subDir=None):
+    """Get TDirectory from TFile."""
+    if tfile is None:
+        return None
+    for pdf in possibleDirs:
+        d = tfile.Get(pdf)
+        if d:
+            if subDir is not None:
+                # Pick associator if given
+                d = d.Get(subDir)
+                if d:
+                    return d
+                else:
+                    print "Did not find subdirectory '%s' from directory '%s' in file %s" % (subDir, pdf, tfile.GetName())
+                    return None
+            else:
+                return d
+    print "Did not find any of directories '%s' from file %s" % (",".join(possibleDirs), tfile.GetName())
+    return None
+
 
 def _getXmin(obj):
     if isinstance(obj, ROOT.TH1):
@@ -1657,7 +1680,6 @@ class PlotFolder:
             raise Exception("len(files) should be len(labels), now they are %d and %d" % (len(files), len(labels)))
 
         dirs = []
-        self._labels = []
         if isinstance(dqmSubFolder, list):
             if len(dqmSubFolder) != len(files):
                 raise Exception("When dqmSubFolder is a list, len(dqmSubFolder) should be len(files), now they are %d and %d" % (len(dqmSubFolder), len(files)))
@@ -1665,7 +1687,7 @@ class PlotFolder:
             dqmSubFolder = [dqmSubFolder]*len(files)
 
         for fil, sf in zip(files, dqmSubFolder):
-            dirs.append(self._getDir(fil, possibleDqmFolders, sf))
+            dirs.append(_getDirectory(fil, possibleDqmFolders, sf))
         self._labels = labels
 
         for pg in self._plotGroups:
@@ -1688,26 +1710,6 @@ class PlotFolder:
             ret.extend(pg.draw(self._labels, prefix=prefix, separate=separate, saveFormat=saveFormat, ratio=ratio))
         return ret
 
-
-    def _getDir(self, tfile, possibleDqmFolders, dqmSubFolder):
-        """Get TDirectory from TFile."""
-        if tfile is None:
-            return None
-        for pdf in possibleDqmFolders:
-            d = tfile.Get(pdf)
-            if d:
-                if dqmSubFolder is not None:
-                    # Pick associator if given
-                    d = d.Get(dqmSubFolder)
-                    if d:
-                        return d
-                    else:
-                        print "Did not find subdirectory '%s' from directory '%s' in file %s" % (dqmSubFolder, pdf, tfile.GetName())
-                        return None
-                else:
-                    return d
-        print "Did not find any of directories '%s' from file %s" % (",".join(possibleDqmFolders), tfile.GetName())
-        return None
 
     # These are to be overridden by derived classes for customisation
     def translateSubFolder(self, dqmSubFolderName):
@@ -1755,7 +1757,7 @@ class PlotterFolder:
     PlotterItem, to be more specific), and not used directly by the
     user.
     """
-    def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder, fallbackNames):
+    def __init__(self, name, possibleDqmFolders, dqmSubFolders, plotFolder, fallbackNames, tableCreators):
         """
         Constructor
 
@@ -1765,6 +1767,7 @@ class PlotterFolder:
         dqmSubFolders      -- List of lists of strings for list of subfolders per input file, or None if no subfolders
         plotFolder         -- PlotFolder object
         fallbackNames      -- List of names for backward compatibility (can be empty). These are used only by validation.Validation (class responsible of the release validation workflow) in case the reference file pointed by 'name' does not exist.
+        tableCreators      -- List of PlotterTableItem objects for tables to be created from this folder
         """
         self._name = name
         self._possibleDqmFolders = possibleDqmFolders
@@ -1777,6 +1780,7 @@ class PlotterFolder:
             self._dqmSubFolders = filter(lambda sf: sf.translated is not None, self._dqmSubFolders)
 
         self._fallbackNames = fallbackNames
+        self._tableCreators = tableCreators
 
         # TODO: matchmaking of dqmsubfolders in case of differences between files
 
@@ -1813,6 +1817,9 @@ class PlotterFolder:
 
         return filter(lambda s: self._plotFolder.limitSubFolder(limitOnlyTo, s.translated), self._dqmSubFolders)
 
+    def getTableCreators(self):
+        return self._tableCreators
+
     def getSelectionNameIterator(self, dqmSubFolder):
         """Get a generator for the 'selection name', looping over the name and fallbackNames"""
         for name in [self._name]+self._fallbackNames:
@@ -1837,6 +1844,7 @@ class PlotterFolder:
     def draw(self, *args, **kwargs):
         """Draw and save all plots using settings of a given algorithm."""
         return self._plotFolder.draw(*args, **kwargs)
+
 
 class PlotterInstance:
     """Instance of plotter that knows the directory content, holds many folders."""
@@ -1869,6 +1877,13 @@ class PlotterItem:
         self._possibleDirs = possibleDirs
         self._plotFolder = plotFolder
         self._fallbackNames = fallbackNames
+        self._tableCreators = []
+
+    def getName(self):
+        return self._name
+
+    def appendTableCreator(self, tc):
+        self._tableCreators.append(tc)
 
     def readDirs(self, files):
         """Read available subfolders from the files
@@ -1911,7 +1926,47 @@ class PlotterItem:
         if not possibleDirFound:
             return None
 
-        return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder, self._fallbackNames)
+        return PlotterFolder(self._name, self._possibleDirs, subFolders, self._plotFolder, self._fallbackNames, self._tableCreators)
+
+class PlotterTableItem:
+    def __init__(self, possibleDirs, tableCreator):
+        self._possibleDirs = possibleDirs
+        self._tableCreator = tableCreator
+
+    def create(self, openFiles, legendLabels, dqmSubFolder):
+        if isinstance(dqmSubFolder, list):
+            if len(dqmSubFolder) != len(openFiles):
+                raise Exception("When dqmSubFolder is a list, len(dqmSubFolder) should be len(openFiles), now they are %d and %d" % (len(dqmSubFolder), len(openFiles)))
+        else:
+            dqmSubFolder = [dqmSubFolder]*len(openFiles)
+        dqmSubFolder = [sf.subfolder if sf is not None else None for sf in dqmSubFolder]
+
+        tbl = []
+        for f, sf in zip(openFiles, dqmSubFolder):
+            data = None
+            tdir = _getDirectory(f, self._possibleDirs, sf)
+            if tdir is not None:
+                data = self._tableCreator.create(tdir)
+            tbl.append(data)
+
+        # Check if we have any content
+        allNones = True
+        colLen = 0
+        for col in tbl:
+            if col is not None:
+                allNones = False
+                colLen = len(col)
+                break
+        if allNones:
+            return None
+
+        # Replace all None columns with lists of column length
+        for i in xrange(len(tbl)):
+            if tbl[i] is None:
+                tbl[i] = [None]*colLen
+
+        return html.Table(columnHeaders=legendLabels, rowHeaders=self._tableCreator.headers(), table=tbl,
+                          purpose=self._tableCreator.getPurpose(), page=self._tableCreator.getPage(), section=self._tableCreator.getSection(dqmSubFolder[0]))
 
 class Plotter:
     """Contains PlotFolders, i.e. the information what plots to do, and creates a helper object to actually produce the plots."""
@@ -1951,6 +2006,13 @@ class Plotter:
         All arguments are forwarded to the constructor of PlotterItem.
         """
         self._plots.append(PlotterItem(*args, **kwargs))
+
+    def appendTable(self, attachToFolder, *args, **kwargs):
+        for plotterItem in self._plots:
+            if plotterItem.getName() == attachToFolder:
+                plotterItem.appendTableCreator(PlotterTableItem(*args, **kwargs))
+                return
+        raise Exception("Did not find plot folder '%s' when trying to attach a table creator to it" % attachToFolder)
 
     def readDirs(self, *files):
         """Returns PlotterInstance object, which knows how exactly to produce the plots for these files"""

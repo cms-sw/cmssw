@@ -78,6 +78,64 @@ _genpos = PlotGroup("genpos", [
     Plot("GenPV_Z", xtitle="Gen PV pos z", ytitle="N", **_common),
 ])
 
+class VertexSummaryTable:
+    def __init__(self, page="vertex"):
+        self._purpose = PlotPurpose.Vertexing
+        self._page = page
+
+    def getPurpose(self):
+        return self._purpose
+
+    def getPage(self):
+        return self._page
+
+    def getSection(self, dqmSubFolder):
+        return dqmSubFolder
+
+    def create(self, tdirectory):
+        def _formatOrNone(num, func):
+            if num is None:
+                return None
+            return func(num)
+
+        ret = []
+        h = tdirectory.Get("TruePVLocationIndexCumulative")
+        if h:
+            n_events = h.GetEntries()
+            n_pvtagged = h.GetBinContent(2)
+            ret.extend([int(n_events), "%.4f"%(float(n_pvtagged)/float(n_events))])
+        else:
+            ret.extend([None, None])
+
+        h = tdirectory.Get("globalEfficiencies")
+        if h:
+            d = {}
+            for i in xrange(1, h.GetNbinsX()+1):
+                d[h.GetXaxis().GetBinLabel(i)] = h.GetBinContent(i)
+            ret.extend([
+                _formatOrNone(d.get("effic_vs_Z", None), lambda n: "%.4f"%n),
+                _formatOrNone(d.get("fakerate_vs_Z", None), lambda n: "%.4f"%n),
+                _formatOrNone(d.get("merged_vs_Z", None), lambda n: "%.4f"%n),
+                _formatOrNone(d.get("duplicate_vs_Z", None), lambda n: "%.4f"%n),
+            ])
+        else:
+            ret.extend([None]*4)
+
+        if ret.count(None) == len(ret):
+            return None
+
+        return ret
+
+    def headers(self):
+        return [
+            "Events",
+            "PV reco+tag efficiency",
+            "Efficiency",
+            "Fake rate",
+            "Merge rate",
+            "Duplicate rate",
+        ]
+
 _vertexFolders = [
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertex",
     "DQMData/Vertexing/PrimaryVertex",
@@ -96,10 +154,8 @@ plotter.append("", _vertexFolders, PlotFolder(
     purpose=PlotPurpose.Vertexing,
     page="vertex"
 ))
-plotterGen = Plotter()
-plotterGen.append("", _vertexFolders, PlotFolder(
-     _genpos
-))
+plotter.appendTable("", _vertexFolders, VertexSummaryTable())
+#plotter.append("gen", _vertexFolders, PlotFolder(_genpos, loopSubFolders=False, purpose=PlotPurpose.Vertexing, page="vertex", section="Gen vertex"))
 
 class VertexValidation(validation.Validation):
     def _init__(self, *args, **kwargs):
