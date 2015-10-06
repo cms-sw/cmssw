@@ -266,6 +266,7 @@ void V0Validator::doFakeRates(
                         CandidateStatus = 1;
                         realCandidateFound++;
                         numCandidateFound += 1.;
+                        goodCandidateMass[v0_type]->Fill(mass);
                       } else {
                         CandidateStatus = 2;
                         if ((*iTP)->pdgId() ==
