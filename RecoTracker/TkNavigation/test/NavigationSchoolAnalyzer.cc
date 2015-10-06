@@ -81,6 +81,8 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
   }
   else {
   switch (dl->subDetector()){
+  case GeomDetEnumerators::DT :
+    LorW = DTChamberId(tag->geographicalId().rawId()).station(); break;
   case GeomDetEnumerators::RPCEndcap :
     side = (unsigned int)((RPCDetId(tag->geographicalId().rawId()).region()/2.+1)*2.);
   case GeomDetEnumerators::RPCBarrel :
