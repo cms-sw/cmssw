@@ -451,6 +451,68 @@ class TrackingPlotFolder(PlotFolder):
     def isAlgoIterative(self, algo):
         return algo in _possibleTrackingIterations
 
+class TrackingSummaryTable:
+    def __init__(self, section, highPurity=False):
+        self._highPurity = highPurity
+        self._purpose = PlotPurpose.TrackingSummary
+        self._page = "summary"
+        self._section = section
+
+    def getPurpose(self):
+        return self._purpose
+
+    def getPage(self):
+        return self._page
+
+    def getSection(self, dqmSubFolder):
+        return self._section
+
+    def create(self, tdirectory):
+        def _getN(hname):
+            h = tdirectory.Get(hname)
+            if not h:
+                return None
+            if self._highPurity:
+                (algo, quality) = _mapCollectionToAlgoQuality(h.GetXaxis().GetBinLabel(2))
+                if algo != "ootb" and quality != "highPurity":
+                    return None
+                return h.GetBinContent(2)
+            else:
+                (algo, quality) = _mapCollectionToAlgoQuality(h.GetXaxis().GetBinLabel(1))
+                if algo != "ootb" and quality != "":
+                    return None
+                return h.GetBinContent(1)
+        def _formatOrNone(num, func):
+            if num is None:
+                return None
+            return func(num)
+
+        n_tracks = _formatOrNone(_getN("num_reco_coll"), int)
+        n_true = _formatOrNone(_getN("num_assoc(recoToSim)_coll"), int)
+        if n_tracks is not None and n_true is not None:
+            n_fake = n_tracks-n_true
+        else:
+            n_fake = None
+        n_pileup = _formatOrNone(_getN("num_pileup_coll"), int)
+        n_duplicate = _formatOrNone(_getN("num_duplicate_coll"), int)
+
+        eff = _formatOrNone(_getN("effic_vs_coll"), lambda n: "%.4f" % n)
+
+        ret = [eff, n_tracks, n_true, n_fake, n_pileup, n_duplicate]
+        if ret.count(None) == len(ret):
+            return None
+        return ret
+
+    def headers(self):
+        return [
+            "Efficiency",
+            "Number of tracks",
+            "Number of true tracks",
+            "Number of fake tracks",
+            "Number of pileup tracks",
+            "Number of duplicate tracks"
+        ]
+
 def _trackingFolders(lastDirName="Track"):
     return [
         "DQMData/Run 1/Tracking/Run summary/"+lastDirName,
@@ -512,6 +574,8 @@ def _appendTrackingPlots(lastDirName, name, algoPlots, onlyForPileup=False):
                               purpose=PlotPurpose.TrackingSummary, page="summary",
                               section=name+"_highPurity" if name != "" else "highPurity"),
                    fallbackNames=[summaryName]) # backward compatibility for release validation, the HP plots used to be in the same directory with all-track plots
+    plotter.appendTable(summaryName, _trackingFolders(lastDirName), TrackingSummaryTable(section=name))
+    plotter.appendTable(summaryName+"_highPurity", _trackingFolders(lastDirName), TrackingSummaryTable(section=name+"_highPurity" if name != "" else "highPurity", highPurity=True))
 _appendTrackingPlots("Track", "", _simBasedPlots+_recoBasedPlots)
 _appendTrackingPlots("TrackAllTPEffic", "allTPEffic", _simBasedPlots, onlyForPileup=True)
 _appendTrackingPlots("TrackFromPV", "fromPV", _simBasedPlots+_recoBasedPlots, onlyForPileup=True)
