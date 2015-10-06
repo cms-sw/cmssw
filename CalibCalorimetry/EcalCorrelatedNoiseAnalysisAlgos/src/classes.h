@@ -21,34 +21,7 @@
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHistos.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
 
-#ifdef __CINT__
-
-#pragma link off all globals;
-#pragma link off all classes;
-#pragma link off all functions;
-
-#pragma link C++ class TEcnaObject+;
-
-#pragma link C++ class TEcnaParEcal+;
-#pragma link C++ class TEcnaNumbering+;
-
-#pragma link C++ class TEcnaNArrayD+;
-
-#pragma link C++ class TEcnaWrite+;
-#pragma link C++ class TEcnaParCout+;
-#pragma link C++ class TEcnaParPaths+;
-#pragma link C++ class TEcnaParHistos+;
-
-#pragma link C++ class TEcnaResultType+;
-#pragma link C++ class TEcnaRootFile+;
-
-#pragma link C++ class TEcnaHeader+;
-#pragma link C++ class TEcnaRun+;
-#pragma link C++ class TEcnaRead+;
-
-#pragma link C++ class TEcnaHistos+;
-#pragma link C++ class TEcnaGui+;
-
-#pragma link C++ global gCnaRootFile;
-
-#endif
+namespace CalibCalorimetry_EcalCorrelatedNoiseAnalysisAlgos {
+  struct dictionary {
+  };
+}

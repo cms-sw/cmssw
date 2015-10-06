@@ -1,5 +1,10 @@
 #include "RecoLuminosity/LumiProducer/interface/LumiRawDataStructures.h"
 
+namespace RecoLuminosity_LumiProducer {
+  struct dictionary {
+  };
+}
+
 #ifdef __CINT__
 #ifndef LUMIRAWDATA_ROOTSCHEMA_LINKDEF
 #define LUMIRAWDATA_ROOTSCHEMA_LINKDEF
