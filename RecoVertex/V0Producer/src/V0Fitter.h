@@ -23,7 +23,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -43,21 +42,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
-#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
-#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include <Math/Functions.h>
-#include <Math/SVector.h>
-#include <Math/SMatrix.h>
-#include <typeinfo>
-#include <memory>
-#include <TVector3.h>
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 class dso_hidden V0Fitter {
 

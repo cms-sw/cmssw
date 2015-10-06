@@ -18,6 +18,22 @@
 
 #include "V0Fitter.h"
 
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
+#include <Math/Functions.h>
+#include <Math/SVector.h>
+#include <Math/SMatrix.h>
+#include <typeinfo>
+#include <memory>
+#include <TVector3.h>
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "CommonTools/CandUtils/interface/AddFourMomenta.h"
+
 // pdg mass constants
 namespace {
    const double piMass = 0.13957018;
