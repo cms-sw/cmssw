@@ -144,21 +144,8 @@ private:
   std::array<MonitorElement *, 2> candidateStatus_;
   std::array<MonitorElement *, 2> fakeCandidateMass_;
   std::array<MonitorElement *, 2> candidateFakeDauRadDist_;
-
-  MonitorElement* ksXResolution;
-  MonitorElement* ksYResolution;
-  MonitorElement* ksZResolution;
-  MonitorElement* ksAbsoluteDistResolution;
-  MonitorElement* lamXResolution;
-  MonitorElement* lamYResolution;
-  MonitorElement* lamZResolution;
-  MonitorElement* lamAbsoluteDistResolution;
-
-  MonitorElement* goodKsMass;
-  MonitorElement* goodLamMass;
-
-  MonitorElement* ksMassAll;
-  MonitorElement* lamMassAll;
+  std::array<MonitorElement *, 2> candidateMassAll;
+  std::array<MonitorElement *, 2> goodCandidateMass;
 
   std::string theDQMRootFileName;
   std::string dirName;

@@ -53,8 +53,20 @@ V0Validator::~V0Validator() {}
 
 void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
                                  edm::EventSetup const&) {
+
+  double minKsMass = 0.49767 - 0.07;
+  double maxKsMass = 0.49767 + 0.07;
+  double minLamMass = 1.1156 - 0.05;
+  double maxLamMass = 1.1156 + 0.05;
+  int ksMassNbins = 100;
+  double ksMassXmin = minKsMass;
+  double ksMassXmax = maxKsMass;
+  int lamMassNbins = 100;
+  double lamMassXmin = minLamMass;
+  double lamMassXmax = maxLamMass;
+
   ibooker.cd();
-  std::string subDirName = V0Validator::dirName + "/EffFakes";
+  std::string subDirName = V0Validator::dirName + "/K0";
   ibooker.setCurrentFolder(subDirName.c_str());
 
   candidateEffVsR_num_[V0Validator::KSHORT] = ibooker.book1D("K0sEffVsR_num", "K^{0}_{S} Efficiency vs #rho",
@@ -101,8 +113,22 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
       "K0sFakeVsEta_denom", "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
   candidateFakeVsPt_denom_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sFakeVsPt_denom", "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
+  nCandidates_[V0Validator::KSHORT] = ibooker.book1D("nK0s", "Number of K^{0}_{S} found per event", 60, 0.,
+                                                     60.);
+  fakeCandidateMass_[V0Validator::KSHORT] = ibooker.book1D("ksMassFake", "Mass of fake K0S", ksMassNbins,
+                                                           minKsMass, maxKsMass);
+  goodCandidateMass[V0Validator::KSHORT] = ibooker.book1D("ksMassGood", "Mass of good reco K0S",
+                                                          ksMassNbins, minKsMass, maxKsMass);
+  candidateMassAll[V0Validator::KSHORT] = ibooker.book1D("ksMassAll", "Invariant mass of all K0S",
+                                                         ksMassNbins, ksMassXmin, ksMassXmax);
+  candidateFakeDauRadDist_[V0Validator::KSHORT] = ibooker.book1D(
+      "radDistFakeKs", "Production radius of daughter particle of Ks fake", 100,
+      0., 15.);
 
   // Lambda Plots follow
+
+  subDirName = V0Validator::dirName + "/Lambda";
+  ibooker.setCurrentFolder(subDirName.c_str());
 
   candidateEffVsR_num_[V0Validator::LAMBDA] = ibooker.book1D("LamEffVsR_num",
                                  "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
@@ -151,75 +177,15 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   candidateFakeVsPt_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamFakeVsPt_denom", "#Lambda^{0} Fake Rate vs p_{T}", 70, 0., 20.);
 
-  ibooker.cd();
-  subDirName = dirName + "/Other";
-  ibooker.setCurrentFolder(subDirName.c_str());
-
-  nCandidates_[V0Validator::KSHORT] = ibooker.book1D("nK0s", "Number of K^{0}_{S} found per event", 60, 0.,
-                                   60.);
   nCandidates_[V0Validator::LAMBDA] = ibooker.book1D("nLam", "Number of #Lambda^{0} found per event", 60, 0.,
-                                   60.);
-
-  ksXResolution =
-      ibooker.book1D("ksXResolution",
-                     "Resolution of V0 decay vertex X coordinate", 50, 0., 50.);
-  ksYResolution =
-      ibooker.book1D("ksYResolution",
-                     "Resolution of V0 decay vertex Y coordinate", 50, 0., 50.);
-  ksZResolution =
-      ibooker.book1D("ksZResolution",
-                     "Resolution of V0 decay vertex Z coordinate", 50, 0., 50.);
-  lamXResolution =
-      ibooker.book1D("lamXResolution",
-                     "Resolution of V0 decay vertex X coordinate", 50, 0., 50.);
-  lamYResolution =
-      ibooker.book1D("lamYResolution",
-                     "Resolution of V0 decay vertex Y coordinate", 50, 0., 50.);
-  lamZResolution =
-      ibooker.book1D("lamZResolution",
-                     "Resolution of V0 decay vertex Z coordinate", 50, 0., 50.);
-  ksAbsoluteDistResolution = ibooker.book1D(
-      "ksRResolution",
-      "Resolution of absolute distance from primary vertex to V0 vertex", 100,
-      0., 50.);
-  lamAbsoluteDistResolution = ibooker.book1D(
-      "lamRResolution",
-      "Resolution of absolute distance from primary vertex to V0 vertex", 100,
-      0., 50.);
-
-  candidateStatus_[V0Validator::KSHORT] =
-      ibooker.book1D("ksCandStatus", "Fake type by cand status", 10, 0., 10.);
-  candidateStatus_[V0Validator::LAMBDA] =
-      ibooker.book1D("ksCandStatus", "Fake type by cand status", 10, 0., 10.);
-
-  double minKsMass = 0.49767 - 0.07;
-  double maxKsMass = 0.49767 + 0.07;
-  double minLamMass = 1.1156 - 0.05;
-  double maxLamMass = 1.1156 + 0.05;
-  int ksMassNbins = 100;
-  double ksMassXmin = minKsMass;
-  double ksMassXmax = maxKsMass;
-  int lamMassNbins = 100;
-  double lamMassXmin = minLamMass;
-  double lamMassXmax = maxLamMass;
-
-  fakeCandidateMass_[V0Validator::KSHORT] = ibooker.book1D("ksMassFake", "Mass of fake K0S", ksMassNbins,
-                                                      minKsMass, maxKsMass);
+                                                     60.);
   fakeCandidateMass_[V0Validator::LAMBDA] = ibooker.book1D("lamMassFake", "Mass of fake Lambda",
-                                                      lamMassNbins, minLamMass, maxLamMass);
-  goodKsMass = ibooker.book1D("ksMassGood", "Mass of good reco K0S",
-                              ksMassNbins, minKsMass, maxKsMass);
-  goodLamMass = ibooker.book1D("lamMassGood", "Mass of good Lambda",
-                               lamMassNbins, minLamMass, maxLamMass);
+                                                           lamMassNbins, minLamMass, maxLamMass);
+  goodCandidateMass[V0Validator::LAMBDA] = ibooker.book1D("lamMassGood", "Mass of good Lambda",
+                                                        lamMassNbins, minLamMass, maxLamMass);
 
-  ksMassAll = ibooker.book1D("ksMassAll", "Invariant mass of all K0S",
-                             ksMassNbins, ksMassXmin, ksMassXmax);
-  lamMassAll = ibooker.book1D("lamMassAll", "Invariant mass of all #Lambda^{0}",
-                              lamMassNbins, lamMassXmin, lamMassXmax);
-
-  candidateFakeDauRadDist_[V0Validator::KSHORT] = ibooker.book1D(
-      "radDistFakeKs", "Production radius of daughter particle of Ks fake", 100,
-      0., 15.);
+  candidateMassAll[V0Validator::LAMBDA] = ibooker.book1D("lamMassAll", "Invariant mass of all #Lambda^{0}",
+                                                         lamMassNbins, lamMassXmin, lamMassXmax);
   candidateFakeDauRadDist_[V0Validator::LAMBDA] = ibooker.book1D(
       "radDistFakeLam", "Production radius of daughter particle of Lam fake",
       100, 0., 15.);
@@ -244,14 +210,13 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection & c
     for (reco::VertexCompositeCandidateCollection::const_iterator iCandidate =
              collection.begin();
          iCandidate != collection.end(); iCandidate++) {
-      // Fill mass of all Candidates
-      ksMassAll->Fill(iCandidate->mass());
       // Fill values to be histogrammed
+      mass = iCandidate->mass();
       CandidatepT = (sqrt(iCandidate->momentum().perp2()));
       CandidateEta = iCandidate->momentum().eta();
       CandidateR = (sqrt(iCandidate->vertex().perp2()));
+      candidateMassAll[v0_type]->Fill(mass);
       CandidateStatus = 0;
-      mass = iCandidate->mass();
 
       std::array<reco::TrackRef, NUM_DAUGHTERS> theDaughterTracks = { {
         (*(dynamic_cast<const reco::RecoChargedCandidate*>(
