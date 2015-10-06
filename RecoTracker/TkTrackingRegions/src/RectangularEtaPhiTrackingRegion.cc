@@ -323,11 +323,11 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
     const GlobalPoint vtx = origin();
     GlobalVector dir = direction();
     
-    if ((GeomDetEnumerators::isTrackerPixel(detLayer->subDetector()) && GeomDetEnumerators::isBarrel(detLayer->subDetector()) == GeomDetEnumerators::PixelBarrel) ||
+    if ((GeomDetEnumerators::isTrackerPixel(detLayer->subDetector()) && GeomDetEnumerators::isBarrel(detLayer->subDetector())) ||
         (!theUseEtaPhi  && detLayer->location() == GeomDetEnumerators::barrel)) {
       const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
       est = estimator(&bl,es);
-    } else if ((GeomDetEnumerators::isTrackerPixel(detLayer->subDetector()) && GeomDetEnumerators::isBarrel(detLayer->subDetector()) == GeomDetEnumerators::PixelEndcap) ||
+    } else if ((GeomDetEnumerators::isTrackerPixel(detLayer->subDetector()) && GeomDetEnumerators::isBarrel(detLayer->subDetector())) ||
                (!theUseEtaPhi  && detLayer->location() == GeomDetEnumerators::endcap)) {
       const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
       est = estimator(&fl,es);
