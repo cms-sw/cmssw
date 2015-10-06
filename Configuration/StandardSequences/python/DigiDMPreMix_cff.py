@@ -12,6 +12,9 @@ import FWCore.ParameterSet.Config as cms
 # module, so the old "trDigi" sequence has been taken out.
 #
 
+#for backward compatibility of HepMCProduct
+from GeneratorInterface.Core.generatorSmeared_cfi import *
+
 # Calorimetry Digis (Ecal + Hcal) - * unsuppressed *
 # returns sequence "calDigi"
 from SimCalorimetry.Configuration.SimCalorimetry_cff import *
@@ -23,8 +26,8 @@ from SimMuon.Configuration.SimMuon_cff import *
 # add updating the GEN information by default
 from Configuration.StandardSequences.Generator_cff import *
 
-doAllDigi = cms.Sequence(calDigi+muonDigi)
-pdigi = cms.Sequence(fixGenInfo*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi)
+doAllDigi = cms.Sequence(generatorSmeared*calDigi+muonDigi)
+pdigi = cms.Sequence(generatorSmeared*fixGenInfo*cms.SequencePlaceholder("randomEngineStateProducer")*cms.SequencePlaceholder("mix")*doAllDigi)
 pdigi_valid = cms.Sequence(pdigi)
 # for PreMixing, to first approximation, allow noise in Muon system
 
