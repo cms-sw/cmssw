@@ -2,8 +2,9 @@
 //
 // Package:    V0Validator
 // Class:      V0Validator
-// 
-/**\class V0Validator V0Validator.cc Validation/RecoVertex/interface/V0Validator.h
+//
+/**\class V0Validator V0Validator.cc
+ Validation/RecoVertex/interface/V0Validator.h
 
  Description: Creates validation histograms for RecoVertex/V0Producer
 
@@ -15,7 +16,6 @@
 //         Created:  Wed Feb 18 17:21:04 MST 2009
 //
 //
-
 
 // system include files
 #include <memory>
@@ -69,7 +69,6 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
@@ -80,43 +79,45 @@
 #include "TH2F.h"
 
 class V0Validator : public DQMEDAnalyzer {
-
-public:
-  explicit V0Validator(const edm::ParameterSet&);
+ public:
+  explicit V0Validator(const edm::ParameterSet &);
   ~V0Validator();
-  enum V0Type {KSHORT, LAMBDA};
+  enum V0Type { KSHORT, LAMBDA };
   struct V0Couple {
     reco::TrackRef one;
     reco::TrackRef two;
-    explicit V0Couple(reco::TrackRef first_daughter, reco::TrackRef second_daughter) {
-      one = first_daughter.key() < second_daughter.key() ? first_daughter : second_daughter;
-      two = first_daughter.key() > second_daughter.key() ? first_daughter : second_daughter;
+    explicit V0Couple(reco::TrackRef first_daughter,
+                      reco::TrackRef second_daughter) {
+      one = first_daughter.key() < second_daughter.key() ? first_daughter
+                                                         : second_daughter;
+      two = first_daughter.key() > second_daughter.key() ? first_daughter
+                                                         : second_daughter;
       assert(one != two);
     }
     bool operator<(const V0Couple &rh) const {
       return one.key() < rh.one.key();
     }
     bool operator==(const V0Couple &rh) const {
-      return ( (one.key() == rh.one.key()) &&
-               (two.key() == rh.two.key()));
+      return ((one.key() == rh.one.key()) && (two.key() == rh.two.key()));
     }
   };
-private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  void doFakeRates(const reco::VertexCompositeCandidateCollection & collection,
-                   const reco::RecoToSimCollection & recotosimCollection,
-                   V0Type t,
-                   int particle_pdgid,
+
+ private:
+  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
+                      edm::EventSetup const &) override;
+  void doFakeRates(const reco::VertexCompositeCandidateCollection &collection,
+                   const reco::RecoToSimCollection &recotosimCollection,
+                   V0Type t, int particle_pdgid,
                    int misreconstructed_particle_pdgid);
 
-  void doEfficiencies(const TrackingVertexCollection & gen_vertices,
-                      V0Type t,
-                      int parent_particle_id,
-                      int first_daughter_id, /* give only positive charge */
-                      int second_daughter_id, /* give only positive charge */
-                      const reco::VertexCompositeCandidateCollection & collection,
-                      const reco::SimToRecoCollection & simtorecoCollection);
+  void doEfficiencies(
+      const TrackingVertexCollection &gen_vertices, V0Type t,
+      int parent_particle_id,
+      int first_daughter_id,  /* give only positive charge */
+      int second_daughter_id, /* give only positive charge */
+      const reco::VertexCompositeCandidateCollection &collection,
+      const reco::SimToRecoCollection &simtorecoCollection);
 
   // MonitorElements for final histograms
 
@@ -152,7 +153,8 @@ private:
   edm::EDGetTokenT<reco::RecoToSimCollection> recoRecoToSimCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> recoSimToRecoCollectionToken_;
   edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollection_Token_;
-  edm::EDGetTokenT< std::vector<reco::Vertex> > vec_recoVertex_Token_;
-  edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> recoVertexCompositeCandidateCollection_k0s_Token_, recoVertexCompositeCandidateCollection_lambda_Token_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > vec_recoVertex_Token_;
+  edm::EDGetTokenT<reco::VertexCompositeCandidateCollection>
+      recoVertexCompositeCandidateCollection_k0s_Token_,
+      recoVertexCompositeCandidateCollection_lambda_Token_;
 };
-
