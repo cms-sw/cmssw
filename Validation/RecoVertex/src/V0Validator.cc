@@ -122,6 +122,8 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   candidateFakeDauRadDist_[V0Validator::KSHORT] = ibooker.book1D(
       "radDistFakeKs", "Production radius of daughter particle of Ks fake", 100,
       0., 15.);
+  candidateStatus_[V0Validator::KSHORT] =
+      ibooker.book1D("ksCandStatus", "Fake type by cand status", 10, 0., 10.);
 
   // Lambda Plots follow
 
@@ -189,6 +191,9 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   candidateFakeDauRadDist_[V0Validator::LAMBDA] = ibooker.book1D(
       "radDistFakeLam", "Production radius of daughter particle of Lam fake",
       100, 0., 15.);
+
+  candidateStatus_[V0Validator::LAMBDA] =
+      ibooker.book1D("ksCandStatus", "Fake type by cand status", 10, 0., 10.);
 }
 
 void V0Validator::doFakeRates(
