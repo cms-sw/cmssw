@@ -67,14 +67,14 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   ibooker.setCurrentFolder(subDirName.c_str());
 
   candidateEffVsR_num_[V0Validator::KSHORT] = ibooker.book1D(
-      "K0sEffVsR_num", "K^{0}_{S} Efficiency vs #rho", 40, 0., 40.);
+      "K0sEffVsR_num", "K^{0}_{S} Efficiency vs #rho", 80, 0., 40.);
   candidateEffVsEta_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sEffVsEta_num", "K^{0}_{S} Efficiency vs #eta", 40, -2.5, 2.5);
   candidateEffVsPt_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sEffVsPt_num", "K^{0}_{S} Efficiency vs p_{T}", 70, 0., 20.);
 
   candidateTkEffVsR_num_[V0Validator::KSHORT] = ibooker.book1D(
-      "K0sTkEffVsR_num", "K^{0}_{S} Tracking Efficiency vs #rho", 40, 0., 40.);
+      "K0sTkEffVsR_num", "K^{0}_{S} Tracking Efficiency vs #rho", 80, 0., 40.);
   candidateTkEffVsEta_num_[V0Validator::KSHORT] =
       ibooker.book1D("K0sTkEffVsEta_num",
                      "K^{0}_{S} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
@@ -83,20 +83,20 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
                      "K^{0}_{S} Tracking Efficiency vs p_{T}", 70, 0., 20.);
 
   candidateEffVsR_denom_[V0Validator::KSHORT] = ibooker.book1D(
-      "K0sEffVsR_denom", "K^{0}_{S} Efficiency vs #rho", 40, 0., 40.);
+      "K0sEffVsR_denom", "K^{0}_{S} Efficiency vs #rho", 80, 0., 40.);
   candidateEffVsEta_denom_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sEffVsEta_denom", "K^{0}_{S} Efficiency vs #eta", 40, -2.5, 2.5);
   candidateEffVsPt_denom_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sEffVsPt_denom", "K^{0}_{S} Efficiency vs p_{T}", 70, 0., 20.);
 
   candidateFakeVsR_num_[V0Validator::KSHORT] = ibooker.book1D(
-      "K0sFakeVsR_num", "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
+      "K0sFakeVsR_num", "K^{0}_{S} Fake Rate vs #rho", 80, 0., 40.);
   candidateFakeVsEta_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sFakeVsEta_num", "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
   candidateFakeVsPt_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sFakeVsPt_num", "K^{0}_{S} Fake Rate vs p_{T}", 70, 0., 20.);
   candidateTkFakeVsR_num_[V0Validator::KSHORT] = ibooker.book1D(
-      "K0sTkFakeVsR_num", "K^{0}_{S} Tracking Fake Rate vs #rho", 40, 0., 40.);
+      "K0sTkFakeVsR_num", "K^{0}_{S} Tracking Fake Rate vs #rho", 80, 0., 80.);
   candidateTkFakeVsEta_num_[V0Validator::KSHORT] =
       ibooker.book1D("K0sTkFakeVsEta_num",
                      "K^{0}_{S} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
@@ -105,7 +105,7 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
                      "K^{0}_{S} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
   candidateFakeVsR_denom_[V0Validator::KSHORT] = ibooker.book1D(
-      "K0sFakeVsR_denom", "K^{0}_{S} Fake Rate vs #rho", 40, 0., 40.);
+      "K0sFakeVsR_denom", "K^{0}_{S} Fake Rate vs #rho", 80, 0., 40.);
   candidateFakeVsEta_denom_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sFakeVsEta_denom", "K^{0}_{S} Fake Rate vs #eta", 40, -2.5, 2.5);
   candidateFakeVsPt_denom_[V0Validator::KSHORT] = ibooker.book1D(
@@ -131,14 +131,14 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   ibooker.setCurrentFolder(subDirName.c_str());
 
   candidateEffVsR_num_[V0Validator::LAMBDA] = ibooker.book1D(
-      "LamEffVsR_num", "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
+      "LamEffVsR_num", "#Lambda^{0} Efficiency vs #rho", 80, 0., 40.);
   candidateEffVsEta_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsEta_num", "#Lambda^{0} Efficiency vs #eta", 40, -2.5, 2.5);
   candidateEffVsPt_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsPt_num", "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
 
   candidateTkEffVsR_num_[V0Validator::LAMBDA] = ibooker.book1D(
-      "LamTkEffVsR_num", "#Lambda^{0} TrackingEfficiency vs #rho", 40, 0., 40.);
+      "LamTkEffVsR_num", "#Lambda^{0} TrackingEfficiency vs #rho", 80, 0., 40.);
   candidateTkEffVsEta_num_[V0Validator::LAMBDA] =
       ibooker.book1D("LamTkEffVsEta_num",
                      "#Lambda^{0} Tracking Efficiency vs #eta", 40, -2.5, 2.5);
@@ -147,21 +147,21 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
                      "#Lambda^{0} Tracking Efficiency vs p_{T}", 70, 0., 20.);
 
   candidateEffVsR_denom_[V0Validator::LAMBDA] = ibooker.book1D(
-      "LamEffVsR_denom", "#Lambda^{0} Efficiency vs #rho", 40, 0., 40.);
+      "LamEffVsR_denom", "#Lambda^{0} Efficiency vs #rho", 80, 0., 40.);
   candidateEffVsEta_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsEta_denom", "#Lambda^{0} Efficiency vs #eta", 40, -2.5, 2.5);
   candidateEffVsPt_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsPt_denom", "#Lambda^{0} Efficiency vs p_{T}", 70, 0., 20.);
 
   candidateFakeVsR_num_[V0Validator::LAMBDA] = ibooker.book1D(
-      "LamFakeVsR_num", "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
+      "LamFakeVsR_num", "#Lambda^{0} Fake Rate vs #rho", 80, 0., 40.);
   candidateFakeVsEta_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamFakeVsEta_num", "#Lambda^{0} Fake Rate vs #eta", 40, -2.5, 2.5);
   candidateFakeVsPt_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamFakeVsPt_num", "#Lambda^{0} Fake Rate vs p_{T}", 70, 0., 20.);
   candidateTkFakeVsR_num_[V0Validator::LAMBDA] =
       ibooker.book1D("LamTkFakeVsR_num",
-                     "#Lambda^{0} Tracking Fake Rate vs #rho", 40, 0., 40.);
+                     "#Lambda^{0} Tracking Fake Rate vs #rho", 80, 0., 40.);
   candidateTkFakeVsEta_num_[V0Validator::LAMBDA] =
       ibooker.book1D("LamTkFakeVsEta_num",
                      "#Lambda^{0} Tracking Fake Rate vs #eta", 40, -2.5, 2.5);
@@ -170,7 +170,7 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
                      "#Lambda^{0} Tracking Fake Rate vs p_{T}", 70, 0., 20.);
 
   candidateFakeVsR_denom_[V0Validator::LAMBDA] = ibooker.book1D(
-      "LamFakeVsR_denom", "#Lambda^{0} Fake Rate vs #rho", 40, 0., 40.);
+      "LamFakeVsR_denom", "#Lambda^{0} Fake Rate vs #rho", 80, 0., 40.);
   candidateFakeVsEta_denom_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamFakeVsEta_denom", "#Lambda^{0} Fake Rate vs #eta", 40, -2.5, 2.5);
   candidateFakeVsPt_denom_[V0Validator::LAMBDA] = ibooker.book1D(
