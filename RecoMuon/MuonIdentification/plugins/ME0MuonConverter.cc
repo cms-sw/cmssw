@@ -32,9 +32,6 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
-#ifndef EmulatedME0Segment_ME0MuonConverter_h
-#define EmulatedME0Segment_ME0MuonConverter_h
-
 /** \class ME0MuonConverter 
  * Produces a collection of ME0Segment's in endcap muon ME0s. 
  *
@@ -82,8 +79,6 @@ private:
   //edm::EDGetTokenT<std::vector<reco::ME0Muon>> OurMuonsToken_;
   edm::EDGetTokenT<ME0MuonCollection> OurMuonsToken_;
 };
-
-#endif
 
 
 ME0MuonConverter::ME0MuonConverter(const edm::ParameterSet& pas) {
