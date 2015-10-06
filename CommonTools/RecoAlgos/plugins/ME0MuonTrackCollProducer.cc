@@ -13,10 +13,7 @@
 #include "RecoMuon/MuonIdentification/plugins/ME0MuonSelector.cc"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "sstream"
-
-#ifndef CommonTools_RecoAlgos_ME0MuonTrackCollProducer_h
-#define CommonTools_RecoAlgos_ME0MuonTrackCollProducer_h
+#include <sstream>
 
 #include <memory>
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -45,7 +42,6 @@ private:
   edm::EDGetTokenT<ME0MuonCollection> OurMuonsToken_;
 };
 
-#endif
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

@@ -7,7 +7,7 @@
 #include <DataFormats/MuonReco/interface/EmulatedME0Segment.h>
 #include <iostream>
 
-EmulatedME0Segment::EmulatedME0Segment(const LocalPoint& origin,  	const LocalVector& direction, const AlgebraicSymMatrix& errors, const double& chi2) : 
+EmulatedME0Segment::EmulatedME0Segment(const LocalPoint& origin,  	const LocalVector& direction, const AlgebraicSymMatrix& errors, const double chi2) : 
   theOrigin(origin), 
   theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2) {
 }

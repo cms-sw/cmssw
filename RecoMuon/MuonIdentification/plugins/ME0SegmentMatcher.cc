@@ -38,8 +38,6 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include <DataFormats/GeometrySurface/interface/SimpleDiskBounds.h>
 
-#ifndef ME0Segment_ME0SegmentMatcher_h
-#define ME0Segment_ME0SegmentMatcher_h
 
 /** \class ME0SegmentMatcher 
  *
@@ -114,7 +112,6 @@ private:
   
 };
 
-#endif
 
 ME0SegmentMatcher::ME0SegmentMatcher(const edm::ParameterSet& pas) {
   produces<std::vector<reco::ME0Muon> >();  

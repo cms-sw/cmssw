@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
