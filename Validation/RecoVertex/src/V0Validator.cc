@@ -224,7 +224,6 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection & c
         (*(dynamic_cast<const reco::RecoChargedCandidate*>(
             iCandidate->daughter(1)))).track()} };
 
-      std::vector<std::pair<TrackingParticleRef, double> > tp;
       TrackingParticleRef tpref;
       TrackingParticleRef firstDauTP;
       TrackingVertexRef candidateVtx;
@@ -238,7 +237,8 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection & c
         RefToBase<reco::Track> track(theDaughterTracks.at(i));
 
         if (recotosimCollection.find(track) != recotosimCollection.end()) {
-          tp = recotosimCollection[track];
+          const std::vector<std::pair<TrackingParticleRef, double> > & tp =
+              recotosimCollection[track];
           if (tp.size() != 0) {
             tpref = tp.begin()->first;
 
@@ -249,8 +249,9 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection & c
                 if (candidateVtx->position() == parentVertex->position()) {
                   if (parentVertex->nDaughterTracks() == 2) {
                     if (parentVertex->nSourceTracks() == 0) {
-                      // No source tracks found for candidate's vertex; shouldn't
-                      // happen, but does for evtGen events
+                      // No source tracks found for candidate's
+                      // vertex: it shouldn't happen, but does for
+                      // evtGen events
                       CandidateStatus = 6;
                     }
 
@@ -261,11 +262,6 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection & c
                         CandidateStatus = 1;
                         realCandidateFound++;
                         numCandidateFound += 1.;
-                        // std::pair<TrackingParticleRef, TrackingParticleRef>
-                        //     pair(firstDauTP, tpref);
-                        // // Pushing back a good V0
-                        // trueCandidates.push_back(pair);
-                        // trueCandidateMasses.push_back(mass);
                       } else {
                         CandidateStatus = 2;
                         if ((*iTP)->pdgId() == misreconstructed_particle_pdgid) {
@@ -274,18 +270,19 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection & c
                       }
                     }
                   } else {
-                    // Found a bad match because the mother has too many
-                    // daughters
+                    // Found a bad match because the mother has too
+                    // many daughters
                     CandidateStatus = 3;
                   }
                 } else {
-                  // Found a bad match because the parent vertices from the two
-                  // tracks are different
+                  // Found a bad match because the parent vertices
+                  // from the two tracks are different
                   CandidateStatus = 4;
                 }
               } else {
-                // if candidateVtx is null, fill it with parentVertex to compare to
-                // the parentVertex from the second track
+                // if candidateVtx is null, fill it with parentVertex
+                // to compare to the parentVertex from the second
+                // track
                 candidateVtx = parentVertex;
                 firstDauTP = tpref;
               }
@@ -294,7 +291,7 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection & c
         } else {
           CandidateStatus = 5;
         }
-      } // Loop on K0s daughter tracks
+      } // Loop on candidate's daughter tracks
 
       // fill the fake rate histograms
       if (CandidateStatus > 1) {
@@ -316,8 +313,8 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection & c
       candidateFakeVsR_denom_[v0_type]->Fill(CandidateR);
       candidateFakeVsEta_denom_[v0_type]->Fill(CandidateEta);
       candidateFakeVsPt_denom_[v0_type]->Fill(CandidatepT);
-    } // Loop on K0s candidates
-  } // check on presence of K0s collection in the event
+    } // Loop on candidates
+  } // check on presence of candidate's collection in the event
   nCandidates_[v0_type]->Fill((float)numCandidateFound);
 }
 
