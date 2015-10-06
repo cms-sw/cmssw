@@ -15,6 +15,7 @@
 <bin name="hltDiff" file="hltDiff.cc">
   <use name="jemalloc"/>
   <use name="boost"/>
+  <use name="boost_filesystem"/>
   <use name="FWCore/Common"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/Utilities"/>
