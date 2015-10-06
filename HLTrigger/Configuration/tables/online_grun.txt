@@ -363,6 +363,9 @@ HLT_RsqMR240_Rsq0p09_MR200_v*                                   # JIRA: CMSHLT-1
 HLT_RsqMR270_Rsq0p09_MR200_4jet_v*                              # JIRA: CMSHLT-164, CMSHLT-358 
 HLT_RsqMR270_Rsq0p09_MR200_v*                                   # JIRA: CMSHLT-164, CMSHLT-358 
 
+HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoublePFBTagCSV0p7_0p4_Mbb60_200_v*	# JIRA: CMSHLT-606
+HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoublePFBTagCSV0p7_Mbb60_200_v*	# JIRA: CMSHLT-606
+
 HLT_HT750_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-168
 HLT_HT650_DisplacedDijet80_Inclusive_v*				# JIRA: CMSHLT-168
 HLT_HT350_DisplacedDijet80_Tight_DisplacedTrack_v*		# JIRA: CMSHLT-168
