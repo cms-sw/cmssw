@@ -5,13 +5,13 @@ process = cms.Process("testHGCalRecoLocal")
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalMuonReco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023HGCalMuon_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023HGCalMuonReco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023HGCalMuon_cff')
+#process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 # get timing service up for profiling
-process.TimerService = cms.Service("TimerService")
+#process.TimerService = cms.Service("TimerService")
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
 )
@@ -21,51 +21,45 @@ process.options = cms.untracked.PSet(
 
 
 # get uncalibrechits with weights method
-import RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi
-process.HGCalUncalibHit = RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi.HGCalUncalibRecHit.clone()
-process.HGCalUncalibHit.HGCEEdigiCollection = 'hgcDigitizer:eeDigis'
-process.HGCalUncalibHit.HGCHEFdigiCollection = 'HGCDigitizer:hefDigis'
-process.HGCalUncalibHit.HGCHEBdigiCollection = 'HGCDigitizer:hebDigis'
+process.load("RecoLocalCalo.HGCalRecProducers.HGCalUncalibRecHit_cfi")
+process.HGCalUncalibRecHit.HGCEEdigiCollection  = 'mix:HGCDigisEE'
+process.HGCalUncalibRecHit.HGCHEFdigiCollection = 'mix:HGCDigisHEback'
+process.HGCalUncalibRecHit.HGCHEBdigiCollection = 'mix:HGCDigisHEfront'
 
 # get rechits e.g. from the weights
 process.load("RecoLocalCalo.HGCalRecProducers.HGCalRecHit_cfi")
-process.HGCalRecHit.HGCEEuncalibRecHitCollection = 'HGCalUncalibHit:HGCalUncalibRecHitsEE'
-process.HGCalRecHit.HGCHEFuncalibRecHitCollection = 'HGCalUncalibHit:HGCalUncalibRecHitsHEF'
-process.HGCalRecHit.HGCHEBuncalibRecHitCollection = 'HGCalUncalibHit:HGCalUncalibRecHitsHEB'
+process.HGCalRecHit.HGCEEuncalibRecHitCollection  = 'HGCalUncalibRecHit:HGCEEUncalibRecHits'
+process.HGCalRecHit.HGCHEFuncalibRecHitCollection = 'HGCalUncalibRecHit:HGCHEFUncalibRecHits'
+process.HGCalRecHit.HGCHEBuncalibRecHitCollection = 'HGCalUncalibRecHit:HGCHEBUncalibRecHits'
 
 
 process.maxEvents = cms.untracked.PSet(  input = cms.untracked.int32(10) )
-process.source = cms.Source("PoolSource",
-            fileNames = cms.untracked.vstring('file:step2.root')
-                )
+process.source = cms.Source(
+    "PoolSource",
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_6_2_0_SLHC26_patch3/RelValSingleGammaPt35Extended/GEN-SIM-DIGI-RAW/PU_PH2_1K_FB_V6_ee18noExt140-v2/00000/EE5E86F1-812C-E511-A91F-00266CFADE34.root'),
+    inputCommands = cms.untracked.vstring("keep *_mix_HGC*_*"),
+    dropDescendantsOfDroppedBranches = cms.untracked.bool(False)
+    )
 
 
-process.OutputModule_step = cms.OutputModule("PoolOutputModule",
-                                          outputCommands = cms.untracked.vstring(
-            'drop *',
-            'keep *_HGCalUncalibHit*_*_*',
-            'keep *_HGCalRecHit_*_*'
-          ),
-  fileName = cms.untracked.string('testHGCalLocalRecoA.root')
+process.outputmod = cms.OutputModule(
+    "PoolOutputModule",
+    outputCommands = cms.untracked.vstring(
+        'drop *',
+        'keep *_mix_*_*',
+        'keep *_HGCalUncalibRecHit_*_*',
+        'keep *_HGCalRecHit_*_*'
+        ),
+  fileName = cms.untracked.string('testHGCalLocalReco.root')
 )
 
 process.dumpEv = cms.EDAnalyzer("EventContentAnalyzer")
 
-
-# customisation of the process.
-
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023NoEE 
-
-#call to customisation function cust_2023NoEE imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023NoEE(process)
-
-# End of customisation functions
-
-process.HGCalRecoLocal = cms.Sequence(process.HGCalUncalibHit
-                                         +process.HGCalRecHit
-                                         #+process.OutputModule
-                                         #+process.dumpEv
-                                        )
+process.HGCalRecoLocal = cms.Sequence(process.HGCalUncalibRecHit +
+                                      process.HGCalRecHit
+                                      #+process.dumpEv
+                                      )
 
 process.p = cms.Path(process.HGCalRecoLocal)
+
+process.ep = cms.EndPath(process.outputmod)
