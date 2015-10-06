@@ -319,8 +319,10 @@ namespace pat {
       }
 
       /// Get user-defined float
-      /// Note: it will return NaN if the key is not found; you can check if the key exists with 'hasUserFloat' method.
+      /// Note: throws if the key is not found; you can check if the key exists with 'hasUserFloat' method.
       float userFloat( const std::string & key ) const;
+      /// return a range of values corresponding to key
+      std::vector<float> userFloatRange( const std::string& key ) const;
       /// a CINT-friendly interface
       float userFloat( const char* key ) const { return userFloat( std::string(key) ); }
       
@@ -337,10 +339,12 @@ namespace pat {
       bool hasUserFloat( const char* key ) const {return hasUserFloat( std::string(key) );}
 
       /// Get user-defined int
-      /// Note: it will return 0 if the key is not found; you can check if the key exists with 'hasUserInt' method.
+      /// Note: throws if the key is not found; you can check if the key exists with 'hasUserInt' method.
       int32_t userInt( const std::string & key ) const;
+      /// returns a range of values corresponding to key
+      std::vector<int> userIntRange( const std::string& key ) const;
       /// Set user-defined int
-      void addUserInt( const std::string & label,  int32_t data, const bool overwrite = false );
+      void addUserInt( const std::string & label,  int32_t data );
       /// Get list of user-defined int names
       const std::vector<std::string> & userIntNames() const  { return userIntLabels_; }
       /// Return true if there is a user-defined int with a given name
@@ -774,6 +778,17 @@ namespace pat {
     return std::numeric_limits<float>::quiet_NaN();
   }
 
+  template<class ObjectType>
+  std::vector<float> PATObject<ObjectType>::userFloatRange( const std::string& key ) const {
+    auto range = std::equal_range(userFloatLabels_.cbegin(),userFloatLabels_.cend(),key);
+    std::vector<float> result;
+    result.reserve(std::distance(range.first,range.second));
+    for( auto it = range.first; it != range.second; ++it ) {
+      result.push_back(userFloats_[std::distance(userFloatLabels_.cbegin(),it)]);
+    }
+    return result;
+  }
+
   template <class ObjectType>
   void PATObject<ObjectType>::addUserFloat( const std::string & label,
 					    float data,
@@ -784,12 +799,9 @@ namespace pat {
     if( it == userFloatLabels_.end() || *it != label ) {      
       userFloatLabels_.insert(it,label);
       userFloats_.insert(userFloats_.begin()+dist,data);
-    } else if( overwrite && *it == label  ) {
-      userFloats_[dist] = data;
-    } else {
-      edm::LogWarning("addUserFloat") 
-        << "Attempting to add userFloat: " 
-        << label << " = " << data << " failed, value exists already!";
+    } else if( *it == label  ) {
+      //create a range by adding behind the first entry
+      userFloats_.insert(userFloats_.begin()+dist+1, data); 
     }
   }
 
@@ -805,22 +817,29 @@ namespace pat {
     return std::numeric_limits<int>::max();
   }
 
+  template<class ObjectType>
+  std::vector<int> PATObject<ObjectType>::userIntRange( const std::string& key ) const{
+    auto range = std::equal_range(userIntLabels_.cbegin(),userIntLabels_.cend(),key);
+    std::vector<int> result;
+    result.reserve(std::distance(range.first,range.second));
+    for( auto it = range.first; it != range.second; ++it ) {
+      result.push_back(userInts_[std::distance(userIntLabels_.cbegin(),it)]);
+    }
+    return result;
+  }
+
   template <class ObjectType>
   void PATObject<ObjectType>::addUserInt( const std::string &label,
-                                          int data,
-                                          const bool overwrite )
+                                          int data )
   {
     auto it = std::lower_bound(userIntLabels_.begin(),userIntLabels_.end(),label);
     const auto dist = std::distance(userIntLabels_.begin(),it);
     if( it == userIntLabels_.end() || *it != label ) { 
       userIntLabels_.insert(it,label);
       userInts_.insert(userInts_.begin()+dist,data);
-    } else if( overwrite && *it == label ) {
-      userInts_[dist] = data;
-    } else {
-      edm::LogWarning("addUserInt") 
-        << "Attempting to add userInt: " 
-        << label << " = " << data << " failed, value exists already!";
+    } else if( *it == label ) {
+      //create a range by adding behind the first entry
+      userInts_.insert(userInts_.begin()+dist+1,data);
     }
   }
 
