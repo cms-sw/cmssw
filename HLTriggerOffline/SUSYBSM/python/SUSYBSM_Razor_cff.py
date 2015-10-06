@@ -11,7 +11,7 @@ SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7 = cms.EDAnalyzer("SUSY_HLT_Razor",
   hemispheres = cms.InputTag('hemispheres')
 )
 
-SUSY_HLT_RazorHbb_Rsq0p02_MR300_CSV0p7_0p4 = cms.EDAnalyzer("SUSY_HLT_Razor",
+SUSY_HLT_RazorHbb_Rsq0p02_MR300_2CSV0p7_0p4 = cms.EDAnalyzer("SUSY_HLT_Razor",
   trigSummary = cms.InputTag("hltTriggerSummaryAOD"),
   pfMETCollection = cms.InputTag("pfMet"),
   pfJetCollection = cms.InputTag("ak4PFJetsCHS"),
