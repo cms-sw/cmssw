@@ -303,7 +303,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
        histname = "NumberOfTracksVsPUPVtx";
        NumberOfTracksVsPUPVtx = ibooker.bookProfile(histname,histname,GoodPVtxBin,GoodPVtxMin,GoodPVtxMax,0., 100.,"");
-       NumberOfTracksVsPUPVtx->getTH1()->SetCanExtend(TH1::kAllAxes);
+       NumberOfTracksVsPUPVtx->getTH1()->SetBit(TH1::kCanRebin);
        NumberOfTracksVsPUPVtx->setAxisTitle("Number of PU",1);
        NumberOfTracksVsPUPVtx->setAxisTitle("Mean number of Tracks per PUvtx",2);
 
