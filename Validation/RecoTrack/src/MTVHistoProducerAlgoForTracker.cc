@@ -811,7 +811,7 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
         fillPlotNoFlow(h_looperdzpv[count], dzpv);
       }
     }
-    else if(!isSigMatched) {
+    if(!isSigMatched) {
       fillPlotNoFlow(h_pileupeta[count], eta);
       fillPlotNoFlow(h_pileupphi[count], phi);
       fillPlotNoFlow(h_pileuppT[count], pt);
