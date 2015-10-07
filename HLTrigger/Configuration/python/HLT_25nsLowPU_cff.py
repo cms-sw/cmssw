@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_4_0/25nsLowPU/V30 (CMSSW_7_4_13)
+# /dev/CMSSW_7_4_0/25nsLowPU/V31 (CMSSW_7_4_13)
 
 import FWCore.ParameterSet.Config as cms
 
 fragment = cms.ProcessFragment( "HLT" )
 
 fragment.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_4_0/25nsLowPU/V30')
+  tableName = cms.string('/dev/CMSSW_7_4_0/25nsLowPU/V31')
 )
 
 fragment.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -2512,6 +2512,66 @@ fragment.hltPixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
     ),
     TIB = cms.PSet(  )
 )
+fragment.hltPixelTracksForMinBias01 = cms.EDProducer( "PixelTrackProducer",
+    useFilterWithES = cms.bool( False ),
+    FilterPSet = cms.PSet( 
+      chi2 = cms.double( 1000.0 ),
+      nSigmaTipMaxTolerance = cms.double( 0.0 ),
+      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
+      nSigmaInvPtTolerance = cms.double( 0.0 ),
+      ptMin = cms.double( 0.1 ),
+      tipMax = cms.double( 1.0 )
+    ),
+    passLabel = cms.string( "" ),
+    FitterPSet = cms.PSet( 
+      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
+    ),
+    RegionFactoryPSet = cms.PSet( 
+      ComponentName = cms.string( "GlobalRegionProducerFromBeamSpot" ),
+      RegionPSet = cms.PSet( 
+        precise = cms.bool( True ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        originHalfLength = cms.double( 25.0 ),
+        originRadius = cms.double( 0.1 ),
+        ptMin = cms.double( 0.1 )
+      )
+    ),
+    CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
+    OrderedHitsFactoryPSet = cms.PSet( 
+      ComponentName = cms.string( "StandardHitTripletGenerator" ),
+      GeneratorPSet = cms.PSet( 
+        useBending = cms.bool( True ),
+        useFixedPreFiltering = cms.bool( False ),
+        maxElement = cms.uint32( 100000 ),
+        phiPreFiltering = cms.double( 0.3 ),
+        extraHitRPhitolerance = cms.double( 0.06 ),
+        useMultScattering = cms.bool( True ),
+        SeedComparitorPSet = cms.PSet( 
+          ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
+          clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
+        ),
+        extraHitRZtolerance = cms.double( 0.06 ),
+        ComponentName = cms.string( "PixelTripletHLTGenerator" )
+      ),
+      SeedingLayers = cms.InputTag( "hltPixelLayerTriplets" )
+    )
+)
+fragment.hltPixelCandsForMinBias01 = cms.EDProducer( "ConcreteChargedCandidateProducer",
+    src = cms.InputTag( "hltPixelTracksForMinBias01" ),
+    particleType = cms.string( "pi+" )
+)
+fragment.hltMinBiasPixelFilterPT02 = cms.EDFilter( "HLTPixlMBFilt",
+    pixlTag = cms.InputTag( "hltPixelCandsForMinBias01" ),
+    saveTags = cms.bool( True ),
+    MinTrks = cms.uint32( 1 ),
+    MinPt = cms.double( 0.2 ),
+    MinSep = cms.double( 1.0 )
+)
+fragment.hltPreL1RomanPotsSinglePixelTrack04 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 fragment.hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
     useFilterWithES = cms.bool( False ),
     FilterPSet = cms.PSet( 
@@ -2560,17 +2620,6 @@ fragment.hltPixelTracksForMinBias = cms.EDProducer( "PixelTrackProducer",
 fragment.hltPixelCandsForMinBias = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltPixelTracksForMinBias" ),
     particleType = cms.string( "pi+" )
-)
-fragment.hltMinBiasPixelFilterPT02 = cms.EDFilter( "HLTPixlMBFilt",
-    pixlTag = cms.InputTag( "hltPixelCandsForMinBias" ),
-    saveTags = cms.bool( True ),
-    MinTrks = cms.uint32( 1 ),
-    MinPt = cms.double( 0.2 ),
-    MinSep = cms.double( 1.0 )
-)
-fragment.hltPreL1RomanPotsSinglePixelTrack04 = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
 )
 fragment.hltMinBiasPixelFilterPT04 = cms.EDFilter( "HLTPixlMBFilt",
     pixlTag = cms.InputTag( "hltPixelCandsForMinBias" ),
@@ -12260,55 +12309,6 @@ fragment.hltPreL1TOTEM0RomanPotsANDSinglePixelTrack01 = cms.EDFilter( "HLTPresca
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-fragment.hltPixelTracksForMinBias01 = cms.EDProducer( "PixelTrackProducer",
-    useFilterWithES = cms.bool( False ),
-    FilterPSet = cms.PSet( 
-      chi2 = cms.double( 1000.0 ),
-      nSigmaTipMaxTolerance = cms.double( 0.0 ),
-      ComponentName = cms.string( "PixelTrackFilterByKinematics" ),
-      nSigmaInvPtTolerance = cms.double( 0.0 ),
-      ptMin = cms.double( 0.1 ),
-      tipMax = cms.double( 1.0 )
-    ),
-    passLabel = cms.string( "" ),
-    FitterPSet = cms.PSet( 
-      ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
-    ),
-    RegionFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "GlobalRegionProducerFromBeamSpot" ),
-      RegionPSet = cms.PSet( 
-        precise = cms.bool( True ),
-        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-        originHalfLength = cms.double( 25.0 ),
-        originRadius = cms.double( 0.1 ),
-        ptMin = cms.double( 0.1 )
-      )
-    ),
-    CleanerPSet = cms.PSet(  ComponentName = cms.string( "PixelTrackCleanerBySharedHits" ) ),
-    OrderedHitsFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "StandardHitTripletGenerator" ),
-      GeneratorPSet = cms.PSet( 
-        useBending = cms.bool( True ),
-        useFixedPreFiltering = cms.bool( False ),
-        maxElement = cms.uint32( 100000 ),
-        phiPreFiltering = cms.double( 0.3 ),
-        extraHitRPhitolerance = cms.double( 0.06 ),
-        useMultScattering = cms.bool( True ),
-        SeedComparitorPSet = cms.PSet( 
-          ComponentName = cms.string( "LowPtClusterShapeSeedComparitor" ),
-          clusterShapeCacheSrc = cms.InputTag( "hltSiPixelClustersCache" )
-        ),
-        extraHitRZtolerance = cms.double( 0.06 ),
-        ComponentName = cms.string( "PixelTripletHLTGenerator" )
-      ),
-      SeedingLayers = cms.InputTag( "hltPixelLayerTriplets" )
-    )
-)
-fragment.hltPixelCandsForMinBias01 = cms.EDProducer( "ConcreteChargedCandidateProducer",
-    src = cms.InputTag( "hltPixelTracksForMinBias01" ),
-    particleType = cms.string( "pi+" )
-)
 fragment.hltMinBiasPixelFilterPT01 = cms.EDFilter( "HLTPixlMBFilt",
     pixlTag = cms.InputTag( "hltPixelCandsForMinBias01" ),
     saveTags = cms.bool( True ),
@@ -12585,6 +12585,7 @@ fragment.HLTBeginSequence = cms.Sequence( fragment.hltTriggerType + fragment.HLT
 fragment.HLTDoHILocalPixelSequence = cms.Sequence( fragment.hltSiPixelDigis + fragment.hltHISiPixelClusters + fragment.hltHISiPixelClustersCache + fragment.hltHISiPixelRecHits )
 fragment.HLTRecopixelvertexingSequenceForUPC = cms.Sequence( fragment.hltPixelLayerTripletsForUPC + fragment.hltPixelTracksForUPC )
 fragment.HLTDoLocalPixelSequence = cms.Sequence( fragment.hltSiPixelDigis + fragment.hltSiPixelClusters + fragment.hltSiPixelClustersCache + fragment.hltSiPixelRecHits )
+fragment.HLTPixelTrackingForMinBiasSequence01 = cms.Sequence( fragment.hltPixelLayerTriplets + fragment.hltPixelTracksForMinBias01 )
 fragment.HLTPixelTrackingForMinBiasSequence = cms.Sequence( fragment.hltPixelLayerTriplets + fragment.hltPixelTracksForMinBias )
 fragment.HLTDoFullUnpackingEgammaEcalWithoutPreshowerSequence = cms.Sequence( fragment.hltEcalDigis + fragment.hltEcalUncalibRecHit + fragment.hltEcalDetIdToBeRecovered + fragment.hltEcalRecHit )
 fragment.HLTDoLocalHcalSequence = cms.Sequence( fragment.hltHcalDigis + fragment.hltHbhereco + fragment.hltHfreco + fragment.hltHoreco )
@@ -12655,7 +12656,6 @@ fragment.HLTIterativeTrackingForHighPtIteration4 = cms.Sequence( fragment.hltIte
 fragment.HLTIterativeTrackingForHighPt = cms.Sequence( fragment.HLTIterativeTrackingForHighPtIteration0 + fragment.HLTIter0TrackAndTauJet4Iter1ForHighPtSequence + fragment.HLTIterativeTrackingForHighPtIteration1 + fragment.hltIter1HighPtMerged + fragment.HLTIter1TrackAndTauJet4Iter2ForHighPtSequence + fragment.HLTIterativeTrackingForHighPtIteration2 + fragment.hltIter2HighPtMerged + fragment.HLTIter2TrackAndTauJet4Iter3ForHighPtSequence + fragment.HLTIterativeTrackingForHighPtIteration3 + fragment.hltIter3HighPtMerged + fragment.HLTIter3TrackAndTauJet4Iter4ForHighPtSequence + fragment.HLTIterativeTrackingForHighPtIteration4 + fragment.hltIter4HighPtMerged )
 fragment.HLTEcalActivitySequence = cms.Sequence( fragment.HLTDoFullUnpackingEgammaEcalSequence + fragment.HLTPFClusteringForEgammaUnseeded + fragment.hltEgammaCandidatesUnseeded + fragment.hltEgammaCandidatesWrapperUnseeded + fragment.hltActivityEtFilter )
 fragment.HLTBeginSequenceCalibration = cms.Sequence( fragment.hltCalibrationEventsFilter + fragment.hltGtDigis )
-fragment.HLTPixelTrackingForMinBiasSequence01 = cms.Sequence( fragment.hltPixelLayerTriplets + fragment.hltPixelTracksForMinBias01 )
 fragment.HLTBeginSequenceNZS = cms.Sequence( fragment.hltTriggerType + fragment.hltL1EventNumberNZS + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
 fragment.HLTBeginSequenceUTCA = cms.Sequence( fragment.hltTriggerType + fragment.hltL1EventNumberUTCA + fragment.HLTL1UnpackerSequence + fragment.HLTBeamSpot )
 
@@ -12669,7 +12669,7 @@ fragment.HLT_L1SingleMuOpen_DT_v1 = cms.Path( fragment.HLTBeginSequence + fragme
 fragment.HLT_L1Tech_DT_GlobalOR_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1TechDTGlobalOR + fragment.hltPreL1TechDTGlobalOR + fragment.HLTEndSequence )
 fragment.HLT_L1MuOpenNotHF2_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1MuOpenNotMinimumBiasHF2AND + fragment.hltPreL1MuOpenNotHF2 + fragment.hltL1MuNotHF2L1Filtered0 + fragment.HLTEndSequence )
 fragment.HLT_L1MuOpenNotHF2Pixel_SingleTrack_v1 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1EG5ZDCOrNotMinimumBiasHF2AND + fragment.hltPreL1MuOpenNotHF2PixelSingleTrack + fragment.HLTDoHILocalPixelSequence + fragment.HLTRecopixelvertexingSequenceForUPC + fragment.hltPixelCandsForUPC + fragment.hltSinglePixelTrackForUPC + fragment.HLTEndSequence )
-fragment.HLT_L1RomanPots_SinglePixelTrack02_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1RomanPots + fragment.hltPreL1RomanPotsSinglePixelTrack02 + fragment.HLTDoLocalPixelSequence + fragment.HLTPixelTrackingForMinBiasSequence + fragment.hltPixelCandsForMinBias + fragment.hltMinBiasPixelFilterPT02 + fragment.HLTEndSequence )
+fragment.HLT_L1RomanPots_SinglePixelTrack02_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1RomanPots + fragment.hltPreL1RomanPotsSinglePixelTrack02 + fragment.HLTDoLocalPixelSequence + fragment.HLTPixelTrackingForMinBiasSequence01 + fragment.hltPixelCandsForMinBias01 + fragment.hltMinBiasPixelFilterPT02 + fragment.HLTEndSequence )
 fragment.HLT_L1RomanPots_SinglePixelTrack04_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1RomanPots + fragment.hltPreL1RomanPotsSinglePixelTrack04 + fragment.HLTDoLocalPixelSequence + fragment.HLTPixelTrackingForMinBiasSequence + fragment.hltPixelCandsForMinBias + fragment.hltMinBiasPixelFilterPT04 + fragment.HLTEndSequence )
 fragment.HLT_PFJet15_NoCaloMatched_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sL1SingleJet8BptxAND + fragment.hltPrePFJet15NoCaloMatched + fragment.HLTAK4PFJetsSequence + fragment.hltSinglePFJet15NoCaloMatched + fragment.HLTEndSequence )
 fragment.HLT_PixelTracks_Multiplicity60_v2 = cms.Path( fragment.HLTBeginSequence + fragment.hltL1sETT15BptxAND + fragment.hltPrePixelTracksMultiplicity60 + fragment.HLTDoLocalPixelSequence + fragment.HLTRecopixelvertexingForHighMultSequence + fragment.hltGoodPixelTracksForHighMult + fragment.hltPixelCandsForHighMult + fragment.hlt1HighMult60 + fragment.HLTEndSequence )
