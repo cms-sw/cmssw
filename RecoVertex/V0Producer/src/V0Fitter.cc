@@ -30,7 +30,6 @@
 #include <Math/SMatrix.h>
 #include <typeinfo>
 #include <memory>
-#include <TVector3.h>
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "CommonTools/CandUtils/interface/AddFourMomenta.h"
 
@@ -117,7 +116,12 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
    // fill vectors of TransientTracks and TrackRefs after applying preselection cuts
    for (reco::TrackCollection::const_iterator iTk = theTrackCollection->begin(); iTk != theTrackCollection->end(); ++iTk) {
       const reco::Track* tmpTrack = &(*iTk);
-      double ipsigXY = std::abs(tmpTrack->dxy(referencePos)/tmpTrack->dxyError());
+      double ipsigXY;
+      if (useVertex_) {
+         ipsigXY = std::abs(tmpTrack->dxy(referencePos)/tmpTrack->dxyError());
+      } else {
+         ipsigXY = std::abs(tmpTrack->dxy(*theBeamSpot)/tmpTrack->dxyError()); 
+      }
       double ipsigZ = std::abs(tmpTrack->dz(referencePos)/tmpTrack->dzError());
       if (tmpTrack->normalizedChi2() < tkChi2Cut_ && tmpTrack->numberOfValidHits() >= tkNHitsCut_ &&
           tmpTrack->pt() > tkPtCut_ && ipsigXY > tkIPSigXYCut_ && ipsigZ > tkIPSigZCut_) {
