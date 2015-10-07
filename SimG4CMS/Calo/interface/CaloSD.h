@@ -52,7 +52,7 @@ public:
   CaloSD(G4String  aSDname, const DDCompactView & cpv,
          const SensitiveDetectorCatalog & clg,
          edm::ParameterSet const & p, const SimTrackManager*,
-	 int tSlice=1, bool ignoreTkID=false);
+	 float timeSlice=1., bool ignoreTkID=false);
   virtual ~CaloSD();
   virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
   virtual bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
@@ -138,7 +138,7 @@ protected:
 
 private:
 
-  int                             timeSlice;
+  float                           timeSlice;
   bool                            ignoreTrackID;
   CaloSlaveSD*                    slave;
   int                             hcID;

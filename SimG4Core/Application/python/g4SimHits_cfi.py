@@ -260,7 +260,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         BirkC2          = cms.double(0.0),
         SlopeLightYield = cms.double(0.02),
         StoreSecondary  = cms.bool(False),
-        TimeSliceUnit   = cms.int32(1),
+        TimeSliceUnit   = cms.double(1),
         IgnoreTrackID   = cms.bool(False),
         XtalMat         = cms.untracked.string('E_PbWO4'),
         TestBeam        = cms.untracked.bool(False),
@@ -284,7 +284,7 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         EminHitHO           = cms.double(0.0),
         EminHitHF           = cms.double(0.0),
         BetaThreshold       = cms.double(0.7),
-        TimeSliceUnit       = cms.int32(1),
+        TimeSliceUnit       = cms.double(1),
         IgnoreTrackID       = cms.bool(False),
         HEDarkening         = cms.bool(False),
         HFDarkening         = cms.bool(False),
@@ -376,6 +376,19 @@ g4SimHits = cms.EDProducer("OscarMTProducer",
         BranchEM  = cms.untracked.string('emParticles.'),
         BranchHAD = cms.untracked.string('hadParticles.'),
         Verbosity = cms.untracked.bool(False)
+    ),
+    BHMSD = cms.PSet(
+         Verbosity = cms.untracked.int32(0)
+    ),
+    FastTimerSD = cms.PSet(
+        Verbosity = cms.untracked.int32(0)
+    ),
+    HGCSD = cms.PSet(
+        Verbosity        = cms.untracked.int32(0),
+        TimeSliceUnit    = cms.double(1),
+        IgnoreTrackID    = cms.bool(False),
+        EminHit          = cms.double(0.0),
+        CheckID          = cms.untracked.bool(True),
     ),
     TotemSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)

@@ -29,7 +29,6 @@ public:
 		    const HFDigiCollection& hf,
 		    const HcalUnpackerReport& report);
 
-
   // Begin LumiBlock
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
                             const edm::EventSetup& c) ;
@@ -45,10 +44,9 @@ public:
 
 private:  ///Methods, variables accessible only within class code
  
-  void fill_Nevents();
+  void fill_Nevents(const HcalTopology&);
   void zeroCounters();
 
-  const HcalTopology* topo_;
   // Store sum of pedestal values over all events
   EtaPhiHists CoarsePedestalsSumByDepth;
   EtaPhiHists CoarsePedestalsOccByDepth;
