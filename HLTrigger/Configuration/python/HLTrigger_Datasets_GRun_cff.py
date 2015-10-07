@@ -214,7 +214,9 @@ streamA_datasetBTagCSV_selector.triggerConditions = cms.vstring('HLT_DoubleJet90
     'HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq200_v3', 
     'HLT_QuadPFJet_DoubleBTagCSV_VBF_Mqq240_v3', 
     'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq460_v3', 
-    'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v3')
+    'HLT_QuadPFJet_SingleBTagCSV_VBF_Mqq500_v3', 
+    'HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoublePFBTagCSV0p7_0p4_Mbb60_200_v1', 
+    'HLT_Rsq0p02_MR300_TriPFJet80_60_40_DoublePFBTagCSV0p7_Mbb60_200_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetBTagMu_selector
 streamA_datasetBTagMu_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
