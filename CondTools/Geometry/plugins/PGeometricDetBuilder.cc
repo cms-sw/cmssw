@@ -1,5 +1,4 @@
-#include "PGeometricDetBuilder.h"
-
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -7,29 +6,27 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "CondFormats/GeometryObjects/interface/PGeometricDet.h"
-
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
-#include <DetectorDescription/Core/interface/DDCompactView.h>
-#include <DetectorDescription/Core/interface/DDExpandedView.h>
-#include "DetectorDescription/Core/interface/DDExpandedNode.h"
-
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include <iostream>
-#include <string>
 #include <vector>
 
-PGeometricDetBuilder::PGeometricDetBuilder(const edm::ParameterSet& iConfig)
+class PGeometricDetBuilder : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
-}
-
-PGeometricDetBuilder::~PGeometricDetBuilder()
-{
-}
+public:
+  
+  PGeometricDetBuilder( const edm::ParameterSet& ) {}
+  
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+private:
+  void putOne ( const GeometricDet* gd, PGeometricDet* pgd, int lev );
+};
 
 void
 PGeometricDetBuilder::beginRun( const edm::Run&, edm::EventSetup const& es) 
@@ -206,3 +203,4 @@ void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, 
   pgd->pgeomdets_.push_back ( item );
 }
 
+DEFINE_FWK_MODULE(PGeometricDetBuilder);
