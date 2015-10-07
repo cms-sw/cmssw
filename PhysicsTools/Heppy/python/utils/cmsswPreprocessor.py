@@ -8,11 +8,14 @@ from math import ceil
 from PhysicsTools.HeppyCore.framework.config import CFG
 from PhysicsTools.Heppy.utils.edmUtils import edmFileLs
 class CmsswPreprocessor :
-	def __init__(self,configFile,command="cmsRun",prefetch=False) :
+	def __init__(self,configFile,command="cmsRun", addOrigAsSecondary=True, prefetch=False, options={}) :
 		self.configFile=configFile
 		self.command=command
+		self.addOrigAsSecondary=addOrigAsSecondary
 		self.prefetch=prefetch
 		self.garbageFiles=[]
+                self.options=options
+	
 	def prefetchOneXrootdFile(self,fname):
 		tmpdir = os.environ['TMPDIR'] if 'TMPDIR' in os.environ else "/tmp"
 		rndchars  = "".join([hex(ord(i))[2:] for i in os.urandom(8)])

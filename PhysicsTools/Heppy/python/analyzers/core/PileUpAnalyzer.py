@@ -85,7 +85,7 @@ class PileUpAnalyzer( Analyzer ):
         self.mchandles['pusi'] =  AutoHandle(
             'slimmedAddPileupInfo',
             'std::vector<PileupSummaryInfo>',
-            fallbackLabel='addPileupInfo'
+            fallbackLabel="addPileupInfo"
             ) 
 
         if self.allVertices == '_AUTO_':
