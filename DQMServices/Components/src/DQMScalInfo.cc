@@ -33,11 +33,6 @@ DQMScalInfo::DQMScalInfo(const edm::ParameterSet& ps)
   dcsStatusCollection_ = consumes<DcsStatusCollection>(parameters_.getUntrackedParameter<edm::InputTag>(std::string("dcsStatusCollection"),std::string("scalersRawToDigi")));
   l1tscollectionToken_ = consumes<Level1TriggerScalersCollection>(parameters_.getUntrackedParameter<edm::InputTag>(std::string("l1TSCollection"), std::string("scalersRawToDigi")));
   lumicollectionToken_ = consumes<LumiScalersCollection>(parameters_.getUntrackedParameter<edm::InputTag>(std::string("lumiCollection"), std::string("scalersRawToDigi")));
-
-  // gtCollection_        = consumes<L1GlobalTriggerReadoutRecord>(parameters_.getUntrackedParameter<std::string>("gtCollection","gtDigis"));
-  // dcsStatusCollection_ = consumes<DcsStatusCollection>(parameters_.getUntrackedParameter<std::string>("dcsStatusCollection","scalersRawToDigi"));
-  // l1tscollectionToken_ = consumes<Level1TriggerScalersCollection>(parameters_.getUntrackedParameter<std::string>("l1TSCollection", "scalersRawToDigi"));
-  //  lumicollectionToken_ = consumes<LumiScalersCollection>(parameters_.getUntrackedParameter<std::string>("lumiCollection", "scalersRawToDigi"));
 }
 
 DQMScalInfo::~DQMScalInfo(){
