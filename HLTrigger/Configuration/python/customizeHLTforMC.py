@@ -203,6 +203,7 @@ def customizeHLTforMC(process,_fastSim=False):
       "hltFastPixelBLifetimeRegionalCtfWithMaterialTracksHbb",
 
       "hltPixelTracksForMinBias",
+      "hltPixelTracksForMinBias01",
       "hltPixelTracksForHighMult",
       "hltRegionalPixelTracks",
       "hltPixelTracksReg",
