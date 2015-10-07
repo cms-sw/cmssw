@@ -136,6 +136,7 @@ def customiseFor10927(process):
             process.DTObjectMapESProducer = cms.ESProducer( 'DTObjectMapESProducer' )
     return process
 
+
 # change RecoTrackRefSelector to stream::EDProducer (PR #10911)
 def customiseFor10911(process):
     if hasattr(process,'hltBSoftMuonMu5L3'):
@@ -143,7 +144,8 @@ def customiseFor10911(process):
         process.hltBSoftMuonMu5L3 = cms.EDProducer("RecoTrackRefSelector", **process.hltBSoftMuonMu5L3.parameters_())
     return process
 
-# Fix MeasurementTrackerEvent configuration in several TrackingRegionProducers (PR 11183)
+
+# fix MeasurementTrackerEvent configuration in several TrackingRegionProducers (PR #11183)
 def customiseFor11183(process):
     def useMTEName(componentName):
         if componentName in ["CandidateSeededTrackingRegionsProducer", "TrackingRegionsFromBeamSpotAndL2Tau"]:
@@ -175,6 +177,14 @@ def customiseFor11183(process):
 
     return process
 
+
+# update Method3 with new time slew parametrization and response correction for data (PR #11091)
+def customizeFor11091(process):
+    # the parameters to be used for data are set in HcalHitReconstructor::fillDescriptions()
+    # the parameters to be used for MC are set in customizeHLTforMC.py 
+    return process
+
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -194,6 +204,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor7794(process)
         process = customiseFor10087(process)
         process = customizeHLTforNewJetCorrectors(process)
+        process = customizeFor11091(process)
     if cmsswVersion >= "CMSSW_7_4":
         process = customiseFor10234(process)
 
