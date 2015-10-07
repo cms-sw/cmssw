@@ -181,7 +181,7 @@ void TrackTimeValueMapProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
     for( unsigned i = 0; i < TrackCollection.size(); ++i ) {
       const reco::Track& tk = TrackCollection[i];
-      if( edm::isFinite( generalTrackTimes[i] ) ) {
+      if( edm::isFinite( generalTrackTimes[i] ) && generalTrackTimes[i] != 0.f) {
         const float resolution = reso->getTimeResolution(tk);
         times.push_back( CLHEP::RandGauss::shoot(_rng_engine, generalTrackTimes[i], resolution) );
         resos.push_back( resolution );
@@ -193,7 +193,7 @@ void TrackTimeValueMapProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
     for( unsigned i = 0; i < GsfTrackCollection.size(); ++i ) {
       const reco::Track& tk = GsfTrackCollection[i];
-      if( edm::isFinite( gsfTrackTimes[i] ) ) {
+      if( edm::isFinite( gsfTrackTimes[i] )  && generalTrackTimes[i] != 0.f ) {
         const float resolution = reso->getTimeResolution(tk);
         gsf_times.push_back( CLHEP::RandGauss::shoot(_rng_engine, gsfTrackTimes[i], resolution) );
         gsf_resos.push_back( resolution ); 
@@ -234,12 +234,17 @@ extractTrackVertexTime( const std::vector<std::pair<TrackingParticleRef, double>
   float result = 0.f;
   for( const auto& tpref : tp_list ) {
     const auto& tvertex = tpref.first->parentVertex();
-    const float time = tvertex->position().T();
-    /*
-    std::cout << "Tracking particle with pT: " << tpref.first->pt() 
-              << " has parent vertex time: " << tvertex->position().T()*CLHEP::second << std::endl;
-    */
-    result = time;
+    result = tvertex->position().T()*CLHEP::second; // convert into nano-seconds
+    // account for secondary vertices...
+    
+    if( tvertex->nSourceTracks() ) {
+      auto pvertex = tvertex->sourceTracks()[0]->parentVertex();
+      result = pvertex->position().T()*CLHEP::second;
+      while( pvertex->nSourceTracks() ) {
+        pvertex = pvertex->sourceTracks()[0]->parentVertex();
+        result = pvertex->position().T()*CLHEP::second;
+      }
+    }    
   }
   if( tp_list.size() > 1 ) std::cout << "track matched to " << tp_list.size() << " tracking particles!" << std::endl;
   return result;

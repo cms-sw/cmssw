@@ -86,6 +86,8 @@ namespace reco {
     trackRef_iterator tracks_end() const;
     /// number of tracks
     size_t tracksSize() const;
+    /// python friendly track getting
+    const TrackBaseRef& trackRefAt(size_t idx) const { return tracks_[idx]; }
     /// chi-squares
     double chi2() const { return chi2_; }
     /** Number of degrees of freedom
