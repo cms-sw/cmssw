@@ -95,6 +95,7 @@ bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
    int itrk = -1;
    if (tracks->size() >= min_trks_) {
      for (ipixl=apixl; ipixl!=epixl; ipixl++){
+       if (ipixl->pt() < min_Pt_) continue;
        itrk++;
        const double& ztrk1 = ipixl->vz();		
        const double& etatrk1 = ipixl->momentum().eta();
@@ -110,6 +111,7 @@ bool HLTPixlMBFilt::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup,
          //  check this track against all others to see if others start from same point
 	 int jtrk=-1;
          for (jpixl=apixl; jpixl!=epixl; jpixl++) {
+	   if (jpixl->pt() < min_Pt_) continue;
 	   jtrk++;
 	   if (jpixl==ipixl) continue;
            const double& ztrk2 = jpixl->vz();		
