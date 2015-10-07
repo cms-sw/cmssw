@@ -63,6 +63,26 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   std::vector<SimpleRegion> regionEtVect;
   std::vector<SimpleRegion> regionHtVect;
 
+  // check the un-subtracted regions for overflow
+  bool regionOverflowEt(false);
+  bool regionOverflowHt(false);
+  for (auto& region : regions) {
+    if(region.hwEta() >= etSumEtaMinEt && region.hwEta() <= etSumEtaMaxEt)
+    {
+      if(region.hwPt() >= 1023)
+      {
+        regionOverflowEt = true;
+      }
+    }
+    if ( region.hwEta() >= etSumEtaMinHt && region.hwEta() <= etSumEtaMaxHt)
+    {
+      if(region.hwPt() >= 1023)
+      {
+        regionOverflowHt = true;
+      }
+    }
+  }
+
   // hwPt() is the sum ET+HT in region, for stage 1 this will be
   // the region sum input to MET algorithm
   // In stage 2, we would move to hwEtEm() and hwEtHad() for separate MET/MHT
@@ -108,13 +128,13 @@ void l1t::Stage1Layer2EtSumAlgorithmImpHW::processEvent(const std::vector<l1t::C
   int MHTqual = 0;
   int ETTqual = 0;
   int HTTqual = 0;
-  if(MET >= 0xfff) // MET 12 bits
+  if(MET >= 0xfff || regionOverflowEt) // MET 12 bits
     METqual = 1;
-  if(MHT >= 0x7f)  // MHT 7 bits
+  if(MHT >= 0x7f || regionOverflowHt)  // MHT 7 bits
     MHTqual = 1;
-  if(sumET >= 0xfff)
+  if(sumET >= 0xfff || regionOverflowEt)
     ETTqual = 1;
-  if(sumHT >= 0xfff)
+  if(sumHT >= 0xfff || regionOverflowHt)
     HTTqual = 1;
 
 
@@ -171,16 +191,12 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(const std::vector<SimpleRegion
 {
   std::array<int, 18> sumEtaPos{};
   std::array<int, 18> sumEtaNeg{};
-  bool inputOverflow(false);
   for (const auto& r : regionEt)
   {
     if ( r.ieta < 11 )
       sumEtaNeg[r.iphi] += r.et;
     else
       sumEtaPos[r.iphi] += r.et;
-
-    if ( r.et >= (1<<10) )
-      inputOverflow = true;
   }
 
   std::array<int, 18> sumEta{};
@@ -191,8 +207,6 @@ l1t::Stage1Layer2EtSumAlgorithmImpHW::doSumAndMET(const std::vector<SimpleRegion
     sumEta[i] = sumEtaPos[i] + sumEtaNeg[i];
     sumEt += sumEta[i];
   }
-  sumEt = (sumEt % (1<<12)) | ((sumEt >= (1<<12) || inputOverflow) ? (1<<12):0);
-  assert(sumEt>=0 && sumEt < (1<<13));
 
   // 0, 20, 40, 60, 80 degrees
   std::array<int, 5> sumsForCos{};
