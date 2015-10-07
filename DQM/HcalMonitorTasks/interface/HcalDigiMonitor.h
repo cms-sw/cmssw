@@ -97,13 +97,12 @@ public:
   void reset();
 
 private:  ///Methods, variables accessible only within class code
-  const HcalTopology* topo_;
   bool passedMinBiasHLT_;
   bool excludeHORing2_;
   bool excludeHO1P02_;
   bool excludeBadQPLLs_;
  
-  void fill_Nevents();
+  void fill_Nevents(const HcalTopology&);
   void zeroCounters();
   void setupSubdetHists(DQMStore::IBooker &ib, DigiHists& hist,  std::string subdet); // enable this feature at some point
 

@@ -496,9 +496,9 @@ inline bool isSiPM(int ieta, int iphi, int depth)
   return false;
 }  // bool isSiPM
 
-
-// Checks whether (subdet, ieta, iphi, depth) value is a valid Hcal cell
 /*
+// Checks whether (subdet, ieta, iphi, depth) value is a valid Hcal cell
+
 inline bool validDetId(HcalSubdetector sd, int ies, int ip, int dp)
 {
   // inputs are (subdetector, ieta, iphi, depth)

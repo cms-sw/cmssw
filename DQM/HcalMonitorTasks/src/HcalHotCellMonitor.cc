@@ -2,7 +2,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalHotCellMonitor.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
-HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps), topo_(0) {
+HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps):HcalBaseDQMonitor(ps) {
   // Standard information, inherited from base class
   Online_                = ps.getUntrackedParameter<bool>("online",false);
   mergeRuns_             = ps.getUntrackedParameter<bool>("mergeRuns",false);
@@ -104,9 +104,7 @@ HcalHotCellMonitor::HcalHotCellMonitor(const edm::ParameterSet& ps):HcalBaseDQMo
   setupDone_=false;
 } //constructor
 
-HcalHotCellMonitor::~HcalHotCellMonitor()
-{
-} //destructor
+HcalHotCellMonitor::~HcalHotCellMonitor() { } //destructor
 
 
 /* ------------------------------------ */ 
@@ -327,8 +325,6 @@ void HcalHotCellMonitor::reset()
     }
 }  
 
-
-
 void HcalHotCellMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					      const edm::EventSetup& c)
 {
@@ -347,16 +343,19 @@ void HcalHotCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   
   if (LumiInOrder(lumiSeg.luminosityBlock())==false) return;
 
+  edm::ESHandle<HcalTopology> topo;
+  c.get<HcalRecNumberingRecord>().get(topo);
+
   if (test_neighbor_ || makeDiagnostics_)
-    fillNevents_neighbor();
+    fillNevents_neighbor(*topo);
 
   if (test_energy_ || test_et_)
-    fillNevents_energy();
+    fillNevents_energy(*topo);
 
   if (test_persistent_)
-    fillNevents_persistentenergy();
+    fillNevents_persistentenergy(*topo);
 
-  fillNevents_problemCells();
+  fillNevents_problemCells(*topo);
   return;
 } //endLuminosityBlock(...)
 
@@ -403,7 +402,6 @@ void HcalHotCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   // Good event found; increment counter (via base class analyze method)
   edm::ESHandle<HcalTopology> topo;
   s.get<HcalRecNumberingRecord>().get(topo);
-  topo_ = &(*topo);
 
   //  HcalBaseDQMonitor::analyze(e,s);
   if (debug_>1) std::cout <<"\t<HcalHotCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
@@ -681,7 +679,7 @@ void HcalHotCellMonitor::processHit_rechitNeighbors(RECHIT& rechit,
 /* --------------------------------------- */
 
 
-void HcalHotCellMonitor::fillNevents_persistentenergy(void) {
+void HcalHotCellMonitor::fillNevents_persistentenergy(const HcalTopology& topology) {
   // Fill Histograms showing rechits with energies > some threshold for N consecutive events
 
   if (levt_<minEvents_) return;
@@ -708,7 +706,7 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void) {
 	  for (int subdet=1;subdet<=4;++subdet) {
 	    ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
 	    if (ieta==-9999) continue;
-	    if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
+	    if (!(topology.validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 	      continue;
 	    if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
 	      ieta<0 ? ieta-- : ieta++;
@@ -748,7 +746,7 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void) {
 	  for (int subdet=1;subdet<=4;++subdet) {
 	    ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
 	    if (ieta==-9999) continue;
-	    if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
+	    if (!(topology.validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 	      continue;
 	    if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
 	      ieta<0 ? ieta-- : ieta++;
@@ -771,13 +769,13 @@ void HcalHotCellMonitor::fillNevents_persistentenergy(void) {
   } // if (test_et_)
   // Add test_ET
   return;
-} // void HcalHotCellMonitor::fillNevents_persistentenergy(void)
+} // void HcalHotCellMonitor::fillNevents_persistentenergy(const HcalTopology&)
 
 
 
 /* ----------------------------------- */
 
-void HcalHotCellMonitor::fillNevents_energy(void) {
+void HcalHotCellMonitor::fillNevents_energy(const HcalTopology& topology) {
   // Fill Histograms showing rec hits that are above some energy value 
   // (Fill for each instance when cell is above energy; don't require it to be hot for a number of consecutive events)
 
@@ -818,7 +816,7 @@ void HcalHotCellMonitor::fillNevents_energy(void) {
 	for (int subdet=1;subdet<=4;++subdet) {
 	  ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
 	  if (ieta==-9999) continue;
-	  if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
+	  if (!(topology.validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 	    continue;
 	  if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
 	    ieta<0 ? ieta-- : ieta++;
@@ -853,13 +851,13 @@ void HcalHotCellMonitor::fillNevents_energy(void) {
   return;
 
 
-} // void HcalHotCellMonitor::fillNevents_energy(void)
+} // void HcalHotCellMonitor::fillNevents_energy(const HcalTopology&)
 
 
 
 /* ----------------------------------- */
 
-void HcalHotCellMonitor::fillNevents_neighbor(void) {
+void HcalHotCellMonitor::fillNevents_neighbor(const HcalTopology& topology) {
   // Fill Histograms showing rec hits with energy much less than neighbors' average
 
   if (debug_>0)
@@ -883,7 +881,7 @@ void HcalHotCellMonitor::fillNevents_neighbor(void) {
 	for (int subdet=1;subdet<=4;++subdet) {
 	  ieta=CalcIeta((HcalSubdetector)subdet,eta,depth+1); //converts bin to ieta
 	  if (ieta==-9999) continue;
-	  if (!(topo_->validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
+	  if (!(topology.validDetId((HcalSubdetector)subdet, ieta, iphi, depth+1)))
 	    continue;
 	  if (subdet==HcalForward) // shift HcalForward ieta by 1 for filling purposes
 	    ieta<0 ? ieta-- : ieta++;
@@ -914,15 +912,14 @@ void HcalHotCellMonitor::fillNevents_neighbor(void) {
 
   return;
 
-} // void HcalHotCellMonitor::fillNevents_neighbor(void)
+} // void HcalHotCellMonitor::fillNevents_neighbor(const HcalTopology&)
 
 
 
 
 
 
-void HcalHotCellMonitor::fillNevents_problemCells(void)
-{
+void HcalHotCellMonitor::fillNevents_problemCells(const HcalTopology& topology){
   if (debug_>0)
     std::cout <<"<HcalHotCellMonitor::fillNevents_problemCells> FILLING PROBLEM CELL PLOTS"<<std::endl;
 
@@ -1049,7 +1046,7 @@ void HcalHotCellMonitor::fillNevents_problemCells(void)
   ProblemsCurrentLB->Fill(5,0,NumBadHO12);
   ProblemsCurrentLB->Fill(6,0,NumBadHFLUMI);
 
-} // void HcalHotCellMonitor::fillNevents_problemCells(void)
+} // void HcalHotCellMonitor::fillNevents_problemCells(const HcalTopology&)
 
 
 void HcalHotCellMonitor::zeroCounters(void)
