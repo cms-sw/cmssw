@@ -23,22 +23,18 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
 
     //Histograms for Hits
     
-    std::string divisions[nType]={"HB0","HB1","HE0+z","HE1+z","HE2+z","HE0-z","HE1-z",
-				  "HE2-z","HO0","HFL0+z","HFS0+z","HFL1+z","HFS1+z",
-				  "HFL2+z","HFS2+z","HFL3+z","HFS3+z","HFL0-z","HFS0-z",
-				  "HFL1-z","HFS1-z","HFL2-z","HFS2-z","HFL3-z","HFS3-z"};
+    std::string divisions[nType]={"HB0","HB1","HE0","HE1","HE2",
+				  "HO0","HFL0","HFS0","HFL1","HFS1",
+				  "HFL2","HFS2","HFL3","HFS3"};
     
-    std::string divisions1[nType]={"HB depth1","HB depth2 ","HE+z depth1","HE+z depth2","HE+z depth3","HE-z depth1","HE-z depth2",
-				   "HE-z depth3","HO depth1","HFL+z depth1","HFS+z depth1","HFL+z depth2","HFS+z depth2",
-				   "HFL+z depth3","HFS+z depth3","HFL+z depth4","HFS+z depth4","HFL-z depth1","HFS-z depth1",
-				   "HFL-z depth2","HFS-z depth2","HFL-z depth3","HFS-z depth3 ","HFL-z depth4","HFS-z depth4"};
+    std::string divisions1[nType]={"HB depth1","HB depth2 ","HE depth1","HE depth2","HE depth3",
+				   "HO depth1","HFL depth1", "HFS depth1","HFL depth2","HFS depth2",
+				   "HFL depth3","HFS depth3","HFL depth4","HFS depth4"};
     
-    double etaLow[nType]={-16,-16,16,16,16,-30,-30,-30,-15,29,29,29,29,29,29,29,29,
-			  -41,-41,-41,-41,-41,-41,-41,-41};
-    double etaHigh[nType]={16,16,30,30,30,-16,-16,-16,15,41,41,41,41,41,41,41,41,
-			   -29,-29,-29,-29,-29,-29,-29,-29};
-    int etaBins[nType]={32,32,14,14,14,14,14,14,30,12,12,12,12,12,12,12,12,
-			12,12,12,12,12,12,12,12};
+    double etaLow[nType]={-18.5,-18.5,-31.5,-31.5,-31.5,-17.5,-43.5,
+			  -43.5,-42.5,-42.5,-42.5,-42.5,-42.5,-42.5};
+    double etaHigh[nType]={18.5,18.5,31.5,31.5,31.5,17.5,43.5,43.5,42.5,42.5,42.5,42.5,42.5,42.5};
+    int etaBins[nType]={37,37,62,63,63,35,87,87,85,85,85,85,85,85};
     char name[40], title[100];
     
     for (int i=0; i<nType; ++i) {
@@ -52,19 +48,19 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       
       sprintf (name, "HcalHitE25%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 25 for a tower in %s", divisions1[i].c_str());
-      meHcalEnergyl25_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
+      meHcalEnergyl25_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0.5, 72.5);
       
       sprintf (name, "HcalHitE50%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 50 for a tower in %s", divisions1[i].c_str());
-      meHcalEnergyl50_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
+      meHcalEnergyl50_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0.5, 72.5);
       
-      sprintf (name, "HalHitE100%s", divisions[i].c_str());
+      sprintf (name, "HcalHitE100%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 100 for a tower in %s", divisions1[i].c_str());
-      meHcalEnergyl100_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
+      meHcalEnergyl100_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0.5, 72.5);
       
       sprintf (name, "HcalHitE250%s", divisions[i].c_str());
       sprintf (title, "Energy in time window 0 to 250 for a tower in %s", divisions1[i].c_str());
-      meHcalEnergyl250_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0., 72.);
+      meHcalEnergyl250_[i] = ib.book2D(name, title, etaBins[i], etaLow[i], etaHigh[i], 72, 0.5, 72.5);
     }
 
     sprintf (name, "Energy_HB");
@@ -76,23 +72,23 @@ void SimHitsValidationHcal::bookHistograms(DQMStore::IBooker &ib, edm::Run const
     sprintf (name, "Energy_HF");
     meEnergy_HF = ib.book1D(name, name, 100,0,50);
     
-    sprintf (name, "Time_HB");
-    metime_HB = ib.book1D(name, name, 300,-150,150);
-    sprintf (name, "Time_HE");
-    metime_HE = ib.book1D(name, name, 300,-150,150);
-    sprintf (name, "Time_HO");
-    metime_HO = ib.book1D(name, name, 300,-150, 150);
-    sprintf (name, "Time_HF");
-    metime_HF = ib.book1D(name, name, 300,-150,150);
+    //sprintf (name, "Time_HB");
+    //metime_HB = ib.book1D(name, name, 300,-150,150);
+    //sprintf (name, "Time_HE");
+    //metime_HE = ib.book1D(name, name, 300,-150,150);
+    //sprintf (name, "Time_HO");
+    //metime_HO = ib.book1D(name, name, 300,-150, 150);
+    //sprintf (name, "Time_HF");
+    //metime_HF = ib.book1D(name, name, 300,-150,150);
 
-    sprintf (name, "Time_Enweighted_HB");
-    metime_enweighted_HB = ib.book1D(name, name, 300,-150,150);
-    sprintf (name, "Time_Enweighted_HE");
-    metime_enweighted_HE = ib.book1D(name, name, 300,-150,150);
-    sprintf (name, "Time_Enweighted_HO");
-    metime_enweighted_HO = ib.book1D(name, name, 300,-150, 150);
-    sprintf (name, "Time_Enweighted_HF");
-    metime_enweighted_HF = ib.book1D(name, name, 300,-150,150);
+    //sprintf (name, "Time_Enweighted_HB");
+    //metime_enweighted_HB = ib.book1D(name, name, 300,-150,150);
+    //sprintf (name, "Time_Enweighted_HE");
+    //metime_enweighted_HE = ib.book1D(name, name, 300,-150,150);
+    //sprintf (name, "Time_Enweighted_HO");
+    //metime_enweighted_HO = ib.book1D(name, name, 300,-150, 150);
+    //sprintf (name, "Time_Enweighted_HF");
+    //metime_enweighted_HF = ib.book1D(name, name, 300,-150,150);
 }
 
 void SimHitsValidationHcal::analyze(const edm::Event& e, const edm::EventSetup& ) {
@@ -143,6 +139,8 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
     int phi          = id.iphi();
     unsigned int dep = hits[i].depth();
         
+    // The following is a somewhat complicated method to identify the histogram to fill.
+    // When the number of histograms is changed, this need to be changed as well.
     int type         =-1;
     if (subdet == static_cast<int>(HcalBarrel)) {
       entotHB += energy;
@@ -154,18 +152,16 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
       timetotHE += time;
       nHE++;
       type     = depth+1;
-      if (eta < 0) type += 3;
     } else if (subdet == static_cast<int>(HcalOuter)) {
       entotHO += energy;
       timetotHO += time;
       nHO++;
-      type = 8;
+      type = 5;
     } else if (subdet == static_cast<int>(HcalForward)) {
       entotHF += energy;
       timetotHF += time;
       nHF++;
-      type     = depth+8+2*dep;
-      if (eta < 0) type += 8;
+      type     = depth+5+2*dep;
     }
 
     std::pair<HcalDetId,int> id0(id,type);
@@ -193,38 +189,41 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
 
     //    LogDebug("HitsValidationHcal") << "Hit[" << i << "] ID " << std::hex << id_ << "ID="<<std::dec << id << " Det " << det << " Sub " << subdet << " depth " << depth << " depthX " << dep << " Eta " << eta << " Phi " << phi << " E  " << energy << " time  " << time <<" itime  " << itime << " type " << type;
     
-    double etax = eta - 0.5;
-    if (eta < 0) etax += 1;
+    double etax = eta;
+
     if ( type >= 0) {
       meHcalHitEta_[type]->Fill(etax,energy);
       meHcalHitTimeEta_[type]->Fill(etax,time);
     }
   }
   
-    meEnergy_HB->Fill(entotHB);
-    meEnergy_HE->Fill(entotHE);
-    meEnergy_HF->Fill(entotHF);
-    meEnergy_HO->Fill(entotHO);
+  meEnergy_HB->Fill(entotHB);
+  meEnergy_HE->Fill(entotHE);
+  meEnergy_HF->Fill(entotHF);
+  meEnergy_HO->Fill(entotHO);
 
-    metime_HB->Fill(timetotHB);
-    metime_HE->Fill(timetotHE);
-    metime_HF->Fill(timetotHF);
-    metime_HO->Fill(timetotHO);
+  //metime_HB->Fill(timetotHB);
+  //metime_HE->Fill(timetotHE);
+  //metime_HF->Fill(timetotHF);
+  //metime_HO->Fill(timetotHO);
     
-    metime_enweighted_HB->Fill(timetotHB,entotHB);
-    metime_enweighted_HE->Fill(timetotHE,entotHE);
-    metime_enweighted_HF->Fill(timetotHF,entotHF);
-    metime_enweighted_HO->Fill(timetotHO,entotHO);
-  
-  
+  //metime_enweighted_HB->Fill(timetotHB,entotHB);
+  //metime_enweighted_HE->Fill(timetotHE,entotHE);
+  //metime_enweighted_HF->Fill(timetotHF,entotHF);
+  //metime_enweighted_HO->Fill(timetotHO,entotHO);
+    
   for ( itr = map_try.begin() ; itr != map_try.end(); ++itr)   {
     if ( (*itr).first.second >= 0) {
       HcalDetId id= (*itr).first.first;
       energysum ensum= (*itr).second;
       int eta = id.ieta();
       int phi = id.iphi();
-      double etax= eta-0.5;
-      double phix= phi-0.5;
+	//KC: Since I have adjusted the histograms to be centered on the integers, we no longer need to adjust the eta and phi
+	//double etax= eta-0.5;
+	//double phix= phi-0.5;
+
+      double etax = (double) eta;
+      double phix = (double) phi;
       meHcalEnergyl25_[(*itr).first.second]->Fill(etax,phix,ensum.e25);
       meHcalEnergyl50_[(*itr).first.second]->Fill(etax,phix,ensum.e50);
       meHcalEnergyl100_[(*itr).first.second]->Fill(etax,phix,ensum.e100);
