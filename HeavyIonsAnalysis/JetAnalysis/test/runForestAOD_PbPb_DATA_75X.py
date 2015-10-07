@@ -39,7 +39,7 @@ process.maxEvents = cms.untracked.PSet(
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
@@ -56,7 +56,7 @@ process.GlobalTag.snapshotTime = cms.string("9999-12-31 23:59:59.000")
 
 process.GlobalTag.toGet.extend([
  cms.PSet(record = cms.string("HeavyIonRcd"),
- connect = cms.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+ connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
  ## 5.02 TeV Centrality Tables
  #tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v740x01_mc"),
  #label = cms.untracked.string("HFtowersHydjetDrum5")
