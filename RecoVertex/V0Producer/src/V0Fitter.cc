@@ -260,16 +260,18 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       GlobalVector totalP(positiveP + negativeP);
 
       // 2D pointing angle
-      TVector3 pointXY(theVtx.x()-referencePos.x(), theVtx.y()-referencePos.y(), 0.);
-      TVector3 momXY(totalP.x(), totalP.y(), 0.);
-      double angleXY = pointXY.Angle(momXY);
-      if (cos(angleXY) < cosThetaXYCut_) continue;
+      double dx = theVtx.x()-referencePos.x();
+      double dy = theVtx.y()-referencePos.y();
+      double px = totalP.x();
+      double py = totalP.y();
+      double angleXY = (dx*px+dy*py)/(sqrt(dx*dx+dy*dy)*sqrt(px*px+py*py));
+      if (angleXY < cosThetaXYCut_) continue;
 
       // 3D pointing angle
-      TVector3 pointXYZ(theVtx.x()-referencePos.x(), theVtx.y()-referencePos.y(), theVtx.z()-referencePos.z());
-      TVector3 momXYZ(totalP.x(), totalP.y(), totalP.z());
-      double angleXYZ = pointXY.Angle(momXYZ);
-      if (cos(angleXYZ) < cosThetaXYZCut_) continue;
+      double dz = theVtx.z()-referencePos.z();
+      double pz = totalP.z();
+      double angleXYZ = (dx*px+dy*py+dz*pz)/(sqrt(dx*dx+dy*dy+dz*dz)*sqrt(px*px+py*py+pz*pz));
+      if (angleXYZ < cosThetaXYZCut_) continue;
 
       // calculate total energy of V0 3 ways: assume it's a kShort, a Lambda, or a LambdaBar.
       double piPlusE = sqrt(positiveP.mag2() + piMassSquared);
