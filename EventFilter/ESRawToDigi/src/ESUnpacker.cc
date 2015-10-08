@@ -77,9 +77,9 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     bx_    = ESHeader.bxID();
 
     if (debug_) {
-      LogDebug("ESUnpacker")<<"[ESUnpacker]: FED Header candidate. Is header? "<< ESHeader.check();
+      LogDebug("ESUnpacker") << "[ESUnpacker]: FED Header candidate. Is header? "<< ESHeader.check();
       if (ESHeader.check())
-	LogDebug("ESUnpacker") <<". BXID: "<<bx_<<" SourceID : "<<fedId_<<" L1ID: "<<lv1_;
+	LogDebug("ESUnpacker") << ". BXID: "<<bx_<<" SourceID : "<<fedId_<<" L1ID: "<<lv1_;
       else LogDebug("ESUnpacker")<<" WARNING!, this is not a ES Header";
     }
     
