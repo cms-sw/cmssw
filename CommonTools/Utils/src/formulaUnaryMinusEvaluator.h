@@ -33,7 +33,7 @@ namespace reco {
     {
       
     public:
-      explicit UnaryMinusEvaluator(std::unique_ptr<EvaluatorBase> iArg):
+      explicit UnaryMinusEvaluator(std::shared_ptr<EvaluatorBase> iArg):
       EvaluatorBase(Precedence::kUnaryMinusOperator ),
       m_arg(std::move(iArg)) {}
        
@@ -48,7 +48,7 @@ namespace reco {
       const UnaryMinusEvaluator& operator=(const UnaryMinusEvaluator&) = delete;
       
       // ---------- member data --------------------------------
-      std::unique_ptr<EvaluatorBase> m_arg;
+      std::shared_ptr<EvaluatorBase> m_arg;
     };
   }
 }
