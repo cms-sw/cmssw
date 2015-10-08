@@ -103,8 +103,6 @@ DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara) :
   mergedTrackSource_(iPara.getParameter<edm::InputTag>("mergedSource"),consumesCollector()),
   originalTrackSource_(iPara.getParameter<edm::InputTag>("originalSource"),consumesCollector())
 {
-
-  std::cout << "DuplicateListMerger" << std::endl;
   
   diffHitsCut_ = iPara.getParameter<int>("diffHitsCut");
   minTrkProbCut_ = iPara.getParameter<double>("minTrkProbCut");
@@ -136,8 +134,9 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   
  
-  auto const &  originals = originalTrackSource_.tracks(iEvent);
+  auto const & originals = originalTrackSource_.tracks(iEvent);
   auto const & merged = mergedTrackSource_.tracks(iEvent);
+  auto const & candIndices = mergedTrackSource_.indicesInput(iEvent);
   
   edm::Handle<std::vector<TrackCandidate>> candidateH;
   iEvent.getByToken(candidateSource_,candidateH);
@@ -158,19 +157,21 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   MVACollection mvaVec;
 
 
-
+  auto mergedMVA = *mergedMVAStore;
 
   //match new tracks to their candidates
   std::vector<std::array<int,3>> matches;
-  for(int i = 0; i < (int)candidates.size(); ++i) {
-    auto const & cand = candidates[i];
-    int matchTrack = matchCandidateToTrack(cand,merged);
-    if(matchTrack < 0)continue;
-    const reco::Track& matchedTrack = merged[matchTrack];
+  for(int i = 0; i < (int)merged.size(); ++i) {
+    auto cInd = candIndices[i];
+    auto const & cand = candidates[cInd];
+    const reco::Track& matchedTrack = merged[i];
+
+    if (mergedMVA[i]< -0.7f) continue;
+
     if( ChiSquaredProbability(matchedTrack.chi2(),matchedTrack.ndof()) < minTrkProbCut_)continue;
     unsigned int dHits = (cand.recHits().second - cand.recHits().first) - matchedTrack.recHitsSize();
     if(dHits > diffHitsCut_)continue;
-    matches.push_back(std::array<int,3>{{matchTrack,candidateComponents[i].first,candidateComponents[i].second}});
+    matches.push_back(std::array<int,3>{{i,candidateComponents[cInd].first,candidateComponents[cInd].second}});
   }
 
   //check for candidates/tracks that share merged tracks, select minimum chi2, remove the rest
@@ -197,10 +198,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
 
-
-
-
-
   // products
   auto pmvas = std::make_unique<MVACollection>();
   auto pquals = std::make_unique<QualityMaskCollection>();
@@ -221,9 +218,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     if ( (*matchIter0)[0]<0) continue;
     selId.push_back((*matchIter0)[0]);
 
-    auto mergedMVA = (*mergedMVAStore)[(*matchIter0)[0]];
-    pmvas->push_back(mergedMVA);
-
+    pmvas->push_back(mergedMVA[(*matchIter0)[0]]);
      
     const reco::Track& inTrk1 = originals[(*matchIter0)[1]];
     const reco::Track& inTrk2 = originals[(*matchIter0)[2]];

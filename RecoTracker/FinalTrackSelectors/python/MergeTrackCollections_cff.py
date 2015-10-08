@@ -18,7 +18,7 @@ duplicateTrackClassifier = TrackCutClassifier.clone()
 duplicateTrackClassifier.src='mergedDuplicateTracks'
 duplicateTrackClassifier.mva.minPixelHits = [0,0,0]
 duplicateTrackClassifier.mva.maxChi2 = [9999.,9999.,9999.]
-duplicateTrackClassifier.mva.maxChi2n = [9999.,9999.,9999.]
+duplicateTrackClassifier.mva.maxChi2n = [10.,1.0,0.4]  # [9999.,9999.,9999.]
 duplicateTrackClassifier.mva.minLayers = [0,0,0]
 duplicateTrackClassifier.mva.min3DLayers = [0,0,0]
 duplicateTrackClassifier.mva.maxLostLayers = [99,99,99]
@@ -27,6 +27,7 @@ duplicateTrackClassifier.mva.maxLostLayers = [99,99,99]
 
 generalTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateListMerger.clone(
     originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
+    originalMVAVals = cms.InputTag("preDuplicateMergingGeneralTracks","MVAValues"),
     mergedSource = cms.InputTag("mergedDuplicateTracks"),
     mergedMVAVals = cms.InputTag("duplicateTrackClassifier","MVAValues"),
     candidateSource = cms.InputTag("duplicateTrackCandidates","candidates"),

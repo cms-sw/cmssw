@@ -29,9 +29,11 @@ duplicateDisplacedTrackClassifier.mva.maxLostLayers = [99,99,99]
 #for displaced global muons
 displacedTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateListMerger.clone(
     originalSource = cms.InputTag("preDuplicateMergingDisplacedTracks"),
+    originalMVAVals = cms.InputTag("preDuplicateMergingDisplacedTracks","MVAValues"),
     mergedSource = cms.InputTag("mergedDuplicateDisplacedTracks"),
     mergedMVAVals = cms.InputTag("duplicateDisplacedTrackClassifier","MVAValues"),
-    candidateSource = cms.InputTag("duplicateDisplacedTrackCandidates","candidateMap")
+    candidateSource = cms.InputTag("duplicateDisplacedTrackCandidates","candidates"),
+    candidateComponents = cms.InputTag("duplicateDisplacedTrackCandidates","candidateMap")
     )
 #for displaced global muons
 displacedTracksSequence = cms.Sequence(

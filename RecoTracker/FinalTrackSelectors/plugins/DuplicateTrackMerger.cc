@@ -109,9 +109,6 @@ namespace {
 DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : forest_(nullptr), gbrVals_(nullptr), merger_(iPara)
 {
 
-  std::cout << "DuplicateTrackMerger" << std::endl;
-
-
   forestLabel_ = "MVADuplicate";
   useForestFromDB_ = true;
 
@@ -138,7 +135,6 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
   if(iPara.exists("minBDTG"))minBDTG_ = iPara.getParameter<double>("minBDTG");
 
   produces<std::vector<TrackCandidate> >("candidates");
-    std::cout << "DuplicateTrackMerger 2" << std::endl;
   produces<CandidateToDuplicate>("candidateMap");
 
   gbrVals_ = new float[9];
@@ -163,9 +159,6 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
   tmvaReader_->BookMVA("BDTG",mvaFilePath);
   */
 
-
-   std::cout << "DuplicateTrackMerger 3" << std::endl;
- 
   
 }
 
