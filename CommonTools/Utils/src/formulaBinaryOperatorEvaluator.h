@@ -30,30 +30,51 @@ namespace reco {
   namespace formula {
     class BinaryOperatorEvaluatorBase : public EvaluatorBase {
     public:
-    BinaryOperatorEvaluatorBase( Precidence iPrec) :
+    BinaryOperatorEvaluatorBase( std::shared_ptr<EvaluatorBase> iLHS, 
+                                 std::shared_ptr<EvaluatorBase> iRHS,
+                                 Precedence iPrec) :
+      EvaluatorBase(iPrec),
+        m_lhs(iLHS),
+        m_rhs(iRHS) {}
+
+    BinaryOperatorEvaluatorBase(Precedence iPrec) :
       EvaluatorBase(iPrec) {}
-      virtual void swapLeftEvaluator(std::unique_ptr<EvaluatorBase>& iNew) = 0;
+
+      void swapLeftEvaluator(std::shared_ptr<EvaluatorBase>& iNew ) {
+        m_lhs.swap(iNew);
+      }
+
+      void setLeftEvaluator(std::shared_ptr<EvaluatorBase> iOther) {
+        m_lhs = std::move(iOther);
+      }
+      void setRightEvaluator(std::shared_ptr<EvaluatorBase> iOther) {
+        m_rhs = std::move(iOther);
+      }
+      
+      EvaluatorBase const* lhs() const { return m_lhs.get(); }
+      EvaluatorBase const* rhs() const { return m_rhs.get(); }
+
+    private:
+      std::shared_ptr<EvaluatorBase> m_lhs;
+      std::shared_ptr<EvaluatorBase> m_rhs;
     };
+
     template<typename Op>
       class BinaryOperatorEvaluator : public BinaryOperatorEvaluatorBase
     {
       
     public:
-      BinaryOperatorEvaluator(std::unique_ptr<EvaluatorBase> iLHS, 
-                              std::unique_ptr<EvaluatorBase> iRHS,
-                              Precidence iPrec):
-      BinaryOperatorEvaluatorBase(iPrec),
-        m_lhs(std::move(iLHS)),
-        m_rhs(std::move(iRHS)) {
-        }
-       
+      BinaryOperatorEvaluator(std::shared_ptr<EvaluatorBase> iLHS, 
+                              std::shared_ptr<EvaluatorBase> iRHS,
+                              Precedence iPrec):
+      BinaryOperatorEvaluatorBase(std::move(iLHS), std::move(iRHS), iPrec) {}
+
+    BinaryOperatorEvaluator(Precedence iPrec):
+      BinaryOperatorEvaluatorBase(iPrec) {}
+
       // ---------- const member functions ---------------------
       virtual double evaluate(double const* iVariables, double const* iParameters) const override final {
-        return m_operator(m_lhs->evaluate(iVariables,iParameters),m_rhs->evaluate(iVariables,iParameters));
-      }
-
-      void swapLeftEvaluator(std::unique_ptr<EvaluatorBase>& iNew ) override final {
-        m_lhs.swap(iNew);
+        return m_operator(lhs()->evaluate(iVariables,iParameters),rhs()->evaluate(iVariables,iParameters));
       }
 
     private:
@@ -62,8 +83,6 @@ namespace reco {
       const BinaryOperatorEvaluator& operator=(const BinaryOperatorEvaluator&) = delete;
       
       // ---------- member data --------------------------------
-      std::unique_ptr<EvaluatorBase> m_lhs;
-      std::unique_ptr<EvaluatorBase> m_rhs;
       Op m_operator;
 
     };

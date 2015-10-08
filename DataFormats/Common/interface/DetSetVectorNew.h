@@ -18,6 +18,8 @@
 #include<vector>
 #include <cassert>
 
+class TestDetSet;
+
 namespace edm { namespace refhelper { template<typename T> struct FindForNewDetSetVector; } }
 
 //FIXME remove New when ready
@@ -203,6 +205,9 @@ namespace edmNew {
       data_type & back() { return v.m_data.back();}
       
     private:
+      //for testing
+      friend class ::TestDetSet;
+      
       DetSetVector<T> & v;
       typename DetSetVector<T>::Item & item;
       bool saveEmpty;
@@ -420,6 +425,9 @@ namespace edmNew {
     void updateImpl(Item & item);
     
   private:
+    //for testing
+    friend class ::TestDetSet;
+
     // subdetector id (as returned by  DetId::subdetId())
     int m_subdetId;
     

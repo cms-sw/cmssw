@@ -34,8 +34,16 @@
 
 #include "DataFormats/PatCandidates/interface/CandKinResolution.h"
 
+#include "DataFormats/PatCandidates/interface/throwMissingLabel.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 namespace pat {
 
+  namespace pat_statics {
+    static const reco::CandidatePtrVector EMPTY_CPV;
+    static const std::string EMPTY_STR("");
+  }
 
   template <class ObjectType>
   class PATObject : public ObjectType {
@@ -271,18 +279,17 @@ namespace pat {
       /// Returns user-defined data. Returns NULL if the data is not present, or not of type T.
       template<typename T> const T * userData(const std::string &key) const {
           const pat::UserData * data = userDataObject_(key);
-          return (data != 0 ? data->template get<T>() : 0);
+          return (data != nullptr ? data->template get<T>() : nullptr);
 
       }
       /// Check if user data with a specific type is present
       bool hasUserData(const std::string &key) const {
-          return (userDataObject_(key) != 0);
+          return (userDataObject_(key) != nullptr);
       }
       /// Get human-readable type of user data object, for debugging
       const std::string & userDataObjectType(const std::string &key) const {
-          static const std::string EMPTY("");
           const pat::UserData * data = userDataObject_(key);
-          return (data != 0 ? data->typeName() : EMPTY);
+          return (data != nullptr ? data->typeName() : pat_statics::EMPTY_STR);
       };
       /// Get list of user data object names
       const std::vector<std::string> & userDataNames() const  { return userDataLabels_; }
@@ -291,7 +298,7 @@ namespace pat {
       /// COMPLETELY UNSUPPORTED, USE ONLY FOR DEBUGGING
       const void * userDataBare(const std::string &key) const {
           const pat::UserData * data = userDataObject_(key);
-          return (data != 0 ? data->bareData() : 0);
+          return (data != nullptr ? data->bareData() : nullptr);
       }
 
       /// Set user-defined data
@@ -300,56 +307,63 @@ namespace pat {
       /// unless transientOnly is set to true
       template<typename T>
       void addUserData( const std::string & label, const T & data, bool transientOnly=false ) {
-          userDataLabels_.push_back(label);
-          userDataObjects_.push_back(pat::UserData::make<T>(data, transientOnly));
+        userDataLabels_.push_back(label);
+        userDataObjects_.push_back(pat::UserData::make<T>(data, transientOnly));
       }
 
       /// Set user-defined data. To be used only to fill from ValueMap<Ptr<UserData>>
       /// Do not use unless you know what you are doing.
       void addUserDataFromPtr( const std::string & label, const edm::Ptr<pat::UserData> & data ) {
-          userDataLabels_.push_back(label);
-          userDataObjects_.push_back(data->clone());
+        userDataLabels_.push_back(label);
+        userDataObjects_.push_back(data->clone());
       }
 
       /// Get user-defined float
-      /// Note: it will return 0.0 if the key is not found; you can check if the key exists with 'hasUserFloat' method.
+      /// Note: throws if the key is not found; you can check if the key exists with 'hasUserFloat' method.
       float userFloat( const std::string & key ) const;
+      /// return a range of values corresponding to key
+      std::vector<float> userFloatRange( const std::string& key ) const;
       /// a CINT-friendly interface
       float userFloat( const char* key ) const { return userFloat( std::string(key) ); }
       
       /// Set user-defined float
-      void addUserFloat( const  std::string & label, float data );
+      void addUserFloat( const  std::string & label, float data, const bool overwrite = false );
       /// Get list of user-defined float names
       const std::vector<std::string> & userFloatNames() const  { return userFloatLabels_; }
       /// Return true if there is a user-defined float with a given name
       bool hasUserFloat( const std::string & key ) const {
-        return std::find(userFloatLabels_.begin(), userFloatLabels_.end(), key) != userFloatLabels_.end();
+        auto it = std::lower_bound(userFloatLabels_.cbegin(), userFloatLabels_.cend(), key); 
+        return ( it != userFloatLabels_.cend() && *it == key );
       }
       /// a CINT-friendly interface
       bool hasUserFloat( const char* key ) const {return hasUserFloat( std::string(key) );}
 
       /// Get user-defined int
-      /// Note: it will return 0 if the key is not found; you can check if the key exists with 'hasUserInt' method.
+      /// Note: throws if the key is not found; you can check if the key exists with 'hasUserInt' method.
       int32_t userInt( const std::string & key ) const;
+      /// returns a range of values corresponding to key
+      std::vector<int> userIntRange( const std::string& key ) const;
       /// Set user-defined int
       void addUserInt( const std::string & label,  int32_t data );
       /// Get list of user-defined int names
       const std::vector<std::string> & userIntNames() const  { return userIntLabels_; }
       /// Return true if there is a user-defined int with a given name
       bool hasUserInt( const std::string & key ) const {
-        return std::find(userIntLabels_.begin(), userIntLabels_.end(), key) != userIntLabels_.end();
+        auto it = std::lower_bound(userIntLabels_.cbegin(), userIntLabels_.cend(), key);
+        return ( it != userIntLabels_.cend() && *it == key );
       }
 
       /// Get user-defined candidate ptr
       /// Note: it will a null pointer if the key is not found; you can check if the key exists with 'hasUserInt' method.
       reco::CandidatePtr userCand( const std::string & key ) const;
       /// Set user-defined int
-      void addUserCand( const std::string & label,  const reco::CandidatePtr & data );
+      void addUserCand( const std::string & label,  const reco::CandidatePtr & data, const bool overwrite = false );
       /// Get list of user-defined cand names
       const std::vector<std::string> & userCandNames() const  { return userCandLabels_; }
       /// Return true if there is a user-defined int with a given name
       bool hasUserCand( const std::string & key ) const {
-        return std::find(userCandLabels_.begin(), userCandLabels_.end(), key) != userCandLabels_.end();
+        auto it = std::lower_bound(userCandLabels_.cbegin(), userCandLabels_.cend(), key);
+        return ( it != userCandLabels_.cend() && *it == key );
       }
 
       // === New Kinematic Resolutions
@@ -616,11 +630,11 @@ namespace pat {
   const pat::LookupTableRecord &
   PATObject<ObjectType>::efficiency(const std::string &name) const {
     // find the name in the (sorted) list of names
-    std::vector<std::string>::const_iterator it = std::lower_bound(efficiencyNames_.begin(), efficiencyNames_.end(), name);
+    auto it = std::lower_bound(efficiencyNames_.cbegin(), efficiencyNames_.cend(), name);
     if ((it == efficiencyNames_.end()) || (*it != name)) {
         throw cms::Exception("Invalid Label") << "There is no efficiency with name '" << name << "' in this PAT Object\n";
     }
-    return efficiencyValues_[it - efficiencyNames_.begin()];
+    return efficiencyValues_[std::distance(efficiencyNames_.cbegin(),it)];
   }
 
   template <class ObjectType>
@@ -630,7 +644,7 @@ namespace pat {
     std::vector<std::string>::const_iterator itn = efficiencyNames_.begin(), edn = efficiencyNames_.end();
     std::vector<pat::LookupTableRecord>::const_iterator itv = efficiencyValues_.begin();
     for ( ; itn != edn; ++itn, ++itv) {
-        ret.push_back( std::pair<std::string,pat::LookupTableRecord>(*itn, *itv) );
+        ret.emplace_back( *itn, *itv);
     }
     return ret;
   }
@@ -638,15 +652,16 @@ namespace pat {
   template <class ObjectType>
   void PATObject<ObjectType>::setEfficiency(const std::string &name, const pat::LookupTableRecord & value) {
     // look for the name, or to the place where we can insert it without violating the alphabetic order
-    std::vector<std::string>::iterator it = std::lower_bound(efficiencyNames_.begin(), efficiencyNames_.end(), name);
+    auto it = std::lower_bound(efficiencyNames_.begin(), efficiencyNames_.end(), name);
+    const auto dist = std::distance(efficiencyNames_.begin(),it);
     if (it == efficiencyNames_.end()) { // insert at the end
         efficiencyNames_.push_back(name);
         efficiencyValues_.push_back(value);
     } else if (*it == name) {           // replace existing
-        efficiencyValues_[it - efficiencyNames_.begin()] = value;
+        efficiencyValues_[dist] = value;
     } else {                            // insert in the middle :-(
         efficiencyNames_. insert(it, name);
-        efficiencyValues_.insert( efficiencyValues_.begin() + (it - efficiencyNames_.begin()), value );
+        efficiencyValues_.insert( efficiencyValues_.begin() + dist, value );
     }
   }
 
@@ -717,123 +732,170 @@ namespace pat {
 
   template <class ObjectType>
   bool PATObject<ObjectType>::hasOverlaps(const std::string &label) const {
-        return std::find(overlapLabels_.begin(), overlapLabels_.end(), label) != overlapLabels_.end();
+        auto match = std::lower_bound(overlapLabels_.cbegin(), overlapLabels_.cend(), label);
+        return ( match != overlapLabels_.end() && *match == label );
   }
 
   template <class ObjectType>
   const reco::CandidatePtrVector & PATObject<ObjectType>::overlaps(const std::string &label) const {
-        static const reco::CandidatePtrVector EMPTY;
-        std::vector<std::string>::const_iterator match = std::find(overlapLabels_.begin(), overlapLabels_.end(), label);
-        if (match == overlapLabels_.end()) return EMPTY;
-        return overlapItems_[match - overlapLabels_.begin()];
+        
+        auto match = std::lower_bound(overlapLabels_.cbegin(), overlapLabels_.cend(), label);
+        if( match == overlapLabels_.cend() || *match != label ) return pat_statics::EMPTY_CPV;
+        return overlapItems_[std::distance(overlapLabels_.begin(),match)];
   }
 
   template <class ObjectType>
   void PATObject<ObjectType>::setOverlaps(const std::string &label, const reco::CandidatePtrVector & overlaps) {
-        if (!overlaps.empty()) {
-            std::vector<std::string>::const_iterator match = std::find(overlapLabels_.begin(), overlapLabels_.end(), label);
-            if (match == overlapLabels_.end()) {
-                overlapLabels_.push_back(label);
-                overlapItems_.push_back(overlaps);
-            } else {
-                overlapItems_[match - overlapLabels_.begin()] = overlaps;
-            }
-        }
+      
+        auto match = std::lower_bound(overlapLabels_.begin(), overlapLabels_.end(), label);
+        const auto dist = std::distance(overlapLabels_.begin(),match);
+        if ( match == overlapLabels_.end() || *match != label ) {
+          overlapLabels_.insert(match,label);
+          overlapItems_.insert(overlapItems_.begin()+dist,overlaps);
+        } else {
+          overlapItems_[dist] = overlaps;
+        }        
   }
 
   template <class ObjectType>
   const pat::UserData * PATObject<ObjectType>::userDataObject_( const std::string & key ) const
   {
-    std::vector<std::string>::const_iterator it = std::find(userDataLabels_.begin(), userDataLabels_.end(), key);
-    if (it != userDataLabels_.end()) {
-        return & userDataObjects_[it - userDataLabels_.begin()];
+    auto it = std::lower_bound(userDataLabels_.cbegin(),userDataLabels_.cend(),key);
+    if ( it != userDataLabels_.cend() && *it == key) {
+      return &userDataObjects_[std::distance(userDataLabels_.cbegin(),it)];
     }
-    return 0;
+    return nullptr;
   }
 
   template <class ObjectType>
   float PATObject<ObjectType>::userFloat( const std::string &key ) const
   {
-    std::vector<std::string>::const_iterator it = std::find(userFloatLabels_.begin(), userFloatLabels_.end(), key);
-    if (it != userFloatLabels_.end()) {
-        return userFloats_[it - userFloatLabels_.begin()];
+    auto it = std::lower_bound(userFloatLabels_.cbegin(),userFloatLabels_.cend(),key);
+    if( it != userFloatLabels_.cend() && *it == key ) {
+      return userFloats_[std::distance(userFloatLabels_.cbegin(),it)];
     }
-    return 0.0;
+    throwMissingLabel("UserFloat",key,userFloatLabels_);
+    return std::numeric_limits<float>::quiet_NaN();
+  }
+
+  template<class ObjectType>
+  std::vector<float> PATObject<ObjectType>::userFloatRange( const std::string& key ) const {
+    auto range = std::equal_range(userFloatLabels_.cbegin(),userFloatLabels_.cend(),key);
+    std::vector<float> result;
+    result.reserve(std::distance(range.first,range.second));
+    for( auto it = range.first; it != range.second; ++it ) {
+      result.push_back(userFloats_[std::distance(userFloatLabels_.cbegin(),it)]);
+    }
+    return result;
   }
 
   template <class ObjectType>
   void PATObject<ObjectType>::addUserFloat( const std::string & label,
-					    float data )
+					    float data,
+                                            const bool overwrite )
   {
-    userFloatLabels_.push_back(label);
-    userFloats_.push_back( data );
+    auto it = std::lower_bound(userFloatLabels_.begin(),userFloatLabels_.end(),label);
+    const auto dist = std::distance(userFloatLabels_.begin(),it);
+    if( it == userFloatLabels_.end() || *it != label ) {      
+      userFloatLabels_.insert(it,label);
+      userFloats_.insert(userFloats_.begin()+dist,data);
+    } else if( *it == label  ) {
+      //create a range by adding behind the first entry
+      userFloats_.insert(userFloats_.begin()+dist+1, data); 
+    }
   }
 
 
   template <class ObjectType>
   int PATObject<ObjectType>::userInt( const std::string & key ) const
   {
-    std::vector<std::string>::const_iterator it = std::find(userIntLabels_.begin(), userIntLabels_.end(), key);
-    if (it != userIntLabels_.end()) {
-        return userInts_[it - userIntLabels_.begin()];
+    auto it = std::lower_bound(userIntLabels_.cbegin(), userIntLabels_.cend(), key);
+    if ( it != userIntLabels_.cend() && *it == key ) {
+      return userInts_[std::distance(userIntLabels_.cbegin(),it)];
     }
-    return 0;
+    throwMissingLabel("UserInt",key,userIntLabels_);
+    return std::numeric_limits<int>::max();
+  }
+
+  template<class ObjectType>
+  std::vector<int> PATObject<ObjectType>::userIntRange( const std::string& key ) const{
+    auto range = std::equal_range(userIntLabels_.cbegin(),userIntLabels_.cend(),key);
+    std::vector<int> result;
+    result.reserve(std::distance(range.first,range.second));
+    for( auto it = range.first; it != range.second; ++it ) {
+      result.push_back(userInts_[std::distance(userIntLabels_.cbegin(),it)]);
+    }
+    return result;
   }
 
   template <class ObjectType>
   void PATObject<ObjectType>::addUserInt( const std::string &label,
-					   int data )
+                                          int data )
   {
-    userIntLabels_.push_back(label);
-    userInts_.push_back( data );
+    auto it = std::lower_bound(userIntLabels_.begin(),userIntLabels_.end(),label);
+    const auto dist = std::distance(userIntLabels_.begin(),it);
+    if( it == userIntLabels_.end() || *it != label ) { 
+      userIntLabels_.insert(it,label);
+      userInts_.insert(userInts_.begin()+dist,data);
+    } else if( *it == label ) {
+      //create a range by adding behind the first entry
+      userInts_.insert(userInts_.begin()+dist+1,data);
+    }
   }
 
   template <class ObjectType>
   reco::CandidatePtr PATObject<ObjectType>::userCand( const std::string & key ) const
   {
-    std::vector<std::string>::const_iterator it = std::find(userCandLabels_.begin(), userCandLabels_.end(), key);
-    if (it != userCandLabels_.end()) {
-        return userCands_[it - userCandLabels_.begin()];
+    auto it = std::lower_bound(userCandLabels_.cbegin(), userCandLabels_.cend(), key);
+    if (it != userCandLabels_.cend()) {
+      return userCands_[std::distance(userCandLabels_.begin(),it)];
     }
     return reco::CandidatePtr();
   }
 
   template <class ObjectType>
   void PATObject<ObjectType>::addUserCand( const std::string &label,
-					   const reco::CandidatePtr & data )
+					   const reco::CandidatePtr & data,
+                                           const bool overwrite )
   {
-    userCandLabels_.push_back(label);
-    userCands_.push_back( data );
+    auto it = std::lower_bound(userCandLabels_.begin(),userCandLabels_.end(),label);
+    const auto dist = std::distance(userCandLabels_.begin(),it);
+    if( it == userCandLabels_.end() || *it != label ) {      
+      userCandLabels_.insert(it,label);
+      userCands_.insert(userCands_.begin()+dist,data);
+    } else if( overwrite && *it == label ) {
+      userCands_[dist] = data;
+    } else {
+      edm::LogWarning("addUserCand") 
+        << "Attempting to add userCand " << label << " failed, Ptr exists already!";
+    }    
   }
 
 
   template <class ObjectType>
   const pat::CandKinResolution & PATObject<ObjectType>::getKinResolution(const std::string &label) const {
+    const bool has_unlabelled = (kinResolutionLabels_.size()+1 == kinResolutions_.size());
     if (label.empty()) {
-        if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+        if ( has_unlabelled ) {
             return kinResolutions_[0];
         } else {
             throw cms::Exception("Missing Data", "This object does not contain an un-labelled kinematic resolution");
         }
     } else {
-        std::vector<std::string>::const_iterator match = std::find(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
-        if (match == kinResolutionLabels_.end()) {
+        auto match = std::lower_bound(kinResolutionLabels_.cbegin(), kinResolutionLabels_.cend(), label);
+        const auto dist = std::distance(kinResolutionLabels_.begin(),match);
+        const size_t increment = ( has_unlabelled ? 1 : 0 );
+        if ( match == kinResolutionLabels_.end() || *match != label ) {
             cms::Exception ex("Missing Data");
             ex << "This object does not contain a kinematic resolution with name '" << label << "'.\n";
             ex << "The known labels are: " ;
-            for (std::vector<std::string>::const_iterator it = kinResolutionLabels_.begin(); it != kinResolutionLabels_.end(); ++it) {
+            for (std::vector<std::string>::const_iterator it = kinResolutionLabels_.cbegin(); it != kinResolutionLabels_.cend(); ++it) {
                 ex << "'" << *it << "' ";
             }
             ex << "\n";
             throw ex;
-        } else {
-            if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
-                // skip un-labelled resolution
-                return kinResolutions_[match - kinResolutionLabels_.begin() + 1];
-            } else {
-                // all are labelled, so this is the real index
-                return kinResolutions_[match - kinResolutionLabels_.begin()];
-            }
+        } else {           
+            return kinResolutions_[dist+increment];          
         }
     }
   }
@@ -843,15 +905,16 @@ namespace pat {
     if (label.empty()) {
         return (kinResolutionLabels_.size()+1 == kinResolutions_.size());
     } else {
-        std::vector<std::string>::const_iterator match = std::find(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
-        return match != kinResolutionLabels_.end();
+        auto match = std::lower_bound(kinResolutionLabels_.cbegin(), kinResolutionLabels_.cend(), label);
+        return ( match != kinResolutionLabels_.cend() && *match == label );
     }
   }
 
   template <class ObjectType>
   void PATObject<ObjectType>::setKinResolution(const pat::CandKinResolution &resol, const std::string &label) {
+    const bool has_unlabelled = (kinResolutionLabels_.size()+1 == kinResolutions_.size());
     if (label.empty()) {
-        if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
+        if (has_unlabelled) {
             // There is already an un-labelled object. Replace it
             kinResolutions_[0] = resol;
         } else {
@@ -860,17 +923,15 @@ namespace pat {
             kinResolutions_.insert(kinResolutions_.begin(), resol);
         }
     } else {
-        std::vector<std::string>::iterator match = std::find(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
-        if (match != kinResolutionLabels_.end()) {
+        auto match = std::lower_bound(kinResolutionLabels_.begin(), kinResolutionLabels_.end(), label);
+        const auto dist = std::distance(kinResolutionLabels_.begin(),match);
+        const size_t increment = ( has_unlabelled ? 1 : 0 );
+        if ( match != kinResolutionLabels_.end() && *match == label ) {
             // Existing object: replace
-            if (kinResolutionLabels_.size()+1 == kinResolutions_.size()) {
-                kinResolutions_[(match - kinResolutionLabels_.begin())+1] = resol;
-            } else {
-                kinResolutions_[(match - kinResolutionLabels_.begin())] = resol;
-            }
+            kinResolutions_[dist+increment] = resol;
         } else {
-            kinResolutionLabels_.push_back(label);
-            kinResolutions_.push_back(resol);
+            kinResolutionLabels_.insert(match,label);
+            kinResolutions_.insert(kinResolutions_.begin()+dist+increment,resol);
         }
     }
   }

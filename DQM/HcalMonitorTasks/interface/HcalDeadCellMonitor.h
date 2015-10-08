@@ -37,6 +37,7 @@ public:
   void setup(DQMStore::IBooker &);
   void bookHistograms(DQMStore::IBooker &ib, const edm::Run& run, const edm::EventSetup& c);
   void analyze(edm::Event const&e, edm::EventSetup const&s);
+
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			  const edm::EventSetup& c);
   void endRun(const edm::Run& run, const edm::EventSetup& c);
@@ -58,7 +59,6 @@ private:
   template<class T> void process_Digi(T& digi);
   template<class T> void process_RecHit(T& rechit);
 
-  const HcalTopology* topo_;
   bool deadmon_makeDiagnostics_;
   int minDeadEventCount_;
 
@@ -66,9 +66,9 @@ private:
   bool deadmon_test_digis_;
   bool deadmon_test_rechits_;
 
-  void fillNevents_problemCells(); // problemcells always checks for never-present digis, rechits
-  void fillNevents_recentdigis();
-  void fillNevents_recentrechits();
+  void fillNevents_problemCells(const HcalTopology&); // problemcells always checks for never-present digis, rechits
+  void fillNevents_recentdigis(const HcalTopology&);
+  void fillNevents_recentrechits(const HcalTopology&);
 
   // specify minimum energy threshold for energy test
   double energyThreshold_;

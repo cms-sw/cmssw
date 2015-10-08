@@ -34,8 +34,8 @@ namespace reco {
       
     public:
       template<typename T>
-    FunctionTwoArgsEvaluator(std::unique_ptr<EvaluatorBase> iArg1,
-                             std::unique_ptr<EvaluatorBase> iArg2,
+    FunctionTwoArgsEvaluator(std::shared_ptr<EvaluatorBase> iArg1,
+                             std::shared_ptr<EvaluatorBase> iArg2,
                              T iFunc):
       m_arg1(std::move(iArg1)),
         m_arg2(std::move(iArg2)),
@@ -54,8 +54,8 @@ namespace reco {
       const FunctionTwoArgsEvaluator& operator=(const FunctionTwoArgsEvaluator&) = delete;
       
       // ---------- member data --------------------------------
-      std::unique_ptr<EvaluatorBase> m_arg1;
-      std::unique_ptr<EvaluatorBase> m_arg2;
+      std::shared_ptr<EvaluatorBase> m_arg1;
+      std::shared_ptr<EvaluatorBase> m_arg2;
       std::function<double(double,double)> m_function;
     };
   }

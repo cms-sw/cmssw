@@ -35,6 +35,9 @@
 
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 
+//Hcal Hoise Summary
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+
 //
 // class declaration
 //
@@ -60,6 +63,9 @@ class HcalNoiseRates : public DQMEDAnalyzer {
   double minHitEnergy_;                // RecHit energy threshold
   bool   useAllHistos_;
 
+  //Hcal Noise Summary Parameters
+  edm::EDGetTokenT<HcalNoiseSummary> noisetoken_;
+
   MonitorElement* hLumiBlockCount_;
   MonitorElement* hRBXEnergy_;
   MonitorElement* hRBXEnergyType1_;
@@ -69,6 +75,24 @@ class HcalNoiseRates : public DQMEDAnalyzer {
 
   // count lumi segments
   std::map<int, int> lumiCountMap_;
+
+  //Hcal Noise Summary Plots
+
+  MonitorElement* nNNumChannels_;
+  MonitorElement* nNSumE_;
+  MonitorElement* nNSumEt_;
+
+  MonitorElement* sNNumChannels_;
+  MonitorElement* sNSumE_;
+  MonitorElement* sNSumEt_;
+
+  MonitorElement* iNNumChannels_;
+  MonitorElement* iNSumE_;
+  MonitorElement* iNSumEt_;
+
+  MonitorElement* hNoise_maxZeros_;
+  MonitorElement* hNoise_maxHPDHits_;
+  MonitorElement* hNoise_maxHPDNoOtherHits_;
 
 };
 

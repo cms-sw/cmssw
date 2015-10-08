@@ -1,0 +1,31 @@
+<export>
+  <lib name="1"/>  
+  <use name="DataFormats/L1TMuon"/>   
+  <use name="root"/> 
+  <use name="xerces-c"/>
+</export>
+
+<use name="DataFormats/L1TMuon"/>
+<use name="Geometry/Records"/>
+
+<use name="L1Trigger/DTTrackFinder"/>
+<use name="Geometry/DTGeometry"/>
+<use name="L1Trigger/DTUtilities"/>
+
+<use name="Geometry/CSCGeometry"/>
+<use name="L1Trigger/CSCCommonTrigger"/>
+
+<use name="Geometry/RPCGeometry"/>  
+<use name="FWCore/PluginManager"/>
+<use name="rootrflx"/>
+<use name="PhysicsTools/UtilAlgos"/>
+<use name="rootgraphics"/>
+<use name="root"/>
+<use name="rootmath"/>
+
+<use name="L1Trigger/CSCTrackFinder"/>
+<use name="DataFormats/ParticleFlowCandidate"/>
+<use name="DataFormats/ParticleFlowReco"/>
+
+<use name="L1Trigger/RPCTrigger"/>
+

@@ -9,8 +9,8 @@ from RecoTracker.IterativeTracking.Phase1PU70_MixedTripletStep_cff import *
 from RecoTracker.IterativeTracking.Phase1PU70_PixelPairStep_cff import *
 from RecoTracker.IterativeTracking.Phase1PU70_TobTecStep_cff import *
 from RecoTracker.FinalTrackSelectors.Phase1PU70_earlyGeneralTracks_cfi import *
-from RecoTracker.IterativeTracking.MuonSeededStep_cff import *
-from RecoTracker.FinalTrackSelectors.preDuplicateMergingGeneralTracks_cfi import *
+from RecoTracker.IterativeTracking.Phase1PU70_MuonSeededStep_cff import *
+from RecoTracker.FinalTrackSelectors.Phase1PU70_preDuplicateMergingGeneralTracks_cfi import *
 from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 from RecoTracker.ConversionSeedGenerators.Phase1PU70_ConversionStep_cff import *
 

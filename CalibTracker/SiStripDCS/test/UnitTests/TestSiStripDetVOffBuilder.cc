@@ -9,12 +9,7 @@
 
 #include <vector>
 
-// Make everything public to access all methods
-#define protected public
-#define private public
 #include "CalibTracker/SiStripDCS/interface/SiStripDetVOffBuilder.h"
-#undef protected
-#undef private
 
 std::vector<int> vectorDate(const int year, const int month,
 			    const int day, const int hour,
