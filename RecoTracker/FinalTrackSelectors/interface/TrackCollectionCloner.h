@@ -38,7 +38,11 @@ public:
   TrackCollectionCloner(Producer & producer, const edm::ParameterSet & cfg, bool copyDefault ) :
     copyExtras_(cfg.template getUntrackedParameter<bool>("copyExtras", copyDefault)),
     copyTrajectories_(cfg.template getUntrackedParameter<bool>("copyTrajectories", copyDefault)) {
+
+    std::cout << "TrackCollectionCloner" << std::endl;
+    
     std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
+    std::cout << "TrackCollectionCloner "+alias << std::endl;
     producer.template produces<reco::TrackCollection>().setBranchAlias( alias + "Tracks" );
     if (copyExtras_) {
       producer.template produces<reco::TrackExtraCollection>().setBranchAlias( alias + "TrackExtras" );
@@ -48,6 +52,9 @@ public:
       producer.template produces< std::vector<Trajectory> >().setBranchAlias( alias + "Trajectories" );
       producer.template produces< TrajTrackAssociationCollection >().setBranchAlias( alias + "TrajectoryTrackAssociations" );
     }
+
+    std::cout << "TrackCollectionCloner2" << std::endl;
+
   }
 
   struct Producer {

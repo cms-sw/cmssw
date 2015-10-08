@@ -103,10 +103,13 @@ DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara) :
   mergedTrackSource_(iPara.getParameter<edm::InputTag>("mergedSource"),consumesCollector()),
   originalTrackSource_(iPara.getParameter<edm::InputTag>("originalSource"),consumesCollector())
 {
+
+  std::cout << "DuplicateListMerger" << std::endl;
+  
   diffHitsCut_ = iPara.getParameter<int>("diffHitsCut");
   minTrkProbCut_ = iPara.getParameter<double>("minTrkProbCut");
   candidateSource_ = consumes<std::vector<TrackCandidate> >(iPara.getParameter<edm::InputTag>("candidateSource"));
-  candidateComponents_ = consumes<CandidateToDuplicate>(iPara.getParameter<edm::InputTag>("candidateSource"));
+  candidateComponents_ = consumes<CandidateToDuplicate>(iPara.getParameter<edm::InputTag>("candidateComponents"));
 
   mergedMVAValsToken_ = consumes<MVACollection>(iPara.getParameter<edm::InputTag>("mergedMVAVals"));
   originalMVAValsToken_ = consumes<MVACollection>(iPara.getParameter<edm::InputTag>("originalMVAVals"));

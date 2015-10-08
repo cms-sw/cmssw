@@ -1,6 +1,17 @@
 import FWCore.ParameterSet.Config as cms
 import os
 
+duplicateListMerger = cms.EDProducer("DuplicateListMerger",
+                                     originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
+                                     diffHitsCut = cms.int32(5),
+                                     minTrkProbCut = cms.double(0.0),
+                                     mergedSource = cms.InputTag("mergedDuplicateTracks"),
+                                     candidateSource = cms.InputTag("duplicateTrackMerger","candidates"),
+                                     candidateComponents = cms.InputTag("duplicateTrackMerger","candidateMap"),
+                                     newQuality = cms.string('confirmed')
+                                     )
+
+
 duplicateTrackMerger = cms.EDProducer("DuplicateTrackMerger",
                                       source = cms.InputTag("preDuplicateMergingGeneralTracks"),
                                       minDeltaR3d = cms.double(-4.0),
@@ -19,11 +30,3 @@ duplicateTrackMerger = cms.EDProducer("DuplicateTrackMerger",
                                       ttrhBuilderName    = cms.string("WithAngleAndTemplate")
                                       )
 
-duplicateListMerger = cms.EDProducer("DuplicateListMerger",
-                                     originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
-                                     diffHitsCut = cms.int32(5),
-                                     minTrkProbCut = cms.double(0.0),
-                                     mergedSource = cms.InputTag("mergedDuplicateTracks"),
-                                     candidateSource = cms.InputTag("duplicateTrackMerger","candidateMap"),
-                                     newQuality = cms.string('confirmed')
-                                     )

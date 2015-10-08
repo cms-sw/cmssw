@@ -29,7 +29,8 @@ generalTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplica
     originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
     mergedSource = cms.InputTag("mergedDuplicateTracks"),
     mergedMVAVals = cms.InputTag("duplicateTrackClassifier","MVAValues"),
-    candidateSource = cms.InputTag("duplicateTrackCandidates","candidateMap")
+    candidateSource = cms.InputTag("duplicateTrackCandidates","candidates"),
+    candidateComponents = cms.InputTag("duplicateTrackCandidates","candidateMap")
     )
 
 

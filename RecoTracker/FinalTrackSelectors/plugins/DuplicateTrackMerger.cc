@@ -6,7 +6,6 @@
  */
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -29,8 +28,8 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
 using namespace reco;
-
-    class dso_hidden DuplicateTrackMerger final : public edm::stream::EDProducer<> {
+namespace {
+  class  DuplicateTrackMerger final : public edm::stream::EDProducer<> {
        public:
          /// constructor
          explicit DuplicateTrackMerger(const edm::ParameterSet& iPara);
@@ -92,6 +91,7 @@ using namespace reco;
 	 ///Merger
 	 TrackMerger merger_;
      };
+}
 
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -104,8 +104,14 @@ using namespace reco;
 #include "FWCore/Framework/interface/ESHandle.h" 
 #include "TFile.h"
 
+namespace {
+
 DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : forest_(nullptr), gbrVals_(nullptr), merger_(iPara)
 {
+
+  std::cout << "DuplicateTrackMerger" << std::endl;
+
+
   forestLabel_ = "MVADuplicate";
   useForestFromDB_ = true;
 
@@ -132,6 +138,7 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
   if(iPara.exists("minBDTG"))minBDTG_ = iPara.getParameter<double>("minBDTG");
 
   produces<std::vector<TrackCandidate> >("candidates");
+    std::cout << "DuplicateTrackMerger 2" << std::endl;
   produces<CandidateToDuplicate>("candidateMap");
 
   gbrVals_ = new float[9];
@@ -156,6 +163,10 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
   tmvaReader_->BookMVA("BDTG",mvaFilePath);
   */
 
+
+   std::cout << "DuplicateTrackMerger 3" << std::endl;
+ 
+  
 }
 
 DuplicateTrackMerger::~DuplicateTrackMerger()
@@ -284,6 +295,11 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.put(std::move(out_duplicateCandidates),"candidates");
   iEvent.put(std::move(out_candidateMap),"candidateMap");
 
+  
+}
+
+
+  
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
