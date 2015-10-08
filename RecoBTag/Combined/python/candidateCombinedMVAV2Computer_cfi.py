@@ -13,7 +13,7 @@ candidateCombinedMVAV2Computer = cms.ESProducer("CombinedMVAV2JetTagESProducer",
 		["Jet_CSV", "Jet_CSVIVF", "Jet_JP", "Jet_JBP", "Jet_SoftMu", "Jet_SoftEl"]
 	),
 	spectators = cms.vstring([]),
-	useCondDB = cms.bool(False),
+	useCondDB = cms.bool(True),
 	gbrForestLabel = cms.string("btag_CombinedMVAv2_BDT"),
 	useGBRForest = cms.bool(True),
 	useAdaBoost = cms.bool(False),
