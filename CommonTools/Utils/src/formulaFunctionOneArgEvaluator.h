@@ -34,7 +34,7 @@ namespace reco {
       
     public:
       template<typename T>
-      explicit FunctionOneArgEvaluator(std::unique_ptr<EvaluatorBase> iArg, T iFunc):
+      explicit FunctionOneArgEvaluator(std::shared_ptr<EvaluatorBase> iArg, T iFunc):
         m_arg(std::move(iArg)),
         m_function(iFunc) {}
        
@@ -49,7 +49,7 @@ namespace reco {
       const FunctionOneArgEvaluator& operator=(const FunctionOneArgEvaluator&) = delete;
       
       // ---------- member data --------------------------------
-      std::unique_ptr<EvaluatorBase> m_arg;
+      std::shared_ptr<EvaluatorBase> m_arg;
       std::function<double(double)> m_function;
     };
   }
