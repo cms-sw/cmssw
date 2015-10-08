@@ -41,6 +41,9 @@ public:
    */
   virtual GlobalPoint position() const = 0;
   virtual GlobalError error() const = 0;
+  virtual double time() const = 0;
+  virtual double timeError() const = 0;
+  virtual double weightTimesTime() const = 0;
   virtual GlobalWeight weight() const = 0;
   virtual AlgebraicVector3 weightTimesPosition() const = 0;
   virtual double weightInMixture() const = 0;
