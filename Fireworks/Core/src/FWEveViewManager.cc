@@ -685,7 +685,7 @@ FWEveViewManager::eventEnd()
    }
 
    // Process changes in scenes.
-   gEve->fScenes->ProcessSceneChanges(gEve->fDropLogicals, gEve->fStampedElements);
+   gEve->GetScenes()->ProcessSceneChanges(gEve->fDropLogicals, gEve->fStampedElements);
 
    // To synchronize buffer swapping set swap_on_render to false.
    // Note that this costs 25-40% extra time with 4 views, depending on V-sync settings.
@@ -709,7 +709,7 @@ FWEveViewManager::eventEnd()
       }
    }
 
-   gEve->fViewers->RepaintChangedViewers(gEve->fResetCameras, gEve->fDropLogicals);
+   gEve->GetViewers()->RepaintChangedViewers(gEve->fResetCameras, gEve->fDropLogicals);
 
    {
       Long64_t   key, value;
