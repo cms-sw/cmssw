@@ -233,6 +233,7 @@ process.gemRecHits = cms.EDProducer("GEMRecHitProducer",
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         'file:/tmp/dnash/out_digi.root'
+        #'file:out_digi.root'
     )
 )
 
