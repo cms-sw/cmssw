@@ -9,9 +9,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
-
 #define TRACK_SORT 1 // just use all hits from inner track, then append from outer outside it
 #define DET_SORT   0 // sort hits using global position of detector 
 #define HIT_SORT   0 // sort hits using global position of hit
@@ -41,7 +38,7 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
     std::vector<const TrackingRecHit *> hits;
     hits.reserve(inner.recHitsSize() + outer.recHitsSize());
     if (debug_) std::cout << "Inner track hits: " << std::endl;
-    for (trackingRecHit_iterator it = inner.recHitsBegin(), ed = inner.recHitsEnd(); it != ed; ++it) {
+    for (auto it = inner.recHitsBegin(), ed = inner.recHitsEnd(); it != ed; ++it) {
         hits.push_back(&**it);
         if (debug_) {
             DetId id(hits.back()->geographicalId());
@@ -54,7 +51,7 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
     DetId lastId(hits.back()->geographicalId());
     int lastSubdet = lastId.subdetId(); 
     unsigned int lastLayer = theTrkTopo->layer(lastId);
-    for (trackingRecHit_iterator it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
+    for (auto it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
         const TrackingRecHit *hit = &**it;
         DetId id(hit->geographicalId());
         int thisSubdet = id.subdetId();
@@ -67,7 +64,7 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
     }
 #else
     size_t nHitsFirstTrack = hits.size();
-    for (trackingRecHit_iterator it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
+    for (auto it = outer.recHitsBegin(), ed = outer.recHitsEnd(); it != ed; ++it) {
         const TrackingRecHit *hit = &**it;
         DetId id(hit->geographicalId());
         int  lay = theTrkTopo->layer(id);
@@ -75,7 +72,7 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
         bool valid  = hit->isValid();
         if (debug_) std::cout << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << valid << "   detid: " << id() << std::endl;
         size_t iHit = 0;
-        foreach(const TrackingRecHit *& hit2, hits) {
+        for ( auto hit2 :  hits) {
             ++iHit; if (iHit >  nHitsFirstTrack) break;
             DetId id2 = hit2->geographicalId();
             if (id.subdetId() != id2.subdetId()) continue;
@@ -106,25 +103,17 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
 
 #if TRACK_SORT
     if (!useInnermostState_) std::reverse(hits.begin(), hits.end());
-    foreach(const TrackingRecHit * hit, hits) {
-        ownHits.push_back(*hit);
-    }
+    for(auto hit : hits) ownHits.push_back(*hit);
 #elif DET_SORT
     // OLD METHOD, sometimes fails
     std::sort(hits.begin(), hits.end(), MomentumSort(v, &*theGeometry));
-
-    foreach(const TrackingRecHit * hit, hits) {
-        ownHits.push_back(*hit);
-    }
+    for(auto hit : hits) ownHits.push_back(*hit);
 #else
     // NEW sort, more accurate
     std::vector<TransientTrackingRecHit::RecHitPointer> ttrh(nhits);
     for (unsigned int i = 0; i < nhits; ++i) ttrh[i] = theBuilder->build(hits[i]);
     std::sort(ttrh.begin(), ttrh.end(), GlobalMomentumSort(v));
-
-    foreach(const TransientTrackingRecHit::RecHitPointer & hit, ttrh) {
-        ownHits.push_back(*hit->hit());
-    }
+    for(auto hit : ttrh) ownHits.push_back(*hit);
 #endif
 
     PTrajectoryStateOnDet state;

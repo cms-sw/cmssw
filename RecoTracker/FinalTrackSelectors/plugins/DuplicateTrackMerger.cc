@@ -37,7 +37,7 @@ using namespace reco;
 	 /// destructor
 	 virtual ~DuplicateTrackMerger();
 
-	 typedef std::vector<std::pair<TrackCandidate,std::pair<reco::TrackRef,reco::TrackRef> > > CandidateToDuplicate;
+	 using CandidateToDuplicate = std::vector<std::pair<int, int>>;
 
        protected:
 	 /// produce one event
@@ -191,9 +191,9 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
   TwoTrackMinimumDistance ttmd;
   TSCPBuilderNoMaterial tscpBuilder;
-  std::auto_ptr<std::vector<TrackCandidate> > out_duplicateCandidates(new std::vector<TrackCandidate>());
+  std::unique_ptr<std::vector<TrackCandidate> > out_duplicateCandidates(new std::vector<TrackCandidate>());
 
-  std::auto_ptr<CandidateToDuplicate> out_candidateMap(new CandidateToDuplicate());
+  std::unique_ptr<CandidateToDuplicate> out_candidateMap(new CandidateToDuplicate());
 
   for(int i = 0; i < (int)handle->size(); i++){
     const reco::Track *rt1 = &(handle->at(i));
@@ -230,31 +230,31 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
  
       if ( (ftsn2.position()-ftsn1.position()).mag() > maxDCA_ ) continue;
 
-      double qoverp1 = ftsn1.signedInverseMomentum();
-      double qoverp2 = ftsn2.signedInverseMomentum();
+      auto qoverp1 = ftsn1.signedInverseMomentum();
+      auto qoverp2 = ftsn2.signedInverseMomentum();
       tmva_dqoverp_ = qoverp1-qoverp2;
-      if ( fabs(tmva_dqoverp_) > maxDQoP_ ) continue;
+      if ( std::abs(tmva_dqoverp_) > maxDQoP_ ) continue;
 
-      double lambda1 =  M_PI/2 - ftsn1.momentum().theta();
-      double lambda2 =  M_PI/2 - ftsn2.momentum().theta();
+      auto lambda1 =  M_PI/2 - ftsn1.momentum().theta();
+      auto lambda2 =  M_PI/2 - ftsn2.momentum().theta();
       tmva_dlambda_ = lambda1-lambda2;
-      if ( fabs(tmva_dlambda_) > maxDLambda_ ) continue;
+      if ( std::abs(tmva_dlambda_) > maxDLambda_ ) continue;
 
-      double phi1 = ftsn1.momentum().phi();
-      double phi2 = ftsn2.momentum().phi();
+      auto phi1 = ftsn1.momentum().phi();
+      auto phi2 = ftsn2.momentum().phi();
       tmva_dphi_ = phi1-phi2;
       if(fabs(tmva_dphi_) > M_PI) tmva_dphi_ = 2*M_PI - fabs(tmva_dphi_);
       if ( fabs(tmva_dphi_) > maxDPhi_ ) continue;
 
-      double dxy1 = (-ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt();
-      double dxy2 = (-ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt();
+      auto dxy1 = (-ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt();
+      auto dxy2 = (-ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt();
       tmva_ddxy_ = dxy1-dxy2;
-      if ( fabs(tmva_ddxy_) > maxDdxy_ ) continue;
+      if ( std::abs(tmva_ddxy_) > maxDdxy_ ) continue;
 
-      double dsz1 = ftsn1.position().z() * TSCP1.pt() / TSCP1.momentum().mag() - (ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt() * ftsn1.momentum().z()/ftsn1.momentum().mag();
-      double dsz2 = ftsn2.position().z() * TSCP2.pt() / TSCP2.momentum().mag() - (ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt() * ftsn2.momentum().z()/ftsn2.momentum().mag();
+      auto dsz1 = ftsn1.position().z() * TSCP1.pt() / TSCP1.momentum().mag() - (ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt() * ftsn1.momentum().z()/ftsn1.momentum().mag();
+      auto dsz2 = ftsn2.position().z() * TSCP2.pt() / TSCP2.momentum().mag() - (ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt() * ftsn2.momentum().z()/ftsn2.momentum().mag();
       tmva_ddsz_ = dsz1-dsz2;
-      if ( fabs(tmva_ddsz_) > maxDdsz_ ) continue;
+      if ( std::abs(tmva_ddsz_) > maxDdsz_ ) continue;
 
       tmva_d3dr_ = avgPoint.perp();
       tmva_d3dz_ = avgPoint.z();
@@ -277,15 +277,12 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       if(mvaBDTG < minBDTG_)continue;
       
       
-      TrackCandidate mergedTrack = merger_.merge(*t1,*t2);
-      out_duplicateCandidates->push_back(mergedTrack);
-      std::pair<TrackRef,TrackRef> trackPair(TrackRef(refTrks,i),TrackRef(refTrks,j));
-      std::pair<TrackCandidate, std::pair<TrackRef,TrackRef> > cp(mergedTrack,trackPair);
-      out_candidateMap->push_back(cp);
+      out_duplicateCandidates->push_back(merger_.merge(*t1,*t2));
+      out_candidateMap->emplace_back(i,j);
     }
   }
-  iEvent.put(out_duplicateCandidates,"candidates");
-  iEvent.put(out_candidateMap,"candidateMap");
+  iEvent.put(std::move(out_duplicateCandidates),"candidates");
+  iEvent.put(std::move(out_candidateMap),"candidateMap");
 
 }
 
