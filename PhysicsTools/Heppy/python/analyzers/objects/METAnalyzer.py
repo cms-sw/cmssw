@@ -4,7 +4,7 @@ from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet
 from PhysicsTools.HeppyCore.utils.deltar import * 
 from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
-from PhysicsTools.Heppy.physicsutils.JetReCalibrator import JetReCalibrator
+from PhysicsTools.Heppy.physicsutils.JetReCalibrator import Type1METCorrector, setFakeRawMETOnOldMiniAODs
 import PhysicsTools.HeppyCore.framework.config as cfg
 
 import operator 
@@ -19,6 +19,15 @@ from copy import deepcopy
 class METAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(METAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
+        self.recalibrateMET   = cfg_ana.recalibrate
+        self.applyJetSmearing = cfg_comp.isMC and cfg_ana.applyJetSmearing
+        self.old74XMiniAODs         = cfg_ana.old74XMiniAODs
+        self.jetAnalyzerPostFix = getattr(cfg_ana, 'jetAnalyzerPostFix', '')
+        if self.recalibrateMET in [ "type1", True ]:
+            if self.recalibrateMET == "type1":
+                self.type1METCorrector = Type1METCorrector(self.old74XMiniAODs)
+        elif self.recalibrateMET != False:
+            raise RuntimeError, "Unsupported value %r for option 'recalibrate': allowed are True, False, 'type1'" % self.recalibrateMET
 
     def declareHandles(self):
         super(METAnalyzer, self).declareHandles()
@@ -175,6 +184,17 @@ class METAnalyzer( Analyzer ):
           self.met = self.handles['met'].product()[0]
           if self.cfg_ana.doMetNoPU: self.metNoPU = self.handles['nopumet'].product()[0]
 
+        if self.recalibrateMET == "type1":
+          type1METCorr = getattr(event, 'type1METCorr'+self.jetAnalyzerPostFix)
+          self.type1METCorrector.correct(self.met, type1METCorr)
+        elif self.recalibrateMET == True:
+          deltaMetJEC = getattr(event, 'deltaMetFromJEC'+self.jetAnalyzerPostFix)
+          self.applyDeltaMet(self.met, deltaMetJEC)
+        if self.applyJetSmearing:
+          deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.jetAnalyzerPostFix)
+          self.applyDeltaMet(self.met, deltaMetSmear)
+
+
         #Shifted METs: to be re-enabled after updates to MiniAOD pass 2
         #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
         event.met_shifted = []
@@ -187,29 +207,20 @@ class METAnalyzer( Analyzer ):
 
         self.met_sig = self.met.significance()
         self.met_sumet = self.met.sumEt()
-        if  hasattr(event,'zll_p4'):
-            self.adduParaPerp(self.met,event.zll_p4,"_zll")
 
-        if  hasattr(event,'zll_p4'):
-            px,py=self.met.shiftedPx(self.met.NoShift, self.met.Raw),self.met.shiftedPy(self.met.NoShift, self.met.Raw)
-            self.met_raw=ROOT.reco.Particle.LorentzVector(px,py,0,math.hypot(px,py))
+        if self.old74XMiniAODs and self.recalibrateMET != "type1":
+           oldraw = self.met.shiftedP2_74x(12,0);
+           setFakeRawMETOnOldMiniAODs( self.met, px, py, self.met.shiftedSumEt_74x(12,0) )
+        else:
+           px, py = self.met.uncorPx(), self.met.uncorPy()
+        self.met_raw = ROOT.reco.Particle.LorentzVector(px,py,0,math.hypot(px,py))
+
+        if hasattr(event,'zll_p4'):
+            self.adduParaPerp(self.met,event.zll_p4,"_zll")
             self.adduParaPerp(self.met_raw, event.zll_p4,"_zll")
             setattr(event,"met_raw"+self.cfg_ana.collectionPostFix, self.met_raw)
             setattr(event,"met_raw.upara_zll"+self.cfg_ana.collectionPostFix, self.met_raw.upara_zll)
             setattr(event,"met_raw.uperp_zll"+self.cfg_ana.collectionPostFix, self.met_raw.uperp_zll)
-
-        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
-          deltaMetSmear = getattr(event, 'deltaMetFromJetSmearing'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
-          self.applyDeltaMet(self.met, deltaMetSmear)
-          if self.cfg_ana.doMetNoPU:
-            self.applyDeltaMet(self.metNoPU, deltaMetSmear) 
-        if self.cfg_ana.recalibrate and hasattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix):
-          deltaMetJEC = getattr(event, 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix)
-#          print 'before JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
-          self.applyDeltaMet(self.met, deltaMetJEC)
-          if self.cfg_ana.doMetNoPU: 
-            self.applyDeltaMet(self.metNoPU, deltaMetJEC)
-#          print 'after JEC', self.cfg_ana.collectionPostFix, self.met.px(),self.met.py(), 'deltaMetFromJEC'+self.cfg_ana.jetAnalyzerCalibrationPostFix, deltaMetJEC
 
         if hasattr(event,"met"+self.cfg_ana.collectionPostFix): raise RuntimeError, "Event already contains met with the following postfix: "+self.cfg_ana.collectionPostFix
         setattr(event, "met"+self.cfg_ana.collectionPostFix, self.met)
@@ -255,12 +266,14 @@ setattr(METAnalyzer,"defaultConfig", cfg.Analyzer(
     noPUMetCollection = "slimmedMETs",
     copyMETsByValue = False,
     recalibrate = True,
-    jetAnalyzerCalibrationPostFix = "",
+    applyJetSmearing = True,
+    jetAnalyzerPostFix = "",
+    old74XMiniAODs = False, # need to set to True to get proper Raw MET on plain 74X MC produced with CMSSW <= 7_4_12
     doTkMet = False,
     includeTkMetCHS = True,
     includeTkMetPVLoose = True,
     includeTkMetPVTight = True,
-    doMetNoPU = True,  
+    doMetNoPU = False, # Not existing in MiniAOD at the moment
     doMetNoMu = False,  
     doMetNoEle = False,  
     doMetNoPhoton = False,  
