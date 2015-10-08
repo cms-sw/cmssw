@@ -662,6 +662,89 @@ hcalRecHitTask = cms.EDAnalyzer(
 			xaxis	= StandardSet.iphiAxis.clone(),
 			yaxis	= timeProfaxis
 		),
+		
+		#	----------------------------------------------
+		#	RecHit Occupancy vs iphi
+		#	----------------------------------------------
+		HFM_OccupancyVSiphi				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFM Occupancy vs iphi. " + cutstr_eg5),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(72),
+				min		= cms.untracked.double(0.5),
+				max		= cms.untracked.double(72.5),
+				title	= cms.untracked.string("iphi")
+			)
+		),
+		HFP_OccupancyVSiphi				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HFP Occupancy vs iphi. " + cutstr_eg5),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(72),
+				min		= cms.untracked.double(0.5),
+				max		= cms.untracked.double(72.5),
+				title	= cms.untracked.string("iphi")
+			)
+		),
+		HFM_OccupancyiphiVSLS			= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH2D"),
+			desc	= cms.untracked.string(
+				"HFM OccupancyMap iphi vs LS. " + cutstr_eg5),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(3000),
+				min		= cms.untracked.double(0),
+				max		= cms.untracked.double(3000),
+				title	= cms.untracked.string("LS")
+			),
+			yaxis = cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(72),
+				min		= cms.untracked.double(0.5),
+				max		= cms.untracked.double(72.5),
+				title	= cms.untracked.string("iphi")
+			)
+		),
+		HFP_OccupancyiphiVSLS			= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH2D"),
+			desc	= cms.untracked.string(
+				"HFP OccupancyMap iphi vs LS. " + cutstr_eg5),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(3000),
+				min		= cms.untracked.double(0),
+				max		= cms.untracked.double(3000),
+				title	= cms.untracked.string("LS")
+			),
+			yaxis = cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(72),
+				min		= cms.untracked.double(0.5),
+				max		= cms.untracked.double(72.5),
+				title	= cms.untracked.string("iphi")
+			)
+		),
+		HF_iphiOccupancyRatios				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string(
+				"HF Occupancy Ratios between uHTRs(Summing up neighboring iphis(71 + 1, 3 + 5....))." + cutstr_eg5),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(100),
+				min		= cms.untracked.double(0),
+				max		= cms.untracked.double(2),
+				title	= cms.untracked.string("Ratio")
+			)
+		),
 
 		#	----------------------------------------------
 		#	2D Timing Maps

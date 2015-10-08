@@ -106,6 +106,16 @@ void HcalRecHitTask::specialize(Hit const& hit, std::string const& nameRes,
 			boost::lexical_cast<std::string>(depth) + 
 			"_RecHitOccupancy"].Fill(ieta, iphi);
 	}
+	if (subdet==hcaldqm::constants::STD_SUBDET_HF)
+	{
+		std::string name_tmp;
+		if (ieta<0)
+			name_tmp = "M";
+		else
+			name_tmp = "P";
+		_mes["HF" + name_tmp + "_OccupancyVSiphi"].Fill(iphi);
+		_mes["HF" + name_tmp + "_OccupancyiphiVSLS"].Fill(_mi.currentLS, iphi);
+	}
 
 	if (subdet==hcaldqm::constants::STD_SUBDET_HB || 
 		subdet==hcaldqm::constants::STD_SUBDET_HE)

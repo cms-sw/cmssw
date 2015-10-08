@@ -1125,6 +1125,77 @@ hcalDigiTask = cms.EDAnalyzer(
         ),
 
 		#------------------------------------------------------
+		#	iphi Digi Occupancy Dependence Plots
+		#------------------------------------------------------
+		HFM_OccupancyVSiphi			= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string("HFM Occupancy vs iphi. " + 
+				ZSCutStr),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(72),
+				min		= cms.untracked.double(0.5),
+				max		= cms.untracked.double(72.5),
+				title	= cms.untracked.string("iphi")
+			)
+		),
+		HFP_OccupancyVSiphi			= cms.untracked.PSet(
+			path	= cms.untracked.string("%s/HF" % moduleName),
+			kind	= cms.untracked.string("TH1D"),
+			desc	= cms.untracked.string("HFP Occupancy vs iphi. " + 
+				ZSCutStr),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(72),
+				min		= cms.untracked.double(0.5),
+				max		= cms.untracked.double(72.5),
+				title	= cms.untracked.string("iphi")
+			)
+		),
+		HFM_OccupancyiphiVSLS = cms.untracked.PSet(
+				path	= cms.untracked.string("%s/HF" % moduleName),
+				kind	= cms.untracked.string("TH2D"),
+				desc	= cms.untracked.string("HFM OccupancyMap iphi vs LS. " + 
+					ZSCutStr),
+				xaxis	= cms.untracked.PSet(
+					edges	= cms.untracked.bool(False),
+					nbins	= cms.untracked.int32(3000),
+					min		= cms.untracked.double(0),
+					max		= cms.untracked.double(3000),
+					title	= cms.untracked.string("LS")
+				),
+				yaxis	= cms.untracked.PSet(
+					edges	= cms.untracked.bool(False),
+					nbins	= cms.untracked.int32(72),
+					min		= cms.untracked.double(0.5),
+					max		= cms.untracked.double(72.5),
+					title	= cms.untracked.string("iphi")
+				)
+		),
+		HFP_OccupancyiphiVSLS = cms.untracked.PSet(
+				path	= cms.untracked.string("%s/HF" % moduleName),
+				kind	= cms.untracked.string("TH2D"),
+				desc	= cms.untracked.string("HFP OccupancyMap iphi vs LS. " + 
+					ZSCutStr),
+				xaxis	= cms.untracked.PSet(
+					edges	= cms.untracked.bool(False),
+					nbins	= cms.untracked.int32(3000),
+					min		= cms.untracked.double(0),
+					max		= cms.untracked.double(3000),
+					title	= cms.untracked.string("LS")
+				),
+				yaxis	= cms.untracked.PSet(
+					edges	= cms.untracked.bool(False),
+					nbins	= cms.untracked.int32(72),
+					min		= cms.untracked.double(0.5),
+					max		= cms.untracked.double(72.5),
+					title	= cms.untracked.string("iphi")
+				)
+		),
+
+
+		#------------------------------------------------------
 		#	Summary Plots
 		#------------------------------------------------------
 		Summary_Flags = cms.untracked.PSet(

@@ -48,11 +48,6 @@ process.DQMStore.referenceFileName = referenceFileName
 process = customise(process)
 process.DQMStore.verbose = 0
 
-#	Note, runType is obtained after importing DQM-related modules
-#	=> DQM-dependent
-runType			= process.runType.getRunType()
-print debugstr, "Running with run type= ", runType
-
 #-------------------------------------
 #	CMSSW/Hcal non-DQM Related Module import
 #-------------------------------------
@@ -76,8 +71,14 @@ process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 #	-> For Trigger Primitives Emulation
 #	-> L1 GT setting
 #	-> Rename the hbheprereco to hbhereco
+#	Note, runType is obtained after importing DQM-related modules
+#	=> DQM-dependent
 #-------------------------------------
 runType			= process.runType.getRunType()
+runTypeName		= process.runType.getRunTypeName()
+isCosmicRun		= runType==2 or runType==3
+print debugstr, "Running with run type=%d name=%s notified=%s" % (
+	runType, runTypeName, isCosmicRun)
 cmssw			= os.getenv("CMSSW_VERSION").split("_")
 rawTag			= cms.InputTag("rawDataCollector")
 process.essourceSev = cms.ESSource(
@@ -179,6 +180,7 @@ process.hcalClient.databaseUpdateTime = 60
 process.hcalClient.DeadCell_minerrorrate = 0.05
 process.hcalClient.HotCell_mierrorrate = cms.untracked.double(0.10)
 process.hcalClient.Beam_minerrorrate = cms.untracked.double(2.0)
+process.hcalClient.isCosmicRun = cms.untracked.bool(isCosmicRun)
 process.hcalDigiMonitor.maxDigiSizeHF = cms.untracked.int32(10)
 
 process.hcalClient.enabledClients = [

@@ -78,9 +78,13 @@ class HcalSummaryClient : public HcalBaseDQClient {
 		DQMStore::IGetter &ig, int LS);
 	double check_HFChannels(DQMStore::IBooker &ib,
 		DQMStore::IGetter &ig, int LS);
+	void check_BaduHTROccupancy(DQMStore::IBooker &ib,
+		DQMStore::IGetter &ig, int LS);
 	bool triggered_Shift_Digi;
 	bool triggered_Shift_RecHit;
 	bool triggered_DropChannels;
+	bool triggered_BaduHTROccupancy;
+	bool isCosmicRun;
 };
 
 #endif

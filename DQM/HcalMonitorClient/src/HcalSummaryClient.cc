@@ -92,6 +92,7 @@ HcalSummaryClient::HcalSummaryClient(std::string myname, const edm::ParameterSet
   TaskList_              = ps.getUntrackedParameter<std::vector<std::string> >("TaskDirectories");
   // Minimum number of events per lumi section that must be present for checks to be made.  *ALL* tasks must contain at least this many events
   minEvents_             = ps.getUntrackedParameter<int>("minEvents",500);
+  isCosmicRun = ps.getUntrackedParameter<bool>("isCosmicRun", false);
 
   SummaryMapByDepth=0;
   ProblemCells=0;
@@ -516,18 +517,43 @@ void HcalSummaryClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig, in
 	triggered_Shift_Digi = false;
 	triggered_Shift_RecHit = false;
 	triggered_DropChannels = false;
+	triggered_BaduHTROccupancy = false;
 	double tmp_status_HF = 0;
-	check_HBHETiming_Digi(ib, ig, LS);
-	check_HBHETiming_RecHit(ib, ig, LS);
-	tmp_status_HF = check_HFChannels(ib, ig, LS);
-	if (triggered_Shift_Digi || triggered_Shift_RecHit)
+
+	//	HBHE TCDS Shifts Monitoring only for Collissions...
+	if (!isCosmicRun)
 	{
-		status_HB_ = 0.1;
-		status_HE_ = 0.1;
+		check_HBHETiming_Digi(ib, ig, LS);
+		check_HBHETiming_RecHit(ib, ig, LS);
+		if (triggered_Shift_Digi || triggered_Shift_RecHit)
+		{
+			status_HB_ = 0.1;
+			status_HE_ = 0.1;
+		}
 	}
+
+	//	w/o ZS we can check Loss of Synchs... constantly
+	tmp_status_HF = check_HFChannels(ib, ig, LS);
     if (triggered_DropChannels)
 	{
 		status_HF_ = tmp_status_HF;
+	}
+
+	//	Bad uHTR Occupancies can only be done for collissions...
+	if (!isCosmicRun)
+	{
+		check_BaduHTROccupancy(ib, ig, LS);
+		if (triggered_BaduHTROccupancy)
+		{
+			if (triggered_DropChannels)	
+			{
+				status_HF_ -= 0.5;
+				if (status_HF_<=0)
+					status_HF_ = 0.1;
+			}
+			else
+				status_HF_ = 0.1;
+		}
 	}
 
   // Fill certification map here
@@ -1165,8 +1191,47 @@ double HcalSummaryClient::check_HFChannels(DQMStore::IBooker &ib,
 	return -1;
 }
 
+//
+//	Check if there is a difference in the ratios of occupancies among uHTRs
+//
+void HcalSummaryClient::check_BaduHTROccupancy(DQMStore::IBooker &ib,
+	DQMStore::IGetter &ig, int LS)
+{
+	//	Do some defs
+	std::string dir_prefix = "Hcal/HcalRecHitTask/HF/";
+	std::string mename_hfp = "HFP_OccupancyVSiphi";
+	std::string mename_hfm = "HFM_OccupancyVSiphi";
+	std::string mename_ratios = "HF_iphiOccupancyRatios";
 
+	//	Get the MEs
+	TH1F *h_hfp = ig.get(dir_prefix+mename_hfp)->getTH1F();
+	TH1F *h_hfm = ig.get(dir_prefix+mename_hfm)->getTH1F();
+	TH1F *h_ratios = ig.get(dir_prefix+mename_ratios)->getTH1F();
 
+	//	Do HFM checks first
+	for (int i=0; i<72; i+=4)
+	{
+		int i1 = (71+i)%72;
+		int i2 = (71+i+2)%72;
+		int j1 = (71+i+4)%72;
+		int j2 = (71+i+6)%72;
+
+		double sum1_p = h_hfp->GetBinContent(i1)+h_hfp->GetBinContent(i2);
+		double sum2_p = h_hfp->GetBinContent(j1)+h_hfp->GetBinContent(j2);
+		double ratio_p = std::min(sum1_p, sum2_p)/std::max(sum1_p, sum2_p);
+
+		double sum1_m = h_hfm->GetBinContent(i1)+h_hfm->GetBinContent(i2);
+		double sum2_m = h_hfm->GetBinContent(j1)+h_hfm->GetBinContent(j2);
+		double ratio_m = std::min(sum1_m, sum2_m)/std::max(sum1_m, sum2_m);
+
+		h_ratios->Fill(ratio_p);
+		h_ratios->Fill(ratio_m);
+
+		//	if the difference in the #events is at least 20% - flag it!
+		if (ratio_m<0.8 || ratio_p<0.8)
+			triggered_BaduHTROccupancy = true;
+	}
+}
 
 
 
