@@ -9,9 +9,9 @@ class TriggerBitAnalyzer( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName ):
         super(TriggerBitAnalyzer,self).__init__(cfg_ana,cfg_comp,looperName)
         self.processName = getattr(self.cfg_ana,"processName","HLT")
-        self.prescaleProcessName = getattr(self.cfg_ana,"prescaleProcessName","RECO")
+        self.prescaleProcessName = getattr(self.cfg_ana,"prescaleProcessName","PAT")
         self.fallbackName = getattr(self.cfg_ana,"fallbackProcessName",None)
-        self.prescaleFallbackName = getattr(self.cfg_ana,"prescaleFallbackProcessName",None)
+        self.prescaleFallbackName = getattr(self.cfg_ana,"prescaleFallbackProcessName","RECO")
         self.outprefix   = getattr(self.cfg_ana,"outprefix",  self.processName)
         self.unrollbits = ( hasattr(self.cfg_ana,"unrollbits") and self.cfg_ana.unrollbits )
         self.saveIsUnprescaled = getattr(self.cfg_ana,"saveIsUnprescaled",False)
@@ -105,6 +105,11 @@ class TriggerBitAnalyzer( Analyzer ):
 setattr(TriggerBitAnalyzer,"defaultConfig",cfg.Analyzer(
     TriggerBitAnalyzer, name="TriggerFlags",
     processName = 'HLT',
+    prescaleProcessName = 'PAT',
+    prescaleFallbackProcessName = 'RECO',
+    unrollbits = False,
+    saveIsUnprescaled = False,
+    checkL1prescale = False,
     triggerBits = {
         # "<name>" : [ 'HLT_<Something>_v*', 'HLT_<SomethingElse>_v*' ] 
 }
@@ -114,6 +119,8 @@ setattr(TriggerBitAnalyzer,"defaultEventFlagsConfig",cfg.Analyzer(
     TriggerBitAnalyzer, name="EventFlags",
     processName = 'PAT',
     fallbackProcessName = 'RECO',
+    unrollbits = False,
+    saveIsUnprescaled = False,
     outprefix   = 'Flag',
     triggerBits = {
         "HBHENoiseFilter" : [ "Flag_HBHENoiseFilter" ],
