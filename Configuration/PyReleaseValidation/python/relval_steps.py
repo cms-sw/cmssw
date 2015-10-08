@@ -995,7 +995,7 @@ steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--conditions':'auto:run1_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
-steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains',
+steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd+PromptCalibProdSiStrip+PromptCalibProdSiStripGains+PromptCalibProdSiPixelAli',
                   '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
@@ -1051,6 +1051,11 @@ steps['ALCAHARVD3']={'-s':'ALCAHARVEST:SiStripGains',
                     '--data':'',
                     '--filein':'file:PromptCalibProdSiStripGains.root'}
 
+steps['ALCAHARVD4']={'-s':'ALCAHARVEST:SiPixelAli',
+                    '--conditions':'auto:run1_data',
+                    '--scenario':'pp',
+                    '--data':'',
+                    '--filein':'file:PromptCalibProdSiPixelAli.root'}
 
 steps['RECOHISt4']=steps['RECOHI']
 

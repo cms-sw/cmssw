@@ -5,6 +5,7 @@ import FWCore.ParameterSet.Config as cms
 
 # Tracker
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
+from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
 from RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff import *
 from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
 from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
@@ -37,12 +38,12 @@ caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
 hbhereco = hbheprereco.clone()
 hcalLocalRecoSequence.replace(hbheprereco,hbhereco)
 muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEvent+siPixelClusterShapeCache+muonlocalreco)
-localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco*castorreco)
+localReco = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*caloReco*castorreco)
 
 #hbherecoMB = hbheprerecoMB.clone()
 #hcalLocalRecoSequenceNZS.replace(hbheprerecoMB,hbherecoMB)
 caloRecoNZS = cms.Sequence(caloReco+hcalLocalRecoSequenceNZS)
-localReco_HcalNZS = cms.Sequence(offlineBeamSpot*muonReco*caloRecoNZS)
+localReco_HcalNZS = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*caloRecoNZS)
 
 #--------------------------------------------------------------------------
 # Main Sequence

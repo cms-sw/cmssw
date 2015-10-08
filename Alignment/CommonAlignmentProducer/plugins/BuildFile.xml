@@ -15,6 +15,20 @@
   <use   name="CondCore/DBOutputService"/>
   <use   name="CondFormats/Alignment"/>
   <use   name="CondFormats/AlignmentRecord"/>
+  <use   name="CondFormats/GeometryObjects"/>
+  <use   name="FWCore/ServiceRegistry"/>
+  <use   name="boost"/>
+</library>
+<library   name="AlignmentPCLTrackerAlignmentProducerPlugin" file="PCLTrackerAlProducer.cc">
+  <use   name="Alignment/CommonAlignment"/>
+  <use   name="Alignment/CommonAlignmentAlgorithm"/>
+  <use   name="Alignment/CommonAlignmentMonitor"/>
+  <use   name="Alignment/CommonAlignmentParametrization"/>
+  <use   name="Alignment/MuonAlignment"/>
+  <use   name="Alignment/TrackerAlignment"/>
+  <use   name="CondCore/DBOutputService"/>
+  <use   name="CondFormats/Alignment"/>
+  <use   name="CondFormats/AlignmentRecord"/>
   <use   name="FWCore/ServiceRegistry"/>
   <use   name="boost"/>
 </library>
@@ -57,4 +71,7 @@
   <use   name="DataFormats/CSCRecHit"/>
   <use   name="DataFormats/DTRecHit"/>
   <use   name="DataFormats/RPCRecHit"/>
+</library>
+<library   file="LSNumberFilter.cc" name="AlignmentCommonAlignmentProducerFilter">
+  <flags   EDM_PLUGIN="1"/>
 </library>

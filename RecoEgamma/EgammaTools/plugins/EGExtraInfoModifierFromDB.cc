@@ -79,7 +79,7 @@ private:
   bool autoDetectBunchSpacing_;
   int bunchspacing_;
   edm::InputTag bunchspacingTag_;
-  edm::EDGetTokenT<int> bunchSpacingToken_;
+  edm::EDGetTokenT<unsigned int> bunchSpacingToken_;
   float rhoValue_;
   edm::InputTag rhoTag_;
   edm::EDGetTokenT<double> rhoToken_;
@@ -244,29 +244,9 @@ void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
   }
   
   if (autoDetectBunchSpacing_) {
-    if (evt.isRealData()) {
-      edm::RunNumber_t run = evt.run();
-      if (run == 178003 ||
-          run == 178004 ||
-          run == 209089 ||
-          run == 209106 ||
-          run == 209109 ||
-          run == 209146 ||
-          run == 209148 ||
-          run == 209151) {
-        bunchspacing_ = 25;
-      }
-      else if (run < 253000) {
-        bunchspacing_ = 50;
-      } 
-      else {
-	bunchspacing_ = 25;
-      }
-    } else {
-      edm::Handle<int> bunchSpacingH;
+      edm::Handle<unsigned int> bunchSpacingH;
       evt.getByToken(bunchSpacingToken_,bunchSpacingH);
       bunchspacing_ = *bunchSpacingH;
-    }
   }
 
   edm::Handle<double> rhoH;
@@ -329,7 +309,7 @@ void EGExtraInfoModifierFromDB::setConsumes(edm::ConsumesCollector& sumes) {
   vtxToken_ = sumes.consumes<reco::VertexCollection>(vtxTag_);
 
   if (autoDetectBunchSpacing_)
-    bunchSpacingToken_ = sumes.consumes<int>(bunchspacingTag_);
+    bunchSpacingToken_ = sumes.consumes<unsigned int>(bunchspacingTag_);
 
   //setup electrons
   if(!(empty_tag == e_conf.electron_src))
@@ -591,9 +571,11 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   eval[9] = reco::deltaPhi(theseed->phi(),sc->position().Phi());
   eval[10] = pho.seedEnergy()/sc->rawEnergy();
   eval[11] = pho.e3x3()/pho.e5x5();
-  eval[12] = pho.sigmaIetaIeta();
+  const float sieie = pho.sigmaIetaIeta();
+  eval[12] = sieie;
 
   float sipip=0, sieip=0, e2x5Max=0, e2x5Left=0, e2x5Right=0, e2x5Top=0, e2x5Bottom=0;
+  assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("sigmaIetaIphi"))->second.second, pho_vmaps, sieip);
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("sigmaIphiIphi"))->second.second, pho_vmaps, sipip);
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Max"))->second.second, pho_vmaps, e2x5Max);
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Left"))->second.second, pho_vmaps, e2x5Left);
@@ -602,7 +584,7 @@ void EGExtraInfoModifierFromDB::modifyObject(pat::Photon& pho) const {
   assignValue(ptr, ph_conf.tag_float_token_map.find(std::string("e2x5Bottom"))->second.second, pho_vmaps, e2x5Bottom);
   
   eval[13] = sipip;
-  eval[14] = sieip;
+  eval[14] = sieip/(sieie*sipip);
   eval[15] = pho.maxEnergyXtal()/pho.e5x5();
   eval[16] = pho.e2nd()/pho.e5x5();
   eval[17] = pho.eTop()/pho.e5x5();
