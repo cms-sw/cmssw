@@ -198,6 +198,14 @@ hltExoticaHTDisplacedJets = hltExoticaPostProcessor.clone()
 hltExoticaHTDisplacedJets.subDirs = ['HLT/Exotica/HTDisplacedJets']
 hltExoticaHTDisplacedJets.efficiencyProfile = efficiency_strings
 
+hltExoticaDSTJets = hltExoticaPostProcessor.clone()
+hltExoticaDSTJets.subDirs = ['HLT/Exotica/DSTJets']
+hltExoticaDSTJets.efficiencyProfile = efficiency_strings
+
+hltExoticaDSTMuons = hltExoticaPostProcessor.clone()
+hltExoticaDSTMuons.subDirs = ['HLT/Exotica/DSTMuons']
+hltExoticaDSTMuons.efficiencyProfile = efficiency_strings
+
 hltExoticaPostProcessors = cms.Sequence(
     # Tri-lepton paths
     hltExoticaPostLowPtTrimuon +
@@ -230,5 +238,8 @@ hltExoticaPostProcessors = cms.Sequence(
     hltExoticaDisplacedDimuonDijet +
     hltExoticaEleMu +
     hltExoticaPhotonMET +
-    hltExoticaHTDisplacedJets
+    hltExoticaHTDisplacedJets +
+    # scouting triggers
+    hltExoticaDSTJets +
+    hltExoticaDSTMuons 
     )
