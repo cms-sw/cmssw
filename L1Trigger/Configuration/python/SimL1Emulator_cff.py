@@ -167,6 +167,7 @@ def _extendForStage1Trigger( theProcess ) :
     """
     theProcess.load('L1Trigger.L1TCalorimeter.caloStage1Params_cfi')
     theProcess.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
+    theProcess.load('L1Trigger.L1TCalorimeter.caloConfigStage1PP_cfi')
     # Note that this function is applied before the objects in this file are added
     # to the process. So things declared in this file should be used "bare", i.e.
     # not with "theProcess." in front of them. L1TCaloStage1 is an exception because
