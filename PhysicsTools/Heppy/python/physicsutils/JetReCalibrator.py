@@ -41,7 +41,7 @@ class JetReCalibrator:
             print 'Missing JEC uncertainty file "%s/%s_Uncertainty_%s.txt", so jet energy uncertainties will not be available' % (path,globalTag,jetFlavour)
             self.JetUncertainty = None
         self.separateJetCorrectors = {}
-        if calculateSeparateCorrections or calculateType1METCorr:
+        if calculateSeparateCorrections or calculateType1METCorrection:
             self.vParL1 = ROOT.vector(ROOT.JetCorrectorParameters)()
             self.vParL1.push_back(self.L1JetPar)
             self.separateJetCorrectors["L1"] = ROOT.FactorizedJetCorrector(self.vParL1)
