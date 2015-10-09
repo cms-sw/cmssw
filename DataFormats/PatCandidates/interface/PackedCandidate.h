@@ -91,7 +91,7 @@ namespace pat {
       packBoth();
     }
 
-    explicit PackedCandidate( const PackedCandidate& iOther) :
+    PackedCandidate( const PackedCandidate& iOther) :
       packedPt_(iOther.packedPt_), packedEta_(iOther.packedEta_),
       packedPhi_(iOther.packedPhi_), packedM_(iOther.packedM_),
       packedDxy_(iOther.packedDxy_), packedDz_(iOther.packedDz_), packedDPhi_(iOther.packedDPhi_),
@@ -116,7 +116,7 @@ namespace pat {
       dphidphi_(iOther.dphidphi_), packedHits_(iOther.packedHits_), normalizedChi2_(iOther.normalizedChi2_) {
       }
 
-    explicit PackedCandidate( PackedCandidate&& iOther) :
+    PackedCandidate( PackedCandidate&& iOther) :
       packedPt_(iOther.packedPt_), packedEta_(iOther.packedEta_),
       packedPhi_(iOther.packedPhi_), packedM_(iOther.packedM_),
       packedDxy_(iOther.packedDxy_), packedDz_(iOther.packedDz_), packedDPhi_(iOther.packedDPhi_),
