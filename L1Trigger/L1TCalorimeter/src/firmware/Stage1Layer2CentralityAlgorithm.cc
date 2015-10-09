@@ -50,10 +50,16 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   spare->SetRing(0, outputBits);
 
   const bool verbose = false;
+  const bool hex = true;
   if(verbose)
   {
-    std::cout << "HF Ring Sums (Centrality)" << std::endl;
-    std::cout << bitset<12>(spare->hwPt()).to_string() << std::endl;
+    if(!hex)
+    {
+      std::cout << "HF Ring Sums (Centrality)" << std::endl;
+      std::cout << bitset<12>(spare->hwPt()).to_string() << std::endl;
+    } else {
+      std::cout << std::hex << spare->hwPt() << std::endl;
+    }
   }
 
 }
