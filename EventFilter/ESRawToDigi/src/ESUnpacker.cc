@@ -42,7 +42,7 @@ ESUnpacker::ESUnpacker(const edm::ParameterSet& ps)
     }
     
   } else {
-    std::cout<<"ESUnpacker::ESUnpacker : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<std::endl;
+    edm::LogWarning("Invalid Data")<<"ESUnpacker::ESUnpacker : Look up table file can not be found in "<<lookup_.fullPath().c_str();
   }
 
 }
@@ -77,10 +77,10 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     bx_    = ESHeader.bxID();
 
     if (debug_) {
-      std::cout<<"[ESUnpacker]: FED Header candidate. Is header? "<< ESHeader.check();
+      LogDebug("ESUnpacker") << "[ESUnpacker]: FED Header candidate. Is header? "<< ESHeader.check();
       if (ESHeader.check())
-	std::cout <<". BXID: "<<bx_<<" SourceID : "<<fedId_<<" L1ID: "<<lv1_<<std::endl;
-      else std::cout<<" WARNING!, this is not a ES Header"<<std::endl;
+	LogDebug("ESUnpacker") << ". BXID: "<<bx_<<" SourceID : "<<fedId_<<" L1ID: "<<lv1_;
+      else LogDebug("ESUnpacker")<<" WARNING!, this is not a ES Header";
     }
     
     moreHeaders = ESHeader.moreHeaders();
@@ -120,10 +120,10 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
     }
     slinkCRC = (*trailer >> 2 ) & 0x1;
     if (debug_)  {
-      std::cout<<"[ESUnpacker]: FED Trailer candidate. Is trailer? "<<ESTrailer.check();
+      LogDebug("ESUnpacker")<<"[ESUnpacker]: FED Trailer candidate. Is trailer? "<<ESTrailer.check();
       if (ESTrailer.check())
-	std::cout<<". Length of the ES event: "<<ESTrailer.lenght()<<std::endl;
-      else std::cout<<" WARNING!, this is not a ES Trailer"<<std::endl;
+	LogDebug("ESUnpacker")<<". Length of the ES event: "<<ESTrailer.lenght();
+      else LogDebug("ESUnpacker")<<" WARNING!, this is not a ES Trailer";
     }
 
     moreTrailers = ESTrailer.moreTrailers();
@@ -144,7 +144,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
   int dccCRC2_ = 0;
   int dccCRC3_ = 0;
   for (const Word64* word=(header+1); word!=(header+dccWords+1); ++word) {
-    if (debug_) std::cout<<"DCC   : "<<print(*word)<<std::endl;
+    if (debug_) LogDebug("ESUnpacker")<<"DCC   : "<<print(*word);
     dccHead = (*word >> 60) & m4;
     if (dccHead == 3) dccHeaderCount++;
     dccLine = (*word >> 56) & m4;
@@ -220,14 +220,13 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
   }
   if (optoRX2_ == 128) {
     enableOptoRX[NenableOptoRX] = 2;
-    NenableOptoRX++;
   }
 
   // Event data
   int iopto = 0;
   int opto = -1;
   for (const Word64* word=(header+dccWords+1); word!=trailer; ++word) {
-    if (debug_) std::cout<<"Event : "<<print(*word)<<std::endl;
+    if (debug_) LogDebug("ESUnpacker")<<"Event : "<<print(*word);
 
     head = (*word >> 60) & m4;
 
@@ -262,7 +261,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESRawDa
       if (opto==0) ESDCCHeader.setOptoBC0(optoBC);
       else if (opto==1) ESDCCHeader.setOptoBC1(optoBC);
       else if (opto==2) ESDCCHeader.setOptoBC2(optoBC);
-      iopto++;
+      if (iopto < 2) ++iopto;
     }
   }
 
@@ -282,7 +281,7 @@ void ESUnpacker::word2digi(int kid, int kPACE[4], const Word64 & word, ESDigiCol
   adc[2]    = (word >> 32) & m16;
   int strip = (word >> 48) & m5;
 
-  if (debug_) std::cout<<kid<<" "<<strip<<" "<<pace<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2]<<std::endl;
+  if (debug_) LogDebug("ESUnpacker")<<kid<<" "<<strip<<" "<<pace<<" "<<adc[0]<<" "<<adc[1]<<" "<<adc[2];
 
   int zside, plane, ix, iy;
   zside = zside_[kid-1][pace];
@@ -298,7 +297,7 @@ void ESUnpacker::word2digi(int kid, int kPACE[4], const Word64 & word, ESDigiCol
     if (zside == -1 && plane == 2 && ix <= 20) strip = 31 - strip;
   }
 
-  if (debug_) std::cout<<"DetId : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<strip+1<<std::endl;
+  if (debug_) LogDebug("ESUnpacker")<<"DetId : "<<zside<<" "<<plane<<" "<<ix<<" "<<iy<<" "<<strip+1;
   
   if (ESDetId::validDetId(strip+1, ix, iy, plane, zside)) {
     
@@ -311,7 +310,7 @@ void ESUnpacker::word2digi(int kid, int kPACE[4], const Word64 & word, ESDigiCol
     digis.push_back(df);
     
     if (debug_) 
-      std::cout<<"Si : "<<detId.zside()<<" "<<detId.plane()<<" "<<detId.six()<<" "<<detId.siy()<<" "<<detId.strip()<<" ("<<kid<<","<<pace<<") "<<df.sample(0).adc()<<" "<<df.sample(1).adc()<<" "<<df.sample(2).adc()<<std::endl;
+      LogDebug("ESUnpacker")<<"Si : "<<detId.zside()<<" "<<detId.plane()<<" "<<detId.six()<<" "<<detId.siy()<<" "<<detId.strip()<<" ("<<kid<<","<<pace<<") "<<df.sample(0).adc()<<" "<<df.sample(1).adc()<<" "<<df.sample(2).adc();
   }
 
 }
