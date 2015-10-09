@@ -822,11 +822,9 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       l1GtUtils_.getL1GtRunCache( iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite );
       ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
       iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
-      L1GtTriggerMenu l1GtTriggerMenu( *handleL1GtTriggerMenu );
-      const AlgorithmMap l1GtAlgorithms( l1GtTriggerMenu.gtAlgorithmMap() );
-      const AlgorithmMap l1GtTechTriggers( l1GtTriggerMenu.gtTechnicalTriggerMap() );
-      l1GtTriggerMenu.buildGtConditionMap();
-      const std::vector< ConditionMap > l1GtConditionsVector( l1GtTriggerMenu.gtConditionMap() );
+      auto const & l1GtAlgorithms   = handleL1GtTriggerMenu->gtAlgorithmMap();
+      auto const & l1GtTechTriggers = handleL1GtTriggerMenu->gtTechnicalTriggerMap();
+      auto const & l1GtConditionsVector = handleL1GtTriggerMenu->gtConditionMap();
       // cache conditions in one single condition map
       ConditionMap l1GtConditions;
       for ( size_t iCv = 0; iCv < l1GtConditionsVector.size(); ++iCv ) {

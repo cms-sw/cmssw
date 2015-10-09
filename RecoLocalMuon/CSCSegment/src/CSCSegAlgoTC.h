@@ -18,8 +18,8 @@
  *
  * Ported to CMSSW 2006-04-03: Matteo.Sani@cern.ch <BR>
  *
- * \author M. Sani
- * 
+ * Replaced least-squares fit by CSCSegFit - Feb 2015 <BR>
+ *
  */
 
 #include <RecoLocalMuon/CSCSegment/src/CSCSegmentAlgorithm.h>
@@ -29,20 +29,10 @@
 #include <deque>
 #include <vector>
 
+class CSCSegFit;
 
 class CSCSegAlgoTC : public CSCSegmentAlgorithm {
  public:
-  
-  // Tim tried using map as basic container of all (space-point) RecHit's in a chamber:
-  // The 'key' is a pseudo-layer number (1-6 but with 1 always closest to IP).
-  // The 'value' is a vector of the RecHit's on that layer.
-  // Using the layer number like this removes the need to sort in global z.
-  // Instead we just have to ensure the layer index is correctly adjusted 
-  // to enforce the requirement that 'layer 1' is closest in the chamber
-  // to the IP.
-  // However a map is very painful to use when handling the original 'SK' algorithm,
-  // particularly when we need to flag a hit as 'used'. Because of this I am now
-  // favouring a pair of vectors, vector<RecHit> and vector<int> for the layer id.
   
   /// Typedefs
   typedef std::vector<int> LayerIndex;
@@ -80,10 +70,6 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
   bool replaceHit(const CSCRecHit2D* h, int layer);
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
   void increaseProtoSegment(const CSCRecHit2D* h, int layer);
-  AlgebraicSymMatrix calculateError() const;
-  CLHEP::HepMatrix derivativeMatrix() const;
-  AlgebraicSymMatrix weightMatrix() const;
-  void flipErrors(AlgebraicSymMatrix&) const;
   
   /**
    * Return true if the difference in (local) x of two hits is < dRPhiMax
@@ -100,7 +86,7 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
   /**
    * Return true if hit is near segment.
    * 'Near' means deltaphi and rxy*deltaphi are within ranges
-   * specified by orcarc parameters dPhiFineMax and dRPhiFineMax,
+   * specified by config parameters dPhiFineMax and dRPhiFineMax,
    * where rxy = sqrt(x**2+y**2) of the hit in global coordinates.
    */
   bool isHitNearSegment(const CSCRecHit2D* h) const;
@@ -122,15 +108,14 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
    * In this algorithm, this means it shares no hits with any other segment.
    * If "SegmentSort=2" also require a minimal chi2 probability of "chi2ndfProbMin".
    */
-  bool isSegmentGood(std::vector<ChamberHitContainer>::iterator is, 
-		     std::vector<double>::iterator ichi,
+  bool isSegmentGood(std::vector<CSCSegFit*>::iterator is, 
 		     const ChamberHitContainer& rechitsInChamber,  
 		     BoolContainer& used) const;
   
   /**
    * Flag hits on segment as used
    */
-  void flagHitsAsUsed(std::vector<ChamberHitContainer>::iterator is, 
+  void flagHitsAsUsed(std::vector<CSCSegFit*>::iterator is, 
 		      const ChamberHitContainer& rechitsInChamber, BoolContainer& used) const;
   
   /**
@@ -141,29 +126,26 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
   /**
    * Sort criterion for segment quality, for use in pruneTheSegments.
    */   
-  void segmentSort();  
+  void segmentSort(void);  
   
   float phiAtZ(float z) const;  
-  void fillLocalDirection();
-  void fillChiSquared();
-  void fitSlopes();
-  void updateParameters();
+
+  void updateParameters(void);
+
+  void dumpSegment( const CSCSegment& seg ) const;
   
   /// Member variables
   // ================
   
   const CSCChamber* theChamber;
-  std::vector<ChamberHitContainer> candidates;
-  std::vector<LocalPoint> origins;
-  std::vector<LocalVector> directions;
-  std::vector<AlgebraicSymMatrix> errors;
-  std::vector<double> chi2s;
 
   ChamberHitContainer proto_segment;
-  double theChi2;
-  LocalPoint theOrigin;
-  LocalVector theDirection;
-  float uz, vz;
+
+  // Pointer to most recent candidate fit
+  CSCSegFit* sfit_;
+
+  // Store pointers to set of candidate fits
+  std::vector<CSCSegFit*> candidates;
   
   /** max segment chi squared
    */
@@ -209,6 +191,7 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
    */
   const std::string myName;
   bool debugInfo;
+
 };
 
 #endif

@@ -2330,7 +2330,6 @@ void L1GtHwValidation::excludedAlgoList() {
 
 
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
-    (const_cast<L1GtTriggerMenu*> (m_l1GtMenu))->buildGtConditionMap(); //...ugly
 
     for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
 

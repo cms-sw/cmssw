@@ -9,7 +9,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -25,19 +25,17 @@ namespace edm
 namespace reco
 {
   template<class T>
-  class CorrectedJetProducer : public edm::EDProducer
+  class CorrectedJetProducer : public edm::global::EDProducer<>
   {
   public:
     typedef std::vector<T> JetCollection;
     explicit CorrectedJetProducer (const edm::ParameterSet& fParameters);
     virtual ~CorrectedJetProducer () {}
-    virtual void produce(edm::Event&, const edm::EventSetup&);
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   private:
-    edm::EDGetTokenT<JetCollection> mInput;
-    std::vector <edm::EDGetTokenT<reco::JetCorrector> > mCorrectorTokens;
-    // cache
-    std::vector <const reco::JetCorrector*> mCorrectors;
-    bool mVerbose;
+    const edm::EDGetTokenT<JetCollection> mInput;
+    const std::vector <edm::EDGetTokenT<reco::JetCorrector> > mCorrectorTokens;
+    const bool mVerbose;
   };
 }
 
@@ -49,7 +47,6 @@ namespace reco {
   CorrectedJetProducer<T>::CorrectedJetProducer(const edm::ParameterSet& fConfig)
     : mInput(consumes<JetCollection>(fConfig.getParameter <edm::InputTag> ("src")))
     , mCorrectorTokens(edm::vector_transform(fConfig.getParameter<std::vector<edm::InputTag> >("correctors"), [this](edm::InputTag const & tag){return consumes<reco::JetCorrector>(tag);}))
-    , mCorrectors(mCorrectorTokens.size(), 0)
     , mVerbose (fConfig.getUntrackedParameter <bool> ("verbose", false))
   {
     std::string alias = fConfig.getUntrackedParameter <std::string> ("alias", "");
@@ -60,15 +57,17 @@ namespace reco {
   }
 
   template<class T>
-  void CorrectedJetProducer<T>::produce(edm::Event& fEvent,
-					 const edm::EventSetup& fSetup)
+  void CorrectedJetProducer<T>::produce(edm::StreamID, edm::Event& fEvent, const edm::EventSetup& fSetup) const
   {
+    // FIXME - use something more efficient instead of an std::vector
+    std::vector<reco::JetCorrector const *> correctors(mCorrectorTokens.size(), nullptr);
+
     // look for correctors
     for (unsigned i = 0; i < mCorrectorTokens.size(); i++)
       {
         edm::Handle <reco::JetCorrector> handle;
         fEvent.getByToken (mCorrectorTokens [i], handle);
-        mCorrectors [i] = &*handle;
+        correctors[i] = handle.product();
       }
     edm::Handle<JetCollection> jets;                         //Define Inputs
     fEvent.getByToken (mInput, jets);                        //Get Inputs
@@ -83,15 +82,15 @@ namespace reco {
 	if (mVerbose)
 	  std::cout<<"CorrectedJetProducer::produce-> original jet: "
 		   <<jet->print()<<std::endl;
-	for (unsigned i = 0; i < mCorrectors.size(); ++i)
+	for (unsigned i = 0; i < mCorrectorTokens.size(); ++i)
 	  {
-	    if ( !(mCorrectors[i]->vectorialCorrection()) ) {
+	    if ( !(correctors[i]->vectorialCorrection()) ) {
 	      // Scalar correction
               double scale = 1.;
-              if (!(mCorrectors[i]->refRequired()))
-	        scale = mCorrectors[i]->correction (*referenceJet);
+              if (!(correctors[i]->refRequired()))
+	        scale = correctors[i]->correction (*referenceJet);
               else
-                scale = mCorrectors[i]->correction (*referenceJet,jetRef);
+                scale = correctors[i]->correction (*referenceJet,jetRef);
 	      if (mVerbose)
 		std::cout<<"CorrectedJetProducer::produce-> Corrector # "
 			 <<i<<", correction factor: "<<scale<<std::endl;
@@ -100,7 +99,7 @@ namespace reco {
 	    } else {
 	      // Vectorial correction
 	      reco::JetCorrector::LorentzVector corrected;
-	      double scale = mCorrectors[i]->correction (*referenceJet, jetRef, corrected);
+	      double scale = correctors[i]->correction (*referenceJet, jetRef, corrected);
 	      if (mVerbose)
 		std::cout<<"CorrectedJetProducer::produce-> Corrector # "
 			 <<i<<", correction factor: "<<scale<<std::endl;
