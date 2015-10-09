@@ -21,7 +21,6 @@ HGCalUncalibRecHitWorkerWeights::run1( const edm::Event & evt,
                                        const HGCEEDigiCollection::const_iterator & itdg,
                                        HGCeeUncalibratedRecHitCollection & result )
 {
-  DetId detid(itdg->id());  
   result.push_back(uncalibMaker_ee_.makeRecHit(*itdg));  
   return true;
 }
@@ -31,7 +30,6 @@ HGCalUncalibRecHitWorkerWeights::run2( const edm::Event & evt,
                 const HGCHEDigiCollection::const_iterator & itdg,
                 HGChefUncalibratedRecHitCollection & result )
 {
-  DetId detid(itdg->id());
   result.push_back(uncalibMaker_hef_.makeRecHit(*itdg));
   return true;
 }
@@ -41,7 +39,6 @@ HGCalUncalibRecHitWorkerWeights::run3( const edm::Event & evt,
                 const HGCHEDigiCollection::const_iterator & itdg,
                 HGChebUncalibratedRecHitCollection & result )
 {
-  DetId detid(itdg->id());
   result.push_back(uncalibMaker_heb_.makeRecHit(*itdg));
   return true;
 }
