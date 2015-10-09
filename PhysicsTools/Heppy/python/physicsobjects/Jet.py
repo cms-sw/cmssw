@@ -105,8 +105,21 @@ class Jet(PhysicsObject):
         
     def rawFactor(self):
         return self.jecFactor('Uncorrected') * self._rawFactorMultiplier
+
     def setRawFactor(self, factor):
         self._rawFactorMultiplier = factor/self.jecFactor('Uncorrected')
+
+    def corrFactor(self):
+        return 1.0/self.rawFactor()
+
+    def l1corrFactor(self):
+        if hasattr(self, 'CorrFactor_L1'):
+            return self.CorrFactor_L1
+        jecLevels = self.physObj.availableJECLevels()
+        for level in jecLevels:
+            if "L1" in level:
+                return self.physObj.jecFactor(level)/self.physObj.jecFactor('Uncorrected')
+        return 1.0 # Jet does not have any L1 correction
 
     def btag(self,name):
         ret = self.bDiscriminator(name)
