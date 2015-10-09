@@ -19,29 +19,27 @@
 
 
 namespace edm {
-        class Event;
-        class EventSetup;
-        class ParameterSet;
+  class Event;
+  class EventSetup;
+  class ParameterSet;
 }
 
 class HGCalUncalibRecHitWorkerWeights : public HGCalUncalibRecHitWorkerBaseClass {
+  
+ public:
+  HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&);
+  virtual ~HGCalUncalibRecHitWorkerWeights() {};
+  
+  void set(const edm::EventSetup& es);
+  bool run1(const edm::Event& evt, const HGCEEDigiCollection::const_iterator & digi, HGCeeUncalibratedRecHitCollection & result);
+  bool run2(const edm::Event& evt, const HGCHEDigiCollection::const_iterator & digi, HGChefUncalibratedRecHitCollection & result);
+  bool run3(const edm::Event& evt, const HGCHEDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result);
 
-        public:
-                HGCalUncalibRecHitWorkerWeights(const edm::ParameterSet&);
-                virtual ~HGCalUncalibRecHitWorkerWeights() {};
-
-                void set(const edm::EventSetup& es);
-                bool run1(const edm::Event& evt, const HGCEEDigiCollection::const_iterator & digi, HGCeeUncalibratedRecHitCollection & result);
-                bool run2(const edm::Event& evt, const HGCHEDigiCollection::const_iterator & digi, HGChefUncalibratedRecHitCollection & result);
-                bool run3(const edm::Event& evt, const HGCHEDigiCollection::const_iterator & digi, HGChebUncalibratedRecHitCollection & result);
-
-        protected:
-
-                double weights[3] = {1,1,1};
-
-                HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<HGCEEDetId,HGCSample>> uncalibMaker_ee_;
-                HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<HGCHEDetId,HGCSample>> uncalibMaker_hef_;
-                HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<HGCHEDetId,HGCSample>> uncalibMaker_heb_;
+ protected:
+    
+  HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<HGCEEDetId,HGCSample>> uncalibMaker_ee_;
+  HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<HGCHEDetId,HGCSample>> uncalibMaker_hef_;
+  HGCalUncalibRecHitRecWeightsAlgo<HGCDataFrame<HGCHEDetId,HGCSample>> uncalibMaker_heb_;
 
 };
 

@@ -7,7 +7,4 @@
 <use name="DQMServices/Core"/>
 <use   name="boost"/>
 <use   name="root"/>
-<library   file="HGCalLocalRecoTask.cc" name="testHGCalLocalReco">
-  <flags   EDM_PLUGIN="1"/>
-</library>
 

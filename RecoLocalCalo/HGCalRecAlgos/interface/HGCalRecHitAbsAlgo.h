@@ -25,7 +25,7 @@ class HGCalRecHitAbsAlgo
 
   /// make rechits from dataframes
 
-  virtual void setADCToGeVConstant(const float& value) = 0;
+  virtual void setADCToGeVConstant(const float value) = 0;
   virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH, const uint32_t &flags) const = 0;
 
 };

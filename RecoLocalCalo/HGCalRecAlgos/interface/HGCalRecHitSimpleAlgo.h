@@ -10,7 +10,6 @@
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalRecHitAbsAlgo.h"
 #include "DataFormats/HGCDigi/interface/HGCDataFrame.h"
-#include "TMath.h"
 #include <iostream>
 
 class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
@@ -20,40 +19,36 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
     adcToGeVConstant_ = -1;
     adcToGeVConstantIsSet_ = false;
   }
-
-  virtual void setADCToGeVConstant(const float& value) {
+  
+  virtual void setADCToGeVConstant(const float value) override {
     adcToGeVConstant_ = value;
     adcToGeVConstantIsSet_ = true;
   }
-
-
+  
+  
   // destructor
   virtual ~HGCalRecHitSimpleAlgo() { };
-
+  
   /// Compute parameters
   virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH,
-			       //                                const float& intercalibConstant,
-			       //                                const float& timeIntercalib = 0,
-                                const uint32_t& flags = 0) const {
-
+                               const uint32_t& flags = 0) const {
+    
     if(!adcToGeVConstantIsSet_) {
-      std::cout << "HGCalRecHitSimpleAlgo::makeRecHit: adcToGeVConstant_ not set before calling this method!" << 
-                   " will use -1 and produce bogus rechits!" << std::endl;
+      throw cms::Exception("HGCalRecHitSimpleAlgoBadConfig") 
+        << "makeRecHit: adcToGeVConstant_ not set before calling this method!";
     }
-
+    
     //    float clockToNsConstant = 25;
     float energy = uncalibRH.amplitude() * adcToGeVConstant_;
     float time   = uncalibRH.jitter();
     if(time<0) time   = 0; // fast-track digi conversion
-
-    HGCRecHit rh( uncalibRH.id(), energy, time );
-
-    // Now fill flags
-
-    bool good=true;
     
-
-    if (good) rh.setFlag(HGCRecHit::kGood);
+    HGCRecHit rh( uncalibRH.id(), energy, time );
+    
+    // Now fill flags
+    // all rechits from the digitizer are "good" at present
+    rh.setFlag(HGCRecHit::kGood);
+    
     return rh;
   }
 

@@ -1,12 +1,11 @@
 /** \class HGCalRecHitProducer
  *   produce HGCAL rechits from uncalibrated rechits
  *
- *  based on Ecal code
+ *  simplified version of Ecal code
  *
- *  \author Valery Andreev
+ *  \author Valeri Andreev (ported to 76X by L. Gray)
  *
  **/
-#include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalRecHitProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -19,6 +18,31 @@
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalRecHitWorkerFactory.h"
 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
+#include "RecoLocalCalo/HGCalRecProducers/interface/HGCalRecHitWorkerBaseClass.h"
+
+class HGCalRecHitProducer : public edm::stream::EDProducer<> {
+  
+ public:
+  explicit HGCalRecHitProducer(const edm::ParameterSet& ps);
+  ~HGCalRecHitProducer();
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  
+ private:
+  
+  const edm::EDGetTokenT<HGCeeUncalibratedRecHitCollection> eeUncalibRecHitCollection_;
+  const edm::EDGetTokenT<HGChefUncalibratedRecHitCollection>  hefUncalibRecHitCollection_;
+  const edm::EDGetTokenT<HGChebUncalibratedRecHitCollection> hebUncalibRecHitCollection_;
+  const std::string eeRechitCollection_; // instance name for HGCEE
+  const std::string hefRechitCollection_; // instance name for HGCHEF
+  const std::string hebRechitCollection_; // instance name for HGCHEB 
+  
+  std::unique_ptr<HGCalRecHitWorkerBaseClass> worker_;  
+};
 
 HGCalRecHitProducer::HGCalRecHitProducer(const edm::ParameterSet& ps) :
   eeUncalibRecHitCollection_( consumes<HGCeeUncalibratedRecHitCollection>( ps.getParameter<edm::InputTag>("HGCEEuncalibRecHitCollection") ) ),

@@ -35,19 +35,18 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   Handle< HGCEEDigiCollection > pHGCEEDigis;
   Handle< HGCHEDigiCollection > pHGCHEFDigis;
   Handle< HGCHEDigiCollection > pHGCHEBDigis;
-  
-  const HGCEEDigiCollection* eeDigis =0;
-  const HGCHEDigiCollection* hefDigis =0;
-  const HGCHEDigiCollection* hebDigis =0;
-  
+    
   evt.getByToken( eeDigiCollection_, pHGCEEDigis);
-  eeDigis = pHGCEEDigis.product(); // get a ptr to the product
+  const HGCEEDigiCollection* eeDigis = 
+    pHGCEEDigis.product(); // get a ptr to the product
   
   evt.getByToken( hefDigiCollection_, pHGCHEFDigis);
-  hefDigis = pHGCHEFDigis.product(); // get a ptr to the product
+  const HGCHEDigiCollection* hefDigis = 
+    pHGCHEFDigis.product(); // get a ptr to the product
   
   evt.getByToken( hebDigiCollection_, pHGCHEBDigis);
-  hebDigis = pHGCHEBDigis.product(); // get a ptr to the product
+  const HGCHEDigiCollection* hebDigis = 
+    pHGCHEBDigis.product(); // get a ptr to the product
   
   // tranparently get things from event setup
   worker_->set(es);
