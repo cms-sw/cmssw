@@ -70,7 +70,8 @@ pfIsoCalculator::pfIsoCalculator(const edm::Event &iEvent, const edm::EventSetup
 
   // voronoi background
   //  edm::Handle<reco::VoronoiMap> pfVoronoiBkg;
-  iEvent.getByToken(pfVoronoiBkg_,pfVoronoiBkg);
+  if(!(pfVoronoiBkg_.isUninitialized()))
+    iEvent.getByToken(pfVoronoiBkg_,pfVoronoiBkg);
 
 }
 
