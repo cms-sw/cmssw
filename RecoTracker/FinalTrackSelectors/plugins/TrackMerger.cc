@@ -14,12 +14,24 @@
 #define HIT_SORT   0 // sort hits using global position of hit
 
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
+  // #define VI_DEBUG
+  
+#ifdef VI_DEBUG
+#define DPRINT(x) std::cout << x << ": "
+#define PRINT std::cout
+#else
+#define DPRINT(x) LogTrace(x)
+#define PRINT LogTrace("")
+#endif
+
+
 TrackMerger::TrackMerger(const edm::ParameterSet &iConfig) :
     useInnermostState_(iConfig.getParameter<bool>("useInnermostState")),
-    debug_(iConfig.getUntrackedParameter<bool>("debug",false)),
     theBuilderName(iConfig.getParameter<std::string>("ttrhBuilderName"))
 {
-  // debug_ = true;
 }
 
 TrackMerger::~TrackMerger()
@@ -36,19 +48,19 @@ void TrackMerger::init(const edm::EventSetup &iSetup)
 
 TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &outer) const 
 {
-  if (debug_) std::cout << std::abs(inner.eta()) << " merging " << inner.algo() << '/' << outer.algo() << ' ' << inner.eta() << '/' << outer.eta()<< std::endl;
+  DPRINT("TrackMerger") << std::abs(inner.eta()) << " merging " << inner.algo() << '/' << outer.algo() << ' ' << inner.eta() << '/' << outer.eta()<< std::endl;
 
   std::vector<const TrackingRecHit *> hits;
     hits.reserve(inner.recHitsSize() + outer.recHitsSize());
-    if (debug_) std::cout << "Inner track hits: " << std::endl;
+    DPRINT("TrackMerger") << "Inner track hits: " << std::endl;
     for (auto it = inner.recHitsBegin(), ed = inner.recHitsEnd(); it != ed; ++it) {
         hits.push_back(&**it);
         if (debug_) {
             DetId id(hits.back()->geographicalId());
-            std::cout << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << hits.back()->isValid() << "   detid: " << id() << std::endl;
+            PRINT << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << hits.back()->isValid() << "   detid: " << id() << std::endl;
         }
     }
-    if (debug_) std::cout << "Outer track hits: " << std::endl;
+    DPRINT("TrackMerger") << "Outer track hits: " << std::endl;
 
 #if TRACK_SORT
     DetId lastId(hits.back()->geographicalId());
@@ -60,9 +72,9 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
         int thisSubdet = id.subdetId();
         if (thisSubdet > lastSubdet || (thisSubdet == lastSubdet && theTrkTopo->layer(id) > lastLayer)) {
             hits.push_back(hit);
-            if (debug_) std::cout << "  adding   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
+            PRINT << "  adding   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
         } else {
-            if (debug_) std::cout << "  skipping subdet " << thisSubdet << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
+            PRINT << "  skipping subdet " << thisSubdet << "  layer " << theTrkTopo->layer(id) << " valid " << hit->isValid() << "   detid: " << id() << std::endl;
         }
     }
 #else
@@ -73,7 +85,7 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
         int  lay = theTrkTopo->layer(id);
         bool shared = false;
         bool valid  = hit->isValid();
-        if (debug_) std::cout << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << valid << "   detid: " << id() << std::endl;
+        PRINT << "   subdet " << id.subdetId() << "  layer " << theTrkTopo->layer(id) << " valid " << valid << "   detid: " << id() << std::endl;
         size_t iHit = 0;
         for ( auto hit2 :  hits) {
             ++iHit; if (iHit >  nHitsFirstTrack) break;
@@ -81,14 +93,14 @@ TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &o
             if (id.subdetId() != id2.subdetId()) continue;
             if (theTrkTopo->layer(id2) != lay) continue;
             if (hit->sharesInput(hit2, TrackingRecHit::all)) { 
-                if (debug_) std::cout << "        discared as duplicate of other hit" << id() << std::endl;
+                PRINT << "        discared as duplicate of other hit" << id() << std::endl;
                 shared = true; break; 
             }
             if (hit2->isValid() && !valid) { 
-                if (debug_) std::cout << "        replacing old invalid hit on detid " << id2() << std::endl;
+                PRINT << "        replacing old invalid hit on detid " << id2() << std::endl;
                 hit2 = hit; shared = true; break; 
             }
-            if (debug_) std::cout << "        discared as additional hit on layer that already contains hit with detid " << id() << std::endl;
+            PRINT << "        discared as additional hit on layer that already contains hit with detid " << id() << std::endl;
             shared = true; break;
         }
         if (shared) continue;

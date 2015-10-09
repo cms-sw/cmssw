@@ -53,7 +53,8 @@ pixelPairStepSeeds.SeedComparitorPSet = cms.PSet(
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 pixelPairStepTrajectoryFilterBase = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
-    minimumNumberOfHits = 2,  # 3,  new filter..
+    minimumNumberOfHits = 3,
+    seedPairPenalty =0,
     minPt = 0.1
     )
 import RecoPixelVertexing.PixelLowPtUtilities.StripSubClusterShapeTrajectoryFilter_cfi

@@ -48,19 +48,7 @@ namespace {
       /// MVA discriminator
       const GBRForest* forest_;
       
-      /// MVA input variables
-      float tmva_ddsz_;
-      float tmva_ddxy_;
-      float tmva_dphi_;
-      float tmva_dlambda_;
-      float tmva_dqoverp_;
-      float tmva_d3dr_;
-      float tmva_d3dz_;
-      float tmva_outer_nMissingInner_;
-      float tmva_inner_nMissingOuter_;
-      
-      float* gbrVals_;
-      
+           
       /// MVA weights file
       std::string dbFileName_;
       bool useForestFromDB_;
@@ -119,7 +107,7 @@ DuplicateTrackMerger::fillDescriptions(edm::ConfigurationDescriptions& descripti
      desc.add<double>("minDeltaR3d",-4.0);
      desc.add<double>("minBDTG",-0.1);
      desc.add<double>("minpT",0.2);
-     desc.add<double>("minP",04);
+     desc.add<double>("minP",0.4);
      desc.add<double>("maxDCA",30.0);
      desc.add<double>("maxDPhi",0.30);
      desc.add<double>("maxDLambda",0.30);
@@ -133,7 +121,7 @@ DuplicateTrackMerger::fillDescriptions(edm::ConfigurationDescriptions& descripti
 }
 
   
-DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : forest_(nullptr), gbrVals_(nullptr), merger_(iPara)
+DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : forest_(nullptr), merger_(iPara)
 {
 
   useForestFromDB_ = true;
@@ -153,7 +141,6 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
   produces<std::vector<TrackCandidate> >("candidates");
   produces<CandidateToDuplicate>("candidateMap");
 
-  gbrVals_ = new float[9];
   dbFileName_ = "";
   forestLabel_ = iPara.getParameter<std::string>("forestLabel");
 
@@ -182,7 +169,6 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
 DuplicateTrackMerger::~DuplicateTrackMerger()
 {
 
-  delete [] gbrVals_;
   if(!useForestFromDB_) delete forest_;
 
 }
@@ -252,7 +238,7 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       auto qoverp1 = ftsn1.signedInverseMomentum();
       auto qoverp2 = ftsn2.signedInverseMomentum();
-      tmva_dqoverp_ = qoverp1-qoverp2;
+      float tmva_dqoverp_ = qoverp1-qoverp2;
       if ( std::abs(tmva_dqoverp_) > maxDQoP_ ) continue;
 
 
@@ -261,31 +247,31 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       
       auto lambda1 =  M_PI/2 - ftsn1.momentum().theta();
       auto lambda2 =  M_PI/2 - ftsn2.momentum().theta();
-      tmva_dlambda_ = lambda1-lambda2;
+      float tmva_dlambda_ = lambda1-lambda2;
       if ( std::abs(tmva_dlambda_) > maxDLambda_ ) continue;
 
       auto phi1 = ftsn1.momentum().phi();
       auto phi2 = ftsn2.momentum().phi();
-      tmva_dphi_ = phi1-phi2;
-      if(fabs(tmva_dphi_) > M_PI) tmva_dphi_ = 2*M_PI - fabs(tmva_dphi_);
-      if ( fabs(tmva_dphi_) > maxDPhi_ ) continue;
+      float tmva_dphi_ = phi1-phi2;
+      if(std::abs(tmva_dphi_) > M_PI) tmva_dphi_ = 2*M_PI - fabs(tmva_dphi_);
+      if (std::abs(tmva_dphi_) > maxDPhi_ ) continue;
 
       auto dxy1 = (-ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt();
       auto dxy2 = (-ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt();
-      tmva_ddxy_ = dxy1-dxy2;
+      float tmva_ddxy_ = dxy1-dxy2;
       if ( std::abs(tmva_ddxy_) > maxDdxy_ ) continue;
 
       auto dsz1 = ftsn1.position().z() * TSCP1.pt() / TSCP1.momentum().mag() - (ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt() * ftsn1.momentum().z()/ftsn1.momentum().mag();
       auto dsz2 = ftsn2.position().z() * TSCP2.pt() / TSCP2.momentum().mag() - (ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt() * ftsn2.momentum().z()/ftsn2.momentum().mag();
-      tmva_ddsz_ = dsz1-dsz2;
+      float tmva_ddsz_ = dsz1-dsz2;
       if ( std::abs(tmva_ddsz_) > maxDdsz_ ) continue;
 
-      tmva_d3dr_ = avgPoint.perp();
-      tmva_d3dz_ = avgPoint.z();
-      tmva_outer_nMissingInner_ = t2->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-      tmva_inner_nMissingOuter_ = t1->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
+      float tmva_d3dr_ = avgPoint.perp();
+      float tmva_d3dz_ = avgPoint.z();
+      float tmva_outer_nMissingInner_ = t2->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+      float tmva_inner_nMissingOuter_ = t1->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
       
-
+      float gbrVals_[9];
       gbrVals_[0] = tmva_ddsz_;
       gbrVals_[1] = tmva_ddxy_;
       gbrVals_[2] = tmva_dphi_;
