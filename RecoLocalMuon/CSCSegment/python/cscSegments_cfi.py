@@ -4,17 +4,17 @@ from RecoLocalMuon.CSCSegment.CSCSegmentAlgorithmSK_cfi import *
 from RecoLocalMuon.CSCSegment.CSCSegmentAlgorithmTC_cfi import *
 from RecoLocalMuon.CSCSegment.CSCSegmentAlgorithmDF_cfi import *
 from RecoLocalMuon.CSCSegment.CSCSegmentAlgorithmST_cfi import *
-# module must be an EDProducer or similar
-# =======================================
+
 cscSegments = cms.EDProducer("CSCSegmentProducer",
     # Define input
     inputObjects = cms.InputTag("csc2DRecHits"),
     # Choice of the building algo: 1 SK, 2 TC, 3 DF, 4 ST, ...
     algo_type = cms.int32(4),
     # std::vector<edm::ParameterSet>
-    algo_psets = cms.VPSet(cms.PSet(
-        CSCSegAlgoSK
-    ), 
+    algo_psets = cms.VPSet(
+        cms.PSet(
+            CSCSegAlgoSK
+        ), 
         cms.PSet(
             CSCSegAlgoTC
         ), 
@@ -23,7 +23,8 @@ cscSegments = cms.EDProducer("CSCSegmentProducer",
         ), 
         cms.PSet(
             CSCSegAlgoST
-        ))
+        )
+     )
 )
 
 

@@ -31,37 +31,26 @@
 
 
 
-EcalRecalibRecHitProducer::EcalRecalibRecHitProducer(const edm::ParameterSet& ps) {
+EcalRecalibRecHitProducer::EcalRecalibRecHitProducer(const edm::ParameterSet& ps) :
+   EBRecHitCollection_(        ps.getParameter<edm::InputTag>("EBRecHitCollection") ),
+   EERecHitCollection_(        ps.getParameter<edm::InputTag>("EERecHitCollection") ),
+   EBRecHitToken_(             (not EBRecHitCollection_.label().empty()) ? consumes<EBRecHitCollection>(EBRecHitCollection_) : edm::EDGetTokenT<EBRecHitCollection>() ),
+   EERecHitToken_(             (not EERecHitCollection_.label().empty()) ? consumes<EERecHitCollection>(EERecHitCollection_) : edm::EDGetTokenT<EERecHitCollection>() ),
+   EBRecalibRecHitCollection_( ps.getParameter<std::string>("EBRecalibRecHitCollection") ),
+   EERecalibRecHitCollection_( ps.getParameter<std::string>("EERecalibRecHitCollection") ),
+   doEnergyScale_(             ps.getParameter<bool>("doEnergyScale") ),
+   doIntercalib_(              ps.getParameter<bool>("doIntercalib") ),
+   doLaserCorrections_(        ps.getParameter<bool>("doLaserCorrections") ),
 
-   EBRecHitCollection_ = ps.getParameter<edm::InputTag>("EBRecHitCollection");
-   EERecHitCollection_ = ps.getParameter<edm::InputTag>("EERecHitCollection");
-   EBRecHitToken_ = consumes<EBRecHitCollection>(EBRecHitCollection_);
-   EERecHitToken_ = consumes<EBRecHitCollection>(EERecHitCollection_);
-   EBRecalibRecHitCollection_        = ps.getParameter<std::string>("EBRecalibRecHitCollection");
-   EERecalibRecHitCollection_        = ps.getParameter<std::string>("EERecalibRecHitCollection");
-   doEnergyScale_             = ps.getParameter<bool>("doEnergyScale");
-   doIntercalib_              = ps.getParameter<bool>("doIntercalib");
-   doLaserCorrections_        = ps.getParameter<bool>("doLaserCorrections");
-
-   doEnergyScaleInverse_             = ps.getParameter<bool>("doEnergyScaleInverse");
-   doIntercalibInverse_ = ps.getParameter<bool>("doIntercalibInverse");
-   doLaserCorrectionsInverse_        = ps.getParameter<bool>("doLaserCorrectionsInverse");
-
-   EBalgo_ = new EcalRecHitSimpleAlgo();
-   EEalgo_ = new EcalRecHitSimpleAlgo();
-
+   doEnergyScaleInverse_(      ps.getParameter<bool>("doEnergyScaleInverse") ),
+   doIntercalibInverse_(       ps.getParameter<bool>("doIntercalibInverse") ),
+   doLaserCorrectionsInverse_( ps.getParameter<bool>("doLaserCorrectionsInverse") )
+{
    produces< EBRecHitCollection >(EBRecalibRecHitCollection_);
    produces< EERecHitCollection >(EERecalibRecHitCollection_);
 }
 
-EcalRecalibRecHitProducer::~EcalRecalibRecHitProducer() {
-
-  if (EBalgo_) delete EBalgo_;
-  if (EEalgo_) delete EEalgo_;
-
-}
-
-void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
+void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, const edm::EventSetup& es) const
 {
         using namespace edm;
         Handle< EBRecHitCollection > pEBRecHits;
@@ -70,11 +59,11 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
         const EBRecHitCollection*  EBRecHits = 0;
         const EERecHitCollection*  EERecHits = 0; 
 
-	if ( EBRecHitCollection_.label() != "" ) {
+	if (not EBRecHitCollection_.label().empty()) {
 	  evt.getByToken( EBRecHitToken_, pEBRecHits);
 	  EBRecHits = pEBRecHits.product(); // get a ptr to the product
 	}
-	if ( EERecHitCollection_.label() != "" ) { 
+	if (not EERecHitCollection_.label().empty()) { 
 	  evt.getByToken( EERecHitToken_, pEERecHits);
 	  EERecHits = pEERecHits.product(); // get a ptr to the product
 	}
@@ -174,10 +163,6 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
                                 lasercalib = pLaser->getLaserCorrection( EEDetId(it->id()), evt.time() );
                         }
 
-                        // make the rechit and put in the output collection
-                        // must implement op= for EcalRecHit
-                        //EcalRecHit aHit( EEalgo_->makeRecHit(*it, icalconst * lasercalib) );
-
 			if(doIntercalibInverse_){
 			  icalconst = 1.0/icalconst;
 			}
@@ -185,6 +170,7 @@ void EcalRecalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
 			  lasercalib = 1.0/lasercalib;
 			}
 			
+                        // make the rechit and put in the output collection
                         EcalRecHit aHit( (*it).id(), (*it).energy() * agc_ee * icalconst * lasercalib, (*it).time() );
                         EERecalibRecHits->push_back( aHit );
                 }
