@@ -135,8 +135,7 @@ class JetReCalibrator:
                     type1METCorr[0] -= rawP4forT1.Px() * (corr - l1corr) 
                     type1METCorr[1] -= rawP4forT1.Py() * (corr - l1corr) 
                     type1METCorr[2] += rawP4forT1.Et() * (corr - l1corr) 
-        jet.setP4(jet.p4() * (corr * raw))
-        jet.setRawFactor(1.0/corr)
+        jet.setCorrP4(jet.p4() * (corr * raw))
         return True
 
     def correctAll(self,jets,rho,delta=0, addCorr=False, addShifts=False, metShift=[0.,0.], type1METCorr=[0.,0.,0.]):

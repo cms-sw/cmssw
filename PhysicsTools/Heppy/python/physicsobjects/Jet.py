@@ -44,6 +44,7 @@ class Jet(PhysicsObject):
 
     def _physObjInit(self):
         self._rawFactorMultiplier = 1.0
+        self._recalibrated = False
         self._leadingTrack = None
         self._leadingTrackSearched = False
 
@@ -112,9 +113,17 @@ class Jet(PhysicsObject):
     def corrFactor(self):
         return 1.0/self.rawFactor()
 
+    def setCorrP4(self,newP4):
+        self._recalibrated = True
+        corr = newP4.Pt() / (self.pt() * self.rawFactor()) 
+        self.setP4(newP4);
+        self.setRawFactor(1.0/corr);
+
     def l1corrFactor(self):
         if hasattr(self, 'CorrFactor_L1'):
             return self.CorrFactor_L1
+        if self._recalibrated:
+            raise RuntimeError, "The jet was recalibrated, but without calculateSeparateCorrections. L1 is not available"
         jecLevels = self.physObj.availableJECLevels()
         for level in jecLevels:
             if "L1" in level:
