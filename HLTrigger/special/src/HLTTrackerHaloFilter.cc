@@ -12,7 +12,6 @@
 #include "HLTrigger/special/interface/HLTTrackerHaloFilter.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
-typedef edmNew::DetSetVector<SiStripCluster>::Getter Getter;
 //
 // constructors and destructor
 //
