@@ -158,17 +158,16 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       v->getMEhisto_Eta()->Fill(iter->first->eta());
       
       DR  = 9999.;
-      if (offlineJetTagHandlerPF.isValid()){
-        for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerPF->begin(); iterO != offlineJetTagHandlerPF->end(); iterO++ ){ 
+      if(offlineJetTagHandlerPF.isValid()){
+          for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerPF->begin(); iterO != offlineJetTagHandlerPF->end(); iterO++ ){ 
             float CSV_offline = iterO->second;
             if (CSV_offline<0) CSV_offline = -0.05;
             DR = reco::deltaR(iterO->first->eta(),iterO->first->phi(),iter->first->eta(),iter->first->phi());
-            if (DR<0.3) 
-            {
+            if (DR<0.3) {
                v->getMEhisto_CSV_RECOvsHLT()->Fill(CSV_offline,CSV_online); continue;
-            }
-        }
-    }
+               }
+          }
+      }
     
       iEvent.getByToken(hltPFPVToken_, VertexHandler);
       if (VertexHandler.isValid())
@@ -189,20 +188,20 @@ BTVHLTOfflineSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       v->getMEhisto_Pt()->Fill(iter->first->pt()); 
       v->getMEhisto_Eta()->Fill(iter->first->eta());
       
-      
       DR  = 9999.;
-      if (offlineJetTagHandlerCalo.isValid()){
-          for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerCalo->begin(); iterO != offlineJetTagHandlerCalo->end(); iterO++ ) {
+      if(offlineJetTagHandlerCalo.isValid()){
+          for ( reco::JetTagCollection::const_iterator iterO = offlineJetTagHandlerCalo->begin(); iterO != offlineJetTagHandlerCalo->end(); iterO++ )
+          {
             float CSV_offline = iterO->second;
             if (CSV_offline<0) CSV_offline = -0.05;
             DR = reco::deltaR(iterO->first->eta(),iterO->first->phi(),iter->first->eta(),iter->first->phi());
             if (DR<0.3) 
             {
-               v->getMEhisto_CSV_RECOvsHLT()->Fill(CSV_offline,CSV_online);
-               continue;
-            }
-       }
+                v->getMEhisto_CSV_RECOvsHLT()->Fill(CSV_offline,CSV_online); continue;
+            }  
+          }     
       }
+      
       iEvent.getByToken(hltFastPVToken_, VertexHandler);
       if (VertexHandler.isValid()) 
       {
