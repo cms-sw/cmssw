@@ -31,7 +31,7 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
   
   /// Compute parameters
   virtual HGCRecHit makeRecHit(const HGCUncalibratedRecHit& uncalibRH,
-                               const uint32_t& flags = 0) const {
+                               const uint32_t& flags = 0) const override {
     
     if(!adcToGeVConstantIsSet_) {
       throw cms::Exception("HGCalRecHitSimpleAlgoBadConfig") 
