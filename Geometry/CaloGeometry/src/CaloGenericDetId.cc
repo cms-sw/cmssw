@@ -1,5 +1,6 @@
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 CaloGenericDetId::CaloGenericDetId( DetId::Detector iDet ,
@@ -7,11 +8,11 @@ CaloGenericDetId::CaloGenericDetId( DetId::Detector iDet ,
 				    uint32_t        iDin  ) : DetId( iDet, iSub )
 {
   if (isHcal()) { 
-    std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
+    edm::LogError("CaloGenericDetIdError") << "No support for HB/HE/HO/HF in CaloGenericDetId";
     throw cms::Exception("No support");
   } 
   else if(isCaloTower()) {
-    std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+    edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
   }
   else {
@@ -28,11 +29,11 @@ uint32_t
 CaloGenericDetId::denseIndex() const 
 {
   if (isHcal()) { 
-    std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
+    edm::LogError("CaloGenericDetIdError") << "No support for HB/HE/HO/HF in CaloGenericDetId";
     throw cms::Exception("No support");
   }
   else if(isCaloTower()) {
-    std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+    edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
   }
 
@@ -47,11 +48,11 @@ uint32_t
 CaloGenericDetId::sizeForDenseIndexing() const 
 {
   if (isHcal()) { 
-    std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
+    edm::LogError("CaloGenericDetIdError") << "No support for HB/HE/HO/HF in CaloGenericDetId";
     throw cms::Exception("No support");
   }
   else if(isCaloTower()) {
-    std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+    edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
   }
 
@@ -90,7 +91,7 @@ CaloGenericDetId::validDetId() const
    }
    else if ( isHcal() )
    { 
-      std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
+      edm::LogError("CaloGenericDetIdError") << "No support for HB/HE/HO/HF in CaloGenericDetId";
       throw cms::Exception("No support");
       
       returnValue = false;
@@ -111,7 +112,7 @@ CaloGenericDetId::validDetId() const
    }
    else if( isCaloTower() )
    {
-      std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+      edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
       throw cms::Exception("No support");
 
       returnValue = false;
@@ -123,11 +124,11 @@ CaloGenericDetId::validDetId() const
 std::ostream& operator<<(std::ostream& s, const CaloGenericDetId& id) 
 {
   if (id.isHcal()) { 
-    std::cerr << "No support for HB/HE/HO/HF in CaloGenericDetId" << std::endl;
+    edm::LogError("CaloGenericDetIdError") << "No support for HB/HE/HO/HF in CaloGenericDetId";
     throw cms::Exception("No support");
   }
   else if(id.isCaloTower()) {
-    std::cerr << "No support for CaloTower in CaloGenericDetId" << std::endl;
+    edm::LogError("CaloGenericDetIdError") << "No support for CaloTower in CaloGenericDetId";
     throw cms::Exception("No support");
   }
 
