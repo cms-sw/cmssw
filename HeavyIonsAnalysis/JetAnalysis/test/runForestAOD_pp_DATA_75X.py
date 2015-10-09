@@ -139,10 +139,13 @@ process.pfcandAnalyzer.pfPtMin = 0
 
 # photons
 process.load('HeavyIonsAnalysis.PhotonAnalysis.ggHiNtuplizer_cfi')
+process.ggHiNtuplizer.gsfElectronLabel   = cms.InputTag("gedGsfElectrons")
+process.ggHiNtuplizer.useValMapIso       = cms.bool(False)
+process.ggHiNtuplizer.VtxLabel           = cms.InputTag("offlinePrimaryVerticesWithBS")
+process.ggHiNtuplizer.particleFlowCollection = cms.InputTag("particleFlow")
+process.ggHiNtuplizer.doVsIso            = cms.bool(False)
 process.ggHiNtuplizer.doGenParticles = False
-process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag('gedPhotonsTmp'),
-                                                       recoPhotonHiIsolationMap = cms.InputTag('photonIsolationHIProducerGED')
-                                                       )
+process.ggHiNtuplizerGED = process.ggHiNtuplizer.clone(recoPhotonSrc = cms.InputTag('gedPhotons'))
 
 ###############################################################
 process.pfcandAnalyzer.pfCandidateLabel = cms.InputTag("particleFlow")
@@ -153,8 +156,8 @@ process.pfcandAnalyzer.genLabel = cms.InputTag("genParticles")
 process.ana_step = cms.Path(
                             process.hltanalysis *
                             process.jetSequences +
-                            # process.ggHiNtuplizer +
-                            # process.ggHiNtuplizerGED +
+                            process.ggHiNtuplizer +
+                            process.ggHiNtuplizerGED +
                             process.pfcandAnalyzer +
                             process.HiForest +
                             process.ppTrack
