@@ -6,93 +6,97 @@
  */
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
+
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
+
 #include "TrackMerger.h"
+
 #include <vector>
 #include <algorithm>
 #include <string>
 #include <iostream>
-#include <map>
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
 using namespace reco;
 namespace {
   class  DuplicateTrackMerger final : public edm::stream::EDProducer<> {
-       public:
-         /// constructor
-         explicit DuplicateTrackMerger(const edm::ParameterSet& iPara);
-	 /// destructor
-	 virtual ~DuplicateTrackMerger();
+  public:
+    /// constructor
+    explicit DuplicateTrackMerger(const edm::ParameterSet& iPara);
+    /// destructor
+    virtual ~DuplicateTrackMerger();
+    
+    using CandidateToDuplicate = std::vector<std::pair<int, int>>;
+	 
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-	 using CandidateToDuplicate = std::vector<std::pair<int, int>>;
-
-       protected:
-	 /// produce one event
-	 void produce( edm::Event &, const edm::EventSetup &) override;
-
-       private:
-	 /// MVA discriminator
-	 const GBRForest* forest_;
-
-	 /// MVA input variables
-	 float tmva_ddsz_;
-	 float tmva_ddxy_;
-	 float tmva_dphi_;
-	 float tmva_dlambda_;
-	 float tmva_dqoverp_;
-	 float tmva_d3dr_;
-	 float tmva_d3dz_;
-	 float tmva_outer_nMissingInner_;
-	 float tmva_inner_nMissingOuter_;
-
-	 float* gbrVals_;
-
-	 /// track input collection
-	 edm::EDGetTokenT<reco::TrackCollection> trackSource_;
-	 /// MVA weights file
-	 std::string dbFileName_;
-	 bool useForestFromDB_;
-	 std::string forestLabel_;
-	 /// minDeltaR3d cut value
-	 double minDeltaR3d_;
-	 /// minBDTG cut value
-	 double minBDTG_;
-	 ///min pT cut value
-	 double minpT_;
-	 ///min p cut value
-	 double minP_;
-	 ///max distance between two tracks at closest approach
-	 double maxDCA_;
-	 ///max difference in phi between two tracks
-	 double maxDPhi_;
-	 ///max difference in Lambda between two tracks
-	 double maxDLambda_;
-	 ///max difference in transverse impact parameter between two tracks
-	 double maxDdxy_;
-	 ///max difference in longitudinal impact parameter between two tracks
-	 double maxDdsz_;
-	 ///max difference in q/p between two tracks
-	 double maxDQoP_;
-
-	 edm::ESHandle<MagneticField> magfield_;
-
-	 ///Merger
-	 TrackMerger merger_;
-     };
-}
-
+	 
+    private:
+      /// produce one event
+      void produce( edm::Event &, const edm::EventSetup &) override;
+      
+    private:
+      /// MVA discriminator
+      const GBRForest* forest_;
+      
+      /// MVA input variables
+      float tmva_ddsz_;
+      float tmva_ddxy_;
+      float tmva_dphi_;
+      float tmva_dlambda_;
+      float tmva_dqoverp_;
+      float tmva_d3dr_;
+      float tmva_d3dz_;
+      float tmva_outer_nMissingInner_;
+      float tmva_inner_nMissingOuter_;
+      
+      float* gbrVals_;
+      
+      /// MVA weights file
+      std::string dbFileName_;
+      bool useForestFromDB_;
+      std::string forestLabel_;
+      
+      
+      /// track input collection
+      edm::EDGetTokenT<reco::TrackCollection> trackSource_;
+      /// minDeltaR3d cut value
+      double minDeltaR3d_;
+      /// minBDTG cut value
+      double minBDTG_;
+      ///min pT cut value
+      double minpT_;
+      ///min p cut value
+      double minP_;
+      ///max distance between two tracks at closest approach
+      double maxDCA_;
+      ///max difference in phi between two tracks
+      double maxDPhi_;
+      ///max difference in Lambda between two tracks
+      double maxDLambda_;
+      ///max difference in transverse impact parameter between two tracks
+      double maxDdxy_;
+      ///max difference in longitudinal impact parameter between two tracks
+      double maxDdsz_;
+      ///max difference in q/p between two tracks
+      double maxDQoP_;
+      
+      edm::ESHandle<MagneticField> magfield_;
+      
+      ///Merger
+      TrackMerger merger_;
+    };
+  }
+    
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
@@ -106,42 +110,55 @@ namespace {
 
 namespace {
 
+
+void
+DuplicateTrackMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
+{
+     edm::ParameterSetDescription desc;
+     desc.add<edm::InputTag>("source",edm::InputTag());
+     desc.add<double>("minDeltaR3d",-4.0);
+     desc.add<double>("minBDTG",-0.1);
+     desc.add<double>("minpT",0.2);
+     desc.add<double>("minP",04);
+     desc.add<double>("maxDCA",30.0);
+     desc.add<double>("maxDPhi",0.30);
+     desc.add<double>("maxDLambda",0.30);
+     desc.add<double>("maxDdsz",10.0);
+     desc.add<double>("maxDdxy",10.0);
+     desc.add<double>("maxDQoP",0.25);
+     desc.add<std::string>("forestLabel","MVADuplicate");
+     desc.add<bool>("useInnermostState",true);
+     desc.add<std::string>("ttrhBuilderName","WithAngleAndTemplate");
+     descriptions.add("DuplicateTrackMerger", desc);
+}
+
+  
 DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : forest_(nullptr), gbrVals_(nullptr), merger_(iPara)
 {
 
-  forestLabel_ = "MVADuplicate";
   useForestFromDB_ = true;
 
-  minDeltaR3d_ = -4.0;
-  minBDTG_ = -0.96;
-  minpT_ = 0.2;
-  minP_ = 0.4;
-  maxDCA_ = 30.0;
-  maxDPhi_ = 0.30;
-  maxDLambda_ = 0.30;
-  maxDdsz_ = 10.0;
-  maxDdxy_ = 10.0;
-  maxDQoP_ = 0.25;
-  if(iPara.exists("minpT"))minpT_ = iPara.getParameter<double>("minpT");
-  if(iPara.exists("minP"))minP_ = iPara.getParameter<double>("minP");
-  if(iPara.exists("maxDCA"))maxDCA_ = iPara.getParameter<double>("maxDCA");
-  if(iPara.exists("maxDPhi"))maxDPhi_ = iPara.getParameter<double>("maxDPhi");
-  if(iPara.exists("maxDLambda"))maxDLambda_ = iPara.getParameter<double>("maxDLambda");
-  if(iPara.exists("maxDdsz"))maxDdsz_ = iPara.getParameter<double>("maxDdsz");
-  if(iPara.exists("maxDdxy"))maxDdxy_ = iPara.getParameter<double>("maxDdxy");
-  if(iPara.exists("maxDQoP"))maxDQoP_ = iPara.getParameter<double>("maxDQoP");
-  if(iPara.exists("source"))trackSource_ = consumes<reco::TrackCollection>(iPara.getParameter<edm::InputTag>("source"));
-  if(iPara.exists("minDeltaR3d"))minDeltaR3d_ = iPara.getParameter<double>("minDeltaR3d");
-  if(iPara.exists("minBDTG"))minBDTG_ = iPara.getParameter<double>("minBDTG");
+  trackSource_ = consumes<reco::TrackCollection>(iPara.getParameter<edm::InputTag>("source"));
+  minDeltaR3d_ = iPara.getParameter<double>("minDeltaR3d");
+  minBDTG_ = iPara.getParameter<double>("minBDTG");
+  minpT_ = iPara.getParameter<double>("minpT");
+  minP_ = iPara.getParameter<double>("minP");
+  maxDCA_ = iPara.getParameter<double>("maxDCA");
+  maxDPhi_ = iPara.getParameter<double>("maxDPhi");
+  maxDLambda_ = iPara.getParameter<double>("maxDLambda");
+  maxDdsz_ = iPara.getParameter<double>("maxDdsz");
+  maxDdxy_ = iPara.getParameter<double>("maxDdxy");
+  maxDQoP_ = iPara.getParameter<double>("maxDQoP");
 
   produces<std::vector<TrackCandidate> >("candidates");
   produces<CandidateToDuplicate>("candidateMap");
 
   gbrVals_ = new float[9];
   dbFileName_ = "";
-  if(iPara.exists("GBRForestLabel"))forestLabel_ = iPara.getParameter<std::string>("GBRForestLabel");
+  forestLabel_ = iPara.getParameter<std::string>("forestLabel");
+
   if(iPara.exists("GBRForestFileName")){
-    dbFileName_ = iPara.getParameter<std::string>("GBRForestFileName");
+    dbFileName_ = iPara.getUntrackedParameter<std::string>("GBRForestFileName");
     useForestFromDB_ = false;
   }
 
@@ -165,9 +182,8 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
 DuplicateTrackMerger::~DuplicateTrackMerger()
 {
 
-  if(gbrVals_)delete [] gbrVals_;
-  if(!useForestFromDB_ && forest_) delete forest_;
-  /* no op */
+  delete [] gbrVals_;
+  if(!useForestFromDB_) delete forest_;
 
 }
 
@@ -239,6 +255,10 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       tmva_dqoverp_ = qoverp1-qoverp2;
       if ( std::abs(tmva_dqoverp_) > maxDQoP_ ) continue;
 
+
+      //auto pp = [&](TrajectoryStateClosestToPoint const & ts) { std::cout << ' ' << ts.perigeeParameters().vector()[0] << '/'  << ts.perigeeError().transverseCurvatureError();};
+      //if(qoverp1*qoverp2 <0) { std::cout << "charge different " << qoverp1 <<',' << qoverp2; pp(TSCP1); pp(TSCP2); std::cout << std::endl;}
+      
       auto lambda1 =  M_PI/2 - ftsn1.momentum().theta();
       auto lambda2 =  M_PI/2 - ftsn2.momentum().theta();
       tmva_dlambda_ = lambda1-lambda2;
@@ -277,9 +297,10 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       gbrVals_[8] = tmva_inner_nMissingOuter_;
 
 
-      double mvaBDTG = forest_->GetClassifier(gbrVals_);
+      auto mvaBDTG = forest_->GetClassifier(gbrVals_);
       if(mvaBDTG < minBDTG_)continue;
-      
+
+      // std::cout << "to merge " << mvaBDTG << ' ' << deltaR3d << ' ' << tmva_dphi_ << ' ' << TSCP1.pt() <<'/'<<TSCP2.pt() << std::endl;
       
       out_duplicateCandidates->push_back(merger_.merge(*t1,*t2));
       out_candidateMap->emplace_back(i,j);

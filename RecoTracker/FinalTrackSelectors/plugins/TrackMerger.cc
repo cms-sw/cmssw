@@ -19,6 +19,7 @@ TrackMerger::TrackMerger(const edm::ParameterSet &iConfig) :
     debug_(iConfig.getUntrackedParameter<bool>("debug",false)),
     theBuilderName(iConfig.getParameter<std::string>("ttrhBuilderName"))
 {
+  // debug_ = true;
 }
 
 TrackMerger::~TrackMerger()
@@ -35,7 +36,9 @@ void TrackMerger::init(const edm::EventSetup &iSetup)
 
 TrackCandidate TrackMerger::merge(const reco::Track &inner, const reco::Track &outer) const 
 {
-    std::vector<const TrackingRecHit *> hits;
+  if (debug_) std::cout << std::abs(inner.eta()) << " merging " << inner.algo() << '/' << outer.algo() << ' ' << inner.eta() << '/' << outer.eta()<< std::endl;
+
+  std::vector<const TrackingRecHit *> hits;
     hits.reserve(inner.recHitsSize() + outer.recHitsSize());
     if (debug_) std::cout << "Inner track hits: " << std::endl;
     for (auto it = inner.recHitsBegin(), ed = inner.recHitsEnd(); it != ed; ++it) {

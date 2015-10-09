@@ -11,38 +11,32 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DataFormats/Provenance/interface/ParameterSetID.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackExtra.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
+
+
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
-#include "DataFormats/Common/interface/ValueMap.h"
+
 #include <vector>
 #include <algorithm>
 #include <string>
 #include <iostream>
-#include <map>
 #include<memory>
 
-#include "TMVA/Reader.h"
+// #include "TMVA/Reader.h"
 
 #include "trackAlgoPriorityOrder.h"
 
 using namespace reco;
 
-
-class dso_hidden DuplicateListMerger final : public edm::stream::EDProducer<> {
+namespace {
+class DuplicateListMerger final : public edm::stream::EDProducer<> {
  public:
   /// constructor
   explicit DuplicateListMerger(const edm::ParameterSet& iPara);
@@ -57,14 +51,15 @@ class dso_hidden DuplicateListMerger final : public edm::stream::EDProducer<> {
   using MVACollection = std::vector<float>;
   using QualityMaskCollection = std::vector<unsigned char>;
  
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
   
- protected:
+ private:
   /// produce one event
   void produce( edm::Event &, const edm::EventSetup &) override;
   
- private:
-  int matchCandidateToTrack(TrackCandidate const &, reco::TrackCollection const &);
-  
+ private:  
   
 
   TrackCollectionCloner collectionCloner;
@@ -78,13 +73,11 @@ class dso_hidden DuplicateListMerger final : public edm::stream::EDProducer<> {
   edm::EDGetTokenT<MVACollection> originalMVAValsToken_;
   edm::EDGetTokenT<MVACollection> mergedMVAValsToken_;
 
-  reco::TrackBase::TrackQuality qualityToSet_;
-  unsigned int diffHitsCut_;
-  float minTrkProbCut_;
+  int diffHitsCut_;
  
 
 };
- 
+}
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
@@ -98,6 +91,20 @@ class dso_hidden DuplicateListMerger final : public edm::stream::EDProducer<> {
 #include<array>
 #include "CommonTools/Utils/interface/DynArray.h"
 
+
+namespace {
+void DuplicateListMerger::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("mergedSource",edm::InputTag());
+  desc.add<edm::InputTag>("originalSource",edm::InputTag());
+  desc.add<edm::InputTag>("mergedMVAVals",edm::InputTag());
+  desc.add<edm::InputTag>("originalMVAVals",edm::InputTag());
+  desc.add<edm::InputTag>("candidateSource",edm::InputTag());
+  desc.add<edm::InputTag>("candidateComponents",edm::InputTag());
+  desc.add<int>("diffHitsCut",5);
+  descriptions.add("DuplicateListMerger", desc);  
+}
+
 DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara) :
   collectionCloner(*this, iPara, true),
   mergedTrackSource_(iPara.getParameter<edm::InputTag>("mergedSource"),consumesCollector()),
@@ -105,7 +112,6 @@ DuplicateListMerger::DuplicateListMerger(const edm::ParameterSet& iPara) :
 {
   
   diffHitsCut_ = iPara.getParameter<int>("diffHitsCut");
-  minTrkProbCut_ = iPara.getParameter<double>("minTrkProbCut");
   candidateSource_ = consumes<std::vector<TrackCandidate> >(iPara.getParameter<edm::InputTag>("candidateSource"));
   candidateComponents_ = consumes<CandidateToDuplicate>(iPara.getParameter<edm::InputTag>("candidateComponents"));
 
@@ -166,10 +172,10 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     auto const & cand = candidates[cInd];
     const reco::Track& matchedTrack = merged[i];
 
-    if (mergedMVA[i]< -0.7f) continue;
+    if (mergedMVA[i]< -0.7f) continue;  // at least "loose"
 
-    if( ChiSquaredProbability(matchedTrack.chi2(),matchedTrack.ndof()) < minTrkProbCut_)continue;
-    unsigned int dHits = (cand.recHits().second - cand.recHits().first) - matchedTrack.recHitsSize();
+    // if( ChiSquaredProbability(matchedTrack.chi2(),matchedTrack.ndof()) < minTrkProbCut_)continue;
+    int dHits = (cand.recHits().second - cand.recHits().first) - matchedTrack.recHitsSize();
     if(dHits > diffHitsCut_)continue;
     matches.push_back(std::array<int,3>{{i,candidateComponents[cInd].first,candidateComponents[cInd].second}});
   }
@@ -231,6 +237,7 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     algoMask[nsel] = inTrk1.algoMask() | inTrk2.algoMask();
     
     pquals->push_back((inTrk1.qualityMask() | inTrk2.qualityMask()));
+    pquals->back() |= (1<<reco::TrackBase::confirmed);
     
     inputTracks.push_back((*matchIter0)[1]);
     inputTracks.push_back((*matchIter0)[2]);
@@ -271,33 +278,6 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 }
 
-//------------------------------------------------------------
-//------------------------------------------------------------
-//------------------------------------------------------------
-//------------------------------------------------------------
-int DuplicateListMerger::matchCandidateToTrack(TrackCandidate  const & candidate, reco::TrackCollection const & tracks){
-  int track = -1;
-  std::vector<int> rawIds;
-  RecHitContainer::const_iterator candBegin = candidate.recHits().first;
-  RecHitContainer::const_iterator candEnd = candidate.recHits().second;
-  for(; candBegin != candEnd; candBegin++){
-    rawIds.push_back((*(candBegin)).rawId());
-  }
- 
-
-  for(int i = 0; i < (int)tracks.size() && track < 0;i++){
-    if( (tracks)[i].seedRef() != candidate.seedRef())continue;
-    int match = 0;
-    trackingRecHit_iterator trackRecBegin = (tracks)[i].recHitsBegin();
-    trackingRecHit_iterator trackRecEnd = (tracks)[i].recHitsEnd();
-    for(;trackRecBegin != trackRecEnd; trackRecBegin++){
-      if(std::find(rawIds.begin(),rawIds.end(),(*(trackRecBegin))->rawId()) != rawIds.end()) match++;
-    }
-    if(match != (int)( (tracks)[i].recHitsSize() ) ) continue;
-    track = i;
-  }
-
-  return track;
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
