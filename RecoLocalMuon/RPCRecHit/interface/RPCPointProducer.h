@@ -1,15 +1,15 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h>
-#include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <DataFormats/RPCRecHit/interface/RPCRecHit.h>
+#include "DataFormats/RPCRecHit/interface/RPCRecHit.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 #include "RecoLocalMuon/RPCRecHit/interface/DTSegtoRPC.h"
 #include "RecoLocalMuon/RPCRecHit/interface/CSCSegtoRPC.h"
@@ -19,31 +19,26 @@
 // class decleration
 //
 
-class RPCPointProducer : public edm::EDProducer {
+class RPCPointProducer : public edm::global::EDProducer<> {
    public:
       explicit RPCPointProducer(const edm::ParameterSet&);
-      ~RPCPointProducer();
-      //      edm::InputTag cscSegments;
-      edm::EDGetTokenT<CSCSegmentCollection> cscSegments;
-      edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegments;
-      //      edm::InputTag dt4DSegments;
-      edm::EDGetTokenT<reco::TrackCollection> tracks;
-      edm::InputTag tracks_;
+
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-      bool incldt;
-      bool inclcsc;
-      bool incltrack; 
-      bool debug;
-      double MinCosAng;
-      double MaxD;
-      double MaxDrb4;
-      double MaxDistanceBetweenSegments;
-      double ExtrapolatedRegion;
-      edm::ParameterSet trackTransformerParam;
-      edm::ParameterSet serviceParameters;
-      // ----------member data ---------------------------
+      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+      const edm::EDGetTokenT<CSCSegmentCollection> cscSegments;
+      const edm::EDGetTokenT<DTRecSegment4DCollection> dt4DSegments;
+      const edm::EDGetTokenT<reco::TrackCollection> tracks;
+      const edm::InputTag tracks_;
+
+      const bool incldt;
+      const bool inclcsc;
+      const bool incltrack; 
+      const bool debug;
+      const double MinCosAng;
+      const double MaxD;
+      const double MaxDrb4;
+      const double ExtrapolatedRegion;
+      const edm::ParameterSet trackTransformerParam;
 };
 
