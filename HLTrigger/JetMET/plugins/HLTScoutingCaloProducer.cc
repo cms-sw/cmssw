@@ -85,9 +85,19 @@ HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::Ev
 
     //get calo jets
     Handle<reco::CaloJetCollection> caloJetCollection;
-    if(!iEvent.getByToken(caloJetCollection_, caloJetCollection)){
-        edm::LogError ("HLTScoutingCaloProducer") << "invalid collection: caloJetCollection" << "\n";
-        return;
+    std::auto_ptr<ScoutingCaloJetCollection> outCaloJets(new ScoutingCaloJetCollection());
+    if(iEvent.getByToken(caloJetCollection_, caloJetCollection)){
+        for(auto &jet : *caloJetCollection){
+            if(jet.pt() > caloJetPtCut && fabs(jet.eta()) < caloJetEtaCut){
+                outCaloJets->emplace_back(
+                        jet.pt(), jet.eta(), jet.phi(), jet.mass(),
+                        jet.jetArea(), jet.maxEInEmTowers(), jet.maxEInHadTowers(),
+                        jet.hadEnergyInHB(), jet.hadEnergyInHE(), jet.hadEnergyInHF(),
+                        jet.emEnergyInEB(), jet.emEnergyInEE(), jet.emEnergyInHF(),
+                        jet.towersArea(), 0.0
+                        );
+            }
+        }
     }
 
     //get vertices
@@ -104,42 +114,19 @@ HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event & iEvent, edm::Ev
 
     //get rho
     Handle<double>rho;
-    if(!iEvent.getByToken(rho_, rho)){
-        edm::LogError ("HLTScoutingCaloProducer") << "invalid collection: rho" << "\n";
-        return;
+    std::auto_ptr<double> outRho(new double(-999));
+    if(iEvent.getByToken(rho_, rho)){
+        outRho.reset(new double(*rho));
     }
-    std::auto_ptr<double> outRho(new double(*rho));
 
     //get MET 
     Handle<reco::CaloMETCollection> metCollection;
-    if(doMet && !iEvent.getByToken(metCollection_, metCollection)){
-        edm::LogError ("HLTScoutingCaloProducer") << "invalid collection: metCollection" << "\n";
-        return;
+    std::auto_ptr<double> outMetPt(new double(-999));
+    std::auto_ptr<double> outMetPhi(new double(-999));
+    if(doMet && iEvent.getByToken(metCollection_, metCollection)){
+        outMetPt.reset(new double(metCollection->front().pt()));
+        outMetPhi.reset(new double(metCollection->front().phi()));
     }
-
-    //produce calo jets
-    std::auto_ptr<ScoutingCaloJetCollection> outCaloJets(new ScoutingCaloJetCollection());
-    for(auto &jet : *caloJetCollection){
-        if(jet.pt() > caloJetPtCut && fabs(jet.eta()) < caloJetEtaCut){
-            outCaloJets->emplace_back(
-                    jet.pt(), jet.eta(), jet.phi(), jet.mass(),
-                    jet.jetArea(), jet.maxEInEmTowers(), jet.maxEInHadTowers(),
-                    jet.hadEnergyInHB(), jet.hadEnergyInHE(), jet.hadEnergyInHF(),
-                    jet.emEnergyInEB(), jet.emEnergyInEE(), jet.emEnergyInHF(),
-                    jet.towersArea(), 0.0
-                    );
-        }
-    }
-
-    //produce MET
-    double metPt = -999;
-    double metPhi = -999;
-    if(doMet){
-        metPt = metCollection->front().pt();
-        metPhi = metCollection->front().phi();
-    }
-    std::auto_ptr<double> outMetPt(new double(metPt));
-    std::auto_ptr<double> outMetPhi(new double(metPhi));
 
     //put output
     iEvent.put(outCaloJets);
@@ -155,7 +142,7 @@ HLTScoutingCaloProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
     edm::ParameterSetDescription desc;
     desc.add<edm::InputTag>("caloJetCollection",edm::InputTag("hltAK4CaloJets"));
     desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
-    desc.add<edm::InputTag>("metCollection", edm::InputTag("hltMetCleanUsingJetID"));
+    desc.add<edm::InputTag>("metCollection", edm::InputTag("hltMet"));
     desc.add<edm::InputTag>("rho", edm::InputTag("hltFixedGridRhoFastjetAllCalo"));
     desc.add<double>("caloJetPtCut", 20.0);
     desc.add<double>("caloJetEtaCut", 3.0);
