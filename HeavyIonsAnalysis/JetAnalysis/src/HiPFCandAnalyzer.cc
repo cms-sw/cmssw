@@ -104,25 +104,26 @@ HiPFCandAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   iEvent.getByLabel(pfCandidateLabel_,pfCandidates);
   iEvent.getByLabel(pfCandidateLabel_,candidates_);
   const reco::PFCandidateCollection *pfCandidateColl = pfCandidates.product();
+  if (doVS_) {
+   iEvent.getByLabel(srcVor_,backgrounds_);
+   iEvent.getByLabel(srcVor_,vn_);
+   UEParameters vnUE(vn_.product(),fourierOrder_,etaBins_);
+   const std::vector<float>& vue = vnUE.get_raw();
 
-  iEvent.getByLabel(srcVor_,backgrounds_);
-  iEvent.getByLabel(srcVor_,vn_);
 
-  UEParameters vnUE(vn_.product(),fourierOrder_,etaBins_);
-  const std::vector<float>& vue = vnUE.get_raw();
+   for(int ieta = 0; ieta < etaBins_; ++ieta){
+     pfEvt_.sumpt[ieta] = vnUE.get_sum_pt(ieta);
+     for(int ifour = 0; ifour < fourierOrder_; ++ifour){
+       pfEvt_.vn[ifour * etaBins_ + ieta] = vnUE.get_vn(ifour,ieta);
+       pfEvt_.psin[ifour * etaBins_ + ieta] = vnUE.get_psin(ifour,ieta);
+     }
+   }
 
-  for(int ieta = 0; ieta < etaBins_; ++ieta){
-    pfEvt_.sumpt[ieta] = vnUE.get_sum_pt(ieta);
-    for(int ifour = 0; ifour < fourierOrder_; ++ifour){
-      pfEvt_.vn[ifour * etaBins_ + ieta] = vnUE.get_vn(ifour,ieta);
-      pfEvt_.psin[ifour * etaBins_ + ieta] = vnUE.get_psin(ifour,ieta);
-    }
+   for(int iue = 0; iue < etaBins_*fourierOrder_*2*3; ++iue){
+     pfEvt_.ueraw[iue] = vue[iue];
+   }
   }
-
-  for(int iue = 0; iue < etaBins_*fourierOrder_*2*3; ++iue){
-    pfEvt_.ueraw[iue] = vue[iue];
-  }
-
+  
   for(unsigned icand=0;icand<pfCandidateColl->size(); icand++) {
     const reco::PFCandidate pfCandidate = pfCandidateColl->at(icand);
     reco::CandidateViewRef ref(candidates_,icand);
