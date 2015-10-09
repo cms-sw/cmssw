@@ -101,9 +101,16 @@ _globalTags = {
     "CMSSW_7_6_0_pre3": {"default": "75X_mcRun2_asymptotic_v2", "fullsim_50ns": "75X_mcRun2_startup_v2"},
     "CMSSW_7_6_0_pre4": {"default": "76X_mcRun2_asymptotic_v1", "fullsim_50ns": "76X_mcRun2_startup_v1"},
     "CMSSW_7_6_0_pre5": {"default": "76X_mcRun2_asymptotic_v1", "fullsim_50ns": "76X_mcRun2_startup_v1"},
+    "CMSSW_7_6_0_pre6": {"default": "76X_mcRun2_asymptotic_v4", "fullsim_50ns": "76X_mcRun2_startup_v4"},
+    "CMSSW_7_6_0_pre7": {"default": "76X_mcRun2_asymptotic_v5", "fullsim_50ns": "76X_mcRun2_startup_v5", "fastsim": "76X_mcRun2_asymptotic_v5_resub"},
+    "CMSSW_7_6_0": {"default": "76X_mcRun2_asymptotic_v11", "fullsim_50ns": "76X_mcRun2_startup_v11"},
+    "CMSSW_7_6_0_71XGENSIM": {"default": "76X_mcRun2_asymptotic_v11_gs7120p2rlBS", "fullsim_50ns": "76X_mcRun2_startup_v11_gs7120p2rlBS"},
+    "CMSSW_7_6_2": {"default": "76X_mcRun2_asymptotic_v12", "fullsim_50ns": "76X_mcRun2_startup_v11"},
+    "CMSSW_8_0_0_pre1": {"default": "76X_mcRun2_asymptotic_v11", "fullsim_50ns": "76X_mcRun2_startup_v11"},
+    "CMSSW_8_0_0_pre2": {"default": "76X_mcRun2_asymptotic_v12", "fullsim_50ns": "76X_mcRun2_startup_v11"},
 }
 
-_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
+_releasePostfixes = ["_AlcaCSA14", "_PHYS14", "_TEST", "_71XGENSIM_pmx", "_pmx_v2", "_pmx_v3", "_pmx", "_Fall14DR", "_71XGENSIM_FIXGT", "_71XGENSIM_PU", "_71XGENSIM_PXbest", "_71XGENSIM_PXworst", "_71XGENSIM", "_73XGENSIM", "_BS", "_GenSim_7113", "_extended",
                      "_25ns_asymptotic", "_50ns_startup", "_50ns_asympref", "_50ns_asymptotic", "_minimal", "_0T", "_unsch", "_noCCC_v3", "_noCCC", "_MT"]
 def _stripRelease(release):
     for pf in _releasePostfixes:
@@ -154,6 +161,7 @@ _relvalUrls = {
     "7_4_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_4_x/",
     "7_5_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_5_x/",
     "7_6_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_7_6_x/",
+    "8_0_X": "https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_8_0_x/",
 }
 
 def _getRelValUrl(release):
