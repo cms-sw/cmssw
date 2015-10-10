@@ -10,6 +10,7 @@ HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet& mc)
   //One Parameter Set per Collection
 
   MC_      = consumes<GenParticleCollection>(mc.getUntrackedParameter<edm::InputTag>("GenParticles"));
+  MCMET_   = consumes<GenMETCollection>(mc.getUntrackedParameter<edm::InputTag>("GenMET"));
   ptMinMCTau_ = mc.getUntrackedParameter<double>("ptMinTau",5.);
   ptMinMCMuon_ = mc.getUntrackedParameter<double>("ptMinMuon",2.);
   ptMinMCElectron_ = mc.getUntrackedParameter<double>("ptMinElectron",5.);
@@ -24,6 +25,7 @@ HLTTauMCProducer::HLTTauMCProducer(const edm::ParameterSet& mc)
   produces<LorentzVectorCollection>("HadronicTauOneAndThreeProng");
   produces<LorentzVectorCollection>("TauOther");
   produces<LorentzVectorCollection>("Neutrina");
+  produces<LorentzVectorCollection>("MET");
   produces<std::vector<int> >("Mothers");
 
 }
@@ -42,10 +44,27 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   auto_ptr<LorentzVectorCollection> product_OneAndThreeProng(new LorentzVectorCollection);
   auto_ptr<LorentzVectorCollection> product_Other(new LorentzVectorCollection);
   auto_ptr<LorentzVectorCollection> product_Neutrina(new LorentzVectorCollection);
+  auto_ptr<LorentzVectorCollection> product_MET(new LorentzVectorCollection);
   auto_ptr<std::vector<int> > product_Mothers(new std::vector<int>);
   
   edm::Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(MC_, genParticles);
+
+  if(!genParticles.isValid()) return;
+
+  // Look for MET 
+  edm::Handle<reco::GenMETCollection> genMet;
+  iEvent.getByToken(MCMET_, genMet);
+  LorentzVector MET(0.,0.,0.,0.);
+  if(genMet.isValid()){
+    MET = LorentzVector(
+        genMet->front().px(),
+        genMet->front().py(),
+        0,
+        genMet->front().pt()
+    );
+  }     
+  product_MET->push_back(MET);
 
   // Look for primary bosons
   // It is not guaranteed that primary bosons are stored in event history.
@@ -75,8 +94,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   // Look for taus
   GenParticleRefVector allTaus;
   unsigned index = 0;
-  for(GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p, ++index) {
-    
+  for(GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p, ++index) {    
     const GenParticle& genP = *p;
     //accept only isPromptDecayed() particles
     if( !genP.isPromptDecayed() ) continue;
@@ -89,7 +107,7 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
       if( daugTaus.size()==0 )
 	allTaus.push_back(genRef);
     }
-  } 
+  }
 
   // Find stable tau decay products and build visible taus
   for(GenParticleRefVector::const_iterator t = allTaus.begin(); t != allTaus.end(); ++t) {
@@ -243,7 +261,8 @@ void HLTTauMCProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   iEvent.put(product_ThreeProng,"HadronicTauThreeProng");
   iEvent.put(product_OneAndThreeProng,"HadronicTauOneAndThreeProng");
   iEvent.put(product_Other, "TauOther");
-  iEvent.put(product_Neutrina,"Neutrina"); 
+  iEvent.put(product_Neutrina,"Neutrina");
+  iEvent.put(product_MET,"MET"); 
   iEvent.put(product_Mothers,"Mothers"); 
   
 }
