@@ -82,6 +82,7 @@ jetCoreRegionalStepSeeds.SeedCreatorPSet.forceKinematicWithRegionDirection = cms
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 jetCoreRegionalStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     minimumNumberOfHits = 3,
+    seedPairPenalty = 0,
     minPt = 0.1
 )
 

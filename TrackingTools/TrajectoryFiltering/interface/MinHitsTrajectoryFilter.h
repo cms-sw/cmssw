@@ -17,7 +17,7 @@ public:
 
   MinHitsTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC): 
    theMinHits( pset.getParameter<int>("minimumNumberOfHits")),
-   theSeedPairPenalty(pset.getParameter<int>("seedPairPenalty"))
+   theSeedPairPenalty(pset.exists("seedPairPenalty") ? pset.getParameter<int>("seedPairPenalty") : 0)
  {}
     
   virtual bool qualityFilter( const Trajectory& traj) const { return QF<Trajectory>(traj);}
