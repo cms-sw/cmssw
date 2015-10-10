@@ -198,7 +198,14 @@ namespace cond {
     template <typename T> inline cond::Hash Session::storePayload( const T& payload, const boost::posix_time::ptime& creationTime ){
       
       std::string payloadObjectType = cond::demangledName(typeid(payload));
-      return storePayloadData( payloadObjectType, serialize( payload, isOraSession() ), creationTime ); 
+      cond::Hash ret; 
+      try{
+	ret = storePayloadData( payloadObjectType, serialize( payload, isOraSession() ), creationTime ); 
+      } catch ( const cond::persistency::Exception& e ){
+	std::string em(e.what());
+	throwException( "Payload of type "+payloadObjectType+" could not be stored. "+em,"Session::storePayload"); 	
+      }
+      return ret;
     }
     
     template <typename T> inline boost::shared_ptr<T> Session::fetchPayload( const cond::Hash& payloadHash ){
@@ -208,7 +215,14 @@ namespace cond {
       if(! fetchPayloadData( payloadHash, payloadType, payloadData, streamerInfoData ) ) 
 	throwException( "Payload with id="+payloadHash+" has not been found in the database.",
 			"Session::fetchPayload" );
-      return deserialize<T>(  payloadType, payloadData, streamerInfoData, isOraSession() );
+      boost::shared_ptr<T> ret;
+      try{ 
+	ret = deserialize<T>(  payloadType, payloadData, streamerInfoData, isOraSession() );
+      } catch ( const cond::persistency::Exception& e ){
+	std::string em(e.what());
+	throwException( "Payload of type "+payloadType+" with id "+payloadHash+" could not be loaded. "+em,"Session::fetchPayload"); 
+      }
+      return ret;
     }
 
     class TransactionScope {
