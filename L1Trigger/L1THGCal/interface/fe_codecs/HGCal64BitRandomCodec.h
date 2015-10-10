@@ -2,14 +2,9 @@
 #define __L1Trigger_L1THGCal_HGCal64BitRandomCodec_h__
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCal64BitRandomCodecImpl.h"
 #include <limits>
 
-#include "TRandom3.h"
-
-struct HGCal64BitRandomDataPayload { 
-  uint64_t payload;
-  void reset() { memset(&payload,0,sizeof(uint64_t)); }
-};
 
 inline std::ostream& operator<<(std::ostream& o, 
                                 const HGCal64BitRandomDataPayload& data) { 
@@ -22,9 +17,9 @@ public:
   typedef HGCal64BitRandomDataPayload data_type;
   
   HGCal64BitRandomCodec(const edm::ParameterSet& conf) :
-    Codec(conf) {
+    Codec(conf),
+    codecImpl_(conf) {
     data_.payload = std::numeric_limits<uint64_t>::max();
-    rand.SetSeed(0);
   }
 
   void setDataPayloadImpl(const Module& mod, 
@@ -36,7 +31,7 @@ public:
   data_type         decodeImpl(const std::vector<bool>&) const;  
 
 private:
-  TRandom3 rand;
+  HGCal64BitRandomCodecImpl codecImpl_;
 };
 
 #endif

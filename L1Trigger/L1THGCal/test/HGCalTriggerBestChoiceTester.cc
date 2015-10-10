@@ -27,7 +27,7 @@
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodecImpl.h"
 
 #include <stdlib.h> 
 
@@ -43,13 +43,12 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
 
 
     private:
-        void fill(const l1t::HGCFETriggerDigiCollection&, const HGCEEDigiCollection&);
+        void fillModule(const std::vector<HGCEEDataFrame>&, const HGCalBestChoiceDataPayload&);
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_;
         //
         std::unique_ptr<HGCalTriggerGeometryBase> triggerGeometry_; 
-        //std::unique_ptr<HGCalTriggerFECodecBase> codec_;
-        HGCalBestChoiceCodec codec_;
+        std::unique_ptr<HGCalBestChoiceCodecImpl> codec_;
         edm::Service<TFileService> fs_;
         // histos
         TH1F* triggerCellsPerModule_;
@@ -63,8 +62,7 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
 HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterSet& conf):
   inputee_(consumes<HGCEEDigiCollection>(conf.getParameter<edm::InputTag>("eeDigis"))),
   inputfh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("fhDigis"))), 
-  inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis"))),
-  codec_(conf.getParameterSet("FECodec"))
+  inputbh_(consumes<HGCHEDigiCollection>(conf.getParameter<edm::InputTag>("bhDigis")))
 /*****************************************************************/
 {
     //setup geometry 
@@ -74,11 +72,8 @@ HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterS
     triggerGeometry_.reset(geometry);
 
     //setup FE codec
-    //const edm::ParameterSet& feCodecConfig = conf.getParameterSet("FECodec");
-    //const std::string& feCodecName =feCodecConfig.getParameter<std::string>("CodecName");
-    //HGCalTriggerFECodecBase* codec = HGCalTriggerFECodecFactory::get()->create(feCodecName,feCodecConfig);
-    //codec_.reset(codec);
-    codec_.unSetDataPayload();
+    const edm::ParameterSet& feCodecConfig = conf.getParameterSet("FECodec");
+    codec_.reset( new HGCalBestChoiceCodecImpl(feCodecConfig) );
 
     // initialize output trees
     triggerCellsPerModule_ = fs_->make<TH1F>("TriggerCellsPerModule","Number of trigger cells per module", 64, 0., 64.);
@@ -120,62 +115,52 @@ void HGCalTriggerBestChoiceTester::analyze(const edm::Event& e,
 			      const edm::EventSetup& es) 
 /*****************************************************************/
 {
-    std::unique_ptr<l1t::HGCFETriggerDigiCollection> fe_coll_ptr( new l1t::HGCFETriggerDigiCollection );
-
     edm::Handle<HGCEEDigiCollection> ee_digis_h;
-    edm::Handle<HGCHEDigiCollection> fh_digis_h, bh_digis_h;
-
     e.getByToken(inputee_,ee_digis_h);
-    e.getByToken(inputfh_,fh_digis_h);
-    e.getByToken(inputbh_,bh_digis_h);
 
     const HGCEEDigiCollection& ee_digis = *ee_digis_h;
-    const HGCHEDigiCollection& fh_digis = *fh_digis_h;
-    const HGCHEDigiCollection& bh_digis = *bh_digis_h;
 
+    HGCalBestChoiceDataPayload data;
     for( const auto& module : triggerGeometry_->modules() ) 
     {    
-        fe_coll_ptr->push_back(l1t::HGCFETriggerDigi());
-        l1t::HGCFETriggerDigi& digi = fe_coll_ptr->back();
-        codec_.setDataPayload(*(module.second),ee_digis,fh_digis,bh_digis);
-        codec_.encode(digi);
-        digi.setDetId( HGCTriggerDetId(module.first) );
-        codec_.unSetDataPayload();
+        // prepare input data
+        std::vector<HGCEEDataFrame> dataframes;
+        for(const auto& eedata : ee_digis)
+        {
+            if(module.second->containsCell(eedata.id()))
+            {
+                dataframes.push_back(eedata);
+            }
+        }
+        // Best choice encoding
+        data.reset();
+        codec_->triggerCellSums(*(module.second), dataframes, data);
+        codec_->bestChoiceSelect(data);
+        std::vector<bool> dataword = codec_->encode(data);
+        HGCalBestChoiceDataPayload datadecoded = codec_->decode(dataword);
+        fillModule(dataframes, datadecoded);
     }
 
 }
 
 
 /*****************************************************************/
-void HGCalTriggerBestChoiceTester::fill(const l1t::HGCFETriggerDigiCollection& fe_digis, const HGCEEDigiCollection& ee_digis)
+void HGCalTriggerBestChoiceTester::fillModule( const std::vector<HGCEEDataFrame>& dataframes, const HGCalBestChoiceDataPayload& fe_payload)
 /*****************************************************************/
 {
-    for( const auto& module : triggerGeometry_->modules() ) 
-    { 
-        // Trigger cells
-        unsigned nFEDigi = 0;
-        unsigned moduleSum = 0;
-        for(const auto& fe_digi : fe_digis)
+    size_t nFEDigi = 0;
+    unsigned moduleSum = 0;
+    for(const auto& tc : fe_payload.payload)
+    {
+        if(tc>0)
         {
-            if(fe_digi.getDetId<HGCTriggerDetId>()==module.first)
-            {
-                HGCalBestChoiceCodec::data_type data;
-                data.reset();
-                fe_digi.decode<HGCalBestChoiceCodec, HGCalBestChoiceCodec::data_type>(codec_, data);
-                for(const auto& tc : data.payload)
-                {
-                    if(tc>0)
-                    {
-                        nFEDigi++;
-                        moduleSum += tc;
-                        triggerCellData_->Fill(tc);
-                    }
-                }
-            }
+            nFEDigi++;
+            moduleSum += tc;
+            triggerCellData_->Fill(tc);
         }
-        triggerCellsPerModule_->Fill(nFEDigi);
-        moduleSum_->Fill(moduleSum);
     }
+    triggerCellsPerModule_->Fill(nFEDigi);
+    moduleSum_->Fill(moduleSum);
 }
 
 //define this as a plug-in

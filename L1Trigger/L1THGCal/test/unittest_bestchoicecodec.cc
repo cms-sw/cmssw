@@ -1,6 +1,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodec.h"
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodecImpl.h"
 #include <iostream>
 
 
@@ -10,65 +10,64 @@
 class TestBestChoiceCodec: public CppUnit::TestFixture
 {
     CPPUNIT_TEST_SUITE(TestBestChoiceCodec);
-    CPPUNIT_TEST(testCoding);
+    CPPUNIT_TEST(testEncodingDecodingConsistency);
     CPPUNIT_TEST_SUITE_END();
 
     public:
         void setUp();
         void tearDown(){}
-        void testCoding();
+        void testEncodingDecodingConsistency();
 
-        std::unique_ptr<HGCalBestChoiceCodec> codec_;
+        std::unique_ptr<HGCalBestChoiceCodecImpl> codec_;
         TRandom3 rand_;
 };
 
 /// registration of the test so that the runner can find it
 CPPUNIT_TEST_SUITE_REGISTRATION(TestBestChoiceCodec);
 
-using namespace std;
-
 /*****************************************************************/
 void TestBestChoiceCodec::setUp()
 /*****************************************************************/
 {
-    std::cerr<<"TestBestChoiceCodec::setUp()"<<"\n";
     edm::ParameterSet params;
     params.addParameter<std::string>("CodecName", "HGCalBestChoiceCodec");
     params.addParameter<uint32_t>("CodecIndex", 1);
     params.addParameter<uint32_t>("NData", 12);
     params.addParameter<uint32_t>("DataLength", 8);
-    codec_.reset(new HGCalBestChoiceCodec(params));
-    codec_->unSetDataPayload();
+    codec_.reset(new HGCalBestChoiceCodecImpl(params));
 
 }
 
 /*****************************************************************/
-void TestBestChoiceCodec::testCoding()
+void TestBestChoiceCodec::testEncodingDecodingConsistency()
 /*****************************************************************/
 {
-    std::cerr<<"TestBestChoiceCodec::testCoding()"<<"\n";
     HGCalBestChoiceDataPayload payload;
-    for(auto& data : payload.payload)
+    for(unsigned round=0; round<1000; round++)
     {
-        data = rand_.Integer(0xFFF);
-    }
-    std::vector<bool> dataframe = codec_->encodeImpl(payload);
-    HGCalBestChoiceDataPayload decodedpayload = codec_->decodeImpl(dataframe);
+        payload.reset();
+        for(auto& data : payload.payload)
+        {
+            data = rand_.Integer(0x200);
+        }
+        codec_->bestChoiceSelect(payload);
+        std::vector<bool> dataframe = codec_->encode(payload);
+        HGCalBestChoiceDataPayload decodedpayload = codec_->decode(dataframe);
 
-    for(size_t i=0; i<payload.payload.size(); i++)
-    {
-        std::cerr<<"TestBestChoiceCodec::testCoding(). Index "<<i<<"\n";
-        uint32_t data = payload.payload[i];       
-        uint32_t decdata __attribute__((unused))= decodedpayload.payload[i];
-        uint32_t datashift __attribute__((unused))= data;  
-        if(data>0x3FF) datashift = 0x3FF;
-        datashift  = (data >> 2);
-        //std::stringstream message;
-        //message << "**** Payload Index "<<i<<" ****\n";
-        //message << "**** Original data = "<<std::hex<<data<<" Decoded data "<<decdata<<std::dec<<" ****";
-        //CPPUNIT_ASSERT_MESSAGE( message.str(),  datashift!=decdata);
+        for(size_t i=0; i<payload.payload.size(); i++)
+        {
+            uint32_t data = payload.payload[i];       
+            uint32_t decdata = decodedpayload.payload[i];
+            uint32_t datashift = data;  
+            if(datashift>0x3FF) datashift = 0x3FF;
+            datashift  = (datashift >> 2);
+            std::stringstream message;
+            message << "\n**** Payload Index "<<i<<" ****\n";
+            message << "**** Original 12 bit data = 0x"<<std::hex<<data<<" ****\n";
+            message << "**** Original  8 bit data = 0x"<<datashift<<" ****\n";
+            message << "**** Decoded  data = 0x"<<decdata<<std::dec<<" ****\n";
+            CPPUNIT_ASSERT_MESSAGE( message.str(),  datashift==decdata);
+        }
     }
-    codec_->unSetDataPayload();
-    std::cerr<<"TestBestChoiceCodec::testCoding() OK"<<"\n";
 }
 
