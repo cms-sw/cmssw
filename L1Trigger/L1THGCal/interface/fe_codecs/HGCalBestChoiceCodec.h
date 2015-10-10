@@ -2,21 +2,7 @@
 #define __L1Trigger_L1THGCal_HGCalBestChoiceCodec_h__
 
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
-#include <limits>
-
-#include "TRandom3.h"
-
-
-struct HGCalBestChoiceDataPayload
-{
-    typedef std::array<uint32_t, 64 > trigger_cell_list; // list of data in 64 trigger cells
-    trigger_cell_list payload;
-
-    void reset() 
-    { 
-        payload.fill(0);
-    }
-};
+#include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalBestChoiceCodecImpl.h"
 
 
 inline std::ostream& operator<<(std::ostream& o, const HGCalBestChoiceDataPayload& data) 
@@ -28,6 +14,7 @@ inline std::ostream& operator<<(std::ostream& o, const HGCalBestChoiceDataPayloa
     o << "\n";
     return o;
 }
+
 
 class HGCalBestChoiceCodec : public HGCalTriggerFE::Codec<HGCalBestChoiceCodec,HGCalBestChoiceDataPayload> 
 {
@@ -45,13 +32,7 @@ class HGCalBestChoiceCodec : public HGCalTriggerFE::Codec<HGCalBestChoiceCodec,H
         data_type         decodeImpl(const std::vector<bool>&) const;  
 
     private:
-        void triggerCellSums(const Module& , const std::vector<HGCEEDataFrame>&);
-        void bestChoiceSelect();
-
-        size_t nData_;
-        size_t dataLength_;
-        size_t nCellsInModule_;
-
+        HGCalBestChoiceCodecImpl codecImpl_;
 };
 
 #endif
