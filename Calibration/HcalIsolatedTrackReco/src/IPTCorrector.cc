@@ -18,21 +18,17 @@
 #include "Math/GenVector/PxPyPzE4D.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-IPTCorrector::IPTCorrector(const edm::ParameterSet& config) {
-  
-  tok_cor_ = consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("corTracksLabel"));
-  tok_uncor_ = consumes<trigger::TriggerFilterObjectWithRefs>(config.getParameter<edm::InputTag>("filterLabel"));
-  assocCone_=config.getParameter<double>("associationCone");
-
-  // Register the product
+IPTCorrector::IPTCorrector(const edm::ParameterSet& config) :
+  tok_cor_(   consumes<reco::TrackCollection>(config.getParameter<edm::InputTag>("corTracksLabel")) ),
+  tok_uncor_( consumes<trigger::TriggerFilterObjectWithRefs>(config.getParameter<edm::InputTag>("filterLabel")) ),
+  assocCone_( config.getParameter<double>("associationCone") )
+{  
+  // register the product
   produces< reco::IsolatedPixelTrackCandidateCollection >();
-
 }
 
-IPTCorrector::~IPTCorrector() {}
 
-
-void IPTCorrector::produce(edm::Event& theEvent, const edm::EventSetup& theEventSetup) {
+void IPTCorrector::produce(edm::StreamID, edm::Event& theEvent, edm::EventSetup const&) const {
 
   reco::IsolatedPixelTrackCandidateCollection * trackCollection=new reco::IsolatedPixelTrackCandidateCollection;
 
