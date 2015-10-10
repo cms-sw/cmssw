@@ -84,6 +84,7 @@ protected:
   bool useKtPruning_;         /// Use Kt clustering algorithm for pruning (default is Cambridge/Aachen)
   bool useConstituentSubtraction_; /// constituent subtraction technique
   bool useSoftDrop_;          /// Soft drop
+  bool correctShape_;         /// Correct the shape of the jets
   double muCut_;              /// for mass-drop tagging, m0/mjet (m0 = mass of highest mass subjet)
   double yCut_;               /// for mass-drop tagging, symmetry cut: min(pt1^2,pt2^2) * dR(1,2) / mjet > ycut
   double rFilt_;              /// for filtering, trimming: dR scale of sub-clustering
@@ -97,6 +98,8 @@ protected:
   double csRParam_;           /// for constituent subtraction : R parameter for KT alg in jet median background estimator
   double beta_;               /// for soft drop : beta (angular exponent)
   double R0_;                 /// for soft drop : R0 (angular distance normalization - should be set to jet radius in most cases)
+  double gridMaxRapidity_;    /// for shape subtraction, get the fixed-grid rho
+  double gridSpacing_;        /// for shape subtraction, get the grid spacing
 
 
   double subjetPtMin_;        /// for CMSBoostedTauSeedingAlgorithm : subjet pt min
