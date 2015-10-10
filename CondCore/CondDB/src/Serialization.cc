@@ -1,7 +1,4 @@
 #include "CondCore/CondDB/interface/Serialization.h"
-#include "CondCore/CondDB/interface/Exception.h"
-#include "CondCore/CondDB/interface/Utils.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 //
 #include <sstream>
 // root includes 
@@ -136,9 +133,14 @@ cond::RootInputArchive::~RootInputArchive(){
   delete m_streamer;
 }
 
-void cond::RootInputArchive::read( const std::type_info& destinationType, void* destinationInstance){
-  TClass* r_class = lookUpDictionary( destinationType );
-  if (!r_class) throwException( "No ROOT class registered for \"" + demangledName(destinationType) +"\"","RootInputArchive::read");
-  m_streamer->read( destinationInstance, r_class );
+std::string cond::StreamerInfo::jsonString(){
+  std::stringstream ss;
+  ss<<" {"<<std::endl;
+  ss<<"\""<<CMSSW_VERSION_LABEL<<"\": \""<<currentCMSSWVersion()<<"\","<<std::endl;
+  ss<<"\""<<ARCH_LABEL<<"\": \""<<currentArchitecture()<<"\","<<std::endl;
+  ss<<"\""<<TECH_LABEL<<"\": \""<<TECHNOLOGY<<"\","<<std::endl;
+  ss<<"\""<<TECH_VERSION_LABEL<<"\": \""<<techVersion()<<"\""<<std::endl;
+  ss<<" }"<<std::endl;
+  return ss.str();
 }
 
