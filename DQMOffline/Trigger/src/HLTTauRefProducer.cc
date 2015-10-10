@@ -84,6 +84,11 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   ptMinPhoton_= photons.getUntrackedParameter<double>("etMin");
   photonEcalIso_= photons.getUntrackedParameter<double>("ECALIso");
 
+  ParameterSet  met = iConfig.getUntrackedParameter<edm::ParameterSet>("MET");
+  MET_ = consumes<reco::CaloMETCollection>(met.getUntrackedParameter<InputTag>("METCollection"));
+  doMET_ = met.getUntrackedParameter<bool>("doMET",false);
+  ptMinMET_= met.getUntrackedParameter<double>("ptMin",15.);
+
 
   etaMax = iConfig.getUntrackedParameter<double>("EtaMax",2.5);
   
@@ -95,6 +100,7 @@ HLTTauRefProducer::HLTTauRefProducer(const edm::ParameterSet& iConfig)
   produces<LorentzVectorCollection>("Jets");
   produces<LorentzVectorCollection>("Photons");
   produces<LorentzVectorCollection>("Towers");
+  produces<LorentzVectorCollection>("MET");
 
 }
 
@@ -114,7 +120,8 @@ void HLTTauRefProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
     doPhotons(iEvent,iES);
   if(doTowers_)
     doTowers(iEvent,iES);
-
+  if(doMET_)
+    doMET(iEvent,iES);
 }
 
 void 
@@ -310,5 +317,21 @@ HLTTauRefProducer::doPhotons(edm::Event& iEvent,const edm::EventSetup& iES)
 	      }
 	}
       iEvent.put(product_Gammas,"Photons");
+}
+
+void
+HLTTauRefProducer::doMET(edm::Event& iEvent,const edm::EventSetup& iES)
+{
+  auto_ptr<LorentzVectorCollection> product_MET(new LorentzVectorCollection);
+  //Retrieve the collection
+  edm::Handle<reco::CaloMETCollection> met;
+  if(iEvent.getByToken(MET_,met)){
+    double px = met->front().p4().Px();
+    double py = met->front().p4().Py();
+    double pt = met->front().p4().Pt();
+    LorentzVector vec(px,py,0,pt);
+    product_MET->push_back(vec);
+  }
+  iEvent.put(product_MET,"MET");  
 }
 
