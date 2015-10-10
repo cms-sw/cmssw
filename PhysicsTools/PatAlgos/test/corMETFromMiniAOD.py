@@ -22,14 +22,15 @@ process.options = cms.untracked.PSet(
 
 # How many events to process
 process.maxEvents = cms.untracked.PSet( 
-   input = cms.untracked.int32(100)
+   input = cms.untracked.int32(1000)
 )
 
 #configurable options =======================================================================
+runOnOld74XMAOD=True #to be set to True for 74X X<12 miniAODs, False otherwise
 runOnData=False #data/MC switch
-usePrivateSQlite=True #use external JECs (sqlite file)
+usePrivateSQlite=False #use external JECs (sqlite file)
 useHFCandidates=False #create an additionnal NoHF slimmed MET collection if the option is set to false
-applyResiduals=True #application of residual corrections. Have to be set to True once the 13 TeV residual corrections are available. False to be kept meanwhile. Can be kept to False later for private tests or for analysis checks and developments (not the official recommendation!).
+applyResiduals=False #application of residual corrections. Have to be set to True once the 13 TeV residual corrections are available. False to be kept meanwhile. Can be kept to False later for private tests or for analysis checks and developments (not the official recommendation!).
 #===================================================================
 
 
@@ -45,7 +46,7 @@ if runOnData:
   process.GlobalTag.globaltag = autoCond['run2_data']
   #process.GlobalTag.globaltag = '75X_dataRun1_v2' #'74X_dataRun2_Prompt_v1'
 else:
-  #process.GlobalTag.globaltag = 'MCRUN2_74_v9'
+ # process.GlobalTag.globaltag = 'MCRUN2_74_v9'
   process.GlobalTag.globaltag = autoCond['run2_mc']
  # process.GlobalTag = GlobaTag(GlobalTag, 'auto:run2_mc', '')
 
@@ -111,12 +112,15 @@ from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMet
 #for a full met computation, remove the pfCandColl input
 runMetCorAndUncFromMiniAOD(process,
                            isData=runOnData,
+                           repro74X=runOnOld74XMAOD #only for 74X X<12 miniAODs 
                            )
 
 if not useHFCandidates:
     runMetCorAndUncFromMiniAOD(process,
                                isData=runOnData,
                                pfCandColl=cms.InputTag("noHFCands"),
+                               repro74X=runOnOld74XMAOD, #only for 74X X<12 miniAODs 
+                               recoMetFromPFCs=True, #needed for NoHF
                                postfix="NoHF"
                                )
 
