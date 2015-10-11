@@ -144,6 +144,19 @@ namespace l1t {
 	if(forward)
 	  jetQual |= 0x2;
 
+	// check for input overflow regions
+	if(forward && regionET == 255) {
+	  jetET = 1023; // 10 bit max
+	} else if(!forward && regionET == 1023) {
+	  jetET = 1023; // 10 bit max
+	} else if(region->hwEta() == 17) {
+	  if(neighborNE_et == 255 || neighborE_et == 255 || neighborSE_et == 255)
+	    jetET = 1023; // 10 bit max
+	} else if(region->hwEta() == 4) {
+	  if(neighborNW_et == 255 || neighborW_et == 255 || neighborSW_et == 255)
+	    jetET = 1023; // 10 bit max
+	}
+
 	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
 	l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);
 	//l1t::Jet theJet(0, jetET, jetEta, jetPhi);
