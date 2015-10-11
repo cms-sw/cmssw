@@ -1,6 +1,5 @@
 <lcgdict>
 
-  <class name="std::vector<std::pair<int,int>>"/>
   <class name="edm::Wrapper<std::vector<std::pair<int,int>>>"/>
  
   <class name="reco::TrackBase::AlgoMask"/>

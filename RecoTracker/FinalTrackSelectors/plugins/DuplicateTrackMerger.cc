@@ -175,6 +175,7 @@ DuplicateTrackMerger::~DuplicateTrackMerger()
 }
 
 
+#ifdef VI_STAT
   struct Stat {
     Stat() : maxCos(1.1), nCand(0),nLoop0(0) {}
     ~Stat() {
@@ -184,7 +185,8 @@ DuplicateTrackMerger::~DuplicateTrackMerger()
     std::atomic<int> nCand, nLoop0;
   };
   Stat stat;
-
+#endif
+  
 template<typename T>
 void update_maximum(std::atomic<T>& maximum_value, T const& value) noexcept
 {
@@ -326,10 +328,12 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       out_duplicateCandidates->push_back(merger_.merge(*t1,*t2));
       out_candidateMap->emplace_back(i,j);
 
+#ifdef VI_STAT
       ++stat.nCand;
       //    auto cosT = float((*t1).momentum().unit().Dot((*t2).momentum().unit()));
       if (cosT>0) update_minimum(stat.maxCos,float(cosT));
       else   ++stat.nLoop0;
+#endif
       
     }
   }
