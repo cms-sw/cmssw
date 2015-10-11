@@ -51,9 +51,12 @@ class HGCalTriggerBestChoiceTester : public edm::EDAnalyzer
         std::unique_ptr<HGCalBestChoiceCodecImpl> codec_;
         edm::Service<TFileService> fs_;
         // histos
+        TH1F* hgcCellsPerModule_;
+        TH1F* hgcCellData_;
+        TH1F* hgcCellModuleSum_;
         TH1F* triggerCellsPerModule_;
         TH1F* triggerCellData_;
-        TH1F* moduleSum_;
+        TH1F* triggerCellModuleSum_;
 
 };
 
@@ -76,9 +79,12 @@ HGCalTriggerBestChoiceTester::HGCalTriggerBestChoiceTester(const edm::ParameterS
     codec_.reset( new HGCalBestChoiceCodecImpl(feCodecConfig) );
 
     // initialize output trees
+    hgcCellsPerModule_     = fs_->make<TH1F>("hgcCellsPerModule","Number of cells per module", 64, 0., 64.);
+    hgcCellData_           = fs_->make<TH1F>("hgcCellData","Cell values", 500, 0., 500.);
+    hgcCellModuleSum_      = fs_->make<TH1F>("hgcCellModuleSum","Cell sum in modules", 1000, 0., 1000.);
     triggerCellsPerModule_ = fs_->make<TH1F>("TriggerCellsPerModule","Number of trigger cells per module", 64, 0., 64.);
     triggerCellData_       = fs_->make<TH1F>("TriggerCellData","Trigger cell values", 500, 0., 500.);
-    moduleSum_             = fs_->make<TH1F>("ModuleSum","Trigger cell sum in modules", 5000, 0., 5000.);
+    triggerCellModuleSum_  = fs_->make<TH1F>("TriggerCellModuleSum","Trigger cell sum in modules", 1000, 0., 1000.);
 }
 
 
@@ -148,19 +154,37 @@ void HGCalTriggerBestChoiceTester::analyze(const edm::Event& e,
 void HGCalTriggerBestChoiceTester::fillModule( const std::vector<HGCEEDataFrame>& dataframes, const HGCalBestChoiceDataPayload& fe_payload)
 /*****************************************************************/
 {
+    // HGC cells part
+    size_t nHGCDigi = 0;
+    unsigned hgcCellModuleSum = 0;
+    for(const auto& frame : dataframes)
+    {
+        uint32_t value = frame[2].data();
+        if(value>0)
+        {
+            nHGCDigi++;
+            hgcCellModuleSum += value;
+            hgcCellData_->Fill(value);
+        }
+    }
+    hgcCellsPerModule_->Fill(nHGCDigi);
+    hgcCellModuleSum_->Fill(hgcCellModuleSum);
+
+    // trigger cells part
     size_t nFEDigi = 0;
-    unsigned moduleSum = 0;
+    unsigned triggerCellModuleSum = 0;
     for(const auto& tc : fe_payload.payload)
     {
-        if(tc>0)
+        uint32_t tcShifted = (tc<<2);
+        if(tcShifted>0)
         {
             nFEDigi++;
-            moduleSum += tc;
-            triggerCellData_->Fill(tc);
+            triggerCellModuleSum += tcShifted;
+            triggerCellData_->Fill(tcShifted);
         }
     }
     triggerCellsPerModule_->Fill(nFEDigi);
-    moduleSum_->Fill(moduleSum);
+    triggerCellModuleSum_->Fill(triggerCellModuleSum);
 }
 
 //define this as a plug-in
