@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
+#include <atomic>
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
@@ -58,25 +59,25 @@ namespace {
       /// track input collection
       edm::EDGetTokenT<reco::TrackCollection> trackSource_;
       /// minDeltaR3d cut value
-      double minDeltaR3d_;
+      double minDeltaR3d2_;
       /// minBDTG cut value
       double minBDTG_;
       ///min pT cut value
-      double minpT_;
+      double minpT2_;
       ///min p cut value
       double minP_;
       ///max distance between two tracks at closest approach
-      double maxDCA_;
+      float maxDCA2_;
       ///max difference in phi between two tracks
-      double maxDPhi_;
+      float maxDPhi_;
       ///max difference in Lambda between two tracks
-      double maxDLambda_;
+      float maxDLambda_;
       ///max difference in transverse impact parameter between two tracks
-      double maxDdxy_;
+      float maxDdxy_;
       ///max difference in longitudinal impact parameter between two tracks
-      double maxDdsz_;
+      float maxDdsz_;
       ///max difference in q/p between two tracks
-      double maxDQoP_;
+      float maxDQoP_;
       
       edm::ESHandle<MagneticField> magfield_;
       
@@ -127,11 +128,11 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
   useForestFromDB_ = true;
 
   trackSource_ = consumes<reco::TrackCollection>(iPara.getParameter<edm::InputTag>("source"));
-  minDeltaR3d_ = iPara.getParameter<double>("minDeltaR3d");
+  minDeltaR3d2_ = iPara.getParameter<double>("minDeltaR3d"); minDeltaR3d2_*=std::abs(minDeltaR3d2_);
   minBDTG_ = iPara.getParameter<double>("minBDTG");
-  minpT_ = iPara.getParameter<double>("minpT");
+  minpT2_ = iPara.getParameter<double>("minpT"); minpT2_ *= minpT2_;
   minP_ = iPara.getParameter<double>("minP");
-  maxDCA_ = iPara.getParameter<double>("maxDCA");
+  maxDCA2_ = iPara.getParameter<double>("maxDCA"); maxDCA2_*=maxDCA2_;
   maxDPhi_ = iPara.getParameter<double>("maxDPhi");
   maxDLambda_ = iPara.getParameter<double>("maxDLambda");
   maxDdsz_ = iPara.getParameter<double>("maxDdsz");
@@ -173,6 +174,36 @@ DuplicateTrackMerger::~DuplicateTrackMerger()
 
 }
 
+
+  struct Stat {
+    Stat() : maxCos(1.1), nCand(0),nLoop0(0) {}
+    ~Stat() {
+      std::cout << "Stats " << nCand << ' ' << nLoop0 << ' ' << maxCos << std::endl;
+    }
+    std::atomic<float> maxCos;
+    std::atomic<int> nCand, nLoop0;
+  };
+  Stat stat;
+
+template<typename T>
+void update_maximum(std::atomic<T>& maximum_value, T const& value) noexcept
+{
+    T prev_value = maximum_value;
+    while(prev_value < value &&
+            !maximum_value.compare_exchange_weak(prev_value, value))
+        ;
+}
+
+  template<typename T>
+void update_minimum(std::atomic<T>& minimum_value, T const& value) noexcept
+{
+    T prev_value = minimum_value;
+    while(prev_value > value &&
+            !minimum_value.compare_exchange_weak(prev_value, value))
+        ;
+}
+
+  
 void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
@@ -192,8 +223,8 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
   //edm::Handle<edm::View<reco::Track> >handle;
   edm::Handle<reco::TrackCollection >handle;
   iEvent.getByToken(trackSource_,handle);
-  reco::TrackRefProd refTrks(handle);
-
+  auto const & tracks = *handle;
+  
   iSetup.get<IdealMagneticFieldRecord>().get(magfield_);
   TwoTrackMinimumDistance ttmd;
   TSCPBuilderNoMaterial tscpBuilder;
@@ -201,27 +232,29 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
   std::unique_ptr<CandidateToDuplicate> out_candidateMap(new CandidateToDuplicate());
 
-  for(int i = 0; i < (int)handle->size(); i++){
-    const reco::Track *rt1 = &(handle->at(i));
-    if(rt1->innerMomentum().Rho() < minpT_)continue;
-    if(rt1->innerMomentum().R() < minP_)continue;
-    for(int j = i+1; j < (int)handle->size();j++){
-      const reco::Track *rt2 = &(handle->at(j));
-      if(rt2->innerMomentum().Rho() < minpT_)continue;
-      if(rt2->innerMomentum().R() < minP_)continue;
+  for(int i = 0; i < (int)tracks.size(); i++){
+    const reco::Track *rt1 = &tracks[i];
+    if(rt1->innerMomentum().perp2() < minpT2_)continue;
+    // if(rt1->innerMomentum().R() < minP_)continue;
+    for(int j = i+1; j < (int)tracks.size();j++){
+      const reco::Track *rt2 = &tracks[j];
       if(rt1->charge() != rt2->charge())continue;
+      auto cosT = (*rt1).momentum().unit().Dot((*rt2).momentum().unit());
+      if (cosT<0.) continue;
+      if(rt2->innerMomentum().perp2() < minpT2_)continue;
+      // if(rt2->innerMomentum().R() < minP_)continue;
       const reco::Track* t1,*t2;
-      if(rt1->outerPosition().Rho() < rt2->outerPosition().Rho()){
+      if(rt1->outerPosition().perp2() < rt2->outerPosition().perp2()){
 	t1 = rt1;
 	t2 = rt2;
       }else{
 	t1 = rt2;
 	t2 = rt1;
       }
-      double deltaR3d = sqrt(pow(t1->outerPosition().x()-t2->innerPosition().x(),2) + pow(t1->outerPosition().y()-t2->innerPosition().y(),2) + pow(t1->outerPosition().z()-t2->innerPosition().z(),2));
-
-      if(t1->outerPosition().Rho() > t2->innerPosition().Rho())deltaR3d *= -1.0;
-      if(deltaR3d < minDeltaR3d_)continue;
+      auto deltaR3d2 = (t1->outerPosition() - t2->innerPosition()).mag2();
+      
+      if(t1->outerPosition().perp2() > t2->innerPosition().perp2()) deltaR3d2 *= -1.0;
+      if(deltaR3d2 < minDeltaR3d2_)continue;
       
       FreeTrajectoryState fts1 = trajectoryStateTransform::outerFreeState(*t1, &*magfield_,false);
       FreeTrajectoryState fts2 = trajectoryStateTransform::innerFreeState(*t2, &*magfield_,false);
@@ -234,7 +267,7 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       const FreeTrajectoryState ftsn1 = TSCP1.theState();
       const FreeTrajectoryState ftsn2 = TSCP2.theState();
  
-      if ( (ftsn2.position()-ftsn1.position()).mag() > maxDCA_ ) continue;
+      if ( (ftsn2.position()-ftsn1.position()).mag2() > maxDCA2_ ) continue;
 
       auto qoverp1 = ftsn1.signedInverseMomentum();
       auto qoverp2 = ftsn2.signedInverseMomentum();
@@ -253,7 +286,7 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       auto phi1 = ftsn1.momentum().phi();
       auto phi2 = ftsn2.momentum().phi();
       float tmva_dphi_ = phi1-phi2;
-      if(std::abs(tmva_dphi_) > M_PI) tmva_dphi_ = 2*M_PI - fabs(tmva_dphi_);
+      if(std::abs(tmva_dphi_) > float(M_PI)) tmva_dphi_ = 2.f*float(M_PI) - std::abs(tmva_dphi_);
       if (std::abs(tmva_dphi_) > maxDPhi_ ) continue;
 
       auto dxy1 = (-ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt();
@@ -261,8 +294,10 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       float tmva_ddxy_ = dxy1-dxy2;
       if ( std::abs(tmva_ddxy_) > maxDdxy_ ) continue;
 
-      auto dsz1 = ftsn1.position().z() * TSCP1.pt() / TSCP1.momentum().mag() - (ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt() * ftsn1.momentum().z()/ftsn1.momentum().mag();
-      auto dsz2 = ftsn2.position().z() * TSCP2.pt() / TSCP2.momentum().mag() - (ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt() * ftsn2.momentum().z()/ftsn2.momentum().mag();
+      auto dsz1 = ftsn1.position().z() * TSCP1.pt() / TSCP1.momentum().mag()
+	- (ftsn1.position().x() * ftsn1.momentum().y() + ftsn1.position().y() * ftsn1.momentum().x())/TSCP1.pt() * ftsn1.momentum().z()/ftsn1.momentum().mag();
+      auto dsz2 = ftsn2.position().z() * TSCP2.pt() / TSCP2.momentum().mag()
+	- (ftsn2.position().x() * ftsn2.momentum().y() + ftsn2.position().y() * ftsn2.momentum().x())/TSCP2.pt() * ftsn2.momentum().z()/ftsn2.momentum().mag();
       float tmva_ddsz_ = dsz1-dsz2;
       if ( std::abs(tmva_ddsz_) > maxDdsz_ ) continue;
 
@@ -286,10 +321,16 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
       auto mvaBDTG = forest_->GetClassifier(gbrVals_);
       if(mvaBDTG < minBDTG_)continue;
 
-      // std::cout << "to merge " << mvaBDTG << ' ' << deltaR3d << ' ' << tmva_dphi_ << ' ' << TSCP1.pt() <<'/'<<TSCP2.pt() << std::endl;
+      //  std::cout << "to merge " << mvaBDTG << ' ' << std::copysign(std::sqrt(std::abs(deltaR3d2)),deltaR3d2) << ' ' << tmva_dphi_ << ' ' << TSCP1.pt() <<'/'<<TSCP2.pt() << std::endl;
       
       out_duplicateCandidates->push_back(merger_.merge(*t1,*t2));
       out_candidateMap->emplace_back(i,j);
+
+      ++stat.nCand;
+      //    auto cosT = float((*t1).momentum().unit().Dot((*t2).momentum().unit()));
+      if (cosT>0) update_minimum(stat.maxCos,float(cosT));
+      else   ++stat.nLoop0;
+      
     }
   }
   iEvent.put(std::move(out_duplicateCandidates),"candidates");

@@ -9,7 +9,7 @@
 #include "RecoTracker/FinalTrackSelectors/interface/TrackCollectionCloner.h"
 
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -36,7 +36,7 @@
 using namespace reco;
 
 namespace {
-class DuplicateListMerger final : public edm::stream::EDProducer<> {
+class DuplicateListMerger final : public edm::global::EDProducer<> {
  public:
   /// constructor
   explicit DuplicateListMerger(const edm::ParameterSet& iPara);
@@ -57,7 +57,7 @@ class DuplicateListMerger final : public edm::stream::EDProducer<> {
   
  private:
   /// produce one event
-  void produce( edm::Event &, const edm::EventSetup &) override;
+  void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
   
  private:  
   
@@ -133,7 +133,7 @@ DuplicateListMerger::~DuplicateListMerger()
 
 }
 
-void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void DuplicateListMerger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
 
   TrackCollectionCloner::Producer producer(iEvent, collectionCloner);
