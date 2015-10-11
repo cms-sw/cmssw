@@ -99,7 +99,7 @@ void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo)
   std::vector<std::string>::const_iterator site;
   std::vector<ALIstring> wordlist;
   //--- Fill the list of names of OptOs that take part in this measurement ( names only )
-  for( site = objNames.begin(); site != objNames.end(); site++) {
+  for( site = objNames.begin(); site != objNames.end(); ++site) {
     if( site != objNames.begin() ) wordlist.push_back("&");
     wordlist.push_back(*site);
   }
@@ -321,7 +321,7 @@ void Measurement::buildOptOList()
 //---------------------------------------- Loop OptONameList
   std::vector<ALIstring>::iterator vsite;
   for (vsite = _OptONameList.begin();
-       vsite != _OptONameList.end(); vsite++) {
+       vsite != _OptONameList.end(); ++vsite) {
 //----------------------------------- Count how many '..' there are in the name
     ALIuint ii = 0;
     //    ALIuint slen = (*vsite).length();
@@ -376,7 +376,7 @@ void Measurement::buildAffectingEntryList(){
   //---------- Loop OptO MeasuredList
   std::vector< OpticalObject* >::const_iterator vocite;
   for (vocite = _OptOList.begin();
-       vocite != _OptOList.end(); vocite++) {
+       vocite != _OptOList.end(); ++vocite) {
       addAffectingEntriesFromOptO( *vocite );
   }
 }
@@ -393,7 +393,7 @@ void Measurement::addAffectingEntriesFromOptO( const OpticalObject* optoP )
   std::vector< Entry* >::const_iterator vecite;
   std::vector< Entry* >::const_iterator fvecite;
   for (vecite = optoP->CoordinateEntryList().begin();
-      vecite != optoP->CoordinateEntryList().end(); vecite++) {
+      vecite != optoP->CoordinateEntryList().end(); ++vecite) {
     //T     if( find( theAffectingEntryList.begin(), theAffectingEntryList.end(), (*vecite) ) == theAffectingEntryList.end() ){
     //t      theAffectingEntryList.push_back(*vecite);
     //T    }
@@ -404,7 +404,7 @@ void Measurement::addAffectingEntriesFromOptO( const OpticalObject* optoP )
     }
   }
   for (vecite = optoP->ExtraEntryList().begin();
-      vecite != optoP->ExtraEntryList().end(); vecite++) {
+      vecite != optoP->ExtraEntryList().end(); ++vecite) {
     fvecite = find( theAffectingEntryList.begin(), theAffectingEntryList.end(), (*vecite) );
     if (fvecite == theAffectingEntryList.end() ){
       theAffectingEntryList.push_back(*vecite);
@@ -495,7 +495,7 @@ void Measurement::DumpBadOrderOptOs()
     // }
     std::vector<ALIstring>::const_iterator vsite;
     for ( vsite = OptONameList().begin(); 
-	  vsite != OptONameList().end(); vsite++) {
+	  vsite != OptONameList().end(); ++vsite) {
       std::cerr << (*vsite) << " : " ;
     }
     std::cerr << std::endl;
@@ -609,7 +609,7 @@ const OpticalObject* Measurement::getPreviousOptO( const OpticalObject* Popto ) 
 {
   //--------- Loop OptOs that take part in this measurement
   std::vector<OpticalObject*>::const_iterator vocite;
-  for( vocite = _OptOList.begin(); vocite != _OptOList.end(); vocite++ ){
+  for( vocite = _OptOList.begin(); vocite != _OptOList.end(); ++vocite ){
     if( *vocite == Popto ) {
       if( vocite == _OptOList.begin() ) {
 	std::cerr << " ERROR in  getPreviousOptO of measurement " << name() << std::endl;
