@@ -41,6 +41,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<std::vector<int> >() ;
   produces<TrajTrackAssociationCollection>();
 
 }
