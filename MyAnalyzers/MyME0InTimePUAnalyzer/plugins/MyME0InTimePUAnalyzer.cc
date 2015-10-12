@@ -494,7 +494,7 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     else continue;
 
     // 2) Neglect ME0Muons if quality is not good or innerTrack does not exist
-    // if (!muon::isGoodMuon(me0Geom, *it, muon::Tight)) continue;
+    if (!muon::isGoodMuon(me0Geom, *it, muon::Tight)) continue;
     // if(!it->innerTrack()) continue;
     reco::TrackRef tkRef = it->innerTrack();
     ME0Segment    segRef = it->me0segment();
