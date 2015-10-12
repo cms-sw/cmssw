@@ -3,6 +3,7 @@
 
 #include "Validation/RecoEgamma/plugins/EgammaObjects.h"
 #include "Validation/RecoEgamma/plugins/PhotonValidator.h"
+#include "Validation/RecoEgamma/plugins/PhotonValidatorMiniAOD.h"
 #include "Validation/RecoEgamma/plugins/TkConvValidator.h"
 #include "Validation/RecoEgamma/plugins/ConversionPostprocessing.h"
 #include "Validation/RecoEgamma/plugins/PhotonPostprocessing.h"
@@ -15,6 +16,7 @@
 
 DEFINE_FWK_MODULE(EgammaObjects);
 DEFINE_FWK_MODULE(PhotonValidator);
+DEFINE_FWK_MODULE(PhotonValidatorMiniAOD);
 DEFINE_FWK_MODULE(TkConvValidator);
 DEFINE_FWK_MODULE(PhotonPostprocessing);
 DEFINE_FWK_MODULE(ConversionPostprocessing);

@@ -23,6 +23,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 //#include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 //
 //DQM services
@@ -109,7 +110,7 @@ class PhotonValidator : public DQMEDAnalyzer
   edm::EDGetTokenT<reco::VertexCollection> offline_pvToken_;
   edm::InputTag  bcBarrelCollection_;
   edm::InputTag  bcEndcapCollection_;
-
+  edm::EDGetTokenT<reco::GenParticleCollection> genpartToken_;
 
   edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
@@ -371,6 +372,37 @@ class PhotonValidator : public DQMEDAnalyzer
   MonitorElement* h_SumPtOverPhoPt_ChHad_unCleaned_[3];
   MonitorElement* h_SumPtOverPhoPt_NeuHad_unCleaned_[3];
   MonitorElement* h_SumPtOverPhoPt_Pho_unCleaned_[3];
+
+  /// Histos for comparison with miniAOD content
+  MonitorElement* h_scEta_miniAOD_[2];
+  MonitorElement* h_scPhi_miniAOD_[2];
+
+  MonitorElement* h_r9_miniAOD_[3][3];
+  MonitorElement* h_full5x5_r9_miniAOD_[3][3];
+  MonitorElement* h_sigmaIetaIeta_miniAOD_[3][3];
+  MonitorElement* h_full5x5_sigmaIetaIeta_miniAOD_[3][3];
+  MonitorElement* h_r1_miniAOD_[3][3];
+  MonitorElement* h_r2_miniAOD_[3][3];
+  MonitorElement* h_hOverE_miniAOD_[3][3];
+  MonitorElement* h_newhOverE_miniAOD_[3][3];
+  MonitorElement* h_ecalRecHitSumEtConeDR04_miniAOD_[3][3];
+  MonitorElement* h_hcalTowerSumEtConeDR04_miniAOD_[3][3];
+  MonitorElement* h_hcalTowerBcSumEtConeDR04_miniAOD_[3][3];
+  MonitorElement* h_isoTrkSolidConeDR04_miniAOD_[3][3];
+  MonitorElement* h_nTrkSolidConeDR04_miniAOD_[3][3];
+
+  MonitorElement* h_phoE_miniAOD_[2][3];
+  MonitorElement* h_phoEt_miniAOD_[2][3];
+  MonitorElement* h_phoERes_miniAOD_[3][3];
+  MonitorElement* h_phoSigmaEoE_miniAOD_[3][3];
+
+  // Information from Particle Flow
+  // Isolation
+  MonitorElement* h_chHadIso_miniAOD_[3];
+  MonitorElement* h_nHadIso_miniAOD_[3];
+  MonitorElement* h_phoIso_miniAOD_[3];
+
+
 
 
   /// info per conversion
