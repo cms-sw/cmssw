@@ -125,6 +125,26 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mPFVsPt;
   MonitorElement *mPFVsPtInitial;
   MonitorElement *mPFArea;
+  MonitorElement *mPFDeltaR; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFpT_20To30; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFpT_30To50; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFpT_50To80; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFpT_80To120; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFpT_120To180; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFpT_180To300; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFpT_300ToInf; //MZ
+  
+  MonitorElement *mPFDeltaR_pTCorrected_PFVsInitialpT_20To30; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFVsInitialpT_30To50; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFVsInitialpT_50To80; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFVsInitialpT_80To120; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFVsInitialpT_120To180; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFVsInitialpT_180To300; //MZ
+  MonitorElement *mPFDeltaR_pTCorrected_PFVsInitialpT_300ToInf; //MZ
+
+  MonitorElement *mPFVsPtInitialDeltaR_pTCorrected; //MZ
+  MonitorElement *mPFVsPtDeltaR_pTCorrected; //MZ
   MonitorElement *mNCalopart;
   MonitorElement *mCaloPt;
   MonitorElement *mCaloEta;
