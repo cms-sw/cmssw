@@ -10,9 +10,9 @@
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "SimCalorimetry/HGCSimProducers/src/HGCFEElectronics.cc"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCFEElectronics.h"
 
 typedef float HGCSimData_t;
 
@@ -31,8 +31,7 @@ class HGCDigitizerBase {
   /**
      @short CTOR
    */
- HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
-  {
+ HGCDigitizerBase(const edm::ParameterSet &ps)  {
     bxTime_        = ps.getParameter<double>("bxTime");
     myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
     doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
@@ -43,23 +42,14 @@ class HGCDigitizerBase {
     edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
     myFEelectronics_        = std::unique_ptr<HGCFEElectronics<D> >( new HGCFEElectronics<D>(feCfg) );
   }
-  
-  /**
-     @short init a random number generator for noise
-   */
-  void setRandomNumberEngine(CLHEP::HepRandomEngine& engine) 
-  {       
-    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,noise_fC_);
-    tdcResoGen_     = new CLHEP::RandGauss(engine);
-  }
-  
+      
   /**
      @short steer digitization mode
    */
-  void run(std::auto_ptr<DColl> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType)
+  void run(std::auto_ptr<DColl> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType,CLHEP::HepRandomEngine* engine)
   {
-    if(digitizationType==0) runSimple(digiColl,simData);
-    else                    runDigitizer(digiColl,simData,digitizationType);
+    if(digitizationType==0) runSimple(digiColl,simData,engine);
+    else                    runDigitizer(digiColl,simData,digitizationType,engine);
   }
 
   /**
@@ -72,8 +62,9 @@ class HGCDigitizerBase {
   /**
      @short a trivial digitization: sum energies and digitize without noise
    */
-  void runSimple(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData)
+  void runSimple(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine)
   {
+    CLHEP::RandGauss simpleNoiseGen(engine,0,noise_fC_);
     for(HGCSimHitDataAccumulator::iterator it=simData.begin();
 	it!=simData.end();
 	it++)
@@ -94,7 +85,7 @@ class HGCDigitizerBase {
 
 	    //add noise (in fC)
 	    //we assume it's randomly distributed and won't impact ToA measurement
-	    totalCharge += max(simpleNoiseGen_->fire(),0.);
+	    totalCharge += std::max(simpleNoiseGen.fire(),0.);
 	    if(totalCharge<0) totalCharge=0;
 
 	    chargeColl[i]= totalCharge;
@@ -102,7 +93,7 @@ class HGCDigitizerBase {
 	
 	//run the shaper to create a new data frame
 	D rawDataFrame( it->first );
-	myFEelectronics_->runShaper(rawDataFrame,chargeColl,toa,tdcResoGen_);
+	myFEelectronics_->runShaper(rawDataFrame,chargeColl,toa,engine);
 	
 	//update the output according to the final shape
 	updateOutput(coll,rawDataFrame);
@@ -136,7 +127,7 @@ class HGCDigitizerBase {
   /**
      @short to be specialized by top class
    */
-  virtual void runDigitizer(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData,uint32_t digitizerType)
+  virtual void runDigitizer(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData,uint32_t digitizerType, CLHEP::HepRandomEngine* engine)
   {
     throw cms::Exception("HGCDigitizerBaseException") << " Failed to find specialization of runDigitizer";
   }
@@ -145,16 +136,11 @@ class HGCDigitizerBase {
      @short DTOR
    */
   ~HGCDigitizerBase() 
-    {
-      if(simpleNoiseGen_) delete simpleNoiseGen_;
-    };
+    { };
   
   //baseline configuration
   edm::ParameterSet myCfg_;
-
-  //a simple noise generator
-  mutable CLHEP::RandGauss *simpleNoiseGen_, *tdcResoGen_;
-
+  
   //1keV in fC
   float keV2fC_;
   

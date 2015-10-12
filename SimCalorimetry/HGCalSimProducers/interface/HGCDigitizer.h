@@ -8,12 +8,12 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "SimCalorimetry/HGCSimProducers/interface/HGCEEDigitizer.h"
-#include "SimCalorimetry/HGCSimProducers/interface/HGCHEfrontDigitizer.h"
-#include "SimCalorimetry/HGCSimProducers/interface/HGCHEbackDigitizer.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCEEDigitizer.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEfrontDigitizer.h"
+#include "SimCalorimetry/HGCalSimProducers/interface/HGCHEbackDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
+#include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 
 #include <vector>
 #include <map>
@@ -27,7 +27,7 @@ class HGCDigitizer
 {
 public:
   
-  HGCDigitizer(const edm::ParameterSet& ps);
+  HGCDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector& iC);
   ~HGCDigitizer() { }
 
   typedef std::tuple<int,uint32_t,float> HGCCaloHitTuple_t;
@@ -48,15 +48,15 @@ public:
   /**
      @short handle SimHit accumulation
    */
-  void accumulate(edm::Event const& e, edm::EventSetup const& c);
-  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
-  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom);
+  void accumulate(edm::Event const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+  void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
+  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom, CLHEP::HepRandomEngine* hre);
 
   /**
      @short actions at the start/end of event
    */
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-  void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+  void finalizeEvent(edm::Event& e, edm::EventSetup const& c, CLHEP::HepRandomEngine* hre);
 
   /**
    */

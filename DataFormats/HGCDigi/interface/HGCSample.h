@@ -34,7 +34,7 @@ public:
     setToA(toa);
     setData(data);
   }  
-  void print(ostream &out=std::cout)
+  void print(std::ostream &out=std::cout)
   {
     out << "THR: " << threshold() 
 	<< " Mode: " << mode() 
