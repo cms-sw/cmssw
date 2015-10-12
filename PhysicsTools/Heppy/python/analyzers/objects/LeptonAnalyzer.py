@@ -125,9 +125,9 @@ class LeptonAnalyzer( Analyzer ):
         if self.doMiniIsolation:
             if self.miniIsolationVetoLeptons == "any":
                 for lep in self.handles['muons'].product(): 
-                    self.IsolationComputer.addVetos(lep.physObj)
+                    self.IsolationComputer.addVetos(lep)
                 for lep in self.handles['electrons'].product(): 
-                    self.IsolationComputer.addVetos(lep.physObj)
+                    self.IsolationComputer.addVetos(lep)
 
         #muons
         allmuons = self.makeAllMuons(event)
