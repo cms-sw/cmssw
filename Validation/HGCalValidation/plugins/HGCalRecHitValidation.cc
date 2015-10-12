@@ -195,17 +195,17 @@ void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker &iB,
   std::ostringstream histoname;
   for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {
     histoname.str(""); histoname << "HitOccupancy_Plus_layer_" << ilayer;
-    HitOccupancy_Plus_.push_back(iB.book1D( histoname.str().c_str(), "RecHitOccupancy_Plus", 2000, 0, 10000));
+    HitOccupancy_Plus_.push_back(iB.book1D( histoname.str().c_str(), "RecHitOccupancy_Plus", 500, 0, 10000));
     histoname.str(""); histoname << "HitOccupancy_Minus_layer_" << ilayer;
-    HitOccupancy_Minus_.push_back(iB.book1D( histoname.str().c_str(), "RecHitOccupancy_Minus", 2000, 0, 10000));
+    HitOccupancy_Minus_.push_back(iB.book1D( histoname.str().c_str(), "RecHitOccupancy_Minus", 500, 0, 10000));
 
     histoname.str(""); histoname << "EtaPhi_Plus_" << "layer_" << ilayer;
-    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, 0, 2.5, 72, -3.15, 3.15));
+    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, 1.45, 3.0, 72, -3.15, 3.15));
     histoname.str(""); histoname << "EtaPhi_Minus_" << "layer_" << ilayer;
-    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, -2.5, 0, 72, -3.15, 3.15));
+    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, -3.0, -1.45, 72, -3.15, 3.15));
       
     histoname.str(""); histoname << "energy_layer_" << ilayer; 
-    energy_.push_back(iB.book1D(histoname.str().c_str(),"energy_",5000,0,0.002));
+    energy_.push_back(iB.book1D(histoname.str().c_str(),"energy_",500,0,0.002));
   }//loop over layers ends here 
 
   histoname.str(""); histoname << "SUMOfRecHitOccupancy_Plus";
