@@ -149,6 +149,16 @@ class PackedCandidateTrackValidator: public DQMEDAnalyzer{
 
   std::string rootFolder_;
 
+  enum {
+    sf_AllTracks = 0,
+    sf_AssociatedToPC = 1,
+    sf_PCIsCharged = 2,
+    sf_PCHasTrack = 3,
+    sf_PCIsNotElectron = 4,
+    sf_PCHasHits = 5,
+    sf_PCNdofNot0 = 6,
+    sf_NoMissingInnerHits = 7
+  };
   MonitorElement *h_selectionFlow;
 
   MonitorElement *h_diffPx;
@@ -212,13 +222,15 @@ void PackedCandidateTrackValidator::fillDescriptions(edm::ConfigurationDescripti
 void PackedCandidateTrackValidator::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&) {
   iBooker.setCurrentFolder(rootFolder_);
 
-  h_selectionFlow = iBooker.book1D("selectionFlow", "Track selection flow", 6, 0, 6);
+  h_selectionFlow = iBooker.book1D("selectionFlow", "Track selection flow", 8, -0.5, 7.5);
   h_selectionFlow->setBinLabel(1, "All tracks");
   h_selectionFlow->setBinLabel(2, "Associated to PackedCandidate");
   h_selectionFlow->setBinLabel(3, "PC is charged"),
   h_selectionFlow->setBinLabel(4, "PC has track");
   h_selectionFlow->setBinLabel(5, "PC is not electron");
   h_selectionFlow->setBinLabel(6, "PC has hits");
+  h_selectionFlow->setBinLabel(7, "PC ndof != 0");
+  h_selectionFlow->setBinLabel(8, "Track: no missing inner hits");
 
   constexpr int diffBins = 50;
   constexpr float diff = 1e-4;
@@ -283,38 +295,38 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
   for(size_t i=0; i<tracks.size(); ++i) {
     auto trackPtr = tracks.ptrAt(i);
     const reco::Track& track = *trackPtr;
-    h_selectionFlow->Fill(0.5);
+    h_selectionFlow->Fill(sf_AllTracks);
 
     pat::PackedCandidateRef pcRef = trackToPackedCandidate[trackPtr];
     if(pcRef.isNull()) {
       continue;
     }
-    h_selectionFlow->Fill(1.5);
+    h_selectionFlow->Fill(sf_AssociatedToPC);
 
     // Filter out neutral PackedCandidates, some of them may have track associated, and for those the charge comparison fails
     if(pcRef->charge() == 0) {
       continue;
     }
-    h_selectionFlow->Fill(2.5);
+    h_selectionFlow->Fill(sf_PCIsCharged);
 
     const reco::Track *trackPcPtr = pcRef->bestTrack();
     if(!trackPcPtr) {
       continue;
     }
-    h_selectionFlow->Fill(3.5);
+    h_selectionFlow->Fill(sf_PCHasTrack);
 
     // Filter out electrons to avoid comparisons to PackedCandidates with GsfTrack
     if(std::abs(pcRef->pdgId()) == 11) {
       continue;
     }
-    h_selectionFlow->Fill(4.5);
+    h_selectionFlow->Fill(sf_PCIsNotElectron);
 
     // Filter out PackedCandidate-tracks with no hits, as they won't have their details filled
     const reco::Track& trackPc = *trackPcPtr;
     if(trackPc.hitPattern().numberOfValidHits() == 0) {
       continue;
     }
-    h_selectionFlow->Fill(5.5);
+    h_selectionFlow->Fill(sf_PCHasHits);
 
 
     fillNoFlow(h_diffPx, trackPc.px() - track.px());
@@ -332,6 +344,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     // PackedCandidates that have ndof != 0.
     double diffNormalizedChi2 = 0;
     if(trackPc.ndof() != 0) {
+      h_selectionFlow->Fill(sf_PCNdofNot0);
       diffNormalizedChi2 = trackPc.normalizedChi2() - track.normalizedChi2();
       fillNoFlow(h_diffNormalizedChi2, diffNormalizedChi2);
     }
@@ -388,6 +401,7 @@ void PackedCandidateTrackValidator::analyze(const edm::Event& iEvent, const edm:
     // hasValidHitInFirstPixelBarrel is set only if numberOfLostHits(MISSING_INNER_HITS) == 0
     int diffHitPatternHasValidHitInFirstPixelBarrel = 0;
     if(track.hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) == 0) {
+      h_selectionFlow->Fill(sf_NoMissingInnerHits);
       diffHitPatternHasValidHitInFirstPixelBarrel = static_cast<int>(trackPc.hitPattern().hasValidHitInFirstPixelBarrel()) - static_cast<int>(track.hitPattern().hasValidHitInFirstPixelBarrel());
       fillNoFlow(h_diffHitPatternHasValidHitInFirstPixelBarrel, diffHitPatternHasValidHitInFirstPixelBarrel);
     }
