@@ -14,6 +14,7 @@ import stat
 import subprocess
 import tempfile
 import textwrap
+import time
 
 import sqlalchemy
 
@@ -144,7 +145,7 @@ def _exists(session, primary_key, value):
     try: 
         ret = session.query(primary_key).\
     	    filter(primary_key == value).\
-            count() != 0
+    	    count() != 0
     except sqlalchemy.exc.OperationalError:
         pass
 
@@ -239,8 +240,20 @@ def _check_same_object(args):
 
 
 def _connect(db, init, verbose, read_only, force):
+
     logging.debug('Connecting to %s ...', db)
-    connection = conddb.connect(db, init=init, verbose=0 if verbose is None else verbose - 1)
+
+    url = conddb.make_url( db )
+    pretty_url = url
+    if url.drivername == 'oracle+frontier':
+        ws = url.host.rsplit('%2F')
+        if ws is not None:
+            pretty_url = 'frontier://%s/%s' %(ws[-1],url.database)
+    connTo = '%s [%s]' %(db,pretty_url)
+    logging.info('Connecting to %s', connTo)
+    logging.debug('DB url: %s',url)
+    connection = conddb.connect(url, init=init, verbose=0 if verbose is None else verbose - 1)
+
 
     if not read_only:
         if connection.is_read_only:
@@ -251,29 +264,32 @@ def _connect(db, init, verbose, read_only, force):
                 logging.warning('You are going to edit an official database. If you are not one of the Offline DB experts but have access to the password for other reasons, please stop now.')
             else:
                 raise Exception('Editing official databases is forbidden. Use the official DropBox to upload conditions. If you need a special intervention on the database, see the contact help: %s' % conddb.contact_help)
+    # for sqlite we trigger the implicit schema creation
+    if init and url.drivername == 'sqlite':
+        connection.init()
+    if not connection.is_valid():
+        raise Exception('No valid schema found in the database: %s' %url)
 
     return connection
 
 
-def connect(args, init=False, read_only=True):
+def connect(args, init=False, read_only=True, schema='cms_conditions'):
     args.force = args.force if 'force' in dir(args) else False
+
     if 'destdb' in args:
-        if args.destdb is None or args.db == args.destdb:
+        if args.destdb is None:
             args.destdb = args.db
-            connection = _connect(args.db, init, args.verbose, read_only, args.force)
-            return connection, connection
+        if args.db == args.destdb:
+            conn1 = _connect(args.destdb, init, args.verbose, read_only, args.force)
+            return conn1, conn1
+        conn1 = _connect( args.db, init, args.verbose, True, args.force)
+        conn2url = conddb.make_url(args.destdb)
+        if conn2url.drivername == 'sqlite' and not os.path.exists(args.destdb): 
+            init = True
+        conn2 = _connect(conn2url, init, args.verbose, False, args.force)
+        return conn1, conn2
 
-        # read_only refers to the destination database only
-        # (the source is always read_only) -- see copy() command
-	if os.path.exists(args.destdb): 
-           return _connect(args.db, init, args.verbose, True, args.force), _connect(args.destdb, init, args.verbose, read_only, args.force)
-	else: # dest DB not yet there, needs init ... 
-	   conn1 = _connect(args.db, init, args.verbose, True, args.force)
-	   conn2 = _connect(args.destdb, True, args.verbose, False, args.force)
-	   conn2.init()
-	   return conn1, conn2
-
-    return _connect(args.db, init, args.verbose, read_only, args.force)
+    return _connect( args.db, init, args.verbose, read_only, args.force)
 
 
 def str_db_object(db, name):
@@ -853,14 +869,63 @@ def diff(args):
     if not (is_tag1 and is_tag2) and not (is_global_tag1 and is_global_tag2):
         raise Exception('There are no tag or global tag pairs named %s and %s in the database(s).' % (args.first, args.second))
 
+def convertRunToTimes(startRun, stopRun=None):
 
-def _copy_tag(args, session1, session2, first, second):
+    if not stopRun :
+       stopRun = startRun + 1
+
+    startTime1, stopTime1 = runToTime(startRun)
+    startTime2, stopTime2 = runToTime(stopRun)
+
+    timeMap = { 'start' : {
+    	      		    'hash' : None,
+    	      		    'run'  : startRun,
+			    'time' : startTime1-15., # the time we get may be a bit delayed (7-10 sec according to Salvatore)
+			    'lumi' : startRun<<32|0x1,
+    	      		  },
+    	        'stop'  : {
+    	      		    'hash' : None,
+			    'run'  : stopRun,
+			    'time' : stopTime2+15., # the time we get may be a bit delayed (7-10 sec according to Salvatore)
+			    'lumi' : stopRun<<32|0x1,
+    	      		  } 
+	      }
+
+    logging.debug("convertRunToTimes> start: %s stop %s \n    timeMap: %s " % (startRun, stopRun, str(timeMap)))
+
+    return timeMap
+
+def runToTime(runNr):
+
+    connStr = conddb._getCMSFrontierSQLAlchemyConnectionString('PromptProd', 'CMS_CONDITIONS')
+    
+    connection = conddb.connect(connStr)
+    session = connection.session()
+
+    startIOV = session.query(conddb.IOV.insertion_time).filter(conddb.IOV.tag_name == 'runinfo_start_31X_hlt', conddb.IOV.since == runNr).all()
+    stopIOV  = session.query(conddb.IOV.insertion_time).filter(conddb.IOV.tag_name == 'runinfo_31X_hlt', conddb.IOV.since == runNr).all()
+
+    startTime = time.mktime( startIOV[0][0].timetuple() )
+    stopTime  = time.mktime( stopIOV [0][0].timetuple() )
+
+    return startTime, stopTime
+
+def _copy_tag(args, session1, session2, first, second, fromIOV=None, toIOV=None, timeMap=None):
     logging.info('Copying tag %s to %s ...', str_db_object(args.db, first), str_db_object(args.destdb, second))
 
     # Copy the tag
-    tag = _rawdict(session1.query(conddb.Tag).get(args.first))
-    tag['name'] = args.second
-    tag['end_of_validity'] = 0 # XXX: SQLite does not work with long ints...
+    tag = _rawdict(session1.query(conddb.Tag).get(first))
+    tag['name'] = second
+    tag['end_of_validity'] = -1
+
+    if fromIOV is None:
+        fromIOV = 1
+    
+
+    if timeMap and not fromIOV and not toIOV:
+       fromIOV = timeMap['start'][ tag['time_type'].lower().strip() ]
+       toIOV   = timeMap['stop'] [ tag['time_type'].lower().strip() ]
+    
     session2.add(conddb.Tag(**tag))
 
     # Get the closest smaller IOV than the given starting point (args.from),
@@ -869,25 +934,29 @@ def _copy_tag(args, session1, session2, first, second):
     # In the case where the starting point is before any IOV, we do not need
     # to cut the query anyway.
     prev_iov = None
-    if getattr(args, 'from') is not None:
+    if fromIOV is not None:
+        fromVal = fromIOV
+        logging.debug("checking FROM %s of type %s for tag: %s "  % (fromIOV, tag['time_type'], str(tag['name'])) )
         prev_iov = session1.query(conddb.IOV.since).\
             filter(
-                conddb.IOV.tag_name == args.first,
-                conddb.IOV.since <= getattr(args, 'from'),
+                conddb.IOV.tag_name == first,
+                conddb.IOV.since <= fromVal,
             ).\
             order_by(conddb.IOV.since.desc()).\
             limit(1).\
             scalar()
-        logging.debug('The closest smaller IOV than the given starting one (--from) is %s...', prev_iov)
+        logging.debug('The closest smaller IOV than the given starting one (--from %s) is %s...', fromVal, prev_iov)
 
 
     # Copy the distinct payloads referenced in the IOVs of the tag
     # FIXME: Put the DISTINCT query as a subquery (we can't directly use distinct on BLOBs)
-    query = session1.query(conddb.IOV.payload_hash).filter(conddb.IOV.tag_name == args.first)
+    query = session1.query(conddb.IOV.payload_hash).filter(conddb.IOV.tag_name == first)
     if prev_iov is not None:
         query = query.filter(conddb.IOV.since >= prev_iov)
-    if args.to is not None:
-        query = query.filter(conddb.IOV.since <= args.to)
+    if toIOV is not None:
+        toVal = toIOV
+        logging.debug("filtering with TO %s of type %s for tag: %s to "  % (toIOV, tag['time_type'], str(tag['name'])) )
+        query = query.filter(conddb.IOV.since <= toVal)
     query = query.distinct()
     for (payload_hash, ) in query:
         if _exists(session2, conddb.Payload.hash, payload_hash):
@@ -897,15 +966,15 @@ def _copy_tag(args, session1, session2, first, second):
             session2.add(conddb.Payload(** _rawdict(session1.query(conddb.Payload).filter(conddb.Payload.hash == payload_hash).one())))
 
     # Copy the IOVs of the tag
-    query = session1.query(conddb.IOV).filter(conddb.IOV.tag_name == args.first)
+    query = session1.query(conddb.IOV).filter(conddb.IOV.tag_name == first)
     if prev_iov is not None:
         query = query.filter(conddb.IOV.since >= prev_iov)
-    if args.to is not None:
-        query = query.filter(conddb.IOV.since <= args.to)
+    if toIOV is not None:
+        query = query.filter(conddb.IOV.since <= toIOV)
     for iov in query:
         logging.debug('Copying IOV %s -> %s...', str_iov(iov.since, iov.insertion_time), iov.payload_hash)
         iov = _rawdict(iov)
-        iov['tag_name'] = args.second
+        iov['tag_name'] = second
 
         # In the first IOV of the tag we need to use the starting point given
         # by the user, instead of the one coming from the source tag; unless
@@ -914,7 +983,7 @@ def _copy_tag(args, session1, session2, first, second):
         # Note that we need to replace it for every insertion time (since
         # the primary key is (since, insertion_time).
         if prev_iov is not None and iov['since'] == prev_iov:
-            iov['since'] = getattr(args, 'from')
+            iov['since'] = fromIOV
             first_iov = False
 
         session2.add(conddb.IOV(**iov))
@@ -947,7 +1016,7 @@ def copy(args):
         if args.second is None:
             args.second = args.first
 
-        _copy_tag(args, session1, session2, args.first, args.second)
+        _copy_tag(args, session1, session2, args.first, args.second, getattr(args, 'from'), args.to)
 
         _confirm_changes(args)
         session2.commit()
@@ -957,20 +1026,26 @@ def copy(args):
         if args.second is None:
             args.second = args.first
 
+	timeMap = convertRunToTimes(getattr(args, 'from'), args.to)
+
         logging.info('Copying global tag %s to %s ...', str_db_object(args.db, args.first), str_db_object(args.destdb, args.second))
 
         # Copy the global tag
         global_tag = _rawdict(session1.query(conddb.GlobalTag).get(args.first))
         global_tag['name'] = args.second
+        global_tag['validity'] = 0 # XXX: SQLite does not work with long ints...
         session2.add(conddb.GlobalTag(**global_tag))
 
         # Copy the tags of the global tag
+        logging.debug('Creating query for tag %s filter %s ...', conddb.GlobalTagMap.tag_name, args.first)
         query = session1.query(conddb.GlobalTagMap.tag_name).filter(conddb.GlobalTagMap.global_tag_name == args.first).distinct()
         for (tag, ) in query:
-            if _exists(session2, conddb.Tag.name, tag):
+            logging.debug('Copying tag %s to %s for GT %s ...', str_db_object(args.db, tag), str_db_object(args.destdb, tag), str_db_object(args.destdb, args.second))
+            if _exists(session2, conddb.Tag.name, tag ):
                 logging.warn('Skipping copy of tag %s to %s since it already exists... *The tags may differ in content*', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
             else:
-                _copy_tag(args, session1, session2, tag, tag)
+                logging.debug('going to copy tag %s to %s ... ', str_db_object(args.db, tag), str_db_object(args.destdb, tag))
+                _copy_tag(args, session1, session2, tag, tag, timeMap=timeMap)
 
         # Copy the map of the global tag
         query = session1.query(conddb.GlobalTagMap).filter(conddb.GlobalTagMap.global_tag_name == args.first)
