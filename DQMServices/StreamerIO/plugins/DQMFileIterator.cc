@@ -17,20 +17,25 @@
 namespace dqmservices {
 
 DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
-    const std::string& filename, int lumiNumber, unsigned int datafn_position) {
+    const std::string& filename, int lumiNumber, int datafn_position) {
   boost::property_tree::ptree pt;
   read_json(filename, pt);
 
   LumiEntry lumi;
   lumi.filename = filename;
 
-  // We rely on n_events to be the first item on the array...
-  lumi.n_events = std::next(pt.get_child("data").begin(), 1)
+  lumi.n_events_processed = std::next(pt.get_child("data").begin(), 0)
+                      ->second.get_value<std::size_t>();
+
+  lumi.n_events_accepted = std::next(pt.get_child("data").begin(), 1)
                       ->second.get_value<std::size_t>();
 
   lumi.file_ls = lumiNumber;
-  lumi.datafn = std::next(pt.get_child("data").begin(), datafn_position)
-    ->second.get_value<std::string>();
+
+  if (datafn_position >= 0) {
+    lumi.datafn = std::next(pt.get_child("data").begin(), datafn_position)
+      ->second.get_value<std::string>();
+  }
 
   return lumi;
 }
