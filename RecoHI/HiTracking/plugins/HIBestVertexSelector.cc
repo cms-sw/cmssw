@@ -1,6 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 #include "CommonTools/UtilAlgos/interface/SortCollectionSelector.h"
 #include "RecoHI/HiTracking/interface/BestVertexComparator.h"
 
@@ -13,7 +13,7 @@ namespace reco
 	{
 		
 		// define your producer name
-		typedef ObjectSelector<
+		typedef ObjectSelectorStream<
 			SortCollectionSelector<
 			reco::VertexCollection,
 			GreaterByTracksSize<reco::Vertex>
