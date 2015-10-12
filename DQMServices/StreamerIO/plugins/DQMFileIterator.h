@@ -21,11 +21,12 @@ class DQMFileIterator {
     std::string filename;
 
     unsigned int file_ls;
-    std::size_t n_events;
+    std::size_t n_events_processed;
+    std::size_t n_events_accepted;
     std::string datafn;
 
     static LumiEntry load_json(const std::string& filename, int lumiNumber,
-                               unsigned int datafn_position);
+                               int datafn_position);
 
     std::string state;
   };
