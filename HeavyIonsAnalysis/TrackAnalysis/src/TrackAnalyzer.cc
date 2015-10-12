@@ -361,7 +361,7 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
 
   doDeDx_             = iConfig.getUntrackedParameter<bool>  ("doDeDx",false);
   doDebug_             = iConfig.getUntrackedParameter<bool>  ("doDebug",false);
-  doMVA_             = iConfig.getUntrackedParameter<bool>  ("doMVA",false);
+  doMVA_             = iConfig.getUntrackedParameter<bool>  ("doMVA",true);
 
   doPFMatching_             = iConfig.getUntrackedParameter<bool>  ("doPFMatching",false);
   doTrackVtxWImpPar_             = iConfig.getUntrackedParameter<bool>  ("doTrackVtxWImpPar",true);
