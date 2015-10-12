@@ -17,7 +17,8 @@
 #include <boost/foreach.hpp>
 
 //
-HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
+HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps,
+                           edm::ConsumesCollector& iC) :
   checkValidDetIds_(true),
   simHitAccumulator_( new HGCSimHitDataAccumulator ),
   mySubDet_(ForwardSubdetector::ForwardEmpty),
@@ -33,30 +34,21 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   verbosity_         = ps.getUntrackedParameter< uint32_t >("verbosity",0);
   tofDelay_          = ps.getParameter< double >("tofDelay");  
 
-  //get the random number generator
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) 
-    {
-      throw cms::Exception("Configuration") << "HGCDigitizer requires the RandomNumberGeneratorService - please add this service or remove the modules that require it";
-    }
+  iC.consumes<std::vector<PCaloHit> >(edm::InputTag("g4SimHits",hitCollection_));
   
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
   if(hitCollection_.find("HitsEE")!=std::string::npos) { 
     mySubDet_=ForwardSubdetector::HGCEE;  
     theHGCEEDigitizer_=std::unique_ptr<HGCEEDigitizer>(new HGCEEDigitizer(ps) ); 
-    theHGCEEDigitizer_->setRandomNumberEngine(engine);
   }
   if(hitCollection_.find("HitsHEfront")!=std::string::npos)  
     { 
       mySubDet_=ForwardSubdetector::HGCHEF;
       theHGCHEfrontDigitizer_=std::unique_ptr<HGCHEfrontDigitizer>(new HGCHEfrontDigitizer(ps) );
-      theHGCHEfrontDigitizer_->setRandomNumberEngine(engine);
     }
   if(hitCollection_.find("HitsHEback")!=std::string::npos)
     { 
       mySubDet_=ForwardSubdetector::HGCHEB;
       theHGCHEbackDigitizer_=std::unique_ptr<HGCHEbackDigitizer>(new HGCHEbackDigitizer(ps) );
-      theHGCHEbackDigitizer_->setRandomNumberEngine(engine);
     }
 }
 
@@ -67,33 +59,33 @@ void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& e
 }
 
 //
-void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es)
+void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es, CLHEP::HepRandomEngine* hre)
 {
   if( producesEEDigis() ) 
     {
       std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
-      theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_);
+      theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEfrontDigis())
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEfrontDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_);
+      theHGCHEfrontDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEbackDigis() )
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_);
+      theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_, hre);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
       e.put(digiResult,digiCollection());
     }
 }
 
 //
-void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup) {
+void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventSetup, CLHEP::HepRandomEngine* hre) {
 
   //get inputs
   edm::Handle<edm::PCaloHitContainer> hits;
@@ -110,11 +102,11 @@ void HGCDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& eventS
   if( producesHEbackDigis() )  eventSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", geom);
 
   //accumulate in-time the main event
-  accumulate(hits, 0, geom);
+  accumulate(hits, 0, geom, hre);
 }
 
 //
-void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup) {
+void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup, CLHEP::HepRandomEngine* hre) {
 
   //get inputs
   edm::Handle<edm::PCaloHitContainer> hits;
@@ -131,13 +123,14 @@ void HGCDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup con
   if( producesHEbackDigis() )  eventSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive", geom);
 
   //accumulate for the simulated bunch crossing  
-  accumulate(hits, e.bunchCrossing(), geom);
+  accumulate(hits, e.bunchCrossing(), geom, hre);
 }
 
 //
 void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, 
 			      int bxCrossing,
-			      const edm::ESHandle<HGCalGeometry> &geom)
+			      const edm::ESHandle<HGCalGeometry> &geom,
+                              CLHEP::HepRandomEngine* hre)
 {
   if(!geom.isValid()) return;
   const HGCalTopology &topo=geom->topology();
@@ -151,18 +144,20 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   //configuration to apply for the computation of time-of-flight
   bool weightToAbyEnergy(false);
   float tdcOnset(0),keV2fC(0.0);
-  if( mySubDet_==ForwardSubdetector::HGCEE )
-    {
-      weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
-      tdcOnset          = theHGCEEDigitizer_->tdcOnset();
-      keV2fC            = theHGCEEDigitizer_->keV2fC();
-    }
-  else if( mySubDet_==ForwardSubdetector::HGCHEF )
-    {
-      weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
-      tdcOnset          = theHGCHEfrontDigitizer_->tdcOnset();
-      keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
-    }
+  switch( mySubDet_ ) {
+  case ForwardSubdetector::HGCEE:
+    weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
+    tdcOnset          = theHGCEEDigitizer_->tdcOnset();
+    keV2fC            = theHGCEEDigitizer_->keV2fC();
+    break;
+  case ForwardSubdetector::HGCHEF:
+    weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
+    tdcOnset          = theHGCHEfrontDigitizer_->tdcOnset();
+    keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
+    break;
+  default:
+    break;
+  }
 
   //create list of tuples (pos in container, RECO DetId, time) to be sorted first
   int nchits=(int)hits->size();  
@@ -294,9 +289,10 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   }
   
   if (verbosity_ > 0) 
-    std::cout << "HGCDigitizer:Added " << nadded << ":" << validIds.size() 
-	      << " detIds without " << hitCollection_ 
-	      << " in first event processed" << std::endl;
+    edm::LogInfo("HGCDigitizer") 
+      << "Added " << nadded << ":" << validIds.size() 
+      << " detIds without " << hitCollection_ 
+      << " in first event processed" << std::endl;
   checkValidDetIds_=false;
 }
 

@@ -14,7 +14,7 @@
 #include <vector>
 #include <cmath>
 
-#include "FWCore/MessageService/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 template<class C> class HGCalUncalibRecHitRecWeightsAlgo 
@@ -40,8 +40,6 @@ template<class C> class HGCalUncalibRecHitRecWeightsAlgo
     constexpr int iSample=2; //only in-time sample
     const auto& sample = dataFrame.sample(iSample);
     
-    bool debug(false);
-
     // are we using the SiFE Simulation?
     if( isSiFESim_ ) {
       // mode == true means TDC readout was activated

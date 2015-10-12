@@ -26,12 +26,12 @@ class HGCFEElectronics
   /**
      @short switches according to the firmware version
    */
-  inline void runShaper(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::RandGauss* reso)
+  inline void runShaper(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::HepRandomEngine* engine)
   {    
     switch(fwVersion_)
       {
       case SIMPLE :  { runSimpleShaper(dataFrame,chargeColl);      break; }
-      case WITHTOT : { runShaperWithToT(dataFrame,chargeColl,toa,reso); break; }
+      case WITHTOT : { runShaperWithToT(dataFrame,chargeColl,toa,engine); break; }
       default :      { runTrivialShaper(dataFrame,chargeColl);     break; }
       }
   }
@@ -58,7 +58,7 @@ class HGCFEElectronics
   /**
      @short implements pulse shape and switch to time over threshold including deadtime
    */
-  void runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa,CLHEP::RandGauss* reso);
+  void runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toa, CLHEP::HepRandomEngine* engine);
 
   /**
      @short returns how ToT will be computed
@@ -80,6 +80,6 @@ class HGCFEElectronics
   uint32_t toaMode_;
 };
 
-//#include "SimCalorimetry/HGCSimProducers/src/HGCFEElectronics.cc"
+#include "HGCFEElectronics.icc"
 
 #endif

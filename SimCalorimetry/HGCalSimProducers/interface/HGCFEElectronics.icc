@@ -121,8 +121,9 @@ void HGCFEElectronics<D>::runSimpleShaper(D &dataFrame,std::vector<float> &charg
 
 //
 template<class D>
-void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toaColl, CLHEP::RandGauss* tdcReso)
+void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &chargeColl,std::vector<float> &toaColl, CLHEP::HepRandomEngine* engine)
 {
+  CLHEP::RandGauss tdcReso(engine);
   std::vector<bool>  busyFlags(chargeColl.size(),false),totFlags(chargeColl.size(),false);
   std::vector<float> newCharge(chargeColl.size(),0);
   std::vector<float> toaFromToT(chargeColl.size(),0);
@@ -221,7 +222,7 @@ void HGCFEElectronics<D>::runShaperWithToT(D &dataFrame,std::vector<float> &char
 	  if(toaMode_==WEIGHTEDBYE) finalToA /= totalCharge;
 	}
 
-      toaFromToT[it] = tdcReso->fire(finalToA,tdcResolutionInNs_);
+      toaFromToT[it] = tdcReso.fire(finalToA,tdcResolutionInNs_);
       newCharge[it]  = (totalCharge-tdcOnset_fC_);      
 
       if(debug) std::cout << "\t Final busy estimate="<< integTime << " ns = " << busyBxs << " bxs" << std::endl
