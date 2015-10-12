@@ -392,9 +392,9 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker &iB,
     }
       
     histoname.str(""); histoname << "EtaPhi_Plus_" << "layer_" << ilayer;
-    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 155, 1.45, 3.0, 72, -3.14, 3.14));
+    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, 1.45, 3.0, 72, -3.14, 3.14));
     histoname.str(""); histoname << "EtaPhi_Minus_" << "layer_" << ilayer;
-    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 155, -3.0, -1.45, 72, -3.14, 3.14));
+    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, -3.0, -1.45, 72, -3.14, 3.14));
       
     for (int itimeslice = 0; itimeslice < 6 ; itimeslice++ ) {
       histoname.str(""); histoname << "energy_time_"<< itimeslice << "_layer_" << ilayer;
