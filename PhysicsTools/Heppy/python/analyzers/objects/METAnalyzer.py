@@ -210,7 +210,8 @@ class METAnalyzer( Analyzer ):
 
         if self.old74XMiniAODs and self.recalibrateMET != "type1":
            oldraw = self.met.shiftedP2_74x(12,0);
-           setFakeRawMETOnOldMiniAODs( self.met, px, py, self.met.shiftedSumEt_74x(12,0) )
+           setFakeRawMETOnOldMiniAODs( self.met, oldraw.px, oldraw.py, self.met.shiftedSumEt_74x(12,0) )
+           px, py = oldraw.px, oldraw.py
         else:
            px, py = self.met.uncorPx(), self.met.uncorPy()
         self.met_raw = ROOT.reco.Particle.LorentzVector(px,py,0,math.hypot(px,py))
