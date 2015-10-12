@@ -189,7 +189,7 @@ def setFakeRawMETOnOldMiniAODs(met, rawpx, rawpy, rawsumet):
         met.uncorPy  = types.MethodType(lambda myself : myself._rawP4.Py(), met, met.__class__)
         met.uncorPhi = types.MethodType(lambda myself : myself._rawP4.Phi(), met, met.__class__)
         met.uncorP4  = types.MethodType(lambda myself : myself._rawP4, met, met.__class__)
-        met.uncorSumEt = types.MethodType(lambda myself : myself._rawSumEt(), met, met.__class__)
+        met.uncorSumEt = types.MethodType(lambda myself : myself._rawSumEt, met, met.__class__)
         # the two below are a bit more tricky, but probably less needed, but something dummy
         met.uncorP2 = types.MethodType(lambda myself : None, met, met.__class__)
         met.uncorP3 = types.MethodType(lambda myself : None, met, met.__class__)
