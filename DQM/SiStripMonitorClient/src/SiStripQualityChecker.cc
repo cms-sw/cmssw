@@ -98,9 +98,9 @@ void SiStripQualityChecker::bookStatus(DQMStore* dqm_store) {
 	 it != SubDetFolderMap.end(); it++) {
       ibin++;
       std::string det = it->first;
-      DetFractionReportMap->setBinLabel(ibin,det);
-      SToNReportMap->setBinLabel(ibin,det);
-      SummaryReportMap->setBinLabel(ibin,det);
+      DetFractionReportMap->setBinLabel(ibin,it->second);
+      SToNReportMap->setBinLabel(ibin,it->second);
+      SummaryReportMap->setBinLabel(ibin,it->second);
       
       SubDetMEs local_mes;
       
