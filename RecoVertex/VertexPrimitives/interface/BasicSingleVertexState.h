@@ -25,6 +25,16 @@ public:
 		const GlobalWeight & posWeight,
   		const double & weightInMix = 1.0);
 
+  // constructors with time
+  BasicSingleVertexState(const GlobalPoint & pos, const GlobalError & posErr,
+                         const double time, const double timeError,
+                         const double & weightInMix = 1.0);
+  BasicSingleVertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
+                         const double & weightInMix = 1.0);
+  BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition,
+                         const GlobalWeight & posWeight,
+                         const double & weightInMix = 1.0);
+
   /** Access methods
    */
   virtual BasicSingleVertexState* clone() const
