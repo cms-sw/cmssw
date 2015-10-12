@@ -640,7 +640,7 @@ steps['TTbarFS_13_ID']=identityFS(steps['TTbarFS_13'])
 ## GENERATORS
 
 step1GenDefaults=merge([{'-s':'GEN,VALIDATION:genvalid',
-                         '--relval':'250000,20000',
+                         '--relval':'250000,5000',
                          '--eventcontent':'RAWSIM,DQM',
                          '--datatier':'GEN,DQMIO',
                          '--conditions':'auto:run2_mc_FULL'
