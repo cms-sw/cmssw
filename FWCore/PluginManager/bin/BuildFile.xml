@@ -4,6 +4,9 @@
 <release name=".*_ASAN_.*">
   <flags LDFLAGS="-fsanitize=address -static-libasan"/>
 </release>
+<release name=".*_UBSAN_.*">
+  <flags LDFLAGS="-g -fsanitize=undefined -static-libubsan"/>
+</release>
 <bin   name="edmPluginDump" file="dump.cc">
   <use   name="boost"/>
   <use   name="boost_program_options"/>
