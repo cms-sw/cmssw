@@ -52,8 +52,7 @@ void PhotonValidatorMiniAOD::bookHistograms( DQMStore::IBooker & iBooker, edm::R
   double eMax = parameters_.getParameter<double>("eMax");
   int eBin = parameters_.getParameter<int>("eBin");
 
-  std::cout << "  PhotonValidatorMiniAOD::bookHistogram eMin " << eMin << std::endl;
-
+  
   double etMin = parameters_.getParameter<double>("etMin");
   double etMax = parameters_.getParameter<double>("etMax");
   int etBin = parameters_.getParameter<int>("etBin");

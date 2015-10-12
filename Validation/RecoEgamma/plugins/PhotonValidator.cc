@@ -3947,11 +3947,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     
     if ( ( photonEt > 14 &&   newhOverE <0.15 )    ||  ( photonEt > 10 && photonEt < 14 && chargedHadIso <10  ) ) {
       
-      
-      
-      if ( fName_ != "pfPhotonValidator" ) std::cout << " pfPhotonValidator sim pho pt " <<  mcIter->pt() << " reco pho pt " << photonEt << std::endl;
-      
-      
+            
       h_scEta_miniAOD_[0]->Fill( matchingPho->superCluster()->eta() );
       h_scPhi_miniAOD_[0]->Fill( matchingPho->superCluster()->phi() );
       
