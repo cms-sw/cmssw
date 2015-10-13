@@ -28,6 +28,8 @@ void ElectronMcMiniAODSignalPostValidator::finalize( DQMStore::IBooker & iBooker
   // profiles from 2D histos
   profileX(iBooker, iGetter, "PoPtrueVsEta","mean ele momentum / gen momentum vs eta","#eta","<P/P_{gen}>");
   profileX(iBooker, iGetter, "sigmaIetaIetaVsPt","SigmaIetaIeta vs pt","p_{T} (GeV/c)","SigmaIetaIeta");
+  profileX(iBooker, iGetter, "foundHitsVsEta","mean ele track # found hits vs eta","#eta","<N_{hits}>");
+  profileX(iBooker, iGetter, "foundHitsVsEta_mAOD","mean ele track # found hits vs eta","#eta","<N_{hits}>");
 /**/
 
 
