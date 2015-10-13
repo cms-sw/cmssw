@@ -137,9 +137,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetHcalHPDNoise_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHcalHPDNoise_selector.l1tResults = cms.InputTag('')
 streamA_datasetHcalHPDNoise_selector.throw      = cms.bool(False)
-streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_GlobalRunHPDNoise_v1', 
-    'HLT_L1Tech_HBHEHO_totalOR_v1', 
-    'HLT_L1Tech_HCAL_HF_single_channel_v1')
+streamA_datasetHcalHPDNoise_selector.triggerConditions = cms.vstring('HLT_GlobalRunHPDNoise_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalNZS_selector
 streamA_datasetHcalNZS_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -257,18 +255,83 @@ streamA_datasetTOTEM_romanPots2_part7_selector.triggerConditions = cms.vstring('
     'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_part7_v1', 
     'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_part7_v1')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_selector
-streamA_datasetTOTEM_romanPotsTTBB_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetTOTEM_romanPotsTTBB_selector.l1tResults = cms.InputTag('')
-streamA_datasetTOTEM_romanPotsTTBB_selector.throw      = cms.bool(False)
-streamA_datasetTOTEM_romanPotsTTBB_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_v1')
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_0_selector
+streamA_datasetTOTEM_romanPotsTTBB_0_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPotsTTBB_0_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPotsTTBB_0_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPotsTTBB_0_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_part0_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_1_selector
+streamA_datasetTOTEM_romanPotsTTBB_1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPotsTTBB_1_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPotsTTBB_1_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPotsTTBB_1_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_part1_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_2_selector
+streamA_datasetTOTEM_romanPotsTTBB_2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPotsTTBB_2_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPotsTTBB_2_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPotsTTBB_2_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_part2_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_3_selector
+streamA_datasetTOTEM_romanPotsTTBB_3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPotsTTBB_3_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPotsTTBB_3_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPotsTTBB_3_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_part3_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_4_selector
+streamA_datasetTOTEM_romanPotsTTBB_4_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPotsTTBB_4_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPotsTTBB_4_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPotsTTBB_4_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_part4_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_5_selector
+streamA_datasetTOTEM_romanPotsTTBB_5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPotsTTBB_5_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPotsTTBB_5_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPotsTTBB_5_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_part5_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_6_selector
+streamA_datasetTOTEM_romanPotsTTBB_6_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPotsTTBB_6_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPotsTTBB_6_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPotsTTBB_6_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_part6_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_7_selector
+streamA_datasetTOTEM_romanPotsTTBB_7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPotsTTBB_7_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPotsTTBB_7_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPotsTTBB_7_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_part7_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetToTEM_DoubleJet20_0_selector
+streamA_datasetToTEM_DoubleJet20_0_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetToTEM_DoubleJet20_0_selector.l1tResults = cms.InputTag('')
+streamA_datasetToTEM_DoubleJet20_0_selector.throw      = cms.bool(False)
+streamA_datasetToTEM_DoubleJet20_0_selector.triggerConditions = cms.vstring('HLT_L1DoubleJet20_part0_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetToTEM_DoubleJet20_1_selector
+streamA_datasetToTEM_DoubleJet20_1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetToTEM_DoubleJet20_1_selector.l1tResults = cms.InputTag('')
+streamA_datasetToTEM_DoubleJet20_1_selector.throw      = cms.bool(False)
+streamA_datasetToTEM_DoubleJet20_1_selector.triggerConditions = cms.vstring('HLT_L1DoubleJet20_part1_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetToTEM_DoubleJet20_2_selector
+streamA_datasetToTEM_DoubleJet20_2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetToTEM_DoubleJet20_2_selector.l1tResults = cms.InputTag('')
+streamA_datasetToTEM_DoubleJet20_2_selector.throw      = cms.bool(False)
+streamA_datasetToTEM_DoubleJet20_2_selector.triggerConditions = cms.vstring('HLT_L1DoubleJet20_part2_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetToTEM_DoubleJet20_3_selector
+streamA_datasetToTEM_DoubleJet20_3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetToTEM_DoubleJet20_3_selector.l1tResults = cms.InputTag('')
+streamA_datasetToTEM_DoubleJet20_3_selector.throw      = cms.bool(False)
+streamA_datasetToTEM_DoubleJet20_3_selector.triggerConditions = cms.vstring('HLT_L1DoubleJet20_part3_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetToTOTEM_selector
 streamA_datasetToTOTEM_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetToTOTEM_selector.l1tResults = cms.InputTag('')
 streamA_datasetToTOTEM_selector.throw      = cms.bool(False)
-streamA_datasetToTOTEM_selector.triggerConditions = cms.vstring('HLT_L1DoubleJet20_v1', 
-    'HLT_L1DoubleJet28_v1', 
+streamA_datasetToTOTEM_selector.triggerConditions = cms.vstring('HLT_L1DoubleJet28_v1', 
     'HLT_L1DoubleJet32_v1', 
     'HLT_L1DoubleMuOpen_v1', 
     'HLT_L1SingleMuOpen_v1')
