@@ -30,7 +30,7 @@ from DQM.L1TMonitor.BxTiming_cfi import *
 from DQM.L1TMonitor.L1TRCT_cfi import *
 l1tRctRun1 = l1tRct.clone()
 l1tRct.rctSource = 'caloStage1Digis'
-l1tRct.gctSource = 'caloStage1Digis'
+#l1tRct.gctSource = 'caloStage1Digis'
 
 l1tRctfromRCT = l1tRct.clone()
 l1tRctfromRCT.rctSource = 'rctDigis'
