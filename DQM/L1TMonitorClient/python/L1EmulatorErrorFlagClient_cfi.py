@@ -31,8 +31,8 @@ l1EmulatorErrorFlagClient = cms.EDAnalyzer("L1EmulatorErrorFlagClient",
                         SystemFolder = cms.string("")
                         ),
                     cms.PSet(
-                        SystemLabel = cms.string("GCT"),
-                        HwValLabel = cms.string("GCT"),
+                        SystemLabel = cms.string("Stage1Layer2"),
+                        HwValLabel = cms.string("Stage1Layer2"),
                         SystemMask  = cms.uint32(0),
                         SystemFolder = cms.string("")
                         ),
@@ -76,7 +76,7 @@ l1EmulatorErrorFlagClient = cms.EDAnalyzer("L1EmulatorErrorFlagClient",
                         SystemLabel = cms.string("GT"),
                         HwValLabel = cms.string("GT"),
                         SystemMask  = cms.uint32(1),
-                        SystemFolder = cms.string("L1TEMU/GTexpert")
+                        SystemFolder = cms.string("L1TEMU/Stage1GTexpert")
                         )
                         
                      )
