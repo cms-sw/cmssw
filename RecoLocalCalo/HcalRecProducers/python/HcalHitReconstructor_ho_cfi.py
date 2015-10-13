@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 
 horeco = cms.EDProducer(
     "HcalHitReconstructor",
@@ -31,7 +32,13 @@ horeco = cms.EDProducer(
     setTimingTrustFlags = cms.bool(False), # timing flags currently only implemented for HF
     setPulseShapeFlags = cms.bool(False),  # not yet defined for HO
     setNegativeFlags          = cms.bool(False),  # only in HBHE
-    saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127))
+    saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
+    # Configuration parameters for Method 3
+    pedestalSubtractionType = cms.int32(method3.pedestalSubtractionType),
+    pedestalUpperLimit      = cms.double(method3.pedestalUpperLimit),
+    timeSlewParsType        = cms.int32(method3.timeSlewParsType),
+    timeSlewPars            = cms.vdouble(method3.timeSlewPars),
+    respCorrM3              = cms.double(method3.respCorrM3)
 ) # horeco
 
 

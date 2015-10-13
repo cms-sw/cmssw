@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import string # use for setting flag masks based on boolean bits
+import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 
 hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctForPhaseContainment = cms.bool(False),
@@ -160,14 +161,17 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
     HcalAcceptSeverityLevel             = cms.int32(9), # allow hits with severity up to AND INCLUDING 9
     ),
 
+    # saturation and hfTimingTrust Parameters
+    saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
 
-                        # saturation and hfTimingTrust Parameters
-                        saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
+    hfTimingTrustParameters = cms.PSet(hfTimingTrustLevel1=cms.int32(1), # 1ns timing accuracy
+                                       hfTimingTrustLevel2=cms.int32(4)  # 4ns timing accuracy
+                                       ),
 
-                        hfTimingTrustParameters = cms.PSet(hfTimingTrustLevel1=cms.int32(1), # 1ns timing accuracy
-                                                           hfTimingTrustLevel2=cms.int32(4)  # 4ns timing accuracy
-                                                           )
-
-                        ) # cms.EDProducers
-
-
+    # Configuration parameters for Method 3
+    pedestalSubtractionType = cms.int32(method3.pedestalSubtractionType),
+    pedestalUpperLimit      = cms.double(method3.pedestalUpperLimit),
+    timeSlewParsType        = cms.int32(method3.timeSlewParsType),
+    timeSlewPars            = cms.vdouble(method3.timeSlewPars),
+    respCorrM3              = cms.double(method3.respCorrM3)
+) # cms.EDProducers
