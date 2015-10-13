@@ -87,6 +87,7 @@ void ElectronMcSignalPostValidator::finalize( DQMStore::IBooker & iBooker, DQMSt
   profileX(iBooker, iGetter, "chi2VsPhi","mean ele track chi2 vs phi","#phi (rad)","<#Chi^{2}>");
   profileX(iBooker, iGetter, "ambiguousTracksVsEta","mean ele # ambiguous tracks  vs eta","#eta","<N_{ambiguous}>");
   profileX(iBooker, iGetter, "foundHitsVsEta","mean ele track # found hits vs eta","#eta","<N_{hits}>");
+  profileX(iBooker, iGetter, "foundHitsVsEta_mAOD","mean ele track # found hits vs eta","#eta","<N_{hits}>");
   profileX(iBooker, iGetter, "foundHitsVsPhi","mean ele track # found hits vs phi","#phi (rad)","<N_{hits}>");
   profileX(iBooker, iGetter, "lostHitsVsEta","mean ele track # lost hits vs eta","#eta","<N_{hits}>");
   profileX(iBooker, iGetter, "lostHitsVsPhi","mean ele track # lost hits vs phi","#phi (rad)","<N_{hits}>");
