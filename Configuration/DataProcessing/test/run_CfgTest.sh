@@ -28,8 +28,15 @@ do
      runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBias+SiStripCalMinBias"
 done
 
+declare -a arr=("HeavyIonsRun2")
+for scenario in "${arr[@]}"
+do
+     runTest "${LOCAL_TEST_DIR}/RunExpressProcessing.py --scenario $scenario --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio  --alcareco TkAlMinBiasHI+SiStripCalMinBias "
+     runTest "${LOCAL_TEST_DIR}/RunPromptReco.py --scenario $scenario --reco --aod --dqmio --global-tag GLOBALTAG --lfn=/store/whatever  --alcareco TkAlMinBiasHI+SiStripCalMinBias"
+done
 
-declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons" "AlCaLumiPixels" "ppRun2B0T" "ppRun2at50ns")
+
+declare -a arr=("cosmics" "pp" "cosmicsRun2" "ppRun2" "HeavyIons" "HeavyIonsRun2" "AlCaLumiPixels" "ppRun2B0T" "ppRun2at50ns")
 for scenario in "${arr[@]}"
 do
      runTest "${LOCAL_TEST_DIR}/RunAlcaSkimming.py --scenario $scenario --lfn=/store/whatever --global-tag GLOBALTAG --skims SiStripCalZeroBias,SiStripCalMinBias,PromptCalibProd"
