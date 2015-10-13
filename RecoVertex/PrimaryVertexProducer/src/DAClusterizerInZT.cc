@@ -17,9 +17,8 @@ namespace {
 }
 
 
-vector<DAClusterizerInZT::track_t> DAClusterizerInZT::fill(
-			  const vector<reco::TransientTrack> & tracks
-			  )const{
+vector<DAClusterizerInZT::track_t> 
+DAClusterizerInZT::fill( const vector<reco::TransientTrack> & tracks )const{
   // prepare track data for clustering
   vector<track_t> tks;
   for(vector<reco::TransientTrack>::const_iterator it=tracks.begin(); it!=tracks.end(); it++){
@@ -29,8 +28,9 @@ vector<DAClusterizerInZT::track_t> DAClusterizerInZT::fill(
     double phi=((*it).stateAtBeamLine().trackStateAtPCA()).momentum().phi();
     //  get the beam-spot
     reco::BeamSpot beamspot=(it->stateAtBeamLine()).beamSpot();
-    t.dz2= pow((*it).track().dzError(),2)          // track errror
-      + (pow(beamspot.BeamWidthX()*cos(phi),2)+pow(beamspot.BeamWidthY()*sin(phi),2))/pow(tantheta,2)  // beam-width induced
+    t.dz2= std::pow((*it).track().dzError(),2.)          // track errror
+      + std::pow((*it).dtErrorExt(),2.0)   // the ~injected~ timing error
+      + (std::pow(beamspot.BeamWidthX()*cos(phi),2.)+std::pow(beamspot.BeamWidthY()*sin(phi),2.))/std::pow(tantheta,2.) // beam-width induced
       + pow(vertexSize_,2);                        // intrinsic vertex size, safer for outliers and short lived decays
     if (d0CutOff_>0){
       Measurement1D IP=(*it).stateAtBeamLine().transverseImpactParameter();// error constains beamspot
@@ -40,6 +40,7 @@ vector<DAClusterizerInZT::track_t> DAClusterizerInZT::fill(
     }
     t.tt=&(*it);
     t.Z=1.;
+    t.T=1.;
     tks.push_back(t);
   }
   return tks;
