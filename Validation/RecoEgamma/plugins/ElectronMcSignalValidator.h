@@ -255,6 +255,7 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_foundHits_barrel;
     MonitorElement *h1_ele_foundHits_endcaps;
     MonitorElement *h2_ele_foundHitsVsEta;
+    MonitorElement *h2_ele_foundHitsVsEta_mAOD;
     MonitorElement *h2_ele_foundHitsVsPhi;
     MonitorElement *h2_ele_foundHitsVsPt;
     MonitorElement *h1_ele_lostHits;
@@ -362,6 +363,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_dPhiCl_propOut;
     MonitorElement *h1_ele_dPhiCl_propOut_barrel;
     MonitorElement *h1_ele_dPhiCl_propOut_endcaps;
+    MonitorElement *h1_ele_dPhiCl_propOut_mAOD;
+    MonitorElement *h1_ele_dPhiCl_propOut_mAOD_barrel;
+    MonitorElement *h1_ele_dPhiCl_propOut_mAOD_endcaps;
     MonitorElement *h2_ele_dPhiClVsEta_propOut;
     MonitorElement *h2_ele_dPhiClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiClVsPt_propOut;
@@ -420,8 +424,8 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_fbrem_barrel;
     MonitorElement *h1_ele_fbrem_endcaps;
     MonitorElement *h1_ele_fbrem_mAOD;
-    MonitorElement *h1_ele_fbrem_barrel_mAOD;
-    MonitorElement *h1_ele_fbrem_endcaps_mAOD;
+    MonitorElement *h1_ele_fbrem_mAOD_barrel;
+    MonitorElement *h1_ele_fbrem_mAOD_endcaps;
     MonitorElement *h1_ele_superclusterfbrem; 
     MonitorElement *h1_ele_superclusterfbrem_barrel; 
     MonitorElement *h1_ele_superclusterfbrem_endcaps; 
@@ -472,14 +476,14 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
 	MonitorElement *h1_ele_photonRelativeIso_barrel;
     MonitorElement *h1_ele_photonRelativeIso_endcaps;
 	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD;
-	MonitorElement *h1_ele_chargedHadronRelativeIso_barrel_mAOD;
-    MonitorElement *h1_ele_chargedHadronRelativeIso_endcaps_mAOD;
+	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_endcaps;
 	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD;
-	MonitorElement *h1_ele_neutralHadronRelativeIso_barrel_mAOD;
-    MonitorElement *h1_ele_neutralHadronRelativeIso_endcaps_mAOD;
+	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_endcaps;
 	MonitorElement *h1_ele_photonRelativeIso_mAOD;
-	MonitorElement *h1_ele_photonRelativeIso_barrel_mAOD;
-    MonitorElement *h1_ele_photonRelativeIso_endcaps_mAOD;
+	MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
     // isolation
     MonitorElement *h1_ele_tkSumPt_dr03;
     MonitorElement *h1_ele_tkSumPt_dr03_barrel;
