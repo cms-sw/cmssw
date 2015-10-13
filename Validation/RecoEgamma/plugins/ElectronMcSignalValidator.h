@@ -341,6 +341,9 @@ class ElectronMcSignalValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_dEtaSc_propVtx;
     MonitorElement *h1_ele_dEtaSc_propVtx_barrel;
     MonitorElement *h1_ele_dEtaSc_propVtx_endcaps;
+    MonitorElement *h1_ele_dEtaSc_propVtx_mAOD;
+    MonitorElement *h1_ele_dEtaSc_propVtx_mAOD_barrel;
+    MonitorElement *h1_ele_dEtaSc_propVtx_mAOD_endcaps;
     MonitorElement *h2_ele_dEtaScVsEta_propVtx;
     MonitorElement *h2_ele_dEtaScVsPhi_propVtx;
     MonitorElement *h2_ele_dEtaScVsPt_propVtx;
