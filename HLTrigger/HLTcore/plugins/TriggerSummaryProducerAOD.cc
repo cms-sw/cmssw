@@ -30,6 +30,8 @@
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/PFMET.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidate.h"
 
 #include "DataFormats/L1Trigger/interface/L1HFRings.h"
@@ -97,6 +99,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
   getL1HFRingsCollection_ = edm::GetterOfProducts<l1extra::L1HFRingsCollection>(edm::ProcessMatch(pn_), this);
   getPFJetCollection_ = edm::GetterOfProducts<reco::PFJetCollection>(edm::ProcessMatch(pn_), this);
   getPFTauCollection_ = edm::GetterOfProducts<reco::PFTauCollection>(edm::ProcessMatch(pn_), this);
+  getPFMETCollection_ = edm::GetterOfProducts<reco::PFMETCollection>(edm::ProcessMatch(pn_), this);
 
   callWhenNewProductsRegistered([this](edm::BranchDescription const& bd){
     getTriggerFilterObjectWithRefs_(bd);
@@ -115,6 +118,7 @@ TriggerSummaryProducerAOD::TriggerSummaryProducerAOD(const edm::ParameterSet& ps
     getL1HFRingsCollection_(bd);
     getPFJetCollection_(bd);
     getPFTauCollection_(bd);
+    getPFMETCollection_(bd);
   });
 }
 
@@ -264,6 +268,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
    ///
    fillTriggerObjectCollections<                      PFJetCollection>(iEvent, getPFJetCollection_);
    fillTriggerObjectCollections<                      PFTauCollection>(iEvent, getPFTauCollection_);
+   fillTriggerObjectCollections<                      PFMETCollection>(iEvent, getPFMETCollection_);
    ///
    const unsigned int nk(tags_.size());
    LogDebug("TriggerSummaryProducerAOD") << "Number of collections found: " << nk;
@@ -302,6 +307,7 @@ TriggerSummaryProducerAOD::produce(edm::Event& iEvent, const edm::EventSetup& iS
        fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->l1hfringsIds(),fobs[ifob]->l1hfringsRefs());
        fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->pfjetIds()    ,fobs[ifob]->pfjetRefs());
        fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->pftauIds()    ,fobs[ifob]->pftauRefs());
+       fillFilterObjectMembers(iEvent,filterTag,fobs[ifob]->pfmetIds()    ,fobs[ifob]->pfmetRefs());
        product->addFilter(filterTag,ids_,keys_);
      }
    }
@@ -394,6 +400,19 @@ void TriggerSummaryProducerAOD::fillTriggerObject(const l1extra::L1EtMissParticl
   } else {
     toc_.push_back(TriggerObject(0,           object.etTotal(),0.0,0.0,0.0));
   }
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillTriggerObject(const reco::PFMET& object) {
+
+  using namespace reco;
+  using namespace trigger;
+
+  toc_.push_back( TriggerObject(object) );
+  toc_.push_back(TriggerObject(TriggerTET    ,object.sumEt()         ,0.0,0.0,0.0));
+  toc_.push_back(TriggerObject(TriggerMETSig ,object.mEtSig()        ,0.0,0.0,0.0));
+  toc_.push_back(TriggerObject(TriggerELongit,object.e_longitudinal(),0.0,0.0,0.0));
 
   return;
 }
@@ -505,6 +524,24 @@ void TriggerSummaryProducerAOD::fillFilterObjectMember(const int& offset, const 
     keys_.push_back(offset+2*ref.key()+1);
   } else {
     keys_.push_back(offset+2*ref.key()+0);
+  }
+  ids_.push_back(id);
+
+  return;
+}
+
+void TriggerSummaryProducerAOD::fillFilterObjectMember(const int& offset, const int& id, const edm::Ref<reco::PFMETCollection> & ref) {
+
+  using namespace trigger;
+
+  if ( (id==TriggerTHT) || (id==TriggerTET) ) {
+    keys_.push_back(offset+4*ref.key()+1);
+  } else if ( (id==TriggerMETSig) || (id==TriggerMHTSig) ) {
+    keys_.push_back(offset+4*ref.key()+2);
+  } else if ( (id==TriggerELongit) || (id==TriggerHLongit) ) {
+    keys_.push_back(offset+4*ref.key()+3);
+  } else {
+    keys_.push_back(offset+4*ref.key()+0);
   }
   ids_.push_back(id);
 
