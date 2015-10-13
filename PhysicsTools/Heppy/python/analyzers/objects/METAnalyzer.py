@@ -1,4 +1,3 @@
-import random
 from PhysicsTools.Heppy.analyzers.core.Analyzer import Analyzer
 from PhysicsTools.Heppy.analyzers.core.AutoHandle import AutoHandle
 from PhysicsTools.Heppy.physicsobjects.PhysicsObjects import Jet
@@ -7,12 +6,9 @@ from PhysicsTools.HeppyCore.statistics.counter import Counter, Counters
 from PhysicsTools.Heppy.physicsutils.JetReCalibrator import Type1METCorrector, setFakeRawMETOnOldMiniAODs
 import PhysicsTools.HeppyCore.framework.config as cfg
 
-import operator 
-import itertools
 import copy
-from ROOT import TLorentzVector, TVectorD
 import ROOT
-import math
+from math import hypot
 
 from copy import deepcopy
 
@@ -32,10 +28,12 @@ class METAnalyzer( Analyzer ):
     def declareHandles(self):
         super(METAnalyzer, self).declareHandles()
         self.handles['met'] = AutoHandle( self.cfg_ana.metCollection, 'std::vector<pat::MET>' )
-        self.handles['nopumet'] = AutoHandle( self.cfg_ana.noPUMetCollection, 'std::vector<pat::MET>' )
-        self.handles['cmgCand'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
-        self.handles['vertices'] =  AutoHandle( "offlineSlimmedPrimaryVertices", 'std::vector<reco::Vertex>', fallbackLabel="offlinePrimaryVertices" )
-        self.mchandles['packedGen'] = AutoHandle( 'packedGenParticles', 'std::vector<pat::PackedGenParticle>' )
+        if self.cfg_ana.doMetNoPU: 
+            self.handles['nopumet'] = AutoHandle( self.cfg_ana.noPUMetCollection, 'std::vector<pat::MET>' )
+        if self.cfg_ana.doTkMet:
+            self.handles['cmgCand'] = AutoHandle( self.cfg_ana.candidates, self.cfg_ana.candidatesTypes )
+            #self.handles['vertices'] =  AutoHandle( "offlineSlimmedPrimaryVertices", 'std::vector<reco::Vertex>', fallbackLabel="offlinePrimaryVertices" )
+            self.mchandles['packedGen'] = AutoHandle( 'packedGenParticles', 'std::vector<pat::PackedGenParticle>' )
 
     def beginLoop(self, setup):
         super(METAnalyzer,self).beginLoop(setup)
@@ -45,7 +43,7 @@ class METAnalyzer( Analyzer ):
 
     def applyDeltaMet(self, met, deltaMet):
         px,py = self.met.px()+deltaMet[0], self.met.py()+deltaMet[1]
-        met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        met.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
 
     def adduParaPerp(self, met, boson, postfix):
 
@@ -60,7 +58,6 @@ class METAnalyzer( Analyzer ):
         setattr(met, "uperp"+postfix, u2)
 
     def makeTkMETs(self, event):
-
         charged = []
         chargedchs = []
         chargedPVLoose = []
@@ -70,39 +67,37 @@ class METAnalyzer( Analyzer ):
         doloose=getattr(self.cfg_ana,"includeTkMetPVLoose",True)       
         pfcands = self.handles['cmgCand'].product()
 
-        for i in xrange(pfcands.size()):
+        for pfcand in pfcands:
 
 ## ===> require the Track Candidate charge and with a  minimum dz 
-            
-            if (pfcands.at(i).charge()!=0):
+            if (pfcand.charge()!=0):
 
-                if abs(pfcands.at(i).dz())<=self.cfg_ana.dzMax:
-                    charged.append(pfcands.at(i))
+                pvflag = pfcand.fromPV()
+                pxy = pfcand.px(), pfcand.py()
 
-                if dochs and  pfcands.at(i).fromPV()>0:
-                    chargedchs.append(pfcands.at(i))
+                if abs(pfcand.dz())<=self.cfg_ana.dzMax:
+                    charged.append(pxy)
 
-                if doloose and pfcands.at(i).fromPV()>1:
-                    chargedPVLoose.append(pfcands.at(i))
+                if dochs and  pvflag>0:
+                    chargedchs.append(pxy)
 
-                if dotight and pfcands.at(i).fromPV()>2:
-                    chargedPVTight.append(pfcands.at(i))
+                if doloose and pvflag>1:
+                    chargedPVLoose.append(pxy)
 
-        import ROOT
-        setattr(event, "tkMet"+self.cfg_ana.collectionPostFix, \
-          ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in charged])) , -1.*(sum([x.py() for x in charged])), 0, math.hypot((sum([x.px() for x in charged])),(sum([x.py() for x in charged]))) ))
-        setattr(event, "tkMetPVchs"+self.cfg_ana.collectionPostFix, \
-          ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedchs])) , -1.*(sum([x.py() for x in chargedchs])), 0, math.hypot((sum([x.px() for x in chargedchs])),(sum([x.py() for x in chargedchs]))) ))
-        setattr(event, "tkMetPVLoose"+self.cfg_ana.collectionPostFix, \
-          ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVLoose])) , -1.*(sum([x.py() for x in chargedPVLoose])), 0, math.hypot((sum([x.px() for x in chargedPVLoose])),(sum([x.py() for x in chargedPVLoose]))) ))
-        setattr(event, "tkMetPVTight"+self.cfg_ana.collectionPostFix, \
-          ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in chargedPVTight])) , -1.*(sum([x.py() for x in chargedPVTight])), 0, math.hypot((sum([x.px() for x in chargedPVTight])),(sum([x.py() for x in chargedPVTight]))) ))
-##        print 'tkmet',self.tkMet.pt(),'tkmetphi',self.tkMet.phi()
+                if dotight and pvflag>2:
+                    chargedPVTight.append(pxy)
 
-        getattr(event,"tkMet"+self.cfg_ana.collectionPostFix).sumEt = sum([x.pt() for x in charged])
-        getattr(event,"tkMetPVchs"+self.cfg_ana.collectionPostFix).sumEt = sum([x.pt() for x in chargedchs])
-        getattr(event,"tkMetPVLoose"+self.cfg_ana.collectionPostFix).sumEt = sum([x.pt() for x in chargedPVLoose])
-        getattr(event,"tkMetPVTight"+self.cfg_ana.collectionPostFix).sumEt = sum([x.pt() for x in chargedPVTight])
+        def sumXY(pxys):
+            px, py = sum(x[0] for x in pxys), sum(x[1] for x in pxys)
+            return ROOT.reco.Particle.LorentzVector(-px, -py, 0, hypot(px,py))
+        setattr(event, "tkMet"+self.cfg_ana.collectionPostFix, sumXY(charged))
+        setattr(event, "tkMetPVchs"+self.cfg_ana.collectionPostFix, sumXY(chargedchs))
+        setattr(event, "tkMetPVLoose"+self.cfg_ana.collectionPostFix, sumXY(chargedPVLoose))
+        setattr(event, "tkMetPVTight"+self.cfg_ana.collectionPostFix, sumXY(chargedPVTight))
+        getattr(event,"tkMet"+self.cfg_ana.collectionPostFix).sumEt = sum([hypot(x[0],x[1]) for x in charged])
+        getattr(event,"tkMetPVchs"+self.cfg_ana.collectionPostFix).sumEt = sum([hypot(x[0],x[1]) for x in chargedchs])
+        getattr(event,"tkMetPVLoose"+self.cfg_ana.collectionPostFix).sumEt = sum([hypot(x[0],x[1]) for x in chargedPVLoose])
+        getattr(event,"tkMetPVTight"+self.cfg_ana.collectionPostFix).sumEt = sum([hypot(x[0],x[1]) for x in chargedPVTight])
 
         if  hasattr(event,'zll_p4'):
             self.adduParaPerp(getattr(event,"tkMet"+self.cfg_ana.collectionPostFix), event.zll_p4,"_zll")
@@ -111,8 +106,9 @@ class METAnalyzer( Analyzer ):
             self.adduParaPerp(getattr(event,"tkMetPVTight"+self.cfg_ana.collectionPostFix), event.zll_p4,"_zll")
 
     def makeGenTkMet(self, event):
-        genCharged = [ x for x in self.mchandles['packedGen'].product() if x.charge() != 0 and abs(x.eta()) < 2.4 ]
-        setattr(event,"tkGenMet"+self.cfg_ana.collectionPostFix, ROOT.reco.Particle.LorentzVector(-1.*(sum([x.px() for x in genCharged])) , -1.*(sum([x.py() for x in genCharged])), 0, math.hypot((sum([x.px() for x in genCharged])),(sum([x.py() for x in genCharged]))) ))
+        genCharged = [ (x.px(),x.py()) for x in self.mchandles['packedGen'].product() if x.charge() != 0 and abs(x.eta()) < 2.4 ]
+        px, py = sum(x[0] for x in genCharged), sum(x[1] for x in genCharged)
+        setattr(event,"tkGenMet"+self.cfg_ana.collectionPostFix, ROOT.reco.Particle.LorentzVector(-px , -py, 0, hypot(px,py)))
 
     def makeMETNoMu(self, event):
         self.metNoMu = copy.deepcopy(self.met)
@@ -127,9 +123,9 @@ class METAnalyzer( Analyzer ):
 
         #subtract muon momentum and construct met
         px,py = self.metNoMu.px()+mupx, self.metNoMu.py()+mupy
-        self.metNoMu.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        self.metNoMu.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
         px,py = self.metNoMuNoPU.px()+mupx, self.metNoMuNoPU.py()+mupy
-        self.metNoMuNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        self.metNoMuNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
         setattr(event, "metNoMu"+self.cfg_ana.collectionPostFix, self.metNoMu)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoMuNoPU"+self.cfg_ana.collectionPostFix, self.metNoMuNoPU)
 
@@ -147,10 +143,10 @@ class METAnalyzer( Analyzer ):
 
         #subtract electron momentum and construct met
         px,py = self.metNoEle.px()+elepx, self.metNoEle.py()+elepy
-        self.metNoEle.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        self.metNoEle.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
 
         px,py = self.metNoEleNoPU.px()+elepx, self.metNoEleNoPU.py()+elepy
-        self.metNoEleNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        self.metNoEleNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
         setattr(event, "metNoEle"+self.cfg_ana.collectionPostFix, self.metNoEle)
         if self.cfg_ana.doMetNoPU: setattr(event, "metNoEleNoPU"+self.cfg_ana.collectionPostFix, self.metNoEleNoPU)
 
@@ -166,12 +162,12 @@ class METAnalyzer( Analyzer ):
 
         #subtract photon momentum and construct met
         px,py = self.metNoPhoton.px()+phopx, self.metNoPhoton.py()+phopy
-        self.metNoPhoton.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+        self.metNoPhoton.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
         setattr(event, "metNoPhoton"+self.cfg_ana.collectionPostFix, self.metNoPhoton)
         if self.cfg_ana.doMetNoPU: 
           self.metNoPhotonNoPU = copy.deepcopy(self.metNoPU)
           px,py = self.metNoPhotonNoPU.px()+phopx, self.metNoPhotonNoPU.py()+phopy
-          self.metNoPhotonNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, math.hypot(px,py)))
+          self.metNoPhotonNoPU.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
           setattr(event, "metNoPhotonNoPU"+self.cfg_ana.collectionPostFix, self.metNoPhotonNoPU)
 
 
@@ -197,11 +193,13 @@ class METAnalyzer( Analyzer ):
 
         #Shifted METs: to be re-enabled after updates to MiniAOD pass 2
         #Uncertainties defined in https://github.com/cms-sw/cmssw/blob/CMSSW_7_2_X/DataFormats/PatCandidates/interface/MET.h#L168
-        event.met_shifted = []
-        if not self.cfg_ana.copyMETsByValue:
-          for i in range(self.met.METUncertaintySize):
-               m = ROOT.pat.MET(self.met)
-               m.setP4(self.met.shiftedP4(i))
+        #event.met_shifted = []
+        #if not self.cfg_ana.copyMETsByValue:
+        #  for i in range(self.met.METUncertaintySize):
+        #      m = ROOT.pat.MET(self.met)
+        #      px  = m.shiftedPx(i);
+        #      py  = m.shiftedPy(i);
+        #      m.setP4(ROOT.reco.Particle.LorentzVector(px,py, 0, hypot(px,py)))
         #      #event.met_shifted += [m]
                setattr(event, "met{0}_shifted_{1}".format(self.cfg_ana.collectionPostFix, i),m)
 
@@ -214,7 +212,7 @@ class METAnalyzer( Analyzer ):
            px, py = oldraw.px, oldraw.py
         else:
            px, py = self.met.uncorPx(), self.met.uncorPy()
-        self.met_raw = ROOT.reco.Particle.LorentzVector(px,py,0,math.hypot(px,py))
+        self.met_raw = ROOT.reco.Particle.LorentzVector(px,py,0,hypot(px,py))
 
         if hasattr(event,'zll_p4'):
             self.adduParaPerp(self.met,event.zll_p4,"_zll")
