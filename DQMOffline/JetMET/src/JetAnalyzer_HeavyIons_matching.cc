@@ -240,9 +240,9 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
     if(fabs(recoJet2[ijet2].eta()) < mRecoJetEtaCut) continue;
 
     MyJet JET2;
-    JET2.eta = recoJet1[ijet2].eta();
-    JET2.phi = recoJet1[ijet2].phi();
-    JET2.pt  = recoJet1[ijet2].pt();
+    JET2.eta = recoJet2[ijet2].eta();
+    JET2.phi = recoJet2[ijet2].phi();
+    JET2.pt  = recoJet2[ijet2].pt();
     JET2.id  = ijet2; 
 
     vJet2.push_back(JET2);
