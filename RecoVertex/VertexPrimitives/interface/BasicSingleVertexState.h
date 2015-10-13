@@ -18,21 +18,32 @@ public:
    */
   BasicSingleVertexState();
   BasicSingleVertexState(const GlobalPoint & pos, const GlobalError & posErr,
-  		const double & weightInMix = 1.0);
-  BasicSingleVertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
-  		const double & weightInMix = 1.0);
-  BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition,
-		const GlobalWeight & posWeight,
-  		const double & weightInMix = 1.0);
-
-  // constructors with time
-  BasicSingleVertexState(const GlobalPoint & pos, const GlobalError & posErr,
-                         const double time, const double timeError,
                          const double & weightInMix = 1.0);
   BasicSingleVertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
                          const double & weightInMix = 1.0);
   BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition,
                          const GlobalWeight & posWeight,
+                         const double & weightInMix = 1.0);
+
+  // constructors with time (ignores off-diagonals in fit)
+  BasicSingleVertexState(const GlobalPoint & pos, const GlobalError & posErr,
+                         const double time, const double timeError,
+                         const double & weightInMix = 1.0);
+  BasicSingleVertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
+                         const double time, const double timeWeight,
+                         const double & weightInMix = 1.0);
+  BasicSingleVertexState(const AlgebraicVector3 & weightTimesPosition, 
+                         const GlobalWeight & posWeight,
+                         const double weightTimesTime, const double timeWeight,
+                         const double & weightInMix = 1.0);
+
+  // constructors with time, full cov
+  BasicSingleVertexState(const GlobalPoint & pos, const double time, 
+                         const GlobalError & posTimeErr, const double & weightInMix = 1.0);
+  BasicSingleVertexState(const GlobalPoint & pos, const double time, 
+                         const GlobalWeight & posTimeWeight, const double & weightInMix = 1.0);
+  BasicSingleVertexState(const AlgebraicVector4 & weightTimesPosition,
+                         const GlobalWeight & posTimeWeight,
                          const double & weightInMix = 1.0);
 
   /** Access methods
@@ -44,14 +55,20 @@ public:
 
   GlobalPoint position() const;
   GlobalError error() const;
+  GlobalError error4D() const;
+  double time() const;
+  double timeError() const;
   GlobalWeight weight() const;
+  GlobalWeight weight4D() const;
   AlgebraicVector3 weightTimesPosition() const;
+  AlgebraicVector4 weightTimesPosition4D() const;
   double weightInMixture() const;
 
   /**
    * The validity of the vertex
    */
   bool isValid() const {return valid;}
+  bool is4D() const { return vertexIs4D; }
 
 private:
 
@@ -62,15 +79,19 @@ private:
 
   mutable GlobalPoint thePos;
   mutable bool thePosAvailable;
+  mutable double theTime;
+  mutable bool theTimeAvailable;
   mutable GlobalError theErr;
   mutable bool theErrAvailable;
   mutable GlobalWeight theWeight;
   mutable bool theWeightAvailable;
-  mutable AlgebraicVector3 theWeightTimesPos;
+  mutable AlgebraicVector4 theWeightTimesPos;
   mutable bool theWeightTimesPosAvailable;
 
   bool valid;
+  bool vertexIs4D;
   double theWeightInMix;
+
 };
 
 #endif

@@ -18,22 +18,26 @@
 
 
 
-class DAClusterizerInZT : public TrackClusterizerInZT {
-
+class DAClusterizerInZT : public TrackClusterizerInZ {
 
 public:
 
 struct track_t{
   double z;              // z-coordinate at point of closest approach to the beamline
+  double t;              // t-coordinate at point of closest approach to the beamline
   double dz2;            // square of the error of z(pca)
+  double dtz;            // covariance of z-t
+  double dt2;            // square of the error of t(pca)
   const reco::TransientTrack* tt;  // a pointer to the Transient Track
   double Z;              // Z[i]   for DA clustering
+  double T;              // T[i]   for DA clustering
   double pi;             // track weight
 };
 
 
 struct vertex_t{
   double z;    //           z coordinate
+  double t;    //           t coordinate
   double pk;   //           vertex weight for "constrained" clustering
   // --- temporary numbers, used during update
   double ei;

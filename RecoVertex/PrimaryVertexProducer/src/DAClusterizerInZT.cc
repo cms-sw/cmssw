@@ -10,7 +10,7 @@ using namespace std;
 namespace {
 
   bool recTrackLessZ1(const DAClusterizerInZT::track_t & tk1,
-                     const DAClusterizerInZT::track_t & tk2)
+                      const DAClusterizerInZT::track_t & tk2)
   {
     return tk1.z < tk2.z;
   }
