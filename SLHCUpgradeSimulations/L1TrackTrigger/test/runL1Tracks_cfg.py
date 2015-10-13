@@ -22,12 +22,13 @@ process = cms.Process("TRA")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
-  '/store/mc/TTI2023Upg14D/SingleElectronFlatPt0p2To50/GEN-SIM-DIGI-RAW/PU140bx25_PH2_1K_FB_V3-v2/00000/C001841E-A3E5-E311-8C0C-003048678E52.root'
+   '/store/group/dpg_trigger/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/NoPU/SingleMuMinus_E2023TTI_Pt_2_10_NoPU.root'
+#  '/store/mc/TTI2023Upg14D/SingleElectronFlatPt0p2To50/GEN-SIM-DIGI-RAW/PU140bx25_PH2_1K_FB_V3-v2/00000/C001841E-A3E5-E311-8C0C-003048678E52.root'
      )
 )
 
@@ -85,6 +86,18 @@ process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
 process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
+
+process.TTTracksFromPixelDigisInteger = cms.EDProducer("L1FPGATrackProducer",
+                                                       fitPatternFile  = cms.FileInPath('SLHCUpgradeSimulations/L1TrackTrigger/test/fitpattern.txt'),
+                                                       memoryModulesFile  = cms.FileInPath('SLHCUpgradeSimulations/L1TrackTrigger/test/memorymodules_full.dat'),
+                                                       processingModulesFile  = cms.FileInPath('SLHCUpgradeSimulations/L1TrackTrigger/test/processingmodules_full.dat'),
+                                                       wiresFile  = cms.FileInPath('SLHCUpgradeSimulations/L1TrackTrigger/test/wires_full.dat')
+                                                )
+process.TrackTriggerTTTracksInteger = cms.Sequence(process.BeamSpotFromSim*process.TTTracksFromPixelDigisInteger)
+
+process.TT_step_Integer = cms.Path(process.TrackTriggerTTTracksInteger)
+
+
 	#
 	#   ----
 
@@ -123,6 +136,8 @@ process.Out = cms.OutputModule( "PoolOutputModule",
     fastCloning = cms.untracked.bool( False ),
     outputCommands = cms.untracked.vstring( 'drop *')
 )
+
+process.Out.outputCommands.append('keep *_*_MergedTrackTruth_*')
 
 process.Out.outputCommands.append( 'keep *_*_*_TRA' )
 process.Out.outputCommands.append('keep *_generator_*_*')
