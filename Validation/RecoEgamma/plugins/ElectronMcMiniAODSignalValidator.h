@@ -58,8 +58,13 @@ class ElectronMcMiniAODSignalValidator : public ElectronDqmAnalyzerBase {
 
       int xyz_nbin ;
       int pt_nbin ; int pt2D_nbin ; int pteff_nbin ; double pt_max ;
+      int fhits_nbin ; double fhits_max ;
       int eta_nbin ; int eta2D_nbin ; double eta_min ; double eta_max ;
+      int deta_nbin ; double deta_min ; double deta_max ;
       int detamatch_nbin ; int detamatch2D_nbin ; double detamatch_min ; double detamatch_max ;
+      int phi_nbin ; int phi2D_nbin ; double phi_min ; double phi_max ;
+      int dphi_nbin ; double dphi_min ; double dphi_max ;
+      int dphimatch_nbin ; int    dphimatch2D_nbin ; double dphimatch_min ; double dphimatch_max ;
       int hoe_nbin ; double hoe_min ; double hoe_max ;
       int poptrue_nbin ; double poptrue_min ; double poptrue_max ;
       bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
@@ -76,6 +81,9 @@ class ElectronMcMiniAODSignalValidator : public ElectronDqmAnalyzerBase {
     MonitorElement *h1_scl_SigIEtaIEta_mAOD_barrel;
     MonitorElement *h1_scl_SigIEtaIEta_mAOD_endcaps;
 
+    MonitorElement *h2_ele_foundHitsVsEta;
+    MonitorElement *h2_ele_foundHitsVsEta_mAOD;
+
     MonitorElement *h2_ele_PoPtrueVsEta;
     MonitorElement *h2_ele_sigmaIetaIetaVsPt;
 
@@ -86,21 +94,24 @@ class ElectronMcMiniAODSignalValidator : public ElectronDqmAnalyzerBase {
     MonitorElement *h1_ele_dEtaSc_propVtx_mAOD;
     MonitorElement *h1_ele_dEtaSc_propVtx_mAOD_barrel;
     MonitorElement *h1_ele_dEtaSc_propVtx_mAOD_endcaps;
+    MonitorElement *h1_ele_dPhiCl_propOut_mAOD;
+    MonitorElement *h1_ele_dPhiCl_propOut_mAOD_barrel;
+    MonitorElement *h1_ele_dPhiCl_propOut_mAOD_endcaps;
 
     MonitorElement *h1_ele_fbrem_mAOD;
-    MonitorElement *h1_ele_fbrem_barrel_mAOD;
-    MonitorElement *h1_ele_fbrem_endcaps_mAOD;
+    MonitorElement *h1_ele_fbrem_mAOD_barrel;
+    MonitorElement *h1_ele_fbrem_mAOD_endcaps;
 
 	// -- pflow over pT
 	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD;
-	MonitorElement *h1_ele_chargedHadronRelativeIso_barrel_mAOD;
-    MonitorElement *h1_ele_chargedHadronRelativeIso_endcaps_mAOD;
+	MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_mAOD_endcaps;
 	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD;
-	MonitorElement *h1_ele_neutralHadronRelativeIso_barrel_mAOD;
-    MonitorElement *h1_ele_neutralHadronRelativeIso_endcaps_mAOD;
+	MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_mAOD_endcaps;
 	MonitorElement *h1_ele_photonRelativeIso_mAOD;
-	MonitorElement *h1_ele_photonRelativeIso_barrel_mAOD;
-    MonitorElement *h1_ele_photonRelativeIso_endcaps_mAOD;
+	MonitorElement *h1_ele_photonRelativeIso_mAOD_barrel;
+    MonitorElement *h1_ele_photonRelativeIso_mAOD_endcaps;
     
 };
 
