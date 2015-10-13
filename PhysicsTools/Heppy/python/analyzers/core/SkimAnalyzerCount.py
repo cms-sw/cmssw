@@ -15,6 +15,7 @@ class SkimAnalyzerCount( Analyzer ):
     def __init__(self, cfg_ana, cfg_comp, looperName):
         super(SkimAnalyzerCount, self).__init__(cfg_ana, cfg_comp, looperName)
         self.useLumiBlocks = self.cfg_ana.useLumiBlocks if (hasattr(self.cfg_ana,'useLumiBlocks')) else False
+        self.verbose = getattr(self.cfg_ana, 'verbose', False)
  
     def declareHandles(self):
         super(SkimAnalyzerCount, self).declareHandles()
@@ -57,6 +58,11 @@ class SkimAnalyzerCount( Analyzer ):
 
 
     def process(self, event):
+        if self.verbose:
+            print "\nProcessing run:lumi:event %d:%d:%d" % (
+                    event.input.eventAuxiliary().id().run(),
+                    event.input.eventAuxiliary().id().luminosityBlock(),
+                    event.input.eventAuxiliary().id().event())  
         if not self.useLumiBlocks:
             self.readCollections( event.input )
             self.count.inc('All Events')
