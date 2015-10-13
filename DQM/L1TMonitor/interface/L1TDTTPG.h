@@ -100,9 +100,6 @@ class L1TDTTPG : public DQMEDAnalyzer {
   MonitorElement *dttf_p_q[3];
   MonitorElement *dttf_p_qual[3];
 
-  MonitorElement *runId_;
-  MonitorElement *lumisecId_;
-
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;

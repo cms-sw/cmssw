@@ -67,6 +67,8 @@ valCaloStage1LegacyFormatDigis.InputRlxTauCollection = cms.InputTag("simCaloStag
 valCaloStage1LegacyFormatDigis.InputIsoTauCollection = cms.InputTag("simCaloStage1Digis:isoTaus")
 valCaloStage1LegacyFormatDigis.InputHFSumsCollection = cms.InputTag("simCaloStage1Digis:HFRingSums")
 valCaloStage1LegacyFormatDigis.InputHFCountsCollection = cms.InputTag("simCaloStage1Digis:HFBitCounts")
+valCaloStage1LegacyFormatDigis.bxMin = cms.int32(0)
+valCaloStage1LegacyFormatDigis.bxMax = cms.int32(0)
 
 from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
 
@@ -122,11 +124,11 @@ valRpcTriggerDigis.label = 'muonRPCDigis'
 import L1Trigger.GlobalMuonTrigger.gmtDigis_cfi
 valGmtDigis = L1Trigger.GlobalMuonTrigger.gmtDigis_cfi.gmtDigis.clone()
 #
-valGmtDigis.DTCandidates = cms.InputTag('gtDigis','DT')
-valGmtDigis.CSCCandidates = cms.InputTag('gtDigis','CSC')
-valGmtDigis.RPCbCandidates = cms.InputTag('gtDigis','RPCb')
-valGmtDigis.RPCfCandidates = cms.InputTag('gtDigis','RPCf')
-valGmtDigis.MipIsoData = 'gctDigis'
+valGmtDigis.DTCandidates = cms.InputTag('l1GtUnpack','DT')
+valGmtDigis.CSCCandidates = cms.InputTag('l1GtUnpack','CSC')
+valGmtDigis.RPCbCandidates = cms.InputTag('l1GtUnpack','RPCb')
+valGmtDigis.RPCfCandidates = cms.InputTag('l1GtUnpack','RPCf')
+valGmtDigis.MipIsoData = 'caloStage1Digis'
 
 # producers for technical triggers 
 #
@@ -148,7 +150,7 @@ valHcalTechTrigDigis = SimCalorimetry.HcalTrigPrimProducers.hcalTTPRecord_cfi.si
 # Global Trigger emulator
 import L1Trigger.GlobalTrigger.gtDigis_cfi
 valGtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
-valGtDigis.GmtInputTag = 'gtDigis'
+valGtDigis.GmtInputTag = 'l1GtUnpack'
 valGtDigis.GctInputTag = 'gctDigis'
 valGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
                                                     cms.InputTag('valRpcTechTrigDigis'),
@@ -157,7 +159,7 @@ valGtDigis.TechnicalTriggersInputTags = cms.VInputTag(
 # Global Trigger emulator for Stage1 
 import L1Trigger.GlobalTrigger.gtDigis_cfi
 valStage1GtDigis = L1Trigger.GlobalTrigger.gtDigis_cfi.gtDigis.clone()
-valStage1GtDigis.GmtInputTag = 'gtDigis'
+valStage1GtDigis.GmtInputTag = 'l1GtUnpack'
 valStage1GtDigis.GctInputTag = 'caloStage1LegacyFormatDigis'
 valStage1GtDigis.TechnicalTriggersInputTags = cms.VInputTag(
                                                     cms.InputTag('valRpcTechTrigDigis'),

@@ -82,8 +82,6 @@ private:
   MonitorElement* m_bxDiff;
   MonitorElement* rpctfcratesynchro[12];
 
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
   
   std::set<unsigned long long int>  m_globBX;
   
