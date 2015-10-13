@@ -5,6 +5,9 @@ import sys
 import os 
 import imp
 
+# make the behaviour of 'cmsRun file.py' and 'edmConfigDump file.py' more consistent
+sys.path.append(os.getcwd())
+
 parser = OptionParser()
 parser.usage = "%prog <file> : expand this python configuration"
 
