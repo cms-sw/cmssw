@@ -14,7 +14,7 @@
     </QTEST>
 
 
-    <LINK name="*GCTexpert/TauJet/TauJetErrorFlag">
+    <LINK name="*Stage1Layer2expert/TauJet/TauJetErrorFlag">
         <TestName activate="true">L1EmulatorTauJetGctErrorFlagQT</TestName>
     </LINK>
 

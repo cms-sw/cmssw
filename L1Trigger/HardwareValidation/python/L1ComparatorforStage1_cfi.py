@@ -14,10 +14,10 @@ l1compareforstage1 = cms.EDProducer("L1Comparator",
     DTFsourceData = cms.InputTag("dttfDigis"),
     DTFsourceEmul = cms.InputTag("valDttfDigis"),
     
-    RPCsourceData = cms.InputTag("gtDigis"),
+    RPCsourceData = cms.InputTag("l1GtUnpack"),
     RPCsourceEmul = cms.InputTag("valRpcTriggerDigis"),
     
-    GMTsourceData = cms.InputTag("gtDigis"),
+    GMTsourceData = cms.InputTag("l1GtUnpack"),
     GMTsourceEmul = cms.InputTag("valGmtDigis"),
     
     FEDsourceData = cms.untracked.InputTag("rawDataCollector"),
