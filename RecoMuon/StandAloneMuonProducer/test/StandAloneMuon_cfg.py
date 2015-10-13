@@ -5,8 +5,11 @@ process.load("RecoMuon.Configuration.RecoMuon_cff")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.Geometry_cff")
-process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2023_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDevReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2015MuonGEMDev_cff')
+
+#process.load('Configuration.Geometry.GeometryExtended2023Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2023_cff')
 #process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff') #!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -30,7 +33,13 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
 #        'root://cmsxrootd.fnal.gov///store/user/archie/PT200incleanarea/out_STA_reco_Pt200_withGems_clean.root'    
-        'file:/tmp/archie/out_STA_reco_Pt200_withoutGems_new.root'
+        #'file:/tmp/dnash/out_local_reco.root'
+        #'file:/tmp/dnash/CMSSW_7_6_X_2015-10-11-2300/src/STAMuons.root'
+        #'file:/tmp/dnash/out_local_reco.root'
+        #'file:RecoLocalMuon/GEMRecHit/test/out_local_reco.root'
+        #'file:out_STA_reco_withGems.root'
+        'file:out_STA_reco_withGems_new.root'
+        #'file:out_STA_reco_withGems.root'
      )
 )
 
@@ -49,14 +58,15 @@ process.MessageLogger = cms.Service("MessageLogger",
 minEtaTot = 1.64
 maxEtaTot = 2.43
 
-process.TFileService = cms.Service("TFileService", fileName = cms.string("NoGemRecHitTestPt200_newGT.root") )
+process.TFileService = cms.Service("TFileService", fileName = cms.string("ME0TestPt100_newGT.root") )
 
 ## Analyzer to produce pT and 1/pT resolution plots
 process.STAMuonAnalyzer = cms.EDAnalyzer("STAMuonAnalyzer",
                                          DataType = cms.untracked.string('SimData'),
                                          StandAloneTrackCollectionLabel = cms.untracked.InputTag('standAloneMuons','UpdatedAtVtx','STARECO'),
                                          MuonCollectionLabel = cms.untracked.InputTag('muons','','RECO'),
-                                         NoGEMCase = cms.untracked.bool(True),
+                                         NoGEMCase = cms.untracked.bool(False),
+                                         NoME0Case = cms.untracked.bool(False),
                                          isGlobalMuon = cms.untracked.bool(False),
                                          minEta = cms.untracked.double(minEtaTot),
                                          maxEta = cms.untracked.double(maxEtaTot),

@@ -15,6 +15,9 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/GenericTransientTrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/RecSegment.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+//#include "FWCore/ServiceRegistry/interface/Service.h"
+
 
 class MuonTransientTrackingRecHit final : public GenericTransientTrackingRecHit{
 public:
@@ -79,6 +82,7 @@ public:
   }
 
   static MuonRecHitPointer specificBuild(const GeomDet * geom, const TrackingRecHit* rh) {
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Getting specificBuild"<<std::endl;
     return MuonRecHitPointer(new MuonTransientTrackingRecHit(geom, rh));
   }
 

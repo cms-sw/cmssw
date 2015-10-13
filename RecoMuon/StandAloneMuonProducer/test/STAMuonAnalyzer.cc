@@ -35,15 +35,19 @@
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include <DataFormats/GEMRecHit/interface/ME0Segment.h>
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
  
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include <Geometry/GEMGeometry/interface/GEMEtaPartition.h>
+
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
+#include <Geometry/GEMGeometry/interface/ME0EtaPartition.h>
+#include <Geometry/GEMGeometry/interface/ME0Chamber.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include "DataFormats/Provenance/interface/Timestamp.h"
-
-#include <DataFormats/MuonDetId/interface/GEMDetId.h>
 
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
@@ -63,6 +67,7 @@
 #include <DataFormats/MuonDetId/interface/DTWireId.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/MuonDetId/interface/GEMDetId.h>
+#include <DataFormats/MuonDetId/interface/ME0DetId.h>
 
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
@@ -92,10 +97,17 @@ STAMuonAnalyzer::STAMuonAnalyzer(const ParameterSet& pset):
   histContainer2D_()
 {
 
-  staTrackLabel_ = pset.getUntrackedParameter<edm::InputTag>("StandAloneTrackCollectionLabel");
+  staTrackLabel_ = consumes<reco::TrackCollection>(edm::InputTag("standAloneMuons","UpdatedAtVtx"));
+   GEMSimHit_Token = consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits","MuonGEMHits"));
+   ME0SimHit_Token = consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits","MuonME0Hits"));
+ // gemSimTrack_Token = consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits","MuonGEMHits"));
+  gemrechit_Token = consumes<GEMRecHitCollection>(edm::InputTag("gemRecHits",""));
+  me0rechit_Token = consumes<ME0SegmentCollection>(edm::InputTag("me0RecHits",""));
+  simtrack_Token = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
   muonLabel_ = pset.getUntrackedParameter<edm::InputTag>("MuonCollectionLabel");
 
   noGEMCase_ = pset.getUntrackedParameter<bool>("NoGEMCase");
+  noME0Case_ = pset.getUntrackedParameter<bool>("NoME0Case");
   isGlobalMuon_ = pset.getUntrackedParameter<bool>("isGlobalMuon",false);
 
   minEta_ = pset.getUntrackedParameter<double>("minEta",1.64);
@@ -177,6 +189,9 @@ void STAMuonAnalyzer::beginJob(){
   histContainer_["hNumGEMRecHitsSt3"] = fs->make<TH1F>("NumGEMRecHitsSt3","NumGEMRecHitsSt3",11,-0.5,10.5);
   histContainer_["hNumGEMRecHitsMuon"] = fs->make<TH1F>("NumGEMRecHitsMuon","NumGEMRecHitsMuon",11,-0.5,10.5);
 
+  histContainer_["hNumME0RecHits"] = fs->make<TH1F>("NumME0RecHits","NumME0RecHits",11,-0.5,10.5);
+  histContainer_["hNumME0RecHitsMuon"] = fs->make<TH1F>("NumME0RecHitsMuon","NumME0RecHitsMuon",11,-0.5,10.5);
+
   histContainer2D_["hRecoPtVsSimPt"] = fs->make<TH2F>("RecoPtVsSimPt","p_{T}^{Reco} vs. p_{T}^{Sim}",261,-2.5,1302.5,261,-2.5,1302.5);
   histContainer2D_["hDeltaPtVsSimPt"] = fs->make<TH2F>("DeltaPtVsSimPt","(p_{T}^{Reco} - p_{T}^{Sim}) vs. p_{T}^{Sim}",261,-2.5,1302.5,500,-500,500);
 
@@ -238,6 +253,9 @@ void STAMuonAnalyzer::beginJob(){
   histContainer_["hPullGEMx"] = fs->make<TH1F>("PullGEMx", "(x_{mc} - x_{rec}) / #sigma",500,-10.,10.);
   histContainer_["hPullGEMphi"] = fs->make<TH1F>("PullGEMphi", "(#phi_{mc} - #phi_{rec})",500,-0.001,0.001);
 
+  histContainer_["hPullME0x"] = fs->make<TH1F>("PullME0x", "(x_{mc} - x_{rec}) / #sigma",500,-10.,10.);
+  histContainer_["hPullME0phi"] = fs->make<TH1F>("PullME0phi", "(#phi_{mc} - #phi_{rec})",500,-0.001,0.001);
+
   histContainer_["hGEMRecHitEta"] = fs->make<TH1F>("GEMRecHitEta","GEM RecHits #eta",10000,-2.5,2.5);
   histContainer_["hGEMRecHitEtaSt1L1"] = fs->make<TH1F>("hGEMRecHitEtaSt1L1","GEM RecHits #eta",10000,-2.5,2.5);
   histContainer_["hGEMRecHitEtaSt1L2"] = fs->make<TH1F>("hGEMRecHitEtaSt1L2","GEM RecHits #eta",10000,-2.5,2.5);
@@ -246,6 +264,15 @@ void STAMuonAnalyzer::beginJob(){
   histContainer_["hGEMRecHitEtaSt3L1"] = fs->make<TH1F>("hGEMRecHitEtaSt3L1","GEM RecHits #eta",10000,-2.5,2.5);
   histContainer_["hGEMRecHitEtaSt3L2"] = fs->make<TH1F>("hGEMRecHitEtaSt3L2","GEM RecHits #eta",10000,-2.5,2.5);
   histContainer_["hGEMRecHitPhi"] = fs->make<TH1F>("GEMRecHitPhi","GEM RecHits #phi",360,-TMath::Pi(),TMath::Pi());
+
+  histContainer_["hME0RecHitEta"] = fs->make<TH1F>("ME0RecHitEta","ME0 RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hME0RecHitEtaL1"] = fs->make<TH1F>("hME0RecHitEtaL1","ME0 RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hME0RecHitEtaL2"] = fs->make<TH1F>("hME0RecHitEtaL2","ME0 RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hME0RecHitEtaL3"] = fs->make<TH1F>("hME0RecHitEtaL3","ME0 RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hME0RecHitEtaL4"] = fs->make<TH1F>("hME0RecHitEtaL4","ME0 RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hME0RecHitEtaL5"] = fs->make<TH1F>("hME0RecHitEtaL5","ME0 RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hME0RecHitEtaL6"] = fs->make<TH1F>("hME0RecHitEtaL6","ME0 RecHits #eta",10000,-2.5,2.5);
+  histContainer_["hME0RecHitPhi"] = fs->make<TH1F>("ME0RecHitPhi","ME0 RecHits #phi",360,-TMath::Pi(),TMath::Pi());
 
   histContainer_["hDR"] = fs->make<TH1F>("DR","#Delta R (SIM-RECO)",300,0,1);
 
@@ -258,12 +285,14 @@ void STAMuonAnalyzer::beginJob(){
   histContainer2D_["hDeltaPhiVsSimTrackPhi"] = fs->make<TH2F>("DeltaPhiVsSimTrackPhi","DeltaPhiVsSimTrackPhi",360,0,180,2000,-20,+20);
 
   histContainer_["hSimTrackMatch"] = fs->make<TH1F>("SimTrackMatch", "SimTrackMatch",2,0.,2.);
+  histContainer_["hSimTrackMatchME0"] = fs->make<TH1F>("SimTrackMatchME0", "SimTrackMatchME0",2,0.,2.);
   histContainer_["hRecHitMatching"] = fs->make<TH1F>("RecHitMatching", "RecHitMatching",2,0.,2.);
   histContainer_["hRecHitParMatching"] = fs->make<TH1F>("RecHitParMatching", "RecHitParMatching",2,0.,2.);
   histContainer2D_["hDRMatchVsPt"] = fs->make<TH2F>("DRMatchVsPt","DRMatchVsPt",261,-2.5,1302.5,10,0,10);
   histContainer2D_["hDRMatchVsPtMuon"] = fs->make<TH2F>("DRMatchVsPtMuon","DRMatchVsPtMupn",261,-2.5,1302.5,10,0,10);
 
   histContainer_["hMatchedSimHits"] = fs->make<TH1F>("MatchedSimHits","MatchedSimHits",6,-0.5,5.5);
+  histContainer_["hMatchedSimHitsME0"] = fs->make<TH1F>("MatchedSimHitsME0","MatchedSimHitsME0",6,-0.5,5.5);
   histContainer2D_["hRecoTracksWithMatchedRecHits"] = fs->make<TH2F>("RecoTracksWithMatchedRecHits","RecoTracksWithMatchedRecHits",6,-0.5,5.5,6,-0.5,5.5);
   histContainer2D_["hDeltaQvsDeltaPt"] = fs->make<TH2F>("DeltaQvsDeltaPt","DeltaQvsDeltaPt",100,-2,2,7,-3.5,3.5);
   histContainer2D_["hCheckGlobalTracksVsPt"] = fs->make<TH2F>("CheckGlobalTracksVsPt","CheckGlobalTracksVsPt",261,-2.5,1302.5,4,0,4);
@@ -332,6 +361,38 @@ edm::PSimHitContainer isTrackMatched(SimTrackContainer::const_iterator simTrack,
 
 }
 
+edm::PSimHitContainer isTrackMatched_ME0(SimTrackContainer::const_iterator simTrack, const Event & event, const EventSetup& eventSetup)
+{
+
+  edm::PSimHitContainer selectedME0Hits;
+
+  //GlobalPoint gbTemp = propagatedPositionME0(simTrack, event, eventSetup);
+  //std::cout<<gbTemp.x()<<std::endl;
+  
+  edm::Handle<edm::PSimHitContainer> ME0Hits;
+  event.getByLabel(edm::InputTag("g4SimHits","MuonME0Hits"), ME0Hits);
+
+  ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
+  eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
+
+  std::cout<<"Checking if it is matched to an ME0Hit"<<std::endl;
+  std::cout<<"ME0Hits length: "<<ME0Hits->size()<<std::endl;
+  for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit){
+				 
+	DetId id = DetId(itHit->detUnitId());
+	if (!(id.subdetId() == MuonSubdetId::ME0)) continue;
+  	if(itHit->particleType() != (*simTrack).type()) continue;
+
+	bool result = isSimMatched(simTrack, itHit);
+	if(result) selectedME0Hits.push_back(*itHit);
+
+  }
+
+  std::cout<<"Size: "<<selectedME0Hits.size()<<std::endl;
+  return selectedME0Hits;
+
+}
+
 struct MyGEMSimHit
 {  
 
@@ -350,6 +411,27 @@ struct MyGEMRecHit
   	int region, ring, station, layer, chamber, roll;
   	float globalEta, globalPhi, globalX, globalY, globalZ;
   	int bx, clusterSize, firstClusterStrip;
+
+};
+
+struct MyME0SimHit
+{  
+
+  	int particleType;
+  	float x, y;
+  	int region, ring, station, layer, chamber, roll;
+  	float globalEta, globalPhi, globalX, globalY, globalZ;
+  //int strip;
+
+};
+
+struct MyME0RecHit
+{
+
+  	float x, y, xErr;
+  	int region, ring, station, layer, chamber, roll;
+  	float globalEta, globalPhi, globalX, globalY, globalZ;
+  //int bx, clusterSize, firstClusterStrip;
 
 };
 
@@ -433,6 +515,102 @@ bool isRecHitMatched(edm::PSimHitContainer selGEMSimHits, TrackingRecHitRef recH
 		rh.clusterSize = cls;
 		rh.x = lp1.x();
 		rh.xErr = gemrechit->localPositionError().xx();
+		rh.y = lp1.y();
+		rh.globalEta = hitGP.eta();
+		rh.globalPhi = hitGP.phi();
+		rh.globalX = hitGP.x();
+		rh.globalY = hitGP.y();
+		rh.globalZ = hitGP.z();
+
+	}
+
+  }
+
+  //std::cout<<"RecHit: "<<result<<std::endl;
+  return result;
+
+}
+
+bool isRecHitMatched_ME0(edm::PSimHitContainer selME0SimHits, TrackingRecHitRef recHit, edm::ESHandle<ME0Geometry> me0Geom, MyME0SimHit &sh, MyME0RecHit &rh)
+{
+
+  bool result = false;
+
+  ME0DetId id(recHit->geographicalId());
+  LocalPoint lp1 = recHit->localPosition();
+
+  int region = id.region();
+  int layer = id.layer();
+  int station = id.station();
+  int chamber = id.chamber();
+  int roll = id.roll();
+  
+  const ME0Segment * me0rechit = dynamic_cast<const ME0Segment *>(&(*recHit));
+  GlobalPoint hitGP = me0Geom->idToDet(me0rechit->me0DetId())->surface().toGlobal(lp1);
+  //int cls = me0rechit->clusterSize();
+  //int firstStrip = me0rechit->firstClusterStrip();
+  //int bx = me0rechit->BunchX();
+
+  //std::cout<<"RecHit"<<std::endl;
+ 
+  for(edm::PSimHitContainer::const_iterator itHit = selME0SimHits.begin(); itHit != selME0SimHits.end(); ++itHit){
+
+      	ME0DetId idME0 = ME0DetId(itHit->detUnitId());
+      	int region_sim = idME0.region();
+      	int layer_sim = idME0.layer();
+      	int station_sim = idME0.station();
+      	int chamber_sim = idME0.chamber();
+      	int roll_sim = idME0.roll();
+
+      	LocalPoint lp = itHit->entryPoint();
+        GlobalPoint hitGP_sim(me0Geom->idToDet(itHit->detUnitId())->surface().toGlobal(lp));
+      	//float strip_sim = me0Geom->etaPartition(idME0)->strip(lp);
+
+      	if(region != region_sim) continue;
+      	if(layer != layer_sim) continue;
+      	if(station != station_sim) continue;
+      	if(chamber != chamber_sim) continue;
+      	if(roll != roll_sim) continue;
+
+	result=true;
+	// for(int i = firstStrip; i < (firstStrip + cls); i++ ){
+	
+	// 	//std::cout<<"Sim: "<<strip_sim<<" Strip: "<<i<<" Diff: "<<abs(strip_sim - i)<<std::endl;
+	// 	if(abs(strip_sim - i) < 1) result = true;
+	// 	if(!result) continue;
+	// 	//std::cout<<"Region: "<<region<<" Layer: "<<layer<<" Chamber: "<<chamber<<" roll "<<roll<<std::endl;
+	// 	//std::cout<<"RegionSim: "<<region_sim<<" LayerSim: "<<layer_sim<<" ChamberSim: "<<chamber_sim<<" rollSim "<<roll_sim<<std::endl;
+	// 	//std::cout<<"RecHitPhi "<<hitGP.phi()<<" SimHitPhi "<<hitGP_sim.phi()<<std::endl;
+		
+	// }
+
+	if(result){
+
+		sh.particleType = itHit->particleType();
+		sh.region = region_sim;
+		sh.layer = layer_sim;
+		sh.station = station_sim;
+		sh.chamber = chamber_sim;
+		sh.roll = roll_sim;
+		//sh.strip = strip_sim;
+		sh.x = lp.x();
+		sh.y = lp.y();
+		sh.globalEta = hitGP_sim.eta();
+		sh.globalPhi = hitGP_sim.phi();
+		sh.globalX = hitGP_sim.x();
+		sh.globalY = hitGP_sim.y();
+		sh.globalZ = hitGP_sim.z();
+
+		rh.region = region;
+		rh.layer = layer;
+		rh.station = station;
+		rh.chamber = chamber;
+		rh.roll = roll_sim;
+		//rh.bx = bx;
+		//rh.firstClusterStrip = firstStrip;
+		//rh.clusterSize = cls;
+		rh.x = lp1.x();
+		rh.xErr = me0rechit->localPositionError().xx();
 		rh.y = lp1.y();
 		rh.globalEta = hitGP.eta();
 		rh.globalPhi = hitGP.phi();
@@ -657,10 +835,11 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   
   // Get the RecTrack collection from the event
   Handle<reco::TrackCollection> staTracks;
-  event.getByLabel(staTrackLabel_, staTracks);
+  event.getByToken(staTrackLabel_, staTracks);
 
-  Handle<SimTrackContainer> simTracks;
-  event.getByLabel("g4SimHits",simTracks);
+  Handle<edm::SimTrackContainer> simTracks;
+  event.getByToken(simtrack_Token,simTracks);
+ // event.getByToken("g4SimHits",simTracks);
 
   ESHandle<MagneticField> theMGField;
   eventSetup.get<IdealMagneticFieldRecord>().get(theMGField);
@@ -668,14 +847,24 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   edm::ESHandle<GEMGeometry> gemGeom;
   eventSetup.get<MuonGeometryRecord>().get(gemGeom);
 
+  edm::ESHandle<ME0Geometry> me0Geom;
+  eventSetup.get<MuonGeometryRecord>().get(me0Geom);
+
   ESHandle<GlobalTrackingGeometry> theTrackingGeometry;
   eventSetup.get<GlobalTrackingGeometryRecord>().get(theTrackingGeometry);
 
   edm::Handle<GEMRecHitCollection> gemRecHits; 
-  event.getByLabel("gemRecHits","",gemRecHits);
+  event.getByToken(gemrechit_Token,gemRecHits);
+  //event.getByToken("gemRecHits","",gemRecHits);
 
   edm::Handle<edm::PSimHitContainer> GEMHits;
-  event.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
+   event.getByToken(GEMSimHit_Token, GEMHits);
+
+  edm::Handle<edm::PSimHitContainer> ME0Hits;
+  event.getByToken(ME0SimHit_Token, ME0Hits);
+
+  edm::Handle<ME0SegmentCollection> me0RecHits; 
+  event.getByToken(me0rechit_Token,me0RecHits);
 
   double simPt = 0.;
   double simEta = 0.;
@@ -747,9 +936,18 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 
 	edm::PSimHitContainer selGEMSimHits = isTrackMatched(simTrack, event, eventSetup);
 	int size = selGEMSimHits.size();
+
+	edm::PSimHitContainer selME0SimHits = isTrackMatched_ME0(simTrack, event, eventSetup);
+	int sizeME0 = selME0SimHits.size();
+	size+=sizeME0;
+
 	histContainer_["hMatchedSimHits"]->Fill(size);
 	histContainer_["hSimTrackMatch"]->Fill(size > 0 ? 1 : 0);
-	if(noGEMCase_) size = 1;
+
+	// histContainer_["hMatchedSimHits"]->Fill(sizeME0);
+	// histContainer_["hSimTrackMatch"]->Fill(sizeME0 > 0 ? 1 : 0);
+
+	if(noGEMCase_&noME0Case_) size = 1;
 	if(size == 0) continue;
 
 	int drMatching = countDrMatching(simTrack, staTracks, minEta_, maxEta_);
@@ -809,6 +1007,7 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
   	double recPt = 0.;
   	double recPtIP = 0.;
 
+	std::cout<<"Starting loop over staTracks: "<<staTracks->size()<<std::endl;
 	for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack){//Inizio del loop sulle STA track
 
 	    	reco::TransientTrack track(*staTrack,&*theMGField,theTrackingGeometry); 
@@ -849,6 +1048,9 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 		bool hasGemRecHits = false;
 		int numGEMRecHits = 0, numGEMRecHitsSt1 = 0, numGEMRecHitsSt2 = 0, numGEMRecHitsSt3 = 0;
 
+		bool hasMe0RecHits = false;
+		int numME0RecHits = 0;
+
 		std::vector<bool> collectResults;
 
 		float phi_02pi = recPhi < 0 ? recPhi + TMath::Pi() : recPhi;
@@ -858,10 +1060,13 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 
                 int numRE31 = 0, numRE41 = 0, numME11 = 0;
 
+		std::cout<<"Starting loop over staRecHits"<<std::endl;
 		for(trackingRecHit_iterator recHit = staTrack->recHitsBegin(); recHit != staTrack->recHitsEnd(); ++recHit){
 
 			if (!((*recHit)->geographicalId().det() == DetId::Muon)) continue;
 
+			std::cout<<"On a muon hit"<<std::endl;
+			bool isSubDet=false;
                          if ((*recHit)->geographicalId().subdetId() == MuonSubdetId::RPC){
 
                                 RPCDetId id((*recHit)->geographicalId());
@@ -869,11 +1074,12 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
                                 int ring = id.ring();
                                 if(station == 3 && ring == 1) numRE31++;
                                 if(station == 4 && ring == 1) numRE41++;
+				isSubDet=true;
 
                         }
                         
                           else if ((*recHit)->geographicalId().subdetId() == MuonSubdetId::CSC){
-
+				isSubDet=true;
                                 std::cout<<"CSC found"<<std::endl;
 
                                 CSCDetId id((*recHit)->geographicalId());
@@ -886,6 +1092,7 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
                                 std::cout<<"CSC Region"<<region<<" Station "<<station<<" ring "<<ring<<std::endl;
 
                         }
+			 if ((*recHit)->geographicalId().subdetId() == MuonSubdetId::DT) isSubDet=true;
 
                         histContainer_["hNumRPCRecHitsRE31"]->Fill(numRE31);
                         histContainer_["hNumRPCRecHitsRE41"]->Fill(numRE41);
@@ -894,8 +1101,8 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 
 
 			if ((*recHit)->geographicalId().subdetId() == MuonSubdetId::GEM){
-
-				//std::cout<<"GEM id: "<<GEMDetId((*recHit)->geographicalId().rawId())<<std::endl;
+				isSubDet=true;
+				std::cout<<"GEM id: "<<GEMDetId((*recHit)->geographicalId().rawId())<<std::endl;
 				numGEMRecHits++;
 				hasGemRecHits = true;
 
@@ -951,6 +1158,60 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 
 			}
 
+			if ((*recHit)->geographicalId().subdetId() == MuonSubdetId::ME0){
+			  isSubDet=true;
+			  std::cout<<"ME0 id: "<<ME0DetId((*recHit)->geographicalId().rawId())<<std::endl;
+				numME0RecHits++;
+				hasMe0RecHits = true;
+
+				int index = std::distance(staTrack->recHitsBegin(), recHit);
+				TrackingRecHitRef tRH = staTrack->recHit(index);
+
+				MyME0SimHit sh;
+				MyME0RecHit rh;
+				bool status = isRecHitMatched_ME0(selME0SimHits, tRH, me0Geom, sh, rh);
+				collectResults.push_back(status);
+
+				if(!isGlobalMuon_ & status){
+				
+					histContainer_["hME0RecHitEta"]->Fill(rh.globalEta);
+
+					if(rh.station == 1 && rh.layer == 1) histContainer_["hME0RecHitEtaL1"]->Fill(rh.globalEta);
+					if(rh.station == 1 && rh.layer == 2) histContainer_["hME0RecHitEtaL2"]->Fill(rh.globalEta);
+					if(rh.station == 2 && rh.layer == 1) histContainer_["hME0RecHitEtaL3"]->Fill(rh.globalEta);
+					if(rh.station == 2 && rh.layer == 2) histContainer_["hME0RecHitEtaL4"]->Fill(rh.globalEta);
+					if(rh.station == 3 && rh.layer == 1) histContainer_["hME0RecHitEtaL5"]->Fill(rh.globalEta);
+					if(rh.station == 3 && rh.layer == 2) histContainer_["hME0RecHitEtaL6"]->Fill(rh.globalEta);
+
+					histContainer_["hME0RecHitPhi"]->Fill(rh.globalPhi);
+					if(rh.region > 0 && rh.layer == 1) histContainer2D_["hRecPhi2DPlusLayer1"]->Fill(rh.globalPhi, rh.chamber);
+					else if(rh.region > 0 && rh.layer == 2) histContainer2D_["hRecPhi2DPlusLayer2"]->Fill(rh.globalPhi, rh.chamber);
+					else if(rh.region < 0 && rh.layer == 1) histContainer2D_["hRecPhi2DMinusLayer1"]->Fill(rh.globalPhi, rh.chamber);
+					else if(rh.region < 0 && rh.layer == 2) histContainer2D_["hRecPhi2DMinusLayer2"]->Fill(rh.globalPhi, rh.chamber);
+					//std::cout<<"ME0RecHitEta "<<rh.globalEta<<std::endl;
+					//std::cout<<"ME0RecHitPhi "<<rh.globalPhi<<" ME0SimHitPhi"<<sh.globalPhi<<std::endl;
+				
+					float x_sim = sh.x;
+					float x_reco = rh.x;
+					float err_x_reco = rh.xErr;
+					float dX = x_sim - x_reco;
+					float pullX = dX/std::sqrt(err_x_reco);
+					histContainer_["hPullME0x"]->Fill(pullX);
+
+					float phi_sim = sh.globalPhi;
+					float phi_reco = rh.globalPhi;
+					float dPhi = phi_reco - phi_sim;
+					histContainer_["hPullME0phi"]->Fill(dPhi);
+
+					float phi_02pi_simHit = sh.globalPhi < 0 ? sh.globalPhi + TMath::Pi() : sh.globalPhi;
+					float phiDegSimHit = phi_02pi_simHit * 180/ TMath::Pi();
+
+					if(simPt > 0) histContainer2D_["hDeltaPhiVsSimTrackPhi"]->Fill(phiDegSim, phiDegSim - phiDegSimHit);
+
+				}
+
+			}
+			if (!isSubDet) std::cout<<"Found an unidentified muon hit"<<std::endl;
 		}
 
 		histContainer_["hNumGEMRecHits"]->Fill(numGEMRecHits);
@@ -958,6 +1219,7 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 		histContainer_["hNumGEMRecHitsSt2"]->Fill(numGEMRecHitsSt2);
 		histContainer_["hNumGEMRecHitsSt3"]->Fill(numGEMRecHitsSt3);
 
+		histContainer_["hNumME0RecHits"]->Fill(numME0RecHits);
 		int sizeRH = 0;
 		bool matchingHit = true;
 		bool matchingParHit = false;
@@ -976,7 +1238,9 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 
 		if(noGEMCase_) hasGemRecHits = true;
 
-		if(hasGemRecHits /*& matchingHit*/){
+		if(noME0Case_) hasMe0RecHits = true;
+
+		if(hasGemRecHits || hasMe0RecHits /*& matchingHit*/){
 
 			int qRec = staTrack->charge();
 
@@ -1073,6 +1337,93 @@ void STAMuonAnalyzer::analyze(const Event & event, const EventSetup& eventSetup)
 				else if(simEta < 0) histContainer_["hNumSimPhiMinusSt3"]->Fill(phiDegSim);
 
 			}
+
+/*
+                        if(muon.matchedTracks == 1 && muon.pt > 0 && muon.recHits > 0){
+
+				histContainer_["hCountPresence"]->Fill(1);
+				double res1 = abs((recPt-simPt)/simPt);
+				double res2 = abs((muon.pt-simPt)/simPt);
+				histContainer2D_["hPtResVsPtRes"]->Fill(res1,res2);
+				histContainer_["hDeltaPtRes"]->Fill(res1-res2);
+
+			}
+			else histContainer_["hCountPresence"]->Fill(0);
+*/
+
+		}
+		if(hasMe0RecHits /*& matchingHit*/){
+
+			int qRec = staTrack->charge();
+
+		//	globalTrack.pt = recPt;
+		//	globalTrack.eta = recEta;
+		//	globalTrack.phi = recPhi;
+		//	globalTrack.charge = qRec;
+		//	globalTrack.recHits = collectResults.size();
+		//	globalTrack.matchedTracks = drMatching;
+
+			//TH1::StatOverflows(kTRUE);
+
+			histContainer2D_["hCharge"]->Fill(qGen, qRec);
+			histContainer2D_["hDeltaCharge"]->Fill(simPt, qGen-qRec);
+			histContainer2D_["hDeltaChargeVsEta"]->Fill(abs(simEta), qGen-qRec);
+
+			//cout<<"RecEta "<<recEta<<" recPhi "<<recPhi<<std::endl;
+			//cout<<"SimEta "<<simEta<<" SimPhi "<<simPhi<<std::endl;
+			//cout<<"dR "<<dR<<std::endl;
+
+			histContainer_["hDR"]->Fill(dR);
+			histContainer2D_["hRecoPtVsSimPt"]->Fill(simPt, recPt);
+			histContainer2D_["hDeltaPtVsSimPt"]->Fill(simPt, recPt - simPt);
+
+			histContainer_["hPres"]->Fill((recPt-simPt)/simPt);
+
+			histContainer2D_["hPtResVsPt"]->Fill(simPt, (recPt*qRec-simPt*qGen)/(simPt*qGen));
+			histContainer2D_["hPtResVsEta"]->Fill(simEta, (recPt*qRec-simPt*qGen)/(simPt*qGen));
+
+			histContainer2D_["hPtResVsPtNoCharge"]->Fill(simPt, (recPt-simPt)/simPt);
+			histContainer2D_["hPtResVsEtaNoCharge"]->Fill(simEta, (recPt-simPt)/simPt);
+
+			histContainer_["hPtSim"]->Fill(simPt);
+
+			histContainer_["hPTDiff"]->Fill(recPt-simPt);
+			histContainer_["hRecEta"]->Fill(recEta);
+
+			histContainer_["hDeltaEta"]->Fill(simEta - recEta);
+			histContainer_["hDeltaPhi"]->Fill(simPhi - recPhi);
+			if(track.charge() > 0) histContainer_["hDeltaPhiPlus"]->Fill(simPhi - recPhi);
+			else if(track.charge() < 0) histContainer_["hDeltaPhiMinus"]->Fill(simPhi - recPhi);
+
+			histContainer_["hRecPhi"]->Fill(recPhi);
+			histContainer_["hPTDiff2"]->Fill(track.innermostMeasurementState().globalMomentum().perp()-simPt);
+			histContainer2D_["hPTDiffvsEta"]->Fill(recEta,recPt-simPt);
+			histContainer2D_["hPTDiffvsPhi"]->Fill(recPhi,recPt-simPt);
+
+			//if( ((recPt-simPt)/simPt) <= -0.4)
+			//	cout<<"Out of Res: "<<(recPt-simPt)/simPt<<endl;
+
+			histContainer_["h1_Pres"]->Fill((qRec/recPt - qGen/simPt)/(qGen/simPt));
+
+			histContainer2D_["hInvPtResVsPtNoCharge"]->Fill(simPt, (1/recPt - 1/simPt)/(1/simPt));
+			histContainer2D_["hInvPtResVsEtaNoCharge"]->Fill(simEta, (1/recPt - 1/simPt)/(1/simPt));
+
+			histContainer2D_["hInvPtResVsPt"]->Fill(simPt, (qRec/recPt - qGen/simPt)/(qGen/simPt));
+			histContainer2D_["hDeltaQvsDeltaPt"]->Fill( ((qRec/recPt - qGen/simPt)/(qGen/simPt)), (qRec-qGen) );
+			histContainer2D_["hInvPtResVsEta"]->Fill(simEta, (qRec/recPt - qGen/simPt)/(qGen/simPt));
+
+			histContainer2D_["hDPhiVsPt"]->Fill(simPt, recPhi-simPhi);
+
+			histContainer_["hNumPt"]->Fill(recPt);
+			histContainer_["hNumEta"]->Fill(recEta);
+			histContainer_["hNumSimPt"]->Fill(simPt);
+			histContainer_["hNumSimEta"]->Fill(simEta);
+			histContainer_["hNumPhi"]->Fill(phi_02pi);
+
+			if(recEta > 0) histContainer_["hNumPhiPlus"]->Fill(phiDeg);
+			else if(recEta < 0) histContainer_["hNumPhiMinus"]->Fill(phiDeg);
+			if(simEta > 0) histContainer_["hNumSimPhiPlus"]->Fill(phiDegSim);
+			else if(simEta < 0) histContainer_["hNumSimPhiMinus"]->Fill(phiDegSim);
 
 /*
                         if(muon.matchedTracks == 1 && muon.pt > 0 && muon.recHits > 0){

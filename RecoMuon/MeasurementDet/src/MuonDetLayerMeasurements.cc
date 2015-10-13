@@ -142,48 +142,54 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
         result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
     }
   }
-   else if (geoId.subdetId()  == MuonSubdetId::GEM) {
+  else if (geoId.subdetId()  == MuonSubdetId::GEM) {
     if(enableGEMMeasurement)
-    {
-      checkGEMRecHits(); 
+      {
+	checkGEMRecHits(); 
 
-      // Create the chamber Id
-      GEMDetId chamberId(geoId.rawId());
+	// Create the chamber Id
+	GEMDetId chamberId(geoId.rawId());
 
-      LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(GEM): "<<chamberId<<std::endl;
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(GEM): "<<chamberId<<std::endl;
 
-      // Get the GEM-Segment which relies on this chamber
-      GEMRecHitCollection::range range = theGEMRecHits->get(chamberId);
+	// Get the GEM-Segment which relies on this chamber
+	GEMRecHitCollection::range range = theGEMRecHits->get(chamberId);
 
-       // Create the MuonTransientTrackingRecHit
-       for (GEMRecHitCollection::const_iterator rechit = range.first; 
-           rechit!=range.second; ++rechit)
-         result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
-    }
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMRecHits->size()
+							   <<", from chamber: "<< chamberId<<std::endl;
+
+	// Create the MuonTransientTrackingRecHit
+	for (GEMRecHitCollection::const_iterator rechit = range.first; 
+	     rechit!=range.second; ++rechit)
+	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits = " << result.size()<<std::endl;
+      }
   }
 
-   else if (geoId.subdetId()  == MuonSubdetId::ME0) {
-     LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(ME0): identified"<<std::endl;
+  else if (geoId.subdetId()  == MuonSubdetId::ME0) {
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(ME0): identified"<<std::endl;
     if(enableME0Measurement)
-    {
-      checkME0RecHits(); 
+      {
+	checkME0RecHits(); 
 
-      // Create the chamber Id
-      ME0DetId chamberId(geoId.rawId());
+	// Create the chamber Id
+	ME0DetId chamberId(geoId.rawId());
     
-      // Get the ME0-Segment which relies on this chamber
-      // Getting rechits right now, not segments - maybe it should be segments?
-      ME0SegmentCollection::range range = theME0RecHits->get(chamberId);
+	// Get the ME0-Segment which relies on this chamber
+	// Getting rechits right now, not segments - maybe it should be segments?
+	ME0SegmentCollection::range range = theME0RecHits->get(chamberId);
 
-      LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0RecHits->size()
-							 <<", from chamber: "<< chamberId<<std::endl;
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0RecHits->size()
+							   <<", from chamber: "<< chamberId<<std::endl;
 
-      // Create the MuonTransientTrackingRecHit
-      for (ME0SegmentCollection::const_iterator rechit = range.first; 
-	   rechit!=range.second; ++rechit)
-	result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
-      LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits = " << result.size()<<std::endl;
-    }
+	// Create the MuonTransientTrackingRecHit
+	for (ME0SegmentCollection::const_iterator rechit = range.first; 
+	     rechit!=range.second; ++rechit){
+	  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On ME0 iteration " <<std::endl;
+	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+	}
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits = " << result.size()<<std::endl;
+      }
   }
   else {
     // wrong type

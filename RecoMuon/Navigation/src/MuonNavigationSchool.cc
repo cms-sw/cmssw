@@ -66,7 +66,9 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
   else if ( enableCSC & !enableGEM & !enableRPC & !enableME0) endcap = muonLayout->allCSCLayers(); //CSC only
   else if ( enableCSC & !enableGEM & !enableRPC & enableME0) endcap = muonLayout->allEndcapCscME0Layers(); // CSC + ME0
   else if ( !enableCSC & !enableGEM & !enableRPC & enableME0) endcap = muonLayout->allME0Layers(); // ME0 only
-  else endcap = muonLayout->allCSCLayers(); //CSC only for all the remaining cases
+  //else endcap = muonLayout->allCSCLayers(); //CSC only for all the remaining cases
+  //Trying allEndcaplayers in all other cases, as in the GEM PR
+  else endcap = muonLayout->allEndcapLayers();
 
   for ( auto i = endcap.begin(); i != endcap.end(); i++ ) {
     const ForwardDetLayer* mep = dynamic_cast<const ForwardDetLayer*>(*i);

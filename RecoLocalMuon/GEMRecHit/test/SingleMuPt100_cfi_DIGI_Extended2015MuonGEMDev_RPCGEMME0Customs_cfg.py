@@ -67,6 +67,7 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
+    #fileName = cms.untracked.string('/tmp/dnash/out_digi_experiment.root'),
     fileName = cms.untracked.string('/tmp/dnash/out_digi.root'),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
@@ -79,6 +80,10 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
 
 # Path and EndPath definitions
+### Suggested by Slava
+#process.load ('SimGeneral.PileupInformation.AddPileupSummary_cfi')
+###Suggested by slava
+#process.digitisation_step = cms.Path(process.pdigi*process.addPileupInfo)
 process.digitisation_step = cms.Path(process.pdigi)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)

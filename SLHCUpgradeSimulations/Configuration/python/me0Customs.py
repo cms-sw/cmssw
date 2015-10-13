@@ -115,8 +115,8 @@ def customise_RecoFull(process):
 
 def customise_Reco(process):
     #process.load('RecoLocalMuon.GEMRecHit.gemRecHits_cfi')
-    process.load('RecoLocalMuon.GEMRecHit.me0RecHits_cfi')
-    process.muonlocalreco += process.me0RecHits
+    process.load('RecoLocalMuon.GEMRecHit.me0LocalReco_cfi')
+    process.muonlocalreco += process.me0LocalReco
     #process.load("RecoMuon.StandAloneMuonProducer.standAloneMuons_cff")
     process.standAloneMuons.STATrajBuilderParameters.FilterParameters.EnableME0Measurement = cms.bool(True)
     process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableME0Measurement = cms.bool(True)

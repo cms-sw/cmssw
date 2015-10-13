@@ -52,16 +52,18 @@ void MuonDetLayerGeometry::addCSCLayers(const pair<vector<DetLayer*>, vector<Det
 }    
 
 void MuonDetLayerGeometry::addGEMLayers(const pair<vector<DetLayer*>, vector<DetLayer*> >& gemlayers) {
-
+  LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding GEMlayers "<<std::endl;
   for(auto const it : gemlayers.first) {
     gemLayers_fw.push_back(it);
     allForward.push_back(it);
     detLayersMap[ makeDetLayerId(it) ] = it;
+  LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding GEMforward "<<std::endl;
   }
   for(auto const it: gemlayers.second) {
     gemLayers_bk.push_back(it);
     allBackward.push_back(it);
     detLayersMap[ makeDetLayerId(it) ] = it;
+    LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Adding GEMbackward "<<std::endl;
     }
 }   
 
@@ -158,8 +160,8 @@ DetId MuonDetLayerGeometry::makeDetLayerId(const DetLayer* detLayer) const{
     if (id_test.subdetId() == MuonSubdetId::ME0){
       LogDebug("Muon|RecoMuon|MuonDetLayerGeometry") << "Checked "<<std::endl;
     }
-    //return ME0DetId(id.region(),id.layer(),0,0);
-    return ME0DetId(id.region(),0,0,0);
+    return ME0DetId(id.region(),id.layer(),0,0);
+    //return ME0DetId(id.region(),0,0,0);
   }
   else throw cms::Exception("InvalidModuleIdentification"); // << detLayer->module();
 }
