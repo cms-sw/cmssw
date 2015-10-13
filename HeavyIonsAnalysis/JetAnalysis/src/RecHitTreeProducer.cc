@@ -89,6 +89,7 @@ struct MyRecHit{
   int iphi[MAXHITS];
 
   float e[MAXHITS];
+  float eraw[MAXHITS];
   float et[MAXHITS];
   float eta[MAXHITS];
   float phi[MAXHITS];
@@ -500,6 +501,7 @@ RecHitTreeProducer::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 	if (getEt(hit.id(),hit.energy())<hbhePtMin_) continue;
 
 	hbheRecHit.e[hbheRecHit.n] = hit.energy();
+	hbheRecHit.eraw[hbheRecHit.n] = hit.eraw();
 	math::XYZPoint pos = getPosition(hit.id(),vtx);
 
 	if(!saveBothVtx_){
@@ -834,6 +836,7 @@ RecHitTreeProducer::beginJob()
     hbheTree = fs->make<TTree>("hbhe",versionTag);
     hbheTree->Branch("n",&hbheRecHit.n,"n/I");
     hbheTree->Branch("e",hbheRecHit.e,"e[n]/F");
+    hbheTree->Branch("eraw",hbheRecHit.eraw,"eraw[n]/F");
     hbheTree->Branch("et",hbheRecHit.et,"et[n]/F");
     hbheTree->Branch("eta",hbheRecHit.eta,"eta[n]/F");
     hbheTree->Branch("phi",hbheRecHit.phi,"phi[n]/F");
