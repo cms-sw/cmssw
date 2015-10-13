@@ -65,6 +65,11 @@ ElectronMcMiniAODSignalValidator::ElectronMcMiniAODSignalValidator(const edm::Pa
    eta_min=histosSet.getParameter<double>("Etamin");
    eta_max=histosSet.getParameter<double>("Etamax");
 
+  detamatch_nbin=histosSet.getParameter<int>("Nbindetamatch");
+  detamatch2D_nbin=histosSet.getParameter<int>("Nbindetamatch2D");
+  detamatch_min=histosSet.getParameter<double>("Detamatchmin");
+  detamatch_max=histosSet.getParameter<double>("Detamatchmax");
+
    hoe_nbin= histosSet.getParameter<int>("Nbinhoe");
    hoe_min=histosSet.getParameter<double>("Hoemin");
    hoe_max=histosSet.getParameter<double>("Hoemax");
@@ -99,6 +104,10 @@ ElectronMcMiniAODSignalValidator::ElectronMcMiniAODSignalValidator(const edm::Pa
    h1_ele_fbrem_barrel_mAOD = 0 ;
    h1_ele_fbrem_endcaps_mAOD = 0 ;
    
+   h1_ele_dEtaSc_propVtx_mAOD = 0 ;
+   h1_ele_dEtaSc_propVtx_mAOD_barrel = 0 ;
+   h1_ele_dEtaSc_propVtx_mAOD_endcaps = 0 ;
+
    h1_ele_chargedHadronRelativeIso_mAOD = 0 ;
    h1_ele_chargedHadronRelativeIso_barrel_mAOD = 0 ;
    h1_ele_chargedHadronRelativeIso_endcaps_mAOD = 0 ;
@@ -147,6 +156,9 @@ void ElectronMcMiniAODSignalValidator::bookHistograms( DQMStore::IBooker & iBook
   h1_ele_HoE_mAOD = bookH1withSumw2(iBooker, "HoE_mAOD","ele hadronic energy / em energy",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P") ;
   h1_ele_HoE_mAOD_barrel = bookH1withSumw2(iBooker, "HoE_mAOD_barrel","ele hadronic energy / em energy, barrel",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P") ;
   h1_ele_HoE_mAOD_endcaps = bookH1withSumw2(iBooker, "HoE_mAOD_endcaps","ele hadronic energy / em energy, endcaps",hoe_nbin, hoe_min, hoe_max,"H/E","Events","ELE_LOGY E1 P") ;
+  h1_ele_dEtaSc_propVtx_mAOD = bookH1withSumw2(iBooker, "dEtaSc_propVtx_mAOD","ele #eta_{sc} - #eta_{tr}, prop from vertex",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{sc} - #eta_{tr}","Events","ELE_LOGY E1 P");
+  h1_ele_dEtaSc_propVtx_mAOD_barrel = bookH1withSumw2(iBooker, "dEtaSc_propVtx_mAOD_barrel","ele #eta_{sc} - #eta_{tr}, prop from vertex, barrel",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{sc} - #eta_{tr}","Events","ELE_LOGY E1 P");
+  h1_ele_dEtaSc_propVtx_mAOD_endcaps = bookH1withSumw2(iBooker, "dEtaSc_propVtx_mAOD_endcaps","ele #eta_{sc} - #eta_{tr}, prop from vertex, endcaps",detamatch_nbin,detamatch_min,detamatch_max,"#eta_{sc} - #eta_{tr}","Events","ELE_LOGY E1 P");
 
   // fbrem
   h1_ele_fbrem_mAOD = bookH1withSumw2(iBooker, "fbrem_mAOD","ele brem fraction, mode of GSF components",100,0.,1.,"P_{in} - P_{out} / P_{in}");
@@ -297,6 +309,11 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
         h1_scl_SigIEtaIEta_mAOD->Fill(bestGsfElectron.scSigmaIEtaIEta());
         if (bestGsfElectron.isEB()) h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
         if (bestGsfElectron.isEE()) h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
+    }
+    if (passMiniAODSelection) { // Pt > 5.
+        h1_ele_dEtaSc_propVtx_mAOD->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+        if (bestGsfElectron.isEB()) h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+        if (bestGsfElectron.isEE())h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
     }
    
     // match distributions
