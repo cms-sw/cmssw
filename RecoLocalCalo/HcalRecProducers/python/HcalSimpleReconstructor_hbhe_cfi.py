@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 
 hbheprereco = cms.EDProducer("HcalSimpleReconstructor",
+    method3.m3Parameters,
     correctionPhaseNS = cms.double(13.0),
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HBHE'),
@@ -10,11 +11,5 @@ hbheprereco = cms.EDProducer("HcalSimpleReconstructor",
     dropZSmarkedPassed = cms.bool(True),
     firstSample = cms.int32(4),
     samplesToAdd = cms.int32(4),
-    tsFromDB = cms.bool(True),
-    # Configuration parameters for Method 3
-    pedestalSubtractionType = method3.pedestalSubtractionType,
-    pedestalUpperLimit      = method3.pedestalUpperLimit,
-    timeSlewParsType        = method3.timeSlewParsType,
-    timeSlewPars            = method3.timeSlewPars,
-    respCorrM3              = method3.respCorrM3
+    tsFromDB = cms.bool(True)
 )

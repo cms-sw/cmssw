@@ -3,6 +3,7 @@ import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 
 horeco = cms.EDProducer(
     "HcalHitReconstructor",
+    method3.m3Parameters,
     correctionPhaseNS = cms.double(13.0),
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HO'),
@@ -32,11 +33,5 @@ horeco = cms.EDProducer(
     setTimingTrustFlags = cms.bool(False), # timing flags currently only implemented for HF
     setPulseShapeFlags = cms.bool(False),  # not yet defined for HO
     setNegativeFlags          = cms.bool(False),  # only in HBHE
-    saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
-    # Configuration parameters for Method 3
-    pedestalSubtractionType = method3.pedestalSubtractionType,
-    pedestalUpperLimit      = method3.pedestalUpperLimit,
-    timeSlewParsType        = method3.timeSlewParsType,
-    timeSlewPars            = method3.timeSlewPars,
-    respCorrM3              = method3.respCorrM3
+    saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127))
 ) # horeco

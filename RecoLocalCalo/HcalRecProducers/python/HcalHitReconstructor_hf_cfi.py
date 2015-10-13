@@ -3,6 +3,7 @@ import string # use for setting flag masks based on boolean bits
 import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 
 hfreco = cms.EDProducer("HcalHitReconstructor",
+                        method3.m3Parameters,
                         correctForPhaseContainment = cms.bool(False),
                         correctionPhaseNS = cms.double(13.0),
                         digiLabel = cms.InputTag("hcalDigis"),
@@ -166,12 +167,5 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
 
     hfTimingTrustParameters = cms.PSet(hfTimingTrustLevel1=cms.int32(1), # 1ns timing accuracy
                                        hfTimingTrustLevel2=cms.int32(4)  # 4ns timing accuracy
-                                       ),
-
-    # Configuration parameters for Method 3
-    pedestalSubtractionType = method3.pedestalSubtractionType,
-    pedestalUpperLimit      = method3.pedestalUpperLimit,
-    timeSlewParsType        = method3.timeSlewParsType,
-    timeSlewPars            = method3.timeSlewPars,
-    respCorrM3              = method3.respCorrM3
+                                       )
 ) # cms.EDProducers

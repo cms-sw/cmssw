@@ -3,6 +3,7 @@ import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 
 hbheprereco = cms.EDProducer(
     "HcalHitReconstructor",
+    method3.m3Parameters,
     correctionPhaseNS = cms.double(6.0),
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HBHE'),
@@ -130,11 +131,5 @@ hbheprereco = cms.EDProducer(
     ts4chi2               = cms.double(15.),  #chi2 for triple pulse 
     ts345chi2             = cms.double(100.), #chi2 (not used)
     chargeMax             = cms.double(6.),    #Charge cut (fC) for uncstrianed Fit 
-    fitTimes              = cms.int32(1),       # -1 means no constraint on number of fits per channel
-    # Configuration parameters for Method 3
-    pedestalSubtractionType = method3.pedestalSubtractionType,
-    pedestalUpperLimit      = method3.pedestalUpperLimit,
-    timeSlewParsType        = method3.timeSlewParsType,
-    timeSlewPars            = method3.timeSlewPars,
-    respCorrM3              = method3.respCorrM3
+    fitTimes              = cms.int32(1)       # -1 means no constraint on number of fits per channel
 )
