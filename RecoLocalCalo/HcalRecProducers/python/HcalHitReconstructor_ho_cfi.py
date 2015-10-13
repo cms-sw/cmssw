@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
-import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 
 horeco = cms.EDProducer(
     "HcalHitReconstructor",
-    method3.m3Parameters,
     correctionPhaseNS = cms.double(13.0),
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HO'),
@@ -35,3 +33,5 @@ horeco = cms.EDProducer(
     setNegativeFlags          = cms.bool(False),  # only in HBHE
     saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127))
 ) # horeco
+
+

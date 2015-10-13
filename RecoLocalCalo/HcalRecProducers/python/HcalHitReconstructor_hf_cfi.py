@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 import string # use for setting flag masks based on boolean bits
-import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 
 hfreco = cms.EDProducer("HcalHitReconstructor",
-                        method3.m3Parameters,
                         correctForPhaseContainment = cms.bool(False),
                         correctionPhaseNS = cms.double(13.0),
                         digiLabel = cms.InputTag("hcalDigis"),
@@ -162,10 +160,14 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
     HcalAcceptSeverityLevel             = cms.int32(9), # allow hits with severity up to AND INCLUDING 9
     ),
 
-    # saturation and hfTimingTrust Parameters
-    saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
 
-    hfTimingTrustParameters = cms.PSet(hfTimingTrustLevel1=cms.int32(1), # 1ns timing accuracy
-                                       hfTimingTrustLevel2=cms.int32(4)  # 4ns timing accuracy
-                                       )
-) # cms.EDProducers
+                        # saturation and hfTimingTrust Parameters
+                        saturationParameters=  cms.PSet(maxADCvalue=cms.int32(127)),
+
+                        hfTimingTrustParameters = cms.PSet(hfTimingTrustLevel1=cms.int32(1), # 1ns timing accuracy
+                                                           hfTimingTrustLevel2=cms.int32(4)  # 4ns timing accuracy
+                                                           )
+
+                        ) # cms.EDProducers
+
+

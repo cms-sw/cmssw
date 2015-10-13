@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-import RecoLocalCalo.HcalRecProducers.HBHEMethod3Parameters_cfi as method3
 
 hfreco = cms.EDProducer("HcalSimpleReconstructor",
-    method3.m3Parameters,
     correctionPhaseNS = cms.double(0.0),
     digiLabel = cms.InputTag("hcalDigis"),
     Subdetector = cms.string('HF'),
@@ -13,3 +11,5 @@ hfreco = cms.EDProducer("HcalSimpleReconstructor",
     samplesToAdd = cms.int32(2),
     tsFromDB = cms.bool(True)
 )
+
+
