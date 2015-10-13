@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 electronMcSignalHistosCfg = cms.PSet(
   Nbinxyz = cms.int32(50),
   Nbinpt = cms.int32(50), Nbinpt2D = cms.int32(50), Nbinpteff = cms.int32(19),Ptmax = cms.double(100.0),
+  Nbinfhits = cms.int32(30), Fhitsmax = cms.double(30.0),
   Nbineta = cms.int32(50), Nbineta2D = cms.int32(50),Etamin = cms.double(-2.5), Etamax = cms.double(2.5),
   Nbindeta = cms.int32(100), Detamin = cms.double(-0.005), Detamax = cms.double(0.005), 
   Nbindetamatch = cms.int32(100), Nbindetamatch2D = cms.int32(50), Detamatchmin = cms.double(-0.05), Detamatchmax = cms.double(0.05),
