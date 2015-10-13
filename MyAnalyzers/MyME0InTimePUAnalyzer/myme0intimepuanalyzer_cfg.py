@@ -15,7 +15,8 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
         # 'file:DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_100ps_amandeep_116.root'
-        'file:DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_100ps_amandeep_100.root'
+        # 'file:DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_100ps_amandeep_100.root'
+        'file:DYToMuMu_M-20_HGCALGS_PU140_ME0_RECO_100ps_amandeep_100_v2.root'
     )
 )
 
@@ -30,8 +31,8 @@ process.me0timeanalyzer = cms.EDAnalyzer('MyME0InTimePUAnalyzer',
                               printInfoHepMC    = cms.untracked.bool(False),
                               printInfoSignal   = cms.untracked.bool(True),
                               printInfoPU       = cms.untracked.bool(False),
-                              printInfoAll      = cms.untracked.bool(False),
-                              printInfoME0Match = cms.untracked.bool(False),
+                              printInfoAll      = cms.untracked.bool(True),
+                              printInfoME0Match = cms.untracked.bool(True),
                               # ----------------------------------------------------------------------
 
 )
