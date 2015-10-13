@@ -25,6 +25,14 @@ HcalSimpleReconstructor::HcalSimpleReconstructor(edm::ParameterSet const& conf):
   paramTS(0),
   theTopology(0)
 {
+  // Intitialize "method 3"
+  reco_.setMeth3Params(
+            conf.getParameter<int>     ("pedestalSubtractionType"),
+            conf.getParameter<double>  ("pedestalUpperLimit"),
+            conf.getParameter<int>     ("timeSlewParsType"),
+            conf.getParameter<std::vector<double> >("timeSlewPars"),
+            conf.getParameter<double>  ("respCorrM3")
+      );
 
   // register for data access
   tok_hbheUp_ = consumes<HBHEUpgradeDigiCollection>(inputLabel_);
