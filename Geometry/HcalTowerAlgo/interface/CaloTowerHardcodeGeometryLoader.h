@@ -16,7 +16,7 @@ class CaloTowerHardcodeGeometryLoader {
 public:
   std::auto_ptr<CaloSubdetectorGeometry> load(const CaloTowerTopology *limits, const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons);
 private:
-  void makeCell(int ieta, int iphi, CaloSubdetectorGeometry* geom) const;
+  void makeCell(uint32_t din, CaloSubdetectorGeometry* geom) const;
   const CaloTowerTopology *m_limits;
   const HcalTopology *m_hcaltopo;
   const HcalDDDRecConstants *m_hcons;

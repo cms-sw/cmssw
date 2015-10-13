@@ -24,37 +24,16 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
      geom->numberOfParametersPerShape()*geom->numberOfShapes(),
      geom->numberOfParametersPerShape() ) ;
 
-  int nnn=0;
   // simple loop
-  for (int ieta=-m_hcaltopo->lastHFRing(); ieta<=m_hcaltopo->lastHFRing(); ieta++) {
-    if (ieta==0) continue; // skip not existing eta=0 ring
-    for (int iphi=1; iphi<=72; iphi++) {
-      if (abs(ieta)>=m_hcaltopo->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
-      if (abs(ieta)>=m_hcaltopo->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
-      ++nnn;
-    }
+  for (uint32_t din = 0; din < m_limits->sizeForDenseIndexing(); ++din) {
+    makeCell(din, geom);
   }
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( nnn ) ; 
-  if( geom->parMgr()     == 0 ) geom->allocatePar( 41, 3 ) ;
-
-  int n=0;
-  // simple loop
-  for (int ieta=-m_hcaltopo->lastHFRing(); ieta<=m_hcaltopo->lastHFRing(); ieta++) {
-    if (ieta==0) continue; // skip not existing eta=0 ring
-    for (int iphi=1; iphi<=72; iphi++) {
-      if (abs(ieta)>=m_hcaltopo->firstHFQuadPhiRing() && ((iphi-1)%4)==0) continue;
-      if (abs(ieta)>=m_hcaltopo->firstHEDoublePhiRing() && ((iphi-1)%2)!=0) continue;
-      makeCell(ieta,iphi, geom);
-      n++;
-    }
-  }
-  edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << n << " towers.";
+  edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << m_limits->sizeForDenseIndexing() << " towers.";
   return std::auto_ptr<CaloSubdetectorGeometry>(geom); 
 }
 
 void
-CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
-					   int iphi,
+CaloTowerHardcodeGeometryLoader::makeCell( uint32_t din,
 					   CaloSubdetectorGeometry* geom ) const {
   const double EBradius = 143.0; // cm
   const double HOradius = 406.0+1.0;
@@ -64,6 +43,11 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
   const double HFthick = 165;
   // Tower 17 is the last EB tower
 
+  //use CT topology to get the DetId for this dense index
+  CaloTowerDetId id = m_limits->detIdFromDenseIndex(din);
+  int ieta = id.ieta();
+  int iphi = id.iphi();
+  
   //use CT topology to get proper ieta for hcal
   int etaRing=m_limits->convertCTtoHcal(abs(ieta));
   int sign=(ieta>0)?(1):(-1);
@@ -124,5 +108,5 @@ CaloTowerHardcodeGeometryLoader::makeCell( int ieta,
 		 CaloCellGeometry::getParmPtr( hh, 
 					       geom->parMgr(), 
 					       geom->parVecVec() ),
-		 CaloTowerDetId( ieta, iphi ) ) ;
+		 id ) ;
 }
