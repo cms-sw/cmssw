@@ -57,20 +57,20 @@ process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
 
 
 ############################################################
-# pixel stuff
+# pixel stuff, uncomment if needed
 ############################################################
-
-from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
-process.siPixelRecHits = siPixelRecHits
-
-process.L1PixelTrackFit = cms.EDProducer("L1PixelTrackFit")
-process.pixTrk = cms.Path(process.L1PixelTrackFit)
-
-process.pixRec = cms.Path(
-    process.RawToDigi+
-    process.siPixelRecHits
-)
-process.raw2digi_step = cms.Path(process.RawToDigi)
+#
+#from RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi import *
+#process.siPixelRecHits = siPixelRecHits
+#
+#process.L1PixelTrackFit = cms.EDProducer("L1PixelTrackFit")
+#process.pixTrk = cms.Path(process.L1PixelTrackFit)
+#
+#process.pixRec = cms.Path(
+#    process.RawToDigi+
+#    process.siPixelRecHits
+#)
+#process.raw2digi_step = cms.Path(process.RawToDigi)
 
 
 ############################################################
@@ -113,4 +113,4 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023TTI
 process = cust_2023TTI(process)
 
 #process.schedule = cms.Schedule(process.TT_step,process.TTAssociator_step,process.pixRec,process.pixTrk,process.FEVToutput_step)
-process.schedule = cms.Schedule(process.TT_step,process.TTAssociator_step,process.pixRec,process.pixTrk,process.ana)
+process.schedule = cms.Schedule(process.TT_step,process.TTAssociator_step,process.ana)

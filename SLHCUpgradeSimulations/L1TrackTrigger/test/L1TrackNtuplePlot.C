@@ -95,9 +95,11 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
   vector<float>* tp_phi;
   vector<float>* tp_z0;
   vector<float>* tp_d0;
+  vector<float>* tp_dxy;
   vector<int>*   tp_pdgid;
   vector<int>*   tp_nmatch;
   vector<int>*   tp_npixmatch;
+  vector<int>*   tp_nstub;
 
   // *L1 track* properties, for tracking particles matched to a L1 track
   vector<float>* matchtrk_pt;
@@ -133,9 +135,11 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
   TBranch* b_tp_phi;
   TBranch* b_tp_z0;
   TBranch* b_tp_d0;
+  TBranch* b_tp_dxy;
   TBranch* b_tp_pdgid;
   TBranch* b_tp_nmatch;
   TBranch* b_tp_npixmatch;
+  TBranch* b_tp_nstub;
 
   TBranch* b_matchtrk_pt;
   TBranch* b_matchtrk_eta;
@@ -170,9 +174,11 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
   tp_phi = 0;
   tp_z0  = 0;
   tp_d0  = 0;
+  tp_dxy  = 0;
   tp_pdgid = 0;
   tp_nmatch = 0;
   tp_npixmatch = 0;
+  tp_nstub = 0;
 
   matchtrk_pt  = 0;
   matchtrk_eta = 0;
@@ -207,9 +213,11 @@ void L1TrackNtuplePlot(TString type, bool doPixelTrack) {
   tree->SetBranchAddress("tp_phi",    &tp_phi,    &b_tp_phi);
   tree->SetBranchAddress("tp_z0",     &tp_z0,     &b_tp_z0);
   tree->SetBranchAddress("tp_d0",     &tp_d0,     &b_tp_d0);
+  tree->SetBranchAddress("tp_dxy",    &tp_dxy,    &b_tp_dxy);
   tree->SetBranchAddress("tp_pdgid",  &tp_pdgid,  &b_tp_pdgid);
   tree->SetBranchAddress("tp_nmatch", &tp_nmatch, &b_tp_nmatch);
   tree->SetBranchAddress("tp_npixmatch", &tp_npixmatch, &b_tp_npixmatch);
+  tree->SetBranchAddress("tp_nstub", &tp_nstub, &b_tp_nstub);
 
   tree->SetBranchAddress("matchtrk_pt",    &matchtrk_pt,    &b_matchtrk_pt);
   tree->SetBranchAddress("matchtrk_eta",   &matchtrk_eta,   &b_matchtrk_eta);
