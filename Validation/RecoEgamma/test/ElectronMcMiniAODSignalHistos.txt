@@ -19,9 +19,9 @@ Track-cluster matching observables
 ElectronMcMiniAODSignalValidator/h_ele_dEtaSc_propVtx_mAOD                  1 1 0 0
 ElectronMcMiniAODSignalValidator/h_ele_dEtaSc_propVtx_mAOD_barrel          1 1 0 0
 ElectronMcMiniAODSignalValidator/h_ele_dEtaSc_propVtx_mAOD_endcaps         1 1 1 0
-ElectronMcMiniAODSignalValidator/h_ele__dPhiCl_propOut_mAOD                1 1 0 0
-ElectronMcMiniAODSignalValidator/h_ele__dPhiCl_propOut_mAOD_barrel          1 1 0 0
-ElectronMcMiniAODSignalValidator/h_ele__dPhiCl_propOut_mAOD_endcaps        1 1 1 1
+ElectronMcMiniAODSignalValidator/h_ele_dPhiCl_propOut_mAOD                1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_dPhiCl_propOut_mAOD_barrel          1 1 0 0
+ElectronMcMiniAODSignalValidator/h_ele_dPhiCl_propOut_mAOD_endcaps        1 1 1 1
 
 ElectronMcMiniAODSignalValidator/h_ele_HoE_mAOD                         1 1 0 0
 ElectronMcMiniAODSignalValidator/h_ele_HoE_mAOD_barrel                  1 1 0 0
