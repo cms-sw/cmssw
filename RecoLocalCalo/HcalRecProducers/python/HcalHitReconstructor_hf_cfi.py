@@ -169,9 +169,9 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                                        ),
 
     # Configuration parameters for Method 3
-    pedestalSubtractionType = cms.int32(method3.pedestalSubtractionType),
-    pedestalUpperLimit      = cms.double(method3.pedestalUpperLimit),
-    timeSlewParsType        = cms.int32(method3.timeSlewParsType),
-    timeSlewPars            = cms.vdouble(method3.timeSlewPars),
-    respCorrM3              = cms.double(method3.respCorrM3)
+    pedestalSubtractionType = method3.pedestalSubtractionType,
+    pedestalUpperLimit      = method3.pedestalUpperLimit,
+    timeSlewParsType        = method3.timeSlewParsType,
+    timeSlewPars            = method3.timeSlewPars,
+    respCorrM3              = method3.respCorrM3
 ) # cms.EDProducers
