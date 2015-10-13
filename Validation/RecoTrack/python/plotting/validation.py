@@ -428,7 +428,7 @@ class Validation:
                 print "file command failed with exit code %d" % p.returncode
                 sys.exit(1)
             if not "ROOT" in stdout:
-                print "File {f} is not ROOT, please check the correct version, GobalTag etc. from {url}".format(f=f, url=relvalUrl)
+                print "File {f} is not ROOT, please check the correct version, GlobalTag etc. from {url}".format(f=f, url=relvalUrl)
                 allFine = False
                 if os.path.exists(f):
                     os.remove(f)
