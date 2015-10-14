@@ -49,7 +49,16 @@ _trackQualityNameOrder = collections.OrderedDict([
 ])
 
 _trackAlgoName = {
-    "ootb": "Out of the box"
+    "ootb": "Out of the box",
+    "iter0" : "Iterative Step 0",
+    "iter1" : "Iterative Step 1",
+    "iter2" : "Iterative Step 2",
+    "iter3" : "Iterative Step 3",
+    "iter4" : "Iterative Step 4",
+    "iter5" : "Iterative Step 5",
+    "iter6" : "Iterative Step 6",
+    "iter9" : "Iterative Step 9",
+    "iter10": "Iterative Step 10",
 }
 
 _trackAlgoOrder = [
@@ -65,12 +74,21 @@ _trackAlgoOrder = [
     'muonSeededStepInOut',
     'muonSeededStepOutIn',
     'duplicateMerge',
+    'iter0',
+    'iter1',
+    'iter2',
+    'iter3',
+    'iter4',
+    'iter5',
+    'iter6',
+    'iter9',
+    'iter10',
 ]
 
 _pageNameMap = {
     "summary": "Summary",
     "vertex": "Vertex",
-    "miniaod": "MiniAOD"
+    "miniaod": "MiniAOD",
 }
 
 _sectionNameMapOrder = collections.OrderedDict([
