@@ -14,7 +14,8 @@ _common = {"xtitle": "Simulated interactions", "xmin": _minPU, "xmax": _maxPU, "
 _recovsgen = PlotGroup("recovsgen", [
     Plot("RecoVtx_vs_GenVtx", ytitle="Reco vertices", **_common),
     Plot("MatchedRecoVtx_vs_GenVtx", ytitle="Matched reco vertices", **_common),
-    Plot("merged_vs_ClosestVertexInZ", xtitle="Closest distance in Z (cm)", ytitle="Merge rate", xlog=True),
+    Plot("merged_vs_ClosestVertexInZ", xtitle="Closest distance in Z (cm)", ytitle="Merge rate", xlog=True, ymax=_maxFake),
+    Plot("merged_vs_Z", xtitle="Z (cm)", ytitle="Merge rate", xmin=-20, xmax=20, ymax=_maxFake),
 ],
                        legendDy=-0.025
 )
@@ -27,15 +28,24 @@ _pvtagging = PlotGroup("pvtagging", [
                        legendDy=-0.025
 )
 _effandfake = PlotGroup("effandfake", [
-    Plot("effic_vs_NumVertices", xtitle="Reco vertices", ytitle="Efficiency vs. N vertices", xmin=_minVtx, xmax=_maxVtx, ymax=_maxEff),
-    Plot("fakerate_vs_PU", xtitle="Pileup interactions", ytitle="Fake rate vs. PU", xmin=_minPU, xmax=_maxPU, ymax=_maxFake),
+    Plot("effic_vs_NumVertices", xtitle="Simulated interactions", ytitle="Efficiency vs. N sim vertices", xmin=_minVtx, xmax=_maxVtx, ymax=_maxEff),
+    Plot("fakerate_vs_PU", xtitle="Simulated interactions", ytitle="Fake rate vs. N sim vertices", xmin=_minPU, xmax=_maxPU, ymax=_maxFake),
     Plot("effic_vs_NumTracks", xtitle="Tracks", ytitle="Efficiency vs. N tracks", title="", ymax=_maxEff),
     Plot("fakerate_vs_NumTracks", xtitle="Tracks", ytitle="Fake rate vs. N tracks", title="", ymax=_maxFake),
     Plot("effic_vs_Pt2", xtitle="Sum p_{T}^{2}    ", ytitle="Efficiency vs. sum p_{T}^{2}", xlog=True, ymax=_maxEff),
     Plot("fakerate_vs_Pt2", xtitle="Sum p_{T}^{2}    ", ytitle="Fake rate vs. sum p_{T}^{2}", xlog=True, ymax=_maxFake),
 ])
-_common = {"title": "", "xtitle": "Number of tracks", "scale": 1e4, "ylog": True, "ymin": 5, "ymax": 500}
+_common = {"title": "", "stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "ylog": True, "ymin": [5e-7, 5e-6, 5e-5, 5e-4]}
 _resolution = PlotGroup("resolution", [
+    Plot("RecoAllAssoc2GenMatched_ResolX", xtitle="Resolution in x (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolX", xtitle="Resolution in x for merged vertices (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatched_ResolY", xtitle="Resolution in y (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolY", xtitle="Resolution in y for merged vertices (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatched_ResolZ", xtitle="Resolution in z (#mum)", **_common),
+    Plot("RecoAllAssoc2GenMatchedMerged_ResolZ", xtitle="Resolution in z for merged vertices (#mum)", **_common),
+])
+_common = {"title": "", "xtitle": "Number of tracks", "scale": 1e4, "ylog": True, "ymin": 5, "ymax": 500}
+_resolutionNumTracks = PlotGroup("resolutionNumTracks", [
     Plot("RecoAllAssoc2GenMatched_ResolX_vs_NumTracks_Sigma", ytitle="Resolution in x (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatchedMerged_ResolX_vs_NumTracks_Sigma", ytitle="Resolution in x for merged vertices (#mum)", **_common),
     Plot("RecoAllAssoc2GenMatched_ResolY_vs_NumTracks_Sigma", ytitle="Resolution in y (#mum)", **_common),
@@ -150,6 +160,7 @@ plotter.append("", _vertexFolders, PlotFolder(
     _pvtagging,
     _effandfake,
     _resolution,
+    _resolutionNumTracks,
     _pull,
     _puritymissing,
     _sumpt2,
