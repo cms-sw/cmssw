@@ -602,12 +602,21 @@ HLT_Random_v*							# JIRA: CMSHLT-244
 HLT_Physics_v*							# skim
 DST_Physics_v*							# skim
 
-DST_CaloJet40_CaloScouting_v*					# JIRA: CMSHLT-548, CMSHLT-601
-DST_L1HTT125ORHTT150ORHTT175_CaloScouting_v*			# JIRA: CMSHLT-548, CMSHLT-601
-DST_HT250_CaloScouting_v*					# JIRA: CMSHLT-548, CMSHLT-601
-DST_CaloJet40_PFReco_PFBTagCSVReco_PFScouting_v*		# JIRA: CMSHLT-548
-DST_L1HTT125ORHTT150ORHTT175_PFReco_PFBTagCSVReco_PFScouting_v*	# JIRA: CMSHLT-548
-DST_HT450_PFReco_PFBTagCSVReco_PFScouting_v*			# JIRA: CMSHLT-548
+DST_CaloJet40_BTagScouting_v*					# JIRA: CMSHLT-603
+DST_CaloJet40_CaloScouting_PFScouting_v*			# JIRA: CMSHLT-548, CMSHLT-601, CMSHLT-603
+DST_L1HTT_BTagScouting_v*					# JIRA: CMSHLT-603
+DST_L1HTT_CaloScouting_PFScouting_v*				# JIRA: CMSHLT-603
+DST_HT250_CaloScouting_v*					# JIRA: CMSHLT-548, CMSHLT-601, CMSHLT-603
+DST_HT450_BTagScouting_v*					# JIRA: CMSHLT-603
+DST_HT450_PFScouting_v*						# JIRA: CMSHLT-603
+DST_ZeroBias_PFScouting_v*					# JIRA: CMSHLT-603
+DST_ZeroBias_BTagScouting_v*					# JIRA: CMSHLT-603
+DST_L1DoubleMu_BTagScouting_v*					# JIRA: CMSHLT-604
+DST_L1DoubleMu_PFScouting_v*					# JIRA: CMSHLT-604
+DST_L1DoubleMu_PFScouting_v*					# JIRA: CMSHLT-604
+DST_DoubleMu3_Mass10_BTagScouting_v*				# JIRA: CMSHLT-604
+DST_DoubleMu3_Mass10_PFScouting_v*				# JIRA: CMSHLT-604
+HLT_DoubleMu3_Mass10_v*						# JIRA: CMSHLT-604
 
 MC_PFMET_v*							# JIRA: CMSHLT-314 (template paths only for MC)
 MC_AK4PFJets_v*							# JIRA: CMSHLT-314 (template paths only for MC)
@@ -644,8 +653,8 @@ PhysicsEndOfFillOutput
 PhysicsEGammaCommissioningOutput
 PhysicsHadronsTausOutput
 PhysicsMuonsOutput
-ParkingHadronsOutput						# JIRA: CMSHLT-487
-PhysicsParkingScoutingMonitorOutput				# JIRA: CMSHLT-487, CMSHLT-548, CMSHLT-599
+ParkingOutput							# JIRA: CMSHLT-487, CMSHLT-603
+PhysicsParkingScoutingMonitorOutput				# JIRA: CMSHLT-487, CMSHLT-548, CMSHLT-599, CMSHLT-603
 ScoutingCaloOutput						# JIRA: CMSHLT-548
 ScoutingPFOutput						# JIRA: CMSHLT-548
 DQMOutput							# online DQMFileSaver
