@@ -293,7 +293,16 @@ def _mapCollectionToAlgoQuality(collName):
         quality = "highPurity"
     else:
         quality = ""
+    hasPtCut = False
+    if "Pt" in collName:
+        if "Step" in collName:
+            hasPtCut = collName.index("Pt") > collName.index("Step")
+        else:
+            hasPtCut = True
     collNameNoQuality = collName.replace("Hp", "")
+    if hasPtCut:
+        quality += "Pt"
+        collNameNoQuality = collNameNoQuality.replace("Pt", "")
     collNameLow = collNameNoQuality.lower().replace("frompv", "").replace("frompvalltp", "").replace("alltp", "")
 
     algo = None
