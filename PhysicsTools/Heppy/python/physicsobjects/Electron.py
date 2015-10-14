@@ -29,9 +29,11 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Trig":     return self.mvaIDTight()
         elif id == "POG_MVA_ID_NonTrig_full5x5":  return self.mvaIDLoose(full5x5=True)
         elif id == "POG_MVA_ID_Trig_full5x5":     return self.mvaIDTight(full5x5=True)
-        elif id == "POG_MVA_ID_Run2_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigPhys14","VLoose")
-        elif id == "POG_MVA_ID_Run2_NonTrig_Loose":    return self.mvaIDRun2("NonTrigPhys14","Loose")
-        elif id == "POG_MVA_ID_Run2_NonTrig_Tight":    return self.mvaIDRun2("NonTrigPhys14","Tight")
+        elif id == "POG_MVA_ID_Run2_NonTrig_VLoose":   return self.mvaIDRun2("NonTrigSpring15","VLoose")
+        elif id == "POG_MVA_ID_Run2_NonTrig_VLooseIdEmu":   return self.mvaIDRun2("NonTrigSpring15","VLooseIdEmu")
+        elif id == "POG_MVA_ID_Run2_NonTrig_VLooseIdIsoEmu":   return self.mvaIDRun2("NonTrigSpring15","VLooseIdIsoEmu")
+        elif id == "POG_MVA_ID_Run2_NonTrig_Tight":    return self.mvaIDRun2("NonTrigSpring15","Tight")
+        elif id == "MVA_ID_NonTrig_Phys14Fix_HZZ":     return self.mvaIDRun2("NonTrigPhys14Fix","HZZ")
         elif id.startswith("POG_Cuts_ID_"):
                 return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_"))
         for ID in self.electronIDs():
@@ -237,6 +239,39 @@ class Electron( Lepton ):
                     if   (eta < 0.8)  : return self.mvaRun2(name) > 0.73;
                     elif (eta < 1.479): return self.mvaRun2(name) > 0.57;
                     else              : return self.mvaRun2(name) > 0.05;
+                else: raise RuntimeError, "Ele MVA ID Working point not found"
+            elif name == "NonTrigPhys14Fix":
+                if wp == "HZZ":
+                    if self.pt() <= 10:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.586;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.712;
+                        else            : return self.mvaRun2(name) > -0.662;
+                    else:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.652;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.701;
+                        else            : return self.mvaRun2(name) > -0.350;
+            elif name == "NonTrigSpring15":
+                if wp=="VLoose":
+                    if self.pt() <= 10:
+                        if   (eta < 0.8)  : return self.mvaRun2(name) > -0.11;
+                        elif (eta < 1.479): return self.mvaRun2(name) > -0.55;
+                        else              : return self.mvaRun2(name) > -0.60;
+                    else:
+                        if   (eta < 0.8)  : return self.mvaRun2(name) > -0.16;
+                        elif (eta < 1.479): return self.mvaRun2(name) > -0.65;
+                        else              : return self.mvaRun2(name) > -0.74;                        
+                elif wp=="VLooseIdEmu":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.70;
+                    elif (eta < 1.479): return self.mvaRun2(name) > -0.83;
+                    else              : return self.mvaRun2(name) > -0.92;
+                elif wp=="VLooseIdIsoEmu":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > -0.155;
+                    elif (eta < 1.479): return self.mvaRun2(name) > -0.56;
+                    else              : return self.mvaRun2(name) > -0.76;
+                elif wp=="Tight":
+                    if   (eta < 0.8)  : return self.mvaRun2(name) > 0.87;
+                    elif (eta < 1.479): return self.mvaRun2(name) > 0.60;
+                    else              : return self.mvaRun2(name) > 0.17;
                 else: raise RuntimeError, "Ele MVA ID Working point not found"
             else: raise RuntimeError, "Ele MVA ID type not found"
 
