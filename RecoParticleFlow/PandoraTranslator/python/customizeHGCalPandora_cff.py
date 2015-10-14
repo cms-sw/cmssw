@@ -395,7 +395,7 @@ def cust_2023HGCalPandoraMuonFastTime(process):
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
-        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( TkClusParameters = process.DA2DParameters )
+        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(True), TkClusParameters = process.DA2DParameters )
         process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices4D+process.particleFlowReco)
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
@@ -437,7 +437,7 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
-        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( TkClusParameters = process.DA2DParameters )
+        process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(True), TkClusParameters = process.DA2DParameters )
         process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices4D+process.particleFlowReco)
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')

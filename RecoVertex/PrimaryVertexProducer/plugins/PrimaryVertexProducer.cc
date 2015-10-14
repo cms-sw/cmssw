@@ -178,11 +178,16 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     reco::TrackBaseRef temp;
     for( auto& seltk : seltks ) {
       temp = seltk.trackBaseRef();
-      const float time = trackTimes[temp];
-      const float timeReso = trackTimeResos[temp];
+      const double time = trackTimes[temp];
+      double timeReso = trackTimeResos[temp];
+      timeReso = ( timeReso > 1e-6 ? timeReso : std::numeric_limits<double>::max() );
+      std::cout << time << ' ' << timeReso << std::endl;
       reco::TransientTrack temptt(temp.castTo<reco::TrackRef>(),time,timeReso,
                                   theB->field(),theB->trackingGeometry());
       seltk.swap(temptt);
+      std::cout << seltk.track().pt() << ' '
+                << seltk.timeExt() << ' ' 
+                << seltk.dtErrorExt() << std::endl;
     }
   }
 
