@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("digiTest")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(10000)
 )
 #process.MessageLogger = cms.Service("MessageLogger",
 #    debugModules = cms.untracked.vstring('siPixelRawData'),
@@ -13,8 +13,9 @@ process.maxEvents = cms.untracked.PSet(
 #)
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-         'file:/afs/cern.ch/user/d/dutta/work/public/Digitizer/data/6_2_SLHCDEV_TBeam/step2_BeamTest_June2015_0T.root'
-       )
+#         'file:/afs/cern.ch/user/d/dutta/work/public/Digitizer/data/6_2_SLHCDEV_TBeam/step2_BeamTest_June2015_0T.root'
+           'file:step2_pi.root'),
+    duplicateCheckMode = cms.untracked.string('noDuplicateCheck')
 )
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')

@@ -30,6 +30,10 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
+#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLink.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h" 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -61,12 +65,19 @@ public:
   };
 
 private:
+  int matchedSimTrackIndex(edm::Handle< edm::DetSetVector<PixelDigiSimLink> > & linkHandle, 
+			   edm::Handle<edm::SimTrackContainer>& simTkHandle, DetId detId, unsigned int& channel);
+
   void bookHistos(unsigned int idet);
   uint32_t getTag(uint32_t idet);
   DQMStore* dqmStore_;
   edm::ParameterSet config_;
   std::map<uint32_t, DigiMEs> detMEs;
   edm::InputTag otDigiSrc_;
+  edm::InputTag otDigiSimLinkSrc_;
+
+  double phi_min; 
+  double phi_max; 
 };
 //
 // constructors 
@@ -75,7 +86,10 @@ TBeamTest::TBeamTest(const edm::ParameterSet& iConfig) :
   dqmStore_(edm::Service<DQMStore>().operator->()),
   config_(iConfig)
 {
-  otDigiSrc_ = config_.getParameter<edm::InputTag>("OuterTrackerDigiSource");
+  otDigiSrc_ = iConfig.getParameter<edm::InputTag>("OuterTrackerDigiSource");
+  otDigiSimLinkSrc_ = iConfig.getParameter<edm::InputTag>("OuterTrackerDigiSimSource");
+  phi_min = iConfig.getParameter<double>("PhiMin");
+  phi_max = iConfig.getParameter<double>("PhiMax");
   edm::LogInfo("TBeamTest") << ">>> Construct TBeamTest ";
 }
 
@@ -107,15 +121,28 @@ void TBeamTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // Get digis
 
+  edm::Handle< edm::DetSetVector<PixelDigiSimLink> > digiSimLinkHandle;
+  iEvent.getByLabel(otDigiSimLinkSrc_,   digiSimLinkHandle);
+  
+  edm::Handle<edm::SimTrackContainer> simTrackHandle;
+  iEvent.getByLabel("g4SimHits",simTrackHandle);
+
   edm::Handle< edm::DetSetVector<Phase2TrackerDigi> > otDigiHandle;
   iEvent.getByLabel(otDigiSrc_, otDigiHandle);
 
   const DetSetVector<Phase2TrackerDigi>* digis = otDigiHandle.product();
 
+
+  edm::ESHandle<TrackerGeometry> geomHandle;
+  iSetup.get<TrackerDigiGeometryRecord>().get( geomHandle );
+  const TrackerGeometry*  tkGeom = &(*geomHandle);
+
   edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSViter;
   for(DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
     unsigned int rawid = DSViter->id; 
     DetId detId(rawid);
+    
+    const GeomDetUnit* geomDetUnit = tkGeom->idToDetUnit(detId);
     edm::LogInfo("TBeamTest")<< " Det Id = " << rawid;    
     if (detId.subdetId() == PixelSubdetector::PixelBarrel || detId.subdetId() == PixelSubdetector::PixelEndcap) continue;    
     std::map<uint32_t, DigiMEs >::iterator pos = detMEs.find(getTag(rawid));
@@ -131,36 +158,50 @@ void TBeamTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     int width = 0;
     int position = 0; 
     for (DetSet<Phase2TrackerDigi>::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
-      int col = di->column(); // column
-      int row = di->row();    // row
-      nDigi++;
-      std::cout <<  "  column " << col << " row " << row  << std::endl;
-      edm::LogInfo("TBeamTest")<< "  column " << col << " row " << row  << std::endl;
-      local_mes.PositionOfDigis->Fill(row+1);
+      int col     = di->column(); // column
+      int row     = di->row();    // row
+      MeasurementPoint mp(row+0.5, col+0.5 );
       
-      if (row_last == -1 ) {
-        width  = 1;
-        position = row+1;
-        nclus++; 
-      } else {
-	if (abs(row - row_last) == 1 && col == col_last) {
-	  position += row+1;
-	  width++;
+      unsigned int channel = Phase2TrackerDigi::pixelToChannel(row, col);
+      int tkIndx  = matchedSimTrackIndex(digiSimLinkHandle, simTrackHandle, detId, channel);        
+
+      float dPhi = 9999.9;      
+
+      if (geomDetUnit && tkIndx != -1) dPhi = reco::deltaPhi((*simTrackHandle)[tkIndx].momentum().phi(), geomDetUnit->position().phi());
+      //=================Temporary ==============
+      if (fabs(dPhi) > phi_min && fabs(dPhi) < phi_max) {
+	//=================Temporary ==============
+	
+	nDigi++;
+	std::cout <<  "  column " << col << " row " << row  << " chan " << channel << std::endl;
+	edm::LogInfo("TBeamTest")<< "  column " << col << " row " << row  << std::endl;
+	local_mes.PositionOfDigis->Fill(row+1);
+	
+	if (row_last == -1 ) {
+	  width  = 1;
+	  position = row+1;
+	  nclus++; 
 	} else {
-          position /= width;  
-          local_mes.ClusterWidth->Fill(width);
-          local_mes.ClusterPosition->Fill(position);
+	  if (abs(row - row_last) == 1 && col == col_last) {
+	    position += row+1;
+	    width++;
+	  } else {
+	    std::cout << " position " << position << " " << width << std::endl;
+	    position /= width;  
+	    local_mes.ClusterWidth->Fill(width);
+	    local_mes.ClusterPosition->Fill(position);
 	  width  = 1;
 	  position = row+1;
           nclus++;
+	  }
 	}
+	edm::LogInfo("TBeamTest")<< " row " << row << " col " << col <<  " row_last " << row_last << " col_last " << col_last << " width " << width ;
+	row_last = row;
+	col_last = col;
       }
-      edm::LogInfo("TBeamTest")<< " row " << row << " col " << col <<  " row_last " << row_last << " col_last " << col_last << " width " << width ;
-      row_last = row;
-      col_last = col;
+      local_mes.NumberOfClusters->Fill(nclus);  
+      local_mes.NumberOfDigis->Fill(nDigi);
     }
-    local_mes.NumberOfClusters->Fill(nclus);  
-    local_mes.NumberOfDigis->Fill(nDigi);
   }
 }
 //
@@ -184,7 +225,7 @@ void TBeamTest::bookHistos(unsigned int idet){
     DigiMEs local_mes;
     edm::ParameterSet Parameters =  config_.getParameter<edm::ParameterSet>("NumbeOfDigisH");
     HistoName.str("");
-    HistoName << "NumberOfHits";
+    HistoName << "numberOfHits";
     local_mes.NumberOfDigis = dqmStore_->book1D(HistoName.str(), HistoName.str(),
 						Parameters.getParameter<int32_t>("Nbins"),
 						Parameters.getParameter<double>("xmin"),
@@ -192,28 +233,28 @@ void TBeamTest::bookHistos(unsigned int idet){
 
     Parameters =  config_.getParameter<edm::ParameterSet>("PositionOfDigisH");
     HistoName.str("");
-    HistoName << "HitPositions";
+    HistoName << "hitPositions";
     local_mes.PositionOfDigis = dqmStore_->book1D(HistoName.str(), HistoName.str(),
 						Parameters.getParameter<int32_t>("Nxbins"),
 						Parameters.getParameter<double>("xmin"),
 						  Parameters.getParameter<double>("xmax"));
     Parameters =  config_.getParameter<edm::ParameterSet>("NumberOfClustersH");
     HistoName.str("");
-    HistoName << "NumberOfCluetsrs";
+    HistoName << "numberOfCluetsrs";
     local_mes.NumberOfClusters = dqmStore_->book1D(HistoName.str(), HistoName.str(),
 					     Parameters.getParameter<int32_t>("Nbins"),
 					     Parameters.getParameter<double>("xmin"),
 					     Parameters.getParameter<double>("xmax"));
     Parameters =  config_.getParameter<edm::ParameterSet>("ClusterWidthH");
     HistoName.str("");
-    HistoName << "ClusterWidth";
+    HistoName << "clusterWidth";
     local_mes.ClusterWidth = dqmStore_->book1D(HistoName.str(), HistoName.str(),
 					     Parameters.getParameter<int32_t>("Nbins"),
 					     Parameters.getParameter<double>("xmin"),
 					     Parameters.getParameter<double>("xmax"));
     Parameters =  config_.getParameter<edm::ParameterSet>("ClusterPositionH");
     HistoName.str("");
-    HistoName << "ClusterPositions";
+    HistoName << "clusterPositions";
     local_mes.ClusterPosition = dqmStore_->book1D(HistoName.str(), HistoName.str(),
 					     Parameters.getParameter<int32_t>("Nbins"),
 					     Parameters.getParameter<double>("xmin"),
@@ -231,6 +272,33 @@ uint32_t TBeamTest::getTag(unsigned int idet) {
 void TBeamTest::endJob(){
   dqmStore_->cd();
   dqmStore_->showDirStructure();  
+}
+int TBeamTest::matchedSimTrackIndex(edm::Handle< edm::DetSetVector<PixelDigiSimLink> > & linkHandle, 
+				    edm::Handle<edm::SimTrackContainer>& simTkHandle, DetId detId, unsigned int& channel) {
+  int simTrkIndx = -1; 
+  unsigned int simTrkId = 0; 
+  edm::DetSetVector<PixelDigiSimLink>::const_iterator 
+    isearch = linkHandle->find(detId);
+
+  if (isearch == linkHandle->end()) return simTrkIndx;
+
+  edm::DetSet<PixelDigiSimLink> link_detset = (*linkHandle)[detId];
+  // Loop over DigiSimLink in this det unit
+  for (edm::DetSet<PixelDigiSimLink>::const_iterator it = link_detset.data.begin(); it != link_detset.data.end(); it++) {
+    if (channel == it->channel()) {
+      simTrkId = it->SimTrackId();
+      break;        
+    } 
+  }
+  if (simTrkId == 0) return simTrkIndx;
+  edm::SimTrackContainer sim_tracks = (*simTkHandle.product());
+  for(unsigned int itk = 0; itk < sim_tracks.size(); itk++) {
+    if (sim_tracks[itk].trackId() == simTrkId) {
+      simTrkIndx = itk;
+      break;
+    }
+  }
+  return simTrkIndx;
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(TBeamTest);

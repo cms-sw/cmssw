@@ -324,26 +324,9 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(std::string name) const 
     else if ( name.find("5") != std::string::npos) return ModuleType::W6;
     else if ( name.find("6") != std::string::npos) return ModuleType::W7;
   } else if ( name.find("BModule") != std::string::npos || name.find("EModule") != std::string::npos ) { 
-    std::string tmpstr;
-    int pos = -1;
-    if (name.find("OUTERactive") != std::string::npos) {
-      pos = 2;
-      tmpstr = name.substr(0,name.find("OUTERactive"));
-    } else if (name.find("INNERactive") != std::string::npos) {
-      tmpstr = name.substr(0, name.find("INNERactive"));
-      pos = 1;
-    } 
-    int lnum = -1;
-    int rnum = -1;
-
-    if (tmpstr.find("Layer") != std::string::npos) lnum = stoi(tmpstr.substr(tmpstr.find("Layer")+5)); 
-    else if (tmpstr.find("Disc") != std::string::npos) rnum = stoi(tmpstr.substr(7,tmpstr.find("Disc"))); 
-    
-    if ( (rnum > 9) || (lnum > 3) ) return ModuleType::Ph2SS;
-    else if ( (rnum > -1 && rnum <=9) || (lnum > -1 && lnum <=3)) {
-      if (pos == 1) return ModuleType::Ph2PSP;
-      else if (pos == 2) return ModuleType::Ph2PSS;
-    }
+    if (name.find("PSMacroPixel")) return ModuleType::Ph2PSP;
+    else if (name.find("PSStrip")) return ModuleType::Ph2PSS;
+    else if (name.find("2S")) return ModuleType::Ph2SS;
   }
   return ModuleType::UNKNOWN;  
 }
