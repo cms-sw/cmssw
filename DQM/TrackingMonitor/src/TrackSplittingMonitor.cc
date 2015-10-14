@@ -153,11 +153,6 @@ void TrackSplittingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
 }
 
-void TrackSplittingMonitor::beginJob(void) 
-{	
-  //get input tags
-	  
-}
 
 //
 // -- Analyse
@@ -360,7 +355,5 @@ void TrackSplittingMonitor::analyze(const edm::Event& iEvent, const edm::EventSe
 }
 
 
-void TrackSplittingMonitor::endJob(void) {
-}
 
 DEFINE_FWK_MODULE(TrackSplittingMonitor);
