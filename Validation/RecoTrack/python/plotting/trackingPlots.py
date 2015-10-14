@@ -213,7 +213,8 @@ _common = {"stat": True, "normalizeToUnitArea": True, "ylog": True, "ymin": 1e-6
 _hitsAndPt = PlotGroup("hitsAndPt", [
     Plot("missing_inner_layers", ymax=1, **_common),
     Plot("missing_outer_layers", ymax=1, **_common),
-    Plot("hits_eta", stat=True, statx=0.38, xtitle="track #eta", ytitle="<hits> vs #eta", ymin=8, ymax=24, statyadjust=[0,0,-0.15]),
+    Plot("hits_eta", stat=True, statx=0.38, xtitle="track #eta", ytitle="<hits> vs #eta", ymin=8, ymax=24, statyadjust=[0,0,-0.15],
+         fallback={"name": "nhits_vs_eta", "profileX": True}),
     Plot("hits", stat=True, xtitle="track hits", xmin=0, xmax=40, drawStyle="hist"),
     Plot("num_simul_pT", xtitle="TP p_{T}", xlog=True, ymax=[1e-1, 2e-1, 5e-1, 1], **_common),
     Plot("num_reco_pT", xtitle="track p_{T}", xlog=True, ymax=[1e-1, 2e-1, 5e-1, 1], **_common)
@@ -221,7 +222,8 @@ _hitsAndPt = PlotGroup("hitsAndPt", [
 _tuning = PlotGroup("tuning", [
     Plot("chi2", stat=True, normalizeToUnitArea=True, ylog=True, ymin=1e-6, ymax=[0.1, 0.2, 0.5, 1.0001], drawStyle="hist", xtitle="#chi^{2}", ratioUncertainty=False),
     Plot("chi2_prob", stat=True, normalizeToUnitArea=True, drawStyle="hist", xtitle="Prob(#chi^{2})"),
-    Plot("chi2mean", stat=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5),
+    Plot("chi2mean", stat=True, title="", xtitle="#eta", ytitle="< #chi^{2} / ndf >", ymax=2.5,
+         fallback={"name": "chi2_vs_eta", "profileX": True}),
     Plot("ptres_vs_eta_Mean", stat=True, scale=100, title="", xtitle="#eta", ytitle="< #delta p_{T} / p_{T} > [%]", ymin=-1.5, ymax=1.5)
 ])
 _common = {"stat": True, "fit": True, "normalizeToUnitArea": True, "drawStyle": "hist", "drawCommand": "", "xmin": -10, "xmax": 10, "ylog": True, "ymin": 5e-5, "ymax": [0.01, 0.05, 0.1, 0.2, 0.5, 0.8, 1.025], "ratioUncertainty": False}
