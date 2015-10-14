@@ -298,3 +298,5 @@ FamosCalorimetryBlock = cms.PSet(
 
 FamosCalorimetryBlock.Calorimetry.ECAL.Digitizer = True
 FamosCalorimetryBlock.Calorimetry.HCAL.Digitizer = True
+
+eras.run2_common.toModify(FamosCalorimetryBlock.Calorimetry.HFShowerLibrary, FileName = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_noatt_eta4_16en_v3.root' )
