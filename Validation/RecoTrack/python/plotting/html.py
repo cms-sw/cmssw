@@ -38,6 +38,8 @@ _fromPVAllTPName = "Tracks from PV (all TPs)"
 _trackQualityNameOrder = collections.OrderedDict([
     ("", "All tracks"),
     ("highPurity", "High purity tracks"),
+    ("Pt", "Tracks pT > 0.9 GeV"),
+    ("highPurityPt", "High purity tracks pT > 0.9 GeV"),
     ("btvLike", "BTV-like"),
     ("ak4PFJets", "AK4 PF jets"),
     ("allTPEffic_", _allTPEfficName),
