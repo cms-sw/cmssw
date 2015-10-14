@@ -57,19 +57,22 @@ def customise_HcalPhase1(process):
                 'CholeskyMatrices',
                 'CovarianceMatrices'
                 )
-
+    """
     process.es_hardcode.hcalTopologyConstants.mode=cms.string('HcalTopologyMode::SLHC')
     process.es_hardcode.hcalTopologyConstants.maxDepthHB=cms.int32(3)
     process.es_hardcode.hcalTopologyConstants.maxDepthHB=cms.int32(3)
     process.es_hardcode.hcalTopologyConstants.maxDepthHE=cms.int32(5)
+    """
     process.es_hardcode.HcalReLabel.RelabelHits=cms.untracked.bool(True)
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
 
+    """
     process.hcalTopologyIdeal.hcalTopologyConstants.mode=cms.string('HcalTopologyMode::SLHC')
     process.hcalTopologyIdeal.hcalTopologyConstants.maxDepthHB=cms.int32(3)
     process.hcalTopologyIdeal.hcalTopologyConstants.maxDepthHE=cms.int32(5)
+    """
 
 
     if hasattr(process,'g4SimHits'):

@@ -40,7 +40,7 @@ def noCrossing(process):
     return process
 
 def cust_2023HGCal_common(process):
-    process=customisePhase1Tk(process)
+    #process=customisePhase1Tk(process)
     #process=customise_HcalPhase0(process)
     if hasattr(process,'L1simulation_step'):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
@@ -63,12 +63,15 @@ def cust_2023HGCal_common(process):
     return process
 
 def cust_2023HGCal(process):
+    process = customise_HcalPhase1(process)
     process = cust_2023HGCal_common(process)
     return process
 
 def cust_2023HGCalMuon(process):
-    process = cust_2023HGCal_common(process)
+    process = customise_HcalPhase1(process)
     process = customise_me0(process)
+    process = cust_2023HGCal_common(process)
+    
     return process
 
 ##### clone aging.py here 
