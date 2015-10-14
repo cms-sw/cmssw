@@ -70,7 +70,7 @@ private:
     int iev; // events through
 
     edm::ESHandle<ME0Geometry> me0Geom;
-
+    double X_PULL_CUT, Y_PULL_CUT,X_RESIDUAL_CUT,Y_RESIDUAL_CUT, PHIDIR_RESIDUAL_CUT;
   
 };
 

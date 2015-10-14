@@ -30,6 +30,7 @@ ME0SegAlgoMM::ME0SegAlgoMM(const edm::ParameterSet& ps) : ME0SegmentAlgorithm(ps
   preClustering_useChaining = ps.getParameter<bool>("preClusteringUseChaining");
   dPhiChainBoxMax           = ps.getParameter<double>("dPhiChainBoxMax");
   dEtaChainBoxMax           = ps.getParameter<double>("dEtaChainBoxMax");
+  dTimeChainBoxMax          = ps.getParameter<double>("dTimeChainBoxMax");
   maxRecHitsInCluster       = ps.getParameter<int>("maxRecHitsInCluster");
 }
 
@@ -260,10 +261,12 @@ bool ME0SegAlgoMM::isGoodToMerge(EnsambleHitContainer & newChain, EnsambleHitCon
     int layer_new = newChain[iRH_new]->me0Id().layer();     
     float phi_new = theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).phi();
     float eta_new = theEnsamble.first->toGlobal(newChain[iRH_new]->localPosition()).eta();
+    float time_new = newChain[iRH_new]->tof();
     for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
       int layer_old = oldChain[iRH_old]->me0Id().layer();
       float phi_old = theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).phi();
       float eta_old = theEnsamble.first->toGlobal(oldChain[iRH_old]->localPosition()).eta();
+      float time_old = oldChain[iRH_old]->tof();
       // to be chained, two hits need to be in neighbouring layers...
       // or better allow few missing layers (upto 3 to avoid inefficiencies);
       // however we'll not make an angle correction because it
@@ -275,8 +278,9 @@ bool ME0SegAlgoMM::isGoodToMerge(EnsambleHitContainer & newChain, EnsambleHitCon
       bool layerRequirementOK = abs(layer_new-layer_old)<5;
       bool phiRequirementOK = fabs(phi_old-phi_new) < dPhiChainBoxMax;
       bool etaRequirementOK = fabs(eta_old-eta_new) < dEtaChainBoxMax;
+      bool timeRequirementOK = fabs(time_old-time_new) < dTimeChainBoxMax;
       
-      if(layerRequirementOK && phiRequirementOK && etaRequirementOK){
+      if(layerRequirementOK && phiRequirementOK && etaRequirementOK && timeRequirementOK){
         return true;
       }
     }
@@ -303,8 +307,22 @@ std::vector<ME0Segment> ME0SegAlgoMM::buildSegments(const EnsambleHitContainer& 
   this->doSlopesAndChi2();
   this->fillLocalDirection();
   AlgebraicSymMatrix protoErrors = this->calculateError();
-  this->flipErrors( protoErrors ); 
-  ME0Segment tmp(proto_segment,protoIntercept, protoDirection, protoErrors,protoChi2);
+  this->flipErrors( protoErrors );
+
+  // Calculate the central value and uncertainty of the segment time
+  float averageTime=0.;
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    averageTime += (*rh)->tof();                                          
+  }
+  if(rechits.size() != 0) averageTime=averageTime/(rechits.size());
+  float timeUncrt=0.;
+  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
+    timeUncrt += pow((*rh)->tof()-averageTime,2);
+  }
+  if(rechits.size() > 1) timeUncrt=timeUncrt/(rechits.size()-1);
+  timeUncrt = sqrt(timeUncrt);
+
+  ME0Segment tmp(proto_segment,protoIntercept, protoDirection, protoErrors,protoChi2,averageTime,timeUncrt);
   me0segs.push_back(tmp);
   return me0segs;
 }
