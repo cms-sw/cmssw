@@ -64,6 +64,11 @@ JetAnalyzer_HeavyIons_matching::JetAnalyzer_HeavyIons_matching(const edm::Parame
     mChargedEmEnergy_Jet1_unmatched = 0;
     mNeutralEmEnergy_Jet1_unmatched = 0;
     mChargedMuEnergy_Jet1_unmatched = 0;
+    mChargedHadEnergyFraction_Jet1_unmatched = 0;
+    mNeutralHadEnergyFraction_Jet1_unmatched = 0;
+    mPhotonEnergyFraction_Jet1_unmatched = 0;
+    mElectronEnergyFraction_Jet1_unmatched = 0;
+    mMuonEnergyFraction_Jet1_unmatched = 0;
   }
   
   if(std::string("VsPF") == JetType2){
@@ -72,6 +77,11 @@ JetAnalyzer_HeavyIons_matching::JetAnalyzer_HeavyIons_matching(const edm::Parame
     mChargedEmEnergy_Jet2_unmatched = 0;
     mNeutralEmEnergy_Jet2_unmatched = 0;
     mChargedMuEnergy_Jet2_unmatched = 0;
+    mChargedHadEnergyFraction_Jet2_unmatched = 0;
+    mNeutralHadEnergyFraction_Jet2_unmatched = 0;
+    mPhotonEnergyFraction_Jet2_unmatched = 0;
+    mElectronEnergyFraction_Jet2_unmatched = 0;
+    mMuonEnergyFraction_Jet2_unmatched = 0;
   }
   
   
@@ -99,19 +109,32 @@ void JetAnalyzer_HeavyIons_matching::bookHistograms(DQMStore::IBooker & ibooker,
     }
 
     if(std::string("VsPF") == JetType1){
-      mChargedHadronEnergy_Jet1_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet1_unmatched", "charged HAD energy unmatched Jet1",    50, 0, 100);
-      mNeutralHadronEnergy_Jet1_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet1_unmatched", "charged HAD energy unmatched Jet1",    50, 0, 100);
-      mChargedEmEnergy_Jet1_unmatched = ibooker.book1D("ChargedEmEnergy_Jet1_unmatched", "charged EM energy unmatched Jet1",    50, 0, 100);
-      mNeutralEmEnergy_Jet1_unmatched = ibooker.book1D("ChargedEmEnergy_Jet1_unmatched", "charged EM energy unmatched Jet1",    50, 0, 100);
-      mChargedMuEnergy_Jet1_unmatched = ibooker.book1D("ChargedMuEnergy_Jet1_unmatched", "charged Mu energy unmatched Jet1",    50, 0, 100);
+      mChargedHadronEnergy_Jet1_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet1_unmatched", "charged HAD energy unmatched Jet1",    100, 0, 300);
+      mNeutralHadronEnergy_Jet1_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet1_unmatched", "charged HAD energy unmatched Jet1",    100, 0, 300);
+      mChargedEmEnergy_Jet1_unmatched = ibooker.book1D("ChargedEmEnergy_Jet1_unmatched", "charged EM energy unmatched Jet1",    100, 0, 300);
+      mNeutralEmEnergy_Jet1_unmatched = ibooker.book1D("ChargedEmEnergy_Jet1_unmatched", "charged EM energy unmatched Jet1",    100, 0, 300);
+      mChargedMuEnergy_Jet1_unmatched = ibooker.book1D("ChargedMuEnergy_Jet1_unmatched", "charged Mu energy unmatched Jet1",    100, 0, 300);
+
+      mChargedHadEnergyFraction_Jet1_unmatched = ibooker.book1D("ChargedHadEnergyFraction_Jet1_unmatched","h^{+/-} Energy Fraction",50, 0, 1);
+      mNeutralHadEnergyFraction_Jet1_unmatched = ibooker.book1D("NeutralHadEnergyFraction_Jet1_unmatched","h^{0} Energy Fraction",50, 0, 1);
+      mPhotonEnergyFraction_Jet1_unmatched = ibooker.book1D("PhotonEnergyFraction_Jet1_unmatched","#gamma Energy Fraction",50, 0, 1);
+      mElectronEnergyFraction_Jet1_unmatched = ibooker.book1D("ElectronEnergyFraction_Jet1_unmatched","e Energy Fraction",50, 0, 1);
+      mMuonEnergyFraction_Jet1_unmatched = ibooker.book1D("MuonoEnergyFraction_Jet1_unmatched","#mu Energy Fraction",50, 0, 1);
+      
     }
 
     if(std::string("VsPF") == JetType2){
-      mChargedHadronEnergy_Jet2_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet2_unmatched", "charged HAD energy unmatched Jet2",    50, 0, 100);
-      mNeutralHadronEnergy_Jet2_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet2_unmatched", "charged HAD energy unmatched Jet2",    50, 0, 100);
-      mChargedEmEnergy_Jet2_unmatched = ibooker.book1D("ChargedEmEnergy_Jet2_unmatched", "charged EM energy unmatched Jet2",    50, 0, 100);
-      mNeutralEmEnergy_Jet2_unmatched = ibooker.book1D("ChargedEmEnergy_Jet2_unmatched", "charged EM energy unmatched Jet2",    50, 0, 100);
-      mChargedMuEnergy_Jet2_unmatched = ibooker.book1D("ChargedMuEnergy_Jet2_unmatched", "charged Mu energy unmatched Jet2",    50, 0, 100);
+      mChargedHadronEnergy_Jet2_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet2_unmatched", "charged HAD energy unmatched Jet2",    100, 0, 300);
+      mNeutralHadronEnergy_Jet2_unmatched = ibooker.book1D("ChargedHadronEnergy_Jet2_unmatched", "charged HAD energy unmatched Jet2",    100, 0, 300);
+      mChargedEmEnergy_Jet2_unmatched = ibooker.book1D("ChargedEmEnergy_Jet2_unmatched", "charged EM energy unmatched Jet2",    100, 0, 300);
+      mNeutralEmEnergy_Jet2_unmatched = ibooker.book1D("ChargedEmEnergy_Jet2_unmatched", "charged EM energy unmatched Jet2",    100, 0, 300);
+      mChargedMuEnergy_Jet2_unmatched = ibooker.book1D("ChargedMuEnergy_Jet2_unmatched", "charged Mu energy unmatched Jet2",    100, 0, 300);
+      mChargedHadEnergyFraction_Jet2_unmatched = ibooker.book1D("ChargedHadEnergyFraction_Jet2_unmatched","h^{+/-} Energy Fraction",50, 0, 1);
+      mNeutralHadEnergyFraction_Jet2_unmatched = ibooker.book1D("NeutralHadEnergyFraction_Jet2_unmatched","h^{0} Energy Fraction",50, 0, 1);
+      mPhotonEnergyFraction_Jet2_unmatched = ibooker.book1D("PhotonEnergyFraction_Jet2_unmatched","#gamma Energy Fraction",50, 0, 1);
+      mElectronEnergyFraction_Jet2_unmatched = ibooker.book1D("ElectronEnergyFraction_Jet2_unmatched","e Energy Fraction",50, 0, 1);
+      mMuonEnergyFraction_Jet2_unmatched = ibooker.book1D("MuonoEnergyFraction_Jet2_unmatched","#mu Energy Fraction",50, 0, 1);
+
     }
     
     if (mOutputFile.empty ()) 
@@ -289,6 +312,7 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
       }
     }
 
+    
     ABItr itr;
     // matched Jets matching Jet 1 to Jet 2 
     for(itr = mABMatchedJets.begin(); itr != mABMatchedJets.end(); ++itr){
@@ -348,6 +372,12 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 	  mChargedEmEnergy_Jet1_unmatched->Fill((*pfJets)[Aj.id].chargedEmEnergy());
 	  mNeutralEmEnergy_Jet1_unmatched->Fill((*pfJets)[Aj.id].neutralEmEnergy());
 	  mChargedMuEnergy_Jet1_unmatched->Fill((*pfJets)[Aj.id].chargedMuEnergy());
+
+	  mChargedHadEnergyFraction_Jet1_unmatched->Fill((*pfJets)[Aj.id].chargedHadronEnergyFraction());
+	  mNeutralHadEnergyFraction_Jet1_unmatched->Fill((*pfJets)[Aj.id].neutralHadronEnergyFraction());
+	  mPhotonEnergyFraction_Jet1_unmatched->Fill((*pfJets)[Aj.id].photonEnergyFraction());
+	  mElectronEnergyFraction_Jet1_unmatched->Fill((*pfJets)[Aj.id].electronEnergyFraction());
+	  mMuonEnergyFraction_Jet1_unmatched->Fill((*pfJets)[Aj.id].muonEnergyFraction());
 	}
 	
       }
@@ -376,6 +406,12 @@ void JetAnalyzer_HeavyIons_matching::analyze(const edm::Event& mEvent, const edm
 	  mChargedEmEnergy_Jet2_unmatched->Fill((*pfJets)[Bj.id].chargedEmEnergy());
 	  mNeutralEmEnergy_Jet2_unmatched->Fill((*pfJets)[Bj.id].neutralEmEnergy());
 	  mChargedMuEnergy_Jet2_unmatched->Fill((*pfJets)[Bj.id].chargedMuEnergy());
+	  
+	  mChargedHadEnergyFraction_Jet2_unmatched->Fill((*pfJets)[Bj.id].chargedHadronEnergyFraction());
+	  mNeutralHadEnergyFraction_Jet2_unmatched->Fill((*pfJets)[Bj.id].neutralHadronEnergyFraction());
+	  mPhotonEnergyFraction_Jet2_unmatched->Fill((*pfJets)[Bj.id].photonEnergyFraction());
+	  mElectronEnergyFraction_Jet2_unmatched->Fill((*pfJets)[Bj.id].electronEnergyFraction());
+	  mMuonEnergyFraction_Jet2_unmatched->Fill((*pfJets)[Bj.id].muonEnergyFraction());
 	}
        
       }
