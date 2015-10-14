@@ -3,12 +3,14 @@ import Validation.RecoTrack.plotting.validation as validation
 from Validation.RecoTrack.plotting.html import PlotPurpose
 
 
-_maxPU = 80
-_maxVtx = 60
+_minPU = [0, 80, 120]
+_maxPU = [80, 100, 150, 200, 250]
+_minVtx = [0, 80, 120]
+_maxVtx = [60, 100, 150, 200, 250]
 _maxEff = 1.025
 _maxFake = [0.05, 0.1, 0.2, 0.5, 0.7, 1.025]
 
-_common = {"xlabel": "Pileup interactions", "xmax": _maxPU, "ymax": _maxVtx}
+_common = {"xtitle": "Simulated interactions", "xmin": _minPU, "xmax": _maxPU, "ymin": _minVtx, "ymax": _maxVtx}
 _recovsgen = PlotGroup("recovsgen", [
     Plot("RecoVtx_vs_GenVtx", ytitle="Reco vertices", **_common),
     Plot("MatchedRecoVtx_vs_GenVtx", ytitle="Matched reco vertices", **_common),
@@ -25,8 +27,8 @@ _pvtagging = PlotGroup("pvtagging", [
                        legendDy=-0.025
 )
 _effandfake = PlotGroup("effandfake", [
-    Plot("effic_vs_NumVertices", xtitle="Reco vertices", ytitle="Efficiency vs. N vertices", xmax=_maxVtx, ymax=_maxEff),
-    Plot("fakerate_vs_PU", xtitle="Pileup interactions", ytitle="Fake rate vs. PU", xmax=_maxPU, ymax=_maxFake),
+    Plot("effic_vs_NumVertices", xtitle="Reco vertices", ytitle="Efficiency vs. N vertices", xmin=_minVtx, xmax=_maxVtx, ymax=_maxEff),
+    Plot("fakerate_vs_PU", xtitle="Pileup interactions", ytitle="Fake rate vs. PU", xmin=_minPU, xmax=_maxPU, ymax=_maxFake),
     Plot("effic_vs_NumTracks", xtitle="Tracks", ytitle="Efficiency vs. N tracks", title="", ymax=_maxEff),
     Plot("fakerate_vs_NumTracks", xtitle="Tracks", ytitle="Fake rate vs. N tracks", title="", ymax=_maxFake),
     Plot("effic_vs_Pt2", xtitle="Sum p_{T}^{2}    ", ytitle="Efficiency vs. sum p_{T}^{2}", xlog=True, ymax=_maxEff),

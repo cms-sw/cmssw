@@ -41,18 +41,30 @@ def _getDirectory(tfile, possibleDirs, subDir=None):
     return None
 
 
-def _getXmin(obj):
+def _getXmin(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH1):
         xaxis = obj.GetXaxis()
-        return xaxis.GetBinLowEdge(xaxis.GetFirst())
+        if limitToNonZeroContent:
+            for i in xrange(1, obj.GetNbinsX()+1):
+                if obj.GetBinContent(i) != 0:
+                    return xaxis.GetBinLowEdge(i)
+            return xaxis.GetBinLowEdge(xaxis.GetLast())
+        else:
+            return xaxis.GetBinLowEdge(xaxis.GetFirst())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
         return min([obj.GetX()[i] for i in xrange(0, obj.GetN())])*0.9
     raise Exception("Unsupported type %s" % str(obj))
 
-def _getXmax(obj):
+def _getXmax(obj, limitToNonZeroContent=False):
     if isinstance(obj, ROOT.TH1):
         xaxis = obj.GetXaxis()
-        return xaxis.GetBinUpEdge(xaxis.GetLast())
+        if limitToNonZeroContent:
+            for i in xrange(obj.GetNbinsX(), 0, -1):
+                if obj.GetBinContent(i) != 0:
+                    return xaxis.GetBinUpEdge(i)
+            return xaxis.GetBinUpEdge(xaxis.GetFirst())
+        else:
+            return xaxis.GetBinUpEdge(xaxis.GetLast())
     elif isinstance(obj, ROOT.TGraph) or isinstance(obj, ROOT.TGraph2D):
         return max([obj.GetX()[i] for i in xrange(0, obj.GetN())])*1.02
     raise Exception("Unsupported type %s" % str(obj))
@@ -114,14 +126,15 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
         # assuming log
         return 0.9*y
 
-    if xmin is None or xmax is None or ymin is None or ymax is None or isinstance(ymin, list) or isinstance(ymax, list):
+    if xmin is None or xmax is None or ymin is None or ymax is None or \
+       isinstance(xmin, list) or isinstance(max, list) or isinstance(ymin, list) or isinstance(ymax, list):
         xmins = []
         xmaxs = []
         ymins = []
         ymaxs = []
         for th1 in th1s:
-            xmins.append(_getXmin(th1))
-            xmaxs.append(_getXmax(th1))
+            xmins.append(_getXmin(th1, limitToNonZeroContent=isinstance(xmin, list)))
+            xmaxs.append(_getXmax(th1, limitToNonZeroContent=isinstance(xmax, list)))
             if ylog and isinstance(ymin, list):
                 ymins.append(_getYminIgnoreOutlier(th1))
             else:
@@ -131,8 +144,28 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
 
         if xmin is None:
             xmin = min(xmins)
+        elif isinstance(xmin, list):
+            xm = min(xmins)
+            xmins_below = filter(lambda x: x<=xm, xmin)
+            if len(xmins_below) == 0:
+                xmin = min(xmin)
+                if xm < xmin:
+                    print "Histogram minimum x %f is below all given xmin values %s, using the smallest one" % (xm, str(xmin))
+            else:
+                xmin = max(xmins_below)
+
         if xmax is None:
             xmax = max(xmaxs)
+        elif isinstance(xmax, list):
+            xm = max(xmaxs)
+            xmaxs_above = filter(lambda x: x>xm, xmax)
+            if len(xmaxs_above) == 0:
+                xmax = max(xmax)
+                if xm > xmax:
+                    print "Histogram maximum x %f is above all given xmax values %s, using the maximum one" % (xm, str(xmax))
+            else:
+                xmax = min(xmaxs_above)
+
         if ymin is None:
             ymin = min(ymins)
         elif isinstance(ymin, list):
@@ -158,7 +191,6 @@ def _findBounds(th1s, ylog, xmin=None, xmax=None, ymin=None, ymax=None):
                     print "Histogram maximum y %f is above all given ymax values %s, using the maximum one" % (ym_unscaled, str(ymax))
             else:
                 ymax = min(ymaxs_above)
-
 
     for th1 in th1s:
         th1.GetXaxis().SetRangeUser(xmin, xmax)
