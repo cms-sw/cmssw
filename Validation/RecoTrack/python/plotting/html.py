@@ -201,12 +201,17 @@ class Page(object):
     def addTable(self, section, table):
         self._tables[section] = table
 
-    def write(self, fileName):
-        self._content.extend([
-            '  <table>'
-            '   <tr>',
-        ])
+    def isEmpty(self):
+        for plotSet in self._plotSets.itervalues():
+            if len(plotSet) > 0:
+                return False
 
+        if len(self._tables) > 0:
+            return False
+
+        return True
+
+    def write(self, fileName):
         self._legends = []
         self._sectionLegendIndex = {}
         self._columnHeaders = []
@@ -241,6 +246,11 @@ class Page(object):
         return leg
 
     def _formatPlotSets(self):
+        self._content.extend([
+            '  <table>'
+            '   <tr>',
+        ])
+
         fileTable = []
 
         sections = self._orderSets(self._plotSets.keys())
@@ -430,6 +440,9 @@ class PageSet(object):
         keys = self._orderPages(self._pages.keys())
         for key in keys:
             page = self._pages[key]
+            if page.isEmpty():
+                continue
+
             fileName = "%s%s.html" % (self._prefix, key)
             page.write(os.path.join(baseDir, fileName))
             ret.append( (self._mapPagesName(key), fileName) )
