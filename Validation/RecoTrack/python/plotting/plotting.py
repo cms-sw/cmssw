@@ -811,6 +811,7 @@ class Plot:
         name -- String for name of the plot, or Efficiency object
 
         Keyword arguments:
+        fallback     -- Dictionary for specifying fallback (default None)
         title        -- String for a title of the plot (default None)
         xtitle       -- String for x axis title (default None)
         xtitlesize   -- Float for x axis title size (default None)
@@ -859,6 +860,8 @@ class Plot:
 
         def _set(attr, default):
             setattr(self, "_"+attr, kwargs.get(attr, default))
+
+        _set("fallback", None)
 
         _set("title", None)
         _set("xtitle", None)
@@ -941,22 +944,27 @@ class Plot:
         """Return true if the ratio uncertainty should be drawn"""
         return self._ratioUncertainty
 
-    def _createOne(self, index, tdir):
+    def _createOne(self, name, index, tdir):
         """Create one histogram from a TDirectory."""
         if tdir == None:
             return None
 
         # If name is a list, pick the name by the index
-        if isinstance(self._name, list):
-            name = self._name[index]
-        else:
-            name = self._name
+        if isinstance(name, list):
+            name = name[index]
 
         return _getOrCreateObject(tdir, name)
 
     def create(self, tdirs, requireAllHistograms=False):
         """Create histograms from list of TDirectories"""
-        self._histograms = [self._createOne(i, tdir) for i, tdir in enumerate(tdirs)]
+        self._histograms = [self._createOne(self._name, i, tdir) for i, tdir in enumerate(tdirs)]
+
+        if self._fallback is not None:
+            profileX = [self._profileX]*len(self._histograms)
+            for i in xrange(0, len(self._histograms)):
+                if self._histograms[i] is None:
+                    self._histograms[i] = self._createOne(self._fallback["name"], i, tdirs[i])
+                    profileX[i] = self._fallback.get("profileX", self._profileX)
 
         if self._histogramModifier is not None:
             self._histograms = self._histogramModifier(self._histograms)
@@ -967,11 +975,11 @@ class Plot:
         # Modify histograms here in case self._name returns numbers
         # and self._histogramModifier creates the histograms from
         # these numbers
-        def _modifyHisto(th1):
+        def _modifyHisto(th1, profileX):
             if th1 is None:
                 return None
 
-            if self._profileX:
+            if profileX:
                 th1 = th1.ProfileX()
 
             if self._fitSlicesY:
@@ -990,7 +998,10 @@ class Plot:
 
             return th1
 
-        self._histograms = map(_modifyHisto, self._histograms)
+        if self._fallback is not None:
+            self._histograms = map(_modifyHisto, self._histograms, profileX)
+        else:
+            self._histograms = map(lambda h: _modifyHisto(h, self._profileX), self._histograms)
         if requireAllHistograms and None in self._histograms:
             self._histograms = [None]*len(self._histograms)
 
