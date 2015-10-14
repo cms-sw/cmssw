@@ -5,12 +5,6 @@ import FWCore.ParameterSet.Config as cms
 
 # dump of the Stream PhysicsEGammaCommissioning Datasets defined in the HLT table as Stream A Datasets
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCastorJets_selector
-streamA_datasetCastorJets_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetCastorJets_selector.l1tResults = cms.InputTag('')
-streamA_datasetCastorJets_selector.throw      = cms.bool(False)
-streamA_datasetCastorJets_selector.triggerConditions = cms.vstring()
-
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
 streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
@@ -106,6 +100,14 @@ streamA_datasetHINMuon_selector.triggerConditions = cms.vstring('HLT_HIL1DoubleM
     'HLT_HIL2Mu3_v2', 
     'HLT_HIL3Mu3_v2')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHINMuon_HFveto_selector
+streamA_datasetHINMuon_HFveto_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHINMuon_HFveto_selector.l1tResults = cms.InputTag('')
+streamA_datasetHINMuon_HFveto_selector.throw      = cms.bool(False)
+streamA_datasetHINMuon_HFveto_selector.triggerConditions = cms.vstring('HLT_L1MuOpenNotHF2Pixel_SingleTrack_v1', 
+    'HLT_L1MuOpenNotHF2_v1', 
+    'HLT_L1Muon_NotMinimumBiasHF2AND_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHINPFJetsOther_selector
 streamA_datasetHINPFJetsOther_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHINPFJetsOther_selector.l1tResults = cms.InputTag('')
@@ -154,13 +156,8 @@ streamA_datasetHighMultiplicity_selector.throw      = cms.bool(False)
 streamA_datasetHighMultiplicity_selector.triggerConditions = cms.vstring('HLT_PixelTracks_Multiplicity110_v2', 
     'HLT_PixelTracks_Multiplicity135_v2', 
     'HLT_PixelTracks_Multiplicity160_v2', 
-    'HLT_PixelTracks_Multiplicity60_v2')
-
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighMultiplicity85_selector
-streamA_datasetHighMultiplicity85_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetHighMultiplicity85_selector.l1tResults = cms.InputTag('')
-streamA_datasetHighMultiplicity85_selector.throw      = cms.bool(False)
-streamA_datasetHighMultiplicity85_selector.triggerConditions = cms.vstring('HLT_PixelTracks_Multiplicity85_v2')
+    'HLT_PixelTracks_Multiplicity60_v2', 
+    'HLT_PixelTracks_Multiplicity85_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetL1MinimumBias_selector
 streamA_datasetL1MinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -188,13 +185,83 @@ streamA_datasetTOTEM_minBias_selector.throw      = cms.bool(False)
 streamA_datasetTOTEM_minBias_selector.triggerConditions = cms.vstring('HLT_L1TOTEM1_MinBias_v1', 
     'HLT_L1TOTEM2_ZeroBias_v1')
 
-from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots_selector
-streamA_datasetTOTEM_romanPots_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
-streamA_datasetTOTEM_romanPots_selector.l1tResults = cms.InputTag('')
-streamA_datasetTOTEM_romanPots_selector.throw      = cms.bool(False)
-streamA_datasetTOTEM_romanPots_selector.triggerConditions = cms.vstring('HLT_L1RomanPots_SinglePixelTrack02_v2', 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots1_selector
+streamA_datasetTOTEM_romanPots1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPots1_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPots1_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPots1_selector.triggerConditions = cms.vstring('HLT_L1RomanPots_SinglePixelTrack02_v2', 
     'HLT_L1RomanPots_SinglePixelTrack04_v2', 
     'HLT_L1TOTEM0_RomanPotsAND_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots2_part0_selector
+streamA_datasetTOTEM_romanPots2_part0_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPots2_part0_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPots2_part0_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPots2_part0_selector.triggerConditions = cms.vstring('HLT_L1TOTEM0_RomanPotsAND_PixelClusters3_part0_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_part0_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_part0_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots2_part1_selector
+streamA_datasetTOTEM_romanPots2_part1_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPots2_part1_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPots2_part1_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPots2_part1_selector.triggerConditions = cms.vstring('HLT_L1TOTEM0_RomanPotsAND_PixelClusters3_part1_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_part1_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_part1_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots2_part2_selector
+streamA_datasetTOTEM_romanPots2_part2_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPots2_part2_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPots2_part2_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPots2_part2_selector.triggerConditions = cms.vstring('HLT_L1TOTEM0_RomanPotsAND_PixelClusters3_part2_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_part2_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_part2_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots2_part3_selector
+streamA_datasetTOTEM_romanPots2_part3_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPots2_part3_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPots2_part3_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPots2_part3_selector.triggerConditions = cms.vstring('HLT_L1TOTEM0_RomanPotsAND_PixelClusters3_part3_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_part3_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_part3_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots2_part4_selector
+streamA_datasetTOTEM_romanPots2_part4_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPots2_part4_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPots2_part4_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPots2_part4_selector.triggerConditions = cms.vstring('HLT_L1TOTEM0_RomanPotsAND_PixelClusters3_part4_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_part4_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_part4_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots2_part5_selector
+streamA_datasetTOTEM_romanPots2_part5_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPots2_part5_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPots2_part5_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPots2_part5_selector.triggerConditions = cms.vstring('HLT_L1TOTEM0_RomanPotsAND_PixelClusters3_part5_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_part5_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_part5_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots2_part6_selector
+streamA_datasetTOTEM_romanPots2_part6_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPots2_part6_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPots2_part6_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPots2_part6_selector.triggerConditions = cms.vstring('HLT_L1TOTEM0_RomanPotsAND_PixelClusters3_part6_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_part6_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_part6_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPots2_part7_selector
+streamA_datasetTOTEM_romanPots2_part7_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPots2_part7_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPots2_part7_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPots2_part7_selector.triggerConditions = cms.vstring('HLT_L1TOTEM0_RomanPotsAND_PixelClusters3_part7_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_PixelClusters5_part7_v1', 
+    'HLT_L1TOTEM0_RomanPotsAND_SinglePixelTrack01_part7_v1')
+
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetTOTEM_romanPotsTTBB_selector
+streamA_datasetTOTEM_romanPotsTTBB_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetTOTEM_romanPotsTTBB_selector.l1tResults = cms.InputTag('')
+streamA_datasetTOTEM_romanPotsTTBB_selector.throw      = cms.bool(False)
+streamA_datasetTOTEM_romanPotsTTBB_selector.triggerConditions = cms.vstring('HLT_L1TOTEM3_RomanPotsTTBB_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetToTOTEM_selector
 streamA_datasetToTOTEM_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
