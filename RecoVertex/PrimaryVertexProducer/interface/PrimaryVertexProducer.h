@@ -41,6 +41,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/HITrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/GapClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZ.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/DAClusterizerInZT.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 //#include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
@@ -63,6 +64,8 @@ public:
   // access to config
   edm::ParameterSet config() const { return theConfig; }
   edm::InputTag trackLabel;
+  edm::InputTag trackTimesLabel;
+  edm::InputTag trackTimeResosLabel;
   edm::InputTag beamSpotLabel;
   
 private:
@@ -83,4 +86,5 @@ private:
 
   edm::ParameterSet theConfig;
   bool fVerbose;
+  bool f4D;
 };
