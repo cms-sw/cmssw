@@ -19,7 +19,7 @@ from Validation.MuonIdentification.muonIdVal_cff import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
 muonIdVal.makeCosmicCompatibilityPlots = False
 
-from Validation.RecoEgamma.egammaFastSimValidation_cff import *
+from Validation.RecoEgamma.egammaValidation_cff import *
 
 
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
@@ -31,7 +31,7 @@ globalPrevalidation = cms.Sequence(
     simHitTPAssocProducer
     *tracksPreValidation
     *recoMuonAssociationFastSim     # resides in other sequence in FullSim
-    #photonPrevalidationSequence    # not used by FastSim
+    * photonPrevalidationSequence
     *produceDenoms
     *prebTagSequenceMC
      )
@@ -43,8 +43,7 @@ globalValidation = cms.Sequence(trackingTruthValid
                                 +muIsoVal_seq
                                 +muonIdValDQMSeq
                                 +bTagPlotsMC
-                                +egammaFastSimValidation
-                                +electronValidationSequence
+                                +egammaValidation
                                 +JetValidation
                                 +pfTauRunDQMValidation
                                 )
