@@ -27,18 +27,18 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig) :
   // Get the measure definition
   fastjet::contrib::NormalizedMeasure          normalizedMeasure        (beta_,R0_);
   fastjet::contrib::UnnormalizedMeasure        unnormalizedMeasure      (beta_);
-  fastjet::contrib::GeometricMeasure           geometricMeasure         (beta_);
+  fastjet::contrib::OriginalGeometricMeasure   geometricMeasure         (beta_);// changed in 1.020
   fastjet::contrib::NormalizedCutoffMeasure    normalizedCutoffMeasure  (beta_,R0_,Rcutoff_);
   fastjet::contrib::UnnormalizedCutoffMeasure  unnormalizedCutoffMeasure(beta_,Rcutoff_);
-  fastjet::contrib::GeometricCutoffMeasure     geometricCutoffMeasure   (beta_,Rcutoff_);
+  //fastjet::contrib::GeometricCutoffMeasure     geometricCutoffMeasure   (beta_,Rcutoff_); // removed in 1.020
 
   fastjet::contrib::MeasureDefinition const * measureDef = 0;
   switch ( measureDefinition_ ) {
   case UnnormalizedMeasure : measureDef = &unnormalizedMeasure; break;
-  case GeometricMeasure    : measureDef = &geometricMeasure; break;
+  case OriginalGeometricMeasure    : measureDef = &geometricMeasure; break;// changed in 1.020
   case NormalizedCutoffMeasure : measureDef = &normalizedCutoffMeasure; break;
   case UnnormalizedCutoffMeasure : measureDef = &unnormalizedCutoffMeasure; break;
-  case GeometricCutoffMeasure : measureDef = &geometricCutoffMeasure; break;
+  //case GeometricCutoffMeasure : measureDef = &geometricCutoffMeasure; break; // removed in 1.020
   case NormalizedMeasure : default : measureDef = &normalizedMeasure; break;
   } 
 
