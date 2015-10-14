@@ -106,7 +106,7 @@ class JetReCalibrator:
         if addShifts:
             for cdelta,shift in [(1.0, "JECUp"), (-1.0, "JECDown")]:
                 cshift = self.getCorrection(jet,rho,delta+cdelta)
-                setattr(j1, "corr"+shift, cshift)
+                setattr(jet, "corr"+shift, cshift)
         if corr <= 0:
             return False
         jet.setP4(jet.p4() * (corr * jet.rawFactor()))
