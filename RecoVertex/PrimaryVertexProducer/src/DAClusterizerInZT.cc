@@ -33,6 +33,8 @@ DAClusterizerInZT::fill( const vector<reco::TransientTrack> & tracks )const{
       + (std::pow(beamspot.BeamWidthX()*cos(phi),2.)+std::pow(beamspot.BeamWidthY()*sin(phi),2.))/std::pow(tantheta,2.) // beam-width induced
       + pow(vertexSize_,2);                        // intrinsic vertex size, safer for outliers and short lived decays
     
+    std::cout << "got transient track with time = " << it->timeExt() << " +/- "  << it->dtErrorExt() << " ns"<< std::endl;
+
     t.t = it->timeExt(); // the time
     t.dtz = 0.;
     t.dt2 = std::pow((*it).dtErrorExt(),2.0);   // the ~injected~ timing error
