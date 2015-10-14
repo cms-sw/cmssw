@@ -45,8 +45,9 @@ def cust_2023HGCal_common(process):
     if hasattr(process,'L1simulation_step'):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
-        if hasattr(process.mix.digitizers,''):
-            pass 
+        if hasattr(process.mix.digitizers,'ecal'):
+            process.mix.digitizers.ecal.doEE = cms.bool(False)
+            process.mix.digitizers.ecal.doES = cms.bool(False)
         process.load('SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi')
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
