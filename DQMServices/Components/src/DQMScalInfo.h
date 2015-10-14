@@ -57,6 +57,7 @@ private:
   edm::EDGetTokenT<DcsStatusCollection> dcsStatusCollection_;
   edm::EDGetTokenT<Level1TriggerScalersCollection> l1tscollectionToken_;
   edm::EDGetTokenT<LumiScalersCollection> lumicollectionToken_;
+
    // histograms
   MonitorElement * hlresync_;
   MonitorElement * hlOC0_;
