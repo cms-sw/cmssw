@@ -3,6 +3,9 @@
 
 #include "GenericVoronoiAlgorithm.h"
 #include "BPMPDInterface.h"
+
+using namespace lp;
+
 #include "DataFormats/Math/interface/normalizedPhi.h"
 
 namespace {

@@ -48,7 +48,7 @@ class VoronoiBackgroundProducer : public edm::EDProducer {
       // ----------member data ---------------------------
 
    edm::EDGetTokenT<reco::CandidateView> src_;
-   GenericVoronoiAlgorithm* voronoi_;
+   unique_ptr<GenericVoronoiAlgorithm> voronoi_;
    bool doEqualize_;
    double equalizeThreshold0_;
    double equalizeThreshold1_;
@@ -85,7 +85,6 @@ class VoronoiBackgroundProducer : public edm::EDProducer {
 // constructors and destructor
 //
 VoronoiBackgroundProducer::VoronoiBackgroundProducer(const edm::ParameterSet& iConfig):
-   voronoi_(0),
    doEqualize_(iConfig.getParameter<bool>("doEqualize")),
    equalizeThreshold0_(iConfig.getParameter<double>("equalizeThreshold0")),
    equalizeThreshold1_(iConfig.getParameter<double>("equalizeThreshold1")),
@@ -141,7 +140,7 @@ VoronoiBackgroundProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         if(isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_hermite_pf_data.txt";
         if(!isData) calibrationFile = "RecoHI/HiJetAlgos/data/ue_calibrations_hermite_pf_mc.txt";
       }
-	ue = new UECalibration(calibrationFile);
+	  ue = new UECalibration(calibrationFile);
 	}
 	else if (jetCorrectorFormat_) {
 		edm::ESHandle<JetCorrectorParametersCollection> ueHandle;
@@ -163,10 +162,10 @@ VoronoiBackgroundProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 	}
 
 	if (sameEvent_) {
-		voronoi_ = new SameEventVoronoiAlgorithm(sameEventAntiktDistance_, sameEventExclusionPtMin_, sameEventExclusionRadius_, sameEventFakeRejectEtMax_, sameEventFakeRejectEtMaxOverMean_, std::pair<double, double>(equalizeThreshold0_,equalizeThreshold1_), doEqualize_);
+		voronoi_ = make_unique<SameEventVoronoiAlgorithm>(sameEventAntiktDistance_, sameEventExclusionPtMin_, sameEventExclusionRadius_, sameEventFakeRejectEtMax_, sameEventFakeRejectEtMaxOverMean_, std::pair<double, double>(equalizeThreshold0_,equalizeThreshold1_), doEqualize_);
 	}
 	else {
-	voronoi_ = new VoronoiAlgorithm(ue,equalizeR_,excludeV1_,maxVn_,diagonalVn_,std::pair<double, double>(equalizeThreshold0_,equalizeThreshold1_),doEqualize_);
+		voronoi_ = make_unique<VoronoiAlgorithm>(ue,equalizeR_,excludeV1_,maxVn_,diagonalVn_,std::pair<double, double>(equalizeThreshold0_,equalizeThreshold1_),doEqualize_);
 	}
    }
 
