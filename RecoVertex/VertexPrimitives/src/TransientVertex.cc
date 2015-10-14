@@ -24,9 +24,21 @@ TransientVertex::TransientVertex(const GlobalPoint & pos, const GlobalError & po
   //  addTracks(tracks);
 }
 
+TransientVertex::TransientVertex(const GlobalPoint & pos, const double time,
+                                 const GlobalError & posTimeError,
+                                 const std::vector<TransientTrack> & tracks, float chi2) :
+  theVertexState(pos, time, posTimeError), theOriginalTracks(tracks),
+  theChi2(chi2), theNDF(0), vertexValid(true), withPrior(false),
+  theWeightMapIsAvailable(false), theCovMapAvailable(false), 
+  withRefittedTracks(false)
+{
+  theNDF = 2.*theOriginalTracks.size() - 3.;
+  //  addTracks(tracks);
+}
+
 
 TransientVertex::TransientVertex(const GlobalPoint & pos, const GlobalError & posError,
-		     const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
     theVertexState(pos, posError), theOriginalTracks(tracks),
     theChi2(chi2), theNDF(ndf), vertexValid(true), withPrior(false),
     theWeightMapIsAvailable(false), theCovMapAvailable(false), 
@@ -35,10 +47,21 @@ TransientVertex::TransientVertex(const GlobalPoint & pos, const GlobalError & po
   //  addTracks(tracks);
 }
 
+TransientVertex::TransientVertex(const GlobalPoint & pos, const double time,
+                                 const GlobalError & posTimeError,
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
+  theVertexState(pos, time, posTimeError), theOriginalTracks(tracks),
+  theChi2(chi2), theNDF(ndf), vertexValid(true), withPrior(false),
+  theWeightMapIsAvailable(false), theCovMapAvailable(false), 
+  withRefittedTracks(false)
+{
+  //  addTracks(tracks);
+}
+
 
 TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-		     const GlobalPoint & pos, const GlobalError & posError,
-		     const std::vector<TransientTrack> & tracks, float chi2) :
+                                 const GlobalPoint & pos, const GlobalError & posError,
+                                 const std::vector<TransientTrack> & tracks, float chi2) :
     thePriorVertexState(priorPos, priorErr), theVertexState(pos, posError),
     theOriginalTracks(tracks), theChi2(chi2), theNDF(0), vertexValid(true),
     withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
@@ -48,10 +71,22 @@ TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError
   //  addTracks(tracks);
 }
 
+TransientVertex::TransientVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr,
+                                 const GlobalPoint & pos, const double time, const GlobalError & posError,
+                                 const std::vector<TransientTrack> & tracks, float chi2) :
+  thePriorVertexState(priorPos, priorTime, priorErr), theVertexState(pos, time, posError),
+  theOriginalTracks(tracks), theChi2(chi2), theNDF(0), vertexValid(true),
+  withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
+  withRefittedTracks(false)
+{
+  theNDF = 2.*theOriginalTracks.size();
+  //  addTracks(tracks);
+}
+
 
 TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
-		     const GlobalPoint & pos, const GlobalError & posError,
-		     const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
+                                 const GlobalPoint & pos, const GlobalError & posError,
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
     thePriorVertexState(priorPos, priorErr), theVertexState(pos, posError),
     theOriginalTracks(tracks), theChi2(chi2), theNDF(ndf), vertexValid(true),
     withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
@@ -60,9 +95,20 @@ TransientVertex::TransientVertex(const GlobalPoint & priorPos, const GlobalError
   //  addTracks(tracks);
 }
 
+TransientVertex::TransientVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr,
+                                 const GlobalPoint & pos, const double time, const GlobalError & posError,
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) :
+  thePriorVertexState(priorPos, priorTime, priorErr), theVertexState(pos, time, posError),
+  theOriginalTracks(tracks), theChi2(chi2), theNDF(ndf), vertexValid(true),
+  withPrior(true), theWeightMapIsAvailable(false), theCovMapAvailable(false),
+  withRefittedTracks(false)
+{
+  //  addTracks(tracks);
+}
+
 
 TransientVertex::TransientVertex(const VertexState & state, 
-		     const std::vector<TransientTrack> & tracks, float chi2) : 
+                                 const std::vector<TransientTrack> & tracks, float chi2) : 
   theVertexState(state), theOriginalTracks(tracks),
   theChi2(chi2), theNDF(0), vertexValid(true), withPrior(false),
   theWeightMapIsAvailable(false), theCovMapAvailable(false), 
@@ -73,7 +119,7 @@ TransientVertex::TransientVertex(const VertexState & state,
 
 
 TransientVertex::TransientVertex(const VertexState & state, 
-		     const std::vector<TransientTrack> & tracks, float chi2, float ndf) : 
+                                 const std::vector<TransientTrack> & tracks, float chi2, float ndf) : 
     theVertexState(state), theOriginalTracks(tracks),
     theChi2(chi2), theNDF(ndf), vertexValid(true), withPrior(false),
     theWeightMapIsAvailable(false), theCovMapAvailable(false), 
