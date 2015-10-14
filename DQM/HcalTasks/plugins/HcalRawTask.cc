@@ -192,9 +192,11 @@ void HcalRawTask::amc13(hcal::AMC13Header const* amc13h,
 					boost::lexical_cast<std::string>(slot) + 
 					"_BcNComp"].Fill(dbcn);
 
-				_mes["uTCA_CratesVSslots_dBcN"].Fill(slot, crate, abs(dbcn));
+				if (dbcn!=0)
+					_mes["uTCA_CratesVSslots_dBcN"].Fill(slot, crate, abs(dbcn));
 				_mes["uTCA_CratesVSslots_dOrN"].Fill(slot, crate, abs(dorn));
-				_mes["uTCA_CratesVSslots_dEvN"].Fill(slot, crate, abs(devn));
+				if (devn!=0)
+					_mes["uTCA_CratesVSslots_dEvN"].Fill(slot, crate, abs(devn));
 
 				//	Fill Summary Plots
 				if (dbcn!=0)
@@ -278,20 +280,20 @@ void HcalRawTask::dcc(HcalDCCHeader const* dcch, unsigned int const size, int co
 		if (dbcn!=0)
 		{
 			_mes["Summary_Flags"].Fill(hcaldqm::flags::rbMMBcN, 1);
-			_mes["Summary_FlagsVsLS"].Fill(_mi.currentLS, 
-				hcaldqm::flags::rbMMBcN);
+//			_mes["Summary_FlagsVsLS"].Fill(_mi.currentLS, 
+//				hcaldqm::flags::rbMMBcN);
 		}
 		if (dorn!=0)
 		{
 			_mes["Summary_Flags"].Fill(hcaldqm::flags::rbMMOrN, 1);
-			_mes["Summary_FlagsVsLS"].Fill(_mi.currentLS, 
-				hcaldqm::flags::rbMMOrN);
+//			_mes["Summary_FlagsVsLS"].Fill(_mi.currentLS, 
+//				hcaldqm::flags::rbMMOrN);
 		}
 		if (devn!=0)
 		{
 			_mes["Summary_Flags"].Fill(hcaldqm::flags::rbMMEvN, 1);
-			_mes["Summary_FlagsVsLS"].Fill(_mi.currentLS, 
-				hcaldqm::flags::rbMMEvN);
+//			_mes["Summary_FlagsVsLS"].Fill(_mi.currentLS, 
+//				hcaldqm::flags::rbMMEvN);
 		}
 	}
 }

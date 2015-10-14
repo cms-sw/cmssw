@@ -120,6 +120,7 @@ void HcalTPTask::specialize(Hit const& hit1, Hit const& hit2,
 		_mes["Summary_Flags"].Fill(hcaldqm::flags::tpbMMEt_SOI, subdet);
 		_mes["Summary_"+nameRes+"_FlagsVsLS"].Fill(_mi.currentLS, 
 				hcaldqm::flags::tpbMMEt_SOI);
+		_mes["HBHEHF_Mismatch_SOIEt"].Fill(ieta, iphi);
 	}
 	bool matched_SOI_FG = soi_fg_1 == soi_fg_2;
 	if (!matched_SOI_FG)
@@ -130,8 +131,6 @@ void HcalTPTask::specialize(Hit const& hit1, Hit const& hit2,
 	}
 
 	//	SOI plots + presamples
-	_mes[nameRes + "_SOI_Et_Data"].Fill(soi_cEt_1);
-	_mes[nameRes + "_SOI_Et_Emul"].Fill(soi_cEt_2);
 	_mes[nameRes + "_SOI_Et_Correlation"].Fill(soi_cEt_1, soi_cEt_2);
 	_mes[nameRes + "_SOI_FG_Correlation"].Fill(soi_fg_1, soi_fg_2);
 	_mes[nameRes + "_Presamples_Data"].Fill(ps_1);

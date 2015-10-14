@@ -518,6 +518,7 @@ void HcalSummaryClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig, in
 	triggered_Shift_RecHit = false;
 	triggered_DropChannels = false;
 	triggered_BaduHTROccupancy = false;
+	triggered_EvnBcnMismatch = false;
 	double tmp_status_HF = 0;
 
 	//	HBHE TCDS Shifts Monitoring only for Collissions...
@@ -555,6 +556,15 @@ void HcalSummaryClient::analyze(DQMStore::IBooker &ib, DQMStore::IGetter &ig, in
 				status_HF_ = 0.1;
 		}
 	}
+
+	check_EvnBcnMismatch(ib, ig, LS);
+	if (triggered_EvnBcnMismatch)
+	{
+		status_HF_ -= 0.6;
+		if (status_HF_<0)
+			status_HF_ = 0.15;
+	}
+	
 
   // Fill certification map here
 
@@ -1233,7 +1243,21 @@ void HcalSummaryClient::check_BaduHTROccupancy(DQMStore::IBooker &ib,
 	}
 }
 
+void HcalSummaryClient::check_EvnBcnMismatch(DQMStore::IBooker &ib,
+	DQMStore::IGetter &ig, int LS)
+{
+	std::string dir_prefix = "Hcal/HcalRawTask/uTCA/";
+	std::string mename_bcn = "uTCA_CratesVSslots_dBcN";
+	std::string mename_evn = "uTCA_CratesVSslots_dEvN";
 
+	TH2F *h_bcn = ig.get(dir_prefix+mename_bcn)->getTH2F();
+	TH2F *h_evn = ig.get(dir_prefix+mename_evn)->getTH2F();
+
+	if (h_bcn->GetEntries()>0 || h_evn->GetEntries()>0)
+	{
+		triggered_EvnBcnMismatch = true;
+	}
+}
 
 
 

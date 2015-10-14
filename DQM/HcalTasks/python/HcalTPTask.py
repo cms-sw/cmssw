@@ -483,6 +483,25 @@ hcalTPTask = cms.EDAnalyzer(
 				title	= cms.untracked.string("iphi")
 			)
 		), 
+		HBHEHF_Mismatch_SOIEt				= cms.untracked.PSet(
+			path	= cms.untracked.string("%s" % moduleName),
+			kind	= cms.untracked.string("TH2D"),
+			desc	= cms.untracked.string("HBHEHF Mismatched SOI Et"),
+			xaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(83),
+				min		= cms.untracked.double(-41.5),
+				max		= cms.untracked.double(41.5),
+				title	= cms.untracked.string("ieta")
+			),
+			yaxis	= cms.untracked.PSet(
+				edges	= cms.untracked.bool(False),
+				nbins	= cms.untracked.int32(72),
+				min		= cms.untracked.double(0.5),
+				max		= cms.untracked.double(72.5),
+				title	= cms.untracked.string("iphi")
+			)
+		), 
 
 		#------------------------------------------------------
 		#	Compressed SOI Et Correlation
@@ -494,14 +513,14 @@ hcalTPTask = cms.EDAnalyzer(
 				"Correlation for HF SOI Compressed Et"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(50),
+				nbins	= cms.untracked.int32(128),
 				min		= cms.untracked.double(0.),
 				max		= cms.untracked.double(256.),
 				title	= cms.untracked.string("SOI Et Data")
 			),
 			yaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(50),
+				nbins	= cms.untracked.int32(128),
 				min		= cms.untracked.double(0.),
 				max		= cms.untracked.double(256.),
 				title	= cms.untracked.string("SOI Et Emul")
@@ -514,14 +533,14 @@ hcalTPTask = cms.EDAnalyzer(
 				"Correlation for HBHE SOI Compressed Et"),
 			xaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(50),
+				nbins	= cms.untracked.int32(128),
 				min		= cms.untracked.double(0.),
 				max		= cms.untracked.double(256.),
 				title	= cms.untracked.string("SOI Et Data")
 			),
 			yaxis	= cms.untracked.PSet(
 				edges	= cms.untracked.bool(False),
-				nbins	= cms.untracked.int32(50),
+				nbins	= cms.untracked.int32(128),
 				min		= cms.untracked.double(0.),
 				max		= cms.untracked.double(256.),
 				title	= cms.untracked.string("SOI Et Emul")
@@ -647,7 +666,6 @@ hcalTPTask = cms.EDAnalyzer(
 				title	= cms.untracked.string("FG Emul")
 			),
 		),
-
 		#------------------------------------------------------
 		#	Summary Plots
 		#------------------------------------------------------
