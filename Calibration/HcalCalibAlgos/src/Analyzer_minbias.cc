@@ -23,6 +23,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalCalibrationEventTypes.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TFile.h"
 #include "TH1.h"
@@ -83,7 +84,7 @@ namespace cms{
     nevent_run = 0;
   }
   void Analyzer_minbias::endRun( const edm::Run& r, const edm::EventSetup& iSetup) {
-    std::cout<<" Runnumber "<<r.run()<<" Nevents  "<<nevent_run<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" Runnumber "<<r.run()<<" Nevents  "<<nevent_run;
   }
 
   void Analyzer_minbias::beginJob() {
@@ -115,7 +116,7 @@ namespace cms{
 
     myTree->Branch("occup",  &occup, "occup/F");
    
-    std::cout<<" Before ordering Histos "<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" Before ordering Histos ";
   
     char str0[15];
     char str1[15];
@@ -143,7 +144,7 @@ namespace cms{
 	
         sprintf(str10,"vpl%d",k);
         sprintf(str11,"vmin%d",k);
-	//      std::cout<<" "<<i<<" "<<j<<std::endl;
+	//      edm::LogInfo("AnalyzerMB")<<" "<<i<<" "<<j;
 	if( j < 30 ) {
 	  // first order moment
 	  hCalo1[i][j] = new TH1F(str0, "h0", 320, -10., 10.);
@@ -155,7 +156,7 @@ namespace cms{
 	} else {
 	  // HF
 	  // first order moment
-	  //   std::cout<<" "<<i<<" "<<j<<" "<<k<<std::endl;
+	  //   edm::LogInfo("AnalyzerMB")<<" "<<i<<" "<<j<<" "<<k;
 	  if(j < 40) {
 	    hCalo1[i][j] = new TH1F(str0, "h0", 320, -10., 10.);
 	    hCalo2[i][j] = new TH1F(str1, "h1", 320, -10., 10.);
@@ -184,12 +185,12 @@ namespace cms{
     hfSignalE = new TH1F("hfSignalE","hfSignalE", 320, -10., 10.);
     
 
-    std::cout<<" After ordering Histos "<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" After ordering Histos ";
 
     std::string ccc = "noise_0.dat";
 
     myout_hcal = new std::ofstream(ccc.c_str());
-    if(!myout_hcal) std::cout << " Output file not open!!! "<<std::endl;
+    if(!myout_hcal) edm::LogInfo("AnalyzerMB") << " Output file not open!!! ";
 
     //
     for (int i=0; i<5;i++) {
@@ -257,7 +258,7 @@ namespace cms{
 	      depth = j;
 	      ieta = l;
 	      iphi = k;
-	      std::cout<<" Result Plus= "<<mysubd<<" "<<ieta<<" "<<iphi<<" mom0  "<<mom0_MB<<" mom1 "<<mom1_MB<<" mom2 "<<mom2_MB<<std::endl;
+	      edm::LogInfo("AnalyzerMB")<<" Result Plus= "<<mysubd<<" "<<ieta<<" "<<iphi<<" mom0  "<<mom0_MB<<" mom1 "<<mom1_MB<<" mom2 "<<mom2_MB;
 	      myTree->Fill();
 	      ii++;
 	    } // Pl > 0
@@ -281,7 +282,7 @@ namespace cms{
 	      depth = j;
 	      ieta = -1*l;
 	      iphi = k;
-	      std::cout<<" Result Minus= "<<mysubd<<" "<<ieta<<" "<<iphi<<" mom0  "<<mom0_MB<<" mom1 "<<mom1_MB<<" mom2 "<<mom2_MB<<std::endl;
+	      edm::LogInfo("AnalyzerMB")<<" Result Minus= "<<mysubd<<" "<<ieta<<" "<<iphi<<" mom0  "<<mom0_MB<<" mom1 "<<mom1_MB<<" mom2 "<<mom2_MB;
 	      myTree->Fill();
 	      ii++;
 	    
@@ -293,7 +294,7 @@ namespace cms{
    
    
    
-    std::cout<<" Number of cells "<<ii<<std::endl; 
+    edm::LogInfo("AnalyzerMB")<<" Number of cells "<<ii; 
       
     hOutputFile->Write();   
 
@@ -321,7 +322,7 @@ namespace cms{
     
     hOutputFile->Close() ;
    
-    std::cout<<" File is closed "<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" File is closed ";
    
     return ;
   }
@@ -334,7 +335,7 @@ namespace cms{
   // ------------ method called to produce the data  ------------
   void Analyzer_minbias::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-    std::cout<<" Start Analyzer_minbias::analyze "<<nevent<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" Start Analyzer_minbias::analyze "<<nevent;
     nevent++; 
     nevent_run++;
     using namespace edm;
@@ -346,18 +347,18 @@ namespace cms{
 
     for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
 	 ip != theProvenance.end(); ip++) {
-      std::cout<<" Print all process/modulelabel/product names "
+      edm::LogInfo("AnalyzerMB")<<" Print all process/modulelabel/product names "
 	       <<(**ip).processName()<<" , "<<(**ip).moduleLabel()<<" , "
-	       <<(**ip).productInstanceName()<<std::endl;
+	       <<(**ip).productInstanceName();
     }
     /*
       edm::Handle<FEDRawDataCollection> rawdata;  
       iEvent.getByToken(tok_data_,rawdata);
 
       if (!rawdata.isValid()) {
-      std::cout<<" No valid collection "<<std::endl;
+      edm::LogInfo("AnalyzerMB")<<" No valid collection ";
       } else {
-      std::cout<<" Valid collection "<<std::endl;
+      edm::LogInfo("AnalyzerMB")<<" Valid collection ";
       int calibType = -1 ; int numEmptyFEDs = 0 ; 
       std::vector<int> calibTypeCounter(8,0) ; 
       for (int i=FEDNumbering::MINHCALFEDID;
@@ -368,7 +369,7 @@ namespace cms{
 	//      int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
 	//      calibTypeCounter.at(value)++ ; // increment the counter for this calib type
 	}
-	std::cout<<" NumFed "<<numEmptyFEDs<<" "<<calibType<<std::endl;
+	edm::LogInfo("AnalyzerMB")<<" NumFed "<<numEmptyFEDs<<" "<<calibType;
 	}
     */
     /*
@@ -377,9 +378,8 @@ namespace cms{
       
       for(std::vector<edm::Handle<FEDRawDataCollection> >::const_iterator it = rawdata1.begin();it != rawdata1.end(); it++) {
 
-      std::cout<<" Many by Type product name "<< (*it).provenance()->processName()<<
-      " "<<(*it).provenance()->moduleLabel()<<
-      std::endl;
+      edm::LogInfo("AnalyzerMB")<<" Many by Type product name "<< (*it).provenance()->processName()<<
+      " "<<(*it).provenance()->moduleLabel();
 
       if((*it).provenance()->moduleLabel() == "hltHcalCalibrationRaw") {
       int calibType = -1 ; int numEmptyFEDs = 0 ; 
@@ -387,13 +387,13 @@ namespace cms{
       for (int i=FEDNumbering::MINHCALFEDID;
         i<=FEDNumbering::MAXHCALFEDID; i++) {
 	const FEDRawData& fedData = (*it)->FEDData(i) ; 
-	std::cout<<" FED size "<<fedData.size()<<std::endl;
+	edm::LogInfo("AnalyzerMB")<<" FED size "<<fedData.size();
 	if ( fedData.size() < 24 ) numEmptyFEDs++ ; 
 	if ( fedData.size() < 24 ) continue ; 
 	int value = ((const HcalDCCHeader*)(fedData.data()))->getCalibType() ; 
-	std::cout<<" Value "<<value<<std::endl;
+	edm::LogInfo("AnalyzerMB")<<" Value "<<value;
       }
-      std::cout<<" Many by Type NumFed "<<numEmptyFEDs<<" "<<calibType<<std::endl;
+      edm::LogInfo("AnalyzerMB")<<" Many by Type NumFed "<<numEmptyFEDs<<" "<<calibType;
      }
    }
 
@@ -420,16 +420,15 @@ namespace cms{
       //     LogDebug("L1GlobalTriggerRecordProducer")
       //       << "\n\n Error: no L1GlobalTriggerReadoutRecord found with input tag "
       //       << m_l1GtReadoutRecord
-      //       << "\n Returning empty L1GlobalTriggerRecord.\n\n"
-      //       << std::endl;
-      std::cout<<" No L1 trigger record "<<std::endl;
+      //       << "\n Returning empty L1GlobalTriggerRecord.\n\n";
+      edm::LogInfo("AnalyzerMB")<<" No L1 trigger record ";
       } else {
 
       const DecisionWord dWord = gtRecord->decisionWord();
 
       for (CItAlgo itAlgo = bitMap.begin(); itAlgo != bitMap.end(); itAlgo++) {
       bool decision=menu->gtAlgorithmResult(itAlgo->first,dWord);
-      if(decision == 1) std::cout<<" Trigger "<<itAlgo->first<<" "<<decision<<std::endl;
+      if(decision == 1) edm::LogInfo("AnalyzerMB")<<" Trigger "<<itAlgo->first<<" "<<decision;
       }
       
     }
@@ -463,9 +462,9 @@ namespace cms{
     edm::Handle<HBHERecHitCollection> hbheNormal;
     iEvent.getByToken(tok_hbheNorm_, hbheNormal);
     if(!hbheNormal.isValid()){  
-      std::cout<<" hbheNormal failed "<<std::endl;
+      edm::LogWarning("AnalyzerMB")<<" hbheNormal failed ";
     } else {
-      std::cout<<" The size of the normal collection "<<hbheNormal->size()<<std::endl;
+      edm::LogInfo("AnalyzerMB")<<" The size of the normal collection "<<hbheNormal->size();
     } 
    
 
@@ -474,33 +473,33 @@ namespace cms{
 
    
     if(!hbheNS.isValid()){
-      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-      std::cout<<" No HBHE MS "<<std::endl;
+      edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hbhe"
+				    << " product! No HBHE MS ";
       return ;
     }
 
   
     const HBHERecHitCollection HithbheNS = *(hbheNS.product());
-    std::cout<<" HBHE NS size of collection "<<HithbheNS.size()<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" HBHE NS size of collection "<<HithbheNS.size();
     hHBHEsize_vs_run->Fill(rnnum,(float)HithbheNS.size());
 
     if(HithbheNS.size()!= 5184) {
-      std::cout<<" HBHE problem "<<rnnum<<" "<<HithbheNS.size()<<std::endl;
+      edm::LogWarning("AnalyzerMB")<<" HBHE problem "<<rnnum<<" "<<HithbheNS.size();
       //          return;
     }
     edm::Handle<HBHERecHitCollection> hbheMB;
     iEvent.getByToken(tok_hbhe_, hbheMB);
 
     if(!hbheMB.isValid()){
-      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-      std::cout<<" No HBHE MB"<<std::endl;
+      edm::LogWarning("AnalyzerMB")<< "HcalCalibAlgos: Error! can't get hbhe"
+				   << " product! No HBHE MB";
       //   return ;
     }
 
     const HBHERecHitCollection HithbheMB = *(hbheMB.product());
-    std::cout<<" HBHE MB size of collection "<<HithbheMB.size()<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" HBHE MB size of collection "<<HithbheMB.size();
     if(HithbheMB.size()!= 5184) {
-      std::cout<<" HBHE problem "<<rnnum<<" "<<HithbheMB.size()<<std::endl;
+      edm::LogWarning("AnalyzerMB")<<" HBHE problem "<<rnnum<<" "<<HithbheMB.size();
       //   return;
     }
 
@@ -508,16 +507,16 @@ namespace cms{
     iEvent.getByToken(tok_hfNoise_, hfNS);
 
     if(!hfNS.isValid()){
-      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-      std::cout<<" No HF NS "<<std::endl;
+      edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hf"
+				    << " product! No HF NS ";
       // return ;
     }
 
     const HFRecHitCollection HithfNS = *(hfNS.product());
-    std::cout<<" HFE NS size of collection "<<HithfNS.size()<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" HFE NS size of collection "<<HithfNS.size();
     hHFsize_vs_run->Fill(rnnum,(float)HithfNS.size());
     if(HithfNS.size()!= 1728) {
-      std::cout<<" HF problem "<<rnnum<<" "<<HithfNS.size()<<std::endl;
+      edm::LogWarning("AnalyzerMB")<<" HF problem "<<rnnum<<" "<<HithfNS.size();
       //    return;
     }
 
@@ -525,15 +524,15 @@ namespace cms{
     iEvent.getByToken(tok_hf_, hfMB);
 
     if(!hfMB.isValid()){
-      LogDebug("") << "HcalCalibAlgos: Error! can't get hbhe product!" << std::endl;
-      std::cout<<" No HBHE MB"<<std::endl;
+      edm::LogWarning("AnalyzerMB") << "HcalCalibAlgos: Error! can't get hf"
+				    << " product! No HF MB";
       // return ;
     }
 
     const HFRecHitCollection HithfMB = *(hfMB.product());
-    std::cout<<" HF MB size of collection "<<HithfMB.size()<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" HF MB size of collection "<<HithfMB.size();
     if(HithfMB.size()!= 1728) {
-      std::cout<<" HF problem "<<rnnum<<" "<<HithfMB.size()<<std::endl;
+      edm::LogWarning("AnalyzerMB")<<" HF problem "<<rnnum<<" "<<HithfMB.size();
       //      return;
     }
 
@@ -578,7 +577,7 @@ namespace cms{
       if(hid.depth() == 1) {
 	hbheNoiseE->Fill(energyhit);
 	
-	if(energyhit<-2.) std::cout<<" Run "<<rnnum<<" ieta,iphi "<<hid.ieta()<<" "<<hid.iphi()<<energyhit<<std::endl;
+	if(energyhit<-2.) edm::LogInfo("AnalyzerMB")<<" Run "<<rnnum<<" ieta,iphi "<<hid.ieta()<<" "<<hid.iphi()<<energyhit;
  
 	// if( hid.ieta() > 0 ) {
 	//  hCalo1[hid.iphi()][hid.ieta()]->Fill(energyhit-noise_pl[hid.iphi()][hid.ieta()]);
@@ -669,8 +668,8 @@ namespace cms{
       HcalDetId hid=HcalDetId(id);
       // theGeometry->getGeometry(detId)->getPosition()).eta()
 
-      //         std::cout<<hid.ieta()<<" "<<hid.iphi()<<" "<<hid.depth()<<" "<<(pG->getGeometry(id)->getPosition()).eta()<<" "<<(pG->getGeometry(id)->getPosition()).phi()
-      //                      <<" "<<(pG->getGeometry(id)->getPosition()).perp()<<" "<<(pG->getGeometry(id)->getPosition()).z()<<std::endl;
+      //         edm::LogInfo("AnalyzerMB")<<hid.ieta()<<" "<<hid.iphi()<<" "<<hid.depth()<<" "<<(pG->getGeometry(id)->getPosition()).eta()<<" "<<(pG->getGeometry(id)->getPosition()).phi()
+      //                      <<" "<<(pG->getGeometry(id)->getPosition()).perp()<<" "<<(pG->getGeometry(id)->getPosition()).z();
  	 
       if(fabs(energyhit) > 40. ) continue;
  
@@ -768,7 +767,7 @@ namespace cms{
       
     } // HF_MB
 
-    std::cout<<" Event is finished "<<std::endl;
+    edm::LogInfo("AnalyzerMB")<<" Event is finished ";
   }
 }
 
