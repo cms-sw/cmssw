@@ -24,6 +24,7 @@
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -42,14 +43,15 @@ class L1CaloHcalScaleConfigOnlineProd :
       L1CaloHcalScaleConfigOnlineProd(const edm::ParameterSet& iConfig);
       ~L1CaloHcalScaleConfigOnlineProd();
 
+  boost::shared_ptr< L1CaloHcalScale > produce(const L1CaloHcalScaleRcd& iRecord) override ;
+
   virtual boost::shared_ptr< L1CaloHcalScale > newObject(
     const std::string& objectKey ) override ;
-
 
    private:
  
   L1CaloHcalScale* hcalScale;
-  HcalTrigTowerGeometry* theTrigTowerGeometry;
+  const HcalTrigTowerGeometry* theTrigTowerGeometry;
   CaloTPGTranscoderULUT* caloTPG;
   typedef std::vector<double> RCTdecompression;
   std::vector<RCTdecompression> hcaluncomp;
@@ -75,10 +77,12 @@ class L1CaloHcalScaleConfigOnlineProd :
 //
 L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
   const edm::ParameterSet& iConfig)
-  : L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale >( iConfig )
+  : L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale >( iConfig ),
+    theTrigTowerGeometry( nullptr )
 {
   hcalScale = new L1CaloHcalScale(0);
   caloTPG = new CaloTPGTranscoderULUT();
+<<<<<<< HEAD
   
   HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
   int maxDepthHB = 2;
@@ -96,6 +100,8 @@ L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
   */
   
   theTrigTowerGeometry = new HcalTrigTowerGeometry( new HcalTopology( mode, maxDepthHB, maxDepthHE ));
+=======
+>>>>>>> * Use Hcal trigger tower geometry from Event setup
 }
 
 
@@ -111,6 +117,8 @@ L1CaloHcalScaleConfigOnlineProd::~L1CaloHcalScaleConfigOnlineProd()
 boost::shared_ptr< L1CaloHcalScale >
 L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
+  assert( theTrigTowerGeometry != nullptr );
+  
      using namespace edm::es;
  
      std:: cout << "object Key " << objectKey <<std::endl <<std::flush;
@@ -342,5 +350,16 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      return boost::shared_ptr< L1CaloHcalScale >( hcalScale );
 
 }
+
+boost::shared_ptr< L1CaloHcalScale >
+L1CaloHcalScaleConfigOnlineProd::produce( const L1CaloHcalScaleRcd& iRecord )
+{
+  edm::ESHandle<HcalTrigTowerGeometry> pG;
+  iRecord.getRecord<CaloGeometryRecord>().get(pG);
+  theTrigTowerGeometry = pG.product();
+
+  return (L1ConfigOnlineProdBase< L1CaloHcalScaleRcd, L1CaloHcalScale >::produce( iRecord ));
+}
+
 //define this as a plug-in
 DEFINE_FWK_EVENTSETUP_MODULE(L1CaloHcalScaleConfigOnlineProd);
