@@ -1,6 +1,8 @@
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "SameEventVoronoiAlgorithm.h"
 
 namespace {
@@ -22,7 +24,7 @@ namespace {
 	{
 		// binary search in the array of towers eta edges
 
-		int size = 42;
+		int size = sizeof(etaedge) / sizeof(double);
 		// if(!useHF_) size = 30;
 
 		if(fabs(eta)>etaedge[size-1]) return -1;
@@ -37,7 +39,7 @@ namespace {
 		for (iter = 0; iter < size ; iter++) {
 
 			if( curr >= size || curr < 1 )
-				std::cout <<  " ParticleTowerProducer::eta2ieta - wrong current index = "
+				edm::LogError("SameEventVoronoiAlgorithm") << "eta2ieta - wrong current index = "
 						  << curr << " !!!" << std::endl;
 
 			if ((x <= etaedge[curr]) && (x > etaedge[curr-1])) break;
@@ -161,9 +163,12 @@ void SameEventVoronoiAlgorithm::same_event_subtract_momentum(
 			density_2_sum += density_2[i];
 		}
 	}
-	std::transform(density_0.begin(), density_0.end(), density_2.begin(),
-				   std::bind1st(std::multiplies<double>(),
-								density_2_sum / density_0_sum));
+	if (density_0_sum > 0) {
+		std::transform(density_0.begin(), density_0.end(),
+					   density_2.begin(),
+					   std::bind1st(std::multiplies<double>(),
+									density_2_sum / density_0_sum));
+	}
 	for (size_t i = 0; i < area_density_0.size(); i++) {
 		if (area_density_0[i] > 0) {
 			density_0[i] /= area_density_0[i];
@@ -292,11 +297,14 @@ void SameEventVoronoiAlgorithm::same_event_exclusion(
 				et_max = std::max(et_max, iterator_pseudotower->second);
 				et_mean += iterator_pseudotower->second;
 			}
-			et_mean /= pseudotower.size();
-
-			jet_excluded &= (et_max >= _same_event_fake_reject_et_max &&
-							 et_max / et_mean >=
-							 _same_event_fake_reject_et_max_over_mean);
+			if (pseudotower.size() > 0) {
+				et_mean /= pseudotower.size();
+			}
+			if (et_mean > 0) {
+				jet_excluded &= (et_max >= _same_event_fake_reject_et_max &&
+								 et_max / et_mean >=
+								 _same_event_fake_reject_et_max_over_mean);
+			}
 		}
 
 		if (jet_excluded) {
