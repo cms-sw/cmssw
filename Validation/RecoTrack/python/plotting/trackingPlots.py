@@ -275,25 +275,44 @@ _possibleTrackingColls = _possibleTrackingIterations+[
     'ak4PFJets',
     'btvLike',
 ]
+_possibleTrackingCollsOld = {
+    "cutsRecoZero"  : "iter0",
+    "cutsRecoFirst" : "iter1",
+    "cutsRecoSecond": "iter2",
+    "cutsRecoThird" : "iter3",
+    "cutsRecoFourth": "iter4",
+    "cutsRecoFifth" : "iter5",
+    "cutsRecoSixth" : "iter6",
+    "cutsRecoNinth" : "iter9",
+    "cutsRecoTenth" : "iter10",
+}
 def _mapCollectionToAlgoQuality(collName):
     if "Hp" in collName:
         quality = "highPurity"
     else:
         quality = ""
-    collNameLow = collName.replace("Hp", "").lower()
+    collNameNoQuality = collName.replace("Hp", "")
+    collNameLow = collNameNoQuality.lower().replace("frompv", "").replace("frompvalltp", "").replace("alltp", "")
 
     algo = None
-    if "general" in collNameLow or collNameLow in ["cutsreco", "cutsrecofrompv", "cutsrecofrompvalltp",
-                                                   "cutsrecotracks", "cutsrecotracksfrompv", "cutsrecotracksfrompvalltp"]:
+    if collNameLow in ["general", "cutsreco", "cutsrecofrompv", "cutsrecofrompvalltp",
+                       "cutsrecotracks", "cutsrecotracksfrompv", "cutsrecotracksfrompvalltp"]:
         algo = "ootb"
     else:
         for coll in _possibleTrackingColls:
             if coll.lower() in collNameLow:
                 algo = coll
                 break
+        # next try "old style"
+        if algo is None:
+            for coll, name in _possibleTrackingCollsOld.iteritems():
+                if coll.lower() == collNameLow:
+                    algo = name
+                    break
+
         # fallback
         if algo is None:
-            algo = collName
+            algo = collNameNoQuality
 
     return (algo, quality)
 
@@ -449,7 +468,7 @@ class TrackingPlotFolder(PlotFolder):
 
     # track-specific hack
     def isAlgoIterative(self, algo):
-        return algo in _possibleTrackingIterations
+        return algo in _possibleTrackingIterations or algo in _possibleTrackingCollsOld.values()
 
 class TrackingSummaryTable:
     def __init__(self, section, highPurity=False):
