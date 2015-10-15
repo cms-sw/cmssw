@@ -277,7 +277,8 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="21">
+  <class name="pat::PackedCandidate" ClassVersion="25">
+    <version ClassVersion="25" checksum="3654469025"/>
     <version ClassVersion="24" checksum="663492232"/>
     <version ClassVersion="23" checksum="559934341"/>
     <version ClassVersion="22" checksum="691064527"/>
@@ -296,8 +297,6 @@
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
     <field name="vertex_" transient="true" />
-    <field name="unpacked_" transient="true" />
-    <field name="unpackedVtx_" transient="true" />
     <field name="dxy_" transient="true" />
     <field name="dz_" transient="true" />
     <field name="dphi_" transient="true" />
@@ -309,18 +308,22 @@
     <field name="dphidphi_" transient="true" />
     <field name="detadeta_" transient="true" />
     <field name="dptdpt_" transient="true" />
-  <field name="track_" transient="true" />
+    <field name="track_" transient="true" />
   </class>
-  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpacked_">
-    <![CDATA[unpacked_ = false;
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="p4_">
+    <![CDATA[delete p4_.exchange(nullptr);
     ]]>
   </ioread>
-  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpackedVtx_">
-    <![CDATA[unpackedVtx_ = false;
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="p4c_">
+    <![CDATA[delete p4c_.exchange(nullptr);
     ]]>
   </ioread>
-  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpackedTrk_">
-    <![CDATA[unpackedTrk_ = false;
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="vertex_">
+    <![CDATA[delete vertex_.exchange(nullptr);
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="track_">
+    <![CDATA[delete track_.exchange(nullptr);
     ]]>
   </ioread>
 
@@ -330,7 +333,6 @@
     <version ClassVersion="10" checksum="389883266"/>
     <field name="p4_" transient="true" />
     <field name="p4c_" transient="true" />
-    <field name="unpacked_" transient="true" />
   </class>
   <ioread sourceClass="pat::PackedGenParticle" source="int16_t packedEta_;int16_t packedPt_;int16_t packedM_;" version="[-10]" checksum="[389883266]" targetClass="pat::PackedGenParticle"
   	 target="packedY_" embed="false" include="DataFormats/PatCandidates/interface/ioread_packedgen.h" >
@@ -339,8 +341,12 @@
 	]]>
    </ioread>
 
-  <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="unpacked_">
-    <![CDATA[unpacked_ = false;
+  <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="p4_">
+    <![CDATA[delete p4_.exchange(nullptr);
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="p4c_">
+    <![CDATA[delete p4c_.exchange(nullptr);
     ]]>
   </ioread>
 
