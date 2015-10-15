@@ -101,6 +101,7 @@ process.lumi = cms.EDAnalyzer(
     sampleType                   = cms.untracked.string('MC'), # MC, DATA
     includeVertexInformation     = cms.untracked.bool(True),
     includePixels                = cms.untracked.bool(True),
+    splitByBX                    = cms.untracked.bool(True),
     L1GTReadoutRecordLabel       = cms.untracked.InputTag('gtDigis'), 
     hltL1GtObjectMap             = cms.untracked.InputTag('hltL1GtObjectMap'), 
     HLTResultsLabel              = cms.untracked.InputTag('TriggerResults::HLT')

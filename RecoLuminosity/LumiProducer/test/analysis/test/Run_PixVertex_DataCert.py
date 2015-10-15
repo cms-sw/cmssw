@@ -56,11 +56,11 @@ process.lumi = cms.EDAnalyzer(
     dumpAllEvents                = cms.untracked.int32(0),
     vertexCollLabel              = cms.untracked.InputTag('offlinePrimaryVertices'),
     pixelClusterLabel            = cms.untracked.InputTag('siPixelClusters'),
-    saveType                     = cms.untracked.string('Event'), # LumiSect, LumiNib, Event
-    sampleType                   = cms.untracked.string('MC'), # MC, DATA
+    saveType                     = cms.untracked.string('LumiSect'), # LumiSect, LumiNib, Event
+    sampleType                   = cms.untracked.string('DATA'), # MC, DATA
     includeVertexInformation     = cms.untracked.bool(True),
-    includePixels                = cms.untracked.bool(False),
-    splitByBX                    = cms.untracked.bool(True),
+    includePixels                = cms.untracked.bool(True),
+    splitByBX                    = cms.untracked.bool(False),
     L1GTReadoutRecordLabel       = cms.untracked.InputTag('gtDigis'), 
     hltL1GtObjectMap             = cms.untracked.InputTag('hltL1GtObjectMap'), 
     HLTResultsLabel              = cms.untracked.InputTag('TriggerResults::HLT')
@@ -73,13 +73,14 @@ process.p = cms.Path(
     )
 
 
-outFile = 'pcc.root'
+outFile = 'pcc_Data_PixVtx_LS.root'
 process.TFileService = cms.Service("TFileService",fileName = cms.string(outFile)) 
 readFiles = cms.untracked.vstring() 
 secFiles = cms.untracked.vstring() 
 process.source = cms.Source ("PoolSource",fileNames = readFiles, secondaryFileNames = secFiles) 
 readFiles.extend([
-'/store/mc/Spring14dr/Neutrino_Pt-2to20_gun/AODSIM/Flat0to10_POSTLS170_V5-v2/10000/00AE7E7E-6153-E411-9565-002590D0AFBE.root'
-#'/store/data/Run2012D/ZeroBias1/RECO/PromptReco-v1/000/206/251/F28DAF8D-7723-E211-80A1-BCAEC5364C4C.root'
-#'/store/relval/CMSSW_7_4_0_pre8/RelValMinBias_13/GEN-SIM-RECO/MCRUN2_74_V7-v1/00000/08A7F47B-B9BD-E411-97B0-0025905B85D6.root'
+'/store/express/Run2015C/ExpressPhysics_0T/FEVT/Express-v3/000/256/385/00000/02EC6A5B-5B59-E511-A555-02163E011A29.root',
+'/store/express/Run2015C/ExpressPhysics_0T/FEVT/Express-v3/000/256/385/00000/0616947E-5959-E511-9D4F-02163E0132A0.root',
+'/store/express/Run2015C/ExpressPhysics_0T/FEVT/Express-v3/000/256/385/00000/0C5246A7-6959-E511-A58E-02163E0124A9.root',
+'/store/express/Run2015C/ExpressPhysics_0T/FEVT/Express-v3/000/256/385/00000/10DD1A69-5859-E511-B314-02163E0140DE.root',
 ])

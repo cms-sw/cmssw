@@ -48,7 +48,9 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     saveType(iConfig.getUntrackedParameter<string>("saveType")),
     sampleType(iConfig.getUntrackedParameter<string>("sampleType")),
     includeVertexInformation(iConfig.getUntrackedParameter<bool>("includeVertexInformation",1)),
-    includePixels(iConfig.getUntrackedParameter<bool>("includePixels",1))
+    includePixels(iConfig.getUntrackedParameter<bool>("includePixels",1)),
+    includeJets(iConfig.getUntrackedParameter<bool>("includeJets",0)),
+    splitByBX(iConfig.getUntrackedParameter<bool>("splitByBX",1))
 {
     cout << "----------------------------------------------------------------------" << endl;
     cout << "--- PCCNTupler constructor" << endl;
@@ -113,6 +115,28 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     if(sampleType=="MC"){
         pileUpToken=consumes<std::vector< PileupSummaryInfo> >(fPileUpInfoLabel);
         tree->Branch("nPU",&nPU,"nPU/I");
+    }
+
+    if(includeJets){
+        hltjetsToken_=consumes<reco::CaloJetCollection >(edm::InputTag("ak4CaloJets"));
+        const int kMaxJetCal = 10000;
+        jhcalpt = new float[kMaxJetCal];
+        jhcalphi = new float[kMaxJetCal];
+        jhcaleta = new float[kMaxJetCal];
+        jhcale = new float[kMaxJetCal];
+        jhcalemf = new float[kMaxJetCal]; 
+        jhcaln90 = new float[kMaxJetCal]; 
+        jhcaln90hits = new float[kMaxJetCal];
+
+        //ccla HLTJETS
+        tree->Branch("NohJetCal",&nhjetcal,"NohJetCal/I");
+        tree->Branch("ohJetCalPt",jhcalpt,"ohJetCalPt[NohJetCal]/F");
+        tree->Branch("ohJetCalPhi",jhcalphi,"ohJetCalPhi[NohJetCal]/F");
+        tree->Branch("ohJetCalEta",jhcaleta,"ohJetCalEta[NohJetCal]/F");
+        tree->Branch("ohJetCalE",jhcale,"ohJetCalE[NohJetCal]/F");
+        tree->Branch("ohJetCalEMF",jhcalemf,"ohJetCalEMF[NohJetCal]/F");
+        tree->Branch("ohJetCalN90",jhcaln90,"ohJetCalN90[NohJetCal]/F");
+        tree->Branch("ohJetCalN90hits",jhcaln90hits,"ohJetCalN90hits[NohJetCal]/F");
     }
 }
 
@@ -192,6 +216,9 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     //LN    = -99; // FIXME need the luminibble
     event = iEvent.id().event();
     bunchCrossing   = iEvent.bunchCrossing();
+    if(!splitByBX){ //if no splitting by BX then we can remove info.
+        bunchCrossing=-10;
+    }
     timeStamp_local = iEvent.time().unixTime();
     if(timeStamp_end  <timeStamp_local) timeStamp_end   =timeStamp_local;
     if(timeStamp_begin>timeStamp_local) timeStamp_begin =timeStamp_local;
@@ -225,9 +252,10 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         
    
         if(recVtxs.isValid()){
-            nVtx=recVtxs->size();
+            //nVtx=recVtxs->size();
             int ivtx=0;
             for(reco::VertexCollection::const_iterator v=recVtxs->begin(); v!=recVtxs->end(); ++v){
+                if(v->isFake()) continue;
                 vtx_isGood[ivtx] = false;
                 vtx_nTrk[ivtx] = v->tracksSize();
                 vtx_ndof[ivtx] = (int)v->ndof();
@@ -252,6 +280,38 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
                 }
                 ivtx++;
             }
+            nVtx=ivtx;
+        }
+    }
+
+    if(includeJets){
+        edm::Handle< reco::CaloJetCollection > hltjets;
+        iEvent.getByToken(hltjetsToken_, hltjets);
+        bool valid = hltjets.isValid();
+        if (not valid) {
+            std::cout << "hltjets not valid "<<std::endl;
+            nhjetcal = -1;
+        } else {
+            reco::CaloJetCollection mycalojets;
+            mycalojets=*hltjets;
+            //std::sort(mycalojets.begin(),mycalojets.end(),PtGreater());
+            typedef reco::CaloJetCollection::const_iterator cjiter;
+            int jhcal=0;
+            for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
+                if (i->pt()>5 && i->energy()>0.){
+                    jhcalpt[jhcal] = i->pt();
+                    jhcalphi[jhcal] = i->phi();
+                    jhcaleta[jhcal] = i->eta();
+                    jhcale[jhcal] = i->energy();
+                    jhcalemf[jhcal] = i->emEnergyFraction();
+                    jhcaln90[jhcal] = i->n90();
+                    //jetID->calculate( iEvent, *i );
+                    //jhcaln90hits[jhcal] = jetID->n90Hits();
+                    jhcal++;
+                }
+
+            }
+            nhjetcal = jhcal;
         }
     }
 
