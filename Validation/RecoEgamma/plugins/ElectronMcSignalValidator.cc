@@ -85,6 +85,7 @@ ElectronMcSignalValidator::ElectronMcSignalValidator( const edm::ParameterSet & 
   maxPt_ = conf.getParameter<double>("MaxPt");
   maxAbsEta_ = conf.getParameter<double>("MaxAbsEta");
   deltaR_ = conf.getParameter<double>("DeltaR");
+  deltaR2_ = deltaR_ * deltaR_;
   matchingIDs_ = conf.getParameter<std::vector<int> >("MatchingID");
   matchingMotherIDs_ = conf.getParameter<std::vector<int> >("MatchingMotherID");
   inputFile_ = conf.getParameter<std::string>("InputFile") ;
@@ -748,7 +749,7 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h1_scl_SigIEtaIEta = bookH1withSumw2(iBooker, "sigietaieta","ele supercluster sigma ieta ieta",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
   h1_scl_SigIEtaIEta_barrel = bookH1withSumw2(iBooker, "sigietaieta_barrel","ele supercluster sigma ieta ieta, barrel",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
   h1_scl_SigIEtaIEta_endcaps = bookH1withSumw2(iBooker, "sigietaieta_endcaps","ele supercluster sigma ieta ieta, endcaps",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
-  h1_scl_SigIEtaIEta_mAOD = bookH1withSumw2(iBooker, "sigietaieta_mAOD","ele supercluster sigma ieta ieta",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
+  h1_scl_SigIEtaIEta_mAOD = bookH1withSumw2(iBooker, "SigIEtaIEta_mAOD","ele supercluster sigma ieta ieta",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
   h1_scl_SigIEtaIEta_mAOD_barrel = bookH1withSumw2(iBooker, "SigIEtaIEta_mAOD_barrel","ele supercluster sigma ieta ieta, barrel",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
   h1_scl_SigIEtaIEta_mAOD_endcaps = bookH1withSumw2(iBooker, "SigIEtaIEta_mAOD_endcaps","ele supercluster sigma ieta ieta, endcaps",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
   h1_scl_full5x5_sigmaIetaIeta = bookH1withSumw2(iBooker, "full5x5_sigietaieta","ele supercluster full5x5 sigma ieta ieta",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
@@ -1234,8 +1235,9 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
           double dphi = gsfIter->phi()-mcIter->phi() ;
           if (std::abs(dphi)>CLHEP::pi)
            { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-          double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2)) ;
-          if ( deltaR < deltaR_ )
+//          double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2)) ;
+          double deltaR2 = (gsfIter->eta()-mcIter->eta()) * (gsfIter->eta()-mcIter->eta()) + dphi * dphi ;
+          if ( deltaR2 < deltaR2_ )
            {
             double mc_charge = mcIter->pdgId() == 11 ? -1. : 1. ;
             h1_ele_ChargeMnChargeTrue->Fill( std::abs(gsfIter->charge()-mc_charge));
@@ -1331,13 +1333,14 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     for ( gsfIter=gsfElectrons->begin(), iElectron=0 ; gsfIter!=gsfElectrons->end() ; gsfIter++, iElectron++ )
      {
 		// temporary cut for pt < 5.
-        passMiniAODSelection = gsfIter->pt() >= 5;
-//        std::cout << "pt=" << gsfIter->pt() << ", bool=" << passMiniAODSelection << std::endl ;
+//        passMiniAODSelection = gsfIter->pt() >= 5;
       double dphi = gsfIter->phi()-mcIter->phi() ;
       if (std::abs(dphi)>CLHEP::pi)
        { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-      double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
-      if ( deltaR < deltaR_ )
+//      double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
+      double deltaR2 = (gsfIter->eta()-mcIter->eta()) * (gsfIter->eta()-mcIter->eta()) + dphi * dphi;
+      std::cout << "dR2 : " << deltaR2 << " , dr2 : " << deltaR * deltaR << std::endl;
+      if ( deltaR2 < deltaR2_ )
        {
         if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) ) ||
              ( (mcIter->pdgId() == -11) && (gsfIter->charge() > 0.) ) )
@@ -1358,6 +1361,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     //------------------------------------
     // analysis when the mc track is found
     //------------------------------------
+    passMiniAODSelection = bestGsfElectron.pt() >= 5.;
 
     // electron related distributions
     h1_ele_charge->Fill( bestGsfElectron.charge() );
@@ -1816,7 +1820,7 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     if (bestGsfElectron.isEB()) h1_ele_neutralHadronRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
     if (bestGsfElectron.isEE()) h1_ele_neutralHadronRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
     if (passMiniAODSelection) { // Pt > 5.
-    h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
+        h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
         if (bestGsfElectron.isEB()) h1_ele_neutralHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
         if (bestGsfElectron.isEE()) h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
     }
