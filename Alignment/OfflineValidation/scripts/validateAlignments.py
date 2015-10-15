@@ -390,14 +390,14 @@ def main(argv = None):
        argv = sys.argv[1:]
     optParser = optparse.OptionParser()
     optParser.description = """All-in-one Alignment Validation.
-This will run various validation procedures either on batch queues or interactviely. 
+This will run various validation procedures either on batch queues or interactively.
 If no name is given (-N parameter) a name containing time and date is created automatically.
 To merge the outcome of all validation procedures run TkAlMerge.sh in your validation's directory.
 """
     optParser.add_option("-n", "--dryRun", dest="dryRun", action="store_true", default=False,
                          help="create all scripts and cfg File but do not start jobs (default=False)")
-    optParser.add_option( "--getImages", dest="getImages", action="store_true", default=False,
-                          help="get all Images created during the process (default= False)")
+    optParser.add_option( "--getImages", dest="getImages", action="store_true", default=True,
+                          help="get all Images created during the process (default= True)")
     defaultConfig = "TkAlConfig.ini"
     optParser.add_option("-c", "--config", dest="config", default = defaultConfig,
                          help="configuration to use (default TkAlConfig.ini) this can be a comma-seperated list of all .ini file you want to merge", metavar="CONFIG")
