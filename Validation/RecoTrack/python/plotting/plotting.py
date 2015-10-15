@@ -952,6 +952,12 @@ class Plot:
 
         self._histograms = []
 
+    def setProperties(self, **kwargs):
+        for name, value in kwargs.iteritems():
+            if not hasattr(self, "_"+name):
+                raise Exception("No attribute '%s'" % name)
+            setattr(self, "_"+name, value)
+
     def getNumberOfHistograms(self):
         """Return number of existing histograms."""
         return len(filter(lambda h: h is not None, self._histograms))
@@ -1452,6 +1458,28 @@ class PlotGroup:
 
         self._ratioFactor = 1.25
 
+    def getName(self):
+        return self._name
+
+    def getPlots(self):
+        return self._plots
+
+    def remove(self, name):
+        for i, plot in enumerate(self._plots):
+            if plot.getName() == name:
+                del self._plots[i]
+                return
+        raise Exception("Did not find Plot '%s' from PlotGroup '%s'" % (name, self._name))
+
+    def append(self, plot):
+        self._plots.append(plot)
+
+    def getPlot(self, name):
+        for plot in self._plots:
+            if plot.getName() == name:
+                return plot
+        raise Exception("No Plot named '%s'" % name)
+
     def onlyForPileup(self):
         """Return True if the PlotGroup is intended only for pileup samples"""
         return self._onlyForPileup
@@ -1675,7 +1703,7 @@ class PlotFolder:
         page           -- Optional string for the page in HTML generatin
         section        -- Optional string for the section within a page in HTML generation
         """
-        self._plotGroups = plotGroups
+        self._plotGroups = list(plotGroups)
         self._loopSubFolders = kwargs.pop("loopSubFolders", True)
         self._onlyForPileup = kwargs.pop("onlyForPileup", False)
         self._purpose = kwargs.pop("purpose", None)
@@ -1706,6 +1734,15 @@ class PlotFolder:
 
     def set(self, plotGroups):
         self._plotGroups = plotGroups
+
+    def getPlotGroups(self):
+        return self._plotGroups
+
+    def getPlotGroup(self, name):
+        for pg in self._plotGroups:
+            if pg.getName() == name:
+                return pg
+        raise Exception("No PlotGroup named '%s'" % name)
 
     def create(self, files, labels, possibleDqmFolders, dqmSubFolder=None, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.
@@ -1925,6 +1962,9 @@ class PlotterItem:
     def getName(self):
         return self._name
 
+    def getPlotFolder(self):
+        return self._plotFolder
+
     def appendTableCreator(self, tc):
         self._tableCreators.append(tc)
 
@@ -2056,6 +2096,18 @@ class Plotter:
                 plotterItem.appendTableCreator(PlotterTableItem(*args, **kwargs))
                 return
         raise Exception("Did not find plot folder '%s' when trying to attach a table creator to it" % attachToFolder)
+
+    def getPlotFolderNames(self):
+        return [item.getName() for item in self._plots]
+
+    def getPlotFolders(self):
+        return [item.getPlotFolder() for item in self._plots]
+
+    def getPlotFolder(self, name):
+        for item in self._plots:
+            if item.getName() == name:
+                return item.getPlotFolder()
+        raise Exception("No PlotFolder named '%s'" % name)
 
     def readDirs(self, *files):
         """Returns PlotterInstance object, which knows how exactly to produce the plots for these files"""
