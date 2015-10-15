@@ -225,8 +225,9 @@ class GeometryComparison(GenericValidation):
                                               ".oO[name]Oo..root"%name), repMap)
                 resultingFile = os.path.expandvars( resultingFile )
                 resultingFile = os.path.abspath( resultingFile )
+                resultingFile = "root://eoscms//eos/cms" + resultingFile   #needs to be AFTER abspath so that it doesn't eat the //
                 repMap["runComparisonScripts"] += \
-                    ("cmsStage -f OUTPUT_comparison.root %s\n"
+                    ("xrdcp -f OUTPUT_comparison.root %s\n"
                      %resultingFile)
                 self.filesToCompare[ name ] = resultingFile
 
