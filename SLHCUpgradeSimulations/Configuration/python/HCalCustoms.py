@@ -4,6 +4,9 @@ def customise_HcalPhase0(process):
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
 
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):
+        process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
+
+    process.es_hardcode.HcalReLabel.RelabelHits = cms.untracked.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(20.) #for aging
 
     process.es_hardcode.toGet = cms.untracked.vstring(
@@ -47,6 +50,7 @@ def customise_HcalPhase1(process):
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
+
 
     if hasattr(process,'g4SimHits'):
         process=customise_Sim(process)
