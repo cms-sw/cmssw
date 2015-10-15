@@ -119,7 +119,7 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
 
     if(includeJets){
         hltjetsToken_=consumes<reco::CaloJetCollection >(edm::InputTag("ak4CaloJets"));
-        const int kMaxJetCal = 10000;
+        const int kMaxJetCal = 100;
         jhcalpt = new float[kMaxJetCal];
         jhcalphi = new float[kMaxJetCal];
         jhcaleta = new float[kMaxJetCal];
