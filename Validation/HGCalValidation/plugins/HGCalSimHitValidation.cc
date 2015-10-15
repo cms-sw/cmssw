@@ -360,12 +360,9 @@ bool HGCalSimHitValidation::defineGeometry(edm::ESTransientHandle<DDCompactView>
   return true;
 }
 
-
 // ------------ method called when starting to processes a run  ------------
-
-void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker &iB, 
-					   edm::Run const & iRun, 
-					   edm::EventSetup const & iSetup) {
+void HGCalSimHitValidation::dqmBeginRun(const edm::Run&, 
+					const edm::EventSetup& iSetup) {
   if (heRebuild_) {
     edm::ESHandle<HcalDDDRecConstants> pHRNDC;
     iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
@@ -380,6 +377,11 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker &iB,
   if (verbosity_>0) 
     edm::LogInfo("HGCalValidation") << nameDetector_ << " defined with "
 				    << layers_ << " Layers";
+}
+
+void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker& iB, 
+					   edm::Run const&, 
+					   edm::EventSetup const&) {
   iB.setCurrentFolder("HGCalSimHitsV/"+nameDetector_);
     
   std::ostringstream histoname;
@@ -392,13 +394,13 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker &iB,
     }
       
     histoname.str(""); histoname << "EtaPhi_Plus_" << "layer_" << ilayer;
-    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, 1.45, 3.0, 72, -3.14, 3.14));
+    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, 1.45, 3.0, 72, -3.14, 3.14));
     histoname.str(""); histoname << "EtaPhi_Minus_" << "layer_" << ilayer;
-    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, -3.0, -1.45, 72, -3.14, 3.14));
+    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, -3.0, -1.45, 72, -3.14, 3.14));
       
     for (int itimeslice = 0; itimeslice < 6 ; itimeslice++ ) {
       histoname.str(""); histoname << "energy_time_"<< itimeslice << "_layer_" << ilayer;
-      energy_[itimeslice].push_back(iB.book1D(histoname.str().c_str(),"energy_",500,0,0.1));
+      energy_[itimeslice].push_back(iB.book1D(histoname.str().c_str(),"energy_",100,0,0.1));
     }
   }
   for(int indx=0; indx<netaBins; ++indx) {
@@ -408,22 +410,6 @@ void HGCalSimHitValidation::bookHistograms(DQMStore::IBooker &iB,
     MeanHitOccupancy_Minus_[indx] = iB.book1D( histoname.str().c_str(), "MeanHitOccupancy_Minus", layers_, 0.5, layers_ + 0.5);
   }
 }
-
-
-// ------------ method called when ending the processing of a run  ------------
-
-void HGCalSimHitValidation::endRun(edm::Run const&, edm::EventSetup const&) {
-
-  for(int ilayer=0; ilayer < (int)layers_; ++ilayer) {
-    for(int indx=0; indx<4; ++indx){
-      double meanVal = HitOccupancy_Plus_[indx].at(ilayer)->getMean();
-      MeanHitOccupancy_Plus_[indx]->setBinContent(ilayer+1, meanVal);
-      meanVal = HitOccupancy_Minus_[indx].at(ilayer)->getMean();
-      MeanHitOccupancy_Minus_[indx]->setBinContent(ilayer+1, meanVal);
-    }
-  }
-}
-
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void HGCalSimHitValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

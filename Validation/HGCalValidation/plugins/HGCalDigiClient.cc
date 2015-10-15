@@ -164,8 +164,14 @@ int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
   
   name.str(""); name << "SUMOfDigiOccupancy_Plus";
   for(unsigned int ih=0; ih<hgcalMEs.size(); ih++){
-    if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0){
+    if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0) {
       MeanDigiOccupancy_Plus_.push_back(hgcalMEs[ih]);
+      unsigned indx = MeanDigiOccupancy_Plus_.size()-1;
+      for(int ilayer=0; ilayer < (int)layers_; ++ilayer) {
+	double meanVal = DigiOccupancy_Plus_.at(ilayer)->getMean();
+	MeanDigiOccupancy_Plus_[indx]->setBinContent(ilayer+1, meanVal);
+      }
+      break;
     }
   }
 
@@ -173,6 +179,12 @@ int HGCalDigiClient::digisEndjob(const std::vector<MonitorElement*>& hgcalMEs) {
   for(unsigned int ih=0; ih<hgcalMEs.size(); ih++){
     if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0){
       MeanDigiOccupancy_Minus_.push_back(hgcalMEs[ih]);
+      unsigned indx = MeanDigiOccupancy_Minus_.size()-1;
+      for(int ilayer=0; ilayer < (int)layers_; ++ilayer) {
+	double meanVal = DigiOccupancy_Minus_.at(ilayer)->getMean();
+	MeanDigiOccupancy_Minus_[indx]->setBinContent(ilayer+1, meanVal);
+      }
+      break;
     }
   }
   return 1;
