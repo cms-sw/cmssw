@@ -8,5 +8,6 @@ trackTimeValueMapProducer = cms.EDProducer(
     trackingVertexSrc = cms.InputTag('mix:MergedTrackTruth'),
     tpAssociator = cms.string('quickTrackAssociatorByHits'),
     resolutionModels = cms.VPSet( cms.PSet( modelName = cms.string('ConfigurableFlatResolutionModel'),
-                                            resolutionInNs = cms.double(0.020) ) )
+                                            resolutionInNs = cms.double(0.020) ),
+                                  cms.PSet( modelName = cms.string('PerfectResolutionModel') ) )
     )

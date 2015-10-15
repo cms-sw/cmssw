@@ -208,21 +208,49 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     for (std::vector< std::vector<reco::TransientTrack> >::const_iterator iclus
 	   = clusters.begin(); iclus != clusters.end(); iclus++) {
 
+      double avgtime = 0.;
+      double timenorm = 0.;
+      double maxerr = 0.;
+      for( const auto& tk : *iclus ) {
+        maxerr = std::max(maxerr,tk.dtErrorExt());
+        avgtime += tk.timeExt();
+        timenorm += 1.;
+      }
+      avgtime = avgtime/timenorm;
+      maxerr = maxerr/std::sqrt(iclus->size());
 
       TransientVertex v; 
       if( algorithm->useBeamConstraint && validBS &&((*iclus).size()>1) ){
 	
 	v = algorithm->fitter->vertex(*iclus, beamSpot);
+        
+        if( f4D ) {
+          auto err = v.positionError().matrix4D();
+          err(3,3) = maxerr*maxerr;        
+          v = TransientVertex(v.position(),avgtime,err,v.originalTracks(),v.totalChiSquared());
+        }
 	
       }else if( !(algorithm->useBeamConstraint) && ((*iclus).size()>1) ) {
-      
+              
 	v = algorithm->fitter->vertex(*iclus); 
+        
+        if( f4D ) {
+          auto err = v.positionError().matrix4D();
+          err(3,3) = maxerr*maxerr;          
+          v = TransientVertex(v.position(),avgtime,err,v.originalTracks(),v.totalChiSquared());
+        }
 	
       }// else: no fit ==> v.isValid()=False
 
 
       if (fVerbose){
-	if (v.isValid()) std::cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << std::endl;
+	if (v.isValid()) {
+          std::cout << "x,y,z";
+          if (f4D) std::cout << ",t";
+          std::cout << "=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z();
+          if (f4D) std::cout << " " << v.time();
+          std::cout << std::endl;
+        }
 	else std::cout <<"Invalid fitted vertex\n";
       }
 
@@ -290,8 +318,12 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  << " y "  << std::setw(6) << v->position().y() 
 		  << " dy " << std::setw(6) << v->yError()
 		  << " z "  << std::setw(6) << v->position().z() 
-		  << " dz " << std::setw(6) << v->zError()
-		  << std::endl;
+		  << " dz " << std::setw(6) << v->zError();
+        if( f4D ) {
+          std::cout << " t " << std::setw(6) << v->t()
+                    << " dt " << std::setw(6) << v->tError();
+        }
+        std::cout << std::endl;
       }
     }
 

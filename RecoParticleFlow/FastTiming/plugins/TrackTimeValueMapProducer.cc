@@ -60,7 +60,7 @@ private:
   void calculateTrackTimes( const edm::View<reco::Track>&, 
                             const reco::RecoToSimCollection&,
                             std::vector<float>& ) const;
-  float extractTrackVertexTime(const std::vector<std::pair<TrackingParticleRef, double> >&) const;
+  std::pair<float,float> extractTrackVertexTime(const std::vector<std::pair<TrackingParticleRef, double> >&) const;
   // RNG
   CLHEP::HepRandomEngine* _rng_engine;
 };
@@ -193,7 +193,7 @@ void TrackTimeValueMapProducer::produce(edm::Event& evt, const edm::EventSetup& 
 
     for( unsigned i = 0; i < GsfTrackCollection.size(); ++i ) {
       const reco::Track& tk = GsfTrackCollection[i];
-      if( edm::isFinite( gsfTrackTimes[i] )  && generalTrackTimes[i] != 0.f ) {
+      if( edm::isFinite( gsfTrackTimes[i] )  && gsfTrackTimes[i] != 0.f ) {
         const float resolution = reso->getTimeResolution(tk);
         gsf_times.push_back( CLHEP::RandGauss::shoot(_rng_engine, gsfTrackTimes[i], resolution) );
         gsf_resos.push_back( resolution ); 
@@ -222,30 +222,40 @@ void TrackTimeValueMapProducer::calculateTrackTimes( const edm::View<reco::Track
       if( !track_tps->val.size() ) {
         tvals.push_back(flt_max);
       } else {
-        const float time_info = extractTrackVertexTime(track_tps->val);
-        tvals.push_back(time_info);
+        
+        const std::pair<float,float> time_info = extractTrackVertexTime(track_tps->val);
+        if( time_info.second*tkref->vz() < 0.f ) {
+          std::cout << "track z = " << tkref->vz() << " +/- " << tkref->dzError() << " cm ,";
+          std::cout << " sim vertex z = " << time_info.second << " t = "  << time_info.first;
+          std::cout << std::endl;
+        }
+        tvals.push_back(time_info.first);
       }
     }
   } 
 }
 
-float TrackTimeValueMapProducer::
+std::pair<float,float> TrackTimeValueMapProducer::
 extractTrackVertexTime( const std::vector<std::pair<TrackingParticleRef, double> >& tp_list ) const {
   float result = 0.f;
+  float result_z = 0.f;
   for( const auto& tpref : tp_list ) {
     const auto& tvertex = tpref.first->parentVertex();
     result = tvertex->position().T()*CLHEP::second; // convert into nano-seconds
+    result_z = tvertex->position().Z();
     // account for secondary vertices...
     
     if( tvertex->nSourceTracks() ) {
       auto pvertex = tvertex->sourceTracks()[0]->parentVertex();
       result = pvertex->position().T()*CLHEP::second;
+      result_z = pvertex->position().Z();
       while( pvertex->nSourceTracks() ) {
         pvertex = pvertex->sourceTracks()[0]->parentVertex();
         result = pvertex->position().T()*CLHEP::second;
+        result_z = pvertex->position().Z();
       }
     }    
   }
   if( tp_list.size() > 1 ) LogDebug("TooManyTracks") << "track matched to " << tp_list.size() << " tracking particles!" << std::endl;
-  return result;
+  return std::make_pair(result,result_z);
 }
