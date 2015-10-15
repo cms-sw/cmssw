@@ -162,7 +162,8 @@ void ElectronMcMiniAODSignalValidator::bookHistograms( DQMStore::IBooker & iBook
   h1_ele_vertexEta = bookH1withSumw2(iBooker, "vertexEta","ele momentum eta",eta_nbin,eta_min,eta_max,"#eta");
   h1_ele_vertexPt_nocut = bookH1withSumw2(iBooker, "vertexPt_nocut","pT of prunned electrons",pt_nbin,0.,20.,"p_{T vertex} (GeV/c)");
   h2_ele_PoPtrueVsEta = bookH2withSumw2(iBooker, "PoPtrueVsEta","ele momentum / gen momentum vs eta",eta2D_nbin,eta_min,eta_max,50,poptrue_min,poptrue_max);
-  h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",pt_nbin,0.,pt_max,100,0.,0.05);
+//  h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",pt_nbin,0.,pt_max,100,0.,0.05);
+  h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",100,0.,pt_max,100,0.,0.05);
 
   // matched electron, superclusters
   setBookPrefix("h_scl") ;
