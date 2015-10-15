@@ -149,8 +149,8 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params, edm::one::E
    m_APDElectronicsSim ( nullptr ) ,
    m_APDCoder          ( nullptr ) ,
    m_Geometry          ( nullptr ) ,
-   m_EBCorrNoise       ( {nullptr, nullptr, nullptr} ) ,
-   m_EECorrNoise       ( {nullptr, nullptr, nullptr} ) 
+   m_EBCorrNoise       ( { {nullptr, nullptr, nullptr} } ) ,
+   m_EECorrNoise       ( { {nullptr, nullptr, nullptr} } ) 
 {
    if(m_apdSeparateDigi) mixMod.produces<EBDigiCollection>(m_apdDigiTag);
      
@@ -373,8 +373,8 @@ EcalDigiProducer::EcalDigiProducer( const edm::ParameterSet& params,  edm::Consu
    m_APDElectronicsSim ( nullptr ) ,
    m_APDCoder          ( nullptr ) ,
    m_Geometry          ( nullptr ) ,
-   m_EBCorrNoise       ( {nullptr, nullptr, nullptr} ) ,
-   m_EECorrNoise       ( {nullptr, nullptr, nullptr} ) 
+   m_EBCorrNoise       ( { {nullptr, nullptr, nullptr} } ) ,
+   m_EECorrNoise       ( { {nullptr, nullptr, nullptr} } ) 
 {
   // "produces" statements taken care of elsewhere.
   //   if(m_apdSeparateDigi) mixMod.produces<EBDigiCollection>(m_apdDigiTag);

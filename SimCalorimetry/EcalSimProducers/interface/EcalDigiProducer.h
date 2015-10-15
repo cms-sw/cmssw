@@ -64,10 +64,10 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       EcalDigiProducer( const edm::ParameterSet& params , edm::ConsumesCollector& iC);
       virtual ~EcalDigiProducer();
 
-      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
-      virtual void accumulate(edm::Event const& e, edm::EventSetup const& c);
+      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c) override;
+      virtual void accumulate(edm::Event const& e, edm::EventSetup const& c) override;
       virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
-      virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
+      virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c) override;
       virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
 
       void setEBNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
@@ -147,8 +147,8 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
 
       const CaloGeometry*   m_Geometry ;
 
-      std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> > m_EBCorrNoise[3] ;
-      std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> > m_EECorrNoise[3] ;
+      std::array< std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> >, 3 > m_EBCorrNoise ;
+      std::array< std::unique_ptr<CorrelatedNoisifier<EcalCorrMatrix> >, 3 > m_EECorrNoise ;
 
       std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
