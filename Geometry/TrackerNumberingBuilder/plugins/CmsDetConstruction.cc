@@ -12,7 +12,8 @@ void CmsDetConstruction::buildComponent(DDFilteredView& fv,
   LogTrace("DetConstruction") << " CmsDetConstruction::buildComponent ";
 
   GeometricDet * det  = new GeometricDet(&fv,theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
-  //Phase1 possibility: the GeometricDet can be a mergedDet
+
+  //Phase1 mergedDet: searching for sensors
   if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) ==  GeometricDet::mergedDet){
 
     // I have to go one step lower ...
@@ -25,15 +26,14 @@ void CmsDetConstruction::buildComponent(DDFilteredView& fv,
 	*/
     }
     fv.parent();
+
   }
-  //Phase2 possibility: the GeometricDet can be a stackDet - same procedure
+
+  //Phase2 stackDet: same procedure, different nomenclature
   else if (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)) ==  GeometricDet::OTPhase2Stack){
   
-    LogTrace("DetConstruction") << " a stack ";
-
     bool dodets = fv.firstChild(); 
     while (dodets) {
-      LogTrace("DetConstruction") << " new child! ";
       buildSmallDetsforStack(fv,det,attribute);
       dodets = fv.nextSibling(); 
     }
@@ -48,10 +48,9 @@ void CmsDetConstruction::buildSmallDetsforGlued(DDFilteredView& fv,
 						GeometricDet *mother, 
 						std::string attribute){
 
-  GeometricDet * det  = 
-    new GeometricDet(&fv,
-		     theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
+  GeometricDet * det  = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
   static const std::string stereo = "TrackerStereoDetectors";
+
   if (ExtractStringFromDDD::getString(stereo,&fv) == "true"){
     uint32_t temp = 1;
     det->setGeographicalID(DetId(temp));
@@ -67,17 +66,14 @@ void CmsDetConstruction::buildSmallDetsforStack(DDFilteredView& fv,
         	                                GeometricDet *mother,
                 	                        std::string attribute){
 
-  LogTrace("DetConstruction") << " CmsPhase2OTDetConstruction::buildSmallDetsforStacks ";
   GeometricDet * det  = new GeometricDet(&fv, theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
   static const std::string isLower = "TrackerLowerDetectors";
   static const std::string isUpper = "TrackerUpperDetectors";
 
   if (ExtractStringFromDDD::getString(isLower,&fv) == "true"){
-    LogTrace("DetConstruction") << " lower ";
     uint32_t temp = 1;
     det->setGeographicalID(DetId(temp));
   } else if (ExtractStringFromDDD::getString(isUpper,&fv) == "true"){
-    LogTrace("DetConstruction") << " upper ";
     uint32_t temp = 2;
     det->setGeographicalID(DetId(temp));
   } else {
