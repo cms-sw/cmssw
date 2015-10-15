@@ -100,6 +100,41 @@ public:
     */
 	
   }
+  void write(ostream& out){
+    
+    out << "Stub: " 
+	<< layer_+1 << "\t" 
+	<< ladder_ << "\t" 
+	<< module_ << "\t"
+	<< strip_<< "\t"
+	<< -1 << "\t"
+	<< pt_ << "\t" 
+	<< x_ << "\t" 
+	<< y_ << "\t" 
+	<< z_ << "\t" 
+	<< bend_ << "\t" << endl; 
+
+    /*
+
+    for (unsigned int i=0;i<outerdigis_.size();i++){
+      out << "OuterStackDigi: "<<outerdigis_[i].first<<"\t"
+	  << outerdigis_[i].second<<"\t"
+	  << outerdigisladdermodule_[i].first<<"\t"
+	  << outerdigisladdermodule_[i].second<<"\t"
+	  <<endl;
+    }
+
+    for (unsigned int i=0;i<innerdigis_.size();i++){
+      out << "InnerStackDigi: "<<innerdigis_[i].first<<"\t"
+	  << innerdigis_[i].second<<"\t"
+	  << innerdigisladdermodule_[i].first<<"\t"
+	  << innerdigisladdermodule_[i].second
+	  <<endl;
+    }
+
+    */
+	
+  }
 
   int ptsign() {
     int ptsgn=-1.0;
