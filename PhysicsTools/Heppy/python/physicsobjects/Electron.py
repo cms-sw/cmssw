@@ -368,3 +368,6 @@ class Electron( Lepton ):
 	else :
 		return self.gsfTrack().hitPattern().numberOfHits(ROOT.reco.HitPattern.MISSING_INNER_HITS)
 
+    def ptErr(self):
+        return self.p4Error(self.candidateP4Kind())*self.pt()/self.p()
+ 
