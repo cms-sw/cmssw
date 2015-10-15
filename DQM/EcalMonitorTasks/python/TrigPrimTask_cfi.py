@@ -149,6 +149,27 @@ ecalTrigPrimTask = cms.untracked.PSet(
             btype = cms.untracked.string('DCC'),
             description = cms.untracked.string('Distribution of the trigger tower flags.')
         ),
+        TTMaskMap = cms.untracked.PSet(
+            path = cms.untracked.string('%(subdet)s/%(prefix)sStatusFlagsTask/TTStatus/%(prefix)sSRT TT Masking Status%(sm)s'),
+            kind = cms.untracked.string('TProfile2D'),
+            otype = cms.untracked.string('SM'),
+            btype = cms.untracked.string('PseudoStrip'),
+            description = cms.untracked.string('trigger tower masking status')
+        ),
+#        TTMaskMap = cms.untracked.PSet(
+#            path = cms.untracked.string('%(subdet)s/%(prefix)sStatusFlagsTask/TTStatus/%(prefix)sSRT TT Masking Status%(suffix)s'),
+#            kind = cms.untracked.string('TProfile2D'),
+#            otype = cms.untracked.string('Ecal3P'),
+#            btype = cms.untracked.string('TriggerTower'),
+#            description = cms.untracked.string('trigger tower masking status')
+#        ),
+#        StripMaskMap = cms.untracked.PSet(
+#            path = cms.untracked.string('%(subdet)s/%(prefix)sStatusFlagsTask/StripStatus/%(prefix)sSRT Strip Masking Status%(suffix)s'),
+#            kind = cms.untracked.string('TProfile2D'),
+#            otype = cms.untracked.string('Ecal3P'),
+#            btype = cms.untracked.string('PseudoStrip'),
+#            description = cms.untracked.string('strip masking status')
+#        ),
         TTFMismatch = cms.untracked.PSet(
 #            path = cms.untracked.string('Ecal/Errors/TriggerPrimitives/FlagMismatch/'),
             path = cms.untracked.string('%(subdet)s/%(prefix)sSelectiveReadoutTask/%(prefix)sSRT TT flag mismatch%(suffix)s'),

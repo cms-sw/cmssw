@@ -242,6 +242,12 @@ namespace ecaldqm
       case kTriggerTower:
         return findBinTriggerTower_(_otype, _id);
         break;
+      case kRCT:
+        return findBinRCT_(_otype, _id);
+        break;
+      case kPseudoStrip:
+        return findPseudoStrip_(_otype, _id);
+        break;
       case kSuperCrystal:
         return findBinSuperCrystal_(_otype, _id);
         break;
@@ -326,7 +332,7 @@ namespace ecaldqm
     findPlotIndex(ObjectType _otype, const EcalElectronicsId &_id)
     {
       if(getNObjects(_otype) == 1) return 0;
-
+      
       return findPlotIndex(_otype, _id.dccId());
     }
 
@@ -334,12 +340,17 @@ namespace ecaldqm
     findPlotIndex(ObjectType _otype, int _dcctccid, BinningType _btype/* = kDCC*/)
     {
       if(getNObjects(_otype) == 1) return 0;
-
+      
       int iSM(_dcctccid - 1);
 
       switch(_otype){
       case kSM:
-        return iSM;
+        if(_btype == kPseudoStrip){
+          iSM += 1;
+          iSM = iSM <= kEEmTCCHigh ? iSM % 18 / 2 : iSM >= kEEpTCCLow ? (iSM - 72) % 18 / 2 + 45: iSM - kEEmTCCHigh;
+          return iSM;
+        } 
+        else return iSM;
 
       case kEBSM:
         return iSM - 9;
@@ -828,6 +839,7 @@ namespace ecaldqm
       if(_btypeName == "Crystal") return kCrystal;
       else if(_btypeName == "TriggerTower") return kTriggerTower;
       else if(_btypeName == "SuperCrystal") return kSuperCrystal;
+      else if(_btypeName == "PseudoStrip") return kPseudoStrip;
       else if(_btypeName == "TCC") return kTCC;
       else if(_btypeName == "DCC") return kDCC;
       else if(_btypeName == "ProjEta") return kProjEta;
@@ -835,6 +847,7 @@ namespace ecaldqm
       else if(_btypeName == "User") return kUser;
       else if(_btypeName == "Report") return kReport;
       else if(_btypeName == "Trend") return kTrend;
+      else if(_btypeName == "RCT") return kRCT;
 
       throw cms::Exception("InvalidConfiguration") << "No binning type " << _btypeName << " defined";
     }

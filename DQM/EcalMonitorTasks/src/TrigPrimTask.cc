@@ -1,11 +1,18 @@
 #include "../interface/TrigPrimTask.h"
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+
+#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h"
 
 #include <iomanip>
 
@@ -45,7 +52,7 @@ namespace ecaldqm
   }
 
   void
-  TrigPrimTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&)
+  TrigPrimTask::beginEvent(edm::Event const& _evt, edm::EventSetup const&  _es)
   {
     using namespace std;
 
@@ -59,6 +66,66 @@ namespace ecaldqm
     int* pBin(std::upper_bound(bxBinEdges_, bxBinEdges_ + nBXBins + 1, _evt.bunchCrossing()));
     bxBin_ = static_cast<int>(pBin - bxBinEdges_) - 0.5;
 
+    edm::ESHandle<EcalTPGTowerStatus> TTStatusRcd;
+    _es.get<EcalTPGTowerStatusRcd>().get(TTStatusRcd);
+    const EcalTPGTowerStatus * TTStatus=TTStatusRcd.product();
+    const EcalTPGTowerStatusMap &towerMap=TTStatus->getMap();
+
+    edm::ESHandle<EcalTPGStripStatus> StripStatusRcd;
+    _es.get<EcalTPGStripStatusRcd>().get(StripStatusRcd);
+    const EcalTPGStripStatus * StripStatus=StripStatusRcd.product();
+    const EcalTPGStripStatusMap &stripMap=StripStatus->getMap();
+
+    MESet& meTTMaskMap(MEs_.at("TTMaskMap"));
+    //MESet& meStripMaskMap(MEs_.at("StripMaskMap"));
+
+    for(EcalTPGTowerStatusMap::const_iterator ttItr(towerMap.begin()); ttItr != towerMap.end(); ++ttItr){
+
+       if ((*ttItr).second > 0)
+       {
+         const EcalTrigTowerDetId  ttid((*ttItr).first);
+         if(ttid.subDet() == EcalBarrel)
+            meTTMaskMap.fill(ttid,1);
+       }//masked   
+    }//loop towers
+  
+    for(EcalTPGStripStatusMap::const_iterator stItr(stripMap.begin()); stItr != stripMap.end(); ++stItr){
+
+       if ((*stItr).second > 0)
+       {
+         const EcalElectronicsId stid((*stItr).first);
+         std::cout << "Strips" << std::endl;
+         if(stid.subdet() == EcalEndcap);
+            meTTMaskMap.fill(stid,1);
+         std::cout << "finish" << std::endl;
+       }//masked   
+    }//loop towers
+
+//    for(int iDCC(0); iDCC < 108; iDCC++){
+//      for(int iTT(0); iTT < 28; iTT++){
+//        for(int iST(0); iST < 5; iST++){
+//             if(iDCC >= 36 && iDCC <= 71)continue;
+//             
+//             std::cout << iDCC+1 << " " << iTT+1 << " " << iST+1 << " ";
+//             std::vector<DetId> ids(getElectronicsMap()->pseudoStripConstituents(iDCC+1, iTT+1, iST+1));
+//             unsigned nId(ids.size());
+//             
+//             if(nId == 0)std::cout << 0 << " " << 0 << " " << 0 << " "<< 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 <<" " << 0<< " ";
+//             for(unsigned iId(0); iId < nId; iId++){
+//                EEDetId eeid(ids[iId]);
+//	        int ix(eeid.ix());
+//        	int iy(eeid.iy());
+//                if(nId==1)std::cout << ix << " " << iy << " " << ix << " " << iy << " " << ix << " " << iy << " " << ix << " " << iy << " " <<ix << " " << iy << " ";
+//                else std::cout << ix << " " << iy << " ";             
+//              }
+//              std::cout << std::endl;
+//           }
+//        }
+//     }
+             
+ 
+
+  
     //     if(HLTCaloPath_.size() || HLTMuonPath_.size()){
     //       edm::TriggerResultsByName results(_evt.triggerResultsByName("HLT"));
     //       if(!results.isValid()) results = _evt.triggerResultsByName("RECO");

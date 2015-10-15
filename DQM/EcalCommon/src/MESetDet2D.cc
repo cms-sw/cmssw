@@ -2,6 +2,7 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
+#include <sstream>
 namespace ecaldqm
 {
   MESetDet2D::MESetDet2D(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind, binning::AxisSpecs const* _zaxis/* = 0*/) :
@@ -88,22 +89,27 @@ namespace ecaldqm
 
     unsigned iME(binning::findPlotIndex(otype_, _id));
     checkME_(iME);
-
     binning::ObjectType obj(binning::getObject(otype_, iME));
 
     int bin;
 
-    if(isEndcapTTId(_id)){
-      std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(_id)));
-      unsigned nId(ids.size());
-      for(unsigned iId(0); iId < nId; iId++){
-        bin = binning::findBin2D(obj, binning::kTriggerTower, ids[iId]);
-        fill_(iME, bin, _w);
-      }
-    }
-    else{
+    if(btype_ == binning::kRCT){
       bin = binning::findBin2D(obj, btype_, _id);
       fill_(iME, bin, _w);
+    }
+    else{
+      if(isEndcapTTId(_id)){
+        std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(EcalTrigTowerDetId(_id)));
+        unsigned nId(ids.size());
+        for(unsigned iId(0); iId < nId; iId++){
+          bin = binning::findBin2D(obj, binning::kTriggerTower, ids[iId]);
+          fill_(iME, bin, _w);
+        }
+      }
+      else{
+        bin = binning::findBin2D(obj, btype_, _id);
+        fill_(iME, bin, _w);
+      }
     }
   }
 
@@ -113,12 +119,26 @@ namespace ecaldqm
     if(!active_) return;
 
     unsigned iME(binning::findPlotIndex(otype_, _id));
+    if(btype_ == binning::kPseudoStrip) iME = binning::findPlotIndex(otype_, _id.dccId(),binning::kPseudoStrip);
     checkME_(iME);
 
     binning::ObjectType obj(binning::getObject(otype_, iME));
 
-    int bin(binning::findBin2D(obj, btype_, _id));
-    fill_(iME, bin, _w);
+    int bin;
+
+    if(btype_ == binning::kPseudoStrip){
+      EcalElectronicsId stid(_id);
+      std::vector<DetId> ids(getElectronicsMap()->pseudoStripConstituents(stid.dccId(), stid.towerId(), stid.stripId()));
+      unsigned nId(ids.size());
+      for(unsigned iId(0); iId < nId; iId++){
+         bin = binning::findBin2D(obj, binning::kPseudoStrip, ids[iId]);
+         fill_(iME, bin, _w);
+      }
+    }
+    else{
+      bin = binning::findBin2D(obj, btype_, _id);
+      fill_(iME, bin, _w);
+    }
   }
 
   void
