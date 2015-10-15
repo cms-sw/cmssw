@@ -24,6 +24,8 @@ class ZMuMuValidation(GenericValidationData):
         GenericValidationData.__init__(self, valName, alignment, config,
                                        "zmumu", addDefaults=defaults,
                                        addMandatories=mandatories)
+        if self.general["zmumureference"].startswith("/store"):
+            self.general["zmumureference"] = "root://eoscms//eos/cms" + self.general["zmumureference"]
         if self.NJobs > 1:
             raise AllInOneError("Parallel jobs not implemented for the Z->mumu validation!\n"
                                 "Please set parallelJobs = 1.")
