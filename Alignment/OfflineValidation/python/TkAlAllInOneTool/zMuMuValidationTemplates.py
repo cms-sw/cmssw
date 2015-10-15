@@ -219,6 +219,7 @@ process.p = cms.Path(
 zMuMuScriptTemplate="""
 #!/bin/bash 
 source /afs/cern.ch/cms/caf/setup.sh
+eos='/afs/cern.ch/project/eos/installation/cms/bin/eos.select'
 
 echo  -----------------------
 echo  Job started at `date`
@@ -267,7 +268,7 @@ cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/Roo
 if [[ .oO[zmumureference]Oo. == *store* ]]; then xrdcp -f .oO[zmumureference]Oo. BiasCheck_Reference.root; else ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root; fi
 root -q -b -l MultiHistoOverlap_.oO[resonance]Oo..C
 
-eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
+$eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
 for RootOutputFile in $(ls *root )
 do
     xrdcp -f ${RootOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./
