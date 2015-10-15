@@ -575,7 +575,7 @@ void HLTTauDQMPath::getFilterObjects(const trigger::TriggerEvent& triggerEvent, 
 bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& triggerObjects, const HLTTauDQMOfflineObjects& offlineObjects, double dR, std::vector<Object>& matchedTriggerObjects, HLTTauDQMOfflineObjects& matchedOfflineObjects) const {
   bool isL1 = (i==0 && isFirstL1Seed_);
   std::vector<bool> offlineMask;
-  if(filterLevel_[i] > 1 && filterTauN_[i] > 0) {
+  if(filterTauN_[i] > 0) {
     int matchedObjects = 0;
     offlineMask.resize(offlineObjects.taus.size());
     std::fill(offlineMask.begin(), offlineMask.end(), true);
@@ -590,11 +590,10 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
       //std::cout << "trigger object DR match" << std::endl;
       }
     }
-////    if(matchedObjects < filterTauN_[i])
-    if(matchedObjects == 0)
+    if(matchedObjects < filterTauN_[i])
       return false;
   }
-  if(filterLevel_[i] > 1 && filterElectronN_[i] > 0) {
+  if(filterElectronN_[i] > 0) {
     int matchedObjects = 0;
     offlineMask.resize(offlineObjects.electrons.size());
     std::fill(offlineMask.begin(), offlineMask.end(), true);
@@ -611,7 +610,7 @@ bool HLTTauDQMPath::offlineMatching(size_t i, const std::vector<Object>& trigger
     if(matchedObjects < filterElectronN_[i])
       return false;
   }
-  if(filterLevel_[i] > 1 && filterMuonN_[i] > 0) {
+  if(filterMuonN_[i] > 0) {
     int matchedObjects = 0;
     offlineMask.resize(offlineObjects.muons.size());
     std::fill(offlineMask.begin(), offlineMask.end(), true);
