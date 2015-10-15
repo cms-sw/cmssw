@@ -53,9 +53,6 @@ namespace DataFormats_TrackReco {
     edm::Wrapper<reco::TrackRefVector> wv1;
     std::vector<reco::TrackRef> vr1;
 
-    std::vector<std::pair<int,int>> vpp1;
-    edm::Wrapper<std::vector<std::pair<int,int>>> wvpp1;
-  
     edm::helpers::Key<edm::RefProd<std::vector<reco::Track> > > rpt1;
     edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, double, unsigned int> > am1;
     edm::AssociationMap<edm::OneToValue<std::vector<reco::Track>, float, unsigned int> > am2;

@@ -185,11 +185,8 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 
   if ( hits.empty() ) return Trajectory();
 
-  bool hasoutliers=false;
-
   RecHitContainer myHits = hits;
   Trajectory tmp_first;
-  // bool firstTry=true;
 
   //call the fitter
   Trajectory smoothed  = smoothingStep(theFitter->fitOne(aSeed, myHits, firstPredTsos));
@@ -197,16 +194,16 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
   
   do {
 
+#ifdef EDM_ML_DEBUG
     //if no outliers the fit is done only once
-    //for (unsigned int j=0;j<myHits.size();j++) {
-    //if (myHits[j]->det())
-    //LogTrace("TrackFitters") << "hit #:" << j+1 << " rawId=" << myHits[j]->det()->geographicalId().rawId()
-    //<< " validity=" << myHits[j]->isValid();
-    //else
-    //LogTrace("TrackFitters") << "hit #:" << j+1 << " Hit with no Det information";
-    //}
-
-    hasoutliers        = false;
+    for (unsigned int j=0;j<myHits.size();j++) {
+    if (myHits[j]->det())
+      LogTrace("TrackFitters") << "hit #:" << j+1 << " rawId=" << myHits[j]->det()->geographicalId().rawId()
+      << " validity=" << myHits[j]->isValid();
+    else
+      LogTrace("TrackFitters") << "hit #:" << j+1 << " Hit with no Det information";
+    }
+#endif
   
 
     bool hasNaN = false;
@@ -222,15 +219,16 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
       }
       break;
     }
-    //else {
-    //LogTrace("TrackFitters") << "dump hits after smoothing";
-    //Trajectory::DataContainer meas = smoothed[0].measurements();
-    //for (Trajectory::DataContainer::iterator it=meas.begin();it!=meas.end();++it) {
-    //LogTrace("TrackFitters") << "hit #" << meas.end()-it-1 << " validity=" << it->recHit()->isValid()
-    //<< " det=" << it->recHit()->geographicalId().rawId();
-    //}
-    //}
-
+#ifdef EDM_ML_DEBUG
+    else {
+      LogTrace("TrackFitters") << "dump hits after smoothing";
+      Trajectory::DataContainer meas = smoothed[0].measurements();
+      for (Trajectory::DataContainer::iterator it=meas.begin();it!=meas.end();++it) {
+        LogTrace("TrackFitters") << "hit #" << meas.end()-it-1 << " validity=" << it->recHit()->isValid()
+        << " det=" << it->recHit()->geographicalId().rawId();
+      }
+    }
+#endif
 
     if (myHits.size() !=smoothed.measurements().size()) 
       DPRINT("TrackFitters") << "lost hits. before/after: " << myHits.size() <<'/' << smoothed.measurements().size()<< "\n";
@@ -240,7 +238,8 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
 
     // Check if there are outliers
     
-    unsigned int bad[smoothed.measurements().size()];
+    auto msize = smoothed.measurements().size();
+    declareDynArray(unsigned int, msize, bad);
     unsigned int nbad=0;
     unsigned int ind=0;
     unsigned int lastValid=smoothed.measurements().size();
@@ -296,7 +295,6 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     assert(smoothed.measurements().size() == myHits.size());
     
     declareDynArray(Trajectory,nbad,smoothedCand);
-    // declareDynArray(TrackingRecHit::ConstRecHitPointer, nbad, removedHit);
 
     
     auto NHits = myHits.size();
@@ -342,7 +340,6 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     std::swap(smoothed,smoothedCand[loc]);
     // firstTry=false;
     
-    hasoutliers = true;
     DPRINT("TrackFitters") << "new trajectory with nhits/chi2 " << smoothed.foundHits() << '/' <<  smoothed.chiSquared() << "\n";
     
     
@@ -374,7 +371,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     }
 
   } // do
-  while ( hasoutliers );
+  while ( true );
 
   if ( smoothed.isValid() ) {
     if ( noInvalidHitsBeginEnd 

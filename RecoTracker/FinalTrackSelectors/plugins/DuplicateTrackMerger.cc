@@ -116,6 +116,7 @@ DuplicateTrackMerger::fillDescriptions(edm::ConfigurationDescriptions& descripti
      desc.add<double>("maxDdxy",10.0);
      desc.add<double>("maxDQoP",0.25);
      desc.add<std::string>("forestLabel","MVADuplicate");
+     desc.add<std::string>("GBRForestFileName","");
      desc.add<bool>("useInnermostState",true);
      desc.add<std::string>("ttrhBuilderName","WithAngleAndTemplate");
      descriptions.add("DuplicateTrackMerger", desc);
@@ -124,8 +125,6 @@ DuplicateTrackMerger::fillDescriptions(edm::ConfigurationDescriptions& descripti
   
 DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : forest_(nullptr), merger_(iPara)
 {
-
-  useForestFromDB_ = true;
 
   trackSource_ = consumes<reco::TrackCollection>(iPara.getParameter<edm::InputTag>("source"));
   minDeltaR3d2_ = iPara.getParameter<double>("minDeltaR3d"); minDeltaR3d2_*=std::abs(minDeltaR3d2_);
@@ -142,13 +141,10 @@ DuplicateTrackMerger::DuplicateTrackMerger(const edm::ParameterSet& iPara) : for
   produces<std::vector<TrackCandidate> >("candidates");
   produces<CandidateToDuplicate>("candidateMap");
 
-  dbFileName_ = "";
   forestLabel_ = iPara.getParameter<std::string>("forestLabel");
 
-  if(iPara.exists("GBRForestFileName")){
-    dbFileName_ = iPara.getUntrackedParameter<std::string>("GBRForestFileName");
-    useForestFromDB_ = false;
-  }
+  dbFileName_ = iPara.getParameter<std::string>("GBRForestFileName");
+  useForestFromDB_ = dbFileName_.empty();
 
   /*
   tmvaReader_ = new TMVA::Reader("!Color:Silent");

@@ -1,7 +1,5 @@
 <lcgdict>
 
-  <class name="edm::Wrapper<std::vector<std::pair<int,int>>>"/>
- 
   <class name="reco::TrackBase::AlgoMask"/>
   <class name="reco::HitPattern" ClassVersion="12">
       <version ClassVersion="12" checksum="3922863495"/>

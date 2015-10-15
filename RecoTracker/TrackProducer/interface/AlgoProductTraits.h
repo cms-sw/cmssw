@@ -1,5 +1,5 @@
-#ifndef AlgoProductTraits_H
-#define AlgoProductTraits_H
+#ifndef RecoTrackerTrackProducerAlgoProductTraits_H
+#define RecoTrackerTrackProducerAlgoProductTraits_H
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include <vector>

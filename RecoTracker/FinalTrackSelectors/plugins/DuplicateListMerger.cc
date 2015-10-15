@@ -172,7 +172,7 @@ void DuplicateListMerger::produce(edm::StreamID, edm::Event& iEvent, const edm::
     auto const & cand = candidates[cInd];
     const reco::Track& matchedTrack = merged[i];
 
-    if (mergedMVA[i]< -0.7f) continue;  // at least "loose"
+    if (mergedMVA[i]< -0.7f) continue;  // at least "loose"  ( FIXME: take cut value from CutSelector)
 
     // if( ChiSquaredProbability(matchedTrack.chi2(),matchedTrack.ndof()) < minTrkProbCut_)continue;
     int dHits = (cand.recHits().second - cand.recHits().first) - matchedTrack.recHitsSize();
