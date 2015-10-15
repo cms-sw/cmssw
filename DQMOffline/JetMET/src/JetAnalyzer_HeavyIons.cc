@@ -62,6 +62,27 @@ JetAnalyzer_HeavyIons::JetAnalyzer_HeavyIons(const edm::ParameterSet& iConfig) :
     mPFPhi = 0;
     mPFVsPt = 0;
     mPFVsPtInitial = 0;
+    mPFVsPtInitial_HF = 0;
+    mPFVsPtInitial_Centrality_100_95 = 0;
+    mPFVsPtInitial_Centrality_95_90 = 0;
+    mPFVsPtInitial_Centrality_90_85 = 0;
+    mPFVsPtInitial_Centrality_85_80 = 0;
+    mPFVsPtInitial_Centrality_80_75 = 0;
+    mPFVsPtInitial_Centrality_75_70 = 0;
+    mPFVsPtInitial_Centrality_70_65 = 0;
+    mPFVsPtInitial_Centrality_65_60 = 0;
+    mPFVsPtInitial_Centrality_60_55 = 0;
+    mPFVsPtInitial_Centrality_55_50 = 0;
+    mPFVsPtInitial_Centrality_50_45 = 0;
+    mPFVsPtInitial_Centrality_45_40 = 0;
+    mPFVsPtInitial_Centrality_40_35 = 0;
+    mPFVsPtInitial_Centrality_35_30 = 0;
+    mPFVsPtInitial_Centrality_30_25 = 0;
+    mPFVsPtInitial_Centrality_25_20 = 0;
+    mPFVsPtInitial_Centrality_20_15 = 0;
+    mPFVsPtInitial_Centrality_15_10 = 0;
+    mPFVsPtInitial_Centrality_10_5 = 0;
+    mPFVsPtInitial_Centrality_5_0 = 0;
     mPFArea = 0;
     mPFDeltaR = 0; //MZ
     
@@ -268,6 +289,30 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mPFPhi           = ibooker.book1D("PFPhi","PF candidate #phi",70,-3.5,3.5);
     mPFVsPt          = ibooker.book1D("PFVsPt","Vs PF candidate p_{T}",1000,-500,500);
     mPFVsPtInitial   = ibooker.book1D("PFVsPtInitial","Vs background subtracted PF candidate p_{T}",1000,-500,500);
+    mPFVsPtInitial_HF   = ibooker.book2D("PFVsPtInitial_HF","Vs background subtracted PF candidate p_{T} versus HF", 600,0,6000,1000,-100,100);
+    mPFVsPtInitial_Centrality_100_95   = ibooker.book1D("mPFVsPtInitial_Centrality_100_95","Vs background subtracted PF candidate p_{T} versus Centrality BTW100And95",1000,-100,100);
+    mPFVsPtInitial_Centrality_95_90   = ibooker.book1D("mPFVsPtInitial_Centrality_95_90","Vs background subtracted PF candidate p_{T} versus Centrality BTW95And90",1000,-100,100);
+    mPFVsPtInitial_Centrality_90_85   = ibooker.book1D("mPFVsPtInitial_Centrality_90_85","Vs background subtracted PF candidate p_{T} versus Centrality BTW90And85",1000,-100,100);
+    mPFVsPtInitial_Centrality_85_80   = ibooker.book1D("mPFVsPtInitial_Centrality_85_80","Vs background subtracted PF candidate p_{T} versus Centrality BTW85And80",1000,-100,100);
+    mPFVsPtInitial_Centrality_80_75   = ibooker.book1D("mPFVsPtInitial_Centrality_80_75","Vs background subtracted PF candidate p_{T} versus Centrality BTW80And75",1000,-100,100);
+    mPFVsPtInitial_Centrality_75_70   = ibooker.book1D("mPFVsPtInitial_Centrality_75_70","Vs background subtracted PF candidate p_{T} versus Centrality BTW75And70",1000,-100,100);
+    mPFVsPtInitial_Centrality_70_65   = ibooker.book1D("mPFVsPtInitial_Centrality_70_65","Vs background subtracted PF candidate p_{T} versus Centrality BTW70And65",1000,-100,100);
+    mPFVsPtInitial_Centrality_65_60   = ibooker.book1D("mPFVsPtInitial_Centrality_65_60","Vs background subtracted PF candidate p_{T} versus Centrality BTW65And60",1000,-100,100);
+    mPFVsPtInitial_Centrality_60_55   = ibooker.book1D("mPFVsPtInitial_Centrality_60_55","Vs background subtracted PF candidate p_{T} versus Centrality BTW60And55",1000,-100,100);
+    mPFVsPtInitial_Centrality_55_50   = ibooker.book1D("mPFVsPtInitial_Centrality_55_50","Vs background subtracted PF candidate p_{T} versus Centrality BTW55And50",1000,-100,100);
+    mPFVsPtInitial_Centrality_50_45   = ibooker.book1D("mPFVsPtInitial_Centrality_50_45","Vs background subtracted PF candidate p_{T} versus Centrality BTW50And45",1000,-100,100);
+    mPFVsPtInitial_Centrality_45_40   = ibooker.book1D("mPFVsPtInitial_Centrality_45_40","Vs background subtracted PF candidate p_{T} versus Centrality BTW45And40",1000,-100,100);
+    mPFVsPtInitial_Centrality_40_35   = ibooker.book1D("mPFVsPtInitial_Centrality_40_35","Vs background subtracted PF candidate p_{T} versus Centrality BTW40And35",1000,-100,100);
+    mPFVsPtInitial_Centrality_35_30   = ibooker.book1D("mPFVsPtInitial_Centrality_35_30","Vs background subtracted PF candidate p_{T} versus Centrality BTW35And30",1000,-100,100);
+    mPFVsPtInitial_Centrality_30_25   = ibooker.book1D("mPFVsPtInitial_Centrality_30_25","Vs background subtracted PF candidate p_{T} versus Centrality BTW30And25",1000,-100,100);
+    mPFVsPtInitial_Centrality_25_20   = ibooker.book1D("mPFVsPtInitial_Centrality_25_20","Vs background subtracted PF candidate p_{T} versus Centrality BTW25And20",1000,-100,100);
+    mPFVsPtInitial_Centrality_20_15   = ibooker.book1D("mPFVsPtInitial_Centrality_20_15","Vs background subtracted PF candidate p_{T} versus Centrality BTW20And15",1000,-100,100);
+    mPFVsPtInitial_Centrality_15_10   = ibooker.book1D("mPFVsPtInitial_Centrality_15_10","Vs background subtracted PF candidate p_{T} versus Centrality BTW15And10",1000,-100,100);
+    mPFVsPtInitial_Centrality_10_5   = ibooker.book1D("mPFVsPtInitial_Centrality_10_5","Vs background subtracted PF candidate p_{T} versus Centrality BTW10And05",1000,-100,100);
+    mPFVsPtInitial_Centrality_5_0   = ibooker.book1D("mPFVsPtInitial_Centrality_5_0","Vs background subtracted PF candidate p_{T} versus Centrality BTW05And00",1000,-100,100);
+
+
+
     mPFArea          = ibooker.book1D("PFArea","VS PF candidate area",100,0,4);
     mPFDeltaR          = ibooker.book1D("PFDeltaR","VS PF candidate DeltaR",100,0,4); //MZ
     mPFDeltaR_pTCorrected          = ibooker.book1D("PFDeltaR_pTCorrected","VS PF candidate DeltaR time pFpT over jet pT",100,0,4); //MZ
@@ -915,7 +960,75 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
         mPFPhi->Fill(pfPhi);
         mPFVsPt->Fill(vsPt);
         mPFVsPtInitial->Fill(vsPtInitial); //filled with zeros (need a fix)
+        mPFVsPtInitial_HF->Fill(cent->EtHFtowerSum(), vsPtInitial,1); //filled with zeros (need a fix)
+        
+
+        if(cent->EtHFtowerSum() < 7.43)
+        mPFVsPtInitial_Centrality_100_95->Fill(vsPtInitial);
+
+
+        if(cent->EtHFtowerSum() >=  7.43  && cent->EtHFtowerSum() < 17.03 )
+        mPFVsPtInitial_Centrality_95_90->Fill(vsPtInitial);
+       
+        if(cent->EtHFtowerSum() >= 17.03  && cent->EtHFtowerSum() < 31.14 )
+        mPFVsPtInitial_Centrality_90_85->Fill(vsPtInitial);
+        
+        if(cent->EtHFtowerSum() >= 31.14  && cent->EtHFtowerSum() < 51.90 )
+        mPFVsPtInitial_Centrality_85_80->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 51.90  && cent->EtHFtowerSum() < 83.11 )
+        mPFVsPtInitial_Centrality_80_75->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 83.11  && cent->EtHFtowerSum() < 128.14)
+        mPFVsPtInitial_Centrality_75_70->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 128.14 && cent->EtHFtowerSum() < 192.20)
+        mPFVsPtInitial_Centrality_70_65->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 192.20 && cent->EtHFtowerSum() < 277.96)
+        mPFVsPtInitial_Centrality_65_60->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 277.96 && cent->EtHFtowerSum() < 387.86) 
+        mPFVsPtInitial_Centrality_60_55->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 387.86 && cent->EtHFtowerSum() < 523.19)
+        mPFVsPtInitial_Centrality_55_50->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 523.19 && cent->EtHFtowerSum() < 687.50)
+        mPFVsPtInitial_Centrality_50_45->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 687.50 && cent->EtHFtowerSum() < 885.11)
+        mPFVsPtInitial_Centrality_45_40->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 885.11 && cent->EtHFtowerSum() < 1120.33)
+        mPFVsPtInitial_Centrality_40_35->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 1120.33 && cent->EtHFtowerSum() < 1393.75)
+        mPFVsPtInitial_Centrality_35_30->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 1393.75 && cent->EtHFtowerSum() < 1713.67)
+        mPFVsPtInitial_Centrality_30_25->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 1713.67 && cent->EtHFtowerSum() < 2093.20)
+        mPFVsPtInitial_Centrality_25_20->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 2093.20 && cent->EtHFtowerSum() < 2540.62)
+        mPFVsPtInitial_Centrality_20_15->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 2540.62 && cent->EtHFtowerSum() < 3081.98)
+        mPFVsPtInitial_Centrality_15_10->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 3081.98 && cent->EtHFtowerSum() < 3738.53)
+        mPFVsPtInitial_Centrality_10_5->Fill(vsPtInitial);
+
+        if(cent->EtHFtowerSum() >= 3738.53 && cent->EtHFtowerSum() < 4492.18)
+        mPFVsPtInitial_Centrality_5_0->Fill(vsPtInitial);
+
+
         mPFArea->Fill(vsArea);
+        
+
+
         //   mPFDeltaR->Fill(pfDeltaR); //MZ
         //   cout << "pfDeltaR = " << pfDeltaR << endl;    
       }// pf candidate loop 
