@@ -11,6 +11,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 
 static const int IPHI_MAX=72;
+//#define DebugLog
 
 HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::TriggerMode tmode) :
   hcons_(hcons),
@@ -57,11 +58,15 @@ HcalTopology::HcalTopology(const HcalDDDRecConstants* hcons, HcalTopologyMode::T
     HBSize_     = nEtaHB_*72*maxDepthHB_*2;
     HESize_     = nEtaHE_*72*maxDepthHE_*2;
     HOSize_     = (lastHORing_-firstHORing_+1)*72*2; // ieta * iphi * 2
-    HFSize_     = (lastHFRing_-firstHFRing_+1)*72*2*2; // ieta * iphi * depth * 2
+    HFSize_     = (lastHFRing_-firstHFRing_+1)*72*maxDepthHF_*2; // ieta * iphi * depth * 2
     HTSize_     = kHTSizePreLS1;  //no clue!
     numberOfShapes_ = 500;
   }
   maxEta_ = (lastHERing_ > lastHFRing_) ? lastHERing_ : lastHFRing_;
+#ifdef DebugLog
+  std::cout << "Topo sizes " << HBSize_ << ":" << HESize_ << ":" << HOSize_
+	    << ":" << HFSize_ << " for mode " << mode_ << std::endl;
+#endif
 
   //The transition between HE/HF in eta
   etaTableHF  = hcons_->getEtaTableHF();
@@ -152,7 +157,7 @@ HcalTopology::HcalTopology(HcalTopologyMode::Mode mode, int maxDepthHB, int maxD
     HBSize_= maxDepthHB*16*72*2;
     HESize_= maxDepthHE*(29-16+1)*72*2;
     HOSize_= 15*72*2; // ieta * iphi * 2
-    HFSize_= 72*13*2*2; // phi * eta * depth * pm 
+    HFSize_= 72*13*maxDepthHF_*2; // phi * eta * depth * pm 
     HTSize_= kHTSizePreLS1;  //no clue!
     topoVersion_=10;
   }
