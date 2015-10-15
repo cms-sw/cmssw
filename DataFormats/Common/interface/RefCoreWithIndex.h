@@ -36,7 +36,8 @@ namespace edm {
     RefCoreWithIndex& operator=(RefCoreWithIndex const&);
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-    RefCoreWithIndex( RefCoreWithIndex&& ) = default;
+    RefCoreWithIndex( RefCoreWithIndex&& iOther): cachePtr_(iOther.cachePtr_.load()),processIndex_(iOther.processIndex_),
+    productIndex_(iOther.productIndex_),elementIndex_(iOther.elementIndex_) {}
     RefCoreWithIndex& operator=(RefCoreWithIndex&&) = default;
 #endif
 
