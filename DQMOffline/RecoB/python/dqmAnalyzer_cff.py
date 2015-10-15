@@ -12,7 +12,10 @@ bTagPlotsDATA = cms.Sequence(bTagAnalysis)
 #Matching
 from PhysicsTools.JetMCAlgos.HadronAndPartonSelector_cfi import selectedHadronsAndPartons
 from PhysicsTools.JetMCAlgos.AK4PFJetsMCFlavourInfos_cfi import ak4JetFlavourInfos
-myak4JetFlavourInfos = ak4JetFlavourInfos.clone(jets = cms.InputTag("ak4PFJetsCHS"))
+myak4JetFlavourInfos = ak4JetFlavourInfos.clone(
+    jets = cms.InputTag("ak4PFJetsCHS"),
+    hadronFlavourHasPriority = cms.bool(True)
+    )
 
 #Get gen jet collection for real jets
 ak4GenJetsForPUid = cms.EDFilter("GenJetSelector",
