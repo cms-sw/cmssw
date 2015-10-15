@@ -246,7 +246,7 @@ namespace ecaldqm
         return findBinRCT_(_otype, _id);
         break;
       case kPseudoStrip:
-        return findPseudoStrip_(_otype, _id);
+        return findBinPseudoStrip_(_otype, _id);
         break;
       case kSuperCrystal:
         return findBinSuperCrystal_(_otype, _id);

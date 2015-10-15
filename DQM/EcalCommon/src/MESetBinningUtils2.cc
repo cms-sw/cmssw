@@ -568,7 +568,7 @@ namespace ecaldqm
     }
 
     int 
-    findPseudoStrip_(ObjectType _otype, DetId const& _id){
+    findBinPseudoStrip_(ObjectType _otype, DetId const& _id){
     
       int xbin(0);
       int ybin(0);

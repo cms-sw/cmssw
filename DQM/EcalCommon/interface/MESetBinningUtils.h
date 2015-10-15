@@ -161,7 +161,7 @@ namespace ecaldqm
     int findBinCrystal_(ObjectType, DetId const&, int = -1);
     int findBinCrystal_(ObjectType, EcalElectronicsId const&);
     int findBinTriggerTower_(ObjectType, DetId const&);
-    int findPseudoStrip_(ObjectType, DetId const&);
+    int findBinPseudoStrip_(ObjectType, DetId const&);
     int findBinRCT_(ObjectType, DetId const&);
     int findBinSuperCrystal_(ObjectType, DetId const&, int = -1);
     int findBinSuperCrystal_(ObjectType, EcalElectronicsId const&);
