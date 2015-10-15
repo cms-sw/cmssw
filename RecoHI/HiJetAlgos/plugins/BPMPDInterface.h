@@ -428,26 +428,6 @@ namespace lp {
 		friend class bpmpd_environment_t;
 	};
 
-	class bpmpd_environment_t : public environment_t {
-	public:
-		bpmpd_environment_t(void)
-		{
-		}
-		~bpmpd_environment_t(void)
-		{
-		}
-		int set_verbose(void);
-		int set_data_checking(void);
-		inline std::string version_str(void) const
-		{
-			return BPMPD_VERSION_STRING;
-		}
-		bpmpd_problem_t problem(std::string name = "")
-		{
-			return bpmpd_problem_t();
-		}
-	};
-
 }
 
 #endif

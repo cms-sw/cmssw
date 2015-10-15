@@ -78,8 +78,6 @@ protected:
 	std::vector<double> _recombine_tie;
 	size_t _ncost;
 	std::vector<size_t> _nblock_subtract;
-	void *_lp_environment;
-	void *_lp_problem;
 	//
 	bool _subtracted;
 	boost::multi_array<double, 4> *_perp_fourier;

@@ -776,7 +776,7 @@ void GenericVoronoiAlgorithm::lp_populate(void *lp_problem)
 }
 void GenericVoronoiAlgorithm::equalize(void)
 {
-	bpmpd_problem_t lp_problem = reinterpret_cast<bpmpd_environment_t *>(_lp_environment)->problem();
+	bpmpd_problem_t lp_problem;
 
 	recombine_link();
 	lp_populate(&lp_problem);
