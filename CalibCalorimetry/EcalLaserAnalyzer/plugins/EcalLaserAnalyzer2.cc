@@ -1305,7 +1305,10 @@ bool EcalLaserAnalyzer2::getShapes() {
   FILE *test2;   
   TProfile *laserShape=0;
   test2 = fopen(matfile.c_str(),"r");
-  if (test2) doesMatFileExist=1; 
+  if (test2) {
+    fclose(test2);
+    doesMatFileExist=1; 
+  }
   
   TFile *MatShapeFile;
   if (doesMatFileExist==1){
@@ -1329,7 +1332,10 @@ bool EcalLaserAnalyzer2::getShapes() {
   int doesElecFileExist=0;
   FILE *test; 
   test = fopen(elecfile_.c_str(),"r");
-  if (test) doesElecFileExist=1; 
+  if (test) {
+    fclose(test);
+    doesElecFileExist=1; 
+  }
   
   TFile *ElecShapesFile;
   TH1D* elecShape=0 ;

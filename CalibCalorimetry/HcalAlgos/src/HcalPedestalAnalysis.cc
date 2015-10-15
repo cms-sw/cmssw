@@ -138,7 +138,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   // HBHE
   try{
     if(!hbhe.size()) throw (int)hbhe.size();
-    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
+    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j){
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
       m_shape = cond.getHcalShape(m_coder);
@@ -163,7 +163,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   // HO
   try{
     if(!ho.size()) throw (int)ho.size();
-    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); j++){
+    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j){
       const HODataFrame digi = (const HODataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {	   
@@ -184,7 +184,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   // HF
   try{
     if(!hf.size()) throw (int)hf.size();
-    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
+    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j){
       const HFDataFrame digi = (const HFDataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
@@ -629,12 +629,12 @@ void HcalPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT, 
       // Pedestal mean - put content and errors
       int j=0;
       for(sample_it=_meot->second[i].second.first[0].begin();
-          sample_it!=_meot->second[i].second.first[0].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[0].end();++sample_it){
         _meot->second[i].second.second[0]->SetBinContent(++j,*sample_it);
       }
       j=0;
       for(sample_it=_meot->second[i].second.first[1].begin();
-          sample_it!=_meot->second[i].second.first[1].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[1].end();++sample_it){
         _meot->second[i].second.second[0]->SetBinError(++j,*sample_it);
       }
       // fit with a constant - extract parameters
@@ -653,12 +653,12 @@ void HcalPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT, 
       // Pedestal width - put content and errors
       j=0;
       for(sample_it=_meot->second[i].second.first[2].begin();
-          sample_it!=_meot->second[i].second.first[2].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[2].end();++sample_it){
         _meot->second[i].second.second[1]->SetBinContent(++j,*sample_it);
       }
       j=0;
       for(sample_it=_meot->second[i].second.first[3].begin();
-          sample_it!=_meot->second[i].second.first[3].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[3].end();++sample_it){
         _meot->second[i].second.second[1]->SetBinError(++j,*sample_it);
       }
       _meot->second[i].second.second[1]->GetXaxis()->SetTitle(name);
@@ -667,12 +667,12 @@ void HcalPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT, 
       // Correlation coeffs - put contents and errors
       j=0;
       for(sample_it=_meot->second[i].second.first[5].begin();
-          sample_it!=_meot->second[i].second.first[5].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[5].end();++sample_it){
         _meot->second[i].second.second[2]->SetBinContent(++j,*sample_it);
       }
       j=0;
       for(sample_it=_meot->second[i].second.first[6].begin();
-          sample_it!=_meot->second[i].second.first[6].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[6].end();++sample_it){
         _meot->second[i].second.second[2]->SetBinError(++j,*sample_it);
       }
       _meot->second[i].second.second[2]->GetXaxis()->SetTitle(name);
@@ -707,7 +707,7 @@ void HcalPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT, 
       // chi2
       j=0;
       for(sample_it=_meot->second[i].second.first[4].begin();
-          sample_it!=_meot->second[i].second.first[4].end();sample_it++){
+          sample_it!=_meot->second[i].second.first[4].end();++sample_it){
         Chi2->Fill(*sample_it);
       }
     }
@@ -718,12 +718,12 @@ void HcalPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT, 
   std::vector<double>::iterator sample_it;
   int j=0;
   for(sample_it=AverageValues[0].begin();
-      sample_it!=AverageValues[0].end();sample_it++){
+      sample_it!=AverageValues[0].end();++sample_it){
     CapidAverage->SetBinContent(++j,*sample_it);
   }
   j=0;
   for(sample_it=AverageValues[1].begin();
-      sample_it!=AverageValues[1].end();sample_it++){
+      sample_it!=AverageValues[1].end();++sample_it){
     CapidAverage->SetBinError(++j,*sample_it);
   }
   CapidChi2= new TH1F("Constant fit: Chi2/ndf",
@@ -731,7 +731,7 @@ void HcalPedestalAnalysis::Trendings(map<HcalDetId, map<int,PEDBUNCH> > &toolT, 
                       AverageValues[2].size(),0.,AverageValues[2].size());
   j=0;
   for(sample_it=AverageValues[2].begin();
-      sample_it!=AverageValues[2].end();sample_it++){
+      sample_it!=AverageValues[2].end();++sample_it){
     CapidChi2->SetBinContent(++j,*sample_it);
     //CapidChi2->SetBinError(++j,0);
   }
