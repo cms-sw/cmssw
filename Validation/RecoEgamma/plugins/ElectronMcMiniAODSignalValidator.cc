@@ -45,6 +45,7 @@ ElectronMcMiniAODSignalValidator::ElectronMcMiniAODSignalValidator(const edm::Pa
   maxPt_ = iConfig.getParameter<double>("MaxPt");
   maxAbsEta_ = iConfig.getParameter<double>("MaxAbsEta");
   deltaR_ = iConfig.getParameter<double>("DeltaR");
+  deltaR2_ = deltaR_ * deltaR_;
   matchingIDs_ = iConfig.getParameter<std::vector<int> >("MatchingID");
   matchingMotherIDs_ = iConfig.getParameter<std::vector<int> >("MatchingMotherID");
   outputInternalPath_ = iConfig.getParameter<std::string>("OutputFolderName") ;
@@ -165,7 +166,7 @@ void ElectronMcMiniAODSignalValidator::bookHistograms( DQMStore::IBooker & iBook
 
   // matched electron, superclusters
   setBookPrefix("h_scl") ;
-  h1_scl_SigIEtaIEta_mAOD = bookH1withSumw2(iBooker, "sigietaieta_mAOD","ele supercluster sigma ieta ieta",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
+  h1_scl_SigIEtaIEta_mAOD = bookH1withSumw2(iBooker, "SigIEtaIEta_mAOD","ele supercluster sigma ieta ieta",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
   h1_scl_SigIEtaIEta_mAOD_barrel = bookH1withSumw2(iBooker, "SigIEtaIEta_mAOD_barrel","ele supercluster sigma ieta ieta, barrel",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
   h1_scl_SigIEtaIEta_mAOD_endcaps = bookH1withSumw2(iBooker, "SigIEtaIEta_mAOD_endcaps","ele supercluster sigma ieta ieta, endcaps",100,0.,0.05,"#sigma_{i#eta i#eta}","Events","ELE_LOGY E1 P");
  
@@ -219,7 +220,7 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
     iEvent.getByToken(mcTruthCollection_, genParticles) ;  
 
     for (const pat::Electron &el : *electrons) {
-        if (el.pt() < 5) continue;
+        if (el.pt() < 5.) continue;
 //        printf("elec with pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), lost hits %d, pass conv veto %d\n",
 //                    el.pt(), el.superCluster()->eta(), el.sigmaIetaIeta(), el.full5x5_sigmaIetaIeta(), el.gsfTrack()->trackerExpectedHitsInner().numberOfLostHits(), el.passConversionVeto());
 /*        printf("elec with pt %4.1f, supercluster eta %+5.3f, sigmaIetaIeta %.3f (%.3f with full5x5 shower shapes), pass conv veto %d\n",
@@ -236,28 +237,27 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
     //===============================================
 
 
-  //===============================================
-  // charge mis-ID
-  //===============================================
+    //===============================================
+    // charge mis-ID
+    //===============================================
 
-  int mcNum=0, gamNum=0, eleNum=0 ;
-//  bool matchingID;//, matchingMotherID ;
-  bool matchingMotherID ;
+    int mcNum=0, gamNum=0, eleNum=0 ;
+//    bool matchingID;//, matchingMotherID ;
+    bool matchingMotherID ;
 
-  //===============================================
-  // association mc-reco
-  //===============================================
+    //===============================================
+    // association mc-reco
+    //===============================================
 
-  for(size_t i=0; i<genParticles->size(); i++)
-   {  
-    // number of mc particles
-    mcNum++ ;
+    for(size_t i=0; i<genParticles->size(); i++) {  
+        // number of mc particles
+        mcNum++ ;
 
-    // counts photons
-    if ( (*genParticles)[i].pdgId() == 22 )
-     { gamNum++ ; }
+        // counts photons
+        if ( (*genParticles)[i].pdgId() == 22 )
+            { gamNum++ ; }
 
-    // select requested matching gen particle
+        // select requested matching gen particle
 /*    matchingID = false ;
     for ( unsigned int i=0 ; i<matchingIDs_.size() ; i++ )
      {
@@ -269,118 +269,119 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
      }
     if (!matchingID) continue ;
 */
-    // select requested mother matching gen particle
-    // always include single particle with no mother
-    const Candidate * mother = (*genParticles)[i].mother(0) ;
-    matchingMotherID = false ;
-    for ( unsigned int ii=0 ; ii<matchingMotherIDs_.size() ; ii++ )
-     {
-      if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[ii]) )
-		{ matchingMotherID = true ; 
+        // select requested mother matching gen particle
+        // always include single particle with no mother
+        const Candidate * mother = (*genParticles)[i].mother(0) ;
+        matchingMotherID = false ;
+        for ( unsigned int ii=0 ; ii<matchingMotherIDs_.size() ; ii++ ) {
+            if ( (mother == 0) || ((mother != 0) &&  mother->pdgId() == matchingMotherIDs_[ii]) )
+                { matchingMotherID = true ; 
 //			std::cout << "matchingMotherID :" << matchingMotherIDs_[ii] << std::endl ;
-		}
-     }
-    if (!matchingMotherID) continue ;
+            }
+        }
+        if (!matchingMotherID) continue ;
 
-    // electron preselection
-    if ((*genParticles)[i].pt()> maxPt_ || std::abs((*genParticles)[i].eta())> maxAbsEta_)
-     { continue ; }
-    eleNum++;
+        // electron preselection
+        if ((*genParticles)[i].pt()> maxPt_ || std::abs((*genParticles)[i].eta())> maxAbsEta_)
+            { continue ; }
+        eleNum++;
 
-    // find best matched electron
-    bool okGsfFound = false ;
-    bool passMiniAODSelection = true ;
-    double gsfOkRatio = 999999. ;
-    pat::Electron bestGsfElectron ;
-    for (const pat::Electron &el : *electrons ) {
-        passMiniAODSelection = el.pt() >= 5;
-//        std::cout << "pt=" << el.pt() << ", bool=" << passMiniAODSelection << std::endl ;
-		double dphi = el.phi()-(*genParticles)[i].phi() ;
-		if (std::abs(dphi)>CLHEP::pi)
-		{ dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
-		double deltaR = sqrt(pow((el.eta()-(*genParticles)[i].eta()),2) + pow(dphi,2));
-		if ( deltaR < deltaR_ )
-		{
-			if ( ( ((*genParticles)[i].pdgId() == 11) && (el.charge() < 0.) ) ||
-             ( ((*genParticles)[i].pdgId() == -11) && (el.charge() > 0.) ) )
-			{
-				double tmpGsfRatio = el.p()/(*genParticles)[i].p() ;
-				if ( std::abs(tmpGsfRatio-1) < std::abs(gsfOkRatio-1) )
-				{
-					gsfOkRatio = tmpGsfRatio;
-					bestGsfElectron=el;
-					okGsfFound = true;
-				}
-			}
-		}
-    }
+        // find best matched electron
+        bool okGsfFound = false ;
+        bool passMiniAODSelection = true ;
+        double gsfOkRatio = 999999. ;
+        pat::Electron bestGsfElectron ;
+        for (const pat::Electron &el : *electrons ) {
+//            passMiniAODSelection = el.pt() >= 5.;
+            double dphi = el.phi()-(*genParticles)[i].phi() ;
+            if (std::abs(dphi)>CLHEP::pi)
+                { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
+//            double deltaR = sqrt(pow((el.eta()-(*genParticles)[i].eta()),2) + pow(dphi,2));
+            double deltaR2 = (el.eta()-(*genParticles)[i].eta()) * (el.eta()-(*genParticles)[i].eta()) + dphi * dphi;
+            if ( deltaR2 < deltaR2_ )
+            {
+                if ( ( ((*genParticles)[i].pdgId() == 11) && (el.charge() < 0.) ) ||
+                ( ((*genParticles)[i].pdgId() == -11) && (el.charge() > 0.) ) )
+                {
+                    double tmpGsfRatio = el.p()/(*genParticles)[i].p() ;
+                    if ( std::abs(tmpGsfRatio-1) < std::abs(gsfOkRatio-1) )
+                        {
+                        gsfOkRatio = tmpGsfRatio;
+                        bestGsfElectron=el;
+                        okGsfFound = true;
+                    }
+                }
+            }
+        }
      
-    if (! okGsfFound) continue ;
+        if (! okGsfFound) continue ;
 
-    //------------------------------------
-    // analysis when the mc track is found
-    //------------------------------------
+        //------------------------------------
+        // analysis when the mc track is found
+        //------------------------------------
+        passMiniAODSelection = bestGsfElectron.pt() >= 5.;
 
-    // electron related distributions
-    h1_ele_vertexPt->Fill( bestGsfElectron.pt() );
-    h1_ele_vertexEta->Fill( bestGsfElectron.eta() );
-    if ( (bestGsfElectron.scSigmaIEtaIEta()==0.) && (bestGsfElectron.fbrem()==0.) ) h1_ele_vertexPt_nocut->Fill( bestGsfElectron.pt() );
+        // electron related distributions
+        h1_ele_vertexPt->Fill( bestGsfElectron.pt() );
+        h1_ele_vertexEta->Fill( bestGsfElectron.eta() );
+        if ( (bestGsfElectron.scSigmaIEtaIEta()==0.) && (bestGsfElectron.fbrem()==0.) ) h1_ele_vertexPt_nocut->Fill( bestGsfElectron.pt() );
     
-    // generated distributions for matched electrons
-    h2_ele_PoPtrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.p()/(*genParticles)[i].p());
-    h2_ele_sigmaIetaIetaVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
+        // generated distributions for matched electrons
+        h2_ele_PoPtrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.p()/(*genParticles)[i].p());
+        h2_ele_sigmaIetaIetaVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
 
-    // supercluster related distributions
-    if ( passMiniAODSelection ) { // Pt > 5.
-        h1_scl_SigIEtaIEta_mAOD->Fill(bestGsfElectron.scSigmaIEtaIEta());
-        if (bestGsfElectron.isEB()) h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
-        if (bestGsfElectron.isEE()) h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
+        // supercluster related distributions
+        if ( passMiniAODSelection ) { // Pt > 5.
+            h1_scl_SigIEtaIEta_mAOD->Fill(bestGsfElectron.scSigmaIEtaIEta());
+            if (bestGsfElectron.isEB()) h1_scl_SigIEtaIEta_mAOD_barrel->Fill(bestGsfElectron.scSigmaIEtaIEta());
+            if (bestGsfElectron.isEE()) h1_scl_SigIEtaIEta_mAOD_endcaps->Fill(bestGsfElectron.scSigmaIEtaIEta());
 
-        h1_ele_dEtaSc_propVtx_mAOD->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-        if (bestGsfElectron.isEB()) h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
-        if (bestGsfElectron.isEE())h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+            h1_ele_dEtaSc_propVtx_mAOD->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+            if (bestGsfElectron.isEB()) h1_ele_dEtaSc_propVtx_mAOD_barrel->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
+            if (bestGsfElectron.isEE())h1_ele_dEtaSc_propVtx_mAOD_endcaps->Fill(bestGsfElectron.deltaEtaSuperClusterTrackAtVtx());
         
-        h1_ele_dPhiCl_propOut_mAOD->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-        if (bestGsfElectron.isEB()) h1_ele_dPhiCl_propOut_mAOD_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-        if (bestGsfElectron.isEE()) h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
-    }
+            h1_ele_dPhiCl_propOut_mAOD->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+            if (bestGsfElectron.isEB()) h1_ele_dPhiCl_propOut_mAOD_barrel->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+            if (bestGsfElectron.isEE()) h1_ele_dPhiCl_propOut_mAOD_endcaps->Fill(bestGsfElectron.deltaPhiSeedClusterTrackAtCalo());
+        }
    
-    // track related distributions
-    h2_ele_foundHitsVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
-    if (passMiniAODSelection) { // Pt > 5.
-        h2_ele_foundHitsVsEta_mAOD->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
-    }
+        // track related distributions
+        h2_ele_foundHitsVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
+        if (passMiniAODSelection) { // Pt > 5.
+            h2_ele_foundHitsVsEta_mAOD->Fill( bestGsfElectron.eta(), bestGsfElectron.gsfTrack()->numberOfValidHits() );
+        }
 
       // match distributions
-    if (passMiniAODSelection) { // Pt > 5.
-        h1_ele_HoE_mAOD->Fill(bestGsfElectron.hcalOverEcal());
-        if (bestGsfElectron.isEB()) h1_ele_HoE_mAOD_barrel->Fill(bestGsfElectron.hcalOverEcal());
-        if (bestGsfElectron.isEE()) h1_ele_HoE_mAOD_endcaps->Fill(bestGsfElectron.hcalOverEcal());
-    }
+        if (passMiniAODSelection) { // Pt > 5.
+            h1_ele_HoE_mAOD->Fill(bestGsfElectron.hcalOverEcal());
+            if (bestGsfElectron.isEB()) h1_ele_HoE_mAOD_barrel->Fill(bestGsfElectron.hcalOverEcal());
+            if (bestGsfElectron.isEE()) h1_ele_HoE_mAOD_endcaps->Fill(bestGsfElectron.hcalOverEcal());
+        }
 
-    // fbrem
+        // fbrem
 
-    //    double fbrem_mode =  bestGsfElectron.fbrem();
-    if (passMiniAODSelection) { // Pt > 5.
-        h1_ele_fbrem_mAOD->Fill( bestGsfElectron.fbrem() );
-        if (bestGsfElectron.isEB()) h1_ele_fbrem_mAOD_barrel->Fill( bestGsfElectron.fbrem() );
-        if (bestGsfElectron.isEE()) h1_ele_fbrem_mAOD_endcaps->Fill( bestGsfElectron.fbrem() );
+        //    double fbrem_mode =  bestGsfElectron.fbrem();
+        if (passMiniAODSelection) { // Pt > 5.
+            h1_ele_fbrem_mAOD->Fill( bestGsfElectron.fbrem() );
+            if (bestGsfElectron.isEB()) h1_ele_fbrem_mAOD_barrel->Fill( bestGsfElectron.fbrem() );
+            if (bestGsfElectron.isEE()) h1_ele_fbrem_mAOD_endcaps->Fill( bestGsfElectron.fbrem() );
 
-	// -- pflow over pT
-        h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
-        if (bestGsfElectron.isEB()) h1_ele_chargedHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
-        if (bestGsfElectron.isEE()) h1_ele_chargedHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
+        // -- pflow over pT
+            h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
+            if (bestGsfElectron.isEB()) h1_ele_chargedHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
+            if (bestGsfElectron.isEE()) h1_ele_chargedHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
 
-        h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
-        if (bestGsfElectron.isEB()) h1_ele_neutralHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
-        if (bestGsfElectron.isEE()) h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
+            h1_ele_neutralHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
+//          h1_ele_chargedHadronRelativeIso_mAOD->Fill(bestGsfElectron.pfIso_.sumNeutralHadronEt / bestGsfElectron.pt());
+            if (bestGsfElectron.isEB()) h1_ele_neutralHadronRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
+            if (bestGsfElectron.isEE()) h1_ele_neutralHadronRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
 
-        h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
-        if (bestGsfElectron.isEB()) h1_ele_photonRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
-        if (bestGsfElectron.isEE()) h1_ele_photonRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
-    }
+            h1_ele_photonRelativeIso_mAOD->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+            if (bestGsfElectron.isEB()) h1_ele_photonRelativeIso_mAOD_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+            if (bestGsfElectron.isEE()) h1_ele_photonRelativeIso_mAOD_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+        }
 
-    } // fin boucle mcIter
+    } // fin boucle size_t i
 
 //    std::cout << ("fin analyze\n");
 }
