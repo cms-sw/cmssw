@@ -433,7 +433,6 @@ namespace ecaldqm
         EEDetId eeid(_id);
         int ix(eeid.ix());
         int iy(eeid.iy());
-        std::cout << "otype=" << _otype;
         switch(_otype){
         case kEE:
           xbin = eeid.zside() < 0 ? ix : ix + 100;
@@ -450,7 +449,6 @@ namespace ecaldqm
         case kEESM:
           {
             int iSM(_iSM >= 0 ? _iSM : dccId(_id) - 1);
-            std::cout << "  iSM=" << iSM << std::endl;
             xbin = ix - xlow_(iSM);
             ybin = iy - ylow_(iSM);
             if(iSM == kEEm02 || iSM == kEEm08 || iSM == kEEp02 || iSM == kEEp08) 
@@ -581,8 +579,6 @@ namespace ecaldqm
       else if(subdet == EcalEndcap){
         unsigned tccid(tccId(_id));
         unsigned iSM(tccid <= 36 ? tccid % 18 / 2 : (tccid - 72) % 18 / 2);
-        std::cout << "isEndCap";
-        std::cout <<"   rawSM=" << iSM;
         return findBinCrystal_(_otype, _id, iSM);
       }
 
