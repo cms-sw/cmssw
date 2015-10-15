@@ -48,12 +48,12 @@ setup_mva(egamma_modifications[0].electron_config,
 setup_mva(egamma_modifications[0].electron_config,
           egamma_modifications[1].electron_config,
           ele_mva_prod_name,
-          ele_spring15_50_t.mvaSpring15NonTrigClassName+ele_spring15_50_t.mvaTag)
+          ele_spring15_50_t.mvaSpring15TrigClassName+ele_spring15_50_t.mvaTag)
 
 setup_mva(egamma_modifications[0].electron_config,
           egamma_modifications[1].electron_config,
           ele_mva_prod_name,
-          ele_spring15_25_t.mvaSpring15NonTrigClassName+ele_spring15_25_t.mvaTag)
+          ele_spring15_25_t.mvaSpring15TrigClassName+ele_spring15_25_t.mvaTag)
 
 setup_mva(egamma_modifications[0].photon_config,
           egamma_modifications[1].photon_config,
