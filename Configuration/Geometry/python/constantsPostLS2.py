@@ -1,6 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-import Geometry.HcalEventSetup.hcalTopologyConstants_cfi
 import Geometry.TrackerGeometryBuilder.trackerSLHCGeometryConstants_cfi as trackerGeometryConstants_cfi
 
 def customise(process):
@@ -11,9 +10,5 @@ def customise(process):
     process.trackerNumberingGeometry.fromDDD = cms.bool( True )
     process.trackerNumberingGeometry.layerNumberPXB = cms.uint32(18)
     process.trackerNumberingGeometry.totalBlade = cms.uint32(56)
-
-    process.hcalTopologyIdeal.hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
-    process.es_hardcode.hcalTopologyConstants = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
-    process.CaloTowerHardcodeGeometryEP = cms.PSet(hcalTopologyConstants_cfi.hcalTopologyConstants)
 
     return process
