@@ -2,8 +2,9 @@
 //
 // Package:    V0Validator
 // Class:      V0Validator
-// 
-/**\class V0Validator V0Validator.cc Validation/RecoVertex/interface/V0Validator.h
+//
+/**\class V0Validator V0Validator.cc
+ Validation/RecoVertex/interface/V0Validator.h
 
  Description: Creates validation histograms for RecoVertex/V0Producer
 
@@ -16,9 +17,9 @@
 //
 //
 
-
 // system include files
 #include <memory>
+#include <array>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -68,7 +69,6 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
@@ -79,128 +79,82 @@
 #include "TH2F.h"
 
 class V0Validator : public DQMEDAnalyzer {
-
-public:
-  explicit V0Validator(const edm::ParameterSet&);
+ public:
+  explicit V0Validator(const edm::ParameterSet &);
   ~V0Validator();
+  enum V0Type { KSHORT, LAMBDA };
+  struct V0Couple {
+    reco::TrackRef one;
+    reco::TrackRef two;
+    explicit V0Couple(reco::TrackRef first_daughter,
+                      reco::TrackRef second_daughter) {
+      one = first_daughter.key() < second_daughter.key() ? first_daughter
+                                                         : second_daughter;
+      two = first_daughter.key() > second_daughter.key() ? first_daughter
+                                                         : second_daughter;
+      assert(one != two);
+    }
+    bool operator<(const V0Couple &rh) const {
+      return one.key() < rh.one.key();
+    }
+    bool operator==(const V0Couple &rh) const {
+      return ((one.key() == rh.one.key()) && (two.key() == rh.two.key()));
+    }
+  };
 
+ private:
+  virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &,
+                      edm::EventSetup const &) override;
+  void doFakeRates(const reco::VertexCompositeCandidateCollection &collection,
+                   const reco::RecoToSimCollection &recotosimCollection,
+                   V0Type t, int particle_pdgid,
+                   int misreconstructed_particle_pdgid);
 
-private:
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-
-  //Quantities that are to be histogrammed
-  float K0sGenEta, LamGenEta, K0sGenpT, LamGenpT, K0sGenR, LamGenR;
-  float LamGenX, LamGenY, LamGenZ, KsGenX, KsGenY, KsGenZ;
-  float K0sCandEta, LamCandEta, K0sCandpT, LamCandpT, K0sCandR, LamCandR;
-  unsigned int K0sGenStatus, LamGenStatus, K0sCandStatus, LamCandStatus;
-  unsigned int K0sPiCandStatus[2], LamPiCandStatus[2], K0sPiEff[2], LamPiEff[2];
-
-  //Bookkeeping quantities
-  int genLam, genK0s, realLamFound, realK0sFound, realLamFoundEff, realK0sFoundEff;
-  int lamTracksFound, k0sTracksFound, lamCandFound, k0sCandFound, noTPforK0sCand, noTPforLamCand;
+  void doEfficiencies(
+      const TrackingVertexCollection &gen_vertices, V0Type t,
+      int parent_particle_id,
+      int first_daughter_id,  /* give only positive charge */
+      int second_daughter_id, /* give only positive charge */
+      const reco::VertexCompositeCandidateCollection &collection,
+      const reco::SimToRecoCollection &simtorecoCollection);
 
   // MonitorElements for final histograms
-  MonitorElement* ksEffVsR;
-  MonitorElement* ksEffVsEta;
-  MonitorElement* ksEffVsPt;
-  MonitorElement* ksTkEffVsR;
-  MonitorElement* ksTkEffVsEta;
-  MonitorElement* ksTkEffVsPt;
-  MonitorElement* ksFakeVsR;
-  MonitorElement* ksFakeVsEta;
-  MonitorElement* ksFakeVsPt;
-  MonitorElement* ksTkFakeVsR;
-  MonitorElement* ksTkFakeVsEta;
-  MonitorElement* ksTkFakeVsPt;
 
-  MonitorElement* ksEffVsR_num;
-  MonitorElement* ksEffVsEta_num;
-  MonitorElement* ksEffVsPt_num;
-  MonitorElement* ksTkEffVsR_num;
-  MonitorElement* ksTkEffVsEta_num;
-  MonitorElement* ksTkEffVsPt_num;
-  MonitorElement* ksFakeVsR_num;
-  MonitorElement* ksFakeVsEta_num;
-  MonitorElement* ksFakeVsPt_num;
-  MonitorElement* ksTkFakeVsR_num;
-  MonitorElement* ksTkFakeVsEta_num;
-  MonitorElement* ksTkFakeVsPt_num;
+  std::array<MonitorElement *, 2> candidateEffVsR_num_;
+  std::array<MonitorElement *, 2> candidateEffVsEta_num_;
+  std::array<MonitorElement *, 2> candidateEffVsPt_num_;
+  std::array<MonitorElement *, 2> candidateTkEffVsR_num_;
+  std::array<MonitorElement *, 2> candidateTkEffVsEta_num_;
+  std::array<MonitorElement *, 2> candidateTkEffVsPt_num_;
+  std::array<MonitorElement *, 2> candidateFakeVsR_num_;
+  std::array<MonitorElement *, 2> candidateFakeVsEta_num_;
+  std::array<MonitorElement *, 2> candidateFakeVsPt_num_;
+  std::array<MonitorElement *, 2> candidateTkFakeVsR_num_;
+  std::array<MonitorElement *, 2> candidateTkFakeVsEta_num_;
+  std::array<MonitorElement *, 2> candidateTkFakeVsPt_num_;
 
-  MonitorElement* ksFakeVsR_denom;
-  MonitorElement* ksFakeVsEta_denom;
-  MonitorElement* ksFakeVsPt_denom;
-  MonitorElement* ksEffVsR_denom;
-  MonitorElement* ksEffVsEta_denom;
-  MonitorElement* ksEffVsPt_denom;
+  std::array<MonitorElement *, 2> candidateFakeVsR_denom_;
+  std::array<MonitorElement *, 2> candidateFakeVsEta_denom_;
+  std::array<MonitorElement *, 2> candidateFakeVsPt_denom_;
+  std::array<MonitorElement *, 2> candidateEffVsR_denom_;
+  std::array<MonitorElement *, 2> candidateEffVsEta_denom_;
+  std::array<MonitorElement *, 2> candidateEffVsPt_denom_;
 
-  MonitorElement* lamFakeVsR_denom;
-  MonitorElement* lamFakeVsEta_denom;
-  MonitorElement* lamFakeVsPt_denom;
-  MonitorElement* lamEffVsR_denom;
-  MonitorElement* lamEffVsEta_denom;
-  MonitorElement* lamEffVsPt_denom;
-
-  MonitorElement* lamEffVsR;
-  MonitorElement* lamEffVsEta;
-  MonitorElement* lamEffVsPt;
-  MonitorElement* lamTkEffVsR;
-  MonitorElement* lamTkEffVsEta;
-  MonitorElement* lamTkEffVsPt;
-  MonitorElement* lamFakeVsR;
-  MonitorElement* lamFakeVsEta;
-  MonitorElement* lamFakeVsPt;
-  MonitorElement* lamTkFakeVsR;
-  MonitorElement* lamTkFakeVsEta;
-  MonitorElement* lamTkFakeVsPt;
-
-  MonitorElement* lamEffVsR_num;
-  MonitorElement* lamEffVsEta_num;
-  MonitorElement* lamEffVsPt_num;
-  MonitorElement* lamTkEffVsR_num;
-  MonitorElement* lamTkEffVsEta_num;
-  MonitorElement* lamTkEffVsPt_num;
-  MonitorElement* lamFakeVsR_num;
-  MonitorElement* lamFakeVsEta_num;
-  MonitorElement* lamFakeVsPt_num;
-  MonitorElement* lamTkFakeVsR_num;
-  MonitorElement* lamTkFakeVsEta_num;
-  MonitorElement* lamTkFakeVsPt_num;
-
-  MonitorElement* ksXResolution;
-  MonitorElement* ksYResolution;
-  MonitorElement* ksZResolution;
-  MonitorElement* ksAbsoluteDistResolution;
-  MonitorElement* lamXResolution;
-  MonitorElement* lamYResolution;
-  MonitorElement* lamZResolution;
-  MonitorElement* lamAbsoluteDistResolution;
-
-  MonitorElement* nKs;
-  MonitorElement* nLam;
-
-  MonitorElement* ksCandStatus;
-  MonitorElement* lamCandStatus;
-
-  MonitorElement* fakeKsMass;
-  MonitorElement* goodKsMass;
-  MonitorElement* fakeLamMass;
-  MonitorElement* goodLamMass;
-
-  MonitorElement* ksMassAll;
-  MonitorElement* lamMassAll;
-
-
-  MonitorElement* ksFakeDauRadDist;
-  MonitorElement* lamFakeDauRadDist;
-
+  std::array<MonitorElement *, 2> nCandidates_;
+  std::array<MonitorElement *, 2> candidateStatus_;
+  std::array<MonitorElement *, 2> fakeCandidateMass_;
+  std::array<MonitorElement *, 2> candidateFakeDauRadDist_;
+  std::array<MonitorElement *, 2> candidateMassAll;
+  std::array<MonitorElement *, 2> goodCandidateMass;
 
   std::string theDQMRootFileName;
   std::string dirName;
   edm::EDGetTokenT<reco::RecoToSimCollection> recoRecoToSimCollectionToken_;
   edm::EDGetTokenT<reco::SimToRecoCollection> recoSimToRecoCollectionToken_;
-  edm::EDGetTokenT<TrackingParticleCollection> trackingParticleCollection_Eff_Token_;
-  edm::EDGetTokenT< std::vector<reco::Vertex> > vec_recoVertex_Token_;
-  edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> recoVertexCompositeCandidateCollection_k0s_Token_, recoVertexCompositeCandidateCollection_lambda_Token_;
+  edm::EDGetTokenT<TrackingVertexCollection> trackingVertexCollection_Token_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > vec_recoVertex_Token_;
+  edm::EDGetTokenT<reco::VertexCompositeCandidateCollection>
+      recoVertexCompositeCandidateCollection_k0s_Token_,
+      recoVertexCompositeCandidateCollection_lambda_Token_;
 };
-
