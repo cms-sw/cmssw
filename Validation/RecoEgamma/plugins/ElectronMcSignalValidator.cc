@@ -692,7 +692,8 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h2_ele_PoPtrueVsEta = bookH2withSumw2(iBooker, "PoPtrueVsEta","ele momentum / gen momentum vs eta",eta2D_nbin,eta_min,eta_max,50,poptrue_min,poptrue_max);
   h2_ele_PoPtrueVsPhi = bookH2(iBooker, "PoPtrueVsPhi","ele momentum / gen momentum vs phi",phi2D_nbin,phi_min,phi_max,50,poptrue_min,poptrue_max);
   h2_ele_PoPtrueVsPt = bookH2(iBooker, "PoPtrueVsPt","ele momentum / gen momentum vs eta",pt2D_nbin,0.,pt_max,50,poptrue_min,poptrue_max);
-  h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",pt_nbin,0.,pt_max,100,0.,0.05);
+//  h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",pt_nbin,0.,pt_max,100,0.,0.05);
+  h2_ele_sigmaIetaIetaVsPt = bookH2(iBooker,"sigmaIetaIetaVsPt","SigmaIetaIeta vs pt",100,0.,pt_max,100,0.,0.05);
   h1_ele_PoPtrue_golden_barrel = bookH1withSumw2(iBooker, "PoPtrue_golden_barrel","ele momentum / gen momentum, golden, barrel",poptrue_nbin,poptrue_min,poptrue_max,"P/P_{gen}");
   h1_ele_PoPtrue_golden_endcaps = bookH1withSumw2(iBooker, "PoPtrue_golden_endcaps","ele momentum / gen momentum, golden, endcaps",poptrue_nbin,poptrue_min,poptrue_max,"P/P_{gen}");
   h1_ele_PoPtrue_showering_barrel = bookH1withSumw2(iBooker, "PoPtrue_showering_barrel","ele momentum / gen momentum, showering, barrel",poptrue_nbin,poptrue_min,poptrue_max,"P/P_{gen}");
@@ -1339,7 +1340,6 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
        { dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi ; }
 //      double deltaR = sqrt(pow((gsfIter->eta()-mcIter->eta()),2) + pow(dphi,2));
       double deltaR2 = (gsfIter->eta()-mcIter->eta()) * (gsfIter->eta()-mcIter->eta()) + dphi * dphi;
-      std::cout << "dR2 : " << deltaR2 << " , dr2 : " << deltaR * deltaR << std::endl;
       if ( deltaR2 < deltaR2_ )
        {
         if ( ( (mcIter->pdgId() == 11) && (gsfIter->charge() < 0.) ) ||
