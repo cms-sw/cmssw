@@ -1255,7 +1255,7 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
           
           //if(pfDeltaR < 1.0)         
           // mPFDeltaR ->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
-          mPFDeltaR ->Fill(pfDeltaR); //MZ
+          mPFDeltaR ->Fill(pfDeltaR,1. / pow(pfDeltaR,2)); //MZ
           //mPFDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
           mPFDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
           cout << "L1120, after filling,  numbers[iii][0] = " << numbers[iii][0] << endl;
