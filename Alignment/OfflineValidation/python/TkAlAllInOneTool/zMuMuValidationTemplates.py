@@ -264,19 +264,19 @@ root -q -b -l "CompareBiasZValidation.cc+()"
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/tdrstyle.C .
 cp  .oO[CMSSW_BASE]Oo./src/MuonAnalysis/MomentumScaleCalibration/test/Macros/RooFit/MultiHistoOverlap_.oO[resonance]Oo..C .
 
-if [[ .oO[zmumureference]Oo. == *store* ]]; then cmsStage -f .oO[zmumureference]Oo. BiasCheck_Reference.root; else ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root; fi
+if [[ .oO[zmumureference]Oo. == *store* ]]; then xrdcp -f .oO[zmumureference]Oo. BiasCheck_Reference.root; else ln -fs .oO[zmumureference]Oo. ./BiasCheck_Reference.root; fi
 root -q -b -l MultiHistoOverlap_.oO[resonance]Oo..C
 
-cmsMkdir /store/caf/user/$USER/.oO[eosdir]Oo./plots/
+eos mkdir -p /store/caf/user/$USER/.oO[eosdir]Oo./plots/
 for RootOutputFile in $(ls *root )
 do
-    cmsStage -f ${RootOutputFile}  /store/caf/user/$USER/.oO[eosdir]Oo./
+    xrdcp -f ${RootOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./
     rfcp ${RootOutputFile}  .oO[workingdir]Oo.
 done
 
 mkdir -p .oO[plotsdir]Oo.
 for PngOutputFile in $(ls *png ); do
-    cmsStage -f ${PngOutputFile}  /store/caf/user/$USER/.oO[eosdir]Oo./plots/
+    xrdcp -f ${PngOutputFile}  root://eoscms//eos/cms/store/caf/user/$USER/.oO[eosdir]Oo./plots/
     rfcp ${PngOutputFile}  .oO[plotsdir]Oo.
 done
 
