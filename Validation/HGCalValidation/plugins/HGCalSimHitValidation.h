@@ -78,9 +78,9 @@ public:
 
 protected:
 
-  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
   
 private:
 
@@ -94,8 +94,8 @@ private:
   std::string                nameDetector_, caloHitSource_;
   const HGCalDDDConstants   *hgcons_;
   const HcalDDDRecConstants *hcons;
-  int                       verbosity_;
-  bool                      heRebuild_, testNumber_, symmDet_;
+  int                        verbosity_;
+  bool                       heRebuild_, testNumber_, symmDet_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_hits_;
   edm::EDGetTokenT<edm::HepMCProduct>      tok_hepMC_;
   unsigned int              layers_;

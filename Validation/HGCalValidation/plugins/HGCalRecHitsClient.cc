@@ -171,6 +171,12 @@ int HGCalRecHitsClient::recHitsEndjob(const std::vector<MonitorElement*>& hgcalM
   for(unsigned int ih=0; ih<hgcalMEs.size(); ih++){
     if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0){
       MeanHitOccupancy_Plus_.push_back(hgcalMEs[ih]);
+      unsigned int indx = MeanHitOccupancy_Plus_.size()-1;
+      for (int ilayer=0; ilayer < (int)layers_; ++ilayer) {
+	double meanVal = HitOccupancy_Plus_.at(ilayer)->getMean();
+	MeanHitOccupancy_Plus_[indx]->setBinContent(ilayer+1, meanVal);
+      }
+      break;
     }
   }
   
@@ -178,6 +184,12 @@ int HGCalRecHitsClient::recHitsEndjob(const std::vector<MonitorElement*>& hgcalM
   for(unsigned int ih=0; ih<hgcalMEs.size(); ih++){
     if (strcmp(hgcalMEs[ih]->getName().c_str(), name.str().c_str()) == 0){
       MeanHitOccupancy_Minus_.push_back(hgcalMEs[ih]);
+      unsigned indx = MeanHitOccupancy_Minus_.size()-1;
+      for (int ilayer=0; ilayer < (int)layers_; ++ilayer) {
+	double meanVal = HitOccupancy_Minus_.at(ilayer)->getMean();
+	MeanHitOccupancy_Minus_[indx]->setBinContent(ilayer+1, meanVal);
+      }
+      break;
     }
   }
   

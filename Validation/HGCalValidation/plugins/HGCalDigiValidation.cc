@@ -233,10 +233,8 @@ void HGCalDigiValidation::fillDigiInfo() {
   }
 }
 
-void HGCalDigiValidation::bookHistograms(DQMStore::IBooker& iB, 
-					 edm::Run const& iRun, 
-					 edm::EventSetup const& iSetup) {
-  
+void HGCalDigiValidation::dqmBeginRun(const edm::Run&, 
+				      const edm::EventSetup& iSetup) {
   if (nameDetector_ == "HCal") {
     edm::ESHandle<HcalDDDRecConstants> pHRNDC;
     iSetup.get<HcalRecNumberingRecord>().get( pHRNDC );
@@ -250,44 +248,39 @@ void HGCalDigiValidation::bookHistograms(DQMStore::IBooker& iB,
     layers_ = hgcons_->layers(true);
   }
   
-  iB.setCurrentFolder("HGCalDigiV/"+nameDetector_);
-  
   if (verbosity_>0) 
     edm::LogInfo("HGCalValidation") << "current DQM directory:  "
 				    << "HGCalDigiV/" << nameDetector_ 
 				    << "  layer = "<< layers_;
+}  
+
+void HGCalDigiValidation::bookHistograms(DQMStore::IBooker& iB, 
+					 edm::Run const&, 
+					 edm::EventSetup const&) {
+  
+  iB.setCurrentFolder("HGCalDigiV/"+nameDetector_);
+
   std::ostringstream histoname;
   for (int ilayer = 0; ilayer < layers_; ilayer++ ) {
     histoname.str(""); histoname << "charge_"<< "layer_" << ilayer;
-    charge_.push_back(iB.book1D(histoname.str().c_str(),"charge_",500,-25,25));
+    charge_.push_back(iB.book1D(histoname.str().c_str(),"charge_",100,-25,25));
       
     histoname.str(""); histoname << "ADC_" << "layer_" << ilayer;
-    ADC_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy", 500, 0, 1000));
+    ADC_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy",200,0,1000));
       
     histoname.str(""); histoname << "DigiOccupancy_XY_" << "layer_" << ilayer;
-    DigiOccupancy_XY_.push_back(iB.book2D(histoname.str().c_str(), "DigiOccupancy", 100, -500, 500, 100, -500, 500));
+    DigiOccupancy_XY_.push_back(iB.book2D(histoname.str().c_str(), "DigiOccupancy", 50, -500, 500, 50, -500, 500));
       
     histoname.str(""); histoname << "DigiOccupancy_Plus_" << "layer_" << ilayer;
-    DigiOccupancy_Plus_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy +z", 500, 0, 1000));
+    DigiOccupancy_Plus_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy +z", 100, 0, 1000));
     histoname.str(""); histoname << "DigiOccupancy_Minus_" << "layer_" << ilayer;
-    DigiOccupancy_Minus_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy -z", 500, 0, 1000));
+    DigiOccupancy_Minus_.push_back(iB.book1D(histoname.str().c_str(), "DigiOccupancy -z", 100, 0, 1000));
   }
 
   histoname.str(""); histoname << "SUMOfDigiOccupancy_Plus";
   MeanDigiOccupancy_Plus_ = iB.book1D( histoname.str().c_str(), "SUMOfDigiOccupancy_Plus", layers_, -0.5, layers_-0.5);
   histoname.str(""); histoname << "SUMOfRecDigiOccupancy_Minus";
   MeanDigiOccupancy_Minus_ = iB.book1D( histoname.str().c_str(), "SUMOfDigiOccupancy_Minus", layers_, -0.5,layers_-0.5);
-}
-
-// ------------ method called when ending the processing of a run  ------------
-
-void HGCalDigiValidation::endRun(edm::Run const&, edm::EventSetup const&) { 
-  for(int ilayer=0; ilayer < (int)layers_; ++ilayer) {
-    double meanVal = DigiOccupancy_Plus_.at(ilayer)->getMean();
-    MeanDigiOccupancy_Plus_->setBinContent(ilayer+1, meanVal);
-    meanVal = DigiOccupancy_Minus_.at(ilayer)->getMean();
-    MeanDigiOccupancy_Minus_->setBinContent(ilayer+1, meanVal);
-  }
 }
 
 

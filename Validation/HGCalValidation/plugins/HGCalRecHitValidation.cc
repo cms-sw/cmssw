@@ -174,9 +174,8 @@ void HGCalRecHitValidation::fillHitsInfo(HitsInfo& hits) {
 
 }
 
-void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker &iB, 
-					   edm::Run const & iRun, 
-					   edm::EventSetup const & iSetup) {
+void HGCalRecHitValidation::dqmBeginRun(const edm::Run&, 
+				      const edm::EventSetup& iSetup) {
 
   if (nameDetector_ == "HCal") {
     edm::ESHandle<HcalDDDRecConstants> pHRNDC;
@@ -190,38 +189,33 @@ void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker &iB,
     HGCalDDDConstants   *hgcons_ = new HGCalDDDConstants(cview, nameDetector_);
     layers_ = hgcons_->layers(true);
   }
+}
+
+void HGCalRecHitValidation::bookHistograms(DQMStore::IBooker& iB, 
+					   edm::Run const&, 
+					   edm::EventSetup const&) {
 
   iB.setCurrentFolder("HGCalRecHitsV/"+nameDetector_);
   std::ostringstream histoname;
   for (unsigned int ilayer = 0; ilayer < layers_; ilayer++ ) {
     histoname.str(""); histoname << "HitOccupancy_Plus_layer_" << ilayer;
-    HitOccupancy_Plus_.push_back(iB.book1D( histoname.str().c_str(), "RecHitOccupancy_Plus", 500, 0, 10000));
+    HitOccupancy_Plus_.push_back(iB.book1D( histoname.str().c_str(), "RecHitOccupancy_Plus", 100, 0, 10000));
     histoname.str(""); histoname << "HitOccupancy_Minus_layer_" << ilayer;
-    HitOccupancy_Minus_.push_back(iB.book1D( histoname.str().c_str(), "RecHitOccupancy_Minus", 500, 0, 10000));
+    HitOccupancy_Minus_.push_back(iB.book1D( histoname.str().c_str(), "RecHitOccupancy_Minus", 100, 0, 10000));
 
     histoname.str(""); histoname << "EtaPhi_Plus_" << "layer_" << ilayer;
-    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, 1.45, 3.0, 72, -3.15, 3.15));
+    EtaPhi_Plus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, 1.45, 3.0, 72, -3.15, 3.15));
     histoname.str(""); histoname << "EtaPhi_Minus_" << "layer_" << ilayer;
-    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 100, -3.0, -1.45, 72, -3.15, 3.15));
+    EtaPhi_Minus_.push_back(iB.book2D(histoname.str().c_str(), "Occupancy", 31, -3.0, -1.45, 72, -3.15, 3.15));
       
     histoname.str(""); histoname << "energy_layer_" << ilayer; 
-    energy_.push_back(iB.book1D(histoname.str().c_str(),"energy_",500,0,0.002));
+    energy_.push_back(iB.book1D(histoname.str().c_str(),"energy_",100,0,0.002));
   }//loop over layers ends here 
 
   histoname.str(""); histoname << "SUMOfRecHitOccupancy_Plus";
   MeanHitOccupancy_Plus_= iB.book1D( histoname.str().c_str(), "SUMOfRecHitOccupancy_Plus", layers_, -0.5, layers_-0.5);
   histoname.str(""); histoname << "SUMOfRecHitOccupancy_Minus";
   MeanHitOccupancy_Minus_ = iB.book1D( histoname.str().c_str(), "SUMOfRecHitOccupancy_Minus", layers_, -0.5,layers_-0.5);
-}
-
-void HGCalRecHitValidation::endRun(edm::Run const&, edm::EventSetup const&) {
-
-  for (int ilayer=0; ilayer < (int)layers_; ++ilayer) {
-    double meanVal = HitOccupancy_Plus_.at(ilayer)->getMean();
-    MeanHitOccupancy_Plus_->setBinContent(ilayer+1, meanVal);
-    meanVal = HitOccupancy_Minus_.at(ilayer)->getMean();
-    MeanHitOccupancy_Minus_->setBinContent(ilayer+1, meanVal);
-  }
 }
 
 
