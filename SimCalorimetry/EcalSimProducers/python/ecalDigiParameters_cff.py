@@ -6,10 +6,6 @@ ecal_digi_parameters = cms.PSet(
     ESdigiCollection = cms.string(''),
     UseLCcorrection  = cms.untracked.bool(True),
 
-    doEB = cms.bool(True),
-    doEE = cms.bool(True),
-    doES = cms.bool(True),
-
     EBCorrNoiseMatrixG12 = cms.vdouble (
     1.00000, 0.71073, 0.55721, 0.46089, 0.40449,
     0.35931, 0.33924, 0.32439, 0.31581, 0.30481 ) ,
