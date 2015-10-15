@@ -62,7 +62,7 @@ class MatrixInjector(object):
                 self.DbsUrl = "https://"+self.wmagent+"/dbs/int/global/DBSReader"
 
         if not self.dqmgui:
-            self.dqmgui="https://cmsweb.cern.ch/dqm/relval;https://cmsweb-testbed.cern.ch/dqm/relval"
+            self.dqmgui="https://cmsweb.cern.ch/dqm/relval"
         #couch stuff
         self.couch = 'https://'+self.wmagent+'/couchdb'
 #        self.couchDB = 'reqmgr_config_cache'
@@ -177,6 +177,10 @@ class MatrixInjector(object):
             wmsplit['TTbar_13_ID']=1
             wmsplit['SingleMuPt10FS_ID']=1
             wmsplit['TTbarFS_ID']=1
+            wmsplit['RECODR250nsreHLT']=1
+            wmsplit['RECODR225nsreHLT']=1
+            wmsplit['HLTDR250ns']=3
+            wmsplit['HLTDR225ns']=3
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
