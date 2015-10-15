@@ -49,7 +49,7 @@ class ElectronMcMiniAODSignalValidator : public ElectronDqmAnalyzerBase {
  
       double maxPt_;
       double maxAbsEta_;
-      double deltaR_;
+      double deltaR_, deltaR2_;
       std::vector<int> matchingIDs_;
       std::vector<int> matchingMotherIDs_;
       std::string outputInternalPath_ ;
