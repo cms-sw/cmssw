@@ -23,6 +23,7 @@
 #include "HLTriggerOffline/Higgs/src/MatchStruct.cc"
 
 #include "TPRegexp.h"
+#include "TRegexp.h"
 #include "TString.h"
 
 #include<set>
@@ -754,7 +755,8 @@ const std::vector<unsigned int> HLTHiggsSubAnalysis::getObjectsType(const std::s
            continue;
         }
         if( ( objtriggernames[i] == EVTColContainer::CALOMET && (TString(hltPath).Contains("PFMET") || TString(hltPath).Contains("MHT") ) ) || // fix for PFMET
-        (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("JetIdCleaned")) ) // fix for Htaunu
+        (objtriggernames[i] == EVTColContainer::PFJET && TString(hltPath).Contains("JetIdCleaned") && ! TString(hltPath).Contains(TRegexp("Jet[^I]"))) || // fix for Htaunu
+        (objtriggernames[i] == EVTColContainer::MUON && TString(hltPath).Contains("METNoMu")) ) // fix for VBFHToInv
         {
             continue;
         }
