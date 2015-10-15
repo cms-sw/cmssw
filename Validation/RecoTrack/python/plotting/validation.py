@@ -787,7 +787,7 @@ class SimpleValidation:
     def createHtmlReport(self, baseUrl=None, validationName=""):
         return html.HtmlReport(validationName, self._newdir, baseUrl)
 
-    def doPlots(self, plotter, subdirprefix, plotterDrawArgs={}, htmlReport=html.HtmlReportDummy()):
+    def doPlots(self, plotter, subdirprefix, plotterDrawArgs={}, limitSubFoldersOnlyTo=None, htmlReport=html.HtmlReportDummy()):
         self._subdirprefix=subdirprefix
         self._plotterDrawArgs = plotterDrawArgs
 
@@ -799,7 +799,7 @@ class SimpleValidation:
             self._openFiles.append(ROOT.TFile.Open(f))
 
         plotterInstance = plotter.readDirs(*self._openFiles)
-        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders():
+        for plotterFolder, dqmSubFolder in plotterInstance.iterFolders(limitSubFoldersOnlyTo=limitSubFoldersOnlyTo):
             plotFiles = self._doPlots(plotterFolder, dqmSubFolder, htmlReport)
             htmlReport.addPlots(plotterFolder, dqmSubFolder, plotFiles)
 
