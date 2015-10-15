@@ -340,7 +340,7 @@ namespace ecaldqm
     findPlotIndex(ObjectType _otype, int _dcctccid, BinningType _btype/* = kDCC*/)
     {
       if(getNObjects(_otype) == 1) return 0;
- 
+
       int iSM(_dcctccid - 1);
 
       switch(_otype){
