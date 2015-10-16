@@ -63,6 +63,9 @@ class Jet(PhysicsObject):
         #if npr != self.nConstituents():
         #    import pdb; pdb.set_trace()
         if name == "POG_PFID":  
+
+            if   self.jetID("PAG_monoID_Tight") and self.jetID("POG_PFID_Tight") : return 5;
+            if   self.jetID("PAG_monoID_Loose") and self.jetID("POG_PFID_Tight") : return 4;
             if   self.jetID("POG_PFID_Tight")  : return 3;
             #elif self.jetID("POG_PFID_Medium") : return 2;  commented this line because this working point doesn't exist anymore (as 12/05/15)
             elif self.jetID("POG_PFID_Loose")  : return 1;
@@ -75,6 +78,9 @@ class Jet(PhysicsObject):
         if name == "VBFHBB_PFID_Loose":  return (npr>1 and phf<0.99 and nhf<0.99);
         if name == "VBFHBB_PFID_Medium": return (npr>1 and phf<0.99 and nhf<0.99) and ((eta<=2.4 and nhf<0.9 and phf<0.9 and elf<0.99 and muf<0.99 and chf>0 and chm>0) or eta>2.4);
         if name == "VBFHBB_PFID_Tight":  return (npr>1 and phf<0.99 and nhf<0.99) and ((eta<=2.4 and nhf<0.9 and phf<0.9 and elf<0.70 and muf<0.70 and chf>0 and chm>0) or eta>2.4);
+        if name == "PAG_monoID_Loose":    return (eta<3.0 and chf>0.05 and nhf<0.7 and phf<0.8);
+        if name == "PAG_monoID_Tight":    return (eta<3.0 and chf>0.2 and nhf<0.7 and phf<0.7);
+
         raise RuntimeError, "jetID '%s' not supported" % name
 
     def looseJetId(self):
