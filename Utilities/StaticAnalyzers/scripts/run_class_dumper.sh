@@ -34,5 +34,8 @@ sort -u classes.txt.inherits.unsorted | grep -e"^class" | grep -v \'\' >classes.
 sort -u classes.txt.inherits.unsorted | grep -v -e"^class" >classes.txt.inherits.extra
 sort -u getparam-dumper.txt.unsorted | awk '{print $0"\n"}' >getparam-dumper.txt
 cat classes.txt.inherits classes.txt.dumperft classes.txt.dumperct | grep -e"^class" | grep -v \'\' | sort -u >classes.txt
+edmglobalclass-composition.py >classex.txt.edmglobal.unsorted
+sort -u classes.txt.global.unsorted | grep -e"^class" | grep -v \'\' >classes.txt.edmglobal
+sort -u classes.txt.global.unsorted | grep -v -e"^class" >classes.txt.edmglobal.extra
 rm *.txt.*unsorted
 classname-blmflt.py

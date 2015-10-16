@@ -13,9 +13,8 @@ skipfuncs=set()
 import networkx as nx
 G=nx.DiGraph()
 
-f = open('db.txt')
-
-for line in f :
+import fileinput 
+for line in fileinput.input(files =('function-statics-db.txt','function-calls-db.txt')):
 	if fre.search(line):
 		fields = line.split("'")
 		if fields[2] == ' calls function ':
@@ -34,7 +33,8 @@ for line in f :
 		if fields[2] == ' known thread unsafe function ' :
 			G.add_edge(fields[1],fields[3],kind=' known thread unsafe function ')
 			statics.add(fields[3])
-f.close()
+fileinput.close()
+
 for tfunc in sorted(toplevelfuncs):
 	for static in sorted(statics): 
 		if nx.has_path(G,tfunc,static): 

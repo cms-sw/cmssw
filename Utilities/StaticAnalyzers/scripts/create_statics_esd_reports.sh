@@ -16,7 +16,6 @@ if [ ! -f ./classes.txt.dumperft ]
 	exit 2
 fi
 
-cat function-calls-db.txt function-statics-db.txt >db.txt 
 
 if [ ! -f ./data-class-funcs.py ]
 	then 
