@@ -304,6 +304,8 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   
   fAmp_fitted_max = xpar[0];
   fTim_fitted_max = (double)t_ims/25.-xpar[2];
+
+  delete[] resi;
   
   return chi2 ;
 

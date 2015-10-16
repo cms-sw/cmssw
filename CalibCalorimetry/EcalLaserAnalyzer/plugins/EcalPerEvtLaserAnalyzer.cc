@@ -264,7 +264,10 @@ void EcalPerEvtLaserAnalyzer:: analyze( const edm::Event & e, const  edm::EventS
 
       FILE *test; 
       test = fopen(namefile.str().c_str(),"r");
-      if (test) doesRefFileExist=1;
+      if (test) {
+        doesRefFileExist=1;
+        fclose(test);
+      }
       
       if(doesRefFileExist==1){ 
 	matacqFile = new TFile((namefile.str().c_str()));	  

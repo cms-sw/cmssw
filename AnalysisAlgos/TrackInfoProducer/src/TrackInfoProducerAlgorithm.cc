@@ -23,7 +23,7 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
     //edm::LogInfo("TrackInfoProducer") << "Number of Measurements: "<<measurements.size();
     TrackInfo::TrajectoryInfo trajinfo;
     int nhit=0;
-    for(traj_mes_iterator=measurements.begin();traj_mes_iterator!=measurements.end();traj_mes_iterator++){//loop on measurements
+    for(traj_mes_iterator=measurements.begin();traj_mes_iterator!=measurements.end();++traj_mes_iterator){//loop on measurements
       
       TrajectoryStateOnSurface  fwdtsos=traj_mes_iterator->forwardPredictedState();
       TrajectoryStateOnSurface  bwdtsos=traj_mes_iterator->backwardPredictedState();

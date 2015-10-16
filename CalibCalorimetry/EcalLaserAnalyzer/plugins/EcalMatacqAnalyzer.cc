@@ -306,6 +306,7 @@ void EcalMatacqAnalyzer::endJob()
       std::stringstream del2;
       del2 << "rm " <<sampfile;
       system(del2.str().c_str()); 
+      fclose(test);
     }
     return;
   }
@@ -665,7 +666,8 @@ void EcalMatacqAnalyzer::endJob()
   if (test){
   std::stringstream del2;
   del2 << "rm " <<sampfile;
-  system(del2.str().c_str()); 
+  system(del2.str().c_str());
+  fclose(test);
   }
 
   std::cout <<   "\t+=+    .................... done  +=+" << std::endl;

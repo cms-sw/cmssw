@@ -266,7 +266,7 @@ void EcalLaserAnalyzer::beginJob() {
     doesABTreeExist=false;
     _fitab=true;
   };
-  delete test;
+  fclose(test);
   
   TFile *fAB=0; TTree *ABInit=0;
   if(doesABTreeExist){
