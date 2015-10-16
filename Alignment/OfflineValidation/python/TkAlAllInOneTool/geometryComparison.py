@@ -11,7 +11,7 @@ class GeometryComparison(GenericValidation):
     Object representing a geometry comparison job.
     """
     def __init__( self, valName, alignment, referenceAlignment,
-                  config, copyImages = True, randomWorkdirPart = None):
+                  config, copyImages = True):
         """
         Constructor of the GeometryComparison class.
 
@@ -24,9 +24,6 @@ class GeometryComparison(GenericValidation):
                     configuration of the validations
         - `copyImages`: Boolean which indicates whether png- and pdf-files
                         should be copied back from the batch farm
-        - `randomWorkDirPart`: If this option is ommitted a random number is
-                               generated to create unique path names for the
-                               individual validation instances.
         """
 	defaults = {
 	    "3DSubdetector1":"1",
@@ -37,8 +34,6 @@ class GeometryComparison(GenericValidation):
         GenericValidation.__init__(self, valName, alignment, config, 
 				   "compare", addDefaults=defaults, 
 				   addMandatories = mandatories)
-        if not randomWorkdirPart == None:
-            self.randomWorkdirPart = randomWorkdirPart
         self.referenceAlignment = referenceAlignment
         referenceName = "IDEAL"
         if not self.referenceAlignment == "IDEAL":
@@ -82,14 +77,14 @@ class GeometryComparison(GenericValidation):
     def createConfiguration(self, path ):
         # self.__compares
         repMap = self.getRepMap()
-        cfgFileName = "TkAlCompareToNTuple.%s.%s_cfg.py"%(
-            self.alignmentToValidate.name, self.randomWorkdirPart)
+        cfgFileName = "TkAlCompareToNTuple.%s_cfg.py"%(
+            self.alignmentToValidate.name)
         cfgs = {cfgFileName: configTemplates.intoNTuplesTemplate}
         repMaps = {cfgFileName: repMap}
         if not self.referenceAlignment == "IDEAL":
             referenceRepMap = self.getRepMap( self.referenceAlignment )
-            cfgFileName = "TkAlCompareToNTuple.%s.%s_cfg.py"%(
-                self.referenceAlignment.name, self.randomWorkdirPart )
+            cfgFileName = "TkAlCompareToNTuple.%s_cfg.py"%(
+                self.referenceAlignment.name )
             cfgs[cfgFileName] = configTemplates.intoNTuplesTemplate
             repMaps[cfgFileName] = referenceRepMap
 
