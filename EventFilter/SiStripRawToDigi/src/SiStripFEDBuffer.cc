@@ -423,8 +423,14 @@ namespace sistrip {
     throw cms::Exception("FEDBuffer") << ss.str();
   }
 
-
-
+  void FEDBSChannelUnpacker::throwBadChannelLength(const uint16_t length)
+  {
+    std::ostringstream ss;
+    ss << "Channel length is invalid. "
+       << "Channel length is " << uint16_t(length) << "."
+       << std::endl;
+    throw cms::Exception("FEDBuffer") << ss.str();
+  }
 
   void FEDZSChannelUnpacker::throwBadChannelLength(const uint16_t length)
   {

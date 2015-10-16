@@ -332,7 +332,8 @@ namespace sistrip {
 	
 	  try {
             /// create unpacker
-	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()), mode);
+	    //sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()), mode);
+	    sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()), 10);
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
