@@ -236,7 +236,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   int tbWidth = -1;
   for(vector< pair<int, int> >::const_iterator stAndL = startAndLenght.begin();
       stAndL != startAndLenght.end();
-      stAndL++) {
+      ++stAndL) {
     if(abs((*stAndL).second - tBoxWidth) < delta) {
       delta = abs((*stAndL).second - tBoxWidth);
       beginning = (*stAndL).first;
