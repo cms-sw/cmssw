@@ -394,10 +394,19 @@ namespace sistrip {
 	  std::vector<uint16_t> samples; 
 
 	  /// create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()));
+	  /// and unpack -> add check to make sure strip < nstrips && strip > last strip......
 
-	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-	  while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+          if ( buffer->packetCode() == PACKET_CODE_VIRGIN_RAW10
+            or buffer->packetCode() == PACKET_CODE_VIRGIN_RAW8_BOTBOT
+            or buffer->packetCode() == PACKET_CODE_VIRGIN_RAW8_TOPBOT ) {
+            sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 10);
+	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+          }
+          else {
+            sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()));
+	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+          }
+
 
 	  if ( !samples.empty() ) { 
 	    Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());

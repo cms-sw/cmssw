@@ -7,6 +7,7 @@
 #include <memory>
 #include <ostream>
 #include <cstring>
+#include <cmath>
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
@@ -70,7 +71,7 @@ namespace sistrip {
     private:
       uint8_t nFEUnitsPresent() const;
       void findChannels();
-      uint8_t getCorrectPacketCode() const;
+      inline uint8_t getCorrectPacketCode() const { return packetCode(); }
       uint16_t calculateFEUnitLength(const uint8_t internalFEUnitNumber) const;
       std::auto_ptr<FEDFEHeader> feHeader_;
       const uint8_t* payloadPointer_;
@@ -165,6 +166,106 @@ namespace sistrip {
     {
       return checkStatusBits(internalFEDChannelNum(internalFEUnitNum,internalChannelNum));
     }
+
+  //class for unpacking data from any FED channels with a non-integer words bits stripping mode
+  class FEDBSChannelUnpacker
+    {
+    public:
+      //static FEDBSChannelUnpacker scopeModeUnpacker(const FEDChannel& channel) { return FEDBSChannelUnpacker(channel); }
+      static FEDBSChannelUnpacker virginRawModeUnpacker(const FEDChannel& channel, size_t num_bits);
+      //static FEDBSChannelUnpacker procRawModeUnpacker(const FEDChannel& channel) { return FEDBSChannelUnpacker(channel); }
+      //explicit FEDBSChannelUnpacker(const FEDChannel& channel);
+      FEDBSChannelUnpacker();
+      uint8_t sampleNumber() const;
+      uint16_t adc() const;
+      bool hasData() const;
+      FEDBSChannelUnpacker& operator ++ ();
+      FEDBSChannelUnpacker& operator ++ (int);
+    private:
+      //pointer to beginning of FED or FE data, offset of start of channel payload in data and length of channel payload
+      FEDBSChannelUnpacker(const uint8_t* payload, const size_t channelPayloadOffset, const int16_t channelPayloadLength, const size_t offsetIncrement=10);
+      //static void throwBadChannelLength(const uint16_t length);
+      const uint8_t* data_;
+      size_t oldWordOffset_;
+      size_t currentWordOffset_;
+      size_t currentBitOffset_;
+      size_t currentLocalBitOffset_;
+      size_t bitOffsetIncrement_;
+      uint8_t currentStrip_;
+      //uint16_t valuesLeft_;
+      uint16_t channelPayloadOffset_;
+      uint16_t channelPayloadLength_;
+    };
+
+  //FEDBSChannelUnpacker
+
+  inline FEDBSChannelUnpacker::FEDBSChannelUnpacker()
+    : data_(NULL),
+      oldWordOffset_(0), currentWordOffset_(0),
+      currentBitOffset_(0), currentLocalBitOffset_(0),
+      bitOffsetIncrement_(10),
+      //valuesLeft_(0)
+      channelPayloadOffset_(0), channelPayloadLength_(0)
+    { }
+
+  inline FEDBSChannelUnpacker FEDBSChannelUnpacker::virginRawModeUnpacker(const FEDChannel& channel, size_t num_bits)
+    {
+      uint16_t length = channel.length();
+      //if (length & 0xF000) throwBadChannelLength(length);
+      FEDBSChannelUnpacker result(channel.data(), channel.offset()+2, length-2, num_bits);
+      return result;
+    }
+
+  inline FEDBSChannelUnpacker::FEDBSChannelUnpacker(const uint8_t* payload, const size_t channelPayloadOffset, const int16_t channelPayloadLength, const size_t offsetIncrement)
+    : data_(payload),
+      oldWordOffset_(0), currentWordOffset_(channelPayloadOffset),
+      currentBitOffset_(0), currentLocalBitOffset_(0),
+      bitOffsetIncrement_(offsetIncrement),
+      //currentStrip_(0),
+      //valuesLeft_(ceil((channel.length()-channelPayloadLength)*8/offsetIncrement))
+      //valuesLeftInCluster_(0),
+      channelPayloadOffset_(channelPayloadOffset),
+      channelPayloadLength_(channelPayloadLength)
+    {
+      if (bitOffsetIncrement_>16) {} // more than 2 words... still to be implemented
+    }
+
+  inline uint16_t FEDBSChannelUnpacker::adc() const
+    {
+      uint16_t adc = (data_[currentWordOffset_^7]>>currentLocalBitOffset_);
+      if (currentWordOffset_>oldWordOffset_) {
+        size_t num_bits_incl = 8-currentLocalBitOffset_;
+        adc += ( (data_[(currentWordOffset_+1)^7]&((1<<(bitOffsetIncrement_-num_bits_incl))-1))<<num_bits_incl );
+      }
+      return adc;
+    }
+
+  inline bool FEDBSChannelUnpacker::hasData() const
+    {
+      return (currentWordOffset_<channelPayloadOffset_+channelPayloadLength_);
+    }
+
+  inline FEDBSChannelUnpacker& FEDBSChannelUnpacker::operator ++ ()
+    {
+      oldWordOffset_ = currentWordOffset_;
+      //oldLocalBitOffset_ = currentLocalBitOffset_;
+
+      currentBitOffset_ += bitOffsetIncrement_;
+      currentLocalBitOffset_ += bitOffsetIncrement_;
+      while (currentLocalBitOffset_>=8) {
+        currentWordOffset_++;
+        currentLocalBitOffset_ -= 8;
+      }
+      currentStrip_++;
+      //valuesLeft_--;
+      return (*this);
+    }
+
+  inline FEDBSChannelUnpacker& FEDBSChannelUnpacker::operator ++ (int)
+    {
+      ++(*this); return *this;
+    }
+
   
   //FEDRawChannelUnpacker
 

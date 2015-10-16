@@ -391,45 +391,6 @@ namespace sistrip {
     return summary.str();
   }
 
-  uint8_t FEDBuffer::getCorrectPacketCode() const
-  {
-    switch(readoutMode()) {
-    case READOUT_MODE_SCOPE:
-      return PACKET_CODE_SCOPE;
-      break;
-    case READOUT_MODE_VIRGIN_RAW:
-      return PACKET_CODE_VIRGIN_RAW;
-      break;
-    case READOUT_MODE_PROC_RAW:
-      return PACKET_CODE_PROC_RAW;
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED:
-    //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-      return PACKET_CODE_ZERO_SUPPRESSED;
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-      return PACKET_CODE_ZERO_SUPPRESSED_LITE10;
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-      return PACKET_CODE_ZERO_SUPPRESSED_LITE8;
-      break;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-      return PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-    case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-      return PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
-      break;
-    case READOUT_MODE_PREMIX_RAW:
-    case READOUT_MODE_SPY:
-    case READOUT_MODE_INVALID:
-    default:
-      return 0;
-    }
-  }
-
   uint8_t FEDBuffer::nFEUnitsPresent() const
   {
     uint8_t result = 0;

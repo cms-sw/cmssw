@@ -529,10 +529,10 @@ namespace sistrip {
       const uint8_t* data() const;
       size_t offset() const;
       uint16_t cmMedian(const uint8_t apvIndex) const;
-    private:
-      friend class FEDBuffer;
       //third byte of channel data for normal FED channels
       uint8_t packetCode() const;
+    private:
+      friend class FEDBuffer;
       const uint8_t* data_;
       size_t offset_;
       uint16_t length_;
@@ -572,6 +572,7 @@ namespace sistrip {
       FEDBufferFormat bufferFormat() const;
       FEDHeaderType headerType() const;
       FEDReadoutMode readoutMode() const;
+      uint8_t packetCode(const uint8_t internalFEDChannelNum=0) const;
       uint8_t apveAddress() const;
       bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
       bool feEnabled(const uint8_t internalFEUnitNum) const;
@@ -1425,6 +1426,38 @@ namespace sistrip {
   inline FEDReadoutMode FEDBufferBase::readoutMode() const
     {
       return specialHeader_.readoutMode();
+    }
+
+  inline uint8_t FEDBufferBase::packetCode(const uint8_t internalFEDChannelNum) const
+    {
+      switch(readoutMode()) {
+      case READOUT_MODE_SCOPE:
+        return PACKET_CODE_SCOPE;
+      case READOUT_MODE_VIRGIN_RAW:
+        return channel(internalFEDChannelNum).packetCode();
+      case READOUT_MODE_PROC_RAW:
+        return PACKET_CODE_PROC_RAW;
+      case READOUT_MODE_ZERO_SUPPRESSED:
+      //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+        return PACKET_CODE_ZERO_SUPPRESSED;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+        return PACKET_CODE_ZERO_SUPPRESSED_LITE10;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+        return PACKET_CODE_ZERO_SUPPRESSED_LITE8;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+        return PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+        return PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
+      case READOUT_MODE_PREMIX_RAW:
+      case READOUT_MODE_SPY:
+      case READOUT_MODE_INVALID:
+      default:
+        return 0;
+      }
     }
   
   inline uint8_t FEDBufferBase::apveAddress() const
