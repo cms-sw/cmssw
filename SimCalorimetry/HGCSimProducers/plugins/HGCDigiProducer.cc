@@ -54,9 +54,4 @@ void HGCDigiProducer::endRun(edm::Run const&, edm::EventSetup const&)
   theDigitizer_->endRun();
 }
 
-//
-//HGCDigiProducer::~HGCDigiProducer()
-//{
-//}
-
 DEFINE_DIGI_ACCUMULATOR(HGCDigiProducer);

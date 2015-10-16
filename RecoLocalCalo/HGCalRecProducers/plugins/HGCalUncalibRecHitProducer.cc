@@ -90,7 +90,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                         worker_->run1(evt, itdg, *eeUncalibRechits);
                 }
         }
-
+        
         // loop over HGCHEF digis
         if (hefDigis)
         {
@@ -99,7 +99,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                         worker_->run2(evt, itdg, *hefUncalibRechits);
                 }
         }
-
+        
         // loop over HGCHEB digis
         if (hebDigis)
         {
@@ -108,8 +108,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                         worker_->run3(evt, itdg, *hebUncalibRechits);
                 }
         }
-
-
+        
         // put the collection of recunstructed hits in the event
         evt.put( eeUncalibRechits, eeHitCollection_ );
         evt.put( hefUncalibRechits, hefHitCollection_ );

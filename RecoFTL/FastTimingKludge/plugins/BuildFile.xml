@@ -1,0 +1,23 @@
+<library   name="RecoFTLFastTimingKludgePlugins" file="*.cc">
+
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/PluginManager"/>
+
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/TrackReco"/>
+  <use name="DataFormats/VertexReco"/>
+  <use name="DataFormats/Common"/>
+  
+  <use name="SimDataFormats/Track"/>
+  <use name="SimDataFormats/Vertex"/>
+  <use name="SimDataFormats/TrackingAnalysis"/>
+
+  <use name="SimTracker/Records"/>
+  <use name="SimTracker/TrackAssociation"/>
+  <use name="SimTracker/TrackerHitAssociation"/>
+  
+  <flags   EDM_PLUGIN="1"/>
+
+</library>

@@ -30,7 +30,7 @@ namespace reco {
   private:
     friend class ProxyBase< BTT, CopyUsingClone<BTT> >;
     friend class ReferenceCountingPointer<BasicTransientTrack>;
-
+    
   public:
 
     virtual ~BasicTransientTrack() {}
@@ -60,6 +60,9 @@ namespace reco {
     virtual TrackBaseRef trackBaseRef() const = 0;
 
     virtual TrackCharge charge() const = 0;
+
+    virtual double timeExt() const = 0;
+    virtual double dtErrorExt() const = 0;
 
 //     virtual bool operator== (const TransientTrack & a) const = 0;
 //     virtual bool operator< (const TransientTrack & a) const = 0;

@@ -95,7 +95,7 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
         worker_->set(es);
 
-         if (eeUncalibRecHits)
+        if (eeUncalibRecHits)
         {
                 // loop over uncalibrated rechits to make calibrated ones
                 for(HGCeeUncalibratedRecHitCollection::const_iterator it  = eeUncalibRecHits->begin(); it != eeUncalibRecHits->end(); ++it) {

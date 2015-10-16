@@ -18,13 +18,24 @@ public:
   VertexState();
   VertexState(BasicVertexState* p);
   VertexState(const GlobalPoint & pos, const GlobalError & posErr,
-  		const double & weightInMix = 1.0);
+              const double & weightInMix = 1.0);  
   VertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
-  		const double & weightInMix = 1.0);
+              const double & weightInMix = 1.0);  
   VertexState(const AlgebraicVector3 & weightTimesPosition,
-		const GlobalWeight & posWeight,
-  		const double & weightInMix = 1.0);
+              const GlobalWeight & posWeight,
+              const double & weightInMix = 1.0);  
   VertexState(const reco::BeamSpot& beamSpot);
+
+  // with time (ignore off-diags)
+  VertexState(const GlobalPoint & pos, const double time,
+              const GlobalError & posTimeErr, const double & weightInMix = 1.0);
+  VertexState(const GlobalPoint & pos, const double time, 
+              const GlobalWeight & posTimeWeight, const double & weightInMix = 1.0);
+  VertexState(const AlgebraicVector4 & weightTimesPosition,
+              const GlobalWeight & posTimeWeight,
+              const double & weightInMix = 1.0);
+  
+  // with time, full cov
 
   GlobalPoint position() const
   {
@@ -36,14 +47,37 @@ public:
     return data().error();
   }
 
+  GlobalError error4D() const
+  {
+    return data().error4D();
+  }
+
   GlobalWeight weight() const
   {
     return data().weight();
   }
 
+  GlobalWeight weight4D() const
+  {
+    return data().weight4D();
+  }
+
+  double time() const {
+    return data().time();
+  }
+
+  double timeError() const {
+    return data().timeError();
+  }
+  
   AlgebraicVector3 weightTimesPosition() const
   {
     return data().weightTimesPosition();
+  }
+
+  AlgebraicVector4 weightTimesPosition4D() const 
+  {
+    return data().weightTimesPosition4D();
   }
 
   double weightInMixture() const
@@ -65,6 +99,8 @@ public:
 
   /// Make the ReferenceCountingProxy method to check validity public
   bool isValid() const {return Base::isValid() && data().isValid();}
+
+  bool is4D() const { return data().is4D(); }
 
 };
 
