@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimGeneral.MixingModule.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer
+from SimCalorimetry.HGCalSimProducers.hgcalDigitizer_cfi import hgceeDigitizer, hgchefrontDigitizer, hgchebackDigitizer
 
 # HGCAL producer of rechits starting from digis
 HGCalUncalibRecHit = cms.EDProducer(
