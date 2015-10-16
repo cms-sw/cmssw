@@ -272,7 +272,7 @@ namespace sistrip {
 	uint16_t ipair = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
       
 
-	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED ) { 
+	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED /*|| mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE*/) { 
 	
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
@@ -322,13 +322,17 @@ namespace sistrip {
 	  
 	}
 
-	else if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE ) { 
+	else if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE ||
+                 mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8  || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE ||
+                 mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE ||
+                 mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE
+                ) { 
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
 	
 	  try {
             /// create unpacker
-	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()));
+	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()), mode);
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
@@ -390,10 +394,19 @@ namespace sistrip {
 	  std::vector<uint16_t> samples; 
 
 	  /// create unpacker
-	  sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()));
+	  /// and unpack -> add check to make sure strip < nstrips && strip > last strip......
 
-	  /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-	  while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+          if ( buffer->packetCode() == PACKET_CODE_VIRGIN_RAW10
+            or buffer->packetCode() == PACKET_CODE_VIRGIN_RAW8_BOTBOT
+            or buffer->packetCode() == PACKET_CODE_VIRGIN_RAW8_TOPBOT ) {
+            sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 10);
+	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+          }
+          else {
+            sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()));
+	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+          }
+
 
 	  if ( !samples.empty() ) { 
 	    Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
