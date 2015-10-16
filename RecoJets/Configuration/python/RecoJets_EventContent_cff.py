@@ -77,6 +77,7 @@ RecoJetsRECO = cms.PSet(
                                            'keep *_fixedGridRhoAll_*_*',
                                            'keep *_fixedGridRhoFastjetAll_*_*',
                                            'keep *_fixedGridRhoFastjetAllCalo_*_*',
+                                           'keep *_fixedGridRhoFastjetCentral_*_*',
                                            'keep *_fixedGridRhoFastjetCentralCalo_*_*',
                                            'keep *_fixedGridRhoFastjetCentralChargedPileUp_*_*',
                                            'keep *_fixedGridRhoFastjetCentralNeutral_*_*',
