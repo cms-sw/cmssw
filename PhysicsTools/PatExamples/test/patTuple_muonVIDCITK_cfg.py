@@ -14,6 +14,9 @@ setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_medium)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_tight)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_soft)
 setupVIDMuonSelection(process, process.cutBasedMuonId_MuonPOG_V0_highpt)
+process.muoMuonIDs.physicsObjectSrc = "patMuons"
+process.muonPFNoPileUpIsolation.srcToIsolate = "patMuons"
+process.muonPFPileUpIsolation.srcToIsolate = "patMuons"
 
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM

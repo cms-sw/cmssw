@@ -108,9 +108,16 @@ mixData = cms.EDProducer("DataMixingModule",
     # Input Specifications:
     #
     #
-    # Tracking particles
+    # Tracking particles for validation
     #
     TrackingParticleLabelSig = cms.InputTag("mix","MergedTrackTruth"),
+    StripDigiSimLinkLabelSig = cms.InputTag("simSiStripDigis"),
+    PixelDigiSimLinkLabelSig = cms.InputTag("simSiPixelDigis"),
+    DTDigiSimLinkLabelSig = cms.InputTag("simMuonDTDigis"),
+    RPCDigiSimLinkLabelSig = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
+    CSCStripDigiSimLinkLabelSig = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigiSimLinks"),
+    CSCWireDigiSimLinkLabelSig = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigiSimLinks"),
+
     #                     
     PileupInfoInputTag = cms.InputTag("addPileupInfo"),
     BunchSpacingInputTag = cms.InputTag("addPileupInfo","bunchSpacing"),
@@ -158,7 +165,15 @@ mixData = cms.EDProducer("DataMixingModule",
     HFdigiCollectionSig    = cms.InputTag("simHcalUnsuppressedDigis"),
     ZDCdigiCollectionSig   = cms.InputTag("simHcalUnsuppressedDigis"),
 
+                         
+    # Validation
     TrackingParticlePileInputTag = cms.InputTag("mix","MergedTrackTruth"),
+    StripDigiSimLinkPileInputTag = cms.InputTag("simSiStripDigis"),
+    PixelDigiSimLinkPileInputTag = cms.InputTag("simSiPixelDigis"),
+    DTDigiSimLinkPileInputTag = cms.InputTag("simMuonDTDigis"),
+    RPCDigiSimLinkPileInputTag = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
+    CSCStripDigiSimLinkPileInputTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigiSimLinks"),
+    CSCWireDigiSimLinkPileInputTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigiSimLinks"),
 
     #
     EBPileInputTag = cms.InputTag("ecalDigis","ebDigis","@MIXING"),
@@ -184,12 +199,9 @@ mixData = cms.EDProducer("DataMixingModule",
     DTPileInputTag        = cms.InputTag("muonDTDigis","","@MIXING"),
     RPCPileInputTag       = cms.InputTag("simMuonRPCDigis",""),
 #    RPCPileInputTag       = cms.InputTag("muonRPCDigis","","@MIXING"),  # use MC digis...
-    CSCWirePileInputTag   = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
-    CSCStripPileInputTag  = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi"),
-    CSCCompPileInputTag   = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"), 
-#    CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
-#    CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
-#    CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
+    CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
+    CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
+    CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),
                    #
     #
     #  Outputs
@@ -209,6 +221,14 @@ mixData = cms.EDProducer("DataMixingModule",
     CSCComparatorDigiCollectionDM = cms.string('MuonCSCComparatorDigisDM'),
     RPCDigiCollectionDM = cms.string('muonRPCDigisDM'),
     TrackingParticleCollectionDM = cms.string('MergedTrackTruth'),
+    StripDigiSimLinkCollectionDM = cms.string('StripDigiSimLink'),
+    PixelDigiSimLinkCollectionDM = cms.string('PixelDigiSimLink'),
+    DTDigiSimLinkDM = cms.string('simMuonDTDigis'),
+    RPCDigiSimLinkDM = cms.string('RPCDigiSimLink'),
+    CSCStripDigiSimLinkDM = cms.string('MuonCSCStripDigiSimLinks'),
+    CSCWireDigiSimLinkDM = cms.string('MuonCSCWireDigiSimLinks'),
+
+
     #
     #  Calorimeter Digis
     #               

@@ -1,4 +1,4 @@
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -20,14 +20,17 @@ struct ddsvaluesCmp {
 };
 }
 
-class OutputDDToDDL : public edm::EDAnalyzer {
-
+class OutputDDToDDL : public edm::one::EDAnalyzer<edm::one::WatchRuns>
+{
  public:
   explicit OutputDDToDDL( const edm::ParameterSet& iConfig );
   ~OutputDDToDDL();
-  virtual void beginRun( const edm::Run&, edm::EventSetup const& );
-  virtual void analyze( const edm::Event&, const edm::EventSetup& ){}
-  virtual void endJob() {};
+
+  void beginJob() override {}
+  void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override {}
+  void endRun(edm::Run const& iEvent, edm::EventSetup const&) override {}
+  void endJob() override {}
 
  private:
   void addToMatStore( const DDMaterial& mat, std::set<DDMaterial> & matStore );
@@ -37,7 +40,5 @@ class OutputDDToDDL : public edm::EDAnalyzer {
   int rotNumSeed_;
   std::string fname_;
   std::ostream* xos_;
-  int specNameCount_;
-
 };
 

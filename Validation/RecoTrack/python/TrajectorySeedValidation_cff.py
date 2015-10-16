@@ -16,6 +16,10 @@ _seedProducerLabels = ["initialStepSeeds",
                        "jetCoreRegionalStepSeeds",
                        ]
 
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    _seedProducerLabels.remove("jetCoreRegionalStepSeeds")
+
 _moduleNames = []
 for _label in _seedProducerLabels:
     _lines = """
@@ -39,4 +43,17 @@ exec(_line)
 tracksAndTrajectorySeedsValidationStandalone = cms.Sequence(
     tracksValidationStandalone +
     trajectorySeedValidation
+)
+
+
+# 'slim' sequences that only depend on track, seed, and tracking particle collections
+trajectorySeedValidatorSlim = trajectorySeedValidator.clone(
+    doPVAssociationPlots = cms.untracked.bool(False),
+)
+trajectorySeedValidationSlim = trajectorySeedValidation.copy()
+trajectorySeedValidationSlim.replace(trajectorySeedValidator,trajectorySeedValidatorSlim)
+
+tracksAndTrajectorySeedsValidationSlim = cms.Sequence(
+    tracksValidationSlim +
+    trajectorySeedValidationSlim
 )

@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -72,7 +72,7 @@
 namespace reco {
 
  namespace modules {
-  class TrackerTrackHitFilter : public edm::EDProducer {
+  class TrackerTrackHitFilter : public edm::stream::EDProducer<> {
   public:
     TrackerTrackHitFilter(const edm::ParameterSet &iConfig) ;
     virtual void produce(edm::Event &iEvent, const edm::EventSetup &iSetup) override;
@@ -173,7 +173,7 @@ TrackerTrackHitFilter::Rule::Rule(const std::string &str) {
         throw cms::Exception("Configuration") << "Rule '" << str << "' not understood.\n";
     }
     else{
-      std::cout<<"*** Rule Command given to TrackerTrackHitFilter:\t"<<str<<std::endl;
+      edm::LogInfo("TrackerTrackHitFilter") << "*** Rule Command given to TrackerTrackHitFilter:\t"<<str;
 
     }
     // Set up fields:
@@ -255,7 +255,7 @@ void TrackerTrackHitFilter::parseStoN(const std::string &str) {
       if (match[3].first != match[3].second ) {
 	subdetStoNhighcut_[cnt] = atof(match[3].first);
       }
-      std::cout<<"Setting thresholds*&^ for subdet #"<<cnt+1<<" = "<<subdetStoNlowcut_[cnt]<<" - "<<subdetStoNhighcut_[cnt]<<std::endl;
+      edm::LogInfo("TrackerTrackHitFilter") <<"Setting thresholds*&^ for subdet #"<<cnt+1<<" = "<<subdetStoNlowcut_[cnt]<<" - "<<subdetStoNhighcut_[cnt];
     }
   }
 
@@ -308,7 +308,7 @@ TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig) :
     }
 
     if(pxlTPLqBin_.size()>2){
-      std::cout<<"Warning from TrackerTrackHitFilter: vector with qBin cuts has size > 2. Additional items will be ignored."<<std::endl;
+      edm::LogInfo("TrackerTrackHitFIlter")<<"Warning from TrackerTrackHitFilter: vector with qBin cuts has size > 2. Additional items will be ignored.";
     }
 
 
@@ -337,15 +337,15 @@ TrackerTrackHitFilter::TrackerTrackHitFilter(const edm::ParameterSet &iConfig) :
 	 parseStoN(*str_StoN);
        }
        ////edm::LogDebug("TrackerTrackHitFilter")
-       std::cout<<"Finished parsing S/N. Applying following cuts to subdets:";
+       edm::LogInfo("TrackerTrackHitFilter")<<"Finished parsing S/N. Applying following cuts to subdets:";
       for(cnt=0;cnt<6;cnt++ ){
         ////edm::LogDebug("TrackerTrackHitFilter")
-	std::cout<<"Subdet #"<<cnt+1<<" -> "<<subdetStoNlowcut_[cnt]<<" , "<<subdetStoNhighcut_[cnt];
+        edm::LogVerbatim("TrackerTrackHitFilter")<<"Subdet #"<<cnt+1<<" -> "<<subdetStoNlowcut_[cnt]<<" , "<<subdetStoNhighcut_[cnt];
       }
     }//end if rejectBadStoNHits_
 
 
-    if(rejectLowAngleHits_ )	std::cout<<"\nApplying cut on angle track = "<<TrackAngleCut_<<std::endl;
+    if(rejectLowAngleHits_ )	edm::LogInfo("TrackerTrackHitFilter")<<"\nApplying cut on angle track = "<<TrackAngleCut_;
 
 
     // sort detids to ignore
@@ -818,7 +818,7 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 	if( haspassed_tplreco && xyprob>pxlTPLProbXY_ && xychargeprob>pxlTPLProbXYQ_ && qbin>pxlTPLqBin_[0] && qbin<=pxlTPLqBin_[1] )keepthishit = true;
 
       }
-      else {std::cout<<"HIT IN PIXEL ("<<subdet_cnt <<") but PixelRecHit is EMPTY!!!"<<std::endl;}
+      else {edm::LogInfo("TrackerTrackHitFilter")<<"HIT IN PIXEL ("<<subdet_cnt <<") but PixelRecHit is EMPTY!!!";}
       }//end if check pixel quality flag
     }
     //    else  throw cms::Exception("TrackerTrackHitFilter") <<"Loop over subdetector out of range when applying the S/N cut: "<<subdet_cnt;

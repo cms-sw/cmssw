@@ -104,8 +104,6 @@ namespace edm {
             branchesActivate(TypeID(typeid(std::vector<reco::Track>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(std::vector<reco::TrackExtra>)).friendlyClassName(),std::string(""),tag,label);
             branchesActivate(TypeID(typeid(edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >)).friendlyClassName(),std::string(""),tag,label);
-	    InputTag mvatag(tag.label(),"MVAVals");
-            branchesActivate(TypeID(typeid(edm::ValueMap<float>)).friendlyClassName(),std::string(""),mvatag,label);
             adjustersObjects_.push_back(new Adjuster<edm::OwnVector<TrackingRecHit> >(tag, consumesCollector()));
 	    // note: no crossing frame is foreseen to be used for this object type
 	    
@@ -144,6 +142,12 @@ namespace edm {
 
             LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
             //            std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
+            if(tags.size()>1) {
+              InputTag fallbackTag = tags[1];
+              std::string fallbackLabel;
+              branchesActivate(TypeID(typeid(HepMCProduct)).friendlyClassName(),std::string(""),fallbackTag,fallbackLabel);
+              mayConsume<HepMCProduct>(fallbackTag);
+            }
 
           } else if (object=="PCaloHit") {
             std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");

@@ -35,6 +35,8 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 namespace edm {
   class ModuleCallingContext;
   class ProducerBase;
+  class SharedResourcesAcquirer;
+  
   namespace stream {
     template< typename T> class ProducingModuleAdaptorBase;
   }
@@ -65,6 +67,9 @@ namespace edm {
     
     //Used in conjunction with EDGetToken
     void setConsumer(EDConsumerBase const* iConsumer);
+    
+    void setSharedResourcesAcquirer( SharedResourcesAcquirer* iResourceAcquirer);
+
     template <typename PROD>
     bool
     getByLabel(std::string const& label, Handle<PROD>& result) const;

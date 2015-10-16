@@ -27,7 +27,7 @@
 #include <vector>
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -52,15 +52,14 @@
 // class decleration
 //
 
-class TrackerMapTool : public edm::EDAnalyzer {
+class TrackerMapTool : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackerMapTool( const edm::ParameterSet& );
   ~TrackerMapTool();
   
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-private:
-  // ----------member data ---------------------------
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
 //

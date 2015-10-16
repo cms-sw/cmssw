@@ -1,0 +1,10 @@
+<use   name="FWCore/Framework"/>
+<library   file="CombinedMVAJetTagESProducer.cc CombinedMVAV2JetTagESProducer.cc" name="RecoBTagCombinedPlugins">
+  <use   name="DataFormats/BTauReco"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/TrackReco"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="RecoBTau/JetTagComputer"/>
+  <use   name="RecoBTag/Combined"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

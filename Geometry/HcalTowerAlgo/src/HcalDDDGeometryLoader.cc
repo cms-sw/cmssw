@@ -1,5 +1,6 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalDDDGeometryLoader.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "Geometry/HcalCommonData/interface/HcalParametersFromDD.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/IdealObliquePrism.h"
 #include "Geometry/CaloGeometry/interface/IdealZPrism.h"
@@ -12,15 +13,11 @@ typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
 //#define DebugLog
 
-HcalDDDGeometryLoader::HcalDDDGeometryLoader(const DDCompactView & cpv) {
-  std::string name = "HcalHits";
-  numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
-}
+HcalDDDGeometryLoader::HcalDDDGeometryLoader(const HcalDDDRecConstants* hcons)
+  : hcalConstants(hcons) { }
 
 HcalDDDGeometryLoader::~HcalDDDGeometryLoader() {
-  delete numberingFromDDD;
 }
-
 
 HcalDDDGeometryLoader::ReturnType 
 HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int subdet) {
@@ -32,10 +29,10 @@ HcalDDDGeometryLoader::load(const HcalTopology& topo, DetId::Detector det, int s
   ReturnType geom ( gDDD );
 
   if ( geom->cornersMgr() == 0 ) {
-     const unsigned int count (numberingFromDDD->numberOfCells(HcalBarrel ) +
-			       numberingFromDDD->numberOfCells(HcalEndcap ) +
-			       numberingFromDDD->numberOfCells(HcalForward) +
-			       numberingFromDDD->numberOfCells(HcalOuter  ) );
+     const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
+			       hcalConstants->numberOfCells(HcalEndcap ) +
+			       hcalConstants->numberOfCells(HcalForward) +
+			       hcalConstants->numberOfCells(HcalOuter  ) );
      geom->allocateCorners( count ) ;
   }
 
@@ -51,22 +48,22 @@ HcalDDDGeometryLoader::ReturnType
 HcalDDDGeometryLoader::load(const HcalTopology& topo) {
 
   HcalDDDGeometry* gDDD ( new HcalDDDGeometry(topo) );
-   ReturnType geom ( gDDD );
+  ReturnType geom ( gDDD );
 
-   if( geom->cornersMgr() == 0 ) {
-      const unsigned int count (numberingFromDDD->numberOfCells(HcalBarrel ) +
-				numberingFromDDD->numberOfCells(HcalEndcap ) +
-				numberingFromDDD->numberOfCells(HcalForward) +
-				numberingFromDDD->numberOfCells(HcalOuter  ) );
-     geom->allocateCorners( count ) ;
-   }
-   if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
-
-   fill(HcalBarrel,  gDDD, geom); 
-   fill(HcalEndcap,  gDDD, geom); 
-   fill(HcalForward, gDDD, geom); 
-   fill(HcalOuter,   gDDD, geom);
-   return geom ;
+  if( geom->cornersMgr() == 0 ) {
+    const unsigned int count (hcalConstants->numberOfCells(HcalBarrel ) +
+			      hcalConstants->numberOfCells(HcalEndcap ) +
+			      hcalConstants->numberOfCells(HcalForward) +
+			      hcalConstants->numberOfCells(HcalOuter  ) );
+    geom->allocateCorners( count ) ;
+  }
+  if( geom->parMgr()     == 0 ) geom->allocatePar( 500, 3 ) ;
+  
+  fill(HcalBarrel,  gDDD, geom); 
+  fill(HcalEndcap,  gDDD, geom); 
+  fill(HcalForward, gDDD, geom); 
+  fill(HcalOuter,   gDDD, geom);
+  return geom ;
 }
 
 void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet, 
@@ -74,7 +71,7 @@ void HcalDDDGeometryLoader::fill(HcalSubdetector          subdet,
 				 CaloSubdetectorGeometry* geom           ) {
 
   // start by making the new HcalDetIds
-  std::vector<HcalCellType> hcalCells = numberingFromDDD->HcalCellTypes(subdet);
+  std::vector<HcalCellType> hcalCells = hcalConstants->HcalCellTypes(subdet);
   geometryDDD->insertCell(hcalCells);
 #ifdef DebugLog
   LogDebug("HCalGeom") << "HcalDDDGeometryLoader::fill gets " 
@@ -224,14 +221,11 @@ HcalDDDGeometryLoader::makeCell( const HcalDetId& detId,
   std::vector<CCGFloat> hp ;
   hp.reserve(3) ;
   
-  if (subdet==HcalForward) 
-  {
+  if (subdet==HcalForward) {
     hp.push_back(deta/2.) ;
     hp.push_back(dphi/2.) ;
     hp.push_back(thickness/2.) ;
-  }
-  else
-  { 
+  } else { 
     const double sign ( isBarrel ? 1 : -1 ) ;
     hp.push_back(deta/2.) ;
     hp.push_back(dphi/2.) ;

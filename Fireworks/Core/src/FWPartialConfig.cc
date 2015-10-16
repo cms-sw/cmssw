@@ -160,7 +160,7 @@ FWPartialConfigSaveGUI::FWPartialConfigSaveGUI( const char* path_out, const char
    AddFrame(hf, new TGLayoutHints( kLHintsRight| kLHintsBottom, 1, 1, 2, 4));
    
    TGTextButton* write = new TGTextButton(hf, " Write ");
-   write->Connect("Clicked()", "FWPartialConfigSaveGUI", this, "Write()");
+   write->Connect("Clicked()", "FWPartialConfigSaveGUI", this, "WriteConfig()");
    hf->AddFrame(write, new TGLayoutHints(kLHintsExpandX, 2, 2, 0, 0));
 
    TGTextButton* cancel = new TGTextButton(hf, " Cancel ");
@@ -178,7 +178,7 @@ FWPartialConfigSaveGUI::FWPartialConfigSaveGUI( const char* path_out, const char
 
 
 void
-FWPartialConfigSaveGUI::Write()
+FWPartialConfigSaveGUI::WriteConfig()
 {
     FWConfiguration destination;
     {

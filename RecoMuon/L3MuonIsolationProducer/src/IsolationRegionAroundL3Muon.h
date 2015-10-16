@@ -39,10 +39,10 @@ public:
 
   virtual ~IsolationRegionAroundL3Muon(){}
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, 
-      const edm::EventSetup& es) const {
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev,
+      const edm::EventSetup& es) const override {
 
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // optional constraint for vertex
     // get highest Pt pixel vertex (if existing)
@@ -72,7 +72,7 @@ public:
       double vz = (theVertexZconstrained) ? iTrk->dz() : originz;
       GlobalVector dirVector((iTrk)->px(),(iTrk)->py(),(iTrk)->pz());
       result.push_back( 
-          new RectangularEtaPhiTrackingRegion( dirVector, GlobalPoint(0,0,float(vz)), 
+          std::make_unique<RectangularEtaPhiTrackingRegion>( dirVector, GlobalPoint(0,0,float(vz)),
 					       thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
 					       RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips,
                                                true,measurementTrackerEvent) );

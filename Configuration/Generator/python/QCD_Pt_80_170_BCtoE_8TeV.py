@@ -24,7 +24,7 @@ generator = cms.EDFilter("Pythia6GeneratorFilter",
 # if you need some filter modules define and configure them here
 genParticlesForFilter = cms.EDProducer("GenParticleProducer",
     saveBarCodes = cms.untracked.bool(True),
-    src = cms.InputTag("generator"),
+    src = cms.InputTag("generator", "unsmeared"),
     abortOnUnknownPDGCode = cms.untracked.bool(True)
 )
 

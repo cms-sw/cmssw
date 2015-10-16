@@ -9,7 +9,7 @@ mixObjects_dt_csc_rpc =  cms.PSet(
         subdets = cms.vstring()
     ),
     mixHepMC = cms.PSet(
-        input = cms.VInputTag(cms.InputTag("generator")),
+        input = cms.VInputTag(cms.InputTag("generatorSmeared"),cms.InputTag("generator")),
         makeCrossingFrame = cms.untracked.bool(True),
         type = cms.string('HepMCProduct')
     ),

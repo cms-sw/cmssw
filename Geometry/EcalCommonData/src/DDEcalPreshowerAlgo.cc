@@ -221,8 +221,9 @@ void DDEcalPreshowerAlgo::doLayers(DDCompactView& cpv)
       DDName dd_tmp_name_f(getLayName(i)+"LOutAl","esalgo");
 
       
-      bdx = abs1stx[cutabsx]; bdy=2*30*cm;
-      if(I==20) bdx = abs2ndx[cutabsy]; bdy=2*30*cm;
+      bdx = abs1stx[cutabsx];
+      if(I==20) bdx = abs2ndx[cutabsy];
+      bdy=2*30*cm;
       
       DDSolid solidcut = DDSolidFactory::box(dd_tmp_name_b,bdx,bdy,zHalf);
 

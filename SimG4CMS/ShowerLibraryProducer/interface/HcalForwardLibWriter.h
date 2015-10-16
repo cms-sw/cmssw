@@ -24,7 +24,6 @@
 #include "TFile.h"
 #include "TTree.h"
 
-using namespace edm;
 
 class HcalForwardLibWriter : public edm::EDAnalyzer {
 public:

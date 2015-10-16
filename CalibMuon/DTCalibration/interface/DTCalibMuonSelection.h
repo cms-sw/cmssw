@@ -6,8 +6,9 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include <vector>
 #include <string>
@@ -26,7 +27,7 @@ private:
 
   virtual void endJob() ;
   
-  edm::InputTag muonList;
+  edm::EDGetTokenT<reco::MuonCollection> muonList;
 
   double etaMin;
   double etaMax;

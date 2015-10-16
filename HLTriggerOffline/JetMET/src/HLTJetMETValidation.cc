@@ -4,6 +4,13 @@
 #include "Math/GenVector/VectorUtil.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 
+using namespace std;
+using namespace edm;
+using namespace reco;
+using namespace l1extra;
+using namespace trigger;
+
+
 HLTJetMETValidation::HLTJetMETValidation(const edm::ParameterSet& ps) : 
   triggerEventObject_(consumes<TriggerEventWithRefs>(ps.getUntrackedParameter<edm::InputTag>("triggerEventObject"))),
   PFJetAlgorithm( consumes<PFJetCollection>(ps.getUntrackedParameter<edm::InputTag>( "PFJetAlgorithm" ) )),

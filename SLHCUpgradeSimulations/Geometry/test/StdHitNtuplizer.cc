@@ -706,11 +706,11 @@ void StdHitNtuplizer::fillSRecHit(const int subid,
   striprecHit_.subid = subid;
 }
 void StdHitNtuplizer::fillSRecHit(const int subid, 
-                                   SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
-                                   const GeomDet* theGeom)
+				  const FastTrackerRecHit & hit,
+				  const GeomDet* theGeom)
 {
-  LocalPoint lp = pixeliter->localPosition();
-  LocalError le = pixeliter->localPositionError();
+  LocalPoint lp = hit.localPosition();
+  LocalError le = hit.localPositionError();
 
   striprecHit_.x = lp.x();
   striprecHit_.y = lp.y();
@@ -720,7 +720,7 @@ void StdHitNtuplizer::fillSRecHit(const int subid,
   //MeasurementPoint mp = topol->measurementPosition(LocalPoint(striprecHit_.x, striprecHit_.y));
   //striprecHit_.row = mp.x();
   //striprecHit_.col = mp.y();
-  GlobalPoint GP = theGeom->surface().toGlobal(pixeliter->localPosition());
+  GlobalPoint GP = theGeom->surface().toGlobal(hit.localPosition());
   striprecHit_.gx = GP.x();
   striprecHit_.gy = GP.y();
   striprecHit_.gz = GP.z();

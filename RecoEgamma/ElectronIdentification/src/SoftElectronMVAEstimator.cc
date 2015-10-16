@@ -4,6 +4,8 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "TMVA/Reader.h"
+#include "TMVA/MethodBDT.h"
 
 SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
   std::vector<std::string> weightsfiles;
@@ -12,15 +14,9 @@ SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cf
     path_mvaWeightFileEleID = edm::FileInPath ( cfg_.vweightsfiles[ifile].c_str() ).fullPath();
     weightsfiles.push_back(path_mvaWeightFileEleID);
   }
-
-  for (unsigned int i=0;i<fmvaReader.size(); ++i) {
-    if (fmvaReader[i]) delete fmvaReader[i];
-  }
-  fmvaReader.clear();
-
+  
   //initialize
   //Define expected number of bins
-  UInt_t ExpectedNBins = 1;
 
   //Check number of weight files given
   if (ExpectedNBins != cfg_.vweightsfiles.size() ) {
@@ -32,56 +28,47 @@ SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cf
 
 
   for (unsigned int i=0;i<ExpectedNBins; ++i) {
-    tmvaReader_ = new TMVA::Reader("!Color:Silent");
-    tmvaReader_->AddVariable("fbrem",                   &fbrem);
-    tmvaReader_->AddVariable("EtotOvePin",                      &EtotOvePin);
-    tmvaReader_->AddVariable("EClusOverPout",                   &eleEoPout);
-    tmvaReader_->AddVariable("EBremOverDeltaP",                 &EBremOverDeltaP);
-    tmvaReader_->AddVariable("logSigmaEtaEta",                  &logSigmaEtaEta);
-    tmvaReader_->AddVariable("DeltaEtaTrackEcalSeed",           &DeltaEtaTrackEcalSeed);
-    tmvaReader_->AddVariable("HoE",                             &HoE);
-    tmvaReader_->AddVariable("gsfchi2",                         &gsfchi2);
-    tmvaReader_->AddVariable("kfchi2",                          &kfchi2);
-    tmvaReader_->AddVariable("kfhits",                          &kfhits);
-    tmvaReader_->AddVariable("SigmaPtOverPt",                   &SigmaPtOverPt);
-    tmvaReader_->AddVariable("deta",                            &deta);
-    tmvaReader_->AddVariable("dphi",                            &dphi);
-    tmvaReader_->AddVariable("detacalo",                        &detacalo);
-    tmvaReader_->AddVariable("see",                             &see);
-    tmvaReader_->AddVariable("spp",                             &spp); 	
-    tmvaReader_->AddVariable("R9",                             	&R9);
-    tmvaReader_->AddVariable("etawidth",                        &etawidth);
-    tmvaReader_->AddVariable("phiwidth",                        &phiwidth);
-    tmvaReader_->AddVariable("e1x5e5x5",                        &OneMinusE1x5E5x5);
-    tmvaReader_->AddVariable("IoEmIoP",				&IoEmIoP);
-    tmvaReader_->AddVariable("PreShowerOverRaw",		&PreShowerOverRaw);
-    tmvaReader_->AddVariable("nPV",                		&nPV);
+    TMVA::Reader tmvaReader("!Color:Silent");
+    tmvaReader.AddVariable("fbrem",                   &fbrem);
+    tmvaReader.AddVariable("EtotOvePin",                      &EtotOvePin);
+    tmvaReader.AddVariable("EClusOverPout",                   &eleEoPout);
+    tmvaReader.AddVariable("EBremOverDeltaP",                 &EBremOverDeltaP);
+    tmvaReader.AddVariable("logSigmaEtaEta",                  &logSigmaEtaEta);
+    tmvaReader.AddVariable("DeltaEtaTrackEcalSeed",           &DeltaEtaTrackEcalSeed);
+    tmvaReader.AddVariable("HoE",                             &HoE);
+    tmvaReader.AddVariable("gsfchi2",                         &gsfchi2);
+    tmvaReader.AddVariable("kfchi2",                          &kfchi2);
+    tmvaReader.AddVariable("kfhits",                          &kfhits);
+    tmvaReader.AddVariable("SigmaPtOverPt",                   &SigmaPtOverPt);
+    tmvaReader.AddVariable("deta",                            &deta);
+    tmvaReader.AddVariable("dphi",                            &dphi);
+    tmvaReader.AddVariable("detacalo",                        &detacalo);
+    tmvaReader.AddVariable("see",                             &see);
+    tmvaReader.AddVariable("spp",                             &spp); 	
+    tmvaReader.AddVariable("R9",                             	&R9);
+    tmvaReader.AddVariable("etawidth",                        &etawidth);
+    tmvaReader.AddVariable("phiwidth",                        &phiwidth);
+    tmvaReader.AddVariable("e1x5e5x5",                        &OneMinusE1x5E5x5);
+    tmvaReader.AddVariable("IoEmIoP",				&IoEmIoP);
+    tmvaReader.AddVariable("PreShowerOverRaw",		&PreShowerOverRaw);
+    tmvaReader.AddVariable("nPV",                		&nPV);
 
-    tmvaReader_->AddVariable( "pt",                            &pt);
-    tmvaReader_->AddVariable( "eta",                           &eta);
+    tmvaReader.AddVariable( "pt",                            &pt);
+    tmvaReader.AddVariable( "eta",                           &eta);
 
-    tmvaReader_->AddSpectator( "pt",                            &pt);
-    tmvaReader_->AddSpectator( "eta",                           &eta);
-
-//    tmvaReader_->AddSpectator( "nPV",                           &nPV);
-
-    // Taken from Daniele (his mail from the 30/11)
-    //  tmvaReader_->BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
+    tmvaReader.AddSpectator( "pt",                            &pt);
+    tmvaReader.AddSpectator( "eta",                           &eta);
+    
+    // Taken from Daniele (his mail from the 30/11)    
     // training of the 7/12 with Nvtx added
-    tmvaReader_->BookMVA("BDT",weightsfiles[i]);
-    fmvaReader.push_back(tmvaReader_);
-//    delete tmvaReader_;
-
+    std::unique_ptr<TMVA::IMethod> temp( tmvaReader.BookMVA("BDT",weightsfiles[i]) );
+    gbr[i].reset( new GBRForest( dynamic_cast<TMVA::MethodBDT*>( tmvaReader.FindMVA("BDT") ) ) );
   }
 }
 
 
 SoftElectronMVAEstimator::~SoftElectronMVAEstimator()
-{
-  for (unsigned int i=0;i<fmvaReader.size(); ++i) {
-    if (fmvaReader[i]) delete fmvaReader[i];
-  }
-}
+{ }
 
 
 UInt_t SoftElectronMVAEstimator::GetMVABin(int pu, double eta, double pt) const {
@@ -111,45 +98,45 @@ UInt_t SoftElectronMVAEstimator::GetMVABin(int pu, double eta, double pt) const 
 
 
 
-double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const edm::Event & evt)  {
+double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,
+                                     const reco::VertexCollection& pvc) const {
+  float vars[25];
 
- edm::Handle<reco::VertexCollection> FullprimaryVertexCollection;
- evt.getByToken(cfg_.vtxCollection, FullprimaryVertexCollection);
- const reco::VertexCollection pvc = *(FullprimaryVertexCollection.product());
- 
-  fbrem                 	=myElectron.fbrem();
-  EtotOvePin            	=myElectron.eSuperClusterOverP();
-  eleEoPout             	=myElectron.eEleClusterOverPout();
-  float etot                    =myElectron.eSuperClusterOverP()*myElectron.trackMomentumAtVtx().R();
-  float eEcal                   =myElectron.eEleClusterOverPout()*myElectron.trackMomentumAtEleClus().R();
-  float dP                      =myElectron.trackMomentumAtVtx().R()-myElectron.trackMomentumAtEleClus().R();
-  EBremOverDeltaP       	=(etot-eEcal)/dP;
-  logSigmaEtaEta        	=log(myElectron.sigmaEtaEta());
-  DeltaEtaTrackEcalSeed 	=myElectron.deltaEtaEleClusterTrackAtCalo();
-  HoE                   	=myElectron.hcalOverEcalBc();
+  vars[0]  = myElectron.fbrem();// fbrem
+  vars[1]  = myElectron.eSuperClusterOverP(); //EtotOvePin
+  vars[2]   = myElectron.eEleClusterOverPout(); //eleEoPout 
+  
+  float etot  = myElectron.eSuperClusterOverP()*myElectron.trackMomentumAtVtx().R();
+  float eEcal = myElectron.eEleClusterOverPout()*myElectron.trackMomentumAtEleClus().R();
+  float dP    = myElectron.trackMomentumAtVtx().R()-myElectron.trackMomentumAtEleClus().R();
+  vars[3]  = (etot-eEcal)/dP; //EBremOverDeltaP
+  vars[4]  = std::log(myElectron.sigmaEtaEta()); //logSigmaEtaEta
+  vars[5]  = myElectron.deltaEtaEleClusterTrackAtCalo(); //DeltaEtaTrackEcalSeed
+  vars[6]  = myElectron.hcalOverEcalBc(); //HoE  
 
   bool validKF= false;
   reco::TrackRef myTrackRef     = myElectron.closestCtfTrackRef();
   validKF                       = (myTrackRef.isAvailable() && myTrackRef.isNonnull());
-  kfchi2                	=(validKF) ? myTrackRef->normalizedChi2() : 0 ;
-  kfhits                	=(validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ;
-  gsfchi2               	=myElectron.gsfTrack()->normalizedChi2();
-  SigmaPtOverPt         	=myElectron.gsfTrack().get()->ptModeError()/myElectron.gsfTrack().get()->ptMode() ;
-  deta                  	=myElectron.deltaEtaSuperClusterTrackAtVtx();
-  dphi                  	=myElectron.deltaPhiSuperClusterTrackAtVtx();
-  detacalo              	=myElectron.deltaEtaSeedClusterTrackAtCalo();
-  see                   	=myElectron.sigmaIetaIeta();
-  spp				=myElectron.sigmaIphiIphi();
-  R9                    =myElectron.r9();
-  IoEmIoP               =  (1.0/myElectron.ecalEnergy()) - (1.0 / myElectron.p());
-  etawidth              	=myElectron.superCluster()->etaWidth();
-  phiwidth              	=myElectron.superCluster()->phiWidth();
-  OneMinusE1x5E5x5      	=(myElectron.e5x5()) !=0. ? 1.-(myElectron.e1x5()/myElectron.e5x5()) : -1. ;
-  pt                    	=myElectron.pt();
-  eta                   	=myElectron.eta();
-  nPV=pvc.size();
-  PreShowerOverRaw=myElectron.superCluster()->preshowerEnergy() / myElectron.superCluster()->rawEnergy();
-
+  vars[7]  = myElectron.gsfTrack()->normalizedChi2(); //gsfchi2
+  vars[8]  = (validKF) ? myTrackRef->normalizedChi2() : 0 ; //kfchi2
+  vars[9]  = (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ; //kfhits
+  
+  vars[10] = myElectron.gsfTrack().get()->ptModeError()/myElectron.gsfTrack().get()->ptMode() ; //SigmaPtOverPt 
+  vars[11]  = myElectron.deltaEtaSuperClusterTrackAtVtx(); //deta
+  vars[12]  = myElectron.deltaPhiSuperClusterTrackAtVtx(); //dphi
+  vars[13]  = myElectron.deltaEtaSeedClusterTrackAtCalo(); //detacalo 
+  vars[14]  = myElectron.sigmaIetaIeta(); //see
+  vars[15]  = myElectron.sigmaIphiIphi(); //spp
+  vars[16]  = myElectron.r9(); //R9
+  vars[17]  = myElectron.superCluster()->etaWidth(); //etawidth
+  vars[18]  = myElectron.superCluster()->phiWidth(); //phiwidth
+  vars[19]  = (myElectron.e5x5()) !=0. ? 1.-(myElectron.e1x5()/myElectron.e5x5()) : -1. ; //OneMinusE1x5E5x5
+  vars[20]  = (1.0/myElectron.ecalEnergy()) - (1.0 / myElectron.p()); // IoEmIoP
+  vars[21]  = myElectron.superCluster()->preshowerEnergy() / myElectron.superCluster()->rawEnergy(); //PreShowerOverRaw
+  vars[22]  = pvc.size(); // nPV
+  vars[23]  = myElectron.pt(); //pt
+  vars[24]  = myElectron.eta(); //eta
+  
 /*
   std::cout<<"fbrem "<<fbrem<<std::endl;
   std::cout<<"EtotOvePin "<<EtotOvePin<<std::endl;
@@ -174,52 +161,46 @@ double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const e
   std::cout<<"OneMinusE1x5E5x5 "<<OneMinusE1x5E5x5<<std::endl;
   std::cout<<"PreShowerOverRaw "<<PreShowerOverRaw<<std::endl;
 */
-  bindVariables();
-//  double result= fmvaReader[GetMVABin(nPV,eta,pt)]->EvaluateMVA("BDT");
-  double result= fmvaReader[0]->EvaluateMVA("BDT");
-//  double result =  tmvaReader_->EvaluateMVA("BDT");
+  bindVariables(vars);
+
+  double result= gbr[0]->GetClassifier(vars);
+
   return result;
 }
 
 
-void SoftElectronMVAEstimator::bindVariables() {
-  if(fbrem < -1.)
-    fbrem = -1.;
+void SoftElectronMVAEstimator::bindVariables(float vars[25]) const {
+  if( vars[0] < -1.) //fbrem
+    vars[0] = -1.;
 
-  deta = fabs(deta);
-  if(deta > 0.06)
-    deta = 0.06;
+  vars[11] = std::abs(vars[11]); // deta
+  if(vars[11] > 0.06)
+    vars[11] = 0.06;
 
-
-  dphi = fabs(dphi);
-  if(dphi > 0.6)
-    dphi = 0.6;
-
+  vars[12] = std::abs(vars[12]);
+  if(vars[12] > 0.6)
+    vars[12] = 0.6;
 
   //if(EoP > 20.)
   //  EoP = 20.;
 
-  if(eleEoPout > 20.)
-    eleEoPout = 20.;
+  if(vars[2] > 20.) //eleEoPout
+    vars[2] = 20.;
+  
+  vars[13] = std::abs(vars[13]); //detacalo
+  if(vars[13] > 0.2)
+    vars[13] = 0.2;
 
+  if( vars[19] < -1.) //OneMinusE1x5E5x5
+    vars[19] = -1;
 
-  detacalo = fabs(detacalo);
-  if(detacalo > 0.2)
-    detacalo = 0.2;
+  if( vars[19] > 2.) //OneMinusE1x5E5x5
+    vars[19] = 2.;
 
-  if(OneMinusE1x5E5x5 < -1.)
-    OneMinusE1x5E5x5 = -1;
-
-  if(OneMinusE1x5E5x5 > 2.)
-    OneMinusE1x5E5x5 = 2.;
-
-
-
-  if(gsfchi2 > 200.)
-    gsfchi2 = 200;
-
-
-  if(kfchi2 > 10.)
-    kfchi2 = 10.;
+  if( vars[7] > 200.) //gsfchi2
+    vars[7] = 200;
+  
+  if( vars[8] > 10.) //kfchi2
+    vars[8]  = 10.;
 
 }

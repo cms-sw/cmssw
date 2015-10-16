@@ -17,12 +17,10 @@
 
 void ECAL2DPositionCalcWithDepthCorr::
 update(const edm::EventSetup& es) {
-  const CaloGeometryRecord& temp = es.get<CaloGeometryRecord>();
-  if( _caloGeom == NULL || 
-      ( _caloGeom->cacheIdentifier() != temp.cacheIdentifier() ) ) {
-    _caloGeom = &temp;
+  
+    const CaloGeometryRecord& caloGeom = es.get<CaloGeometryRecord>();
     edm::ESHandle<CaloGeometry> geohandle;
-    _caloGeom->get(geohandle);
+    caloGeom.get(geohandle);
     _ebGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
     _eeGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
     _esGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
@@ -34,7 +32,7 @@ update(const edm::EventSetup& es) {
 	_esPlus = _esPlus || ( 0 < z ) ;
 	_esMinus = _esMinus || ( 0 > z ) ;
     }  
-  }
+  
 }
 
 void ECAL2DPositionCalcWithDepthCorr::

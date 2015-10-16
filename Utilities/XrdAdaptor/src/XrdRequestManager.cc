@@ -6,6 +6,7 @@
 
 #include "XrdCl/XrdClFile.hh"
 #include "XrdCl/XrdClDefaultEnv.hh"
+#include "XrdCl/XrdClFileSystem.hh"
 
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -31,6 +32,9 @@
 #define XRD_ADAPTOR_LONG_OPEN_DELAY 2*60
 #define XRD_ADAPTOR_SOURCE_QUALITY_FUDGE 100
 #endif
+
+#define XRD_ADAPTOR_CHUNK_THRESHOLD 1000
+
 
 #ifdef __MACH__
 #include <mach/clock.h>
@@ -93,7 +97,8 @@ SendMonitoringInfo(XrdCl::File &file)
     file.GetProperty("LastURL", lastUrl);
     if (jobId && lastUrl.size())
     {
-        XrdCl::FileSystem fs = XrdCl::FileSystem(XrdCl::URL(lastUrl));
+        XrdCl::URL url(lastUrl);
+        XrdCl::FileSystem fs(url);
         fs.SendInfo(jobId, &nullHandler, 30);
         edm::LogInfo("XrdAdaptorInternal") << "Set monitoring ID to " << jobId << ".";
     }
@@ -101,7 +106,8 @@ SendMonitoringInfo(XrdCl::File &file)
 
 
 RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms)
-    : m_timeout(XRD_DEFAULT_TIMEOUT),
+    : m_serverToAdvertise(nullptr),
+      m_timeout(XRD_DEFAULT_TIMEOUT),
       m_nextInitialSourceToggle(false),
       m_name(filename),
       m_flags(flags),
@@ -226,12 +232,53 @@ RequestManager::initialize(std::weak_ptr<RequestManager> self)
     m_activeSources.push_back(source);
     updateSiteInfo(orig_site);
   }
+  queueUpdateCurrentServer(source->ID());
+  updateCurrentServer();
 
   m_lastSourceCheck = ts;
   ts.tv_sec += XRD_ADAPTOR_SHORT_OPEN_DELAY;
   m_nextActiveSourceCheck = ts;
 }
 
+/**
+ * Update the StatisticsSenderService with the current server info.
+ *
+ * As this accesses the edm::Service infrastructure, this MUST be called
+ * from an edm-managed thread.  It CANNOT be called from an Xrootd-managed
+ * thread.
+ */
+void
+RequestManager::updateCurrentServer()
+{
+    // NOTE: we use memory_order_relaxed here, meaning that we may actually miss
+    // a pending update.  *However*, since we call this for every read, we'll get it
+    // eventually.
+    if (likely(!m_serverToAdvertise.load(std::memory_order_relaxed))) {return;}
+    std::string *hostname_ptr;
+    if ((hostname_ptr = m_serverToAdvertise.exchange(nullptr)))
+    {
+        std::unique_ptr<std::string> hostname(hostname_ptr);
+        edm::Service<edm::storage::StatisticsSenderService> statsService;
+        if (statsService.isAvailable()) {
+            statsService->setCurrentServer(*hostname_ptr);
+        }
+    }
+}
+
+
+void
+RequestManager::queueUpdateCurrentServer(const std::string &id)
+{
+    std::unique_ptr<std::string> hostname(new std::string(id));
+    if (Source::getHostname(id, *hostname))
+    {
+        std::string *null_hostname = nullptr;
+        if (m_serverToAdvertise.compare_exchange_strong(null_hostname, hostname.get()))
+        {
+            hostname.release();
+        }
+    }
+}
 
 void
 RequestManager::updateSiteInfo(std::string orig_site)
@@ -542,6 +589,7 @@ XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::shared_
         {
             m_activeSources.push_back(source);
             updateSiteInfo();
+            queueUpdateCurrentServer(source->ID());
         }
         else
         {
@@ -559,6 +607,7 @@ std::future<IOSize>
 XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > iolist)
 {
     std::lock_guard<std::recursive_mutex> sentry(m_source_mutex);
+    updateCurrentServer();
 
     timespec now;
     GET_CLOCK_MONOTONIC(now);
@@ -740,7 +789,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
 static void
 consumeChunkFront(size_t &front, std::vector<IOPosBuffer> &input, std::vector<IOPosBuffer> &output, IOSize chunksize)
 {
-    while ((chunksize > 0) && (front < input.size()))
+    while ((chunksize > 0) && (front < input.size()) && (output.size() <= XRD_ADAPTOR_CHUNK_THRESHOLD))
     {
         IOPosBuffer &io = input[front];
         IOPosBuffer &outio = output.back();
@@ -789,7 +838,7 @@ consumeChunkFront(size_t &front, std::vector<IOPosBuffer> &input, std::vector<IO
 static void
 consumeChunkBack(size_t front, std::vector<IOPosBuffer> &input, std::vector<IOPosBuffer> &output, IOSize chunksize)
 {
-    while ((chunksize > 0) && (front < input.size()))
+    while ((chunksize > 0) && (front < input.size()) && (output.size() <= XRD_ADAPTOR_CHUNK_THRESHOLD))
     {
         IOPosBuffer &io = input.back();
         IOPosBuffer &outio = output.back();
@@ -864,15 +913,16 @@ XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &i
     float q1 = static_cast<float>(m_activeSources[0]->getQuality())+5;
     float q2 = static_cast<float>(m_activeSources[1]->getQuality())+5;
     IOSize chunk1, chunk2;
-    chunk1 = static_cast<float>(XRD_CL_MAX_CHUNK)*(q2*q2/(q1*q1+q2*q2));
-    chunk2 = static_cast<float>(XRD_CL_MAX_CHUNK)*(q1*q1/(q1*q1+q2*q2));
+    // Make sure the chunk size is at least 1024; little point to reads less than that size.
+    chunk1 = std::max(static_cast<IOSize>(static_cast<float>(XRD_CL_MAX_CHUNK)*(q2*q2/(q1*q1+q2*q2))), static_cast<IOSize>(1024));
+    chunk2 = std::max(static_cast<IOSize>(static_cast<float>(XRD_CL_MAX_CHUNK)*(q1*q1/(q1*q1+q2*q2))), static_cast<IOSize>(1024));
 
     IOSize size_orig = 0;
     for (const auto & it : iolist) size_orig += it.size();
 
     while (tmp_iolist.size()-front > 0)
     {
-        if ((req1.size() >= 1000) && (req2.size() >= 1000))
+        if ((req1.size() >= XRD_ADAPTOR_CHUNK_THRESHOLD) && (req2.size() >= XRD_ADAPTOR_CHUNK_THRESHOLD))
         {   // The XrdFile::readv implementation should guarantee that no more than approximately 1024 chunks
             // are passed to the request manager.  However, because we have a max chunk size, we increase
             // the total number slightly.  Theoretically, it's possible an individual readv of total size >2GB where
@@ -891,8 +941,8 @@ XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &i
             ex.addAdditionalInfo(ss2.str());
             throw ex;
         }
-        if (req1.size() < 1000) {consumeChunkFront(front, tmp_iolist, req1, chunk1);}
-        if (req2.size() < 1000) {consumeChunkBack(front, tmp_iolist, req2, chunk2);}
+        if (req1.size() < XRD_ADAPTOR_CHUNK_THRESHOLD) {consumeChunkFront(front, tmp_iolist, req1, chunk1);}
+        if (req2.size() < XRD_ADAPTOR_CHUNK_THRESHOLD) {consumeChunkBack(front, tmp_iolist, req2, chunk2);}
     }
     std::sort(req1.begin(), req1.end(), [](const IOPosBuffer & left, const IOPosBuffer & right){return left.offset() < right.offset();});
     std::sort(req2.begin(), req2.end(), [](const IOPosBuffer & left, const IOPosBuffer & right){return left.offset() < right.offset();});

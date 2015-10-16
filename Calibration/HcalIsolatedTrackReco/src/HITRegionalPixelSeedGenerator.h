@@ -66,9 +66,9 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
   virtual ~HITRegionalPixelSeedGenerator() {}
   
   
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const 
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
     {
-      std::vector<TrackingRegion* > result;
+      std::vector<std::unique_ptr<TrackingRegion> > result;
       float originz =0.;
       
       double deltaZVertex =  halflength;
@@ -105,15 +105,13 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	      globalVector = ptrVec;
 	      
 	      
-	      RectangularEtaPhiTrackingRegion* etaphiRegion = new  RectangularEtaPhiTrackingRegion(globalVector,
-												   GlobalPoint(0,0,originz), 
-												   ptmin,
-												   originradius,
-												   deltaZVertex,
-												   deltaTrackEta,
-												   deltaTrackPhi);
-	      result.push_back(etaphiRegion);
-	      
+	      result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(globalVector,
+                                                                                 GlobalPoint(0,0,originz),
+                                                                                 ptmin,
+                                                                                 originradius,
+                                                                                 deltaZVertex,
+                                                                                 deltaTrackEta,
+                                                                                 deltaTrackPhi));
 	    }
 	}
       
@@ -148,14 +146,13 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
               GlobalVector ptrVec((isoPixTrackRefs[p]->track())->px(),(isoPixTrackRefs[p]->track())->py(),(isoPixTrackRefs[p]->track())->pz());
               globalVector = ptrVec;
 	      
-              RectangularEtaPhiTrackingRegion* etaphiRegion = new  RectangularEtaPhiTrackingRegion(globalVector,
-                                                                                                   GlobalPoint(0,0,originz),
-                                                                                                   ptmin,
-                                                                                                   originradius,
-                                                                                                   deltaZVertex,
-                                                                                                   deltaTrackEta,
-                                                                                                   deltaTrackPhi);
-              result.push_back(etaphiRegion);
+              result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(globalVector,
+                                                                                 GlobalPoint(0,0,originz),
+                                                                                 ptmin,
+                                                                                 originradius,
+                                                                                 deltaZVertex,
+                                                                                 deltaTrackEta,
+                                                                                 deltaTrackPhi));
 	    }
 	}
       
@@ -185,14 +182,13 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	      GlobalVector jetVector(iJet->p4().x(), iJet->p4().y(), iJet->p4().z());
 	      GlobalPoint  vertex(0, 0, originz);
 	      
-	      RectangularEtaPhiTrackingRegion* etaphiRegion = new RectangularEtaPhiTrackingRegion( jetVector,
-												   vertex,
-												   ptmin,
-												   originradius,
-												   deltaZVertex,
-												   deltaL1JetEta,
-												   deltaL1JetPhi );
-	      result.push_back(etaphiRegion);
+	      result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>( jetVector,
+                                                                                  vertex,
+                                                                                  ptmin,
+                                                                                  originradius,
+                                                                                  deltaZVertex,
+                                                                                  deltaL1JetEta,
+                                                                                  deltaL1JetPhi ));
 	    }
 	}
       if (fixedReg_)
@@ -213,14 +209,13 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	      deltaZVertex = 15.;
 	    }
 	  
-	  RectangularEtaPhiTrackingRegion* etaphiRegion = new RectangularEtaPhiTrackingRegion( fixedVector,
-											       vertex,
-											       ptmin,
-											       originradius,
-											       deltaZVertex,
-											       deltaL1JetEta,
-											       deltaL1JetPhi );
-	  result.push_back(etaphiRegion);
+	  result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>( fixedVector,
+                                                                              vertex,
+                                                                              ptmin,
+                                                                              originradius,
+                                                                              deltaZVertex,
+                                                                              deltaL1JetEta,
+                                                                              deltaL1JetPhi ));
 	}
       
       return result;

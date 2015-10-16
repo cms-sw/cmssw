@@ -9,7 +9,7 @@
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Common/interface/Association.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "DataFormats/Common/interface/View.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -26,24 +26,24 @@
 
 
 namespace pat {
-    class PATLostTracks : public edm::EDProducer {
-        public:
-            explicit PATLostTracks(const edm::ParameterSet&);
-            ~PATLostTracks();
-
-            virtual void produce(edm::Event&, const edm::EventSetup&);
-
-        private:
-            edm::EDGetTokenT<reco::PFCandidateCollection>    Cands_;
-            edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
-            edm::EDGetTokenT<reco::TrackCollection>         Tracks_;
-            edm::EDGetTokenT<reco::VertexCollection>         Vertices_;
-            edm::EDGetTokenT<reco::VertexCollection>         PV_;
-            edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
-            double minPt_;
-            double minHits_;
-            double minPixelHits_;
-    };
+  class PATLostTracks : public edm::global::EDProducer<> {
+  public:
+    explicit PATLostTracks(const edm::ParameterSet&);
+    ~PATLostTracks();
+    
+    virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+    
+  private:
+    const edm::EDGetTokenT<reco::PFCandidateCollection>    Cands_;
+    const edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection> > map_;
+    const edm::EDGetTokenT<reco::TrackCollection>         Tracks_;
+    const edm::EDGetTokenT<reco::VertexCollection>         Vertices_;
+    const edm::EDGetTokenT<reco::VertexCollection>         PV_;
+    const edm::EDGetTokenT<reco::VertexCollection>         PVOrigs_;
+    const double minPt_;
+    const double minHits_;
+    const double minPixelHits_;
+  };
 }
 
 pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
@@ -60,12 +60,11 @@ pat::PATLostTracks::PATLostTracks(const edm::ParameterSet& iConfig) :
   produces< std::vector<reco::Track> > ();
   produces< std::vector<pat::PackedCandidate> > ();
   produces< edm::Association<pat::PackedCandidateCollection> > ();
-
 }
 
 pat::PATLostTracks::~PATLostTracks() {}
 
-void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+void pat::PATLostTracks::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
 
     edm::Handle<reco::PFCandidateCollection> cands;
     iEvent.getByToken( Cands_, cands );

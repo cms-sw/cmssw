@@ -26,7 +26,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -44,41 +44,20 @@
 
 #include "CoralBase/Exception.h"
 
-//
-// class decleration
-//
-
-class FastTimeNumberingTester : public edm::EDAnalyzer {
+class FastTimeNumberingTester : public edm::one::EDAnalyzer<>
+{
 public:
   explicit FastTimeNumberingTester( const edm::ParameterSet& );
   ~FastTimeNumberingTester();
 
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-private:
-  // ----------member data ---------------------------
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 FastTimeNumberingTester::FastTimeNumberingTester(const edm::ParameterSet& ) {}
 
-
 FastTimeNumberingTester::~FastTimeNumberingTester() {}
-
-
-//
-// member functions
-//
 
 // ------------ method called to produce the data  ------------
 void FastTimeNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {

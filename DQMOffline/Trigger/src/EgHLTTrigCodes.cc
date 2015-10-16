@@ -91,6 +91,6 @@ void TrigCodes::printCodes()
   std::ostringstream msg;
   msg <<" trig bits defined: "<<std::endl;
   for(size_t i=0;i<codeDefs_.size();i++) msg <<" key : "<<codeDefs_[i].first<<" bit "<<codeDefs_[i].second<<std::endl;
-  edm::LogInfo("TrigCodes") <<msg;
+  edm::LogInfo("TrigCodes") << msg.str();
  
 }

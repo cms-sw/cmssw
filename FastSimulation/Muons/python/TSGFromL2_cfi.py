@@ -167,7 +167,7 @@ def makeOIHitSet():
       ErrorRescaling = cms.double(3.0),
       SigmaZ = cms.double(25.0),       
       SimTrackCollectionLabel = cms.InputTag("famosSimHits"),
-      HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits"),
+      HitProducer = cms.InputTag("fastMatchedTrackerRecHitCombinations"),
       UseVertexState = cms.bool( True ),
       UpdateState = cms.bool( True ), #fixme
       SelectState = cms.bool( False )

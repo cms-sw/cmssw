@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# output block for alcastream HCAL Min Bias
+# output block for alcastream HCAL Pedestal
 # output module 
 #  module alcastreamHcalMinbiasOutput = PoolOutputModule
 
@@ -9,14 +9,10 @@ OutALCARECOHcalCalPedestal_noDrop = cms.PSet(
         SelectEvents = cms.vstring('pathALCARECOHcalCalPedestal')
     ),
     outputCommands = cms.untracked.vstring(
-	'keep *_gtDigisAlCaMB_*_*',
-        'keep HBHERecHitsSorted_hbherecoMB_*_*',
-        'keep HORecHitsSorted_horecoMB_*_*',
-        'keep HFRecHitsSorted_hfrecoMB_*_*',
-        'keep HFRecHitsSorted_hfrecoMBspecial_*_*',
-        'keep HBHERecHitsSorted_hbherecoNoise_*_*',
-        'keep HORecHitsSorted_horecoNoise_*_*',
-        'keep HFRecHitsSorted_hfrecoNoise_*_*')
+        'keep *_gtDigisAlCaPedestal_*_*',
+        'keep HBHERecHitsSorted_hbherecoPedestal_*_*',
+        'keep HORecHitsSorted_horecoPedestal_*_*',
+        'keep HFRecHitsSorted_hfrecoPedestal_*_*')
 )
 
 import copy

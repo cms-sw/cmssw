@@ -154,9 +154,14 @@ trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                    )
 trackValidator.useLogPt=cms.untracked.bool(True)
 trackValidator.dodEdxPlots = True
+trackValidator.doPVAssociationPlots = True
 #trackValidator.minpT = cms.double(-1)
 #trackValidator.maxpT = cms.double(3)
 #trackValidator.nintpT = cms.int32(40)
+
+from Configuration.StandardSequences.Eras import eras
+if eras.fastSim.isChosen():
+    trackValidator.dodEdxPlots = False
 
 # For efficiency of signal TPs vs. signal tracks, and fake rate of
 # signal tracks vs. signal TPs
@@ -170,7 +175,8 @@ trackValidatorFromPV = trackValidator.clone(
     label_tp_fake = "trackingParticlesSignal",
     associators = ["trackingParticleRecoTrackAsssociationSignal"],
     trackCollectionForDrCalculation = "generalTracksFromPV",
-    doPlotsOnlyForTruePV = True
+    doPlotsOnlyForTruePV = True,
+    doPVAssociationPlots = False,
 )
 trackValidatorFromPVStandalone = trackValidatorFromPV.clone()
 trackValidatorFromPVStandalone.label.extend([
@@ -219,6 +225,7 @@ trackValidatorAllTPEffic = trackValidator.clone(
     ],
     doSimPlots = False,
     doRecoTrackPlots = False, # Fake rate of all tracks vs. all TPs is already included in trackValidator
+    doPVAssociationPlots = False,
 )
 trackValidatorAllTPEffic.histoProducerAlgoBlock.generalTpSelector.signalOnly = False
 trackValidatorAllTPEffic.histoProducerAlgoBlock.TpSelectorForEfficiencyVsEta.signalOnly = False
@@ -292,16 +299,18 @@ tracksValidationTruth = cms.Sequence(
     trackingParticleRecoTrackAsssociation +
     VertexAssociatorByPositionAndTracks
 )
+
 tracksValidationTruthSignal = cms.Sequence(
     cms.ignore(trackingParticlesSignal) +
     tpClusterProducerSignal +
     quickTrackAssociatorByHitsSignal +
     trackingParticleRecoTrackAsssociationSignal
 )
-tracksValidationTruthFS = cms.Sequence(
-    quickTrackAssociatorByHits +
-    trackingParticleRecoTrackAsssociation
-)
+
+if eras.fastSim.isChosen():
+    tracksValidationTruth.remove(tpClusterProducer)
+    tracksValidationTruthSignal.remove(tpClusterProducerSignal)
+
 
 tracksPreValidation = cms.Sequence(
     tracksValidationSelectors +
@@ -313,10 +322,6 @@ tracksPreValidationStandalone = cms.Sequence(
     tracksPreValidation +
     tracksValidationSelectorsFromPVStandalone
 )
-tracksPreValidationFS = cms.Sequence(
-    tracksValidationSelectors +
-    tracksValidationTruthFS
-)
 
 # selectors go into separate "prevalidation" sequence
 tracksValidation = cms.Sequence(
@@ -325,7 +330,6 @@ tracksValidation = cms.Sequence(
     trackValidatorFromPVAllTP +
     trackValidatorAllTPEffic
 )
-tracksValidationFS = cms.Sequence( trackValidator )
 
 tracksValidationStandalone = cms.Sequence(
     ak4PFL1FastL2L3CorrectorChain+
@@ -334,4 +338,24 @@ tracksValidationStandalone = cms.Sequence(
     trackValidatorFromPVStandalone +
     trackValidatorFromPVAllTPStandalone +
     trackValidatorAllTPEfficStandalone
+)
+
+# 'slim' sequences that only depend on track and tracking particle collections
+tracksValidationSelectorsSlim = tracksValidationSelectors.copyAndExclude([cutsRecoTracksBtvLike,ak4JetTracksAssociatorAtVertexPFAll,cutsRecoTracksAK4PFJets])
+
+tracksPreValidationSlim = cms.Sequence(
+    tracksValidationSelectorsSlim +
+    tracksValidationTruth
+)
+
+trackValidatorSlim = trackValidator.clone(
+    doPVAssociationPlots = cms.untracked.bool(False),
+    dodEdxPlots = False
+)
+for _label in [cms.InputTag("cutsRecoTracksBtvLike"),cms.InputTag("cutsRecoTracksAK4PFJets")]:
+    trackValidatorSlim.label.remove(_label)
+
+tracksValidationSlim = cms.Sequence(
+    tracksPreValidationSlim+
+    trackValidatorSlim
 )

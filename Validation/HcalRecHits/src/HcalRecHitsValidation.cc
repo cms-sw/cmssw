@@ -28,7 +28,7 @@ HcalRecHitsValidation::HcalRecHitsValidation(edm::ParameterSet const& conf) {
   tok_ho_   = consumes<HORecHitCollection>(conf.getUntrackedParameter<edm::InputTag>("HORecHitCollectionLabel"));
 
   // register for data access
-  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+  tok_evt_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   tok_EB_ = consumes<EBRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
   tok_EE_ = consumes<EERecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
   tok_hh_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
@@ -65,6 +65,8 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
   Char_t histo[200];
 
     ib.setCurrentFolder("HcalRecHitsV/HcalRecHitTask");
+
+
 
     // General counters (drawn)
     sprintf  (histo, "N_HB" );
@@ -333,6 +335,12 @@ void HcalRecHitsValidation::bookHistograms(DQMStore::IBooker &ib, edm::Run const
       sprintf (histo, "HcalRecHitTask_RecHit_Aux_StatusWord_HO" ) ;
       RecHit_Aux_StatusWord_HO = ib.book1D(histo, histo, 32 , -0.5, 31.5); 
 
+      //Status word correlation plots
+      sprintf (histo, "HcalRecHitTask_RecHit_StatusWordCorr_HB");
+      RecHit_StatusWordCorr_HB = ib.book2D(histo, histo, 2, -0.5, 1.5, 2, -0.5, 1.5);
+
+      sprintf (histo, "HcalRecHitTask_RecHit_StatusWordCorr_HE");
+      RecHit_StatusWordCorr_HE = ib.book2D(histo, histo, 2, -0.5, 1.5, 2, -0.5, 1.5);
       //These are not drawn
       if(imc !=0 && useAllHistos_) { 
 	sprintf  (histo, "map_econe_depth1" );
@@ -1048,6 +1056,28 @@ void HcalRecHitsValidation::analyze(edm::Event const& ev, edm::EventSetup const&
     //32-bit status word  
     uint32_t statadd;
     unsigned int isw67 = 0;
+
+    //Status word correlation
+    unsigned int sw27 = 27;
+    unsigned int sw13 = 13;
+
+    uint32_t statadd27 = 0x1<<sw27;
+    uint32_t statadd13 = 0x1<<sw13;
+
+    float status27 = 0;
+    float status13 = 0;
+
+    if(stwd & statadd27) status27 = 1;
+    if(stwd & statadd13) status13 = 1;
+
+    if        (sub == 1){
+      RecHit_StatusWordCorr_HB->Fill(status13, status27);
+    } else if (sub == 2){
+      RecHit_StatusWordCorr_HE->Fill(status13, status27);
+    }
+
+
+
     for (unsigned int isw = 0; isw < 32; isw++){
       statadd = 0x1<<(isw);
       if (stwd & statadd){

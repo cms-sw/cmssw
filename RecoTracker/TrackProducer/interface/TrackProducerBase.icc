@@ -186,15 +186,17 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
     //WARNING: we are assuming that the hits were originally sorted along momentum (and therefore oppositeToMomentum after smoothing)
     PropagationDirection dirForInnerLayers = oppositeToMomentum;
     PropagationDirection dirForOuterLayers = alongMomentum;
-    if(traj->direction() != oppositeToMomentum){
+    auto outIn = traj->direction() != oppositeToMomentum;
+    if(outIn){
 	dirForInnerLayers = alongMomentum;
 	dirForOuterLayers = oppositeToMomentum;
-       //throw cms::Exception("TrackProducer") 
-	//<< "ERROR in setSecondHitPattern() logic. Trajectory direction (after smoothing) was not oppositeToMomentum. Bailing out.." << std::endl;
+        // std::cout << "Iin setSecondHitPattern() logic. Trajectory direction (after smoothing) was not oppositeToMomentum. .. algo= " << track.algo() << std::endl;
     }
     // ----------- this previous block of code is not very safe. It should rely less on the sorting of the trajectory measurements -----
 
    
+    // Now all code looks as InOut in particular names
+    // we will take care of OutIn only where it matters (MISSING_INNER vs _OUTER)
     
     LogDebug("TrackProducer") << "calling inner compLayers()...";
     auto innerCompLayers = (*theSchool).compatibleLayers(*innerLayer,*innerState,dirForInnerLayers);
@@ -227,7 +229,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
         MeasurementDetWithData measDet = measTk->idToDet(id);
         //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){
         if(measDet.isActive()){ 
-	        InvalidTrackingRecHit tmpHit(*detWithState.front().first, TrackingRecHit::missing_inner);
+	        InvalidTrackingRecHit tmpHit(*detWithState.front().first, outIn ? TrackingRecHit::missing_outer : TrackingRecHit::missing_inner);
 	        track.appendHitPattern(tmpHit, *ttopo);
 	        //cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
         }else{
@@ -249,7 +251,7 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       MeasurementDetWithData measDet = measTk->idToDet(id);	
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet.isActive()){
-          InvalidTrackingRecHit tmpHit(*detWithState.front().first,TrackingRecHit::missing_outer);
+          InvalidTrackingRecHit tmpHit(*detWithState.front().first, outIn ? TrackingRecHit::missing_inner : TrackingRecHit::missing_outer);
           track.appendHitPattern(tmpHit, *ttopo);
 	      //cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
       }else{

@@ -12,10 +12,11 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h"
 
 #include <memory>
 #include <vector>
+
+class FastTrackerRecHit;
 
 namespace edm {
   class ModuleCallingContext;

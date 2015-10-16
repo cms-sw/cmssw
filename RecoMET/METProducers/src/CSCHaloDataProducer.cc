@@ -25,6 +25,10 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   //RecHit Level
   IT_CSCRecHit   = iConfig.getParameter<edm::InputTag>("CSCRecHitLabel");
 
+  //Calo RecHit
+  IT_HBHErh = iConfig.getParameter<edm::InputTag>("HBHErhLabel");
+  IT_ECALBrh= iConfig.getParameter<edm::InputTag>("ECALBrhLabel");
+  IT_ECALErh= iConfig.getParameter<edm::InputTag>("ECALErhLabel");
   //Higher Level Reco 
   IT_CSCSegment = iConfig.getParameter<edm::InputTag>("CSCSegmentLabel");  
   IT_CosmicMuon = iConfig.getParameter<edm::InputTag>("CosmicMuonLabel"); 
@@ -33,11 +37,9 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   IT_ALCT = iConfig.getParameter<edm::InputTag>("ALCTDigiLabel"); 
 
   //Muon to Segment Matching
-  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  TheService = new MuonServiceProxy(serviceParameters);
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
   edm::ConsumesCollector iC = consumesCollector();
-  TheMatcher = new MuonSegmentMatcher(matchParameters, TheService,iC);
+  TheMatcher = new MuonSegmentMatcher(matchParameters, iC);
 
   // Cosmic track selection parameters
   CSCAlgo.SetDetaThreshold( (float) iConfig.getParameter<double>("DetaParam"));
@@ -69,6 +71,9 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   cscrechit_token_  = consumes<CSCRecHit2DCollection>(IT_CSCRecHit);
   cscalct_token_    = consumes<CSCALCTDigiCollection>(IT_ALCT);
   l1mugmtro_token_  = consumes<L1MuGMTReadoutCollection>(IT_L1MuGMTReadout);
+  hbhereco_token_   = consumes<HBHERecHitCollection>(IT_HBHErh);
+  EcalRecHitsEB_token_ = consumes<EcalRecHitCollection>(IT_ECALBrh);
+  EcalRecHitsEE_token_ = consumes<EcalRecHitCollection>(IT_ECALErh);
   hltresult_token_  = consumes<edm::TriggerResults>(IT_HLTResult);
 
   produces<CSCHaloData>();
@@ -115,6 +120,14 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //  iEvent.getByLabel (IT_ALCT, TheALCTs);
   iEvent.getByToken(cscalct_token_, TheALCTs);
 
+  //Calo rec hits
+  Handle<HBHERecHitCollection> hbhehits;
+  iEvent.getByToken(hbhereco_token_,hbhehits);
+  Handle<EcalRecHitCollection> ecalebhits;
+  iEvent.getByToken(EcalRecHitsEB_token_, ecalebhits);
+  Handle<EcalRecHitCollection> ecaleehits;
+  iEvent.getByToken(EcalRecHitsEE_token_,ecaleehits);
+  
   //Get HLT Results                                                                                                                                                       
   edm::Handle<edm::TriggerResults> TheHLTResults;
   //  iEvent.getByLabel( IT_HLTResult , TheHLTResults);
@@ -125,7 +138,7 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
     triggerNames = &iEvent.triggerNames(*TheHLTResults);
   }
 
-  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCTimeMap, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults, triggerNames, TheALCTs, TheMatcher, iEvent) ) );
+  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCTimeMap, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, hbhehits,ecalebhits,ecaleehits,TheHLTResults, triggerNames, TheALCTs, TheMatcher, iEvent, iSetup) ) );
   // Put it in the event                                                                                                                                                
   iEvent.put(TheCSCData);
   return;

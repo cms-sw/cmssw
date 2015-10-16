@@ -1,7 +1,4 @@
-
-#define protected public
 #include "TEveBoxSet.h"
-#undef protected
 #include "TEveTrack.h"
 #include "TEveTrackPropagator.h"
 #include "TEveCompound.h"
@@ -344,4 +341,4 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
    }
 }
 
-REGISTER_FWPROXYBUILDER(FWPFCandidateWithHitsProxyBuilder, reco::PFCandidateCollection,"PF CandidatesWithHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
+REGISTER_FWPROXYBUILDER(FWPFCandidateWithHitsProxyBuilder, reco::PFCandidateCollection,"PFCandidatesWithHits", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

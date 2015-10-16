@@ -65,6 +65,7 @@ protected:
      static const std::string kExtendedBaseForGlobalEDAnalyzer;
      static const std::string kExtendedBaseForGlobalEDProducer;
      static const std::string kExtendedBaseForGlobalEDFilter;
+     static const std::string kExtendedBaseForGlobalOutputModule;
 
    private:
       ParameterSetDescriptionFillerBase(const ParameterSetDescriptionFillerBase&); // stop default

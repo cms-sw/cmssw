@@ -177,5 +177,23 @@
   <class name="edm::PtrVector<reco::Muon>" />
   <class name="edm::Wrapper<edm::PtrVector<reco::Muon> >" />
 
+  <selection>
+    <class name="std::vector<EmulatedME0Segment>"/>
+    <class name="EmulatedME0Segment" ClassVersion="2">
+      <version ClassVersion="2" checksum="1065224607"/>
+    </class>
+    <class name="edm::Wrapper<std::vector<EmulatedME0Segment> >"/>
+    
+    <class name="edm::Ref<std::vector<EmulatedME0Segment>,EmulatedME0Segment,edm::refhelper::FindUsingAdvance<std::vector<EmulatedME0Segment>,EmulatedME0Segment> >"/>
+    
+    <class name="std::vector<reco::ME0Muon>"/>
+    <class name="reco::ME0Muon" ClassVersion="2">
+      <version ClassVersion="2" checksum="1314733101"/>
+    </class>
+    <class name="edm::Wrapper<std::vector<reco::ME0Muon> >"/>
+    
+    <class name="edm::Ref<std::vector<reco::ME0Muon>,reco::ME0Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::ME0Muon>,reco::ME0Muon> >"/>
+  </selection>
+  
 </lcgdict>
 

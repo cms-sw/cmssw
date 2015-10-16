@@ -137,7 +137,6 @@ def customise_Validation_Trackingonly(process):
     return process
 
 def customise_harvesting(process):
-    process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
     process.dqmHarvesting.remove(process.dataCertificationJetMET)
     #######process.dqmHarvesting.remove(process.sipixelEDAClient)
     process.sipixelEDAClient.isUpgrade = cms.untracked.bool(True)
@@ -186,7 +185,7 @@ def customise_Reco(process,pileup):
     #use with latest pixel geometry
     process.ClusterShapeHitFilterESProducer.PixelShapeFile = cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1Tk.par')
     # Need this line to stop error about missing siPixelDigis.
-    process.MeasurementTracker.inactivePixelDetectorLabels = cms.VInputTag()
+    process.MeasurementTrackerEvent.inactivePixelDetectorLabels = cms.VInputTag()
 
     # new layer list (3/4 pixel seeding) in InitialStep and pixelTracks
     process.PixelLayerTriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
@@ -219,13 +218,15 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(process.electronSeedsSeq)
     process.reconstruction_fromRECO.remove(process.initialStepSeedLayers)
     process.reconstruction_fromRECO.remove(process.initialStepSeeds)
-    process.reconstruction_fromRECO.remove(process.initialStepSelector)
+    process.reconstruction_fromRECO.remove(process.initialStepClassifier1)
+    process.reconstruction_fromRECO.remove(process.initialStepClassifier2)
+    process.reconstruction_fromRECO.remove(process.initialStepClassifier3)
     process.reconstruction_fromRECO.remove(initialStepTrackCandidates)
     process.reconstruction_fromRECO.remove(initialStepTracks)
     process.reconstruction_fromRECO.remove(lowPtTripletStepClusters)
     process.reconstruction_fromRECO.remove(lowPtTripletStepSeedLayers)
     process.reconstruction_fromRECO.remove(lowPtTripletStepSeeds)
-    process.reconstruction_fromRECO.remove(lowPtTripletStepSelector)
+    process.reconstruction_fromRECO.remove(lowPtTripletStep)
     process.reconstruction_fromRECO.remove(lowPtTripletStepTrackCandidates)
     process.reconstruction_fromRECO.remove(lowPtTripletStepTracks)
 
@@ -236,23 +237,43 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(mixedTripletStepSeeds)
     process.reconstruction_fromRECO.remove(mixedTripletStepSeedsA)
     process.reconstruction_fromRECO.remove(mixedTripletStepSeedsB)
-    process.reconstruction_fromRECO.remove(mixedTripletStepSelector)
+    process.reconstruction_fromRECO.remove(mixedTripletStepClassifier1)
+    process.reconstruction_fromRECO.remove(mixedTripletStepClassifier2)
     process.reconstruction_fromRECO.remove(mixedTripletStepTrackCandidates)
     process.reconstruction_fromRECO.remove(mixedTripletStepTracks)
 
     process.reconstruction_fromRECO.remove(pixelPairStepClusters)
     process.reconstruction_fromRECO.remove(pixelPairStepSeeds)
     process.reconstruction_fromRECO.remove(pixelPairStepSeedLayers)
-    process.reconstruction_fromRECO.remove(pixelPairStepSelector)
+    process.reconstruction_fromRECO.remove(pixelPairStep)
     process.reconstruction_fromRECO.remove(pixelPairStepTrackCandidates)
     process.reconstruction_fromRECO.remove(pixelPairStepTracks)
     
     process.reconstruction_fromRECO.remove(tobTecStepClusters)
     process.reconstruction_fromRECO.remove(tobTecStepSeeds)
     #process.reconstruction_fromRECO.remove(tobTecStepSeedLayers)
-    process.reconstruction_fromRECO.remove(tobTecStepSelector)
+    process.reconstruction_fromRECO.remove(tobTecStepClassifier1)
+    process.reconstruction_fromRECO.remove(tobTecStepClassifier2)
+    process.reconstruction_fromRECO.remove(tobTecStep)
     process.reconstruction_fromRECO.remove(tobTecStepTrackCandidates)
     process.reconstruction_fromRECO.remove(tobTecStepTracks)
+
+    # Yes, needs to be done twice for InOut...
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksInOut)
+    process.reconstruction_fromRECO.remove(process.muonSeededSeedsOutIn)
+    process.reconstruction_fromRECO.remove(process.muonSeededTrackCandidatesOutIn)
+    process.reconstruction_fromRECO.remove(process.muonSeededTracksOutIn)
+    # Why are these modules in this sequence (isn't iterTracking enough)?
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededSeedsInOut)
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededTrackCandidatesInOut)
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededTracksInOut)
+    process.muonSeededStepCoreDisplaced.remove(process.muonSeededSeedsOutIn)
+    process.muonSeededStepExtraDisplaced.remove(process.muonSeededTracksInOutClassifier)
 
     process.reconstruction_fromRECO.remove(process.convClusters)
     process.reconstruction_fromRECO.remove(process.convLayerPairs)
@@ -260,6 +281,8 @@ def customise_Reco(process,pileup):
     process.reconstruction_fromRECO.remove(process.convTrackCandidates)
     process.reconstruction_fromRECO.remove(process.convStepTracks)
     process.reconstruction_fromRECO.remove(process.photonConvTrajSeedFromSingleLeg)
+
+    process.reconstruction_fromRECO.remove(process.preDuplicateMergingGeneralTracks)
 
     # Needed to make the loading of recoFromSimDigis_cff below to work
     process.InitialStepPreSplitting.remove(siPixelClusters)
@@ -279,6 +302,10 @@ def customise_Reco(process,pileup):
     del process.PixelLessStep
     del process.TobTecStep
     del process.earlyGeneralTracks
+    del process.muonSeededStep
+    del process.muonSeededStepCore
+    del process.muonSeededStepDebug
+    del process.muonSeededStepDebugDisplaced
     del process.ConvStep
     # add the correct tracking back in
     process.load("RecoTracker.Configuration.RecoTrackerPhase1PU"+str(nPU)+"_cff")
@@ -292,8 +319,11 @@ def customise_Reco(process,pileup):
 
     process.reconstruction.remove(process.castorreco)
     process.reconstruction.remove(process.CastorTowerReco)
+    process.reconstruction.remove(process.ak5CastorJets)
+    process.reconstruction.remove(process.ak5CastorJetID)
+    process.reconstruction.remove(process.ak7CastorJets)
     #process.reconstruction.remove(process.ak7BasicJets)
-    #process.reconstruction.remove(process.ak7CastorJetID)
+    process.reconstruction.remove(process.ak7CastorJetID)
 
     #the quadruplet merger configuration     
     process.load("RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff")
@@ -350,10 +380,12 @@ def customise_Reco(process,pileup):
     process.tobTecStepSelector.vertices = "pixelVertices"
     process.muonSeededTracksInOutSelector.vertices = "pixelVertices"
     process.muonSeededTracksOutInSelector.vertices = "pixelVertices"
-    process.duplicateTrackSelector.vertices = "pixelVertices"
+    process.duplicateTrackClassifier.vertices = "pixelVertices"
     process.convStepSelector.vertices = "pixelVertices"
     process.ak4CaloJetsForTrk.srcPVs = "pixelVertices"
-    
+    process.muonSeededTracksOutInDisplacedClassifier.vertices = "pixelVertices"
+    process.duplicateDisplacedTrackClassifier.vertices = "pixelVertices"
+
     # Make pixelTracks use quadruplets
     process.pixelTracks.SeedMergerPSet = cms.PSet(
         layerList = cms.PSet(refToPSet_ = cms.string('PixelSeedMergerQuadruplets')),
@@ -364,7 +396,14 @@ def customise_Reco(process,pileup):
     process.pixelTracks.FilterPSet.chi2 = cms.double(50.0)
     process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
     process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
+    process.templates.DoLorentz=False
+    process.templates.LoadTemplatesFromDB = cms.bool(False)
+    process.PixelCPEGenericESProducer.useLAWidthFromDB = cms.bool(False)
 
-
+    # This probably breaks badly the "displaced muon" reconstruction,
+    # but let's do it for now, until the upgrade tracking sequences
+    # are modernized
+    process.preDuplicateMergingDisplacedTracks.inputClassifiers.remove("muonSeededTracksInOutClassifier")
+    process.preDuplicateMergingDisplacedTracks.trackProducers.remove("muonSeededTracksInOut")
 
     return process

@@ -82,8 +82,12 @@
   <class name="edm::Wrapper<reco::SimToRecoCollection>" />
   <class name="edm::Wrapper<reco::RecoToSimCollection>" />
 
-  <class name="reco::SimToRecoCollection" />
-  <class name="reco::RecoToSimCollection" />
+  <class name="reco::SimToRecoCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
+  <class name="reco::RecoToSimCollection" >
+   <field name="transientMap_" transient="true"/>
+  </class>
 
 
   <class name="edm::ValueMap<reco::IsoDeposit>" />

@@ -112,13 +112,81 @@ def customiseFor10234(process):
             delattr(process.hltCaloStage1Digis, 'FedId')
     return process
 
+def customiseFor10353(process):
+    # Take care of geometry changes in HCAL
+    if not hasattr(process,'hcalDDDSimConstants'):
+        process.hcalDDDSimConstants = cms.ESProducer( 'HcalDDDSimConstantsESModule' )
+    if not hasattr(process,'hcalDDDRecConstants'):
+        process.hcalDDDRecConstants = cms.ESProducer( 'HcalDDDRecConstantsESModule' )
+    return process
+
+# upgrade RecoTrackSelector to allow selection on originalAlgo (PR #10418)
+def customiseFor10418(process):
+    if hasattr(process,'hltBSoftMuonMu5L3') :
+       setattr(process.hltBSoftMuonMu5L3,'originalAlgorithm', cms.vstring())
+       setattr(process.hltBSoftMuonMu5L3,'algorithmMaskContains', cms.vstring())
+    return process
+
+# migrate RPCPointProducer to a global::EDProducer (PR #10927)
+def customiseFor10927(process):
+    if any(module.type_() is 'RPCPointProducer' for module in process.producers.itervalues()):
+        if not hasattr(process, 'CSCObjectMapESProducer'):
+            process.CSCObjectMapESProducer = cms.ESProducer( 'CSCObjectMapESProducer' )
+        if not hasattr(process, 'DTObjectMapESProducer'):
+            process.DTObjectMapESProducer = cms.ESProducer( 'DTObjectMapESProducer' )
+    return process
+
+# change RecoTrackRefSelector to stream::EDProducer (PR #10911)
+def customiseFor10911(process):
+    if hasattr(process,'hltBSoftMuonMu5L3'):
+        # Switch module type from EDFilter to EDProducer
+        process.hltBSoftMuonMu5L3 = cms.EDProducer("RecoTrackRefSelector", **process.hltBSoftMuonMu5L3.parameters_())
+    return process
+
+# Fix MeasurementTrackerEvent configuration in several TrackingRegionProducers (PR 11183)
+def customiseFor11183(process):
+    def useMTEName(componentName):
+        if componentName in ["CandidateSeededTrackingRegionsProducer", "TrackingRegionsFromBeamSpotAndL2Tau"]:
+            return "whereToUseMeasurementTracker"
+        return "howToUseMeasurementTracker"
+
+    def replaceInPSet(pset, moduleLabel):
+        for paramName in pset.parameterNames_():
+            param = getattr(pset, paramName)
+            if isinstance(param, cms.PSet):
+                if hasattr(param, "ComponentName") and param.ComponentName.value() in ["CandidateSeededTrackingRegionsProducer", "TauRegionalPixelSeedGenerator"]:
+                    useMTE = useMTEName(param.ComponentName.value())
+
+                    if hasattr(param.RegionPSet, "measurementTrackerName"):
+                        param.RegionPSet.measurementTrackerName = cms.InputTag(param.RegionPSet.measurementTrackerName.value())
+                        if hasattr(param.RegionPSet, useMTE):
+                            raise Exception("Assumption of CandidateSeededTrackingRegionsProducer not having '%s' parameter failed" % useMTE)
+                        setattr(param.RegionPSet, useMTE, cms.string("ForSiStrips"))
+                    else:
+                        setattr(param.RegionPSet, useMTE, cms.string("Never"))
+                else:
+                    replaceInPSet(param, moduleLabel)
+            elif isinstance(param, cms.VPSet):
+                for element in param:
+                    replaceInPSet(element, moduleLabel)
+
+    for label, module in process.producers_().iteritems():
+        replaceInPSet(module, label)
+
+    return process
 
 # CMSSW version specific customizations
-def customiseHLTforCMSSW(process,menuType="GRun",fastSim=False):
+def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
     cmsswVersion = os.environ['CMSSW_VERSION']
 
+    if cmsswVersion >= "CMSSW_7_6":
+        process = customiseFor10418(process)
+        process = customiseFor10353(process)
+        process = customiseFor10911(process)
+        process = customiseFor11183(process)
     if cmsswVersion >= "CMSSW_7_5":
+        process = customiseFor10927(process)
         process = customiseFor9232(process)
         process = customiseFor8679(process)
         process = customiseFor8356(process)
@@ -128,4 +196,5 @@ def customiseHLTforCMSSW(process,menuType="GRun",fastSim=False):
         process = customizeHLTforNewJetCorrectors(process)
     if cmsswVersion >= "CMSSW_7_4":
         process = customiseFor10234(process)
+
     return process

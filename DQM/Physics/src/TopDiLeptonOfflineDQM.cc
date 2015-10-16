@@ -389,7 +389,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
 
         double pfRelIso =
             (chHadPt +
-             max(0., neHadEt + phoEt - 0.5 * muon->pfIsolationR04().sumPUPt)) /
+             std::max(0., neHadEt + phoEt - 0.5 * muon->pfIsolationR04().sumPUPt)) /
             muon->pt();  // CB dBeta corrected iso!
 
         fill("muonRelIso_", pfRelIso);
@@ -438,7 +438,7 @@ void MonitorEnsemble::fill(const edm::Event& event,
         double el_PhIso = gsf_el->pfIsolationVariables().sumPhotonEt;
         double el_pfRelIso =
             (el_ChHadIso +
-             max(0., el_NeHadIso + el_PhIso -
+             std::max(0., el_NeHadIso + el_PhIso -
                          0.5 * gsf_el->pfIsolationVariables().sumPUPt)) /
             gsf_el->pt();
         fill("elecRelIso_", el_pfRelIso);

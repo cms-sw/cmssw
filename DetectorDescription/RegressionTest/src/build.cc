@@ -1,4 +1,3 @@
-using namespace std;
 
 #include <cmath>
 #include <iostream>
@@ -21,6 +20,8 @@ using namespace std;
 
 #include <Math/RotationZ.h>
 #include <Math/AxisAngle.h>
+
+using namespace std;
 
 /*
 File setup.xml:
@@ -249,7 +250,8 @@ void testParser()
 
 void printRot(const DDRotationMatrix & rot) {
   std::cout << "rot asis\n" << rot << std::endl;
-  DD3Vector x,y,z; const_cast<DDRotationMatrix &>(rot).GetComponents(x,y,z);
+  DD3Vector x,y,z;
+  rot.GetComponents(x,y,z);
   std::cout << "components\n" 
 	    << x << "\n"
 	    << y << "\n"

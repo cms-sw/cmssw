@@ -28,7 +28,7 @@ PFClusterEMEnergyCorrector::PFClusterEMEnergyCorrector(const edm::ParameterSet& 
     autoDetectBunchSpacing_ = conf.getParameter<bool>("autoDetectBunchSpacing");
 
     if (autoDetectBunchSpacing_) {
-      bunchSpacing_ = cc.consumes<int>(edm::InputTag("addPileupInfo","bunchSpacing"));
+      bunchSpacing_ = cc.consumes<unsigned int>(edm::InputTag("bunchSpacingProducer"));
       bunchSpacingManual_ = 0;
     }
     else {
@@ -126,27 +126,12 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt, const ed
   int bunchspacing = 450;  
   
   if (autoDetectBunchSpacing_) {
-    if (evt.isRealData()) {
-      edm::RunNumber_t run = evt.run();
-      if (run == 178003 ||
-          run == 178004 ||
-          run == 209089 ||
-          run == 209106 ||
-          run == 209109 ||
-          run == 209146 ||
-          run == 209148 ||
-          run == 209151) {
-        bunchspacing = 25;
-      }
-      else {
-        bunchspacing = 50;
-      }
-    }
-    else {
-      edm::Handle<int> bunchSpacingH;
+      edm::Handle<unsigned int> bunchSpacingH;
       evt.getByToken(bunchSpacing_,bunchSpacingH);
       bunchspacing = *bunchSpacingH;
-    }
+  }
+  else {
+    bunchspacing = bunchSpacingManual_;
   }
   
   const std::vector<std::string> condnames_mean = (bunchspacing == 25) ? _condnames_mean_25ns : _condnames_mean_50ns;

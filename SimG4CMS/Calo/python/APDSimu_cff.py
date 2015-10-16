@@ -12,7 +12,7 @@ def customise(process):
 
 # use directly the generator output, no Hector
 
-    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generator')
+    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generatorSmeared')
 
 # user schedule: use only calorimeters digitization and local reconstruction
 

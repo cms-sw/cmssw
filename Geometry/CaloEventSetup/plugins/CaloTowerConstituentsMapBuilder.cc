@@ -56,7 +56,7 @@ CaloTowerConstituentsMapBuilder::fillDescriptions(edm::ConfigurationDescriptions
 
 // ------------ method called to produce the data  ------------
 CaloTowerConstituentsMapBuilder::ReturnType
-CaloTowerConstituentsMapBuilder::produce(const IdealGeometryRecord& iRecord)
+CaloTowerConstituentsMapBuilder::produce(const HcalRecNumberingRecord& iRecord)
 {
    edm::ESHandle<HcalTopology> topology ;
    iRecord.get( topology ) ;

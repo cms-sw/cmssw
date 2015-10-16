@@ -358,6 +358,20 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
       iSubDir != subDirSet.end(); ++iSubDir) {
     const string& dirName = *iSubDir;
 
+    // First normalize, then make cumulative, and only then efficiency
+    // This allows to use the cumulative distributions for efficiency calculation
+    for ( vector<NormOption>::const_iterator normOption = normOptions_.begin();
+          normOption != normOptions_.end(); ++normOption )
+    {
+      normalizeToEntries(ibooker, igetter, dirName, normOption->name, normOption->normHistName);
+    }
+
+    for ( vector<CDOption>::const_iterator cdOption = cdOptions_.begin();
+          cdOption != cdOptions_.end(); ++cdOption )
+    {
+      makeCumulativeDist(ibooker, igetter, dirName, cdOption->name);
+    }
+
     for ( vector<EfficOption>::const_iterator efficOption = efficOptions_.begin();
           efficOption != efficOptions_.end(); ++efficOption )
     {
@@ -376,17 +390,6 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
       computeProfile(ibooker, igetter, dirName, profileOption.name, profileOption.title, profileOption.srcName);
     }
 
-    for ( vector<NormOption>::const_iterator normOption = normOptions_.begin();
-          normOption != normOptions_.end(); ++normOption )
-    {
-      normalizeToEntries(ibooker, igetter, dirName, normOption->name, normOption->normHistName);
-    }
-
-    for ( vector<CDOption>::const_iterator cdOption = cdOptions_.begin();
-          cdOption != cdOptions_.end(); ++cdOption )
-    {
-      makeCumulativeDist(ibooker, igetter, dirName, cdOption->name);
-    }
   }
 
   if ( ! outputFileName_.empty() ) theDQM->save(outputFileName_);

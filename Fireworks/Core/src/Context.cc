@@ -78,6 +78,7 @@ Context::Context(FWModelChangeManager* iCM,
   m_commonPrefs(0),
   m_maxEt(1.f),
   m_maxEnergy(1.f),
+  m_hidePFBuilders(false),
   m_caloData(0),
   m_caloDataHF(0)
 {

@@ -35,34 +35,34 @@ class HcalChannelDataXml : public XMLDOMBlock
   //
   //_____ methods to set basic tags
   //
-  DOMNode * set_header_table_name(std::string name);
-  DOMNode * set_header_type(std::string type);
-  DOMNode * set_header_run_number(int run);
-  DOMNode * set_header_channel_map(std::string name);
-  DOMNode * set_elements_dataset_id(int id);
-  DOMNode * set_elements_iov_id(int id);
-  DOMNode * set_elements_iov_begin(int value);
-  DOMNode * set_elements_iov_end(int value);
-  DOMNode * set_elements_tag_id(int value);
-  DOMNode * set_elements_tag_mode(std::string value);
-  DOMNode * set_elements_tag_name(std::string value);
-  DOMNode * set_elements_detector_name(std::string value);
-  DOMNode * set_elements_comment(std::string value);
-  DOMNode * set_maps_tag_idref(int value);
-  DOMNode * set_maps_iov_idref(int value);
-  DOMNode * set_maps_dataset_idref(int value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_header_table_name(std::string name);
+  XERCES_CPP_NAMESPACE::DOMNode * set_header_type(std::string type);
+  XERCES_CPP_NAMESPACE::DOMNode * set_header_run_number(int run);
+  XERCES_CPP_NAMESPACE::DOMNode * set_header_channel_map(std::string name);
+  XERCES_CPP_NAMESPACE::DOMNode * set_elements_dataset_id(int id);
+  XERCES_CPP_NAMESPACE::DOMNode * set_elements_iov_id(int id);
+  XERCES_CPP_NAMESPACE::DOMNode * set_elements_iov_begin(int value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_elements_iov_end(int value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_elements_tag_id(int value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_elements_tag_mode(std::string value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_elements_tag_name(std::string value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_elements_detector_name(std::string value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_elements_comment(std::string value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_maps_tag_idref(int value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_maps_iov_idref(int value);
+  XERCES_CPP_NAMESPACE::DOMNode * set_maps_dataset_idref(int value);
 
   //
   //_____ add data
   //
-  DOMNode * add_dataset( void );
-  DOMNode * add_hcal_channel( DOMNode * _dataset, int ieta, int iphi, int depth, std::string subdetector );
+  XERCES_CPP_NAMESPACE::DOMNode * add_dataset( void );
+  XERCES_CPP_NAMESPACE::DOMNode * add_hcal_channel( XERCES_CPP_NAMESPACE::DOMNode * _dataset, int ieta, int iphi, int depth, std::string subdetector );
 
   //
   //_____ DATA_SET getter methods
   //
-  DOMElement * get_data_element( DOMNode * _dataset );
-  DOMElement * get_channel_element( DOMNode * _dataset );
+  XERCES_CPP_NAMESPACE::DOMElement * get_data_element( XERCES_CPP_NAMESPACE::DOMNode * _dataset );
+  XERCES_CPP_NAMESPACE::DOMElement * get_channel_element( XERCES_CPP_NAMESPACE::DOMNode * _dataset );
 
   //
   //_____ tester methods ________________________________________________
@@ -70,8 +70,8 @@ class HcalChannelDataXml : public XMLDOMBlock
 
 
  protected:  
-  MemBufInputSource * _root; // a container for the XML template;
-  MemBufInputSource * _dataset; // a container for the XML template;
+  XERCES_CPP_NAMESPACE::MemBufInputSource * _root; // a container for the XML template;
+  XERCES_CPP_NAMESPACE::MemBufInputSource * _dataset; // a container for the XML template;
   
   //
   //_____ HEADER

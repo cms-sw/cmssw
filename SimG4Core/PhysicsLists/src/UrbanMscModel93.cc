@@ -668,7 +668,7 @@ G4double UrbanMscModel93::ComputeGeomPathLength(G4double)
     return zPathLength;
   }
 
-  G4double zmean = tPathLength;
+  G4double zmean;
   if (tPathLength < currentRange*dtrl) {
     if(tau < taulim) zmean = tPathLength*(1.-0.5*tau) ;
     else             zmean = lambda0*(1.-G4Exp(-tau));

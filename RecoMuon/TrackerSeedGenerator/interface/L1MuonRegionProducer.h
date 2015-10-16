@@ -17,8 +17,8 @@ public:
 	   edm::ConsumesCollector && iC);
   virtual ~L1MuonRegionProducer(){} 
   void setL1Constraint(const L1MuGMTCand & muon); 
-  virtual std::vector<TrackingRegion* >
-      regions(const edm::Event& ev, const edm::EventSetup& es) const;
+  virtual std::vector<std::unique_ptr<TrackingRegion> >
+      regions(const edm::Event& ev, const edm::EventSetup& es) const override;
 
 private:
   // region configuration

@@ -7,7 +7,7 @@
  * \brief Clusters hadrons, partons, and jet contituents to determine the jet flavour
  *
  * This producer clusters hadrons, partons and jet contituents to determine the jet flavour. The jet flavour information
- * is stored in the event as an AssociationVector which associates an object of type JetFlavorInfo to each of the jets.
+ * is stored in the event as an AssociationVector which associates an object of type JetFlavourInfo to each of the jets.
  *
  * The producer takes as input jets and hadron and partons selected by the HadronAndPartonSelector producer. The hadron
  * and parton four-momenta are rescaled by a very small number (default rescale factor is 10e-18) which turns them into
@@ -30,38 +30,40 @@
  * - jet is considered a c jet if there is at least one c and no b "ghost" partons clustered inside it (partonFlavour = 4)
  * 
  * - jet is considered a light-flavour jet if there are light-flavour and no b or c "ghost" partons clustered inside it.
- *   The jet is assigned the flavour of the hardest light-flavour "ghost" parton clustered inside it (partonFlavour = 1,2,3, or 21)
+ *   The jet is assigned the flavour of the hardest light-flavour "ghost" parton clustered inside it (partonFlavour = 1, 2, 3, or 21)
  * 
  * - jet has an undefined flavour if there are no "ghost" partons clustered inside it (partonFlavour = 0)
  *
  * In rare instances a conflict between the hadron- and parton-based flavours can occur. In such cases it is possible to
  * keep both flavours or to give priority to the hadron-based flavour. This is controlled by the 'hadronFlavourHasPriority'
- * switch which is enabled by default. The priority is given to the hadron-based flavour as follows:
+ * switch. The priority is given to the hadron-based flavour as follows:
  * 
  * - if hadronFlavour==0 && (partonFlavour==4 || partonFlavour==5): partonFlavour is set to the flavour of the hardest
  *   light-flavour parton clustered inside the jet if such parton exists. Otherwise, the parton flavour is left undefined
  * 
  * - if hadronFlavour!=0 && hadronFlavour!=partonFlavour: partonFlavour is set equal to hadronFlavour
  *
- * The producer is also capable of assigning the flavor to subjets of fat jets, in which case it produces an additional
- * AssociationVector providing the flavour information for subjets. In order to assign the flavor to subjets, three input
+ * The producer is also capable of assigning the flavour to subjets of fat jets, in which case it produces an additional
+ * AssociationVector providing the flavour information for subjets. In order to assign the flavour to subjets, three input
  * jet collections are required:
  *
  * - jets, in this case represented by fat jets
  * 
- * - groomed jets, which is a collection of fat jets from which the subjets are derived
+ * - groomed jets, which is a collection of fat jets from which the subjets are derived (e.g. pruned, filtered, soft drop, top-tagged, etc. jets)
  * 
  * - subjets, derived from the groomed fat jets
  *
  * The "ghost" hadrons and partons clustered inside a fat jet are assigned to the closest subjet in the rapidity-phi
- * space. Once hadrons and partons have been assigned to subjets, the subjet flavor is determined in the same way as for
+ * space. Once hadrons and partons have been assigned to subjets, the subjet flavour is determined in the same way as for
  * jets. The reason for requiring three jet collections as input in order to determine the subjet flavour is to avoid
  * possible inconsistencies between the fat jet and subjet flavours (such as a non-b fat jet having a b subjet and vice
- * versa) as well as the fact that reclustering the constituents of groomed fat jets will generally result in a jet
- * collection different from the input groomed fat jets.
+ * versa) as well as the fact that re-clustering the constituents of groomed fat jets will generally result in a jet
+ * collection different from the input groomed fat jets. Also note that "ghost" particles generally cannot be clustered
+ * inside subjets in the same way this is done for fat jets. This is because some of the jet grooming techniques could
+ * reject such very soft particle. So instead, the "ghost" particles are assigned to the closest subjet.
  * 
- * In addition, "ghost" leptons can also be clustered inside jets but they are not used in any way to determine the jet
- * flavor. This functionality is disabled by default.
+ * Finally, "ghost" leptons can also be clustered inside jets but they are not used in any way to determine the jet
+ * flavour. This functionality is optional and is potentially useful to identify jets from hadronic taus.
  * 
  * For more details, please refer to
  * https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools
@@ -79,7 +81,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -136,7 +138,7 @@ class GhostInfo : public fastjet::PseudoJet::UserInfoBase{
     int m_type;
 };
 
-class JetFlavourClustering : public edm::EDProducer {
+class JetFlavourClustering : public edm::stream::EDProducer<> {
    public:
       explicit JetFlavourClustering(const edm::ParameterSet&);
       ~JetFlavourClustering();
@@ -144,15 +146,8 @@ class JetFlavourClustering : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      virtual void endRun(edm::Run&, edm::EventSetup const&);
-      virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
+  
       void insertGhosts(const edm::Handle<reco::GenParticleRefVector>& particles,
                         const double ghostRescaling,
                         const bool isHadron, const bool isbHadron, const bool isParton, const bool isLepton,
@@ -182,12 +177,12 @@ class JetFlavourClustering : public edm::EDProducer {
 
       // ----------member data ---------------------------
       const edm::EDGetTokenT<edm::View<reco::Jet> >      jetsToken_;        // Input jet collection
-      const edm::EDGetTokenT<edm::View<reco::Jet> >      groomedJetsToken_; // Input groomed jet collection
-      const edm::EDGetTokenT<edm::View<reco::Jet> >      subjetsToken_;     // Input subjet collection
+      edm::EDGetTokenT<edm::View<reco::Jet> >      groomedJetsToken_; // Input groomed jet collection
+      edm::EDGetTokenT<edm::View<reco::Jet> >      subjetsToken_;     // Input subjet collection
       const edm::EDGetTokenT<reco::GenParticleRefVector> bHadronsToken_;    // Input b hadron collection
       const edm::EDGetTokenT<reco::GenParticleRefVector> cHadronsToken_;    // Input c hadron collection
       const edm::EDGetTokenT<reco::GenParticleRefVector> partonsToken_;     // Input parton collection
-      const edm::EDGetTokenT<reco::GenParticleRefVector> leptonsToken_;     // Input lepton collection
+      edm::EDGetTokenT<reco::GenParticleRefVector> leptonsToken_;     // Input lepton collection
 
       const std::string   jetAlgorithm_;
       const double        rParam_;
@@ -212,12 +207,9 @@ class JetFlavourClustering : public edm::EDProducer {
 JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
 
    jetsToken_(consumes<edm::View<reco::Jet> >( iConfig.getParameter<edm::InputTag>("jets")) ),
-   groomedJetsToken_(mayConsume<edm::View<reco::Jet> >( iConfig.exists("groomedJets") ? iConfig.getParameter<edm::InputTag>("groomedJets") : edm::InputTag() )),
-   subjetsToken_(mayConsume<edm::View<reco::Jet> >( iConfig.exists("subjets") ? iConfig.getParameter<edm::InputTag>("subjets") : edm::InputTag() )),
    bHadronsToken_(consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("bHadrons") )),
    cHadronsToken_(consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("cHadrons") )),
    partonsToken_(consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("partons") )),
-   leptonsToken_(mayConsume<reco::GenParticleRefVector>( iConfig.exists("leptons") ? iConfig.getParameter<edm::InputTag>("leptons") : edm::InputTag() )),
    jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
    rParam_(iConfig.getParameter<double>("rParam")),
    jetPtMin_(0.), // hardcoded to 0. since we simply want to recluster all input jets which already had some PtMin applied
@@ -242,6 +234,15 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
      fjJetDefinition_= JetDefPtr( new fastjet::JetDefinition(fastjet::antikt_algorithm, rParam_) );
    else
      throw cms::Exception("InvalidJetAlgorithm") << "Jet clustering algorithm is invalid: " << jetAlgorithm_ << ", use CambridgeAachen | Kt | AntiKt" << std::endl;
+
+   if (useSubjets_) {
+     groomedJetsToken_=consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("groomedJets"));
+     subjetsToken_=consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("subjets"));
+   }
+   if ( useLeptons_ ) {
+     leptonsToken_=consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("leptons") );
+   }
+
 }
 
 
@@ -301,6 +302,10 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      for( m = constituents.begin(); m != constituents.end(); ++m )
      {
        reco::CandidatePtr constit = *m;
+       if(!constit.isNonnull() || !constit.isAvailable()) {
+         edm::LogError("MissingJetConstituent") << "Jet constituent required for jet reclustering is missing. Reclustered jets are not guaranteed to reproduce the original jets!";
+         continue;
+       }
        if(constit->pt() == 0)
        {
          edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
@@ -707,41 +712,6 @@ JetFlavourClustering::assignToSubjets(const reco::GenParticleRefVector& clustere
 
      assignedParticles.at(closestSubjetIdx).push_back( *it );
    }
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-JetFlavourClustering::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-JetFlavourClustering::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-void
-JetFlavourClustering::beginRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void
-JetFlavourClustering::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void
-JetFlavourClustering::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void
-JetFlavourClustering::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
 }
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------

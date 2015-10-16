@@ -29,7 +29,7 @@ mix = cms.EDProducer("MixingModule",
 
     mixObjects = cms.PSet(
         mixHepMC = cms.PSet(
-            input = cms.VInputTag(cms.InputTag("generator")),
+            input = cms.VInputTag(cms.InputTag("generator","unsmeared"),cms.InputTag("generator")),
             makeCrossingFrame = cms.untracked.bool(True),
             type = cms.string('HepMCProduct')
             )

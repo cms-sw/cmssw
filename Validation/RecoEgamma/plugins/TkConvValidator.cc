@@ -146,7 +146,7 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
         edm::InputTag("tpSelecForEfficiency"));
     tpSelForFake_Token_ = consumes<TrackingParticleCollection> (
         edm::InputTag("tpSelecForFakeRate"));
-    hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+    hepMC_Token_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
     genjets_Token_ = consumes<reco::GenJetCollection>(
         edm::InputTag("ak4GenJets"));
 

@@ -89,19 +89,7 @@ namespace edm {
       map_type m_map;
     };
 
-    /// Associated free functions.
-
-    /// Save the ParameterSetID of the top-level ParameterSet.
-    void setProcessParameterSetID(ParameterSetID const& id);
-
-    /// Return the ParameterSetID of the top-level ParameterSet.
-    /// Note the the returned ParameterSetID may be invalid;
-    /// this will happen if the Registry has not yet been filled.
-    ParameterSetID getProcessParameterSetID();
   }  // namespace pset
-
-  ParameterSet const& getProcessParameterSet();
-
 }  // namespace edm
 
 #endif

@@ -41,6 +41,10 @@
             /// destructor
             virtual ~MultiTrackSelector() ;
 
+           using MVACollection = std::vector<float>;
+           using QualityMaskCollection = std::vector<unsigned char>;
+
+
         protected:
             void beginStream(edm::StreamID) override final;
  

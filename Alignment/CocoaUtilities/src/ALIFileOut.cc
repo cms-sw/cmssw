@@ -19,7 +19,7 @@ std::vector<ALIFileOut*> ALIFileOut::theInstances;
 ALIFileOut& ALIFileOut::getInstance( const ALIstring& filename )
 {
   std::vector<ALIFileOut*>::const_iterator vfcite;
-  for( vfcite = theInstances.begin(); vfcite != theInstances.end(); vfcite++) {
+  for( vfcite = theInstances.begin(); vfcite != theInstances.end(); ++vfcite) {
     if( (*vfcite)->name() == filename) {
       return *(*vfcite);
       break;

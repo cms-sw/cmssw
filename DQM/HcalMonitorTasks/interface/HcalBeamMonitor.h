@@ -4,7 +4,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBaseDQMonitor.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
@@ -32,8 +32,8 @@ class HcalBeamMonitor:  public HcalBaseDQMonitor {
 		    const  HORecHitCollection& hoHits, 
 		    const  HFRecHitCollection& hfHits,
 		    const  HFDigiCollection& hf,
-		    int    bunchCrossing
-		    );
+		    int    bunchCrossing,
+		    const HcalTopology& topology);
 
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 			  const edm::EventSetup& c);

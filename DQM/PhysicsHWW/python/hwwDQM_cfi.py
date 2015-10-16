@@ -1,18 +1,14 @@
 from DQM.PhysicsHWW.hwwAnalyzer_cfi import *
-from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi import *
 from RecoBTag.Configuration.RecoBTag_cff import *
 
-PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
-PFJetTracksAssociatorAtVertex.jets = "ak4PFJets"
-PFJetTracksAssociatorAtVertex.tracks = "generalTracks"
-PFImpactParameterTagInfos = impactParameterTagInfos.clone()
-PFImpactParameterTagInfos.jetTracks = "PFJetTracksAssociatorAtVertex"
-PFTrackCountingHighEffBJetTags = trackCountingHighEffBJetTags.clone()
+PFImpactParameterTagInfos = pfImpactParameterTagInfos.clone()
+PFImpactParameterTagInfos.jets = "ak4PFJets"
+PFTrackCountingHighEffBJetTags = pfTrackCountingHighEffBJetTags.clone()
 PFTrackCountingHighEffBJetTags.tagInfos = cms.VInputTag( cms.InputTag("PFImpactParameterTagInfos") )
 
 SkipEvent = cms.untracked.vstring('ProductNotFound')
 
-hwwDQM = cms.Sequence(PFJetTracksAssociatorAtVertex*PFImpactParameterTagInfos*
+hwwDQM = cms.Sequence(PFImpactParameterTagInfos*
                       PFTrackCountingHighEffBJetTags*
                       hwwAnalyzer
                      )

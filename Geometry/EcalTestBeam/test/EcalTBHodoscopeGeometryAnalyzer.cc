@@ -19,7 +19,7 @@
 #include <cmath>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -41,15 +41,18 @@
 // class decleration
 //
 
-class EcalTBHodoscopeGeometryAnalyzer : public edm::EDAnalyzer {
-   public:
-      explicit EcalTBHodoscopeGeometryAnalyzer( const edm::ParameterSet& );
-      ~EcalTBHodoscopeGeometryAnalyzer();
+class EcalTBHodoscopeGeometryAnalyzer : public edm::one::EDAnalyzer<>
+{
+public:
+  explicit EcalTBHodoscopeGeometryAnalyzer( const edm::ParameterSet& );
+  ~EcalTBHodoscopeGeometryAnalyzer();
 
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-      virtual void analyze( const edm::Event&, const edm::EventSetup& );
-   private:
-      // ----------member data ---------------------------
+private:
+
   void build(const CaloGeometry& cg, DetId::Detector det, int subdetn);
 
   CLHEP::HepRotation * fromCMStoTB( const double & myEta , const double & myPhi ) const;

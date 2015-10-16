@@ -94,6 +94,8 @@ private:
   //Splite the resolution histograms for cvs uploading
   TFile* thePixelResolutionFile2;
   std::string thePixelResolutionFileName2;
+  TFile* thePixelResolutionFile3;
+  std::string thePixelResolutionFileName3;
 
   unsigned int theLayer;
   // output

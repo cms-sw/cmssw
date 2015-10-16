@@ -64,8 +64,8 @@ TrackerHitAssociator::Config::Config(const edm::ParameterSet& conf, edm::Consume
   doTrackAssoc_( conf.getParameter<bool>("associateRecoTracks") ),
   assocHitbySimTrack_(conf.existsAs<bool>("associateHitbySimTrack") ? conf.getParameter<bool>("associateHitbySimTrack") : false) {
 
-  if(doStrip_) stripToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
-  if(doPixel_) pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(edm::InputTag("simSiPixelDigis"));
+  if(doStrip_) stripToken_ = iC.consumes<edm::DetSetVector<StripDigiSimLink> >(conf.getParameter<edm::InputTag>("stripSimLinkSrc"));
+  if(doPixel_) pixelToken_ = iC.consumes<edm::DetSetVector<PixelDigiSimLink> >(conf.getParameter<edm::InputTag>("pixelSimLinkSrc"));
   if(!doTrackAssoc_) {
     std::vector<std::string> trackerContainers(conf.getParameter<std::vector<std::string> >("ROUList"));
     cfTokens_.reserve(trackerContainers.size());
@@ -209,36 +209,43 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
     //   <collection, index> = <<subdet, tofBin>, index>
 
     //check if the recHit is a SiStripMatchedRecHit2D
-    bool isMatchedHit = false;
-    if(dynamic_cast<const SiStripMatchedRecHit2D *>(&thit))
-      isMatchedHit = true;
-
-    size_t simtrackidSize = simtrackid.size();
-    for(size_t i=0, simhitCFPosSize = simhitCFPos.size(); i<simhitCFPosSize; ++i) {
-      simhitAddr theSimHitAddr = simhitCFPos[i];
-      simHitCollectionID theSimHitCollID = theSimHitAddr.first;
-      simhit_collectionMap::const_iterator it = SimHitCollMap.find(theSimHitCollID);
-      if (it!= SimHitCollMap.end()) {
-	unsigned int theSimHitIndex = theSimHitAddr.second;
-	if (theSimHitIndex < (it->second).size()) {
-	  const PSimHit& theSimHit = (it->second)[theSimHitIndex];
-	  if (isMatchedHit) {
-	    // Try to remove ghosts by requiring a match to the simTrack also
-	    unsigned int simHitid = theSimHit.trackId();
-	    EncodedEventId simHiteid = theSimHit.eventId();
-	    for(size_t i=0; i<simtrackidSize;++i) {
-	      if(simHitid == simtrackid[i].first && simHiteid == simtrackid[i].second) {
-		result.push_back(theSimHit);
-	      }
-	    }
-	  } else {
-	    result.push_back(theSimHit);
-	  }
+    if(dynamic_cast<const SiStripMatchedRecHit2D *>(&thit)) {
+      for(auto const& theSimHitAddr : simhitCFPos) {
+        simHitCollectionID theSimHitCollID = theSimHitAddr.first;
+        simhit_collectionMap::const_iterator it = SimHitCollMap.find(theSimHitCollID);
+        if (it!= SimHitCollMap.end()) {
+          unsigned int theSimHitIndex = theSimHitAddr.second;
+          if (theSimHitIndex < (it->second).size()) {
+            const PSimHit& theSimHit = (it->second)[theSimHitIndex];
+            // Try to remove ghosts by requiring a match to the simTrack also
+            unsigned int simHitid = theSimHit.trackId();
+            EncodedEventId simHiteid = theSimHit.eventId();
+            for(auto const& id : simtrackid) {
+              if(simHitid == id.first && simHiteid == id.second) {
+                result.push_back(theSimHit);
+              }
+            } 
           // std::cout << "by CFpos, simHit detId =  " << theSimHit.detUnitId() << " address = (" << (theSimHitAddr.first).first
 	  // 	    << ", " << (theSimHitAddr.first).second << ", " << theSimHitIndex
 	  // 	    << "), process = " << theSimHit.processType() << " (" << theSimHit.eventId().bunchCrossing()
 	  // 	    << ", " << theSimHit.eventId().event() << ", " << theSimHit.trackId() << ")" << std::endl;
-	}
+	  }
+        }
+      }
+    } else {
+      for(auto const& theSimHitAddr : simhitCFPos) {
+        simHitCollectionID theSimHitCollID = theSimHitAddr.first;
+        simhit_collectionMap::const_iterator it = SimHitCollMap.find(theSimHitCollID);
+        if (it!= SimHitCollMap.end()) {
+          unsigned int theSimHitIndex = theSimHitAddr.second;
+          if (theSimHitIndex < (it->second).size()) {
+             result.push_back((it->second)[theSimHitIndex]);
+          // std::cout << "by CFpos, simHit detId =  " << theSimHit.detUnitId() << " address = (" << (theSimHitAddr.first).first
+	  // 	    << ", " << (theSimHitAddr.first).second << ", " << theSimHitIndex
+	  // 	    << "), process = " << theSimHit.processType() << " (" << theSimHit.eventId().bunchCrossing()
+	  // 	    << ", " << theSimHit.eventId().event() << ", " << theSimHit.trackId() << ")" << std::endl;
+          }
+        }
       }
     }
     return result;
@@ -249,23 +256,21 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   if (it!= SimHitMap.end()) {
     vector<PSimHit>::const_iterator simHitIter = (it->second).begin();
     vector<PSimHit>::const_iterator simHitIterEnd = (it->second).end();
-    size_t simtrackidSize = simtrackid.size();
     for (;simHitIter != simHitIterEnd; ++simHitIter) {
       const PSimHit& ihit = *simHitIter;
       unsigned int simHitid = ihit.trackId();
       EncodedEventId simHiteid = ihit.eventId();
       // std::cout << "by simTk, simHit, process = " << ihit.processType() << " (" << ihit.eventId().bunchCrossing()
       // 		<< ", " << ihit.eventId().event() << ", " << ihit.trackId() << ")";
-	
-      for(size_t i=0; i<simtrackidSize;++i) {
-	if(simHitid == simtrackid[i].first && simHiteid == simtrackid[i].second) {
+      for(auto id : simtrackid) {
+        if(simHitid == id.first && simHiteid == id.second) {
 // 	    	cout << "Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
 //                   << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl;
 	  // std::cout << " matches";
 	  result.push_back(ihit);
 	  break;
-	}
-      }
+        }
+      } 
       // std::cout << std::endl;
     }
 
@@ -281,13 +286,12 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
       simHitVector.insert(simHitVector.end(),(itster->second).begin(),(itster->second).end());
       vector<PSimHit>::const_iterator simHitIter = simHitVector.begin();
       vector<PSimHit>::const_iterator simHitIterEnd = simHitVector.end();
-      size_t simtrackidSize = simtrackid.size();
       for (;simHitIter != simHitIterEnd; ++simHitIter) {
 	const PSimHit& ihit = *simHitIter;
 	unsigned int simHitid = ihit.trackId();
 	EncodedEventId simHiteid = ihit.eventId();
-	for(size_t i=0; i<simtrackidSize; ++i) {
-	  if(simHitid == simtrackid[i].first && simHiteid == simtrackid[i].second) { 
+	for(auto const& id : simtrackid) {
+	  if(simHitid == id.first && simHiteid == id.second) { 
 // 	  if(simHitid == simtrackid[i].first && simHiteid.bunchCrossing() == simtrackid[i].second.bunchCrossing()) {
 	    //	  cout << "GluedDet Associator ---> ID" << ihit.trackId() << " Simhit x= " << ihit.localPosition().x() 
             //         << " y= " <<  ihit.localPosition().y() << " z= " <<  ihit.localPosition().x() << endl; 
@@ -367,14 +371,14 @@ void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vect
 	}
       }
     //check if these are GSRecHits (from FastSim)
-    if(const GSSiTrackerRecHit2DLocalPos * rechit = dynamic_cast<const GSSiTrackerRecHit2DLocalPos *>(&thit))
+    if(trackerHitRTTI::isFast(thit))
       {
-	simtkid = associateGSRecHit(rechit);
-      }  
+	  simtkid = associateFastRecHit(static_cast<const FastTrackerRecHit *>(&thit));
+      }
 }
 
 template<typename T>
-void TrackerHitAssociator::associateSiStripRecHit(const T *simplerechit, std::vector<SimHitIdpr>& simtrackid, std::vector<simhitAddr>* simhitCFPos) const
+inline void TrackerHitAssociator::associateSiStripRecHit(const T *simplerechit, std::vector<SimHitIdpr>& simtrackid, std::vector<simhitAddr>* simhitCFPos) const
 {
   const SiStripCluster* clust = &(*simplerechit->cluster());
   associateSimpleRecHitCluster(clust, simplerechit->geographicalId(), simtrackid, simhitCFPos);
@@ -390,8 +394,7 @@ void TrackerHitAssociator::associateCluster(const SiStripCluster* clust,
   std::vector<simhitAddr> simhitCFPos;
   associateSimpleRecHitCluster(clust, detid, simtrackid, &simhitCFPos);
 
-  for(size_t i=0, simhitCFPosSize = simhitCFPos.size(); i<simhitCFPosSize; ++i) {
-    simhitAddr theSimHitAddr = simhitCFPos[i];
+  for(auto const& theSimHitAddr : simhitCFPos ) {
     simHitCollectionID theSimHitCollID = theSimHitAddr.first;
     simhit_collectionMap::const_iterator it = SimHitCollMap.find(theSimHitCollID);
     if (it!= SimHitCollMap.end()) {
@@ -426,8 +429,11 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
       //use a vector
       std::vector<SimHitIdpr> idcachev;
       std::vector<simhitAddr> CFposcachev;
-      for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(), linkEnd = link_detset.data.end(); linkiter != linkEnd; ++linkiter){
-	if( (int)(linkiter->channel()) >= first  && (int)(linkiter->channel()) < last ){
+      int channel;
+//      for(auto linkiter : link_detset.data){
+      for(edm::DetSet<StripDigiSimLink>::const_iterator linkiter = link_detset.data.begin(), linkerEnd = link_detset.data.end(); linkiter != linkerEnd; ++linkiter){      
+        channel = (int)(linkiter->channel()); 
+	if( channel >= first  && channel < last ){
 	  
 	  //check this digisimlink
 // 	  printf("%s%4d%s%8d%s%3d%s%8.4f\n", "CHANNEL = ", linkiter->channel(), " TrackID = ", linkiter->SimTrackId(),
@@ -498,15 +504,15 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiSt
   
   //save in a vector all the simtrack-id's that are common to mono and stereo hits
   std::vector<SimHitIdpr> simtrackid;
-  if(!matched_mono.empty() && !matched_st.empty()){
+  if(!(matched_mono.empty() || matched_st.empty())){
     std::vector<SimHitIdpr> idcachev;
-    for(vector<SimHitIdpr>::iterator mhit=matched_mono.begin(), mhitEnd = matched_mono.end(); mhit != mhitEnd; ++mhit){
+    for(auto const& mhit: matched_mono){
       //save only once the ID
-      if(find(idcachev.begin(), idcachev.end(), (*mhit)) == idcachev.end()) {
-	idcachev.push_back(*mhit);
+      if(find(idcachev.begin(), idcachev.end(), mhit) == idcachev.end()) {
+	idcachev.push_back(mhit);
 	//save if the stereoID matched the monoID
-	if(find(matched_st.begin(), matched_st.end(), (*mhit)) != matched_st.end()) {
-	  simtrackid.push_back(*mhit);
+	if(find(matched_st.begin(), matched_st.end(), mhit) != matched_st.end()) {
+	  simtrackid.push_back(mhit);
 	}
       }
     }
@@ -623,13 +629,13 @@ std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTra
 }
 
  // fastsim
-std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const GSSiTrackerRecHit2DLocalPos * gsrechit) const
+std::vector<SimHitIdpr>  TrackerHitAssociator::associateFastRecHit(const FastTrackerRecHit * rechit) const
 {
   vector<SimHitIdpr> simtrackid;
   simtrackid.clear();
-  for(size_t index =0;index<gsrechit->nSimTrackIds();++index){
-    SimHitIdpr currentId(gsrechit->simTrackId(index), EncodedEventId(gsrechit->eeId()));
-    simtrackid.push_back(currentId);
+  for(size_t index =0, indexEnd = rechit->nSimTrackIds();index<indexEnd;++index){
+      SimHitIdpr currentId(rechit->simTrackId(index), EncodedEventId(rechit->simTrackEventId(index)));
+      simtrackid.push_back(currentId);
   }
   return simtrackid;
 }

@@ -1,3 +1,7 @@
+<architecture name="slc[6-9]_amd64">
+  <flags LDFLAGS="-Wl,-dynamic-linker,$(GLIBC_BASE)/lib64/ld.so"/>
+</architecture>
+
 <bin   name="hltTimingSummary" file="hltTimingSummary.cpp">
   <flags NO_TESTRUN="1"/>
   <use   name="boost"/>
@@ -6,4 +10,19 @@
   <use   name="FWCore/FWLite"/>
   <use   name="FWCore/Framework"/>
   <use   name="rootgraphics"/>
+</bin>
+
+<bin name="hltDiff" file="hltDiff.cc">
+  <use name="jemalloc"/>
+  <use name="boost"/>
+  <use name="boost_filesystem"/>
+  <use name="FWCore/Common"/>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/Utilities"/>
+  <use name="DataFormats/Common"/>
+  <use name="DataFormats/FWLite"/>
+  <use name="HLTrigger/HLTcore"/>
+  <!--
+  <use name="root"/>
+  -->
 </bin>

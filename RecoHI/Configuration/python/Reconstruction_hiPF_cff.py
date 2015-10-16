@@ -10,15 +10,18 @@ particleFlowEGamma.vertexCollection = cms.InputTag("hiSelectedVertex")
 gedGsfElectronCores.ctfTracks = cms.InputTag("hiGeneralTracks")
 gedGsfElectronsTmp.ctfTracksTag = cms.InputTag("hiGeneralTracks")
 gedGsfElectronsTmp.vtxTag = cms.InputTag("hiSelectedVertex")
+gedGsfElectronsTmp.minSCEtBarrel = cms.double(15.0)
+gedGsfElectronsTmp.minSCEtEndcaps = cms.double(15.0)
 gedPhotonsTmp.primaryVertexProducer = cms.InputTag("hiSelectedVertex")
-gedPhotonsTmp.regressionConfig.vertexCollection = cms.InputTag("hiSelectedVertex")
 gedPhotonsTmp.isolationSumsCalculatorSet.trackProducer = cms.InputTag("hiGeneralTracks")
-
+from RecoHI.HiEgammaAlgos.photonIsolationHIProducer_cfi import photonIsolationHIProducer
+photonIsolationHIProducerGED = photonIsolationHIProducer.clone(photonProducer=cms.InputTag("gedPhotonsTmp"))
 
 #These are set for consistency w/ HiElectronSequence, but these cuts need to be studied
 gedGsfElectronsTmp.maxHOverEBarrel = cms.double(0.25)
 gedGsfElectronsTmp.maxHOverEEndcaps = cms.double(0.25)
-
+gedGsfElectronsTmp.maxEOverPBarrel = cms.double(2.)
+gedGsfElectronsTmp.maxEOverPEndcaps = cms.double(2.)
 
 from RecoParticleFlow.Configuration.RecoParticleFlow_cff import *
 
@@ -30,7 +33,7 @@ particleFlowBlock.elementImporters = cms.VPSet(
     cms.PSet( importerName = cms.string("GSFTrackImporter"),
               source = cms.InputTag("pfTrackElec"),
               gsfsAreSecondary = cms.bool(False),
-              superClustersArePF = cms.bool(True) ),        
+              superClustersArePF = cms.bool(True) ),
     cms.PSet( importerName = cms.string("SuperClusterImporter"),
                   source_eb = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
                   source_ee = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
@@ -42,12 +45,12 @@ particleFlowBlock.elementImporters = cms.VPSet(
     # all secondary track importers
     cms.PSet( importerName = cms.string("GeneralTracksImporter"),
               source = cms.InputTag("pfTrack"),
-              muonSrc = cms.InputTag("muons"),
+              muonSrc = cms.InputTag("hiMuons1stStep"),
               useIterativeTracking = cms.bool(False),
               DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
                                                        1.0,1.0),
               NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
-              ),        
+              ),
     # to properly set SC based links you need to run ECAL importer
     # after you've imported all SCs to the block
     cms.PSet( importerName = cms.string("ECALClusterImporter"),
@@ -66,7 +69,7 @@ particleFlowBlock.elementImporters = cms.VPSet(
 particleFlowTmp.postMuonCleaning = cms.bool(False)
 particleFlowTmp.vertexCollection = cms.InputTag("hiSelectedVertex")
 particleFlowTmp.usePFElectrons = cms.bool(True)
-particleFlowTmp.muons = cms.InputTag("muons")
+particleFlowTmp.muons = cms.InputTag("hiMuons1stStep")
 particleFlowTmp.usePFConversions = cms.bool(False)
 
 
@@ -80,6 +83,7 @@ hiParticleFlowLocalReco = cms.Sequence(particleFlowCluster)
 hiParticleFlowReco = cms.Sequence( pfGsfElectronMVASelectionSequence
                                    * particleFlowBlock
                                    * particleFlowEGammaFull
+                                   * photonIsolationHIProducerGED
                                    * particleFlowTmp
                                    * hiRecoPFJets
                                    )

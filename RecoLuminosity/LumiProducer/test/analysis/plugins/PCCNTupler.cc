@@ -42,7 +42,6 @@ using namespace reco;
 
 // ----------------------------------------------------------------------
 PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig): 
-    fVerbose(iConfig.getUntrackedParameter<int>("verbose", 0)),
     fPrimaryVertexCollectionLabel(iConfig.getUntrackedParameter<InputTag>("vertexCollLabel", edm::InputTag("offlinePrimaryVertices"))), 
     fPixelClusterLabel(iConfig.getUntrackedParameter<InputTag>("pixelClusterLabel", edm::InputTag("siPixelClusters"))), 
     fPileUpInfoLabel(edm::InputTag("addPileupInfo")),
@@ -54,43 +53,48 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
     cout << "----------------------------------------------------------------------" << endl;
     cout << "--- PCCNTupler constructor" << endl;
 
-    nPrint = 0;
     edm::Service<TFileService> fs;
 
 
     tree = fs->make<TTree>("tree","Pixel Cluster Counters");
-    tree->Branch("run",&runNo,"run/I");
-    tree->Branch("LS",&LSNo,"LS/I");
-    tree->Branch("LN",&LNNo,"LN/I");
+    tree->Branch("run",&run,"run/I");
+    tree->Branch("LS",&LS,"LS/I");
+    tree->Branch("LN",&LN,"LN/I");
     tree->Branch("timeStamp_begin",&timeStamp_begin,"timeStamp_begin/i");
     tree->Branch("timeStamp_end",&timeStamp_end,"timeStamp_end/i");
+    tree->Branch("eventCounter",&eventCounter,"eventCounter/I");
+    tree->Branch("BXNo","map<int,int>",&BXNo);
     if (saveType=="Event"){
-        tree->Branch("event",&eventNo,"eventNo/i");
-        tree->Branch("orbit",&orbitNo,"orbitNo/I");
+        tree->Branch("event",&event,"event/i");
+        tree->Branch("orbit",&orbit,"orbit/I");
+        tree->Branch("bunchCrossing",&bunchCrossing,"bunchCrossing/I");
     }
 
     pileup = fs->make<TH1F>("pileup","pileup",100,0,100);
     if(includeVertexInformation){
         tree->Branch("nGoodVtx","map<int,int>",&nGoodVtx); 
+        tree->Branch("nValidVtx","map<int,int>",&nValidVtx); 
         recoVtxToken=consumes<reco::VertexCollection>(fPrimaryVertexCollectionLabel);
         if (saveType=="Event"){
             tree->Branch("nVtx",&nVtx,"nVtx/I");
-            tree->Branch("goodVertex",&goodVertex,"goodVertex[nVtx]/O");
             tree->Branch("vtx_nTrk",&vtx_nTrk,"vtx_nTrk[nVtx]/I");
             tree->Branch("vtx_ndof",&vtx_ndof,"vtx_ndof[nVtx]/I");
             tree->Branch("vtx_x",&vtx_x,"vtx_x[nVtx]/F");
             tree->Branch("vtx_y",&vtx_y,"vtx_y[nVtx]/F");
             tree->Branch("vtx_z",&vtx_z,"vtx_z[nVtx]/F");
+            tree->Branch("vtx_xError",&vtx_xError,"vtx_xError[nVtx]/F");
+            tree->Branch("vtx_yError",&vtx_yError,"vtx_yError[nVtx]/F");
+            tree->Branch("vtx_zError",&vtx_zError,"vtx_zError[nVtx]/F");
             tree->Branch("vtx_chi2",&vtx_chi2,"vtx_chi2[nVtx]/F");
             tree->Branch("vtx_normchi2",&vtx_normchi2,"vtx_normchi2[nVtx]/F");
             tree->Branch("vtx_isValid",&vtx_isValid,"vtx_isValid[nVtx]/O");
             tree->Branch("vtx_isFake",&vtx_isFake,"vtx_isFake[nVtx]/O");
+            tree->Branch("vtx_isGood",&vtx_isGood,"vtx_isGood[nVtx]/O");
         }
 
     }
 
     if(includePixels){
-        tree->Branch("BXNo","map<int,int>",&BXNo);
         tree->Branch("nPixelClusters","map<std::pair<int,int>,int>",&nPixelClusters);
         tree->Branch("nClusters",     "map<std::pair<int,int>,int>",&nClusters);
         //tree->Branch("nPixelClusters","map<int,int>",&nPixelClusters);
@@ -113,7 +117,8 @@ PCCNTupler::PCCNTupler(edm::ParameterSet const& iConfig):
 }
 
 // ----------------------------------------------------------------------
-PCCNTupler::~PCCNTupler() { }  
+PCCNTupler::~PCCNTupler() { 
+}  
 
 // ----------------------------------------------------------------------
 void PCCNTupler::endJob() { 
@@ -128,6 +133,7 @@ void PCCNTupler::beginJob() {
 
 void PCCNTupler::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& isetup){
     firstEvent = true;
+    Reset();
 }
 
 void PCCNTupler::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& isetup){
@@ -145,9 +151,9 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     eventCounter++;
 
     saveAndReset=false;
-    sameEvent = (eventNo==(int)iEvent.id().event());
+    sameEvent = (event==(int)iEvent.id().event());
     sameLumiNib = true; // FIXME where is this info?
-    sameLumiSect = (LSNo==(int)iEvent.getLuminosityBlock().luminosityBlock());
+    sameLumiSect = (LS==(int)iEvent.getLuminosityBlock().luminosityBlock());
     
     // When arriving at the new LS, LN or event the tree 
     // must be filled and branches must be reset.
@@ -181,35 +187,36 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     }
 
     // Get the Run, Lumi Section, and Event numbers, etc.
-    runNo   = iEvent.id().run();
-    LSNo    = iEvent.getLuminosityBlock().luminosityBlock();
-    //LNNo    = -99; // FIXME need the luminibble
-    eventNo = iEvent.id().event();
-    bxNo    = iEvent.bunchCrossing();
+    run   = iEvent.id().run();
+    LS    = iEvent.getLuminosityBlock().luminosityBlock();
+    //LN    = -99; // FIXME need the luminibble
+    event = iEvent.id().event();
+    bunchCrossing   = iEvent.bunchCrossing();
     timeStamp_local = iEvent.time().unixTime();
     if(timeStamp_end  <timeStamp_local) timeStamp_end   =timeStamp_local;
     if(timeStamp_begin>timeStamp_local) timeStamp_begin =timeStamp_local;
-    orbitNo = iEvent.orbitNumber();
-    //LNNo    = ((int) (orbitNo/pow(2,12)) % 64);
-    //int LNNo2    = iEvent.nibble;
-    LNNo    = ((int) (orbitNo >> 12) % 64); // FIXME need the luminibble
+    orbit = iEvent.orbitNumber();
+    //LN    = ((int) (orbit/pow(2,12)) % 64);
+    //int LN2    = iEvent.nibble;
+    LN    = ((int) (orbit >> 12) % 64); // FIXME need the luminibble
    
-    bxModKey.first=bxNo;
+    bxModKey.first=bunchCrossing;
     bxModKey.second=-1;
    
-    if((BXNo.count(bxNo)==0||nGoodVtx.count(bxNo)==0) && !(BXNo.count(bxNo)==0&&nGoodVtx.count(bxNo)==0)){
+    if((BXNo.count(bunchCrossing)==0||nGoodVtx.count(bunchCrossing)==0) && !(BXNo.count(bunchCrossing)==0&&nGoodVtx.count(bunchCrossing)==0)){
         std::cout<<"BXNo and nGoodVtx should have the same keys but DO NOT!!!"<<std::endl;
     }
     
-    if(BXNo.count(bxNo)==0){
-        BXNo[bxNo]=0;
+    if(BXNo.count(bunchCrossing)==0){
+        BXNo[bunchCrossing]=0;
     }
 
-    if(nGoodVtx.count(bxNo)==0){
-        nGoodVtx[bxNo]=0;
+    if(nGoodVtx.count(bunchCrossing)==0){
+        nGoodVtx[bunchCrossing]=0;
+        nValidVtx[bunchCrossing]=0;
     }
 
-    BXNo[bxNo]=BXNo[bxNo]+1;
+    BXNo[bunchCrossing]=BXNo[bunchCrossing]+1;
     // add the vertex information
 
     if(includeVertexInformation){
@@ -221,20 +228,26 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
             nVtx=recVtxs->size();
             int ivtx=0;
             for(reco::VertexCollection::const_iterator v=recVtxs->begin(); v!=recVtxs->end(); ++v){
-                goodVertex[ivtx] = false;
+                vtx_isGood[ivtx] = false;
                 vtx_nTrk[ivtx] = v->tracksSize();
                 vtx_ndof[ivtx] = (int)v->ndof();
                 vtx_x[ivtx] = v->x();
                 vtx_y[ivtx] = v->y();
                 vtx_z[ivtx] = v->z();
+                vtx_xError[ivtx] = v->xError();
+                vtx_yError[ivtx] = v->yError();
+                vtx_zError[ivtx] = v->zError();
                 vtx_chi2[ivtx] = v->chi2();
                 vtx_normchi2[ivtx] = v->normalizedChi2();
                 vtx_isValid[ivtx] = v->isValid();
                 vtx_isFake[ivtx] = v->isFake();
+                if(vtx_isValid[ivtx] && (vtx_isFake[ivtx] == 0)){
+                    nValidVtx[bunchCrossing]=nValidVtx[bunchCrossing]+1;
+                }
                 if(vtx_ndof[ivtx] > 4 && vtx_isValid[ivtx] && (vtx_isFake[ivtx] == 0)){
                     if(vtx_nTrk[ivtx] > 0){
-                        nGoodVtx[bxNo]=nGoodVtx[bxNo]+1;
-                        goodVertex[ivtx] = true;
+                        nGoodVtx[bunchCrossing]=nGoodVtx[bunchCrossing]+1;
+                        vtx_isGood[ivtx] = true;
                     }
                 }
                 ivtx++;
@@ -247,17 +260,6 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
     ESHandle<TrackerGeometry> TG;
     iSetup.get<TrackerDigiGeometryRecord>().get(TG);
 
-    // -- FED
-    edm::eventsetup::EventSetupRecordKey recordKey(edm::eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));
-    if (recordKey.type() == edm::eventsetup::EventSetupRecordKey::TypeTag()) {
-        //record not found
-        cout << "Record \"RunInfoRcd" << "\" does not exist " << endl;
-        fFED1 = 0; 
-        fFED2 = (0x1 << 12) ; 
-    } else {
-        edm::ESHandle<RunInfo> runInfoHandle;
-        iSetup.get<RunInfoRcd>().get(runInfoHandle);
-    }
     // -- Pixel cluster
     if(includePixels){
         edm::Handle< edmNew::DetSetVector<SiPixelCluster> > hClusterColl;
@@ -319,8 +321,9 @@ void PCCNTupler::Reset() {
     nClusters.clear();
     layers.clear();
     BXNo.clear();
+    nValidVtx.clear();
     nGoodVtx.clear();
-    eventCounter=0;
+    eventCounter=1;
     timeStamp_end=0;
     timeStamp_begin=-1;
 }

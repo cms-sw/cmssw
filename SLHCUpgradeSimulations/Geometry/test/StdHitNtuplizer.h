@@ -6,7 +6,6 @@
  *
  ************************************************************/
 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
@@ -55,11 +54,11 @@ class StdHitNtuplizer : public edm::EDAnalyzer
 
   void fillEvt(const edm::Event& );
   void fillSRecHit(const int subid, SiStripRecHit2DCollection::DetSet::const_iterator pixeliter,
-                   const GeomDet* theGeom);
+		   const GeomDet* theGeom);
   void fillSRecHit(const int subid, SiStripMatchedRecHit2DCollection::DetSet::const_iterator pixeliter,
-                   const GeomDet* theGeom);
-  void fillSRecHit(const int subid, SiTrackerGSRecHit2DCollection::const_iterator pixeliter,
-                   const GeomDet* theGeom);
+		   const GeomDet* theGeom);  
+  void fillSRecHit(const int subid, const FastTrackerRecHit & hit,
+		   const GeomDet* theGeom);
   //void fillPRecHit(const int subid, SiPixelRecHitCollection::const_iterator pixeliter,
   //                 const GeomDet* PixGeom);
   void fillPRecHit(const int subid, const int layer_num,

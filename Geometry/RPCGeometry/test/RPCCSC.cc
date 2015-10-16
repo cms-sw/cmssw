@@ -22,7 +22,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -78,59 +78,25 @@ class CSCStationIndex{
         int _chamber;
 };
 
-class RPCCSC : public edm::EDAnalyzer {
-    public:
-        explicit RPCCSC(const edm::ParameterSet&);
-        ~RPCCSC();
+class RPCCSC : public edm::one::EDAnalyzer<>
+{
+public:
+  explicit RPCCSC(const edm::ParameterSet&);
+  ~RPCCSC();
 
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
-    private:
-        virtual void beginJob() ;
-        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-        virtual void endJob() ;
-
-        // ----------member data ---------------------------
-        std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
+private:
+  std::map<CSCStationIndex,std::set<RPCDetId> > rollstoreCSC;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-
-
-
-
-
 RPCCSC::RPCCSC(const edm::ParameterSet& /*iConfig*/)
-
-{
-    //now do what ever initialization is needed
-
-}
-
+{}
 
 RPCCSC::~RPCCSC()
-{
-
-    // do anything here that needs to be done at desctruction time
-    // (e.g. close files, deallocate resources etc.)
-
-}
-
-
-
-// ------------ method called to for each event  ------------
-void RPCCSC::beginJob() {
-}
-
+{}
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -301,11 +267,6 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
       }
     }
   }
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-RPCCSC::endJob() {
 }
 
 //define this as a plug-in

@@ -39,10 +39,10 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
   virtual ~HIMuonTrackingRegionProducer(){}
   
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, const edm::EventSetup& es) const {
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
     
     // initialize output vector of tracking regions
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // initialize the region builder
     theService->update(es);
@@ -63,8 +63,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
     for(unsigned int imu=0; imu<nMuons; imu++) {
       reco::TrackRef muRef(muonH, imu);
       //std::cout << "muon #" << imu << ": pt=" << muRef->pt() << std::endl;
-      RectangularEtaPhiTrackingRegion *etaphiRegion = theRegionBuilder->region(muRef);
-      result.push_back(etaphiRegion);
+      result.push_back(theRegionBuilder->region(muRef));
     }
 
     return result;

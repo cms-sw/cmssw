@@ -15,6 +15,8 @@ namespace reco {
 class SoftLeptonProperties {
 public:
     SoftLeptonProperties() :
+        sip2dsig(    std::numeric_limits<float>::quiet_NaN() ),
+        sip3dsig(    std::numeric_limits<float>::quiet_NaN() ),
         sip2d(    std::numeric_limits<float>::quiet_NaN() ),
         sip3d(    std::numeric_limits<float>::quiet_NaN() ),
         ptRel(    std::numeric_limits<float>::quiet_NaN() ),
@@ -26,6 +28,8 @@ public:
         elec_mva( std::numeric_limits<float>::quiet_NaN() )
     { }
 
+    float sip2dsig;                            // 2D signed impact parameter significance
+    float sip3dsig;                            // 3D signed impact parameter significance
     float sip2d;                            // 2D signed impact parameter
     float sip3d;                            // 3D signed impact parameter
     float ptRel;                            // transverse momentum wrt. the jet axis
@@ -163,8 +167,10 @@ TaggingVariableList TemplatedSoftLeptonTagInfo<REF>::taggingVariables(void) cons
     const SoftLeptonProperties & data = m_leptons[i].second;
     list.insert( TaggingVariable(btau::leptonQuality,  data.quality(SoftLeptonProperties::Quality::leptonId, false)), true );
     list.insert( TaggingVariable(btau::leptonQuality2, data.quality(SoftLeptonProperties::Quality::btagLeptonCands, false)), true );
-    list.insert( TaggingVariable(btau::trackSip2dSig,  data.sip2d),    true );
-    list.insert( TaggingVariable(btau::trackSip3dSig,  data.sip3d),    true );
+    list.insert( TaggingVariable(btau::trackSip2dVal,  data.sip2d),    true );
+    list.insert( TaggingVariable(btau::trackSip3dVal,  data.sip3d),    true );
+    list.insert( TaggingVariable(btau::trackSip2dSig,  data.sip2dsig),    true );
+    list.insert( TaggingVariable(btau::trackSip3dSig,  data.sip3dsig),    true );
     list.insert( TaggingVariable(btau::trackPtRel,     data.ptRel),    true );
     list.insert( TaggingVariable(btau::trackP0Par,     data.p0Par),    true );
     list.insert( TaggingVariable(btau::trackEtaRel,    data.etaRel),   true );

@@ -37,19 +37,10 @@ AnalyzeBeamHalo = cms.EDAnalyzer("BeamHaloAnalyzer",
                                      CSCsegments = cms.InputTag("cscSegments"),
                                      DTradius = cms.double(0.01),
                                      DTsegments = cms.InputTag("dt4DSegments"),
+                                     RPChits = cms.InputTag("rpcRecHits"),
                                      TightMatchDT = cms.bool(False),
                                      TightMatchCSC = cms.bool(True)
                                      ),
-                                 ServiceParameters = cms.PSet(
-                                     Propagators = cms.untracked.vstring('SteppingHelixPropagatorAny',
-                                                                          'PropagatorWithMaterial',
-                                                                          'PropagatorWithMaterialOpposite'),
-                                     RPCLayers = cms.bool(True)
-                                     ),
-                                 
-                                 
-
-
 
 #                                 OutputFile = cms.string("BeamHaloIdDQM.root"),
 #                                 folderName = cms.string("JetMET/BeamHalo/")

@@ -51,13 +51,12 @@
   <class name="pat::CandKinResolution"  ClassVersion="13">
    <version ClassVersion="13" checksum="1576481716"/>
    <field name="covmatrix_" transient="true"/>
-   <field name="hasMatrix_" transient="true"/>
    <version ClassVersion="12" checksum="811710989"/>
    <version ClassVersion="11" checksum="3628324235"/>
    <version ClassVersion="10" checksum="932672721"/>
   </class>
-  <ioread sourceClass="pat::CandKinResolution" targetClass="pat::CandKinResolution" version="[1-]" source="" target="hasMatrix_">
-  <![CDATA[hasMatrix_ = false;]]>
+  <ioread sourceClass="pat::CandKinResolution" targetClass="pat::CandKinResolution" version="[1-]" source="pat::CandKinResolution::Parametrization parametrization_; std::vector<pat::CandKinResolution::Scalar> covariances_" target="covmatrix_">
+  <![CDATA[pat::CandKinResolution::fillMatrixFrom(onfile.parametrization_, onfile.covariances_,covmatrix_);]]>
   </ioread>
   <class name="std::vector<pat::CandKinResolution>" />
   <class name="pat::CandKinResolutionValueMap" />

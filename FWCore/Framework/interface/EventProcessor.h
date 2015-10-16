@@ -116,6 +116,8 @@ namespace edm {
     std::vector<ModuleDescription const*>
     getAllModuleDescriptions() const;
 
+    ProcessConfiguration const& processConfiguration() const { return *processConfiguration_; }
+
     /// Return the number of events this EventProcessor has tried to process
     /// (inclues both successes and failures, including failures due
     /// to exceptions during processing).

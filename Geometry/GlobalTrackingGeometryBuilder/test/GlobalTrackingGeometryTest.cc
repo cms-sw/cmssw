@@ -6,12 +6,11 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "Geometry/GlobalTrackingGeometryBuilder/test/GlobalTrackingGeometryTest.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
@@ -26,6 +25,27 @@
 #include <cmath>
 #include <iomanip> 
 #include <vector>
+
+class GlobalTrackingGeometryTest : public edm::one::EDAnalyzer<>
+{
+public:
+ 
+  explicit GlobalTrackingGeometryTest( const edm::ParameterSet& );
+  ~GlobalTrackingGeometryTest();
+
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
+
+private: 
+  void analyzeCSC(const GlobalTrackingGeometry* geo, const CSCGeometry* cscGeometry);
+  void analyzeDT(const GlobalTrackingGeometry* geo, const DTGeometry* dtGeometry);
+  void analyzeRPC(const GlobalTrackingGeometry* geo, const RPCGeometry* rpcGeometry);
+  void analyzeGEM(const GlobalTrackingGeometry* geo, const GEMGeometry* gemGeometry);
+  void analyzeTracker(const GlobalTrackingGeometry* geo, const TrackerGeometry* tkGeometry);
+  const std::string& myName() { return my_name; }
+  std::string my_name;    
+};
 
 GlobalTrackingGeometryTest::GlobalTrackingGeometryTest( const edm::ParameterSet& /*iConfig*/)
  : my_name( "GlobalTrackingGeometryTest" ) {}

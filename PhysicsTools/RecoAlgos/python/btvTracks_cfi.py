@@ -1,22 +1,19 @@
 import FWCore.ParameterSet.Config as cms
 
-_content = cms.PSet(
-    src = cms.InputTag("generalTracks"),
-    maxChi2 = cms.double(5.0),
-    tip = cms.double(0.2),
-    minRapidity = cms.double(-9.0),
-    lip = cms.double(17.0),
-    ptMin = cms.double(1.0),
-    maxRapidity = cms.double(9.0),
-    quality = cms.vstring(),
-    algorithm = cms.vstring(),
-    minLayer = cms.int32(0),
-    min3DLayer = cms.int32(0),
-    minHit = cms.int32(8),
-    minPixelHit = cms.int32(2),
-    beamSpot = cms.InputTag("offlineBeamSpot"),
-    usePV = cms.bool(True),
-    vertexTag = cms.InputTag('offlinePrimaryVertices'),
+import CommonTools.RecoAlgos.recoTrackSelectorPSet_cfi as _recoTrackSelectorPSet_cfi
+
+_content = _recoTrackSelectorPSet_cfi.recoTrackSelectorPSet.clone(
+    maxChi2 = 5.0,
+    tip = 0.2,
+    minRapidity = -9.0,
+    lip = 17.0,
+    ptMin = 1.0,
+    maxRapidity = 9.0,
+    quality = [],
+    minLayer = 0,
+    minHit = 8,
+    minPixelHit = 2,
+    usePV = True,
 )
 
 btvTracks = cms.EDProducer("RecoTrackSelector",

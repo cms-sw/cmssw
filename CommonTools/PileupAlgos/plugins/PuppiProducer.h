@@ -47,8 +47,13 @@ private:
 	std::string     fPFName;	
 	std::string     fPVName;
 	bool 			fPuppiDiagnostics;
+	bool 			fPuppiForLeptons;
 	bool            fUseDZ;
 	float           fDZCut;
+	bool fUseExistingWeights;
+	bool fUseWeightsNoLep;
+	int fVtxNdofCut;
+	double fVtxZCut;
 	std::unique_ptr<PuppiContainer> fPuppiContainer;
 	std::vector<RecoObj> fRecoObjCollection;
         std::auto_ptr< PFOutputCollection >          fPuppiCandidates;

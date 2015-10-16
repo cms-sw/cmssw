@@ -38,7 +38,7 @@ namespace{
 
 
 PythiaFilterGammaJetWithBg::PythiaFilterGammaJetWithBg(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 etaMax(iConfig.getUntrackedParameter<double>("MaxPhotonEta", 2.8)),
 ptSeed(iConfig.getUntrackedParameter<double>("PhotonSeedPt", 5.)),
 ptMin(iConfig.getUntrackedParameter<double>("MinPhotonPt")),

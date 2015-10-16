@@ -308,7 +308,7 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    Handle<HepMCProduct> mcEventHandle;
 
-   iEvent.getByLabel("generator",mcEventHandle);
+   iEvent.getByLabel("generator","unsmeared",mcEventHandle);
 
    const HepMC::GenEvent* mcEvent = mcEventHandle->GetEvent() ;
 

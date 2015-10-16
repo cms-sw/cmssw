@@ -96,9 +96,9 @@ void MuonTrackingRegionBuilder::build(const edm::ParameterSet& par, edm::Consume
 //
 // Member function to be compatible with TrackingRegionProducerFactory: create many ROI for many tracks
 //
-std::vector<TrackingRegion*> MuonTrackingRegionBuilder::regions(const edm::Event& ev, const edm::EventSetup& es) const {
+std::vector<std::unique_ptr<TrackingRegion>> MuonTrackingRegionBuilder::regions(const edm::Event& ev, const edm::EventSetup& es) const {
 	
-  std::vector<TrackingRegion*> result;
+  std::vector<std::unique_ptr<TrackingRegion>> result;
 
   edm::Handle<reco::TrackCollection> tracks;
   ev.getByToken(inputCollectionToken, tracks);
@@ -117,7 +117,7 @@ std::vector<TrackingRegion*> MuonTrackingRegionBuilder::regions(const edm::Event
 //
 // Call region on Track from TrackRef
 //
-RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::TrackRef& track) const {
+std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionBuilder::region(const reco::TrackRef& track) const {
   return region(*track);
 }
 
@@ -133,7 +133,7 @@ void MuonTrackingRegionBuilder::setEvent(const edm::Event& event) {
 //
 //	Main member function called to create the ROI
 //
-RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::Track& staTrack, const edm::Event& ev) const {
+std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionBuilder::region(const reco::Track& staTrack, const edm::Event& ev) const {
 
   // get track momentum/direction at vertex
   const math::XYZVector& mom = staTrack.momentum();
@@ -231,7 +231,7 @@ RectangularEtaPhiTrackingRegion* MuonTrackingRegionBuilder::region(const reco::T
     measurementTracker = hmte.product();
   }
 
-  RectangularEtaPhiTrackingRegion* region = new RectangularEtaPhiTrackingRegion(dirVector, vertexPos,
+  auto region = std::make_unique<RectangularEtaPhiTrackingRegion>(dirVector, vertexPos,
                                                minPt, deltaR,
                                                deltaZ, region_dEta, region_dPhi,
                                                theOnDemand,

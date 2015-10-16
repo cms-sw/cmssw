@@ -190,9 +190,10 @@ RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
       int lstrip=centralStrip;
       
       // Compute the cluster size
-      double w = CLHEP::RandFlat::shoot(engine);
-      LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulate] Fired RandFlat :: "<<w<<" (w is not used)";
-      if (w < 1.e-10) w=1.e-10;
+
+      //double w = CLHEP::RandFlat::shoot(engine);
+      //LogDebug ("RPCSimAsymmetricCls")<<"[RPCSimAsymmetricCls::simulate] Fired RandFlat :: "<<w<<" (w is not used)";
+      //if (w < 1.e-10) w=1.e-10;
 
       int clsize = this->getClSize(rpcId.rawId(),posX, engine); // This is for cluster size chamber by chamber
       LogDebug ("RPCSimAsymmetricCls")<<"Clustersize = "<<clsize;

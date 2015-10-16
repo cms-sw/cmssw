@@ -112,15 +112,20 @@ void testME0DetId::testFail(){
 
 
 void testME0DetId::testMemberOperators(){
-  ME0DetId unit1(1,5,3,5);
+  ME0DetId unit1(1,5,3,1);
   ME0DetId unit2=unit1;
   
   CPPUNIT_ASSERT(unit2==unit1);
 
-  ME0DetId chamber = unit1.chamberId();
+  ME0DetId layer = unit1.layerId();
   ME0DetId unit3(1,5,3,0);
 
-  CPPUNIT_ASSERT(chamber==unit3);
+  CPPUNIT_ASSERT(layer==unit3);
+
+  ME0DetId chamber = unit1.chamberId();
+  ME0DetId unit4(1,0,3,0);
+
+  CPPUNIT_ASSERT(chamber==unit4);
   
 
 }

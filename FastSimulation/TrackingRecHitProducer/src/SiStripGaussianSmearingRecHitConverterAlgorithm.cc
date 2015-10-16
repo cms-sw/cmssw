@@ -40,8 +40,7 @@ SiStripGaussianSmearingRecHitConverterAlgorithm::smearHit(const PSimHit& simHit,
   do {
     thePosition = 
       Local3DPoint(random->gaussShoot((double)simHit.localPosition().x(), localPositionResolutionX), 
-                  (double)simHit.localPosition().y(),
-                  0.);
+		   0.,0.);
 #ifdef FAMOS_DEBUG
     std::cout << " Detector bounds: "
               << "\t\tx = " << boundX

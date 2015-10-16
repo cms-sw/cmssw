@@ -13,7 +13,7 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -29,7 +29,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 
-    class dso_hidden TrackMultiSelector : public edm::EDProducer {
+    class dso_hidden TrackMultiSelector : public edm::stream::EDProducer<> {
         private:
             struct Block {
                 std::pair<double,double> pt;

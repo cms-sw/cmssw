@@ -61,7 +61,6 @@ private:
 
   // The reconstruction algorithm
   RPCRecHitBaseAlgo *theAlgo;
-//   static std::string theAlgoName;
 
   RPCMaskedStrips* RPCMaskedStripsObj;
   // Object with mask-strips-vector for all the RPC Detectors

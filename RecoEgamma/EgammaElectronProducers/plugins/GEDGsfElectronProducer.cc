@@ -28,8 +28,8 @@
 
 using namespace reco;
 
-GEDGsfElectronProducer::GEDGsfElectronProducer( const edm::ParameterSet & cfg )
- : GsfElectronBaseProducer(cfg)
+GEDGsfElectronProducer::GEDGsfElectronProducer( const edm::ParameterSet & cfg, const gsfAlgoHelpers::HeavyObjectCache* hoc )
+  : GsfElectronBaseProducer(cfg,hoc)
  {
    egmPFCandidateCollection_ = consumes<reco::PFCandidateCollection>(cfg.getParameter<edm::InputTag>("egmPFCandidatesTag"));
    outputValueMapLabel_ = cfg.getParameter<std::string>("outputEGMPFValueMap");
@@ -45,8 +45,8 @@ void GEDGsfElectronProducer::produce( edm::Event & event, const edm::EventSetup 
  {
   beginEvent(event,setup) ;
   matchWithPFCandidates(event);
-  algo_->completeElectrons() ;
-  algo_->setMVAOutputs(gsfMVAOutputMap_);
+  algo_->completeElectrons(globalCache()) ;
+  algo_->setMVAOutputs(globalCache(),gsfMVAOutputMap_);
   algo_->setMVAInputs(gsfMVAInputMap_);
   fillEvent(event) ;
 

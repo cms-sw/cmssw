@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,41 +42,20 @@
 
 #include "CoralBase/Exception.h"
 
-//
-// class decleration
-//
-
-class HGCalNumberingTester : public edm::EDAnalyzer {
+class HGCalNumberingTester : public edm::one::EDAnalyzer<>
+{
 public:
   explicit HGCalNumberingTester( const edm::ParameterSet& );
   ~HGCalNumberingTester();
 
-  
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-private:
-  // ----------member data ---------------------------
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
 HGCalNumberingTester::HGCalNumberingTester(const edm::ParameterSet& ) {}
 
-
 HGCalNumberingTester::~HGCalNumberingTester() {}
-
-
-//
-// member functions
-//
 
 // ------------ method called to produce the data  ------------
 void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {

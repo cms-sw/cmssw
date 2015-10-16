@@ -1,7 +1,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h" 
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -107,7 +107,7 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 	 || muRef->innerMomentum().R() < 2.5 ) continue;
     
     // Define the region of interest
-    RectangularEtaPhiTrackingRegion * region = theRegionBuilder->region(muRef);
+    std::unique_ptr<RectangularEtaPhiTrackingRegion> region = theRegionBuilder->region(muRef);
 
     // Copy the collection of seeds (ahem, this is time consuming!)
     std::vector<TrajectorySeed> tkSeeds;
@@ -123,8 +123,8 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 	
 	// Find the first hit of the Seed
 	TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();
-	const SiTrackerGSMatchedRecHit2D * theFirstSeedingRecHit = 
-	  (const SiTrackerGSMatchedRecHit2D*) (&(*(theSeedingRecHitRange.first)));
+	const FastTrackerRecHit * theFirstSeedingRecHit = 
+	  (const FastTrackerRecHit*) (&(*(theSeedingRecHitRange.first)));
 
 	// The SimTrack id associated to that recHit
 	int simTrackId = theFirstSeedingRecHit->simTrackId(0);
@@ -135,16 +135,13 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 
 	const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
 
-	if ( clean(muRef,region,aSeed,theSimTrack) ) tkSeeds.push_back(*aSeed);
+	if ( clean(muRef,region.get(),aSeed,theSimTrack) ) tkSeeds.push_back(*aSeed);
 	tkIds.insert(simTrackId);
 
       } // End loop on seeds
  
     } // End loop on seed collections
   
-    // Free memory
-    delete region;
-
     // A plot
     // if(h_nSeedPerTrack) h_nSeedPerTrack->Fill(tkSeeds.size());
 

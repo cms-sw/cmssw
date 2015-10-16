@@ -86,7 +86,7 @@ void HZZ4muAnalyzer::analyze( const Event& e, const EventSetup& )
   
   // find initial (unsmeared, unfiltered,...) HepMCProduct
   //
-  e.getByLabel( "generator", EvtHandle ) ;
+  e.getByLabel("VtxSmeared", EvtHandle);
   
   const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
   

@@ -37,7 +37,8 @@
   <class name="reco::Photon::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2148735796"/>
   </class>
-  <class name="reco::Photon::ShowerShape" ClassVersion="11">
+  <class name="reco::Photon::ShowerShape" ClassVersion="12">
+   <version ClassVersion="12" checksum="1586705784"/>
    <version ClassVersion="11" checksum="2494542444"/>
   </class>
   <class name="reco::Photon::MIPVariables" ClassVersion="10">
@@ -58,8 +59,7 @@
    <version ClassVersion="16" checksum="1544393913"/>
    <version ClassVersion="15" checksum="2042715570"/>
   </class>
-
-
+  
   <class name="std::vector<reco::PhotonCore>"/>
   <class name="edm::reftobase::BaseHolder<reco::PhotonCore>"/>
   <class name="edm::RefToBase<reco::PhotonCore>"/>
@@ -156,7 +156,8 @@
   <class name="reco::GsfElectron::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2564471186"/>
   </class>
-  <class name="reco::GsfElectron::ShowerShape" ClassVersion="11">
+  <class name="reco::GsfElectron::ShowerShape" ClassVersion="12">
+   <version ClassVersion="12" checksum="1486422105"/>
    <version ClassVersion="11" checksum="3451347438"/>
    <version ClassVersion="10" checksum="3070677812"/>
   </class>
@@ -219,6 +220,7 @@
   <class name="reco::GsfElectron::PixelMatchVariables" ClassVersion="2">
     <version ClassVersion="2" checksum="3522539867"/>
   </class>
+
   <class name="reco::GsfElectron" ClassVersion="19">
    <version ClassVersion="19" checksum="1682285704"/>
    <version ClassVersion="18" checksum="2072747263"/>

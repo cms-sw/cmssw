@@ -37,7 +37,7 @@ ESOccupancyTask::ESOccupancyTask(const edm::ParameterSet& ps) {
       hEng_[i][j] = 0;
       hEvEng_[i][j] = 0;
       hEnDensity_[i][i] = 0;
-      hDigiNHit_[i][j] = 0;
+      hGoodRecNHit_[i][j] = 0;
 
       hSelEng_[i][j] = 0;
       hSelOCC_[i][j] = 0;
@@ -76,9 +76,9 @@ ESOccupancyTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSet
       hRecNHit_[i][j]->setAxisTitle("Num of Events", 2);
       
       sprintf(histo, "ES Num of Good RecHits Z %d P %d", iz, j+1);
-      hDigiNHit_[i][j] = iBooker.book1DD(histo, histo, 60, 0, 1920);
-      hDigiNHit_[i][j]->setAxisTitle("# of good RecHits", 1);
-      hDigiNHit_[i][j]->setAxisTitle("Num of Events", 2);
+      hGoodRecNHit_[i][j] = iBooker.book1DD(histo, histo, 60, 0, 1920);
+      hGoodRecNHit_[i][j]->setAxisTitle("# of good RecHits", 1);
+      hGoodRecNHit_[i][j]->setAxisTitle("Num of Events", 2);
       
       sprintf(histo, "ES RecHit Energy Z %d P %d", iz, j+1);
       hEng_[i][j] = iBooker.book1DD(histo, histo, 50, 0, 0.001);
@@ -118,13 +118,13 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 
    // RecHits
    int zside, plane, ix, iy;
-   int sum_RecHits[2][2], sum_DigiHits[2][2];
+   int sum_RecHits[2][2], sum_GoodRecHits[2][2];
    float sum_Energy[2][2];
 
    for (int i = 0; i < 2; ++i) 
      for (int j = 0; j < 2; ++j) {
        sum_RecHits[i][j] = 0;
-       sum_DigiHits[i][j] = 0;
+       sum_GoodRecHits[i][j] = 0;
        sum_Energy[i][j] = 0;
      }
    
@@ -151,6 +151,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 	 hEnDensity_[i][j]->Fill(ix, iy, hitItr->energy());
 
 	 if (hitItr->recoFlag()==14 || hitItr->recoFlag()==1 || (hitItr->recoFlag()<=10 && hitItr->recoFlag()>=5)) continue;
+	 sum_GoodRecHits[i][j]++;
 	 hSelEng_[i][j]->Fill(hitItr->energy());
 	 hSelEnDensity_[i][j]->Fill(ix, iy, hitItr->energy());
 	 hSelOCC_[i][j]->Fill(ix, iy);
@@ -166,7 +167,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
      for (int j = 0; j < 2; ++j) {
 
        hRecNHit_[i][j]->Fill(sum_RecHits[i][j]);
-       hDigiNHit_[i][j]->Fill(sum_DigiHits[i][j]);
+       hGoodRecNHit_[i][j]->Fill(sum_GoodRecHits[i][j]);
        hEvEng_[i][j]->Fill(sum_Energy[i][j]);
        
        //Save eCount_ for Scaling

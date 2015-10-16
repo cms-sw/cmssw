@@ -94,7 +94,7 @@ LHEProducer::LHEProducer(const edm::ParameterSet &params) :
 		hadronisation->matchingCapabilities(matchingCapabilities);
 	}
 
-	produces<edm::HepMCProduct>();
+	produces<edm::HepMCProduct>("unsmeared");
 	produces<GenEventInfoProduct>();
 	produces<GenRunInfoProduct, edm::InRun>();
 
@@ -227,7 +227,7 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 	}
 
 	if (!hadronLevel.get()) {
-		event.put(result);
+		event.put(result, "unsmeared");
 		std::auto_ptr<GenEventInfoProduct> info(
 						new GenEventInfoProduct);
 		event.put(info);
@@ -246,7 +246,7 @@ bool LHEProducer::filter(edm::Event &event, const edm::EventSetup &es)
 	std::auto_ptr<GenEventInfoProduct> info(
 				new GenEventInfoProduct(hadronLevel.get()));
 	result->addHepMCData(hadronLevel.release());
-	event.put(result);
+	event.put(result, "unsmeared");
 	event.put(info);
 
 	if (jetMatching.get() && matchSummary) {

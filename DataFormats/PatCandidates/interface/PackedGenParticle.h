@@ -13,9 +13,13 @@
 #include "DataFormats/Math/interface/deltaPhi.h" 
 /* #include "DataFormats/Math/interface/PtEtaPhiMass.h" */
 
+class testPackedGenParticle;
+
 namespace pat {
   class PackedGenParticle : public reco::Candidate {
   public:
+    friend class ::testPackedGenParticle;
+
     /// collection of daughter candidates                                                 
     typedef reco::CandidateCollection daughters;
     /// Lorentz vector                                                                    
@@ -30,16 +34,65 @@ namespace pat {
     typedef unsigned int index;
 
     /// default constructor  
-  PackedGenParticle()
-    : p4_(0,0,0,0), p4c_(0,0,0,0), vertex_(0,0,0),  pdgId_(0), charge_(0), unpacked_(false) { }
-  explicit PackedGenParticle( const reco::GenParticle & c)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(c.motherRef(0)), unpacked_(true),
+    PackedGenParticle()
+    : packedPt_(0), packedY_(0), packedPhi_(0), packedM_(0), 
+    p4_(nullptr), p4c_(nullptr), vertex_(0,0,0),  pdgId_(0), charge_(0) { }
+    explicit PackedGenParticle( const reco::GenParticle & c)
+    : p4_(new PolarLorentzVector(c.pt(), c.eta(), c.phi(), c.mass())), p4c_( new LorentzVector(*p4_)), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(c.motherRef(0)),
       statusFlags_(c.statusFlags()) { pack(); }
-  explicit PackedGenParticle( const reco::GenParticle & c, const edm::Ref<reco::GenParticleCollection> &  mother)
-    : p4_(c.pt(), c.eta(), c.phi(), c.mass()), p4c_(p4_), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(mother), unpacked_(true),
+    explicit PackedGenParticle( const reco::GenParticle & c, const edm::Ref<reco::GenParticleCollection> &  mother)
+    : p4_(new PolarLorentzVector(c.pt(), c.eta(), c.phi(), c.mass())), p4c_(new LorentzVector(*p4_)), vertex_(0,0,0), pdgId_(c.pdgId()), charge_(c.charge()), mother_(mother),
       statusFlags_(c.statusFlags()) { pack(); }
 
-    
+    PackedGenParticle(const PackedGenParticle& iOther)
+    : p4_(nullptr),p4c_(nullptr),
+      vertex_(iOther.vertex_), dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_),
+      pdgId_(iOther.pdgId_),charge_(iOther.charge_),mother_(iOther.mother_),
+      statusFlags_(iOther.statusFlags_) {
+      if(iOther.p4c_) {
+        p4_.store( new PolarLorentzVector(*iOther.p4_) );
+        p4c_.store( new LorentzVector(*iOther.p4c_) );
+      }
+    }
+
+    PackedGenParticle(PackedGenParticle&& iOther)
+    : p4_(nullptr),p4c_(nullptr),
+      vertex_(std::move(iOther.vertex_)), dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_),
+      pdgId_(iOther.pdgId_),charge_(iOther.charge_),mother_(std::move(iOther.mother_)),
+      statusFlags_(iOther.statusFlags_) {
+      if(iOther.p4c_) {
+        p4_.store( p4_.exchange(nullptr) );
+        p4c_.store( p4c_.exchange(nullptr) );
+      }
+    }
+
+    PackedGenParticle& operator=(PackedGenParticle&& iOther) {
+      if(this != &iOther) {
+        if(p4c_) {
+          delete p4_.exchange(iOther.p4_.exchange(nullptr));
+          delete p4c_.exchange(iOther.p4c_.exchange(nullptr)) ;
+        } else {
+          delete p4_.exchange(nullptr);
+          delete p4c_.exchange(nullptr);
+        }
+        vertex_=std::move(iOther.vertex_);
+        dxy_ = iOther.dxy_;
+        dz_ = iOther.dz_;
+        dphi_ = iOther.dphi_;
+        pdgId_ = iOther.pdgId_;
+        charge_ = iOther.charge_;
+        mother_ = std::move(iOther.mother_);
+        statusFlags_ = iOther.statusFlags_;
+      }
+      return *this;
+    }
+
+    PackedGenParticle& operator=(PackedGenParticle const& iOther) {
+      PackedGenParticle c(iOther);
+      *this = std::move(c);
+      return *this;
+    }
+
     /// destructor
     virtual ~PackedGenParticle();
     /// number of daughters
@@ -79,71 +132,71 @@ namespace pat {
     /// set electric charge                                                               
     virtual void setThreeCharge( int threecharge) {}
     /// four-momentum Lorentz vecto r                                                      
-    virtual const LorentzVector & p4() const { if (!unpacked_) unpack(); return p4c_; }  
+    virtual const LorentzVector & p4() const { if (!p4c_) unpack(); return *p4c_; }  
     /// four-momentum Lorentz vector                                                      
-    virtual const PolarLorentzVector & polarP4() const { if (!unpacked_) unpack(); return p4_; }
+    virtual const PolarLorentzVector & polarP4() const { if (!p4c_) unpack(); return *p4_; }
     /// spatial momentum vector                                                           
-    virtual Vector momentum() const  { if (!unpacked_) unpack(); return p4c_.Vect(); }
+    virtual Vector momentum() const  { if (!p4c_) unpack(); return p4c_.load()->Vect(); }
     /// boost vector to boost a Lorentz vector                                            
     /// to the particle center of mass system                                             
-    virtual Vector boostToCM() const { if (!unpacked_) unpack(); return p4c_.BoostToCM(); }
+    virtual Vector boostToCM() const { if (!p4c_) unpack(); return p4c_.load()->BoostToCM(); }
     /// magnitude of momentum vector                                                      
-    virtual double p() const { if (!unpacked_) unpack(); return p4c_.P(); }
+    virtual double p() const { if (!p4c_) unpack(); return p4c_.load()->P(); }
     /// energy                                                                            
-    virtual double energy() const { if (!unpacked_) unpack(); return p4c_.E(); }
+    virtual double energy() const { if (!p4c_) unpack(); return p4c_.load()->E(); }
    /// transverse energy   
-    double et() const { return (pt()<=0) ? 0 : p4c_.Et(); }
+    double et() const { return (pt()<=0) ? 0 : p4c_.load()->Et(); }
     /// transverse energy squared (use this for cuts)!
-    double et2() const { return (pt()<=0) ? 0 : p4c_.Et2(); }
+    double et2() const { return (pt()<=0) ? 0 : p4c_.load()->Et2(); }
     /// mass                                                                              
-    virtual double mass() const { if (!unpacked_) unpack(); return p4_.M(); }
+    virtual double mass() const { if (!p4c_) unpack(); return p4_.load()->M(); }
     /// mass squared                                                                      
-    virtual double massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
+    virtual double massSqr() const { if (!p4c_) unpack(); return p4_.load()->M()*p4_.load()->M(); }
 
     /// transverse mass                                                                   
-    virtual double mt() const { if (!unpacked_) unpack(); return p4_.Mt(); }
+    virtual double mt() const { if (!p4c_) unpack(); return p4_.load()->Mt(); }
     /// transverse mass squared                                                           
-    virtual double mtSqr() const { if (!unpacked_) unpack(); return p4_.Mt2(); }
+    virtual double mtSqr() const { if (!p4c_) unpack(); return p4_.load()->Mt2(); }
     /// x coordinate of momentum vector                                                   
-    virtual double px() const { if (!unpacked_) unpack(); return p4c_.Px(); }
+    virtual double px() const { if (!p4c_) unpack(); return p4c_.load()->Px(); }
     /// y coordinate of momentum vector                                                   
-    virtual double py() const { if (!unpacked_) unpack(); return p4c_.Py(); }
+    virtual double py() const { if (!p4c_) unpack(); return p4c_.load()->Py(); }
     /// z coordinate of momentum vector                                                   
-    virtual double pz() const { if (!unpacked_) unpack(); return p4c_.Pz(); }
+    virtual double pz() const { if (!p4c_) unpack(); return p4c_.load()->Pz(); }
     /// transverse momentum                                                               
-    virtual double pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
+    virtual double pt() const { if (!p4c_) unpack(); return p4_.load()->Pt();}
     /// momentum azimuthal angle                                                          
-    virtual double phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
+    virtual double phi() const { if (!p4c_) unpack(); return p4_.load()->Phi(); }
     /// momentum polar angle                                                              
-    virtual double theta() const { if (!unpacked_) unpack(); return p4_.Theta(); }
+    virtual double theta() const { if (!p4c_) unpack(); return p4_.load()->Theta(); }
     /// momentum pseudorapidity                                                           
-    virtual double eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
+    virtual double eta() const { if (!p4c_) unpack(); return p4_.load()->Eta(); }
     /// rapidity                                                                          
-    virtual double rapidity() const { if (!unpacked_) unpack(); return p4_.Rapidity(); }
+    virtual double rapidity() const { if (!p4c_) unpack(); return p4_.load()->Rapidity(); }
     /// rapidity                                                                          
-    virtual double y() const { if (!unpacked_) unpack(); return p4_.Rapidity(); }
+    virtual double y() const { if (!p4c_) unpack(); return p4_.load()->Rapidity(); }
     /// set 4-momentum                                                                    
     virtual void setP4( const LorentzVector & p4 ) { 
         unpack(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
-        p4_ = PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M());
+        *p4_ = PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M());
         pack();
     }
     /// set 4-momentum                                                                    
     virtual void setP4( const PolarLorentzVector & p4 ) { 
         unpack(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
-        p4_ = p4; 
+        *p4_ = p4; 
         pack();
     }
     /// set particle mass                                                                 
     virtual void setMass( double m ) {
-      if (!unpacked_) unpack(); 
-      p4_ = PolarLorentzVector(p4_.Pt(), p4_.Eta(), p4_.Phi(), m); 
+      if (!p4c_) unpack(); 
+      *p4_ = PolarLorentzVector(p4_.load()->Pt(), p4_.load()->Eta(), p4_.load()->Phi(), m); 
       pack();
     }
     virtual void setPz( double pz ) {
       unpack(); // changing px,py,pz changes also mapping between dxy,dz and x,y,z
-      p4c_ = LorentzVector(p4c_.Px(), p4c_.Py(), pz, p4c_.E());
-      p4_  = PolarLorentzVector(p4c_.Pt(), p4c_.Eta(), p4c_.Phi(), p4c_.M());
+      *p4c_ = LorentzVector(p4c_.load()->Px(), p4c_.load()->Py(), pz, p4c_.load()->E());
+      *p4_  = PolarLorentzVector(p4c_.load()->Pt(), p4c_.load()->Eta(), p4c_.load()->Phi(), p4c_.load()->M());
       pack();
     }
     /// vertex position
@@ -283,19 +336,17 @@ namespace pat {
     void unpack() const ;
  
     /// the four vector                                                 
-    mutable PolarLorentzVector p4_;
-    mutable LorentzVector p4c_;
+    mutable std::atomic<PolarLorentzVector*> p4_;
+    mutable std::atomic<LorentzVector*> p4c_;
     /// vertex position                                                                   
-    mutable Point vertex_;
-    mutable float dxy_, dz_, dphi_;
+    Point vertex_;
+    float dxy_, dz_, dphi_;
     /// PDG identifier                                                                    
     int pdgId_;
     /// Charge
     int8_t charge_;
     ///Ref to first mother
     reco::GenParticleRef mother_;
-    // is the momentum p4 unpacked
-    mutable bool unpacked_;
     //status flags
     reco::GenStatusFlags statusFlags_;
 

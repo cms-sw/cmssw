@@ -1,0 +1,15 @@
+<use   name="CommonTools/Utils"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/PhysicsToolsObjects"/>
+<use   name="DataFormats/BTauReco"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="PhysicsTools/MVAComputer"/>
+<use   name="RecoBTau/JetTagComputer"/>
+<use   name="boost"/>
+<export>
+  <lib   name="1"/>
+</export>

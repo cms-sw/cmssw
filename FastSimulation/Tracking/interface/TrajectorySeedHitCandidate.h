@@ -4,11 +4,14 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h" 
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastProjectedTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastMatchedTrackerRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastSingleTrackerRecHit.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-
+#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 
 #include "FastSimulation/Tracking/interface/TrackingLayer.h"
@@ -23,11 +26,9 @@ public:
   
   /// Default Constructor
   TrajectorySeedHitCandidate() :
-    theSplitHit(0),
-    theMatchedHit(0),
+    theHit(0),
     theGeomDet(0),
     seedingLayer(),
-    
     theRingNumber(0), 
     theCylinderNumber(0), 
     theLocalError(0.),
@@ -39,10 +40,10 @@ public:
    }
     
   /// Soft Copy Constructor from private members
-  TrajectorySeedHitCandidate( const SiTrackerGSRecHit2D* theSplitHit, 
-		 const TrajectorySeedHitCandidate& other ) : 
-    theSplitHit(theSplitHit),
-    theMatchedHit(0),
+  /// lv: do we need this one?
+  TrajectorySeedHitCandidate( const FastTrackerRecHit * hit, 
+			      const TrajectorySeedHitCandidate& other ) : 
+    theHit(hit),
     theGeomDet(other.geomDet()),
     seedingLayer(other.getTrackingLayer()),
     theRingNumber(other.ringNumber()), 
@@ -56,29 +57,16 @@ public:
     }
 
   /// Constructor from a GSRecHit and the Geometry
-  TrajectorySeedHitCandidate(const SiTrackerGSRecHit2D* theHit, 
-		const TrackerGeometry* theGeometry,
-		const TrackerTopology* tTopo);
+  TrajectorySeedHitCandidate(const FastTrackerRecHit * hit, 
+			     const TrackerGeometry* theGeometry,
+			     const TrackerTopology* tTopo);
   
-  TrajectorySeedHitCandidate(const SiTrackerGSMatchedRecHit2D* theHit, 
-		const TrackerGeometry* theGeometry,
-		const TrackerTopology *tTopo);
-
   /// Initialization at construction time
   void init(const TrackerGeometry* theGeometry,
 	    const TrackerTopology *tTopo);
   
-  // TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit, 
-  //		const TrackerGeometry* theGeometry);
-  
   /// The Hit itself
-  //  const SiTrackerGSRecHit2D* hit() const { return theHit; }
-  inline const SiTrackerGSMatchedRecHit2D* matchedHit() const { return theMatchedHit; }
-  inline const SiTrackerGSRecHit2D* splitHit() const { return theSplitHit; }
-  
-  inline const GSSiTrackerRecHit2DLocalPos* hit() const { 
-    return theSplitHit ? (GSSiTrackerRecHit2DLocalPos*)theSplitHit : 
-      (GSSiTrackerRecHit2DLocalPos*)theMatchedHit; }
+  inline const FastTrackerRecHit * hit() const { return theHit; }
       
   inline const TrackingLayer& getTrackingLayer() const
   {
@@ -167,10 +155,11 @@ public:
       aHit.hit()->localPosition().z() != this->hit()->localPosition().z();
   }
 
+  
+
  private:
   
-  const SiTrackerGSRecHit2D* theSplitHit;
-  const SiTrackerGSMatchedRecHit2D* theMatchedHit;
+  const FastTrackerRecHit * theHit;
   const GeomDet* theGeomDet;
   TrackingLayer seedingLayer;
   unsigned int theRingNumber;

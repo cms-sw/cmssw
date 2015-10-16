@@ -1635,13 +1635,13 @@ void SiPixelActionExecutor::bookEfficiency(DQMStore::IBooker & iBooker, bool isU
   iBooker.setCurrentFolder("Pixel/Barrel");
   if (!isUpgrade) {
   if(Tier0Flag_){
-    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4,4,20,-10.,10.);
-    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4,4,32,-16.,16.);
-    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4,4,44,-22.,22.);
+    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",9,-4.5,4.5,21,-10.5,10.5);
+    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",9,-4.5,4.5,33,-16.5,16.5);
+    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",9,-4.5,4.5,45,-22.5,22.5);
   }else{
-    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",8,-4.,4.,20,-10.,10.);
-    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",8,-4.,4.,32,-16.,16.);
-    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",8,-4.,4.,44,-22.,22.);
+    HitEfficiency_L1 = iBooker.book2D("HitEfficiency_L1","Hit Efficiency in Barrel_Layer1;Module;Ladder",9,-4.5,4.5,21,-10.5,10.5);
+    HitEfficiency_L2 = iBooker.book2D("HitEfficiency_L2","Hit Efficiency in Barrel_Layer2;Module;Ladder",9,-4.5,4.5,33,-16.5,16.5);
+    HitEfficiency_L3 = iBooker.book2D("HitEfficiency_L3","Hit Efficiency in Barrel_Layer3;Module;Ladder",9,-4.5,4.5,45,-22.5,22.5); 
   }
   }//endifNOTUpgrade
   else if (isUpgrade) {
@@ -1746,37 +1746,32 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker & iBooker, DQMStore
 	  else if(dname.find("21")!=string::npos){ biny = 21;}else if(dname.find("22")!=string::npos){ biny = 22;}
 	  
 	  if(currDir.find("Shell_mO")!=string::npos || currDir.find("Shell_pO")!=string::npos){
-	    if(currDir.find("Layer_1")!=string::npos){ biny = biny + 10;}
-	    else if(currDir.find("Layer_2")!=string::npos){ biny = biny + 16;}
-	    
-	    else if(currDir.find("Layer_3")!=string::npos){ biny = biny + 22;}
-	    
+	    biny=-biny;
 	  }
 	  
-	  
-	  
-	  int start=1;
-	  //define start depending on p or m
-	  
-	  if(currDir.find("Shell_m")!=string::npos){ start = 1;}else{ start = 5;}
-	  for(int i=start; i<start+5;i++){
+  	  for(int i=1; i<5;i++){
 	    float hitEfficiency = -1.0;
 	    float missingHits=0;
 	    float validHits=0;
+	    float binx=float(i);
+
+	    if(currDir.find("Shell_m")!=string::npos) binx=-binx;
+
 	    missingHits=missing->getBinContent(i);
 	    validHits=valid->getBinContent(i);
 	    if(validHits + missingHits > 0.) hitEfficiency = validHits / (validHits + missingHits);
+
 	    if(currDir.find("Layer_1")!=string::npos){
 	      HitEfficiency_L1 = iGetter.get("Pixel/Barrel/HitEfficiency_L1");
-	      if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(i, biny,(float)hitEfficiency);
+	      if(HitEfficiency_L1) HitEfficiency_L1->setBinContent(HitEfficiency_L1->getTH2F()->FindBin(binx, biny),(float)hitEfficiency);
 	    }
 	    else if(currDir.find("Layer_2")!=string::npos){
 	      HitEfficiency_L2 = iGetter.get("Pixel/Barrel/HitEfficiency_L2");
-	      if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(i, biny,(float)hitEfficiency);
+	      if(HitEfficiency_L2) HitEfficiency_L2->setBinContent(HitEfficiency_L2->getTH2F()->FindBin(binx, biny),(float)hitEfficiency);
 	    }
 	    else if(currDir.find("Layer_3")!=string::npos){
-	      HitEfficiency_L3 = iGetter.get("Pixel/Barrel/HitEfficiency_L3");
-	      if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(i, biny,(float)hitEfficiency);
+	      HitEfficiency_L3 = iGetter.get("Pixel/Barrel/HitEfficiency_L3");		
+	      if(HitEfficiency_L3) HitEfficiency_L3->setBinContent(HitEfficiency_L3->getTH2F()->FindBin(binx, biny),(float)hitEfficiency);
 	    }     
 	    
 	  }

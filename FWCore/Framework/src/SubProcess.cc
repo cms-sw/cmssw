@@ -296,9 +296,6 @@ namespace edm {
   SubProcess::doEvent(EventPrincipal const& ep) {
     ServiceRegistry::Operate operate(serviceToken_);
     /* BEGIN relevant bits from OutputModule::doEvent */
-    detail::TRBESSentry products_sentry(selectors_);
-    
-    
     if(!wantAllEvents_) {
       // use module description and const_cast unless interface to
       // event is changed to just take a const EventPrincipal

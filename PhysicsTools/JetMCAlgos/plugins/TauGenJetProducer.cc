@@ -16,26 +16,21 @@ using namespace std;
 using namespace edm;
 using namespace reco;
 
-TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig)
+TauGenJetProducer::TauGenJetProducer(const edm::ParameterSet& iConfig) :
+  inputTagGenParticles_(iConfig.getParameter<InputTag>("GenParticles")),
+  tokenGenParticles_(consumes<GenParticleCollection>(inputTagGenParticles_)),
+  includeNeutrinos_(iConfig.getParameter<bool>("includeNeutrinos")),
+  verbose_(iConfig.getUntrackedParameter<bool>("verbose",false))
 {
-  inputTagGenParticles_
-    = iConfig.getParameter<InputTag>("GenParticles");
-  tokenGenParticles_
-    = consumes<GenParticleCollection>(inputTagGenParticles_);
-
-  includeNeutrinos_
-    = iConfig.getParameter<bool>("includeNeutrinos");
-
-  verbose_ =
-    iConfig.getUntrackedParameter<bool>("verbose",false);
+  
 
   produces<GenJetCollection>();
 }
 
 TauGenJetProducer::~TauGenJetProducer() { }
 
-void TauGenJetProducer::produce(Event& iEvent,
-				const EventSetup& iSetup) {
+void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
+				const EventSetup& iSetup) const {
 
   Handle<GenParticleCollection> genParticles;
 
@@ -108,7 +103,7 @@ void TauGenJetProducer::produce(Event& iEvent,
     GenJet jet( sumVisMom, vertex, specific, constituents);
 
     if (charge != (*iTau)->charge() )
-      std::cout<<" charge of Tau: " << (*iTau) << " not equal to charge of sum of charge of all descendents. " << std::cout;
+      std::cout<<" charge of Tau: " << (*iTau) << " not equal to charge of sum of charge of all descendents. " << std::endl;
 
     jet.setCharge(charge);
     pOutVisTaus->push_back( jet );

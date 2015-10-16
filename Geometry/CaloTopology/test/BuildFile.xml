@@ -1,7 +1,10 @@
 <use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/CaloTowers"/>
 <use   name="Geometry/CaloTopology"/>
-<bin   file="testCaloTowerTopology.cpp">
-</bin>
-<bin   file="testHcalTopology.cpp">
-</bin>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/HcalCommonData"/>
+
+<flags   EDM_PLUGIN="1"/>
+<library   file="HcalTopologyTester.cc" name="testGeometryHcalTopology"> </library>
+<library   file="HGCalTopologyTester.cc" name="testGeometryHCCalTopology"> </library>

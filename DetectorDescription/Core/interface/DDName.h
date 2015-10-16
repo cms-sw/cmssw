@@ -1,13 +1,9 @@
 #ifndef DDName_h
 #define DDName_h
 
-#include <utility>
 #include <string>
-#include <iosfwd>
 #include <map>
 #include <vector>
-#include <stdexcept>
-//#include "DetectorDescription/Base/interface/Singleton.h"
 
 class DDCurrentNamespace;
 class DDStreamer;
@@ -15,7 +11,7 @@ class DDStreamer;
 //! DDName is used to identify DDD entities uniquely.
 /** A DDName consists of a \a name and a \a namespace. Both are represented as std::string.
 */
-class DDName // : public std::pair<std::string,std::string>
+class DDName
 {
   friend class DStreamer; // intrusive!
   
@@ -25,7 +21,6 @@ public:
   typedef int id_type;
   typedef std::map<std::pair<std::string,std::string>,id_type> Registry;
   typedef std::vector<Registry::const_iterator> IdToName;
-
   
   //! Constructs a DDName with name \a name and assigns \a name to the namespace \a ns.
   DDName( const std::string & name,
@@ -77,7 +72,6 @@ private:
 struct DDNameInterface
 {
   virtual ~DDNameInterface() {}
-  //virtual const DDName & ddName() const=0; // qualified Name
   
   //! Returns the \a name without the \a namespace
   virtual const std::string & name() const=0;   // name without namespace

@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -47,19 +47,20 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-class PFTauSecondaryVertexProducer : public EDProducer {
+class PFTauSecondaryVertexProducer : public edm::global::EDProducer<> {
  public:
   enum Alg{useInputPV=0, usePVwithMaxSumPt, useTauPV};
 
   explicit PFTauSecondaryVertexProducer(const edm::ParameterSet& iConfig);
   ~PFTauSecondaryVertexProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
  private:
-  edm::InputTag PFTauTag_;
-  edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
+  const edm::InputTag PFTauTag_;
+  const edm::EDGetTokenT<std::vector<reco::PFTau> > PFTauToken_;
 };
 
 PFTauSecondaryVertexProducer::PFTauSecondaryVertexProducer(const edm::ParameterSet& iConfig):
+  PFTauTag_(iConfig.getParameter<edm::InputTag>("PFTauTag")),
   PFTauToken_(consumes<std::vector<reco::PFTau> >(iConfig.getParameter<edm::InputTag>("PFTauTag")))
 {
   produces<edm::AssociationVector<PFTauRefProd, std::vector<std::vector<reco::VertexRef> > > >();
@@ -70,7 +71,7 @@ PFTauSecondaryVertexProducer::~PFTauSecondaryVertexProducer(){
 
 }
 
-void PFTauSecondaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup){
+void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,const edm::EventSetup& iSetup) const {
   // Obtain 
   edm::ESHandle<TransientTrackBuilder> transTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",transTrackBuilder);
@@ -88,7 +89,7 @@ void PFTauSecondaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSe
     for(reco::PFTauCollection::size_type iPFTau = 0; iPFTau < Tau->size(); iPFTau++) {
       reco::PFTauRef RefPFTau(Tau, iPFTau);
       std::vector<reco::VertexRef> SV;
-      if(RefPFTau->decayMode()==10){
+      if(RefPFTau->decayMode()>=5){
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// Get tracks form PFTau daugthers
 	std::vector<reco::TransientTrack> transTrk;

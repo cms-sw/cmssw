@@ -5,8 +5,7 @@
  *
  */
 #include <memory>
-
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include <typeinfo>
 
 namespace edm {
   class ProductID;
@@ -52,7 +51,7 @@ namespace edm {
       // and cast it to the type specified by toType.
       // Return 0 if the real type is not toType nor a subclass of
       // toType.
-      virtual void const* pointerToType(TypeWithDict const& toType) const = 0;
+      virtual void const* pointerToType(std::type_info const& toType) const = 0;
     };
 
     //------------------------------------------------------------------
@@ -67,8 +66,7 @@ namespace edm {
     T const*
     RefHolderBase::getPtr() const
     {
-      static const TypeWithDict s_type(typeid(T));
-      return static_cast<T const*>(pointerToType(s_type));
+      return static_cast<T const*>(pointerToType(typeid(T)));
     }
 
   }

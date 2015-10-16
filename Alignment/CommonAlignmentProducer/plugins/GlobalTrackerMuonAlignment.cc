@@ -1029,7 +1029,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     AlgebraicSymMatrix55 Cml(tsosMuon.localError().matrix() + extrapolationT.localError().matrix());
     bool ierrLoc = !m.Invert();
     if (ierrLoc && debug_ && info) { 
-      std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::cout;
+      std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::endl;
       continue;}
     double chi_Loc = ROOT::Math::Similarity(Vml,m);
     if(debug_)
@@ -1802,7 +1802,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     AlgebraicSymMatrix55 Cml(tsosMuon.localError().matrix() + extrapolationT.localError().matrix());
     bool ierrLoc = !m.Invert();
     if (ierrLoc && debug_ && info) { 
-      std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::cout;
+      std::cout<< " ==== Error inverting Local covariance matrix ==== "<<std::endl;
       continue;}
     double chi_Loc = ROOT::Math::Similarity(Vml,m);
     if(debug_)

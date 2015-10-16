@@ -21,7 +21,7 @@ using namespace std;
 
 ZgammaMassFilter::ZgammaMassFilter(const edm::ParameterSet& iConfig)
 {
-  token_          =consumes<edm::HepMCProduct>(iConfig.getParameter<string>("HepMCProduct"));
+  token_          =consumes<edm::HepMCProduct>(iConfig.getParameter<InputTag>("HepMCProduct"));
   minPhotonPt     =iConfig.getParameter<double>("minPhotonPt");
   minLeptonPt     =iConfig.getParameter<double>("minLeptonPt");
   minPhotonEta    =iConfig.getParameter<double>("minPhotonEta");

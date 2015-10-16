@@ -9,6 +9,7 @@
  * revised: Tue Aug 31 13:34:40 CEST 2010
  */
 #include "DataFormats/Math/interface/LorentzVector.h"
+#include "DataFormats/Common/interface/AtomicPtrCache.h"
 #include "DataFormats/TauReco/interface/BaseTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTauTagInfo.h"
@@ -127,29 +128,36 @@ class PFTau : public BaseTau {
 
     /// Retrieve the association of signal region gamma candidates into candidate PiZeros
     const std::vector<RecoTauPiZero>& signalPiZeroCandidates() const;
-    void setsignalPiZeroCandidates(const std::vector<RecoTauPiZero>&);
-    void setSignalPiZeroCandidatesRefs(const RecoTauPiZeroRefVector&);
+    void setsignalPiZeroCandidates(std::vector<RecoTauPiZero>);
+    void setSignalPiZeroCandidatesRefs(RecoTauPiZeroRefVector);
 
     /// Retrieve the association of isolation region gamma candidates into candidate PiZeros
     const std::vector<RecoTauPiZero>& isolationPiZeroCandidates() const;
-    void setisolationPiZeroCandidates(const std::vector<RecoTauPiZero>&);
-    void setIsolationPiZeroCandidatesRefs(const RecoTauPiZeroRefVector&);
+    void setisolationPiZeroCandidates(std::vector<RecoTauPiZero>);
+    void setIsolationPiZeroCandidatesRefs(RecoTauPiZeroRefVector);
 
     /// Retrieve the association of signal region PF candidates into candidate PFRecoTauChargedHadrons
     const std::vector<PFRecoTauChargedHadron>& signalTauChargedHadronCandidates() const;
-    void setSignalTauChargedHadronCandidates(const std::vector<PFRecoTauChargedHadron>&);
-    void setSignalTauChargedHadronCandidatesRefs(const PFRecoTauChargedHadronRefVector&);
+    void setSignalTauChargedHadronCandidates(std::vector<PFRecoTauChargedHadron>);
+    void setSignalTauChargedHadronCandidatesRefs(PFRecoTauChargedHadronRefVector);
 
     /// Retrieve the association of isolation region PF candidates into candidate PFRecoTauChargedHadron
     const std::vector<PFRecoTauChargedHadron>& isolationTauChargedHadronCandidates() const;
-    void setIsolationTauChargedHadronCandidates(const std::vector<PFRecoTauChargedHadron>&);
-    void setIsolationTauChargedHadronCandidatesRefs(const PFRecoTauChargedHadronRefVector&);
+    void setIsolationTauChargedHadronCandidates(std::vector<PFRecoTauChargedHadron>);
+    void setIsolationTauChargedHadronCandidatesRefs(PFRecoTauChargedHadronRefVector);
 
     /// Retrieve the identified hadronic decay mode according to the number of
     /// charged and piZero candidates in the signal cone
     hadronicDecayMode decayMode() const;
-    hadronicDecayMode calculateDecayMode() const;
     void setDecayMode(const hadronicDecayMode&);
+
+    /// Effect of eta and phi correction of strip on mass of tau candidate
+    float bendCorrMass() const { return bendCorrMass_; }
+    void setBendCorrMass(float bendCorrMass) { bendCorrMass_ = bendCorrMass; }
+
+    /// Size of signal cone
+    double signalConeSize() const { return signalConeSize_; }
+    void setSignalConeSize(double signalConeSize) { signalConeSize_ = signalConeSize; }  
 
     //Electron rejection
     float emFraction() const; // Ecal/Hcal Cluster Energy
@@ -192,11 +200,17 @@ class PFTau : public BaseTau {
     CandidatePtr sourceCandidatePtr( size_type i ) const;
 
     /// prints information on this PFTau
-    void dump(std::ostream& out=std::cout) const;
+    void dump(std::ostream& out = std::cout) const;
 
   private:
     friend class tau::RecoTauConstructor;
     friend class tau::PFRecoTauEnergyAlgorithmPlugin;
+
+    //These are used by the friends
+    std::vector<RecoTauPiZero>& signalPiZeroCandidatesRestricted();
+    std::vector<RecoTauPiZero>& isolationPiZeroCandidatesRestricted();
+    std::vector<PFRecoTauChargedHadron>& signalTauChargedHadronCandidatesRestricted();
+    std::vector<PFRecoTauChargedHadron>& isolationTauChargedHadronCandidatesRestricted();
 
     // check overlap with another candidate
     virtual bool overlap(const Candidate&) const;
@@ -226,6 +240,10 @@ class PFTau : public BaseTau {
 
     hadronicDecayMode decayMode_;
 
+    float bendCorrMass_;
+
+    float signalConeSize_; 
+
     reco::PFJetRef jetRef_;
     PFTauTagInfoRef PFTauTagInfoRef_;
     reco::PFCandidatePtr leadPFChargedHadrCand_;
@@ -252,12 +270,12 @@ class PFTau : public BaseTau {
     PFRecoTauChargedHadronRefVector isolationTauChargedHadronCandidatesRefs_;
 
     // Association of gamma candidates into PiZeros (transient)
-    mutable std::vector<reco::RecoTauPiZero> signalPiZeroCandidates_;
-    mutable std::vector<reco::RecoTauPiZero> isolationPiZeroCandidates_;
+    edm::AtomicPtrCache<std::vector<reco::RecoTauPiZero>> signalPiZeroCandidates_;
+    edm::AtomicPtrCache<std::vector<reco::RecoTauPiZero>> isolationPiZeroCandidates_;
 
     // Association of PF candidates into PFRecoTauChargedHadrons (transient)
-    mutable std::vector<reco::PFRecoTauChargedHadron> signalTauChargedHadronCandidates_;
-    mutable std::vector<reco::PFRecoTauChargedHadron> isolationTauChargedHadronCandidates_;
+    edm::AtomicPtrCache<std::vector<reco::PFRecoTauChargedHadron>> signalTauChargedHadronCandidates_;
+    edm::AtomicPtrCache<std::vector<reco::PFRecoTauChargedHadron>> isolationTauChargedHadronCandidates_;
 };
 
 std::ostream & operator<<(std::ostream& out, const PFTau& c);

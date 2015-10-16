@@ -151,9 +151,19 @@ void BeamMonitor::beginJob() {
   // create and cd into new folder
   dbe_->setCurrentFolder(monitorName_+"Fit");
 
-  h_nTrk_lumi=dbe_->book1D("nTrk_lumi","Num. of selected tracks vs lumi",20,0.5,20.5);
+  h_nTrk_lumi=dbe_->book1D("nTrk_lumi","Num. of selected tracks vs lumi (Fit)",20,0.5,20.5);
   h_nTrk_lumi->setAxisTitle("Lumisection",1);
-  h_nTrk_lumi->setAxisTitle("Num of Tracks",2);
+  h_nTrk_lumi->setAxisTitle("Num of Tracks for Fit",2);
+
+  //store vtx vs lumi for monitoring why fits fail
+  h_nVtx_lumi=dbe_->book1D("nVtx_lumi","Num. of selected Vtx vs lumi (Fit)",20,0.5,20.5);
+  h_nVtx_lumi->setAxisTitle("Lumisection",1);
+  h_nVtx_lumi->setAxisTitle("Num of Vtx for Fit",2);
+  
+  h_nVtx_lumi_all=dbe_->book1D("nVtx_lumi_all","Num. of selected Vtx vs lumi (Fit) all",20,0.5,20.5);
+  h_nVtx_lumi_all->getTH1()->SetCanExtend(TH1::kAllAxes);
+  h_nVtx_lumi_all->setAxisTitle("Lumisection",1);
+  h_nVtx_lumi_all->setAxisTitle("Num of Vtx for Fit",2);
 
   h_d0_phi0 = dbe_->bookProfile("d0_phi0","d_{0} vs. #phi_{0} (Selected Tracks)",phiBin,phiMin,phiMax,dxBin,dxMin,dxMax,"");
   h_d0_phi0->setAxisTitle("#phi_{0} (rad)",1);
@@ -484,11 +494,12 @@ if(nthlumi > nextlumi_){
      map<int, std::time_t>::iterator itbstime=mapBeginBSTime.begin();
      map<int, std::time_t>::iterator itpvtime=mapBeginPVTime.begin();
 
+    if(processed_){// otherwise if false then LS range of fit get messed up because we don't remove trk/pvs but we remove LS begin value . This prevent it as it happened if LS is there but no event are processed for some reason
      mapBeginBSLS.erase(itbs);
      mapBeginPVLS.erase(itpv);
      mapBeginBSTime.erase(itbstime);
      mapBeginPVTime.erase(itpvtime);
-
+     } 
             /*//not sure if want this or not ??
             map<int, int>::iterator itgapb=mapBeginBSLS.begin();
             map<int, int>::iterator itgape=mapBeginBSLS.end(); itgape--;
@@ -811,6 +822,7 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       hs["sigmaX0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
       hs["sigmaY0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
       hs["sigmaZ0_lumi"]->ShiftFillLast( 0., 0., fitNLumi_ );
+      h_nVtx_lumi->ShiftFillLast( 0., 0., fitNLumi_ );
     }
     for (int ig = 0; ig < LSgap_pv; ig++) {
       hs["PVx_lumi"]->ShiftFillLast( 0., 0., fitPVNLumi_ );
@@ -1085,6 +1097,10 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
   edm::LogInfo("BeamMonitor") << "FitAndFill:: [DebugTime] refBStime[1] = " << refBStime[1]
 			      << "; address =  " << &refBStime[1] << std::endl;
 
+  //Fill for all LS even if fit fails
+  h_nVtx_lumi->ShiftFillLast( (theBeamFitter->getPVvectorSize()), 0., fitNLumi_ );
+  h_nVtx_lumi_all->setBinContent(currentlumi,(theBeamFitter->getPVvectorSize()));
+
   if (countFitting) {
     nFits_++;
     std::pair<int,int> fitLS = theBeamFitter->getFitLSRange();
@@ -1164,12 +1180,12 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
       if (nthBSTrk_ >= 2*min_Ntrks_) {
 	double amp = std::sqrt(bs.x0()*bs.x0()+bs.y0()*bs.y0());
 	double alpha = std::atan2(bs.y0(),bs.x0());
-	TF1 *f1 = new TF1("f1","[0]*sin(x-[1])",-3.14,3.14);
+	std::unique_ptr<TF1> f1{ new TF1("f1","[0]*sin(x-[1])",-3.14,3.14) };
 	f1->SetParameters(amp,alpha);
 	f1->SetParLimits(0,amp-0.1,amp+0.1);
 	f1->SetParLimits(1,alpha-0.577,alpha+0.577);
 	f1->SetLineColor(4);
-	h_d0_phi0->getTProfile()->Fit("f1","QR");
+	h_d0_phi0->getTProfile()->Fit(f1.get(),"QR");
 
 	double mean = bs.z0();
 	double width = bs.sigmaZ();

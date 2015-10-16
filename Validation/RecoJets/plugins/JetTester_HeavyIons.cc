@@ -47,7 +47,7 @@ JetTester_HeavyIons::JetTester_HeavyIons(const edm::ParameterSet& iConfig) :
   }
 
   genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
-  evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
+  evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generatorSmeared"));
   pfCandToken_ = consumes<reco::PFCandidateCollection>(mInputPFCandCollection);
   pfCandViewToken_ = consumes<reco::CandidateView>(mInputPFCandCollection);
   caloCandViewToken_ = consumes<reco::CandidateView>(edm::InputTag("towerMaker"));

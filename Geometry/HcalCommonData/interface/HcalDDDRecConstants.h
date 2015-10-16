@@ -6,7 +6,6 @@
  * this class reads the constant section of
  * the hcal-sim-numbering xml-file
  *  
- *  $Date: 2013/12/25 00:06:50 $
  * \author Sunanda Banerjee, SINP <sunanda.banerjee@cern.ch>
  *
  */
@@ -56,14 +55,14 @@ public:
   std::vector<HcalEtaBin>   getEtaBins(const int itype) const;
   std::pair<double,double>  getEtaPhi(int subdet, int ieta, int iphi) const;
   std::pair<int,int>        getEtaRange(const int i) const
-    {return std::pair<int,int>(hpar->etaMin[i],hpar->etaMax[i]);}
-  const std::vector<double> &      getEtaTable()   const {return hpar->etaTable;}
+    {return std::pair<int,int>(iEtaMin[i],iEtaMax[i]);}
+  const std::vector<double> &      getEtaTable()   const {return etaTable;}
   const std::vector<double> &      getEtaTableHF() const {return hpar->etaTableHF;}
   std::pair<double,double>  getEtaLimit(const int i) const 
-    {return std::pair<double,double>(hpar->etaTable[i],hpar->etaTable[i+1]);}
+    {return std::pair<double,double>(etaTable[i],etaTable[i+1]);}
   HcalID                    getHCID(int subdet, int ieta, int iphi, int lay,
 				    int idepth) const;
-  int                       getMaxDepth(const int type) const {return hpar->maxDepth[type];}
+  int                       getMaxDepth(const int type) const {return maxDepth[type];}
   int                       getNEta() const {return hpar->etagroup.size();}
   double                    getPhiBin(const int i) const {return phibin[i];}
   double                    getPhiOff(const int i) const {return hpar->phioff[i];}
@@ -86,7 +85,10 @@ private:
   const HcalParameters      *hpar;
   const HcalDDDSimConstants &hcons;
   std::vector<std::pair<int,int> > etaSimValu; // eta ranges at Sim stage
+  std::vector<double> etaTable;   // Eta table (HB+HE)
   std::vector<int>    ietaMap;    // Map Sim level ieta to Rec level ieta
+  std::vector<int>    iEtaMin, iEtaMax; // Minimum and maximum eta
+  std::vector<int>    maxDepth;   // Maximum depth in HB/HE/HF/HO 
   std::vector<double> phibin;     // Phi step for all eta bins (HB, HE, HO)
   std::vector<int>    phiUnitS;   // Phi unit at SIM stage
   std::vector<std::pair<double,double> > gconsHB; // Geometry constatnts HB

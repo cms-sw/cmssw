@@ -129,7 +129,7 @@ BetaBoostEvtVtxGenerator::BetaBoostEvtVtxGenerator(const edm::ParameterSet & p )
       << "Illegal resolution in Z (SigmaZ is negative)";
   }
 
-  produces<bool>(); 
+  produces<edm::HepMCProduct>();
   
 }
 
@@ -260,21 +260,21 @@ void BetaBoostEvtVtxGenerator::produce( Event& evt, const EventSetup& )
   }
   CLHEP::HepRandomEngine* engine = &rng->getEngine(evt.streamID());
   
+  Handle<HepMCProduct> HepUnsmearedMCEvt;
+  evt.getByLabel(sourceLabel, HepUnsmearedMCEvt);
   
-  Handle<HepMCProduct> HepMCEvt ;    
-  evt.getByLabel( sourceLabel, HepMCEvt ) ;
-  
+  // Copy the HepMC::GenEvent
+  HepMC::GenEvent* genevt = new HepMC::GenEvent(*HepUnsmearedMCEvt->GetEvent());
+  std::unique_ptr<edm::HepMCProduct> HepMCEvt(new edm::HepMCProduct(genevt));
+
   // generate new vertex & apply the shift 
   //
   HepMCEvt->applyVtxGen( newVertex(engine) ) ;
  
   //HepMCEvt->LorentzBoost( 0., 142.e-6 );
   HepMCEvt->boostToLab( GetInvLorentzBoost(), "vertex" );
-  HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );    
-  // OK, create a (pseudo)product and put in into edm::Event
-  //
-  auto_ptr<bool> NewProduct(new bool(true)) ;      
-  evt.put( NewProduct ) ;       
+  HepMCEvt->boostToLab( GetInvLorentzBoost(), "momentum" );
+  evt.put(std::move(HepMCEvt));
   return ;
 }
 

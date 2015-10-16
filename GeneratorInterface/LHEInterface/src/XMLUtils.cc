@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 #include <cstring>
 
 #include "FWCore/Concurrency/interface/Xerces.h"
@@ -10,6 +11,7 @@
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "Utilities/StorageFactory/interface/IOTypes.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
@@ -17,12 +19,11 @@
 #include "XMLUtils.h"
 
 XERCES_CPP_NAMESPACE_USE
-#define BUF_SIZE 8192 
 
 namespace lhef {
 
-StorageWrap::StorageWrap(Storage *storage) :
-	storage(storage)
+StorageWrap::StorageWrap(std::unique_ptr<Storage> storage) :
+	storage(std::move(storage))
 {
 }
 
@@ -209,6 +210,7 @@ StorageInputStream::StorageInputStream(StorageWrap &in) :
         compression_(false),
         lasttotal_(0)
 {
+   buffer_.reserve(bufferSize_);
   // Check the kind of file.
   char header[6];
   /*unsigned int s = */ in->read(header, 6);
@@ -243,67 +245,64 @@ StorageInputStream::~StorageInputStream()
   lzma_end(&(lstr));
 }
 
-unsigned int StorageInputStream::readBytes(XMLByte* const buf,
-                                           const unsigned int size)
+
+unsigned int StorageInputStream::readBytes(XMLByte* const buf, const unsigned int size)
 {
-  // Simple read-in write-out in case
-  if (!compression_)
-  {
-    void *rawBuf = reinterpret_cast<void*>(buf);
-    unsigned int bytes = size * sizeof(XMLByte);
-    unsigned int readBytes = in->read(rawBuf, bytes);
+        // Compression code is not able to handle sizeof(XMLByte) > 1.
+    assert(sizeof(XMLByte) == sizeof(unsigned char));
 
-    unsigned int read = (unsigned int)(readBytes / sizeof(XMLByte));
-    unsigned int rest = (unsigned int)(readBytes % sizeof(XMLByte));
-    if (rest)
-      in->position(-(IOOffset)rest, Storage::CURRENT);
-
-    /*for (unsigned int i = 0; i < read; ++i){
-      std::cout << buf[i] ;
-    }*/
- 
-    pos += read;
-    return read;
-  }
-  // Compressed case. 
-  // We simply read as many bytes as we can and we 
-  // uncompress them in the output buffer.
-  // We never decompress more bytes we were asked by
-  // xerces. 
-  // In case we read from file more bytes than needed 
-  // we simply rollback by the (hopefully) correct amount.
-  // If we don't read enough bytes, we simply return
-  // the amount of bytes read and we wait for being called
-  // again by xerces.
-  unsigned int bytes = size * sizeof(XMLByte);
-//  std::cout << "bites " << bytes << std::endl;
-  uint8_t inBuf[BUF_SIZE];
-  unsigned int rd = in->read((void*)inBuf, BUF_SIZE);
-  lstr.next_in = inBuf;
-  lstr.avail_in = rd;
-  lstr.next_out = buf;
-  lstr.avail_out = bytes;
-/*  for (unsigned int i = 0; i < size; ++i){
-    std::cout << buf[i] ;
-  }  
-  std::cout << std::endl;*/
-
-  int ret = lzma_code(&lstr, LZMA_RUN);
-  if(ret != LZMA_OK && ret != LZMA_STREAM_END) {  /* decompression error */
-    lzma_end(&lstr);
-    throw cms::Exception("IO") << "Error while reading compressed LHE file";
-  }
-  // If we did not consume everything we put it back.
-//  std::cout << "lstr.avail_in " << lstr.avail_in << " lstr.total_in " << lstr.total_in << std::endl;
-//  std::cout << "lstr.avail_out " << lstr.avail_out << " lstr.total_out " << lstr.total_out << std::endl;
-  if (lstr.avail_in){
-//    std::cout << "rolling back" << std::endl;
-    in->position(-(IOOffset)(lstr.avail_in), Storage::CURRENT);    
-  }  
-  pos = lstr.total_out;
-  unsigned int read = lstr.total_out - lasttotal_;
-  lasttotal_ = lstr.total_out;
-  return read;
+    if (! (buffLoc_ < buffTotal_) )
+    {
+        int rd = in->read((void*)&buffer_[0], buffer_.capacity());
+             // Storage layer is supposed to throw exceptions instead of returning errors; just-in-case
+        if (rd < 0)
+        {
+            edm::Exception ex(edm::errors::FileReadError);
+            ex << "Error while reading buffered LHE file";
+            throw ex;
+        }
+        buffLoc_=0;
+        buffTotal_=rd;
+        if (buffTotal_ == 0)
+        {
+            return 0;
+        }
+    }
+    unsigned int dataRead;
+    if (!compression_)
+    {
+        dataRead = std::min(buffTotal_-buffLoc_, size);
+        memcpy(buf, &buffer_[buffLoc_], dataRead);
+        buffLoc_ += dataRead;
+    }
+    else
+    {
+        dataRead = buffTotal_-buffLoc_;
+        lstr.next_in = &buffer_[buffLoc_];
+        lstr.avail_in = dataRead;
+        lstr.next_out = buf;
+        lstr.avail_out = size;
+        int ret = lzma_code(&lstr, LZMA_RUN);
+        if(ret != LZMA_OK && ret != LZMA_STREAM_END)
+        {  /* decompression error */
+            lzma_end(&lstr);
+            throw cms::Exception("IO") << "Error while reading compressed LHE file (error code " << ret << ")";
+        }
+        dataRead -= lstr.avail_in;
+        buffLoc_ += dataRead;
+            // Decoder was unable to make progress; reset stream and try again.
+            // If this becomes problematic, we can make the buffer circular.
+        if (!dataRead)
+        {
+                // NOTE: lstr.avail_in == buffTotal-buffLoc_
+            in->position(-(IOOffset)(lstr.avail_in), Storage::CURRENT);
+            buffLoc_ = 0;
+            buffTotal_ = 0;
+            return readBytes(buf, size);
+        }
+        dataRead = (size - lstr.avail_out);
+    }
+    return dataRead;
 }
 
 } // namespace lhef

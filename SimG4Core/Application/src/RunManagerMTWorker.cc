@@ -362,13 +362,13 @@ void RunManagerMTWorker::initializeRun() {
 }
 
 void RunManagerMTWorker::terminateRun() {
-  if(m_tls->userRunAction) {
+  if(m_tls && m_tls->userRunAction) {
     m_tls->userRunAction->EndOfRunAction(m_tls->currentRun.get());
     m_tls->userRunAction.reset();
   }
 
   G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
-  if(!kernel && !m_tls->runTerminated) {
+  if(kernel && m_tls && !m_tls->runTerminated) {
     m_tls->currentEvent.reset();
     m_simEvent.reset();
     kernel->RunTermination();

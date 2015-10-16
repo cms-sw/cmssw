@@ -101,8 +101,7 @@ BscTest::~BscTest() {
   // Write histograms to file
   TheHistManager->WriteToFile(fOutputFile,fRecreateFile);
   if (verbosity > 0) {
-    std::cout << std::endl << "BscTest Destructor  -------->  End of BscTest : "
-	      << std::cout << std::endl; 
+    std::cout << std::endl << "BscTest Destructor  -------->  End of BscTest : " << std::endl;
   }
 
   std::cout<<"BscTest: End of process"<<std::endl;
@@ -335,12 +334,13 @@ void BscTest::update(const EndOfTrack * trk) {
     G4ThreeVector   vert_pos  = (*trk)()->GetVertexPosition(); // vertex ,where this track was created
   
     //    float eta = 0.5 * log( (1.+vert_mom.z()) / (1.-vert_mom.z()) );
+    /*
     float phi = atan2(vert_mom.y(),vert_mom.x());
     if (phi < 0.) phi += twopi;
     if(tracklength < z4) {
 
     }
-
+    */
     // last step information
     const G4Step* aStep = (*trk)()->GetStep();
     G4StepPoint*      preStepPoint = aStep->GetPreStepPoint(); 
@@ -715,14 +715,13 @@ void BscTest::update(const EndOfEvent * evt) {
       std::cout << "BscTest: theCAFI->entries = " << theCAFI->entries() << std::endl;
     }
     int varia ;   // = 0 -all; =1 - MI; =2 - noMI
-    varia = 0;
+    //varia = 0;
     if(  lastpo.z()< z4) {
       varia = 1;
     }
     else{
       varia = 2;
     }   // no MI end:
-
     for (int j=0; j<theCAFI->entries(); j++) {
       BscG4Hit* aHit = (*theCAFI)[j];
       CLHEP::Hep3Vector hitPoint = aHit->getEntry();
@@ -746,8 +745,8 @@ void BscTest::update(const EndOfEvent * evt) {
 	int trackIDhit  = aHit->getTrackID();
 	unsigned int unitID = aHit->getUnitID();
 	double  losenergy = aHit->getEnergyLoss();
-	double phi_hit   = hitPoint.phi();
-	if (phi_hit < 0.) phi_hit += twopi;
+	//double phi_hit   = hitPoint.phi();
+	//if (phi_hit < 0.) phi_hit += twopi;
 
 	double   zz    = hitPoint.z();
 
@@ -937,11 +936,7 @@ void BscTest::update(const EndOfEvent * evt) {
       }
       else{   //UserNtuples->fillp212(vy,float(0.),1.);
       }
-
     }   // MI or no MI or all  - end
-
-
-
   }                                                // primary end
 
   if (verbosity > 0) {

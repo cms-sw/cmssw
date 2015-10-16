@@ -28,7 +28,7 @@ void L1MuonRegionProducer::setL1Constraint(const L1MuGMTCand & muon)
   theChargeL1 = muon.charge();
 }
 
-std::vector<TrackingRegion* > L1MuonRegionProducer::
+std::vector<std::unique_ptr<TrackingRegion> > L1MuonRegionProducer::
       regions(const edm::Event& ev, const edm::EventSetup& es) const
 {
   double dx = cos(thePhiL1);
@@ -36,13 +36,13 @@ std::vector<TrackingRegion* > L1MuonRegionProducer::
   double dz = sinh(theEtaL1);
   GlobalVector direction(dx,dy,dz);        // muon direction
 
-  std::vector<TrackingRegion* > result;
+  std::vector<std::unique_ptr<TrackingRegion> > result;
   double bending = L1MuonPixelTrackFitter::getBending(1./thePtMin, theEtaL1, theChargeL1);
   bending = fabs(bending);
   double errBending = L1MuonPixelTrackFitter::getBendingError(1./thePtMin, theEtaL1);
 
   result.push_back( 
-      new RectangularEtaPhiTrackingRegion( direction, theOrigin, 
+      std::make_unique<RectangularEtaPhiTrackingRegion>( direction, theOrigin,
           thePtMin, theOriginRadius, theOriginHalfLength, 0.15, bending+3*errBending) );
 
   return result;

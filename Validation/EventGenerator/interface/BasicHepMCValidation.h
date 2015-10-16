@@ -128,18 +128,25 @@ class BasicHepMCValidation : public DQMEDAnalyzer{
 	return true;
       }
       
-      const HepMC::GenParticle* GetFinal(const HepMC::GenParticle* p){ // includes mixing
-	if(p->end_vertex()){ 
-	  if(p->end_vertex()->particles_out_size()!=0){ 
-	    for(HepMC::GenVertex::particles_out_const_iterator d=p->end_vertex()->particles_out_const_begin(); d!=p->end_vertex()->particles_out_const_end();d++){ 
-	      if(abs((*d)->pdg_id())==abs(p->pdg_id())){ 
-		return GetFinal(*d); 
+      const HepMC::GenParticle* GetFinal(const HepMC::GenParticle* p){ // includes mixing (assuming mixing is not occurring more than 5 times back and forth)
+        HepMC::GenParticle* aPart = new HepMC::GenParticle(*p);
+	for (unsigned int iMix = 0; iMix < 10; iMix++) {
+	  bool foundSimilar = false;
+	  if(aPart->end_vertex()){ 
+	    if(aPart->end_vertex()->particles_out_size()!=0){ 
+	      for(HepMC::GenVertex::particles_out_const_iterator d=aPart->end_vertex()->particles_out_const_begin(); d!=aPart->end_vertex()->particles_out_const_end();d++){ 
+		if(abs((*d)->pdg_id())==abs(aPart->pdg_id())){ 
+		  aPart = *d;         
+		  foundSimilar = true;
+		  break;
+		} 
 	      } 
-	    } 
+	    }
+	    if (!foundSimilar) break;
 	  } 
 	} 
-	return p; 
-      } 
+	return aPart;
+      }
       
       std::string name;
       int pdgid;

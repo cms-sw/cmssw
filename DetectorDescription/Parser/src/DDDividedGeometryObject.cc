@@ -90,7 +90,7 @@ DDDividedGeometryObject::checkNDivAndWidth( double maxPar )
       && (div_.offset() + compWidth_*compNDiv_ - maxPar > tolerance() ) )
   {
     std::string s = "ERROR - DDDividedGeometryObject::checkNDivAndWidth()";
-    s+= "\n        Division of LogicalPart " + div_.parent();
+    s+= "\n        Division of LogicalPart " + div_.parent().name().name();
     s+= " has too big an offset.";
     DCOUT_V('P', "DDDividedGeometryObject::checkNDivAndWidth has computed div_.offset() + compWidth_*compNDiv_ - maxPar =" << div_.offset() + compWidth_*compNDiv_ - maxPar << " and tolerance()=" << tolerance());
     std::cout << compWidth_ << std::endl;

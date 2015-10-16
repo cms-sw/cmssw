@@ -234,7 +234,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
   //map<TString,double>* rates=0;
   double               lumi=0;
   double               deadtime=0;
-  int                  prescalesIndex=0;
+  unsigned int         prescalesIndex=0;
 
   bool isDefCount;
   map<TString,double>* counts=0;
@@ -279,7 +279,7 @@ void L1TRate_Offline::endLuminosityBlock(LuminosityBlock const& lumiBlock, Event
       prescalesIndex=m_lsPrescaleIndex[lsPreInd];
     }
 
-    if(isDefCount && isDefLumi && isDefPrescaleIndex){
+    if(isDefCount && isDefLumi && isDefPrescaleIndex && (prescalesIndex < m_listsPrescaleFactors->size())){
 
       const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
 

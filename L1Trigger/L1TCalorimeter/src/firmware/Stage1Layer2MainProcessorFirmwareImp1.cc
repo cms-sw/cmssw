@@ -26,7 +26,7 @@ Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(con
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(m_db); //fwv =1 => HI algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(m_db); //fwv=1 => single track seed
     m_hfRingAlgo = new Stage1Layer2CentralityAlgorithm(m_db);
-    m_hfBitAlgo = NULL;
+    m_hfBitAlgo = new Stage1Layer2HFMinimumBias(m_db);
     // m_hfRingAlgo = new Stage1Layer2FlowAlgorithm(m_db);
     // m_hfBitAlgo = new Stage1Layer2CentralityAlgorithm(m_db);
   }
@@ -46,7 +46,7 @@ Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(con
     m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpHW(m_db);
     m_tauAlgo = new Stage1Layer2TauAlgorithmImpHW(m_db);
     m_hfRingAlgo = new Stage1Layer2DiTauAlgorithm(m_db);
-    m_hfBitAlgo = NULL;
+    m_hfBitAlgo = new Stage1Layer2HFMinimumBias(m_db);
   }
   else{ // undefined fwv version
     edm::LogError("FWVersionError")

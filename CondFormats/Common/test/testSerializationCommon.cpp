@@ -20,6 +20,7 @@ int main()
     testSerialization<cond::SmallWORMDict>();
     //testSerialization<cond::Summary>(); abstract
     testSerialization<cond::UpdateStamp>();
+    testSerialization<cond::BasicPayload>();
     //testSerialization<ora::OId>(); not used in the future
     //testSerialization<ora::PVector<cond::IOVElement>>(); not used in the future
     //testSerialization<ora::QueryableVector<cond::IOVElement>>(); not used in the future

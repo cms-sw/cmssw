@@ -43,16 +43,12 @@ using namespace pat;
 using namespace std;
 
 
-PATConversionProducer::PATConversionProducer(const edm::ParameterSet & iConfig){
-
-  // general configurables
-  electronToken_    = consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>( "electronSource" ));
-  bsToken_          = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
-  conversionsToken_ = consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
-
+PATConversionProducer::PATConversionProducer(const edm::ParameterSet & iConfig) :
+  electronToken_(consumes<edm::View<reco::GsfElectron> >(iConfig.getParameter<edm::InputTag>( "electronSource" ))),
+  bsToken_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
+  conversionsToken_(consumes<reco::ConversionCollection>(edm::InputTag("allConversions"))) {
   // produces vector of muons
   produces<std::vector<Conversion> >();
-
 }
 
 
@@ -60,7 +56,7 @@ PATConversionProducer::~PATConversionProducer() {
 }
 
 
-void PATConversionProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+void PATConversionProducer::produce(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
   // Get the collection of electrons from the event
   edm::Handle<edm::View<reco::GsfElectron> > electrons;

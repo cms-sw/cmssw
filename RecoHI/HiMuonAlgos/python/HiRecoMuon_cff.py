@@ -5,36 +5,47 @@ from RecoMuon.Configuration.RecoMuonPPonly_cff import *
 hiTracks = 'hiGeneralTracks' #heavy ion track label
 
 # replace with heavy ion track label
-muons = muons1stStep.clone()
-muons.inputCollectionLabels = [hiTracks, 'globalMuons', 'standAloneMuons:UpdatedAtVtx','tevMuons:firstHit','tevMuons:picky','tevMuons:dyt']
-muons.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks','tev firstHit', 'tev picky', 'tev dyt']
-muons.TrackExtractorPSet.inputTrackCollection = hiTracks
-muons.minPt = cms.double(0.8)
-#muons.fillGlobalTrackRefits = False
-muonEcalDetIds.inputCollection = "muons"
+hiMuons1stStep = muons1stStep.clone()
+hiMuons1stStep.inputCollectionLabels = [hiTracks, 'globalMuons', 'standAloneMuons:UpdatedAtVtx','tevMuons:firstHit','tevMuons:picky','tevMuons:dyt']
+hiMuons1stStep.inputCollectionTypes = ['inner tracks', 'links', 'outer tracks','tev firstHit', 'tev picky', 'tev dyt']
+hiMuons1stStep.TrackExtractorPSet.inputTrackCollection = hiTracks
+hiMuons1stStep.minPt = cms.double(0.8)
+#hiMuons1stStep.fillGlobalTrackRefits = False
+muonEcalDetIds.inputCollection = "hiMuons1stStep"
 
 calomuons.inputTracks = hiTracks
-calomuons.inputCollection = 'muons'
-calomuons.inputMuons = 'muons'
-muIsoDepositTk.inputTags = cms.VInputTag(cms.InputTag("muons:tracker"))
-muIsoDepositJets. inputTags = cms.VInputTag(cms.InputTag("muons:jets"))
-muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag("muons:ecal"), cms.InputTag("muons:hcal"), cms.InputTag("muons:ho"))
+calomuons.inputCollection = 'hiMuons1stStep'
+calomuons.inputMuons = 'hiMuons1stStep'
+muIsoDepositTk.inputTags = cms.VInputTag(cms.InputTag("hiMuons1stStep:tracker"))
+muIsoDepositJets. inputTags = cms.VInputTag(cms.InputTag("hiMuons1stStep:jets"))
+muIsoDepositCalByAssociatorTowers.inputTags = cms.VInputTag(cms.InputTag("hiMuons1stStep:ecal"), cms.InputTag("hiMuons1stStep:hcal"), cms.InputTag("hiMuons1stStep:ho"))
 
-muonShowerInformation.muonCollection = "muons"
+muonShowerInformation.muonCollection = "hiMuons1stStep"
 
 #don't modify somebody else's sequence, create a new one if needed
 #standalone muon tracking is already done... so remove standalonemuontracking from muontracking
 muonreco_plus_isolation_PbPb = muonreco_plus_isolation.copyAndExclude(standalonemuontracking._seq._collection + displacedGlobalMuonTracking._seq._collection)
-muonreco_plus_isolation_PbPb.replace(muons1stStep, muons)
+muonreco_plus_isolation_PbPb.replace(muons1stStep, hiMuons1stStep)
 
 
 globalMuons.TrackerCollectionLabel = hiTracks
 
 # replace with heavy ion jet label
-muons.JetExtractorPSet.JetCollectionLabel = cms.InputTag("iterativeConePu5CaloJets")
+hiMuons1stStep.JetExtractorPSet.JetCollectionLabel = cms.InputTag("iterativeConePu5CaloJets")
 
 # turn off calo muons for timing considerations
-muons.minPCaloMuon = cms.double( 1.0E9 )
+hiMuons1stStep.minPCaloMuon = cms.double( 1.0E9 )
+
+# high level reco
+from RecoMuon.MuonIdentification.muons_cfi import muons
+muons.InputMuons = cms.InputTag("hiMuons1stStep")
+muons.PFCandidates = cms.InputTag("particleFlowTmp")
+muons.FillDetectorBasedIsolation = cms.bool(False)
+muons.FillPFIsolation = cms.bool(False)
+muons.FillSelectorMaps = cms.bool(False)
+muons.FillShoweringInfo = cms.bool(False)
+muons.FillCosmicsIdMap = cms.bool(False)
+muonRecoHighLevelPbPb = cms.Sequence(muons)
 
 # HI muon sequence (passed to RecoHI.Configuration.Reconstruction_HI_cff)
 

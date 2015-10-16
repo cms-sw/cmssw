@@ -11,7 +11,7 @@ tobTecStepClusters = trackClusterRemover.clone(
     pixelClusters                            = cms.InputTag("siPixelClusters"),
     stripClusters                            = cms.InputTag("siStripClusters"),
     oldClusterRemovalInfo                    = cms.InputTag("pixelLessStepClusters"),
-    overrideTrkQuals                         = cms.InputTag('pixelLessStep'),
+    trackClassifier                          = cms.InputTag('pixelLessStep',"QualityMasks"),
     TrackQuality                             = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
 )
@@ -21,7 +21,7 @@ from RecoLocalTracker.SiStripClusterizer.SiStripClusterChargeCut_cfi import *
 tobTecStepSeedLayersTripl = cms.EDProducer("SeedingLayersEDProducer",
     layerList = cms.vstring(
     #TOB
-    'TOB1+TOB2+MTOB3',
+    'TOB1+TOB2+MTOB3','TOB1+TOB2+MTOB4',
     #TOB+MTEC
     'TOB1+TOB2+MTEC1_pos','TOB1+TOB2+MTEC1_neg',
     ),
@@ -147,7 +147,7 @@ import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
 
 tobTecStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
     maxLostHits = 0,
-    minimumNumberOfHits = 6,
+    minimumNumberOfHits = 5,
     minPt = 0.1,
     minHitsMinPt = 3
     )
@@ -211,7 +211,7 @@ import TrackingTools.TrackFitters.RungeKuttaFitters_cff
 tobTecStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
     ComponentName = 'tobTecStepFitterSmoother',
     EstimateCut = 30,
-    MinNumberOfHits = 8,
+    MinNumberOfHits = 7,
     Fitter = cms.string('tobTecStepRKFitter'),
     Smoother = cms.string('tobTecStepRKSmoother')
     )
@@ -225,7 +225,7 @@ tobTecStepFitterSmootherForLoopers = tobTecStepFitterSmoother.clone(
 # Also necessary to specify minimum number of hits after final track fit
 tobTecStepRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectoryFitter.clone(
     ComponentName = cms.string('tobTecStepRKFitter'),
-    minHits = 8
+    minHits = 7
 )
 tobTecStepRKTrajectoryFitterForLoopers = tobTecStepRKTrajectoryFitter.clone(
     ComponentName = cms.string('tobTecStepRKFitterForLoopers'),
@@ -235,7 +235,7 @@ tobTecStepRKTrajectoryFitterForLoopers = tobTecStepRKTrajectoryFitter.clone(
 tobTecStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
     ComponentName = cms.string('tobTecStepRKSmoother'),
     errorRescaling = 10.0,
-    minHits = 8
+    minHits = 7
 )
 tobTecStepRKTrajectorySmootherForLoopers = tobTecStepRKTrajectorySmoother.clone(
     ComponentName = cms.string('tobTecStepRKSmootherForLoopers'),
@@ -259,64 +259,25 @@ tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clo
     Fitter = 'tobTecFlexibleKFFittingSmoother',
     )
 
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='tobTecStepTracks',
-    useAnyMVA = cms.bool(True),
-    trackSelectors= cms.VPSet(
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'tobTecStepLoose',
-            chi2n_par = 9999,
-            GBRForestLabel = cms.string('MVASelectorIter6_13TeV'),
-            useMVA = cms.bool(True),
-            minMVA = cms.double(-0.6),
-            #chi2n_par = 0.4,
-            res_par = ( 0.003, 0.001 ),
-            #minNumberLayers = 5,
-            #maxNumberLostLayers = 1,
-            #minNumber3DLayers = 2,
-            d0_par1 = ( 2.0, 4.0 ),
-            dz_par1 = ( 1.8, 4.0 ),
-            d0_par2 = ( 2.0, 4.0 ),
-            dz_par2 = ( 1.8, 4.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'tobTecStepTight',
-            preFilterName = 'tobTecStepLoose',
-            GBRForestLabel = cms.string('MVASelectorIter6_13TeV'),
-            chi2n_par = 0.3,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
-            maxNumberLostLayers = 0,
-            minNumber3DLayers = 2,
-            d0_par1 = ( 1.5, 4.0 ),
-            dz_par1 = ( 1.4, 4.0 ),
-            d0_par2 = ( 1.5, 4.0 ),
-            dz_par2 = ( 1.4, 4.0 )
-            ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'tobTecStep',
-            preFilterName = 'tobTecStepLoose',
-            chi2n_par = cms.double(9999),
-            GBRForestLabel = cms.string('MVASelectorIter6_13TeV'),
-            useMVA = cms.bool(True),
-            minMVA = cms.double(-0.3),
-            qualityBit = cms.string('highPurity'),
-            keepAllTracks = cms.bool(True),
-            #chi2n_par = 0.2,
-            res_par = ( 0.003, 0.001 ),
-            #minNumberLayers = 5,
-            #maxNumberLostLayers = 0,
-            #minNumber3DLayers = 2,
-            #max_minMissHitOutOrIn = 1,
-            #max_lostHitFraction = 1.0,
-            d0_par1 = ( 1.2, 4.0 ),
-            dz_par1 = ( 1.1, 4.0 ),
-            d0_par2 = ( 1.2, 4.0 ),
-            dz_par2 = ( 1.1, 4.0 )
-            ),
-        ) #end of vpset
-    ) #end of clone
+
+
+# TRACK SELECTION AND QUALITY FLAG SETTING.
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierPrompt_cfi import *
+from RecoTracker.FinalTrackSelectors.TrackMVAClassifierDetached_cfi import *
+tobTecStepClassifier1 = TrackMVAClassifierDetached.clone()
+tobTecStepClassifier1.src = 'tobTecStepTracks'
+tobTecStepClassifier1.GBRForestLabel = 'MVASelectorIter6_13TeV'
+tobTecStepClassifier1.qualityCuts = [-0.6,-0.45,-0.3]
+tobTecStepClassifier2 = TrackMVAClassifierPrompt.clone()
+tobTecStepClassifier2.src = 'tobTecStepTracks'
+tobTecStepClassifier2.GBRForestLabel = 'MVASelectorIter0_13TeV'
+tobTecStepClassifier2.qualityCuts = [0.0,0.0,0.0]
+
+from RecoTracker.FinalTrackSelectors.ClassifierMerger_cfi import *
+tobTecStep = ClassifierMerger.clone()
+tobTecStep.inputClassifiers=['tobTecStepClassifier1','tobTecStepClassifier2']
+
+
 
 
 TobTecStep = cms.Sequence(tobTecStepClusters*
@@ -327,5 +288,6 @@ TobTecStep = cms.Sequence(tobTecStepClusters*
                           tobTecStepSeeds*
                           tobTecStepTrackCandidates*
                           tobTecStepTracks*
-                          tobTecStepSelector)
+                          tobTecStepClassifier1*tobTecStepClassifier2*
+                          tobTecStep)
 

@@ -37,7 +37,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 //
 // class decleration
 //
@@ -95,7 +95,7 @@ MapTester::beginRun(const edm::EventSetup& iSetup)
   strftime(tempbuff,128,"%d.%b.%Y",localtime(&myTime) );
 
   edm::ESHandle<HcalTopology> topo;
-  iSetup.get<IdealGeometryRecord>().get(topo);
+  iSetup.get<HcalRecNumberingRecord>().get(topo);
   
   HcalLogicalMapGenerator mygen;
   HcalLogicalMap mymap=mygen.createMap(&(*topo),mapIOV_);

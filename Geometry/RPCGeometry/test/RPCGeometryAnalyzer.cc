@@ -7,7 +7,7 @@
 #include <fstream>
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include <FWCore/Framework/interface/one/EDAnalyzer.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -26,14 +26,16 @@
 
 using namespace std;
 
-class RPCGeometryAnalyzer : public edm::EDAnalyzer {
+class RPCGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 
  public: 
   RPCGeometryAnalyzer( const edm::ParameterSet& pset);
 
   ~RPCGeometryAnalyzer();
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
  
   const std::string& myName() { return myName_;}
 

@@ -113,7 +113,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
     theRegionProducer->setL1Constraint(muon);
     theFitter->setL1Constraint(muon);
 
-    typedef std::vector<TrackingRegion * > Regions;
+    typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
     Regions regions = theRegionProducer->regions(ev,es);
     for (Regions::const_iterator ir=regions.begin(); ir != regions.end(); ++ir) {
 
@@ -150,7 +150,6 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
         delete it->first;
       }
     }
-    for (Regions::const_iterator it=regions.begin(); it != regions.end(); ++it) delete (*it);
   }
 
   LogDebug("TSGFromL1Muon")<<result->size()<<" seeds to the event.";

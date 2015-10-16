@@ -26,7 +26,8 @@ process.load("RecoVertex.BeamSpotProducer.BeamSpot_cfi")
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_hlt_GRun', '')
 
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 

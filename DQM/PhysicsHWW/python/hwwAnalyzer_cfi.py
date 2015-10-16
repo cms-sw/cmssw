@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from RecoJets.JetProducers.puJetIDAlgo_cff import PhilV1
+from RecoJets.JetProducers.PileupJetID_cfi import PhilV1
 
 hwwAnalyzer = cms.EDAnalyzer(
     "HWWAnalyzer",

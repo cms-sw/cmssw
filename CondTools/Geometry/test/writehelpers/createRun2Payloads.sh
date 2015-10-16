@@ -39,6 +39,9 @@ cmsRun geometryrun2writer.py
 sed -i '{s/Extended/Ideal/g}' geometryrun2xmlwriter.py
 sed -i '{s/\/ge/\/gi/g}' geometryrun2xmlwriter.py
 cmsRun geometryrun2xmlwriter.py
+sed -i '{s/Ideal2015/Extended2015ZeroMaterial/g}' geometryrun2xmlwriter.py
+sed -i '{s/\/gi/\/gez/g}' geometryrun2xmlwriter.py
+cmsRun geometryrun2xmlwriter.py
 
 # Read the one big XML file and output a record to the
 # database with the an identifying tag
@@ -52,6 +55,9 @@ cmsRun geometryrun2xmlwriter.py
 #
 sed -i '{s/Extended/Ideal/g}' xmlgeometryrun2writer.py
 sed -i '{s/\/ge/\/gi/g}' xmlgeometryrun2writer.py
+cmsRun xmlgeometryrun2writer.py
+sed -i '{s/Ideal2015/Extended2015ZeroMaterial/g}' xmlgeometryrun2writer.py
+sed -i '{s/\/gi/\/gez/g}' xmlgeometryrun2writer.py
 cmsRun xmlgeometryrun2writer.py
 
 # All the database objects were written into one database

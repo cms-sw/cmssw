@@ -52,27 +52,17 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
       else{
 	m_searchOpt = false;
       }
-      m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips;
-      if (regionPSet.exists("measurementTrackerName")){
-        // FIXME: when next time altering the configuration of this
-        // class, please change the types of the following parameters:
-        // - howToUseMeasurementTracker to at least int32 or to a string
-        //   corresponding to the UseMeasurementTracker enumeration
-        // - measurementTrackerName to InputTag
-	if (regionPSet.exists("howToUseMeasurementTracker")){
-	  m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::doubleToUseMeasurementTracker(regionPSet.getParameter<double>("howToUseMeasurementTracker"));
-	}
-        if(m_howToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
-          token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<std::string>("measurementTrackerName"));
-        }
+      m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regionPSet.getParameter<std::string>("howToUseMeasurementTracker"));
+      if(m_howToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+        token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<std::string>("measurementTrackerName"));
       }
     }
   
     virtual ~TauRegionalPixelSeedGenerator() {}
     
 
-    virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const {
-      std::vector<TrackingRegion* > result;
+    virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override {
+      std::vector<std::unique_ptr<TrackingRegion> > result;
 
       //      double originZ;
       double deltaZVertex, deltaRho;
@@ -110,18 +100,17 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	{
           GlobalVector jetVector(myJet.momentum().x(),myJet.momentum().y(),myJet.momentum().z());
 //          GlobalPoint  vertex(0, 0, originZ);
-          RectangularEtaPhiTrackingRegion* etaphiRegion = new RectangularEtaPhiTrackingRegion( jetVector,
-                                                                                               vertex,
-                                                                                               m_ptMin,
-                                                                                               deltaRho,
-                                                                                               deltaZVertex,
-                                                                                               m_deltaEta,
-                                                                                               m_deltaPhi,
-											       m_howToUseMeasurementTracker,
-											       true,
-											       measurementTracker,
-											       m_searchOpt);
-          result.push_back(etaphiRegion);
+          result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>( jetVector,
+                                                                              vertex,
+                                                                              m_ptMin,
+                                                                              deltaRho,
+                                                                              deltaZVertex,
+                                                                              m_deltaEta,
+                                                                              m_deltaPhi,
+                                                                              m_howToUseMeasurementTracker,
+                                                                              true,
+                                                                              measurementTracker,
+                                                                              m_searchOpt));
       }
 
       return result;

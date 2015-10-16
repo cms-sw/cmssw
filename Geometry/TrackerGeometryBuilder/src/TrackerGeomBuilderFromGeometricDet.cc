@@ -228,7 +228,7 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
 
   for(u_int32_t i=0;i<gdu.size();i++){
     StripSubdetector sidet( gduId[i].rawId());
-    tracker->addDet((GeomDet*) gdu[i]);
+    tracker->addDet(gdu[i]);
     tracker->addDetId(gduId[i]);      
     if(sidet.glued()!=0&&sidet.stereo()==1){
       int partner_pos=-1;

@@ -18,29 +18,23 @@ using namespace std;
 using namespace edm;
 
 PATCompositeCandidateProducer::PATCompositeCandidateProducer(const ParameterSet & iConfig) :
-  userDataHelper_( iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector() )
+  srcToken_(consumes<edm::View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>( "src" ))),
+  useUserData_(iConfig.exists("userData")),
+  userDataHelper_( iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector() ),
+  addEfficiencies_(iConfig.getParameter<bool>("addEfficiencies")),  
+  addResolutions_(iConfig.getParameter<bool>("addResolutions"))
 {
-  // initialize the configurables
-  srcToken_ = consumes<edm::View<reco::CompositeCandidate> >(iConfig.getParameter<InputTag>( "src" ));
-
-  useUserData_ = false;
-  if ( iConfig.exists("userData") ) {
-    useUserData_ = true;
-  }
-
+ 
   // Efficiency configurables
-  addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
      efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
 
   // Resolution configurables
-  addResolutions_ = iConfig.getParameter<bool>("addResolutions");
   if (addResolutions_) {
      resolutionLoader_ = pat::helper::KinResolutionsLoader(iConfig.getParameter<edm::ParameterSet>("resolutions"));
   }
-
-
+  
   // produces vector of particles
   produces<vector<pat::CompositeCandidate> >();
 

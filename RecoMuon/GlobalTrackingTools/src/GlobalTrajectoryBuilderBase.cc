@@ -344,7 +344,7 @@ GlobalTrajectoryBuilderBase::chooseRegionalTrackerTracks(const TrackCand& staCan
 RectangularEtaPhiTrackingRegion 
 GlobalTrajectoryBuilderBase::defineRegionOfInterest(const reco::TrackRef& staTrack) const {
 
-  RectangularEtaPhiTrackingRegion* region1 = theRegionBuilder->region(staTrack);
+  std::unique_ptr<RectangularEtaPhiTrackingRegion> region1 = theRegionBuilder->region(staTrack);
   
   TkTrackingRegionsMargin<float> etaMargin(std::abs(region1->etaRange().min() - region1->etaRange().mean()),
 					   std::abs(region1->etaRange().max() - region1->etaRange().mean()));
@@ -357,7 +357,6 @@ GlobalTrajectoryBuilderBase::defineRegionOfInterest(const reco::TrackRef& staTra
 					  etaMargin,
 					  region1->phiMargin());
   
-  delete region1;
   return region2;
   
 }

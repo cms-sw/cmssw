@@ -27,6 +27,7 @@
 #include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
 #include "DataFormats/METReco/interface/METFwd.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/METReco/interface/PFMETFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
@@ -35,6 +36,7 @@
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include "DataFormats/METReco/interface/METCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
+#include "DataFormats/METReco/interface/PFMETCollection.h"
 #include "DataFormats/HcalIsolatedTrack/interface/IsolatedPixelTrackCandidateFwd.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
@@ -100,6 +102,7 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   void fillTriggerObject(const T& );
   void fillTriggerObject(const l1extra::L1HFRings& );
   void fillTriggerObject(const l1extra::L1EtMissParticle& );
+  void fillTriggerObject(const reco::PFMET& );
   void fillTriggerObject(const reco::CaloMET& );
   void fillTriggerObject(const reco::MET& );
 
@@ -110,6 +113,7 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<C>&);
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<l1extra::L1HFRingsCollection>&);
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<l1extra::L1EtMissParticleCollection>&);
+  void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::PFMETCollection>&);
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::CaloMETCollection>&);
   void fillFilterObjectMember(const int&, const int&, const edm::Ref<reco::METCollection>&);
 
@@ -167,6 +171,7 @@ class TriggerSummaryProducerAOD : public edm::stream::EDProducer<edm::GlobalCach
   edm::GetterOfProducts<reco::CompositeCandidateCollection> getCompositeCandidateCollection_;
   edm::GetterOfProducts<reco::METCollection> getMETCollection_;
   edm::GetterOfProducts<reco::CaloMETCollection> getCaloMETCollection_;
+  edm::GetterOfProducts<reco::PFMETCollection> getPFMETCollection_;
   edm::GetterOfProducts<reco::IsolatedPixelTrackCandidateCollection> getIsolatedPixelTrackCandidateCollection_;
   edm::GetterOfProducts<l1extra::L1EmParticleCollection> getL1EmParticleCollection_;
   edm::GetterOfProducts<l1extra::L1MuonParticleCollection> getL1MuonParticleCollection_;

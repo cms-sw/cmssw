@@ -11,7 +11,7 @@ using namespace std;
 
 
 MCParticlePairFilter::MCParticlePairFilter(const edm::ParameterSet& iConfig) :
-token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 particleCharge(iConfig.getUntrackedParameter("ParticleCharge",0)),
 minInvMass(iConfig.getUntrackedParameter("MinInvMass", 0.)),
 maxInvMass(iConfig.getUntrackedParameter("MaxInvMass", 14000.)),

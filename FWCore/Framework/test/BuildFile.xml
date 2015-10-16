@@ -148,7 +148,7 @@
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
 </library>
-<bin   name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_module_t.cppunit.cc,one_outputmodule_t.cppunit.cc,stream_module_t.cppunit.cc">
+<bin   name="TestFWCoreFramework" file="testRunner.cpp,maker2_t.cppunit.cc,maker_t.cppunit.cc,productregistry.cppunit.cc,edproducer_productregistry_callback.cc,event_getrefbeforeput_t.cppunit.cc,generichandle_t.cppunit.cc,edconsumerbase_t.cppunit.cc,global_module_t.cppunit.cc,one_outputmodule_t.cppunit.cc,global_outputmodule_t.cppunit.cc,stream_module_t.cppunit.cc">
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/Provenance"/>
   <use   name="DataFormats/TestObjects"/>
@@ -215,6 +215,11 @@
 </bin>
 <bin   name="TestFWCoreFrameworkGlobalStreamOne" file="TestDriver.cpp">
   <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_global_stream_one.sh"/>
+  <use   name="DataFormats/WrappedStdDictionaries"/>
+  <use   name="FWCore/Utilities"/>
+</bin>
+<bin   name="TestFWCoreFrameworkMayConsumesDeadlock" file="TestDriver.cpp">
+  <flags   TEST_RUNNER_ARGS=" /bin/bash FWCore/Framework/test run_deadlock_test.sh"/>
   <use   name="DataFormats/WrappedStdDictionaries"/>
   <use   name="FWCore/Utilities"/>
 </bin>

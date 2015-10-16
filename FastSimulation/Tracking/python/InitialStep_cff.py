@@ -6,16 +6,10 @@ import RecoTracker.IterativeTracking.InitialStep_cff
 # trajectory seeds
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 initialStepSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone(
-    simTrackSelection = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.simTrackSelection.clone(
-        pTMin = 0.4,
-        maxD0 = 1.0,
-        maxZ0 = -1,
-        ),
     minLayersCrossed = 3,
-    nSigmaZ = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ,
-    ptMin = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin,
-    originRadius = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet.RegionPSet.originRadius,
-    layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value()
+layerList = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeedLayers.layerList.value(),
+    RegionFactoryPSet = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSeeds.RegionFactoryPSet,
+    MeasurementTrackerEvent = cms.InputTag("MeasurementTrackerEvent")
     )
 
 # track candidates
@@ -35,8 +29,14 @@ initialStepTracks = RecoTracker.IterativeTracking.InitialStep_cff.initialStepTra
 firstStepPrimaryVerticesBeforeMixing =  RecoTracker.IterativeTracking.InitialStep_cff.firstStepPrimaryVertices.clone()
 
 # final selection
-initialStepSelector = RecoTracker.IterativeTracking.InitialStep_cff.initialStepSelector.clone()
-initialStepSelector.vertices = "firstStepPrimaryVerticesBeforeMixing"
+initialStepClassifier1 = RecoTracker.IterativeTracking.InitialStep_cff.initialStepClassifier1.clone()
+initialStepClassifier1.vertices = "firstStepPrimaryVerticesBeforeMixing"
+initialStepClassifier2 = RecoTracker.IterativeTracking.InitialStep_cff.initialStepClassifier2.clone()
+initialStepClassifier2.vertices = "firstStepPrimaryVerticesBeforeMixing"
+initialStepClassifier3 = RecoTracker.IterativeTracking.InitialStep_cff.initialStepClassifier3.clone()
+initialStepClassifier3.vertices = "firstStepPrimaryVerticesBeforeMixing"
+
+
 initialStep = RecoTracker.IterativeTracking.InitialStep_cff.initialStep.clone()
 
 # Final sequence
@@ -44,7 +44,7 @@ InitialStep = cms.Sequence(initialStepSeeds
                            +initialStepTrackCandidates
                            +initialStepTracks                                    
                            +firstStepPrimaryVerticesBeforeMixing
-                           +initialStepSelector
+                           +initialStepClassifier1*initialStepClassifier2*initialStepClassifier3
                            +initialStep
                            )
 

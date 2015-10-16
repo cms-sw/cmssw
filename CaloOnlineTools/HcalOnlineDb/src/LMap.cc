@@ -77,7 +77,7 @@ int LMap::impl::read( std::string map_file, std::string type )
       std::cout << "File with the logical map opened successfully: " << map_file << std::endl;
       std::cout << "Type: " << type << std::endl;
     }
-  while ( getline( inFile, _row ) > 0 )
+  while (getline( inFile, _row ))
     {
       LMapRow aRow;
       char det[32];
@@ -266,7 +266,7 @@ int EMap::read_map( std::string filename )
   else{
     std::cout << "File with the electronic map opened successfully: " << filename << std::endl;
   }
-  while ( getline( inFile, _row ) > 0 ){
+  while (getline( inFile, _row )) {
     EMapRow aRow;
     char fpga[32];
     char subdet[32];

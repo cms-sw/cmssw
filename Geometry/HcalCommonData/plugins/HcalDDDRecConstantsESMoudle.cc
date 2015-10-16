@@ -33,7 +33,7 @@
 #include <Geometry/HcalCommonData/interface/HcalDDDRecConstants.h>
 #include <Geometry/Records/interface/HcalRecNumberingRecord.h>
 
-#define DebugLog
+//#define DebugLog
 
 class HcalDDDRecConstantsESModule : public edm::ESProducer {
 

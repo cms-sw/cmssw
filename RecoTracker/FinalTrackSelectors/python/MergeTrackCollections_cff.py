@@ -13,21 +13,22 @@ mergedDuplicateTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProduce
     src = cms.InputTag("duplicateTrackCandidates","candidates"),
     )
 
-import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-duplicateTrackSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='mergedDuplicateTracks',
-    trackSelectors= cms.VPSet(
-    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-    name = 'duplicateTrackSelectorLoose',
-    minHitsToBypassChecks = cms.uint32(0),
-            ),
-        )
-    )
+from RecoTracker.FinalTrackSelectors.TrackCutClassifier_cfi import *
+duplicateTrackClassifier = TrackCutClassifier.clone()
+duplicateTrackClassifier.src='mergedDuplicateTracks'
+duplicateTrackClassifier.mva.minPixelHits = [0,0,0]
+duplicateTrackClassifier.mva.maxChi2 = [9999.,9999.,9999.]
+duplicateTrackClassifier.mva.maxChi2n = [9999.,9999.,9999.]
+duplicateTrackClassifier.mva.minLayers = [0,0,0]
+duplicateTrackClassifier.mva.min3DLayers = [0,0,0]
+duplicateTrackClassifier.mva.maxLostLayers = [99,99,99]
+
+
 
 generalTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplicateListMerger.clone(
     originalSource = cms.InputTag("preDuplicateMergingGeneralTracks"),
     mergedSource = cms.InputTag("mergedDuplicateTracks"),
-    mergedMVAVals = cms.InputTag("duplicateTrackSelector","MVAVals"),
+    mergedMVAVals = cms.InputTag("duplicateTrackClassifier","MVAValues"),
     candidateSource = cms.InputTag("duplicateTrackCandidates","candidateMap")
     )
 
@@ -35,7 +36,7 @@ generalTracks = RecoTracker.FinalTrackSelectors.DuplicateTrackMerger_cfi.duplica
 generalTracksSequence = cms.Sequence(
     duplicateTrackCandidates*
     mergedDuplicateTracks*
-    duplicateTrackSelector*
+    duplicateTrackClassifier*
     generalTracks
     )
 

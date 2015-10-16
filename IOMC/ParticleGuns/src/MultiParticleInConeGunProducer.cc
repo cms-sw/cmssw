@@ -43,7 +43,7 @@ MultiParticleInConeGunProducer::MultiParticleInConeGunProducer(const ParameterSe
    fInConeMaxPhi = pgun_params.getParameter<double>("InConeMaxPhi");
    fInConeMaxTry = pgun_params.getParameter<unsigned int>("InConeMaxTry");
    
-   produces<HepMCProduct>();
+   produces<HepMCProduct>("unsmeared");
    produces<GenEventInfoProduct>();
 }
 
@@ -190,7 +190,7 @@ void MultiParticleInConeGunProducer::produce(Event &e, const EventSetup& es)
 
    auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
    BProduct->addHepMCData( fEvt );
-   e.put(BProduct);
+   e.put(BProduct, "unsmeared");
 
    auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
    e.put(genEventInfo);

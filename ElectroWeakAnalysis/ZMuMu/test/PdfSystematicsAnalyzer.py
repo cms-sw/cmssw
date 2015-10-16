@@ -51,7 +51,7 @@ process.source = cms.Source("PoolSource",
 )
 # Produce PDF weights (maximum is 3)
 process.pdfWeights = cms.EDProducer("PdfWeightProducer",
-      PdfInfoTag = cms.untracked.InputTag("generator"),
+      PdfInfoTag = cms.untracked.InputTag("VtxSmeared"),
       PdfSetNames = cms.untracked.vstring(
               "cteq65.LHgrid", # 21 members
               "MRST2006nnlo.LHgrid" # 31 members
@@ -62,7 +62,7 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
 ## other three pdf sets
 # Produce PDF weights (maximum is 3)
 #process.pdfWeights = cms.EDProducer("PdfWeightProducer",
-#      PdfInfoTag = cms.untracked.InputTag("generator"),
+#      PdfInfoTag = cms.untracked.InputTag("VtxSmeared"),
 #      PdfSetNames = cms.untracked.vstring(
 #              "cteq61.LHgrid", # 21 members
 #              "MRST2004nlo.LHgrid" # 1 members

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="GEMSpecs.xml">
+    <SpecPar name="nStripsGE11" eval="true">
+      <PartSelector path="//GHA1.."/>
+      <Parameter name="nStrips" value="384"/>
+    </SpecPar>
+    <SpecPar name="nStripsGE21" eval="true">
+      <PartSelector path="//GHA2.."/>
+      <Parameter name="nStrips" value="384"/>
+    </SpecPar>
+    <SpecPar name="nPadsGE11" eval="true">
+      <PartSelector path="//GHA1.."/>
+      <Parameter name="nPads" value="192"/>
+    </SpecPar>
+    <SpecPar name="nPadsGE21" eval="true">
+      <PartSelector path="//GHA2.."/>
+      <Parameter name="nPads" value="192"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

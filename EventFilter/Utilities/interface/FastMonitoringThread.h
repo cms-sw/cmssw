@@ -8,7 +8,6 @@
 #include <thread>
 #include <mutex>
 
-using namespace jsoncollector;
 
 namespace evf{
 
@@ -22,20 +21,20 @@ namespace evf{
     struct MonitorData
     {
       //fastpath global monitorables
-      IntJ fastMacrostateJ_;
-      DoubleJ fastThroughputJ_;
-      DoubleJ fastAvgLeadTimeJ_;
-      IntJ fastFilesProcessedJ_;
-      DoubleJ fastLockWaitJ_;
-      IntJ fastLockCountJ_;
+      jsoncollector::IntJ fastMacrostateJ_;
+      jsoncollector::DoubleJ fastThroughputJ_;
+      jsoncollector::DoubleJ fastAvgLeadTimeJ_;
+      jsoncollector::IntJ fastFilesProcessedJ_;
+      jsoncollector::DoubleJ fastLockWaitJ_;
+      jsoncollector::IntJ fastLockCountJ_;
 
       unsigned int varIndexThrougput_;
 
       //per stream
       std::vector<unsigned int> microstateEncoded_;
       std::vector<unsigned int> ministateEncoded_;
-      std::vector<AtomicMonUInt*> processed_;
-      IntJ fastPathProcessedJ_;
+      std::vector<jsoncollector::AtomicMonUInt*> processed_;
+      jsoncollector::IntJ fastPathProcessedJ_;
       std::vector<unsigned int> threadMicrostateEncoded_;
 
       //tracking luminosity of a stream
@@ -68,7 +67,7 @@ namespace evf{
       }
 
       //to be called after fast monitor is constructed
-      void registerVariables(FastMonitor* fm, unsigned int nStreams, unsigned int nThreads) {
+      void registerVariables(jsoncollector::FastMonitor* fm, unsigned int nStreams, unsigned int nThreads) {
 	//tell FM to track these global variables(for fast and slow monitoring)
         fm->registerGlobalMonitorable(&fastMacrostateJ_,true,&macrostateBins_);
         fm->registerGlobalMonitorable(&fastThroughputJ_,false);
@@ -78,7 +77,7 @@ namespace evf{
         fm->registerGlobalMonitorable(&fastLockCountJ_,false);
 
 	for (unsigned int i=0;i<nStreams;i++) {
-	 AtomicMonUInt * p  = new AtomicMonUInt;
+	 jsoncollector::AtomicMonUInt * p  = new jsoncollector::AtomicMonUInt;
 	 *p=0;
    	  processed_.push_back(p);
           streamLumi_.push_back(0);
@@ -112,7 +111,7 @@ namespace evf{
 
     void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
       std::string defGroup = "data";
-      jsonMonitor_.reset(new FastMonitor(microStateDefPath,defGroup,false));
+      jsonMonitor_.reset(new jsoncollector::FastMonitor(microStateDefPath,defGroup,false));
       if (fastMicroStateDefPath.size())
         jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath,defGroup,false);
     }
@@ -134,7 +133,7 @@ namespace evf{
     MonitorData m_data;
     std::mutex monlock_;
 
-    std::unique_ptr<FastMonitor> jsonMonitor_;
+    std::unique_ptr<jsoncollector::FastMonitor> jsonMonitor_;
 
     friend class FastMonitoringService;
   };

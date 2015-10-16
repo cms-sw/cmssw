@@ -20,7 +20,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -42,40 +42,27 @@
 // class decleration
 //
 
-class HcalDDDGeometryAnalyzer : public edm::EDAnalyzer {
-
+class HcalDDDGeometryAnalyzer : public edm::one::EDAnalyzer<>
+{
 public:
 
   explicit HcalDDDGeometryAnalyzer( const edm::ParameterSet& );
   ~HcalDDDGeometryAnalyzer();
 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
-
-  // ----------member data ---------------------------
   int pass_;
 };
 
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
-// constructors and destructor
-//
-HcalDDDGeometryAnalyzer::HcalDDDGeometryAnalyzer(const edm::ParameterSet& ) {
-
-  //now do what ever initialization is needed
+HcalDDDGeometryAnalyzer::HcalDDDGeometryAnalyzer(const edm::ParameterSet& )
+{
   pass_=0;
 }
 
 HcalDDDGeometryAnalyzer::~HcalDDDGeometryAnalyzer() {}
-
 
 // ------------ method called to produce the data  ------------
 void HcalDDDGeometryAnalyzer::analyze(const edm::Event& , 

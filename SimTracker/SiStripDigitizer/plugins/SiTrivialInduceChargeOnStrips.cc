@@ -191,8 +191,13 @@ induceVector(const SiChargeCollectionDrifter::collection_type& collection_points
     for (int i=0; i!=N;++i) {
       auto delta = 1.f/(std::sqrt(2.f)*chargeSpread[i]);
       auto pos = delta*(float(fromStrip[i])-chargePosition[i]);
-      for (int j=0;j<=nStrip[i]; ++j)  /// include last strip
-	value[kk++] = pos+float(j)*delta;  
+
+      // VI: before value[0] was not defined and value[tot] was filled
+      //     to fix this the loop below was changed
+      for (int j=0;j<=nStrip[i]; ++j) { /// include last strip
+	value[kk] = pos+float(j)*delta;
+        ++kk;  
+      }
     }
     assert(kk==tot);
     

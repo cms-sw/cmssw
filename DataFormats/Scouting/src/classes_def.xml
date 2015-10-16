@@ -1,0 +1,38 @@
+<lcgdict>
+  <class name="ScoutingCaloJet" ClassVersion="2">
+      <version ClassVersion="2" checksum="2705685116"/>
+  </class>
+  <class name="ScoutingPFJet" ClassVersion="2">
+      <version ClassVersion="2" checksum="2507658732"/>
+  </class>
+  <class name="ScoutingParticle" ClassVersion="3">
+      <version ClassVersion="2" checksum="2803573918"/>
+      <version ClassVersion="3" checksum="3020184314"/>
+  </class>
+  <class name="ScoutingVertex" ClassVersion="2">
+      <version ClassVersion="2" checksum="2969738609"/>
+  </class>
+  <class name="ScoutingElectron" ClassVersion="2">
+      <version ClassVersion="2" checksum="1190461538"/>
+  </class>
+  <class name="ScoutingMuon" ClassVersion="2">
+      <version ClassVersion="2" checksum="9151"/>
+  </class>
+  <class name="ScoutingPhoton" ClassVersion="2">
+      <version ClassVersion="2" checksum="2797410539"/>
+  </class>
+  <class name="std::vector<ScoutingCaloJet>"/>
+  <class name="std::vector<ScoutingPFJet>"/>
+  <class name="std::vector<ScoutingParticle>"/>
+  <class name="std::vector<ScoutingVertex>"/>
+  <class name="std::vector<ScoutingElectron>"/>
+  <class name="std::vector<ScoutingMuon>"/>
+  <class name="std::vector<ScoutingPhoton>"/>
+  <class name="edm::Wrapper<std::vector<ScoutingCaloJet> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingPFJet> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingParticle> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingVertex> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingElectron> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingMuon> >"/>
+  <class name="edm::Wrapper<std::vector<ScoutingPhoton> >"/>
+</lcgdict>

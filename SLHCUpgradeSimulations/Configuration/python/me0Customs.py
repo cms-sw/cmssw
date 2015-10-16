@@ -31,6 +31,8 @@ def customise_Digi(process):
     process.mix.mixObjects.mixSH.subdets.append('MuonME0Hits')
     process.load('SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi')
     process.muonDigi += process.simMuonME0Digis
+    # process.load('SimCalorimetry.Configuration.SimCalorimetry_cff')
+    # process.digitisation_step.remove(calDigi)
     process=outputCustoms(process)
     return process
 
@@ -57,14 +59,14 @@ def customise_GlobalRecoInclude(process):
 
 def customise_GlobalRecoFast(process):
     customise_GlobalRecoInclude(process)
-    process.load('RecoMuon.MuonIdentification.me0MuonReco_cff')
-    process.reconstructionWithFamos += process.me0MuonReco
+    # process.load('RecoMuon.MuonIdentification.me0MuonReco_cff')
+    # process.reconstructionWithFamos += process.me0MuonReco
     return process
 
 def customise_GlobalRecoFull(process):
     customise_GlobalRecoInclude(process)
-    process.load('RecoMuon.MuonIdentification.me0MuonReco_cff')
-    process.muonGlobalReco += process.me0MuonReco
+    # process.load('RecoMuon.MuonIdentification.me0MuonReco_cff')
+    # process.muonGlobalReco += process.me0MuonReco
     return process
 
 def customise_RecoFast(process):

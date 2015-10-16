@@ -179,7 +179,7 @@ ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig):
   conf_(iConfig),
   gsfEleToken_(consumes<GsfElectronCollection>(edm::InputTag("gsfElectrons"))),
   genToken_(consumes<GenParticleCollection>(edm::InputTag("genParticles"))),
-  //mcTruthToken_(consumes<edm::HepMCProduct>(edm::InputTag("generator"))),
+  //mcTruthToken_(consumes<edm::HepMCProduct>(edm::InputTag("VtxSmeared"))),
   vertexToken_(consumes<reco::VertexCollection>(edm::InputTag("offlinePrimaryVertices"))),
   //pfCandToken_(consumes<reco::PFCandidateCollection>(edm::InputTag("particleFlow"))),
   eventrhoToken_(consumes<double>(edm::InputTag("kt6PFJets", "rho"))),
@@ -296,7 +296,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(genToken_,genParticles);
-  //InputTag  mcTruthToken_(string("generator"));
+  //InputTag  mcTruthToken_(string("VtxSmeared"));
   //edm::Handle<edm::HepMCProduct> pMCTruth;
   //iEvent.getByToken(mcTruthToken_,pMCTruth);
   //const HepMC::GenEvent* genEvent = pMCTruth->GetEvent();

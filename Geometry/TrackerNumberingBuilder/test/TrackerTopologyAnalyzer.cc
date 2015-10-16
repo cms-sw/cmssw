@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -14,14 +14,14 @@
 #include <climits>
 #include <iostream>
 
-class TrackerTopologyAnalyzer : public edm::EDAnalyzer {
+class TrackerTopologyAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackerTopologyAnalyzer( const edm::ParameterSet& ) {};
   ~TrackerTopologyAnalyzer() {};
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-private:
-  //
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 };
 
 void TrackerTopologyAnalyzer::analyze( const edm::Event &iEvent, const edm::EventSetup& iSetup) {

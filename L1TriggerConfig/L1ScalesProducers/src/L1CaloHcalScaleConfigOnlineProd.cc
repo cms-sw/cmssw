@@ -26,6 +26,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "CalibCalorimetry/CaloTPG/src/CaloTPGTranscoderULUT.h"
 #include "CondTools/L1Trigger/interface/OMDSReader.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <cmath>
 #include <iostream>
@@ -82,6 +83,8 @@ L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
   HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
   int maxDepthHB = 2;
   int maxDepthHE = 3;
+  edm::LogWarning("") << "Fix how to get HcalTopology correctly";
+  /*
   if( iConfig.exists( "hcalTopologyConstants" ))
   {
     const edm::ParameterSet hcalTopoConsts = iConfig.getParameter<edm::ParameterSet>( "hcalTopologyConstants" );
@@ -90,6 +93,7 @@ L1CaloHcalScaleConfigOnlineProd::L1CaloHcalScaleConfigOnlineProd(
     maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
     maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
   }
+  */
   
   theTrigTowerGeometry = new HcalTrigTowerGeometry( new HcalTopology( mode, maxDepthHB, maxDepthHE ));
 }

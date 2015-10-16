@@ -1,3 +1,4 @@
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/HLTReco/interface/ModuleTiming.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"

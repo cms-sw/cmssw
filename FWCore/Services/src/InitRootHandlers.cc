@@ -12,9 +12,18 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
+#include <thread>
 #include <sys/wait.h>
 #include <sstream>
 #include <string.h>
+#include <poll.h>
+
+// WORKAROUND: At CERN, execv is replaced with a non-async-signal safe
+// version.  This can break our stack trace printer.  Avoid this by
+// invoking the syscall directly.
+#ifdef __linux__
+#include <syscall.h>
+#endif
 
 #include "TROOT.h"
 #include "TError.h"
@@ -185,14 +194,14 @@ namespace {
 
   extern "C" {
 
-    static int full_cerr_write(const char *text)
+    static int full_write(int fd, const char *text)
     {
       const char *buffer = text;
       size_t count = strlen(text);
       ssize_t written = 0;
       while (count)
       {
-        written = write(2, buffer, count);
+        written = write(fd, buffer, count);
         if (written == -1) 
         {
           if (errno == EINTR) {continue;}
@@ -202,6 +211,83 @@ namespace {
         buffer += written;
       }
       return 0;
+    }
+
+    static int full_read(int fd, char *inbuf, size_t len, int timeout_s=-1)
+    {
+      char *buf = inbuf;
+      size_t count = len;
+      ssize_t complete = 0;
+      std::chrono::time_point<std::chrono::steady_clock> end_time = std::chrono::steady_clock::now() + std::chrono::seconds(timeout_s);
+      int flags;
+      if (timeout_s < 0)
+      {
+        flags = O_NONBLOCK;  // Prevents us from trying to set / restore flags later.
+      }
+      else if ((-1 == (flags = fcntl(fd, F_GETFL))))
+      {
+        return -errno;
+      }
+      if ((flags & O_NONBLOCK) != O_NONBLOCK)
+      {
+        if (-1 == fcntl(fd, F_SETFL, flags | O_NONBLOCK))
+        {
+          return -errno;
+        }
+      }
+      while (count)
+      {
+        if (timeout_s >= 0)
+        {
+          struct pollfd poll_info{fd, POLLIN, 0};
+          int ms_remaining = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-std::chrono::steady_clock::now()).count();
+          if (ms_remaining > 0)
+          {
+            if (poll(&poll_info, 1, ms_remaining) == 0)
+            {
+              if ((flags & O_NONBLOCK) != O_NONBLOCK)
+              {
+                fcntl(fd, F_SETFL, flags);
+              }
+              return -ETIMEDOUT;
+            }
+          }
+          else if (ms_remaining < 0)
+          {
+            if ((flags & O_NONBLOCK) != O_NONBLOCK)
+            {
+              fcntl(fd, F_SETFL, flags);
+            }
+            return -ETIMEDOUT;
+          }
+        }
+        complete = read(fd, buf, count);
+        if (complete == -1)
+        {
+          if (errno == EINTR) {continue;}
+          else if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {continue;}
+          else
+          {
+            int orig_errno = errno;
+            if ((flags & O_NONBLOCK) != O_NONBLOCK)
+            {
+              fcntl(fd, F_SETFL, flags);
+            }
+            return -orig_errno;
+          }
+        }
+        count -= complete;
+        buf += complete;
+      }
+      if ((flags & O_NONBLOCK) != O_NONBLOCK) {
+        fcntl(fd, F_SETFL, flags);
+      }
+      return 0;
+    }
+
+    static int full_cerr_write(const char *text)
+    {
+      return full_write(2, text);
     }
 
     void sig_dostack_then_abort(int sig, siginfo_t*, void*) {
@@ -224,15 +310,138 @@ namespace {
       full_cerr_write("\nThe following is the call stack containing the origin of the signal.\n"
         "NOTE:The first few functions on the stack are artifacts of processing the signal and can be ignored\n\n");
 
+      edm::service::InitRootHandlers::stacktraceFromThread();
+
+      full_cerr_write("\nA fatal system signal has occurred: ");
+      full_cerr_write(signalname);
+      full_cerr_write("\n");
+
+      // For these three known cases, re-raise the signal so get the correct
+      // exit code.
+      if ((sig == SIGILL) || (sig == SIGSEGV) || (sig == SIGBUS))
+      {
+        signal(sig, SIG_DFL);
+        raise(sig);
+      }
+      else
+      {
+        ::abort();
+      }
+    }
+    
+    void sig_abort(int sig, siginfo_t*, void*) {
+      ::abort();
+    }
+  }
+
+  void set_default_signals() {
+    signal(SIGILL, SIG_DFL);
+    signal(SIGSEGV, SIG_DFL);
+    signal(SIGBUS, SIG_DFL);
+  }
+
+}  // end of unnamed namespace
+
+namespace edm {
+  namespace service {
+
+    /*
+     * We've run into issues where GDB fails to print the thread which calls clone().
+     * To avoid this problem, we have an alternate approach below where the signal handler
+     * only reads/writes to a dedicated thread via pipes.  The helper thread does the clone()
+     * invocation; we don't care if that thread is missing from the traceback in this case.
+     */
+    static void cmssw_stacktrace_fork();
+
+    void InitRootHandlers::stacktraceHelperThread()
+    {
+      int toParent = childToParent_[1];
+      int fromParent = parentToChild_[0];
+      char buf[2]; buf[1] = '\0';
+      while(true)
+      {
+        int result = full_read(fromParent, buf, 1);
+        if (result < 0)
+        {
+          // To avoid a deadlock (this function is NOT re-entrant), reset signals
+          // We never set them back to the CMSSW handler because we assume the parent
+          // thread will abort for us.
+          set_default_signals();
+          close(toParent);
+          full_cerr_write("\n\nTraceback helper thread failed to read from parent: ");
+          full_cerr_write(strerror(-result));
+          full_cerr_write("\n");
+          ::abort();
+        }
+        if (buf[0] == '1')
+        {
+          set_default_signals();
+          cmssw_stacktrace_fork();
+          full_write(toParent, buf);
+        }
+        else if (buf[0] == '2')
+        {
+          // We have just finished forking.  Reload the file descriptors for thread
+          // communication.
+          close(toParent);
+          close(fromParent);
+          toParent = childToParent_[1];
+          fromParent = parentToChild_[0];
+        }
+        else if (buf[0] == '3')
+        {
+          break;
+        }
+        else
+        {
+          set_default_signals();
+          close(toParent);
+          full_cerr_write("\n\nTraceback helper thread got unknown command from parent: ");
+          full_cerr_write(buf);
+          full_cerr_write("\n");
+          ::abort();
+        }
+      }
+    }
+
+    void InitRootHandlers::stacktraceFromThread()
+    {
+      int result = full_write(parentToChild_[1], "1");
+      if (result < 0)
+      {
+        full_cerr_write("\n\nAttempt to request stacktrace failed: ");
+        full_cerr_write(strerror(-result));
+        full_cerr_write("\n");
+        return;
+      }
+      char buf[2]; buf[1] = '\0';
+      if ((result = full_read(childToParent_[0], buf, 1, 5*60)) < 0)
+      {
+        full_cerr_write("\n\nWaiting for stacktrace completion failed: ");
+        if (result == -ETIMEDOUT)
+        {
+          full_cerr_write("timed out waiting for GDB to complete.");
+        }
+        else
+        {
+          full_cerr_write(strerror(-result));
+        }
+        full_cerr_write("\n");
+        return;
+      }
+    }
+
+    void cmssw_stacktrace_fork()
+    {
       char child_stack[4*1024];
       char *child_stack_ptr = child_stack + 4*1024;
         // On Linux, we currently use jemalloc.  This registers pthread_atfork handlers; these
         // handlers are *not* async-signal safe.  Hence, a deadlock is possible if we invoke
         // fork() from our signal handlers.  Accordingly, we use clone (not POSIX, but AS-safe)
         // as that is closer to the 'raw metal' syscall and avoids pthread_atfork handlers.
-      int pid = 
+      int pid =
 #ifdef __linux__
-        clone(edm::service::cmssw_stacktrace, child_stack_ptr, CLONE_VFORK|CLONE_VM|CLONE_FS|SIGCHLD, nullptr);
+        clone(edm::service::cmssw_stacktrace, child_stack_ptr, CLONE_VM|CLONE_FS|SIGCHLD, nullptr);
 #else
         fork();
       if (child_stack_ptr) {} // Suppress 'unused variable' warning on non-Linux
@@ -249,27 +458,24 @@ namespace {
         {
           full_cerr_write("(Failed to wait on stack dump output.)\n");
         }
+        if (status)
+        {
+          full_cerr_write("(GDB stack trace failed unexpectedly)\n");
+        }
       }
-
-      full_cerr_write("\nA fatal system signal has occurred: ");
-      full_cerr_write(signalname);
-      full_cerr_write("\n");
-      ::abort();
     }
-    
-    void sig_abort(int sig, siginfo_t*, void*) {
-      ::abort();
-    }
-  }
-}  // end of unnamed namespace
-
-namespace edm {
-  namespace service {
 
     int cmssw_stacktrace(void * /*arg*/)
     {
       char *const *argv = edm::service::InitRootHandlers::getPstackArgv();
+      // NOTE: this is NOT async-signal-safe at CERN's lxplus service.
+      // CERN uses LD_PRELOAD to replace execv with a function from libsnoopy which
+      // calls dlsym.
+#ifdef __linux__
+      syscall(SYS_execve, "/bin/sh", argv, __environ);
+#else
       execv("/bin/sh", argv);
+#endif
       ::abort();
       return 1;
     }
@@ -278,6 +484,9 @@ namespace edm {
     static char dashC[] = "-c";
     char InitRootHandlers::pidString_[InitRootHandlers::pidStringLength_] = {};
     char * const InitRootHandlers::pstackArgv_[] = {pstackName, dashC, InitRootHandlers::pidString_, nullptr};
+    int InitRootHandlers::parentToChild_[2] = {-1, -1};
+    int InitRootHandlers::childToParent_[2] = {-1, -1};
+    std::unique_ptr<std::thread> InitRootHandlers::helperThread_;
 
     InitRootHandlers::InitRootHandlers (ParameterSet const& pset, ActivityRegistry& iReg)
       : RootHandlers(),
@@ -430,6 +639,37 @@ namespace edm {
         edm::Exception except(edm::errors::OtherCMS, sstr.str());
         throw except;
       }
+
+      // These are initialized to -1; harmless to close an invalid FD.
+      // If this is called post-fork, we don't want to be communicating on
+      // these FDs as they are used internally by the parent.
+      close(childToParent_[0]);
+      close(childToParent_[1]);
+      childToParent_[0] = -1; childToParent_[1] = -1;
+      close(parentToChild_[0]);
+      close(parentToChild_[1]);
+      parentToChild_[0] = -1; parentToChild_[1] = -1;
+
+      if (-1 == pipe2(childToParent_, O_CLOEXEC))
+      {
+        std::ostringstream sstr;
+        sstr << "Failed to create child-to-parent pipes (errno=" << errno << "): " << strerror(errno);
+        edm::Exception except(edm::errors::OtherCMS, sstr.str());
+        throw except;
+      }
+
+      if (-1 == pipe2(parentToChild_, O_CLOEXEC))
+      {
+        close(childToParent_[0]); close(childToParent_[1]);
+        childToParent_[0] = -1; childToParent_[1] = -1;
+        std::ostringstream sstr;
+        sstr << "Failed to create child-to-parent pipes (errno=" << errno << "): " << strerror(errno);
+        edm::Exception except(edm::errors::OtherCMS, sstr.str());
+        throw except;
+      }
+
+      helperThread_.reset(new std::thread(stacktraceHelperThread));
+      helperThread_->detach();
     }
 
   }  // end of namespace service

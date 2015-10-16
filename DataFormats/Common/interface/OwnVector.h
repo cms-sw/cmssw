@@ -413,8 +413,6 @@ namespace edm {
   void OwnVector<T, P>::fillView(ProductID const& id,
                                  std::vector<void const*>& pointers,
                                  FillViewHelperVector& helpers) const {
-    typedef Ref<OwnVector>      ref_type ;
-
     size_type numElements = this->size();
     pointers.reserve(numElements);
     helpers.reserve(numElements);

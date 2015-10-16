@@ -8,7 +8,7 @@
 #include "TH1F.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -21,7 +21,7 @@
 // class decleration
 //
 
-class TrackingParticleCategoriesAnalyzer : public edm::EDAnalyzer
+class TrackingParticleCategoriesAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
 public:
 
@@ -34,7 +34,7 @@ private:
 
     // Member data
 
-    edm::InputTag trackingTruth_;
+    edm::EDGetTokenT<TrackingParticleCollection> trackingTruth_;
 
     std::size_t totalTrakingParticles_;
 
@@ -49,10 +49,10 @@ private:
 TrackingParticleCategoriesAnalyzer::TrackingParticleCategoriesAnalyzer(const edm::ParameterSet& config) : classifier_(config,consumesCollector())
 {
     // Get the track collection
-    trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
-    consumes<TrackingParticleCollection>(trackingTruth_);
+    trackingTruth_ = consumes<TrackingParticleCollection>(config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" ));
 
     // Get the file service
+    usesResource("TFileService");
     edm::Service<TFileService> fs;
 
     // Create a sub directory associated to the analyzer
@@ -83,7 +83,7 @@ void TrackingParticleCategoriesAnalyzer::analyze(const edm::Event& event, const 
 {
     // Track collection
     edm::Handle<TrackingParticleCollection> TPCollection;
-    event.getByLabel(trackingTruth_, TPCollection);
+    event.getByToken(trackingTruth_, TPCollection);
 
     // Set the classifier for a new event
     classifier_.newEvent(event, setup);

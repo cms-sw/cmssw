@@ -6,28 +6,30 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "TMVA/Reader.h"
-#include<string>
+
+#include "CondFormats/EgammaObjects/interface/GBRForest.h"
+#include <memory>
+#include <string>
 
 class SoftElectronMVAEstimator {
  public:
+  constexpr static unsigned int ExpectedNBins = 1;
+
   struct Configuration{
     std::vector<std::string> vweightsfiles;
-    edm::EDGetTokenT<reco::VertexCollection> vtxCollection;
   };
   SoftElectronMVAEstimator(const Configuration & );
   ~SoftElectronMVAEstimator() ;
-  double mva(const reco::GsfElectron& myElectron,const edm::Event & evt);
+  double mva(const reco::GsfElectron& myElectron,
+             const reco::VertexCollection&) const;
   UInt_t   GetMVABin(int pu,double eta,double pt ) const;
  private:
-  void bindVariables();
+  void bindVariables(float vars[25]) const ;
   void init();
 
  private:
     const Configuration cfg_;
-    std::vector<std::string> mvaWeightFiles_;
-    std::vector<TMVA::Reader*> fmvaReader;
-    TMVA::Reader*    tmvaReader_;
+    std::array<std::unique_ptr<const GBRForest>, ExpectedNBins> gbr;
     
     Float_t                    fbrem;
     Float_t                    EtotOvePin;

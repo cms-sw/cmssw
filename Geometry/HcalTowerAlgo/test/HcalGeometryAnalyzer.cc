@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -8,16 +8,18 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include <iostream>
 
-class HcalGeometryAnalyzer : public edm::EDAnalyzer 
+class HcalGeometryAnalyzer : public edm::one::EDAnalyzer<> 
 {
 public:
-    explicit HcalGeometryAnalyzer( const edm::ParameterSet& );
-    ~HcalGeometryAnalyzer( void );
+  explicit HcalGeometryAnalyzer( const edm::ParameterSet& );
+  ~HcalGeometryAnalyzer( void );
     
-    virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  void beginJob() override {}
+  void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
+  void endJob() override {}
 
 private:
-    std::string m_label;
+  std::string m_label;
 };
 
 HcalGeometryAnalyzer::HcalGeometryAnalyzer( const edm::ParameterSet& iConfig ) 
@@ -33,7 +35,7 @@ void
 HcalGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
     edm::ESHandle<HcalTopology> topologyHandle;
-    iSetup.get<IdealGeometryRecord>().get( topologyHandle );
+    iSetup.get<HcalRecNumberingRecord>().get( topologyHandle );
     const HcalTopology* topology ( topologyHandle.product() ) ;
 
     edm::ESHandle<CaloSubdetectorGeometry> pG;

@@ -7,9 +7,10 @@
 #include "DQM/PhysicsHWW/interface/analysisSelections.h"
 
 using namespace std;
-using namespace wp2012;
 
 namespace HWWFunctions {
+
+using namespace wp2012;
 
   bool pass_electronSelectionCompareMask( const cuts_t cuts_passed, const cuts_t selectionType ) {
       if ((cuts_passed & selectionType) == selectionType) return true;

@@ -55,7 +55,6 @@ process.mix.input.nbPileupEvents = cms.PSet(
 #    probValue = cms.vdouble(4914.0,3267.0,1311.0,397.0,92.0,14.0,3.0,2.0,0.0,0.0),
     probValue = cms.vdouble(0.4914,0.3267,0.1311,0.0397,0.0092,0.0014,0.0003,0.0002,0,0),	
     histoFileName = cms.untracked.string('histProbFunction.root'),
-    seed = cms.untracked.int32(54321)	  
 )
 
 process.mix.input.fileNames = cms.untracked.vstring(

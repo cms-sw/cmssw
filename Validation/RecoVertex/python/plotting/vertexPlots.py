@@ -1,5 +1,7 @@
-from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, Plotter, AlgoOpt
+from Validation.RecoTrack.plotting.plotting import Plot, PlotGroup, PlotFolder, Plotter
 import Validation.RecoTrack.plotting.validation as validation
+from Validation.RecoTrack.plotting.html import PlotPurpose
+
 
 _maxPU = 80
 _maxVtx = 60
@@ -76,28 +78,28 @@ _genpos = PlotGroup("genpos", [
     Plot("GenPV_Z", xtitle="Gen PV pos z", ytitle="N", **_common),
 ])
 
-plotter = Plotter([
+_vertexFolders = [
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertex",
     "DQMData/Vertexing/PrimaryVertex",
     "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV",
     "DQMData/Vertexing/PrimaryVertexV",
-],[
+]
+plotter = Plotter()
+plotter.append("", _vertexFolders, PlotFolder(
     _recovsgen,
     _pvtagging,
     _effandfake,
     _resolution,
     _pull,
     _puritymissing,
-    _sumpt2
-])
-plotterGen = Plotter([
-    "DQMData/Run 1/Vertexing/Run summary/PrimaryVertex",
-    "DQMData/Vertexing/PrimaryVertex",
-    "DQMData/Run 1/Vertexing/Run summary/PrimaryVertexV",
-    "DQMData/Vertexing/PrimaryVertexV",
-],[
+    _sumpt2,
+    purpose=PlotPurpose.Vertexing,
+    page="vertex"
+))
+plotterGen = Plotter()
+plotterGen.append("", _vertexFolders, PlotFolder(
      _genpos
-])
+))
 
 class VertexValidation(validation.Validation):
     def _init__(self, *args, **kwargs):

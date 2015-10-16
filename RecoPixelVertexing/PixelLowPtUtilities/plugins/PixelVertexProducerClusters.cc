@@ -14,8 +14,6 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -24,17 +22,12 @@
 
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
-#include <fstream>
-#include <iostream>
 #include <vector>
 #include <algorithm>
 
 using namespace std;
 
-#include "TROOT.h"
-#include "TH1F.h"
-#include "TF1.h"
-
+namespace {
 class VertexHit
 {
   public:
@@ -44,31 +37,7 @@ class VertexHit
 };
 
 /*****************************************************************************/
-PixelVertexProducerClusters::PixelVertexProducerClusters
-  (const edm::ParameterSet& ps) : theConfig(ps)
-{
-  // Product
-  produces<reco::VertexCollection>();
-}
-
-
-/*****************************************************************************/
-PixelVertexProducerClusters::~PixelVertexProducerClusters()
-{ 
-}
-
-/*****************************************************************************/
-void PixelVertexProducerClusters::beginRun
-  (edm::Run const & run, edm::EventSetup const & es)
-{
-  // Get tracker geometry
-  edm::ESHandle<TrackerGeometry> trackerHandle;
-  es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
-  theTracker = trackerHandle.product();
-}
-
-/*****************************************************************************/
-int PixelVertexProducerClusters::getContainedHits
+int getContainedHits
   (const vector<VertexHit>& hits, float z0, float & chi)
 {
   int n = 0;
@@ -89,19 +58,39 @@ int PixelVertexProducerClusters::getContainedHits
 
   return n;
 }
+}
+
+/*****************************************************************************/
+PixelVertexProducerClusters::PixelVertexProducerClusters
+  (const edm::ParameterSet& ps) : pixelToken_(consumes<SiPixelRecHitCollection>(edm::InputTag("siPixelRecHits")))
+{
+  // Product
+  produces<reco::VertexCollection>();
+}
+
+/*****************************************************************************/
+PixelVertexProducerClusters::~PixelVertexProducerClusters()
+{ 
+}
+
 
 /*****************************************************************************/
 void PixelVertexProducerClusters::produce
-  (edm::Event& ev, const edm::EventSetup& es)
+  (edm::StreamID, edm::Event& ev, const edm::EventSetup& es) const
 {
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopo;
   es.get<TrackerTopologyRcd>().get(tTopo);
 
+  // Get tracker geometry
+  edm::ESHandle<TrackerGeometry> trackerHandle;
+  es.get<TrackerDigiGeometryRecord>().get(trackerHandle);
+  const TrackerGeometry* theTracker = trackerHandle.product();
+
 
   // Get pixel hit collections
   edm::Handle<SiPixelRecHitCollection> pixelColl;
-  ev.getByLabel("siPixelRecHits",      pixelColl);
+  ev.getByToken(pixelToken_,           pixelColl);
 
   const SiPixelRecHitCollection* thePixelHits = pixelColl.product();
 

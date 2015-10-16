@@ -31,7 +31,7 @@ namespace edm {
       inline void eventSetupGetImplementation(EventSetup const& iEventSetup, T const*& iValue) {
          T const* temp = heterocontainer::find<EventSetupRecordKey, T const>(iEventSetup);
          if(0 == temp) {
-            throw NoRecordException<T>();
+            throw NoRecordException<T>(iovSyncValueFrom(iEventSetup), recordDoesExist(iEventSetup, EventSetupRecordKey::makeKey<T>()));
          }
          iValue = temp;
       }

@@ -8,6 +8,7 @@
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
  *  \author A. Everett 		 Purdue University
+ *  \modified by C. Calabria & A. Sharma    INFN & Universita  Bari
  */
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -23,6 +24,7 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 #include "DataFormats/MuonReco/interface/DYTInfo.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
@@ -130,14 +132,18 @@ class GlobalMuonRefitter {
     float theDTChi2Cut;
     float theCSCChi2Cut;
     float theRPCChi2Cut;
+    float theGEMChi2Cut;
     bool  theCosmicFlag;
 
     edm::InputTag theDTRecHitLabel;
     edm::InputTag theCSCRecHitLabel;
+    edm::InputTag theGEMRecHitLabel;
     edm::Handle<DTRecHitCollection>    theDTRecHits;
     edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
+    edm::Handle<GEMRecHitCollection> theGEMRecHits;
     edm::EDGetTokenT<DTRecHitCollection> theDTRecHitToken;
     edm::EDGetTokenT<CSCRecHit2DCollection> theCSCRecHitToken;
+    edm::EDGetTokenT<GEMRecHitCollection> theGEMRecHitToken;
 
     int	  theSkipStation;
     int   theTrackerSkipSystem;

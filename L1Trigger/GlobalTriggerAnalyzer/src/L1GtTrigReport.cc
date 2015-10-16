@@ -65,68 +65,68 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtTrigReportEntry.h"
 
 // constructor(s)
-L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet) {
+L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet) :
+
+    // initialize cached IDs
+
+    //
+    m_l1GtStableParCacheID( 0ULL ),
+
+    m_numberPhysTriggers( 0 ),
+    m_numberTechnicalTriggers( 0 ),
+    m_numberDaqPartitions( 0 ),
+    m_numberDaqPartitionsMax( 0 ),
+
+    //
+    m_l1GtPfAlgoCacheID( 0ULL ),
+    m_l1GtPfTechCacheID( 0ULL ),
+
+    m_l1GtTmAlgoCacheID( 0ULL ),
+    m_l1GtTmTechCacheID( 0ULL ),
+
+    m_l1GtTmVetoAlgoCacheID( 0ULL ),
+    m_l1GtTmVetoTechCacheID( 0ULL ),
+
+    //
+    m_l1GtMenuCacheID( 0ULL ),
 
     // boolean flag to select the input record
     // if true, it will use L1GlobalTriggerRecord
-    m_useL1GlobalTriggerRecord = pSet.getParameter<bool>("UseL1GlobalTriggerRecord");
+    m_useL1GlobalTriggerRecord( pSet.getParameter<bool>("UseL1GlobalTriggerRecord") ),
 
     /// input tag for GT record (L1 GT DAQ record or L1 GT "lite" record):
-    m_l1GtRecordInputTag = pSet.getParameter<edm::InputTag>("L1GtRecordInputTag");
+    m_l1GtRecordInputTag( pSet.getParameter<edm::InputTag>("L1GtRecordInputTag") ),
+    m_l1GtRecordInputToken1( m_useL1GlobalTriggerRecord
+        ? consumes<L1GlobalTriggerRecord>(m_l1GtRecordInputTag)
+        : edm::EDGetTokenT<L1GlobalTriggerRecord>() ),
+    m_l1GtRecordInputToken2( not m_useL1GlobalTriggerRecord
+        ? consumes<L1GlobalTriggerReadoutRecord>(m_l1GtRecordInputTag)
+        : edm::EDGetTokenT<L1GlobalTriggerReadoutRecord>() ),
 
     // print verbosity
-    m_printVerbosity = pSet.getUntrackedParameter<int>("PrintVerbosity", 2);
+    m_printVerbosity( pSet.getUntrackedParameter<int>("PrintVerbosity", 2) ),
 
     // print output
-    m_printOutput = pSet.getUntrackedParameter<int>("PrintOutput", 3);
+    m_printOutput( pSet.getUntrackedParameter<int>("PrintOutput", 3) ),
 
+    // initialize global counters
+
+    // number of events processed
+    m_totalEvents( 0 ),
+
+    //
+    m_entryList(),
+    m_entryListTechTrig(),
+
+    // set the index of physics DAQ partition TODO input parameter?
+    m_physicsDaqPartition( 0 )
+
+{
     LogDebug("L1GtTrigReport") << "\n  Use L1GlobalTriggerRecord:   " << m_useL1GlobalTriggerRecord
             << "\n   (if false: L1GtTrigReport uses L1GlobalTriggerReadoutRecord.)"
             << "\n  Input tag for L1 GT record:  " << m_l1GtRecordInputTag.label() << " \n"
             << "\n  Print verbosity level:           " << m_printVerbosity << " \n"
             << "\n  Print output:                    " << m_printOutput << " \n" << std::endl;
-
-    // initialize cached IDs
-
-    //
-    m_l1GtStableParCacheID = 0ULL;
-
-    m_numberPhysTriggers = 0;
-    m_numberTechnicalTriggers = 0;
-    m_numberDaqPartitions = 0;
-    m_numberDaqPartitionsMax = 0;
-
-    //
-    m_l1GtPfAlgoCacheID = 0ULL;
-    m_l1GtPfTechCacheID = 0ULL;
-
-    m_l1GtTmAlgoCacheID = 0ULL;
-    m_l1GtTmTechCacheID = 0ULL;
-
-    m_l1GtTmVetoAlgoCacheID = 0ULL;
-    m_l1GtTmVetoTechCacheID = 0ULL;
-
-    //
-    m_l1GtMenuCacheID = 0ULL;
-
-    // initialize global counters
-
-    // number of events processed
-    m_totalEvents = 0;
-
-    //
-    m_entryList.clear();
-    m_entryListTechTrig.clear();
-
-    // set the index of physics DAQ partition TODO input parameter?
-    m_physicsDaqPartition = 0;
-
-    if (m_useL1GlobalTriggerRecord) {
-      m_l1GtRecordInputToken1=consumes<L1GlobalTriggerRecord>(m_l1GtRecordInputTag);
-    }
-    else{
-      m_l1GtRecordInputToken2=consumes<L1GlobalTriggerReadoutRecord>(m_l1GtRecordInputTag);
-    }
 
 }
 

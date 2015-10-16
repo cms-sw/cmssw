@@ -12,7 +12,7 @@ EcalDeadCellTriggerPrimitiveFilter = cms.EDFilter(
     verbose = cms.int32( 1 ),
     
     tpDigiCollection = cms.InputTag("ecalTPSkimNA"),
-    etValToBeFlagged = cms.double(63.75),
+    etValToBeFlagged = cms.double(127.5),
     
     ebReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     eeReducedRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
