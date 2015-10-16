@@ -13,7 +13,7 @@ l1Menus= {
     '50ns_5e33_v1' : 'L1Menu_Collisions2015_50nsGct_v1_L1T_Scales_20141121_Imp0_0x1030',
     '50ns_5e33_v3' : 'L1Menu_Collisions2015_50nsGct_v4',
     'LowPU'        : 'L1Menu_Collisions2015_lowPU_v4',
-    '25nsLowPU'    : 'L1Menu_Collisions2015_lowPU_25nsStage1_v5',
+    '25nsLowPU'    : 'L1Menu_Collisions2015_lowPU_25nsStage1_v6',
 }
 
 for key,val in l1Menus.iteritems():
