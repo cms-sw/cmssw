@@ -188,7 +188,7 @@ namespace edm {
   template<typename C>
   inline
   void RefProd<C>::swap(RefProd<C> & other) {
-    std::swap(product_, other.product_);
+    edm::swap(product_, other.product_);
   }
 
   template<typename C>
