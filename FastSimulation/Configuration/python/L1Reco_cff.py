@@ -1,12 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
 # the only thing FastSim runs from L1Reco is l1extraParticles
-from L1Trigger.Configuration.L1Reco_cff import l1extraParticles, _customiseForStage1
+from L1Trigger.Configuration.L1Reco_cff import l1extraParticles
 
-# These next few lines copy the L1 era changes to FastSim
-from Configuration.StandardSequences.Eras import eras
-# A unique name is required so I'll use "modify<python filename>ForStage1Trigger_"
-modifyFastSimulationConfigurationL1RecoForStage1Trigger_ = eras.stage1L1Trigger.makeProcessModifier( _customiseForStage1 )
+# If the Stage 1 trigger is running, there is also some different configuration.
+# Note that this next file does nothing if the stage1L1Trigger era is not active, so
+# it is safe to import even if the Stage 1 trigger is not required. It *MUST* be
+# imported into this namespace, i.e. "from <module> import *".
+from L1Trigger.Configuration.ConditionalStage1Configuration_cff import *
 
 # some collections have different labels
 def _changeLabelForFastSim( object ) :
