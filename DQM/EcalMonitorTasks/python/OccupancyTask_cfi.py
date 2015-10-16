@@ -150,7 +150,7 @@ ecalOccupancyTask = cms.untracked.PSet(
             kind = cms.untracked.string('TH2F'),
             otype = cms.untracked.string('Ecal'), 
             btype = cms.untracked.string('RCT'),
-            description = cms.untracked.string('Occupancy for TP digis with Et > ' + str(tpThreshold) + ' GeV in RCT')
+            description = cms.untracked.string('Occupancy for TP digis with Et > ' + str(tpThreshold) + ' GeV in RCT coordinates')
         ),
         RecHitThrAll = cms.untracked.PSet(
             path = cms.untracked.string('%(subdet)s/%(prefix)sOccupancyTask/%(prefix)sOT rec hit thr occupancy%(suffix)s'),
