@@ -26,7 +26,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
       ++nnn;
     }
   }
-  std::cout << "Number of corners" << nnn << std::endl;
+
   if( 0 == geom->cornersMgr() ) geom->allocateCorners (nnn); 
   if( 0 == geom->parMgr() ) geom->allocatePar (
      CaloTowerGeometry::k_NumberOfParametersPerShape*CaloTowerGeometry::k_NumberOfShapes,
@@ -44,7 +44,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
     }
   }
   edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << n << " towers.";
-  std::cout << "End from CaloTowerGeometryLoader\n";
+
   return std::auto_ptr<CaloSubdetectorGeometry>(geom); 
 }
 
