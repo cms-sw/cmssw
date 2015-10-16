@@ -2,6 +2,7 @@
 #define _hgcfeelectronics_h_
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/Random/RandGauss.h"
 

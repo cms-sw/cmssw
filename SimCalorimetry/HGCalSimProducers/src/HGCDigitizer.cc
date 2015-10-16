@@ -184,9 +184,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
       if (verbosity_>0) {
 	if (producesEEDigis())
-	  std::cout << "HGCDigitizer: i/p " << simId << " o/p " << HGCEEDetId(id) << std::endl;
+          edm::LogInfo("HGCDigitizer") <<" i/p " << simId << " o/p " << HGCEEDetId(id) << std::endl;
 	else
-	  std::cout << "HGCDigitizer: i/p " << simId << " o/p " << HGCHEDetId(id) << std::endl;
+          edm::LogInfo("HGCDigitizer") << " i/p " << simId << " o/p " << HGCHEDetId(id) << std::endl;
       }
 
       hitRefs[i]=std::make_tuple( i, 
@@ -234,15 +234,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 
       (simHitIt->second)[0][itime] += charge;
       float accCharge=(simHitIt->second)[0][itime];
-
-      /*
-      std::cout << id 
-		<< " " << accCharge
-		<< " " << charge
-		<< " " << itime 
-		<< " " << tof;
-      */
-
+      
       //time-of-arrival (check how to be used)
       if(weightToAbyEnergy) (simHitIt->second)[1][itime] += charge*tof;
       else if((simHitIt->second)[1][itime]==0)
@@ -269,8 +261,6 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 	      (simHitIt->second)[1][itime]=fireTDC;
 	    }
 	}
-
-      //std::cout << " " << (simHitIt->second)[1][itime] << std::endl;
     }
   hitRefs.clear();
   
