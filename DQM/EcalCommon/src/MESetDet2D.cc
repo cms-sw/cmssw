@@ -2,7 +2,6 @@
 
 #include "DQM/EcalCommon/interface/EcalDQMCommonUtils.h"
 
-#include <sstream>
 namespace ecaldqm
 {
   MESetDet2D::MESetDet2D(std::string const& _fullPath, binning::ObjectType _otype, binning::BinningType _btype, MonitorElement::Kind _kind, binning::AxisSpecs const* _zaxis/* = 0*/) :
@@ -89,6 +88,7 @@ namespace ecaldqm
 
     unsigned iME(binning::findPlotIndex(otype_, _id));
     checkME_(iME);
+
     binning::ObjectType obj(binning::getObject(otype_, iME));
 
     int bin;
@@ -118,8 +118,9 @@ namespace ecaldqm
   {
     if(!active_) return;
 
-    unsigned iME(binning::findPlotIndex(otype_, _id));
+    unsigned iME(0);
     if(btype_ == binning::kPseudoStrip) iME = binning::findPlotIndex(otype_, _id.dccId(),binning::kPseudoStrip);
+    else iME = binning::findPlotIndex(otype_, _id);
     checkME_(iME);
 
     binning::ObjectType obj(binning::getObject(otype_, iME));
@@ -131,7 +132,7 @@ namespace ecaldqm
       std::vector<DetId> ids(getElectronicsMap()->pseudoStripConstituents(stid.dccId(), stid.towerId(), stid.stripId()));
       unsigned nId(ids.size());
       for(unsigned iId(0); iId < nId; iId++){
-         bin = binning::findBin2D(obj, binning::kPseudoStrip, ids[iId]);
+         bin = binning::findBin2D(obj, btype_ , ids[iId]);
          fill_(iME, bin, _w);
       }
     }
