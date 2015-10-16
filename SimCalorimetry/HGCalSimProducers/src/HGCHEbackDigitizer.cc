@@ -23,10 +23,8 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 {
  
   //switch to true if you want to print some details
-  bool debug(false);
-  CLHEP::RandPoisson peGen(engine,1.0);
-  CLHEP::RandGauss   sigGen(engine,0.0,1.0), simpleNoiseGen(engine,0.0,noise_fC_);
-
+  const bool debug(false);
+  
   for(HGCSimHitDataAccumulator::iterator it=simData.begin();
       it!=simData.end();
       it++)
@@ -38,7 +36,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	  float totalIniMIPs( (it->second)[0][i]*1e6*keV2MIP_ );
 	  	  
 	  //generate random number of photon electrons
-	  uint32_t npe = (uint32_t)peGen.fire(totalIniMIPs*nPEperMIP_);
+	  uint32_t npe = (uint32_t)CLHEP::RandPoisson::shoot(engine,totalIniMIPs*nPEperMIP_);
 	  
 	  //number of pixels	
 	  float x=exp(-(float)(npe)/(float)(nTotalPE_));
@@ -46,7 +44,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	  if(xTalk_*x!=1) nPixel=(uint32_t) std::max( float(nTotalPE_*(1-x)/(1-xTalk_*x)), float(0.) );
 	  
 	  //update signal
-	  nPixel=(uint32_t)std::max( float(sigGen.fire((float)nPixel,(float)sdPixels_)), float(0.) );
+	  nPixel=(uint32_t)std::max( float(CLHEP::RandGauss::shoot(engine,(float)nPixel,(float)sdPixels_)), float(0.) );
 	  
 	  //convert to MIP again and saturate
 	  float totalMIPs(totalIniMIPs);
@@ -56,7 +54,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	    totalMIPs = 0;
 	  
 	  //add noise (in MIPs)
-	  chargeColl[i]=totalMIPs+std::max(simpleNoiseGen.fire(0.,noise_MIP_),0.);
+	  chargeColl[i]=totalMIPs+std::max(CLHEP::RandGauss::shoot(engine,0.,noise_MIP_),0.);
 	  if(debug && (it->second)[0][i]>0) 
 	    std::cout << "[runCaliceLikeDigitizer] En=" << (it->second)[0][i]*1e6 << " keV = " << totalIniMIPs << " MIPs -> " << chargeColl[i] << " MIPs" << std::endl;
 	}	

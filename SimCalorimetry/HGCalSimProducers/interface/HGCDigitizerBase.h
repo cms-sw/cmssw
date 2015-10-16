@@ -64,7 +64,6 @@ class HGCDigitizerBase {
    */
   void runSimple(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData, CLHEP::HepRandomEngine* engine)
   {
-    CLHEP::RandGauss simpleNoiseGen(engine,0,noise_fC_);
     for(HGCSimHitDataAccumulator::iterator it=simData.begin();
 	it!=simData.end();
 	it++)
@@ -85,7 +84,7 @@ class HGCDigitizerBase {
 
 	    //add noise (in fC)
 	    //we assume it's randomly distributed and won't impact ToA measurement
-	    totalCharge += std::max(simpleNoiseGen.fire(),0.);
+	    totalCharge += std::max( CLHEP::RandGauss::shoot(engine,0,noise_fC_) , 0. );
 	    if(totalCharge<0) totalCharge=0;
 
 	    chargeColl[i]= totalCharge;
