@@ -46,6 +46,7 @@
 
 #include <DataFormats/MuonDetId/interface/GEMDetId.h>
 #include <DataFormats/GEMRecHit/interface/GEMSegmentCollection.h>
+#include <DataFormats/GEMRecHit/interface/GEMRecHitCollection.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <DataFormats/CSCRecHit/interface/CSCSegmentCollection.h>
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -80,6 +81,7 @@ class TestGEMSegmentAnalyzer : public edm::EDAnalyzer {
   // edm::EDGetTokenT<edm::PSimHitContainer>    SIMHit_Token;
   edm::EDGetTokenT<CSCSegmentCollection>        CSCSegment_Token;
   edm::EDGetTokenT<GEMSegmentCollection>        GEMSegment_Token;
+  edm::EDGetTokenT<GEMRecHitCollection>         GEMRecHit_Token;
 
   std::string rootFileName;
   std::unique_ptr<TFile> outputfile;
@@ -90,7 +92,7 @@ class TestGEMSegmentAnalyzer : public edm::EDAnalyzer {
   std::unique_ptr<TDirectoryFile> GEMSegment_GE11_Pos_and_Dir, GEMSegment_GE21_Pos_and_Dir;
   std::unique_ptr<TDirectoryFile> GEMSegment_GE11, GEMSegment_GE21;
   std::unique_ptr<TDirectoryFile> GEMSegment_GE21_2hits, GEMSegment_GE21_4hits;
-  std::unique_ptr<TDirectoryFile> GEMSegment_SimHitPlots;
+  std::unique_ptr<TDirectoryFile> GEMSegment_SimHitPlots, GEMSegment_NoiseReductionPlots, GEMSegment_PositionPlots;
 
   std::unique_ptr<TH1F> GEN_eta, GEN_phi, SIM_eta, SIM_phi;
 
@@ -147,6 +149,7 @@ class TestGEMSegmentAnalyzer : public edm::EDAnalyzer {
   std::unique_ptr<TH1F> GE11_AllSegm_Pos, GE11_AllSegm_Neg, GE21_AllSegm_Pos, GE21_AllSegm_Neg,
   std::unique_ptr<TH1F> GE11_SegmBX0_Pos, GE11_SegmBX0_Neg, GE21_SegmBX0_Pos, GE21_SegmBX0_Neg,
   */
+
   /*
   std::unique_ptr<TH1F> GE11_RecHits_PerEvent,      GE21_RecHits_PerEvent;
   std::unique_ptr<TH1F> GE11_RecHits_BX0_PerEvent,  GE21_RecHits_BX0_PerEvent;
@@ -154,9 +157,15 @@ class TestGEMSegmentAnalyzer : public edm::EDAnalyzer {
   std::unique_ptr<TH1F> GE11_Segments_BX0_PerEvent, GE21_Segments_BX0_PerEvent;
   */
 
+  std::unique_ptr<TH2F> GE11_Pos_XY, GE11_Neg_XY, GE21_Pos_XY, GE21_Neg_XY, GEM_Pos_RZ, GEM_Neg_RZ;
+  std::unique_ptr<TH1F> GE11_CheckSegmentDirection, GE21_CheckSegmentDirection, GE21_CheckSegmentDirection_2hits, GE21_CheckSegmentDirection_4hits;
+
   std::unique_ptr<TH1F> SIM_SimHitEta;
   std::unique_ptr<TH1F> GE11_SimHitEta,    GE21_SimHitEta;
   std::unique_ptr<TH1F> GE11_SimHitEta_1D, GE21_SimHitEta_1D;
+
+  std::unique_ptr<TH1F> GEM_AverageRecHitsPerEvent, GEM_AverageSimHitsPerEvent, GEM_NoiseFraction, GEM_AverageRecHitsPerEvent_BX0, GEM_NoiseFraction_BX0;
+  int nEvents; std::vector<int> nGEMrh, nGEMsh, nGEMrhbx0;
 
 };
 
@@ -176,6 +185,7 @@ TestGEMSegmentAnalyzer::TestGEMSegmentAnalyzer(const edm::ParameterSet& iConfig)
   // SIMHit_Token     = consumes<edm::PSimHitContainer>(edm::InputTag("g4SimHits"));
   CSCSegment_Token  = consumes<CSCSegmentCollection>(edm::InputTag("cscSegments"));
   GEMSegment_Token  = consumes<GEMSegmentCollection>(edm::InputTag("gemSegments"));
+  GEMRecHit_Token   = consumes<GEMRecHitCollection>(edm::InputTag("gemRecHits"));
 
   printSegmntInfo = iConfig.getUntrackedParameter<bool>("printSegmntInfo");
   printResidlInfo = iConfig.getUntrackedParameter<bool>("printResidlInfo");
@@ -187,13 +197,15 @@ TestGEMSegmentAnalyzer::TestGEMSegmentAnalyzer(const edm::ParameterSet& iConfig)
   rootFileName  = iConfig.getUntrackedParameter<std::string>("RootFileName");
   outputfile.reset(TFile::Open(rootFileName.c_str(), "RECREATE"));
 
-  GEMSegment_GE11_Pos_and_Dir = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE11_Pos_and_Dir", "GEMSegment_GE11_Pos_and_Dir"));
-  GEMSegment_GE21_Pos_and_Dir = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE21_Pos_and_Dir", "GEMSegment_GE21_Pos_and_Dir"));
-  GEMSegment_GE11 = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE11", "GEMSegment_GE11"));
-  GEMSegment_GE21 = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE21", "GEMSegment_GE21"));
-  GEMSegment_GE21_2hits = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE21_2hits", "GEMSegment_GE21_2hits"));
-  GEMSegment_GE21_4hits = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE21_4hits", "GEMSegment_GE21_4hits"));
-  GEMSegment_SimHitPlots = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_SimHitPlots", "GEMSegment_SimHitPlots"));
+  GEMSegment_GE11_Pos_and_Dir    = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE11_Pos_and_Dir", "GEMSegment_GE11_Pos_and_Dir"));
+  GEMSegment_GE21_Pos_and_Dir    = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE21_Pos_and_Dir", "GEMSegment_GE21_Pos_and_Dir"));
+  GEMSegment_GE11                = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE11", "GEMSegment_GE11"));
+  GEMSegment_GE21                = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE21", "GEMSegment_GE21"));
+  GEMSegment_GE21_2hits          = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE21_2hits", "GEMSegment_GE21_2hits"));
+  GEMSegment_GE21_4hits          = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_GE21_4hits", "GEMSegment_GE21_4hits"));
+  GEMSegment_SimHitPlots         = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_SimHitPlots", "GEMSegment_SimHitPlots"));
+  GEMSegment_NoiseReductionPlots = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_NoiseReductionPlots", "GEMSegment_NoiseReductionPlots"));
+  GEMSegment_PositionPlots       = std::unique_ptr<TDirectoryFile>(new TDirectoryFile("GEMSegment_PositionPlots", "GEMSegment_PositionPlots"));
 
 
   GEN_eta = std::unique_ptr<TH1F>(new TH1F("GEN_eta","GEN_eta",100,-2.50,2.50));
@@ -389,6 +401,27 @@ TestGEMSegmentAnalyzer::TestGEMSegmentAnalyzer(const edm::ParameterSet& iConfig)
   GE21_Pos_Dir_phi_2hits = std::unique_ptr<TH2F>(new TH2F("GE21_Pos_Dir_phi_2hits","GE21_Pos_Dir_phi_2hits",144,-3.14,3.14,144,-3.14,3.14));
   GE21_Pos_Dir_phi_4hits = std::unique_ptr<TH2F>(new TH2F("GE21_Pos_Dir_phi_4hits","GE21_Pos_Dir_phi_4hits",144,-3.14,3.14,144,-3.14,3.14));
 
+  GE11_Pos_XY = std::unique_ptr<TH2F>(new TH2F("GE11_Pos_XY","GE11_Pos_XY",150,-300,300, 150,-300,300));
+  GE11_Neg_XY = std::unique_ptr<TH2F>(new TH2F("GE11_Neg_XY","GE11_Neg_XY",150,-300,300, 150,-300,300));
+  GE21_Pos_XY = std::unique_ptr<TH2F>(new TH2F("GE21_Pos_XY","GE21_Pos_XY",175,-350,350, 175,-350,350));
+  GE21_Neg_XY = std::unique_ptr<TH2F>(new TH2F("GE21_Neg_XY","GE21_Neg_XY",175,-350,350, 175,-350,350));
+
+  GEM_Pos_RZ = std::unique_ptr<TH2F>(new TH2F("GEM_Pos_RZ","GEM_Pos_RZ",150,+550,+850, 175,0,350));
+  GEM_Neg_RZ = std::unique_ptr<TH2F>(new TH2F("GEM_Neg_RZ","GEM_Neg_RZ",150,-850,-550, 175,0,350));
+
+  GE11_CheckSegmentDirection       = std::unique_ptr<TH1F>(new TH1F("GE11_CheckSegmentDirection","GE11_CheckSegmentDirection",3,-1.5,+1.5));
+  GE21_CheckSegmentDirection       = std::unique_ptr<TH1F>(new TH1F("GE21_CheckSegmentDirection","GE21_CheckSegmentDirection",3,-1.5,+1.5));
+  GE21_CheckSegmentDirection_2hits = std::unique_ptr<TH1F>(new TH1F("GE21_CheckSegmentDirection_2hits","GE21_CheckSegmentDirection_2hits",3,-1.5,+1.5));
+  GE21_CheckSegmentDirection_4hits = std::unique_ptr<TH1F>(new TH1F("GE21_CheckSegmentDirection_4hits","GE21_CheckSegmentDirection_4hits",3,-1.5,+1.5));
+
+
+  GEM_AverageRecHitsPerEvent = std::unique_ptr<TH1F>(new TH1F("GEM_AverageRecHitsPerEvent","GEM_AverageRecHitsPerEvent",8,0.5,8.5)); // (rh for GE11 & GE2 + segments ) * 2 endcaps
+  GEM_AverageSimHitsPerEvent = std::unique_ptr<TH1F>(new TH1F("GEM_AverageSimHitsPerEvent","GEM_AverageSimHitsPerEvent",8,0.5,8.5)); // (rh for GE11 & GE2 + segments ) * 2 endcaps
+  GEM_NoiseFraction          = std::unique_ptr<TH1F>(new TH1F("GEM_NoiseFraction",         "GEM_NoiseFraction",8,0.5,8.5));          // (rh for GE11 & GE2 + segments ) * 2 endcaps
+  GEM_AverageRecHitsPerEvent_BX0 = std::unique_ptr<TH1F>(new TH1F("GEM_AverageRecHitsPerEvent_BX0","GEM_AverageRecHitsPerEvent_BX0",8,0.5,8.5)); 
+  GEM_NoiseFraction_BX0          = std::unique_ptr<TH1F>(new TH1F("GEM_NoiseFraction_BX0",         "GEM_NoiseFraction_BX0",8,0.5,8.5));          
+  nEvents = 0; // nGEMrh(8,0); nGEMsh(8,0); // initialize vectors with 8 elements equal to zero ... works only when declaration and initialization are in same step
+  for(int i=0; i<8; ++i) {nGEMrh.push_back(0); nGEMsh.push_back(0); nGEMrhbx0.push_back(0);}
 }
 
 
@@ -445,6 +478,8 @@ TestGEMSegmentAnalyzer::~TestGEMSegmentAnalyzer()
   std::cout<<"GE11 Phi Correlation Factor = "<<GE11_Pos_Dir_phi->GetCorrelationFactor(1,2)<<" Covariance = "<<GE11_Pos_Dir_phi->GetCovariance(1,2)<<std::endl;
   std::cout<<"ME11 Phi Correlation Factor = "<<ME11_Pos_Dir_phi->GetCorrelationFactor(1,2)<<" Covariance = "<<ME11_Pos_Dir_phi->GetCovariance(1,2)<<std::endl;
 
+  GE11_CheckSegmentDirection->Write();
+
   outputfile->cd();
 
   // Position and Direction GE21
@@ -486,6 +521,8 @@ TestGEMSegmentAnalyzer::~TestGEMSegmentAnalyzer()
 
   std::cout<<"GE21 Phi Correlation Factor = "<<GE21_Pos_Dir_phi->GetCorrelationFactor(1,2)<<" Covariance = "<<GE21_Pos_Dir_phi->GetCovariance(1,2)<<std::endl;
   std::cout<<"ME21 Phi Correlation Factor = "<<ME21_Pos_Dir_phi->GetCorrelationFactor(1,2)<<" Covariance = "<<ME21_Pos_Dir_phi->GetCovariance(1,2)<<std::endl;
+
+  GE21_CheckSegmentDirection->Write(); GE21_CheckSegmentDirection_2hits->Write(); GE21_CheckSegmentDirection_4hits->Write();
 
   outputfile->cd();
 
@@ -610,6 +647,42 @@ TestGEMSegmentAnalyzer::~TestGEMSegmentAnalyzer()
   }
   GE11_SimHitEta_1D->Write();
   GE21_SimHitEta_1D->Write();
+  outputfile->cd();
+
+  // Noise Reduction Plots
+  // ---------------------
+  GEMSegment_NoiseReductionPlots->cd();
+  std::string labels[] = {"GE+1/1 hit", "GE-1/1 hit", "GE+1/1 seg", "GE-1/1 seg", "GE+2/1 hit","GE-2/1 hit", "GE+2/1 seg", "GE-2/1 seg", "GE+2/1", "GE-2/1 seg"};
+  for(int i=0; i<8; ++i) {
+    // for first estimate of uncertainties I am assuming that the variables are not correlated .... but in fact they are ... 
+    if(nEvents>0 && nGEMrh[i]>0)   { GEM_AverageRecHitsPerEvent->SetBinContent(i+1,nGEMrh[i]*1.0/nEvents); GEM_AverageRecHitsPerEvent->SetBinError(i+1,nGEMrh[i]*1.0/nEvents*sqrt(1.0/nGEMrh[i]+1.0/nEvents)); }
+    if(nEvents>0 && nGEMsh[i]>0)   { GEM_AverageSimHitsPerEvent->SetBinContent(i+1,nGEMsh[i]*1.0/nEvents); GEM_AverageSimHitsPerEvent->SetBinError(i+1,nGEMsh[i]*1.0/nEvents*sqrt(1.0/nGEMsh[i]+1.0/nEvents)); }
+    if(nGEMrh[i]>0 && nGEMsh[i]>0) { GEM_NoiseFraction->SetBinContent(i+1,nGEMrh[i]*1.0/nGEMsh[i]);        GEM_NoiseFraction->SetBinError(i+1,nGEMrh[i]*1.0/nGEMsh[i]*sqrt(1.0/nGEMrh[i]+1.0/nGEMsh[i])); }
+    GEM_AverageRecHitsPerEvent->GetXaxis()->SetBinLabel(i+1, labels[i].c_str());
+    GEM_AverageSimHitsPerEvent->GetXaxis()->SetBinLabel(i+1, labels[i].c_str());
+    GEM_NoiseFraction->GetXaxis()->SetBinLabel(i+1, labels[i].c_str());
+    // BX = 0
+    if(nEvents>0 && nGEMrhbx0[i]>0) {
+      GEM_AverageRecHitsPerEvent_BX0->SetBinContent(i+1,nGEMrhbx0[i]*1.0/nEvents); GEM_AverageRecHitsPerEvent_BX0->SetBinError(i+1,nGEMrhbx0[i]*1.0/nEvents*sqrt(1.0/nGEMrhbx0[i]+1.0/nEvents));
+    }
+    if(nGEMrhbx0[i]>0 && nGEMsh[i]>0) {
+      GEM_NoiseFraction_BX0->SetBinContent(i+1,nGEMrhbx0[i]*1.0/nGEMsh[i]);        GEM_NoiseFraction_BX0->SetBinError(i+1,nGEMrhbx0[i]*1.0/nGEMsh[i]*sqrt(1.0/nGEMrhbx0[i]+1.0/nGEMsh[i]));
+    }
+    GEM_AverageRecHitsPerEvent_BX0->GetXaxis()->SetBinLabel(i+1, labels[i].c_str());
+    GEM_NoiseFraction_BX0->GetXaxis()->SetBinLabel(i+1, labels[i].c_str());
+  }
+  GEM_AverageRecHitsPerEvent->Write();
+  GEM_AverageSimHitsPerEvent->Write();
+  GEM_NoiseFraction->Write();
+  GEM_AverageRecHitsPerEvent_BX0->Write();
+  GEM_NoiseFraction_BX0->Write();
+  outputfile->cd();
+
+
+  // Global Position Plots
+  // ---------------------
+  GEMSegment_PositionPlots->cd();
+  GE11_Pos_XY->Write();   GE11_Neg_XY->Write();  GE21_Pos_XY->Write();  GE21_Neg_XY->Write();  GEM_Pos_RZ->Write();  GEM_Neg_RZ->Write();
 
 
   outputfile->Close();
@@ -624,6 +697,8 @@ TestGEMSegmentAnalyzer::~TestGEMSegmentAnalyzer()
 void
 TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+
+  ++nEvents;
 
   iSetup.get<MuonGeometryRecord>().get(gemGeom);
   iSetup.get<MuonGeometryRecord>().get(cscGeom);
@@ -651,6 +726,9 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   edm::Handle<GEMSegmentCollection> gemSegmentCollection;
   iEvent.getByToken(GEMSegment_Token, gemSegmentCollection);
+
+  edm::Handle<GEMRecHitCollection> gemRecHits;
+  iEvent.getByToken(GEMRecHit_Token,gemRecHits);
 
 
   // ================
@@ -701,6 +779,14 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       GE11_fitndof->Fill(gems->degreesOfFreedom());
       GE11_fitchi2ndof->Fill(gems->chi2()*1.0/gems->degreesOfFreedom());
       GE11_numhits->Fill(gems->nRecHits());
+      /*
+      std::cout<<"GE11 CheckSegmentDirection :: X :: "<<(segGP.x()*segGD.x())/fabs(segGP.x()*segGD.x())<<std::endl;
+      std::cout<<"GE11 CheckSegmentDirection :: Y :: "<<(segGP.y()*segGD.y())/fabs(segGP.y()*segGD.y())<<std::endl;
+      std::cout<<"GE11 CheckSegmentDirection :: Z :: "<<(segGP.z()*segGD.z())/fabs(segGP.z()*segGD.z())<<std::endl;
+      */
+      GE11_CheckSegmentDirection->Fill((segGP.z()*segGD.z())/fabs(segGP.z()*segGD.z()));
+      if(id.region()>0) { GE11_Pos_XY->Fill(segGP.x(), segGP.y()); GEM_Pos_RZ->Fill(segGP.z(), segGP.perp()); ++nGEMrh[2]; if(gems->BunchX()==0) {++nGEMrhbx0[2];}}
+      if(id.region()<0) { GE11_Neg_XY->Fill(segGP.x(), segGP.y()); GEM_Neg_RZ->Fill(segGP.z(), segGP.perp()); ++nGEMrh[3]; if(gems->BunchX()==0) {++nGEMrhbx0[3];}}
     }
     else if(id.station()==2 || id.station()==3) {
       GE21_BX->Fill(gems->BunchX());
@@ -708,18 +794,51 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       GE21_fitndof->Fill(gems->degreesOfFreedom());
       GE21_fitchi2ndof->Fill(gems->chi2()*1.0/gems->degreesOfFreedom());
       GE21_numhits->Fill(gems->nRecHits());
+      /*
+      std::cout<<"GE21 CheckSegmentDirection :: X :: "<<(segGP.x()*segGD.x())/fabs(segGP.x()*segGD.x())<<std::endl;
+      std::cout<<"GE21 CheckSegmentDirection :: Y :: "<<(segGP.y()*segGD.y())/fabs(segGP.y()*segGD.y())<<std::endl;
+      std::cout<<"GE21 CheckSegmentDirection :: Z :: "<<(segGP.z()*segGD.z())/fabs(segGP.z()*segGD.z())<<std::endl;
+      */
+      GE21_CheckSegmentDirection->Fill((segGP.z()*segGD.z())/fabs(segGP.z()*segGD.z()));
       if(gems->nRecHits()==2) {
 	GE21_2hits_fitchi2->Fill(gems->chi2());
 	GE21_2hits_fitndof->Fill(gems->degreesOfFreedom());
 	GE21_2hits_fitchi2ndof->Fill(gems->chi2()*1.0/gems->degreesOfFreedom());
+	GE21_CheckSegmentDirection_2hits->Fill((segGP.z()*segGD.z())/fabs(segGP.z()*segGD.z()));
       }
       if(gems->nRecHits()>2) {
 	GE21_4hits_fitchi2->Fill(gems->chi2());
 	GE21_4hits_fitndof->Fill(gems->degreesOfFreedom());
 	GE21_4hits_fitchi2ndof->Fill(gems->chi2()*1.0/gems->degreesOfFreedom());
+	GE21_CheckSegmentDirection_4hits->Fill((segGP.z()*segGD.z())/fabs(segGP.z()*segGD.z()));
       }
+      if(id.region()>0) { GE21_Pos_XY->Fill(segGP.x(), segGP.y()); GEM_Pos_RZ->Fill(segGP.z(), segGP.perp()); ++nGEMrh[6]; if(gems->BunchX()==0) {++nGEMrhbx0[6];}}
+      if(id.region()<0) { GE21_Neg_XY->Fill(segGP.x(), segGP.y()); GEM_Neg_RZ->Fill(segGP.z(), segGP.perp()); ++nGEMrh[7]; if(gems->BunchX()==0) {++nGEMrhbx0[7];}}
+
     }
     else {}
+
+
+    // loop on rechits ... 
+    // ===================
+    if(printSegmntInfo) {
+      std::cout<<"      GEMRecHit :: "<<" | "<<std::setw(9)<<"SEG ETA"<<" | "<<std::setw(9)<<"SEG PHI"<<" | "<<std::setw(9)<<"SEG BX";
+      std::cout<<" | "<<std::setw(9)<<"HIT ETA"<<" | "<<std::setw(9)<<"HIT PHI"<<" | "<<std::setw(9)<<"HIT BX";
+      std::cout<<" | "<<std::setw(9)<<"DetId"<<"   "<<std::setw(9)<<"DetId"<<std::endl;
+      for (auto rh = gemrhs.begin(); rh!= gemrhs.end(); rh++){
+	// GEM RecHit DetId & EtaPartition
+	auto gemid = rh->gemId();
+	auto roll = gemGeom->etaPartition(gemid);
+	// GEM RecHit Local & Global Position
+	auto rhGP = roll->toGlobal(rh->localPosition()); // GEM RecHit Global Position
+	// auto rhLP = chamb->toLocal(rhGP);                // GEM RecHit Local Position in GEM Segment Chamber Frame
+      
+	std::cout<<"      GEMRecHit :: "<<" | "<<std::setw(9)<<segGD.eta()<<" | "<<std::setw(9)<<segGD.phi()<<" | "<<std::setw(9)<<gems->BunchX()
+		 <<" | "<<std::setw(9)<<rhGP.eta()<<" | "<<std::setw(9)<<rhGP.phi()<<" | "<<std::setw(9)<<rh->BunchX()
+		 <<" | "<<std::setw(9)<<rh->gemId().rawId()<<" = "<<rh->gemId()<<std::endl;
+      }
+    }
+
 
     // loop on rechits ... 
     // ===================
@@ -945,6 +1064,26 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
   if(printResidlInfo) std::cout<<"\n"<<std::endl;
 
+
+  // Loop over all GEM RecHits
+  // =========================
+  for (GEMRecHitCollection::const_iterator recHit = gemRecHits->begin(); recHit != gemRecHits->end(); recHit++) {
+    // std::cout<<"RecHit with RAWID "<<(*recHit).rawId()<<" is a DetId from detector "<<(*recHit).geographicalId().det()<<" subdetector "<<(*recHit).geographicalId().subdetId()<<std::endl;
+    // std::cout<<"==> is a GEMRecHit with GEMDetId"<<(*recHit).gemId()<<std::endl;
+    GEMDetId id = (GEMDetId)(*recHit).gemId();
+    int      bx = (*recHit).BunchX();
+    if(id.station()==1) {
+      if(id.region()>0) {++nGEMrh[0]; if(bx==0) {++nGEMrhbx0[0];}}
+      if(id.region()<0) {++nGEMrh[1]; if(bx==0) {++nGEMrhbx0[1];}}
+    }
+    if(id.station()>1) {
+      if(id.region()>0) {++nGEMrh[4]; if(bx==0) {++nGEMrhbx0[4];}}
+      if(id.region()<0) {++nGEMrh[5]; if(bx==0) {++nGEMrhbx0[5];}}
+    }
+    // std::cout<<"==> all OK for this GEMRecHit"<<std::endl;
+  }
+
+
   // Plot some SimHit properties
   // ===========================
   // int Num_GE11Hits = 0;
@@ -967,6 +1106,8 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       std::cout<<" | pt = "<<std::setw(9)<<it->momentum().pt()<<std::endl;
     }
     SIM_SimHitEta->Fill(fabs(simtrack_eta));
+
+    int nGE11PosHits = 0, nGE11NegHits = 0, nGE21PosHits = 0, nGE21NegHits = 0;
 
     // Then loop over the SimHit Container
     for (std::vector<PSimHit>::const_iterator iHit = theSimHits.begin(); iHit != theSimHits.end(); ++iHit) {
@@ -1001,15 +1142,23 @@ TestGEMSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  }
 	  if(gemid.station()==1) {
 	    GE11_SimHitEta->Fill(fabs(simtrack_eta));
+	    if(gemid.region()>0) { ++nGEMsh[0]; ++nGE11PosHits;}
+	    if(gemid.region()<0) { ++nGEMsh[1]; ++nGE11NegHits;}
+
 	  }
 	  else {
 	    GE21_SimHitEta->Fill(fabs(simtrack_eta));
+	    if(gemid.region()>0) { ++nGEMsh[4]; ++nGE21PosHits; }
+	    if(gemid.region()<0) { ++nGEMsh[5]; ++nGE21NegHits; }
 	  }
 	}
-
-
       }
-    }
+    } // end loop SimHit container
+    // if number of simhits > 1, assume that a sim segment could have been constructed
+    if(nGE11PosHits > 1) ++nGEMsh[2];
+    if(nGE11NegHits > 1) ++nGEMsh[3];
+    if(nGE21PosHits > 1) ++nGEMsh[6];
+    if(nGE21NegHits > 1) ++nGEMsh[7];
   }
 
 
