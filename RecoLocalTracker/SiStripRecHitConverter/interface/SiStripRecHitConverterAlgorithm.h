@@ -14,7 +14,6 @@
 
 namespace edm {
    class ParameterSet;
-   template<typename T> class RefGetter;
    class EventSetup;
 }
 
