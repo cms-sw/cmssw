@@ -1,0 +1,7 @@
+<lcgdict>
+  <class name="MuScleFitEvent"/>
+  <class name="MuScleFitMuon"/>
+  <class name="MuonPair"/>
+  <class name="GenMuonPair"/>
+  <class name="MuScleFitProvenance"/>
+</lcgdict>
