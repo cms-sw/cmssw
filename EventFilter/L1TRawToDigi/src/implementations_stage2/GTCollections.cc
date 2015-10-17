@@ -7,6 +7,7 @@ namespace l1t {
       GTCollections::~GTCollections()
       {
 
+        event_.put(muons_, "GT");
 	event_.put(egammas_, "GT");
 	event_.put(etsums_, "GT");
 	event_.put(jets_, "GT");
