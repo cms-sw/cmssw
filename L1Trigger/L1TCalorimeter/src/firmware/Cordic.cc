@@ -38,7 +38,7 @@ int32_t Cordic::IntegerizeMagnitude( const double& aMagnitude )
 
 uint32_t Cordic::tower( const double& aRadians )
 {
-  return uint32_t( round( mPhiScale * 36.0 * aRadians / mPi ) );
+  return uint32_t( round( mPhiScale * 0.5 * aRadians / mPi ) );
 }
 
 void Cordic::operator() ( int32_t aX , int32_t aY , int32_t& aPhi , uint32_t& aMagnitude )
@@ -47,20 +47,20 @@ void Cordic::operator() ( int32_t aX , int32_t aY , int32_t& aPhi , uint32_t& aM
 
   switch( ((aY>=0)?0x0:0x2) | ((aX>=0)?0x0:0x1) ){
   case 0:
-    aPhi = 0;
+    aPhi = tower( mPi );
     break;
   case 1:
-    aPhi = tower( mPi );
+    aPhi = tower( 2 * mPi );
     lSign = false;
     aX = -aX;
     break;
   case 2:
-    aPhi = tower( 2 * mPi );
+    aPhi = tower( mPi );
     lSign = false;
     aY = -aY;    
     break;
   case 3:
-    aPhi = tower( mPi );
+    aPhi = 0;
     aX = -aX;
     aY = -aY;   
     break;
