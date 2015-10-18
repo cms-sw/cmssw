@@ -16,14 +16,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
   theHBHEEtaBounds = m_hcons->getEtaTable();
 
   CaloTowerGeometry* geom=new CaloTowerGeometry();
-
-  if( 0 == geom->cornersMgr() ) geom->allocateCorners ( 
-     CaloTowerGeometry::k_NumberOfCellsForCorners ) ;
-  if( 0 == geom->parMgr() ) geom->allocatePar (
-     CaloTowerGeometry::k_NumberOfParametersPerShape*CaloTowerGeometry::k_NumberOfShapes,
-     CaloTowerGeometry::k_NumberOfParametersPerShape ) ;
-
-  int nnn=0;
+  int nnn(0);
   // simple loop
   for (int ieta=-m_hcaltopo->lastHFRing(); ieta<=m_hcaltopo->lastHFRing(); ieta++) {
     if (ieta==0) continue; // skip not existing eta=0 ring
@@ -33,8 +26,11 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
       ++nnn;
     }
   }
-  if( geom->cornersMgr() == 0 ) geom->allocateCorners( nnn ) ; 
-  if( geom->parMgr()     == 0 ) geom->allocatePar( 41, 3 ) ;
+
+  if( 0 == geom->cornersMgr() ) geom->allocateCorners (nnn); 
+  if( 0 == geom->parMgr() ) geom->allocatePar (
+     CaloTowerGeometry::k_NumberOfParametersPerShape*CaloTowerGeometry::k_NumberOfShapes,
+     CaloTowerGeometry::k_NumberOfParametersPerShape ) ;
 
   int n=0;
   // simple loop
@@ -48,6 +44,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
     }
   }
   edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << n << " towers.";
+
   return std::auto_ptr<CaloSubdetectorGeometry>(geom); 
 }
 

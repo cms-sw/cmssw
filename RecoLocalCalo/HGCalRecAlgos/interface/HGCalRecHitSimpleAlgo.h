@@ -41,7 +41,8 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
     //    float clockToNsConstant = 25;
     float energy = uncalibRH.amplitude() * adcToGeVConstant_;
     float time   = uncalibRH.jitter();
-    if(time<0) time   = 0; // fast-track digi conversion
+
+    //if(time<0) time   = 0; // fast-track digi conversion
     
     HGCRecHit rh( uncalibRH.id(), energy, time );
     

@@ -27,7 +27,7 @@ trackerGeometry.applyAlignment = cms.bool(False)
 #  Calorimeters
 from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *
 from Geometry.CaloEventSetup.HGCalTopology_cfi import *
-from Geometry.FCalGeometry.HGCalGeometryESProducer_cfi import *
+from Geometry.HGCalGeometry.HGCalGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 
@@ -42,7 +42,7 @@ CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
 from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
 from Geometry.HcalEventSetup.HcalGeometry_cfi import *
 from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
-from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *
+#from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *
 from Geometry.HcalCommonData.hcalDDDRecConstants_cfi import *
 from Geometry.HcalEventSetup.hcalTopologyIdealSLHC_cfi import *
 from Geometry.ForwardGeometry.ForwardGeometry_cfi import *

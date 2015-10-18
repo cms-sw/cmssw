@@ -12,20 +12,16 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
   rechitMaker_.reset( new HGCalRecHitSimpleAlgo() );
   constexpr float keV2GeV = 1e-6;
   // HGCee constants 
-  HGCEEmipInKeV_ =  ps.getParameter<double>("HGCEEmipInKeV");
-  HGCEElsbInMIP_ =  ps.getParameter<double>("HGCEElsbInMIP");
-  HGCEEmip2noise_ = ps.getParameter<double>("HGCEEmip2noise");
-  hgceeADCtoGeV_ = HGCEEmipInKeV_ * HGCEElsbInMIP_*keV2GeV; 
+  HGCEE_keV2DIGI_   =  ps.getParameter<double>("HGCEE_keV2DIGI");
+  hgceeUncalib2GeV_ = keV2GeV/HGCEE_keV2DIGI_;
+  
   // HGChef constants
-  HGCHEFmipInKeV_ =  ps.getParameter<double>("HGCHEFmipInKeV");
-  HGCHEFlsbInMIP_ =  ps.getParameter<double>("HGCHEFlsbInMIP");
-  HGCHEFmip2noise_ = ps.getParameter<double>("HGCHEFmip2noise");
-  hgchefADCtoGeV_ = HGCHEFmipInKeV_ * HGCHEFlsbInMIP_*keV2GeV;
+  HGCHEF_keV2DIGI_   =  ps.getParameter<double>("HGCHEF_keV2DIGI");
+  hgchefUncalib2GeV_ = keV2GeV/HGCHEF_keV2DIGI_;
+  
   // HGCheb constants
-  HGCHEBmipInKeV_ =  ps.getParameter<double>("HGCHEBmipInKeV");
-  HGCHEBlsbInMIP_ =  ps.getParameter<double>("HGCHEBlsbInMIP");
-  HGCHEBmip2noise_ = ps.getParameter<double>("HGCHEBmip2noise");
-  hgchebADCtoGeV_ = HGCHEBmipInKeV_ * HGCHEBlsbInMIP_*keV2GeV;
+  HGCHEB_keV2DIGI_   =  ps.getParameter<double>("HGCHEB_keV2DIGI");
+  hgchebUncalib2GeV_ = keV2GeV/HGCHEB_keV2DIGI_;
 }
 
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
@@ -35,20 +31,19 @@ void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es) {
 bool
 HGCalRecHitWorkerSimple::run( const edm::Event & evt,
                               const HGCUncalibratedRecHit& uncalibRH,
-                              HGCRecHitCollection & result )
-{
+                              HGCRecHitCollection & result ) {
   DetId detid=uncalibRH.id();  
   uint32_t recoFlag = 0;
     
   switch( detid.subdetId() ) {
   case HGCEE:
-    rechitMaker_->setADCToGeVConstant(float(hgceeADCtoGeV_) );
+    rechitMaker_->setADCToGeVConstant(float(hgceeUncalib2GeV_) );
     break;
   case HGCHEF:
-    rechitMaker_->setADCToGeVConstant(float(hgchefADCtoGeV_) );
+    rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_) );
     break;
   case HGCHEB:
-    rechitMaker_->setADCToGeVConstant(float(hgchebADCtoGeV_) );
+    rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_) );
     break;
   default:
     throw cms::Exception("NonHGCRecHit")
