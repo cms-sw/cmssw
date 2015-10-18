@@ -13,9 +13,10 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h" 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "TH1.h"
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "TH1.h"
 
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/PseudoJet.hh>
@@ -46,7 +47,11 @@ class ZJetsAnalyzer : public edm::EDAnalyzer
     virtual void endRun( const edm::Run&, const edm::EventSetup& ) override;
 
   private:
-   
+
+    edm::EDGetTokenT<GenEventInfoProduct> tokenGenEvent_;
+    edm::EDGetTokenT<edm::HepMCProduct> tokenHepMC_;
+    edm::EDGetTokenT<GenRunInfoProduct> tokenGenRun_;
+
     LeptonAnalyserHepMC LA;
     JetInputHepMC JetInput;
     fastjet::Strategy strategy;
@@ -60,12 +65,11 @@ class ZJetsAnalyzer : public edm::EDAnalyzer
 }; 
 
 
-using namespace edm;
-using namespace std;
-
-
-ZJetsAnalyzer::ZJetsAnalyzer( const ParameterSet& pset )
-  : fHist2muMass(0)
+ZJetsAnalyzer::ZJetsAnalyzer( const edm::ParameterSet& pset ) :
+tokenGenEvent_(consumes<GenEventInfoProduct>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),""))),
+tokenHepMC_(consumes<edm::HepMCProduct>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
+tokenGenRun_(consumes<GenRunInfoProduct,edm::InRun>(edm::InputTag(pset.getUntrackedParameter("moduleLabel",std::string("generator")),""))),
+fHist2muMass(0)
 {
 // actually, pset is NOT in use - we keep it here just for illustratory putposes
 }
@@ -78,7 +82,7 @@ ZJetsAnalyzer::~ZJetsAnalyzer()
 void ZJetsAnalyzer::beginJob()
 {
   
-  Service<TFileService> fs;
+  edm::Service<TFileService> fs;
   fHist2muMass = fs->make<TH1D>(  "Hist2muMass", "2-mu inv. mass", 100,  60., 120. ) ;
     
   double Rparam = 0.5;
@@ -94,53 +98,57 @@ void ZJetsAnalyzer::beginJob()
 }
 
 
-void ZJetsAnalyzer::endRun( const Run& r, const EventSetup& )
+void ZJetsAnalyzer::endRun( const edm::Run& r, const edm::EventSetup& )
 {
-  ofstream testi("testi.dat");
+  std::ofstream testi("testi.dat");
   double val, errval;
 
-  Handle< GenRunInfoProduct > genRunInfoProduct;
-  r.getByLabel("generator", genRunInfoProduct );
+  edm::Handle< GenRunInfoProduct > genRunInfoProduct;
+  //r.getByLabel("generator", genRunInfoProduct );
+  r.getByToken( tokenGenRun_ , genRunInfoProduct );
+
   val = (double)genRunInfoProduct->crossSection();
-  cout << endl;
-  cout << "cross section = " << val << endl;
-  cout << endl;
+  std::cout << std::endl;
+  std::cout << "cross section = " << val << std::endl;
+  std::cout << std::endl;
 
   errval = 0.;
   if(icategories[0] > 0) errval = val/sqrt( (double)(icategories[0]) );
-  testi << "pythia8_test1  1   " << val << " " << errval << " " << endl;
+  testi << "pythia8_test1  1   " << val << " " << errval << " " << std::endl;
 
-  cout << endl;
-  cout << " Events with at least 1 isolated lepton  :                     "
-       << ((double)icategories[1])/((double)icategories[0]) << endl;
-  cout << " Events with at least 2 isolated leptons :                     "
-       << ((double)icategories[2])/((double)icategories[0]) << endl;
-  cout << " Events with at least 2 isolated leptons and at least 1 jet  : "
-       << ((double)icategories[3])/((double)icategories[0]) << endl;
-  cout << " Events with at least 2 isolated leptons and at least 2 jets : "
-       << ((double)icategories[4])/((double)icategories[0]) << endl;
-  cout << endl;
+  std::cout << std::endl;
+  std::cout << " Events with at least 1 isolated lepton  :                     "
+       << ((double)icategories[1])/((double)icategories[0]) << std::endl;
+  std::cout << " Events with at least 2 isolated leptons :                     "
+       << ((double)icategories[2])/((double)icategories[0]) << std::endl;
+  std::cout << " Events with at least 2 isolated leptons and at least 1 jet  : "
+       << ((double)icategories[3])/((double)icategories[0]) << std::endl;
+  std::cout << " Events with at least 2 isolated leptons and at least 2 jets : "
+       << ((double)icategories[4])/((double)icategories[0]) << std::endl;
+  std::cout << std::endl;
 
   val = ((double)icategories[4])/((double)icategories[0]);
   errval = 0.;
   if(icategories[4] > 0) errval = val/sqrt((double)icategories[4]);
-  testi << "pythia8_test1  2   " << val << " " << errval << " " << endl;
+  testi << "pythia8_test1  2   " << val << " " << errval << " " << std::endl;
 
 }
 
 
-void ZJetsAnalyzer::analyze( const Event& e, const EventSetup& )
+void ZJetsAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
 {
   
   icategories[0]++;
 
   // here's an example of accessing GenEventInfoProduct
-  Handle< GenEventInfoProduct > GenInfoHandle;
-  e.getByLabel( "generator", GenInfoHandle );
+  edm::Handle< GenEventInfoProduct > GenInfoHandle;
+  //e.getByLabel( "generator", GenInfoHandle );
+  e.getByToken( tokenGenEvent_ , GenInfoHandle );
+
   double qScale = GenInfoHandle->qScale();
   double pthat = ( GenInfoHandle->hasBinningValues() ? 
                   (GenInfoHandle->binningValues())[0] : 0.0);
-  cout << " qScale = " << qScale << " pthat = " << pthat << endl;
+  std::cout << " qScale = " << qScale << " pthat = " << pthat << std::endl;
   //
   // this (commented out) code below just exemplifies how to access certain info 
   //
@@ -153,27 +161,24 @@ void ZJetsAnalyzer::analyze( const Event& e, const EventSetup& )
   //std::cout << " evt_weight2 = " << evt_weight2 << std::endl;
   //double weight = GenInfoHandle->weight();
   //std::cout << " as returned by the weight() method, integrated event weight = " << weight << std::endl;
-  
+
   // here's an example of accessing particles in the event record (HepMCProduct)
   //
-  Handle< HepMCProduct > EvtHandle ;
-  
+  edm::Handle< edm::HepMCProduct > EvtHandle ;
   // find initial (unsmeared, unfiltered,...) HepMCProduct
-  //
-  e.getByLabel("VtxSmeared", EvtHandle);
-  
+  //e.getByLabel("VtxSmeared", EvtHandle);
+  e.getByToken( tokenHepMC_ , EvtHandle );
+
   const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
-  
+
   int nisolep = LA.nIsolatedLeptons(Evt);
 
-  //cout << "Number of leptons = " << nisolep << endl;
+  //std::cout << "Number of leptons = " << nisolep << std::endl;
   if(nisolep > 0) icategories[1]++;
   if(nisolep > 1) icategories[2]++;
 
   JetInputHepMC::ParticleVector jetInput = JetInput(Evt);
   std::sort(jetInput.begin(), jetInput.end(), ParticlePtGreater());
-
-  //cout << "Size of jet input = " << jetInput.size() << endl;
 
   // Fastjet input
   std::vector <fastjet::PseudoJet> jfInput;
@@ -188,18 +193,15 @@ void ZJetsAnalyzer::analyze( const Event& e, const EventSetup& )
   }
 
   // Run Fastjet algorithm
-  vector <fastjet::PseudoJet> inclusiveJets, sortedJets, cleanedJets;
+  std::vector <fastjet::PseudoJet> inclusiveJets, sortedJets, cleanedJets;
   fastjet::ClusterSequence clustSeq(jfInput, *jetDef);
 
   // Extract inclusive jets sorted by pT (note minimum pT in GeV)
   inclusiveJets = clustSeq.inclusive_jets(20.0);
   sortedJets    = sorted_by_pt(inclusiveJets);
 
-  //cout << "Size of jets = " << sortedJets.size() << endl;
-
   cleanedJets = LA.removeLeptonsFromJets(sortedJets, Evt);
 
-  //cout << "Size of cleaned jets = " << cleanedJets.size() << endl;
   if(nisolep > 1) {
     if(cleanedJets.size() > 0) icategories[3]++;
     if(cleanedJets.size() > 1) icategories[4]++;
