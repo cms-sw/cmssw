@@ -133,9 +133,9 @@ public:
    */
   VertexState vertexState() const { return theVertexState; }
   GlobalPoint position() const { return theVertexState.position(); }
-  GlobalError positionError() const { return theVertexState.error(); }
+  GlobalError positionError() const { return theVertexState.is4D() ? theVertexState.error4D() : theVertexState.error(); }
   GlobalPoint priorPosition() const { return thePriorVertexState.position(); }
-  GlobalError priorError() const { return thePriorVertexState.error(); }
+  GlobalError priorError() const { return thePriorVertexState.is4D() ? thePriorVertexState.error4D() : thePriorVertexState.error(); }
   double time() const { return theVertexState.time(); } 
   double timeError() const { return theVertexState.timeError(); }
   double priorTime() const { return thePriorVertexState.time(); }

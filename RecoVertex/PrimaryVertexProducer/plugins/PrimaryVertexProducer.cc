@@ -165,7 +165,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // select tracks
   std::vector<reco::TransientTrack> seltks = theTrackFilter->select( t_tks );
-
+  
   if( f4D ) {
     edm::Handle<edm::ValueMap<float> > trackTimesH;
     edm::Handle<edm::ValueMap<float> > trackTimeResosH;
@@ -175,12 +175,15 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     const auto& trackTimes = *trackTimesH;
     const auto& trackTimeResos = *trackTimeResosH;
 
-    reco::TrackBaseRef temp;
     for( auto& seltk : seltks ) {
-      temp = seltk.trackBaseRef();
-      const double time = trackTimes[temp];
+      auto temp = seltk.trackBaseRef();
+      double time = trackTimes[temp];
       double timeReso = trackTimeResos[temp];
-      timeReso = ( timeReso > 1e-6 ? timeReso : std::numeric_limits<double>::max() );
+      timeReso = ( timeReso > 1e-6 ? timeReso : 1.0 ); // make the error much larger than the BS time width
+      if( edm::isNotFinite(time) ) {
+        time = 0.0;
+        timeReso = 1.0;
+      }
       std::cout << time << ' ' << timeReso << std::endl;
       reco::TransientTrack temptt(temp.castTo<reco::TrackRef>(),time,timeReso,
                                   theB->field(),theB->trackingGeometry());
@@ -221,21 +224,25 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
       TransientVertex v; 
       if( algorithm->useBeamConstraint && validBS &&((*iclus).size()>1) ){
-	
+        
 	v = algorithm->fitter->vertex(*iclus, beamSpot);
         
         if( f4D ) {
+          std::cout << "beamspot constrained thingy" << std::endl;
           auto err = v.positionError().matrix4D();
+          std::cout << "got the error" << std::endl;
           err(3,3) = maxerr*maxerr;        
           v = TransientVertex(v.position(),avgtime,err,v.originalTracks(),v.totalChiSquared());
         }
 	
       }else if( !(algorithm->useBeamConstraint) && ((*iclus).size()>1) ) {
               
-	v = algorithm->fitter->vertex(*iclus); 
+	v = algorithm->fitter->vertex(*iclus);
         
         if( f4D ) {
+          std::cout << "beamspot constrained thingy" << std::endl;
           auto err = v.positionError().matrix4D();
+          std::cout << "got the error" << std::endl;
           err(3,3) = maxerr*maxerr;          
           v = TransientVertex(v.position(),avgtime,err,v.originalTracks(),v.totalChiSquared());
         }
@@ -254,10 +261,10 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	else std::cout <<"Invalid fitted vertex\n";
       }
 
-      if (v.isValid() 
-	    && (v.degreesOfFreedom()>=algorithm->minNdof) 
-	  && (!validBS || (*(algorithm->vertexSelector))(v,beamVertexState))
-	  ) pvs.push_back(v);
+      if ( v.isValid() 
+           && (v.degreesOfFreedom()>=algorithm->minNdof) 
+	   && (!validBS || (*(algorithm->vertexSelector))(v,beamVertexState))
+           ) pvs.push_back(v);
     }// end of cluster loop
 
     if(fVerbose){

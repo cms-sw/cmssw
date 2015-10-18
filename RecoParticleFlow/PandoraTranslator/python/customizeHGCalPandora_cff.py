@@ -379,24 +379,26 @@ def cust_2023HGCalPandoraMuonFastTime(process):
         process.RECOSIMEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.RECOSIMEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
-        process.RECOSIMEventContent.outputCommands.append('keep *_offlinePrimaryVertices4D_*_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
     if hasattr(process,'FEVTDEBUGEventContent'):
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
-        process.FEVTDEBUGEventContent.outputCommands.append('keep *_offlinePrimaryVertices4D_*_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
-        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_offlinePrimaryVertices4D_*_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
     if hasattr(process,'digitisation_step'):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
+        process.offlinePrimaryVertices1D = process.offlinePrimaryVertices.clone()
+        process.offlinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
         process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(True), TkClusParameters = process.DA2DParameters )
-        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices4D+process.particleFlowReco)
+        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices1D+process.offlinePrimaryVertices4D+process.particleFlowReco)
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
             )
@@ -421,24 +423,26 @@ def cust_2023HGCalPandoraMuonPerfectFastTime(process):
         process.RECOSIMEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.RECOSIMEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.RECOSIMEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
-        process.RECOSIMEventContent.outputCommands.append('keep *_offlinePrimaryVertices4D_*_*')
+        process.RECOSIMEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
     if hasattr(process,'FEVTDEBUGEventContent'):
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.FEVTDEBUGEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
-        process.FEVTDEBUGEventContent.outputCommands.append('keep *_offlinePrimaryVertices4D_*_*')
+        process.FEVTDEBUGEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_MergedTrackTruth_*')
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_mix_InitialVertices_*')
         process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_trackTimeValueMapProducer_*_*')
-        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_offlinePrimaryVertices4D_*_*')
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_offlinePrimaryVertices*D_*_*')
     if hasattr(process,'digitisation_step'):
         process.mix.digitizers.mergedtruth.createInitialVertexCollection = True
     if hasattr(process,'reconstruction_step'):
         process.load("SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi")
         process.load("RecoParticleFlow.FastTiming.trackTimeValueMapProducer_cfi")
+        process.offlinePrimaryVertices1D = process.offlinePrimaryVertices.clone()
+        process.offlinePrimaryVertices1D.TkFilterParameters.minPt = cms.double(1.0)
         process.offlinePrimaryVertices4D = process.offlinePrimaryVertices.clone( verbose = cms.untracked.bool(True), TkClusParameters = process.DA2DParameters )
-        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices4D+process.particleFlowReco)
+        process.particleFlowReco = cms.Sequence(process.trackTimeValueMapProducer+process.offlinePrimaryVertices1D+process.offlinePrimaryVertices4D+process.particleFlowReco)
         process.RandomNumberGeneratorService.trackTimeValueMapProducer = cms.PSet(
             initialSeed = cms.untracked.uint32(1234), engineName = cms.untracked.string('TRandom3')
             )

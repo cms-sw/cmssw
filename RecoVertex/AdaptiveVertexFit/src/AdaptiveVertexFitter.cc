@@ -170,11 +170,16 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & unstracks) con
   sort ( tracks.begin(), tracks.end(), CompareTwoTracks() );
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
+  std::cout << "linearized point: " << linP  << std::endl;
   // Initial vertex seed, with a very large error matrix
+  std::cout << "setup vertex seed state" << std::endl;
   VertexState lseed (linP, linPointError() );
+  std::cout << lseed.error4D().matrix4D() << std::endl;
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, lseed);
 
+  std::cout << "fit start" << std::endl;
   VertexState seed (linP, fitError() );
+  std::cout << seed.error4D().matrix4D() << std::endl;
   return fit(vtContainer, seed, false);
 }
 
@@ -380,13 +385,13 @@ double AdaptiveVertexFitter::getWeight ( float chi2 ) const
 
   if ( weight > 1.0 )
   {
-    LogInfo("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " > 1.0!";
+    edm::LogInfo("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " > 1.0! chi2 = " << chi2;
     weight=1.0;
   };
 
   if ( weight < 1e-20 )
   {
-    // LogInfo("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " < 0.0!";
+    edm::LogInfo("RecoVertex/AdaptiveVertexFitter") << "Weight " << weight << " < 0.0! chi2 = " << chi2;
     weight=1e-20;
   };
   return weight;
@@ -523,7 +528,7 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
                           const VertexState & priorSeed,
                           bool withPrior) const
 {
-  // cout << "[AdaptiveVertexFit] fit with " << tracks.size() << endl;
+  std::cout << "[AdaptiveVertexFit] fit with " << tracks.size() << endl;
   theAssProbComputer->resetAnnealing();
 
   vector<RefCountedVertexTrack> initialTracks;
@@ -556,28 +561,29 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
   int ns_trks=0; // number of significant tracks.
   // If we have only two significant tracks, we return an invalid vertex
 
-  // cout << "[AdaptiveVertexFit] start " << tracks.size() << endl;
-  /*
+  std::cout << "[AdaptiveVertexFit] start " << tracks.size() << endl;
+  
   for ( vector< RefCountedVertexTrack >::const_iterator 
         i=globalVTracks.begin(); i!=globalVTracks.end() ; ++i )
   {
-    cout << "  " << (**i).linearizedTrack()->track().initialFreeState().momentum() << endl;
-  }*/
+    std::cout << "  mom=" << (**i).linearizedTrack()->track().initialFreeState().momentum() << endl;
+    std::cout << "  pos=" << (**i).linearizedTrack()->track().initialFreeState().position() << endl;
+  }
   do {
     ns_trks=0;
     CachingVertex<5> fVertex = initialVertex;
-    // cout << "[AdaptiveVertexFit] step " << step << " at " << fVertex.position() << endl;
+    std::cout << "[AdaptiveVertexFit] step " << step << " at " << fVertex.position() << endl;
     if ((previousPosition - newPosition).transverse() > theMaxLPShift)
     {
       // relinearize and reweight.
       // (reLinearizeTracks also reweights tracks)
-      // cout << "[AdaptiveVertexFit] relinearize at " << returnVertex.position() << endl;
+      std::cout << "[AdaptiveVertexFit] relinearize at " << returnVertex.position() << endl;
       if (gsfIntermediarySmoothing_) returnVertex = theSmoother->smooth(returnVertex);
       globalVTracks = reLinearizeTracks( globalVTracks, returnVertex );
       lpStep++;
     } else if (step) {
       // reweight, if it is not the first step
-      // cout << "[AdaptiveVertexFit] reweight at " << returnVertex.position() << endl;
+      std::cout << "[AdaptiveVertexFit] reweight at " << returnVertex.position() << endl;
       if (gsfIntermediarySmoothing_) returnVertex = theSmoother->smooth(returnVertex);
       globalVTracks = reWeightTracks( globalVTracks, returnVertex );
     }
@@ -599,8 +605,8 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
              nVertex.position().perp()>120.)
         {
           // were more than 100 m off!!
-          LogInfo ("AdaptiveVertexFitter" ) << "Vertex candidate just took off to " << nVertex.position()
-					    << "! Will discard this update!";
+          edm::LogInfo ("AdaptiveVertexFitter" ) << "Vertex candidate just took off to " << nVertex.position()
+                                                 << "! Will discard this update!";
 // 	    //<< "track pt was " << (**i).linearizedTrack()->track().pt()
 // 					     << "track momentum was " << (**i).linearizedTrack()->track().initialFreeState().momentum()
 // 					     << "track position was " << (**i).linearizedTrack()->track().initialFreeState().position()
@@ -612,10 +618,10 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
 	        fVertex = nVertex;
         }
       } else {
-        LogInfo("RecoVertex/AdaptiveVertexFitter") 
+        edm::LogInfo("RecoVertex/AdaptiveVertexFitter") 
           << "The updator returned an invalid vertex when adding track "
           << i-globalVTracks.begin() 
-	        << ".\n Your vertex might just have lost one good track.";
+          << ".\n Your vertex might just have lost one good track.";
       };
     }
     previousPosition = newPosition;
@@ -632,9 +638,14 @@ AdaptiveVertexFitter::fit( const vector<RefCountedVertexTrack> & tracks,
          ( ((previousPosition - newPosition).mag() > theMaxShift) ||
            (!(theAssProbComputer->isAnnealed()) ) ) ) ;
 
-  if ( theWeightThreshold > 0. &&  ns_trks < 2 && !withPrior ) 
+  if ( theWeightThreshold > 0. &&  ns_trks < 1 && !withPrior ) 
   {
-    LogDebug("AdaptiveVertexFitter") 
+    for ( vector< RefCountedVertexTrack >::const_iterator 
+        i=globalVTracks.begin(); i!=globalVTracks.end() ; ++i )
+      {
+        std::cout << "  wgt=" << (**i).weight() << std::endl;
+      }
+    edm::LogInfo("AdaptiveVertexFitter") 
       << "fewer than two significant tracks (w>" << theWeightThreshold << ")."
       << " Fitted vertex is invalid.";
     return CachingVertex<5>(); // return invalid vertex
