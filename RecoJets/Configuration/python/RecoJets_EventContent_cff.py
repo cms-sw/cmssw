@@ -116,6 +116,7 @@ RecoJetsAOD = cms.PSet(
                                            #'keep *_fixedGridRho*_*_*',
                                            'keep *_fixedGridRhoAll_*_*',
                                            'keep *_fixedGridRhoFastjetAll_*_*',
+                                           'keep *_fixedGridRhoFastjetCentral_*_*',
                                            'keep *_fixedGridRhoFastjetAllCalo_*_*',
                                            'keep *_fixedGridRhoFastjetCentralCalo_*_*',
                                            'keep *_fixedGridRhoFastjetCentralChargedPileUp_*_*',
