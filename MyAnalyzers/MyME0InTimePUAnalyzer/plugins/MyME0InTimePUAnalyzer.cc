@@ -169,9 +169,10 @@ class MyME0InTimePUAnalyzer : public edm::EDAnalyzer {
   std::unique_ptr<TH1F> NewMatch_LooseME0Mu_SegETADir, NewMatch_LooseME0Mu_SegETAPos, NewMatch_LooseME0Mu_SegPHIDir, NewMatch_LooseME0Mu_SegPHIPos;
   std::unique_ptr<TH2F> NewMatch_LooseME0Mu_SegPHIvsSimPT;
 
-  std::unique_ptr<TH1F> NewMatch_TightME0Mu_SegTimeValue, NewMatch_TightME0Mu_SegTimeUncrt, NewMatch_TightME0Mu_InvariantMass, NewMatch_TightME0Mu_TrackPTDistr, NewMatch_TightME0Mu_PTResolution;
+  std::unique_ptr<TH1F> NewMatch_TightME0Mu_SegTimeValue, NewMatch_TightME0Mu_SegTimeUncrt, NewMatch_TightME0Mu_TrackPTDistr, NewMatch_TightME0Mu_PTResolution;
   std::unique_ptr<TH1F> NewMatch_TightME0Mu_SegNumberOfHits, NewMatch_TightME0Mu_SegChi2NDof, NewMatch_TightME0Mu_TrackETADistr, NewMatch_TightME0Mu_TrackPHIDistr;
   std::unique_ptr<TH1F> NewMatch_TightME0Mu_SegETADir, NewMatch_TightME0Mu_SegETAPos, NewMatch_TightME0Mu_SegPHIDir, NewMatch_TightME0Mu_SegPHIPos;
+  std::unique_ptr<TH1F> NewMatch_TightME0Mu_InvariantMass_All, NewMatch_TightME0Mu_InvariantMass_2ME0Mu, NewMatch_TightME0Mu_InvariantMass_ME0MuRecoMu, NewMatch_TightME0Mu_InvariantMass_2RecoMu;
   std::unique_ptr<TH2F> NewMatch_TightME0Mu_SegPHIvsSimPT;
 };
 
@@ -319,7 +320,6 @@ MyME0InTimePUAnalyzer::MyME0InTimePUAnalyzer(const edm::ParameterSet& iConfig)
 
   NewMatch_TightME0Mu_SegTimeValue    = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_SegTimeValue",   "NewMatch_TightME0Mu_SegTimeValue",  5000,-350,150));
   NewMatch_TightME0Mu_SegTimeUncrt    = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_SegTimeUncrt",   "NewMatch_TightME0Mu_SegTimeUncrt",  1000, 000,100));
-  NewMatch_TightME0Mu_InvariantMass   = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_InvariantMass",  "NewMatch_TightME0Mu_InvariantMass",  300, 000,150));
   NewMatch_TightME0Mu_TrackETADistr   = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_TrackETADistr",  "NewMatch_TightME0Mu_TrackETADistr", 70, 1.80,3.20));
   NewMatch_TightME0Mu_TrackPHIDistr   = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_TrackPHIDistr",  "NewMatch_TightME0Mu_TrackPHIDistr", 144, -3.14,3.14));
   NewMatch_TightME0Mu_TrackPTDistr    = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_TrackPTDistr",   "NewMatch_TightME0Mu_TrackPTDistr", 200, 000,100));
@@ -332,7 +332,10 @@ MyME0InTimePUAnalyzer::MyME0InTimePUAnalyzer(const edm::ParameterSet& iConfig)
   NewMatch_TightME0Mu_SegChi2NDof     = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_SegChi2NDof",    "NewMatch_TightME0Mu_SegChi2NDof",     100,000, 100));
   NewMatch_TightME0Mu_SegPHIvsSimPT   = std::unique_ptr<TH2F>(new TH2F("NewMatch_TightME0Mu_SegPHIvsSimPT",  "NewMatch_TightME0Mu_SegPHIvsSimPT",100,0.00,100,144,-3.14,3.14));
 
-
+  NewMatch_TightME0Mu_InvariantMass_All         = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_InvariantMass_All",         "NewMatch_TightME0Mu_InvariantMass_All",          300, 000,150));
+  NewMatch_TightME0Mu_InvariantMass_2ME0Mu      = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_InvariantMass_2ME0Mu",      "NewMatch_TightME0Mu_InvariantMass_2ME0Mu",       300, 000,150));
+  NewMatch_TightME0Mu_InvariantMass_ME0MuRecoMu = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_InvariantMass_ME0MuRecoMu", "NewMatch_TightME0Mu_InvariantMass_ME0MuRecoMu",  300, 000,150));
+  NewMatch_TightME0Mu_InvariantMass_2RecoMu     = std::unique_ptr<TH1F>(new TH1F("NewMatch_TightME0Mu_InvariantMass_2RecoMu",     "NewMatch_TightME0Mu_InvariantMass_2RecoMu",      300, 000,150));
 }
 
 
@@ -387,10 +390,13 @@ MyME0InTimePUAnalyzer::~MyME0InTimePUAnalyzer()
   outputfile->cd();
 
   NewMatch_TightME0Mu->cd();
-  NewMatch_TightME0Mu_SegTimeValue->Write(); NewMatch_TightME0Mu_SegTimeUncrt->Write(); NewMatch_TightME0Mu_InvariantMass->Write(); NewMatch_TightME0Mu_TrackPTDistr->Write(); 
+  NewMatch_TightME0Mu_SegTimeValue->Write(); NewMatch_TightME0Mu_SegTimeUncrt->Write(); NewMatch_TightME0Mu_TrackPTDistr->Write(); 
   NewMatch_TightME0Mu_PTResolution->Write(); NewMatch_TightME0Mu_SegNumberOfHits->Write(); NewMatch_TightME0Mu_SegChi2NDof->Write(); NewMatch_TightME0Mu_SegPHIvsSimPT->Write();
   NewMatch_TightME0Mu_TrackETADistr->Write(); NewMatch_TightME0Mu_TrackPHIDistr->Write();
   NewMatch_TightME0Mu_SegETADir->Write(); NewMatch_TightME0Mu_SegETAPos->Write(); NewMatch_TightME0Mu_SegPHIDir->Write(); NewMatch_TightME0Mu_SegPHIPos->Write();
+  NewMatch_TightME0Mu_InvariantMass_All->Write(); NewMatch_TightME0Mu_InvariantMass_2ME0Mu->Write(); 
+  NewMatch_TightME0Mu_InvariantMass_ME0MuRecoMu->Write(); NewMatch_TightME0Mu_InvariantMass_2RecoMu->Write();
+
   outputfile->cd();
 
   outputfile->Close();
@@ -1311,24 +1317,53 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   // Outside of the Muon Loop, because it is a property of the Muon Pair
   TLorentzVector muon1,muon2; 
-  for(unsigned int i=0; i<indmu.size(); ++i) {
+  if(indmu.size()>1) { // enforce that 2 GENMuons are found
+    // Strategy:
+    // ----------------------------------------------------------
+    // Ask first whether the muons are reconstructed as ME0 Muons
+    // if reconstructed as ME0Muon then they get the priority over normal Muons
+    // (in 2.0 < | eta | < 2.4 the muon is often reconstructed both as reco::Muon and reco::ME0Muon)
+    // therefore check first whether a muon is reconstructed as ME0 Muon and fill the histograms
+    // only in case a muon is outside the ME0 range or is not reconstructed as ME0Muon, use reco::Muon.
+    // Further on, use only the first muon matched, so element [0]. 
+    // Will sort out later a way to find out in case more are matched. Probably for ME0 I could save more muons
+    // and at a later stage ask whether they are Tight or Loose and fill the histograms here ...
+    // ----------------------------------------------------------
     // Both muons in ME0
-    if(me0mu[i].size() == 2) {
-      muon1.SetPtEtaPhiM((me0mu[i][0].first).pt(),(me0mu[i][0].first).eta(),(me0mu[i][0].first).phi(),0);
-      muon2.SetPtEtaPhiM((me0mu[i][1].first).pt(),(me0mu[i][1].first).eta(),(me0mu[i][1].first).phi(),0);
-      NewMatch_TightME0Mu_InvariantMass->Fill((muon1+muon2).M()); 
+    // -----------------
+    if(me0mu[0].size() > 0 && me0mu[1].size() > 0) {
+      muon1.SetPtEtaPhiM(theME0Muons.at(me0mu[0][0].first).pt(),theME0Muons.at(me0mu[0][0].first).eta(),theME0Muons.at(me0mu[0][0].first).phi(),0);
+      muon2.SetPtEtaPhiM(theME0Muons.at(me0mu[1][0].first).pt(),theME0Muons.at(me0mu[1][0].first).eta(),theME0Muons.at(me0mu[1][0].first).phi(),0);
+      NewMatch_TightME0Mu_InvariantMass_All->Fill((muon1+muon2).M()); 
+      NewMatch_TightME0Mu_InvariantMass_2ME0Mu->Fill((muon1+muon2).M()); 
     }
-    // One muon in ME0, the other outside
-    else if(me0mu[i].size() == 1 && recomu[i].size() > 0) {
-      // here we have to make sure to remove RECO muons that are also reconstructed as ME0 muons
-      // check whether they have the same innerTrack Reference?
+    // One muon in ME0, the other outside :: case 1
+    // ----------------------------------------------
+    else if(me0mu[0].size() > 0 && recomu[1].size() > 0) {
+      muon1.SetPtEtaPhiM(theME0Muons.at(me0mu[0][0].first).pt(),theME0Muons.at(me0mu[0][0].first).eta(),theME0Muons.at(me0mu[0][0].first).phi(),0);
+      muon2.SetPtEtaPhiM(theMuons.at(recomu[1][0].first).pt(),theMuons.at(recomu[1][0].first).eta(),theMuons.at(recomu[1][0].first).phi(),0);
+      NewMatch_TightME0Mu_InvariantMass_All->Fill((muon1+muon2).M());
+      NewMatch_TightME0Mu_InvariantMass_ME0MuRecoMu->Fill((muon1+muon2).M());
+
+    }
+    // One muon in ME0, the other outside :: case 2
+    // -------------------------------------------- 
+    else if(me0mu[1].size() > 0 && recomu[0].size() > 0) {
+      muon1.SetPtEtaPhiM(theMuons.at(recomu[0][0].first).pt(),theMuons.at(recomu[0][0].first).eta(),theMuons.at(recomu[0][0].first).phi(),0);
+      muon2.SetPtEtaPhiM(theME0Muons.at(me0mu[1][0].first).pt(),theME0Muons.at(me0mu[1][0].first).eta(),theME0Muons.at(me0mu[1][0].first).phi(),0);
+      NewMatch_TightME0Mu_InvariantMass_All->Fill((muon1+muon2).M());
+      NewMatch_TightME0Mu_InvariantMass_ME0MuRecoMu->Fill((muon1+muon2).M());
     }
     // Both muons outside ME0
-    else if(recomu[i].size() == 2) {
-
+    // ----------------------
+    else if(recomu[0].size() > 0 && recomu[1].size() > 0) {
+      muon1.SetPtEtaPhiM(theMuons.at(recomu[0][0].first).pt(),theMuons.at(recomu[0][0].first).eta(),theMuons.at(recomu[0][0].first).phi(),0);
+      muon2.SetPtEtaPhiM(theMuons.at(recomu[1][0].first).pt(),theMuons.at(recomu[1][0].first).eta(),theMuons.at(recomu[1][0].first).phi(),0);
+      NewMatch_TightME0Mu_InvariantMass_All->Fill((muon1+muon2).M()); 
+      NewMatch_TightME0Mu_InvariantMass_2RecoMu->Fill((muon1+muon2).M()); 
     }
     else {}
-
+  }
 
 
   // --------------------------------------------------------------------
