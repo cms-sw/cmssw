@@ -81,7 +81,7 @@ namespace edm {
       std::shared_ptr<ParameterSet> params;
       makeParameterSets(config, params);
 
-      std::auto_ptr<std::vector<ParameterSet> > serviceSets = params->popVParameterSet(std::string("services"));
+      std::unique_ptr<std::vector<ParameterSet> > serviceSets = params->popVParameterSet(std::string("services"));
       //create the services
       return ServiceToken(ServiceRegistry::createSet(*serviceSets));
    }

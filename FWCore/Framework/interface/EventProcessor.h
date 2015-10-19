@@ -230,8 +230,8 @@ namespace edm {
 
     void setupSignal();
 
-    bool hasSubProcess() const {
-      return subProcess_.get() != 0;
+    bool hasSubProcesses() const {
+      return subProcesses_.get() != nullptr && !subProcesses_->empty();
     }
 
     void possiblyContinueAfterForkChildFailure();
@@ -269,7 +269,7 @@ namespace edm {
     ProcessContext                                processContext_;
     PathsAndConsumesOfModules                     pathsAndConsumesOfModules_;
     std::auto_ptr<Schedule>                       schedule_;
-    std::auto_ptr<SubProcess>                     subProcess_;
+    std::unique_ptr<std::vector<SubProcess> >     subProcesses_;
     std::unique_ptr<HistoryAppender>            historyAppender_;
 
     std::unique_ptr<FileBlock>                    fb_;
