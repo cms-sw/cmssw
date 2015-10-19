@@ -203,7 +203,11 @@ TIDLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& startingState,
   std::array<vector<DetGroup>,3> groupsAtRingLevel;
   //order is ring3,ring1,ring2 i.e. 2 0 1
   //                                0 1 2  
+#ifdef __INTEL_COMPILER
+  const int ringOrder[3]{1,2,0};
+#else
   constexpr int ringOrder[3]{1,2,0};
+#endif
   auto index = [&ringIndices,& ringOrder](int i) { return ringOrder[ringIndices[i]];};
 
   auto & closestResult =  groupsAtRingLevel[index(0)];
