@@ -14,6 +14,8 @@ process.maxEvents = cms.untracked.PSet(
 )
 process.source = cms.Source("EmptySource")
 
+process.es_prefer_trackerAlignment = cms.ESPrefer("HcalTopologyIdealEP","hcalTopologyIdealSLHC")
+
 process.MessageLogger = cms.Service("MessageLogger")
 
 process.test = cms.EDAnalyzer("GEMCSCStripMapping")
