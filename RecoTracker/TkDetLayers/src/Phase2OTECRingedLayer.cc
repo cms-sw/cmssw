@@ -128,7 +128,11 @@ Phase2OTECRingedLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& s
   }
 
   //order is odd rings in front of even rings
+#ifdef __INTEL_COMPILER
+  const int ringOrder[NOTECRINGS]{0,1,0,1,0,1,0,1,0,1,0,1,0,1,0};
+#else
   constexpr int ringOrder[NOTECRINGS]{0,1,0,1,0,1,0,1,0,1,0,1,0,1,0};
+#endif
   auto index = [&ringIndices,& ringOrder](int i) { return ringOrder[ringIndices[i]];};
 
   std::vector<DetGroup> closestResult;
