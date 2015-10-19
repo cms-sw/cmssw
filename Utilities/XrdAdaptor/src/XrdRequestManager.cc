@@ -295,7 +295,8 @@ RequestManager::updateSiteInfo(std::string orig_site)
   }
   else if (!orig_site.size() && (siteList != m_activeSites))
   {
-    edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << m_activeSites;
+    if (m_activeSites.size() >0 )
+      edm::LogWarning("XrdAdaptor") << "Data is now served from " << siteList << " instead of previous " << m_activeSites;
     m_activeSites = siteList;
   }
 }

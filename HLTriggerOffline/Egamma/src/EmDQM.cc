@@ -328,7 +328,7 @@ EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup)
                       edm::LogPrint("EmDQM") << "No number of candidates for filter " << moduleLabel << " found. Set to " << paramSet.getParameter<int>("cutnum") << ", determined from path name.";
                       filterPSet.addParameter<int>("ncandcut", paramSet.getParameter<int>("cutnum"));
                     } else if (filterPSet.getParameter<int>("ncandcut") > paramSet.getParameter<int>("cutnum")) {
-                      edm::LogPrint("EmDQM") << "Changed required number of candidates from " << paramSet.getParameter<int>("cutnum") << " to " << filterPSet.getParameter<int>("ncandcut") << " for filter " << moduleLabel;
+                      edm::LogInfo("EmDQM") << "Changed required number of candidates from " << paramSet.getParameter<int>("cutnum") << " to " << filterPSet.getParameter<int>("ncandcut") << " for filter " << moduleLabel;
                       paramSet.addParameter<int>("cutnum", filterPSet.getParameter<int>("ncandcut"));
                       paramSet.addParameter<unsigned>("reqNum", (unsigned)filterPSet.getParameter<int>("ncandcut"));
                     }

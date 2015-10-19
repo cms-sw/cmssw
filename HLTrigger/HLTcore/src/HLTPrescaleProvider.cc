@@ -40,7 +40,7 @@ int HLTPrescaleProvider::prescaleSet(const edm::Event& iEvent, const edm::EventS
     return psfsiPhys;
   } else {
     /// error - notify user!
-    edm::LogError("HLTConfigData")
+    edm::LogInfo("HLTConfigData")
       << " Error in determining HLT prescale set index from L1 data using L1GtUtils: "
       << " Tech/Phys error = " << errorTech << "/" << errorPhys
       << " Tech/Phys psfsi = " << psfsiTech << "/" << psfsiPhys;
@@ -87,7 +87,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     int               l1error(0);
     result.first = l1GtUtils_.prescaleFactor(iEvent,l1tname,l1error);
     if (l1error!=0) {
-      edm::LogError("HLTConfigData")
+      edm::LogInfo("HLTConfigData")
 	<< " Error in determining L1T prescale for HLT path: '"	<< trigger
 	<< "' with L1T seed: '" << l1tname
 	<< "' using L1GtUtils: error code = " << l1error << "." << std::endl
@@ -102,7 +102,7 @@ HLTPrescaleProvider::prescaleValues(const edm::Event& iEvent,
     for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
       dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
     }
-    edm::LogError("HLTConfigData")
+    edm::LogInfo("HLTConfigData")
       << " Error in determining L1T prescale for HLT path: '" << trigger
       << "' has multiple L1GTSeed modules, " << nL1GTSeedModules
       << ", with L1 seeds: " << dump
@@ -160,7 +160,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
                        << result.first[i].second;
       }
       message << ".";
-      edm::LogError("HLTConfigData") << message.str();
+      edm::LogInfo("HLTConfigData") << message.str();
       result.first.clear();
     }
   } else {
@@ -169,7 +169,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
     for (unsigned int i=1; i!=nL1GTSeedModules; ++i) {
       dump += " * '"+hltConfigProvider_.hltL1GTSeeds(trigger).at(i).second+"'";
     }
-    edm::LogError("HLTConfigData")
+    edm::LogInfo("HLTConfigData")
       << " Error in determining L1T prescale for HLT path: '" << trigger
       << "' has multiple L1GTSeed modules, " << nL1GTSeedModules
       << ", with L1 seeds: " << dump

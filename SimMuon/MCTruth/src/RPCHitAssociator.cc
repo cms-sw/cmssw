@@ -93,7 +93,7 @@ std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(cons
     for(int i = fstrip; i < fstrip+cls; ++i) {
       std::set<RPCDigiSimLink> links = findRPCDigiSimLink(rpcDetId.rawId(),i,bx);
       
-      if (links.empty()) edm::LogWarning("RPCHitAssociator")
+      if (links.empty()) edm::LogInfo("RPCHitAssociator")
 	<<"*** WARNING in RPCHitAssociator::associateRecHit, RPCRecHit "<<*rpcrechit<<", strip "<<i<<" has no associated RPCDigiSimLink !"<<endl;
       
       for(std::set<RPCDigiSimLink>::iterator itlink = links.begin(); itlink != links.end(); ++itlink) {
