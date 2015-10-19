@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
 # KFTrajectoryFitterESProducer
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import *
 # KFTrajectorySmootherESProducer
-from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectorySmoother_cfi import *
 # KFFittingSmootherESProducer
-from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.KFFittingSmoother_cfi import *
 # TrackerTrajectoryBuilders
 from RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderP5_cff import *
 # TrajectoryCleaning
