@@ -36,7 +36,7 @@ bool CSCTightHalo2015Filter::filter(edm::StreamID iID, edm::Event & iEvent, cons
 
   iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
 
-  return taggingMode_ || !pass;  // return false if it is a beamhalo event
+  return taggingMode_ || pass;  // return false if it is a beamhalo event
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
