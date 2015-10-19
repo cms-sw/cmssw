@@ -47,6 +47,21 @@ def cleanJetsAndLeptons(jets,leptons,deltaR,arbitration):
              [ l for (il,l) in enumerate(leptons) if goodlep[il] == True ] )
 
 
+
+def shiftJERfactor(JERShift, aeta):
+        factor = 1.079 + JERShift*0.026
+        if   aeta > 3.2: factor = 1.056 + JERShift * 0.191
+        elif aeta > 2.8: factor = 1.395 + JERShift * 0.063
+        elif aeta > 2.3: factor = 1.254 + JERShift * 0.062
+        elif aeta > 1.7: factor = 1.208 + JERShift * 0.046
+        elif aeta > 1.1: factor = 1.121 + JERShift * 0.029
+        elif aeta > 0.5: factor = 1.099 + JERShift * 0.028
+        return factor 
+
+
+
+
+
 class JetAnalyzer( Analyzer ):
     """Taken from RootTools.JetAnalyzer, simplified, modified, added corrections    """
     def __init__(self, cfg_ana, cfg_comp, looperName):
@@ -55,7 +70,7 @@ class JetAnalyzer( Analyzer ):
         dataGT = cfg_ana.dataGT if hasattr(cfg_ana,'dataGT') else "GR_70_V2_AN1"
         self.shiftJEC = self.cfg_ana.shiftJEC if hasattr(self.cfg_ana, 'shiftJEC') else 0
         self.recalibrateJets = self.cfg_ana.recalibrateJets
-        self.addJECShifts = self.cfg_ana.addJECShifts
+        self.addJECShifts = self.cfg_ana.addJECShifts if hasattr(self.cfg_ana, 'addJECShifts') else 0
         if   self.recalibrateJets == "MC"  : self.recalibrateJets =     self.cfg_comp.isMC
         elif self.recalibrateJets == "Data": self.recalibrateJets = not self.cfg_comp.isMC
         elif self.recalibrateJets not in [True,False]: raise RuntimeError, "recalibrateJets must be any of { True, False, 'MC', 'Data' }, while it is %r " % self.recalibrateJets
@@ -86,6 +101,7 @@ class JetAnalyzer( Analyzer ):
         self.handles['jets']   = AutoHandle( self.cfg_ana.jetCol, 'std::vector<pat::Jet>' )
         self.handles['genJet'] = AutoHandle( self.cfg_ana.genJetCol, 'vector<reco::GenJet>' )
         self.shiftJER = self.cfg_ana.shiftJER if hasattr(self.cfg_ana, 'shiftJER') else 0
+        self.addJERShifts = self.cfg_ana.addJERShifts if hasattr(self.cfg_ana, 'addJERShifts') else 0
         self.handles['rho'] = AutoHandle( self.cfg_ana.rho, 'double' )
     
     def beginLoop(self, setup):
@@ -122,6 +138,9 @@ class JetAnalyzer( Analyzer ):
                 self.matchJets(event, allJets)
             if getattr(self.cfg_ana, 'smearJets', False):
                 self.smearJets(event, allJets)
+
+
+                
         
 	##Sort Jets by pT 
         allJets.sort(key = lambda j : j.pt(), reverse = True)
@@ -365,7 +384,7 @@ class JetAnalyzer( Analyzer ):
             jet.mcJet = match[jet]
 
 
-  
+ 
     def smearJets(self, event, jets):
         # https://twiki.cern.ch/twiki/bin/viewauth/CMS/TWikiTopRefSyst#Jet_energy_resolution
        for jet in jets:
@@ -374,15 +393,8 @@ class JetAnalyzer( Analyzer ):
                genpt, jetpt, aeta = gen.pt(), jet.pt(), abs(jet.eta())
                # from https://twiki.cern.ch/twiki/bin/view/CMS/JetResolution
                #8 TeV tables
-               
-               factor = 1.079 + self.shiftJER*0.026
-               if   aeta > 3.2: factor = 1.056 + self.shiftJER * 0.191
-               elif aeta > 2.8: factor = 1.395 + self.shiftJER * 0.063
-               elif aeta > 2.3: factor = 1.254 + self.shiftJER * 0.062
-               elif aeta > 1.7: factor = 1.208 + self.shiftJER * 0.046
-               elif aeta > 1.1: factor = 1.121 + self.shiftJER * 0.029
-               elif aeta > 0.5: factor = 1.099 + self.shiftJER * 0.028
-               ptscale = max(0.0, (jetpt + (factor-1)*(jetpt-genpt))/jetpt)
+               factor = shiftJERfactor(self.shiftJER, aeta)
+               ptscale = max(0.0, (jetpt + (factor-1)*(jetpt-genpt))/jetpt)             
                #print "get with pt %.1f (gen pt %.1f, ptscale = %.3f)" % (jetpt,genpt,ptscale)
                jet.deltaMetFromJetSmearing = [ -(ptscale-1)*jet.rawFactor()*jet.px(), -(ptscale-1)*jet.rawFactor()*jet.py() ]
                if ptscale != 0:
@@ -390,6 +402,16 @@ class JetAnalyzer( Analyzer ):
                # leave the uncorrected unchanged for sync
                jet._rawFactorMultiplier *= (1.0/ptscale) if ptscale != 0 else 1
             #else: print "jet with pt %.1d, eta %.2f is unmatched" % (jet.pt(), jet.eta())
+               if (self.shiftJER==0) and (self.addJERShifts):
+                   setattr(jet, "corrJER", ptscale )
+                   factorJERUp= shiftJERfactor(1, aeta)
+                   ptscaleJERUp = max(0.0, (jetpt + (factorJERUp-1)*(jetpt-genpt))/jetpt)
+                   setattr(jet, "corrJERUp", ptscaleJERUp)
+                   factorJERDown= shiftJERfactor(-1, aeta)
+                   ptscaleJERDown = max(0.0, (jetpt + (factorJERDown-1)*(jetpt-genpt))/jetpt)
+                   setattr(jet, "corrJERDown", ptscaleJERDown)
+
+
 
 
 
@@ -417,6 +439,7 @@ setattr(JetAnalyzer,"defaultConfig", cfg.Analyzer(
     addJECShifts = False, # if true, add  "corr", "corrJECUp", and "corrJECDown" for each jet (requires uncertainties to be available!)
     smearJets = True,
     shiftJER = 0, # set to +1 or -1 to get +/-1 sigma shifts    
+    addJERShifts = 0, # add +/-1 sigma shifts to jets, intended to be used with shiftJER=0
     cleanJetsFromFirstPhoton = False,
     cleanJetsFromTaus = False,
     cleanJetsFromIsoTracks = False,
