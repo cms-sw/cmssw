@@ -217,7 +217,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     edm::ESHandle<RPFlatParams> flatparmsDB_;
     iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
     LoadEPDB db(flatparmsDB_,flat);
-    if(db.IsSuccess()) return;
+    if(!db.IsSuccess()) return;
   }
   //
   //Get Centrality
@@ -280,7 +280,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	if(useOffsetPsi_) {
 		soff = flat[indx]->getSoffset(s, vzr_sell, bin);
 		coff = flat[indx]->getCoffset(c, vzr_sell, bin);
-		psiOffset = flat[indx]->getOffsetPsi(s, c);
+		psiOffset = flat[indx]->getOffsetPsi(soff, coff);
 	}
 	double psiFlat = flat[indx]->getFlatPsi(psiOffset,vzr_sell,bin);
 	ep[indx]= new EvtPlane(indx, 2, psiFlat, soff, coff,rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(), m);
