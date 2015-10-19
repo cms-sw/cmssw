@@ -165,6 +165,7 @@ def searchClassDefXml ():
             classList = xmlObj.functionName
             if not classList:
                 print "**** SKIPPING '%s' - Dosen't seem to have proper information(not class/function)." % filename
+                continue
         for piece in classList:
             try:
                 className = spacesRE.sub ('', piece.name)
