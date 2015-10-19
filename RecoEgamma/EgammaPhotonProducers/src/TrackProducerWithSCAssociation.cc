@@ -248,8 +248,8 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
   } catch (cms::Exception &e){ edm::LogInfo("TrackProducerWithSCAssociation") << "cms::Exception caught!!!" << "\n" << e << "\n";}
 
 
-  for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( reco::TransientTrack(*(((*prod).second).first),thePropagator.product()->magneticField() ));
+  for (auto & prod : algoResults){
+    ttks.emplace_back(*prod.track,thePropagator.product()->magneticField());
   }
 
   //LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation end" << "\n";
@@ -281,15 +281,15 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
   std::map<unsigned int, unsigned int> tjTkMap;
 
-  for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-    Trajectory * theTraj = (*i).first;
+  for(auto & i : algoResults){
+    Trajectory * theTraj = i.trajectory;
     if(myTrajectoryInEvent_) {
       selTrajectories->push_back(*theTraj);
       iTjRef++;
     }
     
-    reco::Track * theTrack = (*i).second.first;
-    PropagationDirection seedDir = (*i).second.second;
+    reco::Track * theTrack =  i.track;
+    PropagationDirection seedDir = i.pDir;
     
     //LogDebug("TrackProducer") << "In KfTrackProducerBase::putInEvt - seedDir=" << seedDir;
     

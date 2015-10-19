@@ -7,6 +7,9 @@
  *  \author cerati
  */
 
+
+#include "AlgoProductTraits.h"
+
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -23,6 +26,8 @@
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 #include <RecoTracker/MeasurementDet/interface/MeasurementTracker.h>
 
+#include<tuple>
+
 class Propagator;
 class TrajectoryStateUpdator;
 class MeasurementEstimator;
@@ -32,12 +37,13 @@ class TransientTrackingRecHitBuilder;
 class NavigationSchool;
 
 template <class T>
-class TrackProducerBase {
+class TrackProducerBase : public AlgoProductTraits<T> {
 public:
-  typedef std::vector<T> TrackCollection;
-  typedef std::pair<Trajectory*, std::pair<T*,PropagationDirection> > AlgoProduct;
-  typedef std::vector< AlgoProduct >  AlgoProductCollection;
+  using Base = AlgoProductTraits<T>;
+  using TrackCollection = typename Base::TrackCollection;
+  using AlgoProductCollection = typename Base::AlgoProductCollection;
 public:
+
   /// Constructor
   TrackProducerBase(bool trajectoryInEvent = false):
      trajectoryInEvent_(trajectoryInEvent),

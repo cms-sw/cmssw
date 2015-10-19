@@ -239,6 +239,10 @@ public:
    */
 
   int lostHits() const { return theNumberOfLostHits;}
+
+  //number of hits in seed
+  unsigned int seedNHits() const { return seed().nHits();}
+
   
   /// True if trajectory has no measurements.
   bool empty() const { return theData.empty();}

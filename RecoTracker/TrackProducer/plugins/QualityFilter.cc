@@ -79,11 +79,11 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   
-  auto_ptr<TrackCollection> selTracks(new TrackCollection);
-  auto_ptr<TrackingRecHitCollection> selHits(copyExtras_ ? new TrackingRecHitCollection() : 0);
-  auto_ptr<TrackExtraCollection> selTrackExtras(copyExtras_ ? new TrackExtraCollection() : 0);
-  auto_ptr<vector<Trajectory> > outputTJ(new vector<Trajectory> );
-  auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
+  unique_ptr<TrackCollection> selTracks(new TrackCollection);
+  unique_ptr<TrackingRecHitCollection> selHits(copyExtras_ ? new TrackingRecHitCollection() : 0);
+  unique_ptr<TrackExtraCollection> selTrackExtras(copyExtras_ ? new TrackExtraCollection() : 0);
+  unique_ptr<vector<Trajectory> > outputTJ(new vector<Trajectory> );
+  unique_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
   
   
   TrackExtraRefProd rTrackExtras; 
@@ -130,8 +130,8 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   unsigned nTracks = selTracks->size();
   if (copyExtras_) {
       //PUT TRACKING HITS IN THE EVENT
-      OrphanHandle<TrackingRecHitCollection> theRecoHits = iEvent.put(selHits );
-      edm::RefProd<TrackingRecHitCollection> theRecoHitsProd(theRecoHits);
+    OrphanHandle<TrackingRecHitCollection> theRecoHits = iEvent.put(std::move(selHits) );
+    edm::RefProd<TrackingRecHitCollection> theRecoHitsProd(theRecoHits);
 
       //PUT TRACK EXTRA IN THE EVENT
       selTrackExtras->reserve(nTracks);
@@ -162,7 +162,7 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
 
       //CORRECT REF TO TRACK
-      OrphanHandle<TrackExtraCollection> theRecoTrackExtras = iEvent.put(selTrackExtras); 
+      OrphanHandle<TrackExtraCollection> theRecoTrackExtras = iEvent.put(std::move(selTrackExtras)); 
       for ( unsigned index = 0; index<nTracks; ++index ) { 
         const reco::TrackExtraRef theTrackExtraRef(theRecoTrackExtras,index);
           (*selTracks)[index].setExtra(theTrackExtraRef);
@@ -170,8 +170,8 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } // END IF COPY EXTRAS
 
   //TRACKS AND TRAJECTORIES
-  OrphanHandle<TrackCollection> theRecoTracks = iEvent.put(selTracks);
-  OrphanHandle<vector<Trajectory> > theRecoTrajectories = iEvent.put(outputTJ);
+  OrphanHandle<TrackCollection> theRecoTracks = iEvent.put(std::move(selTracks));
+  OrphanHandle<vector<Trajectory> > theRecoTrajectories = iEvent.put(std::move(outputTJ));
 
   //TRACKS<->TRAJECTORIES MAP 
   nTracks = theRecoTracks->size();
@@ -181,7 +181,7 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     trajTrackMap->insert(trajRef,tkRef);
   }
   //MAP IN THE EVENT
-  iEvent.put( trajTrackMap );
+  iEvent.put( std::move(trajTrackMap) );
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
