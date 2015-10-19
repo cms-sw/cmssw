@@ -133,7 +133,7 @@ class Jet(PhysicsObject):
               self.computeQGvars()
               self.qgl_value=self.qgl_calc(self,self.qgl_rho)
 	  else :
-              self.qgl_value=0. #if no qgl calculator configured
+              self.qgl_value=-1. #if no qgl calculator configured
 		  
        return self.qgl_value
 
