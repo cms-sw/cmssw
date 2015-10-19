@@ -66,13 +66,13 @@ fixedGridRhoFastjetCentral = fixedGridRhoFastjetAll.clone(
     )
 
 fixedGridRhoFastjetCentralChargedPileUp = fixedGridRhoFastjetAll.clone(
-    src = cms.InputTag("pfPileUpAllChargedParticles"),
-    maxRapidity = cms.double(2.5)
+    pfCandidatesTag = "pfPileUpAllChargedParticles",
+    maxRapidity = 2.5
     )
 
 fixedGridRhoFastjetCentralNeutral = fixedGridRhoFastjetAll.clone(
-    src = cms.InputTag("pfAllNeutralHadronsAndPhotons"),
-    maxRapidity = cms.double(2.5)
+    pfCandidatesTag = "pfAllNeutralHadronsAndPhotons",
+    maxRapidity = 2.5
     )
 
 
