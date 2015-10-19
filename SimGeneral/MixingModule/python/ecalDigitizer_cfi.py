@@ -21,3 +21,7 @@ ecalDigitizer = cms.PSet(
     makeDigiSimLinks = cms.untracked.bool(False)
 )
 
+ecalDigitizer.doEB = cms.bool(True)
+ecalDigitizer.doEE = cms.bool(True)
+ecalDigitizer.doES = cms.bool(True)
+
