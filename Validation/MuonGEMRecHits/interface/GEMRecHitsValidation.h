@@ -2,7 +2,6 @@
 #define GEMRecHitsValidation_H
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <DataFormats/GEMRecHit/interface/GEMRecHit.h>
 #include <DataFormats/GEMRecHit/interface/GEMRecHitCollection.h>

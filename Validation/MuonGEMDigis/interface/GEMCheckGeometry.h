@@ -3,23 +3,12 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-
-#include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include <TMath.h>
 
 class GEMCheckGeometry : public DQMEDAnalyzer
 {

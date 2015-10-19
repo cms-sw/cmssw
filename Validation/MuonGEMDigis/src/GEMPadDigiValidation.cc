@@ -1,5 +1,5 @@
 #include "Validation/MuonGEMDigis/interface/GEMPadDigiValidation.h"
-
+#include <TMath.h>
 GEMPadDigiValidation::GEMPadDigiValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {
   InputTagToken_ = consumes<GEMPadDigiCollection>(cfg.getParameter<edm::InputTag>("PadLabel"));

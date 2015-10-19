@@ -1,7 +1,7 @@
 #include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <TMath.h>
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include <exception>
 using namespace std;
 GEMHitsValidation::GEMHitsValidation(const edm::ParameterSet& cfg):  GEMBaseValidation(cfg)

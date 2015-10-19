@@ -2,9 +2,7 @@
 #define GEMCoPadDigiValidation_H
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GEMDigi/interface/GEMCoPadDigiCollection.h"
-#include <TMath.h>
 
 
 class GEMCoPadDigiValidation : public GEMBaseValidation

@@ -1,8 +1,8 @@
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+//#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 #include <memory>
 using namespace std;
 GEMBaseValidation::GEMBaseValidation( const edm::ParameterSet& ps)

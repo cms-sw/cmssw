@@ -4,8 +4,7 @@
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 
-#include "DataFormats/Common/interface/Handle.h"
-#include <TMath.h>
+//#include "DataFormats/Common/interface/Handle.h"
 class GEMPadDigiValidation : public GEMBaseValidation
 {
 public:

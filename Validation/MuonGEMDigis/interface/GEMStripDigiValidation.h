@@ -4,10 +4,8 @@
 
 #include "Validation/MuonGEMHits/interface/GEMBaseValidation.h"
 
-#include "DataFormats/Common/interface/Handle.h"
+//#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "Geometry/CommonTopologies/interface/StripTopology.h"
-#include <TMath.h>
 
 class GEMStripDigiValidation : public GEMBaseValidation
 {

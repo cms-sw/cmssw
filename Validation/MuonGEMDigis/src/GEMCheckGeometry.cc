@@ -1,4 +1,12 @@
 #include "Validation/MuonGEMDigis/interface/GEMCheckGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h" 
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+#include "DataFormats/Common/interface/Handle.h"
+
 #include <iomanip>
 
 GEMCheckGeometry::GEMCheckGeometry(const edm::ParameterSet& gc)

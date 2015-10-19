@@ -1,4 +1,7 @@
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+
+#include <TMath.h>
 #include <iomanip>
 GEMStripDigiValidation::GEMStripDigiValidation(const edm::ParameterSet& cfg): GEMBaseValidation(cfg)
 {

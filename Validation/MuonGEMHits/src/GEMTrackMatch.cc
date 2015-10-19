@@ -1,9 +1,7 @@
 #include "Validation/MuonGEMHits/interface/GEMTrackMatch.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include <TMath.h>
-#include <TH1F.h>
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+
 
 GEMTrackMatch::GEMTrackMatch(const edm::ParameterSet& ps)
 {

@@ -1,6 +1,7 @@
 #include "Validation/MuonGEMRecHits/interface/GEMRecHitsValidation.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include <iomanip>
 
 using namespace std;
