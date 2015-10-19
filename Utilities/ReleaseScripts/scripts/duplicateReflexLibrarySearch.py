@@ -120,7 +120,7 @@ def searchClassDefXml ():
                     equivList.append( (matchString, equiv) )
             equivList.append( (packagesREs[packageName], packageName) )
     classDict = {}
-    ncdict = {'class' : 'className'}
+    ncdict = {'class' : 'className', 'function' : 'functionName'}
     for filename in xmlFiles:
         if (not filename) or (ignoreSrcRE.match(filename)): continue
         dupProblems     = ''
@@ -161,6 +161,10 @@ def searchClassDefXml ():
                 # this isn't a real classes_def.xml file.  Skip it
                 print "**** SKIPPING '%s' - Doesn't seem to have proper information." % filename
                 continue
+        if not classList:
+            classList = xmlObj.functionName
+            if not classList:
+                print "**** SKIPPING '%s' - Dosen't seem to have proper information(not class/function)." % filename
         for piece in classList:
             try:
                 className = spacesRE.sub ('', piece.name)
