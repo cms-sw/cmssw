@@ -12,6 +12,7 @@ class Eras (object):
         self.run2_50ns_specific = cms.Modifier()
         self.run2_HI_specific = cms.Modifier()
         self.stage1L1Trigger = cms.Modifier()
+        self.stage2L1Trigger = cms.Modifier()
         # Implementation note: When this was first started, stage1L1Trigger wasn't in all
         # of the eras. Now that it is, it could in theory be dropped if all changes are
         # converted to run2_common (i.e. a search and replace of "stage1L1Trigger" to
