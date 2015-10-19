@@ -32,7 +32,7 @@
   <rParent name="hgcalEE:HGCalEEM"/>
   <Vector name="MaterialNames" type="string" nEntries="15">
    materials:Carbon_fibre_str_Upgrade2, materials:Tungsten, materials:Tungsten, 
-   materials:Tungsten, materials:WCu, materials:WCu, materials:Wcu, 
+   materials:Tungsten, materials:WCu, materials:WCu, materials:WCu, 
    materials:Copper, materials:Copper, materials:Silicon, materials:M_NEMA FR4 plate, 
    materials:Air, materials:Foam, materials:Aluminium, materials:Air</Vector>
   <Vector name="VolumeNames" type="string" nEntries="15">
