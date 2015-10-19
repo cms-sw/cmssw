@@ -35,3 +35,14 @@ fi
 sort -u < statics-report.txt.unsorted > statics-report.txt
 grep -e "^In call stack " statics-report.txt | awk '{print $0"\n"}' > modules2statics.txt
 grep -e "^Non-const static variable " statics-report.txt | awk '{print $0"\n"}' > statics2modules.txt
+
+if [ ! -f ./edm-global-class.py ]
+	then
+	cp -pv ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/edm-global-class.py .
+fi 
+
+edm-global-class.py >edm-global-classes.txt.unsorted
+sort -u edm-global-classes.txt.unsorted | grep -e"^EDM global class " | sort -u >edm-global-classes.txt
+sort -u edm-global-classes.txt.unsorted | grep -v -e"^EDM global class " >edm-global-classes.txt.extra
+
+
