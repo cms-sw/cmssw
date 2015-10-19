@@ -141,8 +141,18 @@ class SiStripLorentzAngle;
 class PixelGeomDetUnit;
 class StripGeomDetUnit;
 
+// Function for testing ClusterShapeHitFilter
+namespace test {
+  namespace ClusterShapeHitFilterTest {
+    int test();
+  }
+}
+
 class ClusterShapeHitFilter
 {
+  // For tests
+  friend int test::ClusterShapeHitFilterTest::test();
+
  public:
 
   struct PixelData {
