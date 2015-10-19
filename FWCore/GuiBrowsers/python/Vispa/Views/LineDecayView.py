@@ -1553,7 +1553,7 @@ class DecayLine(DecayObject):
     def slope(self):
         deltaX = self._endNode.x() - self._startNode.x()
         if deltaX == 0:
-            return sys.maxint
+            return sys.maxsize
         
         return 1.0 * (self._endNode.y() - self._startNode.y()) / deltaX
     
