@@ -23,7 +23,7 @@ try:
     print "copyschema() : Copies the schema objects from source to destination, without copying data."
     exp.copyschema() 
     print "Tables created" 
-  except Exception, e:
+  except Exception as e:
     print "Test Failed" 
     print str(e)
 
@@ -31,7 +31,7 @@ try:
     print "copydata(rowCount) : Copies the schema objects from source to destination, including data copy."
     exp.copydata(rowCount=100) 
     print "Data copied"
-  except Exception, e:
+  except Exception as e:
     print "Test Failed" 
     print str(e)
 
@@ -40,7 +40,7 @@ try:
     tablename = "T1"
     exp.copytableschema(tablename) 
     print "Table created" 
-  except Exception, e:
+  except Exception as e:
     print "Test Failed" 
     print str(e)
 
@@ -55,7 +55,7 @@ try:
     selectionparameters["idmax"].setData(2)
     exp.copytabledata(tablename,selectionclause,selectionparameters,rowCount=100) 
     print "Data copied"
-  except Exception, e:
+  except Exception as e:
     print "Test Failed" 
     print str(e)
 
@@ -64,7 +64,7 @@ try:
     tableset = ['T3','T1','T2']
     exp.copytablelistschema(tableset) 
     print "Tables created" 
-  except Exception, e:
+  except Exception as e:
     print "Test Failed" 
     print str(e)
 
@@ -90,13 +90,13 @@ try:
     tablelist = [tablelist1,tablelist2,tablelist3]
     exp.copytablelistdata(tablelist,rowCount=100) 
     print "Data copied " 
-  except Exception, e:
+  except Exception as e:
     print "Test Failed" 
     print str(e)
 
   del sourceSession
   del destSession 
-except Exception, e:
+except Exception as e:
  print "Test FAILED"
  print str(e)
 

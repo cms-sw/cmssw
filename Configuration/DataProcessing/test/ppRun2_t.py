@@ -35,7 +35,7 @@ class ppRun2ScenarioTest(unittest.TestCase):
         """get the scenario"""
         try:
             scenario = getScenario("ppRun2")
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to get ppRun2 scenario\n"
             msg += str(ex)
             self.fail(msg)
@@ -47,7 +47,7 @@ class ppRun2ScenarioTest(unittest.TestCase):
         try:
             process = scenario.promptReco("GLOBALTAG::ALL")
             writePSetFile("testPromptReco.py", process)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to create Prompt Reco configuration\n"
             msg += "for ppRun2 Scenario\n"
             msg += str(ex)
@@ -60,7 +60,7 @@ class ppRun2ScenarioTest(unittest.TestCase):
         try:
             process = scenario.expressProcessing("GLOBALTAG::ALL")
             writePSetFile("testExpressProcessing.py", process)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to create Express Processing configuration\n"
             msg += "for ppRun2 Scenario\n"
             msg += str(ex)
@@ -73,7 +73,7 @@ class ppRun2ScenarioTest(unittest.TestCase):
         try:
             process = scenario.alcaSkim(["MuAlCalIsolatedMu"])
             writePSetFile("testAlcaReco.py", process)
-        except Exception, ex:
+        except Exception as ex:
            msg = "Failed to create Alca Skimming configuration\n"
            msg += "for ppRun2 Scenario\n"
            msg += str(ex)
@@ -87,7 +87,7 @@ class ppRun2ScenarioTest(unittest.TestCase):
             process = scenario.dqmHarvesting("dataset", 123456,
                                              "GLOBALTAG::ALL")
             writePSetFile("testDQMHarvesting.py", process)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Failed to create DQM Harvesting configuration "
             msg += "for ppRun2 scenario:\n"
             msg += str(ex)

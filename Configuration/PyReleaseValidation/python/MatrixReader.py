@@ -121,7 +121,7 @@ class MatrixReader(object):
         try:
             _tmpMod = __import__( 'Configuration.PyReleaseValidation.'+fileNameIn )
             self.relvalModule = sys.modules['Configuration.PyReleaseValidation.'+fileNameIn]
-        except Exception, e:
+        except Exception as e:
             print "ERROR importing file ", fileNameIn, str(e)
             return
 
@@ -306,7 +306,7 @@ class MatrixReader(object):
 
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
-            except Exception, e:
+            except Exception as e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
 
@@ -483,13 +483,13 @@ class MatrixReader(object):
             
             try:
                 self.readMatrix(matrixFile, useInput, refRel, fromScratch)
-            except Exception, e:
+            except Exception as e:
                 print "ERROR reading file:", matrixFile, str(e)
                 raise
             
             try:
                 self.createWorkFlows(matrixFile)
-            except Exception, e:
+            except Exception as e:
                 print "ERROR creating workflows :", str(e)
                 raise
             

@@ -21,7 +21,7 @@ try:
 
   print "[SUCCESS] Test for dumpobjectlist passed."
 
-except Exception, e:
+except Exception as e:
  transaction.rollback()
  print "Test FAILED"
  print str(e)

@@ -51,7 +51,7 @@ def missingTimeRuns(dbsession,c):
             result.append(cursor.currentRow()['runnum'].data())
         del query
         dbsession.transaction().commit()
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -112,7 +112,7 @@ def getTimeForRun(dbsession,c,runnums):
             del startTQuery
             del stopTQuery
         dbsession.transaction().commit()
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -152,7 +152,7 @@ def addTimeForRun(dbsession,c,runtimedict):
             dbsession.transaction().rollback()
         else:
             dbsession.transaction().commit()   
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -183,7 +183,7 @@ def recalibrateLumiForRun(dbsession,c,delta,runnums):
         else:
             dbsession.transaction().commit()
         return nchanged
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -230,7 +230,7 @@ def GTdeadtimeBeamActiveForRun(dbsession,c,runnum):
             #print 'deadcount',deadcount
         del query
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -274,7 +274,7 @@ def WBMdeadtimeBeamActiveForRun(dbsession,c,runnum):
             #print 'deadcount',deadcount
         del query
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -308,7 +308,7 @@ def patchDeadtimeForRun(dbsession,c,runnum,deadtimeDict):
             totalchanged+=nchanged
         dbsession.transaction().commit()
         return totalchanged
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession

@@ -22,7 +22,7 @@ class DBImpl(object):
                 cursor.close()
             del query
             return result
-        except Exception, e:
+        except Exception as e:
             raise Exception, str(e)
     def insertOneRow( self, tableName, tabrowDefDict, tabrowValueDict ):
         """Insert row 
@@ -36,7 +36,7 @@ class DBImpl(object):
                 inputData.extend( name, type )
                 inputData[name].setData(tabrowValueDict[name])
             editor.insertRow( inputData )
-        except Exception, e:
+        except Exception as e:
             raise Exception, str(e)
     def bulkInsert( self, tableName, tabrowDefDict, bulkinput):
         """Bulk insert bulkinput=[{}]
@@ -54,7 +54,7 @@ class DBImpl(object):
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
-        except Exception, e:
+        except Exception as e:
             raise Exception, str(e)
     def deleteRows( self, tableName, condition, conditionbindDict ):
         """Delete row(s)
@@ -63,7 +63,7 @@ class DBImpl(object):
             tableHandle = self.__schema.tableHandle(tableName)
             editor = tableHandle.dataEditor()
             editor.deleteRows( condition, conditionbindDict )
-        except Exception, e:
+        except Exception as e:
             raise Exception, str(e)
         
     def dropTable( self, tableName ):
@@ -76,7 +76,7 @@ class DBImpl(object):
         try:
             self.__schema.tableHandle(tableName)
             return True
-        except coral.Exception, e:
+        except coral.Exception as e:
             return False
 
 if __name__ == "__main__":

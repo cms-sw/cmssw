@@ -36,7 +36,7 @@ class RunMerge:
                 output_file = self.outputFile,
                 output_lfn = self.outputLFN,
                 newDQMIO = self.newDQMIO)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error creating process for Merge:\n"
             msg += str(ex)
             raise RuntimeError, msg
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     usage = """RunMerge.py <options>"""
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         print usage
         print str(ex)
         sys.exit(1)

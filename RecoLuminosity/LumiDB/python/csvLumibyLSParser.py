@@ -29,7 +29,7 @@ class csvLumibyLSParser(object):
                 field1=str(row[1]).strip()
                 fieldsplit=re.split(':',field1)
                 lsstring = fieldsplit[0]
-            except Exception,e:
+            except Exception as e:
                 lsstring='1' # for list with run number only, fake lsnum
             if not is_intstr(runstring) or not  is_intstr(lsstring):
                 continue

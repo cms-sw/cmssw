@@ -23,7 +23,7 @@ class  tagInventory(object):
             schema.dropIfExistsTable( self.__tagInventoryIDName )
             schema.dropIfExistsTable( self.__tagInventoryTableName )
             transaction.commit()
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         return
@@ -38,7 +38,7 @@ class  tagInventory(object):
             result=schema.existsTable(self.__tagInventoryTableName)
             transaction.commit()
             #print result
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         return result
@@ -69,7 +69,7 @@ class  tagInventory(object):
             generator=IdGenerator.IdGenerator(schema)
             generator.createIDTable(self.__tagInventoryIDName,True)
             transaction.commit()
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
     def addEntry( self, leafNode ):
@@ -115,7 +115,7 @@ class  tagInventory(object):
                 generator.incrementNextID(self.__tagInventoryIDName)           
                 transaction.commit()
             return tagid
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         
@@ -147,7 +147,7 @@ class  tagInventory(object):
                 results.append(r)
             transaction.commit()
             del query
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         
@@ -167,7 +167,7 @@ class  tagInventory(object):
                     raise "addEntry returns 0"
                 newtaglinks.append((oldtagid,n))
             return newtaglinks
-        except Exception, e:
+        except Exception as e:
             print str(e)
             raise Exception, str(e)
     
@@ -187,7 +187,7 @@ class  tagInventory(object):
                 allpfns.append(pfn)
             transaction.commit()
             del query
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             del query
             raise Exception, str(er)
@@ -204,7 +204,7 @@ class  tagInventory(object):
                 inputData['oldpfn'].setData(pfn)
                 editor.updateRows( "pfn = :newpfn", "pfn = :oldpfn", inputData )
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
 
@@ -236,7 +236,7 @@ class  tagInventory(object):
             generator.incrementNextID(self.__tagInventoryIDName)
             transaction.commit()
             return newtagid
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         
@@ -277,7 +277,7 @@ class  tagInventory(object):
             transaction.commit()
             del query
             return leafnode
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
     def getEntryById( self, tagId ):
@@ -309,7 +309,7 @@ class  tagInventory(object):
             transaction.commit()
             del query
             return leafnode
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
     def getAllEntries( self ):
@@ -336,7 +336,7 @@ class  tagInventory(object):
             transaction.commit()
             del query
             return result
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
     def getIDsByName( self, name ):
@@ -358,7 +358,7 @@ class  tagInventory(object):
                 tagid=cursor.currentRow()['tagid'].data()
                 ids.append(tagid)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
         return ids
@@ -375,7 +375,7 @@ class  tagInventory(object):
                             '',
                             inputData)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
         
@@ -394,7 +394,7 @@ class  tagInventory(object):
                             'tagname=:tagname',
                             inputData)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
         
@@ -413,7 +413,7 @@ class  tagInventory(object):
             editor = schema.tableHandle(self.__tagInventoryTableName).dataEditor()
             editor.updateRows( "labelname=:labelname", "tagname=:tagname", inputData )
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
 
@@ -480,7 +480,7 @@ class  tagInventory(object):
             del bulkOperation
             del query
             return results
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
         
@@ -538,7 +538,7 @@ if __name__ == "__main__":
         print a
         del session
         
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del session

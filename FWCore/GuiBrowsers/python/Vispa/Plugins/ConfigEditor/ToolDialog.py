@@ -115,7 +115,7 @@ class ToolDialog(QDialog):
                     ok=False
                     logging.error(__name__ + ": Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (problem with enable recording flag) Please restart the ConfigEditor.")
                     QCoreApplication.instance().errorMessage("Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (problem with enable recording flag) Please restart the ConfigEditor.")
-            except Exception,e:
+            except Exception as e:
                 ok=False
                 logging.error(__name__ + ": Could not apply tool "+self._toolDataAccessor.label(self._selectedTool)+": "+exception_traceback())
                 QCoreApplication.instance().errorMessage("Cannot apply tool "+self._toolDataAccessor.label(self._selectedTool)+" (see log file for details):\n"+str(e))

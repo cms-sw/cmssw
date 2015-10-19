@@ -18,7 +18,7 @@ class diclist( list ):
         try:
             # index = int( index )
             return super(diclist, self).__getitem__(index)
-        except TypeError, ValueError:
+        except TypeError as ValueError:
             return super(diclist, self).__getitem__( self.dico[index] )
             
     def __setitem__(self, index, value):
@@ -27,7 +27,7 @@ class diclist( list ):
             # why did I add this cast? it's casting string to int...
             # index = int( index )
             return super(diclist, self).__setitem__(index, value)
-        except TypeError,ValueError:
+        except TypeError as ValueError:
             return super(diclist, self).__setitem__( self.dico[index], value )
             
 if __name__ == '__main__':

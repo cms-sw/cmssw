@@ -84,7 +84,7 @@ def operate(timelog, memlog, json_f, num):
         if re.search(regex, IB) is None:
             raise RuntimeError('Not a valid IB. Valid IB: ' +\
                                '[CMSSW_X_X_X_YYYY-MM-DD-HHMM]')
-    except Exception, err:
+    except Exception as err:
         sys.stderr.write(script_name + ': Error: ' + str(err) + '\n')
         return 2
     

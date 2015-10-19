@@ -51,7 +51,7 @@ def fillnumForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -96,7 +96,7 @@ def hltkeyForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -141,7 +141,7 @@ def l1keyForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
