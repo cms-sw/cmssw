@@ -32,11 +32,14 @@ protected:
 private:
 	// 
 	edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
-	edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
+//	edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
 	edm::EDGetTokenT<reco::EvtPlane> theEPCollection_;
 
 	std::string triggerPath_;
-	edm::InputTag triggerFilter_;
+//	edm::InputTag triggerFilter_;
+	int order_;
+	int EPidx_;
+	int EPlvl_;
 
 
 	// histo

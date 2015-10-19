@@ -7,7 +7,15 @@
 
 EventShapeDQM::EventShapeDQM(const edm::ParameterSet& ps)
 {
+//	theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
+	triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"));
+	theEPCollection_ = consumes<reco::EvtPlane>(ps.getParameter<edm::InputTag>("EPlabel"));
+	triggerPath_ = ps.getParameter<std::string>("triggerPath");
+//	triggerFilter_ = ps.getParameter<edm::InputTag>("triggerFilter");
 
+	order_ = ps.getParameter<int>("order");
+	EPidx_ = ps.getParameter<int>("EPidx");
+	EPlvl_ = ps.getParameter<int>("EPlvl");
 }
 
 EventShapeDQM::~EventShapeDQM()
@@ -18,11 +26,50 @@ EventShapeDQM::~EventShapeDQM()
 
 void EventShapeDQM::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &)
 {
+	ibooker_.cd();;
+	ibooker_.setCurrentFolder("HLT/HI/" + triggerPath_);
 
+	h_Q = ibooker_.book1D("hQn", Form("Q%i;Q%i", order_, order_), 500, 0, 0.5);
+
+	ibooker_.cd();
 }
 
 void EventShapeDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 {
+	edm::Handle<edm::TriggerResults> hltresults;
+	e.getByToken(triggerResults_,hltresults);
+	if(!hltresults.isValid())
+	{
+		edm::LogError ("EventShapeDQM") << "invalid collection: TriggerResults" << "\n";
+		return;
+	}
+//	edm::Handle<trigger::TriggerEvent> triggerSummary;
+//	e.getByToken(theTrigSummary_, triggerSummary);
+//	if(!triggerSummary.isValid())
+//	{
+//		edm::LogError ("EventShapeDQM") << "invalid collection: TriggerSummary" << "\n";
+//		return;
+//	}
+
+	bool hasFired = false;
+	const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
+	unsigned int numTriggers = trigNames.size();
+	for( unsigned int hltIndex=0; hltIndex<numTriggers; ++hltIndex ) {
+		if (trigNames.triggerName(hltIndex).find(triggerPath_) != std::string::npos && hltresults->wasrun(hltIndex) && hltresults->accept(hltIndex)){
+			hasFired = true;
+		}
+	}
+
+	edm::Handle<reco::EvtPlaneCollection> ep_;
+	e.getByToken(theEPCollection_, ep_);
+	if ( !ep_.isValid() ) {
+		edm::LogError ("EventShapeDQM") << "invalid collection: EvtPlaneCollection" << "\n";
+		return;
+	}
+
+	if ( hasFired ) {
+		h_Q->Fill( (*ep_)[EPidx_].vn(EPlvl_) );
+	}
 
 }
 

@@ -53,6 +53,7 @@ offlineHLTSource = cms.Sequence(
     higPhotonJetHLTOfflineSource*
     dqmEnvHLT *
     topHLTriggerOfflineDQM *
+    eventshapeDQMSequence *
     hotlineDQMSequence
     )
 
