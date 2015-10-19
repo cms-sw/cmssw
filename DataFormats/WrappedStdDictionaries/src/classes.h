@@ -31,6 +31,8 @@ namespace DataFormats_WrappedStdDictionaries {
   edm::Wrapper<std::vector<std::pair<std::basic_string<char>,double> > > dummy16;
   edm::Wrapper<std::vector<std::pair<std::basic_string<char>,float> > > dummy16_0;
   edm::Wrapper<std::vector<std::pair<unsigned int,double> > > dummy16_1;
+  edm::Wrapper<std::vector<std::pair<int,int>>> dummy16_2;
+
   edm::Wrapper<std::list<int> > dummy17;
 
   edm::Wrapper<std::deque<int> > dummy18;

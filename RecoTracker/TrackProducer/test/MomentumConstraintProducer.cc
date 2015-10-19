@@ -96,8 +96,8 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
   Handle<reco::TrackCollection> theTCollection;
   iEvent.getByLabel(srcTag_,theTCollection);
   
-  std::auto_ptr<std::vector<MomentumConstraint> > pairs(new std::vector<MomentumConstraint>);
-  std::auto_ptr<TrackMomConstraintAssociationCollection> output(new TrackMomConstraintAssociationCollection);
+  std::unique_ptr<std::vector<MomentumConstraint> > pairs(new std::vector<MomentumConstraint>);
+  std::unique_ptr<TrackMomConstraintAssociationCollection> output(new TrackMomConstraintAssociationCollection);
   
   edm::RefProd<std::vector<MomentumConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<MomentumConstraint> >();
   
@@ -114,8 +114,9 @@ void MomentumConstraintProducer::produce(edm::Event& iEvent, const edm::EventSet
     index++;
   }
   
-  iEvent.put(pairs);
-  iEvent.put(output);
+  iEvent.put(std::move(pairs));
+  iEvent.put(std::move(output));
+ 
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

@@ -15,11 +15,13 @@ struct TrackCollectionTokens {
     TrackCollectionTokens(edm::InputTag const & tag, edm::ConsumesCollector && iC) :
       hTrackToken_( iC.consumes<reco::TrackCollection>( tag ) ),
       hTrajToken_( iC.mayConsume< std::vector<Trajectory> >( tag ) ),
+      hIndToken_( iC.mayConsume< std::vector<int> >( tag ) ),
       hTTAssToken_( iC.mayConsume< TrajTrackAssociationCollection >( tag ) ){}
     
     /// source collection label
     edm::EDGetTokenT<reco::TrackCollection> hTrackToken_;
     edm::EDGetTokenT< std::vector<Trajectory> > hTrajToken_;
+    edm::EDGetTokenT< std::vector<int> > hIndToken_;
     edm::EDGetTokenT< TrajTrackAssociationCollection > hTTAssToken_;
 
 
@@ -32,6 +34,12 @@ struct TrackCollectionTokens {
     std::vector<Trajectory> const & trajectories(edm::Event& evt) const {
        edm::Handle<std::vector<Trajectory>> h;
        evt.getByToken( hTrajToken_, h );
+       return *h;
+    }
+
+    std::vector<int> const & indicesInput(edm::Event& evt) const {
+       edm::Handle<std::vector<int>> h;
+       evt.getByToken( hIndToken_, h );
        return *h;
     }
 
