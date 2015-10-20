@@ -22,12 +22,14 @@ namespace
     return std::fabs( a - b ) < epsilon;
   }
 
+  /*
   inline double
   round( double n, int digits )
   {
     double mult = pow( 10, digits );
     return floor( n * mult ) / mult;
   }
+  */
   
   std::map<int, std::string> hcalmapping = {{1, "HB"},
 					    {2, "HE"},

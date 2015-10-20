@@ -56,7 +56,7 @@ public:
 
   virtual void vocalCorners( Pt3DVec&        vec ,
 			     const CCGFloat* pv  ,
-			     Pt3D&           ref  ) const ;
+			     Pt3D&           ref  ) const override;
 
 private:
   virtual void initCorners(CornersVec&)  override;
