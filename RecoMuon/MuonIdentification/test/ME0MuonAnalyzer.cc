@@ -155,28 +155,34 @@ public:
   TH1F *Rechit_Eta;    TH1F *Rechit_Phi;    TH1F *Rechit_R;  TH2F *Rechit_Pos;  
   TH1F *GenMuon_Phi;    TH1F *GenMuon_R;  TH2F *GenMuon_Pos;  
   TH1F *Track_Eta; TH1F *Track_Pt;  TH1F *ME0Muon_Eta; TH1F *ME0Muon_Pt;  TH1F *CheckME0Muon_Eta; 
+  TH1F *ME0Muon_SmallBins_Pt;   TH1F *ME0Muon_VariableBins_Pt;
   TH1F *ME0Muon_Cuts_Eta_5_10;   TH1F *ME0Muon_Cuts_Eta_9_11; TH1F *ME0Muon_Cuts_Eta_10_50; TH1F *ME0Muon_Cuts_Eta_50_100; TH1F *ME0Muon_Cuts_Eta_100; 
   TH1F *UnmatchedME0Muon_Eta; TH1F *UnmatchedME0Muon_Pt;    TH1F *UnmatchedME0Muon_Window_Pt;    TH1F *Chi2UnmatchedME0Muon_Eta; 
+  TH1F *Chi2UnmatchedME0Muon_Pt; TH1F *Chi2UnmatchedME0Muon_SmallBins_Pt;   TH1F *Chi2UnmatchedME0Muon_VariableBins_Pt; 
+  TH1F *UnmatchedME0Muon_SmallBins_Pt;      TH1F *UnmatchedME0Muon_VariableBins_Pt;   
   TH1F *UnmatchedME0Muon_Cuts_Eta_5_10;    TH1F *UnmatchedME0Muon_Cuts_Eta_9_11;  TH1F *UnmatchedME0Muon_Cuts_Eta_10_50;  TH1F *UnmatchedME0Muon_Cuts_Eta_50_100;  TH1F *UnmatchedME0Muon_Cuts_Eta_100;
   TH1F *TracksPerSegment_h;  TH2F *TracksPerSegment_s;  TProfile *TracksPerSegment_p;
   TH2F *ClosestDelR_s; TProfile *ClosestDelR_p;
   TH2F *PtDiff_s; TProfile *PtDiff_p; TH1F *PtDiff_h; TH1F *QOverPtDiff_h; TH1F *PtDiff_rms; TH1F *PtDiff_gaus_narrow; TH1F *PtDiff_gaus_wide;
   TH2F *StandalonePtDiff_s; TProfile *StandalonePtDiff_p; TH1F *StandalonePtDiff_h; TH1F *StandaloneQOverPtDiff_h; TH1F *StandalonePtDiff_rms; TH1F *StandalonePtDiff_gaus_narrow; TH1F *StandalonePtDiff_gaus_wide;
-  TH1F *PtDiff_gaus_5_10;  TH1F *PtDiff_gaus_10_50;  TH1F *PtDiff_gaus_50_100; TH1F *PtDiff_gaus_100;
+  TH1F *PtDiff_gaus_5_10;  TH1F *PtDiff_gaus_10_20;  TH1F *PtDiff_gaus_20_40; TH1F *PtDiff_gaus_40;
   TH1F *StandalonePtDiff_gaus;
   TH1F *VertexDiff_h;
   TH2F *PDiff_s; TProfile *PDiff_p; TH1F *PDiff_h;
-  TH2F *PtDiff_s_5_10;    TH2F *PtDiff_s_10_50;    TH2F *PtDiff_s_50_100;    TH2F *PtDiff_s_100;
+  TH2F *PtDiff_s_5_10;    TH2F *PtDiff_s_10_20;    TH2F *PtDiff_s_20_40;    TH2F *PtDiff_s_40;
   TH1F *FakeTracksPerSegment_h;  TH2F *FakeTracksPerSegment_s;  TProfile *FakeTracksPerSegment_p;
   TH1F *FakeTracksPerAssociatedSegment_h;  TH2F *FakeTracksPerAssociatedSegment_s;  TProfile *FakeTracksPerAssociatedSegment_p;
   TH1F *GenMuon_Eta; TH1F *GenMuon_Pt;   TH1F *MatchedME0Muon_Eta; TH1F *MatchedME0Muon_Pt; TH1F *Chi2MatchedME0Muon_Eta; TH1F *Chi2MatchedME0Muon_Pt; 
-  TH1F *TPMuon_Eta;
-  TH1F *MatchedME0Muon_Eta_5_10;    TH1F *MatchedME0Muon_Eta_9_11;  TH1F *MatchedME0Muon_Eta_10_50;  TH1F *MatchedME0Muon_Eta_50_100;  TH1F *MatchedME0Muon_Eta_100;
-  TH1F *Chi2MatchedME0Muon_Eta_5_10;   TH1F *Chi2MatchedME0Muon_Eta_9_11; TH1F *Chi2MatchedME0Muon_Eta_10_50;  TH1F *Chi2MatchedME0Muon_Eta_50_100;  TH1F *Chi2MatchedME0Muon_Eta_100;
-  TH1F *GenMuon_Eta_5_10;   TH1F *GenMuon_Eta_9_11;  TH1F *GenMuon_Eta_10_50;  TH1F *GenMuon_Eta_50_100;  TH1F *GenMuon_Eta_100;
+  TH1F *GenMuon_SmallBins_Pt;  TH1F *MatchedME0Muon_SmallBins_Pt; TH1F *Chi2MatchedME0Muons_Pt; TH1F *Chi2MatchedME0Muon_SmallBins_Pt; 
+  TH1F *GenMuon_VariableBins_Pt;  TH1F *MatchedME0Muon_VariableBins_Pt; TH1F *Chi2MatchedME0Muon_VariableBins_Pt; 
+  TH1F *TPMuon_Eta;   TH1F *TPMuon_SmallBins_Pt;    TH1F *TPMuon_Pt; TH1F *TPMuon_VariableBins_Pt;  
+  TH1F *MatchedME0Muon_Eta_5_10;    TH1F *MatchedME0Muon_Eta_9_11;  TH1F *MatchedME0Muon_Eta_10_20;  TH1F *MatchedME0Muon_Eta_20_40;  TH1F *MatchedME0Muon_Eta_40;
+  TH1F *Chi2MatchedME0Muon_Eta_5_10;   TH1F *Chi2MatchedME0Muon_Eta_9_11; TH1F *Chi2MatchedME0Muon_Eta_10_20;  TH1F *Chi2MatchedME0Muon_Eta_20_40;  TH1F *Chi2MatchedME0Muon_Eta_40;
+  TH1F *TPMuon_Eta_5_10;   TH1F *TPMuon_Eta_10_20;  TH1F *TPMuon_Eta_20_40;  TH1F *TPMuon_Eta_40;
+  TH1F *GenMuon_Eta_5_10;   TH1F *GenMuon_Eta_9_11;  TH1F *GenMuon_Eta_10_20;  TH1F *GenMuon_Eta_20_40;  TH1F *GenMuon_Eta_40;
   TH1F *MuonRecoEff_Eta;  TH1F *MuonRecoEff_Pt;   TH1F *Chi2MuonRecoEff_Eta;  
-  TH1F *MuonRecoEff_Eta_5_10;   TH1F *MuonRecoEff_Eta_9_11;  TH1F *MuonRecoEff_Eta_10_50;  TH1F *MuonRecoEff_Eta_50_100;  TH1F *MuonRecoEff_Eta_100;
-  TH1F *Chi2MuonRecoEff_Eta_5_10;    TH1F *Chi2MuonRecoEff_Eta_9_11;  TH1F *Chi2MuonRecoEff_Eta_10_50;  TH1F *Chi2MuonRecoEff_Eta_50_100;  TH1F *Chi2MuonRecoEff_Eta_100;
+  TH1F *MuonRecoEff_Eta_5_10;   TH1F *MuonRecoEff_Eta_9_11;  TH1F *MuonRecoEff_Eta_10_20;  TH1F *MuonRecoEff_Eta_20_40;  TH1F *MuonRecoEff_Eta_40;
+  TH1F *Chi2MuonRecoEff_Eta_5_10;    TH1F *Chi2MuonRecoEff_Eta_9_11;  TH1F *Chi2MuonRecoEff_Eta_10_20;  TH1F *Chi2MuonRecoEff_Eta_20_40;  TH1F *Chi2MuonRecoEff_Eta_40;
   TH1F *FakeRate_Eta;  TH1F *FakeRate_Pt;  TH1F *FakeRate_Eta_PerEvent;    TH1F *Chi2FakeRate_Eta;  
 
   TH1F *Chi2FakeRate_WideBinning_Eta;  
@@ -237,6 +243,8 @@ public:
 
   double Nevents;
 
+  TH1F *Nevents_h;
+
   
 //Removing this
 };
@@ -292,123 +300,153 @@ void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
 //{
 
   std::cout<<"At start of begin run"<<std::endl;  
-  mkdir(histoFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-  Candidate_Eta = new TH1F("Candidate_Eta"      , "Candidate #eta"   , 4, 2.0, 2.8 );
 
-  Track_Eta = new TH1F("Track_Eta"      , "Track #eta"   , 4, 2.0, 2.8 );
+  double varbins[]={0.,5.,10.,15.,20.,25.,30.,40.,50.,70.,100.};
+  mkdir(histoFolder, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+  Candidate_Eta = new TH1F("Candidate_Eta"      , "Candidate #eta"   , 8, 2.0, 2.8 );
+
+  Nevents_h = new TH1F("Nevents_h"      , "Nevents"   , 2, 0, 2 );
+
+  Track_Eta = new TH1F("Track_Eta"      , "Track #eta"   , 8, 2.0, 2.8 );
   Track_Pt = new TH1F("Track_Pt"      , "Muon p_{T}"   , 120,0 , 120. );
 
-  Segment_Eta = new TH1F("Segment_Eta"      , "Segment #eta"   , 4, 2.0, 2.8 );
+  Segment_Eta = new TH1F("Segment_Eta"      , "Segment #eta"   , 8, 2.0, 2.8 );
   Segment_Phi = new TH1F("Segment_Phi"      , "Segment #phi"   , 60, -3, 3. );
   Segment_R = new TH1F("Segment_R"      , "Segment r"   , 30, 0, 150 );
   Segment_Pos = new TH2F("Segment_Pos"      , "Segment x,y"   ,100,-100.,100., 100,-100.,100. );
 
-  Rechit_Eta = new TH1F("Rechit_Eta"      , "Rechit #eta"   , 4, 2.0, 2.8 );
+  Rechit_Eta = new TH1F("Rechit_Eta"      , "Rechit #eta"   , 8, 2.0, 2.8 );
   Rechit_Phi = new TH1F("Rechit_Phi"      , "Rechit #phi"   , 60, -3, 3. );
   Rechit_R = new TH1F("Rechit_R"      , "Rechit r"   , 30, 0, 150 );
   Rechit_Pos = new TH2F("Rechit_Pos"      , "Rechit x,y"   ,100,-100.,100., 100,-100.,100. );
 
-  //  GenMuon_Eta = new TH1F("GenMuon_Eta"      , "GenMuon #eta"   , 4, 2.0, 2.8 );
+  //  GenMuon_Eta = new TH1F("GenMuon_Eta"      , "GenMuon #eta"   , 8, 2.0, 2.8 );
   GenMuon_Phi = new TH1F("GenMuon_Phi"      , "GenMuon #phi"   , 60, -3, 3. );
   GenMuon_R = new TH1F("GenMuon_R"      , "GenMuon r"   , 30, 0, 150 );
   GenMuon_Pos = new TH2F("GenMuon_Pos"      , "GenMuon x,y"   ,100,-100.,100., 100,-100.,100. );
 
-  ME0Muon_Eta = new TH1F("ME0Muon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  ME0Muon_Cuts_Eta_5_10 = new TH1F("ME0Muon_Cuts_Eta_5_10"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  ME0Muon_Cuts_Eta_9_11 = new TH1F("ME0Muon_Cuts_Eta_9_11"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  ME0Muon_Cuts_Eta_10_50 = new TH1F("ME0Muon_Cuts_Eta_10_50"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  ME0Muon_Cuts_Eta_50_100 = new TH1F("ME0Muon_Cuts_Eta_50_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  ME0Muon_Cuts_Eta_100 = new TH1F("ME0Muon_Cuts_Eta_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  ME0Muon_Eta = new TH1F("ME0Muon_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  ME0Muon_Cuts_Eta_5_10 = new TH1F("ME0Muon_Cuts_Eta_5_10"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  ME0Muon_Cuts_Eta_9_11 = new TH1F("ME0Muon_Cuts_Eta_9_11"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  ME0Muon_Cuts_Eta_10_50 = new TH1F("ME0Muon_Cuts_Eta_10_50"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  ME0Muon_Cuts_Eta_50_100 = new TH1F("ME0Muon_Cuts_Eta_50_100"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  ME0Muon_Cuts_Eta_100 = new TH1F("ME0Muon_Cuts_Eta_100"      , "Muon #eta"   , 8, 2.0, 2.8 );
 
-  CheckME0Muon_Eta = new TH1F("CheckME0Muon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  CheckME0Muon_Eta = new TH1F("CheckME0Muon_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
   ME0Muon_Pt = new TH1F("ME0Muon_Pt"      , "Muon p_{T}"   , 120,0 , 120. );
 
-  GenMuon_Eta = new TH1F("GenMuon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  GenMuon_Eta_5_10 = new TH1F("GenMuon_Eta_5_10"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  GenMuon_Eta_9_11 = new TH1F("GenMuon_Eta_9_11"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  GenMuon_Eta_10_50 = new TH1F("GenMuon_Eta_10_50"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  GenMuon_Eta_50_100 = new TH1F("GenMuon_Eta_50_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  GenMuon_Eta_100 = new TH1F("GenMuon_Eta_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  GenMuon_Eta = new TH1F("GenMuon_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  GenMuon_Eta_5_10 = new TH1F("GenMuon_Eta_5_10"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  GenMuon_Eta_9_11 = new TH1F("GenMuon_Eta_9_11"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  GenMuon_Eta_10_20 = new TH1F("GenMuon_Eta_10_20"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  GenMuon_Eta_20_40 = new TH1F("GenMuon_Eta_20_40"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  GenMuon_Eta_40 = new TH1F("GenMuon_Eta_40"      , "Muon #eta"   , 8, 2.0, 2.8 );
 
-  TPMuon_Eta = new TH1F("TPMuon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  TPMuon_Eta = new TH1F("TPMuon_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
 
-  GenMuon_Pt = new TH1F("GenMuon_Pt"      , "Muon p_{T}"   , 120,0 , 120. );
+  GenMuon_Pt = new TH1F("GenMuon_Pt"      , "Muon p_{T}"   , 100,0 , 100. );
+  GenMuon_SmallBins_Pt = new TH1F("GenMuon_SmallBins_Pt"      , "Muon p_{T}"   ,10,varbins);
 
-  MatchedME0Muon_Eta = new TH1F("MatchedME0Muon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  StandaloneMatchedME0Muon_Eta = new TH1F("StandaloneMatchedME0Muon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  GenMuon_VariableBins_Pt = new TH1F("GenMuon_VariableBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+
+  TPMuon_Pt = new TH1F("TPMuon_Pt"      , "Muon p_{T}"   , 100,0 , 100. );
+  TPMuon_SmallBins_Pt = new TH1F("TPMuon_SmallBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+  TPMuon_VariableBins_Pt = new TH1F("TPMuon_VariableBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+
+  MatchedME0Muon_Eta = new TH1F("MatchedME0Muon_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  StandaloneMatchedME0Muon_Eta = new TH1F("StandaloneMatchedME0Muon_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
   StandaloneMatchedME0Muon_WideBinning_Eta = new TH1F("StandaloneMatchedME0Muon_WideBinning_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
   StandaloneMatchedME0Muon_WidestBinning_Eta = new TH1F("StandaloneMatchedME0Muon_WidestBinning_Eta"      , "Muon #eta"   , 16, 2.0, 2.8 );
-  MatchedME0Muon_Eta_5_10 = new TH1F("MatchedME0Muon_Eta_5_10"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  MatchedME0Muon_Eta_9_11 = new TH1F("MatchedME0Muon_Eta_9_11"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  MatchedME0Muon_Eta_10_50 = new TH1F("MatchedME0Muon_Eta_10_50"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  MatchedME0Muon_Eta_50_100 = new TH1F("MatchedME0Muon_Eta_50_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  MatchedME0Muon_Eta_100 = new TH1F("MatchedME0Muon_Eta_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  MatchedME0Muon_Eta_5_10 = new TH1F("MatchedME0Muon_Eta_5_10"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  MatchedME0Muon_Eta_9_11 = new TH1F("MatchedME0Muon_Eta_9_11"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  MatchedME0Muon_Eta_10_20 = new TH1F("MatchedME0Muon_Eta_10_20"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  MatchedME0Muon_Eta_20_40 = new TH1F("MatchedME0Muon_Eta_20_40"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  MatchedME0Muon_Eta_40 = new TH1F("MatchedME0Muon_Eta_40"      , "Muon #eta"   , 8, 2.0, 2.8 );
 
 
-  Chi2MatchedME0Muon_Eta_5_10 = new TH1F("Chi2MatchedME0Muon_Eta_5_10"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  Chi2MatchedME0Muon_Eta_9_11 = new TH1F("Chi2MatchedME0Muon_Eta_9_11"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  Chi2MatchedME0Muon_Eta_10_50 = new TH1F("Chi2MatchedME0Muon_Eta_10_50"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  Chi2MatchedME0Muon_Eta_50_100 = new TH1F("Chi2MatchedME0Muon_Eta_50_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  Chi2MatchedME0Muon_Eta_100 = new TH1F("Chi2MatchedME0Muon_Eta_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  Chi2MatchedME0Muon_Eta_5_10 = new TH1F("Chi2MatchedME0Muon_Eta_5_10"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  Chi2MatchedME0Muon_Eta_9_11 = new TH1F("Chi2MatchedME0Muon_Eta_9_11"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  Chi2MatchedME0Muon_Eta_10_20 = new TH1F("Chi2MatchedME0Muon_Eta_10_20"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  Chi2MatchedME0Muon_Eta_20_40 = new TH1F("Chi2MatchedME0Muon_Eta_20_40"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  Chi2MatchedME0Muon_Eta_40 = new TH1F("Chi2MatchedME0Muon_Eta_40"      , "Muon #eta"   , 8, 2.0, 2.8 );
 
-  MatchedME0Muon_Pt = new TH1F("MatchedME0Muon_Pt"      , "Muon p_{T}"   , 40,0 , 20 );
+  TPMuon_Eta_5_10 = new TH1F("TPMuon_Eta_5_10"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  TPMuon_Eta_10_20 = new TH1F("TPMuon_Eta_10_20"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  TPMuon_Eta_20_40 = new TH1F("TPMuon_Eta_20_40"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  TPMuon_Eta_40 = new TH1F("TPMuon_Eta_40"      , "Muon #eta"   , 8, 2.0, 2.8 );
 
-  Chi2MatchedME0Muon_Eta = new TH1F("Chi2MatchedME0Muon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  Chi2MatchedME0Muon_Pt = new TH1F("Chi2MatchedME0Muon_Pt"      , "Muon p_{T}"   , 40,0 , 20 );
+  MatchedME0Muon_Pt = new TH1F("MatchedME0Muon_Pt"      , "Muon p_{T}"   , 100,0 , 100. );
+  MatchedME0Muon_SmallBins_Pt = new TH1F("MatchedME0Muon_SmallBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+  MatchedME0Muon_VariableBins_Pt = new TH1F("MatchedME0Muon_VariableBins_Pt"      , "Muon p_{T}"   ,10,varbins);
 
-  Chi2UnmatchedME0Muon_Eta = new TH1F("Chi2UnmatchedME0Muon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  ME0Muon_SmallBins_Pt = new TH1F("ME0Muon_SmallBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+  ME0Muon_VariableBins_Pt = new TH1F("ME0Muon_VariableBins_Pt"      , "Muon p_{T}"   ,10,varbins);
 
-  UnmatchedME0Muon_Eta = new TH1F("UnmatchedME0Muon_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  UnmatchedME0Muon_Cuts_Eta_5_10 = new TH1F("UnmatchedME0Muon_Cuts_Eta_5_10"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  UnmatchedME0Muon_Cuts_Eta_9_11 = new TH1F("UnmatchedME0Muon_Cuts_Eta_9_11"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  UnmatchedME0Muon_Cuts_Eta_10_50 = new TH1F("UnmatchedME0Muon_Cuts_Eta_10_50"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  UnmatchedME0Muon_Cuts_Eta_50_100 = new TH1F("UnmatchedME0Muon_Cuts_Eta_50_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  UnmatchedME0Muon_Cuts_Eta_100 = new TH1F("UnmatchedME0Muon_Cuts_Eta_100"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  Chi2MatchedME0Muon_Eta = new TH1F("Chi2MatchedME0Muon_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  Chi2MatchedME0Muon_Pt = new TH1F("Chi2MatchedME0Muon_Pt"      , "Muon p_{T}"   , 100,0 , 100. );
+  Chi2MatchedME0Muon_SmallBins_Pt = new TH1F("Chi2MatchedME0Muon_SmallBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+  Chi2MatchedME0Muon_VariableBins_Pt = new TH1F("Chi2MatchedME0Muon_VariableBins_Pt"      , "Muon p_{T}"   ,10,varbins);
 
-  UnmatchedME0Muon_Pt = new TH1F("UnmatchedME0Muon_Pt"      , "Muon p_{T}"   , 500,0 , 50 );
+  Chi2UnmatchedME0Muon_Eta = new TH1F("Chi2UnmatchedME0Muon_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
+
+  UnmatchedME0Muon_Eta = new TH1F("UnmatchedME0Muon_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  UnmatchedME0Muon_Cuts_Eta_5_10 = new TH1F("UnmatchedME0Muon_Cuts_Eta_5_10"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  UnmatchedME0Muon_Cuts_Eta_9_11 = new TH1F("UnmatchedME0Muon_Cuts_Eta_9_11"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  UnmatchedME0Muon_Cuts_Eta_10_50 = new TH1F("UnmatchedME0Muon_Cuts_Eta_10_50"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  UnmatchedME0Muon_Cuts_Eta_50_100 = new TH1F("UnmatchedME0Muon_Cuts_Eta_50_100"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  UnmatchedME0Muon_Cuts_Eta_100 = new TH1F("UnmatchedME0Muon_Cuts_Eta_100"      , "Muon #eta"   , 8, 2.0, 2.8 );
+
+  UnmatchedME0Muon_Pt = new TH1F("UnmatchedME0Muon_Pt"      , "Muon p_{T}"   , 100,0 , 100. );
+  UnmatchedME0Muon_SmallBins_Pt = new TH1F("UnmatchedME0Muon_SmallBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+  UnmatchedME0Muon_VariableBins_Pt = new TH1F("UnmatchedME0Muon_VariableBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+
+  Chi2UnmatchedME0Muon_Pt = new TH1F("Chi2UnmatchedME0Muon_Pt"      , "Muon p_{T}"   , 100,0 , 100. );
+  Chi2UnmatchedME0Muon_SmallBins_Pt = new TH1F("Chi2UnmatchedME0Muon_SmallBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+  Chi2UnmatchedME0Muon_VariableBins_Pt = new TH1F("Chi2UnmatchedME0Muon_VariableBins_Pt"      , "Muon p_{T}"   ,10,varbins);
+
   UnmatchedME0Muon_Window_Pt = new TH1F("UnmatchedME0Muon_Window_Pt"      , "Muon p_{T}"   , 500,0 , 50 );
 
-  UnmatchedME0Muon_Cuts_Eta = new TH1F("UnmatchedME0Muon_Cuts_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
-  ME0Muon_Cuts_Eta = new TH1F("ME0Muon_Cuts_Eta"      , "Muon #eta"   , 4, 2.0, 2.8 );
+  UnmatchedME0Muon_Cuts_Eta = new TH1F("UnmatchedME0Muon_Cuts_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
+  ME0Muon_Cuts_Eta = new TH1F("ME0Muon_Cuts_Eta"      , "Muon #eta"   , 8, 2.0, 2.8 );
 
   Mass_h = new TH1F("Mass_h"      , "Mass"   , 100, 0., 200 );
 
-  MuonRecoEff_Eta = new TH1F("MuonRecoEff_Eta"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
+  MuonRecoEff_Eta = new TH1F("MuonRecoEff_Eta"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
 
-  MuonRecoEff_Eta_5_10 = new TH1F("MuonRecoEff_Eta_5_10"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  MuonRecoEff_Eta_9_11 = new TH1F("MuonRecoEff_Eta_9_11"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  MuonRecoEff_Eta_10_50 = new TH1F("MuonRecoEff_Eta_10_50"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  MuonRecoEff_Eta_50_100 = new TH1F("MuonRecoEff_Eta_50_100"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  MuonRecoEff_Eta_100 = new TH1F("MuonRecoEff_Eta_100"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  Chi2MuonRecoEff_Eta = new TH1F("Chi2MuonRecoEff_Eta"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  Chi2MuonRecoEff_Eta_5_10 = new TH1F("Chi2MuonRecoEff_Eta_5_10"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  Chi2MuonRecoEff_Eta_9_11 = new TH1F("Chi2MuonRecoEff_Eta_9_11"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  Chi2MuonRecoEff_Eta_10_50 = new TH1F("Chi2MuonRecoEff_Eta_10_50"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  Chi2MuonRecoEff_Eta_50_100 = new TH1F("Chi2MuonRecoEff_Eta_50_100"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
-  Chi2MuonRecoEff_Eta_100 = new TH1F("Chi2MuonRecoEff_Eta_100"      , "Fraction of ME0Muons matched to gen muons"   ,4, 2.0, 2.8  );
+  MuonRecoEff_Eta_5_10 = new TH1F("MuonRecoEff_Eta_5_10"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  MuonRecoEff_Eta_9_11 = new TH1F("MuonRecoEff_Eta_9_11"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  MuonRecoEff_Eta_10_20 = new TH1F("MuonRecoEff_Eta_10_20"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  MuonRecoEff_Eta_20_40 = new TH1F("MuonRecoEff_Eta_20_40"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  MuonRecoEff_Eta_40 = new TH1F("MuonRecoEff_Eta_40"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  Chi2MuonRecoEff_Eta = new TH1F("Chi2MuonRecoEff_Eta"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  Chi2MuonRecoEff_Eta_5_10 = new TH1F("Chi2MuonRecoEff_Eta_5_10"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  Chi2MuonRecoEff_Eta_9_11 = new TH1F("Chi2MuonRecoEff_Eta_9_11"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  Chi2MuonRecoEff_Eta_10_20 = new TH1F("Chi2MuonRecoEff_Eta_10_20"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  Chi2MuonRecoEff_Eta_20_40 = new TH1F("Chi2MuonRecoEff_Eta_20_40"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
+  Chi2MuonRecoEff_Eta_40 = new TH1F("Chi2MuonRecoEff_Eta_40"      , "Fraction of ME0Muons matched to gen muons"   ,8, 2.0, 2.8  );
 
   MuonRecoEff_Pt = new TH1F("MuonRecoEff_Pt"      , "Fraction of ME0Muons matched to gen muons"   ,8, 0,40  );
 
-  StandaloneMuonRecoEff_Eta = new TH1F("StandaloneMuonRecoEff_Eta"      , "Fraction of Standalone Muons matched to gen muons"   ,4, 2.0, 2.8  );
+  StandaloneMuonRecoEff_Eta = new TH1F("StandaloneMuonRecoEff_Eta"      , "Fraction of Standalone Muons matched to gen muons"   ,8, 2.0, 2.8  );
   StandaloneMuonRecoEff_WideBinning_Eta = new TH1F("StandaloneMuonRecoEff_WideBinning_Eta"      , "Fraction of Standalone Muons matched to gen muons"   ,8, 2.0, 2.8  );
   StandaloneMuonRecoEff_WidestBinning_Eta = new TH1F("StandaloneMuonRecoEff_WidestBinning_Eta"      , "Fraction of Standalone Muons matched to gen muons"   ,16, 2.0, 2.8  );
 
-  FakeRate_Eta = new TH1F("FakeRate_Eta"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,4, 2.0, 2.8  );
-  FakeRate_Eta_5_10 = new TH1F("FakeRate_Eta_5_10"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,4, 2.0, 2.8  );
-  FakeRate_Eta_9_11 = new TH1F("FakeRate_Eta_9_11"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,4, 2.0, 2.8  );
-  FakeRate_Eta_10_50 = new TH1F("FakeRate_Eta_10_50"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,4, 2.0, 2.8  );
-  FakeRate_Eta_50_100 = new TH1F("FakeRate_Eta_50_100"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,4, 2.0, 2.8  );
-  FakeRate_Eta_100 = new TH1F("FakeRate_Eta_100"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,4, 2.0, 2.8  );
+  FakeRate_Eta = new TH1F("FakeRate_Eta"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,8, 2.0, 2.8  );
+  FakeRate_Eta_5_10 = new TH1F("FakeRate_Eta_5_10"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,8, 2.0, 2.8  );
+  FakeRate_Eta_9_11 = new TH1F("FakeRate_Eta_9_11"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,8, 2.0, 2.8  );
+  FakeRate_Eta_10_50 = new TH1F("FakeRate_Eta_10_50"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,8, 2.0, 2.8  );
+  FakeRate_Eta_50_100 = new TH1F("FakeRate_Eta_50_100"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,8, 2.0, 2.8  );
+  FakeRate_Eta_100 = new TH1F("FakeRate_Eta_100"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,8, 2.0, 2.8  );
 
-  Chi2FakeRate_Eta = new TH1F("Chi2FakeRate_Eta"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,4, 2.0, 2.8  );
+  Chi2FakeRate_Eta = new TH1F("Chi2FakeRate_Eta"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,8, 2.0, 2.8  );
 
-  FakeRate_Eta_PerEvent = new TH1F("FakeRate_Eta_PerEvent"      , "PU140, unmatched ME0Muons/all ME0Muons normalized by N_{events}"   ,4, 2.0, 2.8  );
+  FakeRate_Eta_PerEvent = new TH1F("FakeRate_Eta_PerEvent"      , "PU140, unmatched ME0Muons/all ME0Muons normalized by N_{events}"   ,8, 2.0, 2.8  );
   FakeRate_Pt = new TH1F("FakeRate_Pt"      , "PU140, unmatched ME0Muons/all ME0Muons"   ,8, 0,40  );
 
-  MuonAllTracksEff_Eta = new TH1F("MuonAllTracksEff_Eta"      , "All ME0Muons over all tracks"   ,4, 2.0, 2.8  );
+  MuonAllTracksEff_Eta = new TH1F("MuonAllTracksEff_Eta"      , "All ME0Muons over all tracks"   ,8, 2.0, 2.8  );
   MuonAllTracksEff_Pt = new TH1F("MuonAllTracksEff_Pt"      , "All ME0Muons over all tracks"   ,8, 0,40  );
 
-  MuonUnmatchedTracksEff_Eta = new TH1F("MuonUnmatchedTracksEff_Eta"      , "Unmatched ME0Muons over all ME0Muons"   ,4, 2.0, 2.8  );
+  MuonUnmatchedTracksEff_Eta = new TH1F("MuonUnmatchedTracksEff_Eta"      , "Unmatched ME0Muons over all ME0Muons"   ,8, 2.0, 2.8  );
   MuonUnmatchedTracksEff_Pt = new TH1F("MuonUnmatchedTracksEff_Pt"      , "Unmatched ME0Muons over all ME0Muons"   ,8, 0,40  );
 
   TracksPerSegment_h = new TH1F("TracksPerSegment_h", "Number of tracks", 60,0.,60.);
@@ -445,14 +483,14 @@ void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   FailedTrack_Window_PhiDiff = new TH1F("FailedTrack_Window_PhiDiff", "Phi Dir Diff failed tracks", 100,0 ,2.0);
 
   DelR_Segment_GenMuon = new TH1F("DelR_Segment_GenMuon", "#Delta R between me0segment and gen muon",200,0,2);
-  FractionMatched_Eta = new TH1F("FractionMatched_Eta"      , "Fraction of ME0Muons that end up successfully matched (matched/all)"   ,4, 2.0, 2.8  );
+  FractionMatched_Eta = new TH1F("FractionMatched_Eta"      , "Fraction of ME0Muons that end up successfully matched (matched/all)"   ,8, 2.0, 2.8  );
 
   PtDiff_s = new TH2F("PtDiff_s" , "Relative pt difference", 4, 2.0, 2.8, 200,-1,1.0);
 
-  PtDiff_s_5_10 = new TH2F("PtDiff_s_5_10" , "Relative pt difference", 4, 2.0, 2.8, 200,-1,1.0);
-  PtDiff_s_10_50 = new TH2F("PtDiff_s_10_50" , "Relative pt difference", 4, 2.0, 2.8, 200,-1,1.0);
-  PtDiff_s_50_100 = new TH2F("PtDiff_s_50_100" , "Relative pt difference", 4, 2.0, 2.8, 200,-1,1.0);
-  PtDiff_s_100 = new TH2F("PtDiff_s_100" , "Relative pt difference", 4, 2.0, 2.8, 200,-1,1.0);
+  PtDiff_s_5_10 = new TH2F("PtDiff_s_5_10" , "Relative pt difference", 8, 2.0, 2.8, 200,-1,1.0);
+  PtDiff_s_10_20 = new TH2F("PtDiff_s_10_20" , "Relative pt difference", 8, 2.0, 2.8, 200,-1,1.0);
+  PtDiff_s_20_40 = new TH2F("PtDiff_s_20_40" , "Relative pt difference", 8, 2.0, 2.8, 200,-1,1.0);
+  PtDiff_s_40 = new TH2F("PtDiff_s_40" , "Relative pt difference", 8, 2.0, 2.8, 200,-1,1.0);
 
   PtDiff_h = new TH1F("PtDiff_h" , "pt resolution", 100,-0.5,0.5);
   QOverPtDiff_h = new TH1F("QOverPtDiff_h" , "q/pt resolution", 100,-0.5,0.5);
@@ -463,16 +501,16 @@ void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   StandaloneQOverPtDiff_h = new TH1F("StandaloneQOverPtDiff_h" , "q/pt resolution", 100,-0.5,0.5);
   StandalonePtDiff_p = new TProfile("StandalonePtDiff_p" , "pt resolution vs. #eta", 4, 2.0, 2.8, -1.0,1.0,"s");
 
-  PtDiff_rms    = new TH1F( "PtDiff_rms",    "RMS", 4, 2.0, 2.8 ); 
-  PtDiff_gaus_wide    = new TH1F( "PtDiff_gaus_wide",    "GAUS_WIDE", 4, 2.0, 2.8 ); 
-  PtDiff_gaus_narrow    = new TH1F( "PtDiff_gaus_narrow",    "GAUS_NARROW", 4, 2.0, 2.8 ); 
+  PtDiff_rms    = new TH1F( "PtDiff_rms",    "RMS", 8, 2.0, 2.8 ); 
+  PtDiff_gaus_wide    = new TH1F( "PtDiff_gaus_wide",    "GAUS_WIDE", 8, 2.0, 2.8 ); 
+  PtDiff_gaus_narrow    = new TH1F( "PtDiff_gaus_narrow",    "GAUS_NARROW", 8, 2.0, 2.8 ); 
 
-  PtDiff_gaus_5_10    = new TH1F( "PtDiff_gaus_5_10",    "GAUS_WIDE", 4, 2.0, 2.8 ); 
-  PtDiff_gaus_10_50    = new TH1F( "PtDiff_gaus_10_50",    "GAUS_WIDE", 4, 2.0, 2.8 ); 
-  PtDiff_gaus_50_100    = new TH1F( "PtDiff_gaus_50_100",    "GAUS_WIDE", 4, 2.0, 2.8 ); 
-  PtDiff_gaus_100    = new TH1F( "PtDiff_gaus_100",    "GAUS_WIDE", 4, 2.0, 2.8 ); 
+  PtDiff_gaus_5_10    = new TH1F( "PtDiff_gaus_5_10",    "GAUS_WIDE", 8, 2.0, 2.8 ); 
+  PtDiff_gaus_10_20    = new TH1F( "PtDiff_gaus_10_20",    "GAUS_WIDE", 8, 2.0, 2.8 ); 
+  PtDiff_gaus_20_40    = new TH1F( "PtDiff_gaus_20_40",    "GAUS_WIDE", 8, 2.0, 2.8 ); 
+  PtDiff_gaus_40    = new TH1F( "PtDiff_gaus_100",    "GAUS_WIDE", 8, 2.0, 2.8 ); 
 
-  StandalonePtDiff_gaus    = new TH1F( "StandalonePtDiff_gaus",    "GAUS_WIDE", 4, 2.0, 2.8 ); 
+  StandalonePtDiff_gaus    = new TH1F( "StandalonePtDiff_gaus",    "GAUS_WIDE", 8, 2.0, 2.8 ); 
 
   PDiff_s = new TH2F("PDiff_s" , "Relative p difference", 4, 2.0, 2.8, 50,0.,0.5);
   PDiff_h = new TH1F("PDiff_s" , "Relative p difference", 50,0.,0.5);
@@ -547,7 +585,7 @@ void ME0MuonAnalyzer::beginRun(edm::Run const&, edm::EventSetup const& iSetup) {
   NormChi2_h = new TH1F("NormChi2_h","normalized #chi^{2}", 200, 0, 20);
   NormChi2Prob_h = new TH1F("NormChi2Prob_h","normalized #chi^{2} probability", 100, 0, 1);
   NormChi2VsHits_h = new TH2F("NormChi2VsHits_h","#chi^{2} vs nhits",25,0,25,100,0,10);
-  chi2_vs_eta_h = new TH2F("chi2_vs_eta_h","#chi^{2} vs #eta",4, 2.0, 2.8 , 200, 0, 20);
+  chi2_vs_eta_h = new TH2F("chi2_vs_eta_h","#chi^{2} vs #eta",8, 2.0, 2.8 , 200, 0, 20);
 
   Nevents=0;
   std::cout<<"HERE NOW"<<std::endl;
@@ -574,7 +612,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 {
 
   std::cout<<"ANALYZER"<<std::endl;
-  
+  Nevents_h->Fill(1);
   using namespace edm;
 
   //run_ = (int)iEvent.id().run();
@@ -1056,24 +1094,32 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 	if ((CurrentParticle.pt() >FakeRatePtCut) ){
 	  MatchedME0Muon_Eta->Fill(fabs(CurrentParticle.eta()));
+	  if ( (TMath::Abs(CurrentParticle.eta()) > 2.0) && (TMath::Abs(CurrentParticle.eta()) < 2.8) )  {
+	    MatchedME0Muon_Pt->Fill(CurrentParticle.pt());
+	    MatchedME0Muon_SmallBins_Pt->Fill(CurrentParticle.pt());
+	    MatchedME0Muon_VariableBins_Pt->Fill(CurrentParticle.pt());
+	  }
+
+
 	  MatchedME0Muon_WideBinning_Eta->Fill(fabs(CurrentParticle.eta()));
 	  MatchedME0Muon_WidestBinning_Eta->Fill(fabs(CurrentParticle.eta()));
 	  if ( (CurrentParticle.pt() > 5.0) && (CurrentParticle.pt() <= 10.0) )  	MatchedME0Muon_Eta_5_10->Fill(fabs(CurrentParticle.eta()));
 	  if ( (CurrentParticle.pt() > 9.0) && (CurrentParticle.pt() <= 11.0) )  	MatchedME0Muon_Eta_9_11->Fill(fabs(CurrentParticle.eta()));
-	  if ( (CurrentParticle.pt() > 10.0) && (CurrentParticle.pt() <= 50.0) )	MatchedME0Muon_Eta_10_50->Fill(fabs(CurrentParticle.eta()));
-	  if ( (CurrentParticle.pt() > 50.0) && (CurrentParticle.pt() <= 100.0) )	MatchedME0Muon_Eta_50_100->Fill(fabs(CurrentParticle.eta()));
-	  if ( CurrentParticle.pt() > 100.0) 		MatchedME0Muon_Eta_100->Fill(fabs(CurrentParticle.eta()));
+	  if ( (CurrentParticle.pt() > 10.0) && (CurrentParticle.pt() <= 20.0) )	MatchedME0Muon_Eta_10_20->Fill(fabs(CurrentParticle.eta()));
+	  if ( (CurrentParticle.pt() > 20.0) && (CurrentParticle.pt() <= 40.0) )	MatchedME0Muon_Eta_20_40->Fill(fabs(CurrentParticle.eta()));
+	  if ( CurrentParticle.pt() > 40.0) 		MatchedME0Muon_Eta_40->Fill(fabs(CurrentParticle.eta()));
 	
 
 
 	  VertexDiff_h->Fill(VertexDiff);
 	  PtDiff_h->Fill(PtDiff);	
 	  QOverPtDiff_h->Fill(QOverPtDiff);
-	  PtDiff_s->Fill(CurrentParticle.eta(),PtDiff);
-	  if ( (CurrentParticle.pt() > 5.0) && (CurrentParticle.pt() <= 10.0) ) 	PtDiff_s_5_10->Fill(CurrentParticle.eta(),PtDiff);
-	  if ( (CurrentParticle.pt() > 10.0) && (CurrentParticle.pt() <= 50.0) )	PtDiff_s_10_50->Fill(CurrentParticle.eta(),PtDiff);
-	  if ( (CurrentParticle.pt() > 50.0) && (CurrentParticle.pt() <= 100.0) )	PtDiff_s_50_100->Fill(CurrentParticle.eta(),PtDiff);
-	  if ( CurrentParticle.pt() > 100.0) 	PtDiff_s_100->Fill(CurrentParticle.eta(),PtDiff);
+	  //PtDiff_s->Fill(CurrentParticle.eta(),PtDiff);
+	  PtDiff_s->Fill(CurrentParticle.eta(),QOverPtDiff);
+	  if ( (CurrentParticle.pt() > 5.0) && (CurrentParticle.pt() <= 10.0) ) 	PtDiff_s_5_10->Fill(CurrentParticle.eta(),QOverPtDiff);
+	  if ( (CurrentParticle.pt() > 10.0) && (CurrentParticle.pt() <= 20.0) )	PtDiff_s_10_20->Fill(CurrentParticle.eta(),QOverPtDiff);
+	  if ( (CurrentParticle.pt() > 20.0) && (CurrentParticle.pt() <= 40.0) )	PtDiff_s_20_40->Fill(CurrentParticle.eta(),QOverPtDiff);
+	  if ( CurrentParticle.pt() > 40.0) 	PtDiff_s_40->Fill(CurrentParticle.eta(),QOverPtDiff);
 	  PtDiff_p->Fill(CurrentParticle.eta(),PtDiff);
 	
 	  PDiff_h->Fill(PDiff);
@@ -1096,11 +1142,15 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	  GenMuon_WidestBinning_Eta->Fill(fabs(CurrentParticle.eta()));
 	  if ( (CurrentParticle.pt() > 5.0) && (CurrentParticle.pt() <= 10.0) )  	GenMuon_Eta_5_10->Fill(fabs(CurrentParticle.eta()));
 	  if ( (CurrentParticle.pt() > 9.0) && (CurrentParticle.pt() <= 11.0) )  	GenMuon_Eta_9_11->Fill(fabs(CurrentParticle.eta()));
-	  if ( (CurrentParticle.pt() > 10.0) && (CurrentParticle.pt() <= 50.0) )	GenMuon_Eta_10_50->Fill(fabs(CurrentParticle.eta()));
-	  if ( (CurrentParticle.pt() > 50.0) && (CurrentParticle.pt() <= 100.0) )	GenMuon_Eta_50_100->Fill(fabs(CurrentParticle.eta()));
-	  if ( CurrentParticle.pt() > 100.0) 		GenMuon_Eta_100->Fill(fabs(CurrentParticle.eta()));
+	  if ( (CurrentParticle.pt() > 10.0) && (CurrentParticle.pt() <= 20.0) )	GenMuon_Eta_10_20->Fill(fabs(CurrentParticle.eta()));
+	  if ( (CurrentParticle.pt() > 20.0) && (CurrentParticle.pt() <= 40.0) )	GenMuon_Eta_20_40->Fill(fabs(CurrentParticle.eta()));
+	  if ( CurrentParticle.pt() > 40.0) 		GenMuon_Eta_40->Fill(fabs(CurrentParticle.eta()));
 	  GenMuon_Phi->Fill(CurrentParticle.phi());
-	  if ( ((CurrentParticle.eta()) > 2.0) && ((CurrentParticle.eta()) < 2.8) ) GenMuon_Pt->Fill(CurrentParticle.pt());
+	  if ( (fabs(CurrentParticle.eta()) > 2.0) && (fabs(CurrentParticle.eta()) < 2.8) ) {
+	    GenMuon_SmallBins_Pt->Fill(CurrentParticle.pt());
+	    GenMuon_VariableBins_Pt->Fill(CurrentParticle.pt());
+	    GenMuon_Pt->Fill(CurrentParticle.pt());
+	  }
 	}
 
     }
@@ -1233,13 +1283,10 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     TrackRef tkRef = thisMuon->innerTrack();
 
 
-    if (IsMatched[ME0MuonID]) {
-      if ( (TMath::Abs(tkRef->eta()) > 2.0) && (TMath::Abs(tkRef->eta()) < 2.8) )  MatchedME0Muon_Pt->Fill(tkRef->pt());
+
 
       //Moved resolution stuff here, only calculate resolutions for matched muons!
 
-
-    }
 
     if (!IsMatched[ME0MuonID]){
 
@@ -1267,10 +1314,15 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    if ( (TMath::Abs(tkRef->eta()) < 2.8) ) UnmatchedME0Muon_Window_Pt->Fill(tkRef->pt());
 	  }
 	}
+	if ( (TMath::Abs(tkRef->eta()) > 2.0) && (TMath::Abs(tkRef->eta()) < 2.8) ) {
+	  UnmatchedME0Muon_Pt->Fill(tkRef->pt());
+	  UnmatchedME0Muon_SmallBins_Pt->Fill(tkRef->pt());
+	  UnmatchedME0Muon_VariableBins_Pt->Fill(tkRef->pt());
+	}
     
       }
       //if ( (TMath::Abs(tkRef->eta()) > 2.0) && (TMath::Abs(tkRef->eta()) < 3.4) ) UnmatchedME0Muon_Pt->Fill(tkRef->pt());
-      if ( (TMath::Abs(tkRef->eta()) < 2.8) ) UnmatchedME0Muon_Pt->Fill(tkRef->pt());
+      
     }
     ME0MuonID++;
   }
@@ -1430,15 +1482,22 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 	  //if ( (tp->status()==1) && ( (*tp->genParticle_begin())->numberOfMothers()==0 ) ) SignalMuon=true;
 
-
+	  //std::cout<<"tp status is "<<tp->status()<<std::endl;
+	  //std::cout<<(*tp->genParticle_begin())->numberOfMothers()<<std::endl;
 	  if (tp->status() !=-99){
-	    int motherid;
-	    if ((*tp->genParticle_begin())->numberOfMothers()>0)  motherid=(*tp->genParticle_begin())->mother()->pdgId();
-	    else motherid=-1;
+	    int motherid=-1;
+	    if ((*tp->genParticle_begin())->numberOfMothers()>0)  {
+	      if ((*tp->genParticle_begin())->mother()->numberOfMothers()>0){
+		motherid=(*tp->genParticle_begin())->mother()->mother()->pdgId();
+	      }
+	    }
+
+	    std::cout<<"Mother ID = "<<motherid<<std::endl;
 
 	    if ( 
 		( (tp->status()==1) && ( (*tp->genParticle_begin())->numberOfMothers()==0 ) )  ||
-		( (tp->status()==1) && ( (fabs(motherid)==22) || (fabs(motherid)==23) ) ) ) SignalMuon=true;
+		( (tp->status()==1) ) ) SignalMuon=true;
+
 	    //if (SignalMuon) PreMatch_TP_R->Fill( sqrt(pow(tp->vertex().x(),2) + pow(tp->vertex().y(),2)) );
 	  }
 	  //SignalMuon=true;
@@ -1448,6 +1507,17 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    TPMuon_Eta->Fill(fabs(tp->eta()));
 	    TPMuon_WideBinning_Eta->Fill(fabs(tp->eta()));
 	    TPMuon_WidestBinning_Eta->Fill(fabs(tp->eta()));
+	    if ( (fabs(tp->eta()) > 2.0) && (fabs(tp->eta()) < 2.8) ) {
+	      TPMuon_SmallBins_Pt->Fill(tp->pt());
+	      TPMuon_VariableBins_Pt->Fill(tp->pt());
+	      TPMuon_Pt->Fill(tp->pt());
+	    }
+	    if ( (tp->pt() > 5.0) && (tp->pt() <= 10.0) )  	TPMuon_Eta_5_10->Fill(fabs(tpr->eta()));
+	    if ( (tp->pt() > 10.0) && (tp->pt() <= 20.0) )	TPMuon_Eta_10_20->Fill(fabs(tpr->eta()));
+	    if ( (tp->pt() > 20.0) && (tp->pt() <= 40.0) )	TPMuon_Eta_20_40->Fill(fabs(tpr->eta()));
+	    if ( tp->pt() > 40.0) 		TPMuon_Eta_40->Fill(fabs(tpr->eta()));
+	    
+	    
 	  }
 	  
 	}
@@ -1532,7 +1602,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		  if (tpr->eventId().bunchCrossing()) PostMatch_BX0_TP_R->Fill( sqrt(pow(tpr->vertex().x(),2) + pow(tpr->vertex().y(),2)) );
 
 
-		  if ( (track->pt() > FakeRatePtCut) )
+		  if ( (tpr->pt() > FakeRatePtCut) )
 		    {
 
 
@@ -1548,12 +1618,17 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 		      //int motherid=(*tpr->genParticle_begin())->mother()->pdgId();
 
 		      if (tpr->status() !=-99){
-			int motherid;
-			if ((*tpr->genParticle_begin())->numberOfMothers()>0)  motherid=(*tpr->genParticle_begin())->mother()->pdgId();
-			else motherid=-1;
+			int motherid=-1;
+			if ((*tpr->genParticle_begin())->numberOfMothers()>0)  {
+			  if ((*tpr->genParticle_begin())->mother()->numberOfMothers()>0){
+			    motherid=(*tpr->genParticle_begin())->mother()->mother()->pdgId();
+			  }
+			}		
+			std::cout<<"Mother ID = "<<motherid<<std::endl;
 			if ( 
 			    ( (tpr->status()==1) && ( (*tpr->genParticle_begin())->numberOfMothers()==0 ) )  ||
-			    ( (tpr->status()==1) && ( (fabs(motherid)==22) || (fabs(motherid)==23) ) ) ) SignalMuon=true;
+			    ( (tpr->status()==1)  ) )SignalMuon=true;
+			//( (tpr->status()==1) && ( (fabs(motherid)==22) || (fabs(motherid)==23) ) ) ) SignalMuon=true;
 
 		      }
 			//SignalMuon=true;
@@ -1562,12 +1637,18 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 			Chi2MatchedME0Muon_Eta->Fill(fabs(tpr->eta()));
 			Chi2MatchedME0Muon_WideBinning_Eta->Fill(fabs(tpr->eta()));
 			Chi2MatchedME0Muon_WidestBinning_Eta->Fill(fabs(tpr->eta()));
+			if ( (TMath::Abs(tpr->eta()) > 2.0) && (TMath::Abs(tpr->eta()) < 2.8) ) {
+			  Chi2MatchedME0Muon_Pt->Fill(tpr->pt());
+			  Chi2MatchedME0Muon_SmallBins_Pt->Fill(tpr->pt());
+			  Chi2MatchedME0Muon_VariableBins_Pt->Fill(tpr->pt());
+			}
+
 			std::cout<<"eta = "<<tpr->eta()<<std::endl;
 			if ( (track->pt() > 5.0) && (track->pt() <= 10.0) )  	Chi2MatchedME0Muon_Eta_5_10->Fill(fabs(tpr->eta()));
 			if ( (track->pt() > 9.0) && (track->pt() <= 11.0) )  	Chi2MatchedME0Muon_Eta_9_11->Fill(fabs(tpr->eta()));
-			if ( (track->pt() > 10.0) && (track->pt() <= 50.0) )	Chi2MatchedME0Muon_Eta_10_50->Fill(fabs(tpr->eta()));
-			if ( (track->pt() > 50.0) && (track->pt() <= 100.0) )	Chi2MatchedME0Muon_Eta_50_100->Fill(fabs(tpr->eta()));
-			if ( track->pt() > 100.0) 		Chi2MatchedME0Muon_Eta_100->Fill(fabs(tpr->eta()));
+			if ( (track->pt() > 10.0) && (track->pt() <= 20.0) )	Chi2MatchedME0Muon_Eta_10_20->Fill(fabs(tpr->eta()));
+			if ( (track->pt() > 20.0) && (track->pt() <= 40.0) )	Chi2MatchedME0Muon_Eta_20_40->Fill(fabs(tpr->eta()));
+			if ( track->pt() > 40.0) 		Chi2MatchedME0Muon_Eta_40->Fill(fabs(tpr->eta()));
 		      }
 
 		    }
@@ -1600,6 +1681,11 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 	    Chi2UnmatchedME0Muon_Eta->Fill(fabs(track->eta()));
 	    Chi2UnmatchedME0Muon_WideBinning_Eta->Fill(fabs(track->eta()));
 	    Chi2UnmatchedME0Muon_WidestBinning_Eta->Fill(fabs(track->eta()));
+	    if ( (TMath::Abs(track->eta()) > 2.0) && (TMath::Abs(track->eta()) < 2.8) ) {
+	      Chi2UnmatchedME0Muon_Pt->Fill(track->pt());
+	      Chi2UnmatchedME0Muon_SmallBins_Pt->Fill(track->pt());
+	      Chi2UnmatchedME0Muon_VariableBins_Pt->Fill(track->pt());
+	    }
 	  }
 	  //std::cout<<"unmatched eta = "<<track->eta();
 
@@ -1933,7 +2019,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     ME0Muon_Eta->Fill(fabs(tkRef->eta()));
 
-
+    //std::cout<<"Filling eta histos"<<std::endl;
     if ((tkRef->pt() > FakeRatePtCut) && (TMath::Abs(tkRef->eta()) < 2.8)){
       ME0Muon_Cuts_Eta->Fill(fabs(tkRef->eta()));
       ME0Muon_Cuts_WideBinning_Eta->Fill(fabs(tkRef->eta()));
@@ -1943,15 +2029,21 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       if ( (tkRef->pt() > 10.0) && (tkRef->pt() <= 20.0) )	ME0Muon_Cuts_Eta_10_50->Fill(fabs(tkRef->eta()));
       if ( (tkRef->pt() > 20.0) && (tkRef->pt() <= 40.0) )	ME0Muon_Cuts_Eta_50_100->Fill(fabs(tkRef->eta()));
       if ( tkRef->pt() > 40.0) 		ME0Muon_Cuts_Eta_100->Fill(fabs(tkRef->eta()));
+
+
+      if ( (TMath::Abs(tkRef->eta()) > 2.0) && (TMath::Abs(tkRef->eta()) < 2.8) ) {
+	ME0Muon_Pt->Fill(tkRef->pt());
+	ME0Muon_SmallBins_Pt->Fill(tkRef->pt());
+	ME0Muon_VariableBins_Pt->Fill(tkRef->pt());
+      }
     }
     
 
 
-    if ( (TMath::Abs(tkRef->eta()) > 2.0) && (TMath::Abs(tkRef->eta()) < 2.8) ) ME0Muon_Pt->Fill(tkRef->pt());
-
     TrackID++;
     MuID++;
-  }
+
+   }
   
    //std::cout<<UniqueIdList.size()<<" unique segments per event"<<std::endl;
   for (unsigned int i = 0; i < UniqueIdList.size(); i++){
@@ -2045,7 +2137,7 @@ ME0MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   
 
-  //std::cout<<recosize<<std::endl;
+    
   for (std::vector<RecoChargedCandidate>::const_iterator thisCandidate = OurCandidates->begin();
        thisCandidate != OurCandidates->end(); ++thisCandidate){
     TLorentzVector CandidateVector;
@@ -2134,6 +2226,7 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   c1->Print("DiffY.png");
 
   gStyle->SetOptStat(0);
+  Nevents_h->Write();
 
   SegPosDirPhiDiff_True_h->Write();   SegPosDirPhiDiff_True_h->Draw();  c1->Print(histoFolder+"/SegPosDirPhiDiff_True_h.png");
   SegPosDirEtaDiff_True_h->Write();   SegPosDirEtaDiff_True_h->Draw();  c1->Print(histoFolder+"/SegPosDirEtaDiff_True_h.png");
@@ -2204,6 +2297,16 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   ME0Muon_Pt->GetXaxis()->SetTitleSize(0.05);
   c1->Print(histoFolder+"/ME0Muon_Pt.png");
 
+  ME0Muon_SmallBins_Pt->Write();   ME0Muon_SmallBins_Pt->Draw();  
+  ME0Muon_SmallBins_Pt->GetXaxis()->SetTitle("ME0Muon p_{T}");
+  ME0Muon_SmallBins_Pt->GetXaxis()->SetTitleSize(0.05);
+  c1->Print(histoFolder+"/ME0Muon_SmallBins_Pt.png");
+
+  ME0Muon_VariableBins_Pt->Write();   ME0Muon_VariableBins_Pt->Draw();  
+  ME0Muon_VariableBins_Pt->GetXaxis()->SetTitle("ME0Muon p_{T}");
+  ME0Muon_VariableBins_Pt->GetXaxis()->SetTitleSize(0.05);
+  c1->Print(histoFolder+"/ME0Muon_VariableBins_Pt.png");
+
   GenMuon_Eta->Write();   GenMuon_Eta->Draw();  c1->Print(histoFolder+"/GenMuon_Eta.png");
   GenMuon_WideBinning_Eta->Write();   GenMuon_WideBinning_Eta->Draw();  c1->Print(histoFolder+"/GenMuon_WideBinning_Eta.png");
   GenMuon_WidestBinning_Eta->Write();   GenMuon_WidestBinning_Eta->Draw();  c1->Print(histoFolder+"/GenMuon_WidestBinning_Eta.png");
@@ -2212,7 +2315,14 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   TPMuon_WideBinning_Eta->Write();   TPMuon_WideBinning_Eta->Draw();  c1->Print(histoFolder+"/TPMuon_WideBinning_Eta.png");
   TPMuon_WidestBinning_Eta->Write();   TPMuon_WidestBinning_Eta->Draw();  c1->Print(histoFolder+"/TPMuon_WidestBinning_Eta.png");
 
+
+  TPMuon_Pt->Write();   TPMuon_Pt->Draw();  c1->Print(histoFolder+"/TPMuon_Pt.png");
+  TPMuon_SmallBins_Pt->Write();   TPMuon_SmallBins_Pt->Draw();  c1->Print(histoFolder+"/TPMuon_SmallBins_Pt.png");
+  TPMuon_VariableBins_Pt->Write();   TPMuon_VariableBins_Pt->Draw();  c1->Print(histoFolder+"/TPMuon_VariableBins_Pt.png");
+
   GenMuon_Pt->Write();   GenMuon_Pt->Draw();  c1->Print(histoFolder+"/GenMuon_Pt.png");
+  GenMuon_SmallBins_Pt->Write();   GenMuon_SmallBins_Pt->Draw();  c1->Print(histoFolder+"/GenMuon_SmallBins_Pt.png");
+  GenMuon_VariableBins_Pt->Write();   GenMuon_VariableBins_Pt->Draw();  c1->Print(histoFolder+"/GenMuon_VariableBins_Pt.png");
 
   MatchedME0Muon_Eta->Write();   MatchedME0Muon_Eta->Draw();  c1->Print(histoFolder+"/MatchedME0Muon_Eta.png");
   MatchedME0Muon_WideBinning_Eta->Write();   MatchedME0Muon_WideBinning_Eta->Draw();  c1->Print(histoFolder+"/MatchedME0Muon_WideBinning_Eta.png");
@@ -2234,6 +2344,16 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   //MatchedME0Muon_Pt->GetYaxis()->SetTitle(" \# of Se");
 
   MatchedME0Muon_Pt->Write();   MatchedME0Muon_Pt->Draw();  c1->Print(histoFolder+"/MatchedME0Muon_Pt.png");
+
+  MatchedME0Muon_SmallBins_Pt->GetXaxis()->SetTitle("ME0Muon p_{T}");
+  //MatchedME0Muon_SmallBins_Pt->GetYaxis()->SetTitle(" \# of Se");
+
+  MatchedME0Muon_SmallBins_Pt->Write();   MatchedME0Muon_SmallBins_Pt->Draw();  c1->Print(histoFolder+"/MatchedME0Muon_SmallBins_Pt.png");
+
+  MatchedME0Muon_VariableBins_Pt->GetXaxis()->SetTitle("ME0Muon p_{T}");
+  //MatchedME0Muon_VariableBins_Pt->GetYaxis()->SetTitle(" \# of Se");
+
+  MatchedME0Muon_VariableBins_Pt->Write();   MatchedME0Muon_VariableBins_Pt->Draw();  c1->Print(histoFolder+"/MatchedME0Muon_VariableBins_Pt.png");
   gStyle->SetOptStat(0);
 
   UnmatchedME0Muon_Eta->Write();   UnmatchedME0Muon_Eta->Draw();  c1->Print(histoFolder+"/UnmatchedME0Muon_Eta.png");
@@ -2247,6 +2367,18 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   //gStyle->SetOptStat('oue');
   c1->SetLogy();
   UnmatchedME0Muon_Pt->Write();   UnmatchedME0Muon_Pt->Draw();  c1->Print(histoFolder+"/UnmatchedME0Muon_Pt.png");
+  UnmatchedME0Muon_SmallBins_Pt->Write();   UnmatchedME0Muon_SmallBins_Pt->Draw();  c1->Print(histoFolder+"/UnmatchedME0Muon_SmallBins_Pt.png");
+  UnmatchedME0Muon_VariableBins_Pt->Write();   UnmatchedME0Muon_VariableBins_Pt->Draw();  c1->Print(histoFolder+"/UnmatchedME0Muon_VariableBins_Pt.png");
+
+  Chi2UnmatchedME0Muon_Pt->Write();   Chi2UnmatchedME0Muon_Pt->Draw();  c1->Print(histoFolder+"/Chi2UnmatchedME0Muon_Pt.png");
+  Chi2UnmatchedME0Muon_SmallBins_Pt->Write();   Chi2UnmatchedME0Muon_SmallBins_Pt->Draw();  c1->Print(histoFolder+"/Chi2UnmatchedME0Muon_SmallBins_Pt.png");
+  Chi2UnmatchedME0Muon_VariableBins_Pt->Write();   Chi2UnmatchedME0Muon_VariableBins_Pt->Draw();  c1->Print(histoFolder+"/Chi2UnmatchedME0Muon_VariableBins_Pt.png");
+
+
+  Chi2MatchedME0Muon_Pt->Write();   Chi2MatchedME0Muon_Pt->Draw();  c1->Print(histoFolder+"/Chi2MatchedME0Muon_Pt.png");
+  Chi2MatchedME0Muon_SmallBins_Pt->Write();   Chi2MatchedME0Muon_SmallBins_Pt->Draw();  c1->Print(histoFolder+"/Chi2MatchedME0Muon_SmallBins_Pt.png");
+  Chi2MatchedME0Muon_VariableBins_Pt->Write();   Chi2MatchedME0Muon_VariableBins_Pt->Draw();  c1->Print(histoFolder+"/Chi2MatchedME0Muon_VariableBins_Pt.png");
+
   UnmatchedME0Muon_Window_Pt->Write();   UnmatchedME0Muon_Window_Pt->Draw();  c1->Print(histoFolder+"/UnmatchedME0Muon_Window_Pt.png");
   gStyle->SetOptStat(0);
 
@@ -2258,7 +2390,7 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 
   c1->SetLogy(0);
   TH1F *UnmatchedME0Muon_Cuts_Eta_PerEvent;
-  UnmatchedME0Muon_Cuts_Eta_PerEvent = new TH1F("UnmatchedME0Muon_Cuts_Eta_PerEvent"      , "Muon |#eta|"   , 4, 2.0, 2.8 );
+  UnmatchedME0Muon_Cuts_Eta_PerEvent = new TH1F("UnmatchedME0Muon_Cuts_Eta_PerEvent"      , "Muon |#eta|"   , 8, 2.0, 2.8 );
   //UnmatchedME0Muon_Cuts_Eta_PerEvent->Sumw2();
   for (int i=1; i<=UnmatchedME0Muon_Cuts_Eta_PerEvent->GetNbinsX(); ++i){
     UnmatchedME0Muon_Cuts_Eta_PerEvent->SetBinContent(i,(UnmatchedME0Muon_Cuts_Eta->GetBinContent(i)));
@@ -2275,7 +2407,7 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 
 
   TH1F *Chi2UnmatchedME0Muon_Eta_PerEvent;
-  Chi2UnmatchedME0Muon_Eta_PerEvent = new TH1F("Chi2UnmatchedME0Muon_Eta_PerEvent"      , "Muon |#eta|"   , 4, 2.0, 2.8 );
+  Chi2UnmatchedME0Muon_Eta_PerEvent = new TH1F("Chi2UnmatchedME0Muon_Eta_PerEvent"      , "Muon |#eta|"   , 8, 2.0, 2.8 );
   //Chi2UnmatchedME0Muon_Eta_PerEvent->Sumw2();
   for (int i=1; i<=Chi2UnmatchedME0Muon_Eta_PerEvent->GetNbinsX(); ++i){
     Chi2UnmatchedME0Muon_Eta_PerEvent->SetBinContent(i,(Chi2UnmatchedME0Muon_Eta->GetBinContent(i)));
@@ -2292,7 +2424,7 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 
 
   TH1F *ME0Muon_Cuts_Eta_PerEvent;
-  ME0Muon_Cuts_Eta_PerEvent = new TH1F("ME0Muon_Cuts_Eta_PerEvent"      , "Muon |#eta|"   , 4, 2.0, 2.8 );
+  ME0Muon_Cuts_Eta_PerEvent = new TH1F("ME0Muon_Cuts_Eta_PerEvent"      , "Muon |#eta|"   , 8, 2.0, 2.8 );
 
   for (int i=1; i<=ME0Muon_Cuts_Eta_PerEvent->GetNbinsX(); ++i){
     ME0Muon_Cuts_Eta_PerEvent->SetBinContent(i,(ME0Muon_Cuts_Eta->GetBinContent(i)));
@@ -2368,26 +2500,37 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   PostMatch_BX0_TP_R->Write(); PostMatch_BX0_TP_R->Draw();  c1->Print(histoFolder+"/PostMatch_BX0_TP_R.png");
 
   GenMuon_Eta->Sumw2();  MatchedME0Muon_Eta->Sumw2();  Chi2MatchedME0Muon_Eta->Sumw2();   Chi2UnmatchedME0Muon_Eta->Sumw2();TPMuon_Eta->Sumw2();
-  GenMuon_Pt->Sumw2();  MatchedME0Muon_Pt->Sumw2();
+  GenMuon_Pt->Sumw2();  MatchedME0Muon_Pt->Sumw2(); MatchedME0Muon_SmallBins_Pt->Sumw2(); MatchedME0Muon_VariableBins_Pt->Sumw2();
   StandaloneMatchedME0Muon_Eta->Sumw2();
   StandaloneMatchedME0Muon_WideBinning_Eta->Sumw2();
   StandaloneMatchedME0Muon_WidestBinning_Eta->Sumw2();
   
 
   Track_Eta->Sumw2();  ME0Muon_Eta->Sumw2();
-  Track_Pt->Sumw2();  ME0Muon_Pt->Sumw2();
+  Track_Pt->Sumw2();  ME0Muon_Pt->Sumw2();  ME0Muon_SmallBins_Pt->Sumw2(); ME0Muon_VariableBins_Pt->Sumw2();
 
   UnmatchedME0Muon_Eta->Sumw2();
   UnmatchedME0Muon_Pt->Sumw2();
+  UnmatchedME0Muon_SmallBins_Pt->Sumw2();   UnmatchedME0Muon_VariableBins_Pt->Sumw2();
   
   UnmatchedME0Muon_Cuts_Eta->Sumw2();    ME0Muon_Cuts_Eta->Sumw2();
 
   ME0Muon_Cuts_Eta_5_10->Sumw2();  ME0Muon_Cuts_Eta_9_11->Sumw2();  ME0Muon_Cuts_Eta_10_50->Sumw2();  ME0Muon_Cuts_Eta_50_100->Sumw2();  ME0Muon_Cuts_Eta_100->Sumw2();
   UnmatchedME0Muon_Cuts_Eta_5_10->Sumw2();    UnmatchedME0Muon_Cuts_Eta_9_11->Sumw2();  UnmatchedME0Muon_Cuts_Eta_10_50->Sumw2();  UnmatchedME0Muon_Cuts_Eta_50_100->Sumw2();  UnmatchedME0Muon_Cuts_Eta_100->Sumw2();
-  GenMuon_Eta_5_10->Sumw2();    GenMuon_Eta_9_11->Sumw2();  GenMuon_Eta_10_50->Sumw2();  GenMuon_Eta_50_100->Sumw2();  GenMuon_Eta_100->Sumw2();
-  MatchedME0Muon_Eta_5_10->Sumw2();   MatchedME0Muon_Eta_9_11->Sumw2();  MatchedME0Muon_Eta_10_50->Sumw2();  MatchedME0Muon_Eta_50_100->Sumw2();  MatchedME0Muon_Eta_100->Sumw2();
+  GenMuon_Eta_5_10->Sumw2();    GenMuon_Eta_9_11->Sumw2();  GenMuon_Eta_10_20->Sumw2();  GenMuon_Eta_20_40->Sumw2();  GenMuon_Eta_40->Sumw2();
+  MatchedME0Muon_Eta_5_10->Sumw2();   MatchedME0Muon_Eta_9_11->Sumw2();  MatchedME0Muon_Eta_10_20->Sumw2();  MatchedME0Muon_Eta_20_40->Sumw2();  MatchedME0Muon_Eta_40->Sumw2();
 
-  Chi2MatchedME0Muon_Eta_5_10->Sumw2();   Chi2MatchedME0Muon_Eta_9_11->Sumw2();  Chi2MatchedME0Muon_Eta_10_50->Sumw2();  Chi2MatchedME0Muon_Eta_50_100->Sumw2();  Chi2MatchedME0Muon_Eta_100->Sumw2();
+  Chi2MatchedME0Muon_Eta_5_10->Sumw2();   Chi2MatchedME0Muon_Eta_9_11->Sumw2();  Chi2MatchedME0Muon_Eta_10_20->Sumw2();  Chi2MatchedME0Muon_Eta_20_40->Sumw2();  Chi2MatchedME0Muon_Eta_40->Sumw2();
+  TPMuon_Eta_5_10->Sumw2();    TPMuon_Eta_10_20->Sumw2();  TPMuon_Eta_20_40->Sumw2();  TPMuon_Eta_40->Sumw2();
+
+
+  ME0Muon_Cuts_Eta_5_10->Write();  ME0Muon_Cuts_Eta_9_11->Write();  ME0Muon_Cuts_Eta_10_50->Write();  ME0Muon_Cuts_Eta_50_100->Write();  ME0Muon_Cuts_Eta_100->Write();
+  UnmatchedME0Muon_Cuts_Eta_5_10->Write();    UnmatchedME0Muon_Cuts_Eta_9_11->Write();  UnmatchedME0Muon_Cuts_Eta_10_50->Write();  UnmatchedME0Muon_Cuts_Eta_50_100->Write();  UnmatchedME0Muon_Cuts_Eta_100->Write();
+  GenMuon_Eta_5_10->Write();    GenMuon_Eta_9_11->Write();  GenMuon_Eta_10_20->Write();  GenMuon_Eta_20_40->Write();  GenMuon_Eta_40->Write();
+  MatchedME0Muon_Eta_5_10->Write();   MatchedME0Muon_Eta_9_11->Write();  MatchedME0Muon_Eta_10_20->Write();  MatchedME0Muon_Eta_20_40->Write();  MatchedME0Muon_Eta_40->Write();
+
+  Chi2MatchedME0Muon_Eta_5_10->Write();   Chi2MatchedME0Muon_Eta_9_11->Write();  Chi2MatchedME0Muon_Eta_10_20->Write();  Chi2MatchedME0Muon_Eta_20_40->Write();  Chi2MatchedME0Muon_Eta_40->Write();
+  TPMuon_Eta_5_10->Write();   TPMuon_Eta_10_20->Write();  TPMuon_Eta_20_40->Write();  TPMuon_Eta_40->Write();
 
   UnmatchedME0Muon_Cuts_WideBinning_Eta->Sumw2();
   UnmatchedME0Muon_Cuts_WidestBinning_Eta->Sumw2();
@@ -2589,58 +2732,58 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   //c1->SaveAs("TestMuonRecoEff_Eta_9_11.png");
   c1->Print(histoFolder+"/MuonRecoEff_Eta_9_11.png");
 
-  MuonRecoEff_Eta_10_50->Divide(MatchedME0Muon_Eta_10_50, GenMuon_Eta_10_50, 1, 1, "B");
-  MuonRecoEff_Eta_10_50->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  MuonRecoEff_Eta_10_50->GetXaxis()->SetTitleSize(0.05);
-  MuonRecoEff_Eta_10_50->GetYaxis()->SetTitle("ME0Muon Efficiency");
-  MuonRecoEff_Eta_10_50->GetYaxis()->SetTitleSize(0.05);
-  //MuonRecoEff_Eta_10_50->SetMinimum(MuonRecoEff_Eta_10_50->GetMinimum()-0.1);
-  MuonRecoEff_Eta_10_50->SetMinimum(0);
-  //MuonRecoEff_Eta_10_50->SetMaximum(MuonRecoEff_Eta_10_50->GetMaximum()+0.1);
-  MuonRecoEff_Eta_10_50->SetMaximum(1.2);
+  MuonRecoEff_Eta_10_20->Divide(MatchedME0Muon_Eta_10_20, GenMuon_Eta_10_20, 1, 1, "B");
+  MuonRecoEff_Eta_10_20->GetXaxis()->SetTitle("Gen Muon |#eta|");
+  MuonRecoEff_Eta_10_20->GetXaxis()->SetTitleSize(0.05);
+  MuonRecoEff_Eta_10_20->GetYaxis()->SetTitle("ME0Muon Efficiency");
+  MuonRecoEff_Eta_10_20->GetYaxis()->SetTitleSize(0.05);
+  //MuonRecoEff_Eta_10_20->SetMinimum(MuonRecoEff_Eta_10_20->GetMinimum()-0.1);
+  MuonRecoEff_Eta_10_20->SetMinimum(0);
+  //MuonRecoEff_Eta_10_20->SetMaximum(MuonRecoEff_Eta_10_20->GetMaximum()+0.1);
+  MuonRecoEff_Eta_10_20->SetMaximum(1.2);
   //CMS_lumi( c1, 7, 11 );
-  MuonRecoEff_Eta_10_50->Write();   MuonRecoEff_Eta_10_50->Draw();  
+  MuonRecoEff_Eta_10_20->Write();   MuonRecoEff_Eta_10_20->Draw();  
   txt->DrawLatex(0.15,0.2,pcstr);
   latex->DrawLatex(0.4, 0.85, cmsText);
 
-  //c1->SaveAs("TestMuonRecoEff_Eta_10_50.png");
-  c1->Print(histoFolder+"/MuonRecoEff_Eta_10_50.png");
+  //c1->SaveAs("TestMuonRecoEff_Eta_10_20.png");
+  c1->Print(histoFolder+"/MuonRecoEff_Eta_10_20.png");
 
 
-  MuonRecoEff_Eta_50_100->Divide(MatchedME0Muon_Eta_50_100, GenMuon_Eta_50_100, 1, 1, "B");
-  MuonRecoEff_Eta_50_100->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  MuonRecoEff_Eta_50_100->GetXaxis()->SetTitleSize(0.05);
-  MuonRecoEff_Eta_50_100->GetYaxis()->SetTitle("ME0Muon Efficiency");
-  MuonRecoEff_Eta_50_100->GetYaxis()->SetTitleSize(0.05);
-  //MuonRecoEff_Eta_50_100->SetMinimum(MuonRecoEff_Eta_50_100->GetMinimum()-0.1);
-  MuonRecoEff_Eta_50_100->SetMinimum(0);
-  //MuonRecoEff_Eta_50_100->SetMaximum(MuonRecoEff_Eta_50_100->GetMaximum()+0.1);
-  MuonRecoEff_Eta_50_100->SetMaximum(1.2);
+  MuonRecoEff_Eta_20_40->Divide(MatchedME0Muon_Eta_20_40, GenMuon_Eta_20_40, 1, 1, "B");
+  MuonRecoEff_Eta_20_40->GetXaxis()->SetTitle("Gen Muon |#eta|");
+  MuonRecoEff_Eta_20_40->GetXaxis()->SetTitleSize(0.05);
+  MuonRecoEff_Eta_20_40->GetYaxis()->SetTitle("ME0Muon Efficiency");
+  MuonRecoEff_Eta_20_40->GetYaxis()->SetTitleSize(0.05);
+  //MuonRecoEff_Eta_20_40->SetMinimum(MuonRecoEff_Eta_20_40->GetMinimum()-0.1);
+  MuonRecoEff_Eta_20_40->SetMinimum(0);
+  //MuonRecoEff_Eta_20_40->SetMaximum(MuonRecoEff_Eta_20_40->GetMaximum()+0.1);
+  MuonRecoEff_Eta_20_40->SetMaximum(1.2);
   //CMS_lumi( c1, 7, 11 );
-  MuonRecoEff_Eta_50_100->Write();   MuonRecoEff_Eta_50_100->Draw();  
+  MuonRecoEff_Eta_20_40->Write();   MuonRecoEff_Eta_20_40->Draw();  
   txt->DrawLatex(0.15,0.2,pcstr);
   latex->DrawLatex(0.4, 0.85, cmsText);
 
-  //c1->SaveAs("TestMuonRecoEff_Eta_50_100.png");
-  c1->Print(histoFolder+"/MuonRecoEff_Eta_50_100.png");
+  //c1->SaveAs("TestMuonRecoEff_Eta_20_40.png");
+  c1->Print(histoFolder+"/MuonRecoEff_Eta_20_40.png");
 
 
-  MuonRecoEff_Eta_100->Divide(MatchedME0Muon_Eta_100, GenMuon_Eta_100, 1, 1, "B");
-  MuonRecoEff_Eta_100->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  MuonRecoEff_Eta_100->GetXaxis()->SetTitleSize(0.05);
-  MuonRecoEff_Eta_100->GetYaxis()->SetTitle("ME0Muon Efficiency");
-  MuonRecoEff_Eta_100->GetYaxis()->SetTitleSize(0.05);
-  //MuonRecoEff_Eta_100->SetMinimum(MuonRecoEff_Eta_100->GetMinimum()-0.1);
-  MuonRecoEff_Eta_100->SetMinimum(0);
-  //MuonRecoEff_Eta_100->SetMaximum(MuonRecoEff_Eta_100->GetMaximum()+0.1);
-  MuonRecoEff_Eta_100->SetMaximum(1.2);
+  MuonRecoEff_Eta_40->Divide(MatchedME0Muon_Eta_40, GenMuon_Eta_40, 1, 1, "B");
+  MuonRecoEff_Eta_40->GetXaxis()->SetTitle("Gen Muon |#eta|");
+  MuonRecoEff_Eta_40->GetXaxis()->SetTitleSize(0.05);
+  MuonRecoEff_Eta_40->GetYaxis()->SetTitle("ME0Muon Efficiency");
+  MuonRecoEff_Eta_40->GetYaxis()->SetTitleSize(0.05);
+  //MuonRecoEff_Eta_40->SetMinimum(MuonRecoEff_Eta_40->GetMinimum()-0.1);
+  MuonRecoEff_Eta_40->SetMinimum(0);
+  //MuonRecoEff_Eta_40->SetMaximum(MuonRecoEff_Eta_40->GetMaximum()+0.1);
+  MuonRecoEff_Eta_40->SetMaximum(1.2);
   //CMS_lumi( c1, 7, 11 );
-  MuonRecoEff_Eta_100->Write();   MuonRecoEff_Eta_100->Draw();  
+  MuonRecoEff_Eta_40->Write();   MuonRecoEff_Eta_40->Draw();  
   txt->DrawLatex(0.15,0.2,pcstr);
   latex->DrawLatex(0.4, 0.85, cmsText);
 
-  //c1->SaveAs("TestMuonRecoEff_Eta_100.png");
-  c1->Print(histoFolder+"/MuonRecoEff_Eta_100.png");
+  //c1->SaveAs("TestMuonRecoEff_Eta_40.png");
+  c1->Print(histoFolder+"/MuonRecoEff_Eta_40.png");
 
 
 
@@ -2756,58 +2899,58 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 
   std::cout<<"Here"<<std::endl;
 
-  Chi2MuonRecoEff_Eta_10_50->Divide(Chi2MatchedME0Muon_Eta_10_50, GenMuon_Eta_10_50, 1, 1, "B");
-  Chi2MuonRecoEff_Eta_10_50->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  Chi2MuonRecoEff_Eta_10_50->GetXaxis()->SetTitleSize(0.05);
-  Chi2MuonRecoEff_Eta_10_50->GetYaxis()->SetTitle("ME0Muon Efficiency");
-  Chi2MuonRecoEff_Eta_10_50->GetYaxis()->SetTitleSize(0.05);
-  //Chi2MuonRecoEff_Eta_10_50->SetMinimum(Chi2MuonRecoEff_Eta_10_50->GetMinimum()-0.1);
-  Chi2MuonRecoEff_Eta_10_50->SetMinimum(0);
-  //Chi2MuonRecoEff_Eta_10_50->SetMaximum(Chi2MuonRecoEff_Eta_10_50->GetMaximum()+0.1);
-  Chi2MuonRecoEff_Eta_10_50->SetMaximum(1.2);
+  Chi2MuonRecoEff_Eta_10_20->Divide(Chi2MatchedME0Muon_Eta_10_20, GenMuon_Eta_10_20, 1, 1, "B");
+  Chi2MuonRecoEff_Eta_10_20->GetXaxis()->SetTitle("Gen Muon |#eta|");
+  Chi2MuonRecoEff_Eta_10_20->GetXaxis()->SetTitleSize(0.05);
+  Chi2MuonRecoEff_Eta_10_20->GetYaxis()->SetTitle("ME0Muon Efficiency");
+  Chi2MuonRecoEff_Eta_10_20->GetYaxis()->SetTitleSize(0.05);
+  //Chi2MuonRecoEff_Eta_10_20->SetMinimum(Chi2MuonRecoEff_Eta_10_20->GetMinimum()-0.1);
+  Chi2MuonRecoEff_Eta_10_20->SetMinimum(0);
+  //Chi2MuonRecoEff_Eta_10_20->SetMaximum(Chi2MuonRecoEff_Eta_10_20->GetMaximum()+0.1);
+  Chi2MuonRecoEff_Eta_10_20->SetMaximum(1.2);
   //CMS_lumi( c1, 7, 11 );
-  Chi2MuonRecoEff_Eta_10_50->Write();   Chi2MuonRecoEff_Eta_10_50->Draw();  
+  Chi2MuonRecoEff_Eta_10_20->Write();   Chi2MuonRecoEff_Eta_10_20->Draw();  
   txt->DrawLatex(0.15,0.2,pcstr);
   latex->DrawLatex(0.4, 0.85, cmsText);
 
-  //c1->SaveAs("TestChi2MuonRecoEff_Eta_10_50.png");
-  c1->Print(histoFolder+"/Chi2MuonRecoEff_Eta_10_50.png");
+  //c1->SaveAs("TestChi2MuonRecoEff_Eta_10_20.png");
+  c1->Print(histoFolder+"/Chi2MuonRecoEff_Eta_10_20.png");
 
 
-  Chi2MuonRecoEff_Eta_50_100->Divide(Chi2MatchedME0Muon_Eta_50_100, GenMuon_Eta_50_100, 1, 1, "B");
-  Chi2MuonRecoEff_Eta_50_100->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  Chi2MuonRecoEff_Eta_50_100->GetXaxis()->SetTitleSize(0.05);
-  Chi2MuonRecoEff_Eta_50_100->GetYaxis()->SetTitle("ME0Muon Efficiency");
-  Chi2MuonRecoEff_Eta_50_100->GetYaxis()->SetTitleSize(0.05);
-  //Chi2MuonRecoEff_Eta_50_100->SetMinimum(Chi2MuonRecoEff_Eta_50_100->GetMinimum()-0.1);
-  Chi2MuonRecoEff_Eta_50_100->SetMinimum(0);
-  //Chi2MuonRecoEff_Eta_50_100->SetMaximum(Chi2MuonRecoEff_Eta_50_100->GetMaximum()+0.1);
-  Chi2MuonRecoEff_Eta_50_100->SetMaximum(1.2);
+  Chi2MuonRecoEff_Eta_20_40->Divide(Chi2MatchedME0Muon_Eta_20_40, GenMuon_Eta_20_40, 1, 1, "B");
+  Chi2MuonRecoEff_Eta_20_40->GetXaxis()->SetTitle("Gen Muon |#eta|");
+  Chi2MuonRecoEff_Eta_20_40->GetXaxis()->SetTitleSize(0.05);
+  Chi2MuonRecoEff_Eta_20_40->GetYaxis()->SetTitle("ME0Muon Efficiency");
+  Chi2MuonRecoEff_Eta_20_40->GetYaxis()->SetTitleSize(0.05);
+  //Chi2MuonRecoEff_Eta_20_40->SetMinimum(Chi2MuonRecoEff_Eta_20_40->GetMinimum()-0.1);
+  Chi2MuonRecoEff_Eta_20_40->SetMinimum(0);
+  //Chi2MuonRecoEff_Eta_20_40->SetMaximum(Chi2MuonRecoEff_Eta_20_40->GetMaximum()+0.1);
+  Chi2MuonRecoEff_Eta_20_40->SetMaximum(1.2);
   //CMS_lumi( c1, 7, 11 );
-  Chi2MuonRecoEff_Eta_50_100->Write();   Chi2MuonRecoEff_Eta_50_100->Draw();  
+  Chi2MuonRecoEff_Eta_20_40->Write();   Chi2MuonRecoEff_Eta_20_40->Draw();  
   txt->DrawLatex(0.15,0.2,pcstr);
   latex->DrawLatex(0.4, 0.85, cmsText);
 
-  //c1->SaveAs("TestChi2MuonRecoEff_Eta_50_100.png");
-  c1->Print(histoFolder+"/Chi2MuonRecoEff_Eta_50_100.png");
+  //c1->SaveAs("TestChi2MuonRecoEff_Eta_20_40.png");
+  c1->Print(histoFolder+"/Chi2MuonRecoEff_Eta_20_40.png");
 
 
-  Chi2MuonRecoEff_Eta_100->Divide(Chi2MatchedME0Muon_Eta_100, GenMuon_Eta_100, 1, 1, "B");
-  Chi2MuonRecoEff_Eta_100->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  Chi2MuonRecoEff_Eta_100->GetXaxis()->SetTitleSize(0.05);
-  Chi2MuonRecoEff_Eta_100->GetYaxis()->SetTitle("ME0Muon Efficiency");
-  Chi2MuonRecoEff_Eta_100->GetYaxis()->SetTitleSize(0.05);
-  //Chi2MuonRecoEff_Eta_100->SetMinimum(Chi2MuonRecoEff_Eta_100->GetMinimum()-0.1);
-  Chi2MuonRecoEff_Eta_100->SetMinimum(0);
-  //Chi2MuonRecoEff_Eta_100->SetMaximum(Chi2MuonRecoEff_Eta_100->GetMaximum()+0.1);
-  Chi2MuonRecoEff_Eta_100->SetMaximum(1.2);
+  Chi2MuonRecoEff_Eta_40->Divide(Chi2MatchedME0Muon_Eta_40, GenMuon_Eta_40, 1, 1, "B");
+  Chi2MuonRecoEff_Eta_40->GetXaxis()->SetTitle("Gen Muon |#eta|");
+  Chi2MuonRecoEff_Eta_40->GetXaxis()->SetTitleSize(0.05);
+  Chi2MuonRecoEff_Eta_40->GetYaxis()->SetTitle("ME0Muon Efficiency");
+  Chi2MuonRecoEff_Eta_40->GetYaxis()->SetTitleSize(0.05);
+  //Chi2MuonRecoEff_Eta_40->SetMinimum(Chi2MuonRecoEff_Eta_40->GetMinimum()-0.1);
+  Chi2MuonRecoEff_Eta_40->SetMinimum(0);
+  //Chi2MuonRecoEff_Eta_40->SetMaximum(Chi2MuonRecoEff_Eta_40->GetMaximum()+0.1);
+  Chi2MuonRecoEff_Eta_40->SetMaximum(1.2);
   //CMS_lumi( c1, 7, 11 );
-  Chi2MuonRecoEff_Eta_100->Write();   Chi2MuonRecoEff_Eta_100->Draw();  
+  Chi2MuonRecoEff_Eta_40->Write();   Chi2MuonRecoEff_Eta_40->Draw();  
   txt->DrawLatex(0.15,0.2,pcstr);
   latex->DrawLatex(0.4, 0.85, cmsText);
 
-  //c1->SaveAs("TestChi2MuonRecoEff_Eta_100.png");
-  c1->Print(histoFolder+"/Chi2MuonRecoEff_Eta_100.png");
+  //c1->SaveAs("TestChi2MuonRecoEff_Eta_40.png");
+  c1->Print(histoFolder+"/Chi2MuonRecoEff_Eta_40.png");
 
   std::cout<<"  MuonRecoEff_Eta values:"<<std::endl;
   //MuonRecoEff_Eta->Sumw2();
@@ -3108,6 +3251,10 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   PtDiff_s->GetYaxis()->SetTitle("|(pt track-ptgen)/ptgen|");
   PtDiff_s->Write();     PtDiff_s->Draw();  c1->Print(histoFolder+"/PtDiff_s.png");
   
+  PtDiff_s_5_10->Write();
+  PtDiff_s_10_20->Write();
+  PtDiff_s_20_40->Write();
+  PtDiff_s_40->Write();
   for(int i=1; i<=PtDiff_p->GetNbinsX(); ++i) {
     PtDiff_rms->SetBinContent(i, PtDiff_p->GetBinError(i)); 
     std::cout<<"Pt_rms = "<<PtDiff_p->GetBinError(i)<<std::endl;
@@ -3199,20 +3346,20 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
     test= new TH1D("test"   , "pt resolution"   , 200, -1.0, 1.0 );  
     test->Draw();
     // Redoing for pt 10 to 20
-    PtDiff_s_10_50->ProjectionY("test",i,i,"");
+    PtDiff_s_10_20->ProjectionY("test",i,i,"");
     if (test->Integral() < 1.0) continue;
 
-    TF1 *gaus_10_50 = new TF1("gaus_10_50","gaus",-.2,.2);
-    test->Fit(gaus_10_50,"R");
+    TF1 *gaus_10_20 = new TF1("gaus_10_20","gaus",-.2,.2);
+    test->Fit(gaus_10_20,"R");
 
-     w2  = gaus_10_50->GetParameter(2);
-     e_w2  = gaus_10_50->GetParError(2);
+     w2  = gaus_10_20->GetParameter(2);
+     e_w2  = gaus_10_20->GetParError(2);
 
-    PtDiff_gaus_10_50->SetBinContent(i, w2); 
-    PtDiff_gaus_10_50->SetBinError(i, e_w2); 
+    PtDiff_gaus_10_20->SetBinContent(i, w2); 
+    PtDiff_gaus_10_20->SetBinError(i, e_w2); 
 
     test->Draw();
-    FileName = "Bin"+thistemp+"Fit_10_50.png";
+    FileName = "Bin"+thistemp+"Fit_10_20.png";
     c1->Print(histoFolder+"/"+FileName);
 
     delete test;
@@ -3220,20 +3367,20 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
     test= new TH1D("test"   , "pt resolution"   , 200, -1.0, 1.0 );  
     test->Draw();
     // Redoing for pt 20 to 40
-    PtDiff_s_50_100->ProjectionY("test",i,i,"");
+    PtDiff_s_20_40->ProjectionY("test",i,i,"");
     if (test->Integral() < 1.0) continue;
 
-    TF1 *gaus_50_100 = new TF1("gaus_50_100","gaus",-.2,.2);
-    test->Fit(gaus_50_100,"R");
+    TF1 *gaus_20_40 = new TF1("gaus_20_40","gaus",-.2,.2);
+    test->Fit(gaus_20_40,"R");
 
-     w2  = gaus_50_100->GetParameter(2);
-     e_w2  = gaus_50_100->GetParError(2);
+     w2  = gaus_20_40->GetParameter(2);
+     e_w2  = gaus_20_40->GetParError(2);
 
-    PtDiff_gaus_50_100->SetBinContent(i, w2); 
-    PtDiff_gaus_50_100->SetBinError(i, e_w2); 
+    PtDiff_gaus_20_40->SetBinContent(i, w2); 
+    PtDiff_gaus_20_40->SetBinError(i, e_w2); 
 
     test->Draw();
-    FileName = "Bin"+thistemp+"Fit_50_100.png";
+    FileName = "Bin"+thistemp+"Fit_20_40.png";
     c1->Print(histoFolder+"/"+FileName);
 
     delete test;
@@ -3241,20 +3388,20 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
     test= new TH1D("test"   , "pt resolution"   , 200, -1.0, 1.0 );  
     test->Draw();
     // Redoing for pt 40+
-    PtDiff_s_100->ProjectionY("test",i,i,"");
+    PtDiff_s_40->ProjectionY("test",i,i,"");
     if (test->Integral() < 1.0) continue;
 
-    TF1 *gaus_100 = new TF1("gaus_100","gaus",-.2,.2);
-    test->Fit(gaus_100,"R");
+    TF1 *gaus_40 = new TF1("gaus_40","gaus",-.2,.2);
+    test->Fit(gaus_40,"R");
 
-     w2  = gaus_100->GetParameter(2);
-     e_w2  = gaus_100->GetParError(2);
+     w2  = gaus_40->GetParameter(2);
+     e_w2  = gaus_40->GetParError(2);
 
-    PtDiff_gaus_100->SetBinContent(i, w2); 
-    PtDiff_gaus_100->SetBinError(i, e_w2); 
+    PtDiff_gaus_40->SetBinContent(i, w2); 
+    PtDiff_gaus_40->SetBinError(i, e_w2); 
 
     test->Draw();
-    FileName = "Bin"+thistemp+"Fit_100.png";
+    FileName = "Bin"+thistemp+"Fit_40.png";
     c1->Print(histoFolder+"/"+FileName);
 
     delete test;
@@ -3268,8 +3415,8 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
     TF1 *Standalonegaus = new TF1("Standalonegaus","gaus",-.2,.2);
     test->Fit(Standalonegaus,"R");
 
-     w2  = gaus_100->GetParameter(2);
-     e_w2  = gaus_100->GetParError(2);
+     w2  = gaus_40->GetParameter(2);
+     e_w2  = gaus_40->GetParError(2);
 
      StandalonePtDiff_gaus->SetBinContent(i, w2); 
      StandalonePtDiff_gaus->SetBinError(i, e_w2); 
@@ -3312,41 +3459,41 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   //PtDiff_gaus_5_10->Draw("PL"); 
 
   PtDiff_gaus_5_10->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  PtDiff_gaus_5_10->GetYaxis()->SetTitle("Gaussian width of (pt track-ptgen)/ptgen");
+  PtDiff_gaus_5_10->GetYaxis()->SetTitle("Gaussian width of (qoverpt track-qopverptp gen)/qoverpt gen");
   PtDiff_gaus_5_10->Write();     PtDiff_gaus_5_10->Draw("PE");  c1->Print(histoFolder+"/PtDiff_gaus_5_10.png");
 
-  PtDiff_gaus_10_50->SetMarkerStyle(22); 
-  PtDiff_gaus_10_50->SetMarkerSize(1.2); 
-  PtDiff_gaus_10_50->SetMarkerColor(kBlue); 
-  //PtDiff_gaus_10_50->SetLineColor(kRed); 
+  PtDiff_gaus_10_20->SetMarkerStyle(22); 
+  PtDiff_gaus_10_20->SetMarkerSize(1.2); 
+  PtDiff_gaus_10_20->SetMarkerColor(kBlue); 
+  //PtDiff_gaus_10_20->SetLineColor(kRed); 
   
-  //PtDiff_gaus_10_50->Draw("PL"); 
+  //PtDiff_gaus_10_20->Draw("PL"); 
 
-  PtDiff_gaus_10_50->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  PtDiff_gaus_10_50->GetYaxis()->SetTitle("Gaussian width of (pt track-ptgen)/ptgen");
-  PtDiff_gaus_10_50->Write();     PtDiff_gaus_10_50->Draw("PE");  c1->Print(histoFolder+"/PtDiff_gaus_10_50.png");
+  PtDiff_gaus_10_20->GetXaxis()->SetTitle("Gen Muon |#eta|");
+  PtDiff_gaus_10_20->GetYaxis()->SetTitle("Gaussian width of (qoverpt track-qopverptp gen)/qoverpt gen");
+  PtDiff_gaus_10_20->Write();     PtDiff_gaus_10_20->Draw("PE");  c1->Print(histoFolder+"/PtDiff_gaus_10_20.png");
 
-  PtDiff_gaus_50_100->SetMarkerStyle(22); 
-  PtDiff_gaus_50_100->SetMarkerSize(1.2); 
-  PtDiff_gaus_50_100->SetMarkerColor(kBlue); 
-  //PtDiff_gaus_50_100->SetLineColor(kRed); 
+  PtDiff_gaus_20_40->SetMarkerStyle(22); 
+  PtDiff_gaus_20_40->SetMarkerSize(1.2); 
+  PtDiff_gaus_20_40->SetMarkerColor(kBlue); 
+  //PtDiff_gaus_20_40->SetLineColor(kRed); 
   
-  //PtDiff_gaus_50_100->Draw("PL"); 
+  //PtDiff_gaus_20_40->Draw("PL"); 
 
-  PtDiff_gaus_50_100->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  PtDiff_gaus_50_100->GetYaxis()->SetTitle("Gaussian width of (pt track-ptgen)/ptgen");
-  PtDiff_gaus_50_100->Write();     PtDiff_gaus_50_100->Draw("PE");  c1->Print(histoFolder+"/PtDiff_gaus_50_100.png");
+  PtDiff_gaus_20_40->GetXaxis()->SetTitle("Gen Muon |#eta|");
+  PtDiff_gaus_20_40->GetYaxis()->SetTitle("Gaussian width of (qoverpt track-qopverptp gen)/qoverpt gen");
+  PtDiff_gaus_20_40->Write();     PtDiff_gaus_20_40->Draw("PE");  c1->Print(histoFolder+"/PtDiff_gaus_20_40.png");
 
-  PtDiff_gaus_100->SetMarkerStyle(22); 
-  PtDiff_gaus_100->SetMarkerSize(1.2); 
-  PtDiff_gaus_100->SetMarkerColor(kBlue); 
-  //PtDiff_gaus_100->SetLineColor(kRed); 
+  PtDiff_gaus_40->SetMarkerStyle(22); 
+  PtDiff_gaus_40->SetMarkerSize(1.2); 
+  PtDiff_gaus_40->SetMarkerColor(kBlue); 
+  //PtDiff_gaus_40->SetLineColor(kRed); 
   
-  //PtDiff_gaus_100->Draw("PL"); 
+  //PtDiff_gaus_40->Draw("PL"); 
 
-  PtDiff_gaus_100->GetXaxis()->SetTitle("Gen Muon |#eta|");
-  PtDiff_gaus_100->GetYaxis()->SetTitle("Gaussian width of (pt track-ptgen)/ptgen");
-  PtDiff_gaus_100->Write();     PtDiff_gaus_100->Draw("PE");  c1->Print(histoFolder+"/PtDiff_gaus_100.png");
+  PtDiff_gaus_40->GetXaxis()->SetTitle("Gen Muon |#eta|");
+  PtDiff_gaus_40->GetYaxis()->SetTitle("Gaussian width of (qoverpt track-qopverptp gen)/qoverpt gen");
+  PtDiff_gaus_40->Write();     PtDiff_gaus_40->Draw("PE");  c1->Print(histoFolder+"/PtDiff_gaus_40.png");
 
   StandalonePtDiff_gaus->SetMarkerStyle(22); 
   StandalonePtDiff_gaus->SetMarkerSize(1.2); 
@@ -3462,14 +3609,14 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   }    
 
 
-  logout<<"Efficiencies and errors 10_50:\n";
-  for (int i=1; i<=MuonRecoEff_Eta_10_50->GetNbinsX(); ++i){
-    logout<<MuonRecoEff_Eta_10_50->GetBinContent(i)<<","<<MuonRecoEff_Eta_10_50->GetBinError(i)<<"\n";
+  logout<<"Efficiencies and errors 10_20:\n";
+  for (int i=1; i<=MuonRecoEff_Eta_10_20->GetNbinsX(); ++i){
+    logout<<MuonRecoEff_Eta_10_20->GetBinContent(i)<<","<<MuonRecoEff_Eta_10_20->GetBinError(i)<<"\n";
   }    
 
-  logout<<"Chi 2 Efficiencies and errors 10_50:\n";
-  for (int i=1; i<=Chi2MuonRecoEff_Eta_10_50->GetNbinsX(); ++i){
-    logout<<Chi2MuonRecoEff_Eta_10_50->GetBinContent(i)<<","<<Chi2MuonRecoEff_Eta_10_50->GetBinError(i)<<"\n";
+  logout<<"Chi 2 Efficiencies and errors 10_20:\n";
+  for (int i=1; i<=Chi2MuonRecoEff_Eta_10_20->GetNbinsX(); ++i){
+    logout<<Chi2MuonRecoEff_Eta_10_20->GetBinContent(i)<<","<<Chi2MuonRecoEff_Eta_10_20->GetBinError(i)<<"\n";
   }    
 
 
@@ -3478,43 +3625,43 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
     logout<<FakeRate_Eta_10_50->GetBinContent(i)<<","<<FakeRate_Eta_10_50->GetBinError(i)<<"\n";
   }    
 
-  logout<<"Resolution vs eta 10_50:\n";
-  for (int i=1; i<=PtDiff_gaus_10_50->GetNbinsX(); ++i){
-    logout<<PtDiff_gaus_10_50->GetBinContent(i)<<","<<PtDiff_gaus_10_50->GetBinError(i)<<"\n";
+  logout<<"Resolution vs eta 10_20:\n";
+  for (int i=1; i<=PtDiff_gaus_10_20->GetNbinsX(); ++i){
+    logout<<PtDiff_gaus_10_20->GetBinContent(i)<<","<<PtDiff_gaus_10_20->GetBinError(i)<<"\n";
   }    
 
 
-  logout<<"Efficiencies and errors 50_100:\n";
-  for (int i=1; i<=MuonRecoEff_Eta_50_100->GetNbinsX(); ++i){
-    logout<<MuonRecoEff_Eta_50_100->GetBinContent(i)<<","<<MuonRecoEff_Eta_50_100->GetBinError(i)<<"\n";
+  logout<<"Efficiencies and errors 20_40:\n";
+  for (int i=1; i<=MuonRecoEff_Eta_20_40->GetNbinsX(); ++i){
+    logout<<MuonRecoEff_Eta_20_40->GetBinContent(i)<<","<<MuonRecoEff_Eta_20_40->GetBinError(i)<<"\n";
   }    
 
 
-  logout<<"Chi 2 Efficiencies and errors 50_100:\n";
-  for (int i=1; i<=Chi2MuonRecoEff_Eta_50_100->GetNbinsX(); ++i){
-    logout<<Chi2MuonRecoEff_Eta_50_100->GetBinContent(i)<<","<<Chi2MuonRecoEff_Eta_50_100->GetBinError(i)<<"\n";
+  logout<<"Chi 2 Efficiencies and errors 20_40:\n";
+  for (int i=1; i<=Chi2MuonRecoEff_Eta_20_40->GetNbinsX(); ++i){
+    logout<<Chi2MuonRecoEff_Eta_20_40->GetBinContent(i)<<","<<Chi2MuonRecoEff_Eta_20_40->GetBinError(i)<<"\n";
   }    
 
   logout<<"Fake Rate 50_100:\n";
   for (int i=1; i<=FakeRate_Eta_50_100->GetNbinsX(); ++i){
     logout<<FakeRate_Eta_50_100->GetBinContent(i)<<","<<FakeRate_Eta_50_100->GetBinError(i)<<"\n";
-  }    
+   }    
 
-  logout<<"Resolution vs eta 50_100:\n";
-  for (int i=1; i<=PtDiff_gaus_50_100->GetNbinsX(); ++i){
-    logout<<PtDiff_gaus_50_100->GetBinContent(i)<<","<<PtDiff_gaus_50_100->GetBinError(i)<<"\n";
+  logout<<"Resolution vs eta 20_40:\n";
+  for (int i=1; i<=PtDiff_gaus_20_40->GetNbinsX(); ++i){
+    logout<<PtDiff_gaus_20_40->GetBinContent(i)<<","<<PtDiff_gaus_20_40->GetBinError(i)<<"\n";
   }    
 
 
   logout<<"Efficiencies and errors 40:\n";
-  for (int i=1; i<=MuonRecoEff_Eta_100->GetNbinsX(); ++i){
-    logout<<MuonRecoEff_Eta_100->GetBinContent(i)<<","<<MuonRecoEff_Eta_100->GetBinError(i)<<"\n";
+  for (int i=1; i<=MuonRecoEff_Eta_40->GetNbinsX(); ++i){
+    logout<<MuonRecoEff_Eta_40->GetBinContent(i)<<","<<MuonRecoEff_Eta_40->GetBinError(i)<<"\n";
   }    
 
 
   logout<<"Chi 2 Efficiencies and errors 40:\n";
-  for (int i=1; i<=Chi2MuonRecoEff_Eta_100->GetNbinsX(); ++i){
-    logout<<Chi2MuonRecoEff_Eta_100->GetBinContent(i)<<","<<Chi2MuonRecoEff_Eta_100->GetBinError(i)<<"\n";
+  for (int i=1; i<=Chi2MuonRecoEff_Eta_40->GetNbinsX(); ++i){
+    logout<<Chi2MuonRecoEff_Eta_40->GetBinContent(i)<<","<<Chi2MuonRecoEff_Eta_40->GetBinError(i)<<"\n";
   }    
 
   logout<<"Fake Rate 40:\n";
@@ -3523,8 +3670,8 @@ void ME0MuonAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
   }    
 
   logout<<"Resolution vs eta 40:\n";
-  for (int i=1; i<=PtDiff_gaus_100->GetNbinsX(); ++i){
-    logout<<PtDiff_gaus_100->GetBinContent(i)<<","<<PtDiff_gaus_100->GetBinError(i)<<"\n";
+  for (int i=1; i<=PtDiff_gaus_40->GetNbinsX(); ++i){
+    logout<<PtDiff_gaus_40->GetBinContent(i)<<","<<PtDiff_gaus_40->GetBinError(i)<<"\n";
   }    
 
 
