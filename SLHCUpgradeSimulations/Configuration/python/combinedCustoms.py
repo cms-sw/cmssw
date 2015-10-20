@@ -858,71 +858,66 @@ def fastsimDefault(process):
 def fastsimPhase2(process):
     return fastCustomisePhase2(process)
 
-def bsStudyStep1(process,length):
-    process.VtxSmeared.MaxZ = length
-    process.VtxSmeared.MinZ = -length
+def bsStudy(process,length):
+    if hasattr(process,"VtxSmeared") :
+        try:
+            process.VtxSmeared.MaxZ = length
+            process.VtxSmeared.MinZ = -length
+        except TypeError as error:
+            raise TypeError( str(error)+". Are you using '--beamspot Flat'? This customisation only works the Flat beamspot." )
+
+    if hasattr(process,"initialStepSeeds") :
+        process.initialStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+            precise = cms.bool(True),
+            originRadius = cms.double(0.02),
+            originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
+            beamSpot = cms.InputTag("offlineBeamSpot"),
+            ptMin = cms.double(0.7)
+            )
+    if hasattr(process,"highPtTripletStepSeeds") :
+        process.highPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+            precise = cms.bool(True),
+            originRadius = cms.double(0.02),
+            originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
+            beamSpot = cms.InputTag("offlineBeamSpot"),
+            ptMin = cms.double(0.7)
+            )
+    if hasattr(process,"lowPtQuadStepSeeds") :
+        process.lowPtQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+            precise = cms.bool(True),
+            originRadius = cms.double(0.02),
+            originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
+            beamSpot = cms.InputTag("offlineBeamSpot"),
+            ptMin = cms.double(0.2)
+            )
+    if hasattr(process,"lowPtTripletStepSeeds") :
+        process.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+            precise = cms.bool(True),
+            originRadius = cms.double(0.015),
+            originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
+            beamSpot = cms.InputTag("offlineBeamSpot"),
+            ptMin = cms.double(0.35)
+            )
+    if hasattr(process,"detachedQuadStepSeeds") :
+        process.detachedQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
+            precise = cms.bool(True),
+            originRadius = cms.double(0.5),
+            originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
+            beamSpot = cms.InputTag("offlineBeamSpot"),
+            ptMin = cms.double(0.3)
+            )
     return process
 
-def bsStudyStep2(process,length):
-    process.initialStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
-        precise = cms.bool(True),
-        originRadius = cms.double(0.02),
-        originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("offlineBeamSpot"),
-        ptMin = cms.double(0.7)
-        )
-    process.highPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
-        precise = cms.bool(True),
-        originRadius = cms.double(0.02),
-        originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("offlineBeamSpot"),
-        ptMin = cms.double(0.7)
-        )
-    process.lowPtQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
-        precise = cms.bool(True),
-        originRadius = cms.double(0.02),
-        originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("offlineBeamSpot"),
-        ptMin = cms.double(0.2)
-        )
-    process.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
-        precise = cms.bool(True),
-        originRadius = cms.double(0.015),
-        originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("offlineBeamSpot"),
-        ptMin = cms.double(0.35)
-        )
-    process.detachedQuadStepSeeds.RegionFactoryPSet.RegionPSet = cms.PSet(
-        precise = cms.bool(True),
-        originRadius = cms.double(0.5),
-        originHalfLength = cms.double(length),#nSigmaZ = cms.double(4.0),
-        beamSpot = cms.InputTag("offlineBeamSpot"),
-        ptMin = cms.double(0.3)
-        )
-    return process
-
-def customise_bsStudyStep1_11(process):
-    process=bsStudyStep1(process,11.0)
+def customise_bsStudy_11(process):
+    process=bsStudy(process,11.0)
     return process
     
-def customise_bsStudyStep2_11(process):
-    process=bsStudyStep2(process,11.0)
-    return process
-
-def customise_bsStudyStep1_15(process):
-    process=bsStudyStep1(process,15.0)
+def customise_bsStudy_15(process):
+    process=bsStudy(process,15.0)
     return process
     
-def customise_bsStudyStep2_15(process):
-    process=bsStudyStep2(process,15.0)
-    return process
-
-def customise_bsStudyStep1_20(process):
-    process=bsStudyStep1(process,20.0)
-    return process
-    
-def customise_bsStudyStep2_20(process):
-    process=bsStudyStep2(process,20.0)
+def customise_bsStudy_20(process):
+    process=bsStudy(process,20.0)
     return process
 
 
