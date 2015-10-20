@@ -70,6 +70,10 @@ namespace pat {
 
     PackedGenParticle& operator=(PackedGenParticle&& iOther) {
       if(this != &iOther) {
+        packedPt_ = iOther.packedPt_;
+        packedY_ = iOther.packedY_;
+        packedPhi_ = iOther.packedPhi_;
+        packedM_ = iOther.packedM_;
         if(p4c_) {
           delete p4_.exchange(iOther.p4_.exchange(nullptr));
           delete p4c_.exchange(iOther.p4c_.exchange(nullptr)) ;
