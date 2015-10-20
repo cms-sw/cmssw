@@ -329,7 +329,9 @@ void ElectronMcMiniAODSignalValidator::analyze(const edm::Event& iEvent, const e
     
         // generated distributions for matched electrons
         h2_ele_PoPtrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.p()/(*genParticles)[i].p());
-        h2_ele_sigmaIetaIetaVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
+        if ( passMiniAODSelection ) { // Pt > 5.
+            h2_ele_sigmaIetaIetaVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
+        }
 
         // supercluster related distributions
         if ( passMiniAODSelection ) { // Pt > 5.
