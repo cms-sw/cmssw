@@ -12,7 +12,7 @@ def checkPrefix(mainList, inputGTParams):
     return -1
 
 
-from Configuration.AlCa.autoCond import aliases
+from Configuration.AlCa.autoCond_condDBv1 import aliases
 def combineGTs(globaltag):
     gtList = globaltag.split("+")
     main = gtList[0]
@@ -43,7 +43,7 @@ def combineGTs(globaltag):
 
 def GlobalTag(essource = None, globaltag = None, conditions = None):
     """Modify the GlobalTag module configuration, allowing to use the extended
-    Configuration/AlCa/python/autoCond.py functionality of specifying symbolic
+    Configuration/AlCa/python/autoCond_condDBv1.py functionality of specifying symbolic
     globaltags (i.e., actual global tags, plus additional payloads to get from
     the DB as customisations).
     The actual code is taken from cmsDriver's ConfigBuilder.py, adapted here to
@@ -51,19 +51,19 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
 
     # custom conditions: 
     #  - start from an empty map
-    #  - add any conditions coming from autoCond.py
+    #  - add any conditions coming from autoCond_condDBv1.py
     #  - then add and override them with any conditions explicitly requested
     custom_conditions = {}
 
     # if no GlobalTag ESSource module is given, load a "default" configuration
     if essource is None:
-        from Configuration.StandardSequences.FrontierConditions_GlobalTag_cfi import GlobalTag as essource
+        from Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv1_cfi import GlobalTag as essource
 
-    # if a Global Tag is given, check for an "auto" tag, and look it up in autoCond.py
+    # if a Global Tag is given, check for an "auto" tag, and look it up in autoCond_condDBv1.py
     # if a match is found, load the actual Global Tag and optional conditions
     if globaltag is not None:
         if globaltag.startswith('auto:'):
-            from Configuration.AlCa.autoCond import autoCond
+            from Configuration.AlCa.autoCond_condDBv1 import autoCond
             globaltag = globaltag[5:]
             if globaltag not in autoCond:
                 raise Exception('no correspondence for '+globaltag+'\navailable keys are\n'+','.join(autoCond.keys()))
@@ -71,7 +71,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             autoKey = autoCond[globaltag]
             if isinstance(autoKey, tuple) or isinstance(autoKey, list):
                 globaltag = autoKey[0]
-                # TODO backward compatible code: to be removed after migrating autoCond.py to use a map for custom conditions
+                # TODO backward compatible code: to be removed after migrating autoCond_condDBv1.py to use a map for custom conditions
                 map = {}
                 for entry in autoKey[1:]:
                   entry = entry.split(',')
@@ -84,7 +84,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             else:
                 globaltag = autoKey
 
-        # if a GlobalTag globaltag is given or loaded from autoCond.py, check for optional connection string and pfn prefix
+        # if a GlobalTag globaltag is given or loaded from autoCond_condDBv1.py, check for optional connection string and pfn prefix
         globaltag = globaltag.split(',')
         if len(globaltag) > 0 :
             # Perform any alias expansion and consistency check.
@@ -97,7 +97,7 @@ def GlobalTag(essource = None, globaltag = None, conditions = None):
             essource.pfnPrefix = cms.untracked.string( str(globaltag[2]) )
 
 
-    # add any explicitly requested conditions, possibly overriding those from autoCond.py
+    # add any explicitly requested conditions, possibly overriding those from autoCond_condDBv1.py
     if conditions is not None:
         # TODO backward compatible code: to be removed after migrating ConfigBuilder.py and confdb.py to use a map for custom conditions
         if isinstance(conditions, basestring): 
