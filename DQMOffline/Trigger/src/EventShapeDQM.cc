@@ -9,7 +9,7 @@ EventShapeDQM::EventShapeDQM(const edm::ParameterSet& ps)
 {
 //	theTrigSummary_ = consumes<trigger::TriggerEvent>(ps.getParameter<edm::InputTag>("trigSummary"));
 	triggerResults_ = consumes<edm::TriggerResults>(ps.getParameter<edm::InputTag>("triggerResults"));
-	theEPCollection_ = consumes<reco::EvtPlane>(ps.getParameter<edm::InputTag>("EPlabel"));
+	theEPCollection_ = consumes<reco::EvtPlaneCollection>(ps.getParameter<edm::InputTag>("EPlabel"));
 	triggerPath_ = ps.getParameter<std::string>("triggerPath");
 //	triggerFilter_ = ps.getParameter<edm::InputTag>("triggerFilter");
 

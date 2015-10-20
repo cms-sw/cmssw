@@ -33,7 +33,7 @@ private:
 	// 
 	edm::EDGetTokenT<edm::TriggerResults> triggerResults_;
 //	edm::EDGetTokenT<trigger::TriggerEvent> theTrigSummary_;
-	edm::EDGetTokenT<reco::EvtPlane> theEPCollection_;
+	edm::EDGetTokenT<reco::EvtPlaneCollection> theEPCollection_;
 
 	std::string triggerPath_;
 //	edm::InputTag triggerFilter_;
