@@ -60,7 +60,7 @@ namespace l1t {
       int subEta = region->hwEta();
       int subPhi = region->hwPhi();
 
-      if(((etaMask & (1<<subEta)>>subEta))) {
+      if((etaMask & (1<<subEta))>>subEta) {
 	subPt = 0;
       }
 

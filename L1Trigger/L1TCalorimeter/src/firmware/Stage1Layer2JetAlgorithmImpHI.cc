@@ -29,6 +29,7 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
 
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
+  int jetThreshold = params_->jetSeedThreshold();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> *unSortedJets = new std::vector<l1t::Jet>();
@@ -36,7 +37,7 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
   std::vector<l1t::Jet> *preRankJets = new std::vector<l1t::Jet>();
 
   HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
-  TwoByTwoFinder(subRegions, preRankJets);
+  TwoByTwoFinder(jetThreshold, subRegions, preRankJets);
   //slidingWindowJetFinder(0, subRegions, unSortedJets);
   JetToGtPtScales(params_, preRankJets, unSortedJets);
   //verboseDumpJets(*unSortedJets);

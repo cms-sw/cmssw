@@ -253,11 +253,13 @@ namespace l1t {
     }
   }
 
-  void TwoByTwoFinder(const std::vector<l1t::CaloRegion> * regions,
+  void TwoByTwoFinder(const int jetSeedThreshold,
+		      const std::vector<l1t::CaloRegion> * regions,
 		      std::vector<l1t::Jet> * uncalibjets)
   {
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt();
+      if (regionET  <= jetSeedThreshold) continue;
       int neighborN_et = 0;
       int neighborS_et = 0;
       int neighborE_et = 0;

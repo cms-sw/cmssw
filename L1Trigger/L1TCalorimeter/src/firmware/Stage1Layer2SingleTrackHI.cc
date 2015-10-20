@@ -20,7 +20,7 @@ l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsStage1* para
 
 l1t::Stage1Layer2SingleTrackHI::~Stage1Layer2SingleTrackHI(){};
 
-void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t);
+void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t, const int etaMask);
 
 void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmCand> & clusters,
 						  const std::vector<l1t::CaloRegion> & regions,
@@ -29,6 +29,7 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 {
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
+  int etaMask = params_->isoTauEtaMax();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Tau> *preGtEtaTaus = new std::vector<l1t::Tau>();
@@ -37,9 +38,11 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 
 
   HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
-  findRegions(subRegions, preGtTaus);
+  findRegions(subRegions, preGtTaus, etaMask);
   TauToGtPtScales(params_, preGtTaus, unsortedTaus);
   SortTaus(unsortedTaus, preGtEtaTaus);
+  //SortTaus(preGtTaus, unsortedTaus);
+  TauToGtPtScales(params_, unsortedTaus, preGtEtaTaus);
   TauToGtEtaScales(params_, preGtEtaTaus, taus);
 
   delete subRegions;
@@ -48,7 +51,7 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
   isoTaus->resize(4);
   //taus->resize(4);
 
-  const bool verbose = true;
+  const bool verbose = false;
   const bool hex = true;
   if(verbose)
   {
@@ -93,7 +96,7 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
   }
 }
 
-void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t)
+void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t, const int etaMask)
 {
   //int regionETMax = 0;
   //int regionETMaxEta = -1;
