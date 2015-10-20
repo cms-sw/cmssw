@@ -78,4 +78,4 @@ METValidation = cms.Sequence(
     pfType01CorrectedMetAnalyzer
     )
 
-METValidationMiniAOD = cms.Sequence(pfType1CorrectedMetAnalyzerMiniAOD)
+METValidationMiniAOD = cms.Sequence(pfType1CorrectedMetAnalyzerMiniAOD*pfPuppiMetAnalyzerMiniAOD)
