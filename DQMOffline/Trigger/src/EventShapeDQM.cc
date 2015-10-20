@@ -36,6 +36,7 @@ void EventShapeDQM::bookHistograms(DQMStore::IBooker & ibooker_, edm::Run const 
 
 void EventShapeDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 {
+
 	edm::Handle<edm::TriggerResults> hltresults;
 	e.getByToken(triggerResults_,hltresults);
 	if(!hltresults.isValid())
@@ -43,13 +44,6 @@ void EventShapeDQM::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
 		edm::LogError ("EventShapeDQM") << "invalid collection: TriggerResults" << "\n";
 		return;
 	}
-//	edm::Handle<trigger::TriggerEvent> triggerSummary;
-//	e.getByToken(theTrigSummary_, triggerSummary);
-//	if(!triggerSummary.isValid())
-//	{
-//		edm::LogError ("EventShapeDQM") << "invalid collection: TriggerSummary" << "\n";
-//		return;
-//	}
 
 	bool hasFired = false;
 	const edm::TriggerNames& trigNames = e.triggerNames(*hltresults);
