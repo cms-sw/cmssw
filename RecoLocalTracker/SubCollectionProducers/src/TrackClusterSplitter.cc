@@ -677,7 +677,6 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 			    }
 			  
 			  currentChannel = linkiter->channel();
-			  currentAmpl = rawAmpl;
 			}
 		      
 		      // Now deal with this new DigiSimLink
