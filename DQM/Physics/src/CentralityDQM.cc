@@ -30,10 +30,7 @@ CentralityDQM::CentralityDQM(const edm::ParameterSet& ps) {
 
   edm::LogInfo("CentralityDQM") << " Starting CentralityDQM "
                                 << "\n";
-
-
-
-
+                                
   centralityTag_ = ps.getParameter<InputTag>("centralitycollection");
   centralityToken = consumes<reco::Centrality>(centralityTag_);
 
