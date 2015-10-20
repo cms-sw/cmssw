@@ -104,7 +104,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 #
 process.L1HardwareValidation.remove(process.deDt)
 
-
+process.L1HardwareValidation.remove(process.l1TdeRCTRun1)
 #
 # remove a L1 trigger system from the comparator integrated in hardware validation
 # cfi file: L1Trigger.HardwareValidation.L1Comparator_cfi
