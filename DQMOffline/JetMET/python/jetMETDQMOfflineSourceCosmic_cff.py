@@ -15,4 +15,4 @@ caloMetDQMAnalyzer.onlyCleaned = cms.untracked.bool(False)
 caloMetDQMAnalyzer.JetCorrections = cms.InputTag("")
 
 
-jetMETDQMOfflineSourceCosmic = cms.Sequence(metFilters*AnalyzeSUSYDQM*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)
+jetMETDQMOfflineSourceCosmic = cms.Sequence(HBHENoiseFilterResultProducer*AnalyzeSUSYDQM*jetDQMAnalyzerSequenceCosmics*METDQMAnalyzerSequenceCosmics)

@@ -166,6 +166,11 @@ jetDQMAnalyzerAk8PFCHSCleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
     fillsubstructure =cms.bool(True),
 )
 
+jetDQMAnalyzerAk4PFCHSPuppiCleanedMiniAOD=jetDQMAnalyzerAk4PFCHSCleanedMiniAOD.clone(
+    JetType = cms.string('miniaod'),#pf, calo or jpt
+    jetsrc = cms.InputTag("slimmedJetsPuppi"),
+)
+
 jetDQMAnalyzerIC5CaloHIUncleaned=jetDQMAnalyzerAk4CaloUncleaned.clone(
     filljetHighLevel =cms.bool(True),
     CleaningParameters = cleaningParameters.clone(

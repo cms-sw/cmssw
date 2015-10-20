@@ -83,6 +83,7 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 
 #include <map>
 #include <string>
@@ -163,8 +164,10 @@ class METAnalyzer : public DQMEDAnalyzer{
 
   edm::InputTag hbheNoiseFilterResultTag_;
   edm::EDGetTokenT<bool>                          hbheNoiseFilterResultToken_;
+  edm::EDGetTokenT<bool>    hbheIsoNoiseFilterResultToken_;
   edm::InputTag CSCHaloResultTag_;
-  edm::EDGetTokenT<bool>  CSCHaloResultToken_;//leads to problems running later
+  edm::EDGetTokenT<bool>  CSCHaloResultToken_;
+  edm::EDGetTokenT<bool>  CSCHalo2015ResultToken_;
   edm::EDGetTokenT<reco::BeamHaloSummary> BeamHaloSummaryToken_;
   edm::InputTag EcalDeadCellTriggerTag_;
   edm::EDGetTokenT<bool>  EcalDeadCellTriggerToken_;
@@ -304,6 +307,12 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* hMET_2_eeBadScFilter;
   MonitorElement* hMET_EcalDeadCellTriggerFilter;
   MonitorElement* hMET_2_EcalDeadCellTriggerFilter;
+  //only for non miniaod workflows
+  MonitorElement* hMET_HBHEIsoNoiseFilter;
+  MonitorElement* hMET_2_HBHEIsoNoiseFilter;
+  MonitorElement* hMET_CSCTightHalo2015Filter;
+  MonitorElement* hMET_2_CSCTightHalo2015Filter;
+
 
   MonitorElement* hMETPhi;
   MonitorElement* hSumET;
@@ -532,6 +541,8 @@ class METAnalyzer : public DQMEDAnalyzer{
   //PFcandidate maps
   std::vector<MonitorElement* > profilePFCand_x_,profilePFCand_y_,occupancyPFCand_,ptPFCand_,multiplicityPFCand_;
   std::vector<std::string> profilePFCand_x_name_,profilePFCand_y_name_,occupancyPFCand_name_,ptPFCand_name_,multiplicityPFCand_name_;
+  std::vector<MonitorElement* > occupancyPFCand_puppiNolepWeight_,ptPFCand_puppiNolepWeight_;
+  std::vector<std::string> occupancyPFCand_name_puppiNolepWeight_,ptPFCand_name_puppiNolepWeight_;
   std::vector<double> etaMinPFCand_, etaMaxPFCand_, MExPFCand_, MEyPFCand_;
   std::vector<int> typePFCand_, nbinsPFCand_, countsPFCand_, etaNBinsPFCand_;
 
@@ -550,6 +561,7 @@ class METAnalyzer : public DQMEDAnalyzer{
   MonitorElement* meMETPhiHFEGammasMinus;
  
   edm::EDGetTokenT<std::vector<reco::PFCandidate> > pflowToken_;
+  edm::EDGetTokenT<std::vector<pat::PackedCandidate> > pflowPackedToken_;
 
   // NPV profiles --> 
   //----------------------------------------------------------------------------

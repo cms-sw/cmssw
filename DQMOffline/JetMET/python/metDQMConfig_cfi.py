@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *
 from DQMOffline.JetMET.metDiagnosticParameterSet_cfi import *
+from DQMOffline.JetMET.metDiagnosticParameterSetMiniAOD_cfi import *
 
 #jet corrector defined in jetMETDQMOfflineSource python file
 
@@ -103,8 +104,10 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     
     HcalNoiseRBXCollection     = cms.InputTag("hcalnoise"), 
     HBHENoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHENoiseFilterResult"),  
+    HBHEIsoNoiseFilterResultLabel = cms.InputTag("HBHENoiseFilterResultProducer", "HBHEIsoNoiseFilterResult"), # not yet in miniaod
     BeamHaloSummaryLabel = cms.InputTag("BeamHaloSummary"),
     CSCHaloResultLabel = cms.InputTag("CSCTightHaloFilter"), 
+    CSCHalo2015ResultLabel = cms.InputTag("CSCTightHalo2015Filter"), 
     EcalDeadCellTriggerLabel = cms.InputTag("EcalDeadCellTriggerPrimitiveFilter"), 
     eeBadScFilterLabel = cms.InputTag("eeBadScFilter"), 
 
@@ -174,11 +177,21 @@ pfMetT1DQMAnalyzer = caloMetDQMAnalyzer.clone(
 pfMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzer.clone(
     fillMetHighLevel = cms.bool(True),#fills only lumisec plots
     fillCandidateMaps = cms.bool(False),
+    srcPFlow = cms.InputTag('packedPFCandidates', ''),
+    METDiagonisticsParameters = multPhiCorr_METDiagnosticsMiniAOD,
     CleaningParameters = cleaningParameters.clone(
         vertexCollection    = cms.InputTag( "goodOfflinePrimaryVerticesDQMforMiniAOD" ),
         ),
     METType=cms.untracked.string('miniaod'),
     METCollectionLabel     = cms.InputTag("slimmedMETs"),
     JetCollectionLabel  = cms.InputTag("slimmedJets"),
+    JetCorrections = cms.InputTag(""),#not called, since corrected by default
+)
+pfPuppiMetDQMAnalyzerMiniAOD = pfMetDQMAnalyzerMiniAOD.clone(
+    fillMetHighLevel = cms.bool(True),#fills only lumisec plots
+    fillCandidateMaps = cms.bool(True),
+    METType=cms.untracked.string('miniaod'),
+    METCollectionLabel     = cms.InputTag("slimmedMETsPuppi"),
+    JetCollectionLabel  = cms.InputTag("slimmedJetsPuppi"),
     JetCorrections = cms.InputTag(""),#not called, since corrected by default
 )
