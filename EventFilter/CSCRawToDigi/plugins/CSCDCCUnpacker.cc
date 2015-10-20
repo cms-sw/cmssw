@@ -576,7 +576,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                           for ( icfeb = 0; icfeb < 7; ++icfeb )
                             {
                               layer = pcrate->detId( vmecrate, dmb, icfeb,ilayer );
-                              if (cscData[iCSC].cfebData(icfeb))
+                              if (cscData[iCSC].cfebData(icfeb) && cscData[iCSC].cfebData(icfeb)->check())
                                 {
                                   std::vector<CSCStripDigi> stripDigis;
                                   cscData[iCSC].cfebData(icfeb)->digis(layer.rawId(),stripDigis);
