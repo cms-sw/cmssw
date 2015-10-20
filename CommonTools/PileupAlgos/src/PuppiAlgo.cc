@@ -192,31 +192,6 @@ void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
 
 //This code is probably a bit confusing
 double PuppiAlgo::compute(std::vector<double> const &iVals,double iChi2) const {
-    // if(fAlgoId[0] == -1) return 1;
-    // double lVal  = 0.;
-    // double lPVal = 1.;
-    // int    lNDOF = 0;
-    // for(unsigned int i0 = 0; i0 < fNAlgos; i0++) {
-    //     if(fNCount[i0] == 0) return 1.;   //in the NoPU case return 1.
-    //     if(fCombId[i0] == 1 && i0 > 0) {  //Compute the previous p-value so that p-values can be multiplieed
-    //         double pPVal = ROOT::Math::chisquared_cdf(lVal,lNDOF);
-    //         lPVal *= pPVal;
-    //         lNDOF = 0;
-    //         lVal  = 0;
-    //     }
-    //     double pVal = iVals[i0];
-    //     //Special Check for any algo with log(0)
-    //     if(fAlgoId[i0] == 0 && iVals[i0] == 0) pVal = fMedian[i0];
-    //     if(fAlgoId[i0] == 3 && iVals[i0] == 0) pVal = fMedian[i0];
-    //     if(fAlgoId[i0] == 5 && iVals[i0] == 0) pVal = fMedian[i0];
-    //     lVal += (pVal-fMedian[i0])*(fabs(pVal-fMedian[i0]))/fRMS[i0]/fRMS[i0];
-    //     lNDOF++;
-    //     if(i0 == 0 && iChi2 != 0) lNDOF++;      //Add external Chi2 to first element
-    //     if(i0 == 0 && iChi2 != 0) lVal+=iChi2;  //Add external Chi2 to first element
-    // }
-    // //Top it off with the last calc
-    // lPVal *= ROOT::Math::chisquared_cdf(lVal,lNDOF);
-    // return lPVal;
 
     if(fAlgoId[0] == -1) return 1;
     double lVal  = 0.;
