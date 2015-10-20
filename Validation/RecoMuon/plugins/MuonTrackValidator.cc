@@ -140,7 +140,7 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       nDThits_vs_eta.push_back( ibooker.book2D("nDThits_vs_eta","# DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nCSChits_vs_eta.push_back( ibooker.book2D("nCSChits_vs_eta","# CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nRPChits_vs_eta.push_back( ibooker.book2D("nRPChits_vs_eta","# RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      nGEMhits_vs_eta.push_back( ibooker.book2D("nGEMhits_vs_eta","# GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      if(useGEMs_) nGEMhits_vs_eta.push_back( ibooker.book2D("nGEMhits_vs_eta","# GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
 
       h_DThits_eta.push_back( ibooker.bookProfile("DThits_eta","mean # DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_CSChits_eta.push_back( ibooker.bookProfile("CSChits_eta","mean # CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
@@ -827,7 +827,6 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	nCSChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonCSCHits());
 	nRPChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonRPCHits());
     if(useGEMs_) nGEMhits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonGEMHits());
-	
 	nlosthits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfLostHits());
 	
 	//resolution of track params: fill 2D histos
