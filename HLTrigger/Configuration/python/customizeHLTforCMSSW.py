@@ -175,6 +175,12 @@ def customiseFor11183(process):
 
     return process
 
+def customiseFor11497(process):
+    # Take care of CaloTowerTopology
+    if not hasattr(process,'CaloTowerTopologyEP'):
+        process.CaloTowerTopologyEP = cms.ESProducer( 'CaloTowerTopologyEP' )
+    return process
+
 # CMSSW version specific customizations
 def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
     import os
@@ -185,6 +191,7 @@ def customiseHLTforCMSSW(process, menuType="GRun", fastSim=False):
         process = customiseFor10353(process)
         process = customiseFor10911(process)
         process = customiseFor11183(process)
+        process = customiseFor11497(process)
     if cmsswVersion >= "CMSSW_7_5":
         process = customiseFor10927(process)
         process = customiseFor9232(process)
