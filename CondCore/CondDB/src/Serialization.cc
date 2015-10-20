@@ -1,4 +1,5 @@
 #include "CondCore/CondDB/interface/Serialization.h"
+#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 //
 #include <sstream>
 // root includes 
@@ -9,6 +10,10 @@
 #include "Cintex/Cintex.h"
 
 namespace cond {
+
+  std::string cond::StreamerInfo::techVersion(){
+    return BOOST_LIB_VERSION;
+  }
 
   struct CintexIntializer {
     CintexIntializer(){
@@ -106,32 +111,6 @@ private:
   TBufferFile m_streamerInfoBuff;
   TList m_streamerInfo;
 };
-
-cond::RootOutputArchive::RootOutputArchive( std::ostream& dataDest, std::ostream& streamerInfoDest ):
-  m_dataBuffer( dataDest ),
-  m_streamerInfoBuffer( streamerInfoDest ){
-} 
-
-void cond::RootOutputArchive::write( const std::type_info& sourceType, const void* sourceInstance){
-  TClass* r_class = lookUpDictionary( sourceType );
-  if (!r_class) throwException( "No ROOT class registered for \"" + demangledName(sourceType)+"\"", "RootOutputArchive::write");
-  RootStreamBuffer buffer;
-  buffer.InitMap();
-  buffer.write(sourceInstance, r_class);
-  // copy the two streams into the target buffers
-  buffer.copy( m_dataBuffer, m_streamerInfoBuffer );
-}
-
-cond::RootInputArchive::RootInputArchive( std::istream& binaryData, std::istream& binaryStreamerInfo ):
-  m_dataBuffer( std::istreambuf_iterator<char>( binaryData ), std::istreambuf_iterator<char>()),
-  m_streamerInfoBuffer( std::istreambuf_iterator<char>( binaryStreamerInfo ), std::istreambuf_iterator<char>()),
-  m_streamer( new RootStreamBuffer( m_dataBuffer, m_streamerInfoBuffer ) ){
-  m_streamer->InitMap();
-}
-
-cond::RootInputArchive::~RootInputArchive(){
-  delete m_streamer;
-}
 
 std::string cond::StreamerInfo::jsonString(){
   std::stringstream ss;
