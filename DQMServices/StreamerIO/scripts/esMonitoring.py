@@ -313,7 +313,7 @@ class FDJsonServer(asyncore.file_dispatcher):
             os.unlink(self.fn)
 
         self.create_socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        oldmask = os.umask(0077)
+        oldmask = os.umask(0o077)
         try:
             self.bind(self.fn)
             self.listen(5)

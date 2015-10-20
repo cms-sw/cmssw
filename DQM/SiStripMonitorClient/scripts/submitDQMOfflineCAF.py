@@ -25,7 +25,7 @@ import smtplib
 # Constants
 
 # numbers
-OCT_rwx_r_r          = 0744
+OCT_rwx_r_r          = 0o744
 LFLOAT_valueMagField = [0.0,2.0,3.0,3.5,3.8,4.0]
 TD_shiftUTC          = datetime.timedelta(hours = 2) # positive for timezones with later time than UTC
 # strings

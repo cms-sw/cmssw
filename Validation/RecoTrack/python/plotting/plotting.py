@@ -996,7 +996,7 @@ class Plot:
             ROOT.gPad.Update()
             st = h.GetListOfFunctions().FindObject("stats")
             if self._fit:
-                st.SetOptFit(0010)
+                st.SetOptFit(0o010)
                 st.SetOptStat(1001)
             st.SetX1NDC(startingX)
             st.SetX2NDC(startingX+0.3)

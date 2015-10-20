@@ -171,7 +171,7 @@ class GenericValidation:
                                                          path, repMap = repMap, repMaps = repMaps)
         for script in self.scriptFiles:
             for scriptwithindex in addIndex(script, self.NJobs):
-                os.chmod(scriptwithindex,0755)
+                os.chmod(scriptwithindex,0o755)
         return self.scriptFiles
 
     def createCrabCfg(self, fileContents, path ):
