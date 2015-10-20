@@ -112,6 +112,7 @@ void CastorRecHitMonitor::bookHistograms(DQMStore::IBooker& ibooker,
   double E0tow = 1./1024.;
   EMTow[0] = 0.; EMTow[1] = E0tow;
   EhadTow[0] = 0.; EhadTow[1] = E0tow;
+  ETower[0] = 0.; ETower[1] = E0tow;
   double lnBtow = log(2.);
   for(int j=1; j<NEtow; j++) EMTow[j+1] = E0tow*exp(j*lnBtow);
   for(int j=1; j<NEtow; j++) EhadTow[j+1] = E0tow*exp(j*lnBtow);
