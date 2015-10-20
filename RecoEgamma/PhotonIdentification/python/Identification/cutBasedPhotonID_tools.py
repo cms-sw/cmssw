@@ -234,6 +234,32 @@ def psetNeuHadIsoWithEAExpoScalingEBCut(wpEB, wpEE, isoInputs):
         effAreasConfigFile = cms.FileInPath( isoInputs.neuHadIsolationEffAreas ) 
         )
 
+# Configure the cut on the neutral hadron isolation that uses
+# the exponential pt scaling for both barrel and endcap
+def psetNeuHadIsoWithEAExpoScalingCut(wpEB, wpEE, isoInputs):
+    """
+    Arguments: two containers of working point cut values of the type WorkingPoint_*
+    The third argument contains data for isolation calculation.
+    """
+    return cms.PSet( 
+        cutName = cms.string('PhoAnyPFIsoWithEAAndExpoScalingCut'), # Neutral hadrons isolation block
+        # Barrel: cut = c1 + expo(pt*c2+c3)
+        C1_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C1 ),
+        C2_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C2 ),
+        C3_EB = cms.double( wpEB.absPFNeuHadIsoWithEACut_C3 ),
+        # Endcap: cut = cut = c1 + expo(pt*c2+c3)
+        C1_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C1 ),
+        C2_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C2 ),
+        C3_EE = cms.double( wpEE.absPFNeuHadIsoWithEACut_C3 ),
+        anyPFIsoMap = cms.InputTag( isoInputs.neuHadIsolationMapName ),
+        barrelCutOff = cms.double(ebCutOff),
+        useRelativeIso = cms.bool(False),
+        needsAdditionalProducts = cms.bool(True),
+        isIgnored = cms.bool(False),
+        rho = cms.InputTag("fixedGridRhoFastjetAll"),
+        effAreasConfigFile = cms.FileInPath( isoInputs.neuHadIsolationEffAreas ) 
+        )
+
 # Configure the cut on the photon isolation that uses
 # the linear pt scaling for barrel and endcap
 def psetPhoIsoWithEALinScalingCut(wpEB, wpEE, isoInputs):
@@ -337,6 +363,35 @@ def configureVIDCutBasedPhoID_V3( wpEB, wpEE, isoInputs ):
             psetPhoFull5x5SigmaIEtaIEtaCut(wpEB,wpEE),                # full 5x5 sigmaIEtaIEta cut
             psetChHadIsoWithEALinScalingCut(wpEB,wpEE,isoInputs),     # charged hadron isolation cut
             psetNeuHadIsoWithEAExpoScalingEBCut(wpEB,wpEE,isoInputs), # neutral hadron isolation cut
+            psetPhoIsoWithEALinScalingCut(wpEB,wpEE,isoInputs)        # photon isolation cut
+            )
+        )
+    #
+    return parameterSet
+
+def configureVIDCutBasedPhoID_V4( wpEB, wpEE, isoInputs ):
+    """
+    This function configures the full cms.PSet for a VID ID and returns it.
+    The inputs: first object is of the type WorkingPoint_V2, second object
+    is of the type WorkingPoint_V2 as well, first containing the cuts for the 
+    Barrel (EB) and the other one for the Endcap (EE).
+    The third argument contains data for isolation calculation.
+
+    The V4 with respect to V3 has one change: both barrel and endcap
+    use the exponential scaling for the neutral hadron isolation cut
+    (in V3 it was only done for the barrel)
+    """
+    # print "VID: Configuring cut set %s" % wpEB.idName
+    parameterSet =  cms.PSet(
+        #
+        idName = cms.string( wpEB.idName ), # same name stored in the _EB and _EE objects
+        cutFlow = cms.VPSet( 
+            psetMinPtCut(),                                           # pt cut
+            psetPhoSCEtaMultiRangeCut(),                              # eta cut
+            psetPhoSingleTowerHadOverEmCut(wpEB,wpEE),                # H/E cut
+            psetPhoFull5x5SigmaIEtaIEtaCut(wpEB,wpEE),                # full 5x5 sigmaIEtaIEta cut
+            psetChHadIsoWithEALinScalingCut(wpEB,wpEE,isoInputs),     # charged hadron isolation cut
+            psetNeuHadIsoWithEAExpoScalingCut(wpEB,wpEE,isoInputs), # neutral hadron isolation cut
             psetPhoIsoWithEALinScalingCut(wpEB,wpEE,isoInputs)        # photon isolation cut
             )
         )

@@ -2,6 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 #electron mva ids
 import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_nonTrig_V1_cff as ele_spring15_nt
+import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_50ns_Trig_V1_cff as ele_spring15_50_t
+
+import RecoEgamma.ElectronIdentification.Identification.mvaElectronID_Spring15_25ns_Trig_V1_cff as ele_spring15_25_t
 
 #photon mva ids
 import RecoEgamma.PhotonIdentification.Identification.mvaPhotonID_Spring15_25ns_nonTrig_V2p1_cff as pho_spring15_25_nt
@@ -36,6 +39,16 @@ setup_mva(egamma_modifications[0].electron_config,
           egamma_modifications[1].electron_config,
           ele_mva_prod_name,
           ele_spring15_nt.mvaSpring15NonTrigClassName+ele_spring15_nt.mvaTag)
+
+setup_mva(egamma_modifications[0].electron_config,
+          egamma_modifications[1].electron_config,
+          ele_mva_prod_name,
+          ele_spring15_50_t.mvaSpring15TrigClassName+ele_spring15_50_t.mvaTag)
+
+setup_mva(egamma_modifications[0].electron_config,
+          egamma_modifications[1].electron_config,
+          ele_mva_prod_name,
+          ele_spring15_25_t.mvaSpring15TrigClassName+ele_spring15_25_t.mvaTag)
 
 setup_mva(egamma_modifications[0].photon_config,
           egamma_modifications[1].photon_config,
