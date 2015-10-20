@@ -85,9 +85,9 @@ int SherpackFetcher::Fetch()
 
 int SherpackFetcher::CopyFile(std::string pathstring)
 {
-  //To allow backwards compatibility with the FnFileGet method we reconstruct the full path if it starts with $SCRAM_ARCH
+  //No need to backwards compatibility with the FnFileGet method, throw exception if only the relative path is given
   if (  (pathstring.find("slc6_amd64_gcc")==0) || (pathstring.find("slc5_amd64_gcc")==0) ){
-    pathstring="/afs/cern.ch/cms/generators/www/"+pathstring;
+    throw cms::Exception("SherpaInterface") << "Old method of sherpack retrieving used, please use /cvmfs to store files and specify the full path to the sherpack directory";
   }
   std::cout << "Trying to copy file " << pathstring << std::endl;
   std::string command="cp " +pathstring + " .";
