@@ -408,6 +408,7 @@ void V0Validator::doEfficiencies(
               }
             }
             if ((candidateEff[0] == 1 && candidateEff[1] == 1) &&
+                (reco_daughter[0].key() != reco_daughter[1].key()) &&
                 (reconstructed_V0_couples.find(
                      V0Couple(reco_daughter[0], reco_daughter[1])) !=
                  reconstructed_V0_couples.end())) {
