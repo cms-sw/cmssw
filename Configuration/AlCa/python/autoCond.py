@@ -1,4 +1,5 @@
-autoCond = { 
+autoCond = {
+    'startup'           :   'PRE_ST62_V8::All', # this should not be used, only here to be compatible with unit tests 
     'upgrade2017'       :   'DES17_62_V8::All', # 
     'upgrade2019'       :   'DES19_62_V8::All', # 
     'upgradePLS3'       :   'DES23_62_V1::All' # 
