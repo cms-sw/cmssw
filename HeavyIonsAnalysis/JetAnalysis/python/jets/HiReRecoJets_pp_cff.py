@@ -1,6 +1,20 @@
 import FWCore.ParameterSet.Config as cms
 from RecoHI.HiJetAlgos.HiRecoJets_cff import *
 from RecoHI.HiJetAlgos.HiRecoPFJets_cff import *
+ak1PFJets = ak5PFJets.clone(rParam       = cms.double(0.1))
+ak2PFJets = ak5PFJets.clone(rParam       = cms.double(0.2))
+ak3PFJets = ak5PFJets.clone(rParam       = cms.double(0.3))
+ak4PFJets = ak5PFJets.clone(rParam       = cms.double(0.4))
+ak6PFJets = ak5PFJets.clone(rParam       = cms.double(0.6))
+ak7PFJets = ak5PFJets.clone(rParam       = cms.double(0.7))
+
+# ak1CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.1))
+# ak2CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.2))
+# ak3CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.3))
+# ak4CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.4))
+# ak6CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.6))
+# ak7CaloJets = ak5CaloJets.clone(rParam       = cms.double(0.7))
+
 akVs1PFJets.jetPtMin = 1
 akVs1PFJets.src = cms.InputTag("particleFlow")
 akVs1CaloJets.jetPtMin = 1
@@ -182,36 +196,6 @@ ak4PFJets
 ak5PFJets
 +
 ak6PFJets
-+
-ak7PFJets
-+
-akPu1PFJets
-+
-akPu2PFJets
-+
-akPu3PFJets
-+
-akPu4PFJets
-+
-akPu5PFJets
-+
-akPu6PFJets
-+
-akPu7PFJets
-+
-akVs1PFJets
-+
-akVs2PFJets
-+
-akVs3PFJets
-+
-akVs4PFJets
-+
-akVs5PFJets
-+
-akVs6PFJets
-+
-akVs7PFJets
 )
 
 hiReRecoCaloJets = cms.Sequence(
@@ -226,34 +210,4 @@ ak4CaloJets
 ak5CaloJets
 +
 ak6CaloJets
-+
-ak7CaloJets
-+
-akPu1CaloJets
-+
-akPu2CaloJets
-+
-akPu3CaloJets
-+
-akPu4CaloJets
-+
-akPu5CaloJets
-+
-akPu6CaloJets
-+
-akPu7CaloJets
-+
-akVs1CaloJets
-+
-akVs2CaloJets
-+
-akVs3CaloJets
-+
-akVs4CaloJets
-+
-akVs5CaloJets
-+
-akVs6CaloJets
-+
-akVs7CaloJets
 )
