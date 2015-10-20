@@ -1418,7 +1418,9 @@ void ElectronMcSignalValidator::analyze( const edm::Event & iEvent, const edm::E
     h2_ele_PoPtrueVsEta->Fill( bestGsfElectron.eta(), bestGsfElectron.p()/mcIter->p());
     h2_ele_PoPtrueVsPhi->Fill( bestGsfElectron.phi(), bestGsfElectron.p()/mcIter->p());
     h2_ele_PoPtrueVsPt->Fill( bestGsfElectron.py(), bestGsfElectron.p()/mcIter->p());
-    h2_ele_sigmaIetaIetaVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
+    if (passMiniAODSelection) { // Pt > 5.
+        h2_ele_sigmaIetaIetaVsPt->Fill( bestGsfElectron.pt(), bestGsfElectron.scSigmaIEtaIEta());
+    }
     if (bestGsfElectron.isEB()) h1_ele_PoPtrue_barrel->Fill( bestGsfElectron.p()/mcIter->p());
     if (bestGsfElectron.isEE()) h1_ele_PoPtrue_endcaps->Fill( bestGsfElectron.p()/mcIter->p());
     if (bestGsfElectron.isEB() && bestGsfElectron.classification() == GsfElectron::GOLDEN) h1_ele_PoPtrue_golden_barrel->Fill( bestGsfElectron.p()/mcIter->p());
