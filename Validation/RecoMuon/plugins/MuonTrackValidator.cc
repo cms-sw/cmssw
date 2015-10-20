@@ -145,7 +145,7 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       h_DThits_eta.push_back( ibooker.bookProfile("DThits_eta","mean # DT hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_CSChits_eta.push_back( ibooker.bookProfile("CSChits_eta","mean # CSC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_RPChits_eta.push_back( ibooker.bookProfile("RPChits_eta","mean # RPC hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
-      h_GEMhits_eta.push_back( ibooker.bookProfile("GEMhits_eta","mean # GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
+      if(useGEMs_) h_GEMhits_eta.push_back( ibooker.bookProfile("GEMhits_eta","mean # GEM hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       h_hits_eta.push_back( ibooker.bookProfile("hits_eta","mean #hits vs eta",nint,min,max,nintHit,minHit,maxHit) );
       nhits_vs_phi.push_back( ibooker.book2D("nhits_vs_phi","#hits vs #phi",nintPhi,minPhi,maxPhi,nintHit,minHit,maxHit) );
       h_hits_phi.push_back( ibooker.bookProfile("hits_phi","mean #hits vs #phi",nintPhi,minPhi,maxPhi, nintHit,minHit,maxHit) );
