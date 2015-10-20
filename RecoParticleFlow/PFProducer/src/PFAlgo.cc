@@ -3229,6 +3229,7 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
     pfCandidates_->back().setFlag( reco::PFCandidate::T_TO_DISP, true);
     pfCandidates_->back().setDisplacedVertexRef( eltTrack->displacedVertexRef(reco::PFBlockElement::T_TO_DISP)->displacedVertexRef(), reco::PFCandidate::T_TO_DISP);
   }
+
   // returns index to the newly created PFCandidate
   return pfCandidates_->size()-1;
 }

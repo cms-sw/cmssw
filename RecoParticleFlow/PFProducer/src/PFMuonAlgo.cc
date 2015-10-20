@@ -149,6 +149,8 @@ void PFMuonAlgo::setParameters(const edm::ParameterSet& iConfig )
 
 
 
+
+
 bool
 PFMuonAlgo::isMuon( const reco::PFBlockElement& elt ) {
 
@@ -180,6 +182,7 @@ PFMuonAlgo::isLooseMuon( const reco::PFBlockElement& elt ) {
   return isLooseMuon(muonRef);
 
 }
+
 
 bool
 PFMuonAlgo::isGlobalTightMuon( const reco::PFBlockElement& elt ) {
@@ -242,7 +245,7 @@ PFMuonAlgo::isMuon(const reco::MuonRef& muonRef ){
 bool
 PFMuonAlgo::isLooseMuon(const reco::MuonRef& muonRef ){
 
-  return isGlobalLooseMuon(muonRef) || isTrackerLooseMuon(muonRef);
+  return (isGlobalLooseMuon(muonRef) || isTrackerLooseMuon(muonRef));
 
 }
 
@@ -256,7 +259,7 @@ PFMuonAlgo::isGlobalTightMuon( const reco::MuonRef& muonRef ) {
  
  
  if ( muonRef->isTrackerMuon() ) { 
-   
+  
    bool result = muon::isGoodMuon(*muonRef,muon::GlobalMuonPromptTight);
    
    bool isTM2DCompatibilityTight =  muon::isGoodMuon(*muonRef,muon::TM2DCompatibilityTight);   
@@ -266,7 +269,7 @@ PFMuonAlgo::isGlobalTightMuon( const reco::MuonRef& muonRef ) {
    return result && quality;
    
  } else {
- 
+
    reco::TrackRef standAloneMu = muonRef->standAloneMuon();
    
     // No tracker muon -> Request a perfect stand-alone muon, or an even better global muon
@@ -459,11 +462,15 @@ PFMuonAlgo::isIsolatedMuon( const reco::MuonRef& muonRef ){
       reco::TrackRef trackerMu = muonRef->track();
       if(trackerMu->pt() < smallestMuPt) smallestMuPt= trackerMu->pt();
     }
-     
+
+   
   double sumPtR03 = muonRef->isolationR03().sumPt;
   
   double relIso = sumPtR03/smallestMuPt;
 
+
+
+  
   if(relIso<0.1) return true;
   else return false;
 }
@@ -489,6 +496,17 @@ PFMuonAlgo::isTightMuonPOG(const reco::MuonRef& muonRef) {
   return true;
 
 }
+
+
+bool 
+PFMuonAlgo::hasValidTrack(const reco::MuonRef& muonRef,bool loose) {
+  if(loose)
+    return muonTracks(muonRef).size()>0;
+  else
+    return goodMuonTracks(muonRef).size()>0;
+
+}
+
 
 void 
 PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef){
@@ -703,6 +721,7 @@ bool PFMuonAlgo::reconstructMuon(reco::PFCandidate& candidate, const reco::MuonR
     if (!muon.isNonnull())
       return false;
 
+
     
 
     bool isMu=false;
@@ -714,6 +733,10 @@ bool PFMuonAlgo::reconstructMuon(reco::PFCandidate& candidate, const reco::MuonR
 
     if( !isMu)
       return false;
+
+
+
+
 
     //get the valid tracks(without standalone except we allow loose muons)
     //MIKE: Here we need to be careful. If we have a muon inside a dense 
@@ -728,6 +751,7 @@ bool PFMuonAlgo::reconstructMuon(reco::PFCandidate& candidate, const reco::MuonR
 
     if( validTracks.size() ==0)
       return false;
+
 
 
 
@@ -874,13 +898,6 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection*  cands) {
     const reco::PFCandidate& cand = (*cands)[i];
     if ( cand.particleId() == reco::PFCandidate::mu )
       muons.push_back(i);
-    else if ( cand.particleId() == reco::PFCandidate::h && cand.muonRef().isNonnull()) {
-    //MET cleaning for muons that are not high purity and became charged hadrons 
-      if (cand.pt()>100.0 &&  (!cand.trackRef()->quality(trackQuality_)) && cand.muonRef()->isGlobalMuon() && cand.rawHcalEnergy()<0.05*cand.p()) {
-      maskedIndices_.push_back(i);
-      pfPunchThroughMuonCleanedCandidates_->push_back(cand);
-      }
-    }
       
   }
   //Then sort the muon indicess by decsending pt
