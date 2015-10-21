@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 import coral
-import DBImpl
-import CommonUtils
+from . import DBImpl
+from . import CommonUtils
 
 class entryComment(object):
     """Class add optional comment on given entry in a given table\n

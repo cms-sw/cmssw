@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import sys
 import logging
 import os.path
@@ -27,8 +28,8 @@ except Exception,e:
     event_content_error=(str(e),exception_traceback())
 
 try:
-    from ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir
-    from ToolDialog import ToolDialog
+    from .ToolDataAccessor import ToolDataAccessor,ConfigToolBase,standardConfigDir
+    from .ToolDialog import ToolDialog
     import_tools_error=None
 except Exception,e:
     import_tools_error=(str(e),exception_traceback())

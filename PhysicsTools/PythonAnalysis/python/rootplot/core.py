@@ -1,6 +1,7 @@
 """
 An API and a CLI for quickly building complex figures.
 """
+from __future__ import absolute_import
 
 __license__ = '''\
 Copyright (c) 2009-2010 Jeff Klukas <klukas@wisc.edu>
@@ -53,8 +54,8 @@ from os.path import join as joined
 ##############################################################################
 ######## Import ROOT and rootplot libraries ##################################
 
-from utilities import RootFile, Hist, Hist2D, HistStack
-from utilities import find_num_processors, loadROOT
+from .utilities import RootFile, Hist, Hist2D, HistStack
+from .utilities import find_num_processors, loadROOT
 
 argstring = ' '.join(sys.argv)
 ## Use ROOT's batch mode, unless outputting to C macros, since there is
@@ -67,7 +68,7 @@ ROOT = loadROOT(batch=batch)
 ##############################################################################
 ######## Define globals ######################################################
 
-from version import __version__          # version number
+from .version import __version__          # version number
 prog = os.path.basename(sys.argv[0])     # rootplot or rootplotmpl
 use_mpl = False                          # set in plotmpl or rootplotmpl
 global_opts = ['filenames', 'targets', 'debug', 'path', 'processors', 

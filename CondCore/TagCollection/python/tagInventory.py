@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import CommonUtils, IdGenerator, Node, DBImpl
+from . import CommonUtils, IdGenerator, Node, DBImpl
 class  tagInventory(object):
     """Class manages tag inventory 
     """

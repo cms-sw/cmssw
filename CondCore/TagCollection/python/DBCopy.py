@@ -1,5 +1,6 @@
+from __future__ import absolute_import
 import coral
-import CommonUtils, TagTree, tagInventory
+from . import CommonUtils, TagTree, tagInventory
 
 class DBCopy(object):
     
