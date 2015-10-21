@@ -122,7 +122,8 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
     if (track_PVweight>0.5) allKinematics.add(ptrack, track_PVweight);
 
     const reco::btag::TrackIPData &data = ipData[itt];
-    if (trackSelector(ptrack, data, *jet, pv)) jetNTracks += 1.;
+    bool isSelected = false;
+    if (trackSelector(ptrack, data, *jet, pv)) isSelected = true;
 
     // check if the track is from V0
     bool isfromV0 = false;
@@ -145,6 +146,8 @@ float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfo
         break;
       }
     }
+
+    if( isSelected && !isfromV0 ) jetNTracks += 1.;
 
     reco::TransientTrack transientTrack = trackBuilder->build(ptrack);
     GlobalVector direction(jet->px(), jet->py(), jet->pz());
