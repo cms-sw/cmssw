@@ -179,6 +179,7 @@ process.ppTrack.trackSrc = cms.InputTag("generalTracks")
  
 process.ppTrack.doSimVertex = True
 process.ppTrack.doSimTrack = True
+process.ppTrack.pfCandSrc = cms.InputTag("particleFlow")
 
 process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_cff")
 process.tpRecoAssocGeneralTracks = process.trackingParticleRecoTrackAsssociation.clone()
