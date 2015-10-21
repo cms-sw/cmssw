@@ -273,7 +273,7 @@ def trgFromOldLumi(session,runnumber):
             deadtime=cursor.currentRow()['deadtime'].data()
             trgcount=cursor.currentRow()['trgcount'].data()
             prescale=cursor.currentRow()['prescale'].data()
-            if not databuffer.has_key(cmslsnum):
+            if cmslsnum not in databuffer:
                 databuffer[cmslsnum]=[]
                 databuffer[cmslsnum].append(deadtime)
             if bitnum==0:
@@ -736,7 +736,7 @@ def hltFromRuninfoV2(session,runnumber):
             ipath+=1
             if cmsluminr==1:
                 pathnames.append(pathname)
-            if not hltdict.has_key(cmsluminr):
+            if cmsluminr not in hltdict:
                 hltdict[cmsluminr]=[]
             hltinputs.append(hltinput)
             hltaccepts.append(hltaccept)

@@ -115,7 +115,7 @@ def getJobID_fromFileName(logfile_name, suffix, givenPath =""):
 	if givenPath:
 		path = givenPath
 	
-	if not universal_candle_step_regs.has_key(suffix):
+	if suffix not in universal_candle_step_regs:
 		#create and cache a regexp
 		universal_candle_step_regs[suffix] = re.compile( \
 			r"""

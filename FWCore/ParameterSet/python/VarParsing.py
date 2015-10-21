@@ -197,7 +197,7 @@ class VarParsing (object):
                     raise RuntimeError, "Illegal parsing command"
                 else:
                     # just a name and value
-                    if not self._register.has_key (name):
+                    if name not in self._register:
                         print "Error:  '%s' not registered." \
                               % name
                         raise RuntimeError, "Unknown variable"
@@ -219,7 +219,7 @@ class VarParsing (object):
                     # name modifier
                     name, command = arg.split ('_', 1)
                     command = command.lower()
-                    if not self._register.has_key (name):
+                    if name not in self._register:
                         print "Error:  '%s' not registered." \
                               % name
                         raise RuntimeError, "Unknown variable"
@@ -248,9 +248,9 @@ class VarParsing (object):
         # Post-loading processing #
         ###########################
         # sections
-        if self._register.has_key ('totalSections') and \
-           self._register.has_key ('section') and \
-           self._register.has_key ('inputFiles') and \
+        if 'totalSections' in self._register and \
+           'section' in self._register and \
+           'inputFiles' in self._register and \
            self.totalSections and self.section:
             # copy list
             oldInputFiles = self.inputFiles
@@ -261,8 +261,8 @@ class VarParsing (object):
                                                self.section,
                                                self.totalSections)
         # storePrepend
-        if self._register.has_key ('storePrepend') and \
-           self._register.has_key ('inputFiles') and \
+        if 'storePrepend' in self._register and \
+           'inputFiles' in self._register and \
            self.storePrepend:
             storeRE = re.compile (r'^/store/')
             newFileList = []
@@ -275,8 +275,8 @@ class VarParsing (object):
             # set new list as list
             self.inputFiles = newFileList
         # filePrepend
-        if self._register.has_key ('filePrepend') and \
-           self._register.has_key ('inputFiles') and \
+        if 'filePrepend' in self._register and \
+           'inputFiles' in self._register and \
            self.filePrepend:
             newFileList = []
             for filename in self.inputFiles:
@@ -300,7 +300,7 @@ class VarParsing (object):
 
     def clearList (self, name):
         """Empties all entries from list"""
-        if not self._register.has_key (name):
+        if name not in self._register:
             print "Error:  '%s' not registered." \
                   % name
             raise RuntimeError, "Unknown variable"
@@ -314,7 +314,7 @@ class VarParsing (object):
     def setNoDefaultClear (self, name, value=True):
         """Tells lists to not clear default list values when set from
         command line."""
-        if not self._register.has_key (name):
+        if name not in self._register:
             print "Error:  '%s' not registered." \
                   % name
             raise RuntimeError, "Unknown variable"
@@ -326,7 +326,7 @@ class VarParsing (object):
 
     def setNoCommaSplit (self, name, value=True):
         """Tells lists to not split up values by commas."""
-        if not self._register.has_key (name):
+        if name not in self._register:
             print "Error:  '%s' not registered." \
                   % name
             raise RuntimeError, "Unknown variable"
@@ -338,7 +338,7 @@ class VarParsing (object):
 
     def loadFromFile (self, name, filename):
         """Loads a list from file"""
-        if not self._register.has_key (name):
+        if name not in self._register:
             print "Error:  '%s' not registered." \
                   % name
             raise RuntimeError, "Unknown variable"
@@ -395,7 +395,7 @@ class VarParsing (object):
             print "Error: Name can not contain '_': %s" % name
             raise RuntimeError, "Improper 'name'"
         # has this been registered before?
-        if self._register.has_key (name):
+        if name in self._register:
             # Uh oh
             print "Error: You can not register a name twice, '%s'" \
                   % name
@@ -431,7 +431,7 @@ class VarParsing (object):
 
     def has_key (self, key):
         """Returns true if a key is registered"""
-        return self._register.has_key (key)
+        return key in self._register
 
 
     def setType (self, name, mytype):
@@ -449,7 +449,7 @@ class VarParsing (object):
         """Used to set or change the default of an already registered
         name"""
         # has this been registered?
-        if not self._register.has_key (name):
+        if name not in self._register:
             print "Error: VarParsing.setDefault '%s' not already registered." \
                   % name
             raise RuntimeError, "setDefault without registration"
@@ -521,7 +521,7 @@ class VarParsing (object):
         
 
     def _withTags (self, name):
-        if not self._register.has_key (name):
+        if name not in self._register:
             print "Error:  '%s' not registered." \
                   % name
             raise RuntimeError, "Unknown variable"
@@ -602,7 +602,7 @@ class VarParsing (object):
             return object.__getattribute__ (self, name)
         else:
             # user variable
-            if not self._register.has_key (name):
+            if name not in self._register:
                 print "Error:  '%s' not already registered." \
                       % name
                 raise RuntimeError, "Unknown variable"

@@ -58,7 +58,7 @@ def getrunsInCurrentData(schema,minrun=132440,maxrun=500000):
         while cursor.next():
             runnum=cursor.currentRow()['RUNNUM'].data()
             tagid=cursor.currentRow()['TAGID'].data()
-            if not tmpresult.has_key(runnum):
+            if runnum not in tmpresult:
                 tmpresult[runnum]=tagid
             else:
                 if tagid>tmpresult[runnum]:

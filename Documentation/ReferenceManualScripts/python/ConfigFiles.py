@@ -65,7 +65,7 @@ class ConfigFiles:
         parsedITemCounter = 0
         for i in td:
             if i.a and self.Check(i.a.text):
-                if not self.data.has_key(i.a.text[0].upper()):
+                if i.a.text[0].upper() not in self.data:
                     self.data[i.a.text[0].upper()] = {}
                 self.data[i.a.text[0].upper()][i.a.text] = i.a["href"]
                 parsedITemCounter += 1

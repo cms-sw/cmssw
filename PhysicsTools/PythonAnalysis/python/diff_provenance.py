@@ -39,7 +39,7 @@ class difference :
         "Searches for modules present only in one of the two files"
         onlyonefile=False
         for i in module1.keys():
-            if not module2.has_key(i):
+            if i not in module2:
                 if not onlyonefile:
                     print '\nModule present only in the '+string+ ' file:'+'\n'
                     onlyonefile = True

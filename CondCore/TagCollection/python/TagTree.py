@@ -213,7 +213,7 @@ class tagTree(object):
             cursor = query.execute()
             while ( cursor.next() ):
                 nodelabel=cursor.currentRow()['nodelabel'].data()
-                if nodenamemap.has_key(nodelabel):
+                if nodelabel in nodenamemap:
                     allnodes[nodelabel]=nodenamemap[nodelabel]
                 else:
                     allnodes[nodelabel]=nodelabel

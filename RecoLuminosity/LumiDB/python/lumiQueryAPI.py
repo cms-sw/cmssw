@@ -280,7 +280,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
         while cursor.next():
             hltpath = cursor.currentRow()['hltpath'].data()
             hltprescale = cursor.currentRow()['hltprescale'].data()
-            if lumidata[1].has_key (hltpath):
+            if hltpath in lumidata[1]:
                 lumidata[1][hltpath].append (hltprescale)
                 
         cursor.close()
@@ -335,10 +335,10 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
             trgprescale = cursor.currentRow()["trgprescale"].data()
             trgbitnum   = cursor.currentRow()["trgbitnum"].data()
             if cmsls == 1:
-                if not trgprescalemap.has_key (trgbitname):
+                if trgbitname not in trgprescalemap:
                     trgprescalemap[trgbitname] = trgprescale
             if trgbitnum == 0:
-                if not deadtable.has_key (cmsls):
+                if cmsls not in deadtable:
                     deadtable[cmsls] = []
                     deadtable[cmsls].append (trgdeadtime)
                     deadtable[cmsls].append (instlumi)
@@ -357,7 +357,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
         #print lumidata[1]
         for hpath, trgdataseq in lumidata[1].items():   
             bitn = trgdataseq[0]
-            if trgprescalemap.has_key (bitn) and len (trgdataseq) == 2:
+            if bitn in trgprescalemap and len (trgdataseq) == 2:
                 lumidata[1][hpath].append (trgprescalemap[bitn])                
         #filter selected cmsls
         lumidata[2] = filterDeadtable (deadtable, lslist)
@@ -558,7 +558,7 @@ def printRecordedLumi (lumidata, isVerbose = False, hltpath = ''):
         totalRecorded = totalRecorded+recordedLumi
         trgdict = dataperRun[1]
         effective = calculateEffective (trgdict, recordedLumi)
-        if trgdict.has_key (hltpath) and effective.has_key (hltpath):
+        if hltpath in trgdict and hltpath in effective:
             rowdata = []
             l1bit = trgdict[hltpath][0]
             if len (trgdict[hltpath]) !=  3:
@@ -654,7 +654,7 @@ def dumpRecordedLumi (lumidata, hltpath = ''):
         recordedLumi = calculateTotalRecorded (perlsdata)
         trgdict = dataperRun[1]
         effective = calculateEffective (trgdict, recordedLumi)
-        if trgdict.has_key (hltpath) and effective.has_key (hltpath):
+        if hltpath in trgdict and hltpath in effective:
             rowdata = []
             l1bit = trgdict[hltpath][0]
             if len (trgdict[hltpath]) !=  3:
@@ -721,7 +721,7 @@ def printOverviewData (delivered, recorded, hltpath = ''):
             recordedLumi = calculateTotalRecorded (recorded[runidx][2])
             lumiinPaths = calculateEffective (recorded[runidx][1], recordedLumi)
             if hltpath != '' and hltpath != 'all':
-                if lumiinPaths.has_key (hltpath):
+                if hltpath in lumiinPaths:
                     rowdata += [selectedlsStr, '%.3f'% (recordedLumi), '%.3f'% (lumiinPaths[hltpath])]
                     totalRecordedInPath += lumiinPaths[hltpath]
                 else:
@@ -761,7 +761,7 @@ def dumpOverview (delivered, recorded, hltpath = ''):
         recordedLumi = calculateTotalRecorded (recorded[runidx][2])
         lumiinPaths = calculateEffective (recorded[runidx][1], recordedLumi)
         if hltpath != '' and hltpath != 'all':
-            if lumiinPaths.has_key (hltpath):
+            if hltpath in lumiinPaths:
                 rowdata += [recordedLumi, lumiinPaths[hltpath]]
             else:
                 rowdata += [recordedLumi, 'N/A']
@@ -1019,7 +1019,7 @@ def validation(queryHandle,run=None,cmsls=None):
     cursor=queryHandle.execute()
     while cursor.next():
         runnum=cursor.currentRow()['runnum'].data()
-        if not result.has_key(runnum):
+        if runnum not in result:
             result[runnum]=[]
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         flag=cursor.currentRow()['flag'].data()
@@ -1031,7 +1031,7 @@ def validation(queryHandle,run=None,cmsls=None):
             for lsdata in perrundata:
                 if lsdata[0] not in cmsls:
                     continue
-                if not selectedresult.has_key(runnum):
+                if runnum not in selectedresult:
                     selectedresult[runnum]=[]
                 selectedresult[runnum].append(lsdata)
         return selectedresult
@@ -1235,7 +1235,7 @@ def trgbitzeroByrun(queryHandle,runnum):
         deadtime=cursor.currentRow()['deadtime'].data()
         bitname=cursor.currentRow()['bitname'].data()
         prescale=cursor.currentRow()['prescale'].data()
-        if not result.has_key(cmslsnum):
+        if cmslsnum not in result:
             result[cmslsnum]=[trgcount,deadtime,bitname,prescale]
     return result
 
@@ -1307,7 +1307,7 @@ def lumisummarytrgbitzeroByrun(queryHandle,runnum,lumiversion,beamstatus=None,be
         deadtime=cursor.currentRow()['deadtime'].data()
         bitname=cursor.currentRow()['bitname'].data()
         prescale=cursor.currentRow()['prescale'].data()
-        if not result.has_key(cmslsnum):
+        if cmslsnum not in result:
             result[cmslsnum]=[instlumi,numorbit,startorbit,beamstatus,beamenergy,trgcount,deadtime,bitname,prescale]
     return result
 
@@ -1343,7 +1343,7 @@ def trgBybitnameByrun(queryHandle,runnum,bitname):
         deadtime=cursor.currentRow()['deadtime'].data()
         bitnum=cursor.currentRow()['bitnum'].data()
         prescale=cursor.currentRow()['prescale'].data()
-        if not result.has_key(cmslsnum):
+        if cmslsnum not in result:
             result[cmslsnum]=[trgcount,deadtime,bitnum,prescale]
     return result
 
@@ -1384,7 +1384,7 @@ def trgAllbitsByrun(queryHandle,runnum):
         bitnum=cursor.currentRow()['bitnum'].data()
         bitname=cursor.currentRow()['bitname'].data()
         prescale=cursor.currentRow()['prescale'].data()
-        if not result.has_key(cmslsnum):
+        if cmslsnum not in result:
             dataperLS={}
             dataperLS[bitname]=[bitnum,trgcount,deadtime,prescale]
             result[cmslsnum]=dataperLS
@@ -1422,7 +1422,7 @@ def hltBypathByrun(queryHandle,runnum,hltpath):
         inputcount=cursor.currentRow()['inputcount'].data()
         acceptcount=cursor.currentRow()['acceptcount'].data()
         prescale=cursor.currentRow()['prescale'].data()
-        if not result.has_key(cmslsnum):
+        if cmslsnum not in result:
             result[cmslsnum]=[inputcount,acceptcount,prescale]
     return result
 
@@ -1457,7 +1457,7 @@ def hltAllpathByrun(queryHandle,runnum):
         acceptcount=cursor.currentRow()['acceptcount'].data()
         prescale=cursor.currentRow()['prescale'].data()
         pathname=cursor.currentRow()['pathname'].data()
-        if not result.has_key(cmslsnum):
+        if cmslsnum not in result:
             dataperLS={}
             dataperLS[pathname]=[inputcount,acceptcount,prescale]
             result[cmslsnum]=dataperLS
@@ -1516,7 +1516,7 @@ def beamIntensityForRun(query,parameters,runnum):
                     beamintensityblob2=cursor.currentRow()['beamintensityblob2'].data()
                     if beamintensityblob2 and beamintensityblob2.readline()!=None:
                         bb2=CommonUtil.unpackBlobtoArray(beamintensityblob2,'f')
-        if not result.has_key(startorbit):
+        if startorbit not in result:
             result[startorbit]=[]
         for idx,bxidxvalue in enumerate(bxidx):
             try:
@@ -1667,7 +1667,7 @@ def lumidetailAllalgosByrun(queryHandle,runnum):
         bxlumiquality=cursor.currentRow()['bxlumiquality'].data()
         algoname=cursor.currentRow()['algoname'].data()
         startorbit=cursor.currentRow()['startorbit'].data()
-        if not result.has_key(algoname):
+        if algoname not in result:
             dataPerAlgo={}
             dataPerAlgo[cmslsnum]=[bxlumivalue,bxlumierror,bxlumiquality,startorbit]
             result[algoname]=dataPerAlgo
@@ -1697,7 +1697,7 @@ def hlttrgMappingByrun(queryHandle,runnum):
     while cursor.next():
         hltpathname=cursor.currentRow()['hltpathname'].data()
         l1seed=cursor.currentRow()['l1seed'].data()
-        if not result.has_key(hltpathname):
+        if hltpathname not in result:
             result[hltpathname]=l1seed
     return result
 
@@ -1725,7 +1725,7 @@ def runsByfillrange(queryHandle,minFill,maxFill):
     while cursor.next():
         runnum=cursor.currentRow()['runnum'].data()
         fillnum=cursor.currentRow()['fillnum'].data()
-        if not result.has_key(fillnum):
+        if fillnum not in result:
             result[fillnum]=[runnum]
         else:
             result[fillnum].append(runnum)
@@ -1763,7 +1763,7 @@ def runsByTimerange(queryHandle,minTime,maxTime):
         runnum=cursor.currentRow()['runnum'].data()
         starttimeStr=cursor.currentRow()['starttime'].data()
         stoptimeStr=cursor.currentRow()['stoptime'].data()
-        if not result.has_key(runnum):
+        if runnum not in result:
             result[runnum]=[t.StrToDatetime(starttimeStr),t.StrToDatetime(stoptimeStr)]
     return result
     

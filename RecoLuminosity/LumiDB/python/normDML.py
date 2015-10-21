@@ -38,7 +38,7 @@ def allNorms(schema):
         cursor=qHandle.execute()
         while cursor.next():
             normname=cursor.currentRow()['ENTRY_NAME'].data()
-            if not result.has_key(normname):
+            if normname not in result:
                 result[normname]=[]
             dataid=cursor.currentRow()['DATA_ID'].data()
             lumitype=cursor.currentRow()['LUMITYPE'].data()
@@ -119,7 +119,7 @@ def normIdByType(schema,lumitype='HF',defaultonly=True):
             if not cursor.currentRow()['DATA_ID'].isNull():
                 dataid=cursor.currentRow()['DATA_ID'].data()
                 normname=cursor.currentRow()['ENTRY_NAME'].data()
-                if not luminormidmap.has_key(normname):
+                if normname not in luminormidmap:
                     luminormidmap[normname]=dataid
                 else:
                     if dataid>luminormidmap[normname]:
@@ -169,7 +169,7 @@ def normInfoByName(schema,normname):
             if not cursor.currentRow()['COMMENT'].isNull():
                 comment=cursor.currentRow()['COMMENT'].data()
             creationtime=cursor.currentRow()['ctime'].data()
-            if not result.has_key(dataid):
+            if dataid not in result:
                 result[dataid]=[dataid,lumitype,istypedefault,comment,creationtime]
     except :
         del qHandle

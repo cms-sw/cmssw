@@ -369,7 +369,7 @@ if __name__ == "__main__":
     destsession.transaction().commit()
     print 'dest hfdataidmap ',hfdataidmap
     
-    if hfdataidmap.has_key(int(options.runnum)):
+    if int(options.runnum) in hfdataidmap:
         print 'existing old hf data in destdb of run ',options.runnum,hfdataidmap[int(options.runnum)]
         destsession.transaction().start(False)
         [destlumidataid,desttrgdataid,desthltdataid]=hfdataidmap[int(options.runnum)]

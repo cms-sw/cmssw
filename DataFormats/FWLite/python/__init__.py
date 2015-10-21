@@ -158,10 +158,10 @@ class Lumis:
         ##############################
         ## Parse optional arguments ##
         ##############################
-        if kwargs.has_key ('maxEvents'):
+        if 'maxEvents' in kwargs:
             self._maxLumis = kwargs['maxEvents']
             del kwargs['maxEvents']
-        if kwargs.has_key ('options'):
+        if 'options' in kwargs:
             options = kwargs ['options']
             self._maxLumis           = options.maxEvents
             self._filenames          = options.inputFiles
@@ -316,10 +316,10 @@ class Runs:
         ##############################
         ## Parse optional arguments ##
         ##############################
-        if kwargs.has_key ('maxEvents'):
+        if 'maxEvents' in kwargs:
             self._maxRuns = kwargs['maxEvents']
             del kwargs['maxEvents']
-        if kwargs.has_key ('options'):
+        if 'options' in kwargs:
             options = kwargs ['options']
             self._maxRuns           = options.maxEvents
             self._filenames           = options.inputFiles
@@ -485,13 +485,13 @@ class Events:
         ##############################
         ## Parse optional arguments ##
         ##############################
-        if kwargs.has_key ('maxEvents'):
+        if 'maxEvents' in kwargs:
             self._maxEvents = kwargs['maxEvents']
             del kwargs['maxEvents']
-        if kwargs.has_key ('forceEvent'):
+        if 'forceEvent' in kwargs:
             self._forceEvent = kwargs['forceEvent']
             del kwargs['forceEvent']
-        if kwargs.has_key ('options'):
+        if 'options' in kwargs:
             options = kwargs ['options']
             self._maxEvents           = options.maxEvents
             self._filenames           = options.inputFiles

@@ -136,7 +136,7 @@ class PackageSplitter:
         for i in self.packages:
             if not "Package" in i:
                 continue 
-            if not self.data.has_key(self.__GetPackageName(i).replace(u'Package ', u'')):
+            if self.__GetPackageName(i).replace(u'Package ', u'') not in self.data:
                 self.data[self.__GetPackageName(i).replace(u'Package ', u'')] = {}
             
             self.data[self.__GetPackageName(i).replace(u'Package ', u'')][i] = self.packages[i]

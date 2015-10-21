@@ -156,7 +156,7 @@ def insertLumischemaV2(dbsession,runnum,datasource,perlsrawdata,perbunchrawdata,
             beam2intensityArray=array.array('f')
             for bxidx in range(1,3565):
                 lumifraction=0.0
-                if perbunchrawdata.has_key(bxidx):
+                if bxidx in perbunchrawdata:
                     lumifraction=perbunchrawdata[bxidx]
                 bxlumivalue=float(instlumi*lumifraction)
                 bxdataArray.append(bxlumivalue)

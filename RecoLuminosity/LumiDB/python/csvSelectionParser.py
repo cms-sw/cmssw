@@ -21,7 +21,7 @@ class csvSelectionParser(object):
                 continue
             runnumber=int(field0)
             lsnumber=int(field1)
-            if self.__result.has_key(runnumber):
+            if runnumber in self.__result:
                 self.__result[runnumber].append(lsnumber)
             else:
                 self.__result[runnumber]=[lsnumber]            

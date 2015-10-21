@@ -25,7 +25,7 @@ def read_data():
         value = key.childNodes[0].nodeValue
         found = 0
 
-        if not elements.has_key(name):
+        if name not in elements:
           elements[name] = {'type': '', 'count': 0}
         elements[name]['count'] = elements[name]['count'] + 1
 
@@ -120,7 +120,7 @@ def priorities():
     l = len(results[ci])
     if l == 1: 
       continue
-    if not prior.has_key(l):
+    if l not in prior:
       prior[l] = [ci]
     else:
       prior[l].append(ci)
