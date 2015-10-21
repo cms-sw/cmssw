@@ -889,7 +889,9 @@ steps['HLTD']=merge([{'--process':'reHLT',
                       '-s':'L1REPACK,HLT:@%s'%hltKey,
                       '--conditions':'auto:run1_hlt_%s'%menu,
                       '--data':'',
-                      '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
+                      '--eventcontent': 'FEVTDEBUGHLT',
+                      '--datatier': 'FEVTDEBUGHLT',
+#                      '--output':'\'[{"e":"RAW","t":"RAW","o":["drop FEDRawDataCollection_rawDataCollector__LHC"]}]\'',
                       },])
 steps['HLTDSKIM']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'},steps['HLTD']])
 
