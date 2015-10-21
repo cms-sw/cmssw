@@ -187,6 +187,10 @@ unsigned int HGCalGeometry::sizeForDenseIndex() const {
   return topology().totalGeomModules();
 }
 
+unsigned int HGCalGeometry::sizeForDenseIndex(const DetId& id) const {
+  return topology().totalGeomModules();
+}
+
 const CaloCellGeometry* HGCalGeometry::cellGeomPtr(uint32_t index) const {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return 0;
