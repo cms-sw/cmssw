@@ -3,6 +3,7 @@
 The sequential dictionary is a combination of a list and a dictionary so you can do most operations defined with lists . 
 seqdict - single value dictionary , keeps one value for one key 
 '''
+from functools import reduce
 
 class seqdict:
   def __init__(self,List=[],Dict={}):

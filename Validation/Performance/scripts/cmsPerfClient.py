@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import socket, xml, xmlrpclib, os, sys, threading, Queue, time, random, pickle, exceptions
 import optparse as opt
+from functools import reduce
 #Documentation needs to follow... but for now just know that
 #a template file for cmsPerfClient.py -f option is BencmarkCfg.py in Validation/Performance/python dir.
 PROG_NAME = os.path.basename(sys.argv[0])

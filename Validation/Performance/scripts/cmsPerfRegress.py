@@ -9,6 +9,7 @@ import ROOT
 from array import array
 #Substitute popen with subprocess.Popen! popen obsolete...
 import subprocess
+from functools import reduce
 
 _cmsver = os.environ['CMSSW_VERSION']
 values_set=('vsize','delta_vsize','rss','delta_rss')

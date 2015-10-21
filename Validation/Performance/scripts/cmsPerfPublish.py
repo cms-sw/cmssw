@@ -21,6 +21,7 @@ from cmsPerfCommons import CandFname, Step, ProductionSteps, Candles
 import ROOT
 #Switching from os.popen4 to subprocess.Popen for Python 2.6 (340_pre5 onwards):
 import subprocess
+from functools import reduce
 
 PROG_NAME  = os.path.basename(sys.argv[0])
 DEF_RELVAL = "/afs/cern.ch/cms/sdt/web/performance/RelVal"

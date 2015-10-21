@@ -102,6 +102,7 @@ from random import choice
 from DBSAPI.dbsApi import DbsApi
 import DBSAPI.dbsException
 import DBSAPI.dbsApiException
+from functools import reduce
 # and these we need to parse the DBS output.
 global xml
 global SAXParseException
