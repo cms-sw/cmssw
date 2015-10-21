@@ -18,7 +18,7 @@ class ClusterMultiplicityFilter : public edm::stream::EDFilter<> {
 
    private:
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+      virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 
       const unsigned int maxNumberOfClusters_;
       const std::string clusterCollectionLabel_;
