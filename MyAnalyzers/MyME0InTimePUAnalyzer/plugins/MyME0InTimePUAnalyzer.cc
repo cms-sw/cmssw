@@ -1144,7 +1144,7 @@ MyME0InTimePUAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	else {}
       }// end loop over rechits
       if(nCSCChambersMatched+nDTChambersMatched>1) {
-	std::cout<<"=== Matched :: Number of CSC segments matched = "<<nCSCChambersMatched<<" Number of DT segments matched = "<<nDTChambersMatched<<" ==> recoMuon is Matched to genMuon"<<std::endl;
+	if(printInfoMuonMatch) { std::cout<<"=== Matched :: Number of CSC segments matched = "<<nCSCChambersMatched<<" Number of DT segments matched = "<<nDTChambersMatched<<" ==> recoMuon is Matched to genMuon"<<std::endl; }
 	std::vector< std::pair<int,int> > tmp = recomu[matchedGENMu];
 	tmp.push_back(std::make_pair(recomuonpos,nCSCChambersMatched+nDTChambersMatched));
 	recomu[matchedGENMu] = tmp;
