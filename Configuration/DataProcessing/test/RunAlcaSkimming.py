@@ -39,7 +39,7 @@ class RunAlcaSkimming:
 
         try:
             scenario = getScenario(self.scenario)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
@@ -52,10 +52,10 @@ class RunAlcaSkimming:
             
         try:
             process = scenario.alcaSkim(self.skims, globaltag = self.globalTag)
-        except NotImplementedError, ex:
+        except NotImplementedError as ex:
             print "This scenario does not support Alca Skimming:\n"
             return
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error creating Alca Skimming config:\n"
             msg += str(ex)
             raise RuntimeError, msg
@@ -93,7 +93,7 @@ python2.4 RunAlcaSkimming.py --scenario=Cosmics --lfn=/store/whatever --skims=Mu
 """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         print usage
         print str(ex)
         sys.exit(1)

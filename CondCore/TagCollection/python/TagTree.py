@@ -24,7 +24,7 @@ class tagTree(object):
             result=schema.existsTable(self.__tagTreeTableName)
             transaction.commit()
             #print result
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         return result
@@ -55,7 +55,7 @@ class tagTree(object):
             generator=IdGenerator.IdGenerator(self.__session.nominalSchema())
             generator.createIDTable(self.__tagTreeIDs,True)
             transaction.commit()
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
 
@@ -94,7 +94,7 @@ class tagTree(object):
             nresult=insertwtQuery.execute()
             transaction.commit()
             del insertwtQuery
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         #print nresult,' rows copied from ',sourcetagTreeTableName
@@ -106,7 +106,7 @@ class tagTree(object):
             nresult=insertwtQuery.execute()
             transaction.commit()
             del insertwtQuery
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         #print nresult,' rows copied from ',sourcetagTreeIDs
@@ -136,7 +136,7 @@ class tagTree(object):
             mybulkOperation.flush()
             transaction.commit()
             del mybulkOperation
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
 
@@ -190,10 +190,10 @@ class tagTree(object):
                 generator.incrementNextID(self.__tagTreeIDs)
             transaction.commit()
             return nodeid
-        except coral.Exception, er:
+        except coral.Exception as er:
             transaction.rollback()
             raise Exception, str(er)
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         
@@ -231,11 +231,11 @@ class tagTree(object):
                 inputData['newnodelabel'].setData(nodelabelpair[1])
                 editor.updateRows( "nodelabel = :newnodelabel", "nodelabel = :oldnodelabel", inputData )
             transaction.commit()
-        except coral.Exception, er:
+        except coral.Exception as er:
             transaction.rollback()
             del query
             raise Exception, str(er)
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             del query
             raise Exception, str(er)
@@ -269,10 +269,10 @@ class tagTree(object):
             transaction.commit()
             del query
             return result
-        except coral.Exception, er:
+        except coral.Exception as er:
             transaction.rollback()
             raise Exception, str(er)
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         
@@ -306,10 +306,10 @@ class tagTree(object):
             transaction.commit()
             del query
             return result
-        except coral.Exception, er:
+        except coral.Exception as er:
             transaction.rollback()
             raise Exception, str(er)
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
     def getPath( self, label ):
@@ -345,10 +345,10 @@ class tagTree(object):
             transaction.commit()
             del query
             return result
-        except coral.Exception, er:
+        except coral.Exception as er:
             transaction.rollback()
             raise Exception, str(er)
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)   
     def getAllLeaves( self ):
@@ -380,11 +380,11 @@ class tagTree(object):
             transaction.commit()
             del query
             return result
-        except coral.Exception, er:
+        except coral.Exception as er:
             transaction.rollback()
             del query
             raise Exception, str(er)
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             del query
             raise Exception, str(er)   
@@ -451,10 +451,10 @@ class tagTree(object):
                 transaction.commit()
                 del query
                 return result
-        except coral.Exception, er:
+        except coral.Exception as er:
             transaction.rollback()
             raise Exception, str(er)
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
     def nChildren( self, label='ROOT' ):
@@ -479,10 +479,10 @@ class tagTree(object):
                 transaction.commit()
                 del query
                 return n
-            except coral.Exception, er:
+            except coral.Exception as er:
                 transaction.rollback()
                 raise Exception, str(er)
-            except Exception, er:
+            except Exception as er:
                 transaction.rollback()
                 raise Exception, str(er)
         else:
@@ -524,10 +524,10 @@ class tagTree(object):
                 editor.deleteRows( condition, conditionData )
                 self.__closeGap(tableHandle,parentlft,parentrgt,n)
                 transaction.commit()
-        except coral.Exception, er:
+        except coral.Exception as er:
             transaction.rollback()
             raise Exception, str(er)
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
     def deleteNode( self, label ):
@@ -550,7 +550,7 @@ class tagTree(object):
             editor.deleteRows( condition, conditionData )
             self.__closeGap(tableHandle,parentlft,parentrgt,1)
             transaction.commit()
-        except Exception, er:
+        except Exception as er:
             print str(er)
             transaction.rollback()
             raise Exception, str(er)   
@@ -639,7 +639,7 @@ if __name__ == "__main__":
             newlinks[l.tagid]=1234
         newtree.replaceLeafLinks(newlinks)
         del session
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del session

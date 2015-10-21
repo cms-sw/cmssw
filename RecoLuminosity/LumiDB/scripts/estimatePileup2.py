@@ -140,7 +140,7 @@ if __name__ == '__main__':
     # parse arguments
     try:
         (options, args) = parser.parse_args()
-    except Exception , e:
+    except Exception as e:
         print e
     if not args:
         parser.print_usage()

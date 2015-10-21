@@ -104,7 +104,7 @@ def crabAction(options, action = None):
         if action: result = action(crab)
         del crab
         print 'Log file is %s%s.log'%(common.work_space.logDir(),common.prog_name) 
-    except CrabException, e:
+    except CrabException as e:
         del crab
         #print '\n' + common.prog_name + ': ' + str(e) + '\n' 
         raise
@@ -126,7 +126,7 @@ def crabActionCRAB251(options, action = None):
         del crab
         #print 'Log file is %s%s.log'%(common.work_space.logDir(),common.prog_name)  
         #print '\n##############################  E N D  ####################################\n'
-    except CrabException, e:
+    except CrabException as e:
         print '\n' + common.prog_name + ': ' + str(e) + '\n'
         pass
     pass

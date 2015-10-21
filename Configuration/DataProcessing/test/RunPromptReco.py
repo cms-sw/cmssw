@@ -43,7 +43,7 @@ class RunPromptReco:
 
         try:
             scenario = getScenario(self.scenario)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
@@ -95,10 +95,10 @@ class RunPromptReco:
 
             process = scenario.promptReco(self.globalTag, **kwds)
 
-        except NotImplementedError, ex:
+        except NotImplementedError as ex:
             print "This scenario does not support Prompt Reco:\n"
             return
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error creating Prompt Reco config:\n"
             msg += str(ex)
             raise RuntimeError, msg
@@ -149,7 +149,7 @@ python RunPromptReco.py --scenario=ppRun2 --reco --aod --dqmio --global-tag GLOB
 """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         print usage
         print str(ex)
         sys.exit(1)

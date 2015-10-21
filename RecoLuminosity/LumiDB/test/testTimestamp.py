@@ -63,7 +63,7 @@ try:
         print '3rd LS would be in ',s+2*delta
     del query
     dbsession.transaction().commit()
-except Exception,e:
+except Exception as e:
     print 'caught exception ',str(e)
     dbsession.transaction().rollback()
 del dbsession

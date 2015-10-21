@@ -167,7 +167,7 @@ def parsebunchFile(ifilename):
         for i in convertlist(result):
             perbunchdata[i[0]]=i[1]
         return perbunchdata
-    except Exception,e:
+    except Exception as e:
         raise RuntimeError(str(e))
     
 def parseLSFile(ifilename):
@@ -181,7 +181,7 @@ def parseLSFile(ifilename):
         for i in convertlist(result):
             perlsdata[i[0]]=i[1]/float(lslength)
         return perlsdata
-    except Exception,e:
+    except Exception as e:
         raise RuntimeError(str(e))
     
 def main(*args):

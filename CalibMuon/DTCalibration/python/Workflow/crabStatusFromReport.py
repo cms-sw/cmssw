@@ -57,7 +57,7 @@ def queryStatusXML(filename):
 
     try:
         report = loadIMProvFile(filename)
-    except StandardError, ex:
+    except StandardError as ex:
         msg = "Error reading CRAB Status Report: %s\n" % filename
         msg += str(ex)
         raise RuntimeError, msg

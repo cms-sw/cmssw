@@ -2404,7 +2404,7 @@ class CMSHarvester(object):
             api = DbsApi(args)
             self.dbs_api = api
 
-        except DBSAPI.dbsApiException.DbsApiException, ex:
+        except DBSAPI.dbsApiException.DbsApiException as ex:
             self.logger.fatal("Caught DBS API exception %s: %s "  % \
                               (ex.getClassName(), ex.getErrorMessage()))
             if ex.getErrorCode() not in (None, ""):
@@ -5683,16 +5683,16 @@ class CMSHarvester(object):
                     # Explain the user what to do now.
                     self.show_exit_message()
 
-            except Usage, err:
+            except Usage as err:
                 # self.logger.fatal(err.msg)
                 # self.option_parser.print_help()
                 pass
 
-            except Error, err:
+            except Error as err:
                 # self.logger.fatal(err.msg)
                 exit_code = 1
 
-            except Exception, err:
+            except Exception as err:
                 # Hmmm, ignore keyboard interrupts from the
                 # user. These are not a `serious problem'. We also
                 # skip SystemExit, which is the exception thrown when

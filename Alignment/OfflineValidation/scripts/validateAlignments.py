@@ -205,7 +205,7 @@ class ValidationJob:
                             "-submit": "" }
                 try:
                     theCrab.run( options )
-                except AllInOneError, e:
+                except AllInOneError as e:
                     print "crab:", str(e).split("\n")[0]
                     exit(1)
                 ValidationJob.crabCount += 1
@@ -485,7 +485,7 @@ To merge the outcome of all validation procedures run TkAlMerge.sh in your valid
                             "-c": crabLogDir }
             try:
                 theCrab.run( crabOptions )
-            except AllInOneError, e:
+            except AllInOneError as e:
                 print "crab:  No output retrieved for this task."
             crabOptions = { "-status": "",
                             "-c": crabLogDir }
@@ -552,6 +552,6 @@ if __name__ == "__main__":
     else:
         try:
             main()
-        except AllInOneError, e:
+        except AllInOneError as e:
             print "\nAll-In-One Tool:", str(e)
             exit(1)

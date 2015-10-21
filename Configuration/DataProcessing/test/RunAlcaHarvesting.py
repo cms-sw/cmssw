@@ -48,7 +48,7 @@ class RunAlcaHarvesting:
         
         try:
             scenario = getScenario(self.scenario)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
@@ -68,7 +68,7 @@ class RunAlcaHarvesting:
                 kwds['alcapromptdataset'] = self.alcapromptdataset
             process = scenario.alcaHarvesting(self.globalTag, self.dataset, **kwds)
             
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error creating AlcaHarvesting config:\n"
             msg += str(ex)
             raise RuntimeError, msg
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     usage = """RunAlcaHarvesting.py <options>"""
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         print usage
         print str(ex)
         sys.exit(1)

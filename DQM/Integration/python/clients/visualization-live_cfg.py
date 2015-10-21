@@ -22,7 +22,7 @@ print "Using scenario:",scenarioName
 
 try:
     scenario = getScenario(scenarioName)
-except Exception, ex:
+except Exception as ex:
     msg = "Error getting Scenario implementation for %s\n" % (
         scenarioName,)
     msg += str(ex)

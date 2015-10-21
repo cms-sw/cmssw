@@ -23,7 +23,7 @@ class entryComment(object):
             result=schema.existsTable(CommonUtils.commentTableName())
             transaction.commit()
             #print result
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             raise Exception, str(er)
         return result
@@ -46,7 +46,7 @@ class entryComment(object):
            tablehandle=schema.createTable(description)
            tablehandle.privilegeManager().grantToPublic(coral.privilege_Select)
            transaction.commit()
-        except Exception, e:
+        except Exception as e:
            transaction.rollback() 
            raise Exception, str(e)
     def insertComment( self, tablename, entryid,comment ):
@@ -60,7 +60,7 @@ class entryComment(object):
             dbop=DBImpl.DBImpl(schema)
             dbop.insertOneRow(CommonUtils.commentTableName(),self.__entryCommentTableColumns,tabrowValueDict)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
     def bulkinsertComments( self, tableName,bulkinput):
@@ -74,7 +74,7 @@ class entryComment(object):
             dbop=DBImpl.DBImpl(schema)
             dbop.bulkInsert(CommonUtils.commentTableName(),self.__entryCommentTableColumns,bulkinput)
             transaction.commit()  
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)    
         
@@ -102,7 +102,7 @@ class entryComment(object):
             transaction.commit()
             del query
             return comment
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
     def getCommentsForTable( self, tableName ):
@@ -132,7 +132,7 @@ class entryComment(object):
             transaction.commit()
             del query
             return result
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
         
@@ -152,7 +152,7 @@ class entryComment(object):
             inputData['tablename'].setData(tableName)
             editor.updateRows( "comment = :newcomment", "entryid = :entryid AND tablename = :tablename", inputData )
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
 
@@ -172,7 +172,7 @@ class entryComment(object):
             inputData['tablename'].setData(tableName)
             editor.updateRows( "entryid = :newentryid", "entryid = :oldentryid AND tablename = :tablename", inputData )
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
         
@@ -191,7 +191,7 @@ class entryComment(object):
             conditionbindDict['entryid'].setData(entryid)
             dbop.deleteRows(CommonUtils.commentTableName(),condition,conditionbindDict)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
         
@@ -208,7 +208,7 @@ class entryComment(object):
             conditionbindDict['tablename'].setData(tablename)
             dbop.deleteRows(CommonUtils.commentTableName(),condition,conditionbindDict)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
             raise Exception, str(e)
         
@@ -248,7 +248,7 @@ if __name__ == "__main__":
         entrycomment.clearAllEntriesForTable(CommonUtils.inventoryTableName())
         print entrycomment.getCommentsForTable(CommonUtils.inventoryTableName())
         del session
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del session

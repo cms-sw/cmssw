@@ -41,7 +41,7 @@ class RunExpressProcessing:
         
         try:
             scenario = getScenario(self.scenario)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
@@ -90,10 +90,10 @@ class RunExpressProcessing:
 
             process = scenario.expressProcessing(self.globalTag, **kwds)
 
-        except NotImplementedError, ex:
+        except NotImplementedError as ex:
             print "This scenario does not support Express Processing:\n"
             return
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error creating Express Processing config:\n"
             msg += str(ex)
             raise RuntimeError, msg
@@ -139,7 +139,7 @@ python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store
 """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         print usage
         print str(ex)
         sys.exit(1)

@@ -55,7 +55,7 @@ def visit_timesize_steps(candle,profsetdir):
                     stepdict = out["TimingReport"]
                     stepdict[step] = cpr.getTimingLogData(globule)
                     out["TimingReport"] = stepdict
-                except (OSError, IOError), detail:
+                except (OSError, IOError) as detail:
                     print detail
             else:
                 print "Error: Could not determine step from %s" % base

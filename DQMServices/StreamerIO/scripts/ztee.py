@@ -106,7 +106,7 @@ def capture(fd, args):
             try:
                 log_handler._sigusr_interrupt = False
                 rlist, wlist, xlist = select.select([fd], [], [], 5)
-            except select.error, e:
+            except select.error as e:
                 if e[0] != errno.EINTR: raise
                 if not log_handler._sigusr_interrupt: raise
 

@@ -44,7 +44,7 @@ class dbUtil(object):
                 for i in range(0,n):
                   columndesp=view.column(i)
                   print '\t',columndesp.name(),columndesp.type()
-        except Exception, e:
+        except Exception as e:
             raise Exception, str(e)
     def existRow( self, tableName, condition, conditionDefDict,conditionDict):
         """
@@ -65,7 +65,7 @@ class dbUtil(object):
                 cursor.close()
             del query
             return result
-        except Exception, e:
+        except Exception as e:
             raise Exception, str(e)
     def insertOneRow( self, tableName, tabrowDefDict, tabrowValueDict ):
         """
@@ -80,7 +80,7 @@ class dbUtil(object):
                 inputData.extend( name, type )
                 inputData[name].setData(tabrowValueDict[name])
             editor.insertRow( inputData )
-        except Exception, e:
+        except Exception as e:
             raise Exception, 'dbUtil.insertOneRow:'+str(e)
 
     def singleUpdate( self,tableName,setClause,updateCondition,inputData):
@@ -88,7 +88,7 @@ class dbUtil(object):
             dataEditor=self.__schema.tableHandle(tableName).dataEditor()
             n=dataEditor.updateRows(setClause,updateCondition,inputData)
             return n
-        except Exception, e:
+        except Exception as e:
             raise RuntimeError('dbUtil.updateOneRow:'+str(e))
     
     def updateRows( self,tableName,updateAction,updateCondition,bindvarDef,bulkinput):
@@ -113,7 +113,7 @@ class dbUtil(object):
                 bulkOperation.processNextIteration()
             bulkOperation.flush()
             del bulkOperation
-        except Exception, e:
+        except Exception as e:
             raise Exception, 'dbUtil.updateRows:'+str(e)
     def bulkInsert( self, tableName, tabrowDef, bulkinput):
         """
@@ -146,7 +146,7 @@ class dbUtil(object):
             tableHandle = self.__schema.tableHandle(tableName)
             editor = tableHandle.dataEditor()
             editor.deleteRows( condition, conditionbindDict )
-        except Exception, e:
+        except Exception as e:
             raise Exception, str(e)
         
     def dropTable( self, tableName ):
@@ -156,7 +156,7 @@ class dbUtil(object):
         try:
             self.__schema.dropIfExistsTable( tableName )
             self.__schema.dropIfExistsTable( nameDealer.idTableName(tableName) )
-        except Exception, e:
+        except Exception as e:
             raise Exception, str(e)
 
     def dropAllTables( self ):
@@ -166,7 +166,7 @@ class dbUtil(object):
         try:
             for t in self.__schema.listTables():
                 self.__schema.dropTable(t)
-        except Exception, e:
+        except Exception as e:
             raise Exception, str(e)
 
     def createTable( self,description,withIdTable=False,withEntryTables=False,withRevMapTable=False):
@@ -185,7 +185,7 @@ class dbUtil(object):
                 self.createIDTable(entrytableName,True)
             if withRevMapTable is True:
                 self.createRevMapTable(tableName,True)
-        except Exception, e:
+        except Exception as e:
             raise RuntimeError('dbUtil.createTable'+str(e))
 
     def tableExists( self,tableName ):
@@ -195,7 +195,7 @@ class dbUtil(object):
         try:
           self.__schema.tableHandle(tableName)
           return True
-        except coral.Exception, e:
+        except coral.Exception as e:
           return False
 
     def createIDTable( self, tableName, deleteOld=True ):
@@ -223,7 +223,7 @@ class dbUtil(object):
           editor.rowBuffer( inputData )
           inputData[ nameDealer.idTableColumnDefinition()[0] ].setData(0)
           editor.insertRow( inputData )
-        except Exception, e:
+        except Exception as e:
           raise RuntimeError('dbUtil.createIDTable'+str(e))
       
     def createEntryTable( self, tableName, deleteOld=True ):
@@ -247,7 +247,7 @@ class dbUtil(object):
           description.insertColumn( 'NAME' ,'string',56,False)
           tableHandle=self.__schema.createTable( description )
           tableHandle.privilegeManager().grantToPublic(coral.privilege_Select)
-        except Exception, e:
+        except Exception as e:
           raise RuntimeError(' dbUtil.createEntryTable '+str(e))
       
     def createRevMapTable( self, tableName, deleteOld=True ):
@@ -270,7 +270,7 @@ class dbUtil(object):
           description.insertColumn( 'REVISION_ID' ,'unsigned long long')
           tableHandle=self.__schema.createTable( description )
           tableHandle.privilegeManager().grantToPublic(coral.privilege_Select)
-        except Exception, e:
+        except Exception as e:
           raise RuntimeError(' dbUtil.createRevMapTable '+str(e))     
       
 if __name__ == "__main__":
