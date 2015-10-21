@@ -162,10 +162,10 @@ class mseqdict(seqdict):    #Sequential Multiple Value Dictionary
     if not func1:
       self.list.sort()
     else:
-      apply(self.list.sort,[func1])
+      self.list.sort(*[func1])
     if func2:
       for value in self.values():
-        apply(value.sort,[func2])
+        value.sort(*[func2])
       
   def swap(self):
     tmp = self.__class__()

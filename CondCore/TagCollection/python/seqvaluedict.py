@@ -146,7 +146,7 @@ class seqdict:
     del self.dict[key]
     self.list.remove(key)
   def reverse(self):self.list.reverse()
-  def sort(self,*args):apply(self.list.sort,args)
+  def sort(self,*args):self.list.sort(*args)
   def split(self,function,Ignore=None):
     splitdict = seqdict() #self.__class__()
     for key in self.list:
