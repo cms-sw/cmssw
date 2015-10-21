@@ -43,8 +43,8 @@ class CandidateBoostedDoubleSecondaryVertexComputer : public JetTagComputer {
     const edm::FileInPath weightFile_;
     const bool useGBRForest_;
     const bool useAdaBoost_;
-    const bool maxDistToAxis_;
-    const bool maxDecayLen_;
+    const double maxDistToAxis_;
+    const double maxDecayLen_;
     reco::V0Filter trackPairV0Filter;
     reco::TrackSelector trackSelector;
 
