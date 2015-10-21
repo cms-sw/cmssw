@@ -113,7 +113,7 @@ class DQMFileIterator {
   std::chrono::high_resolution_clock::time_point lastLumiLoad_;
 
   void collect(bool ignoreTimers);
-  void monUpdateLumi(const LumiEntry& lumi); 
+  void monUpdateLumi(const LumiEntry& lumi);
 
   /* this is for monitoring */
   edm::Service<DQMMonitoringService> mon_;
