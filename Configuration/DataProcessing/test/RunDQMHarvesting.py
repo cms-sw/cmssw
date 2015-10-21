@@ -27,18 +27,18 @@ class RunDQMHarvesting:
     def __call__(self):
         if self.scenario == None:
             msg = "No --scenario specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         if self.inputLFN == None:
             msg = "No --lfn specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         
         if self.run == None:
             msg = "No --run specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         
         if self.dataset == None:
             msg = "No --dataset specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         
 
         
@@ -48,7 +48,7 @@ class RunDQMHarvesting:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         print "Retrieved Scenario: %s" % self.scenario
         print "Using Global Tag: %s" % self.globalTag
@@ -67,7 +67,7 @@ class RunDQMHarvesting:
         except Exception, ex:
             msg = "Error creating Harvesting config:\n"
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         process.source.fileNames.append(self.inputLFN)
 

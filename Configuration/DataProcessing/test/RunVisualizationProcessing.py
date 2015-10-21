@@ -35,10 +35,10 @@ class RunVisualizationProcessing:
     def __call__(self):
         if self.scenario == None:
             msg = "No --scenario specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         if self.globalTag == None:
             msg = "No --global-tag specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
 
         
@@ -48,7 +48,7 @@ class RunVisualizationProcessing:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         print "Retrieved Scenario: %s" % self.scenario
         print "Using Global Tag: %s" % self.globalTag
@@ -99,7 +99,7 @@ class RunVisualizationProcessing:
         except Exception, ex:
             msg = "Error creating Visualization Processing config:\n"
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         if self.inputLFN != None:
             process.source.fileNames = [self.inputLFN]

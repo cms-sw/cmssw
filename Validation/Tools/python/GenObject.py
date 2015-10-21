@@ -244,7 +244,7 @@ class GenObject (object):
         if not GenObject._objsDict.has_key (objName):
             # not good
             print "Error: GenObject does not know about object '%s'." % objName
-            raise RuntimeError, "Failed to create C++ class."
+            raise RuntimeError("Failed to create C++ class.")
         className   = GenObject.rootClassName (objName)
         diffName    = GenObject.rootDiffClassName (objName)
         contName    = GenObject.rootDiffContClassName (objName)
@@ -282,7 +282,7 @@ class GenObject (object):
                     diffClass   += "         %s (%s)" % (deltaKey, default)
                     diffDataDec += "      %s %s;\n" % (cppType, deltaKey)
             else:
-                raise RuntimeError, "Shouldn't be here yet."
+                raise RuntimeError("Shouldn't be here yet.")
             # definition
         # do contClass
         if GenObject.isSingleton (objName):
@@ -424,7 +424,7 @@ class GenObject (object):
         try:
             config = open (configFile, 'r')
         except:
-            raise RuntimeError, "Can't open configuration '%s'" % configFile
+            raise RuntimeError("Can't open configuration '%s'" % configFile)
         for lineNum, fullLine in enumerate (config):
             fullLine = fullLine.strip()
             # get rid of comments
@@ -442,16 +442,16 @@ class GenObject (object):
                 section = bracketMatch.group(1)
                 words = GenObject._spacesRE.split( section )
                 if len (words) < 1:
-                    raise RuntimeError, "Don't understand line '%s'(%d)" \
-                          % (fullLine, lineNum)
+                    raise RuntimeError("Don't understand line '%s'(%d)" \
+                          % (fullLine, lineNum))
                 # The first word is the object name
                 # reset the rest of the list
                 objName = words[0]
                 words = words[1:]
                 colonWords = GenObject._colonRE.split (objName)
                 if len (colonWords) > 3:
-                    raise RuntimeError, "Don't understand line '%s'(%d)" \
-                          % (fullLine, lineNum)
+                    raise RuntimeError("Don't understand line '%s'(%d)" \
+                          % (fullLine, lineNum))
                 if len (colonWords) == 1:
                     ##########################
                     ## GenObject Definition ##
@@ -468,9 +468,8 @@ class GenObject (object):
                         # option.  Complain vociferously
                         print "I don't understand '%s' in section '%s' : %s" \
                               % (word, section, mode)
-                        raise RuntimeError, \
-                              "Config file parser error '%s'(%d)" \
-                              % (fullLine, lineNum)
+                        raise RuntimeError("Config file parser error '%s'(%d)" \
+                              % (fullLine, lineNum))
                 elif len (colonWords) == 2:
                     #######################
                     ## Ntuple Definition ##
@@ -537,9 +536,8 @@ class GenObject (object):
                         # option.  Complain vociferously
                         print "I don't understand '%s' in section '%s' : %s" \
                               % (word, section, mode)
-                        raise RuntimeError, \
-                              "Config file parser error '%s'(%d)" \
-                              % (fullLine, lineNum)
+                        raise RuntimeError("Config file parser error '%s'(%d)" \
+                              % (fullLine, lineNum))
             ##############
             ## Variable ##
             ##############
@@ -548,16 +546,14 @@ class GenObject (object):
                 if modeEnum.none == mode:
                     # Poorly formatted 'section' tag
                     print "I don't understand line '%s'." % fullLine
-                    raise RuntimeError, \
-                          "Config file parser error '%s'(%d)" \
-                          % (fullLine, lineNum)
+                    raise RuntimeError("Config file parser error '%s'(%d)" \
+                          % (fullLine, lineNum))
                 colonWords = GenObject._colonRE.split (line, 1)
                 if len (colonWords) < 2:
                     # Poorly formatted 'section' tag
                     print "I don't understand line '%s'." % fullLine
-                    raise RuntimeError, \
-                          "Config file parser error '%s'(%d)" \
-                          % (fullLine, lineNum)
+                    raise RuntimeError("Config file parser error '%s'(%d)" \
+                          % (fullLine, lineNum))
                 varName = colonWords[0]
                 option  = colonWords[1]
                 if option:
@@ -577,18 +573,16 @@ class GenObject (object):
                                 if 2 != len (halves):
                                     print "Problem with -equiv '%s' in '%s'" % \
                                           (part, section)
-                                    raise RuntimeError, \
-                                          "Config file parser error '%s'(%d)" \
-                                          % (fullLine, lineNum)
+                                    raise RuntimeError("Config file parser error '%s'(%d)" \
+                                          % (fullLine, lineNum))
                                 if halves[1]:
                                     halves[1] = float (halves[1])
                                     if not halves[1] >= 0:
                                         print "Problem with -equiv ",\
                                               "'%s' in '%s'" % \
                                               (part, section)
-                                        raise RuntimeError, \
-                                              "Config file parser error '%s'(%d)" \
-                                              % (fullLine, lineNum)
+                                        raise RuntimeError("Config file parser error '%s'(%d)" \
+                                              % (fullLine, lineNum))
                                 GenObject.setEquivExpression (section,
                                                               halves[0],
                                                               halves[1])
@@ -620,9 +614,8 @@ class GenObject (object):
                         # option.  Complain vociferously
                         print "I don't understand '%s' in section '%s'." \
                               % (word, option)
-                        raise RuntimeError, \
-                              "Config file parser error '%s'(%d)" \
-                              % (fullLine, lineNum)
+                        raise RuntimeError("Config file parser error '%s'(%d)" \
+                              % (fullLine, lineNum))
                     GenObject.addObjectVariable (objName, varName, \
                                                  **optionsDict)
                 else: # if modeEnum.define != mode
@@ -640,9 +633,8 @@ class GenObject (object):
                         # option.  Complain vociferously
                         print "I don't understand '%s' in section '%s'." \
                               % (word, option)
-                        raise RuntimeError, \
-                              "Config file parser error '%s'(%d)" \
-                              % (fullLine, lineNum)
+                        raise RuntimeError("Config file parser error '%s'(%d)" \
+                              % (fullLine, lineNum))
                     tofillDict = GenObject._tofillDict.\
                                  setdefault (tupleName, {}).\
                                  setdefault (objName, {})
@@ -923,11 +915,11 @@ class GenObject (object):
                     handle = ntupleDict.get('_handle', {}).get(branchName)
                     label  = ntupleDict.get('_label' , {}).get(branchName)
                     if not handle or not label:
-                        raise RuntimeError, "Missing handle or label for '%s'"\
-                              % branchName
+                        raise RuntimeError("Missing handle or label for '%s'"\
+                              % branchName)
                     if not eventTree.getByLabel (label, handle):
-                        raise RuntimeError, "not able to get %s for %s" \
-                              % (label, branchName)
+                        raise RuntimeError("not able to get %s for %s" \
+                              % (label, branchName))
                     objects = handle.product()
             # is this a singleton?
             if GenObject.isSingleton (objName):
@@ -987,8 +979,8 @@ class GenObject (object):
         """Updates an alias for an object for a given tuple"""
         aliasDict = GenObject._ntupleDict[tupleName]['_alias']
         if not aliasDict.has_key (name):
-            raise RuntimeError, "unknown name '%s' in tuple '%s'" % \
-                  (name, tupleName)
+            raise RuntimeError("unknown name '%s' in tuple '%s'" % \
+                  (name, tupleName))
         aliasDict[name] = alias
 
 
@@ -997,8 +989,8 @@ class GenObject (object):
         """Updates an label for an object for a given tuple"""
         labelDict = GenObject._ntupleDict[tupleName]['_label']
         if not labelDict.has_key (objectName):
-            raise RuntimeError, "unknown name '%s' in tuple '%s'" % \
-                  (objectName, tupleName)
+            raise RuntimeError("unknown name '%s' in tuple '%s'" % \
+                  (objectName, tupleName))
         label = tuple( GenObject._commaRE.split( label ) )
         labelDict[objectName] = label
 
@@ -1538,7 +1530,7 @@ class GenObject (object):
             except:
                 pass
             # if we're still here, we've got a problem
-            raise RuntimeError, "Unknown parameter '%s'." % word
+            raise RuntimeError("Unknown parameter '%s'." % word)
         return retval
 
         
@@ -1553,7 +1545,7 @@ class GenObject (object):
             #not GenObject._equivDict.has_key (objName) :
             # not good
             print "Error: GenObject does not know about object '%s'." % objName
-            raise RuntimeError, "Failed to create GenObject object."
+            raise RuntimeError("Failed to create GenObject object.")
         self._localObjsDict = GenObject._objsDict [objName]
         self._objName = objName;
         for key, varDict in self._localObjsDict.iteritems():

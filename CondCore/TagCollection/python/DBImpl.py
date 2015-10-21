@@ -23,7 +23,7 @@ class DBImpl(object):
             del query
             return result
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
     def insertOneRow( self, tableName, tabrowDefDict, tabrowValueDict ):
         """Insert row 
         """
@@ -37,7 +37,7 @@ class DBImpl(object):
                 inputData[name].setData(tabrowValueDict[name])
             editor.insertRow( inputData )
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
     def bulkInsert( self, tableName, tabrowDefDict, bulkinput):
         """Bulk insert bulkinput=[{}]
         """
@@ -55,7 +55,7 @@ class DBImpl(object):
             bulkOperation.flush()
             del bulkOperation
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
     def deleteRows( self, tableName, condition, conditionbindDict ):
         """Delete row(s)
         """
@@ -64,7 +64,7 @@ class DBImpl(object):
             editor = tableHandle.dataEditor()
             editor.deleteRows( condition, conditionbindDict )
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
         
     def dropTable( self, tableName ):
         """Drop specified table.

@@ -21,7 +21,7 @@ class RunRepack:
     def __call__(self):
         if self.inputLFN == None:
             msg = "No --lfn specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         outputs = []
         outputs.append( { 'moduleLabel' : "write_PrimDS1_RAW" } )
@@ -35,7 +35,7 @@ class RunRepack:
         except Exception, ex:
             msg = "Error creating process for Repack:\n"
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         process.source.fileNames.append(self.inputLFN)
 

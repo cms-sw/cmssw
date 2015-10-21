@@ -23,9 +23,9 @@ def fillnumForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.runinfoschema)
         if not schema:
-            raise Exception, 'cannot connect to schema '+c.runinfoschema
+            raise Exception('cannot connect to schema '+c.runinfoschema)
         if not schema.existsTable(c.runsessionparameterTable):
-            raise Exception, 'non-existing table '+c.runsessionparameterTable
+            raise Exception('non-existing table '+c.runsessionparameterTable)
 
         fillOutput=coral.AttributeList()
         fillOutput.extend("fillnum","string")
@@ -65,9 +65,9 @@ def hltkeyForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.runinfoschema)
         if not schema:
-            raise Exception, 'cannot connect to schema '+c.runinfoschema
+            raise Exception('cannot connect to schema '+c.runinfoschema)
         if not schema.existsTable(c.runsessionparameterTable):
-            raise Exception, 'non-existing table '+c.runsessionparameterTable
+            raise Exception('non-existing table '+c.runsessionparameterTable)
 
         hltkeyOutput=coral.AttributeList()
         hltkeyOutput.extend("runnum","unsigned int")
@@ -110,9 +110,9 @@ def l1keyForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.runinfoschema)
         if not schema:
-            raise Exception, 'cannot connect to schema '+c.runinfoschema
+            raise Exception('cannot connect to schema '+c.runinfoschema)
         if not schema.existsTable(c.runsessionparameterTable):
-            raise Exception, 'non-existing table '+c.runsessionparameterTable
+            raise Exception('non-existing table '+c.runsessionparameterTable)
 
         l1keyOutput=coral.AttributeList()
         l1keyOutput.extend("runnum","unsigned int")
