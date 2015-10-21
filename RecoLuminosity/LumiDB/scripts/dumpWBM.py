@@ -23,9 +23,9 @@ def bitzeroForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.wbmschema)
         if not schema:
-            raise Exception,'cannot connect to schema'+c.wbmschema
+            raise Exception('cannot connect to schema'+c.wbmschema)
         if not schema.existsTable(c.algotable):
-            raise Exception,'non-existing view'+c.algotable
+            raise Exception('non-existing view'+c.algotable)
         
         query=schema.newQuery()
         algoBindVarList=coral.AttributeList()
@@ -66,9 +66,9 @@ def deadcountForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.wbmschema)
         if not schema:
-            raise Exception,'cannot connect to schema '+c.wbmschema
+            raise Exception('cannot connect to schema '+c.wbmschema)
         if not schema.existsTable(c.deadtable):
-            raise Exception,'non-existing table '+c.deadtable
+            raise Exception('non-existing table '+c.deadtable)
 
         deadOutput=coral.AttributeList()
         deadOutput.extend("lsnr","unsigned int")

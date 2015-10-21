@@ -60,7 +60,7 @@ class ElementBase:
     elif isinstance(other, basestring):
       self.parse(other)
     else:
-      raise TypeError, "Cannot initialize an ElementBase from type %s" % type(other)
+      raise TypeError("Cannot initialize an ElementBase from type %s" % type(other))
 
   def __str__(self):
     return self.full_name()

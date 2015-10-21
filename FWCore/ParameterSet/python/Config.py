@@ -1005,7 +1005,7 @@ class ProcessFragment(object):
 class FilteredStream(dict):
     """a dictionary with fixed keys"""
     def _blocked_attribute(obj):
-        raise AttributeError, "An FilteredStream defintion cannot be modified after creation."
+        raise AttributeError("An FilteredStream defintion cannot be modified after creation.")
     _blocked_attribute = property(_blocked_attribute)
     __setattr__ = __delitem__ = __setitem__ = clear = _blocked_attribute
     pop = popitem = setdefault = update = _blocked_attribute

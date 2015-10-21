@@ -22,7 +22,7 @@ def dropAllTreeTables(dbsession):
               dbsession.nominalSchema().dropTable(tname)
 	dbsession.transaction().commit()
     except Exception, e:
-        raise Exception, str(e)
+        raise Exception(str(e))
 	    
 def tagInTrees(dbsession,tagname,pfn=''):
     """returns the tree names which contain the given tag
@@ -84,7 +84,7 @@ def tagInTrees(dbsession,tagname,pfn=''):
 	dbsession.transaction().commit()	
         return result    
     except Exception, e:
-        raise Exception, str(e)
+        raise Exception(str(e))
 
 if __name__ == "__main__":
     #context = coral.Context()

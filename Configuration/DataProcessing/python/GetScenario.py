@@ -27,7 +27,7 @@ def getScenario(scenarioName):
     except ImportError, ex:
         msg = "Unable to load Scenario Module:\n"
         msg += "%s\n%s\n" % (moduleName, str(ex))
-        raise RuntimeError, msg
+        raise RuntimeError(msg)
     instance = getattr(module, scenarioName, None)
     if instance == None:
         msg = "Unable to retrieve instance of Scenario class:"

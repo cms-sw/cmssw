@@ -28,7 +28,7 @@ class idDealer(object):
             del query
             return result
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
 
     def generateNextIDForTable( self, tableName ):
         """
@@ -51,7 +51,7 @@ class idDealer(object):
             del query            
             return result+1
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
 
 if __name__ == "__main__":
     fakeIDtableName='Fake_ID'

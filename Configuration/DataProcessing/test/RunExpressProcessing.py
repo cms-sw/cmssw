@@ -31,13 +31,13 @@ class RunExpressProcessing:
     def __call__(self):
         if self.scenario == None:
             msg = "No --scenario specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         if self.globalTag == None:
             msg = "No --global-tag specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         if self.inputLFN == None:
             msg = "No --lfn specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         
         try:
             scenario = getScenario(self.scenario)
@@ -45,7 +45,7 @@ class RunExpressProcessing:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         print "Retrieved Scenario: %s" % self.scenario
         print "Using Global Tag: %s" % self.globalTag
@@ -96,7 +96,7 @@ class RunExpressProcessing:
         except Exception, ex:
             msg = "Error creating Express Processing config:\n"
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         process.source.fileNames = [self.inputLFN]
 

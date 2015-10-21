@@ -149,7 +149,7 @@ class parserPerfsuiteMetadata:
 
 	def handleParsingError(self, message):
 		if self._DEBUG:
-			raise ValueError, message
+			raise ValueError(message)
 		print " ======== AND ERROR WHILE PARSING METADATA ===="
 		print message
 		print " =============== end ========================= "

@@ -72,11 +72,11 @@ class NTupleObjectType:
         for base in self.allBases():
             if not isMC and base.mcOnly: continue
             for var in base.ownVars(isMC):
-                if var.name in names: raise RuntimeError, "Duplicate definition of variable %s from %s and %s" % (var.name, base.name, names[var.name])
+                if var.name in names: raise RuntimeError("Duplicate definition of variable %s from %s and %s" % (var.name, base.name, names[var.name]))
                 names[var.name] = base.name
                 ret.append(var)
         for var in self.ownVars(isMC):
-            if var.name in names: raise RuntimeError, "Duplicate definition of variable %s from %s and %s" % (var.name, self.name, names[var.name])
+            if var.name in names: raise RuntimeError("Duplicate definition of variable %s from %s and %s" % (var.name, self.name, names[var.name]))
             names[var.name] = self.name
             ret.append(var)
         return ret
@@ -142,7 +142,7 @@ class NTupleCollection:
             mcOnly = True
         self.mcOnly = mcOnly
         if sortAscendingBy != None and sortDescendingBy != None:
-            raise RuntimeError, "Cannot specify two sort conditions"
+            raise RuntimeError("Cannot specify two sort conditions")
         self.filter = filter
         self.sortAscendingBy  = sortAscendingBy
         self.sortDescendingBy = sortDescendingBy

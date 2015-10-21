@@ -60,7 +60,7 @@ def queryStatusXML(filename):
     except StandardError, ex:
         msg = "Error reading CRAB Status Report: %s\n" % filename
         msg += str(ex)
-        raise RuntimeError, msg
+        raise RuntimeError(msg)
 
     query = IMProvQuery("Task/TaskJobs/Job/RunningJob")
     Jobs = query(report)

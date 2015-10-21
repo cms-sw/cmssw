@@ -74,12 +74,12 @@ def validateProcess(process):
         if not hasattr(outputMod, 'dataset'):
             msg = "Process contains output module without dataset PSET: %s \n" % outputModName
             msg += " You need to add this PSET to this module to set dataTier and filterName\n"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         ds=getattr(outputMod,'dataset')
         if not hasattr(ds, "dataTier"):
             msg = "Process contains output module without dataTier parameter: %s \n" % outputModName
             msg += " You need to add an untracked parameter to the dataset PSET of this module to set dataTier\n"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         # check module in path or whatever (not sure of exact syntax for endpath)
         omRun=False
@@ -97,7 +97,7 @@ def validateProcess(process):
                     omRun=True
         if omRun==False:
             msg = "Output Module %s not in endPath" % outputModName
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         
 def dqmIOSource(args):

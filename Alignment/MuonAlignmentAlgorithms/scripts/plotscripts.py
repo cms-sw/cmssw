@@ -1295,7 +1295,7 @@ def plotmedians(reports1, reports2, selection=None, binsx=100, windowx=5., ceili
         whichdxdz = "stdev10"
         whichdydz = "stdev25"
     else:
-        raise Exception, which + " not recognized"
+        raise Exception(which + " not recognized")
 
     for r1 in reports1:
         if selection is None or (selection.func_code.co_argcount == len(r1.postal_address) and selection(*r1.postal_address)):
@@ -2067,7 +2067,7 @@ def bellcurves(tfile, reports, name, twobin=True, suppressblue=False):
         if r.name == name:
             found = True
             break
-    if not found: raise Exception, "Not a valid name"
+    if not found: raise Exception("Not a valid name")
     if r.status == "FAIL":
         #raise Exception, "Fit failed"
         print "Fit failed"
@@ -2287,7 +2287,7 @@ def polynomials(tfile, reports, name, twobin=True, suppressblue=False):
         if r.name == name:
             found = True
             break
-    if not found: raise Exception, "Not a valid name"
+    if not found: raise Exception("Not a valid name")
 
     if r.status == "FAIL":
         #raise Exception, "Fit failed"

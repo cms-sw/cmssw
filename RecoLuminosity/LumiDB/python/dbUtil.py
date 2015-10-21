@@ -45,7 +45,7 @@ class dbUtil(object):
                   columndesp=view.column(i)
                   print '\t',columndesp.name(),columndesp.type()
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
     def existRow( self, tableName, condition, conditionDefDict,conditionDict):
         """
         Return true if one row fulfills the selection criteria
@@ -66,7 +66,7 @@ class dbUtil(object):
             del query
             return result
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
     def insertOneRow( self, tableName, tabrowDefDict, tabrowValueDict ):
         """
         Insert row 
@@ -81,7 +81,7 @@ class dbUtil(object):
                 inputData[name].setData(tabrowValueDict[name])
             editor.insertRow( inputData )
         except Exception, e:
-            raise Exception, 'dbUtil.insertOneRow:'+str(e)
+            raise Exception('dbUtil.insertOneRow:'+str(e))
 
     def singleUpdate( self,tableName,setClause,updateCondition,inputData):
         try:
@@ -114,7 +114,7 @@ class dbUtil(object):
             bulkOperation.flush()
             del bulkOperation
         except Exception, e:
-            raise Exception, 'dbUtil.updateRows:'+str(e)
+            raise Exception('dbUtil.updateRows:'+str(e))
     def bulkInsert( self, tableName, tabrowDef, bulkinput):
         """
         input:
@@ -147,7 +147,7 @@ class dbUtil(object):
             editor = tableHandle.dataEditor()
             editor.deleteRows( condition, conditionbindDict )
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
         
     def dropTable( self, tableName ):
         """
@@ -157,7 +157,7 @@ class dbUtil(object):
             self.__schema.dropIfExistsTable( tableName )
             self.__schema.dropIfExistsTable( nameDealer.idTableName(tableName) )
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
 
     def dropAllTables( self ):
         """
@@ -167,7 +167,7 @@ class dbUtil(object):
             for t in self.__schema.listTables():
                 self.__schema.dropTable(t)
         except Exception, e:
-            raise Exception, str(e)
+            raise Exception(str(e))
 
     def createTable( self,description,withIdTable=False,withEntryTables=False,withRevMapTable=False):
         """

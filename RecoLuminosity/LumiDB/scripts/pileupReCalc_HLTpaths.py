@@ -166,8 +166,7 @@ if __name__ == '__main__':
 
     outputfile = open(options.outputfile,'w')
     if not outputfile:
-        raise RuntimeError, \
-              "Could not open '%s' as an output JSON file" % output
+        raise RuntimeError("Could not open '%s' as an output JSON file" % output)
                     
     outputfile.write(OUTPUTLINE)
     outputfile.close()

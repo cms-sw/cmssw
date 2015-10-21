@@ -27,7 +27,7 @@ class RunMerge:
     def __call__(self):
         if self.inputFiles == []:
             msg = "No Input Files provided"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         try:
             process = mergeProcess(
@@ -39,7 +39,7 @@ class RunMerge:
         except Exception, ex:
             msg = "Error creating process for Merge:\n"
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         psetFile = open("RunMergeCfg.py", "w")
         psetFile.write(process.dumpPython())

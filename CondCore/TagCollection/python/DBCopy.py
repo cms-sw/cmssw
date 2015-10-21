@@ -79,7 +79,7 @@ class DBCopy(object):
         except Exception, e:
             source_transaction.rollback()
             dest_transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
 
     def copyTrees( self, treenames ):
         """copy tree from an external source.
@@ -178,7 +178,7 @@ class DBCopy(object):
         except Exception, e:
             source_transaction.rollback()
             dest_transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
           		
 	
     def copyDB( self ):
@@ -196,7 +196,7 @@ class DBCopy(object):
 	   source_transaction.commit()
 	except Exception, e:
 	   source_transaction.rollback()
-	   raise Exception, str(e)
+	   raise Exception(str(e))
 	try:
 	   i = tablelist.index(CommonUtils.inventoryTableName())
 	   alltablelist.append(CommonUtils.inventoryTableName())
@@ -258,7 +258,7 @@ class DBCopy(object):
         except Exception, e:
             source_transaction.rollback()
             dest_transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
 
 if __name__ == "__main__":
     #context = coral.Context()

@@ -38,7 +38,7 @@ def insertIntglumiData(dbsession,intlumitorun,bulksize=1000):
     except Exception, e:
         dbsession.transaction().rollback()
         del dbsession
-        raise Exception, 'insertIntglumiData: '+str(e)
+        raise Exception('insertIntglumiData: '+str(e))
 
 def parselumifile(ifilename):
     '''
