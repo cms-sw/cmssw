@@ -283,22 +283,32 @@ namespace edm
     }
 
     // Now that tracks are handled, go back and put correct Refs in vertices
-
+    std::vector<decltype(TrackingParticleRef().index())> sourceTrackIndices;
+    std::vector<decltype(TrackingParticleRef().index())> daughterTrackIndices;
     for (auto & vertex : TempVertexList_ ) {
+
+      // Need to copy the indices before clearing the vectors
+      sourceTrackIndices.reserve(vertex.sourceTracks().size());
+      daughterTrackIndices.reserve(vertex.daughterTracks().size());
+      for(auto const& ref: vertex.sourceTracks()) sourceTrackIndices.push_back(ref.index());
+      for(auto const& ref: vertex.daughterTracks()) daughterTrackIndices.push_back(ref.index());
 
       vertex.clearParentTracks();
       vertex.clearDaughterTracks();
 
-      for( auto const& trackRef : vertex.sourceTracks() ) {
-        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT );
+      for( auto index : sourceTrackIndices ) {
+        auto newRef=TrackingParticleRef( TrackListRef_, index+StartingIndexT );
         vertex.addParentTrack(newRef);
       }
 
       // next, loop over daughter tracks, same strategy                                                                 
-      for( auto const& trackRef : vertex.daughterTracks() ) {
-        auto newRef=TrackingParticleRef( TrackListRef_, trackRef.index()+StartingIndexT );
+      for( auto index : daughterTrackIndices ) {
+        auto newRef=TrackingParticleRef( TrackListRef_, index+StartingIndexT );
         vertex.addDaughterTrack(newRef);
       }
+
+      sourceTrackIndices.clear();
+      daughterTrackIndices.clear();
     }
 
 
