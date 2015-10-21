@@ -35,9 +35,13 @@ const float ETAMAX = 21.5;
 
 
 L1TRCT::L1TRCT(const ParameterSet & ps) :
+   histFolder_ (ps.getUntrackedParameter<std::string>("HistFolder", "L1T/L1TRCT")),
    rctSource_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("rctSource") )),
    rctSource_L1CEMCollection_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("rctSource") )),
-   filterTriggerType_ (ps.getParameter< int >("filterTriggerType"))
+   rctSource_GCT_L1CRCollection_( consumes<L1CaloRegionCollection>(ps.getParameter< InputTag >("gctSource") )),
+   rctSource_GCT_L1CEMCollection_( consumes<L1CaloEmCollection>(ps.getParameter< InputTag >("gctSource") )),
+   filterTriggerType_ (ps.getParameter< int >("filterTriggerType")),
+   selectBX_ (ps.getUntrackedParameter< int >("selectBX",2))
 {
 
   // verbosity switch
@@ -68,62 +72,83 @@ L1TRCT::~L1TRCT()
 
 
 void L1TRCT::dqmBeginRun(const edm::Run& r, const edm::EventSetup& c){
-  //runId_->Fill(r.id().run());
-  //
 }
 
 void L1TRCT::beginLuminosityBlock(const edm::LuminosityBlock& l, const edm::EventSetup& c){
-  //
-  //lumisecId_->Fill(l.id().luminosityBlock());
 }
 
 
 void L1TRCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&)
 {
   nev_ = 0;
-  
-  ibooker.setCurrentFolder("L1T/L1TRCT");
-
-  runId_=ibooker.bookInt("iRun");
-  runId_->Fill(-1);
-  lumisecId_=ibooker.bookInt("lumiSection");
-  lumisecId_->Fill(-1);
-  
+  ibooker.setCurrentFolder(histFolder_);
 
   triggerType_ = ibooker.book1D("TriggerType", "TriggerType", 17, -0.5, 16.5);
 
+  // RCT UNPACKER
+  // electrons
   rctIsoEmEtEtaPhi_ =	ibooker.book2D("RctEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
   rctIsoEmOccEtaPhi_ = ibooker.book2D("RctEmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
   rctNonIsoEmEtEtaPhi_ = ibooker.book2D("RctEmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
   rctNonIsoEmOccEtaPhi_ = ibooker.book2D("RctEmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    // global regions
+  // global regions
   rctRegionsEtEtaPhi_ = ibooker.book2D("RctRegionsEtEtaPhi", "REGION E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
   rctRegionsOccEtaPhi_ = ibooker.book2D("RctRegionsOccEtaPhi", "REGION OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
+  // bits
   rctOverFlowEtaPhi_ = ibooker.book2D("RctBitOverFlowEtaPhi", "OVER FLOW OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
   rctTauVetoEtaPhi_ = ibooker.book2D("RctBitTauVetoEtaPhi", "TAU VETO OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
   rctMipEtaPhi_ = ibooker.book2D("RctBitMipEtaPhi", "MIP OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
   rctQuietEtaPhi_ = ibooker.book2D("RctBitQuietEtaPhi", "QUIET OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
-
   rctHfPlusTauEtaPhi_ = ibooker.book2D("RctBitHfPlusTauEtaPhi", "HF plus Tau OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
 
-    // rank histos
+  // rank histos
   rctRegionRank_ = ibooker.book1D("RctRegionRank", "REGION RANK", R10BINS, R10MIN, R10MAX);
   rctIsoEmRank_ = ibooker.book1D("RctEmIsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
   rctNonIsoEmRank_ = ibooker.book1D("RctEmNonIsoEmRank", "NON-ISO EM RANK", R6BINS, R6MIN, R6MAX);
-    // hw coordinates
-//    rctEmCardRegion_ = dbe->book1D("rctEmCardRegion", "Em Card * Region",
-//				   256, -127.5, 127.5);
 
-    // bx histos
-  rctRegionBx_ = ibooker.book1D("RctRegionBx", "Region BX", 256, -0.5, 4095.5);
-  rctEmBx_ = ibooker.book1D("RctEmBx", "EM BX", 256, -0.5, 4095.5);
- 
-  //}
+  // bx histos
+  rctRegionBx_ = ibooker.book1D("RctRegionBx", "Region BX", 10, -2.5, 7.5);
+  rctEmBx_ = ibooker.book1D("RctEmBx", "EM BX", 10, -2.5, 7.5); 
+
+  // NOT CENTRAL BXs
+  rctNotCentralRegionsEtEtaPhi_ = ibooker.book2D("rctNotCentralRegionsEtEtaPhi", "REGION E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralRegionsOccEtaPhi_ = ibooker.book2D("rctNotCentralRegionsOccEtaPhi", "REGION OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralIsoEmEtEtaPhi_ =   ibooker.book2D("rctNotCentralEmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralIsoEmOccEtaPhi_ = ibooker.book2D("rctNotCentralEmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralNonIsoEmEtEtaPhi_ = ibooker.book2D("rctNotCentralEmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  rctNotCentralNonIsoEmOccEtaPhi_ = ibooker.book2D("rctNotCentralEmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+
+  // GCT UNPACKER
+
+  // electrons
+  layer2IsoEmEtEtaPhi_ =   ibooker.book2D("Layer2EmIsoEmEtEtaPhi", "ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  layer2IsoEmOccEtaPhi_ = ibooker.book2D("Layer2EmIsoEmOccEtaPhi", "ISO EM OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  layer2NonIsoEmEtEtaPhi_ = ibooker.book2D("Layer2EmNonIsoEmEtEtaPhi", "NON-ISO EM E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  layer2NonIsoEmOccEtaPhi_ = ibooker.book2D("Layer2EmNonIsoEmOccEtaPhi", "NON-ISO EM OCCUPANCY",ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+  // global regions
+  layer2RegionsEtEtaPhi_ = ibooker.book2D("Layer2RegionsEtEtaPhi", "REGION E_{T}", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  layer2RegionsOccEtaPhi_ = ibooker.book2D("Layer2RegionsOccEtaPhi", "REGION OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+  // bits
+  layer2OverFlowEtaPhi_ = ibooker.book2D("Layer2BitOverFlowEtaPhi", "OVER FLOW OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  layer2TauVetoEtaPhi_ = ibooker.book2D("Layer2BitTauVetoEtaPhi", "TAU VETO OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  layer2MipEtaPhi_ = ibooker.book2D("Layer2BitMipEtaPhi", "MIP OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  layer2QuietEtaPhi_ = ibooker.book2D("Layer2BitQuietEtaPhi", "QUIET OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+  layer2HfPlusTauEtaPhi_ = ibooker.book2D("Layer2BitHfPlusTauEtaPhi", "HF plus Tau OCCUPANCY", ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+
+  // rank histos
+  layer2RegionRank_ = ibooker.book1D("Layer2RegionRank", "REGION RANK", R10BINS, R10MIN, R10MAX);
+  layer2IsoEmRank_ = ibooker.book1D("Layer2EmIsoEmRank", "ISO EM RANK", R6BINS, R6MIN, R6MAX);
+  layer2NonIsoEmRank_ = ibooker.book1D("Layer2EmNonIsoEmRank", "NON-ISO EM RANK", R6BINS, R6MIN, R6MAX);
+
+  // bx histos
+  layer2RegionBx_ = ibooker.book1D("Layer2RegionBx", "Region BX", 10, -2.5, 7.5);
+  layer2EmBx_ = ibooker.book1D("Layer2EmBx", "EM BX", 10, -2.5, 7.5); 
+
 }
 
 void L1TRCT::analyze(const Event & e, const EventSetup & c)
@@ -176,35 +201,62 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   bool doHd = true;
 
   e.getByToken(rctSource_L1CRCollection_,rgn);
+  e.getByToken(rctSource_L1CEMCollection_,em);
+
+  // Get the Layer2 digis
+  edm::Handle < L1CaloEmCollection > emLayer2;
+  edm::Handle < L1CaloRegionCollection > rgnLayer2;
+
+  bool doEmLayer2 = true;
+  bool doHdLayer2 = true;
+
+  e.getByToken(rctSource_GCT_L1CRCollection_,rgnLayer2);
+  e.getByToken(rctSource_GCT_L1CEMCollection_,emLayer2);
+
  
   if (!rgn.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection";
+    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection - RCT";
     doHd = false;
   }
+
+  if (!em.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection - Layer2 ";
+    doEm = false;
+  }
+
+  if (!rgnLayer2.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection - GCT";
+    doHdLayer2 = false;
+  }
+
+  if (!emLayer2.isValid()) {
+    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection - Layer2";
+    doEmLayer2 = false;
+  }
+
+
+
 
   if ( doHd ) {
     // Fill the RCT histograms
 
-    // Regions
     for (L1CaloRegionCollection::const_iterator ireg = rgn->begin();
-	 ireg != rgn->end(); ireg++) {
+       ireg != rgn->end(); ireg++) {
+
       if(ireg->et()>0)
       {
+      rctRegionBx_->Fill(ireg->bx());
+      } 
+
+      if(selectBX_==-1 || selectBX_==ireg->bx()) {
+
+      if(ireg->et()>0){
+
       rctRegionRank_->Fill(ireg->et());
       if(ireg->et()>5){
 	rctRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
       }
       rctRegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
-//      rctTauVetoEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(),
-//			      ireg->tauVeto());
-
-      // now do local coordinate eta and phi
-//      rctRegionsLocalOccEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi());
-//      rctRegionsLocalEtEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi(), 
-//				     ireg->et());
-//      rctTauVetoLocalEtaPhi_->Fill(ireg->rctEta(), ireg->rctPhi(),
-//				   ireg->tauVeto());
-      rctRegionBx_->Fill(ireg->bx());
       }
 
     if(ireg->overFlow())  rctOverFlowEtaPhi_ ->Fill(ireg->gctEta(), ireg->gctPhi());
@@ -214,25 +266,26 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
     if(ireg->fineGrain()) rctHfPlusTauEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi()); 
     
     }
-  }
+    else if (selectBX_!=-1 && selectBX_!=ireg->bx()){
+      if(ireg->et()>5) rctNotCentralRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
+      rctNotCentralRegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
+    } 
 
-  
-  e.getByToken(rctSource_L1CEMCollection_,em);
-  
-  if (!em.isValid()) {
-    edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection";
-    doEm = false;
-  }
-  if ( ! doEm ) return;
+
+ }
+
+ } 
+
+  if (doEm){
   // Isolated and non-isolated EM
   for (L1CaloEmCollection::const_iterator iem = em->begin();
        iem != em->end(); iem++) {
-    
- //   rctEmCardRegion_->Fill((iem->rctRegion()==0?1:-1)*(iem->rctCard()));
+
+      if(iem->rank()==0) continue;
+      rctEmBx_->Fill(iem->bx());
+      if(selectBX_==-1 || selectBX_==iem->bx()) {
 
     if (iem->isolated()) {
-      if(iem->rank()>0)
-      {
       rctIsoEmRank_->Fill(iem->rank());
       rctIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 			      iem->regionId().iphi(), iem->rank());
@@ -240,12 +293,8 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 	rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi());
       }
-      rctEmBx_->Fill(iem->bx());
-      }
     }
     else {
-      if(iem->rank()>0)
-      { 
       rctNonIsoEmRank_->Fill(iem->rank());
       rctNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
 				 iem->regionId().iphi(), iem->rank());
@@ -253,9 +302,87 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 	rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
 				    iem->regionId().iphi());
       }
-      rctEmBx_->Fill(iem->bx());
+    }
+    }
+    else if (selectBX_!=-1 && selectBX_!=iem->bx()) {
+    if (iem->isolated()) {
+      rctNotCentralIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
+                        iem->regionId().iphi(), iem->rank());
+      if(iem->rank()>10){
+      rctNotCentralIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+                         iem->regionId().iphi());
       }
     }
+    else {
+      rctNotCentralNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
+                         iem->regionId().iphi(), iem->rank());
+      if(iem->rank()>10){
+      rctNotCentralNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+                            iem->regionId().iphi());
+      }
+      }
+    }
+  }
+
+}
+
+  // Layer2 Histograms
+  
+  if ( doHdLayer2 ) {
+    // Fill the RCT histograms
+
+    for (L1CaloRegionCollection::const_iterator ireg = rgnLayer2->begin();
+       ireg != rgnLayer2->end(); ireg++) {
+
+      if(ireg->et()>0){
+
+      layer2RegionBx_->Fill(ireg->bx());
+
+      layer2RegionRank_->Fill(ireg->et());
+      if(ireg->et()>5){
+	layer2RegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
+      }
+      layer2RegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
+      }
+
+    if(ireg->overFlow())  layer2OverFlowEtaPhi_ ->Fill(ireg->gctEta(), ireg->gctPhi());
+    if(ireg->tauVeto())   layer2TauVetoEtaPhi_  ->Fill(ireg->gctEta(), ireg->gctPhi());
+    if(ireg->mip())       layer2MipEtaPhi_      ->Fill(ireg->gctEta(), ireg->gctPhi());
+    if(ireg->quiet())     layer2QuietEtaPhi_    ->Fill(ireg->gctEta(), ireg->gctPhi());
+    if(ireg->fineGrain()) layer2HfPlusTauEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi()); 
+    
+    }
+
+ } 
+
+  if (doEmLayer2 ) {
+  // Isolated and non-isolated EM
+  for (L1CaloEmCollection::const_iterator iem = emLayer2->begin();
+       iem != emLayer2->end(); iem++) {
+
+      if(iem->rank()==0) continue;
+      layer2EmBx_->Fill(iem->bx());
+
+    if (iem->isolated()) {
+      layer2IsoEmRank_->Fill(iem->rank());
+      layer2IsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
+			      iem->regionId().iphi(), iem->rank());
+      if(iem->rank()>10){
+	layer2IsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+				 iem->regionId().iphi());
+      }
+    }
+    else {
+      layer2NonIsoEmRank_->Fill(iem->rank());
+      layer2NonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
+				 iem->regionId().iphi(), iem->rank());
+      if(iem->rank()>10){
+	layer2NonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
+				    iem->regionId().iphi());
+      }
+    }
+
+  }
 
   }
 

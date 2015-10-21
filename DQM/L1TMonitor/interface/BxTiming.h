@@ -101,17 +101,12 @@ class BxTiming : public DQMEDAnalyzer {
   MonitorElement* hBxDiffSysFed[NSYS];        // bx shift wrt reference fed, per subsystem
   MonitorElement* hBxOccyAllFed;              // bx occupancy, for all fed's
   MonitorElement**hBxOccyOneFed;              // bx occupancy, per each fed
-					      
+
   MonitorElement* hBxDiffAllFedSpread[nspr_]; // bx shift wrt ref fed: mean shift, min, max
   MonitorElement* hBxOccyAllFedSpread[nspr_]; // bx occupancy: mean shift, min, max
 
   MonitorElement* hBxOccyGtTrigType[nttype_]; // gt bx occupancy per trigger type
   MonitorElement**hBxOccyTrigBit[NSYS];       // subsystem bx occupancy per selected trigger bit
-  MonitorElement* runId_;
-  MonitorElement* lumisecId_;
-  MonitorElement* eventId_;
-  MonitorElement* runStartTimeStamp_;
-
 };
 
 #endif
