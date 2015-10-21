@@ -9,6 +9,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/deltaPhi.h" 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+
 /* #include "DataFormats/Math/interface/PtEtaPhiMass.h" */
 
 //forward declare testing structure
@@ -585,7 +587,7 @@ namespace pat {
     mutable std::atomic<LorentzVector*> p4c_;
     /// vertex position                                                                   
     mutable std::atomic<Point*> vertex_;
-    [[cms::thread_guard("vertex_")]] mutable float dxy_, dz_, dphi_;
+    CMS_THREAD_GUARD(vertex_) mutable float dxy_, dz_, dphi_;
     /// reco::Track                                                                   
     mutable std::atomic<reco::Track*> track_;
     /// PDG identifier                                                                    
@@ -596,7 +598,7 @@ namespace pat {
     reco::VertexRef::key_type pvRefKey_;
 
     /// IP covariance	
-    [[cms::thread_guard("vertex_")]] mutable float dxydxy_, dzdz_, dxydz_,dlambdadz_,dphidxy_,dptdpt_,detadeta_,dphidphi_;
+    CMS_THREAD_GUARD(vertex_) mutable float dxydxy_, dzdz_, dxydz_,dlambdadz_,dphidxy_,dptdpt_,detadeta_,dphidphi_;
     uint8_t packedHits_;
     /// track quality information
     uint8_t normalizedChi2_; 
