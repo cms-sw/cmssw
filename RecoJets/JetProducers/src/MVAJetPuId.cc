@@ -75,14 +75,14 @@ void MVAJetPuId::setup()
 
 	tmvaVariables_.clear();
 	tmvaVariables_.push_back( "rho"  );
-	tmvaVariables_.push_back( "nTot" );
-	tmvaVariables_.push_back( "nCh" );
-	tmvaVariables_.push_back( "axisMajor"   );
-	tmvaVariables_.push_back( "axisMinor"   );
-	tmvaVariables_.push_back( "fRing0"    );
-	tmvaVariables_.push_back( "fRing1" );
-	tmvaVariables_.push_back( "fRing2"   );
-	tmvaVariables_.push_back( "fRing3"  );
+	tmvaVariables_.push_back( "nParticles" );
+	tmvaVariables_.push_back( "nCharged" );
+	tmvaVariables_.push_back( "majW"   );
+	tmvaVariables_.push_back( "minW"   );
+	tmvaVariables_.push_back( "frac01"    );
+	tmvaVariables_.push_back( "frac02" );
+	tmvaVariables_.push_back( "frac03"   );
+	tmvaVariables_.push_back( "frac04"  );
 	tmvaVariables_.push_back( "ptD"  );
 	tmvaVariables_.push_back( "beta"   );
 	tmvaVariables_.push_back( "betaStar"  );
@@ -92,14 +92,14 @@ void MVAJetPuId::setup()
 	tmvaVariables_.push_back( "jetRchg");
 
 	tmvaNames_["rho"] = "rho";
-	tmvaNames_["nTot"] = "nParticles";
-	tmvaNames_["nCh"] = "nCharged";
-	tmvaNames_["axisMajor"] = "majW";
-	tmvaNames_["axisMinor"] = "minW";
-	tmvaNames_["fRing0"] = "frac01";
-	tmvaNames_["fRing1"] = "frac02";
-	tmvaNames_["fRing2"] = "frac03";
-	tmvaNames_["fRing3"] = "frac04";
+	tmvaNames_["nParticles"] = "nParticles";
+	tmvaNames_["nCharged"] = "nCharged";
+	tmvaNames_["majW"] = "majW";
+	tmvaNames_["minW"] = "minW";
+	tmvaNames_["frac01"] = "frac01";
+	tmvaNames_["frac02"] = "frac02";
+	tmvaNames_["frac03"] = "frac03";
+	tmvaNames_["frac04"] = "frac04";
 	tmvaNames_["ptD"] = "ptD";
 	tmvaNames_["beta"] = "beta";
 	tmvaNames_["betaStar"] = "betaStar";
@@ -165,7 +165,7 @@ void MVAJetPuId::set(const PileupJetIdentifier & id)
 
 void MVAJetPuId::runMva()
 {
-	if( ! reader_ ) { bookReader();}
+  	if( ! reader_ ) { bookReader();}
 	if(fabs(internalId_.jetEta_) <  5.0) internalId_.mva_ = reader_->EvaluateMVA( tmvaMethod_.c_str() );
 	if(fabs(internalId_.jetEta_) >= 5.0) internalId_.mva_ = -2.;
 	internalId_.idFlag_ = computeIDflag(internalId_.mva_,internalId_.jetPt_,internalId_.jetEta_);
@@ -496,7 +496,7 @@ void MVAJetPuId::initVariables()
 	INIT_VARIABLE(jetEta     , "jetEta", large_val);
 	INIT_VARIABLE(jetPhi     , "", large_val);
 	INIT_VARIABLE(jetM       , "", 0.);
-	INIT_VARIABLE(nCharged   , "nCh", 0.);
+	INIT_VARIABLE(nCharged   , "nCharged", 0.);
 	INIT_VARIABLE(nNeutrals  , "", 0.);
 
 	INIT_VARIABLE(chgEMfrac  , "", 0.);
@@ -506,7 +506,7 @@ void MVAJetPuId::initVariables()
 
 	INIT_VARIABLE(d0         , ""    , -1000.);   
 	INIT_VARIABLE(dZ         , ""    , -1000.);  
-	INIT_VARIABLE(nParticles , "nTot"  , 0.);  
+	INIT_VARIABLE(nParticles , "nParticles"  , 0.);  
 
 	INIT_VARIABLE(leadPt     , ""    , 0.);  
 	INIT_VARIABLE(leadEta    , ""   , large_val);  
@@ -549,12 +549,12 @@ void MVAJetPuId::initVariables()
 	INIT_VARIABLE(jetW  ,"" ,1.);  
 	INIT_VARIABLE(etaW  ,"" ,1.);  
 	INIT_VARIABLE(phiW  ,"" ,1.);  
-	INIT_VARIABLE(majW  ,"axisMajor" ,1.);  
-	INIT_VARIABLE(minW  ,"axisMinor" ,1.);  
-	INIT_VARIABLE(frac01    ,"fRing0" ,0.);  
-	INIT_VARIABLE(frac02    ,"fRing1" ,0.);  
-	INIT_VARIABLE(frac03    ,"fRing2" ,0.);  
-	INIT_VARIABLE(frac04    ,"fRing3" ,0.);  
+	INIT_VARIABLE(majW  ,"majW" ,1.);  
+	INIT_VARIABLE(minW  ,"minW" ,1.);  
+	INIT_VARIABLE(frac01    ,"frac01" ,0.);  
+	INIT_VARIABLE(frac02    ,"frac02" ,0.);  
+	INIT_VARIABLE(frac03    ,"frac03" ,0.);  
+	INIT_VARIABLE(frac04    ,"frac04" ,0.);  
 
 	INIT_VARIABLE(beta   ,"beta" ,0.);  
 	INIT_VARIABLE(betaStar   ,"betaStar" ,0.);  
