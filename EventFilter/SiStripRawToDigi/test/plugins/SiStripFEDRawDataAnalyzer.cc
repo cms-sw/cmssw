@@ -25,6 +25,7 @@ SiStripFEDRawDataAnalyzer::SiStripFEDRawDataAnalyzer( const edm::ParameterSet& p
     << "[SiStripFEDRawDataAnalyzer::"
     << __func__ << "]"
     << "Constructing object...";
+  consumes<FEDRawDataCollection>( label_ );
 }
 
 // -----------------------------------------------------------------------------
