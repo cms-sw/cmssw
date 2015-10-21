@@ -181,6 +181,7 @@ class MatrixInjector(object):
             wmsplit['RECODR225nsreHLT']=1
             wmsplit['HLTDR250ns']=3
             wmsplit['HLTDR225ns']=3
+            wmsplit['Hadronizer']=1
                                     
             #import pprint
             #pprint.pprint(wmsplit)            
@@ -278,18 +279,9 @@ class MatrixInjector(object):
                                 if step in wmsplit:
                                     chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit[step]
 
-                            # change SplittingAlgo to EventBased for extedned generator workflows
+                            # change LumisPerJob for Hadronizer steps. 
                             if 'Hadronizer' in step: 
-                                chainDict['nowmTasklist'][-1]['SplittingAlgo']='EventBased'
-                                if not '--relval' in s[2][index]:
-                                    print 'Impossible to create task from scratch without splitting information with --relval'
-                                    return -12
-                                else:
-                                    arg=s[2][index].split()
-                                    ns=map(int,arg[arg.index('--relval')+1].split(','))
-                                    chainDict['nowmTasklist'][-1]['RequestNumEvents'] = ns[0]
-                                    chainDict['nowmTasklist'][-1]['EventsPerJob'] = ns[1]
-                                    chainDict['nowmTasklist'][-1].pop('LumisPerJob', None)
+                                chainDict['nowmTasklist'][-1]['LumisPerJob']=wmsplit['Hadronizer']
 
                             #print step
                             chainDict['nowmTasklist'][-1]['TaskName']=step
