@@ -1,9 +1,21 @@
 import FWCore.ParameterSet.Config as cms
+import FWCore.ParameterSet.VarParsing as VarParsing
 
 process = cms.Process("BeamBackground")
 
+options = VarParsing.VarParsing("analysis")
+
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
+
+options.register ('globalTag',
+                  "DONOTEXIST",
+                  VarParsing.VarParsing.multiplicity.singleton, # singleton or list
+                  VarParsing.VarParsing.varType.string,          # string, int, or float
+                  "GlobalTag")
+
+options.parseArguments()
+
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(500)
@@ -11,7 +23,7 @@ process.maxEvents = cms.untracked.PSet(
 
 
 process.source = cms.Source("PoolSource",
-                    fileNames = cms.untracked.vstring('/store/data/Run2015C/ZeroBias/RECO/PromptReco-v1/000/254/906/00000/226DA26D-D84B-E511-9CFD-02163E011C96.root'),
+                    fileNames = cms.untracked.vstring(options.inputFiles),
                     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -110,7 +122,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condD
 
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 
-process.GlobalTag = GlobalTag(process.GlobalTag, '74X_dataRun2_Prompt_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag,options.globalTag, '')
 
 process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('BeamBackground.root')
