@@ -45,7 +45,8 @@ namespace pat {
       statusFlags_(c.statusFlags()) { pack(); }
 
     PackedGenParticle(const PackedGenParticle& iOther)
-    : p4_(nullptr),p4c_(nullptr),
+    : packedPt_(iOther.packedPt_), packedY_(iOther.packedY_), packedPhi_(iOther.packedPhi_), packedM_(iOther.packedM_),
+      p4_(nullptr),p4c_(nullptr),
       vertex_(iOther.vertex_), dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_),
       pdgId_(iOther.pdgId_),charge_(iOther.charge_),mother_(iOther.mother_),
       statusFlags_(iOther.statusFlags_) {
@@ -56,7 +57,8 @@ namespace pat {
     }
 
     PackedGenParticle(PackedGenParticle&& iOther)
-    : p4_(nullptr),p4c_(nullptr),
+    : packedPt_(iOther.packedPt_), packedY_(iOther.packedY_), packedPhi_(iOther.packedPhi_), packedM_(iOther.packedM_),
+      p4_(nullptr),p4c_(nullptr),
       vertex_(std::move(iOther.vertex_)), dxy_(iOther.dxy_), dz_(iOther.dz_),dphi_(iOther.dphi_),
       pdgId_(iOther.pdgId_),charge_(iOther.charge_),mother_(std::move(iOther.mother_)),
       statusFlags_(iOther.statusFlags_) {
@@ -68,6 +70,10 @@ namespace pat {
 
     PackedGenParticle& operator=(PackedGenParticle&& iOther) {
       if(this != &iOther) {
+        packedPt_ = iOther.packedPt_;
+        packedY_ = iOther.packedY_;
+        packedPhi_ = iOther.packedPhi_;
+        packedM_ = iOther.packedM_;
         if(p4c_) {
           delete p4_.exchange(iOther.p4_.exchange(nullptr));
           delete p4c_.exchange(iOther.p4c_.exchange(nullptr)) ;
