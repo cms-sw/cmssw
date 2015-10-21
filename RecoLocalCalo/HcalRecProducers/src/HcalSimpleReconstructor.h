@@ -13,6 +13,9 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
 
     /** \class HcalSimpleReconstructor
 	
@@ -27,6 +30,9 @@ class HcalTopology;
       virtual void produce(edm::Event& e, const edm::EventSetup& c) override final;
       virtual void beginRun(edm::Run const&r, edm::EventSetup const & es) override final;
       virtual void endRun(edm::Run const&r, edm::EventSetup const & es) override final;
+
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
     private:      
       template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c, const edm::EDGetTokenT<DIGICOLL> &tok);
       void processUpgrade(edm::Event& e, const edm::EventSetup& c);
