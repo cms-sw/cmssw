@@ -39,6 +39,10 @@ void testPackedGenParticle::testDefaultConstructor() {
   CPPUNIT_ASSERT(pc.polarP4() == pat::PackedGenParticle::PolarLorentzVector(0,0,0,0));
   CPPUNIT_ASSERT(pc.p4() == pat::PackedGenParticle::LorentzVector(0,0,0,0) );
   CPPUNIT_ASSERT(pc.vertex() == pat::PackedGenParticle::Point(0,0,0));
+  CPPUNIT_ASSERT(pc.packedPt_ == 0);
+  CPPUNIT_ASSERT(pc.packedY_ == 0);
+  CPPUNIT_ASSERT(pc.packedPhi_ == 0);
+  CPPUNIT_ASSERT(pc.packedM_ == 0);
 }
 
 static bool tolerance(double iLHS, double iRHS, double fraction) {
@@ -68,10 +72,18 @@ void testPackedGenParticle::testCopyConstructor() {
   CPPUNIT_ASSERT(copy_pc.polarP4() == pc.polarP4());
   CPPUNIT_ASSERT(copy_pc.p4() == pc.p4());
   CPPUNIT_ASSERT(copy_pc.vertex() == pc.vertex());
+  CPPUNIT_ASSERT(copy_pc.packedPt_ == pc.packedPt_);
+  CPPUNIT_ASSERT(copy_pc.packedY_ == pc.packedY_);
+  CPPUNIT_ASSERT(copy_pc.packedPhi_ == pc.packedPhi_);
+  CPPUNIT_ASSERT(copy_pc.packedM_ == pc.packedM_);
 
   CPPUNIT_ASSERT(&copy_pc.polarP4() != &pc.polarP4());
   CPPUNIT_ASSERT(&copy_pc.p4() != &pc.p4());
   CPPUNIT_ASSERT(&copy_pc.vertex() != &pc.vertex());
+  CPPUNIT_ASSERT(&copy_pc.packedPt_ != &pc.packedPt_);
+  CPPUNIT_ASSERT(&copy_pc.packedY_ != &pc.packedY_);
+  CPPUNIT_ASSERT(&copy_pc.packedPhi_ != &pc.packedPhi_);
+  CPPUNIT_ASSERT(&copy_pc.packedM_ != &pc.packedM_);
 
 }
 
