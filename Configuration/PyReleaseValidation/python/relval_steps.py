@@ -868,6 +868,50 @@ steps['RECOHID10']['-s']+=',REPACK'
 steps['RECOHID10']['--datatier']+=',RAW'
 steps['RECOHID10']['--eventcontent']+=',REPACKRAW'
 
+steps['RECOHID12']=merge([{'--scenario':'HeavyIons',
+                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlUpsilonMuMuHI+HcalCalMinBias,DQM',
+                         '--datatier':'RECO,DQMIO',
+                         '--eventcontent':'RECO,DQM','-n':30},
+                          steps['RECOD']])
+steps['RECOHID13']=merge([{'--repacked':''},
+                          steps['RECOHID12']])
+steps['RECOHID12']['-s']+=',REPACK'
+steps['RECOHID12']['--datatier']+=',RAW'
+steps['RECOHID12']['--eventcontent']+=',REPACKRAW'
+
+steps['RECOHID14']=merge([{'--scenario':'HeavyIons',
+                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlZMuMuHI+HcalCalMinBias,DQM',
+                         '--datatier':'RECO,DQMIO',
+                         '--eventcontent':'RECO,DQM','-n':30},
+                          steps['RECOD']])
+steps['RECOHID15']=merge([{'--repacked':''},
+                          steps['RECOHID14']])
+steps['RECOHID14']['-s']+=',REPACK'
+steps['RECOHID14']['--datatier']+=',RAW'
+steps['RECOHID14']['--eventcontent']+=',REPACKRAW'
+
+steps['RECOHID16']=merge([{'--scenario':'HeavyIons',
+                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMuonIsolatedHI+HcalCalMinBias,DQM',
+                         '--datatier':'RECO,DQMIO',
+                         '--eventcontent':'RECO,DQM','-n':30},
+                          steps['RECOD']])
+steps['RECOHID17']=merge([{'--repacked':''},
+                          steps['RECOHID16']])
+steps['RECOHID16']['-s']+=',REPACK'
+steps['RECOHID16']['--datatier']+=',RAW'
+steps['RECOHID16']['--eventcontent']+=',REPACKRAW'
+
+steps['RECOHID18']=merge([{'--scenario':'HeavyIons',
+                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlJpsiMuMuHI+HcalCalMinBias,DQM',
+                         '--datatier':'RECO,DQMIO',
+                         '--eventcontent':'RECO,DQM','-n':30},
+                          steps['RECOD']])
+steps['RECOHID19']=merge([{'--repacked':''},
+                          steps['RECOHID18']])
+steps['RECOHID18']['-s']+=',REPACK'
+steps['RECOHID18']['--datatier']+=',RAW'
+steps['RECOHID18']['--eventcontent']+=',REPACKRAW'
+
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForPrompt,DQM,ENDJOB',
                        '--datatier':'RECO,AOD,ALCARECO,DQMIO',
