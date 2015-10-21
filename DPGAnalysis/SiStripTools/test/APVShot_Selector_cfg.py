@@ -35,7 +35,7 @@ process.MessageLogger.debugModules=cms.untracked.vstring("apvshotfilter")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 process.source = cms.Source("PoolSource",
-                    fileNames = cms.untracked.vstring('/store/data/Run2015D/ZeroBias/RAW/v1/000/257/805/00000/AA3FF22F-E766-E511-B8F2-02163E01234B.root','/store/data/Run2015D/ZeroBias/RAW/v1/000/257/805/00000/FAEE2C85-C666-E511-8F92-02163E014708.root'),
+                    fileNames = cms.untracked.vstring(options.inputFiles),
 #                    skipBadFiles = cms.untracked.bool(True),
                     inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
                     )
@@ -69,7 +69,7 @@ process.apvshotsanalyzer.useCabling = cms.untracked.bool(True)
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff")
 from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag,'74X_dataRun2_Prompt_v2' , '')
+process.GlobalTag = GlobalTag(process.GlobalTag,options.globalTag, '')
 
 
 
