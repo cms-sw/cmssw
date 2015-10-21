@@ -13,3 +13,5 @@ candidateBoostedDoubleSecondaryVertexAK8Computer = cms.ESProducer("CandidateBoos
     useAdaBoost = cms.bool(False),
     trackPairV0Filter = cms.PSet(k0sMassWindow = cms.double(0.03))
 )
+
+candidateBoostedDoubleSecondaryVertexAK8Computer.trackSelection.jetDeltaRMax = cms.double(0.8)
