@@ -8,9 +8,7 @@ L1TStage2CaloLayer2::L1TStage2CaloLayer2(const edm::ParameterSet & ps) :
   stage2CaloLayer2EtSumSource_(ps.getParameter<edm::InputTag>("stage2CaloLayer2EtSumSource")),
   verbose_(ps.getUntrackedParameter < bool > ("verbose", false))
 {
-  //if (verbose_)
-  //edm::LogInfo("L1TStage2CaloLayer2") << "L1TGCT: constructor...." << std::endl;
-  std::cout<< "L1TStage2CaloLayer2: constructor...." << std::endl;
+  
   //set Token(-s)
   stage2CaloLayer2JetToken_=consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2JetSource"));
   stage2CaloLayer2EGammaToken_=consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("stage2CaloLayer2EGammaSource"));
@@ -26,8 +24,6 @@ L1TStage2CaloLayer2::~L1TStage2CaloLayer2()
 void L1TStage2CaloLayer2::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&)
 {
   ibooker.setCurrentFolder(monitorDir_);
-
-  std::cout<< "L1TStage2CaloLayer2: book...." << std::endl;
   
   //central jet
   stage2CaloLayer2CenJetEtEtaPhi_ = ibooker.book2D("CenJetsEtEtaPhi", "CENTRAL JET E_{T} ETA PHI", 22, -0.5, 21.5, 18, -0.5, 17.5);
@@ -97,7 +93,7 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
   if (verbose_) {
     edm::LogInfo("L1TStage2CaloLayer2") << "L1TStage2CaloLayer2: analyze...." << std::endl;
   }
-  std::cout<< "L1TStage2CaloLayer2: analyze Jet...." << std::endl;
+  
   // analyze Jet
   edm::Handle<l1t::JetBxCollection> Jet;
   e.getByToken(stage2CaloLayer2JetToken_,Jet);
@@ -132,7 +128,7 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
       }
     }	  
   }
-  std::cout<< "L1TStage2CaloLayer2: analyze EGamma...." << std::endl;
+
   //analyze EGamma
   edm::Handle<l1t::EGammaBxCollection> EGamma;
   e.getByToken(stage2CaloLayer2EGammaToken_,EGamma);
@@ -166,7 +162,7 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
       }
     }
   }
-  std::cout<< "L1TStage2CaloLayer2: analyze Tau...." << std::endl; 
+
   //analyze Tau
   edm::Handle<l1t::TauBxCollection> Tau;
   e.getByToken(stage2CaloLayer2TauToken_,Tau);
@@ -200,7 +196,6 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
     }
   }
 
-  std::cout<< "L1TStage2CaloLayer2: analyze EtSum...." << std::endl;
   //energy sum
   edm::Handle<l1t::EtSumBxCollection> EtSum;
   e.getByToken(stage2CaloLayer2EtSumToken_,EtSum);
@@ -232,7 +227,6 @@ void L1TStage2CaloLayer2::analyze(const edm::Event & e, const edm::EventSetup & 
       }
     }
   }
-  std::cout<< "L1TStage2CaloLayer2: analyze End...." << std::endl;
 }
 
 void L1TStage2CaloLayer2::dqmBeginRun(edm::Run const& iRrun, edm::EventSetup const& evSetup)
