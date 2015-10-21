@@ -15,7 +15,7 @@ def runme2(fid,infile,outfile):
     sub = ' ' + fid + '[ $]'
     r = re.compile(sub)
     
-    for line in fin.xreadlines():
+    for line in fin:
         i = line.index(' ')+1
         s = r.search(line[i:])
         if s != None:
@@ -30,7 +30,7 @@ def runme(fid,infile,outfile):
     # trigger too difficult for now
     trigger = Parameters.parameters['find']['immediate_children_threshold']
     
-    for line in fin.xreadlines():
+    for line in fin:
         a=line.split()
         b=a[2:]
         # find fid in a
