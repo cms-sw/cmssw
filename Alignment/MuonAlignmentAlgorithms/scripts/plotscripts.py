@@ -3726,7 +3726,7 @@ def corrections2D(reportsX=None, reportsY=None, geometry0=None, geometryX=None, 
     
     if len(aaa[i]) == 0: continue
 
-    a1, a2 = map( lambda x: array.array('d',x),  zip(*aaa[i]) )
+    a1, a2 = map( lambda x: array.array('d',x),  list(zip(*aaa[i])) )
     g = ROOT.TGraph(len(a1), a1, a2)
     g.SetMarkerStyle(5)
     g.SetMarkerSize(0.3)

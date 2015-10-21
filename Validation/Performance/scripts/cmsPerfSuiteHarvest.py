@@ -217,7 +217,7 @@ def process_timesize_dir(path, runinfo):
 		jobID = getJobID_fromTimeReportLogName(os.path.join(path, timelog_f))
 		print "jobID: %s" % str(jobID)
 		(candle, step, pileup_type, conditions, event_content) = jobID
-		jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
+		jobID = dict(list(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID)))
 		print "Dictionary based jobID %s: " % str(jobID)
 		
 		#if any of jobID fields except (isPILEUP) is empty we discard the job as all those are the jobID keys and we must have them
@@ -299,7 +299,7 @@ def process_memcheck_dir(path, runinfo):
                 (candle, step, pileup_type, conditions, event_content) = jobID
                 
                 print "jobID: %s" % str(jobID)
-                jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
+                jobID = dict(list(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID)))
 
                 print "Dictionary based jobID %s: " % str(jobID)
             
@@ -375,7 +375,7 @@ def process_igprof_dir(path, runinfo):
                 (candle, step, pileup_type, conditions, event_content) = jobID
 
                 print "jobID: %s" % str(jobID)
-                jobID = dict(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID))
+                jobID = dict(list(zip(("candle", "step", "pileup_type", "conditions", "event_content"), jobID)))
                 
                 print "Dictionary based jobID %s: " % str(jobID)
                 
