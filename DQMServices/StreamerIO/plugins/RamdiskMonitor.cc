@@ -35,9 +35,11 @@ class RamdiskMonitor : public DQMEDAnalyzer {
                               edm::EventSetup const &) override;
   virtual void beginLuminosityBlock(edm::LuminosityBlock const &lumi,
                                     edm::EventSetup const &eSetup) override;
-  virtual void analyze(edm::Event const& e, edm::EventSetup const& eSetup) override {};
+  virtual void analyze(edm::Event const &e,
+                       edm::EventSetup const &eSetup) override{};
 
-  void analyzeFile(std::string fn, unsigned int run, unsigned int lumi, std::string label);
+  void analyzeFile(std::string fn, unsigned int run, unsigned int lumi,
+                   std::string label);
   double getRunTimestamp();
 
   unsigned int runNumber_;
@@ -68,11 +70,10 @@ RamdiskMonitor::RamdiskMonitor(const edm::ParameterSet &ps) {
       ps.getUntrackedParameter<std::vector<std::string> >("streamLabels");
 };
 
-RamdiskMonitor::~RamdiskMonitor() {};
+RamdiskMonitor::~RamdiskMonitor(){};
 
 void RamdiskMonitor::bookHistograms(DQMStore::IBooker &ib, edm::Run const &,
-                               edm::EventSetup const &) {
-
+                                    edm::EventSetup const &) {
   runPath_ = str(boost::format("%s/run%06d") % runInputDir_ % runNumber_);
 
   for (auto stream : streamLabels_) {
@@ -83,10 +84,16 @@ void RamdiskMonitor::bookHistograms(DQMStore::IBooker &ib, edm::Run const &,
 
     StreamME m;
 
-    m.eventsAccepted = ib.book1D("EventAccepted", "# of accepted events per lumi", 4, 0., 4.);
-    m.eventsProcessed = ib.book1D("EventProcessed", "# of processed events per lumi", 4, 0., 4.);
-    m.deliveryDelayMTime = ib.book1D("DeliveryDelayMTime", "Observed delivery delay for the data file (mtime).", 4, 0., 4.);
-    m.deliveryDelayCTime = ib.book1D("DeliveryDelayCTime", "Observed delivery delay for the data file (ctime).", 4, 0., 4.);
+    m.eventsAccepted =
+        ib.book1D("EventAccepted", "# of accepted events per lumi", 4, 0., 4.);
+    m.eventsProcessed = ib.book1D("EventProcessed",
+                                  "# of processed events per lumi", 4, 0., 4.);
+    m.deliveryDelayMTime = ib.book1D(
+        "DeliveryDelayMTime",
+        "Observed delivery delay for the data file (mtime).", 4, 0., 4.);
+    m.deliveryDelayCTime = ib.book1D(
+        "DeliveryDelayCTime",
+        "Observed delivery delay for the data file (ctime).", 4, 0., 4.);
 
     m.eventsAccepted->getTH1F()->SetCanExtend(TH1::kXaxis);
     m.eventsProcessed->getTH1F()->SetCanExtend(TH1::kXaxis);
@@ -108,74 +115,73 @@ void RamdiskMonitor::bookHistograms(DQMStore::IBooker &ib, edm::Run const &,
 };
 
 double RamdiskMonitor::getRunTimestamp() {
-    if (global_start_ != 0)
-        return global_start_;
-    
-    std::string run_global = str(boost::format("%s/.run%06d.global") % runInputDir_ % runNumber_);
-    struct stat st;
-    if (::stat(run_global.c_str(), &st) != 0) {
-        edm::LogWarning("RamdiskMonitor") << "Stat failed: " << run_global;
-        return 0.;
-    }
-   
-    global_start_ = st.st_mtime;
-    edm::LogPrint("RamdiskMonitor") << "Run start timestamp: " << global_start_;
-    return global_start_;
+  if (global_start_ != 0) return global_start_;
+
+  std::string run_global =
+      str(boost::format("%s/.run%06d.global") % runInputDir_ % runNumber_);
+  struct stat st;
+  if (::stat(run_global.c_str(), &st) != 0) {
+    edm::LogWarning("RamdiskMonitor") << "Stat failed: " << run_global;
+    return 0.;
+  }
+
+  global_start_ = st.st_mtime;
+  edm::LogPrint("RamdiskMonitor") << "Run start timestamp: " << global_start_;
+  return global_start_;
 };
 
-void RamdiskMonitor::analyzeFile(std::string fn, unsigned int run, unsigned int lumi, std::string label) {
-    using LumiEntry = dqmservices::DQMFileIterator::LumiEntry;
+void RamdiskMonitor::analyzeFile(std::string fn, unsigned int run,
+                                 unsigned int lumi, std::string label) {
+  using LumiEntry = dqmservices::DQMFileIterator::LumiEntry;
 
-    // we are disabled, at least for this stream
-    if (streams_.size() == 0)
-        return;
+  // we are disabled, at least for this stream
+  if (streams_.size() == 0) return;
 
-    if (streams_.find(label) == streams_.end()) {
-       edm::LogPrint("RamdiskMonitor") << "Stream not monitored [" << label<< "]: " << fn;
-       return;
-    }
+  if (streams_.find(label) == streams_.end()) {
+    edm::LogPrint("RamdiskMonitor") << "Stream not monitored [" << label
+                                    << "]: " << fn;
+    return;
+  }
 
-    StreamME m = streams_[label];
+  StreamME m = streams_[label];
 
-    // decode json and fill in some histograms
-    LumiEntry lumi_jsn = LumiEntry::load_json(fn, lumi, -1);
-    m.eventsAccepted->setBinContent(lumi, lumi_jsn.n_events_accepted);
-    m.eventsProcessed->setBinContent(lumi, lumi_jsn.n_events_processed);
+  // decode json and fill in some histograms
+  LumiEntry lumi_jsn = LumiEntry::load_json(fn, lumi, -1);
+  m.eventsAccepted->setBinContent(lumi, lumi_jsn.n_events_accepted);
+  m.eventsProcessed->setBinContent(lumi, lumi_jsn.n_events_processed);
 
-    // collect stat struct and calculate mtimes
-    struct stat st;
-    if (::stat(fn.c_str(), &st) != 0) {
-        edm::LogWarning("RamdiskMonitor") << "Stat failed: " << fn;
-        return;
-    }
+  // collect stat struct and calculate mtimes
+  struct stat st;
+  if (::stat(fn.c_str(), &st) != 0) {
+    edm::LogWarning("RamdiskMonitor") << "Stat failed: " << fn;
+    return;
+  }
 
-    // get start offset (from .global)
-    // abort the calculation if it does not exist
-    double start_offset = getRunTimestamp();
-    if (start_offset <= 0)
-        return;
+  // get start offset (from .global)
+  // abort the calculation if it does not exist
+  double start_offset = getRunTimestamp();
+  if (start_offset <= 0) return;
 
-    // check fff_dqmtools (separate repository)
-    // for calculation details
-    double mtime = st.st_mtime;
-    double ctime = st.st_ctime;
+  // check fff_dqmtools (separate repository)
+  // for calculation details
+  double mtime = st.st_mtime;
+  double ctime = st.st_ctime;
 
-    // timeout from the begging of the run
-    double start_offset_mtime = mtime - start_offset - LUMI;
-    double start_offset_ctime = ctime - start_offset - LUMI;
-    double lumi_offset = (lumi - 1) * LUMI;
+  // timeout from the begging of the run
+  double start_offset_mtime = mtime - start_offset - LUMI;
+  double start_offset_ctime = ctime - start_offset - LUMI;
+  double lumi_offset = (lumi - 1) * LUMI;
 
-    // timeout from the time we think this lumi happenned
-    double delay_mtime = start_offset_mtime - lumi_offset;
-    double delay_ctime = start_offset_ctime - lumi_offset;
+  // timeout from the time we think this lumi happenned
+  double delay_mtime = start_offset_mtime - lumi_offset;
+  double delay_ctime = start_offset_ctime - lumi_offset;
 
-    m.deliveryDelayMTime->setBinContent(lumi, delay_mtime);
-    m.deliveryDelayCTime->setBinContent(lumi, delay_ctime);
+  m.deliveryDelayMTime->setBinContent(lumi, delay_mtime);
+  m.deliveryDelayCTime->setBinContent(lumi, delay_ctime);
 };
 
 void RamdiskMonitor::beginLuminosityBlock(edm::LuminosityBlock const &lumi,
-                                    edm::EventSetup const &eSetup) {
-
+                                          edm::EventSetup const &eSetup) {
   // search filesystem to find available lumi section files
   auto now = std::chrono::high_resolution_clock::now();
   runPathLastCollect_ = now;
@@ -212,7 +218,7 @@ void RamdiskMonitor::beginLuminosityBlock(edm::LuminosityBlock const &lumi,
 
       try {
         this->analyzeFile(fn, run, lumi, label);
-      } catch (const std::exception& e) {
+      } catch (const std::exception &e) {
         // it's likely we have read it too soon
         filesSeen_.erase(filename);
 
@@ -227,8 +233,7 @@ void RamdiskMonitor::beginLuminosityBlock(edm::LuminosityBlock const &lumi,
   // @TODO lookup info for the current lumi
 };
 
-void RamdiskMonitor::fillDescriptions(
-    edm::ConfigurationDescriptions &d) {
+void RamdiskMonitor::fillDescriptions(edm::ConfigurationDescriptions &d) {
   edm::ParameterSetDescription desc;
 
   desc.setComment(
@@ -247,7 +252,7 @@ void RamdiskMonitor::fillDescriptions(
   d.add("RamdiskMonitor", desc);
 }
 
-} // end of namespace
+}  // end of namespace
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
