@@ -36,7 +36,7 @@ def allNorms(schema):
         qResult.extend('creationtime','string')        
         qHandle.defineOutput(qResult)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             normname=cursor.currentRow()['ENTRY_NAME'].data()
             if not result.has_key(normname):
                 result[normname]=[]
@@ -78,7 +78,7 @@ def normIdByName(schema,normname):
         if normname:
             qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             dataid=cursor.currentRow()['DATA_ID'].data()
             luminormids.append(dataid)
     except :
@@ -115,7 +115,7 @@ def normIdByType(schema,lumitype='HF',defaultonly=True):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             if not cursor.currentRow()['DATA_ID'].isNull():
                 dataid=cursor.currentRow()['DATA_ID'].data()
                 normname=cursor.currentRow()['ENTRY_NAME'].data()
@@ -158,7 +158,7 @@ def normInfoByName(schema,normname):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             if not cursor.currentRow()['DATA_ID'].isNull():
                 dataid=cursor.currentRow()['DATA_ID'].data()
             else:
@@ -197,7 +197,7 @@ def normValueById(schema,normid):
         qResult=coral.AttributeList()
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             since=cursor.currentRow()['SINCE'].data()
             corrector=cursor.currentRow()['CORRECTOR'].data()
             amodetag=cursor.currentRow()['AMODETAG'].data()

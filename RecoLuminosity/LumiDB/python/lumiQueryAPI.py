@@ -191,7 +191,7 @@ def deliveredLumiForRun (dbsession, parameters, runnum, finecorrections=None ):
         query.defineOutput (result)
         query.setCondition (conditionstring,queryBind)
         cursor = query.execute()
-        while cursor.next():
+        while next(cursor):
             instlumi = cursor.currentRow()['instlumi'].data()
             norbits = cursor.currentRow()['norbits'].data()
             if finecorrections is not None:
@@ -245,7 +245,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
         result.extend ("l1seed", "string")
         query.defineOutput (result)
         cursor = query.execute()
-        while cursor.next():
+        while next(cursor):
             hltpathname = cursor.currentRow()["hltpathname"].data()
             l1seed = cursor.currentRow()["l1seed"].data()
             collectedseeds.append ( (hltpathname, l1seed))
@@ -277,7 +277,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
         hltprescCondition['inf'].setData (0)
         hltprescQuery.setCondition ("RUNNUM = :runnumber and CMSLSNUM = :cmslsnum and PRESCALE != :inf",hltprescCondition)
         cursor = hltprescQuery.execute()
-        while cursor.next():
+        while next(cursor):
             hltpath = cursor.currentRow()['hltpath'].data()
             hltprescale = cursor.currentRow()['hltprescale'].data()
             if lumidata[1].has_key (hltpath):
@@ -323,7 +323,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
         trgprescalemap = {}
         query.defineOutput (result)
         cursor = query.execute()
-        while cursor.next():
+        while next(cursor):
             cmsls       = cursor.currentRow()["cmsls"].data()
             instlumi    = cursor.currentRow()["instlumi"].data()*parameters.norm
             if finecorrections:
@@ -817,7 +817,7 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
         query.defineOutput (detailOutput)
         cursor = query.execute()
         count = 0
-        while cursor.next():
+        while next(cursor):
             ## ## Note: If you are going to break out of this loop early,
             ## ## make sure you call cursor.close():
             ## 
@@ -940,7 +940,7 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         result.extend("run","unsigned int")
         queryHandle.defineOutput(result)
         cursor=queryHandle.execute()
-        while cursor.next():
+        while next(cursor):
             r=cursor.currentRow()['run'].data()
             runlist.append(r)
         del queryHandle
@@ -954,7 +954,7 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         result.extend("run","unsigned int")
         queryHandle.defineOutput(result)
         cursor=queryHandle.execute()
-        while cursor.next():
+        while next(cursor):
             r=cursor.currentRow()['run'].data()
             runlist.append(r)
         del queryHandle
@@ -968,7 +968,7 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         result.extend("run","unsigned int")
         queryHandle.defineOutput(result)
         cursor=queryHandle.execute()
-        while cursor.next():
+        while next(cursor):
             r=cursor.currentRow()['run'].data()
             runlist.append(r)
         del queryHandle
@@ -982,7 +982,7 @@ def allruns(schemaHandle,requireRunsummary=True,requireLumisummary=False,require
         result.extend("run","unsigned int")
         queryHandle.defineOutput(result)
         cursor=queryHandle.execute()
-        while cursor.next():
+        while next(cursor):
             r=cursor.currentRow()['run'].data()
             runlist.append(r)
         del queryHandle
@@ -1017,7 +1017,7 @@ def validation(queryHandle,run=None,cmsls=None):
     queryResult.extend('comment','string')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         runnum=cursor.currentRow()['runnum'].data()
         if not result.has_key(runnum):
             result[runnum]=[]
@@ -1058,7 +1058,7 @@ def allfills(queryHandle,filtercrazy=True):
     queryResult.extend('fillnum','unsigned int')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         result.append(cursor.currentRow()['fillnum'].data())
     result.sort()
     return result
@@ -1087,7 +1087,7 @@ def runsummaryByrun(queryHandle,runnum):
     queryResult.extend('stoptime','string')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         result.append(cursor.currentRow()['fillnum'].data())
         result.append(cursor.currentRow()['sequence'].data())
         result.append(cursor.currentRow()['hltkey'].data())
@@ -1144,7 +1144,7 @@ def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=N
     queryHandle.setCondition(conditionstring,queryCondition)
     queryHandle.addToOrderList('startorbit')
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         instlumi=cursor.currentRow()['instlumi'].data()
         if finecorrections:
@@ -1192,7 +1192,7 @@ def lumisumByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,
     queryResult.extend('instlumi','float')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         instlumi=cursor.currentRow()['instlumi'].data()
         if instlumi:
             if finecorrections:
@@ -1229,7 +1229,7 @@ def trgbitzeroByrun(queryHandle,runnum):
     queryResult.extend('prescale','unsigned int')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         trgcount=cursor.currentRow()['trgcount'].data()
         deadtime=cursor.currentRow()['deadtime'].data()
@@ -1294,7 +1294,7 @@ def lumisummarytrgbitzeroByrun(queryHandle,runnum,lumiversion,beamstatus=None,be
     queryResult.extend('prescale','unsigned int')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         instlumi=cursor.currentRow()['instlumi'].data()
         if finecorrections:
@@ -1337,7 +1337,7 @@ def trgBybitnameByrun(queryHandle,runnum,bitname):
     queryResult.extend('prescale','unsigned int')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         trgcount=cursor.currentRow()['trgcount'].data()
         deadtime=cursor.currentRow()['deadtime'].data()
@@ -1377,7 +1377,7 @@ def trgAllbitsByrun(queryHandle,runnum):
     queryHandle.addToOrderList('bitnum')
     queryHandle.addToOrderList('cmslsnum')
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         trgcount=cursor.currentRow()['trgcount'].data()
         deadtime=cursor.currentRow()['deadtime'].data()
@@ -1417,7 +1417,7 @@ def hltBypathByrun(queryHandle,runnum,hltpath):
     queryResult.extend('prescale','unsigned int')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         inputcount=cursor.currentRow()['inputcount'].data()
         acceptcount=cursor.currentRow()['acceptcount'].data()
@@ -1451,7 +1451,7 @@ def hltAllpathByrun(queryHandle,runnum):
     queryResult.extend('pathname','string')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         inputcount=cursor.currentRow()['inputcount'].data()
         acceptcount=cursor.currentRow()['acceptcount'].data()
@@ -1495,7 +1495,7 @@ def beamIntensityForRun(query,parameters,runnum):
     query.setCondition('RUNNUM=:runnum AND LUMIVERSION=:lumiversion',condition)
     query.defineOutput(lumisummaryOutput)
     cursor=query.execute()
-    while cursor.next():
+    while next(cursor):
         #cmslsnum=cursor.currentRow()['cmslsnum'].data()
         startorbit=cursor.currentRow()['startorbit'].data()
         bxidx=[]
@@ -1560,7 +1560,7 @@ def calibratedDetailForRunLimitresult(query,parameters,runnum,algoname='OCC1',fi
     query.setCondition('s.RUNNUM=:runnum and d.ALGONAME=:algoname and s.LUMISUMMARY_ID=d.LUMISUMMARY_ID',detailCondition)
     query.defineOutput(detailOutput)
     cursor=query.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
         bxlumierror=cursor.currentRow()['bxlumierror'].data()
@@ -1622,7 +1622,7 @@ def lumidetailByrunByAlgo(queryHandle,runnum,algoname='OCC1'):
     queryHandle.addToOrderList('s.STARTORBIT')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
         bxlumierror=cursor.currentRow()['bxlumierror'].data()
@@ -1660,7 +1660,7 @@ def lumidetailAllalgosByrun(queryHandle,runnum):
     queryHandle.addToOrderList('algoname')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
         bxlumierror=cursor.currentRow()['bxlumierror'].data()
@@ -1694,7 +1694,7 @@ def hlttrgMappingByrun(queryHandle,runnum):
     queryResult.extend('l1seed','string')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         hltpathname=cursor.currentRow()['hltpathname'].data()
         l1seed=cursor.currentRow()['l1seed'].data()
         if not result.has_key(hltpathname):
@@ -1722,7 +1722,7 @@ def runsByfillrange(queryHandle,minFill,maxFill):
     queryResult.extend('fillnum','unsigned int')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         runnum=cursor.currentRow()['runnum'].data()
         fillnum=cursor.currentRow()['fillnum'].data()
         if not result.has_key(fillnum):
@@ -1759,7 +1759,7 @@ def runsByTimerange(queryHandle,minTime,maxTime):
     queryResult.extend('stoptime','string')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
-    while cursor.next():
+    while next(cursor):
         runnum=cursor.currentRow()['runnum'].data()
         starttimeStr=cursor.currentRow()['starttime'].data()
         stoptimeStr=cursor.currentRow()['stoptime'].data()

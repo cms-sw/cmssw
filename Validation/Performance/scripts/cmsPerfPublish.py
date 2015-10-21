@@ -1869,7 +1869,7 @@ def getRelativeDir(parent,child,keepTop=True):
     n = 0
     try:
         while True:
-            pwalk.next()
+            next(pwalk)
             n += 1
     except StopIteration:
         pass
@@ -1881,7 +1881,7 @@ def getRelativeDir(parent,child,keepTop=True):
     try:
         #prewalk
         for x in range(n):
-            cwalk.next()
+            next(cwalk)
     except StopIteration:
         print "ERROR: Unable to determine relative dir"
         raise ReldirExcept
@@ -1889,7 +1889,7 @@ def getRelativeDir(parent,child,keepTop=True):
     relpath = ""
     try:
         while True:
-            relpath=os.path.join(relpath,cwalk.next())
+            relpath=os.path.join(relpath,next(cwalk))
     except StopIteration:
         pass
     return relpath
@@ -1949,7 +1949,7 @@ def copytree4(src,dest,keepTop=True):
         os.mkdir(newloc)
         try:
             while True:
-                step   = gen.next()
+                step   = next(gen)
                 curdir = step[0]
                 dirs   = step[1]
                 files  = step[2]

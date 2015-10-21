@@ -42,7 +42,7 @@ try:
     query.setCondition( condition, conditionData)
     conditionData['nodelabel'].setData('testtest')
     cursor = query.execute()
-    while ( cursor.next() ):
+    while ( next(cursor) ):
         tagid=cursor.currentRow()['tagid'].data()
         print 'tagid',tagid
         nodeid=cursor.currentRow()['nodeid'].data()

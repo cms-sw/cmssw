@@ -1029,7 +1029,7 @@ def rmtree(path):
         if detail.errno == 39:
             try:
                 gen = os.walk(path)
-                nodes    = gen.next()
+                nodes    = next(gen)
                 nodes[0] = par
                 nodes[1] = dirs
                 nodes[2] = files

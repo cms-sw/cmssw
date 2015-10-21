@@ -47,7 +47,7 @@ def missingTimeRuns(dbsession,c):
         queryOutput.extend('runnum','unsigned int')
         query.defineOutput(queryOutput)
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             result.append(cursor.currentRow()['runnum'].data())
         del query
         dbsession.transaction().commit()
@@ -96,14 +96,14 @@ def getTimeForRun(dbsession,c,runnums):
             startTQuery.setCondition('RUNNUMBER=:runnum AND NAME=:name',startTQueryCondition)
             startTQuery.defineOutput(startTQueryOutput)
             startTCursor=startTQuery.execute()
-            while startTCursor.next():
+            while next(startTCursor):
                 startTime=startTCursor.currentRow()['starttime'].data()           
             stopTQueryCondition['runnum'].setData(int(runnum))
             stopTQueryCondition['name'].setData('CMS.LVL0:STOP_TIME_T')
             stopTQuery.setCondition('RUNNUMBER=:runnum AND NAME=:name',stopTQueryCondition)
             stopTQuery.defineOutput(stopTQueryOutput)
             stopTCursor=stopTQuery.execute()
-            while stopTCursor.next():
+            while next(stopTCursor):
                 stopTime=stopTCursor.currentRow()['stoptime'].data()
             if not startTime or not stopTime:
                 print 'Warning: no startTime or stopTime found for run ',runnum
@@ -223,7 +223,7 @@ def GTdeadtimeBeamActiveForRun(dbsession,c,runnum):
         query.defineOutput(deadOutput)
 
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             deadcount=cursor.currentRow()['deadcount'].data()
             result[cmslsnum]=deadcount
@@ -267,7 +267,7 @@ def WBMdeadtimeBeamActiveForRun(dbsession,c,runnum):
         query.defineOutput(deadOutput)
         
         cursor=query.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['lsnr'].data()
             deadcount=cursor.currentRow()['deadcount'].data()
             result[cmslsnum]=deadcount

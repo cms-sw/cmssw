@@ -45,7 +45,7 @@ def tagInTrees(dbsession,tagname,pfn=''):
 	invquery.addToOutputList('pfn')
 	cursor = invquery.execute()
 	tagidmap={}
-	while ( cursor.next() ):
+	while ( next(cursor) ):
 	    tagid=cursor.currentRow()['tagid'].data()
 	    pfn=cursor.currentRow()['pfn'].data()
 	    tagidmap[pfn]=tagid
@@ -76,7 +76,7 @@ def tagInTrees(dbsession,tagname,pfn=''):
 	      q.defineOutput(myresult)
 	      q.setCondition(condition,conditionBind)
 	      cr=q.execute()
-	      while (cr.next()):
+	      while (next(cr)):
 	        if cr.currentRow()['count'].data()!=0:
 		  result[pfn].append(t[len('TAGTREE_TABLE_'):])
 	      cr.close()
