@@ -1,5 +1,5 @@
 #ifndef HGCalSimProducers_HGCDigitizer_h
-#define HGcalSimProducers_HGCDigitizer_h
+#define HGCalSimProducers_HGCDigitizer_h
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
