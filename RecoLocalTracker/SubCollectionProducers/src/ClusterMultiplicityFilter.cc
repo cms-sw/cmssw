@@ -21,9 +21,10 @@
 
 ClusterMultiplicityFilter::ClusterMultiplicityFilter(const edm::ParameterSet& iConfig) :
   maxNumberOfClusters_(iConfig.getParameter<unsigned int>("MaxNumberOfClusters")),
-  clusterCollectionTag_(iConfig.getParameter<edm::InputTag>("ClusterCollection"))
+  clusterCollectionTag_(iConfig.getParameter<edm::InputTag>("ClusterCollection")),
+  clusters_ (consumes<edmNew::DetSetVector<SiStripCluster> >(clusterCollectionTag_))
 {
-  clusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(clusterCollectionTag_);
+
 }
 
 
@@ -32,7 +33,7 @@ ClusterMultiplicityFilter::~ClusterMultiplicityFilter() {
 
 
 // ------------ method called on each new Event  ------------
-bool ClusterMultiplicityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+bool ClusterMultiplicityFilter::filter(edm::StreamID iID, edm::Event& iEvent, edm::EventSetup const& iSetup) const {
 
   bool result = true;
 
