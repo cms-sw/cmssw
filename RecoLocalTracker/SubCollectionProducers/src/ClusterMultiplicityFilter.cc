@@ -20,10 +20,10 @@
 
 
 ClusterMultiplicityFilter::ClusterMultiplicityFilter(const edm::ParameterSet& iConfig) :
-  maxNumberOfClusters_(iConfig.getUntrackedParameter<unsigned int>("MaxNumberOfClusters")),
-  clusterCollectionLabel_(iConfig.getUntrackedParameter<std::string>("ClusterCollectionLabel"))
+  maxNumberOfClusters_(iConfig.getParameter<unsigned int>("MaxNumberOfClusters")),
+  clusterCollectionTag_(iConfig.getParameter<edm::InputTag>("ClusterCollection"))
 {
-  clusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(edm::InputTag(clusterCollectionLabel_));
+  clusters_ = consumes<edmNew::DetSetVector<SiStripCluster> >(clusterCollectionTag_);
 }
 
 
@@ -41,7 +41,7 @@ bool ClusterMultiplicityFilter::filter(edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(clusters_,clusterHandle);
   if( !clusterHandle.isValid() ) {
     throw cms::Exception("CorruptData")
-      << "ClusterMultiplicityFilter requires collection <edm::DetSetVector<SiStripCluster> with label " << clusterCollectionLabel_ << std::endl;
+      << "ClusterMultiplicityFilter requires collection <edm::DetSetVector<SiStripCluster> with label " << clusterCollectionTag_.label() << std::endl;
   }
 
   clusters = clusterHandle.product();
