@@ -311,6 +311,9 @@ L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup& es) 
 
   bxCounter = 0;
   for(int itBX=HfCounts->getFirstBX(); itBX<=HfCounts->getLastBX(); ++itBX){
+    
+    if (itBX<bxMin_) continue;
+    if (itBX>bxMax_) continue;
 
     bxCounter++;
     L1GctHFBitCounts count = L1GctHFBitCounts::fromGctEmulator(itBX,
