@@ -22,7 +22,7 @@ Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(con
   if (m_fwv == 1)
   { //HI algo
     m_egAlgo = new Stage1Layer2EGammaAlgorithmImpHI(m_db);
-    m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpHW(m_db);
+    m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpHI(m_db);
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(m_db); //fwv =1 => HI algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(m_db); //fwv=1 => single track seed
     m_hfRingAlgo = new Stage1Layer2CentralityAlgorithm(m_db);
