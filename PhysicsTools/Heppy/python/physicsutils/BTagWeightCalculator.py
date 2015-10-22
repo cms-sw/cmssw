@@ -33,34 +33,51 @@ class BTagWeightCalculator:
         ROOT.gROOT.cd()
         for k in tf.GetListOfKeys():
             kn = k.GetName()
-            if not kn.startswith("csv_ratio"):
+            if not (kn.startswith("csv_ratio") or kn.startswith("c_csv_ratio") ):
                 continue
             spl = kn.split("_")
+            is_c = 1 if kn.startswith("c_csv_ratio") else 0
 
-            if spl[2] == "all":
+            if spl[2+is_c] == "all":
                 ptbin = -1
                 etabin = -1
                 kind = "all"
                 syst = "nominal"
             else:
-                ptbin = int(spl[2][2:])
-                etabin = int(spl[3][3:])
-                kind = spl[4]
-                if len(spl)==6:
-                    syst = spl[5]
+                ptbin = int(spl[2+is_c][2:])
+                etabin = int(spl[3+is_c][3:])
+                kind = spl[4+is_c]
+                if len(spl)==(6+is_c):
+                    syst = spl[5+is_c]
                 else:
                     syst = "nominal"
             ret[(ptbin, etabin, kind, syst)] = k.ReadObj().Clone()
         return ret
 
     def calcJetWeight(self, jet, kind, systematic):
-        pt = jet.pt()
+        pt   = jet.pt()
         aeta = abs(jet.eta())
-        fl = abs(jet.mcFlavour)
-        csv = jet.btag(self.btag)
+        fl   = abs(jet.hadronFlavour())
+        csv  = jet.btag(self.btag)
 
-        is_heavy = (fl == 5 or fl == 6)
-        if is_heavy:
+        is_b = (fl == 5)
+        is_c = (fl == 4)
+        is_l = (fl < 4)
+
+        if is_b and not (systematic in ["JESUp", "JESDown", "LFUp", "LFDown", 
+                                        "Stats1Up", "Stats1Down", "Stats2Up", "Stats2Down", 
+                                        "nominal"]):
+            return 1.0
+        if is_c and not (systematic in ["cErr1Up", "cErr1Down", "cErr2Up", "cErr2Down", 
+                                        "nominal"]):
+            return 1.0
+        if is_l and not (systematic in ["JESUp", "JESDown", "HFUp", "HFDown", 
+                                        "Stats1Up", "Stats1Down", "Stats2Up", "Stats2Down", 
+                                        "nominal"]):
+            return 1.0
+
+
+        if is_b or is_c:
             ptbin = self.getBin(self.pt_bins_hf, pt)
             etabin = self.getBin(self.eta_bins_hf, aeta)
         else:
@@ -72,7 +89,7 @@ class BTagWeightCalculator:
 
         k = (ptbin, etabin, kind, systematic)
         hdict = self.pdfs["lf"]
-        if is_heavy:
+        if is_b or is_c:
             hdict = self.pdfs["hf"]
         h = hdict.get(k, None)
         if not h:
