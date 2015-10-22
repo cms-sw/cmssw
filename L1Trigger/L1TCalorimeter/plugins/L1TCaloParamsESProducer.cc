@@ -172,8 +172,8 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params_helper.setEgCalibrationLUT(*egCalibrationLUT);
 
   // tau
-  m_params_helper.setJetPUSVersion(conf.getParameter<int>("tauPUSVersion"));
-  m_params_helper.setJetRegionMask(conf.getParameter<int>("tauRegionMask"));
+  m_params_helper.setTauPUSVersion(conf.getParameter<int>("tauPUSVersion"));
+  m_params_helper.setTauRegionMask(conf.getParameter<int>("tauRegionMask"));
   m_params_helper.setTauLsb(conf.getParameter<double>("tauLsb"));
   m_params_helper.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
   m_params_helper.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
