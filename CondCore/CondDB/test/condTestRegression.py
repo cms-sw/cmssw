@@ -144,7 +144,7 @@ class CondRegressionTester(object):
           
 	  try:
              res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-          except Exception, e:
+          except Exception as e:
              self.log( rel, arch, readOrWrite, str(e) )
              raise e
 
@@ -163,7 +163,7 @@ class CondRegressionTester(object):
           
           try:
              res = check_output(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-          except Exception, e:
+          except Exception as e:
              self.log( self.rel, self.arch, readOrWrite, str(e) )
              raise e
 

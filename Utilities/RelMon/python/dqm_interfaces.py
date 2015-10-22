@@ -157,7 +157,7 @@ class DQMcommunicator(object):
     len_args=len(args)
     full_url=""
     if len_args!=1 and len_args!=3:
-      raise(InvalidNumberOfArguments("3 or 1 args expected!"))
+      raise InvalidNumberOfArguments
     if len_args==3:
       dataset, run, folder = args    
       full_url='%s/data/json/archive/%s/%s/%s' % (self.server, dataset, run, folder)

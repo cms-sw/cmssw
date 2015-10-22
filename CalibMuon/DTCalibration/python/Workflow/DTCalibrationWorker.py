@@ -51,7 +51,7 @@ class DTCalibrationWorker:
 	    crab_task_dir = config.base_dir + '/' + dirLabel
 	    os.chdir(crab_task_dir)
 	    crabdir = findLastWorkDir('crab_0_')
-	    if not crabdir: raise RuntimeError,'Could not find CRAB dir in %s' % crab_task_dir
+	    if not crabdir: raise RuntimeError('Could not find CRAB dir in %s' % crab_task_dir)
 	    os.chdir(cwd)
 	    dqm_output_dir = crabdir + "/res"
 	elif config.stageOutCAF:
@@ -450,20 +450,20 @@ class DTCalibrationWorker:
 
 	    # Produce time-boxes
 	    if not os.path.exists(timeBoxes): self.runTtrigProd(run,runselection,trial,config)
-	    if not os.path.exists(timeBoxes): raise RuntimeError,'Could not produce %s' % timeBoxes
+	    if not os.path.exists(timeBoxes): raise RuntimeError('Could not produce %s' % timeBoxes)
 
 	    # Write tTrig DB
 	    if not os.path.exists(ttrig_timeboxes_db): self.runTtrigWriter(run,config)
-	    if not os.path.exists(ttrig_timeboxes_db): raise RuntimeError,'Could not produce %s' % ttrig_timeboxes_db
+	    if not os.path.exists(ttrig_timeboxes_db): raise RuntimeError('Could not produce %s' % ttrig_timeboxes_db)
 
 	    # Produce residuals
 	    if not os.path.exists(residualsFirst):
 		self.runResidualCalib(run,runselection,trial,ttrig_timeboxes_db,'Residuals',residualsFirst,config)
-	    if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s' % residualsFirst
+	    if not os.path.exists(residualsFirst): raise RuntimeError('Could not produce %s' % residualsFirst)
 
 	    # Correction from residuals and write tTrig DB
 	    if not os.path.exists(ttrig_residuals_db): self.runTtrigResidualCorr(run,ttrig_timeboxes_db,residualsFirst,config)
-	    if not os.path.exists(ttrig_residuals_db): raise RuntimeError,'Could not produce %s' % ttrig_residuals_db
+	    if not os.path.exists(ttrig_residuals_db): raise RuntimeError('Could not produce %s' % ttrig_residuals_db)
 
 	    # Validation
 	    self.runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
@@ -505,13 +505,13 @@ class DTCalibrationWorker:
 		    self.runResidualCalib(run,runselection,trial,ttrig_input_db,'Residuals',residualsFirst,config) 
 		else:
 		    self.runResidualCalib(run,runselection,trial,None,'Residuals',residualsFirst,config)
-	    if not os.path.exists(residualsFirst): raise RuntimeError,'Could not produce %s' % residualsFirst
+	    if not os.path.exists(residualsFirst): raise RuntimeError('Could not produce %s' % residualsFirst)
 
 	    # Correction from residuals and write tTrig DB
 	    if not os.path.exists(ttrig_residuals_db):
 		if ttrig_input_db: self.runTtrigResidualCorr(run,ttrig_input_db,residualsFirst,config)
 		else: self.runTtrigResidualCorr(run,None,residualsFirst,config)
-	    if not os.path.exists(ttrig_residuals_db): raise RuntimeError,'Could not produce %s' % ttrig_residuals_db
+	    if not os.path.exists(ttrig_residuals_db): raise RuntimeError('Could not produce %s' % ttrig_residuals_db)
 
 	    # Validation
 	    self.runTtrigValid(run,runselection,trial,ttrig_residuals_db,'ResidualsResidCorr',config)
@@ -582,11 +582,11 @@ class DTCalibrationWorker:
 	    # Produce vDrift histos
 	    if not os.path.exists(vDriftHistos):
 		self.runVDriftSegmentCalib(run,runselection,trial,'VDriftHistos',vDriftHistos,config)
-	    if not os.path.exists(vDriftHistos): raise RuntimeError,'Could not produce %s' % vDriftHistos
+	    if not os.path.exists(vDriftHistos): raise RuntimeError('Could not produce %s' % vDriftHistos)
 
 	    # Write vDrift DB
 	    if not os.path.exists(vDrift_segment_db): self.runVDriftSegmentWriter(run,vDriftHistos,config)
-	    if not os.path.exists(vDrift_segment_db): raise RuntimeError,'Could not produce %s' % vDrift_segment_db
+	    if not os.path.exists(vDrift_segment_db): raise RuntimeError('Could not produce %s' % vDrift_segment_db)
 
 	elif mode == 'meantimer':
 	    vDriftTMaxHistos = os.path.abspath(result_dir + '/' + 'DTTMaxHistos_' + run + '.root')
@@ -602,11 +602,11 @@ class DTCalibrationWorker:
 	    # Produce t_max histos
 	    if not os.path.exists(vDriftTMaxHistos):
 		self.runVDriftMeanTimerCalib(run,runselection,trial,'VDriftTMaxHistos',vDriftTMaxHistos,config)
-	    if not os.path.exists(vDriftTMaxHistos): raise RuntimeError,'Could not produce %s' % vDriftTMaxHistos
+	    if not os.path.exists(vDriftTMaxHistos): raise RuntimeError('Could not produce %s' % vDriftTMaxHistos)
 
 	    # Write vDrift DB
 	    if not os.path.exists(vDrift_meantimer_db): self.runVDriftMeanTimerWriter(run,vDriftTMaxHistos,config)
-	    if not os.path.exists(vDrift_meantimer_db): raise RuntimeError,'Could not produce %s' % vDrift_meantimer_db
+	    if not os.path.exists(vDrift_meantimer_db): raise RuntimeError('Could not produce %s' % vDrift_meantimer_db)
 
 	return 0        
 
@@ -727,7 +727,7 @@ class DTCalibrationWorker:
 	    # Produce residuals
 	    if not os.path.exists(residualsFile):
 		self.runAnalysisResiduals(run,runselection,trial,'Residuals',residualsFile,config) 
-	    if not os.path.exists(residualsFile): raise RuntimeError,'Could not produce %s' % residualsFile
+	    if not os.path.exists(residualsFile): raise RuntimeError('Could not produce %s' % residualsFile)
 
 	return 0
 

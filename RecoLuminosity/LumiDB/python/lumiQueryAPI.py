@@ -208,7 +208,7 @@ def deliveredLumiForRun (dbsession, parameters, runnum, finecorrections=None ):
         else:
             lumidata = [str (runnum), str (totalls), '%.3f'%delivered, parameters.beammode]
         return lumidata
-    except Exception, e:
+    except Exception as e:
         print str (e)
         dbsession.transaction().rollback()
         del dbsession
@@ -369,7 +369,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrectio
                     if (deaddata[2] == 0 or deaddata[0] == 0) and deaddata[1]!=0.0:
                         print '[Warning] : run %s :ls %d has 0 dead counts or 0 zerobias bit counts, but inst!=0' % (runnum, lumi)
         #print 'lumidata[2] ', lumidata[2]
-    except Exception, e:
+    except Exception as e:
         print str (e)
         dbsession.transaction().rollback()
         del dbsession
@@ -854,7 +854,7 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
         del query
         dbsession.transaction().commit()
         return lumiXingDict      
-    except Exception, e:
+    except Exception as e:
         print str (e)
         print "whoops"
         dbsession.transaction().rollback()

@@ -32,7 +32,7 @@ def printXMLtree(head,l=0,bn=0):
 		tabs+="\t"
 	try:
 		print "[%d-%d-%d]"%(l,bn,head.nodeType)+tabs+"+++++>"+head.tagName
-	except AttributeError, e:
+	except AttributeError as e:
 		print "[%d-%d-%d]"%(l,bn,head.nodeType)+tabs+"+++++>"+str(e)
 	print "[%d-%d-%d-v]"%(l,bn,head.nodeType)+tabs+"."+ (head.nodeValue or "None")
 	try:

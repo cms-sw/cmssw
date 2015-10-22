@@ -15,7 +15,7 @@ class csvSelectionParser(object):
             field0=str(row[0]).strip()
             try:
                 field1=str(row[1]).strip()
-            except Exception,e:
+            except Exception as e:
                 field1='1' # for list with run number only, fake lsnum
             if not is_intstr(field0) or not  is_intstr(field1):
                 continue

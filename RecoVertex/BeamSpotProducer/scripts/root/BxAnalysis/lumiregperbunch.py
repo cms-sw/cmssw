@@ -54,7 +54,7 @@ def timeof(run,lumisection):
                 continue
             try:
                 tmp = BeamspotMeasurement(piece)
-            except Exception, err:
+            except Exception as err:
                 print >> sys.stderr, \
                       "    ERROR Found corrupt " \
                       "beamspot measurement entry!"

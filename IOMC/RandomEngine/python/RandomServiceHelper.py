@@ -110,7 +110,7 @@ class RandomNumberServiceHelper(object):
             msg = "No PSet named %s belongs to this instance of the" % (
                 psetName,)
             msg += "Random Seed Service"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         seedVal = getattr(pset, "initialSeed", None)
         if seedVal != None:
@@ -148,7 +148,7 @@ class RandomNumberServiceHelper(object):
             msg = "No PSet named %s belongs to this instance of the" % (
                 psetName,)
             msg += "Random Seed Service"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         seedVal = getattr(pset, "initialSeed", None)
         if seedVal != None:
@@ -177,7 +177,7 @@ class RandomNumberServiceHelper(object):
             msg = "Not enough seeds provided\n"
             msg += "Service requires %s seeds, only %s provided\n"
             msg += "to RandomeService.insertSeeds method\n"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         for item in self.__psetsWithSeeds():
             seedSet = getattr(item, "initialSeedSet", None)

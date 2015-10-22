@@ -100,7 +100,7 @@ class Looper(object):
             fineSplitIndex, fineSplitFactor = self.cfg_comp.fineSplit
             if fineSplitFactor > 1:
                 if len(self.cfg_comp.files) != 1:
-                    raise RuntimeError, "Any component with fineSplit > 1 is supposed to have just a single file, while %s has %s" % (self.cfg_comp.name, self.cfg_comp.files)
+                    raise RuntimeError("Any component with fineSplit > 1 is supposed to have just a single file, while %s has %s" % (self.cfg_comp.name, self.cfg_comp.files))
                 totevents = min(len(self.events),int(nEvents)) if (nEvents and int(nEvents) not in [-1,0]) else len(self.events)
                 self.nEvents = int(ceil(totevents/float(fineSplitFactor)))
                 self.firstEvent = firstEvent + fineSplitIndex * self.nEvents

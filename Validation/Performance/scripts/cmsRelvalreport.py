@@ -300,7 +300,7 @@ class Profile:
         elif self.profiler=='None': #adding this for the case of candle ASCII file non-profiling commands
             return self._profile_None()
         else:
-            raise('No %s profiler found!' %self.profiler)
+            raise 'No %s profiler found!'
     #------------------------------------------------------------------
     def _profile_valgrindfce(self):
         '''
@@ -340,7 +340,7 @@ class Profile:
         elif self.profiler=='IgProf_mem':
             igprof_options+='-mp '
         else:
-            raise ('Unknown IgProf flavour: %s !'%self.profiler)
+            raise 'Unknown IgProf flavour: %s !'
         igprof_options+='-z -o %s' %(self.profile_name)
         
         # If we are using cmsDriver we should use the prefix switch 
@@ -974,7 +974,7 @@ if __name__=="__main__":
     
     if not options.profile:
         if not os.path.exists(options.profile_name) and options.infile=='':
-            raise('Profile %s does not exist!' %options.profile_name)
+            raise 'Profile %s does not exist!'
         logger("WARNING: No profile will be generated. An existing one will be processed!")
     
     if options.command!='' and options.infile!='':

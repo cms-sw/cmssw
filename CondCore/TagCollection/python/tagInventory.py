@@ -23,9 +23,9 @@ class  tagInventory(object):
             schema.dropIfExistsTable( self.__tagInventoryIDName )
             schema.dropIfExistsTable( self.__tagInventoryTableName )
             transaction.commit()
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
-            raise Exception, str(er)
+            raise Exception(str(er))
         return
     
     def existInventoryTable( self ):
@@ -38,9 +38,9 @@ class  tagInventory(object):
             result=schema.existsTable(self.__tagInventoryTableName)
             transaction.commit()
             #print result
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
-            raise Exception, str(er)
+            raise Exception(str(er))
         return result
     def createInventoryTable( self ):
         """Create tag inventory table. Existing table will be deleted. 
@@ -69,9 +69,9 @@ class  tagInventory(object):
             generator=IdGenerator.IdGenerator(schema)
             generator.createIDTable(self.__tagInventoryIDName,True)
             transaction.commit()
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
-            raise Exception, str(er)
+            raise Exception(str(er))
     def addEntry( self, leafNode ):
         """Add entry into the inventory.\n
         Input: base tag info. If identical data found already exists, do nothing
@@ -115,9 +115,9 @@ class  tagInventory(object):
                 generator.incrementNextID(self.__tagInventoryIDName)           
                 transaction.commit()
             return tagid
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
-            raise Exception, str(er)
+            raise Exception(str(er))
         
     def addEntriesReplaceService( self, newservicename ):
         """ clone all existing entries only servicename in pfn are different
@@ -147,9 +147,9 @@ class  tagInventory(object):
                 results.append(r)
             transaction.commit()
             del query
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
-            raise Exception, str(er)
+            raise Exception(str(er))
         
         inv=tagInventory(self.__session)
         try:
@@ -167,9 +167,9 @@ class  tagInventory(object):
                     raise "addEntry returns 0"
                 newtaglinks.append((oldtagid,n))
             return newtaglinks
-        except Exception, e:
+        except Exception as e:
             print str(e)
-            raise Exception, str(e)
+            raise Exception(str(e))
     
     def modifyEntriesReplaceService( self, newservicename ):
         """ replace all existing entries replace service name in pfn
@@ -187,10 +187,10 @@ class  tagInventory(object):
                 allpfns.append(pfn)
             transaction.commit()
             del query
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
             del query
-            raise Exception, str(er)
+            raise Exception(str(er))
         try:
             transaction.start(False)
             editor = self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).dataEditor()
@@ -204,9 +204,9 @@ class  tagInventory(object):
                 inputData['oldpfn'].setData(pfn)
                 editor.updateRows( "pfn = :newpfn", "pfn = :oldpfn", inputData )
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
 
     def cloneEntry( self, sourcetagid, pfn ):
         """ clone an existing entry with different pfn parameter
@@ -236,9 +236,9 @@ class  tagInventory(object):
             generator.incrementNextID(self.__tagInventoryIDName)
             transaction.commit()
             return newtagid
-        except Exception, er:
+        except Exception as er:
             transaction.rollback()
-            raise Exception, str(er)
+            raise Exception(str(er))
         
     def getEntryByName( self, tagName, pfn ):
         """Get basic tag from inventory by tagName+pfn. pfn can be empty\n
@@ -266,7 +266,7 @@ class  tagInventory(object):
             counter=0
             while ( cursor.next() ):
                 if counter > 0 :
-                    raise ValueError, "tagName "+tagName+" is not unique, please further specify parameter pfn"
+                    raise ValueError("tagName "+tagName+" is not unique, please further specify parameter pfn")
                 counter+=1
                 leafnode.tagid=cursor.currentRow()['tagid'].data()
                 leafnode.tagname=cursor.currentRow()['tagname'].data()
@@ -277,9 +277,9 @@ class  tagInventory(object):
             transaction.commit()
             del query
             return leafnode
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
     def getEntryById( self, tagId ):
         """Get basic tag from inventory by id.\n
         Input: tagid
@@ -309,9 +309,9 @@ class  tagInventory(object):
             transaction.commit()
             del query
             return leafnode
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
     def getAllEntries( self ):
         """Get all entries in the inventory
         Output: list of leafNode objects
@@ -336,9 +336,9 @@ class  tagInventory(object):
             transaction.commit()
             del query
             return result
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
     def getIDsByName( self, name ):
         """get tagids correspond to a given tag name
         """
@@ -358,9 +358,9 @@ class  tagInventory(object):
                 tagid=cursor.currentRow()['tagid'].data()
                 ids.append(tagid)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
         return ids
     def deleteAllEntries( self ):
         """Delete all entries in the inventory
@@ -375,9 +375,9 @@ class  tagInventory(object):
                             '',
                             inputData)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
         
     def deleteEntryByName( self, tagname ):
         """Delete entry with given tag name
@@ -394,9 +394,9 @@ class  tagInventory(object):
                             'tagname=:tagname',
                             inputData)
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
         
     def replaceTagLabel( self, tagname, label ):
         """Replace the run time label of the given tag
@@ -413,9 +413,9 @@ class  tagInventory(object):
             editor = schema.tableHandle(self.__tagInventoryTableName).dataEditor()
             editor.updateRows( "labelname=:labelname", "tagname=:tagname", inputData )
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
 
     def bulkInsertEntries( self, entries ): 
         """insert a chunk of entries.
@@ -480,9 +480,9 @@ class  tagInventory(object):
             del bulkOperation
             del query
             return results
-        except Exception, e:
+        except Exception as e:
             transaction.rollback()
-            raise Exception, str(e)
+            raise Exception(str(e))
         
 if __name__ == "__main__":
     #context = coral.Context()
@@ -538,7 +538,7 @@ if __name__ == "__main__":
         print a
         del session
         
-    except Exception, e:
+    except Exception as e:
         print "Failed in unit test"
         print str(e)
         del session

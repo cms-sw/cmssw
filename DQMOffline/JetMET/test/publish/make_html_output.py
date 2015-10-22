@@ -77,7 +77,7 @@ for file in files:
                 source = os.path.join(inputdir,file)
                 destination = os.path.join(outputdir)
                 try: shutil.copy2(source,destination)
-                except IOError, err:
+                except IOError as err:
                     print "cannot copy:\n%s\n to\n%s"%(source,destination)
                     print "I/O error(%d): %s"%(err.errno,err.strerror)
             else:
@@ -120,19 +120,19 @@ for index,file in enumerate(files):
             
             # run the MET comparison plots
             try: os.makedirs(os.path.join(outputdir,run,"METDQM"))
-            except OSError, err:
+            except OSError as err:
                 if err.errno != errno.EEXIST: raise
                
             for test in mettype:
                 try: os.mkdir(os.path.join(outputdir,run,"METDQM",test))
-                except OSError, err:
+                except OSError as err:
                     if err.errno != errno.EEXIST: raise
 
                 rootfile = TFile(infilename)
 
                 if (test=="CaloMET"):
                     try: os.mkdir(os.path.join(outputdir,run,"CaloTowers"))
-                    except OSError, err:
+                    except OSError as err:
                         if err.errno != errno.EEXIST: raise
 
 
@@ -170,7 +170,7 @@ for index,file in enumerate(files):
                     
             # run the jet comparison plots
             try: os.makedirs(os.path.join(outputdir,run,"JetDQM","CaloJetAntiKt"))
-            except OSError, err:
+            except OSError as err:
                 if err.errno != errno.EEXIST: raise
 
             jetcmd = "plot_jets_data_vs_MC(\"%s\",\"%s\",%d,\"%s\")"%(infilename,reference,int(float(run)),outputdir)
@@ -179,7 +179,7 @@ for index,file in enumerate(files):
             source = os.path.join(os.getcwd(),"result.root")
             destination = os.path.join(outputdir,run,"JetDQM")
             try: shutil.copy2(source,destination)
-            except IOError, err:
+            except IOError as err:
                 print "cannot copy:\n%s\n to\n%s"%(source,destination)
                 print "I/O error(%d): %s"%(err.errno,err.strerror)
             
@@ -188,7 +188,7 @@ for index,file in enumerate(files):
                 source = os.path.join(inputdir,file)
                 destination = os.path.join(outputdir,run)
                 try: shutil.copy2(source,destination)
-                except IOError, err:
+                except IOError as err:
                     print "cannot copy:\n%s\n to\n%s"%(source,destination)
                     print "I/O error(%d): %s"%(err.errno,err.strerror)
             else:
@@ -197,7 +197,7 @@ for index,file in enumerate(files):
             source = os.path.join(os.getcwd(),"UFAV.html")
             destination = os.path.join(outputdir,run)
             try: shutil.copy2(source,destination)
-            except IOError, err:
+            except IOError as err:
                 print "cannot copy:\n%s\n to\n%s"%(source,destination)
                 print "I/O error(%d): %s"%(err.errno,err.strerror)
             

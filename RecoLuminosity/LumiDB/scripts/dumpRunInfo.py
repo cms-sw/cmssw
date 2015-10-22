@@ -23,9 +23,9 @@ def fillnumForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.runinfoschema)
         if not schema:
-            raise Exception, 'cannot connect to schema '+c.runinfoschema
+            raise Exception('cannot connect to schema '+c.runinfoschema)
         if not schema.existsTable(c.runsessionparameterTable):
-            raise Exception, 'non-existing table '+c.runsessionparameterTable
+            raise Exception('non-existing table '+c.runsessionparameterTable)
 
         fillOutput=coral.AttributeList()
         fillOutput.extend("fillnum","string")
@@ -51,7 +51,7 @@ def fillnumForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -65,9 +65,9 @@ def hltkeyForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.runinfoschema)
         if not schema:
-            raise Exception, 'cannot connect to schema '+c.runinfoschema
+            raise Exception('cannot connect to schema '+c.runinfoschema)
         if not schema.existsTable(c.runsessionparameterTable):
-            raise Exception, 'non-existing table '+c.runsessionparameterTable
+            raise Exception('non-existing table '+c.runsessionparameterTable)
 
         hltkeyOutput=coral.AttributeList()
         hltkeyOutput.extend("runnum","unsigned int")
@@ -96,7 +96,7 @@ def hltkeyForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession
@@ -110,9 +110,9 @@ def l1keyForRun(dbsession,c,runnum):
         dbsession.transaction().start(True)
         schema=dbsession.schema(c.runinfoschema)
         if not schema:
-            raise Exception, 'cannot connect to schema '+c.runinfoschema
+            raise Exception('cannot connect to schema '+c.runinfoschema)
         if not schema.existsTable(c.runsessionparameterTable):
-            raise Exception, 'non-existing table '+c.runsessionparameterTable
+            raise Exception('non-existing table '+c.runsessionparameterTable)
 
         l1keyOutput=coral.AttributeList()
         l1keyOutput.extend("runnum","unsigned int")
@@ -141,7 +141,7 @@ def l1keyForRun(dbsession,c,runnum):
         dbsession.transaction().commit()
         #print result
         return result
-    except Exception,e:
+    except Exception as e:
         print str(e)
         dbsession.transaction().rollback()
         del dbsession

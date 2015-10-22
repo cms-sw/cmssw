@@ -40,7 +40,7 @@ if __name__ == "__main__":
             listOfFiles.append( options.prefix + name )
 
     if not listOfFiles:
-        raise RuntimeError, "You have not provided any files"
+        raise RuntimeError("You have not provided any files")
 
     events = Events (listOfFiles)
 
@@ -59,7 +59,7 @@ if __name__ == "__main__":
             if pileup.getBunchCrossing() == options.bx:
                 break
             if pileup == pileups[-1] and len(pileups)>1 :
-                raise RuntimeError, "Requested BX not found in file"
+                raise RuntimeError("Requested BX not found in file")
 
         num = pileup.getPU_NumInteractions()
         total += 1

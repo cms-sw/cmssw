@@ -61,7 +61,7 @@ try:
         print 'globaltill',globaltill    
     transaction.commit()
     del session
-except Exception, e:
+except Exception as e:
     print "Failed in unit test"
     print str(e)
     transaction.rollback()

@@ -18,7 +18,7 @@ class CMSCompleter(rlcompleter.Completer):
     def __init__(self, namespace = None):
 	
         if namespace and not isinstance(namespace, dict):
-            raise TypeError,'namespace must be a dictionary'
+            raise TypeError('namespace must be a dictionary')
 
         # Don't bind to namespace quite yet, but flag whether the user wants a
         # specific namespace or to use __main__.__dict__. This will allow us

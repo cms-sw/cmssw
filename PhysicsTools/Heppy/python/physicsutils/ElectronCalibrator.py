@@ -6,7 +6,7 @@ class EmbeddedElectronCalibrator:
     def correct(self,cmgelectron,dummy):
         ele = cmgelectron.sourcePtr().get()
         if not ele.hasUserFloat("p_"+self._label): 
-            raise RuntimeError, "Electron does not have an embedded energy scale correction with label '%s'" % self._label
+            raise RuntimeError("Electron does not have an embedded energy scale correction with label '%s'" % self._label)
         kind_in = ele.candidateP4Kind()
         p4_in = ele.p4(kind_in)
         pCalib    = ele.userFloat("p_"+self._label)
