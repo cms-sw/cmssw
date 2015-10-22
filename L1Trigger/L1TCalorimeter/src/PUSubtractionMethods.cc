@@ -18,18 +18,8 @@ namespace l1t {
   /// --------------- For heavy ion -------------------------------------
   void HICaloRingSubtraction(const std::vector<l1t::CaloRegion> & regions,
 			     std::vector<l1t::CaloRegion> *subRegions,
-			     std::vector<double> regionPUSParams,
-			     std::string regionPUSType)
+			     CaloParamsHelper *params)
   {
-    // unsigned int etaMask = 0;
-    // for(int i = 0; i < 22; i++)
-    // {
-    //   //std::cout << regionPUSParams.at(i) << std::endl;
-    //   int bitValue = (regionPUSParams.at(i) > 0);
-    //   etaMask |= (bitValue<<i);
-    // }
-    // //std::cout << etaMask << std::endl;
-
     const bool verbose = false;
     int puLevelHI[L1CaloRegionDetId::N_ETA];
 
@@ -98,9 +88,10 @@ namespace l1t {
 
   void RegionCorrection(const std::vector<l1t::CaloRegion> & regions,
 			std::vector<l1t::CaloRegion> *subRegions,
-			std::vector<double> regionPUSParams,
-			std::string regionPUSType)
+			CaloParamsHelper *params)
   {
+
+    std::string regionPUSType = params->regionPUSType();
 
     if(regionPUSType == "None") {
       for(std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
@@ -111,7 +102,7 @@ namespace l1t {
     }
 
     if (regionPUSType == "HICaloRingSub") {
-      HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
+      HICaloRingSubtraction(regions, subRegions, params);
     }
 
     if (regionPUSType == "PUM0") {
@@ -134,7 +125,8 @@ namespace l1t {
 	int regionEta = notCorrectedRegion->hwEta();
 	int regionPhi = notCorrectedRegion->hwPhi();
 
-	int puSub = ceil(regionPUSParams[18*regionEta+pumbin]*2);
+	//int puSub = ceil(regionPUSParams[18*regionEta+pumbin]*2);
+	int puSub = params->regionPUSValue(pumbin, regionEta);
 	// The values in regionSubtraction are MULTIPLIED by
 	// RegionLSB=.5 (physicalRegionEt), so to get back unmultiplied
 	// regionSubtraction we want to multiply the number by 2
