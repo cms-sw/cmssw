@@ -205,28 +205,9 @@ void PileupJetIdAlgo::set(const PileupJetIdentifier & id)
 void PileupJetIdAlgo::runMva()
 {
   	if( cutBased_ ) {
-		internalId_.idFlag_ = computeCutIDflag(internalId_.betaStarClassic_,internalId_.DR_weighted_,internalId_.nvtx_,internalId_.jetPt_,internalId_.jetEta_);
+		internalId_.idFlag_ = computeCutIDflag(internalId_.betaStarClassic_,internalId_.dR2Mean_,internalId_.nvtx_,internalId_.jetPt_,internalId_.jetEta_);
 	} else {
-	  std::cout << "jetPt " << internalId_.jetPt_ << std::endl;
-	  std::cout << "jetEta " << internalId_.jetEta_ << std::endl;
-	  std::cout << "DR_weightd " << internalId_.DR_weighted_ << std::endl;     
-	  std::cout << "rho " << internalId_.rho_ << std::endl;
-	  std::cout << "nParticles " << internalId_.nParticles_ << std::endl;
-	  std::cout << "nCharged " << internalId_.nCharged_ << std::endl;
-	  std::cout << "majW " << internalId_.majW_ << std::endl; 
-	  std::cout << "minW " << internalId_.minW_ << std::endl;
-	  std::cout << "frac01 " << internalId_.frac01_ << std::endl;
-	  std::cout << "frac02 " << internalId_.frac02_ << std::endl;
-	  std::cout << "frac03 " << internalId_.frac03_ << std::endl;
-	  std::cout << "frac04 " << internalId_.frac04_ << std::endl;
-	  std::cout << "ptD " << internalId_.ptD_ << std::endl;
-	  std::cout << "beta " << internalId_.beta_ << std::endl;
-	  std::cout << "betaStar " << internalId_.betaStar_ << std::endl;
-	  std::cout << "pull " << internalId_.pull_ << std::endl;
-	  std::cout << "jetR " << internalId_.pull_ << std::endl;
-          std::cout << "jetRchg " << internalId_.pull_ << std::endl;
-
-		if(std::abs(internalId_.jetEta_) >= 5.0) {
+	       if(std::abs(internalId_.jetEta_) >= 5.0) {
 			internalId_.mva_ = -2.;
 		} else {
 			if(etaBinnedWeights_){
@@ -258,21 +239,21 @@ std::pair<int,int> PileupJetIdAlgo::getJetIdKey(float jetPt, float jetEta)
   return std::pair<int,int>(ptId,etaId);
 }
 // ------------------------------------------------------------------------------------------
-int PileupJetIdAlgo::computeCutIDflag(float betaStarClassic,float DR_weighted,float nvtx, float jetPt, float jetEta)
+int PileupJetIdAlgo::computeCutIDflag(float betaStarClassic,float dR2Mean,float nvtx, float jetPt, float jetEta)
 {
   std::pair<int,int> jetIdKey = getJetIdKey(jetPt,jetEta);
   float betaStarModified = betaStarClassic/log(nvtx-0.64);
   int idFlag(0);
   if(betaStarModified < betaStarCut_[PileupJetIdentifier::kTight ][jetIdKey.first][jetIdKey.second] && 
-     DR_weighted          < rmsCut_     [PileupJetIdentifier::kTight ][jetIdKey.first][jetIdKey.second] 
+     dR2Mean          < rmsCut_     [PileupJetIdentifier::kTight ][jetIdKey.first][jetIdKey.second] 
      ) idFlag += 1 <<  PileupJetIdentifier::kTight;
 
   if(betaStarModified < betaStarCut_[PileupJetIdentifier::kMedium ][jetIdKey.first][jetIdKey.second] && 
-     DR_weighted          < rmsCut_     [PileupJetIdentifier::kMedium ][jetIdKey.first][jetIdKey.second] 
+     dR2Mean          < rmsCut_     [PileupJetIdentifier::kMedium ][jetIdKey.first][jetIdKey.second] 
      ) idFlag += 1 <<  PileupJetIdentifier::kMedium;
   
   if(betaStarModified < betaStarCut_[PileupJetIdentifier::kLoose  ][jetIdKey.first][jetIdKey.second] && 
-     DR_weighted          < rmsCut_     [PileupJetIdentifier::kLoose  ][jetIdKey.first][jetIdKey.second] 
+     dR2Mean          < rmsCut_     [PileupJetIdentifier::kLoose  ][jetIdKey.first][jetIdKey.second] 
      ) idFlag += 1 <<  PileupJetIdentifier::kLoose;
   return idFlag;
 }
@@ -376,7 +357,6 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 		// // average shapes
 		internalId_.dRMean_     += candPtDr;
 		internalId_.dR2Mean_    += candPtDr*candPtDr;
-		internalId_.DR_weighted_ += candPtDr*candPtDr;
 		covMatrix(0,0) += candPt*candPt*candDeta*candDeta;
 		covMatrix(0,1) += candPt*candPt*candDeta*candDphi;
 		covMatrix(1,1) += candPt*candPt*candDphi*candDphi;
@@ -605,8 +585,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet * jet, f
 	internalId_.dRMeanEm_   /= jetPt;
 	internalId_.dRMeanCh_   /= jetPt;
 	internalId_.dR2Mean_    /= sumPt2;
-	internalId_.DR_weighted_    /= sumPt2;
-
+	
 	for(size_t ic=0; ic<ncones; ++ic){
 		*coneFracs[ic]     /= jetPt;
 		*coneEmFracs[ic]   /= jetPt;
@@ -730,9 +709,8 @@ void PileupJetIdAlgo::initVariables()
 	INIT_VARIABLE(dRMeanNeut , "drmne_1"  , 0.);  
 	INIT_VARIABLE(dRMeanEm   , "drem_1"   , 0.);  
 	INIT_VARIABLE(dRMeanCh   , "drch_1"   , 0.);  
-	//INIT_VARIABLE(dR2Mean    , ""         , 0.);  
-	INIT_VARIABLE(DR_weighted     , "DR_weighted"    , 0.);  
-	
+	INIT_VARIABLE(dR2Mean    , ""         , 0.);  
+		
 	INIT_VARIABLE(ptD        , "", 0.);
 	INIT_VARIABLE(ptMean     , "", 0.);
 	INIT_VARIABLE(ptRMS      , "", 0.);

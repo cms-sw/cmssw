@@ -86,7 +86,7 @@ void MVAJetPuId::setup()
 	tmvaVariables_.push_back( "ptD"  );
 	tmvaVariables_.push_back( "beta"   );
 	tmvaVariables_.push_back( "betaStar"  );
-	tmvaVariables_.push_back( "DR_weighted"  );
+	tmvaVariables_.push_back( "dR2Mean"  );
 	tmvaVariables_.push_back( "pull" );
 	tmvaVariables_.push_back( "jetR");
 	tmvaVariables_.push_back( "jetRchg");
@@ -103,7 +103,7 @@ void MVAJetPuId::setup()
 	tmvaNames_["ptD"] = "ptD";
 	tmvaNames_["beta"] = "beta";
 	tmvaNames_["betaStar"] = "betaStar";
-	tmvaNames_["DR_weighted"] = "DR_weighted";
+	tmvaNames_["dR2Mean"] = "dR2Mean";
 	tmvaNames_["pull"] = "pull";  
 	tmvaNames_["jetR"] = "jetR";  
 	tmvaNames_["jetRchg"] = "jetRchg";
@@ -258,7 +258,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 		}
 
 		//internalId_.dRMean_     += candPtDr;
-		internalId_.DR_weighted_    += candPtDr*candPtDr;
+		internalId_.dR2Mean_    += candPtDr*candPtDr;
 
 		internalId_.ptD_ += candPt*candPt;
 		sumPt += candPt;
@@ -382,7 +382,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet * jet, float 
 		internalId_.dRMeanNeut_ /= jetPt;
 		internalId_.dRMeanEm_   /= jetPt;
 		//internalId_.jetRchg_   /= jetPt;
-		internalId_.DR_weighted_    /= sumPt2;
+		internalId_.dR2Mean_    /= sumPt2;
 		for(size_t ic=0; ic<ncones; ++ic){
 			*coneFracs[ic]     /= jetPt;
 		}
@@ -520,7 +520,7 @@ void MVAJetPuId::initVariables()
 	INIT_VARIABLE(jetR , "jetR"   , 0.);  
 	INIT_VARIABLE(pull     , "pull"    , 0.);  
 	INIT_VARIABLE(jetRchg   , "jetRchg"   , 0.);  
-	INIT_VARIABLE(DR_weighted    , "DR_weighted"         , 0.);  
+	INIT_VARIABLE(dR2Mean    , "dR2Mean"         , 0.);  
 
 	INIT_VARIABLE(ptD        , "ptD", 0.);
 	INIT_VARIABLE(ptMean     , "", 0.);

@@ -197,11 +197,7 @@ process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSMassAK8_*_*']
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc')
 #                                         ##
-#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
-filesRelValProdTTbarAODSIM = cms.untracked.vstring(
-    'file:RelValProdTTbar.root'
-)
-
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM
 #                                         ##
 process.maxEvents.input = 5

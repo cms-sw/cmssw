@@ -234,7 +234,7 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet& iConfig)
       "ptD",
       "beta",
       "betaStar",
-      "DR_weighted",
+      "dR2Mean",
       "pull",
       "jetR",
       "jetRchg",
