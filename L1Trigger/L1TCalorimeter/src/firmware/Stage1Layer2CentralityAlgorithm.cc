@@ -37,6 +37,8 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
     sumET +=regionET;
   }
 
+  //std::cout << std::dec << "SumHFEt: " << sumET << std::endl;
+
   int outputBits = 0;
   for(int i = 0; i < 8; ++i)
   {
@@ -49,7 +51,7 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   // spares->push_back(centrality);
   spare->SetRing(0, outputBits);
 
-  const bool verbose = false;
+  const bool verbose = true;
   const bool hex = true;
   if(verbose)
   {
@@ -58,6 +60,7 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
       std::cout << "HF Ring Sums (Centrality)" << std::endl;
       std::cout << bitset<12>(spare->hwPt()).to_string() << std::endl;
     } else {
+      std::cout << "Centrality" << std::endl;
       std::cout << std::hex << spare->hwPt() << std::endl;
     }
   }

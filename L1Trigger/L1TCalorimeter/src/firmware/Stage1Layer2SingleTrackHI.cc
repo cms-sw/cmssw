@@ -42,7 +42,7 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
   TauToGtPtScales(params_, preGtTaus, unsortedTaus);
   SortTaus(unsortedTaus, preGtEtaTaus);
   //SortTaus(preGtTaus, unsortedTaus);
-  TauToGtPtScales(params_, unsortedTaus, preGtEtaTaus);
+  //TauToGtPtScales(params_, unsortedTaus, preGtEtaTaus);
   TauToGtEtaScales(params_, preGtEtaTaus, taus);
 
   delete subRegions;
@@ -51,12 +51,13 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
   isoTaus->resize(4);
   //taus->resize(4);
 
-  const bool verbose = false;
+  const bool verbose = true;
   const bool hex = true;
   if(verbose)
   {
     if(hex)
     {
+      std::cout << "Taus" << std::endl;
       l1t::Tau ataus[8];
       for(std::vector<l1t::Tau>::const_iterator itTau = taus->begin();
 	  itTau != taus->end(); ++itTau){
@@ -98,28 +99,14 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 
 void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t, const int etaMask)
 {
-  //int regionETMax = 0;
-  //int regionETMaxEta = -1;
-  //int regionETMaxPhi = -1;
-
   for(std::vector<l1t::CaloRegion>::const_iterator region = sr->begin(); region != sr->end(); region++)
   {
-    //int regionET = region->hwPt();
-    if((region->hwEta() < 8) || (region->hwEta() > 13)) continue;
-    // if (regionET > regionETMax)
-    // {
-    //   regionETMax = regionET;
-    //   regionETMaxEta = region->hwEta();
-    //   regionETMaxPhi = region->hwPhi();
-    // }
-    //}
+    int tauEta = region->hwEta();
+    if((etaMask & (1<<tauEta))>>tauEta) continue;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > TauLorentz(0,0,0,0);
-    //l1t::Tau taucand(*&TauLorentz,regionETMax,regionETMaxEta,regionETMaxPhi);
     l1t::Tau taucand(*&TauLorentz,region->hwPt(),region->hwEta(),region->hwPhi());
 
-    //don't push a taucand we didn't actually find
-    //if(taucand.hwPt() > 0)
     t->push_back(taucand);
   }
 }

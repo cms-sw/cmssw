@@ -31,13 +31,20 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
   std::vector<double> regionPUSParams = params_->regionPUSParams();
   int jetThreshold = params_->jetSeedThreshold();
 
+  unsigned int etaMask = 0;
+  for(int i = 0; i < 22; i++)
+  {
+    int bitValue = (regionPUSParams.at(i) > 0);
+    etaMask |= (bitValue<<i);
+  }
+
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> *unSortedJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> *preGtEtaJets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> *preRankJets = new std::vector<l1t::Jet>();
 
   HICaloRingSubtraction(regions, subRegions, regionPUSParams, regionPUSType);
-  TwoByTwoFinder(jetThreshold, subRegions, preRankJets);
+  TwoByTwoFinder(jetThreshold, etaMask, subRegions, preRankJets);
   //slidingWindowJetFinder(0, subRegions, unSortedJets);
   JetToGtPtScales(params_, preRankJets, unSortedJets);
   //verboseDumpJets(*unSortedJets);
@@ -50,7 +57,7 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
   delete unSortedJets;
   delete preGtEtaJets;
 
-  const bool verbose = false;
+  const bool verbose = true;
   const bool hex = true;
   if(verbose)
   {
@@ -81,6 +88,7 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
 	if(fJets == 4) break;
       }
     } else {
+      std::cout << "Jets" << std::endl;
       l1t::Jet ajets[8];
       for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
 	  itJet != jets->end(); ++itJet){

@@ -21,14 +21,14 @@ namespace l1t {
 			     std::vector<double> regionPUSParams,
 			     std::string regionPUSType)
   {
-    unsigned int etaMask = 0;
-    for(int i = 0; i < 22; i++)
-    {
-      //std::cout << regionPUSParams.at(i) << std::endl;
-      int bitValue = (regionPUSParams.at(i) > 0);
-      etaMask |= (bitValue<<i);
-    }
-    //std::cout << etaMask << std::endl;
+    // unsigned int etaMask = 0;
+    // for(int i = 0; i < 22; i++)
+    // {
+    //   //std::cout << regionPUSParams.at(i) << std::endl;
+    //   int bitValue = (regionPUSParams.at(i) > 0);
+    //   etaMask |= (bitValue<<i);
+    // }
+    // //std::cout << etaMask << std::endl;
 
     const bool verbose = false;
     int puLevelHI[L1CaloRegionDetId::N_ETA];
@@ -60,9 +60,6 @@ namespace l1t {
       int subEta = region->hwEta();
       int subPhi = region->hwPhi();
 
-      if((etaMask & (1<<subEta))>>subEta) {
-	subPt = 0;
-      }
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
