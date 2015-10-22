@@ -126,28 +126,72 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement *mPFVsPtInitial;
   MonitorElement *mPFVsPtInitial_HF; //MZ
 
-  MonitorElement *mPFVsPtInitial_Centrality_100_95; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_95_90; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_90_85; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_85_80; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_80_75; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_75_70; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_70_65; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_65_60; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_60_55; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_55_50; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_50_45; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_45_40; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_40_35; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_35_30; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_30_25; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_25_20; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_20_15; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_15_10; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_10_5; //MZ
-  MonitorElement *mPFVsPtInitial_Centrality_5_0; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_100_95; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_95_90; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_90_85; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_85_80; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_80_75; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_75_70; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_70_65; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_65_60; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_60_55; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_55_50; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_50_45; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_45_40; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_40_35; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_35_30; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_30_25; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_25_20; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_20_15; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_15_10; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_10_5; //MZ
+  MonitorElement *mPFVsPtInitial_Barrel_Centrality_5_0; //MZ
+
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_100_95; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_95_90; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_90_85; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_85_80; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_80_75; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_75_70; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_70_65; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_65_60; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_60_55; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_55_50; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_50_45; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_45_40; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_40_35; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_35_30; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_30_25; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_25_20; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_20_15; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_15_10; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_10_5; //MZ
+  MonitorElement *mPFVsPtInitial_EndCap_Centrality_5_0; //MZ
+
+  MonitorElement *mPFVsPtInitial_HF_Centrality_100_95; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_95_90; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_90_85; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_85_80; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_80_75; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_75_70; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_70_65; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_65_60; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_60_55; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_55_50; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_50_45; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_45_40; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_40_35; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_35_30; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_30_25; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_25_20; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_20_15; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_15_10; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_10_5; //MZ
+  MonitorElement *mPFVsPtInitial_HF_Centrality_5_0; //MZ
+
   MonitorElement *mPFArea;
   MonitorElement *mPFDeltaR; //MZ
+  MonitorElement *mPFDeltaR_Scaled_R; //MZ
   MonitorElement *mPFDeltaR_pTCorrected; //MZ
   MonitorElement *mPFDeltaR_pTCorrected_PFpT_20To30; //MZ
   MonitorElement *mPFDeltaR_pTCorrected_PFpT_30To50; //MZ
