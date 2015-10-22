@@ -158,7 +158,7 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     // loop over the collection of rechits and match to digis
     EcalRecHitCollection::const_iterator ituneEE;
     for (ituneEE = recHitsHandle->begin(); ituneEE != recHitsHandle->end(); ituneEE++) {
-      EcalRecHit const &  EcalRecHit hit = (*ituneEE);            
+      EcalRecHit const & hit = (*ituneEE);            
       EcalDigiCollection::const_iterator digiLookUp = digisEE->find(hit.id());
       // protect against a digi not existing for the saved rechit
       if(digiLookUp  == digisEE->end()) continue;
