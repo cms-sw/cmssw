@@ -24,15 +24,16 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
 							const std::vector<l1t::CaloEmCand> & EMCands,
 							const std::vector<l1t::Tau> * taus,
 							l1t::CaloSpare * spare) {
-
+  int etaMask = params_->centralityRegionMask();
   int sumET = 0;
   int regionET=0;
 
   for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
 
-    if (region->hwEta() > 3 && region->hwEta() < 18) {
-      continue;
-    }
+    int etaVal = region->hwEta();
+    if (etaVal > 3 && etaVal < 18) continue;
+    if((etaMask & (1<<etaVal))>>etaVal) continue;
+
     regionET=region->hwPt();
     sumET +=regionET;
   }

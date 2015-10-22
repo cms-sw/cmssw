@@ -27,7 +27,7 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 						  std::vector<l1t::Tau> * isoTaus,
 						  std::vector<l1t::Tau> * taus)
 {
-  int etaMask = params_->isoTauEtaMax();
+  int etaMask = params_->tauRegionMask();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Tau> *preGtEtaTaus = new std::vector<l1t::Tau>();
@@ -100,6 +100,7 @@ void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> 
   for(std::vector<l1t::CaloRegion>::const_iterator region = sr->begin(); region != sr->end(); region++)
   {
     int tauEta = region->hwEta();
+    if(tauEta < 4 || tauEta > 17) continue; // taus CANNOT be in the forward region
     if((etaMask & (1<<tauEta))>>tauEta) continue;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > TauLorentz(0,0,0,0);

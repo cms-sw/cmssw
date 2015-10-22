@@ -88,6 +88,13 @@ namespace l1t {
     void setRegionPUSVersion(const int version) { pnode_[regionPUS].version_ = version; }
 
     // EG
+    int egNodeVersion() const { return pnode_[egPUS].version_; }
+    int egEtaCut() const {
+      if (pnode_[egPUS].version_ ==1)
+	return pnode_[egPUS].iparams_[0];
+      else
+	return 0;
+    }
     double egLsb() const { return egp_.lsb_; }
     double egSeedThreshold() const { return egp_.seedThreshold_; }
     double egNeighbourThreshold() const { return egp_.neighbourThreshold_; }
@@ -115,6 +122,8 @@ namespace l1t {
     std::vector<double> egCalibrationParams() { return pnode_[egCalibration].dparams_; }
     l1t::LUT* egCalibrationLUT() { return &pnode_[egCalibration].LUT_; }
 
+    void setEgNodeVersion(int version) { pnode_[egPUS].version_ = version; }
+    void setEgEtaCut(int mask) { pnode_[egPUS].iparams_.push_back(mask); }
     void setEgLsb(double lsb) { egp_.lsb_ = lsb; }
     void setEgSeedThreshold(double thresh) { egp_.seedThreshold_ = thresh; }
     void setEgNeighbourThreshold(double thresh) { egp_.neighbourThreshold_ = thresh; }
@@ -141,6 +150,13 @@ namespace l1t {
     void setEgCalibrationLUT(const l1t::LUT & lut) { pnode_[egCalibration].LUT_ = lut; }
 
     // tau
+    int tauPUSVersion() const { return pnode_[tauPUS].version_; }
+    int tauRegionMask() const {
+      if (pnode_[tauPUS].version_ ==1)
+	return pnode_[tauPUS].iparams_[0];
+      else
+	return 0;
+    }
     double tauLsb() const { return taup_.lsb_; }
     double tauSeedThreshold() const { return taup_.seedThreshold_; }
     double tauNeighbourThreshold() const { return taup_.neighbourThreshold_; }
@@ -166,7 +182,8 @@ namespace l1t {
     unsigned tauIsoAreaNrTowersPhi()const{return taup_.isoAreaNrTowersPhi_;}
     unsigned tauIsoVetoNrTowersPhi()const{return taup_.isoVetoNrTowersPhi_;}
 
-
+    void setTauPUSVersion(int version) { pnode_[tauPUS].version_ = version; }
+    void setTauRegionMask(int mask) { pnode_[tauPUS].iparams_.push_back(mask); }
     void setTauLsb(double lsb) { taup_.lsb_ = lsb; }
     void setTauSeedThreshold(double thresh) { taup_.seedThreshold_ = thresh; }
     void setTauNeighbourThreshold(double thresh) { taup_.neighbourThreshold_ = thresh; }
@@ -194,6 +211,13 @@ namespace l1t {
     double jetLsb() const { return jetp_.lsb_; }
     double jetSeedThreshold() const { return jetp_.seedThreshold_; }
     double jetNeighbourThreshold() const { return jetp_.neighbourThreshold_; }
+    int jetPUSVersion() const { return pnode_[jetPUS].version_; }
+    int jetRegionMask() const {
+      if (pnode_[jetPUS].version_ ==1)
+	return pnode_[jetPUS].iparams_[0];
+      else
+	return 0;
+    }
     std::string jetPUSType() const { return pnode_[jetPUS].type_; }
     std::vector<double> jetPUSParams() { return pnode_[jetPUS].dparams_; }
     std::string jetCalibrationType() const { return pnode_[jetCalibration].type_; }
@@ -203,6 +227,8 @@ namespace l1t {
     void setJetLsb(double lsb) { jetp_.lsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetp_.seedThreshold_ = thresh; }
     void setJetNeighbourThreshold(double thresh) { jetp_.neighbourThreshold_ = thresh; }
+    void setJetPUSVersion(int version) { pnode_[jetPUS].version_ = version; }
+    void setJetRegionMask(int mask) { pnode_[jetPUS].iparams_.push_back(mask); }
     void setJetPUSType(std::string type) { pnode_[jetPUS].type_ = type; }
     void setJetPUSParams(std::vector<double> params) { pnode_[jetPUS].dparams_ = params; }
     void setJetCalibrationType(std::string type) { pnode_[jetCalibration].type_ = type; }
@@ -221,12 +247,24 @@ namespace l1t {
     void setEtSumEtThreshold(unsigned isum, double thresh);
 
     // HI centrality
+    int centralityNodeVersion() const { return pnode_[hiCentrality].version_; }
+    int centralityRegionMask() const {
+      if(pnode_[hiCentrality].version_ == 1)
+	return pnode_[hiCentrality].iparams_[0] ;
+      else
+	return 0;
+    }
     l1t::LUT * centralityLUT() { return &pnode_[hiCentrality].LUT_; }
+    void setCentralityNodeVersion(int version) { pnode_[hiCentrality].version_ = version; }
+    void setCentralityRegionMask(int mask) { pnode_[hiCentrality].iparams_.push_back(mask); }
     void setCentralityLUT(const l1t::LUT & lut) { pnode_[hiCentrality].LUT_ = lut; }
 
     // HI Q2
     l1t::LUT * q2LUT() { return &pnode_[hiQ2].LUT_; }
     void setQ2LUT(const l1t::LUT & lut) { pnode_[hiQ2].LUT_ = lut; }
+
+    // HI parameters
+
 
 
   private:

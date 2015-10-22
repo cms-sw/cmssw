@@ -28,6 +28,8 @@ caloParams = cms.ESProducer(
     regionPUSLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/regionPUS_PUM0_LUT_v0.txt"),
 
     # EG
+    egNodeVersion              = cms.int32(1),
+    egEtaCut                   = cms.int32(0),
     egLsb                      = cms.double(0.5),
     egSeedThreshold            = cms.double(2.),
     egNeighbourThreshold       = cms.double(1.),
@@ -56,6 +58,8 @@ caloParams = cms.ESProducer(
     egIsoMaxEtaAbsForIsoSum    = cms.uint32(27),
 
     # Tau
+    tauPUSVersion                 = cms.int32(1),
+    tauRegionMask                 = cms.int32(0),
     tauLsb                        = cms.double(0.5),
     tauSeedThreshold              = cms.double(7.),
     tauNeighbourThreshold         = cms.double(0.),
@@ -76,6 +80,8 @@ caloParams = cms.ESProducer(
     tauPUSParams                  = cms.vdouble(1,4,27),
 
     # jets
+    jetPUSVersion         = cms.int32(1),
+    jetRegionMask         = cms.int32(0),
     jetLsb                = cms.double(0.5),
     jetSeedThreshold      = cms.double(0.),
     jetNeighbourThreshold = cms.double(0.),
@@ -92,6 +98,8 @@ caloParams = cms.ESProducer(
     etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.),
 
     # HI
+    centralityNodeVersion = cms.int32(0),
+    centralityRegionMask = cms.int32(0),
     centralityLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/centralityLUT_stage1.txt"),
     q2LUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/q2LUT_stage1.txt")
 

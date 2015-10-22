@@ -32,7 +32,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
 							 const std::vector<l1t::CaloRegion> & regions,
 							 const std::vector<l1t::Jet> * jets,
 							 std::vector<l1t::EGamma>* egammas) {
-  int egEtaMask = params_->isoTauEtaMin();
+  int egEtaCut = params_->egEtaCut();
 
   std::vector<l1t::EGamma> *preSortEGammas = new std::vector<l1t::EGamma>();
   std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
@@ -49,10 +49,9 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
 
     int isoFlag = 0;
-    //bool isinBarrel = (eg_eta>=6 && eg_eta<=15);
-    bool isinBarrel = true;
-    if((egEtaMask & (1<<eg_eta))>>eg_eta) {
-      isinBarrel = false;
+    bool isinBarrel = false;
+    if((egEtaCut & (1<<eg_eta))>>eg_eta) {
+      isinBarrel = true;
     }
 
     isoFlag = isinBarrel;

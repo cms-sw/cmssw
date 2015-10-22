@@ -27,15 +27,10 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
 						 std::vector<l1t::Jet> * jets,
 						 std::vector<l1t::Jet> * preGtJets ){
 
-  std::vector<double> regionPUSParams = params_->regionPUSParams();
+  //std::vector<double> regionPUSParams = params_->regionPUSParams();
   int jetThreshold = params_->jetSeedThreshold();
 
-  unsigned int etaMask = 0;
-  for(int i = 0; i < 22; i++)
-  {
-    int bitValue = (regionPUSParams.at(i) > 0);
-    etaMask |= (bitValue<<i);
-  }
+  unsigned int etaMask = params_->jetRegionMask();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> *unSortedJets = new std::vector<l1t::Jet>();
