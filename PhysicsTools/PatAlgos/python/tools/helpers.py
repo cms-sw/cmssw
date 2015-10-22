@@ -224,7 +224,7 @@ class CloneSequenceVisitor(object):
             if label[-len(self._removePostfix):] == self._removePostfix:
                 label = label[0:-len(self._removePostfix)]
             else:
-                raise StandardError("Tried to remove postfix %s from label %s, but it wasn't there" % (self._removePostfix, label))
+                raise Exception("Tried to remove postfix %s from label %s, but it wasn't there" % (self._removePostfix, label))
         return label + self._postfix
 
     def __appendToTopSequence(self, visitee):
