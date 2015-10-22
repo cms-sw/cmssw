@@ -374,6 +374,42 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   MonitorElement* mNJets;
   MonitorElement* mNJets_40;
 
+  MonitorElement* mPFCandpT_vs_eta_Unknown; // pf id 0
+  MonitorElement* mPFCandpT_vs_eta_ChargedHadron; // pf id - 1 
+  MonitorElement* mPFCandpT_vs_eta_electron; // pf id - 2
+  MonitorElement* mPFCandpT_vs_eta_muon; // pf id - 3
+  MonitorElement* mPFCandpT_vs_eta_photon; // pf id - 4
+  MonitorElement* mPFCandpT_vs_eta_NeutralHadron; // pf id - 5
+  MonitorElement* mPFCandpT_vs_eta_HadE_inHF; // pf id - 6
+  MonitorElement* mPFCandpT_vs_eta_EME_inHF; // pf id - 7
+  
+  MonitorElement* mPFCandpT_Barrel_Unknown; // pf id 0
+  MonitorElement* mPFCandpT_Barrel_ChargedHadron; // pf id - 1 
+  MonitorElement* mPFCandpT_Barrel_electron; // pf id - 2
+  MonitorElement* mPFCandpT_Barrel_muon; // pf id - 3
+  MonitorElement* mPFCandpT_Barrel_photon; // pf id - 4
+  MonitorElement* mPFCandpT_Barrel_NeutralHadron; // pf id - 5
+  MonitorElement* mPFCandpT_Barrel_HadE_inHF; // pf id - 6
+  MonitorElement* mPFCandpT_Barrel_EME_inHF; // pf id - 7
+
+  MonitorElement* mPFCandpT_Endcap_Unknown; // pf id 0
+  MonitorElement* mPFCandpT_Endcap_ChargedHadron; // pf id - 1 
+  MonitorElement* mPFCandpT_Endcap_electron; // pf id - 2
+  MonitorElement* mPFCandpT_Endcap_muon; // pf id - 3
+  MonitorElement* mPFCandpT_Endcap_photon; // pf id - 4
+  MonitorElement* mPFCandpT_Endcap_NeutralHadron; // pf id - 5
+  MonitorElement* mPFCandpT_Endcap_HadE_inHF; // pf id - 6
+  MonitorElement* mPFCandpT_Endcap_EME_inHF; // pf id - 7
+
+  MonitorElement* mPFCandpT_Forward_Unknown; // pf id 0
+  MonitorElement* mPFCandpT_Forward_ChargedHadron; // pf id - 1 
+  MonitorElement* mPFCandpT_Forward_electron; // pf id - 2
+  MonitorElement* mPFCandpT_Forward_muon; // pf id - 3
+  MonitorElement* mPFCandpT_Forward_photon; // pf id - 4
+  MonitorElement* mPFCandpT_Forward_NeutralHadron; // pf id - 5
+  MonitorElement* mPFCandpT_Forward_HadE_inHF; // pf id - 6
+  MonitorElement* mPFCandpT_Forward_EME_inHF; // pf id - 7
+
   // Parameters
 
   bool            isCaloJet;
@@ -384,6 +420,11 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
   static const Int_t etaBins_ = 15;
 
   static const Int_t nedge_pseudorapidity = etaBins_ + 1;
+
+  static const Double_t BarrelEta = 2.0;
+  static const Double_t EndcapEta = 3.0;
+  static const Double_t ForwardEta = 5.0;
+  
 
 
 };
