@@ -27,6 +27,8 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 
@@ -64,7 +66,10 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> >  pixelToken;
     edm::EDGetTokenT<reco::VertexCollection> recoVtxToken;
     edm::EDGetTokenT<std::vector< PileupSummaryInfo> > pileUpToken;
-    
+    edm::EDGetTokenT<reco::CaloJetCollection>  hltjetsToken_;
+    float *jhcalpt, *jhcalphi, *jhcaleta, *jhcale, *jhcalemf, *jhcaln90, *jhcaln90hits;
+    int nhjetcal;
+
     edm::InputTag   fPrimaryVertexCollectionLabel;
     edm::InputTag   fPixelClusterLabel;
     edm::InputTag   fPileUpInfoLabel;
@@ -96,6 +101,8 @@ class PCCNTupler : public edm::one::EDAnalyzer<edm::one::SharedResources, edm::o
     
     bool includeVertexInformation;
     bool includePixels;
+    bool includeJets;
+    bool splitByBX;
 
     int nPU;
     int nVtx;
