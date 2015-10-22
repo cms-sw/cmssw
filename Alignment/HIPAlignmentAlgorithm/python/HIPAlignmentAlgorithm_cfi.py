@@ -32,9 +32,12 @@ HIPAlignmentAlgorithm = cms.PSet(
     misalignedFile = cms.string('IOMisalignedPositions.root'),
     minimumNumberOfHits = cms.int32(50),
     verbosity = cms.bool(False),
+		checkDbAlignmentValidity=cms.bool(False),
     # Dump tracks before and after refit
     debug = cms.bool(False),
     alignedFile = cms.string('IOAlignedPositions.root'),
+    multiIOV= cms.bool(False),
+		IOVrange=cms.vuint32(1,99999999),
     fillTrackMonitoring = cms.untracked.bool(False)
 )
 

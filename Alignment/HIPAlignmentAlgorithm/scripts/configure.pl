@@ -10,10 +10,21 @@ $odir = $ARGV[0];
 #prendo dal file
 $datafile1 = $ARGV[1];
 
+$iovrange = $ARGV[2];
+
+
+
 open (datafile1) or die "Can't open the file!";
 @dataFileInput1 = <datafile1>;
 
+open (iovrange) or die "Can't open the iovfile!";
+@iovInput1 = <iovrange>;
+
+print "iovfile: $iovrange \n";
+
 $j = 0;
+
+$k = 0;
 
 foreach $data1 ( @dataFileInput1 ) {
 
@@ -31,7 +42,8 @@ print "Datafile: $datafile \n";
 open (datafile) or die "Can't open the file!";
 @dataFileInput = <datafile>;
 
-$dataskim = basename( $datafile, ".dat" );
+#$dataskim = basename( $datafile, ".dat" );
+($dataskim,$path,$suffix) = fileparse($datafile,,qr"\..[^.]*$");
 
 system( "
 cp python/common_cff_py.txt $odir/.;
@@ -76,39 +88,58 @@ foreach $data ( @dataFileInput ) {
 ##flag
 	replace( "$odir/job$j/align_cfg.py", "<FLAG>", "$flag" );	
 	# replaces for runScript
-        replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
+  replace( "$odir/job$j/runScript.csh", "<ODIR>", "$odir/job$j" );
 	replace( "$odir/job$j/runScript.csh", "<JOBTYPE>", "align_cfg.py" );
 	close OUTFILE;
 	system "chmod a+x $odir/job$j/runScript.csh";
 }
 
+
 }
 
 system( "
 mkdir $odir/main/;
-cp python/initial_tpl_py.txt $odir/main/initial_cfg.py;
-cp python/collect_tpl_py.txt $odir/main/collect_cfg.py;
-cp python/upload_tpl_py.txt $odir/upload_cfg.py;
-cp scripts/runScript.csh $odir/main/.;
+#cp python/initial_tpl_py.txt $odir/main/initial_cfg.py;
+#cp python/collect_tpl_py.txt $odir/main/collect_cfg.py;
+#cp python/upload_tpl_py.txt $odir/upload_cfg.py;
+#cp scripts/runScript.csh $odir/main/.;
 cp scripts/runControl.csh $odir/main/.;
 cp scripts/checkError.sh $odir/main/.;
 ");
-## setting up initial job
-replace( "$odir/main/initial_cfg.py", "<PATH>", "$odir" );
-insertBlock( "$odir/main/initial_cfg.py", "<COMMON>", @commonFileInput );
-replace( "$odir/main/initial_cfg.py", "<FLAG>", "" );	
-## setting up collector job
-replace( "$odir/main/collect_cfg.py", "<PATH>", "$odir" );
-replace( "$odir/main/collect_cfg.py", "<JOBS>", "$j" );
-insertBlock( "$odir/main/collect_cfg.py", "<COMMON>", @commonFileInput );
-replace( "$odir/main/collect_cfg.py", "<FLAG>", "" );	
-replace( "$odir/main/runScript.csh", "<ODIR>", "$odir/main" );
-replace( "$odir/main/runScript.csh", "<JOBTYPE>", "collect_cfg.py" );
-system "chmod a+x $odir/main/runScript.csh";
 
-## setting up upload job
-replace( "$odir/upload_cfg.py", "<PATH>", "$odir" );
-insertBlock( "$odir/upload_cfg.py", "<COMMON>", @commonFileInput );
+foreach $iov ( @iovInput1) {
+	print "$iov";
+	chomp($iov);
+	$k++;
+	system( "
+	cp python/initial_tpl_py.txt $odir/main/initial_cfg_$iov.py;
+	cp python/collect_tpl_py.txt $odir/main/collect_cfg_$iov.py;
+	cp scripts/runScript.csh $odir/main/runScript_$iov.csh;
+	cp python/upload_tpl_py.txt $odir/upload_cfg_$iov.py;
+	" );
+	# run script
+  ## setting up initial job
+   replace( "$odir/main/initial_cfg_$iov.py", "<PATH>", "$odir" );
+   insertBlock( "$odir/main/initial_cfg_$iov.py", "<COMMON>", @commonFileInput );
+   replace( "$odir/main/initial_cfg_$iov.py", "<FLAG>", "" );	
+   replace( "$odir/main/initial_cfg_$iov.py", "<iovrun>", "$iov" );	
+   ## setting up collector job
+   replace( "$odir/main/collect_cfg_$iov.py", "<PATH>", "$odir" );
+   replace( "$odir/main/collect_cfg_$iov.py", "<JOBS>", "$j" );
+   insertBlock( "$odir/main/collect_cfg_$iov.py", "<COMMON>", @commonFileInput );
+   replace( "$odir/main/collect_cfg_$iov.py", "<FLAG>", "" );	
+   replace( "$odir/main/collect_cfg_$iov.py", "<iovrun>", "$iov" );	
+	 replace( "$odir/main/runScript_$iov.csh", "<ODIR>", "$odir/main" );
+	 replace( "$odir/main/runScript_$iov.csh", "<JOBTYPE>", "collect_cfg_$iov.py" );
+   ## setting up upload job
+   replace( "$odir/upload_cfg_$iov.py", "<PATH>", "$odir" );
+   replace( "$odir/upload_cfg_$iov.py", "<iovrun>", "$iov" );
+   insertBlock( "$odir/upload_cfg_$iov.py", "<COMMON>", @commonFileInput );
+#	close OUTFILE;
+  system "chmod a+x $odir/main/runScript_$iov.csh";
+}
+
+
 
 # replace sub routines #
 ###############################################################################

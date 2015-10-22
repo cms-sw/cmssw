@@ -86,7 +86,9 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   // alignment position error parameters
   bool theApplyAPE;
+  bool themultiIOV;
   std::vector<edm::ParameterSet> theAPEParameterSet;
+	std::vector<unsigned> theIOVrangeSet;
   std::vector<std::pair<std::vector<Alignable*>, std::vector<double> > > theAPEParameters;
   // max allowed pull (residual / uncertainty) on a hit used in alignment
   double theMaxAllowedHitPull;

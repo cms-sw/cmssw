@@ -4,7 +4,8 @@ process = cms.Process("Alignment")
 # "including" common configuration
 <COMMON>
 
-process.source = cms.Source("EmptySource")
+#process.source = cms.Source("EmptySource")
+process.source = cms.Source("EmptySource", firstRun = cms.untracked.uint32(<iovrun>)) 
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
@@ -23,6 +24,16 @@ process.AlignmentProducer.algoConfig.eventPrescale= 1
 process.AlignmentProducer.algoConfig.fillTrackMonitoring=False
 process.AlignmentProducer.algoConfig.outfile =  '/HIPAlignmentEvents.root'
 process.AlignmentProducer.algoConfig.outfile2 = '/HIPAlignmentAlignables.root'
+process.AlignmentProducer.checkDbAlignmentValidity= False 
+#process.AlignmentProducer.RunRangeSelection = [
+#    cms.PSet(RunRanges = cms.vstring(
+#            '1',
+#            '246978',
+#            '256715'),
+#    selector = cms.vstring( 'TrackerTPBModule,111111',
+#                            'TrackerTPEModule,111111')
+#        )
+#    ]
 
 # this part only needed for survey constraint
 """

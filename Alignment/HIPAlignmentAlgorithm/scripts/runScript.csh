@@ -7,7 +7,7 @@ set workdir = $1
 set curdir = `pwd`
 
 cp <ODIR>/../main/IOIteration.root $curdir/.
-cp <ODIR>/../main/IOAlignedPositions.root $curdir/. 
+cp <ODIR>/../main/IOAlignedPositions*.root $curdir/. 
 
 # printing
 echo Setting up CMSSW environment in $workdir

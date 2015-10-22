@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
@@ -29,6 +30,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "CondFormats/AlignmentRecord/interface/GlobalPositionRcd.h"
+#include "CondFormats/AlignmentRecord/interface/TrackerAlignmentRcd.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -71,7 +73,9 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
 	
   // parameters for APE
   theApplyAPE = cfg.getParameter<bool>("applyAPE");
+  themultiIOV = cfg.getParameter<bool>("multiIOV");
   theAPEParameterSet = cfg.getParameter<std::vector<edm::ParameterSet> >("apeParam");
+  theIOVrangeSet = cfg.getParameter<std::vector<unsigned> >("IOVrange");
 	
   theMaxAllowedHitPull = cfg.getParameter<double>("maxAllowedHitPull");
   theMinimumNumberOfHits = cfg.getParameter<int>("minimumNumberOfHits");
@@ -117,6 +121,29 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
       << "Validity range is "
       << iov.first().eventID().run() << " - " << iov.last().eventID().run();
   }
+
+//  const Rcd & record = setup.get<TrackerAlignmentRcd>();
+  const edm::ValidityInterval & validity = setup.get<TrackerAlignmentRcd>().validityInterval();
+  const edm::IOVSyncValue first1 = validity.first();
+	std::cout << "xiaomeng "<<first1.eventID().run()<<std::endl;
+	unsigned int firstrun = first1.eventID().run();
+	if(themultiIOV){
+		bool findMatchIOV=false;
+		for (unsigned int iovl = 0; iovl <theIOVrangeSet.size(); iovl++){
+			if(firstrun == theIOVrangeSet.at(iovl)){
+				std::string iovapp = std::to_string(firstrun);
+				iovapp.append(".root");
+				iovapp.insert(0,"_");
+				salignedfile.replace(salignedfile.end()-5, salignedfile.end(),iovapp);
+				findMatchIOV=true;
+				break;
+			}
+		}
+		if(!findMatchIOV){
+			std::cout <<"error! Didn't find the matched IOV file"<<std::endl;
+		}
+		std::cout<< "xiaomeng "<< salignedfile <<std::endl;
+	}
 	
   // accessor Det->AlignableDet
   if ( !muon )
@@ -198,6 +225,7 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
     }
 	
   // try to read in alignment parameters from a previous iteration
+	//
   AlignablePositions theAlignablePositionsFromFile =
     theIO.readAlignableAbsolutePositions(theAlignables,
 					 salignedfile.c_str(),-1,ioerr);
@@ -230,10 +258,14 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
 		
     // get iteration number from file     
     theIteration = readIterationFile(siterationfile);
+		theIO.readAlignableAbsolutePositions(theAlignables,
+		           salignedfile.c_str(),theIteration,ioerr);
 		
     // increase iteration
-    theIteration++;
-    edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm] Iteration increased by one!";
+		if(ioerr==0){
+	    theIteration++;
+  	  edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm] Iteration increased by one!";
+		}
 		
     // now apply psotions of file from prev iteration
     edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm] Apply positions from file ...";
