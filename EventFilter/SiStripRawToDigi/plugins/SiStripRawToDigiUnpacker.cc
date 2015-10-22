@@ -320,7 +320,6 @@ namespace sistrip {
  	      }
  	    }
  	  }
-	  
 	}
 
 	else if (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE ||
