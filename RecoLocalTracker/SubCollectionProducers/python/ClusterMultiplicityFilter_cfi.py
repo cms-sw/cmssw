@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 tifClusterFilter = cms.EDFilter("ClusterMultiplicityFilter",
-    MaxNumberOfClusters = cms.untracked.uint32(300),
-    ClusterCollectionLabel = cms.untracked.string('siStripClusters')
+    MaxNumberOfClusters = cms.uint32(300),
+    ClusterCollection = cms.InputTag('siStripClusters')
 )
 
 
