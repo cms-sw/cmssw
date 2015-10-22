@@ -412,8 +412,6 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
             ),
         recJetLabel  = cms.string("ak4PFJetsCHS"),
         recPFMETLabel = cms.string("pfMet"), 
-        jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"), # needed for NminOneCuts
         minCandidates = cms.uint32(2),
-        NminOneCuts = cms.untracked.vdouble(3.5, 600, 0, 0, 0 , 0, 0, 0, 80, 40, 40), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
         ), 
 )
