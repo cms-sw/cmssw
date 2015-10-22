@@ -171,11 +171,9 @@ namespace sistrip {
   class FEDBSChannelUnpacker
     {
     public:
-      //static FEDBSChannelUnpacker scopeModeUnpacker(const FEDChannel& channel) { return FEDBSChannelUnpacker(channel); }
       static FEDBSChannelUnpacker virginRawModeUnpacker(const FEDChannel& channel, size_t num_bits);
       static FEDBSChannelUnpacker zeroSuppressedModeUnpacker(const FEDChannel& channel, size_t num_bits);
       //static FEDBSChannelUnpacker procRawModeUnpacker(const FEDChannel& channel) { return FEDBSChannelUnpacker(channel); }
-      //explicit FEDBSChannelUnpacker(const FEDChannel& channel);
       FEDBSChannelUnpacker();
       uint8_t sampleNumber() const;
       uint16_t adc() const;

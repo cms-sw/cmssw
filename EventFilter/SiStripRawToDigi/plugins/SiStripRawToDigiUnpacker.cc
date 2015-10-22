@@ -270,7 +270,8 @@ namespace sistrip {
       
 	// Determine APV std::pair number (needed only when using DetId)
 	uint16_t ipair = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
-      
+
+//std::cout << "fed key: " << fed_key << " key: " << key << " pair: "<< ipair << std::endl;
 
 	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED /*|| mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE*/) { 
 	
@@ -329,11 +330,12 @@ namespace sistrip {
                 ) { 
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
-	
+
+          uint16_t num_bits = (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE) ? 10 : 8;
+	  
 	  try {
             /// create unpacker
-	    //sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()), mode);
-	    sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()), 10);
+	    sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedModeUnpacker(buffer->channel(iconn->fedCh()), num_bits);
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
 	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
@@ -397,10 +399,13 @@ namespace sistrip {
 	  /// create unpacker
 	  /// and unpack -> add check to make sure strip < nstrips && strip > last strip......
 
-          if ( buffer->packetCode() == PACKET_CODE_VIRGIN_RAW10
-            or buffer->packetCode() == PACKET_CODE_VIRGIN_RAW8_BOTBOT
-            or buffer->packetCode() == PACKET_CODE_VIRGIN_RAW8_TOPBOT ) {
+          if ( buffer->packetCode() == PACKET_CODE_VIRGIN_RAW10 ) {
             sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 10);
+	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+          }
+          else if ( buffer->packetCode() == PACKET_CODE_VIRGIN_RAW8_BOTBOT
+                 or buffer->packetCode() == PACKET_CODE_VIRGIN_RAW8_TOPBOT ) {
+            sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 8);
 	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
           }
           else {

@@ -103,6 +103,7 @@ void SiStripDigiAnalyzer::endJob() {
   zs_r.print(ss);
   ss << "\n";
   LogDebug("SiStripDigiAnalyzer") << ss.str();
+  //std::cout << ss.str();
 
 }
 
@@ -162,9 +163,11 @@ void SiStripDigiAnalyzer::analyze( const edm::Event& event, const edm::EventSetu
       vector< edm::DetSet<SiStripRawDigi> >::const_iterator raw;
       vector< edm::DetSet<SiStripDigi> >::const_iterator digis;
 
+//std::cout << "key=" << key << std::endl;
       // virgin raw
       raw = vr->find( key );
       if ( raw != vr->end() ) { 
+std::cout << "entering VR mode, collection size: " << raw->size() << std::endl;
 	for ( uint16_t istrip = 0; istrip < raw->size(); istrip++ ) { 
 	  if ( raw->data[istrip].adc() ) {
 	    vr_r.strips_++;
@@ -212,5 +215,4 @@ void SiStripDigiAnalyzer::analyze( const edm::Event& event, const edm::EventSetu
       
     } // channel loop
   } // fed loop
-  
 }
