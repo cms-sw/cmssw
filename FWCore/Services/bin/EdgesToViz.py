@@ -27,7 +27,7 @@ def readtable(flook):
     tab = {}
     next = Col()
     cols = {}
-    for line in flook.xreadlines():
+    for line in flook:
         s = line.split()
         if not s[7] in cols:
             cols[s[7]] = next.next()
@@ -52,7 +52,7 @@ def runme(infile,outfile,lookupfile,use_name):
 #        d += 1
         
 
-    for line in fin.xreadlines():
+    for line in fin:
         count,from_node,to_node = line.split()
         uni[from_node] = 1
         uni[to_node] = 1
