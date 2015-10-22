@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 softPFElectronCommon = cms.PSet(
-    useCondDB = cms.bool(False),
+    useCondDB = cms.bool(True),
     gbrForestLabel = cms.string("btag_SoftPFElectron_BDT"),
     weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFElectron_BDT.weights.xml.gz'),
     useGBRForest = cms.bool(True),
@@ -9,7 +9,7 @@ softPFElectronCommon = cms.PSet(
 )
 
 softPFMuonCommon = cms.PSet(
-    useCondDB = cms.bool(False),
+    useCondDB = cms.bool(True),
     gbrForestLabel = cms.string("btag_SoftPFMuon_BDT"),
     weightFile = cms.FileInPath('RecoBTag/SoftLepton/data/SoftPFMuon_BDT.weights.xml.gz'),
     useGBRForest = cms.bool(True),
