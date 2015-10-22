@@ -49,7 +49,7 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
   isoTaus->resize(4);
   //taus->resize(4);
 
-  const bool verbose = true;
+  const bool verbose = false;
   const bool hex = true;
   if(verbose)
   {

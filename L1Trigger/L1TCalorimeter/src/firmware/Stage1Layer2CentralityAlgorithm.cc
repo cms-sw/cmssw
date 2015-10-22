@@ -52,7 +52,7 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   // spares->push_back(centrality);
   spare->SetRing(0, outputBits);
 
-  const bool verbose = true;
+  const bool verbose = false;
   const bool hex = true;
   if(verbose)
   {

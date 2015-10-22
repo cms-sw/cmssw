@@ -65,7 +65,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
   SortEGammas(preSortEGammas, preGtEGammas);
   EGammaToGtScales(params_, preGtEGammas, egammas);
 
-  const bool verbose = true;
+  const bool verbose = false;
   const bool hex = true;
   if(verbose)
   {

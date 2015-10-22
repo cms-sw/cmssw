@@ -51,7 +51,7 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
   delete unSortedJets;
   delete preGtEtaJets;
 
-  const bool verbose = true;
+  const bool verbose = false;
   const bool hex = true;
   if(verbose)
   {
