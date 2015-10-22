@@ -20,6 +20,16 @@ namespace l1t{
   {
     return( ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
   }
+
+  unsigned int pack16bits(int pt, int eta, int phi)
+  {
+    return( 0x8000 + ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
+  }
+
+  unsigned int pack16bitsEgammaSpecial(int pt, int eta, int phi)
+  {
+    return( 0x8000 + ((pt & 0x3f) << 9) + ((eta & 0xf)) + ((phi & 0x1f) << 4));
+  }
 }
 
 void print2DVector(std::vector<std::vector<l1t::L1Candidate> > myVector){
@@ -247,6 +257,7 @@ std::vector<std::vector<l1t::L1Candidate> > presort_egamma(std::vector<l1t::L1Ca
 namespace l1t{
   void SortJets(std::vector<l1t::Jet> * input,
 		std::vector<l1t::Jet> * output){
+    //verbose = true;
     const int CENTRAL_ETA_SLICES = 14;
     const int N_PHI_GROUPS = 5;
     const int N_PRESORTED_ROWS_CENTRAL = CENTRAL_ETA_SLICES*N_PHI_GROUPS;
@@ -375,6 +386,7 @@ namespace l1t{
       intjet->setHwQual(intjet->hwQual() | 2);
       output->push_back(*intjet);
     }
+    //verbose = false;
   }
 
   void SortEGammas(std::vector<l1t::EGamma> * input,

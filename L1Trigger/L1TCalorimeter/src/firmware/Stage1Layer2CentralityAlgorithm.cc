@@ -11,7 +11,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2CentralityAlgorithm::Stage1Layer2CentralityAlgorithm(CaloParamsStage1* params)
+l1t::Stage1Layer2CentralityAlgorithm::Stage1Layer2CentralityAlgorithm(CaloParamsHelper* params)
   : params_(params)
 {}
 
@@ -37,6 +37,8 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
     sumET +=regionET;
   }
 
+  //std::cout << std::dec << "SumHFEt: " << sumET << std::endl;
+
   int outputBits = 0;
   for(int i = 0; i < 8; ++i)
   {
@@ -48,4 +50,19 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
   // l1t::CaloSpare centrality (*&dummy,CaloSpare::CaloSpareType::Centrality,outputBits,0,0,0);
   // spares->push_back(centrality);
   spare->SetRing(0, outputBits);
+
+  const bool verbose = true;
+  const bool hex = true;
+  if(verbose)
+  {
+    if(!hex)
+    {
+      std::cout << "HF Ring Sums (Centrality)" << std::endl;
+      std::cout << bitset<12>(spare->hwPt()).to_string() << std::endl;
+    } else {
+      std::cout << "Centrality" << std::endl;
+      std::cout << std::hex << spare->hwPt() << std::endl;
+    }
+  }
+
 }

@@ -1,19 +1,19 @@
 ///
 /// \class l1t::Stage2Layer2SumsAlgorithmFirmwareImp1
 ///
-/// \author: 
+/// \author:
 ///
-/// Description: 
+/// Description:
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2DemuxSumsAlgoFirmware.h"
 
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 #include <vector>
 #include <algorithm>
 
-l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::Stage2Layer2DemuxSumsAlgoFirmwareImp1(CaloParams* params) :
+l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::Stage2Layer2DemuxSumsAlgoFirmwareImp1(CaloParamsHelper* params) :
   params_(params), cordic_(Cordic(14,6,8))  // These are the settings in the hardware - should probably make this configurable
 {
 }
@@ -39,7 +39,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
       case l1t::EtSum::EtSumType::kTotalEt:
         et += eSum->hwPt();
         break;
-          
+
       case l1t::EtSum::EtSumType::kTotalEtx:
         metx += eSum->hwPt();
         break;
@@ -47,24 +47,24 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
       case l1t::EtSum::EtSumType::kTotalEty:
         mety += eSum->hwPt();
         break;
-        
+
       case l1t::EtSum::EtSumType::kTotalHt:
         ht += eSum->hwPt();
         break;
-        
+
       case l1t::EtSum::EtSumType::kTotalHtx:
         mhtx += eSum->hwPt();
         break;
-        
+
       case l1t::EtSum::EtSumType::kTotalHty:
         mhty += eSum->hwPt();
         break;
-        
+
       default:
         continue; // Should throw an exception or something?
       }
     }
-  
+
   // Final MET calculation
   cordic_( metx , mety , metPhi , met );
 
@@ -85,4 +85,3 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   outputSums.push_back(htSumMissingHt);
 
 }
-
