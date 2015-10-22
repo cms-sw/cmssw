@@ -140,7 +140,7 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     // loop over the collection of rechits and match to digis
     EcalRecHitCollection::const_iterator ituneEB;
     for (ituneEB = recHitsHandle->begin(); ituneEB != recHitsHandle->end(); ituneEB++) {
-      EcalRecHit    hit = (*ituneEB);
+      EcalRecHit const &    hit = (*ituneEB);
       EcalDigiCollection::const_iterator digiLookUp = digisEB->find(hit.id());
       // protect against a digi not existing
       if( digiLookUp == digisEB->end()) continue;
@@ -158,7 +158,7 @@ HLTRechitsToDigis::produce(edm::Event& iEvent, edm::EventSetup const& setup)  {
     // loop over the collection of rechits and match to digis
     EcalRecHitCollection::const_iterator ituneEE;
     for (ituneEE = recHitsHandle->begin(); ituneEE != recHitsHandle->end(); ituneEE++) {
-      EcalRecHit hit = (*ituneEE);            
+      EcalRecHit const & hit = (*ituneEE);            
       EcalDigiCollection::const_iterator digiLookUp = digisEE->find(hit.id());
       // protect against a digi not existing for the saved rechit
       if(digiLookUp  == digisEE->end()) continue;
