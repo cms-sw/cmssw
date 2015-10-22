@@ -133,6 +133,30 @@ HLTHiggsSubAnalysis::HLTHiggsSubAnalysis(const edm::ParameterSet & pset,
                         <<  (9 + _minCandidates) << ".";
             exit(-1);
         }
+        if( (_NminOneCuts[0] || _NminOneCuts[1]) &&  _minCandidates  < 4 )
+        {
+            edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::HLTHiggsSubAnalysis, " 
+                        << "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
+                        << _analysisname << "' has a vector NminOneCuts with a dEtaqq of mqq cut on the least b-tagged jets of the first 4 jets while only requiring " 
+                        <<  _minCandidates << " jets.";
+            exit(-1);
+        }
+        if( _NminOneCuts[5] && _minCandidates < 3 )
+        {
+            edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::HLTHiggsSubAnalysis, " 
+                        << "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
+                        << _analysisname << "' has a vector NminOneCuts with a CSV3 cut while only requiring " 
+                        <<  _minCandidates << " jets.";
+            exit(-1);
+        }
+        if( (_NminOneCuts[2] || _NminOneCuts[4]) &&  _minCandidates < 2 )
+        {
+            edm::LogError("HiggsValidation") << "In HLTHiggsSubAnalysis::HLTHiggsSubAnalysis, " 
+                        << "Incoherence found in the python configuration file!!\nThe SubAnalysis '" 
+                        << _analysisname << "' has a vector NminOneCuts with a dPhibb or CSV2 cut using the second most b-tagged jet while only requiring " 
+                        <<  _minCandidates << " jet.";
+            exit(-1);
+        }
         for(std::vector<double>::const_iterator it = _NminOneCuts.begin(); it != _NminOneCuts.end(); ++it)
         {
             if( *it ) {
