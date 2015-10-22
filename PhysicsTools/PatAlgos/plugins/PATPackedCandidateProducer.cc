@@ -248,7 +248,16 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event& iEvent,
           outPtrP->push_back( pat::PackedCandidate(cand.polarP4(), PVpos, cand.phi(), cand.pdgId(), PVRefProd, PV.key()));
           outPtrP->back().setAssociationQuality(pat::PackedCandidate::PVAssociationQuality(pat::PackedCandidate::UsedInFitTight));
         }
+
+	// neutrals
+
+	if(abs(cand.pdgId()) == 1 || cand.pdgId() == 2 || cand.pdgId() == 130) {
+	  outPtrP->back().setHcalFraction(cand.hcalEnergy()/(cand.ecalEnergy()+cand.hcalEnergy()));
+	} else {
+	  outPtrP->back().setHcalFraction(-1.);
+	}
 	
+       
         if (puppiWeight.isValid()){
            reco::PFCandidateRef pkref( cands, ic );
                  // outPtrP->back().setPuppiWeight( (*puppiWeight)[pkref]);

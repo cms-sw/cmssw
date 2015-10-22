@@ -313,3 +313,7 @@ void pat::PackedCandidate::setPuppiWeight(float p, float p_nolep) {
 float pat::PackedCandidate::puppiWeight() const { return unpack8logClosed(packedPuppiweight_,-2,0,64)/2. + 0.5;}
 
 float pat::PackedCandidate::puppiWeightNoLep() const { return unpack8logClosed(packedPuppiweightNoLepDiff_+packedPuppiweight_,-2,0,64)/2. + 0.5;}
+
+void pat::PackedCandidate::setHcalFraction(float p) {
+  hcalFraction_ = p;
+}
