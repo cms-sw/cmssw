@@ -17,8 +17,8 @@
 using namespace std;
 using namespace l1t;
 
-// Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(/*const CaloParamsStage1 & dbPars*/
-Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(const int fwv, CaloParamsStage1* dbPars) : m_fwv(fwv), m_db(dbPars) {
+// Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(/*const CaloParamsHelper & dbPars*/
+Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(const int fwv, CaloParamsHelper* dbPars) : m_fwv(fwv), m_db(dbPars) {
   if (m_fwv == 1)
   { //HI algo
     m_egAlgo = new Stage1Layer2EGammaAlgorithmImpHI(m_db);

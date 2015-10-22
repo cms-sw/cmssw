@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsHelper.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1TauIsolationLUT.h"
 
@@ -40,7 +40,7 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
 
-  CaloParamsStage1* m_params;
+  CaloParamsHelper* m_params;
   std::string m_conditionsLabel;
 
   Stage1TauIsolationLUT* isoTauLut;
@@ -61,7 +61,7 @@ L1TCaloStage1LutWriter::L1TCaloStage1LutWriter(const edm::ParameterSet& iConfig)
   m_isoTauLutName  = iConfig.getUntrackedParameter<std::string>("isoTauLutName", "isoTauLut.txt" );
   m_conditionsLabel = iConfig.getParameter<std::string>("conditionsLabel");
 
-  m_params = new CaloParamsStage1;
+  m_params = new CaloParamsHelper;
   isoTauLut = new Stage1TauIsolationLUT(m_params);
 
 };
@@ -77,7 +77,7 @@ L1TCaloStage1LutWriter::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
   edm::ESHandle<CaloParams> paramsHandle;
   iSetup.get<L1TCaloParamsRcd>().get(m_conditionsLabel, paramsHandle);
-  m_params = new (m_params) CaloParamsStage1(*paramsHandle.product());
+  m_params = new (m_params) CaloParamsHelper(*paramsHandle.product());
   if (! m_params){
     std::cout << "Could not retrieve params from Event Setup" << std::endl;
     return;

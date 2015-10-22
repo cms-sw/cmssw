@@ -149,9 +149,6 @@ namespace l1t {
 	CaloRegion newSubRegion(*&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, notCorrectedRegion->hwQual(), notCorrectedRegion->hwEtEm(), notCorrectedRegion->hwEtHad());
 	subRegions->push_back(newSubRegion);
       }
-      //std::cout << "PUM0 " << puMult << std::endl;
     }
-
   }
-
 }
