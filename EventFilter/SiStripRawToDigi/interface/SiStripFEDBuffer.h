@@ -11,6 +11,7 @@
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferComponents.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include <iostream> //FIXME
 
 namespace sistrip {
 
@@ -245,10 +246,10 @@ namespace sistrip {
 
   inline uint16_t FEDBSChannelUnpacker::adc() const
     {
-      uint16_t adc = (data_[currentWordOffset_^7]>>currentLocalBitOffset_);
+      size_t bits_missing = bitOffsetIncrement_-8+currentLocalBitOffset_;
+      uint16_t adc = (data_[currentWordOffset_^7]<<bits_missing);
       if (currentWordOffset_>oldWordOffset_) {
-        size_t num_bits_incl = 8-currentLocalBitOffset_;
-        adc += ( (data_[(currentWordOffset_+1)^7]&((1<<(bitOffsetIncrement_-num_bits_incl))-1))<<num_bits_incl );
+        adc += ( (data_[(currentWordOffset_+1)^7]>>(8-bits_missing)) );
       }
       return adc;
     }
@@ -261,8 +262,6 @@ namespace sistrip {
   inline FEDBSChannelUnpacker& FEDBSChannelUnpacker::operator ++ ()
     {
       oldWordOffset_ = currentWordOffset_;
-      //oldLocalBitOffset_ = currentLocalBitOffset_;
-
       currentBitOffset_ += bitOffsetIncrement_;
       currentLocalBitOffset_ += bitOffsetIncrement_;
       while (currentLocalBitOffset_>=8) {
@@ -270,7 +269,6 @@ namespace sistrip {
         currentLocalBitOffset_ -= 8;
       }
       currentStrip_++;
-      //valuesLeft_--;
       return (*this);
     }
 
