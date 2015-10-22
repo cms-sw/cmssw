@@ -183,7 +183,7 @@ namespace stage2 {
        
        eg.setHwEta(etasign*((raw_data >> 4) & 0x3F));
        eg.setHwPhi((raw_data >> 10) & 0x7F);
-       eg.setHwPt((raw_data >> 21) & 0x1FF);
+       eg.setHwPt((raw_data >> 21) & 0x3FF);
        eg.setHwQual(((raw_data >> 3) & 0x1) + (((raw_data >> 1) & 0x1) << 2)); //ECalFG + EGammaLikeShape
        eg.setHwIso(raw_data & 0x1); 
 	   
@@ -217,7 +217,7 @@ namespace stage2 {
        
        tau.setHwEta(etasign*((raw_data >> 4) & 0x3F));
        tau.setHwPhi((raw_data >> 10) & 0x7F);
-       tau.setHwPt((raw_data >> 21) & 0x1FF);
+       tau.setHwPt((raw_data >> 21) & 0x3FF);
        tau.setHwQual(((raw_data >> 3) & 0x1) + (((raw_data >> 1) & 0x1) << 2));
        tau.setHwIso(raw_data & 0x1);  
        
