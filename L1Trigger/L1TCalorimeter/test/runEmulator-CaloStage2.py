@@ -54,9 +54,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Input source
-inFile = 'file:l1tCalo_2016_EDM.root'
+#inFile = 'file:l1tCalo_2016_EDM.root'
 process.source = cms.Source("PoolSource",
-    fileNames=cms.untracked.vstring(inFile),
+    fileNames=cms.untracked.vstring(options.inputFiles),
     skipEvents=cms.untracked.uint32(options.skipEvents)
 )
 
@@ -111,14 +111,27 @@ process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.mpEGToken = cms.InputTag("simCaloStage2Digis","MP")
+process.l1tStage2CaloAnalyzer.mpTauToken = cms.InputTag("simCaloStage2Digis","MP")
 process.l1tStage2CaloAnalyzer.mpJetToken = cms.InputTag("simCaloStage2Digis", "MP")
 process.l1tStage2CaloAnalyzer.mpEtSumToken = cms.InputTag("simCaloStage2Digis", "MP")
-process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("None")
-process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("None")
+process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("simCaloStage2Digis")
+process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("simCaloStage2Digis")
 process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("simCaloStage2Digis")
 process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("simCaloStage2Digis")
+
+import L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi
+process.l1tCaloStage2HwHistos =  L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi.l1tStage2CaloAnalyzer.clone()
+process.l1tCaloStage2HwHistos.towerToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.clusterToken = cms.InputTag("None")
+process.l1tCaloStage2HwHistos.mpEGToken = cms.InputTag("caloStage2Digis", "MP")
+process.l1tCaloStage2HwHistos.mpTauToken = cms.InputTag("caloStage2Digis","MP")
+process.l1tCaloStage2HwHistos.mpJetToken = cms.InputTag("caloStage2Digis", "MP")
+process.l1tCaloStage2HwHistos.mpEtSumToken = cms.InputTag("caloStage2Digis", "MP")
+process.l1tCaloStage2HwHistos.egToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.tauToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.jetToken = cms.InputTag("caloStage2Digis")
+process.l1tCaloStage2HwHistos.etSumToken = cms.InputTag("caloStage2Digis")
 
 
 # Path and EndPath definitions
@@ -126,6 +139,7 @@ process.path = cms.Path(
     process.simCaloStage2Layer1Digis
     +process.simCaloStage2Digis
     +process.l1tStage2CaloAnalyzer
+    +process.l1tCaloStage2HwHistos
 )
 
 if (not options.doLayer1):
