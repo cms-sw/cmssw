@@ -229,7 +229,6 @@ namespace sistrip {
       /// extract readout mode
       sistrip::FEDReadoutMode mode = buffer->readoutMode();
       sistrip::FEDLegacyReadoutMode lmode = (legacy_) ? buffer->legacyReadoutMode() : sistrip::READOUT_MODE_LEGACY_INVALID;
-//std::cout << "readout mode: standard: " << mode << ", legacy: " << lmode << std::endl;
 
       // Retrive run type
       sistrip::RunType runType_ = summary.runType();
@@ -274,8 +273,7 @@ namespace sistrip {
 	// Determine APV std::pair number (needed only when using DetId)
 	uint16_t ipair = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE) ) ? 0 : iconn->apvPairNumber();
 
-//std::cout << "fed key: " << fed_key << " key: " << key << " pair: "<< ipair << std::endl;
-	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED
+	if ((!legacy_ && mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED)
          || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL || lmode == sistrip::READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE))
        /*|| mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE*/) { 
 	
@@ -326,11 +324,11 @@ namespace sistrip {
  	  }
 	}
 
-	else if ((mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE ||
+	else if (!legacy_ &&
+                (mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10 || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE ||
                  mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8  || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE ||
                  mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE ||
                  mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT || mode==sistrip::READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE)
-               && !legacy_
                 ) { 
 
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);
@@ -394,7 +392,7 @@ namespace sistrip {
 
         }
      
-	else if (mode == sistrip::READOUT_MODE_PREMIX_RAW
+	else if ((!legacy_ && mode == sistrip::READOUT_MODE_PREMIX_RAW)
               || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_PREMIX_RAW)
                 ) { 
 
@@ -428,7 +426,7 @@ namespace sistrip {
 
 	} 
      
-	else if ( mode == sistrip::READOUT_MODE_VIRGIN_RAW
+	else if ((!legacy_ && mode == sistrip::READOUT_MODE_VIRGIN_RAW)
                || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_VIRGIN_RAW_REAL || lmode == sistrip::READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE ))
                 ) {
 
@@ -437,37 +435,56 @@ namespace sistrip {
 	  /// create unpacker
 	  /// and unpack -> add check to make sure strip < nstrips && strip > last strip......
 
-          uint8_t packet_code = buffer->packetCode();
-          if ( packet_code == PACKET_CODE_VIRGIN_RAW10 ) {
-            sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 10);
-	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
-          }
-          else if ( packet_code == PACKET_CODE_VIRGIN_RAW8_BOTBOT
-                 or packet_code == PACKET_CODE_VIRGIN_RAW8_TOPBOT ) {
-            sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 8);
-	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
-          }
-          else {
+          uint8_t packet_code = buffer->packetCode(legacy_);
+          if ( packet_code == PACKET_CODE_VIRGIN_RAW ) {
             sistrip::FEDRawChannelUnpacker unpacker = sistrip::FEDRawChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()));
 	    while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+            if ( !samples.empty() ) { 
+              Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
+	      uint16_t physical;
+	      uint16_t readout; 
+	      for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
+	        physical = i%128;
+	        readoutOrder( physical, readout );                 // convert index from physical to readout order
+	        (i/128) ? readout=readout*2+1 : readout=readout*2; // un-multiplex data
+	        virgin_work_digis_.push_back(  SiStripRawDigi( samples[readout] ) );
+	      }
+	      virgin_work_registry_.push_back( regItem );
+            }
           }
-
-
-	  if ( !samples.empty() ) { 
-	    Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
-	    uint16_t physical;
-	    uint16_t readout; 
-	    for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-	      physical = i%128;
-	      readoutOrder( physical, readout );                 // convert index from physical to readout order
-	      (i/128) ? readout=readout*2+1 : readout=readout*2; // un-multiplex data
-	      virgin_work_digis_.push_back(  SiStripRawDigi( samples[readout] ) );
-	    }
-	    virgin_work_registry_.push_back( regItem );
-	  }
+          else {
+            if ( packet_code == PACKET_CODE_VIRGIN_RAW10 ) {
+              sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 10);
+              while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker.sampleNumber();unpacker++;}
+            }
+            else if ( packet_code == PACKET_CODE_VIRGIN_RAW8_BOTBOT
+                   or packet_code == PACKET_CODE_VIRGIN_RAW8_TOPBOT ) {
+              sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::virginRawModeUnpacker(buffer->channel(iconn->fedCh()), 8);
+	      while (unpacker.hasData()) {samples.push_back(unpacker.adc());unpacker++;}
+            }
+            /*if ( !samples.empty() ) {
+              Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
+              for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
+                virgin_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+              }
+              virgin_work_registry_.push_back( regItem );
+            }*/
+            if ( !samples.empty() ) {
+              Registry regItem(key, 256*ipair, virgin_work_digis_.size(), samples.size());
+              uint16_t physical;
+              uint16_t readout;
+              for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
+                physical = i%128;
+                readoutOrder( physical, readout );                 // convert index from physical to readout order
+                (i/128) ? readout=readout*2+1 : readout=readout*2; // un-multiplex data
+                virgin_work_digis_.push_back(  SiStripRawDigi( samples[readout] ) );
+              }
+              virgin_work_registry_.push_back( regItem );
+            }
+          }
 	} 
     
-	else if ( mode == sistrip::READOUT_MODE_PROC_RAW
+	else if ((!legacy_ && mode == sistrip::READOUT_MODE_PROC_RAW)
                || (legacy_ && (lmode == sistrip::READOUT_MODE_LEGACY_PROC_RAW_REAL || lmode == sistrip::READOUT_MODE_LEGACY_PROC_RAW_FAKE ))
                 ) {
 	
@@ -488,7 +505,7 @@ namespace sistrip {
 	  }
 	} 
 
-	else if ( mode == sistrip::READOUT_MODE_SCOPE
+	else if ((!legacy_ && mode == sistrip::READOUT_MODE_SCOPE)
                || (legacy_ && lmode == sistrip::READOUT_MODE_LEGACY_SCOPE)
                 ) {
 	
@@ -634,6 +651,8 @@ namespace sistrip {
       zero_suppr.swap( zero_suppr_dsv );
     } 
   
+std::cout << "VR size:" << virgin_work_registry_.size() << std::endl;
+std::cout << "VD size:" << virgin_work_digis_.size() << std::endl;
     // Populate final DetSetVector container with VR data 
     if ( !virgin_work_registry_.empty() ) {
 
@@ -651,25 +670,48 @@ namespace sistrip {
 	bool isDetOk = true; 
 	// first count how many digis we have
 	int maxFirstStrip = it->first;
+//std::cout << "maxfirststrip: " << maxFirstStrip << std::endl;
 	for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { 
 	  // duplicated APV or data corruption. DO NOT 'break' here!
-	  if (it2->first <= maxFirstStrip) { isDetOk = false; continue; } 
+	  if (it2->first <= maxFirstStrip) { isDetOk = false;std::cout << "(1) " << it2->first << "/" << maxFirstStrip << std::endl; continue; } 
 	  maxFirstStrip = it2->first;                           
 	}
-	if (!isDetOk) { errorInData = true; it = it2; continue; } // skip whole det
+	if (!isDetOk) { errorInData = true;std::cout << "(2)" << std::endl; it = it2; continue; } // skip whole det
       
 	// make room for 256 * (max_apv_pair + 1) Raw Digis
 	digis.resize(maxFirstStrip + 256);
 	// push them in
 	for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
 	  // data corruption. DO NOT 'break' here
-	  if (it->length != 256)  { isDetOk = false; continue; } 
+	  if (it->length != 256)  { isDetOk = false;std::cout << "(3) " << it->length << std::endl; continue; } 
 	  std::copy( & virgin_work_digis_[it2->index], & virgin_work_digis_[it2->index + it2->length], & digis[it2->first] );
 	}
 	if (!isDetOk) { errorInData = true; digis.clear(); it = it2; continue; } // skip whole det
 	it = it2;
       }
-    
+
+/*      std::sort( virgin_work_registry_.begin(), virgin_work_registry_.end() );
+      std::vector< edm::DetSet<SiStripRawDigi> > sorted_and_merged;
+      sorted_and_merged.reserve(  std::min(virgin_work_registry_.size(), size_t(17000)) );
+
+      bool errorInData = false;
+      std::vector<Registry>::iterator it = virgin_work_registry_.begin(), it2 = it+1, end = virgin_work_registry_.end();
+      while (it < end) {
+        sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
+        std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
+        // first count how many digis we have
+        size_t len = it->length;
+        for (it2 = it+1; (it2 != end) && (it2->detid == it->detid); ++it2) { len += it2->length; }
+        // reserve memory 
+        digis.reserve(len);
+        // push them in
+        for (it2 = it+0; (it2 != end) && (it2->detid == it->detid); ++it2) {
+          digis.insert( digis.end(), & virgin_work_digis_[it2->index], & virgin_work_digis_[it2->index + it2->length] );
+        }
+        it = it2;
+      }
+*/
+std::cout << "after sorting: " << sorted_and_merged.size() << std::endl;
       // output error
       if (errorInData) edm::LogWarning("CorruptData") << "Some modules contained corrupted virgin raw data, and have been skipped in unpacking\n"; 
     

@@ -158,7 +158,6 @@ namespace sistrip {
       size_t currentLocalBitOffset_;
       size_t bitOffsetIncrement_;
       uint8_t currentStrip_;
-      //uint16_t valuesLeft_;
       uint16_t channelPayloadOffset_;
       uint16_t channelPayloadLength_;
     };
@@ -206,7 +205,7 @@ namespace sistrip {
       oldWordOffset_(0), currentWordOffset_(0),
       currentBitOffset_(0), currentLocalBitOffset_(0),
       bitOffsetIncrement_(10),
-      //valuesLeft_(0)
+      currentStrip_(0),
       channelPayloadOffset_(0), channelPayloadLength_(0)
     { }
 
@@ -232,9 +231,6 @@ namespace sistrip {
       oldWordOffset_(0), currentWordOffset_(channelPayloadOffset),
       currentBitOffset_(0), currentLocalBitOffset_(0),
       bitOffsetIncrement_(offsetIncrement),
-      //currentStrip_(0),
-      //valuesLeft_(ceil((channel.length()-channelPayloadLength)*8/offsetIncrement))
-      //valuesLeftInCluster_(0),
       channelPayloadOffset_(channelPayloadOffset),
       channelPayloadLength_(channelPayloadLength)
     {
