@@ -96,21 +96,21 @@ lowPtBarrelTripletStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidate
 ### reconstruction of loopers
 
 # TRACK FITTING
-import TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi
-lowPtBarrelTripletStepKFTrajectoryFitter = TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi.KFTrajectoryFitter.clone(
+import TrackingTools.TrackFitters.KFTrajectoryFitter_cfi
+lowPtBarrelTripletStepKFTrajectoryFitter = TrackingTools.TrackFitters.KFTrajectoryFitter_cfi.KFTrajectoryFitter.clone(
     ComponentName = cms.string('lowPtBarrelTripletStepKFTrajectoryFitter'),
     Propagator = cms.string('PropagatorWithMaterialForLoopers')
 )
 
-import TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi
-lowPtBarrelTripletStepKFTrajectorySmoother = TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi.KFTrajectorySmoother.clone(
+import TrackingTools.TrackFitters.KFTrajectorySmoother_cfi
+lowPtBarrelTripletStepKFTrajectorySmoother = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
     ComponentName = cms.string('lowPtBarrelTripletStepKFTrajectorySmoother'),
     Propagator = cms.string('PropagatorWithMaterialForLoopers'),
     errorRescaling = cms.double(10.0)
 )
 
-import TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi
-lowPtBarrelTripletStepKFFittingSmoother = TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi.KFFittingSmoother.clone(
+import TrackingTools.TrackFitters.KFFittingSmoother_cfi
+lowPtBarrelTripletStepKFFittingSmoother = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFittingSmoother.clone(
     ComponentName = cms.string('lowPtBarrelTripletStepKFFittingSmoother'),
     Fitter = cms.string('lowPtBarrelTripletStepKFTrajectoryFitter'),
     Smoother = cms.string('lowPtBarrelTripletStepKFTrajectorySmoother'),

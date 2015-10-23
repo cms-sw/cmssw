@@ -140,9 +140,9 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
                 reco::TrackExtraRef teref= reco::TrackExtraRef ( rTrackExtras, i );
                 reco::TrackExtra newTrackExtra = getNewTrackExtra(algoResults);
-                (algoResults[0].second.first)->setExtra( teref ); 
+                (algoResults[0].track)->setExtra( teref ); 
 
-                Output_track->push_back(*algoResults[0].second.first);        
+                Output_track->push_back(*algoResults[0].track);        
                 Output_trackextra->push_back( newTrackExtra );
 	        Output_traj->push_back(newTraj);
 
@@ -274,8 +274,8 @@ bool NuclearTrackCorrector::getTrackFromTrajectory(const Trajectory& newTraj , c
 }
 //----------------------------------------------------------------------------------------
 reco::TrackExtra NuclearTrackCorrector::getNewTrackExtra(const AlgoProductCollection& algoResults) {
-                Trajectory* theTraj          = algoResults[0].first;
-                PropagationDirection seedDir = algoResults[0].second.second;
+                Trajectory* theTraj          = algoResults[0].trajectory;
+                PropagationDirection seedDir = algoResults[0].pDir;
 
                 TrajectoryStateOnSurface outertsos;
                 TrajectoryStateOnSurface innertsos;

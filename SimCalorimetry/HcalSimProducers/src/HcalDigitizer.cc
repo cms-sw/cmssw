@@ -431,11 +431,23 @@ void HcalDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& 
 
 }
 
-void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, edm::Handle<std::vector<PCaloHit> > const& zdcHandle, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
+void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const& hcalHandle, edm::Handle<std::vector<PCaloHit> > const& zdcHandle, int bunchCrossing, CLHEP::HepRandomEngine* engine, const HcalTopology *htopoP) {
 
   // Step A: pass in inputs, and accumulate digirs
   if(isHCAL) {
-    std::vector<PCaloHit> hcalHits = *hcalHandle.product();
+    std::vector<PCaloHit> hcalHitsOrig = *hcalHandle.product();
+    std::vector<PCaloHit> hcalHits;
+    hcalHits.reserve(hcalHitsOrig.size());
+
+    for ( unsigned int i=0; i< hcalHitsOrig.size(); i++) {
+      DetId id(hcalHitsOrig[i].id());
+      HcalDetId hid(id);
+      
+      //      if ( id.subdetId()==2 && hid.ietaAbs()<16 ) edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << std::endl;
+      if ( !htopoP->validHcal(hid) ) edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << std::endl;
+      else
+	hcalHits.push_back(hcalHitsOrig[i]);
+    }
     //evaluate darkening before relabeling
     if(m_HEDarkening || m_HFRecalibration){
       darkening(hcalHits);
@@ -490,7 +502,11 @@ void HcalDigitizer::accumulate(edm::Event const& e, edm::EventSetup const& event
   e.getByLabel(hcalTag, hcalHandle);
   isHCAL = hcalHandle.isValid();
 
-  accumulateCaloHits(hcalHandle, zdcHandle, 0, engine);
+  edm::ESHandle<HcalTopology> htopo;
+  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology *htopoP=htopo.product();
+
+  accumulateCaloHits(hcalHandle, zdcHandle, 0, engine, htopoP);
 }
 
 void HcalDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& eventSetup, CLHEP::HepRandomEngine* engine) {
@@ -505,7 +521,11 @@ void HcalDigitizer::accumulate(PileUpEventPrincipal const& e, edm::EventSetup co
   e.getByLabel(hcalTag, hcalHandle);
   isHCAL = hcalHandle.isValid();
 
-  accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing(), engine);
+  edm::ESHandle<HcalTopology> htopo;
+  eventSetup.get<HcalRecNumberingRecord>().get(htopo);
+  const HcalTopology *htopoP=htopo.product();
+
+  accumulateCaloHits(hcalHandle, zdcHandle, e.bunchCrossing(), engine, htopoP);
 }
 
 void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSetup, CLHEP::HepRandomEngine* engine) {

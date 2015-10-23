@@ -14,24 +14,24 @@ EstimatorForSTA.ComponentName = 'Chi2STA'
 EstimatorForSTA.MaxChi2 = 1000.
 #
 #
-import TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi
-KFTrajectoryFitterForSTA = TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi.KFTrajectoryFitter.clone()
+import TrackingTools.TrackFitters.KFTrajectoryFitter_cfi
+KFTrajectoryFitterForSTA = TrackingTools.TrackFitters.KFTrajectoryFitter_cfi.KFTrajectoryFitter.clone()
 
 KFTrajectoryFitterForSTA.ComponentName = 'KFFitterSTA'
 KFTrajectoryFitterForSTA.Propagator = 'SteppingHelixPropagatorAny'
 KFTrajectoryFitterForSTA.Estimator = 'Chi2STA'
 #
 #
-import TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi
-KFTrajectorySmootherForSTA = TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi.KFTrajectorySmoother.clone()
+import TrackingTools.TrackFitters.KFTrajectorySmoother_cfi
+KFTrajectorySmootherForSTA = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone()
 
 KFTrajectorySmootherForSTA.ComponentName = 'KFSmootherSTA'
 KFTrajectorySmootherForSTA.Propagator = 'SteppingHelixPropagatorOpposite'
 KFTrajectorySmootherForSTA.Estimator = 'Chi2STA'
 #
 #
-import TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi
-KFFittingSmootheForSTA = TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi.KFFittingSmoother.clone()
+import TrackingTools.TrackFitters.KFFittingSmoother_cfi
+KFFittingSmootheForSTA = TrackingTools.TrackFitters.KFFittingSmoother_cfi.KFFittingSmoother.clone()
 
 KFFittingSmootheForSTA.ComponentName = 'KFFitterSmootherSTA'
 KFFittingSmootheForSTA.Fitter = 'KFFitterSTA'

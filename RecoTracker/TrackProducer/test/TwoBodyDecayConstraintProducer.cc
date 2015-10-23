@@ -118,8 +118,8 @@ void TwoBodyDecayConstraintProducer::produce( edm::Event& iEvent, const edm::Eve
   ESHandle<MagneticField> magField;
   iSetup.get<IdealMagneticFieldRecord>().get( magField );
 
-  std::auto_ptr<std::vector<TrackParamConstraint> > pairs(new std::vector<TrackParamConstraint>);
-  std::auto_ptr<TrackParamConstraintAssociationCollection> output(new TrackParamConstraintAssociationCollection);
+  std::unique_ptr<std::vector<TrackParamConstraint> > pairs(new std::vector<TrackParamConstraint>);
+  std::unique_ptr<TrackParamConstraintAssociationCollection> output(new TrackParamConstraintAssociationCollection);
   
   edm::RefProd<std::vector<TrackParamConstraint> > rPairs = iEvent.getRefBeforePut<std::vector<TrackParamConstraint> >();
   
@@ -187,8 +187,8 @@ void TwoBodyDecayConstraintProducer::produce( edm::Event& iEvent, const edm::Eve
 //     }
   }
   
-  iEvent.put(pairs);
-  iEvent.put(output);
+  iEvent.put(std::move(pairs));
+  iEvent.put(std::move(output));
 }
 
 
