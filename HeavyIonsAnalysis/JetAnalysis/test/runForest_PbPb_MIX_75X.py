@@ -24,8 +24,7 @@ process.HiForest.HiForestVersion = cms.untracked.string(version)
 process.source = cms.Source("PoolSource",
                             duplicateCheckMode = cms.untracked.string("noDuplicateCheck"),
                             fileNames = cms.untracked.vstring(
-        "file:/mnt/hadoop/cms/store/user/dgulhan/HIHighPt/HIHighPt_photon20and30_HIRun2011-v1_RECO_753_patch1/e5eb8894c0d6aaac6d5717b56f4e5b3e/step2_RAW2DIGI_L1Reco_RECO_10_1_ntO.root"
-
+"/store/user/dgulhan/Pyquen_Unquenched_AllQCDPhoton30_PhotonFilter20GeV_eta24_TuneZ2_PbPb_5020GeV_GEN_SIM_PU/Pyquen_Unquenched_AllQCDPhoton30_PhotonFilter20GeV_eta24_TuneZ2_PbPb_5020GeV_RECODEBUG/151021_150752/0000/step3_1.root"
     ))
 
 # Number of events we want to process, -1 = all events
@@ -55,8 +54,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_mc_HIon', '')
 
 process.GlobalTag.toGet.extend([
  cms.PSet(record = cms.string("HeavyIonRcd"),
-tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v740x01_mc"),
-connect = cms.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+tag = cms.string("CentralityTable_HFtowers200_HydjetDrum5_v750x02_mc"),
+connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS"),
 label = cms.untracked.string("HFtowersHydjetDrum5")
  ),
 ])
