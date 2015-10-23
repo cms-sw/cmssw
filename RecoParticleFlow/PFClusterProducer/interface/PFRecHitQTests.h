@@ -438,6 +438,7 @@ class PFRecHitQTestES : public PFRecHitQTestBase {
  PFRecHitQTestES(const edm::ParameterSet& iConfig):
   PFRecHitQTestBase(iConfig)
   {
+    thresholdCleaning_   = iConfig.getParameter<double>("cleaningThreshold");
     topologicalCleaning_ = iConfig.getParameter<bool>("topologicalCleaning");
   }
 
@@ -446,6 +447,11 @@ class PFRecHitQTestES : public PFRecHitQTestBase {
 
   bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
 
+    if ( rh.energy() < thresholdCleaning_ ) {
+      clean=true;
+      return false;
+    }
+    
     if ( topologicalCleaning_ && 
 	 ( rh.checkFlag(EcalRecHit::kESDead) || 
 	   rh.checkFlag(EcalRecHit::kESTS13Sigmas) || 
@@ -484,9 +490,7 @@ class PFRecHitQTestES : public PFRecHitQTestBase {
 
  protected:
   double thresholdCleaning_;
-  bool timingCleaning_;
   bool topologicalCleaning_;
-  bool skipTTRecoveredHits_;
 
 };
 
