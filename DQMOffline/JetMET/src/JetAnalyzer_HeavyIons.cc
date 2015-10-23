@@ -532,32 +532,32 @@ void JetAnalyzer_HeavyIons::bookHistograms(DQMStore::IBooker & ibooker, edm::Run
     mPFCandpT_vs_eta_HadE_inHF = ibooker.book2D("PF_cand_HadEner_inHF",h2D_pfcand_etabins_vs_pt); // pf id - 6
     mPFCandpT_vs_eta_EME_inHF = ibooker.book2D("PF_cand_EMEner_inHF",h2D_pfcand_etabins_vs_pt); // pf id - 7
 
-    mPFCandpT_Barrel_Unknown = ibooker.1D("mPFCandpT_Barrel_Unknown",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id ibooker.1D(Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300)
-    mPFCandpT_Barrel_ChargedHadron = ibooker.1D("mPFCandpT_Barrel_ChargedHadron",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 1 
-    mPFCandpT_Barrel_electron = ibooker.1D("mPFCandpT_Barrel_electron",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 2
-    mPFCandpT_Barrel_muon = ibooker.1D("mPFCandpT_Barrel_muon",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 3
-    mPFCandpT_Barrel_photon = ibooker.1D("mPFCandpT_Barrel_photon",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 4
-    mPFCandpT_Barrel_NeutralHadron = ibooker.1D("mPFCandpT_Barrel_NeutralHadron",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 5
-    mPFCandpT_Barrel_HadE_inHF = ibooker.1D("mPFCandpT_Barrel_HadE_inHF",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 6
-    mPFCandpT_Barrel_EME_inHF = ibooker.1D("mPFCandpT_Barrel_EME_inHF",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 7
+    mPFCandpT_Barrel_Unknown = ibooker.book1D("mPFCandpT_Barrel_Unknown",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id ibooker.book1D(Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300)
+    mPFCandpT_Barrel_ChargedHadron = ibooker.book1D("mPFCandpT_Barrel_ChargedHadron",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 1 
+    mPFCandpT_Barrel_electron = ibooker.book1D("mPFCandpT_Barrel_electron",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 2
+    mPFCandpT_Barrel_muon = ibooker.book1D("mPFCandpT_Barrel_muon",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 3
+    mPFCandpT_Barrel_photon = ibooker.book1D("mPFCandpT_Barrel_photon",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 4
+    mPFCandpT_Barrel_NeutralHadron = ibooker.book1D("mPFCandpT_Barrel_NeutralHadron",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 5
+    mPFCandpT_Barrel_HadE_inHF = ibooker.book1D("mPFCandpT_Barrel_HadE_inHF",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 6
+    mPFCandpT_Barrel_EME_inHF = ibooker.book1D("mPFCandpT_Barrel_EME_inHF",Form(";PF candidate p_{T}, |#eta|<%2.2f; counts", BarrelEta),300, 0, 300); // pf id - 7
     
-    mPFCandpT_Endcap_Unknown = ibooker.1D("mPFCandpT_Endcap_Unknown",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id ibooker.1D(Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300)
-    mPFCandpT_Endcap_ChargedHadron = ibooker.1D("mPFCandpT_Endcap_ChargedHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 1 
-    mPFCandpT_Endcap_electron = ibooker.1D("mPFCandpT_Endcap_electron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 2
-    mPFCandpT_Endcap_muon = ibooker.1D("mPFCandpT_Endcap_muon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 3
-    mPFCandpT_Endcap_photon = ibooker.1D("mPFCandpT_Endcap_photon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 4
-    mPFCandpT_Endcap_NeutralHadron = ibooker.1D("mPFCandpT_Endcap_NeutralHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 5
-    mPFCandpT_Endcap_HadE_inHF = ibooker.1D("mPFCandpT_Endcap_HadE_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 6
-    mPFCandpT_Endcap_EME_inHF = ibooker.1D("mPFCandpT_Endcap_EME_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 7
+    mPFCandpT_Endcap_Unknown = ibooker.book1D("mPFCandpT_Endcap_Unknown",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id ibooker.book1D(Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300)
+    mPFCandpT_Endcap_ChargedHadron = ibooker.book1D("mPFCandpT_Endcap_ChargedHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 1 
+    mPFCandpT_Endcap_electron = ibooker.book1D("mPFCandpT_Endcap_electron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 2
+    mPFCandpT_Endcap_muon = ibooker.book1D("mPFCandpT_Endcap_muon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 3
+    mPFCandpT_Endcap_photon = ibooker.book1D("mPFCandpT_Endcap_photon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 4
+    mPFCandpT_Endcap_NeutralHadron = ibooker.book1D("mPFCandpT_Endcap_NeutralHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 5
+    mPFCandpT_Endcap_HadE_inHF = ibooker.book1D("mPFCandpT_Endcap_HadE_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 6
+    mPFCandpT_Endcap_EME_inHF = ibooker.book1D("mPFCandpT_Endcap_EME_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", BarrelEta, EndcapEta),300, 0, 300); // pf id - 7
 
-    mPFCandpT_Forward_Unknown = ibooker.1D("mPFCandpT_Forward_Unknown",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id ibooker.1D(Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300)
-    mPFCandpT_Forward_ChargedHadron = ibooker.1D("mPFCandpT_Forward_ChargedHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 1 
-    mPFCandpT_Forward_electron = ibooker.1D("mPFCandpT_Forward_electron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 2
-    mPFCandpT_Forward_muon = ibooker.1D("mPFCandpT_Forward_muon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 3
-    mPFCandpT_Forward_photon = ibooker.1D("mPFCandpT_Forward_photon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 4
-    mPFCandpT_Forward_NeutralHadron = ibooker.1D("mPFCandpT_Forward_NeutralHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 5
-    mPFCandpT_Forward_HadE_inHF = ibooker.1D("mPFCandpT_Forward_HadE_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 6
-    mPFCandpT_Forward_EME_inHF = ibooker.1D("mPFCandpT_Forward_EME_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 7
+    mPFCandpT_Forward_Unknown = ibooker.book1D("mPFCandpT_Forward_Unknown",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id ibooker.book1D(Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300)
+    mPFCandpT_Forward_ChargedHadron = ibooker.book1D("mPFCandpT_Forward_ChargedHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 1 
+    mPFCandpT_Forward_electron = ibooker.book1D("mPFCandpT_Forward_electron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 2
+    mPFCandpT_Forward_muon = ibooker.book1D("mPFCandpT_Forward_muon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 3
+    mPFCandpT_Forward_photon = ibooker.book1D("mPFCandpT_Forward_photon",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 4
+    mPFCandpT_Forward_NeutralHadron = ibooker.book1D("mPFCandpT_Forward_NeutralHadron",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 5
+    mPFCandpT_Forward_HadE_inHF = ibooker.book1D("mPFCandpT_Forward_HadE_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 6
+    mPFCandpT_Forward_EME_inHF = ibooker.book1D("mPFCandpT_Forward_EME_inHF",Form(";PF candidate p_{T}, %2.2f<|#eta|<%2.2f; counts", EndcapEta, ForwardEta),300, 0, 300); // pf id - 7
         
   }
 

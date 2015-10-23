@@ -74,6 +74,9 @@
 
 
 const Int_t MAXPARTICLE = 10000;
+const Double_t BarrelEta = 2.0;
+const Double_t EndcapEta = 3.0;
+const Double_t ForwardEta = 5.0;
 
 class MonitorElement;
 
@@ -421,9 +424,6 @@ class JetAnalyzer_HeavyIons : public DQMEDAnalyzer {
 
   static const Int_t nedge_pseudorapidity = etaBins_ + 1;
 
-  static const Double_t BarrelEta = 2.0;
-  static const Double_t EndcapEta = 3.0;
-  static const Double_t ForwardEta = 5.0;
   
 
 
