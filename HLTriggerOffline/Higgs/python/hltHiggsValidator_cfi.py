@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb"),
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "HggControlPaths", "Htaunu", "H2tau", "VBFHbb_0btag", "VBFHbb_1btag", "VBFHbb_2btag",  "ZnnHbb","DoubleHinTaus","HiggsDalitz","X4b","TTHbbej","AHttH","WHToENuBB","MSSMHbb","VBFHToInv"),
     histDirectory  = cms.string("HLT/Higgs"),
     
     # -- The instance name of the reco::GenParticles collection 
@@ -400,6 +400,20 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
         jetTagLabel  = cms.string("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
         # -- Analysis specific cuts
         minCandidates = cms.uint32(3),
-        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.941, 0.941 , 0.00, 0, 0, 0, 100, 100, 0.0, 0.0),
+        NminOneCuts = cms.untracked.vdouble(0, 0, 0, 0.941, 0.941 , 0.00, 0, 0, 0, 100, 100, 0.0, 0.0), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
         ),
+        
+    VBFHToInv  = cms.PSet( 
+        hltPathsToCheck = cms.vstring(
+            "HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_v",
+            "HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_v",
+            "HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu140_JetIdCleaned_v",
+            "HLT_DiPFJet40_DEta3p5_MJJ600_PFMETNoMu80_JetIdCleaned_v" 
+            ),
+        recJetLabel  = cms.string("ak4PFJetsCHS"),
+        recPFMETLabel = cms.string("pfMet"), 
+        jetTagLabel  = cms.string("pfCombinedSecondaryVertexV2BJetTags"), # needed for NminOneCuts
+        minCandidates = cms.uint32(2),
+        NminOneCuts = cms.untracked.vdouble(3.5, 600, 0, 0, 0 , 0, 0, 0, 80, 40, 40), #dEtaqq, mqq, dPhibb, CSV1, CSV2, CSV3, maxCSV_jets, maxCSV_E, MET, pt1, pt2, pt3, pt4
+        ), 
 )

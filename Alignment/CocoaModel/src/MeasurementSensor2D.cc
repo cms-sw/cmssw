@@ -82,7 +82,7 @@ void MeasurementSensor2D::calculateSimulatedValue( ALIbool firstTime )
       exit(1);
     }
 
-    vocite++;
+    ++vocite;
     if ( isec > ALIint(OptOList().size()) ) {
       std::cerr << "ERROR DE PROGRAMACION EN GetSimulatedValue" << std::endl;
       exit(5);

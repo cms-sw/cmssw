@@ -364,10 +364,12 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      // search for the corresponding pf candidate
        MuToPFMap::iterator iter =  muToPFMap.find(muRef);
        if(iter != muToPFMap.end()){
-	 outMuon.setPFP4(pfCandidates->at(iter->second).p4());
-	 outMuon.setP4(pfCandidates->at(iter->second).p4());//PF is the default
-	 outMuon.setCharge(pfCandidates->at(iter->second).charge());//PF is the default
-	 outMuon.setBestTrack(pfCandidates->at(iter->second).bestMuonTrackType());
+	 const auto& pfMu = pfCandidates->at(iter->second);
+	 outMuon.setPFP4(pfMu.p4());
+	 outMuon.setP4(pfMu.p4());//PF is the default
+	 outMuon.setCharge(pfMu.charge());//PF is the default
+	 outMuon.setPdgId(-13*pfMu.charge());
+	 outMuon.setBestTrack(pfMu.bestMuonTrackType());
 	 muToPFMap.erase(iter);
 	 dout << "MuonRef: " << muRef.id() << " " << muRef.key() 
 	      << " Is it PF? " << outMuon.isPFMuon() 

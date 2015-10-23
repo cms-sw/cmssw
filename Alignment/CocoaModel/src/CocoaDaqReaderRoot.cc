@@ -271,7 +271,7 @@ void CocoaDaqReaderRoot::BuildMeasurementsFromOptAlign( std::vector<OpticalAlign
 
   //--- Loop to Measurements in Model and check for corresponding measurement in ROOT
   std::vector< Measurement* >::const_iterator vmcite;
-  for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); vmcite++ ) {
+  for( vmcite = Model::MeasurementList().begin();  vmcite != Model::MeasurementList().end(); ++vmcite ) {
     ALIint fcolon = (*vmcite)->name().find(':');
     ALIstring oname = (*vmcite)->name();
     oname = oname.substr(fcolon+1,oname.length());

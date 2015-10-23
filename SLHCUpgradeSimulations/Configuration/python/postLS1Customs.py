@@ -191,9 +191,7 @@ def customise_DQM(process):
 
 
 def customise_DQM_25ns(process):
-    # Switch the default decision of the HCAL noise filter
-    if hasattr(process,'HBHENoiseFilterResultProducer'):
-        process.HBHENoiseFilterResultProducer.defaultDecision = cms.string("HBHENoiseFilterResultRun2Loose")
+    #Empty place-holder
     return process
 
 

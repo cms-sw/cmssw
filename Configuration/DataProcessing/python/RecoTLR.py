@@ -1,6 +1,26 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.Configuration.customiseForRunI import customiseForRunI
+
+##############################################################################
+# common utilities
+##############################################################################
+def _swapOfflineBSwithOnline(process):
+    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
+    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
+    return process
+
+def _addLumiProducer(process):
+    if not hasattr(process,'lumiProducer'):
+        #unscheduled.. 
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
+        process.lumiProducer=lumiProducer
+    #if it's scheduled
+    if hasattr(process, 'reconstruction_step'):
+        process.reconstruction_step+=process.lumiProducer
+
+    return process
+
 #gone with the fact that there is no difference between production and development sequence
 #def customiseCommon(process):
 #    return (process)
@@ -30,15 +50,10 @@ def customiseCosmicData(process):
 ##############################################################################
 # this is supposed to be added on top of other (Run1) data customs
 def customiseDataRun2Common(process):
-    if hasattr(process,'CSCGeometryESModule'):
-        process.CSCGeometryESModule.useGangedStripsInME1a = cms.bool(False)
-    if hasattr(process,'CSCIndexerESProducer'):
-        process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
-    if hasattr(process,'CSCChannelMapperESProducer'):
-        process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
-    if hasattr(process,'csc2DRecHits'):
-        process.csc2DRecHits.readBadChannels = cms.bool(False)
-        process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+    from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry,customise_csc_LocalReco
+    process = unganged_me1a_geometry(process)
+    process = customise_csc_LocalReco(process)
+
     if hasattr(process,'valCscTriggerPrimitiveDigis'):
         #this is not doing anything at the moment
         process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.bool(False)
@@ -55,18 +70,23 @@ def customiseDataRun2Common(process):
 
     return process
 
-##############################################################################
-# common+ "25ns" Use this for data daking starting from runs in 2015C (>= 253256 )
-def customiseDataRun2Common_25ns(process):
+# add stage1
+def customiseDataRun2Common_withStage1(process):
     process = customiseDataRun2Common(process)
-
-    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
-    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
 
     from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
     process=customiseL1RecoForStage1(process)
 
+    return process 
+
+##############################################################################
+# common+ "25ns" Use this for data daking starting from runs in 2015C (>= 253256 )
+def customiseDataRun2Common_25ns(process):
+    process = customiseDataRun2Common_withStage1(process)
+
+    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
 
     from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
     if hasattr(process,'dqmoffline_step'):
@@ -75,10 +95,7 @@ def customiseDataRun2Common_25ns(process):
 
 # common+50ns. Needed only for runs >= 253000 if taken with 50ns
 def customiseDataRun2Common_50nsRunsAfter253000(process):
-    process = customiseDataRun2Common(process)
-
-    from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
-    process=customiseL1RecoForStage1(process)
+    process = customiseDataRun2Common_withStage1(process)
 
     if hasattr(process,'particleFlowClusterECAL'):
         process.particleFlowClusterECAL.energyCorrector.autoDetectBunchSpacing = False
@@ -107,13 +124,12 @@ def customiseVALSKIM(process):
     print "this method is outdated, please use RecoTLR.customisePPData"
     process= customisePPData(process)
     return process
+
                 
 ##############################################################################
 def customiseExpress(process):
     process= customisePPData(process)
-
-    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
-    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
+    process = _swapOfflineBSwithOnline(process)
     
     return process
 
@@ -136,13 +152,7 @@ def customiseExpressRun2B0T(process):
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
-
-    #add the lumi producer in the prompt reco only configuration
-    if not hasattr(process,'lumiProducer'):
-        #unscheduled..
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
-        process.lumiProducer=lumiProducer
-    process.reconstruction_step+=process.lumiProducer
+    process = _addLumiProducer(process)
 
     return process
 
@@ -164,34 +174,52 @@ def customisePromptRun2B0T(process):
 
 
 ##############################################################################
-
-#gone with the fact that there is no difference between production and development sequence
-#def customiseCommonHI(process):
-#    return process
+# Heavy Ions
+##############################################################################
+# keep it in case modification is needed
+def customiseCommonHI(process):
+    return process
 
 ##############################################################################
 def customiseExpressHI(process):
-    #deprecated process= customiseCommonHI(process)
-
-    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
-    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
+    process = customiseCommonHI(process)
+    process = _swapOfflineBSwithOnline(process)
     
     return process
 
 ##############################################################################
 def customisePromptHI(process):
-    #deprecated process= customiseCommonHI(process)
+    process = customiseCommonHI(process)
+    process = _swapOfflineBSwithOnline(process)
 
-    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
-    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
+    process = _addLumiProducer(process)
 
-     #add the lumi producer in the prompt reco only configuration
-    if not hasattr(process,'lumiProducer'):
-        #unscheduled..
-        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
-        process.lumiProducer=lumiProducer
-    process.reconstruction_step+=process.lumiProducer
-        
+    return process
+
+##############################################################################
+# keep it in case modification is needed
+def customiseRun2CommonHI(process):
+    process = customiseDataRun2Common_withStage1(process)
+    
+    # HI Specific additional customizations:
+    # from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_Additional_HI
+    # process = customiseSimL1EmulatorForPostLS1_Additional_HI(process)
+
+    return process
+
+##############################################################################
+def customiseRun2ExpressHI(process):
+    process = customiseRun2CommonHI(process)
+    process = _swapOfflineBSwithOnline(process)
+    
+    return process
+
+##############################################################################
+def customiseRun2PromptHI(process):
+    process = customiseRun2CommonHI(process)
+    process = _swapOfflineBSwithOnline(process)
+
+    process = _addLumiProducer(process)
 
     return process
 

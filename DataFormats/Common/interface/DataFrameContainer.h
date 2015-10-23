@@ -11,6 +11,9 @@
 
 class TestDataFrame;
 
+template<typename DigiCollection>
+class TestEcalDigi;
+
 namespace edm {
 
   /** an optitimized container that linearized a "vector of vector".
@@ -187,6 +190,9 @@ namespace edm {
   private:
     //for testing
     friend class ::TestDataFrame;
+
+    template<typename DigiCollection>
+    friend class ::TestEcalDigi;
     
     // subdetector id (as returned by  DetId::subdetId())
     int m_subdetId;

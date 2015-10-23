@@ -18,6 +18,7 @@
 
 #include "Geometry/HcalEventSetup/src/CaloTowerHardcodeGeometryEP.h"
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/HcalCommonData/interface/HcalDDDRecConstants.h"
 
@@ -32,13 +33,14 @@
 //
 // constructors and destructor
 //
-CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& iConfig) {
-  //the following line is needed to tell the framework what
-  // data is being produced
-  setWhatProduced(this,
-		  &CaloTowerHardcodeGeometryEP::produce,
-		  dependsOn( &CaloTowerHardcodeGeometryEP::idealRecordCallBack ),
-		  "TOWER");
+CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& iConfig)
+{
+   //the following line is needed to tell the framework what
+   // data is being produced
+   setWhatProduced(this,
+                   &CaloTowerHardcodeGeometryEP::produce,
+                   dependsOn( &CaloTowerHardcodeGeometryEP::idealRecordCallBack ),
+		   "TOWER");
 
   //now do what ever other initialization is needed
   loader_=new CaloTowerHardcodeGeometryLoader(); /// TODO : allow override of Topology.
@@ -57,12 +59,14 @@ CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP() {
 // ------------ method called to produce the data  ------------
 CaloTowerHardcodeGeometryEP::ReturnType
 CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord) {
+  edm::ESHandle<CaloTowerTopology> cttopo;
+  iRecord.getRecord<HcalRecNumberingRecord>().get( cttopo );
   edm::ESHandle<HcalTopology> hcaltopo;
   iRecord.getRecord<HcalRecNumberingRecord>().get( hcaltopo );
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iRecord.getRecord<HcalRecNumberingRecord>().get( pHRNDC );
   
-  std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry( loader_->load( &*hcaltopo, &*pHRNDC ));
+  std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry( loader_->load( &*cttopo, &*hcaltopo, &*pHRNDC ));
 
   return pCaloSubdetectorGeometry ;
 }

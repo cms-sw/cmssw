@@ -15,6 +15,7 @@ from Validation.RPCRecHits.postValidation_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
 from Validation.RecoEgamma.photonFastSimPostProcessor_cff import *
 from Validation.RecoVertex.PrimaryVertexAnalyzer4PUSlimmed_Client_cfi import *
+from Validation.RecoVertex.PostProcessorV0_cfi import *
 from Validation.RecoMET.METPostProcessor_cff import *
 from DQMOffline.RecoB.dqmCollector_cff import *
 
@@ -23,6 +24,7 @@ postValidation = cms.Sequence(
       recoMuonPostProcessors
     + postProcessorTrackSequence
     + postProcessorVertex
+    + postProcessorV0
     + MuIsoValPostProcessor
     + calotowersPostProcessor
     + hcalSimHitsPostProcessor

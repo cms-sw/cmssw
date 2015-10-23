@@ -1,0 +1,9 @@
+<lcgdict>
+  <function name="driftTime"/>
+  <function name="trackDistance"/>
+  <function name="smearedTime"/>
+  <function name="asymGausSample"/>
+  <function name="oldParametrization"/>
+  <function name="dToTString"/>
+  <function name="computeRange"/>
+</lcgdict>

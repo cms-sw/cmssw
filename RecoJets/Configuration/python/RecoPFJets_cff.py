@@ -61,15 +61,18 @@ kt6PFJetsCentralNeutralTight = kt6PFJetsCentralNeutral.clone(
     )
 
 
-
-fixedGridRhoFastjetCentralChargedPileUp = fixedGridRhoFastjetAll.clone(
-    src = cms.InputTag("pfPileUpAllChargedParticles"),
+fixedGridRhoFastjetCentral = fixedGridRhoFastjetAll.clone(
     maxRapidity = cms.double(2.5)
     )
 
+fixedGridRhoFastjetCentralChargedPileUp = fixedGridRhoFastjetAll.clone(
+    pfCandidatesTag = "pfPileUpAllChargedParticles",
+    maxRapidity = 2.5
+    )
+
 fixedGridRhoFastjetCentralNeutral = fixedGridRhoFastjetAll.clone(
-    src = cms.InputTag("pfAllNeutralHadronsAndPhotons"),
-    maxRapidity = cms.double(2.5)
+    pfCandidatesTag = "pfAllNeutralHadronsAndPhotons",
+    maxRapidity = 2.5
     )
 
 
@@ -183,10 +186,11 @@ hepTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents"
 
 recoPFJets   =cms.Sequence(fixedGridRhoAll+
                            fixedGridRhoFastjetAll+
+                           fixedGridRhoFastjetCentral+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
                            ak4PFJets+
-			   pfNoPileUpJMESequence+
+                           pfNoPileUpJMESequence+
                            ak4PFJetsCHS+                           
                            ak8PFJetsCHS+
                            ak8PFJetsCHSConstituents+
@@ -203,6 +207,7 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            kt6PFJetsCentralNeutralTight+
                            fixedGridRhoAll+
                            fixedGridRhoFastjetAll+
+                           fixedGridRhoFastjetCentral+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
                            iterativeCone5PFJets+
@@ -246,6 +251,7 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
 recoPFJetsWithSubstructure=cms.Sequence(
                            fixedGridRhoAll+
                            fixedGridRhoFastjetAll+
+                           fixedGridRhoFastjetCentral+
                            fixedGridRhoFastjetCentralChargedPileUp+
                            fixedGridRhoFastjetCentralNeutral+
                            ak4PFJets+

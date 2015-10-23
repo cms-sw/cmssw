@@ -263,7 +263,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   // fToRead =  iConfig.getUntrackedParameter<vector<string> >("toRead");
 
   useCalibrationsFromDB_
-    = iConfig.getParameter<bool>("useCalibrationsFromDB");    
+    = iConfig.getParameter<bool>("useCalibrationsFromDB");
+
+  if (useCalibrationsFromDB_)
+    calibrationsLabel_ = iConfig.getParameter<std::string>("calibrationsLabel");
 
   boost::shared_ptr<PFEnergyCalibration> 
     calibration( new PFEnergyCalibration() ); 
@@ -424,11 +427,11 @@ PFProducer::beginRun(const edm::Run & run,
   */
 
   if ( useCalibrationsFromDB_ ) { 
-  // Read the PFCalibration functions from the global tags.
+    // read the PFCalibration functions from the global tags
     edm::ESHandle<PerformancePayload> perfH;
-    es.get<PFCalibrationRcd>().get(perfH);
-    
-    const PerformancePayloadFromTFormula *pfCalibrations = static_cast< const PerformancePayloadFromTFormula *>(perfH.product());
+    es.get<PFCalibrationRcd>().get(calibrationsLabel_, perfH);
+
+    PerformancePayloadFromTFormula const * pfCalibrations = static_cast< const PerformancePayloadFromTFormula *>(perfH.product());
     
     pfAlgo_->thePFEnergyCalibration()->setCalibrationFunctions(pfCalibrations);
   }

@@ -19,7 +19,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"  
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 
 #include "CondFormats/DataRecord/interface/L1CaloGeometryRecord.h"  
 

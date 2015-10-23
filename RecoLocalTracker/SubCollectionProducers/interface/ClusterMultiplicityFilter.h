@@ -4,23 +4,24 @@
 #include <string>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+#include "DataFormats/Common/interface/DetSetVectorNew.h"
 
 
-class ClusterMultiplicityFilter : public edm::EDFilter {
+class ClusterMultiplicityFilter : public edm::global::EDFilter<> {
    public:
       explicit ClusterMultiplicityFilter(const edm::ParameterSet&);
       ~ClusterMultiplicityFilter();
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual bool filter(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
-      unsigned int maxNumberOfClusters_;
-      std::string clusterCollectionLabel_; 
+      const unsigned int maxNumberOfClusters_;
+      const edm::InputTag clusterCollectionTag_;
+      const edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster> > clusters_;
 
 };
 

@@ -50,7 +50,11 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
   thePixelResolutionFile1=0;
   thePixelResolutionFile2=0;
 
-  if( thePixelPart == GeomDetEnumerators::PixelBarrel ) {
+  if(!GeomDetEnumerators::isTrackerPixel(thePixelPart))
+     throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm :")
+       <<"Not a pixel detector"<<endl;
+
+  if( GeomDetEnumerators::isBarrel(thePixelPart) ) {
      isForward = false;
      thePixelResolutionFileName1 = pset_.getParameter<string>( "NewPixelBarrelResolutionFile1" );
      thePixelResolutionFile1 = new 
@@ -71,8 +75,7 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
      cout<<"The Barrel map size is "<<theXHistos.size()<<" and "<<theYHistos.size()<<endl;
 #endif
   }
-  else
-  if ( thePixelPart == GeomDetEnumerators::PixelEndcap ) {
+  else {
      isForward = true;
      thePixelResolutionFileName1 = pset_.getParameter<string>( "NewPixelForwardResolutionFile" );
      thePixelResolutionFile1 = new
@@ -90,9 +93,6 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::SiPixelGaussianSmearingRecHitCo
      cout<<"The Forward map size is "<<theXHistos.size()<<" and "<<theYHistos.size()<<endl;
 #endif
   }
-  else
-     throw cms::Exception("SiPixelGaussianSmearingRecHitConverterAlgorithm :")
-       <<"Not a pixel detector"<<endl;
 
   if ( thePixelResolutionFile2) {
     thePixelResolutionFile2->Close();

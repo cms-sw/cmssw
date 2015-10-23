@@ -47,6 +47,7 @@ patJets = cms.EDProducer("PATJetProducer",
         cms.InputTag("softPFMuonBJetTags"),
         cms.InputTag("softPFElectronBJetTags"),
         cms.InputTag("pfCombinedMVABJetTags"),
+        cms.InputTag("pfCombinedMVAV2BJetTags")
         #CTagging -- temporary commented out waiting for RelVals
         ## cms.InputTag('pfCombinedCvsLJetTags'),
         ## cms.InputTag('pfCombinedCvsBJetTags')

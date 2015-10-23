@@ -160,7 +160,7 @@ void TSGForRoadSearch::makeSeeds_0(const reco::Track & muon, std::vector<Traject
 
   //loop the parts until at least a compatible is found
   while (compatible.size()==0) {
-    switch ( inLayer->subDetector() ) {
+    switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
     case GeomDetEnumerators::TOB:
@@ -251,7 +251,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
 
   //loop the parts until at least a compatible is found
   while (compatible.size()==0) {
-    switch ( inLayer->subDetector() ) {
+    switch ( GeomDetEnumerators::subDetGeom[inLayer->subDetector()] ) {
     case GeomDetEnumerators::PixelBarrel:
     case GeomDetEnumerators::PixelEndcap:
     case GeomDetEnumerators::TIB:
@@ -364,7 +364,7 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track & muon, std::vector<Traject
     if (!dynamic_cast<const ForwardDetLayer*>(inLayer)) layerIt =pxlBegin--;
     
     while (compatible.size()==0) {
-      switch ( (*layerIt)->subDetector() ) {
+      switch ( GeomDetEnumerators::subDetGeom[(*layerIt)->subDetector()] ) {
       case GeomDetEnumerators::PixelEndcap:
 	{
 	  layerIt++;
