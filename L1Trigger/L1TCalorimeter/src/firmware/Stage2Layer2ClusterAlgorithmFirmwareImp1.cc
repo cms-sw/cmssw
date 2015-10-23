@@ -58,7 +58,8 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::processEvent(const std::vect
 
   clustering(towers, clusters);
   filtering (towers, clusters);
-  sharing   (towers, clusters);
+  //No sharing in new implementation
+  //sharing   (towers, clusters);
   refining  (towers, clusters);
 }
 
@@ -76,7 +77,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
     int iPhi = tower.hwPhi();
     int hwEt = 0;
     if(clusterInput_==E)       hwEt = tower.hwEtEm();
-    else if(clusterInput_==EH) hwEt = tower.hwEtEm() + tower.hwEtHad();
+    else if(clusterInput_==EH) hwEt = tower.hwPt();
     else if(clusterInput_==H)  hwEt = tower.hwEtHad();
     int hwEtEm  = tower.hwEtEm();
     int hwEtHad = tower.hwEtHad();
@@ -151,16 +152,16 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
       }
       else if(clusterInput_==EH)
       {
-        towerEtNW = towerNW.hwEtEm() + towerNW.hwEtHad();
-        towerEtN  = towerN .hwEtEm() + towerN .hwEtHad();
-        towerEtNE = towerNE.hwEtEm() + towerNE.hwEtHad();
-        towerEtE  = towerE .hwEtEm() + towerE .hwEtHad();
-        towerEtSE = towerSE.hwEtEm() + towerSE.hwEtHad();
-        towerEtS  = towerS .hwEtEm() + towerS .hwEtHad();
-        towerEtSW = towerSW.hwEtEm() + towerSW.hwEtHad();
-        towerEtW  = towerW .hwEtEm() + towerW .hwEtHad();
-        towerEtNN = towerNN.hwEtEm() + towerNN.hwEtHad();
-        towerEtSS = towerSS.hwEtEm() + towerSS.hwEtHad();
+	towerEtNW = towerNW.hwPt();
+        towerEtN  = towerN .hwPt();
+        towerEtNE = towerNE.hwPt();
+        towerEtE  = towerE .hwPt();
+        towerEtSE = towerSE.hwPt();
+        towerEtS  = towerS .hwPt();
+        towerEtSW = towerSW.hwPt();
+        towerEtW  = towerW .hwPt();
+        towerEtNN = towerNN.hwPt();
+        towerEtSS = towerSS.hwPt();
       }
       else if(clusterInput_==H)
       {
@@ -202,10 +203,12 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
 }
 
 
+//Old version of filtering
+
 /*****************************************************************/
-void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters)
+//void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters)
 /*****************************************************************/
-{
+/*{
   // navigator
   l1t::CaloStage2Nav caloNav;
 
@@ -302,8 +305,69 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<
     }
   }
 
+  }*/
+
+
+//New version of filtering
+
+/*****************************************************************/
+void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::filtering(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters)
+/*****************************************************************/
+{
+
+
+  // adapted from jet overlap filtering
+
+  int mask[9][3] = {
+    { 2,2,2 },
+    { 2,2,2 },
+    { 2,2,2 },
+    { 1,2,2 },
+    { 1,0,2 },
+    { 1,1,2 },
+    { 1,1,1 },
+    { 1,1,1 },
+    { 1,1,1 },
+  };
+
+  // navigator
+  l1t::CaloStage2Nav caloNav;
+
+  // Filter: keep only local maxima in a 9x3 region
+  // If two neighbor seeds have the same energy, favor the most central one
+  for(auto& cluster : clusters)
+  {
+    // retrieve neighbour cluster candidates. At this stage they only contain the seed tower.
+    int iEta   = cluster.hwEta();
+    int iPhi   = cluster.hwPhi();
+    bool filter = false;
+    for( int deta = -1; deta < 2; ++deta ) 
+    {
+	  for( int dphi = -4; dphi < 5; ++dphi )
+      {
+          int iEtaNeigh = caloNav.offsetIEta(iEta,  deta);
+          int iPhiNeigh = caloNav.offsetIPhi(iPhi,  dphi);
+          const l1t::CaloCluster& clusterNeigh = l1t::CaloTools::getCluster(clusters, iEtaNeigh, iPhiNeigh);
+	  	    
+
+          if      (mask[8-(dphi+4)][deta+1] == 0) continue;
+          else if (mask[8-(dphi+4)][deta+1] == 1) filter = (clusterNeigh.hwPt() >   cluster.hwPt());
+          else if (mask[8-(dphi+4)][deta+1] == 2) filter = (clusterNeigh.hwPt() >=  cluster.hwPt());
+          if(filter) 
+          {
+              cluster.setClusterFlag(CaloCluster::INCLUDE_SEED, false);
+              break;
+          }
+      }
+      if(filter) break;
+    }
+  }
+
 }
 
+
+
+//Not used in new implementation
 
 /*****************************************************************/
 void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1t::CaloTower>& towers, std::vector<l1t::CaloCluster>& clusters)
@@ -422,33 +486,6 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1
         filterSSEE = (clusterSSEE.hwPt() >  cluster.hwPt());
         filterSSE  = (clusterSSE .hwPt() >  cluster.hwPt());
         filterSS   = (clusterSS  .hwPt() >= cluster.hwPt());
-        filterSSW  = (clusterSSW .hwPt() >= cluster.hwPt());
-        filterSSWW = (clusterSSWW.hwPt() >  cluster.hwPt());
-        filterSWW  = (clusterSWW .hwPt() >  cluster.hwPt());
-        filterWW   = (clusterWW  .hwPt() >  cluster.hwPt());
-        filterNWW  = (clusterNWW .hwPt() >  cluster.hwPt());
-        filterNNNW = (clusterNNNW.hwPt() >  cluster.hwPt());
-        filterNNN  = (clusterNNN .hwPt() >  cluster.hwPt());
-        filterNNNE = (clusterNNNE.hwPt() >  cluster.hwPt());
-        filterSSSW = (clusterSSSW.hwPt() >= cluster.hwPt());
-        filterSSS  = (clusterSSS .hwPt() >= cluster.hwPt());
-        filterSSSE = (clusterSSSE.hwPt() >  cluster.hwPt());
-        filterNNNN = (clusterNNNN.hwPt() >  cluster.hwPt());
-        filterSSSS = (clusterSSSS.hwPt() >= cluster.hwPt());
-      }
-      else if(iEta==-1)
-      {
-        filterNNWW = (clusterNNWW.hwPt() >  cluster.hwPt());
-        filterNNW  = (clusterNNW .hwPt() >  cluster.hwPt());
-        filterNN   = (clusterNN  .hwPt() >  cluster.hwPt());
-        filterNNE  = (clusterNNE .hwPt() >  cluster.hwPt());
-        filterNNEE = (clusterNNEE.hwPt() >  cluster.hwPt());
-        filterNEE  = (clusterNEE .hwPt() >  cluster.hwPt());
-        filterEE   = (clusterEE  .hwPt() >  cluster.hwPt());
-        filterSEE  = (clusterSEE .hwPt() >  cluster.hwPt());
-        filterSSEE = (clusterSSEE.hwPt() >  cluster.hwPt());
-        filterSSE  = (clusterSSE .hwPt() >= cluster.hwPt());
-        filterSS   = (clusterSS  .hwPt() >= cluster.hwPt());
         filterSSW  = (clusterSSW .hwPt() >  cluster.hwPt());
         filterSSWW = (clusterSSWW.hwPt() >  cluster.hwPt());
         filterSWW  = (clusterSWW .hwPt() >  cluster.hwPt());
@@ -459,9 +496,36 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::sharing(const std::vector<l1
         filterNNNE = (clusterNNNE.hwPt() >  cluster.hwPt());
         filterSSSW = (clusterSSSW.hwPt() >  cluster.hwPt());
         filterSSS  = (clusterSSS .hwPt() >= cluster.hwPt());
-        filterSSSE = (clusterSSSE.hwPt() >= cluster.hwPt());
+        filterSSSE = (clusterSSSE.hwPt() >  cluster.hwPt());
         filterNNNN = (clusterNNNN.hwPt() >  cluster.hwPt());
         filterSSSS = (clusterSSSS.hwPt() >= cluster.hwPt());
+      }
+      else if(iEta==-1)
+      {
+        filterNNWW = (clusterNNWW.hwPt() >  cluster.hwPt());
+        filterNNW  = (clusterNNW .hwPt() >  cluster.hwPt());
+        filterNN   = (clusterNN  .hwPt() >= cluster.hwPt());
+        filterNNE  = (clusterNNE .hwPt() >= cluster.hwPt());
+        filterNNEE = (clusterNNEE.hwPt() >  cluster.hwPt());
+        filterNEE  = (clusterNEE .hwPt() >  cluster.hwPt());
+        filterEE   = (clusterEE  .hwPt() >  cluster.hwPt());
+        filterSEE  = (clusterSEE .hwPt() >  cluster.hwPt());
+        filterSSEE = (clusterSSEE.hwPt() >  cluster.hwPt());
+        filterSSE  = (clusterSSE .hwPt() >= cluster.hwPt());
+        filterSS   = (clusterSS  .hwPt() >  cluster.hwPt());
+        filterSSW  = (clusterSSW .hwPt() >  cluster.hwPt());
+        filterSSWW = (clusterSSWW.hwPt() >  cluster.hwPt());
+        filterSWW  = (clusterSWW .hwPt() >  cluster.hwPt());
+        filterWW   = (clusterWW  .hwPt() >  cluster.hwPt());
+        filterNWW  = (clusterNWW .hwPt() >  cluster.hwPt());
+        filterNNNW = (clusterNNNW.hwPt() >  cluster.hwPt());
+        filterNNN  = (clusterNNN .hwPt() >= cluster.hwPt());
+        filterNNNE = (clusterNNNE.hwPt() >= cluster.hwPt());
+        filterSSSW = (clusterSSSW.hwPt() >  cluster.hwPt());
+        filterSSS  = (clusterSSS .hwPt() >  cluster.hwPt());
+        filterSSSE = (clusterSSSE.hwPt() >= cluster.hwPt());
+        filterNNNN = (clusterNNNN.hwPt() >= cluster.hwPt());
+        filterSSSS = (clusterSSSS.hwPt() >  cluster.hwPt());
       }
 
       // IN_FIRMWARE
@@ -622,16 +686,17 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       }
       else if(clusterInput_==EH)
       {
-        towerEtNW = towerNW.hwEtEm() + towerNW.hwEtHad();
-        towerEtN  = towerN .hwEtEm() + towerN .hwEtHad();
-        towerEtNE = towerNE.hwEtEm() + towerNE.hwEtHad();
-        towerEtE  = towerE .hwEtEm() + towerE .hwEtHad();
-        towerEtSE = towerSE.hwEtEm() + towerSE.hwEtHad();
-        towerEtS  = towerS .hwEtEm() + towerS .hwEtHad();
-        towerEtSW = towerSW.hwEtEm() + towerSW.hwEtHad();
-        towerEtW  = towerW .hwEtEm() + towerW .hwEtHad();
-        towerEtNN = towerNN.hwEtEm() + towerNN.hwEtHad();
-        towerEtSS = towerSS.hwEtEm() + towerSS.hwEtHad();
+	towerEtNW = towerNW.hwPt();
+        towerEtN  = towerN .hwPt();
+        towerEtNE = towerNE.hwPt();
+        towerEtE  = towerE .hwPt();
+        towerEtSE = towerSE.hwPt();
+        towerEtS  = towerS .hwPt();
+        towerEtSW = towerSW.hwPt();
+        towerEtW  = towerW .hwPt();
+        towerEtNN = towerNN.hwPt();
+        towerEtSS = towerSS.hwPt();
+
       }
       else if(clusterInput_==H)
       {
@@ -669,22 +734,6 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       int towerEtHadNN = towerNN.hwEtHad();
       int towerEtHadSS = towerSS.hwEtHad();
 
-      // trim corners
-      //if(m_trimCorners) {
-      //  // IN_FIRMWARE
-      //  //if(towerEtN<clusterThreshold_ && towerEtW<clusterThreshold_) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
-      //  //if(towerEtN<clusterThreshold_ && towerEtE<clusterThreshold_) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
-      //  //if(towerEtS<clusterThreshold_ && towerEtW<clusterThreshold_) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
-      //  //if(towerEtS<clusterThreshold_ && towerEtE<clusterThreshold_) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
-      //  // END IN_FIRMWARE
-      //  // NOT_IN_FIRMWARE
-      //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_NW, false);
-      //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_N) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_NE, false);
-      //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_W)) cluster.setClusterFlag(CaloCluster::INCLUDE_SW, false);
-      //  if(!cluster.checkClusterFlag(CaloCluster::INCLUDE_S) && !cluster.checkClusterFlag(CaloCluster::INCLUDE_E)) cluster.setClusterFlag(CaloCluster::INCLUDE_SE, false);
-      //  // END NOT_IN_FIRMWARE
-      //}
-
       // trim one eta-side
       // The side with largest energy will be kept
       int EtEtaRight = 0;
@@ -697,8 +746,12 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       if(cluster.checkClusterFlag(CaloCluster::INCLUDE_SW)) EtEtaLeft += towerEtSW;
 
       // favour most central part
-      if(iEta>0) cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight> EtEtaLeft) );
-      else       cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>=EtEtaLeft) );
+      /*if(iEta>0) cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight> EtEtaLeft) );
+	else       cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>=EtEtaLeft) );*/
+
+      //No iEta dependence in firmware
+      cluster.setClusterFlag(CaloCluster::TRIM_LEFT, (EtEtaRight>= EtEtaLeft) );
+
 
       if(cluster.checkClusterFlag(CaloCluster::TRIM_LEFT))
       {
@@ -753,11 +806,10 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       // according to the distribution of energy in the cluster
       int fgEta = 0;
       int fgPhi = 0;
-      if(EtEtaRight!=0 || EtEtaLeft!=0)
-      {
-        if(cluster.checkClusterFlag(CaloCluster::TRIM_LEFT)) fgEta = 2;
-        else fgEta = 1;
-      }
+      
+      if(EtEtaRight>EtEtaLeft) fgEta = 2;
+      else if(EtEtaLeft>EtEtaRight) fgEta = 1;
+
       int EtUp   = 0;
       if(cluster.checkClusterFlag(CaloCluster::INCLUDE_NE)) EtUp += towerEtNE;
       if(cluster.checkClusterFlag(CaloCluster::INCLUDE_N))  EtUp += towerEtN;

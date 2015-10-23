@@ -52,20 +52,20 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
       int32_t ringEx(0), ringEy(0), ringEt(0);
       
       for (int iphi=phiMin; iphi<=phiMax; iphi++) {
-	
-	l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
-	
-	ringEx += (int32_t) (tower.hwPt() * std::trunc ( 511. * cos ( 2 * M_PI * (72 - iphi) / 72.0 ) )) >> 9;
-	ringEy += (int32_t) (tower.hwPt() * std::trunc ( 511. * sin ( 2 * M_PI * iphi / 72.0 ) )) >> 9;
-	ringEt += tower.hwPt();
+      
+        l1t::CaloTower tower = l1t::CaloTools::getTower(towers, ieta, iphi);
+        
+        ringEx += (int32_t) (tower.hwPt() * std::trunc ( 511. * cos ( 2 * M_PI * (72 - (iphi-1)) / 72.0 ) )) >> 9;
+        ringEy += (int32_t) (tower.hwPt() * std::trunc ( 511. * sin ( 2 * M_PI * (iphi-1) / 72.0 ) )) >> 9;
+        ringEt += tower.hwPt();
 	
       }
       
       // At some point we will remove the bit shifts and will need to limit to the precision available in the firmware
       
-      ex += ( ringEx >> 2);
-      ey += ( ringEy >> 2);
-      et += ( ringEt >> 1);
+      ex += ringEx;
+      ey += ringEy;
+      et += ringEt;
       
     }
     
