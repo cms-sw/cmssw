@@ -30,7 +30,7 @@ def readtable(flook):
     for line in flook:
         s = line.split()
         if not s[7] in cols:
-            cols[s[7]] = next.next()
+            cols[s[7]] = next(next)
         s.append(cols[s[7]])
         tab[s[0]]=s
     return tab,cols

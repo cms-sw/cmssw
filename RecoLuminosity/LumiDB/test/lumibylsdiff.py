@@ -65,7 +65,7 @@ def getresultfromdb(schema,runnum):
         qCondition['runnum'].setData(runnum)
         qHandle.setCondition('RUNNUM=:runnum',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             lumils=cursor.currentRow()['LS'].data()
             cmsls=cursor.currentRow()['CMSLS'].data()
             beamstatus=cursor.currentRow()['BEAM_STATUS'].data()

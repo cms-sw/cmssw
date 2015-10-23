@@ -63,7 +63,7 @@ if __name__ == '__main__':
     lumiquery.setCondition('TIME>=:begintime AND TIME<=:endtime',qCondition)
     cursor=lumiquery.execute()
     result={}#{ordinalnumber:delivered}
-    while cursor.next():
+    while next(cursor):
         timeStr=cursor.currentRow()['timestr'].data()
         runTime=lute.StrToDatetime(timeStr,customfm='%m/%d/%y %H:%M:%S')
         delivered=cursor.currentRow()['DELIVERED'].data()

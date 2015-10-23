@@ -96,7 +96,7 @@ class  tagInventory(object):
             query.setCondition(condition,conditionbindDict)
             #duplicate=dbop.existRow(self.__tagInventoryTableName,condition,conditionbindDict)
             cursor=query.execute()
-            while( cursor.next() ):
+            while( next(cursor) ):
                 duplicate=True
                 tagid=cursor.currentRow()['tagid'].data()
                 cursor.close()
@@ -132,7 +132,7 @@ class  tagInventory(object):
             for columnName in self.__tagInventoryTableColumns:
                 query.addToOutputList(columnName)
             cursor=query.execute()
-            while cursor.next():
+            while next(cursor):
                 tagid=cursor.currentRow()['tagid'].data()
                 tagname=cursor.currentRow()['tagname'].data()
                 pfn=cursor.currentRow()['pfn'].data()
@@ -182,7 +182,7 @@ class  tagInventory(object):
             query = self.__session.nominalSchema().tableHandle(self.__tagInventoryTableName).newQuery()
             query.addToOutputList('pfn')
             cursor=query.execute()
-            while cursor.next():
+            while next(cursor):
                 pfn=cursor.currentRow()['pfn'].data()
                 allpfns.append(pfn)
             transaction.commit()
@@ -264,7 +264,7 @@ class  tagInventory(object):
             query.setCondition(condition,conditionData)
             cursor = query.execute()
             counter=0
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 if counter > 0 :
                     raise ValueError, "tagName "+tagName+" is not unique, please further specify parameter pfn"
                 counter+=1
@@ -298,7 +298,7 @@ class  tagInventory(object):
             conditionData['tagid'].setData(tagId)
             query.setCondition( condition, conditionData)
             cursor = query.execute()
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 #print 'got it'
                 leafnode.tagid=cursor.currentRow()['tagid'].data()
                 leafnode.tagname=cursor.currentRow()['tagname'].data()
@@ -324,7 +324,7 @@ class  tagInventory(object):
             for columnName in self.__tagInventoryTableColumns:
                 query.addToOutputList(columnName)    
             cursor = query.execute()
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 leafnode = Node.LeafNode()
                 leafnode.tagid=cursor.currentRow()['tagid'].data()
                 leafnode.tagname=cursor.currentRow()['tagname'].data()
@@ -354,7 +354,7 @@ class  tagInventory(object):
             query.addToOutputList(tagid)
             query.setCondition(condition,conditionBindData)
             cursor = query.execute()
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 tagid=cursor.currentRow()['tagid'].data()
                 ids.append(tagid)
             transaction.commit()
@@ -442,7 +442,7 @@ class  tagInventory(object):
             query.setForUpdate()
             cursor = query.execute()
             nextid=0
-            while cursor.next():
+            while next(cursor):
                 nextid=cursor.currentRow()[0].data()
             idEditor = self.__session.nominalSchema().tableHandle(self.__tagInventoryIDName).dataEditor()
             inputData = coral.AttributeList()

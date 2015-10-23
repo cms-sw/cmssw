@@ -37,7 +37,7 @@ def beamintensityForRun(dbsession,c,runnum):
         query.defineOutput(myOutput)
         cursor=query.execute()
         
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             bxindex=cursor.currentRow()['bxindexBlob'].data()
             beam1intensity=cursor.currentRow()['beam1intensityBlob'].data()
@@ -106,7 +106,7 @@ def detailForRun(dbsession,c,runnum,algos=['OCC1']):
         query.defineOutput(detailOutput)
         cursor=query.execute()
         
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             algoname=cursor.currentRow()['algoname'].data()
             bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
@@ -161,7 +161,7 @@ def detailForRunLumisummaryV2(dbsession,c,runnum):
         query.defineOutput(detailOutput)
         cursor=query.execute()
         
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
             a=array.array('f')

@@ -228,7 +228,7 @@ class SVG:
           self.iterators.append(self.__class__(s, self.ti + (k,), self.depth_limit))
         self.iterators = itertools.chain(*self.iterators)
 
-      return self.iterators.next()
+      return next(self.iterators)
   ### end nested class
 
   def depth_first(self, depth_limit=None):

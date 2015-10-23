@@ -36,7 +36,7 @@ def guesscorrIdByName(schema,tagname=None):
         if tagname:
             qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             dataid=cursor.currentRow()['DATA_ID'].data()
             lumicorrectionids.append(dataid)
     except :
@@ -70,7 +70,7 @@ def lumicorrById(schema,correctiondataid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('DATA_ID=:dataid',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             tagname=cursor.currentRow()['ENTRY_NAME'].data()
             a1=cursor.currentRow()['A1'].data()
             a2=0.0
@@ -126,7 +126,7 @@ def fillInRange(schema,fillmin,fillmax,amodetag,startT,stopT):
         qHandle.addToOutputList('RUNNUM','runnum')
         qHandle.addToOutputList('TO_CHAR('+r+'.STARTTIME,\'MM/DD/YY HH24:MI:SS\')','starttime')
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             currentfill=cursor.currentRow()['fillnum'].data()
             runnum=cursor.currentRow()['runnum'].data()
             starttimeStr=cursor.currentRow()['starttime'].data()
@@ -209,7 +209,7 @@ def fillrunMap(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=Non
         qHandle.addToOutputList('RUNNUM','runnum')
         qHandle.addToOutputList('TO_CHAR('+r+'.STARTTIME,\'MM/DD/YY HH24:MI:SS\')','starttime')
         cursor=qHandle.execute()        
-        while cursor.next():
+        while next(cursor):
             currentfill=cursor.currentRow()['fillnum'].data()
             starttimeStr=cursor.currentRow()['starttime'].data()
             runnum=cursor.currentRow()['runnum'].data()
@@ -363,7 +363,7 @@ def runList(schema,datatagid,runmin=None,runmax=None,fillmin=None,fillmax=None,s
         lumiid=0
         trgid=0
         hltid=0
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             if preselectedruns and runnum not in preselectedruns:
                 continue
@@ -456,7 +456,7 @@ def runsummary(schema,runnum,sessionflavor=''):
         #qResult.extend('stoptime','string')
         qHandle.defineOutput(qResult)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             result.append(cursor.currentRow()['l1key'].data())
             result.append(cursor.currentRow()['amodetag'].data())
             #result.append(cursor.currentRow()['egev'].data())
@@ -584,7 +584,7 @@ def luminormById(schema,dataid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('DATA_ID=:dataid',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             normname=cursor.currentRow()['normname'].data()
             amodetag=cursor.currentRow()['amodetag'].data()
             norm_1=cursor.currentRow()['norm_1'].data()
@@ -702,7 +702,7 @@ def luminormById(schema,dataid):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('DATA_ID=:dataid',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             normname=cursor.currentRow()['normname'].data()
             amodetag=cursor.currentRow()['amodetag'].data()
             norm_1=cursor.currentRow()['norm_1'].data()
@@ -767,7 +767,7 @@ def trgRunById(schema,dataid,trgbitname=None,trgbitnamepattern=None):
         cursor=qHandle.execute()
         bitnameclob=None
         bitnames=[]
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             source=cursor.currentRow()['source'].data()
             bitzeroname=cursor.currentRow()['bitzeroname'].data()
@@ -838,7 +838,7 @@ def trgLSById(schema,dataid,trgbitname=None,trgbitnamepattern=None,withL1Count=F
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             deadtimecount=cursor.currentRow()['deadtimecount'].data()
@@ -946,7 +946,7 @@ def beamstatusByIds(schema,dataidMap):
                 qHandle.defineOutput(qResult)
                 qHandle.setCondition(qConditionStr,qCondition)
                 cursor=qHandle.execute()
-                while cursor.next():
+                while next(cursor):
                     cmslsnum=cursor.currentRow()['CMSLSNUM'].data()
                     bs=cursor.currentRow()['BEAMSTATUS'].data()
                     if bs!='STABLE BEAMS':
@@ -997,7 +997,7 @@ def lumiRunById(schema,lumidataid,lumitype='HF'):
         cursor=qHandle.execute()
         lu=lumiTime.lumiTime()
         nls=0
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['RUNNUM'].data()
             datasource=cursor.currentRow()['SOURCE'].data()
             nominalegev=0
@@ -1072,7 +1072,7 @@ def allfillschemes(schema):
         qHandle.addToOutputList('FILLSCHEMEPATTERN')
         qHandle.addToOutputList('CORRECTIONFACTOR')
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             fillschemePattern=cursor.currentRow()['FILLSCHEMEPATTERN'].data()
             afterglowfac=cursor.currentRow()['CORRECTIONFACTOR'].data()
             afterglows.append((fillschemePattern,afterglowfac))
@@ -1149,7 +1149,7 @@ def lumiLSById(schema,dataid,beamstatus=None,withBXInfo=False,bxAlgo='OCC1',with
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             lumilsnum=cursor.currentRow()['lumilsnum'].data()
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
@@ -1210,7 +1210,7 @@ def beamInfoById(schema,dataid,withBeamIntensity=False,minIntensity=0.1):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             ncollidingbunches=cursor.currentRow()['NCOLLIDINGBUNCHES'].data()
     except :
         del qHandle
@@ -1245,7 +1245,7 @@ def beamInfoById(schema,dataid,withBeamIntensity=False,minIntensity=0.1):
        qHandle.defineOutput(qResult)
        qHandle.setCondition(qConditionStr,qCondition)
        cursor=qHandle.execute()
-       while cursor.next():
+       while next(cursor):
            runnum=cursor.currentRow()['RUNNUM'].data()
            cmslsnum=cursor.currentRow()['CMSLSNUM'].data()
            lumilsnum=cursor.currentRow()['LUMILSNUM'].data()
@@ -1311,7 +1311,7 @@ def lumiBXByAlgo(schema,dataid,algoname):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             lumilsnum=cursor.currentRow()['lumilsnum'].data()
             numorbit=cursor.currentRow()['numorbit'].data()
@@ -1363,7 +1363,7 @@ def hltRunById(schema,dataid,hltpathname=None,hltpathpattern=None):
         cursor=qHandle.execute()
         pathnameclob=None
         pathnames=[]
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             datasource=cursor.currentRow()['datasource'].data()
             npath=cursor.currentRow()['npath'].data()
@@ -1419,7 +1419,7 @@ def hlttrgMappingByrun(schema,runnum,hltpathname=None,hltpathpattern=None):
         queryResult.extend('l1seed','string')
         queryHandle.defineOutput(queryResult)
         cursor=queryHandle.execute()
-        while cursor.next():
+        while next(cursor):
             pname=cursor.currentRow()['pname'].data()
             l1seed=cursor.currentRow()['l1seed'].data()
             if hltpathname not in result:
@@ -1477,7 +1477,7 @@ def hltLSById(schema,dataid,hltpathname=None,hltpathpattern=None,withL1Pass=Fals
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['runnum'].data()
             cmslsnum=cursor.currentRow()['cmslsnum'].data()
             prescaleblob=None
@@ -1559,7 +1559,7 @@ def intglumiForRange(schema,runlist):
         qHandle.setCondition(qConditionStr,qCondition)
         qHandle.defineOutput(qResult)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['RUNNUM'].data()
             intglumi=cursor.currentRow()['INTGLUMI'].data()
             result[runnum]=intglumi
@@ -1589,7 +1589,7 @@ def fillschemePatternMap(schema,lumitype):
         qHandle.addToOutputList('FILLSCHEMEPATTERN')
         qHandle.addToOutputList(correctorField)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             fillschemePattern=cursor.currentRow()['FILLSCHEMEPATTERN'].data()
             afterglowfac=cursor.currentRow()['CORRECTIONFACTOR'].data()
             result[fillschemePattern]=afterglowfac
@@ -1636,7 +1636,7 @@ def guessDataIdByRun(schema,runnum,tablename,revfilter=None):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             dataid=cursor.currentRow()['DATA_ID'].data()
             ids.append(dataid)
     except :
@@ -1682,7 +1682,7 @@ def guessDataIdForRange(schema,inputRange,tablename):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             dataid=cursor.currentRow()['DATA_ID'].data()
             runnum=cursor.currentRow()['RUNNUM'].data()
             if runnum in result:
@@ -1761,7 +1761,7 @@ def guessnormIdByContext(schema,amodetag,egev1):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             normdataid=cursor.currentRow()['normdataid'].data()
             luminormids.append(normdataid)
     except :
@@ -1791,7 +1791,7 @@ def guessnormIdByName(schema,normname):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             normdataid=cursor.currentRow()['normdataid'].data()
             luminormids.append(normdataid)
     except :
@@ -1830,7 +1830,7 @@ def dataentryIdByRun(schema,runnum,branchfilter):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             lumientryid=cursor.currentRow()['lumientryid'].data()
             trgentryid=cursor.currentRow()['trgentryid'].data()
             hltentryid=cursor.currentRow()['hltentryid'].data()
@@ -1874,7 +1874,7 @@ def latestdataIdByEntry(schema,entryid,datatype,branchfilter):
         qHandle.defineOutput(qResult)
         qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             dataid=cursor.currentRow()['dataid'].data()
             revisionid=cursor.currentRow()['revisionid'].data()
             if revisionid in branchfilter:
@@ -2110,7 +2110,7 @@ def insertTrgHltMap(schema,hltkey,trghltmap):
         kQuery.setCondition('HLTKEY=:hltkey',kQueryBindList)
         kQueryBindList['hltkey'].setData(hltkey)
         kResult=kQuery.execute()
-        while kResult.next():
+        while next(kResult):
             hltkeyExists=True
         if not hltkeyExists:
             bulkvalues=[]   
