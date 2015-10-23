@@ -448,7 +448,7 @@ class PFRecHitQTestES : public PFRecHitQTestBase {
   bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean){
 
     if ( rh.energy() < thresholdCleaning_ ) {
-      clean=true;
+      clean=false;
       return false;
     }
     
