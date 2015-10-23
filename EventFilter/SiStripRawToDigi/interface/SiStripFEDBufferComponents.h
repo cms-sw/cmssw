@@ -54,9 +54,19 @@ namespace sistrip {
                         READOUT_MODE_PREMIX_RAW=0xF
                       };
 
+  enum FEDLegacyReadoutMode { READOUT_MODE_VIRGIN_RAW_REAL=0x2,
+                              READOUT_MODE_VIRGIN_RAW_FAKE=0x3,
+                              READOUT_MODE_PROC_RAW_REAL=0x6,
+                              READOUT_MODE_PROC_RAW_FAKE=0x7,
+                              READOUT_MODE_ZERO_SUPPRESSED_REAL=0xA,
+                              READOUT_MODE_ZERO_SUPPRESSED_FAKE=0xB,
+                              READOUT_MODE_ZERO_SUPPRESSED_LITE_REAL=0xC,
+                              READOUT_MODE_ZERO_SUPPRESSED_LITE_FAKE=0xD
+                            };
+
   static const uint8_t PACKET_CODE_SCOPE = 0xE1;
   static const uint8_t PACKET_CODE_VIRGIN_RAW = 0xE6;
-  static const uint8_t PACKET_CODE_VIRGIN_RAW10 = 0x86; //FIXME need to implement this!
+  static const uint8_t PACKET_CODE_VIRGIN_RAW10 = 0x86; 
   static const uint8_t PACKET_CODE_VIRGIN_RAW8_BOTBOT = 0xC6; //FIXME need to implement this!
   static const uint8_t PACKET_CODE_VIRGIN_RAW8_TOPBOT = 0xA6;
   static const uint8_t PACKET_CODE_PROC_RAW = 0xF2;
@@ -276,7 +286,7 @@ namespace sistrip {
       uint8_t headerTypeNibble() const;
       FEDHeaderType headerType() const;
       uint8_t trackerEventTypeNibble() const;
-      FEDReadoutMode readoutMode() const;
+      FEDReadoutMode readoutMode(bool legacy=false) const;
       uint8_t apveAddress() const;
       uint8_t apvAddressErrorRegister() const;
       bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
@@ -571,8 +581,8 @@ namespace sistrip {
       //methods to get info from the tracker special header
       FEDBufferFormat bufferFormat() const;
       FEDHeaderType headerType() const;
-      FEDReadoutMode readoutMode() const;
-      uint8_t packetCode(const uint8_t internalFEDChannelNum=0) const;
+      FEDReadoutMode readoutMode(bool legacy=false) const;
+      uint8_t packetCode(bool legacy=false, const uint8_t internalFEDChannelNum=0) const;
       uint8_t apveAddress() const;
       bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
       bool feEnabled(const uint8_t internalFEUnitNum) const;
@@ -1423,40 +1433,68 @@ namespace sistrip {
       return specialHeader_.headerType();
     }
   
-  inline FEDReadoutMode FEDBufferBase::readoutMode() const
+  inline FEDReadoutMode FEDBufferBase::readoutMode(bool legacy) const
     {
-      return specialHeader_.readoutMode();
+      return specialHeader_.readoutMode(legacy);
     }
 
-  inline uint8_t FEDBufferBase::packetCode(const uint8_t internalFEDChannelNum) const
+  inline uint8_t FEDBufferBase::packetCode(bool legacy, const uint8_t internalFEDChannelNum) const
     {
-      switch(readoutMode()) {
-      case READOUT_MODE_SCOPE:
-        return PACKET_CODE_SCOPE;
-      case READOUT_MODE_VIRGIN_RAW:
-        return channel(internalFEDChannelNum).packetCode();
-      case READOUT_MODE_PROC_RAW:
-        return PACKET_CODE_PROC_RAW;
-      case READOUT_MODE_ZERO_SUPPRESSED:
-      //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-        return PACKET_CODE_ZERO_SUPPRESSED;
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-        return PACKET_CODE_ZERO_SUPPRESSED_LITE10;
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-        return PACKET_CODE_ZERO_SUPPRESSED_LITE8;
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-        return PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-        return PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
-      case READOUT_MODE_PREMIX_RAW:
-      case READOUT_MODE_SPY:
-      case READOUT_MODE_INVALID:
-      default:
-        return 0;
+      FEDReadoutMode mode = readoutMode(legacy);
+      if (legacy) {
+        switch(mode) {
+        case READOUT_MODE_SCOPE:
+          return PACKET_CODE_SCOPE;
+        case READOUT_MODE_PREMIX_RAW:
+        case READOUT_MODE_SPY:
+        case READOUT_MODE_INVALID:
+        default:
+          return 0;
+        }
+        switch((FEDLegacyReadoutMode)mode) {
+        case READOUT_MODE_VIRGIN_RAW_REAL:
+        case READOUT_MODE_VIRGIN_RAW_FAKE:
+          return PACKET_CODE_VIRGIN_RAW;
+        case READOUT_MODE_PROC_RAW_REAL:
+        case READOUT_MODE_PROC_RAW_FAKE:
+          return PACKET_CODE_PROC_RAW;
+        case READOUT_MODE_ZERO_SUPPRESSED_REAL:
+        case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+          return PACKET_CODE_ZERO_SUPPRESSED;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE_REAL:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE_FAKE:
+        default:
+          return 0;
+        }
+      } else {
+        switch(mode) {
+        case READOUT_MODE_SCOPE:
+          return PACKET_CODE_SCOPE;
+        case READOUT_MODE_VIRGIN_RAW:
+          return channel(internalFEDChannelNum).packetCode();
+        case READOUT_MODE_PROC_RAW:
+          return PACKET_CODE_PROC_RAW;
+        case READOUT_MODE_ZERO_SUPPRESSED:
+        //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+          return PACKET_CODE_ZERO_SUPPRESSED;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+          return PACKET_CODE_ZERO_SUPPRESSED_LITE10;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+          return PACKET_CODE_ZERO_SUPPRESSED_LITE8;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+          return PACKET_CODE_ZERO_SUPPRESSED_LITE8_BOTBOT;
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+          return PACKET_CODE_ZERO_SUPPRESSED_LITE8_TOPBOT;
+        case READOUT_MODE_PREMIX_RAW:
+        case READOUT_MODE_SPY:
+        case READOUT_MODE_INVALID:
+        default:
+          return 0;
+        }
       }
     }
   

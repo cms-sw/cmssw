@@ -657,7 +657,7 @@ namespace sistrip {
     else return HEADER_TYPE_INVALID;
   }
 
-  FEDReadoutMode TrackerSpecialHeader::readoutMode() const
+  FEDReadoutMode TrackerSpecialHeader::readoutMode(bool legacy) const
   {
     const uint8_t eventTypeNibble = trackerEventTypeNibble();
     //if it is scope mode then return as is (it cannot be fake data)
@@ -667,23 +667,39 @@ namespace sistrip {
     //if not then ignore the last bit which indicates if it is real or fake
     else {
       const uint8_t mode = (eventTypeNibble & 0xF); //LoicQ:  Was 0xE but I don't think it make sense anymore and it is actually causing problems with READOUT_MODE_ZERO_SUPPRESSED_LITE10
-      switch(mode) {
-      case READOUT_MODE_VIRGIN_RAW:
-      case READOUT_MODE_PROC_RAW:
-      case READOUT_MODE_ZERO_SUPPRESSED:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-      //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-      case READOUT_MODE_SPY:
-	return FEDReadoutMode(mode);
-      default:
-	return READOUT_MODE_INVALID;
+      if (legacy) {
+        switch(mode) {
+        case READOUT_MODE_VIRGIN_RAW_REAL:
+        case READOUT_MODE_VIRGIN_RAW_FAKE:
+        case READOUT_MODE_PROC_RAW_REAL:
+        case READOUT_MODE_PROC_RAW_FAKE:
+        case READOUT_MODE_ZERO_SUPPRESSED_REAL:
+        case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE_REAL:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE_FAKE:
+          return FEDReadoutMode(mode);
+        default:
+          return READOUT_MODE_INVALID;
+        }
+      } else {
+        switch(mode) {
+        case READOUT_MODE_VIRGIN_RAW:
+        case READOUT_MODE_PROC_RAW:
+        case READOUT_MODE_ZERO_SUPPRESSED:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+        //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+        case READOUT_MODE_SPY:
+          return FEDReadoutMode(mode);
+        default:
+          return READOUT_MODE_INVALID;
+        }
       }
     }   
   }

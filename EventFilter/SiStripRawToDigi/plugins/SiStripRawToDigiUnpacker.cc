@@ -72,7 +72,7 @@ namespace sistrip {
     zs_work_digis_.reserve(localRA.upper());
     // Reserve space in bad module list
     detids.reserve(100);
-  
+ 
     // Check if FEDs found in cabling map and event data
     if ( edm::isDebugEnabled() ) {
       if ( cabling.fedIds().empty() ) {
@@ -104,7 +104,7 @@ namespace sistrip {
 
       // ignore trigger FED
       if ( *ifed == triggerFedId_ ) { continue;  }
-    
+
       // Retrieve FED raw data for given FED 
       const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
     
@@ -139,7 +139,7 @@ namespace sistrip {
       
       // get the cabling connections for this FED
       auto conns = cabling.fedConnections(*ifed);
-    
+
       // Check on FEDRawData pointer
       if ( !input.data() ) {
 	if ( edm::isDebugEnabled() ) {
@@ -157,7 +157,7 @@ namespace sistrip {
         }
 	continue;
       }	
-    
+
       // Check on FEDRawData size
       if ( !input.size() ) {
 	if ( edm::isDebugEnabled() ) {
@@ -180,6 +180,7 @@ namespace sistrip {
       std::auto_ptr<sistrip::FEDBuffer> buffer;
       try {
         buffer.reset(new sistrip::FEDBuffer(input.data(),input.size()));
+        buffer->setLegacyMode(legacy_);
         if (!buffer->doChecks()) {
           if (!unpackBadChannels_ || !buffer->checkNoFEOverflows() )
             throw cms::Exception("FEDBuffer") << "FED Buffer check fails for FED ID " << *ifed << ".";
@@ -253,7 +254,7 @@ namespace sistrip {
         
         // Check DetId is valid (if to be used as key)
 	if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
-      
+
 	// Check FED channel
 	if (!buffer->channelGood(iconn->fedCh(),doAPVEmulatorCheck_)) {
           if (!unpackBadChannels_ || !(buffer->fePresent(iconn->fedCh()/FEDCH_PER_FEUNIT) && buffer->feEnabled(iconn->fedCh()/FEDCH_PER_FEUNIT)) ) {
@@ -272,7 +273,6 @@ namespace sistrip {
 	uint16_t ipair = ( useFedKey_ || mode == sistrip::READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
 
 //std::cout << "fed key: " << fed_key << " key: " << key << " pair: "<< ipair << std::endl;
-
 	if (mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED /*|| mode == sistrip::READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE*/) { 
 	
 	  Registry regItem(key, 0, zs_work_digis_.size(), 0);

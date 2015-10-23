@@ -63,6 +63,8 @@ namespace sistrip {
 
     inline void doAPVEmulatorCheck( bool );
 
+    inline void legacy( bool );
+
   private:
     
     /// fill DetSetVectors using registries
@@ -128,6 +130,7 @@ namespace sistrip {
     bool extractCm_;    
     bool doFullCorruptBufferChecks_;
     bool doAPVEmulatorCheck_;
+    bool legacy_;
     uint32_t errorThreshold_;
     
     /// registries
@@ -179,6 +182,8 @@ void sistrip::RawToDigiUnpacker::extractCm( bool extract_cm ) { extractCm_ = ext
 void sistrip::RawToDigiUnpacker::doFullCorruptBufferChecks( bool do_full_corrupt_buffer_checks ) { doFullCorruptBufferChecks_ = do_full_corrupt_buffer_checks; }
 
 void sistrip::RawToDigiUnpacker::doAPVEmulatorCheck( bool do_APVEmulator_check) { doAPVEmulatorCheck_ = do_APVEmulator_check; }
+
+void sistrip::RawToDigiUnpacker::legacy( bool legacy ) { legacy_ = legacy; }
 
 #endif // EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 

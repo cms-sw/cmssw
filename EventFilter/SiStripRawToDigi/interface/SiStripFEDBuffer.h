@@ -38,6 +38,7 @@ namespace sistrip {
       bool fePresent(uint8_t internalFEUnitNum) const;
       //check that a channel is present in data, found, on a good FE unit and has no errors flagged in status bits
       virtual bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck=true) const;
+      void setLegacyMode(bool legacy) { legacyUnpacker_ = legacy;}
 
       //functions to check buffer. All return true if there is no problem.
       //minimum checks to do before using buffer
@@ -72,13 +73,14 @@ namespace sistrip {
     private:
       uint8_t nFEUnitsPresent() const;
       void findChannels();
-      inline uint8_t getCorrectPacketCode() const { return packetCode(); }
+      inline uint8_t getCorrectPacketCode() const { return packetCode(legacyUnpacker_); }
       uint16_t calculateFEUnitLength(const uint8_t internalFEUnitNumber) const;
       std::auto_ptr<FEDFEHeader> feHeader_;
       const uint8_t* payloadPointer_;
       uint16_t payloadLength_;
       uint8_t validChannels_;
       bool fePresent_[FEUNITS_PER_FED];
+      bool legacyUnpacker_;
     };
 
   //class for unpacking data from ZS FED channels
