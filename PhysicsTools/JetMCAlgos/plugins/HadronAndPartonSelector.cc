@@ -91,6 +91,7 @@ class HadronAndPartonSelector : public edm::stream::EDProducer<> {
       const edm::EDGetTokenT<reco::GenParticleCollection> particlesToken_;  // Input GenParticle collection
 
       std::string         partonMode_; // Parton selection mode
+      bool                partonSelectorSet_;
       PartonSelectorPtr   partonSelector_;
 };
 
@@ -114,6 +115,9 @@ HadronAndPartonSelector::HadronAndPartonSelector(const edm::ParameterSet& iConfi
    produces<reco::GenParticleRefVector>( "algorithmicPartons" );
    produces<reco::GenParticleRefVector>( "physicsPartons" );
    produces<reco::GenParticleRefVector>( "leptons" );
+
+   partonSelectorSet_=false;
+   partonSelector_=nullptr;
 }
 
 
@@ -161,7 +165,7 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    }
 
    // set the parton selection mode (done only once per job)
-   if( !partonSelector_ )
+   if( !partonSelectorSet_ )
    {
      if ( partonMode_=="Undefined" )
        edm::LogWarning("UndefinedPartonMode") << "Could not automatically determine the hadronizer type and set the correct parton selection mode. Parton-based jet flavour will not be defined.";
@@ -192,6 +196,8 @@ HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      }
      else
        throw cms::Exception("InvalidPartonMode") <<"Parton selection mode is invalid: " << partonMode_ << ", use Auto | Pythia6 | Pythia8 | Herwig6 | Herwig++ | Sherpa" << std::endl;
+
+     partonSelectorSet_=true;
    }
 
    edm::Handle<reco::GenParticleCollection> particles;
