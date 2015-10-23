@@ -130,6 +130,31 @@ namespace sistrip {
     return os;
   }
 
+  std::ostream& operator<<(std::ostream& os, const FEDLegacyReadoutMode& value)
+  {
+    switch (value) {
+    case READOUT_MODE_LEGACY_SCOPE:                     os << "(L) Scope mode"; break;
+    case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:           os << "(L) Virgin raw (real)"; break;
+    case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:           os << "(L) Virgin raw (fake)"; break;
+    case READOUT_MODE_LEGACY_PROC_RAW_REAL:             os << "(L) Processed raw (real)"; break;
+    case READOUT_MODE_LEGACY_PROC_RAW_FAKE:             os << "(L) Processed raw (fake)"; break;
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:      os << "(L) Zero suppressed (real)"; break;
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:      os << "(L) Zero suppressed (fake)"; break;
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL: os << "(L) Zero suppressed lite (real)"; break;
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE: os << "(L) Zero suppressed lite (fake)"; break;
+    case READOUT_MODE_LEGACY_SPY:                       os << "(L) Spy channel"; break;
+    case READOUT_MODE_LEGACY_PREMIX_RAW:                os << "(L) PreMix raw"; break;
+    case READOUT_MODE_LEGACY_INVALID:                   os << "(L) Invalid"; break;
+    default:
+      os << "(L) Unrecognized";
+      os << " (";
+      printHexValue(value,os);
+      os << ")";
+      break;
+    }
+    return os;
+  }
+
   std::ostream& operator<<(std::ostream& os, const FEDReadoutMode& value)
   {
     switch (value) {
@@ -657,7 +682,26 @@ namespace sistrip {
     else return HEADER_TYPE_INVALID;
   }
 
-  FEDReadoutMode TrackerSpecialHeader::readoutMode(bool legacy) const
+  FEDLegacyReadoutMode TrackerSpecialHeader::legacyReadoutMode() const
+  {
+    const uint8_t eventTypeNibble = trackerEventTypeNibble();
+    const uint8_t mode = (eventTypeNibble & 0xF);
+    switch(mode) {
+    case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:
+    case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:
+    case READOUT_MODE_LEGACY_PROC_RAW_REAL:
+    case READOUT_MODE_LEGACY_PROC_RAW_FAKE:
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
+    case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
+      return FEDLegacyReadoutMode(mode);
+    default:
+      return READOUT_MODE_LEGACY_INVALID;
+    }
+  }
+
+  FEDReadoutMode TrackerSpecialHeader::readoutMode() const
   {
     const uint8_t eventTypeNibble = trackerEventTypeNibble();
     //if it is scope mode then return as is (it cannot be fake data)
@@ -666,43 +710,27 @@ namespace sistrip {
     if (eventTypeNibble == READOUT_MODE_PREMIX_RAW) return FEDReadoutMode(eventTypeNibble);
     //if not then ignore the last bit which indicates if it is real or fake
     else {
-      const uint8_t mode = (eventTypeNibble & 0xF); //LoicQ:  Was 0xE but I don't think it make sense anymore and it is actually causing problems with READOUT_MODE_ZERO_SUPPRESSED_LITE10
-      if (legacy) {
-        switch(mode) {
-        case READOUT_MODE_VIRGIN_RAW_REAL:
-        case READOUT_MODE_VIRGIN_RAW_FAKE:
-        case READOUT_MODE_PROC_RAW_REAL:
-        case READOUT_MODE_PROC_RAW_FAKE:
-        case READOUT_MODE_ZERO_SUPPRESSED_REAL:
-        case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE_REAL:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE_FAKE:
-          return FEDReadoutMode(mode);
-        default:
-          return READOUT_MODE_INVALID;
-        }
-      } else {
-        switch(mode) {
-        case READOUT_MODE_VIRGIN_RAW:
-        case READOUT_MODE_PROC_RAW:
-        case READOUT_MODE_ZERO_SUPPRESSED:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
-        //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
-        case READOUT_MODE_SPY:
-          return FEDReadoutMode(mode);
-        default:
-          return READOUT_MODE_INVALID;
-        }
+      const uint8_t mode = (eventTypeNibble & 0xF);
+      switch(mode) {
+      case READOUT_MODE_VIRGIN_RAW:
+      case READOUT_MODE_PROC_RAW:
+      case READOUT_MODE_ZERO_SUPPRESSED:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10:
+      //case READOUT_MODE_ZERO_SUPPRESSED_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE10_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_TOPBOT_CMOVERRIDE:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT:
+      case READOUT_MODE_ZERO_SUPPRESSED_LITE8_BOTBOT_CMOVERRIDE:
+      case READOUT_MODE_SPY:
+        return FEDReadoutMode(mode);
+      default:
+        return READOUT_MODE_INVALID;
       }
-    }   
-  }
+    }
+  }   
 
   TrackerSpecialHeader& TrackerSpecialHeader::setBufferFormat(const FEDBufferFormat newBufferFormat)
   {

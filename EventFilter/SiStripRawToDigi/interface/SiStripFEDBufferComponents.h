@@ -54,14 +54,18 @@ namespace sistrip {
                         READOUT_MODE_PREMIX_RAW=0xF
                       };
 
-  enum FEDLegacyReadoutMode { READOUT_MODE_VIRGIN_RAW_REAL=0x2,
-                              READOUT_MODE_VIRGIN_RAW_FAKE=0x3,
-                              READOUT_MODE_PROC_RAW_REAL=0x6,
-                              READOUT_MODE_PROC_RAW_FAKE=0x7,
-                              READOUT_MODE_ZERO_SUPPRESSED_REAL=0xA,
-                              READOUT_MODE_ZERO_SUPPRESSED_FAKE=0xB,
-                              READOUT_MODE_ZERO_SUPPRESSED_LITE_REAL=0xC,
-                              READOUT_MODE_ZERO_SUPPRESSED_LITE_FAKE=0xD
+  enum FEDLegacyReadoutMode { READOUT_MODE_LEGACY_INVALID=INVALID,
+                              READOUT_MODE_LEGACY_SCOPE=0x1,
+                              READOUT_MODE_LEGACY_VIRGIN_RAW_REAL=0x2,
+                              READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE=0x3,
+                              READOUT_MODE_LEGACY_PROC_RAW_REAL=0x6,
+                              READOUT_MODE_LEGACY_PROC_RAW_FAKE=0x7,
+                              READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL=0xA,
+                              READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE=0xB,
+                              READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL=0xC,
+                              READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE=0xD,
+                              READOUT_MODE_LEGACY_SPY=0xE,
+                              READOUT_MODE_LEGACY_PREMIX_RAW=0xF
                             };
 
   static const uint8_t PACKET_CODE_SCOPE = 0xE1;
@@ -136,6 +140,7 @@ namespace sistrip {
   //to make enums printable
   std::ostream& operator<<(std::ostream& os, const FEDBufferFormat& value);
   std::ostream& operator<<(std::ostream& os, const FEDHeaderType& value);
+  std::ostream& operator<<(std::ostream& os, const FEDLegacyReadoutMode& value);
   std::ostream& operator<<(std::ostream& os, const FEDReadoutMode& value);
   std::ostream& operator<<(std::ostream& os, const FEDDAQEventType& value);
   std::ostream& operator<<(std::ostream& os, const FEDTTSBits& value);
@@ -144,6 +149,7 @@ namespace sistrip {
   //convert name of an element of enum to enum value (useful for getting values from config)
   FEDBufferFormat fedBufferFormatFromString(const std::string& bufferFormatString);
   FEDHeaderType fedHeaderTypeFromString(const std::string& headerTypeString);
+  //FEDLegacyReadoutMode fedLegacyReadoutModeFromString(const std::string& readoutModeString); //FIXME to be introduced
   FEDReadoutMode fedReadoutModeFromString(const std::string& readoutModeString);
   FEDDAQEventType fedDAQEventTypeFromString(const std::string& daqEventTypeString);
 
@@ -286,7 +292,8 @@ namespace sistrip {
       uint8_t headerTypeNibble() const;
       FEDHeaderType headerType() const;
       uint8_t trackerEventTypeNibble() const;
-      FEDReadoutMode readoutMode(bool legacy=false) const;
+      FEDReadoutMode readoutMode() const;
+      FEDLegacyReadoutMode legacyReadoutMode() const;
       uint8_t apveAddress() const;
       uint8_t apvAddressErrorRegister() const;
       bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
@@ -581,7 +588,8 @@ namespace sistrip {
       //methods to get info from the tracker special header
       FEDBufferFormat bufferFormat() const;
       FEDHeaderType headerType() const;
-      FEDReadoutMode readoutMode(bool legacy=false) const;
+      FEDLegacyReadoutMode legacyReadoutMode() const;
+      FEDReadoutMode readoutMode() const;
       uint8_t packetCode(bool legacy=false, const uint8_t internalFEDChannelNum=0) const;
       uint8_t apveAddress() const;
       bool majorityAddressErrorForFEUnit(const uint8_t internalFEUnitNum) const;
@@ -1433,40 +1441,42 @@ namespace sistrip {
       return specialHeader_.headerType();
     }
   
-  inline FEDReadoutMode FEDBufferBase::readoutMode(bool legacy) const
+  inline FEDLegacyReadoutMode FEDBufferBase::legacyReadoutMode() const
     {
-      return specialHeader_.readoutMode(legacy);
+      return specialHeader_.legacyReadoutMode();
+    }
+
+  inline FEDReadoutMode FEDBufferBase::readoutMode() const
+    {
+      return specialHeader_.readoutMode();
     }
 
   inline uint8_t FEDBufferBase::packetCode(bool legacy, const uint8_t internalFEDChannelNum) const
     {
-      FEDReadoutMode mode = readoutMode(legacy);
       if (legacy) {
+        FEDLegacyReadoutMode mode = legacyReadoutMode();
         switch(mode) {
-        case READOUT_MODE_SCOPE:
+        case READOUT_MODE_LEGACY_SCOPE:
           return PACKET_CODE_SCOPE;
-        case READOUT_MODE_PREMIX_RAW:
-        case READOUT_MODE_SPY:
-        case READOUT_MODE_INVALID:
-        default:
-          return 0;
-        }
-        switch((FEDLegacyReadoutMode)mode) {
-        case READOUT_MODE_VIRGIN_RAW_REAL:
-        case READOUT_MODE_VIRGIN_RAW_FAKE:
+        case READOUT_MODE_LEGACY_VIRGIN_RAW_REAL:
+        case READOUT_MODE_LEGACY_VIRGIN_RAW_FAKE:
           return PACKET_CODE_VIRGIN_RAW;
-        case READOUT_MODE_PROC_RAW_REAL:
-        case READOUT_MODE_PROC_RAW_FAKE:
+        case READOUT_MODE_LEGACY_PROC_RAW_REAL:
+        case READOUT_MODE_LEGACY_PROC_RAW_FAKE:
           return PACKET_CODE_PROC_RAW;
-        case READOUT_MODE_ZERO_SUPPRESSED_REAL:
-        case READOUT_MODE_ZERO_SUPPRESSED_FAKE:
+        case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_REAL:
+        case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_FAKE:
           return PACKET_CODE_ZERO_SUPPRESSED;
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE_REAL:
-        case READOUT_MODE_ZERO_SUPPRESSED_LITE_FAKE:
+        case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_REAL:
+        case READOUT_MODE_LEGACY_ZERO_SUPPRESSED_LITE_FAKE:
+        case READOUT_MODE_LEGACY_PREMIX_RAW:
+        case READOUT_MODE_LEGACY_SPY:
+        case READOUT_MODE_LEGACY_INVALID:
         default:
           return 0;
         }
       } else {
+        FEDReadoutMode mode = readoutMode();
         switch(mode) {
         case READOUT_MODE_SCOPE:
           return PACKET_CODE_SCOPE;
