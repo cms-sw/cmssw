@@ -229,7 +229,7 @@ namespace sistrip {
       /// extract readout mode
       sistrip::FEDReadoutMode mode = buffer->readoutMode();
       sistrip::FEDLegacyReadoutMode lmode = (legacy_) ? buffer->legacyReadoutMode() : sistrip::READOUT_MODE_LEGACY_INVALID;
-std::cout << "readout mode: standard: " << mode << ", legacy: " << lmode << std::endl;
+//std::cout << "readout mode: standard: " << mode << ", legacy: " << lmode << std::endl;
 
       // Retrive run type
       sistrip::RunType runType_ = summary.runType();

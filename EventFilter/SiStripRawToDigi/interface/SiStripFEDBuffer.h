@@ -248,12 +248,12 @@ namespace sistrip {
 
   inline uint16_t FEDBSChannelUnpacker::adc() const
     {
-      size_t bits_missing = bitOffsetIncrement_-8+currentLocalBitOffset_;
+      size_t bits_missing = (bitOffsetIncrement_-8)+currentLocalBitOffset_;
       uint16_t adc = (data_[currentWordOffset_^7]<<bits_missing);
       if (currentWordOffset_>oldWordOffset_) {
         adc += ( (data_[(currentWordOffset_+1)^7]>>(8-bits_missing)) );
       }
-      return adc;
+      return (adc&((1<<bitOffsetIncrement_)-1));
     }
 
   inline bool FEDBSChannelUnpacker::hasData() const
