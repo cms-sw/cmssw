@@ -444,7 +444,7 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
       HcalDetId hid(id);
       
       //      if ( id.subdetId()==2 && hid.ietaAbs()<16 ) edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << std::endl;
-      if ( htopoP->validHcal(hid) ) edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << std::endl;
+      if ( !htopoP->validHcal(hid) ) edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << std::endl;
       else
 	hcalHits.push_back(hcalHitsOrig[i]);
     }
