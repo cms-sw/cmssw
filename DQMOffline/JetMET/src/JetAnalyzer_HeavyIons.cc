@@ -1,10 +1,10 @@
 //
 // Jet Analyzer class for heavy ion jets. for DQM jet analysis monitoring 
 // For CMSSW_7_4_X, especially reading background subtracted jets 
-// author: Raghav Kunnawalkam Elayavalli,
+// author: Raghav Kunnawalkam Elayavalli, Mohammed Zakaria
 //         Jan 12th 2015 
 //         Rutgers University, email: raghav.k.e at CERN dot CH 
-//
+//         UIC, email: mzakaria @ CERN dot CH
 
 
 #include "DQMOffline/JetMET/interface/JetAnalyzer_HeavyIons.h"
