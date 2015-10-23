@@ -38,7 +38,7 @@ def group(iterator, count):
     """
     itr = iter(iterator)
     while True:
-        yield tuple([itr.next() for i in xrange(count)])
+        yield tuple([next(itr) for i in xrange(count)])
 
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __doc__ = """A set of simple helper methods to handle simple tasks with CASTOR.

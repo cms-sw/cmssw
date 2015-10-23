@@ -1819,7 +1819,7 @@ class PlotterFolder:
             yield self._plotFolder.getSelectionName(name, dqmSubFolder.translated if dqmSubFolder is not None else None)
 
     def getSelectionName(self, dqmSubFolder):
-        return self.getSelectionNameIterator(dqmSubFolder).next()
+        return next(self.getSelectionNameIterator(dqmSubFolder))
 
     def create(self, files, labels, dqmSubFolder, isPileupSample=True, requireAllHistograms=False):
         """Create histograms from a list of TFiles.

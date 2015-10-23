@@ -17,7 +17,7 @@ class DBImpl(object):
             query.setCondition(condition,conditionbindDict)
             cursor = query.execute()
             result=False
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result=True
                 cursor.close()
             del query

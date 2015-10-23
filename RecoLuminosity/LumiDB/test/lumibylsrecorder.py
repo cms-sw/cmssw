@@ -22,7 +22,7 @@ def getrunsInResult(schema,minrun=132440,maxrun=500000):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('RUNNUM>=:minrun AND RUNNUM<=:maxrun',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['RUNNUM'].data()
             result.append(runnum)
         del qHandle
@@ -55,7 +55,7 @@ def getrunsInCurrentData(schema,minrun=132440,maxrun=500000):
         qHandle.defineOutput(qResult)
         qHandle.setCondition('RUNNUM>=:minrun AND RUNNUM<=:maxrun',qCondition)
         cursor=qHandle.execute()
-        while cursor.next():
+        while next(cursor):
             runnum=cursor.currentRow()['RUNNUM'].data()
             tagid=cursor.currentRow()['TAGID'].data()
             if runnum not in tmpresult:

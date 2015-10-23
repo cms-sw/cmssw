@@ -211,7 +211,7 @@ class tagTree(object):
             query = schema.tableHandle(self.__tagTreeTableName).newQuery()
             query.addToOutputList('nodelabel')
             cursor = query.execute()
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 nodelabel=cursor.currentRow()['nodelabel'].data()
                 if nodelabel in nodenamemap:
                     allnodes[nodelabel]=nodenamemap[nodelabel]
@@ -257,7 +257,7 @@ class tagTree(object):
             conditionData['nodeid'].setData(nodeid)
             query.setCondition( condition, conditionData)
             cursor = query.execute()
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result.tagid=cursor.currentRow()['tagid'].data()
                 result.nodeid=cursor.currentRow()['nodeid'].data()
                 result.nodelabel=cursor.currentRow()['nodelabel'].data()
@@ -294,7 +294,7 @@ class tagTree(object):
             query.setCondition( condition, conditionData)
             conditionData['nodelabel'].setData(label)
             cursor = query.execute()
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 result.tagid=cursor.currentRow()['tagid'].data()
                 result.nodeid=cursor.currentRow()['nodeid'].data()
                 result.nodelabel=cursor.currentRow()['nodelabel'].data()
@@ -339,7 +339,7 @@ class tagTree(object):
             query.setCondition( condition, conditionData)
             query.addToOrderList( 'lft' )
             cursor = query.execute()
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 resultNodeLabel = cursor.currentRow()['nodelabel'].data()
                 result.append( resultNodeLabel )
             transaction.commit()
@@ -366,7 +366,7 @@ class tagTree(object):
             conditionData = coral.AttributeList()
             query.setCondition( condition, conditionData)
             cursor = query.execute()
-            while ( cursor.next() ):
+            while ( next(cursor) ):
                 resultNode=Node.Node()
                 resultNode.tagid=cursor.currentRow()['tagid'].data()
                 resultNode.nodeid=cursor.currentRow()['nodeid'].data()
@@ -404,7 +404,7 @@ class tagTree(object):
                 for columnName in self.__tagTreeTableColumns:
                     query.addToOutputList(columnName)
                 cursor = query.execute()
-                while ( cursor.next() ):
+                while ( next(cursor) ):
                     resultNode=Node.Node()
                     resultNode.tagid=cursor.currentRow()['tagid'].data()
                     resultNode.nodeid=cursor.currentRow()['nodeid'].data()
@@ -437,7 +437,7 @@ class tagTree(object):
                 conditionData['nodelabel'].setData(label)
                 query.setCondition( condition, conditionData)
                 cursor = query.execute()
-                while ( cursor.next() ):
+                while ( next(cursor) ):
                     resultNode=Node.Node()
                     resultNode.tagid=cursor.currentRow()['p1.tagid'].data()
                     resultNode.nodeid=cursor.currentRow()['p1.nodeid'].data()
@@ -474,7 +474,7 @@ class tagTree(object):
                 mycounts.extend('ct', 'unsigned long');
                 query.defineOutput( mycounts );
                 cursor = query.execute();
-                while ( cursor.next() ):
+                while ( next(cursor) ):
                     n= cursor.currentRow()['ct'].data()
                 transaction.commit()
                 del query
