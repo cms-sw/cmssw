@@ -138,5 +138,12 @@ namespace DigitizerUtility {
     float          _sigma_y;   //    "       "          y direction (cm) */
     const PSimHit* _hitp;
   };
+  struct DigiSimInfo {
+    int sig_tot;
+    std::map<unsigned int, float> track_map;
+    unsigned int hit_counter;
+    unsigned int tof_bin; 
+    EncodedEventId event_id;
+  };
 }
 #endif

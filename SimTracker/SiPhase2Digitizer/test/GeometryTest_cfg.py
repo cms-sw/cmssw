@@ -13,7 +13,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 process.source = cms.Source("PoolSource",
     fileNames =  cms.untracked.vstring(
-       'file:SingleElectron.root'
+       'file:/afs/cern.ch/user/d/dutta/work/public/Digitizer/CMSSW_6_2_SLHCDEV_X_2015-07-19-1100/src/10000_FourMuPt1_200/step1.root'
        )
 )
 process.load('Configuration.StandardSequences.Services_cff')
@@ -21,9 +21,10 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
+#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')
+#process.load('Configuration.Geometry.GeometryExtended2017_cff')
 process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
 process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
-process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
 
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
@@ -37,19 +38,29 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
-
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2017', '')
 #-------------
 # Output ROOT file
 #-------------
 process.TFileService = cms.Service("TFileService",
-    fileName = cms.string('./Electron_DigiTest.root')
+    fileName = cms.string('./GeometryTest.root')
 )
-process.analysis = cms.EDAnalyzer("DigiValidation",
-    Verbosity = cms.untracked.bool(False),
-#    src = cms.InputTag("SiPixelDigis"),
-    src = cms.InputTag("simSiPixelDigis"),
-    simG4 = cms.InputTag("g4SimHits")                              
+process.analysis = cms.EDAnalyzer("GeometryTest",
+    hitsProducer = cms.string('g4SimHits'),
+    ROUList = cms.vstring(
+        'TrackerHitsPixelBarrelLowTof',
+        'TrackerHitsPixelEndcapLowTof',
+        'TrackerHitsPixelEndcapHighTof',
+        'TrackerHitsPixelBarrelHighTof',
+        'TrackerHitsTECHighTof',        
+        'TrackerHitsTECLowTof',
+        'TrackerHitsTIBHighTof',
+        'TrackerHitsTIBLowTof',
+        'TrackerHitsTIDHighTof',
+        'TrackerHitsTIDLowTof',
+        'TrackerHitsTOBHighTof',
+        'TrackerHitsTOBLowTof'),
+    GeometryType = cms.string('idealForDigi')
 )
-#process.digi_step = cms.Sequence(process.siPixelRawData*process.siPixelDigis)
 process.p = cms.Path(process.analysis)

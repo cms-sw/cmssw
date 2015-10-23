@@ -22,11 +22,27 @@
 <use   name="DataFormats/Phase2TrackerCluster"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/ParticleFlowReco"/>
-<library   file="DigiValidation.cc" name="SiPhase2DigiTest">
+<library   file="Phase2TrackerValidateDigi.cc" name="Phase2DigiValid">
+  <flags   EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-g3"/>
+</library>
+<library   file="Phase2TrackerMonitorDigi.cc" name="SiPhase2DigiMon">
   <flags   EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-g3"/>
 </library>
 <library   file="ClustersValidation.cc" name="Phase2TrackerClusterizerValidation">
+  <flags   EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-g3"/>
+</library>
+<library   file="SimHitTest.cc" name="SimHitMon">
+  <flags   EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-g3"/>
+</library>
+<library   file="GeometryTest.cc" name="GeometryMon">
+  <flags   EDM_PLUGIN="1"/>
+  <flags CXXFLAGS="-g3"/>
+</library>
+<library   file="TBeamTest.cc" name="TBeamTest">
   <flags   EDM_PLUGIN="1"/>
   <flags CXXFLAGS="-g3"/>
 </library>

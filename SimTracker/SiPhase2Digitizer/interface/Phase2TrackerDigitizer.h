@@ -18,9 +18,7 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
-#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerDetUnit.h"
-#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "SimTracker/SiPhase2Digitizer/interface/Phase2TrackerDigitizerFwd.h"
 
@@ -72,6 +70,8 @@ namespace cms
     void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, 
 			     size_t globalSimHitIndex,
 			     const unsigned int tofBin);   
+    void addPixelCollection(edm::Event& iEvent, const edm::EventSetup& iSetup);
+    void addOuterTrackerCollection(edm::Event& iEvent, const edm::EventSetup& iSetup);
    
     bool first_;
     /** @brief Offset to add to the index of each sim hit to account for which crossing it's in.
@@ -91,8 +91,8 @@ namespace cms
     edm::ESHandle<MagneticField> pSetup_;
     std::map<unsigned int, Phase2TrackerGeomDetUnit*> detectorUnits_;
     CLHEP::HepRandomEngine* rndEngine_;
-    const StackedTrackerGeometry* stkGeom_;
-    std::map<DetId, StackedTrackerDetUnit*> detIdStackDetIdmap_;
+    edm::ESHandle<TrackerTopology> tTopoHand;
+
   };
 }
 #endif

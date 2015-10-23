@@ -23,9 +23,5 @@ class SSDigitizerAlgorithm :public Phase2TrackerDigitizerAlgorithm {
 			 const unsigned int tofBin,
                          const Phase2TrackerGeomDetUnit* pixdet,
                          const GlobalVector& bfield);
-  void digitize(const Phase2TrackerGeomDetUnit* pixdet,
-                std::vector<Phase2TrackerDigi>& digis,
-                std::vector<Phase2TrackerDigiSimLink>& simlinks,
-		const TrackerTopology* tTopo);
 };
 #endif
