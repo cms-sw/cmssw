@@ -27,6 +27,11 @@ class HeavyIonsRun2(Reco):
 
     """
 
+    def _checkMINIAOD(self,**args):
+        if 'outputs' in args:
+            for a in args['outputs']:
+                if a['dataTier'] == 'MINIAOD':
+                    raise RuntimeError("MINIAOD is not supported in HeavyIonsRun2")
 
     def promptReco(self, globalTag, **args):
         """
@@ -35,6 +40,8 @@ class HeavyIonsRun2(Reco):
         Heavy ions collision data taking prompt reco
 
         """
+        self._checkMINIAOD(**args)
+
         if not 'skims' in args:
             args['skims']=['@allForPrompt']
 
@@ -56,6 +63,8 @@ class HeavyIonsRun2(Reco):
         Heavy ions collision data taking express processing
 
         """
+        self._checkMINIAOD(**args)
+
         if not 'skims' in args:
             args['skims']=['@allForExpress']
 
@@ -76,6 +85,8 @@ class HeavyIonsRun2(Reco):
         Heavy ions collision data taking visualization processing
 
         """
+        self._checkMINIAOD(**args)
+
         customsFunction = self.visCustoms
         if not 'customs' in args:
             args['customs']=[ customsFunction ]
@@ -93,7 +104,7 @@ class HeavyIonsRun2(Reco):
         Heavy ions collisions data taking AlCa Harvesting
 
         """
-
+        self._checkMINIAOD(**args)
 
         if not 'skims' in args and not 'alcapromptdataset' in args:
             args['skims']=['BeamSpotByRun',
