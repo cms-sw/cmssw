@@ -37,6 +37,7 @@ class Electron( Lepton ):
         elif id == "POG_MVA_ID_Spring15_NonTrig_VLooseIdIsoEmu":   return self.mvaIDRun2("NonTrigSpring15","VLooseIdIsoEmu")
         elif id == "POG_MVA_ID_Spring15_NonTrig_Tight":    return self.mvaIDRun2("NonTrigSpring15","Tight")
         elif id == "MVA_ID_NonTrig_Phys14Fix_HZZ":     return self.mvaIDRun2("NonTrigPhys14Fix","HZZ")
+        elif id == "MVA_ID_NonTrig_Spring15_HZZ":     return self.mvaIDRun2("NonTrigSpring15","HZZ")
         elif id.startswith("POG_Cuts_ID_"):
                 return self.cutBasedId(id.replace("POG_Cuts_ID_","POG_"))
         for ID in self.electronIDs():
@@ -199,10 +200,17 @@ class Electron( Lepton ):
 
     def mvaRun2( self, name, debug = False ):
         if name not in self._mvaRun2:
-            if name not in ElectronMVAID_ByName: raise RuntimeError("Unknown electron run2 mva id %s (known ones are: %s)\n" % (name, ElectronMVAID_ByName.keys()))
-            if self.associatedVertex == None: raise RuntimeError("You need to set electron.associatedVertex before calling any MVA")
-            if self.rho              == None: raise RuntimeError("You need to set electron.rho before calling any MVA")
+            if name == "NonTrigSpring15MiniAOD" and self.physObj.hasUserFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values"):
+                self._mvaRun2[name] =  self.physObj.userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values")
+                return self._mvaRun2[name]
+            if name not in ElectronMVAID_ByName: raise RuntimeError, "Unknown electron run2 mva id %s (known ones are: %s)\n" % (name, ElectronMVAID_ByName.keys())
+            if self.associatedVertex == None: raise RuntimeError, "You need to set electron.associatedVertex before calling any MVA"
+            if self.rho              == None: raise RuntimeError, "You need to set electron.rho before calling any MVA"
+            # -v---- below is correct in Heppy 74X, but probably not functional anyway
             self._mvaRun2[name] = ElectronMVAID_ByName[name](self.physObj, self.associatedVertex, self.rho, True, debug)
+            # -v---- below would be correct for CMGTools 74X witht the updated Spring15 MVA electron ID
+            #if self.event            == None: raise RuntimeError, "You need to set electron.event before calling any MVA"
+            #self._mvaRun2[name] = ElectronMVAID_ByName[name](self.physObj, self.associatedVertex, self.event, self.rho, True, debug)
         return self._mvaRun2[name]
 
     def mvaIDTight(self, full5x5=False):
@@ -253,7 +261,7 @@ class Electron( Lepton ):
                         if   eta < 0.8  : return self.mvaRun2(name) > -0.652;
                         elif eta < 1.479: return self.mvaRun2(name) > -0.701;
                         else            : return self.mvaRun2(name) > -0.350;
-            elif name == "NonTrigSpring15":
+            elif name in ("NonTrigSpring15","NonTrigSpring15MiniAOD"):
                 if wp=="VLoose":
                     if self.pt() <= 10:
                         if   (eta < 0.8)  : return self.mvaRun2(name) > -0.11;
@@ -275,7 +283,15 @@ class Electron( Lepton ):
                     if   (eta < 0.8)  : return self.mvaRun2(name) > 0.87;
                     elif (eta < 1.479): return self.mvaRun2(name) > 0.60;
                     else              : return self.mvaRun2(name) > 0.17;
-                else: raise RuntimeError, "Ele MVA ID Working point not found"
+                elif wp == "HZZ":
+                    if self.pt() <= 10:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.265;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.556;
+                        else            : return self.mvaRun2(name) > -0.551;
+                    else:
+                        if   eta < 0.8  : return self.mvaRun2(name) > -0.072;
+                        elif eta < 1.479: return self.mvaRun2(name) > -0.286;
+                        else            : return self.mvaRun2(name) > -0.267;
             else: raise RuntimeError, "Ele MVA ID type not found"
 
 
